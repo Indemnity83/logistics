@@ -1,0 +1,35 @@
+{
+	"schemaVersion": 1,
+	"id": "logistics",
+	"version": "${version}",
+	"name": "Logistics",
+	"description": "A modern logistics and pipe mod with authentic in-pipe item motion, mod interoperability, and request/autocrafting systems.",
+	"authors": [
+		"Kyle Klaus (@indemnity83)"
+	],
+	"contact": {
+		"sources": "https://github.com/indemnity83/logistics"
+	},
+	"license": "MIT",
+	"icon": "assets/logistics/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"com.logistics.LogisticsMod"
+		],
+		"client": [
+			"com.logistics.LogisticsModClient"
+		]
+	},
+	"mixins": [
+		"logistics.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.16.0",
+		"minecraft": "~1.21",
+		"java": ">=21",
+		"fabric-api": "*"
+	},
+	"suggests": {
+	}
+}
