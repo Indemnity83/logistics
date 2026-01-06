@@ -1,0 +1,9 @@
+{
+  "block.logistics.cobblestone_pipe": "Cobblestone Transport Pipe",
+  "block.logistics.stone_pipe": "Stone Transport Pipe",
+  "block.logistics.wood_pipe": "Wooden Transport Pipe",
+  "block.logistics.iron_pipe": "Iron Transport Pipe",
+  "block.logistics.gold_pipe": "Golden Transport Pipe",
+  "block.logistics.diamond_pipe": "Diamond Transport Pipe",
+  "itemgroup.logistics.transport": "Logistics: Transport"
+}

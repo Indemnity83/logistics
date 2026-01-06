@@ -1,0 +1,20 @@
+{
+  "parent": "block/block",
+  "textures": {
+    "texture": "logistics:block/pipe",
+    "particle": "logistics:block/pipe"
+  },
+  "elements": [
+    {
+      "from": [4, 16, 4],
+      "to": [12, 21, 12],
+      "faces": {
+        "north": { "texture": "#texture" },
+        "south": { "texture": "#texture" },
+        "east": { "texture": "#texture" },
+        "west": { "texture": "#texture" },
+        "up": { "texture": "#texture" }
+      }
+    }
+  ]
+}

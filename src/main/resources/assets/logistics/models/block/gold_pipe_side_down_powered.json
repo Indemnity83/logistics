@@ -1,0 +1,6 @@
+{
+  "parent": "logistics:block/pipe_side_down",
+  "textures": {
+    "texture": "logistics:block/pipe_gold_powered"
+  }
+}

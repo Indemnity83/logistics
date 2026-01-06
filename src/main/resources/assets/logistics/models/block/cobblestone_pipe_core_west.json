@@ -1,0 +1,6 @@
+{
+  "parent": "logistics:block/pipe_core_west",
+  "textures": {
+    "texture": "logistics:block/pipe_cobblestone"
+  }
+}

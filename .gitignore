@@ -34,3 +34,4 @@ Thumbs.db
 *.log
 *.swp
 *.bak
+scripts/venv/

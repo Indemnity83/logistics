@@ -1,5 +1,8 @@
 package com.logistics;
 
+import com.logistics.block.LogisticsBlocks;
+import com.logistics.block.entity.LogisticsBlockEntities;
+import com.logistics.item.LogisticsItemGroups;
 import net.fabricmc.api.ModInitializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,6 +15,8 @@ public class LogisticsMod implements ModInitializer {
 	public void onInitialize() {
 		LOGGER.info("Initializing Logistics mod");
 
-		// Register blocks, items, block entities, etc. here
+		LogisticsBlocks.initialize();
+		LogisticsBlockEntities.initialize();
+		LogisticsItemGroups.initialize();
 	}
 }

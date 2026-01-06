@@ -1,0 +1,87 @@
+{
+  "multipart": [
+    {
+      "apply": {
+        "model": "logistics:block/stone_pipe_core"
+      }
+    },
+    {
+      "when": {"north": "true", "north_inventory": "false"},
+      "apply": {
+        "model": "logistics:block/stone_pipe_side"
+      }
+    },
+    {
+      "when": {"north": "true", "north_inventory": "true"},
+      "apply": {
+        "model": "logistics:block/stone_pipe_side_extended"
+      }
+    },
+    {
+      "when": {"south": "true", "south_inventory": "false"},
+      "apply": {
+        "model": "logistics:block/stone_pipe_side",
+        "y": 180
+      }
+    },
+    {
+      "when": {"south": "true", "south_inventory": "true"},
+      "apply": {
+        "model": "logistics:block/stone_pipe_side_extended",
+        "y": 180
+      }
+    },
+    {
+      "when": {"east": "true", "east_inventory": "false"},
+      "apply": {
+        "model": "logistics:block/stone_pipe_side",
+        "y": 90
+      }
+    },
+    {
+      "when": {"east": "true", "east_inventory": "true"},
+      "apply": {
+        "model": "logistics:block/stone_pipe_side_extended",
+        "y": 90
+      }
+    },
+    {
+      "when": {"west": "true", "west_inventory": "false"},
+      "apply": {
+        "model": "logistics:block/stone_pipe_side",
+        "y": 270
+      }
+    },
+    {
+      "when": {"west": "true", "west_inventory": "true"},
+      "apply": {
+        "model": "logistics:block/stone_pipe_side_extended",
+        "y": 270
+      }
+    },
+    {
+      "when": {"up": "true", "up_inventory": "false"},
+      "apply": {
+        "model": "logistics:block/stone_pipe_side_up"
+      }
+    },
+    {
+      "when": {"up": "true", "up_inventory": "true"},
+      "apply": {
+        "model": "logistics:block/stone_pipe_side_up_extended"
+      }
+    },
+    {
+      "when": {"down": "true", "down_inventory": "false"},
+      "apply": {
+        "model": "logistics:block/stone_pipe_side_down"
+      }
+    },
+    {
+      "when": {"down": "true", "down_inventory": "true"},
+      "apply": {
+        "model": "logistics:block/stone_pipe_side_down_extended"
+      }
+    }
+  ]
+}

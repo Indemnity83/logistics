@@ -1,0 +1,6 @@
+{
+  "parent": "logistics:block/pipe_core_up",
+  "textures": {
+    "texture": "logistics:block/pipe_gold_powered"
+  }
+}
