@@ -112,7 +112,8 @@ public class WoodenPipeBlock extends PipeBlock {
                     ItemStack stack = variant.toStack((int) extracted);
                     TravelingItem item = new TravelingItem(stack, direction.getOpposite(), WOODEN_PIPE_SPEED);
 
-                    blockEntity.addItem(item);
+                    // Add item from the direction of the inventory
+                    blockEntity.addItem(item, direction);
                     transaction.commit();
                     return true;
                 }

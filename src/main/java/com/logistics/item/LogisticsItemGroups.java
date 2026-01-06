@@ -18,6 +18,7 @@ public class LogisticsItemGroups {
             .displayName(Text.translatable("itemgroup.logistics.transport"))
             .icon(() -> new ItemStack(LogisticsBlocks.STONE_PIPE))
             .entries((displayContext, entries) -> {
+                entries.add(LogisticsItems.WRENCH);
                 entries.add(LogisticsBlocks.COBBLESTONE_PIPE);
                 entries.add(LogisticsBlocks.STONE_PIPE);
                 entries.add(LogisticsBlocks.WOOD_PIPE);

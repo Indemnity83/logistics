@@ -6,79 +6,157 @@
       }
     },
     {
-      "when": {"north": "true", "north_inventory": "false"},
+      "when": {"north": "true", "north_inventory": "false", "facing": "north"},
+      "apply": {
+        "model": "logistics:block/iron_pipe_side_opaque"
+      }
+    },
+    {
+      "when": {"north": "true", "north_inventory": "true", "facing": "north"},
+      "apply": {
+        "model": "logistics:block/iron_pipe_side_opaque_extended"
+      }
+    },
+    {
+      "when": {"north": "true", "north_inventory": "false", "facing": "!north"},
       "apply": {
         "model": "logistics:block/iron_pipe_side"
       }
     },
     {
-      "when": {"north": "true", "north_inventory": "true"},
+      "when": {"north": "true", "north_inventory": "true", "facing": "!north"},
       "apply": {
         "model": "logistics:block/iron_pipe_side_extended"
       }
     },
     {
-      "when": {"south": "true", "south_inventory": "false"},
+      "when": {"south": "true", "south_inventory": "false", "facing": "south"},
+      "apply": {
+        "model": "logistics:block/iron_pipe_side_opaque",
+        "y": 180
+      }
+    },
+    {
+      "when": {"south": "true", "south_inventory": "true", "facing": "south"},
+      "apply": {
+        "model": "logistics:block/iron_pipe_side_opaque_extended",
+        "y": 180
+      }
+    },
+    {
+      "when": {"south": "true", "south_inventory": "false", "facing": "!south"},
       "apply": {
         "model": "logistics:block/iron_pipe_side",
         "y": 180
       }
     },
     {
-      "when": {"south": "true", "south_inventory": "true"},
+      "when": {"south": "true", "south_inventory": "true", "facing": "!south"},
       "apply": {
         "model": "logistics:block/iron_pipe_side_extended",
         "y": 180
       }
     },
     {
-      "when": {"east": "true", "east_inventory": "false"},
+      "when": {"east": "true", "east_inventory": "false", "facing": "east"},
+      "apply": {
+        "model": "logistics:block/iron_pipe_side_opaque",
+        "y": 90
+      }
+    },
+    {
+      "when": {"east": "true", "east_inventory": "true", "facing": "east"},
+      "apply": {
+        "model": "logistics:block/iron_pipe_side_opaque_extended",
+        "y": 90
+      }
+    },
+    {
+      "when": {"east": "true", "east_inventory": "false", "facing": "!east"},
       "apply": {
         "model": "logistics:block/iron_pipe_side",
         "y": 90
       }
     },
     {
-      "when": {"east": "true", "east_inventory": "true"},
+      "when": {"east": "true", "east_inventory": "true", "facing": "!east"},
       "apply": {
         "model": "logistics:block/iron_pipe_side_extended",
         "y": 90
       }
     },
     {
-      "when": {"west": "true", "west_inventory": "false"},
+      "when": {"west": "true", "west_inventory": "false", "facing": "west"},
+      "apply": {
+        "model": "logistics:block/iron_pipe_side_opaque",
+        "y": 270
+      }
+    },
+    {
+      "when": {"west": "true", "west_inventory": "true", "facing": "west"},
+      "apply": {
+        "model": "logistics:block/iron_pipe_side_opaque_extended",
+        "y": 270
+      }
+    },
+    {
+      "when": {"west": "true", "west_inventory": "false", "facing": "!west"},
       "apply": {
         "model": "logistics:block/iron_pipe_side",
         "y": 270
       }
     },
     {
-      "when": {"west": "true", "west_inventory": "true"},
+      "when": {"west": "true", "west_inventory": "true", "facing": "!west"},
       "apply": {
         "model": "logistics:block/iron_pipe_side_extended",
         "y": 270
       }
     },
     {
-      "when": {"up": "true", "up_inventory": "false"},
+      "when": {"up": "true", "up_inventory": "false", "facing": "up"},
+      "apply": {
+        "model": "logistics:block/iron_pipe_side_up_opaque"
+      }
+    },
+    {
+      "when": {"up": "true", "up_inventory": "true", "facing": "up"},
+      "apply": {
+        "model": "logistics:block/iron_pipe_side_up_opaque_extended"
+      }
+    },
+    {
+      "when": {"up": "true", "up_inventory": "false", "facing": "!up"},
       "apply": {
         "model": "logistics:block/iron_pipe_side_up"
       }
     },
     {
-      "when": {"up": "true", "up_inventory": "true"},
+      "when": {"up": "true", "up_inventory": "true", "facing": "!up"},
       "apply": {
         "model": "logistics:block/iron_pipe_side_up_extended"
       }
     },
     {
-      "when": {"down": "true", "down_inventory": "false"},
+      "when": {"down": "true", "down_inventory": "false", "facing": "down"},
+      "apply": {
+        "model": "logistics:block/iron_pipe_side_down_opaque"
+      }
+    },
+    {
+      "when": {"down": "true", "down_inventory": "true", "facing": "down"},
+      "apply": {
+        "model": "logistics:block/iron_pipe_side_down_opaque_extended"
+      }
+    },
+    {
+      "when": {"down": "true", "down_inventory": "false", "facing": "!down"},
       "apply": {
         "model": "logistics:block/iron_pipe_side_down"
       }
     },
     {
-      "when": {"down": "true", "down_inventory": "true"},
+      "when": {"down": "true", "down_inventory": "true", "facing": "!down"},
       "apply": {
         "model": "logistics:block/iron_pipe_side_down_extended"
       }

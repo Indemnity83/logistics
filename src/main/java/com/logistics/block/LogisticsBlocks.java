@@ -41,7 +41,7 @@ public class LogisticsBlocks {
     );
 
     public static final Block IRON_PIPE = registerBlock("iron_pipe",
-        new PipeBlock(AbstractBlock.Settings.create()
+        new IronPipeBlock(AbstractBlock.Settings.create()
             .mapColor(MapColor.IRON_GRAY)
             .strength(3.0f, 6.0f)
             .sounds(BlockSoundGroup.METAL)

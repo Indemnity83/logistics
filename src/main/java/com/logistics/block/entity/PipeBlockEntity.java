@@ -1,6 +1,7 @@
 package com.logistics.block.entity;
 
 import com.logistics.LogisticsMod;
+import com.logistics.block.IronPipeBlock;
 import com.logistics.block.PipeBlock;
 import com.logistics.item.TravelingItem;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
@@ -34,14 +35,44 @@ public class PipeBlockEntity extends BlockEntity {
 
     /**
      * Add an item to this pipe
+     * @param item The item to add
+     * @param fromDirection The direction the item is coming from
+     * @return true if accepted, false if rejected
      */
-    public void addItem(TravelingItem item) {
+    public boolean addItem(TravelingItem item, Direction fromDirection) {
+        BlockState state = getCachedState();
+
+        // Check if the source is another pipe (for rejection logic)
+        BlockPos sourcePos = pos.offset(fromDirection);
+        BlockState sourceState = world.getBlockState(sourcePos);
+        boolean isFromPipe = sourceState.getBlock() instanceof PipeBlock;
+
+        // Apply rejection logic based on pipe type
+        if (state.getBlock() instanceof PipeBlock pipeBlock) {
+            // Wooden pipes only reject items from other pipes (not from inventories)
+            if (isFromPipe && !pipeBlock.canAcceptFromPipe(world, pos, state, fromDirection)) {
+                dropItem(world, pos, item);
+                return false;
+            }
+
+            // Check for iron pipe backflow prevention (from any source)
+            if (pipeBlock instanceof IronPipeBlock ironPipe) {
+                if (!ironPipe.canAcceptFromDirection(state, fromDirection)) {
+                    // Item tried to enter from output direction - reject
+                    dropItem(world, pos, item);
+                    return false;
+                }
+            }
+        }
+
+        // Accept the item
         travelingItems.add(item);
         markDirty();
         // Sync to clients
         if (world != null && !world.isClient) {
             world.updateListeners(pos, getCachedState(), getCachedState(), 3);
         }
+        return true;
     }
 
     /**
@@ -173,16 +204,18 @@ public class PipeBlockEntity extends BlockEntity {
         BlockState targetState = world.getBlockState(targetPos);
 
         // Try to pass to next pipe
-        if (targetState.getBlock() instanceof PipeBlock pipeBlock) {
-            // Check if the target pipe accepts items from other pipes
-            if (pipeBlock.canAcceptFromPipe(world, targetPos, targetState, direction)) {
-                BlockEntity targetEntity = world.getBlockEntity(targetPos);
-                if (targetEntity instanceof PipeBlockEntity targetPipe) {
+        if (targetState.getBlock() instanceof PipeBlock) {
+            BlockEntity targetEntity = world.getBlockEntity(targetPos);
+            if (targetEntity instanceof PipeBlockEntity targetPipe) {
+                // Let the target pipe decide if it accepts the item
+                // Pass the direction the item is coming FROM (opposite of travel direction)
+                // If rejected, the target pipe will drop it immediately
+                boolean accepted = targetPipe.addItem(item, direction.getOpposite());
+                if (accepted) {
                     // Reset item progress (speed will gradually adjust to new pipe's speed)
                     item.setDirection(direction);  // This resets progress to 0.0
-                    targetPipe.addItem(item);
-                    return;
                 }
+                return;
             }
         }
 
@@ -217,10 +250,25 @@ public class PipeBlockEntity extends BlockEntity {
      * Never routes back the way it came.
      */
     private Direction chooseDirection(net.minecraft.world.World world, BlockPos pos, BlockState state, Direction currentDirection) {
+        // Special handling for iron pipes - always route to output direction
+        if (state.getBlock() instanceof IronPipeBlock ironPipe) {
+            Direction outputDirection = ironPipe.getOutputDirection(state);
+            // Check if output direction is valid (connected and not the direction we came from)
+            if (outputDirection != currentDirection.getOpposite()) {
+                BooleanProperty property = getPropertyForDirection(outputDirection);
+                if (property != null && state.get(property)) {
+                    return outputDirection;
+                }
+            }
+            // If output direction is invalid, return null to drop the item
+            return null;
+        }
+
         List<Direction> validDirections = new ArrayList<>();
         Direction oppositeDirection = currentDirection.getOpposite();
 
         // Check all connected directions (from the pipe's blockstate)
+        // Dumb routing: if there's a connection, it's a valid direction
         for (Direction direction : Direction.values()) {
             // Don't go back the way we came
             if (direction == oppositeDirection) {
@@ -230,24 +278,7 @@ public class PipeBlockEntity extends BlockEntity {
             // Check if this direction is connected on the pipe
             BooleanProperty property = getPropertyForDirection(direction);
             if (property != null && state.get(property)) {
-                // Check if there's a valid destination (pipe or inventory)
-                BlockPos targetPos = pos.offset(direction);
-                BlockState targetState = world.getBlockState(targetPos);
-
-                // Valid if it's another pipe that accepts items from pipes
-                if (targetState.getBlock() instanceof PipeBlock pipeBlock) {
-                    // Check if the target pipe accepts items from other pipes (excludes wooden pipes)
-                    if (pipeBlock.canAcceptFromPipe(world, targetPos, targetState, direction)) {
-                        validDirections.add(direction);
-                    }
-                    continue;
-                }
-
-                // Valid if it's an inventory that can accept items
-                Storage<ItemVariant> storage = ItemStorage.SIDED.find(world, targetPos, direction.getOpposite());
-                if (storage != null) {
-                    validDirections.add(direction);
-                }
+                validDirections.add(direction);
             }
         }
 
