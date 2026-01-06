@@ -3,6 +3,7 @@ package com.logistics.block.entity;
 import com.logistics.block.IronPipeBlock;
 import com.logistics.block.PipeBlock;
 import com.logistics.block.WoodenPipeBlock;
+import com.logistics.block.VoidPipeBlock;
 import com.logistics.item.TravelingItem;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
@@ -137,6 +138,7 @@ public class PipeBlockEntity extends BlockEntity {
         // Tick all traveling items (both client and server for smooth rendering)
         List<TravelingItem> itemsToRoute = new ArrayList<>();
         List<TravelingItem> itemsToRemove = new ArrayList<>();
+        List<TravelingItem> itemsToDiscard = new ArrayList<>();
         boolean needsSync = false;
 
         for (TravelingItem item : blockEntity.travelingItems) {
@@ -145,6 +147,14 @@ public class PipeBlockEntity extends BlockEntity {
             if (item.tick(targetSpeed, accelerationRate, canAccelerate)) {
                 // Item reached the end of this pipe segment
                 itemsToRoute.add(item);
+            }
+
+            // Void pipes discard items at the pipe center.
+            if (state.getBlock() instanceof VoidPipeBlock) {
+                if (item.getProgress() >= 0.5f) {
+                    itemsToDiscard.add(item);
+                    continue;
+                }
             }
 
             // Determine exit direction when item reaches pipe center (both client and server)
@@ -175,9 +185,11 @@ public class PipeBlockEntity extends BlockEntity {
         if (world.isClient) {
             // Client: only remove items that have exceeded the buffer
             blockEntity.travelingItems.removeAll(itemsToRemove);
+            blockEntity.travelingItems.removeAll(itemsToDiscard);
         } else {
             // Server: remove items that reached the end (for routing)
             blockEntity.travelingItems.removeAll(itemsToRoute);
+            blockEntity.travelingItems.removeAll(itemsToDiscard);
         }
 
         // Sync direction changes to clients
@@ -187,7 +199,7 @@ public class PipeBlockEntity extends BlockEntity {
         }
 
         // Only handle routing on server side
-        if (!world.isClient && !itemsToRoute.isEmpty()) {
+        if (!world.isClient && (!itemsToRoute.isEmpty() || !itemsToDiscard.isEmpty())) {
             for (TravelingItem item : itemsToRoute) {
                 blockEntity.routeItem(world, pos, state, item);
             }

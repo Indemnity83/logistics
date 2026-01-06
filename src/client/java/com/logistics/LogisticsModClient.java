@@ -20,6 +20,7 @@ public class LogisticsModClient implements ClientModInitializer {
 		BlockRenderLayerMap.INSTANCE.putBlock(LogisticsBlocks.IRON_PIPE, RenderLayer.getCutout());
 		BlockRenderLayerMap.INSTANCE.putBlock(LogisticsBlocks.GOLD_PIPE, RenderLayer.getCutout());
 		BlockRenderLayerMap.INSTANCE.putBlock(LogisticsBlocks.DIAMOND_PIPE, RenderLayer.getCutout());
+		BlockRenderLayerMap.INSTANCE.putBlock(LogisticsBlocks.VOID_PIPE, RenderLayer.getCutout());
 
 		// Register block entity renderer for traveling items
 		BlockEntityRendererFactories.register(LogisticsBlockEntities.PIPE_BLOCK_ENTITY, PipeBlockEntityRenderer::new);

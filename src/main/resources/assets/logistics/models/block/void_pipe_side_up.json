@@ -1,0 +1,7 @@
+{
+  "parent": "logistics:block/pipe_side_up",
+  "textures": {
+    "texture": "logistics:block/pipe_void",
+    "particle": "logistics:block/pipe_void"
+  }
+}

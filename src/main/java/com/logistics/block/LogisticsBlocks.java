@@ -67,6 +67,15 @@ public class LogisticsBlocks {
         )
     );
 
+    public static final Block VOID_PIPE = registerBlock("void_pipe",
+        new VoidPipeBlock(AbstractBlock.Settings.create()
+            .mapColor(MapColor.BLACK)
+            .strength(50.0f, 1200.0f)
+            .sounds(BlockSoundGroup.STONE)
+            .nonOpaque()
+        )
+    );
+
     private static Block registerBlock(String name, Block block) {
         registerBlockItem(name, block);
         return Registry.register(Registries.BLOCK, Identifier.of(LogisticsMod.MOD_ID, name), block);

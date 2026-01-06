@@ -108,15 +108,15 @@ def is_clear_channel(x, y):
     return (x == mid_lo or x == mid_hi or y == mid_lo or y == mid_hi)
 
 def is_center_clear(x: int, y: int) -> bool:
-    """Clear hub area where pipes visually connect.
+    """Hub area where pipes visually connect.
 
-    Use a 4x4 square in the middle of the pipe so the connection point is
-    obvious even with translucent arm details.
+    Use a 6x6 square in the middle of the pipe so the connector region reads as
+    a solid block in the transparent variants.
     """
     mid_lo = (CROSS_MIN + CROSS_MAX) // 2  # 7
     mid_hi = mid_lo + 1                   # 8
-    center_min = mid_lo - 1               # 6
-    center_max = mid_hi + 1               # 9
+    center_min = mid_lo - 2               # 5
+    center_max = mid_hi + 2               # 10
     return center_min <= x <= center_max and center_min <= y <= center_max
 
 
@@ -147,11 +147,12 @@ def make_transparent_variant(
     # New structured mask controls
     pattern_style: str = "inset_lines",  # "inset_lines" or "diagonal"
     pattern_alpha: int = 96,              # alpha applied to arm pattern pixels
+    clear_center_hub: bool = True,
 ):
     """Create a transparent version of a pipe texture with a structured mask.
 
     Goals:
-    - The center hub (4x4) is fully empty so connection points are obvious.
+    - The center hub is empty by default so connection points are obvious (can be kept solid for special variants).
     - Each arm has a deterministic pattern that lines up across materials.
     - Avoid random/noise-based removal that can look "messy" at 16x16.
 
@@ -271,9 +272,13 @@ def make_transparent_variant(
                 if not is_in_cross(x, y) or is_border(x, y):
                     continue
 
-                # Fully clear hub for obvious connectivity
-                if is_center_clear(x, y):
+                # Clear hub by default for obvious connectivity (some variants keep it solid)
+                if clear_center_hub and is_center_clear(x, y):
                     pixels[x, y] = (0, 0, 0, 0)
+                    continue
+
+                # If the hub should be solid, preserve its original pixel (leave as-is)
+                if (not clear_center_hub) and is_center_clear(x, y):
                     continue
 
                 # Arm pattern pixels: keep color but apply a consistent translucent alpha
@@ -507,6 +512,47 @@ def generate_diamond_pipe():
 
     return img
 
+
+# --- Void (Obsidian-like) Pipe ---
+def generate_void_pipe():
+    """Generate void (obsidian-like) pipe texture.
+
+    Visual goals:
+    - Reads like obsidian (very dark purple with subtle speckle)
+    - Border slightly brighter for definition
+    """
+    img = create_base_texture()
+    pixels = img.load()
+
+    seed_base = f"{TEXTURE_SEED}:void:base"
+    seed_border = f"{TEXTURE_SEED}:void:border"
+
+    # Obsidian-ish palette (dark purple/near-black). Keep luma-only noise small.
+    interior_palette = [
+        (14, 8, 24, 255),
+        (18, 10, 30, 255),
+        (22, 12, 36, 255),
+        (26, 14, 42, 255),
+    ]
+    border_palette = [
+        (30, 16, 52, 255),
+        (34, 18, 58, 255),
+        (38, 20, 64, 255),
+    ]
+
+    for y in range(SIZE):
+        for x in range(SIZE):
+            if is_in_cross(x, y):
+                if x == CROSS_MIN or x == CROSS_MAX or y == CROSS_MIN or y == CROSS_MAX:
+                    c = pick_from_palette(border_palette, seed_border, x, y)
+                    pixels[x, y] = add_noise(c, seed_border + ":n", x, y, variance=2)
+                else:
+                    c = pick_from_palette(interior_palette, seed_base, x, y)
+                    # Slightly more variation in the interior for obsidian speckle
+                    pixels[x, y] = add_noise(c, seed_base + ":n", x, y, variance=4)
+
+    return img
+
 def main():
     """Generate all pipe textures (both opaque and transparent variants)"""
     # Ensure output directory exists
@@ -520,6 +566,7 @@ def main():
         'iron': generate_iron_pipe,
         'gold': generate_gold_pipe,
         'diamond': generate_diamond_pipe,
+        'void': generate_void_pipe,
     }
 
     # Per-material arm pattern visibility. Higher alpha => harder to see into the pipe.
@@ -530,6 +577,7 @@ def main():
         'iron': {'pattern_alpha': 105},
         'gold': {'pattern_alpha': 105},
         'diamond': {'pattern_alpha': 90},
+        'void': {'pattern_alpha': 170},
     }
 
     # Generate transparent versions (default)
@@ -544,6 +592,7 @@ def main():
             generator,
             pattern_style="x",
             pattern_alpha=cfg['pattern_alpha'],
+            clear_center_hub=name != 'void',
         )
         img = transparent_gen()
         img.save(output_path, 'PNG')
@@ -559,6 +608,7 @@ def main():
         generate_gold_pipe_powered,
         pattern_style="x",
         pattern_alpha=cfg['pattern_alpha'],
+        clear_center_hub=True,
     )
     img = transparent_gen()
     img.save(output_path, 'PNG')
