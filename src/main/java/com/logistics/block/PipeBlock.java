@@ -311,6 +311,19 @@ public class PipeBlock extends BlockWithEntity implements Waterloggable {
     }
 
     /**
+     * Whether this pipe can accept items inserted from non-pipe blocks.
+     * Base pipes are closed to external insertion; ingress pipes override this.
+     * @param world The world
+     * @param pos The pipe's position
+     * @param state The pipe's block state
+     * @param fromDirection The direction the item is coming from
+     * @return true if this pipe accepts items from non-pipe sources
+     */
+    public boolean canAcceptFromInventory(World world, BlockPos pos, BlockState state, Direction fromDirection) {
+        return false;
+    }
+
+    /**
      * Update inventory connection properties based on adjacent blocks
      */
     protected BlockState updateInventoryConnections(World world, BlockPos pos, BlockState state) {
@@ -330,6 +343,10 @@ public class PipeBlock extends BlockWithEntity implements Waterloggable {
             }
         }
         return state;
+    }
+
+    public BlockState refreshInventoryConnections(World world, BlockPos pos, BlockState state) {
+        return updateInventoryConnections(world, pos, state);
     }
 
     /**

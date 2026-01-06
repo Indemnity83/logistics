@@ -1,20 +1,7 @@
 {
-  "parent": "block/block",
+  "parent": "logistics:block/pipe_side_extended",
   "textures": {
     "texture": "logistics:block/pipe_iron",
     "particle": "logistics:block/pipe_iron"
-  },
-  "elements": [
-    {
-      "from": [4, 4, -1],
-      "to": [12, 12, 4],
-      "faces": {
-        "north": { "uv": [4, 4, 12, 12], "texture": "#texture" },
-        "east": { "uv": [0, 4, 5, 12], "texture": "#texture" },
-        "west": { "uv": [0, 4, 5, 12], "texture": "#texture" },
-        "up": { "uv": [4, 0, 12, 5], "texture": "#texture" },
-        "down": { "uv": [4, 0, 12, 5], "texture": "#texture" }
-      }
-    }
-  ]
+  }
 }

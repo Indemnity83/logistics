@@ -1,8 +1,8 @@
 {
   "parent": "block/block",
   "textures": {
-    "texture": "logistics:block/pipe_wood_opaque",
-    "particle": "logistics:block/pipe_wood_opaque"
+    "texture": "logistics:block/pipe_wood",
+    "particle": "logistics:block/pipe_wood"
   },
   "elements": [
     {

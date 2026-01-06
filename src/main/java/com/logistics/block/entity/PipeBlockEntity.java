@@ -1,8 +1,8 @@
 package com.logistics.block.entity;
 
-import com.logistics.LogisticsMod;
 import com.logistics.block.IronPipeBlock;
 import com.logistics.block.PipeBlock;
+import com.logistics.block.WoodenPipeBlock;
 import com.logistics.item.TravelingItem;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
@@ -11,6 +11,7 @@ import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.ItemEntity;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.network.listener.ClientPlayPacketListener;
@@ -27,7 +28,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PipeBlockEntity extends BlockEntity {
+    public static final int VIRTUAL_CAPACITY = 5 * 64;
     private final List<TravelingItem> travelingItems = new ArrayList<>();
+    @Nullable
+    private Direction activeInputFace;
 
     public PipeBlockEntity(BlockPos pos, BlockState state) {
         super(LogisticsBlockEntities.PIPE_BLOCK_ENTITY, pos, state);
@@ -40,38 +44,28 @@ public class PipeBlockEntity extends BlockEntity {
      * @return true if accepted, false if rejected
      */
     public boolean addItem(TravelingItem item, Direction fromDirection) {
-        BlockState state = getCachedState();
-
-        // Check if the source is another pipe (for rejection logic)
-        BlockPos sourcePos = pos.offset(fromDirection);
-        BlockState sourceState = world.getBlockState(sourcePos);
-        boolean isFromPipe = sourceState.getBlock() instanceof PipeBlock;
-
-        // Apply rejection logic based on pipe type
-        if (state.getBlock() instanceof PipeBlock pipeBlock) {
-            // Wooden pipes only reject items from other pipes (not from inventories)
-            if (isFromPipe && !pipeBlock.canAcceptFromPipe(world, pos, state, fromDirection)) {
-                dropItem(world, pos, item);
-                return false;
-            }
-
-            // Check for iron pipe backflow prevention (from any source)
-            if (pipeBlock instanceof IronPipeBlock ironPipe) {
-                if (!ironPipe.canAcceptFromDirection(state, fromDirection)) {
-                    // Item tried to enter from output direction - reject
-                    dropItem(world, pos, item);
-                    return false;
-                }
-            }
+        long accepted = getInsertableAmount(item.getStack().getCount(), fromDirection);
+        if (accepted <= 0) {
+            dropItem(world, pos, item);
+            return false;
         }
 
-        // Accept the item
-        travelingItems.add(item);
-        markDirty();
-        // Sync to clients
-        if (world != null && !world.isClient) {
-            world.updateListeners(pos, getCachedState(), getCachedState(), 3);
+        TravelingItem remainder = null;
+        if (accepted < item.getStack().getCount()) {
+            ItemStack remainderStack = item.getStack().copy();
+            remainderStack.setCount(item.getStack().getCount() - (int) accepted);
+            remainder = new TravelingItem(remainderStack, fromDirection.getOpposite(), item.getSpeed());
         }
+
+        ItemStack acceptedStack = item.getStack().copy();
+        acceptedStack.setCount((int) accepted);
+        acceptInsertedStack(acceptedStack, fromDirection, item.getSpeed());
+
+        if (remainder != null) {
+            dropItem(world, pos, remainder);
+            return false;
+        }
+
         return true;
     }
 
@@ -92,6 +86,10 @@ public class PipeBlockEntity extends BlockEntity {
             itemsList.add(item.writeNbt(new NbtCompound(), registryLookup));
         }
         nbt.put("TravelingItems", itemsList);
+
+        if (activeInputFace != null) {
+            nbt.putInt("ActiveInputFace", activeInputFace.getId());
+        }
     }
 
     @Override
@@ -103,6 +101,13 @@ public class PipeBlockEntity extends BlockEntity {
         NbtList itemsList = nbt.getList("TravelingItems", 10); // 10 = compound type
         for (int i = 0; i < itemsList.size(); i++) {
             travelingItems.add(TravelingItem.fromNbt(itemsList.getCompound(i), registryLookup));
+        }
+
+        if (nbt.contains("ActiveInputFace", 99)) {
+            int faceId = nbt.getInt("ActiveInputFace");
+            activeInputFace = faceId >= 0 ? Direction.byId(faceId) : null;
+        } else {
+            activeInputFace = null;
         }
     }
 
@@ -201,30 +206,17 @@ public class PipeBlockEntity extends BlockEntity {
         // Use the item's current direction (already set at 0.5 progress)
         Direction direction = item.getDirection();
         BlockPos targetPos = pos.offset(direction);
-        BlockState targetState = world.getBlockState(targetPos);
 
-        // Try to pass to next pipe
-        if (targetState.getBlock() instanceof PipeBlock) {
-            BlockEntity targetEntity = world.getBlockEntity(targetPos);
-            if (targetEntity instanceof PipeBlockEntity targetPipe) {
-                // Let the target pipe decide if it accepts the item
-                // Pass the direction the item is coming FROM (opposite of travel direction)
-                // If rejected, the target pipe will drop it immediately
-                boolean accepted = targetPipe.addItem(item, direction.getOpposite());
-                if (accepted) {
-                    // Reset item progress (speed will gradually adjust to new pipe's speed)
-                    item.setDirection(direction);  // This resets progress to 0.0
-                }
-                return;
-            }
-        }
-
-        // Try to insert into inventory
         Storage<ItemVariant> storage = ItemStorage.SIDED.find(world, targetPos, direction.getOpposite());
         if (storage != null) {
             try (Transaction transaction = Transaction.openOuter()) {
-                ItemVariant variant = ItemVariant.of(item.getStack());
-                long inserted = storage.insert(variant, item.getStack().getCount(), transaction);
+                long inserted;
+                if (storage instanceof PipeItemStorage pipeStorage) {
+                    inserted = pipeStorage.insertTravelingItem(item, transaction);
+                } else {
+                    ItemVariant variant = ItemVariant.of(item.getStack());
+                    inserted = storage.insert(variant, item.getStack().getCount(), transaction);
+                }
 
                 if (inserted > 0) {
                     transaction.commit();
@@ -352,9 +344,154 @@ public class PipeBlockEntity extends BlockEntity {
         return hash;
     }
 
-    // TODO: Implement ItemStorage for pipes
-    // - Pipes should REJECT inserts from hoppers (prevent free automation, preserve extraction energy cost)
-    // - Pipes should ALLOW inserts from other pipes (normal pipe network behavior)
-    // - Pipes should ALLOW extraction into hoppers/inventories
-    // - Use Fabric Transfer API (ItemStorage.SIDED) to control this behavior
+    @Nullable
+    public Storage<ItemVariant> getItemStorage(@Nullable Direction side) {
+        if (side == null || world == null) {
+            return null;
+        }
+
+        BlockState state = getCachedState();
+        if (!(state.getBlock() instanceof PipeBlock pipeBlock)) {
+            return null;
+        }
+
+        BlockPos neighborPos = pos.offset(side);
+        BlockState neighborState = world.getBlockState(neighborPos);
+        boolean neighborIsPipe = neighborState.getBlock() instanceof PipeBlock;
+
+        if (neighborIsPipe) {
+            return new PipeItemStorage(this, side);
+        }
+
+        if (pipeBlock.canAcceptFromInventory(world, pos, state, side)) {
+            return new PipeItemStorage(this, side);
+        }
+
+        return null;
+    }
+
+    long getInsertableAmount(long maxAmount, Direction fromDirection) {
+        if (maxAmount <= 0) {
+            return 0;
+        }
+
+        boolean fromPipe = isNeighborPipe(fromDirection);
+        if (!canAcceptFrom(fromDirection, fromPipe)) {
+            return 0;
+        }
+
+        int remaining = getRemainingCapacity();
+        if (remaining <= 0) {
+            return 0;
+        }
+
+        return Math.min(maxAmount, remaining);
+    }
+
+    void acceptInsertedStack(ItemStack stack, Direction fromDirection, @Nullable Float speedOverride) {
+        if (stack.isEmpty()) {
+            return;
+        }
+
+        float speed = speedOverride != null ? speedOverride : getInitialSpeed();
+        TravelingItem newItem = new TravelingItem(stack, fromDirection.getOpposite(), speed);
+        travelingItems.add(newItem);
+        markDirty();
+
+        if (world != null && !world.isClient) {
+            world.updateListeners(pos, getCachedState(), getCachedState(), 3);
+        }
+    }
+
+    @Nullable
+    public Direction getActiveInputFace() {
+        return activeInputFace;
+    }
+
+    public void setActiveInputFace(@Nullable Direction direction) {
+        boolean changed = activeInputFace != direction;
+        activeInputFace = direction;
+        if (changed) {
+            markDirty();
+        }
+
+        if (world != null && !world.isClient) {
+            BlockState state = getCachedState();
+            if (state.getBlock() instanceof PipeBlock pipeBlock) {
+                BlockState updated = pipeBlock.refreshInventoryConnections(world, pos, state);
+                if (pipeBlock instanceof WoodenPipeBlock) {
+                    updated = updated.with(WoodenPipeBlock.ACTIVE_FACE, WoodenPipeBlock.toActiveFace(activeInputFace));
+                }
+                if (updated != state) {
+                    world.setBlockState(pos, updated, 3);
+                } else if (changed) {
+                    world.updateListeners(pos, state, state, 3);
+                }
+            } else if (changed) {
+                world.updateListeners(pos, getCachedState(), getCachedState(), 3);
+            }
+        }
+    }
+
+    private float getInitialSpeed() {
+        if (world == null) {
+            return PipeBlock.BASE_PIPE_SPEED;
+        }
+
+        BlockState state = getCachedState();
+        if (state.getBlock() instanceof PipeBlock pipeBlock) {
+            return pipeBlock.getPipeSpeed(world, pos, state);
+        }
+
+        return PipeBlock.BASE_PIPE_SPEED;
+    }
+
+    private boolean isNeighborPipe(Direction fromDirection) {
+        if (world == null) {
+            return false;
+        }
+
+        BlockPos sourcePos = pos.offset(fromDirection);
+        BlockState sourceState = world.getBlockState(sourcePos);
+        return sourceState.getBlock() instanceof PipeBlock;
+    }
+
+    private boolean canAcceptFrom(Direction fromDirection, boolean fromPipe) {
+        if (world == null) {
+            return false;
+        }
+
+        BlockState state = getCachedState();
+        if (!(state.getBlock() instanceof PipeBlock pipeBlock)) {
+            return false;
+        }
+
+        if (fromPipe && !pipeBlock.canAcceptFromPipe(world, pos, state, fromDirection)) {
+            return false;
+        }
+
+        if (!fromPipe && !pipeBlock.canAcceptFromInventory(world, pos, state, fromDirection)) {
+            return false;
+        }
+
+        if (pipeBlock instanceof IronPipeBlock ironPipe) {
+            if (!ironPipe.canAcceptFromDirection(state, fromDirection)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private int getRemainingCapacity() {
+        return VIRTUAL_CAPACITY - getTotalItemCount();
+    }
+
+    private int getTotalItemCount() {
+        int total = 0;
+        for (TravelingItem item : travelingItems) {
+            total += item.getStack().getCount();
+        }
+        return total;
+    }
 }

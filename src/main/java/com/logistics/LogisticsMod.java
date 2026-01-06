@@ -5,6 +5,7 @@ import com.logistics.block.entity.LogisticsBlockEntities;
 import com.logistics.item.LogisticsItemGroups;
 import com.logistics.item.LogisticsItems;
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,5 +21,10 @@ public class LogisticsMod implements ModInitializer {
 		LogisticsBlocks.initialize();
 		LogisticsBlockEntities.initialize();
 		LogisticsItemGroups.initialize();
+
+		ItemStorage.SIDED.registerForBlockEntity(
+			(blockEntity, direction) -> blockEntity.getItemStorage(direction),
+			LogisticsBlockEntities.PIPE_BLOCK_ENTITY
+		);
 	}
 }
