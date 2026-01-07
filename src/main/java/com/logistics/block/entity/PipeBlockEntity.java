@@ -3,6 +3,7 @@ package com.logistics.block.entity;
 import com.logistics.block.IronPipeBlock;
 import com.logistics.block.PipeBlock;
 import com.logistics.block.WoodenPipeBlock;
+import com.logistics.block.CopperPipeBlock;
 import com.logistics.block.VoidPipeBlock;
 import com.logistics.item.TravelingItem;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
@@ -33,6 +34,8 @@ public class PipeBlockEntity extends BlockEntity {
     private final List<TravelingItem> travelingItems = new ArrayList<>();
     @Nullable
     private Direction activeInputFace;
+    private int roundRobinIndex;
+    private boolean roundRobinDirty;
 
     public PipeBlockEntity(BlockPos pos, BlockState state) {
         super(LogisticsBlockEntities.PIPE_BLOCK_ENTITY, pos, state);
@@ -91,6 +94,7 @@ public class PipeBlockEntity extends BlockEntity {
         if (activeInputFace != null) {
             nbt.putInt("ActiveInputFace", activeInputFace.getId());
         }
+        nbt.putInt("RoundRobinIndex", roundRobinIndex);
     }
 
     @Override
@@ -110,6 +114,7 @@ public class PipeBlockEntity extends BlockEntity {
         } else {
             activeInputFace = null;
         }
+        roundRobinIndex = nbt.getInt("RoundRobinIndex");
     }
 
     @Nullable
@@ -193,9 +198,10 @@ public class PipeBlockEntity extends BlockEntity {
         }
 
         // Sync direction changes to clients
-        if (!world.isClient && needsSync) {
+        if (!world.isClient && (needsSync || blockEntity.roundRobinDirty)) {
             blockEntity.markDirty();
             world.updateListeners(pos, state, state, 3);
+            blockEntity.roundRobinDirty = false;
         }
 
         // Only handle routing on server side
@@ -294,6 +300,16 @@ public class PipeBlockEntity extends BlockEntity {
         // Only one option - use it
         if (validDirections.size() == 1) {
             return validDirections.get(0);
+        }
+
+        if (state.getBlock() instanceof CopperPipeBlock) {
+            int index = Math.floorMod(roundRobinIndex, validDirections.size());
+            Direction chosen = validDirections.get(index);
+            roundRobinIndex = index + 1;
+            if (world != null && !world.isClient) {
+                roundRobinDirty = true;
+            }
+            return chosen;
         }
 
         // Multiple options - choose randomly using deterministic seed

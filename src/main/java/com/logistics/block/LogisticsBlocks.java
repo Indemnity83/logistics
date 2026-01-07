@@ -69,6 +69,15 @@ public class LogisticsBlocks {
         )
     );
 
+    public static final Block COPPER_PIPE = registerBlock("copper_pipe",
+        () -> new CopperPipeBlock(AbstractBlock.Settings.create()
+            .mapColor(MapColor.ORANGE)
+            .strength(2.5f, 6.0f)
+            .sounds(BlockSoundGroup.METAL)
+            .nonOpaque()
+        )
+    );
+
     public static final Block VOID_PIPE = registerBlock("void_pipe",
         () -> new VoidPipeBlock(AbstractBlock.Settings.create()
             .mapColor(MapColor.BLACK)

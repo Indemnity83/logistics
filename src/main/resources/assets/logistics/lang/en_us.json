@@ -6,6 +6,7 @@
   "block.logistics.iron_pipe": "Iron Transport Pipe",
   "block.logistics.gold_pipe": "Golden Transport Pipe",
   "block.logistics.diamond_pipe": "Diamond Transport Pipe",
+  "block.logistics.copper_pipe": "Copper Transport Pipe",
   "block.logistics.void_pipe": "Void Transport Pipe",
   "itemgroup.logistics.transport": "Logistics: Transport"
 }

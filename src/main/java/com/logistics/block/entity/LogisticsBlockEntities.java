@@ -18,6 +18,7 @@ public class LogisticsBlockEntities {
             LogisticsBlocks.IRON_PIPE,
             LogisticsBlocks.GOLD_PIPE,
             LogisticsBlocks.DIAMOND_PIPE,
+            LogisticsBlocks.COPPER_PIPE,
             LogisticsBlocks.VOID_PIPE
         ).build()
     );
