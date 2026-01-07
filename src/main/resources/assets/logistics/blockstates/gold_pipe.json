@@ -18,9 +18,8 @@
     },
     {
       "when": {
-        "north": "true",
-        "powered": "false",
-        "north_inventory": "false"
+        "north": "pipe",
+        "powered": "false"
       },
       "apply": {
         "model": "logistics:block/gold_pipe_side"
@@ -28,9 +27,8 @@
     },
     {
       "when": {
-        "north": "true",
-        "powered": "false",
-        "north_inventory": "true"
+        "north": "inventory",
+        "powered": "false"
       },
       "apply": {
         "model": "logistics:block/gold_pipe_side_extended",
@@ -39,9 +37,8 @@
     },
     {
       "when": {
-        "north": "true",
-        "powered": "true",
-        "north_inventory": "false"
+        "north": "pipe",
+        "powered": "true"
       },
       "apply": {
         "model": "logistics:block/gold_pipe_side_powered"
@@ -49,9 +46,8 @@
     },
     {
       "when": {
-        "north": "true",
-        "powered": "true",
-        "north_inventory": "true"
+        "north": "inventory",
+        "powered": "true"
       },
       "apply": {
         "model": "logistics:block/gold_pipe_side_powered_extended",
@@ -60,9 +56,8 @@
     },
     {
       "when": {
-        "south": "true",
-        "powered": "false",
-        "south_inventory": "false"
+        "south": "pipe",
+        "powered": "false"
       },
       "apply": {
         "model": "logistics:block/gold_pipe_side",
@@ -71,9 +66,8 @@
     },
     {
       "when": {
-        "south": "true",
-        "powered": "false",
-        "south_inventory": "true"
+        "south": "inventory",
+        "powered": "false"
       },
       "apply": {
         "model": "logistics:block/gold_pipe_side_extended",
@@ -83,9 +77,8 @@
     },
     {
       "when": {
-        "south": "true",
-        "powered": "true",
-        "south_inventory": "false"
+        "south": "pipe",
+        "powered": "true"
       },
       "apply": {
         "model": "logistics:block/gold_pipe_side_powered",
@@ -94,9 +87,8 @@
     },
     {
       "when": {
-        "south": "true",
-        "powered": "true",
-        "south_inventory": "true"
+        "south": "inventory",
+        "powered": "true"
       },
       "apply": {
         "model": "logistics:block/gold_pipe_side_powered_extended",
@@ -106,9 +98,8 @@
     },
     {
       "when": {
-        "east": "true",
-        "powered": "false",
-        "east_inventory": "false"
+        "east": "pipe",
+        "powered": "false"
       },
       "apply": {
         "model": "logistics:block/gold_pipe_side",
@@ -117,9 +108,8 @@
     },
     {
       "when": {
-        "east": "true",
-        "powered": "false",
-        "east_inventory": "true"
+        "east": "inventory",
+        "powered": "false"
       },
       "apply": {
         "model": "logistics:block/gold_pipe_side_extended",
@@ -129,9 +119,8 @@
     },
     {
       "when": {
-        "east": "true",
-        "powered": "true",
-        "east_inventory": "false"
+        "east": "pipe",
+        "powered": "true"
       },
       "apply": {
         "model": "logistics:block/gold_pipe_side_powered",
@@ -140,9 +129,8 @@
     },
     {
       "when": {
-        "east": "true",
-        "powered": "true",
-        "east_inventory": "true"
+        "east": "inventory",
+        "powered": "true"
       },
       "apply": {
         "model": "logistics:block/gold_pipe_side_powered_extended",
@@ -152,9 +140,8 @@
     },
     {
       "when": {
-        "west": "true",
-        "powered": "false",
-        "west_inventory": "false"
+        "west": "pipe",
+        "powered": "false"
       },
       "apply": {
         "model": "logistics:block/gold_pipe_side",
@@ -163,9 +150,8 @@
     },
     {
       "when": {
-        "west": "true",
-        "powered": "false",
-        "west_inventory": "true"
+        "west": "inventory",
+        "powered": "false"
       },
       "apply": {
         "model": "logistics:block/gold_pipe_side_extended",
@@ -175,9 +161,8 @@
     },
     {
       "when": {
-        "west": "true",
-        "powered": "true",
-        "west_inventory": "false"
+        "west": "pipe",
+        "powered": "true"
       },
       "apply": {
         "model": "logistics:block/gold_pipe_side_powered",
@@ -186,9 +171,8 @@
     },
     {
       "when": {
-        "west": "true",
-        "powered": "true",
-        "west_inventory": "true"
+        "west": "inventory",
+        "powered": "true"
       },
       "apply": {
         "model": "logistics:block/gold_pipe_side_powered_extended",
@@ -198,9 +182,8 @@
     },
     {
       "when": {
-        "up": "true",
-        "powered": "false",
-        "up_inventory": "false"
+        "up": "pipe",
+        "powered": "false"
       },
       "apply": {
         "model": "logistics:block/gold_pipe_side_up"
@@ -208,9 +191,8 @@
     },
     {
       "when": {
-        "up": "true",
-        "powered": "false",
-        "up_inventory": "true"
+        "up": "inventory",
+        "powered": "false"
       },
       "apply": {
         "model": "logistics:block/gold_pipe_side_up"
@@ -218,9 +200,8 @@
     },
     {
       "when": {
-        "up": "true",
-        "powered": "false",
-        "up_inventory": "true"
+        "up": "inventory",
+        "powered": "false"
       },
       "apply": {
         "model": "logistics:block/gold_pipe_side_up_extended",
@@ -229,9 +210,8 @@
     },
     {
       "when": {
-        "up": "true",
-        "powered": "true",
-        "up_inventory": "false"
+        "up": "pipe",
+        "powered": "true"
       },
       "apply": {
         "model": "logistics:block/gold_pipe_side_up_powered"
@@ -239,9 +219,8 @@
     },
     {
       "when": {
-        "up": "true",
-        "powered": "true",
-        "up_inventory": "true"
+        "up": "inventory",
+        "powered": "true"
       },
       "apply": {
         "model": "logistics:block/gold_pipe_side_up_powered"
@@ -249,9 +228,8 @@
     },
     {
       "when": {
-        "up": "true",
-        "powered": "true",
-        "up_inventory": "true"
+        "up": "inventory",
+        "powered": "true"
       },
       "apply": {
         "model": "logistics:block/gold_pipe_side_up_powered_extended",
@@ -260,9 +238,8 @@
     },
     {
       "when": {
-        "down": "true",
-        "powered": "false",
-        "down_inventory": "false"
+        "down": "pipe",
+        "powered": "false"
       },
       "apply": {
         "model": "logistics:block/gold_pipe_side_down"
@@ -270,9 +247,8 @@
     },
     {
       "when": {
-        "down": "true",
-        "powered": "false",
-        "down_inventory": "true"
+        "down": "inventory",
+        "powered": "false"
       },
       "apply": {
         "model": "logistics:block/gold_pipe_side_down"
@@ -280,9 +256,8 @@
     },
     {
       "when": {
-        "down": "true",
-        "powered": "false",
-        "down_inventory": "true"
+        "down": "inventory",
+        "powered": "false"
       },
       "apply": {
         "model": "logistics:block/gold_pipe_side_down_extended",
@@ -291,9 +266,8 @@
     },
     {
       "when": {
-        "down": "true",
-        "powered": "true",
-        "down_inventory": "false"
+        "down": "pipe",
+        "powered": "true"
       },
       "apply": {
         "model": "logistics:block/gold_pipe_side_down_powered"
@@ -301,9 +275,8 @@
     },
     {
       "when": {
-        "down": "true",
-        "powered": "true",
-        "down_inventory": "true"
+        "down": "inventory",
+        "powered": "true"
       },
       "apply": {
         "model": "logistics:block/gold_pipe_side_down_powered"
@@ -311,9 +284,8 @@
     },
     {
       "when": {
-        "down": "true",
-        "powered": "true",
-        "down_inventory": "true"
+        "down": "inventory",
+        "powered": "true"
       },
       "apply": {
         "model": "logistics:block/gold_pipe_side_down_powered_extended",

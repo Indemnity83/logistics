@@ -11,10 +11,12 @@ import net.minecraft.registry.Registry;
 import net.minecraft.sound.BlockSoundGroup;
 import net.minecraft.util.Identifier;
 
+import java.util.function.Supplier;
+
 public class LogisticsBlocks {
     // Transport Pipes
     public static final Block COBBLESTONE_PIPE = registerBlock("cobblestone_pipe",
-        new PipeBlock(AbstractBlock.Settings.create()
+        () -> new PipeBlock(AbstractBlock.Settings.create()
             .mapColor(MapColor.STONE_GRAY)
             .strength(2.0f, 6.0f)
             .sounds(BlockSoundGroup.STONE)
@@ -23,7 +25,7 @@ public class LogisticsBlocks {
     );
 
     public static final Block STONE_PIPE = registerBlock("stone_pipe",
-        new PipeBlock(AbstractBlock.Settings.create()
+        () -> new PipeBlock(AbstractBlock.Settings.create()
             .mapColor(MapColor.STONE_GRAY)
             .strength(1.5f, 6.0f)
             .sounds(BlockSoundGroup.STONE)
@@ -32,7 +34,7 @@ public class LogisticsBlocks {
     );
 
     public static final Block WOOD_PIPE = registerBlock("wood_pipe",
-        new WoodenPipeBlock(AbstractBlock.Settings.create()
+        () -> new WoodenPipeBlock(AbstractBlock.Settings.create()
             .mapColor(MapColor.OAK_TAN)
             .strength(0.5f)
             .sounds(BlockSoundGroup.WOOD)
@@ -41,7 +43,7 @@ public class LogisticsBlocks {
     );
 
     public static final Block IRON_PIPE = registerBlock("iron_pipe",
-        new IronPipeBlock(AbstractBlock.Settings.create()
+        () -> new IronPipeBlock(AbstractBlock.Settings.create()
             .mapColor(MapColor.IRON_GRAY)
             .strength(3.0f, 6.0f)
             .sounds(BlockSoundGroup.METAL)
@@ -50,7 +52,7 @@ public class LogisticsBlocks {
     );
 
     public static final Block GOLD_PIPE = registerBlock("gold_pipe",
-        new GoldPipeBlock(AbstractBlock.Settings.create()
+        () -> new GoldPipeBlock(AbstractBlock.Settings.create()
             .mapColor(MapColor.GOLD)
             .strength(0.5f)
             .sounds(BlockSoundGroup.METAL)
@@ -59,7 +61,7 @@ public class LogisticsBlocks {
     );
 
     public static final Block DIAMOND_PIPE = registerBlock("diamond_pipe",
-        new PipeBlock(AbstractBlock.Settings.create()
+        () -> new PipeBlock(AbstractBlock.Settings.create()
             .mapColor(MapColor.DIAMOND_BLUE)
             .strength(3.0f, 6.0f)
             .sounds(BlockSoundGroup.METAL)
@@ -68,7 +70,7 @@ public class LogisticsBlocks {
     );
 
     public static final Block VOID_PIPE = registerBlock("void_pipe",
-        new VoidPipeBlock(AbstractBlock.Settings.create()
+        () -> new VoidPipeBlock(AbstractBlock.Settings.create()
             .mapColor(MapColor.BLACK)
             .strength(50.0f, 1200.0f)
             .sounds(BlockSoundGroup.STONE)
@@ -76,7 +78,8 @@ public class LogisticsBlocks {
         )
     );
 
-    private static Block registerBlock(String name, Block block) {
+    private static Block registerBlock(String name, Supplier<Block> supplier) {
+        Block block = supplier.get();
         registerBlockItem(name, block);
         return Registry.register(Registries.BLOCK, Identifier.of(LogisticsMod.MOD_ID, name), block);
     }

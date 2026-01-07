@@ -19,7 +19,7 @@ import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.registry.RegistryWrapper;
-import net.minecraft.state.property.BooleanProperty;
+import net.minecraft.state.property.EnumProperty;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
@@ -259,8 +259,8 @@ public class PipeBlockEntity extends BlockEntity {
             Direction outputDirection = ironPipe.getOutputDirection(state);
             // Check if output direction is valid (connected and not the direction we came from)
             if (outputDirection != currentDirection.getOpposite()) {
-                BooleanProperty property = getPropertyForDirection(outputDirection);
-                if (property != null && state.get(property)) {
+                EnumProperty<PipeBlock.ConnectionType> property = getPropertyForDirection(outputDirection);
+                if (property != null && state.get(property) != PipeBlock.ConnectionType.NONE) {
                     return outputDirection;
                 }
             }
@@ -280,8 +280,8 @@ public class PipeBlockEntity extends BlockEntity {
             }
 
             // Check if this direction is connected on the pipe
-            BooleanProperty property = getPropertyForDirection(direction);
-            if (property != null && state.get(property)) {
+            EnumProperty<PipeBlock.ConnectionType> property = getPropertyForDirection(direction);
+            if (property != null && state.get(property) != PipeBlock.ConnectionType.NONE) {
                 validDirections.add(direction);
             }
         }
@@ -304,15 +304,8 @@ public class PipeBlockEntity extends BlockEntity {
         return validDirections.get(random.nextInt(validDirections.size()));
     }
 
-    private static BooleanProperty getPropertyForDirection(Direction direction) {
-        return switch (direction) {
-            case NORTH -> PipeBlock.NORTH;
-            case SOUTH -> PipeBlock.SOUTH;
-            case EAST -> PipeBlock.EAST;
-            case WEST -> PipeBlock.WEST;
-            case UP -> PipeBlock.UP;
-            case DOWN -> PipeBlock.DOWN;
-        };
+    private static EnumProperty<PipeBlock.ConnectionType> getPropertyForDirection(Direction direction) {
+        return PipeBlock.getPropertyForDirection(direction);
     }
 
     /**
@@ -430,7 +423,7 @@ public class PipeBlockEntity extends BlockEntity {
         if (world != null && !world.isClient) {
             BlockState state = getCachedState();
             if (state.getBlock() instanceof PipeBlock pipeBlock) {
-                BlockState updated = pipeBlock.refreshInventoryConnections(world, pos, state);
+                BlockState updated = pipeBlock.refreshConnections(world, pos, state);
                 if (pipeBlock instanceof WoodenPipeBlock) {
                     updated = updated.with(WoodenPipeBlock.ACTIVE_FACE, WoodenPipeBlock.toActiveFace(activeInputFace));
                 }

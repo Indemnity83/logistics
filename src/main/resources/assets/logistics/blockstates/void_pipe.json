@@ -7,8 +7,7 @@
     },
     {
       "when": {
-        "north": "true",
-        "north_inventory": "false"
+        "north": "pipe"
       },
       "apply": {
         "model": "logistics:block/void_pipe_side"
@@ -16,8 +15,7 @@
     },
     {
       "when": {
-        "north": "true",
-        "north_inventory": "true"
+        "north": "inventory"
       },
       "apply": {
         "model": "logistics:block/void_pipe_side_extended",
@@ -26,8 +24,7 @@
     },
     {
       "when": {
-        "south": "true",
-        "south_inventory": "false"
+        "south": "pipe"
       },
       "apply": {
         "model": "logistics:block/void_pipe_side",
@@ -36,8 +33,7 @@
     },
     {
       "when": {
-        "south": "true",
-        "south_inventory": "true"
+        "south": "inventory"
       },
       "apply": {
         "model": "logistics:block/void_pipe_side_extended",
@@ -47,8 +43,7 @@
     },
     {
       "when": {
-        "east": "true",
-        "east_inventory": "false"
+        "east": "pipe"
       },
       "apply": {
         "model": "logistics:block/void_pipe_side",
@@ -57,8 +52,7 @@
     },
     {
       "when": {
-        "east": "true",
-        "east_inventory": "true"
+        "east": "inventory"
       },
       "apply": {
         "model": "logistics:block/void_pipe_side_extended",
@@ -68,8 +62,7 @@
     },
     {
       "when": {
-        "west": "true",
-        "west_inventory": "false"
+        "west": "pipe"
       },
       "apply": {
         "model": "logistics:block/void_pipe_side",
@@ -78,8 +71,7 @@
     },
     {
       "when": {
-        "west": "true",
-        "west_inventory": "true"
+        "west": "inventory"
       },
       "apply": {
         "model": "logistics:block/void_pipe_side_extended",
@@ -89,8 +81,7 @@
     },
     {
       "when": {
-        "up": "true",
-        "up_inventory": "false"
+        "up": "pipe"
       },
       "apply": {
         "model": "logistics:block/void_pipe_side_up"
@@ -98,8 +89,7 @@
     },
     {
       "when": {
-        "up": "true",
-        "up_inventory": "true"
+        "up": "inventory"
       },
       "apply": {
         "model": "logistics:block/void_pipe_side_up"
@@ -107,8 +97,7 @@
     },
     {
       "when": {
-        "up": "true",
-        "up_inventory": "true"
+        "up": "inventory"
       },
       "apply": {
         "model": "logistics:block/void_pipe_side_up_extended",
@@ -117,8 +106,7 @@
     },
     {
       "when": {
-        "down": "true",
-        "down_inventory": "false"
+        "down": "pipe"
       },
       "apply": {
         "model": "logistics:block/void_pipe_side_down"
@@ -126,8 +114,7 @@
     },
     {
       "when": {
-        "down": "true",
-        "down_inventory": "true"
+        "down": "inventory"
       },
       "apply": {
         "model": "logistics:block/void_pipe_side_down"
@@ -135,8 +122,7 @@
     },
     {
       "when": {
-        "down": "true",
-        "down_inventory": "true"
+        "down": "inventory"
       },
       "apply": {
         "model": "logistics:block/void_pipe_side_down_extended",

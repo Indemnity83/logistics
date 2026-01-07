@@ -7,8 +7,7 @@
     },
     {
       "when": {
-        "north": "true",
-        "north_inventory": "false",
+        "north": "pipe",
         "facing": "north"
       },
       "apply": {
@@ -17,8 +16,7 @@
     },
     {
       "when": {
-        "north": "true",
-        "north_inventory": "true",
+        "north": "inventory",
         "facing": "north"
       },
       "apply": {
@@ -28,8 +26,7 @@
     },
     {
       "when": {
-        "north": "true",
-        "north_inventory": "false",
+        "north": "pipe",
         "facing": "!north"
       },
       "apply": {
@@ -38,8 +35,7 @@
     },
     {
       "when": {
-        "north": "true",
-        "north_inventory": "true",
+        "north": "inventory",
         "facing": "!north"
       },
       "apply": {
@@ -49,8 +45,7 @@
     },
     {
       "when": {
-        "south": "true",
-        "south_inventory": "false",
+        "south": "pipe",
         "facing": "south"
       },
       "apply": {
@@ -60,8 +55,7 @@
     },
     {
       "when": {
-        "south": "true",
-        "south_inventory": "true",
+        "south": "inventory",
         "facing": "south"
       },
       "apply": {
@@ -72,8 +66,7 @@
     },
     {
       "when": {
-        "south": "true",
-        "south_inventory": "false",
+        "south": "pipe",
         "facing": "!south"
       },
       "apply": {
@@ -83,8 +76,7 @@
     },
     {
       "when": {
-        "south": "true",
-        "south_inventory": "true",
+        "south": "inventory",
         "facing": "!south"
       },
       "apply": {
@@ -95,8 +87,7 @@
     },
     {
       "when": {
-        "east": "true",
-        "east_inventory": "false",
+        "east": "pipe",
         "facing": "east"
       },
       "apply": {
@@ -106,8 +97,7 @@
     },
     {
       "when": {
-        "east": "true",
-        "east_inventory": "true",
+        "east": "inventory",
         "facing": "east"
       },
       "apply": {
@@ -118,8 +108,7 @@
     },
     {
       "when": {
-        "east": "true",
-        "east_inventory": "false",
+        "east": "pipe",
         "facing": "!east"
       },
       "apply": {
@@ -129,8 +118,7 @@
     },
     {
       "when": {
-        "east": "true",
-        "east_inventory": "true",
+        "east": "inventory",
         "facing": "!east"
       },
       "apply": {
@@ -141,8 +129,7 @@
     },
     {
       "when": {
-        "west": "true",
-        "west_inventory": "false",
+        "west": "pipe",
         "facing": "west"
       },
       "apply": {
@@ -152,8 +139,7 @@
     },
     {
       "when": {
-        "west": "true",
-        "west_inventory": "true",
+        "west": "inventory",
         "facing": "west"
       },
       "apply": {
@@ -164,8 +150,7 @@
     },
     {
       "when": {
-        "west": "true",
-        "west_inventory": "false",
+        "west": "pipe",
         "facing": "!west"
       },
       "apply": {
@@ -175,8 +160,7 @@
     },
     {
       "when": {
-        "west": "true",
-        "west_inventory": "true",
+        "west": "inventory",
         "facing": "!west"
       },
       "apply": {
@@ -187,8 +171,7 @@
     },
     {
       "when": {
-        "up": "true",
-        "up_inventory": "false",
+        "up": "pipe",
         "facing": "up"
       },
       "apply": {
@@ -197,8 +180,7 @@
     },
     {
       "when": {
-        "up": "true",
-        "up_inventory": "true",
+        "up": "inventory",
         "facing": "up"
       },
       "apply": {
@@ -207,8 +189,7 @@
     },
     {
       "when": {
-        "up": "true",
-        "up_inventory": "true",
+        "up": "inventory",
         "facing": "up"
       },
       "apply": {
@@ -218,8 +199,7 @@
     },
     {
       "when": {
-        "up": "true",
-        "up_inventory": "false",
+        "up": "pipe",
         "facing": "!up"
       },
       "apply": {
@@ -228,8 +208,7 @@
     },
     {
       "when": {
-        "up": "true",
-        "up_inventory": "true",
+        "up": "inventory",
         "facing": "!up"
       },
       "apply": {
@@ -238,8 +217,7 @@
     },
     {
       "when": {
-        "up": "true",
-        "up_inventory": "true",
+        "up": "inventory",
         "facing": "!up"
       },
       "apply": {
@@ -249,8 +227,7 @@
     },
     {
       "when": {
-        "down": "true",
-        "down_inventory": "false",
+        "down": "pipe",
         "facing": "down"
       },
       "apply": {
@@ -259,8 +236,7 @@
     },
     {
       "when": {
-        "down": "true",
-        "down_inventory": "true",
+        "down": "inventory",
         "facing": "down"
       },
       "apply": {
@@ -269,8 +245,7 @@
     },
     {
       "when": {
-        "down": "true",
-        "down_inventory": "true",
+        "down": "inventory",
         "facing": "down"
       },
       "apply": {
@@ -280,8 +255,7 @@
     },
     {
       "when": {
-        "down": "true",
-        "down_inventory": "false",
+        "down": "pipe",
         "facing": "!down"
       },
       "apply": {
@@ -290,8 +264,7 @@
     },
     {
       "when": {
-        "down": "true",
-        "down_inventory": "true",
+        "down": "inventory",
         "facing": "!down"
       },
       "apply": {
@@ -300,8 +273,7 @@
     },
     {
       "when": {
-        "down": "true",
-        "down_inventory": "true",
+        "down": "inventory",
         "facing": "!down"
       },
       "apply": {

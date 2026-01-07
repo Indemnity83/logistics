@@ -7,7 +7,7 @@
     },
     {
       "when": {
-        "north": "true"
+        "north": "pipe"
       },
       "apply": {
         "model": "logistics:block/pipe_side"
@@ -15,7 +15,7 @@
     },
     {
       "when": {
-        "south": "true"
+        "south": "pipe"
       },
       "apply": {
         "model": "logistics:block/pipe_side",
@@ -24,7 +24,7 @@
     },
     {
       "when": {
-        "east": "true"
+        "east": "pipe"
       },
       "apply": {
         "model": "logistics:block/pipe_side",
@@ -33,7 +33,7 @@
     },
     {
       "when": {
-        "west": "true"
+        "west": "pipe"
       },
       "apply": {
         "model": "logistics:block/pipe_side",
@@ -42,7 +42,7 @@
     },
     {
       "when": {
-        "up": "true"
+        "up": "pipe"
       },
       "apply": {
         "model": "logistics:block/pipe_side_up"
@@ -50,7 +50,7 @@
     },
     {
       "when": {
-        "down": "true"
+        "down": "pipe"
       },
       "apply": {
         "model": "logistics:block/pipe_side_down"

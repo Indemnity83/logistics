@@ -26,5 +26,6 @@ public class LogisticsMod implements ModInitializer {
 			(blockEntity, direction) -> blockEntity.getItemStorage(direction),
 			LogisticsBlockEntities.PIPE_BLOCK_ENTITY
 		);
-	}
+
+    }
 }

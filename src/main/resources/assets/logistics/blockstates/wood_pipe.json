@@ -7,47 +7,67 @@
     },
     {
       "when": {
-        "north": "true",
+        "north": "pipe"
+      },
+      "apply": {
+        "model": "logistics:block/wood_pipe_side",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "north": "inventory",
         "active_face": "north"
       },
       "apply": {
-        "model": "logistics:block/wood_pipe_side_opaque"
+        "model": "logistics:block/wood_pipe_side_opaque",
+        "y": 0
       }
     },
     {
       "when": {
-        "north": "true",
-        "active_face": "!north"
-      },
-      "apply": {
-        "model": "logistics:block/wood_pipe_side"
-      }
-    },
-    {
-      "when": {
-        "north": "true",
-        "north_inventory": "true",
+        "north": "inventory",
         "active_face": "north"
       },
       "apply": {
         "model": "logistics:block/wood_pipe_side_opaque_extended",
-        "uvlock": true
+        "uvlock": true,
+        "y": 0
       }
     },
     {
       "when": {
-        "north": "true",
-        "north_inventory": "true",
+        "north": "inventory",
+        "active_face": "!north"
+      },
+      "apply": {
+        "model": "logistics:block/wood_pipe_side",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "north": "inventory",
         "active_face": "!north"
       },
       "apply": {
         "model": "logistics:block/wood_pipe_side_extended",
-        "uvlock": true
+        "uvlock": true,
+        "y": 0
       }
     },
     {
       "when": {
-        "south": "true",
+        "south": "pipe"
+      },
+      "apply": {
+        "model": "logistics:block/wood_pipe_side",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "south": "inventory",
         "active_face": "south"
       },
       "apply": {
@@ -57,7 +77,18 @@
     },
     {
       "when": {
-        "south": "true",
+        "south": "inventory",
+        "active_face": "south"
+      },
+      "apply": {
+        "model": "logistics:block/wood_pipe_side_opaque_extended",
+        "uvlock": true,
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "south": "inventory",
         "active_face": "!south"
       },
       "apply": {
@@ -67,31 +98,27 @@
     },
     {
       "when": {
-        "south": "true",
-        "south_inventory": "true",
-        "active_face": "south"
-      },
-      "apply": {
-        "model": "logistics:block/wood_pipe_side_opaque_extended",
-        "y": 180,
-        "uvlock": true
-      }
-    },
-    {
-      "when": {
-        "south": "true",
-        "south_inventory": "true",
+        "south": "inventory",
         "active_face": "!south"
       },
       "apply": {
         "model": "logistics:block/wood_pipe_side_extended",
-        "y": 180,
-        "uvlock": true
+        "uvlock": true,
+        "y": 180
       }
     },
     {
       "when": {
-        "east": "true",
+        "east": "pipe"
+      },
+      "apply": {
+        "model": "logistics:block/wood_pipe_side",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "east": "inventory",
         "active_face": "east"
       },
       "apply": {
@@ -101,7 +128,18 @@
     },
     {
       "when": {
-        "east": "true",
+        "east": "inventory",
+        "active_face": "east"
+      },
+      "apply": {
+        "model": "logistics:block/wood_pipe_side_opaque_extended",
+        "uvlock": true,
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "east": "inventory",
         "active_face": "!east"
       },
       "apply": {
@@ -111,31 +149,27 @@
     },
     {
       "when": {
-        "east": "true",
-        "east_inventory": "true",
-        "active_face": "east"
-      },
-      "apply": {
-        "model": "logistics:block/wood_pipe_side_opaque_extended",
-        "y": 90,
-        "uvlock": true
-      }
-    },
-    {
-      "when": {
-        "east": "true",
-        "east_inventory": "true",
+        "east": "inventory",
         "active_face": "!east"
       },
       "apply": {
         "model": "logistics:block/wood_pipe_side_extended",
-        "y": 90,
-        "uvlock": true
+        "uvlock": true,
+        "y": 90
       }
     },
     {
       "when": {
-        "west": "true",
+        "west": "pipe"
+      },
+      "apply": {
+        "model": "logistics:block/wood_pipe_side",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "west": "inventory",
         "active_face": "west"
       },
       "apply": {
@@ -145,7 +179,18 @@
     },
     {
       "when": {
-        "west": "true",
+        "west": "inventory",
+        "active_face": "west"
+      },
+      "apply": {
+        "model": "logistics:block/wood_pipe_side_opaque_extended",
+        "uvlock": true,
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "west": "inventory",
         "active_face": "!west"
       },
       "apply": {
@@ -155,31 +200,26 @@
     },
     {
       "when": {
-        "west": "true",
-        "west_inventory": "true",
-        "active_face": "west"
-      },
-      "apply": {
-        "model": "logistics:block/wood_pipe_side_opaque_extended",
-        "y": 270,
-        "uvlock": true
-      }
-    },
-    {
-      "when": {
-        "west": "true",
-        "west_inventory": "true",
+        "west": "inventory",
         "active_face": "!west"
       },
       "apply": {
         "model": "logistics:block/wood_pipe_side_extended",
-        "y": 270,
-        "uvlock": true
+        "uvlock": true,
+        "y": 270
       }
     },
     {
       "when": {
-        "up": "true",
+        "up": "pipe"
+      },
+      "apply": {
+        "model": "logistics:block/wood_pipe_side_up"
+      }
+    },
+    {
+      "when": {
+        "up": "inventory",
         "active_face": "up"
       },
       "apply": {
@@ -188,17 +228,7 @@
     },
     {
       "when": {
-        "up": "true",
-        "active_face": "!up"
-      },
-      "apply": {
-        "model": "logistics:block/wood_pipe_side_up"
-      }
-    },
-    {
-      "when": {
-        "up": "true",
-        "up_inventory": "true",
+        "up": "inventory",
         "active_face": "up"
       },
       "apply": {
@@ -208,8 +238,16 @@
     },
     {
       "when": {
-        "up": "true",
-        "up_inventory": "true",
+        "up": "inventory",
+        "active_face": "!up"
+      },
+      "apply": {
+        "model": "logistics:block/wood_pipe_side_up"
+      }
+    },
+    {
+      "when": {
+        "up": "inventory",
         "active_face": "!up"
       },
       "apply": {
@@ -219,7 +257,15 @@
     },
     {
       "when": {
-        "down": "true",
+        "down": "pipe"
+      },
+      "apply": {
+        "model": "logistics:block/wood_pipe_side_down"
+      }
+    },
+    {
+      "when": {
+        "down": "inventory",
         "active_face": "down"
       },
       "apply": {
@@ -228,17 +274,7 @@
     },
     {
       "when": {
-        "down": "true",
-        "active_face": "!down"
-      },
-      "apply": {
-        "model": "logistics:block/wood_pipe_side_down"
-      }
-    },
-    {
-      "when": {
-        "down": "true",
-        "down_inventory": "true",
+        "down": "inventory",
         "active_face": "down"
       },
       "apply": {
@@ -248,8 +284,16 @@
     },
     {
       "when": {
-        "down": "true",
-        "down_inventory": "true",
+        "down": "inventory",
+        "active_face": "!down"
+      },
+      "apply": {
+        "model": "logistics:block/wood_pipe_side_down"
+      }
+    },
+    {
+      "when": {
+        "down": "inventory",
         "active_face": "!down"
       },
       "apply": {

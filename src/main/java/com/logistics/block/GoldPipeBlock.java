@@ -80,8 +80,7 @@ public class GoldPipeBlock extends PipeBlock {
     private boolean hasAdjacentPoweredGoldPipe(World world, BlockPos pos, BlockState state) {
         for (Direction dir : Direction.values()) {
             // Check if this direction is connected
-            BooleanProperty property = getPropertyForDirection(dir);
-            if (property != null && state.get(property)) {
+            if (hasConnection(state, dir)) {
                 BlockPos adjacentPos = pos.offset(dir);
                 BlockState adjacentState = world.getBlockState(adjacentPos);
 
@@ -94,17 +93,6 @@ public class GoldPipeBlock extends PipeBlock {
             }
         }
         return false;
-    }
-
-    private static BooleanProperty getPropertyForDirection(Direction direction) {
-        return switch (direction) {
-            case NORTH -> PipeBlock.NORTH;
-            case SOUTH -> PipeBlock.SOUTH;
-            case EAST -> PipeBlock.EAST;
-            case WEST -> PipeBlock.WEST;
-            case UP -> PipeBlock.UP;
-            case DOWN -> PipeBlock.DOWN;
-        };
     }
 
     @Override

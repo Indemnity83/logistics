@@ -15,7 +15,6 @@ import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.state.StateManager;
-import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.EnumProperty;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -66,11 +65,6 @@ public class WoodenPipeBlock extends PipeBlock {
 
         Direction activeFace = pipeEntity.getActiveInputFace();
         return activeFace != null && activeFace == fromDirection;
-    }
-
-    @Override
-    protected BlockState updateInventoryConnections(World world, BlockPos pos, BlockState state) {
-        return super.updateInventoryConnections(world, pos, state);
     }
 
     @Nullable
@@ -197,8 +191,7 @@ public class WoodenPipeBlock extends PipeBlock {
     private static List<Direction> findInventoryFaces(World world, BlockPos pos, BlockState state) {
         List<Direction> faces = new ArrayList<>();
         for (Direction direction : Direction.values()) {
-            BooleanProperty property = getPropertyForDirection(direction);
-            if (property == null || !state.get(property)) {
+            if (state.get(PipeBlock.getPropertyForDirection(direction)) == PipeBlock.ConnectionType.NONE) {
                 continue;
             }
 
@@ -245,14 +238,4 @@ public class WoodenPipeBlock extends PipeBlock {
         }
     }
 
-    private static BooleanProperty getPropertyForDirection(Direction direction) {
-        return switch (direction) {
-            case NORTH -> NORTH;
-            case SOUTH -> SOUTH;
-            case EAST -> EAST;
-            case WEST -> WEST;
-            case UP -> UP;
-            case DOWN -> DOWN;
-        };
-    }
 }

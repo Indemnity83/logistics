@@ -57,20 +57,6 @@ public class IronPipeBlock extends PipeBlock {
     }
 
     /**
-     * Check if a blockstate has a connection in the given direction
-     */
-    private boolean hasConnection(BlockState state, Direction direction) {
-        return switch (direction) {
-            case NORTH -> state.get(NORTH);
-            case SOUTH -> state.get(SOUTH);
-            case EAST -> state.get(EAST);
-            case WEST -> state.get(WEST);
-            case UP -> state.get(UP);
-            case DOWN -> state.get(DOWN);
-        };
-    }
-
-    /**
      * Called by the wrench to cycle through output directions
      */
     public void cycleOutputDirection(World world, BlockPos pos) {

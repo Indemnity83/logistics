@@ -3,8 +3,6 @@ package com.logistics.block;
 import com.logistics.block.entity.PipeBlockEntity;
 import com.mojang.serialization.MapCodec;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
-import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
@@ -15,6 +13,7 @@ import net.minecraft.fluid.Fluids;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
+import net.minecraft.state.property.EnumProperty;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.ItemScatterer;
 import net.minecraft.util.math.BlockPos;
@@ -29,21 +28,13 @@ import org.jetbrains.annotations.Nullable;
 public class PipeBlock extends BlockWithEntity implements Waterloggable {
     public static final MapCodec<PipeBlock> CODEC = createCodec(PipeBlock::new);
 
-    public static final BooleanProperty NORTH = Properties.NORTH;
-    public static final BooleanProperty SOUTH = Properties.SOUTH;
-    public static final BooleanProperty EAST = Properties.EAST;
-    public static final BooleanProperty WEST = Properties.WEST;
-    public static final BooleanProperty UP = Properties.UP;
-    public static final BooleanProperty DOWN = Properties.DOWN;
+    public static final EnumProperty<ConnectionType> NORTH = EnumProperty.of("north", ConnectionType.class);
+    public static final EnumProperty<ConnectionType> SOUTH = EnumProperty.of("south", ConnectionType.class);
+    public static final EnumProperty<ConnectionType> EAST = EnumProperty.of("east", ConnectionType.class);
+    public static final EnumProperty<ConnectionType> WEST = EnumProperty.of("west", ConnectionType.class);
+    public static final EnumProperty<ConnectionType> UP = EnumProperty.of("up", ConnectionType.class);
+    public static final EnumProperty<ConnectionType> DOWN = EnumProperty.of("down", ConnectionType.class);
     public static final BooleanProperty WATERLOGGED = Properties.WATERLOGGED;
-
-    // Properties to track which connections are to inventories (for visual extension)
-    public static final BooleanProperty NORTH_INVENTORY = BooleanProperty.of("north_inventory");
-    public static final BooleanProperty SOUTH_INVENTORY = BooleanProperty.of("south_inventory");
-    public static final BooleanProperty EAST_INVENTORY = BooleanProperty.of("east_inventory");
-    public static final BooleanProperty WEST_INVENTORY = BooleanProperty.of("west_inventory");
-    public static final BooleanProperty UP_INVENTORY = BooleanProperty.of("up_inventory");
-    public static final BooleanProperty DOWN_INVENTORY = BooleanProperty.of("down_inventory");
 
     // Base pipe speed - matches the speed after ~3 powered gold pipes
     // At 0.15 blocks/tick, takes ~6.67 ticks (0.33 seconds) to traverse one segment
@@ -88,19 +79,13 @@ public class PipeBlock extends BlockWithEntity implements Waterloggable {
     public PipeBlock(Settings settings) {
         super(settings);
         setDefaultState(getDefaultState()
-            .with(NORTH, false)
-            .with(SOUTH, false)
-            .with(EAST, false)
-            .with(WEST, false)
-            .with(UP, false)
-            .with(DOWN, false)
+            .with(NORTH, ConnectionType.NONE)
+            .with(SOUTH, ConnectionType.NONE)
+            .with(EAST, ConnectionType.NONE)
+            .with(WEST, ConnectionType.NONE)
+            .with(UP, ConnectionType.NONE)
+            .with(DOWN, ConnectionType.NONE)
             .with(WATERLOGGED, false)
-            .with(NORTH_INVENTORY, false)
-            .with(SOUTH_INVENTORY, false)
-            .with(EAST_INVENTORY, false)
-            .with(WEST_INVENTORY, false)
-            .with(UP_INVENTORY, false)
-            .with(DOWN_INVENTORY, false)
         );
     }
 
@@ -112,7 +97,6 @@ public class PipeBlock extends BlockWithEntity implements Waterloggable {
     @Override
     protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
         builder.add(NORTH, SOUTH, EAST, WEST, UP, DOWN, WATERLOGGED);
-        builder.add(NORTH_INVENTORY, SOUTH_INVENTORY, EAST_INVENTORY, WEST_INVENTORY, UP_INVENTORY, DOWN_INVENTORY);
     }
 
     @Override
@@ -137,22 +121,22 @@ public class PipeBlock extends BlockWithEntity implements Waterloggable {
     public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
         VoxelShape shape = CORE_SHAPE;
 
-        if (state.get(NORTH)) {
+        if (state.get(NORTH) != ConnectionType.NONE) {
             shape = VoxelShapes.union(shape, NORTH_SHAPE);
         }
-        if (state.get(SOUTH)) {
+        if (state.get(SOUTH) != ConnectionType.NONE) {
             shape = VoxelShapes.union(shape, SOUTH_SHAPE);
         }
-        if (state.get(EAST)) {
+        if (state.get(EAST) != ConnectionType.NONE) {
             shape = VoxelShapes.union(shape, EAST_SHAPE);
         }
-        if (state.get(WEST)) {
+        if (state.get(WEST) != ConnectionType.NONE) {
             shape = VoxelShapes.union(shape, WEST_SHAPE);
         }
-        if (state.get(UP)) {
+        if (state.get(UP) != ConnectionType.NONE) {
             shape = VoxelShapes.union(shape, UP_SHAPE);
         }
-        if (state.get(DOWN)) {
+        if (state.get(DOWN) != ConnectionType.NONE) {
             shape = VoxelShapes.union(shape, DOWN_SHAPE);
         }
 
@@ -175,11 +159,6 @@ public class PipeBlock extends BlockWithEntity implements Waterloggable {
             .with(DOWN, canConnectTo(world, pos, Direction.DOWN))
             .with(WATERLOGGED, fluidState.getFluid() == Fluids.WATER);
 
-        // Update inventory connections if world is available
-        if (ctx.getWorld() instanceof World actualWorld) {
-            state = updateInventoryConnections(actualWorld, pos, state);
-        }
-
         return state;
     }
 
@@ -190,14 +169,9 @@ public class PipeBlock extends BlockWithEntity implements Waterloggable {
             world.scheduleFluidTick(pos, Fluids.WATER, Fluids.WATER.getTickRate(world));
         }
 
-        BooleanProperty property = getPropertyForDirection(direction);
+        EnumProperty<ConnectionType> property = getPropertyForDirection(direction);
         if (property != null) {
             state = state.with(property, canConnectTo(world, pos, direction));
-        }
-
-        // Update inventory connections
-        if (world instanceof World actualWorld) {
-            state = updateInventoryConnections(actualWorld, pos, state);
         }
 
         return state;
@@ -232,28 +206,28 @@ public class PipeBlock extends BlockWithEntity implements Waterloggable {
         super.onStateReplaced(state, world, pos, newState, moved);
     }
 
-    private boolean canConnectTo(BlockView world, BlockPos pos, Direction direction) {
+    private ConnectionType canConnectTo(BlockView world, BlockPos pos, Direction direction) {
         BlockPos neighborPos = pos.offset(direction);
         BlockState neighborState = world.getBlockState(neighborPos);
         Block neighborBlock = neighborState.getBlock();
 
         // Connect to other pipes
         if (neighborBlock instanceof PipeBlock) {
-            return true;
+            return ConnectionType.PIPE;
         }
 
         // Connect to blocks with item storage (chests, furnaces, hoppers, etc.)
         // ItemStorage.SIDED requires a World, so only check if we have one
         if (world instanceof World actualWorld) {
             if (ItemStorage.SIDED.find(actualWorld, neighborPos, direction.getOpposite()) != null) {
-                return true;
+                return ConnectionType.INVENTORY;
             }
         }
 
-        return false;
+        return ConnectionType.NONE;
     }
 
-    private static BooleanProperty getPropertyForDirection(Direction direction) {
+    public static EnumProperty<ConnectionType> getPropertyForDirection(Direction direction) {
         return switch (direction) {
             case NORTH -> NORTH;
             case SOUTH -> SOUTH;
@@ -323,56 +297,40 @@ public class PipeBlock extends BlockWithEntity implements Waterloggable {
         return false;
     }
 
-    /**
-     * Update inventory connection properties based on adjacent blocks
-     */
-    protected BlockState updateInventoryConnections(World world, BlockPos pos, BlockState state) {
+    public BlockState refreshConnections(World world, BlockPos pos, BlockState state) {
         for (Direction direction : Direction.values()) {
-            BooleanProperty connectionProp = getPropertyForDirection(direction);
-            BooleanProperty inventoryProp = getInventoryPropertyForDirection(direction);
-
-            if (connectionProp != null && inventoryProp != null) {
-                // Only check if this direction is connected
-                if (state.get(connectionProp)) {
-                    BlockPos neighborPos = pos.offset(direction);
-                    boolean isInventory = isInventoryConnection(world, neighborPos, direction);
-                    state = state.with(inventoryProp, isInventory);
-                } else {
-                    state = state.with(inventoryProp, false);
-                }
+            EnumProperty<ConnectionType> connectionProp = getPropertyForDirection(direction);
+            if (connectionProp != null) {
+                state = state.with(connectionProp, canConnectTo(world, pos, direction));
             }
         }
         return state;
     }
 
-    public BlockState refreshInventoryConnections(World world, BlockPos pos, BlockState state) {
-        return updateInventoryConnections(world, pos, state);
+    public boolean hasConnection(BlockState state, Direction direction) {
+        EnumProperty<ConnectionType> property = getPropertyForDirection(direction);
+        return property != null && state.get(property) != ConnectionType.NONE;
     }
 
-    /**
-     * Check if a position has an inventory (but not a pipe)
-     */
-    protected boolean isInventoryConnection(World world, BlockPos pos, Direction fromDirection) {
-        BlockState neighborState = world.getBlockState(pos);
+    public boolean isInventoryConnection(BlockState state, Direction direction) {
+        EnumProperty<ConnectionType> property = getPropertyForDirection(direction);
+        return property != null && state.get(property) == ConnectionType.INVENTORY;
+    }
 
-        // Don't mark pipes as inventories
-        if (neighborState.getBlock() instanceof PipeBlock) {
-            return false;
+    public enum ConnectionType implements net.minecraft.util.StringIdentifiable {
+        NONE("none"),
+        PIPE("pipe"),
+        INVENTORY("inventory");
+
+        private final String name;
+
+        ConnectionType(String name) {
+            this.name = name;
         }
 
-        // Check if there's an item storage
-        Storage<ItemVariant> storage = ItemStorage.SIDED.find(world, pos, fromDirection.getOpposite());
-        return storage != null;
-    }
-
-    protected static BooleanProperty getInventoryPropertyForDirection(Direction direction) {
-        return switch (direction) {
-            case NORTH -> NORTH_INVENTORY;
-            case SOUTH -> SOUTH_INVENTORY;
-            case EAST -> EAST_INVENTORY;
-            case WEST -> WEST_INVENTORY;
-            case UP -> UP_INVENTORY;
-            case DOWN -> DOWN_INVENTORY;
-        };
+        @Override
+        public String asString() {
+            return name;
+        }
     }
 }
