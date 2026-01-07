@@ -78,6 +78,15 @@ public class LogisticsBlocks {
         )
     );
 
+    public static final Block QUARTZ_PIPE = registerBlock("quartz_pipe",
+        () -> new QuartzPipeBlock(AbstractBlock.Settings.create()
+            .mapColor(MapColor.OFF_WHITE)
+            .strength(2.0f, 6.0f)
+            .sounds(BlockSoundGroup.STONE)
+            .nonOpaque()
+        )
+    );
+
     public static final Block VOID_PIPE = registerBlock("void_pipe",
         () -> new VoidPipeBlock(AbstractBlock.Settings.create()
             .mapColor(MapColor.BLACK)

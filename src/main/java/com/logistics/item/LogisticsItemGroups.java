@@ -26,6 +26,7 @@ public class LogisticsItemGroups {
                 entries.add(LogisticsBlocks.GOLD_PIPE);
                 entries.add(LogisticsBlocks.DIAMOND_PIPE);
                 entries.add(LogisticsBlocks.COPPER_PIPE);
+                entries.add(LogisticsBlocks.QUARTZ_PIPE);
                 entries.add(LogisticsBlocks.VOID_PIPE);
             })
             .build()

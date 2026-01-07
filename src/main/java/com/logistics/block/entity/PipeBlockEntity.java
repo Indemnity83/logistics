@@ -515,4 +515,13 @@ public class PipeBlockEntity extends BlockEntity {
         }
         return total;
     }
+
+    public int getComparatorOutput() {
+        int total = getTotalItemCount();
+        if (total <= 0) {
+            return 0;
+        }
+        int clamped = Math.min(total, VIRTUAL_CAPACITY);
+        return Math.max(1, (clamped * 15) / VIRTUAL_CAPACITY);
+    }
 }

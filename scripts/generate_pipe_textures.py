@@ -548,6 +548,41 @@ def generate_copper_pipe():
 
     return img
 
+def generate_quartz_pipe():
+    """Generate quartz pipe texture - bright stone white with subtle noise."""
+    img = create_base_texture()
+    pixels = img.load()
+
+    seed_base = f"{TEXTURE_SEED}:quartz:base"
+    seed_border = f"{TEXTURE_SEED}:quartz:border"
+
+    interior_palette = [
+        (230, 219, 198, 255),
+        (236, 224, 202, 255),
+        (241, 229, 206, 255),
+        (246, 234, 210, 255),
+        (250, 239, 214, 255),
+    ]
+    border_palette = [
+        (210, 198, 176, 255),
+        (216, 203, 182, 255),
+        (222, 209, 188, 255),
+    ]
+
+    for y in range(SIZE):
+        for x in range(SIZE):
+            if not is_in_cross(x, y):
+                continue
+
+            if is_border(x, y):
+                color = pick_from_palette(border_palette, seed_border, x, y)
+                pixels[x, y] = add_noise(color, seed_border, x, y, variance=2)
+            else:
+                color = pick_from_palette(interior_palette, seed_base, x, y)
+                pixels[x, y] = add_noise(color, seed_base, x, y, variance=2)
+
+    return img
+
 
 # --- Void (Obsidian-like) Pipe ---
 def generate_void_pipe():
@@ -604,6 +639,7 @@ def main():
         'diamond': generate_diamond_pipe,
         'void': generate_void_pipe,
         'copper': generate_copper_pipe,
+        'quartz': generate_quartz_pipe,
     }
 
     # Per-material arm pattern visibility. Higher alpha => harder to see into the pipe.
@@ -616,6 +652,7 @@ def main():
         'diamond': {'pattern_alpha': 90},
         'void': {'pattern_alpha': 170},
         'copper': {'pattern_alpha': 115},
+        'quartz': {'pattern_alpha': 100},
     }
 
     # Generate transparent versions (default)
