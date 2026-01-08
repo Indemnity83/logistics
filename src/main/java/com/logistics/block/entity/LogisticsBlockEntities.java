@@ -12,15 +12,15 @@ public class LogisticsBlockEntities {
         Registries.BLOCK_ENTITY_TYPE,
         Identifier.of(LogisticsMod.MOD_ID, "pipe"),
         BlockEntityType.Builder.create(PipeBlockEntity::new,
-            LogisticsBlocks.COBBLESTONE_PIPE,
-            LogisticsBlocks.STONE_PIPE,
-            LogisticsBlocks.WOOD_PIPE,
-            LogisticsBlocks.IRON_PIPE,
-            LogisticsBlocks.GOLD_PIPE,
-            LogisticsBlocks.DIAMOND_PIPE,
-            LogisticsBlocks.COPPER_PIPE,
-            LogisticsBlocks.QUARTZ_PIPE,
-            LogisticsBlocks.VOID_PIPE
+            LogisticsBlocks.COBBLESTONE_TRANSPORT_PIPE,
+            LogisticsBlocks.STONE_TRANSPORT_PIPE,
+            LogisticsBlocks.WOODEN_TRANSPORT_PIPE,
+            LogisticsBlocks.IRON_TRANSPORT_PIPE,
+            LogisticsBlocks.GOLD_TRANSPORT_PIPE,
+            LogisticsBlocks.DIAMOND_TRANSPORT_PIPE,
+            LogisticsBlocks.COPPER_TRANSPORT_PIPE,
+            LogisticsBlocks.QUARTZ_TRANSPORT_PIPE,
+            LogisticsBlocks.VOID_TRANSPORT_PIPE
         ).build()
     );
 

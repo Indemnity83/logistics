@@ -2,7 +2,8 @@ package com.logistics.client.render;
 
 import com.logistics.block.PipeBlock;
 import com.logistics.block.entity.PipeBlockEntity;
-import com.logistics.item.TravelingItem;
+import com.logistics.pipe.runtime.TravelingItem;
+import com.logistics.pipe.runtime.PipeConfig;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.block.entity.BlockEntityRenderer;
@@ -35,8 +36,8 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
 
             // Get pipe's target speed, acceleration, and whether it can accelerate
             BlockState state = entity.getCachedState();
-            float targetSpeed = PipeBlock.BASE_PIPE_SPEED;
-            float accelerationRate = PipeBlock.ACCELERATION_RATE;
+            float targetSpeed = PipeConfig.BASE_PIPE_SPEED;
+            float accelerationRate = 0f;
             boolean canAccelerate = false;
 
             if (state.getBlock() instanceof PipeBlock pipeBlock) {

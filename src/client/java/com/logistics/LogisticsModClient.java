@@ -14,15 +14,15 @@ public class LogisticsModClient implements ClientModInitializer {
 		LogisticsMod.LOGGER.info("Initializing Logistics client");
 
 		// Register pipe blocks to render with transparency
-		BlockRenderLayerMap.INSTANCE.putBlock(LogisticsBlocks.COBBLESTONE_PIPE, RenderLayer.getCutout());
-		BlockRenderLayerMap.INSTANCE.putBlock(LogisticsBlocks.STONE_PIPE, RenderLayer.getCutout());
-		BlockRenderLayerMap.INSTANCE.putBlock(LogisticsBlocks.WOOD_PIPE, RenderLayer.getCutout());
-		BlockRenderLayerMap.INSTANCE.putBlock(LogisticsBlocks.IRON_PIPE, RenderLayer.getCutout());
-		BlockRenderLayerMap.INSTANCE.putBlock(LogisticsBlocks.GOLD_PIPE, RenderLayer.getCutout());
-		BlockRenderLayerMap.INSTANCE.putBlock(LogisticsBlocks.DIAMOND_PIPE, RenderLayer.getCutout());
-		BlockRenderLayerMap.INSTANCE.putBlock(LogisticsBlocks.COPPER_PIPE, RenderLayer.getCutout());
-		BlockRenderLayerMap.INSTANCE.putBlock(LogisticsBlocks.QUARTZ_PIPE, RenderLayer.getCutout());
-		BlockRenderLayerMap.INSTANCE.putBlock(LogisticsBlocks.VOID_PIPE, RenderLayer.getCutout());
+		BlockRenderLayerMap.INSTANCE.putBlock(LogisticsBlocks.COBBLESTONE_TRANSPORT_PIPE, RenderLayer.getCutout());
+		BlockRenderLayerMap.INSTANCE.putBlock(LogisticsBlocks.STONE_TRANSPORT_PIPE, RenderLayer.getCutout());
+		BlockRenderLayerMap.INSTANCE.putBlock(LogisticsBlocks.WOODEN_TRANSPORT_PIPE, RenderLayer.getCutout());
+		BlockRenderLayerMap.INSTANCE.putBlock(LogisticsBlocks.IRON_TRANSPORT_PIPE, RenderLayer.getCutout());
+		BlockRenderLayerMap.INSTANCE.putBlock(LogisticsBlocks.GOLD_TRANSPORT_PIPE, RenderLayer.getCutout());
+		BlockRenderLayerMap.INSTANCE.putBlock(LogisticsBlocks.DIAMOND_TRANSPORT_PIPE, RenderLayer.getCutout());
+		BlockRenderLayerMap.INSTANCE.putBlock(LogisticsBlocks.COPPER_TRANSPORT_PIPE, RenderLayer.getCutout());
+		BlockRenderLayerMap.INSTANCE.putBlock(LogisticsBlocks.QUARTZ_TRANSPORT_PIPE, RenderLayer.getCutout());
+		BlockRenderLayerMap.INSTANCE.putBlock(LogisticsBlocks.VOID_TRANSPORT_PIPE, RenderLayer.getCutout());
 
 		// Register block entity renderer for traveling items
 		BlockEntityRendererFactories.register(LogisticsBlockEntities.PIPE_BLOCK_ENTITY, PipeBlockEntityRenderer::new);

@@ -1,13 +1,13 @@
 {
   "item.logistics.wrench": "Wrench",
-  "block.logistics.cobblestone_pipe": "Cobblestone Transport Pipe",
-  "block.logistics.stone_pipe": "Stone Transport Pipe",
-  "block.logistics.wood_pipe": "Wooden Transport Pipe",
-  "block.logistics.iron_pipe": "Iron Transport Pipe",
-  "block.logistics.gold_pipe": "Golden Transport Pipe",
-  "block.logistics.diamond_pipe": "Diamond Transport Pipe",
-  "block.logistics.copper_pipe": "Copper Transport Pipe",
-  "block.logistics.quartz_pipe": "Quartz Transport Pipe",
-  "block.logistics.void_pipe": "Void Transport Pipe",
+  "block.logistics.cobblestone_transport_pipe": "Cobblestone Transport Pipe",
+  "block.logistics.stone_transport_pipe": "Stone Transport Pipe",
+  "block.logistics.wooden_transport_pipe": "Wooden Transport Pipe",
+  "block.logistics.iron_transport_pipe": "Iron Transport Pipe",
+  "block.logistics.gold_transport_pipe": "Golden Transport Pipe",
+  "block.logistics.diamond_transport_pipe": "Diamond Transport Pipe",
+  "block.logistics.copper_transport_pipe": "Copper Transport Pipe",
+  "block.logistics.quartz_transport_pipe": "Quartz Transport Pipe",
+  "block.logistics.void_transport_pipe": "Void Transport Pipe",
   "itemgroup.logistics.transport": "Logistics: Transport"
 }

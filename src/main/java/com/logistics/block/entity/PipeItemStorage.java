@@ -1,6 +1,6 @@
 package com.logistics.block.entity;
 
-import com.logistics.item.TravelingItem;
+import com.logistics.pipe.runtime.TravelingItem;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
@@ -27,7 +27,8 @@ public class PipeItemStorage implements Storage<ItemVariant> {
             return 0;
         }
 
-        long accepted = pipe.getInsertableAmount(maxAmount, fromDirection);
+        ItemStack previewStack = resource.toStack(1);
+        long accepted = pipe.getInsertableAmount(maxAmount, fromDirection, previewStack);
         if (accepted <= 0) {
             return 0;
         }
@@ -42,12 +43,12 @@ public class PipeItemStorage implements Storage<ItemVariant> {
         return accepted;
     }
 
-    public long insertTravelingItem(TravelingItem item, TransactionContext transaction) {
+    public long forceInsert(TravelingItem item, TransactionContext transaction) {
         if (item.getStack().isEmpty()) {
             return 0;
         }
 
-        long accepted = pipe.getInsertableAmount(item.getStack().getCount(), fromDirection);
+        long accepted = pipe.getInsertableAmount(item.getStack().getCount(), fromDirection, item.getStack());
         if (accepted <= 0) {
             return 0;
         }

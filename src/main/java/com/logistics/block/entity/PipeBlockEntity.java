@@ -1,26 +1,24 @@
 package com.logistics.block.entity;
 
-import com.logistics.block.IronPipeBlock;
 import com.logistics.block.PipeBlock;
-import com.logistics.block.WoodenPipeBlock;
-import com.logistics.block.CopperPipeBlock;
-import com.logistics.block.VoidPipeBlock;
-import com.logistics.item.TravelingItem;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
+import com.logistics.pipe.runtime.TravelingItem;
+import com.logistics.pipe.Pipe;
+import com.logistics.pipe.runtime.PipeConfig;
+import com.logistics.pipe.PipeContext;
+import com.logistics.pipe.runtime.PipeRuntime;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
-import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.registry.RegistryWrapper;
-import net.minecraft.state.property.EnumProperty;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
@@ -32,10 +30,10 @@ import java.util.List;
 public class PipeBlockEntity extends BlockEntity {
     public static final int VIRTUAL_CAPACITY = 5 * 64;
     private final List<TravelingItem> travelingItems = new ArrayList<>();
-    @Nullable
-    private Direction activeInputFace;
-    private int roundRobinIndex;
-    private boolean roundRobinDirty;
+    private final NbtCompound moduleState = new NbtCompound();
+
+    // Tracks changes in connected sides so modules can react deterministically.
+    private int lastConnectionsMask = -1;
 
     public PipeBlockEntity(BlockPos pos, BlockState state) {
         super(LogisticsBlockEntities.PIPE_BLOCK_ENTITY, pos, state);
@@ -45,10 +43,11 @@ public class PipeBlockEntity extends BlockEntity {
      * Add an item to this pipe
      * @param item The item to add
      * @param fromDirection The direction the item is coming from
+     * @param bypassIngress Bypass any ingress checks
      * @return true if accepted, false if rejected
      */
-    public boolean addItem(TravelingItem item, Direction fromDirection) {
-        long accepted = getInsertableAmount(item.getStack().getCount(), fromDirection);
+    public boolean addItem(TravelingItem item, Direction fromDirection, boolean bypassIngress) {
+        long accepted = getInsertableAmount(item.getStack().getCount(), fromDirection, item.getStack(), bypassIngress);
         if (accepted <= 0) {
             dropItem(world, pos, item);
             return false;
@@ -73,6 +72,10 @@ public class PipeBlockEntity extends BlockEntity {
         return true;
     }
 
+    public boolean forceAddItem(TravelingItem item, Direction fromDirection) {
+        return addItem(item, fromDirection, true);
+    }
+
     /**
      * Get all traveling items (for rendering)
      */
@@ -91,10 +94,9 @@ public class PipeBlockEntity extends BlockEntity {
         }
         nbt.put("TravelingItems", itemsList);
 
-        if (activeInputFace != null) {
-            nbt.putInt("ActiveInputFace", activeInputFace.getId());
+        if (!moduleState.isEmpty()) {
+            nbt.put("ModuleState", moduleState.copy());
         }
-        nbt.putInt("RoundRobinIndex", roundRobinIndex);
     }
 
     @Override
@@ -103,18 +105,22 @@ public class PipeBlockEntity extends BlockEntity {
 
         // Load traveling items
         travelingItems.clear();
-        NbtList itemsList = nbt.getList("TravelingItems", 10); // 10 = compound type
+        NbtList itemsList = nbt.getList("TravelingItems", NbtElement.COMPOUND_TYPE);
         for (int i = 0; i < itemsList.size(); i++) {
             travelingItems.add(TravelingItem.fromNbt(itemsList.getCompound(i), registryLookup));
         }
 
-        if (nbt.contains("ActiveInputFace", 99)) {
-            int faceId = nbt.getInt("ActiveInputFace");
-            activeInputFace = faceId >= 0 ? Direction.byId(faceId) : null;
-        } else {
-            activeInputFace = null;
+        if (!moduleState.getKeys().isEmpty()) {
+            for (String key : new ArrayList<>(moduleState.getKeys())) {
+                moduleState.remove(key);
+            }
         }
-        roundRobinIndex = nbt.getInt("RoundRobinIndex");
+        if (nbt.contains("ModuleState", NbtElement.COMPOUND_TYPE)) {
+            NbtCompound stored = nbt.getCompound("ModuleState");
+            for (String key : stored.getKeys()) {
+                moduleState.put(key, stored.get(key).copy());
+            }
+        }
     }
 
     @Nullable
@@ -129,205 +135,13 @@ public class PipeBlockEntity extends BlockEntity {
     }
 
     public static void tick(net.minecraft.world.World world, BlockPos pos, BlockState state, PipeBlockEntity blockEntity) {
-        // Get pipe's target speed, acceleration rate, and whether it can accelerate
-        float targetSpeed = PipeBlock.BASE_PIPE_SPEED;
-        float accelerationRate = PipeBlock.ACCELERATION_RATE;
-        boolean canAccelerate = false;
-
-        if (state.getBlock() instanceof PipeBlock pipeBlock) {
-            targetSpeed = pipeBlock.getPipeSpeed(world, pos, state);
-            accelerationRate = pipeBlock.getAccelerationRate();
-            canAccelerate = pipeBlock.canAccelerate(world, pos, state);
-        }
-
-        // Tick all traveling items (both client and server for smooth rendering)
-        List<TravelingItem> itemsToRoute = new ArrayList<>();
-        List<TravelingItem> itemsToRemove = new ArrayList<>();
-        List<TravelingItem> itemsToDiscard = new ArrayList<>();
-        boolean needsSync = false;
-
-        for (TravelingItem item : blockEntity.travelingItems) {
-            float progressBefore = item.getProgress();
-
-            if (item.tick(targetSpeed, accelerationRate, canAccelerate)) {
-                // Item reached the end of this pipe segment
-                itemsToRoute.add(item);
-            }
-
-            // Void pipes discard items at the pipe center.
-            if (state.getBlock() instanceof VoidPipeBlock) {
-                if (item.getProgress() >= 0.5f) {
-                    itemsToDiscard.add(item);
-                    continue;
-                }
-            }
-
-            // Determine exit direction when item reaches pipe center (both client and server)
-            // Using deterministic random ensures client and server make the same choice
-            if (progressBefore < 0.5f && item.getProgress() >= 0.5f) {
-                Direction newDirection = blockEntity.chooseDirection(world, pos, state, item.getDirection());
-                if (newDirection != null && newDirection != item.getDirection()) {
-                    // Update direction without resetting progress
-                    item.setDirectionOnly(newDirection);
-                    // Server still syncs to ensure consistency
-                    if (!world.isClient) {
-                        needsSync = true;
-                    }
-                }
-            }
-
-            // On client, keep rendering items a bit longer to prevent flicker during handoff
-            // On server, remove immediately for routing
-            if (world.isClient) {
-                // Remove when progress exceeds 1.3 (gives ~6 frames buffer for server sync)
-                if (item.getProgress() > 1.3f) {
-                    itemsToRemove.add(item);
-                }
-            }
-        }
-
-        // Remove items based on client/server logic
-        if (world.isClient) {
-            // Client: only remove items that have exceeded the buffer
-            blockEntity.travelingItems.removeAll(itemsToRemove);
-            blockEntity.travelingItems.removeAll(itemsToDiscard);
-        } else {
-            // Server: remove items that reached the end (for routing)
-            blockEntity.travelingItems.removeAll(itemsToRoute);
-            blockEntity.travelingItems.removeAll(itemsToDiscard);
-        }
-
-        // Sync direction changes to clients
-        if (!world.isClient && (needsSync || blockEntity.roundRobinDirty)) {
-            blockEntity.markDirty();
-            world.updateListeners(pos, state, state, 3);
-            blockEntity.roundRobinDirty = false;
-        }
-
-        // Only handle routing on server side
-        if (!world.isClient && (!itemsToRoute.isEmpty() || !itemsToDiscard.isEmpty())) {
-            for (TravelingItem item : itemsToRoute) {
-                blockEntity.routeItem(world, pos, state, item);
-            }
-
-            blockEntity.markDirty();
-            // Sync to clients when items are removed/added
-            world.updateListeners(pos, state, state, 3);
-        }
-    }
-
-    /**
-     * Route an item that has reached the end of this pipe segment.
-     * Direction has already been determined at the pipe center (0.5 progress).
-     */
-    private void routeItem(net.minecraft.world.World world, BlockPos pos, BlockState state, TravelingItem item) {
-        // Use the item's current direction (already set at 0.5 progress)
-        Direction direction = item.getDirection();
-        BlockPos targetPos = pos.offset(direction);
-
-        Storage<ItemVariant> storage = ItemStorage.SIDED.find(world, targetPos, direction.getOpposite());
-        if (storage != null) {
-            try (Transaction transaction = Transaction.openOuter()) {
-                long inserted;
-                if (storage instanceof PipeItemStorage pipeStorage) {
-                    inserted = pipeStorage.insertTravelingItem(item, transaction);
-                } else {
-                    ItemVariant variant = ItemVariant.of(item.getStack());
-                    inserted = storage.insert(variant, item.getStack().getCount(), transaction);
-                }
-
-                if (inserted > 0) {
-                    transaction.commit();
-                    // Item was fully or partially inserted
-                    if (inserted < item.getStack().getCount()) {
-                        // Partial insertion - drop remainder
-                        item.getStack().decrement((int) inserted);
-                        dropItem(world, pos, item);
-                    }
-                    return;
-                }
-            }
-        }
-
-        // Routing failed - drop item
-        dropItem(world, pos, item);
-    }
-
-    /**
-     * Choose the best direction for an item to travel.
-     * Prefers continuing straight, but will turn if necessary.
-     * Randomly chooses between multiple valid options.
-     * Never routes back the way it came.
-     */
-    private Direction chooseDirection(net.minecraft.world.World world, BlockPos pos, BlockState state, Direction currentDirection) {
-        // Special handling for iron pipes - always route to output direction
-        if (state.getBlock() instanceof IronPipeBlock ironPipe) {
-            Direction outputDirection = ironPipe.getOutputDirection(state);
-            // Check if output direction is valid (connected and not the direction we came from)
-            if (outputDirection != currentDirection.getOpposite()) {
-                EnumProperty<PipeBlock.ConnectionType> property = getPropertyForDirection(outputDirection);
-                if (property != null && state.get(property) != PipeBlock.ConnectionType.NONE) {
-                    return outputDirection;
-                }
-            }
-            // If output direction is invalid, return null to drop the item
-            return null;
-        }
-
-        List<Direction> validDirections = new ArrayList<>();
-        Direction oppositeDirection = currentDirection.getOpposite();
-
-        // Check all connected directions (from the pipe's blockstate)
-        // Dumb routing: if there's a connection, it's a valid direction
-        for (Direction direction : Direction.values()) {
-            // Don't go back the way we came
-            if (direction == oppositeDirection) {
-                continue;
-            }
-
-            // Check if this direction is connected on the pipe
-            EnumProperty<PipeBlock.ConnectionType> property = getPropertyForDirection(direction);
-            if (property != null && state.get(property) != PipeBlock.ConnectionType.NONE) {
-                validDirections.add(direction);
-            }
-        }
-
-        // No valid directions
-        if (validDirections.isEmpty()) {
-            return null;
-        }
-
-        // Only one option - use it
-        if (validDirections.size() == 1) {
-            return validDirections.get(0);
-        }
-
-        if (state.getBlock() instanceof CopperPipeBlock) {
-            int index = Math.floorMod(roundRobinIndex, validDirections.size());
-            Direction chosen = validDirections.get(index);
-            roundRobinIndex = index + 1;
-            if (world != null && !world.isClient) {
-                roundRobinDirty = true;
-            }
-            return chosen;
-        }
-
-        // Multiple options - choose randomly using deterministic seed
-        // This ensures client and server make the same choice for smooth rendering
-        // Use proper hash mixing for better randomness
-        long seed = mixHash(pos.asLong(), world.getTime(), currentDirection.getId());
-        java.util.Random random = new java.util.Random(seed);
-        return validDirections.get(random.nextInt(validDirections.size()));
-    }
-
-    private static EnumProperty<PipeBlock.ConnectionType> getPropertyForDirection(Direction direction) {
-        return PipeBlock.getPropertyForDirection(direction);
+        PipeRuntime.tick(world, pos, state, blockEntity);
     }
 
     /**
      * Drop an item entity at the pipe's position
      */
-    private void dropItem(net.minecraft.world.World world, BlockPos pos, TravelingItem item) {
+    public static void dropItem(net.minecraft.world.World world, BlockPos pos, TravelingItem item) {
         // Create item entity at center of pipe
         Vec3d spawnPos = Vec3d.ofCenter(pos);
 
@@ -345,24 +159,19 @@ public class PipeBlockEntity extends BlockEntity {
         world.spawnEntity(itemEntity);
     }
 
-    /**
-     * Mix multiple values into a well-distributed hash for better randomness.
-     * Uses techniques from MurmurHash to ensure good distribution.
-     */
-    private static long mixHash(long a, long b, long c) {
-        // Mix the inputs
-        long hash = a;
-        hash = hash * 31 + b;
-        hash = hash * 31 + c;
+    public NbtCompound getOrCreateModuleState(String key) {
+        if (!moduleState.contains(key, NbtElement.COMPOUND_TYPE)) {
+            moduleState.put(key, new NbtCompound());
+        }
+        return moduleState.getCompound(key);
+    }
 
-        // MurmurHash-style bit mixing for better distribution
-        hash ^= (hash >>> 33);
-        hash *= 0xff51afd7ed558ccdL;
-        hash ^= (hash >>> 33);
-        hash *= 0xc4ceb9fe1a85ec53L;
-        hash ^= (hash >>> 33);
+    public int getLastConnectionsMask() {
+        return lastConnectionsMask;
+    }
 
-        return hash;
+    public void setLastConnectionsMask(int lastConnectionsMask) {
+        this.lastConnectionsMask = lastConnectionsMask;
     }
 
     @Nullable
@@ -376,29 +185,31 @@ public class PipeBlockEntity extends BlockEntity {
             return null;
         }
 
-        BlockPos neighborPos = pos.offset(side);
-        BlockState neighborState = world.getBlockState(neighborPos);
-        boolean neighborIsPipe = neighborState.getBlock() instanceof PipeBlock;
-
-        if (neighborIsPipe) {
-            return new PipeItemStorage(this, side);
+        if (pipeBlock.getPipe() != null) {
+            PipeContext context = new PipeContext(world, pos, state, this);
+            Pipe modulePipe = pipeBlock.getPipe();
+            if (modulePipe.canAcceptFrom(context, side, ItemStack.EMPTY)) {
+                return new PipeItemStorage(this, side);
+            }
+            return null;
         }
-
-        if (pipeBlock.canAcceptFromInventory(world, pos, state, side)) {
-            return new PipeItemStorage(this, side);
-        }
-
         return null;
     }
 
-    long getInsertableAmount(long maxAmount, Direction fromDirection) {
+    long getInsertableAmount(long maxAmount, Direction fromDirection, ItemStack stack) {
+        return getInsertableAmount(maxAmount, fromDirection, stack, false);
+    }
+
+    long getInsertableAmount(long maxAmount, Direction fromDirection, ItemStack stack, boolean bypassIngress) {
         if (maxAmount <= 0) {
             return 0;
         }
 
-        boolean fromPipe = isNeighborPipe(fromDirection);
-        if (!canAcceptFrom(fromDirection, fromPipe)) {
-            return 0;
+        if (!bypassIngress) {
+            boolean fromPipe = isNeighborPipe(fromDirection);
+            if (!canAcceptFrom(fromDirection, fromPipe, stack)) {
+                return 0;
+            }
         }
 
         int remaining = getRemainingCapacity();
@@ -424,47 +235,18 @@ public class PipeBlockEntity extends BlockEntity {
         }
     }
 
-    @Nullable
-    public Direction getActiveInputFace() {
-        return activeInputFace;
-    }
-
-    public void setActiveInputFace(@Nullable Direction direction) {
-        boolean changed = activeInputFace != direction;
-        activeInputFace = direction;
-        if (changed) {
-            markDirty();
-        }
-
-        if (world != null && !world.isClient) {
-            BlockState state = getCachedState();
-            if (state.getBlock() instanceof PipeBlock pipeBlock) {
-                BlockState updated = pipeBlock.refreshConnections(world, pos, state);
-                if (pipeBlock instanceof WoodenPipeBlock) {
-                    updated = updated.with(WoodenPipeBlock.ACTIVE_FACE, WoodenPipeBlock.toActiveFace(activeInputFace));
-                }
-                if (updated != state) {
-                    world.setBlockState(pos, updated, 3);
-                } else if (changed) {
-                    world.updateListeners(pos, state, state, 3);
-                }
-            } else if (changed) {
-                world.updateListeners(pos, getCachedState(), getCachedState(), 3);
-            }
-        }
-    }
-
     private float getInitialSpeed() {
         if (world == null) {
-            return PipeBlock.BASE_PIPE_SPEED;
+            return PipeConfig.BASE_PIPE_SPEED;
         }
 
         BlockState state = getCachedState();
-        if (state.getBlock() instanceof PipeBlock pipeBlock) {
-            return pipeBlock.getPipeSpeed(world, pos, state);
+        if (state.getBlock() instanceof PipeBlock pipeBlock && pipeBlock.getPipe() != null) {
+            PipeContext context = new PipeContext(world, pos, state, this);
+            return pipeBlock.getPipe().getTargetSpeed(context);
         }
 
-        return PipeBlock.BASE_PIPE_SPEED;
+        return PipeConfig.BASE_PIPE_SPEED;
     }
 
     private boolean isNeighborPipe(Direction fromDirection) {
@@ -477,7 +259,7 @@ public class PipeBlockEntity extends BlockEntity {
         return sourceState.getBlock() instanceof PipeBlock;
     }
 
-    private boolean canAcceptFrom(Direction fromDirection, boolean fromPipe) {
+    private boolean canAcceptFrom(Direction fromDirection, boolean fromPipe, ItemStack stack) {
         if (world == null) {
             return false;
         }
@@ -487,21 +269,12 @@ public class PipeBlockEntity extends BlockEntity {
             return false;
         }
 
-        if (fromPipe && !pipeBlock.canAcceptFromPipe(world, pos, state, fromDirection)) {
-            return false;
+        if (pipeBlock.getPipe() != null) {
+            PipeContext context = new PipeContext(world, pos, state, this);
+            return pipeBlock.getPipe().canAcceptFrom(context, fromDirection, stack);
         }
 
-        if (!fromPipe && !pipeBlock.canAcceptFromInventory(world, pos, state, fromDirection)) {
-            return false;
-        }
-
-        if (pipeBlock instanceof IronPipeBlock ironPipe) {
-            if (!ironPipe.canAcceptFromDirection(state, fromDirection)) {
-                return false;
-            }
-        }
-
-        return true;
+        return false;
     }
 
     private int getRemainingCapacity() {
@@ -524,4 +297,5 @@ public class PipeBlockEntity extends BlockEntity {
         int clamped = Math.min(total, VIRTUAL_CAPACITY);
         return Math.max(1, (clamped * 15) / VIRTUAL_CAPACITY);
     }
+
 }

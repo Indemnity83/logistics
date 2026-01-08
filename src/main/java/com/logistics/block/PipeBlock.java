@@ -1,6 +1,8 @@
 package com.logistics.block;
 
 import com.logistics.block.entity.PipeBlockEntity;
+import com.logistics.pipe.Pipe;
+import com.logistics.pipe.PipeContext;
 import com.mojang.serialization.MapCodec;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
 import net.minecraft.block.*;
@@ -11,13 +13,15 @@ import net.minecraft.entity.ItemEntity;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.item.ItemPlacementContext;
+import net.minecraft.item.ItemUsageContext;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.EnumProperty;
 import net.minecraft.state.property.Properties;
-import net.minecraft.util.ItemScatterer;
+import net.minecraft.util.ActionResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.random.Random;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
@@ -34,14 +38,9 @@ public class PipeBlock extends BlockWithEntity implements Waterloggable {
     public static final EnumProperty<ConnectionType> WEST = EnumProperty.of("west", ConnectionType.class);
     public static final EnumProperty<ConnectionType> UP = EnumProperty.of("up", ConnectionType.class);
     public static final EnumProperty<ConnectionType> DOWN = EnumProperty.of("down", ConnectionType.class);
+    public static final EnumProperty<FeatureFace> FEATURE_FACE = EnumProperty.of("feature_face", FeatureFace.class);
+    public static final BooleanProperty POWERED = Properties.POWERED;
     public static final BooleanProperty WATERLOGGED = Properties.WATERLOGGED;
-
-    // Base pipe speed - matches the speed after ~3 powered gold pipes
-    // At 0.15 blocks/tick, takes ~6.67 ticks (0.33 seconds) to traverse one segment
-    public static final float BASE_PIPE_SPEED = 3.0f / 20.0f; // Blocks per tick (0.15)
-
-    // Acceleration rate - how quickly items adjust to pipe speed
-    public static final float ACCELERATION_RATE = 0.004f; // Speed change per tick (doubled)
 
     // Uniform 8px thickness for both core and arms
     private static final double PIPE_SIZE = 8.0;
@@ -76,8 +75,15 @@ public class PipeBlock extends BlockWithEntity implements Waterloggable {
         8 + PIPE_SIZE / 2, 8 - PIPE_SIZE / 2, 8 + PIPE_SIZE / 2
     );
 
+    private final Pipe pipe;
+
     public PipeBlock(Settings settings) {
+        this(settings, null);
+    }
+
+    public PipeBlock(Settings settings, Pipe pipe) {
         super(settings);
+        this.pipe = pipe;
         setDefaultState(getDefaultState()
             .with(NORTH, ConnectionType.NONE)
             .with(SOUTH, ConnectionType.NONE)
@@ -85,8 +91,14 @@ public class PipeBlock extends BlockWithEntity implements Waterloggable {
             .with(WEST, ConnectionType.NONE)
             .with(UP, ConnectionType.NONE)
             .with(DOWN, ConnectionType.NONE)
+            .with(FEATURE_FACE, FeatureFace.NONE)
+            .with(POWERED, false)
             .with(WATERLOGGED, false)
         );
+    }
+
+    public Pipe getPipe() {
+        return pipe;
     }
 
     @Override
@@ -96,12 +108,90 @@ public class PipeBlock extends BlockWithEntity implements Waterloggable {
 
     @Override
     protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-        builder.add(NORTH, SOUTH, EAST, WEST, UP, DOWN, WATERLOGGED);
+        builder.add(NORTH, SOUTH, EAST, WEST, UP, DOWN, FEATURE_FACE, POWERED, WATERLOGGED);
     }
 
     @Override
     public BlockRenderType getRenderType(BlockState state) {
         return BlockRenderType.MODEL;
+    }
+
+    public ActionResult onWrenchUse(ItemUsageContext context) {
+        if (pipe == null) {
+            return ActionResult.PASS;
+        }
+
+        if (context.getWorld().isClient) {
+            return ActionResult.SUCCESS;
+        }
+
+        BlockEntity blockEntity = context.getWorld().getBlockEntity(context.getBlockPos());
+        if (!(blockEntity instanceof PipeBlockEntity pipeEntity)) {
+            return ActionResult.PASS;
+        }
+
+        PipeContext pipeContext = new PipeContext(
+            context.getWorld(),
+            context.getBlockPos(),
+            context.getWorld().getBlockState(context.getBlockPos()),
+            pipeEntity
+        );
+        pipe.onWrenchUse(pipeContext, context);
+        return ActionResult.SUCCESS;
+    }
+
+    public static FeatureFace toFeatureFace(@Nullable Direction direction) {
+        if (direction == null) {
+            return FeatureFace.NONE;
+        }
+
+        return switch (direction) {
+            case NORTH -> FeatureFace.NORTH;
+            case SOUTH -> FeatureFace.SOUTH;
+            case EAST -> FeatureFace.EAST;
+            case WEST -> FeatureFace.WEST;
+            case UP -> FeatureFace.UP;
+            case DOWN -> FeatureFace.DOWN;
+        };
+    }
+
+    @Override
+    public boolean hasComparatorOutput(BlockState state) {
+        return pipe != null && pipe.hasComparatorOutput();
+    }
+
+    @Override
+    public int getComparatorOutput(BlockState state, World world, BlockPos pos) {
+        if (pipe == null) {
+            return 0;
+        }
+
+        if (world.getBlockEntity(pos) instanceof PipeBlockEntity blockEntity) {
+            return pipe.getComparatorOutput(new PipeContext(world, pos, state, blockEntity));
+        }
+
+        return 0;
+    }
+
+    public enum FeatureFace implements net.minecraft.util.StringIdentifiable {
+        NONE("none"),
+        NORTH("north"),
+        SOUTH("south"),
+        EAST("east"),
+        WEST("west"),
+        UP("up"),
+        DOWN("down");
+
+        private final String name;
+
+        FeatureFace(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public String asString() {
+            return name;
+        }
     }
 
     @Nullable
@@ -157,6 +247,7 @@ public class PipeBlock extends BlockWithEntity implements Waterloggable {
             .with(WEST, canConnectTo(world, pos, Direction.WEST))
             .with(UP, canConnectTo(world, pos, Direction.UP))
             .with(DOWN, canConnectTo(world, pos, Direction.DOWN))
+            .with(POWERED, ctx.getWorld().isReceivingRedstonePower(pos))
             .with(WATERLOGGED, fluidState.getFluid() == Fluids.WATER);
 
         return state;
@@ -178,8 +269,30 @@ public class PipeBlock extends BlockWithEntity implements Waterloggable {
     }
 
     @Override
+    public void neighborUpdate(BlockState state, World world, BlockPos pos, Block block, BlockPos fromPos,
+                               boolean notify) {
+        if (!world.isClient) {
+            boolean powered = world.isReceivingRedstonePower(pos);
+            if (powered != state.get(POWERED)) {
+                world.setBlockState(pos, state.with(POWERED, powered), Block.NOTIFY_LISTENERS);
+            }
+        }
+        super.neighborUpdate(state, world, pos, block, fromPos, notify);
+    }
+
+    @Override
     public FluidState getFluidState(BlockState state) {
         return state.get(WATERLOGGED) ? Fluids.WATER.getStill(false) : super.getFluidState(state);
+    }
+
+    @Override
+    public void randomDisplayTick(BlockState state, World world, BlockPos pos, Random random) {
+        super.randomDisplayTick(state, world, pos, random);
+
+        if (pipe != null && world.getBlockEntity(pos) instanceof PipeBlockEntity blockEntity) {
+            PipeContext context = new PipeContext(world, pos, state, blockEntity);
+            pipe.randomDisplayTick(context, random);
+        }
     }
 
     @Override
@@ -188,7 +301,7 @@ public class PipeBlock extends BlockWithEntity implements Waterloggable {
             BlockEntity blockEntity = world.getBlockEntity(pos);
             if (blockEntity instanceof PipeBlockEntity pipeEntity) {
                 // Drop all traveling items
-                for (com.logistics.item.TravelingItem travelingItem : pipeEntity.getTravelingItems()) {
+                for (com.logistics.pipe.runtime.TravelingItem travelingItem : pipeEntity.getTravelingItems()) {
                     ItemEntity itemEntity = new ItemEntity(
                         world,
                         pos.getX() + 0.5,
@@ -238,64 +351,6 @@ public class PipeBlock extends BlockWithEntity implements Waterloggable {
         };
     }
 
-    /**
-     * Get the target speed for items traveling through this pipe.
-     * Can be overridden by subclasses to provide different speeds (e.g., based on redstone power).
-     * @param world The world
-     * @param pos The pipe's position
-     * @param state The pipe's block state
-     * @return Target speed in blocks per tick
-     */
-    public float getPipeSpeed(World world, BlockPos pos, BlockState state) {
-        return BASE_PIPE_SPEED;
-    }
-
-    /**
-     * Get the acceleration rate for this pipe.
-     * Can be overridden by subclasses to provide different acceleration.
-     * @return Acceleration rate in speed units per tick
-     */
-    public float getAccelerationRate() {
-        return ACCELERATION_RATE;
-    }
-
-    /**
-     * Whether this pipe can accelerate items (increase their speed).
-     * Base pipes only decelerate (provide drag). Only powered gold pipes can accelerate.
-     * @param world The world
-     * @param pos The pipe's position
-     * @param state The pipe's block state
-     * @return true if this pipe can accelerate items
-     */
-    public boolean canAccelerate(World world, BlockPos pos, BlockState state) {
-        return false; // Base pipes only decelerate
-    }
-
-    /**
-     * Whether this pipe can accept items from other pipes.
-     * Wooden pipes reject items from pipes (they're extraction-only entry points).
-     * @param world The world
-     * @param pos The pipe's position
-     * @param state The pipe's block state
-     * @param fromDirection The direction the item is coming from
-     * @return true if this pipe accepts items from other pipes
-     */
-    public boolean canAcceptFromPipe(World world, BlockPos pos, BlockState state, Direction fromDirection) {
-        return true; // Base pipes accept from other pipes
-    }
-
-    /**
-     * Whether this pipe can accept items inserted from non-pipe blocks.
-     * Base pipes are closed to external insertion; ingress pipes override this.
-     * @param world The world
-     * @param pos The pipe's position
-     * @param state The pipe's block state
-     * @param fromDirection The direction the item is coming from
-     * @return true if this pipe accepts items from non-pipe sources
-     */
-    public boolean canAcceptFromInventory(World world, BlockPos pos, BlockState state, Direction fromDirection) {
-        return false;
-    }
 
     public BlockState refreshConnections(World world, BlockPos pos, BlockState state) {
         for (Direction direction : Direction.values()) {

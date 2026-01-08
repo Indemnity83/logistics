@@ -1,0 +1,220 @@
+{
+  "multipart": [
+    {
+      "apply": {
+        "model": "logistics:block/iron_transport_pipe_core"
+      }
+    },
+    {
+      "when": {
+        "north": "pipe",
+        "feature_face": "north"
+      },
+      "apply": {
+        "model": "logistics:block/iron_transport_pipe_side_opaque"
+      }
+    },
+    {
+      "when": {
+        "north": "pipe",
+        "feature_face": "!north"
+      },
+      "apply": {
+        "model": "logistics:block/iron_transport_pipe_side"
+      }
+    },
+    {
+      "when": {
+        "north": "inventory",
+        "feature_face": "!north"
+      },
+      "apply": {
+        "model": "logistics:block/iron_transport_pipe_side_extended",
+        "uvlock": true
+      }
+    },
+    {
+      "when": {
+        "south": "pipe",
+        "feature_face": "south"
+      },
+      "apply": {
+        "model": "logistics:block/iron_transport_pipe_side_opaque",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "south": "pipe",
+        "feature_face": "!south"
+      },
+      "apply": {
+        "model": "logistics:block/iron_transport_pipe_side",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "south": "inventory",
+        "feature_face": "!south"
+      },
+      "apply": {
+        "model": "logistics:block/iron_transport_pipe_side_extended",
+        "y": 180,
+        "uvlock": true
+      }
+    },
+    {
+      "when": {
+        "east": "pipe",
+        "feature_face": "east"
+      },
+      "apply": {
+        "model": "logistics:block/iron_transport_pipe_side_opaque",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "east": "pipe",
+        "feature_face": "!east"
+      },
+      "apply": {
+        "model": "logistics:block/iron_transport_pipe_side",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "east": "inventory",
+        "feature_face": "!east"
+      },
+      "apply": {
+        "model": "logistics:block/iron_transport_pipe_side_extended",
+        "y": 90,
+        "uvlock": true
+      }
+    },
+    {
+      "when": {
+        "west": "pipe",
+        "feature_face": "west"
+      },
+      "apply": {
+        "model": "logistics:block/iron_transport_pipe_side_opaque",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "west": "pipe",
+        "feature_face": "!west"
+      },
+      "apply": {
+        "model": "logistics:block/iron_transport_pipe_side",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "west": "inventory",
+        "feature_face": "!west"
+      },
+      "apply": {
+        "model": "logistics:block/iron_transport_pipe_side_extended",
+        "y": 270,
+        "uvlock": true
+      }
+    },
+    {
+      "when": {
+        "up": "pipe",
+        "feature_face": "up"
+      },
+      "apply": {
+        "model": "logistics:block/iron_transport_pipe_side_up_opaque"
+      }
+    },
+    {
+      "when": {
+        "feature_face": "up"
+      },
+      "apply": {
+        "model": "logistics:block/iron_transport_pipe_side_up_opaque"
+      }
+    },
+    {
+      "when": {
+        "up": "pipe",
+        "feature_face": "!up"
+      },
+      "apply": {
+        "model": "logistics:block/iron_transport_pipe_side_up"
+      }
+    },
+    {
+      "when": {
+        "up": "inventory",
+        "feature_face": "!up"
+      },
+      "apply": {
+        "model": "logistics:block/iron_transport_pipe_side_up"
+      }
+    },
+    {
+      "when": {
+        "up": "inventory",
+        "feature_face": "!up"
+      },
+      "apply": {
+        "model": "logistics:block/iron_transport_pipe_side_up_extended",
+        "uvlock": true
+      }
+    },
+    {
+      "when": {
+        "down": "pipe",
+        "feature_face": "down"
+      },
+      "apply": {
+        "model": "logistics:block/iron_transport_pipe_side_down_opaque"
+      }
+    },
+    {
+      "when": {
+        "feature_face": "down"
+      },
+      "apply": {
+        "model": "logistics:block/iron_transport_pipe_side_down_opaque"
+      }
+    },
+    {
+      "when": {
+        "down": "pipe",
+        "feature_face": "!down"
+      },
+      "apply": {
+        "model": "logistics:block/iron_transport_pipe_side_down"
+      }
+    },
+    {
+      "when": {
+        "down": "inventory",
+        "feature_face": "!down"
+      },
+      "apply": {
+        "model": "logistics:block/iron_transport_pipe_side_down"
+      }
+    },
+    {
+      "when": {
+        "down": "inventory",
+        "feature_face": "!down"
+      },
+      "apply": {
+        "model": "logistics:block/iron_transport_pipe_side_down_extended",
+        "uvlock": true
+      }
+    }
+  ]
+}

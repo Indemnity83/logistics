@@ -1,0 +1,293 @@
+{
+  "multipart": [
+    {
+      "apply": {
+        "model": "logistics:block/wooden_transport_pipe_core"
+      }
+    },
+    {
+      "when": {
+        "north": "pipe"
+      },
+      "apply": {
+        "model": "logistics:block/wooden_transport_pipe_side",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "feature_face": "north"
+      },
+      "apply": {
+        "model": "logistics:block/wooden_transport_pipe_side_opaque",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "feature_face": "north"
+      },
+      "apply": {
+        "model": "logistics:block/wooden_transport_pipe_side_opaque_extended",
+        "uvlock": true,
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "north": "inventory",
+        "feature_face": "!north"
+      },
+      "apply": {
+        "model": "logistics:block/wooden_transport_pipe_side",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "north": "inventory",
+        "feature_face": "!north"
+      },
+      "apply": {
+        "model": "logistics:block/wooden_transport_pipe_side_extended",
+        "uvlock": true,
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "south": "pipe"
+      },
+      "apply": {
+        "model": "logistics:block/wooden_transport_pipe_side",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "feature_face": "south"
+      },
+      "apply": {
+        "model": "logistics:block/wooden_transport_pipe_side_opaque",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "feature_face": "south"
+      },
+      "apply": {
+        "model": "logistics:block/wooden_transport_pipe_side_opaque_extended",
+        "uvlock": true,
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "south": "inventory",
+        "feature_face": "!south"
+      },
+      "apply": {
+        "model": "logistics:block/wooden_transport_pipe_side",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "south": "inventory",
+        "feature_face": "!south"
+      },
+      "apply": {
+        "model": "logistics:block/wooden_transport_pipe_side_extended",
+        "uvlock": true,
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "east": "pipe"
+      },
+      "apply": {
+        "model": "logistics:block/wooden_transport_pipe_side",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "feature_face": "east"
+      },
+      "apply": {
+        "model": "logistics:block/wooden_transport_pipe_side_opaque",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "feature_face": "east"
+      },
+      "apply": {
+        "model": "logistics:block/wooden_transport_pipe_side_opaque_extended",
+        "uvlock": true,
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "east": "inventory",
+        "feature_face": "!east"
+      },
+      "apply": {
+        "model": "logistics:block/wooden_transport_pipe_side",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "east": "inventory",
+        "feature_face": "!east"
+      },
+      "apply": {
+        "model": "logistics:block/wooden_transport_pipe_side_extended",
+        "uvlock": true,
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "west": "pipe"
+      },
+      "apply": {
+        "model": "logistics:block/wooden_transport_pipe_side",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "feature_face": "west"
+      },
+      "apply": {
+        "model": "logistics:block/wooden_transport_pipe_side_opaque",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "feature_face": "west"
+      },
+      "apply": {
+        "model": "logistics:block/wooden_transport_pipe_side_opaque_extended",
+        "uvlock": true,
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "west": "inventory",
+        "feature_face": "!west"
+      },
+      "apply": {
+        "model": "logistics:block/wooden_transport_pipe_side",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "west": "inventory",
+        "feature_face": "!west"
+      },
+      "apply": {
+        "model": "logistics:block/wooden_transport_pipe_side_extended",
+        "uvlock": true,
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "up": "pipe"
+      },
+      "apply": {
+        "model": "logistics:block/wooden_transport_pipe_side_up"
+      }
+    },
+    {
+      "when": {
+        "feature_face": "up"
+      },
+      "apply": {
+        "model": "logistics:block/wooden_transport_pipe_side_up_opaque"
+      }
+    },
+    {
+      "when": {
+        "feature_face": "up"
+      },
+      "apply": {
+        "model": "logistics:block/wooden_transport_pipe_side_up_opaque_extended",
+        "uvlock": true
+      }
+    },
+    {
+      "when": {
+        "up": "inventory",
+        "feature_face": "!up"
+      },
+      "apply": {
+        "model": "logistics:block/wooden_transport_pipe_side_up"
+      }
+    },
+    {
+      "when": {
+        "up": "inventory",
+        "feature_face": "!up"
+      },
+      "apply": {
+        "model": "logistics:block/wooden_transport_pipe_side_up_extended",
+        "uvlock": true
+      }
+    },
+    {
+      "when": {
+        "down": "pipe"
+      },
+      "apply": {
+        "model": "logistics:block/wooden_transport_pipe_side_down"
+      }
+    },
+    {
+      "when": {
+        "feature_face": "down"
+      },
+      "apply": {
+        "model": "logistics:block/wooden_transport_pipe_side_down_opaque"
+      }
+    },
+    {
+      "when": {
+        "feature_face": "down"
+      },
+      "apply": {
+        "model": "logistics:block/wooden_transport_pipe_side_down_opaque_extended",
+        "uvlock": true
+      }
+    },
+    {
+      "when": {
+        "down": "inventory",
+        "feature_face": "!down"
+      },
+      "apply": {
+        "model": "logistics:block/wooden_transport_pipe_side_down"
+      }
+    },
+    {
+      "when": {
+        "down": "inventory",
+        "feature_face": "!down"
+      },
+      "apply": {
+        "model": "logistics:block/wooden_transport_pipe_side_down_extended",
+        "uvlock": true
+      }
+    }
+  ]
+}
