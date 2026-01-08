@@ -22,6 +22,9 @@ public final class PipeTypes {
     // Wooden pipe - extracts items from adjacent inventories
     public static final Pipe WOOD_TRANSPORT = new Pipe(new ExtractionModule()) {};
 
+    // Diamond pipe - routes items based on per-side filters
+    public static final Pipe DIAMOND_TRANSPORT = new Pipe(new SmartSplitterModule()) {};
+
     // Quartz pipe - provides redstone comparator output based on item count
     public static final Pipe QUARTZ_TRANSPORT = new Pipe(new ComparatorModule()) {};
 

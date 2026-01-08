@@ -2,7 +2,7 @@ package com.logistics.pipe;
 
 import com.logistics.pipe.modules.Module;
 import com.logistics.pipe.runtime.PipeConfig;
-import com.logistics.pipe.runtime.RouteDecision;
+import com.logistics.pipe.runtime.RoutePlan;
 import com.logistics.pipe.runtime.TravelingItem;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.random.Random;
@@ -55,15 +55,15 @@ public abstract class Pipe {
         return false;
     }
 
-    public RouteDecision route(PipeContext ctx, TravelingItem item, List<Direction> options) {
+    public RoutePlan route(PipeContext ctx, TravelingItem item, List<Direction> options) {
         for (Module module : modules) {
-            RouteDecision decision = module.route(ctx, item, options);
-            if (decision.getType() != RouteDecision.Type.PASS) {
-                return decision;
+            RoutePlan plan = module.route(ctx, item, options);
+            if (plan.getType() != RoutePlan.Type.PASS) {
+                return plan;
             }
         }
 
-        return RouteDecision.pass();
+        return RoutePlan.pass();
     }
 
     public boolean canAcceptFrom(PipeContext ctx, Direction from, net.minecraft.item.ItemStack stack) {

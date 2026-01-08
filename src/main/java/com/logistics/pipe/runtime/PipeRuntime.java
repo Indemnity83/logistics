@@ -6,7 +6,7 @@ import com.logistics.block.entity.PipeItemStorage;
 import com.logistics.pipe.runtime.TravelingItem;
 import com.logistics.pipe.Pipe;
 import com.logistics.pipe.PipeContext;
-import com.logistics.pipe.runtime.RouteDecision;
+import com.logistics.pipe.runtime.RoutePlan;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
@@ -93,14 +93,13 @@ public final class PipeRuntime {
                         needsSync = true;
                         continue;
                     }
-                    RouteDecision decision = pipe.route(pipeContext, item, validDirections);
-                    RouteDecision.Type type = decision.getType();
-                    if (type == RouteDecision.Type.PASS) {
-                        applyDefaultRouting(pipeContext, item, validDirections);
-                        if (!world.isClient) {
-                            needsSync = true;
-                        }
-                    } else if (type == RouteDecision.Type.DROP) {
+                    RoutePlan plan = pipe.route(pipeContext, item, validDirections);
+                    RoutePlan.Type type = plan.getType();
+                    if (type == RoutePlan.Type.PASS) {
+                        plan = RoutePlan.reroute(validDirections);
+                        type = RoutePlan.Type.REROUTE;
+                    }
+                    if (type == RoutePlan.Type.DROP) {
                         if (!world.isClient) {
                             PipeBlockEntity.dropItem(world, pos, item);
                         }
@@ -108,19 +107,32 @@ public final class PipeRuntime {
                         itemsToRoute.remove(item);
                         needsSync = true;
                         continue;
-                    } else if (type == RouteDecision.Type.DISCARD) {
+                    } else if (type == RoutePlan.Type.DISCARD) {
                         itemsToDiscard.add(item);
                         itemsToRoute.remove(item);
                         needsSync = true;
                         continue;
-                    } else if (type == RouteDecision.Type.REROUTE) {
-                        item.setDirection(decision.getDirection());
+                    } else if (type == RoutePlan.Type.REROUTE) {
+                        List<Direction> candidates = plan.getDirections();
+                        if (candidates.isEmpty()) {
+                            if (!world.isClient) {
+                                PipeBlockEntity.dropItem(world, pos, item);
+                            }
+                            itemsToDiscard.add(item);
+                            itemsToRoute.remove(item);
+                            needsSync = true;
+                            continue;
+                        }
+                        Direction chosen = candidates.size() == 1
+                            ? candidates.getFirst()
+                            : chooseRandomDirection(pipeContext, item.getDirection(), candidates);
+                        item.setDirection(chosen);
                         item.setRouted(true);
                         if (!world.isClient) {
                             needsSync = true;
                         }
-                    } else if (type == RouteDecision.Type.SPLIT) {
-                        List<TravelingItem> routed = decision.getItems();
+                    } else if (type == RoutePlan.Type.SPLIT) {
+                        List<TravelingItem> routed = plan.getItems();
                         if (routed.isEmpty()) {
                             itemsToDiscard.add(item);
                             itemsToRoute.remove(item);
@@ -256,19 +268,6 @@ public final class PipeRuntime {
         }
 
         return validDirections;
-    }
-
-    private static void applyDefaultRouting(PipeContext ctx, TravelingItem item, List<Direction> options) {
-        if (options.isEmpty()) {
-            return;
-        }
-
-        Direction chosen = options.size() == 1
-            ? options.getFirst()
-            : chooseRandomDirection(ctx, item.getDirection(), options);
-
-        item.setDirection(chosen);
-        item.setRouted(true);
     }
 
     private static Direction chooseRandomDirection(PipeContext ctx, Direction currentDirection, List<Direction> options) {

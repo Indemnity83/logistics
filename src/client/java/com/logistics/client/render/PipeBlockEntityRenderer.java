@@ -2,6 +2,7 @@ package com.logistics.client.render;
 
 import com.logistics.block.PipeBlock;
 import com.logistics.block.entity.PipeBlockEntity;
+import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.runtime.TravelingItem;
 import com.logistics.pipe.runtime.PipeConfig;
 import net.minecraft.block.BlockState;
@@ -41,9 +42,12 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
             boolean canAccelerate = false;
 
             if (state.getBlock() instanceof PipeBlock pipeBlock) {
-                targetSpeed = pipeBlock.getPipeSpeed(entity.getWorld(), entity.getPos(), state);
-                accelerationRate = pipeBlock.getAccelerationRate();
-                canAccelerate = pipeBlock.canAccelerate(entity.getWorld(), entity.getPos(), state);
+                if (pipeBlock.getPipe() != null && entity.getWorld() != null) {
+                    PipeContext context = new PipeContext(entity.getWorld(), entity.getPos(), state, entity);
+                    targetSpeed = pipeBlock.getPipe().getTargetSpeed(context);
+                    accelerationRate = pipeBlock.getPipe().getAccelerationRate(context);
+                    canAccelerate = pipeBlock.getPipe().canAccelerate(context);
+                }
             }
 
             // Simulate acceleration for this partial tick

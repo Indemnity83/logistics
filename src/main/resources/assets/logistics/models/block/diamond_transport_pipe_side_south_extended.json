@@ -10,52 +10,16 @@
     {
       "from": [
         4,
-        -2,
-        4
+        4,
+        -1
       ],
       "to": [
         12,
-        0,
-        12
+        12,
+        4
       ],
       "faces": {
         "north": {
-          "texture": "#texture",
-          "uv": [
-            4,
-            0,
-            12,
-            2
-          ]
-        },
-        "south": {
-          "texture": "#texture",
-          "uv": [
-            4,
-            0,
-            12,
-            2
-          ]
-        },
-        "east": {
-          "texture": "#texture",
-          "uv": [
-            4,
-            0,
-            12,
-            2
-          ]
-        },
-        "west": {
-          "texture": "#texture",
-          "uv": [
-            4,
-            0,
-            12,
-            2
-          ]
-        },
-        "down": {
           "texture": "#texture",
           "uv": [
             4,
@@ -63,52 +27,88 @@
             12,
             12
           ]
+        },
+        "east": {
+          "texture": "#texture",
+          "uv": [
+            0,
+            4,
+            5,
+            12
+          ]
+        },
+        "west": {
+          "texture": "#texture",
+          "uv": [
+            0,
+            4,
+            5,
+            12
+          ]
+        },
+        "up": {
+          "texture": "#texture",
+          "uv": [
+            4,
+            0,
+            12,
+            5
+          ]
+        },
+        "down": {
+          "texture": "#texture",
+          "uv": [
+            4,
+            0,
+            12,
+            5
+          ]
         }
       }
     },
     {
       "from": [
         3.99,
-        -2,
-        3.99
+        3.99,
+        -1
       ],
       "to": [
         12.01,
-        0,
-        12.01
+        12.01,
+        4
       ],
       "faces": {
-        "north": {
-          "texture": "#tint",
-          "tintindex": 5
-        },
-        "south": {
-          "texture": "#tint",
-          "tintindex": 5
-        },
         "east": {
           "texture": "#tint",
-          "tintindex": 5
+          "tintindex": 1
         },
         "west": {
           "texture": "#tint",
-          "tintindex": 5
+          "tintindex": 1
+        },
+        "up": {
+          "texture": "#tint",
+          "tintindex": 1
+        },
+        "down": {
+          "texture": "#tint",
+          "tintindex": 1
         }
       }
     },
     {
       "from": [
         4,
-        -2.01,
-        4
+        4,
+        -1.01
       ],
       "to": [
         12,
-        -2.0,
-        12
+        12,
+        -1.0
       ],
       "faces": {
-        "down": {
+        "north": {
           "texture": "#inner",
           "uv": [
             4,

@@ -1,7 +1,7 @@
 package com.logistics.pipe.modules;
 
 import com.logistics.pipe.PipeContext;
-import com.logistics.pipe.runtime.RouteDecision;
+import com.logistics.pipe.runtime.RoutePlan;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.util.math.random.Random;
 
@@ -9,9 +9,9 @@ import java.util.List;
 
 public class VoidModule implements Module {
     @Override
-    public RouteDecision route(PipeContext ctx, com.logistics.pipe.runtime.TravelingItem item,
+    public RoutePlan route(PipeContext ctx, com.logistics.pipe.runtime.TravelingItem item,
                                List<net.minecraft.util.math.Direction> options) {
-        return RouteDecision.discard();
+        return RoutePlan.discard();
     }
 
     @Override

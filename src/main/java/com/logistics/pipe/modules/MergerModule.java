@@ -1,7 +1,7 @@
 package com.logistics.pipe.modules;
 
 import com.logistics.pipe.PipeContext;
-import com.logistics.pipe.runtime.RouteDecision;
+import com.logistics.pipe.runtime.RoutePlan;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUsageContext;
 import net.minecraft.nbt.NbtCompound;
@@ -30,15 +30,15 @@ public class MergerModule implements Module {
     }
 
     @Override
-    public RouteDecision route(PipeContext ctx, com.logistics.pipe.runtime.TravelingItem item, List<Direction> options) {
+    public RoutePlan route(PipeContext ctx, com.logistics.pipe.runtime.TravelingItem item, List<Direction> options) {
         Direction out = getOutputDirection(ctx);
 
         // If the output direction is not configured or no longer valid, drop the stack on the ground at the pipe.
         if (out == null || options == null || options.isEmpty() || !options.contains(out)) {
-            return RouteDecision.drop();
+            return RoutePlan.drop();
         }
 
-        return RouteDecision.reroute(out);
+        return RoutePlan.reroute(out);
     }
 
     @Override

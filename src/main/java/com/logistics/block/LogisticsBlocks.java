@@ -72,7 +72,7 @@ public class LogisticsBlocks {
             .strength(3.0f, 6.0f)
             .sounds(BlockSoundGroup.METAL)
             .nonOpaque(),
-            PipeTypes.BASIC_TRANSPORT
+            PipeTypes.DIAMOND_TRANSPORT
         )
     );
 

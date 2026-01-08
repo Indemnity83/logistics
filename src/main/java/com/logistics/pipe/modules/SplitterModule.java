@@ -1,7 +1,7 @@
 package com.logistics.pipe.modules;
 
 import com.logistics.pipe.PipeContext;
-import com.logistics.pipe.runtime.RouteDecision;
+import com.logistics.pipe.runtime.RoutePlan;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.math.Direction;
 
@@ -27,10 +27,10 @@ public class SplitterModule implements Module {
     }
 
     @Override
-    public RouteDecision route(PipeContext ctx, com.logistics.pipe.runtime.TravelingItem item, List<Direction> options) {
-        // If there are no options, let the pipe engine handle the failure case (drop, discard, etc.).
+    public RoutePlan route(PipeContext ctx, com.logistics.pipe.runtime.TravelingItem item, List<Direction> options) {
+        // If there are no options, drop the items
         if (options == null || options.isEmpty()) {
-            return RouteDecision.pass();
+            return RoutePlan.drop();
         }
 
         // Ensure deterministic ordering so "round robin" is meaningful.
@@ -49,6 +49,6 @@ public class SplitterModule implements Module {
         state.putInt(NEXT_INDEX_KEY, (idx + 1) % ordered.size());
 
         // Route to the chosen direction.
-        return RouteDecision.reroute(out);
+        return RoutePlan.reroute(List.of(out));
     }
 }

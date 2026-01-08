@@ -1,7 +1,7 @@
 package com.logistics.pipe.modules;
 
 import com.logistics.pipe.PipeContext;
-import com.logistics.pipe.runtime.RouteDecision;
+import com.logistics.pipe.runtime.RoutePlan;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUsageContext;
 import net.minecraft.util.math.Direction;
@@ -29,8 +29,8 @@ public interface Module {
         return false;
     }
 
-    default RouteDecision route(PipeContext ctx, com.logistics.pipe.runtime.TravelingItem item, List<Direction> options) {
-        return RouteDecision.pass();
+    default RoutePlan route(PipeContext ctx, com.logistics.pipe.runtime.TravelingItem item, List<Direction> options) {
+        return RoutePlan.pass();
     }
 
     default boolean discardWhenNoRoute(PipeContext ctx) {

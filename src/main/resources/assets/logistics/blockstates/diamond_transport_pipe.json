@@ -10,7 +10,7 @@
         "north": "pipe"
       },
       "apply": {
-        "model": "logistics:block/diamond_transport_pipe_side"
+        "model": "logistics:block/diamond_transport_pipe_side_north"
       }
     },
     {
@@ -18,7 +18,7 @@
         "north": "inventory"
       },
       "apply": {
-        "model": "logistics:block/diamond_transport_pipe_side_extended",
+        "model": "logistics:block/diamond_transport_pipe_side_north_extended",
         "uvlock": true
       }
     },
@@ -27,7 +27,7 @@
         "south": "pipe"
       },
       "apply": {
-        "model": "logistics:block/diamond_transport_pipe_side",
+        "model": "logistics:block/diamond_transport_pipe_side_south",
         "y": 180
       }
     },
@@ -36,7 +36,7 @@
         "south": "inventory"
       },
       "apply": {
-        "model": "logistics:block/diamond_transport_pipe_side_extended",
+        "model": "logistics:block/diamond_transport_pipe_side_south_extended",
         "y": 180,
         "uvlock": true
       }
@@ -46,7 +46,7 @@
         "east": "pipe"
       },
       "apply": {
-        "model": "logistics:block/diamond_transport_pipe_side",
+        "model": "logistics:block/diamond_transport_pipe_side_east",
         "y": 90
       }
     },
@@ -55,7 +55,7 @@
         "east": "inventory"
       },
       "apply": {
-        "model": "logistics:block/diamond_transport_pipe_side_extended",
+        "model": "logistics:block/diamond_transport_pipe_side_east_extended",
         "y": 90,
         "uvlock": true
       }
@@ -65,7 +65,7 @@
         "west": "pipe"
       },
       "apply": {
-        "model": "logistics:block/diamond_transport_pipe_side",
+        "model": "logistics:block/diamond_transport_pipe_side_west",
         "y": 270
       }
     },
@@ -74,7 +74,7 @@
         "west": "inventory"
       },
       "apply": {
-        "model": "logistics:block/diamond_transport_pipe_side_extended",
+        "model": "logistics:block/diamond_transport_pipe_side_west_extended",
         "y": 270,
         "uvlock": true
       }

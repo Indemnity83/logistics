@@ -9,5 +9,6 @@
   "block.logistics.copper_transport_pipe": "Copper Transport Pipe",
   "block.logistics.quartz_transport_pipe": "Quartz Transport Pipe",
   "block.logistics.void_transport_pipe": "Void Transport Pipe",
-  "itemgroup.logistics.transport": "Logistics: Transport"
+  "itemgroup.logistics.transport": "Logistics: Transport",
+  "screen.logistics.diamond_filter": "Diamond Pipe Filters"
 }

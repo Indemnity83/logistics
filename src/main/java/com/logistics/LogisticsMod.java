@@ -4,6 +4,7 @@ import com.logistics.block.LogisticsBlocks;
 import com.logistics.block.entity.LogisticsBlockEntities;
 import com.logistics.item.LogisticsItemGroups;
 import com.logistics.item.LogisticsItems;
+import com.logistics.pipe.ui.PipeScreenHandlers;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
 import org.slf4j.Logger;
@@ -20,6 +21,7 @@ public class LogisticsMod implements ModInitializer {
 		LogisticsItems.initialize();
 		LogisticsBlocks.initialize();
 		LogisticsBlockEntities.initialize();
+		PipeScreenHandlers.initialize();
 		LogisticsItemGroups.initialize();
 
 		ItemStorage.SIDED.registerForBlockEntity(

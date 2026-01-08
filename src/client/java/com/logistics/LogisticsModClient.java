@@ -3,8 +3,13 @@ package com.logistics;
 import com.logistics.block.LogisticsBlocks;
 import com.logistics.block.entity.LogisticsBlockEntities;
 import com.logistics.client.render.PipeBlockEntityRenderer;
+import com.logistics.client.screen.DiamondFilterScreen;
+import com.logistics.pipe.modules.SmartSplitterModule;
+import com.logistics.pipe.ui.PipeScreenHandlers;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
+import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
+import net.minecraft.client.gui.screen.ingame.HandledScreens;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactories;
 
@@ -26,5 +31,13 @@ public class LogisticsModClient implements ClientModInitializer {
 
 		// Register block entity renderer for traveling items
 		BlockEntityRendererFactories.register(LogisticsBlockEntities.PIPE_BLOCK_ENTITY, PipeBlockEntityRenderer::new);
+
+		HandledScreens.register(PipeScreenHandlers.DIAMOND_FILTER, DiamondFilterScreen::new);
+		ColorProviderRegistry.BLOCK.register((state, world, pos, tintIndex) -> {
+			if (tintIndex < 0 || tintIndex >= SmartSplitterModule.FILTER_ORDER.length) {
+				return 0xFFFFFF;
+			}
+			return SmartSplitterModule.getFilterColor(SmartSplitterModule.FILTER_ORDER[tintIndex]);
+		}, LogisticsBlocks.DIAMOND_TRANSPORT_PIPE);
 	}
 }
