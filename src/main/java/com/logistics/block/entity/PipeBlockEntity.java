@@ -101,6 +101,7 @@ public class PipeBlockEntity extends BlockEntity {
 
     @Override
     protected void readNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
+        long readStart = System.nanoTime();
         super.readNbt(nbt, registryLookup);
 
         // Load traveling items
@@ -120,6 +121,16 @@ public class PipeBlockEntity extends BlockEntity {
             for (String key : stored.getKeys()) {
                 moduleState.put(key, stored.get(key).copy());
             }
+        }
+
+        long durationMs = (System.nanoTime() - readStart) / 1_000_000L;
+        if (durationMs >= 2L && Boolean.getBoolean("logistics.timing")) {
+            com.logistics.LogisticsMod.LOGGER.info(
+                "[timing] PipeBlockEntity readNbt at {} took {} ms (items={})",
+                getPos(),
+                durationMs,
+                travelingItems.size()
+            );
         }
     }
 
