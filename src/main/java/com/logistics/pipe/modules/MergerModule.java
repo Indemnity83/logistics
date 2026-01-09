@@ -17,7 +17,7 @@ public class MergerModule implements Module {
 
     @Override
     public void onConnectionsChanged(PipeContext ctx, List<Direction> options) {
-        List<Direction> outputs = ctx.getPipeConnections();
+        List<Direction> outputs = ctx.getConnectedDirections();
         if (outputs.isEmpty()) {
             setOutputDirection(ctx, null);
             return;
@@ -43,7 +43,7 @@ public class MergerModule implements Module {
 
     @Override
     public void onWrenchUse(PipeContext ctx, ItemUsageContext usage) {
-        List<Direction> connected = ctx.getPipeConnections();
+        List<Direction> connected = ctx.getConnectedDirections();
 
         // No valid outputs: clear config.
         if (connected.isEmpty()) {
