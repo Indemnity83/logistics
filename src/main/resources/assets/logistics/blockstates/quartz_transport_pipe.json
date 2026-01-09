@@ -1,117 +1,18 @@
 {
   "multipart": [
-    {
-      "apply": {
-        "model": "logistics:block/quartz_transport_pipe_core"
-      }
-    },
-    {
-      "when": {
-        "north": "pipe"
-      },
-      "apply": {
-        "model": "logistics:block/quartz_transport_pipe_side"
-      }
-    },
-    {
-      "when": {
-        "north": "inventory"
-      },
-      "apply": {
-        "model": "logistics:block/quartz_transport_pipe_side_extended",
-        "uvlock": true
-      }
-    },
-    {
-      "when": {
-        "south": "pipe"
-      },
-      "apply": {
-        "model": "logistics:block/quartz_transport_pipe_side",
-        "y": 180
-      }
-    },
-    {
-      "when": {
-        "south": "inventory"
-      },
-      "apply": {
-        "model": "logistics:block/quartz_transport_pipe_side_extended",
-        "y": 180,
-        "uvlock": true
-      }
-    },
-    {
-      "when": {
-        "east": "pipe"
-      },
-      "apply": {
-        "model": "logistics:block/quartz_transport_pipe_side",
-        "y": 90
-      }
-    },
-    {
-      "when": {
-        "east": "inventory"
-      },
-      "apply": {
-        "model": "logistics:block/quartz_transport_pipe_side_extended",
-        "y": 90,
-        "uvlock": true
-      }
-    },
-    {
-      "when": {
-        "west": "pipe"
-      },
-      "apply": {
-        "model": "logistics:block/quartz_transport_pipe_side",
-        "y": 270
-      }
-    },
-    {
-      "when": {
-        "west": "inventory"
-      },
-      "apply": {
-        "model": "logistics:block/quartz_transport_pipe_side_extended",
-        "y": 270,
-        "uvlock": true
-      }
-    },
-    {
-      "when": {
-        "up": "pipe"
-      },
-      "apply": {
-        "model": "logistics:block/quartz_transport_pipe_side_up"
-      }
-    },
-    {
-      "when": {
-        "up": "inventory"
-      },
-      "apply": {
-        "model": "logistics:block/quartz_transport_pipe_side_up_extended",
-        "uvlock": true
-      }
-    },
-    {
-      "when": {
-        "down": "pipe"
-      },
-      "apply": {
-        "model": "logistics:block/quartz_transport_pipe_side_down"
-      }
-    },
-    {
-      "when": {
-        "down": "inventory"
-      },
-      "apply": {
-        "model": "logistics:block/quartz_transport_pipe_side_down_extended",
-        "uvlock": true
-      }
-    }
+    { "apply": { "model": "logistics:block/quartz_transport_pipe_core" }},
+
+    { "when": { "OR": [ { "north": "pipe" }, { "north": "inventory" } ] }, "apply": { "model": "logistics:block/quartz_transport_pipe_north" }},
+    { "when": { "OR": [ { "south": "pipe" }, { "south": "inventory" } ] }, "apply": { "model": "logistics:block/quartz_transport_pipe_south" }},
+    { "when": { "OR": [ { "east":  "pipe" }, { "east":  "inventory" } ] }, "apply": { "model": "logistics:block/quartz_transport_pipe_east"  }},
+    { "when": { "OR": [ { "west":  "pipe" }, { "west":  "inventory" } ] }, "apply": { "model": "logistics:block/quartz_transport_pipe_west"  }},
+    { "when": { "OR": [ { "up":    "pipe" }, { "up":    "inventory" } ] }, "apply": { "model": "logistics:block/quartz_transport_pipe_up"    }},
+    { "when": { "OR": [ { "down":  "pipe" }, { "down":  "inventory" } ] }, "apply": { "model": "logistics:block/quartz_transport_pipe_down"  }},
+
+    { "when": { "north": "inventory" }, "apply": { "model": "logistics:block/quartz_transport_pipe_north_extension" }},
+    { "when": { "south": "inventory" }, "apply": { "model": "logistics:block/quartz_transport_pipe_south_extension" }},
+    { "when": { "east":  "inventory" }, "apply": { "model": "logistics:block/quartz_transport_pipe_east_extension"  }},
+    { "when": { "west":  "inventory" }, "apply": { "model": "logistics:block/quartz_transport_pipe_west_extension"  }},
+    { "when": { "down":  "inventory" }, "apply": { "model": "logistics:block/quartz_transport_pipe_down_extension"  }}
   ]
 }

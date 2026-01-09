@@ -332,6 +332,9 @@ public class PipeBlock extends BlockWithEntity implements Waterloggable {
         // Connect to blocks with item storage (chests, furnaces, hoppers, etc.)
         // ItemStorage.SIDED requires a World, so only check if we have one
         if (world instanceof World actualWorld) {
+            if (pipe != null && !pipe.allowsInventoryConnections()) {
+                return ConnectionType.NONE;
+            }
             if (ItemStorage.SIDED.find(actualWorld, neighborPos, direction.getOpposite()) != null) {
                 return ConnectionType.INVENTORY;
             }

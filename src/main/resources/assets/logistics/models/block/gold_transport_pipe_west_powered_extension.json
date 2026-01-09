@@ -1,0 +1,23 @@
+{
+  "generated_by": "scripts/generate_bbmodel_models.py",
+  "source": "assets/models/gold_transport_pipe.bbmodel",
+  "parent": "block/block",
+  "textures": {
+    "texture": "logistics:block/gold_transport_pipe",
+    "particle": "logistics:block/gold_transport_pipe"
+  },
+  "elements": [
+    {
+      "from": [-1, 4, 4],
+      "to": [0, 12, 12],
+      "faces": {
+        "north": { "texture": "#texture", "uv": [8, 15, 16, 16], "rotation": 90 },
+        "east": { "texture": "#texture", "uv": [9, 5, 15, 11] },
+        "south": { "texture": "#texture", "uv": [8, 15, 16, 16], "rotation": 270 },
+        "west": { "texture": "#texture", "uv": [9, 5, 15, 11] },
+        "up": { "texture": "#texture", "uv": [8, 15, 16, 16], "rotation": 270 },
+        "down": { "texture": "#texture", "uv": [8, 15, 16, 16], "rotation": 270 }
+      }
+    }
+  ]
+}

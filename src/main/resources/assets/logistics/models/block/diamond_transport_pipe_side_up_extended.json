@@ -1,9 +1,0 @@
-{
-  "parent": "block/block",
-  "textures": {
-    "texture": "logistics:block/pipe_diamond",
-    "inner": "logistics:block/pipe_inner",
-    "particle": "logistics:block/pipe_diamond"
-  },
-  "elements": []
-}

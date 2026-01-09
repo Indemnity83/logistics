@@ -1,220 +1,31 @@
 {
   "multipart": [
-    {
-      "apply": {
-        "model": "logistics:block/iron_transport_pipe_core"
-      }
-    },
-    {
-      "when": {
-        "north": "pipe",
-        "feature_face": "north"
-      },
-      "apply": {
-        "model": "logistics:block/iron_transport_pipe_side_opaque"
-      }
-    },
-    {
-      "when": {
-        "north": "pipe",
-        "feature_face": "!north"
-      },
-      "apply": {
-        "model": "logistics:block/iron_transport_pipe_side"
-      }
-    },
-    {
-      "when": {
-        "north": "inventory",
-        "feature_face": "!north"
-      },
-      "apply": {
-        "model": "logistics:block/iron_transport_pipe_side_extended",
-        "uvlock": true
-      }
-    },
-    {
-      "when": {
-        "south": "pipe",
-        "feature_face": "south"
-      },
-      "apply": {
-        "model": "logistics:block/iron_transport_pipe_side_opaque",
-        "y": 180
-      }
-    },
-    {
-      "when": {
-        "south": "pipe",
-        "feature_face": "!south"
-      },
-      "apply": {
-        "model": "logistics:block/iron_transport_pipe_side",
-        "y": 180
-      }
-    },
-    {
-      "when": {
-        "south": "inventory",
-        "feature_face": "!south"
-      },
-      "apply": {
-        "model": "logistics:block/iron_transport_pipe_side_extended",
-        "y": 180,
-        "uvlock": true
-      }
-    },
-    {
-      "when": {
-        "east": "pipe",
-        "feature_face": "east"
-      },
-      "apply": {
-        "model": "logistics:block/iron_transport_pipe_side_opaque",
-        "y": 90
-      }
-    },
-    {
-      "when": {
-        "east": "pipe",
-        "feature_face": "!east"
-      },
-      "apply": {
-        "model": "logistics:block/iron_transport_pipe_side",
-        "y": 90
-      }
-    },
-    {
-      "when": {
-        "east": "inventory",
-        "feature_face": "!east"
-      },
-      "apply": {
-        "model": "logistics:block/iron_transport_pipe_side_extended",
-        "y": 90,
-        "uvlock": true
-      }
-    },
-    {
-      "when": {
-        "west": "pipe",
-        "feature_face": "west"
-      },
-      "apply": {
-        "model": "logistics:block/iron_transport_pipe_side_opaque",
-        "y": 270
-      }
-    },
-    {
-      "when": {
-        "west": "pipe",
-        "feature_face": "!west"
-      },
-      "apply": {
-        "model": "logistics:block/iron_transport_pipe_side",
-        "y": 270
-      }
-    },
-    {
-      "when": {
-        "west": "inventory",
-        "feature_face": "!west"
-      },
-      "apply": {
-        "model": "logistics:block/iron_transport_pipe_side_extended",
-        "y": 270,
-        "uvlock": true
-      }
-    },
-    {
-      "when": {
-        "up": "pipe",
-        "feature_face": "up"
-      },
-      "apply": {
-        "model": "logistics:block/iron_transport_pipe_side_up_opaque"
-      }
-    },
-    {
-      "when": {
-        "feature_face": "up"
-      },
-      "apply": {
-        "model": "logistics:block/iron_transport_pipe_side_up_opaque"
-      }
-    },
-    {
-      "when": {
-        "up": "pipe",
-        "feature_face": "!up"
-      },
-      "apply": {
-        "model": "logistics:block/iron_transport_pipe_side_up"
-      }
-    },
-    {
-      "when": {
-        "up": "inventory",
-        "feature_face": "!up"
-      },
-      "apply": {
-        "model": "logistics:block/iron_transport_pipe_side_up"
-      }
-    },
-    {
-      "when": {
-        "up": "inventory",
-        "feature_face": "!up"
-      },
-      "apply": {
-        "model": "logistics:block/iron_transport_pipe_side_up_extended",
-        "uvlock": true
-      }
-    },
-    {
-      "when": {
-        "down": "pipe",
-        "feature_face": "down"
-      },
-      "apply": {
-        "model": "logistics:block/iron_transport_pipe_side_down_opaque"
-      }
-    },
-    {
-      "when": {
-        "feature_face": "down"
-      },
-      "apply": {
-        "model": "logistics:block/iron_transport_pipe_side_down_opaque"
-      }
-    },
-    {
-      "when": {
-        "down": "pipe",
-        "feature_face": "!down"
-      },
-      "apply": {
-        "model": "logistics:block/iron_transport_pipe_side_down"
-      }
-    },
-    {
-      "when": {
-        "down": "inventory",
-        "feature_face": "!down"
-      },
-      "apply": {
-        "model": "logistics:block/iron_transport_pipe_side_down"
-      }
-    },
-    {
-      "when": {
-        "down": "inventory",
-        "feature_face": "!down"
-      },
-      "apply": {
-        "model": "logistics:block/iron_transport_pipe_side_down_extended",
-        "uvlock": true
-      }
-    }
+    { "apply": { "model": "logistics:block/iron_transport_pipe_core" }},
+
+    { "when": { "OR": [ { "north": "pipe" }, { "north": "inventory" } ] }, "apply": { "model": "logistics:block/iron_transport_pipe_north" }},
+    { "when": { "OR": [ { "south": "pipe" }, { "south": "inventory" } ] }, "apply": { "model": "logistics:block/iron_transport_pipe_south" }},
+    { "when": { "OR": [ { "east":  "pipe" }, { "east":  "inventory" } ] }, "apply": { "model": "logistics:block/iron_transport_pipe_east"  }},
+    { "when": { "OR": [ { "west":  "pipe" }, { "west":  "inventory" } ] }, "apply": { "model": "logistics:block/iron_transport_pipe_west"  }},
+    { "when": { "OR": [ { "up":    "pipe" }, { "up":    "inventory" } ] }, "apply": { "model": "logistics:block/iron_transport_pipe_up"    }},
+    { "when": { "OR": [ { "down":  "pipe" }, { "down":  "inventory" } ] }, "apply": { "model": "logistics:block/iron_transport_pipe_down"  }},
+
+    { "when": { "feature_face": "!north", "north": "inventory" }, "apply": { "model": "logistics:block/iron_transport_pipe_north_extension" }},
+    { "when": { "feature_face": "!south", "south": "inventory" }, "apply": { "model": "logistics:block/iron_transport_pipe_south_extension" }},
+    { "when": { "feature_face": "!east",  "east":  "inventory" }, "apply": { "model": "logistics:block/iron_transport_pipe_east_extension"  }},
+    { "when": { "feature_face": "!west",  "west":  "inventory" }, "apply": { "model": "logistics:block/iron_transport_pipe_west_extension"  }},
+    { "when": { "feature_face": "!down",  "down":  "inventory" }, "apply": { "model": "logistics:block/iron_transport_pipe_down_extension"  }},
+
+    { "when": { "feature_face": "north" }, "apply": { "model": "logistics:block/iron_transport_pipe_north_feature" }},
+    { "when": { "feature_face": "south" }, "apply": { "model": "logistics:block/iron_transport_pipe_south_feature" }},
+    { "when": { "feature_face": "east"  }, "apply": { "model": "logistics:block/iron_transport_pipe_east_feature"  }},
+    { "when": { "feature_face": "west"  }, "apply": { "model": "logistics:block/iron_transport_pipe_west_feature"  }},
+    { "when": { "feature_face": "up"    }, "apply": { "model": "logistics:block/iron_transport_pipe_up_feature"    }},
+    { "when": { "feature_face": "down"  }, "apply": { "model": "logistics:block/iron_transport_pipe_down_feature"  }},
+
+    { "when": { "feature_face": "north", "north": "inventory" }, "apply": { "model": "logistics:block/iron_transport_pipe_north_feature_extension" }},
+    { "when": { "feature_face": "south", "south": "inventory" }, "apply": { "model": "logistics:block/iron_transport_pipe_south_feature_extension" }},
+    { "when": { "feature_face": "east",  "east":  "inventory" }, "apply": { "model": "logistics:block/iron_transport_pipe_east_feature_extension"  }},
+    { "when": { "feature_face": "west",  "west":  "inventory" }, "apply": { "model": "logistics:block/iron_transport_pipe_west_feature_extension"  }},
+    { "when": { "feature_face": "down",  "down":  "inventory" }, "apply": { "model": "logistics:block/iron_transport_pipe_down_feature_extension"  }}
   ]
 }

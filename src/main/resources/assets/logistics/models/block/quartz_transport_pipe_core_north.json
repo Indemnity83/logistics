@@ -1,7 +1,0 @@
-{
-  "parent": "logistics:block/pipe_core_north",
-  "textures": {
-    "texture": "logistics:block/pipe_quartz",
-    "particle": "logistics:block/pipe_quartz"
-  }
-}

@@ -1,6 +1,0 @@
-{
-  "parent": "logistics:block/pipe_core_down",
-  "textures": {
-    "texture": "logistics:block/pipe_iron"
-  }
-}

@@ -1,6 +1,0 @@
-{
-  "parent": "logistics:block/pipe_core_south",
-  "textures": {
-    "texture": "logistics:block/pipe_gold"
-  }
-}

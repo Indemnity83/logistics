@@ -1,7 +1,0 @@
-{
-  "parent": "logistics:block/pipe_core_east",
-  "textures": {
-    "texture": "logistics:block/pipe_copper",
-    "particle": "logistics:block/pipe_copper"
-  }
-}

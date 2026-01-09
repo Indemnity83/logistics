@@ -1,0 +1,23 @@
+{
+  "generated_by": "scripts/generate_bbmodel_models.py",
+  "source": "assets/models/diamond-transport-pipe.bbmodel",
+  "parent": "block/block",
+  "textures": {
+    "texture": "logistics:block/diamond_transport_pipe",
+    "particle": "logistics:block/diamond_transport_pipe"
+  },
+  "elements": [
+    {
+      "from": [-1, 4, 4],
+      "to": [0, 12, 12],
+      "faces": {
+        "north": { "texture": "#texture", "uv": [0, 4, 1, 12], "rotation": 180 },
+        "east": { "texture": "#texture", "uv": [5, 5, 11, 11] },
+        "south": { "texture": "#texture", "uv": [0, 4, 1, 12] },
+        "west": { "texture": "#texture", "uv": [5, 5, 11, 11] },
+        "up": { "texture": "#texture", "uv": [0, 4, 1, 12] },
+        "down": { "texture": "#texture", "uv": [0, 4, 1, 12] }
+      }
+    }
+  ]
+}

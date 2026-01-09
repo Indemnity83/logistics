@@ -54,6 +54,13 @@ public interface Module {
     }
 
     /**
+     * Return false to prevent this pipe from connecting to inventories.
+     */
+    default boolean allowsInventoryConnections() {
+        return true;
+    }
+
+    /**
      * Called randomly on the client for display effects like particles.
      * Modules can override this to add visual effects.
      */

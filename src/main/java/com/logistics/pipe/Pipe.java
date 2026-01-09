@@ -131,4 +131,13 @@ public abstract class Pipe {
             module.randomDisplayTick(ctx, random);
         }
     }
+
+    public boolean allowsInventoryConnections() {
+        for (Module module : modules) {
+            if (!module.allowsInventoryConnections()) {
+                return false;
+            }
+        }
+        return true;
+    }
 }

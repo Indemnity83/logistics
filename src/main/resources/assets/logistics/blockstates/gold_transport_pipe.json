@@ -1,296 +1,32 @@
 {
   "multipart": [
-    {
-      "when": {
-        "powered": "false"
-      },
-      "apply": {
-        "model": "logistics:block/gold_transport_pipe_core"
-      }
-    },
-    {
-      "when": {
-        "powered": "true"
-      },
-      "apply": {
-        "model": "logistics:block/gold_transport_pipe_core_powered"
-      }
-    },
-    {
-      "when": {
-        "north": "pipe",
-        "powered": "false"
-      },
-      "apply": {
-        "model": "logistics:block/gold_transport_pipe_side"
-      }
-    },
-    {
-      "when": {
-        "north": "inventory",
-        "powered": "false"
-      },
-      "apply": {
-        "model": "logistics:block/gold_transport_pipe_side_extended",
-        "uvlock": true
-      }
-    },
-    {
-      "when": {
-        "north": "pipe",
-        "powered": "true"
-      },
-      "apply": {
-        "model": "logistics:block/gold_transport_pipe_side_powered"
-      }
-    },
-    {
-      "when": {
-        "north": "inventory",
-        "powered": "true"
-      },
-      "apply": {
-        "model": "logistics:block/gold_transport_pipe_side_powered_extended",
-        "uvlock": true
-      }
-    },
-    {
-      "when": {
-        "south": "pipe",
-        "powered": "false"
-      },
-      "apply": {
-        "model": "logistics:block/gold_transport_pipe_side",
-        "y": 180
-      }
-    },
-    {
-      "when": {
-        "south": "inventory",
-        "powered": "false"
-      },
-      "apply": {
-        "model": "logistics:block/gold_transport_pipe_side_extended",
-        "y": 180,
-        "uvlock": true
-      }
-    },
-    {
-      "when": {
-        "south": "pipe",
-        "powered": "true"
-      },
-      "apply": {
-        "model": "logistics:block/gold_transport_pipe_side_powered",
-        "y": 180
-      }
-    },
-    {
-      "when": {
-        "south": "inventory",
-        "powered": "true"
-      },
-      "apply": {
-        "model": "logistics:block/gold_transport_pipe_side_powered_extended",
-        "y": 180,
-        "uvlock": true
-      }
-    },
-    {
-      "when": {
-        "east": "pipe",
-        "powered": "false"
-      },
-      "apply": {
-        "model": "logistics:block/gold_transport_pipe_side",
-        "y": 90
-      }
-    },
-    {
-      "when": {
-        "east": "inventory",
-        "powered": "false"
-      },
-      "apply": {
-        "model": "logistics:block/gold_transport_pipe_side_extended",
-        "y": 90,
-        "uvlock": true
-      }
-    },
-    {
-      "when": {
-        "east": "pipe",
-        "powered": "true"
-      },
-      "apply": {
-        "model": "logistics:block/gold_transport_pipe_side_powered",
-        "y": 90
-      }
-    },
-    {
-      "when": {
-        "east": "inventory",
-        "powered": "true"
-      },
-      "apply": {
-        "model": "logistics:block/gold_transport_pipe_side_powered_extended",
-        "y": 90,
-        "uvlock": true
-      }
-    },
-    {
-      "when": {
-        "west": "pipe",
-        "powered": "false"
-      },
-      "apply": {
-        "model": "logistics:block/gold_transport_pipe_side",
-        "y": 270
-      }
-    },
-    {
-      "when": {
-        "west": "inventory",
-        "powered": "false"
-      },
-      "apply": {
-        "model": "logistics:block/gold_transport_pipe_side_extended",
-        "y": 270,
-        "uvlock": true
-      }
-    },
-    {
-      "when": {
-        "west": "pipe",
-        "powered": "true"
-      },
-      "apply": {
-        "model": "logistics:block/gold_transport_pipe_side_powered",
-        "y": 270
-      }
-    },
-    {
-      "when": {
-        "west": "inventory",
-        "powered": "true"
-      },
-      "apply": {
-        "model": "logistics:block/gold_transport_pipe_side_powered_extended",
-        "y": 270,
-        "uvlock": true
-      }
-    },
-    {
-      "when": {
-        "up": "pipe",
-        "powered": "false"
-      },
-      "apply": {
-        "model": "logistics:block/gold_transport_pipe_side_up"
-      }
-    },
-    {
-      "when": {
-        "up": "inventory",
-        "powered": "false"
-      },
-      "apply": {
-        "model": "logistics:block/gold_transport_pipe_side_up"
-      }
-    },
-    {
-      "when": {
-        "up": "inventory",
-        "powered": "false"
-      },
-      "apply": {
-        "model": "logistics:block/gold_transport_pipe_side_up_extended",
-        "uvlock": true
-      }
-    },
-    {
-      "when": {
-        "up": "pipe",
-        "powered": "true"
-      },
-      "apply": {
-        "model": "logistics:block/gold_transport_pipe_side_up_powered"
-      }
-    },
-    {
-      "when": {
-        "up": "inventory",
-        "powered": "true"
-      },
-      "apply": {
-        "model": "logistics:block/gold_transport_pipe_side_up_powered"
-      }
-    },
-    {
-      "when": {
-        "up": "inventory",
-        "powered": "true"
-      },
-      "apply": {
-        "model": "logistics:block/gold_transport_pipe_side_up_powered_extended",
-        "uvlock": true
-      }
-    },
-    {
-      "when": {
-        "down": "pipe",
-        "powered": "false"
-      },
-      "apply": {
-        "model": "logistics:block/gold_transport_pipe_side_down"
-      }
-    },
-    {
-      "when": {
-        "down": "inventory",
-        "powered": "false"
-      },
-      "apply": {
-        "model": "logistics:block/gold_transport_pipe_side_down"
-      }
-    },
-    {
-      "when": {
-        "down": "inventory",
-        "powered": "false"
-      },
-      "apply": {
-        "model": "logistics:block/gold_transport_pipe_side_down_extended",
-        "uvlock": true
-      }
-    },
-    {
-      "when": {
-        "down": "pipe",
-        "powered": "true"
-      },
-      "apply": {
-        "model": "logistics:block/gold_transport_pipe_side_down_powered"
-      }
-    },
-    {
-      "when": {
-        "down": "inventory",
-        "powered": "true"
-      },
-      "apply": {
-        "model": "logistics:block/gold_transport_pipe_side_down_powered"
-      }
-    },
-    {
-      "when": {
-        "down": "inventory",
-        "powered": "true"
-      },
-      "apply": {
-        "model": "logistics:block/gold_transport_pipe_side_down_powered_extended",
-        "uvlock": true
-      }
-    }
+    { "when": { "powered": "false" },"apply": { "model": "logistics:block/gold_transport_pipe_core" }},
+    { "when": { "powered": "true" },"apply": { "model": "logistics:block/gold_transport_pipe_core_powered" }},
+
+    { "when": { "AND": [ { "powered": "false" }, { "OR": [ { "north": "pipe" }, { "north": "inventory" } ] } ] }, "apply": { "model": "logistics:block/gold_transport_pipe_north" }},
+    { "when": { "AND": [ { "powered": "false" }, { "OR": [ { "south": "pipe" }, { "south": "inventory" } ] } ] }, "apply": { "model": "logistics:block/gold_transport_pipe_south" }},
+    { "when": { "AND": [ { "powered": "false" }, { "OR": [ { "east":  "pipe" }, { "east":  "inventory" } ] } ] }, "apply": { "model": "logistics:block/gold_transport_pipe_east"  }},
+    { "when": { "AND": [ { "powered": "false" }, { "OR": [ { "west":  "pipe" }, { "west":  "inventory" } ] } ] }, "apply": { "model": "logistics:block/gold_transport_pipe_west"  }},
+    { "when": { "AND": [ { "powered": "false" }, { "OR": [ { "up":    "pipe" }, { "up":    "inventory" } ] } ] }, "apply": { "model": "logistics:block/gold_transport_pipe_up"    }},
+    { "when": { "AND": [ { "powered": "false" }, { "OR": [ { "down":  "pipe" }, { "down":  "inventory" } ] } ] }, "apply": { "model": "logistics:block/gold_transport_pipe_down"  }},
+
+    { "when": { "powered": "false", "north": "inventory" }, "apply": { "model": "logistics:block/gold_transport_pipe_north_extension" }},
+    { "when": { "powered": "false", "south": "inventory" }, "apply": { "model": "logistics:block/gold_transport_pipe_south_extension" }},
+    { "when": { "powered": "false", "east":  "inventory" }, "apply": { "model": "logistics:block/gold_transport_pipe_east_extension"  }},
+    { "when": { "powered": "false", "west":  "inventory" }, "apply": { "model": "logistics:block/gold_transport_pipe_west_extension"  }},
+    { "when": { "powered": "false", "down":  "inventory" }, "apply": { "model": "logistics:block/gold_transport_pipe_down_extension"  }},
+
+    { "when": { "AND": [ { "powered": "true" }, { "OR": [ { "north": "pipe" }, { "north": "inventory" } ] } ] }, "apply": { "model": "logistics:block/gold_transport_pipe_north_powered" }},
+    { "when": { "AND": [ { "powered": "true" }, { "OR": [ { "south": "pipe" }, { "south": "inventory" } ] } ] }, "apply": { "model": "logistics:block/gold_transport_pipe_south_powered" }},
+    { "when": { "AND": [ { "powered": "true" }, { "OR": [ { "east":  "pipe" }, { "east":  "inventory" } ] } ] }, "apply": { "model": "logistics:block/gold_transport_pipe_east_powered"  }},
+    { "when": { "AND": [ { "powered": "true" }, { "OR": [ { "west":  "pipe" }, { "west":  "inventory" } ] } ] }, "apply": { "model": "logistics:block/gold_transport_pipe_west_powered"  }},
+    { "when": { "AND": [ { "powered": "true" }, { "OR": [ { "up":    "pipe" }, { "up":    "inventory" } ] } ] }, "apply": { "model": "logistics:block/gold_transport_pipe_up_powered"    }},
+    { "when": { "AND": [ { "powered": "true" }, { "OR": [ { "down":  "pipe" }, { "down":  "inventory" } ] } ] }, "apply": { "model": "logistics:block/gold_transport_pipe_down_powered"  }},
+
+    { "when": { "powered": "true", "north": "inventory" }, "apply": { "model": "logistics:block/gold_transport_pipe_north_powered_extension" }},
+    { "when": { "powered": "true", "south": "inventory" }, "apply": { "model": "logistics:block/gold_transport_pipe_south_powered_extension" }},
+    { "when": { "powered": "true", "east":  "inventory" }, "apply": { "model": "logistics:block/gold_transport_pipe_east_powered_extension"  }},
+    { "when": { "powered": "true", "west":  "inventory" }, "apply": { "model": "logistics:block/gold_transport_pipe_west_powered_extension"  }},
+    { "when": { "powered": "true", "down":  "inventory" }, "apply": { "model": "logistics:block/gold_transport_pipe_down_powered_extension"  }}
   ]
 }

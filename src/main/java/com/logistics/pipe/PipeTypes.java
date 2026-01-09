@@ -8,7 +8,7 @@ public final class PipeTypes {
     public static final Pipe BASIC_TRANSPORT = new Pipe() {};
 
     // Void pipe - deletes items at the center with particle effects
-    public static final Pipe VOID_TRANSPORT = new Pipe(new VoidModule()) {};
+    public static final Pipe VOID_TRANSPORT = new Pipe(new VoidModule(), new PipeOnlyModule()) {};
 
     // Gold pipe - accelerates items when powered by redstone
     public static final Pipe GOLD_TRANSPORT = new Pipe(new BoostModule(PipeConfig.ACCELERATION_RATE)) {};
