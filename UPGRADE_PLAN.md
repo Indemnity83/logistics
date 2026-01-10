@@ -80,18 +80,23 @@ fabric_api_version=0.102.0+1.21 (already latest for 1.21.0)
 
 ---
 
-### 🔲 Phase 3: Update to Minecraft 1.21.2/1.21.3
-**Status**: NOT STARTED
+### ✅ Phase 3: Update to Minecraft 1.21.2/1.21.3
+**Status**: COMPLETED
 **Target Versions**:
 - Minecraft: 1.21.3
-- Yarn: 1.21.3+build.1 (or latest)
-- Loom: 1.8+
+- Yarn: 1.21.3+build.2
+- Loom: 1.8.10
 - Loader: 0.16.7
-- Fabric API: [find latest for 1.21.3]
+- Fabric API: 0.112.1+1.21.3
 
-**Breaking Changes** (CRITICAL):
-1. **Registry keys now required** for all blocks/items
-2. `FabricBlockSettings` removed → use `AbstractBlock.Settings`
+**Breaking Changes Fixed**:
+1. **Registry keys now required** for all blocks/items ✅
+2. `FabricBlockSettings` removed (already using `AbstractBlock.Settings`) ✅
+3. `ItemStack.encode()` → `ItemStack.toNbt()` ✅
+4. `BlockEntityType.Builder` → `FabricBlockEntityTypeBuilder` ✅
+5. `neighborUpdate` and `getStateForNeighborUpdate` method signature changes ✅
+6. `ModelTransformationMode` moved to `net.minecraft.item` package ✅
+7. `DrawContext.drawTexture()` now requires RenderLayer parameter ✅
 
 **Files to Change**:
 - `LogisticsBlocks.java` - Add `.registryKey()` to all block settings
@@ -245,6 +250,15 @@ BlockRenderLayerMap.put(RenderLayer.getCutout(), block);
 **Commit**: "chore: update to Minecraft 1.21.11"
 
 ---
+
+## Known Issues to Address Later
+
+### Performance: Blockstate Explosion
+- **Issue**: 36+ second initialization time due to 183,708 total blockstates (20,412 per pipe × 9 pipes)
+- **Root cause**: `FEATURE_FACE` property multiplies states by 7× (729 × 7 × 2 × 2 = 20,412 per pipe)
+- **Solution**: Move `FEATURE_FACE` rendering to Block Entity Renderer, removing it from blockstate
+- **Impact**: Would reduce to 2,916 states per pipe (26,244 total) - 85% reduction
+- **Status**: Deferred until after version migration complete
 
 ## Notes
 

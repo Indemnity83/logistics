@@ -4,6 +4,7 @@ import com.logistics.pipe.modules.SmartSplitterModule;
 import com.logistics.pipe.ui.DiamondFilterScreenHandler;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
+import net.minecraft.client.render.RenderLayer;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
@@ -23,7 +24,7 @@ public class DiamondFilterScreen extends HandledScreen<DiamondFilterScreenHandle
 
     @Override
     protected void drawBackground(DrawContext context, float delta, int mouseX, int mouseY) {
-        context.drawTexture(BACKGROUND_TEXTURE, x, y, 0, 0, backgroundWidth, backgroundHeight);
+        context.drawTexture(RenderLayer::getGuiTextured, BACKGROUND_TEXTURE, x, y, 0, 0, backgroundWidth, backgroundHeight, 256, 256);
 
         int swatchX = x + SLOT_START_X;
         int swatchY = y + SLOT_START_Y;

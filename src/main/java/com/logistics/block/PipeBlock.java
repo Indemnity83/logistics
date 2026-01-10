@@ -253,8 +253,7 @@ public class PipeBlock extends BlockWithEntity implements Waterloggable {
         return state;
     }
 
-    @Override
-    public BlockState getStateForNeighborUpdate(BlockState state, Direction direction, BlockState neighborState,
+    protected BlockState getStateForNeighborUpdate(BlockState state, Direction direction, BlockState neighborState,
                                                   WorldAccess world, BlockPos pos, BlockPos neighborPos) {
         if (state.get(WATERLOGGED)) {
             world.scheduleFluidTick(pos, Fluids.WATER, Fluids.WATER.getTickRate(world));
@@ -268,8 +267,7 @@ public class PipeBlock extends BlockWithEntity implements Waterloggable {
         return state;
     }
 
-    @Override
-    public void neighborUpdate(BlockState state, World world, BlockPos pos, Block block, BlockPos fromPos,
+    protected void neighborUpdate(BlockState state, World world, BlockPos pos, Block sourceBlock, BlockPos sourcePos,
                                boolean notify) {
         if (!world.isClient) {
             boolean powered = world.isReceivingRedstonePower(pos);
@@ -277,7 +275,6 @@ public class PipeBlock extends BlockWithEntity implements Waterloggable {
                 world.setBlockState(pos, state.with(POWERED, powered), Block.NOTIFY_LISTENERS);
             }
         }
-        super.neighborUpdate(state, world, pos, block, fromPos, notify);
     }
 
     @Override

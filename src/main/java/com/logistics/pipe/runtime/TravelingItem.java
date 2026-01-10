@@ -111,7 +111,7 @@ public class TravelingItem {
      * Save to NBT
      */
     public NbtCompound writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
-        nbt.put("Item", stack.encode(registryLookup));
+        nbt.put("Item", stack.toNbt(registryLookup));
         nbt.putFloat("Progress", progress);
         nbt.putInt("Direction", direction.getId());
         nbt.putFloat("Speed", speed);

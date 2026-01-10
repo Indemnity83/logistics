@@ -9,6 +9,8 @@ import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.sound.BlockSoundGroup;
 import net.minecraft.util.Identifier;
 
@@ -18,6 +20,7 @@ public class LogisticsBlocks {
     // Transport Pipes
     public static final Block COBBLESTONE_TRANSPORT_PIPE = registerBlock("cobblestone_transport_pipe",
         () -> new PipeBlock(AbstractBlock.Settings.create()
+            .registryKey(RegistryKey.of(RegistryKeys.BLOCK, Identifier.of(LogisticsMod.MOD_ID, "cobblestone_transport_pipe")))
             .mapColor(MapColor.STONE_GRAY)
             .strength(2.0f, 6.0f)
             .sounds(BlockSoundGroup.STONE)
@@ -28,6 +31,7 @@ public class LogisticsBlocks {
 
     public static final Block STONE_TRANSPORT_PIPE = registerBlock("stone_transport_pipe",
         () -> new PipeBlock(AbstractBlock.Settings.create()
+            .registryKey(RegistryKey.of(RegistryKeys.BLOCK, Identifier.of(LogisticsMod.MOD_ID, "stone_transport_pipe")))
             .mapColor(MapColor.STONE_GRAY)
             .strength(1.5f, 6.0f)
             .sounds(BlockSoundGroup.STONE)
@@ -38,6 +42,7 @@ public class LogisticsBlocks {
 
     public static final Block WOODEN_TRANSPORT_PIPE = registerBlock("wooden_transport_pipe",
         () -> new PipeBlock(AbstractBlock.Settings.create()
+            .registryKey(RegistryKey.of(RegistryKeys.BLOCK, Identifier.of(LogisticsMod.MOD_ID, "wooden_transport_pipe")))
             .mapColor(MapColor.OAK_TAN)
             .strength(0.5f)
             .sounds(BlockSoundGroup.WOOD)
@@ -48,6 +53,7 @@ public class LogisticsBlocks {
 
     public static final Block IRON_TRANSPORT_PIPE = registerBlock("iron_transport_pipe",
         () -> new PipeBlock(AbstractBlock.Settings.create()
+            .registryKey(RegistryKey.of(RegistryKeys.BLOCK, Identifier.of(LogisticsMod.MOD_ID, "iron_transport_pipe")))
             .mapColor(MapColor.IRON_GRAY)
             .strength(3.0f, 6.0f)
             .sounds(BlockSoundGroup.METAL)
@@ -58,6 +64,7 @@ public class LogisticsBlocks {
 
     public static final Block GOLD_TRANSPORT_PIPE = registerBlock("gold_transport_pipe",
         () -> new PipeBlock(AbstractBlock.Settings.create()
+            .registryKey(RegistryKey.of(RegistryKeys.BLOCK, Identifier.of(LogisticsMod.MOD_ID, "gold_transport_pipe")))
             .mapColor(MapColor.GOLD)
             .strength(0.5f)
             .sounds(BlockSoundGroup.METAL)
@@ -68,6 +75,7 @@ public class LogisticsBlocks {
 
     public static final Block DIAMOND_TRANSPORT_PIPE = registerBlock("diamond_transport_pipe",
         () -> new PipeBlock(AbstractBlock.Settings.create()
+            .registryKey(RegistryKey.of(RegistryKeys.BLOCK, Identifier.of(LogisticsMod.MOD_ID, "diamond_transport_pipe")))
             .mapColor(MapColor.DIAMOND_BLUE)
             .strength(3.0f, 6.0f)
             .sounds(BlockSoundGroup.METAL)
@@ -78,6 +86,7 @@ public class LogisticsBlocks {
 
     public static final Block COPPER_TRANSPORT_PIPE = registerBlock("copper_transport_pipe",
         () -> new PipeBlock(AbstractBlock.Settings.create()
+            .registryKey(RegistryKey.of(RegistryKeys.BLOCK, Identifier.of(LogisticsMod.MOD_ID, "copper_transport_pipe")))
             .mapColor(MapColor.ORANGE)
             .strength(2.5f, 6.0f)
             .sounds(BlockSoundGroup.METAL)
@@ -88,6 +97,7 @@ public class LogisticsBlocks {
 
     public static final Block QUARTZ_TRANSPORT_PIPE = registerBlock("quartz_transport_pipe",
         () -> new PipeBlock(AbstractBlock.Settings.create()
+            .registryKey(RegistryKey.of(RegistryKeys.BLOCK, Identifier.of(LogisticsMod.MOD_ID, "quartz_transport_pipe")))
             .mapColor(MapColor.OFF_WHITE)
             .strength(2.0f, 6.0f)
             .sounds(BlockSoundGroup.STONE)
@@ -98,6 +108,7 @@ public class LogisticsBlocks {
 
     public static final Block VOID_TRANSPORT_PIPE = registerBlock("void_transport_pipe",
             () -> new PipeBlock(AbstractBlock.Settings.create()
+            .registryKey(RegistryKey.of(RegistryKeys.BLOCK, Identifier.of(LogisticsMod.MOD_ID, "void_transport_pipe")))
             .mapColor(MapColor.BLACK)
             .strength(50.0f, 1200.0f)
             .sounds(BlockSoundGroup.STONE)
@@ -114,7 +125,7 @@ public class LogisticsBlocks {
 
     private static void registerBlockItem(String name, Block block) {
         Registry.register(Registries.ITEM, Identifier.of(LogisticsMod.MOD_ID, name),
-            new BlockItem(block, new Item.Settings()));
+            new BlockItem(block, new Item.Settings().registryKey(RegistryKey.of(RegistryKeys.ITEM, Identifier.of(LogisticsMod.MOD_ID, name)))));
     }
 
     public static void initialize() {
