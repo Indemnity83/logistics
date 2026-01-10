@@ -1,0 +1,124 @@
+name: Mod Compatibility Issue
+description: Report compatibility problems between Logistics and another mod
+title: "[Compat] "
+labels: ["compatibility"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Logistics uses Fabric's Transfer API for mod interoperability, so let's figure out why it's not playing nice with another mod.
+
+  - type: input
+    id: other-mod-name
+    attributes:
+      label: Which mod is not working with Logistics?
+      description: Name of the mod you're having issues with
+      placeholder: "Applied Energistics 2"
+    validations:
+      required: true
+
+  - type: input
+    id: other-mod-version
+    attributes:
+      label: Version of the other mod
+      description: What version of that mod are you using?
+      placeholder: "15.0.15"
+    validations:
+      required: true
+
+  - type: textarea
+    id: what-not-working
+    attributes:
+      label: What's not working?
+      description: Describe the specific compatibility problem.
+      placeholder: |
+        - Pipes can't extract from Mod X's storage blocks
+        - Pipes can't insert into Mod X's machines
+        - Game crashes when pipes connect to Mod X's blocks
+        - Items disappear when routing into Mod X's network
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps-to-reproduce
+    attributes:
+      label: Steps to Reproduce
+      description: How can we recreate this issue?
+      placeholder: |
+        1. Place Mod X's storage block
+        2. Connect a wooden pipe to it
+        3. Try to extract items
+        4. Nothing happens / game crashes / etc.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: Expected Behavior
+      description: What should happen? Why do you expect Logistics to work with this mod?
+      placeholder: |
+        Wooden pipes should be able to extract from Mod X's storage because it's an inventory block.
+
+        OR
+
+        Mod X claims to support Fabric Transfer API, so pipes should be able to insert/extract.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: issue-type
+    attributes:
+      label: Type of Issue
+      description: What category does this compatibility issue fall into?
+      options:
+        - Cannot extract items
+        - Cannot insert items
+        - Crash when connecting
+        - Items lost/duplicated
+        - Other (describe below)
+    validations:
+      required: true
+
+  - type: input
+    id: logistics-version
+    attributes:
+      label: Logistics Version
+      description: What version of Logistics are you using?
+      placeholder: "0.1.0"
+    validations:
+      required: true
+
+  - type: input
+    id: minecraft-version
+    attributes:
+      label: Minecraft Version
+      description: What version of Minecraft?
+      placeholder: "1.21"
+    validations:
+      required: true
+
+  - type: input
+    id: fabric-api-version
+    attributes:
+      label: Fabric API Version
+      description: What version of Fabric API?
+      placeholder: "0.105.0+1.21"
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: crash-report
+    attributes:
+      label: Crash Report
+      description: If the game crashed, please have your crash report ready in case we need it.
+      options:
+        - label: I have a crash report available if needed
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: Any other details, screenshots, or information about the compatibility issue.
+    validations:
+      required: false

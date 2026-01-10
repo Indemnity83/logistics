@@ -1,0 +1,47 @@
+name: Build PR
+
+on:
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+
+      - name: Compute PR version
+        id: version
+        shell: bash
+        run: |
+          SHA7="$(git rev-parse --short=7 HEAD)"
+          PR_VERSION="pr${{ github.event.pull_request.number }}.${SHA7}"
+          echo "mod_version=$PR_VERSION" >> "$GITHUB_OUTPUT"
+          echo "📦 PR version: $PR_VERSION"
+
+      - name: Build
+        run: ./gradlew clean build --no-daemon
+        env:
+          MOD_VERSION: ${{ steps.version.outputs.mod_version }}
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: logistics-pr-${{ github.event.pull_request.number }}.jar
+          path: |
+            build/libs/*.jar
+            !build/libs/*-sources.jar
+            !build/libs/*-javadoc.jar
+            !build/libs/*-dev.jar

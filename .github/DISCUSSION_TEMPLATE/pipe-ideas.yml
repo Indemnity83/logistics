@@ -1,0 +1,66 @@
+title: "[Idea] "
+labels: ["discussion", "idea"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for starting a discussion!
+
+        Logistics is built around **composable systems**, not one-off magic blocks.  
+        Discussions are the right place to explore ideas, workflows, and problems before they become concrete features or pipe types.
+
+        There are no bad ideas here — the goal is to understand the *problem space*.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What are you trying to build?
+      description: Describe the system, factory, or automation problem you're running into.
+      placeholder: |
+        I'm trying to build a multi-stage processing system where items should prefer one path, but fall back to others when blocked.
+    validations:
+      required: true
+
+  - type: textarea
+    id: current-approach
+    attributes:
+      label: What have you tried?
+      description: How are you attempting to solve this today? What isn’t working well?
+      placeholder: |
+        I tried using copper pipes and iron pipes together, but I can’t express a “preferred then overflow” pattern cleanly.
+    validations:
+      required: false
+
+  - type: textarea
+    id: desired-behavior
+    attributes:
+      label: What behavior do you wish existed?
+      description: Don’t worry about specific pipes yet — describe the routing or system behavior you want.
+      placeholder: |
+        I want items to always attempt one output first, but automatically spill into others if it can’t accept them.
+    validations:
+      required: true
+
+  - type: textarea
+    id: system-view
+    attributes:
+      label: How does this fit into a larger logistics system?
+      description: What other pipes or mechanics would this interact with?
+      placeholder: |
+        This would likely combine with:
+        - Filters upstream
+        - Splitters downstream
+        - Storage buffers
+    validations:
+      required: false
+
+  - type: textarea
+    id: sketches
+    attributes:
+      label: Diagrams or extra context
+      description: Links, screenshots, ASCII diagrams, or mod interactions.
+      placeholder: |
+        [image]
+        Chest -> Filter -> ??? -> Smelters
+    validations:
+      required: false

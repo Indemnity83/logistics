@@ -1,0 +1,79 @@
+name: Build Dev
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  build-dev:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+
+      - name: Compute dev version
+        id: version
+        shell: bash
+        run: |
+          # Read current version from version.txt
+          CURRENT=$(cat version.txt)
+
+          # Parse version and increment patch
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT"
+          NEXT_PATCH="$MAJOR.$MINOR.$((PATCH+1))"
+
+          # Get short SHA
+          SHA7="$(git rev-parse --short=7 HEAD)"
+
+          # Construct dev version
+          DEV_VERSION="${NEXT_PATCH}-dev.${SHA7}"
+
+          echo "mod_version=$DEV_VERSION" >> "$GITHUB_OUTPUT"
+          echo "📦 Dev version: $DEV_VERSION"
+
+      - name: Build
+        run: ./gradlew clean build --no-daemon
+        env:
+          MOD_VERSION: ${{ steps.version.outputs.mod_version }}
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: logistics-${{ steps.version.outputs.mod_version }}.jar
+          path: |
+            build/libs/*.jar
+            !build/libs/*-sources.jar
+            !build/libs/*-javadoc.jar
+            !build/libs/*-dev.jar
+
+      # Uncomment when we're ready to publish dev builds to mod platforms
+      # - name: Publish (alpha)
+      #   uses: Kir-Antipov/mc-publish@v3
+      #   with:
+      #     version: ${{ steps.version.outputs.mod_version }}
+      #     version-type: alpha
+      #     changelog: "Automated dev build from commit ${{ github.sha }}"
+      #
+      #     files: |
+      #       build/libs/!(*-@(dev|sources|javadoc)).jar
+      #       build/libs/*-sources.jar
+      #
+      #     modrinth-id: logistics
+      #     modrinth-featured: false
+      #     modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+      #
+      #     # curseforge-id: logistics-automation
+      #     # curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
+      #
+      #     github-token: ${{ secrets.GITHUB_TOKEN }}

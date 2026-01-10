@@ -1,0 +1,11 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Design Documentation
+    url: https://github.com/indemnity83/logistics/blob/main/docs/DESIGN.md
+    about: Read about Logistics' architecture and technical design — for those who like to peek under the hood
+  - name: Pipe Types Reference
+    url: https://github.com/indemnity83/logistics/blob/main/docs/PIPE_TYPES.md
+    about: See specifications for all current and planned pipe types — maybe it’s a feature, not a bug
+  - name: Pipe Ideas & Feature Discussions
+    url: https://github.com/indemnity83/logistics/discussions
+    about: Propose new pipe concepts, workflows, and automation ideas — come for the ideas, stay for the diagrams
