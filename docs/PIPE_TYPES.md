@@ -1,9 +1,8 @@
-# Pipe Types And Routing Rules (Design Notes)
+# Pipe Types and Routing Rules
 
-## Purpose
-Define pipe behaviors, acceptance rules, and inventory interaction for consistent
-routing and player expectations. This is planning documentation, not finalized
-implementation.
+This document defines pipe behaviors, acceptance rules, and inventory interactions. Think of it as the specification for how each pipe type should behave.
+
+**Status:** Phase 1 pipes implemented in v0.1.0. Future pipe types and upgrades marked with 🔮.
 
 ## Shared Concepts
 - Routing is "dumb": try to insert into the next target, drop only if insert fails.
@@ -26,10 +25,10 @@ implementation.
 - Special: unique behaviors that bypass normal routing.
 
 ## Ingress Pipes
-### Wooden (Tier 1)
+### Wooden (Tier 1) ✅ v0.1.0
 - Purpose: extraction-only entry point.
 - Expose ItemStorage: Yes, but only on the active face (single-face ingress).
-- Accept from pipe: No.
+- Accept from pipe: Yes (standard pipe behavior).
 - Route into inventories: Yes.
 - Extraction: Yes, from the active face only.
   - Amount: 1 item per extraction.
@@ -38,44 +37,44 @@ implementation.
 - Holds an "active input face" set by the player.
 - Only exposes ItemStorage on the active face.
 - Only extracts from the active face.
-- If active face is valid, never auto-switch.
-- If active face becomes invalid, it remains invalid until player action,
-  except:
-  - If there are zero adjacent inventories and a new one appears, it can
-    auto-select that new face.
-- If multiple adjacent inventories appear while inactive, remain inactive
-  until the player cycles.
+- If active face becomes invalid (inventory removed), automatically seeks another available inventory.
+- Once locked onto an inventory, adding new inventories will NOT cause it to switch.
+- Player can manually cycle the active face using a wrench.
 
-### Extraction Upgrade Tiers (Single-Face Only)
-- Wooden (logs + glass): 1 item per extraction.
+### Extraction Upgrade Tiers (Single-Face Only) 🔮 Future
+**Current:** Wooden (planks + glass + planks): 1 item per extraction ✅ v0.1.0
+
+**Planned extraction rate upgrades:**
 - Iron-wrapped (wooden + 4 iron ingots in corners): 8 items per extraction.
 - Gold-wrapped (wooden + 4 gold ingots in corners): 16 items per extraction.
 - Diamond-wrapped (wooden + 4 diamonds in corners): 32 items per extraction.
 - Netherite-wrapped (diamond tier + netherite upgrade): full stacks per extraction.
 
 ## Transport Pipes
-### Cobblestone
+### Cobblestone ✅ v0.1.0
 - Purpose: basic transport.
 - Expose ItemStorage: Pipes only.
 - Accept from pipe: Yes.
 - Route into inventories: Yes.
 - Routing: random among valid connected directions.
 
-### Stone
+### Stone ✅ v0.1.0
 - Purpose: basic transport (same as cobblestone, likely faster later).
 - Expose ItemStorage: Pipes only.
 - Accept from pipe: Yes.
 - Route into inventories: Yes.
 - Routing: random among valid connected directions.
 
-### Obsidian (Item Vacuum)
+### Obsidian (Item Vacuum) 🔮 Future
+**Not yet implemented.**
 - Purpose: pull loose item entities into the pipe network.
 - Expose ItemStorage: Pipes only.
 - Accept from pipe: Yes.
 - Route into inventories: Yes.
 - Pickup: absorbs item entities within a small radius of the pipe center.
 
-### Sandstone (Bridge)
+### Sandstone (Bridge) 🔮 Future
+**Not yet implemented.**
 - Purpose: connect otherwise incompatible transport pipes.
 - Expose ItemStorage: Pipes only.
 - Accept from pipe: Yes.
@@ -84,29 +83,29 @@ implementation.
   connect directly to machines/inventories.
 
 ## Flow Control Pipes
-### Iron (Directional)
+### Iron (Directional) ✅ v0.1.0
 - Purpose: force output to a single face.
 - Expose ItemStorage: Pipes only.
 - Accept from pipe: Yes, but reject from the output side.
 - Route into inventories: Yes.
 - Routing: always choose configured output if valid.
 
-### Gold (Acceleration)
+### Gold (Acceleration) ✅ v0.1.0
 - Purpose: speed up items.
 - Expose ItemStorage: Pipes only.
 - Accept from pipe: Yes.
 - Route into inventories: Yes.
 - Routing: random among valid connected directions.
-- Speed: higher target speed and/or acceleration rate.
+- Speed: higher target speed and acceleration rate when powered by redstone.
 
-### Copper (Round Robin Splitter)
+### Copper (Round Robin Splitter) ✅ v0.1.0
 - Purpose: distribute items evenly across outputs.
 - Expose ItemStorage: Pipes only.
 - Accept from pipe: Yes.
 - Route into inventories: Yes.
 - Routing: round robin across valid connected directions.
 
-### Diamond (Filter)
+### Diamond (Filter) ✅ v0.1.0
 - Purpose: route items by per-side filters.
 - Expose ItemStorage: Pipes only.
 - Accept from pipe: Yes.
@@ -114,9 +113,10 @@ implementation.
 - Routing: if an item matches one or more filtered directions, choose among those;
   otherwise fall back to unfiltered directions ("*").
 - UI: per-side filters with ghost items; sides with no filter act as wildcard.
-- Visuals: colored arms indicating output faces.
+- Filtering: basic item type matching (ignores NBT data).
 
-### Emerald (Overflow Gate)
+### Emerald (Overflow Gate) 🔮 Future
+**Not yet implemented.**
 - Purpose: prefer primary direction, overflow to others when blocked.
 - Expose ItemStorage: Pipes only.
 - Accept from pipe: Yes.
@@ -125,7 +125,8 @@ implementation.
   outputs (random or ordered).
 
 ## Compatibility And Connections (Optional)
-### Colored Pipes (Future)
+### Colored Pipes 🔮 Future
+**Not yet implemented.**
 - Purpose: segment networks by color.
 - Expose ItemStorage: Pipes only, compatible colors.
 - Accept from pipe: Yes, compatible colors.
@@ -135,21 +136,26 @@ implementation.
   - Routing direction selection.
   - ItemStorage exposure.
 
-## Open Questions
-- Should any pipe allow extract for automation, or keep extract at 0 globally?
-
 ## Special Pipes
-### Void
+### Void ✅ v0.1.0
 - Purpose: delete items that enter the pipe.
 - Expose ItemStorage: Pipes only.
 - Accept from pipe: Yes.
 - Route into inventories: No.
 - Routing: items are discarded at pipe center (0.5 progress) to allow player reaction.
-- Recipe concept: glass + obsidian + ender pearl.
+- Recipe: obsidian + glass + ender pearl → 8 pipes.
 
-### Quartz (Comparator Output)
+### Quartz (Comparator Output) ✅ v0.1.0
 - Purpose: emit redstone strength based on items inside the pipe.
 - Expose ItemStorage: Pipes only.
 - Accept from pipe: Yes.
 - Route into inventories: Yes.
 - Signal: comparator output scaled to a virtual capacity of 5 stacks (5 * 64).
+
+## Open Questions
+**Resolved:**
+- ✅ Extract prevention: Pipes return 0 for extract (no external pulling) - implemented in v0.1.0.
+
+**Open:**
+- Colored pipe implementation approach (if/when implemented).
+- Emerald pipe backpressure behavior details.

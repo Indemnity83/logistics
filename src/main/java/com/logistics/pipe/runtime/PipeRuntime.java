@@ -229,7 +229,7 @@ public final class PipeRuntime {
             try (Transaction transaction = Transaction.openOuter()) {
                 long inserted;
                 if (storage instanceof PipeItemStorage pipeStorage) {
-                    inserted = pipeStorage.forceInsert(item, transaction);
+                    inserted = pipeStorage.insert(item, transaction);
                 } else {
                     ItemVariant variant = ItemVariant.of(item.getStack());
                     inserted = storage.insert(variant, item.getStack().getCount(), transaction);

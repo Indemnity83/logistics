@@ -8,7 +8,9 @@
 		"Kyle Klaus (@indemnity83)"
 	],
 	"contact": {
-		"sources": "https://github.com/indemnity83/logistics"
+		"homepage": "https://github.com/indemnity83/logistics",
+		"sources": "https://github.com/indemnity83/logistics",
+		"issues": "https://github.com/indemnity83/logistics/issues"
 	},
 	"license": "MIT",
 	"icon": "assets/logistics/icon.png",
