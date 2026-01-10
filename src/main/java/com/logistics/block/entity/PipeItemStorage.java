@@ -43,7 +43,7 @@ public class PipeItemStorage implements Storage<ItemVariant> {
         return accepted;
     }
 
-    public long forceInsert(TravelingItem item, TransactionContext transaction) {
+    public long insert(TravelingItem item, TransactionContext transaction) {
         if (item.getStack().isEmpty()) {
             return 0;
         }

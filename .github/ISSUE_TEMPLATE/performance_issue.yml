@@ -1,0 +1,116 @@
+name: Performance Issue
+description: Report lag, FPS drops, or poor performance related to Logistics
+title: "[Performance] "
+labels: ["performance"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Performance issues are no fun. The details below will help identify what's slowing things down.
+
+  - type: textarea
+    id: performance-symptoms
+    attributes:
+      label: What performance issue are you experiencing?
+      description: Describe the lag, FPS drops, or slowdown you're seeing.
+      placeholder: |
+        - Game freezes for 1-2 seconds every few seconds
+        - FPS drops from 60 to 15 when near my pipe network
+        - Server TPS drops to 10 when items are flowing
+    validations:
+      required: true
+
+  - type: textarea
+    id: network-size
+    attributes:
+      label: Pipe Network Details
+      description: Tell us about your pipe network size and complexity.
+      placeholder: |
+        - Approximately 200 pipes total
+        - 5 wooden pipes extracting continuously
+        - Network spans about 100 blocks
+        - Using mostly cobblestone pipes with some diamond filters
+    validations:
+      required: true
+
+  - type: input
+    id: item-count
+    attributes:
+      label: Traveling Item Count
+      description: Roughly how many items are traveling through pipes at once? (Use F3 debug screen or estimate)
+      placeholder: "~50 items"
+    validations:
+      required: false
+
+  - type: dropdown
+    id: environment
+    attributes:
+      label: Environment
+      description: Are you playing single player or on a server?
+      options:
+        - Single Player
+        - Multiplayer Server
+        - LAN World
+    validations:
+      required: true
+
+  - type: textarea
+    id: performance-metrics
+    attributes:
+      label: Performance Metrics
+      description: If you have specific numbers, please share them (TPS, FPS, timing reports, etc.)
+      placeholder: |
+        - FPS: normally 60, drops to 20 near pipes
+        - TPS: normally 20, drops to 12 when extracting
+        - Spark/profiler results attached
+    validations:
+      required: false
+
+  - type: textarea
+    id: when-started
+    attributes:
+      label: When did this start?
+      description: Did performance degrade over time? After reaching a certain network size? After a specific change?
+      placeholder: |
+        Performance was fine with 50 pipes, but started lagging after expanding to 200 pipes.
+    validations:
+      required: false
+
+  - type: input
+    id: logistics-version
+    attributes:
+      label: Logistics Version
+      description: What version of Logistics are you using?
+      placeholder: "0.1.0"
+    validations:
+      required: true
+
+  - type: input
+    id: minecraft-version
+    attributes:
+      label: Minecraft Version
+      description: What version of Minecraft?
+      placeholder: "1.21"
+    validations:
+      required: true
+
+  - type: textarea
+    id: other-mods
+    attributes:
+      label: Other Mods
+      description: List other mods that might be interacting with pipes (especially automation/storage mods).
+      placeholder: |
+        - Applied Energistics 2
+        - Create
+        - Storage Drawers
+        - etc.
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: Screenshots, profiler results, or anything else that might help.
+    validations:
+      required: false

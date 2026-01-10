@@ -1,0 +1,147 @@
+name: Build JAR
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review]
+  release:
+    types: [published]
+
+permissions:
+  contents: write  # needed for release uploads; harmless for PRs
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+
+      - name: Determine build type
+        id: build_type
+        shell: bash
+        run: |
+          if [[ "${{ github.event_name }}" == "release" ]]; then
+            TYPE="release"
+          elif [[ "${{ github.actor }}" == "release-please[bot]" || "${{ github.head_ref }}" == release-please--* ]]; then
+            TYPE="dev"
+          else
+            TYPE="pr"
+          fi
+
+          echo "type=$TYPE" >> "$GITHUB_OUTPUT"
+          echo "🔎 Build type: $TYPE"
+
+      - name: Compute version
+        id: version
+        shell: bash
+        run: |
+          SHA7="$(git rev-parse --short=7 HEAD)"
+          TYPE="${{ steps.build_type.outputs.type }}"
+
+          case "$TYPE" in
+            release)
+              VERSION="${{ github.event.release.tag_name }}"
+              VERSION="${VERSION#v}"
+              BUILD_VERSION="$VERSION"
+              ;;
+
+            dev)
+              NEXT_VERSION="$(cat version.txt)"
+              BUILD_VERSION="${NEXT_VERSION}-dev.${SHA7}"
+              ;;
+
+            pr)
+              BUILD_VERSION="pr${{ github.event.pull_request.number }}.${SHA7}"
+              ;;
+
+            *)
+              echo "Unknown build type: $TYPE" >&2
+              exit 1
+              ;;
+          esac
+
+          echo "mod_version=$BUILD_VERSION" >> "$GITHUB_OUTPUT"
+          echo "📦 version: $BUILD_VERSION"
+
+      - name: Build
+        run: ./gradlew clean build --no-daemon
+        env:
+          MOD_VERSION: ${{ steps.version.outputs.mod_version }}
+
+      - name: Upload PR artifact
+        if: ${{ steps.build_type.outputs.type != 'release' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: logistics-${{ steps.version.outputs.mod_version }}
+          path: |
+            build/libs/*.jar
+            !build/libs/*-sources.jar
+            !build/libs/*-javadoc.jar
+            !build/libs/*-dev.jar
+
+      - name: Upload Release assets
+        if: ${{ steps.build_type.outputs.type == 'release' }}
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            build/libs/*.jar
+            !build/libs/*-sources.jar
+            !build/libs/*-javadoc.jar
+            !build/libs/*-dev.jar
+
+      # Uncomment when we're ready to publish dev builds to mod platforms
+      # - name: Publish (dev)
+      #   if: ${{ steps.build_type.outputs.type == 'dev' }}
+      #   uses: Kir-Antipov/mc-publish@v3
+      #   with:
+      #     version: ${{ steps.version.outputs.mod_version }}
+      #     version-type: beta
+      #     changelog: "Automated dev build from commit ${{ github.sha }}"
+      #
+      #     files: |
+      #       build/libs/*.jar
+      #       !build/libs/*-sources.jar
+      #       !build/libs/*-javadoc.jar
+      #       !build/libs/*-dev.jar
+      #
+      #     modrinth-id: logistics
+      #     modrinth-featured: false
+      #     modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+      #
+      #     # curseforge-id: 1425041
+      #     # curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
+      #
+      #     github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      # Uncomment when we're ready to publish to mod platforms
+      # - name: Publish (release)
+      #   if: ${{ steps.build_type.outputs.type == 'release' }}
+      #   uses: Kir-Antipov/mc-publish@v3
+      #   with:
+      #     version: ${{ steps.version.outputs.mod_version }}
+      #     version-type: release
+      #     changelog: ${{ github.event.release.body }}
+      #
+      #     files: |
+      #       build/libs/*.jar
+      #       !build/libs/*-sources.jar
+      #       !build/libs/*-javadoc.jar
+      #       !build/libs/*-dev.jar
+      #
+      #     modrinth-id: logistics
+      #     modrinth-featured: true
+      #     modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+      #
+      #     curseforge-id: 1425041
+      #     curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
+      #
+      #     github-token: ${{ secrets.GITHUB_TOKEN }}

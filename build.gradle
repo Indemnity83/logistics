@@ -3,7 +3,9 @@ plugins {
 	id 'maven-publish'
 }
 
-version = project.mod_version
+// Allow CI to override version via MOD_VERSION env var
+version = System.getenv("MOD_VERSION") ?: project.mod_version
+
 group = project.maven_group
 
 loom {
