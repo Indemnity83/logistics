@@ -1,0 +1,103 @@
+name: Bug Report
+description: Report a bug or issue with Logistics
+title: "[Bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting this bug! The details below will help track down what's going wrong.
+
+  - type: textarea
+    id: what-were-you-doing
+    attributes:
+      label: What were you doing?
+      description: Describe the steps you took that led to the bug.
+      placeholder: |
+        1. I placed a wooden pipe next to a chest
+        2. I powered it with redstone
+        3. I right-clicked with a wrench to change the extraction face
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: What did you expect to happen?
+      description: What should have happened?
+      placeholder: The extraction face should have cycled to the next connected face.
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual-behavior
+    attributes:
+      label: What actually happened?
+      description: What happened instead?
+      placeholder: The game crashed / The pipe didn't extract / The items disappeared / etc.
+    validations:
+      required: true
+
+  - type: input
+    id: logistics-version
+    attributes:
+      label: Logistics Version
+      description: What version of Logistics are you using?
+      placeholder: "0.1.0"
+    validations:
+      required: true
+
+  - type: input
+    id: minecraft-version
+    attributes:
+      label: Minecraft Version
+      description: What version of Minecraft?
+      placeholder: "1.21"
+    validations:
+      required: true
+
+  - type: input
+    id: fabric-loader-version
+    attributes:
+      label: Fabric Loader Version
+      description: What version of Fabric Loader?
+      placeholder: "0.16.7"
+    validations:
+      required: true
+
+  - type: input
+    id: fabric-api-version
+    attributes:
+      label: Fabric API Version
+      description: What version of Fabric API?
+      placeholder: "0.105.0+1.21"
+    validations:
+      required: true
+
+  - type: textarea
+    id: other-mods
+    attributes:
+      label: Other Mods
+      description: List any other mods you have installed (if relevant).
+      placeholder: |
+        - REI 16.0.754
+        - Mod Menu 11.0.2
+        - etc.
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: crash-report
+    attributes:
+      label: Crash Report
+      description: If the game crashed, please have your crash report ready in case we need it.
+      options:
+        - label: I have a crash report available if needed
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: Any other information that might be helpful (screenshots, videos, etc.).
+    validations:
+      required: false
