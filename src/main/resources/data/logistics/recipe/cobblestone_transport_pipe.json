@@ -4,12 +4,8 @@
     "CGC"
   ],
   "key": {
-    "C": {
-      "item": "minecraft:cobblestone"
-    },
-    "G": {
-      "item": "minecraft:glass"
-    }
+    "C": "minecraft:cobblestone",
+    "G": "minecraft:glass"
   },
   "result": {
     "id": "logistics:cobblestone_transport_pipe",

@@ -4,12 +4,8 @@
     "SGS"
   ],
   "key": {
-    "S": {
-      "item": "minecraft:stone"
-    },
-    "G": {
-      "item": "minecraft:glass"
-    }
+    "S": "minecraft:stone",
+    "G": "minecraft:glass"
   },
   "result": {
     "id": "logistics:stone_transport_pipe",

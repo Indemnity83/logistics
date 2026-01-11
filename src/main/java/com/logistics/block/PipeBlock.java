@@ -27,6 +27,9 @@ import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
+import net.minecraft.world.WorldView;
+import net.minecraft.world.block.WireOrientation;
+import net.minecraft.world.tick.ScheduledTickView;
 import org.jetbrains.annotations.Nullable;
 
 public class PipeBlock extends BlockWithEntity implements Waterloggable {
@@ -253,10 +256,11 @@ public class PipeBlock extends BlockWithEntity implements Waterloggable {
         return state;
     }
 
-    protected BlockState getStateForNeighborUpdate(BlockState state, Direction direction, BlockState neighborState,
-                                                  WorldAccess world, BlockPos pos, BlockPos neighborPos) {
+    @Override
+    protected BlockState getStateForNeighborUpdate(BlockState state, WorldView world, ScheduledTickView tickView, BlockPos pos,
+                                                   Direction direction, BlockPos neighborPos, BlockState neighborState, Random random) {
         if (state.get(WATERLOGGED)) {
-            world.scheduleFluidTick(pos, Fluids.WATER, Fluids.WATER.getTickRate(world));
+            tickView.scheduleFluidTick(pos, Fluids.WATER, Fluids.WATER.getTickRate(world));
         }
 
         EnumProperty<ConnectionType> property = getPropertyForDirection(direction);
@@ -267,7 +271,8 @@ public class PipeBlock extends BlockWithEntity implements Waterloggable {
         return state;
     }
 
-    protected void neighborUpdate(BlockState state, World world, BlockPos pos, Block sourceBlock, BlockPos sourcePos,
+    @Override
+    protected void neighborUpdate(BlockState state, World world, BlockPos pos, Block block, @Nullable WireOrientation wireOrientation,
                                boolean notify) {
         if (!world.isClient) {
             boolean powered = world.isReceivingRedstonePower(pos);
@@ -275,6 +280,7 @@ public class PipeBlock extends BlockWithEntity implements Waterloggable {
                 world.setBlockState(pos, state.with(POWERED, powered), Block.NOTIFY_LISTENERS);
             }
         }
+        super.neighborUpdate(state, world, pos, block, wireOrientation, notify);
     }
 
     @Override

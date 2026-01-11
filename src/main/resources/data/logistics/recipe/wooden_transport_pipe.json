@@ -4,12 +4,8 @@
     "PGP"
   ],
   "key": {
-    "P": {
-      "tag": "minecraft:planks"
-    },
-    "G": {
-      "item": "minecraft:glass"
-    }
+    "P": "minecraft:planks",
+    "G": "minecraft:glass"
   },
   "result": {
     "id": "logistics:wooden_transport_pipe",

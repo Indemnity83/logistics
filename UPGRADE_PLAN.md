@@ -127,26 +127,30 @@ public static final Block WOODEN_PIPE = new WoodenPipeBlock(
 
 ---
 
-### 🔲 Phase 4: Update to Minecraft 1.21.4
-**Status**: NOT STARTED
+### ✅ Phase 4: Update to Minecraft 1.21.4
+**Status**: COMPLETED
 **Target Versions**:
 - Minecraft: 1.21.4
-- Yarn: 1.21.4+build.1 (or latest)
-- Loom: 1.9+
+- Yarn: 1.21.4+build.8
+- Loom: 1.9.2
 - Loader: 0.16.9
-- Fabric API: [find latest for 1.21.4]
+- Fabric API: 0.110.3+1.21.4
+- **Gradle**: 8.11 (upgraded from 8.10.2, required by Loom 1.9+)
 
 **Breaking Changes**:
-1. Block entities auto-render their block models
+1. Block entities auto-render their block models (didn't affect us)
 2. `ItemColors` API removed (we don't use this)
 3. `BuiltinItemRenderer` changes (we don't use this)
 
-**Files to Check**:
-- `PipeBlockEntityRenderer.java` - May need adjustments
-- Any block entity rendering code
+**Files Changed**:
+- `gradle.properties` - Updated versions
+- `fabric.mod.json` - Updated minecraft dependency
+- `build.gradle` - Updated Loom to 1.9.2
+- `gradle/wrapper/gradle-wrapper.properties` - Upgraded Gradle to 8.11
+- **No code changes needed** ✅
 
-**Test**: Ensure pipes still render correctly in-game
-**Commit**: "chore: update to Minecraft 1.21.4"
+**Test**: `./gradlew build` ✅ SUCCESS
+**Commit**: "update to Minecraft 1.21.4"
 
 ---
 
