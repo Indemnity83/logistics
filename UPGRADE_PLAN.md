@@ -1,13 +1,15 @@
 # Minecraft Version Upgrade Plan
 **Target**: Minecraft 1.21.0 → 1.21.11
 
-## Current State (Starting Point)
-- **Minecraft**: 1.21.0
-- **Yarn Mappings**: 1.21+build.9
-- **Fabric Loader**: 0.16.7
-- **Fabric API**: 0.102.0+1.21
-- **Loom**: 1.8-SNAPSHOT
+## Current State
+- **Minecraft**: 1.21.8 (upgraded from 1.21.0)
+- **Yarn Mappings**: 1.21.8+build.1
+- **Fabric Loader**: 0.16.14
+- **Fabric API**: 0.136.1+1.21.8
+- **Loom**: 1.10.5
+- **Gradle**: 8.12
 - **Java**: 21
+- **Progress**: 6/8 phases complete (75%)
 
 ## Files That Will Need Changes
 
@@ -158,55 +160,124 @@ public static final Block WOODEN_PIPE = new WoodenPipeBlock(
 **Status**: COMPLETED
 **Target Versions**:
 - Minecraft: 1.21.5
-- Yarn: 1.21.5+build.1 (or latest)
-- Loom: 1.10+
+- Yarn: 1.21.5+build.1
+- Loom: 1.10.1
 - Loader: 0.16.10
-- Fabric API: [find latest for 1.21.5]
+- Fabric API: 0.119.5+1.21.5
+- **Gradle**: 8.12 (upgraded from 8.11, required by Loom 1.10+)
 
-**Breaking Changes** (CRITICAL):
-1. **NBT methods return `Optional`** instead of direct values
-   - `nbt.getInt("key")` → `nbt.getInt("key").orElse(0)`
-   - `nbt.getString("key")` → `nbt.getString("key").orElse("")`
-   - Or use fallback: `nbt.getInt("key", 0)`
+**Breaking Changes Fixed**:
+1. **NBT methods return `Optional`** instead of direct values ✅
+   - Changed `PipeBlockEntity.getOrCreateModuleState()` to return `NbtCompound` directly
+   - Updated all NBT access to use `orElse()` or `orElseGet()`
+2. **Direction API changes** ✅
+   - `Direction.getId()` → numeric index (0-5)
+   - `Direction.getName()` → string ID ("north", "south", etc.)
+3. **Particle API changes** ✅
+   - `World.addParticle()` → `World.addParticleClient()`
+4. **ModelTransformationMode renamed** ✅
+   - → `ItemDisplayContext`
+5. **BlockEntityRenderer signature change** ✅
+   - Added `Vec3d cameraPos` parameter
+6. **Block entity lifecycle** ✅
+   - Moved cleanup from `onStateReplaced()` to `PipeBlockEntity.onBlockReplaced()`
 
-**Files to Change**:
-- `PipeBlockEntity.java` - NBT read/write methods
-- `TravelingItem.java` - NBT serialization
-- Any other NBT usage
+**Code Improvements**:
+- Added `Module.getStateKey()` default method
+- Added PipeContext helper methods: `getString()`, `saveString()`, `getInt()`, `saveInt()`, `remove()`
+- Improved code readability with better constant naming
+- Made SmartSplitterModule filter methods instance methods
+- Added `Pipe.getModule(Class)` to retrieve module instances
+- Added `PipeBlockEntity.createContext()` helper
 
-**Test**: Test saving/loading pipes with items inside
-**Commit**: "chore: update to Minecraft 1.21.5"
+**Files Changed**:
+- `gradle.properties` - Updated versions
+- `build.gradle` - Updated Loom to 1.10.1
+- `gradle/wrapper/gradle-wrapper.properties` - Gradle 8.12
+- `fabric.mod.json` - Updated minecraft dependency to ~1.21.5
+- `PipeBlockEntity.java` - NBT Optional handling
+- `PipeContext.java` - Added convenience methods, NBT helpers
+- `Module.java` - Added getStateKey() default method
+- `VoidModule.java` - addParticle → addParticleClient
+- `PipeBlock.java` - Moved onStateReplaced logic
+- `PipeBlockEntityRenderer.java` - ModelTransformationMode → ItemDisplayContext, render() signature
+- `ExtractionModule.java`, `MergerModule.java`, `SplitterModule.java`, `SmartSplitterModule.java` - Updated to use new API
+- `FilterInventory.java` - Removed NbtCompound import, uses module from pipe
+- `Pipe.java` - Added getModule(Class) method
+
+**Test**: `./gradlew build` ✅ SUCCESS
+**Commit**: "update to Minecraft 1.21.5"
 
 ---
 
-### 🔲 Phase 6: Update to Minecraft 1.21.6-1.21.8
-**Status**: NOT STARTED
+### ✅ Phase 6: Update to Minecraft 1.21.6-1.21.8
+**Status**: COMPLETED
 **Target Versions**:
 - Minecraft: 1.21.8
-- Yarn: 1.21.8+build.1 (or latest)
-- Loom: 1.10+
+- Yarn: 1.21.8+build.1
+- Loom: 1.10.5
 - Loader: 0.16.14
-- Fabric API: [find latest for 1.21.8]
+- Fabric API: 0.136.1+1.21.8
 
-**Breaking Changes**:
-1. HUD API rewritten (we don't use this)
-2. `BlockRenderLayerMap` import/usage changed
-3. Several deprecated modules removed
+**Breaking Changes Fixed**:
+1. **BlockRenderLayerMap API migration** ✅
+   - Package: `net.fabricmc.fabric.api.blockrenderlayer.v1` → `net.fabricmc.fabric.api.client.rendering.v1`
+   - API: `BlockRenderLayerMap.INSTANCE.putBlock()` → static `BlockRenderLayerMap.putBlock()`
+   - RenderLayer: `RenderLayer.getCutout()` → `BlockRenderLayer.CUTOUT`
 
-**Files to Change**:
-- `LogisticsModClient.java` - Update `BlockRenderLayerMap` usage
+2. **Codec-based serialization replaces manual NBT** ✅
+   - NBT read/write now uses `WriteView`/`ReadView` instead of `writeNbt()`/`readNbt()`
+   - Data serialization uses `Codec` instances
+   - TravelingItem uses `CODEC` for serialization
 
-**Example Change**:
+**Critical Client Sync Fix**:
+- Added `toInitialChunkDataNbt()` method to PipeBlockEntity
+- **Issue**: Items were moving on server but not rendering on client when chunks loaded
+- **Cause**: Missing initial chunk data sync
+- **Fix**: Override `toInitialChunkDataNbt()` to return `createNbt(registries)`
+
+**Files Changed**:
+- `gradle.properties` - Updated versions
+- `build.gradle` - Updated Loom to 1.10.5
+- `fabric.mod.json` - Updated minecraft dependency to ~1.21.8
+- `LogisticsModClient.java` - BlockRenderLayerMap API migration
+- `PipeBlockEntity.java` - Migrated to WriteView/ReadView, added toInitialChunkDataNbt()
+- `TravelingItem.java` - Replaced writeNbt/fromNbt with CODEC
+
+**Example Changes**:
 ```java
+// BlockRenderLayerMap migration
 // OLD
+import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 BlockRenderLayerMap.INSTANCE.putBlock(block, RenderLayer.getCutout());
 
 // NEW
-BlockRenderLayerMap.put(RenderLayer.getCutout(), block);
+import net.fabricmc.fabric.api.client.rendering.v1.BlockRenderLayerMap;
+BlockRenderLayerMap.putBlock(block, BlockRenderLayer.CUTOUT);
+
+// NBT serialization migration
+// OLD
+@Override
+protected void writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
+    NbtList list = new NbtList();
+    for (TravelingItem item : items) {
+        list.add(item.writeNbt(new NbtCompound(), registryLookup));
+    }
+    nbt.put("Items", list);
+}
+
+// NEW
+@Override
+protected void writeData(WriteView view) {
+    WriteView.ListAppender<TravelingItem> appender = view.getListAppender("Items", TravelingItem.CODEC);
+    for (TravelingItem item : items) {
+        appender.add(item);
+    }
+}
 ```
 
-**Test**: Ensure pipes render with transparency correctly
-**Commit**: "chore: update to Minecraft 1.21.8"
+**Test**: `./gradlew build` ✅ SUCCESS, items render properly on client
+**Commit**: "update to Minecraft 1.21.8"
 
 ---
 

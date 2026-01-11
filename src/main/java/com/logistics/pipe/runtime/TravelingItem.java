@@ -4,12 +4,32 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.util.math.Direction;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 /**
  * Represents an item traveling through the pipe network.
  * Items move along pipe edges from one connection point to another.
  */
 public class TravelingItem {
+    /**
+     * Codec used for saving/loading TravelingItem via ReadView/WriteView (1.21.8+).
+     */
+    public static final Codec<TravelingItem> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+        ItemStack.CODEC.fieldOf("item").forGetter(t -> t.stack),
+        Codec.INT.fieldOf("direction").xmap(Direction::byIndex, Direction::getIndex).forGetter(t -> t.direction),
+        Codec.FLOAT.optionalFieldOf("speed", PipeConfig.BASE_PIPE_SPEED).forGetter(t -> t.speed),
+        Codec.FLOAT.optionalFieldOf("progress", 0.0f).forGetter(t -> t.progress),
+        Codec.BOOL.optionalFieldOf("routed", false).forGetter(t -> t.routed)
+    ).apply(instance, TravelingItem::fromCodec));
+
+    private static TravelingItem fromCodec(ItemStack stack, Direction direction, float speed, float progress, boolean routed) {
+        TravelingItem item = new TravelingItem(stack, direction, speed);
+        item.progress = progress;
+        item.routed = routed;
+        return item;
+    }
+
     private ItemStack stack;
     private float progress; // 0.0 = entering pipe, 1.0 = leaving pipe
     private Direction direction; // Direction of travel through current pipe
@@ -105,33 +125,5 @@ public class TravelingItem {
 
     public void setRouted(boolean routed) {
         this.routed = routed;
-    }
-
-    /**
-     * Save to NBT
-     */
-    public NbtCompound writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
-        nbt.put("Item", stack.toNbt(registryLookup));
-        nbt.putFloat("Progress", progress);
-        nbt.putInt("Direction", direction.getIndex());
-        nbt.putFloat("Speed", speed);
-        nbt.putBoolean("Routed", routed);
-        return nbt;
-    }
-
-    /**
-     * Load from NBT
-     */
-    public static TravelingItem fromNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
-        ItemStack stack = ItemStack.fromNbt(registryLookup, nbt.getCompoundOrEmpty("Item")).orElse(ItemStack.EMPTY);
-        Direction direction = Direction.byIndex(nbt.getInt("Direction", 0));
-        float speed = nbt.getFloat("Speed", PipeConfig.BASE_PIPE_SPEED);
-
-        TravelingItem item = new TravelingItem(stack, direction, speed);
-        item.progress = nbt.getFloat("Progress", 0);
-        if (nbt.contains("Routed")) {
-            item.routed = nbt.getBoolean("Routed", false);
-        }
-        return item;
     }
 }

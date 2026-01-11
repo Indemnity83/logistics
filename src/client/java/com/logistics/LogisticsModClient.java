@@ -6,9 +6,9 @@ import com.logistics.client.render.PipeBlockEntityRenderer;
 import com.logistics.client.screen.DiamondFilterScreen;
 import com.logistics.pipe.ui.PipeScreenHandlers;
 import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
+import net.fabricmc.fabric.api.client.rendering.v1.BlockRenderLayerMap;
 import net.minecraft.client.gui.screen.ingame.HandledScreens;
-import net.minecraft.client.render.RenderLayer;
+import net.minecraft.client.render.BlockRenderLayer;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactories;
 
 public class LogisticsModClient implements ClientModInitializer {
@@ -17,15 +17,15 @@ public class LogisticsModClient implements ClientModInitializer {
 		LogisticsMod.LOGGER.info("Initializing Logistics client");
 
 		// Register pipe blocks to render with transparency
-		BlockRenderLayerMap.INSTANCE.putBlock(LogisticsBlocks.COBBLESTONE_TRANSPORT_PIPE, RenderLayer.getCutout());
-		BlockRenderLayerMap.INSTANCE.putBlock(LogisticsBlocks.STONE_TRANSPORT_PIPE, RenderLayer.getCutout());
-		BlockRenderLayerMap.INSTANCE.putBlock(LogisticsBlocks.WOODEN_TRANSPORT_PIPE, RenderLayer.getCutout());
-		BlockRenderLayerMap.INSTANCE.putBlock(LogisticsBlocks.IRON_TRANSPORT_PIPE, RenderLayer.getCutout());
-		BlockRenderLayerMap.INSTANCE.putBlock(LogisticsBlocks.GOLD_TRANSPORT_PIPE, RenderLayer.getCutout());
-		BlockRenderLayerMap.INSTANCE.putBlock(LogisticsBlocks.DIAMOND_TRANSPORT_PIPE, RenderLayer.getCutout());
-		BlockRenderLayerMap.INSTANCE.putBlock(LogisticsBlocks.COPPER_TRANSPORT_PIPE, RenderLayer.getCutout());
-		BlockRenderLayerMap.INSTANCE.putBlock(LogisticsBlocks.QUARTZ_TRANSPORT_PIPE, RenderLayer.getCutout());
-		BlockRenderLayerMap.INSTANCE.putBlock(LogisticsBlocks.VOID_TRANSPORT_PIPE, RenderLayer.getCutout());
+		BlockRenderLayerMap.putBlock(LogisticsBlocks.COBBLESTONE_TRANSPORT_PIPE, BlockRenderLayer.CUTOUT);
+		BlockRenderLayerMap.putBlock(LogisticsBlocks.STONE_TRANSPORT_PIPE, BlockRenderLayer.CUTOUT);
+		BlockRenderLayerMap.putBlock(LogisticsBlocks.WOODEN_TRANSPORT_PIPE, BlockRenderLayer.CUTOUT);
+		BlockRenderLayerMap.putBlock(LogisticsBlocks.IRON_TRANSPORT_PIPE, BlockRenderLayer.CUTOUT);
+		BlockRenderLayerMap.putBlock(LogisticsBlocks.GOLD_TRANSPORT_PIPE, BlockRenderLayer.CUTOUT);
+		BlockRenderLayerMap.putBlock(LogisticsBlocks.DIAMOND_TRANSPORT_PIPE, BlockRenderLayer.CUTOUT);
+		BlockRenderLayerMap.putBlock(LogisticsBlocks.COPPER_TRANSPORT_PIPE, BlockRenderLayer.CUTOUT);
+		BlockRenderLayerMap.putBlock(LogisticsBlocks.QUARTZ_TRANSPORT_PIPE, BlockRenderLayer.CUTOUT);
+		BlockRenderLayerMap.putBlock(LogisticsBlocks.VOID_TRANSPORT_PIPE, BlockRenderLayer.CUTOUT);
 
 		// Register block entity renderer for traveling items
 		BlockEntityRendererFactories.register(LogisticsBlockEntities.PIPE_BLOCK_ENTITY, PipeBlockEntityRenderer::new);
