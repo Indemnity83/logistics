@@ -63,7 +63,7 @@ public class SmartSplitterModule implements Module {
 
     @Override
     public void onWrenchUse(PipeContext ctx, net.minecraft.item.ItemUsageContext usage) {
-        if (ctx.world().isClient) {
+        if (ctx.world().isClient()) {
             return;
         }
 

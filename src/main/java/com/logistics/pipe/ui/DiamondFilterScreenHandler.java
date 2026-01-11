@@ -36,7 +36,7 @@ public class DiamondFilterScreenHandler extends ScreenHandler {
 
     public DiamondFilterScreenHandler(int syncId, PlayerInventory playerInventory, PipeBlockEntity pipeEntity) {
         super(PipeScreenHandlers.DIAMOND_FILTER, syncId);
-        World world = pipeEntity != null ? pipeEntity.getWorld() : playerInventory.player.getWorld();
+        World world = pipeEntity != null ? pipeEntity.getWorld() : playerInventory.player.getEntityWorld();
         BlockPos pos = pipeEntity != null ? pipeEntity.getPos() : playerInventory.player.getBlockPos();
         this.context = ScreenHandlerContext.create(world, pos);
         this.filterInventory = new FilterInventory(pipeEntity);

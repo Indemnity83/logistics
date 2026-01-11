@@ -23,7 +23,7 @@ public class ExtractionModule implements Module {
     @Override
     public void onTick(PipeContext ctx) {
         Module.super.onTick(ctx);
-        if (ctx.world().isClient) {
+        if (ctx.world().isClient()) {
             return;
         }
 

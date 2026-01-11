@@ -125,7 +125,7 @@ public class PipeBlock extends BlockWithEntity implements Waterloggable {
             return ActionResult.PASS;
         }
 
-        if (context.getWorld().isClient) {
+        if (context.getWorld().isClient()) {
             return ActionResult.SUCCESS;
         }
 
@@ -165,7 +165,7 @@ public class PipeBlock extends BlockWithEntity implements Waterloggable {
     }
 
     @Override
-    public int getComparatorOutput(BlockState state, World world, BlockPos pos) {
+    protected int getComparatorOutput(BlockState state, World world, BlockPos pos, Direction direction) {
         if (pipe == null) {
             return 0;
         }
@@ -275,7 +275,7 @@ public class PipeBlock extends BlockWithEntity implements Waterloggable {
     @Override
     protected void neighborUpdate(BlockState state, World world, BlockPos pos, Block block, @Nullable WireOrientation wireOrientation,
                                boolean notify) {
-        if (!world.isClient) {
+        if (!world.isClient()) {
             boolean powered = world.isReceivingRedstonePower(pos);
             if (powered != state.get(POWERED)) {
                 world.setBlockState(pos, state.with(POWERED, powered), Block.NOTIFY_LISTENERS);

@@ -56,7 +56,7 @@ public record PipeContext(World world,
      * @param direction The direction to set, or null to clear
      */
     public void setFeatureFace(@Nullable Direction direction) {
-        if (world.isClient) {
+        if (world.isClient()) {
             return;
         }
 

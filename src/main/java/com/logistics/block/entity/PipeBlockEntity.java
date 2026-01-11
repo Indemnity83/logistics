@@ -181,7 +181,7 @@ public class PipeBlockEntity extends BlockEntity {
     public void onBlockReplaced(BlockPos pos, BlockState oldState) {
         super.onBlockReplaced(pos, oldState);
 
-        if (world != null && !world.isClient) {
+        if (world != null && !world.isClient()) {
             // Drop all traveling items
             for (TravelingItem travelingItem : travelingItems) {
                 ItemEntity itemEntity = new ItemEntity(
@@ -272,7 +272,7 @@ public class PipeBlockEntity extends BlockEntity {
         travelingItems.add(newItem);
         markDirty();
 
-        if (world != null && !world.isClient) {
+        if (world != null && !world.isClient()) {
             world.updateListeners(pos, getCachedState(), getCachedState(), 3);
         }
     }

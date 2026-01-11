@@ -139,7 +139,7 @@ public class FilterInventory implements Inventory {
 
     private void syncToBlockEntity() {
         World world = pipeEntity.getWorld();
-        if (world == null || world.isClient) {
+        if (world == null || world.isClient()) {
             return;
         }
 

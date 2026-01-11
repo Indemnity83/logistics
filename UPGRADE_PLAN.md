@@ -2,14 +2,14 @@
 **Target**: Minecraft 1.21.0 → 1.21.11
 
 ## Current State
-- **Minecraft**: 1.21.8 (upgraded from 1.21.0)
-- **Yarn Mappings**: 1.21.8+build.1
-- **Fabric Loader**: 0.16.14
-- **Fabric API**: 0.136.1+1.21.8
-- **Loom**: 1.10.5
-- **Gradle**: 8.12
+- **Minecraft**: 1.21.10 (upgraded from 1.21.0)
+- **Yarn Mappings**: 1.21.10+build.3
+- **Fabric Loader**: 0.17.2
+- **Fabric API**: 0.135.0+1.21.10
+- **Loom**: 1.11.8
+- **Gradle**: 8.14
 - **Java**: 21
-- **Progress**: 6/8 phases complete (75%)
+- **Progress**: 7/8 phases complete (87.5%)
 
 ## Files That Will Need Changes
 
@@ -281,26 +281,58 @@ protected void writeData(WriteView view) {
 
 ---
 
-### 🔲 Phase 7: Update to Minecraft 1.21.9/1.21.10
-**Status**: NOT STARTED
+### ✅ Phase 7: Update to Minecraft 1.21.9/1.21.10
+**Status**: COMPLETED
 **Target Versions**:
 - Minecraft: 1.21.10
-- Yarn: 1.21.10+build.1 (or latest)
-- Loom: 1.11+
+- Yarn: 1.21.10+build.3
+- Loom: 1.11.8
 - Loader: 0.17.2
-- Fabric API: [find latest for 1.21.10]
+- Fabric API: 0.135.0+1.21.10
+- **Gradle**: 8.14 (upgraded from 8.12, required by Loom 1.11.8)
 
-**Breaking Changes**:
-1. `Entity#getWorld()` → `Entity#getEntityWorld()`
-2. World render events removed (we don't use this)
-3. Keybinding system restructured (we don't use this)
+**Breaking Changes Fixed**:
+1. **Entity API Changes** ✅
+   - `Entity#getWorld()` → `Entity#getEntityWorld()`
+   - Updated in `DiamondFilterScreenHandler.java`
 
-**Files to Change**:
-- Search for `.getWorld()` calls on Entity objects
-- Likely minimal changes for this mod
+2. **World API Changes** ✅
+   - `world.isClient` field → `world.isClient()` method
+   - Updated in 7 files: PipeRuntime, ExtractionModule, PipeBlock, PipeContext, FilterInventory, PipeBlockEntity, SmartSplitterModule
 
-**Test**: `./gradlew build && ./gradlew runClient`
-**Commit**: "chore: update to Minecraft 1.21.10"
+3. **Comparator Output Signature** ✅
+   - Changed from `public int getComparatorOutput(BlockState, World, BlockPos)`
+   - To `protected int getComparatorOutput(BlockState, World, BlockPos, Direction direction)`
+
+4. **BlockEntityRenderer Complete Rewrite** ✅
+   - **New Type Parameters**: `BlockEntityRenderer<T, S extends BlockEntityRenderState>` (two instead of one)
+   - **New Method Pattern**: Three methods replace single `render()`:
+     - `createRenderState()` - creates render state instance
+     - `updateRenderState()` - extracts data from block entity
+     - `render()` - performs actual rendering
+   - **New Classes**:
+     - `ItemModelManager` replaces `ItemRenderer`
+     - `ItemRenderState` replaces direct ItemStack rendering
+     - `BlockEntityRenderState` from `net.minecraft.client.render.block.entity.state`
+     - `CameraRenderState` from `net.minecraft.client.render.state`
+     - `OrderedRenderCommandQueue` replaces `VertexConsumerProvider`
+   - **Rendering Flow**:
+     - `updateRenderState()` uses `ItemModelManager.update()` to populate `ItemRenderState`
+     - `render()` calls `ItemRenderState.render()` to submit to command queue
+     - All physics calculations (acceleration, interpolation) preserved
+
+**Files Changed**:
+- `gradle.properties` - Updated versions
+- `build.gradle` - Updated Loom to 1.11.8
+- `gradle/wrapper/gradle-wrapper.properties` - Gradle 8.14
+- `fabric.mod.json` - Updated minecraft dependency to ~1.21.10
+- `DiamondFilterScreenHandler.java` - getWorld() → getEntityWorld()
+- `PipeRuntime.java`, `ExtractionModule.java`, `PipeBlock.java`, `PipeContext.java`, `FilterInventory.java`, `PipeBlockEntity.java`, `SmartSplitterModule.java` - isClient field → isClient() method
+- `PipeBlock.java` - getComparatorOutput() signature change
+- `PipeBlockEntityRenderer.java` - Complete rewrite for new rendering system
+
+**Test**: `./gradlew build` ✅ SUCCESS
+**Commit**: "update to Minecraft 1.21.10"
 
 ---
 
@@ -308,9 +340,9 @@ protected void writeData(WriteView view) {
 **Status**: NOT STARTED
 **Target Versions**:
 - Minecraft: 1.21.11
-- Yarn: 1.21.11+build.4 (FINAL Yarn version)
-- Loom: 1.14+
-- Loader: 0.18.4
+- Yarn: 1.21.11+build.3 (or latest)
+- Loom: 1.11.8 (or latest)
+- Loader: 0.17.2 (or latest)
 - Fabric API: [find latest for 1.21.11]
 
 **Breaking Changes**:

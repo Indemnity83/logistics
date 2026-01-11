@@ -55,7 +55,7 @@ public final class PipeRuntime {
             if (mask != blockEntity.getLastConnectionsMask()) {
                 blockEntity.setLastConnectionsMask(mask);
                 pipe.onConnectionsChanged(pipeContext, connected);
-                if (!world.isClient) {
+                if (!world.isClient()) {
                     needsSync = true;
                 }
             }
@@ -86,7 +86,7 @@ public final class PipeRuntime {
                     if (validDirections.isEmpty()) {
                         if (pipe.discardWhenNoRoute(pipeContext)) {
                             itemsToDiscard.add(item);
-                        } else if (!world.isClient) {
+                        } else if (!world.isClient()) {
                             PipeBlockEntity.dropItem(world, pos, item);
                         }
                         itemsToRoute.remove(item);
@@ -100,7 +100,7 @@ public final class PipeRuntime {
                         type = RoutePlan.Type.REROUTE;
                     }
                     if (type == RoutePlan.Type.DROP) {
-                        if (!world.isClient) {
+                        if (!world.isClient()) {
                             PipeBlockEntity.dropItem(world, pos, item);
                         }
                         itemsToDiscard.add(item);
@@ -115,7 +115,7 @@ public final class PipeRuntime {
                     } else if (type == RoutePlan.Type.REROUTE) {
                         List<Direction> candidates = plan.getDirections();
                         if (candidates.isEmpty()) {
-                            if (!world.isClient) {
+                            if (!world.isClient()) {
                                 PipeBlockEntity.dropItem(world, pos, item);
                             }
                             itemsToDiscard.add(item);
@@ -128,7 +128,7 @@ public final class PipeRuntime {
                             : chooseRandomDirection(pipeContext, item.getDirection(), candidates);
                         item.setDirection(chosen);
                         item.setRouted(true);
-                        if (!world.isClient) {
+                        if (!world.isClient()) {
                             needsSync = true;
                         }
                     } else if (type == RoutePlan.Type.SPLIT) {
@@ -142,7 +142,7 @@ public final class PipeRuntime {
 
                         if (routed.size() == 1 && routed.get(0) == item) {
                             item.setRouted(true);
-                            if (!world.isClient) {
+                            if (!world.isClient()) {
                                 needsSync = true;
                             }
                         } else {
@@ -164,7 +164,7 @@ public final class PipeRuntime {
                     Direction newDirection = chooseDirection(world, pos, state, item.getDirection());
                     if (newDirection != null && newDirection != item.getDirection()) {
                         item.setDirection(newDirection);
-                        if (!world.isClient) {
+                        if (!world.isClient()) {
                             needsSync = true;
                         }
                     }
@@ -173,7 +173,7 @@ public final class PipeRuntime {
 
             // On client, keep rendering items a bit longer to prevent flicker during handoff
             // On server, remove immediately for routing
-            if (world.isClient) {
+            if (world.isClient()) {
                 // Remove when progress exceeds 1.3 (gives ~6 frames buffer for server sync)
                 if (item.getProgress() > 1.3f) {
                     itemsToRemove.add(item);
@@ -182,7 +182,7 @@ public final class PipeRuntime {
         }
 
         // Remove items based on client/server logic
-        if (world.isClient) {
+        if (world.isClient()) {
             // Client: only remove items that have exceeded the buffer
             blockEntity.getTravelingItems().removeAll(itemsToRemove);
             blockEntity.getTravelingItems().removeAll(itemsToDiscard);
@@ -197,13 +197,13 @@ public final class PipeRuntime {
         }
 
         // Sync direction changes to clients
-        if (!world.isClient && needsSync) {
+        if (!world.isClient() && needsSync) {
             blockEntity.markDirty();
             world.updateListeners(pos, state, state, 3);
         }
 
         // Only handle routing on server side
-        if (!world.isClient && (!itemsToRoute.isEmpty() || !itemsToDiscard.isEmpty() || !itemsToAdd.isEmpty())) {
+        if (!world.isClient() && (!itemsToRoute.isEmpty() || !itemsToDiscard.isEmpty() || !itemsToAdd.isEmpty())) {
             for (TravelingItem item : itemsToRoute) {
                 routeItem(world, pos, state, blockEntity, item);
             }
