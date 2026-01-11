@@ -62,7 +62,13 @@ public class MergerModule implements Module {
     }
 
     private @Nullable Direction getOutputDirection(PipeContext ctx) {
-        return Direction.byId(ctx.getString(this, OUTPUT_DIRECTION, Direction.NORTH.getId()));
+        NbtCompound state = ctx.moduleState(getStateKey());
+        if (!state.contains(OUTPUT_DIRECTION)) {
+            return null;
+        }
+        return state.getString(OUTPUT_DIRECTION)
+            .map(Direction::byId)
+            .orElse(null);
     }
 
     private void setOutputDirection(PipeContext ctx, @Nullable Direction direction) {

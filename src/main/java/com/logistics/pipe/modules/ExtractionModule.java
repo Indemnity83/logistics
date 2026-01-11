@@ -84,7 +84,13 @@ public class ExtractionModule implements Module {
     }
 
     private @Nullable Direction getExtractionDirection(PipeContext ctx) {
-        return Direction.byId(ctx.getString(this, EXTRACT_FROM, Direction.NORTH.getId()));
+        NbtCompound state = ctx.moduleState(getStateKey());
+        if (!state.contains(EXTRACT_FROM)) {
+            return null;
+        }
+        return state.getString(EXTRACT_FROM)
+            .map(Direction::byId)
+            .orElse(null);
     }
 
     private void setExtractionDirection(PipeContext ctx, @Nullable Direction direction) {
