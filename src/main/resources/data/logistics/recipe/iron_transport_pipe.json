@@ -4,12 +4,8 @@
     "IGI"
   ],
   "key": {
-    "I": {
-      "item": "minecraft:iron_ingot"
-    },
-    "G": {
-      "item": "minecraft:glass"
-    }
+    "I": "minecraft:iron_ingot",
+    "G": "minecraft:glass"
   },
   "result": {
     "id": "logistics:iron_transport_pipe",

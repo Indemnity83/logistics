@@ -1,0 +1,15 @@
+{
+  "model": {
+    "type": "minecraft:composite",
+    "models": [
+      {
+        "type": "minecraft:model",
+        "model": "logistics:block/wooden_transport_pipe_core"
+      },
+      {
+        "type": "minecraft:model",
+        "model": "logistics:block/wooden_transport_pipe_west_feature"
+      }
+    ]
+  }
+}

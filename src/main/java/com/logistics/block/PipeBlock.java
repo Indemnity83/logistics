@@ -14,6 +14,7 @@ import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemUsageContext;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.EnumProperty;
@@ -27,6 +28,9 @@ import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
+import net.minecraft.world.WorldView;
+import net.minecraft.world.block.WireOrientation;
+import net.minecraft.world.tick.ScheduledTickView;
 import org.jetbrains.annotations.Nullable;
 
 public class PipeBlock extends BlockWithEntity implements Waterloggable {
@@ -121,7 +125,7 @@ public class PipeBlock extends BlockWithEntity implements Waterloggable {
             return ActionResult.PASS;
         }
 
-        if (context.getWorld().isClient) {
+        if (context.getWorld().isClient()) {
             return ActionResult.SUCCESS;
         }
 
@@ -161,7 +165,7 @@ public class PipeBlock extends BlockWithEntity implements Waterloggable {
     }
 
     @Override
-    public int getComparatorOutput(BlockState state, World world, BlockPos pos) {
+    protected int getComparatorOutput(BlockState state, World world, BlockPos pos, Direction direction) {
         if (pipe == null) {
             return 0;
         }
@@ -254,10 +258,10 @@ public class PipeBlock extends BlockWithEntity implements Waterloggable {
     }
 
     @Override
-    public BlockState getStateForNeighborUpdate(BlockState state, Direction direction, BlockState neighborState,
-                                                  WorldAccess world, BlockPos pos, BlockPos neighborPos) {
+    protected BlockState getStateForNeighborUpdate(BlockState state, WorldView world, ScheduledTickView tickView, BlockPos pos,
+                                                   Direction direction, BlockPos neighborPos, BlockState neighborState, Random random) {
         if (state.get(WATERLOGGED)) {
-            world.scheduleFluidTick(pos, Fluids.WATER, Fluids.WATER.getTickRate(world));
+            tickView.scheduleFluidTick(pos, Fluids.WATER, Fluids.WATER.getTickRate(world));
         }
 
         EnumProperty<ConnectionType> property = getPropertyForDirection(direction);
@@ -269,15 +273,15 @@ public class PipeBlock extends BlockWithEntity implements Waterloggable {
     }
 
     @Override
-    public void neighborUpdate(BlockState state, World world, BlockPos pos, Block block, BlockPos fromPos,
+    protected void neighborUpdate(BlockState state, World world, BlockPos pos, Block block, @Nullable WireOrientation wireOrientation,
                                boolean notify) {
-        if (!world.isClient) {
+        if (!world.isClient()) {
             boolean powered = world.isReceivingRedstonePower(pos);
             if (powered != state.get(POWERED)) {
                 world.setBlockState(pos, state.with(POWERED, powered), Block.NOTIFY_LISTENERS);
             }
         }
-        super.neighborUpdate(state, world, pos, block, fromPos, notify);
+        super.neighborUpdate(state, world, pos, block, wireOrientation, notify);
     }
 
     @Override
@@ -293,30 +297,6 @@ public class PipeBlock extends BlockWithEntity implements Waterloggable {
             PipeContext context = new PipeContext(world, pos, state, blockEntity);
             pipe.randomDisplayTick(context, random);
         }
-    }
-
-    @Override
-    protected void onStateReplaced(BlockState state, World world, BlockPos pos, BlockState newState, boolean moved) {
-        if (!state.isOf(newState.getBlock())) {
-            BlockEntity blockEntity = world.getBlockEntity(pos);
-            if (blockEntity instanceof PipeBlockEntity pipeEntity) {
-                // Drop all traveling items
-                for (com.logistics.pipe.runtime.TravelingItem travelingItem : pipeEntity.getTravelingItems()) {
-                    ItemEntity itemEntity = new ItemEntity(
-                        world,
-                        pos.getX() + 0.5,
-                        pos.getY() + 0.5,
-                        pos.getZ() + 0.5,
-                        travelingItem.getStack().copy()
-                    );
-                    itemEntity.setToDefaultPickupDelay();
-                    world.spawnEntity(itemEntity);
-                }
-            }
-            // This ensures the block entity is properly removed before dropping the block
-            world.removeBlockEntity(pos);
-        }
-        super.onStateReplaced(state, world, pos, newState, moved);
     }
 
     private ConnectionType canConnectTo(BlockView world, BlockPos pos, Direction direction) {

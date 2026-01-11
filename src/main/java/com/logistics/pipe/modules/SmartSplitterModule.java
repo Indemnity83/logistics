@@ -24,8 +24,7 @@ import java.util.List;
  * Otherwise, route to any side with no filters.
  */
 public class SmartSplitterModule implements Module {
-    private static final String STATE_KEY = "smart_splitter";
-    private static final String FILTERS_KEY = "filters";
+    private static final String FILTERS = "filters"; // NBT key for save compatibility
     public static final int FILTER_SLOTS_PER_SIDE = 8;
     public static final Direction[] FILTER_ORDER = {
         Direction.NORTH,
@@ -64,7 +63,7 @@ public class SmartSplitterModule implements Module {
 
     @Override
     public void onWrenchUse(PipeContext ctx, net.minecraft.item.ItemUsageContext usage) {
-        if (ctx.world().isClient) {
+        if (ctx.world().isClient()) {
             return;
         }
 
@@ -94,13 +93,13 @@ public class SmartSplitterModule implements Module {
         };
     }
 
-    public static List<String> getFilterSlots(NbtCompound state, Direction direction) {
-        NbtCompound filters = state.getCompound(FILTERS_KEY);
-        NbtList list = filters.getList(direction.getName(), NbtElement.STRING_TYPE);
+    public List<String> getFilterSlots(PipeContext ctx, Direction direction) {
+        NbtCompound filters = ctx.getNbtCompound(this, FILTERS);
+        NbtList list = filters.getListOrEmpty(direction.getId());
         List<String> slots = new ArrayList<>(FILTER_SLOTS_PER_SIDE);
         for (int i = 0; i < FILTER_SLOTS_PER_SIDE; i++) {
             if (i < list.size()) {
-                slots.add(list.getString(i));
+                slots.add(list.getString(i).orElse(""));
             } else {
                 slots.add("");
             }
@@ -108,8 +107,8 @@ public class SmartSplitterModule implements Module {
         return slots;
     }
 
-    public static void setFilterSlots(NbtCompound state, Direction direction, List<String> slots) {
-        NbtCompound filters = state.getCompound(FILTERS_KEY);
+    public void setFilterSlots(PipeContext ctx, Direction direction, List<String> slots) {
+        NbtCompound filters = ctx.getNbtCompound(this, FILTERS);
         NbtList list = new NbtList();
         boolean hasAny = false;
 
@@ -122,20 +121,20 @@ public class SmartSplitterModule implements Module {
         }
 
         if (hasAny) {
-            filters.put(direction.getName(), list);
+            filters.put(direction.getId(), list);
         } else {
-            filters.remove(direction.getName());
+            filters.remove(direction.getId());
         }
 
         if (!filters.isEmpty()) {
-            state.put(FILTERS_KEY, filters);
+            ctx.putNbtCompound(this, FILTERS, filters);
         } else {
-            state.remove(FILTERS_KEY);
+            ctx.remove(this, FILTERS);
         }
     }
 
-    private static List<String> getFiltersForSide(PipeContext ctx, Direction direction) {
-        List<String> slots = getFilterSlots(ctx.moduleState(STATE_KEY), direction);
+    private List<String> getFiltersForSide(PipeContext ctx, Direction direction) {
+        List<String> slots = getFilterSlots(ctx, direction);
         List<String> ids = new ArrayList<>(slots.size());
         for (String id : slots) {
             if (!id.isEmpty()) {

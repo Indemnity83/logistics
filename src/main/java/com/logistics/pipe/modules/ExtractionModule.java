@@ -18,14 +18,12 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 public class ExtractionModule implements Module {
-    // Stable module state key (do not change lightly; it affects world saves)
-    private static final String STATE_KEY = "extraction";
-    private static final String EXTRACT_DIRECTION = "extract_direction";
+    private static final String EXTRACT_FROM = "extract_direction"; // NBT key for save compatibility
 
     @Override
     public void onTick(PipeContext ctx) {
         Module.super.onTick(ctx);
-        if (ctx.world().isClient) {
+        if (ctx.world().isClient()) {
             return;
         }
 
@@ -85,26 +83,29 @@ public class ExtractionModule implements Module {
         return false;
     }
 
-    private static @Nullable Direction getExtractionDirection(PipeContext ctx) {
-        NbtCompound state = ctx.moduleState(STATE_KEY);
-        return Direction.byName(state.getString(EXTRACT_DIRECTION));
+    private @Nullable Direction getExtractionDirection(PipeContext ctx) {
+        NbtCompound state = ctx.moduleState(getStateKey());
+        if (!state.contains(EXTRACT_FROM)) {
+            return null;
+        }
+        return state.getString(EXTRACT_FROM)
+            .map(Direction::byId)
+            .orElse(null);
     }
 
-    private static void setExtractionDirection(PipeContext ctx, @Nullable Direction direction) {
-        NbtCompound state = ctx.moduleState(STATE_KEY);
-
+    private void setExtractionDirection(PipeContext ctx, @Nullable Direction direction) {
         if (direction == null) {
-            state.remove(EXTRACT_DIRECTION);
+            ctx.remove(this, EXTRACT_FROM);
             ctx.setFeatureFace(null);
         } else {
-            state.putString(EXTRACT_DIRECTION, direction.getName());
+            ctx.saveString(this, EXTRACT_FROM, direction.getId());
             ctx.setFeatureFace(direction);
         }
 
         ctx.blockEntity().markDirty();
     }
 
-    private static Direction nextInCycle(List<Direction> ordered, @Nullable Direction current) {
+    private Direction nextInCycle(List<Direction> ordered, @Nullable Direction current) {
         if (ordered.isEmpty()) {
             throw new IllegalArgumentException("ordered directions must not be empty");
         }
@@ -113,7 +114,7 @@ public class ExtractionModule implements Module {
         return (idx < 0) ? ordered.getFirst() : ordered.get((idx + 1) % ordered.size());
     }
 
-    private static boolean extractFromDirection(PipeContext ctx, Direction direction) {
+    private boolean extractFromDirection(PipeContext ctx, Direction direction) {
         BlockPos targetPos = ctx.pos().offset(direction);
         Storage<ItemVariant> storage = ItemStorage.SIDED.find(ctx.world(), targetPos, direction.getOpposite());
         if (storage == null) {

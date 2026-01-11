@@ -16,6 +16,16 @@ public abstract class Pipe {
         this.modules = List.of(modules);
     }
 
+    @SuppressWarnings("unchecked")
+    public <T extends Module> T getModule(Class<T> moduleClass) {
+        for (Module module : modules) {
+            if (moduleClass.isInstance(module)) {
+                return (T) module;
+            }
+        }
+        return null;
+    }
+
     public float getTargetSpeed(PipeContext ctx) {
         for (Module module : modules) {
             float speed = module.getTargetSpeed(ctx);

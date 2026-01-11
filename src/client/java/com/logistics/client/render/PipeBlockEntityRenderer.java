@@ -6,76 +6,133 @@ import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.runtime.TravelingItem;
 import com.logistics.pipe.runtime.PipeConfig;
 import net.minecraft.block.BlockState;
-import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.item.ItemModelManager;
 import net.minecraft.client.render.block.entity.BlockEntityRenderer;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactory;
-import net.minecraft.client.render.item.ItemRenderer;
-import net.minecraft.client.render.model.json.ModelTransformationMode;
+import net.minecraft.client.render.block.entity.state.BlockEntityRenderState;
+import net.minecraft.client.render.state.CameraRenderState;
+import net.minecraft.client.render.command.OrderedRenderCommandQueue;
+import net.minecraft.client.render.item.ItemRenderState;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.item.ItemDisplayContext;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Vec3d;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Renders traveling items inside pipes
  */
-public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEntity> {
-    private final ItemRenderer itemRenderer;
+public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEntity, PipeBlockEntityRenderer.PipeRenderState> {
+    private final ItemModelManager itemModelManager;
 
     public PipeBlockEntityRenderer(BlockEntityRendererFactory.Context ctx) {
-        this.itemRenderer = ctx.getItemRenderer();
+        this.itemModelManager = ctx.itemModelManager();
     }
 
     @Override
-    public void render(PipeBlockEntity entity, float tickDelta, MatrixStack matrices,
-                       VertexConsumerProvider vertexConsumers, int light, int overlay) {
+    public PipeRenderState createRenderState() {
+        return new PipeRenderState();
+    }
 
-        for (TravelingItem travelingItem : entity.getTravelingItems()) {
-            matrices.push();
+    @Override
+    public void updateRenderState(
+        PipeBlockEntity entity,
+        PipeRenderState state,
+        float tickDelta,
+        Vec3d cameraPos,
+        @Nullable net.minecraft.client.render.command.ModelCommandRenderer.CrumblingOverlayCommand crumblingOverlay
+    ) {
+        // Update base block entity render state
+        BlockEntityRenderState.updateBlockEntityRenderState(entity, state, crumblingOverlay);
 
-            // Calculate the item's current position along the pipe
-            // Items travel from -0.5 to +0.5 in their direction
-            Direction direction = travelingItem.getDirection();
+        // Store tickDelta for use in render()
+        state.tickDelta = tickDelta;
 
-            // Get pipe's target speed, acceleration, and whether it can accelerate
-            BlockState state = entity.getCachedState();
-            float targetSpeed = PipeConfig.BASE_PIPE_SPEED;
-            float accelerationRate = 0f;
-            boolean canAccelerate = false;
+        // Clear previous items
+        state.travelingItems.clear();
 
-            if (state.getBlock() instanceof PipeBlock pipeBlock) {
-                if (pipeBlock.getPipe() != null && entity.getWorld() != null) {
-                    PipeContext context = new PipeContext(entity.getWorld(), entity.getPos(), state, entity);
-                    targetSpeed = pipeBlock.getPipe().getTargetSpeed(context);
-                    accelerationRate = pipeBlock.getPipe().getAccelerationRate(context);
-                    canAccelerate = pipeBlock.getPipe().canAccelerate(context);
-                }
+        // Get pipe properties for speed calculations
+        BlockState blockState = entity.getCachedState();
+        float targetSpeed = PipeConfig.BASE_PIPE_SPEED;
+        float accelerationRate = 0f;
+        boolean canAccelerate = false;
+
+        if (blockState.getBlock() instanceof PipeBlock pipeBlock) {
+            if (pipeBlock.getPipe() != null && entity.getWorld() != null) {
+                PipeContext context = new PipeContext(entity.getWorld(), entity.getPos(), blockState, entity);
+                targetSpeed = pipeBlock.getPipe().getTargetSpeed(context);
+                accelerationRate = pipeBlock.getPipe().getAccelerationRate(context);
+                canAccelerate = pipeBlock.getPipe().canAccelerate(context);
             }
+        }
 
-            // Simulate acceleration for this partial tick
-            float progress = travelingItem.getProgress();
-            float currentSpeed = travelingItem.getSpeed();
+        // Extract each traveling item
+        for (TravelingItem travelingItem : entity.getTravelingItems()) {
+            TravelingItemRenderState itemState = new TravelingItemRenderState();
+
+            // Update the ItemRenderState using ItemModelManager
+            this.itemModelManager.update(
+                itemState.itemRenderState,
+                travelingItem.getStack(),
+                ItemDisplayContext.GROUND,
+                entity.getWorld(),
+                null, // heldItemContext - not held by entity
+                0 // seed
+            );
+
+            // Store item data
+            itemState.direction = travelingItem.getDirection();
+            itemState.progress = travelingItem.getProgress();
+            itemState.currentSpeed = travelingItem.getSpeed();
+            itemState.targetSpeed = targetSpeed;
+            itemState.accelerationRate = accelerationRate;
+            itemState.canAccelerate = canAccelerate;
+
+            state.travelingItems.add(itemState);
+        }
+    }
+
+    @Override
+    public void render(
+        PipeRenderState state,
+        MatrixStack matrices,
+        OrderedRenderCommandQueue queue,
+        CameraRenderState cameraState
+    ) {
+        for (TravelingItemRenderState itemState : state.travelingItems) {
+            matrices.push();
 
             // Calculate speed change during this partial tick
             float speedChange;
-            if (currentSpeed < targetSpeed) {
+            if (itemState.currentSpeed < itemState.targetSpeed) {
                 // Only accelerate if allowed
-                if (canAccelerate) {
-                    speedChange = Math.min(accelerationRate * tickDelta, targetSpeed - currentSpeed);
+                if (itemState.canAccelerate) {
+                    speedChange = Math.min(
+                        itemState.accelerationRate * state.tickDelta,
+                        itemState.targetSpeed - itemState.currentSpeed
+                    );
                 } else {
                     speedChange = 0; // Maintain speed (no acceleration)
                 }
-            } else if (currentSpeed > targetSpeed) {
+            } else if (itemState.currentSpeed > itemState.targetSpeed) {
                 // Always decelerate (drag)
-                speedChange = Math.max(-accelerationRate * tickDelta, targetSpeed - currentSpeed);
+                speedChange = Math.max(
+                    -itemState.accelerationRate * state.tickDelta,
+                    itemState.targetSpeed - itemState.currentSpeed
+                );
             } else {
                 speedChange = 0;
             }
 
             // Speed at the end of this partial tick
-            float interpolatedSpeed = currentSpeed + speedChange;
+            float interpolatedSpeed = itemState.currentSpeed + speedChange;
 
             // Use average speed for progress calculation (trapezoidal integration)
-            float avgSpeed = (currentSpeed + interpolatedSpeed) / 2.0f;
-            float interpolatedProgress = progress + (avgSpeed * tickDelta);
+            float avgSpeed = (itemState.currentSpeed + interpolatedSpeed) / 2.0f;
+            float interpolatedProgress = itemState.progress + (avgSpeed * state.tickDelta);
 
             // Start at center of pipe (offset Y down slightly to account for ground item offset)
             matrices.translate(0.5, 0.375, 0.5);
@@ -85,28 +142,41 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
             // Progress 1.0 = exiting in travel direction (+0.5)
             float travelDistance = interpolatedProgress - 0.5f;
             matrices.translate(
-                direction.getOffsetX() * travelDistance,
-                direction.getOffsetY() * travelDistance,
-                direction.getOffsetZ() * travelDistance
+                itemState.direction.getOffsetX() * travelDistance,
+                itemState.direction.getOffsetY() * travelDistance,
+                itemState.direction.getOffsetZ() * travelDistance
             );
 
             // Keep items at ground scale (no scaling)
-            // ModelTransformationMode.GROUND already handles proper item sizing
+            // ItemDisplayContext.GROUND already handles proper item sizing
             // No rotation - items move straight through the pipe
 
-            // Render the item
-            itemRenderer.renderItem(
-                travelingItem.getStack(),
-                ModelTransformationMode.GROUND,
-                light,
-                overlay,
+            // Render the item using ItemRenderState.render()
+            itemState.itemRenderState.render(
                 matrices,
-                vertexConsumers,
-                entity.getWorld(),
-                0
+                queue,
+                state.lightmapCoordinates,
+                0, // overlay
+                0  // outlineColors
             );
 
             matrices.pop();
         }
+    }
+
+    // Render state classes
+    public static class PipeRenderState extends BlockEntityRenderState {
+        public final List<TravelingItemRenderState> travelingItems = new ArrayList<>();
+        public float tickDelta;
+    }
+
+    public static class TravelingItemRenderState {
+        public final ItemRenderState itemRenderState = new ItemRenderState();
+        public Direction direction;
+        public float progress;
+        public float currentSpeed;
+        public float targetSpeed;
+        public float accelerationRate;
+        public boolean canAccelerate;
     }
 }

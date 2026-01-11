@@ -31,6 +31,6 @@ public class VoidModule implements Module {
         double y = ctx.pos().getY() + 0.5 + (random.nextDouble() - 0.5) * 0.2;
         double z = ctx.pos().getZ() + 0.5 + (random.nextDouble() - 0.5) * 0.2;
 
-        ctx.world().addParticle(ParticleTypes.PORTAL, x, y, z, 0.0, 0.02, 0.0);
+        ctx.world().addParticleClient(ParticleTypes.PORTAL, x, y, z, 0.0, 0.02, 0.0);
     }
 }

@@ -14,11 +14,11 @@ import net.minecraft.entity.ItemEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
-import net.minecraft.nbt.NbtList;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
-import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.storage.ReadView;
+import net.minecraft.storage.WriteView;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
@@ -26,6 +26,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 public class PipeBlockEntity extends BlockEntity {
     public static final int VIRTUAL_CAPACITY = 5 * 64;
@@ -84,49 +86,54 @@ public class PipeBlockEntity extends BlockEntity {
     }
 
     @Override
-    protected void writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
-        super.writeNbt(nbt, registryLookup);
+    protected void writeData(WriteView view) {
+        super.writeData(view);
 
         // Save traveling items
-        NbtList itemsList = new NbtList();
-        for (TravelingItem item : travelingItems) {
-            itemsList.add(item.writeNbt(new NbtCompound(), registryLookup));
+        if (!travelingItems.isEmpty()) {
+            // Requires TravelingItem.CODEC (see TravelingItem class)
+            WriteView.ListAppender<TravelingItem> appender = view.getListAppender("TravelingItems", TravelingItem.CODEC);
+            for (TravelingItem item : travelingItems) {
+                appender.add(item);
+            }
+        } else {
+            view.remove("TravelingItems");
         }
-        nbt.put("TravelingItems", itemsList);
 
+        // Save module state
         if (!moduleState.isEmpty()) {
-            nbt.put("ModuleState", moduleState.copy());
+            view.put("ModuleState", NbtCompound.CODEC, moduleState);
+        } else {
+            view.remove("ModuleState");
         }
     }
 
     @Override
-    protected void readNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
+    protected void readData(ReadView view) {
         long readStart = System.nanoTime();
-        super.readNbt(nbt, registryLookup);
+        super.readData(view);
 
         // Load traveling items
         travelingItems.clear();
-        NbtList itemsList = nbt.getList("TravelingItems", NbtElement.COMPOUND_TYPE);
-        for (int i = 0; i < itemsList.size(); i++) {
-            travelingItems.add(TravelingItem.fromNbt(itemsList.getCompound(i), registryLookup));
-        }
+        view.getOptionalTypedListView("TravelingItems", TravelingItem.CODEC)
+            .ifPresent(list -> list.forEach(travelingItems::add));
 
+        // Load module state
         if (!moduleState.getKeys().isEmpty()) {
             for (String key : new ArrayList<>(moduleState.getKeys())) {
                 moduleState.remove(key);
             }
         }
-        if (nbt.contains("ModuleState", NbtElement.COMPOUND_TYPE)) {
-            NbtCompound stored = nbt.getCompound("ModuleState");
+        view.read("ModuleState", NbtCompound.CODEC).ifPresent(stored -> {
             for (String key : stored.getKeys()) {
-                moduleState.put(key, stored.get(key).copy());
+                moduleState.put(key, Objects.requireNonNull(stored.get(key)).copy());
             }
-        }
+        });
 
         long durationMs = (System.nanoTime() - readStart) / 1_000_000L;
         if (durationMs >= 2L && Boolean.getBoolean("logistics.timing")) {
             com.logistics.LogisticsMod.LOGGER.info(
-                "[timing] PipeBlockEntity readNbt at {} took {} ms (items={})",
+                "[timing] PipeBlockEntity readData at {} took {} ms (items={})",
                 getPos(),
                 durationMs,
                 travelingItems.size()
@@ -141,8 +148,8 @@ public class PipeBlockEntity extends BlockEntity {
     }
 
     @Override
-    public NbtCompound toInitialChunkDataNbt(RegistryWrapper.WrapperLookup registryLookup) {
-        return createNbt(registryLookup);
+    public NbtCompound toInitialChunkDataNbt(net.minecraft.registry.RegistryWrapper.WrapperLookup registries) {
+        return createNbt(registries);
     }
 
     public static void tick(net.minecraft.world.World world, BlockPos pos, BlockState state, PipeBlockEntity blockEntity) {
@@ -170,11 +177,35 @@ public class PipeBlockEntity extends BlockEntity {
         world.spawnEntity(itemEntity);
     }
 
+    @Override
+    public void onBlockReplaced(BlockPos pos, BlockState oldState) {
+        super.onBlockReplaced(pos, oldState);
+
+        if (world != null && !world.isClient()) {
+            // Drop all traveling items
+            for (TravelingItem travelingItem : travelingItems) {
+                ItemEntity itemEntity = new ItemEntity(
+                        world,
+                        pos.getX() + 0.5,
+                        pos.getY() + 0.5,
+                        pos.getZ() + 0.5,
+                        travelingItem.getStack().copy()
+                );
+                itemEntity.setToDefaultPickupDelay();
+                world.spawnEntity(itemEntity);
+            }
+        }
+    }
+
     public NbtCompound getOrCreateModuleState(String key) {
-        if (!moduleState.contains(key, NbtElement.COMPOUND_TYPE)) {
+        if (!moduleState.contains(key)) {
             moduleState.put(key, new NbtCompound());
         }
-        return moduleState.getCompound(key);
+        return moduleState.getCompound(key).orElseGet(NbtCompound::new);
+    }
+
+    public PipeContext createContext() {
+        return new PipeContext(world, pos, getCachedState(), this);
     }
 
     public int getLastConnectionsMask() {
@@ -241,7 +272,7 @@ public class PipeBlockEntity extends BlockEntity {
         travelingItems.add(newItem);
         markDirty();
 
-        if (world != null && !world.isClient) {
+        if (world != null && !world.isClient()) {
             world.updateListeners(pos, getCachedState(), getCachedState(), 3);
         }
     }

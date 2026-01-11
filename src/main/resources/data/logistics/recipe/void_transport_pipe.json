@@ -4,15 +4,9 @@
     "OGE"
   ],
   "key": {
-    "O": {
-      "item": "minecraft:obsidian"
-    },
-    "G": {
-      "item": "minecraft:glass"
-    },
-    "E": {
-      "item": "minecraft:ender_pearl"
-    }
+    "O": "minecraft:obsidian",
+    "G": "minecraft:glass",
+    "E": "minecraft:ender_pearl"
   },
   "result": {
     "id": "logistics:void_transport_pipe",

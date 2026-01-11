@@ -4,12 +4,8 @@
     "DGD"
   ],
   "key": {
-    "D": {
-      "item": "minecraft:diamond"
-    },
-    "G": {
-      "item": "minecraft:glass"
-    }
+    "D": "minecraft:diamond",
+    "G": "minecraft:glass"
   },
   "result": {
     "id": "logistics:diamond_transport_pipe",

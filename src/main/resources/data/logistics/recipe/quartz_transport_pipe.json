@@ -4,12 +4,8 @@
     "QGQ"
   ],
   "key": {
-    "Q": {
-      "item": "minecraft:quartz"
-    },
-    "G": {
-      "item": "minecraft:glass"
-    }
+    "Q": "minecraft:quartz",
+    "G": "minecraft:glass"
   },
   "result": {
     "id": "logistics:quartz_transport_pipe",
