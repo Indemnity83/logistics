@@ -66,4 +66,13 @@ public interface Module {
      */
     default void randomDisplayTick(PipeContext ctx, Random random) {
     }
+
+    /**
+     * Get the NBT state key for this module.
+     * Defaults to lowercase class simple name (e.g., "mergermodule").
+     * Override to provide custom key for backwards compatibility.
+     */
+    default String getStateKey() {
+        return this.getClass().getSimpleName().toLowerCase();
+    }
 }

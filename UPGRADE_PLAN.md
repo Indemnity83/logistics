@@ -154,8 +154,8 @@ public static final Block WOODEN_PIPE = new WoodenPipeBlock(
 
 ---
 
-### 🔲 Phase 5: Update to Minecraft 1.21.5
-**Status**: NOT STARTED
+### ✅ Phase 5: Update to Minecraft 1.21.5
+**Status**: COMPLETED
 **Target Versions**:
 - Minecraft: 1.21.5
 - Yarn: 1.21.5+build.1 (or latest)

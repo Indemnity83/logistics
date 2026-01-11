@@ -2,6 +2,7 @@ package com.logistics.pipe;
 
 import com.logistics.block.PipeBlock;
 import com.logistics.block.entity.PipeBlockEntity;
+import com.logistics.pipe.modules.Module;
 import net.minecraft.block.BlockState;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.math.BlockPos;
@@ -17,6 +18,35 @@ public record PipeContext(World world,
                           PipeBlockEntity blockEntity) {
     public NbtCompound moduleState(String key) {
         return blockEntity.getOrCreateModuleState(key);
+    }
+
+    // Convenience methods for module state access (with Module instance)
+    public String getString(Module module, String key, String defaultValue) {
+        return moduleState(module.getStateKey()).getString(key, defaultValue);
+    }
+
+    public void saveString(Module module, String key, String value) {
+        moduleState(module.getStateKey()).putString(key, value);
+    }
+
+    public int getInt(Module module, String key, int defaultValue) {
+        return moduleState(module.getStateKey()).getInt(key, defaultValue);
+    }
+
+    public void saveInt(Module module, String key, int value) {
+        moduleState(module.getStateKey()).putInt(key, value);
+    }
+
+    public void remove(Module module, String key) {
+        moduleState(module.getStateKey()).remove(key);
+    }
+
+    public NbtCompound getNbtCompound(Module module, String key) {
+        return moduleState(module.getStateKey()).getCompoundOrEmpty(key);
+    }
+
+    public void putNbtCompound(Module module, String key, NbtCompound value) {
+        moduleState(module.getStateKey()).put(key, value);
     }
 
     /**

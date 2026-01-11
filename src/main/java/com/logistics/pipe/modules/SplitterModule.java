@@ -15,15 +15,12 @@ import java.util.List;
  * State is stored per-pipe-instance in the PipeBlockEntity NBT under the "round_robin" key.
  */
 public class SplitterModule implements Module {
-    // Stable module state key (do not change lightly; it affects world saves)
-    private static final String STATE_KEY = "splitter";
-    private static final String NEXT_INDEX_KEY = "next_index";
+    private static final String NEXT_OUTPUT_INDEX = "next_index"; // NBT key for save compatibility
 
     @Override
     public void onConnectionsChanged(PipeContext ctx, List<Direction> options) {
         // reset distribution order
-        NbtCompound state = ctx.moduleState(STATE_KEY);
-        state.putInt("next_index", 0);
+        ctx.saveInt(this, NEXT_OUTPUT_INDEX, 0);
     }
 
     @Override
@@ -36,17 +33,16 @@ public class SplitterModule implements Module {
         // Ensure deterministic ordering so "round robin" is meaningful.
         // (Never rely on the input list order unless the engine guarantees it.)
         List<Direction> ordered = new ArrayList<>(options);
-        ordered.sort(Comparator.comparingInt(Direction::getId));
+        ordered.sort(Comparator.comparingInt(Direction::getIndex));
 
         // Load / update per-pipe state.
-        NbtCompound state = ctx.moduleState(STATE_KEY);
-        int next = state.getInt(NEXT_INDEX_KEY);
+        int next = ctx.getInt(this, NEXT_OUTPUT_INDEX, 0);
         int idx = Math.floorMod(next, ordered.size());
 
         Direction out = ordered.get(idx);
 
         // Advance pointer for next time.
-        state.putInt(NEXT_INDEX_KEY, (idx + 1) % ordered.size());
+        ctx.saveInt(this, NEXT_OUTPUT_INDEX, (idx + 1) % ordered.size());
 
         // Route to the chosen direction.
         return RoutePlan.reroute(List.of(out));

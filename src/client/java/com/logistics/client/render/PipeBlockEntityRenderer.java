@@ -10,9 +10,10 @@ import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.block.entity.BlockEntityRenderer;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactory;
 import net.minecraft.client.render.item.ItemRenderer;
-import net.minecraft.item.ModelTransformationMode;
+import net.minecraft.item.ItemDisplayContext;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Vec3d;
 
 /**
  * Renders traveling items inside pipes
@@ -26,7 +27,7 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
 
     @Override
     public void render(PipeBlockEntity entity, float tickDelta, MatrixStack matrices,
-                       VertexConsumerProvider vertexConsumers, int light, int overlay) {
+                       VertexConsumerProvider vertexConsumers, int light, int overlay, Vec3d cameraPos) {
 
         for (TravelingItem travelingItem : entity.getTravelingItems()) {
             matrices.push();
@@ -91,13 +92,13 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
             );
 
             // Keep items at ground scale (no scaling)
-            // ModelTransformationMode.GROUND already handles proper item sizing
+            // ItemDisplayContext.GROUND already handles proper item sizing
             // No rotation - items move straight through the pipe
 
             // Render the item
             itemRenderer.renderItem(
                 travelingItem.getStack(),
-                ModelTransformationMode.GROUND,
+                ItemDisplayContext.GROUND,
                 light,
                 overlay,
                 matrices,

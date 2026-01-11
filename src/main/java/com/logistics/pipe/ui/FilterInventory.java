@@ -1,12 +1,12 @@
 package com.logistics.pipe.ui;
 
 import com.logistics.block.entity.PipeBlockEntity;
+import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.modules.SmartSplitterModule;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.Registries;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Direction;
@@ -19,12 +19,27 @@ import java.util.List;
 public class FilterInventory implements Inventory {
     private final DefaultedList<ItemStack> stacks = DefaultedList.ofSize(SmartSplitterModule.FILTER_ORDER.length * SmartSplitterModule.FILTER_SLOTS_PER_SIDE, ItemStack.EMPTY);
     private final PipeBlockEntity pipeEntity;
+    private final SmartSplitterModule module;
 
     public FilterInventory(PipeBlockEntity pipeEntity) {
         this.pipeEntity = pipeEntity;
-        if (pipeEntity != null) {
+        this.module = getModuleFromPipe(pipeEntity);
+
+        if(pipeEntity != null) {
             loadFromBlockEntity();
         }
+    }
+
+    private SmartSplitterModule getModuleFromPipe(PipeBlockEntity entity) {
+        if (entity == null) {
+            return new SmartSplitterModule();
+        }
+
+        com.logistics.block.PipeBlock block = (com.logistics.block.PipeBlock) entity.getCachedState().getBlock();
+        com.logistics.pipe.Pipe pipe = block.getPipe();
+        SmartSplitterModule pipeModule = pipe.getModule(SmartSplitterModule.class);
+
+        return pipeModule != null ? pipeModule : new SmartSplitterModule();
     }
 
     @Override
@@ -101,10 +116,10 @@ public class FilterInventory implements Inventory {
     }
 
     private void loadFromBlockEntity() {
-        NbtCompound state = pipeEntity.getOrCreateModuleState("smart_splitter");
         int slotIndex = 0;
+        PipeContext ctx = pipeEntity.createContext();
         for (Direction direction : SmartSplitterModule.FILTER_ORDER) {
-            List<String> slots = SmartSplitterModule.getFilterSlots(state, direction);
+            List<String> slots = module.getFilterSlots(ctx, direction);
             for (int i = 0; i < SmartSplitterModule.FILTER_SLOTS_PER_SIDE; i++) {
                 String id = slots.get(i);
                 ItemStack stack = ItemStack.EMPTY;
@@ -128,8 +143,8 @@ public class FilterInventory implements Inventory {
             return;
         }
 
-        NbtCompound state = pipeEntity.getOrCreateModuleState("smart_splitter");
         int slotIndex = 0;
+        PipeContext ctx = pipeEntity.createContext();
         for (Direction direction : SmartSplitterModule.FILTER_ORDER) {
             List<String> slots = new ArrayList<>(SmartSplitterModule.FILTER_SLOTS_PER_SIDE);
             for (int i = 0; i < SmartSplitterModule.FILTER_SLOTS_PER_SIDE; i++) {
@@ -141,7 +156,7 @@ public class FilterInventory implements Inventory {
                     slots.add(id.toString());
                 }
             }
-            SmartSplitterModule.setFilterSlots(state, direction, slots);
+            module.setFilterSlots(ctx, direction, slots);
         }
 
         pipeEntity.markDirty();

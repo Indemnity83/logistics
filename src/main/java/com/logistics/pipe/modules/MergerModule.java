@@ -11,8 +11,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 public class MergerModule implements Module {
-    // Stable module state key (do not change lightly; it affects world saves)
-    private static final String STATE_KEY = "merger";
     private static final String OUTPUT_DIRECTION = "output_direction";
 
     @Override
@@ -63,25 +61,22 @@ public class MergerModule implements Module {
         return out == null || from != out;
     }
 
-    private static @Nullable Direction getOutputDirection(PipeContext ctx) {
-        NbtCompound state = ctx.moduleState(STATE_KEY);
-        return Direction.byName(state.getString(OUTPUT_DIRECTION));
+    private @Nullable Direction getOutputDirection(PipeContext ctx) {
+        return Direction.byId(ctx.getString(this, OUTPUT_DIRECTION, Direction.NORTH.getId()));
     }
 
-    private static void setOutputDirection(PipeContext ctx, @Nullable Direction direction) {
-        NbtCompound state = ctx.moduleState(STATE_KEY);
-
+    private void setOutputDirection(PipeContext ctx, @Nullable Direction direction) {
         if (direction == null) {
-            state.remove(OUTPUT_DIRECTION);
+            ctx.remove(this, OUTPUT_DIRECTION);
         } else {
-            state.putString(OUTPUT_DIRECTION, direction.getName());
+            ctx.saveString(this, OUTPUT_DIRECTION, direction.getId());
             ctx.setFeatureFace(direction);
         }
 
         ctx.blockEntity().markDirty();
     }
 
-    private static Direction nextInCycle(List<Direction> ordered, @Nullable Direction current) {
+    private Direction nextInCycle(List<Direction> ordered, @Nullable Direction current) {
         if (ordered.isEmpty()) {
             throw new IllegalArgumentException("ordered directions must not be empty");
         }

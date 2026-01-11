@@ -49,7 +49,7 @@ public final class PipeRuntime {
             List<Direction> connected = getAllConnectedDirections(state);
             int mask = 0;
             for (Direction d : connected) {
-                mask |= (1 << d.getId());
+                mask |= (1 << d.getIndex());
             }
 
             if (mask != blockEntity.getLastConnectionsMask()) {
@@ -271,7 +271,7 @@ public final class PipeRuntime {
     }
 
     private static Direction chooseRandomDirection(PipeContext ctx, Direction currentDirection, List<Direction> options) {
-        long seed = mixHash(ctx.pos().asLong(), ctx.world().getTime(), currentDirection.getId());
+        long seed = mixHash(ctx.pos().asLong(), ctx.world().getTime(), currentDirection.getIndex());
         java.util.Random random = new java.util.Random(seed);
         return options.get(random.nextInt(options.size()));
     }
@@ -301,7 +301,7 @@ public final class PipeRuntime {
             return validDirections.getFirst();
         }
 
-        long seed = mixHash(pos.asLong(), world.getTime(), currentDirection.getId());
+        long seed = mixHash(pos.asLong(), world.getTime(), currentDirection.getIndex());
         java.util.Random random = new java.util.Random(seed);
         return validDirections.get(random.nextInt(validDirections.size()));
     }

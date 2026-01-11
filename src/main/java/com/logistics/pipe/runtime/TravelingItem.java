@@ -113,7 +113,7 @@ public class TravelingItem {
     public NbtCompound writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
         nbt.put("Item", stack.toNbt(registryLookup));
         nbt.putFloat("Progress", progress);
-        nbt.putInt("Direction", direction.getId());
+        nbt.putInt("Direction", direction.getIndex());
         nbt.putFloat("Speed", speed);
         nbt.putBoolean("Routed", routed);
         return nbt;
@@ -123,14 +123,14 @@ public class TravelingItem {
      * Load from NBT
      */
     public static TravelingItem fromNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
-        ItemStack stack = ItemStack.fromNbt(registryLookup, nbt.getCompound("Item")).orElse(ItemStack.EMPTY);
-        Direction direction = Direction.byId(nbt.getInt("Direction"));
-        float speed = nbt.getFloat("Speed");
+        ItemStack stack = ItemStack.fromNbt(registryLookup, nbt.getCompoundOrEmpty("Item")).orElse(ItemStack.EMPTY);
+        Direction direction = Direction.byIndex(nbt.getInt("Direction", 0));
+        float speed = nbt.getFloat("Speed", PipeConfig.BASE_PIPE_SPEED);
 
         TravelingItem item = new TravelingItem(stack, direction, speed);
-        item.progress = nbt.getFloat("Progress");
-        if (nbt.contains("Routed", 99)) {
-            item.routed = nbt.getBoolean("Routed");
+        item.progress = nbt.getFloat("Progress", 0);
+        if (nbt.contains("Routed")) {
+            item.routed = nbt.getBoolean("Routed", false);
         }
         return item;
     }
