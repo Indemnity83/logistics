@@ -13,7 +13,7 @@ import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-public class DiamondFilterScreenHandler extends ScreenHandler {
+public class SmartSplitterScreenHandler extends ScreenHandler {
     private static final int FILTER_SLOT_COUNT = SmartSplitterModule.FILTER_ORDER.length * SmartSplitterModule.FILTER_SLOTS_PER_SIDE;
     private static final int SLOT_SIZE = 18;
     private static final int PLAYER_INV_START_Y = 140;
@@ -25,8 +25,8 @@ public class DiamondFilterScreenHandler extends ScreenHandler {
     private final FilterInventory filterInventory;
     private final ScreenHandlerContext context;
 
-    public DiamondFilterScreenHandler(int syncId, PlayerInventory playerInventory) {
-        super(PipeScreenHandlers.DIAMOND_FILTER, syncId);
+    public SmartSplitterScreenHandler(int syncId, PlayerInventory playerInventory) {
+        super(PipeScreenHandlers.SMART_SPLITTER_FILTER, syncId);
         this.context = ScreenHandlerContext.EMPTY;
         this.filterInventory = new FilterInventory(null);
 
@@ -34,8 +34,8 @@ public class DiamondFilterScreenHandler extends ScreenHandler {
         addPlayerInventorySlots(playerInventory);
     }
 
-    public DiamondFilterScreenHandler(int syncId, PlayerInventory playerInventory, PipeBlockEntity pipeEntity) {
-        super(PipeScreenHandlers.DIAMOND_FILTER, syncId);
+    public SmartSplitterScreenHandler(int syncId, PlayerInventory playerInventory, PipeBlockEntity pipeEntity) {
+        super(PipeScreenHandlers.SMART_SPLITTER_FILTER, syncId);
         World world = pipeEntity != null ? pipeEntity.getWorld() : playerInventory.player.getEntityWorld();
         BlockPos pos = pipeEntity != null ? pipeEntity.getPos() : playerInventory.player.getBlockPos();
         this.context = ScreenHandlerContext.create(world, pos);

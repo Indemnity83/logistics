@@ -17,19 +17,19 @@ public class LogisticsModClient implements ClientModInitializer {
 		LogisticsMod.LOGGER.info("Initializing Logistics client");
 
 		// Register pipe blocks to render with transparency
-		BlockRenderLayerMap.putBlock(LogisticsBlocks.COBBLESTONE_TRANSPORT_PIPE, BlockRenderLayer.CUTOUT);
-		BlockRenderLayerMap.putBlock(LogisticsBlocks.STONE_TRANSPORT_PIPE, BlockRenderLayer.CUTOUT);
-		BlockRenderLayerMap.putBlock(LogisticsBlocks.WOODEN_TRANSPORT_PIPE, BlockRenderLayer.CUTOUT);
-		BlockRenderLayerMap.putBlock(LogisticsBlocks.IRON_TRANSPORT_PIPE, BlockRenderLayer.CUTOUT);
+//		BlockRenderLayerMap.putBlock(LogisticsBlocks.COBBLESTONE_TRANSPORT_PIPE, BlockRenderLayer.CUTOUT);
+		BlockRenderLayerMap.putBlock(LogisticsBlocks.BASIC_SPLITTER_PIPE, BlockRenderLayer.CUTOUT);
+		BlockRenderLayerMap.putBlock(LogisticsBlocks.BASIC_EXTRACTOR_PIPE, BlockRenderLayer.CUTOUT);
+		BlockRenderLayerMap.putBlock(LogisticsBlocks.BASIC_MERGER_PIPE, BlockRenderLayer.CUTOUT);
 		BlockRenderLayerMap.putBlock(LogisticsBlocks.GOLD_TRANSPORT_PIPE, BlockRenderLayer.CUTOUT);
-		BlockRenderLayerMap.putBlock(LogisticsBlocks.DIAMOND_TRANSPORT_PIPE, BlockRenderLayer.CUTOUT);
+		BlockRenderLayerMap.putBlock(LogisticsBlocks.SMART_SPLITTER_PIPE, BlockRenderLayer.CUTOUT);
 		BlockRenderLayerMap.putBlock(LogisticsBlocks.COPPER_TRANSPORT_PIPE, BlockRenderLayer.CUTOUT);
-		BlockRenderLayerMap.putBlock(LogisticsBlocks.QUARTZ_TRANSPORT_PIPE, BlockRenderLayer.CUTOUT);
-		BlockRenderLayerMap.putBlock(LogisticsBlocks.VOID_TRANSPORT_PIPE, BlockRenderLayer.CUTOUT);
+		BlockRenderLayerMap.putBlock(LogisticsBlocks.COMPARATOR_PIPE, BlockRenderLayer.CUTOUT);
+		BlockRenderLayerMap.putBlock(LogisticsBlocks.VOID_PIPE, BlockRenderLayer.CUTOUT);
 
 		// Register block entity renderer for traveling items
 		BlockEntityRendererFactories.register(LogisticsBlockEntities.PIPE_BLOCK_ENTITY, PipeBlockEntityRenderer::new);
 
-		HandledScreens.register(PipeScreenHandlers.DIAMOND_FILTER, DiamondFilterScreen::new);
+		HandledScreens.register(PipeScreenHandlers.SMART_SPLITTER_FILTER, DiamondFilterScreen::new);
 	}
 }

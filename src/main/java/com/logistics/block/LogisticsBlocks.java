@@ -18,29 +18,19 @@ import java.util.function.Function;
 
 public class LogisticsBlocks {
     // Transport Pipes
-    public static final Block COBBLESTONE_TRANSPORT_PIPE = register(
-        "cobblestone_transport_pipe",
-        settings -> new PipeBlock(settings, PipeTypes.COBBLESTONE_TRANSPORT),
+    public static final Block COPPER_TRANSPORT_PIPE = register(
+        "copper_transport_pipe",
+        settings -> new PipeBlock(settings, PipeTypes.COPPER_TRANSPORT_PIPE),
         AbstractBlock.Settings.create()
-            .mapColor(MapColor.STONE_GRAY)
+            .mapColor(MapColor.GRAY)
             .strength(2.0f, 6.0f)
             .sounds(BlockSoundGroup.STONE)
             .nonOpaque()
     );
 
-    public static final Block STONE_TRANSPORT_PIPE = register(
-        "stone_transport_pipe",
-        settings -> new PipeBlock(settings, PipeTypes.STONE_TRANSPORT),
-        AbstractBlock.Settings.create()
-            .mapColor(MapColor.STONE_GRAY)
-            .strength(1.5f, 6.0f)
-            .sounds(BlockSoundGroup.STONE)
-            .nonOpaque()
-    );
-
-    public static final Block WOODEN_TRANSPORT_PIPE = register(
-        "wooden_transport_pipe",
-        settings -> new PipeBlock(settings, PipeTypes.WOOD_TRANSPORT),
+    public static final Block BASIC_EXTRACTOR_PIPE = register(
+        "basic_extractor_pipe",
+        settings -> new PipeBlock(settings, PipeTypes.BASIC_EXTRACTOR),
         AbstractBlock.Settings.create()
             .mapColor(MapColor.OAK_TAN)
             .strength(0.5f)
@@ -48,9 +38,9 @@ public class LogisticsBlocks {
             .nonOpaque()
     );
 
-    public static final Block IRON_TRANSPORT_PIPE = register(
-        "iron_transport_pipe",
-        settings -> new PipeBlock(settings, PipeTypes.IRON_TRANSPORT),
+    public static final Block BASIC_MERGER_PIPE = register(
+        "basic_merger_pipe",
+        settings -> new PipeBlock(settings, PipeTypes.BASIC_MERGER),
         AbstractBlock.Settings.create()
             .mapColor(MapColor.IRON_GRAY)
             .strength(3.0f, 6.0f)
@@ -68,9 +58,9 @@ public class LogisticsBlocks {
             .nonOpaque()
     );
 
-    public static final Block DIAMOND_TRANSPORT_PIPE = register(
-        "diamond_transport_pipe",
-        settings -> new PipeBlock(settings, PipeTypes.DIAMOND_TRANSPORT),
+    public static final Block SMART_SPLITTER_PIPE = register(
+        "smart_splitter_pipe",
+        settings -> new PipeBlock(settings, PipeTypes.SMART_SPLITTER),
         AbstractBlock.Settings.create()
             .mapColor(MapColor.DIAMOND_BLUE)
             .strength(3.0f, 6.0f)
@@ -78,9 +68,9 @@ public class LogisticsBlocks {
             .nonOpaque()
     );
 
-    public static final Block COPPER_TRANSPORT_PIPE = register(
-        "copper_transport_pipe",
-        settings -> new PipeBlock(settings, PipeTypes.COPPER_TRANSPORT),
+    public static final Block BASIC_SPLITTER_PIPE = register(
+        "basic_splitter_pipe",
+        settings -> new PipeBlock(settings, PipeTypes.BASIC_SPLITTER),
         AbstractBlock.Settings.create()
             .mapColor(MapColor.ORANGE)
             .strength(2.5f, 6.0f)
@@ -88,9 +78,9 @@ public class LogisticsBlocks {
             .nonOpaque()
     );
 
-    public static final Block QUARTZ_TRANSPORT_PIPE = register(
-        "quartz_transport_pipe",
-        settings -> new PipeBlock(settings, PipeTypes.QUARTZ_TRANSPORT),
+    public static final Block COMPARATOR_PIPE = register(
+        "comparator_pipe",
+        settings -> new PipeBlock(settings, PipeTypes.COMPARATOR),
         AbstractBlock.Settings.create()
             .mapColor(MapColor.OFF_WHITE)
             .strength(2.0f, 6.0f)
@@ -98,9 +88,9 @@ public class LogisticsBlocks {
             .nonOpaque()
     );
 
-    public static final Block VOID_TRANSPORT_PIPE = register(
-        "void_transport_pipe",
-        settings -> new PipeBlock(settings, PipeTypes.VOID_TRANSPORT),
+    public static final Block VOID_PIPE = register(
+        "void_pipe",
+        settings -> new PipeBlock(settings, PipeTypes.VOID),
         AbstractBlock.Settings.create()
             .mapColor(MapColor.BLACK)
             .strength(50.0f, 1200.0f)

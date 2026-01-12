@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "HP"
+  ],
+  "key": {
+    "H": "minecraft:hopper",
+    "P": "logistics:copper_transport_pipe"
+  },
+  "result": {
+    "id": "logistics:basic_extractor_pipe",
+    "count": 8
+  }
+}
+
+

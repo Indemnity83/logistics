@@ -9,7 +9,7 @@
     "E": "minecraft:ender_pearl"
   },
   "result": {
-    "id": "logistics:void_transport_pipe",
+    "id": "logistics:void_pipe",
     "count": 8
   }
 }

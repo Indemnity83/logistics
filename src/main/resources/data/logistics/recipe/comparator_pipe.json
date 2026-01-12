@@ -1,14 +1,14 @@
 {
   "type": "minecraft:crafting_shaped",
   "pattern": [
-    "DGD"
+    "QGQ"
   ],
   "key": {
-    "D": "minecraft:diamond",
+    "Q": "minecraft:quartz",
     "G": "minecraft:glass"
   },
   "result": {
-    "id": "logistics:diamond_transport_pipe",
+    "id": "logistics:comparator_pipe",
     "count": 8
   }
 }

@@ -4,8 +4,8 @@ import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.runtime.RoutePlan;
 import com.logistics.pipe.runtime.TravelingItem;
 import com.logistics.block.entity.PipeBlockEntity;
+import com.logistics.pipe.ui.SmartSplitterScreenHandler;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtString;
 import net.minecraft.registry.Registries;
@@ -76,7 +76,7 @@ public class SmartSplitterModule implements Module {
         player.openHandledScreen(new net.minecraft.screen.SimpleNamedScreenHandlerFactory(
             (syncId, inventory, playerEntity) -> {
                 PipeBlockEntity pipeEntity = world.getBlockEntity(pos) instanceof PipeBlockEntity entity ? entity : null;
-                return new com.logistics.pipe.ui.DiamondFilterScreenHandler(syncId, inventory, pipeEntity);
+                return new SmartSplitterScreenHandler(syncId, inventory, pipeEntity);
             },
             Text.translatable("screen.logistics.diamond_filter")
         ));

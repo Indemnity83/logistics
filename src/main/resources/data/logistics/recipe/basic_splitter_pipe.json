@@ -1,16 +1,14 @@
 {
   "type": "minecraft:crafting_shaped",
   "pattern": [
-    "PGP"
+    "SGS"
   ],
   "key": {
-    "P": "minecraft:planks",
+    "S": "minecraft:stone",
     "G": "minecraft:glass"
   },
   "result": {
-    "id": "logistics:wooden_transport_pipe",
+    "id": "logistics:basic_splitter_pipe",
     "count": 8
   }
 }
-
-

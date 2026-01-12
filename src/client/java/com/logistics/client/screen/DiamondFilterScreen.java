@@ -1,7 +1,7 @@
 package com.logistics.client.screen;
 
 import com.logistics.pipe.modules.SmartSplitterModule;
-import com.logistics.pipe.ui.DiamondFilterScreenHandler;
+import com.logistics.pipe.ui.SmartSplitterScreenHandler;
 import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
@@ -9,14 +9,14 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
-public class DiamondFilterScreen extends HandledScreen<DiamondFilterScreenHandler> {
+public class DiamondFilterScreen extends HandledScreen<SmartSplitterScreenHandler> {
     private static final Identifier BACKGROUND_TEXTURE = Identifier.ofVanilla("textures/gui/container/generic_54.png");
     private static final int SLOT_START_X = 8;
     private static final int SLOT_START_Y = 18;
     private static final int SLOT_SIZE = 18;
     private static final int SLOT_INNER_SIZE = 16;
 
-    public DiamondFilterScreen(DiamondFilterScreenHandler handler, PlayerInventory inventory, Text title) {
+    public DiamondFilterScreen(SmartSplitterScreenHandler handler, PlayerInventory inventory, Text title) {
         super(handler, inventory, title);
         backgroundWidth = 176;
         backgroundHeight = 222;

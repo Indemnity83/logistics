@@ -8,7 +8,7 @@
     "G": "minecraft:glass"
   },
   "result": {
-    "id": "logistics:iron_transport_pipe",
+    "id": "logistics:basic_merger_pipe",
     "count": 8
   }
 }

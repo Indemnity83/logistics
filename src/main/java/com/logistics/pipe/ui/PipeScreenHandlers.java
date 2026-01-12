@@ -8,11 +8,11 @@ import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.util.Identifier;
 
 public final class PipeScreenHandlers {
-    public static final ScreenHandlerType<DiamondFilterScreenHandler> DIAMOND_FILTER =
+    public static final ScreenHandlerType<SmartSplitterScreenHandler> SMART_SPLITTER_FILTER =
         Registry.register(
             Registries.SCREEN_HANDLER,
-            Identifier.of(LogisticsMod.MOD_ID, "diamond_filter"),
-            new ScreenHandlerType<>(DiamondFilterScreenHandler::new, FeatureSet.empty())
+            Identifier.of(LogisticsMod.MOD_ID, "smart_splitter_filter"),
+            new ScreenHandlerType<>(SmartSplitterScreenHandler::new, FeatureSet.empty())
         );
 
     private PipeScreenHandlers() {

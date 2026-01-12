@@ -1,14 +1,14 @@
 {
   "type": "minecraft:crafting_shaped",
   "pattern": [
-    "QGQ"
+    "DGD"
   ],
   "key": {
-    "Q": "minecraft:quartz",
+    "D": "minecraft:diamond",
     "G": "minecraft:glass"
   },
   "result": {
-    "id": "logistics:quartz_transport_pipe",
+    "id": "logistics:smart_splitter_pipe",
     "count": 8
   }
 }

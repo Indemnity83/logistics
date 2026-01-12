@@ -3,81 +3,167 @@
 ## Vision
 Build a modern, Fabric-based logistics/pipe mod inspired by BuildCraft and Logistics Pipes, with authentic in-pipe item motion, mod interoperability, and a request/autocrafting system.
 
+## Architecture Philosophy: The Three-Tier Model
+
+Logistics is structured around three conceptual tiers inspired by the OSI network model. Each tier provides a layer of abstraction, and higher tiers build on lower ones without replacing them.
+
+### Tier 1: Passive Movement (Physical + Data Link Layer)
+Pipes that move and shape item flow with mechanical operations but no item-aware decisions.
+
+**Examples:**
+- Transport pipes (backbone connectivity)
+- Acceleration pipes (speed boost)
+- Merger pipes (convergence—all inputs → single output)
+- Splitter pipes (distribution—round-robin across outputs)
+- Extractor pipes (mechanical extraction from inventories)
+- Void pipes (mechanical deletion)
+
+**Characteristics:**
+- React to flow with mechanical operations, don't make decisions
+- No item-aware logic or filtering
+- Operations happen regardless of item type
+- Like Ethernet: connectivity and frame forwarding without addressing
+- Copper-based substrate in the physical era
+
+### Tier 2: Active Control (Network + Transport Layer)
+Pipes that make decisions based on item type, count, or conditional logic.
+
+**Examples:**
+- Filter gates (item-aware routing)
+- Sensor pipes (monitoring and conditional signals)
+
+**Characteristics:**
+- Assert decisions based on item type or conditional logic
+- Item-aware or count-aware behavior
+- Like IP/TCP: routing decisions, conditional behavior
+- Still copper-based but with control components (circuits, sensors)
+
+### Tier 3: Network Logistics (Session + Presentation + Application Layer)
+Abstract inventory representation with global routing and high-level services.
+
+**Examples:**
+- Request Tables (service requests)
+- Provider modules (inventory abstraction)
+- Chassis & network cores (modular interfaces)
+- Crafting logistics (application-level protocols)
+
+**Characteristics:**
+- Inventories become abstract resources, not physical locations
+- Global pathfinding and request/provider model
+- Like HTTP/FTP: application-layer services
+- Pipes become **ports** into a logistics system, not the system itself
+
+### Design Rules
+- **Don't mix layers**: Tier 1 pipes shouldn't make routing decisions; Tier 3 components shouldn't care about physical pipe layout
+- **Progressive abstraction**: Each tier hides complexity from the next
+- **All tiers interconnect**: This is a layered system, not segregated eras—higher tiers build on and connect to lower tiers
+- **Resource-gated progression**: Access to higher tiers requires game progression (advanced materials like nether stars, end-game resources)
+
 ## Guiding Principles
+- **Copper-centric identity**: All physical-era pipes (Tier 1-2) built on copper substrate
+- **Component-driven progression**: Complexity from gears/circuits/cores, not material swaps
+- **Visual clarity via glyphs**: Small stamped symbols (6×6 pixels) differentiate function on copper pipes
+- **Layered abstraction**: Three tiers separate physical, control, and network logic
 - **Authentic visuals**: Items travel continuously through thin pipes with visible speed
 - **Interop first**: Integrate with other mods via Fabric Transfer API (ItemStorage/FluidStorage)
 - **Modular systems**: Item transport first, fluids next, power/cost later
 - **Classic ergonomics**: Simple placement, visible connections, easy debugging
 
-## MVP Scope (Phase 1-2)
-### Phase 1: Pipes + Items ✅ (Complete in v0.1.0)
-- Thin pipe block with 6-way connections (BuildCraft-like geometry).
-- Server-side traveling item simulation with continuous progress.
-- Client-side interpolation for smooth visuals.
-- Extraction from adjacent inventories (wooden pipes).
-- Insertion into adjacent inventories at pipe exits.
-- Local routing with multiple behaviors:
-  - Random (cobblestone/stone pipes).
-  - Directional (iron pipes).
-  - Round-robin distribution (copper pipes).
-  - Filter-based (diamond pipes).
-  - Speed boost when powered (gold pipes).
-  - Redstone output (quartz pipes).
-  - Item deletion (void pipes).
-- Wrench tool for pipe configuration.
+## Component Progression System
 
-### Phase 2: Logistics Basics
-- Request Table block + GUI.
-- Provider pipes expose inventory contents.
-- Sink pipes provide destinations for items in the network.
-- Priority system: Request Table > Sink pipes.
-  - Requests are fulfilled first.
-  - Overflow/unmatched items route to sink pipes.
-- Request flow: request → routing → provider → dispatch traveling items.
-- Autocraft support via vanilla Crafter (no custom crafting table).
+Progression is driven by **components** that augment pipes, not by replacing pipe materials.
+
+### Gear Tiers (Conceptual)
+```
+Wood → Cobblestone → Stone → Redstone → Gold → Diamond
+```
+
+Gears represent increasing mechanical and logical complexity:
+- **Early gears** (wood/cobble/stone): basic mechanics, simple motion
+- **Mid gears** (redstone/gold): control logic, conditional behavior
+- **Late gears** (diamond): precision mechanics, advanced filtering
+
+### Higher-Tier Components
+- **Circuit boards**: Enable Tier 2 decision-making (filters, conditional routing)
+- **Control cores**: Power Tier 2 extractors and active pipes
+- **Context cores**: Enable Tier 3 network awareness and global routing
+- **End-game materials**: Nether stars, shulker shells, etc. for Tier 3 logistics blocks
+
+### Philosophy
+- **Copper pipes are cheap infrastructure** (8 pipes per craft)
+- **Complexity comes from what you bolt onto them** (gears, circuits, cores)
+- **Not**: "craft better pipes with better materials"
+- **Instead**: "augment copper pipes with better components"
+- **Resource gating**: Players need game progression to access higher tiers, not just more copper
+
+## MVP Scope (Phase 1-2)
+### Phase 1: Pipes + Items (Tier 1-2) ✅ (Complete in v0.1.0)
+- Thin pipe block with 6-way connections (BuildCraft-like geometry)
+- Server-side traveling item simulation with continuous progress
+- Client-side interpolation for smooth visuals
+- Extraction from adjacent inventories (Tier 1: extractor pipes)
+- Insertion into adjacent inventories at pipe exits
+- Local routing with multiple behaviors:
+  - **Tier 1 behaviors**: Transport (random routing), Merger (convergence), Splitter (round-robin), Acceleration (speed boost when powered), Extractor (mechanical extraction from inventories), Void (mechanical deletion)
+  - **Tier 2 behaviors**: Filter (item-aware routing), Sensor (count-aware redstone output)
+- Wrench tool for pipe configuration
+
+### Phase 2: Network Logistics (Tier 3 Transition)
+This phase represents the shift from physical pipes to abstract network logistics:
+- **Request Table block**: High-level service requests for items
+- **Provider pipes**: Expose inventory contents as abstract resources
+- **Global pathfinding**: Network-layer routing across the pipe graph
+- **Sink pipes**: Provide overflow/destination routing for unmatched items
+- **Priority system**: Request Table > Sink pipes
+  - Requests are fulfilled first
+  - Overflow/unmatched items route to sink pipes
+- **Request flow**: request → routing → provider → dispatch traveling items
+- **Autocraft support**: Integrate with vanilla Crafter (no custom crafting table)
+
+**Key concept**: At Tier 3, pipes become **ports** into a logistics system rather than the system itself. Inventories are represented abstractly, and global routing occurs at the network level.
 
 ## Post-MVP Scope
 **Future Features (order TBD):**
 
 **Fluids:**
-- Fluid pipes with Transfer API integration.
-- Visible fluid movement (segments or packets).
+- Fluid pipes with Transfer API integration
+- Visible fluid movement (segments or packets)
 
 **Power / Cost:**
-- Add a "logistics cost" system (token/buffer).
-- Optional bridges to tech mod power systems.
+- Add a "logistics cost" system (token/buffer)
+- Optional bridges to tech mod power systems
 
 **Machines:**
-- Custom logistics machines and processing blocks.
-- Integration with pipe network.
+- Custom logistics machines and processing blocks
+- Integration with pipe network
 
 **Balance & Polish:**
-- Recipe progression and balancing.
-- Performance optimization.
-- Additional pipe variants and upgrades.
+- Recipe progression and balancing
+- Performance optimization
+- Additional pipe variants and upgrades
 
 ## Architecture Overview
-### Phase 1 (Implemented)
+### Phase 1 (Implemented - Tier 1-2)
 **Blocks / Block Entities:**
-- PipeBlock: thin model with 6-way connectivity via blockstate properties.
-- PipeBlockEntity: stores traveling items list and module state (NBT).
-  - Does NOT own connections (those are in blockstate).
-  - Delegates tick logic to PipeRuntime.
+- PipeBlock: thin model with 6-way connectivity via blockstate properties
+- PipeBlockEntity: stores traveling items list and module state (NBT)
+  - Does NOT own connections (those are in blockstate)
+  - Delegates tick logic to PipeRuntime
 
 **Pipe Module System:**
-- Pipe: base class that composes Module instances.
-- Module: interface for pipe behaviors (routing, speed, acceptance, etc.).
-- PipeContext: provides modules access to world, pos, state, and entity for state storage.
-- PipeRuntime: handles per-tick item movement, routing at center, and insertion at exits.
+- Pipe: base class that composes Module instances
+- Module: interface for pipe behaviors (routing, speed, acceptance, etc.)
+- PipeContext: provides modules access to world, pos, state, and entity for state storage
+- PipeRuntime: handles per-tick item movement, routing at center, and insertion at exits
 
 **ItemStack Lifecycle:**
-1. A neighbor attempts to insert via Fabric Transfer API.
-2. Modules may reject the transfer (ingress rules, filters, etc.).
-3. Accepted stacks become a TravelingItem traveling from the entry face toward the pipe center.
-4. When the traveling item reaches the pipe center (progress = 0.5), a RoutePlan is created and executed (see Routing Rules below).
-5. Traveling continues toward the chosen exit direction.
-6. Only when a traveling item reaches an exit (progress = 1.0), insertion is attempted via Transfer API into the adjacent storage along its direction.
-7. If insertion fails at the exit, the stack is dropped as an item entity.
+1. A neighbor attempts to insert via Fabric Transfer API
+2. Modules may reject the transfer (ingress rules, filters, etc.)
+3. Accepted stacks become a TravelingItem traveling from the entry face toward the pipe center
+4. When the traveling item reaches the pipe center (progress = 0.5), a RoutePlan is created and executed (see Routing Rules below)
+5. Traveling continues toward the chosen exit direction
+6. Only when a traveling item reaches an exit (progress = 1.0), insertion is attempted via Transfer API into the adjacent storage along its direction
+7. If insertion fails at the exit, the stack is dropped as an item entity
 
 **Routing Rules:**
 At the pipe center (progress = 0.5), modules are evaluated in order. Each module returns a RoutePlan:
@@ -90,106 +176,128 @@ At the pipe center (progress = 0.5), modules are evaluated in order. Each module
 The first module to return something other than PASS wins. If the winning plan is REROUTE with an empty list, the item is dropped.
 
 **Velocity Preservation:**
-- TravelingItems carry their own velocity (speed field).
-- All pipes share the same maximum speed; items maintain constant speed unless an acceleration value is applied.
-- BoostModule (gold pipes) applies acceleration to TravelingItems when powered by redstone.
-- When a TravelingItem moves from one pipe to another, its velocity is preserved via the overloaded `insert(TravelingItem)` method.
-- External inserts (from inventories, hoppers, etc.) start with default initial speed.
+- TravelingItems carry their own velocity (speed field)
+- All pipes share the same maximum speed; items maintain constant speed unless an acceleration value is applied
+- Acceleration modules (gold-wrapped pipes) apply acceleration to TravelingItems when powered by redstone
+- When a TravelingItem moves from one pipe to another, its velocity is preserved via the overloaded `insert(TravelingItem)` method
+- External inserts (from inventories, hoppers, etc.) start with default initial speed
 
 **Module Composition Rules:**
-- Routing: First module to return non-PASS wins.
-- Acceptance: All modules must return true from canAcceptFrom() or the insert is rejected.
-- State Storage: All per-pipe state lives in the PipeBlockEntity and is accessed through PipeContext using module-specific keys.
+- Routing: First module to return non-PASS wins
+- Acceptance: All modules must return true from canAcceptFrom() or the insert is rejected
+- State Storage: All per-pipe state lives in the PipeBlockEntity and is accessed through PipeContext using module-specific keys
 
 **Item Movement:**
-- TravelingItem: represents item in transit with stack, direction, progress, and speed.
-- Movement handled by PipeRuntime.tick() with acceleration and speed control.
-- PipeBlockEntityRenderer: renders traveling items with client-side interpolation.
+- TravelingItem: represents item in transit with stack, direction, progress, and speed
+- Movement handled by PipeRuntime.tick() with acceleration and speed control
+- PipeBlockEntityRenderer: renders traveling items with client-side interpolation
 
-**Implemented Modules:**
-- ExtractionModule: wooden pipes extract from inventories.
-- MergerModule: iron pipes route all inputs to single output.
-- SplitterModule: copper pipes distribute evenly (round-robin).
-- SmartSplitterModule: diamond pipes filter items by configured rules.
-- BoostModule: gold pipes accelerate items when powered.
-- ComparatorModule: quartz pipes emit redstone signal.
-- VoidModule: void pipes delete items.
-- PipeOnlyModule: restricts ingress to pipe-to-pipe only.
+**Implemented Behaviors (by Tier):**
 
-### Phase 2+ (Future)
+**Tier 1 (Passive Movement):**
+- Transport: Random routing at junctions
+- Acceleration: Speed boost when powered by redstone
+- Merger: All inputs route to single output
+- Splitter: Round-robin distribution across outputs
+- Extractor: Mechanical extraction from adjacent inventories (configurable face)
+- Void: Mechanical deletion at pipe center
+- Pipe-only ingress: Restricts external inserts (used by transport/merger/splitter)
+
+**Tier 2 (Active Control):**
+- Filter: Item-aware routing based on per-side filters
+- Sensor: Count-aware redstone signal based on item count
+
+**Implementation Modules:**
+
+*Tier 1 (Mechanical):*
+- ExtractionModule: Implements extractor behavior
+- MergerModule: Implements merger behavior
+- SplitterModule: Implements splitter behavior
+- BoostModule: Implements acceleration behavior
+- VoidModule: Implements void behavior
+- PipeOnlyModule: Restricts ingress to pipe-to-pipe only
+
+*Tier 2 (Decision-making):*
+- SmartSplitterModule: Implements filter behavior (item-aware)
+- ComparatorModule: Implements sensor behavior (count-aware)
+
+### Phase 2+ (Future - Tier 3)
 **Planned Systems:**
-- RequestTableBlockEntity: UI + request handling.
-- PipeNetworkGraph: per-dimension graph for pathfinding (not needed for Phase 1).
-- RoutingEngine: long-distance pathfinding with priorities and filters.
-- ProviderPipe/RequesterNode/CrafterNode: logistics system components.
+- RequestTableBlockEntity: UI + request handling
+- PipeNetworkGraph: per-dimension graph for pathfinding
+- RoutingEngine: long-distance pathfinding with priorities and filters
+- ProviderPipe/RequesterNode/CrafterNode: logistics system components
 
 ## Rendering Plan (Items)
 **Phase 1 (Implemented):**
-- TravelingItem stores: stack, direction, progress (0.0-1.0), and speed.
-- PipeBlockEntityRenderer renders items with client-side interpolation between ticks.
-- Items accelerate/decelerate smoothly based on pipe speed and acceleration values.
-- Rendering uses trapezoidal integration for smooth partial-tick positioning.
+- TravelingItem stores: stack, direction, progress (0.0-1.0), and speed
+- PipeBlockEntityRenderer renders items with client-side interpolation between ticks
+- Items accelerate/decelerate smoothly based on pipe speed and acceleration values
+- Rendering uses trapezoidal integration for smooth partial-tick positioning
 
 **Phase 2+ (Future):**
 - Potential visual improvements: particle effects, pipe flow indicators, etc.
+- Copper oxidation (cosmetic only)
+- Glyph rendering on pipe surfaces (6×6 pixel stamped symbols)
 
 ## Routing Plan
 **Phase 1 (Implemented - Local Routing):**
-- Items route at pipe center (progress = 0.5).
+- Items route at pipe center (progress = 0.5)
 - Modules make local routing decisions via Module.route():
-  - Random selection (default transport pipes).
-  - Single-direction (iron/merger pipes).
-  - Round-robin (copper pipes).
-  - Filter-based (diamond pipes).
-  - Discard (void pipes).
-- No path planning or global graph search.
-- Items rejected if no valid route (dropped as item entity).
+  - Random selection (default transport pipes)
+  - Single-direction (merger pipes)
+  - Round-robin (splitter pipes)
+  - Filter-based (filter gates)
+  - Discard (void pipes)
+- No path planning or global graph search
+- Items rejected if no valid route (dropped as item entity)
 
 **Phase 2+ (Future - Pathfinding):**
-- PipeNetworkGraph: per-dimension graph of connected pipes.
+- PipeNetworkGraph: per-dimension graph of connected pipes
 - RoutingEngine: long-distance pathfinding with:
-  - Edge weight by distance and congestion.
-  - Node priority (provider preference).
-  - Filter match constraints.
-  - Support for request/provider logistics system.
+  - Edge weight by distance and congestion
+  - Node priority (provider preference)
+  - Filter match constraints
+  - Support for request/provider logistics system
 
 ## Interop / Integration
-- Fabric Transfer API (ItemStorage/FluidStorage).
-- Expose pipe endpoints as storages for other mods.
-- Optional compat hooks for common tech mods (future).
+- Fabric Transfer API (ItemStorage/FluidStorage)
+- Expose pipe endpoints as storages for other mods
+- Optional compat hooks for common tech mods (future)
 
 ## Data / Persistence
 **Phase 1 (Implemented):**
 - PipeBlockEntity NBT stores:
-  - TravelingItems list (stack, direction, progress, speed).
-  - ModuleState compound for per-pipe module data.
-- Modules use PipeContext.getOrCreateModuleState(key) for state storage.
-- Examples: round-robin index, extraction cooldown, active face.
+  - TravelingItems list (stack, direction, progress, speed)
+  - ModuleState compound for per-pipe module data
+- Modules use PipeContext.getOrCreateModuleState(key) for state storage
+- Examples: round-robin index, extraction cooldown, active face
 
 **Phase 2+ (Future):**
-- Network graph cache for pathfinding.
-- Provider/requester persistent state.
+- Network graph cache for pathfinding
+- Provider/requester persistent state
 
 ## UX / Tools
 **Phase 1 (Implemented):**
-- Wrench tool for pipe configuration.
-  - Iron pipes: cycle output direction.
-  - Wooden pipes: cycle extraction face.
-  - Diamond pipes: open filter GUI.
+- Wrench tool for pipe configuration
+  - Merger pipes: cycle output direction
+  - Extractor pipes: cycle extraction face
+  - Filter pipes: open filter GUI
 
 **Phase 2+ (Future):**
-- Debug overlay for routing and pipe contents.
-- Connection toggles (individual side enable/disable).
+- Debug overlay for routing and pipe contents
+- Connection toggles (individual side enable/disable)
 
 ## Milestones
 **Completed:**
-1. ✅ Fabric mod scaffold + basic pipe placement (Phase 1).
-2. ✅ Item movement + visible rendering (Phase 1).
-3. ✅ Inventory extraction/insertion (Phase 1).
+1. ✅ Fabric mod scaffold + basic pipe placement (Phase 1)
+2. ✅ Item movement + visible rendering (Phase 1)
+3. ✅ Inventory extraction/insertion (Phase 1)
+4. ✅ Tier 1-2 pipe behaviors implemented (Phase 1)
 
 **Next Up:**
-4. 🚧 Request Table + provider pipes + sink pipes (Phase 2).
-5. Autocraft via vanilla Crafter (Phase 2).
+5. 🚧 Request Table + provider pipes + sink pipes (Phase 2 - Tier 3 transition)
+6. Autocraft via vanilla Crafter (Phase 2)
 
 **Future:**
 - Fluids
@@ -197,13 +305,20 @@ The first module to return something other than PASS wins. If the winning plan i
 - Custom machines
 - Recipe balancing and progression
 - Performance optimization
+- Glyph rendering system
+- Copper oxidation (cosmetic)
 
 ## Open Questions
 **Resolved:**
-- ✅ Visual style for pipes: BuildCraft-inspired thin pipes with opaque/transparent textures.
-- ✅ Item rendering: floating items with smooth acceleration/deceleration.
+- ✅ Visual style for pipes: BuildCraft-inspired thin pipes with copper substrate
+- ✅ Item rendering: floating items with smooth acceleration/deceleration
+- ✅ Tier model: OSI-inspired three-tier architecture
+- ✅ Naming approach: Behavior-centric in docs, implementation names can differ
+- ✅ Connection rules: All tiers interconnect
 
 **Open:**
-- Request Table UX for Phase 2: list vs search-first interface.
-- Extraction upgrades: tier system or separate pipe types?
-
+- Specific recipe progression and resource gating (materials TBD)
+- Request Table UX for Phase 2: list vs search-first interface
+- Extraction upgrade tiers: speed-wrapped versions vs separate pipe types
+- Glyph design system (6×6 pixel symbols for each behavior)
+- Copper oxidation timing and visual progression
