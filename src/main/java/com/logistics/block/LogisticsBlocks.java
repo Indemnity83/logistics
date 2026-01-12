@@ -20,7 +20,7 @@ public class LogisticsBlocks {
     // Transport Pipes
     public static final Block COBBLESTONE_TRANSPORT_PIPE = register(
         "cobblestone_transport_pipe",
-        settings -> new PipeBlock(settings, PipeTypes.BASIC_TRANSPORT),
+        settings -> new PipeBlock(settings, PipeTypes.COBBLESTONE_TRANSPORT),
         AbstractBlock.Settings.create()
             .mapColor(MapColor.STONE_GRAY)
             .strength(2.0f, 6.0f)
@@ -30,7 +30,7 @@ public class LogisticsBlocks {
 
     public static final Block STONE_TRANSPORT_PIPE = register(
         "stone_transport_pipe",
-        settings -> new PipeBlock(settings, PipeTypes.BASIC_TRANSPORT),
+        settings -> new PipeBlock(settings, PipeTypes.STONE_TRANSPORT),
         AbstractBlock.Settings.create()
             .mapColor(MapColor.STONE_GRAY)
             .strength(1.5f, 6.0f)
