@@ -20,7 +20,7 @@ public final class PipeTypes {
     public static final Pipe IRON_TRANSPORT = new Pipe(new MergerModule()) {};
 
     // Wooden pipe - extracts items from adjacent inventories
-    public static final Pipe WOOD_TRANSPORT = new Pipe(new ExtractionModule()) {};
+    public static final Pipe WOOD_TRANSPORT = new Pipe(new ExtractionModule(), new NoSamePipeConnectionModule()) {};
 
     // Diamond pipe - routes items based on per-side filters
     public static final Pipe DIAMOND_TRANSPORT = new Pipe(new SmartSplitterModule()) {};

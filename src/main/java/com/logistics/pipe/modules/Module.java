@@ -1,11 +1,14 @@
 package com.logistics.pipe.modules;
 
+import com.logistics.pipe.Pipe;
 import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.runtime.RoutePlan;
+import net.minecraft.block.Block;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUsageContext;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.random.Random;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -54,9 +57,9 @@ public interface Module {
     }
 
     /**
-     * Return false to prevent this pipe from connecting to inventories.
+     * Return false to prevent this pipe from connecting in the given direction.
      */
-    default boolean allowsInventoryConnections() {
+    default boolean allowsConnection(@Nullable PipeContext ctx, Direction direction, Pipe selfPipe, Block neighborBlock) {
         return true;
     }
 

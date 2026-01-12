@@ -306,17 +306,34 @@ public class PipeBlock extends BlockWithEntity implements Waterloggable {
 
         // Connect to other pipes
         if (neighborBlock instanceof PipeBlock) {
-            return ConnectionType.PIPE;
+            ConnectionType candidate = ConnectionType.PIPE;
+            if (pipe != null && world instanceof World actualWorld) {
+                PipeBlockEntity pipeEntity = actualWorld.getBlockEntity(pos) instanceof PipeBlockEntity blockEntity
+                    ? blockEntity
+                    : null;
+                PipeContext context = pipeEntity != null
+                    ? new PipeContext(actualWorld, pos, actualWorld.getBlockState(pos), pipeEntity)
+                    : null;
+                return pipe.filterConnection(context, direction, neighborBlock, candidate);
+            }
+            return candidate;
         }
 
         // Connect to blocks with item storage (chests, furnaces, hoppers, etc.)
         // ItemStorage.SIDED requires a World, so only check if we have one
         if (world instanceof World actualWorld) {
-            if (pipe != null && !pipe.allowsInventoryConnections()) {
-                return ConnectionType.NONE;
-            }
             if (ItemStorage.SIDED.find(actualWorld, neighborPos, direction.getOpposite()) != null) {
-                return ConnectionType.INVENTORY;
+                ConnectionType candidate = ConnectionType.INVENTORY;
+                if (pipe != null) {
+                    PipeBlockEntity pipeEntity = actualWorld.getBlockEntity(pos) instanceof PipeBlockEntity blockEntity
+                        ? blockEntity
+                        : null;
+                    PipeContext context = pipeEntity != null
+                        ? new PipeContext(actualWorld, pos, actualWorld.getBlockState(pos), pipeEntity)
+                        : null;
+                    return pipe.filterConnection(context, direction, neighborBlock, candidate);
+                }
+                return candidate;
             }
         }
 
