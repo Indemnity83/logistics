@@ -6,9 +6,13 @@ import net.minecraft.block.Block;
 import net.minecraft.util.math.Direction;
 import org.jetbrains.annotations.Nullable;
 
-public class PipeOnlyModule implements Module {
+public class NoSamePipeConnectionModule implements Module {
     @Override
     public boolean allowsConnection(@Nullable PipeContext ctx, Direction direction, Pipe selfPipe, Block neighborBlock) {
-        return neighborBlock instanceof com.logistics.block.PipeBlock;
+        if (neighborBlock instanceof com.logistics.block.PipeBlock neighborPipeBlock) {
+            Pipe neighborPipe = neighborPipeBlock.getPipe();
+            return neighborPipe == null || neighborPipe != selfPipe;
+        }
+        return true;
     }
 }
