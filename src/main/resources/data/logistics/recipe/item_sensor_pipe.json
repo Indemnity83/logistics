@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "QGQ"
+  ],
+  "key": {
+    "Q": "minecraft:quartz",
+    "G": "minecraft:glass"
+  },
+  "result": {
+    "id": "logistics:item_sensor_pipe",
+    "count": 8
+  }
+}

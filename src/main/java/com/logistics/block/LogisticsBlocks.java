@@ -38,9 +38,9 @@ public class LogisticsBlocks {
             .nonOpaque()
     );
 
-    public static final Block BASIC_EXTRACTOR_PIPE = register(
-        "basic_extractor_pipe",
-        settings -> new PipeBlock(settings, PipeTypes.BASIC_EXTRACTOR),
+    public static final Block ITEM_EXTRACTOR_PIPE = register(
+        "item_extractor_pipe",
+        settings -> new PipeBlock(settings, PipeTypes.ITEM_EXTRACTOR),
         AbstractBlock.Settings.create()
             .mapColor(MapColor.OAK_TAN)
             .strength(0.5f)
@@ -48,9 +48,9 @@ public class LogisticsBlocks {
             .nonOpaque()
     );
 
-    public static final Block BASIC_MERGER_PIPE = register(
-        "basic_merger_pipe",
-        settings -> new PipeBlock(settings, PipeTypes.BASIC_MERGER),
+    public static final Block ITEM_MERGER_PIPE = register(
+        "item_merger_pipe",
+        settings -> new PipeBlock(settings, PipeTypes.ITEM_MERGER),
         AbstractBlock.Settings.create()
             .mapColor(MapColor.IRON_GRAY)
             .strength(3.0f, 6.0f)
@@ -68,9 +68,9 @@ public class LogisticsBlocks {
             .nonOpaque()
     );
 
-    public static final Block SMART_SPLITTER_PIPE = register(
-        "smart_splitter_pipe",
-        settings -> new PipeBlock(settings, PipeTypes.SMART_SPLITTER),
+    public static final Block ITEM_FILTER_PIPE = register(
+        "item_filter_pipe",
+        settings -> new PipeBlock(settings, PipeTypes.ITEM_FILTER),
         AbstractBlock.Settings.create()
             .mapColor(MapColor.DIAMOND_BLUE)
             .strength(3.0f, 6.0f)
@@ -78,9 +78,9 @@ public class LogisticsBlocks {
             .nonOpaque()
     );
 
-    public static final Block COMPARATOR_PIPE = register(
-        "comparator_pipe",
-        settings -> new PipeBlock(settings, PipeTypes.COMPARATOR),
+    public static final Block ITEM_SENSOR_PIPE = register(
+        "item_sensor_pipe",
+        settings -> new PipeBlock(settings, PipeTypes.ITEM_SENSOR),
         AbstractBlock.Settings.create()
             .mapColor(MapColor.OFF_WHITE)
             .strength(2.0f, 6.0f)
@@ -88,9 +88,9 @@ public class LogisticsBlocks {
             .nonOpaque()
     );
 
-    public static final Block VOID_PIPE = register(
-        "void_pipe",
-        settings -> new PipeBlock(settings, PipeTypes.VOID),
+    public static final Block ITEM_VOID_PIPE = register(
+        "item_void_pipe",
+        settings -> new PipeBlock(settings, PipeTypes.ITEM_VOID),
         AbstractBlock.Settings.create()
             .mapColor(MapColor.BLACK)
             .strength(50.0f, 1200.0f)

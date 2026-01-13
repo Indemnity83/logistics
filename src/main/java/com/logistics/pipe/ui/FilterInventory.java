@@ -2,7 +2,7 @@ package com.logistics.pipe.ui;
 
 import com.logistics.block.entity.PipeBlockEntity;
 import com.logistics.pipe.PipeContext;
-import com.logistics.pipe.modules.SmartSplitterModule;
+import com.logistics.pipe.modules.ItemFilterModule;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -17,9 +17,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FilterInventory implements Inventory {
-    private final DefaultedList<ItemStack> stacks = DefaultedList.ofSize(SmartSplitterModule.FILTER_ORDER.length * SmartSplitterModule.FILTER_SLOTS_PER_SIDE, ItemStack.EMPTY);
+    private final DefaultedList<ItemStack> stacks = DefaultedList.ofSize(ItemFilterModule.FILTER_ORDER.length * ItemFilterModule.FILTER_SLOTS_PER_SIDE, ItemStack.EMPTY);
     private final PipeBlockEntity pipeEntity;
-    private final SmartSplitterModule module;
+    private final ItemFilterModule module;
 
     public FilterInventory(PipeBlockEntity pipeEntity) {
         this.pipeEntity = pipeEntity;
@@ -30,16 +30,16 @@ public class FilterInventory implements Inventory {
         }
     }
 
-    private SmartSplitterModule getModuleFromPipe(PipeBlockEntity entity) {
+    private ItemFilterModule getModuleFromPipe(PipeBlockEntity entity) {
         if (entity == null) {
-            return new SmartSplitterModule();
+            return new ItemFilterModule();
         }
 
         com.logistics.block.PipeBlock block = (com.logistics.block.PipeBlock) entity.getCachedState().getBlock();
         com.logistics.pipe.Pipe pipe = block.getPipe();
-        SmartSplitterModule pipeModule = pipe.getModule(SmartSplitterModule.class);
+        ItemFilterModule pipeModule = pipe.getModule(ItemFilterModule.class);
 
-        return pipeModule != null ? pipeModule : new SmartSplitterModule();
+        return pipeModule != null ? pipeModule : new ItemFilterModule();
     }
 
     @Override
@@ -118,9 +118,9 @@ public class FilterInventory implements Inventory {
     private void loadFromBlockEntity() {
         int slotIndex = 0;
         PipeContext ctx = pipeEntity.createContext();
-        for (Direction direction : SmartSplitterModule.FILTER_ORDER) {
+        for (Direction direction : ItemFilterModule.FILTER_ORDER) {
             List<String> slots = module.getFilterSlots(ctx, direction);
-            for (int i = 0; i < SmartSplitterModule.FILTER_SLOTS_PER_SIDE; i++) {
+            for (int i = 0; i < ItemFilterModule.FILTER_SLOTS_PER_SIDE; i++) {
                 String id = slots.get(i);
                 ItemStack stack = ItemStack.EMPTY;
                 if (!id.isEmpty()) {
@@ -145,9 +145,9 @@ public class FilterInventory implements Inventory {
 
         int slotIndex = 0;
         PipeContext ctx = pipeEntity.createContext();
-        for (Direction direction : SmartSplitterModule.FILTER_ORDER) {
-            List<String> slots = new ArrayList<>(SmartSplitterModule.FILTER_SLOTS_PER_SIDE);
-            for (int i = 0; i < SmartSplitterModule.FILTER_SLOTS_PER_SIDE; i++) {
+        for (Direction direction : ItemFilterModule.FILTER_ORDER) {
+            List<String> slots = new ArrayList<>(ItemFilterModule.FILTER_SLOTS_PER_SIDE);
+            for (int i = 0; i < ItemFilterModule.FILTER_SLOTS_PER_SIDE; i++) {
                 ItemStack stack = stacks.get(slotIndex++);
                 if (stack.isEmpty()) {
                     slots.add("");

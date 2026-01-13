@@ -21,14 +21,14 @@ public final class PipeTypes {
             new BoostModule(PipeConfig.ACCELERATION_RATE)
     ) {};
 
-    // Basic extractor - pulls items from an adjacent inventory
-    public static final Pipe BASIC_EXTRACTOR = new Pipe(
+    // Item extractor - pulls items from an adjacent inventory
+    public static final Pipe ITEM_EXTRACTOR = new Pipe(
             new ExtractionModule(),
-            new BlockConnectionModule(() -> PipeTypes.BASIC_EXTRACTOR)
+            new BlockConnectionModule(() -> PipeTypes.ITEM_EXTRACTOR)
     ) {};
 
-    // Basic merger - combines multiple incoming streams into a single output.
-    public static final Pipe BASIC_MERGER = new Pipe(
+    // Item merger - combines multiple incoming streams into a single output.
+    public static final Pipe ITEM_MERGER = new Pipe(
             new MergerModule()
     ) {};
 
@@ -36,13 +36,13 @@ public final class PipeTypes {
     // Tier 2 (Decision based routing / bulk movement)
     // -----------------
 
-    // Filter gate - routes items based on per-side filters.
-    public static final Pipe SMART_SPLITTER = new Pipe(
-            new SmartSplitterModule()
+    // Item filter - routes items based on per-side filters.
+    public static final Pipe ITEM_FILTER = new Pipe(
+            new ItemFilterModule()
     ) {};
 
-    // Void pipe - deletes items at the center with particle effects.
-    public static final Pipe VOID = new Pipe(
+    // Item void - deletes items at the center with particle effects.
+    public static final Pipe ITEM_VOID = new Pipe(
             new VoidModule(),
             new PipeOnlyModule()
     ) {};
@@ -56,8 +56,8 @@ public final class PipeTypes {
     // Special
     // -----------------
 
-    // Quartz pipe - provides redstone comparator output based on item count.
-    public static final Pipe COMPARATOR = new Pipe(
+    // Item sensor - provides redstone comparator output based on item count.
+    public static final Pipe ITEM_SENSOR = new Pipe(
         new ComparatorModule()
     ) {};
 

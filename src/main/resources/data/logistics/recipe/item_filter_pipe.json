@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "DGD"
+  ],
+  "key": {
+    "D": "minecraft:diamond",
+    "G": "minecraft:glass"
+  },
+  "result": {
+    "id": "logistics:item_filter_pipe",
+    "count": 8
+  }
+}

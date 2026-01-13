@@ -21,12 +21,12 @@ public class LogisticsItemGroups {
                 entries.add(LogisticsItems.WRENCH);
                 entries.add(LogisticsBlocks.STONE_TRANSPORT_PIPE);
                 entries.add(LogisticsBlocks.COPPER_TRANSPORT_PIPE);
-                entries.add(LogisticsBlocks.BASIC_EXTRACTOR_PIPE);
-                entries.add(LogisticsBlocks.BASIC_MERGER_PIPE);
+                entries.add(LogisticsBlocks.ITEM_EXTRACTOR_PIPE);
+                entries.add(LogisticsBlocks.ITEM_MERGER_PIPE);
                 entries.add(LogisticsBlocks.GOLD_TRANSPORT_PIPE);
-                entries.add(LogisticsBlocks.SMART_SPLITTER_PIPE);
-                entries.add(LogisticsBlocks.COMPARATOR_PIPE);
-                entries.add(LogisticsBlocks.VOID_PIPE);
+                entries.add(LogisticsBlocks.ITEM_FILTER_PIPE);
+                entries.add(LogisticsBlocks.ITEM_SENSOR_PIPE);
+                entries.add(LogisticsBlocks.ITEM_VOID_PIPE);
             })
             .build()
     );

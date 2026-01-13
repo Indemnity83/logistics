@@ -1,13 +1,13 @@
 {
   "item.logistics.wrench": "Wrench",
-  "block.logistics.basic_extractor_pipe": "Basic Extractor Pipe",
-  "block.logistics.basic_merger_pipe": "Basic Merger Pipe",
+  "block.logistics.item_extractor_pipe": "Item Extractor Pipe",
+  "block.logistics.item_merger_pipe": "Item Merger Pipe",
   "block.logistics.gold_transport_pipe": "Golden Transport Pipe",
-  "block.logistics.smart_splitter_pipe": "Smart Splitter Pipe",
+  "block.logistics.item_filter_pipe": "Item Filter Pipe",
   "block.logistics.copper_transport_pipe": "Copper Transport Pipe",
   "block.logistics.stone_transport_pipe": "Stone Transport Pipe",
-  "block.logistics.comparator_pipe": "Comparator Pipe",
-  "block.logistics.void_pipe": "Void Pipe",
+  "block.logistics.item_sensor_pipe": "Item Sensor Pipe",
+  "block.logistics.item_void_pipe": "Item Void Pipe",
   "itemgroup.logistics.transport": "Logistics: Transport",
-  "screen.logistics.smart_splitter_filter": "Smart Splitter Filters"
+  "screen.logistics.item_filter": "Item Filter"
 }
