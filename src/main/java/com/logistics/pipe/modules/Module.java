@@ -6,6 +6,7 @@ import com.logistics.pipe.runtime.RoutePlan;
 import net.minecraft.block.Block;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUsageContext;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.random.Random;
 import org.jetbrains.annotations.Nullable;
@@ -77,5 +78,20 @@ public interface Module {
      */
     default String getStateKey() {
         return this.getClass().getSimpleName().toLowerCase();
+    }
+
+    /**
+     * Override the arm model for a specific direction.
+     * Modules like ExtractionModule and MergerModule use this to show their feature face
+     * model instead of the default arm model when rendering in their active direction.
+     *
+     * @param ctx the pipe context
+     * @param direction the direction of the arm being rendered
+     * @param extended whether this is the extended version (for inventory connections)
+     * @return custom model identifier, or null to use the default arm model
+     */
+    @Nullable
+    default Identifier getArmModelId(PipeContext ctx, Direction direction, boolean extended) {
+        return null;
     }
 }

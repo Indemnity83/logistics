@@ -11,6 +11,7 @@ import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUsageContext;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import org.jetbrains.annotations.Nullable;
@@ -140,6 +141,19 @@ public class ExtractionModule implements Module {
         }
 
         return false;
+    }
+
+    @Override
+    public Identifier getArmModelId(PipeContext ctx, Direction direction, boolean extended) {
+        // Override arm model with feature face model when this is the extraction direction
+        Direction extractDir = getExtractionDirection(ctx);
+        if (extractDir != null && extractDir == direction) {
+            // Use feature face model instead of default arm model
+            String pipeName = ctx.pipe().getPipeName();
+            String suffix = extended ? "_extension" : "";
+            return Identifier.of("logistics", "block/" + pipeName + "_feature_face_" + direction.name().toLowerCase() + suffix);
+        }
+        return null; // Use default arm model for other directions
     }
 
 }

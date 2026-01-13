@@ -46,7 +46,15 @@ public final class PipeRuntime {
         // deterministically when neighbors are added/removed.
         boolean needsSync = false;
         if (pipe != null && pipeContext != null) {
-            List<Direction> connected = getAllConnectedDirections(state);
+            // Cache connection types in block entity for rendering
+            if (state.getBlock() instanceof PipeBlock pipeBlock) {
+                for (Direction direction : Direction.values()) {
+                    PipeBlock.ConnectionType type = pipeBlock.getConnectionType(world, pos, direction);
+                    blockEntity.setConnectionType(direction, type);
+                }
+            }
+
+            List<Direction> connected = getAllConnectedDirections(world, pos, state);
             int mask = 0;
             for (Direction d : connected) {
                 mask |= (1 << d.getIndex());
@@ -82,7 +90,7 @@ public final class PipeRuntime {
             // Using deterministic random ensures client and server make the same choice
             if (progressBefore < 0.5f && item.getProgress() >= 0.5f) {
                 if (pipe != null && pipeContext != null && !item.isRouted()) {
-                    List<Direction> validDirections = getValidDirections(state, item.getDirection());
+                    List<Direction> validDirections = getValidDirections(world, pos, state, item.getDirection());
                     if (validDirections.isEmpty()) {
                         if (pipe.discardWhenNoRoute(pipeContext)) {
                             itemsToDiscard.add(item);
@@ -252,17 +260,21 @@ public final class PipeRuntime {
         PipeBlockEntity.dropItem(world, pos, item);
     }
 
-    private static List<Direction> getValidDirections(BlockState state, Direction currentDirection) {
+    private static List<Direction> getValidDirections(World world, BlockPos pos, BlockState state, Direction currentDirection) {
         List<Direction> validDirections = new ArrayList<>();
         Direction oppositeDirection = currentDirection.getOpposite();
+
+        if (!(state.getBlock() instanceof PipeBlock pipeBlock)) {
+            return validDirections;
+        }
 
         for (Direction direction : Direction.values()) {
             if (direction == oppositeDirection) {
                 continue;
             }
 
-            EnumProperty<PipeBlock.ConnectionType> property = PipeBlock.getPropertyForDirection(direction);
-            if (property != null && state.get(property) != PipeBlock.ConnectionType.NONE) {
+            PipeBlock.ConnectionType type = pipeBlock.getConnectionType(world, pos, direction);
+            if (type != PipeBlock.ConnectionType.NONE) {
                 validDirections.add(direction);
             }
         }
@@ -276,11 +288,15 @@ public final class PipeRuntime {
         return options.get(random.nextInt(options.size()));
     }
 
-    private static List<Direction> getAllConnectedDirections(BlockState state) {
+    private static List<Direction> getAllConnectedDirections(World world, BlockPos pos, BlockState state) {
         List<Direction> connected = new ArrayList<>();
+        if (!(state.getBlock() instanceof PipeBlock pipeBlock)) {
+            return connected;
+        }
+
         for (Direction direction : Direction.values()) {
-            EnumProperty<PipeBlock.ConnectionType> property = PipeBlock.getPropertyForDirection(direction);
-            if (property != null && state.get(property) != PipeBlock.ConnectionType.NONE) {
+            PipeBlock.ConnectionType type = pipeBlock.getConnectionType(world, pos, direction);
+            if (type != PipeBlock.ConnectionType.NONE) {
                 connected.add(direction);
             }
         }
@@ -292,7 +308,7 @@ public final class PipeRuntime {
      * Never routes back the way it came.
      */
     private static Direction chooseDirection(World world, BlockPos pos, BlockState state, Direction currentDirection) {
-        List<Direction> validDirections = getValidDirections(state, currentDirection);
+        List<Direction> validDirections = getValidDirections(world, pos, state, currentDirection);
         if (validDirections.isEmpty()) {
             return null;
         }

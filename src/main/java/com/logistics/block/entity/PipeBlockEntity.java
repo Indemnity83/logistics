@@ -37,8 +37,23 @@ public class PipeBlockEntity extends BlockEntity {
     // Tracks changes in connected sides so modules can react deterministically.
     private int lastConnectionsMask = -1;
 
+    // Connection type cache for rendering (updated when connections change)
+    private final PipeBlock.ConnectionType[] connectionTypes = new PipeBlock.ConnectionType[6];
+
     public PipeBlockEntity(BlockPos pos, BlockState state) {
         super(LogisticsBlockEntities.PIPE_BLOCK_ENTITY, pos, state);
+        // Initialize connection types to NONE
+        for (int i = 0; i < 6; i++) {
+            connectionTypes[i] = PipeBlock.ConnectionType.NONE;
+        }
+    }
+
+    public PipeBlock.ConnectionType getConnectionType(Direction direction) {
+        return connectionTypes[direction.ordinal()];
+    }
+
+    public void setConnectionType(Direction direction, PipeBlock.ConnectionType type) {
+        connectionTypes[direction.ordinal()] = type;
     }
 
     /**
@@ -106,6 +121,20 @@ public class PipeBlockEntity extends BlockEntity {
         } else {
             view.remove("ModuleState");
         }
+
+        // Save connection types (for client rendering)
+        NbtCompound connectionsNbt = new NbtCompound();
+        for (Direction direction : Direction.values()) {
+            PipeBlock.ConnectionType type = connectionTypes[direction.ordinal()];
+            if (type != PipeBlock.ConnectionType.NONE) {
+                connectionsNbt.putString(direction.name().toLowerCase(), type.asString());
+            }
+        }
+        if (!connectionsNbt.isEmpty()) {
+            view.put("Connections", NbtCompound.CODEC, connectionsNbt);
+        } else {
+            view.remove("Connections");
+        }
     }
 
     @Override
@@ -127,6 +156,24 @@ public class PipeBlockEntity extends BlockEntity {
         view.read("ModuleState", NbtCompound.CODEC).ifPresent(stored -> {
             for (String key : stored.getKeys()) {
                 moduleState.put(key, Objects.requireNonNull(stored.get(key)).copy());
+            }
+        });
+
+        // Load connection types
+        view.read("Connections", NbtCompound.CODEC).ifPresent(connectionsNbt -> {
+            // Reset all to NONE first
+            for (int i = 0; i < 6; i++) {
+                connectionTypes[i] = PipeBlock.ConnectionType.NONE;
+            }
+            // Load saved connections
+            for (Direction direction : Direction.values()) {
+                String typeName = connectionsNbt.getString(direction.name().toLowerCase()).orElse("none");
+                for (PipeBlock.ConnectionType type : PipeBlock.ConnectionType.values()) {
+                    if (type.asString().equals(typeName)) {
+                        connectionTypes[direction.ordinal()] = type;
+                        break;
+                    }
+                }
             }
         });
 

@@ -6,6 +6,8 @@ import com.logistics.pipe.runtime.RoutePlan;
 import com.logistics.pipe.runtime.TravelingItem;
 import com.logistics.block.PipeBlock;
 import net.minecraft.block.Block;
+import net.minecraft.registry.Registries;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.random.Random;
 import org.jetbrains.annotations.Nullable;
@@ -14,9 +16,58 @@ import java.util.List;
 
 public abstract class Pipe {
     private final List<Module> modules;
+    private PipeBlock pipeBlock;
 
     protected Pipe(Module... modules) {
         this.modules = List.of(modules);
+    }
+
+    /**
+     * Called by PipeBlock during registration to establish back-reference.
+     * This allows the Pipe to derive model identifiers from the block's registry name.
+     */
+    public void setPipeBlock(PipeBlock block) {
+        this.pipeBlock = block;
+    }
+
+    /**
+     * Get the registry name of this pipe (e.g., "copper_transport_pipe").
+     */
+    public String getPipeName() {
+        if (pipeBlock == null) {
+            throw new IllegalStateException("Pipe has not been registered yet");
+        }
+        return Registries.BLOCK.getId(pipeBlock).getPath();
+    }
+
+    /**
+     * Get the model identifier for the core part of this pipe.
+     */
+    public Identifier getCoreModelId() {
+        return Identifier.of("logistics", "block/" + getPipeName() + "_core");
+    }
+
+    /**
+     * Get the model identifier for an arm part in the given direction.
+     * Delegates to modules first to allow them to override with custom models (like feature faces).
+     * Falls back to the default arm model if no module provides an override.
+     *
+     * @param ctx the pipe context
+     * @param direction the direction of the arm
+     * @param extended whether this is the extended version (for inventory connections)
+     */
+    public Identifier getArmModelId(PipeContext ctx, Direction direction, boolean extended) {
+        // Ask modules if they want to override this arm's model
+        for (Module module : modules) {
+            Identifier override = module.getArmModelId(ctx, direction, extended);
+            if (override != null) {
+                return override;
+            }
+        }
+
+        // Default arm model
+        String suffix = extended ? "_extension" : "";
+        return Identifier.of("logistics", "block/" + getPipeName() + "_" + direction.name().toLowerCase() + suffix);
     }
 
     @SuppressWarnings("unchecked")

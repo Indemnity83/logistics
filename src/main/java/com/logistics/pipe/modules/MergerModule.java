@@ -5,6 +5,7 @@ import com.logistics.pipe.runtime.RoutePlan;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUsageContext;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Direction;
 import org.jetbrains.annotations.Nullable;
 
@@ -89,6 +90,19 @@ public class MergerModule implements Module {
 
         int idx = (current == null) ? -1 : ordered.indexOf(current);
         return (idx < 0) ? ordered.getFirst() : ordered.get((idx + 1) % ordered.size());
+    }
+
+    @Override
+    public Identifier getArmModelId(PipeContext ctx, Direction direction, boolean extended) {
+        // Override arm model with feature face model when this is the output direction
+        Direction outputDir = getOutputDirection(ctx);
+        if (outputDir != null && outputDir == direction) {
+            // Use feature face model instead of default arm model
+            String pipeName = ctx.pipe().getPipeName();
+            String suffix = extended ? "_extension" : "";
+            return Identifier.of("logistics", "block/" + pipeName + "_feature_face_" + direction.name().toLowerCase() + suffix);
+        }
+        return null; // Use default arm model for other directions
     }
 
 }
