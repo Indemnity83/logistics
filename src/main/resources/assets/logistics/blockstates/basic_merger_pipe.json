@@ -1,31 +1,31 @@
 {
   "multipart": [
-    { "apply": { "model": "logistics:block/iron_transport_pipe_core" }},
+    { "apply": { "model": "logistics:block/basic_merger_pipe_core" }},
 
-    { "when": { "OR": [ { "north": "pipe" }, { "north": "inventory" } ] }, "apply": { "model": "logistics:block/iron_transport_pipe_north" }},
-    { "when": { "OR": [ { "south": "pipe" }, { "south": "inventory" } ] }, "apply": { "model": "logistics:block/iron_transport_pipe_south" }},
-    { "when": { "OR": [ { "east":  "pipe" }, { "east":  "inventory" } ] }, "apply": { "model": "logistics:block/iron_transport_pipe_east"  }},
-    { "when": { "OR": [ { "west":  "pipe" }, { "west":  "inventory" } ] }, "apply": { "model": "logistics:block/iron_transport_pipe_west"  }},
-    { "when": { "OR": [ { "up":    "pipe" }, { "up":    "inventory" } ] }, "apply": { "model": "logistics:block/iron_transport_pipe_up"    }},
-    { "when": { "OR": [ { "down":  "pipe" }, { "down":  "inventory" } ] }, "apply": { "model": "logistics:block/iron_transport_pipe_down"  }},
+    { "when": { "OR": [ { "north": "pipe" }, { "north": "inventory" } ] }, "apply": { "model": "logistics:block/basic_merger_pipe_north" }},
+    { "when": { "OR": [ { "south": "pipe" }, { "south": "inventory" } ] }, "apply": { "model": "logistics:block/basic_merger_pipe_south" }},
+    { "when": { "OR": [ { "east":  "pipe" }, { "east":  "inventory" } ] }, "apply": { "model": "logistics:block/basic_merger_pipe_east"  }},
+    { "when": { "OR": [ { "west":  "pipe" }, { "west":  "inventory" } ] }, "apply": { "model": "logistics:block/basic_merger_pipe_west"  }},
+    { "when": { "OR": [ { "up":    "pipe" }, { "up":    "inventory" } ] }, "apply": { "model": "logistics:block/basic_merger_pipe_up"    }},
+    { "when": { "OR": [ { "down":  "pipe" }, { "down":  "inventory" } ] }, "apply": { "model": "logistics:block/basic_merger_pipe_down"  }},
 
-    { "when": { "feature_face": "!north", "north": "inventory" }, "apply": { "model": "logistics:block/iron_transport_pipe_north_extension" }},
-    { "when": { "feature_face": "!south", "south": "inventory" }, "apply": { "model": "logistics:block/iron_transport_pipe_south_extension" }},
-    { "when": { "feature_face": "!east",  "east":  "inventory" }, "apply": { "model": "logistics:block/iron_transport_pipe_east_extension"  }},
-    { "when": { "feature_face": "!west",  "west":  "inventory" }, "apply": { "model": "logistics:block/iron_transport_pipe_west_extension"  }},
-    { "when": { "feature_face": "!down",  "down":  "inventory" }, "apply": { "model": "logistics:block/iron_transport_pipe_down_extension"  }},
+    { "when": { "feature_face": "!north", "north": "inventory" }, "apply": { "model": "logistics:block/basic_merger_pipe_north_extension" }},
+    { "when": { "feature_face": "!south", "south": "inventory" }, "apply": { "model": "logistics:block/basic_merger_pipe_south_extension" }},
+    { "when": { "feature_face": "!east",  "east":  "inventory" }, "apply": { "model": "logistics:block/basic_merger_pipe_east_extension"  }},
+    { "when": { "feature_face": "!west",  "west":  "inventory" }, "apply": { "model": "logistics:block/basic_merger_pipe_west_extension"  }},
+    { "when": { "feature_face": "!down",  "down":  "inventory" }, "apply": { "model": "logistics:block/basic_merger_pipe_down_extension"  }},
 
-    { "when": { "feature_face": "north" }, "apply": { "model": "logistics:block/iron_transport_pipe_north_feature" }},
-    { "when": { "feature_face": "south" }, "apply": { "model": "logistics:block/iron_transport_pipe_south_feature" }},
-    { "when": { "feature_face": "east"  }, "apply": { "model": "logistics:block/iron_transport_pipe_east_feature"  }},
-    { "when": { "feature_face": "west"  }, "apply": { "model": "logistics:block/iron_transport_pipe_west_feature"  }},
-    { "when": { "feature_face": "up"    }, "apply": { "model": "logistics:block/iron_transport_pipe_up_feature"    }},
-    { "when": { "feature_face": "down"  }, "apply": { "model": "logistics:block/iron_transport_pipe_down_feature"  }},
+    { "when": { "feature_face": "north" }, "apply": { "model": "logistics:block/basic_merger_pipe_north_feature" }},
+    { "when": { "feature_face": "south" }, "apply": { "model": "logistics:block/basic_merger_pipe_south_feature" }},
+    { "when": { "feature_face": "east"  }, "apply": { "model": "logistics:block/basic_merger_pipe_east_feature"  }},
+    { "when": { "feature_face": "west"  }, "apply": { "model": "logistics:block/basic_merger_pipe_west_feature"  }},
+    { "when": { "feature_face": "up"    }, "apply": { "model": "logistics:block/basic_merger_pipe_up_feature"    }},
+    { "when": { "feature_face": "down"  }, "apply": { "model": "logistics:block/basic_merger_pipe_down_feature"  }},
 
-    { "when": { "feature_face": "north", "north": "inventory" }, "apply": { "model": "logistics:block/iron_transport_pipe_north_feature_extension" }},
-    { "when": { "feature_face": "south", "south": "inventory" }, "apply": { "model": "logistics:block/iron_transport_pipe_south_feature_extension" }},
-    { "when": { "feature_face": "east",  "east":  "inventory" }, "apply": { "model": "logistics:block/iron_transport_pipe_east_feature_extension"  }},
-    { "when": { "feature_face": "west",  "west":  "inventory" }, "apply": { "model": "logistics:block/iron_transport_pipe_west_feature_extension"  }},
-    { "when": { "feature_face": "down",  "down":  "inventory" }, "apply": { "model": "logistics:block/iron_transport_pipe_down_feature_extension"  }}
+    { "when": { "feature_face": "north", "north": "inventory" }, "apply": { "model": "logistics:block/basic_merger_pipe_north_feature_extension" }},
+    { "when": { "feature_face": "south", "south": "inventory" }, "apply": { "model": "logistics:block/basic_merger_pipe_south_feature_extension" }},
+    { "when": { "feature_face": "east",  "east":  "inventory" }, "apply": { "model": "logistics:block/basic_merger_pipe_east_feature_extension"  }},
+    { "when": { "feature_face": "west",  "west":  "inventory" }, "apply": { "model": "logistics:block/basic_merger_pipe_west_feature_extension"  }},
+    { "when": { "feature_face": "down",  "down":  "inventory" }, "apply": { "model": "logistics:block/basic_merger_pipe_down_feature_extension"  }}
   ]
 }

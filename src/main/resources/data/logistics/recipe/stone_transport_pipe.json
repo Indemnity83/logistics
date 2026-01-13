@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "SGS"
+  ],
+  "key": {
+    "S": "minecraft:stone",
+    "G": "minecraft:glass"
+  },
+  "result": {
+    "id": "logistics:stone_transport_pipe",
+    "count": 8
+  }
+}

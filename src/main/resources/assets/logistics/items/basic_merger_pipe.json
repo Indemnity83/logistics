@@ -4,11 +4,11 @@
     "models": [
       {
         "type": "minecraft:model",
-        "model": "logistics:block/iron_transport_pipe_core"
+        "model": "logistics:block/basic_merger_pipe_core"
       },
       {
         "type": "minecraft:model",
-        "model": "logistics:block/iron_transport_pipe_west_feature"
+        "model": "logistics:block/basic_merger_pipe_west_feature"
       }
     ]
   }

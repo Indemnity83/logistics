@@ -11,32 +11,30 @@ Logistics is structured around three conceptual tiers inspired by the OSI networ
 Pipes that move and shape item flow with mechanical operations but no item-aware decisions.
 
 **Examples:**
-- Transport pipes (backbone connectivity)
-- Acceleration pipes (speed boost)
-- Merger pipes (convergence—all inputs → single output)
-- Splitter pipes (distribution—round-robin across outputs)
-- Extractor pipes (mechanical extraction from inventories)
-- Void pipes (mechanical deletion)
+- Transport pipes (backbone connectivity - stone/copper variants)
+- Acceleration pipes (speed boost - gold)
+- Merger pipes (convergence—all inputs → single output - iron)
+- Extractor pipes (mechanical extraction from inventories - wood)
 
 **Characteristics:**
 - React to flow with mechanical operations, don't make decisions
 - No item-aware logic or filtering
 - Operations happen regardless of item type
 - Like Ethernet: connectivity and frame forwarding without addressing
-- Copper-based substrate in the physical era
+- Material-based visual identity for inventory clarity
 
 ### Tier 2: Active Control (Network + Transport Layer)
 Pipes that make decisions based on item type, count, or conditional logic.
 
 **Examples:**
-- Filter gates (item-aware routing)
-- Sensor pipes (monitoring and conditional signals)
+- Filter pipes (item-aware routing - diamond)
+- Sensor pipes (monitoring and conditional signals - quartz)
 
 **Characteristics:**
 - Assert decisions based on item type or conditional logic
 - Item-aware or count-aware behavior
 - Like IP/TCP: routing decisions, conditional behavior
-- Still copper-based but with control components (circuits, sensors)
+- May use advanced components (circuits, redstone) in recipes
 
 ### Tier 3: Network Logistics (Session + Presentation + Application Layer)
 Abstract inventory representation with global routing and high-level services.
@@ -57,44 +55,41 @@ Abstract inventory representation with global routing and high-level services.
 - **Don't mix layers**: Tier 1 pipes shouldn't make routing decisions; Tier 3 components shouldn't care about physical pipe layout
 - **Progressive abstraction**: Each tier hides complexity from the next
 - **All tiers interconnect**: This is a layered system, not segregated eras—higher tiers build on and connect to lower tiers
-- **Resource-gated progression**: Access to higher tiers requires game progression (advanced materials like nether stars, end-game resources)
+- **Resource-gated progression**: Access to higher tiers requires game progression (advanced materials)
 
 ## Guiding Principles
-- **Copper-centric identity**: All physical-era pipes (Tier 1-2) built on copper substrate
-- **Component-driven progression**: Complexity from gears/circuits/cores, not material swaps
-- **Visual clarity via glyphs**: Small stamped symbols (6×6 pixels) differentiate function on copper pipes
+- **Material-based identity**: Each pipe type uses distinct vanilla materials (stone, wood, copper, iron, gold, diamond, etc.)
+- **Visual clarity**: Pipes are easily distinguishable in inventory and world by their material appearance
+- **Simple Tier 1 recipes**: Basic pipes use material + glass, no complex components
+- **Progressive complexity**: Tier 2 adds decision-making with additional recipe components
 - **Layered abstraction**: Three tiers separate physical, control, and network logic
 - **Authentic visuals**: Items travel continuously through thin pipes with visible speed
 - **Interop first**: Integrate with other mods via Fabric Transfer API (ItemStorage/FluidStorage)
 - **Modular systems**: Item transport first, fluids next, power/cost later
 - **Classic ergonomics**: Simple placement, visible connections, easy debugging
 
-## Component Progression System
+## Progression System
 
-Progression is driven by **components** that augment pipes, not by replacing pipe materials.
+### Tier 1: Material Progression
+Basic pipes use vanilla materials directly:
+- **Stone**: Cheap entry point, slower transport
+- **Wood**: Extraction mechanism (with hopper)
+- **Copper**: Main backbone transport
+- **Iron**: Convergence/merger
+- **Gold**: Speed boost
 
-### Gear Tiers (Conceptual)
-```
-Wood → Cobblestone → Stone → Redstone → Gold → Diamond
-```
+Recipe pattern: `Material + Glass (+ Optional Component) → 8 pipes`
 
-Gears represent increasing mechanical and logical complexity:
-- **Early gears** (wood/cobble/stone): basic mechanics, simple motion
-- **Mid gears** (redstone/gold): control logic, conditional behavior
-- **Late gears** (diamond): precision mechanics, advanced filtering
+### Tier 2: Advanced Materials + Components
+Decision-making pipes require rare materials and additional components:
+- **Diamond**: Precision filtering (with advanced components)
+- **Quartz**: Monitoring/redstone integration
 
-### Higher-Tier Components
-- **Circuit boards**: Enable Tier 2 decision-making (filters, conditional routing)
-- **Control cores**: Power Tier 2 extractors and active pipes
-- **Context cores**: Enable Tier 3 network awareness and global routing
-- **End-game materials**: Nether stars, shulker shells, etc. for Tier 3 logistics blocks
-
-### Philosophy
-- **Copper pipes are cheap infrastructure** (8 pipes per craft)
-- **Complexity comes from what you bolt onto them** (gears, circuits, cores)
-- **Not**: "craft better pipes with better materials"
-- **Instead**: "augment copper pipes with better components"
-- **Resource gating**: Players need game progression to access higher tiers, not just more copper
+### Tier 3: End-Game Materials
+Network logistics requires end-game resources:
+- Nether stars, shulker shells, etc.
+- Complex crafting chains
+- Modular construction
 
 ## MVP Scope (Phase 1-2)
 ### Phase 1: Pipes + Items (Tier 1-2) ✅ (Complete in v0.1.0)
@@ -104,7 +99,7 @@ Gears represent increasing mechanical and logical complexity:
 - Extraction from adjacent inventories (Tier 1: extractor pipes)
 - Insertion into adjacent inventories at pipe exits
 - Local routing with multiple behaviors:
-  - **Tier 1 behaviors**: Transport (random routing), Merger (convergence), Splitter (round-robin), Acceleration (speed boost when powered), Extractor (mechanical extraction from inventories), Void (mechanical deletion)
+  - **Tier 1 behaviors**: Transport (random routing), Merger (convergence), Acceleration (speed boost when powered), Extractor (mechanical extraction from inventories)
   - **Tier 2 behaviors**: Filter (item-aware routing), Sensor (count-aware redstone output)
 - Wrench tool for pipe configuration
 
@@ -178,7 +173,7 @@ The first module to return something other than PASS wins. If the winning plan i
 **Velocity Preservation:**
 - TravelingItems carry their own velocity (speed field)
 - All pipes share the same maximum speed; items maintain constant speed unless an acceleration value is applied
-- Acceleration modules (gold-wrapped pipes) apply acceleration to TravelingItems when powered by redstone
+- Acceleration modules (gold pipes) apply acceleration to TravelingItems when powered by redstone
 - When a TravelingItem moves from one pipe to another, its velocity is preserved via the overloaded `insert(TravelingItem)` method
 - External inserts (from inventories, hoppers, etc.) start with default initial speed
 
@@ -195,24 +190,22 @@ The first module to return something other than PASS wins. If the winning plan i
 **Implemented Behaviors (by Tier):**
 
 **Tier 1 (Passive Movement):**
-- Transport: Random routing at junctions
-- Acceleration: Speed boost when powered by redstone
-- Merger: All inputs route to single output
-- Splitter: Round-robin distribution across outputs
-- Extractor: Mechanical extraction from adjacent inventories (configurable face)
-- Void: Mechanical deletion at pipe center
-- Pipe-only ingress: Restricts external inserts (used by transport/merger/splitter)
+- Transport: Random routing at junctions (stone/copper materials)
+- Acceleration: Speed boost when powered by redstone (gold material)
+- Merger: All inputs route to single output (iron material)
+- Extractor: Mechanical extraction from adjacent inventories (wood material)
+- Void: Mechanical deletion at pipe center (obsidian material)
+- Pipe-only ingress: Restricts external inserts (used by transport/merger)
 
 **Tier 2 (Active Control):**
-- Filter: Item-aware routing based on per-side filters
-- Sensor: Count-aware redstone signal based on item count
+- Filter: Item-aware routing based on per-side filters (diamond material)
+- Sensor: Count-aware redstone signal based on item count (quartz material)
 
 **Implementation Modules:**
 
 *Tier 1 (Mechanical):*
 - ExtractionModule: Implements extractor behavior
 - MergerModule: Implements merger behavior
-- SplitterModule: Implements splitter behavior
 - BoostModule: Implements acceleration behavior
 - VoidModule: Implements void behavior
 - PipeOnlyModule: Restricts ingress to pipe-to-pipe only
@@ -237,8 +230,6 @@ The first module to return something other than PASS wins. If the winning plan i
 
 **Phase 2+ (Future):**
 - Potential visual improvements: particle effects, pipe flow indicators, etc.
-- Copper oxidation (cosmetic only)
-- Glyph rendering on pipe surfaces (6×6 pixel stamped symbols)
 
 ## Routing Plan
 **Phase 1 (Implemented - Local Routing):**
@@ -246,8 +237,7 @@ The first module to return something other than PASS wins. If the winning plan i
 - Modules make local routing decisions via Module.route():
   - Random selection (default transport pipes)
   - Single-direction (merger pipes)
-  - Round-robin (splitter pipes)
-  - Filter-based (filter gates)
+  - Filter-based (filter pipes)
   - Discard (void pipes)
 - No path planning or global graph search
 - Items rejected if no valid route (dropped as item entity)
@@ -305,20 +295,17 @@ The first module to return something other than PASS wins. If the winning plan i
 - Custom machines
 - Recipe balancing and progression
 - Performance optimization
-- Glyph rendering system
-- Copper oxidation (cosmetic)
 
 ## Open Questions
 **Resolved:**
-- ✅ Visual style for pipes: BuildCraft-inspired thin pipes with copper substrate
+- ✅ Visual style for pipes: BuildCraft-inspired thin pipes with material-based appearance
 - ✅ Item rendering: floating items with smooth acceleration/deceleration
 - ✅ Tier model: OSI-inspired three-tier architecture
-- ✅ Naming approach: Behavior-centric in docs, implementation names can differ
+- ✅ Naming approach: Behavior-centric in code, material-based appearance in-game
 - ✅ Connection rules: All tiers interconnect
+- ✅ Progression: Material-based for visual clarity and inventory readability
 
 **Open:**
-- Specific recipe progression and resource gating (materials TBD)
+- Specific recipe components for Tier 2 pipes (circuits, redstone, etc.)
 - Request Table UX for Phase 2: list vs search-first interface
 - Extraction upgrade tiers: speed-wrapped versions vs separate pipe types
-- Glyph design system (6×6 pixel symbols for each behavior)
-- Copper oxidation timing and visual progression

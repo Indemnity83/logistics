@@ -19,11 +19,12 @@ All tiers connect to each other. This is a layered system where higher tiers bui
 
 ### Resource-Gated Progression
 Access to higher tiers requires game progression:
-- **Tier 1**: Basic materials (copper, iron, stone, redstone)
-- **Tier 2**: Mid-game materials (gold, diamond, advanced components)
+- **Tier 1**: Basic vanilla materials (stone, wood, copper, iron, gold)
+- **Tier 2**: Rare materials (diamond, quartz) + additional components
 - **Tier 3**: End-game materials (nether stars, shulker shells, etc.)
 
-Specific recipe progression TBD.
+### Material-Based Identity
+Each pipe uses distinct vanilla materials for visual clarity in inventory and world.
 
 ## Shared Concepts
 - **Routing philosophy**: Try to insert into the next target; drop only if insert fails
@@ -46,16 +47,33 @@ Tier 1 pipes provide connectivity and basic flow shaping with mechanical operati
 
 **Characteristics:**
 - No item-type awareness or filtering
-- Mechanical operations (random, convergence, distribution, extraction, deletion)
+- Mechanical operations (random, convergence, extraction, deletion)
 - Operations happen regardless of item type
-- Copper-based substrate
-- Early-game materials in recipes
+- Simple recipes: Material + glass (+ optional component)
+- Early-to-mid game materials
 
-## Transport Behavior ✅ v0.1.0
+## Transport Behavior (Stone) 🔮 Planned
 
-**Purpose:** Backbone connectivity with random routing at junctions.
+**Purpose:** Cheap entry-level backbone connectivity with slower transport.
 
-**Implementation note:** Currently implemented as "Copper Transport Pipe" (may be renamed).
+**Material:** Stone
+
+- **Tier**: 1 (Passive Movement)
+- **Expose ItemStorage**: Pipes only (PipeOnlyModule)
+- **Accept from pipe**: Yes
+- **Route into inventories**: Yes
+- **Routing**: Random selection among valid connected directions when multiple outputs exist
+- **Speed**: Slower than copper (50% speed?)
+- **Visual**: Stone/gray appearance
+- **Recipe**: Stone + glass → 8 pipes
+
+## Transport Behavior (Copper) ✅ v0.1.0
+
+**Purpose:** Main backbone connectivity with standard transport speed.
+
+**Material:** Copper
+
+**Implementation note:** Currently implemented as "Copper Transport Pipe".
 
 - **Tier**: 1 (Passive Movement)
 - **Expose ItemStorage**: Pipes only (PipeOnlyModule)
@@ -63,12 +81,14 @@ Tier 1 pipes provide connectivity and basic flow shaping with mechanical operati
 - **Route into inventories**: Yes
 - **Routing**: Random selection among valid connected directions when multiple outputs exist
 - **Speed**: Standard pipe speed
-- **Visual**: Copper base with no glyph (plain pipe)
-- **Recipe concept**: Copper + glass + basic gear → 8 pipes
+- **Visual**: Copper/orange appearance
+- **Recipe**: Copper ingot + glass → 8 pipes
 
 ## Acceleration Behavior ✅ v0.1.0
 
 **Purpose:** Speed boost for items when powered by redstone.
+
+**Material:** Gold
 
 **Implementation note:** Currently implemented as "Gold Transport Pipe".
 
@@ -78,15 +98,17 @@ Tier 1 pipes provide connectivity and basic flow shaping with mechanical operati
 - **Route into inventories**: Yes
 - **Routing**: Random selection (inherits Transport behavior)
 - **Speed**: Applies acceleration to items when powered by redstone
-- **Visual**: Copper base with gold accent bands
-- **Recipe concept**: Copper + glass + gold component → 8 pipes
-- **Special note**: Gold remains a special-case for speed, not a general upgrade path
+- **Visual**: Gold/yellow appearance with metallic sheen
+- **Recipe**: Gold ingot + glass → 8 pipes
+- **Special note**: Gold remains a special-case for speed boost
 
 ## Merger Behavior ✅ v0.1.0
 
 **Purpose:** Convergence—all inputs route to single configured output.
 
-**Implementation note:** Currently implemented as "Iron Transport Pipe" (to be renamed).
+**Material:** Iron
+
+**Implementation note:** Currently implemented as "Basic Merger Pipe" (to be visually updated to iron appearance).
 
 - **Tier**: 1 (Passive Movement)
 - **Expose ItemStorage**: Pipes only
@@ -94,29 +116,16 @@ Tier 1 pipes provide connectivity and basic flow shaping with mechanical operati
 - **Route into inventories**: Yes
 - **Routing**: Always route to configured output direction if valid; if invalid, drop item
 - **Configuration**: Wrench to cycle output direction
-- **Visual**: Copper base with convergence glyph (→) or opaque connector on output face
-- **Recipe concept**: Copper + glass + iron gear → 8 pipes
-
-## Splitter Behavior ✅ v0.1.0
-
-**Purpose:** Even distribution via round-robin routing.
-
-**Implementation note:** Currently implemented as "Stone Transport Pipe" (temporary; to be renamed).
-
-- **Tier**: 1 (Passive Movement)
-- **Expose ItemStorage**: Pipes only
-- **Accept from pipe**: Yes
-- **Route into inventories**: Yes
-- **Routing**: Round-robin across valid connected directions; maintains index in module state
-- **State**: Stores last-used output index
-- **Visual**: Copper base with splitter glyph (⊢⊣)
-- **Recipe concept**: Copper + glass + stone gear → 8 pipes
+- **Visual**: Iron/gray appearance with directional indicator on output face
+- **Recipe**: Iron ingot + glass → 8 pipes
 
 ## Extractor Behavior ✅ v0.1.0
 
 **Purpose:** Mechanical extraction—pulls items from adjacent inventories into the pipe network.
 
-**Implementation note:** Currently implemented as "Wooden Transport Pipe" (to be renamed).
+**Material:** Wood
+
+**Implementation note:** Currently implemented as "Basic Extractor Pipe" (to be visually updated to wood appearance).
 
 - **Tier**: 1 (Passive Movement)
 - **Expose ItemStorage**: Yes, but only on the active face (single-face ingress)
@@ -132,8 +141,8 @@ Tier 1 pipes provide connectivity and basic flow shaping with mechanical operati
   - If active face becomes invalid (inventory removed), automatically seeks another available inventory
   - Once locked onto an inventory, adding new inventories will NOT cause it to switch
   - Player can manually cycle the active face using a wrench
-- **Visual**: Copper base with extractor glyph (⟼) on active face; opaque connector indicates active face
-- **Recipe concept**: Copper + glass + wooden gear + piston component → 8 pipes
+- **Visual**: Wood/tan appearance with indicator on active face
+- **Recipe**: Wood planks + glass + hopper → 8 pipes
 - **Upgrades** 🔮 (Future):
   - Speed-wrapped tiers for faster extraction rates (8/16/32/64 items per operation)
   - Specific upgrade path TBD
@@ -142,6 +151,8 @@ Tier 1 pipes provide connectivity and basic flow shaping with mechanical operati
 
 **Purpose:** Mechanical deletion—deletes items that enter the pipe.
 
+**Material:** Obsidian
+
 **Implementation note:** Currently implemented as "Void Pipe".
 
 - **Tier**: 1 (Passive Movement)
@@ -149,8 +160,8 @@ Tier 1 pipes provide connectivity and basic flow shaping with mechanical operati
 - **Accept from pipe**: Yes
 - **Route into inventories**: No
 - **Routing**: Items are discarded at pipe center (progress = 0.5) to allow player reaction
-- **Visual**: Copper base with void glyph (⊗)
-- **Recipe concept**: Copper + glass + obsidian + ender pearl → 8 pipes
+- **Visual**: Obsidian/black appearance with void indicator
+- **Recipe**: Obsidian + glass + ender pearl → 8 pipes
 
 ---
 
@@ -162,14 +173,16 @@ Tier 2 pipes make decisions based on item type, count, or conditional logic. The
 - Item-aware or count-aware logic
 - Conditional routing and monitoring
 - Decision-making based on pipe contents
-- Still copper-based but with control components (circuits, sensors)
-- Mid-game materials in recipes
+- More complex recipes with additional components
+- Mid-to-late game materials
 
 ## Filter Behavior ✅ v0.1.0
 
 **Purpose:** Item-aware routing based on configured per-side filters.
 
-**Implementation note:** Currently implemented as "Diamond Transport Pipe" (to be renamed "Filter Gate").
+**Material:** Diamond
+
+**Implementation note:** Currently implemented as "Smart Splitter Pipe" (to be visually updated to diamond appearance).
 
 - **Tier**: 2 (Active Control)
 - **Expose ItemStorage**: Pipes only
@@ -182,14 +195,16 @@ Tier 2 pipes make decisions based on item type, count, or conditional logic. The
 - **Filtering**: Basic item type matching (ignores NBT data)
 - **Configuration**: Right-click to open GUI with per-side filter slots (ghost items)
 - **UI**: Per-side filters; sides with no filter act as wildcard
-- **Visual**: Copper base with filter glyph (◇)
-- **Recipe concept**: Copper + glass + diamond gear + circuit board → 8 pipes
+- **Visual**: Diamond/cyan appearance
+- **Recipe**: Diamond + glass + [additional component TBD] → 8 pipes
 
 ## Sensor Behavior ✅ v0.1.0
 
 **Purpose:** Flow monitoring—emits redstone signal based on pipe contents.
 
-**Implementation note:** Currently implemented as "Quartz Transport Pipe" (may be renamed).
+**Material:** Quartz
+
+**Implementation note:** Currently implemented as "Comparator Pipe" (to be visually updated to quartz appearance).
 
 - **Tier**: 2 (Active Control)
 - **Expose ItemStorage**: Pipes only
@@ -197,8 +212,8 @@ Tier 2 pipes make decisions based on item type, count, or conditional logic. The
 - **Route into inventories**: Yes
 - **Routing**: Random (inherits Transport behavior)
 - **Signal**: Comparator output scaled to virtual capacity of 5 stacks (5 × 64)
-- **Visual**: Copper base with sensor glyph
-- **Recipe concept**: Copper + glass + quartz + redstone → 8 pipes
+- **Visual**: Quartz/white appearance
+- **Recipe**: Quartz + glass + redstone → 8 pipes
 
 ---
 
@@ -226,7 +241,7 @@ Tier 3 represents a shift away from "pipes" entirely into network components. Th
   - Priority-based fulfillment
   - Request → routing → provider → dispatch flow
 - **Connection**: Attaches to pipe network as a service endpoint
-- **Recipe concept**: Copper + control core + end-game material (TBD)
+- **Recipe concept**: [Complex crafting with end-game materials]
 
 ## Provider Pipe (Phase 2) 🔮
 
@@ -239,7 +254,7 @@ Tier 3 represents a shift away from "pipes" entirely into network components. Th
   - Responds to requests from Request Tables
   - Dispatches items when pathfinding selects this provider
 - **Connection**: Attaches to existing pipe network
-- **Recipe concept**: Copper pipe + context core + material (TBD)
+- **Recipe concept**: [Complex crafting with end-game materials]
 
 ## Sink Pipe (Phase 2) 🔮
 
@@ -278,24 +293,12 @@ Tier 3 represents a shift away from "pipes" entirely into network components. Th
 
 - **Tier**: 1 (Passive Movement)
 - **Purpose**: Pull loose item entities into the pipe network
+- **Material**: Obsidian (different from void pipe)
 - **Expose ItemStorage**: Pipes only
 - **Accept from pipe**: Yes
 - **Route into inventories**: Yes
 - **Pickup**: Absorbs item entities within a small radius of the pipe center
-- **Recipe concept**: Copper + glass + obsidian + hopper mechanism → 8 pipes
-
-## Sandstone Pipe (Bridge) 🔮 Future
-
-**Not yet implemented.**
-
-- **Tier**: 1 (Passive Movement)
-- **Purpose**: Connect otherwise incompatible transport pipes (future compatibility system)
-- **Expose ItemStorage**: Pipes only
-- **Accept from pipe**: Yes
-- **Route into inventories**: Yes
-- **Connections**: Links transport pipes that would not normally connect, but does not connect directly to machines/inventories
-- **Note**: Compatibility system not currently needed since all tiers interconnect
-- **Recipe concept**: Sandstone + glass → 8 pipes
+- **Recipe concept**: Obsidian + glass + hopper mechanism → 8 pipes
 
 ## Emerald Pipe (Overflow Gate) 🔮 Future
 
@@ -303,12 +306,13 @@ Tier 3 represents a shift away from "pipes" entirely into network components. Th
 
 - **Tier**: 2 (Active Control)
 - **Purpose**: Prefer primary direction; overflow to others when blocked
+- **Material**: Emerald
 - **Expose ItemStorage**: Pipes only
 - **Accept from pipe**: Yes
 - **Route into inventories**: Yes
 - **Routing**: Try preferred output; if invalid/full/rejected, choose among other valid outputs (random or ordered)
 - **Configuration**: Wrench to set preferred direction
-- **Recipe concept**: Copper + glass + emerald + circuit → 8 pipes
+- **Recipe concept**: Emerald + glass + [component] → 8 pipes
 
 ## Colored Pipes (Network Segmentation) 🔮 Future
 
@@ -321,7 +325,7 @@ Tier 3 represents a shift away from "pipes" entirely into network components. Th
 - **Route into inventories**: Yes
 - **Compatibility**: Should be used consistently for connection rendering, routing direction selection, and ItemStorage exposure
 - **Recipe concept**: Apply dye to existing pipes
-- **Note**: Channelization via applied markings, not material swaps
+- **Note**: Channelization via applied markings or colors
 
 ---
 
@@ -331,11 +335,12 @@ Tier 3 represents a shift away from "pipes" entirely into network components. Th
 - ✅ Extract prevention: Pipes return 0 for extract (no external pulling)
 - ✅ Tier organization: OSI-inspired three-tier model
 - ✅ Connection rules: All tiers interconnect
-- ✅ Cobblestone/Stone fate: Cobblestone removed, stone repurposed as splitter (temporary)
+- ✅ Material-based progression: Each pipe uses distinct vanilla materials
+- ✅ Visual clarity: Material appearance for inventory readability
 
 **Open:**
-- Specific recipe progression and material requirements for each tier
-- Colored pipe implementation approach (if/when implemented)
+- Stone transport pipe speed: 50%? 66%? 75% of copper?
+- Specific recipe components for Tier 2 pipes (circuits, advanced items?)
 - Emerald pipe backpressure behavior details
 - Extraction upgrade tiers: speed-wrapped versions vs separate pipe types
 - Tier 3 component recipes and balance

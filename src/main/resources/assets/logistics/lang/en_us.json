@@ -1,11 +1,11 @@
 {
   "item.logistics.wrench": "Wrench",
-  "block.logistics.basic_splitter_pipe": "Basic Splitter Pipe",
   "block.logistics.basic_extractor_pipe": "Basic Extractor Pipe",
   "block.logistics.basic_merger_pipe": "Basic Merger Pipe",
   "block.logistics.gold_transport_pipe": "Golden Transport Pipe",
   "block.logistics.smart_splitter_pipe": "Smart Splitter Pipe",
   "block.logistics.copper_transport_pipe": "Copper Transport Pipe",
+  "block.logistics.stone_transport_pipe": "Stone Transport Pipe",
   "block.logistics.comparator_pipe": "Comparator Pipe",
   "block.logistics.void_pipe": "Void Pipe",
   "itemgroup.logistics.transport": "Logistics: Transport",

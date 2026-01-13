@@ -1,0 +1,23 @@
+{
+  "generated_by": "scripts/generate_bbmodel_models.py",
+  "source": "assets/models/basic_extractor_pipe.bbmodel",
+  "parent": "block/block",
+  "textures": {
+    "texture": "logistics:block/basic_extractor_pipe",
+    "particle": "logistics:block/basic_extractor_pipe"
+  },
+  "elements": [
+    {
+      "from": [4, 12, 4],
+      "to": [12, 16, 12],
+      "faces": {
+        "north": { "texture": "#texture", "uv": [0, 0, 8, 4] },
+        "east": { "texture": "#texture", "uv": [0, 0, 8, 4] },
+        "south": { "texture": "#texture", "uv": [0, 0, 8, 4] },
+        "west": { "texture": "#texture", "uv": [0, 0, 8, 4] },
+        "up": { "texture": "#texture", "uv": [8, 0, 16, 8] },
+        "down": { "texture": "#texture", "uv": [8, 0, 16, 8] }
+      }
+    }
+  ]
+}

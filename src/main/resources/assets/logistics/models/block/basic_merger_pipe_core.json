@@ -1,0 +1,23 @@
+{
+  "generated_by": "scripts/generate_bbmodel_models.py",
+  "source": "assets/models/basic_merger_pipe.bbmodel",
+  "parent": "block/block",
+  "textures": {
+    "texture": "logistics:block/basic_merger_pipe",
+    "particle": "logistics:block/basic_merger_pipe"
+  },
+  "elements": [
+    {
+      "from": [4, 4, 4],
+      "to": [12, 12, 12],
+      "faces": {
+        "north": { "texture": "#texture", "uv": [0, 4, 8, 12] },
+        "east": { "texture": "#texture", "uv": [0, 4, 8, 12] },
+        "south": { "texture": "#texture", "uv": [0, 4, 8, 12] },
+        "west": { "texture": "#texture", "uv": [0, 4, 8, 12] },
+        "up": { "texture": "#texture", "uv": [0, 4, 8, 12] },
+        "down": { "texture": "#texture", "uv": [0, 4, 8, 12] }
+      }
+    }
+  ]
+}

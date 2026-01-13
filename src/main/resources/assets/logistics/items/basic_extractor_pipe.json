@@ -4,11 +4,11 @@
     "models": [
       {
         "type": "minecraft:model",
-        "model": "logistics:block/wooden_transport_pipe_core"
+        "model": "logistics:block/basic_extractor_pipe_core"
       },
       {
         "type": "minecraft:model",
-        "model": "logistics:block/wooden_transport_pipe_west_feature"
+        "model": "logistics:block/basic_extractor_pipe_west_feature"
       }
     ]
   }

@@ -17,13 +17,12 @@ public class LogisticsModClient implements ClientModInitializer {
 		LogisticsMod.LOGGER.info("Initializing Logistics client");
 
 		// Register pipe blocks to render with transparency
-//		BlockRenderLayerMap.putBlock(LogisticsBlocks.COBBLESTONE_TRANSPORT_PIPE, BlockRenderLayer.CUTOUT);
-		BlockRenderLayerMap.putBlock(LogisticsBlocks.BASIC_SPLITTER_PIPE, BlockRenderLayer.CUTOUT);
+		BlockRenderLayerMap.putBlock(LogisticsBlocks.STONE_TRANSPORT_PIPE, BlockRenderLayer.CUTOUT);
+		BlockRenderLayerMap.putBlock(LogisticsBlocks.COPPER_TRANSPORT_PIPE, BlockRenderLayer.CUTOUT);
 		BlockRenderLayerMap.putBlock(LogisticsBlocks.BASIC_EXTRACTOR_PIPE, BlockRenderLayer.CUTOUT);
 		BlockRenderLayerMap.putBlock(LogisticsBlocks.BASIC_MERGER_PIPE, BlockRenderLayer.CUTOUT);
 		BlockRenderLayerMap.putBlock(LogisticsBlocks.GOLD_TRANSPORT_PIPE, BlockRenderLayer.CUTOUT);
 		BlockRenderLayerMap.putBlock(LogisticsBlocks.SMART_SPLITTER_PIPE, BlockRenderLayer.CUTOUT);
-		BlockRenderLayerMap.putBlock(LogisticsBlocks.COPPER_TRANSPORT_PIPE, BlockRenderLayer.CUTOUT);
 		BlockRenderLayerMap.putBlock(LogisticsBlocks.COMPARATOR_PIPE, BlockRenderLayer.CUTOUT);
 		BlockRenderLayerMap.putBlock(LogisticsBlocks.VOID_PIPE, BlockRenderLayer.CUTOUT);
 

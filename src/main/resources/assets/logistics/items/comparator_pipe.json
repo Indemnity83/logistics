@@ -4,11 +4,11 @@
     "models": [
       {
         "type": "minecraft:model",
-        "model": "logistics:block/quartz_transport_pipe_core"
+        "model": "logistics:block/comparator_pipe_core"
       },
       {
         "type": "minecraft:model",
-        "model": "logistics:block/quartz_transport_pipe_west"
+        "model": "logistics:block/comparator_pipe_west"
       }
     ]
   }

@@ -18,6 +18,16 @@ import java.util.function.Function;
 
 public class LogisticsBlocks {
     // Transport Pipes
+    public static final Block STONE_TRANSPORT_PIPE = register(
+            "stone_transport_pipe",
+            settings -> new PipeBlock(settings, PipeTypes.STONE_TRANSPORT_PIPE),
+            AbstractBlock.Settings.create()
+                    .mapColor(MapColor.GRAY)
+                    .strength(2.0f, 6.0f)
+                    .sounds(BlockSoundGroup.STONE)
+                    .nonOpaque()
+    );
+
     public static final Block COPPER_TRANSPORT_PIPE = register(
         "copper_transport_pipe",
         settings -> new PipeBlock(settings, PipeTypes.COPPER_TRANSPORT_PIPE),
@@ -64,16 +74,6 @@ public class LogisticsBlocks {
         AbstractBlock.Settings.create()
             .mapColor(MapColor.DIAMOND_BLUE)
             .strength(3.0f, 6.0f)
-            .sounds(BlockSoundGroup.METAL)
-            .nonOpaque()
-    );
-
-    public static final Block BASIC_SPLITTER_PIPE = register(
-        "basic_splitter_pipe",
-        settings -> new PipeBlock(settings, PipeTypes.BASIC_SPLITTER),
-        AbstractBlock.Settings.create()
-            .mapColor(MapColor.ORANGE)
-            .strength(2.5f, 6.0f)
             .sounds(BlockSoundGroup.METAL)
             .nonOpaque()
     );

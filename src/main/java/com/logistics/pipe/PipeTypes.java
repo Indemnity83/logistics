@@ -8,7 +8,11 @@ public final class PipeTypes {
     // Tier 1 (Basic routing / passive movement)
     // -----------------
 
-    // Base transport pipe (copper in-game) - simple item movement.
+    // Early transport pipe - slow item movement.
+    // TODO: This pipe should have a slower speed
+    public static final Pipe STONE_TRANSPORT_PIPE = new Pipe() {};
+
+    // Base transport pipe - simple item movement.
     // NOTE: No special connection restrictions; this is the default backbone pipe.
     public static final Pipe COPPER_TRANSPORT_PIPE = new Pipe() {};
 
@@ -26,11 +30,6 @@ public final class PipeTypes {
     // Basic merger - combines multiple incoming streams into a single output.
     public static final Pipe BASIC_MERGER = new Pipe(
             new MergerModule()
-    ) {};
-
-    // Round-robin splitter - distributes items evenly across outputs.
-    public static final Pipe BASIC_SPLITTER = new Pipe(
-            new SplitterModule()
     ) {};
 
     // -----------------
