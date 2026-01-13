@@ -1,0 +1,23 @@
+{
+  "generated_by": "scripts/generate_bbmodel_models.py",
+  "source": "assets/models/item_filter_pipe.bbmodel",
+  "parent": "block/block",
+  "textures": {
+    "texture": "logistics:block/item_filter_pipe",
+    "particle": "logistics:block/item_filter_pipe"
+  },
+  "elements": [
+    {
+      "from": [4, 4, 0],
+      "to": [12, 12, 4],
+      "faces": {
+        "north": { "texture": "#texture", "uv": [5, 5, 11, 11] },
+        "east": { "texture": "#texture", "uv": [12, 4, 16, 12] },
+        "south": { "texture": "#texture", "uv": [5, 5, 11, 11] },
+        "west": { "texture": "#texture", "uv": [12, 4, 16, 12], "rotation": 180 },
+        "up": { "texture": "#texture", "uv": [12, 4, 16, 12], "rotation": 270 },
+        "down": { "texture": "#texture", "uv": [12, 4, 16, 12], "rotation": 90 }
+      }
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "WGW"
+  ],
+  "key": {
+    "W": "#minecraft:planks",
+    "G": "minecraft:glass"
+  },
+  "result": {
+    "id": "logistics:item_extractor_pipe",
+    "count": 8
+  }
+}
+
+

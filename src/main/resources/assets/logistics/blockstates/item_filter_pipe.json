@@ -1,0 +1,18 @@
+{
+  "multipart": [
+    { "apply": { "model": "logistics:block/item_filter_pipe_core" }},
+
+    { "when": { "OR": [ { "north": "pipe" }, { "north": "inventory" } ] }, "apply": { "model": "logistics:block/item_filter_pipe_north" }},
+    { "when": { "OR": [ { "south": "pipe" }, { "south": "inventory" } ] }, "apply": { "model": "logistics:block/item_filter_pipe_south" }},
+    { "when": { "OR": [ { "east":  "pipe" }, { "east":  "inventory" } ] }, "apply": { "model": "logistics:block/item_filter_pipe_east"  }},
+    { "when": { "OR": [ { "west":  "pipe" }, { "west":  "inventory" } ] }, "apply": { "model": "logistics:block/item_filter_pipe_west"  }},
+    { "when": { "OR": [ { "up":    "pipe" }, { "up":    "inventory" } ] }, "apply": { "model": "logistics:block/item_filter_pipe_up"    }},
+    { "when": { "OR": [ { "down":  "pipe" }, { "down":  "inventory" } ] }, "apply": { "model": "logistics:block/item_filter_pipe_down"  }},
+
+    { "when": { "north": "inventory" }, "apply": { "model": "logistics:block/item_filter_pipe_north_extension" }},
+    { "when": { "south": "inventory" }, "apply": { "model": "logistics:block/item_filter_pipe_south_extension" }},
+    { "when": { "east":  "inventory" }, "apply": { "model": "logistics:block/item_filter_pipe_east_extension"  }},
+    { "when": { "west":  "inventory" }, "apply": { "model": "logistics:block/item_filter_pipe_west_extension"  }},
+    { "when": { "down":  "inventory" }, "apply": { "model": "logistics:block/item_filter_pipe_down_extension"  }}
+  ]
+}

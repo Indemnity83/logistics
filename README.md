@@ -26,53 +26,91 @@
 Logistics is a Fabric mod inspired by BuildCraft and Logistics Pipes, bringing authentic item pipe systems to modern Minecraft. Items travel smoothly through thin pipes with visible motion, integrating seamlessly with other mods via Fabric's Transfer API.
 
 **Design Principles:**
+- **Material-Based Identity** - Each pipe uses distinct vanilla materials for visual clarity
+- **Layered Progression** - Three tiers: Mechanical pipes (basic operations), Smart pipes (decisions), Network logistics (abstract services)
 - **Authentic Visuals** - Items travel continuously through pipes with visible speed
 - **Mod Interoperability** - Works with any mod using Fabric Transfer API (ItemStorage)
-- **Modular Systems** - Item transport first, fluids and power systems planned for future phases
 - **Classic Ergonomics** - Simple placement, visible connections, easy to understand
 
 ---
 
-## Pipe Types
+## How It Works
 
-**Cobblestone Transport Pipe**
-Cobblestone pipes are basic transport pipes that move items through your network. When an item reaches a junction with multiple valid outputs, it randomly selects one direction to continue.
-*Recipe: cobblestone + glass + cobblestone → 8 pipes*
+Logistics is built on a **three-tier system** that grows with your world progression:
 
-**Stone Transport Pipe**
-Stone pipes are basic transport pipes that function identically to cobblestone pipes. In future versions, these may transport items faster.
-*Recipe: stone + glass + stone → 8 pipes*
+### Tier 1: Mechanical Pipes
+**Basic operations without decisions**
 
-**Wooden Transport Pipe**
-Wooden pipes are extraction pipes that actively pull items from adjacent inventories into the pipe network. The face to extract from is indicated by an opaque connector and can be changed by right-clicking with a wrench. Only one face can be active at a time. Wooden pipes extract one item per operation; future pipe types will allow for faster extraction.
-*Recipe: planks + glass + planks → 8 pipes*
+Start here. These pipes perform mechanical operations—moving, merging, extracting, deleting—but they don't look at what's flowing through them. They just do their job, every time, regardless of item type.
 
-**Gold Transport Pipe**
-Gold pipes are acceleration pipes that speed up items traveling through them when powered by redstone. Items passing through a powered gold pipe move faster than normal pipe transit speed.
-*Recipe: gold ingot + glass + gold ingot → 8 pipes*
+- **Transport Pipes** (Stone/Copper) - Backbone connectivity with random routing
+- **Extractor Pipes** (Wood) - Pull items from adjacent inventories into your network
+- **Merger Pipes** (Iron) - All inputs converge to a single output
+- **Acceleration Pipes** (Gold) - Speed boost when powered by redstone
+- **Void Pipes** (Obsidian) - Delete unwanted items
 
-**Iron Transport Pipe**
-Iron pipes are merger pipes that take items from any input direction and route them all to a single common output direction, indicated by an opaque connector. The output direction can be changed by right-clicking with a wrench. Items cannot enter through the output face—if you try to route items back in through the output, they will be rejected and fall out of the pipe network.
-*Recipe: iron ingot + glass + iron ingot → 8 pipes*
+### Tier 2: Smart Pipes
+**Make decisions based on what's flowing**
 
-**Copper Transport Pipe**
-Copper pipes are distribution pipes that evenly split items across multiple outputs using round-robin routing. When an item reaches the pipe, it sends the item to the next output in rotation, ensuring balanced distribution.
-*Recipe: copper ingot + glass + copper ingot → 8 pipes*
+These pipes are intelligent. They inspect items and change behavior based on what they see. This is where your network becomes conditional and responsive.
 
-**Diamond Transport Pipe**
-Diamond pipes are filtering pipes that route items based on configurable per-side filters. Right-click the pipe to open a GUI where you can set which item types should be routed to which connected face. Filtering is basic item type matching, ignoring NBT data. Items that don't match any filter are routed to unfiltered outputs. If an item matches no filters and there are no unfiltered directions available, the item will be rejected and fall out of the pipe network.
-*Recipe: diamond + glass + diamond → 8 pipes*
+- **Filter Pipes** (Diamond) - Route specific items to specific destinations (item-aware)
+- **Sensor Pipes** (Quartz) - Emit redstone signals based on item count (count-aware)
 
-**Quartz Transport Pipe**
-Quartz pipes are sensor pipes that emit a redstone comparator signal based on how many items are currently traveling through the pipe. The signal strength scales with the number of items relative to the pipe's capacity.
-*Recipe: quartz + glass + quartz → 8 pipes*
+### Tier 3: Network Logistics *(Coming Soon)*
+**High-level automation and requests**
 
-**Void Transport Pipe**
-Void pipes are deletion pipes that destroy any items that enter them. Items are deleted when they reach the center of the pipe, making them useful for overflow management or disposing of unwanted items.
+The ultimate goal. Your inventories become abstract resources, and you request what you need—the network figures out the rest.
+
+- **Request Tables** - Ask for items; the network delivers them
+- **Provider Modules** - Advertise what inventories contain
+- **Crafting Logistics** - Automated crafting on demand
+- **Global Routing** - Smart pathfinding across your entire network
+
+Each tier builds on the previous one—you'll use all three together as your base grows.
+
+---
+
+## Pipes & Tools
+
+### Copper Transport Pipe
+Basic transport pipe that moves items through your network. When an item reaches a junction with multiple outputs, it randomly selects a direction. This is your backbone—simple, reliable connectivity.
+
+*Recipe: copper ingot + glass → 8 pipes*
+
+### Wooden Extractor Pipe
+Extraction pipe that actively pulls items from adjacent inventories into your pipe network. Right-click with a wrench to select which face extracts. Only one face can be active at a time. Wooden pipes extract one item per operation.
+
+*Recipe: planks + glass + hopper → 8 pipes*
+
+### Iron Merger Pipe
+Merger pipe that takes items from any input direction and routes them all to a single output direction. The output is indicated by an opaque connector. Right-click with a wrench to change the output direction. Items cannot enter through the output face.
+
+*Recipe: iron ingot + glass → 8 pipes*
+
+### Gold Transport Pipe
+Acceleration pipe that speeds up items when powered by redstone. Items passing through a powered gold pipe move faster than normal pipe transit speed.
+
+*Recipe: gold ingot + glass → 8 pipes*
+
+### Diamond Filter Pipe
+Filter pipe that routes items based on configurable per-side filters. Right-click to open a GUI where you can set which item types go to which connected face. Items that don't match any filter are routed to unfiltered outputs. If an item matches no filters and there are no unfiltered directions, the item drops.
+
+*Recipe: diamond + glass + [component] → 8 pipes*
+
+### Quartz Sensor Pipe
+Sensor pipe that emits a redstone comparator signal based on how many items are currently traveling through the pipe. The signal strength scales with the number of items relative to the pipe's capacity.
+
+*Recipe: quartz + glass + redstone → 8 pipes*
+
+### Void Pipe
+Deletion pipe that destroys any items that enter it. Items are deleted when they reach the center of the pipe, giving you time to react if needed. Useful for overflow management or disposing of unwanted items.
+
 *Recipe: obsidian + glass + ender pearl → 8 pipes*
 
-**Wrench**
-The wrench is a tool used to configure pipe behavior. Right-click on pipes to cycle output directions on iron pipes, select extraction faces on wooden pipes, and interact with other configurable pipe types.
+### Wrench
+Configuration tool for pipes. Right-click to cycle output directions on iron pipes, select extraction faces on wooden pipes, open filter GUIs on diamond pipes, and interact with other configurable pipe types.
+
 *Recipe: 4 iron ingots in wrench shape → 1 wrench*
 
 ---
@@ -99,10 +137,10 @@ The wrench is a tool used to configure pipe behavior. Right-click on pipes to cy
 
 ## Getting Started
 
-1. **Craft Pipes** — Start with cobblestone or stone pipes for basic transport
+1. **Craft Pipes** — Start with copper pipes for basic transport
 2. **Connect to Inventories** — Pipes automatically connect to adjacent chests and other inventories
 3. **Extract Items** — Use wooden pipes to pull items from inventories (wrench to select face)
-4. **Control Flow** — Iron pipes for directional routing, copper pipes for even distribution
+4. **Control Flow** — Iron pipes for directional routing
 5. **Filter Items** — Diamond pipes route specific items to specific destinations
 6. **Speed Things Up** — Gold pipes accelerate items when powered by redstone
 
@@ -110,6 +148,7 @@ The wrench is a tool used to configure pipe behavior. Right-click on pipes to cy
 - Items drop if they can't find a valid destination
 - Void pipes delete overflow items
 - Quartz pipes output comparator signals based on item count
+- All pipe tiers connect to each other—build complex networks by combining them
 - The wrench is your friend
 
 ---
@@ -121,18 +160,19 @@ The wrench is a tool used to configure pipe behavior. Right-click on pipes to cy
 - Server-side traveling item simulation with continuous progress
 - Client-side smooth visual rendering
 - Extraction from and insertion into adjacent inventories
-- Routing with filters, priorities, and flow control
+- Tier 1 (Mechanical) and Tier 2 (Smart) pipe behaviors
 
-### 🚧 Phase 2: Logistics Basics (Next)
+### 🚧 Phase 2: Network Logistics (Next)
 - Request Table block with GUI
 - Provider pipes that expose inventory contents
-- Request flow: request → routing → provider → dispatch
+- Global pathfinding and request fulfillment
 - Autocrafting support via vanilla Crafter integration
+- Tier 3 network components
 
 ### 🔮 Future Phases
 - Fluid pipes with Transfer API integration
 - Power/cost system for logistics operations
-- Additional pipe types, upgrades, and advanced logistics features
+- Additional pipe upgrades and advanced logistics features
 
 See [`docs/DESIGN.md`](docs/DESIGN.md) for architecture details and technical design.
 
@@ -167,6 +207,6 @@ Inspired by:
 
 <div align="center">
 
-[Report an Issue](https://github.com/indemnity83/logistics/issues) • [Technical Design](docs/DESIGN.md)
+[Report an Issue](https://github.com/indemnity83/logistics/issues) • [Technical Design](docs/DESIGN.md) • [Pipe Behaviors](docs/PIPE_TYPES.md)
 
 </div>

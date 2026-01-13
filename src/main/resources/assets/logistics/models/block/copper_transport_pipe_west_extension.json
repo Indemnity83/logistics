@@ -11,12 +11,12 @@
       "from": [-1, 4, 4],
       "to": [0, 12, 12],
       "faces": {
-        "north": { "texture": "#texture", "uv": [0, 15, 8, 16], "rotation": 90 },
+        "north": { "texture": "#texture", "uv": [0, 12, 8, 13], "rotation": 90 },
         "east": { "texture": "#texture", "uv": [1, 5, 7, 11] },
-        "south": { "texture": "#texture", "uv": [0, 15, 8, 16], "rotation": 90 },
+        "south": { "texture": "#texture", "uv": [0, 12, 8, 13], "rotation": 90 },
         "west": { "texture": "#texture", "uv": [1, 5, 7, 11] },
-        "up": { "texture": "#texture", "uv": [0, 15, 8, 16], "rotation": 90 },
-        "down": { "texture": "#texture", "uv": [0, 15, 8, 16], "rotation": 90 }
+        "up": { "texture": "#texture", "uv": [0, 12, 8, 13], "rotation": 90 },
+        "down": { "texture": "#texture", "uv": [0, 12, 8, 13], "rotation": 90 }
       }
     }
   ]

@@ -4,50 +4,61 @@ import com.logistics.pipe.modules.*;
 import com.logistics.pipe.runtime.PipeConfig;
 
 public final class PipeTypes {
-    // Cobblestone pipe - does not connect to stone pipes
-    public static final Pipe COBBLESTONE_TRANSPORT = new Pipe(
-            new BlockConnectionModule(() -> PipeTypes.STONE_TRANSPORT)
-    ) {};
+    // -----------------
+    // Tier 1 (Basic routing / passive movement)
+    // -----------------
 
-    // Stone pipe - does not connect to cobblestone pipes
-    public static final Pipe STONE_TRANSPORT = new Pipe(
-            new BlockConnectionModule(() -> PipeTypes.COBBLESTONE_TRANSPORT)
-    ) {};
+    // Early transport pipe - slow item movement.
+    // TODO: This pipe should have a slower speed
+    public static final Pipe STONE_TRANSPORT_PIPE = new Pipe() {};
 
-    // Void pipe - deletes items at the center with particle effects
-    public static final Pipe VOID_TRANSPORT = new Pipe(
-            new VoidModule(), new PipeOnlyModule()
-    ) {};
+    // Base transport pipe - simple item movement.
+    // NOTE: No special connection restrictions; this is the default backbone pipe.
+    public static final Pipe COPPER_TRANSPORT_PIPE = new Pipe() {};
 
-    // Gold pipe - accelerates items when powered by redstone
+    // Accelerator transport - accelerates items when powered by redstone.
     public static final Pipe GOLD_TRANSPORT = new Pipe(
             new BoostModule(PipeConfig.ACCELERATION_RATE)
     ) {};
 
-    // Copper pipe - distributes items evenly across outputs (round-robin)
-    public static final Pipe COPPER_TRANSPORT = new Pipe(
-            new SplitterModule()
+    // Item extractor - pulls items from an adjacent inventory
+    public static final Pipe ITEM_EXTRACTOR = new Pipe(
+            new ExtractionModule(),
+            new BlockConnectionModule(() -> PipeTypes.ITEM_EXTRACTOR)
     ) {};
 
-    // Iron pipe - routes items to a single configured output direction
-    public static final Pipe IRON_TRANSPORT = new Pipe(
+    // Item merger - combines multiple incoming streams into a single output.
+    public static final Pipe ITEM_MERGER = new Pipe(
             new MergerModule()
     ) {};
 
-    // Wooden pipe - extracts items from adjacent inventories
-    public static final Pipe WOOD_TRANSPORT = new Pipe(
-            new ExtractionModule(),
-            new BlockConnectionModule(() -> PipeTypes.WOOD_TRANSPORT)
+    // -----------------
+    // Tier 2 (Decision based routing / bulk movement)
+    // -----------------
+
+    // Item filter - routes items based on per-side filters.
+    public static final Pipe ITEM_FILTER = new Pipe(
+            new ItemFilterModule()
     ) {};
 
-    // Diamond pipe - routes items based on per-side filters
-    public static final Pipe DIAMOND_TRANSPORT = new Pipe(
-            new SmartSplitterModule()
+    // Item void - deletes items at the center with particle effects.
+    public static final Pipe ITEM_VOID = new Pipe(
+            new VoidModule(),
+            new PipeOnlyModule()
     ) {};
 
-    // Quartz pipe - provides redstone comparator output based on item count
-    public static final Pipe QUARTZ_TRANSPORT = new Pipe(
-            new ComparatorModule()
+    // -----------------
+    // Tier 3 (Network Logistics)
+    // -----------------
+
+
+    // -----------------
+    // Special
+    // -----------------
+
+    // Item sensor - provides redstone comparator output based on item count.
+    public static final Pipe ITEM_SENSOR = new Pipe(
+        new ComparatorModule()
     ) {};
 
     private PipeTypes() {}

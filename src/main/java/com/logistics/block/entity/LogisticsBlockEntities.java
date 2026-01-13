@@ -13,15 +13,14 @@ public class LogisticsBlockEntities {
         Registries.BLOCK_ENTITY_TYPE,
         Identifier.of(LogisticsMod.MOD_ID, "pipe"),
         FabricBlockEntityTypeBuilder.create(PipeBlockEntity::new,
-            LogisticsBlocks.COBBLESTONE_TRANSPORT_PIPE,
             LogisticsBlocks.STONE_TRANSPORT_PIPE,
-            LogisticsBlocks.WOODEN_TRANSPORT_PIPE,
-            LogisticsBlocks.IRON_TRANSPORT_PIPE,
+            LogisticsBlocks.ITEM_EXTRACTOR_PIPE,
+            LogisticsBlocks.ITEM_MERGER_PIPE,
             LogisticsBlocks.GOLD_TRANSPORT_PIPE,
-            LogisticsBlocks.DIAMOND_TRANSPORT_PIPE,
+            LogisticsBlocks.ITEM_FILTER_PIPE,
             LogisticsBlocks.COPPER_TRANSPORT_PIPE,
-            LogisticsBlocks.QUARTZ_TRANSPORT_PIPE,
-            LogisticsBlocks.VOID_TRANSPORT_PIPE
+            LogisticsBlocks.ITEM_SENSOR_PIPE,
+            LogisticsBlocks.ITEM_VOID_PIPE
         ).build()
     );
 
