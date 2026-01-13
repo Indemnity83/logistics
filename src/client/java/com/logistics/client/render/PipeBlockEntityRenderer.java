@@ -13,6 +13,7 @@ import net.minecraft.client.render.block.entity.state.BlockEntityRenderState;
 import net.minecraft.client.render.state.CameraRenderState;
 import net.minecraft.client.render.command.OrderedRenderCommandQueue;
 import net.minecraft.client.render.item.ItemRenderState;
+import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemDisplayContext;
 import net.minecraft.util.math.Direction;
@@ -156,7 +157,7 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
                 matrices,
                 queue,
                 state.lightmapCoordinates,
-                0, // overlay
+                OverlayTexture.DEFAULT_UV,
                 0  // outlineColors
             );
 
