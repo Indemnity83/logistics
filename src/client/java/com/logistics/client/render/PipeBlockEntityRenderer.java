@@ -7,6 +7,9 @@ import com.logistics.pipe.runtime.TravelingItem;
 import com.logistics.pipe.runtime.PipeConfig;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.item.ItemModelManager;
+import net.minecraft.client.render.BlockRenderLayers;
+import net.minecraft.client.render.RenderLayer;
+import net.minecraft.client.render.RenderLayers;
 import net.minecraft.client.render.block.entity.BlockEntityRenderer;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactory;
 import net.minecraft.client.render.block.entity.state.BlockEntityRenderState;
@@ -14,8 +17,10 @@ import net.minecraft.client.render.state.CameraRenderState;
 import net.minecraft.client.render.command.OrderedRenderCommandQueue;
 import net.minecraft.client.render.item.ItemRenderState;
 import net.minecraft.client.render.OverlayTexture;
+import net.minecraft.client.render.model.BlockStateModel;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemDisplayContext;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.Nullable;
@@ -26,7 +31,7 @@ import java.util.List;
 /**
  * Renders traveling items inside pipes
  */
-public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEntity, PipeBlockEntityRenderer.PipeRenderState> {
+public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEntity, PipeRenderState> {
     private final ItemModelManager itemModelManager;
 
     public PipeBlockEntityRenderer(BlockEntityRendererFactory.Context ctx) {
@@ -52,11 +57,14 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
         // Store tickDelta for use in render()
         state.tickDelta = tickDelta;
 
+        state.modelIds.clear();
+
         // Clear previous items
         state.travelingItems.clear();
 
         // Get pipe properties for speed calculations
         BlockState blockState = entity.getCachedState();
+        state.blockState = blockState;
         float targetSpeed = PipeConfig.BASE_PIPE_SPEED;
         float accelerationRate = 0f;
         boolean canAccelerate = false;
@@ -67,6 +75,16 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
                 targetSpeed = pipeBlock.getPipe().getTargetSpeed(context);
                 accelerationRate = pipeBlock.getPipe().getAccelerationRate(context);
                 canAccelerate = pipeBlock.getPipe().canAccelerate(context);
+
+                state.modelIds.add(pipeBlock.getPipe().getCoreModelId());
+                for (Direction direction : Direction.values()) {
+                    PipeBlock.ConnectionType type = entity.getConnectionType(direction);
+                    if (type == PipeBlock.ConnectionType.NONE) {
+                        continue;
+                    }
+                    state.modelIds.add(pipeBlock.getPipe().getPipeArm(context, direction));
+                    state.modelIds.addAll(pipeBlock.getPipe().getPipeDecorations(context, direction));
+                }
             }
         }
 
@@ -103,6 +121,29 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
         OrderedRenderCommandQueue queue,
         CameraRenderState cameraState
     ) {
+        if (!state.modelIds.isEmpty()) {
+            RenderLayer renderLayer = state.blockState == null
+                ? RenderLayers.cutout()
+                : BlockRenderLayers.getEntityBlockLayer(state.blockState);
+            for (Identifier modelId : state.modelIds) {
+                BlockStateModel model = PipeModelRegistry.getModel(modelId);
+                if (model == null) {
+                    continue;
+                }
+                queue.submitBlockStateModel(
+                    matrices,
+                    renderLayer,
+                    model,
+                    1.0f,
+                    1.0f,
+                    1.0f,
+                    state.lightmapCoordinates,
+                    OverlayTexture.DEFAULT_UV,
+                    0
+                );
+            }
+        }
+
         for (TravelingItemRenderState itemState : state.travelingItems) {
             matrices.push();
 
@@ -166,18 +207,4 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
     }
 
     // Render state classes
-    public static class PipeRenderState extends BlockEntityRenderState {
-        public final List<TravelingItemRenderState> travelingItems = new ArrayList<>();
-        public float tickDelta;
-    }
-
-    public static class TravelingItemRenderState {
-        public final ItemRenderState itemRenderState = new ItemRenderState();
-        public Direction direction;
-        public float progress;
-        public float currentSpeed;
-        public float targetSpeed;
-        public float accelerationRate;
-        public boolean canAccelerate;
-    }
 }

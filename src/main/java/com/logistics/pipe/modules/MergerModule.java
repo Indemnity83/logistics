@@ -1,5 +1,6 @@
 package com.logistics.pipe.modules;
 
+import com.logistics.LogisticsMod;
 import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.runtime.RoutePlan;
 import net.minecraft.item.ItemStack;
@@ -9,6 +10,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Direction;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class MergerModule implements Module {
@@ -73,14 +75,18 @@ public class MergerModule implements Module {
     }
 
     private void setOutputDirection(PipeContext ctx, @Nullable Direction direction) {
+        Direction current = getOutputDirection(ctx);
+        if (current == direction) {
+            return;
+        }
+
         if (direction == null) {
             ctx.remove(this, OUTPUT_DIRECTION);
         } else {
             ctx.saveString(this, OUTPUT_DIRECTION, direction.getId());
-            ctx.setFeatureFace(direction);
         }
 
-        ctx.blockEntity().markDirty();
+        ctx.markDirtyAndSync();
     }
 
     private Direction nextInCycle(List<Direction> ordered, @Nullable Direction current) {
@@ -93,16 +99,26 @@ public class MergerModule implements Module {
     }
 
     @Override
-    public Identifier getArmModelId(PipeContext ctx, Direction direction, boolean extended) {
-        // Override arm model with feature face model when this is the output direction
-        Direction outputDir = getOutputDirection(ctx);
-        if (outputDir != null && outputDir == direction) {
-            // Use feature face model instead of default arm model
-            String pipeName = ctx.pipe().getPipeName();
-            String suffix = extended ? "_extension" : "";
-            return Identifier.of("logistics", "block/" + pipeName + "_feature_face_" + direction.name().toLowerCase() + suffix);
+    public @Nullable Identifier getPipeArm(PipeContext ctx, Direction direction) {
+        if (!isOutputDirection(ctx, direction)) {
+            return null;
         }
-        return null; // Use default arm model for other directions
+        return Identifier.of(LogisticsMod.MOD_ID, featureBasePath(ctx, direction));
     }
 
+    @Override
+    public List<Identifier> getPipeDecorations(PipeContext ctx, Direction direction) {
+        if (!isOutputDirection(ctx, direction) || !ctx.isInventoryConnection(direction)) {
+            return List.of();
+        }
+        return List.of(Identifier.of(LogisticsMod.MOD_ID, featureBasePath(ctx, direction) + "_extension"));
+    }
+
+    private boolean isOutputDirection(PipeContext ctx, Direction direction) {
+        return getOutputDirection(ctx) == direction;
+    }
+
+    private String featureBasePath(PipeContext ctx, Direction direction) {
+        return ctx.pipe().getModelBasePath(direction) + "_feature";
+    }
 }

@@ -81,17 +81,25 @@ public interface Module {
     }
 
     /**
-     * Override the arm model for a specific direction.
-     * Modules like ExtractionModule and MergerModule use this to show their feature face
-     * model instead of the default arm model when rendering in their active direction.
+     * Override the base arm model for a specific direction.
      *
      * @param ctx the pipe context
      * @param direction the direction of the arm being rendered
-     * @param extended whether this is the extended version (for inventory connections)
-     * @return custom model identifier, or null to use the default arm model
+     * @return the arm model identifier, or null to use the default arm model
      */
     @Nullable
-    default Identifier getArmModelId(PipeContext ctx, Direction direction, boolean extended) {
+    default Identifier getPipeArm(PipeContext ctx, Direction direction) {
         return null;
+    }
+
+    /**
+     * Append decoration models for a specific direction (feature faces, overlays, extensions, etc.).
+     *
+     * @param ctx the pipe context
+     * @param direction the direction of the arm being rendered
+     * @return decoration model identifiers to render for this arm direction
+     */
+    default List<Identifier> getPipeDecorations(PipeContext ctx, Direction direction) {
+        return List.of();
     }
 }

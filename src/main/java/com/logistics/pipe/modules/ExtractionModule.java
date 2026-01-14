@@ -1,5 +1,6 @@
 package com.logistics.pipe.modules;
 
+import com.logistics.LogisticsMod;
 import com.logistics.pipe.runtime.TravelingItem;
 import com.logistics.pipe.runtime.PipeConfig;
 import com.logistics.pipe.PipeContext;
@@ -95,15 +96,18 @@ public class ExtractionModule implements Module {
     }
 
     private void setExtractionDirection(PipeContext ctx, @Nullable Direction direction) {
-        if (direction == null) {
-            ctx.remove(this, EXTRACT_FROM);
-            ctx.setFeatureFace(null);
-        } else {
-            ctx.saveString(this, EXTRACT_FROM, direction.getId());
-            ctx.setFeatureFace(direction);
+        Direction current = getExtractionDirection(ctx);
+        if (current == direction) {
+            return;
         }
 
-        ctx.blockEntity().markDirty();
+        if (direction == null) {
+            ctx.remove(this, EXTRACT_FROM);
+        } else {
+            ctx.saveString(this, EXTRACT_FROM, direction.getId());
+        }
+
+        ctx.markDirtyAndSync();
     }
 
     private Direction nextInCycle(List<Direction> ordered, @Nullable Direction current) {
@@ -144,16 +148,27 @@ public class ExtractionModule implements Module {
     }
 
     @Override
-    public Identifier getArmModelId(PipeContext ctx, Direction direction, boolean extended) {
-        // Override arm model with feature face model when this is the extraction direction
-        Direction extractDir = getExtractionDirection(ctx);
-        if (extractDir != null && extractDir == direction) {
-            // Use feature face model instead of default arm model
-            String pipeName = ctx.pipe().getPipeName();
-            String suffix = extended ? "_extension" : "";
-            return Identifier.of("logistics", "block/" + pipeName + "_feature_face_" + direction.name().toLowerCase() + suffix);
+    public @Nullable Identifier getPipeArm(PipeContext ctx, Direction direction) {
+        if (!isExtractionFace(ctx, direction)) {
+            return null;
         }
-        return null; // Use default arm model for other directions
+        return Identifier.of(LogisticsMod.MOD_ID, featureBasePath(ctx, direction));
+    }
+
+    @Override
+    public List<Identifier> getPipeDecorations(PipeContext ctx, Direction direction) {
+        if (!isExtractionFace(ctx, direction) || !ctx.isInventoryConnection(direction)) {
+            return List.of();
+        }
+        return List.of(Identifier.of(LogisticsMod.MOD_ID, featureBasePath(ctx, direction) + "_extension"));
+    }
+
+    private boolean isExtractionFace(PipeContext ctx, Direction direction) {
+        return getExtractionDirection(ctx) == direction;
+    }
+
+    private String featureBasePath(PipeContext ctx, Direction direction) {
+        return ctx.pipe().getModelBasePath(direction) + "_feature";
     }
 
 }

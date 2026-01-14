@@ -62,16 +62,16 @@ public record PipeContext(World world,
         moduleState(module.getStateKey()).put(key, value);
     }
 
-    /**
-     * @deprecated No longer needed. Modules control their rendering by overriding getArmModelId()
-     * and reading their state directly from module NBT. This method is kept for backward
-     * compatibility but does nothing.
-     */
-    @Deprecated
-    public void setFeatureFace(@Nullable Direction direction) {
-        // No-op: Modules now control rendering via getArmModelId() override
-        // Feature face rendering is determined by reading module state during rendering,
-        // not by storing a separate feature face field
+    public void markDirty() {
+        blockEntity.markDirty();
+    }
+
+    public void markDirtyAndSync() {
+        markDirty();
+
+        if (!world.isClient()) {
+            world.updateListeners(pos, state, state, 3);
+        }
     }
 
     /**
@@ -169,22 +169,23 @@ public record PipeContext(World world,
     }
 
     /**
-     * Get connected directions that lead to inventories (non-pipes with ItemStorage).
+     * Get connected directions that lead to inventories.
+     *
+     * This relies on the pipe's authoritative connection type logic (including any module filtering)
+     * and avoids duplicating ItemStorage probing here.
      */
     public List<Direction> getInventoryConnections() {
         List<Direction> faces = new java.util.ArrayList<>();
         for (Direction direction : Direction.values()) {
-            if (!hasConnection(direction)) {
-                continue;
-            }
-
-            if (!isNeighborPipe(direction)) {
-                BlockPos targetPos = pos.offset(direction);
-                if (net.fabricmc.fabric.api.transfer.v1.item.ItemStorage.SIDED.find(world, targetPos, direction.getOpposite()) != null) {
-                    faces.add(direction);
-                }
+            if (isInventoryConnection(direction)) {
+                faces.add(direction);
             }
         }
         return faces;
+    }
+
+
+    public boolean isInventoryConnection(Direction direction) {
+        return getConnectionType(direction) == PipeBlock.ConnectionType.INVENTORY;
     }
 }

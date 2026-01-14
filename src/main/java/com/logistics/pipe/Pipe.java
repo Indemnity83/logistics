@@ -1,5 +1,6 @@
 package com.logistics.pipe;
 
+import com.logistics.LogisticsMod;
 import com.logistics.pipe.modules.Module;
 import com.logistics.pipe.runtime.PipeConfig;
 import com.logistics.pipe.runtime.RoutePlan;
@@ -12,6 +13,7 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.random.Random;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public abstract class Pipe {
@@ -44,7 +46,7 @@ public abstract class Pipe {
      * Get the model identifier for the core part of this pipe.
      */
     public Identifier getCoreModelId() {
-        return Identifier.of("logistics", "block/" + getPipeName() + "_core");
+        return Identifier.of(LogisticsMod.MOD_ID, "block/" + getPipeName() + "_core");
     }
 
     /**
@@ -54,20 +56,44 @@ public abstract class Pipe {
      *
      * @param ctx the pipe context
      * @param direction the direction of the arm
-     * @param extended whether this is the extended version (for inventory connections)
      */
-    public Identifier getArmModelId(PipeContext ctx, Direction direction, boolean extended) {
-        // Ask modules if they want to override this arm's model
+    public Identifier getPipeArm(PipeContext ctx, Direction direction) {
         for (Module module : modules) {
-            Identifier override = module.getArmModelId(ctx, direction, extended);
+            Identifier override = module.getPipeArm(ctx, direction);
             if (override != null) {
                 return override;
             }
         }
 
-        // Default arm model
-        String suffix = extended ? "_extension" : "";
-        return Identifier.of("logistics", "block/" + getPipeName() + "_" + direction.name().toLowerCase() + suffix);
+        return Identifier.of(LogisticsMod.MOD_ID, getModelBasePath(direction));
+    }
+
+    /**
+     * Get decoration model identifiers for an arm in the given direction.
+     * Decorations are additive parts rendered alongside the core arm model, such as:
+     * - the default extension when the pipe is connected to an inventory on that face
+     * - module-provided overlays / feature faces / extras
+     *
+     * @param ctx the pipe context
+     * @param direction the direction of the arm
+     * @return a (possibly empty) list of decoration model identifiers
+     */
+    public List<Identifier> getPipeDecorations(PipeContext ctx, Direction direction) {
+        List<Identifier> models = new ArrayList<>();
+
+        if (ctx.isInventoryConnection(direction)) {
+            models.add(Identifier.of(LogisticsMod.MOD_ID, getModelBasePath(direction) + "_extension"));
+        }
+
+        for (Module module : modules) {
+            models.addAll(module.getPipeDecorations(ctx, direction)); // empty list => no-op
+        }
+
+        return models;
+    }
+
+    public String getModelBasePath(Direction direction) {
+        return "block/" + getPipeName() + "_" + direction.name().toLowerCase();
     }
 
     @SuppressWarnings("unchecked")
