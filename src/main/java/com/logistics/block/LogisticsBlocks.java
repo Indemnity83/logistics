@@ -19,13 +19,23 @@ import java.util.function.Function;
 public class LogisticsBlocks {
     // Transport Pipes
     public static final Block STONE_TRANSPORT_PIPE = register(
-            "stone_transport_pipe",
-            settings -> new PipeBlock(settings, PipeTypes.STONE_TRANSPORT_PIPE),
-            AbstractBlock.Settings.create()
-                    .mapColor(MapColor.GRAY)
-                    .strength(2.0f, 6.0f)
-                    .sounds(BlockSoundGroup.STONE)
-                    .nonOpaque()
+        "stone_transport_pipe",
+        settings -> new PipeBlock(settings, PipeTypes.STONE_TRANSPORT_PIPE),
+        AbstractBlock.Settings.create()
+                .mapColor(MapColor.GRAY)
+                .strength(2.0f, 6.0f)
+                .sounds(BlockSoundGroup.STONE)
+                .nonOpaque()
+    );
+
+    public static final Block ITEM_PASSTHROUGH_PIPE = register(
+        "item_passthrough_pipe",
+        settings -> new PipeBlock(settings, PipeTypes.ITEM_PASSTHROUGH_PIPE),
+        AbstractBlock.Settings.create()
+                .mapColor(MapColor.PALE_YELLOW)
+                .strength(2.0f, 6.0f)
+                .sounds(BlockSoundGroup.GLASS)
+                .nonOpaque()
     );
 
     public static final Block COPPER_TRANSPORT_PIPE = register(
@@ -126,6 +136,7 @@ public class LogisticsBlocks {
 
         // Set back-references so pipes can derive their model identifiers from the block registry name
         PipeTypes.STONE_TRANSPORT_PIPE.setPipeBlock((PipeBlock) STONE_TRANSPORT_PIPE);
+        PipeTypes.ITEM_PASSTHROUGH_PIPE.setPipeBlock((PipeBlock) ITEM_PASSTHROUGH_PIPE);
         PipeTypes.COPPER_TRANSPORT_PIPE.setPipeBlock((PipeBlock) COPPER_TRANSPORT_PIPE);
         PipeTypes.ITEM_EXTRACTOR.setPipeBlock((PipeBlock) ITEM_EXTRACTOR_PIPE);
         PipeTypes.ITEM_MERGER.setPipeBlock((PipeBlock) ITEM_MERGER_PIPE);

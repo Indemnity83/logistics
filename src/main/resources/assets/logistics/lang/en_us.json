@@ -6,6 +6,7 @@
   "block.logistics.item_filter_pipe": "Item Filter Pipe",
   "block.logistics.copper_transport_pipe": "Copper Transport Pipe",
   "block.logistics.stone_transport_pipe": "Stone Transport Pipe",
+  "block.logistics.item_passthrough_pipe": "Item Passthrough Pipe",
   "block.logistics.item_sensor_pipe": "Item Sensor Pipe",
   "block.logistics.item_void_pipe": "Item Void Pipe",
   "itemgroup.logistics.transport": "Logistics: Transport",
