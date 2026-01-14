@@ -8,7 +8,7 @@
     "G": "minecraft:glass"
   },
   "result": {
-    "id": "logistics:sandstone_glass_pipe",
+    "id": "logistics:item_passthrough_pipe",
     "count": 8
   }
 }
