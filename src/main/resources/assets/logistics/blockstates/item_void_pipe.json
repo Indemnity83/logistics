@@ -1,12 +1,5 @@
 {
-  "multipart": [
-    { "apply": { "model": "logistics:block/item_void_pipe_core" }},
-
-    { "when": { "north": "pipe"  }, "apply": { "model": "logistics:block/item_void_pipe_north" }},
-    { "when": { "south": "pipe"  }, "apply": { "model": "logistics:block/item_void_pipe_south" }},
-    { "when": { "east":  "pipe"  }, "apply": { "model": "logistics:block/item_void_pipe_east"  }},
-    { "when": { "west":  "pipe"  }, "apply": { "model": "logistics:block/item_void_pipe_west"  }},
-    { "when": { "up":    "pipe"  }, "apply": { "model": "logistics:block/item_void_pipe_up"    }},
-    { "when": { "down":  "pipe"  }, "apply": { "model": "logistics:block/item_void_pipe_down"  }}
-  ]
+  "variants": {
+    "": { "model": "logistics:block/item_void_pipe_core" }
+  }
 }
