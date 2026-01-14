@@ -26,7 +26,7 @@ public class LogisticsModClient implements ClientModInitializer {
 		BlockRenderLayerMap.putBlock(LogisticsBlocks.ITEM_MERGER_PIPE, BlockRenderLayer.CUTOUT);
 		BlockRenderLayerMap.putBlock(LogisticsBlocks.GOLD_TRANSPORT_PIPE, BlockRenderLayer.CUTOUT);
 		BlockRenderLayerMap.putBlock(LogisticsBlocks.ITEM_FILTER_PIPE, BlockRenderLayer.CUTOUT);
-		BlockRenderLayerMap.putBlock(LogisticsBlocks.ITEM_SENSOR_PIPE, BlockRenderLayer.CUTOUT);
+		BlockRenderLayerMap.putBlock(LogisticsBlocks.ITEM_INSERTION_PIPE, BlockRenderLayer.CUTOUT);
 		BlockRenderLayerMap.putBlock(LogisticsBlocks.ITEM_VOID_PIPE, BlockRenderLayer.CUTOUT);
 
 		// Register block entity renderer for traveling items

@@ -1,10 +1,10 @@
 {
   "generated_by": "scripts/generate_bbmodel_models.py",
-  "source": "assets/models/item_sensor_pipe.bbmodel",
+  "source": "assets/models/item_insertion_pipe.bbmodel",
   "parent": "block/block",
   "textures": {
-    "texture": "logistics:block/item_sensor_pipe",
-    "particle": "logistics:block/item_sensor_pipe"
+    "texture": "logistics:block/item_insertion_pipe",
+    "particle": "logistics:block/item_insertion_pipe"
   },
   "elements": [
     {

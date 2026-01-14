@@ -22,6 +22,8 @@ public class LogisticsBlockEntities {
             LogisticsBlocks.ITEM_SENSOR_PIPE,
             LogisticsBlocks.ITEM_VOID_PIPE,
             LogisticsBlocks.ITEM_PASSTHROUGH_PIPE
+            LogisticsBlocks.ITEM_INSERTION_PIPE,
+            LogisticsBlocks.ITEM_VOID_PIPE
         ).build()
     );
 

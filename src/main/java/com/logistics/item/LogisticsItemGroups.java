@@ -26,7 +26,7 @@ public class LogisticsItemGroups {
                 entries.add(LogisticsBlocks.ITEM_MERGER_PIPE);
                 entries.add(LogisticsBlocks.GOLD_TRANSPORT_PIPE);
                 entries.add(LogisticsBlocks.ITEM_FILTER_PIPE);
-                entries.add(LogisticsBlocks.ITEM_SENSOR_PIPE);
+                entries.add(LogisticsBlocks.ITEM_INSERTION_PIPE);
                 entries.add(LogisticsBlocks.ITEM_VOID_PIPE);
             })
             .build()

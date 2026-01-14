@@ -52,7 +52,7 @@ Tier 1 pipes provide connectivity and basic flow shaping with mechanical operati
 - Simple recipes: Material + glass (+ optional component)
 - Early-to-mid game materials
 
-## Transport Behavior (Stone) 🔮 Planned
+## Transport Behavior (Stone) ✅ v0.1.0
 
 **Purpose:** Cheap entry-level backbone connectivity with slower transport.
 
@@ -198,22 +198,24 @@ Tier 2 pipes make decisions based on item type, count, or conditional logic. The
 - **Visual**: Diamond/cyan appearance
 - **Recipe**: Diamond + glass + [additional component TBD] → 8 pipes
 
-## Sensor Behavior ✅ v0.1.0
+## Insertion Behavior ✅ v0.1.1
 
-**Purpose:** Flow monitoring—emits redstone signal based on pipe contents.
+**Purpose:** Prefer inventories with available space; otherwise continue through pipes.
 
 **Material:** Quartz
 
-**Implementation note:** Currently implemented as "Comparator Pipe" (to be visually updated to quartz appearance).
+**Implementation note:** Implemented as "Item Insertion Pipe".
 
 - **Tier**: 2 (Active Control)
 - **Expose ItemStorage**: Pipes only
 - **Accept from pipe**: Yes
 - **Route into inventories**: Yes
-- **Routing**: Random (inherits Transport behavior)
-- **Signal**: Comparator output scaled to virtual capacity of 5 stacks (5 × 64)
+- **Routing**:
+  - If any connected inventories can accept the item, choose among those
+  - Otherwise, route to connected pipes
+  - If no valid directions, drop the item
 - **Visual**: Quartz/white appearance
-- **Recipe**: Quartz + glass + redstone → 8 pipes
+- **Recipe**: Quartz + glass → 8 pipes
 
 ---
 

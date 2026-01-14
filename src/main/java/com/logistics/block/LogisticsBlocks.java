@@ -88,9 +88,9 @@ public class LogisticsBlocks {
             .nonOpaque()
     );
 
-    public static final Block ITEM_SENSOR_PIPE = register(
-        "item_sensor_pipe",
-        settings -> new PipeBlock(settings, PipeTypes.ITEM_SENSOR),
+    public static final Block ITEM_INSERTION_PIPE = register(
+        "item_insertion_pipe",
+        settings -> new PipeBlock(settings, PipeTypes.ITEM_INSERTION),
         AbstractBlock.Settings.create()
             .mapColor(MapColor.OFF_WHITE)
             .strength(2.0f, 6.0f)
@@ -142,7 +142,7 @@ public class LogisticsBlocks {
         PipeTypes.ITEM_MERGER.setPipeBlock((PipeBlock) ITEM_MERGER_PIPE);
         PipeTypes.GOLD_TRANSPORT.setPipeBlock((PipeBlock) GOLD_TRANSPORT_PIPE);
         PipeTypes.ITEM_FILTER.setPipeBlock((PipeBlock) ITEM_FILTER_PIPE);
-        PipeTypes.ITEM_SENSOR.setPipeBlock((PipeBlock) ITEM_SENSOR_PIPE);
+        PipeTypes.ITEM_INSERTION.setPipeBlock((PipeBlock) ITEM_INSERTION_PIPE);
         PipeTypes.ITEM_VOID.setPipeBlock((PipeBlock) ITEM_VOID_PIPE);
     }
 }

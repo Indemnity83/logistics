@@ -28,7 +28,7 @@ Pipes that make decisions based on item type, count, or conditional logic.
 
 **Examples:**
 - Filter pipes (item-aware routing - diamond)
-- Sensor pipes (monitoring and conditional signals - quartz)
+- Insertion pipes (prefer inventories with space - quartz)
 
 **Characteristics:**
 - Assert decisions based on item type or conditional logic
@@ -83,7 +83,7 @@ Recipe pattern: `Material + Glass (+ Optional Component) → 8 pipes`
 ### Tier 2: Advanced Materials + Components
 Decision-making pipes require rare materials and additional components:
 - **Diamond**: Precision filtering (with advanced components)
-- **Quartz**: Monitoring/redstone integration
+- **Quartz**: Inventory insertion control
 
 ### Tier 3: End-Game Materials
 Network logistics requires end-game resources:
@@ -100,7 +100,7 @@ Network logistics requires end-game resources:
 - Insertion into adjacent inventories at pipe exits
 - Local routing with multiple behaviors:
   - **Tier 1 behaviors**: Transport (random routing), Merger (convergence), Acceleration (speed boost when powered), Extractor (mechanical extraction from inventories)
-  - **Tier 2 behaviors**: Filter (item-aware routing), Sensor (count-aware redstone output)
+  - **Tier 2 behaviors**: Filter (item-aware routing), Insertion (prefers inventories with space)
 - Wrench tool for pipe configuration
 
 ### Phase 2: Network Logistics (Tier 3 Transition)
@@ -199,7 +199,7 @@ The first module to return something other than PASS wins. If the winning plan i
 
 **Tier 2 (Active Control):**
 - Filter: Item-aware routing based on per-side filters (diamond material)
-- Sensor: Count-aware redstone signal based on item count (quartz material)
+- Insertion: Prefers inventories with space, otherwise routes to pipes (quartz material)
 
 **Implementation Modules:**
 
@@ -211,8 +211,8 @@ The first module to return something other than PASS wins. If the winning plan i
 - PipeOnlyModule: Restricts ingress to pipe-to-pipe only
 
 *Tier 2 (Decision-making):*
-- SmartSplitterModule: Implements filter behavior (item-aware)
-- ComparatorModule: Implements sensor behavior (count-aware)
+- ItemFilterModule: Implements filter behavior (item-aware)
+- InsertionModule: Implements insertion behavior (inventory-space aware)
 
 ### Phase 2+ (Future - Tier 3)
 **Planned Systems:**
