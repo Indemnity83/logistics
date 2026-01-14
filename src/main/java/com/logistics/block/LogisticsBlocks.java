@@ -5,6 +5,7 @@ import com.logistics.pipe.PipeTypes;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.MapColor;
+import net.minecraft.block.BlockState;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.registry.RegistryKey;
@@ -13,6 +14,10 @@ import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.sound.BlockSoundGroup;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.math.random.Random;
 
 import java.util.function.Function;
 
@@ -88,9 +93,9 @@ public class LogisticsBlocks {
             .nonOpaque()
     );
 
-    public static final Block ITEM_SENSOR_PIPE = register(
-        "item_sensor_pipe",
-        settings -> new PipeBlock(settings, PipeTypes.ITEM_SENSOR),
+    public static final Block ITEM_INSERTION_PIPE = register(
+        "item_insertion_pipe",
+        settings -> new PipeBlock(settings, PipeTypes.ITEM_INSERTION),
         AbstractBlock.Settings.create()
             .mapColor(MapColor.OFF_WHITE)
             .strength(2.0f, 6.0f)
@@ -142,7 +147,12 @@ public class LogisticsBlocks {
         PipeTypes.ITEM_MERGER.setPipeBlock((PipeBlock) ITEM_MERGER_PIPE);
         PipeTypes.GOLD_TRANSPORT.setPipeBlock((PipeBlock) GOLD_TRANSPORT_PIPE);
         PipeTypes.ITEM_FILTER.setPipeBlock((PipeBlock) ITEM_FILTER_PIPE);
-        PipeTypes.ITEM_SENSOR.setPipeBlock((PipeBlock) ITEM_SENSOR_PIPE);
+        PipeTypes.ITEM_INSERTION.setPipeBlock((PipeBlock) ITEM_INSERTION_PIPE);
         PipeTypes.ITEM_VOID.setPipeBlock((PipeBlock) ITEM_VOID_PIPE);
+
+        Registries.BLOCK.addAlias(
+            Identifier.of(LogisticsMod.MOD_ID, "item_sensor_pipe"),
+            Registries.BLOCK.getId(COPPER_TRANSPORT_PIPE)
+        );
     }
 }

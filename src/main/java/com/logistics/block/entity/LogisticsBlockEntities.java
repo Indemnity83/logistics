@@ -19,9 +19,10 @@ public class LogisticsBlockEntities {
             LogisticsBlocks.GOLD_TRANSPORT_PIPE,
             LogisticsBlocks.ITEM_FILTER_PIPE,
             LogisticsBlocks.COPPER_TRANSPORT_PIPE,
-            LogisticsBlocks.ITEM_SENSOR_PIPE,
             LogisticsBlocks.ITEM_VOID_PIPE,
-            LogisticsBlocks.ITEM_PASSTHROUGH_PIPE
+            LogisticsBlocks.ITEM_PASSTHROUGH_PIPE,
+            LogisticsBlocks.ITEM_INSERTION_PIPE,
+            LogisticsBlocks.ITEM_VOID_PIPE
         ).build()
     );
 

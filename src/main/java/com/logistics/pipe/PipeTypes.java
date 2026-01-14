@@ -61,9 +61,9 @@ public final class PipeTypes {
     // Special
     // -----------------
 
-    // Item sensor - provides redstone comparator output based on item count.
-    public static final Pipe ITEM_SENSOR = new Pipe(
-        new ComparatorModule()
+    // Item insertion - prefers inventories with space, otherwise routes to pipes.
+    public static final Pipe ITEM_INSERTION = new Pipe(
+        new InsertionModule()
     ) {};
 
     private PipeTypes() {}

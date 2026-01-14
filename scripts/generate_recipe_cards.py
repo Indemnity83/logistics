@@ -47,7 +47,7 @@ ITEM_INFO = {
     "logistics:item_extractor_pipe": "Pulls items from the selected side.",
     "logistics:item_void_pipe": "Safely deletes anything that enters.",
     "logistics:item_filter_pipe": "Sorts items using per-side filters.",
-    "logistics:item_sensor_pipe": "Sends a redstone signal based on contents.",
+    "logistics:item_insertion_pipe": "Prefers inserting into inventories with space.",
     "logistics:wrench": "Adjusts pipes and cycles settings.",
 }
 

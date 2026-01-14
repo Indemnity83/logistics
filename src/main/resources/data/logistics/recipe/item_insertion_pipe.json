@@ -8,7 +8,7 @@
     "G": "minecraft:glass"
   },
   "result": {
-    "id": "logistics:item_sensor_pipe",
+    "id": "logistics:item_insertion_pipe",
     "count": 8
   }
 }
