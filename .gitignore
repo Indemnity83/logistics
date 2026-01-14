@@ -34,4 +34,7 @@ Thumbs.db
 *.log
 *.swp
 *.bak
+
+# Scripts
 scripts/venv/
+scripts/fonts/
