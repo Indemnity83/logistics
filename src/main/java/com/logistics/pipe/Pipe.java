@@ -74,6 +74,11 @@ public abstract class Pipe {
      * - the default extension when the pipe is connected to an inventory on that face
      * - module-provided overlays / feature faces / extras
      *
+     * TODO: Extensions are currently treated as decorations.
+     *  This can result in both a default extension and a module-provided
+     *  extension being rendered. This is intentional for now.
+     *  Long-term, extension should be handled by the arm model itself.
+     *
      * @param ctx the pipe context
      * @param direction the direction of the arm
      * @return a (possibly empty) list of decoration model identifiers
