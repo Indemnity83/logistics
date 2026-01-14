@@ -1,6 +1,7 @@
 package com.logistics.item;
 
 import com.logistics.LogisticsMod;
+import com.logistics.block.LogisticsBlocks;
 import net.minecraft.item.Item;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
@@ -20,5 +21,10 @@ public class LogisticsItems {
 
     public static void initialize() {
         LogisticsMod.LOGGER.info("Registering items");
+
+        Registries.ITEM.addAlias(
+            Identifier.of(LogisticsMod.MOD_ID, "item_sensor_pipe"),
+            Registries.BLOCK.getId(LogisticsBlocks.COPPER_TRANSPORT_PIPE)
+        );
     }
 }
