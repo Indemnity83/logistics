@@ -1,5 +1,6 @@
 package com.logistics.pipe.modules;
 
+import com.logistics.LogisticsMod;
 import com.logistics.pipe.runtime.TravelingItem;
 import com.logistics.pipe.runtime.PipeConfig;
 import com.logistics.pipe.PipeContext;
@@ -11,6 +12,7 @@ import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUsageContext;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import org.jetbrains.annotations.Nullable;
@@ -94,15 +96,18 @@ public class ExtractionModule implements Module {
     }
 
     private void setExtractionDirection(PipeContext ctx, @Nullable Direction direction) {
-        if (direction == null) {
-            ctx.remove(this, EXTRACT_FROM);
-            ctx.setFeatureFace(null);
-        } else {
-            ctx.saveString(this, EXTRACT_FROM, direction.getId());
-            ctx.setFeatureFace(direction);
+        Direction current = getExtractionDirection(ctx);
+        if (current == direction) {
+            return;
         }
 
-        ctx.blockEntity().markDirty();
+        if (direction == null) {
+            ctx.remove(this, EXTRACT_FROM);
+        } else {
+            ctx.saveString(this, EXTRACT_FROM, direction.getId());
+        }
+
+        ctx.markDirtyAndSync();
     }
 
     private Direction nextInCycle(List<Direction> ordered, @Nullable Direction current) {
@@ -140,6 +145,30 @@ public class ExtractionModule implements Module {
         }
 
         return false;
+    }
+
+    @Override
+    public @Nullable Identifier getPipeArm(PipeContext ctx, Direction direction) {
+        if (!isExtractionFace(ctx, direction)) {
+            return null;
+        }
+        return Identifier.of(LogisticsMod.MOD_ID, featureBasePath(ctx, direction));
+    }
+
+    @Override
+    public List<Identifier> getPipeDecorations(PipeContext ctx, Direction direction) {
+        if (!isExtractionFace(ctx, direction) || !ctx.isInventoryConnection(direction)) {
+            return List.of();
+        }
+        return List.of(Identifier.of(LogisticsMod.MOD_ID, featureBasePath(ctx, direction) + "_extension"));
+    }
+
+    private boolean isExtractionFace(PipeContext ctx, Direction direction) {
+        return getExtractionDirection(ctx) == direction;
+    }
+
+    private String featureBasePath(PipeContext ctx, Direction direction) {
+        return ctx.pipe().getModelBasePath(direction) + "_feature";
     }
 
 }

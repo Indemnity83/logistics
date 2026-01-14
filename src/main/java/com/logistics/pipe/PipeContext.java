@@ -16,6 +16,19 @@ public record PipeContext(World world,
                           BlockPos pos,
                           BlockState state,
                           PipeBlockEntity blockEntity) {
+
+    /**
+     * Get the Pipe instance for this pipe block.
+     * @return the Pipe, or null if the block is not a PipeBlock or has no pipe
+     */
+    @Nullable
+    public Pipe pipe() {
+        if (state.getBlock() instanceof PipeBlock pipeBlock) {
+            return pipeBlock.getPipe();
+        }
+        return null;
+    }
+
     public NbtCompound moduleState(String key) {
         return blockEntity.getOrCreateModuleState(key);
     }
@@ -49,20 +62,15 @@ public record PipeContext(World world,
         moduleState(module.getStateKey()).put(key, value);
     }
 
-    /**
-     * Update the FEATURE_FACE blockstate property to visually indicate a direction.
-     * This is used by modules like MergerModule and ExtractionModule to show their active face.
-     *
-     * @param direction The direction to set, or null to clear
-     */
-    public void setFeatureFace(@Nullable Direction direction) {
-        if (world.isClient()) {
-            return;
-        }
+    public void markDirty() {
+        blockEntity.markDirty();
+    }
 
-        PipeBlock.FeatureFace featureFace = PipeBlock.toFeatureFace(direction);
-        if (state.contains(PipeBlock.FEATURE_FACE) && state.get(PipeBlock.FEATURE_FACE) != featureFace) {
-            world.setBlockState(pos, state.with(PipeBlock.FEATURE_FACE, featureFace), 3);
+    public void markDirtyAndSync() {
+        markDirty();
+
+        if (!world.isClient()) {
+            world.updateListeners(pos, state, state, 3);
         }
     }
 
@@ -106,8 +114,13 @@ public record PipeContext(World world,
      */
     public List<Direction> getConnectedDirections() {
         List<Direction> connected = new java.util.ArrayList<>();
+        if (!(state.getBlock() instanceof PipeBlock pipeBlock)) {
+            return connected;
+        }
+
         for (Direction direction : Direction.values()) {
-            if (state.get(PipeBlock.getPropertyForDirection(direction)) != PipeBlock.ConnectionType.NONE) {
+            PipeBlock.ConnectionType type = pipeBlock.getConnectionType(world, pos, direction);
+            if (type != PipeBlock.ConnectionType.NONE) {
                 connected.add(direction);
             }
         }
@@ -122,7 +135,24 @@ public record PipeContext(World world,
      * @return true if there is a connection in that direction
      */
     public boolean hasConnection(Direction direction) {
-        return state.get(PipeBlock.getPropertyForDirection(direction)) != PipeBlock.ConnectionType.NONE;
+        if (!(state.getBlock() instanceof PipeBlock pipeBlock)) {
+            return false;
+        }
+        PipeBlock.ConnectionType type = pipeBlock.getConnectionType(world, pos, direction);
+        return type != PipeBlock.ConnectionType.NONE;
+    }
+
+    /**
+     * Get the connection type for a specific direction.
+     *
+     * @param direction The direction to check
+     * @return The connection type (NONE, PIPE, or INVENTORY)
+     */
+    public PipeBlock.ConnectionType getConnectionType(Direction direction) {
+        if (!(state.getBlock() instanceof PipeBlock pipeBlock)) {
+            return PipeBlock.ConnectionType.NONE;
+        }
+        return pipeBlock.getConnectionType(world, pos, direction);
     }
 
     /**
@@ -139,22 +169,23 @@ public record PipeContext(World world,
     }
 
     /**
-     * Get connected directions that lead to inventories (non-pipes with ItemStorage).
+     * Get connected directions that lead to inventories.
+     *
+     * This relies on the pipe's authoritative connection type logic (including any module filtering)
+     * and avoids duplicating ItemStorage probing here.
      */
     public List<Direction> getInventoryConnections() {
         List<Direction> faces = new java.util.ArrayList<>();
         for (Direction direction : Direction.values()) {
-            if (!hasConnection(direction)) {
-                continue;
-            }
-
-            if (!isNeighborPipe(direction)) {
-                BlockPos targetPos = pos.offset(direction);
-                if (net.fabricmc.fabric.api.transfer.v1.item.ItemStorage.SIDED.find(world, targetPos, direction.getOpposite()) != null) {
-                    faces.add(direction);
-                }
+            if (isInventoryConnection(direction)) {
+                faces.add(direction);
             }
         }
         return faces;
+    }
+
+
+    public boolean isInventoryConnection(Direction direction) {
+        return getConnectionType(direction) == PipeBlock.ConnectionType.INVENTORY;
     }
 }

@@ -3,6 +3,7 @@ package com.logistics;
 import com.logistics.block.LogisticsBlocks;
 import com.logistics.block.entity.LogisticsBlockEntities;
 import com.logistics.client.render.PipeBlockEntityRenderer;
+import com.logistics.client.render.PipeModelRegistry;
 import com.logistics.client.screen.ItemFilterScreen;
 import com.logistics.pipe.ui.PipeScreenHandlers;
 import net.fabricmc.api.ClientModInitializer;
@@ -15,6 +16,8 @@ public class LogisticsModClient implements ClientModInitializer {
 	@Override
 	public void onInitializeClient() {
 		LogisticsMod.LOGGER.info("Initializing Logistics client");
+
+		PipeModelRegistry.register();
 
 		// Register pipe blocks to render with transparency
 		BlockRenderLayerMap.putBlock(LogisticsBlocks.STONE_TRANSPORT_PIPE, BlockRenderLayer.CUTOUT);

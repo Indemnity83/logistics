@@ -1,22 +1,104 @@
 package com.logistics.pipe;
 
+import com.logistics.LogisticsMod;
 import com.logistics.pipe.modules.Module;
 import com.logistics.pipe.runtime.PipeConfig;
 import com.logistics.pipe.runtime.RoutePlan;
 import com.logistics.pipe.runtime.TravelingItem;
 import com.logistics.block.PipeBlock;
 import net.minecraft.block.Block;
+import net.minecraft.registry.Registries;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.random.Random;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public abstract class Pipe {
     private final List<Module> modules;
+    private PipeBlock pipeBlock;
 
     protected Pipe(Module... modules) {
         this.modules = List.of(modules);
+    }
+
+    /**
+     * Called by PipeBlock during registration to establish back-reference.
+     * This allows the Pipe to derive model identifiers from the block's registry name.
+     */
+    public void setPipeBlock(PipeBlock block) {
+        this.pipeBlock = block;
+    }
+
+    /**
+     * Get the registry name of this pipe (e.g., "copper_transport_pipe").
+     */
+    public String getPipeName() {
+        if (pipeBlock == null) {
+            throw new IllegalStateException("Pipe has not been registered yet");
+        }
+        return Registries.BLOCK.getId(pipeBlock).getPath();
+    }
+
+    /**
+     * Get the model identifier for the core part of this pipe.
+     */
+    public Identifier getCoreModelId() {
+        return Identifier.of(LogisticsMod.MOD_ID, "block/" + getPipeName() + "_core");
+    }
+
+    /**
+     * Get the model identifier for an arm part in the given direction.
+     * Delegates to modules first to allow them to override with custom models (like feature faces).
+     * Falls back to the default arm model if no module provides an override.
+     *
+     * @param ctx the pipe context
+     * @param direction the direction of the arm
+     */
+    public Identifier getPipeArm(PipeContext ctx, Direction direction) {
+        for (Module module : modules) {
+            Identifier override = module.getPipeArm(ctx, direction);
+            if (override != null) {
+                return override;
+            }
+        }
+
+        return Identifier.of(LogisticsMod.MOD_ID, getModelBasePath(direction));
+    }
+
+    /**
+     * Get decoration model identifiers for an arm in the given direction.
+     * Decorations are additive parts rendered alongside the core arm model, such as:
+     * - the default extension when the pipe is connected to an inventory on that face
+     * - module-provided overlays / feature faces / extras
+     *
+     * TODO: Extensions are currently treated as decorations.
+     *  This can result in both a default extension and a module-provided
+     *  extension being rendered. This is intentional for now.
+     *  Long-term, extension should be handled by the arm model itself.
+     *
+     * @param ctx the pipe context
+     * @param direction the direction of the arm
+     * @return a (possibly empty) list of decoration model identifiers
+     */
+    public List<Identifier> getPipeDecorations(PipeContext ctx, Direction direction) {
+        List<Identifier> models = new ArrayList<>();
+
+        if (ctx.isInventoryConnection(direction)) {
+            models.add(Identifier.of(LogisticsMod.MOD_ID, getModelBasePath(direction) + "_extension"));
+        }
+
+        for (Module module : modules) {
+            models.addAll(module.getPipeDecorations(ctx, direction)); // empty list => no-op
+        }
+
+        return models;
+    }
+
+    public String getModelBasePath(Direction direction) {
+        return "block/" + getPipeName() + "_" + direction.name().toLowerCase();
     }
 
     @SuppressWarnings("unchecked")

@@ -123,5 +123,15 @@ public class LogisticsBlocks {
 
     public static void initialize() {
         LogisticsMod.LOGGER.info("Registering blocks");
+
+        // Set back-references so pipes can derive their model identifiers from the block registry name
+        PipeTypes.STONE_TRANSPORT_PIPE.setPipeBlock((PipeBlock) STONE_TRANSPORT_PIPE);
+        PipeTypes.COPPER_TRANSPORT_PIPE.setPipeBlock((PipeBlock) COPPER_TRANSPORT_PIPE);
+        PipeTypes.ITEM_EXTRACTOR.setPipeBlock((PipeBlock) ITEM_EXTRACTOR_PIPE);
+        PipeTypes.ITEM_MERGER.setPipeBlock((PipeBlock) ITEM_MERGER_PIPE);
+        PipeTypes.GOLD_TRANSPORT.setPipeBlock((PipeBlock) GOLD_TRANSPORT_PIPE);
+        PipeTypes.ITEM_FILTER.setPipeBlock((PipeBlock) ITEM_FILTER_PIPE);
+        PipeTypes.ITEM_SENSOR.setPipeBlock((PipeBlock) ITEM_SENSOR_PIPE);
+        PipeTypes.ITEM_VOID.setPipeBlock((PipeBlock) ITEM_VOID_PIPE);
     }
 }

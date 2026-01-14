@@ -36,13 +36,6 @@ import org.jetbrains.annotations.Nullable;
 public class PipeBlock extends BlockWithEntity implements Waterloggable {
     public static final MapCodec<PipeBlock> CODEC = createCodec(PipeBlock::new);
 
-    public static final EnumProperty<ConnectionType> NORTH = EnumProperty.of("north", ConnectionType.class);
-    public static final EnumProperty<ConnectionType> SOUTH = EnumProperty.of("south", ConnectionType.class);
-    public static final EnumProperty<ConnectionType> EAST = EnumProperty.of("east", ConnectionType.class);
-    public static final EnumProperty<ConnectionType> WEST = EnumProperty.of("west", ConnectionType.class);
-    public static final EnumProperty<ConnectionType> UP = EnumProperty.of("up", ConnectionType.class);
-    public static final EnumProperty<ConnectionType> DOWN = EnumProperty.of("down", ConnectionType.class);
-    public static final EnumProperty<FeatureFace> FEATURE_FACE = EnumProperty.of("feature_face", FeatureFace.class);
     public static final BooleanProperty POWERED = Properties.POWERED;
     public static final BooleanProperty WATERLOGGED = Properties.WATERLOGGED;
 
@@ -89,13 +82,6 @@ public class PipeBlock extends BlockWithEntity implements Waterloggable {
         super(settings);
         this.pipe = pipe;
         setDefaultState(getDefaultState()
-            .with(NORTH, ConnectionType.NONE)
-            .with(SOUTH, ConnectionType.NONE)
-            .with(EAST, ConnectionType.NONE)
-            .with(WEST, ConnectionType.NONE)
-            .with(UP, ConnectionType.NONE)
-            .with(DOWN, ConnectionType.NONE)
-            .with(FEATURE_FACE, FeatureFace.NONE)
             .with(POWERED, false)
             .with(WATERLOGGED, false)
         );
@@ -112,12 +98,12 @@ public class PipeBlock extends BlockWithEntity implements Waterloggable {
 
     @Override
     protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-        builder.add(NORTH, SOUTH, EAST, WEST, UP, DOWN, FEATURE_FACE, POWERED, WATERLOGGED);
+        builder.add(POWERED, WATERLOGGED);
     }
 
     @Override
     public BlockRenderType getRenderType(BlockState state) {
-        return BlockRenderType.MODEL;
+        return BlockRenderType.INVISIBLE;
     }
 
     public ActionResult onWrenchUse(ItemUsageContext context) {
@@ -144,21 +130,6 @@ public class PipeBlock extends BlockWithEntity implements Waterloggable {
         return ActionResult.SUCCESS;
     }
 
-    public static FeatureFace toFeatureFace(@Nullable Direction direction) {
-        if (direction == null) {
-            return FeatureFace.NONE;
-        }
-
-        return switch (direction) {
-            case NORTH -> FeatureFace.NORTH;
-            case SOUTH -> FeatureFace.SOUTH;
-            case EAST -> FeatureFace.EAST;
-            case WEST -> FeatureFace.WEST;
-            case UP -> FeatureFace.UP;
-            case DOWN -> FeatureFace.DOWN;
-        };
-    }
-
     @Override
     public boolean hasComparatorOutput(BlockState state) {
         return pipe != null && pipe.hasComparatorOutput();
@@ -175,27 +146,6 @@ public class PipeBlock extends BlockWithEntity implements Waterloggable {
         }
 
         return 0;
-    }
-
-    public enum FeatureFace implements net.minecraft.util.StringIdentifiable {
-        NONE("none"),
-        NORTH("north"),
-        SOUTH("south"),
-        EAST("east"),
-        WEST("west"),
-        UP("up"),
-        DOWN("down");
-
-        private final String name;
-
-        FeatureFace(String name) {
-            this.name = name;
-        }
-
-        @Override
-        public String asString() {
-            return name;
-        }
     }
 
     @Nullable
@@ -215,22 +165,22 @@ public class PipeBlock extends BlockWithEntity implements Waterloggable {
     public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
         VoxelShape shape = CORE_SHAPE;
 
-        if (state.get(NORTH) != ConnectionType.NONE) {
+        if (getConnectionType(world, pos, Direction.NORTH) != ConnectionType.NONE) {
             shape = VoxelShapes.union(shape, NORTH_SHAPE);
         }
-        if (state.get(SOUTH) != ConnectionType.NONE) {
+        if (getConnectionType(world, pos, Direction.SOUTH) != ConnectionType.NONE) {
             shape = VoxelShapes.union(shape, SOUTH_SHAPE);
         }
-        if (state.get(EAST) != ConnectionType.NONE) {
+        if (getConnectionType(world, pos, Direction.EAST) != ConnectionType.NONE) {
             shape = VoxelShapes.union(shape, EAST_SHAPE);
         }
-        if (state.get(WEST) != ConnectionType.NONE) {
+        if (getConnectionType(world, pos, Direction.WEST) != ConnectionType.NONE) {
             shape = VoxelShapes.union(shape, WEST_SHAPE);
         }
-        if (state.get(UP) != ConnectionType.NONE) {
+        if (getConnectionType(world, pos, Direction.UP) != ConnectionType.NONE) {
             shape = VoxelShapes.union(shape, UP_SHAPE);
         }
-        if (state.get(DOWN) != ConnectionType.NONE) {
+        if (getConnectionType(world, pos, Direction.DOWN) != ConnectionType.NONE) {
             shape = VoxelShapes.union(shape, DOWN_SHAPE);
         }
 
@@ -244,17 +194,9 @@ public class PipeBlock extends BlockWithEntity implements Waterloggable {
         BlockPos pos = ctx.getBlockPos();
         FluidState fluidState = world.getFluidState(pos);
 
-        BlockState state = getDefaultState()
-            .with(NORTH, canConnectTo(world, pos, Direction.NORTH))
-            .with(SOUTH, canConnectTo(world, pos, Direction.SOUTH))
-            .with(EAST, canConnectTo(world, pos, Direction.EAST))
-            .with(WEST, canConnectTo(world, pos, Direction.WEST))
-            .with(UP, canConnectTo(world, pos, Direction.UP))
-            .with(DOWN, canConnectTo(world, pos, Direction.DOWN))
+        return getDefaultState()
             .with(POWERED, ctx.getWorld().isReceivingRedstonePower(pos))
             .with(WATERLOGGED, fluidState.getFluid() == Fluids.WATER);
-
-        return state;
     }
 
     @Override
@@ -262,11 +204,6 @@ public class PipeBlock extends BlockWithEntity implements Waterloggable {
                                                    Direction direction, BlockPos neighborPos, BlockState neighborState, Random random) {
         if (state.get(WATERLOGGED)) {
             tickView.scheduleFluidTick(pos, Fluids.WATER, Fluids.WATER.getTickRate(world));
-        }
-
-        EnumProperty<ConnectionType> property = getPropertyForDirection(direction);
-        if (property != null) {
-            state = state.with(property, canConnectTo(world, pos, direction));
         }
 
         return state;
@@ -299,7 +236,18 @@ public class PipeBlock extends BlockWithEntity implements Waterloggable {
         }
     }
 
-    private ConnectionType canConnectTo(BlockView world, BlockPos pos, Direction direction) {
+    public ConnectionType getConnectionType(BlockView world, BlockPos pos, Direction direction) {
+        // On client side, use cached values from block entity for rendering performance
+        if (world instanceof World actualWorld && actualWorld.isClient()) {
+            PipeBlockEntity pipeEntity = actualWorld.getBlockEntity(pos) instanceof PipeBlockEntity blockEntity
+                ? blockEntity
+                : null;
+            if (pipeEntity != null) {
+                return pipeEntity.getConnectionType(direction);
+            }
+        }
+
+        // Server side or when cache not available: calculate dynamically
         BlockPos neighborPos = pos.offset(direction);
         BlockState neighborState = world.getBlockState(neighborPos);
         Block neighborBlock = neighborState.getBlock();
@@ -338,38 +286,6 @@ public class PipeBlock extends BlockWithEntity implements Waterloggable {
         }
 
         return ConnectionType.NONE;
-    }
-
-    public static EnumProperty<ConnectionType> getPropertyForDirection(Direction direction) {
-        return switch (direction) {
-            case NORTH -> NORTH;
-            case SOUTH -> SOUTH;
-            case EAST -> EAST;
-            case WEST -> WEST;
-            case UP -> UP;
-            case DOWN -> DOWN;
-        };
-    }
-
-
-    public BlockState refreshConnections(World world, BlockPos pos, BlockState state) {
-        for (Direction direction : Direction.values()) {
-            EnumProperty<ConnectionType> connectionProp = getPropertyForDirection(direction);
-            if (connectionProp != null) {
-                state = state.with(connectionProp, canConnectTo(world, pos, direction));
-            }
-        }
-        return state;
-    }
-
-    public boolean hasConnection(BlockState state, Direction direction) {
-        EnumProperty<ConnectionType> property = getPropertyForDirection(direction);
-        return property != null && state.get(property) != ConnectionType.NONE;
-    }
-
-    public boolean isInventoryConnection(BlockState state, Direction direction) {
-        EnumProperty<ConnectionType> property = getPropertyForDirection(direction);
-        return property != null && state.get(property) == ConnectionType.INVENTORY;
     }
 
     public enum ConnectionType implements net.minecraft.util.StringIdentifiable {
