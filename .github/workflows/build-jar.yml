@@ -83,65 +83,38 @@ jobs:
         with:
           name: logistics-${{ steps.version.outputs.mod_version }}
           path: |
-            build/libs/*.jar
-            !build/libs/*-sources.jar
-            !build/libs/*-javadoc.jar
-            !build/libs/*-dev.jar
+            build/libs/!(*-@(dev|sources|javadoc)).jar
 
-      - name: Upload Release assets
-        if: ${{ steps.build_type.outputs.type == 'release' }}
-        uses: softprops/action-gh-release@v2
+      - name: Publish (dev)
+        if: ${{ steps.build_type.outputs.type == 'dev' }}
+        uses: Kir-Antipov/mc-publish@v3.3
         with:
+          version: ${{ steps.version.outputs.mod_version }}
+          version-type: beta
+          changelog: "Automated dev build from commit ${{ github.sha }}"
+
           files: |
-            build/libs/*.jar
-            !build/libs/*-sources.jar
-            !build/libs/*-javadoc.jar
-            !build/libs/*-dev.jar
+            build/libs/!(*-@(dev|sources|javadoc)).jar
 
-      # Uncomment when we're ready to publish dev builds to mod platforms
-      # - name: Publish (dev)
-      #   if: ${{ steps.build_type.outputs.type == 'dev' }}
-      #   uses: Kir-Antipov/mc-publish@v3
-      #   with:
-      #     version: ${{ steps.version.outputs.mod_version }}
-      #     version-type: beta
-      #     changelog: "Automated dev build from commit ${{ github.sha }}"
-      #
-      #     files: |
-      #       build/libs/*.jar
-      #       !build/libs/*-sources.jar
-      #       !build/libs/*-javadoc.jar
-      #       !build/libs/*-dev.jar
-      #
-      #     modrinth-id: logistics
-      #     modrinth-featured: false
-      #     modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
-      #
-      #     # curseforge-id: 1425041
-      #     # curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
-      #
-      #     github-token: ${{ secrets.GITHUB_TOKEN }}
+          modrinth-featured: false
+          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
 
-      # Uncomment when we're ready to publish to mod platforms
-      # - name: Publish (release)
-      #   if: ${{ steps.build_type.outputs.type == 'release' }}
-      #   uses: Kir-Antipov/mc-publish@v3
-      #   with:
-      #     version: ${{ steps.version.outputs.mod_version }}
-      #     version-type: release
-      #     changelog: ${{ github.event.release.body }}
-      #
-      #     files: |
-      #       build/libs/*.jar
-      #       !build/libs/*-sources.jar
-      #       !build/libs/*-javadoc.jar
-      #       !build/libs/*-dev.jar
-      #
-      #     modrinth-id: logistics
-      #     modrinth-featured: true
-      #     modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
-      #
-      #     curseforge-id: 1425041
-      #     curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
-      #
-      #     github-token: ${{ secrets.GITHUB_TOKEN }}
+          fail-mode: warn
+          retry-attempts: 2
+          retry-delay: 10000
+
+      - name: Publish (release)
+        if: ${{ steps.build_type.outputs.type == 'release' }}
+        uses: Kir-Antipov/mc-publish@v3.3
+        with:
+          version: ${{ steps.version.outputs.mod_version }}
+          version-type: release
+          changelog: ${{ github.event.release.body }}
+
+          files: |
+            build/libs/!(*-@(dev|sources|javadoc)).jar
+
+          modrinth-featured: true
+          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+          curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
