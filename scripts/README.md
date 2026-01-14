@@ -62,3 +62,31 @@ Edit the `generate_pipe_textures.py` file to adjust:
 - Cross pattern: Modify CROSS_MIN and CROSS_MAX (currently pixels 4-11)
 
 After making changes, re-run the script to regenerate textures.
+
+## Recipe Card Generator
+
+### Requirements
+
+- Python 3.6+
+- Pillow (PIL) library
+
+### Usage
+
+Generate crafting recipe cards from exported item icons:
+```bash
+cd scripts
+source venv/bin/activate
+python3 generate_recipe_cards.py
+```
+
+Defaults assume icon exports live in `run/icon-exports-x64`, result icons live in
+`run/icon-exports-x88`, the template
+background lives at `assets/art/crafting-grid.png`, and outputs to
+`assets/recipie-cards`. The font will auto-download to `scripts/fonts/`.
+Override with:
+```bash
+python3 generate_recipe_cards.py --icons-dir run/icon-exports-x64 --result-icons-dir run/icon-exports-x88 --out-dir assets/recipie-cards --template assets/art/crafting-grid.png --font scripts/fonts/Minecraft-Seven_v2.woff2
+```
+
+If a recipe expands into multiple variants (like plank tags), the script will also
+write an animated GIF that cycles through the variants every 2.5 seconds.
