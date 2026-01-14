@@ -48,6 +48,7 @@ ITEM_INFO = {
     "logistics:item_void_pipe": "Safely deletes anything that enters.",
     "logistics:item_filter_pipe": "Sorts items using per-side filters.",
     "logistics:item_insertion_pipe": "Prefers inserting into inventories with space.",
+    "logistics:item_passthrough_pipe": "Ignores inventories and only connects to other pipes.",
     "logistics:wrench": "Adjusts pipes and cycles settings.",
 }
 
