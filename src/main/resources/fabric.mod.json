@@ -33,5 +33,11 @@
 		"fabric-api": "*"
 	},
 	"suggests": {
+	},
+	"custom": {
+		"mc-publish": {
+			"modrinth": "cyW2SS1x",
+			"curseforge": 1425041
+		}
 	}
 }
