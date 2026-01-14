@@ -6,6 +6,22 @@ on:
     types: [opened, synchronize, reopened, ready_for_review]
   release:
     types: [published]
+  workflow_dispatch:
+    inputs:
+      build_type:
+        description: "Override build type (pr/dev/release)"
+        required: true
+        default: "dev"
+        type: choice
+        options:
+          - pr
+          - dev
+          - release
+      publish:
+        description: "Actually publish (otherwise build only)"
+        required: true
+        default: false
+        type: boolean
 
 permissions:
   contents: write  # needed for release uploads; harmless for PRs
@@ -29,7 +45,9 @@ jobs:
         id: build_type
         shell: bash
         run: |
-          if [[ "${{ github.event_name }}" == "release" ]]; then
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            TYPE="${{ inputs.build_type }}"
+          elif [[ "${{ github.event_name }}" == "release" ]]; then
             TYPE="release"
           elif [[ "${{ github.actor }}" == "release-please[bot]" || "${{ github.head_ref }}" == release-please--* ]]; then
             TYPE="dev"
@@ -86,7 +104,7 @@ jobs:
             build/libs/!(*-@(dev|sources|javadoc)).jar
 
       - name: Publish (dev)
-        if: ${{ steps.build_type.outputs.type == 'dev' }}
+        if: ${{ steps.build_type.outputs.type == 'dev' && (github.event_name != 'workflow_dispatch' || inputs.publish) }}
         uses: Kir-Antipov/mc-publish@v3.3
         with:
           version: ${{ steps.version.outputs.mod_version }}
@@ -104,12 +122,12 @@ jobs:
           retry-delay: 10000
 
       - name: Publish (release)
-        if: ${{ steps.build_type.outputs.type == 'release' }}
+        if: ${{ steps.build_type.outputs.type == 'release' && (github.event_name != 'workflow_dispatch' || inputs.publish) }}
         uses: Kir-Antipov/mc-publish@v3.3
         with:
-          version: ${{ steps.version.outputs.mod_version }}
+          version: ${{ github.event_name == 'release' && github.event.release.tag_name || steps.version.outputs.mod_version }}
           version-type: release
-          changelog: ${{ github.event.release.body }}
+          changelog: ${{ github.event_name == 'release' && github.event.release.body || format('Manual {0} publish from {1}', steps.build_type.outputs.type, github.sha) }}
 
           files: |
             build/libs/!(*-@(dev|sources|javadoc)).jar
