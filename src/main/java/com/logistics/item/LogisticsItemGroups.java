@@ -20,6 +20,7 @@ public class LogisticsItemGroups {
             .entries((displayContext, entries) -> {
                 entries.add(LogisticsItems.WRENCH);
                 entries.add(LogisticsBlocks.STONE_TRANSPORT_PIPE);
+                entries.add(LogisticsBlocks.ITEM_PASSTHROUGH_PIPE);
                 entries.add(LogisticsBlocks.COPPER_TRANSPORT_PIPE);
                 entries.add(LogisticsBlocks.ITEM_EXTRACTOR_PIPE);
                 entries.add(LogisticsBlocks.ITEM_MERGER_PIPE);

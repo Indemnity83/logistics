@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "SGS"
+  ],
+  "key": {
+    "S": "minecraft:sandstone",
+    "G": "minecraft:glass"
+  },
+  "result": {
+    "id": "logistics:sandstone_glass_pipe",
+    "count": 8
+  }
+}

@@ -32,6 +32,11 @@ public final class PipeTypes {
             new MergerModule()
     ) {};
 
+    // Item insertion pipe - decorative pipe that only connects to other pipes.
+    public static final Pipe ITEM_PASSTHROUGH_PIPE = new Pipe(
+            new PipeOnlyModule()
+    ) {};
+
     // -----------------
     // Tier 2 (Decision based routing / bulk movement)
     // -----------------

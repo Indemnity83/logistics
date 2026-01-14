@@ -20,7 +20,8 @@ public class LogisticsBlockEntities {
             LogisticsBlocks.ITEM_FILTER_PIPE,
             LogisticsBlocks.COPPER_TRANSPORT_PIPE,
             LogisticsBlocks.ITEM_SENSOR_PIPE,
-            LogisticsBlocks.ITEM_VOID_PIPE
+            LogisticsBlocks.ITEM_VOID_PIPE,
+            LogisticsBlocks.ITEM_PASSTHROUGH_PIPE
         ).build()
     );
 
