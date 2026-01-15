@@ -8,7 +8,4 @@ public class TravelingItemRenderState {
     public Direction direction;
     public float progress;
     public float currentSpeed;
-    public float targetSpeed;
-    public float accelerationRate;
-    public boolean canAccelerate;
 }

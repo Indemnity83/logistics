@@ -136,7 +136,7 @@ public class ExtractionModule implements Module {
                 long extracted = view.extract(variant, 1, transaction);
                 if (extracted > 0) {
                     ItemStack stack = variant.toStack((int) extracted);
-                    TravelingItem item = new TravelingItem(stack, direction.getOpposite(), PipeConfig.EXTRACTED_ITEM_SPEED);
+                    TravelingItem item = new TravelingItem(stack, direction.getOpposite(), PipeConfig.ITEM_MIN_SPEED);
                     ctx.blockEntity().forceAddItem(item, direction);
                     transaction.commit();
                     return true;

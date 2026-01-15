@@ -9,8 +9,9 @@ public final class PipeTypes {
     // -----------------
 
     // Early transport pipe - slow item movement.
-    // TODO: This pipe should have a slower speed
-    public static final Pipe STONE_TRANSPORT_PIPE = new Pipe() {};
+    public static final Pipe STONE_TRANSPORT_PIPE = new Pipe(
+            new TransportModule(PipeConfig.ITEM_MIN_SPEED, PipeConfig.DRAG_COEFFICIENT)
+    ) {};
 
     // Base transport pipe - simple item movement.
     // NOTE: No special connection restrictions; this is the default backbone pipe.

@@ -12,4 +12,7 @@ public class PipeRenderState extends BlockEntityRenderState {
     public final List<Identifier> modelIds = new ArrayList<>();
     public BlockState blockState;
     public float tickDelta;
+    public float accelerationRate;
+    public float dragCoefficient;
+    public float maxSpeed;
 }

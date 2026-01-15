@@ -111,16 +111,6 @@ public abstract class Pipe {
         return null;
     }
 
-    public float getTargetSpeed(PipeContext ctx) {
-        for (Module module : modules) {
-            float speed = module.getTargetSpeed(ctx);
-            if (speed > 0f) {
-                return speed;
-            }
-        }
-        return PipeConfig.BASE_PIPE_SPEED;
-    }
-
     public float getAccelerationRate(PipeContext ctx) {
         for (Module module : modules) {
             float accel = module.getAcceleration(ctx);
@@ -131,6 +121,16 @@ public abstract class Pipe {
         return 0f;
     }
 
+    public float getDrag(PipeContext ctx) {
+        for (Module module : modules) {
+            float drag = module.getDrag(ctx);
+            if (drag > 0f) {
+                return drag;
+            }
+        }
+        return PipeConfig.DRAG_COEFFICIENT;
+    }
+
     public float getMaxSpeed(PipeContext ctx) {
         for (Module module : modules) {
             float max = module.getMaxSpeed(ctx);
@@ -138,16 +138,7 @@ public abstract class Pipe {
                 return max;
             }
         }
-        return 0f;
-    }
-
-    public boolean canAccelerate(PipeContext ctx) {
-        for (Module module : modules) {
-            if (module.applyAcceleration(ctx)) {
-                return true;
-            }
-        }
-        return false;
+        return PipeConfig.PIPE_MAX_SPEED;
     }
 
     public RoutePlan route(PipeContext ctx, TravelingItem item, List<Direction> options) {
