@@ -3,16 +3,13 @@ package com.logistics.pipe.runtime;
 import com.logistics.block.PipeBlock;
 import com.logistics.block.entity.PipeBlockEntity;
 import com.logistics.block.entity.PipeItemStorage;
-import com.logistics.pipe.runtime.TravelingItem;
 import com.logistics.pipe.Pipe;
 import com.logistics.pipe.PipeContext;
-import com.logistics.pipe.runtime.RoutePlan;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.minecraft.block.BlockState;
-import net.minecraft.state.property.EnumProperty;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
@@ -24,10 +21,10 @@ public final class PipeRuntime {
     private PipeRuntime() {}
 
     public static void tick(World world, BlockPos pos, BlockState state, PipeBlockEntity blockEntity) {
-        // Get pipe's target speed, acceleration rate, and whether it can accelerate
-        float targetSpeed = PipeConfig.BASE_PIPE_SPEED;
+        // Get pipe's speed bounds and acceleration/drag behavior
+        float maxSpeed = PipeConfig.PIPE_MAX_SPEED;
         float accelerationRate = 0f;
-        boolean canAccelerate = false;
+        float dragCoefficient = PipeConfig.DRAG_COEFFICIENT;
         Pipe pipe = null;
         PipeContext pipeContext = null;
 
@@ -35,9 +32,9 @@ public final class PipeRuntime {
             if (pipeBlock.getPipe() != null) {
                 pipe = pipeBlock.getPipe();
                 pipeContext = new PipeContext(world, pos, state, blockEntity);
-                targetSpeed = pipe.getTargetSpeed(pipeContext);
+                maxSpeed = pipe.getMaxSpeed(pipeContext);
                 accelerationRate = pipe.getAccelerationRate(pipeContext);
-                canAccelerate = pipe.canAccelerate(pipeContext);
+                dragCoefficient = pipe.getDrag(pipeContext);
             }
         }
 
@@ -81,7 +78,7 @@ public final class PipeRuntime {
         for (TravelingItem item : blockEntity.getTravelingItems()) {
             float progressBefore = item.getProgress();
 
-            if (item.tick(targetSpeed, accelerationRate, canAccelerate)) {
+            if (item.tick(accelerationRate, dragCoefficient, maxSpeed)) {
                 // Item reached the end of this pipe segment
                 itemsToRoute.add(item);
             }

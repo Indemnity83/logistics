@@ -2,6 +2,7 @@ package com.logistics.pipe.modules;
 
 import com.logistics.pipe.Pipe;
 import com.logistics.pipe.PipeContext;
+import com.logistics.pipe.runtime.PipeConfig;
 import com.logistics.pipe.runtime.RoutePlan;
 import net.minecraft.block.Block;
 import net.minecraft.item.ItemStack;
@@ -17,20 +18,16 @@ public interface Module {
     default void onTick(PipeContext ctx) {
     }
 
-    default float getTargetSpeed(PipeContext ctx) {
-        return 0f;
-    }
-
     default float getAcceleration(PipeContext ctx) {
         return 0f;
     }
 
-    default float getMaxSpeed(PipeContext ctx) {
-        return 0f;
+    default float getDrag(PipeContext ctx) {
+        return PipeConfig.DRAG_COEFFICIENT;
     }
 
-    default boolean applyAcceleration(PipeContext ctx) {
-        return false;
+    default float getMaxSpeed(PipeContext ctx) {
+        return PipeConfig.PIPE_MAX_SPEED;
     }
 
     default RoutePlan route(PipeContext ctx, com.logistics.pipe.runtime.TravelingItem item, List<Direction> options) {

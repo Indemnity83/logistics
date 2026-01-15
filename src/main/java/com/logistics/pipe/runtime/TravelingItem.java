@@ -1,8 +1,6 @@
 package com.logistics.pipe.runtime;
 
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.util.math.Direction;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -18,7 +16,7 @@ public class TravelingItem {
     public static final Codec<TravelingItem> CODEC = RecordCodecBuilder.create(instance -> instance.group(
         ItemStack.CODEC.fieldOf("item").forGetter(t -> t.stack),
         Codec.INT.fieldOf("direction").xmap(Direction::byIndex, Direction::getIndex).forGetter(t -> t.direction),
-        Codec.FLOAT.optionalFieldOf("speed", PipeConfig.BASE_PIPE_SPEED).forGetter(t -> t.speed),
+        Codec.FLOAT.optionalFieldOf("speed", PipeConfig.ITEM_MIN_SPEED).forGetter(t -> t.speed),
         Codec.FLOAT.optionalFieldOf("progress", 0.0f).forGetter(t -> t.progress),
         Codec.BOOL.optionalFieldOf("routed", false).forGetter(t -> t.routed)
     ).apply(instance, TravelingItem::fromCodec));
@@ -46,23 +44,33 @@ public class TravelingItem {
 
     /**
      * Update the item's position along the pipe.
-     * Gradually adjusts speed toward the target speed.
-     * @param targetSpeed The pipe's target speed
-     * @param accelerationRate How quickly to adjust speed
-     * @param canAccelerate Whether the pipe can accelerate items (or only decelerate)
+     * Applies acceleration or drag, and if above max speed, decelerates to hit max at the segment exit.
+     * @param accelerationRate How quickly to adjust speed (positive or negative)
+     * @param dragCoefficient Fraction of speed lost per tick when not accelerating
+     * @param maxSpeed Maximum allowed speed
      * @return true if item reached the end of this pipe segment
      */
-    public boolean tick(float targetSpeed, float accelerationRate, boolean canAccelerate) {
-        // Adjust speed toward target
-        if (speed < targetSpeed) {
-            // Only accelerate if allowed
-            if (canAccelerate) {
-                speed = Math.min(speed + accelerationRate, targetSpeed);
+    public boolean tick(float accelerationRate, float dragCoefficient, float maxSpeed) {
+        boolean deceleratingToMax = speed > maxSpeed;
+        if (deceleratingToMax) {
+            float remaining = Math.max(1.0e-4f, 1.0f - progress);
+            float targetSquared = maxSpeed * maxSpeed;
+            float currentSquared = speed * speed;
+            float decel = (targetSquared - currentSquared) / (2.0f * remaining);
+            speed += decel;
+            if (speed < maxSpeed) {
+                speed = maxSpeed;
             }
-            // Otherwise maintain current speed (no acceleration)
-        } else if (speed > targetSpeed) {
-            // Always decelerate (drag)
-            speed = Math.max(speed - accelerationRate, targetSpeed);
+        } else if (accelerationRate != 0f) {
+            speed += accelerationRate;
+        } else if (dragCoefficient != 0f) {
+            speed -= speed * dragCoefficient;
+        }
+
+        if (speed < PipeConfig.ITEM_MIN_SPEED) {
+            speed = PipeConfig.ITEM_MIN_SPEED;
+        } else if (!deceleratingToMax && speed > maxSpeed) {
+            speed = maxSpeed;
         }
 
         progress += speed;

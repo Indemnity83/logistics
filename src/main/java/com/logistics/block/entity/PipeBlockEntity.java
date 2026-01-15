@@ -13,7 +13,6 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
@@ -27,7 +26,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 public class PipeBlockEntity extends BlockEntity {
     public static final int VIRTUAL_CAPACITY = 5 * 64;
@@ -326,16 +324,15 @@ public class PipeBlockEntity extends BlockEntity {
 
     private float getInitialSpeed() {
         if (world == null) {
-            return PipeConfig.BASE_PIPE_SPEED;
+            return PipeConfig.ITEM_MIN_SPEED;
         }
 
         BlockState state = getCachedState();
         if (state.getBlock() instanceof PipeBlock pipeBlock && pipeBlock.getPipe() != null) {
-            PipeContext context = new PipeContext(world, pos, state, this);
-            return pipeBlock.getPipe().getTargetSpeed(context);
+            return PipeConfig.ITEM_MIN_SPEED;
         }
 
-        return PipeConfig.BASE_PIPE_SPEED;
+        return PipeConfig.ITEM_MIN_SPEED;
     }
 
     private boolean isNeighborPipe(Direction fromDirection) {

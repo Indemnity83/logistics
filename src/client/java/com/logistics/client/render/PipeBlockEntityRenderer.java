@@ -65,16 +65,16 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
         // Get pipe properties for speed calculations
         BlockState blockState = entity.getCachedState();
         state.blockState = blockState;
-        float targetSpeed = PipeConfig.BASE_PIPE_SPEED;
+        float maxSpeed = PipeConfig.PIPE_MAX_SPEED;
         float accelerationRate = 0f;
-        boolean canAccelerate = false;
+        float dragCoefficient = PipeConfig.DRAG_COEFFICIENT;
 
         if (blockState.getBlock() instanceof PipeBlock pipeBlock) {
             if (pipeBlock.getPipe() != null && entity.getWorld() != null) {
                 PipeContext context = new PipeContext(entity.getWorld(), entity.getPos(), blockState, entity);
-                targetSpeed = pipeBlock.getPipe().getTargetSpeed(context);
+                maxSpeed = pipeBlock.getPipe().getMaxSpeed(context);
                 accelerationRate = pipeBlock.getPipe().getAccelerationRate(context);
-                canAccelerate = pipeBlock.getPipe().canAccelerate(context);
+                dragCoefficient = pipeBlock.getPipe().getDrag(context);
 
                 state.modelIds.add(pipeBlock.getPipe().getCoreModelId());
                 for (Direction direction : Direction.values()) {
@@ -106,12 +106,13 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
             itemState.direction = travelingItem.getDirection();
             itemState.progress = travelingItem.getProgress();
             itemState.currentSpeed = travelingItem.getSpeed();
-            itemState.targetSpeed = targetSpeed;
-            itemState.accelerationRate = accelerationRate;
-            itemState.canAccelerate = canAccelerate;
 
             state.travelingItems.add(itemState);
         }
+
+        state.accelerationRate = accelerationRate;
+        state.dragCoefficient = dragCoefficient;
+        state.maxSpeed = maxSpeed;
     }
 
     @Override
@@ -148,29 +149,27 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
             matrices.push();
 
             // Calculate speed change during this partial tick
-            float speedChange;
-            if (itemState.currentSpeed < itemState.targetSpeed) {
-                // Only accelerate if allowed
-                if (itemState.canAccelerate) {
-                    speedChange = Math.min(
-                        itemState.accelerationRate * state.tickDelta,
-                        itemState.targetSpeed - itemState.currentSpeed
-                    );
-                } else {
-                    speedChange = 0; // Maintain speed (no acceleration)
-                }
-            } else if (itemState.currentSpeed > itemState.targetSpeed) {
-                // Always decelerate (drag)
-                speedChange = Math.max(
-                    -itemState.accelerationRate * state.tickDelta,
-                    itemState.targetSpeed - itemState.currentSpeed
-                );
-            } else {
-                speedChange = 0;
+            float speedChange = 0f;
+            boolean deceleratingToMax = itemState.currentSpeed > state.maxSpeed;
+            if (deceleratingToMax) {
+                float remaining = Math.max(1.0e-4f, 1.0f - itemState.progress);
+                float targetSquared = state.maxSpeed * state.maxSpeed;
+                float currentSquared = itemState.currentSpeed * itemState.currentSpeed;
+                float decel = (targetSquared - currentSquared) / (2.0f * remaining);
+                speedChange = decel * state.tickDelta;
+            } else if (state.accelerationRate != 0f) {
+                speedChange = state.accelerationRate * state.tickDelta;
+            } else if (state.dragCoefficient != 0f) {
+                speedChange = -(itemState.currentSpeed * state.dragCoefficient) * state.tickDelta;
             }
 
             // Speed at the end of this partial tick
             float interpolatedSpeed = itemState.currentSpeed + speedChange;
+            if (interpolatedSpeed < PipeConfig.ITEM_MIN_SPEED) {
+                interpolatedSpeed = PipeConfig.ITEM_MIN_SPEED;
+            } else if (!deceleratingToMax && interpolatedSpeed > state.maxSpeed) {
+                interpolatedSpeed = state.maxSpeed;
+            }
 
             // Use average speed for progress calculation (trapezoidal integration)
             float avgSpeed = (itemState.currentSpeed + interpolatedSpeed) / 2.0f;
