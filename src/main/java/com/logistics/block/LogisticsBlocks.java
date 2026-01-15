@@ -4,7 +4,6 @@ import com.logistics.LogisticsMod;
 import com.logistics.pipe.PipeTypes;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
-import net.minecraft.block.MapColor;
 import net.minecraft.block.BlockState;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
@@ -12,7 +11,6 @@ import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
-import net.minecraft.sound.BlockSoundGroup;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -25,100 +23,55 @@ public class LogisticsBlocks {
     // Transport Pipes
     public static final Block STONE_TRANSPORT_PIPE = register(
         "stone_transport_pipe",
-        settings -> new PipeBlock(settings, PipeTypes.STONE_TRANSPORT_PIPE),
-        AbstractBlock.Settings.create()
-                .mapColor(MapColor.GRAY)
-                .strength(2.0f, 6.0f)
-                .sounds(BlockSoundGroup.STONE)
-                .nonOpaque()
+        settings -> new PipeBlock(settings, PipeTypes.STONE_TRANSPORT_PIPE)
     );
 
     public static final Block ITEM_PASSTHROUGH_PIPE = register(
         "item_passthrough_pipe",
-        settings -> new PipeBlock(settings, PipeTypes.ITEM_PASSTHROUGH_PIPE),
-        AbstractBlock.Settings.create()
-                .mapColor(MapColor.PALE_YELLOW)
-                .strength(2.0f, 6.0f)
-                .sounds(BlockSoundGroup.GLASS)
-                .nonOpaque()
+        settings -> new PipeBlock(settings, PipeTypes.ITEM_PASSTHROUGH_PIPE)
     );
 
     public static final Block COPPER_TRANSPORT_PIPE = register(
         "copper_transport_pipe",
-        settings -> new PipeBlock(settings, PipeTypes.COPPER_TRANSPORT_PIPE),
-        AbstractBlock.Settings.create()
-            .mapColor(MapColor.GRAY)
-            .strength(2.0f, 6.0f)
-            .sounds(BlockSoundGroup.STONE)
-            .nonOpaque()
+        settings -> new PipeBlock(settings, PipeTypes.COPPER_TRANSPORT_PIPE)
     );
 
     public static final Block ITEM_EXTRACTOR_PIPE = register(
         "item_extractor_pipe",
-        settings -> new PipeBlock(settings, PipeTypes.ITEM_EXTRACTOR),
-        AbstractBlock.Settings.create()
-            .mapColor(MapColor.OAK_TAN)
-            .strength(0.5f)
-            .sounds(BlockSoundGroup.WOOD)
-            .nonOpaque()
+        settings -> new PipeBlock(settings, PipeTypes.ITEM_EXTRACTOR)
     );
 
     public static final Block ITEM_MERGER_PIPE = register(
         "item_merger_pipe",
-        settings -> new PipeBlock(settings, PipeTypes.ITEM_MERGER),
-        AbstractBlock.Settings.create()
-            .mapColor(MapColor.IRON_GRAY)
-            .strength(3.0f, 6.0f)
-            .sounds(BlockSoundGroup.METAL)
-            .nonOpaque()
+        settings -> new PipeBlock(settings, PipeTypes.ITEM_MERGER)
     );
 
     public static final Block GOLD_TRANSPORT_PIPE = register(
         "gold_transport_pipe",
-        settings -> new PipeBlock(settings, PipeTypes.GOLD_TRANSPORT),
-        AbstractBlock.Settings.create()
-            .mapColor(MapColor.GOLD)
-            .strength(0.5f)
-            .sounds(BlockSoundGroup.METAL)
-            .nonOpaque()
+        settings -> new PipeBlock(settings, PipeTypes.GOLD_TRANSPORT)
     );
 
     public static final Block ITEM_FILTER_PIPE = register(
         "item_filter_pipe",
-        settings -> new PipeBlock(settings, PipeTypes.ITEM_FILTER),
-        AbstractBlock.Settings.create()
-            .mapColor(MapColor.DIAMOND_BLUE)
-            .strength(3.0f, 6.0f)
-            .sounds(BlockSoundGroup.METAL)
-            .nonOpaque()
+        settings -> new PipeBlock(settings, PipeTypes.ITEM_FILTER)
     );
 
     public static final Block ITEM_INSERTION_PIPE = register(
         "item_insertion_pipe",
-        settings -> new PipeBlock(settings, PipeTypes.ITEM_INSERTION),
-        AbstractBlock.Settings.create()
-            .mapColor(MapColor.OFF_WHITE)
-            .strength(2.0f, 6.0f)
-            .sounds(BlockSoundGroup.STONE)
-            .nonOpaque()
+        settings -> new PipeBlock(settings, PipeTypes.ITEM_INSERTION)
     );
 
     public static final Block ITEM_VOID_PIPE = register(
         "item_void_pipe",
-        settings -> new PipeBlock(settings, PipeTypes.ITEM_VOID),
-        AbstractBlock.Settings.create()
-            .mapColor(MapColor.BLACK)
-            .strength(50.0f, 1200.0f)
-            .sounds(BlockSoundGroup.STONE)
-            .nonOpaque()
+        settings -> new PipeBlock(settings, PipeTypes.ITEM_VOID)
     );
 
-    private static Block register(String name, Function<AbstractBlock.Settings, Block> blockFactory, AbstractBlock.Settings settings) {
+    private static Block register(String name, Function<AbstractBlock.Settings, Block> blockFactory) {
         // Create a registry key for the block
         RegistryKey<Block> blockKey = keyOfBlock(name);
 
         // Create the block instance (1.21.2+ requires the key to be present in the settings at construction time)
-        Block block = blockFactory.apply(settings.registryKey(blockKey));
+        Block block = blockFactory.apply(AbstractBlock.Settings.create().registryKey(blockKey));
 
         // Items need to be registered with a different type of registry key, but the ID can be the same.
         RegistryKey<Item> itemKey = keyOfItem(name);
