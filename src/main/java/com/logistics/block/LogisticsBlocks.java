@@ -4,7 +4,6 @@ import com.logistics.LogisticsMod;
 import com.logistics.pipe.PipeTypes;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
-import net.minecraft.block.MapColor;
 import net.minecraft.block.BlockState;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
@@ -26,7 +25,6 @@ public class LogisticsBlocks {
         "stone_transport_pipe",
         settings -> new PipeBlock(settings, PipeTypes.STONE_TRANSPORT_PIPE),
         AbstractBlock.Settings.create()
-                .mapColor(MapColor.GRAY)
                 .nonOpaque()
     );
 
@@ -34,7 +32,6 @@ public class LogisticsBlocks {
         "item_passthrough_pipe",
         settings -> new PipeBlock(settings, PipeTypes.ITEM_PASSTHROUGH_PIPE),
         AbstractBlock.Settings.create()
-                .mapColor(MapColor.PALE_YELLOW)
                 .nonOpaque()
     );
 
@@ -42,7 +39,6 @@ public class LogisticsBlocks {
         "copper_transport_pipe",
         settings -> new PipeBlock(settings, PipeTypes.COPPER_TRANSPORT_PIPE),
         AbstractBlock.Settings.create()
-            .mapColor(MapColor.GRAY)
             .nonOpaque()
     );
 
@@ -50,7 +46,6 @@ public class LogisticsBlocks {
         "item_extractor_pipe",
         settings -> new PipeBlock(settings, PipeTypes.ITEM_EXTRACTOR),
         AbstractBlock.Settings.create()
-            .mapColor(MapColor.OAK_TAN)
             .nonOpaque()
     );
 
@@ -58,7 +53,6 @@ public class LogisticsBlocks {
         "item_merger_pipe",
         settings -> new PipeBlock(settings, PipeTypes.ITEM_MERGER),
         AbstractBlock.Settings.create()
-            .mapColor(MapColor.IRON_GRAY)
             .nonOpaque()
     );
 
@@ -66,7 +60,6 @@ public class LogisticsBlocks {
         "gold_transport_pipe",
         settings -> new PipeBlock(settings, PipeTypes.GOLD_TRANSPORT),
         AbstractBlock.Settings.create()
-            .mapColor(MapColor.GOLD)
             .nonOpaque()
     );
 
@@ -74,7 +67,6 @@ public class LogisticsBlocks {
         "item_filter_pipe",
         settings -> new PipeBlock(settings, PipeTypes.ITEM_FILTER),
         AbstractBlock.Settings.create()
-            .mapColor(MapColor.DIAMOND_BLUE)
             .nonOpaque()
     );
 
@@ -82,7 +74,6 @@ public class LogisticsBlocks {
         "item_insertion_pipe",
         settings -> new PipeBlock(settings, PipeTypes.ITEM_INSERTION),
         AbstractBlock.Settings.create()
-            .mapColor(MapColor.OFF_WHITE)
             .nonOpaque()
     );
 
@@ -90,7 +81,6 @@ public class LogisticsBlocks {
         "item_void_pipe",
         settings -> new PipeBlock(settings, PipeTypes.ITEM_VOID),
         AbstractBlock.Settings.create()
-            .mapColor(MapColor.BLACK)
             .nonOpaque()
     );
 
