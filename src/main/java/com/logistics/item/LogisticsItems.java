@@ -22,6 +22,11 @@ public class LogisticsItems {
     public static void initialize() {
         LogisticsMod.LOGGER.info("Registering items");
 
+        registerLegacyAliases();
+    }
+
+    private static void registerLegacyAliases() {
+        // pre-v0.2.0
         Registries.ITEM.addAlias(
             Identifier.of(LogisticsMod.MOD_ID, "item_sensor_pipe"),
             Registries.BLOCK.getId(LogisticsBlocks.COPPER_TRANSPORT_PIPE)

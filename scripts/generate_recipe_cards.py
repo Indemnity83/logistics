@@ -469,7 +469,7 @@ def main():
     parser.add_argument(
         "--out-dir",
         type=Path,
-        default=Path("assets/recipie-cards"),
+        default=Path("assets/recipe-cards"),
         help="Output directory for recipe cards.",
     )
     parser.add_argument(

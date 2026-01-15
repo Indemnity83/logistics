@@ -82,10 +82,10 @@ python3 generate_recipe_cards.py
 Defaults assume icon exports live in `run/icon-exports-x64`, result icons live in
 `run/icon-exports-x88`, the template
 background lives at `assets/art/crafting-grid.png`, and outputs to
-`assets/recipie-cards`. The font will auto-download to `scripts/fonts/`.
+`assets/recipe-cards`. The font will auto-download to `scripts/fonts/`.
 Override with:
 ```bash
-python3 generate_recipe_cards.py --icons-dir run/icon-exports-x64 --result-icons-dir run/icon-exports-x88 --out-dir assets/recipie-cards --template assets/art/crafting-grid.png --font scripts/fonts/Minecraft-Seven_v2.woff2
+python3 generate_recipe_cards.py --icons-dir run/icon-exports-x64 --result-icons-dir run/icon-exports-x88 --out-dir assets/recipe-cards --template assets/art/crafting-grid.png --font scripts/fonts/Minecraft-Seven_v2.woff2
 ```
 
 If a recipe expands into multiple variants (like plank tags), the script will also
