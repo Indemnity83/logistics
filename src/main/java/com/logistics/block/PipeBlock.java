@@ -79,7 +79,7 @@ public class PipeBlock extends BlockWithEntity implements Waterloggable {
     }
 
     public PipeBlock(Settings settings, Pipe pipe) {
-        super(settings);
+        super(settings.strength(0.0f));
         this.pipe = pipe;
         setDefaultState(getDefaultState()
             .with(POWERED, false)

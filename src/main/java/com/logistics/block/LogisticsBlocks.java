@@ -28,7 +28,6 @@ public class LogisticsBlocks {
         settings -> new PipeBlock(settings, PipeTypes.STONE_TRANSPORT_PIPE),
         AbstractBlock.Settings.create()
                 .mapColor(MapColor.GRAY)
-                .strength(2.0f, 6.0f)
                 .sounds(BlockSoundGroup.STONE)
                 .nonOpaque()
     );
@@ -38,7 +37,6 @@ public class LogisticsBlocks {
         settings -> new PipeBlock(settings, PipeTypes.ITEM_PASSTHROUGH_PIPE),
         AbstractBlock.Settings.create()
                 .mapColor(MapColor.PALE_YELLOW)
-                .strength(2.0f, 6.0f)
                 .sounds(BlockSoundGroup.GLASS)
                 .nonOpaque()
     );
@@ -48,7 +46,6 @@ public class LogisticsBlocks {
         settings -> new PipeBlock(settings, PipeTypes.COPPER_TRANSPORT_PIPE),
         AbstractBlock.Settings.create()
             .mapColor(MapColor.GRAY)
-            .strength(2.0f, 6.0f)
             .sounds(BlockSoundGroup.STONE)
             .nonOpaque()
     );
@@ -58,7 +55,6 @@ public class LogisticsBlocks {
         settings -> new PipeBlock(settings, PipeTypes.ITEM_EXTRACTOR),
         AbstractBlock.Settings.create()
             .mapColor(MapColor.OAK_TAN)
-            .strength(0.5f)
             .sounds(BlockSoundGroup.WOOD)
             .nonOpaque()
     );
@@ -68,7 +64,6 @@ public class LogisticsBlocks {
         settings -> new PipeBlock(settings, PipeTypes.ITEM_MERGER),
         AbstractBlock.Settings.create()
             .mapColor(MapColor.IRON_GRAY)
-            .strength(3.0f, 6.0f)
             .sounds(BlockSoundGroup.METAL)
             .nonOpaque()
     );
@@ -78,7 +73,6 @@ public class LogisticsBlocks {
         settings -> new PipeBlock(settings, PipeTypes.GOLD_TRANSPORT),
         AbstractBlock.Settings.create()
             .mapColor(MapColor.GOLD)
-            .strength(0.5f)
             .sounds(BlockSoundGroup.METAL)
             .nonOpaque()
     );
@@ -88,7 +82,6 @@ public class LogisticsBlocks {
         settings -> new PipeBlock(settings, PipeTypes.ITEM_FILTER),
         AbstractBlock.Settings.create()
             .mapColor(MapColor.DIAMOND_BLUE)
-            .strength(3.0f, 6.0f)
             .sounds(BlockSoundGroup.METAL)
             .nonOpaque()
     );
@@ -98,7 +91,6 @@ public class LogisticsBlocks {
         settings -> new PipeBlock(settings, PipeTypes.ITEM_INSERTION),
         AbstractBlock.Settings.create()
             .mapColor(MapColor.OFF_WHITE)
-            .strength(2.0f, 6.0f)
             .sounds(BlockSoundGroup.STONE)
             .nonOpaque()
     );
@@ -108,7 +100,6 @@ public class LogisticsBlocks {
         settings -> new PipeBlock(settings, PipeTypes.ITEM_VOID),
         AbstractBlock.Settings.create()
             .mapColor(MapColor.BLACK)
-            .strength(50.0f, 1200.0f)
             .sounds(BlockSoundGroup.STONE)
             .nonOpaque()
     );
