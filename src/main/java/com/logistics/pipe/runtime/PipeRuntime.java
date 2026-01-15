@@ -46,7 +46,7 @@ public final class PipeRuntime {
             // Cache connection types in block entity for rendering
             if (state.getBlock() instanceof PipeBlock pipeBlock) {
                 for (Direction direction : Direction.values()) {
-                    PipeBlock.ConnectionType type = pipeBlock.getConnectionType(world, pos, direction);
+                    PipeBlock.ConnectionType type = pipeBlock.getDynamicConnectionType(world, pos, direction);
                     blockEntity.setConnectionType(direction, type);
                 }
             }

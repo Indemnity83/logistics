@@ -253,6 +253,10 @@ public class PipeBlock extends BlockWithEntity implements Waterloggable {
             }
         }
 
+        return getDynamicConnectionType(world, pos, direction);
+    }
+
+    public ConnectionType getDynamicConnectionType(BlockView world, BlockPos pos, Direction direction) {
         // Server side or when cache not available: calculate dynamically
         BlockPos neighborPos = pos.offset(direction);
         BlockState neighborState = world.getBlockState(neighborPos);
