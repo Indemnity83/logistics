@@ -80,7 +80,7 @@ public class PipeBlock extends BlockWithEntity implements Waterloggable {
     }
 
     public PipeBlock(Settings settings, Pipe pipe) {
-        super(settings.mapColor(MapColor.CLEAR).strength(0.0f));
+        super(settings.mapColor(MapColor.CLEAR).nonOpaque().strength(0.0f));
         this.pipe = pipe;
         setDefaultState(getDefaultState()
             .with(POWERED, false)

@@ -23,73 +23,55 @@ public class LogisticsBlocks {
     // Transport Pipes
     public static final Block STONE_TRANSPORT_PIPE = register(
         "stone_transport_pipe",
-        settings -> new PipeBlock(settings, PipeTypes.STONE_TRANSPORT_PIPE),
-        AbstractBlock.Settings.create()
-                .nonOpaque()
+        settings -> new PipeBlock(settings, PipeTypes.STONE_TRANSPORT_PIPE)
     );
 
     public static final Block ITEM_PASSTHROUGH_PIPE = register(
         "item_passthrough_pipe",
-        settings -> new PipeBlock(settings, PipeTypes.ITEM_PASSTHROUGH_PIPE),
-        AbstractBlock.Settings.create()
-                .nonOpaque()
+        settings -> new PipeBlock(settings, PipeTypes.ITEM_PASSTHROUGH_PIPE)
     );
 
     public static final Block COPPER_TRANSPORT_PIPE = register(
         "copper_transport_pipe",
-        settings -> new PipeBlock(settings, PipeTypes.COPPER_TRANSPORT_PIPE),
-        AbstractBlock.Settings.create()
-            .nonOpaque()
+        settings -> new PipeBlock(settings, PipeTypes.COPPER_TRANSPORT_PIPE)
     );
 
     public static final Block ITEM_EXTRACTOR_PIPE = register(
         "item_extractor_pipe",
-        settings -> new PipeBlock(settings, PipeTypes.ITEM_EXTRACTOR),
-        AbstractBlock.Settings.create()
-            .nonOpaque()
+        settings -> new PipeBlock(settings, PipeTypes.ITEM_EXTRACTOR)
     );
 
     public static final Block ITEM_MERGER_PIPE = register(
         "item_merger_pipe",
-        settings -> new PipeBlock(settings, PipeTypes.ITEM_MERGER),
-        AbstractBlock.Settings.create()
-            .nonOpaque()
+        settings -> new PipeBlock(settings, PipeTypes.ITEM_MERGER)
     );
 
     public static final Block GOLD_TRANSPORT_PIPE = register(
         "gold_transport_pipe",
-        settings -> new PipeBlock(settings, PipeTypes.GOLD_TRANSPORT),
-        AbstractBlock.Settings.create()
-            .nonOpaque()
+        settings -> new PipeBlock(settings, PipeTypes.GOLD_TRANSPORT)
     );
 
     public static final Block ITEM_FILTER_PIPE = register(
         "item_filter_pipe",
-        settings -> new PipeBlock(settings, PipeTypes.ITEM_FILTER),
-        AbstractBlock.Settings.create()
-            .nonOpaque()
+        settings -> new PipeBlock(settings, PipeTypes.ITEM_FILTER)
     );
 
     public static final Block ITEM_INSERTION_PIPE = register(
         "item_insertion_pipe",
-        settings -> new PipeBlock(settings, PipeTypes.ITEM_INSERTION),
-        AbstractBlock.Settings.create()
-            .nonOpaque()
+        settings -> new PipeBlock(settings, PipeTypes.ITEM_INSERTION)
     );
 
     public static final Block ITEM_VOID_PIPE = register(
         "item_void_pipe",
-        settings -> new PipeBlock(settings, PipeTypes.ITEM_VOID),
-        AbstractBlock.Settings.create()
-            .nonOpaque()
+        settings -> new PipeBlock(settings, PipeTypes.ITEM_VOID)
     );
 
-    private static Block register(String name, Function<AbstractBlock.Settings, Block> blockFactory, AbstractBlock.Settings settings) {
+    private static Block register(String name, Function<AbstractBlock.Settings, Block> blockFactory) {
         // Create a registry key for the block
         RegistryKey<Block> blockKey = keyOfBlock(name);
 
         // Create the block instance (1.21.2+ requires the key to be present in the settings at construction time)
-        Block block = blockFactory.apply(settings.registryKey(blockKey));
+        Block block = blockFactory.apply(AbstractBlock.Settings.create().registryKey(blockKey));
 
         // Items need to be registered with a different type of registry key, but the ID can be the same.
         RegistryKey<Item> itemKey = keyOfItem(name);
