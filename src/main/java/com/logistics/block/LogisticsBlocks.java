@@ -103,6 +103,11 @@ public class LogisticsBlocks {
         PipeTypes.ITEM_INSERTION.setPipeBlock((PipeBlock) ITEM_INSERTION_PIPE);
         PipeTypes.ITEM_VOID.setPipeBlock((PipeBlock) ITEM_VOID_PIPE);
 
+        registerLegacyAliases();
+    }
+
+    private static void registerLegacyAliases() {
+        // pre-v0.2.0
         Registries.BLOCK.addAlias(
             Identifier.of(LogisticsMod.MOD_ID, "item_sensor_pipe"),
             Registries.BLOCK.getId(COPPER_TRANSPORT_PIPE)
