@@ -183,6 +183,16 @@ public abstract class Pipe {
         }
     }
 
+    public net.minecraft.util.ActionResult onUseWithItem(PipeContext ctx, net.minecraft.item.ItemUsageContext usage) {
+        for (Module module : modules) {
+            net.minecraft.util.ActionResult result = module.onUseWithItem(ctx, usage);
+            if (result != net.minecraft.util.ActionResult.PASS) {
+                return result;
+            }
+        }
+        return net.minecraft.util.ActionResult.PASS;
+    }
+
     public void onConnectionsChanged(PipeContext ctx, List<Direction> connected) {
         for (Module module : modules) {
             module.onConnectionsChanged(ctx, connected);

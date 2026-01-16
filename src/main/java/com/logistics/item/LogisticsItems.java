@@ -3,6 +3,7 @@ package com.logistics.item;
 import com.logistics.LogisticsMod;
 import com.logistics.block.LogisticsBlocks;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
@@ -12,6 +13,7 @@ import net.minecraft.util.DyeColor;
 
 import java.util.Collections;
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.Map;
 
 public class LogisticsItems {
@@ -22,6 +24,7 @@ public class LogisticsItems {
             .registryKey(RegistryKey.of(RegistryKeys.ITEM, Identifier.of(LogisticsMod.MOD_ID, "wrench")))
             .maxCount(1)));
 
+    private static final Map<Item, DyeColor> DYKEM_ITEM_COLORS = new HashMap<>();
     private static final Map<DyeColor, Item> DYKEM_ITEMS = registerDykemItems();
 
     private static Item registerItem(String name, Item item) {
@@ -30,6 +33,10 @@ public class LogisticsItems {
 
     public static Item getDykemItem(DyeColor color) {
         return DYKEM_ITEMS.get(color);
+    }
+
+    public static boolean isDykemItem(ItemStack stack) {
+        return DYKEM_ITEM_COLORS.containsKey(stack.getItem());
     }
 
     public static void initialize() {
@@ -47,6 +54,7 @@ public class LogisticsItems {
                 .maxCount(1)
                 .maxDamage(DYKEM_USES));
             items.put(color, registerItem(name, item));
+            DYKEM_ITEM_COLORS.put(item, color);
         }
         return Collections.unmodifiableMap(items);
     }
