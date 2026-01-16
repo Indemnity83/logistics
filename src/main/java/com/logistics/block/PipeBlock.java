@@ -13,7 +13,9 @@ import net.minecraft.entity.ItemEntity;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.item.ItemPlacementContext;
+import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUsageContext;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.BlockSoundGroup;
 import net.minecraft.state.StateManager;
@@ -21,11 +23,13 @@ import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.EnumProperty;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.ActionResult;
+import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
+import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
@@ -134,6 +138,29 @@ public class PipeBlock extends BlockWithEntity implements Waterloggable {
         );
         pipe.onWrenchUse(pipeContext, context);
         return ActionResult.SUCCESS;
+    }
+
+    /**
+     * Route item use interactions to pipe modules before default block handling.
+     */
+    protected ActionResult onUseWithItem(ItemStack stack, BlockState state, World world, BlockPos pos,
+                                         PlayerEntity player, Hand hand, BlockHitResult hit) {
+        if (pipe == null) {
+            return ActionResult.PASS;
+        }
+
+        BlockEntity blockEntity = world.getBlockEntity(pos);
+        if (!(blockEntity instanceof PipeBlockEntity pipeEntity)) {
+            return ActionResult.PASS;
+        }
+
+        PipeContext pipeContext = new PipeContext(world, pos, state, pipeEntity);
+        ActionResult result = pipe.onUseWithItem(pipeContext, new ItemUsageContext(player, hand, hit));
+        if (result != ActionResult.PASS) {
+            return result;
+        }
+
+        return super.onUseWithItem(stack, state, world, pos, player, hand, hit);
     }
 
     @Override

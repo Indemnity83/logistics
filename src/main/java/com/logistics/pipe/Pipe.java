@@ -50,6 +50,17 @@ public abstract class Pipe {
     }
 
     /**
+     * Collect core decoration models from pipe modules.
+     */
+    public List<CoreDecoration> getCoreDecorations(PipeContext ctx) {
+        List<CoreDecoration> models = new ArrayList<>();
+        for (Module module : modules) {
+            models.addAll(module.getCoreDecorations(ctx));
+        }
+        return models;
+    }
+
+    /**
      * Get the model identifier for an arm part in the given direction.
      * Delegates to modules first to allow them to override with custom models (like feature faces).
      * Falls back to the default arm model if no module provides an override.
@@ -96,6 +107,11 @@ public abstract class Pipe {
 
         return models;
     }
+
+    /**
+     * Core overlay model with an optional tint color.
+     */
+    public record CoreDecoration(Identifier modelId, int color) {}
 
     public String getModelBasePath(Direction direction) {
         return "block/" + getPipeName() + "_" + direction.name().toLowerCase();
@@ -181,6 +197,16 @@ public abstract class Pipe {
         for (Module module : modules) {
             module.onWrenchUse(ctx, usage);
         }
+    }
+
+    public net.minecraft.util.ActionResult onUseWithItem(PipeContext ctx, net.minecraft.item.ItemUsageContext usage) {
+        for (Module module : modules) {
+            net.minecraft.util.ActionResult result = module.onUseWithItem(ctx, usage);
+            if (result != net.minecraft.util.ActionResult.PASS) {
+                return result;
+            }
+        }
+        return net.minecraft.util.ActionResult.PASS;
     }
 
     public void onConnectionsChanged(PipeContext ctx, List<Direction> connected) {

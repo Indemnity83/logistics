@@ -15,7 +15,9 @@ public final class PipeTypes {
 
     // Base transport pipe - simple item movement.
     // NOTE: No special connection restrictions; this is the default backbone pipe.
-    public static final Pipe COPPER_TRANSPORT_PIPE = new Pipe() {};
+    public static final Pipe COPPER_TRANSPORT_PIPE = new Pipe(
+            new PipeMarkingModule()
+    ) {};
 
     // Accelerator transport - accelerates items when powered by redstone.
     public static final Pipe GOLD_TRANSPORT = new Pipe(

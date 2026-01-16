@@ -3,6 +3,7 @@ package com.logistics.client.render;
 import com.logistics.block.PipeBlock;
 import com.logistics.block.entity.PipeBlockEntity;
 import com.logistics.pipe.PipeContext;
+import com.logistics.pipe.Pipe;
 import com.logistics.pipe.runtime.TravelingItem;
 import com.logistics.pipe.runtime.PipeConfig;
 import net.minecraft.block.BlockState;
@@ -57,7 +58,7 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
         // Store tickDelta for use in render()
         state.tickDelta = tickDelta;
 
-        state.modelIds.clear();
+        state.models.clear();
 
         // Clear previous items
         state.travelingItems.clear();
@@ -76,14 +77,24 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
                 accelerationRate = pipeBlock.getPipe().getAccelerationRate(context);
                 dragCoefficient = pipeBlock.getPipe().getDrag(context);
 
-                state.modelIds.add(pipeBlock.getPipe().getCoreModelId());
+                Pipe pipe = pipeBlock.getPipe();
+                state.models.add(new PipeRenderState.ModelRenderInfo(pipe.getCoreModelId(), 0xFFFFFF));
+                for (Pipe.CoreDecoration decoration : pipe.getCoreDecorations(context)) {
+                    state.models.add(new PipeRenderState.ModelRenderInfo(decoration.modelId(), decoration.color()));
+                }
+
                 for (Direction direction : Direction.values()) {
                     PipeBlock.ConnectionType type = entity.getConnectionType(direction);
                     if (type == PipeBlock.ConnectionType.NONE) {
                         continue;
                     }
-                    state.modelIds.add(pipeBlock.getPipe().getPipeArm(context, direction));
-                    state.modelIds.addAll(pipeBlock.getPipe().getPipeDecorations(context, direction));
+                    state.models.add(new PipeRenderState.ModelRenderInfo(
+                        pipe.getPipeArm(context, direction),
+                        0xFFFFFF
+                    ));
+                    for (Identifier decoration : pipe.getPipeDecorations(context, direction)) {
+                        state.models.add(new PipeRenderState.ModelRenderInfo(decoration, 0xFFFFFF));
+                    }
                 }
             }
         }
@@ -122,22 +133,26 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
         OrderedRenderCommandQueue queue,
         CameraRenderState cameraState
     ) {
-        if (!state.modelIds.isEmpty()) {
+        if (!state.models.isEmpty()) {
             RenderLayer renderLayer = state.blockState == null
                 ? RenderLayers.cutout()
                 : BlockRenderLayers.getEntityBlockLayer(state.blockState);
-            for (Identifier modelId : state.modelIds) {
-                BlockStateModel model = PipeModelRegistry.getModel(modelId);
+            for (PipeRenderState.ModelRenderInfo modelInfo : state.models) {
+                BlockStateModel model = PipeModelRegistry.getModel(modelInfo.modelId);
                 if (model == null) {
                     continue;
                 }
+                int color = modelInfo.color;
+                float red = ((color >> 16) & 0xFF) / 255.0f;
+                float green = ((color >> 8) & 0xFF) / 255.0f;
+                float blue = (color & 0xFF) / 255.0f;
                 queue.submitBlockStateModel(
                     matrices,
                     renderLayer,
                     model,
-                    1.0f,
-                    1.0f,
-                    1.0f,
+                    red,
+                    green,
+                    blue,
                     state.lightmapCoordinates,
                     OverlayTexture.DEFAULT_UV,
                     0

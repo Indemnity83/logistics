@@ -10,5 +10,21 @@
   "block.logistics.item_insertion_pipe": "Item Insertion Pipe",
   "block.logistics.item_void_pipe": "Item Void Pipe",
   "itemgroup.logistics.transport": "Logistics: Transport",
-  "screen.logistics.item_filter": "Item Filter"
+  "screen.logistics.item_filter": "Item Filter",
+  "item.logistics.marking_fluid_white": "White Marking Fluid",
+  "item.logistics.marking_fluid_orange": "Orange Marking Fluid",
+  "item.logistics.marking_fluid_magenta": "Magenta Marking Fluid",
+  "item.logistics.marking_fluid_light_blue": "Light Blue Marking Fluid",
+  "item.logistics.marking_fluid_yellow": "Yellow Marking Fluid",
+  "item.logistics.marking_fluid_lime": "Lime Marking Fluid",
+  "item.logistics.marking_fluid_pink": "Pink Marking Fluid",
+  "item.logistics.marking_fluid_gray": "Gray Marking Fluid",
+  "item.logistics.marking_fluid_light_gray": "Light Gray Marking Fluid",
+  "item.logistics.marking_fluid_cyan": "Cyan Marking Fluid",
+  "item.logistics.marking_fluid_purple": "Purple Marking Fluid",
+  "item.logistics.marking_fluid_blue": "Blue Marking Fluid",
+  "item.logistics.marking_fluid_brown": "Brown Marking Fluid",
+  "item.logistics.marking_fluid_green": "Green Marking Fluid",
+  "item.logistics.marking_fluid_red": "Red Marking Fluid",
+  "item.logistics.marking_fluid_black": "Black Marking Fluid"
 }

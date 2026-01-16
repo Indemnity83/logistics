@@ -21,6 +21,7 @@ classes/
 .vscode/
 
 # Fabric
+net/
 run/
 logs/
 

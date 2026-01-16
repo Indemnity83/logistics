@@ -9,6 +9,7 @@ import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.DyeColor;
 
 public class LogisticsItemGroups {
     public static final ItemGroup LOGISTICS_TRANSPORT = Registry.register(
@@ -19,6 +20,9 @@ public class LogisticsItemGroups {
             .icon(() -> new ItemStack(LogisticsBlocks.COPPER_TRANSPORT_PIPE))
             .entries((displayContext, entries) -> {
                 entries.add(LogisticsItems.WRENCH);
+                for (DyeColor color : DyeColor.values()) {
+                    entries.add(LogisticsItems.getMarkingFluidItem(color));
+                }
                 entries.add(LogisticsBlocks.STONE_TRANSPORT_PIPE);
                 entries.add(LogisticsBlocks.ITEM_PASSTHROUGH_PIPE);
                 entries.add(LogisticsBlocks.COPPER_TRANSPORT_PIPE);

@@ -7,6 +7,7 @@ import com.logistics.pipe.runtime.RoutePlan;
 import net.minecraft.block.Block;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUsageContext;
+import net.minecraft.util.ActionResult;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.random.Random;
@@ -45,6 +46,10 @@ public interface Module {
     default void onConnectionsChanged(PipeContext ctx, List<Direction> options) {}
 
     default void onWrenchUse(PipeContext ctx, ItemUsageContext usage) {}
+
+    default ActionResult onUseWithItem(PipeContext ctx, ItemUsageContext usage) {
+        return ActionResult.PASS;
+    }
 
     default int comparatorOutput(PipeContext ctx) {
         return 0;
@@ -97,6 +102,16 @@ public interface Module {
      * @return decoration model identifiers to render for this arm direction
      */
     default List<Identifier> getPipeDecorations(PipeContext ctx, Direction direction) {
+        return List.of();
+    }
+
+    /**
+     * Append decoration models for the pipe core.
+     *
+     * @param ctx the pipe context
+     * @return decoration model infos to render for the pipe core
+     */
+    default List<Pipe.CoreDecoration> getCoreDecorations(PipeContext ctx) {
         return List.of();
     }
 }

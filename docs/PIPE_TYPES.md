@@ -316,18 +316,18 @@ Tier 3 represents a shift away from "pipes" entirely into network components. Th
 - **Configuration**: Wrench to set preferred direction
 - **Recipe concept**: Emerald + glass + [component] → 8 pipes
 
-## Colored Pipes (Network Segmentation) 🔮 Future
+## Pipe Markings (Network Segmentation)
 
-**Not yet implemented.**
+**Implemented on copper transport pipes.**
 
-- **Tier**: 1-2 (applies to any pipe)
+- **Tier**: 1 (applies to copper transport pipes)
 - **Purpose**: Segment networks by color/channel
 - **Expose ItemStorage**: Pipes only, compatible colors
 - **Accept from pipe**: Yes, compatible colors only
 - **Route into inventories**: Yes
-- **Compatibility**: Should be used consistently for connection rendering, routing direction selection, and ItemStorage exposure
-- **Recipe concept**: Apply dye to existing pipes
-- **Note**: Channelization via applied markings or colors
+- **Use**: Right-click with marking fluid to apply color; sneak + empty hand to clear
+- **Recipe**: Marking fluid = water bottle + dye
+- **Note**: Channelization via applied markings
 
 ---
 

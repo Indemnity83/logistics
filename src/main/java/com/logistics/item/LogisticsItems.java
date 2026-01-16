@@ -3,26 +3,64 @@ package com.logistics.item;
 import com.logistics.LogisticsMod;
 import com.logistics.block.LogisticsBlocks;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.DyeColor;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.Collections;
+import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.Map;
 
 public class LogisticsItems {
+    private static final int MARKING_FLUID_USES = 16;
+
     public static final Item WRENCH = registerItem("wrench",
         new WrenchItem(new Item.Settings()
             .registryKey(RegistryKey.of(RegistryKeys.ITEM, Identifier.of(LogisticsMod.MOD_ID, "wrench")))
             .maxCount(1)));
 
+    private static final Map<Item, DyeColor> MARKING_FLUID_ITEM_COLORS = new HashMap<>();
+    private static final Map<DyeColor, Item> MARKING_FLUID_ITEMS = registerMarkingFluidItems();
+
     private static Item registerItem(String name, Item item) {
         return Registry.register(Registries.ITEM, Identifier.of(LogisticsMod.MOD_ID, name), item);
+    }
+
+    public static Item getMarkingFluidItem(DyeColor color) {
+        return MARKING_FLUID_ITEMS.get(color);
+    }
+
+    /**
+     * Resolve the marking fluid dye color from a stack.
+     */
+    public static @Nullable DyeColor getMarkingFluidColor(ItemStack stack) {
+        return MARKING_FLUID_ITEM_COLORS.get(stack.getItem());
     }
 
     public static void initialize() {
         LogisticsMod.LOGGER.info("Registering items");
 
         registerLegacyAliases();
+    }
+
+    private static Map<DyeColor, Item> registerMarkingFluidItems() {
+        Map<DyeColor, Item> items = new EnumMap<>(DyeColor.class);
+        for (DyeColor color : DyeColor.values()) {
+            String name = "marking_fluid_" + color.getId();
+            Item item = new Item(new Item.Settings()
+                .registryKey(RegistryKey.of(RegistryKeys.ITEM, Identifier.of(LogisticsMod.MOD_ID, name)))
+                .maxCount(1)
+                .maxDamage(MARKING_FLUID_USES));
+            items.put(color, registerItem(name, item));
+            MARKING_FLUID_ITEM_COLORS.put(item, color);
+        }
+        return Collections.unmodifiableMap(items);
     }
 
     private static void registerLegacyAliases() {
