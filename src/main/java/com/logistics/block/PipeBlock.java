@@ -116,30 +116,6 @@ public class PipeBlock extends BlockWithEntity implements Waterloggable {
         return BlockSoundGroup.METAL;
     }
 
-    public ActionResult onWrenchUse(ItemUsageContext context) {
-        if (pipe == null) {
-            return ActionResult.PASS;
-        }
-
-        if (context.getWorld().isClient()) {
-            return ActionResult.SUCCESS;
-        }
-
-        BlockEntity blockEntity = context.getWorld().getBlockEntity(context.getBlockPos());
-        if (!(blockEntity instanceof PipeBlockEntity pipeEntity)) {
-            return ActionResult.PASS;
-        }
-
-        PipeContext pipeContext = new PipeContext(
-            context.getWorld(),
-            context.getBlockPos(),
-            context.getWorld().getBlockState(context.getBlockPos()),
-            pipeEntity
-        );
-        pipe.onWrenchUse(pipeContext, context);
-        return ActionResult.SUCCESS;
-    }
-
     /**
      * Route item use interactions to pipe modules before default block handling.
      */

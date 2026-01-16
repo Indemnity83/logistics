@@ -1,6 +1,7 @@
 package com.logistics.pipe.modules;
 
 import com.logistics.LogisticsMod;
+import com.logistics.item.LogisticsItems;
 import com.logistics.pipe.runtime.TravelingItem;
 import com.logistics.pipe.runtime.PipeConfig;
 import com.logistics.pipe.PipeContext;
@@ -12,6 +13,7 @@ import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUsageContext;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.util.ActionResult;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -65,19 +67,28 @@ public class ExtractionModule implements Module {
     }
 
     @Override
-    public void onWrenchUse(PipeContext ctx, ItemUsageContext usage) {
+    public ActionResult onUseWithItem(PipeContext ctx, ItemUsageContext usage) {
+        if (!LogisticsItems.isWrench(usage.getStack())) {
+            return ActionResult.PASS;
+        }
+
+        if (ctx.world().isClient()) {
+            return ActionResult.SUCCESS;
+        }
+
         List<Direction> connected = ctx.getInventoryConnections();
 
         // No valid outputs: clear config.
         if (connected.isEmpty()) {
             setExtractionDirection(ctx, null);
-            return;
+            return ActionResult.SUCCESS;
         }
 
         Direction current = getExtractionDirection(ctx);
         Direction next = nextInCycle(connected, current);
 
         setExtractionDirection(ctx, next);
+        return ActionResult.SUCCESS;
     }
 
     @Override

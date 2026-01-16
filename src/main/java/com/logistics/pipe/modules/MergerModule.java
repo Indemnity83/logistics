@@ -1,11 +1,13 @@
 package com.logistics.pipe.modules;
 
 import com.logistics.LogisticsMod;
+import com.logistics.item.LogisticsItems;
 import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.runtime.RoutePlan;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUsageContext;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.util.ActionResult;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Direction;
 import org.jetbrains.annotations.Nullable;
@@ -43,19 +45,28 @@ public class MergerModule implements Module {
     }
 
     @Override
-    public void onWrenchUse(PipeContext ctx, ItemUsageContext usage) {
+    public ActionResult onUseWithItem(PipeContext ctx, ItemUsageContext usage) {
+        if (!LogisticsItems.isWrench(usage.getStack())) {
+            return ActionResult.PASS;
+        }
+
+        if (ctx.world().isClient()) {
+            return ActionResult.SUCCESS;
+        }
+
         List<Direction> connected = ctx.getConnectedDirections();
 
         // No valid outputs: clear config.
         if (connected.isEmpty()) {
             setOutputDirection(ctx, null);
-            return;
+            return ActionResult.SUCCESS;
         }
 
         Direction current = getOutputDirection(ctx);
         Direction next = nextInCycle(connected, current);
 
         setOutputDirection(ctx, next);
+        return ActionResult.SUCCESS;
     }
 
     @Override

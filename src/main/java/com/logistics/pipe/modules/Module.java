@@ -45,8 +45,6 @@ public interface Module {
 
     default void onConnectionsChanged(PipeContext ctx, List<Direction> options) {}
 
-    default void onWrenchUse(PipeContext ctx, ItemUsageContext usage) {}
-
     default ActionResult onUseWithItem(PipeContext ctx, ItemUsageContext usage) {
         return ActionResult.PASS;
     }

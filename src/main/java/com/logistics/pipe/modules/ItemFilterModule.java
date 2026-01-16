@@ -1,19 +1,22 @@
 package com.logistics.pipe.modules;
 
+import com.logistics.block.entity.PipeBlockEntity;
+import com.logistics.item.LogisticsItems;
 import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.runtime.RoutePlan;
 import com.logistics.pipe.runtime.TravelingItem;
-import com.logistics.block.entity.PipeBlockEntity;
 import com.logistics.pipe.ui.ItemFilterScreenHandler;
+import net.minecraft.item.ItemUsageContext;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtString;
 import net.minecraft.registry.Registries;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
+import net.minecraft.util.ActionResult;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
 import net.minecraft.util.math.Direction;
+import net.minecraft.world.World;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,13 +65,17 @@ public class ItemFilterModule implements Module {
     }
 
     @Override
-    public void onWrenchUse(PipeContext ctx, net.minecraft.item.ItemUsageContext usage) {
+    public ActionResult onUseWithItem(PipeContext ctx, ItemUsageContext usage) {
+        if (!LogisticsItems.isWrench(usage.getStack())) {
+            return ActionResult.PASS;
+        }
+
         if (ctx.world().isClient()) {
-            return;
+            return ActionResult.SUCCESS;
         }
 
         if (!(usage.getPlayer() instanceof ServerPlayerEntity player)) {
-            return;
+            return ActionResult.PASS;
         }
 
         World world = ctx.world();
@@ -80,6 +87,7 @@ public class ItemFilterModule implements Module {
             },
             Text.translatable("screen.logistics.item_filter")
         ));
+        return ActionResult.SUCCESS;
     }
 
     public static int getFilterColor(Direction direction) {

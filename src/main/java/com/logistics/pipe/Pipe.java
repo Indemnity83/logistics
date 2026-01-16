@@ -193,12 +193,6 @@ public abstract class Pipe {
         return false;
     }
 
-    public void onWrenchUse(PipeContext ctx, net.minecraft.item.ItemUsageContext usage) {
-        for (Module module : modules) {
-            module.onWrenchUse(ctx, usage);
-        }
-    }
-
     public net.minecraft.util.ActionResult onUseWithItem(PipeContext ctx, net.minecraft.item.ItemUsageContext usage) {
         for (Module module : modules) {
             net.minecraft.util.ActionResult result = module.onUseWithItem(ctx, usage);
