@@ -1,12 +1,21 @@
 package com.logistics.pipe.modules;
 
+import com.logistics.block.PipeBlock;
+import com.logistics.block.entity.PipeBlockEntity;
 import com.logistics.item.LogisticsItems;
+import com.logistics.pipe.Pipe;
 import com.logistics.pipe.PipeContext;
+import net.minecraft.block.Block;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUsageContext;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.DyeColor;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.Objects;
 
 public class DykemModule implements Module {
     private static final String COLOR_KEY = "pipe_color";
@@ -21,6 +30,7 @@ public class DykemModule implements Module {
                     return ActionResult.SUCCESS;
                 }
                 ctx.remove(this, COLOR_KEY);
+                ctx.markDirtyAndSync();
             }
             return ActionResult.SUCCESS;
         }
@@ -44,7 +54,39 @@ public class DykemModule implements Module {
         }
 
         ctx.saveString(this, COLOR_KEY, colorId);
+        ctx.markDirtyAndSync();
         stack.damage(1, player, usage.getHand());
         return ActionResult.SUCCESS;
+    }
+
+    @Override
+    public boolean allowsConnection(@Nullable PipeContext ctx, Direction direction, Pipe selfPipe, Block neighborBlock) {
+        if (ctx == null || !(neighborBlock instanceof PipeBlock neighborPipeBlock)) {
+            return true;
+        }
+
+        String color = ctx.getString(this, COLOR_KEY, "");
+        if (color.isEmpty()) {
+            return true;
+        }
+
+        Pipe neighborPipe = neighborPipeBlock.getPipe();
+        if (neighborPipe == null || neighborPipe.getModule(DykemModule.class) == null) {
+            return true;
+        }
+
+        BlockPos neighborPos = ctx.pos().offset(direction);
+        if (!(ctx.world().getBlockEntity(neighborPos) instanceof PipeBlockEntity neighborEntity)) {
+            return true;
+        }
+
+        PipeContext neighborContext = new PipeContext(
+            ctx.world(),
+            neighborPos,
+            ctx.world().getBlockState(neighborPos),
+            neighborEntity
+        );
+        String neighborColor = neighborContext.getString(this, COLOR_KEY, "");
+        return Objects.equals(neighborColor, "") || color.equals(neighborColor);
     }
 }
