@@ -1,14 +1,10 @@
 {
   "type": "minecraft:crafting_shapeless",
   "ingredients": [
-    {
-      "item": "minecraft:cyan_dye"
-    },
+    "minecraft:cyan_dye",
     {
       "fabric:type": "fabric:components",
-      "base": {
-        "item": "minecraft:potion"
-      },
+      "base": "minecraft:potion",
       "components": {
         "minecraft:potion_contents": {
           "potion": "minecraft:water"
