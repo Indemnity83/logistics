@@ -35,8 +35,8 @@ public class LogisticsItems {
         return DYKEM_ITEMS.get(color);
     }
 
-    public static boolean isDykemItem(ItemStack stack) {
-        return DYKEM_ITEM_COLORS.containsKey(stack.getItem());
+    public static DyeColor getDykemColor(ItemStack stack) {
+        return DYKEM_ITEM_COLORS.get(stack.getItem());
     }
 
     public static void initialize() {
