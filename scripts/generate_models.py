@@ -36,8 +36,6 @@ def suffix_for_element(name):
         return "core"
     if name == "center_powered":
         return "core_powered"
-    if name == "center_dyed":
-        return "core_dyed"
     if name in VALID_DIRECTIONS:
         return name
     if name.endswith("_extension") or name.endswith("_feature") or name.endswith("_feature_extension"):
