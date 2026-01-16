@@ -8,21 +8,47 @@ import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.DyeColor;
+
+import java.util.Collections;
+import java.util.EnumMap;
+import java.util.Map;
 
 public class LogisticsItems {
+    private static final int DYKEM_USES = 16;
+
     public static final Item WRENCH = registerItem("wrench",
         new WrenchItem(new Item.Settings()
             .registryKey(RegistryKey.of(RegistryKeys.ITEM, Identifier.of(LogisticsMod.MOD_ID, "wrench")))
             .maxCount(1)));
 
+    private static final Map<DyeColor, Item> DYKEM_ITEMS = registerDykemItems();
+
     private static Item registerItem(String name, Item item) {
         return Registry.register(Registries.ITEM, Identifier.of(LogisticsMod.MOD_ID, name), item);
+    }
+
+    public static Item getDykemItem(DyeColor color) {
+        return DYKEM_ITEMS.get(color);
     }
 
     public static void initialize() {
         LogisticsMod.LOGGER.info("Registering items");
 
         registerLegacyAliases();
+    }
+
+    private static Map<DyeColor, Item> registerDykemItems() {
+        Map<DyeColor, Item> items = new EnumMap<>(DyeColor.class);
+        for (DyeColor color : DyeColor.values()) {
+            String name = "dykem_" + color.getId();
+            Item item = new Item(new Item.Settings()
+                .registryKey(RegistryKey.of(RegistryKeys.ITEM, Identifier.of(LogisticsMod.MOD_ID, name)))
+                .maxCount(1)
+                .maxDamage(DYKEM_USES));
+            items.put(color, registerItem(name, item));
+        }
+        return Collections.unmodifiableMap(items);
     }
 
     private static void registerLegacyAliases() {

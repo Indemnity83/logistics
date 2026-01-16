@@ -1,0 +1,7 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "logistics:item/dykem",
+    "layer1": "logistics:item/dykem_overlay"
+  }
+}

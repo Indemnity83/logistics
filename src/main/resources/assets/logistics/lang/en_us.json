@@ -10,5 +10,21 @@
   "block.logistics.item_insertion_pipe": "Item Insertion Pipe",
   "block.logistics.item_void_pipe": "Item Void Pipe",
   "itemgroup.logistics.transport": "Logistics: Transport",
-  "screen.logistics.item_filter": "Item Filter"
+  "screen.logistics.item_filter": "Item Filter",
+  "item.logistics.dykem_white": "Dykem White",
+  "item.logistics.dykem_orange": "Dykem Orange",
+  "item.logistics.dykem_magenta": "Dykem Magenta",
+  "item.logistics.dykem_light_blue": "Dykem Light Blue",
+  "item.logistics.dykem_yellow": "Dykem Yellow",
+  "item.logistics.dykem_lime": "Dykem Lime",
+  "item.logistics.dykem_pink": "Dykem Pink",
+  "item.logistics.dykem_gray": "Dykem Gray",
+  "item.logistics.dykem_light_gray": "Dykem Light Gray",
+  "item.logistics.dykem_cyan": "Dykem Cyan",
+  "item.logistics.dykem_purple": "Dykem Purple",
+  "item.logistics.dykem_blue": "Dykem Blue",
+  "item.logistics.dykem_brown": "Dykem Brown",
+  "item.logistics.dykem_green": "Dykem Green",
+  "item.logistics.dykem_red": "Dykem Red",
+  "item.logistics.dykem_black": "Dykem Black"
 }
