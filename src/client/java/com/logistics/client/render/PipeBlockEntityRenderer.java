@@ -1,7 +1,9 @@
 package com.logistics.client.render;
 
+import com.logistics.LogisticsMod;
 import com.logistics.block.PipeBlock;
 import com.logistics.block.entity.PipeBlockEntity;
+import com.logistics.pipe.modules.DykemModule;
 import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.runtime.TravelingItem;
 import com.logistics.pipe.runtime.PipeConfig;
@@ -57,7 +59,7 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
         // Store tickDelta for use in render()
         state.tickDelta = tickDelta;
 
-        state.modelIds.clear();
+        state.models.clear();
 
         // Clear previous items
         state.travelingItems.clear();
@@ -76,14 +78,30 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
                 accelerationRate = pipeBlock.getPipe().getAccelerationRate(context);
                 dragCoefficient = pipeBlock.getPipe().getDrag(context);
 
-                state.modelIds.add(pipeBlock.getPipe().getCoreModelId());
+                state.models.add(new PipeRenderState.ModelRenderInfo(pipeBlock.getPipe().getCoreModelId(), 0xFFFFFF));
+
+                DykemModule dykemModule = pipeBlock.getPipe().getModule(DykemModule.class);
+                if (dykemModule != null) {
+                    var color = dykemModule.getStoredColor(context);
+                    if (color != null) {
+                    Identifier dyedCore = Identifier.of(LogisticsMod.MOD_ID,
+                        "block/" + pipeBlock.getPipe().getPipeName() + "_core_dyed");
+                    state.models.add(new PipeRenderState.ModelRenderInfo(dyedCore, color.getFireworkColor()));
+                    }
+                }
+
                 for (Direction direction : Direction.values()) {
                     PipeBlock.ConnectionType type = entity.getConnectionType(direction);
                     if (type == PipeBlock.ConnectionType.NONE) {
                         continue;
                     }
-                    state.modelIds.add(pipeBlock.getPipe().getPipeArm(context, direction));
-                    state.modelIds.addAll(pipeBlock.getPipe().getPipeDecorations(context, direction));
+                    state.models.add(new PipeRenderState.ModelRenderInfo(
+                        pipeBlock.getPipe().getPipeArm(context, direction),
+                        0xFFFFFF
+                    ));
+                    for (Identifier decoration : pipeBlock.getPipe().getPipeDecorations(context, direction)) {
+                        state.models.add(new PipeRenderState.ModelRenderInfo(decoration, 0xFFFFFF));
+                    }
                 }
             }
         }
@@ -122,22 +140,26 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
         OrderedRenderCommandQueue queue,
         CameraRenderState cameraState
     ) {
-        if (!state.modelIds.isEmpty()) {
+        if (!state.models.isEmpty()) {
             RenderLayer renderLayer = state.blockState == null
                 ? RenderLayers.cutout()
                 : BlockRenderLayers.getEntityBlockLayer(state.blockState);
-            for (Identifier modelId : state.modelIds) {
-                BlockStateModel model = PipeModelRegistry.getModel(modelId);
+            for (PipeRenderState.ModelRenderInfo modelInfo : state.models) {
+                BlockStateModel model = PipeModelRegistry.getModel(modelInfo.modelId);
                 if (model == null) {
                     continue;
                 }
+                int color = modelInfo.color;
+                float red = ((color >> 16) & 0xFF) / 255.0f;
+                float green = ((color >> 8) & 0xFF) / 255.0f;
+                float blue = (color & 0xFF) / 255.0f;
                 queue.submitBlockStateModel(
                     matrices,
                     renderLayer,
                     model,
-                    1.0f,
-                    1.0f,
-                    1.0f,
+                    red,
+                    green,
+                    blue,
                     state.lightmapCoordinates,
                     OverlayTexture.DEFAULT_UV,
                     0

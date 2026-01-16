@@ -1,0 +1,36 @@
+{
+  "generated_by": "scripts/generate_bbmodel_models.py",
+  "source": "assets/models/copper_transport_pipe.bbmodel",
+  "parent": "block/block",
+  "textures": {
+    "base": "logistics:block/copper_transport_pipe",
+    "dyed": "logistics:block/copper_transport_pipe_dyed",
+    "particle": "logistics:block/copper_transport_pipe"
+  },
+  "elements": [
+    {
+      "from": [4, 4, 4],
+      "to": [12, 12, 12],
+      "faces": {
+        "north": { "texture": "#base", "uv": [0, 4, 8, 12] },
+        "east": { "texture": "#base", "uv": [0, 4, 8, 12] },
+        "south": { "texture": "#base", "uv": [0, 4, 8, 12] },
+        "west": { "texture": "#base", "uv": [0, 4, 8, 12] },
+        "up": { "texture": "#base", "uv": [0, 4, 8, 12] },
+        "down": { "texture": "#base", "uv": [0, 4, 8, 12] }
+      }
+    },
+    {
+      "from": [3.999, 3.999, 3.999],
+      "to":   [12.001, 12.001, 12.001],
+      "faces": {
+        "north": { "texture": "#dyed", "uv": [0, 4, 8, 12], "tintindex": 0 },
+        "east": { "texture": "#dyed", "uv": [0, 4, 8, 12], "tintindex": 0 },
+        "south": { "texture": "#dyed", "uv": [0, 4, 8, 12], "tintindex": 0 },
+        "west": { "texture": "#dyed", "uv": [0, 4, 8, 12], "tintindex": 0 },
+        "up": { "texture": "#dyed", "uv": [0, 4, 8, 12], "tintindex": 0 },
+        "down": { "texture": "#dyed", "uv": [0, 4, 8, 12], "tintindex": 0 }
+      }
+    }
+  ]
+}

@@ -18,7 +18,21 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Objects;
 
 public class DykemModule implements Module {
-    private static final String COLOR_KEY = "pipe_color";
+    public static final String COLOR_KEY = "pipe_color";
+
+    @Nullable
+    public DyeColor getStoredColor(PipeContext ctx) {
+        String colorId = ctx.getString(this, COLOR_KEY, "");
+        if (colorId.isEmpty()) {
+            return null;
+        }
+        for (DyeColor color : DyeColor.values()) {
+            if (color.getId().equals(colorId)) {
+                return color;
+            }
+        }
+        return null;
+    }
 
     @Override
     public ActionResult onUseWithItem(PipeContext ctx, ItemUsageContext usage) {

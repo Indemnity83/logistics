@@ -9,10 +9,20 @@ import java.util.List;
 
 public class PipeRenderState extends BlockEntityRenderState {
     public final List<TravelingItemRenderState> travelingItems = new ArrayList<>();
-    public final List<Identifier> modelIds = new ArrayList<>();
+    public final List<ModelRenderInfo> models = new ArrayList<>();
     public BlockState blockState;
     public float tickDelta;
     public float accelerationRate;
     public float dragCoefficient;
     public float maxSpeed;
+
+    public static final class ModelRenderInfo {
+        public final Identifier modelId;
+        public final int color;
+
+        public ModelRenderInfo(Identifier modelId, int color) {
+            this.modelId = modelId;
+            this.color = color;
+        }
+    }
 }
