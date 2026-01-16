@@ -10,6 +10,7 @@ import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.DyeColor;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.EnumMap;
@@ -35,7 +36,10 @@ public class LogisticsItems {
         return MARKING_FLUID_ITEMS.get(color);
     }
 
-    public static DyeColor getMarkingFluidColor(ItemStack stack) {
+    /**
+     * Resolve the marking fluid dye color from a stack.
+     */
+    public static @Nullable DyeColor getMarkingFluidColor(ItemStack stack) {
         return MARKING_FLUID_ITEM_COLORS.get(stack.getItem());
     }
 

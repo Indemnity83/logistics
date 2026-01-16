@@ -85,6 +85,8 @@ Basic transport pipe that moves items through your network. When an item reaches
 
 *Recipe: copper ingot + glass → 8 pipes*
 
+Mark copper pipes with **marking fluid** (water bottle + dye) to segment networks by color. Pipes with the same marking will not connect; sneak + empty hand clears the marking.
+
 ### Item Extractor Pipe (Wood)
 Extraction pipe that actively pulls items from an adjacent inventor into your pipe network. Right-click with a wrench to select which face extracts. Only one face can be active at a time. Wooden pipes extract one item per operation.
 

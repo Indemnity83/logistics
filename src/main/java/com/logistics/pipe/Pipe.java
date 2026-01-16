@@ -49,6 +49,9 @@ public abstract class Pipe {
         return Identifier.of(LogisticsMod.MOD_ID, "block/" + getPipeName() + "_core");
     }
 
+    /**
+     * Collect core decoration models from pipe modules.
+     */
     public List<CoreDecoration> getCoreDecorations(PipeContext ctx) {
         List<CoreDecoration> models = new ArrayList<>();
         for (Module module : modules) {
@@ -105,6 +108,9 @@ public abstract class Pipe {
         return models;
     }
 
+    /**
+     * Core overlay model with an optional tint color.
+     */
     public record CoreDecoration(Identifier modelId, int color) {}
 
     public String getModelBasePath(Direction direction) {

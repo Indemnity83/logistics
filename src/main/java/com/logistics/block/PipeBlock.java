@@ -140,7 +140,9 @@ public class PipeBlock extends BlockWithEntity implements Waterloggable {
         return ActionResult.SUCCESS;
     }
 
-    @Override
+    /**
+     * Route item use interactions to pipe modules before default block handling.
+     */
     protected ActionResult onUseWithItem(ItemStack stack, BlockState state, World world, BlockPos pos,
                                          PlayerEntity player, Hand hand, BlockHitResult hit) {
         if (pipe == null) {
