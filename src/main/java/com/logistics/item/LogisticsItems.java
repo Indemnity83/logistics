@@ -21,7 +21,7 @@ public class LogisticsItems {
     private static final int MARKING_FLUID_USES = 16;
 
     public static final Item WRENCH = registerItem("wrench",
-        new WrenchItem(new Item.Settings()
+        new Item(new Item.Settings()
             .registryKey(RegistryKey.of(RegistryKeys.ITEM, Identifier.of(LogisticsMod.MOD_ID, "wrench")))
             .maxCount(1)));
 
@@ -41,6 +41,10 @@ public class LogisticsItems {
      */
     public static @Nullable DyeColor getMarkingFluidColor(ItemStack stack) {
         return MARKING_FLUID_ITEM_COLORS.get(stack.getItem());
+    }
+
+    public static boolean isWrench(ItemStack stack) {
+        return stack.getItem() == WRENCH;
     }
 
     public static void initialize() {
