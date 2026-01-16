@@ -33,6 +33,5 @@ public class LogisticsModClient implements ClientModInitializer {
 		BlockEntityRendererFactories.register(LogisticsBlockEntities.PIPE_BLOCK_ENTITY, PipeBlockEntityRenderer::new);
 
 		HandledScreens.register(PipeScreenHandlers.ITEM_FILTER, ItemFilterScreen::new);
-
 	}
 }
