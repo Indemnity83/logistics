@@ -49,6 +49,14 @@ public abstract class Pipe {
         return Identifier.of(LogisticsMod.MOD_ID, "block/" + getPipeName() + "_core");
     }
 
+    public List<CoreDecoration> getCoreDecorations(PipeContext ctx) {
+        List<CoreDecoration> models = new ArrayList<>();
+        for (Module module : modules) {
+            models.addAll(module.getCoreDecorations(ctx));
+        }
+        return models;
+    }
+
     /**
      * Get the model identifier for an arm part in the given direction.
      * Delegates to modules first to allow them to override with custom models (like feature faces).
@@ -96,6 +104,8 @@ public abstract class Pipe {
 
         return models;
     }
+
+    public record CoreDecoration(Identifier modelId, int color) {}
 
     public String getModelBasePath(Direction direction) {
         return "block/" + getPipeName() + "_" + direction.name().toLowerCase();

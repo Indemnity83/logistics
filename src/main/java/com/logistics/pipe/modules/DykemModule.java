@@ -1,5 +1,6 @@
 package com.logistics.pipe.modules;
 
+import com.logistics.LogisticsMod;
 import com.logistics.block.PipeBlock;
 import com.logistics.block.entity.PipeBlockEntity;
 import com.logistics.item.LogisticsItems;
@@ -11,6 +12,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUsageContext;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.DyeColor;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import org.jetbrains.annotations.Nullable;
@@ -71,6 +73,16 @@ public class DykemModule implements Module {
         ctx.markDirtyAndSync();
         stack.damage(1, player, usage.getHand());
         return ActionResult.SUCCESS;
+    }
+
+    @Override
+    public java.util.List<Pipe.CoreDecoration> getCoreDecorations(PipeContext ctx) {
+        DyeColor color = getStoredColor(ctx);
+        if (color == null || ctx.pipe() == null) {
+            return java.util.List.of();
+        }
+        Identifier dyedCore = Identifier.of(LogisticsMod.MOD_ID, "block/pipe_core_dye");
+        return java.util.List.of(new Pipe.CoreDecoration(dyedCore, color.getEntityColor()));
     }
 
     @Override

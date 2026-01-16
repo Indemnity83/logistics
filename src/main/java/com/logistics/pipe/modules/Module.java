@@ -104,4 +104,14 @@ public interface Module {
     default List<Identifier> getPipeDecorations(PipeContext ctx, Direction direction) {
         return List.of();
     }
+
+    /**
+     * Append decoration models for the pipe core.
+     *
+     * @param ctx the pipe context
+     * @return decoration model infos to render for the pipe core
+     */
+    default List<Pipe.CoreDecoration> getCoreDecorations(PipeContext ctx) {
+        return List.of();
+    }
 }

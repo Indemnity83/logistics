@@ -1,10 +1,9 @@
 package com.logistics.client.render;
 
-import com.logistics.LogisticsMod;
 import com.logistics.block.PipeBlock;
 import com.logistics.block.entity.PipeBlockEntity;
-import com.logistics.pipe.modules.DykemModule;
 import com.logistics.pipe.PipeContext;
+import com.logistics.pipe.Pipe;
 import com.logistics.pipe.runtime.TravelingItem;
 import com.logistics.pipe.runtime.PipeConfig;
 import net.minecraft.block.BlockState;
@@ -78,16 +77,10 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
                 accelerationRate = pipeBlock.getPipe().getAccelerationRate(context);
                 dragCoefficient = pipeBlock.getPipe().getDrag(context);
 
-                state.models.add(new PipeRenderState.ModelRenderInfo(pipeBlock.getPipe().getCoreModelId(), 0xFFFFFF));
-
-                DykemModule dykemModule = pipeBlock.getPipe().getModule(DykemModule.class);
-                if (dykemModule != null) {
-                    var color = dykemModule.getStoredColor(context);
-                    if (color != null) {
-                    Identifier dyedCore = Identifier.of(LogisticsMod.MOD_ID,
-                        "block/" + pipeBlock.getPipe().getPipeName() + "_core_dyed");
-                    state.models.add(new PipeRenderState.ModelRenderInfo(dyedCore, color.getFireworkColor()));
-                    }
+                Pipe pipe = pipeBlock.getPipe();
+                state.models.add(new PipeRenderState.ModelRenderInfo(pipe.getCoreModelId(), 0xFFFFFF));
+                for (Pipe.CoreDecoration decoration : pipe.getCoreDecorations(context)) {
+                    state.models.add(new PipeRenderState.ModelRenderInfo(decoration.modelId(), decoration.color()));
                 }
 
                 for (Direction direction : Direction.values()) {
@@ -96,10 +89,10 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
                         continue;
                     }
                     state.models.add(new PipeRenderState.ModelRenderInfo(
-                        pipeBlock.getPipe().getPipeArm(context, direction),
+                        pipe.getPipeArm(context, direction),
                         0xFFFFFF
                     ));
-                    for (Identifier decoration : pipeBlock.getPipe().getPipeDecorations(context, direction)) {
+                    for (Identifier decoration : pipe.getPipeDecorations(context, direction)) {
                         state.models.add(new PipeRenderState.ModelRenderInfo(decoration, 0xFFFFFF));
                     }
                 }
