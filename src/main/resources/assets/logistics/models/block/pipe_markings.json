@@ -1,0 +1,20 @@
+{
+  "parent": "block/block",
+  "textures": {
+    "texture": "logistics:block/pipe_markings"
+  },
+  "elements": [
+    {
+      "from": [3.999, 3.999, 3.999],
+      "to":   [12.001, 12.001, 12.001],
+      "faces": {
+        "north": { "texture": "#texture", "uv": [0, 4, 8, 12], "tintindex": 0 },
+        "east": { "texture": "#texture", "uv": [0, 4, 8, 12], "tintindex": 0 },
+        "south": { "texture": "#texture", "uv": [0, 4, 8, 12], "tintindex": 0 },
+        "west": { "texture": "#texture", "uv": [0, 4, 8, 12], "tintindex": 0 },
+        "up": { "texture": "#texture", "uv": [0, 4, 8, 12], "tintindex": 0 },
+        "down": { "texture": "#texture", "uv": [0, 4, 8, 12], "tintindex": 0 }
+      }
+    }
+  ]
+}

@@ -21,7 +21,7 @@ public class LogisticsItemGroups {
             .entries((displayContext, entries) -> {
                 entries.add(LogisticsItems.WRENCH);
                 for (DyeColor color : DyeColor.values()) {
-                    entries.add(LogisticsItems.getDykemItem(color));
+                    entries.add(LogisticsItems.getMarkingFluidItem(color));
                 }
                 entries.add(LogisticsBlocks.STONE_TRANSPORT_PIPE);
                 entries.add(LogisticsBlocks.ITEM_PASSTHROUGH_PIPE);
