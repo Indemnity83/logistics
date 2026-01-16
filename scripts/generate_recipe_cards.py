@@ -50,7 +50,14 @@ ITEM_INFO = {
     "logistics:item_insertion_pipe": "Prefers inserting into inventories with space.",
     "logistics:item_passthrough_pipe": "Ignores inventories and only connects to other pipes.",
     "logistics:wrench": "Adjusts pipes and cycles settings.",
+    "logistics:marking_fluid": "Marks pipes to keep different colors from connecting.",
 }
+
+
+def load_translations(path):
+    if not path.exists():
+        return {}
+    return json.loads(path.read_text())
 
 
 def parse_ingredient(value):
@@ -59,6 +66,12 @@ def parse_ingredient(value):
             return {"tag": value[1:]}
         return {"item": value}
     if isinstance(value, dict):
+        if value.get("fabric:type") == "fabric:components":
+            base = value.get("base")
+            if isinstance(base, str):
+                return {"item": base, "components": value.get("components", {})}
+            if isinstance(base, dict) and "item" in base:
+                return {"item": base["item"], "components": value.get("components", {})}
         if "item" in value:
             return {"item": value["item"]}
         if "tag" in value:
@@ -107,6 +120,18 @@ def build_grid(recipe):
 def icon_path(icons_dir, item_id):
     namespace, path = item_id.split(":", 1)
     return icons_dir / f"{namespace}__{path}.png"
+
+
+def ingredient_icon_path(icons_dir, ingredient):
+    if ingredient.get("item") == "minecraft:potion":
+        components = ingredient.get("components", {})
+        contents = components.get("minecraft:potion_contents", {})
+        if contents.get("potion") == "minecraft:water":
+            return icons_dir / "minecraft__potion__{'minecraft__potion_contents'__{potion__'minecraft__water'}}.png"
+    item_id = ingredient.get("item")
+    if not item_id:
+        return None
+    return icon_path(icons_dir, item_id)
 
 
 def resolve_tag(tag):
@@ -292,6 +317,13 @@ def human_name(item_id):
     return path.replace("_", " ").title()
 
 
+def translate_name(item_id, translations):
+    namespace, path = item_id.split(":", 1)
+    item_key = f"item.{namespace}.{path}"
+    block_key = f"block.{namespace}.{path}"
+    return translations.get(item_key) or translations.get(block_key) or human_name(item_id)
+
+
 def render_card(
     recipe_path,
     icons_dir,
@@ -299,6 +331,7 @@ def render_card(
     out_dir,
     template_path,
     font_path,
+    title,
 ):
     recipe = json.loads(recipe_path.read_text())
     result = recipe.get("result", {})
@@ -326,7 +359,6 @@ def render_card(
     slot_boxes = [offset_box(box, 0, TITLE_PADDING_Y) for box in slot_boxes]
     result_box = offset_box(result_box, 0, TITLE_PADDING_Y)
 
-    title = human_name(result_id)
     _, title_height = text_size(font, title, TITLE_FONT_SCALE)
     title_x = min(box[0] for box in slot_boxes)
     title_y = (TITLE_PADDING_Y - title_height) // 2 + TITLE_TOP_PADDING
@@ -340,6 +372,8 @@ def render_card(
     )
 
     info_text = ITEM_INFO.get(result_id, "")
+    if not info_text and result_id.startswith("logistics:marking_fluid_"):
+        info_text = ITEM_INFO.get("logistics:marking_fluid", "")
     info_left = title_x
     info_top = TITLE_PADDING_Y + template.height + INFO_TOP_PADDING
     info_width = image.width - info_left - 12
@@ -357,7 +391,6 @@ def render_card(
                 INFO_FONT_SCALE,
             )
 
-    outputs = []
     frames = []
     for grid_variant, suffix in expand_grid_variants(grid):
         card = image.copy()
@@ -374,7 +407,7 @@ def render_card(
                 icon_box = slot_box
 
                 if "item" in ingredient:
-                    item_icon_path = icon_path(icons_dir, ingredient["item"])
+                    item_icon_path = ingredient_icon_path(icons_dir, ingredient)
                     if item_icon_path.exists():
                         icon = Image.open(item_icon_path).convert("RGBA")
                         paste_icon_centered(card, icon, icon_box)
@@ -423,27 +456,13 @@ def render_card(
                 TITLE_FONT_SCALE,
             )
 
-        if suffix is None:
-            out_dir.mkdir(parents=True, exist_ok=True)
-            out_name = f"{human_name(result_id)}.png"
-            out_path = out_dir / out_name
-            card.save(out_path)
-            outputs.append(out_path)
         frames.append(card)
-    if len(frames) > 1:
-        gif_name = f"{human_name(result_id)}.gif"
-        gif_path = out_dir / gif_name
-        gif_frames = [frame.convert("P", palette=Image.ADAPTIVE) for frame in frames]
-        gif_frames[0].save(
-            gif_path,
-            save_all=True,
-            append_images=gif_frames[1:],
-            duration=2000,
-            loop=0,
-            disposal=2,
-        )
-        outputs.append(gif_path)
-    return outputs
+    return {
+        "result_id": result_id,
+        "count": count,
+        "frames": frames,
+        "variant_count": len(frames),
+    }
 
 
 def main():
@@ -494,21 +513,83 @@ def main():
         raise SystemExit(f"Missing result icons dir: {args.result_icons_dir}")
     font_path = ensure_font(args.font)
     recipe_paths = sorted(args.recipes_dir.glob("*.json"))
+    translations = load_translations(Path("src/main/resources/assets/logistics/lang/en_us.json"))
 
     if not recipe_paths:
         raise SystemExit(f"No recipes found in {args.recipes_dir}")
 
+    grouped_frames = {}
+    grouped_title = {}
+
     for recipe_path in recipe_paths:
-        out_paths = render_card(
+        recipe_data = json.loads(recipe_path.read_text())
+        result_id = recipe_data.get("result", {}).get("id")
+        if not result_id:
+            continue
+        title = translate_name(result_id, translations)
+        result = render_card(
             recipe_path,
             args.icons_dir,
             args.result_icons_dir,
             args.out_dir,
             args.template,
             font_path,
+            title,
         )
-        for out_path in out_paths:
-            print(f"[recipe] Wrote {out_path}")
+        if not result:
+            continue
+
+        frames = result["frames"]
+        if not frames:
+            continue
+
+        is_marking_fluid = result_id.startswith("logistics:marking_fluid_")
+        writes_gif = result["variant_count"] > 1
+
+        if is_marking_fluid:
+            base_id = "logistics:marking_fluid"
+            grouped_frames.setdefault(base_id, []).append(frames[0])
+            grouped_title.setdefault(base_id, translations.get("item.logistics.marking_fluid", "Marking Fluid"))
+            continue
+
+        args.out_dir.mkdir(parents=True, exist_ok=True)
+
+        if writes_gif:
+            gif_name = f"{title}.gif"
+            gif_path = args.out_dir / gif_name
+            gif_frames = [frame.convert("P", palette=Image.ADAPTIVE) for frame in frames]
+            gif_frames[0].save(
+                gif_path,
+                save_all=True,
+                append_images=gif_frames[1:],
+                duration=2000,
+                loop=0,
+                disposal=2,
+            )
+            print(f"[recipe] Wrote {gif_path}")
+            continue
+
+        png_name = f"{title}.png"
+        png_path = args.out_dir / png_name
+        frames[0].save(png_path)
+        print(f"[recipe] Wrote {png_path}")
+
+    for group_id, frames in grouped_frames.items():
+        if len(frames) < 2:
+            continue
+        title = grouped_title.get(group_id, human_name(group_id))
+        gif_name = f"{title}.gif"
+        gif_path = args.out_dir / gif_name
+        gif_frames = [frame.convert("P", palette=Image.ADAPTIVE) for frame in frames]
+        gif_frames[0].save(
+            gif_path,
+            save_all=True,
+            append_images=gif_frames[1:],
+            duration=2000,
+            loop=0,
+            disposal=2,
+        )
+        print(f"[recipe] Wrote {gif_path}")
 
 
 if __name__ == "__main__":
