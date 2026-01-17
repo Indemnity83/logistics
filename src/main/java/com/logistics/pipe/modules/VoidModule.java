@@ -16,11 +16,6 @@ public class VoidModule implements Module {
     }
 
     @Override
-    public boolean discardWhenNoRoute(PipeContext ctx) {
-        return true;
-    }
-
-    @Override
     public void randomDisplayTick(PipeContext ctx, Random random) {
         // Only show particles occasionally (5% of the time)
         if (random.nextInt(20) != 0) {

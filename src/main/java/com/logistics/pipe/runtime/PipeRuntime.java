@@ -15,217 +15,331 @@ import net.minecraft.block.BlockState;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.Nullable;
 
 public final class PipeRuntime {
     private PipeRuntime() {}
 
-    @SuppressWarnings("checkstyle:NestedIfDepth")
-    public static void tick(World world, BlockPos pos, BlockState state, PipeBlockEntity blockEntity) {
-        // Get pipe's speed bounds and acceleration/drag behavior
-        float maxSpeed = PipeConfig.PIPE_MAX_SPEED;
-        float accelerationRate = 0f;
-        float dragCoefficient = PipeConfig.DRAG_COEFFICIENT;
-        Pipe pipe = null;
-        PipeContext pipeContext = null;
+    /**
+     * Holds pipe configuration and context for the current tick.
+     */
+    private record TickContext(
+            World world,
+            BlockPos pos,
+            BlockState state,
+            PipeBlockEntity blockEntity,
+            @Nullable Pipe pipe,
+            @Nullable PipeContext pipeContext,
+            float maxSpeed,
+            float accelerationRate,
+            float dragCoefficient) {
 
-        if (state.getBlock() instanceof PipeBlock pipeBlock) {
-            if (pipeBlock.getPipe() != null) {
+        static TickContext create(World world, BlockPos pos, BlockState state, PipeBlockEntity blockEntity) {
+            float maxSpeed = PipeConfig.PIPE_MAX_SPEED;
+            float accelerationRate = 0f;
+            float dragCoefficient = PipeConfig.DRAG_COEFFICIENT;
+            Pipe pipe = null;
+            PipeContext pipeContext = null;
+
+            if (state.getBlock() instanceof PipeBlock pipeBlock && pipeBlock.getPipe() != null) {
                 pipe = pipeBlock.getPipe();
                 pipeContext = new PipeContext(world, pos, state, blockEntity);
                 maxSpeed = pipe.getMaxSpeed(pipeContext);
                 accelerationRate = pipe.getAccelerationRate(pipeContext);
                 dragCoefficient = pipe.getDrag(pipeContext);
             }
+
+            return new TickContext(
+                    world, pos, state, blockEntity, pipe, pipeContext, maxSpeed, accelerationRate, dragCoefficient);
         }
 
-        // Notify modules when the pipe's connection topology changes.
-        // This is intentionally based on blockstate connections (not per-item options) so modules can reset state
-        // deterministically when neighbors are added/removed.
-        boolean needsSync = false;
-        if (pipe != null && pipeContext != null) {
-            // Cache connection types in block entity for rendering
-            if (state.getBlock() instanceof PipeBlock pipeBlock) {
-                for (Direction direction : Direction.values()) {
-                    PipeBlock.ConnectionType type = pipeBlock.getDynamicConnectionType(world, pos, direction);
-                    blockEntity.setConnectionType(direction, type);
-                }
-            }
-
-            List<Direction> connected = getAllConnectedDirections(world, pos, state);
-            int mask = 0;
-            for (Direction d : connected) {
-                mask |= (1 << d.getIndex());
-            }
-
-            if (mask != blockEntity.getLastConnectionsMask()) {
-                blockEntity.setLastConnectionsMask(mask);
-                pipe.onConnectionsChanged(pipeContext, connected);
-                if (!world.isClient()) {
-                    needsSync = true;
-                }
-            }
-
-            pipe.onTick(pipeContext);
+        boolean hasPipe() {
+            return pipe != null && pipeContext != null;
         }
 
-        // Tick all traveling items (both client and server for smooth rendering)
-        List<TravelingItem> itemsToRoute = new ArrayList<>();
-        List<TravelingItem> itemsToRemove = new ArrayList<>();
-        List<TravelingItem> itemsToDiscard = new ArrayList<>();
-        List<TravelingItem> itemsToReplace = new ArrayList<>();
-        List<TravelingItem> itemsToAdd = new ArrayList<>();
-
-        for (TravelingItem item : blockEntity.getTravelingItems()) {
-            float progressBefore = item.getProgress();
-
-            if (item.tick(accelerationRate, dragCoefficient, maxSpeed)) {
-                // Item reached the end of this pipe segment
-                itemsToRoute.add(item);
-            }
-
-            // Determine exit direction when item reaches pipe center (both client and server)
-            // Using deterministic random ensures client and server make the same choice
-            if (progressBefore < 0.5f && item.getProgress() >= 0.5f) {
-                if (pipe != null && pipeContext != null && !item.isRouted()) {
-                    List<Direction> validDirections = getValidDirections(world, pos, state, item.getDirection());
-                    if (validDirections.isEmpty()) {
-                        if (pipe.discardWhenNoRoute(pipeContext)) {
-                            itemsToDiscard.add(item);
-                        } else if (!world.isClient()) {
-                            PipeBlockEntity.dropItem(world, pos, item);
-                        }
-                        itemsToRoute.remove(item);
-                        needsSync = true;
-                        continue;
-                    }
-                    RoutePlan plan = pipe.route(pipeContext, item, validDirections);
-                    RoutePlan.Type type = plan.getType();
-                    if (type == RoutePlan.Type.PASS) {
-                        plan = RoutePlan.reroute(validDirections);
-                        type = RoutePlan.Type.REROUTE;
-                    }
-                    if (type == RoutePlan.Type.DROP) {
-                        if (!world.isClient()) {
-                            PipeBlockEntity.dropItem(world, pos, item);
-                        }
-                        itemsToDiscard.add(item);
-                        itemsToRoute.remove(item);
-                        needsSync = true;
-                        continue;
-                    } else if (type == RoutePlan.Type.DISCARD) {
-                        itemsToDiscard.add(item);
-                        itemsToRoute.remove(item);
-                        needsSync = true;
-                        continue;
-                    } else if (type == RoutePlan.Type.REROUTE) {
-                        List<Direction> candidates = plan.getDirections();
-                        if (candidates.isEmpty()) {
-                            if (!world.isClient()) {
-                                PipeBlockEntity.dropItem(world, pos, item);
-                            }
-                            itemsToDiscard.add(item);
-                            itemsToRoute.remove(item);
-                            needsSync = true;
-                            continue;
-                        }
-                        Direction chosen = candidates.size() == 1
-                                ? candidates.getFirst()
-                                : chooseRandomDirection(pipeContext, item.getDirection(), candidates);
-                        item.setDirection(chosen);
-                        item.setRouted(true);
-                        if (!world.isClient()) {
-                            needsSync = true;
-                        }
-                    } else if (type == RoutePlan.Type.SPLIT) {
-                        List<TravelingItem> routed = plan.getItems();
-                        if (routed.isEmpty()) {
-                            itemsToDiscard.add(item);
-                            itemsToRoute.remove(item);
-                            needsSync = true;
-                            continue;
-                        }
-
-                        if (routed.size() == 1 && routed.get(0) == item) {
-                            item.setRouted(true);
-                            if (!world.isClient()) {
-                                needsSync = true;
-                            }
-                        } else {
-                            itemsToReplace.add(item);
-                            itemsToRoute.remove(item);
-                            for (TravelingItem routedItem : routed) {
-                                if (routedItem != item) {
-                                    routedItem.setProgress(item.getProgress());
-                                    routedItem.setSpeed(item.getSpeed());
-                                    routedItem.setRouted(true);
-                                }
-                                itemsToAdd.add(routedItem);
-                            }
-                            needsSync = true;
-                            continue;
-                        }
-                    }
-                } else if (pipe == null) {
-                    Direction newDirection = chooseDirection(world, pos, state, item.getDirection());
-                    if (newDirection != null && newDirection != item.getDirection()) {
-                        item.setDirection(newDirection);
-                        if (!world.isClient()) {
-                            needsSync = true;
-                        }
-                    }
-                }
-            }
-
-            // On client, keep rendering items a bit longer to prevent flicker during handoff
-            // On server, remove immediately for routing
-            if (world.isClient()) {
-                // Remove when progress exceeds 1.3 (gives ~6 frames buffer for server sync)
-                if (item.getProgress() > 1.3f) {
-                    itemsToRemove.add(item);
-                }
-            }
+        boolean isClient() {
+            return world.isClient();
         }
 
-        // Remove items based on client/server logic
-        if (world.isClient()) {
-            // Client: only remove items that have exceeded the buffer
-            blockEntity.getTravelingItems().removeAll(itemsToRemove);
-            blockEntity.getTravelingItems().removeAll(itemsToDiscard);
-            blockEntity.getTravelingItems().removeAll(itemsToReplace);
-            blockEntity.getTravelingItems().addAll(itemsToAdd);
-        } else {
-            // Server: remove items that reached the end (for routing)
-            blockEntity.getTravelingItems().removeAll(itemsToRoute);
-            blockEntity.getTravelingItems().removeAll(itemsToDiscard);
-            blockEntity.getTravelingItems().removeAll(itemsToReplace);
-            blockEntity.getTravelingItems().addAll(itemsToAdd);
-        }
-
-        // Sync direction changes to clients
-        if (!world.isClient() && needsSync) {
-            blockEntity.markDirty();
-            world.updateListeners(pos, state, state, 3);
-        }
-
-        // Only handle routing on server side
-        if (!world.isClient() && (!itemsToRoute.isEmpty() || !itemsToDiscard.isEmpty() || !itemsToAdd.isEmpty())) {
-            for (TravelingItem item : itemsToRoute) {
-                routeItem(world, pos, state, blockEntity, item);
-            }
-
-            blockEntity.markDirty();
-            // Sync to clients when items are removed/added
-            world.updateListeners(pos, state, state, 3);
+        boolean isServer() {
+            return !world.isClient();
         }
     }
 
     /**
-     * Route an item that has reached the end of this pipe segment.
-     * Direction has already been determined at the pipe center (0.5 progress).
+     * Tracks items to add/remove during tick processing.
      */
-    private static void routeItem(
-            World world, BlockPos pos, BlockState state, PipeBlockEntity blockEntity, TravelingItem item) {
-        // Use the item's current direction (already set at 0.5 progress)
+    private static final class ItemTickState {
+        final List<TravelingItem> toRoute = new ArrayList<>();
+        final List<TravelingItem> toRemove = new ArrayList<>();
+        final List<TravelingItem> toDiscard = new ArrayList<>();
+        final List<TravelingItem> toReplace = new ArrayList<>();
+        final List<TravelingItem> toAdd = new ArrayList<>();
+        boolean needsSync = false;
+
+        void markForRouting(TravelingItem item) {
+            toRoute.add(item);
+        }
+
+        void markForRemoval(TravelingItem item) {
+            toRemove.add(item);
+        }
+
+        void markForDiscard(TravelingItem item) {
+            toDiscard.add(item);
+            toRoute.remove(item);
+            needsSync = true;
+        }
+
+        void markForReplacement(TravelingItem item, List<TravelingItem> replacements) {
+            toReplace.add(item);
+            toRoute.remove(item);
+            toAdd.addAll(replacements);
+            needsSync = true;
+        }
+
+        void markNeedsSync() {
+            needsSync = true;
+        }
+    }
+
+    /**
+     * Main tick handler for pipe block entities. Processes item movement, routing decisions,
+     * and synchronization between client and server.
+     *
+     * <p>Items make routing decisions when crossing the pipe center (0.5 progress), allowing
+     * modules to influence direction before the item commits to an exit. Final delivery to
+     * adjacent inventories or pipes happens when items reach progress 1.0.
+     */
+    public static void tick(World world, BlockPos pos, BlockState state, PipeBlockEntity blockEntity) {
+        TickContext ctx = TickContext.create(world, pos, state, blockEntity);
+        ItemTickState itemState = new ItemTickState();
+
+        // Update connection cache and notify modules of topology changes
+        if (ctx.hasPipe()) {
+            updateConnectionCache(ctx);
+            if (handleConnectionChanges(ctx)) {
+                itemState.markNeedsSync();
+            }
+            ctx.pipe().onTick(ctx.pipeContext());
+        }
+
+        // Process all traveling items
+        processItems(ctx, itemState);
+
+        // Apply item list changes
+        applyItemChanges(ctx, itemState);
+
+        // Sync to clients if needed
+        syncIfNeeded(ctx, itemState);
+
+        // Route completed items (server only)
+        transferCompletedItems(ctx, itemState);
+    }
+
+    private static void updateConnectionCache(TickContext ctx) {
+        if (ctx.state().getBlock() instanceof PipeBlock pipeBlock) {
+            for (Direction direction : Direction.values()) {
+                PipeBlock.ConnectionType type = pipeBlock.getDynamicConnectionType(ctx.world(), ctx.pos(), direction);
+                ctx.blockEntity().setConnectionType(direction, type);
+            }
+        }
+    }
+
+    private static boolean handleConnectionChanges(TickContext ctx) {
+        List<Direction> connected = getAllConnectedDirections(ctx.world(), ctx.pos(), ctx.state());
+        int mask = 0;
+        for (Direction d : connected) {
+            mask |= (1 << d.getIndex());
+        }
+
+        if (mask != ctx.blockEntity().getLastConnectionsMask()) {
+            ctx.blockEntity().setLastConnectionsMask(mask);
+            ctx.pipe().onConnectionsChanged(ctx.pipeContext(), connected);
+            return ctx.isServer();
+        }
+        return false;
+    }
+
+    private static void processItems(TickContext ctx, ItemTickState itemState) {
+        for (TravelingItem item : ctx.blockEntity().getTravelingItems()) {
+            processItem(ctx, item, itemState);
+        }
+    }
+
+    private static void processItem(TickContext ctx, TravelingItem item, ItemTickState itemState) {
+        float progressBefore = item.getProgress();
+
+        // Advance item progress
+        if (item.tick(ctx.accelerationRate(), ctx.dragCoefficient(), ctx.maxSpeed())) {
+            itemState.markForRouting(item);
+        }
+
+        // Handle routing decision at pipe center
+        if (progressBefore < 0.5f && item.getProgress() >= 0.5f && !item.isRouted()) {
+            routeItem(ctx, item, itemState);
+        }
+
+        // Client-side removal buffer (prevents flicker during handoff)
+        if (ctx.isClient() && item.getProgress() > 1.3f) {
+            itemState.markForRemoval(item);
+        }
+    }
+
+    /**
+     * Determine and execute the routing decision for an item.
+     *
+     * <p>Called when an item crosses the pipe center (0.5 progress). The item's exit direction
+     * is determined and locked in, allowing rendering to show the item moving toward its
+     * destination during the second half of travel, and ensuring client/server agreement
+     * on routing using deterministic randomness.
+     */
+    private static void routeItem(TickContext ctx, TravelingItem item, ItemTickState itemState) {
+        RoutePlan plan = resolveRoutePlan(ctx, item);
+        executeRoutePlan(ctx, item, plan, itemState);
+    }
+
+    /**
+     * Consult modules for a routing plan, or fall back to default routing.
+     *
+     * <p>Always returns an executable plan. Normalizes edge cases:
+     * empty REROUTE → DROP, empty SPLIT → DISCARD.
+     */
+    private static RoutePlan resolveRoutePlan(TickContext ctx, TravelingItem item) {
+        List<Direction> validDirections = getValidDirections(ctx.world(), ctx.pos(), ctx.state(), item.getDirection());
+        RoutePlan defaultPlan = validDirections.isEmpty() ? RoutePlan.drop() : RoutePlan.reroute(validDirections);
+
+        if (!ctx.hasPipe()) {
+            return defaultPlan;
+        }
+
+        RoutePlan customPlan = ctx.pipe().route(ctx.pipeContext(), item, validDirections);
+
+        customPlan = switch (customPlan.getType()) {
+            case REROUTE -> customPlan.getDirections().isEmpty() ? RoutePlan.drop() : customPlan;
+            case SPLIT -> customPlan.getItems().isEmpty() ? RoutePlan.discard() : customPlan;
+            default -> customPlan;
+        };
+
+        return customPlan.getType() == RoutePlan.Type.PASS ? defaultPlan : customPlan;
+    }
+
+    private static void executeRoutePlan(TickContext ctx, TravelingItem item, RoutePlan plan, ItemTickState itemState) {
+        switch (plan.getType()) {
+            case DROP -> dropItem(ctx, item, itemState);
+            case DISCARD -> discardItem(item, itemState);
+            case REROUTE -> rerouteItem(ctx, item, plan, itemState);
+            case SPLIT -> splitItem(ctx, item, plan, itemState);
+            default -> {} // PASS should have been converted in resolveRoutePlan
+        }
+    }
+
+    private static void dropItem(TickContext ctx, TravelingItem item, ItemTickState itemState) {
+        if (ctx.isServer()) {
+            PipeBlockEntity.dropItem(ctx.world(), ctx.pos(), item);
+        }
+        itemState.markForDiscard(item);
+    }
+
+    private static void discardItem(TravelingItem item, ItemTickState itemState) {
+        itemState.markForDiscard(item);
+    }
+
+    private static void rerouteItem(TickContext ctx, TravelingItem item, RoutePlan plan, ItemTickState itemState) {
+        List<Direction> candidates = plan.getDirections();
+
+        Direction chosen = candidates.size() == 1
+                ? candidates.getFirst()
+                : chooseRandomDirection(ctx.world(), ctx.pos(), item.getDirection(), candidates);
+
+        item.setDirection(chosen);
+        item.setRouted(true);
+
+        if (ctx.isServer()) {
+            itemState.markNeedsSync();
+        }
+    }
+
+    private static void splitItem(TickContext ctx, TravelingItem item, RoutePlan plan, ItemTickState itemState) {
+        List<TravelingItem> routed = plan.getItems();
+
+        // Single item returned (no actual split)
+        if (routed.size() == 1 && routed.getFirst() == item) {
+            item.setRouted(true);
+            if (ctx.isServer()) {
+                itemState.markNeedsSync();
+            }
+            return;
+        }
+
+        // Actual split - replace original with new items
+        List<TravelingItem> replacements = new ArrayList<>();
+        for (TravelingItem routedItem : routed) {
+            if (routedItem != item) {
+                routedItem.setProgress(item.getProgress());
+                routedItem.setSpeed(item.getSpeed());
+                routedItem.setRouted(true);
+            }
+            replacements.add(routedItem);
+        }
+        itemState.markForReplacement(item, replacements);
+    }
+
+    /**
+     * Apply pending item list modifications after processing.
+     *
+     * <p>Client and server handle removals differently: the server removes items at progress 1.0
+     * for routing, while the client keeps them slightly longer (until 1.3) to prevent visual
+     * flicker during the handoff to the next pipe.
+     */
+    private static void applyItemChanges(TickContext ctx, ItemTickState itemState) {
+        List<TravelingItem> items = ctx.blockEntity().getTravelingItems();
+
+        if (ctx.isClient()) {
+            items.removeAll(itemState.toRemove);
+            items.removeAll(itemState.toDiscard);
+            items.removeAll(itemState.toReplace);
+            items.addAll(itemState.toAdd);
+        } else {
+            items.removeAll(itemState.toRoute);
+            items.removeAll(itemState.toDiscard);
+            items.removeAll(itemState.toReplace);
+            items.addAll(itemState.toAdd);
+        }
+    }
+
+    private static void syncIfNeeded(TickContext ctx, ItemTickState itemState) {
+        if (ctx.isServer() && itemState.needsSync) {
+            ctx.blockEntity().markDirty();
+            ctx.world().updateListeners(ctx.pos(), ctx.state(), ctx.state(), 3);
+        }
+    }
+
+    private static void transferCompletedItems(TickContext ctx, ItemTickState itemState) {
+        if (ctx.isClient()) {
+            return;
+        }
+
+        boolean hasChanges =
+                !itemState.toRoute.isEmpty() || !itemState.toDiscard.isEmpty() || !itemState.toAdd.isEmpty();
+
+        if (!hasChanges) {
+            return;
+        }
+
+        for (TravelingItem item : itemState.toRoute) {
+            transferItem(ctx.world(), ctx.pos(), item);
+        }
+
+        ctx.blockEntity().markDirty();
+        ctx.world().updateListeners(ctx.pos(), ctx.state(), ctx.state(), 3);
+    }
+
+    /**
+     * Transfer an item to the next pipe or inventory at the end of this segment.
+     * Direction was already determined at the pipe center (0.5 progress).
+     */
+    private static void transferItem(World world, BlockPos pos, TravelingItem item) {
         Direction direction = item.getDirection();
         BlockPos targetPos = pos.offset(direction);
 
@@ -242,9 +356,7 @@ public final class PipeRuntime {
 
                 if (inserted > 0) {
                     transaction.commit();
-                    // Item was fully or partially inserted
                     if (inserted < item.getStack().getCount()) {
-                        // Partial insertion - drop remainder
                         item.getStack().decrement((int) inserted);
                         PipeBlockEntity.dropItem(world, pos, item);
                     }
@@ -253,7 +365,6 @@ public final class PipeRuntime {
             }
         }
 
-        // Routing failed - drop item
         PipeBlockEntity.dropItem(world, pos, item);
     }
 
@@ -281,8 +392,8 @@ public final class PipeRuntime {
     }
 
     private static Direction chooseRandomDirection(
-            PipeContext ctx, Direction currentDirection, List<Direction> options) {
-        long seed = mixHash(ctx.pos().asLong(), ctx.world().getTime(), currentDirection.getIndex());
+            World world, BlockPos pos, Direction currentDirection, List<Direction> options) {
+        long seed = mixHash(pos.asLong(), world.getTime(), currentDirection.getIndex());
         java.util.Random random = new java.util.Random(seed);
         return options.get(random.nextInt(options.size()));
     }
@@ -300,25 +411,6 @@ public final class PipeRuntime {
             }
         }
         return connected;
-    }
-
-    /**
-     * Choose a random direction for an item to travel.
-     * Never routes back the way it came.
-     */
-    private static Direction chooseDirection(World world, BlockPos pos, BlockState state, Direction currentDirection) {
-        List<Direction> validDirections = getValidDirections(world, pos, state, currentDirection);
-        if (validDirections.isEmpty()) {
-            return null;
-        }
-
-        if (validDirections.size() == 1) {
-            return validDirections.getFirst();
-        }
-
-        long seed = mixHash(pos.asLong(), world.getTime(), currentDirection.getIndex());
-        java.util.Random random = new java.util.Random(seed);
-        return validDirections.get(random.nextInt(validDirections.size()));
     }
 
     private static long mixHash(long a, long b, long c) {
