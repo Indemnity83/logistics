@@ -1,13 +1,11 @@
 {
-	"required": true,
-	"minVersion": "0.8",
-	"package": "com.logistics.mixin",
-	"compatibilityLevel": "JAVA_21",
-	"mixins": [
-	],
-	"client": [
-	],
-	"injectors": {
-		"defaultRequire": 1
-	}
+  "client": [],
+  "compatibilityLevel": "JAVA_21",
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "minVersion": "0.8",
+  "mixins": [],
+  "package": "com.logistics.mixin",
+  "required": true
 }

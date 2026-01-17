@@ -24,7 +24,17 @@ public class ItemFilterScreen extends HandledScreen<ItemFilterScreenHandler> {
 
     @Override
     protected void drawBackground(DrawContext context, float delta, int mouseX, int mouseY) {
-        context.drawTexture(RenderPipelines.GUI_TEXTURED, BACKGROUND_TEXTURE, x, y, 0, 0, backgroundWidth, backgroundHeight, 256, 256);
+        context.drawTexture(
+                RenderPipelines.GUI_TEXTURED,
+                BACKGROUND_TEXTURE,
+                x,
+                y,
+                0,
+                0,
+                backgroundWidth,
+                backgroundHeight,
+                256,
+                256);
 
         int swatchX = x + SLOT_START_X;
         int swatchY = y + SLOT_START_Y;
@@ -37,15 +47,17 @@ public class ItemFilterScreen extends HandledScreen<ItemFilterScreenHandler> {
         }
     }
 
-    private void drawSwatchLabel(DrawContext context, net.minecraft.util.math.Direction direction, int swatchX, int swatchY) {
-        String label = switch (direction) {
-            case NORTH -> "N";
-            case SOUTH -> "S";
-            case EAST -> "E";
-            case WEST -> "W";
-            case UP -> "U";
-            case DOWN -> "D";
-        };
+    private void drawSwatchLabel(
+            DrawContext context, net.minecraft.util.math.Direction direction, int swatchX, int swatchY) {
+        String label =
+                switch (direction) {
+                    case NORTH -> "N";
+                    case SOUTH -> "S";
+                    case EAST -> "E";
+                    case WEST -> "W";
+                    case UP -> "U";
+                    case DOWN -> "D";
+                };
         int textWidth = textRenderer.getWidth(label);
         int textX = swatchX + (SLOT_INNER_SIZE - textWidth) / 2;
         int textY = swatchY + (SLOT_INNER_SIZE - textRenderer.fontHeight) / 2;

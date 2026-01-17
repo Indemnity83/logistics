@@ -2,69 +2,47 @@ package com.logistics.block;
 
 import com.logistics.LogisticsMod;
 import com.logistics.pipe.PipeTypes;
+import java.util.function.Function;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.random.Random;
 
-import java.util.function.Function;
+public final class LogisticsBlocks {
+    private LogisticsBlocks() {}
 
-public class LogisticsBlocks {
     // Transport Pipes
-    public static final Block STONE_TRANSPORT_PIPE = register(
-        "stone_transport_pipe",
-        settings -> new PipeBlock(settings, PipeTypes.STONE_TRANSPORT_PIPE)
-    );
+    public static final Block STONE_TRANSPORT_PIPE =
+            register("stone_transport_pipe", settings -> new PipeBlock(settings, PipeTypes.STONE_TRANSPORT_PIPE));
 
-    public static final Block ITEM_PASSTHROUGH_PIPE = register(
-        "item_passthrough_pipe",
-        settings -> new PipeBlock(settings, PipeTypes.ITEM_PASSTHROUGH_PIPE)
-    );
+    public static final Block ITEM_PASSTHROUGH_PIPE =
+            register("item_passthrough_pipe", settings -> new PipeBlock(settings, PipeTypes.ITEM_PASSTHROUGH_PIPE));
 
-    public static final Block COPPER_TRANSPORT_PIPE = register(
-        "copper_transport_pipe",
-        settings -> new PipeBlock(settings, PipeTypes.COPPER_TRANSPORT_PIPE)
-    );
+    public static final Block COPPER_TRANSPORT_PIPE =
+            register("copper_transport_pipe", settings -> new PipeBlock(settings, PipeTypes.COPPER_TRANSPORT_PIPE));
 
-    public static final Block ITEM_EXTRACTOR_PIPE = register(
-        "item_extractor_pipe",
-        settings -> new PipeBlock(settings, PipeTypes.ITEM_EXTRACTOR)
-    );
+    public static final Block ITEM_EXTRACTOR_PIPE =
+            register("item_extractor_pipe", settings -> new PipeBlock(settings, PipeTypes.ITEM_EXTRACTOR));
 
-    public static final Block ITEM_MERGER_PIPE = register(
-        "item_merger_pipe",
-        settings -> new PipeBlock(settings, PipeTypes.ITEM_MERGER)
-    );
+    public static final Block ITEM_MERGER_PIPE =
+            register("item_merger_pipe", settings -> new PipeBlock(settings, PipeTypes.ITEM_MERGER));
 
-    public static final Block GOLD_TRANSPORT_PIPE = register(
-        "gold_transport_pipe",
-        settings -> new PipeBlock(settings, PipeTypes.GOLD_TRANSPORT)
-    );
+    public static final Block GOLD_TRANSPORT_PIPE =
+            register("gold_transport_pipe", settings -> new PipeBlock(settings, PipeTypes.GOLD_TRANSPORT));
 
-    public static final Block ITEM_FILTER_PIPE = register(
-        "item_filter_pipe",
-        settings -> new PipeBlock(settings, PipeTypes.ITEM_FILTER)
-    );
+    public static final Block ITEM_FILTER_PIPE =
+            register("item_filter_pipe", settings -> new PipeBlock(settings, PipeTypes.ITEM_FILTER));
 
-    public static final Block ITEM_INSERTION_PIPE = register(
-        "item_insertion_pipe",
-        settings -> new PipeBlock(settings, PipeTypes.ITEM_INSERTION)
-    );
+    public static final Block ITEM_INSERTION_PIPE =
+            register("item_insertion_pipe", settings -> new PipeBlock(settings, PipeTypes.ITEM_INSERTION));
 
-    public static final Block ITEM_VOID_PIPE = register(
-        "item_void_pipe",
-        settings -> new PipeBlock(settings, PipeTypes.ITEM_VOID)
-    );
+    public static final Block ITEM_VOID_PIPE =
+            register("item_void_pipe", settings -> new PipeBlock(settings, PipeTypes.ITEM_VOID));
 
     private static Block register(String name, Function<AbstractBlock.Settings, Block> blockFactory) {
         // Create a registry key for the block
@@ -75,7 +53,8 @@ public class LogisticsBlocks {
 
         // Items need to be registered with a different type of registry key, but the ID can be the same.
         RegistryKey<Item> itemKey = keyOfItem(name);
-        BlockItem blockItem = new BlockItem(block, new Item.Settings().registryKey(itemKey).useBlockPrefixedTranslationKey());
+        BlockItem blockItem =
+                new BlockItem(block, new Item.Settings().registryKey(itemKey).useBlockPrefixedTranslationKey());
         Registry.register(Registries.ITEM, itemKey, blockItem);
 
         return Registry.register(Registries.BLOCK, blockKey, block);
@@ -109,8 +88,6 @@ public class LogisticsBlocks {
     private static void registerLegacyAliases() {
         // pre-v0.2.0
         Registries.BLOCK.addAlias(
-            Identifier.of(LogisticsMod.MOD_ID, "item_sensor_pipe"),
-            Registries.BLOCK.getId(COPPER_TRANSPORT_PIPE)
-        );
+                Identifier.of(LogisticsMod.MOD_ID, "item_sensor_pipe"), Registries.BLOCK.getId(COPPER_TRANSPORT_PIPE));
     }
 }

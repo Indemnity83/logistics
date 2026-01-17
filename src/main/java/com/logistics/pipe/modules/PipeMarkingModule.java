@@ -23,8 +23,7 @@ public class PipeMarkingModule implements Module {
     /**
      * Read the stored marking color for this pipe, if any.
      */
-    @Nullable
-    public DyeColor getStoredColor(PipeContext ctx) {
+    @Nullable public DyeColor getStoredColor(PipeContext ctx) {
         String colorId = ctx.getString(this, COLOR_KEY, "");
         if (colorId.isEmpty()) {
             return null;
@@ -93,7 +92,8 @@ public class PipeMarkingModule implements Module {
     /**
      * Prevent pipe connections between different markings.
      */
-    public boolean allowsConnection(@Nullable PipeContext ctx, Direction direction, Pipe selfPipe, Block neighborBlock) {
+    public boolean allowsConnection(
+            @Nullable PipeContext ctx, Direction direction, Pipe selfPipe, Block neighborBlock) {
         if (ctx == null || !(neighborBlock instanceof PipeBlock neighborPipeBlock)) {
             return true;
         }
@@ -113,12 +113,8 @@ public class PipeMarkingModule implements Module {
             return true;
         }
 
-        PipeContext neighborContext = new PipeContext(
-            ctx.world(),
-            neighborPos,
-            ctx.world().getBlockState(neighborPos),
-            neighborEntity
-        );
+        PipeContext neighborContext =
+                new PipeContext(ctx.world(), neighborPos, ctx.world().getBlockState(neighborPos), neighborEntity);
         String neighborColor = neighborContext.getString(this, COLOR_KEY, "");
         if (neighborColor.isEmpty()) {
             return true;

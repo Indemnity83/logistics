@@ -1,9 +1,7 @@
 package com.logistics.pipe.runtime;
 
-import com.logistics.pipe.runtime.TravelingItem;
-import net.minecraft.util.math.Direction;
-
 import java.util.List;
+import net.minecraft.util.math.Direction;
 
 public final class RoutePlan {
     public enum Type {

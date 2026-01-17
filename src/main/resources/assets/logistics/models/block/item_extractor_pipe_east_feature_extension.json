@@ -1,23 +1,45 @@
 {
-  "generated_by": "scripts/generate_bbmodel_models.py",
-  "source": "assets/models/item_extractor_pipe.bbmodel",
-  "parent": "block/block",
-  "textures": {
-    "texture": "logistics:block/item_extractor_pipe",
-    "particle": "logistics:block/item_extractor_pipe"
-  },
   "elements": [
     {
-      "from": [16, 4, 4],
-      "to": [17, 12, 12],
       "faces": {
-        "north": { "texture": "#texture", "uv": [0, 0, 8, 1], "rotation": 270 },
-        "east": { "texture": "#texture", "uv": [8, 0, 16, 8] },
-        "south": { "texture": "#texture", "uv": [0, 0, 8, 1], "rotation": 90 },
-        "west": { "texture": "#texture", "uv": [8, 0, 16, 8] },
-        "up": { "texture": "#texture", "uv": [8, 0, 0, 1], "rotation": 90 },
-        "down": { "texture": "#texture", "uv": [8, 0, 0, 1], "rotation": 90 }
-      }
+        "down": {
+          "rotation": 90,
+          "texture": "#texture",
+          "uv": [8, 0, 0, 1]
+        },
+        "east": {
+          "texture": "#texture",
+          "uv": [8, 0, 16, 8]
+        },
+        "north": {
+          "rotation": 270,
+          "texture": "#texture",
+          "uv": [0, 0, 8, 1]
+        },
+        "south": {
+          "rotation": 90,
+          "texture": "#texture",
+          "uv": [0, 0, 8, 1]
+        },
+        "up": {
+          "rotation": 90,
+          "texture": "#texture",
+          "uv": [8, 0, 0, 1]
+        },
+        "west": {
+          "texture": "#texture",
+          "uv": [8, 0, 16, 8]
+        }
+      },
+      "from": [16, 4, 4],
+      "to": [17, 12, 12]
     }
-  ]
+  ],
+  "generated_by": "scripts/generate_bbmodel_models.py",
+  "parent": "block/block",
+  "source": "assets/models/item_extractor_pipe.bbmodel",
+  "textures": {
+    "particle": "logistics:block/item_extractor_pipe",
+    "texture": "logistics:block/item_extractor_pipe"
+  }
 }

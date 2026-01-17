@@ -5,6 +5,8 @@ import com.logistics.block.entity.PipeBlockEntity;
 import com.logistics.block.entity.PipeItemStorage;
 import com.logistics.pipe.Pipe;
 import com.logistics.pipe.PipeContext;
+import java.util.ArrayList;
+import java.util.List;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
@@ -14,12 +16,10 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public final class PipeRuntime {
     private PipeRuntime() {}
 
+    @SuppressWarnings("checkstyle:NestedIfDepth")
     public static void tick(World world, BlockPos pos, BlockState state, PipeBlockEntity blockEntity) {
         // Get pipe's speed bounds and acceleration/drag behavior
         float maxSpeed = PipeConfig.PIPE_MAX_SPEED;
@@ -129,8 +129,8 @@ public final class PipeRuntime {
                             continue;
                         }
                         Direction chosen = candidates.size() == 1
-                            ? candidates.getFirst()
-                            : chooseRandomDirection(pipeContext, item.getDirection(), candidates);
+                                ? candidates.getFirst()
+                                : chooseRandomDirection(pipeContext, item.getDirection(), candidates);
                         item.setDirection(chosen);
                         item.setRouted(true);
                         if (!world.isClient()) {
@@ -223,8 +223,8 @@ public final class PipeRuntime {
      * Route an item that has reached the end of this pipe segment.
      * Direction has already been determined at the pipe center (0.5 progress).
      */
-    private static void routeItem(World world, BlockPos pos, BlockState state, PipeBlockEntity blockEntity,
-                                  TravelingItem item) {
+    private static void routeItem(
+            World world, BlockPos pos, BlockState state, PipeBlockEntity blockEntity, TravelingItem item) {
         // Use the item's current direction (already set at 0.5 progress)
         Direction direction = item.getDirection();
         BlockPos targetPos = pos.offset(direction);
@@ -257,7 +257,8 @@ public final class PipeRuntime {
         PipeBlockEntity.dropItem(world, pos, item);
     }
 
-    private static List<Direction> getValidDirections(World world, BlockPos pos, BlockState state, Direction currentDirection) {
+    private static List<Direction> getValidDirections(
+            World world, BlockPos pos, BlockState state, Direction currentDirection) {
         List<Direction> validDirections = new ArrayList<>();
         Direction oppositeDirection = currentDirection.getOpposite();
 
@@ -279,7 +280,8 @@ public final class PipeRuntime {
         return validDirections;
     }
 
-    private static Direction chooseRandomDirection(PipeContext ctx, Direction currentDirection, List<Direction> options) {
+    private static Direction chooseRandomDirection(
+            PipeContext ctx, Direction currentDirection, List<Direction> options) {
         long seed = mixHash(ctx.pos().asLong(), ctx.world().getTime(), currentDirection.getIndex());
         java.util.Random random = new java.util.Random(seed);
         return options.get(random.nextInt(options.size()));

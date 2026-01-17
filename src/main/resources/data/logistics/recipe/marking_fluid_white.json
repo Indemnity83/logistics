@@ -1,20 +1,20 @@
 {
-  "type": "minecraft:crafting_shapeless",
   "ingredients": [
     "minecraft:white_dye",
     {
-      "fabric:type": "fabric:components",
       "base": "minecraft:potion",
       "components": {
         "minecraft:potion_contents": {
           "potion": "minecraft:water"
         }
       },
+      "fabric:type": "fabric:components",
       "strict": true
     }
   ],
   "result": {
-    "id": "logistics:marking_fluid_white",
-    "count": 1
-  }
+    "count": 1,
+    "id": "logistics:marking_fluid_white"
+  },
+  "type": "minecraft:crafting_shapeless"
 }

@@ -1,20 +1,19 @@
 package com.logistics.pipe;
 
 import com.logistics.LogisticsMod;
+import com.logistics.block.PipeBlock;
 import com.logistics.pipe.modules.Module;
 import com.logistics.pipe.runtime.PipeConfig;
 import com.logistics.pipe.runtime.RoutePlan;
 import com.logistics.pipe.runtime.TravelingItem;
-import com.logistics.block.PipeBlock;
+import java.util.ArrayList;
+import java.util.List;
 import net.minecraft.block.Block;
 import net.minecraft.registry.Registries;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.random.Random;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public abstract class Pipe {
     private final List<Module> modules;
@@ -238,8 +237,8 @@ public abstract class Pipe {
         }
     }
 
-    public PipeBlock.ConnectionType filterConnection(@Nullable PipeContext ctx, Direction direction, Block neighborBlock,
-                                                     PipeBlock.ConnectionType candidate) {
+    public PipeBlock.ConnectionType filterConnection(
+            @Nullable PipeContext ctx, Direction direction, Block neighborBlock, PipeBlock.ConnectionType candidate) {
         if (candidate == PipeBlock.ConnectionType.NONE) {
             return PipeBlock.ConnectionType.NONE;
         }

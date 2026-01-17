@@ -4,6 +4,7 @@ import com.logistics.LogisticsMod;
 import com.logistics.item.LogisticsItems;
 import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.runtime.RoutePlan;
+import java.util.List;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUsageContext;
 import net.minecraft.nbt.NbtCompound;
@@ -11,9 +12,6 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Direction;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class MergerModule implements Module {
     private static final String OUTPUT_DIRECTION = "output_direction";
@@ -80,9 +78,7 @@ public class MergerModule implements Module {
         if (!state.contains(OUTPUT_DIRECTION)) {
             return null;
         }
-        return state.getString(OUTPUT_DIRECTION)
-            .map(Direction::byId)
-            .orElse(null);
+        return state.getString(OUTPUT_DIRECTION).map(Direction::byId).orElse(null);
     }
 
     private void setOutputDirection(PipeContext ctx, @Nullable Direction direction) {

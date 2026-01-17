@@ -4,6 +4,7 @@ import com.logistics.pipe.Pipe;
 import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.runtime.PipeConfig;
 import com.logistics.pipe.runtime.RoutePlan;
+import java.util.List;
 import net.minecraft.block.Block;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUsageContext;
@@ -13,11 +14,8 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.random.Random;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
-
 public interface Module {
-    default void onTick(PipeContext ctx) {
-    }
+    default void onTick(PipeContext ctx) {}
 
     default float getAcceleration(PipeContext ctx) {
         return 0f;
@@ -60,7 +58,8 @@ public interface Module {
     /**
      * Return false to prevent this pipe from connecting in the given direction.
      */
-    default boolean allowsConnection(@Nullable PipeContext ctx, Direction direction, Pipe selfPipe, Block neighborBlock) {
+    default boolean allowsConnection(
+            @Nullable PipeContext ctx, Direction direction, Pipe selfPipe, Block neighborBlock) {
         return true;
     }
 
@@ -68,8 +67,7 @@ public interface Module {
      * Called randomly on the client for display effects like particles.
      * Modules can override this to add visual effects.
      */
-    default void randomDisplayTick(PipeContext ctx, Random random) {
-    }
+    default void randomDisplayTick(PipeContext ctx, Random random) {}
 
     /**
      * Get the NBT state key for this module.
@@ -87,8 +85,7 @@ public interface Module {
      * @param direction the direction of the arm being rendered
      * @return the arm model identifier, or null to use the default arm model
      */
-    @Nullable
-    default Identifier getPipeArm(PipeContext ctx, Direction direction) {
+    @Nullable default Identifier getPipeArm(PipeContext ctx, Direction direction) {
         return null;
     }
 

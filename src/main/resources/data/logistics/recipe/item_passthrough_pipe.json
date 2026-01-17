@@ -1,14 +1,12 @@
 {
-  "type": "minecraft:crafting_shaped",
-  "pattern": [
-    "SGS"
-  ],
   "key": {
-    "S": "minecraft:sandstone",
-    "G": "minecraft:glass"
+    "G": "minecraft:glass",
+    "S": "minecraft:sandstone"
   },
+  "pattern": ["SGS"],
   "result": {
-    "id": "logistics:item_passthrough_pipe",
-    "count": 8
-  }
+    "count": 8,
+    "id": "logistics:item_passthrough_pipe"
+  },
+  "type": "minecraft:crafting_shaped"
 }

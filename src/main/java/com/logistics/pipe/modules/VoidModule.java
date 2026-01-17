@@ -2,15 +2,16 @@ package com.logistics.pipe.modules;
 
 import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.runtime.RoutePlan;
+import java.util.List;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.util.math.random.Random;
 
-import java.util.List;
-
 public class VoidModule implements Module {
     @Override
-    public RoutePlan route(PipeContext ctx, com.logistics.pipe.runtime.TravelingItem item,
-                               List<net.minecraft.util.math.Direction> options) {
+    public RoutePlan route(
+            PipeContext ctx,
+            com.logistics.pipe.runtime.TravelingItem item,
+            List<net.minecraft.util.math.Direction> options) {
         return RoutePlan.discard();
     }
 

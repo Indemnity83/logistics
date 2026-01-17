@@ -8,16 +8,12 @@ import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.util.Identifier;
 
 public final class PipeScreenHandlers {
-    public static final ScreenHandlerType<ItemFilterScreenHandler> ITEM_FILTER =
-        Registry.register(
+    public static final ScreenHandlerType<ItemFilterScreenHandler> ITEM_FILTER = Registry.register(
             Registries.SCREEN_HANDLER,
             Identifier.of(LogisticsMod.MOD_ID, "item_filter"),
-            new ScreenHandlerType<>(ItemFilterScreenHandler::new, FeatureSet.empty())
-        );
+            new ScreenHandlerType<>(ItemFilterScreenHandler::new, FeatureSet.empty()));
 
-    private PipeScreenHandlers() {
-    }
+    private PipeScreenHandlers() {}
 
-    public static void initialize() {
-    }
+    public static void initialize() {}
 }

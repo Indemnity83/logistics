@@ -1,15 +1,15 @@
 {
   "model": {
-    "type": "minecraft:composite",
     "models": [
       {
-        "type": "minecraft:model",
-        "model": "logistics:block/item_extractor_pipe_core"
+        "model": "logistics:block/item_extractor_pipe_core",
+        "type": "minecraft:model"
       },
       {
-        "type": "minecraft:model",
-        "model": "logistics:block/item_extractor_pipe_west_feature"
+        "model": "logistics:block/item_extractor_pipe_west_feature",
+        "type": "minecraft:model"
       }
-    ]
+    ],
+    "type": "minecraft:composite"
   }
 }

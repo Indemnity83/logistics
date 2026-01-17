@@ -1,15 +1,15 @@
 {
   "model": {
-    "type": "minecraft:composite",
     "models": [
       {
-        "type": "minecraft:model",
-        "model": "logistics:block/stone_transport_pipe_core"
+        "model": "logistics:block/stone_transport_pipe_core",
+        "type": "minecraft:model"
       },
       {
-        "type": "minecraft:model",
-        "model": "logistics:block/stone_transport_pipe_west"
+        "model": "logistics:block/stone_transport_pipe_west",
+        "type": "minecraft:model"
       }
-    ]
+    ],
+    "type": "minecraft:composite"
   }
 }

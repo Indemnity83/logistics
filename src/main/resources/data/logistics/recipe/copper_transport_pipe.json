@@ -1,14 +1,12 @@
 {
-  "type": "minecraft:crafting_shaped",
-  "pattern": [
-    "CGC"
-  ],
   "key": {
     "C": "minecraft:copper_ingot",
     "G": "minecraft:glass"
   },
+  "pattern": ["CGC"],
   "result": {
-    "id": "logistics:copper_transport_pipe",
-    "count": 8
-  }
+    "count": 8,
+    "id": "logistics:copper_transport_pipe"
+  },
+  "type": "minecraft:crafting_shaped"
 }

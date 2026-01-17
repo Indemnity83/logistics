@@ -1,16 +1,14 @@
 package com.logistics.util;
 
-import org.slf4j.Logger;
-
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import org.slf4j.Logger;
 
 public final class TimingLog {
     private static final Map<String, Long> STARTS = new ConcurrentHashMap<>();
     private static final boolean ENABLED = Boolean.parseBoolean(System.getProperty("logistics.timing", "false"));
 
-    private TimingLog() {
-    }
+    private TimingLog() {}
 
     public static void time(Logger logger, String label, Runnable runnable) {
         if (!ENABLED) {

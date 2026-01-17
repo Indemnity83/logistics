@@ -1,6 +1,15 @@
 package com.logistics.client.render;
 
 import com.logistics.LogisticsMod;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Stream;
 import net.fabricmc.fabric.api.client.model.loading.v1.ExtraModelKey;
 import net.fabricmc.fabric.api.client.model.loading.v1.FabricBakedModelManager;
 import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
@@ -12,16 +21,6 @@ import net.minecraft.client.render.model.BakedModelManager;
 import net.minecraft.client.render.model.BlockStateModel;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
-
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Stream;
 
 public final class PipeModelRegistry {
     private static final Map<Identifier, ExtraModelKey<BlockStateModel>> MODEL_KEYS = new HashMap<>();
@@ -54,8 +53,7 @@ public final class PipeModelRegistry {
         });
     }
 
-    @Nullable
-    public static BlockStateModel getModel(Identifier id) {
+    @Nullable public static BlockStateModel getModel(Identifier id) {
         ExtraModelKey<BlockStateModel> key = MODEL_KEYS.get(id);
         if (key == null) {
             return null;

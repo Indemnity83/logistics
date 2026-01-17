@@ -1,6 +1,8 @@
 plugins {
 	id 'fabric-loom' version '1.14.10'
 	id 'maven-publish'
+	id 'checkstyle'
+	id 'com.diffplug.spotless' version '7.0.2'
 }
 
 // Allow CI to override version via MOD_VERSION env var
@@ -63,5 +65,35 @@ java {
 jar {
 	from("LICENSE") {
 		rename { "${it}_${project.archives_base_name}"}
+	}
+}
+
+// Code formatting with Spotless
+spotless {
+	java {
+		target 'src/*/java/**/*.java'
+		importOrder('java|javax', 'com.logistics', '', '\\#')
+		removeUnusedImports()
+		palantirJavaFormat('2.50.0')
+		formatAnnotations()
+	}
+	json {
+		target 'src/**/*.json'
+		prettier()
+			.config(['printWidth': 120, 'tabWidth': 2])
+	}
+}
+
+// Checkstyle configuration
+checkstyle {
+	toolVersion = '10.21.4'
+	configFile = file("${rootDir}/config/checkstyle/checkstyle.xml")
+	maxWarnings = 0
+}
+
+tasks.withType(Checkstyle).configureEach {
+	reports {
+		xml.required = false
+		html.required = true
 	}
 }

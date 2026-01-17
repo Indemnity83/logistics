@@ -1,11 +1,14 @@
 package com.logistics.block.entity;
 
 import com.logistics.block.PipeBlock;
-import com.logistics.pipe.runtime.TravelingItem;
 import com.logistics.pipe.Pipe;
-import com.logistics.pipe.runtime.PipeConfig;
 import com.logistics.pipe.PipeContext;
+import com.logistics.pipe.runtime.PipeConfig;
 import com.logistics.pipe.runtime.PipeRuntime;
+import com.logistics.pipe.runtime.TravelingItem;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.minecraft.block.BlockState;
@@ -22,10 +25,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
 
 public class PipeBlockEntity extends BlockEntity {
     public static final int VIRTUAL_CAPACITY = 5 * 64;
@@ -105,7 +104,8 @@ public class PipeBlockEntity extends BlockEntity {
         // Save traveling items
         if (!travelingItems.isEmpty()) {
             // Requires TravelingItem.CODEC (see TravelingItem class)
-            WriteView.ListAppender<TravelingItem> appender = view.getListAppender("TravelingItems", TravelingItem.CODEC);
+            WriteView.ListAppender<TravelingItem> appender =
+                    view.getListAppender("TravelingItems", TravelingItem.CODEC);
             for (TravelingItem item : travelingItems) {
                 appender.add(item);
             }
@@ -143,7 +143,7 @@ public class PipeBlockEntity extends BlockEntity {
         // Load traveling items
         travelingItems.clear();
         view.getOptionalTypedListView("TravelingItems", TravelingItem.CODEC)
-            .ifPresent(list -> list.forEach(travelingItems::add));
+                .ifPresent(list -> list.forEach(travelingItems::add));
 
         // Load module state
         if (!moduleState.getKeys().isEmpty()) {
@@ -165,7 +165,8 @@ public class PipeBlockEntity extends BlockEntity {
             }
             // Load saved connections
             for (Direction direction : Direction.values()) {
-                String typeName = connectionsNbt.getString(direction.name().toLowerCase()).orElse("none");
+                String typeName =
+                        connectionsNbt.getString(direction.name().toLowerCase()).orElse("none");
                 for (PipeBlock.ConnectionType type : PipeBlock.ConnectionType.values()) {
                     if (type.asString().equals(typeName)) {
                         connectionTypes[direction.ordinal()] = type;
@@ -178,16 +179,14 @@ public class PipeBlockEntity extends BlockEntity {
         long durationMs = (System.nanoTime() - readStart) / 1_000_000L;
         if (durationMs >= 2L && Boolean.getBoolean("logistics.timing")) {
             com.logistics.LogisticsMod.LOGGER.info(
-                "[timing] PipeBlockEntity readData at {} took {} ms (items={})",
-                getPos(),
-                durationMs,
-                travelingItems.size()
-            );
+                    "[timing] PipeBlockEntity readData at {} took {} ms (items={})",
+                    getPos(),
+                    durationMs,
+                    travelingItems.size());
         }
     }
 
-    @Nullable
-    @Override
+    @Nullable @Override
     public Packet<ClientPlayPacketListener> toUpdatePacket() {
         return BlockEntityUpdateS2CPacket.create(this);
     }
@@ -197,7 +196,8 @@ public class PipeBlockEntity extends BlockEntity {
         return createNbt(registries);
     }
 
-    public static void tick(net.minecraft.world.World world, BlockPos pos, BlockState state, PipeBlockEntity blockEntity) {
+    public static void tick(
+            net.minecraft.world.World world, BlockPos pos, BlockState state, PipeBlockEntity blockEntity) {
         PipeRuntime.tick(world, pos, state, blockEntity);
     }
 
@@ -209,12 +209,7 @@ public class PipeBlockEntity extends BlockEntity {
         Vec3d spawnPos = Vec3d.ofCenter(pos);
 
         ItemEntity itemEntity = new ItemEntity(
-            world,
-            spawnPos.x,
-            spawnPos.y,
-            spawnPos.z,
-            item.getStack().copy()
-        );
+                world, spawnPos.x, spawnPos.y, spawnPos.z, item.getStack().copy());
 
         // Prevent immediate pickup
         itemEntity.setToDefaultPickupDelay();
@@ -234,8 +229,7 @@ public class PipeBlockEntity extends BlockEntity {
                         pos.getX() + 0.5,
                         pos.getY() + 0.5,
                         pos.getZ() + 0.5,
-                        travelingItem.getStack().copy()
-                );
+                        travelingItem.getStack().copy());
                 itemEntity.setToDefaultPickupDelay();
                 world.spawnEntity(itemEntity);
             }
@@ -261,8 +255,7 @@ public class PipeBlockEntity extends BlockEntity {
         this.lastConnectionsMask = lastConnectionsMask;
     }
 
-    @Nullable
-    public Storage<ItemVariant> getItemStorage(@Nullable Direction side) {
+    @Nullable public Storage<ItemVariant> getItemStorage(@Nullable Direction side) {
         if (side == null || world == null) {
             return null;
         }
@@ -383,5 +376,4 @@ public class PipeBlockEntity extends BlockEntity {
         int clamped = Math.min(total, VIRTUAL_CAPACITY);
         return Math.max(1, (clamped * 15) / VIRTUAL_CAPACITY);
     }
-
 }

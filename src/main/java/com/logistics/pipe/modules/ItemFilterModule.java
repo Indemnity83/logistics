@@ -6,6 +6,8 @@ import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.runtime.RoutePlan;
 import com.logistics.pipe.runtime.TravelingItem;
 import com.logistics.pipe.ui.ItemFilterScreenHandler;
+import java.util.ArrayList;
+import java.util.List;
 import net.minecraft.item.ItemUsageContext;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtList;
@@ -18,9 +20,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * Routes items based on per-side filters.
  * If the item matches any filtered sides, choose among those.
@@ -30,12 +29,7 @@ public class ItemFilterModule implements Module {
     private static final String FILTERS = "filters"; // NBT key for save compatibility
     public static final int FILTER_SLOTS_PER_SIDE = 8;
     public static final Direction[] FILTER_ORDER = {
-        Direction.NORTH,
-        Direction.SOUTH,
-        Direction.WEST,
-        Direction.EAST,
-        Direction.UP,
-        Direction.DOWN
+        Direction.NORTH, Direction.SOUTH, Direction.WEST, Direction.EAST, Direction.UP, Direction.DOWN
     };
 
     @Override
@@ -81,12 +75,12 @@ public class ItemFilterModule implements Module {
         World world = ctx.world();
         BlockPos pos = ctx.pos();
         player.openHandledScreen(new net.minecraft.screen.SimpleNamedScreenHandlerFactory(
-            (syncId, inventory, playerEntity) -> {
-                PipeBlockEntity pipeEntity = world.getBlockEntity(pos) instanceof PipeBlockEntity entity ? entity : null;
-                return new ItemFilterScreenHandler(syncId, inventory, pipeEntity);
-            },
-            Text.translatable("screen.logistics.item_filter")
-        ));
+                (syncId, inventory, playerEntity) -> {
+                    PipeBlockEntity pipeEntity =
+                            world.getBlockEntity(pos) instanceof PipeBlockEntity entity ? entity : null;
+                    return new ItemFilterScreenHandler(syncId, inventory, pipeEntity);
+                },
+                Text.translatable("screen.logistics.item_filter")));
         return ActionResult.SUCCESS;
     }
 
