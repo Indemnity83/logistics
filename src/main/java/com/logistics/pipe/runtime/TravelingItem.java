@@ -1,9 +1,9 @@
 package com.logistics.pipe.runtime;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.Direction;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.math.Direction;
 
 /**
  * Represents an item traveling through the pipe network.
@@ -14,14 +14,20 @@ public class TravelingItem {
      * Codec used for saving/loading TravelingItem via ReadView/WriteView (1.21.8+).
      */
     public static final Codec<TravelingItem> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-        ItemStack.CODEC.fieldOf("item").forGetter(t -> t.stack),
-        Codec.INT.fieldOf("direction").xmap(Direction::byIndex, Direction::getIndex).forGetter(t -> t.direction),
-        Codec.FLOAT.optionalFieldOf("speed", PipeConfig.ITEM_MIN_SPEED).forGetter(t -> t.speed),
-        Codec.FLOAT.optionalFieldOf("progress", 0.0f).forGetter(t -> t.progress),
-        Codec.BOOL.optionalFieldOf("routed", false).forGetter(t -> t.routed)
-    ).apply(instance, TravelingItem::fromCodec));
+                    ItemStack.CODEC.fieldOf("item").forGetter(t -> t.stack),
+                    Codec.INT
+                            .fieldOf("direction")
+                            .xmap(Direction::byIndex, Direction::getIndex)
+                            .forGetter(t -> t.direction),
+                    Codec.FLOAT
+                            .optionalFieldOf("speed", PipeConfig.ITEM_MIN_SPEED)
+                            .forGetter(t -> t.speed),
+                    Codec.FLOAT.optionalFieldOf("progress", 0.0f).forGetter(t -> t.progress),
+                    Codec.BOOL.optionalFieldOf("routed", false).forGetter(t -> t.routed))
+            .apply(instance, TravelingItem::fromCodec));
 
-    private static TravelingItem fromCodec(ItemStack stack, Direction direction, float speed, float progress, boolean routed) {
+    private static TravelingItem fromCodec(
+            ItemStack stack, Direction direction, float speed, float progress, boolean routed) {
         TravelingItem item = new TravelingItem(stack, direction, speed);
         item.progress = progress;
         item.routed = routed;

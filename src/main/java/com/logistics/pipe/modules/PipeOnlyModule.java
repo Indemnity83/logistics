@@ -8,7 +8,8 @@ import org.jetbrains.annotations.Nullable;
 
 public class PipeOnlyModule implements Module {
     @Override
-    public boolean allowsConnection(@Nullable PipeContext ctx, Direction direction, Pipe selfPipe, Block neighborBlock) {
+    public boolean allowsConnection(
+            @Nullable PipeContext ctx, Direction direction, Pipe selfPipe, Block neighborBlock) {
         return neighborBlock instanceof com.logistics.block.PipeBlock;
     }
 }

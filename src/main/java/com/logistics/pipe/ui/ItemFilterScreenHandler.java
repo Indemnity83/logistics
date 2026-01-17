@@ -14,7 +14,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 public class ItemFilterScreenHandler extends ScreenHandler {
-    private static final int FILTER_SLOT_COUNT = ItemFilterModule.FILTER_ORDER.length * ItemFilterModule.FILTER_SLOTS_PER_SIDE;
+    private static final int FILTER_SLOT_COUNT =
+            ItemFilterModule.FILTER_ORDER.length * ItemFilterModule.FILTER_SLOTS_PER_SIDE;
     private static final int SLOT_SIZE = 18;
     private static final int PLAYER_INV_START_Y = 140;
     private static final int HOTBAR_Y = 198;
@@ -59,8 +60,11 @@ public class ItemFilterScreenHandler extends ScreenHandler {
     private void addPlayerInventorySlots(PlayerInventory playerInventory) {
         for (int row = 0; row < 3; row++) {
             for (int col = 0; col < 9; col++) {
-                addSlot(new Slot(playerInventory, col + row * 9 + 9,
-                    SLOT_START_X + col * SLOT_SIZE, PLAYER_INV_START_Y + row * SLOT_SIZE));
+                addSlot(new Slot(
+                        playerInventory,
+                        col + row * 9 + 9,
+                        SLOT_START_X + col * SLOT_SIZE,
+                        PLAYER_INV_START_Y + row * SLOT_SIZE));
             }
         }
 
@@ -100,7 +104,7 @@ public class ItemFilterScreenHandler extends ScreenHandler {
     }
 
     private static class FilterSlot extends Slot {
-        public FilterSlot(Inventory inventory, int index, int x, int y) {
+        FilterSlot(Inventory inventory, int index, int x, int y) {
             super(inventory, index, x, y);
         }
 

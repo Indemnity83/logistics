@@ -1,6 +1,8 @@
 package com.logistics.block.entity;
 
 import com.logistics.pipe.runtime.TravelingItem;
+import java.util.Collections;
+import java.util.Iterator;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
@@ -8,9 +10,6 @@ import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext.Result;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.Direction;
-
-import java.util.Collections;
-import java.util.Iterator;
 
 public class PipeItemStorage implements Storage<ItemVariant> {
     private final PipeBlockEntity pipe;

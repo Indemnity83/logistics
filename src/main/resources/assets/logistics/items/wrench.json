@@ -1,6 +1,6 @@
 {
   "model": {
-    "type": "minecraft:model",
-    "model": "logistics:item/wrench"
+    "model": "logistics:item/wrench",
+    "type": "minecraft:model"
   }
 }

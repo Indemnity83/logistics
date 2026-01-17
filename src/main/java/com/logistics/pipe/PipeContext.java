@@ -3,6 +3,7 @@ package com.logistics.pipe;
 import com.logistics.block.PipeBlock;
 import com.logistics.block.entity.PipeBlockEntity;
 import com.logistics.pipe.modules.Module;
+import java.util.List;
 import net.minecraft.block.BlockState;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.math.BlockPos;
@@ -10,19 +11,13 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
-
-public record PipeContext(World world,
-                          BlockPos pos,
-                          BlockState state,
-                          PipeBlockEntity blockEntity) {
+public record PipeContext(World world, BlockPos pos, BlockState state, PipeBlockEntity blockEntity) {
 
     /**
      * Get the Pipe instance for this pipe block.
      * @return the Pipe, or null if the block is not a PipeBlock or has no pipe
      */
-    @Nullable
-    public Pipe pipe() {
+    @Nullable public Pipe pipe() {
         if (state.getBlock() instanceof PipeBlock pipeBlock) {
             return pipeBlock.getPipe();
         }
@@ -183,7 +178,6 @@ public record PipeContext(World world,
         }
         return faces;
     }
-
 
     public boolean isInventoryConnection(Direction direction) {
         return getConnectionType(direction) == PipeBlock.ConnectionType.INVENTORY;

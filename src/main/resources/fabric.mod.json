@@ -1,43 +1,34 @@
 {
-	"schemaVersion": 1,
-	"id": "logistics",
-	"version": "${version}",
-	"name": "Logistics",
-	"description": "A modern logistics and pipe mod with authentic in-pipe item motion, mod interoperability, and request/autocrafting systems.",
-	"authors": [
-		"Kyle Klaus (@indemnity83)"
-	],
-	"contact": {
-		"homepage": "https://github.com/indemnity83/logistics",
-		"sources": "https://github.com/indemnity83/logistics",
-		"issues": "https://github.com/indemnity83/logistics/issues"
-	},
-	"license": "MIT",
-	"icon": "assets/logistics/icon.png",
-	"environment": "*",
-	"entrypoints": {
-		"main": [
-			"com.logistics.LogisticsMod"
-		],
-		"client": [
-			"com.logistics.LogisticsModClient"
-		]
-	},
-	"mixins": [
-		"logistics.mixins.json"
-	],
-	"depends": {
-		"fabricloader": ">=0.18.4",
-		"minecraft": "~1.21.11",
-		"java": ">=21",
-		"fabric-api": "*"
-	},
-	"suggests": {
-	},
-	"custom": {
-		"mc-publish": {
-			"modrinth": "cyW2SS1x",
-			"curseforge": 1425041
-		}
-	}
+  "authors": ["Kyle Klaus (@indemnity83)"],
+  "contact": {
+    "homepage": "https://github.com/indemnity83/logistics",
+    "issues": "https://github.com/indemnity83/logistics/issues",
+    "sources": "https://github.com/indemnity83/logistics"
+  },
+  "custom": {
+    "mc-publish": {
+      "curseforge": 1425041,
+      "modrinth": "cyW2SS1x"
+    }
+  },
+  "depends": {
+    "fabric-api": "*",
+    "fabricloader": ">=0.18.4",
+    "java": ">=21",
+    "minecraft": "~1.21.11"
+  },
+  "description": "A modern logistics and pipe mod with authentic in-pipe item motion, mod interoperability, and request/autocrafting systems.",
+  "entrypoints": {
+    "client": ["com.logistics.LogisticsModClient"],
+    "main": ["com.logistics.LogisticsMod"]
+  },
+  "environment": "*",
+  "icon": "assets/logistics/icon.png",
+  "id": "logistics",
+  "license": "MIT",
+  "mixins": ["logistics.mixins.json"],
+  "name": "Logistics",
+  "schemaVersion": 1,
+  "suggests": {},
+  "version": "${version}"
 }

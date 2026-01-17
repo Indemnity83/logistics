@@ -13,25 +13,25 @@ import net.minecraft.client.render.BlockRenderLayer;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactories;
 
 public class LogisticsModClient implements ClientModInitializer {
-	@Override
-	public void onInitializeClient() {
-		LogisticsMod.LOGGER.info("Initializing Logistics client");
+    @Override
+    public void onInitializeClient() {
+        LogisticsMod.LOGGER.info("Initializing Logistics client");
 
-		PipeModelRegistry.register();
+        PipeModelRegistry.register();
 
-		// Register pipe blocks to render with transparency
-		BlockRenderLayerMap.putBlock(LogisticsBlocks.STONE_TRANSPORT_PIPE, BlockRenderLayer.CUTOUT);
-		BlockRenderLayerMap.putBlock(LogisticsBlocks.COPPER_TRANSPORT_PIPE, BlockRenderLayer.CUTOUT);
-		BlockRenderLayerMap.putBlock(LogisticsBlocks.ITEM_EXTRACTOR_PIPE, BlockRenderLayer.CUTOUT);
-		BlockRenderLayerMap.putBlock(LogisticsBlocks.ITEM_MERGER_PIPE, BlockRenderLayer.CUTOUT);
-		BlockRenderLayerMap.putBlock(LogisticsBlocks.GOLD_TRANSPORT_PIPE, BlockRenderLayer.CUTOUT);
-		BlockRenderLayerMap.putBlock(LogisticsBlocks.ITEM_FILTER_PIPE, BlockRenderLayer.CUTOUT);
-		BlockRenderLayerMap.putBlock(LogisticsBlocks.ITEM_INSERTION_PIPE, BlockRenderLayer.CUTOUT);
-		BlockRenderLayerMap.putBlock(LogisticsBlocks.ITEM_VOID_PIPE, BlockRenderLayer.CUTOUT);
+        // Register pipe blocks to render with transparency
+        BlockRenderLayerMap.putBlock(LogisticsBlocks.STONE_TRANSPORT_PIPE, BlockRenderLayer.CUTOUT);
+        BlockRenderLayerMap.putBlock(LogisticsBlocks.COPPER_TRANSPORT_PIPE, BlockRenderLayer.CUTOUT);
+        BlockRenderLayerMap.putBlock(LogisticsBlocks.ITEM_EXTRACTOR_PIPE, BlockRenderLayer.CUTOUT);
+        BlockRenderLayerMap.putBlock(LogisticsBlocks.ITEM_MERGER_PIPE, BlockRenderLayer.CUTOUT);
+        BlockRenderLayerMap.putBlock(LogisticsBlocks.GOLD_TRANSPORT_PIPE, BlockRenderLayer.CUTOUT);
+        BlockRenderLayerMap.putBlock(LogisticsBlocks.ITEM_FILTER_PIPE, BlockRenderLayer.CUTOUT);
+        BlockRenderLayerMap.putBlock(LogisticsBlocks.ITEM_INSERTION_PIPE, BlockRenderLayer.CUTOUT);
+        BlockRenderLayerMap.putBlock(LogisticsBlocks.ITEM_VOID_PIPE, BlockRenderLayer.CUTOUT);
 
-		// Register block entity renderer for traveling items
-		BlockEntityRendererFactories.register(LogisticsBlockEntities.PIPE_BLOCK_ENTITY, PipeBlockEntityRenderer::new);
+        // Register block entity renderer for traveling items
+        BlockEntityRendererFactories.register(LogisticsBlockEntities.PIPE_BLOCK_ENTITY, PipeBlockEntityRenderer::new);
 
-		HandledScreens.register(PipeScreenHandlers.ITEM_FILTER, ItemFilterScreen::new);
-	}
+        HandledScreens.register(PipeScreenHandlers.ITEM_FILTER, ItemFilterScreen::new);
+    }
 }

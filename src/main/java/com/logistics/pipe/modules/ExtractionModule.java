@@ -2,9 +2,10 @@ package com.logistics.pipe.modules;
 
 import com.logistics.LogisticsMod;
 import com.logistics.item.LogisticsItems;
-import com.logistics.pipe.runtime.TravelingItem;
-import com.logistics.pipe.runtime.PipeConfig;
 import com.logistics.pipe.PipeContext;
+import com.logistics.pipe.runtime.PipeConfig;
+import com.logistics.pipe.runtime.TravelingItem;
+import java.util.List;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
@@ -18,8 +19,6 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.List;
 
 public class ExtractionModule implements Module {
     private static final String EXTRACT_FROM = "extract_direction"; // NBT key for save compatibility
@@ -101,9 +100,7 @@ public class ExtractionModule implements Module {
         if (!state.contains(EXTRACT_FROM)) {
             return null;
         }
-        return state.getString(EXTRACT_FROM)
-            .map(Direction::byId)
-            .orElse(null);
+        return state.getString(EXTRACT_FROM).map(Direction::byId).orElse(null);
     }
 
     private void setExtractionDirection(PipeContext ctx, @Nullable Direction direction) {
@@ -181,5 +178,4 @@ public class ExtractionModule implements Module {
     private String featureBasePath(PipeContext ctx, Direction direction) {
         return ctx.pipe().getModelBasePath(direction) + "_feature";
     }
-
 }

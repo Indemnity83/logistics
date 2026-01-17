@@ -1,6 +1,5 @@
 {
   "model": {
-    "type": "minecraft:model",
     "model": "logistics:item/marking_fluid",
     "tints": [
       {
@@ -11,6 +10,7 @@
         "type": "minecraft:constant",
         "value": 8439583
       }
-    ]
+    ],
+    "type": "minecraft:model"
   }
 }

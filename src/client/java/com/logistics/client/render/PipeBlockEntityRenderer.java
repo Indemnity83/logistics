@@ -2,32 +2,28 @@ package com.logistics.client.render;
 
 import com.logistics.block.PipeBlock;
 import com.logistics.block.entity.PipeBlockEntity;
-import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.Pipe;
-import com.logistics.pipe.runtime.TravelingItem;
+import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.runtime.PipeConfig;
+import com.logistics.pipe.runtime.TravelingItem;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.item.ItemModelManager;
 import net.minecraft.client.render.BlockRenderLayers;
+import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.RenderLayers;
 import net.minecraft.client.render.block.entity.BlockEntityRenderer;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactory;
 import net.minecraft.client.render.block.entity.state.BlockEntityRenderState;
-import net.minecraft.client.render.state.CameraRenderState;
 import net.minecraft.client.render.command.OrderedRenderCommandQueue;
-import net.minecraft.client.render.item.ItemRenderState;
-import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.model.BlockStateModel;
+import net.minecraft.client.render.state.CameraRenderState;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemDisplayContext;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Renders traveling items inside pipes
@@ -46,12 +42,11 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
 
     @Override
     public void updateRenderState(
-        PipeBlockEntity entity,
-        PipeRenderState state,
-        float tickDelta,
-        Vec3d cameraPos,
-        @Nullable net.minecraft.client.render.command.ModelCommandRenderer.CrumblingOverlayCommand crumblingOverlay
-    ) {
+            PipeBlockEntity entity,
+            PipeRenderState state,
+            float tickDelta,
+            Vec3d cameraPos,
+            @Nullable net.minecraft.client.render.command.ModelCommandRenderer.CrumblingOverlayCommand crumblingOverlay) {
         // Update base block entity render state
         BlockEntityRenderState.updateBlockEntityRenderState(entity, state, crumblingOverlay);
 
@@ -88,10 +83,8 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
                     if (type == PipeBlock.ConnectionType.NONE) {
                         continue;
                     }
-                    state.models.add(new PipeRenderState.ModelRenderInfo(
-                        pipe.getPipeArm(context, direction),
-                        0xFFFFFF
-                    ));
+                    state.models.add(
+                            new PipeRenderState.ModelRenderInfo(pipe.getPipeArm(context, direction), 0xFFFFFF));
                     for (Identifier decoration : pipe.getPipeDecorations(context, direction)) {
                         state.models.add(new PipeRenderState.ModelRenderInfo(decoration, 0xFFFFFF));
                     }
@@ -105,13 +98,13 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
 
             // Update the ItemRenderState using ItemModelManager
             this.itemModelManager.update(
-                itemState.itemRenderState,
-                travelingItem.getStack(),
-                ItemDisplayContext.GROUND,
-                entity.getWorld(),
-                null, // heldItemContext - not held by entity
-                0 // seed
-            );
+                    itemState.itemRenderState,
+                    travelingItem.getStack(),
+                    ItemDisplayContext.GROUND,
+                    entity.getWorld(),
+                    null, // heldItemContext - not held by entity
+                    0 // seed
+                    );
 
             // Store item data
             itemState.direction = travelingItem.getDirection();
@@ -128,15 +121,14 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
 
     @Override
     public void render(
-        PipeRenderState state,
-        MatrixStack matrices,
-        OrderedRenderCommandQueue queue,
-        CameraRenderState cameraState
-    ) {
+            PipeRenderState state,
+            MatrixStack matrices,
+            OrderedRenderCommandQueue queue,
+            CameraRenderState cameraState) {
         if (!state.models.isEmpty()) {
             RenderLayer renderLayer = state.blockState == null
-                ? RenderLayers.cutout()
-                : BlockRenderLayers.getEntityBlockLayer(state.blockState);
+                    ? RenderLayers.cutout()
+                    : BlockRenderLayers.getEntityBlockLayer(state.blockState);
             for (PipeRenderState.ModelRenderInfo modelInfo : state.models) {
                 BlockStateModel model = PipeModelRegistry.getModel(modelInfo.modelId);
                 if (model == null) {
@@ -147,16 +139,15 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
                 float green = ((color >> 8) & 0xFF) / 255.0f;
                 float blue = (color & 0xFF) / 255.0f;
                 queue.submitBlockStateModel(
-                    matrices,
-                    renderLayer,
-                    model,
-                    red,
-                    green,
-                    blue,
-                    state.lightmapCoordinates,
-                    OverlayTexture.DEFAULT_UV,
-                    0
-                );
+                        matrices,
+                        renderLayer,
+                        model,
+                        red,
+                        green,
+                        blue,
+                        state.lightmapCoordinates,
+                        OverlayTexture.DEFAULT_UV,
+                        0);
             }
         }
 
@@ -198,10 +189,9 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
             // Progress 1.0 = exiting in travel direction (+0.5)
             float travelDistance = interpolatedProgress - 0.5f;
             matrices.translate(
-                itemState.direction.getOffsetX() * travelDistance,
-                itemState.direction.getOffsetY() * travelDistance,
-                itemState.direction.getOffsetZ() * travelDistance
-            );
+                    itemState.direction.getOffsetX() * travelDistance,
+                    itemState.direction.getOffsetY() * travelDistance,
+                    itemState.direction.getOffsetZ() * travelDistance);
 
             // Keep items at ground scale (no scaling)
             // ItemDisplayContext.GROUND already handles proper item sizing
@@ -209,12 +199,8 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
 
             // Render the item using ItemRenderState.render()
             itemState.itemRenderState.render(
-                matrices,
-                queue,
-                state.lightmapCoordinates,
-                OverlayTexture.DEFAULT_UV,
-                0  // outlineColors
-            );
+                    matrices, queue, state.lightmapCoordinates, OverlayTexture.DEFAULT_UV, 0 // outlineColors
+                    );
 
             matrices.pop();
         }

@@ -5,34 +5,36 @@ import com.logistics.pipe.Pipe;
 import com.logistics.pipe.PipeContext;
 import com.mojang.serialization.MapCodec;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
-import net.minecraft.block.*;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockRenderType;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.BlockWithEntity;
+import net.minecraft.block.MapColor;
+import net.minecraft.block.ShapeContext;
+import net.minecraft.block.Waterloggable;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.entity.ItemEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUsageContext;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.BlockSoundGroup;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
-import net.minecraft.state.property.EnumProperty;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
+import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
-import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldAccess;
 import net.minecraft.world.WorldView;
 import net.minecraft.world.block.WireOrientation;
 import net.minecraft.world.tick.ScheduledTickView;
@@ -48,34 +50,25 @@ public class PipeBlock extends BlockWithEntity implements Waterloggable {
     private static final double PIPE_SIZE = 8.0;
 
     private static final VoxelShape CORE_SHAPE = Block.createCuboidShape(
-        8 - PIPE_SIZE / 2, 8 - PIPE_SIZE / 2, 8 - PIPE_SIZE / 2,
-        8 + PIPE_SIZE / 2, 8 + PIPE_SIZE / 2, 8 + PIPE_SIZE / 2
-    );
+            8 - PIPE_SIZE / 2,
+            8 - PIPE_SIZE / 2,
+            8 - PIPE_SIZE / 2,
+            8 + PIPE_SIZE / 2,
+            8 + PIPE_SIZE / 2,
+            8 + PIPE_SIZE / 2);
 
     private static final VoxelShape NORTH_SHAPE = Block.createCuboidShape(
-        8 - PIPE_SIZE / 2, 8 - PIPE_SIZE / 2, 0,
-        8 + PIPE_SIZE / 2, 8 + PIPE_SIZE / 2, 8 - PIPE_SIZE / 2
-    );
+            8 - PIPE_SIZE / 2, 8 - PIPE_SIZE / 2, 0, 8 + PIPE_SIZE / 2, 8 + PIPE_SIZE / 2, 8 - PIPE_SIZE / 2);
     private static final VoxelShape SOUTH_SHAPE = Block.createCuboidShape(
-        8 - PIPE_SIZE / 2, 8 - PIPE_SIZE / 2, 8 + PIPE_SIZE / 2,
-        8 + PIPE_SIZE / 2, 8 + PIPE_SIZE / 2, 16
-    );
+            8 - PIPE_SIZE / 2, 8 - PIPE_SIZE / 2, 8 + PIPE_SIZE / 2, 8 + PIPE_SIZE / 2, 8 + PIPE_SIZE / 2, 16);
     private static final VoxelShape EAST_SHAPE = Block.createCuboidShape(
-        8 + PIPE_SIZE / 2, 8 - PIPE_SIZE / 2, 8 - PIPE_SIZE / 2,
-        16, 8 + PIPE_SIZE / 2, 8 + PIPE_SIZE / 2
-    );
+            8 + PIPE_SIZE / 2, 8 - PIPE_SIZE / 2, 8 - PIPE_SIZE / 2, 16, 8 + PIPE_SIZE / 2, 8 + PIPE_SIZE / 2);
     private static final VoxelShape WEST_SHAPE = Block.createCuboidShape(
-        0, 8 - PIPE_SIZE / 2, 8 - PIPE_SIZE / 2,
-        8 - PIPE_SIZE / 2, 8 + PIPE_SIZE / 2, 8 + PIPE_SIZE / 2
-    );
+            0, 8 - PIPE_SIZE / 2, 8 - PIPE_SIZE / 2, 8 - PIPE_SIZE / 2, 8 + PIPE_SIZE / 2, 8 + PIPE_SIZE / 2);
     private static final VoxelShape UP_SHAPE = Block.createCuboidShape(
-        8 - PIPE_SIZE / 2, 8 + PIPE_SIZE / 2, 8 - PIPE_SIZE / 2,
-        8 + PIPE_SIZE / 2, 16, 8 + PIPE_SIZE / 2
-    );
+            8 - PIPE_SIZE / 2, 8 + PIPE_SIZE / 2, 8 - PIPE_SIZE / 2, 8 + PIPE_SIZE / 2, 16, 8 + PIPE_SIZE / 2);
     private static final VoxelShape DOWN_SHAPE = Block.createCuboidShape(
-        8 - PIPE_SIZE / 2, 0, 8 - PIPE_SIZE / 2,
-        8 + PIPE_SIZE / 2, 8 - PIPE_SIZE / 2, 8 + PIPE_SIZE / 2
-    );
+            8 - PIPE_SIZE / 2, 0, 8 - PIPE_SIZE / 2, 8 + PIPE_SIZE / 2, 8 - PIPE_SIZE / 2, 8 + PIPE_SIZE / 2);
 
     private final Pipe pipe;
 
@@ -86,10 +79,7 @@ public class PipeBlock extends BlockWithEntity implements Waterloggable {
     public PipeBlock(Settings settings, Pipe pipe) {
         super(settings.mapColor(MapColor.CLEAR).nonOpaque().strength(0.0f));
         this.pipe = pipe;
-        setDefaultState(getDefaultState()
-            .with(POWERED, false)
-            .with(WATERLOGGED, false)
-        );
+        setDefaultState(getDefaultState().with(POWERED, false).with(WATERLOGGED, false));
     }
 
     public Pipe getPipe() {
@@ -119,8 +109,14 @@ public class PipeBlock extends BlockWithEntity implements Waterloggable {
     /**
      * Route item use interactions to pipe modules before default block handling.
      */
-    protected ActionResult onUseWithItem(ItemStack stack, BlockState state, World world, BlockPos pos,
-                                         PlayerEntity player, Hand hand, BlockHitResult hit) {
+    protected ActionResult onUseWithItem(
+            ItemStack stack,
+            BlockState state,
+            World world,
+            BlockPos pos,
+            PlayerEntity player,
+            Hand hand,
+            BlockHitResult hit) {
         if (pipe == null) {
             return ActionResult.PASS;
         }
@@ -157,17 +153,18 @@ public class PipeBlock extends BlockWithEntity implements Waterloggable {
         return 0;
     }
 
-    @Nullable
-    @Override
+    @Nullable @Override
     public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
         return new PipeBlockEntity(pos, state);
     }
 
-    @Nullable
-    @Override
-    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type) {
-        return validateTicker(type, com.logistics.block.entity.LogisticsBlockEntities.PIPE_BLOCK_ENTITY,
-            (world1, pos, state1, blockEntity) -> PipeBlockEntity.tick(world1, pos, state1, blockEntity));
+    @Nullable @Override
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
+            World world, BlockState state, BlockEntityType<T> type) {
+        return validateTicker(
+                type,
+                com.logistics.block.entity.LogisticsBlockEntities.PIPE_BLOCK_ENTITY,
+                (world1, pos, state1, blockEntity) -> PipeBlockEntity.tick(world1, pos, state1, blockEntity));
     }
 
     @Override
@@ -196,21 +193,27 @@ public class PipeBlock extends BlockWithEntity implements Waterloggable {
         return shape;
     }
 
-    @Nullable
-    @Override
+    @Nullable @Override
     public BlockState getPlacementState(ItemPlacementContext ctx) {
         BlockView world = ctx.getWorld();
         BlockPos pos = ctx.getBlockPos();
         FluidState fluidState = world.getFluidState(pos);
 
         return getDefaultState()
-            .with(POWERED, ctx.getWorld().isReceivingRedstonePower(pos))
-            .with(WATERLOGGED, fluidState.getFluid() == Fluids.WATER);
+                .with(POWERED, ctx.getWorld().isReceivingRedstonePower(pos))
+                .with(WATERLOGGED, fluidState.getFluid() == Fluids.WATER);
     }
 
     @Override
-    protected BlockState getStateForNeighborUpdate(BlockState state, WorldView world, ScheduledTickView tickView, BlockPos pos,
-                                                   Direction direction, BlockPos neighborPos, BlockState neighborState, Random random) {
+    protected BlockState getStateForNeighborUpdate(
+            BlockState state,
+            WorldView world,
+            ScheduledTickView tickView,
+            BlockPos pos,
+            Direction direction,
+            BlockPos neighborPos,
+            BlockState neighborState,
+            Random random) {
         if (state.get(WATERLOGGED)) {
             tickView.scheduleFluidTick(pos, Fluids.WATER, Fluids.WATER.getTickRate(world));
         }
@@ -219,8 +222,13 @@ public class PipeBlock extends BlockWithEntity implements Waterloggable {
     }
 
     @Override
-    protected void neighborUpdate(BlockState state, World world, BlockPos pos, Block block, @Nullable WireOrientation wireOrientation,
-                               boolean notify) {
+    protected void neighborUpdate(
+            BlockState state,
+            World world,
+            BlockPos pos,
+            Block block,
+            @Nullable WireOrientation wireOrientation,
+            boolean notify) {
         if (!world.isClient()) {
             boolean powered = world.isReceivingRedstonePower(pos);
             if (powered != state.get(POWERED)) {
@@ -248,9 +256,8 @@ public class PipeBlock extends BlockWithEntity implements Waterloggable {
     public ConnectionType getConnectionType(BlockView world, BlockPos pos, Direction direction) {
         // On client side, use cached values from block entity for rendering performance
         if (world instanceof World actualWorld && actualWorld.isClient()) {
-            PipeBlockEntity pipeEntity = actualWorld.getBlockEntity(pos) instanceof PipeBlockEntity blockEntity
-                ? blockEntity
-                : null;
+            PipeBlockEntity pipeEntity =
+                    actualWorld.getBlockEntity(pos) instanceof PipeBlockEntity blockEntity ? blockEntity : null;
             if (pipeEntity != null) {
                 return pipeEntity.getConnectionType(direction);
             }
@@ -269,12 +276,11 @@ public class PipeBlock extends BlockWithEntity implements Waterloggable {
         if (neighborBlock instanceof PipeBlock) {
             ConnectionType candidate = ConnectionType.PIPE;
             if (pipe != null && world instanceof World actualWorld) {
-                PipeBlockEntity pipeEntity = actualWorld.getBlockEntity(pos) instanceof PipeBlockEntity blockEntity
-                    ? blockEntity
-                    : null;
+                PipeBlockEntity pipeEntity =
+                        actualWorld.getBlockEntity(pos) instanceof PipeBlockEntity blockEntity ? blockEntity : null;
                 PipeContext context = pipeEntity != null
-                    ? new PipeContext(actualWorld, pos, actualWorld.getBlockState(pos), pipeEntity)
-                    : null;
+                        ? new PipeContext(actualWorld, pos, actualWorld.getBlockState(pos), pipeEntity)
+                        : null;
                 return pipe.filterConnection(context, direction, neighborBlock, candidate);
             }
             return candidate;
@@ -286,12 +292,11 @@ public class PipeBlock extends BlockWithEntity implements Waterloggable {
             if (ItemStorage.SIDED.find(actualWorld, neighborPos, direction.getOpposite()) != null) {
                 ConnectionType candidate = ConnectionType.INVENTORY;
                 if (pipe != null) {
-                    PipeBlockEntity pipeEntity = actualWorld.getBlockEntity(pos) instanceof PipeBlockEntity blockEntity
-                        ? blockEntity
-                        : null;
+                    PipeBlockEntity pipeEntity =
+                            actualWorld.getBlockEntity(pos) instanceof PipeBlockEntity blockEntity ? blockEntity : null;
                     PipeContext context = pipeEntity != null
-                        ? new PipeContext(actualWorld, pos, actualWorld.getBlockState(pos), pipeEntity)
-                        : null;
+                            ? new PipeContext(actualWorld, pos, actualWorld.getBlockState(pos), pipeEntity)
+                            : null;
                     return pipe.filterConnection(context, direction, neighborBlock, candidate);
                 }
                 return candidate;

@@ -1,6 +1,8 @@
 package com.logistics.pipe.runtime;
 
-public class PipeConfig {
+public final class PipeConfig {
+    private PipeConfig() {}
+
     // Constant speed added per tick when a pipe applies acceleration (e.g., powered boost pipes).
     // This is a linear delta, not a multiplier, so larger values ramp speed faster each tick.
     // 1/200 blocks per tick^2 means +0.005 blocks/tick after one tick of acceleration.
