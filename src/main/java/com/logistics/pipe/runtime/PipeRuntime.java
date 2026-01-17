@@ -250,7 +250,7 @@ public final class PipeRuntime {
 
         Direction chosen = candidates.size() == 1
                 ? candidates.getFirst()
-                : chooseRandomDirection(ctx.pipeContext(), item.getDirection(), candidates);
+                : chooseRandomDirection(ctx.world(), ctx.pos(), item.getDirection(), candidates);
 
         item.setDirection(chosen);
         item.setRouted(true);
@@ -392,8 +392,8 @@ public final class PipeRuntime {
     }
 
     private static Direction chooseRandomDirection(
-            PipeContext ctx, Direction currentDirection, List<Direction> options) {
-        long seed = mixHash(ctx.pos().asLong(), ctx.world().getTime(), currentDirection.getIndex());
+            World world, BlockPos pos, Direction currentDirection, List<Direction> options) {
+        long seed = mixHash(pos.asLong(), world.getTime(), currentDirection.getIndex());
         java.util.Random random = new java.util.Random(seed);
         return options.get(random.nextInt(options.size()));
     }
