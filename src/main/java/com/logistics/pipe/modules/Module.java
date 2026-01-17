@@ -33,10 +33,6 @@ public interface Module {
         return RoutePlan.pass();
     }
 
-    default boolean discardWhenNoRoute(PipeContext ctx) {
-        return false;
-    }
-
     default boolean canAcceptFrom(PipeContext ctx, Direction from, ItemStack stack) {
         return true;
     }

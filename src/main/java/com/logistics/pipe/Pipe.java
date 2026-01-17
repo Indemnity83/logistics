@@ -183,15 +183,6 @@ public abstract class Pipe {
         return true;
     }
 
-    public boolean discardWhenNoRoute(PipeContext ctx) {
-        for (Module module : modules) {
-            if (module.discardWhenNoRoute(ctx)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     public net.minecraft.util.ActionResult onUseWithItem(PipeContext ctx, net.minecraft.item.ItemUsageContext usage) {
         for (Module module : modules) {
             net.minecraft.util.ActionResult result = module.onUseWithItem(ctx, usage);
