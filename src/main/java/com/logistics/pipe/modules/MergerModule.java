@@ -110,22 +110,11 @@ public class MergerModule implements Module {
         if (!isOutputDirection(ctx, direction)) {
             return null;
         }
-        return Identifier.of(LogisticsMod.MOD_ID, featureBasePath(ctx, direction));
-    }
-
-    @Override
-    public List<Identifier> getPipeDecorations(PipeContext ctx, Direction direction) {
-        if (!isOutputDirection(ctx, direction) || !ctx.isInventoryConnection(direction)) {
-            return List.of();
-        }
-        return List.of(Identifier.of(LogisticsMod.MOD_ID, featureBasePath(ctx, direction) + "_extension"));
+        String suffix = ctx.isInventoryConnection(direction) ? "_feature_extended" : "_feature";
+        return Identifier.of(LogisticsMod.MOD_ID, "block/item_merger_pipe" + suffix);
     }
 
     private boolean isOutputDirection(PipeContext ctx, Direction direction) {
         return getOutputDirection(ctx) == direction;
-    }
-
-    private String featureBasePath(PipeContext ctx, Direction direction) {
-        return ctx.pipe().getModelBasePath(direction) + "_feature";
     }
 }

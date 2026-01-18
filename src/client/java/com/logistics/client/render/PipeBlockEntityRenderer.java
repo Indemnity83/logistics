@@ -22,6 +22,7 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemDisplayContext;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.Nullable;
 
@@ -73,7 +74,7 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
                 dragCoefficient = pipeBlock.getPipe().getDrag(context);
 
                 Pipe pipe = pipeBlock.getPipe();
-                state.models.add(new PipeRenderState.ModelRenderInfo(pipe.getCoreModelId(), 0xFFFFFF));
+                state.models.add(new PipeRenderState.ModelRenderInfo(pipe.getCoreModelId(context), 0xFFFFFF));
                 for (Pipe.CoreDecoration decoration : pipe.getCoreDecorations(context)) {
                     state.models.add(new PipeRenderState.ModelRenderInfo(decoration.modelId(), decoration.color()));
                 }
@@ -83,8 +84,13 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
                     if (type == PipeBlock.ConnectionType.NONE) {
                         continue;
                     }
-                    state.models.add(
-                            new PipeRenderState.ModelRenderInfo(pipe.getPipeArm(context, direction), 0xFFFFFF));
+
+                    // Get arm model (module override or base), rotate at render time
+                    Identifier armModel = pipe.getPipeArm(context, direction);
+                    Integer armTint = pipe.getArmTint(context, direction);
+                    int armColor = armTint != null ? armTint : 0xFFFFFF;
+                    state.models.add(new PipeRenderState.ModelRenderInfo(armModel, armColor, direction));
+
                     for (Identifier decoration : pipe.getPipeDecorations(context, direction)) {
                         state.models.add(new PipeRenderState.ModelRenderInfo(decoration, 0xFFFFFF));
                     }
@@ -134,6 +140,15 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
                 if (model == null) {
                     continue;
                 }
+
+                // Apply rotation for arm models
+                if (modelInfo.armDirection != null) {
+                    matrices.push();
+                    matrices.translate(0.5, 0.5, 0.5); // Rotate around block center
+                    applyDirectionRotation(matrices, modelInfo.armDirection);
+                    matrices.translate(-0.5, -0.5, -0.5);
+                }
+
                 int color = modelInfo.color;
                 float red = ((color >> 16) & 0xFF) / 255.0f;
                 float green = ((color >> 8) & 0xFF) / 255.0f;
@@ -148,6 +163,10 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
                         state.lightmapCoordinates,
                         OverlayTexture.DEFAULT_UV,
                         0);
+
+                if (modelInfo.armDirection != null) {
+                    matrices.pop();
+                }
             }
         }
 
@@ -206,5 +225,18 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
         }
     }
 
-    // Render state classes
+    /**
+     * Applies rotation to the matrix stack for rendering arm models in the given direction.
+     * The base arm model is oriented NORTH; this method rotates it to face other directions.
+     */
+    private static void applyDirectionRotation(MatrixStack matrices, Direction direction) {
+        switch (direction) {
+            case SOUTH -> matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180));
+            case EAST -> matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(-90));
+            case WEST -> matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(90));
+            case UP -> matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(90));
+            case DOWN -> matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(-90));
+            default -> {} // NORTH: Base orientation, no rotation
+        }
+    }
 }

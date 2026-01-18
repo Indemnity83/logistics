@@ -86,6 +86,18 @@ public interface Module {
     }
 
     /**
+     * Override the tint color for the arm model in a specific direction.
+     * Used for models with tintindex to apply directional coloring.
+     *
+     * @param ctx the pipe context
+     * @param direction the direction of the arm being rendered
+     * @return the tint color (0xRRGGBB), or null to use no tint (white)
+     */
+    @Nullable default Integer getArmTint(PipeContext ctx, Direction direction) {
+        return null;
+    }
+
+    /**
      * Append decoration models for a specific direction (feature faces, overlays, extensions, etc.).
      *
      * @param ctx the pipe context
@@ -104,5 +116,16 @@ public interface Module {
      */
     default List<Pipe.CoreDecoration> getCoreDecorations(PipeContext ctx) {
         return List.of();
+    }
+
+    /**
+     * Override the core model for this pipe.
+     * Used for state-dependent core variants (e.g., powered gold pipe).
+     *
+     * @param ctx the pipe context
+     * @return the core model identifier, or null to use the default core model
+     */
+    @Nullable default Identifier getCoreModel(PipeContext ctx) {
+        return null;
     }
 }

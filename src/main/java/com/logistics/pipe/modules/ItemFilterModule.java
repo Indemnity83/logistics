@@ -95,6 +95,11 @@ public class ItemFilterModule implements Module {
         };
     }
 
+    @Override
+    public Integer getArmTint(PipeContext ctx, Direction direction) {
+        return getFilterColor(direction);
+    }
+
     public List<String> getFilterSlots(PipeContext ctx, Direction direction) {
         NbtCompound filters = ctx.getNbtCompound(this, FILTERS);
         NbtList list = filters.getListOrEmpty(direction.getId());
