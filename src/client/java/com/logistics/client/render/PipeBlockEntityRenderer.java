@@ -74,7 +74,7 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
                 dragCoefficient = pipeBlock.getPipe().getDrag(context);
 
                 Pipe pipe = pipeBlock.getPipe();
-                state.models.add(new PipeRenderState.ModelRenderInfo(pipe.getCoreModelId(), 0xFFFFFF));
+                state.models.add(new PipeRenderState.ModelRenderInfo(pipe.getCoreModelId(context), 0xFFFFFF));
                 for (Pipe.CoreDecoration decoration : pipe.getCoreDecorations(context)) {
                     state.models.add(new PipeRenderState.ModelRenderInfo(decoration.modelId(), decoration.color()));
                 }

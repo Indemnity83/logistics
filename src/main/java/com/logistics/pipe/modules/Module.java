@@ -117,4 +117,15 @@ public interface Module {
     default List<Pipe.CoreDecoration> getCoreDecorations(PipeContext ctx) {
         return List.of();
     }
+
+    /**
+     * Override the core model for this pipe.
+     * Used for state-dependent core variants (e.g., powered gold pipe).
+     *
+     * @param ctx the pipe context
+     * @return the core model identifier, or null to use the default core model
+     */
+    @Nullable default Identifier getCoreModel(PipeContext ctx) {
+        return null;
+    }
 }

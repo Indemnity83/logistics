@@ -43,8 +43,15 @@ public abstract class Pipe {
 
     /**
      * Get the model identifier for the core part of this pipe.
+     * Delegates to modules first to allow state-dependent overrides (e.g., powered gold pipe).
      */
-    public Identifier getCoreModelId() {
+    public Identifier getCoreModelId(PipeContext ctx) {
+        for (Module module : modules) {
+            Identifier override = module.getCoreModel(ctx);
+            if (override != null) {
+                return override;
+            }
+        }
         return Identifier.of(LogisticsMod.MOD_ID, "block/" + getPipeName() + "_core");
     }
 
