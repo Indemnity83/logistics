@@ -113,8 +113,7 @@ public abstract class Pipe {
      * @param direction the direction of the arm
      * @return the tint color (0xRRGGBB), or null for no tint (white)
      */
-    @Nullable
-    public Integer getArmTint(PipeContext ctx, Direction direction) {
+    @Nullable public Integer getArmTint(PipeContext ctx, Direction direction) {
         for (Module module : modules) {
             Integer tint = module.getArmTint(ctx, direction);
             if (tint != null) {

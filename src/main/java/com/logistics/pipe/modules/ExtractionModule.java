@@ -2,7 +2,6 @@ package com.logistics.pipe.modules;
 
 import com.logistics.LogisticsMod;
 import com.logistics.item.LogisticsItems;
-import com.logistics.pipe.Pipe;
 import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.runtime.PipeConfig;
 import com.logistics.pipe.runtime.TravelingItem;

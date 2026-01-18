@@ -5,28 +5,28 @@
       "name": "arm_extended",
       "from": [4, 4, -2],
       "to": [12, 12, 4],
-      "rotation": {"angle": 0, "axis": "y", "origin": [7, 1, 1]},
+      "rotation": { "angle": 0, "axis": "y", "origin": [7, 1, 1] },
       "faces": {
-        "north": {"uv": [0, 0, 2, 2], "texture": "#texture"},
-        "east": {"uv": [0, 4, 16, 16], "rotation": 90, "texture": "#texture"},
-        "south": {"uv": [0, 0, 2, 2], "texture": "#texture"},
-        "west": {"uv": [0, 4, 16, 16], "rotation": 270, "texture": "#texture"},
-        "up": {"uv": [0, 4, 16, 16], "texture": "#texture"},
-        "down": {"uv": [0, 16, 16, 4], "texture": "#texture"}
+        "north": { "uv": [0, 0, 2, 2], "texture": "#texture" },
+        "east": { "uv": [0, 4, 16, 16], "rotation": 90, "texture": "#texture" },
+        "south": { "uv": [0, 0, 2, 2], "texture": "#texture" },
+        "west": { "uv": [0, 4, 16, 16], "rotation": 270, "texture": "#texture" },
+        "up": { "uv": [0, 4, 16, 16], "texture": "#texture" },
+        "down": { "uv": [0, 16, 16, 4], "texture": "#texture" }
       }
     },
     {
       "name": "overlay",
       "from": [4, 4, -2],
       "to": [12, 12, 4],
-      "rotation": {"angle": 0, "axis": "y", "origin": [7, 1, 1]},
+      "rotation": { "angle": 0, "axis": "y", "origin": [7, 1, 1] },
       "faces": {
-        "north": {"uv": [0, 0, 2, 2], "texture": "#overlay", "tintindex": 0},
-        "east": {"uv": [0, 4, 16, 16], "rotation": 90, "texture": "#overlay", "tintindex": 0},
-        "south": {"uv": [0, 0, 2, 2], "texture": "#overlay", "tintindex": 0},
-        "west": {"uv": [0, 4, 16, 16], "rotation": 270, "texture": "#overlay", "tintindex": 0},
-        "up": {"uv": [0, 4, 16, 16], "texture": "#overlay", "tintindex": 0},
-        "down": {"uv": [0, 16, 16, 4], "texture": "#overlay", "tintindex": 0}
+        "north": { "uv": [0, 0, 2, 2], "texture": "#overlay", "tintindex": 0 },
+        "east": { "uv": [0, 4, 16, 16], "rotation": 90, "texture": "#overlay", "tintindex": 0 },
+        "south": { "uv": [0, 0, 2, 2], "texture": "#overlay", "tintindex": 0 },
+        "west": { "uv": [0, 4, 16, 16], "rotation": 270, "texture": "#overlay", "tintindex": 0 },
+        "up": { "uv": [0, 4, 16, 16], "texture": "#overlay", "tintindex": 0 },
+        "down": { "uv": [0, 16, 16, 4], "texture": "#overlay", "tintindex": 0 }
       }
     }
   ],
