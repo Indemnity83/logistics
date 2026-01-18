@@ -6,7 +6,7 @@
         "type": "minecraft:model"
       },
       {
-        "model": "logistics:block/item_merger_pipe_west_feature",
+        "model": "logistics:block/item_merger_pipe_feature",
         "type": "minecraft:model"
       }
     ],

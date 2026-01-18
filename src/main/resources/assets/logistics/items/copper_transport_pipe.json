@@ -6,7 +6,7 @@
         "type": "minecraft:model"
       },
       {
-        "model": "logistics:block/copper_transport_pipe_west",
+        "model": "logistics:block/copper_transport_pipe_arm",
         "type": "minecraft:model"
       }
     ],

@@ -1,41 +1,7 @@
 {
-  "elements": [
-    {
-      "faces": {
-        "down": {
-          "texture": "#texture",
-          "uv": [0, 4, 8, 12]
-        },
-        "east": {
-          "texture": "#texture",
-          "uv": [0, 4, 8, 12]
-        },
-        "north": {
-          "texture": "#texture",
-          "uv": [0, 4, 8, 12]
-        },
-        "south": {
-          "texture": "#texture",
-          "uv": [0, 4, 8, 12]
-        },
-        "up": {
-          "texture": "#texture",
-          "uv": [0, 4, 8, 12]
-        },
-        "west": {
-          "texture": "#texture",
-          "uv": [0, 4, 8, 12]
-        }
-      },
-      "from": [4, 4, 4],
-      "to": [12, 12, 12]
-    }
-  ],
-  "generated_by": "scripts/generate_bbmodel_models.py",
-  "parent": "block/block",
-  "source": "assets/models/gold_transport_pipe.bbmodel",
+  "parent": "logistics:block/copper_transport_pipe_core",
   "textures": {
-    "particle": "logistics:block/gold_transport_pipe",
-    "texture": "logistics:block/gold_transport_pipe"
+    "particle": "logistics:block/gold_pipe_core",
+    "texture": "logistics:block/gold_pipe_core"
   }
 }

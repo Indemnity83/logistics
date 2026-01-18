@@ -60,12 +60,14 @@ public abstract class Pipe {
     }
 
     /**
-     * Get the model identifier for an arm part in the given direction.
+     * Get the arm model identifier for the given direction.
      * Delegates to modules first to allow them to override with custom models (like feature faces).
-     * Falls back to the default arm model if no module provides an override.
+     * Falls back to the base arm model if no module provides an override.
+     * The returned model is NORTH-facing and should be rotated at render time.
      *
      * @param ctx the pipe context
      * @param direction the direction of the arm
+     * @return the arm model identifier
      */
     public Identifier getPipeArm(PipeContext ctx, Direction direction) {
         for (Module module : modules) {
@@ -75,19 +77,14 @@ public abstract class Pipe {
             }
         }
 
-        return Identifier.of(LogisticsMod.MOD_ID, getModelBasePath(direction));
+        String suffix = ctx.isInventoryConnection(direction) ? "_arm_extended" : "_arm";
+        return Identifier.of(LogisticsMod.MOD_ID, "block/" + getPipeName() + suffix);
     }
 
     /**
      * Get decoration model identifiers for an arm in the given direction.
-     * Decorations are additive parts rendered alongside the core arm model, such as:
-     * - the default extension when the pipe is connected to an inventory on that face
-     * - module-provided overlays / feature faces / extras
-     *
-     * TODO: Extensions are currently treated as decorations.
-     *  This can result in both a default extension and a module-provided
-     *  extension being rendered. This is intentional for now.
-     *  Long-term, extension should be handled by the arm model itself.
+     * Decorations are additive parts rendered alongside the core arm model,
+     * such as module-provided overlays.
      *
      * @param ctx the pipe context
      * @param direction the direction of the arm
@@ -95,16 +92,29 @@ public abstract class Pipe {
      */
     public List<Identifier> getPipeDecorations(PipeContext ctx, Direction direction) {
         List<Identifier> models = new ArrayList<>();
-
-        if (ctx.isInventoryConnection(direction)) {
-            models.add(Identifier.of(LogisticsMod.MOD_ID, getModelBasePath(direction) + "_extension"));
-        }
-
         for (Module module : modules) {
-            models.addAll(module.getPipeDecorations(ctx, direction)); // empty list => no-op
+            models.addAll(module.getPipeDecorations(ctx, direction));
         }
-
         return models;
+    }
+
+    /**
+     * Get the tint color for the arm in the given direction.
+     * Delegates to modules to allow directional coloring (e.g., filter pipe overlays).
+     *
+     * @param ctx the pipe context
+     * @param direction the direction of the arm
+     * @return the tint color (0xRRGGBB), or null for no tint (white)
+     */
+    @Nullable
+    public Integer getArmTint(PipeContext ctx, Direction direction) {
+        for (Module module : modules) {
+            Integer tint = module.getArmTint(ctx, direction);
+            if (tint != null) {
+                return tint;
+            }
+        }
+        return null;
     }
 
     /**

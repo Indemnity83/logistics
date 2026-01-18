@@ -1,0 +1,17 @@
+{
+  "parent": "block/block",
+  "display": {
+    "gui": {
+      "rotation": [30, -50, 0],
+      "scale": [0.8, 0.8, 0.8]
+    },
+    "fixed": {
+      "rotation": [90, 0, 0],
+      "translation": [0, -2.5, 0]
+    },
+    "ground": {
+      "scale": [0.3, 0.3, 0.3]
+    }
+  },
+  "texture_size": [8, 8]
+}

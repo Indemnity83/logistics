@@ -2,6 +2,7 @@ package com.logistics.pipe.modules;
 
 import com.logistics.LogisticsMod;
 import com.logistics.item.LogisticsItems;
+import com.logistics.pipe.Pipe;
 import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.runtime.PipeConfig;
 import com.logistics.pipe.runtime.TravelingItem;
@@ -160,22 +161,11 @@ public class ExtractionModule implements Module {
         if (!isExtractionFace(ctx, direction)) {
             return null;
         }
-        return Identifier.of(LogisticsMod.MOD_ID, featureBasePath(ctx, direction));
-    }
-
-    @Override
-    public List<Identifier> getPipeDecorations(PipeContext ctx, Direction direction) {
-        if (!isExtractionFace(ctx, direction) || !ctx.isInventoryConnection(direction)) {
-            return List.of();
-        }
-        return List.of(Identifier.of(LogisticsMod.MOD_ID, featureBasePath(ctx, direction) + "_extension"));
+        String suffix = ctx.isInventoryConnection(direction) ? "_feature_extended" : "_feature";
+        return Identifier.of(LogisticsMod.MOD_ID, "block/item_extractor_pipe" + suffix);
     }
 
     private boolean isExtractionFace(PipeContext ctx, Direction direction) {
         return getExtractionDirection(ctx) == direction;
-    }
-
-    private String featureBasePath(PipeContext ctx, Direction direction) {
-        return ctx.pipe().getModelBasePath(direction) + "_feature";
     }
 }
