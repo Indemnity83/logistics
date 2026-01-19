@@ -135,14 +135,7 @@ public class WeatheringModule implements Module {
         ctx.saveInt(this, WAXED_KEY, 1);
         ctx.markDirtyAndSync();
 
-        ctx.world()
-                .playSound(
-                        null,
-                        ctx.pos(),
-                        SoundEvents.ITEM_HONEYCOMB_WAX_ON,
-                        SoundCategory.BLOCKS,
-                        1.0f,
-                        1.0f);
+        ctx.world().playSound(null, ctx.pos(), SoundEvents.ITEM_HONEYCOMB_WAX_ON, SoundCategory.BLOCKS, 1.0f, 1.0f);
 
         if (player != null && !player.isCreative()) {
             stack.decrement(1);
@@ -151,8 +144,7 @@ public class WeatheringModule implements Module {
         return ActionResult.SUCCESS;
     }
 
-    private ActionResult handleScraping(
-            PipeContext ctx, ItemUsageContext usage, PlayerEntity player, ItemStack stack) {
+    private ActionResult handleScraping(PipeContext ctx, ItemUsageContext usage, PlayerEntity player, ItemStack stack) {
         boolean waxed = isWaxed(ctx);
         int stage = getOxidationStage(ctx);
 
@@ -168,15 +160,11 @@ public class WeatheringModule implements Module {
         if (waxed) {
             // Remove wax first, keep oxidation stage
             ctx.saveInt(this, WAXED_KEY, 0);
-            ctx.world()
-                    .playSound(
-                            null, ctx.pos(), SoundEvents.ITEM_AXE_WAX_OFF, SoundCategory.BLOCKS, 1.0f, 1.0f);
+            ctx.world().playSound(null, ctx.pos(), SoundEvents.ITEM_AXE_WAX_OFF, SoundCategory.BLOCKS, 1.0f, 1.0f);
         } else {
             // Reduce oxidation by one stage
             ctx.saveInt(this, OXIDATION_KEY, stage - 1);
-            ctx.world()
-                    .playSound(
-                            null, ctx.pos(), SoundEvents.ITEM_AXE_SCRAPE, SoundCategory.BLOCKS, 1.0f, 1.0f);
+            ctx.world().playSound(null, ctx.pos(), SoundEvents.ITEM_AXE_SCRAPE, SoundCategory.BLOCKS, 1.0f, 1.0f);
         }
 
         ctx.markDirtyAndSync();

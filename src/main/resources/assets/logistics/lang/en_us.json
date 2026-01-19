@@ -1,5 +1,12 @@
 {
   "block.logistics.copper_transport_pipe": "Copper Transport Pipe",
+  "block.logistics.copper_transport_pipe.exposed": "Exposed Copper Transport Pipe",
+  "block.logistics.copper_transport_pipe.weathered": "Weathered Copper Transport Pipe",
+  "block.logistics.copper_transport_pipe.oxidized": "Oxidized Copper Transport Pipe",
+  "block.logistics.copper_transport_pipe.waxed": "Waxed Copper Transport Pipe",
+  "block.logistics.copper_transport_pipe.waxed.exposed": "Waxed Exposed Copper Transport Pipe",
+  "block.logistics.copper_transport_pipe.waxed.weathered": "Waxed Weathered Copper Transport Pipe",
+  "block.logistics.copper_transport_pipe.waxed.oxidized": "Waxed Oxidized Copper Transport Pipe",
   "block.logistics.gold_transport_pipe": "Golden Transport Pipe",
   "block.logistics.item_extractor_pipe": "Item Extractor Pipe",
   "block.logistics.item_filter_pipe": "Item Filter Pipe",

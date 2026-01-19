@@ -1,6 +1,8 @@
 {
+  "type": "minecraft:block",
   "pools": [
     {
+      "rolls": 1,
       "conditions": [
         {
           "condition": "minecraft:survives_explosion"
@@ -8,12 +10,17 @@
       ],
       "entries": [
         {
+          "type": "minecraft:item",
           "name": "logistics:copper_transport_pipe",
-          "type": "minecraft:item"
+          "functions": [
+            {
+              "function": "minecraft:copy_components",
+              "source": "block_entity",
+              "include": ["logistics:weathering_state", "minecraft:custom_model_data"]
+            }
+          ]
         }
-      ],
-      "rolls": 1
+      ]
     }
-  ],
-  "type": "minecraft:block"
+  ]
 }

@@ -1,7 +1,9 @@
 package com.logistics.block;
 
 import com.logistics.LogisticsMod;
+import com.logistics.item.WeatheringPipeBlockItem;
 import com.logistics.pipe.PipeTypes;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
@@ -23,8 +25,10 @@ public final class LogisticsBlocks {
     public static final Block ITEM_PASSTHROUGH_PIPE =
             register("item_passthrough_pipe", settings -> new PipeBlock(settings, PipeTypes.ITEM_PASSTHROUGH_PIPE));
 
-    public static final Block COPPER_TRANSPORT_PIPE =
-            register("copper_transport_pipe", settings -> new PipeBlock(settings, PipeTypes.COPPER_TRANSPORT_PIPE));
+    public static final Block COPPER_TRANSPORT_PIPE = register(
+            "copper_transport_pipe",
+            settings -> new PipeBlock(settings, PipeTypes.COPPER_TRANSPORT_PIPE),
+            WeatheringPipeBlockItem::new);
 
     public static final Block ITEM_EXTRACTOR_PIPE =
             register("item_extractor_pipe", settings -> new PipeBlock(settings, PipeTypes.ITEM_EXTRACTOR));
@@ -45,6 +49,13 @@ public final class LogisticsBlocks {
             register("item_void_pipe", settings -> new PipeBlock(settings, PipeTypes.ITEM_VOID));
 
     private static Block register(String name, Function<AbstractBlock.Settings, Block> blockFactory) {
+        return register(name, blockFactory, BlockItem::new);
+    }
+
+    private static Block register(
+            String name,
+            Function<AbstractBlock.Settings, Block> blockFactory,
+            BiFunction<Block, Item.Settings, BlockItem> itemFactory) {
         // Create a registry key for the block
         RegistryKey<Block> blockKey = keyOfBlock(name);
 
@@ -53,8 +64,8 @@ public final class LogisticsBlocks {
 
         // Items need to be registered with a different type of registry key, but the ID can be the same.
         RegistryKey<Item> itemKey = keyOfItem(name);
-        BlockItem blockItem =
-                new BlockItem(block, new Item.Settings().registryKey(itemKey).useBlockPrefixedTranslationKey());
+        BlockItem blockItem = itemFactory.apply(
+                block, new Item.Settings().registryKey(itemKey).useBlockPrefixedTranslationKey());
         Registry.register(Registries.ITEM, itemKey, blockItem);
 
         return Registry.register(Registries.BLOCK, blockKey, block);
