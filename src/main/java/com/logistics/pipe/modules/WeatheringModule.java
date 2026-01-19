@@ -1,6 +1,9 @@
 package com.logistics.pipe.modules;
 
 import com.logistics.LogisticsMod;
+import com.logistics.block.PipeBlock;
+import com.logistics.block.entity.PipeBlockEntity;
+import com.logistics.pipe.Pipe;
 import com.logistics.pipe.PipeContext;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.AxeItem;
@@ -11,7 +14,9 @@ import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.random.Random;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -20,12 +25,9 @@ import org.jetbrains.annotations.Nullable;
  * Waxing with honeycomb prevents further oxidation.
  * Scraping with an axe removes wax or reverses oxidation by one stage.
  */
-public class CopperWeatheringModule implements Module {
+public class WeatheringModule implements Module {
     private static final String OXIDATION_KEY = "oxidation_stage";
     private static final String WAXED_KEY = "waxed";
-
-    /** Random tick chance for oxidation progression (~0.00005 per tick) */
-    private static final float OXIDATION_CHANCE = 0.00005f;
 
     public static final int STAGE_UNAFFECTED = 0;
     public static final int STAGE_EXPOSED = 1;
@@ -43,21 +45,61 @@ public class CopperWeatheringModule implements Module {
     }
 
     @Override
-    public void onTick(PipeContext ctx) {
+    public boolean hasRandomTicks() {
+        return true;
+    }
+
+    @Override
+    public void randomTick(PipeContext ctx, Random rand) {
         if (ctx.world().isClient()) {
             return;
         }
+        tryOxidize(ctx, rand);
+    }
 
-        if (isWaxed(ctx)) {
-            return;
-        }
+    public void tryOxidize(PipeContext ctx, Random rand) {
+        if (isWaxed(ctx)) return;
 
         int stage = getOxidationStage(ctx);
-        if (stage >= STAGE_OXIDIZED) {
-            return;
+        if (stage >= STAGE_OXIDIZED) return;
+
+        // Step 1: random tick gate (vanilla copper uses 1125/64 odds)
+        if (rand.nextInt(1125) >= 64) return;
+
+        // Step 2: scan neighbors within Manhattan distance 4
+        int a = 0; // nearby non-waxed weathering pipes
+        int b = 0; // nearby pipes more oxidized than me
+        BlockPos origin = ctx.pos();
+
+        for (BlockPos p : BlockPos.iterateOutwards(origin, 4, 4, 4)) {
+            if (p.equals(origin)) continue;
+            if (origin.getManhattanDistance(p) > 4) continue;
+
+            if (!(ctx.world().getBlockState(p).getBlock() instanceof PipeBlock pipeBlock)) continue;
+            if (!(ctx.world().getBlockEntity(p) instanceof PipeBlockEntity be)) continue;
+
+            Pipe pipe = pipeBlock.getPipe();
+            if (pipe == null || pipe.getModule(WeatheringModule.class) == null) continue;
+
+            PipeContext neighbor = new PipeContext(ctx.world(), p, ctx.world().getBlockState(p), be);
+            if (isWaxed(neighbor)) continue;
+
+            int neighborStage = getOxidationStage(neighbor);
+
+            // Abort if any neighbor is less oxidized
+            if (neighborStage < stage) return;
+
+            a++;
+            if (neighborStage > stage) b++;
         }
 
-        if (ctx.world().getRandom().nextFloat() < OXIDATION_CHANCE) {
+        // Step 3: compute progression chance
+        double c = (b + 1.0) / (a + 1.0);
+        double m = (stage == STAGE_UNAFFECTED) ? 0.75 : 1.0;
+        double chance = m * c * c;
+
+        // Step 4: roll for progression
+        if (rand.nextDouble() < chance) {
             ctx.saveInt(this, OXIDATION_KEY, stage + 1);
             ctx.markDirtyAndSync();
         }

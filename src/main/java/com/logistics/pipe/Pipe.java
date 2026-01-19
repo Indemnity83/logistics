@@ -123,6 +123,21 @@ public abstract class Pipe {
         return null;
     }
 
+    public boolean hasRandomTicks() {
+        for (Module module : modules) {
+            if (module.hasRandomTicks()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void randomTick(PipeContext ctx, Random random) {
+        for (Module module : modules) {
+            module.randomTick(ctx, random);
+        }
+    }
+
     /**
      * Core overlay model with an optional tint color.
      */

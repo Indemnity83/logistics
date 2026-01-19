@@ -128,4 +128,14 @@ public interface Module {
     @Nullable default Identifier getCoreModel(PipeContext ctx) {
         return null;
     }
+
+    /**
+     * Return true if this module needs random ticks.
+     * Modules that override randomTick() should also override this to return true.
+     */
+    default boolean hasRandomTicks() {
+        return false;
+    }
+
+    default void randomTick(PipeContext ctx, Random random) {}
 }
