@@ -43,6 +43,15 @@ public class WeatheringModule implements Module {
 
     private static final String[] STAGE_SUFFIXES = {"", "_exposed", "_weathered", "_oxidized"};
 
+    /**
+     * Returns the model suffix for the given oxidation stage, clamping to valid range.
+     * This prevents ArrayIndexOutOfBoundsException from malformed component data.
+     */
+    private static String getStageSuffix(int stage) {
+        int clampedStage = Math.max(STAGE_UNAFFECTED, Math.min(stage, STAGE_OXIDIZED));
+        return STAGE_SUFFIXES[clampedStage];
+    }
+
     public int getOxidationStage(PipeContext ctx) {
         return ctx.getInt(this, OXIDATION_KEY, STAGE_UNAFFECTED);
     }
@@ -189,7 +198,7 @@ public class WeatheringModule implements Module {
         if (stage == STAGE_UNAFFECTED) {
             return null; // Use default model
         }
-        String suffix = STAGE_SUFFIXES[stage];
+        String suffix = getStageSuffix(stage);
         return Identifier.of(LogisticsMod.MOD_ID, "block/copper_transport_pipe_core" + suffix);
     }
 
@@ -199,7 +208,7 @@ public class WeatheringModule implements Module {
         if (stage == STAGE_UNAFFECTED) {
             return null; // Use default model
         }
-        String suffix = STAGE_SUFFIXES[stage];
+        String suffix = getStageSuffix(stage);
         String armType = ctx.isInventoryConnection(direction) ? "_arm_extended" : "_arm";
         return Identifier.of(LogisticsMod.MOD_ID, "block/copper_transport_pipe" + armType + suffix);
     }
