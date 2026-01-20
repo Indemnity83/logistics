@@ -1,10 +1,15 @@
 package com.logistics.pipe.modules;
 
+import com.logistics.LogisticsDataComponents;
+import com.logistics.LogisticsDataComponents.WeatheringState;
 import com.logistics.LogisticsMod;
 import com.logistics.block.PipeBlock;
 import com.logistics.block.entity.PipeBlockEntity;
 import com.logistics.pipe.Pipe;
 import com.logistics.pipe.PipeContext;
+import java.util.List;
+import net.minecraft.component.ComponentMap;
+import net.minecraft.component.ComponentsAccess;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.AxeItem;
 import net.minecraft.item.ItemStack;
@@ -195,5 +200,88 @@ public class WeatheringModule implements Module {
         String suffix = STAGE_SUFFIXES[stage];
         String armType = ctx.isInventoryConnection(direction) ? "_arm_extended" : "_arm";
         return Identifier.of(LogisticsMod.MOD_ID, "block/copper_transport_pipe" + armType + suffix);
+    }
+
+    // --- Item component handling ---
+
+    @Override
+    public void addItemComponents(ComponentMap.Builder builder, PipeContext ctx) {
+        int stage = getOxidationStage(ctx);
+        boolean waxed = isWaxed(ctx);
+
+        WeatheringState state = new WeatheringState(stage, waxed);
+        if (!state.isDefault()) {
+            builder.add(LogisticsDataComponents.WEATHERING_STATE, state);
+        }
+    }
+
+    @Override
+    public void readItemComponents(ComponentsAccess components, PipeContext ctx) {
+        WeatheringState state = components.get(LogisticsDataComponents.WEATHERING_STATE);
+        if (state == null || state.isDefault()) return;
+
+        ctx.saveInt(this, OXIDATION_KEY, state.oxidationStage());
+        ctx.saveInt(this, WAXED_KEY, state.waxed() ? 1 : 0);
+    }
+
+    @Override
+    public List<String> getCustomModelDataStrings(PipeContext ctx) {
+        int stage = getOxidationStage(ctx);
+        boolean waxed = isWaxed(ctx);
+
+        if (stage == STAGE_UNAFFECTED && !waxed) {
+            return List.of();
+        }
+
+        String modelKey = getModelKey(stage, waxed);
+        return List.of(modelKey);
+    }
+
+    @Override
+    public String getItemNameSuffix(PipeContext ctx) {
+        int stage = getOxidationStage(ctx);
+        boolean waxed = isWaxed(ctx);
+        return buildItemNameSuffix(stage, waxed);
+    }
+
+    @Override
+    public String getItemNameSuffixFromComponents(ComponentsAccess components) {
+        WeatheringState state = components.get(LogisticsDataComponents.WEATHERING_STATE);
+        if (state == null || state.isDefault()) {
+            return "";
+        }
+        return buildItemNameSuffix(state.oxidationStage(), state.waxed());
+    }
+
+    private static String buildItemNameSuffix(int stage, boolean waxed) {
+        String oxidationSuffix =
+                switch (stage) {
+                    case STAGE_EXPOSED -> ".exposed";
+                    case STAGE_WEATHERED -> ".weathered";
+                    case STAGE_OXIDIZED -> ".oxidized";
+                    default -> "";
+                };
+
+        if (waxed) {
+            return ".waxed" + oxidationSuffix;
+        }
+        return oxidationSuffix;
+    }
+
+    private static String getModelKey(int stage, boolean waxed) {
+        String stageName =
+                switch (stage) {
+                    case STAGE_EXPOSED -> "exposed";
+                    case STAGE_WEATHERED -> "weathered";
+                    case STAGE_OXIDIZED -> "oxidized";
+                    default -> "";
+                };
+
+        if (waxed && !stageName.isEmpty()) {
+            return "waxed_" + stageName;
+        } else if (waxed) {
+            return "waxed";
+        }
+        return stageName;
     }
 }

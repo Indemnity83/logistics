@@ -1,11 +1,8 @@
 package com.logistics.block.entity;
 
-import com.logistics.LogisticsDataComponents;
-import com.logistics.LogisticsDataComponents.WeatheringState;
 import com.logistics.block.PipeBlock;
 import com.logistics.pipe.Pipe;
 import com.logistics.pipe.PipeContext;
-import com.logistics.pipe.modules.WeatheringModule;
 import com.logistics.pipe.runtime.PipeConfig;
 import com.logistics.pipe.runtime.PipeRuntime;
 import com.logistics.pipe.runtime.TravelingItem;
@@ -18,8 +15,6 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.component.ComponentMap;
 import net.minecraft.component.ComponentsAccess;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.CustomModelDataComponent;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
@@ -390,70 +385,27 @@ public class PipeBlockEntity extends BlockEntity {
     protected void addComponents(ComponentMap.Builder builder) {
         super.addComponents(builder);
 
-        // Check if this pipe has a WeatheringModule
         BlockState state = getCachedState();
         if (!(state.getBlock() instanceof PipeBlock pipeBlock)) return;
 
         Pipe pipe = pipeBlock.getPipe();
-        if (pipe == null || pipe.getModule(WeatheringModule.class) == null) return;
+        if (pipe == null) return;
 
-        // Read weathering state from module state NBT
-        String moduleKey = WeatheringModule.class.getSimpleName().toLowerCase();
-        NbtCompound weatheringNbt = moduleState.getCompound(moduleKey).orElse(null);
-        if (weatheringNbt == null) return;
-
-        int oxidationStage = weatheringNbt.getInt("oxidation_stage", 0);
-        boolean waxed = weatheringNbt.getInt("waxed", 0) == 1;
-
-        // Only add component if not default state
-        WeatheringState weatheringState = new WeatheringState(oxidationStage, waxed);
-        if (!weatheringState.isDefault()) {
-            builder.add(LogisticsDataComponents.WEATHERING_STATE, weatheringState);
-
-            // Add custom model data for item model selection
-            String modelKey = getWeatheringModelKey(oxidationStage, waxed);
-            builder.add(
-                    DataComponentTypes.CUSTOM_MODEL_DATA,
-                    new CustomModelDataComponent(List.of(), List.of(), List.of(modelKey), List.of()));
-        }
-    }
-
-    private static String getWeatheringModelKey(int oxidationStage, boolean waxed) {
-        String stageName =
-                switch (oxidationStage) {
-                    case 1 -> "exposed";
-                    case 2 -> "weathered";
-                    case 3 -> "oxidized";
-                    default -> "";
-                };
-
-        if (waxed && !stageName.isEmpty()) {
-            return "waxed_" + stageName;
-        } else if (waxed) {
-            return "waxed";
-        }
-        return stageName;
+        PipeContext ctx = createContext();
+        pipe.addItemComponents(builder, ctx);
     }
 
     @Override
     protected void readComponents(ComponentsAccess components) {
         super.readComponents(components);
 
-        // Check if the item has a weathering state component
-        WeatheringState weatheringState = components.get(LogisticsDataComponents.WEATHERING_STATE);
-        if (weatheringState == null || weatheringState.isDefault()) return;
-
-        // Check if this pipe has a WeatheringModule
         BlockState state = getCachedState();
         if (!(state.getBlock() instanceof PipeBlock pipeBlock)) return;
 
         Pipe pipe = pipeBlock.getPipe();
-        if (pipe == null || pipe.getModule(WeatheringModule.class) == null) return;
+        if (pipe == null) return;
 
-        // Write weathering state to module state NBT
-        String moduleKey = WeatheringModule.class.getSimpleName().toLowerCase();
-        NbtCompound weatheringNbt = getOrCreateModuleState(moduleKey);
-        weatheringNbt.putInt("oxidation_stage", weatheringState.oxidationStage());
-        weatheringNbt.putInt("waxed", weatheringState.waxed() ? 1 : 0);
+        PipeContext ctx = createContext();
+        pipe.readItemComponents(components, ctx);
     }
 }

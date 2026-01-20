@@ -1,7 +1,7 @@
 package com.logistics.block;
 
 import com.logistics.LogisticsMod;
-import com.logistics.item.WeatheringPipeBlockItem;
+import com.logistics.item.ModularPipeBlockItem;
 import com.logistics.pipe.PipeTypes;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -28,7 +28,7 @@ public final class LogisticsBlocks {
     public static final Block COPPER_TRANSPORT_PIPE = register(
             "copper_transport_pipe",
             settings -> new PipeBlock(settings, PipeTypes.COPPER_TRANSPORT_PIPE),
-            WeatheringPipeBlockItem::new);
+            ModularPipeBlockItem::new);
 
     public static final Block ITEM_EXTRACTOR_PIPE =
             register("item_extractor_pipe", settings -> new PipeBlock(settings, PipeTypes.ITEM_EXTRACTOR));
