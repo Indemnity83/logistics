@@ -12,11 +12,9 @@ import net.minecraft.text.Text;
  * Allows modules to provide custom name suffixes based on item component state.
  */
 public class ModularPipeBlockItem extends BlockItem {
-    private final String baseTranslationKey;
 
     public ModularPipeBlockItem(Block block, Settings settings) {
         super(block, settings);
-        this.baseTranslationKey = block.getTranslationKey();
     }
 
     @Override
@@ -36,6 +34,6 @@ public class ModularPipeBlockItem extends BlockItem {
             return super.getName(stack);
         }
 
-        return Text.translatable(baseTranslationKey + suffix);
+        return Text.translatable(block.getTranslationKey() + suffix);
     }
 }
