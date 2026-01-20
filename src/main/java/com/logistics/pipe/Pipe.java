@@ -202,6 +202,16 @@ public abstract class Pipe {
     }
 
     /**
+     * Append creative menu variants from all modules.
+     */
+    public void appendCreativeMenuVariants(
+            List<net.minecraft.item.ItemStack> stacks, net.minecraft.item.ItemStack baseStack) {
+        for (Module module : modules) {
+            module.appendCreativeMenuVariants(stacks, baseStack);
+        }
+    }
+
+    /**
      * Core overlay model with an optional tint color.
      */
     public record CoreDecoration(Identifier modelId, int color) {}

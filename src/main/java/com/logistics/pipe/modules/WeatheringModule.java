@@ -10,6 +10,8 @@ import com.logistics.pipe.PipeContext;
 import java.util.List;
 import net.minecraft.component.ComponentMap;
 import net.minecraft.component.ComponentsAccess;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.CustomModelDataComponent;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.AxeItem;
 import net.minecraft.item.ItemStack;
@@ -251,6 +253,33 @@ public class WeatheringModule implements Module {
             return "";
         }
         return buildItemNameSuffix(state.oxidationStage(), state.waxed());
+    }
+
+    @Override
+    public void appendCreativeMenuVariants(List<ItemStack> stacks, ItemStack baseStack) {
+        // Add all oxidation stages (unwaxed)
+        for (int stage = STAGE_EXPOSED; stage <= STAGE_OXIDIZED; stage++) {
+            stacks.add(createVariant(baseStack, stage, false));
+        }
+
+        // Add all waxed variants (including waxed unaffected)
+        for (int stage = STAGE_UNAFFECTED; stage <= STAGE_OXIDIZED; stage++) {
+            stacks.add(createVariant(baseStack, stage, true));
+        }
+    }
+
+    private static ItemStack createVariant(ItemStack baseStack, int stage, boolean waxed) {
+        ItemStack stack = baseStack.copy();
+        stack.set(LogisticsDataComponents.WEATHERING_STATE, new WeatheringState(stage, waxed));
+
+        String modelKey = getModelKey(stage, waxed);
+        if (!modelKey.isEmpty()) {
+            stack.set(
+                    DataComponentTypes.CUSTOM_MODEL_DATA,
+                    new CustomModelDataComponent(List.of(), List.of(), List.of(modelKey), List.of()));
+        }
+
+        return stack;
     }
 
     private static String buildItemNameSuffix(int stage, boolean waxed) {

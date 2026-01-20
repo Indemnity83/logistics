@@ -194,4 +194,14 @@ public interface Module {
     default String getItemNameSuffixFromComponents(ComponentsAccess components) {
         return "";
     }
+
+    /**
+     * Append additional item stack variants for the creative menu.
+     * Called for each module to allow adding variants with different component states.
+     * The base stack (default state) is already included.
+     *
+     * @param stacks the list to append variants to
+     * @param baseStack the base item stack to copy and modify
+     */
+    default void appendCreativeMenuVariants(java.util.List<ItemStack> stacks, ItemStack baseStack) {}
 }
