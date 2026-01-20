@@ -203,5 +203,5 @@ public interface Module {
      * @param stacks the list to append variants to
      * @param baseStack the base item stack to copy and modify
      */
-    default void appendCreativeMenuVariants(java.util.List<ItemStack> stacks, ItemStack baseStack) {}
+    default void appendCreativeMenuVariants(List<ItemStack> stacks, ItemStack baseStack) {}
 }
