@@ -9,6 +9,10 @@ import com.logistics.pipe.runtime.TravelingItem;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.block.Block;
+import net.minecraft.component.ComponentMap;
+import net.minecraft.component.ComponentsAccess;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.CustomModelDataComponent;
 import net.minecraft.registry.Registries;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Direction;
@@ -121,6 +125,90 @@ public abstract class Pipe {
             }
         }
         return null;
+    }
+
+    public boolean hasRandomTicks() {
+        for (Module module : modules) {
+            if (module.hasRandomTicks()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void randomTick(PipeContext ctx, Random random) {
+        for (Module module : modules) {
+            module.randomTick(ctx, random);
+        }
+    }
+
+    // --- Item component helpers ---
+
+    /**
+     * Add item components from all modules when the block is broken.
+     * Also adds custom model data component if any module provides model data strings.
+     */
+    public void addItemComponents(ComponentMap.Builder builder, PipeContext ctx) {
+        for (Module module : modules) {
+            module.addItemComponents(builder, ctx);
+        }
+
+        // Aggregate custom model data strings from all modules
+        List<String> modelStrings = new ArrayList<>();
+        for (Module module : modules) {
+            modelStrings.addAll(module.getCustomModelDataStrings(ctx));
+        }
+        if (!modelStrings.isEmpty()) {
+            builder.add(
+                    DataComponentTypes.CUSTOM_MODEL_DATA,
+                    new CustomModelDataComponent(List.of(), List.of(), modelStrings, List.of()));
+        }
+    }
+
+    /**
+     * Read item components into all modules when the block is placed.
+     */
+    public void readItemComponents(ComponentsAccess components, PipeContext ctx) {
+        for (Module module : modules) {
+            module.readItemComponents(components, ctx);
+        }
+    }
+
+    /**
+     * Get the item name suffix from the first module that provides one.
+     */
+    public String getItemNameSuffix(PipeContext ctx) {
+        for (Module module : modules) {
+            String suffix = module.getItemNameSuffix(ctx);
+            if (!suffix.isEmpty()) {
+                return suffix;
+            }
+        }
+        return "";
+    }
+
+    /**
+     * Get the item name suffix from item components.
+     * Used for item display names when we don't have a block context.
+     */
+    public String getItemNameSuffixFromComponents(ComponentsAccess components) {
+        for (Module module : modules) {
+            String suffix = module.getItemNameSuffixFromComponents(components);
+            if (!suffix.isEmpty()) {
+                return suffix;
+            }
+        }
+        return "";
+    }
+
+    /**
+     * Append creative menu variants from all modules.
+     */
+    public void appendCreativeMenuVariants(
+            List<net.minecraft.item.ItemStack> stacks, net.minecraft.item.ItemStack baseStack) {
+        for (Module module : modules) {
+            module.appendCreativeMenuVariants(stacks, baseStack);
+        }
     }
 
     /**

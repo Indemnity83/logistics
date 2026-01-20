@@ -21,6 +21,7 @@ public class LogisticsMod implements ModInitializer {
     public void onInitialize() {
         LOGGER.info("Initializing Logistics mod");
 
+        TimingLog.time(LOGGER, "LogisticsDataComponents.initialize", LogisticsDataComponents::initialize);
         TimingLog.time(LOGGER, "LogisticsItems.initialize", LogisticsItems::initialize);
         TimingLog.time(LOGGER, "LogisticsBlocks.initialize", LogisticsBlocks::initialize);
         TimingLog.time(LOGGER, "LogisticsBlockEntities.initialize", LogisticsBlockEntities::initialize);

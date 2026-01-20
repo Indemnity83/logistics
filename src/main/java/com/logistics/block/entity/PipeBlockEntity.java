@@ -13,6 +13,8 @@ import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.component.ComponentMap;
+import net.minecraft.component.ComponentsAccess;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
@@ -375,5 +377,35 @@ public class PipeBlockEntity extends BlockEntity {
         }
         int clamped = Math.min(total, VIRTUAL_CAPACITY);
         return Math.max(1, (clamped * 15) / VIRTUAL_CAPACITY);
+    }
+
+    // --- Component handling for item drops ---
+
+    @Override
+    protected void addComponents(ComponentMap.Builder builder) {
+        super.addComponents(builder);
+
+        BlockState state = getCachedState();
+        if (!(state.getBlock() instanceof PipeBlock pipeBlock)) return;
+
+        Pipe pipe = pipeBlock.getPipe();
+        if (pipe == null) return;
+
+        PipeContext ctx = createContext();
+        pipe.addItemComponents(builder, ctx);
+    }
+
+    @Override
+    protected void readComponents(ComponentsAccess components) {
+        super.readComponents(components);
+
+        BlockState state = getCachedState();
+        if (!(state.getBlock() instanceof PipeBlock pipeBlock)) return;
+
+        Pipe pipe = pipeBlock.getPipe();
+        if (pipe == null) return;
+
+        PipeContext ctx = createContext();
+        pipe.readItemComponents(components, ctx);
     }
 }

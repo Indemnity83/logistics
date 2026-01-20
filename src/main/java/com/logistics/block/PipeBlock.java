@@ -21,6 +21,7 @@ import net.minecraft.fluid.Fluids;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUsageContext;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.BlockSoundGroup;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
@@ -250,6 +251,38 @@ public class PipeBlock extends BlockWithEntity implements Waterloggable {
         if (pipe != null && world.getBlockEntity(pos) instanceof PipeBlockEntity blockEntity) {
             PipeContext context = new PipeContext(world, pos, state, blockEntity);
             pipe.randomDisplayTick(context, random);
+        }
+    }
+
+    @Override
+    protected boolean hasRandomTicks(BlockState state) {
+        return pipe != null && pipe.hasRandomTicks();
+    }
+
+    @Override
+    public ItemStack getPickStack(
+            net.minecraft.world.WorldView world, BlockPos pos, BlockState state, boolean includeData) {
+        ItemStack stack = super.getPickStack(world, pos, state, includeData);
+
+        // Copy components from block entity to preserve state (e.g., weathering)
+        // Only when includeData is true (Ctrl+pick) to match vanilla behavior
+        if (includeData) {
+            BlockEntity blockEntity = world.getBlockEntity(pos);
+            if (blockEntity instanceof PipeBlockEntity pipeEntity) {
+                stack.applyComponentsFrom(pipeEntity.createComponentMap());
+            }
+        }
+
+        return stack;
+    }
+
+    @Override
+    protected void randomTick(BlockState state, ServerWorld world, BlockPos pos, Random random) {
+        super.randomTick(state, world, pos, random);
+
+        if (pipe != null && world.getBlockEntity(pos) instanceof PipeBlockEntity blockEntity) {
+            PipeContext context = new PipeContext(world, pos, state, blockEntity);
+            pipe.randomTick(context, random);
         }
     }
 

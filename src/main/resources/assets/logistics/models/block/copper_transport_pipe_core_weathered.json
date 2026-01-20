@@ -1,0 +1,7 @@
+{
+  "parent": "logistics:block/copper_transport_pipe_core",
+  "textures": {
+    "particle": "logistics:block/copper_pipe_core_weathered",
+    "texture": "logistics:block/copper_pipe_core_weathered"
+  }
+}

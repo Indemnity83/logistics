@@ -6,6 +6,8 @@ import com.logistics.pipe.runtime.PipeConfig;
 import com.logistics.pipe.runtime.RoutePlan;
 import java.util.List;
 import net.minecraft.block.Block;
+import net.minecraft.component.ComponentMap;
+import net.minecraft.component.ComponentsAccess;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUsageContext;
 import net.minecraft.util.ActionResult;
@@ -128,4 +130,78 @@ public interface Module {
     @Nullable default Identifier getCoreModel(PipeContext ctx) {
         return null;
     }
+
+    /**
+     * Return true if this module needs random ticks.
+     * Modules that override randomTick() should also override this to return true.
+     */
+    default boolean hasRandomTicks() {
+        return false;
+    }
+
+    default void randomTick(PipeContext ctx, Random random) {}
+
+    // --- Item component handling ---
+
+    /**
+     * Add components to the item stack when the block is broken.
+     * Called for each module to allow adding custom components to dropped items.
+     *
+     * @param builder the component map builder
+     * @param ctx the pipe context
+     */
+    default void addItemComponents(ComponentMap.Builder builder, PipeContext ctx) {}
+
+    /**
+     * Read components from the item stack when the block is placed.
+     * Called for each module to allow reading custom components from placed items.
+     *
+     * @param components the components from the item
+     * @param ctx the pipe context
+     */
+    default void readItemComponents(ComponentsAccess components, PipeContext ctx) {}
+
+    /**
+     * Get custom model data strings for item model selection.
+     * These strings are used with the minecraft:select model type.
+     *
+     * @param ctx the pipe context
+     * @return list of model data strings (empty list for none)
+     */
+    default List<String> getCustomModelDataStrings(PipeContext ctx) {
+        return List.of();
+    }
+
+    /**
+     * Get the translation key suffix for the item name based on module state.
+     * For example, ".exposed" or ".waxed.oxidized" for weathering states.
+     *
+     * @param ctx the pipe context
+     * @return the translation key suffix, or empty string for default name
+     */
+    default String getItemNameSuffix(PipeContext ctx) {
+        return "";
+    }
+
+    /**
+     * Get the translation key suffix for the item name from item components.
+     * Used for item display names when we don't have a block context.
+     * For example, ".exposed" or ".waxed.oxidized" for weathering states.
+     *
+     * @param components the item components
+     * @return the translation key suffix, or empty string for default name
+     */
+    default String getItemNameSuffixFromComponents(ComponentsAccess components) {
+        return "";
+    }
+
+    /**
+     * Append additional item stack variants for the creative menu.
+     * Called for each module to allow adding variants with different component states.
+     * The base stack (default state) is already included.
+     *
+     * @param stacks the list to append variants to
+     * @param baseStack the base item stack to copy and modify
+     */
+    default void appendCreativeMenuVariants(List<ItemStack> stacks, ItemStack baseStack) {}
 }

@@ -2,6 +2,10 @@ package com.logistics.item;
 
 import com.logistics.LogisticsMod;
 import com.logistics.block.LogisticsBlocks;
+import com.logistics.block.PipeBlock;
+import com.logistics.pipe.Pipe;
+import java.util.ArrayList;
+import java.util.List;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
@@ -28,6 +32,7 @@ public final class LogisticsItemGroups {
                         entries.add(LogisticsBlocks.STONE_TRANSPORT_PIPE);
                         entries.add(LogisticsBlocks.ITEM_PASSTHROUGH_PIPE);
                         entries.add(LogisticsBlocks.COPPER_TRANSPORT_PIPE);
+                        addPipeVariants(LogisticsBlocks.COPPER_TRANSPORT_PIPE, entries);
                         entries.add(LogisticsBlocks.ITEM_EXTRACTOR_PIPE);
                         entries.add(LogisticsBlocks.ITEM_MERGER_PIPE);
                         entries.add(LogisticsBlocks.GOLD_TRANSPORT_PIPE);
@@ -36,6 +41,21 @@ public final class LogisticsItemGroups {
                         entries.add(LogisticsBlocks.ITEM_VOID_PIPE);
                     })
                     .build());
+
+    private static void addPipeVariants(net.minecraft.block.Block block, ItemGroup.Entries entries) {
+        if (!(block instanceof PipeBlock pipeBlock)) return;
+
+        Pipe pipe = pipeBlock.getPipe();
+        if (pipe == null) return;
+
+        ItemStack baseStack = new ItemStack(block);
+        List<ItemStack> variants = new ArrayList<>();
+        pipe.appendCreativeMenuVariants(variants, baseStack);
+
+        for (ItemStack variant : variants) {
+            entries.add(variant);
+        }
+    }
 
     public static void initialize() {
         LogisticsMod.LOGGER.info("Registering item groups");

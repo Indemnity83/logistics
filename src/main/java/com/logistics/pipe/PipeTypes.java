@@ -10,6 +10,7 @@ import com.logistics.pipe.modules.PipeMarkingModule;
 import com.logistics.pipe.modules.PipeOnlyModule;
 import com.logistics.pipe.modules.TransportModule;
 import com.logistics.pipe.modules.VoidModule;
+import com.logistics.pipe.modules.WeatheringModule;
 import com.logistics.pipe.runtime.PipeConfig;
 
 public final class PipeTypes {
@@ -23,7 +24,7 @@ public final class PipeTypes {
 
     // Base transport pipe - simple item movement.
     // NOTE: No special connection restrictions; this is the default backbone pipe.
-    public static final Pipe COPPER_TRANSPORT_PIPE = new Pipe(new PipeMarkingModule()) {};
+    public static final Pipe COPPER_TRANSPORT_PIPE = new Pipe(new WeatheringModule(), new PipeMarkingModule()) {};
 
     // Accelerator transport - accelerates items when powered by redstone.
     public static final Pipe GOLD_TRANSPORT = new Pipe(new BoostModule(PipeConfig.ACCELERATION_RATE)) {};
