@@ -265,9 +265,12 @@ public class PipeBlock extends BlockWithEntity implements Waterloggable {
         ItemStack stack = super.getPickStack(world, pos, state, includeData);
 
         // Copy components from block entity to preserve state (e.g., weathering)
-        BlockEntity blockEntity = world.getBlockEntity(pos);
-        if (blockEntity instanceof PipeBlockEntity pipeEntity) {
-            stack.applyComponentsFrom(pipeEntity.createComponentMap());
+        // Only when includeData is true (Ctrl+pick) to match vanilla behavior
+        if (includeData) {
+            BlockEntity blockEntity = world.getBlockEntity(pos);
+            if (blockEntity instanceof PipeBlockEntity pipeEntity) {
+                stack.applyComponentsFrom(pipeEntity.createComponentMap());
+            }
         }
 
         return stack;
