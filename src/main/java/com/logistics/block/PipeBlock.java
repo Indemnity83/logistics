@@ -260,6 +260,20 @@ public class PipeBlock extends BlockWithEntity implements Waterloggable {
     }
 
     @Override
+    public ItemStack getPickStack(
+            net.minecraft.world.WorldView world, BlockPos pos, BlockState state, boolean includeData) {
+        ItemStack stack = super.getPickStack(world, pos, state, includeData);
+
+        // Copy components from block entity to preserve state (e.g., weathering)
+        BlockEntity blockEntity = world.getBlockEntity(pos);
+        if (blockEntity instanceof PipeBlockEntity pipeEntity) {
+            stack.applyComponentsFrom(pipeEntity.createComponentMap());
+        }
+
+        return stack;
+    }
+
+    @Override
     protected void randomTick(BlockState state, ServerWorld world, BlockPos pos, Random random) {
         super.randomTick(state, world, pos, random);
 
