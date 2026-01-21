@@ -178,10 +178,10 @@ public interface IClientHelper {
 - [x] **Verify**: Fabric mod still builds and runs
 
 ### Phase 2: Create Common Module
-- [ ] Create `common/` with service interfaces
-- [ ] Create `Services.java` service loader entry point
-- [ ] Move platform-agnostic code to `common/`
-- [ ] Leave stubs/compile errors for now
+- [x] Create `common/` with service interfaces
+- [x] Create `Services.java` service loader entry point
+- [x] Move platform-agnostic code to `common/` (partial - standalone types only due to circular deps)
+- [x] Mod still builds and runs
 
 ### Phase 3: Fabric Service Implementations
 - [ ] Implement all service interfaces for Fabric
@@ -277,7 +277,7 @@ After each phase:
 
 ## Progress Tracking
 
-**Current Phase**: Phase 1 Complete - Starting Phase 2
+**Current Phase**: Phase 2 Complete - Ready for Phase 3 (Fabric service implementations)
 
 **Last Updated**: 2026-01-21
 

@@ -11,11 +11,11 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class LogisticsMod implements ModInitializer {
-    public static final String MOD_ID = "logistics";
-    public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
+    // Delegate to common constants for consistency
+    public static final String MOD_ID = Logistics.MOD_ID;
+    public static final Logger LOGGER = Logistics.LOGGER;
 
     @Override
     public void onInitialize() {
