@@ -189,12 +189,15 @@ public interface IClientHelper {
 - [x] Register services via `META-INF/services/`
 - [x] **Verify**: Fabric mod builds and runs with new structure
 
-### Phase 4: NeoForge Implementation
-- [ ] Create `neoforge/` module with NeoGradle
-- [ ] Implement `NeoForgeItemStorageService` using capabilities
-- [ ] Implement transaction simulation layer
-- [ ] Create entry point and mod descriptor
+### Phase 4: NeoForge Implementation (PAUSED - waiting for unified mappings)
+- [x] Create `neoforge/` module scaffold with ModDevGradle (commented out in settings.gradle)
+- [x] Create stub service implementations (need Yarn→Mojmap conversion)
+- [ ] Convert common module to unified mappings when next MC version releases
+- [ ] Complete NeoForge service implementations
 - [ ] **Verify**: NeoForge mod builds and runs
+
+**Note**: Paused because Yarn (Fabric) and Mojmap (NeoForge) mappings differ significantly.
+Mojang is unifying mappings in the next MC version, so we'll complete this then to avoid double work.
 
 ### Phase 5: Client-Side Abstraction
 - [ ] Create client service interface
@@ -277,9 +280,12 @@ After each phase:
 
 ## Progress Tracking
 
-**Current Phase**: Phase 3 Complete - Ready for Phase 4 (NeoForge implementation)
+**Current Phase**: Phase 3 Complete - Phase 4 PAUSED (waiting for unified mappings)
 
-**Last Updated**: 2026-01-21
+**Last Updated**: 2026-01-22
 
 **Notes**:
--
+- NeoForge module scaffold exists in `neoforge/` but is commented out in settings.gradle
+- Stub implementations created but won't compile due to Yarn/Mojmap mapping differences
+- Will resume when next MC version releases with unified mappings
+- Fabric mod continues to work with current multi-module structure

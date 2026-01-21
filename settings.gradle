@@ -16,3 +16,4 @@ rootProject.name = 'logistics'
 
 include 'common'
 include 'fabric'
+// include 'neoforge'  // TODO: Enable when unified mappings are available in next MC version

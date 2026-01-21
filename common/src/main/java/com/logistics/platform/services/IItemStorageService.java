@@ -2,6 +2,7 @@ package com.logistics.platform.services;
 
 import com.logistics.platform.storage.ItemStorageHandle;
 import com.logistics.platform.storage.TransactionContext;
+import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -43,8 +44,7 @@ public interface IItemStorageService {
      * @param type the block entity type
      * @param provider function to get the storage handle from a block entity and direction
      */
-    <T extends net.minecraft.block.entity.BlockEntity> void registerBlockEntityStorage(
-            BlockEntityType<T> type, StorageProvider<T> provider);
+    <T extends BlockEntity> void registerBlockEntityStorage(BlockEntityType<T> type, StorageProvider<T> provider);
 
     /**
      * Open a new transaction for batched storage operations.
@@ -59,7 +59,7 @@ public interface IItemStorageService {
      * Functional interface for providing storage from a block entity.
      */
     @FunctionalInterface
-    interface StorageProvider<T extends net.minecraft.block.entity.BlockEntity> {
+    interface StorageProvider<T extends BlockEntity> {
         @Nullable ItemStorageHandle getStorage(T blockEntity, Direction direction);
     }
 }
