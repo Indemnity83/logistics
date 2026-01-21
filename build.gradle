@@ -1,99 +1,60 @@
 plugins {
-	id 'fabric-loom' version '1.14.10'
-	id 'maven-publish'
-	id 'checkstyle'
-	id 'com.diffplug.spotless' version '8.1.0'
+    id 'fabric-loom' version '1.14.10' apply false
+    id 'com.diffplug.spotless' version '8.1.0' apply false
 }
 
-// Allow CI to override version via MOD_VERSION env var
-version = System.getenv("MOD_VERSION") ?: project.mod_version
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'checkstyle'
+    apply plugin: 'com.diffplug.spotless'
 
-group = project.maven_group
+    group = rootProject.maven_group
 
-loom {
-	splitEnvironmentSourceSets()
+    // Allow CI to override version via MOD_VERSION env var
+    version = System.getenv("MOD_VERSION") ?: rootProject.mod_version
 
-	mods {
-		logistics {
-			sourceSet sourceSets.main
-			sourceSet sourceSets.client
-		}
-	}
+    java {
+        withSourcesJar()
 
-	runs {
-		client {
-			vmArg "-Dlogistics.timing=true"
-		}
-	}
-}
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
 
-repositories {
-	mavenCentral()
-}
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(21)
+        }
+    }
 
-dependencies {
-	minecraft "com.mojang:minecraft:${project.minecraft_version}"
-	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
-	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    tasks.withType(JavaCompile).configureEach {
+        it.options.release = 21
+    }
 
-	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
-}
+    // Code formatting with Spotless
+    spotless {
+        java {
+            target 'src/*/java/**/*.java'
+            importOrder('java|javax', 'com.logistics', '', '\\#')
+            removeUnusedImports()
+            palantirJavaFormat('2.50.0')
+            formatAnnotations()
+        }
+        json {
+            target 'src/**/*.json'
+            prettier()
+                .config(['printWidth': 120, 'tabWidth': 2])
+        }
+    }
 
-processResources {
-	inputs.property "version", project.version
+    // Checkstyle configuration
+    checkstyle {
+        toolVersion = '10.21.4'
+        configFile = file("${rootDir}/config/checkstyle/checkstyle.xml")
+        maxWarnings = 0
+    }
 
-	filesMatching("fabric.mod.json") {
-		expand "version": project.version
-	}
-}
-
-tasks.withType(JavaCompile).configureEach {
-	it.options.release = 21
-}
-
-java {
-	withSourcesJar()
-
-	sourceCompatibility = JavaVersion.VERSION_21
-	targetCompatibility = JavaVersion.VERSION_21
-
-	toolchain {
-		languageVersion = JavaLanguageVersion.of(21)
-	}
-}
-
-jar {
-	from("LICENSE") {
-		rename { "${it}_${project.archives_base_name}"}
-	}
-}
-
-// Code formatting with Spotless
-spotless {
-	java {
-		target 'src/*/java/**/*.java'
-		importOrder('java|javax', 'com.logistics', '', '\\#')
-		removeUnusedImports()
-		palantirJavaFormat('2.50.0')
-		formatAnnotations()
-	}
-	json {
-		target 'src/**/*.json'
-		prettier()
-			.config(['printWidth': 120, 'tabWidth': 2])
-	}
-}
-
-// Checkstyle configuration
-checkstyle {
-	toolVersion = '10.21.4'
-	configFile = file("${rootDir}/config/checkstyle/checkstyle.xml")
-	maxWarnings = 0
-}
-
-tasks.withType(Checkstyle).configureEach {
-	reports {
-		xml.required = false
-		html.required = true
-	}
+    tasks.withType(Checkstyle).configureEach {
+        reports {
+            xml.required = false
+            html.required = true
+        }
+    }
 }

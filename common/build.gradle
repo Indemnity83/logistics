@@ -1,0 +1,25 @@
+plugins {
+    id 'fabric-loom'
+}
+
+base {
+    archivesName = "${rootProject.archives_base_name}-common"
+}
+
+// Common module uses loom for Minecraft classes but no loader-specific dependencies
+loom {
+    // No splitEnvironmentSourceSets - common doesn't distinguish client/server at compile time
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    minecraft "com.mojang:minecraft:${rootProject.minecraft_version}"
+    mappings "net.fabricmc:yarn:${rootProject.yarn_mappings}:v2"
+
+    // No fabric-loader or fabric-api - those are loader-specific
+    // compileOnly is used so common doesn't bundle Minecraft classes
+    compileOnly "net.fabricmc:fabric-loader:${rootProject.loader_version}"
+}
