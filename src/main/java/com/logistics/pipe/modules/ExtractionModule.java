@@ -90,11 +90,6 @@ public class ExtractionModule implements Module {
         return ActionResult.SUCCESS;
     }
 
-    @Override
-    public boolean canAcceptFrom(PipeContext ctx, Direction from, ItemStack stack) {
-        return false;
-    }
-
     private @Nullable Direction getExtractionDirection(PipeContext ctx) {
         NbtCompound state = ctx.moduleState(getStateKey());
         if (!state.contains(EXTRACT_FROM)) {
