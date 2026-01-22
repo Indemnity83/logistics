@@ -2,22 +2,25 @@ name: Build JAR
 
 on:
   pull_request:
-    branches: [main]
+    branches: [main, next]
     types: [opened, synchronize, reopened, ready_for_review]
   release:
     types: [published]
+  push:
+    branches: [next]
   workflow_dispatch:
     # Manual workflow_dispatch exists only to allow safe testing of publishing changes.
     # Normal publishing is driven by release-please PRs and GitHub Releases.
     inputs:
       build_type:
-        description: "Override build type (pr/dev/release)"
+        description: "Override build type (pr/dev/snapshot/release)"
         required: true
         default: "dev"
         type: choice
         options:
           - pr
           - dev
+          - snapshot
           - release
       publish:
         description: "Actually publish (otherwise build only)"
@@ -35,10 +38,23 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
+      - name: Determine Java version
+        id: java_version
+        shell: bash
+        run: |
+          # next branch requires Java 25 (unobfuscated MC 26.1+)
+          # main branch requires Java 21 (MC 1.21.x)
+          if [[ "${{ github.ref }}" == "refs/heads/next" ]] || [[ "${{ github.base_ref }}" == "next" ]]; then
+            echo "version=25" >> "$GITHUB_OUTPUT"
+          else
+            echo "version=21" >> "$GITHUB_OUTPUT"
+          fi
+          echo "☕ Java version: $(grep version= $GITHUB_OUTPUT | cut -d= -f2)"
+
       - uses: actions/setup-java@v5
         with:
           distribution: temurin
-          java-version: '21'
+          java-version: ${{ steps.java_version.outputs.version }}
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v5
@@ -51,6 +67,8 @@ jobs:
             TYPE="${{ inputs.build_type }}"
           elif [[ "${{ github.event_name }}" == "release" ]]; then
             TYPE="release"
+          elif [[ "${{ github.event_name }}" == "push" && "${{ github.ref }}" == "refs/heads/next" ]]; then
+            TYPE="snapshot"
           elif [[ "${{ github.actor }}" == "release-please[bot]" || "${{ github.head_ref }}" == release-please--* ]]; then
             TYPE="dev"
           else
@@ -66,6 +84,7 @@ jobs:
         run: |
           SHA7="$(git rev-parse --short=7 HEAD)"
           TYPE="${{ steps.build_type.outputs.type }}"
+          MC_VERSION="$(grep '^minecraft_version=' gradle.properties | cut -d'=' -f2)"
 
           case "$TYPE" in
             release)
@@ -79,6 +98,11 @@ jobs:
               BUILD_VERSION="${NEXT_VERSION}-dev.${SHA7}"
               ;;
 
+            snapshot)
+              NEXT_VERSION="$(cat version.txt)"
+              BUILD_VERSION="${NEXT_VERSION}-snapshot.${SHA7}"
+              ;;
+
             pr)
               BUILD_VERSION="pr${{ github.event.pull_request.number }}.${SHA7}"
               ;;
@@ -90,7 +114,9 @@ jobs:
           esac
 
           echo "mod_version=$BUILD_VERSION" >> "$GITHUB_OUTPUT"
+          echo "minecraft_version=$MC_VERSION" >> "$GITHUB_OUTPUT"
           echo "📦 version: $BUILD_VERSION"
+          echo "🎮 Minecraft: $MC_VERSION"
 
       - name: Build
         run: ./gradlew clean build --no-daemon
@@ -105,6 +131,25 @@ jobs:
           version: ${{ steps.version.outputs.mod_version }}
           version-type: beta
           changelog: "Automated dev build from commit ${{ github.sha }}"
+
+          files: |
+            build/libs/!(*-@(dev|sources|javadoc)).jar
+
+          modrinth-featured: false
+          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+
+          fail-mode: warn
+          retry-attempts: 2
+          retry-delay: 10000
+
+      - name: Publish (snapshot)
+        if: ${{ steps.build_type.outputs.type == 'snapshot' && (github.event_name != 'workflow_dispatch' || inputs.publish) }}
+        uses: Kir-Antipov/mc-publish@v3.3
+        with:
+          name: "Logistics: Automation v${{ steps.version.outputs.mod_version }} (MC ${{ steps.version.outputs.minecraft_version }})"
+          version: ${{ steps.version.outputs.mod_version }}
+          version-type: alpha
+          changelog: "Automated snapshot build for Minecraft ${{ steps.version.outputs.minecraft_version }} from commit ${{ github.sha }}"
 
           files: |
             build/libs/!(*-@(dev|sources|javadoc)).jar
