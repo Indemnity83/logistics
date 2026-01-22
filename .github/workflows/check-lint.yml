@@ -3,11 +3,6 @@ name: Check Lint
 on:
   pull_request:
     branches: [main]
-    paths:
-      - '**.java'
-      - '**.json'
-      - 'build.gradle'
-      - 'config/checkstyle/**'
 
 permissions:
   contents: read
