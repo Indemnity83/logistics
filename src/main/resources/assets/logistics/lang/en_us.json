@@ -32,6 +32,14 @@
   "item.logistics.marking_fluid_white": "White Marking Fluid",
   "item.logistics.marking_fluid_yellow": "Yellow Marking Fluid",
   "item.logistics.wrench": "Wrench",
+  "item.logistics.wooden_gear": "Wooden Gear",
+  "item.logistics.stone_gear": "Stone Gear",
+  "item.logistics.copper_gear": "Copper Gear",
+  "item.logistics.iron_gear": "Iron Gear",
+  "item.logistics.gold_gear": "Gold Gear",
+  "item.logistics.diamond_gear": "Diamond Gear",
+  "item.logistics.netherite_gear": "Netherite Gear",
   "itemgroup.logistics.transport": "Logistics: Transport",
-  "screen.logistics.item_filter": "Item Filter"
+  "screen.logistics.item_filter": "Item Filter",
+  "block.logistics.quarry": "Quarry"
 }

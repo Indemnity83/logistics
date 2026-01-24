@@ -1,11 +1,14 @@
 package com.logistics.item;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.logistics.LogisticsMod;
 import com.logistics.block.LogisticsBlocks;
 import com.logistics.block.PipeBlock;
 import com.logistics.pipe.Pipe;
-import java.util.ArrayList;
-import java.util.List;
+import com.logistics.quarry.QuarryBlocks;
+
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
@@ -26,6 +29,15 @@ public final class LogisticsItemGroups {
                     .icon(() -> new ItemStack(LogisticsBlocks.COPPER_TRANSPORT_PIPE))
                     .entries((displayContext, entries) -> {
                         entries.add(LogisticsItems.WRENCH);
+                        // Gears
+                        entries.add(LogisticsItems.WOODEN_GEAR);
+                        entries.add(LogisticsItems.STONE_GEAR);
+                        entries.add(LogisticsItems.COPPER_GEAR);
+                        entries.add(LogisticsItems.IRON_GEAR);
+                        entries.add(LogisticsItems.GOLD_GEAR);
+                        entries.add(LogisticsItems.DIAMOND_GEAR);
+                        entries.add(LogisticsItems.NETHERITE_GEAR);
+                        // Marking fluids
                         for (DyeColor color : DyeColor.values()) {
                             entries.add(LogisticsItems.getMarkingFluidItem(color));
                         }
@@ -39,6 +51,7 @@ public final class LogisticsItemGroups {
                         entries.add(LogisticsBlocks.ITEM_FILTER_PIPE);
                         entries.add(LogisticsBlocks.ITEM_INSERTION_PIPE);
                         entries.add(LogisticsBlocks.ITEM_VOID_PIPE);
+                        entries.add(QuarryBlocks.QUARRY);
                     })
                     .build());
 
