@@ -1,10 +1,12 @@
 package com.logistics.block;
 
+import java.util.function.BiFunction;
+import java.util.function.Function;
+
 import com.logistics.LogisticsMod;
 import com.logistics.item.ModularPipeBlockItem;
 import com.logistics.pipe.PipeTypes;
-import java.util.function.BiFunction;
-import java.util.function.Function;
+
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
 import net.minecraft.item.BlockItem;

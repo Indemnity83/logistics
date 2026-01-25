@@ -1,10 +1,12 @@
 package com.logistics.pipe.modules;
 
+import java.util.List;
+
 import com.logistics.LogisticsMod;
 import com.logistics.item.LogisticsItems;
 import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.runtime.RoutePlan;
-import java.util.List;
+
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUsageContext;
 import net.minecraft.nbt.NbtCompound;

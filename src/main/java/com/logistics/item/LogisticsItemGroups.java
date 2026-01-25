@@ -6,6 +6,7 @@ import java.util.List;
 import com.logistics.LogisticsMod;
 import com.logistics.block.LogisticsBlocks;
 import com.logistics.block.PipeBlock;
+import com.logistics.marker.MarkerBlocks;
 import com.logistics.pipe.Pipe;
 import com.logistics.quarry.QuarryBlocks;
 
@@ -52,6 +53,7 @@ public final class LogisticsItemGroups {
                         entries.add(LogisticsBlocks.ITEM_INSERTION_PIPE);
                         entries.add(LogisticsBlocks.ITEM_VOID_PIPE);
                         entries.add(QuarryBlocks.QUARRY);
+                        entries.add(MarkerBlocks.MARKER);
                     })
                     .build());
 

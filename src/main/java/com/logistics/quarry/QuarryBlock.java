@@ -1,5 +1,6 @@
 package com.logistics.quarry;
 
+import com.logistics.marker.MarkerManager;
 import com.logistics.quarry.entity.QuarryBlockEntity;
 
 import com.mojang.serialization.MapCodec;
@@ -10,9 +11,10 @@ import net.minecraft.block.BlockWithEntity;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
-import net.minecraft.screen.NamedScreenHandlerFactory;
+import net.minecraft.item.ItemStack;
 import net.minecraft.sound.BlockSoundGroup;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.EnumProperty;
@@ -64,9 +66,9 @@ public class QuarryBlock extends BlockWithEntity {
     @Override
     protected ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
         if (!world.isClient()) {
-            NamedScreenHandlerFactory factory = state.createScreenHandlerFactory(world, pos);
-            if (factory != null) {
-                player.openHandledScreen(factory);
+            BlockEntity entity = world.getBlockEntity(pos);
+            if (entity instanceof QuarryBlockEntity quarry) {
+                player.openHandledScreen(quarry);
             }
         }
         return ActionResult.SUCCESS;
@@ -75,6 +77,31 @@ public class QuarryBlock extends BlockWithEntity {
     @Nullable @Override
     public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
         return new QuarryBlockEntity(pos, state);
+    }
+
+    @Override
+    public void onPlaced(World world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack itemStack) {
+        super.onPlaced(world, pos, state, placer, itemStack);
+
+        if (!world.isClient()) {
+            // Check for adjacent marker-defined area
+            MarkerManager.MarkerBounds bounds = MarkerManager.findAdjacentMarkerBounds(world, pos);
+            if (bounds != null) {
+                BlockEntity entity = world.getBlockEntity(pos);
+                if (entity instanceof QuarryBlockEntity quarry) {
+                    // Set custom bounds (2D only - X and Z from markers, Y derived from quarry position)
+                    quarry.setCustomBounds(
+                            bounds.min().getX(),
+                            bounds.min().getZ(),
+                            bounds.max().getX(),
+                            bounds.max().getZ()
+                    );
+
+                    // Break all markers in the configuration
+                    MarkerManager.breakMarkers(world, bounds.allMarkers());
+                }
+            }
+        }
     }
 
     @Nullable @Override

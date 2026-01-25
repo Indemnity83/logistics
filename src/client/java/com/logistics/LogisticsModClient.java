@@ -2,10 +2,14 @@ package com.logistics;
 
 import com.logistics.block.LogisticsBlocks;
 import com.logistics.block.entity.LogisticsBlockEntities;
+import com.logistics.client.render.MarkerBlockEntityRenderer;
 import com.logistics.client.render.PipeBlockEntityRenderer;
 import com.logistics.client.render.PipeModelRegistry;
 import com.logistics.client.screen.ItemFilterScreen;
+import com.logistics.marker.MarkerBlockEntities;
+import com.logistics.marker.MarkerBlocks;
 import com.logistics.pipe.ui.PipeScreenHandlers;
+
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.rendering.v1.BlockRenderLayerMap;
 import net.minecraft.client.gui.screen.ingame.HandledScreens;
@@ -29,8 +33,14 @@ public class LogisticsModClient implements ClientModInitializer {
         BlockRenderLayerMap.putBlock(LogisticsBlocks.ITEM_INSERTION_PIPE, BlockRenderLayer.CUTOUT);
         BlockRenderLayerMap.putBlock(LogisticsBlocks.ITEM_VOID_PIPE, BlockRenderLayer.CUTOUT);
 
+        // Register marker block to render with transparency
+        BlockRenderLayerMap.putBlock(MarkerBlocks.MARKER, BlockRenderLayer.CUTOUT);
+
         // Register block entity renderer for traveling items
         BlockEntityRendererFactories.register(LogisticsBlockEntities.PIPE_BLOCK_ENTITY, PipeBlockEntityRenderer::new);
+
+        // Register block entity renderer for markers
+        BlockEntityRendererFactories.register(MarkerBlockEntities.MARKER_BLOCK_ENTITY, MarkerBlockEntityRenderer::new);
 
         HandledScreens.register(PipeScreenHandlers.ITEM_FILTER, ItemFilterScreen::new);
     }

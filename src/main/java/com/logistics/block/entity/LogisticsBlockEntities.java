@@ -2,6 +2,7 @@ package com.logistics.block.entity;
 
 import com.logistics.LogisticsMod;
 import com.logistics.block.LogisticsBlocks;
+
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.registry.Registries;

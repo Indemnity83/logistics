@@ -1,9 +1,11 @@
 package com.logistics.pipe;
 
+import java.util.List;
+
 import com.logistics.block.PipeBlock;
 import com.logistics.block.entity.PipeBlockEntity;
 import com.logistics.pipe.modules.Module;
-import java.util.List;
+
 import net.minecraft.block.BlockState;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.math.BlockPos;

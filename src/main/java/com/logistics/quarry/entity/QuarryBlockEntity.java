@@ -54,6 +54,14 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
     private float breakProgress = 0f;
     private boolean finished = false;
 
+    // Custom bounds from markers
+    private boolean useCustomBounds = false;
+    private int customMinX = 0;
+    private int customMinZ = 0;
+    private int customMaxX = 0;
+    private int customMaxZ = 0;
+    private int customTopY = 0;
+
     // Cached values for the current mining target
     private BlockPos currentTarget = null;
     private float currentBreakTime = -1f;
@@ -142,6 +150,41 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
     }
 
     private @Nullable BlockPos calculateTargetPos(BlockState quarryState) {
+        if (useCustomBounds) {
+            return calculateCustomTargetPos();
+        }
+        return calculateDefaultTargetPos(quarryState);
+    }
+
+    private @Nullable BlockPos calculateCustomTargetPos() {
+        int areaWidth = customMaxX - customMinX + 1;
+        int areaDepth = customMaxZ - customMinZ + 1;
+
+        // Check if we've finished the current layer
+        if (miningX >= areaWidth) {
+            miningX = 0;
+            miningZ++;
+        }
+        if (miningZ >= areaDepth) {
+            miningZ = 0;
+            miningY++;
+        }
+
+        // Calculate Y range
+        int currentY = customTopY - miningY;
+
+        // Check if we've reached bedrock level or below world
+        if (currentY < world.getBottomY()) {
+            return null;
+        }
+
+        int targetX = customMinX + miningX;
+        int targetZ = customMinZ + miningZ;
+
+        return new BlockPos(targetX, currentY, targetZ);
+    }
+
+    private @Nullable BlockPos calculateDefaultTargetPos(BlockState quarryState) {
         Direction facing = QuarryBlock.getMiningDirection(quarryState);
 
         // Calculate the starting position of the mining area
@@ -324,15 +367,40 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
 
     private void advanceToNextBlock() {
         miningX++;
-        if (miningX >= CHUNK_SIZE) {
+        int maxX = useCustomBounds ? (customMaxX - customMinX + 1) : CHUNK_SIZE;
+        int maxZ = useCustomBounds ? (customMaxZ - customMinZ + 1) : CHUNK_SIZE;
+
+        if (miningX >= maxX) {
             miningX = 0;
             miningZ++;
-            if (miningZ >= CHUNK_SIZE) {
+            if (miningZ >= maxZ) {
                 miningZ = 0;
                 miningY++;
             }
         }
         markDirty();
+    }
+
+    /**
+     * Set custom mining bounds from markers.
+     * The top Y is derived from the quarry's position + offset (same as default mining).
+     */
+    public void setCustomBounds(int minX, int minZ, int maxX, int maxZ) {
+        this.useCustomBounds = true;
+        this.customMinX = minX;
+        this.customMinZ = minZ;
+        this.customMaxX = maxX;
+        this.customMaxZ = maxZ;
+        this.customTopY = pos.getY() + Y_OFFSET_ABOVE;
+        this.miningX = 0;
+        this.miningY = 0;
+        this.miningZ = 0;
+        this.finished = false;
+        markDirty();
+    }
+
+    public boolean hasCustomBounds() {
+        return useCustomBounds;
     }
 
     private void resetBreakProgress() {
@@ -443,6 +511,17 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
         miningState.putFloat("Progress", breakProgress);
         miningState.putBoolean("Finished", finished);
         view.put("MiningState", NbtCompound.CODEC, miningState);
+
+        // Save custom bounds
+        if (useCustomBounds) {
+            NbtCompound customBoundsNbt = new NbtCompound();
+            customBoundsNbt.putInt("MinX", customMinX);
+            customBoundsNbt.putInt("MinZ", customMinZ);
+            customBoundsNbt.putInt("MaxX", customMaxX);
+            customBoundsNbt.putInt("MaxZ", customMaxZ);
+            customBoundsNbt.putInt("TopY", customTopY);
+            view.put("CustomBounds", NbtCompound.CODEC, customBoundsNbt);
+        }
     }
 
     @Override
@@ -459,6 +538,16 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
             miningZ = miningState.getInt("Z").orElse(0);
             breakProgress = miningState.getFloat("Progress").orElse(0f);
             finished = miningState.getBoolean("Finished").orElse(false);
+        });
+
+        // Load custom bounds
+        view.read("CustomBounds", NbtCompound.CODEC).ifPresent(customBoundsNbt -> {
+            useCustomBounds = true;
+            customMinX = customBoundsNbt.getInt("MinX").orElse(0);
+            customMinZ = customBoundsNbt.getInt("MinZ").orElse(0);
+            customMaxX = customBoundsNbt.getInt("MaxX").orElse(0);
+            customMaxZ = customBoundsNbt.getInt("MaxZ").orElse(0);
+            customTopY = customBoundsNbt.getInt("TopY").orElse(0);
         });
     }
 

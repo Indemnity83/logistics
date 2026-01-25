@@ -1,10 +1,12 @@
 package com.logistics.pipe.ui;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.logistics.block.entity.PipeBlockEntity;
 import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.modules.ItemFilterModule;
-import java.util.ArrayList;
-import java.util.List;
+
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;

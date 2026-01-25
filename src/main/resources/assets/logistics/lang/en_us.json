@@ -41,5 +41,6 @@
   "item.logistics.netherite_gear": "Netherite Gear",
   "itemgroup.logistics.transport": "Logistics: Transport",
   "screen.logistics.item_filter": "Item Filter",
-  "block.logistics.quarry": "Quarry"
+  "block.logistics.quarry": "Quarry",
+  "block.logistics.marker": "Marker"
 }
