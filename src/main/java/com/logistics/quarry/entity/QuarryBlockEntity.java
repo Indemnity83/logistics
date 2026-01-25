@@ -370,6 +370,29 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
             }
         }
 
+        // Check if there's an inventory above (chest, barrel, etc.)
+        if (!stack.isEmpty()) {
+            BlockEntity aboveEntity = world.getBlockEntity(abovePos);
+            if (aboveEntity instanceof Inventory inv) {
+                // Check if it's a sided inventory and respects insertion from below
+                if (aboveEntity instanceof SidedInventory sidedInv) {
+                    int[] availableSlots = sidedInv.getAvailableSlots(Direction.DOWN);
+                    for (int slot : availableSlots) {
+                        if (stack.isEmpty()) break;
+                        if (!sidedInv.canInsert(slot, stack, Direction.DOWN)) continue;
+                        stack = insertIntoSlot(inv, slot, stack);
+                    }
+                } else {
+                    // Regular inventory - try all slots
+                    for (int slot = 0; slot < inv.size(); slot++) {
+                        if (stack.isEmpty()) break;
+                        if (!inv.isValid(slot, stack)) continue;
+                        stack = insertIntoSlot(inv, slot, stack);
+                    }
+                }
+            }
+        }
+
         // Drop any remaining items
         if (!stack.isEmpty()) {
             double x = quarryPos.getX() + 0.5;
@@ -380,6 +403,30 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
             itemEntity.setVelocity(0, 0.2, 0); // Small upward velocity
             world.spawnEntity(itemEntity);
         }
+    }
+
+    /**
+     * Try to insert a stack into a specific slot of an inventory.
+     * @return the remaining stack (may be empty if fully inserted)
+     */
+    private ItemStack insertIntoSlot(Inventory inv, int slot, ItemStack stack) {
+        ItemStack existing = inv.getStack(slot);
+
+        if (existing.isEmpty()) {
+            // Empty slot - insert up to max stack size
+            int maxInsert = Math.min(stack.getCount(), inv.getMaxCountPerStack());
+            inv.setStack(slot, stack.split(maxInsert));
+        } else if (ItemStack.areItemsAndComponentsEqual(existing, stack)) {
+            // Same item - try to merge
+            int space = Math.min(inv.getMaxCountPerStack(), existing.getMaxCount()) - existing.getCount();
+            if (space > 0) {
+                int toInsert = Math.min(space, stack.getCount());
+                existing.increment(toInsert);
+                stack.decrement(toInsert);
+            }
+        }
+
+        return stack;
     }
 
     private void advanceToNextBlock() {
