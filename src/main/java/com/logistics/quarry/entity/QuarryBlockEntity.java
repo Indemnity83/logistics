@@ -43,9 +43,10 @@ import org.jetbrains.annotations.Nullable;
 public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHandlerFactory<BlockPos>, Inventory, SidedInventory {
     private static final int CHUNK_SIZE = 16;
     private static final int Y_OFFSET_ABOVE = 4;
-    private static final int[] TOOL_SLOTS = {0};
+    private static final int INVENTORY_SIZE = 9;
+    private static final int[] TOOL_SLOTS = {0, 1, 2, 3, 4, 5, 6, 7, 8};
 
-    private final DefaultedList<ItemStack> inventory = DefaultedList.ofSize(1, ItemStack.EMPTY);
+    private final DefaultedList<ItemStack> inventory = DefaultedList.ofSize(INVENTORY_SIZE, ItemStack.EMPTY);
 
     // Mining state
     private int miningX = 0;
@@ -91,13 +92,15 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
         }
 
         ServerWorld serverWorld = (ServerWorld) world;
-        ItemStack tool = entity.getStack(0);
+        int toolSlot = entity.findFirstToolSlot();
 
-        // No tool or tool is broken = stop
-        if (tool.isEmpty()) {
+        // No tool available = stop
+        if (toolSlot < 0) {
             entity.resetBreakProgress();
             return;
         }
+
+        ItemStack tool = entity.getStack(toolSlot);
 
         // Calculate the target position
         BlockPos target = entity.calculateTargetPos(state);
@@ -127,10 +130,24 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
 
         // Check if block is broken
         if (entity.breakProgress >= entity.currentBreakTime) {
-            entity.mineBlock(serverWorld, target, targetState, tool);
+            entity.mineBlock(serverWorld, target, targetState, tool, toolSlot);
             entity.advanceToNextBlock();
             entity.resetBreakProgress();
         }
+    }
+
+    /**
+     * Find the first slot containing a valid tool.
+     * @return slot index, or -1 if no tool found
+     */
+    private int findFirstToolSlot() {
+        for (int i = 0; i < INVENTORY_SIZE; i++) {
+            ItemStack stack = inventory.get(i);
+            if (!stack.isEmpty() && stack.getMaxDamage() > 0) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     private boolean shouldSkipBlock(BlockState state) {
@@ -276,7 +293,7 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
         return EnchantmentHelper.getLevel(enchantmentEntry.get(), stack);
     }
 
-    private void mineBlock(ServerWorld world, BlockPos target, BlockState targetState, ItemStack tool) {
+    private void mineBlock(ServerWorld world, BlockPos target, BlockState targetState, ItemStack tool, int toolSlot) {
         // Fast path for simple blocks (no block entity) - use manual drop handling for Fortune/Silk Touch
         if (world.getBlockEntity(target) == null) {
             List<ItemStack> drops = Block.getDroppedStacks(targetState, world, target, null, null, tool);
@@ -291,7 +308,7 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
         }
 
         // Damage the tool
-        damageTool(tool, 1);
+        damageTool(tool, toolSlot, 1);
     }
 
     private void collectNearbyItems(ServerWorld world, BlockPos target) {
@@ -309,7 +326,7 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
         }
     }
 
-    private void damageTool(ItemStack tool, int amount) {
+    private void damageTool(ItemStack tool, int slot, int amount) {
         if (tool.isEmpty()) return;
 
         // Check for Unbreaking enchantment
@@ -326,9 +343,9 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
             tool.setDamage(tool.getDamage() + amount);
         }
 
-        // Check if tool is broken
+        // Check if tool is broken - clear the slot and the quarry will use the next available tool
         if (tool.getDamage() >= tool.getMaxDamage()) {
-            setStack(0, ItemStack.EMPTY);
+            setStack(slot, ItemStack.EMPTY);
         }
 
         markDirty();
@@ -412,12 +429,17 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
     // Inventory implementation
     @Override
     public int size() {
-        return 1;
+        return INVENTORY_SIZE;
     }
 
     @Override
     public boolean isEmpty() {
-        return inventory.get(0).isEmpty();
+        for (ItemStack stack : inventory) {
+            if (!stack.isEmpty()) {
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override
@@ -496,11 +518,14 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
     protected void writeData(WriteView view) {
         super.writeData(view);
 
-        // Save inventory
-        if (!inventory.get(0).isEmpty()) {
-            view.put("Tool", ItemStack.CODEC, inventory.get(0));
-        } else {
-            view.remove("Tool");
+        // Save inventory (all 9 slots)
+        for (int i = 0; i < INVENTORY_SIZE; i++) {
+            ItemStack stack = inventory.get(i);
+            if (!stack.isEmpty()) {
+                view.put("Tool" + i, ItemStack.CODEC, stack);
+            } else {
+                view.remove("Tool" + i);
+            }
         }
 
         // Save mining state
@@ -528,8 +553,25 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
     protected void readData(ReadView view) {
         super.readData(view);
 
-        // Load inventory
-        inventory.set(0, view.read("Tool", ItemStack.CODEC).orElse(ItemStack.EMPTY));
+        // Clear inventory
+        for (int i = 0; i < INVENTORY_SIZE; i++) {
+            inventory.set(i, ItemStack.EMPTY);
+        }
+
+        // Load inventory (all 9 slots)
+        for (int i = 0; i < INVENTORY_SIZE; i++) {
+            final int slotIndex = i;
+            view.read("Tool" + i, ItemStack.CODEC).ifPresent(stack -> {
+                inventory.set(slotIndex, stack);
+            });
+        }
+
+        // Legacy: load old single-slot format (stored as just "Tool")
+        view.read("Tool", ItemStack.CODEC).ifPresent(tool -> {
+            if (!tool.isEmpty() && inventory.get(0).isEmpty()) {
+                inventory.set(0, tool);
+            }
+        });
 
         // Load mining state
         view.read("MiningState", NbtCompound.CODEC).ifPresent(miningState -> {
@@ -567,16 +609,18 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
         super.onBlockReplaced(pos, oldState);
 
         if (world != null && !world.isClient()) {
-            ItemStack tool = inventory.get(0);
-            if (!tool.isEmpty()) {
-                ItemEntity itemEntity = new ItemEntity(
-                        world,
-                        pos.getX() + 0.5,
-                        pos.getY() + 0.5,
-                        pos.getZ() + 0.5,
-                        tool);
-                itemEntity.setToDefaultPickupDelay();
-                world.spawnEntity(itemEntity);
+            for (int i = 0; i < INVENTORY_SIZE; i++) {
+                ItemStack stack = inventory.get(i);
+                if (!stack.isEmpty()) {
+                    ItemEntity itemEntity = new ItemEntity(
+                            world,
+                            pos.getX() + 0.5,
+                            pos.getY() + 0.5,
+                            pos.getZ() + 0.5,
+                            stack);
+                    itemEntity.setToDefaultPickupDelay();
+                    world.spawnEntity(itemEntity);
+                }
             }
         }
     }

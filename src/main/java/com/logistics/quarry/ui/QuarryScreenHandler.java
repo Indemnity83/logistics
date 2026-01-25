@@ -17,17 +17,18 @@ public class QuarryScreenHandler extends ScreenHandler {
     private static final int PLAYER_INV_START_Y = 84;
     private static final int HOTBAR_Y = 142;
     private static final int SLOT_START_X = 8;
+    private static final int INVENTORY_SIZE = 9;
 
-    // Tool slot position (centered)
-    private static final int TOOL_SLOT_X = 80;
-    private static final int TOOL_SLOT_Y = 35;
+    // Tool slots position (3x3 grid centered)
+    private static final int TOOL_SLOTS_START_X = 62;
+    private static final int TOOL_SLOTS_START_Y = 17;
 
     private final Inventory inventory;
     private final ScreenHandlerContext context;
 
     // Client constructor
     public QuarryScreenHandler(int syncId, PlayerInventory playerInventory, BlockPos pos) {
-        this(syncId, playerInventory, new SimpleInventory(1), ScreenHandlerContext.EMPTY);
+        this(syncId, playerInventory, new SimpleInventory(INVENTORY_SIZE), ScreenHandlerContext.EMPTY);
     }
 
     // Server constructor
@@ -41,11 +42,18 @@ public class QuarryScreenHandler extends ScreenHandler {
         this.inventory = inventory;
         this.context = context;
 
-        checkSize(inventory, 1);
+        checkSize(inventory, INVENTORY_SIZE);
         inventory.onOpen(playerInventory.player);
 
-        // Tool slot
-        addSlot(new ToolSlot(inventory, 0, TOOL_SLOT_X, TOOL_SLOT_Y));
+        // Tool slots (3x3 grid)
+        for (int row = 0; row < 3; row++) {
+            for (int col = 0; col < 3; col++) {
+                int slotIndex = col + row * 3;
+                addSlot(new ToolSlot(inventory, slotIndex,
+                        TOOL_SLOTS_START_X + col * SLOT_SIZE,
+                        TOOL_SLOTS_START_Y + row * SLOT_SIZE));
+            }
+        }
 
         // Player inventory
         addPlayerInventorySlots(playerInventory);
@@ -83,25 +91,26 @@ public class QuarryScreenHandler extends ScreenHandler {
             ItemStack originalStack = slot.getStack();
             newStack = originalStack.copy();
 
-            if (slotIndex == 0) {
+            // Slots 0-8: tool slots, 9-35: player main inventory, 36-44: hotbar
+            if (slotIndex < INVENTORY_SIZE) {
                 // Moving from tool slot to player inventory
-                if (!insertItem(originalStack, 1, 37, true)) {
+                if (!insertItem(originalStack, INVENTORY_SIZE, INVENTORY_SIZE + 36, true)) {
                     return ItemStack.EMPTY;
                 }
             } else {
-                // Moving from player inventory to tool slot
+                // Moving from player inventory to tool slots
                 if (isValidTool(originalStack)) {
-                    if (!insertItem(originalStack, 0, 1, false)) {
+                    if (!insertItem(originalStack, 0, INVENTORY_SIZE, false)) {
                         return ItemStack.EMPTY;
                     }
-                } else if (slotIndex < 28) {
+                } else if (slotIndex < INVENTORY_SIZE + 27) {
                     // Move from main inventory to hotbar
-                    if (!insertItem(originalStack, 28, 37, false)) {
+                    if (!insertItem(originalStack, INVENTORY_SIZE + 27, INVENTORY_SIZE + 36, false)) {
                         return ItemStack.EMPTY;
                     }
                 } else {
                     // Move from hotbar to main inventory
-                    if (!insertItem(originalStack, 1, 28, false)) {
+                    if (!insertItem(originalStack, INVENTORY_SIZE, INVENTORY_SIZE + 27, false)) {
                         return ItemStack.EMPTY;
                     }
                 }
