@@ -660,32 +660,37 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
     }
 
     /**
-     * Calculate target position for clearing phase (16x16 area at/above quarry level).
+     * Calculate target position for clearing phase (area at/above quarry level).
      */
     private @Nullable BlockPos calculateClearingTargetPos(BlockState quarryState) {
-        Direction facing = QuarryBlock.getMiningDirection(quarryState);
         BlockPos quarryPos = getPos();
 
         int startX, startZ;
-        switch (facing) {
-            case NORTH:
-                startX = quarryPos.getX() - 8;
-                startZ = quarryPos.getZ() - QuarryConfig.CHUNK_SIZE;
-                break;
-            case SOUTH:
-                startX = quarryPos.getX() - 8;
-                startZ = quarryPos.getZ() + 1;
-                break;
-            case EAST:
-                startX = quarryPos.getX() + 1;
-                startZ = quarryPos.getZ() - 8;
-                break;
-            case WEST:
-                startX = quarryPos.getX() - QuarryConfig.CHUNK_SIZE;
-                startZ = quarryPos.getZ() - 8;
-                break;
-            default:
-                return null;
+        if (useCustomBounds) {
+            startX = customMinX;
+            startZ = customMinZ;
+        } else {
+            Direction facing = QuarryBlock.getMiningDirection(quarryState);
+            switch (facing) {
+                case NORTH:
+                    startX = quarryPos.getX() - 8;
+                    startZ = quarryPos.getZ() - QuarryConfig.CHUNK_SIZE;
+                    break;
+                case SOUTH:
+                    startX = quarryPos.getX() - 8;
+                    startZ = quarryPos.getZ() + 1;
+                    break;
+                case EAST:
+                    startX = quarryPos.getX() + 1;
+                    startZ = quarryPos.getZ() - 8;
+                    break;
+                case WEST:
+                    startX = quarryPos.getX() - QuarryConfig.CHUNK_SIZE;
+                    startZ = quarryPos.getZ() - 8;
+                    break;
+                default:
+                    return null;
+            }
         }
 
         // Clearing phase only works above and at quarry level
@@ -704,33 +709,43 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
     }
 
     /**
-     * Calculate target position for mining phase (14x14 area below quarry level).
-     * The area is inset 1 block from the 16x16 frame to stay within it.
+     * Calculate target position for mining phase (area below quarry level).
+     * The area is inset 1 block from the frame to stay within it.
      */
     private @Nullable BlockPos calculateMiningTargetPos(BlockState quarryState) {
-        Direction facing = QuarryBlock.getMiningDirection(quarryState);
         BlockPos quarryPos = getPos();
 
-        int startX, startZ;
-        switch (facing) {
-            case NORTH:
-                startX = quarryPos.getX() - 8 + 1; // Inset 1 from frame
-                startZ = quarryPos.getZ() - QuarryConfig.CHUNK_SIZE + 1;
-                break;
-            case SOUTH:
-                startX = quarryPos.getX() - 8 + 1;
-                startZ = quarryPos.getZ() + 1 + 1;
-                break;
-            case EAST:
-                startX = quarryPos.getX() + 1 + 1;
-                startZ = quarryPos.getZ() - 8 + 1;
-                break;
-            case WEST:
-                startX = quarryPos.getX() - QuarryConfig.CHUNK_SIZE + 1;
-                startZ = quarryPos.getZ() - 8 + 1;
-                break;
-            default:
-                return null;
+        int startX, startZ, innerSizeX, innerSizeZ;
+        if (useCustomBounds) {
+            // Custom bounds: mining area is inset 1 block from frame
+            startX = customMinX + 1;
+            startZ = customMinZ + 1;
+            innerSizeX = customMaxX - customMinX - 1; // frame size - 2 for inset
+            innerSizeZ = customMaxZ - customMinZ - 1;
+        } else {
+            Direction facing = QuarryBlock.getMiningDirection(quarryState);
+            switch (facing) {
+                case NORTH:
+                    startX = quarryPos.getX() - 8 + 1; // Inset 1 from frame
+                    startZ = quarryPos.getZ() - QuarryConfig.CHUNK_SIZE + 1;
+                    break;
+                case SOUTH:
+                    startX = quarryPos.getX() - 8 + 1;
+                    startZ = quarryPos.getZ() + 1 + 1;
+                    break;
+                case EAST:
+                    startX = quarryPos.getX() + 1 + 1;
+                    startZ = quarryPos.getZ() - 8 + 1;
+                    break;
+                case WEST:
+                    startX = quarryPos.getX() - QuarryConfig.CHUNK_SIZE + 1;
+                    startZ = quarryPos.getZ() - 8 + 1;
+                    break;
+                default:
+                    return null;
+            }
+            innerSizeX = QuarryConfig.INNER_SIZE;
+            innerSizeZ = QuarryConfig.INNER_SIZE;
         }
 
         // Mining phase starts 1 block below quarry level
@@ -748,30 +763,39 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
         if (miningY % 2 == 0) {
             targetZ = startZ + miningZ;
         } else {
-            targetZ = startZ + (QuarryConfig.INNER_SIZE - 1 - miningZ);
+            targetZ = startZ + (innerSizeZ - 1 - miningZ);
         }
 
         // X direction based on total rows traversed (continuous zigzag)
-        int totalRows = miningY * QuarryConfig.INNER_SIZE + miningZ;
+        int totalRows = miningY * innerSizeZ + miningZ;
         int targetX;
         if (totalRows % 2 == 0) {
             targetX = startX + miningX;
         } else {
-            targetX = startX + (QuarryConfig.INNER_SIZE - 1 - miningX);
+            targetX = startX + (innerSizeX - 1 - miningX);
         }
 
         return new BlockPos(targetX, currentY, targetZ);
     }
 
     /**
-     * Advance mining position for the 14x14 mining area.
+     * Advance mining position for the mining area.
      */
     private void advanceMiningPosition() {
+        int innerSizeX, innerSizeZ;
+        if (useCustomBounds) {
+            innerSizeX = customMaxX - customMinX - 1;
+            innerSizeZ = customMaxZ - customMinZ - 1;
+        } else {
+            innerSizeX = QuarryConfig.INNER_SIZE;
+            innerSizeZ = QuarryConfig.INNER_SIZE;
+        }
+
         miningX++;
-        if (miningX >= QuarryConfig.INNER_SIZE) {
+        if (miningX >= innerSizeX) {
             miningX = 0;
             miningZ++;
-            if (miningZ >= QuarryConfig.INNER_SIZE) {
+            if (miningZ >= innerSizeZ) {
                 miningZ = 0;
                 miningY++;
             }
@@ -816,50 +840,61 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
     /**
      * Get the next frame position to build based on frameBuildIndex.
      * Frame consists of:
-     * - Bottom ring at quarryY (60 blocks)
+     * - Bottom ring at quarryY
      * - Middle pillars at corners from quarryY+1 to quarryY+3 (4 corners × 3 = 12 blocks)
-     * - Top ring at quarryY+4 (60 blocks)
-     * Total: 132 blocks
+     * - Top ring at quarryY+4
      */
     private @Nullable BlockPos getNextFramePosition(BlockState quarryState) {
-        Direction facing = QuarryBlock.getMiningDirection(quarryState);
         BlockPos quarryPos = getPos();
 
-        // Calculate frame bounds (16x16 area)
-        int startX, startZ;
-        switch (facing) {
-            case NORTH:
-                startX = quarryPos.getX() - 8;
-                startZ = quarryPos.getZ() - QuarryConfig.CHUNK_SIZE;
-                break;
-            case SOUTH:
-                startX = quarryPos.getX() - 8;
-                startZ = quarryPos.getZ() + 1;
-                break;
-            case EAST:
-                startX = quarryPos.getX() + 1;
-                startZ = quarryPos.getZ() - 8;
-                break;
-            case WEST:
-                startX = quarryPos.getX() - QuarryConfig.CHUNK_SIZE;
-                startZ = quarryPos.getZ() - 8;
-                break;
-            default:
-                return null;
+        // Calculate frame bounds
+        int startX, startZ, endX, endZ;
+        if (useCustomBounds) {
+            startX = customMinX;
+            startZ = customMinZ;
+            endX = customMaxX;
+            endZ = customMaxZ;
+        } else {
+            Direction facing = QuarryBlock.getMiningDirection(quarryState);
+            switch (facing) {
+                case NORTH:
+                    startX = quarryPos.getX() - 8;
+                    startZ = quarryPos.getZ() - QuarryConfig.CHUNK_SIZE;
+                    break;
+                case SOUTH:
+                    startX = quarryPos.getX() - 8;
+                    startZ = quarryPos.getZ() + 1;
+                    break;
+                case EAST:
+                    startX = quarryPos.getX() + 1;
+                    startZ = quarryPos.getZ() - 8;
+                    break;
+                case WEST:
+                    startX = quarryPos.getX() - QuarryConfig.CHUNK_SIZE;
+                    startZ = quarryPos.getZ() - 8;
+                    break;
+                default:
+                    return null;
+            }
+            endX = startX + QuarryConfig.CHUNK_SIZE - 1;
+            endZ = startZ + QuarryConfig.CHUNK_SIZE - 1;
         }
 
-        int endX = startX + QuarryConfig.CHUNK_SIZE - 1;
-        int endZ = startZ + QuarryConfig.CHUNK_SIZE - 1;
         int bottomY = quarryPos.getY();
         int topY = quarryPos.getY() + QuarryConfig.Y_OFFSET_ABOVE;
 
-        // Phase 1: Bottom ring (60 blocks, indices 0-59)
-        if (frameBuildIndex < 60) {
+        // Calculate ring size: perimeter of rectangle = 2*width + 2*depth - 4 corners
+        int width = endX - startX + 1;
+        int depth = endZ - startZ + 1;
+        int ringSize = 2 * width + 2 * depth - 4;
+
+        // Phase 1: Bottom ring
+        if (frameBuildIndex < ringSize) {
             return getRingPosition(frameBuildIndex, startX, startZ, endX, endZ, bottomY);
         }
 
-        // Phase 2: Middle pillars (12 blocks, indices 60-71)
-        int pillarIndex = frameBuildIndex - 60;
+        // Phase 2: Middle pillars (12 blocks)
+        int pillarIndex = frameBuildIndex - ringSize;
         if (pillarIndex < 12) {
             int cornerIndex = pillarIndex / 3;
             int yOffset = (pillarIndex % 3) + 1; // Y+1, Y+2, Y+3
@@ -874,9 +909,9 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
             };
         }
 
-        // Phase 3: Top ring (60 blocks, indices 72-131)
-        int topRingIndex = frameBuildIndex - 72;
-        if (topRingIndex < 60) {
+        // Phase 3: Top ring
+        int topRingIndex = frameBuildIndex - ringSize - 12;
+        if (topRingIndex < ringSize) {
             return getRingPosition(topRingIndex, startX, startZ, endX, endZ, topY);
         }
 
@@ -885,30 +920,36 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
     }
 
     /**
-     * Get a position on a frame ring given an index (0-59).
+     * Get a position on a frame ring given an index.
      * Iterates around the perimeter: north edge, east edge, south edge, west edge.
      */
     private BlockPos getRingPosition(int index, int startX, int startZ, int endX, int endZ, int y) {
-        // North edge: 16 blocks (index 0-15)
-        if (index < 16) {
+        int width = endX - startX + 1;
+        int depth = endZ - startZ + 1;
+
+        // North edge: width blocks
+        if (index < width) {
             return new BlockPos(startX + index, y, startZ);
         }
-        index -= 16;
+        index -= width;
 
-        // East edge: 15 blocks excluding NE corner (index 0-14)
-        if (index < 15) {
+        // East edge: depth-1 blocks excluding NE corner
+        int eastEdgeSize = depth - 1;
+        if (index < eastEdgeSize) {
             return new BlockPos(endX, y, startZ + 1 + index);
         }
-        index -= 15;
+        index -= eastEdgeSize;
 
-        // South edge: 15 blocks excluding SE corner (index 0-14)
-        if (index < 15) {
+        // South edge: width-1 blocks excluding SE corner
+        int southEdgeSize = width - 1;
+        if (index < southEdgeSize) {
             return new BlockPos(endX - 1 - index, y, endZ);
         }
-        index -= 15;
+        index -= southEdgeSize;
 
-        // West edge: 14 blocks excluding SW and NW corners (index 0-13)
-        if (index < 14) {
+        // West edge: depth-2 blocks excluding SW and NW corners
+        int westEdgeSize = depth - 2;
+        if (index < westEdgeSize) {
             return new BlockPos(startX, y, endZ - 1 - index);
         }
 
@@ -919,34 +960,40 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
      * Calculate the frame block state with appropriate arm connections.
      */
     private BlockState calculateFrameState(BlockState quarryState, BlockPos framePos) {
-        Direction facing = QuarryBlock.getMiningDirection(quarryState);
         BlockPos quarryPos = getPos();
 
         // Calculate frame bounds
-        int startX, startZ;
-        switch (facing) {
-            case NORTH:
-                startX = quarryPos.getX() - 8;
-                startZ = quarryPos.getZ() - QuarryConfig.CHUNK_SIZE;
-                break;
-            case SOUTH:
-                startX = quarryPos.getX() - 8;
-                startZ = quarryPos.getZ() + 1;
-                break;
-            case EAST:
-                startX = quarryPos.getX() + 1;
-                startZ = quarryPos.getZ() - 8;
-                break;
-            case WEST:
-                startX = quarryPos.getX() - QuarryConfig.CHUNK_SIZE;
-                startZ = quarryPos.getZ() - 8;
-                break;
-            default:
-                return QuarryBlocks.QUARRY_FRAME.getDefaultState();
+        int startX, startZ, endX, endZ;
+        if (useCustomBounds) {
+            startX = customMinX;
+            startZ = customMinZ;
+            endX = customMaxX;
+            endZ = customMaxZ;
+        } else {
+            Direction facing = QuarryBlock.getMiningDirection(quarryState);
+            switch (facing) {
+                case NORTH:
+                    startX = quarryPos.getX() - 8;
+                    startZ = quarryPos.getZ() - QuarryConfig.CHUNK_SIZE;
+                    break;
+                case SOUTH:
+                    startX = quarryPos.getX() - 8;
+                    startZ = quarryPos.getZ() + 1;
+                    break;
+                case EAST:
+                    startX = quarryPos.getX() + 1;
+                    startZ = quarryPos.getZ() - 8;
+                    break;
+                case WEST:
+                    startX = quarryPos.getX() - QuarryConfig.CHUNK_SIZE;
+                    startZ = quarryPos.getZ() - 8;
+                    break;
+                default:
+                    return QuarryBlocks.QUARRY_FRAME.getDefaultState();
+            }
+            endX = startX + QuarryConfig.CHUNK_SIZE - 1;
+            endZ = startZ + QuarryConfig.CHUNK_SIZE - 1;
         }
-
-        int endX = startX + QuarryConfig.CHUNK_SIZE - 1;
-        int endZ = startZ + QuarryConfig.CHUNK_SIZE - 1;
         int bottomY = quarryPos.getY();
         int topY = quarryPos.getY() + QuarryConfig.Y_OFFSET_ABOVE;
 
