@@ -503,16 +503,21 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
     }
 
     private void mineBlock(ServerWorld world, BlockPos target, BlockState targetState, ItemStack tool, int toolSlot) {
-        // Fast path for simple blocks (no block entity) - use manual drop handling for Fortune/Silk Touch
-        if (world.getBlockEntity(target) == null) {
-            List<ItemStack> drops = Block.getDroppedStacks(targetState, world, target, null, null, tool);
-            world.breakBlock(target, false);
-            for (ItemStack drop : drops) {
-                outputItem(world, drop);
-            }
-        } else {
-            // Safe path for complex blocks (containers, etc.) - let them drop naturally and collect
-            world.breakBlock(target, true);
+        // Get drops before breaking the block (for Fortune/Silk Touch support)
+        BlockEntity blockEntity = world.getBlockEntity(target);
+        List<ItemStack> drops = Block.getDroppedStacks(targetState, world, target, blockEntity, null, tool);
+
+        // Break the block without natural drops (we handle drops manually)
+        world.breakBlock(target, false);
+
+        // Output the calculated drops
+        for (ItemStack drop : drops) {
+            outputItem(world, drop);
+        }
+
+        // Fallback: if getDroppedStacks returned nothing but this wasn't air,
+        // or if this was a container (block entity), collect any spawned items
+        if (drops.isEmpty() || blockEntity != null) {
             collectNearbyItems(world, target);
         }
 
