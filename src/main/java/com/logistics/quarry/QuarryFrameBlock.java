@@ -5,10 +5,12 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.ShapeContext;
 import net.minecraft.item.ItemPlacementContext;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.random.Random;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
@@ -109,5 +111,115 @@ public class QuarryFrameBlock extends Block {
             case UP -> UP;
             case DOWN -> DOWN;
         };
+    }
+
+    @Override
+    protected boolean hasRandomTicks(BlockState state) {
+        return true;
+    }
+
+    /**
+     * Random tick - check if there's an owning quarry, decay if not.
+     * Similar to how leaves decay when not connected to logs.
+     */
+    @Override
+    protected void randomTick(BlockState state, ServerWorld world, BlockPos pos, Random random) {
+        if (!hasOwningQuarry(world, pos)) {
+            // No quarry found - decay this frame block (no drops)
+            world.removeBlock(pos, false);
+        }
+    }
+
+    /**
+     * Check if there's a quarry that owns this frame block.
+     * Searches for quarries within range and checks if this position is part of their frame.
+     */
+    private boolean hasOwningQuarry(ServerWorld world, BlockPos framePos) {
+        // Frame can be at quarry Y level (bottom ring), Y+1 to Y+3 (pillars), or Y+4 (top ring)
+        // So quarry Y could be: framePos.Y, framePos.Y-1, ..., framePos.Y-4
+        // Horizontally, frame extends up to CHUNK_SIZE blocks from quarry
+
+        int searchRadius = QuarryConfig.CHUNK_SIZE + 8;
+
+        for (int dy = 0; dy >= -QuarryConfig.Y_OFFSET_ABOVE; dy--) {
+            int quarryY = framePos.getY() + dy;
+
+            for (int dx = -searchRadius; dx <= searchRadius; dx++) {
+                for (int dz = -searchRadius; dz <= searchRadius; dz++) {
+                    BlockPos checkPos = new BlockPos(framePos.getX() + dx, quarryY, framePos.getZ() + dz);
+                    BlockState checkState = world.getBlockState(checkPos);
+
+                    if (checkState.getBlock() instanceof QuarryBlock) {
+                        if (isFramePositionForQuarry(checkPos, checkState, framePos)) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Check if a frame position belongs to a specific quarry.
+     */
+    private boolean isFramePositionForQuarry(BlockPos quarryPos, BlockState quarryState, BlockPos framePos) {
+        Direction facing = QuarryBlock.getMiningDirection(quarryState);
+
+        // Calculate frame bounds for this quarry
+        int startX, startZ;
+        switch (facing) {
+            case NORTH:
+                startX = quarryPos.getX() - 8;
+                startZ = quarryPos.getZ() - QuarryConfig.CHUNK_SIZE;
+                break;
+            case SOUTH:
+                startX = quarryPos.getX() - 8;
+                startZ = quarryPos.getZ() + 1;
+                break;
+            case EAST:
+                startX = quarryPos.getX() + 1;
+                startZ = quarryPos.getZ() - 8;
+                break;
+            case WEST:
+                startX = quarryPos.getX() - QuarryConfig.CHUNK_SIZE;
+                startZ = quarryPos.getZ() - 8;
+                break;
+            default:
+                return false;
+        }
+
+        int endX = startX + QuarryConfig.CHUNK_SIZE - 1;
+        int endZ = startZ + QuarryConfig.CHUNK_SIZE - 1;
+        int bottomY = quarryPos.getY();
+        int topY = quarryPos.getY() + QuarryConfig.Y_OFFSET_ABOVE;
+
+        int fx = framePos.getX();
+        int fy = framePos.getY();
+        int fz = framePos.getZ();
+
+        // Check if framePos is on the frame perimeter
+        // Frame consists of: bottom ring, corner pillars, top ring
+
+        // Check Y level
+        if (fy < bottomY || fy > topY) {
+            return false;
+        }
+
+        // Bottom or top ring (Y = bottomY or Y = topY)
+        if (fy == bottomY || fy == topY) {
+            // Must be on the perimeter
+            boolean onNorthEdge = (fz == startZ) && (fx >= startX && fx <= endX);
+            boolean onSouthEdge = (fz == endZ) && (fx >= startX && fx <= endX);
+            boolean onWestEdge = (fx == startX) && (fz >= startZ && fz <= endZ);
+            boolean onEastEdge = (fx == endX) && (fz >= startZ && fz <= endZ);
+
+            return onNorthEdge || onSouthEdge || onWestEdge || onEastEdge;
+        }
+
+        // Middle pillars (Y between bottom and top) - only at corners
+        boolean isCorner = (fx == startX || fx == endX) && (fz == startZ || fz == endZ);
+        return isCorner;
     }
 }

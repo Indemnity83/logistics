@@ -21,11 +21,13 @@ public final class QuarryBlocks {
     private static Block registerNoItem(String name, java.util.function.Function<AbstractBlock.Settings, Block> blockFactory) {
         RegistryKey<Block> blockKey = RegistryKey.of(RegistryKeys.BLOCK, Identifier.of(LogisticsMod.MOD_ID, name));
         // Hardness -1 = unbreakable by players, high blast resistance = immune to explosions
+        // ticksRandomly = decay when quarry is removed (like leaves)
         Block block = blockFactory.apply(AbstractBlock.Settings.create()
                 .registryKey(blockKey)
                 .strength(-1.0f, 3600000.0f)
                 .nonOpaque()
-                .dropsNothing());
+                .dropsNothing()
+                .ticksRandomly());
         return Registry.register(Registries.BLOCK, blockKey, block);
     }
 
