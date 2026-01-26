@@ -9,6 +9,7 @@ import com.logistics.pipe.runtime.TravelingItem;
 import com.logistics.quarry.QuarryBlock;
 import com.logistics.quarry.QuarryBlockEntities;
 import com.logistics.quarry.QuarryBlocks;
+import com.logistics.quarry.QuarryConfig;
 import com.logistics.quarry.QuarryFrameBlock;
 import com.logistics.quarry.ui.QuarryScreenHandler;
 
@@ -43,10 +44,6 @@ import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
 public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHandlerFactory<BlockPos>, Inventory, SidedInventory {
-    private static final int CHUNK_SIZE = 16;
-    private static final int INNER_SIZE = 14; // Mining area is 1 block inset from frame
-    private static final int Y_OFFSET_ABOVE = 4;
-    private static final int INVENTORY_SIZE = 9;
     private static final int[] TOOL_SLOTS = {0, 1, 2, 3, 4, 5, 6, 7, 8};
 
     /**
@@ -63,10 +60,11 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
      */
     public enum ArmState {
         MOVING,   // Arm is moving to target position
+        SETTLING, // Arm reached target, waiting for client to catch up
         BREAKING  // Arm is at target, breaking the block
     }
 
-    private final DefaultedList<ItemStack> inventory = DefaultedList.ofSize(INVENTORY_SIZE, ItemStack.EMPTY);
+    private final DefaultedList<ItemStack> inventory = DefaultedList.ofSize(QuarryConfig.INVENTORY_SIZE, ItemStack.EMPTY);
 
     // Phase state
     private Phase currentPhase = Phase.CLEARING;
@@ -91,17 +89,23 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
     private BlockPos currentTarget = null;
     private float currentBreakTime = -1f;
 
+    // Block breaking animation entity ID (use position hash for uniqueness)
+    private int breakingEntityId = -1;
+
 
     // Arm position tracking for smooth movement
-    private static final float ARM_SPEED = 0.1f; // Blocks per tick (5 blocks per second)
     private ArmState armState = ArmState.MOVING;
     private float armX = 0f;  // Current arm X position (absolute world coords)
     private float armY = 0f;  // Current arm Y position (absolute world coords)
     private float armZ = 0f;  // Current arm Z position (absolute world coords)
     private boolean armInitialized = false; // Whether arm position has been set
+    private int settlingTicksRemaining = 0; // Countdown for SETTLING state
+    private int expectedTravelTicks = 0; // Expected ticks to reach target (for settling calculation)
 
     public QuarryBlockEntity(BlockPos pos, BlockState state) {
         super(QuarryBlockEntities.QUARRY_BLOCK_ENTITY, pos, state);
+        // Use position hash as unique entity ID for breaking animation
+        this.breakingEntityId = pos.hashCode();
     }
 
     @Override
@@ -118,8 +122,6 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
     public ScreenHandler createMenu(int syncId, PlayerInventory playerInventory, PlayerEntity player) {
         return new QuarryScreenHandler(syncId, playerInventory, this);
     }
-
-    private static final int MAX_SKIP_PER_TICK = 256;
 
     public static void tick(World world, BlockPos pos, BlockState state, QuarryBlockEntity entity) {
         if (world.isClient() || entity.finished) {
@@ -153,12 +155,11 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
         }
 
         ItemStack tool = entity.getStack(toolSlot);
-        int quarryY = pos.getY();
 
         // Skip quickly through blocks at or above quarry level
         BlockPos target = null;
         BlockState targetState = null;
-        for (int skipped = 0; skipped < MAX_SKIP_PER_TICK; skipped++) {
+        for (int skipped = 0; skipped < QuarryConfig.MAX_SKIP_PER_TICK; skipped++) {
             target = entity.calculateClearingTargetPos(state);
             if (target == null) {
                 // Finished clearing, move to building phase
@@ -227,9 +228,11 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
     private static void tickMining(ServerWorld world, BlockPos pos, BlockState state, QuarryBlockEntity entity) {
         // Skip air/fluid/bedrock blocks without moving the arm there
         BlockPos target = null;
-        for (int skipped = 0; skipped < MAX_SKIP_PER_TICK; skipped++) {
+        boolean skippedAny = false;
+        for (int skipped = 0; skipped < QuarryConfig.MAX_SKIP_PER_TICK; skipped++) {
             target = entity.calculateMiningTargetPos(state);
             if (target == null) {
+                entity.clearBreakingAnimation(world);
                 entity.finished = true;
                 entity.markDirty();
                 return;
@@ -242,6 +245,7 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
 
             entity.advanceMiningPosition();
             target = null; // Mark as skipped
+            skippedAny = true;
         }
 
         if (target == null) {
@@ -249,13 +253,8 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
             return;
         }
 
-        // Initialize arm position if needed
-        if (!entity.armInitialized) {
-            entity.armX = target.getX() + 0.5f;
-            entity.armY = target.getY() + 1.0f; // Start just above target
-            entity.armZ = target.getZ() + 0.5f;
-            entity.armInitialized = true;
-            entity.armState = ArmState.MOVING;
+        // If we skipped blocks, sync so client knows about the new target
+        if (skippedAny) {
             entity.syncToClients();
         }
 
@@ -264,15 +263,41 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
         float targetY = target.getY() + 1.0f;
         float targetZ = target.getZ() + 0.5f;
 
+        // Initialize arm position if needed
+        if (!entity.armInitialized) {
+            entity.armX = targetX;
+            entity.armY = targetY;
+            entity.armZ = targetZ;
+            entity.armInitialized = true;
+            entity.armState = ArmState.MOVING;
+            entity.expectedTravelTicks = 0; // Already at target
+            entity.syncToClients();
+        }
+
         if (entity.armState == ArmState.MOVING) {
+            // Calculate expected travel time on first tick of movement (for settling)
+            if (entity.expectedTravelTicks == 0 && !entity.isAtTarget(targetX, targetY, targetZ)) {
+                entity.expectedTravelTicks = entity.calculateTravelTicks(targetX, targetY, targetZ);
+            }
+
             // Move arm towards target
             boolean reachedTarget = entity.moveArmTowards(targetX, targetY, targetZ);
 
             if (reachedTarget) {
-                // Start breaking
-                entity.armState = ArmState.BREAKING;
+                // Start settling - wait for client interpolation to catch up
+                // Use the pre-calculated travel time so client has enough time to animate
+                entity.armState = ArmState.SETTLING;
+                entity.settlingTicksRemaining = Math.max(1, entity.expectedTravelTicks);
+                entity.expectedTravelTicks = 0; // Reset for next movement
                 entity.syncToClients();
                 entity.currentTarget = target;
+            }
+        } else if (entity.armState == ArmState.SETTLING) {
+            // Wait for client interpolation to catch up
+            entity.settlingTicksRemaining--;
+            if (entity.settlingTicksRemaining <= 0) {
+                // Start breaking
+                entity.armState = ArmState.BREAKING;
                 BlockState targetState = world.getBlockState(target);
                 int toolSlot = entity.findFirstToolSlot();
                 if (toolSlot >= 0) {
@@ -285,6 +310,10 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
         } else if (entity.armState == ArmState.BREAKING) {
             int toolSlot = entity.findFirstToolSlot();
             if (toolSlot < 0) {
+                // No tool - clear breaking animation and wait
+                if (target != null) {
+                    world.setBlockBreakingInfo(entity.breakingEntityId, target, -1);
+                }
                 entity.resetBreakProgress();
                 return;
             }
@@ -300,10 +329,23 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
 
             entity.breakProgress += 1f;
 
+            // Update block breaking animation (0-9 progress stages)
+            int breakStage = (int) ((entity.breakProgress / entity.currentBreakTime) * 10f);
+            breakStage = Math.min(breakStage, 9);
+            world.setBlockBreakingInfo(entity.breakingEntityId, target, breakStage);
+
             if (entity.breakProgress >= entity.currentBreakTime) {
+                // Clear breaking animation
+                world.setBlockBreakingInfo(entity.breakingEntityId, target, -1);
+
                 entity.mineBlock(world, target, targetState, tool, toolSlot);
                 entity.advanceMiningPosition();
                 entity.resetBreakProgress();
+
+                // Skip air blocks immediately to find the next real target
+                // This prevents the arm from briefly moving towards air before correcting
+                entity.skipToNextSolidBlock(world, state);
+
                 entity.armState = ArmState.MOVING; // Move to next target
                 entity.syncToClients();
             }
@@ -321,7 +363,7 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
 
         float distance = (float) Math.sqrt(dx * dx + dy * dy + dz * dz);
 
-        if (distance <= ARM_SPEED) {
+        if (distance <= QuarryConfig.ARM_SPEED) {
             // Close enough, snap to target
             armX = targetX;
             armY = targetY;
@@ -329,8 +371,8 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
             return true;
         }
 
-        // Normalize and move at ARM_SPEED
-        float factor = ARM_SPEED / distance;
+        // Normalize and move at QuarryConfig.ARM_SPEED
+        float factor = QuarryConfig.ARM_SPEED / distance;
         armX += dx * factor;
         armY += dy * factor;
         armZ += dz * factor;
@@ -339,11 +381,33 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
     }
 
     /**
+     * Check if the arm is at the target position.
+     */
+    private boolean isAtTarget(float targetX, float targetY, float targetZ) {
+        float dx = targetX - armX;
+        float dy = targetY - armY;
+        float dz = targetZ - armZ;
+        float distance = (float) Math.sqrt(dx * dx + dy * dy + dz * dz);
+        return distance <= QuarryConfig.ARM_SPEED;
+    }
+
+    /**
+     * Calculate how many ticks it will take to reach the target at ARM_SPEED.
+     */
+    private int calculateTravelTicks(float targetX, float targetY, float targetZ) {
+        float dx = targetX - armX;
+        float dy = targetY - armY;
+        float dz = targetZ - armZ;
+        float distance = (float) Math.sqrt(dx * dx + dy * dy + dz * dz);
+        return (int) Math.ceil(distance / QuarryConfig.ARM_SPEED);
+    }
+
+    /**
      * Find the first slot containing a valid tool.
      * @return slot index, or -1 if no tool found
      */
     private int findFirstToolSlot() {
-        for (int i = 0; i < INVENTORY_SIZE; i++) {
+        for (int i = 0; i < QuarryConfig.INVENTORY_SIZE; i++) {
             ItemStack stack = inventory.get(i);
             if (!stack.isEmpty() && stack.getMaxDamage() > 0) {
                 return i;
@@ -368,88 +432,6 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
         return false;
     }
 
-    private @Nullable BlockPos calculateTargetPos(BlockState quarryState) {
-        if (useCustomBounds) {
-            return calculateCustomTargetPos();
-        }
-        return calculateDefaultTargetPos(quarryState);
-    }
-
-    private @Nullable BlockPos calculateCustomTargetPos() {
-        int areaWidth = customMaxX - customMinX + 1;
-        int areaDepth = customMaxZ - customMinZ + 1;
-
-        // Check if we've finished the current layer
-        if (miningX >= areaWidth) {
-            miningX = 0;
-            miningZ++;
-        }
-        if (miningZ >= areaDepth) {
-            miningZ = 0;
-            miningY++;
-        }
-
-        // Calculate Y range
-        int currentY = customTopY - miningY;
-
-        // Check if we've reached bedrock level or below world
-        if (currentY < world.getBottomY()) {
-            return null;
-        }
-
-        int targetX = customMinX + miningX;
-        int targetZ = customMinZ + miningZ;
-
-        return new BlockPos(targetX, currentY, targetZ);
-    }
-
-    private @Nullable BlockPos calculateDefaultTargetPos(BlockState quarryState) {
-        Direction facing = QuarryBlock.getMiningDirection(quarryState);
-
-        // Calculate the starting position of the mining area
-        // The area is a 16x16 chunk "behind" the quarry
-        BlockPos quarryPos = getPos();
-
-        // Start position is offset by facing direction
-        // For NORTH facing quarry, the area is to the north (negative Z)
-        int startX;
-        int startZ;
-
-        switch (facing) {
-            case NORTH:
-                startX = quarryPos.getX() - 8;
-                startZ = quarryPos.getZ() - CHUNK_SIZE;
-                break;
-            case SOUTH:
-                startX = quarryPos.getX() - 8;
-                startZ = quarryPos.getZ() + 1;
-                break;
-            case EAST:
-                startX = quarryPos.getX() + 1;
-                startZ = quarryPos.getZ() - 8;
-                break;
-            case WEST:
-                startX = quarryPos.getX() - CHUNK_SIZE;
-                startZ = quarryPos.getZ() - 8;
-                break;
-            default:
-                return null;
-        }
-
-        // Calculate Y range
-        int startY = quarryPos.getY() + Y_OFFSET_ABOVE;
-        int currentY = startY - miningY;
-
-        // Check if we've reached bedrock level or below world
-        if (currentY < world.getBottomY()) {
-            return null;
-        }
-
-        int targetX = startX + miningX;
-        int targetZ = startZ + miningZ;
-
-        return new BlockPos(targetX, currentY, targetZ);
-    }
 
     private float calculateBreakTime(BlockState targetState, ItemStack tool, ServerWorld world) {
         // Get the block hardness
@@ -633,8 +615,8 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
 
     private void advanceToNextBlock() {
         miningX++;
-        int maxX = useCustomBounds ? (customMaxX - customMinX + 1) : CHUNK_SIZE;
-        int maxZ = useCustomBounds ? (customMaxZ - customMinZ + 1) : CHUNK_SIZE;
+        int maxX = useCustomBounds ? (customMaxX - customMinX + 1) : QuarryConfig.CHUNK_SIZE;
+        int maxZ = useCustomBounds ? (customMaxZ - customMinZ + 1) : QuarryConfig.CHUNK_SIZE;
 
         if (miningX >= maxX) {
             miningX = 0;
@@ -658,7 +640,7 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
         switch (facing) {
             case NORTH:
                 startX = quarryPos.getX() - 8;
-                startZ = quarryPos.getZ() - CHUNK_SIZE;
+                startZ = quarryPos.getZ() - QuarryConfig.CHUNK_SIZE;
                 break;
             case SOUTH:
                 startX = quarryPos.getX() - 8;
@@ -669,7 +651,7 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
                 startZ = quarryPos.getZ() - 8;
                 break;
             case WEST:
-                startX = quarryPos.getX() - CHUNK_SIZE;
+                startX = quarryPos.getX() - QuarryConfig.CHUNK_SIZE;
                 startZ = quarryPos.getZ() - 8;
                 break;
             default:
@@ -677,7 +659,7 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
         }
 
         // Clearing phase only works above and at quarry level
-        int startY = quarryPos.getY() + Y_OFFSET_ABOVE;
+        int startY = quarryPos.getY() + QuarryConfig.Y_OFFSET_ABOVE;
         int currentY = startY - miningY;
 
         // Stop when we go below quarry level
@@ -703,7 +685,7 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
         switch (facing) {
             case NORTH:
                 startX = quarryPos.getX() - 8 + 1; // Inset 1 from frame
-                startZ = quarryPos.getZ() - CHUNK_SIZE + 1;
+                startZ = quarryPos.getZ() - QuarryConfig.CHUNK_SIZE + 1;
                 break;
             case SOUTH:
                 startX = quarryPos.getX() - 8 + 1;
@@ -714,7 +696,7 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
                 startZ = quarryPos.getZ() - 8 + 1;
                 break;
             case WEST:
-                startX = quarryPos.getX() - CHUNK_SIZE + 1;
+                startX = quarryPos.getX() - QuarryConfig.CHUNK_SIZE + 1;
                 startZ = quarryPos.getZ() - 8 + 1;
                 break;
             default:
@@ -736,16 +718,16 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
         if (miningY % 2 == 0) {
             targetZ = startZ + miningZ;
         } else {
-            targetZ = startZ + (INNER_SIZE - 1 - miningZ);
+            targetZ = startZ + (QuarryConfig.INNER_SIZE - 1 - miningZ);
         }
 
         // X direction based on total rows traversed (continuous zigzag)
-        int totalRows = miningY * INNER_SIZE + miningZ;
+        int totalRows = miningY * QuarryConfig.INNER_SIZE + miningZ;
         int targetX;
         if (totalRows % 2 == 0) {
             targetX = startX + miningX;
         } else {
-            targetX = startX + (INNER_SIZE - 1 - miningX);
+            targetX = startX + (QuarryConfig.INNER_SIZE - 1 - miningX);
         }
 
         return new BlockPos(targetX, currentY, targetZ);
@@ -756,15 +738,49 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
      */
     private void advanceMiningPosition() {
         miningX++;
-        if (miningX >= INNER_SIZE) {
+        if (miningX >= QuarryConfig.INNER_SIZE) {
             miningX = 0;
             miningZ++;
-            if (miningZ >= INNER_SIZE) {
+            if (miningZ >= QuarryConfig.INNER_SIZE) {
                 miningZ = 0;
                 miningY++;
             }
         }
         markDirty();
+    }
+
+    /**
+     * Skip past air/fluid/bedrock blocks to find the next solid target.
+     * Called after mining a block to immediately find the next real target
+     * before syncing to clients (prevents arm hiccup).
+     */
+    private void skipToNextSolidBlock(ServerWorld world, BlockState quarryState) {
+        for (int skipped = 0; skipped < QuarryConfig.MAX_SKIP_PER_TICK; skipped++) {
+            BlockPos target = calculateMiningTargetPos(quarryState);
+            if (target == null) {
+                // Reached end of mining area
+                finished = true;
+                return;
+            }
+
+            BlockState targetState = world.getBlockState(target);
+            if (!shouldSkipBlock(targetState)) {
+                // Found a solid block to mine next
+                return;
+            }
+
+            advanceMiningPosition();
+        }
+    }
+
+    /**
+     * Clear any active block breaking animation.
+     * Called when the quarry stops or changes target.
+     */
+    private void clearBreakingAnimation(ServerWorld world) {
+        if (currentTarget != null) {
+            world.setBlockBreakingInfo(breakingEntityId, currentTarget, -1);
+        }
     }
 
     /**
@@ -784,7 +800,7 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
         switch (facing) {
             case NORTH:
                 startX = quarryPos.getX() - 8;
-                startZ = quarryPos.getZ() - CHUNK_SIZE;
+                startZ = quarryPos.getZ() - QuarryConfig.CHUNK_SIZE;
                 break;
             case SOUTH:
                 startX = quarryPos.getX() - 8;
@@ -795,17 +811,17 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
                 startZ = quarryPos.getZ() - 8;
                 break;
             case WEST:
-                startX = quarryPos.getX() - CHUNK_SIZE;
+                startX = quarryPos.getX() - QuarryConfig.CHUNK_SIZE;
                 startZ = quarryPos.getZ() - 8;
                 break;
             default:
                 return null;
         }
 
-        int endX = startX + CHUNK_SIZE - 1;
-        int endZ = startZ + CHUNK_SIZE - 1;
+        int endX = startX + QuarryConfig.CHUNK_SIZE - 1;
+        int endZ = startZ + QuarryConfig.CHUNK_SIZE - 1;
         int bottomY = quarryPos.getY();
-        int topY = quarryPos.getY() + Y_OFFSET_ABOVE;
+        int topY = quarryPos.getY() + QuarryConfig.Y_OFFSET_ABOVE;
 
         // Phase 1: Bottom ring (60 blocks, indices 0-59)
         if (frameBuildIndex < 60) {
@@ -881,7 +897,7 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
         switch (facing) {
             case NORTH:
                 startX = quarryPos.getX() - 8;
-                startZ = quarryPos.getZ() - CHUNK_SIZE;
+                startZ = quarryPos.getZ() - QuarryConfig.CHUNK_SIZE;
                 break;
             case SOUTH:
                 startX = quarryPos.getX() - 8;
@@ -892,17 +908,17 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
                 startZ = quarryPos.getZ() - 8;
                 break;
             case WEST:
-                startX = quarryPos.getX() - CHUNK_SIZE;
+                startX = quarryPos.getX() - QuarryConfig.CHUNK_SIZE;
                 startZ = quarryPos.getZ() - 8;
                 break;
             default:
                 return QuarryBlocks.QUARRY_FRAME.getDefaultState();
         }
 
-        int endX = startX + CHUNK_SIZE - 1;
-        int endZ = startZ + CHUNK_SIZE - 1;
+        int endX = startX + QuarryConfig.CHUNK_SIZE - 1;
+        int endZ = startZ + QuarryConfig.CHUNK_SIZE - 1;
         int bottomY = quarryPos.getY();
-        int topY = quarryPos.getY() + Y_OFFSET_ABOVE;
+        int topY = quarryPos.getY() + QuarryConfig.Y_OFFSET_ABOVE;
 
         int x = framePos.getX();
         int y = framePos.getY();
@@ -957,16 +973,12 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
         this.customMinZ = minZ;
         this.customMaxX = maxX;
         this.customMaxZ = maxZ;
-        this.customTopY = pos.getY() + Y_OFFSET_ABOVE;
+        this.customTopY = pos.getY() + QuarryConfig.Y_OFFSET_ABOVE;
         this.miningX = 0;
         this.miningY = 0;
         this.miningZ = 0;
         this.finished = false;
         markDirty();
-    }
-
-    public boolean hasCustomBounds() {
-        return useCustomBounds;
     }
 
     private void resetBreakProgress() {
@@ -978,7 +990,7 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
     // Inventory implementation
     @Override
     public int size() {
-        return INVENTORY_SIZE;
+        return QuarryConfig.INVENTORY_SIZE;
     }
 
     @Override
@@ -1068,7 +1080,7 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
         super.writeData(view);
 
         // Save inventory (all 9 slots)
-        for (int i = 0; i < INVENTORY_SIZE; i++) {
+        for (int i = 0; i < QuarryConfig.INVENTORY_SIZE; i++) {
             ItemStack stack = inventory.get(i);
             if (!stack.isEmpty()) {
                 view.put("Tool" + i, ItemStack.CODEC, stack);
@@ -1092,6 +1104,8 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
         miningState.putFloat("ArmY", armY);
         miningState.putFloat("ArmZ", armZ);
         miningState.putBoolean("ArmInitialized", armInitialized);
+        miningState.putInt("SettlingTicks", settlingTicksRemaining);
+        miningState.putInt("ExpectedTravelTicks", expectedTravelTicks);
         view.put("MiningState", NbtCompound.CODEC, miningState);
 
         // Save custom bounds
@@ -1111,12 +1125,12 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
         super.readData(view);
 
         // Clear inventory
-        for (int i = 0; i < INVENTORY_SIZE; i++) {
+        for (int i = 0; i < QuarryConfig.INVENTORY_SIZE; i++) {
             inventory.set(i, ItemStack.EMPTY);
         }
 
         // Load inventory (all 9 slots)
-        for (int i = 0; i < INVENTORY_SIZE; i++) {
+        for (int i = 0; i < QuarryConfig.INVENTORY_SIZE; i++) {
             final int slotIndex = i;
             view.read("Tool" + i, ItemStack.CODEC).ifPresent(stack -> {
                 inventory.set(slotIndex, stack);
@@ -1157,6 +1171,8 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
             armY = miningState.getFloat("ArmY").orElse(0f);
             armZ = miningState.getFloat("ArmZ").orElse(0f);
             armInitialized = miningState.getBoolean("ArmInitialized").orElse(false);
+            settlingTicksRemaining = miningState.getInt("SettlingTicks").orElse(0);
+            expectedTravelTicks = miningState.getInt("ExpectedTravelTicks").orElse(0);
         });
 
         // Load custom bounds
@@ -1186,7 +1202,12 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
         super.onBlockReplaced(pos, oldState);
 
         if (world != null && !world.isClient()) {
-            for (int i = 0; i < INVENTORY_SIZE; i++) {
+            // Clear any active breaking animation
+            if (currentTarget != null) {
+                ((ServerWorld) world).setBlockBreakingInfo(breakingEntityId, currentTarget, -1);
+            }
+
+            for (int i = 0; i < QuarryConfig.INVENTORY_SIZE; i++) {
                 ItemStack stack = inventory.get(i);
                 if (!stack.isEmpty()) {
                     ItemEntity itemEntity = new ItemEntity(
@@ -1200,31 +1221,6 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
                 }
             }
         }
-    }
-
-    // Getters for GUI
-    public int getMiningX() {
-        return miningX;
-    }
-
-    public int getMiningY() {
-        return miningY;
-    }
-
-    public int getMiningZ() {
-        return miningZ;
-    }
-
-    public boolean isFinished() {
-        return finished;
-    }
-
-    public float getBreakProgress() {
-        return breakProgress;
-    }
-
-    public float getCurrentBreakTime() {
-        return currentBreakTime;
     }
 
     public Phase getCurrentPhase() {

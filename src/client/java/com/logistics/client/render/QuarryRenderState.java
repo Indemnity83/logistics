@@ -1,5 +1,6 @@
 package com.logistics.client.render;
 
+import com.logistics.quarry.QuarryConfig;
 import com.logistics.quarry.entity.QuarryBlockEntity;
 
 import net.minecraft.client.render.block.entity.state.BlockEntityRenderState;
@@ -41,8 +42,8 @@ public class QuarryRenderState extends BlockEntityRenderState {
     // Light level sampled at the frame top (where horizontal beams are)
     public int frameTopLight;
 
-    // Client-side interpolation speed (blocks per second, matches server ARM_SPEED * 20 ticks/sec)
-    private static final float CLIENT_ARM_SPEED_PER_SECOND = 0.1f * 20f; // 1 block per second
+    // Client-side interpolation speed (blocks per second, derived from server ARM_SPEED * 20 ticks/sec)
+    private static final float CLIENT_ARM_SPEED_PER_SECOND = QuarryConfig.ARM_SPEED * 20f;
 
     // Persistent interpolation state stored per quarry position (survives render state recreation)
     private static final Map<BlockPos, InterpolationState> INTERPOLATION_CACHE = new ConcurrentHashMap<>();

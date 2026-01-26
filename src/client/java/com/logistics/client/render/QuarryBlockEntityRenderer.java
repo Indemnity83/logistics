@@ -2,6 +2,7 @@ package com.logistics.client.render;
 
 import com.logistics.LogisticsMod;
 import com.logistics.quarry.QuarryBlock;
+import com.logistics.quarry.QuarryConfig;
 import com.logistics.quarry.entity.QuarryBlockEntity;
 
 import net.minecraft.client.render.OverlayTexture;
@@ -28,8 +29,6 @@ import org.jetbrains.annotations.Nullable;
 public class QuarryBlockEntityRenderer implements BlockEntityRenderer<QuarryBlockEntity, QuarryRenderState> {
     private static final Identifier ARM_MODEL_ID = Identifier.of(LogisticsMod.MOD_ID, "block/quarry_gantry_arm");
     private static final Identifier DRILL_MODEL_ID = Identifier.of(LogisticsMod.MOD_ID, "block/quarry_drill");
-    private static final int CHUNK_SIZE = 16;
-    private static final int Y_OFFSET_ABOVE = 4;
 
     public QuarryBlockEntityRenderer(BlockEntityRendererFactory.Context ctx) {
     }
@@ -73,7 +72,7 @@ public class QuarryBlockEntityRenderer implements BlockEntityRenderer<QuarryBloc
         switch (state.facing) {
             case NORTH:
                 state.frameStartX = quarryPos.getX() - 8;
-                state.frameStartZ = quarryPos.getZ() - CHUNK_SIZE;
+                state.frameStartZ = quarryPos.getZ() - QuarryConfig.CHUNK_SIZE;
                 break;
             case SOUTH:
                 state.frameStartX = quarryPos.getX() - 8;
@@ -84,7 +83,7 @@ public class QuarryBlockEntityRenderer implements BlockEntityRenderer<QuarryBloc
                 state.frameStartZ = quarryPos.getZ() - 8;
                 break;
             case WEST:
-                state.frameStartX = quarryPos.getX() - CHUNK_SIZE;
+                state.frameStartX = quarryPos.getX() - QuarryConfig.CHUNK_SIZE;
                 state.frameStartZ = quarryPos.getZ() - 8;
                 break;
             default:
@@ -92,9 +91,9 @@ public class QuarryBlockEntityRenderer implements BlockEntityRenderer<QuarryBloc
                 return;
         }
 
-        state.frameEndX = state.frameStartX + CHUNK_SIZE - 1;
-        state.frameEndZ = state.frameStartZ + CHUNK_SIZE - 1;
-        state.frameTopY = quarryPos.getY() + Y_OFFSET_ABOVE;
+        state.frameEndX = state.frameStartX + QuarryConfig.CHUNK_SIZE - 1;
+        state.frameEndZ = state.frameStartZ + QuarryConfig.CHUNK_SIZE - 1;
+        state.frameTopY = quarryPos.getY() + QuarryConfig.Y_OFFSET_ABOVE;
 
         // Sample light at the frame top level (where the horizontal beams are)
         BlockPos frameTopPos = new BlockPos(
@@ -144,15 +143,15 @@ public class QuarryBlockEntityRenderer implements BlockEntityRenderer<QuarryBloc
         int light = state.frameTopLight;
 
         // East-West beam: at armZ, spanning inside the frame (not overlapping frame blocks)
-        // Start 1 block inside the frame, span 14 blocks (CHUNK_SIZE - 2)
+        // Start 1 block inside the frame, span 14 blocks (QuarryConfig.CHUNK_SIZE - 2)
         renderHorizontalBeam(matrices, queue, armModel, renderLayer, light,
                 state.frameStartX + 1 - quarryX, relFrameTopY, relArmZ,
-                CHUNK_SIZE - 1, true); // true = along X axis
+                QuarryConfig.CHUNK_SIZE - 1, true); // true = along X axis
 
         // North-South beam: at armX, spanning inside the frame
         renderHorizontalBeam(matrices, queue, armModel, renderLayer, light,
                 relArmX, relFrameTopY, state.frameStartZ + 1 - quarryZ,
-                CHUNK_SIZE - 1, false); // false = along Z axis
+                QuarryConfig.CHUNK_SIZE - 1, false); // false = along Z axis
 
         // Vertical drill beam: starts 0.5 above frameTopY to connect with horizontal beams
         float verticalStartY = relFrameTopY + 0.75f;
