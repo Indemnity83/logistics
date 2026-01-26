@@ -75,32 +75,38 @@ public class QuarryBlockEntityRenderer implements BlockEntityRenderer<QuarryBloc
         // Get facing direction
         state.facing = QuarryBlock.getMiningDirection(blockState);
 
-        // Calculate frame bounds based on facing
+        // Calculate frame bounds - use custom bounds if available, otherwise calculate from facing
         BlockPos quarryPos = state.quarryPos;
-        switch (state.facing) {
-            case NORTH:
-                state.frameStartX = quarryPos.getX() - 8;
-                state.frameStartZ = quarryPos.getZ() - QuarryConfig.CHUNK_SIZE;
-                break;
-            case SOUTH:
-                state.frameStartX = quarryPos.getX() - 8;
-                state.frameStartZ = quarryPos.getZ() + 1;
-                break;
-            case EAST:
-                state.frameStartX = quarryPos.getX() + 1;
-                state.frameStartZ = quarryPos.getZ() - 8;
-                break;
-            case WEST:
-                state.frameStartX = quarryPos.getX() - QuarryConfig.CHUNK_SIZE;
-                state.frameStartZ = quarryPos.getZ() - 8;
-                break;
-            default:
-                state.shouldRenderArm = false;
-                return;
+        if (entity.hasCustomBounds()) {
+            state.frameStartX = entity.getCustomMinX();
+            state.frameStartZ = entity.getCustomMinZ();
+            state.frameEndX = entity.getCustomMaxX();
+            state.frameEndZ = entity.getCustomMaxZ();
+        } else {
+            switch (state.facing) {
+                case NORTH:
+                    state.frameStartX = quarryPos.getX() - 8;
+                    state.frameStartZ = quarryPos.getZ() - QuarryConfig.CHUNK_SIZE;
+                    break;
+                case SOUTH:
+                    state.frameStartX = quarryPos.getX() - 8;
+                    state.frameStartZ = quarryPos.getZ() + 1;
+                    break;
+                case EAST:
+                    state.frameStartX = quarryPos.getX() + 1;
+                    state.frameStartZ = quarryPos.getZ() - 8;
+                    break;
+                case WEST:
+                    state.frameStartX = quarryPos.getX() - QuarryConfig.CHUNK_SIZE;
+                    state.frameStartZ = quarryPos.getZ() - 8;
+                    break;
+                default:
+                    state.shouldRenderArm = false;
+                    return;
+            }
+            state.frameEndX = state.frameStartX + QuarryConfig.CHUNK_SIZE - 1;
+            state.frameEndZ = state.frameStartZ + QuarryConfig.CHUNK_SIZE - 1;
         }
-
-        state.frameEndX = state.frameStartX + QuarryConfig.CHUNK_SIZE - 1;
-        state.frameEndZ = state.frameStartZ + QuarryConfig.CHUNK_SIZE - 1;
         state.frameTopY = quarryPos.getY() + QuarryConfig.Y_OFFSET_ABOVE;
 
         // Sample light at the frame top level (where the horizontal beams are)
@@ -150,16 +156,19 @@ public class QuarryBlockEntityRenderer implements BlockEntityRenderer<QuarryBloc
         // Use light level from frame top (where horizontal beams connect)
         int light = state.frameTopLight;
 
+        // Calculate beam lengths from actual frame bounds
+        int beamLengthX = state.frameEndX - state.frameStartX; // Width of frame minus 1 (inside frame)
+        int beamLengthZ = state.frameEndZ - state.frameStartZ; // Depth of frame minus 1 (inside frame)
+
         // East-West beam: at armZ, spanning inside the frame (not overlapping frame blocks)
-        // Start 1 block inside the frame, span 14 blocks (QuarryConfig.CHUNK_SIZE - 2)
         renderHorizontalBeam(matrices, queue, armModel, renderLayer, light,
                 state.frameStartX + 1 - quarryX, relFrameTopY, relArmZ,
-                QuarryConfig.CHUNK_SIZE - 1, true); // true = along X axis
+                beamLengthX, true); // true = along X axis
 
         // North-South beam: at armX, spanning inside the frame
         renderHorizontalBeam(matrices, queue, armModel, renderLayer, light,
                 relArmX, relFrameTopY, state.frameStartZ + 1 - quarryZ,
-                QuarryConfig.CHUNK_SIZE - 1, false); // false = along Z axis
+                beamLengthZ, false); // false = along Z axis
 
         // Vertical drill beam: starts 0.5 above frameTopY to connect with horizontal beams
         float verticalStartY = relFrameTopY + 0.75f;
