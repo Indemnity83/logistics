@@ -368,10 +368,36 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
                 entity.resetBreakProgress();
 
                 // Skip air blocks immediately to find the next real target
-                // This prevents the arm from briefly moving towards air before correcting
                 entity.skipToNextSolidBlock(world, state);
 
-                entity.armState = ArmState.MOVING; // Move to next target
+                // Calculate the new target position and set arm there immediately
+                // The client handles smooth interpolation, so we can set the target directly
+                BlockPos nextTarget = entity.calculateMiningTargetPos(state);
+                if (nextTarget != null) {
+                    float oldArmX = entity.armX;
+                    float oldArmY = entity.armY;
+                    float oldArmZ = entity.armZ;
+
+                    // Set arm to new target position
+                    entity.armX = nextTarget.getX() + 0.5f;
+                    entity.armY = nextTarget.getY() + 1.0f;
+                    entity.armZ = nextTarget.getZ() + 0.5f;
+
+                    // Calculate travel time for settling (client interpolation catch-up)
+                    float dx = entity.armX - oldArmX;
+                    float dy = entity.armY - oldArmY;
+                    float dz = entity.armZ - oldArmZ;
+                    float distance = (float) Math.sqrt(dx * dx + dy * dy + dz * dz);
+                    entity.expectedTravelTicks = (int) Math.ceil(distance / QuarryConfig.ARM_SPEED);
+
+                    // Go directly to SETTLING to wait for client interpolation
+                    entity.armState = ArmState.SETTLING;
+                    entity.settlingTicksRemaining = Math.max(1, entity.expectedTravelTicks);
+                    entity.currentTarget = nextTarget;
+                } else {
+                    // No more targets - finished
+                    entity.armState = ArmState.MOVING;
+                }
                 entity.syncToClients();
             }
         }
