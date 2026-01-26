@@ -187,36 +187,115 @@ public final class MarkerManager {
 
     /**
      * Check for a valid marker area in the given direction from the quarry position.
+     * Searches outward in expanding shells constrained to the half-space in the given direction.
      */
     @Nullable private static MarkerBounds checkForMarkerAreaInDirection(World world, BlockPos quarryPos, Direction dir) {
-        // Search for active markers near the quarry
-        int searchRadius = MAX_MARKER_DISTANCE;
         Set<MarkerBlockEntity> checkedMarkers = new HashSet<>();
 
-        for (int dx = -searchRadius; dx <= searchRadius; dx++) {
-            for (int dz = -searchRadius; dz <= searchRadius; dz++) {
-                for (int dy = -10; dy <= 10; dy++) {
-                    BlockPos checkPos = quarryPos.add(dx, dy, dz);
-                    BlockEntity entity = world.getBlockEntity(checkPos);
+        int quarryX = quarryPos.getX();
+        int quarryY = quarryPos.getY();
+        int quarryZ = quarryPos.getZ();
 
-                    if (entity instanceof MarkerBlockEntity marker && marker.isActive() && marker.hasValidBounds()) {
-                        if (checkedMarkers.contains(marker)) continue;
-                        checkedMarkers.add(marker);
+        // Y search range - markers are typically at or near quarry level
+        int minDY = -3;
+        int maxDY = 3;
 
-                        // Check if quarry is adjacent to this marker's bounds
-                        BlockPos min = marker.getBoundMin();
-                        BlockPos max = marker.getBoundMax();
+        // Search outward in expanding shells in the given direction
+        for (int distance = 1; distance <= MAX_MARKER_DISTANCE; distance++) {
+            // For each distance, check positions on the face perpendicular to the search direction
+            // Also check positions along the sides that extend into this direction's half-space
 
-                        if (isAdjacentToBounds(quarryPos, min, max)) {
-                            // Collect all markers in this configuration
-                            List<BlockPos> allMarkers = new ArrayList<>();
-                            allMarkers.add(checkPos);
-                            allMarkers.addAll(marker.getConnectedMarkers());
+            for (int dy = minDY; dy <= maxDY; dy++) {
+                int y = quarryY + dy;
 
-                            return new MarkerBounds(min, max, allMarkers);
+                switch (dir) {
+                    case NORTH -> {
+                        // Search face at z = quarryZ - distance, x from -distance to +distance
+                        int z = quarryZ - distance;
+                        for (int dx = -distance; dx <= distance; dx++) {
+                            MarkerBounds result = checkMarkerPosition(world, quarryPos, quarryX + dx, y, z, checkedMarkers);
+                            if (result != null) return result;
+                        }
+                        // Also check side edges at this distance (x = quarryX +/- distance, z from -(distance-1) to -1)
+                        for (int dz = 1; dz < distance; dz++) {
+                            MarkerBounds result = checkMarkerPosition(world, quarryPos, quarryX - distance, y, quarryZ - dz, checkedMarkers);
+                            if (result != null) return result;
+                            result = checkMarkerPosition(world, quarryPos, quarryX + distance, y, quarryZ - dz, checkedMarkers);
+                            if (result != null) return result;
                         }
                     }
+                    case SOUTH -> {
+                        // Search face at z = quarryZ + distance
+                        int z = quarryZ + distance;
+                        for (int dx = -distance; dx <= distance; dx++) {
+                            MarkerBounds result = checkMarkerPosition(world, quarryPos, quarryX + dx, y, z, checkedMarkers);
+                            if (result != null) return result;
+                        }
+                        // Side edges
+                        for (int dz = 1; dz < distance; dz++) {
+                            MarkerBounds result = checkMarkerPosition(world, quarryPos, quarryX - distance, y, quarryZ + dz, checkedMarkers);
+                            if (result != null) return result;
+                            result = checkMarkerPosition(world, quarryPos, quarryX + distance, y, quarryZ + dz, checkedMarkers);
+                            if (result != null) return result;
+                        }
+                    }
+                    case EAST -> {
+                        // Search face at x = quarryX + distance
+                        int x = quarryX + distance;
+                        for (int dz = -distance; dz <= distance; dz++) {
+                            MarkerBounds result = checkMarkerPosition(world, quarryPos, x, y, quarryZ + dz, checkedMarkers);
+                            if (result != null) return result;
+                        }
+                        // Side edges
+                        for (int dx = 1; dx < distance; dx++) {
+                            MarkerBounds result = checkMarkerPosition(world, quarryPos, quarryX + dx, y, quarryZ - distance, checkedMarkers);
+                            if (result != null) return result;
+                            result = checkMarkerPosition(world, quarryPos, quarryX + dx, y, quarryZ + distance, checkedMarkers);
+                            if (result != null) return result;
+                        }
+                    }
+                    case WEST -> {
+                        // Search face at x = quarryX - distance
+                        int x = quarryX - distance;
+                        for (int dz = -distance; dz <= distance; dz++) {
+                            MarkerBounds result = checkMarkerPosition(world, quarryPos, x, y, quarryZ + dz, checkedMarkers);
+                            if (result != null) return result;
+                        }
+                        // Side edges
+                        for (int dx = 1; dx < distance; dx++) {
+                            MarkerBounds result = checkMarkerPosition(world, quarryPos, quarryX - dx, y, quarryZ - distance, checkedMarkers);
+                            if (result != null) return result;
+                            result = checkMarkerPosition(world, quarryPos, quarryX - dx, y, quarryZ + distance, checkedMarkers);
+                            if (result != null) return result;
+                        }
+                    }
+                    default -> { /* UP/DOWN not used for horizontal marker search */ }
                 }
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Check a single position for a valid marker that defines bounds adjacent to the quarry.
+     */
+    @Nullable private static MarkerBounds checkMarkerPosition(World world, BlockPos quarryPos, int x, int y, int z, Set<MarkerBlockEntity> checkedMarkers) {
+        BlockPos checkPos = new BlockPos(x, y, z);
+        BlockEntity entity = world.getBlockEntity(checkPos);
+
+        if (entity instanceof MarkerBlockEntity marker && marker.isActive() && marker.hasValidBounds()) {
+            if (checkedMarkers.contains(marker)) return null;
+            checkedMarkers.add(marker);
+
+            BlockPos min = marker.getBoundMin();
+            BlockPos max = marker.getBoundMax();
+
+            if (isAdjacentToBounds(quarryPos, min, max)) {
+                List<BlockPos> allMarkers = new ArrayList<>();
+                allMarkers.add(checkPos);
+                allMarkers.addAll(marker.getConnectedMarkers());
+                return new MarkerBounds(min, max, allMarkers);
             }
         }
 
