@@ -5,6 +5,7 @@ import com.logistics.quarry.QuarryBlock;
 import com.logistics.quarry.QuarryConfig;
 import com.logistics.quarry.entity.QuarryBlockEntity;
 
+import net.minecraft.block.BlockState;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.RenderLayers;
@@ -64,8 +65,15 @@ public class QuarryBlockEntityRenderer implements BlockEntityRenderer<QuarryBloc
             return;
         }
 
+        // Check if the block is still a quarry (could be removed/replaced)
+        BlockState blockState = world.getBlockState(state.quarryPos);
+        if (!(blockState.getBlock() instanceof QuarryBlock)) {
+            state.shouldRenderArm = false;
+            return;
+        }
+
         // Get facing direction
-        state.facing = QuarryBlock.getMiningDirection(world.getBlockState(state.quarryPos));
+        state.facing = QuarryBlock.getMiningDirection(blockState);
 
         // Calculate frame bounds based on facing
         BlockPos quarryPos = state.quarryPos;
