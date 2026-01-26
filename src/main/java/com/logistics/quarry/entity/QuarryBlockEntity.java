@@ -1325,4 +1325,25 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
     public boolean isArmInitialized() {
         return armInitialized;
     }
+
+    // Custom bounds getters for frame decay logic
+    public boolean hasCustomBounds() {
+        return useCustomBounds;
+    }
+
+    public int getCustomMinX() {
+        return customMinX;
+    }
+
+    public int getCustomMinZ() {
+        return customMinZ;
+    }
+
+    public int getCustomMaxX() {
+        return customMaxX;
+    }
+
+    public int getCustomMaxZ() {
+        return customMaxZ;
+    }
 }

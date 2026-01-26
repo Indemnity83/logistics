@@ -1,9 +1,11 @@
 package com.logistics.quarry;
 
+import com.logistics.quarry.entity.QuarryBlockEntity;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.ShapeContext;
+import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.StateManager;
@@ -137,9 +139,9 @@ public class QuarryFrameBlock extends Block {
     private boolean hasOwningQuarry(ServerWorld world, BlockPos framePos) {
         // Frame can be at quarry Y level (bottom ring), Y+1 to Y+3 (pillars), or Y+4 (top ring)
         // So quarry Y could be: framePos.Y, framePos.Y-1, ..., framePos.Y-4
-        // Horizontally, frame extends up to CHUNK_SIZE blocks from quarry
+        // Horizontally, frame could extend far for custom bounds, use larger search radius
 
-        int searchRadius = QuarryConfig.CHUNK_SIZE + 8;
+        int searchRadius = 64; // Support large custom bounds
 
         for (int dy = 0; dy >= -QuarryConfig.Y_OFFSET_ABOVE; dy--) {
             int quarryY = framePos.getY() + dy;
@@ -150,7 +152,7 @@ public class QuarryFrameBlock extends Block {
                     BlockState checkState = world.getBlockState(checkPos);
 
                     if (checkState.getBlock() instanceof QuarryBlock) {
-                        if (isFramePositionForQuarry(checkPos, checkState, framePos)) {
+                        if (isFramePositionForQuarry(world, checkPos, checkState, framePos)) {
                             return true;
                         }
                     }
@@ -164,34 +166,44 @@ public class QuarryFrameBlock extends Block {
     /**
      * Check if a frame position belongs to a specific quarry.
      */
-    private boolean isFramePositionForQuarry(BlockPos quarryPos, BlockState quarryState, BlockPos framePos) {
-        Direction facing = QuarryBlock.getMiningDirection(quarryState);
+    private boolean isFramePositionForQuarry(ServerWorld world, BlockPos quarryPos, BlockState quarryState, BlockPos framePos) {
+        // Get frame bounds - check if quarry has custom bounds
+        int startX, startZ, endX, endZ;
 
-        // Calculate frame bounds for this quarry
-        int startX, startZ;
-        switch (facing) {
-            case NORTH:
-                startX = quarryPos.getX() - 8;
-                startZ = quarryPos.getZ() - QuarryConfig.CHUNK_SIZE;
-                break;
-            case SOUTH:
-                startX = quarryPos.getX() - 8;
-                startZ = quarryPos.getZ() + 1;
-                break;
-            case EAST:
-                startX = quarryPos.getX() + 1;
-                startZ = quarryPos.getZ() - 8;
-                break;
-            case WEST:
-                startX = quarryPos.getX() - QuarryConfig.CHUNK_SIZE;
-                startZ = quarryPos.getZ() - 8;
-                break;
-            default:
-                return false;
+        BlockEntity entity = world.getBlockEntity(quarryPos);
+        if (entity instanceof QuarryBlockEntity quarry && quarry.hasCustomBounds()) {
+            // Use custom bounds from the quarry
+            startX = quarry.getCustomMinX();
+            startZ = quarry.getCustomMinZ();
+            endX = quarry.getCustomMaxX();
+            endZ = quarry.getCustomMaxZ();
+        } else {
+            // Calculate default bounds from facing direction
+            Direction facing = QuarryBlock.getMiningDirection(quarryState);
+            switch (facing) {
+                case NORTH:
+                    startX = quarryPos.getX() - 8;
+                    startZ = quarryPos.getZ() - QuarryConfig.CHUNK_SIZE;
+                    break;
+                case SOUTH:
+                    startX = quarryPos.getX() - 8;
+                    startZ = quarryPos.getZ() + 1;
+                    break;
+                case EAST:
+                    startX = quarryPos.getX() + 1;
+                    startZ = quarryPos.getZ() - 8;
+                    break;
+                case WEST:
+                    startX = quarryPos.getX() - QuarryConfig.CHUNK_SIZE;
+                    startZ = quarryPos.getZ() - 8;
+                    break;
+                default:
+                    return false;
+            }
+            endX = startX + QuarryConfig.CHUNK_SIZE - 1;
+            endZ = startZ + QuarryConfig.CHUNK_SIZE - 1;
         }
 
-        int endX = startX + QuarryConfig.CHUNK_SIZE - 1;
-        int endZ = startZ + QuarryConfig.CHUNK_SIZE - 1;
         int bottomY = quarryPos.getY();
         int topY = quarryPos.getY() + QuarryConfig.Y_OFFSET_ABOVE;
 
