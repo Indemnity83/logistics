@@ -5,11 +5,13 @@ import com.logistics.block.entity.LogisticsBlockEntities;
 import com.logistics.client.render.MarkerBlockEntityRenderer;
 import com.logistics.client.render.PipeBlockEntityRenderer;
 import com.logistics.client.render.PipeModelRegistry;
+import com.logistics.client.render.QuarryBlockEntityRenderer;
 import com.logistics.client.screen.ItemFilterScreen;
 import com.logistics.client.screen.QuarryScreen;
 import com.logistics.marker.MarkerBlockEntities;
 import com.logistics.marker.MarkerBlocks;
 import com.logistics.pipe.ui.PipeScreenHandlers;
+import com.logistics.quarry.QuarryBlockEntities;
 import com.logistics.quarry.QuarryBlocks;
 import com.logistics.quarry.ui.QuarryScreenHandlers;
 
@@ -47,6 +49,9 @@ public class LogisticsModClient implements ClientModInitializer {
 
         // Register block entity renderer for markers
         BlockEntityRendererFactories.register(MarkerBlockEntities.MARKER_BLOCK_ENTITY, MarkerBlockEntityRenderer::new);
+
+        // Register block entity renderer for quarry arm
+        BlockEntityRendererFactories.register(QuarryBlockEntities.QUARRY_BLOCK_ENTITY, QuarryBlockEntityRenderer::new);
 
         HandledScreens.register(PipeScreenHandlers.ITEM_FILTER, ItemFilterScreen::new);
         HandledScreens.register(QuarryScreenHandlers.QUARRY, QuarryScreen::new);
