@@ -10,6 +10,7 @@ import com.logistics.client.screen.QuarryScreen;
 import com.logistics.marker.MarkerBlockEntities;
 import com.logistics.marker.MarkerBlocks;
 import com.logistics.pipe.ui.PipeScreenHandlers;
+import com.logistics.quarry.QuarryBlocks;
 import com.logistics.quarry.ui.QuarryScreenHandlers;
 
 import net.fabricmc.api.ClientModInitializer;
@@ -37,6 +38,9 @@ public class LogisticsModClient implements ClientModInitializer {
 
         // Register marker block to render with transparency
         BlockRenderLayerMap.putBlock(MarkerBlocks.MARKER, BlockRenderLayer.CUTOUT);
+
+        // Register quarry frame to render with transparency
+        BlockRenderLayerMap.putBlock(QuarryBlocks.QUARRY_FRAME, BlockRenderLayer.CUTOUT);
 
         // Register block entity renderer for traveling items
         BlockEntityRendererFactories.register(LogisticsBlockEntities.PIPE_BLOCK_ENTITY, PipeBlockEntityRenderer::new);

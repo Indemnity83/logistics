@@ -8,6 +8,8 @@ import com.logistics.pipe.runtime.PipeConfig;
 import com.logistics.pipe.runtime.TravelingItem;
 import com.logistics.quarry.QuarryBlock;
 import com.logistics.quarry.QuarryBlockEntities;
+import com.logistics.quarry.QuarryBlocks;
+import com.logistics.quarry.QuarryFrameBlock;
 import com.logistics.quarry.ui.QuarryScreenHandler;
 
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
@@ -42,11 +44,25 @@ import org.jetbrains.annotations.Nullable;
 
 public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHandlerFactory<BlockPos>, Inventory, SidedInventory {
     private static final int CHUNK_SIZE = 16;
+    private static final int INNER_SIZE = 14; // Mining area is 1 block inset from frame
     private static final int Y_OFFSET_ABOVE = 4;
     private static final int INVENTORY_SIZE = 9;
     private static final int[] TOOL_SLOTS = {0, 1, 2, 3, 4, 5, 6, 7, 8};
 
+    /**
+     * Quarry operation phases.
+     */
+    public enum Phase {
+        CLEARING,       // Clearing the area above and at quarry level
+        BUILDING_FRAME, // Building the frame around the quarry area
+        MINING          // Mining below quarry level
+    }
+
     private final DefaultedList<ItemStack> inventory = DefaultedList.ofSize(INVENTORY_SIZE, ItemStack.EMPTY);
+
+    // Phase state
+    private Phase currentPhase = Phase.CLEARING;
+    private int frameBuildIndex = 0;
 
     // Mining state
     private int miningX = 0;
@@ -86,15 +102,100 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
         return new QuarryScreenHandler(syncId, playerInventory, this);
     }
 
+    private static final int MAX_SKIP_PER_TICK = 256;
+
     public static void tick(World world, BlockPos pos, BlockState state, QuarryBlockEntity entity) {
         if (world.isClient() || entity.finished) {
             return;
         }
 
         ServerWorld serverWorld = (ServerWorld) world;
-        int toolSlot = entity.findFirstToolSlot();
 
-        // No tool available = stop
+        switch (entity.currentPhase) {
+            case CLEARING -> tickClearing(serverWorld, pos, state, entity);
+            case BUILDING_FRAME -> tickBuildingFrame(serverWorld, pos, state, entity);
+            case MINING -> tickMining(serverWorld, pos, state, entity);
+        }
+    }
+
+    private static void tickClearing(ServerWorld world, BlockPos pos, BlockState state, QuarryBlockEntity entity) {
+        int toolSlot = entity.findFirstToolSlot();
+        if (toolSlot < 0) {
+            entity.resetBreakProgress();
+            return;
+        }
+
+        ItemStack tool = entity.getStack(toolSlot);
+        int quarryY = pos.getY();
+
+        // Skip quickly through blocks at or above quarry level
+        BlockPos target = null;
+        BlockState targetState = null;
+        for (int skipped = 0; skipped < MAX_SKIP_PER_TICK; skipped++) {
+            target = entity.calculateClearingTargetPos(state);
+            if (target == null) {
+                // Finished clearing, move to building phase
+                entity.currentPhase = Phase.BUILDING_FRAME;
+                entity.frameBuildIndex = 0;
+                entity.markDirty();
+                return;
+            }
+
+            targetState = world.getBlockState(target);
+
+            if (!entity.shouldSkipBlock(targetState)) {
+                break;
+            }
+
+            entity.advanceToNextBlock();
+            entity.resetBreakProgress();
+        }
+
+        if (entity.shouldSkipBlock(targetState)) {
+            return;
+        }
+
+        // Mine the block
+        if (!target.equals(entity.currentTarget) || entity.currentBreakTime < 0) {
+            entity.currentTarget = target;
+            entity.currentBreakTime = entity.calculateBreakTime(targetState, tool, world);
+        }
+
+        entity.breakProgress += 1f;
+
+        if (entity.breakProgress >= entity.currentBreakTime) {
+            entity.mineBlock(world, target, targetState, tool, toolSlot);
+            entity.advanceToNextBlock();
+            entity.resetBreakProgress();
+        }
+    }
+
+    private static void tickBuildingFrame(ServerWorld world, BlockPos pos, BlockState state, QuarryBlockEntity entity) {
+        // Build one frame block per tick
+        BlockPos framePos = entity.getNextFramePosition(state);
+        if (framePos == null) {
+            // Finished building frame, move to mining phase
+            entity.currentPhase = Phase.MINING;
+            entity.miningX = 0;
+            entity.miningY = 0;
+            entity.miningZ = 0;
+            entity.markDirty();
+            return;
+        }
+
+        // Only place frame if the position is air or replaceable
+        BlockState existingState = world.getBlockState(framePos);
+        if (existingState.isAir() || existingState.isReplaceable()) {
+            BlockState frameState = entity.calculateFrameState(state, framePos);
+            world.setBlockState(framePos, frameState);
+        }
+
+        entity.frameBuildIndex++;
+        entity.markDirty();
+    }
+
+    private static void tickMining(ServerWorld world, BlockPos pos, BlockState state, QuarryBlockEntity entity) {
+        int toolSlot = entity.findFirstToolSlot();
         if (toolSlot < 0) {
             entity.resetBreakProgress();
             return;
@@ -102,8 +203,8 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
 
         ItemStack tool = entity.getStack(toolSlot);
 
-        // Calculate the target position
-        BlockPos target = entity.calculateTargetPos(state);
+        // Mine one block per tick below quarry level (14x14 area)
+        BlockPos target = entity.calculateMiningTargetPos(state);
         if (target == null) {
             entity.finished = true;
             entity.markDirty();
@@ -112,26 +213,22 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
 
         BlockState targetState = world.getBlockState(target);
 
-        // Skip air, fluids, and bedrock
         if (entity.shouldSkipBlock(targetState)) {
-            entity.advanceToNextBlock();
+            entity.advanceMiningPosition();
             entity.resetBreakProgress();
             return;
         }
 
-        // Calculate break time if needed
         if (!target.equals(entity.currentTarget) || entity.currentBreakTime < 0) {
             entity.currentTarget = target;
-            entity.currentBreakTime = entity.calculateBreakTime(targetState, tool, serverWorld);
+            entity.currentBreakTime = entity.calculateBreakTime(targetState, tool, world);
         }
 
-        // Progress the break
         entity.breakProgress += 1f;
 
-        // Check if block is broken
         if (entity.breakProgress >= entity.currentBreakTime) {
-            entity.mineBlock(serverWorld, target, targetState, tool, toolSlot);
-            entity.advanceToNextBlock();
+            entity.mineBlock(world, target, targetState, tool, toolSlot);
+            entity.advanceMiningPosition();
             entity.resetBreakProgress();
         }
     }
@@ -446,6 +543,291 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
     }
 
     /**
+     * Calculate target position for clearing phase (16x16 area at/above quarry level).
+     */
+    private @Nullable BlockPos calculateClearingTargetPos(BlockState quarryState) {
+        Direction facing = QuarryBlock.getMiningDirection(quarryState);
+        BlockPos quarryPos = getPos();
+
+        int startX, startZ;
+        switch (facing) {
+            case NORTH:
+                startX = quarryPos.getX() - 8;
+                startZ = quarryPos.getZ() - CHUNK_SIZE;
+                break;
+            case SOUTH:
+                startX = quarryPos.getX() - 8;
+                startZ = quarryPos.getZ() + 1;
+                break;
+            case EAST:
+                startX = quarryPos.getX() + 1;
+                startZ = quarryPos.getZ() - 8;
+                break;
+            case WEST:
+                startX = quarryPos.getX() - CHUNK_SIZE;
+                startZ = quarryPos.getZ() - 8;
+                break;
+            default:
+                return null;
+        }
+
+        // Clearing phase only works above and at quarry level
+        int startY = quarryPos.getY() + Y_OFFSET_ABOVE;
+        int currentY = startY - miningY;
+
+        // Stop when we go below quarry level
+        if (currentY < quarryPos.getY()) {
+            return null;
+        }
+
+        int targetX = startX + miningX;
+        int targetZ = startZ + miningZ;
+
+        return new BlockPos(targetX, currentY, targetZ);
+    }
+
+    /**
+     * Calculate target position for mining phase (14x14 area below quarry level).
+     * The area is inset 1 block from the 16x16 frame to stay within it.
+     */
+    private @Nullable BlockPos calculateMiningTargetPos(BlockState quarryState) {
+        Direction facing = QuarryBlock.getMiningDirection(quarryState);
+        BlockPos quarryPos = getPos();
+
+        int startX, startZ;
+        switch (facing) {
+            case NORTH:
+                startX = quarryPos.getX() - 8 + 1; // Inset 1 from frame
+                startZ = quarryPos.getZ() - CHUNK_SIZE + 1;
+                break;
+            case SOUTH:
+                startX = quarryPos.getX() - 8 + 1;
+                startZ = quarryPos.getZ() + 1 + 1;
+                break;
+            case EAST:
+                startX = quarryPos.getX() + 1 + 1;
+                startZ = quarryPos.getZ() - 8 + 1;
+                break;
+            case WEST:
+                startX = quarryPos.getX() - CHUNK_SIZE + 1;
+                startZ = quarryPos.getZ() - 8 + 1;
+                break;
+            default:
+                return null;
+        }
+
+        // Mining phase starts 1 block below quarry level
+        int startY = quarryPos.getY() - 1;
+        int currentY = startY - miningY;
+
+        // Stop at bedrock or world bottom
+        if (currentY < world.getBottomY()) {
+            return null;
+        }
+
+        int targetX = startX + miningX;
+        int targetZ = startZ + miningZ;
+
+        return new BlockPos(targetX, currentY, targetZ);
+    }
+
+    /**
+     * Advance mining position for the 14x14 mining area.
+     */
+    private void advanceMiningPosition() {
+        miningX++;
+        if (miningX >= INNER_SIZE) {
+            miningX = 0;
+            miningZ++;
+            if (miningZ >= INNER_SIZE) {
+                miningZ = 0;
+                miningY++;
+            }
+        }
+        markDirty();
+    }
+
+    /**
+     * Get the next frame position to build based on frameBuildIndex.
+     * Frame consists of:
+     * - Bottom ring at quarryY (60 blocks)
+     * - Middle pillars at corners from quarryY+1 to quarryY+3 (4 corners × 3 = 12 blocks)
+     * - Top ring at quarryY+4 (60 blocks)
+     * Total: 132 blocks
+     */
+    private @Nullable BlockPos getNextFramePosition(BlockState quarryState) {
+        Direction facing = QuarryBlock.getMiningDirection(quarryState);
+        BlockPos quarryPos = getPos();
+
+        // Calculate frame bounds (16x16 area)
+        int startX, startZ;
+        switch (facing) {
+            case NORTH:
+                startX = quarryPos.getX() - 8;
+                startZ = quarryPos.getZ() - CHUNK_SIZE;
+                break;
+            case SOUTH:
+                startX = quarryPos.getX() - 8;
+                startZ = quarryPos.getZ() + 1;
+                break;
+            case EAST:
+                startX = quarryPos.getX() + 1;
+                startZ = quarryPos.getZ() - 8;
+                break;
+            case WEST:
+                startX = quarryPos.getX() - CHUNK_SIZE;
+                startZ = quarryPos.getZ() - 8;
+                break;
+            default:
+                return null;
+        }
+
+        int endX = startX + CHUNK_SIZE - 1;
+        int endZ = startZ + CHUNK_SIZE - 1;
+        int bottomY = quarryPos.getY();
+        int topY = quarryPos.getY() + Y_OFFSET_ABOVE;
+
+        // Phase 1: Bottom ring (60 blocks, indices 0-59)
+        if (frameBuildIndex < 60) {
+            return getRingPosition(frameBuildIndex, startX, startZ, endX, endZ, bottomY);
+        }
+
+        // Phase 2: Middle pillars (12 blocks, indices 60-71)
+        int pillarIndex = frameBuildIndex - 60;
+        if (pillarIndex < 12) {
+            int cornerIndex = pillarIndex / 3;
+            int yOffset = (pillarIndex % 3) + 1; // Y+1, Y+2, Y+3
+            int y = bottomY + yOffset;
+
+            return switch (cornerIndex) {
+                case 0 -> new BlockPos(startX, y, startZ);
+                case 1 -> new BlockPos(endX, y, startZ);
+                case 2 -> new BlockPos(endX, y, endZ);
+                case 3 -> new BlockPos(startX, y, endZ);
+                default -> null;
+            };
+        }
+
+        // Phase 3: Top ring (60 blocks, indices 72-131)
+        int topRingIndex = frameBuildIndex - 72;
+        if (topRingIndex < 60) {
+            return getRingPosition(topRingIndex, startX, startZ, endX, endZ, topY);
+        }
+
+        // Done building frame
+        return null;
+    }
+
+    /**
+     * Get a position on a frame ring given an index (0-59).
+     * Iterates around the perimeter: north edge, east edge, south edge, west edge.
+     */
+    private BlockPos getRingPosition(int index, int startX, int startZ, int endX, int endZ, int y) {
+        // North edge: 16 blocks (index 0-15)
+        if (index < 16) {
+            return new BlockPos(startX + index, y, startZ);
+        }
+        index -= 16;
+
+        // East edge: 15 blocks excluding NE corner (index 0-14)
+        if (index < 15) {
+            return new BlockPos(endX, y, startZ + 1 + index);
+        }
+        index -= 15;
+
+        // South edge: 15 blocks excluding SE corner (index 0-14)
+        if (index < 15) {
+            return new BlockPos(endX - 1 - index, y, endZ);
+        }
+        index -= 15;
+
+        // West edge: 14 blocks excluding SW and NW corners (index 0-13)
+        if (index < 14) {
+            return new BlockPos(startX, y, endZ - 1 - index);
+        }
+
+        return null;
+    }
+
+    /**
+     * Calculate the frame block state with appropriate arm connections.
+     */
+    private BlockState calculateFrameState(BlockState quarryState, BlockPos framePos) {
+        Direction facing = QuarryBlock.getMiningDirection(quarryState);
+        BlockPos quarryPos = getPos();
+
+        // Calculate frame bounds
+        int startX, startZ;
+        switch (facing) {
+            case NORTH:
+                startX = quarryPos.getX() - 8;
+                startZ = quarryPos.getZ() - CHUNK_SIZE;
+                break;
+            case SOUTH:
+                startX = quarryPos.getX() - 8;
+                startZ = quarryPos.getZ() + 1;
+                break;
+            case EAST:
+                startX = quarryPos.getX() + 1;
+                startZ = quarryPos.getZ() - 8;
+                break;
+            case WEST:
+                startX = quarryPos.getX() - CHUNK_SIZE;
+                startZ = quarryPos.getZ() - 8;
+                break;
+            default:
+                return QuarryBlocks.QUARRY_FRAME.getDefaultState();
+        }
+
+        int endX = startX + CHUNK_SIZE - 1;
+        int endZ = startZ + CHUNK_SIZE - 1;
+        int bottomY = quarryPos.getY();
+        int topY = quarryPos.getY() + Y_OFFSET_ABOVE;
+
+        int x = framePos.getX();
+        int y = framePos.getY();
+        int z = framePos.getZ();
+
+        // Determine which arms to enable based on position in frame
+        boolean north = false, south = false, east = false, west = false, up = false, down = false;
+
+        // Check if this is a corner position
+        boolean isCornerX = (x == startX || x == endX);
+        boolean isCornerZ = (z == startZ || z == endZ);
+        boolean isCorner = isCornerX && isCornerZ;
+
+        // Vertical connections (corners only, not at very top/bottom if ring exists)
+        if (isCorner) {
+            if (y > bottomY) down = true;
+            if (y < topY) up = true;
+        }
+
+        // Horizontal connections on edges
+        if (y == bottomY || y == topY) {
+            // We're on a ring - connect horizontally
+            if (z == startZ) { // North edge
+                if (x > startX) west = true;
+                if (x < endX) east = true;
+            }
+            if (z == endZ) { // South edge
+                if (x > startX) west = true;
+                if (x < endX) east = true;
+            }
+            if (x == startX) { // West edge
+                if (z > startZ) north = true;
+                if (z < endZ) south = true;
+            }
+            if (x == endX) { // East edge
+                if (z > startZ) north = true;
+                if (z < endZ) south = true;
+            }
+        }
+
+        QuarryFrameBlock frameBlock = (QuarryFrameBlock) QuarryBlocks.QUARRY_FRAME;
+        return frameBlock.withArms(north, south, east, west, up, down);
+    }
+
+    /**
      * Set custom mining bounds from markers.
      * The top Y is derived from the quarry's position + offset (same as default mining).
      */
@@ -582,6 +964,8 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
         miningState.putInt("Z", miningZ);
         miningState.putFloat("Progress", breakProgress);
         miningState.putBoolean("Finished", finished);
+        miningState.putString("Phase", currentPhase.name());
+        miningState.putInt("FrameBuildIndex", frameBuildIndex);
         view.put("MiningState", NbtCompound.CODEC, miningState);
 
         // Save custom bounds
@@ -627,6 +1011,14 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
             miningZ = miningState.getInt("Z").orElse(0);
             breakProgress = miningState.getFloat("Progress").orElse(0f);
             finished = miningState.getBoolean("Finished").orElse(false);
+            frameBuildIndex = miningState.getInt("FrameBuildIndex").orElse(0);
+            miningState.getString("Phase").ifPresent(phaseName -> {
+                try {
+                    currentPhase = Phase.valueOf(phaseName);
+                } catch (IllegalArgumentException e) {
+                    currentPhase = Phase.CLEARING;
+                }
+            });
         });
 
         // Load custom bounds

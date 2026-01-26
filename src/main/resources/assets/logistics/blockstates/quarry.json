@@ -6,11 +6,11 @@
     },
     "facing=south": {
       "model": "logistics:block/quarry",
-      "y": 270
+      "y": 0
     },
     "facing=east": {
       "model": "logistics:block/quarry",
-      "y": 0
+      "y": 270
     },
     "facing=west": {
       "model": "logistics:block/quarry",

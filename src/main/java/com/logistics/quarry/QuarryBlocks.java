@@ -16,6 +16,13 @@ public final class QuarryBlocks {
     private QuarryBlocks() {}
 
     public static final Block QUARRY = register("quarry", QuarryBlock::new);
+    public static final Block QUARRY_FRAME = registerNoItem("quarry_frame", QuarryFrameBlock::new);
+
+    private static Block registerNoItem(String name, java.util.function.Function<AbstractBlock.Settings, Block> blockFactory) {
+        RegistryKey<Block> blockKey = RegistryKey.of(RegistryKeys.BLOCK, Identifier.of(LogisticsMod.MOD_ID, name));
+        Block block = blockFactory.apply(AbstractBlock.Settings.create().registryKey(blockKey).strength(0.5f).nonOpaque());
+        return Registry.register(Registries.BLOCK, blockKey, block);
+    }
 
     private static Block register(String name, java.util.function.Function<AbstractBlock.Settings, Block> blockFactory) {
         RegistryKey<Block> blockKey = RegistryKey.of(RegistryKeys.BLOCK, Identifier.of(LogisticsMod.MOD_ID, name));
