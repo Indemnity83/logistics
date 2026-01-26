@@ -3,6 +3,7 @@ package com.logistics.client.render;
 import com.logistics.quarry.QuarryConfig;
 import com.logistics.quarry.entity.QuarryBlockEntity;
 
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.block.entity.state.BlockEntityRenderState;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -42,8 +43,8 @@ public class QuarryRenderState extends BlockEntityRenderState {
     // Light level sampled at the frame top (where horizontal beams are)
     public int frameTopLight;
 
-    // Client-side interpolation speed (blocks per second, derived from server ARM_SPEED * 20 ticks/sec)
-    private static final float CLIENT_ARM_SPEED_PER_SECOND = QuarryConfig.ARM_SPEED * 20f;
+    // Base client-side interpolation speed (blocks per tick, matching server ARM_SPEED)
+    private static final float CLIENT_ARM_SPEED_PER_TICK = QuarryConfig.ARM_SPEED;
 
     // Persistent interpolation state stored per quarry position (survives render state recreation)
     private static final Map<BlockPos, InterpolationState> INTERPOLATION_CACHE = new ConcurrentHashMap<>();
@@ -56,7 +57,8 @@ public class QuarryRenderState extends BlockEntityRenderState {
 
     /**
      * Update client-side interpolated position to smoothly move towards server position.
-     * Uses real time for frame-rate independent movement.
+     * Uses real time scaled by current tick rate for frame-rate independent movement
+     * that respects game speed changes (e.g., /tick rate command).
      * State is persisted in a static cache to survive render state recreation.
      */
     public void updateClientInterpolation() {
@@ -85,7 +87,16 @@ public class QuarryRenderState extends BlockEntityRenderState {
         // Clamp delta to avoid huge jumps after pauses
         deltaSeconds = Math.min(deltaSeconds, 0.1f);
 
-        float moveDistance = CLIENT_ARM_SPEED_PER_SECOND * deltaSeconds;
+        // Get current tick rate (default 20, but can be changed with /tick rate)
+        float tickRate = 20f;
+        MinecraftClient client = MinecraftClient.getInstance();
+        if (client.world != null) {
+            tickRate = client.world.getTickManager().getTickRate();
+        }
+
+        // Speed in blocks per second = speed per tick * ticks per second
+        float speedPerSecond = CLIENT_ARM_SPEED_PER_TICK * tickRate;
+        float moveDistance = speedPerSecond * deltaSeconds;
 
         // Smoothly interpolate towards server position
         float dx = serverArmX - interp.renderArmX;
