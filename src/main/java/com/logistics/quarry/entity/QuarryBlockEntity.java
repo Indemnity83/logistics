@@ -88,6 +88,7 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
     // Cached values for the current mining target
     private BlockPos currentTarget = null;
     private float currentBreakTime = -1f;
+    private int activeToolSlot = -1; // Slot of tool currently being used for breaking
 
     // Block breaking animation entity ID (use position hash for uniqueness)
     private int breakingEntityId = -1;
@@ -298,10 +299,10 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
             if (entity.settlingTicksRemaining <= 0) {
                 // Start breaking
                 entity.armState = ArmState.BREAKING;
+                entity.activeToolSlot = entity.findFirstToolSlot();
                 BlockState targetState = world.getBlockState(target);
-                int toolSlot = entity.findFirstToolSlot();
-                if (toolSlot >= 0) {
-                    ItemStack tool = entity.getStack(toolSlot);
+                if (entity.activeToolSlot >= 0) {
+                    ItemStack tool = entity.getStack(entity.activeToolSlot);
                     entity.currentBreakTime = entity.calculateBreakTime(targetState, tool, world);
                 } else {
                     entity.currentBreakTime = -1f;
@@ -315,13 +316,37 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
                     world.setBlockBreakingInfo(entity.breakingEntityId, target, -1);
                 }
                 entity.resetBreakProgress();
+                entity.activeToolSlot = -1;
                 return;
             }
 
-            ItemStack tool = entity.getStack(toolSlot);
+            // Check if the active tool was removed or changed
+            boolean toolChanged = false;
+            if (entity.activeToolSlot < 0) {
+                // No active tool, use the found one
+                toolChanged = true;
+            } else if (entity.activeToolSlot != toolSlot) {
+                // Active tool slot is no longer the first valid tool (tool was removed)
+                ItemStack activeStack = entity.getStack(entity.activeToolSlot);
+                if (activeStack.isEmpty() || activeStack.getMaxDamage() <= 0) {
+                    // Tool in active slot was removed or is no longer valid
+                    toolChanged = true;
+                }
+            }
+
+            if (toolChanged) {
+                // Tool changed - reset progress and recalculate with new tool
+                if (target != null) {
+                    world.setBlockBreakingInfo(entity.breakingEntityId, target, -1);
+                }
+                entity.resetBreakProgress();
+                entity.activeToolSlot = toolSlot;
+            }
+
+            ItemStack tool = entity.getStack(entity.activeToolSlot);
             BlockState targetState = world.getBlockState(target);
 
-            // Recalculate break time if target changed (shouldn't happen normally)
+            // Recalculate break time if target changed or tool changed
             if (!target.equals(entity.currentTarget) || entity.currentBreakTime < 0) {
                 entity.currentTarget = target;
                 entity.currentBreakTime = entity.calculateBreakTime(targetState, tool, world);
@@ -338,7 +363,7 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
                 // Clear breaking animation
                 world.setBlockBreakingInfo(entity.breakingEntityId, target, -1);
 
-                entity.mineBlock(world, target, targetState, tool, toolSlot);
+                entity.mineBlock(world, target, targetState, tool, entity.activeToolSlot);
                 entity.advanceMiningPosition();
                 entity.resetBreakProgress();
 
@@ -985,6 +1010,7 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
         breakProgress = 0f;
         currentTarget = null;
         currentBreakTime = -1f;
+        activeToolSlot = -1;
     }
 
     // Inventory implementation
