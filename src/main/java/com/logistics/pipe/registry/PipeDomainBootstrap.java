@@ -3,7 +3,7 @@ package com.logistics.pipe.registry;
 import com.logistics.LogisticsMod;
 import com.logistics.core.bootstrap.DomainBootstrap;
 import com.logistics.pipe.data.PipeDataComponents;
-import com.logistics.util.TimingLog;
+import com.logistics.core.util.TimingLog;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
 
 public final class PipeDomainBootstrap implements DomainBootstrap {

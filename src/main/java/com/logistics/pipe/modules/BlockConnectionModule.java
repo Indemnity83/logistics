@@ -17,7 +17,7 @@ public class BlockConnectionModule implements Module {
     @Override
     public boolean allowsConnection(
             @Nullable PipeContext ctx, Direction direction, Pipe selfPipe, Block neighborBlock) {
-        if (neighborBlock instanceof com.logistics.block.PipeBlock neighborPipeBlock) {
+        if (neighborBlock instanceof com.logistics.pipe.block.PipeBlock neighborPipeBlock) {
             Pipe neighborPipe = neighborPipeBlock.getPipe();
             Pipe blocked = blockedPipe.get();
             return neighborPipe == null || neighborPipe != blocked;

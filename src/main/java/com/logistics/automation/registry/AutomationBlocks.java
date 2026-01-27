@@ -1,8 +1,8 @@
 package com.logistics.automation.registry;
 
 import com.logistics.LogisticsMod;
-import com.logistics.quarry.QuarryBlock;
-import com.logistics.quarry.QuarryFrameBlock;
+import com.logistics.automation.quarry.QuarryBlock;
+import com.logistics.automation.quarry.QuarryFrameBlock;
 import java.util.function.Function;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;

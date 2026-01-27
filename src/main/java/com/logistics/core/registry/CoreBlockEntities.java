@@ -1,7 +1,7 @@
 package com.logistics.core.registry;
 
 import com.logistics.LogisticsMod;
-import com.logistics.marker.MarkerBlockEntity;
+import com.logistics.core.marker.MarkerBlockEntity;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.registry.Registries;

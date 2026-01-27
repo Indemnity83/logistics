@@ -1,6 +1,6 @@
 package com.logistics.pipe.ui;
 
-import com.logistics.block.entity.PipeBlockEntity;
+import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.modules.ItemFilterModule;
 import java.util.ArrayList;
@@ -35,8 +35,8 @@ public class FilterInventory implements Inventory {
             return new ItemFilterModule();
         }
 
-        com.logistics.block.PipeBlock block =
-                (com.logistics.block.PipeBlock) entity.getCachedState().getBlock();
+        com.logistics.pipe.block.PipeBlock block =
+                (com.logistics.pipe.block.PipeBlock) entity.getCachedState().getBlock();
         com.logistics.pipe.Pipe pipe = block.getPipe();
         ItemFilterModule pipeModule = pipe.getModule(ItemFilterModule.class);
 

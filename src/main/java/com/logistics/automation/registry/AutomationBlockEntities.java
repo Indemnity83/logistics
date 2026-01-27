@@ -1,7 +1,7 @@
 package com.logistics.automation.registry;
 
 import com.logistics.LogisticsMod;
-import com.logistics.quarry.entity.QuarryBlockEntity;
+import com.logistics.automation.quarry.entity.QuarryBlockEntity;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.registry.Registries;

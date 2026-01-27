@@ -10,6 +10,6 @@ public class PipeOnlyModule implements Module {
     @Override
     public boolean allowsConnection(
             @Nullable PipeContext ctx, Direction direction, Pipe selfPipe, Block neighborBlock) {
-        return neighborBlock instanceof com.logistics.block.PipeBlock;
+        return neighborBlock instanceof com.logistics.pipe.block.PipeBlock;
     }
 }

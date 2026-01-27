@@ -1,8 +1,8 @@
 package com.logistics.pipe.modules;
 
 import com.logistics.LogisticsMod;
-import com.logistics.block.PipeBlock;
-import com.logistics.block.entity.PipeBlockEntity;
+import com.logistics.pipe.block.PipeBlock;
+import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.pipe.registry.PipeItems;
 import com.logistics.pipe.Pipe;
 import com.logistics.pipe.PipeContext;

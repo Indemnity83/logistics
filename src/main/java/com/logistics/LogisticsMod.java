@@ -2,7 +2,7 @@ package com.logistics;
 
 import com.logistics.core.bootstrap.DomainBootstrap;
 import com.logistics.core.bootstrap.DomainBootstraps;
-import com.logistics.util.TimingLog;
+import com.logistics.core.util.TimingLog;
 import net.fabricmc.api.ModInitializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,8 +1,8 @@
 package com.logistics.pipe.registry;
 
-import com.logistics.client.render.PipeBlockEntityRenderer;
-import com.logistics.client.render.PipeModelRegistry;
-import com.logistics.client.screen.ItemFilterScreen;
+import com.logistics.pipe.render.PipeBlockEntityRenderer;
+import com.logistics.core.render.ModelRegistry;
+import com.logistics.pipe.screen.ItemFilterScreen;
 import com.logistics.core.bootstrap.DomainBootstrap;
 import net.fabricmc.fabric.api.client.rendering.v1.BlockRenderLayerMap;
 import net.minecraft.client.gui.screen.ingame.HandledScreens;
@@ -17,7 +17,7 @@ public final class PipeClientBootstrap implements DomainBootstrap {
 
     @Override
     public void initClient() {
-        PipeModelRegistry.register();
+        ModelRegistry.register();
 
         BlockRenderLayerMap.putBlock(PipeBlocks.STONE_TRANSPORT_PIPE, BlockRenderLayer.CUTOUT);
         BlockRenderLayerMap.putBlock(PipeBlocks.COPPER_TRANSPORT_PIPE, BlockRenderLayer.CUTOUT);

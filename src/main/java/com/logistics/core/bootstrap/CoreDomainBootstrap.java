@@ -5,7 +5,7 @@ import com.logistics.core.registry.CoreBlockEntities;
 import com.logistics.core.registry.CoreBlocks;
 import com.logistics.core.registry.CoreItemGroups;
 import com.logistics.core.registry.CoreItems;
-import com.logistics.util.TimingLog;
+import com.logistics.core.util.TimingLog;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
 

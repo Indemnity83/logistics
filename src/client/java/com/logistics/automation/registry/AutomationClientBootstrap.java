@@ -1,9 +1,9 @@
 package com.logistics.automation.registry;
 
-import com.logistics.client.ClientRenderCacheHooks;
-import com.logistics.client.render.QuarryBlockEntityRenderer;
-import com.logistics.client.render.QuarryRenderState;
-import com.logistics.client.screen.QuarryScreen;
+import com.logistics.automation.render.ClientRenderCacheHooks;
+import com.logistics.automation.render.QuarryBlockEntityRenderer;
+import com.logistics.automation.render.QuarryRenderState;
+import com.logistics.automation.screen.QuarryScreen;
 import com.logistics.core.bootstrap.DomainBootstrap;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;

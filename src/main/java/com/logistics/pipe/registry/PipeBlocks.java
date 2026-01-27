@@ -1,7 +1,7 @@
 package com.logistics.pipe.registry;
 
 import com.logistics.LogisticsMod;
-import com.logistics.block.PipeBlock;
+import com.logistics.pipe.block.PipeBlock;
 import com.logistics.pipe.PipeTypes;
 import com.logistics.pipe.item.ModularPipeBlockItem;
 import java.util.function.BiFunction;

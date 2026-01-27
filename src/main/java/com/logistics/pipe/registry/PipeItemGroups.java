@@ -1,6 +1,6 @@
 package com.logistics.pipe.registry;
 
-import com.logistics.block.PipeBlock;
+import com.logistics.pipe.block.PipeBlock;
 import com.logistics.core.registry.CoreItemGroups;
 import com.logistics.pipe.Pipe;
 import java.util.ArrayList;

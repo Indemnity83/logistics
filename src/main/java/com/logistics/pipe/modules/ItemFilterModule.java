@@ -1,6 +1,6 @@
 package com.logistics.pipe.modules;
 
-import com.logistics.block.entity.PipeBlockEntity;
+import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.core.registry.CoreItems;
 import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.runtime.RoutePlan;
