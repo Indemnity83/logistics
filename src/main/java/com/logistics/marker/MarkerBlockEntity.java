@@ -71,6 +71,7 @@ public class MarkerBlockEntity extends BlockEntity {
                         player.sendMessage(Text.translatable("marker.activation.failed"), true);
                     }
                 }
+                default -> {}
             }
         }
     }
