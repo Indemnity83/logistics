@@ -1446,6 +1446,10 @@ public class QuarryBlockEntity extends BlockEntity
         return positions;
     }
 
+    public static void clearActiveQuarries(ServerWorld world) {
+        ACTIVE_QUARRIES.remove(world.getRegistryKey());
+    }
+
     private static void registerActiveQuarry(ServerWorld world, BlockPos pos) {
         RegistryKey<World> key = world.getRegistryKey();
         Map<Long, Long> entries = ACTIVE_QUARRIES.computeIfAbsent(key, unused -> new HashMap<>());

@@ -4,6 +4,7 @@ import com.logistics.block.LogisticsBlocks;
 import com.logistics.block.entity.LogisticsBlockEntities;
 import com.logistics.item.LogisticsItemGroups;
 import com.logistics.item.LogisticsItems;
+import com.logistics.quarry.entity.QuarryBlockEntity;
 import com.logistics.ui.LogisticsScreenHandlers;
 import com.logistics.util.TimingLog;
 import net.fabricmc.api.ModInitializer;
@@ -44,5 +45,6 @@ public class LogisticsMod implements ModInitializer {
                 TimingLog.log(LOGGER, "World load " + world.getRegistryKey().getValue(), start);
             }
         });
+        ServerWorldEvents.UNLOAD.register((server, world) -> QuarryBlockEntity.clearActiveQuarries(world));
     }
 }
