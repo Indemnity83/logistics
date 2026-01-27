@@ -1,6 +1,6 @@
 package com.logistics.marker;
 
-import com.logistics.item.LogisticsItems;
+import com.logistics.core.registry.CoreItems;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockRenderType;
@@ -87,7 +87,7 @@ public class MarkerBlock extends BlockWithEntity {
     @Override
     protected ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
         // Only activate with wrench
-        if (!LogisticsItems.isWrench(player.getMainHandStack()) && !LogisticsItems.isWrench(player.getOffHandStack())) {
+        if (!CoreItems.isWrench(player.getMainHandStack()) && !CoreItems.isWrench(player.getOffHandStack())) {
             return ActionResult.PASS;
         }
 

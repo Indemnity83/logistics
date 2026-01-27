@@ -1,8 +1,8 @@
 package com.logistics.quarry.entity;
 
-import com.logistics.block.LogisticsBlocks;
+import com.logistics.automation.registry.AutomationBlockEntities;
+import com.logistics.automation.registry.AutomationBlocks;
 import com.logistics.block.PipeBlock;
-import com.logistics.block.entity.LogisticsBlockEntities;
 import com.logistics.block.entity.PipeBlockEntity;
 import com.logistics.client.ClientRenderCacheHooks;
 import com.logistics.pipe.runtime.PipeConfig;
@@ -110,7 +110,7 @@ public class QuarryBlockEntity extends BlockEntity
     private int expectedTravelTicks = 0; // Expected ticks to reach target (for settling calculation)
 
     public QuarryBlockEntity(BlockPos pos, BlockState state) {
-        super(LogisticsBlockEntities.QUARRY_BLOCK_ENTITY, pos, state);
+        super(AutomationBlockEntities.QUARRY_BLOCK_ENTITY, pos, state);
         // Use position hash as unique entity ID for breaking animation
         this.breakingEntityId = pos.hashCode();
     }
@@ -1053,7 +1053,7 @@ public class QuarryBlockEntity extends BlockEntity
                     startZ = quarryPos.getZ() - 8;
                     break;
                 default:
-                    return LogisticsBlocks.QUARRY_FRAME.getDefaultState();
+                    return AutomationBlocks.QUARRY_FRAME.getDefaultState();
             }
             endX = startX + QuarryConfig.CHUNK_SIZE - 1;
             endZ = startZ + QuarryConfig.CHUNK_SIZE - 1;
@@ -1105,7 +1105,7 @@ public class QuarryBlockEntity extends BlockEntity
             }
         }
 
-        QuarryFrameBlock frameBlock = (QuarryFrameBlock) LogisticsBlocks.QUARRY_FRAME;
+        QuarryFrameBlock frameBlock = (QuarryFrameBlock) AutomationBlocks.QUARRY_FRAME;
         return frameBlock.withArms(north, south, east, west, up, down);
     }
 

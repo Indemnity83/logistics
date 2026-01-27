@@ -3,6 +3,7 @@ package com.logistics.block;
 import com.logistics.block.entity.PipeBlockEntity;
 import com.logistics.pipe.Pipe;
 import com.logistics.pipe.PipeContext;
+import com.logistics.pipe.registry.PipeBlockEntities;
 import com.mojang.serialization.MapCodec;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
 import net.minecraft.block.Block;
@@ -164,7 +165,7 @@ public class PipeBlock extends BlockWithEntity implements Waterloggable {
             World world, BlockState state, BlockEntityType<T> type) {
         return validateTicker(
                 type,
-                com.logistics.block.entity.LogisticsBlockEntities.PIPE_BLOCK_ENTITY,
+                PipeBlockEntities.PIPE_BLOCK_ENTITY,
                 (world1, pos, state1, blockEntity) -> PipeBlockEntity.tick(world1, pos, state1, blockEntity));
     }
 

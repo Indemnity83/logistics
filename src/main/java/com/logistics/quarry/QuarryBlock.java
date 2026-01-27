@@ -1,6 +1,6 @@
 package com.logistics.quarry;
 
-import com.logistics.block.entity.LogisticsBlockEntities;
+import com.logistics.automation.registry.AutomationBlockEntities;
 import com.logistics.marker.MarkerManager;
 import com.logistics.quarry.entity.QuarryBlockEntity;
 import com.mojang.serialization.MapCodec;
@@ -107,7 +107,7 @@ public class QuarryBlock extends BlockWithEntity {
     @Nullable @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
             World world, BlockState state, BlockEntityType<T> type) {
-        return validateTicker(type, LogisticsBlockEntities.QUARRY_BLOCK_ENTITY, QuarryBlockEntity::tick);
+        return validateTicker(type, AutomationBlockEntities.QUARRY_BLOCK_ENTITY, QuarryBlockEntity::tick);
     }
 
     @Override

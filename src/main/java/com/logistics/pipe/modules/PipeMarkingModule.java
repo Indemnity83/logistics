@@ -3,7 +3,7 @@ package com.logistics.pipe.modules;
 import com.logistics.LogisticsMod;
 import com.logistics.block.PipeBlock;
 import com.logistics.block.entity.PipeBlockEntity;
-import com.logistics.item.LogisticsItems;
+import com.logistics.pipe.registry.PipeItems;
 import com.logistics.pipe.Pipe;
 import com.logistics.pipe.PipeContext;
 import net.minecraft.block.Block;
@@ -52,7 +52,7 @@ public class PipeMarkingModule implements Module {
             }
             return ActionResult.SUCCESS;
         }
-        DyeColor color = LogisticsItems.getMarkingFluidColor(stack);
+        DyeColor color = PipeItems.getMarkingFluidColor(stack);
         if (color == null) {
             return ActionResult.PASS;
         }

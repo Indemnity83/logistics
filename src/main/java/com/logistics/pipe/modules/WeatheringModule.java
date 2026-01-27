@@ -1,7 +1,7 @@
 package com.logistics.pipe.modules;
 
-import com.logistics.LogisticsDataComponents;
-import com.logistics.LogisticsDataComponents.WeatheringState;
+import com.logistics.pipe.data.PipeDataComponents;
+import com.logistics.pipe.data.PipeDataComponents.WeatheringState;
 import com.logistics.LogisticsMod;
 import com.logistics.block.PipeBlock;
 import com.logistics.block.entity.PipeBlockEntity;
@@ -222,13 +222,13 @@ public class WeatheringModule implements Module {
 
         WeatheringState state = new WeatheringState(stage, waxed);
         if (!state.isDefault()) {
-            builder.add(LogisticsDataComponents.WEATHERING_STATE, state);
+            builder.add(PipeDataComponents.WEATHERING_STATE, state);
         }
     }
 
     @Override
     public void readItemComponents(ComponentsAccess components, PipeContext ctx) {
-        WeatheringState state = components.get(LogisticsDataComponents.WEATHERING_STATE);
+        WeatheringState state = components.get(PipeDataComponents.WEATHERING_STATE);
         if (state == null || state.isDefault()) return;
 
         ctx.saveInt(this, OXIDATION_KEY, state.oxidationStage());
@@ -257,7 +257,7 @@ public class WeatheringModule implements Module {
 
     @Override
     public String getItemNameSuffixFromComponents(ComponentsAccess components) {
-        WeatheringState state = components.get(LogisticsDataComponents.WEATHERING_STATE);
+        WeatheringState state = components.get(PipeDataComponents.WEATHERING_STATE);
         if (state == null || state.isDefault()) {
             return "";
         }
@@ -279,7 +279,7 @@ public class WeatheringModule implements Module {
 
     private static ItemStack createVariant(ItemStack baseStack, int stage, boolean waxed) {
         ItemStack stack = baseStack.copy();
-        stack.set(LogisticsDataComponents.WEATHERING_STATE, new WeatheringState(stage, waxed));
+        stack.set(PipeDataComponents.WEATHERING_STATE, new WeatheringState(stage, waxed));
 
         String modelKey = getModelKey(stage, waxed);
         if (!modelKey.isEmpty()) {

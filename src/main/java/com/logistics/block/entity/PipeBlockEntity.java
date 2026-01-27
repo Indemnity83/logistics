@@ -3,6 +3,7 @@ package com.logistics.block.entity;
 import com.logistics.block.PipeBlock;
 import com.logistics.pipe.Pipe;
 import com.logistics.pipe.PipeContext;
+import com.logistics.pipe.registry.PipeBlockEntities;
 import com.logistics.pipe.runtime.PipeConfig;
 import com.logistics.pipe.runtime.PipeRuntime;
 import com.logistics.pipe.runtime.TravelingItem;
@@ -40,7 +41,7 @@ public class PipeBlockEntity extends BlockEntity {
     private final PipeBlock.ConnectionType[] connectionTypes = new PipeBlock.ConnectionType[6];
 
     public PipeBlockEntity(BlockPos pos, BlockState state) {
-        super(LogisticsBlockEntities.PIPE_BLOCK_ENTITY, pos, state);
+        super(PipeBlockEntities.PIPE_BLOCK_ENTITY, pos, state);
         // Initialize connection types to NONE
         for (int i = 0; i < 6; i++) {
             connectionTypes[i] = PipeBlock.ConnectionType.NONE;

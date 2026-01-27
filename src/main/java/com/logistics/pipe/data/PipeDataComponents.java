@@ -1,5 +1,6 @@
-package com.logistics;
+package com.logistics.pipe.data;
 
+import com.logistics.LogisticsMod;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.component.ComponentType;
@@ -7,8 +8,8 @@ import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
 
-public final class LogisticsDataComponents {
-    private LogisticsDataComponents() {}
+public final class PipeDataComponents {
+    private PipeDataComponents() {}
 
     /**
      * Stores weathering state (oxidation stage and waxed status) for copper pipes.
@@ -21,11 +22,11 @@ public final class LogisticsDataComponents {
                     .build());
 
     public static void initialize() {
-        LogisticsMod.LOGGER.debug("Registering data components");
+        LogisticsMod.LOGGER.debug("Registering pipe data components");
     }
 
     /**
-     * Immutable record storing weathering state for copper pipes.
+     * Immutable record storing weathering state.
      */
     public record WeatheringState(int oxidationStage, boolean waxed) {
         public static final Codec<WeatheringState> CODEC = RecordCodecBuilder.create(instance -> instance.group(

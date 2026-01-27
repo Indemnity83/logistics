@@ -2,7 +2,7 @@ package com.logistics.pipe.ui;
 
 import com.logistics.block.entity.PipeBlockEntity;
 import com.logistics.pipe.modules.ItemFilterModule;
-import com.logistics.ui.LogisticsScreenHandlers;
+import com.logistics.pipe.registry.PipeScreenHandlers;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventory;
@@ -28,7 +28,7 @@ public class ItemFilterScreenHandler extends ScreenHandler {
     private final ScreenHandlerContext context;
 
     public ItemFilterScreenHandler(int syncId, PlayerInventory playerInventory) {
-        super(LogisticsScreenHandlers.ITEM_FILTER, syncId);
+        super(PipeScreenHandlers.ITEM_FILTER, syncId);
         this.context = ScreenHandlerContext.EMPTY;
         this.filterInventory = new FilterInventory(null);
 
@@ -37,7 +37,7 @@ public class ItemFilterScreenHandler extends ScreenHandler {
     }
 
     public ItemFilterScreenHandler(int syncId, PlayerInventory playerInventory, PipeBlockEntity pipeEntity) {
-        super(LogisticsScreenHandlers.ITEM_FILTER, syncId);
+        super(PipeScreenHandlers.ITEM_FILTER, syncId);
         World world = pipeEntity != null ? pipeEntity.getWorld() : playerInventory.player.getEntityWorld();
         BlockPos pos = pipeEntity != null ? pipeEntity.getPos() : playerInventory.player.getBlockPos();
         this.context = ScreenHandlerContext.create(world, pos);

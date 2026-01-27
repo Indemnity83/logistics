@@ -1,4 +1,4 @@
-package com.logistics.item;
+package com.logistics.pipe.item;
 
 import com.logistics.block.PipeBlock;
 import com.logistics.pipe.Pipe;
