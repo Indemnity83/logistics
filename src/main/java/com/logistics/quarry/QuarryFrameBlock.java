@@ -137,26 +137,20 @@ public class QuarryFrameBlock extends Block {
      * Searches for quarries within range and checks if this position is part of their frame.
      */
     private boolean hasOwningQuarry(ServerWorld world, BlockPos framePos) {
-        // Frame can be at quarry Y level (bottom ring), Y+1 to Y+3 (pillars), or Y+4 (top ring)
-        // So quarry Y could be: framePos.Y, framePos.Y-1, ..., framePos.Y-4
-        // Horizontally, frame could extend far for custom bounds, use larger search radius
-
         int searchRadius = 64; // Support large custom bounds
 
-        for (int dy = 0; dy >= -QuarryConfig.Y_OFFSET_ABOVE; dy--) {
-            int quarryY = framePos.getY() + dy;
+        for (BlockPos quarryPos : QuarryBlockEntity.getActiveQuarries(world)) {
+            if (Math.abs(quarryPos.getX() - framePos.getX()) > searchRadius) continue;
+            if (Math.abs(quarryPos.getZ() - framePos.getZ()) > searchRadius) continue;
 
-            for (int dx = -searchRadius; dx <= searchRadius; dx++) {
-                for (int dz = -searchRadius; dz <= searchRadius; dz++) {
-                    BlockPos checkPos = new BlockPos(framePos.getX() + dx, quarryY, framePos.getZ() + dz);
-                    BlockState checkState = world.getBlockState(checkPos);
+            int dy = framePos.getY() - quarryPos.getY();
+            if (dy < 0 || dy > QuarryConfig.Y_OFFSET_ABOVE) continue;
 
-                    if (checkState.getBlock() instanceof QuarryBlock) {
-                        if (isFramePositionForQuarry(world, checkPos, checkState, framePos)) {
-                            return true;
-                        }
-                    }
-                }
+            BlockState checkState = world.getBlockState(quarryPos);
+            if (!(checkState.getBlock() instanceof QuarryBlock)) continue;
+
+            if (isFramePositionForQuarry(world, quarryPos, checkState, framePos)) {
+                return true;
             }
         }
 

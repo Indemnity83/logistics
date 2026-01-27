@@ -1,6 +1,9 @@
 package com.logistics.quarry.entity;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.logistics.block.PipeBlock;
 import com.logistics.block.entity.PipeBlockEntity;
@@ -30,6 +33,7 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
+import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -45,6 +49,8 @@ import org.jetbrains.annotations.Nullable;
 
 public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHandlerFactory<BlockPos>, Inventory, SidedInventory {
     private static final int[] TOOL_SLOTS = {0, 1, 2, 3, 4, 5, 6, 7, 8};
+    private static final long REGISTRY_TTL_TICKS = 200L;
+    private static final Map<RegistryKey<World>, Map<Long, Long>> ACTIVE_QUARRIES = new HashMap<>();
 
     /**
      * Quarry operation phases.
@@ -124,7 +130,13 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
     }
 
     public static void tick(World world, BlockPos pos, BlockState state, QuarryBlockEntity entity) {
-        if (world.isClient() || entity.finished) {
+        if (world.isClient()) {
+            return;
+        }
+
+        registerActiveQuarry((ServerWorld) world, pos);
+
+        if (entity.finished) {
             return;
         }
 
@@ -1313,6 +1325,7 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
         super.onBlockReplaced(pos, oldState);
 
         if (world != null && !world.isClient()) {
+            unregisterActiveQuarry((ServerWorld) world, pos);
             // Clear any active breaking animation
             if (currentTarget != null) {
                 ((ServerWorld) world).setBlockBreakingInfo(breakingEntityId, currentTarget, -1);
@@ -1378,5 +1391,51 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
 
     public int getCustomMaxZ() {
         return customMaxZ;
+    }
+
+    public static List<BlockPos> getActiveQuarries(ServerWorld world) {
+        RegistryKey<World> key = world.getRegistryKey();
+        Map<Long, Long> entries = ACTIVE_QUARRIES.get(key);
+        if (entries == null || entries.isEmpty()) {
+            return List.of();
+        }
+
+        long now = world.getTime();
+        java.util.Iterator<java.util.Map.Entry<Long, Long>> iterator = entries.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry<Long, Long> entry = iterator.next();
+            if (now - entry.getValue() > REGISTRY_TTL_TICKS) {
+                iterator.remove();
+            }
+        }
+
+        if (entries.isEmpty()) {
+            ACTIVE_QUARRIES.remove(key);
+            return List.of();
+        }
+
+        List<BlockPos> positions = new ArrayList<>(entries.size());
+        for (Long posLong : entries.keySet()) {
+            positions.add(BlockPos.fromLong(posLong));
+        }
+        return positions;
+    }
+
+    private static void registerActiveQuarry(ServerWorld world, BlockPos pos) {
+        RegistryKey<World> key = world.getRegistryKey();
+        Map<Long, Long> entries = ACTIVE_QUARRIES.computeIfAbsent(key, unused -> new HashMap<>());
+        entries.put(pos.asLong(), world.getTime());
+    }
+
+    private static void unregisterActiveQuarry(ServerWorld world, BlockPos pos) {
+        RegistryKey<World> key = world.getRegistryKey();
+        Map<Long, Long> entries = ACTIVE_QUARRIES.get(key);
+        if (entries == null) {
+            return;
+        }
+        entries.remove(pos.asLong());
+        if (entries.isEmpty()) {
+            ACTIVE_QUARRIES.remove(key);
+        }
     }
 }
