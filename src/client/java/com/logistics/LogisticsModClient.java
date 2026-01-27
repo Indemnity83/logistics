@@ -6,6 +6,7 @@ import com.logistics.client.render.MarkerBlockEntityRenderer;
 import com.logistics.client.render.PipeBlockEntityRenderer;
 import com.logistics.client.render.PipeModelRegistry;
 import com.logistics.client.render.QuarryBlockEntityRenderer;
+import com.logistics.client.render.QuarryRenderState;
 import com.logistics.client.screen.ItemFilterScreen;
 import com.logistics.client.screen.QuarryScreen;
 import com.logistics.marker.MarkerBlockEntities;
@@ -16,6 +17,8 @@ import com.logistics.quarry.QuarryBlocks;
 import com.logistics.quarry.ui.QuarryScreenHandlers;
 
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.BlockRenderLayerMap;
 import net.minecraft.client.gui.screen.ingame.HandledScreens;
 import net.minecraft.client.render.BlockRenderLayer;
@@ -55,5 +58,8 @@ public class LogisticsModClient implements ClientModInitializer {
 
         HandledScreens.register(PipeScreenHandlers.ITEM_FILTER, ItemFilterScreen::new);
         HandledScreens.register(QuarryScreenHandlers.QUARRY, QuarryScreen::new);
+
+        ClientTickEvents.END_WORLD_TICK.register(QuarryRenderState::pruneInterpolationCache);
+        ClientLifecycleEvents.CLIENT_STOPPING.register(client -> QuarryRenderState.clearAllInterpolationCaches());
     }
 }

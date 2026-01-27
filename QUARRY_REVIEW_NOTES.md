@@ -22,10 +22,6 @@
   - **Issue:** `collectNearbyItems` grabs any `ItemEntity` in radius, not just ones spawned by the quarry.
   - **Proposed fix:** Avoid broad collection, or filter to items spawned during the block break (e.g., track block break time/position or use `Block.getDroppedStacks` only).
 
-- **Stale custom bounds after NBT read** (`src/main/java/com/logistics/quarry/entity/QuarryBlockEntity.java:1227`)
-  - **Issue:** `useCustomBounds` is not reset before reading NBT, so old true state can persist if `CustomBounds` is absent.
-  - **Proposed fix:** Reset `useCustomBounds` and bound fields at the start of `readData`.
-
 ## Agreed Behavior
 
 - Pipe above quarry **takes strict precedence** over inventory insertion.

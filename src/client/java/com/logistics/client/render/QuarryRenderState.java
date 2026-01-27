@@ -4,6 +4,7 @@ import com.logistics.quarry.QuarryConfig;
 import com.logistics.quarry.entity.QuarryBlockEntity;
 
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.world.ClientWorld;
 import net.minecraft.client.render.block.entity.state.BlockEntityRenderState;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -128,6 +129,13 @@ public class QuarryRenderState extends BlockEntityRenderState {
      */
     public static void clearInterpolationCache(BlockPos pos) {
         INTERPOLATION_CACHE.remove(pos);
+    }
+
+    /**
+     * Prune cache entries that no longer have a quarry block entity in the current world.
+     */
+    public static void pruneInterpolationCache(ClientWorld world) {
+        INTERPOLATION_CACHE.keySet().removeIf(pos -> !(world.getBlockEntity(pos) instanceof QuarryBlockEntity));
     }
 
     /**
