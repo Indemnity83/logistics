@@ -1,0 +1,12 @@
+{
+  "key": {
+    "D": "minecraft:diamond",
+    "G": "logistics:gold_gear"
+  },
+  "pattern": [" D ", "DGD", " D "],
+  "result": {
+    "count": 1,
+    "id": "logistics:diamond_gear"
+  },
+  "type": "minecraft:crafting_shaped"
+}

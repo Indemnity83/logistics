@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "active=false": {
+      "model": "logistics:block/marker"
+    },
+    "active=true": {
+      "model": "logistics:block/marker_active"
+    }
+  }
+}

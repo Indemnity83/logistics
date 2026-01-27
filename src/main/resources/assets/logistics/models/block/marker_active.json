@@ -1,0 +1,6 @@
+{
+  "parent": "logistics:block/template_marker_torch",
+  "textures": {
+    "torch": "logistics:block/marker"
+  }
+}

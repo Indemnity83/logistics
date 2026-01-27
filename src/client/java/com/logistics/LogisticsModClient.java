@@ -2,11 +2,19 @@ package com.logistics;
 
 import com.logistics.block.LogisticsBlocks;
 import com.logistics.block.entity.LogisticsBlockEntities;
+import com.logistics.client.ClientRenderCacheHooks;
+import com.logistics.client.render.MarkerBlockEntityRenderer;
 import com.logistics.client.render.PipeBlockEntityRenderer;
 import com.logistics.client.render.PipeModelRegistry;
+import com.logistics.client.render.QuarryBlockEntityRenderer;
+import com.logistics.client.render.QuarryRenderState;
 import com.logistics.client.screen.ItemFilterScreen;
-import com.logistics.pipe.ui.PipeScreenHandlers;
+import com.logistics.client.screen.QuarryScreen;
+import com.logistics.ui.LogisticsScreenHandlers;
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.BlockRenderLayerMap;
 import net.minecraft.client.gui.screen.ingame.HandledScreens;
 import net.minecraft.client.render.BlockRenderLayer;
@@ -29,9 +37,32 @@ public class LogisticsModClient implements ClientModInitializer {
         BlockRenderLayerMap.putBlock(LogisticsBlocks.ITEM_INSERTION_PIPE, BlockRenderLayer.CUTOUT);
         BlockRenderLayerMap.putBlock(LogisticsBlocks.ITEM_VOID_PIPE, BlockRenderLayer.CUTOUT);
 
+        // Register marker block to render with transparency
+        BlockRenderLayerMap.putBlock(LogisticsBlocks.MARKER, BlockRenderLayer.CUTOUT);
+
+        // Register quarry frame to render with transparency
+        BlockRenderLayerMap.putBlock(LogisticsBlocks.QUARRY_FRAME, BlockRenderLayer.CUTOUT);
+
         // Register block entity renderer for traveling items
         BlockEntityRendererFactories.register(LogisticsBlockEntities.PIPE_BLOCK_ENTITY, PipeBlockEntityRenderer::new);
 
-        HandledScreens.register(PipeScreenHandlers.ITEM_FILTER, ItemFilterScreen::new);
+        // Register block entity renderer for markers
+        BlockEntityRendererFactories.register(
+                LogisticsBlockEntities.MARKER_BLOCK_ENTITY, MarkerBlockEntityRenderer::new);
+
+        // Register block entity renderer for quarry arm
+        BlockEntityRendererFactories.register(
+                LogisticsBlockEntities.QUARRY_BLOCK_ENTITY, QuarryBlockEntityRenderer::new);
+
+        HandledScreens.register(LogisticsScreenHandlers.ITEM_FILTER, ItemFilterScreen::new);
+        HandledScreens.register(LogisticsScreenHandlers.QUARRY, QuarryScreen::new);
+
+        ClientRenderCacheHooks.setQuarryInterpolationClearer(QuarryRenderState::clearInterpolationCache);
+        ClientRenderCacheHooks.setClearAllInterpolationCaches(QuarryRenderState::clearAllInterpolationCaches);
+
+        ClientTickEvents.END_WORLD_TICK.register(QuarryRenderState::pruneInterpolationCache);
+        ClientPlayConnectionEvents.DISCONNECT.register(
+                (handler, client) -> ClientRenderCacheHooks.clearAllInterpolationCaches());
+        ClientLifecycleEvents.CLIENT_STOPPING.register(client -> ClientRenderCacheHooks.clearAllInterpolationCaches());
     }
 }

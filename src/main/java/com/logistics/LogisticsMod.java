@@ -4,7 +4,8 @@ import com.logistics.block.LogisticsBlocks;
 import com.logistics.block.entity.LogisticsBlockEntities;
 import com.logistics.item.LogisticsItemGroups;
 import com.logistics.item.LogisticsItems;
-import com.logistics.pipe.ui.PipeScreenHandlers;
+import com.logistics.quarry.entity.QuarryBlockEntity;
+import com.logistics.ui.LogisticsScreenHandlers;
 import com.logistics.util.TimingLog;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
@@ -25,7 +26,7 @@ public class LogisticsMod implements ModInitializer {
         TimingLog.time(LOGGER, "LogisticsItems.initialize", LogisticsItems::initialize);
         TimingLog.time(LOGGER, "LogisticsBlocks.initialize", LogisticsBlocks::initialize);
         TimingLog.time(LOGGER, "LogisticsBlockEntities.initialize", LogisticsBlockEntities::initialize);
-        TimingLog.time(LOGGER, "PipeScreenHandlers.initialize", PipeScreenHandlers::initialize);
+        TimingLog.time(LOGGER, "LogisticsScreenHandlers.initialize", LogisticsScreenHandlers::initialize);
         TimingLog.time(LOGGER, "LogisticsItemGroups.initialize", LogisticsItemGroups::initialize);
 
         TimingLog.time(
@@ -44,5 +45,6 @@ public class LogisticsMod implements ModInitializer {
                 TimingLog.log(LOGGER, "World load " + world.getRegistryKey().getValue(), start);
             }
         });
+        ServerWorldEvents.UNLOAD.register((server, world) -> QuarryBlockEntity.clearActiveQuarries(world));
     }
 }

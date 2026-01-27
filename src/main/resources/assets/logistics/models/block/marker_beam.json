@@ -1,0 +1,23 @@
+{
+  "format_version": "1.21.11",
+  "credit": "Made with Blockbench",
+  "texture_size": [16, 4],
+  "textures": {
+    "0": "logistics:block/marker_beam",
+    "particle": "logistics:block/marker_beam"
+  },
+  "elements": [
+    {
+      "from": [7.1, 8.1, 0],
+      "to": [8.9, 9.9, 16],
+      "faces": {
+        "north": { "uv": [0, 4, 2, 12], "texture": "#0" },
+        "east": { "uv": [0, 0, 16, 8], "texture": "#0" },
+        "south": { "uv": [14, 4, 16, 12], "texture": "#0" },
+        "west": { "uv": [0, 8, 16, 16], "texture": "#0" },
+        "up": { "uv": [16, 16, 0, 8], "rotation": 90, "texture": "#0" },
+        "down": { "uv": [16, 16, 0, 8], "rotation": 90, "texture": "#0" }
+      }
+    }
+  ]
+}

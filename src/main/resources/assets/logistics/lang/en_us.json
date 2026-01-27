@@ -32,6 +32,22 @@
   "item.logistics.marking_fluid_white": "White Marking Fluid",
   "item.logistics.marking_fluid_yellow": "Yellow Marking Fluid",
   "item.logistics.wrench": "Wrench",
+  "item.logistics.wooden_gear": "Wooden Gear",
+  "item.logistics.stone_gear": "Stone Gear",
+  "item.logistics.copper_gear": "Copper Gear",
+  "item.logistics.iron_gear": "Iron Gear",
+  "item.logistics.gold_gear": "Gold Gear",
+  "item.logistics.diamond_gear": "Diamond Gear",
+  "item.logistics.netherite_gear": "Netherite Gear",
   "itemgroup.logistics.transport": "Logistics: Transport",
-  "screen.logistics.item_filter": "Item Filter"
+  "screen.logistics.item_filter": "Item Filter",
+  "block.logistics.quarry": "Quarry",
+  "block.logistics.marker": "Marker",
+  "marker.deactivated": "Marker deactivated",
+  "marker.activated": "Marker activated",
+  "marker.activated.solo": "Marker activated",
+  "marker.activated.detail.area_defined": "Marker activated - area defined: %sx%s",
+  "marker.activation.failed": "Marker activation failed",
+  "marker.activation.failed.too_small": "Marker activation failed - area must be at least %sx%s",
+  "marker.activation.failed.invalid_l_shape": "Marker activation failed - need 3 markers in a right triangle"
 }

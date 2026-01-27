@@ -1,0 +1,12 @@
+{
+  "key": {
+    "C": "minecraft:copper_ingot",
+    "G": "logistics:stone_gear"
+  },
+  "pattern": [" C ", "CGC", " C "],
+  "result": {
+    "count": 1,
+    "id": "logistics:copper_gear"
+  },
+  "type": "minecraft:crafting_shaped"
+}

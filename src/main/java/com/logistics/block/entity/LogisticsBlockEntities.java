@@ -2,6 +2,8 @@ package com.logistics.block.entity;
 
 import com.logistics.LogisticsMod;
 import com.logistics.block.LogisticsBlocks;
+import com.logistics.marker.MarkerBlockEntity;
+import com.logistics.quarry.entity.QuarryBlockEntity;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.registry.Registries;
@@ -26,6 +28,18 @@ public final class LogisticsBlockEntities {
                             LogisticsBlocks.ITEM_PASSTHROUGH_PIPE,
                             LogisticsBlocks.ITEM_INSERTION_PIPE,
                             LogisticsBlocks.ITEM_VOID_PIPE)
+                    .build());
+
+    public static final BlockEntityType<QuarryBlockEntity> QUARRY_BLOCK_ENTITY = Registry.register(
+            Registries.BLOCK_ENTITY_TYPE,
+            Identifier.of(LogisticsMod.MOD_ID, "quarry"),
+            FabricBlockEntityTypeBuilder.create(QuarryBlockEntity::new, LogisticsBlocks.QUARRY)
+                    .build());
+
+    public static final BlockEntityType<MarkerBlockEntity> MARKER_BLOCK_ENTITY = Registry.register(
+            Registries.BLOCK_ENTITY_TYPE,
+            Identifier.of(LogisticsMod.MOD_ID, "marker"),
+            FabricBlockEntityTypeBuilder.create(MarkerBlockEntity::new, LogisticsBlocks.MARKER)
                     .build());
 
     public static void initialize() {
