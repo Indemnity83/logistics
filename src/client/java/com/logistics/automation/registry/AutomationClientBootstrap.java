@@ -4,7 +4,7 @@ import com.logistics.automation.render.ClientRenderCacheHooks;
 import com.logistics.automation.render.QuarryBlockEntityRenderer;
 import com.logistics.automation.render.QuarryRenderState;
 import com.logistics.automation.screen.QuarryScreen;
-import com.logistics.core.bootstrap.DomainBootstrap;
+import com.logistics.core.bootstrap.ClientDomainBootstrap;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
@@ -13,7 +13,7 @@ import net.minecraft.client.gui.screen.ingame.HandledScreens;
 import net.minecraft.client.render.BlockRenderLayer;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactories;
 
-public final class AutomationClientBootstrap implements DomainBootstrap {
+public final class AutomationClientBootstrap implements ClientDomainBootstrap {
     @Override
     public void initCommon() {
         // Client-only bootstrap; common init handled in main bootstrap.

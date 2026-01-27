@@ -1,12 +1,12 @@
 package com.logistics.core.registry;
 
 import com.logistics.core.render.MarkerBlockEntityRenderer;
-import com.logistics.core.bootstrap.DomainBootstrap;
+import com.logistics.core.bootstrap.ClientDomainBootstrap;
 import net.fabricmc.fabric.api.client.rendering.v1.BlockRenderLayerMap;
 import net.minecraft.client.render.BlockRenderLayer;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactories;
 
-public final class CoreClientBootstrap implements DomainBootstrap {
+public final class CoreClientBootstrap implements ClientDomainBootstrap {
     @Override
     public void initCommon() {
         // Client-only bootstrap; common init handled in main bootstrap.
