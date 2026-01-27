@@ -13,10 +13,18 @@ public final class PipeScreenHandlers {
 
     public static final ScreenHandlerType<ItemFilterScreenHandler> ITEM_FILTER = Registry.register(
             Registries.SCREEN_HANDLER,
-            Identifier.of(LogisticsMod.MOD_ID, "item_filter"),
+            Identifier.of(LogisticsMod.MOD_ID, "pipe/item_filter"),
             new ScreenHandlerType<>(ItemFilterScreenHandler::new, FeatureSet.empty()));
 
     public static void initialize() {
         LogisticsMod.LOGGER.info("Registering pipe screen handlers");
+        registerLegacyAliases();
+    }
+
+    private static void registerLegacyAliases() {
+        // v0.2 => v0.3
+        Registries.SCREEN_HANDLER.addAlias(
+                Identifier.of(LogisticsMod.MOD_ID, "item_filter"),
+                Registries.SCREEN_HANDLER.getId(ITEM_FILTER));
     }
 }

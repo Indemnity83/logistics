@@ -16,13 +16,21 @@ public final class PipeDataComponents {
      */
     public static final ComponentType<WeatheringState> WEATHERING_STATE = Registry.register(
             Registries.DATA_COMPONENT_TYPE,
-            Identifier.of(LogisticsMod.MOD_ID, "weathering_state"),
+            Identifier.of(LogisticsMod.MOD_ID, "pipe/weathering_state"),
             ComponentType.<WeatheringState>builder()
                     .codec(WeatheringState.CODEC)
                     .build());
 
     public static void initialize() {
         LogisticsMod.LOGGER.debug("Registering pipe data components");
+        registerLegacyAliases();
+    }
+
+    private static void registerLegacyAliases() {
+        // v0.2 => v0.3
+        Registries.DATA_COMPONENT_TYPE.addAlias(
+                Identifier.of(LogisticsMod.MOD_ID, "weathering_state"),
+                Registries.DATA_COMPONENT_TYPE.getId(WEATHERING_STATE));
     }
 
     /**

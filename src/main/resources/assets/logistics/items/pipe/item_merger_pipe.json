@@ -1,0 +1,15 @@
+{
+  "model": {
+    "models": [
+      {
+        "model": "logistics:block/pipe/item_merger_pipe_core",
+        "type": "minecraft:model"
+      },
+      {
+        "model": "logistics:block/pipe/item_merger_pipe_feature",
+        "type": "minecraft:model"
+      }
+    ],
+    "type": "minecraft:composite"
+  }
+}

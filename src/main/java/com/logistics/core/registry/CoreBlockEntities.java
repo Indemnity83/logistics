@@ -13,11 +13,19 @@ public final class CoreBlockEntities {
 
     public static final BlockEntityType<MarkerBlockEntity> MARKER_BLOCK_ENTITY = Registry.register(
             Registries.BLOCK_ENTITY_TYPE,
-            Identifier.of(LogisticsMod.MOD_ID, "marker"),
+            Identifier.of(LogisticsMod.MOD_ID, "core/marker"),
             FabricBlockEntityTypeBuilder.create(MarkerBlockEntity::new, CoreBlocks.MARKER)
                     .build());
 
     public static void initialize() {
         LogisticsMod.LOGGER.info("Registering core block entities");
+        registerLegacyAliases();
+    }
+
+    private static void registerLegacyAliases() {
+        // v0.2 => v0.3
+        Registries.BLOCK_ENTITY_TYPE.addAlias(
+                Identifier.of(LogisticsMod.MOD_ID, "marker"),
+                Registries.BLOCK_ENTITY_TYPE.getId(MARKER_BLOCK_ENTITY));
     }
 }

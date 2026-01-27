@@ -13,7 +13,7 @@ public final class PipeBlockEntities {
 
     public static final BlockEntityType<PipeBlockEntity> PIPE_BLOCK_ENTITY = Registry.register(
             Registries.BLOCK_ENTITY_TYPE,
-            Identifier.of(LogisticsMod.MOD_ID, "pipe"),
+            Identifier.of(LogisticsMod.MOD_ID, "pipe/pipe"),
             FabricBlockEntityTypeBuilder.create(
                             PipeBlockEntity::new,
                             PipeBlocks.STONE_TRANSPORT_PIPE,
@@ -30,5 +30,13 @@ public final class PipeBlockEntities {
 
     public static void initialize() {
         LogisticsMod.LOGGER.info("Registering pipe block entities");
+        registerLegacyAliases();
+    }
+
+    private static void registerLegacyAliases() {
+        // v0.2 => v0.3
+        Registries.BLOCK_ENTITY_TYPE.addAlias(
+                Identifier.of(LogisticsMod.MOD_ID, "pipe"),
+                Registries.BLOCK_ENTITY_TYPE.getId(PIPE_BLOCK_ENTITY));
     }
 }

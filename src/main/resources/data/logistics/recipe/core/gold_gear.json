@@ -1,0 +1,12 @@
+{
+  "key": {
+    "G": "minecraft:gold_ingot",
+    "I": "logistics:core/iron_gear"
+  },
+  "pattern": [" G ", "GIG", " G "],
+  "result": {
+    "count": 1,
+    "id": "logistics:core/gold_gear"
+  },
+  "type": "minecraft:crafting_shaped"
+}

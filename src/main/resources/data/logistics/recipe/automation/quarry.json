@@ -1,0 +1,17 @@
+{
+  "key": {
+    "D": "logistics:core/diamond_gear",
+    "L": "logistics:pipe/copper_transport_pipe",
+    "P": "minecraft:piston",
+    "R": "minecraft:redstone_block",
+    "c": "logistics:core/copper_gear",
+    "g": "logistics:core/gold_gear",
+    "i": "logistics:core/iron_gear"
+  },
+  "pattern": ["cLc", "gRi", "DPD"],
+  "result": {
+    "count": 1,
+    "id": "logistics:automation/quarry"
+  },
+  "type": "minecraft:crafting_shaped"
+}

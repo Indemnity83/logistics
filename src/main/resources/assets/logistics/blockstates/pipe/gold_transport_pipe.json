@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "logistics:block/pipe/gold_transport_pipe_core"
+    }
+  }
+}

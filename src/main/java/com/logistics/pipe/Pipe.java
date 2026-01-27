@@ -36,7 +36,7 @@ public abstract class Pipe {
     }
 
     /**
-     * Get the registry name of this pipe (e.g., "copper_transport_pipe").
+     * Get the registry name of this pipe (e.g., "pipe/copper_transport_pipe").
      */
     public String getPipeName() {
         if (pipeBlock == null) {

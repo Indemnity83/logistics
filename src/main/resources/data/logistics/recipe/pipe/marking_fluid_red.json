@@ -1,0 +1,20 @@
+{
+  "ingredients": [
+    "minecraft:red_dye",
+    {
+      "base": "minecraft:potion",
+      "components": {
+        "minecraft:potion_contents": {
+          "potion": "minecraft:water"
+        }
+      },
+      "fabric:type": "fabric:components",
+      "strict": true
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "logistics:pipe/marking_fluid_red"
+  },
+  "type": "minecraft:crafting_shapeless"
+}

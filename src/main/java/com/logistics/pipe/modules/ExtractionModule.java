@@ -156,7 +156,7 @@ public class ExtractionModule implements Module {
             return null;
         }
         String suffix = ctx.isInventoryConnection(direction) ? "_feature_extended" : "_feature";
-        return Identifier.of(LogisticsMod.MOD_ID, "block/item_extractor_pipe" + suffix);
+        return Identifier.of(LogisticsMod.MOD_ID, "block/pipe/item_extractor_pipe" + suffix);
     }
 
     private boolean isExtractionFace(PipeContext ctx, Direction direction) {

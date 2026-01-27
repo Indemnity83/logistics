@@ -85,7 +85,7 @@ public class PipeMarkingModule implements Module {
         if (color == null || ctx.pipe() == null) {
             return java.util.List.of();
         }
-        Identifier pipeMarkings = Identifier.of(LogisticsMod.MOD_ID, "block/pipe_markings");
+        Identifier pipeMarkings = Identifier.of(LogisticsMod.MOD_ID, "block/pipe/pipe_markings");
         return java.util.List.of(new Pipe.CoreDecoration(pipeMarkings, color.getEntityColor()));
     }
 

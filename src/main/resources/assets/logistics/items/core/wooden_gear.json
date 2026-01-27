@@ -1,0 +1,6 @@
+{
+  "model": {
+    "model": "logistics:item/core/wooden_gear",
+    "type": "minecraft:model"
+  }
+}

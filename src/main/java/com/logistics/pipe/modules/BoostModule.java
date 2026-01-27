@@ -29,7 +29,7 @@ public class BoostModule implements Module {
     @Override
     public @Nullable Identifier getCoreModel(PipeContext ctx) {
         if (ctx.isPowered()) {
-            return Identifier.of(LogisticsMod.MOD_ID, "block/gold_transport_pipe_core_powered");
+            return Identifier.of(LogisticsMod.MOD_ID, "block/pipe/gold_transport_pipe_core_powered");
         }
         return null;
     }
@@ -38,7 +38,7 @@ public class BoostModule implements Module {
     public @Nullable Identifier getPipeArm(PipeContext ctx, Direction direction) {
         if (ctx.isPowered()) {
             String suffix = ctx.isInventoryConnection(direction) ? "_arm_extended_powered" : "_arm_powered";
-            return Identifier.of(LogisticsMod.MOD_ID, "block/gold_transport_pipe" + suffix);
+            return Identifier.of(LogisticsMod.MOD_ID, "block/pipe/gold_transport_pipe" + suffix);
         }
         return null;
     }

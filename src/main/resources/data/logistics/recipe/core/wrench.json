@@ -1,0 +1,11 @@
+{
+  "key": {
+    "I": "minecraft:iron_ingot"
+  },
+  "pattern": ["I I", " I ", " I "],
+  "result": {
+    "count": 1,
+    "id": "logistics:core/wrench"
+  },
+  "type": "minecraft:crafting_shaped"
+}

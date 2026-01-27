@@ -13,11 +13,19 @@ public final class AutomationBlockEntities {
 
     public static final BlockEntityType<QuarryBlockEntity> QUARRY_BLOCK_ENTITY = Registry.register(
             Registries.BLOCK_ENTITY_TYPE,
-            Identifier.of(LogisticsMod.MOD_ID, "quarry"),
+            Identifier.of(LogisticsMod.MOD_ID, "automation/quarry"),
             FabricBlockEntityTypeBuilder.create(QuarryBlockEntity::new, AutomationBlocks.QUARRY)
                     .build());
 
     public static void initialize() {
         LogisticsMod.LOGGER.info("Registering automation block entities");
+        registerLegacyAliases();
+    }
+
+    private static void registerLegacyAliases() {
+        // v0.2 => v0.3
+        Registries.BLOCK_ENTITY_TYPE.addAlias(
+                Identifier.of(LogisticsMod.MOD_ID, "quarry"),
+                Registries.BLOCK_ENTITY_TYPE.getId(QUARRY_BLOCK_ENTITY));
     }
 }

@@ -19,6 +19,8 @@ import net.minecraft.util.Identifier;
 public final class PipeBlocks {
     private PipeBlocks() {}
 
+    private static final String DOMAIN = "pipe/";
+
     // Transport Pipes
     public static final Block STONE_TRANSPORT_PIPE =
             register("stone_transport_pipe", settings -> new PipeBlock(settings, PipeTypes.STONE_TRANSPORT_PIPE));
@@ -73,11 +75,11 @@ public final class PipeBlocks {
     }
 
     private static RegistryKey<Block> keyOfBlock(String name) {
-        return RegistryKey.of(RegistryKeys.BLOCK, Identifier.of(LogisticsMod.MOD_ID, name));
+        return RegistryKey.of(RegistryKeys.BLOCK, Identifier.of(LogisticsMod.MOD_ID, DOMAIN + name));
     }
 
     private static RegistryKey<Item> keyOfItem(String name) {
-        return RegistryKey.of(RegistryKeys.ITEM, Identifier.of(LogisticsMod.MOD_ID, name));
+        return RegistryKey.of(RegistryKeys.ITEM, Identifier.of(LogisticsMod.MOD_ID, DOMAIN + name));
     }
 
     public static void initialize() {
@@ -98,8 +100,37 @@ public final class PipeBlocks {
     }
 
     private static void registerLegacyAliases() {
-        // pre-v0.2.0
-        Registries.BLOCK.addAlias(
-                Identifier.of(LogisticsMod.MOD_ID, "item_sensor_pipe"), Registries.BLOCK.getId(COPPER_TRANSPORT_PIPE));
+        // v0.1 => v0.2
+        addBlockAlias("item_sensor_pipe", COPPER_TRANSPORT_PIPE);
+        addItemAlias("item_sensor_pipe", COPPER_TRANSPORT_PIPE.asItem());
+
+        // v0.2 => v0.3
+        addBlockAlias("stone_transport_pipe", STONE_TRANSPORT_PIPE);
+        addBlockAlias("item_passthrough_pipe", ITEM_PASSTHROUGH_PIPE);
+        addBlockAlias("copper_transport_pipe", COPPER_TRANSPORT_PIPE);
+        addBlockAlias("item_extractor_pipe", ITEM_EXTRACTOR_PIPE);
+        addBlockAlias("item_merger_pipe", ITEM_MERGER_PIPE);
+        addBlockAlias("gold_transport_pipe", GOLD_TRANSPORT_PIPE);
+        addBlockAlias("item_filter_pipe", ITEM_FILTER_PIPE);
+        addBlockAlias("item_insertion_pipe", ITEM_INSERTION_PIPE);
+        addBlockAlias("item_void_pipe", ITEM_VOID_PIPE);
+
+        addItemAlias("stone_transport_pipe", STONE_TRANSPORT_PIPE.asItem());
+        addItemAlias("item_passthrough_pipe", ITEM_PASSTHROUGH_PIPE.asItem());
+        addItemAlias("copper_transport_pipe", COPPER_TRANSPORT_PIPE.asItem());
+        addItemAlias("item_extractor_pipe", ITEM_EXTRACTOR_PIPE.asItem());
+        addItemAlias("item_merger_pipe", ITEM_MERGER_PIPE.asItem());
+        addItemAlias("gold_transport_pipe", GOLD_TRANSPORT_PIPE.asItem());
+        addItemAlias("item_filter_pipe", ITEM_FILTER_PIPE.asItem());
+        addItemAlias("item_insertion_pipe", ITEM_INSERTION_PIPE.asItem());
+        addItemAlias("item_void_pipe", ITEM_VOID_PIPE.asItem());
+    }
+
+    private static void addBlockAlias(String name, Block block) {
+        Registries.BLOCK.addAlias(Identifier.of(LogisticsMod.MOD_ID, name), Registries.BLOCK.getId(block));
+    }
+
+    private static void addItemAlias(String name, Item item) {
+        Registries.ITEM.addAlias(Identifier.of(LogisticsMod.MOD_ID, name), Registries.ITEM.getId(item));
     }
 }

@@ -17,6 +17,8 @@ import net.minecraft.util.Identifier;
 public final class AutomationBlocks {
     private AutomationBlocks() {}
 
+    private static final String DOMAIN = "automation/";
+
     public static final Block QUARRY = register("quarry", QuarryBlock::new);
     public static final Block QUARRY_FRAME = registerNoItem(
             "quarry_frame",
@@ -65,14 +67,30 @@ public final class AutomationBlocks {
     }
 
     private static RegistryKey<Block> keyOfBlock(String name) {
-        return RegistryKey.of(RegistryKeys.BLOCK, Identifier.of(LogisticsMod.MOD_ID, name));
+        return RegistryKey.of(RegistryKeys.BLOCK, Identifier.of(LogisticsMod.MOD_ID, DOMAIN + name));
     }
 
     private static RegistryKey<Item> keyOfItem(String name) {
-        return RegistryKey.of(RegistryKeys.ITEM, Identifier.of(LogisticsMod.MOD_ID, name));
+        return RegistryKey.of(RegistryKeys.ITEM, Identifier.of(LogisticsMod.MOD_ID, DOMAIN + name));
     }
 
     public static void initialize() {
         LogisticsMod.LOGGER.info("Registering automation blocks");
+        registerLegacyAliases();
+    }
+
+    private static void registerLegacyAliases() {
+        // v0.2 => v0.3
+        addBlockAlias("quarry", QUARRY);
+        addItemAlias("quarry", QUARRY.asItem());
+        addBlockAlias("quarry_frame", QUARRY_FRAME);
+    }
+
+    private static void addBlockAlias(String name, Block block) {
+        Registries.BLOCK.addAlias(Identifier.of(LogisticsMod.MOD_ID, name), Registries.BLOCK.getId(block));
+    }
+
+    private static void addItemAlias(String name, Item item) {
+        Registries.ITEM.addAlias(Identifier.of(LogisticsMod.MOD_ID, name), Registries.ITEM.getId(item));
     }
 }

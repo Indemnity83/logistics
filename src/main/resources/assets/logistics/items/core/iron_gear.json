@@ -1,0 +1,6 @@
+{
+  "model": {
+    "model": "logistics:item/core/iron_gear",
+    "type": "minecraft:model"
+  }
+}

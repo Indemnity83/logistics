@@ -5,6 +5,8 @@ import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
+
+import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.registry.Registries;
@@ -18,13 +20,14 @@ import org.jetbrains.annotations.Nullable;
 public final class PipeItems {
     private PipeItems() {}
 
+    private static final String DOMAIN = "pipe/";
     private static final int MARKING_FLUID_USES = 16;
 
     private static final Map<Item, DyeColor> MARKING_FLUID_ITEM_COLORS = new HashMap<>();
     private static final Map<DyeColor, Item> MARKING_FLUID_ITEMS = registerMarkingFluidItems();
 
     private static Item registerItem(String name, Item item) {
-        return Registry.register(Registries.ITEM, Identifier.of(LogisticsMod.MOD_ID, name), item);
+        return Registry.register(Registries.ITEM, id(name), item);
     }
 
     public static Item getMarkingFluidItem(DyeColor color) {
@@ -49,7 +52,7 @@ public final class PipeItems {
         for (DyeColor color : DyeColor.values()) {
             String name = "marking_fluid_" + color.getId();
             Item item = new Item(new Item.Settings()
-                    .registryKey(RegistryKey.of(RegistryKeys.ITEM, Identifier.of(LogisticsMod.MOD_ID, name)))
+                    .registryKey(RegistryKey.of(RegistryKeys.ITEM, id(name)))
                     .maxCount(1)
                     .maxDamage(MARKING_FLUID_USES));
             items.put(color, registerItem(name, item));
@@ -59,9 +62,14 @@ public final class PipeItems {
     }
 
     private static void registerLegacyAliases() {
-        // pre-v0.2.0
-        Registries.ITEM.addAlias(
-                Identifier.of(LogisticsMod.MOD_ID, "item_sensor_pipe"),
-                Registries.BLOCK.getId(PipeBlocks.COPPER_TRANSPORT_PIPE));
+        // v0.2 => v0.3
+        for (DyeColor color : DyeColor.values()) {
+            String name = "marking_fluid_" + color.getId();
+            Registries.ITEM.addAlias(Identifier.of(LogisticsMod.MOD_ID, name), id(name));
+        }
+    }
+
+    private static Identifier id(String name) {
+        return Identifier.of(LogisticsMod.MOD_ID, DOMAIN + name);
     }
 }

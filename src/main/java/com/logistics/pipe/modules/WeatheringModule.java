@@ -199,7 +199,7 @@ public class WeatheringModule implements Module {
             return null; // Use default model
         }
         String suffix = getStageSuffix(stage);
-        return Identifier.of(LogisticsMod.MOD_ID, "block/copper_transport_pipe_core" + suffix);
+        return Identifier.of(LogisticsMod.MOD_ID, "block/pipe/copper_transport_pipe_core" + suffix);
     }
 
     @Override
@@ -210,7 +210,7 @@ public class WeatheringModule implements Module {
         }
         String suffix = getStageSuffix(stage);
         String armType = ctx.isInventoryConnection(direction) ? "_arm_extended" : "_arm";
-        return Identifier.of(LogisticsMod.MOD_ID, "block/copper_transport_pipe" + armType + suffix);
+        return Identifier.of(LogisticsMod.MOD_ID, "block/pipe/copper_transport_pipe" + armType + suffix);
     }
 
     // --- Item component handling ---

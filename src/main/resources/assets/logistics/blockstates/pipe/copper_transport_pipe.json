@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "logistics:block/pipe/copper_transport_pipe_core"
+    }
+  }
+}

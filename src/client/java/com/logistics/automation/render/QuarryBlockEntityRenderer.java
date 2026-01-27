@@ -28,8 +28,10 @@ import org.jetbrains.annotations.Nullable;
  * that moves smoothly to the current mining position.
  */
 public class QuarryBlockEntityRenderer implements BlockEntityRenderer<QuarryBlockEntity, QuarryRenderState> {
-    private static final Identifier ARM_MODEL_ID = Identifier.of(LogisticsMod.MOD_ID, "block/quarry_gantry_arm");
-    private static final Identifier DRILL_MODEL_ID = Identifier.of(LogisticsMod.MOD_ID, "block/quarry_drill");
+    private static final Identifier ARM_MODEL_ID =
+            Identifier.of(LogisticsMod.MOD_ID, "block/automation/quarry_gantry_arm");
+    private static final Identifier DRILL_MODEL_ID =
+            Identifier.of(LogisticsMod.MOD_ID, "block/automation/quarry_drill");
 
     public QuarryBlockEntityRenderer(BlockEntityRendererFactory.Context ctx) {}
 

@@ -111,7 +111,7 @@ public class MergerModule implements Module {
             return null;
         }
         String suffix = ctx.isInventoryConnection(direction) ? "_feature_extended" : "_feature";
-        return Identifier.of(LogisticsMod.MOD_ID, "block/item_merger_pipe" + suffix);
+        return Identifier.of(LogisticsMod.MOD_ID, "block/pipe/item_merger_pipe" + suffix);
     }
 
     private boolean isOutputDirection(PipeContext ctx, Direction direction) {
