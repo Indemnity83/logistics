@@ -26,10 +26,6 @@
   - **Issue:** `useCustomBounds` is not reset before reading NBT, so old true state can persist if `CustomBounds` is absent.
   - **Proposed fix:** Reset `useCustomBounds` and bound fields at the start of `readData`.
 
-- **Unused variable in marker search** (`src/main/java/com/logistics/marker/MarkerManager.java:175`)
-  - **Issue:** `neighborPos` is assigned but not used.
-  - **Proposed fix:** Remove the variable to reduce noise.
-
 ## Agreed Behavior
 
 - Pipe above quarry **takes strict precedence** over inventory insertion.

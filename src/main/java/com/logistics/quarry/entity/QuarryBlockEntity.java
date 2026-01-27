@@ -1225,6 +1225,12 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
     protected void readData(ReadView view) {
         super.readData(view);
 
+        useCustomBounds = false;
+        customMinX = 0;
+        customMinZ = 0;
+        customMaxX = 0;
+        customMaxZ = 0;
+
         // Clear inventory
         for (int i = 0; i < QuarryConfig.INVENTORY_SIZE; i++) {
             inventory.set(i, ItemStack.EMPTY);
