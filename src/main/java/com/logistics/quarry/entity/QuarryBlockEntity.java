@@ -32,6 +32,7 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
+import net.minecraft.registry.tag.ItemTags;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.screen.ScreenHandler;
@@ -340,7 +341,7 @@ public class QuarryBlockEntity extends BlockEntity
             } else if (entity.activeToolSlot != toolSlot) {
                 // Active tool slot is no longer the first valid tool (tool was removed)
                 ItemStack activeStack = entity.getStack(entity.activeToolSlot);
-                if (activeStack.isEmpty() || activeStack.getMaxDamage() <= 0) {
+                if (!isValidTool(activeStack)) {
                     // Tool in active slot was removed or is no longer valid
                     toolChanged = true;
                 }
@@ -472,11 +473,21 @@ public class QuarryBlockEntity extends BlockEntity
     private int findFirstToolSlot() {
         for (int i = 0; i < QuarryConfig.INVENTORY_SIZE; i++) {
             ItemStack stack = inventory.get(i);
-            if (!stack.isEmpty() && stack.getMaxDamage() > 0) {
+            if (isValidTool(stack)) {
                 return i;
             }
         }
         return -1;
+    }
+
+    private static boolean isValidTool(ItemStack stack) {
+        if (stack.isEmpty()) {
+            return false;
+        }
+        return stack.isIn(ItemTags.PICKAXES)
+                || stack.isIn(ItemTags.SHOVELS)
+                || stack.isIn(ItemTags.AXES)
+                || stack.isIn(ItemTags.HOES);
     }
 
     private boolean shouldSkipBlock(BlockState state) {
@@ -1189,8 +1200,7 @@ public class QuarryBlockEntity extends BlockEntity
 
     @Override
     public boolean isValid(int slot, ItemStack stack) {
-        // Only accept items that can damage blocks (tools)
-        return stack.getMaxDamage() > 0;
+        return isValidTool(stack);
     }
 
     // SidedInventory implementation - allow hopper interaction
