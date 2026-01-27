@@ -9,12 +9,7 @@ import com.logistics.client.render.QuarryBlockEntityRenderer;
 import com.logistics.client.render.QuarryRenderState;
 import com.logistics.client.screen.ItemFilterScreen;
 import com.logistics.client.screen.QuarryScreen;
-import com.logistics.marker.MarkerBlockEntities;
-import com.logistics.marker.MarkerBlocks;
-import com.logistics.pipe.ui.PipeScreenHandlers;
-import com.logistics.quarry.QuarryBlockEntities;
-import com.logistics.quarry.QuarryBlocks;
-import com.logistics.quarry.ui.QuarryScreenHandlers;
+import com.logistics.ui.LogisticsScreenHandlers;
 
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
@@ -42,22 +37,22 @@ public class LogisticsModClient implements ClientModInitializer {
         BlockRenderLayerMap.putBlock(LogisticsBlocks.ITEM_VOID_PIPE, BlockRenderLayer.CUTOUT);
 
         // Register marker block to render with transparency
-        BlockRenderLayerMap.putBlock(MarkerBlocks.MARKER, BlockRenderLayer.CUTOUT);
+        BlockRenderLayerMap.putBlock(LogisticsBlocks.MARKER, BlockRenderLayer.CUTOUT);
 
         // Register quarry frame to render with transparency
-        BlockRenderLayerMap.putBlock(QuarryBlocks.QUARRY_FRAME, BlockRenderLayer.CUTOUT);
+        BlockRenderLayerMap.putBlock(LogisticsBlocks.QUARRY_FRAME, BlockRenderLayer.CUTOUT);
 
         // Register block entity renderer for traveling items
         BlockEntityRendererFactories.register(LogisticsBlockEntities.PIPE_BLOCK_ENTITY, PipeBlockEntityRenderer::new);
 
         // Register block entity renderer for markers
-        BlockEntityRendererFactories.register(MarkerBlockEntities.MARKER_BLOCK_ENTITY, MarkerBlockEntityRenderer::new);
+        BlockEntityRendererFactories.register(LogisticsBlockEntities.MARKER_BLOCK_ENTITY, MarkerBlockEntityRenderer::new);
 
         // Register block entity renderer for quarry arm
-        BlockEntityRendererFactories.register(QuarryBlockEntities.QUARRY_BLOCK_ENTITY, QuarryBlockEntityRenderer::new);
+        BlockEntityRendererFactories.register(LogisticsBlockEntities.QUARRY_BLOCK_ENTITY, QuarryBlockEntityRenderer::new);
 
-        HandledScreens.register(PipeScreenHandlers.ITEM_FILTER, ItemFilterScreen::new);
-        HandledScreens.register(QuarryScreenHandlers.QUARRY, QuarryScreen::new);
+        HandledScreens.register(LogisticsScreenHandlers.ITEM_FILTER, ItemFilterScreen::new);
+        HandledScreens.register(LogisticsScreenHandlers.QUARRY, QuarryScreen::new);
 
         ClientTickEvents.END_WORLD_TICK.register(QuarryRenderState::pruneInterpolationCache);
         ClientLifecycleEvents.CLIENT_STOPPING.register(client -> QuarryRenderState.clearAllInterpolationCaches());

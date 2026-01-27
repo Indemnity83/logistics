@@ -1,16 +1,16 @@
 package com.logistics.client.render;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 import com.logistics.quarry.QuarryConfig;
 import com.logistics.quarry.entity.QuarryBlockEntity;
 
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.world.ClientWorld;
 import net.minecraft.client.render.block.entity.state.BlockEntityRenderState;
+import net.minecraft.client.world.ClientWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
-
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Render state for the quarry arm visualization.

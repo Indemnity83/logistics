@@ -6,9 +6,7 @@ import java.util.List;
 import com.logistics.LogisticsMod;
 import com.logistics.block.LogisticsBlocks;
 import com.logistics.block.PipeBlock;
-import com.logistics.marker.MarkerBlocks;
 import com.logistics.pipe.Pipe;
-import com.logistics.quarry.QuarryBlocks;
 
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.minecraft.item.ItemGroup;
@@ -52,8 +50,8 @@ public final class LogisticsItemGroups {
                         entries.add(LogisticsBlocks.ITEM_FILTER_PIPE);
                         entries.add(LogisticsBlocks.ITEM_INSERTION_PIPE);
                         entries.add(LogisticsBlocks.ITEM_VOID_PIPE);
-                        entries.add(QuarryBlocks.QUARRY);
-                        entries.add(MarkerBlocks.MARKER);
+                        entries.add(LogisticsBlocks.QUARRY);
+                        entries.add(LogisticsBlocks.MARKER);
                     })
                     .build());
 

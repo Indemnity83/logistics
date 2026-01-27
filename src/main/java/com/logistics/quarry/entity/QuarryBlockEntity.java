@@ -7,11 +7,11 @@ import java.util.Map;
 
 import com.logistics.block.PipeBlock;
 import com.logistics.block.entity.PipeBlockEntity;
+import com.logistics.block.LogisticsBlocks;
+import com.logistics.block.entity.LogisticsBlockEntities;
 import com.logistics.pipe.runtime.PipeConfig;
 import com.logistics.pipe.runtime.TravelingItem;
 import com.logistics.quarry.QuarryBlock;
-import com.logistics.quarry.QuarryBlockEntities;
-import com.logistics.quarry.QuarryBlocks;
 import com.logistics.quarry.QuarryConfig;
 import com.logistics.quarry.QuarryFrameBlock;
 import com.logistics.quarry.ui.QuarryScreenHandler;
@@ -109,7 +109,7 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
     private int expectedTravelTicks = 0; // Expected ticks to reach target (for settling calculation)
 
     public QuarryBlockEntity(BlockPos pos, BlockState state) {
-        super(QuarryBlockEntities.QUARRY_BLOCK_ENTITY, pos, state);
+        super(LogisticsBlockEntities.QUARRY_BLOCK_ENTITY, pos, state);
         // Use position hash as unique entity ID for breaking animation
         this.breakingEntityId = pos.hashCode();
     }
@@ -1031,7 +1031,7 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
                     startZ = quarryPos.getZ() - 8;
                     break;
                 default:
-                    return QuarryBlocks.QUARRY_FRAME.getDefaultState();
+                    return LogisticsBlocks.QUARRY_FRAME.getDefaultState();
             }
             endX = startX + QuarryConfig.CHUNK_SIZE - 1;
             endZ = startZ + QuarryConfig.CHUNK_SIZE - 1;
@@ -1078,7 +1078,7 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
             }
         }
 
-        QuarryFrameBlock frameBlock = (QuarryFrameBlock) QuarryBlocks.QUARRY_FRAME;
+        QuarryFrameBlock frameBlock = (QuarryFrameBlock) LogisticsBlocks.QUARRY_FRAME;
         return frameBlock.withArms(north, south, east, west, up, down);
     }
 

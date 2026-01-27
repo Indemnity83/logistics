@@ -1,51 +1,14 @@
 # Quarry Feature Review Notes
 
-## Issues and Proposed Fixes
-
-- **Frame decay is expensive** (`src/main/java/com/logistics/quarry/QuarryFrameBlock.java:128`)
-  - **Issue:** Random tick scans a 64-radius cube per frame block, which can be costly with many frames.
-  - **Proposed fix:** Track owning quarry position in frame state or a lightweight BE, or keep a registry of quarries by chunk and only check nearby candidates.
-
-- **Nearby item collection can steal unrelated drops** (`src/main/java/com/logistics/quarry/entity/QuarryBlockEntity.java:520`)
-  - **Issue:** `collectNearbyItems` grabs any `ItemEntity` in radius, not just ones spawned by the quarry.
-  - **Proposed fix:** Avoid broad collection, or filter to items spawned during the block break (e.g., track block break time/position or use `Block.getDroppedStacks` only).
-
-## Agreed Behavior
-
-- Pipe above quarry **takes strict precedence** over inventory insertion.
-- Minimum marker rectangle size is **3x3**.
-
 ## PR #42 Comment Follow-ups (Applicable)
 
 - **Spotless formatting check** (`src/client/java/com/logistics/client/render/MarkerBlockEntityRenderer.java`)
   - **Note:** CI reported `spotlessCheck` failure on this file in PR #42.
   - **Proposed fix:** Run `./gradlew spotlessApply` and re-run `./gradlew spotlessCheck` to confirm formatting is clean.
 
-- **Interpolation cache cleanup** (`src/client/java/com/logistics/client/render/QuarryRenderState.java:49`)
-  - **Issue:** `INTERPOLATION_CACHE` is never cleared.
-  - **Proposed fix:** Call `QuarryRenderState.clearInterpolationCache(pos)` on quarry removal and `clearAllInterpolationCaches()` on world unload.
-
 - **Recipe key ingredient format validation** (`src/main/resources/data/logistics/recipe/*.json`)
   - **Issue:** Keys currently use bare string IDs. Depending on the target MC data-pack format, these may need to be ingredient objects (`{ "item": "..." }`).
   - **Proposed fix:** Verify the correct format for the current Minecraft version/mappings. If objects are required, update all `key` entries consistently.
-
-## Architecture Cleanup (Proposed)
-
-- **Centralize block registration in `LogisticsBlocks`**
-  - **Issue:** `QuarryBlocks` and `MarkerBlocks` duplicate the registration helpers already present in `LogisticsBlocks`.
-  - **Proposed fix:** Move `QUARRY`, `QUARRY_FRAME`, and `MARKER` registrations into `LogisticsBlocks` (add a shared `registerNoItem(...)` helper there). Keep feature packages focused on logic/rendering rather than common registration.
-
-- **Centralize block entity registration in `LogisticsBlockEntities`**
-  - **Issue:** `QuarryBlockEntities` and `MarkerBlockEntities` replicate the same registration pattern used in `LogisticsBlockEntities`.
-  - **Proposed fix:** Register all block entities in `LogisticsBlockEntities`, and keep feature packages to the entity classes themselves.
-
-- **Consolidate screen handler registration**
-  - **Issue:** Screen handlers are split across `PipeScreenHandlers` and `QuarryScreenHandlers`, but both are initialized in `LogisticsMod`.
-  - **Proposed fix:** Introduce a common `LogisticsScreenHandlers` (or similar) to register all screen handlers in one place.
-
-- **Reduce no-op `initialize()` helpers**
-  - **Issue:** `QuarryBlocks.initialize()` and `MarkerBlocks.initialize()` only log and add churn in `LogisticsMod.onInitialize`.
-  - **Proposed fix:** Remove no-op init methods once registrations are centralized.
 
 ## Namespace Adjustments (Future)
 

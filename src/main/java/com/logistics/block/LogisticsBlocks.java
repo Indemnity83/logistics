@@ -5,7 +5,10 @@ import java.util.function.Function;
 
 import com.logistics.LogisticsMod;
 import com.logistics.item.ModularPipeBlockItem;
+import com.logistics.marker.MarkerBlock;
 import com.logistics.pipe.PipeTypes;
+import com.logistics.quarry.QuarryBlock;
+import com.logistics.quarry.QuarryFrameBlock;
 
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
@@ -50,6 +53,14 @@ public final class LogisticsBlocks {
     public static final Block ITEM_VOID_PIPE =
             register("item_void_pipe", settings -> new PipeBlock(settings, PipeTypes.ITEM_VOID));
 
+    // Quarry + marker blocks
+    public static final Block QUARRY = register("quarry", QuarryBlock::new);
+    public static final Block QUARRY_FRAME = registerNoItem(
+            "quarry_frame",
+            QuarryFrameBlock::new,
+            settings -> settings.strength(-1.0f, 3600000.0f).nonOpaque().dropsNothing().ticksRandomly());
+    public static final Block MARKER = register("marker", MarkerBlock::new);
+
     private static Block register(String name, Function<AbstractBlock.Settings, Block> blockFactory) {
         return register(name, blockFactory, BlockItem::new);
     }
@@ -70,6 +81,20 @@ public final class LogisticsBlocks {
                 block, new Item.Settings().registryKey(itemKey).useBlockPrefixedTranslationKey());
         Registry.register(Registries.ITEM, itemKey, blockItem);
 
+        return Registry.register(Registries.BLOCK, blockKey, block);
+    }
+
+    private static Block registerNoItem(String name, Function<AbstractBlock.Settings, Block> blockFactory) {
+        return registerNoItem(name, blockFactory, Function.identity());
+    }
+
+    private static Block registerNoItem(
+            String name,
+            Function<AbstractBlock.Settings, Block> blockFactory,
+            Function<AbstractBlock.Settings, AbstractBlock.Settings> settingsFactory) {
+        RegistryKey<Block> blockKey = keyOfBlock(name);
+        AbstractBlock.Settings settings = settingsFactory.apply(AbstractBlock.Settings.create().registryKey(blockKey));
+        Block block = blockFactory.apply(settings);
         return Registry.register(Registries.BLOCK, blockKey, block);
     }
 

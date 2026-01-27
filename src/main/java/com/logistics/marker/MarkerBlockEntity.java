@@ -3,6 +3,7 @@ package com.logistics.marker;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.logistics.block.entity.LogisticsBlockEntities;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -30,7 +31,7 @@ public class MarkerBlockEntity extends BlockEntity {
     private boolean isCornerMarker = false;
 
     public MarkerBlockEntity(BlockPos pos, BlockState state) {
-        super(MarkerBlockEntities.MARKER_BLOCK_ENTITY, pos, state);
+        super(LogisticsBlockEntities.MARKER_BLOCK_ENTITY, pos, state);
     }
 
     /**

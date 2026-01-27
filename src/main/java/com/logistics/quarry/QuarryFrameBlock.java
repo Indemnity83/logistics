@@ -1,6 +1,7 @@
 package com.logistics.quarry;
 
 import com.logistics.quarry.entity.QuarryBlockEntity;
+
 import com.mojang.serialization.MapCodec;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -80,8 +81,7 @@ public class QuarryFrameBlock extends Block {
         return shape;
     }
 
-    @Nullable
-    @Override
+    @Nullable @Override
     public BlockState getPlacementState(ItemPlacementContext ctx) {
         // When placed manually, don't connect to anything
         // The quarry will place these with the correct connections

@@ -1,5 +1,6 @@
 package com.logistics.quarry;
 
+import com.logistics.block.entity.LogisticsBlockEntities;
 import com.logistics.marker.MarkerManager;
 import com.logistics.quarry.entity.QuarryBlockEntity;
 
@@ -109,7 +110,7 @@ public class QuarryBlock extends BlockWithEntity {
             World world, BlockState state, BlockEntityType<T> type) {
         return validateTicker(
                 type,
-                QuarryBlockEntities.QUARRY_BLOCK_ENTITY,
+                LogisticsBlockEntities.QUARRY_BLOCK_ENTITY,
                 QuarryBlockEntity::tick);
     }
 

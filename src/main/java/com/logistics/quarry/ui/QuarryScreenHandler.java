@@ -1,6 +1,7 @@
 package com.logistics.quarry.ui;
 
 import com.logistics.quarry.entity.QuarryBlockEntity;
+import com.logistics.ui.LogisticsScreenHandlers;
 
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
@@ -38,7 +39,7 @@ public class QuarryScreenHandler extends ScreenHandler {
     }
 
     private QuarryScreenHandler(int syncId, PlayerInventory playerInventory, Inventory inventory, ScreenHandlerContext context) {
-        super(QuarryScreenHandlers.QUARRY, syncId);
+        super(LogisticsScreenHandlers.QUARRY, syncId);
         this.inventory = inventory;
         this.context = context;
 

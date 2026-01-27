@@ -4,12 +4,7 @@ import com.logistics.block.LogisticsBlocks;
 import com.logistics.block.entity.LogisticsBlockEntities;
 import com.logistics.item.LogisticsItemGroups;
 import com.logistics.item.LogisticsItems;
-import com.logistics.marker.MarkerBlockEntities;
-import com.logistics.marker.MarkerBlocks;
-import com.logistics.pipe.ui.PipeScreenHandlers;
-import com.logistics.quarry.QuarryBlockEntities;
-import com.logistics.quarry.QuarryBlocks;
-import com.logistics.quarry.ui.QuarryScreenHandlers;
+import com.logistics.ui.LogisticsScreenHandlers;
 import com.logistics.util.TimingLog;
 
 import net.fabricmc.api.ModInitializer;
@@ -31,12 +26,7 @@ public class LogisticsMod implements ModInitializer {
         TimingLog.time(LOGGER, "LogisticsItems.initialize", LogisticsItems::initialize);
         TimingLog.time(LOGGER, "LogisticsBlocks.initialize", LogisticsBlocks::initialize);
         TimingLog.time(LOGGER, "LogisticsBlockEntities.initialize", LogisticsBlockEntities::initialize);
-        TimingLog.time(LOGGER, "PipeScreenHandlers.initialize", PipeScreenHandlers::initialize);
-        TimingLog.time(LOGGER, "QuarryBlocks.initialize", QuarryBlocks::initialize);
-        TimingLog.time(LOGGER, "QuarryBlockEntities.initialize", QuarryBlockEntities::initialize);
-        TimingLog.time(LOGGER, "QuarryScreenHandlers.initialize", QuarryScreenHandlers::initialize);
-        TimingLog.time(LOGGER, "MarkerBlocks.initialize", MarkerBlocks::initialize);
-        TimingLog.time(LOGGER, "MarkerBlockEntities.initialize", MarkerBlockEntities::initialize);
+        TimingLog.time(LOGGER, "LogisticsScreenHandlers.initialize", LogisticsScreenHandlers::initialize);
         TimingLog.time(LOGGER, "LogisticsItemGroups.initialize", LogisticsItemGroups::initialize);
 
         TimingLog.time(
