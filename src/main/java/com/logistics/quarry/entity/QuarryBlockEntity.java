@@ -603,10 +603,9 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
             if (aboveEntity instanceof PipeBlockEntity pipeEntity) {
                 // Use forceAddItem to bypass ingress checks and insert directly into pipe
                 TravelingItem travelingItem = new TravelingItem(stack.copy(), Direction.UP, PipeConfig.ITEM_MIN_SPEED);
-                if (pipeEntity.forceAddItem(travelingItem, Direction.DOWN)) {
-                    stack.setCount(0);
-                }
+                pipeEntity.forceAddItem(travelingItem, Direction.DOWN);
             }
+            return;
         }
 
         // Check if there's an inventory above (chest, barrel, etc.)

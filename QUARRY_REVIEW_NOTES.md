@@ -6,10 +6,6 @@
   - **Issue:** `outputItem` uses `forceAddItem` to insert into a pipe, but on partial or full rejection the pipe code drops the full stack while `outputItem` continues to insert/drop the original stack, duplicating items.
   - **Proposed fix:** Treat pipe insertion as terminal. Change the pipe API to return the accepted/remainder stack (or add a new helper) and only continue with the remainder; if any pipe is present, do not attempt inventory insertion unless remainder exists.
 
-- **Marker bounds can create invalid mining sizes** (`src/main/java/com/logistics/marker/MarkerManager.java:94`, `src/main/java/com/logistics/quarry/entity/QuarryBlockEntity.java:744`)
-  - **Issue:** Tiny rectangles can yield zero or negative inner sizes, breaking mining traversal.
-  - **Proposed fix:** Enforce minimum marker rectangle size of **3x3** at activation (fail with a clear message). Add a safety guard in quarry mining for innerSizeX/Z <= 0.
-
 - **Frame decay is expensive** (`src/main/java/com/logistics/quarry/QuarryFrameBlock.java:128`)
   - **Issue:** Random tick scans a 64-radius cube per frame block, which can be costly with many frames.
   - **Proposed fix:** Track owning quarry position in frame state or a lightweight BE, or keep a registry of quarries by chunk and only check nearby candidates.
