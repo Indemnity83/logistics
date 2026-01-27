@@ -7,6 +7,7 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.SimpleInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.registry.tag.ItemTags;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.ScreenHandlerContext;
 import net.minecraft.screen.slot.Slot;
@@ -26,8 +27,9 @@ public class QuarryScreenHandler extends ScreenHandler {
     private final Inventory inventory;
     private final ScreenHandlerContext context;
 
-    // Client constructor
-    public QuarryScreenHandler(int syncId, PlayerInventory playerInventory, BlockPos pos) {
+    // Client constructor (pos comes from ExtendedScreenHandlerType packet codec)
+    @SuppressWarnings("unused")
+    public QuarryScreenHandler(int syncId, PlayerInventory playerInventory, BlockPos unusedPos) {
         this(syncId, playerInventory, new SimpleInventory(INVENTORY_SIZE), ScreenHandlerContext.EMPTY);
     }
 
@@ -145,7 +147,10 @@ public class QuarryScreenHandler extends ScreenHandler {
     }
 
     private static boolean isValidTool(ItemStack stack) {
-        return stack.getMaxDamage() > 0;
+        return stack.isIn(ItemTags.PICKAXES)
+                || stack.isIn(ItemTags.SHOVELS)
+                || stack.isIn(ItemTags.AXES)
+                || stack.isIn(ItemTags.HOES);
     }
 
     private static class ToolSlot extends Slot {

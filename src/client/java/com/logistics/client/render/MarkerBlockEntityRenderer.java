@@ -17,7 +17,6 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -57,9 +56,8 @@ public class MarkerBlockEntityRenderer implements BlockEntityRenderer<MarkerBloc
 
         // Calculate beam lengths
         if (state.active) {
-            World world = entity.getWorld();
-            if (world != null) {
-                calculateBeamLengths(state, world, entity.getPos());
+            if (entity.getWorld() != null) {
+                calculateBeamLengths(state, entity.getPos());
             }
         } else {
             state.beamNorth = 0;
@@ -69,7 +67,7 @@ public class MarkerBlockEntityRenderer implements BlockEntityRenderer<MarkerBloc
         }
     }
 
-    private void calculateBeamLengths(MarkerRenderState state, World world, BlockPos pos) {
+    private void calculateBeamLengths(MarkerRenderState state, BlockPos pos) {
         if (!state.connectedMarkers.isEmpty()) {
             // Connected mode - draw beams to form rectangle outline
             state.beamNorth = 0;

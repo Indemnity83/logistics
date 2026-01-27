@@ -209,13 +209,14 @@ public class MarkerBlockEntity extends BlockEntity {
             });
 
             // Load bounds
-            if (data.contains("MinX")) {
+            boolean hasMin = data.contains("MinX");
+            boolean hasMax = data.contains("MaxX");
+            if (hasMin && hasMax) {
                 int minX = data.getInt("MinX").orElse(0);
                 int minY = data.getInt("MinY").orElse(0);
                 int minZ = data.getInt("MinZ").orElse(0);
                 boundMin = new BlockPos(minX, minY, minZ);
-            }
-            if (data.contains("MaxX")) {
+
                 int maxX = data.getInt("MaxX").orElse(0);
                 int maxY = data.getInt("MaxY").orElse(0);
                 int maxZ = data.getInt("MaxZ").orElse(0);

@@ -33,10 +33,6 @@ public class QuarryFrameBlock extends Block {
     public static final BooleanProperty UP = BooleanProperty.of("up");
     public static final BooleanProperty DOWN = BooleanProperty.of("down");
 
-    // Shape constants (similar to pipes)
-    private static final double MIN = 5.0 / 16.0;
-    private static final double MAX = 11.0 / 16.0;
-
     private static final VoxelShape CORE = Block.createCuboidShape(5, 5, 5, 11, 11, 11);
     private static final VoxelShape ARM_NORTH = Block.createCuboidShape(5, 5, 0, 11, 11, 5);
     private static final VoxelShape ARM_SOUTH = Block.createCuboidShape(5, 5, 11, 11, 11, 16);

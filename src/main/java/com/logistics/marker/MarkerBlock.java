@@ -33,6 +33,8 @@ import org.jetbrains.annotations.Nullable;
 public class MarkerBlock extends BlockWithEntity {
     public static final MapCodec<MarkerBlock> CODEC = createCodec(MarkerBlock::new);
     public static final BooleanProperty ACTIVE = BooleanProperty.of("active");
+    // Blue particle color for active markers
+    private static final int ACTIVE_PARTICLE_COLOR = 0x0132FD;
 
     // Torch-like shape matching vanilla torch dimensions
     private static final VoxelShape SHAPE = Block.createCuboidShape(6.0, 0.0, 6.0, 10.0, 10.0, 10.0);
@@ -110,7 +112,7 @@ public class MarkerBlock extends BlockWithEntity {
             double x = pos.getX() + 0.5 + (random.nextDouble() - 0.5) * 0.2;
             double y = pos.getY() + 0.7;
             double z = pos.getZ() + 0.5 + (random.nextDouble() - 0.5) * 0.2;
-            world.addParticleClient(new DustParticleEffect(0x0132FD, 1.0f), x, y, z, 0.0, 0.0, 0.0);
+            world.addParticleClient(new DustParticleEffect(ACTIVE_PARTICLE_COLOR, 1.0f), x, y, z, 0.0, 0.0, 0.0);
         }
     }
 }
