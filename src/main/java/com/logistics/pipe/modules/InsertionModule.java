@@ -145,7 +145,8 @@ public class InsertionModule implements Module {
     }
 
     private Direction chooseRandomDirection(PipeContext ctx, TravelingItem item, List<Direction> options) {
-        long seed = mixHash(ctx.pos().asLong(), ctx.world().getTime(), item.getDirection().getIndex());
+        long seed = mixHash(
+                ctx.pos().asLong(), ctx.world().getTime(), item.getDirection().getIndex());
         Random random = new Random(seed);
         return options.get(random.nextInt(options.size()));
     }
