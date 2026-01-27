@@ -103,6 +103,12 @@ public final class MarkerManager {
         BlockPos boundMin = new BlockPos(minX, y, minZ);
         BlockPos boundMax = new BlockPos(maxX, y, maxZ);
 
+        int width = maxX - minX + 1;
+        int depth = maxZ - minZ + 1;
+        if (width < 3 || depth < 3) {
+            return new ActivationResult(false, "Area must be at least 3x3");
+        }
+
         // Collect all markers to activate (only the 3 horizontal markers)
         List<BlockPos> allMarkers = new ArrayList<>();
         allMarkers.add(marker1);
@@ -120,8 +126,6 @@ public final class MarkerManager {
             }
         }
 
-        int width = maxX - minX + 1;
-        int depth = maxZ - minZ + 1;
         String sizeInfo = width + "x" + depth;
         return new ActivationResult(true, "Area defined: " + sizeInfo);
     }

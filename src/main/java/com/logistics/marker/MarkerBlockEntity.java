@@ -52,9 +52,13 @@ public class MarkerBlockEntity extends BlockEntity {
             if (result.success()) {
                 player.sendMessage(Text.literal("Marker activated - " + result.message()), true);
             } else {
-                // Activate solo (no connections, just project beams)
-                activateSolo();
-                player.sendMessage(Text.literal("Marker activated"), true);
+                if ("No other markers found nearby".equals(result.message())) {
+                    // Activate solo (no connections, just project beams)
+                    activateSolo();
+                    player.sendMessage(Text.literal("Marker activated"), true);
+                } else {
+                    player.sendMessage(Text.literal("Marker activation failed - " + result.message()), true);
+                }
             }
         }
     }

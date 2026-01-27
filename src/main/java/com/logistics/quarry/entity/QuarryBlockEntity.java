@@ -772,6 +772,9 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
             innerSizeX = QuarryConfig.INNER_SIZE;
             innerSizeZ = QuarryConfig.INNER_SIZE;
         }
+        if (innerSizeX <= 0 || innerSizeZ <= 0) {
+            return null;
+        }
 
         // Mining phase starts 1 block below quarry level
         int startY = quarryPos.getY() - 1;
@@ -814,6 +817,9 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
         } else {
             innerSizeX = QuarryConfig.INNER_SIZE;
             innerSizeZ = QuarryConfig.INNER_SIZE;
+        }
+        if (innerSizeX <= 0 || innerSizeZ <= 0) {
+            return;
         }
 
         miningX++;

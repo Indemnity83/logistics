@@ -14,10 +14,6 @@
   - **Issue:** Random tick scans a 64-radius cube per frame block, which can be costly with many frames.
   - **Proposed fix:** Track owning quarry position in frame state or a lightweight BE, or keep a registry of quarries by chunk and only check nearby candidates.
 
-- **Interpolation cache never cleared** (`src/client/java/com/logistics/client/render/QuarryRenderState.java:49`)
-  - **Issue:** Static cache can grow indefinitely across world loads and removed quarries.
-  - **Proposed fix:** Call `clearInterpolationCache` when a quarry block entity unloads/removes and `clearAllInterpolationCaches` on world unload.
-
 - **Nearby item collection can steal unrelated drops** (`src/main/java/com/logistics/quarry/entity/QuarryBlockEntity.java:520`)
   - **Issue:** `collectNearbyItems` grabs any `ItemEntity` in radius, not just ones spawned by the quarry.
   - **Proposed fix:** Avoid broad collection, or filter to items spawned during the block break (e.g., track block break time/position or use `Block.getDroppedStacks` only).
