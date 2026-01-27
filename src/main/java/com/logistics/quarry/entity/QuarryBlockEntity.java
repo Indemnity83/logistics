@@ -675,7 +675,7 @@ public class QuarryBlockEntity extends BlockEntity
 
         if (existing.isEmpty()) {
             // Empty slot - insert up to max stack size
-            int maxInsert = Math.min(stack.getCount(), inv.getMaxCountPerStack());
+            int maxInsert = Math.min(stack.getCount(), Math.min(inv.getMaxCountPerStack(), stack.getMaxCount()));
             inv.setStack(slot, stack.split(maxInsert));
         } else if (ItemStack.areItemsAndComponentsEqual(existing, stack)) {
             // Same item - try to merge
@@ -1261,6 +1261,8 @@ public class QuarryBlockEntity extends BlockEntity
             customBoundsNbt.putInt("MaxX", customMaxX);
             customBoundsNbt.putInt("MaxZ", customMaxZ);
             view.put("CustomBounds", NbtCompound.CODEC, customBoundsNbt);
+        } else {
+            view.remove("CustomBounds");
         }
     }
 
