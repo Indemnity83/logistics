@@ -173,8 +173,6 @@ public final class MarkerManager {
     @Nullable public static MarkerBounds findAdjacentMarkerBounds(World world, BlockPos quarryPos) {
         // Check all 4 horizontal neighbors
         for (Direction dir : Direction.Type.HORIZONTAL) {
-            BlockPos neighborPos = quarryPos.offset(dir);
-
             // Look for markers in each direction along the perimeter
             MarkerBounds bounds = checkForMarkerAreaInDirection(world, quarryPos, dir);
             if (bounds != null) {
