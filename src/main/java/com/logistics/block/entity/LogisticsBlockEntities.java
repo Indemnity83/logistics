@@ -4,7 +4,6 @@ import com.logistics.LogisticsMod;
 import com.logistics.block.LogisticsBlocks;
 import com.logistics.marker.MarkerBlockEntity;
 import com.logistics.quarry.entity.QuarryBlockEntity;
-
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.registry.Registries;
@@ -34,18 +33,14 @@ public final class LogisticsBlockEntities {
     public static final BlockEntityType<QuarryBlockEntity> QUARRY_BLOCK_ENTITY = Registry.register(
             Registries.BLOCK_ENTITY_TYPE,
             Identifier.of(LogisticsMod.MOD_ID, "quarry"),
-            FabricBlockEntityTypeBuilder.create(
-                    QuarryBlockEntity::new,
-                    LogisticsBlocks.QUARRY
-            ).build());
+            FabricBlockEntityTypeBuilder.create(QuarryBlockEntity::new, LogisticsBlocks.QUARRY)
+                    .build());
 
     public static final BlockEntityType<MarkerBlockEntity> MARKER_BLOCK_ENTITY = Registry.register(
             Registries.BLOCK_ENTITY_TYPE,
             Identifier.of(LogisticsMod.MOD_ID, "marker"),
-            FabricBlockEntityTypeBuilder.create(
-                    MarkerBlockEntity::new,
-                    LogisticsBlocks.MARKER
-            ).build());
+            FabricBlockEntityTypeBuilder.create(MarkerBlockEntity::new, LogisticsBlocks.MARKER)
+                    .build());
 
     public static void initialize() {
         LogisticsMod.LOGGER.info("Registering block entities");

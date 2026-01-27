@@ -4,7 +4,6 @@ import com.logistics.LogisticsMod;
 import com.logistics.quarry.QuarryBlock;
 import com.logistics.quarry.QuarryConfig;
 import com.logistics.quarry.entity.QuarryBlockEntity;
-
 import net.minecraft.block.BlockState;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.RenderLayer;
@@ -31,8 +30,7 @@ public class QuarryBlockEntityRenderer implements BlockEntityRenderer<QuarryBloc
     private static final Identifier ARM_MODEL_ID = Identifier.of(LogisticsMod.MOD_ID, "block/quarry_gantry_arm");
     private static final Identifier DRILL_MODEL_ID = Identifier.of(LogisticsMod.MOD_ID, "block/quarry_drill");
 
-    public QuarryBlockEntityRenderer(BlockEntityRendererFactory.Context ctx) {
-    }
+    public QuarryBlockEntityRenderer(BlockEntityRendererFactory.Context ctx) {}
 
     @Override
     public QuarryRenderState createRenderState() {
@@ -46,7 +44,8 @@ public class QuarryBlockEntityRenderer implements BlockEntityRenderer<QuarryBloc
             float tickDelta,
             Vec3d cameraPos,
             @Nullable net.minecraft.client.render.command.ModelCommandRenderer.CrumblingOverlayCommand crumblingOverlay) {
-        net.minecraft.client.render.block.entity.state.BlockEntityRenderState.updateBlockEntityRenderState(entity, state, crumblingOverlay);
+        net.minecraft.client.render.block.entity.state.BlockEntityRenderState.updateBlockEntityRenderState(
+                entity, state, crumblingOverlay);
 
         state.quarryPos = entity.getPos();
         state.phase = entity.getCurrentPhase();
@@ -111,9 +110,7 @@ public class QuarryBlockEntityRenderer implements BlockEntityRenderer<QuarryBloc
 
         // Sample light at the frame top level (where the horizontal beams are)
         BlockPos frameTopPos = new BlockPos(
-                (state.frameStartX + state.frameEndX) / 2,
-                state.frameTopY,
-                (state.frameStartZ + state.frameEndZ) / 2);
+                (state.frameStartX + state.frameEndX) / 2, state.frameTopY, (state.frameStartZ + state.frameEndZ) / 2);
         state.frameTopLight = net.minecraft.client.render.WorldRenderer.getLightmapCoordinates(world, frameTopPos);
 
         // Get server-synced arm position (interpolation happens in render() for smooth frame-rate independent movement)
@@ -161,22 +158,37 @@ public class QuarryBlockEntityRenderer implements BlockEntityRenderer<QuarryBloc
         int beamLengthZ = state.frameEndZ - state.frameStartZ; // Depth of frame minus 1 (inside frame)
 
         // East-West beam: at armZ, spanning inside the frame (not overlapping frame blocks)
-        renderHorizontalBeam(matrices, queue, armModel, renderLayer, light,
-                state.frameStartX + 1 - quarryX, relFrameTopY, relArmZ,
-                beamLengthX, true); // true = along X axis
+        renderHorizontalBeam(
+                matrices,
+                queue,
+                armModel,
+                renderLayer,
+                light,
+                state.frameStartX + 1 - quarryX,
+                relFrameTopY,
+                relArmZ,
+                beamLengthX,
+                true); // true = along X axis
 
         // North-South beam: at armX, spanning inside the frame
-        renderHorizontalBeam(matrices, queue, armModel, renderLayer, light,
-                relArmX, relFrameTopY, state.frameStartZ + 1 - quarryZ,
-                beamLengthZ, false); // false = along Z axis
+        renderHorizontalBeam(
+                matrices,
+                queue,
+                armModel,
+                renderLayer,
+                light,
+                relArmX,
+                relFrameTopY,
+                state.frameStartZ + 1 - quarryZ,
+                beamLengthZ,
+                false); // false = along Z axis
 
         // Vertical drill beam: starts 0.5 above frameTopY to connect with horizontal beams
         float verticalStartY = relFrameTopY + 0.75f;
         float verticalLength = verticalStartY - relArmY - 1;
         if (verticalLength > 0.1f) {
-            renderVerticalBeam(matrices, queue, armModel, renderLayer, light,
-                    relArmX, verticalStartY, relArmZ,
-                    verticalLength);
+            renderVerticalBeam(
+                    matrices, queue, armModel, renderLayer, light, relArmX, verticalStartY, relArmZ, verticalLength);
         }
 
         // Render drill head at the bottom of the vertical beam
@@ -187,13 +199,7 @@ public class QuarryBlockEntityRenderer implements BlockEntityRenderer<QuarryBloc
             // Drill model is centered at X=0.5, Z=0.5, extends from Y=0.125 to Y=1
             matrices.translate(relArmX - 0.5, relArmY, relArmZ - 0.5);
             queue.submitBlockStateModel(
-                    matrices,
-                    renderLayer,
-                    drillModel,
-                    1.0f, 1.0f, 1.0f,
-                    light,
-                    OverlayTexture.DEFAULT_UV,
-                    0);
+                    matrices, renderLayer, drillModel, 1.0f, 1.0f, 1.0f, light, OverlayTexture.DEFAULT_UV, 0);
             matrices.pop();
         }
     }
@@ -205,10 +211,17 @@ public class QuarryBlockEntityRenderer implements BlockEntityRenderer<QuarryBloc
      * @param startX for alongX: block-aligned start X; for !alongX: centered arm X position
      * @param startZ for alongX: centered arm Z position; for !alongX: block-aligned start Z
      */
-    private void renderHorizontalBeam(MatrixStack matrices, OrderedRenderCommandQueue queue,
-                                      BlockStateModel model, RenderLayer renderLayer, int lightmap,
-                                      float startX, float startY, float startZ,
-                                      int length, boolean alongX) {
+    private void renderHorizontalBeam(
+            MatrixStack matrices,
+            OrderedRenderCommandQueue queue,
+            BlockStateModel model,
+            RenderLayer renderLayer,
+            int lightmap,
+            float startX,
+            float startY,
+            float startZ,
+            int length,
+            boolean alongX) {
         for (int i = 0; i < length; i++) {
             matrices.push();
 
@@ -229,13 +242,7 @@ public class QuarryBlockEntityRenderer implements BlockEntityRenderer<QuarryBloc
             }
 
             queue.submitBlockStateModel(
-                    matrices,
-                    renderLayer,
-                    model,
-                    1.0f, 1.0f, 1.0f,
-                    lightmap,
-                    OverlayTexture.DEFAULT_UV,
-                    0);
+                    matrices, renderLayer, model, 1.0f, 1.0f, 1.0f, lightmap, OverlayTexture.DEFAULT_UV, 0);
 
             matrices.pop();
         }
@@ -249,9 +256,16 @@ public class QuarryBlockEntityRenderer implements BlockEntityRenderer<QuarryBloc
      * @param x centered X position (already includes +0.5 offset)
      * @param z centered Z position (already includes +0.5 offset)
      */
-    private void renderVerticalBeam(MatrixStack matrices, OrderedRenderCommandQueue queue,
-                                    BlockStateModel model, RenderLayer renderLayer, int lightmap,
-                                    float x, float startY, float z, float length) {
+    private void renderVerticalBeam(
+            MatrixStack matrices,
+            OrderedRenderCommandQueue queue,
+            BlockStateModel model,
+            RenderLayer renderLayer,
+            int lightmap,
+            float x,
+            float startY,
+            float z,
+            float length) {
         int fullSegments = (int) length;
         float remainder = length - fullSegments;
 
@@ -267,13 +281,7 @@ public class QuarryBlockEntityRenderer implements BlockEntityRenderer<QuarryBloc
             matrices.translate(-0.5, -0.5, 0.0);
 
             queue.submitBlockStateModel(
-                    matrices,
-                    renderLayer,
-                    model,
-                    1.0f, 1.0f, 1.0f,
-                    lightmap,
-                    OverlayTexture.DEFAULT_UV,
-                    0);
+                    matrices, renderLayer, model, 1.0f, 1.0f, 1.0f, lightmap, OverlayTexture.DEFAULT_UV, 0);
 
             matrices.pop();
         }
@@ -289,13 +297,7 @@ public class QuarryBlockEntityRenderer implements BlockEntityRenderer<QuarryBloc
             matrices.translate(-0.5, -0.5, 0.0);
 
             queue.submitBlockStateModel(
-                    matrices,
-                    renderLayer,
-                    model,
-                    1.0f, 1.0f, 1.0f,
-                    lightmap,
-                    OverlayTexture.DEFAULT_UV,
-                    0);
+                    matrices, renderLayer, model, 1.0f, 1.0f, 1.0f, lightmap, OverlayTexture.DEFAULT_UV, 0);
 
             matrices.pop();
         }

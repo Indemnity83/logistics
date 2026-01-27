@@ -1,9 +1,6 @@
 {
   "type": "minecraft:crafting_shaped",
-  "pattern": [
-    "L",
-    "S"
-  ],
+  "pattern": ["L", "S"],
   "key": {
     "L": "minecraft:lapis_lazuli",
     "S": "minecraft:stick"

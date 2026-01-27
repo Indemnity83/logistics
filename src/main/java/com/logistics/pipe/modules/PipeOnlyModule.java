@@ -2,7 +2,6 @@ package com.logistics.pipe.modules;
 
 import com.logistics.pipe.Pipe;
 import com.logistics.pipe.PipeContext;
-
 import net.minecraft.block.Block;
 import net.minecraft.util.math.Direction;
 import org.jetbrains.annotations.Nullable;

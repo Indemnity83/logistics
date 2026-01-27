@@ -2,7 +2,6 @@ package com.logistics.client.screen;
 
 import com.logistics.pipe.modules.ItemFilterModule;
 import com.logistics.pipe.ui.ItemFilterScreenHandler;
-
 import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;

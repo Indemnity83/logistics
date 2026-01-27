@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
@@ -91,7 +90,8 @@ public final class MarkerManager {
      * Activate three markers forming a triangle/L-shape.
      * Only handles 2D rectangles (X and Z axes).
      */
-    private static ActivationResult activateTriangle(World world, BlockPos marker1, BlockPos marker2, BlockPos marker3, BlockPos cornerPos) {
+    private static ActivationResult activateTriangle(
+            World world, BlockPos marker1, BlockPos marker2, BlockPos marker3, BlockPos cornerPos) {
         // Calculate 2D bounds (X and Z only)
         int minX = Math.min(Math.min(marker1.getX(), marker2.getX()), marker3.getX());
         int maxX = Math.max(Math.max(marker1.getX(), marker2.getX()), marker3.getX());
@@ -157,7 +157,8 @@ public final class MarkerManager {
     /**
      * Find a perpendicular marker connection from the given position.
      */
-    @Nullable private static BlockPos findPerpendicularConnection(World world, BlockPos pos, Direction exclude1, Direction exclude2) {
+    @Nullable private static BlockPos findPerpendicularConnection(
+            World world, BlockPos pos, Direction exclude1, Direction exclude2) {
         for (Direction dir : Direction.Type.HORIZONTAL) {
             if (dir == exclude1 || dir == exclude2) continue;
 
@@ -168,7 +169,6 @@ public final class MarkerManager {
         }
         return null;
     }
-
 
     /**
      * Check if a position is adjacent to a valid marker-defined area.
@@ -215,14 +215,17 @@ public final class MarkerManager {
                         // Search face at z = quarryZ - distance, x from -distance to +distance
                         int z = quarryZ - distance;
                         for (int dx = -distance; dx <= distance; dx++) {
-                            MarkerBounds result = checkMarkerPosition(world, quarryPos, quarryX + dx, y, z, checkedMarkers);
+                            MarkerBounds result =
+                                    checkMarkerPosition(world, quarryPos, quarryX + dx, y, z, checkedMarkers);
                             if (result != null) return result;
                         }
                         // Also check side edges at this distance (x = quarryX +/- distance, z from -(distance-1) to -1)
                         for (int dz = 1; dz < distance; dz++) {
-                            MarkerBounds result = checkMarkerPosition(world, quarryPos, quarryX - distance, y, quarryZ - dz, checkedMarkers);
+                            MarkerBounds result = checkMarkerPosition(
+                                    world, quarryPos, quarryX - distance, y, quarryZ - dz, checkedMarkers);
                             if (result != null) return result;
-                            result = checkMarkerPosition(world, quarryPos, quarryX + distance, y, quarryZ - dz, checkedMarkers);
+                            result = checkMarkerPosition(
+                                    world, quarryPos, quarryX + distance, y, quarryZ - dz, checkedMarkers);
                             if (result != null) return result;
                         }
                     }
@@ -230,14 +233,17 @@ public final class MarkerManager {
                         // Search face at z = quarryZ + distance
                         int z = quarryZ + distance;
                         for (int dx = -distance; dx <= distance; dx++) {
-                            MarkerBounds result = checkMarkerPosition(world, quarryPos, quarryX + dx, y, z, checkedMarkers);
+                            MarkerBounds result =
+                                    checkMarkerPosition(world, quarryPos, quarryX + dx, y, z, checkedMarkers);
                             if (result != null) return result;
                         }
                         // Side edges
                         for (int dz = 1; dz < distance; dz++) {
-                            MarkerBounds result = checkMarkerPosition(world, quarryPos, quarryX - distance, y, quarryZ + dz, checkedMarkers);
+                            MarkerBounds result = checkMarkerPosition(
+                                    world, quarryPos, quarryX - distance, y, quarryZ + dz, checkedMarkers);
                             if (result != null) return result;
-                            result = checkMarkerPosition(world, quarryPos, quarryX + distance, y, quarryZ + dz, checkedMarkers);
+                            result = checkMarkerPosition(
+                                    world, quarryPos, quarryX + distance, y, quarryZ + dz, checkedMarkers);
                             if (result != null) return result;
                         }
                     }
@@ -245,14 +251,17 @@ public final class MarkerManager {
                         // Search face at x = quarryX + distance
                         int x = quarryX + distance;
                         for (int dz = -distance; dz <= distance; dz++) {
-                            MarkerBounds result = checkMarkerPosition(world, quarryPos, x, y, quarryZ + dz, checkedMarkers);
+                            MarkerBounds result =
+                                    checkMarkerPosition(world, quarryPos, x, y, quarryZ + dz, checkedMarkers);
                             if (result != null) return result;
                         }
                         // Side edges
                         for (int dx = 1; dx < distance; dx++) {
-                            MarkerBounds result = checkMarkerPosition(world, quarryPos, quarryX + dx, y, quarryZ - distance, checkedMarkers);
+                            MarkerBounds result = checkMarkerPosition(
+                                    world, quarryPos, quarryX + dx, y, quarryZ - distance, checkedMarkers);
                             if (result != null) return result;
-                            result = checkMarkerPosition(world, quarryPos, quarryX + dx, y, quarryZ + distance, checkedMarkers);
+                            result = checkMarkerPosition(
+                                    world, quarryPos, quarryX + dx, y, quarryZ + distance, checkedMarkers);
                             if (result != null) return result;
                         }
                     }
@@ -260,18 +269,23 @@ public final class MarkerManager {
                         // Search face at x = quarryX - distance
                         int x = quarryX - distance;
                         for (int dz = -distance; dz <= distance; dz++) {
-                            MarkerBounds result = checkMarkerPosition(world, quarryPos, x, y, quarryZ + dz, checkedMarkers);
+                            MarkerBounds result =
+                                    checkMarkerPosition(world, quarryPos, x, y, quarryZ + dz, checkedMarkers);
                             if (result != null) return result;
                         }
                         // Side edges
                         for (int dx = 1; dx < distance; dx++) {
-                            MarkerBounds result = checkMarkerPosition(world, quarryPos, quarryX - dx, y, quarryZ - distance, checkedMarkers);
+                            MarkerBounds result = checkMarkerPosition(
+                                    world, quarryPos, quarryX - dx, y, quarryZ - distance, checkedMarkers);
                             if (result != null) return result;
-                            result = checkMarkerPosition(world, quarryPos, quarryX - dx, y, quarryZ + distance, checkedMarkers);
+                            result = checkMarkerPosition(
+                                    world, quarryPos, quarryX - dx, y, quarryZ + distance, checkedMarkers);
                             if (result != null) return result;
                         }
                     }
-                    default -> { /* UP/DOWN not used for horizontal marker search */ }
+                    default -> {
+                        /* UP/DOWN not used for horizontal marker search */
+                    }
                 }
             }
         }
@@ -282,7 +296,8 @@ public final class MarkerManager {
     /**
      * Check a single position for a valid marker that defines bounds adjacent to the quarry.
      */
-    @Nullable private static MarkerBounds checkMarkerPosition(World world, BlockPos quarryPos, int x, int y, int z, Set<MarkerBlockEntity> checkedMarkers) {
+    @Nullable private static MarkerBounds checkMarkerPosition(
+            World world, BlockPos quarryPos, int x, int y, int z, Set<MarkerBlockEntity> checkedMarkers) {
         BlockPos checkPos = new BlockPos(x, y, z);
         BlockEntity entity = world.getBlockEntity(checkPos);
 
@@ -317,7 +332,6 @@ public final class MarkerManager {
         int minZ = min.getZ();
         int maxZ = max.getZ();
         int minY = min.getY();
-        int maxY = max.getY();
 
         // Check if Y is within reasonable range (at marker level or slightly above/below)
         if (y < minY - 1 || y > minY + 1) {

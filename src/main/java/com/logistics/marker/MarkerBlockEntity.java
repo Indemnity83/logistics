@@ -1,9 +1,8 @@
 package com.logistics.marker;
 
+import com.logistics.block.entity.LogisticsBlockEntities;
 import java.util.ArrayList;
 import java.util.List;
-
-import com.logistics.block.entity.LogisticsBlockEntities;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -205,10 +204,7 @@ public class MarkerBlockEntity extends BlockEntity {
             // Load connected markers
             data.getIntArray("ConnectedMarkers").ifPresent(positions -> {
                 for (int i = 0; i < positions.length / 3; i++) {
-                    connectedMarkers.add(new BlockPos(
-                            positions[i * 3],
-                            positions[i * 3 + 1],
-                            positions[i * 3 + 2]));
+                    connectedMarkers.add(new BlockPos(positions[i * 3], positions[i * 3 + 1], positions[i * 3 + 2]));
                 }
             });
 

@@ -6,7 +6,6 @@ import com.logistics.item.LogisticsItemGroups;
 import com.logistics.item.LogisticsItems;
 import com.logistics.ui.LogisticsScreenHandlers;
 import com.logistics.util.TimingLog;
-
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;

@@ -1,11 +1,9 @@
 package com.logistics.client.render;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 import com.logistics.quarry.QuarryConfig;
 import com.logistics.quarry.entity.QuarryBlockEntity;
-
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.block.entity.state.BlockEntityRenderState;
 import net.minecraft.client.world.ClientWorld;
@@ -50,8 +48,10 @@ public class QuarryRenderState extends BlockEntityRenderState {
     // Persistent interpolation state stored per quarry position (survives render state recreation)
     private static final Map<BlockPos, InterpolationState> INTERPOLATION_CACHE = new ConcurrentHashMap<>();
 
-    private static class InterpolationState {
-        float renderArmX, renderArmY, renderArmZ;
+    private static final class InterpolationState {
+        float renderArmX;
+        float renderArmY;
+        float renderArmZ;
         long lastUpdateTimeNanos;
         boolean initialized;
     }

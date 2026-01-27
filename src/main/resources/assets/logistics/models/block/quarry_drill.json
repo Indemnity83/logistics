@@ -1,23 +1,23 @@
 {
-	"format_version": "1.21.11",
-	"credit": "Made with Blockbench",
-	"textures": {
-		"0": "logistics:block/quary_drill",
-		"particle": "logistics:block/quary_drill"
-	},
-	"elements": [
-		{
-			"from": [7, 2, 7],
-			"to": [9, 16, 9],
-			"rotation": {"angle": 0, "axis": "y", "origin": [7, 2, 7]},
-			"faces": {
-				"north": {"uv": [4, 2, 6, 16], "texture": "#0"},
-				"east": {"uv": [2, 2, 4, 16], "texture": "#0"},
-				"south": {"uv": [4, 2, 6, 16], "texture": "#0"},
-				"west": {"uv": [2, 2, 4, 16], "texture": "#0"},
-				"up": {"uv": [2, 2, 4, 4], "texture": "#0"},
-				"down": {"uv": [14, 5, 16, 7], "texture": "#0"}
-			}
-		}
-	]
+  "format_version": "1.21.11",
+  "credit": "Made with Blockbench",
+  "textures": {
+    "0": "logistics:block/quary_drill",
+    "particle": "logistics:block/quary_drill"
+  },
+  "elements": [
+    {
+      "from": [7, 2, 7],
+      "to": [9, 16, 9],
+      "rotation": { "angle": 0, "axis": "y", "origin": [7, 2, 7] },
+      "faces": {
+        "north": { "uv": [4, 2, 6, 16], "texture": "#0" },
+        "east": { "uv": [2, 2, 4, 16], "texture": "#0" },
+        "south": { "uv": [4, 2, 6, 16], "texture": "#0" },
+        "west": { "uv": [2, 2, 4, 16], "texture": "#0" },
+        "up": { "uv": [2, 2, 4, 4], "texture": "#0" },
+        "down": { "uv": [14, 5, 16, 7], "texture": "#0" }
+      }
+    }
+  ]
 }

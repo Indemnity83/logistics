@@ -3,7 +3,6 @@ package com.logistics.quarry;
 import com.logistics.block.entity.LogisticsBlockEntities;
 import com.logistics.marker.MarkerManager;
 import com.logistics.quarry.entity.QuarryBlockEntity;
-
 import com.mojang.serialization.MapCodec;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockRenderType;
@@ -81,7 +80,8 @@ public class QuarryBlock extends BlockWithEntity {
     }
 
     @Override
-    public void onPlaced(World world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack itemStack) {
+    public void onPlaced(
+            World world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack itemStack) {
         super.onPlaced(world, pos, state, placer, itemStack);
 
         if (!world.isClient()) {
@@ -95,8 +95,7 @@ public class QuarryBlock extends BlockWithEntity {
                             bounds.min().getX(),
                             bounds.min().getZ(),
                             bounds.max().getX(),
-                            bounds.max().getZ()
-                    );
+                            bounds.max().getZ());
 
                     // Break all markers in the configuration
                     MarkerManager.breakMarkers(world, bounds.allMarkers());
@@ -108,10 +107,7 @@ public class QuarryBlock extends BlockWithEntity {
     @Nullable @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
             World world, BlockState state, BlockEntityType<T> type) {
-        return validateTicker(
-                type,
-                LogisticsBlockEntities.QUARRY_BLOCK_ENTITY,
-                QuarryBlockEntity::tick);
+        return validateTicker(type, LogisticsBlockEntities.QUARRY_BLOCK_ENTITY, QuarryBlockEntity::tick);
     }
 
     @Override

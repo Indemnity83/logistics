@@ -1,7 +1,6 @@
 package com.logistics.marker;
 
 import com.logistics.item.LogisticsItems;
-
 import com.mojang.serialization.MapCodec;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockRenderType;
@@ -39,8 +38,7 @@ public class MarkerBlock extends BlockWithEntity {
     private static final VoxelShape SHAPE = Block.createCuboidShape(6.0, 0.0, 6.0, 10.0, 10.0, 10.0);
 
     public MarkerBlock(Settings settings) {
-        super(settings
-                .strength(0.0f)
+        super(settings.strength(0.0f)
                 .sounds(BlockSoundGroup.GLASS)
                 .noCollision()
                 .luminance(state -> state.get(ACTIVE) ? 7 : 0));

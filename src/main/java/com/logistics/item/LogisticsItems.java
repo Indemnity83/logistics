@@ -1,13 +1,11 @@
 package com.logistics.item;
 
+import com.logistics.LogisticsMod;
+import com.logistics.block.LogisticsBlocks;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
-
-import com.logistics.LogisticsMod;
-import com.logistics.block.LogisticsBlocks;
-
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.registry.Registries;
@@ -33,7 +31,8 @@ public final class LogisticsItems {
     public static final Item WOODEN_GEAR = registerItem(
             "wooden_gear",
             new Item(new Item.Settings()
-                    .registryKey(RegistryKey.of(RegistryKeys.ITEM, Identifier.of(LogisticsMod.MOD_ID, "wooden_gear")))));
+                    .registryKey(
+                            RegistryKey.of(RegistryKeys.ITEM, Identifier.of(LogisticsMod.MOD_ID, "wooden_gear")))));
 
     public static final Item STONE_GEAR = registerItem(
             "stone_gear",
@@ -43,7 +42,8 @@ public final class LogisticsItems {
     public static final Item COPPER_GEAR = registerItem(
             "copper_gear",
             new Item(new Item.Settings()
-                    .registryKey(RegistryKey.of(RegistryKeys.ITEM, Identifier.of(LogisticsMod.MOD_ID, "copper_gear")))));
+                    .registryKey(
+                            RegistryKey.of(RegistryKeys.ITEM, Identifier.of(LogisticsMod.MOD_ID, "copper_gear")))));
 
     public static final Item IRON_GEAR = registerItem(
             "iron_gear",
@@ -58,13 +58,14 @@ public final class LogisticsItems {
     public static final Item DIAMOND_GEAR = registerItem(
             "diamond_gear",
             new Item(new Item.Settings()
-                    .registryKey(RegistryKey.of(RegistryKeys.ITEM, Identifier.of(LogisticsMod.MOD_ID, "diamond_gear")))));
+                    .registryKey(
+                            RegistryKey.of(RegistryKeys.ITEM, Identifier.of(LogisticsMod.MOD_ID, "diamond_gear")))));
 
     public static final Item NETHERITE_GEAR = registerItem(
             "netherite_gear",
             new Item(new Item.Settings()
-                    .registryKey(RegistryKey.of(RegistryKeys.ITEM, Identifier.of(LogisticsMod.MOD_ID, "netherite_gear")))));
-
+                    .registryKey(
+                            RegistryKey.of(RegistryKeys.ITEM, Identifier.of(LogisticsMod.MOD_ID, "netherite_gear")))));
 
     private static final Map<Item, DyeColor> MARKING_FLUID_ITEM_COLORS = new HashMap<>();
     private static final Map<DyeColor, Item> MARKING_FLUID_ITEMS = registerMarkingFluidItems();

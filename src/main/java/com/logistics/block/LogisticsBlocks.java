@@ -1,15 +1,13 @@
 package com.logistics.block;
 
-import java.util.function.BiFunction;
-import java.util.function.Function;
-
 import com.logistics.LogisticsMod;
 import com.logistics.item.ModularPipeBlockItem;
 import com.logistics.marker.MarkerBlock;
 import com.logistics.pipe.PipeTypes;
 import com.logistics.quarry.QuarryBlock;
 import com.logistics.quarry.QuarryFrameBlock;
-
+import java.util.function.BiFunction;
+import java.util.function.Function;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
 import net.minecraft.item.BlockItem;
@@ -55,10 +53,11 @@ public final class LogisticsBlocks {
 
     // Quarry + marker blocks
     public static final Block QUARRY = register("quarry", QuarryBlock::new);
-    public static final Block QUARRY_FRAME = registerNoItem(
-            "quarry_frame",
-            QuarryFrameBlock::new,
-            settings -> settings.strength(-1.0f, 3600000.0f).nonOpaque().dropsNothing().ticksRandomly());
+    public static final Block QUARRY_FRAME =
+            registerNoItem("quarry_frame", QuarryFrameBlock::new, settings -> settings.strength(-1.0f, 3600000.0f)
+                    .nonOpaque()
+                    .dropsNothing()
+                    .ticksRandomly());
     public static final Block MARKER = register("marker", MarkerBlock::new);
 
     private static Block register(String name, Function<AbstractBlock.Settings, Block> blockFactory) {
@@ -93,7 +92,8 @@ public final class LogisticsBlocks {
             Function<AbstractBlock.Settings, Block> blockFactory,
             Function<AbstractBlock.Settings, AbstractBlock.Settings> settingsFactory) {
         RegistryKey<Block> blockKey = keyOfBlock(name);
-        AbstractBlock.Settings settings = settingsFactory.apply(AbstractBlock.Settings.create().registryKey(blockKey));
+        AbstractBlock.Settings settings =
+                settingsFactory.apply(AbstractBlock.Settings.create().registryKey(blockKey));
         Block block = blockFactory.apply(settings);
         return Registry.register(Registries.BLOCK, blockKey, block);
     }

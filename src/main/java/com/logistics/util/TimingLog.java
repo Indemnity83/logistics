@@ -2,7 +2,6 @@ package com.logistics.util;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
 import org.slf4j.Logger;
 
 public final class TimingLog {

@@ -1,7 +1,6 @@
 package com.logistics.client.screen;
 
 import com.logistics.quarry.ui.QuarryScreenHandler;
-
 import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
@@ -36,7 +35,8 @@ public class QuarryScreen extends HandledScreen<QuarryScreenHandler> {
     @Override
     protected void drawForeground(DrawContext context, int mouseX, int mouseY) {
         context.drawText(textRenderer, title, titleX, titleY, 0x404040, false);
-        context.drawText(textRenderer, playerInventoryTitle, playerInventoryTitleX, playerInventoryTitleY, 0x404040, false);
+        context.drawText(
+                textRenderer, playerInventoryTitle, playerInventoryTitleX, playerInventoryTitleY, 0x404040, false);
     }
 
     @Override

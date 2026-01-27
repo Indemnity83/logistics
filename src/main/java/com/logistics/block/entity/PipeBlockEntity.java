@@ -1,16 +1,14 @@
 package com.logistics.block.entity;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-
 import com.logistics.block.PipeBlock;
 import com.logistics.pipe.Pipe;
 import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.runtime.PipeConfig;
 import com.logistics.pipe.runtime.PipeRuntime;
 import com.logistics.pipe.runtime.TravelingItem;
-
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.minecraft.block.BlockState;

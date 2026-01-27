@@ -1,7 +1,6 @@
 package com.logistics.quarry;
 
 import com.logistics.quarry.entity.QuarryBlockEntity;
-
 import com.mojang.serialization.MapCodec;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -160,9 +159,13 @@ public class QuarryFrameBlock extends Block {
     /**
      * Check if a frame position belongs to a specific quarry.
      */
-    private boolean isFramePositionForQuarry(ServerWorld world, BlockPos quarryPos, BlockState quarryState, BlockPos framePos) {
+    private boolean isFramePositionForQuarry(
+            ServerWorld world, BlockPos quarryPos, BlockState quarryState, BlockPos framePos) {
         // Get frame bounds - check if quarry has custom bounds
-        int startX, startZ, endX, endZ;
+        int startX;
+        int startZ;
+        int endX;
+        int endZ;
 
         BlockEntity entity = world.getBlockEntity(quarryPos);
         if (entity instanceof QuarryBlockEntity quarry && quarry.hasCustomBounds()) {

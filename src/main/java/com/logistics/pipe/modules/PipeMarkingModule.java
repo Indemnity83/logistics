@@ -6,7 +6,6 @@ import com.logistics.block.entity.PipeBlockEntity;
 import com.logistics.item.LogisticsItems;
 import com.logistics.pipe.Pipe;
 import com.logistics.pipe.PipeContext;
-
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;

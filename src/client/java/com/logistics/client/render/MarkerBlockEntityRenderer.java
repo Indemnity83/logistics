@@ -3,7 +3,6 @@ package com.logistics.client.render;
 import com.logistics.LogisticsMod;
 import com.logistics.marker.MarkerBlockEntity;
 import com.logistics.marker.MarkerManager;
-
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.RenderLayers;
@@ -32,8 +31,7 @@ public class MarkerBlockEntityRenderer implements BlockEntityRenderer<MarkerBloc
     private static final float BEAM_GREEN = 1.0f;
     private static final float BEAM_BLUE = 1.0f;
 
-    public MarkerBlockEntityRenderer(BlockEntityRendererFactory.Context ctx) {
-    }
+    public MarkerBlockEntityRenderer(BlockEntityRendererFactory.Context ctx) {}
 
     @Override
     public MarkerRenderState createRenderState() {
@@ -99,7 +97,6 @@ public class MarkerBlockEntityRenderer implements BlockEntityRenderer<MarkerBloc
             boolean hasMarkerAtNW = hasMarkerAt(state, pos, minX, minZ); // (minX, minZ)
             boolean hasMarkerAtNE = hasMarkerAt(state, pos, maxX, minZ); // (maxX, minZ)
             boolean hasMarkerAtSW = hasMarkerAt(state, pos, minX, maxZ); // (minX, maxZ)
-            boolean hasMarkerAtSE = hasMarkerAt(state, pos, maxX, maxZ); // (maxX, maxZ)
 
             // North edge (z = minZ): from (minX, minZ) to (maxX, minZ)
             if (posZ == minZ) {
@@ -186,22 +183,31 @@ public class MarkerBlockEntityRenderer implements BlockEntityRenderer<MarkerBloc
         // Render beams in each direction
         // Model extends in +Z, so rotate to point in the desired direction
         if (state.beamNorth > 0) {
-            renderBeamInDirection(matrices, queue, beamModel, renderLayer, state.lightmapCoordinates, 180, state.beamNorth);
+            renderBeamInDirection(
+                    matrices, queue, beamModel, renderLayer, state.lightmapCoordinates, 180, state.beamNorth);
         }
         if (state.beamSouth > 0) {
-            renderBeamInDirection(matrices, queue, beamModel, renderLayer, state.lightmapCoordinates, 0, state.beamSouth);
+            renderBeamInDirection(
+                    matrices, queue, beamModel, renderLayer, state.lightmapCoordinates, 0, state.beamSouth);
         }
         if (state.beamEast > 0) {
-            renderBeamInDirection(matrices, queue, beamModel, renderLayer, state.lightmapCoordinates, 90, state.beamEast);
+            renderBeamInDirection(
+                    matrices, queue, beamModel, renderLayer, state.lightmapCoordinates, 90, state.beamEast);
         }
         if (state.beamWest > 0) {
-            renderBeamInDirection(matrices, queue, beamModel, renderLayer, state.lightmapCoordinates, -90, state.beamWest);
+            renderBeamInDirection(
+                    matrices, queue, beamModel, renderLayer, state.lightmapCoordinates, -90, state.beamWest);
         }
     }
 
-    private void renderBeamInDirection(MatrixStack matrices, OrderedRenderCommandQueue queue,
-                                       BlockStateModel beamModel, RenderLayer renderLayer,
-                                       int lightmap, float yRotation, int length) {
+    private void renderBeamInDirection(
+            MatrixStack matrices,
+            OrderedRenderCommandQueue queue,
+            BlockStateModel beamModel,
+            RenderLayer renderLayer,
+            int lightmap,
+            float yRotation,
+            int length) {
         // Render beam segments starting from center of marker
         for (int i = 0; i < length; i++) {
             matrices.push();

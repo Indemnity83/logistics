@@ -2,7 +2,6 @@ package com.logistics.quarry.ui;
 
 import com.logistics.quarry.entity.QuarryBlockEntity;
 import com.logistics.ui.LogisticsScreenHandlers;
-
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventory;
@@ -34,11 +33,15 @@ public class QuarryScreenHandler extends ScreenHandler {
 
     // Server constructor
     public QuarryScreenHandler(int syncId, PlayerInventory playerInventory, QuarryBlockEntity quarryEntity) {
-        this(syncId, playerInventory, quarryEntity,
+        this(
+                syncId,
+                playerInventory,
+                quarryEntity,
                 ScreenHandlerContext.create(quarryEntity.getWorld(), quarryEntity.getPos()));
     }
 
-    private QuarryScreenHandler(int syncId, PlayerInventory playerInventory, Inventory inventory, ScreenHandlerContext context) {
+    private QuarryScreenHandler(
+            int syncId, PlayerInventory playerInventory, Inventory inventory, ScreenHandlerContext context) {
         super(LogisticsScreenHandlers.QUARRY, syncId);
         this.inventory = inventory;
         this.context = context;
@@ -50,7 +53,9 @@ public class QuarryScreenHandler extends ScreenHandler {
         for (int row = 0; row < 3; row++) {
             for (int col = 0; col < 3; col++) {
                 int slotIndex = col + row * 3;
-                addSlot(new ToolSlot(inventory, slotIndex,
+                addSlot(new ToolSlot(
+                        inventory,
+                        slotIndex,
                         TOOL_SLOTS_START_X + col * SLOT_SIZE,
                         TOOL_SLOTS_START_Y + row * SLOT_SIZE));
             }

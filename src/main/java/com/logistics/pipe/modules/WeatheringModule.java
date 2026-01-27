@@ -1,7 +1,5 @@
 package com.logistics.pipe.modules;
 
-import java.util.List;
-
 import com.logistics.LogisticsDataComponents;
 import com.logistics.LogisticsDataComponents.WeatheringState;
 import com.logistics.LogisticsMod;
@@ -9,7 +7,7 @@ import com.logistics.block.PipeBlock;
 import com.logistics.block.entity.PipeBlockEntity;
 import com.logistics.pipe.Pipe;
 import com.logistics.pipe.PipeContext;
-
+import java.util.List;
 import net.minecraft.component.ComponentMap;
 import net.minecraft.component.ComponentsAccess;
 import net.minecraft.component.DataComponentTypes;

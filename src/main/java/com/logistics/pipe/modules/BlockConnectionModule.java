@@ -1,10 +1,8 @@
 package com.logistics.pipe.modules;
 
-import java.util.function.Supplier;
-
 import com.logistics.pipe.Pipe;
 import com.logistics.pipe.PipeContext;
-
+import java.util.function.Supplier;
 import net.minecraft.block.Block;
 import net.minecraft.util.math.Direction;
 import org.jetbrains.annotations.Nullable;

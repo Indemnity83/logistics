@@ -1,21 +1,19 @@
 package com.logistics.quarry.entity;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import com.logistics.block.PipeBlock;
-import com.logistics.block.entity.PipeBlockEntity;
 import com.logistics.block.LogisticsBlocks;
+import com.logistics.block.PipeBlock;
 import com.logistics.block.entity.LogisticsBlockEntities;
+import com.logistics.block.entity.PipeBlockEntity;
 import com.logistics.pipe.runtime.PipeConfig;
 import com.logistics.pipe.runtime.TravelingItem;
 import com.logistics.quarry.QuarryBlock;
 import com.logistics.quarry.QuarryConfig;
 import com.logistics.quarry.QuarryFrameBlock;
 import com.logistics.quarry.ui.QuarryScreenHandler;
-
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -47,7 +45,8 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
-public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHandlerFactory<BlockPos>, Inventory, SidedInventory {
+public class QuarryBlockEntity extends BlockEntity
+        implements ExtendedScreenHandlerFactory<BlockPos>, Inventory, SidedInventory {
     private static final int[] TOOL_SLOTS = {0, 1, 2, 3, 4, 5, 6, 7, 8};
     private static final long REGISTRY_TTL_TICKS = 200L;
     private static final Map<RegistryKey<World>, Map<Long, Long>> ACTIVE_QUARRIES = new HashMap<>();
@@ -56,21 +55,22 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
      * Quarry operation phases.
      */
     public enum Phase {
-        CLEARING,       // Clearing the area above and at quarry level
+        CLEARING, // Clearing the area above and at quarry level
         BUILDING_FRAME, // Building the frame around the quarry area
-        MINING          // Mining below quarry level
+        MINING // Mining below quarry level
     }
 
     /**
      * Arm movement sub-states during mining phase.
      */
     public enum ArmState {
-        MOVING,   // Arm is moving to target position
+        MOVING, // Arm is moving to target position
         SETTLING, // Arm reached target, waiting for client to catch up
-        BREAKING  // Arm is at target, breaking the block
+        BREAKING // Arm is at target, breaking the block
     }
 
-    private final DefaultedList<ItemStack> inventory = DefaultedList.ofSize(QuarryConfig.INVENTORY_SIZE, ItemStack.EMPTY);
+    private final DefaultedList<ItemStack> inventory =
+            DefaultedList.ofSize(QuarryConfig.INVENTORY_SIZE, ItemStack.EMPTY);
 
     // Phase state
     private Phase currentPhase = Phase.CLEARING;
@@ -98,12 +98,11 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
     // Block breaking animation entity ID (use position hash for uniqueness)
     private int breakingEntityId = -1;
 
-
     // Arm position tracking for smooth movement
     private ArmState armState = ArmState.MOVING;
-    private float armX = 0f;  // Current arm X position (absolute world coords)
-    private float armY = 0f;  // Current arm Y position (absolute world coords)
-    private float armZ = 0f;  // Current arm Z position (absolute world coords)
+    private float armX = 0f; // Current arm X position (absolute world coords)
+    private float armY = 0f; // Current arm Y position (absolute world coords)
+    private float armZ = 0f; // Current arm Z position (absolute world coords)
     private boolean armInitialized = false; // Whether arm position has been set
     private int settlingTicksRemaining = 0; // Countdown for SETTLING state
     private int expectedTravelTicks = 0; // Expected ticks to reach target (for settling calculation)
@@ -146,6 +145,7 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
             case CLEARING -> tickClearing(serverWorld, pos, state, entity);
             case BUILDING_FRAME -> tickBuildingFrame(serverWorld, pos, state, entity);
             case MINING -> tickMining(serverWorld, pos, state, entity);
+            default -> {}
         }
     }
 
@@ -494,7 +494,6 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
         return false;
     }
 
-
     private float calculateBreakTime(BlockState targetState, ItemStack tool, ServerWorld world) {
         // Get the block hardness
         float hardness = targetState.getHardness(world, currentTarget);
@@ -528,10 +527,12 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
         return Math.max(1f, breakTime);
     }
 
-    private int getEnchantmentLevel(ItemStack stack, net.minecraft.registry.RegistryKey<net.minecraft.enchantment.Enchantment> enchantmentKey) {
+    private int getEnchantmentLevel(
+            ItemStack stack, net.minecraft.registry.RegistryKey<net.minecraft.enchantment.Enchantment> enchantmentKey) {
         if (world == null) return 0;
 
-        var enchantmentRegistry = world.getRegistryManager().getOrThrow(net.minecraft.registry.RegistryKeys.ENCHANTMENT);
+        var enchantmentRegistry =
+                world.getRegistryManager().getOrThrow(net.minecraft.registry.RegistryKeys.ENCHANTMENT);
         var enchantmentEntry = enchantmentRegistry.getOptional(enchantmentKey);
 
         if (enchantmentEntry.isEmpty()) return 0;
@@ -564,9 +565,7 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
 
     private void collectNearbyItems(ServerWorld world, BlockPos target) {
         List<ItemEntity> itemEntities = world.getEntitiesByClass(
-                ItemEntity.class,
-                new net.minecraft.util.math.Box(target).expand(2.0),
-                item -> true);
+                ItemEntity.class, new net.minecraft.util.math.Box(target).expand(2.0), item -> true);
 
         for (ItemEntity itemEntity : itemEntities) {
             ItemStack stack = itemEntity.getStack();
@@ -701,7 +700,8 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
     private @Nullable BlockPos calculateClearingTargetPos(BlockState quarryState) {
         BlockPos quarryPos = getPos();
 
-        int startX, startZ;
+        int startX;
+        int startZ;
         if (useCustomBounds) {
             startX = customMinX;
             startZ = customMinZ;
@@ -751,7 +751,10 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
     private @Nullable BlockPos calculateMiningTargetPos(BlockState quarryState) {
         BlockPos quarryPos = getPos();
 
-        int startX, startZ, innerSizeX, innerSizeZ;
+        int startX;
+        int startZ;
+        int innerSizeX;
+        int innerSizeZ;
         if (useCustomBounds) {
             // Custom bounds: mining area is inset 1 block from frame
             startX = customMinX + 1;
@@ -821,7 +824,8 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
      * Advance mining position for the mining area.
      */
     private void advanceMiningPosition() {
-        int innerSizeX, innerSizeZ;
+        int innerSizeX;
+        int innerSizeZ;
         if (useCustomBounds) {
             innerSizeX = customMaxX - customMinX - 1;
             innerSizeZ = customMaxZ - customMinZ - 1;
@@ -890,7 +894,10 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
         BlockPos quarryPos = getPos();
 
         // Calculate frame bounds
-        int startX, startZ, endX, endZ;
+        int startX;
+        int startZ;
+        int endX;
+        int endZ;
         if (useCustomBounds) {
             startX = customMinX;
             startZ = customMinZ;
@@ -1005,7 +1012,10 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
         BlockPos quarryPos = getPos();
 
         // Calculate frame bounds
-        int startX, startZ, endX, endZ;
+        int startX;
+        int startZ;
+        int endX;
+        int endZ;
         if (useCustomBounds) {
             startX = customMinX;
             startZ = customMinZ;
@@ -1044,7 +1054,12 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
         int z = framePos.getZ();
 
         // Determine which arms to enable based on position in frame
-        boolean north = false, south = false, east = false, west = false, up = false, down = false;
+        boolean north = false;
+        boolean south = false;
+        boolean east = false;
+        boolean west = false;
+        boolean up = false;
+        boolean down = false;
 
         // Check if this is a corner position
         boolean isCornerX = (x == startX || x == endX);
@@ -1334,12 +1349,8 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
             for (int i = 0; i < QuarryConfig.INVENTORY_SIZE; i++) {
                 ItemStack stack = inventory.get(i);
                 if (!stack.isEmpty()) {
-                    ItemEntity itemEntity = new ItemEntity(
-                            world,
-                            pos.getX() + 0.5,
-                            pos.getY() + 0.5,
-                            pos.getZ() + 0.5,
-                            stack);
+                    ItemEntity itemEntity =
+                            new ItemEntity(world, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, stack);
                     itemEntity.setToDefaultPickupDelay();
                     world.spawnEntity(itemEntity);
                 }
@@ -1401,7 +1412,8 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
         }
 
         long now = world.getTime();
-        java.util.Iterator<java.util.Map.Entry<Long, Long>> iterator = entries.entrySet().iterator();
+        java.util.Iterator<java.util.Map.Entry<Long, Long>> iterator =
+                entries.entrySet().iterator();
         while (iterator.hasNext()) {
             Map.Entry<Long, Long> entry = iterator.next();
             if (now - entry.getValue() > REGISTRY_TTL_TICKS) {

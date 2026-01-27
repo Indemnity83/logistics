@@ -10,7 +10,6 @@ import com.logistics.client.render.QuarryRenderState;
 import com.logistics.client.screen.ItemFilterScreen;
 import com.logistics.client.screen.QuarryScreen;
 import com.logistics.ui.LogisticsScreenHandlers;
-
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -46,10 +45,12 @@ public class LogisticsModClient implements ClientModInitializer {
         BlockEntityRendererFactories.register(LogisticsBlockEntities.PIPE_BLOCK_ENTITY, PipeBlockEntityRenderer::new);
 
         // Register block entity renderer for markers
-        BlockEntityRendererFactories.register(LogisticsBlockEntities.MARKER_BLOCK_ENTITY, MarkerBlockEntityRenderer::new);
+        BlockEntityRendererFactories.register(
+                LogisticsBlockEntities.MARKER_BLOCK_ENTITY, MarkerBlockEntityRenderer::new);
 
         // Register block entity renderer for quarry arm
-        BlockEntityRendererFactories.register(LogisticsBlockEntities.QUARRY_BLOCK_ENTITY, QuarryBlockEntityRenderer::new);
+        BlockEntityRendererFactories.register(
+                LogisticsBlockEntities.QUARRY_BLOCK_ENTITY, QuarryBlockEntityRenderer::new);
 
         HandledScreens.register(LogisticsScreenHandlers.ITEM_FILTER, ItemFilterScreen::new);
         HandledScreens.register(LogisticsScreenHandlers.QUARRY, QuarryScreen::new);
