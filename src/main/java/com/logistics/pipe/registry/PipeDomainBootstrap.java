@@ -3,6 +3,8 @@ package com.logistics.pipe.registry;
 import com.logistics.LogisticsMod;
 import com.logistics.core.bootstrap.DomainBootstrap;
 import com.logistics.pipe.data.PipeDataComponents;
+import com.logistics.pipe.PipeApi;
+import com.logistics.api.LogisticsApi;
 import com.logistics.core.util.TimingLog;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
 
@@ -17,6 +19,7 @@ public final class PipeDomainBootstrap implements DomainBootstrap {
         TimingLog.time(LogisticsMod.LOGGER, "PipeItemGroups.initialize", PipeItemGroups::initialize);
 
         PipeItemGroups.registerProviders();
+        LogisticsApi.Registry.transport(new PipeApi());
 
         TimingLog.time(
                 LogisticsMod.LOGGER,

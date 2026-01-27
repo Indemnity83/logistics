@@ -3,10 +3,8 @@ package com.logistics.automation.quarry.entity;
 import com.logistics.automation.registry.AutomationBlockEntities;
 import com.logistics.automation.registry.AutomationBlocks;
 import com.logistics.automation.render.ClientRenderCacheHooks;
-import com.logistics.pipe.block.PipeBlock;
-import com.logistics.pipe.block.entity.PipeBlockEntity;
-import com.logistics.pipe.runtime.PipeConfig;
-import com.logistics.pipe.runtime.TravelingItem;
+import com.logistics.api.LogisticsApi;
+import com.logistics.api.TransportApi;
 import com.logistics.automation.quarry.QuarryBlock;
 import com.logistics.automation.quarry.QuarryConfig;
 import com.logistics.automation.quarry.QuarryFrameBlock;
@@ -619,15 +617,11 @@ public class QuarryBlockEntity extends BlockEntity
         BlockPos quarryPos = getPos();
         BlockPos abovePos = quarryPos.up();
 
-        // Check if there's a pipe above
+        // Check if there's a transport block above
         BlockState aboveState = world.getBlockState(abovePos);
-        if (aboveState.getBlock() instanceof PipeBlock) {
-            BlockEntity aboveEntity = world.getBlockEntity(abovePos);
-            if (aboveEntity instanceof PipeBlockEntity pipeEntity) {
-                // Use forceAddItem to bypass ingress checks and insert directly into pipe
-                TravelingItem travelingItem = new TravelingItem(stack.copy(), Direction.UP, PipeConfig.ITEM_MIN_SPEED);
-                pipeEntity.forceAddItem(travelingItem, Direction.DOWN);
-            }
+        TransportApi transportApi = LogisticsApi.Registry.transport();
+        if (transportApi.isTransportBlock(aboveState)) {
+            transportApi.forceInsert(world, abovePos, stack.copy(), Direction.UP);
             return;
         }
 
