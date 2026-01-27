@@ -23,7 +23,29 @@ public final class MarkerManager {
     /**
      * Result of attempting to activate a marker.
      */
-    public record ActivationResult(boolean success, String message) {}
+    public record ActivationResult(Status status, @Nullable String detailKey, @Nullable Object[] detailArgs) {
+        public enum Status {
+            SUCCESS,
+            NO_CONNECTIONS,
+            FAILURE
+        }
+
+        public boolean success() {
+            return status == Status.SUCCESS;
+        }
+
+        public static ActivationResult success(@Nullable String detailKey, Object... detailArgs) {
+            return new ActivationResult(Status.SUCCESS, detailKey, detailArgs);
+        }
+
+        public static ActivationResult noConnections() {
+            return new ActivationResult(Status.NO_CONNECTIONS, null, null);
+        }
+
+        public static ActivationResult failure(@Nullable String detailKey, Object... detailArgs) {
+            return new ActivationResult(Status.FAILURE, detailKey, detailArgs);
+        }
+    }
 
     /**
      * Bounding box result from marker configuration.
@@ -51,7 +73,7 @@ public final class MarkerManager {
 
         // We need at least one marker in each axis direction to form an L
         if (northSouth.isEmpty() && eastWest.isEmpty()) {
-            return new ActivationResult(false, "No other markers found nearby");
+            return ActivationResult.noConnections();
         }
 
         // Try to find a valid L-shape (3 markers forming a right angle)
@@ -83,7 +105,7 @@ public final class MarkerManager {
             }
         }
 
-        return new ActivationResult(false, "Cannot form valid L-shape. Need 3 markers in right triangle.");
+        return ActivationResult.failure("marker.activation.failed.invalid_l_shape");
     }
 
     /**
@@ -106,7 +128,7 @@ public final class MarkerManager {
         int width = maxX - minX + 1;
         int depth = maxZ - minZ + 1;
         if (width < 3 || depth < 3) {
-            return new ActivationResult(false, "Area must be at least 3x3");
+            return ActivationResult.failure("marker.activation.failed.too_small", 3, 3);
         }
 
         // Collect all markers to activate (only the 3 horizontal markers)
@@ -126,8 +148,7 @@ public final class MarkerManager {
             }
         }
 
-        String sizeInfo = width + "x" + depth;
-        return new ActivationResult(true, "Area defined: " + sizeInfo);
+        return ActivationResult.success("marker.activated.detail.area_defined", width, depth);
     }
 
     /**

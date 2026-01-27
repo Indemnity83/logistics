@@ -42,5 +42,12 @@
   "itemgroup.logistics.transport": "Logistics: Transport",
   "screen.logistics.item_filter": "Item Filter",
   "block.logistics.quarry": "Quarry",
-  "block.logistics.marker": "Marker"
+  "block.logistics.marker": "Marker",
+  "marker.deactivated": "Marker deactivated",
+  "marker.activated": "Marker activated",
+  "marker.activated.solo": "Marker activated",
+  "marker.activated.detail.area_defined": "Marker activated - area defined: %sx%s",
+  "marker.activation.failed": "Marker activation failed",
+  "marker.activation.failed.too_small": "Marker activation failed - area must be at least %sx%s",
+  "marker.activation.failed.invalid_l_shape": "Marker activation failed - need 3 markers in a right triangle"
 }

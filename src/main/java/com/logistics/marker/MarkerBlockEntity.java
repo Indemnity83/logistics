@@ -45,19 +45,31 @@ public class MarkerBlockEntity extends BlockEntity {
             // Deactivate all connected markers first, then this one
             deactivateConnectedMarkers();
             deactivate();
-            player.sendMessage(Text.literal("Marker deactivated"), true);
+            player.sendMessage(Text.translatable("marker.deactivated"), true);
         } else {
             // Always activate the marker
             MarkerManager.ActivationResult result = MarkerManager.tryActivateMarker(world, pos);
-            if (result.success()) {
-                player.sendMessage(Text.literal("Marker activated - " + result.message()), true);
-            } else {
-                if ("No other markers found nearby".equals(result.message())) {
+            switch (result.status()) {
+                case SUCCESS -> {
+                    if (result.detailKey() != null) {
+                        Object[] args = result.detailArgs() == null ? new Object[0] : result.detailArgs();
+                        player.sendMessage(Text.translatable(result.detailKey(), args), true);
+                    } else {
+                        player.sendMessage(Text.translatable("marker.activated"), true);
+                    }
+                }
+                case NO_CONNECTIONS -> {
                     // Activate solo (no connections, just project beams)
                     activateSolo();
-                    player.sendMessage(Text.literal("Marker activated"), true);
-                } else {
-                    player.sendMessage(Text.literal("Marker activation failed - " + result.message()), true);
+                    player.sendMessage(Text.translatable("marker.activated.solo"), true);
+                }
+                case FAILURE -> {
+                    if (result.detailKey() != null) {
+                        Object[] args = result.detailArgs() == null ? new Object[0] : result.detailArgs();
+                        player.sendMessage(Text.translatable(result.detailKey(), args), true);
+                    } else {
+                        player.sendMessage(Text.translatable("marker.activation.failed"), true);
+                    }
                 }
             }
         }
