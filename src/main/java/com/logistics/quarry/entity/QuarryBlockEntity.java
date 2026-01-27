@@ -4,6 +4,7 @@ import com.logistics.block.LogisticsBlocks;
 import com.logistics.block.PipeBlock;
 import com.logistics.block.entity.LogisticsBlockEntities;
 import com.logistics.block.entity.PipeBlockEntity;
+import com.logistics.client.ClientRenderCacheHooks;
 import com.logistics.pipe.runtime.PipeConfig;
 import com.logistics.pipe.runtime.TravelingItem;
 import com.logistics.quarry.QuarryBlock;
@@ -1339,6 +1340,10 @@ public class QuarryBlockEntity extends BlockEntity
     public void onBlockReplaced(BlockPos pos, BlockState oldState) {
         super.onBlockReplaced(pos, oldState);
 
+        if (world != null && world.isClient()) {
+            ClientRenderCacheHooks.clearQuarryInterpolationCache(pos);
+        }
+
         if (world != null && !world.isClient()) {
             unregisterActiveQuarry((ServerWorld) world, pos);
             // Clear any active breaking animation
@@ -1355,6 +1360,14 @@ public class QuarryBlockEntity extends BlockEntity
                     world.spawnEntity(itemEntity);
                 }
             }
+        }
+    }
+
+    @Override
+    public void markRemoved() {
+        super.markRemoved();
+        if (world != null && world.isClient()) {
+            ClientRenderCacheHooks.clearQuarryInterpolationCache(pos);
         }
     }
 

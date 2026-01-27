@@ -2,6 +2,7 @@ package com.logistics;
 
 import com.logistics.block.LogisticsBlocks;
 import com.logistics.block.entity.LogisticsBlockEntities;
+import com.logistics.client.ClientRenderCacheHooks;
 import com.logistics.client.render.MarkerBlockEntityRenderer;
 import com.logistics.client.render.PipeBlockEntityRenderer;
 import com.logistics.client.render.PipeModelRegistry;
@@ -13,6 +14,7 @@ import com.logistics.ui.LogisticsScreenHandlers;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.BlockRenderLayerMap;
 import net.minecraft.client.gui.screen.ingame.HandledScreens;
 import net.minecraft.client.render.BlockRenderLayer;
@@ -55,7 +57,12 @@ public class LogisticsModClient implements ClientModInitializer {
         HandledScreens.register(LogisticsScreenHandlers.ITEM_FILTER, ItemFilterScreen::new);
         HandledScreens.register(LogisticsScreenHandlers.QUARRY, QuarryScreen::new);
 
+        ClientRenderCacheHooks.setQuarryInterpolationClearer(QuarryRenderState::clearInterpolationCache);
+        ClientRenderCacheHooks.setClearAllInterpolationCaches(QuarryRenderState::clearAllInterpolationCaches);
+
         ClientTickEvents.END_WORLD_TICK.register(QuarryRenderState::pruneInterpolationCache);
-        ClientLifecycleEvents.CLIENT_STOPPING.register(client -> QuarryRenderState.clearAllInterpolationCaches());
+        ClientPlayConnectionEvents.DISCONNECT.register(
+                (handler, client) -> ClientRenderCacheHooks.clearAllInterpolationCaches());
+        ClientLifecycleEvents.CLIENT_STOPPING.register(client -> ClientRenderCacheHooks.clearAllInterpolationCaches());
     }
 }
