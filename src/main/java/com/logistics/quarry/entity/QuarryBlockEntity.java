@@ -83,7 +83,6 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
     private int customMinZ = 0;
     private int customMaxX = 0;
     private int customMaxZ = 0;
-    private int customTopY = 0;
 
     // Cached values for the current mining target
     private BlockPos currentTarget = null;
@@ -1076,7 +1075,6 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
         this.customMinZ = minZ;
         this.customMaxX = maxX;
         this.customMaxZ = maxZ;
-        this.customTopY = pos.getY() + QuarryConfig.Y_OFFSET_ABOVE;
         this.miningX = 0;
         this.miningY = 0;
         this.miningZ = 0;
@@ -1219,7 +1217,6 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
             customBoundsNbt.putInt("MinZ", customMinZ);
             customBoundsNbt.putInt("MaxX", customMaxX);
             customBoundsNbt.putInt("MaxZ", customMaxZ);
-            customBoundsNbt.putInt("TopY", customTopY);
             view.put("CustomBounds", NbtCompound.CODEC, customBoundsNbt);
         }
     }
@@ -1286,7 +1283,6 @@ public class QuarryBlockEntity extends BlockEntity implements ExtendedScreenHand
             customMinZ = customBoundsNbt.getInt("MinZ").orElse(0);
             customMaxX = customBoundsNbt.getInt("MaxX").orElse(0);
             customMaxZ = customBoundsNbt.getInt("MaxZ").orElse(0);
-            customTopY = customBoundsNbt.getInt("TopY").orElse(0);
         });
     }
 
