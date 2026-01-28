@@ -119,7 +119,7 @@ jobs:
           echo "🎮 Minecraft: $MC_VERSION"
 
       - name: Build
-        run: ./gradlew clean build --no-daemon
+        run: ./gradlew clean jar --no-daemon
         env:
           MOD_VERSION: ${{ steps.version.outputs.mod_version }}
 
