@@ -23,4 +23,4 @@ jobs:
         uses: gradle/actions/setup-gradle@v5
 
       - name: Check formatting
-        run: ./gradlew check --no-daemon
+        run: ./gradlew check
