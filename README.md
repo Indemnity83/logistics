@@ -190,6 +190,17 @@ See [`docs/DESIGN.md`](docs/DESIGN.md) for architecture details and technical de
 
 ---
 
+## Branches
+
+| Branch | Minecraft | Status |
+|--------|-----------|--------|
+| `main` | 26.1 | Stable releases |
+| `next` | -- | Snapshot builds |
+
+The `next` branch targets upcoming Minecraft versions. See [`docs/BRANCHES.md`](docs/BRANCHES.md) for branch management details.
+
+---
+
 ## Contributing
 
 Contributions welcome! When reporting bugs:
@@ -219,6 +230,6 @@ Inspired by:
 
 <div align="center">
 
-[Report an Issue](https://github.com/indemnity83/logistics/issues) • [Technical Design](docs/DESIGN.md) • [Pipe Behaviors](docs/PIPE_TYPES.md)
+[Report an Issue](https://github.com/indemnity83/logistics/issues) • [Technical Design](docs/DESIGN.md) • [Pipe Behaviors](docs/PIPE_TYPES.md) • [Branch Management](docs/BRANCHES.md)
 
 </div>
