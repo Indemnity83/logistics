@@ -1,0 +1,81 @@
+name: Build Release
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag to build (e.g., v0.3.0)"
+        required: true
+        type: string
+      publish:
+        description: "Actually publish (otherwise build only)"
+        required: true
+        default: false
+        type: boolean
+
+permissions:
+  contents: write  # needed for GitHub release uploads
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.tag || github.ref }}
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '25'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v5
+        with:
+          cache-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
+
+      - name: Compute version
+        id: version
+        run: |
+          MC_VERSION="$(grep '^minecraft_version=' gradle.properties | cut -d'=' -f2)"
+
+          # Get version from tag (strip leading 'v')
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            TAG="${{ inputs.tag }}"
+          else
+            TAG="${{ github.event.release.tag_name }}"
+          fi
+          VERSION="${TAG#v}"
+
+          # Example: 0.3.0+mc.1.21.11
+          BUILD_VERSION="${VERSION}+mc.${MC_VERSION}"
+
+          echo "mod_version=$BUILD_VERSION" >> "$GITHUB_OUTPUT"
+          echo "minecraft_version=$MC_VERSION" >> "$GITHUB_OUTPUT"
+          echo "📦 Version: $BUILD_VERSION"
+
+      - name: Build
+        run: ./gradlew jar --console=plain
+        env:
+          MOD_VERSION: ${{ steps.version.outputs.mod_version }}
+
+      - name: Publish
+        if: github.event_name != 'workflow_dispatch' || inputs.publish
+        uses: Kir-Antipov/mc-publish@v3.3
+        with:
+          name: "v${{ steps.version.outputs.mod_version }} (MC ${{ steps.version.outputs.minecraft_version }})"
+          version: ${{ steps.version.outputs.mod_version }}
+          version-type: release
+          changelog: ${{ github.event.release.body || format('Release {0}', steps.version.outputs.mod_version) }}
+          game-versions: ${{ steps.version.outputs.minecraft_version }}
+
+          files: |
+            build/libs/!(*-@(dev|sources|javadoc)).jar
+
+          modrinth-featured: true
+          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+          curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}

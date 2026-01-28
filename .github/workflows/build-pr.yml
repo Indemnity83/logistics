@@ -1,0 +1,54 @@
+name: Build PR
+
+on:
+  pull_request:
+    branches: [main, next]
+    types: [opened, synchronize, reopened, ready_for_review]
+
+jobs:
+  build:
+    # Skip: draft PRs, PRs from next branch (push trigger handles those), release-please PRs (build-dev handles those)
+    if: |
+      github.event.pull_request.draft == false &&
+      !(github.head_ref == 'next' && github.event.pull_request.head.repo.full_name == github.repository) &&
+      !startsWith(github.head_ref, 'release-please--')
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '25'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v5
+        with:
+          cache-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
+
+      - name: Compute version
+        id: version
+        run: |
+          MC_VERSION="$(grep '^minecraft_version=' gradle.properties | cut -d'=' -f2)"
+          SHA7="$(git rev-parse --short=7 HEAD)"
+          PR_NUM="${{ github.event.pull_request.number }}"
+
+          # PR builds use dev, which breaks symver, but these aren't real versions anyway
+          # No build counter since force pushes/rebases make counts unreliable
+          # Example: dev-pr.123+mc.1.21.11.sha.1a2b3c4
+          BUILD_VERSION="dev-pr.${PR_NUM}+mc.${MC_VERSION}.sha.${SHA7}"
+
+          echo "mod_version=$BUILD_VERSION" >> "$GITHUB_OUTPUT"
+          echo "📦 Version: $BUILD_VERSION"
+
+      - name: Build
+        run: ./gradlew jar --console=plain
+        env:
+          MOD_VERSION: ${{ steps.version.outputs.mod_version }}
+
+      - name: Upload JAR
+        uses: actions/upload-artifact@v4
+        with:
+          name: logistics-${{ steps.version.outputs.mod_version }}
+          path: build/libs/!(*-@(dev|sources|javadoc)).jar
