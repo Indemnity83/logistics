@@ -1,14 +1,14 @@
 package com.logistics.automation.quarry.entity;
 
-import com.logistics.automation.registry.AutomationBlockEntities;
-import com.logistics.automation.registry.AutomationBlocks;
-import com.logistics.automation.render.ClientRenderCacheHooks;
 import com.logistics.api.LogisticsApi;
 import com.logistics.api.TransportApi;
 import com.logistics.automation.quarry.QuarryBlock;
 import com.logistics.automation.quarry.QuarryConfig;
 import com.logistics.automation.quarry.QuarryFrameBlock;
 import com.logistics.automation.quarry.ui.QuarryScreenHandler;
+import com.logistics.automation.registry.AutomationBlockEntities;
+import com.logistics.automation.registry.AutomationBlocks;
+import com.logistics.automation.render.ClientRenderCacheHooks;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

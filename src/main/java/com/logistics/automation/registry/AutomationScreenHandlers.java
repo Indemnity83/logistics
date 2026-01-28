@@ -25,7 +25,6 @@ public final class AutomationScreenHandlers {
     private static void registerLegacyAliases() {
         // v0.2 => v0.3
         Registries.SCREEN_HANDLER.addAlias(
-                Identifier.of(LogisticsMod.MOD_ID, "quarry"),
-                Registries.SCREEN_HANDLER.getId(QUARRY));
+                Identifier.of(LogisticsMod.MOD_ID, "quarry"), Registries.SCREEN_HANDLER.getId(QUARRY));
     }
 }

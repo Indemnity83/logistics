@@ -1,7 +1,7 @@
 package com.logistics.pipe.ui;
 
-import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.pipe.PipeContext;
+import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.pipe.modules.ItemFilterModule;
 import java.util.ArrayList;
 import java.util.List;

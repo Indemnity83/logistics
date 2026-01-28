@@ -23,8 +23,7 @@ import org.jetbrains.annotations.Nullable;
  * Renders laser beams and ghost cube outline for active markers.
  */
 public class MarkerBlockEntityRenderer implements BlockEntityRenderer<MarkerBlockEntity, MarkerRenderState> {
-    private static final Identifier BEAM_MODEL_ID =
-            Identifier.of(LogisticsMod.MOD_ID, "block/core/marker_beam");
+    private static final Identifier BEAM_MODEL_ID = Identifier.of(LogisticsMod.MOD_ID, "block/core/marker_beam");
 
     // No tinting needed - texture is pre-colored blue (#0132FD)
     private static final float BEAM_RED = 1.0f;

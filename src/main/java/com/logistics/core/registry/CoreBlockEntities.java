@@ -25,7 +25,6 @@ public final class CoreBlockEntities {
     private static void registerLegacyAliases() {
         // v0.2 => v0.3
         Registries.BLOCK_ENTITY_TYPE.addAlias(
-                Identifier.of(LogisticsMod.MOD_ID, "marker"),
-                Registries.BLOCK_ENTITY_TYPE.getId(MARKER_BLOCK_ENTITY));
+                Identifier.of(LogisticsMod.MOD_ID, "marker"), Registries.BLOCK_ENTITY_TYPE.getId(MARKER_BLOCK_ENTITY));
     }
 }

@@ -1,8 +1,8 @@
 package com.logistics.pipe.registry;
 
-import com.logistics.pipe.block.PipeBlock;
 import com.logistics.core.registry.CoreItemGroups;
 import com.logistics.pipe.Pipe;
+import com.logistics.pipe.block.PipeBlock;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.item.ItemGroup;

@@ -20,10 +20,8 @@ public final class AutomationBlocks {
     private static final String DOMAIN = "automation/";
 
     public static final Block QUARRY = register("quarry", QuarryBlock::new);
-    public static final Block QUARRY_FRAME = registerNoItem(
-            "quarry_frame",
-            QuarryFrameBlock::new,
-            settings -> settings.strength(-1.0f, 3600000.0f)
+    public static final Block QUARRY_FRAME =
+            registerNoItem("quarry_frame", QuarryFrameBlock::new, settings -> settings.strength(-1.0f, 3600000.0f)
                     .nonOpaque()
                     .dropsNothing()
                     .ticksRandomly());

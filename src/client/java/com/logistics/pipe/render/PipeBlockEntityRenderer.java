@@ -1,10 +1,10 @@
 package com.logistics.pipe.render;
 
 import com.logistics.core.render.ModelRegistry;
-import com.logistics.pipe.block.PipeBlock;
-import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.pipe.Pipe;
 import com.logistics.pipe.PipeContext;
+import com.logistics.pipe.block.PipeBlock;
+import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.pipe.runtime.PipeConfig;
 import com.logistics.pipe.runtime.TravelingItem;
 import net.minecraft.block.BlockState;

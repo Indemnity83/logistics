@@ -1,11 +1,11 @@
 package com.logistics.pipe.modules;
 
 import com.logistics.LogisticsMod;
+import com.logistics.pipe.Pipe;
+import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.block.PipeBlock;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.pipe.registry.PipeItems;
-import com.logistics.pipe.Pipe;
-import com.logistics.pipe.PipeContext;
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;

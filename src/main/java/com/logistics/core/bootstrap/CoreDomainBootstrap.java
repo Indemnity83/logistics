@@ -23,7 +23,10 @@ public final class CoreDomainBootstrap implements DomainBootstrap {
         ServerWorldEvents.LOAD.register((server, world) -> {
             long start = TimingLog.getStart("server_starting");
             if (start > 0L) {
-                TimingLog.log(LogisticsMod.LOGGER, "World load " + world.getRegistryKey().getValue(), start);
+                TimingLog.log(
+                        LogisticsMod.LOGGER,
+                        "World load " + world.getRegistryKey().getValue(),
+                        start);
             }
         });
     }

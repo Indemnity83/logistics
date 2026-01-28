@@ -23,38 +23,29 @@ public final class CoreItems {
     // Gears (tiered crafting components)
     public static final Item WOODEN_GEAR = registerItem(
             "wooden_gear",
-            new Item(new Item.Settings()
-                    .registryKey(RegistryKey.of(RegistryKeys.ITEM, id("wooden_gear")))));
+            new Item(new Item.Settings().registryKey(RegistryKey.of(RegistryKeys.ITEM, id("wooden_gear")))));
 
     public static final Item STONE_GEAR = registerItem(
             "stone_gear",
-            new Item(new Item.Settings()
-                    .registryKey(RegistryKey.of(RegistryKeys.ITEM, id("stone_gear")))));
+            new Item(new Item.Settings().registryKey(RegistryKey.of(RegistryKeys.ITEM, id("stone_gear")))));
 
     public static final Item COPPER_GEAR = registerItem(
             "copper_gear",
-            new Item(new Item.Settings()
-                    .registryKey(RegistryKey.of(RegistryKeys.ITEM, id("copper_gear")))));
+            new Item(new Item.Settings().registryKey(RegistryKey.of(RegistryKeys.ITEM, id("copper_gear")))));
 
     public static final Item IRON_GEAR = registerItem(
-            "iron_gear",
-            new Item(new Item.Settings()
-                    .registryKey(RegistryKey.of(RegistryKeys.ITEM, id("iron_gear")))));
+            "iron_gear", new Item(new Item.Settings().registryKey(RegistryKey.of(RegistryKeys.ITEM, id("iron_gear")))));
 
     public static final Item GOLD_GEAR = registerItem(
-            "gold_gear",
-            new Item(new Item.Settings()
-                    .registryKey(RegistryKey.of(RegistryKeys.ITEM, id("gold_gear")))));
+            "gold_gear", new Item(new Item.Settings().registryKey(RegistryKey.of(RegistryKeys.ITEM, id("gold_gear")))));
 
     public static final Item DIAMOND_GEAR = registerItem(
             "diamond_gear",
-            new Item(new Item.Settings()
-                    .registryKey(RegistryKey.of(RegistryKeys.ITEM, id("diamond_gear")))));
+            new Item(new Item.Settings().registryKey(RegistryKey.of(RegistryKeys.ITEM, id("diamond_gear")))));
 
     public static final Item NETHERITE_GEAR = registerItem(
             "netherite_gear",
-            new Item(new Item.Settings()
-                    .registryKey(RegistryKey.of(RegistryKeys.ITEM, id("netherite_gear")))));
+            new Item(new Item.Settings().registryKey(RegistryKey.of(RegistryKeys.ITEM, id("netherite_gear")))));
 
     private static Item registerItem(String name, Item item) {
         return Registry.register(Registries.ITEM, id(name), item);

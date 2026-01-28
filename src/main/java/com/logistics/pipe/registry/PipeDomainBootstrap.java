@@ -1,11 +1,11 @@
 package com.logistics.pipe.registry;
 
 import com.logistics.LogisticsMod;
-import com.logistics.core.bootstrap.DomainBootstrap;
-import com.logistics.pipe.data.PipeDataComponents;
-import com.logistics.pipe.PipeApi;
 import com.logistics.api.LogisticsApi;
+import com.logistics.core.bootstrap.DomainBootstrap;
 import com.logistics.core.util.TimingLog;
+import com.logistics.pipe.PipeApi;
+import com.logistics.pipe.data.PipeDataComponents;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
 
 public final class PipeDomainBootstrap implements DomainBootstrap {

@@ -24,7 +24,6 @@ public final class PipeScreenHandlers {
     private static void registerLegacyAliases() {
         // v0.2 => v0.3
         Registries.SCREEN_HANDLER.addAlias(
-                Identifier.of(LogisticsMod.MOD_ID, "item_filter"),
-                Registries.SCREEN_HANDLER.getId(ITEM_FILTER));
+                Identifier.of(LogisticsMod.MOD_ID, "item_filter"), Registries.SCREEN_HANDLER.getId(ITEM_FILTER));
     }
 }
