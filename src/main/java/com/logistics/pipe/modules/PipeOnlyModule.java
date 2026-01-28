@@ -2,8 +2,8 @@ package com.logistics.pipe.modules;
 
 import com.logistics.pipe.Pipe;
 import com.logistics.pipe.PipeContext;
-import net.minecraft.block.Block;
-import net.minecraft.util.math.Direction;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.Block;
 import org.jetbrains.annotations.Nullable;
 
 public class PipeOnlyModule implements Module {

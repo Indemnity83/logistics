@@ -2,8 +2,8 @@ package com.logistics.pipe.runtime;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.Direction;
+import net.minecraft.core.Direction;
+import net.minecraft.world.item.ItemStack;
 
 /**
  * Represents an item traveling through the pipe network.
@@ -17,7 +17,7 @@ public class TravelingItem {
                     ItemStack.CODEC.fieldOf("item").forGetter(t -> t.stack),
                     Codec.INT
                             .fieldOf("direction")
-                            .xmap(Direction::byIndex, Direction::getIndex)
+                            .xmap(Direction::from3DDataValue, Direction::get3DDataValue)
                             .forGetter(t -> t.direction),
                     Codec.FLOAT
                             .optionalFieldOf("speed", PipeConfig.ITEM_MIN_SPEED)

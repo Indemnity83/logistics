@@ -4,87 +4,88 @@ import com.logistics.automation.quarry.entity.QuarryBlockEntity;
 import com.logistics.automation.registry.AutomationBlockEntities;
 import com.logistics.core.marker.MarkerManager;
 import com.mojang.serialization.MapCodec;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockRenderType;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.BlockWithEntity;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.BlockEntityTicker;
-import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemPlacementContext;
-import net.minecraft.item.ItemStack;
-import net.minecraft.sound.BlockSoundGroup;
-import net.minecraft.state.StateManager;
-import net.minecraft.state.property.EnumProperty;
-import net.minecraft.state.property.Properties;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.BlockMirror;
-import net.minecraft.util.BlockRotation;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.BaseEntityBlock;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.RenderShape;
+import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.Nullable;
 
-public class QuarryBlock extends BlockWithEntity {
-    public static final MapCodec<QuarryBlock> CODEC = createCodec(QuarryBlock::new);
-    public static final EnumProperty<Direction> FACING = Properties.HORIZONTAL_FACING;
+public class QuarryBlock extends BaseEntityBlock {
+    public static final MapCodec<QuarryBlock> CODEC = simpleCodec(QuarryBlock::new);
+    public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
 
-    public QuarryBlock(Settings settings) {
-        super(settings.strength(3.5f).sounds(BlockSoundGroup.STONE));
-        setDefaultState(getDefaultState().with(FACING, Direction.NORTH));
+    public QuarryBlock(Properties settings) {
+        super(settings.strength(3.5f).sound(SoundType.STONE));
+        registerDefaultState(defaultBlockState().setValue(FACING, Direction.NORTH));
     }
 
     @Override
-    protected MapCodec<? extends BlockWithEntity> getCodec() {
+    protected MapCodec<? extends BaseEntityBlock> codec() {
         return CODEC;
     }
 
     @Override
-    protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(FACING);
     }
 
     @Override
-    public BlockRenderType getRenderType(BlockState state) {
-        return BlockRenderType.MODEL;
+    public RenderShape getRenderShape(BlockState state) {
+        return RenderShape.MODEL;
     }
 
     @Override
-    public BlockSoundGroup getSoundGroup(BlockState state) {
-        return BlockSoundGroup.STONE;
+    public SoundType getSoundType(BlockState state) {
+        return SoundType.STONE;
     }
 
     @Nullable @Override
-    public BlockState getPlacementState(ItemPlacementContext ctx) {
+    public BlockState getStateForPlacement(BlockPlaceContext ctx) {
         // FACING is the direction the quarry mines (the direction the player is looking)
-        return getDefaultState().with(FACING, ctx.getHorizontalPlayerFacing());
+        return defaultBlockState().setValue(FACING, ctx.getHorizontalDirection());
     }
 
     @Override
-    protected ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
-        if (!world.isClient()) {
+    protected InteractionResult useWithoutItem(
+            BlockState state, Level world, BlockPos pos, Player player, BlockHitResult hit) {
+        if (!world.isClientSide()) {
             BlockEntity entity = world.getBlockEntity(pos);
             if (entity instanceof QuarryBlockEntity quarry) {
-                player.openHandledScreen(quarry);
+                player.openMenu(quarry);
             }
         }
-        return ActionResult.SUCCESS;
+        return InteractionResult.SUCCESS;
     }
 
     @Nullable @Override
-    public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
+    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return new QuarryBlockEntity(pos, state);
     }
 
     @Override
-    public void onPlaced(
-            World world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack itemStack) {
-        super.onPlaced(world, pos, state, placer, itemStack);
+    public void setPlacedBy(
+            Level world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack itemStack) {
+        super.setPlacedBy(world, pos, state, placer, itemStack);
 
-        if (!world.isClient()) {
+        if (!world.isClientSide()) {
             // Check for adjacent marker-defined area
             MarkerManager.MarkerBounds bounds = MarkerManager.findAdjacentMarkerBounds(world, pos);
             if (bounds != null) {
@@ -106,24 +107,24 @@ public class QuarryBlock extends BlockWithEntity {
 
     @Nullable @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
-            World world, BlockState state, BlockEntityType<T> type) {
-        return validateTicker(type, AutomationBlockEntities.QUARRY_BLOCK_ENTITY, QuarryBlockEntity::tick);
+            Level world, BlockState state, BlockEntityType<T> type) {
+        return createTickerHelper(type, AutomationBlockEntities.QUARRY_BLOCK_ENTITY, QuarryBlockEntity::tick);
     }
 
     @Override
-    protected BlockState rotate(BlockState state, BlockRotation rotation) {
-        return state.with(FACING, rotation.rotate(state.get(FACING)));
+    protected BlockState rotate(BlockState state, Rotation rotation) {
+        return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
     }
 
     @Override
-    protected BlockState mirror(BlockState state, BlockMirror mirror) {
-        return state.rotate(mirror.getRotation(state.get(FACING)));
+    protected BlockState mirror(BlockState state, Mirror mirror) {
+        return state.rotate(mirror.getRotation(state.getValue(FACING)));
     }
 
     /**
      * Gets the direction the quarry will mine in (behind the block).
      */
     public static Direction getMiningDirection(BlockState state) {
-        return state.get(FACING);
+        return state.getValue(FACING);
     }
 }

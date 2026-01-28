@@ -4,18 +4,18 @@ import com.logistics.automation.quarry.QuarryConfig;
 import com.logistics.automation.quarry.entity.QuarryBlockEntity;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.block.entity.state.BlockEntityRenderState;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 
 /**
  * Render state for the quarry arm visualization.
  */
 public class QuarryRenderState extends BlockEntityRenderState {
     public boolean shouldRenderArm = false;
-    public BlockPos quarryPos = BlockPos.ORIGIN;
+    public BlockPos quarryPos = BlockPos.ZERO;
     public Direction facing = Direction.NORTH;
 
     // Frame bounds
@@ -90,9 +90,9 @@ public class QuarryRenderState extends BlockEntityRenderState {
 
         // Get current tick rate (default 20, but can be changed with /tick rate)
         float tickRate = 20f;
-        MinecraftClient client = MinecraftClient.getInstance();
-        if (client.world != null) {
-            tickRate = client.world.getTickManager().getTickRate();
+        Minecraft client = Minecraft.getInstance();
+        if (client.level != null) {
+            tickRate = client.level.tickRateManager().tickrate();
         }
 
         // Speed in blocks per second = speed per tick * ticks per second
@@ -134,7 +134,7 @@ public class QuarryRenderState extends BlockEntityRenderState {
     /**
      * Prune cache entries that no longer have a quarry block entity in the current world.
      */
-    public static void pruneInterpolationCache(ClientWorld world) {
+    public static void pruneInterpolationCache(ClientLevel world) {
         INTERPOLATION_CACHE.keySet().removeIf(pos -> !(world.getBlockEntity(pos) instanceof QuarryBlockEntity));
     }
 

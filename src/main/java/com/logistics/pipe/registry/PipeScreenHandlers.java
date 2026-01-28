@@ -2,19 +2,19 @@ package com.logistics.pipe.registry;
 
 import com.logistics.LogisticsMod;
 import com.logistics.pipe.ui.ItemFilterScreenHandler;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
-import net.minecraft.resource.featuretoggle.FeatureSet;
-import net.minecraft.screen.ScreenHandlerType;
-import net.minecraft.util.Identifier;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.flag.FeatureFlagSet;
+import net.minecraft.world.inventory.MenuType;
 
 public final class PipeScreenHandlers {
     private PipeScreenHandlers() {}
 
-    public static final ScreenHandlerType<ItemFilterScreenHandler> ITEM_FILTER = Registry.register(
-            Registries.SCREEN_HANDLER,
-            Identifier.of(LogisticsMod.MOD_ID, "pipe/item_filter"),
-            new ScreenHandlerType<>(ItemFilterScreenHandler::new, FeatureSet.empty()));
+    public static final MenuType<ItemFilterScreenHandler> ITEM_FILTER = Registry.register(
+            BuiltInRegistries.MENU,
+            Identifier.fromNamespaceAndPath(LogisticsMod.MOD_ID, "pipe/item_filter"),
+            new MenuType<>(ItemFilterScreenHandler::new, FeatureFlagSet.of()));
 
     public static void initialize() {
         LogisticsMod.LOGGER.info("Registering pipe screen handlers");
@@ -23,7 +23,8 @@ public final class PipeScreenHandlers {
 
     private static void registerLegacyAliases() {
         // v0.2 => v0.3
-        Registries.SCREEN_HANDLER.addAlias(
-                Identifier.of(LogisticsMod.MOD_ID, "item_filter"), Registries.SCREEN_HANDLER.getId(ITEM_FILTER));
+        BuiltInRegistries.MENU.addAlias(
+                Identifier.fromNamespaceAndPath(LogisticsMod.MOD_ID, "item_filter"),
+                BuiltInRegistries.MENU.getKey(ITEM_FILTER));
     }
 }

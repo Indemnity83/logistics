@@ -4,7 +4,7 @@ import com.logistics.LogisticsMod;
 import com.logistics.automation.quarry.entity.QuarryBlockEntity;
 import com.logistics.core.bootstrap.DomainBootstrap;
 import com.logistics.core.util.TimingLog;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLevelEvents;
 
 public final class AutomationDomainBootstrap implements DomainBootstrap {
     @Override
@@ -17,6 +17,6 @@ public final class AutomationDomainBootstrap implements DomainBootstrap {
 
         AutomationItemGroups.registerProviders();
 
-        ServerWorldEvents.UNLOAD.register((server, world) -> QuarryBlockEntity.clearActiveQuarries(world));
+        ServerLevelEvents.UNLOAD.register((server, world) -> QuarryBlockEntity.clearActiveQuarries(world));
     }
 }

@@ -4,10 +4,10 @@ import com.logistics.core.bootstrap.ClientDomainBootstrap;
 import com.logistics.core.render.ModelRegistry;
 import com.logistics.pipe.render.PipeBlockEntityRenderer;
 import com.logistics.pipe.screen.ItemFilterScreen;
-import net.fabricmc.fabric.api.client.rendering.v1.BlockRenderLayerMap;
-import net.minecraft.client.gui.screen.ingame.HandledScreens;
-import net.minecraft.client.render.BlockRenderLayer;
-import net.minecraft.client.render.block.entity.BlockEntityRendererFactories;
+import net.fabricmc.fabric.api.client.rendering.v1.BlockEntityRendererRegistry;
+import net.fabricmc.fabric.api.client.rendering.v1.ChunkSectionLayerMap;
+import net.minecraft.client.gui.screens.MenuScreens;
+import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 
 public final class PipeClientBootstrap implements ClientDomainBootstrap {
     @Override
@@ -19,17 +19,17 @@ public final class PipeClientBootstrap implements ClientDomainBootstrap {
     public void initClient() {
         ModelRegistry.register();
 
-        BlockRenderLayerMap.putBlock(PipeBlocks.STONE_TRANSPORT_PIPE, BlockRenderLayer.CUTOUT);
-        BlockRenderLayerMap.putBlock(PipeBlocks.COPPER_TRANSPORT_PIPE, BlockRenderLayer.CUTOUT);
-        BlockRenderLayerMap.putBlock(PipeBlocks.ITEM_EXTRACTOR_PIPE, BlockRenderLayer.CUTOUT);
-        BlockRenderLayerMap.putBlock(PipeBlocks.ITEM_MERGER_PIPE, BlockRenderLayer.CUTOUT);
-        BlockRenderLayerMap.putBlock(PipeBlocks.GOLD_TRANSPORT_PIPE, BlockRenderLayer.CUTOUT);
-        BlockRenderLayerMap.putBlock(PipeBlocks.ITEM_FILTER_PIPE, BlockRenderLayer.CUTOUT);
-        BlockRenderLayerMap.putBlock(PipeBlocks.ITEM_INSERTION_PIPE, BlockRenderLayer.CUTOUT);
-        BlockRenderLayerMap.putBlock(PipeBlocks.ITEM_VOID_PIPE, BlockRenderLayer.CUTOUT);
+        ChunkSectionLayerMap.putBlock(PipeBlocks.STONE_TRANSPORT_PIPE, ChunkSectionLayer.CUTOUT);
+        ChunkSectionLayerMap.putBlock(PipeBlocks.COPPER_TRANSPORT_PIPE, ChunkSectionLayer.CUTOUT);
+        ChunkSectionLayerMap.putBlock(PipeBlocks.ITEM_EXTRACTOR_PIPE, ChunkSectionLayer.CUTOUT);
+        ChunkSectionLayerMap.putBlock(PipeBlocks.ITEM_MERGER_PIPE, ChunkSectionLayer.CUTOUT);
+        ChunkSectionLayerMap.putBlock(PipeBlocks.GOLD_TRANSPORT_PIPE, ChunkSectionLayer.CUTOUT);
+        ChunkSectionLayerMap.putBlock(PipeBlocks.ITEM_FILTER_PIPE, ChunkSectionLayer.CUTOUT);
+        ChunkSectionLayerMap.putBlock(PipeBlocks.ITEM_INSERTION_PIPE, ChunkSectionLayer.CUTOUT);
+        ChunkSectionLayerMap.putBlock(PipeBlocks.ITEM_VOID_PIPE, ChunkSectionLayer.CUTOUT);
 
-        BlockEntityRendererFactories.register(PipeBlockEntities.PIPE_BLOCK_ENTITY, PipeBlockEntityRenderer::new);
+        BlockEntityRendererRegistry.register(PipeBlockEntities.PIPE_BLOCK_ENTITY, PipeBlockEntityRenderer::new);
 
-        HandledScreens.register(PipeScreenHandlers.ITEM_FILTER, ItemFilterScreen::new);
+        MenuScreens.register(PipeScreenHandlers.ITEM_FILTER, ItemFilterScreen::new);
     }
 }

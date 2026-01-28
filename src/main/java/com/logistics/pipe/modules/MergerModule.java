@@ -5,12 +5,12 @@ import com.logistics.core.registry.CoreItems;
 import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.runtime.RoutePlan;
 import java.util.List;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemUsageContext;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Direction;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.UseOnContext;
 import org.jetbrains.annotations.Nullable;
 
 public class MergerModule implements Module {
@@ -43,13 +43,13 @@ public class MergerModule implements Module {
     }
 
     @Override
-    public ActionResult onUseWithItem(PipeContext ctx, ItemUsageContext usage) {
-        if (!CoreItems.isWrench(usage.getStack())) {
-            return ActionResult.PASS;
+    public InteractionResult onUseWithItem(PipeContext ctx, UseOnContext usage) {
+        if (!CoreItems.isWrench(usage.getItemInHand())) {
+            return InteractionResult.PASS;
         }
 
-        if (ctx.world().isClient()) {
-            return ActionResult.SUCCESS;
+        if (ctx.world().isClientSide()) {
+            return InteractionResult.SUCCESS;
         }
 
         List<Direction> connected = ctx.getConnectedDirections();
@@ -57,14 +57,14 @@ public class MergerModule implements Module {
         // No valid outputs: clear config.
         if (connected.isEmpty()) {
             setOutputDirection(ctx, null);
-            return ActionResult.SUCCESS;
+            return InteractionResult.SUCCESS;
         }
 
         Direction current = getOutputDirection(ctx);
         Direction next = nextInCycle(connected, current);
 
         setOutputDirection(ctx, next);
-        return ActionResult.SUCCESS;
+        return InteractionResult.SUCCESS;
     }
 
     @Override
@@ -74,11 +74,11 @@ public class MergerModule implements Module {
     }
 
     private @Nullable Direction getOutputDirection(PipeContext ctx) {
-        NbtCompound state = ctx.moduleState(getStateKey());
+        CompoundTag state = ctx.moduleState(getStateKey());
         if (!state.contains(OUTPUT_DIRECTION)) {
             return null;
         }
-        return state.getString(OUTPUT_DIRECTION).map(Direction::byId).orElse(null);
+        return state.getString(OUTPUT_DIRECTION).map(Direction::byName).orElse(null);
     }
 
     private void setOutputDirection(PipeContext ctx, @Nullable Direction direction) {
@@ -90,7 +90,7 @@ public class MergerModule implements Module {
         if (direction == null) {
             ctx.remove(this, OUTPUT_DIRECTION);
         } else {
-            ctx.saveString(this, OUTPUT_DIRECTION, direction.getId());
+            ctx.saveString(this, OUTPUT_DIRECTION, direction.getName());
         }
 
         ctx.markDirtyAndSync();
@@ -111,7 +111,7 @@ public class MergerModule implements Module {
             return null;
         }
         String suffix = ctx.isInventoryConnection(direction) ? "_feature_extended" : "_feature";
-        return Identifier.of(LogisticsMod.MOD_ID, "block/pipe/item_merger_pipe" + suffix);
+        return Identifier.fromNamespaceAndPath(LogisticsMod.MOD_ID, "block/pipe/item_merger_pipe" + suffix);
     }
 
     private boolean isOutputDirection(PipeContext ctx, Direction direction) {
