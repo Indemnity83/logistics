@@ -1,9 +1,9 @@
 name: Build Dev
 
 on:
-  pull_request:
-    branches: [main]
-    types: [opened, synchronize, reopened, ready_for_review]
+  push:
+    branches:
+      - 'release-please--**'
   workflow_dispatch:
     inputs:
       publish:
@@ -14,10 +14,6 @@ on:
 
 jobs:
   build:
-    # Only run for release-please PRs (or manual dispatch)
-    if: |
-      github.event_name == 'workflow_dispatch' ||
-      (github.event.pull_request.draft == false && startsWith(github.head_ref, 'release-please--'))
     runs-on: ubuntu-latest
 
     steps:
