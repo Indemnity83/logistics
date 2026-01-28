@@ -67,7 +67,7 @@ jobs:
         if: github.event_name != 'workflow_dispatch' || inputs.publish
         uses: Kir-Antipov/mc-publish@v3.3
         with:
-          name: "v${{ steps.version.outputs.mod_version }} (MC ${{ steps.version.outputs.minecraft_version }})"
+          name: "Logistics: Automation v${{ steps.version.outputs.version }}"
           version: ${{ steps.version.outputs.mod_version }}
           version-type: release
           changelog: ${{ github.event.release.body || format('Release {0}', steps.version.outputs.mod_version) }}
