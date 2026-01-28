@@ -51,4 +51,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: logistics-${{ steps.version.outputs.mod_version }}
-          path: build/libs/!(*-@(dev|sources|javadoc)).jar
+          path: build/libs/logistics-${{ steps.version.outputs.mod_version }}.jar
