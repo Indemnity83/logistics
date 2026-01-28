@@ -1,0 +1,77 @@
+name: Build (Dev)
+
+on:
+  push:
+    branches:
+      - 'release-please--**'
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: "Actually publish (otherwise build only)"
+        required: true
+        default: false
+        type: boolean
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0  # Need full history to count commits since last tag
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '25'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v5
+        with:
+          cache-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
+
+      - name: Compute version
+        id: version
+        run: |
+          MC_VERSION="$(grep '^minecraft_version=' gradle.properties | cut -d'=' -f2)"
+          SHA7="$(git rev-parse --short=7 HEAD)"
+
+          # Count commits since last release tag (falls back to counting from root if no tags)
+          LAST_TAG="$(git describe --tags --match 'v*' --abbrev=0 2>/dev/null || git rev-list --max-parents=0 HEAD)"
+          BUILD_NO="$(git rev-list --count "${LAST_TAG}..HEAD")"
+
+          # On release-please branches, version.txt contains the next version
+          NEXT_VERSION="$(cat version.txt)"
+
+          # Example: 0.3.1-dev.5+mc.1.21.11.sha.1a2b3c4
+          BUILD_VERSION="${NEXT_VERSION}-dev.${BUILD_NO}+mc.${MC_VERSION}.sha.${SHA7}"
+
+          echo "mod_version=$BUILD_VERSION" >> "$GITHUB_OUTPUT"
+          echo "minecraft_version=$MC_VERSION" >> "$GITHUB_OUTPUT"
+          echo "📦 Version: $BUILD_VERSION"
+
+      - name: Build
+        run: ./gradlew remapJar --console=plain
+        env:
+          MOD_VERSION: ${{ steps.version.outputs.mod_version }}
+
+      - name: Publish
+        if: github.event_name != 'workflow_dispatch' || inputs.publish
+        uses: Kir-Antipov/mc-publish@v3.3
+        with:
+          name: "v${{ steps.version.outputs.mod_version }} (MC ${{ steps.version.outputs.minecraft_version }})"
+          version: ${{ steps.version.outputs.mod_version }}
+          version-type: beta
+          changelog: "Automated dev build from commit ${{ github.sha }}"
+          game-versions: ${{ steps.version.outputs.minecraft_version }}
+
+          files: |
+            build/libs/!(*-@(dev|sources|javadoc)).jar
+
+          modrinth-featured: false
+          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+
+          fail-mode: warn
+          retry-attempts: 2
+          retry-delay: 10000
