@@ -97,3 +97,5 @@ tasks.withType(Checkstyle).configureEach {
 		html.required = true
 	}
 }
+
+check.dependsOn spotlessCheck
