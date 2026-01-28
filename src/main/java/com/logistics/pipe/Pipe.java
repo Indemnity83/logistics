@@ -1,7 +1,7 @@
 package com.logistics.pipe;
 
 import com.logistics.LogisticsMod;
-import com.logistics.block.PipeBlock;
+import com.logistics.pipe.block.PipeBlock;
 import com.logistics.pipe.modules.Module;
 import com.logistics.pipe.runtime.PipeConfig;
 import com.logistics.pipe.runtime.RoutePlan;
@@ -36,7 +36,7 @@ public abstract class Pipe {
     }
 
     /**
-     * Get the registry name of this pipe (e.g., "copper_transport_pipe").
+     * Get the registry name of this pipe (e.g., "pipe/copper_transport_pipe").
      */
     public String getPipeName() {
         if (pipeBlock == null) {

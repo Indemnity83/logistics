@@ -1,0 +1,86 @@
+{
+  "model": {
+    "type": "minecraft:select",
+    "property": "minecraft:custom_model_data",
+    "index": 0,
+    "fallback": {
+      "type": "minecraft:composite",
+      "models": [
+        { "type": "minecraft:model", "model": "logistics:block/pipe/copper_transport_pipe_core" },
+        { "type": "minecraft:model", "model": "logistics:block/pipe/copper_transport_pipe_arm" }
+      ]
+    },
+    "cases": [
+      {
+        "when": "exposed",
+        "model": {
+          "type": "minecraft:composite",
+          "models": [
+            { "type": "minecraft:model", "model": "logistics:block/pipe/copper_transport_pipe_core_exposed" },
+            { "type": "minecraft:model", "model": "logistics:block/pipe/copper_transport_pipe_arm_exposed" }
+          ]
+        }
+      },
+      {
+        "when": "weathered",
+        "model": {
+          "type": "minecraft:composite",
+          "models": [
+            { "type": "minecraft:model", "model": "logistics:block/pipe/copper_transport_pipe_core_weathered" },
+            { "type": "minecraft:model", "model": "logistics:block/pipe/copper_transport_pipe_arm_weathered" }
+          ]
+        }
+      },
+      {
+        "when": "oxidized",
+        "model": {
+          "type": "minecraft:composite",
+          "models": [
+            { "type": "minecraft:model", "model": "logistics:block/pipe/copper_transport_pipe_core_oxidized" },
+            { "type": "minecraft:model", "model": "logistics:block/pipe/copper_transport_pipe_arm_oxidized" }
+          ]
+        }
+      },
+      {
+        "when": "waxed",
+        "model": {
+          "type": "minecraft:composite",
+          "models": [
+            { "type": "minecraft:model", "model": "logistics:block/pipe/copper_transport_pipe_core" },
+            { "type": "minecraft:model", "model": "logistics:block/pipe/copper_transport_pipe_arm" }
+          ]
+        }
+      },
+      {
+        "when": "waxed_exposed",
+        "model": {
+          "type": "minecraft:composite",
+          "models": [
+            { "type": "minecraft:model", "model": "logistics:block/pipe/copper_transport_pipe_core_exposed" },
+            { "type": "minecraft:model", "model": "logistics:block/pipe/copper_transport_pipe_arm_exposed" }
+          ]
+        }
+      },
+      {
+        "when": "waxed_weathered",
+        "model": {
+          "type": "minecraft:composite",
+          "models": [
+            { "type": "minecraft:model", "model": "logistics:block/pipe/copper_transport_pipe_core_weathered" },
+            { "type": "minecraft:model", "model": "logistics:block/pipe/copper_transport_pipe_arm_weathered" }
+          ]
+        }
+      },
+      {
+        "when": "waxed_oxidized",
+        "model": {
+          "type": "minecraft:composite",
+          "models": [
+            { "type": "minecraft:model", "model": "logistics:block/pipe/copper_transport_pipe_core_oxidized" },
+            { "type": "minecraft:model", "model": "logistics:block/pipe/copper_transport_pipe_arm_oxidized" }
+          ]
+        }
+      }
+    ]
+  }
+}

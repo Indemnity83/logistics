@@ -1,0 +1,12 @@
+{
+  "key": {
+    "G": "logistics:core/wooden_gear",
+    "S": "minecraft:stone"
+  },
+  "pattern": [" S ", "SGS", " S "],
+  "result": {
+    "count": 1,
+    "id": "logistics:core/stone_gear"
+  },
+  "type": "minecraft:crafting_shaped"
+}

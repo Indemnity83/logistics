@@ -1,7 +1,7 @@
 package com.logistics.pipe.modules;
 
 import com.logistics.LogisticsMod;
-import com.logistics.item.LogisticsItems;
+import com.logistics.core.registry.CoreItems;
 import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.runtime.RoutePlan;
 import java.util.List;
@@ -44,7 +44,7 @@ public class MergerModule implements Module {
 
     @Override
     public ActionResult onUseWithItem(PipeContext ctx, ItemUsageContext usage) {
-        if (!LogisticsItems.isWrench(usage.getStack())) {
+        if (!CoreItems.isWrench(usage.getStack())) {
             return ActionResult.PASS;
         }
 
@@ -111,7 +111,7 @@ public class MergerModule implements Module {
             return null;
         }
         String suffix = ctx.isInventoryConnection(direction) ? "_feature_extended" : "_feature";
-        return Identifier.of(LogisticsMod.MOD_ID, "block/item_merger_pipe" + suffix);
+        return Identifier.of(LogisticsMod.MOD_ID, "block/pipe/item_merger_pipe" + suffix);
     }
 
     private boolean isOutputDirection(PipeContext ctx, Direction direction) {

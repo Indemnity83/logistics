@@ -1,7 +1,0 @@
-{
-  "parent": "item/generated",
-  "textures": {
-    "layer0": "logistics:item/marking_fluid",
-    "layer1": "logistics:item/marking_fluid_overlay"
-  }
-}

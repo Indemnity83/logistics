@@ -1,0 +1,13 @@
+{
+  "key": {
+    "E": "minecraft:ender_pearl",
+    "G": "minecraft:glass",
+    "O": "minecraft:obsidian"
+  },
+  "pattern": ["OGE"],
+  "result": {
+    "count": 8,
+    "id": "logistics:pipe/item_void_pipe"
+  },
+  "type": "minecraft:crafting_shaped"
+}

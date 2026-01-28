@@ -1,0 +1,6 @@
+{
+  "model": {
+    "model": "logistics:item/core/marker",
+    "type": "minecraft:model"
+  }
+}

@@ -1,0 +1,3 @@
+com.logistics.core.registry.CoreClientBootstrap
+com.logistics.pipe.registry.PipeClientBootstrap
+com.logistics.automation.registry.AutomationClientBootstrap

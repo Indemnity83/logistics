@@ -1,0 +1,12 @@
+{
+  "key": {
+    "G": "minecraft:glass",
+    "I": "minecraft:iron_ingot"
+  },
+  "pattern": ["IGI"],
+  "result": {
+    "count": 8,
+    "id": "logistics:pipe/item_merger_pipe"
+  },
+  "type": "minecraft:crafting_shaped"
+}

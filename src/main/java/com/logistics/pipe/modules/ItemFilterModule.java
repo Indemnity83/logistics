@@ -1,8 +1,8 @@
 package com.logistics.pipe.modules;
 
-import com.logistics.block.entity.PipeBlockEntity;
-import com.logistics.item.LogisticsItems;
+import com.logistics.core.registry.CoreItems;
 import com.logistics.pipe.PipeContext;
+import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.pipe.runtime.RoutePlan;
 import com.logistics.pipe.runtime.TravelingItem;
 import com.logistics.pipe.ui.ItemFilterScreenHandler;
@@ -60,7 +60,7 @@ public class ItemFilterModule implements Module {
 
     @Override
     public ActionResult onUseWithItem(PipeContext ctx, ItemUsageContext usage) {
-        if (!LogisticsItems.isWrench(usage.getStack())) {
+        if (!CoreItems.isWrench(usage.getStack())) {
             return ActionResult.PASS;
         }
 

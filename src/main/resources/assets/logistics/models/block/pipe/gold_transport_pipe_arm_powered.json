@@ -1,0 +1,7 @@
+{
+  "parent": "logistics:block/pipe/copper_transport_pipe_arm",
+  "textures": {
+    "particle": "logistics:block/pipe/gold_pipe_arm_powered",
+    "texture": "logistics:block/pipe/gold_pipe_arm_powered"
+  }
+}

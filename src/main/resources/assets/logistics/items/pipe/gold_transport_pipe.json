@@ -1,0 +1,15 @@
+{
+  "model": {
+    "models": [
+      {
+        "model": "logistics:block/pipe/gold_transport_pipe_core",
+        "type": "minecraft:model"
+      },
+      {
+        "model": "logistics:block/pipe/gold_transport_pipe_arm",
+        "type": "minecraft:model"
+      }
+    ],
+    "type": "minecraft:composite"
+  }
+}

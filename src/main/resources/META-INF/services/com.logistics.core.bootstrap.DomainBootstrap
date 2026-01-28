@@ -1,0 +1,3 @@
+com.logistics.core.bootstrap.CoreDomainBootstrap
+com.logistics.pipe.registry.PipeDomainBootstrap
+com.logistics.automation.registry.AutomationDomainBootstrap
