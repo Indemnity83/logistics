@@ -35,7 +35,6 @@ jobs:
         id: version
         run: |
           MC_VERSION="$(grep '^minecraft_version=' gradle.properties | cut -d'=' -f2)"
-          SHA7="$(git rev-parse --short=7 HEAD)"
 
           # Count commits since last release tag (falls back to counting from root if no tags)
           LAST_TAG="$(git describe --tags --match 'v*' --abbrev=0 2>/dev/null || git rev-list --max-parents=0 HEAD)"
@@ -44,23 +43,28 @@ jobs:
           # On release-please branches, version.txt contains the next version
           NEXT_VERSION="$(cat version.txt)"
 
-          # Example: 0.3.1-dev.5+mc.1.21.11.sha.1a2b3c4
-          BUILD_VERSION="${NEXT_VERSION}-dev.${BUILD_NO}+mc.${MC_VERSION}.sha.${SHA7}"
+          # Version for display (short): 0.3.1-dev-5
+          # Version for filename (full): 0.3.1-dev-5+mc.1.21.11
+          MOD_VERSION="${NEXT_VERSION}-dev-${BUILD_NO}"
+          FILE_VERSION="${MOD_VERSION}+mc.${MC_VERSION}"
 
-          echo "mod_version=$BUILD_VERSION" >> "$GITHUB_OUTPUT"
+          echo "mod_version=$MOD_VERSION" >> "$GITHUB_OUTPUT"
+          echo "file_version=$FILE_VERSION" >> "$GITHUB_OUTPUT"
           echo "minecraft_version=$MC_VERSION" >> "$GITHUB_OUTPUT"
-          echo "📦 Version: $BUILD_VERSION"
+          echo "next_version=$NEXT_VERSION" >> "$GITHUB_OUTPUT"
+          echo "build_no=$BUILD_NO" >> "$GITHUB_OUTPUT"
+          echo "📦 Version: $MOD_VERSION (file: $FILE_VERSION)"
 
       - name: Build
         run: ./gradlew remapJar --console=plain
         env:
-          MOD_VERSION: ${{ steps.version.outputs.mod_version }}
+          MOD_VERSION: ${{ steps.version.outputs.file_version }}
 
       - name: Publish
         if: github.event_name != 'workflow_dispatch' || inputs.publish
         uses: Kir-Antipov/mc-publish@v3.3
         with:
-          name: "v${{ steps.version.outputs.mod_version }} (MC ${{ steps.version.outputs.minecraft_version }})"
+          name: "Logistics: Automation v${{ steps.version.outputs.next_version }}-dev-${{ steps.version.outputs.build_no }}"
           version: ${{ steps.version.outputs.mod_version }}
           version-type: beta
           changelog: "Automated dev build from commit ${{ github.sha }}"
