@@ -33,6 +33,7 @@ permissions:
 
 jobs:
   build:
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
     runs-on: ubuntu-latest
 
     steps:
@@ -58,6 +59,8 @@ jobs:
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v5
+        with:
+          cache-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
 
       - name: Determine build type
         id: build_type
@@ -119,7 +122,7 @@ jobs:
           echo "🎮 Minecraft: $MC_VERSION"
 
       - name: Build
-        run: ./gradlew clean build --no-daemon
+        run: ./gradlew jar --console=plain
         env:
           MOD_VERSION: ${{ steps.version.outputs.mod_version }}
 
