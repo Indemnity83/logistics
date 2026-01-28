@@ -53,6 +53,7 @@ jobs:
           # Example: 0.3.0+mc.1.21.11
           BUILD_VERSION="${VERSION}+mc.${MC_VERSION}"
 
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
           echo "mod_version=$BUILD_VERSION" >> "$GITHUB_OUTPUT"
           echo "minecraft_version=$MC_VERSION" >> "$GITHUB_OUTPUT"
           echo "📦 Version: $BUILD_VERSION"
@@ -79,3 +80,4 @@ jobs:
           modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
           curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-tag: ${{ steps.version.outputs.tag }}
