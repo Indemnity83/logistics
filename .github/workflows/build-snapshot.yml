@@ -65,7 +65,7 @@ jobs:
             git show "origin/${pr_head_ref}:version.txt" 2>/dev/null || return 1
           }
 
-          NEXT_VERSION="$(get_release_please_version next || cat version.txt)"
+          NEXT_VERSION="$(get_release_please_version main || cat version.txt)"
 
           # Version for display (short): 0.3.1-snapshot-1234
           # Version for filename (full): 0.3.1-snapshot-1234+mc.26.1-snapshot-4
