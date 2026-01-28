@@ -8,15 +8,15 @@ import com.logistics.pipe.runtime.RoutePlan;
 import com.logistics.pipe.runtime.TravelingItem;
 import java.util.ArrayList;
 import java.util.List;
-import net.minecraft.block.Block;
-import net.minecraft.component.ComponentMap;
-import net.minecraft.component.ComponentsAccess;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.CustomModelDataComponent;
-import net.minecraft.registry.Registries;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.random.Random;
+import net.minecraft.core.Direction;
+import net.minecraft.core.component.DataComponentGetter;
+import net.minecraft.core.component.DataComponentMap;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.component.CustomModelData;
+import net.minecraft.world.level.block.Block;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class Pipe {
@@ -42,7 +42,7 @@ public abstract class Pipe {
         if (pipeBlock == null) {
             throw new IllegalStateException("Pipe has not been registered yet");
         }
-        return Registries.BLOCK.getId(pipeBlock).getPath();
+        return BuiltInRegistries.BLOCK.getKey(pipeBlock).getPath();
     }
 
     /**
@@ -56,7 +56,7 @@ public abstract class Pipe {
                 return override;
             }
         }
-        return Identifier.of(LogisticsMod.MOD_ID, "block/" + getPipeName() + "_core");
+        return Identifier.fromNamespaceAndPath(LogisticsMod.MOD_ID, "block/" + getPipeName() + "_core");
     }
 
     /**
@@ -89,7 +89,7 @@ public abstract class Pipe {
         }
 
         String suffix = ctx.isInventoryConnection(direction) ? "_arm_extended" : "_arm";
-        return Identifier.of(LogisticsMod.MOD_ID, "block/" + getPipeName() + suffix);
+        return Identifier.fromNamespaceAndPath(LogisticsMod.MOD_ID, "block/" + getPipeName() + suffix);
     }
 
     /**
@@ -136,7 +136,7 @@ public abstract class Pipe {
         return false;
     }
 
-    public void randomTick(PipeContext ctx, Random random) {
+    public void randomTick(PipeContext ctx, RandomSource random) {
         for (Module module : modules) {
             module.randomTick(ctx, random);
         }
@@ -148,7 +148,7 @@ public abstract class Pipe {
      * Add item components from all modules when the block is broken.
      * Also adds custom model data component if any module provides model data strings.
      */
-    public void addItemComponents(ComponentMap.Builder builder, PipeContext ctx) {
+    public void addItemComponents(DataComponentMap.Builder builder, PipeContext ctx) {
         for (Module module : modules) {
             module.addItemComponents(builder, ctx);
         }
@@ -159,16 +159,16 @@ public abstract class Pipe {
             modelStrings.addAll(module.getCustomModelDataStrings(ctx));
         }
         if (!modelStrings.isEmpty()) {
-            builder.add(
-                    DataComponentTypes.CUSTOM_MODEL_DATA,
-                    new CustomModelDataComponent(List.of(), List.of(), modelStrings, List.of()));
+            builder.set(
+                    DataComponents.CUSTOM_MODEL_DATA,
+                    new CustomModelData(List.of(), List.of(), modelStrings, List.of()));
         }
     }
 
     /**
      * Read item components into all modules when the block is placed.
      */
-    public void readItemComponents(ComponentsAccess components, PipeContext ctx) {
+    public void readItemComponents(DataComponentGetter components, PipeContext ctx) {
         for (Module module : modules) {
             module.readItemComponents(components, ctx);
         }
@@ -191,7 +191,7 @@ public abstract class Pipe {
      * Get the item name suffix from item components.
      * Used for item display names when we don't have a block context.
      */
-    public String getItemNameSuffixFromComponents(ComponentsAccess components) {
+    public String getItemNameSuffixFromComponents(DataComponentGetter components) {
         for (Module module : modules) {
             String suffix = module.getItemNameSuffixFromComponents(components);
             if (!suffix.isEmpty()) {
@@ -205,7 +205,7 @@ public abstract class Pipe {
      * Append creative menu variants from all modules.
      */
     public void appendCreativeMenuVariants(
-            List<net.minecraft.item.ItemStack> stacks, net.minecraft.item.ItemStack baseStack) {
+            List<net.minecraft.world.item.ItemStack> stacks, net.minecraft.world.item.ItemStack baseStack) {
         for (Module module : modules) {
             module.appendCreativeMenuVariants(stacks, baseStack);
         }
@@ -271,7 +271,7 @@ public abstract class Pipe {
         return RoutePlan.pass();
     }
 
-    public boolean canAcceptFrom(PipeContext ctx, Direction from, net.minecraft.item.ItemStack stack) {
+    public boolean canAcceptFrom(PipeContext ctx, Direction from, net.minecraft.world.item.ItemStack stack) {
         // Default behavior: pipes only accept items from other pipes (not from inventories/hoppers)
         // This prevents free automation and preserves the extraction energy cost
         if (!ctx.isNeighborPipe(from)) {
@@ -287,14 +287,15 @@ public abstract class Pipe {
         return true;
     }
 
-    public net.minecraft.util.ActionResult onUseWithItem(PipeContext ctx, net.minecraft.item.ItemUsageContext usage) {
+    public net.minecraft.world.InteractionResult onUseWithItem(
+            PipeContext ctx, net.minecraft.world.item.context.UseOnContext usage) {
         for (Module module : modules) {
-            net.minecraft.util.ActionResult result = module.onUseWithItem(ctx, usage);
-            if (result != net.minecraft.util.ActionResult.PASS) {
+            net.minecraft.world.InteractionResult result = module.onUseWithItem(ctx, usage);
+            if (result != net.minecraft.world.InteractionResult.PASS) {
                 return result;
             }
         }
-        return net.minecraft.util.ActionResult.PASS;
+        return net.minecraft.world.InteractionResult.PASS;
     }
 
     public void onConnectionsChanged(PipeContext ctx, List<Direction> connected) {
@@ -326,7 +327,7 @@ public abstract class Pipe {
         return output;
     }
 
-    public void randomDisplayTick(PipeContext ctx, Random random) {
+    public void randomDisplayTick(PipeContext ctx, RandomSource random) {
         for (Module module : modules) {
             module.randomDisplayTick(ctx, random);
         }

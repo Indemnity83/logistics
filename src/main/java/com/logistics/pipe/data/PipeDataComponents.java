@@ -3,10 +3,10 @@ package com.logistics.pipe.data;
 import com.logistics.LogisticsMod;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.component.ComponentType;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
-import net.minecraft.util.Identifier;
+import net.minecraft.core.Registry;
+import net.minecraft.core.component.DataComponentType;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.Identifier;
 
 public final class PipeDataComponents {
     private PipeDataComponents() {}
@@ -14,11 +14,11 @@ public final class PipeDataComponents {
     /**
      * Stores weathering state (oxidation stage and waxed status) for copper pipes.
      */
-    public static final ComponentType<WeatheringState> WEATHERING_STATE = Registry.register(
-            Registries.DATA_COMPONENT_TYPE,
-            Identifier.of(LogisticsMod.MOD_ID, "pipe/weathering_state"),
-            ComponentType.<WeatheringState>builder()
-                    .codec(WeatheringState.CODEC)
+    public static final DataComponentType<WeatheringState> WEATHERING_STATE = Registry.register(
+            BuiltInRegistries.DATA_COMPONENT_TYPE,
+            Identifier.fromNamespaceAndPath(LogisticsMod.MOD_ID, "pipe/weathering_state"),
+            DataComponentType.<WeatheringState>builder()
+                    .persistent(WeatheringState.CODEC)
                     .build());
 
     public static void initialize() {
@@ -28,9 +28,9 @@ public final class PipeDataComponents {
 
     private static void registerLegacyAliases() {
         // v0.2 => v0.3
-        Registries.DATA_COMPONENT_TYPE.addAlias(
-                Identifier.of(LogisticsMod.MOD_ID, "weathering_state"),
-                Registries.DATA_COMPONENT_TYPE.getId(WEATHERING_STATE));
+        BuiltInRegistries.DATA_COMPONENT_TYPE.addAlias(
+                Identifier.fromNamespaceAndPath(LogisticsMod.MOD_ID, "weathering_state"),
+                BuiltInRegistries.DATA_COMPONENT_TYPE.getKey(WEATHERING_STATE));
     }
 
     /**

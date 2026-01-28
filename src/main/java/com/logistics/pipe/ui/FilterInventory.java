@@ -5,18 +5,18 @@ import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.pipe.modules.ItemFilterModule;
 import java.util.ArrayList;
 import java.util.List;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.registry.Registries;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.collection.DefaultedList;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.World;
+import net.minecraft.core.Direction;
+import net.minecraft.core.NonNullList;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.Container;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.Level;
 
-public class FilterInventory implements Inventory {
-    private final DefaultedList<ItemStack> stacks = DefaultedList.ofSize(
+public class FilterInventory implements Container {
+    private final NonNullList<ItemStack> stacks = NonNullList.withSize(
             ItemFilterModule.FILTER_ORDER.length * ItemFilterModule.FILTER_SLOTS_PER_SIDE, ItemStack.EMPTY);
     private final PipeBlockEntity pipeEntity;
     private final ItemFilterModule module;
@@ -36,7 +36,7 @@ public class FilterInventory implements Inventory {
         }
 
         com.logistics.pipe.block.PipeBlock block =
-                (com.logistics.pipe.block.PipeBlock) entity.getCachedState().getBlock();
+                (com.logistics.pipe.block.PipeBlock) entity.getBlockState().getBlock();
         com.logistics.pipe.Pipe pipe = block.getPipe();
         ItemFilterModule pipeModule = pipe.getModule(ItemFilterModule.class);
 
@@ -44,7 +44,7 @@ public class FilterInventory implements Inventory {
     }
 
     @Override
-    public int size() {
+    public int getContainerSize() {
         return stacks.size();
     }
 
@@ -59,29 +59,29 @@ public class FilterInventory implements Inventory {
     }
 
     @Override
-    public ItemStack getStack(int slot) {
+    public ItemStack getItem(int slot) {
         return stacks.get(slot);
     }
 
     @Override
-    public ItemStack removeStack(int slot, int amount) {
+    public ItemStack removeItem(int slot, int amount) {
         ItemStack existing = stacks.get(slot);
         if (existing.isEmpty()) {
             return ItemStack.EMPTY;
         }
-        setStack(slot, ItemStack.EMPTY);
+        setItem(slot, ItemStack.EMPTY);
         return existing;
     }
 
     @Override
-    public ItemStack removeStack(int slot) {
+    public ItemStack removeItemNoUpdate(int slot) {
         ItemStack existing = stacks.get(slot);
-        setStack(slot, ItemStack.EMPTY);
+        setItem(slot, ItemStack.EMPTY);
         return existing;
     }
 
     @Override
-    public void setStack(int slot, ItemStack stack) {
+    public void setItem(int slot, ItemStack stack) {
         if (slot < 0 || slot >= stacks.size()) {
             return;
         }
@@ -95,19 +95,19 @@ public class FilterInventory implements Inventory {
     }
 
     @Override
-    public void markDirty() {
+    public void setChanged() {
         if (pipeEntity != null) {
             syncToBlockEntity();
         }
     }
 
     @Override
-    public boolean canPlayerUse(net.minecraft.entity.player.PlayerEntity player) {
+    public boolean stillValid(net.minecraft.world.entity.player.Player player) {
         return true;
     }
 
     @Override
-    public void clear() {
+    public void clearContent() {
         for (int i = 0; i < stacks.size(); i++) {
             stacks.set(i, ItemStack.EMPTY);
         }
@@ -127,7 +127,7 @@ public class FilterInventory implements Inventory {
                 if (!id.isEmpty()) {
                     Identifier identifier = Identifier.tryParse(id);
                     if (identifier != null) {
-                        Item item = Registries.ITEM.get(identifier);
+                        Item item = BuiltInRegistries.ITEM.getValue(identifier);
                         if (item != Items.AIR) {
                             stack = new ItemStack(item);
                         }
@@ -139,8 +139,8 @@ public class FilterInventory implements Inventory {
     }
 
     private void syncToBlockEntity() {
-        World world = pipeEntity.getWorld();
-        if (world == null || world.isClient()) {
+        Level world = pipeEntity.getLevel();
+        if (world == null || world.isClientSide()) {
             return;
         }
 
@@ -153,14 +153,14 @@ public class FilterInventory implements Inventory {
                 if (stack.isEmpty()) {
                     slots.add("");
                 } else {
-                    Identifier id = Registries.ITEM.getId(stack.getItem());
+                    Identifier id = BuiltInRegistries.ITEM.getKey(stack.getItem());
                     slots.add(id.toString());
                 }
             }
             module.setFilterSlots(ctx, direction, slots);
         }
 
-        pipeEntity.markDirty();
-        world.updateListeners(pipeEntity.getPos(), pipeEntity.getCachedState(), pipeEntity.getCachedState(), 3);
+        pipeEntity.setChanged();
+        world.sendBlockUpdated(pipeEntity.getBlockPos(), pipeEntity.getBlockState(), pipeEntity.getBlockState(), 3);
     }
 }

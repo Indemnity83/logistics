@@ -4,12 +4,12 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -23,7 +23,10 @@ public final class MarkerManager {
     /**
      * Result of attempting to activate a marker.
      */
-    public record ActivationResult(Status status, @Nullable String detailKey, @Nullable Object[] detailArgs) {
+    public record ActivationResult(
+            Status status,
+            @Nullable String detailKey,
+            @Nullable Object[] detailArgs) {
         public enum Status {
             SUCCESS,
             NO_CONNECTIONS,
@@ -55,7 +58,7 @@ public final class MarkerManager {
     /**
      * Try to activate a marker and find connected markers to form a valid configuration.
      */
-    public static ActivationResult tryActivateMarker(World world, BlockPos markerPos) {
+    public static ActivationResult tryActivateMarker(Level world, BlockPos markerPos) {
         // Find all markers along cardinal directions
         List<BlockPos> northSouth = new ArrayList<>();
         List<BlockPos> eastWest = new ArrayList<>();
@@ -113,7 +116,7 @@ public final class MarkerManager {
      * Only handles 2D rectangles (X and Z axes).
      */
     private static ActivationResult activateTriangle(
-            World world, BlockPos marker1, BlockPos marker2, BlockPos marker3, BlockPos cornerPos) {
+            Level world, BlockPos marker1, BlockPos marker2, BlockPos marker3, BlockPos cornerPos) {
         // Calculate 2D bounds (X and Z only)
         int minX = Math.min(Math.min(marker1.getX(), marker2.getX()), marker3.getX());
         int maxX = Math.max(Math.max(marker1.getX(), marker2.getX()), marker3.getX());
@@ -154,20 +157,20 @@ public final class MarkerManager {
     /**
      * Find a marker in the given direction from the starting position.
      */
-    @Nullable private static BlockPos findMarkerInDirection(World world, BlockPos start, Direction direction) {
-        BlockPos.Mutable mutable = start.mutableCopy();
+    @Nullable private static BlockPos findMarkerInDirection(Level world, BlockPos start, Direction direction) {
+        BlockPos.MutableBlockPos mutable = start.mutable();
 
         for (int i = 1; i <= MAX_MARKER_DISTANCE; i++) {
             mutable.move(direction);
             BlockState state = world.getBlockState(mutable);
 
             if (state.getBlock() instanceof MarkerBlock) {
-                return mutable.toImmutable();
+                return mutable.immutable();
             }
 
             // Stop at non-air blocks that would obstruct the beam
             // (but allow transparent blocks, fluids, etc.)
-            if (state.isOpaqueFullCube()) {
+            if (state.canOcclude()) {
                 break;
             }
         }
@@ -179,8 +182,8 @@ public final class MarkerManager {
      * Find a perpendicular marker connection from the given position.
      */
     @Nullable private static BlockPos findPerpendicularConnection(
-            World world, BlockPos pos, Direction exclude1, Direction exclude2) {
-        for (Direction dir : Direction.Type.HORIZONTAL) {
+            Level world, BlockPos pos, Direction exclude1, Direction exclude2) {
+        for (Direction dir : Direction.Plane.HORIZONTAL) {
             if (dir == exclude1 || dir == exclude2) continue;
 
             BlockPos found = findMarkerInDirection(world, pos, dir);
@@ -195,9 +198,9 @@ public final class MarkerManager {
      * Check if a position is adjacent to a valid marker-defined area.
      * Returns the bounds if found, null otherwise.
      */
-    @Nullable public static MarkerBounds findAdjacentMarkerBounds(World world, BlockPos quarryPos) {
+    @Nullable public static MarkerBounds findAdjacentMarkerBounds(Level world, BlockPos quarryPos) {
         // Check all 4 horizontal neighbors
-        for (Direction dir : Direction.Type.HORIZONTAL) {
+        for (Direction dir : Direction.Plane.HORIZONTAL) {
             // Look for markers in each direction along the perimeter
             MarkerBounds bounds = checkForMarkerAreaInDirection(world, quarryPos, dir);
             if (bounds != null) {
@@ -212,7 +215,7 @@ public final class MarkerManager {
      * Check for a valid marker area in the given direction from the quarry position.
      * Searches outward in expanding shells constrained to the half-space in the given direction.
      */
-    @Nullable private static MarkerBounds checkForMarkerAreaInDirection(World world, BlockPos quarryPos, Direction dir) {
+    @Nullable private static MarkerBounds checkForMarkerAreaInDirection(Level world, BlockPos quarryPos, Direction dir) {
         Set<MarkerBlockEntity> checkedMarkers = new HashSet<>();
 
         int quarryX = quarryPos.getX();
@@ -318,7 +321,7 @@ public final class MarkerManager {
      * Check a single position for a valid marker that defines bounds adjacent to the quarry.
      */
     @Nullable private static MarkerBounds checkMarkerPosition(
-            World world, BlockPos quarryPos, int x, int y, int z, Set<MarkerBlockEntity> checkedMarkers) {
+            Level world, BlockPos quarryPos, int x, int y, int z, Set<MarkerBlockEntity> checkedMarkers) {
         BlockPos checkPos = new BlockPos(x, y, z);
         BlockEntity entity = world.getBlockEntity(checkPos);
 
@@ -370,12 +373,12 @@ public final class MarkerManager {
     /**
      * Break and drop all markers in the given list.
      */
-    public static void breakMarkers(World world, List<BlockPos> markerPositions) {
+    public static void breakMarkers(Level world, List<BlockPos> markerPositions) {
         for (BlockPos pos : markerPositions) {
             BlockState state = world.getBlockState(pos);
             if (state.getBlock() instanceof MarkerBlock) {
                 // Drop the marker as an item
-                Block.dropStacks(state, world, pos);
+                Block.dropResources(state, world, pos);
                 // Remove the block
                 world.removeBlock(pos, false);
             }

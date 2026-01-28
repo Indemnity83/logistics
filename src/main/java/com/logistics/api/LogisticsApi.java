@@ -1,10 +1,10 @@
 package com.logistics.api;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.item.ItemStack;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.state.BlockState;
 
 public final class LogisticsApi {
     private LogisticsApi() {}
@@ -30,12 +30,12 @@ public final class LogisticsApi {
             }
 
             @Override
-            public boolean tryInsert(ServerWorld world, BlockPos targetPos, ItemStack stack, Direction from) {
+            public boolean tryInsert(ServerLevel world, BlockPos targetPos, ItemStack stack, Direction from) {
                 return false;
             }
 
             @Override
-            public boolean forceInsert(ServerWorld world, BlockPos targetPos, ItemStack stack, Direction from) {
+            public boolean forceInsert(ServerLevel world, BlockPos targetPos, ItemStack stack, Direction from) {
                 return false;
             }
         }

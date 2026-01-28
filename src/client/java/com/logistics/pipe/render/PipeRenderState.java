@@ -2,10 +2,10 @@ package com.logistics.pipe.render;
 
 import java.util.ArrayList;
 import java.util.List;
-import net.minecraft.block.BlockState;
-import net.minecraft.client.render.block.entity.state.BlockEntityRenderState;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Direction;
+import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
 public class PipeRenderState extends BlockEntityRenderState {

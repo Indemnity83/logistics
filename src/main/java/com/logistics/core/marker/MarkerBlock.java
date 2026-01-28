@@ -2,27 +2,28 @@ package com.logistics.core.marker;
 
 import com.logistics.core.registry.CoreItems;
 import com.mojang.serialization.MapCodec;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockRenderType;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.BlockWithEntity;
-import net.minecraft.block.ShapeContext;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemPlacementContext;
-import net.minecraft.particle.DustParticleEffect;
-import net.minecraft.sound.BlockSoundGroup;
-import net.minecraft.state.StateManager;
-import net.minecraft.state.property.BooleanProperty;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.random.Random;
-import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.util.shape.VoxelShapes;
-import net.minecraft.world.BlockView;
-import net.minecraft.world.World;
-import net.minecraft.world.WorldView;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.particles.DustParticleOptions;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.BaseEntityBlock;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.RenderShape;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -30,89 +31,91 @@ import org.jetbrains.annotations.Nullable;
  * Place 3 markers in an L-shape on the ground and activate with a wrench
  * to create a bounding box that a quarry can use.
  */
-public class MarkerBlock extends BlockWithEntity {
-    public static final MapCodec<MarkerBlock> CODEC = createCodec(MarkerBlock::new);
-    public static final BooleanProperty ACTIVE = BooleanProperty.of("active");
+public class MarkerBlock extends BaseEntityBlock {
+    public static final MapCodec<MarkerBlock> CODEC = simpleCodec(MarkerBlock::new);
+    public static final BooleanProperty ACTIVE = BooleanProperty.create("active");
     // Blue particle color for active markers
     private static final int ACTIVE_PARTICLE_COLOR = 0x0132FD;
 
     // Torch-like shape matching vanilla torch dimensions
-    private static final VoxelShape SHAPE = Block.createCuboidShape(6.0, 0.0, 6.0, 10.0, 10.0, 10.0);
+    private static final VoxelShape SHAPE = Block.box(6.0, 0.0, 6.0, 10.0, 10.0, 10.0);
 
-    public MarkerBlock(Settings settings) {
+    public MarkerBlock(Properties settings) {
         super(settings.strength(0.0f)
-                .sounds(BlockSoundGroup.GLASS)
+                .sound(SoundType.GLASS)
                 .noCollision()
-                .luminance(state -> state.get(ACTIVE) ? 7 : 0));
-        setDefaultState(getDefaultState().with(ACTIVE, false));
+                .lightLevel(state -> state.getValue(ACTIVE) ? 7 : 0));
+        registerDefaultState(defaultBlockState().setValue(ACTIVE, false));
     }
 
     @Override
-    protected MapCodec<? extends BlockWithEntity> getCodec() {
+    protected MapCodec<? extends BaseEntityBlock> codec() {
         return CODEC;
     }
 
     @Override
-    protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(ACTIVE);
     }
 
     @Override
-    public BlockRenderType getRenderType(BlockState state) {
-        return BlockRenderType.MODEL;
+    public RenderShape getRenderShape(BlockState state) {
+        return RenderShape.MODEL;
     }
 
     @Override
-    protected VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
+    protected VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
         return SHAPE;
     }
 
     @Override
-    protected VoxelShape getCollisionShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-        return VoxelShapes.empty();
+    protected VoxelShape getCollisionShape(
+            BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
+        return Shapes.empty();
     }
 
     @Nullable @Override
-    public BlockState getPlacementState(ItemPlacementContext ctx) {
-        return getDefaultState().with(ACTIVE, false);
+    public BlockState getStateForPlacement(BlockPlaceContext ctx) {
+        return defaultBlockState().setValue(ACTIVE, false);
     }
 
     @Override
-    protected boolean canPlaceAt(BlockState state, WorldView world, BlockPos pos) {
+    protected boolean canSurvive(BlockState state, LevelReader world, BlockPos pos) {
         // Must be placed on a solid block
-        BlockPos below = pos.down();
-        return world.getBlockState(below).isSideSolidFullSquare(world, below, net.minecraft.util.math.Direction.UP);
+        BlockPos below = pos.below();
+        return world.getBlockState(below).isFaceSturdy(world, below, Direction.UP);
     }
 
     @Override
-    protected ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
+    protected InteractionResult useWithoutItem(
+            BlockState state, Level world, BlockPos pos, Player player, BlockHitResult hit) {
         // Only activate with wrench
-        if (!CoreItems.isWrench(player.getMainHandStack()) && !CoreItems.isWrench(player.getOffHandStack())) {
-            return ActionResult.PASS;
+        if (!CoreItems.isWrench(player.getMainHandItem()) && !CoreItems.isWrench(player.getOffhandItem())) {
+            return InteractionResult.PASS;
         }
 
-        if (!world.isClient()) {
+        if (!world.isClientSide()) {
             BlockEntity entity = world.getBlockEntity(pos);
             if (entity instanceof MarkerBlockEntity marker) {
                 marker.toggleActivation(player);
             }
         }
 
-        return ActionResult.SUCCESS;
+        return InteractionResult.SUCCESS;
     }
 
     @Nullable @Override
-    public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
+    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return new MarkerBlockEntity(pos, state);
     }
 
     @Override
-    public void randomDisplayTick(BlockState state, World world, BlockPos pos, Random random) {
-        if (state.get(ACTIVE)) {
+    public void animateTick(BlockState state, Level world, BlockPos pos, RandomSource random) {
+        if (state.getValue(ACTIVE)) {
             double x = pos.getX() + 0.5 + (random.nextDouble() - 0.5) * 0.2;
             double y = pos.getY() + 0.7;
             double z = pos.getZ() + 0.5 + (random.nextDouble() - 0.5) * 0.2;
-            world.addParticleClient(new DustParticleEffect(ACTIVE_PARTICLE_COLOR, 1.0f), x, y, z, 0.0, 0.0, 0.0);
+            world.addParticle(new DustParticleOptions(ACTIVE_PARTICLE_COLOR, 1.0f), x, y, z, 0.0, 0.0, 0.0);
         }
     }
 }

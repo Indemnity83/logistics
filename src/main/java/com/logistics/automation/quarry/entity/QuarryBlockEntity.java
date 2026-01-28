@@ -13,43 +13,44 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.enchantment.Enchantments;
-import net.minecraft.entity.ItemEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.inventory.SidedInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.network.listener.ClientPlayPacketListener;
-import net.minecraft.network.packet.Packet;
-import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryWrapper;
-import net.minecraft.registry.tag.ItemTags;
-import net.minecraft.screen.ScreenHandler;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.storage.ReadView;
-import net.minecraft.storage.WriteView;
-import net.minecraft.text.Text;
-import net.minecraft.util.collection.DefaultedList;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.World;
+import net.fabricmc.fabric.api.menu.v1.ExtendedMenuProvider;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.NonNullList;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.tags.ItemTags;
+import net.minecraft.world.Container;
+import net.minecraft.world.WorldlyContainer;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.Nullable;
 
 public class QuarryBlockEntity extends BlockEntity
-        implements ExtendedScreenHandlerFactory<BlockPos>, Inventory, SidedInventory {
+        implements ExtendedMenuProvider<BlockPos>, Container, WorldlyContainer {
     private static final int[] TOOL_SLOTS = {0, 1, 2, 3, 4, 5, 6, 7, 8};
     private static final long REGISTRY_TTL_TICKS = 200L;
-    private static final Map<RegistryKey<World>, Map<Long, Long>> ACTIVE_QUARRIES = new HashMap<>();
+    private static final Map<ResourceKey<Level>, Map<Long, Long>> ACTIVE_QUARRIES = new HashMap<>();
 
     /**
      * Quarry operation phases.
@@ -69,8 +70,7 @@ public class QuarryBlockEntity extends BlockEntity
         BREAKING // Arm is at target, breaking the block
     }
 
-    private final DefaultedList<ItemStack> inventory =
-            DefaultedList.ofSize(QuarryConfig.INVENTORY_SIZE, ItemStack.EMPTY);
+    private final NonNullList<ItemStack> inventory = NonNullList.withSize(QuarryConfig.INVENTORY_SIZE, ItemStack.EMPTY);
 
     // Phase state
     private Phase currentPhase = Phase.CLEARING;
@@ -114,37 +114,37 @@ public class QuarryBlockEntity extends BlockEntity
     }
 
     @Override
-    public BlockPos getScreenOpeningData(ServerPlayerEntity player) {
-        return pos;
+    public BlockPos getScreenOpeningData(ServerPlayer player) {
+        return getBlockPos();
     }
 
     @Override
-    public Text getDisplayName() {
-        return Text.translatable("block.logistics.quarry");
+    public Component getDisplayName() {
+        return Component.translatable("block.logistics.quarry");
     }
 
     @Nullable @Override
-    public ScreenHandler createMenu(int syncId, PlayerInventory playerInventory, PlayerEntity player) {
+    public AbstractContainerMenu createMenu(int syncId, Inventory playerInventory, Player player) {
         return new QuarryScreenHandler(syncId, playerInventory, this);
     }
 
-    public static void tick(World world, BlockPos pos, BlockState state, QuarryBlockEntity entity) {
-        if (world.isClient()) {
+    public static void tick(Level level, BlockPos pos, BlockState state, QuarryBlockEntity entity) {
+        if (level.isClientSide()) {
             return;
         }
 
-        registerActiveQuarry((ServerWorld) world, pos);
+        registerActiveQuarry((ServerLevel) level, pos);
 
         if (entity.finished) {
             return;
         }
 
-        ServerWorld serverWorld = (ServerWorld) world;
+        ServerLevel serverLevel = (ServerLevel) level;
 
         switch (entity.currentPhase) {
-            case CLEARING -> tickClearing(serverWorld, pos, state, entity);
-            case BUILDING_FRAME -> tickBuildingFrame(serverWorld, pos, state, entity);
-            case MINING -> tickMining(serverWorld, pos, state, entity);
+            case CLEARING -> tickClearing(serverLevel, pos, state, entity);
+            case BUILDING_FRAME -> tickBuildingFrame(serverLevel, pos, state, entity);
+            case MINING -> tickMining(serverLevel, pos, state, entity);
             default -> {}
         }
     }
@@ -153,20 +153,20 @@ public class QuarryBlockEntity extends BlockEntity
      * Sync arm state to clients. Called on arm state transitions.
      */
     private void syncToClients() {
-        if (world != null && !world.isClient()) {
-            BlockState state = getCachedState();
-            world.updateListeners(pos, state, state, 3);
+        if (level != null && !level.isClientSide()) {
+            BlockState state = getBlockState();
+            level.sendBlockUpdated(worldPosition, state, state, 3);
         }
     }
 
-    private static void tickClearing(ServerWorld world, BlockPos pos, BlockState state, QuarryBlockEntity entity) {
+    private static void tickClearing(ServerLevel level, BlockPos pos, BlockState state, QuarryBlockEntity entity) {
         int toolSlot = entity.findFirstToolSlot();
         if (toolSlot < 0) {
             entity.resetBreakProgress();
             return;
         }
 
-        ItemStack tool = entity.getStack(toolSlot);
+        ItemStack tool = entity.getItem(toolSlot);
 
         // Skip quickly through blocks at or above quarry level
         BlockPos target = null;
@@ -177,11 +177,11 @@ public class QuarryBlockEntity extends BlockEntity
                 // Finished clearing, move to building phase
                 entity.currentPhase = Phase.BUILDING_FRAME;
                 entity.frameBuildIndex = 0;
-                entity.markDirty();
+                entity.setChanged();
                 return;
             }
 
-            targetState = world.getBlockState(target);
+            targetState = level.getBlockState(target);
 
             if (!entity.shouldSkipBlock(targetState)) {
                 break;
@@ -198,19 +198,19 @@ public class QuarryBlockEntity extends BlockEntity
         // Mine the block
         if (!target.equals(entity.currentTarget) || entity.currentBreakTime < 0) {
             entity.currentTarget = target;
-            entity.currentBreakTime = entity.calculateBreakTime(targetState, tool, world);
+            entity.currentBreakTime = entity.calculateBreakTime(targetState, tool, level);
         }
 
         entity.breakProgress += 1f;
 
         if (entity.breakProgress >= entity.currentBreakTime) {
-            entity.mineBlock(world, target, targetState, tool, toolSlot);
+            entity.mineBlock(level, target, targetState, tool, toolSlot);
             entity.advanceToNextBlock();
             entity.resetBreakProgress();
         }
     }
 
-    private static void tickBuildingFrame(ServerWorld world, BlockPos pos, BlockState state, QuarryBlockEntity entity) {
+    private static void tickBuildingFrame(ServerLevel level, BlockPos pos, BlockState state, QuarryBlockEntity entity) {
         // Build one frame block per tick
         BlockPos framePos = entity.getNextFramePosition(state);
         if (framePos == null) {
@@ -222,35 +222,35 @@ public class QuarryBlockEntity extends BlockEntity
             entity.armInitialized = false; // Will be initialized on first mining tick
             entity.armState = ArmState.MOVING;
             entity.syncToClients();
-            entity.markDirty();
+            entity.setChanged();
             return;
         }
 
         // Only place frame if the position is air or replaceable
-        BlockState existingState = world.getBlockState(framePos);
-        if (existingState.isAir() || existingState.isReplaceable()) {
+        BlockState existingState = level.getBlockState(framePos);
+        if (existingState.isAir() || existingState.canBeReplaced()) {
             BlockState frameState = entity.calculateFrameState(state, framePos);
-            world.setBlockState(framePos, frameState);
+            level.setBlockAndUpdate(framePos, frameState);
         }
 
         entity.frameBuildIndex++;
-        entity.markDirty();
+        entity.setChanged();
     }
 
-    private static void tickMining(ServerWorld world, BlockPos pos, BlockState state, QuarryBlockEntity entity) {
+    private static void tickMining(ServerLevel level, BlockPos pos, BlockState state, QuarryBlockEntity entity) {
         // Skip air/fluid/bedrock blocks without moving the arm there
         BlockPos target = null;
         boolean skippedAny = false;
         for (int skipped = 0; skipped < QuarryConfig.MAX_SKIP_PER_TICK; skipped++) {
             target = entity.calculateMiningTargetPos(state);
             if (target == null) {
-                entity.clearBreakingAnimation(world);
+                entity.clearBreakingAnimation(level);
                 entity.finished = true;
-                entity.markDirty();
+                entity.setChanged();
                 return;
             }
 
-            BlockState targetState = world.getBlockState(target);
+            BlockState targetState = level.getBlockState(target);
             if (!entity.shouldSkipBlock(targetState)) {
                 break; // Found a block to mine
             }
@@ -311,10 +311,10 @@ public class QuarryBlockEntity extends BlockEntity
                 // Start breaking
                 entity.armState = ArmState.BREAKING;
                 entity.activeToolSlot = entity.findFirstToolSlot();
-                BlockState targetState = world.getBlockState(target);
+                BlockState targetState = level.getBlockState(target);
                 if (entity.activeToolSlot >= 0) {
-                    ItemStack tool = entity.getStack(entity.activeToolSlot);
-                    entity.currentBreakTime = entity.calculateBreakTime(targetState, tool, world);
+                    ItemStack tool = entity.getItem(entity.activeToolSlot);
+                    entity.currentBreakTime = entity.calculateBreakTime(targetState, tool, level);
                 } else {
                     entity.currentBreakTime = -1f;
                 }
@@ -324,7 +324,7 @@ public class QuarryBlockEntity extends BlockEntity
             if (toolSlot < 0) {
                 // No tool - clear breaking animation and wait
                 if (target != null) {
-                    world.setBlockBreakingInfo(entity.breakingEntityId, target, -1);
+                    level.destroyBlockProgress(entity.breakingEntityId, target, -1);
                 }
                 entity.resetBreakProgress();
                 entity.activeToolSlot = -1;
@@ -338,7 +338,7 @@ public class QuarryBlockEntity extends BlockEntity
                 toolChanged = true;
             } else if (entity.activeToolSlot != toolSlot) {
                 // Active tool slot is no longer the first valid tool (tool was removed)
-                ItemStack activeStack = entity.getStack(entity.activeToolSlot);
+                ItemStack activeStack = entity.getItem(entity.activeToolSlot);
                 if (!isValidTool(activeStack)) {
                     // Tool in active slot was removed or is no longer valid
                     toolChanged = true;
@@ -348,19 +348,19 @@ public class QuarryBlockEntity extends BlockEntity
             if (toolChanged) {
                 // Tool changed - reset progress and recalculate with new tool
                 if (target != null) {
-                    world.setBlockBreakingInfo(entity.breakingEntityId, target, -1);
+                    level.destroyBlockProgress(entity.breakingEntityId, target, -1);
                 }
                 entity.resetBreakProgress();
                 entity.activeToolSlot = toolSlot;
             }
 
-            ItemStack tool = entity.getStack(entity.activeToolSlot);
-            BlockState targetState = world.getBlockState(target);
+            ItemStack tool = entity.getItem(entity.activeToolSlot);
+            BlockState targetState = level.getBlockState(target);
 
             // Recalculate break time if target changed or tool changed
             if (!target.equals(entity.currentTarget) || entity.currentBreakTime < 0) {
                 entity.currentTarget = target;
-                entity.currentBreakTime = entity.calculateBreakTime(targetState, tool, world);
+                entity.currentBreakTime = entity.calculateBreakTime(targetState, tool, level);
             }
 
             entity.breakProgress += 1f;
@@ -368,18 +368,18 @@ public class QuarryBlockEntity extends BlockEntity
             // Update block breaking animation (0-9 progress stages)
             int breakStage = (int) ((entity.breakProgress / entity.currentBreakTime) * 10f);
             breakStage = Math.min(breakStage, 9);
-            world.setBlockBreakingInfo(entity.breakingEntityId, target, breakStage);
+            level.destroyBlockProgress(entity.breakingEntityId, target, breakStage);
 
             if (entity.breakProgress >= entity.currentBreakTime) {
                 // Clear breaking animation
-                world.setBlockBreakingInfo(entity.breakingEntityId, target, -1);
+                level.destroyBlockProgress(entity.breakingEntityId, target, -1);
 
-                entity.mineBlock(world, target, targetState, tool, entity.activeToolSlot);
+                entity.mineBlock(level, target, targetState, tool, entity.activeToolSlot);
                 entity.advanceMiningPosition();
                 entity.resetBreakProgress();
 
                 // Skip air blocks immediately to find the next real target
-                entity.skipToNextSolidBlock(world, state);
+                entity.skipToNextSolidBlock(level, state);
 
                 // Calculate the new target position and set arm there immediately
                 // The client handles smooth interpolation, so we can set the target directly
@@ -482,10 +482,10 @@ public class QuarryBlockEntity extends BlockEntity
         if (stack.isEmpty()) {
             return false;
         }
-        return stack.isIn(ItemTags.PICKAXES)
-                || stack.isIn(ItemTags.SHOVELS)
-                || stack.isIn(ItemTags.AXES)
-                || stack.isIn(ItemTags.HOES);
+        return stack.is(ItemTags.PICKAXES)
+                || stack.is(ItemTags.SHOVELS)
+                || stack.is(ItemTags.AXES)
+                || stack.is(ItemTags.HOES);
     }
 
     private boolean shouldSkipBlock(BlockState state) {
@@ -498,15 +498,15 @@ public class QuarryBlockEntity extends BlockEntity
             return true;
         }
         // Skip bedrock
-        if (state.isOf(Blocks.BEDROCK)) {
+        if (state.is(Blocks.BEDROCK)) {
             return true;
         }
         return false;
     }
 
-    private float calculateBreakTime(BlockState targetState, ItemStack tool, ServerWorld world) {
+    private float calculateBreakTime(BlockState targetState, ItemStack tool, ServerLevel level) {
         // Get the block hardness
-        float hardness = targetState.getHardness(world, currentTarget);
+        float hardness = targetState.getDestroySpeed(level, currentTarget);
 
         // Unbreakable blocks (like bedrock) return -1 hardness
         if (hardness < 0) {
@@ -514,10 +514,10 @@ public class QuarryBlockEntity extends BlockEntity
         }
 
         // Get tool mining speed
-        float toolSpeed = tool.getMiningSpeedMultiplier(targetState);
+        float toolSpeed = tool.getDestroySpeed(targetState);
 
         // Check if this is the correct tool for the block
-        boolean correctTool = tool.isSuitableFor(targetState);
+        boolean correctTool = tool.isCorrectToolForDrops(targetState);
 
         // Get efficiency enchantment level
         int efficiencyLevel = getEnchantmentLevel(tool, Enchantments.EFFICIENCY);
@@ -538,49 +538,48 @@ public class QuarryBlockEntity extends BlockEntity
     }
 
     private int getEnchantmentLevel(
-            ItemStack stack, net.minecraft.registry.RegistryKey<net.minecraft.enchantment.Enchantment> enchantmentKey) {
-        if (world == null) return 0;
+            ItemStack stack, ResourceKey<net.minecraft.world.item.enchantment.Enchantment> enchantmentKey) {
+        if (level == null) return 0;
 
-        var enchantmentRegistry =
-                world.getRegistryManager().getOrThrow(net.minecraft.registry.RegistryKeys.ENCHANTMENT);
-        var enchantmentEntry = enchantmentRegistry.getOptional(enchantmentKey);
+        var enchantmentRegistry = level.registryAccess().lookupOrThrow(Registries.ENCHANTMENT);
+        var enchantmentEntry = enchantmentRegistry.get(enchantmentKey);
 
         if (enchantmentEntry.isEmpty()) return 0;
 
-        return EnchantmentHelper.getLevel(enchantmentEntry.get(), stack);
+        return EnchantmentHelper.getItemEnchantmentLevel(enchantmentEntry.get(), stack);
     }
 
-    private void mineBlock(ServerWorld world, BlockPos target, BlockState targetState, ItemStack tool, int toolSlot) {
+    private void mineBlock(ServerLevel level, BlockPos target, BlockState targetState, ItemStack tool, int toolSlot) {
         // Get drops before breaking the block (for Fortune/Silk Touch support)
-        BlockEntity blockEntity = world.getBlockEntity(target);
-        List<ItemStack> drops = Block.getDroppedStacks(targetState, world, target, blockEntity, null, tool);
+        BlockEntity blockEntity = level.getBlockEntity(target);
+        List<ItemStack> drops = Block.getDrops(targetState, level, target, blockEntity, null, tool);
 
         // Break the block without natural drops (we handle drops manually)
-        world.breakBlock(target, false);
+        level.destroyBlock(target, false);
 
         // Output the calculated drops
         for (ItemStack drop : drops) {
-            outputItem(world, drop);
+            outputItem(level, drop);
         }
 
-        // Fallback: if getDroppedStacks returned nothing but this wasn't air,
+        // Fallback: if getDrops returned nothing but this wasn't air,
         // or if this was a container (block entity), collect any spawned items
         if (drops.isEmpty() || blockEntity != null) {
-            collectNearbyItems(world, target);
+            collectNearbyItems(level, target);
         }
 
         // Damage the tool
         damageTool(tool, toolSlot, 1);
     }
 
-    private void collectNearbyItems(ServerWorld world, BlockPos target) {
-        List<ItemEntity> itemEntities = world.getEntitiesByClass(
-                ItemEntity.class, new net.minecraft.util.math.Box(target).expand(2.0), item -> true);
+    private void collectNearbyItems(ServerLevel level, BlockPos target) {
+        List<ItemEntity> itemEntities =
+                level.getEntitiesOfClass(ItemEntity.class, new AABB(target).inflate(2.0), item -> true);
 
         for (ItemEntity itemEntity : itemEntities) {
-            ItemStack stack = itemEntity.getStack();
+            ItemStack stack = itemEntity.getItem();
             if (!stack.isEmpty()) {
-                outputItem(world, stack.copy());
+                outputItem(level, stack.copy());
                 itemEntity.discard();
             }
         }
@@ -596,52 +595,52 @@ public class QuarryBlockEntity extends BlockEntity
         if (unbreakingLevel > 0) {
             // Probability of not consuming durability = unbreaking / (unbreaking + 1)
             // For tools: 100/(level+1)% chance to consume durability
-            if (world != null && world.random.nextFloat() < (1.0f / (unbreakingLevel + 1))) {
-                tool.setDamage(tool.getDamage() + amount);
+            if (level != null && level.getRandom().nextFloat() < (1.0f / (unbreakingLevel + 1))) {
+                tool.setDamageValue(tool.getDamageValue() + amount);
             }
         } else {
-            tool.setDamage(tool.getDamage() + amount);
+            tool.setDamageValue(tool.getDamageValue() + amount);
         }
 
         // Check if tool is broken - clear the slot and the quarry will use the next available tool
-        if (tool.getDamage() >= tool.getMaxDamage()) {
-            setStack(slot, ItemStack.EMPTY);
+        if (tool.getDamageValue() >= tool.getMaxDamage()) {
+            setItem(slot, ItemStack.EMPTY);
         }
 
-        markDirty();
+        setChanged();
     }
 
-    private void outputItem(ServerWorld world, ItemStack stack) {
+    private void outputItem(ServerLevel level, ItemStack stack) {
         if (stack.isEmpty()) return;
 
-        BlockPos quarryPos = getPos();
-        BlockPos abovePos = quarryPos.up();
+        BlockPos quarryPos = getBlockPos();
+        BlockPos abovePos = quarryPos.above();
 
         // Check if there's a transport block above
-        BlockState aboveState = world.getBlockState(abovePos);
+        BlockState aboveState = level.getBlockState(abovePos);
         TransportApi transportApi = LogisticsApi.Registry.transport();
         if (transportApi.isTransportBlock(aboveState)) {
-            transportApi.forceInsert(world, abovePos, stack.copy(), Direction.UP);
+            transportApi.forceInsert(level, abovePos, stack.copy(), Direction.UP);
             return;
         }
 
         // Check if there's an inventory above (chest, barrel, etc.)
         if (!stack.isEmpty()) {
-            BlockEntity aboveEntity = world.getBlockEntity(abovePos);
-            if (aboveEntity instanceof Inventory inv) {
+            BlockEntity aboveEntity = level.getBlockEntity(abovePos);
+            if (aboveEntity instanceof Container inv) {
                 // Check if it's a sided inventory and respects insertion from below
-                if (aboveEntity instanceof SidedInventory sidedInv) {
-                    int[] availableSlots = sidedInv.getAvailableSlots(Direction.DOWN);
+                if (aboveEntity instanceof WorldlyContainer sidedInv) {
+                    int[] availableSlots = sidedInv.getSlotsForFace(Direction.DOWN);
                     for (int slot : availableSlots) {
                         if (stack.isEmpty()) break;
-                        if (!sidedInv.canInsert(slot, stack, Direction.DOWN)) continue;
+                        if (!sidedInv.canPlaceItemThroughFace(slot, stack, Direction.DOWN)) continue;
                         stack = insertIntoSlot(inv, slot, stack);
                     }
                 } else {
                     // Regular inventory - try all slots
-                    for (int slot = 0; slot < inv.size(); slot++) {
+                    for (int slot = 0; slot < inv.getContainerSize(); slot++) {
                         if (stack.isEmpty()) break;
-                        if (!inv.isValid(slot, stack)) continue;
+                        if (!inv.canPlaceItem(slot, stack)) continue;
                         stack = insertIntoSlot(inv, slot, stack);
                     }
                 }
@@ -654,9 +653,9 @@ public class QuarryBlockEntity extends BlockEntity
             double y = quarryPos.getY() + 1.5;
             double z = quarryPos.getZ() + 0.5;
 
-            ItemEntity itemEntity = new ItemEntity(world, x, y, z, stack);
-            itemEntity.setVelocity(0, 0.2, 0); // Small upward velocity
-            world.spawnEntity(itemEntity);
+            ItemEntity itemEntity = new ItemEntity(level, x, y, z, stack);
+            itemEntity.setDeltaMovement(0, 0.2, 0); // Small upward velocity
+            level.addFreshEntity(itemEntity);
         }
     }
 
@@ -664,20 +663,20 @@ public class QuarryBlockEntity extends BlockEntity
      * Try to insert a stack into a specific slot of an inventory.
      * @return the remaining stack (may be empty if fully inserted)
      */
-    private ItemStack insertIntoSlot(Inventory inv, int slot, ItemStack stack) {
-        ItemStack existing = inv.getStack(slot);
+    private ItemStack insertIntoSlot(Container inv, int slot, ItemStack stack) {
+        ItemStack existing = inv.getItem(slot);
 
         if (existing.isEmpty()) {
             // Empty slot - insert up to max stack size
-            int maxInsert = Math.min(stack.getCount(), Math.min(inv.getMaxCountPerStack(), stack.getMaxCount()));
-            inv.setStack(slot, stack.split(maxInsert));
-        } else if (ItemStack.areItemsAndComponentsEqual(existing, stack)) {
+            int maxInsert = Math.min(stack.getCount(), Math.min(inv.getMaxStackSize(), stack.getMaxStackSize()));
+            inv.setItem(slot, stack.split(maxInsert));
+        } else if (ItemStack.isSameItemSameComponents(existing, stack)) {
             // Same item - try to merge
-            int space = Math.min(inv.getMaxCountPerStack(), existing.getMaxCount()) - existing.getCount();
+            int space = Math.min(inv.getMaxStackSize(), existing.getMaxStackSize()) - existing.getCount();
             if (space > 0) {
                 int toInsert = Math.min(space, stack.getCount());
-                existing.increment(toInsert);
-                stack.decrement(toInsert);
+                existing.grow(toInsert);
+                stack.shrink(toInsert);
             }
         }
 
@@ -697,14 +696,14 @@ public class QuarryBlockEntity extends BlockEntity
                 miningY++;
             }
         }
-        markDirty();
+        setChanged();
     }
 
     /**
      * Calculate target position for clearing phase (area at/above quarry level).
      */
     private @Nullable BlockPos calculateClearingTargetPos(BlockState quarryState) {
-        BlockPos quarryPos = getPos();
+        BlockPos quarryPos = getBlockPos();
 
         int startX;
         int startZ;
@@ -755,7 +754,7 @@ public class QuarryBlockEntity extends BlockEntity
      * The area is inset 1 block from the frame to stay within it.
      */
     private @Nullable BlockPos calculateMiningTargetPos(BlockState quarryState) {
-        BlockPos quarryPos = getPos();
+        BlockPos quarryPos = getBlockPos();
 
         int startX;
         int startZ;
@@ -801,7 +800,7 @@ public class QuarryBlockEntity extends BlockEntity
         int currentY = startY - miningY;
 
         // Stop at bedrock or world bottom
-        if (currentY < world.getBottomY()) {
+        if (currentY < level.getMinY()) {
             return null;
         }
 
@@ -852,7 +851,7 @@ public class QuarryBlockEntity extends BlockEntity
                 miningY++;
             }
         }
-        markDirty();
+        setChanged();
     }
 
     /**
@@ -860,7 +859,7 @@ public class QuarryBlockEntity extends BlockEntity
      * Called after mining a block to immediately find the next real target
      * before syncing to clients (prevents arm hiccup).
      */
-    private void skipToNextSolidBlock(ServerWorld world, BlockState quarryState) {
+    private void skipToNextSolidBlock(ServerLevel level, BlockState quarryState) {
         for (int skipped = 0; skipped < QuarryConfig.MAX_SKIP_PER_TICK; skipped++) {
             BlockPos target = calculateMiningTargetPos(quarryState);
             if (target == null) {
@@ -869,7 +868,7 @@ public class QuarryBlockEntity extends BlockEntity
                 return;
             }
 
-            BlockState targetState = world.getBlockState(target);
+            BlockState targetState = level.getBlockState(target);
             if (!shouldSkipBlock(targetState)) {
                 // Found a solid block to mine next
                 return;
@@ -883,9 +882,9 @@ public class QuarryBlockEntity extends BlockEntity
      * Clear any active block breaking animation.
      * Called when the quarry stops or changes target.
      */
-    private void clearBreakingAnimation(ServerWorld world) {
+    private void clearBreakingAnimation(ServerLevel level) {
         if (currentTarget != null) {
-            world.setBlockBreakingInfo(breakingEntityId, currentTarget, -1);
+            level.destroyBlockProgress(breakingEntityId, currentTarget, -1);
         }
     }
 
@@ -897,7 +896,7 @@ public class QuarryBlockEntity extends BlockEntity
      * - Top ring at quarryY+4
      */
     private @Nullable BlockPos getNextFramePosition(BlockState quarryState) {
-        BlockPos quarryPos = getPos();
+        BlockPos quarryPos = getBlockPos();
 
         // Calculate frame bounds
         int startX;
@@ -1015,7 +1014,7 @@ public class QuarryBlockEntity extends BlockEntity
      * Calculate the frame block state with appropriate arm connections.
      */
     private BlockState calculateFrameState(BlockState quarryState, BlockPos framePos) {
-        BlockPos quarryPos = getPos();
+        BlockPos quarryPos = getBlockPos();
 
         // Calculate frame bounds
         int startX;
@@ -1047,7 +1046,7 @@ public class QuarryBlockEntity extends BlockEntity
                     startZ = quarryPos.getZ() - 8;
                     break;
                 default:
-                    return AutomationBlocks.QUARRY_FRAME.getDefaultState();
+                    return AutomationBlocks.QUARRY_FRAME.defaultBlockState();
             }
             endX = startX + QuarryConfig.CHUNK_SIZE - 1;
             endZ = startZ + QuarryConfig.CHUNK_SIZE - 1;
@@ -1117,7 +1116,7 @@ public class QuarryBlockEntity extends BlockEntity
         this.miningY = 0;
         this.miningZ = 0;
         this.finished = false;
-        markDirty();
+        setChanged();
     }
 
     private void resetBreakProgress() {
@@ -1127,9 +1126,9 @@ public class QuarryBlockEntity extends BlockEntity
         activeToolSlot = -1;
     }
 
-    // Inventory implementation
+    // Container implementation
     @Override
-    public int size() {
+    public int getContainerSize() {
         return QuarryConfig.INVENTORY_SIZE;
     }
 
@@ -1144,12 +1143,12 @@ public class QuarryBlockEntity extends BlockEntity
     }
 
     @Override
-    public ItemStack getStack(int slot) {
+    public ItemStack getItem(int slot) {
         return inventory.get(slot);
     }
 
     @Override
-    public ItemStack removeStack(int slot, int amount) {
+    public ItemStack removeItem(int slot, int amount) {
         ItemStack stack = inventory.get(slot);
         if (stack.isEmpty()) {
             return ItemStack.EMPTY;
@@ -1161,75 +1160,75 @@ public class QuarryBlockEntity extends BlockEntity
         } else {
             result = stack.split(amount);
         }
-        markDirty();
+        setChanged();
         return result;
     }
 
     @Override
-    public ItemStack removeStack(int slot) {
+    public ItemStack removeItemNoUpdate(int slot) {
         ItemStack stack = inventory.get(slot);
         inventory.set(slot, ItemStack.EMPTY);
-        markDirty();
+        setChanged();
         return stack;
     }
 
     @Override
-    public void setStack(int slot, ItemStack stack) {
+    public void setItem(int slot, ItemStack stack) {
         inventory.set(slot, stack);
-        if (stack.getCount() > getMaxCountPerStack()) {
-            stack.setCount(getMaxCountPerStack());
+        if (stack.getCount() > getMaxStackSize()) {
+            stack.setCount(getMaxStackSize());
         }
-        markDirty();
+        setChanged();
     }
 
     @Override
-    public boolean canPlayerUse(PlayerEntity player) {
-        return Inventory.canPlayerUse(this, player);
+    public boolean stillValid(Player player) {
+        return Container.stillValidBlockEntity(this, player);
     }
 
     @Override
-    public void clear() {
+    public void clearContent() {
         inventory.clear();
     }
 
     @Override
-    public boolean isValid(int slot, ItemStack stack) {
+    public boolean canPlaceItem(int slot, ItemStack stack) {
         return isValidTool(stack);
     }
 
-    // SidedInventory implementation - allow hopper interaction
+    // WorldlyContainer implementation - allow hopper interaction
     @Override
-    public int[] getAvailableSlots(Direction side) {
+    public int[] getSlotsForFace(Direction side) {
         return TOOL_SLOTS;
     }
 
     @Override
-    public boolean canInsert(int slot, ItemStack stack, @Nullable Direction dir) {
-        return isValid(slot, stack);
+    public boolean canPlaceItemThroughFace(int slot, ItemStack stack, @Nullable Direction dir) {
+        return canPlaceItem(slot, stack);
     }
 
     @Override
-    public boolean canExtract(int slot, ItemStack stack, Direction dir) {
+    public boolean canTakeItemThroughFace(int slot, ItemStack stack, Direction dir) {
         return true;
     }
 
-    // NBT serialization using the new WriteView/ReadView API
+    // NBT serialization using the new ValueOutput/ValueInput API
     @Override
-    protected void writeData(WriteView view) {
-        super.writeData(view);
+    protected void saveAdditional(ValueOutput view) {
+        super.saveAdditional(view);
 
         // Save inventory (all 9 slots)
         for (int i = 0; i < QuarryConfig.INVENTORY_SIZE; i++) {
             ItemStack stack = inventory.get(i);
             if (!stack.isEmpty()) {
-                view.put("Tool" + i, ItemStack.CODEC, stack);
+                view.store("Tool" + i, ItemStack.CODEC, stack);
             } else {
-                view.remove("Tool" + i);
+                view.discard("Tool" + i);
             }
         }
 
         // Save mining state
-        NbtCompound miningState = new NbtCompound();
+        CompoundTag miningState = new CompoundTag();
         miningState.putInt("X", miningX);
         miningState.putInt("Y", miningY);
         miningState.putInt("Z", miningZ);
@@ -1245,24 +1244,24 @@ public class QuarryBlockEntity extends BlockEntity
         miningState.putBoolean("ArmInitialized", armInitialized);
         miningState.putInt("SettlingTicks", settlingTicksRemaining);
         miningState.putInt("ExpectedTravelTicks", expectedTravelTicks);
-        view.put("MiningState", NbtCompound.CODEC, miningState);
+        view.store("MiningState", CompoundTag.CODEC, miningState);
 
         // Save custom bounds
         if (useCustomBounds) {
-            NbtCompound customBoundsNbt = new NbtCompound();
+            CompoundTag customBoundsNbt = new CompoundTag();
             customBoundsNbt.putInt("MinX", customMinX);
             customBoundsNbt.putInt("MinZ", customMinZ);
             customBoundsNbt.putInt("MaxX", customMaxX);
             customBoundsNbt.putInt("MaxZ", customMaxZ);
-            view.put("CustomBounds", NbtCompound.CODEC, customBoundsNbt);
+            view.store("CustomBounds", CompoundTag.CODEC, customBoundsNbt);
         } else {
-            view.remove("CustomBounds");
+            view.discard("CustomBounds");
         }
     }
 
     @Override
-    protected void readData(ReadView view) {
-        super.readData(view);
+    protected void loadAdditional(ValueInput view) {
+        super.loadAdditional(view);
 
         useCustomBounds = false;
         customMinX = 0;
@@ -1291,7 +1290,7 @@ public class QuarryBlockEntity extends BlockEntity
         });
 
         // Load mining state
-        view.read("MiningState", NbtCompound.CODEC).ifPresent(miningState -> {
+        view.read("MiningState", CompoundTag.CODEC).ifPresent(miningState -> {
             miningX = miningState.getInt("X").orElse(0);
             miningY = miningState.getInt("Y").orElse(0);
             miningZ = miningState.getInt("Z").orElse(0);
@@ -1322,7 +1321,7 @@ public class QuarryBlockEntity extends BlockEntity
         });
 
         // Load custom bounds
-        view.read("CustomBounds", NbtCompound.CODEC).ifPresent(customBoundsNbt -> {
+        view.read("CustomBounds", CompoundTag.CODEC).ifPresent(customBoundsNbt -> {
             useCustomBounds = true;
             customMinX = customBoundsNbt.getInt("MinX").orElse(0);
             customMinZ = customBoundsNbt.getInt("MinZ").orElse(0);
@@ -1332,48 +1331,48 @@ public class QuarryBlockEntity extends BlockEntity
     }
 
     @Nullable @Override
-    public Packet<ClientPlayPacketListener> toUpdatePacket() {
-        return BlockEntityUpdateS2CPacket.create(this);
+    public Packet<ClientGamePacketListener> getUpdatePacket() {
+        return ClientboundBlockEntityDataPacket.create(this);
     }
 
     @Override
-    public NbtCompound toInitialChunkDataNbt(RegistryWrapper.WrapperLookup registryLookup) {
-        return createNbt(registryLookup);
+    public CompoundTag getUpdateTag(net.minecraft.core.HolderLookup.Provider registryLookup) {
+        return saveWithoutMetadata(registryLookup);
     }
 
     // Handle item drops when block is broken
     @Override
-    public void onBlockReplaced(BlockPos pos, BlockState oldState) {
-        super.onBlockReplaced(pos, oldState);
+    public void preRemoveSideEffects(BlockPos pos, BlockState oldState) {
+        super.preRemoveSideEffects(pos, oldState);
 
-        if (world != null && world.isClient()) {
+        if (level != null && level.isClientSide()) {
             ClientRenderCacheHooks.clearQuarryInterpolationCache(pos);
         }
 
-        if (world != null && !world.isClient()) {
-            unregisterActiveQuarry((ServerWorld) world, pos);
+        if (level != null && !level.isClientSide()) {
+            unregisterActiveQuarry((ServerLevel) level, pos);
             // Clear any active breaking animation
             if (currentTarget != null) {
-                ((ServerWorld) world).setBlockBreakingInfo(breakingEntityId, currentTarget, -1);
+                ((ServerLevel) level).destroyBlockProgress(breakingEntityId, currentTarget, -1);
             }
 
             for (int i = 0; i < QuarryConfig.INVENTORY_SIZE; i++) {
                 ItemStack stack = inventory.get(i);
                 if (!stack.isEmpty()) {
                     ItemEntity itemEntity =
-                            new ItemEntity(world, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, stack);
-                    itemEntity.setToDefaultPickupDelay();
-                    world.spawnEntity(itemEntity);
+                            new ItemEntity(level, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, stack);
+                    itemEntity.setDefaultPickUpDelay();
+                    level.addFreshEntity(itemEntity);
                 }
             }
         }
     }
 
     @Override
-    public void markRemoved() {
-        super.markRemoved();
-        if (world != null && world.isClient()) {
-            ClientRenderCacheHooks.clearQuarryInterpolationCache(pos);
+    public void setRemoved() {
+        super.setRemoved();
+        if (level != null && level.isClientSide()) {
+            ClientRenderCacheHooks.clearQuarryInterpolationCache(worldPosition);
         }
     }
 
@@ -1423,14 +1422,14 @@ public class QuarryBlockEntity extends BlockEntity
         return customMaxZ;
     }
 
-    public static List<BlockPos> getActiveQuarries(ServerWorld world) {
-        RegistryKey<World> key = world.getRegistryKey();
+    public static List<BlockPos> getActiveQuarries(ServerLevel level) {
+        ResourceKey<Level> key = level.dimension();
         Map<Long, Long> entries = ACTIVE_QUARRIES.get(key);
         if (entries == null || entries.isEmpty()) {
             return List.of();
         }
 
-        long now = world.getTime();
+        long now = level.getGameTime();
         java.util.Iterator<java.util.Map.Entry<Long, Long>> iterator =
                 entries.entrySet().iterator();
         while (iterator.hasNext()) {
@@ -1447,23 +1446,23 @@ public class QuarryBlockEntity extends BlockEntity
 
         List<BlockPos> positions = new ArrayList<>(entries.size());
         for (Long posLong : entries.keySet()) {
-            positions.add(BlockPos.fromLong(posLong));
+            positions.add(BlockPos.of(posLong));
         }
         return positions;
     }
 
-    public static void clearActiveQuarries(ServerWorld world) {
-        ACTIVE_QUARRIES.remove(world.getRegistryKey());
+    public static void clearActiveQuarries(ServerLevel level) {
+        ACTIVE_QUARRIES.remove(level.dimension());
     }
 
-    private static void registerActiveQuarry(ServerWorld world, BlockPos pos) {
-        RegistryKey<World> key = world.getRegistryKey();
+    private static void registerActiveQuarry(ServerLevel level, BlockPos pos) {
+        ResourceKey<Level> key = level.dimension();
         Map<Long, Long> entries = ACTIVE_QUARRIES.computeIfAbsent(key, unused -> new HashMap<>());
-        entries.put(pos.asLong(), world.getTime());
+        entries.put(pos.asLong(), level.getGameTime());
     }
 
-    private static void unregisterActiveQuarry(ServerWorld world, BlockPos pos) {
-        RegistryKey<World> key = world.getRegistryKey();
+    private static void unregisterActiveQuarry(ServerLevel level, BlockPos pos) {
+        ResourceKey<Level> key = level.dimension();
         Map<Long, Long> entries = ACTIVE_QUARRIES.get(key);
         if (entries == null) {
             return;

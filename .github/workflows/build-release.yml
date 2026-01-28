@@ -63,7 +63,7 @@ jobs:
           echo "📦 Version: $MOD_VERSION (file: $FILE_VERSION)"
 
       - name: Build
-        run: ./gradlew remapJar --console=plain
+        run: ./gradlew jar --console=plain
         env:
           MOD_VERSION: ${{ steps.version.outputs.file_version }}
 

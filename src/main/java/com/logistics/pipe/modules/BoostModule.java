@@ -3,8 +3,8 @@ package com.logistics.pipe.modules;
 import com.logistics.LogisticsMod;
 import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.runtime.PipeConfig;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Direction;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 public class BoostModule implements Module {
@@ -29,7 +29,7 @@ public class BoostModule implements Module {
     @Override
     public @Nullable Identifier getCoreModel(PipeContext ctx) {
         if (ctx.isPowered()) {
-            return Identifier.of(LogisticsMod.MOD_ID, "block/pipe/gold_transport_pipe_core_powered");
+            return Identifier.fromNamespaceAndPath(LogisticsMod.MOD_ID, "block/pipe/gold_transport_pipe_core_powered");
         }
         return null;
     }
@@ -38,7 +38,7 @@ public class BoostModule implements Module {
     public @Nullable Identifier getPipeArm(PipeContext ctx, Direction direction) {
         if (ctx.isPowered()) {
             String suffix = ctx.isInventoryConnection(direction) ? "_arm_extended_powered" : "_arm_powered";
-            return Identifier.of(LogisticsMod.MOD_ID, "block/pipe/gold_transport_pipe" + suffix);
+            return Identifier.fromNamespaceAndPath(LogisticsMod.MOD_ID, "block/pipe/gold_transport_pipe" + suffix);
         }
         return null;
     }

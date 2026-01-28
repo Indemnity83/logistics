@@ -2,15 +2,15 @@ package com.logistics.core.render;
 
 import java.util.ArrayList;
 import java.util.List;
-import net.minecraft.client.render.block.entity.state.BlockEntityRenderState;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
+import net.minecraft.core.BlockPos;
 
 /**
  * Render state for marker block entities.
  */
 public class MarkerRenderState extends BlockEntityRenderState {
     public boolean active = false;
-    public BlockPos markerPos = BlockPos.ORIGIN;
+    public BlockPos markerPos = BlockPos.ZERO;
     public final List<BlockPos> connectedMarkers = new ArrayList<>();
     public BlockPos boundMin = null;
     public BlockPos boundMax = null;

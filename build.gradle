@@ -1,5 +1,5 @@
 plugins {
-	id 'fabric-loom' version '1.14.10'
+	id 'net.fabricmc.fabric-loom' version '1.14.10'
 	id 'maven-publish'
 	id 'checkstyle'
 	id 'com.diffplug.spotless' version '8.2.1'
@@ -29,14 +29,14 @@ loom {
 
 repositories {
 	mavenCentral()
+	maven { url = "https://maven.fabricmc.net/" }
 }
 
 dependencies {
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
-	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
-	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+	implementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
-	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+	implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
 }
 
 processResources {
@@ -48,17 +48,17 @@ processResources {
 }
 
 tasks.withType(JavaCompile).configureEach {
-	it.options.release = 21
+	it.options.release = 25
 }
 
 java {
 	withSourcesJar()
 
-	sourceCompatibility = JavaVersion.VERSION_21
-	targetCompatibility = JavaVersion.VERSION_21
+	sourceCompatibility = JavaVersion.VERSION_25
+	targetCompatibility = JavaVersion.VERSION_25
 
 	toolchain {
-		languageVersion = JavaLanguageVersion.of(21)
+		languageVersion = JavaLanguageVersion.of(25)
 	}
 }
 
@@ -69,12 +69,14 @@ jar {
 }
 
 // Code formatting with Spotless
+// Note: spotlessCheck is excluded from build to keep linting separate (run './gradlew spotlessCheck' explicitly)
 spotless {
+	enforceCheck false
 	java {
 		target 'src/*/java/**/*.java'
 		importOrder('java|javax', 'com.logistics', '', '\\#')
 		removeUnusedImports()
-		palantirJavaFormat('2.50.0')
+		palantirJavaFormat('2.85.0')
 		formatAnnotations()
 	}
 	json {

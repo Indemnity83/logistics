@@ -3,34 +3,34 @@ package com.logistics.core.render;
 import com.logistics.LogisticsMod;
 import com.logistics.core.marker.MarkerBlockEntity;
 import com.logistics.core.marker.MarkerManager;
-import net.minecraft.client.render.OverlayTexture;
-import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.RenderLayers;
-import net.minecraft.client.render.block.entity.BlockEntityRenderer;
-import net.minecraft.client.render.block.entity.BlockEntityRendererFactory;
-import net.minecraft.client.render.block.entity.state.BlockEntityRenderState;
-import net.minecraft.client.render.command.OrderedRenderCommandQueue;
-import net.minecraft.client.render.model.BlockStateModel;
-import net.minecraft.client.render.state.CameraRenderState;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.RotationAxis;
-import net.minecraft.util.math.Vec3d;
-import org.jetbrains.annotations.Nullable;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Axis;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.block.model.BlockStateModel;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
+import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
+import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.client.renderer.state.CameraRenderState;
+import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.core.BlockPos;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.phys.Vec3;
 
 /**
  * Renders laser beams and ghost cube outline for active markers.
  */
 public class MarkerBlockEntityRenderer implements BlockEntityRenderer<MarkerBlockEntity, MarkerRenderState> {
-    private static final Identifier BEAM_MODEL_ID = Identifier.of(LogisticsMod.MOD_ID, "block/core/marker_beam");
+    private static final Identifier BEAM_MODEL_ID =
+            Identifier.fromNamespaceAndPath(LogisticsMod.MOD_ID, "block/core/marker_beam");
 
     // No tinting needed - texture is pre-colored blue (#0132FD)
     private static final float BEAM_RED = 1.0f;
     private static final float BEAM_GREEN = 1.0f;
     private static final float BEAM_BLUE = 1.0f;
 
-    public MarkerBlockEntityRenderer(BlockEntityRendererFactory.Context ctx) {}
+    public MarkerBlockEntityRenderer(BlockEntityRendererProvider.Context ctx) {}
 
     @Override
     public MarkerRenderState createRenderState() {
@@ -38,16 +38,16 @@ public class MarkerBlockEntityRenderer implements BlockEntityRenderer<MarkerBloc
     }
 
     @Override
-    public void updateRenderState(
+    public void extractRenderState(
             MarkerBlockEntity entity,
             MarkerRenderState state,
             float tickDelta,
-            Vec3d cameraPos,
-            @Nullable net.minecraft.client.render.command.ModelCommandRenderer.CrumblingOverlayCommand crumblingOverlay) {
-        BlockEntityRenderState.updateBlockEntityRenderState(entity, state, crumblingOverlay);
+            Vec3 cameraPos,
+            net.minecraft.client.renderer.feature.ModelFeatureRenderer.CrumblingOverlay crumblingOverlay) {
+        BlockEntityRenderState.extractBase(entity, state, crumblingOverlay);
 
         state.active = entity.isActive();
-        state.markerPos = entity.getPos();
+        state.markerPos = entity.getBlockPos();
         state.connectedMarkers.clear();
         state.connectedMarkers.addAll(entity.getConnectedMarkers());
         state.boundMin = entity.getBoundMin();
@@ -56,8 +56,8 @@ public class MarkerBlockEntityRenderer implements BlockEntityRenderer<MarkerBloc
 
         // Calculate beam lengths
         if (state.active) {
-            if (entity.getWorld() != null) {
-                calculateBeamLengths(state, entity.getPos());
+            if (entity.getLevel() != null) {
+                calculateBeamLengths(state, entity.getBlockPos());
             }
         } else {
             state.beamNorth = 0;
@@ -162,11 +162,8 @@ public class MarkerBlockEntityRenderer implements BlockEntityRenderer<MarkerBloc
     }
 
     @Override
-    public void render(
-            MarkerRenderState state,
-            MatrixStack matrices,
-            OrderedRenderCommandQueue queue,
-            CameraRenderState cameraState) {
+    public void submit(
+            MarkerRenderState state, PoseStack matrices, SubmitNodeCollector queue, CameraRenderState cameraState) {
         if (!state.active) {
             return;
         }
@@ -176,45 +173,41 @@ public class MarkerBlockEntityRenderer implements BlockEntityRenderer<MarkerBloc
             return;
         }
 
-        RenderLayer renderLayer = RenderLayers.cutout();
+        RenderType renderLayer = RenderTypes.cutoutMovingBlock();
 
         // Render beams in each direction
         // Model extends in +Z, so rotate to point in the desired direction
         if (state.beamNorth > 0) {
-            renderBeamInDirection(
-                    matrices, queue, beamModel, renderLayer, state.lightmapCoordinates, 180, state.beamNorth);
+            renderBeamInDirection(matrices, queue, beamModel, renderLayer, state.lightCoords, 180, state.beamNorth);
         }
         if (state.beamSouth > 0) {
-            renderBeamInDirection(
-                    matrices, queue, beamModel, renderLayer, state.lightmapCoordinates, 0, state.beamSouth);
+            renderBeamInDirection(matrices, queue, beamModel, renderLayer, state.lightCoords, 0, state.beamSouth);
         }
         if (state.beamEast > 0) {
-            renderBeamInDirection(
-                    matrices, queue, beamModel, renderLayer, state.lightmapCoordinates, 90, state.beamEast);
+            renderBeamInDirection(matrices, queue, beamModel, renderLayer, state.lightCoords, 90, state.beamEast);
         }
         if (state.beamWest > 0) {
-            renderBeamInDirection(
-                    matrices, queue, beamModel, renderLayer, state.lightmapCoordinates, -90, state.beamWest);
+            renderBeamInDirection(matrices, queue, beamModel, renderLayer, state.lightCoords, -90, state.beamWest);
         }
     }
 
     private void renderBeamInDirection(
-            MatrixStack matrices,
-            OrderedRenderCommandQueue queue,
+            PoseStack matrices,
+            SubmitNodeCollector queue,
             BlockStateModel beamModel,
-            RenderLayer renderLayer,
+            RenderType renderLayer,
             int lightmap,
             float yRotation,
             int length) {
         // Render beam segments starting from center of marker
         for (int i = 0; i < length; i++) {
-            matrices.push();
+            matrices.pushPose();
 
             // Move to center of marker block (Y is at base of beam model)
             matrices.translate(0.5, -0.0625, 0.5);
 
             // Rotate to face the correct direction (model extends in +Z)
-            matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(yRotation));
+            matrices.mulPose(Axis.YP.rotationDegrees(yRotation));
 
             // Move to segment position - start at center, end at center of last block
             // i=0 places segment at 0, covering 0 to 1 (starts at marker center in local coords)
@@ -223,7 +216,7 @@ public class MarkerBlockEntityRenderer implements BlockEntityRenderer<MarkerBloc
             // Move back from center for model rendering
             matrices.translate(-0.5, 0.0, 0.0);
 
-            queue.submitBlockStateModel(
+            queue.submitBlockModel(
                     matrices,
                     renderLayer,
                     beamModel,
@@ -231,15 +224,15 @@ public class MarkerBlockEntityRenderer implements BlockEntityRenderer<MarkerBloc
                     BEAM_GREEN,
                     BEAM_BLUE,
                     lightmap,
-                    OverlayTexture.DEFAULT_UV,
+                    OverlayTexture.NO_OVERLAY,
                     0);
 
-            matrices.pop();
+            matrices.popPose();
         }
     }
 
     @Override
-    public int getRenderDistance() {
+    public int getViewDistance() {
         return 256; // Visible from far away
     }
 }

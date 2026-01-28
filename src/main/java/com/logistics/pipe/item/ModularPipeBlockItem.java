@@ -2,10 +2,10 @@ package com.logistics.pipe.item;
 
 import com.logistics.pipe.Pipe;
 import com.logistics.pipe.block.PipeBlock;
-import net.minecraft.block.Block;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.ItemStack;
-import net.minecraft.text.Text;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Block;
 
 /**
  * A BlockItem that uses module hooks for display names.
@@ -13,12 +13,12 @@ import net.minecraft.text.Text;
  */
 public class ModularPipeBlockItem extends BlockItem {
 
-    public ModularPipeBlockItem(Block block, Settings settings) {
+    public ModularPipeBlockItem(Block block, Properties settings) {
         super(block, settings);
     }
 
     @Override
-    public Text getName(ItemStack stack) {
+    public Component getName(ItemStack stack) {
         Block block = getBlock();
         if (!(block instanceof PipeBlock pipeBlock)) {
             return super.getName(stack);
@@ -34,6 +34,6 @@ public class ModularPipeBlockItem extends BlockItem {
             return super.getName(stack);
         }
 
-        return Text.translatable(block.getTranslationKey() + suffix);
+        return Component.translatable(block.getDescriptionId() + suffix);
     }
 }

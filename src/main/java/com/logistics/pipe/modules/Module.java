@@ -5,15 +5,15 @@ import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.runtime.PipeConfig;
 import com.logistics.pipe.runtime.RoutePlan;
 import java.util.List;
-import net.minecraft.block.Block;
-import net.minecraft.component.ComponentMap;
-import net.minecraft.component.ComponentsAccess;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemUsageContext;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.random.Random;
+import net.minecraft.core.Direction;
+import net.minecraft.core.component.DataComponentGetter;
+import net.minecraft.core.component.DataComponentMap;
+import net.minecraft.resources.Identifier;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.level.block.Block;
 import org.jetbrains.annotations.Nullable;
 
 public interface Module {
@@ -41,8 +41,8 @@ public interface Module {
 
     default void onConnectionsChanged(PipeContext ctx, List<Direction> options) {}
 
-    default ActionResult onUseWithItem(PipeContext ctx, ItemUsageContext usage) {
-        return ActionResult.PASS;
+    default InteractionResult onUseWithItem(PipeContext ctx, UseOnContext usage) {
+        return InteractionResult.PASS;
     }
 
     default int comparatorOutput(PipeContext ctx) {
@@ -65,7 +65,7 @@ public interface Module {
      * Called randomly on the client for display effects like particles.
      * Modules can override this to add visual effects.
      */
-    default void randomDisplayTick(PipeContext ctx, Random random) {}
+    default void randomDisplayTick(PipeContext ctx, RandomSource random) {}
 
     /**
      * Get the NBT state key for this module.
@@ -139,7 +139,7 @@ public interface Module {
         return false;
     }
 
-    default void randomTick(PipeContext ctx, Random random) {}
+    default void randomTick(PipeContext ctx, RandomSource random) {}
 
     // --- Item component handling ---
 
@@ -150,7 +150,7 @@ public interface Module {
      * @param builder the component map builder
      * @param ctx the pipe context
      */
-    default void addItemComponents(ComponentMap.Builder builder, PipeContext ctx) {}
+    default void addItemComponents(DataComponentMap.Builder builder, PipeContext ctx) {}
 
     /**
      * Read components from the item stack when the block is placed.
@@ -159,7 +159,7 @@ public interface Module {
      * @param components the components from the item
      * @param ctx the pipe context
      */
-    default void readItemComponents(ComponentsAccess components, PipeContext ctx) {}
+    default void readItemComponents(DataComponentGetter components, PipeContext ctx) {}
 
     /**
      * Get custom model data strings for item model selection.
@@ -191,7 +191,7 @@ public interface Module {
      * @param components the item components
      * @return the translation key suffix, or empty string for default name
      */
-    default String getItemNameSuffixFromComponents(ComponentsAccess components) {
+    default String getItemNameSuffixFromComponents(DataComponentGetter components) {
         return "";
     }
 

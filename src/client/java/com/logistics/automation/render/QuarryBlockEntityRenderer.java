@@ -5,22 +5,23 @@ import com.logistics.automation.quarry.QuarryBlock;
 import com.logistics.automation.quarry.QuarryConfig;
 import com.logistics.automation.quarry.entity.QuarryBlockEntity;
 import com.logistics.core.render.ModelRegistry;
-import net.minecraft.block.BlockState;
-import net.minecraft.client.render.OverlayTexture;
-import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.RenderLayers;
-import net.minecraft.client.render.block.entity.BlockEntityRenderer;
-import net.minecraft.client.render.block.entity.BlockEntityRendererFactory;
-import net.minecraft.client.render.command.OrderedRenderCommandQueue;
-import net.minecraft.client.render.model.BlockStateModel;
-import net.minecraft.client.render.state.CameraRenderState;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.RotationAxis;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
-import org.jetbrains.annotations.Nullable;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Axis;
+import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.block.model.BlockStateModel;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
+import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
+import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.client.renderer.state.CameraRenderState;
+import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.core.BlockPos;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 
 /**
  * Renders the quarry arm visualization.
@@ -29,11 +30,11 @@ import org.jetbrains.annotations.Nullable;
  */
 public class QuarryBlockEntityRenderer implements BlockEntityRenderer<QuarryBlockEntity, QuarryRenderState> {
     private static final Identifier ARM_MODEL_ID =
-            Identifier.of(LogisticsMod.MOD_ID, "block/automation/quarry_gantry_arm");
+            Identifier.fromNamespaceAndPath(LogisticsMod.MOD_ID, "block/automation/quarry_gantry_arm");
     private static final Identifier DRILL_MODEL_ID =
-            Identifier.of(LogisticsMod.MOD_ID, "block/automation/quarry_drill");
+            Identifier.fromNamespaceAndPath(LogisticsMod.MOD_ID, "block/automation/quarry_drill");
 
-    public QuarryBlockEntityRenderer(BlockEntityRendererFactory.Context ctx) {}
+    public QuarryBlockEntityRenderer(BlockEntityRendererProvider.Context ctx) {}
 
     @Override
     public QuarryRenderState createRenderState() {
@@ -41,16 +42,15 @@ public class QuarryBlockEntityRenderer implements BlockEntityRenderer<QuarryBloc
     }
 
     @Override
-    public void updateRenderState(
+    public void extractRenderState(
             QuarryBlockEntity entity,
             QuarryRenderState state,
             float tickDelta,
-            Vec3d cameraPos,
-            @Nullable net.minecraft.client.render.command.ModelCommandRenderer.CrumblingOverlayCommand crumblingOverlay) {
-        net.minecraft.client.render.block.entity.state.BlockEntityRenderState.updateBlockEntityRenderState(
-                entity, state, crumblingOverlay);
+            Vec3 cameraPos,
+            net.minecraft.client.renderer.feature.ModelFeatureRenderer.CrumblingOverlay crumblingOverlay) {
+        BlockEntityRenderState.extractBase(entity, state, crumblingOverlay);
 
-        state.quarryPos = entity.getPos();
+        state.quarryPos = entity.getBlockPos();
         state.phase = entity.getCurrentPhase();
         state.armState = entity.getArmState();
 
@@ -61,14 +61,14 @@ public class QuarryBlockEntityRenderer implements BlockEntityRenderer<QuarryBloc
             return;
         }
 
-        World world = entity.getWorld();
-        if (world == null) {
+        Level level = entity.getLevel();
+        if (level == null) {
             state.shouldRenderArm = false;
             return;
         }
 
         // Check if the block is still a quarry (could be removed/replaced)
-        BlockState blockState = world.getBlockState(state.quarryPos);
+        BlockState blockState = level.getBlockState(state.quarryPos);
         if (!(blockState.getBlock() instanceof QuarryBlock)) {
             state.shouldRenderArm = false;
             return;
@@ -114,7 +114,7 @@ public class QuarryBlockEntityRenderer implements BlockEntityRenderer<QuarryBloc
         // Sample light at the frame top level (where the horizontal beams are)
         BlockPos frameTopPos = new BlockPos(
                 (state.frameStartX + state.frameEndX) / 2, state.frameTopY, (state.frameStartZ + state.frameEndZ) / 2);
-        state.frameTopLight = net.minecraft.client.render.WorldRenderer.getLightmapCoordinates(world, frameTopPos);
+        state.frameTopLight = LevelRenderer.getLightCoords(level, frameTopPos);
 
         // Get server-synced arm position (interpolation happens in render() for smooth frame-rate independent movement)
         state.serverArmX = entity.getArmX();
@@ -123,11 +123,8 @@ public class QuarryBlockEntityRenderer implements BlockEntityRenderer<QuarryBloc
     }
 
     @Override
-    public void render(
-            QuarryRenderState state,
-            MatrixStack matrices,
-            OrderedRenderCommandQueue queue,
-            CameraRenderState cameraState) {
+    public void submit(
+            QuarryRenderState state, PoseStack matrices, SubmitNodeCollector queue, CameraRenderState cameraState) {
         if (!state.shouldRenderArm) {
             return;
         }
@@ -140,7 +137,7 @@ public class QuarryBlockEntityRenderer implements BlockEntityRenderer<QuarryBloc
         // Update interpolation every frame for smooth movement
         state.updateClientInterpolation();
 
-        RenderLayer renderLayer = RenderLayers.cutout();
+        RenderType renderLayer = RenderTypes.cutoutMovingBlock();
 
         // Calculate positions relative to the quarry block (render origin)
         float quarryX = state.quarryPos.getX();
@@ -197,13 +194,13 @@ public class QuarryBlockEntityRenderer implements BlockEntityRenderer<QuarryBloc
         // Render drill head at the bottom of the vertical beam
         BlockStateModel drillModel = ModelRegistry.getModel(DRILL_MODEL_ID);
         if (drillModel != null) {
-            matrices.push();
+            matrices.pushPose();
             // Position drill at arm location, offset to center the model
             // Drill model is centered at X=0.5, Z=0.5, extends from Y=0.125 to Y=1
             matrices.translate(relArmX - 0.5, relArmY, relArmZ - 0.5);
-            queue.submitBlockStateModel(
-                    matrices, renderLayer, drillModel, 1.0f, 1.0f, 1.0f, light, OverlayTexture.DEFAULT_UV, 0);
-            matrices.pop();
+            queue.submitBlockModel(
+                    matrices, renderLayer, drillModel, 1.0f, 1.0f, 1.0f, light, OverlayTexture.NO_OVERLAY, 0);
+            matrices.popPose();
         }
     }
 
@@ -215,10 +212,10 @@ public class QuarryBlockEntityRenderer implements BlockEntityRenderer<QuarryBloc
      * @param startZ for alongX: centered arm Z position; for !alongX: block-aligned start Z
      */
     private void renderHorizontalBeam(
-            MatrixStack matrices,
-            OrderedRenderCommandQueue queue,
+            PoseStack matrices,
+            SubmitNodeCollector queue,
             BlockStateModel model,
-            RenderLayer renderLayer,
+            RenderType renderLayer,
             int lightmap,
             float startX,
             float startY,
@@ -226,13 +223,13 @@ public class QuarryBlockEntityRenderer implements BlockEntityRenderer<QuarryBloc
             int length,
             boolean alongX) {
         for (int i = 0; i < length; i++) {
-            matrices.push();
+            matrices.pushPose();
 
             if (alongX) {
                 // Beam extends along X axis (east-west)
                 // Position at segment, centered on startZ
                 matrices.translate(startX + i + 0.5, startY + 0.5, startZ);
-                matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(-90)); // Point east
+                matrices.mulPose(Axis.YP.rotationDegrees(-90)); // Point east
                 // Center the model (model is at X=0.5, Y=0.5)
                 matrices.translate(-0.5, -0.5, 0.0);
             } else {
@@ -244,10 +241,10 @@ public class QuarryBlockEntityRenderer implements BlockEntityRenderer<QuarryBloc
                 matrices.translate(-0.5, -0.5, -0.5);
             }
 
-            queue.submitBlockStateModel(
-                    matrices, renderLayer, model, 1.0f, 1.0f, 1.0f, lightmap, OverlayTexture.DEFAULT_UV, 0);
+            queue.submitBlockModel(
+                    matrices, renderLayer, model, 1.0f, 1.0f, 1.0f, lightmap, OverlayTexture.NO_OVERLAY, 0);
 
-            matrices.pop();
+            matrices.popPose();
         }
     }
 
@@ -260,10 +257,10 @@ public class QuarryBlockEntityRenderer implements BlockEntityRenderer<QuarryBloc
      * @param z centered Z position (already includes +0.5 offset)
      */
     private void renderVerticalBeam(
-            MatrixStack matrices,
-            OrderedRenderCommandQueue queue,
+            PoseStack matrices,
+            SubmitNodeCollector queue,
             BlockStateModel model,
-            RenderLayer renderLayer,
+            RenderType renderLayer,
             int lightmap,
             float x,
             float startY,
@@ -274,40 +271,40 @@ public class QuarryBlockEntityRenderer implements BlockEntityRenderer<QuarryBloc
 
         // Render partial segment at the TOP first (obscured by horizontal beams)
         if (remainder > 0.1f) {
-            matrices.push();
+            matrices.pushPose();
 
             // Partial segment starts at startY and grows downward
             matrices.translate(x, startY, z);
-            matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(90));
+            matrices.mulPose(Axis.XP.rotationDegrees(90));
             // Scale the partial segment in Z (which is now -Y after rotation)
             matrices.scale(1.0f, 1.0f, remainder);
             matrices.translate(-0.5, -0.5, 0.0);
 
-            queue.submitBlockStateModel(
-                    matrices, renderLayer, model, 1.0f, 1.0f, 1.0f, lightmap, OverlayTexture.DEFAULT_UV, 0);
+            queue.submitBlockModel(
+                    matrices, renderLayer, model, 1.0f, 1.0f, 1.0f, lightmap, OverlayTexture.NO_OVERLAY, 0);
 
-            matrices.pop();
+            matrices.popPose();
         }
 
         // Render full block segments below the partial segment
         for (int i = 0; i < fullSegments; i++) {
-            matrices.push();
+            matrices.pushPose();
 
             // Full segments start below the partial segment
             matrices.translate(x, startY - remainder - i, z);
             // Rotate to point downward
-            matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(90));
+            matrices.mulPose(Axis.XP.rotationDegrees(90));
             matrices.translate(-0.5, -0.5, 0.0);
 
-            queue.submitBlockStateModel(
-                    matrices, renderLayer, model, 1.0f, 1.0f, 1.0f, lightmap, OverlayTexture.DEFAULT_UV, 0);
+            queue.submitBlockModel(
+                    matrices, renderLayer, model, 1.0f, 1.0f, 1.0f, lightmap, OverlayTexture.NO_OVERLAY, 0);
 
-            matrices.pop();
+            matrices.popPose();
         }
     }
 
     @Override
-    public int getRenderDistance() {
+    public int getViewDistance() {
         return 256; // Visible from far away
     }
 }
