@@ -533,7 +533,7 @@ def apply_material_edge_styling(img: Image.Image, spec: MaterialSpec, mask_L: Im
 # -----------------------------------------------------------------------------
 
 def main() -> None:
-    out_dir = "resources/assets/logistics/textures/item"
+    out_dir = "src/main/resources/assets/logistics/textures/item/core"
     os.makedirs(out_dir, exist_ok=True)
 
     overlay_rgba, cutout_mask_L = load_overlay_and_mask(OVERLAY_DATA_URL, size=(16, 16))
