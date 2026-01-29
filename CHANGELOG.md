@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.3.0](https://github.com/Indemnity83/logistics/compare/v0.2.5...v0.3.0) (2026-01-29)
+
+
+### ⚠ BREAKING CHANGES
+
+* The Logistics API has been reorganized and namespaced; internal and external integrations using the old API structure will need to update imports and references.
+
+### refactor
+
+* split mod into domain-based components ([#49](https://github.com/Indemnity83/logistics/issues/49)) ([5182670](https://github.com/Indemnity83/logistics/commit/5182670dc24cbd298b8c2f6f1d80198aacfef048))
+
 ## [0.2.5](https://github.com/Indemnity83/logistics/compare/v0.2.4...v0.2.5) (2026-01-27)
 
 
