@@ -57,12 +57,28 @@ public class EngineBlockEntityRenderer implements BlockEntityRenderer<AbstractEn
     private static final float[] COLOR_RED = {0.8f, 0.2f, 0.2f};
     private static final float[] COLOR_OVERHEAT = {0.1f, 0.1f, 0.1f};
 
-    // Animation cache - persists between frames
+    // Animation cache - persists between frames, cleaned up when block entities are removed
     private static final java.util.Map<net.minecraft.util.math.BlockPos, AnimationCache> ANIMATION_CACHE = new java.util.concurrent.ConcurrentHashMap<>();
 
     private static final class AnimationCache {
         float progress = 0f;
         long lastUpdateTime = 0;
+    }
+
+    /**
+     * Removes the animation cache entry for a block position.
+     * Should be called when an engine block entity is removed.
+     */
+    public static void clearAnimationCache(net.minecraft.util.math.BlockPos pos) {
+        ANIMATION_CACHE.remove(pos);
+    }
+
+    /**
+     * Clears all animation cache entries.
+     * Should be called on world unload to prevent memory leaks.
+     */
+    public static void clearAllAnimationCache() {
+        ANIMATION_CACHE.clear();
     }
 
     public EngineBlockEntityRenderer(BlockEntityRendererFactory.Context ctx) {

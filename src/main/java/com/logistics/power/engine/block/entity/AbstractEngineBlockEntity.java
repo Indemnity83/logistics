@@ -63,6 +63,9 @@ public abstract class AbstractEngineBlockEntity extends BlockEntity implements E
     /** Block state property for engine heat stage. */
     public static final EnumProperty<HeatStage> STAGE = EnumProperty.of("stage", HeatStage.class);
 
+    /** Client-side callback for cleanup when an engine is removed. Set by client bootstrap. */
+    private static java.util.function.Consumer<BlockPos> onRemovedCallback;
+
     /** Two-stroke engine cycle phases. */
     protected enum CyclePhase {
         IDLE, EXPANSION, COMPRESSION;
@@ -448,5 +451,23 @@ public abstract class AbstractEngineBlockEntity extends BlockEntity implements E
     @Override
     public NbtCompound toInitialChunkDataNbt(RegistryWrapper.WrapperLookup registryLookup) {
         return createNbt(registryLookup);
+    }
+
+    // ==================== Lifecycle ====================
+
+    /**
+     * Sets a callback to be invoked when an engine block entity is removed.
+     * Used by client-side code to clean up render caches.
+     */
+    public static void setOnRemovedCallback(java.util.function.Consumer<BlockPos> callback) {
+        onRemovedCallback = callback;
+    }
+
+    @Override
+    public void markRemoved() {
+        super.markRemoved();
+        if (onRemovedCallback != null && world != null && world.isClient()) {
+            onRemovedCallback.accept(pos);
+        }
     }
 }

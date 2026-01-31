@@ -1,11 +1,13 @@
 package com.logistics.power;
 
 import com.logistics.core.bootstrap.ClientDomainBootstrap;
+import com.logistics.power.engine.block.entity.AbstractEngineBlockEntity;
 import com.logistics.power.registry.PowerBlockEntities;
 import com.logistics.power.registry.PowerScreenHandlers;
 import com.logistics.power.render.EngineBlockEntityRenderer;
 import com.logistics.power.screen.StirlingEngineScreen;
 
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.minecraft.client.gui.screen.ingame.HandledScreens;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactories;
 
@@ -27,6 +29,12 @@ public final class PowerClientBootstrap implements ClientDomainBootstrap {
 
         // Register screens
         HandledScreens.register(PowerScreenHandlers.STIRLING_ENGINE, StirlingEngineScreen::new);
+
+        // Register cleanup callback for engine animation cache
+        AbstractEngineBlockEntity.setOnRemovedCallback(EngineBlockEntityRenderer::clearAnimationCache);
+
+        // Clear all animation caches when disconnecting from server
+        ClientLifecycleEvents.CLIENT_STOPPING.register(client -> EngineBlockEntityRenderer.clearAllAnimationCache());
 
         // Note: Item tints for engines are defined in assets/logistics/items/power/*.json
         // using the minecraft:constant tint source (1.21.4+ data-driven approach)
