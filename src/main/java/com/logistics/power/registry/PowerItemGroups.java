@@ -1,7 +1,6 @@
 package com.logistics.power.registry;
 
 import com.logistics.core.registry.CoreItemGroups;
-
 import net.minecraft.item.ItemGroup;
 
 public final class PowerItemGroups {

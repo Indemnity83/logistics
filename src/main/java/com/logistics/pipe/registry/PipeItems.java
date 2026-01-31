@@ -1,12 +1,10 @@
 package com.logistics.pipe.registry;
 
+import com.logistics.LogisticsMod;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
-
-import com.logistics.LogisticsMod;
-
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.registry.Registries;

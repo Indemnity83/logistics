@@ -26,9 +26,9 @@ public class PIDController {
     private static long logTick = 0;
     private static boolean logHeaderWritten = false;
 
-    private final double kp;  // Proportional gain
-    private final double ki;  // Integral gain (per-tick accumulation)
-    private final double kd;  // Derivative gain (response to error change rate)
+    private final double kp; // Proportional gain
+    private final double ki; // Integral gain (per-tick accumulation)
+    private final double kd; // Derivative gain (response to error change rate)
 
     /**
      * Error deadband in measured units. If |error| <= deadband, error is treated as 0
@@ -227,7 +227,8 @@ public class PIDController {
                 logHeaderWritten = true;
             }
 
-            logWriter.printf("%d,%.2f,%.2f,%.2f,%.4f,%.4f,%.4f,%.4f%n",
+            logWriter.printf(
+                    "%d,%.2f,%.2f,%.2f,%.4f,%.4f,%.4f,%.4f%n",
                     logTick,
                     lastSetpoint,
                     lastMeasured,

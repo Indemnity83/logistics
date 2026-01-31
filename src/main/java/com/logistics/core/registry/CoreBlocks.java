@@ -1,10 +1,8 @@
 package com.logistics.core.registry;
 
-import java.util.function.Function;
-
 import com.logistics.LogisticsMod;
 import com.logistics.core.marker.MarkerBlock;
-
+import java.util.function.Function;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
 import net.minecraft.item.BlockItem;

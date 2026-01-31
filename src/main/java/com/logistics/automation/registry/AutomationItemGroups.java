@@ -1,7 +1,6 @@
 package com.logistics.automation.registry;
 
 import com.logistics.core.registry.CoreItemGroups;
-
 import net.minecraft.item.ItemGroup;
 
 public final class AutomationItemGroups {

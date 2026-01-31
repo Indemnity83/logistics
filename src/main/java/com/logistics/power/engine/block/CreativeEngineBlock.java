@@ -1,10 +1,11 @@
 package com.logistics.power.engine.block;
 
+import static com.logistics.power.engine.block.entity.AbstractEngineBlockEntity.STAGE;
+
 import com.logistics.core.registry.CoreItems;
 import com.logistics.power.engine.block.entity.AbstractEngineBlockEntity.HeatStage;
 import com.logistics.power.engine.block.entity.CreativeEngineBlockEntity;
 import com.logistics.power.registry.PowerBlockEntities;
-
 import com.mojang.serialization.MapCodec;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockRenderType;
@@ -32,8 +33,6 @@ import net.minecraft.world.World;
 import net.minecraft.world.block.WireOrientation;
 import org.jetbrains.annotations.Nullable;
 
-import static com.logistics.power.engine.block.entity.AbstractEngineBlockEntity.STAGE;
-
 /**
  * Creative Engine - a special engine for Creative Mode that generates configurable energy.
  *
@@ -52,8 +51,7 @@ public class CreativeEngineBlock extends BlockWithEntity {
     public static final BooleanProperty POWERED = Properties.POWERED;
 
     public CreativeEngineBlock(Settings settings) {
-        super(settings
-                .strength(3.5f)
+        super(settings.strength(3.5f)
                 .sounds(BlockSoundGroup.STONE)
                 .nonOpaque()
                 .solidBlock((state, world, pos) -> false)
@@ -89,10 +87,7 @@ public class CreativeEngineBlock extends BlockWithEntity {
     public BlockState getPlacementState(ItemPlacementContext ctx) {
         Direction facing = ctx.getPlayerLookDirection();
         boolean powered = hasDirectRedstonePower(ctx.getWorld(), ctx.getBlockPos());
-        return getDefaultState()
-                .with(FACING, facing)
-                .with(POWERED, powered)
-                .with(STAGE, HeatStage.COLD);
+        return getDefaultState().with(FACING, facing).with(POWERED, powered).with(STAGE, HeatStage.COLD);
     }
 
     @Nullable @Override
@@ -108,8 +103,13 @@ public class CreativeEngineBlock extends BlockWithEntity {
 
     @Override
     protected ActionResult onUseWithItem(
-            ItemStack stack, BlockState state, World world, BlockPos pos,
-            PlayerEntity player, Hand hand, BlockHitResult hit) {
+            ItemStack stack,
+            BlockState state,
+            World world,
+            BlockPos pos,
+            PlayerEntity player,
+            Hand hand,
+            BlockHitResult hit) {
         if (!CoreItems.isWrench(stack)) {
             return ActionResult.PASS;
         }

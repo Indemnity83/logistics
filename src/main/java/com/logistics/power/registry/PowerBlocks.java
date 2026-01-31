@@ -1,13 +1,11 @@
 package com.logistics.power.registry;
 
-import java.util.function.Function;
-
 import com.logistics.LogisticsMod;
 import com.logistics.power.block.CreativeSinkBlock;
 import com.logistics.power.engine.block.CreativeEngineBlock;
 import com.logistics.power.engine.block.RedstoneEngineBlock;
 import com.logistics.power.engine.block.StirlingEngineBlock;
-
+import java.util.function.Function;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
 import net.minecraft.item.BlockItem;

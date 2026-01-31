@@ -2,7 +2,6 @@ package com.logistics.power.block;
 
 import com.logistics.power.block.entity.CreativeSinkBlockEntity;
 import com.logistics.power.registry.PowerBlockEntities;
-
 import com.mojang.serialization.MapCodec;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;

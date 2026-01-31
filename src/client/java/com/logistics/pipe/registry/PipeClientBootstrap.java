@@ -4,7 +4,6 @@ import com.logistics.core.bootstrap.ClientDomainBootstrap;
 import com.logistics.core.render.ModelRegistry;
 import com.logistics.pipe.render.PipeBlockEntityRenderer;
 import com.logistics.pipe.screen.ItemFilterScreen;
-
 import net.fabricmc.fabric.api.client.rendering.v1.BlockRenderLayerMap;
 import net.minecraft.client.gui.screen.ingame.HandledScreens;
 import net.minecraft.client.render.BlockRenderLayer;

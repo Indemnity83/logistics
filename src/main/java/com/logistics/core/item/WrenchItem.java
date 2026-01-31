@@ -1,7 +1,6 @@
 package com.logistics.core.item;
 
 import com.logistics.power.engine.block.entity.CreativeEngineBlockEntity;
-
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemUsageContext;
 import net.minecraft.text.Text;
@@ -35,9 +34,7 @@ public class WrenchItem extends Item {
         if (world.getBlockEntity(pos) instanceof CreativeEngineBlockEntity engine) {
             if (!world.isClient()) {
                 long newRate = engine.cycleOutputLevel();
-                player.sendMessage(
-                        Text.literal("Output: " + newRate + " RF/t").formatted(Formatting.AQUA),
-                        true);
+                player.sendMessage(Text.literal("Output: " + newRate + " RF/t").formatted(Formatting.AQUA), true);
             }
             return ActionResult.SUCCESS;
         }

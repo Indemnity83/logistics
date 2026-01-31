@@ -1,11 +1,9 @@
 package com.logistics.automation.render;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 import com.logistics.automation.quarry.QuarryConfig;
 import com.logistics.automation.quarry.entity.QuarryBlockEntity;
-
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.block.entity.state.BlockEntityRenderState;
 import net.minecraft.client.world.ClientWorld;

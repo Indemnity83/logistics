@@ -1,11 +1,10 @@
 package com.logistics.core.bootstrap;
 
+import com.logistics.LogisticsMod;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.ServiceLoader;
-
-import com.logistics.LogisticsMod;
 
 public final class DomainBootstraps {
     private static final List<DomainBootstrap> BOOTSTRAPS = loadBootstraps();

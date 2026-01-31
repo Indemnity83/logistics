@@ -2,7 +2,6 @@ package com.logistics.automation.registry;
 
 import com.logistics.LogisticsMod;
 import com.logistics.automation.quarry.ui.QuarryScreenHandler;
-
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerType;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;

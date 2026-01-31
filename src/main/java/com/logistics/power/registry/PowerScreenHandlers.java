@@ -2,7 +2,6 @@ package com.logistics.power.registry;
 
 import com.logistics.LogisticsMod;
 import com.logistics.power.engine.ui.StirlingEngineScreenHandler;
-
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerType;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;

@@ -2,7 +2,6 @@ package com.logistics.power.block.entity;
 
 import com.logistics.api.EnergyStorage;
 import com.logistics.power.registry.PowerBlockEntities;
-
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.nbt.NbtCompound;

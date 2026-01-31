@@ -1,7 +1,6 @@
 package com.logistics.power.render;
 
 import com.logistics.power.engine.block.entity.AbstractEngineBlockEntity.HeatStage;
-
 import net.minecraft.client.render.block.entity.state.BlockEntityRenderState;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;

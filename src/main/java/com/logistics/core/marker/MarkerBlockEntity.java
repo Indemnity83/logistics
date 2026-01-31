@@ -1,10 +1,8 @@
 package com.logistics.core.marker;
 
+import com.logistics.core.registry.CoreBlockEntities;
 import java.util.ArrayList;
 import java.util.List;
-
-import com.logistics.core.registry.CoreBlockEntities;
-
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.player.PlayerEntity;

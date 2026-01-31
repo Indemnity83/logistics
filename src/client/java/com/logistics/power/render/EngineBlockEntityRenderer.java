@@ -1,5 +1,7 @@
 package com.logistics.power.render;
 
+import static com.logistics.power.engine.block.entity.AbstractEngineBlockEntity.STAGE;
+
 import com.logistics.LogisticsMod;
 import com.logistics.core.render.ModelRegistry;
 import com.logistics.power.engine.block.entity.AbstractEngineBlockEntity;
@@ -7,7 +9,6 @@ import com.logistics.power.engine.block.entity.AbstractEngineBlockEntity.HeatSta
 import com.logistics.power.engine.block.entity.CreativeEngineBlockEntity;
 import com.logistics.power.engine.block.entity.RedstoneEngineBlockEntity;
 import com.logistics.power.engine.block.entity.StirlingEngineBlockEntity;
-
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.RenderLayers;
@@ -25,8 +26,6 @@ import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.Nullable;
 
-import static com.logistics.power.engine.block.entity.AbstractEngineBlockEntity.STAGE;
-
 /**
  * Renders engine block entities with animated pistons.
  *
@@ -38,17 +37,25 @@ import static com.logistics.power.engine.block.entity.AbstractEngineBlockEntity.
  */
 public class EngineBlockEntityRenderer implements BlockEntityRenderer<AbstractEngineBlockEntity, EngineRenderState> {
     // Shared model identifiers
-    private static final Identifier TRUNK_BASE_MODEL = Identifier.of(LogisticsMod.MOD_ID, "block/power/engine_trunk_base");
-    private static final Identifier TRUNK_OVERLAY_MODEL = Identifier.of(LogisticsMod.MOD_ID, "block/power/engine_trunk_overlay");
+    private static final Identifier TRUNK_BASE_MODEL =
+            Identifier.of(LogisticsMod.MOD_ID, "block/power/engine_trunk_base");
+    private static final Identifier TRUNK_OVERLAY_MODEL =
+            Identifier.of(LogisticsMod.MOD_ID, "block/power/engine_trunk_overlay");
     private static final Identifier CHAMBER_MODEL = Identifier.of(LogisticsMod.MOD_ID, "block/power/engine_chamber");
 
     // Per-engine model identifiers (base static and moving have engine-specific textures)
-    private static final Identifier REDSTONE_BASE_STATIC = Identifier.of(LogisticsMod.MOD_ID, "block/power/redstone_engine_base_static");
-    private static final Identifier REDSTONE_BASE_MOVING = Identifier.of(LogisticsMod.MOD_ID, "block/power/redstone_engine_base_moving");
-    private static final Identifier STIRLING_BASE_STATIC = Identifier.of(LogisticsMod.MOD_ID, "block/power/stirling_engine_base_static");
-    private static final Identifier STIRLING_BASE_MOVING = Identifier.of(LogisticsMod.MOD_ID, "block/power/stirling_engine_base_moving");
-    private static final Identifier CREATIVE_BASE_STATIC = Identifier.of(LogisticsMod.MOD_ID, "block/power/creative_engine_base_static");
-    private static final Identifier CREATIVE_BASE_MOVING = Identifier.of(LogisticsMod.MOD_ID, "block/power/creative_engine_base_moving");
+    private static final Identifier REDSTONE_BASE_STATIC =
+            Identifier.of(LogisticsMod.MOD_ID, "block/power/redstone_engine_base_static");
+    private static final Identifier REDSTONE_BASE_MOVING =
+            Identifier.of(LogisticsMod.MOD_ID, "block/power/redstone_engine_base_moving");
+    private static final Identifier STIRLING_BASE_STATIC =
+            Identifier.of(LogisticsMod.MOD_ID, "block/power/stirling_engine_base_static");
+    private static final Identifier STIRLING_BASE_MOVING =
+            Identifier.of(LogisticsMod.MOD_ID, "block/power/stirling_engine_base_moving");
+    private static final Identifier CREATIVE_BASE_STATIC =
+            Identifier.of(LogisticsMod.MOD_ID, "block/power/creative_engine_base_static");
+    private static final Identifier CREATIVE_BASE_MOVING =
+            Identifier.of(LogisticsMod.MOD_ID, "block/power/creative_engine_base_moving");
 
     // Stage colors (RGB 0-1 range) for trunk tinting
     private static final float[] COLOR_BLUE = {0.2f, 0.4f, 0.8f};
@@ -58,7 +65,8 @@ public class EngineBlockEntityRenderer implements BlockEntityRenderer<AbstractEn
     private static final float[] COLOR_OVERHEAT = {0.1f, 0.1f, 0.1f};
 
     // Animation cache - persists between frames, cleaned up when block entities are removed
-    private static final java.util.Map<net.minecraft.util.math.BlockPos, AnimationCache> ANIMATION_CACHE = new java.util.concurrent.ConcurrentHashMap<>();
+    private static final java.util.Map<net.minecraft.util.math.BlockPos, AnimationCache> ANIMATION_CACHE =
+            new java.util.concurrent.ConcurrentHashMap<>();
 
     private static final class AnimationCache {
         float progress = 0f;
@@ -81,8 +89,7 @@ public class EngineBlockEntityRenderer implements BlockEntityRenderer<AbstractEn
         ANIMATION_CACHE.clear();
     }
 
-    public EngineBlockEntityRenderer(BlockEntityRendererFactory.Context ctx) {
-    }
+    public EngineBlockEntityRenderer(BlockEntityRendererFactory.Context ctx) {}
 
     @Override
     public EngineRenderState createRenderState() {
@@ -169,8 +176,11 @@ public class EngineBlockEntityRenderer implements BlockEntityRenderer<AbstractEn
         BlockStateModel trunkOverlayModel = ModelRegistry.getModel(TRUNK_OVERLAY_MODEL);
         BlockStateModel chamberModel = ModelRegistry.getModel(CHAMBER_MODEL);
 
-        if (baseStaticModel == null || baseMovingModel == null || trunkBaseModel == null
-                || trunkOverlayModel == null || chamberModel == null) {
+        if (baseStaticModel == null
+                || baseMovingModel == null
+                || trunkBaseModel == null
+                || trunkOverlayModel == null
+                || chamberModel == null) {
             return;
         }
 
@@ -179,8 +189,7 @@ public class EngineBlockEntityRenderer implements BlockEntityRenderer<AbstractEn
         // Get lighting from the output side of the engine for better visibility
         // Sampling from inside the block often results in darkness
         int light = WorldRenderer.getLightmapCoordinates(
-                net.minecraft.client.MinecraftClient.getInstance().world,
-                state.pos);
+                net.minecraft.client.MinecraftClient.getInstance().world, state.pos);
 
         // Calculate piston offset (0 to ~0.5 blocks)
         float pistonOffset = state.getPistonOffset();
@@ -196,50 +205,80 @@ public class EngineBlockEntityRenderer implements BlockEntityRenderer<AbstractEn
         // 1. Render static base (Y=0-4)
         matrices.push();
         queue.submitBlockStateModel(
-                matrices, renderLayer, baseStaticModel,
-                1.0f, 1.0f, 1.0f, // No tint
-                light, OverlayTexture.DEFAULT_UV, 0);
+                matrices,
+                renderLayer,
+                baseStaticModel,
+                1.0f,
+                1.0f,
+                1.0f, // No tint
+                light,
+                OverlayTexture.DEFAULT_UV,
+                0);
         matrices.pop();
 
         // 2. Render moving base (Y=4+offset to Y=8+offset)
         matrices.push();
-        matrices.translate(0, 4/16f + pistonOffset, 0);
+        matrices.translate(0, 4 / 16f + pistonOffset, 0);
         queue.submitBlockStateModel(
-                matrices, renderLayer, baseMovingModel,
-                1.0f, 1.0f, 1.0f, // No tint
-                light, OverlayTexture.DEFAULT_UV, 0);
+                matrices,
+                renderLayer,
+                baseMovingModel,
+                1.0f,
+                1.0f,
+                1.0f, // No tint
+                light,
+                OverlayTexture.DEFAULT_UV,
+                0);
         matrices.pop();
 
         // 3. Render trunk base (Y=4-16, no tint)
         matrices.push();
-        matrices.translate(0, 4/16f, 0);
+        matrices.translate(0, 4 / 16f, 0);
         queue.submitBlockStateModel(
-                matrices, renderLayer, trunkBaseModel,
-                1.0f, 1.0f, 1.0f, // No tint
-                light, OverlayTexture.DEFAULT_UV, 0);
+                matrices,
+                renderLayer,
+                trunkBaseModel,
+                1.0f,
+                1.0f,
+                1.0f, // No tint
+                light,
+                OverlayTexture.DEFAULT_UV,
+                0);
         matrices.pop();
 
         // 4. Render trunk overlay (Y=4-16, with stage color tint)
         matrices.push();
-        matrices.translate(0, 4/16f, 0);
+        matrices.translate(0, 4 / 16f, 0);
         queue.submitBlockStateModel(
-                matrices, renderLayer, trunkOverlayModel,
-                trunkColor[0], trunkColor[1], trunkColor[2], // Apply tint
-                light, OverlayTexture.DEFAULT_UV, 0);
+                matrices,
+                renderLayer,
+                trunkOverlayModel,
+                trunkColor[0],
+                trunkColor[1],
+                trunkColor[2], // Apply tint
+                light,
+                OverlayTexture.DEFAULT_UV,
+                0);
         matrices.pop();
 
         // 5. Render chamber (Y=4 to Y=4+offset, scaled by progress)
         if (pistonOffset > 0.01f) {
             matrices.push();
-            matrices.translate(0, 4/16f, 0);
+            matrices.translate(0, 4 / 16f, 0);
             // Scale the chamber height based on piston offset
             // The model is 8 pixels tall, we scale it to match pistonOffset (in blocks)
             float chamberScale = pistonOffset / 0.5f; // Normalize to 0-1 range
             matrices.scale(1.0f, chamberScale, 1.0f);
             queue.submitBlockStateModel(
-                    matrices, renderLayer, chamberModel,
-                    1.0f, 1.0f, 1.0f, // No tint
-                    light, OverlayTexture.DEFAULT_UV, 0);
+                    matrices,
+                    renderLayer,
+                    chamberModel,
+                    1.0f,
+                    1.0f,
+                    1.0f, // No tint
+                    light,
+                    OverlayTexture.DEFAULT_UV,
+                    0);
             matrices.pop();
         }
 

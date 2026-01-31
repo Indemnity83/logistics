@@ -7,7 +7,6 @@ import com.logistics.pipe.block.PipeBlock;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.pipe.runtime.PipeConfig;
 import com.logistics.pipe.runtime.TravelingItem;
-
 import net.minecraft.block.BlockState;
 import net.minecraft.client.item.ItemModelManager;
 import net.minecraft.client.render.BlockRenderLayers;

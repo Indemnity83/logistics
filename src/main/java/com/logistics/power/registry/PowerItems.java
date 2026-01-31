@@ -2,7 +2,6 @@ package com.logistics.power.registry;
 
 import com.logistics.LogisticsMod;
 import com.logistics.power.item.EngineProbeItem;
-
 import net.minecraft.item.Item;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;

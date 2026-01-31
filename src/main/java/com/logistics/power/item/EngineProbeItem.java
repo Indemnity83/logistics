@@ -4,7 +4,6 @@ import com.logistics.power.engine.block.entity.AbstractEngineBlockEntity;
 import com.logistics.power.engine.block.entity.AbstractEngineBlockEntity.HeatStage;
 import com.logistics.power.engine.block.entity.CreativeEngineBlockEntity;
 import com.logistics.power.engine.block.entity.StirlingEngineBlockEntity;
-
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemUsageContext;
@@ -48,52 +47,66 @@ public class EngineProbeItem extends Item {
         // Stage with color coding
         HeatStage stage = engine.getHeatStage();
         Formatting stageColor = getStageColor(stage);
-        player.sendMessage(Text.literal("Stage: ")
-                .append(Text.literal(stage.name()).formatted(stageColor)), false);
+        player.sendMessage(
+                Text.literal("Stage: ").append(Text.literal(stage.name()).formatted(stageColor)), false);
 
         // Temperature info
         double temp = engine.getTemperature();
         double maxTemp = engine.getMaxTemperature();
         double heatLevel = engine.getHeatLevel();
-        Formatting tempColor = heatLevel >= 1.0 ? Formatting.RED :
-                               heatLevel >= 0.75 ? Formatting.YELLOW : Formatting.GREEN;
-        player.sendMessage(Text.literal("Temperature: ")
-                .append(Text.literal(String.format("%.0f°C (%.0f Max)", temp, maxTemp)).formatted(tempColor)), false);
+        Formatting tempColor =
+                heatLevel >= 1.0 ? Formatting.RED : heatLevel >= 0.75 ? Formatting.YELLOW : Formatting.GREEN;
+        player.sendMessage(
+                Text.literal("Temperature: ")
+                        .append(Text.literal(String.format("%.0f°C (%.0f Max)", temp, maxTemp))
+                                .formatted(tempColor)),
+                false);
 
         // Energy info (buffer)
         long storedEnergy = engine.getEnergy();
         double energyLevel = engine.getEnergyLevel();
-        player.sendMessage(Text.literal("Energy: ")
-                .append(Text.literal(String.format("%,d / %,d RF (%.1f%%)",
-                        storedEnergy, engine.getCapacity(), energyLevel * 100)).formatted(Formatting.AQUA)), false);
+        player.sendMessage(
+                Text.literal("Energy: ")
+                        .append(Text.literal(String.format(
+                                        "%,d / %,d RF (%.1f%%)", storedEnergy, engine.getCapacity(), energyLevel * 100))
+                                .formatted(Formatting.AQUA)),
+                false);
 
         // Generation rate (Stirling only - PID controlled)
         if (engine instanceof StirlingEngineBlockEntity stirling) {
             double pidRate = stirling.getCurrentGenerationRate();
-            player.sendMessage(Text.literal("Generation: ")
-                    .append(Text.literal(String.format("%.2f RF/t", pidRate))
-                            .formatted(Formatting.GREEN)), false);
+            player.sendMessage(
+                    Text.literal("Generation: ")
+                            .append(Text.literal(String.format("%.2f RF/t", pidRate))
+                                    .formatted(Formatting.GREEN)),
+                    false);
         }
 
         // Creative Engine output level
         if (engine instanceof CreativeEngineBlockEntity creative) {
             int level = creative.getOutputLevelIndex() + 1;
             int maxLevel = CreativeEngineBlockEntity.OUTPUT_LEVELS.length;
-            player.sendMessage(Text.literal("Output Level: ")
-                    .append(Text.literal(String.format("%d/%d", level, maxLevel))
-                            .formatted(Formatting.LIGHT_PURPLE)), false);
+            player.sendMessage(
+                    Text.literal("Output Level: ")
+                            .append(Text.literal(String.format("%d/%d", level, maxLevel))
+                                    .formatted(Formatting.LIGHT_PURPLE)),
+                    false);
         }
 
         // Output power (all engines)
         long outputPower = engine.getCurrentOutputPower();
-        player.sendMessage(Text.literal("Output Power: ")
-                .append(Text.literal(String.format("%d RF/t", outputPower))
-                        .formatted(Formatting.LIGHT_PURPLE)), false);
+        player.sendMessage(
+                Text.literal("Output Power: ")
+                        .append(Text.literal(String.format("%d RF/t", outputPower))
+                                .formatted(Formatting.LIGHT_PURPLE)),
+                false);
 
         // Running state
-        player.sendMessage(Text.literal("Running: ")
-                .append(Text.literal(engine.isRunning() ? "Yes" : "No")
-                        .formatted(engine.isRunning() ? Formatting.GREEN : Formatting.GRAY)), false);
+        player.sendMessage(
+                Text.literal("Running: ")
+                        .append(Text.literal(engine.isRunning() ? "Yes" : "No")
+                                .formatted(engine.isRunning() ? Formatting.GREEN : Formatting.GRAY)),
+                false);
 
         // Overheat warning
         if (engine.isOverheated()) {
@@ -105,13 +118,16 @@ public class EngineProbeItem extends Item {
             int burnTime = stirling.getBurnTime();
             int fuelTime = stirling.getFuelTime();
             if (fuelTime > 0) {
-                player.sendMessage(Text.literal("Fuel: ")
-                        .append(Text.literal(String.format("%d / %d ticks (%.1f%%)",
-                                burnTime, fuelTime, (burnTime / (float) fuelTime) * 100))
-                                .formatted(Formatting.YELLOW)), false);
+                player.sendMessage(
+                        Text.literal("Fuel: ")
+                                .append(Text.literal(String.format(
+                                                "%d / %d ticks (%.1f%%)",
+                                                burnTime, fuelTime, (burnTime / (float) fuelTime) * 100))
+                                        .formatted(Formatting.YELLOW)),
+                        false);
             } else {
-                player.sendMessage(Text.literal("Fuel: ")
-                        .append(Text.literal("None").formatted(Formatting.GRAY)), false);
+                player.sendMessage(
+                        Text.literal("Fuel: ").append(Text.literal("None").formatted(Formatting.GRAY)), false);
             }
         }
     }

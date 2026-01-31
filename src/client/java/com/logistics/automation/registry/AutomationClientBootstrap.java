@@ -5,7 +5,6 @@ import com.logistics.automation.render.QuarryBlockEntityRenderer;
 import com.logistics.automation.render.QuarryRenderState;
 import com.logistics.automation.screen.QuarryScreen;
 import com.logistics.core.bootstrap.ClientDomainBootstrap;
-
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;

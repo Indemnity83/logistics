@@ -1,7 +1,6 @@
 package com.logistics.automation.render;
 
 import java.util.function.Consumer;
-
 import net.minecraft.util.math.BlockPos;
 
 public final class ClientRenderCacheHooks {

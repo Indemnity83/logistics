@@ -4,7 +4,6 @@ import com.logistics.core.bootstrap.ClientDomainBootstrap;
 import com.logistics.power.engine.block.entity.AbstractEngineBlockEntity;
 import com.logistics.power.render.EngineBlockEntityRenderer;
 import com.logistics.power.screen.StirlingEngineScreen;
-
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.minecraft.client.gui.screen.ingame.HandledScreens;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactories;

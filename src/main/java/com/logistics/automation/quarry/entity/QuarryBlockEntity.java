@@ -1,10 +1,5 @@
 package com.logistics.automation.quarry.entity;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import com.logistics.api.LogisticsApi;
 import com.logistics.api.TransportApi;
 import com.logistics.automation.quarry.QuarryBlock;
@@ -14,7 +9,10 @@ import com.logistics.automation.quarry.ui.QuarryScreenHandler;
 import com.logistics.automation.registry.AutomationBlockEntities;
 import com.logistics.automation.registry.AutomationBlocks;
 import com.logistics.automation.render.ClientRenderCacheHooks;
-
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;

@@ -1,7 +1,6 @@
 package com.logistics.power.engine.block.entity;
 
 import com.logistics.api.EnergyStorage;
-
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
@@ -46,7 +45,11 @@ public abstract class AbstractEngineBlockEntity extends BlockEntity implements E
 
     /** Represents the heat stages of an engine. */
     public enum HeatStage implements StringIdentifiable {
-        COLD, COOL, WARM, HOT, OVERHEAT;
+        COLD,
+        COOL,
+        WARM,
+        HOT,
+        OVERHEAT;
 
         private static final HeatStage[] VALUES = values();
 
@@ -68,7 +71,9 @@ public abstract class AbstractEngineBlockEntity extends BlockEntity implements E
 
     /** Two-stroke engine cycle phases. */
     protected enum CyclePhase {
-        IDLE, EXPANSION, COMPRESSION;
+        IDLE,
+        EXPANSION,
+        COMPRESSION;
 
         private static final CyclePhase[] VALUES = values();
 
@@ -308,8 +313,8 @@ public abstract class AbstractEngineBlockEntity extends BlockEntity implements E
         Direction outputDir = getOutputDirection();
         BlockPos targetPos = pos.offset(outputDir);
 
-        team.reborn.energy.api.EnergyStorage target = team.reborn.energy.api.EnergyStorage.SIDED.find(
-                world, targetPos, outputDir.getOpposite());
+        team.reborn.energy.api.EnergyStorage target =
+                team.reborn.energy.api.EnergyStorage.SIDED.find(world, targetPos, outputDir.getOpposite());
 
         if (target != null && target.supportsInsertion()) {
             long maxSend = getOutputPower();

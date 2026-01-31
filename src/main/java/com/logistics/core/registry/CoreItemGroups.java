@@ -1,10 +1,8 @@
 package com.logistics.core.registry;
 
+import com.logistics.LogisticsMod;
 import java.util.ArrayList;
 import java.util.List;
-
-import com.logistics.LogisticsMod;
-
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;

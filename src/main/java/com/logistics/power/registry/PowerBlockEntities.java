@@ -6,7 +6,6 @@ import com.logistics.power.block.entity.CreativeSinkBlockEntity;
 import com.logistics.power.engine.block.entity.CreativeEngineBlockEntity;
 import com.logistics.power.engine.block.entity.RedstoneEngineBlockEntity;
 import com.logistics.power.engine.block.entity.StirlingEngineBlockEntity;
-
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.registry.Registries;
@@ -75,7 +74,6 @@ public final class PowerBlockEntities {
 
         // Creative Sink - accepts energy from all sides
         EnergyStorage.SIDED.registerForBlockEntity(
-                (sink, direction) -> new TREnergyStorageAdapter(sink),
-                CREATIVE_SINK_BLOCK_ENTITY);
+                (sink, direction) -> new TREnergyStorageAdapter(sink), CREATIVE_SINK_BLOCK_ENTITY);
     }
 }

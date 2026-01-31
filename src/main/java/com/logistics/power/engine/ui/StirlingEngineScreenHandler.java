@@ -2,7 +2,6 @@ package com.logistics.power.engine.ui;
 
 import com.logistics.power.engine.block.entity.StirlingEngineBlockEntity;
 import com.logistics.power.registry.PowerScreenHandlers;
-
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventory;
@@ -34,15 +33,24 @@ public class StirlingEngineScreenHandler extends ScreenHandler {
     // Client constructor (called from ExtendedScreenHandlerType packet)
     @SuppressWarnings("unused")
     public StirlingEngineScreenHandler(int syncId, PlayerInventory playerInventory, BlockPos unusedPos) {
-        this(syncId, playerInventory, new SimpleInventory(1), new ArrayPropertyDelegate(StirlingEngineBlockEntity.PROPERTY_COUNT));
+        this(
+                syncId,
+                playerInventory,
+                new SimpleInventory(1),
+                new ArrayPropertyDelegate(StirlingEngineBlockEntity.PROPERTY_COUNT));
     }
 
     // Server constructor
-    public StirlingEngineScreenHandler(int syncId, PlayerInventory playerInventory, StirlingEngineBlockEntity entity, PropertyDelegate propertyDelegate) {
+    public StirlingEngineScreenHandler(
+            int syncId,
+            PlayerInventory playerInventory,
+            StirlingEngineBlockEntity entity,
+            PropertyDelegate propertyDelegate) {
         this(syncId, playerInventory, (Inventory) entity, propertyDelegate);
     }
 
-    private StirlingEngineScreenHandler(int syncId, PlayerInventory playerInventory, Inventory inventory, PropertyDelegate propertyDelegate) {
+    private StirlingEngineScreenHandler(
+            int syncId, PlayerInventory playerInventory, Inventory inventory, PropertyDelegate propertyDelegate) {
         super(PowerScreenHandlers.STIRLING_ENGINE, syncId);
         this.inventory = inventory;
         this.propertyDelegate = propertyDelegate;

@@ -2,7 +2,6 @@ package com.logistics.power.engine.block.entity;
 
 import com.logistics.power.engine.block.RedstoneEngineBlock;
 import com.logistics.power.registry.PowerBlockEntities;
-
 import net.minecraft.block.BlockState;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -95,5 +94,4 @@ public class RedstoneEngineBlockEntity extends AbstractEngineBlockEntity {
             addEnergy(ENERGY_PER_INTERVAL);
         }
     }
-
 }

@@ -4,7 +4,6 @@ import com.logistics.power.engine.PIDController;
 import com.logistics.power.engine.block.StirlingEngineBlock;
 import com.logistics.power.engine.ui.StirlingEngineScreenHandler;
 import com.logistics.power.registry.PowerBlockEntities;
-
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -145,7 +144,8 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
 
     @Override
     protected long getOutputPower() {
-        double tempRatio = Math.min(1.0, (temperature - getTemperatureFloor()) / (TARGET_TEMPERATURE - getTemperatureFloor()));
+        double tempRatio =
+                Math.min(1.0, (temperature - getTemperatureFloor()) / (TARGET_TEMPERATURE - getTemperatureFloor()));
         double output = MIN_GENERATION + tempRatio * (MAX_GENERATION - MIN_GENERATION);
         return Math.round(output);
     }

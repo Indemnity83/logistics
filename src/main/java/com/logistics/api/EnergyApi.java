@@ -18,8 +18,6 @@ public final class EnergyApi {
      * <p>For example, if you want to insert energy into the top of a block,
      * use {@code SIDED.find(world, pos, Direction.UP)}.
      */
-    public static final BlockApiLookup<EnergyStorage, Direction> SIDED = BlockApiLookup.get(
-            Identifier.of("logistics", "energy_storage"),
-            EnergyStorage.class,
-            Direction.class);
+    public static final BlockApiLookup<EnergyStorage, Direction> SIDED =
+            BlockApiLookup.get(Identifier.of("logistics", "energy_storage"), EnergyStorage.class, Direction.class);
 }

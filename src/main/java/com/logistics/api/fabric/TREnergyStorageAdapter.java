@@ -1,7 +1,6 @@
 package com.logistics.api.fabric;
 
 import com.logistics.api.EnergyStorage;
-
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.fabricmc.fabric.api.transfer.v1.transaction.base.SnapshotParticipant;
 
@@ -14,8 +13,7 @@ import net.fabricmc.fabric.api.transfer.v1.transaction.base.SnapshotParticipant;
  * nested transactions, ensuring that multiple operations within the same transaction
  * observe each other's effects during simulation.
  */
-public class TREnergyStorageAdapter extends SnapshotParticipant<Long>
-        implements team.reborn.energy.api.EnergyStorage {
+public class TREnergyStorageAdapter extends SnapshotParticipant<Long> implements team.reborn.energy.api.EnergyStorage {
     private final EnergyStorage delegate;
 
     /** Pending energy delta: positive = inserted, negative = extracted. */

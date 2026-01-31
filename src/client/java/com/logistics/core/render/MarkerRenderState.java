@@ -2,7 +2,6 @@ package com.logistics.core.render;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import net.minecraft.client.render.block.entity.state.BlockEntityRenderState;
 import net.minecraft.util.math.BlockPos;
 

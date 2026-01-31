@@ -1,7 +1,6 @@
 package com.logistics.power.screen;
 
 import com.logistics.power.engine.ui.StirlingEngineScreenHandler;
-
 import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
@@ -20,8 +19,7 @@ import net.minecraft.util.Identifier;
  */
 public class StirlingEngineScreen extends HandledScreen<StirlingEngineScreenHandler> {
     // Uses vanilla furnace texture as placeholder until custom texture is created
-    private static final Identifier BACKGROUND_TEXTURE =
-            Identifier.ofVanilla("textures/gui/container/furnace.png");
+    private static final Identifier BACKGROUND_TEXTURE = Identifier.ofVanilla("textures/gui/container/furnace.png");
 
     // Max heat value (BuildCraft-aligned)
     private static final int MAX_HEAT = 250;
@@ -102,7 +100,8 @@ public class StirlingEngineScreen extends HandledScreen<StirlingEngineScreenHand
     @Override
     protected void drawForeground(DrawContext context, int mouseX, int mouseY) {
         context.drawText(textRenderer, title, titleX, titleY, 0x404040, false);
-        context.drawText(textRenderer, playerInventoryTitle, playerInventoryTitleX, playerInventoryTitleY, 0x404040, false);
+        context.drawText(
+                textRenderer, playerInventoryTitle, playerInventoryTitleX, playerInventoryTitleY, 0x404040, false);
 
         // Draw energy amount (converted from 100 RF units to kRF display)
         int energy = handler.getEnergy();
@@ -145,7 +144,9 @@ public class StirlingEngineScreen extends HandledScreen<StirlingEngineScreenHand
     private boolean isPointInHeatGauge(int mouseX, int mouseY) {
         int gaugeX = x + HEAT_GAUGE_X;
         int gaugeY = y + HEAT_GAUGE_Y;
-        return mouseX >= gaugeX && mouseX < gaugeX + HEAT_GAUGE_WIDTH
-                && mouseY >= gaugeY && mouseY < gaugeY + HEAT_GAUGE_HEIGHT;
+        return mouseX >= gaugeX
+                && mouseX < gaugeX + HEAT_GAUGE_WIDTH
+                && mouseY >= gaugeY
+                && mouseY < gaugeY + HEAT_GAUGE_HEIGHT;
     }
 }

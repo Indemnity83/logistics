@@ -1,10 +1,11 @@
 package com.logistics.power.engine.block;
 
+import static com.logistics.power.engine.block.entity.AbstractEngineBlockEntity.STAGE;
+
 import com.logistics.core.registry.CoreItems;
 import com.logistics.power.engine.block.entity.AbstractEngineBlockEntity.HeatStage;
 import com.logistics.power.engine.block.entity.StirlingEngineBlockEntity;
 import com.logistics.power.registry.PowerBlockEntities;
-
 import com.mojang.serialization.MapCodec;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockRenderType;
@@ -32,8 +33,6 @@ import net.minecraft.world.World;
 import net.minecraft.world.block.WireOrientation;
 import org.jetbrains.annotations.Nullable;
 
-import static com.logistics.power.engine.block.entity.AbstractEngineBlockEntity.STAGE;
-
 /**
  * Stirling Engine - converts fuel to energy.
  * A more powerful engine that requires fuel (coal, charcoal, etc.) to operate.
@@ -51,11 +50,10 @@ public class StirlingEngineBlock extends BlockWithEntity {
     public static final MapCodec<StirlingEngineBlock> CODEC = createCodec(StirlingEngineBlock::new);
     public static final EnumProperty<Direction> FACING = Properties.FACING;
     public static final BooleanProperty POWERED = Properties.POWERED;
-    public static final BooleanProperty LIT = Properties.LIT;  // True when burning fuel
+    public static final BooleanProperty LIT = Properties.LIT; // True when burning fuel
 
     public StirlingEngineBlock(Settings settings) {
-        super(settings
-                .strength(3.5f)
+        super(settings.strength(3.5f)
                 .sounds(BlockSoundGroup.COPPER)
                 .nonOpaque()
                 .solidBlock((state, world, pos) -> false)
@@ -112,8 +110,13 @@ public class StirlingEngineBlock extends BlockWithEntity {
 
     @Override
     protected ActionResult onUseWithItem(
-            ItemStack stack, BlockState state, World world, BlockPos pos,
-            PlayerEntity player, Hand hand, BlockHitResult hit) {
+            ItemStack stack,
+            BlockState state,
+            World world,
+            BlockPos pos,
+            PlayerEntity player,
+            Hand hand,
+            BlockHitResult hit) {
         // Rotate with wrench
         if (CoreItems.isWrench(stack)) {
             if (!world.isClient()) {

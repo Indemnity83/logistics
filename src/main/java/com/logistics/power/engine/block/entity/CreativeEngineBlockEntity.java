@@ -2,7 +2,6 @@ package com.logistics.power.engine.block.entity;
 
 import com.logistics.power.engine.block.CreativeEngineBlock;
 import com.logistics.power.registry.PowerBlockEntities;
-
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.nbt.NbtCompound;
@@ -31,7 +30,7 @@ public class CreativeEngineBlockEntity extends AbstractEngineBlockEntity {
     // ==================== Constants ====================
 
     /** Output levels that double with each wrench click. */
-    public static final long[] OUTPUT_LEVELS = { 20, 40, 80, 160, 320, 640, 1280 };
+    public static final long[] OUTPUT_LEVELS = {20, 40, 80, 160, 320, 640, 1280};
 
     private static final long MAX_ENERGY = 10_000L;
 

@@ -2,7 +2,6 @@ package com.logistics.core.registry;
 
 import com.logistics.LogisticsMod;
 import com.logistics.core.item.WrenchItem;
-
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.registry.Registries;

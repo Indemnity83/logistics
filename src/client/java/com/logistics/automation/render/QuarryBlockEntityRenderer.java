@@ -5,7 +5,6 @@ import com.logistics.automation.quarry.QuarryBlock;
 import com.logistics.automation.quarry.QuarryConfig;
 import com.logistics.automation.quarry.entity.QuarryBlockEntity;
 import com.logistics.core.render.ModelRegistry;
-
 import net.minecraft.block.BlockState;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.RenderLayer;
