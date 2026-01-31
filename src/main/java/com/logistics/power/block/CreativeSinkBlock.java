@@ -61,7 +61,7 @@ public class CreativeSinkBlock extends BlockWithEntity implements Probeable, Wre
         return validateTicker(type, PowerBlockEntities.CREATIVE_SINK_BLOCK_ENTITY, CreativeSinkBlockEntity::tick);
     }
 
-    @Override
+    @Nullable @Override
     public ProbeResult onProbe(World world, BlockPos pos, PlayerEntity player) {
         if (world.getBlockEntity(pos) instanceof CreativeSinkBlockEntity sink) {
             return sink.getProbeResult();
