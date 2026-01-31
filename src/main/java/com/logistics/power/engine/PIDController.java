@@ -27,7 +27,7 @@ public class PIDController {
     private static PrintWriter logWriter = null;
     private static long logTick = 0;
     private static boolean logHeaderWritten = false;
-    private static final AtomicInteger nextInstanceId = new AtomicInteger(0);
+    private static final AtomicInteger NEXT_INSTANCE_ID = new AtomicInteger(0);
 
     private final int instanceId;
 
@@ -84,7 +84,7 @@ public class PIDController {
         this.ki = ki;
         this.kd = kd;
         this.deadband = Math.max(0.0, deadband);
-        this.instanceId = nextInstanceId.getAndIncrement();
+        this.instanceId = NEXT_INSTANCE_ID.getAndIncrement();
     }
 
     /**
