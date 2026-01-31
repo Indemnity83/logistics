@@ -1,6 +1,7 @@
 package com.logistics.pipe.data;
 
 import com.logistics.LogisticsMod;
+
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.component.ComponentType;

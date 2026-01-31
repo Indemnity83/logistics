@@ -2,6 +2,7 @@ package com.logistics.automation.quarry.ui;
 
 import com.logistics.automation.quarry.entity.QuarryBlockEntity;
 import com.logistics.automation.registry.AutomationScreenHandlers;
+
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventory;

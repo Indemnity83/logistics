@@ -1,0 +1,6 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "logistics:block/power/creative_sink"
+  }
+}

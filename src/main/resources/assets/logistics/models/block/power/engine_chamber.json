@@ -1,0 +1,19 @@
+{
+  "textures": {
+    "chamber": "logistics:block/power/engine_chamber",
+    "particle": "logistics:block/power/engine_chamber"
+  },
+  "elements": [
+    {
+      "name": "chamber",
+      "from": [3, 0, 3],
+      "to": [13, 8, 13],
+      "faces": {
+        "north": { "uv": [3, 8, 13, 0], "texture": "#chamber" },
+        "south": { "uv": [3, 8, 13, 0], "texture": "#chamber" },
+        "west": { "uv": [3, 8, 13, 0], "texture": "#chamber" },
+        "east": { "uv": [3, 8, 13, 0], "texture": "#chamber" }
+      }
+    }
+  ]
+}

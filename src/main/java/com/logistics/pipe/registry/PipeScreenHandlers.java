@@ -2,6 +2,7 @@ package com.logistics.pipe.registry;
 
 import com.logistics.LogisticsMod;
 import com.logistics.pipe.ui.ItemFilterScreenHandler;
+
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.resource.featuretoggle.FeatureSet;

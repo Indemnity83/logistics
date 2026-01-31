@@ -6,6 +6,7 @@ import com.logistics.core.bootstrap.DomainBootstrap;
 import com.logistics.core.util.TimingLog;
 import com.logistics.pipe.PipeApi;
 import com.logistics.pipe.data.PipeDataComponents;
+
 import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
 
 public final class PipeDomainBootstrap implements DomainBootstrap {

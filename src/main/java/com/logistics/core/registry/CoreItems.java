@@ -1,6 +1,8 @@
 package com.logistics.core.registry;
 
 import com.logistics.LogisticsMod;
+import com.logistics.core.item.WrenchItem;
+
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.registry.Registries;
@@ -16,7 +18,7 @@ public final class CoreItems {
 
     public static final Item WRENCH = registerItem(
             "wrench",
-            new Item(new Item.Settings()
+            new WrenchItem(new Item.Settings()
                     .registryKey(RegistryKey.of(RegistryKeys.ITEM, id("wrench")))
                     .maxCount(1)));
 

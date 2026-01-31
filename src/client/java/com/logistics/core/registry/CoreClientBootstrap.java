@@ -2,6 +2,7 @@ package com.logistics.core.registry;
 
 import com.logistics.core.bootstrap.ClientDomainBootstrap;
 import com.logistics.core.render.MarkerBlockEntityRenderer;
+
 import net.fabricmc.fabric.api.client.rendering.v1.BlockRenderLayerMap;
 import net.minecraft.client.render.BlockRenderLayer;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactories;

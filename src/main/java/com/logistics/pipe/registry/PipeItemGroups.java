@@ -1,10 +1,12 @@
 package com.logistics.pipe.registry;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.logistics.core.registry.CoreItemGroups;
 import com.logistics.pipe.Pipe;
 import com.logistics.pipe.block.PipeBlock;
-import java.util.ArrayList;
-import java.util.List;
+
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.DyeColor;

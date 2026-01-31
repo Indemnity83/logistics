@@ -1,6 +1,7 @@
 package com.logistics.automation.screen;
 
 import com.logistics.automation.quarry.ui.QuarryScreenHandler;
+
 import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;

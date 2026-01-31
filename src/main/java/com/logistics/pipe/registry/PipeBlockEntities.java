@@ -2,6 +2,7 @@ package com.logistics.pipe.registry;
 
 import com.logistics.LogisticsMod;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
+
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.registry.Registries;

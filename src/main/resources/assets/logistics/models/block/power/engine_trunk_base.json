@@ -1,0 +1,21 @@
+{
+  "textures": {
+    "trunk": "logistics:block/power/engine_trunk",
+    "particle": "logistics:block/power/engine_trunk"
+  },
+  "elements": [
+    {
+      "name": "trunk",
+      "from": [4, 0, 4],
+      "to": [12, 12, 12],
+      "faces": {
+        "down": { "uv": [0, 0, 8, 8], "texture": "#trunk" },
+        "up": { "uv": [0, 0, 8, 8], "texture": "#trunk" },
+        "north": { "uv": [8, 0, 16, 12], "texture": "#trunk" },
+        "south": { "uv": [8, 0, 16, 12], "texture": "#trunk" },
+        "west": { "uv": [8, 0, 16, 12], "texture": "#trunk" },
+        "east": { "uv": [8, 0, 16, 12], "texture": "#trunk" }
+      }
+    }
+  ]
+}

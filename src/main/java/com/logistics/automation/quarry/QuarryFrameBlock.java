@@ -1,6 +1,7 @@
 package com.logistics.automation.quarry;
 
 import com.logistics.automation.quarry.entity.QuarryBlockEntity;
+
 import com.mojang.serialization.MapCodec;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;

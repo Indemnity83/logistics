@@ -4,6 +4,7 @@ import com.logistics.LogisticsMod;
 import com.logistics.automation.quarry.entity.QuarryBlockEntity;
 import com.logistics.core.bootstrap.DomainBootstrap;
 import com.logistics.core.util.TimingLog;
+
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
 
 public final class AutomationDomainBootstrap implements DomainBootstrap {

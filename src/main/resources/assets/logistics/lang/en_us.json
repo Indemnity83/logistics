@@ -49,5 +49,10 @@
   "marker.activated.detail.area_defined": "Marker activated - area defined: %sx%s",
   "marker.activation.failed": "Marker activation failed",
   "marker.activation.failed.too_small": "Marker activation failed - area must be at least %sx%s",
-  "marker.activation.failed.invalid_l_shape": "Marker activation failed - need 3 markers in a right triangle"
+  "marker.activation.failed.invalid_l_shape": "Marker activation failed - need 3 markers in a right triangle",
+  "block.logistics.power.redstone_engine": "Redstone Engine",
+  "block.logistics.power.stirling_engine": "Stirling Engine",
+  "block.logistics.power.creative_engine": "Creative Engine",
+  "block.logistics.power.creative_sink": "Creative Sink",
+  "item.logistics.power.engine_probe": "Engine Probe"
 }

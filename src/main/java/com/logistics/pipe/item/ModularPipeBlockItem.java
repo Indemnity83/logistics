@@ -2,6 +2,7 @@ package com.logistics.pipe.item;
 
 import com.logistics.pipe.Pipe;
 import com.logistics.pipe.block.PipeBlock;
+
 import net.minecraft.block.Block;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
