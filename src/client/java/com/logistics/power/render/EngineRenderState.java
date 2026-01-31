@@ -18,6 +18,7 @@ public class EngineRenderState extends BlockEntityRenderState {
     public HeatStage stage = HeatStage.COLD;
     public boolean isRunning = false;
     public float pistonSpeed = 0.0f;
+    public boolean canOverheat = true;
 
     // Engine type for texture selection
     public EngineType engineType = EngineType.REDSTONE;

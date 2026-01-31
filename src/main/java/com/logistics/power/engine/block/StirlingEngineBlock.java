@@ -120,15 +120,22 @@ public class StirlingEngineBlock extends BlockWithEntity implements Probeable, W
 
     @Override
     public ActionResult onWrench(World world, BlockPos pos, PlayerEntity player) {
-        if (player.isSneaking()) {
-            return ActionResult.PASS;
+        // Reset overheat if engine is overheated
+        if (world.getBlockEntity(pos) instanceof StirlingEngineBlockEntity engine && engine.isOverheated()) {
+            if (!world.isClient()) {
+                engine.resetOverheat();
+            }
+            return ActionResult.SUCCESS;
         }
+
+        // Normal wrench: rotate facing
         if (!world.isClient()) {
             BlockState state = world.getBlockState(pos);
             Direction currentFacing = state.get(FACING);
             Direction newFacing = getNextDirection(currentFacing);
             world.setBlockState(pos, state.with(FACING, newFacing), Block.NOTIFY_ALL);
         }
+
         return ActionResult.SUCCESS;
     }
 
@@ -141,7 +148,6 @@ public class StirlingEngineBlock extends BlockWithEntity implements Probeable, W
             PlayerEntity player,
             Hand hand,
             BlockHitResult hit) {
-        // Non-wrench items: open GUI (wrench handled by Wrenchable)
         return openGui(world, pos, player);
     }
 

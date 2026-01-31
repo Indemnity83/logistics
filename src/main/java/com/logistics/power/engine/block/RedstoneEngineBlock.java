@@ -110,15 +110,14 @@ public class RedstoneEngineBlock extends BlockWithEntity implements Probeable, W
 
     @Override
     public ActionResult onWrench(World world, BlockPos pos, PlayerEntity player) {
-        if (player.isSneaking()) {
-            return ActionResult.PASS;
-        }
+        // Normal wrench: rotate facing
         if (!world.isClient()) {
             BlockState state = world.getBlockState(pos);
             Direction currentFacing = state.get(FACING);
             Direction newFacing = getNextDirection(currentFacing);
             world.setBlockState(pos, state.with(FACING, newFacing), Block.NOTIFY_ALL);
         }
+
         return ActionResult.SUCCESS;
     }
 

@@ -129,10 +129,11 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
 
         // Update LIT state based on burn time
         if (!world.isClient()) {
-            boolean wasLit = state.get(StirlingEngineBlock.LIT);
+            BlockState currentState = world.getBlockState(pos);
+            boolean wasLit = currentState.get(StirlingEngineBlock.LIT);
             boolean isLit = entity.burnTime > 0;
             if (isLit != wasLit) {
-                world.setBlockState(pos, state.with(StirlingEngineBlock.LIT, isLit), Block.NOTIFY_LISTENERS);
+                world.setBlockState(pos, currentState.with(StirlingEngineBlock.LIT, isLit), Block.NOTIFY_LISTENERS);
             }
         }
     }

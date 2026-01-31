@@ -111,27 +111,24 @@ public class CreativeEngineBlock extends BlockWithEntity implements Probeable, W
 
     @Override
     public ActionResult onWrench(World world, BlockPos pos, PlayerEntity player) {
-        if (player.isSneaking()) {
-            // Sneak + wrench: cycle output level
-            if (world.getBlockEntity(pos) instanceof CreativeEngineBlockEntity engine) {
-                if (!world.isClient()) {
-                    long newRate = engine.cycleOutputLevel();
-                    player.sendMessage(
-                            Text.translatable("message.logistics.power.creative_engine.output", newRate), true);
-                }
-                return ActionResult.SUCCESS;
-            }
-            return ActionResult.PASS;
-        } else {
-            // Normal wrench: rotate facing
+        // Sneak + wrench: cycle output level
+        if (player.isSneaking() && world.getBlockEntity(pos) instanceof CreativeEngineBlockEntity engine) {
             if (!world.isClient()) {
-                BlockState state = world.getBlockState(pos);
-                Direction currentFacing = state.get(FACING);
-                Direction newFacing = getNextDirection(currentFacing);
-                world.setBlockState(pos, state.with(FACING, newFacing), Block.NOTIFY_ALL);
+                long newRate = engine.cycleOutputLevel();
+                player.sendMessage(Text.translatable("message.logistics.power.creative_engine.output", newRate), true);
             }
             return ActionResult.SUCCESS;
         }
+
+        // Normal wrench: rotate facing
+        if (!world.isClient()) {
+            BlockState state = world.getBlockState(pos);
+            Direction currentFacing = state.get(FACING);
+            Direction newFacing = getNextDirection(currentFacing);
+            world.setBlockState(pos, state.with(FACING, newFacing), Block.NOTIFY_ALL);
+        }
+
+        return ActionResult.SUCCESS;
     }
 
     private static Direction getNextDirection(Direction current) {
