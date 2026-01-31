@@ -96,6 +96,10 @@ public class CreativeSinkBlockEntity extends BlockEntity implements EnergyStorag
         super.readData(view);
         view.read("CreativeSink", NbtCompound.CODEC).ifPresent(data -> {
             drainRateIndex = data.getInt("drainRateIndex").orElse(4);
+            // Clamp to valid range
+            if (drainRateIndex < 0 || drainRateIndex >= DRAIN_RATES.length) {
+                drainRateIndex = 4; // Default to 5 E/t
+            }
         });
     }
 }
