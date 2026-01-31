@@ -97,6 +97,10 @@ public class PIDController {
      * @return the computed output, clamped to [minOutput, maxOutput]
      */
     public double compute(double setpoint, double measured, double minOutput, double maxOutput) {
+        if (minOutput > maxOutput) {
+            throw new IllegalArgumentException("minOutput must be <= maxOutput");
+        }
+
         double error = setpoint - measured;
 
         // Optional deadband around the setpoint to reduce jitter.
