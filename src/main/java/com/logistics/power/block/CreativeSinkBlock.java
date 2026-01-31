@@ -53,6 +53,10 @@ public class CreativeSinkBlock extends BlockWithEntity {
     @Nullable @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
             World world, BlockState state, BlockEntityType<T> type) {
+        // Only tick on server - energy tracking is server-side only
+        if (world.isClient()) {
+            return null;
+        }
         return validateTicker(type, PowerBlockEntities.CREATIVE_SINK_BLOCK_ENTITY, CreativeSinkBlockEntity::tick);
     }
 
