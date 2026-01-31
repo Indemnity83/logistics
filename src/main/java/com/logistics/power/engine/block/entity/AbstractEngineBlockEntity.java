@@ -1,6 +1,7 @@
 package com.logistics.power.engine.block.entity;
 
 import com.logistics.api.EnergyStorage;
+import java.util.Locale;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
@@ -55,7 +56,7 @@ public abstract class AbstractEngineBlockEntity extends BlockEntity implements E
 
         @Override
         public String asString() {
-            return name().toLowerCase();
+            return name().toLowerCase(Locale.ROOT);
         }
 
         public static HeatStage fromOrdinal(int ordinal) {
