@@ -3,6 +3,8 @@ package com.logistics.power.engine;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Locale;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * PID (Proportional-Integral-Derivative) controller for engine power output regulation.
@@ -25,7 +27,7 @@ public class PIDController {
     private static PrintWriter logWriter = null;
     private static long logTick = 0;
     private static boolean logHeaderWritten = false;
-    private static int nextInstanceId = 0;
+    private static final AtomicInteger nextInstanceId = new AtomicInteger(0);
 
     private final int instanceId;
 
@@ -82,7 +84,7 @@ public class PIDController {
         this.ki = ki;
         this.kd = kd;
         this.deadband = Math.max(0.0, deadband);
-        this.instanceId = nextInstanceId++;
+        this.instanceId = nextInstanceId.getAndIncrement();
     }
 
     /**
@@ -238,12 +240,13 @@ public class PIDController {
             }
 
             logWriter.printf(
+                    Locale.ROOT,
                     "%d,%d,%.2f,%.2f,%.2f,%.4f,%.4f,%.4f,%.4f%n",
                     logTick,
                     instanceId,
                     lastSetpoint,
                     lastMeasured,
-                    lastSetpoint - lastMeasured,
+                    lastError,
                     lastProportional,
                     integral,
                     lastDerivative,
