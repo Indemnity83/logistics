@@ -225,6 +225,7 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
         } else {
             fuel.decrement(1);
         }
+        markDirty();
         return true;
     }
 
