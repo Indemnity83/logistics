@@ -15,6 +15,7 @@ public final class PowerItemGroups {
         entries.add(PowerBlocks.STIRLING_ENGINE);
         entries.add(PowerBlocks.CREATIVE_ENGINE);
         entries.add(PowerItems.ENGINE_PROBE);
+        entries.add(PowerBlocks.CREATIVE_SINK);
     }
 
     public static void initialize() {
