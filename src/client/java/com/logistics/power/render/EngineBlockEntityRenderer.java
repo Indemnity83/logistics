@@ -124,6 +124,7 @@ public class EngineBlockEntityRenderer implements BlockEntityRenderer<AbstractEn
 
         state.isRunning = entity.isRunning();
         state.pistonSpeed = entity.getPistonSpeed();
+        state.canOverheat = entity.canOverheat();
 
         // Update animation using persistent cache
         AnimationCache cache = ANIMATION_CACHE.computeIfAbsent(state.pos, k -> new AnimationCache());
@@ -192,16 +193,14 @@ public class EngineBlockEntityRenderer implements BlockEntityRenderer<AbstractEn
 
         RenderLayer renderLayer = RenderLayers.cutout();
 
-        // Get lighting from the output side of the engine for better visibility
-        // Sampling from inside the block often results in darkness
         int light = WorldRenderer.getLightmapCoordinates(
                 net.minecraft.client.MinecraftClient.getInstance().world, state.pos);
 
         // Calculate piston offset (0 to ~0.5 blocks)
         float pistonOffset = state.getPistonOffset();
 
-        // Get tint color for trunk (with visual oscillation for RED stage)
-        float[] trunkColor = getStageColor(state.stage, state.getRenderProgress());
+        // Get tint color for trunk based on heat stage (with oscillation for non-overheating engines)
+        float[] trunkColor = getStageColor(state);
 
         matrices.push();
 
@@ -309,19 +308,18 @@ public class EngineBlockEntityRenderer implements BlockEntityRenderer<AbstractEn
     }
 
     /**
-     * Gets the RGB tint color for the trunk based on engine stage and piston position.
+     * Gets the RGB tint color for the trunk based on engine stage.
      *
-     * BuildCraft-style visual oscillation: When in RED stage, the engine visually
-     * alternates between YELLOW (during piston expansion, progress < 0.5) and RED
-     * (during piston compression, progress >= 0.5). This creates the iconic "breathing"
-     * effect without actual stage transitions.
+     * <p>For engines that can't overheat, oscillates between RED (expansion, generating)
+     * and YELLOW (compression, outputting) when in HOT stage - the iconic "breathing" effect.
      */
-    private float[] getStageColor(HeatStage stage, float progress) {
-        // BuildCraft visual oscillation: show YELLOW during expansion when in RED stage
-        if (stage == HeatStage.HOT && progress < 0.5f) {
-            return COLOR_YELLOW;
+    private float[] getStageColor(EngineRenderState state) {
+        // Non-overheating engines oscillate: RED during expansion, YELLOW during compression
+        if (!state.canOverheat && state.stage == HeatStage.HOT) {
+            return state.getRenderProgress() < 0.5f ? COLOR_RED : COLOR_YELLOW;
         }
-        return switch (stage) {
+
+        return switch (state.stage) {
             case COLD -> COLOR_BLUE;
             case COOL -> COLOR_GREEN;
             case WARM -> COLOR_YELLOW;

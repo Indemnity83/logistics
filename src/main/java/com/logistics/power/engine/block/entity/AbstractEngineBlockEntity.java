@@ -132,6 +132,11 @@ public abstract class AbstractEngineBlockEntity extends BlockEntity implements E
         return false;
     }
 
+    /** Whether this engine overheats, or just continues running after reaching max temperature. */
+    public boolean canOverheat() {
+        return true;
+    }
+
     // ==================== Lifecycle Hooks ====================
     // Override these to customize engine behavior.
 
@@ -226,9 +231,20 @@ public abstract class AbstractEngineBlockEntity extends BlockEntity implements E
     /** Syncs engine stage to block state if changed. */
     private void syncStage() {
         HeatStage newStage = computeStage();
+
         if (newStage != heatStage) {
             heatStage = newStage;
             syncStageToBlock();
+        }
+
+        if (canOverheat()
+                && newStage == HeatStage.HOT
+                && world instanceof ServerWorld serverWorld
+                && world.random.nextInt(4) == 0) {
+            double x = pos.getX() + 0.5 + (world.random.nextDouble() - 0.5) * 0.5;
+            double y = pos.getY() + 1.0;
+            double z = pos.getZ() + 0.5 + (world.random.nextDouble() - 0.5) * 0.5;
+            serverWorld.spawnParticles(ParticleTypes.SMOKE, x, y, z, 1, 0, 0.05, 0, 0.01);
         }
     }
 
@@ -252,21 +268,20 @@ public abstract class AbstractEngineBlockEntity extends BlockEntity implements E
         if (level < 0.25) return HeatStage.COLD;
         if (level < 0.50) return HeatStage.COOL;
         if (level < 0.75) return HeatStage.WARM;
-        if (level < 1.0) return HeatStage.HOT;
+        if (level < 1.0 || !canOverheat()) return HeatStage.HOT;
 
         return HeatStage.OVERHEAT;
     }
 
-    /** Compute the piston speed based on current heat level. */
+    /** Compute the piston speed based on current heat stage. */
     public float getPistonSpeed() {
-        double level = getHeatLevel();
-
-        if (level < 0.25) return 0.01f;
-        if (level < 0.50) return 0.02f;
-        if (level < 0.75) return 0.04f;
-        if (level < 1.0) return 0.08f;
-
-        return 0.0f;
+        return switch (heatStage) {
+            case COLD -> 0.01f;
+            case COOL -> 0.02f;
+            case WARM -> 0.04f;
+            case HOT -> 0.08f;
+            case OVERHEAT -> 0.0f;
+        };
     }
 
     // ==================== Cycle System ====================

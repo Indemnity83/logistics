@@ -14,16 +14,6 @@ import net.minecraft.world.World;
 /**
  * Block entity for the Creative Engine.
  * A special engine for Creative Mode that generates configurable amounts of energy.
- *
- * <p>Characteristics:
- * <ul>
- *   <li>Default output: 20 RF/t</li>
- *   <li>Sneak + wrench right-click doubles output rate</li>
- *   <li>Maximum output: 1280 RF/t (20 → 40 → 80 → 160 → 320 → 640 → 1280)</li>
- *   <li>Cannot overheat (creative mode friendly)</li>
- *   <li>Requires redstone signal to function</li>
- *   <li>Infinite energy - buffer always stays full when running</li>
- * </ul>
  */
 public class CreativeEngineBlockEntity extends AbstractEngineBlockEntity {
 
@@ -58,6 +48,11 @@ public class CreativeEngineBlockEntity extends AbstractEngineBlockEntity {
     @Override
     protected long getOutputPower() {
         return OUTPUT_LEVELS[outputLevelIndex];
+    }
+
+    @Override
+    public boolean canOverheat() {
+        return false;
     }
 
     @Override
