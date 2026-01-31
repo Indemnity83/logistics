@@ -35,7 +35,7 @@ public class EngineRenderState extends BlockEntityRenderState {
      * Sets the animation progress from the renderer's persistent cache.
      */
     public void setAnimationProgress(float progress) {
-        this.animationProgress = progress;
+        this.animationProgress = Math.max(0f, Math.min(1f, progress));
     }
 
     /**
