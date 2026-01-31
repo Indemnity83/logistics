@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": ["PPP", " G ", "WpW"],
+  "key": {
+    "P": "#minecraft:planks",
+    "G": "minecraft:glass",
+    "W": "logistics:core/wooden_gear",
+    "p": "minecraft:piston"
+  },
+  "result": {
+    "id": "logistics:power/redstone_engine",
+    "count": 1
+  }
+}
