@@ -9,6 +9,7 @@ import com.logistics.power.engine.block.entity.AbstractEngineBlockEntity.HeatSta
 import com.logistics.power.engine.block.entity.CreativeEngineBlockEntity;
 import com.logistics.power.engine.block.entity.RedstoneEngineBlockEntity;
 import com.logistics.power.engine.block.entity.StirlingEngineBlockEntity;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.RenderLayers;
@@ -70,7 +71,7 @@ public class EngineBlockEntityRenderer implements BlockEntityRenderer<AbstractEn
 
     private static final class AnimationCache {
         float progress = 0f;
-        long lastUpdateTime = 0;
+        long lastGameTick = -1;
     }
 
     /**
@@ -133,14 +134,19 @@ public class EngineBlockEntityRenderer implements BlockEntityRenderer<AbstractEn
     private static final float DEFAULT_PISTON_SPEED = 0.02f;
 
     private void updateAnimationCache(AnimationCache cache, float pistonSpeed, boolean isRunning) {
-        long currentTime = System.currentTimeMillis();
-
-        if (cache.lastUpdateTime == 0) {
-            cache.lastUpdateTime = currentTime;
+        MinecraftClient client = MinecraftClient.getInstance();
+        if (client.world == null) {
             return;
         }
 
-        float elapsedTicks = (currentTime - cache.lastUpdateTime) / 50f;
+        long currentTick = client.world.getTime();
+
+        if (cache.lastGameTick < 0) {
+            cache.lastGameTick = currentTick;
+            return;
+        }
+
+        long elapsedTicks = currentTick - cache.lastGameTick;
 
         if (isRunning) {
             cache.progress += pistonSpeed * elapsedTicks;
@@ -159,7 +165,7 @@ public class EngineBlockEntityRenderer implements BlockEntityRenderer<AbstractEn
             }
         }
 
-        cache.lastUpdateTime = currentTime;
+        cache.lastGameTick = currentTick;
     }
 
     @Override
