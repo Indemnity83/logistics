@@ -2,7 +2,9 @@ package com.logistics.power.engine.block;
 
 import static com.logistics.power.engine.block.entity.AbstractEngineBlockEntity.STAGE;
 
+import com.logistics.core.lib.block.Probeable;
 import com.logistics.core.lib.block.Wrenchable;
+import com.logistics.core.lib.support.ProbeResult;
 import com.logistics.power.engine.block.entity.AbstractEngineBlockEntity.HeatStage;
 import com.logistics.power.engine.block.entity.StirlingEngineBlockEntity;
 import com.logistics.power.registry.PowerBlockEntities;
@@ -46,7 +48,7 @@ import org.jetbrains.annotations.Nullable;
  *   <li>Thermal shutdown at 250°C if output is blocked (no explosion)</li>
  * </ul>
  */
-public class StirlingEngineBlock extends BlockWithEntity implements Wrenchable {
+public class StirlingEngineBlock extends BlockWithEntity implements Probeable, Wrenchable {
     public static final MapCodec<StirlingEngineBlock> CODEC = createCodec(StirlingEngineBlock::new);
     public static final EnumProperty<Direction> FACING = Properties.FACING;
     public static final BooleanProperty POWERED = Properties.POWERED;
@@ -106,6 +108,14 @@ public class StirlingEngineBlock extends BlockWithEntity implements Wrenchable {
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
             World world, BlockState state, BlockEntityType<T> type) {
         return validateTicker(type, PowerBlockEntities.STIRLING_ENGINE_BLOCK_ENTITY, StirlingEngineBlockEntity::tick);
+    }
+
+    @Override
+    public ProbeResult onProbe(World world, BlockPos pos, PlayerEntity player) {
+        if (world.getBlockEntity(pos) instanceof StirlingEngineBlockEntity engine) {
+            return engine.getProbeResult();
+        }
+        return null;
     }
 
     @Override

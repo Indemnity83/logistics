@@ -1,10 +1,13 @@
 package com.logistics.pipe.block;
 
+import com.logistics.core.lib.block.Probeable;
 import com.logistics.core.lib.block.Wrenchable;
+import com.logistics.core.lib.support.ProbeResult;
 import com.logistics.pipe.Pipe;
 import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.pipe.registry.PipeBlockEntities;
+import com.logistics.pipe.runtime.TravelingItem;
 import com.mojang.serialization.MapCodec;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
 import net.minecraft.block.Block;
@@ -29,6 +32,7 @@ import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.ActionResult;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
@@ -43,7 +47,7 @@ import net.minecraft.world.block.WireOrientation;
 import net.minecraft.world.tick.ScheduledTickView;
 import org.jetbrains.annotations.Nullable;
 
-public class PipeBlock extends BlockWithEntity implements Waterloggable, Wrenchable {
+public class PipeBlock extends BlockWithEntity implements Probeable, Waterloggable, Wrenchable {
     public static final MapCodec<PipeBlock> CODEC = createCodec(PipeBlock::new);
 
     public static final BooleanProperty POWERED = Properties.POWERED;
@@ -283,6 +287,33 @@ public class PipeBlock extends BlockWithEntity implements Waterloggable, Wrencha
             PipeContext context = new PipeContext(world, pos, state, blockEntity);
             pipe.randomTick(context, random);
         }
+    }
+
+    @Override
+    public ProbeResult onProbe(World world, BlockPos pos, PlayerEntity player) {
+        if (!(world.getBlockEntity(pos) instanceof PipeBlockEntity pipeEntity)) {
+            return null;
+        }
+
+        var items = pipeEntity.getTravelingItems();
+        ProbeResult.Builder builder = ProbeResult.builder("Pipe Contents");
+
+        if (items.isEmpty()) {
+            builder.entry("Items", "Empty", Formatting.GRAY);
+        } else {
+            builder.entry("Items", String.valueOf(items.size()), Formatting.WHITE);
+            builder.separator();
+            for (TravelingItem item : items) {
+                String name = item.getStack().getName().getString();
+                int count = item.getStack().getCount();
+                String info = String.format(
+                        "%dx %s -> %s (%.0f%%)",
+                        count, name, item.getDirection().name(), item.getProgress() * 100);
+                builder.entry("", info, Formatting.AQUA);
+            }
+        }
+
+        return builder.build();
     }
 
     @Override

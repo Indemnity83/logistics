@@ -1,12 +1,14 @@
 package com.logistics.power.block.entity;
 
 import com.logistics.api.EnergyStorage;
+import com.logistics.core.lib.support.ProbeResult;
 import com.logistics.power.registry.PowerBlockEntities;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.storage.ReadView;
 import net.minecraft.storage.WriteView;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
@@ -52,6 +54,16 @@ public class CreativeSinkBlockEntity extends BlockEntity implements EnergyStorag
         drainRateIndex = (drainRateIndex + 1) % DRAIN_RATES.length;
         markDirty();
         return DRAIN_RATES[drainRateIndex];
+    }
+
+    /**
+     * Returns probe diagnostic information.
+     */
+    public ProbeResult getProbeResult() {
+        return ProbeResult.builder("Creative Sink Stats")
+                .entry("Drain Rate", String.format("%d E/t", getDrainRate()), Formatting.AQUA)
+                .entry("Energy Received", String.format("%d / %d E", energyThisTick, getDrainRate()), Formatting.GREEN)
+                .build();
     }
 
     // ==================== EnergyStorage Implementation ====================

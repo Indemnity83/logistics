@@ -2,7 +2,9 @@ package com.logistics.power.engine.block;
 
 import static com.logistics.power.engine.block.entity.AbstractEngineBlockEntity.STAGE;
 
+import com.logistics.core.lib.block.Probeable;
 import com.logistics.core.lib.block.Wrenchable;
+import com.logistics.core.lib.support.ProbeResult;
 import com.logistics.power.engine.block.entity.AbstractEngineBlockEntity.HeatStage;
 import com.logistics.power.engine.block.entity.RedstoneEngineBlockEntity;
 import com.logistics.power.registry.PowerBlockEntities;
@@ -41,7 +43,7 @@ import org.jetbrains.annotations.Nullable;
  *   <li>Has a small internal buffer (10 MJ) and stalls when full</li>
  * </ul>
  */
-public class RedstoneEngineBlock extends BlockWithEntity implements Wrenchable {
+public class RedstoneEngineBlock extends BlockWithEntity implements Probeable, Wrenchable {
     public static final MapCodec<RedstoneEngineBlock> CODEC = createCodec(RedstoneEngineBlock::new);
     public static final EnumProperty<Direction> FACING = Properties.FACING;
     public static final BooleanProperty POWERED = Properties.POWERED;
@@ -96,6 +98,14 @@ public class RedstoneEngineBlock extends BlockWithEntity implements Wrenchable {
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
             World world, BlockState state, BlockEntityType<T> type) {
         return validateTicker(type, PowerBlockEntities.REDSTONE_ENGINE_BLOCK_ENTITY, RedstoneEngineBlockEntity::tick);
+    }
+
+    @Override
+    public ProbeResult onProbe(World world, BlockPos pos, PlayerEntity player) {
+        if (world.getBlockEntity(pos) instanceof RedstoneEngineBlockEntity engine) {
+            return engine.getProbeResult();
+        }
+        return null;
     }
 
     @Override

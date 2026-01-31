@@ -1,6 +1,7 @@
 package com.logistics.core.registry;
 
 import com.logistics.LogisticsMod;
+import com.logistics.core.item.ProbeItem;
 import com.logistics.core.item.WrenchItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -19,6 +20,12 @@ public final class CoreItems {
             "wrench",
             new WrenchItem(new Item.Settings()
                     .registryKey(RegistryKey.of(RegistryKeys.ITEM, id("wrench")))
+                    .maxCount(1)));
+
+    public static final Item PROBE = registerItem(
+            "probe",
+            new ProbeItem(new Item.Settings()
+                    .registryKey(RegistryKey.of(RegistryKeys.ITEM, id("probe")))
                     .maxCount(1)));
 
     // Gears (tiered crafting components)

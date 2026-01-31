@@ -1,6 +1,8 @@
 package com.logistics.power.block;
 
+import com.logistics.core.lib.block.Probeable;
 import com.logistics.core.lib.block.Wrenchable;
+import com.logistics.core.lib.support.ProbeResult;
 import com.logistics.power.block.entity.CreativeSinkBlockEntity;
 import com.logistics.power.registry.PowerBlockEntities;
 import com.mojang.serialization.MapCodec;
@@ -27,7 +29,7 @@ import org.jetbrains.annotations.Nullable;
  *   <li>Sneak + right-click with wrench: Cycle through drain rates</li>
  * </ul>
  */
-public class CreativeSinkBlock extends BlockWithEntity implements Wrenchable {
+public class CreativeSinkBlock extends BlockWithEntity implements Probeable, Wrenchable {
     public static final MapCodec<CreativeSinkBlock> CODEC = createCodec(CreativeSinkBlock::new);
 
     public CreativeSinkBlock(Settings settings) {
@@ -57,6 +59,14 @@ public class CreativeSinkBlock extends BlockWithEntity implements Wrenchable {
             return null;
         }
         return validateTicker(type, PowerBlockEntities.CREATIVE_SINK_BLOCK_ENTITY, CreativeSinkBlockEntity::tick);
+    }
+
+    @Override
+    public ProbeResult onProbe(World world, BlockPos pos, PlayerEntity player) {
+        if (world.getBlockEntity(pos) instanceof CreativeSinkBlockEntity sink) {
+            return sink.getProbeResult();
+        }
+        return null;
     }
 
     @Override

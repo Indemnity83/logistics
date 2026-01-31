@@ -29,6 +29,7 @@ public final class CoreItemGroups {
                     .icon(() -> new ItemStack(CoreBlocks.MARKER))
                     .entries((displayContext, entries) -> {
                         entries.add(CoreItems.WRENCH);
+                        entries.add(CoreItems.PROBE);
                         // Gears
                         entries.add(CoreItems.WOODEN_GEAR);
                         entries.add(CoreItems.STONE_GEAR);

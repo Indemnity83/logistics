@@ -2,7 +2,9 @@ package com.logistics.power.engine.block;
 
 import static com.logistics.power.engine.block.entity.AbstractEngineBlockEntity.STAGE;
 
+import com.logistics.core.lib.block.Probeable;
 import com.logistics.core.lib.block.Wrenchable;
+import com.logistics.core.lib.support.ProbeResult;
 import com.logistics.power.engine.block.entity.AbstractEngineBlockEntity.HeatStage;
 import com.logistics.power.engine.block.entity.CreativeEngineBlockEntity;
 import com.logistics.power.registry.PowerBlockEntities;
@@ -43,7 +45,7 @@ import org.jetbrains.annotations.Nullable;
  *   <li>Cannot overheat - always safe to use</li>
  * </ul>
  */
-public class CreativeEngineBlock extends BlockWithEntity implements Wrenchable {
+public class CreativeEngineBlock extends BlockWithEntity implements Probeable, Wrenchable {
     public static final MapCodec<CreativeEngineBlock> CODEC = createCodec(CreativeEngineBlock::new);
     public static final EnumProperty<Direction> FACING = Properties.FACING;
     public static final BooleanProperty POWERED = Properties.POWERED;
@@ -97,6 +99,14 @@ public class CreativeEngineBlock extends BlockWithEntity implements Wrenchable {
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
             World world, BlockState state, BlockEntityType<T> type) {
         return validateTicker(type, PowerBlockEntities.CREATIVE_ENGINE_BLOCK_ENTITY, CreativeEngineBlockEntity::tick);
+    }
+
+    @Override
+    public ProbeResult onProbe(World world, BlockPos pos, PlayerEntity player) {
+        if (world.getBlockEntity(pos) instanceof CreativeEngineBlockEntity engine) {
+            return engine.getProbeResult();
+        }
+        return null;
     }
 
     @Override
