@@ -370,7 +370,11 @@ public abstract class AbstractEngineBlockEntity extends BlockEntity implements E
 
     /** Gets the heat level as a ratio from 0.0 to 1.0. */
     public double getHeatLevel() {
-        return temperature / getMaxTemperature();
+        double maxTemp = getMaxTemperature();
+        if (maxTemp <= 0) {
+            return 0.0;
+        }
+        return temperature / maxTemp;
     }
 
     /** Gets the energy level as a ratio from 0.0 to 1.0. */
