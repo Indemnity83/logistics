@@ -25,6 +25,15 @@ public class PIDController {
     private static PrintWriter logWriter = null;
     private static long logTick = 0;
     private static boolean logHeaderWritten = false;
+    private static int nextInstanceId = 0;
+
+    private final int instanceId;
+
+    static {
+        if (LOGGING_ENABLED) {
+            Runtime.getRuntime().addShutdownHook(new Thread(PIDController::closeLog));
+        }
+    }
 
     private final double kp; // Proportional gain
     private final double ki; // Integral gain (per-tick accumulation)
@@ -73,6 +82,7 @@ public class PIDController {
         this.ki = ki;
         this.kd = kd;
         this.deadband = Math.max(0.0, deadband);
+        this.instanceId = nextInstanceId++;
     }
 
     /**
@@ -223,13 +233,14 @@ public class PIDController {
             }
 
             if (!logHeaderWritten) {
-                logWriter.println("tick,setpoint,measured,error,kp_term,ki_term,kd_term,output");
+                logWriter.println("tick,instance,setpoint,measured,error,kp_term,ki_term,kd_term,output");
                 logHeaderWritten = true;
             }
 
             logWriter.printf(
-                    "%d,%.2f,%.2f,%.2f,%.4f,%.4f,%.4f,%.4f%n",
+                    "%d,%d,%.2f,%.2f,%.2f,%.4f,%.4f,%.4f,%.4f%n",
                     logTick,
+                    instanceId,
                     lastSetpoint,
                     lastMeasured,
                     lastSetpoint - lastMeasured,
