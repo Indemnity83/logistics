@@ -35,16 +35,16 @@ import org.jetbrains.annotations.Nullable;
 import static com.logistics.power.engine.block.entity.AbstractEngineBlockEntity.STAGE;
 
 /**
- * Stirling Engine - converts fuel to MJ energy.
+ * Stirling Engine - converts fuel to energy.
  * A more powerful engine that requires fuel (coal, charcoal, etc.) to operate.
  *
  * <p>Key behaviors:
  * <ul>
  *   <li>FACING property determines output direction (where energy is pushed)</li>
  *   <li>Requires redstone signal to operate</li>
- *   <li>Burns fuel items to generate 1 MJ/t when running</li>
+ *   <li>Burns fuel items to generate 3-10 RF/t (PID-controlled)</li>
  *   <li>Has a GUI for adding fuel</li>
- *   <li>Explodes at 120 degrees if output is blocked for too long</li>
+ *   <li>Thermal shutdown at 250°C if output is blocked (no explosion)</li>
  * </ul>
  */
 public class StirlingEngineBlock extends BlockWithEntity {
