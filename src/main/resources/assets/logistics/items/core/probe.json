@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "logistics:item/power/engine_probe"
+    "model": "logistics:item/core/probe"
   }
 }

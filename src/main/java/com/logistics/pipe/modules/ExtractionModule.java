@@ -1,7 +1,6 @@
 package com.logistics.pipe.modules;
 
 import com.logistics.LogisticsMod;
-import com.logistics.core.registry.CoreItems;
 import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.runtime.PipeConfig;
 import com.logistics.pipe.runtime.TravelingItem;
@@ -11,8 +10,8 @@ import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemUsageContext;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Identifier;
@@ -66,11 +65,7 @@ public class ExtractionModule implements Module {
     }
 
     @Override
-    public ActionResult onUseWithItem(PipeContext ctx, ItemUsageContext usage) {
-        if (!CoreItems.isWrench(usage.getStack())) {
-            return ActionResult.PASS;
-        }
-
+    public ActionResult onWrench(PipeContext ctx, PlayerEntity player) {
         if (ctx.world().isClient()) {
             return ActionResult.SUCCESS;
         }

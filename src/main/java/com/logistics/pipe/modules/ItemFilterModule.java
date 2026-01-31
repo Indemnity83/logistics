@@ -1,6 +1,5 @@
 package com.logistics.pipe.modules;
 
-import com.logistics.core.registry.CoreItems;
 import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.pipe.runtime.RoutePlan;
@@ -8,7 +7,7 @@ import com.logistics.pipe.runtime.TravelingItem;
 import com.logistics.pipe.ui.ItemFilterScreenHandler;
 import java.util.ArrayList;
 import java.util.List;
-import net.minecraft.item.ItemUsageContext;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtString;
@@ -59,22 +58,18 @@ public class ItemFilterModule implements Module {
     }
 
     @Override
-    public ActionResult onUseWithItem(PipeContext ctx, ItemUsageContext usage) {
-        if (!CoreItems.isWrench(usage.getStack())) {
-            return ActionResult.PASS;
-        }
-
+    public ActionResult onWrench(PipeContext ctx, PlayerEntity player) {
         if (ctx.world().isClient()) {
             return ActionResult.SUCCESS;
         }
 
-        if (!(usage.getPlayer() instanceof ServerPlayerEntity player)) {
+        if (!(player instanceof ServerPlayerEntity serverPlayer)) {
             return ActionResult.PASS;
         }
 
         World world = ctx.world();
         BlockPos pos = ctx.pos();
-        player.openHandledScreen(new net.minecraft.screen.SimpleNamedScreenHandlerFactory(
+        serverPlayer.openHandledScreen(new net.minecraft.screen.SimpleNamedScreenHandlerFactory(
                 (syncId, inventory, playerEntity) -> {
                     PipeBlockEntity pipeEntity =
                             world.getBlockEntity(pos) instanceof PipeBlockEntity entity ? entity : null;

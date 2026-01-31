@@ -1,6 +1,6 @@
 package com.logistics.core.marker;
 
-import com.logistics.core.registry.CoreItems;
+import com.logistics.core.lib.block.Wrenchable;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockRenderType;
@@ -15,7 +15,6 @@ import net.minecraft.sound.BlockSoundGroup;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.util.ActionResult;
-import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.util.shape.VoxelShape;
@@ -30,7 +29,7 @@ import org.jetbrains.annotations.Nullable;
  * Place 3 markers in an L-shape on the ground and activate with a wrench
  * to create a bounding box that a quarry can use.
  */
-public class MarkerBlock extends BlockWithEntity {
+public class MarkerBlock extends BlockWithEntity implements Wrenchable {
     public static final MapCodec<MarkerBlock> CODEC = createCodec(MarkerBlock::new);
     public static final BooleanProperty ACTIVE = BooleanProperty.of("active");
     // Blue particle color for active markers
@@ -85,19 +84,16 @@ public class MarkerBlock extends BlockWithEntity {
     }
 
     @Override
-    protected ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
-        // Only activate with wrench
-        if (!CoreItems.isWrench(player.getMainHandStack()) && !CoreItems.isWrench(player.getOffHandStack())) {
+    public ActionResult onWrench(World world, BlockPos pos, PlayerEntity player) {
+        if (player.isSneaking()) {
             return ActionResult.PASS;
         }
-
         if (!world.isClient()) {
             BlockEntity entity = world.getBlockEntity(pos);
             if (entity instanceof MarkerBlockEntity marker) {
                 marker.toggleActivation(player);
             }
         }
-
         return ActionResult.SUCCESS;
     }
 

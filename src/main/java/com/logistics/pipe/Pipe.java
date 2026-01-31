@@ -13,7 +13,9 @@ import net.minecraft.component.ComponentMap;
 import net.minecraft.component.ComponentsAccess;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.CustomModelDataComponent;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.registry.Registries;
+import net.minecraft.util.ActionResult;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.random.Random;
@@ -287,14 +289,24 @@ public abstract class Pipe {
         return true;
     }
 
-    public net.minecraft.util.ActionResult onUseWithItem(PipeContext ctx, net.minecraft.item.ItemUsageContext usage) {
+    public ActionResult onUseWithItem(PipeContext ctx, net.minecraft.item.ItemUsageContext usage) {
         for (Module module : modules) {
-            net.minecraft.util.ActionResult result = module.onUseWithItem(ctx, usage);
-            if (result != net.minecraft.util.ActionResult.PASS) {
+            ActionResult result = module.onUseWithItem(ctx, usage);
+            if (result != ActionResult.PASS) {
                 return result;
             }
         }
-        return net.minecraft.util.ActionResult.PASS;
+        return ActionResult.PASS;
+    }
+
+    public ActionResult onWrench(PipeContext ctx, PlayerEntity player) {
+        for (Module module : modules) {
+            ActionResult result = module.onWrench(ctx, player);
+            if (result != ActionResult.PASS) {
+                return result;
+            }
+        }
+        return ActionResult.PASS;
     }
 
     public void onConnectionsChanged(PipeContext ctx, List<Direction> connected) {

@@ -1,5 +1,6 @@
 package com.logistics.power.engine.block.entity;
 
+import com.logistics.core.lib.support.ProbeResult;
 import com.logistics.power.engine.PIDController;
 import com.logistics.power.engine.block.StirlingEngineBlock;
 import com.logistics.power.engine.ui.StirlingEngineScreenHandler;
@@ -20,6 +21,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.storage.ReadView;
 import net.minecraft.storage.WriteView;
 import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -267,6 +269,24 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
 
     public PropertyDelegate getPropertyDelegate() {
         return propertyDelegate;
+    }
+
+    @Override
+    protected void addProbeEntries(ProbeResult.Builder builder) {
+        super.addProbeEntries(builder);
+
+        // Generation rate (PID controlled)
+        builder.entry("Generation", String.format("%.2f RF/t", currentGeneration), Formatting.GREEN);
+
+        // Fuel burn time
+        if (fuelTime > 0) {
+            builder.entry(
+                    "Fuel",
+                    String.format("%d / %d ticks (%.1f%%)", burnTime, fuelTime, (burnTime / (float) fuelTime) * 100),
+                    Formatting.YELLOW);
+        } else {
+            builder.entry("Fuel", "None", Formatting.GRAY);
+        }
     }
 
     // ==================== SingleStackInventory Implementation ====================

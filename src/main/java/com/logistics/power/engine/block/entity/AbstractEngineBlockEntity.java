@@ -1,6 +1,7 @@
 package com.logistics.power.engine.block.entity;
 
 import com.logistics.api.EnergyStorage;
+import com.logistics.core.lib.support.ProbeResult;
 import java.util.Locale;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -16,6 +17,7 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.property.EnumProperty;
 import net.minecraft.storage.ReadView;
 import net.minecraft.storage.WriteView;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.StringIdentifiable;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -394,6 +396,67 @@ public abstract class AbstractEngineBlockEntity extends BlockEntity implements E
 
     public long getCurrentOutputPower() {
         return getOutputPower();
+    }
+
+    // ==================== Probe Support ====================
+
+    /**
+     * Creates probe result with engine diagnostic information.
+     * Override in subclasses to add engine-specific entries.
+     *
+     * @return the probe result
+     */
+    public ProbeResult getProbeResult() {
+        ProbeResult.Builder builder = ProbeResult.builder("Engine Stats");
+        addProbeEntries(builder);
+        return builder.build();
+    }
+
+    /**
+     * Adds probe entries to the builder.
+     * Subclasses should call super and then add their own entries.
+     */
+    protected void addProbeEntries(ProbeResult.Builder builder) {
+        // Stage with color coding
+        HeatStage stage = getHeatStage();
+        builder.entry("Stage", stage.name(), getStageColor(stage));
+
+        // Temperature info
+        double temp = getTemperature();
+        double maxTemp = getMaxTemperature();
+        double heatLevel = getHeatLevel();
+        Formatting tempColor =
+                heatLevel >= 1.0 ? Formatting.RED : heatLevel >= 0.75 ? Formatting.YELLOW : Formatting.GREEN;
+        builder.entry("Temperature", String.format("%.0f\u00B0C (%.0f Max)", temp, maxTemp), tempColor);
+
+        // Energy info (buffer)
+        long storedEnergy = getEnergy();
+        double energyLevel = getEnergyLevel();
+        builder.entry(
+                "Energy",
+                String.format("%,d / %,d RF (%.1f%%)", storedEnergy, getCapacity(), energyLevel * 100),
+                Formatting.AQUA);
+
+        // Output power
+        builder.entry("Output Power", String.format("%d RF/t", getCurrentOutputPower()), Formatting.LIGHT_PURPLE);
+
+        // Running state
+        builder.entry("Running", isRunning() ? "Yes" : "No", isRunning() ? Formatting.GREEN : Formatting.GRAY);
+
+        // Overheat warning
+        if (isOverheated()) {
+            builder.warning("OVERHEATED!");
+        }
+    }
+
+    private static Formatting getStageColor(HeatStage stage) {
+        return switch (stage) {
+            case COLD -> Formatting.BLUE;
+            case COOL -> Formatting.GREEN;
+            case WARM -> Formatting.YELLOW;
+            case HOT -> Formatting.RED;
+            case OVERHEAT -> Formatting.DARK_RED;
+        };
     }
 
     // ==================== EnergyStorage Implementation ====================
