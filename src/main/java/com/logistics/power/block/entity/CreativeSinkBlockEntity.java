@@ -43,6 +43,17 @@ public class CreativeSinkBlockEntity extends BlockEntity implements EnergyStorag
         markDirty();
     }
 
+    /**
+     * Cycles to the next drain rate, looping back to the start.
+     *
+     * @return the new drain rate
+     */
+    public long cycleDrainRate() {
+        drainRateIndex = (drainRateIndex + 1) % DRAIN_RATES.length;
+        markDirty();
+        return DRAIN_RATES[drainRateIndex];
+    }
+
     // ==================== EnergyStorage Implementation ====================
 
     @Override

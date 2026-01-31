@@ -1,12 +1,11 @@
 package com.logistics.pipe.modules;
 
 import com.logistics.LogisticsMod;
-import com.logistics.core.registry.CoreItems;
 import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.runtime.RoutePlan;
 import java.util.List;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemUsageContext;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Identifier;
@@ -43,11 +42,7 @@ public class MergerModule implements Module {
     }
 
     @Override
-    public ActionResult onUseWithItem(PipeContext ctx, ItemUsageContext usage) {
-        if (!CoreItems.isWrench(usage.getStack())) {
-            return ActionResult.PASS;
-        }
-
+    public ActionResult onWrench(PipeContext ctx, PlayerEntity player) {
         if (ctx.world().isClient()) {
             return ActionResult.SUCCESS;
         }

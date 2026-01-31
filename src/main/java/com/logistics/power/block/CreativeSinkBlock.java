@@ -1,5 +1,6 @@
 package com.logistics.power.block;
 
+import com.logistics.core.lib.block.Wrenchable;
 import com.logistics.power.block.entity.CreativeSinkBlockEntity;
 import com.logistics.power.registry.PowerBlockEntities;
 import com.mojang.serialization.MapCodec;
@@ -13,7 +14,6 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.sound.BlockSoundGroup;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
-import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
@@ -24,11 +24,10 @@ import org.jetbrains.annotations.Nullable;
  *
  * <p>Interactions:
  * <ul>
- *   <li>Right-click: Increase drain rate</li>
- *   <li>Sneak + right-click: Decrease drain rate</li>
+ *   <li>Sneak + right-click with wrench: Cycle through drain rates</li>
  * </ul>
  */
-public class CreativeSinkBlock extends BlockWithEntity {
+public class CreativeSinkBlock extends BlockWithEntity implements Wrenchable {
     public static final MapCodec<CreativeSinkBlock> CODEC = createCodec(CreativeSinkBlock::new);
 
     public CreativeSinkBlock(Settings settings) {
@@ -61,20 +60,18 @@ public class CreativeSinkBlock extends BlockWithEntity {
     }
 
     @Override
-    protected ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
-        if (!world.isClient()) {
-            BlockEntity entity = world.getBlockEntity(pos);
-            if (entity instanceof CreativeSinkBlockEntity sink) {
-                if (player.isSneaking()) {
-                    sink.decreaseDrainRate();
-                } else {
-                    sink.increaseDrainRate();
-                }
-                player.sendMessage(
-                        Text.translatable("message.logistics.power.creative_sink.drain_rate", sink.getDrainRate()),
-                        true);
-            }
+    public ActionResult onWrench(World world, BlockPos pos, PlayerEntity player) {
+        if (!player.isSneaking()) {
+            return ActionResult.PASS;
         }
-        return ActionResult.SUCCESS;
+        if (world.getBlockEntity(pos) instanceof CreativeSinkBlockEntity sink) {
+            if (!world.isClient()) {
+                long newRate = sink.cycleDrainRate();
+                player.sendMessage(
+                        Text.translatable("message.logistics.power.creative_sink.drain_rate", newRate), true);
+            }
+            return ActionResult.SUCCESS;
+        }
+        return ActionResult.PASS;
     }
 }

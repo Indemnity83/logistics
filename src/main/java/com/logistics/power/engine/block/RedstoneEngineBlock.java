@@ -2,7 +2,7 @@ package com.logistics.power.engine.block;
 
 import static com.logistics.power.engine.block.entity.AbstractEngineBlockEntity.STAGE;
 
-import com.logistics.core.registry.CoreItems;
+import com.logistics.core.lib.block.Wrenchable;
 import com.logistics.power.engine.block.entity.AbstractEngineBlockEntity.HeatStage;
 import com.logistics.power.engine.block.entity.RedstoneEngineBlockEntity;
 import com.logistics.power.registry.PowerBlockEntities;
@@ -16,7 +16,6 @@ import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
-import net.minecraft.item.ItemStack;
 import net.minecraft.sound.BlockSoundGroup;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
@@ -25,8 +24,6 @@ import net.minecraft.state.property.Properties;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.BlockMirror;
 import net.minecraft.util.BlockRotation;
-import net.minecraft.util.Hand;
-import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
@@ -44,7 +41,7 @@ import org.jetbrains.annotations.Nullable;
  *   <li>Has a small internal buffer (10 MJ) and stalls when full</li>
  * </ul>
  */
-public class RedstoneEngineBlock extends BlockWithEntity {
+public class RedstoneEngineBlock extends BlockWithEntity implements Wrenchable {
     public static final MapCodec<RedstoneEngineBlock> CODEC = createCodec(RedstoneEngineBlock::new);
     public static final EnumProperty<Direction> FACING = Properties.FACING;
     public static final BooleanProperty POWERED = Properties.POWERED;
@@ -102,20 +99,12 @@ public class RedstoneEngineBlock extends BlockWithEntity {
     }
 
     @Override
-    protected ActionResult onUseWithItem(
-            ItemStack stack,
-            BlockState state,
-            World world,
-            BlockPos pos,
-            PlayerEntity player,
-            Hand hand,
-            BlockHitResult hit) {
-        // Rotate with wrench
-        if (!CoreItems.isWrench(stack)) {
+    public ActionResult onWrench(World world, BlockPos pos, PlayerEntity player) {
+        if (player.isSneaking()) {
             return ActionResult.PASS;
         }
-
         if (!world.isClient()) {
+            BlockState state = world.getBlockState(pos);
             Direction currentFacing = state.get(FACING);
             Direction newFacing = getNextDirection(currentFacing);
             world.setBlockState(pos, state.with(FACING, newFacing), Block.NOTIFY_ALL);

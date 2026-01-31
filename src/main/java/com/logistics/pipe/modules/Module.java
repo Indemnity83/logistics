@@ -8,6 +8,7 @@ import java.util.List;
 import net.minecraft.block.Block;
 import net.minecraft.component.ComponentMap;
 import net.minecraft.component.ComponentsAccess;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUsageContext;
 import net.minecraft.util.ActionResult;
@@ -42,6 +43,19 @@ public interface Module {
     default void onConnectionsChanged(PipeContext ctx, List<Direction> options) {}
 
     default ActionResult onUseWithItem(PipeContext ctx, ItemUsageContext usage) {
+        return ActionResult.PASS;
+    }
+
+    /**
+     * Called when a wrench is used on the pipe.
+     * Implementers can check {@code player.isSneaking()} if different behavior
+     * is needed for sneak vs non-sneak interactions.
+     *
+     * @param ctx the pipe context
+     * @param player the player using the wrench
+     * @return the action result
+     */
+    default ActionResult onWrench(PipeContext ctx, PlayerEntity player) {
         return ActionResult.PASS;
     }
 

@@ -1,5 +1,6 @@
 package com.logistics.pipe.block;
 
+import com.logistics.core.lib.block.Wrenchable;
 import com.logistics.pipe.Pipe;
 import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
@@ -42,7 +43,7 @@ import net.minecraft.world.block.WireOrientation;
 import net.minecraft.world.tick.ScheduledTickView;
 import org.jetbrains.annotations.Nullable;
 
-public class PipeBlock extends BlockWithEntity implements Waterloggable {
+public class PipeBlock extends BlockWithEntity implements Waterloggable, Wrenchable {
     public static final MapCodec<PipeBlock> CODEC = createCodec(PipeBlock::new);
 
     public static final BooleanProperty POWERED = Properties.POWERED;
@@ -282,6 +283,21 @@ public class PipeBlock extends BlockWithEntity implements Waterloggable {
             PipeContext context = new PipeContext(world, pos, state, blockEntity);
             pipe.randomTick(context, random);
         }
+    }
+
+    @Override
+    public ActionResult onWrench(World world, BlockPos pos, PlayerEntity player) {
+        if (pipe == null) {
+            return ActionResult.PASS;
+        }
+
+        BlockEntity blockEntity = world.getBlockEntity(pos);
+        if (!(blockEntity instanceof PipeBlockEntity pipeEntity)) {
+            return ActionResult.PASS;
+        }
+
+        PipeContext ctx = new PipeContext(world, pos, world.getBlockState(pos), pipeEntity);
+        return pipe.onWrench(ctx, player);
     }
 
     public ConnectionType getConnectionType(BlockView world, BlockPos pos, Direction direction) {

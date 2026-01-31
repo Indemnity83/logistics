@@ -2,7 +2,7 @@ package com.logistics.power.engine.block;
 
 import static com.logistics.power.engine.block.entity.AbstractEngineBlockEntity.STAGE;
 
-import com.logistics.core.registry.CoreItems;
+import com.logistics.core.lib.block.Wrenchable;
 import com.logistics.power.engine.block.entity.AbstractEngineBlockEntity.HeatStage;
 import com.logistics.power.engine.block.entity.StirlingEngineBlockEntity;
 import com.logistics.power.registry.PowerBlockEntities;
@@ -46,7 +46,7 @@ import org.jetbrains.annotations.Nullable;
  *   <li>Thermal shutdown at 250°C if output is blocked (no explosion)</li>
  * </ul>
  */
-public class StirlingEngineBlock extends BlockWithEntity {
+public class StirlingEngineBlock extends BlockWithEntity implements Wrenchable {
     public static final MapCodec<StirlingEngineBlock> CODEC = createCodec(StirlingEngineBlock::new);
     public static final EnumProperty<Direction> FACING = Properties.FACING;
     public static final BooleanProperty POWERED = Properties.POWERED;
@@ -109,6 +109,20 @@ public class StirlingEngineBlock extends BlockWithEntity {
     }
 
     @Override
+    public ActionResult onWrench(World world, BlockPos pos, PlayerEntity player) {
+        if (player.isSneaking()) {
+            return ActionResult.PASS;
+        }
+        if (!world.isClient()) {
+            BlockState state = world.getBlockState(pos);
+            Direction currentFacing = state.get(FACING);
+            Direction newFacing = getNextDirection(currentFacing);
+            world.setBlockState(pos, state.with(FACING, newFacing), Block.NOTIFY_ALL);
+        }
+        return ActionResult.SUCCESS;
+    }
+
+    @Override
     protected ActionResult onUseWithItem(
             ItemStack stack,
             BlockState state,
@@ -117,17 +131,7 @@ public class StirlingEngineBlock extends BlockWithEntity {
             PlayerEntity player,
             Hand hand,
             BlockHitResult hit) {
-        // Rotate with wrench
-        if (CoreItems.isWrench(stack)) {
-            if (!world.isClient()) {
-                Direction currentFacing = state.get(FACING);
-                Direction newFacing = getNextDirection(currentFacing);
-                world.setBlockState(pos, state.with(FACING, newFacing), Block.NOTIFY_ALL);
-            }
-            return ActionResult.SUCCESS;
-        }
-
-        // Non-wrench item: open GUI
+        // Non-wrench items: open GUI (wrench handled by Wrenchable)
         return openGui(world, pos, player);
     }
 

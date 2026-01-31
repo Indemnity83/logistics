@@ -2,7 +2,7 @@ package com.logistics.power.engine.block;
 
 import static com.logistics.power.engine.block.entity.AbstractEngineBlockEntity.STAGE;
 
-import com.logistics.core.registry.CoreItems;
+import com.logistics.core.lib.block.Wrenchable;
 import com.logistics.power.engine.block.entity.AbstractEngineBlockEntity.HeatStage;
 import com.logistics.power.engine.block.entity.CreativeEngineBlockEntity;
 import com.logistics.power.registry.PowerBlockEntities;
@@ -16,17 +16,15 @@ import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
-import net.minecraft.item.ItemStack;
 import net.minecraft.sound.BlockSoundGroup;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.EnumProperty;
 import net.minecraft.state.property.Properties;
+import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.BlockMirror;
 import net.minecraft.util.BlockRotation;
-import net.minecraft.util.Hand;
-import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
@@ -45,7 +43,7 @@ import org.jetbrains.annotations.Nullable;
  *   <li>Cannot overheat - always safe to use</li>
  * </ul>
  */
-public class CreativeEngineBlock extends BlockWithEntity {
+public class CreativeEngineBlock extends BlockWithEntity implements Wrenchable {
     public static final MapCodec<CreativeEngineBlock> CODEC = createCodec(CreativeEngineBlock::new);
     public static final EnumProperty<Direction> FACING = Properties.FACING;
     public static final BooleanProperty POWERED = Properties.POWERED;
@@ -102,26 +100,28 @@ public class CreativeEngineBlock extends BlockWithEntity {
     }
 
     @Override
-    protected ActionResult onUseWithItem(
-            ItemStack stack,
-            BlockState state,
-            World world,
-            BlockPos pos,
-            PlayerEntity player,
-            Hand hand,
-            BlockHitResult hit) {
-        if (!CoreItems.isWrench(stack)) {
+    public ActionResult onWrench(World world, BlockPos pos, PlayerEntity player) {
+        if (player.isSneaking()) {
+            // Sneak + wrench: cycle output level
+            if (world.getBlockEntity(pos) instanceof CreativeEngineBlockEntity engine) {
+                if (!world.isClient()) {
+                    long newRate = engine.cycleOutputLevel();
+                    player.sendMessage(
+                            Text.translatable("message.logistics.power.creative_engine.output", newRate), true);
+                }
+                return ActionResult.SUCCESS;
+            }
             return ActionResult.PASS;
+        } else {
+            // Normal wrench: rotate facing
+            if (!world.isClient()) {
+                BlockState state = world.getBlockState(pos);
+                Direction currentFacing = state.get(FACING);
+                Direction newFacing = getNextDirection(currentFacing);
+                world.setBlockState(pos, state.with(FACING, newFacing), Block.NOTIFY_ALL);
+            }
+            return ActionResult.SUCCESS;
         }
-
-        // Sneak + wrench is handled by WrenchItem.useOnBlock
-        // This method only handles non-sneak wrench rotation
-        if (!world.isClient()) {
-            Direction currentFacing = state.get(FACING);
-            Direction newFacing = getNextDirection(currentFacing);
-            world.setBlockState(pos, state.with(FACING, newFacing), Block.NOTIFY_ALL);
-        }
-        return ActionResult.SUCCESS;
     }
 
     private static Direction getNextDirection(Direction current) {
