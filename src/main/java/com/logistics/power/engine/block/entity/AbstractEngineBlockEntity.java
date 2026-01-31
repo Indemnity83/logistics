@@ -280,6 +280,10 @@ public abstract class AbstractEngineBlockEntity extends BlockEntity implements E
             return;
         }
 
+        if (cyclePhase == CyclePhase.IDLE) {
+            return; // Don't advance progress while idle
+        }
+
         progress += getPistonSpeed();
 
         boolean justTransitioned = cyclePhase == CyclePhase.EXPANSION && progress > 0.5f;
