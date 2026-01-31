@@ -1,9 +1,7 @@
-package com.logistics.power;
+package com.logistics.power.registry;
 
 import com.logistics.core.bootstrap.ClientDomainBootstrap;
 import com.logistics.power.engine.block.entity.AbstractEngineBlockEntity;
-import com.logistics.power.registry.PowerBlockEntities;
-import com.logistics.power.registry.PowerScreenHandlers;
 import com.logistics.power.render.EngineBlockEntityRenderer;
 import com.logistics.power.screen.StirlingEngineScreen;
 
