@@ -66,7 +66,9 @@ public class CreativeSinkBlock extends BlockWithEntity {
                 } else {
                     sink.increaseDrainRate();
                 }
-                player.sendMessage(Text.literal("Creative Sink: " + sink.getDrainRate() + " E/t"), true);
+                player.sendMessage(
+                        Text.translatable("message.logistics.power.creative_sink.drain_rate", sink.getDrainRate()),
+                        true);
             }
         }
         return ActionResult.SUCCESS;
