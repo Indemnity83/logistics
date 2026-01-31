@@ -159,7 +159,7 @@ public abstract class AbstractEngineBlockEntity extends BlockEntity implements E
      * <p>Orchestrates the engine update sequence:
      * <ol>
      *   <li>computeTemperature - derive heat from energy level</li>
-     *   <li>isOverheated check - handle overheat state (early exit)</li>
+     *   <li>isOverheated check - handle overheat state (early exit, keeps overheat sticky)</li>
      *   <li>isShutdown check - apply decay when not running, trigger onShutdown on transition</li>
      *   <li>syncStage - update visual stage based on heat</li>
      *   <li>produceEnergy - generate energy from fuel/redstone</li>
@@ -235,7 +235,7 @@ public abstract class AbstractEngineBlockEntity extends BlockEntity implements E
     private void syncStageToBlock() {
         if (world == null) return;
         BlockState newState = getCachedState().with(STAGE, heatStage);
-        world.setBlockState(pos, newState, Block.NOTIFY_LISTENERS);
+        world.setBlockState(pos, newState, Block.NOTIFY_ALL);
     }
 
     // ==================== Heat System ====================
@@ -348,6 +348,24 @@ public abstract class AbstractEngineBlockEntity extends BlockEntity implements E
     /** Checks if the engine is currently in the overheat state. */
     public boolean isOverheated() {
         return heatStage == HeatStage.OVERHEAT;
+    }
+
+    /**
+     * Resets the engine from an overheated state.
+     * Drains all energy and resets the heat stage to COLD.
+     *
+     * @return true if the engine was overheated and was reset, false otherwise
+     */
+    public boolean resetOverheat() {
+        if (!isOverheated()) {
+            return false;
+        }
+        energy = 0;
+        temperature = getTemperatureFloor();
+        heatStage = HeatStage.COLD;
+        syncStageToBlock();
+        markDirty();
+        return true;
     }
 
     /** Checks if the engine is currently running (powered and not overheated). */
