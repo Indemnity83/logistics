@@ -276,7 +276,7 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
         super.addProbeEntries(builder);
 
         // Generation rate (PID controlled)
-        builder.entry("Generation", String.format("%.2f E/t", currentGeneration), Formatting.GREEN);
+        builder.entry("Generation", String.format("%.2f RF/t", currentGeneration), Formatting.GREEN);
 
         // Fuel burn time
         if (fuelTime > 0) {

@@ -434,11 +434,11 @@ public abstract class AbstractEngineBlockEntity extends BlockEntity implements E
         double energyLevel = getEnergyLevel();
         builder.entry(
                 "Energy",
-                String.format("%,d / %,d E (%.1f%%)", storedEnergy, getCapacity(), energyLevel * 100),
+                String.format("%,d / %,d RF (%.1f%%)", storedEnergy, getCapacity(), energyLevel * 100),
                 Formatting.AQUA);
 
         // Output power
-        builder.entry("Output Power", String.format("%d E/t", getCurrentOutputPower()), Formatting.LIGHT_PURPLE);
+        builder.entry("Output Power", String.format("%d RF/t", getCurrentOutputPower()), Formatting.LIGHT_PURPLE);
 
         // Running state
         builder.entry("Running", isRunning() ? "Yes" : "No", isRunning() ? Formatting.GREEN : Formatting.GRAY);

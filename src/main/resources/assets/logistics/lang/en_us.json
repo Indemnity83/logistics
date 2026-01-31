@@ -55,5 +55,6 @@
   "block.logistics.power.creative_engine": "Creative Engine",
   "block.logistics.power.creative_sink": "Creative Sink",
   "item.logistics.core.probe": "Creative Probe",
-  "message.logistics.power.creative_sink.drain_rate": "Creative Sink: %s E/t"
+  "message.logistics.power.creative_sink.drain_rate": "Creative Sink: %s RF/t",
+  "message.logistics.power.creative_engine.output": "Creative Engine: %s RF/t"
 }

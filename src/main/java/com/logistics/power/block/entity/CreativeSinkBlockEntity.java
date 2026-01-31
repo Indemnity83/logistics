@@ -19,7 +19,7 @@ import net.minecraft.world.World;
  */
 public class CreativeSinkBlockEntity extends BlockEntity implements EnergyStorage {
     private static final long[] DRAIN_RATES = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 50, 100};
-    private int drainRateIndex = 4; // Default 5 E/t
+    private int drainRateIndex = 4; // Default 5 RF/t
     private long energyThisTick = 0;
 
     public CreativeSinkBlockEntity(BlockPos pos, BlockState state) {
@@ -61,8 +61,8 @@ public class CreativeSinkBlockEntity extends BlockEntity implements EnergyStorag
      */
     public ProbeResult getProbeResult() {
         return ProbeResult.builder("Creative Sink Stats")
-                .entry("Drain Rate", String.format("%d E/t", getDrainRate()), Formatting.AQUA)
-                .entry("Energy Received", String.format("%d / %d E", energyThisTick, getDrainRate()), Formatting.GREEN)
+                .entry("Drain Rate", String.format("%d RF/t", getDrainRate()), Formatting.AQUA)
+                .entry("Energy Received", String.format("%d / %d RF", energyThisTick, getDrainRate()), Formatting.GREEN)
                 .build();
     }
 
@@ -120,7 +120,7 @@ public class CreativeSinkBlockEntity extends BlockEntity implements EnergyStorag
             drainRateIndex = data.getInt("drainRateIndex").orElse(4);
             // Clamp to valid range
             if (drainRateIndex < 0 || drainRateIndex >= DRAIN_RATES.length) {
-                drainRateIndex = 4; // Default to 5 E/t
+                drainRateIndex = 4; // Default to 5 RF/t
             }
         });
     }
