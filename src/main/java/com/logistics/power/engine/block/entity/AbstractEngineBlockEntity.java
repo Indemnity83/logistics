@@ -375,7 +375,11 @@ public abstract class AbstractEngineBlockEntity extends BlockEntity implements E
 
     /** Gets the energy level as a ratio from 0.0 to 1.0. */
     public double getEnergyLevel() {
-        return energy / (double) getEnergyBufferCapacity();
+        long capacity = getEnergyBufferCapacity();
+        if (capacity <= 0) {
+            return 0.0;
+        }
+        return energy / (double) capacity;
     }
 
     public long getCurrentOutputPower() {
