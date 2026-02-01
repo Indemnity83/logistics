@@ -1,9 +1,9 @@
 package com.logistics.automation.render;
 
 import com.logistics.LogisticsMod;
-import com.logistics.automation.quarry.QuarryBlock;
-import com.logistics.automation.quarry.QuarryConfig;
-import com.logistics.automation.quarry.entity.QuarryBlockEntity;
+import com.logistics.automation.laserquarry.LaserQuarryBlock;
+import com.logistics.automation.laserquarry.LaserQuarryConfig;
+import com.logistics.automation.laserquarry.entity.LaserQuarryBlockEntity;
 import com.logistics.core.render.ModelRegistry;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.render.OverlayTexture;
@@ -23,27 +23,28 @@ import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Renders the quarry arm visualization.
+ * Renders the laser quarry arm visualization.
  * Shows horizontal beams on top of the frame and a vertical drill arm
  * that moves smoothly to the current mining position.
  */
-public class QuarryBlockEntityRenderer implements BlockEntityRenderer<QuarryBlockEntity, QuarryRenderState> {
+public class LaserQuarryBlockEntityRenderer
+        implements BlockEntityRenderer<LaserQuarryBlockEntity, LaserQuarryRenderState> {
     private static final Identifier ARM_MODEL_ID =
-            Identifier.of(LogisticsMod.MOD_ID, "block/automation/quarry_gantry_arm");
+            Identifier.of(LogisticsMod.MOD_ID, "block/automation/laser_quarry_gantry_arm");
     private static final Identifier DRILL_MODEL_ID =
-            Identifier.of(LogisticsMod.MOD_ID, "block/automation/quarry_drill");
+            Identifier.of(LogisticsMod.MOD_ID, "block/automation/laser_quarry_drill");
 
-    public QuarryBlockEntityRenderer(BlockEntityRendererFactory.Context ctx) {}
+    public LaserQuarryBlockEntityRenderer(BlockEntityRendererFactory.Context ctx) {}
 
     @Override
-    public QuarryRenderState createRenderState() {
-        return new QuarryRenderState();
+    public LaserQuarryRenderState createRenderState() {
+        return new LaserQuarryRenderState();
     }
 
     @Override
     public void updateRenderState(
-            QuarryBlockEntity entity,
-            QuarryRenderState state,
+            LaserQuarryBlockEntity entity,
+            LaserQuarryRenderState state,
             float tickDelta,
             Vec3d cameraPos,
             @Nullable net.minecraft.client.render.command.ModelCommandRenderer.CrumblingOverlayCommand crumblingOverlay) {
@@ -53,9 +54,10 @@ public class QuarryBlockEntityRenderer implements BlockEntityRenderer<QuarryBloc
         state.quarryPos = entity.getPos();
         state.phase = entity.getCurrentPhase();
         state.armState = entity.getArmState();
+        state.syncedArmSpeed = entity.getSyncedArmSpeed();
 
         // Only render arm during mining phase when arm is initialized
-        state.shouldRenderArm = (state.phase == QuarryBlockEntity.Phase.MINING) && entity.isArmInitialized();
+        state.shouldRenderArm = (state.phase == LaserQuarryBlockEntity.Phase.MINING) && entity.isArmInitialized();
 
         if (!state.shouldRenderArm) {
             return;
@@ -69,13 +71,13 @@ public class QuarryBlockEntityRenderer implements BlockEntityRenderer<QuarryBloc
 
         // Check if the block is still a quarry (could be removed/replaced)
         BlockState blockState = world.getBlockState(state.quarryPos);
-        if (!(blockState.getBlock() instanceof QuarryBlock)) {
+        if (!(blockState.getBlock() instanceof LaserQuarryBlock)) {
             state.shouldRenderArm = false;
             return;
         }
 
         // Get facing direction
-        state.facing = QuarryBlock.getMiningDirection(blockState);
+        state.facing = LaserQuarryBlock.getMiningDirection(blockState);
 
         // Calculate frame bounds - use custom bounds if available, otherwise calculate from facing
         BlockPos quarryPos = state.quarryPos;
@@ -88,7 +90,7 @@ public class QuarryBlockEntityRenderer implements BlockEntityRenderer<QuarryBloc
             switch (state.facing) {
                 case NORTH:
                     state.frameStartX = quarryPos.getX() - 8;
-                    state.frameStartZ = quarryPos.getZ() - QuarryConfig.CHUNK_SIZE;
+                    state.frameStartZ = quarryPos.getZ() - LaserQuarryConfig.CHUNK_SIZE;
                     break;
                 case SOUTH:
                     state.frameStartX = quarryPos.getX() - 8;
@@ -99,17 +101,17 @@ public class QuarryBlockEntityRenderer implements BlockEntityRenderer<QuarryBloc
                     state.frameStartZ = quarryPos.getZ() - 8;
                     break;
                 case WEST:
-                    state.frameStartX = quarryPos.getX() - QuarryConfig.CHUNK_SIZE;
+                    state.frameStartX = quarryPos.getX() - LaserQuarryConfig.CHUNK_SIZE;
                     state.frameStartZ = quarryPos.getZ() - 8;
                     break;
                 default:
                     state.shouldRenderArm = false;
                     return;
             }
-            state.frameEndX = state.frameStartX + QuarryConfig.CHUNK_SIZE - 1;
-            state.frameEndZ = state.frameStartZ + QuarryConfig.CHUNK_SIZE - 1;
+            state.frameEndX = state.frameStartX + LaserQuarryConfig.CHUNK_SIZE - 1;
+            state.frameEndZ = state.frameStartZ + LaserQuarryConfig.CHUNK_SIZE - 1;
         }
-        state.frameTopY = quarryPos.getY() + QuarryConfig.Y_OFFSET_ABOVE;
+        state.frameTopY = quarryPos.getY() + LaserQuarryConfig.Y_OFFSET_ABOVE;
 
         // Sample light at the frame top level (where the horizontal beams are)
         BlockPos frameTopPos = new BlockPos(
@@ -124,7 +126,7 @@ public class QuarryBlockEntityRenderer implements BlockEntityRenderer<QuarryBloc
 
     @Override
     public void render(
-            QuarryRenderState state,
+            LaserQuarryRenderState state,
             MatrixStack matrices,
             OrderedRenderCommandQueue queue,
             CameraRenderState cameraState) {

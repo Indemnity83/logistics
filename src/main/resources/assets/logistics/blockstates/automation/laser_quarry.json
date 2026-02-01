@@ -1,0 +1,20 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "logistics:block/automation/laser_quarry",
+      "y": 180
+    },
+    "facing=south": {
+      "model": "logistics:block/automation/laser_quarry",
+      "y": 0
+    },
+    "facing=east": {
+      "model": "logistics:block/automation/laser_quarry",
+      "y": 270
+    },
+    "facing=west": {
+      "model": "logistics:block/automation/laser_quarry",
+      "y": 90
+    }
+  }
+}

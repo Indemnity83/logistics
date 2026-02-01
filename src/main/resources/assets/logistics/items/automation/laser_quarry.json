@@ -1,0 +1,6 @@
+{
+  "model": {
+    "model": "logistics:block/automation/laser_quarry",
+    "type": "minecraft:model"
+  }
+}

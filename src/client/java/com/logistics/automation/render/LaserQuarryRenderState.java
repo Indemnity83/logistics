@@ -1,7 +1,7 @@
 package com.logistics.automation.render;
 
-import com.logistics.automation.quarry.QuarryConfig;
-import com.logistics.automation.quarry.entity.QuarryBlockEntity;
+import com.logistics.automation.laserquarry.LaserQuarryConfig;
+import com.logistics.automation.laserquarry.entity.LaserQuarryBlockEntity;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import net.minecraft.client.MinecraftClient;
@@ -11,9 +11,9 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 
 /**
- * Render state for the quarry arm visualization.
+ * Render state for the laser quarry arm visualization.
  */
-public class QuarryRenderState extends BlockEntityRenderState {
+public class LaserQuarryRenderState extends BlockEntityRenderState {
     public boolean shouldRenderArm = false;
     public BlockPos quarryPos = BlockPos.ORIGIN;
     public Direction facing = Direction.NORTH;
@@ -36,14 +36,14 @@ public class QuarryRenderState extends BlockEntityRenderState {
     public float renderArmZ;
 
     // Current phase and arm state
-    public QuarryBlockEntity.Phase phase = QuarryBlockEntity.Phase.CLEARING;
-    public QuarryBlockEntity.ArmState armState = QuarryBlockEntity.ArmState.MOVING;
+    public LaserQuarryBlockEntity.Phase phase = LaserQuarryBlockEntity.Phase.CLEARING;
+    public LaserQuarryBlockEntity.ArmState armState = LaserQuarryBlockEntity.ArmState.MOVING;
 
     // Light level sampled at the frame top (where horizontal beams are)
     public int frameTopLight;
 
-    // Base client-side interpolation speed (blocks per tick, matching server ARM_SPEED)
-    private static final float CLIENT_ARM_SPEED_PER_TICK = QuarryConfig.ARM_SPEED;
+    // Synced arm speed from server (blocks per tick, scales with energy)
+    public float syncedArmSpeed = LaserQuarryConfig.ARM_SPEED;
 
     // Persistent interpolation state stored per quarry position (survives render state recreation)
     private static final Map<BlockPos, InterpolationState> INTERPOLATION_CACHE = new ConcurrentHashMap<>();
@@ -95,8 +95,8 @@ public class QuarryRenderState extends BlockEntityRenderState {
             tickRate = client.world.getTickManager().getTickRate();
         }
 
-        // Speed in blocks per second = speed per tick * ticks per second
-        float speedPerSecond = CLIENT_ARM_SPEED_PER_TICK * tickRate;
+        // Speed in blocks per second = synced speed per tick * ticks per second
+        float speedPerSecond = syncedArmSpeed * tickRate;
         float moveDistance = speedPerSecond * deltaSeconds;
 
         // Smoothly interpolate towards server position
@@ -135,7 +135,7 @@ public class QuarryRenderState extends BlockEntityRenderState {
      * Prune cache entries that no longer have a quarry block entity in the current world.
      */
     public static void pruneInterpolationCache(ClientWorld world) {
-        INTERPOLATION_CACHE.keySet().removeIf(pos -> !(world.getBlockEntity(pos) instanceof QuarryBlockEntity));
+        INTERPOLATION_CACHE.keySet().removeIf(pos -> !(world.getBlockEntity(pos) instanceof LaserQuarryBlockEntity));
     }
 
     /**

@@ -41,7 +41,7 @@
   "item.logistics.core.netherite_gear": "Netherite Gear",
   "itemgroup.logistics.transport": "Logistics: Transport",
   "screen.logistics.item_filter": "Item Filter",
-  "block.logistics.automation.quarry": "Quarry",
+  "block.logistics.automation.laser_quarry": "Laser Quarry",
   "block.logistics.core.marker": "Marker",
   "marker.deactivated": "Marker deactivated",
   "marker.activated": "Marker activated",
