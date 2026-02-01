@@ -180,7 +180,6 @@ public class LaserQuarryBlockEntity extends BlockEntity implements EnergyStorage
         if (!target.equals(entity.currentTarget) || entity.currentBreakTime < 0) {
             entity.currentTarget = target;
             float hardness = targetState.getHardness(world, target);
-            // BC formula: BREAK_ENERGY * miningMultiplier * ((hardness + 1) * 2)
             entity.currentBreakTime = (float) (LaserQuarryConfig.BREAK_ENERGY_MULTIPLIER * (hardness + 1));
             entity.breakProgress = 0;
         }
