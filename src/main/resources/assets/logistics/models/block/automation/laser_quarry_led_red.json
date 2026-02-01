@@ -1,0 +1,16 @@
+{
+  "credit": "LED overlay for laser quarry - emissive",
+  "textures": {
+    "led": "logistics:block/automation/laser_quarry/led_red"
+  },
+  "elements": [
+    {
+      "from": [0, 0, -0.01],
+      "to": [16, 16, -0.01],
+      "shade": false,
+      "faces": {
+        "north": { "uv": [0, 0, 16, 16], "texture": "#led" }
+      }
+    }
+  ]
+}

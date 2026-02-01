@@ -1323,6 +1323,10 @@ public class LaserQuarryBlockEntity extends BlockEntity implements EnergyStorage
         return armInitialized;
     }
 
+    public boolean isFinished() {
+        return finished;
+    }
+
     // Custom bounds getters for frame decay logic
     public boolean hasCustomBounds() {
         return useCustomBounds;

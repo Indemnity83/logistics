@@ -2,6 +2,7 @@ package com.logistics.pipe.block;
 
 import com.logistics.core.lib.block.Probeable;
 import com.logistics.core.lib.block.Wrenchable;
+import com.logistics.core.lib.pipe.PipeConnectable;
 import com.logistics.core.lib.support.ProbeResult;
 import com.logistics.pipe.Pipe;
 import com.logistics.pipe.PipeContext;
@@ -47,7 +48,7 @@ import net.minecraft.world.block.WireOrientation;
 import net.minecraft.world.tick.ScheduledTickView;
 import org.jetbrains.annotations.Nullable;
 
-public class PipeBlock extends BlockWithEntity implements Probeable, Waterloggable, Wrenchable {
+public class PipeBlock extends BlockWithEntity implements PipeConnectable, Probeable, Waterloggable, Wrenchable {
     public static final MapCodec<PipeBlock> CODEC = createCodec(PipeBlock::new);
 
     public static final BooleanProperty POWERED = Properties.POWERED;

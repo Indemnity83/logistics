@@ -1,0 +1,15 @@
+{
+  "credit": "Scrolling display overlay for laser quarry",
+  "textures": {
+    "display": "logistics:block/automation/laser_quarry/display"
+  },
+  "elements": [
+    {
+      "from": [2, 0, -0.02],
+      "to": [14, 16, -0.02],
+      "faces": {
+        "north": { "uv": [2, 0, 14, 16], "texture": "#display" }
+      }
+    }
+  ]
+}

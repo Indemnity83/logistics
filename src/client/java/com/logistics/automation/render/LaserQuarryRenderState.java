@@ -42,11 +42,29 @@ public class LaserQuarryRenderState extends BlockEntityRenderState {
     // Light level sampled at the frame top (where horizontal beams are)
     public int frameTopLight;
 
+    // LED state - always rendered regardless of arm visibility
+    public Direction blockFacing = Direction.NORTH; // For LED orientation
+    public float energyLevel = 0f; // 0.0-1.0 for red LED brightness
+    public boolean isWorking = false; // True if quarry is actively working (green LED)
+    public boolean isFinished = false; // True if quarry has completed mining
+    public int quarryLight = 0; // Light level at quarry position for display overlay
+
+    // Top hatch - rendered when pipe connected above
+    public boolean hasPipeAbove = false;
+    public int aboveLight = 0; // Light level above quarry for top hatch
+
     // Synced arm speed from server (blocks per tick, scales with energy)
     public float syncedArmSpeed = LaserQuarryConfig.ARM_SPEED;
 
     // Persistent interpolation state stored per quarry position (survives render state recreation)
     private static final Map<BlockPos, InterpolationState> INTERPOLATION_CACHE = new ConcurrentHashMap<>();
+    private static final Map<BlockPos, LedFadeState> LED_FADE_CACHE = new ConcurrentHashMap<>();
+
+    // Green LED fade duration in ticks
+    private static final int LED_FADE_TICKS = 12;
+
+    // Calculated green LED brightness (0.0-1.0) after applying fade
+    public float greenLedBrightness = 0f;
 
     private static final class InterpolationState {
         float renderArmX;
@@ -54,6 +72,12 @@ public class LaserQuarryRenderState extends BlockEntityRenderState {
         float renderArmZ;
         long lastUpdateTimeNanos;
         boolean initialized;
+    }
+
+    private static final class LedFadeState {
+        boolean wasWorking;
+        long fadeStartTimeNanos;
+        boolean isFading;
     }
 
     /**
@@ -125,10 +149,56 @@ public class LaserQuarryRenderState extends BlockEntityRenderState {
     }
 
     /**
+     * Update green LED brightness with fade-out effect.
+     * Instant on (0→100%), gradual fade off over 12 ticks.
+     */
+    public void updateGreenLedBrightness() {
+        LedFadeState fade = LED_FADE_CACHE.computeIfAbsent(quarryPos, k -> new LedFadeState());
+
+        long currentTime = System.nanoTime();
+
+        if (isWorking) {
+            // Instant on - full brightness
+            greenLedBrightness = 1.0f;
+            fade.isFading = false;
+            fade.wasWorking = true;
+        } else if (fade.wasWorking && !fade.isFading) {
+            // Just stopped working - start fade
+            fade.isFading = true;
+            fade.fadeStartTimeNanos = currentTime;
+            fade.wasWorking = false;
+            greenLedBrightness = 1.0f;
+        } else if (fade.isFading) {
+            // Currently fading - calculate brightness based on elapsed time
+            float tickRate = 20f;
+            MinecraftClient client = MinecraftClient.getInstance();
+            if (client.world != null) {
+                tickRate = client.world.getTickManager().getTickRate();
+            }
+
+            float elapsedSeconds = (currentTime - fade.fadeStartTimeNanos) / 1_000_000_000f;
+            float elapsedTicks = elapsedSeconds * tickRate;
+
+            if (elapsedTicks >= LED_FADE_TICKS) {
+                // Fade complete
+                greenLedBrightness = 0f;
+                fade.isFading = false;
+            } else {
+                // Linear fade from 1.0 to 0.0
+                greenLedBrightness = 1.0f - (elapsedTicks / LED_FADE_TICKS);
+            }
+        } else {
+            // Not working, not fading - LED is off
+            greenLedBrightness = 0f;
+        }
+    }
+
+    /**
      * Clear interpolation cache for a specific quarry (call when quarry is removed).
      */
     public static void clearInterpolationCache(BlockPos pos) {
         INTERPOLATION_CACHE.remove(pos);
+        LED_FADE_CACHE.remove(pos);
     }
 
     /**
@@ -136,6 +206,7 @@ public class LaserQuarryRenderState extends BlockEntityRenderState {
      */
     public static void pruneInterpolationCache(ClientWorld world) {
         INTERPOLATION_CACHE.keySet().removeIf(pos -> !(world.getBlockEntity(pos) instanceof LaserQuarryBlockEntity));
+        LED_FADE_CACHE.keySet().removeIf(pos -> !(world.getBlockEntity(pos) instanceof LaserQuarryBlockEntity));
     }
 
     /**
@@ -143,5 +214,6 @@ public class LaserQuarryRenderState extends BlockEntityRenderState {
      */
     public static void clearAllInterpolationCaches() {
         INTERPOLATION_CACHE.clear();
+        LED_FADE_CACHE.clear();
     }
 }
