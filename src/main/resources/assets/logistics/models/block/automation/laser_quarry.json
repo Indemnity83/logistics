@@ -8,7 +8,7 @@
     "3": "logistics:block/automation/laser_quarry/side",
     "4": "logistics:block/automation/laser_quarry/top",
     "5": "logistics:block/automation/laser_quarry/side_2",
-    "particle": "logistics:block/automation/laser_quarry/led_green"
+    "particle": "logistics:block/automation/laser_quarry/top"
   },
   "elements": [
     {
