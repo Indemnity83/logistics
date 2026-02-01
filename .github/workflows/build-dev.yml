@@ -48,12 +48,20 @@ jobs:
           MOD_VERSION="${NEXT_VERSION}-dev-${BUILD_NO}"
           FILE_VERSION="${MOD_VERSION}+mc.${MC_VERSION}"
 
+          # Get the last meaningful commit message (skip release-please's "chore(main)" commit)
+          CHANGELOG="$(git log --format=%s --grep='^chore(main)' --invert-grep -1)"
+          if [ -z "$CHANGELOG" ]; then
+            CHANGELOG="Dev build from commit ${GITHUB_SHA:0:7}"
+          fi
+
           echo "mod_version=$MOD_VERSION" >> "$GITHUB_OUTPUT"
           echo "file_version=$FILE_VERSION" >> "$GITHUB_OUTPUT"
           echo "minecraft_version=$MC_VERSION" >> "$GITHUB_OUTPUT"
           echo "next_version=$NEXT_VERSION" >> "$GITHUB_OUTPUT"
           echo "build_no=$BUILD_NO" >> "$GITHUB_OUTPUT"
+          echo "changelog=$CHANGELOG" >> "$GITHUB_OUTPUT"
           echo "📦 Version: $MOD_VERSION (file: $FILE_VERSION)"
+          echo "📝 Changelog: $CHANGELOG"
 
       - name: Build
         run: ./gradlew remapJar --console=plain
@@ -67,7 +75,7 @@ jobs:
           name: "Logistics: Automation v${{ steps.version.outputs.next_version }}-dev-${{ steps.version.outputs.build_no }}"
           version: ${{ steps.version.outputs.mod_version }}
           version-type: beta
-          changelog: "Automated dev build from commit ${{ github.sha }}"
+          changelog: ${{ steps.version.outputs.changelog }}
           game-versions: ${{ steps.version.outputs.minecraft_version }}
 
           files: |
