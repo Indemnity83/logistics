@@ -251,6 +251,7 @@ public class LaserQuarryBlockEntity extends BlockEntity implements EnergyStorage
                 entity.clearBreakingAnimation(world);
                 entity.finished = true;
                 entity.markDirty();
+                entity.syncToClients();
                 return;
             }
 
