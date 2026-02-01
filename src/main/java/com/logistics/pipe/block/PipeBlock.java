@@ -3,6 +3,7 @@ package com.logistics.pipe.block;
 import com.logistics.core.lib.block.Probeable;
 import com.logistics.core.lib.block.Wrenchable;
 import com.logistics.core.lib.pipe.PipeConnection;
+import com.logistics.core.lib.pipe.PipeConnectionRegistry;
 import com.logistics.core.lib.support.ProbeResult;
 import com.logistics.pipe.Pipe;
 import com.logistics.pipe.PipeContext;
@@ -179,22 +180,22 @@ public class PipeBlock extends BlockWithEntity implements Probeable, Waterloggab
     public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
         VoxelShape shape = CORE_SHAPE;
 
-        if (getConnectionType(world, pos, Direction.NORTH) != ConnectionType.NONE) {
+        if (getConnectionType(world, pos, Direction.NORTH) != PipeConnection.Type.NONE) {
             shape = VoxelShapes.union(shape, NORTH_SHAPE);
         }
-        if (getConnectionType(world, pos, Direction.SOUTH) != ConnectionType.NONE) {
+        if (getConnectionType(world, pos, Direction.SOUTH) != PipeConnection.Type.NONE) {
             shape = VoxelShapes.union(shape, SOUTH_SHAPE);
         }
-        if (getConnectionType(world, pos, Direction.EAST) != ConnectionType.NONE) {
+        if (getConnectionType(world, pos, Direction.EAST) != PipeConnection.Type.NONE) {
             shape = VoxelShapes.union(shape, EAST_SHAPE);
         }
-        if (getConnectionType(world, pos, Direction.WEST) != ConnectionType.NONE) {
+        if (getConnectionType(world, pos, Direction.WEST) != PipeConnection.Type.NONE) {
             shape = VoxelShapes.union(shape, WEST_SHAPE);
         }
-        if (getConnectionType(world, pos, Direction.UP) != ConnectionType.NONE) {
+        if (getConnectionType(world, pos, Direction.UP) != PipeConnection.Type.NONE) {
             shape = VoxelShapes.union(shape, UP_SHAPE);
         }
-        if (getConnectionType(world, pos, Direction.DOWN) != ConnectionType.NONE) {
+        if (getConnectionType(world, pos, Direction.DOWN) != PipeConnection.Type.NONE) {
             shape = VoxelShapes.union(shape, DOWN_SHAPE);
         }
 
@@ -332,7 +333,7 @@ public class PipeBlock extends BlockWithEntity implements Probeable, Waterloggab
         return pipe.onWrench(ctx, player);
     }
 
-    public ConnectionType getConnectionType(BlockView world, BlockPos pos, Direction direction) {
+    public PipeConnection.Type getConnectionType(BlockView world, BlockPos pos, Direction direction) {
         // On client side, use cached values from block entity for rendering performance
         if (world instanceof World actualWorld && actualWorld.isClient()) {
             PipeBlockEntity pipeEntity =
@@ -345,77 +346,63 @@ public class PipeBlock extends BlockWithEntity implements Probeable, Waterloggab
         return getDynamicConnectionType(world, pos, direction);
     }
 
-    public ConnectionType getDynamicConnectionType(BlockView world, BlockPos pos, Direction direction) {
+    public PipeConnection.Type getDynamicConnectionType(BlockView world, BlockPos pos, Direction direction) {
         // Server side or when cache not available: calculate dynamically
         BlockPos neighborPos = pos.offset(direction);
         BlockState neighborState = world.getBlockState(neighborPos);
         Block neighborBlock = neighborState.getBlock();
 
-        // Connect to other pipes
-        if (neighborBlock instanceof PipeBlock) {
-            ConnectionType candidate = ConnectionType.PIPE;
-            if (pipe != null && world instanceof World actualWorld) {
+        if (world instanceof World actualWorld) {
+            // Connect to blocks registered with PipeConnectionRegistry.SIDED (pipes, quarries, etc.)
+            PipeConnection.Type result = checkPipeConnection(actualWorld, pos, neighborPos, direction, neighborBlock);
+            if (result != null) return result;
+
+            // Connect to blocks with item storage (chests, furnaces, hoppers, etc.)
+            result = checkItemStorage(actualWorld, pos, neighborPos, direction, neighborBlock);
+            if (result != null) return result;
+        }
+
+        return PipeConnection.Type.NONE;
+    }
+
+    /**
+     * Check for a PipeConnectionRegistry.SIDED registration on the neighboring block.
+     * Returns the PipeConnection.Type declared by the neighbor, or null if not registered.
+     */
+    @Nullable private PipeConnection.Type checkPipeConnection(
+            World world, BlockPos pos, BlockPos neighborPos, Direction direction, Block neighborBlock) {
+        var connectable = PipeConnectionRegistry.SIDED.find(world, neighborPos, direction.getOpposite());
+        if (connectable != null) {
+            PipeConnection.Type candidate = connectable.getConnectionType(direction.getOpposite());
+            if (candidate != null && pipe != null) {
                 PipeBlockEntity pipeEntity =
-                        actualWorld.getBlockEntity(pos) instanceof PipeBlockEntity blockEntity ? blockEntity : null;
-                PipeContext context = pipeEntity != null
-                        ? new PipeContext(actualWorld, pos, actualWorld.getBlockState(pos), pipeEntity)
-                        : null;
+                        world.getBlockEntity(pos) instanceof PipeBlockEntity blockEntity ? blockEntity : null;
+                PipeContext context =
+                        pipeEntity != null ? new PipeContext(world, pos, world.getBlockState(pos), pipeEntity) : null;
                 return pipe.filterConnection(context, direction, neighborBlock, candidate);
             }
             return candidate;
         }
-
-        // Connect to blocks with item storage (chests, furnaces, hoppers, etc.)
-        // ItemStorage.SIDED requires a World, so only check if we have one
-        if (world instanceof World actualWorld) {
-            if (ItemStorage.SIDED.find(actualWorld, neighborPos, direction.getOpposite()) != null) {
-                ConnectionType candidate = ConnectionType.INVENTORY;
-                if (pipe != null) {
-                    PipeBlockEntity pipeEntity =
-                            actualWorld.getBlockEntity(pos) instanceof PipeBlockEntity blockEntity ? blockEntity : null;
-                    PipeContext context = pipeEntity != null
-                            ? new PipeContext(actualWorld, pos, actualWorld.getBlockState(pos), pipeEntity)
-                            : null;
-                    return pipe.filterConnection(context, direction, neighborBlock, candidate);
-                }
-                return candidate;
-            }
-        }
-
-        // Connect to blocks registered with PipeConnection.SIDED (quarries, etc.)
-        // These blocks may push items to pipes but don't expose ItemStorage
-        if (world instanceof World actualWorld) {
-            if (PipeConnection.SIDED.find(actualWorld, neighborPos, direction.getOpposite()) != null) {
-                ConnectionType candidate = ConnectionType.INVENTORY;
-                if (pipe != null) {
-                    PipeBlockEntity pipeEntity =
-                            actualWorld.getBlockEntity(pos) instanceof PipeBlockEntity blockEntity ? blockEntity : null;
-                    PipeContext context = pipeEntity != null
-                            ? new PipeContext(actualWorld, pos, actualWorld.getBlockState(pos), pipeEntity)
-                            : null;
-                    return pipe.filterConnection(context, direction, neighborBlock, candidate);
-                }
-                return candidate;
-            }
-        }
-
-        return ConnectionType.NONE;
+        return null;
     }
 
-    public enum ConnectionType implements net.minecraft.util.StringIdentifiable {
-        NONE("none"),
-        PIPE("pipe"),
-        INVENTORY("inventory");
-
-        private final String name;
-
-        ConnectionType(String name) {
-            this.name = name;
+    /**
+     * Check for ItemStorage.SIDED on the neighboring block (legacy inventory support).
+     * Returns INVENTORY if found, null otherwise.
+     */
+    @Nullable private PipeConnection.Type checkItemStorage(
+            World world, BlockPos pos, BlockPos neighborPos, Direction direction, Block neighborBlock) {
+        if (ItemStorage.SIDED.find(world, neighborPos, direction.getOpposite()) != null) {
+            PipeConnection.Type candidate = PipeConnection.Type.INVENTORY;
+            if (pipe != null) {
+                PipeBlockEntity pipeEntity =
+                        world.getBlockEntity(pos) instanceof PipeBlockEntity blockEntity ? blockEntity : null;
+                PipeContext context =
+                        pipeEntity != null ? new PipeContext(world, pos, world.getBlockState(pos), pipeEntity) : null;
+                return pipe.filterConnection(context, direction, neighborBlock, candidate);
+            }
+            return candidate;
         }
-
-        @Override
-        public String asString() {
-            return name;
-        }
+        return null;
     }
 }

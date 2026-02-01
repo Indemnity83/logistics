@@ -1,6 +1,7 @@
 package com.logistics.pipe;
 
 import com.logistics.LogisticsMod;
+import com.logistics.core.lib.pipe.PipeConnection;
 import com.logistics.pipe.block.PipeBlock;
 import com.logistics.pipe.modules.Module;
 import com.logistics.pipe.runtime.PipeConfig;
@@ -344,14 +345,14 @@ public abstract class Pipe {
         }
     }
 
-    public PipeBlock.ConnectionType filterConnection(
-            @Nullable PipeContext ctx, Direction direction, Block neighborBlock, PipeBlock.ConnectionType candidate) {
-        if (candidate == PipeBlock.ConnectionType.NONE) {
-            return PipeBlock.ConnectionType.NONE;
+    public PipeConnection.Type filterConnection(
+            @Nullable PipeContext ctx, Direction direction, Block neighborBlock, PipeConnection.Type candidate) {
+        if (candidate == PipeConnection.Type.NONE) {
+            return PipeConnection.Type.NONE;
         }
         for (Module module : modules) {
             if (!module.allowsConnection(ctx, direction, this, neighborBlock)) {
-                return PipeBlock.ConnectionType.NONE;
+                return PipeConnection.Type.NONE;
             }
         }
         return candidate;

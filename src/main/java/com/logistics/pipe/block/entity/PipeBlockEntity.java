@@ -1,5 +1,6 @@
 package com.logistics.pipe.block.entity;
 
+import com.logistics.core.lib.pipe.PipeConnection;
 import com.logistics.pipe.Pipe;
 import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.block.PipeBlock;
@@ -29,7 +30,7 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.Nullable;
 
-public class PipeBlockEntity extends BlockEntity {
+public class PipeBlockEntity extends BlockEntity implements PipeConnection {
     public static final int VIRTUAL_CAPACITY = 5 * 64;
     private final List<TravelingItem> travelingItems = new ArrayList<>();
     private final NbtCompound moduleState = new NbtCompound();
@@ -38,21 +39,21 @@ public class PipeBlockEntity extends BlockEntity {
     private int lastConnectionsMask = -1;
 
     // Connection type cache for rendering (updated when connections change)
-    private final PipeBlock.ConnectionType[] connectionTypes = new PipeBlock.ConnectionType[6];
+    private final PipeConnection.Type[] connectionTypes = new PipeConnection.Type[6];
 
     public PipeBlockEntity(BlockPos pos, BlockState state) {
         super(PipeBlockEntities.PIPE_BLOCK_ENTITY, pos, state);
         // Initialize connection types to NONE
         for (int i = 0; i < 6; i++) {
-            connectionTypes[i] = PipeBlock.ConnectionType.NONE;
+            connectionTypes[i] = PipeConnection.Type.NONE;
         }
     }
 
-    public PipeBlock.ConnectionType getConnectionType(Direction direction) {
+    public PipeConnection.Type getConnectionType(Direction direction) {
         return connectionTypes[direction.ordinal()];
     }
 
-    public void setConnectionType(Direction direction, PipeBlock.ConnectionType type) {
+    public void setConnectionType(Direction direction, PipeConnection.Type type) {
         connectionTypes[direction.ordinal()] = type;
     }
 
@@ -87,6 +88,16 @@ public class PipeBlockEntity extends BlockEntity {
         }
 
         return true;
+    }
+
+    /**
+     * Add an item from the PipeConnection interface.
+     * Creates a TravelingItem with default speed and delegates to the existing addItem logic.
+     */
+    @Override
+    public boolean addItem(Direction from, ItemStack stack) {
+        TravelingItem item = new TravelingItem(stack, from.getOpposite(), PipeConfig.ITEM_MIN_SPEED);
+        return addItem(item, from, false);
     }
 
     public boolean forceAddItem(TravelingItem item, Direction fromDirection) {
@@ -126,8 +137,8 @@ public class PipeBlockEntity extends BlockEntity {
         // Save connection types (for client rendering)
         NbtCompound connectionsNbt = new NbtCompound();
         for (Direction direction : Direction.values()) {
-            PipeBlock.ConnectionType type = connectionTypes[direction.ordinal()];
-            if (type != PipeBlock.ConnectionType.NONE) {
+            PipeConnection.Type type = connectionTypes[direction.ordinal()];
+            if (type != PipeConnection.Type.NONE) {
                 connectionsNbt.putString(direction.name().toLowerCase(), type.asString());
             }
         }
@@ -164,13 +175,13 @@ public class PipeBlockEntity extends BlockEntity {
         view.read("Connections", NbtCompound.CODEC).ifPresent(connectionsNbt -> {
             // Reset all to NONE first
             for (int i = 0; i < 6; i++) {
-                connectionTypes[i] = PipeBlock.ConnectionType.NONE;
+                connectionTypes[i] = PipeConnection.Type.NONE;
             }
             // Load saved connections
             for (Direction direction : Direction.values()) {
                 String typeName =
                         connectionsNbt.getString(direction.name().toLowerCase()).orElse("none");
-                for (PipeBlock.ConnectionType type : PipeBlock.ConnectionType.values()) {
+                for (PipeConnection.Type type : PipeConnection.Type.values()) {
                     if (type.asString().equals(typeName)) {
                         connectionTypes[direction.ordinal()] = type;
                         break;
@@ -357,6 +368,21 @@ public class PipeBlockEntity extends BlockEntity {
         }
 
         return false;
+    }
+
+    /**
+     * Check if this pipe can accept an item from the given direction (PipeConnection interface).
+     * Delegates to the pipe's module logic.
+     */
+    @Override
+    public boolean canAcceptFrom(Direction from, ItemStack stack) {
+        PipeBlock pipeBlock = (PipeBlock) getCachedState().getBlock();
+        Pipe pipe = pipeBlock.getPipe();
+        if (pipe == null) {
+            return false;
+        }
+        PipeContext ctx = new PipeContext(world, pos, getCachedState(), this);
+        return pipe.canAcceptFrom(ctx, from, stack);
     }
 
     private int getRemainingCapacity() {
