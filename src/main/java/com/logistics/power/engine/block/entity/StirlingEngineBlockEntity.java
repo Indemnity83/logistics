@@ -325,7 +325,7 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
 
     @Override
     public Text getDisplayName() {
-        return Text.translatable("block.logistics.power/stirling_engine");
+        return Text.translatable("block.logistics.power.stirling_engine");
     }
 
     @Override
