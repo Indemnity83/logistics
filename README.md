@@ -206,6 +206,8 @@ For code contributions, see the development docs in `docs/`.
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
+Some textures are licensed under CC BY 4.0 - see [CREDITS.md](CREDITS.md) for attribution details.
+
 ---
 
 ## Acknowledgments
@@ -214,6 +216,9 @@ Inspired by:
 - **BuildCraft** — Classic pipe mechanics and visual style
 - **Logistics Pipes** — Request/provider logistics system design
 - The Fabric community for excellent modding tools and APIs
+
+**Textures:**
+- Some textures adapted from [Unused Textures](https://github.com/malcolmriley/unused-textures) by Malcolm Riley, licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)
 
 ---
 

@@ -4,8 +4,8 @@ import com.logistics.LogisticsMod;
 import com.logistics.automation.laserquarry.LaserQuarryBlock;
 import com.logistics.automation.laserquarry.LaserQuarryConfig;
 import com.logistics.automation.laserquarry.entity.LaserQuarryBlockEntity;
-import com.logistics.core.lib.pipe.PipeConnectable;
 import com.logistics.core.render.ModelRegistry;
+import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.RenderLayer;
@@ -90,9 +90,9 @@ public class LaserQuarryBlockEntityRenderer
         // Sample light at quarry position for display overlay
         state.quarryLight = net.minecraft.client.render.WorldRenderer.getLightmapCoordinates(world, state.quarryPos);
 
-        // Check for pipe connected above
+        // Check for pipe connected above (pipes expose ItemStorage.SIDED)
         BlockPos abovePos = state.quarryPos.up();
-        state.hasPipeAbove = world.getBlockState(abovePos).getBlock() instanceof PipeConnectable;
+        state.hasPipeAbove = ItemStorage.SIDED.find(world, abovePos, net.minecraft.util.math.Direction.DOWN) != null;
         state.aboveLight = net.minecraft.client.render.WorldRenderer.getLightmapCoordinates(world, abovePos);
 
         // Only render arm during mining phase when arm is initialized

@@ -2,7 +2,7 @@ package com.logistics.pipe.block;
 
 import com.logistics.core.lib.block.Probeable;
 import com.logistics.core.lib.block.Wrenchable;
-import com.logistics.core.lib.pipe.PipeConnectable;
+import com.logistics.core.lib.pipe.PipeConnection;
 import com.logistics.core.lib.support.ProbeResult;
 import com.logistics.pipe.Pipe;
 import com.logistics.pipe.PipeContext;
@@ -48,7 +48,7 @@ import net.minecraft.world.block.WireOrientation;
 import net.minecraft.world.tick.ScheduledTickView;
 import org.jetbrains.annotations.Nullable;
 
-public class PipeBlock extends BlockWithEntity implements PipeConnectable, Probeable, Waterloggable, Wrenchable {
+public class PipeBlock extends BlockWithEntity implements Probeable, Waterloggable, Wrenchable {
     public static final MapCodec<PipeBlock> CODEC = createCodec(PipeBlock::new);
 
     public static final BooleanProperty POWERED = Properties.POWERED;
@@ -369,6 +369,23 @@ public class PipeBlock extends BlockWithEntity implements PipeConnectable, Probe
         // ItemStorage.SIDED requires a World, so only check if we have one
         if (world instanceof World actualWorld) {
             if (ItemStorage.SIDED.find(actualWorld, neighborPos, direction.getOpposite()) != null) {
+                ConnectionType candidate = ConnectionType.INVENTORY;
+                if (pipe != null) {
+                    PipeBlockEntity pipeEntity =
+                            actualWorld.getBlockEntity(pos) instanceof PipeBlockEntity blockEntity ? blockEntity : null;
+                    PipeContext context = pipeEntity != null
+                            ? new PipeContext(actualWorld, pos, actualWorld.getBlockState(pos), pipeEntity)
+                            : null;
+                    return pipe.filterConnection(context, direction, neighborBlock, candidate);
+                }
+                return candidate;
+            }
+        }
+
+        // Connect to blocks registered with PipeConnection.SIDED (quarries, etc.)
+        // These blocks may push items to pipes but don't expose ItemStorage
+        if (world instanceof World actualWorld) {
+            if (PipeConnection.SIDED.find(actualWorld, neighborPos, direction.getOpposite()) != null) {
                 ConnectionType candidate = ConnectionType.INVENTORY;
                 if (pipe != null) {
                     PipeBlockEntity pipeEntity =
