@@ -2,6 +2,7 @@ package com.logistics.pipe.block;
 
 import com.logistics.core.lib.block.Probeable;
 import com.logistics.core.lib.block.Wrenchable;
+import com.logistics.core.lib.pipe.PipeConnection;
 import com.logistics.core.lib.support.ProbeResult;
 import com.logistics.pipe.Pipe;
 import com.logistics.pipe.PipeContext;
@@ -368,6 +369,23 @@ public class PipeBlock extends BlockWithEntity implements Probeable, Waterloggab
         // ItemStorage.SIDED requires a World, so only check if we have one
         if (world instanceof World actualWorld) {
             if (ItemStorage.SIDED.find(actualWorld, neighborPos, direction.getOpposite()) != null) {
+                ConnectionType candidate = ConnectionType.INVENTORY;
+                if (pipe != null) {
+                    PipeBlockEntity pipeEntity =
+                            actualWorld.getBlockEntity(pos) instanceof PipeBlockEntity blockEntity ? blockEntity : null;
+                    PipeContext context = pipeEntity != null
+                            ? new PipeContext(actualWorld, pos, actualWorld.getBlockState(pos), pipeEntity)
+                            : null;
+                    return pipe.filterConnection(context, direction, neighborBlock, candidate);
+                }
+                return candidate;
+            }
+        }
+
+        // Connect to blocks registered with PipeConnection.SIDED (quarries, etc.)
+        // These blocks may push items to pipes but don't expose ItemStorage
+        if (world instanceof World actualWorld) {
+            if (PipeConnection.SIDED.find(actualWorld, neighborPos, direction.getOpposite()) != null) {
                 ConnectionType candidate = ConnectionType.INVENTORY;
                 if (pipe != null) {
                     PipeBlockEntity pipeEntity =

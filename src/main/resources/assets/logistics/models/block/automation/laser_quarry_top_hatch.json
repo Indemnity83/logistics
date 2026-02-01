@@ -1,0 +1,15 @@
+{
+  "credit": "Top hatch overlay for laser quarry - shows when pipe connected",
+  "textures": {
+    "hatch": "logistics:block/automation/laser_quarry/top_hatch"
+  },
+  "elements": [
+    {
+      "from": [0, 16.01, 0],
+      "to": [16, 16.01, 16],
+      "faces": {
+        "up": { "uv": [0, 0, 16, 16], "texture": "#hatch" }
+      }
+    }
+  ]
+}

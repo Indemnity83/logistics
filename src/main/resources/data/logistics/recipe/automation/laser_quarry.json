@@ -1,0 +1,16 @@
+{
+  "key": {
+    "D": "logistics:core/diamond_gear",
+    "c": "logistics:core/copper_gear",
+    "g": "logistics:core/gold_gear",
+    "i": "logistics:core/iron_gear",
+    "p": "minecraft:diamond_pickaxe",
+    "r": "minecraft:redstone"
+  },
+  "pattern": ["iri", "gcg", "DpD"],
+  "result": {
+    "count": 1,
+    "id": "logistics:automation/laser_quarry"
+  },
+  "type": "minecraft:crafting_shaped"
+}

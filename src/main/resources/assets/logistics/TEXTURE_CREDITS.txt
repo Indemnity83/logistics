@@ -1,0 +1,15 @@
+TEXTURE CREDITS
+===============
+
+Some textures in this mod are adapted from or based on textures from:
+
+Unused Textures
+https://github.com/malcolmriley/unused-textures
+Author: Malcolm Riley
+License: Creative Commons Attribution 4.0 International (CC BY 4.0)
+https://creativecommons.org/licenses/by/4.0/
+
+The textures have been modified and adapted to fit the visual style of this mod.
+
+All other textures and code are licensed under the MIT License.
+See the root LICENSE file for details.

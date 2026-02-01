@@ -1,6 +1,6 @@
-package com.logistics.automation.quarry;
+package com.logistics.automation.laserquarry;
 
-import com.logistics.automation.quarry.entity.QuarryBlockEntity;
+import com.logistics.automation.laserquarry.entity.LaserQuarryBlockEntity;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -19,12 +19,12 @@ import net.minecraft.world.BlockView;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Quarry frame block - forms the outline of the quarry mining area.
+ * Laser quarry frame block - forms the outline of the quarry mining area.
  * Uses BlockState properties to show arms extending in each direction.
  * Does not connect to pipes or have a block entity.
  */
-public class QuarryFrameBlock extends Block {
-    public static final MapCodec<QuarryFrameBlock> CODEC = createCodec(QuarryFrameBlock::new);
+public class LaserQuarryFrameBlock extends Block {
+    public static final MapCodec<LaserQuarryFrameBlock> CODEC = createCodec(LaserQuarryFrameBlock::new);
 
     public static final BooleanProperty NORTH = BooleanProperty.of("north");
     public static final BooleanProperty SOUTH = BooleanProperty.of("south");
@@ -41,7 +41,7 @@ public class QuarryFrameBlock extends Block {
     private static final VoxelShape ARM_UP = Block.createCuboidShape(5, 11, 5, 11, 16, 11);
     private static final VoxelShape ARM_DOWN = Block.createCuboidShape(5, 0, 5, 11, 5, 11);
 
-    public QuarryFrameBlock(Settings settings) {
+    public LaserQuarryFrameBlock(Settings settings) {
         super(settings);
         setDefaultState(getDefaultState()
                 .with(NORTH, false)
@@ -134,15 +134,15 @@ public class QuarryFrameBlock extends Block {
     private boolean hasOwningQuarry(ServerWorld world, BlockPos framePos) {
         int searchRadius = 64; // Support large custom bounds
 
-        for (BlockPos quarryPos : QuarryBlockEntity.getActiveQuarries(world)) {
+        for (BlockPos quarryPos : LaserQuarryBlockEntity.getActiveQuarries(world)) {
             if (Math.abs(quarryPos.getX() - framePos.getX()) > searchRadius) continue;
             if (Math.abs(quarryPos.getZ() - framePos.getZ()) > searchRadius) continue;
 
             int dy = framePos.getY() - quarryPos.getY();
-            if (dy < 0 || dy > QuarryConfig.Y_OFFSET_ABOVE) continue;
+            if (dy < 0 || dy > LaserQuarryConfig.Y_OFFSET_ABOVE) continue;
 
             BlockState checkState = world.getBlockState(quarryPos);
-            if (!(checkState.getBlock() instanceof QuarryBlock)) continue;
+            if (!(checkState.getBlock() instanceof LaserQuarryBlock)) continue;
 
             if (isFramePositionForQuarry(world, quarryPos, checkState, framePos)) {
                 return true;
@@ -164,7 +164,7 @@ public class QuarryFrameBlock extends Block {
         int endZ;
 
         BlockEntity entity = world.getBlockEntity(quarryPos);
-        if (entity instanceof QuarryBlockEntity quarry && quarry.hasCustomBounds()) {
+        if (entity instanceof LaserQuarryBlockEntity quarry && quarry.hasCustomBounds()) {
             // Use custom bounds from the quarry
             startX = quarry.getCustomMinX();
             startZ = quarry.getCustomMinZ();
@@ -172,11 +172,11 @@ public class QuarryFrameBlock extends Block {
             endZ = quarry.getCustomMaxZ();
         } else {
             // Calculate default bounds from facing direction
-            Direction facing = QuarryBlock.getMiningDirection(quarryState);
+            Direction facing = LaserQuarryBlock.getMiningDirection(quarryState);
             switch (facing) {
                 case NORTH:
                     startX = quarryPos.getX() - 8;
-                    startZ = quarryPos.getZ() - QuarryConfig.CHUNK_SIZE;
+                    startZ = quarryPos.getZ() - LaserQuarryConfig.CHUNK_SIZE;
                     break;
                 case SOUTH:
                     startX = quarryPos.getX() - 8;
@@ -187,18 +187,18 @@ public class QuarryFrameBlock extends Block {
                     startZ = quarryPos.getZ() - 8;
                     break;
                 case WEST:
-                    startX = quarryPos.getX() - QuarryConfig.CHUNK_SIZE;
+                    startX = quarryPos.getX() - LaserQuarryConfig.CHUNK_SIZE;
                     startZ = quarryPos.getZ() - 8;
                     break;
                 default:
                     return false;
             }
-            endX = startX + QuarryConfig.CHUNK_SIZE - 1;
-            endZ = startZ + QuarryConfig.CHUNK_SIZE - 1;
+            endX = startX + LaserQuarryConfig.CHUNK_SIZE - 1;
+            endZ = startZ + LaserQuarryConfig.CHUNK_SIZE - 1;
         }
 
         int bottomY = quarryPos.getY();
-        int topY = quarryPos.getY() + QuarryConfig.Y_OFFSET_ABOVE;
+        int topY = quarryPos.getY() + LaserQuarryConfig.Y_OFFSET_ABOVE;
 
         int fx = framePos.getX();
         int fy = framePos.getY();

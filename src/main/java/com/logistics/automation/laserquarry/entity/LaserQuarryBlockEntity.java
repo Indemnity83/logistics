@@ -1,28 +1,23 @@
-package com.logistics.automation.quarry.entity;
+package com.logistics.automation.laserquarry.entity;
 
+import com.logistics.api.EnergyStorage;
 import com.logistics.api.LogisticsApi;
 import com.logistics.api.TransportApi;
-import com.logistics.automation.quarry.QuarryBlock;
-import com.logistics.automation.quarry.QuarryConfig;
-import com.logistics.automation.quarry.QuarryFrameBlock;
-import com.logistics.automation.quarry.ui.QuarryScreenHandler;
+import com.logistics.automation.laserquarry.LaserQuarryBlock;
+import com.logistics.automation.laserquarry.LaserQuarryConfig;
+import com.logistics.automation.laserquarry.LaserQuarryFrameBlock;
 import com.logistics.automation.registry.AutomationBlockEntities;
 import com.logistics.automation.registry.AutomationBlocks;
 import com.logistics.automation.render.ClientRenderCacheHooks;
+import com.logistics.core.lib.support.ProbeResult;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.enchantment.Enchantments;
 import net.minecraft.entity.ItemEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.SidedInventory;
 import net.minecraft.item.ItemStack;
@@ -32,22 +27,16 @@ import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryWrapper;
-import net.minecraft.registry.tag.ItemTags;
-import net.minecraft.screen.ScreenHandler;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.storage.ReadView;
 import net.minecraft.storage.WriteView;
-import net.minecraft.text.Text;
-import net.minecraft.util.collection.DefaultedList;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
-public class QuarryBlockEntity extends BlockEntity
-        implements ExtendedScreenHandlerFactory<BlockPos>, Inventory, SidedInventory {
-    private static final int[] TOOL_SLOTS = {0, 1, 2, 3, 4, 5, 6, 7, 8};
+public class LaserQuarryBlockEntity extends BlockEntity implements EnergyStorage {
     private static final long REGISTRY_TTL_TICKS = 200L;
     private static final Map<RegistryKey<World>, Map<Long, Long>> ACTIVE_QUARRIES = new HashMap<>();
 
@@ -69,8 +58,9 @@ public class QuarryBlockEntity extends BlockEntity
         BREAKING // Arm is at target, breaking the block
     }
 
-    private final DefaultedList<ItemStack> inventory =
-            DefaultedList.ofSize(QuarryConfig.INVENTORY_SIZE, ItemStack.EMPTY);
+    // Energy storage
+    private long energy = 0;
+    private long lastSyncedEnergy = 0; // For client sync
 
     // Phase state
     private Phase currentPhase = Phase.CLEARING;
@@ -93,7 +83,6 @@ public class QuarryBlockEntity extends BlockEntity
     // Cached values for the current mining target
     private BlockPos currentTarget = null;
     private float currentBreakTime = -1f;
-    private int activeToolSlot = -1; // Slot of tool currently being used for breaking
 
     // Block breaking animation entity ID (use position hash for uniqueness)
     private int breakingEntityId = -1;
@@ -106,29 +95,15 @@ public class QuarryBlockEntity extends BlockEntity
     private boolean armInitialized = false; // Whether arm position has been set
     private int settlingTicksRemaining = 0; // Countdown for SETTLING state
     private int expectedTravelTicks = 0; // Expected ticks to reach target (for settling calculation)
+    private float syncedArmSpeed = LaserQuarryConfig.ARM_SPEED; // Speed synced to clients for interpolation
 
-    public QuarryBlockEntity(BlockPos pos, BlockState state) {
-        super(AutomationBlockEntities.QUARRY_BLOCK_ENTITY, pos, state);
+    public LaserQuarryBlockEntity(BlockPos pos, BlockState state) {
+        super(AutomationBlockEntities.LASER_QUARRY_BLOCK_ENTITY, pos, state);
         // Use position hash as unique entity ID for breaking animation
         this.breakingEntityId = pos.hashCode();
     }
 
-    @Override
-    public BlockPos getScreenOpeningData(ServerPlayerEntity player) {
-        return pos;
-    }
-
-    @Override
-    public Text getDisplayName() {
-        return Text.translatable("block.logistics.quarry");
-    }
-
-    @Nullable @Override
-    public ScreenHandler createMenu(int syncId, PlayerInventory playerInventory, PlayerEntity player) {
-        return new QuarryScreenHandler(syncId, playerInventory, this);
-    }
-
-    public static void tick(World world, BlockPos pos, BlockState state, QuarryBlockEntity entity) {
+    public static void tick(World world, BlockPos pos, BlockState state, LaserQuarryBlockEntity entity) {
         if (world.isClient()) {
             return;
         }
@@ -147,6 +122,14 @@ public class QuarryBlockEntity extends BlockEntity
             case MINING -> tickMining(serverWorld, pos, state, entity);
             default -> {}
         }
+
+        // Sync energy and arm speed to clients when energy changes
+        // Check at end of tick after operations may have consumed energy
+        if (entity.energy != entity.lastSyncedEnergy) {
+            entity.lastSyncedEnergy = entity.energy;
+            entity.syncedArmSpeed = entity.getEffectiveArmSpeed();
+            entity.syncToClients();
+        }
     }
 
     /**
@@ -159,19 +142,17 @@ public class QuarryBlockEntity extends BlockEntity
         }
     }
 
-    private static void tickClearing(ServerWorld world, BlockPos pos, BlockState state, QuarryBlockEntity entity) {
-        int toolSlot = entity.findFirstToolSlot();
-        if (toolSlot < 0) {
+    private static void tickClearing(ServerWorld world, BlockPos pos, BlockState state, LaserQuarryBlockEntity entity) {
+        // Need at least some energy to operate
+        if (entity.energy == 0) {
             entity.resetBreakProgress();
             return;
         }
 
-        ItemStack tool = entity.getStack(toolSlot);
-
         // Skip quickly through blocks at or above quarry level
         BlockPos target = null;
         BlockState targetState = null;
-        for (int skipped = 0; skipped < QuarryConfig.MAX_SKIP_PER_TICK; skipped++) {
+        for (int skipped = 0; skipped < LaserQuarryConfig.MAX_SKIP_PER_TICK; skipped++) {
             target = entity.calculateClearingTargetPos(state);
             if (target == null) {
                 // Finished clearing, move to building phase
@@ -183,7 +164,7 @@ public class QuarryBlockEntity extends BlockEntity
 
             targetState = world.getBlockState(target);
 
-            if (!entity.shouldSkipBlock(targetState)) {
+            if (!entity.shouldSkipBlock(world, target, targetState)) {
                 break;
             }
 
@@ -191,26 +172,40 @@ public class QuarryBlockEntity extends BlockEntity
             entity.resetBreakProgress();
         }
 
-        if (entity.shouldSkipBlock(targetState)) {
+        if (entity.shouldSkipBlock(world, target, targetState)) {
             return;
         }
 
-        // Mine the block
+        // Calculate energy required if target changed
         if (!target.equals(entity.currentTarget) || entity.currentBreakTime < 0) {
             entity.currentTarget = target;
-            entity.currentBreakTime = entity.calculateBreakTime(targetState, tool, world);
+            float hardness = targetState.getHardness(world, target);
+            entity.currentBreakTime = (float) (LaserQuarryConfig.BREAK_ENERGY_MULTIPLIER * (hardness + 1));
+            entity.breakProgress = 0;
         }
 
-        entity.breakProgress += 1f;
+        // Consume as much energy as possible towards breaking (like BC)
+        long energyNeeded = (long) Math.ceil(entity.currentBreakTime - entity.breakProgress);
+        long energyToUse = Math.min(entity.energy, energyNeeded);
+        if (energyToUse > 0) {
+            entity.consumeEnergy(energyToUse);
+            entity.breakProgress += energyToUse;
+        }
 
         if (entity.breakProgress >= entity.currentBreakTime) {
-            entity.mineBlock(world, target, targetState, tool, toolSlot);
+            entity.mineBlock(world, target, targetState);
             entity.advanceToNextBlock();
             entity.resetBreakProgress();
         }
     }
 
-    private static void tickBuildingFrame(ServerWorld world, BlockPos pos, BlockState state, QuarryBlockEntity entity) {
+    private static void tickBuildingFrame(
+            ServerWorld world, BlockPos pos, BlockState state, LaserQuarryBlockEntity entity) {
+        // Check for energy before building
+        if (!entity.hasEnergy(LaserQuarryConfig.FRAME_BUILD_COST)) {
+            return;
+        }
+
         // Build one frame block per tick
         BlockPos framePos = entity.getNextFramePosition(state);
         if (framePos == null) {
@@ -226,6 +221,9 @@ public class QuarryBlockEntity extends BlockEntity
             return;
         }
 
+        // Consume energy for frame building
+        entity.consumeEnergy(LaserQuarryConfig.FRAME_BUILD_COST);
+
         // Only place frame if the position is air or replaceable
         BlockState existingState = world.getBlockState(framePos);
         if (existingState.isAir() || existingState.isReplaceable()) {
@@ -237,21 +235,27 @@ public class QuarryBlockEntity extends BlockEntity
         entity.markDirty();
     }
 
-    private static void tickMining(ServerWorld world, BlockPos pos, BlockState state, QuarryBlockEntity entity) {
+    private static void tickMining(ServerWorld world, BlockPos pos, BlockState state, LaserQuarryBlockEntity entity) {
+        // Energy is consumed per-state:
+        // - MOVING: move cost per tick
+        // - SETTLING: no cost (waiting for client sync)
+        // - BREAKING: break cost once when block breaks
+
         // Skip air/fluid/bedrock blocks without moving the arm there
         BlockPos target = null;
         boolean skippedAny = false;
-        for (int skipped = 0; skipped < QuarryConfig.MAX_SKIP_PER_TICK; skipped++) {
+        for (int skipped = 0; skipped < LaserQuarryConfig.MAX_SKIP_PER_TICK; skipped++) {
             target = entity.calculateMiningTargetPos(state);
             if (target == null) {
                 entity.clearBreakingAnimation(world);
                 entity.finished = true;
                 entity.markDirty();
+                entity.syncToClients();
                 return;
             }
 
             BlockState targetState = world.getBlockState(target);
-            if (!entity.shouldSkipBlock(targetState)) {
+            if (!entity.shouldSkipBlock(world, target, targetState)) {
                 break; // Found a block to mine
             }
 
@@ -287,6 +291,13 @@ public class QuarryBlockEntity extends BlockEntity
         }
 
         if (entity.armState == ArmState.MOVING) {
+            // Consume move cost while arm is moving
+            long moveCost = entity.getMoveCost();
+            if (!entity.hasEnergy(moveCost)) {
+                return; // Wait for energy
+            }
+            entity.consumeEnergy(moveCost);
+
             // Calculate expected travel time on first tick of movement (for settling)
             if (entity.expectedTravelTicks == 0 && !entity.isAtTarget(targetX, targetY, targetZ)) {
                 entity.expectedTravelTicks = entity.calculateTravelTicks(targetX, targetY, targetZ);
@@ -308,62 +319,28 @@ public class QuarryBlockEntity extends BlockEntity
             // Wait for client interpolation to catch up
             entity.settlingTicksRemaining--;
             if (entity.settlingTicksRemaining <= 0) {
-                // Start breaking
+                // Start breaking - energy requirement will be calculated in BREAKING state
                 entity.armState = ArmState.BREAKING;
-                entity.activeToolSlot = entity.findFirstToolSlot();
-                BlockState targetState = world.getBlockState(target);
-                if (entity.activeToolSlot >= 0) {
-                    ItemStack tool = entity.getStack(entity.activeToolSlot);
-                    entity.currentBreakTime = entity.calculateBreakTime(targetState, tool, world);
-                } else {
-                    entity.currentBreakTime = -1f;
-                }
             }
         } else if (entity.armState == ArmState.BREAKING) {
-            int toolSlot = entity.findFirstToolSlot();
-            if (toolSlot < 0) {
-                // No tool - clear breaking animation and wait
-                if (target != null) {
-                    world.setBlockBreakingInfo(entity.breakingEntityId, target, -1);
-                }
-                entity.resetBreakProgress();
-                entity.activeToolSlot = -1;
-                return;
-            }
-
-            // Check if the active tool was removed or changed
-            boolean toolChanged = false;
-            if (entity.activeToolSlot < 0) {
-                // No active tool, use the found one
-                toolChanged = true;
-            } else if (entity.activeToolSlot != toolSlot) {
-                // Active tool slot is no longer the first valid tool (tool was removed)
-                ItemStack activeStack = entity.getStack(entity.activeToolSlot);
-                if (!isValidTool(activeStack)) {
-                    // Tool in active slot was removed or is no longer valid
-                    toolChanged = true;
-                }
-            }
-
-            if (toolChanged) {
-                // Tool changed - reset progress and recalculate with new tool
-                if (target != null) {
-                    world.setBlockBreakingInfo(entity.breakingEntityId, target, -1);
-                }
-                entity.resetBreakProgress();
-                entity.activeToolSlot = toolSlot;
-            }
-
-            ItemStack tool = entity.getStack(entity.activeToolSlot);
             BlockState targetState = world.getBlockState(target);
 
-            // Recalculate break time if target changed or tool changed
+            // Calculate energy required if target changed
             if (!target.equals(entity.currentTarget) || entity.currentBreakTime < 0) {
                 entity.currentTarget = target;
-                entity.currentBreakTime = entity.calculateBreakTime(targetState, tool, world);
+                float hardness = targetState.getHardness(world, target);
+                // BC formula: BREAK_ENERGY * miningMultiplier * ((hardness + 1) * 2)
+                entity.currentBreakTime = (float) (LaserQuarryConfig.BREAK_ENERGY_MULTIPLIER * (hardness + 1));
+                entity.breakProgress = 0;
             }
 
-            entity.breakProgress += 1f;
+            // Consume as much energy as possible towards breaking (like BC)
+            long energyNeeded = (long) Math.ceil(entity.currentBreakTime - entity.breakProgress);
+            long energyToUse = Math.min(entity.energy, energyNeeded);
+            if (energyToUse > 0) {
+                entity.consumeEnergy(energyToUse);
+                entity.breakProgress += energyToUse;
+            }
 
             // Update block breaking animation (0-9 progress stages)
             int breakStage = (int) ((entity.breakProgress / entity.currentBreakTime) * 10f);
@@ -374,7 +351,7 @@ public class QuarryBlockEntity extends BlockEntity
                 // Clear breaking animation
                 world.setBlockBreakingInfo(entity.breakingEntityId, target, -1);
 
-                entity.mineBlock(world, target, targetState, tool, entity.activeToolSlot);
+                entity.mineBlock(world, target, targetState);
                 entity.advanceMiningPosition();
                 entity.resetBreakProgress();
 
@@ -399,7 +376,7 @@ public class QuarryBlockEntity extends BlockEntity
                     float dy = entity.armY - oldArmY;
                     float dz = entity.armZ - oldArmZ;
                     float distance = (float) Math.sqrt(dx * dx + dy * dy + dz * dz);
-                    entity.expectedTravelTicks = (int) Math.ceil(distance / QuarryConfig.ARM_SPEED);
+                    entity.expectedTravelTicks = (int) Math.ceil(distance / entity.getEffectiveArmSpeed());
 
                     // Go directly to SETTLING to wait for client interpolation
                     entity.armState = ArmState.SETTLING;
@@ -424,8 +401,9 @@ public class QuarryBlockEntity extends BlockEntity
         float dz = targetZ - armZ;
 
         float distance = (float) Math.sqrt(dx * dx + dy * dy + dz * dz);
+        float speed = getEffectiveArmSpeed();
 
-        if (distance <= QuarryConfig.ARM_SPEED) {
+        if (distance <= speed) {
             // Close enough, snap to target
             armX = targetX;
             armY = targetY;
@@ -433,8 +411,8 @@ public class QuarryBlockEntity extends BlockEntity
             return true;
         }
 
-        // Normalize and move at QuarryConfig.ARM_SPEED
-        float factor = QuarryConfig.ARM_SPEED / distance;
+        // Normalize and move at effective speed
+        float factor = speed / distance;
         armX += dx * factor;
         armY += dy * factor;
         armZ += dz * factor;
@@ -450,45 +428,21 @@ public class QuarryBlockEntity extends BlockEntity
         float dy = targetY - armY;
         float dz = targetZ - armZ;
         float distance = (float) Math.sqrt(dx * dx + dy * dy + dz * dz);
-        return distance <= QuarryConfig.ARM_SPEED;
+        return distance <= getEffectiveArmSpeed();
     }
 
     /**
-     * Calculate how many ticks it will take to reach the target at ARM_SPEED.
+     * Calculate how many ticks it will take to reach the target at current speed.
      */
     private int calculateTravelTicks(float targetX, float targetY, float targetZ) {
         float dx = targetX - armX;
         float dy = targetY - armY;
         float dz = targetZ - armZ;
         float distance = (float) Math.sqrt(dx * dx + dy * dy + dz * dz);
-        return (int) Math.ceil(distance / QuarryConfig.ARM_SPEED);
+        return (int) Math.ceil(distance / getEffectiveArmSpeed());
     }
 
-    /**
-     * Find the first slot containing a valid tool.
-     * @return slot index, or -1 if no tool found
-     */
-    private int findFirstToolSlot() {
-        for (int i = 0; i < QuarryConfig.INVENTORY_SIZE; i++) {
-            ItemStack stack = inventory.get(i);
-            if (isValidTool(stack)) {
-                return i;
-            }
-        }
-        return -1;
-    }
-
-    private static boolean isValidTool(ItemStack stack) {
-        if (stack.isEmpty()) {
-            return false;
-        }
-        return stack.isIn(ItemTags.PICKAXES)
-                || stack.isIn(ItemTags.SHOVELS)
-                || stack.isIn(ItemTags.AXES)
-                || stack.isIn(ItemTags.HOES);
-    }
-
-    private boolean shouldSkipBlock(BlockState state) {
+    private boolean shouldSkipBlock(World world, BlockPos pos, BlockState state) {
         // Skip air
         if (state.isAir()) {
             return true;
@@ -497,63 +451,18 @@ public class QuarryBlockEntity extends BlockEntity
         if (!state.getFluidState().isEmpty()) {
             return true;
         }
-        // Skip bedrock
-        if (state.isOf(Blocks.BEDROCK)) {
+        // Skip unbreakable blocks (bedrock, barriers, etc.)
+        float hardness = state.getHardness(world, pos);
+        if (hardness < 0) {
             return true;
         }
         return false;
     }
 
-    private float calculateBreakTime(BlockState targetState, ItemStack tool, ServerWorld world) {
-        // Get the block hardness
-        float hardness = targetState.getHardness(world, currentTarget);
-
-        // Unbreakable blocks (like bedrock) return -1 hardness
-        if (hardness < 0) {
-            return Float.MAX_VALUE;
-        }
-
-        // Get tool mining speed
-        float toolSpeed = tool.getMiningSpeedMultiplier(targetState);
-
-        // Check if this is the correct tool for the block
-        boolean correctTool = tool.isSuitableFor(targetState);
-
-        // Get efficiency enchantment level
-        int efficiencyLevel = getEnchantmentLevel(tool, Enchantments.EFFICIENCY);
-
-        // Calculate speed multiplier from efficiency
-        float speedMultiplier = toolSpeed;
-        if (efficiencyLevel > 0 && toolSpeed > 1.0f) {
-            speedMultiplier += (efficiencyLevel * efficiencyLevel + 1);
-        }
-
-        // Calculate break time
-        // Base formula: hardness * 1.5 if correct tool, * 5 otherwise
-        // Divide by speed multiplier
-        float baseMultiplier = correctTool ? 1.5f : 5.0f;
-        float breakTime = (hardness * baseMultiplier * 20f) / speedMultiplier; // 20 ticks per second
-
-        return Math.max(1f, breakTime);
-    }
-
-    private int getEnchantmentLevel(
-            ItemStack stack, net.minecraft.registry.RegistryKey<net.minecraft.enchantment.Enchantment> enchantmentKey) {
-        if (world == null) return 0;
-
-        var enchantmentRegistry =
-                world.getRegistryManager().getOrThrow(net.minecraft.registry.RegistryKeys.ENCHANTMENT);
-        var enchantmentEntry = enchantmentRegistry.getOptional(enchantmentKey);
-
-        if (enchantmentEntry.isEmpty()) return 0;
-
-        return EnchantmentHelper.getLevel(enchantmentEntry.get(), stack);
-    }
-
-    private void mineBlock(ServerWorld world, BlockPos target, BlockState targetState, ItemStack tool, int toolSlot) {
-        // Get drops before breaking the block (for Fortune/Silk Touch support)
+    private void mineBlock(ServerWorld world, BlockPos target, BlockState targetState) {
+        // Get drops before breaking the block
         BlockEntity blockEntity = world.getBlockEntity(target);
-        List<ItemStack> drops = Block.getDroppedStacks(targetState, world, target, blockEntity, null, tool);
+        List<ItemStack> drops = Block.getDroppedStacks(targetState, world, target, blockEntity, null, ItemStack.EMPTY);
 
         // Break the block without natural drops (we handle drops manually)
         world.breakBlock(target, false);
@@ -568,9 +477,6 @@ public class QuarryBlockEntity extends BlockEntity
         if (drops.isEmpty() || blockEntity != null) {
             collectNearbyItems(world, target);
         }
-
-        // Damage the tool
-        damageTool(tool, toolSlot, 1);
     }
 
     private void collectNearbyItems(ServerWorld world, BlockPos target) {
@@ -584,31 +490,6 @@ public class QuarryBlockEntity extends BlockEntity
                 itemEntity.discard();
             }
         }
-    }
-
-    private void damageTool(ItemStack tool, int slot, int amount) {
-        if (tool.isEmpty()) return;
-
-        // Check for Unbreaking enchantment
-        int unbreakingLevel = getEnchantmentLevel(tool, Enchantments.UNBREAKING);
-
-        // Unbreaking has a chance to not use durability
-        if (unbreakingLevel > 0) {
-            // Probability of not consuming durability = unbreaking / (unbreaking + 1)
-            // For tools: 100/(level+1)% chance to consume durability
-            if (world != null && world.random.nextFloat() < (1.0f / (unbreakingLevel + 1))) {
-                tool.setDamage(tool.getDamage() + amount);
-            }
-        } else {
-            tool.setDamage(tool.getDamage() + amount);
-        }
-
-        // Check if tool is broken - clear the slot and the quarry will use the next available tool
-        if (tool.getDamage() >= tool.getMaxDamage()) {
-            setStack(slot, ItemStack.EMPTY);
-        }
-
-        markDirty();
     }
 
     private void outputItem(ServerWorld world, ItemStack stack) {
@@ -686,8 +567,8 @@ public class QuarryBlockEntity extends BlockEntity
 
     private void advanceToNextBlock() {
         miningX++;
-        int maxX = useCustomBounds ? (customMaxX - customMinX + 1) : QuarryConfig.CHUNK_SIZE;
-        int maxZ = useCustomBounds ? (customMaxZ - customMinZ + 1) : QuarryConfig.CHUNK_SIZE;
+        int maxX = useCustomBounds ? (customMaxX - customMinX + 1) : LaserQuarryConfig.CHUNK_SIZE;
+        int maxZ = useCustomBounds ? (customMaxZ - customMinZ + 1) : LaserQuarryConfig.CHUNK_SIZE;
 
         if (miningX >= maxX) {
             miningX = 0;
@@ -712,11 +593,11 @@ public class QuarryBlockEntity extends BlockEntity
             startX = customMinX;
             startZ = customMinZ;
         } else {
-            Direction facing = QuarryBlock.getMiningDirection(quarryState);
+            Direction facing = LaserQuarryBlock.getMiningDirection(quarryState);
             switch (facing) {
                 case NORTH:
                     startX = quarryPos.getX() - 8;
-                    startZ = quarryPos.getZ() - QuarryConfig.CHUNK_SIZE;
+                    startZ = quarryPos.getZ() - LaserQuarryConfig.CHUNK_SIZE;
                     break;
                 case SOUTH:
                     startX = quarryPos.getX() - 8;
@@ -727,7 +608,7 @@ public class QuarryBlockEntity extends BlockEntity
                     startZ = quarryPos.getZ() - 8;
                     break;
                 case WEST:
-                    startX = quarryPos.getX() - QuarryConfig.CHUNK_SIZE;
+                    startX = quarryPos.getX() - LaserQuarryConfig.CHUNK_SIZE;
                     startZ = quarryPos.getZ() - 8;
                     break;
                 default:
@@ -736,7 +617,7 @@ public class QuarryBlockEntity extends BlockEntity
         }
 
         // Clearing phase only works above and at quarry level
-        int startY = quarryPos.getY() + QuarryConfig.Y_OFFSET_ABOVE;
+        int startY = quarryPos.getY() + LaserQuarryConfig.Y_OFFSET_ABOVE;
         int currentY = startY - miningY;
 
         // Stop when we go below quarry level
@@ -768,11 +649,11 @@ public class QuarryBlockEntity extends BlockEntity
             innerSizeX = customMaxX - customMinX - 1; // frame size - 2 for inset
             innerSizeZ = customMaxZ - customMinZ - 1;
         } else {
-            Direction facing = QuarryBlock.getMiningDirection(quarryState);
+            Direction facing = LaserQuarryBlock.getMiningDirection(quarryState);
             switch (facing) {
                 case NORTH:
                     startX = quarryPos.getX() - 8 + 1; // Inset 1 from frame
-                    startZ = quarryPos.getZ() - QuarryConfig.CHUNK_SIZE + 1;
+                    startZ = quarryPos.getZ() - LaserQuarryConfig.CHUNK_SIZE + 1;
                     break;
                 case SOUTH:
                     startX = quarryPos.getX() - 8 + 1;
@@ -783,14 +664,14 @@ public class QuarryBlockEntity extends BlockEntity
                     startZ = quarryPos.getZ() - 8 + 1;
                     break;
                 case WEST:
-                    startX = quarryPos.getX() - QuarryConfig.CHUNK_SIZE + 1;
+                    startX = quarryPos.getX() - LaserQuarryConfig.CHUNK_SIZE + 1;
                     startZ = quarryPos.getZ() - 8 + 1;
                     break;
                 default:
                     return null;
             }
-            innerSizeX = QuarryConfig.INNER_SIZE;
-            innerSizeZ = QuarryConfig.INNER_SIZE;
+            innerSizeX = LaserQuarryConfig.INNER_SIZE;
+            innerSizeZ = LaserQuarryConfig.INNER_SIZE;
         }
         if (innerSizeX <= 0 || innerSizeZ <= 0) {
             return null;
@@ -836,8 +717,8 @@ public class QuarryBlockEntity extends BlockEntity
             innerSizeX = customMaxX - customMinX - 1;
             innerSizeZ = customMaxZ - customMinZ - 1;
         } else {
-            innerSizeX = QuarryConfig.INNER_SIZE;
-            innerSizeZ = QuarryConfig.INNER_SIZE;
+            innerSizeX = LaserQuarryConfig.INNER_SIZE;
+            innerSizeZ = LaserQuarryConfig.INNER_SIZE;
         }
         if (innerSizeX <= 0 || innerSizeZ <= 0) {
             return;
@@ -861,7 +742,7 @@ public class QuarryBlockEntity extends BlockEntity
      * before syncing to clients (prevents arm hiccup).
      */
     private void skipToNextSolidBlock(ServerWorld world, BlockState quarryState) {
-        for (int skipped = 0; skipped < QuarryConfig.MAX_SKIP_PER_TICK; skipped++) {
+        for (int skipped = 0; skipped < LaserQuarryConfig.MAX_SKIP_PER_TICK; skipped++) {
             BlockPos target = calculateMiningTargetPos(quarryState);
             if (target == null) {
                 // Reached end of mining area
@@ -870,7 +751,7 @@ public class QuarryBlockEntity extends BlockEntity
             }
 
             BlockState targetState = world.getBlockState(target);
-            if (!shouldSkipBlock(targetState)) {
+            if (!shouldSkipBlock(world, target, targetState)) {
                 // Found a solid block to mine next
                 return;
             }
@@ -910,11 +791,11 @@ public class QuarryBlockEntity extends BlockEntity
             endX = customMaxX;
             endZ = customMaxZ;
         } else {
-            Direction facing = QuarryBlock.getMiningDirection(quarryState);
+            Direction facing = LaserQuarryBlock.getMiningDirection(quarryState);
             switch (facing) {
                 case NORTH:
                     startX = quarryPos.getX() - 8;
-                    startZ = quarryPos.getZ() - QuarryConfig.CHUNK_SIZE;
+                    startZ = quarryPos.getZ() - LaserQuarryConfig.CHUNK_SIZE;
                     break;
                 case SOUTH:
                     startX = quarryPos.getX() - 8;
@@ -925,18 +806,18 @@ public class QuarryBlockEntity extends BlockEntity
                     startZ = quarryPos.getZ() - 8;
                     break;
                 case WEST:
-                    startX = quarryPos.getX() - QuarryConfig.CHUNK_SIZE;
+                    startX = quarryPos.getX() - LaserQuarryConfig.CHUNK_SIZE;
                     startZ = quarryPos.getZ() - 8;
                     break;
                 default:
                     return null;
             }
-            endX = startX + QuarryConfig.CHUNK_SIZE - 1;
-            endZ = startZ + QuarryConfig.CHUNK_SIZE - 1;
+            endX = startX + LaserQuarryConfig.CHUNK_SIZE - 1;
+            endZ = startZ + LaserQuarryConfig.CHUNK_SIZE - 1;
         }
 
         int bottomY = quarryPos.getY();
-        int topY = quarryPos.getY() + QuarryConfig.Y_OFFSET_ABOVE;
+        int topY = quarryPos.getY() + LaserQuarryConfig.Y_OFFSET_ABOVE;
 
         // Calculate ring size: perimeter of rectangle = 2*width + 2*depth - 4 corners
         int width = endX - startX + 1;
@@ -1028,11 +909,11 @@ public class QuarryBlockEntity extends BlockEntity
             endX = customMaxX;
             endZ = customMaxZ;
         } else {
-            Direction facing = QuarryBlock.getMiningDirection(quarryState);
+            Direction facing = LaserQuarryBlock.getMiningDirection(quarryState);
             switch (facing) {
                 case NORTH:
                     startX = quarryPos.getX() - 8;
-                    startZ = quarryPos.getZ() - QuarryConfig.CHUNK_SIZE;
+                    startZ = quarryPos.getZ() - LaserQuarryConfig.CHUNK_SIZE;
                     break;
                 case SOUTH:
                     startX = quarryPos.getX() - 8;
@@ -1043,17 +924,17 @@ public class QuarryBlockEntity extends BlockEntity
                     startZ = quarryPos.getZ() - 8;
                     break;
                 case WEST:
-                    startX = quarryPos.getX() - QuarryConfig.CHUNK_SIZE;
+                    startX = quarryPos.getX() - LaserQuarryConfig.CHUNK_SIZE;
                     startZ = quarryPos.getZ() - 8;
                     break;
                 default:
-                    return AutomationBlocks.QUARRY_FRAME.getDefaultState();
+                    return AutomationBlocks.LASER_QUARRY_FRAME.getDefaultState();
             }
-            endX = startX + QuarryConfig.CHUNK_SIZE - 1;
-            endZ = startZ + QuarryConfig.CHUNK_SIZE - 1;
+            endX = startX + LaserQuarryConfig.CHUNK_SIZE - 1;
+            endZ = startZ + LaserQuarryConfig.CHUNK_SIZE - 1;
         }
         int bottomY = quarryPos.getY();
-        int topY = quarryPos.getY() + QuarryConfig.Y_OFFSET_ABOVE;
+        int topY = quarryPos.getY() + LaserQuarryConfig.Y_OFFSET_ABOVE;
 
         int x = framePos.getX();
         int y = framePos.getY();
@@ -1099,7 +980,7 @@ public class QuarryBlockEntity extends BlockEntity
             }
         }
 
-        QuarryFrameBlock frameBlock = (QuarryFrameBlock) AutomationBlocks.QUARRY_FRAME;
+        LaserQuarryFrameBlock frameBlock = (LaserQuarryFrameBlock) AutomationBlocks.LASER_QUARRY_FRAME;
         return frameBlock.withArms(north, south, east, west, up, down);
     }
 
@@ -1124,93 +1005,157 @@ public class QuarryBlockEntity extends BlockEntity
         breakProgress = 0f;
         currentTarget = null;
         currentBreakTime = -1f;
-        activeToolSlot = -1;
     }
 
-    // Inventory implementation
+    // ==================== EnergyStorage Implementation ====================
+
     @Override
-    public int size() {
-        return QuarryConfig.INVENTORY_SIZE;
+    public long getAmount() {
+        return energy;
     }
 
     @Override
-    public boolean isEmpty() {
-        for (ItemStack stack : inventory) {
-            if (!stack.isEmpty()) {
-                return false;
+    public long getCapacity() {
+        return LaserQuarryConfig.ENERGY_CAPACITY;
+    }
+
+    @Override
+    public long insert(long maxAmount, boolean simulate) {
+        long space = LaserQuarryConfig.ENERGY_CAPACITY - energy;
+        long accepted = Math.min(maxAmount, Math.min(space, LaserQuarryConfig.MAX_ENERGY_INPUT));
+        if (!simulate && accepted > 0) {
+            energy += accepted;
+            markDirty();
+        }
+        return accepted;
+    }
+
+    @Override
+    public long extract(long maxAmount, boolean simulate) {
+        // Quarry doesn't allow external extraction
+        return 0;
+    }
+
+    @Override
+    public boolean canInsert() {
+        return true;
+    }
+
+    @Override
+    public boolean canExtract() {
+        return false;
+    }
+
+    /**
+     * Consumes energy from the buffer if available.
+     *
+     * @param amount the amount of energy to consume
+     * @return true if the energy was consumed, false if insufficient energy
+     */
+    private boolean consumeEnergy(long amount) {
+        if (energy >= amount) {
+            energy -= amount;
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Checks if the quarry has at least the specified amount of energy.
+     *
+     * @param amount the amount to check
+     * @return true if enough energy is available
+     */
+    private boolean hasEnergy(long amount) {
+        return energy >= amount;
+    }
+
+    /**
+     * Gets the energy level as a ratio from 0.0 to 1.0.
+     */
+    public double getEnergyLevel() {
+        return (double) energy / LaserQuarryConfig.ENERGY_CAPACITY;
+    }
+
+    /**
+     * Gets the current move cost based on buffer level.
+     * Formula: ceil(20 + buffer/10) RF/tick
+     */
+    private long getMoveCost() {
+        return (long) Math.ceil(
+                LaserQuarryConfig.BASE_MOVE_COST + (double) energy / LaserQuarryConfig.MOVE_COST_BUFFER_DIVISOR);
+    }
+
+    /**
+     * Gets the effective arm speed based on energy consumption.
+     * Formula: 0.1 + (energyUsed / 2000) blocks/tick
+     * Applies rain penalty if exposed to rain.
+     */
+    private float getEffectiveArmSpeed() {
+        long moveCost = getMoveCost();
+        float speed = LaserQuarryConfig.BASE_MOVE_SPEED + (moveCost / LaserQuarryConfig.SPEED_ENERGY_DIVISOR);
+
+        // Apply rain penalty if quarry is exposed to rain
+        if (world != null && world.hasRain(pos.up())) {
+            speed *= LaserQuarryConfig.RAIN_SPEED_MULTIPLIER;
+        }
+
+        return speed;
+    }
+
+    // ==================== Probe Support ====================
+
+    /**
+     * Creates probe result with quarry diagnostic information.
+     */
+    public ProbeResult getProbeResult() {
+        ProbeResult.Builder builder = ProbeResult.builder("Laser Quarry Status");
+
+        // Phase with required energy
+        String phaseName =
+                switch (currentPhase) {
+                    case CLEARING -> "Clearing";
+                    case BUILDING_FRAME -> "Building Frame";
+                    case MINING -> "Mining";
+                };
+        if (finished) {
+            builder.entry("Phase", "Finished", Formatting.AQUA);
+        } else if (currentPhase == Phase.BUILDING_FRAME) {
+            builder.entry("Phase", phaseName + " (need 240 RF)", Formatting.AQUA);
+        } else {
+            builder.entry("Phase", phaseName, Formatting.AQUA);
+        }
+
+        // Energy
+        double energyPercent = getEnergyLevel() * 100;
+        Formatting energyColor =
+                energyPercent > 50 ? Formatting.GREEN : energyPercent > 20 ? Formatting.YELLOW : Formatting.RED;
+        builder.entry(
+                "Energy",
+                String.format("%,d / %,d RF (%.1f%%)", energy, LaserQuarryConfig.ENERGY_CAPACITY, energyPercent),
+                energyColor);
+
+        // Power consumption and speed (only during active phases)
+        if (!finished) {
+            long moveCost = getMoveCost();
+            builder.entry("Consumption", String.format("%,d RF/t", moveCost), Formatting.GOLD);
+
+            if (currentPhase == Phase.MINING) {
+                float speed = getEffectiveArmSpeed();
+                String speedText = String.format("%.2f blocks/tick", speed);
+                if (world != null && world.hasRain(pos.up())) {
+                    speedText += " (rain)";
+                }
+                builder.entry("Arm Speed", speedText, Formatting.LIGHT_PURPLE);
             }
         }
-        return true;
-    }
 
-    @Override
-    public ItemStack getStack(int slot) {
-        return inventory.get(slot);
-    }
-
-    @Override
-    public ItemStack removeStack(int slot, int amount) {
-        ItemStack stack = inventory.get(slot);
-        if (stack.isEmpty()) {
-            return ItemStack.EMPTY;
+        // Warnings
+        if (energy == 0 && !finished) {
+            builder.warning("No power!");
         }
-        ItemStack result;
-        if (amount >= stack.getCount()) {
-            result = stack;
-            inventory.set(slot, ItemStack.EMPTY);
-        } else {
-            result = stack.split(amount);
-        }
-        markDirty();
-        return result;
-    }
 
-    @Override
-    public ItemStack removeStack(int slot) {
-        ItemStack stack = inventory.get(slot);
-        inventory.set(slot, ItemStack.EMPTY);
-        markDirty();
-        return stack;
-    }
-
-    @Override
-    public void setStack(int slot, ItemStack stack) {
-        inventory.set(slot, stack);
-        if (stack.getCount() > getMaxCountPerStack()) {
-            stack.setCount(getMaxCountPerStack());
-        }
-        markDirty();
-    }
-
-    @Override
-    public boolean canPlayerUse(PlayerEntity player) {
-        return Inventory.canPlayerUse(this, player);
-    }
-
-    @Override
-    public void clear() {
-        inventory.clear();
-    }
-
-    @Override
-    public boolean isValid(int slot, ItemStack stack) {
-        return isValidTool(stack);
-    }
-
-    // SidedInventory implementation - allow hopper interaction
-    @Override
-    public int[] getAvailableSlots(Direction side) {
-        return TOOL_SLOTS;
-    }
-
-    @Override
-    public boolean canInsert(int slot, ItemStack stack, @Nullable Direction dir) {
-        return isValid(slot, stack);
-    }
-
-    @Override
-    public boolean canExtract(int slot, ItemStack stack, Direction dir) {
-        return true;
+        return builder.build();
     }
 
     // NBT serialization using the new WriteView/ReadView API
@@ -1218,15 +1163,10 @@ public class QuarryBlockEntity extends BlockEntity
     protected void writeData(WriteView view) {
         super.writeData(view);
 
-        // Save inventory (all 9 slots)
-        for (int i = 0; i < QuarryConfig.INVENTORY_SIZE; i++) {
-            ItemStack stack = inventory.get(i);
-            if (!stack.isEmpty()) {
-                view.put("Tool" + i, ItemStack.CODEC, stack);
-            } else {
-                view.remove("Tool" + i);
-            }
-        }
+        // Save energy
+        NbtCompound energyState = new NbtCompound();
+        energyState.putLong("Amount", energy);
+        view.put("Energy", NbtCompound.CODEC, energyState);
 
         // Save mining state
         NbtCompound miningState = new NbtCompound();
@@ -1245,6 +1185,7 @@ public class QuarryBlockEntity extends BlockEntity
         miningState.putBoolean("ArmInitialized", armInitialized);
         miningState.putInt("SettlingTicks", settlingTicksRemaining);
         miningState.putInt("ExpectedTravelTicks", expectedTravelTicks);
+        miningState.putFloat("SyncedArmSpeed", syncedArmSpeed);
         view.put("MiningState", NbtCompound.CODEC, miningState);
 
         // Save custom bounds
@@ -1270,24 +1211,10 @@ public class QuarryBlockEntity extends BlockEntity
         customMaxX = 0;
         customMaxZ = 0;
 
-        // Clear inventory
-        for (int i = 0; i < QuarryConfig.INVENTORY_SIZE; i++) {
-            inventory.set(i, ItemStack.EMPTY);
-        }
-
-        // Load inventory (all 9 slots)
-        for (int i = 0; i < QuarryConfig.INVENTORY_SIZE; i++) {
-            final int slotIndex = i;
-            view.read("Tool" + i, ItemStack.CODEC).ifPresent(stack -> {
-                inventory.set(slotIndex, stack);
-            });
-        }
-
-        // Legacy: load old single-slot format (stored as just "Tool")
-        view.read("Tool", ItemStack.CODEC).ifPresent(tool -> {
-            if (!tool.isEmpty() && inventory.get(0).isEmpty()) {
-                inventory.set(0, tool);
-            }
+        // Load energy
+        energy = 0;
+        view.read("Energy", NbtCompound.CODEC).ifPresent(energyState -> {
+            energy = energyState.getLong("Amount").orElse(0L);
         });
 
         // Load mining state
@@ -1319,6 +1246,7 @@ public class QuarryBlockEntity extends BlockEntity
             armInitialized = miningState.getBoolean("ArmInitialized").orElse(false);
             settlingTicksRemaining = miningState.getInt("SettlingTicks").orElse(0);
             expectedTravelTicks = miningState.getInt("ExpectedTravelTicks").orElse(0);
+            syncedArmSpeed = miningState.getFloat("SyncedArmSpeed").orElse(LaserQuarryConfig.ARM_SPEED);
         });
 
         // Load custom bounds
@@ -1341,7 +1269,6 @@ public class QuarryBlockEntity extends BlockEntity
         return createNbt(registryLookup);
     }
 
-    // Handle item drops when block is broken
     @Override
     public void onBlockReplaced(BlockPos pos, BlockState oldState) {
         super.onBlockReplaced(pos, oldState);
@@ -1355,16 +1282,6 @@ public class QuarryBlockEntity extends BlockEntity
             // Clear any active breaking animation
             if (currentTarget != null) {
                 ((ServerWorld) world).setBlockBreakingInfo(breakingEntityId, currentTarget, -1);
-            }
-
-            for (int i = 0; i < QuarryConfig.INVENTORY_SIZE; i++) {
-                ItemStack stack = inventory.get(i);
-                if (!stack.isEmpty()) {
-                    ItemEntity itemEntity =
-                            new ItemEntity(world, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, stack);
-                    itemEntity.setToDefaultPickupDelay();
-                    world.spawnEntity(itemEntity);
-                }
             }
         }
     }
@@ -1398,8 +1315,16 @@ public class QuarryBlockEntity extends BlockEntity
         return armState;
     }
 
+    public float getSyncedArmSpeed() {
+        return syncedArmSpeed;
+    }
+
     public boolean isArmInitialized() {
         return armInitialized;
+    }
+
+    public boolean isFinished() {
+        return finished;
     }
 
     // Custom bounds getters for frame decay logic

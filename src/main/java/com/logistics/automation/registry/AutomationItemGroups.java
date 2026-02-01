@@ -11,7 +11,7 @@ public final class AutomationItemGroups {
     }
 
     private static void addEntries(ItemGroup.DisplayContext displayContext, ItemGroup.Entries entries) {
-        entries.add(AutomationBlocks.QUARRY);
+        entries.add(AutomationBlocks.LASER_QUARRY);
     }
 
     public static void initialize() {

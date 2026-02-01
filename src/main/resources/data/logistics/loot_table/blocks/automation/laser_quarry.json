@@ -8,7 +8,7 @@
       ],
       "entries": [
         {
-          "name": "logistics:quarry",
+          "name": "logistics:automation/laser_quarry",
           "type": "minecraft:item"
         }
       ],

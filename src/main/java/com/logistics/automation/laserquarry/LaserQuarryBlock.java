@@ -1,7 +1,9 @@
-package com.logistics.automation.quarry;
+package com.logistics.automation.laserquarry;
 
-import com.logistics.automation.quarry.entity.QuarryBlockEntity;
+import com.logistics.automation.laserquarry.entity.LaserQuarryBlockEntity;
 import com.logistics.automation.registry.AutomationBlockEntities;
+import com.logistics.core.lib.block.Probeable;
+import com.logistics.core.lib.support.ProbeResult;
 import com.logistics.core.marker.MarkerManager;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.block.Block;
@@ -19,20 +21,18 @@ import net.minecraft.sound.BlockSoundGroup;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.EnumProperty;
 import net.minecraft.state.property.Properties;
-import net.minecraft.util.ActionResult;
 import net.minecraft.util.BlockMirror;
 import net.minecraft.util.BlockRotation;
-import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
-public class QuarryBlock extends BlockWithEntity {
-    public static final MapCodec<QuarryBlock> CODEC = createCodec(QuarryBlock::new);
+public class LaserQuarryBlock extends BlockWithEntity implements Probeable {
+    public static final MapCodec<LaserQuarryBlock> CODEC = createCodec(LaserQuarryBlock::new);
     public static final EnumProperty<Direction> FACING = Properties.HORIZONTAL_FACING;
 
-    public QuarryBlock(Settings settings) {
+    public LaserQuarryBlock(Settings settings) {
         super(settings.strength(3.5f).sounds(BlockSoundGroup.STONE));
         setDefaultState(getDefaultState().with(FACING, Direction.NORTH));
     }
@@ -63,20 +63,9 @@ public class QuarryBlock extends BlockWithEntity {
         return getDefaultState().with(FACING, ctx.getHorizontalPlayerFacing());
     }
 
-    @Override
-    protected ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
-        if (!world.isClient()) {
-            BlockEntity entity = world.getBlockEntity(pos);
-            if (entity instanceof QuarryBlockEntity quarry) {
-                player.openHandledScreen(quarry);
-            }
-        }
-        return ActionResult.SUCCESS;
-    }
-
     @Nullable @Override
     public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
-        return new QuarryBlockEntity(pos, state);
+        return new LaserQuarryBlockEntity(pos, state);
     }
 
     @Override
@@ -89,7 +78,7 @@ public class QuarryBlock extends BlockWithEntity {
             MarkerManager.MarkerBounds bounds = MarkerManager.findAdjacentMarkerBounds(world, pos);
             if (bounds != null) {
                 BlockEntity entity = world.getBlockEntity(pos);
-                if (entity instanceof QuarryBlockEntity quarry) {
+                if (entity instanceof LaserQuarryBlockEntity quarry) {
                     // Set custom bounds (2D only - X and Z from markers, Y derived from quarry position)
                     quarry.setCustomBounds(
                             bounds.min().getX(),
@@ -107,7 +96,7 @@ public class QuarryBlock extends BlockWithEntity {
     @Nullable @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
             World world, BlockState state, BlockEntityType<T> type) {
-        return validateTicker(type, AutomationBlockEntities.QUARRY_BLOCK_ENTITY, QuarryBlockEntity::tick);
+        return validateTicker(type, AutomationBlockEntities.LASER_QUARRY_BLOCK_ENTITY, LaserQuarryBlockEntity::tick);
     }
 
     @Override
@@ -125,5 +114,13 @@ public class QuarryBlock extends BlockWithEntity {
      */
     public static Direction getMiningDirection(BlockState state) {
         return state.get(FACING);
+    }
+
+    @Override
+    public ProbeResult onProbe(World world, BlockPos pos, PlayerEntity player) {
+        if (world.getBlockEntity(pos) instanceof LaserQuarryBlockEntity quarry) {
+            return quarry.getProbeResult();
+        }
+        return null;
     }
 }

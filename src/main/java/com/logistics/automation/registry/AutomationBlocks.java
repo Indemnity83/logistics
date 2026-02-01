@@ -1,8 +1,8 @@
 package com.logistics.automation.registry;
 
 import com.logistics.LogisticsMod;
-import com.logistics.automation.quarry.QuarryBlock;
-import com.logistics.automation.quarry.QuarryFrameBlock;
+import com.logistics.automation.laserquarry.LaserQuarryBlock;
+import com.logistics.automation.laserquarry.LaserQuarryFrameBlock;
 import java.util.function.Function;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
@@ -19,9 +19,9 @@ public final class AutomationBlocks {
 
     private static final String DOMAIN = "automation/";
 
-    public static final Block QUARRY = register("quarry", QuarryBlock::new);
-    public static final Block QUARRY_FRAME =
-            registerNoItem("quarry_frame", QuarryFrameBlock::new, settings -> settings.strength(-1.0f, 3600000.0f)
+    public static final Block LASER_QUARRY = register("laser_quarry", LaserQuarryBlock::new);
+    public static final Block LASER_QUARRY_FRAME = registerNoItem(
+            "laser_quarry_frame", LaserQuarryFrameBlock::new, settings -> settings.strength(-1.0f, 3600000.0f)
                     .nonOpaque()
                     .dropsNothing()
                     .ticksRandomly());
@@ -79,9 +79,13 @@ public final class AutomationBlocks {
 
     private static void registerLegacyAliases() {
         // v0.2 => v0.3
-        addBlockAlias("quarry", QUARRY);
-        addItemAlias("quarry", QUARRY.asItem());
-        addBlockAlias("quarry_frame", QUARRY_FRAME);
+        addBlockAlias("quarry", LASER_QUARRY);
+        addItemAlias("quarry", LASER_QUARRY.asItem());
+        addBlockAlias("quarry_frame", LASER_QUARRY_FRAME);
+        // v0.3 => v0.4 (quarry renamed to laser_quarry)
+        addBlockAlias("automation/quarry", LASER_QUARRY);
+        addItemAlias("automation/quarry", LASER_QUARRY.asItem());
+        addBlockAlias("automation/quarry_frame", LASER_QUARRY_FRAME);
     }
 
     private static void addBlockAlias(String name, Block block) {
