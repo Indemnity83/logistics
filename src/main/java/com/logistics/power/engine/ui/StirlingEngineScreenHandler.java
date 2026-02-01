@@ -23,9 +23,9 @@ public class StirlingEngineScreenHandler extends ScreenHandler {
     private static final int HOTBAR_Y = 142;
     private static final int SLOT_START_X = 8;
 
-    // Fuel slot position (matches vanilla furnace fuel slot position)
-    private static final int FUEL_SLOT_X = 56;
-    private static final int FUEL_SLOT_Y = 53;
+    // Fuel slot position (centered horizontally, near top)
+    private static final int FUEL_SLOT_X = 80;
+    private static final int FUEL_SLOT_Y = 39;
 
     private final Inventory inventory;
     private final PropertyDelegate propertyDelegate;
