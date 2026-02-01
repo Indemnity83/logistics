@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.Map;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.inventory.Inventory;
@@ -165,7 +164,7 @@ public class LaserQuarryBlockEntity extends BlockEntity implements EnergyStorage
 
             targetState = world.getBlockState(target);
 
-            if (!entity.shouldSkipBlock(targetState)) {
+            if (!entity.shouldSkipBlock(world, target, targetState)) {
                 break;
             }
 
@@ -173,7 +172,7 @@ public class LaserQuarryBlockEntity extends BlockEntity implements EnergyStorage
             entity.resetBreakProgress();
         }
 
-        if (entity.shouldSkipBlock(targetState)) {
+        if (entity.shouldSkipBlock(world, target, targetState)) {
             return;
         }
 
@@ -256,7 +255,7 @@ public class LaserQuarryBlockEntity extends BlockEntity implements EnergyStorage
             }
 
             BlockState targetState = world.getBlockState(target);
-            if (!entity.shouldSkipBlock(targetState)) {
+            if (!entity.shouldSkipBlock(world, target, targetState)) {
                 break; // Found a block to mine
             }
 
@@ -443,7 +442,7 @@ public class LaserQuarryBlockEntity extends BlockEntity implements EnergyStorage
         return (int) Math.ceil(distance / getEffectiveArmSpeed());
     }
 
-    private boolean shouldSkipBlock(BlockState state) {
+    private boolean shouldSkipBlock(World world, BlockPos pos, BlockState state) {
         // Skip air
         if (state.isAir()) {
             return true;
@@ -452,8 +451,9 @@ public class LaserQuarryBlockEntity extends BlockEntity implements EnergyStorage
         if (!state.getFluidState().isEmpty()) {
             return true;
         }
-        // Skip bedrock
-        if (state.isOf(Blocks.BEDROCK)) {
+        // Skip unbreakable blocks (bedrock, barriers, etc.)
+        float hardness = state.getHardness(world, pos);
+        if (hardness < 0) {
             return true;
         }
         return false;
@@ -751,7 +751,7 @@ public class LaserQuarryBlockEntity extends BlockEntity implements EnergyStorage
             }
 
             BlockState targetState = world.getBlockState(target);
-            if (!shouldSkipBlock(targetState)) {
+            if (!shouldSkipBlock(world, target, targetState)) {
                 // Found a solid block to mine next
                 return;
             }
