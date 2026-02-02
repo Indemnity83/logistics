@@ -422,6 +422,6 @@ public abstract class Pipe {
                 return module.acceptsLowTierEnergyFrom(ctx, from);
             }
         }
-        return true; // Default if no energy modules
+        return false; // No energy-capable modules installed
     }
 }
