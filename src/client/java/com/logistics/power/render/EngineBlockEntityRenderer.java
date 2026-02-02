@@ -1,11 +1,11 @@
 package com.logistics.power.render;
 
-import static com.logistics.power.engine.block.entity.AbstractEngineBlockEntity.STAGE;
+import static com.logistics.core.lib.power.AbstractEngineBlockEntity.STAGE;
 
 import com.logistics.LogisticsMod;
+import com.logistics.core.lib.power.AbstractEngineBlockEntity;
+import com.logistics.core.lib.power.AbstractEngineBlockEntity.HeatStage;
 import com.logistics.core.render.ModelRegistry;
-import com.logistics.power.engine.block.entity.AbstractEngineBlockEntity;
-import com.logistics.power.engine.block.entity.AbstractEngineBlockEntity.HeatStage;
 import com.logistics.power.engine.block.entity.CreativeEngineBlockEntity;
 import com.logistics.power.engine.block.entity.RedstoneEngineBlockEntity;
 import com.logistics.power.engine.block.entity.StirlingEngineBlockEntity;

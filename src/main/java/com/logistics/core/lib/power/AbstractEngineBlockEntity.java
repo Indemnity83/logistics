@@ -1,4 +1,4 @@
-package com.logistics.power.engine.block.entity;
+package com.logistics.core.lib.power;
 
 import com.logistics.api.EnergyStorage;
 import com.logistics.core.lib.support.ProbeResult;
@@ -404,6 +404,8 @@ public abstract class AbstractEngineBlockEntity extends BlockEntity implements E
     public float getProgress() {
         return progress;
     }
+
+    // ==================== Public Getters ====================
 
     public HeatStage getHeatStage() {
         return heatStage;

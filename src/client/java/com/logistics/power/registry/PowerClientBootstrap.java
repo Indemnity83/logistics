@@ -1,7 +1,7 @@
 package com.logistics.power.registry;
 
 import com.logistics.core.bootstrap.ClientDomainBootstrap;
-import com.logistics.power.engine.block.entity.AbstractEngineBlockEntity;
+import com.logistics.core.lib.power.AbstractEngineBlockEntity;
 import com.logistics.power.render.EngineBlockEntityRenderer;
 import com.logistics.power.screen.StirlingEngineScreen;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;

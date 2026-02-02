@@ -1,5 +1,6 @@
 package com.logistics.power.engine.block.entity;
 
+import com.logistics.core.lib.power.AbstractEngineBlockEntity;
 import com.logistics.core.lib.support.ProbeResult;
 import com.logistics.power.engine.PIDController;
 import com.logistics.power.engine.block.StirlingEngineBlock;

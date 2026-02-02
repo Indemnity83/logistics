@@ -1,5 +1,6 @@
 package com.logistics.power.engine.block.entity;
 
+import com.logistics.core.lib.power.AbstractEngineBlockEntity;
 import com.logistics.power.engine.block.RedstoneEngineBlock;
 import com.logistics.power.registry.PowerBlockEntities;
 import net.minecraft.block.BlockState;
