@@ -1,6 +1,7 @@
 package com.logistics.power.block.entity;
 
 import com.logistics.api.EnergyStorage;
+import com.logistics.core.lib.power.AcceptsLowTierEnergy;
 import com.logistics.core.lib.support.ProbeResult;
 import com.logistics.power.registry.PowerBlockEntities;
 import net.minecraft.block.BlockState;
@@ -17,7 +18,7 @@ import net.minecraft.world.World;
  * Accepts energy from all sides and discards it at a configurable rate.
  * Useful for testing engine output and PID tuning.
  */
-public class CreativeSinkBlockEntity extends BlockEntity implements EnergyStorage {
+public class CreativeSinkBlockEntity extends BlockEntity implements EnergyStorage, AcceptsLowTierEnergy {
     private static final long[] DRAIN_RATES = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 50, 100};
     private int drainRateIndex = 4; // Default 5 RF/t
     private long energyThisTick = 0;

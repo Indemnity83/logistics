@@ -1,9 +1,12 @@
 package com.logistics.power.engine.block.entity;
 
 import com.logistics.core.lib.power.AbstractEngineBlockEntity;
+import com.logistics.core.lib.power.AcceptsLowTierEnergy;
+import com.logistics.core.lib.power.LowTierEnergySource;
 import com.logistics.power.engine.block.RedstoneEngineBlock;
 import com.logistics.power.registry.PowerBlockEntities;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
@@ -12,7 +15,7 @@ import net.minecraft.world.World;
  * Block entity for the Redstone Engine.
  * The simplest engine type that converts redstone signals to energy.
  */
-public class RedstoneEngineBlockEntity extends AbstractEngineBlockEntity {
+public class RedstoneEngineBlockEntity extends AbstractEngineBlockEntity implements LowTierEnergySource {
     private static final long MAX_ENERGY = 1000L;
 
     // Energy generation: +10 RF every 16 ticks when powered
@@ -50,6 +53,28 @@ public class RedstoneEngineBlockEntity extends AbstractEngineBlockEntity {
     @Override
     protected boolean isRedstonePowered() {
         return getCachedState().get(RedstoneEngineBlock.POWERED);
+    }
+
+    @Override
+    public boolean isRunning() {
+        if (!super.isRunning()) {
+            return false;
+        }
+
+        // Don't run if target doesn't accept low-tier energy
+        if (world == null) {
+            return false;
+        }
+
+        Direction outputDir = getOutputDirection();
+        BlockPos targetPos = pos.offset(outputDir);
+        BlockEntity target = world.getBlockEntity(targetPos);
+
+        if (target instanceof AcceptsLowTierEnergy acceptor) {
+            return acceptor.acceptsLowTierEnergyFrom(outputDir.getOpposite());
+        }
+
+        return false; // Target doesn't accept low-tier energy
     }
 
     @Override
