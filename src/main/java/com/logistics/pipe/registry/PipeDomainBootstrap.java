@@ -2,12 +2,14 @@ package com.logistics.pipe.registry;
 
 import com.logistics.LogisticsMod;
 import com.logistics.api.LogisticsApi;
+import com.logistics.api.fabric.TREnergyStorageAdapter;
 import com.logistics.core.bootstrap.DomainBootstrap;
 import com.logistics.core.lib.pipe.PipeConnectionRegistry;
 import com.logistics.core.util.TimingLog;
 import com.logistics.pipe.PipeApi;
 import com.logistics.pipe.data.PipeDataComponents;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
+import team.reborn.energy.api.EnergyStorage;
 
 public final class PipeDomainBootstrap implements DomainBootstrap {
     @Override
@@ -27,6 +29,13 @@ public final class PipeDomainBootstrap implements DomainBootstrap {
                 "ItemStorage.SIDED.registerForBlockEntity",
                 () -> ItemStorage.SIDED.registerForBlockEntity(
                         (blockEntity, direction) -> blockEntity.getItemStorage(direction),
+                        PipeBlockEntities.PIPE_BLOCK_ENTITY));
+
+        TimingLog.time(
+                LogisticsMod.LOGGER,
+                "EnergyStorage.SIDED.registerForBlockEntity",
+                () -> EnergyStorage.SIDED.registerForBlockEntity(
+                        (blockEntity, direction) -> new TREnergyStorageAdapter(blockEntity),
                         PipeBlockEntities.PIPE_BLOCK_ENTITY));
 
         // Register pipe-to-pipe connections (pipes accept connections from all sides)

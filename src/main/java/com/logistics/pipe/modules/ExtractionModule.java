@@ -2,6 +2,7 @@ package com.logistics.pipe.modules;
 
 import com.logistics.LogisticsMod;
 import com.logistics.pipe.PipeContext;
+import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.pipe.runtime.PipeConfig;
 import com.logistics.pipe.runtime.TravelingItem;
 import java.util.List;
@@ -21,6 +22,9 @@ import org.jetbrains.annotations.Nullable;
 
 public class ExtractionModule implements Module {
     private static final String EXTRACT_FROM = "extract_direction"; // NBT key for save compatibility
+    private static final String TICKS_SINCE_PULL = "ticks_since_pull";
+    private static final int RF_PER_ITEM = 10;
+    private static final long ENERGY_CAPACITY = 2560L;
 
     @Override
     public void onTick(PipeContext ctx) {
@@ -29,25 +33,32 @@ public class ExtractionModule implements Module {
             return;
         }
 
-        // TODO: this is 100% functional, but lacks whimsy, all wooden pipes
-        //       extract at the same moment, would be better to track the
-        //       actual interval
-        if (ctx.world().getTime() % PipeConfig.EXTRACTION_INTERVAL != 0) {
+        // Increment tick counter
+        int ticks = ctx.getInt(this, TICKS_SINCE_PULL, 0);
+        ticks++;
+        ctx.saveInt(this, TICKS_SINCE_PULL, ticks);
+
+        // Check if we should extract
+        if (!shouldExtract(ctx, ticks)) {
             return;
         }
 
-        Direction extractDirection = getExtractionDirection(ctx);
-        if (extractDirection != null && ctx.getInventoryConnections().contains(extractDirection)) {
-            extractFromDirection(ctx, extractDirection);
-            return;
+        // Get extraction direction
+        Direction direction = getExtractionDirection(ctx);
+        if (direction == null) {
+            direction = autoSelectDirection(ctx);
+            if (direction == null) {
+                return;
+            }
+            setExtractionDirection(ctx, direction);
         }
 
-        List<Direction> inventoryFaces = ctx.getInventoryConnections();
-        if (inventoryFaces.size() == 1) {
-            Direction selected = inventoryFaces.getFirst();
-            setExtractionDirection(ctx, selected);
-            extractFromDirection(ctx, selected);
-        }
+        // Extract items based on available energy
+        extractFromDirection(ctx, direction);
+
+        // Always reset tick counter and zero energy buffer
+        ctx.saveInt(this, TICKS_SINCE_PULL, 0);
+        ctx.setEnergy(this, 0);
     }
 
     @Override
@@ -117,9 +128,72 @@ public class ExtractionModule implements Module {
         return (idx < 0) ? ordered.getFirst() : ordered.get((idx + 1) % ordered.size());
     }
 
-    private boolean extractFromDirection(PipeContext ctx, Direction direction) {
+    private boolean shouldExtract(PipeContext ctx, int ticks) {
+        long energy = ctx.getEnergy(this);
+
+        // 0-7 ticks: cooldown, never extract
+        if (ticks < 8) {
+            return false;
+        }
+
+        // 8-15 ticks: only if energy covers full stack
+        if (ticks < 16) {
+            Direction direction = getExtractionDirection(ctx);
+            long maxExtractable = getMaxExtractableCount(ctx, direction);
+            return energy >= maxExtractable * RF_PER_ITEM;
+        }
+
+        // 16+ ticks: extract if ≥10 RF available
+        return energy >= RF_PER_ITEM;
+    }
+
+    private long getMaxExtractableCount(PipeContext ctx, @Nullable Direction direction) {
+        if (direction == null) {
+            return 0;
+        }
+
         BlockPos targetPos = ctx.pos().offset(direction);
         Storage<ItemVariant> storage = ItemStorage.SIDED.find(ctx.world(), targetPos, direction.getOpposite());
+
+        if (storage == null) {
+            return 0;
+        }
+
+        // Find first non-empty slot and check stack size
+        for (StorageView<ItemVariant> view : storage) {
+            ItemVariant variant = view.getResource();
+            if (!variant.isBlank()) {
+                return Math.min(64, variant.getItem().getMaxCount());
+            }
+        }
+        return 0;
+    }
+
+    @Nullable private Direction autoSelectDirection(PipeContext ctx) {
+        List<Direction> inventoryFaces = ctx.getInventoryConnections();
+        return inventoryFaces.isEmpty() ? null : inventoryFaces.getFirst();
+    }
+
+    private boolean extractFromDirection(PipeContext ctx, Direction direction) {
+        long energy = ctx.getEnergy(this);
+        long maxItems = Math.min(64, energy / RF_PER_ITEM);
+
+        if (maxItems <= 0) {
+            return false;
+        }
+
+        // Check if pipe has space for the full extraction
+        int totalItems = ctx.blockEntity().getTravelingItems().stream()
+                .mapToInt(item -> item.getStack().getCount())
+                .sum();
+        int remaining = PipeBlockEntity.VIRTUAL_CAPACITY - totalItems;
+        if (remaining < maxItems) {
+            return false; // Not enough space for full extraction, skip to preserve full stacks
+        }
+
+        BlockPos targetPos = ctx.pos().offset(direction);
+        Storage<ItemVariant> storage = ItemStorage.SIDED.find(ctx.world(), targetPos, direction.getOpposite());
+
         if (storage == null) {
             return false;
         }
@@ -131,7 +205,7 @@ public class ExtractionModule implements Module {
                     continue;
                 }
 
-                long extracted = view.extract(variant, 1, transaction);
+                long extracted = view.extract(variant, maxItems, transaction);
                 if (extracted > 0) {
                     ItemStack stack = variant.toStack((int) extracted);
                     TravelingItem item = new TravelingItem(stack, direction.getOpposite(), PipeConfig.ITEM_MIN_SPEED);
@@ -156,5 +230,58 @@ public class ExtractionModule implements Module {
 
     private boolean isExtractionFace(PipeContext ctx, Direction direction) {
         return getExtractionDirection(ctx) == direction;
+    }
+
+    // --- Energy methods ---
+
+    @Override
+    public long getEnergyAmount(PipeContext ctx) {
+        return ctx.getEnergy(this);
+    }
+
+    @Override
+    public long getEnergyCapacity(PipeContext ctx) {
+        return ENERGY_CAPACITY;
+    }
+
+    @Override
+    public long insertEnergy(PipeContext ctx, long maxAmount, boolean simulate) {
+        long current = getEnergyAmount(ctx);
+        long space = Math.max(0, ENERGY_CAPACITY - current);
+        long accepted = Math.min(maxAmount, space);
+
+        if (accepted > 0 && !simulate) {
+            ctx.setEnergy(this, current + accepted);
+        }
+
+        return accepted;
+    }
+
+    @Override
+    public long extractEnergy(PipeContext ctx, long maxAmount, boolean simulate) {
+        long current = getEnergyAmount(ctx);
+        long extracted = Math.min(maxAmount, current);
+
+        if (extracted > 0 && !simulate) {
+            long remaining = current - extracted;
+            ctx.setEnergy(this, remaining);
+        }
+
+        return extracted;
+    }
+
+    @Override
+    public boolean canInsertEnergy(PipeContext ctx) {
+        return true;
+    }
+
+    @Override
+    public boolean canExtractEnergy(PipeContext ctx) {
+        return false; // Module extracts internally, not exposed externally
+    }
+
+    @Override
+    public boolean acceptsLowTierEnergyFrom(PipeContext ctx, Direction from) {
+        return true; // Accept low-tier energy from all directions
     }
 }

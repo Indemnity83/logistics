@@ -357,4 +357,71 @@ public abstract class Pipe {
         }
         return candidate;
     }
+
+    // --- Energy delegation ---
+
+    public long getEnergyAmount(PipeContext ctx) {
+        for (Module module : modules) {
+            long amount = module.getEnergyAmount(ctx);
+            if (amount > 0) {
+                return amount; // Return first non-zero
+            }
+        }
+        return 0;
+    }
+
+    public long getEnergyCapacity(PipeContext ctx) {
+        for (Module module : modules) {
+            long capacity = module.getEnergyCapacity(ctx);
+            if (capacity > 0) {
+                return capacity; // Return first non-zero
+            }
+        }
+        return 0;
+    }
+
+    public long insertEnergy(PipeContext ctx, long maxAmount, boolean simulate) {
+        for (Module module : modules) {
+            if (module.canInsertEnergy(ctx)) {
+                return module.insertEnergy(ctx, maxAmount, simulate);
+            }
+        }
+        return 0;
+    }
+
+    public long extractEnergy(PipeContext ctx, long maxAmount, boolean simulate) {
+        for (Module module : modules) {
+            if (module.canExtractEnergy(ctx)) {
+                return module.extractEnergy(ctx, maxAmount, simulate);
+            }
+        }
+        return 0;
+    }
+
+    public boolean canInsertEnergy(PipeContext ctx) {
+        for (Module module : modules) {
+            if (module.canInsertEnergy(ctx)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean canExtractEnergy(PipeContext ctx) {
+        for (Module module : modules) {
+            if (module.canExtractEnergy(ctx)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean acceptsLowTierEnergyFrom(PipeContext ctx, Direction from) {
+        for (Module module : modules) {
+            if (module.canInsertEnergy(ctx)) {
+                return module.acceptsLowTierEnergyFrom(ctx, from);
+            }
+        }
+        return true; // Default if no energy modules
+    }
 }

@@ -218,4 +218,75 @@ public interface Module {
      * @param baseStack the base item stack to copy and modify
      */
     default void appendCreativeMenuVariants(List<ItemStack> stacks, ItemStack baseStack) {}
+
+    // --- Energy handling ---
+
+    /**
+     * Get the current energy stored by this module.
+     * @param ctx the pipe context
+     * @return energy amount in RF, or 0 if module doesn't store energy
+     */
+    default long getEnergyAmount(PipeContext ctx) {
+        return 0;
+    }
+
+    /**
+     * Get the energy capacity of this module.
+     * @param ctx the pipe context
+     * @return capacity in RF, or 0 if module doesn't store energy
+     */
+    default long getEnergyCapacity(PipeContext ctx) {
+        return 0;
+    }
+
+    /**
+     * Insert energy into this module.
+     * @param ctx the pipe context
+     * @param maxAmount maximum energy to insert
+     * @param simulate if true, don't actually insert
+     * @return amount of energy accepted
+     */
+    default long insertEnergy(PipeContext ctx, long maxAmount, boolean simulate) {
+        return 0;
+    }
+
+    /**
+     * Extract energy from this module.
+     * @param ctx the pipe context
+     * @param maxAmount maximum energy to extract
+     * @param simulate if true, don't actually extract
+     * @return amount of energy extracted
+     */
+    default long extractEnergy(PipeContext ctx, long maxAmount, boolean simulate) {
+        return 0;
+    }
+
+    /**
+     * Whether this module can accept energy insertion.
+     * @param ctx the pipe context
+     * @return true if module accepts energy
+     */
+    default boolean canInsertEnergy(PipeContext ctx) {
+        return false;
+    }
+
+    /**
+     * Whether this module can provide energy extraction.
+     * @param ctx the pipe context
+     * @return true if module provides energy
+     */
+    default boolean canExtractEnergy(PipeContext ctx) {
+        return false;
+    }
+
+    /**
+     * Whether this module accepts low-tier energy from the given direction.
+     * Only called if canInsertEnergy() returns true.
+     * @param ctx the pipe context
+     * @param from direction energy is coming from
+     * @return true if low-tier energy is accepted from this direction
+     */
+    default boolean acceptsLowTierEnergyFrom(PipeContext ctx, Direction from) {
+        return true; // Default: accept from all directions
+    }
 }

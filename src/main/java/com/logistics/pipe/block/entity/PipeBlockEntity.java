@@ -1,6 +1,8 @@
 package com.logistics.pipe.block.entity;
 
+import com.logistics.api.EnergyStorage;
 import com.logistics.core.lib.pipe.PipeConnection;
+import com.logistics.core.lib.power.AcceptsLowTierEnergy;
 import com.logistics.pipe.Pipe;
 import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.block.PipeBlock;
@@ -30,7 +32,7 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.Nullable;
 
-public class PipeBlockEntity extends BlockEntity implements PipeConnection {
+public class PipeBlockEntity extends BlockEntity implements PipeConnection, EnergyStorage, AcceptsLowTierEnergy {
     public static final int VIRTUAL_CAPACITY = 5 * 64;
     private final List<TravelingItem> travelingItems = new ArrayList<>();
     private final NbtCompound moduleState = new NbtCompound();
@@ -417,6 +419,78 @@ public class PipeBlockEntity extends BlockEntity implements PipeConnection {
         }
         int clamped = Math.min(total, VIRTUAL_CAPACITY);
         return Math.max(1, (clamped * 15) / VIRTUAL_CAPACITY);
+    }
+
+    // --- EnergyStorage implementation ---
+
+    @Override
+    public long getAmount() {
+        BlockState state = getCachedState();
+        if (state.getBlock() instanceof PipeBlock pipeBlock && pipeBlock.getPipe() != null) {
+            PipeContext ctx = createContext();
+            return pipeBlock.getPipe().getEnergyAmount(ctx);
+        }
+        return 0;
+    }
+
+    @Override
+    public long getCapacity() {
+        BlockState state = getCachedState();
+        if (state.getBlock() instanceof PipeBlock pipeBlock && pipeBlock.getPipe() != null) {
+            PipeContext ctx = createContext();
+            return pipeBlock.getPipe().getEnergyCapacity(ctx);
+        }
+        return 0;
+    }
+
+    @Override
+    public long insert(long maxAmount, boolean simulate) {
+        BlockState state = getCachedState();
+        if (state.getBlock() instanceof PipeBlock pipeBlock && pipeBlock.getPipe() != null) {
+            PipeContext ctx = createContext();
+            return pipeBlock.getPipe().insertEnergy(ctx, maxAmount, simulate);
+        }
+        return 0;
+    }
+
+    @Override
+    public long extract(long maxAmount, boolean simulate) {
+        BlockState state = getCachedState();
+        if (state.getBlock() instanceof PipeBlock pipeBlock && pipeBlock.getPipe() != null) {
+            PipeContext ctx = createContext();
+            return pipeBlock.getPipe().extractEnergy(ctx, maxAmount, simulate);
+        }
+        return 0;
+    }
+
+    @Override
+    public boolean canInsert() {
+        BlockState state = getCachedState();
+        if (state.getBlock() instanceof PipeBlock pipeBlock && pipeBlock.getPipe() != null) {
+            PipeContext ctx = createContext();
+            return pipeBlock.getPipe().canInsertEnergy(ctx);
+        }
+        return false;
+    }
+
+    @Override
+    public boolean canExtract() {
+        BlockState state = getCachedState();
+        if (state.getBlock() instanceof PipeBlock pipeBlock && pipeBlock.getPipe() != null) {
+            PipeContext ctx = createContext();
+            return pipeBlock.getPipe().canExtractEnergy(ctx);
+        }
+        return false;
+    }
+
+    @Override
+    public boolean acceptsLowTierEnergyFrom(Direction from) {
+        BlockState state = getCachedState();
+        if (state.getBlock() instanceof PipeBlock pipeBlock && pipeBlock.getPipe() != null) {
+            PipeContext ctx = createContext();
+            return pipeBlock.getPipe().acceptsLowTierEnergyFrom(ctx, from);
+        }
+        return false;
     }
 
     // --- Component handling for item drops ---
