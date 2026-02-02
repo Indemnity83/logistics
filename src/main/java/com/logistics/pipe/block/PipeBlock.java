@@ -339,7 +339,7 @@ public class PipeBlock extends BlockWithEntity implements Probeable, Waterloggab
             PipeBlockEntity pipeEntity =
                     actualWorld.getBlockEntity(pos) instanceof PipeBlockEntity blockEntity ? blockEntity : null;
             if (pipeEntity != null) {
-                return pipeEntity.getConnectionType(direction);
+                return pipeEntity.getCachedConnectionType(direction);
             }
         }
 
@@ -374,7 +374,7 @@ public class PipeBlock extends BlockWithEntity implements Probeable, Waterloggab
         var connectable = PipeConnectionRegistry.SIDED.find(world, neighborPos, direction.getOpposite());
         if (connectable != null) {
             PipeConnection.Type candidate = connectable.getConnectionType(direction.getOpposite());
-            if (candidate != null && pipe != null) {
+            if (candidate != PipeConnection.Type.NONE && pipe != null) {
                 PipeBlockEntity pipeEntity =
                         world.getBlockEntity(pos) instanceof PipeBlockEntity blockEntity ? blockEntity : null;
                 PipeContext context =

@@ -1405,10 +1405,11 @@ public class LaserQuarryBlockEntity extends BlockEntity implements EnergyStorage
     /**
      * Quarry accepts pipe connections from above.
      * Returns PIPE connection type so pipes render arms to the quarry.
+     * Returns NONE for all other directions.
      */
     @Override
     public PipeConnection.Type getConnectionType(Direction direction) {
-        return direction == Direction.UP ? PipeConnection.Type.PIPE : null;
+        return direction == Direction.UP ? PipeConnection.Type.PIPE : PipeConnection.Type.NONE;
     }
 
     /**

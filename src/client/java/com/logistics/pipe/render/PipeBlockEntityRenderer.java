@@ -82,7 +82,7 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
                 }
 
                 for (Direction direction : Direction.values()) {
-                    PipeConnection.Type type = entity.getConnectionType(direction);
+                    PipeConnection.Type type = entity.getCachedConnectionType(direction);
                     if (type == PipeConnection.Type.NONE) {
                         continue;
                     }

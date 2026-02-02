@@ -54,7 +54,7 @@ public interface PipeConnection {
      * Get the connection type for the given direction.
      *
      * @param direction the direction the pipe is connecting from
-     * @return the connection type, or null/NONE if no connection allowed
+     * @return the connection type; never null (use {@link Type#NONE} if no connection allowed)
      */
     Type getConnectionType(Direction direction);
 

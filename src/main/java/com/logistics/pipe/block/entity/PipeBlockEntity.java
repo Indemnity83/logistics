@@ -49,7 +49,20 @@ public class PipeBlockEntity extends BlockEntity implements PipeConnection {
         }
     }
 
+    /**
+     * PipeConnection interface: Pipes always accept connections from all sides.
+     * This is used by other blocks to query if they can connect to this pipe.
+     */
+    @Override
     public PipeConnection.Type getConnectionType(Direction direction) {
+        return PipeConnection.Type.PIPE;
+    }
+
+    /**
+     * Get the cached connection type for rendering.
+     * This is updated by PipeRuntime and reflects what this pipe has connected to.
+     */
+    public PipeConnection.Type getCachedConnectionType(Direction direction) {
         return connectionTypes[direction.ordinal()];
     }
 
