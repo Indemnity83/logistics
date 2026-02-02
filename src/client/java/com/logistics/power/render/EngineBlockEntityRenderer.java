@@ -298,8 +298,8 @@ public class EngineBlockEntityRenderer implements BlockEntityRenderer<AbstractEn
         matrices.translate(0.5, 0.5, 0.5);
         switch (facing) {
             case DOWN -> matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(180));
-            case NORTH -> matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(90));
-            case SOUTH -> matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(-90));
+            case NORTH -> matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(-90));
+            case SOUTH -> matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(90));
             case EAST -> matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(-90));
             case WEST -> matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(90));
             default -> {} // UP - default orientation, no rotation needed
