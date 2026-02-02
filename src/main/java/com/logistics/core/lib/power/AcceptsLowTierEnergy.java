@@ -5,8 +5,7 @@ import net.minecraft.util.math.Direction;
 /**
  * Interface for blocks that can receive energy from {@link LowTierEnergySource} implementations.
  *
- * <p>Blocks must explicitly implement this interface and register with
- * {@link LowTierEnergyAcceptanceRegistry} to receive energy from early-game engines
+ * <p>Blocks must explicitly implement this interface to receive energy from early-game engines
  * like the Redstone Engine.
  *
  * <p>The default implementation accepts low-tier energy from all directions. Override
