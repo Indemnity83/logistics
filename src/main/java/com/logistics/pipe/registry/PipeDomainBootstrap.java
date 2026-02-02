@@ -3,6 +3,7 @@ package com.logistics.pipe.registry;
 import com.logistics.LogisticsMod;
 import com.logistics.api.LogisticsApi;
 import com.logistics.core.bootstrap.DomainBootstrap;
+import com.logistics.core.lib.pipe.PipeConnectionRegistry;
 import com.logistics.core.util.TimingLog;
 import com.logistics.pipe.PipeApi;
 import com.logistics.pipe.data.PipeDataComponents;
@@ -27,5 +28,12 @@ public final class PipeDomainBootstrap implements DomainBootstrap {
                 () -> ItemStorage.SIDED.registerForBlockEntity(
                         (blockEntity, direction) -> blockEntity.getItemStorage(direction),
                         PipeBlockEntities.PIPE_BLOCK_ENTITY));
+
+        // Register pipe-to-pipe connections (pipes accept connections from all sides)
+        TimingLog.time(
+                LogisticsMod.LOGGER,
+                "PipeConnectionRegistry.SIDED.registerForBlockEntity",
+                () -> PipeConnectionRegistry.SIDED.registerForBlockEntity(
+                        (pipeEntity, direction) -> pipeEntity, PipeBlockEntities.PIPE_BLOCK_ENTITY));
     }
 }

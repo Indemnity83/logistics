@@ -1,5 +1,6 @@
 package com.logistics.pipe.runtime;
 
+import com.logistics.core.lib.pipe.PipeConnection;
 import com.logistics.pipe.Pipe;
 import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.block.PipeBlock;
@@ -140,7 +141,7 @@ public final class PipeRuntime {
     private static void updateConnectionCache(TickContext ctx) {
         if (ctx.state().getBlock() instanceof PipeBlock pipeBlock) {
             for (Direction direction : Direction.values()) {
-                PipeBlock.ConnectionType type = pipeBlock.getDynamicConnectionType(ctx.world(), ctx.pos(), direction);
+                PipeConnection.Type type = pipeBlock.getDynamicConnectionType(ctx.world(), ctx.pos(), direction);
                 ctx.blockEntity().setConnectionType(direction, type);
             }
         }
@@ -382,8 +383,8 @@ public final class PipeRuntime {
                 continue;
             }
 
-            PipeBlock.ConnectionType type = pipeBlock.getConnectionType(world, pos, direction);
-            if (type != PipeBlock.ConnectionType.NONE) {
+            PipeConnection.Type type = pipeBlock.getConnectionType(world, pos, direction);
+            if (type != PipeConnection.Type.NONE) {
                 validDirections.add(direction);
             }
         }
@@ -405,8 +406,8 @@ public final class PipeRuntime {
         }
 
         for (Direction direction : Direction.values()) {
-            PipeBlock.ConnectionType type = pipeBlock.getConnectionType(world, pos, direction);
-            if (type != PipeBlock.ConnectionType.NONE) {
+            PipeConnection.Type type = pipeBlock.getConnectionType(world, pos, direction);
+            if (type != PipeConnection.Type.NONE) {
                 connected.add(direction);
             }
         }

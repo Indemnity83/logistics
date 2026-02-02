@@ -1,34 +1,80 @@
 package com.logistics.core.lib.pipe;
 
-import com.logistics.LogisticsMod;
-import net.fabricmc.fabric.api.lookup.v1.block.BlockApiLookup;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.Unit;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.StringIdentifiable;
 import net.minecraft.util.math.Direction;
 
 /**
- * API lookup for blocks that can connect to pipes.
+ * Interface for blocks that can connect to pipes.
  *
- * <p>This follows the same pattern as {@code ItemStorage.SIDED} from Fabric API.
- * Blocks register with {@code PipeConnection.SIDED} to indicate they accept
- * pipe connections, optionally filtering by direction.
+ * <p>Blocks implement this interface and register with {@link PipeConnectionRegistry#SIDED}
+ * to declare their pipe connectivity and item transfer behavior.
  *
- * <p>Example registration for a block that only accepts pipes from above:
+ * <p>Example registration for a quarry that accepts pipes from above but rejects items:
  * <pre>{@code
- * PipeConnection.SIDED.registerForBlocks(
- *     (world, pos, state, blockEntity, direction) ->
- *         direction == Direction.UP ? Unit.INSTANCE : null,
- *     MY_BLOCK);
+ * PipeConnectionRegistry.SIDED.registerForBlockEntity(
+ *     (quarry, direction) -> direction == Direction.UP ? quarry : null,
+ *     QUARRY_BLOCK_ENTITY);
  * }</pre>
  */
-public final class PipeConnection {
+public interface PipeConnection {
 
     /**
-     * Sided lookup for pipe connections.
-     * Returns {@link Unit#INSTANCE} if a pipe can connect from the given direction, null otherwise.
+     * Represents the type of connection a block provides to pipes.
      */
-    public static final BlockApiLookup<Unit, Direction> SIDED =
-            BlockApiLookup.get(Identifier.of(LogisticsMod.MOD_ID, "pipe_connection"), Unit.class, Direction.class);
+    enum Type implements StringIdentifiable {
+        /**
+         * No connection allowed.
+         */
+        NONE("none"),
 
-    private PipeConnection() {}
+        /**
+         * Connection to another pipe.
+         */
+        PIPE("pipe"),
+
+        /**
+         * Connection to an inventory (chest, furnace, etc.) or similar storage.
+         */
+        INVENTORY("inventory");
+
+        private final String name;
+
+        Type(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public String asString() {
+            return name;
+        }
+    }
+
+    /**
+     * Get the connection type for the given direction.
+     *
+     * @param direction the direction the pipe is connecting from
+     * @return the connection type; never null (use {@link Type#NONE} if no connection allowed)
+     */
+    Type getConnectionType(Direction direction);
+
+    /**
+     * Attempt to add an item to this block from the given direction.
+     *
+     * @param from the direction the item is coming from
+     * @param stack the item stack to add
+     * @return true if the item was accepted, false otherwise
+     */
+    boolean addItem(Direction from, ItemStack stack);
+
+    /**
+     * Check if this block can accept an item from the given direction.
+     *
+     * @param from the direction the item would come from
+     * @param stack the item stack to check
+     * @return true if the item could be accepted, false otherwise
+     */
+    default boolean canAcceptFrom(Direction from, ItemStack stack) {
+        return false;
+    }
 }

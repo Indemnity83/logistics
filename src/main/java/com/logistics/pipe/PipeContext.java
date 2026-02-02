@@ -1,5 +1,6 @@
 package com.logistics.pipe;
 
+import com.logistics.core.lib.pipe.PipeConnection;
 import com.logistics.pipe.block.PipeBlock;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.pipe.modules.Module;
@@ -114,8 +115,8 @@ public record PipeContext(World world, BlockPos pos, BlockState state, PipeBlock
         }
 
         for (Direction direction : Direction.values()) {
-            PipeBlock.ConnectionType type = pipeBlock.getConnectionType(world, pos, direction);
-            if (type != PipeBlock.ConnectionType.NONE) {
+            PipeConnection.Type type = pipeBlock.getConnectionType(world, pos, direction);
+            if (type != PipeConnection.Type.NONE) {
                 connected.add(direction);
             }
         }
@@ -133,8 +134,8 @@ public record PipeContext(World world, BlockPos pos, BlockState state, PipeBlock
         if (!(state.getBlock() instanceof PipeBlock pipeBlock)) {
             return false;
         }
-        PipeBlock.ConnectionType type = pipeBlock.getConnectionType(world, pos, direction);
-        return type != PipeBlock.ConnectionType.NONE;
+        PipeConnection.Type type = pipeBlock.getConnectionType(world, pos, direction);
+        return type != PipeConnection.Type.NONE;
     }
 
     /**
@@ -143,9 +144,9 @@ public record PipeContext(World world, BlockPos pos, BlockState state, PipeBlock
      * @param direction The direction to check
      * @return The connection type (NONE, PIPE, or INVENTORY)
      */
-    public PipeBlock.ConnectionType getConnectionType(Direction direction) {
+    public PipeConnection.Type getConnectionType(Direction direction) {
         if (!(state.getBlock() instanceof PipeBlock pipeBlock)) {
-            return PipeBlock.ConnectionType.NONE;
+            return PipeConnection.Type.NONE;
         }
         return pipeBlock.getConnectionType(world, pos, direction);
     }
@@ -180,6 +181,6 @@ public record PipeContext(World world, BlockPos pos, BlockState state, PipeBlock
     }
 
     public boolean isInventoryConnection(Direction direction) {
-        return getConnectionType(direction) == PipeBlock.ConnectionType.INVENTORY;
+        return getConnectionType(direction) == PipeConnection.Type.INVENTORY;
     }
 }

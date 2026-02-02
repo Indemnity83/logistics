@@ -9,6 +9,7 @@ import com.logistics.automation.laserquarry.LaserQuarryFrameBlock;
 import com.logistics.automation.registry.AutomationBlockEntities;
 import com.logistics.automation.registry.AutomationBlocks;
 import com.logistics.automation.render.ClientRenderCacheHooks;
+import com.logistics.core.lib.pipe.PipeConnection;
 import com.logistics.core.lib.support.ProbeResult;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,7 +37,7 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
-public class LaserQuarryBlockEntity extends BlockEntity implements EnergyStorage {
+public class LaserQuarryBlockEntity extends BlockEntity implements EnergyStorage, PipeConnection {
     private static final long REGISTRY_TTL_TICKS = 200L;
     private static final Map<RegistryKey<World>, Map<Long, Long>> ACTIVE_QUARRIES = new HashMap<>();
 
@@ -1397,5 +1398,34 @@ public class LaserQuarryBlockEntity extends BlockEntity implements EnergyStorage
         if (entries.isEmpty()) {
             ACTIVE_QUARRIES.remove(key);
         }
+    }
+
+    // PipeConnection interface implementation
+
+    /**
+     * Quarry accepts pipe connections from above.
+     * Returns PIPE connection type so pipes render arms to the quarry.
+     * Returns NONE for all other directions.
+     */
+    @Override
+    public PipeConnection.Type getConnectionType(Direction direction) {
+        return direction == Direction.UP ? PipeConnection.Type.PIPE : PipeConnection.Type.NONE;
+    }
+
+    /**
+     * Quarry does not accept items from pipes.
+     * It only pushes items out.
+     */
+    @Override
+    public boolean addItem(Direction from, ItemStack stack) {
+        return false;
+    }
+
+    /**
+     * Quarry never accepts items from any direction.
+     */
+    @Override
+    public boolean canAcceptFrom(Direction from, ItemStack stack) {
+        return false;
     }
 }

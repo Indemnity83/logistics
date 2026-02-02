@@ -3,10 +3,9 @@ package com.logistics.automation.registry;
 import com.logistics.LogisticsMod;
 import com.logistics.automation.laserquarry.entity.LaserQuarryBlockEntity;
 import com.logistics.core.bootstrap.DomainBootstrap;
-import com.logistics.core.lib.pipe.PipeConnection;
+import com.logistics.core.lib.pipe.PipeConnectionRegistry;
 import com.logistics.core.util.TimingLog;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
-import net.minecraft.util.Unit;
 import net.minecraft.util.math.Direction;
 
 public final class AutomationDomainBootstrap implements DomainBootstrap {
@@ -23,10 +22,10 @@ public final class AutomationDomainBootstrap implements DomainBootstrap {
         // Register pipe connectivity for quarry (only accepts connections from above)
         TimingLog.time(
                 LogisticsMod.LOGGER,
-                "PipeConnection.SIDED.registerForBlocks",
-                () -> PipeConnection.SIDED.registerForBlocks(
-                        (world, pos, state, blockEntity, direction) -> direction == Direction.UP ? Unit.INSTANCE : null,
-                        AutomationBlocks.LASER_QUARRY));
+                "PipeConnectionRegistry.SIDED.registerForBlockEntity",
+                () -> PipeConnectionRegistry.SIDED.registerForBlockEntity(
+                        (quarry, direction) -> direction == Direction.UP ? quarry : null,
+                        AutomationBlockEntities.LASER_QUARRY_BLOCK_ENTITY));
 
         ServerWorldEvents.UNLOAD.register((server, world) -> LaserQuarryBlockEntity.clearActiveQuarries(world));
     }
