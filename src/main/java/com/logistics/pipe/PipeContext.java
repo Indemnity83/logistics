@@ -46,8 +46,30 @@ public record PipeContext(World world, BlockPos pos, BlockState state, PipeBlock
         moduleState(module.getStateKey()).putInt(key, value);
     }
 
+    public long getLong(Module module, String key, long defaultValue) {
+        return moduleState(module.getStateKey()).getLong(key, defaultValue);
+    }
+
+    public void saveLong(Module module, String key, long value) {
+        moduleState(module.getStateKey()).putLong(key, value);
+    }
+
     public void remove(Module module, String key) {
         moduleState(module.getStateKey()).remove(key);
+    }
+
+    // Convenience methods for energy access
+    public long getEnergy(Module module) {
+        return getLong(module, "energy", 0L);
+    }
+
+    public void setEnergy(Module module, long amount) {
+        if (amount <= 0) {
+            remove(module, "energy");
+        } else {
+            saveLong(module, "energy", amount);
+        }
+        markDirty();
     }
 
     public NbtCompound getNbtCompound(Module module, String key) {
