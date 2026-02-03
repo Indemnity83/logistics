@@ -1,8 +1,12 @@
 {
   "packages": {
     ".": {
+      "package-name": "logistics-mc1.21.11",
+      "component": "mc1.21.11",
       "release-type": "simple",
-      "initial-version": "0.1.0",
+      "include-component-in-tag": true,
+      "pull-request-title-pattern": "chore: release ${version} for ${component}",
+      "initial-version": "0.3.0",
       "bump-minor-pre-major": true,
       "bump-patch-for-minor-pre-major": true
     }

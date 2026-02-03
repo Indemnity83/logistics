@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: "Release tag to build (e.g., v0.3.0)"
+        description: "Release tag to build (e.g., mc1.21.11-v0.4.0) - will produce 0.4.0+mc1.21.11 version"
         required: true
         type: string
       publish:
@@ -16,11 +16,14 @@ on:
         type: boolean
 
 permissions:
-  contents: write  # needed for GitHub release uploads
+  contents: write
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        loader: [fabric]
 
     steps:
       - uses: actions/checkout@v6
@@ -37,51 +40,106 @@ jobs:
         with:
           cache-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
 
-      - name: Compute version
+      - name: Extract version information
         id: version
         run: |
-          MC_VERSION="$(grep '^minecraft_version=' gradle.properties | cut -d'=' -f2)"
-
-          # Get version from tag (strip leading 'v')
+          # Get tag name
           if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
             TAG="${{ inputs.tag }}"
           else
             TAG="${{ github.event.release.tag_name }}"
           fi
-          VERSION="${TAG#v}"
 
-          # Version for display (short): 0.3.0
-          # Version for filename (full): 0.3.0+mc.1.21.11
-          MOD_VERSION="${VERSION}"
-          FILE_VERSION="${VERSION}+mc.${MC_VERSION}"
+          # Extract version from tag
+          # Tag format: mc1.21.11-v0.4.0 (component-based for release-please tracking)
+          if [[ "$TAG" =~ ^mc([0-9.]+)-v(.+)$ ]]; then
+            MC_COMPONENT="${BASH_REMATCH[1]}"  # "1.21.11" or "26.1"
+            VERSION="${BASH_REMATCH[2]}"        # "0.4.0" or "0.4.0-SNAPSHOT"
+          else
+            # Fallback for old/unexpected tag formats
+            echo "⚠️  Tag didn't match expected format: $TAG"
+            VERSION="${TAG#v}"
+            MC_COMPONENT="unknown"
+          fi
+
+          # Ensure version doesn't have leading 'v' (strip it if present)
+          VERSION="${VERSION#v}"
+
+          # Extract MC version from gradle.properties
+          MC_VERSION="$(grep '^minecraft_version=' gradle.properties | cut -d'=' -f2)"
+
+          # Clean MC version for artifact naming (remove -snapshot-N suffix)
+          MC_VERSION_CLEAN="$(echo "$MC_VERSION" | sed 's/-snapshot-[0-9]\+$//')"
+
+          # Get loader from matrix
+          LOADER="${{ matrix.loader }}"
+
+          # Build full version string with SemVer build metadata: VERSION+mcMC_VERSION_CLEAN.LOADER
+          # Tag: mc1.21.11-v0.4.0 (for release-please tracking)
+          # Version: 0.4.0+mc1.21.11.fabric (SemVer build metadata for artifacts)
+          # The +mc1.21.11.fabric is SemVer build metadata - platform and loader identifiers
+          FULL_VERSION="${VERSION}+mc${MC_VERSION_CLEAN}.${LOADER}"
+
+          # Determine Gradle task based on MC version
+          # MC 26.1+ is not obfuscated (use jar)
+          # MC 1.21.11 and earlier are obfuscated (use remapJar)
+          if [[ "$MC_VERSION" =~ ^([0-9]+)\. ]]; then
+            MC_MAJOR="${BASH_REMATCH[1]}"
+            if (( MC_MAJOR >= 26 )); then
+              GRADLE_TASK="jar"
+            else
+              GRADLE_TASK="remapJar"
+            fi
+          else
+            # Fallback for unexpected version format
+            GRADLE_TASK="remapJar"
+          fi
 
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-          echo "mod_version=$MOD_VERSION" >> "$GITHUB_OUTPUT"
-          echo "file_version=$FILE_VERSION" >> "$GITHUB_OUTPUT"
+          echo "full_version=$FULL_VERSION" >> "$GITHUB_OUTPUT"
           echo "minecraft_version=$MC_VERSION" >> "$GITHUB_OUTPUT"
-          echo "📦 Version: $MOD_VERSION (file: $FILE_VERSION)"
+          echo "minecraft_version_clean=$MC_VERSION_CLEAN" >> "$GITHUB_OUTPUT"
+          echo "loader=$LOADER" >> "$GITHUB_OUTPUT"
+          echo "gradle_task=$GRADLE_TASK" >> "$GITHUB_OUTPUT"
+          echo "📦 Tag: $TAG"
+          echo "📦 Version: $VERSION"
+          echo "📦 Built for MC: $MC_VERSION"
+          echo "📦 Loader: $LOADER"
+          echo "📦 Full version: $FULL_VERSION (will be passed to Gradle as MOD_VERSION)"
+          echo "📦 Expected artifact: logistics-$FULL_VERSION.jar"
+          echo "🔨 Gradle task: $GRADLE_TASK"
 
-      - name: Build
-        run: ./gradlew remapJar --console=plain
+      - name: Build with Gradle
+        run: ./gradlew ${{ steps.version.outputs.gradle_task }} --console=plain
         env:
-          MOD_VERSION: ${{ steps.version.outputs.file_version }}
+          MOD_VERSION: ${{ steps.version.outputs.full_version }}
 
-      - name: Publish
+      - name: List build artifacts
+        run: |
+          echo "📦 Build artifacts created:"
+          ls -lh build/libs/
+          echo ""
+          echo "🔍 Looking for: logistics-${{ steps.version.outputs.full_version }}.jar"
+
+      - name: Publish to Modrinth and CurseForge
         if: github.event_name != 'workflow_dispatch' || inputs.publish
         uses: Kir-Antipov/mc-publish@v3.3
         with:
-          name: "Logistics: Automation v${{ steps.version.outputs.version }}"
-          version: ${{ steps.version.outputs.mod_version }}
-          version-type: release
-          changelog: ${{ github.event.release.body || format('Release {0}', steps.version.outputs.mod_version) }}
-          game-versions: ${{ steps.version.outputs.minecraft_version }}
-
-          files: |
-            build/libs/!(*-@(dev|sources|javadoc)).jar
-
-          modrinth-featured: true
+          modrinth-id: ${{ vars.MODRINTH_PROJECT_ID }}
           modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+          modrinth-featured: true
+
+          curseforge-id: ${{ vars.CURSEFORGE_PROJECT_ID }}
           curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
+
           github-token: ${{ secrets.GITHUB_TOKEN }}
           github-tag: ${{ steps.version.outputs.tag }}
+
+          version-type: release
+          name: "Logistics v${{ steps.version.outputs.version }} for ${{ steps.version.outputs.loader }} ${{ steps.version.outputs.minecraft_version }}"
+          version: "${{ steps.version.outputs.full_version }}"
+
+          files: build/libs/logistics-${{ steps.version.outputs.full_version }}.jar
+
+          changelog-file: CHANGELOG.md

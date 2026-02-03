@@ -2,15 +2,20 @@ name: Build (PR)
 
 on:
   pull_request:
-    branches: [main, next]
+    branches: [main, 'mc/**']
     types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - 'src/**'
+      - 'gradle.properties'
+      - 'build.gradle'
+      - 'settings.gradle'
+      - 'gradle/**'
 
 jobs:
   build:
-    # Skip: draft PRs, PRs from next branch (push trigger handles those), release-please PRs (build-dev handles those)
+    # Skip: draft PRs, release-please PRs
     if: |
       github.event.pull_request.draft == false &&
-      !(github.head_ref == 'next' && github.event.pull_request.head.repo.full_name == github.repository) &&
       !startsWith(github.head_ref, 'release-please--')
     runs-on: ubuntu-latest
 
@@ -31,19 +36,31 @@ jobs:
         id: version
         run: |
           MC_VERSION="$(grep '^minecraft_version=' gradle.properties | cut -d'=' -f2)"
+          MC_VERSION_CLEAN="$(echo "$MC_VERSION" | sed 's/-snapshot-[0-9]\+$//')"
           SHA7="$(git rev-parse --short=7 HEAD)"
           PR_NUM="${{ github.event.pull_request.number }}"
+          TARGET_BRANCH="${{ github.base_ref }}"
 
-          # PR builds use dev, which breaks symver, but these aren't real versions anyway
-          # No build counter since force pushes/rebases make counts unreliable
-          # Example: dev-pr.123+mc.1.21.11.sha.1a2b3c4
-          BUILD_VERSION="dev-pr.${PR_NUM}+mc.${MC_VERSION}.sha.${SHA7}"
+          # Example: dev-pr.123+mc26.1.sha.a1b2c3d
+          BUILD_VERSION="dev-pr.${PR_NUM}+mc${MC_VERSION}.sha.${SHA7}"
+
+          # Determine Gradle task based on target branch
+          # main branch uses 'jar' (MC 26.1+ is not obfuscated)
+          # mc/** branches use 'remapJar' (MC 1.21.11 and earlier are obfuscated)
+          if [[ "$TARGET_BRANCH" == "main" ]]; then
+            GRADLE_TASK="jar"
+          else
+            GRADLE_TASK="remapJar"
+          fi
 
           echo "mod_version=$BUILD_VERSION" >> "$GITHUB_OUTPUT"
+          echo "minecraft_version_clean=$MC_VERSION_CLEAN" >> "$GITHUB_OUTPUT"
+          echo "gradle_task=$GRADLE_TASK" >> "$GITHUB_OUTPUT"
           echo "📦 Version: $BUILD_VERSION"
+          echo "🔨 Gradle task: $GRADLE_TASK (target: $TARGET_BRANCH)"
 
       - name: Build
-        run: ./gradlew remapJar --console=plain
+        run: ./gradlew ${{ steps.version.outputs.gradle_task }} --console=plain
         env:
           MOD_VERSION: ${{ steps.version.outputs.mod_version }}
 
