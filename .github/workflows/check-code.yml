@@ -2,7 +2,7 @@ name: Check Code
 
 on:
   pull_request:
-    branches: [main, 'mc/**']
+    branches: ['mc/**']
 
 permissions:
   contents: read
