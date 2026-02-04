@@ -59,8 +59,7 @@ This repository uses a multi-version strategy to support different Minecraft rel
 ./gradlew remapJar           # Build with obfuscation remapping (MC 1.21.11 is obfuscated)
 ./gradlew runClient          # Launch Minecraft client for testing
 ./gradlew runServer          # Launch Minecraft server
-./gradlew spotlessApply      # Format code (Palantir formatter)
-./gradlew check              # Run checkstyle + spotless checks
+./gradlew check              # Run checkstyle checks
 ```
 
 **Requirements:**
@@ -128,10 +127,12 @@ See `docs/DESIGN.md` for full architectural vision. Key patterns per domain:
 
 ## Code Style
 
-- **Formatting:** Spotless with Palantir formatter (auto-applied on build)
+- **Formatting:** Manual - prioritize minimal diffs across branches over strict style
 - **Linting:** Checkstyle enforces naming, imports, nesting depth (max 3)
 - **Single-line if/for allowed** but braces preferred for multi-line
 - Use `@SuppressWarnings` to suppress checkstyle only when needed
+
+**Note:** Spotless was removed to maintain minimal diffs between mc/1.21.11 and mc/26.1 branches. This makes cross-version maintenance and comparison easier.
 
 ## Commit Messages
 
