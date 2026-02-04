@@ -2,14 +2,8 @@ name: Build (PR)
 
 on:
   pull_request:
-    branches: [main, 'mc/**']
+    branches: ['mc/**']
     types: [opened, synchronize, reopened, ready_for_review]
-    paths:
-      - 'src/**'
-      - 'gradle.properties'
-      - 'build.gradle'
-      - 'settings.gradle'
-      - 'gradle/**'
 
 jobs:
   build:
@@ -65,7 +59,7 @@ jobs:
           MOD_VERSION: ${{ steps.version.outputs.mod_version }}
 
       - name: Upload JAR
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: logistics-pr-${{ github.event.pull_request.number }}-${{ github.run_id }}
           path: build/libs/logistics-*.jar
