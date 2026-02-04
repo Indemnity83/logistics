@@ -15,31 +15,31 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.entity.ItemEntity;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.inventory.SidedInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.network.listener.ClientPlayPacketListener;
-import net.minecraft.network.packet.Packet;
-import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryWrapper;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.storage.ReadView;
-import net.minecraft.storage.WriteView;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.World;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.Container;
+import net.minecraft.world.WorldlyContainer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
 public class LaserQuarryBlockEntity extends BlockEntity implements EnergyStorage, PipeConnection {
     private static final long REGISTRY_TTL_TICKS = 200L;
-    private static final Map<RegistryKey<World>, Map<Long, Long>> ACTIVE_QUARRIES = new HashMap<>();
+    private static final Map<ResourceKey<Level>, Map<Long, Long>> ACTIVE_QUARRIES = new HashMap<>();
 
     /**
      * Quarry operation phases.
@@ -104,18 +104,18 @@ public class LaserQuarryBlockEntity extends BlockEntity implements EnergyStorage
         this.breakingEntityId = pos.hashCode();
     }
 
-    public static void tick(World world, BlockPos pos, BlockState state, LaserQuarryBlockEntity entity) {
-        if (world.isClient()) {
+    public static void tick(Level world, BlockPos pos, BlockState state, LaserQuarryBlockEntity entity) {
+        if (world.isClientSide()) {
             return;
         }
 
-        registerActiveQuarry((ServerWorld) world, pos);
+        registerActiveQuarry((ServerLevel) world, pos);
 
         if (entity.finished) {
             return;
         }
 
-        ServerWorld serverWorld = (ServerWorld) world;
+        ServerLevel serverWorld = (ServerLevel) world;
 
         switch (entity.currentPhase) {
             case CLEARING -> tickClearing(serverWorld, pos, state, entity);
@@ -137,13 +137,13 @@ public class LaserQuarryBlockEntity extends BlockEntity implements EnergyStorage
      * Sync arm state to clients. Called on arm state transitions.
      */
     private void syncToClients() {
-        if (world != null && !world.isClient()) {
-            BlockState state = getCachedState();
-            world.updateListeners(pos, state, state, 3);
+        if (level != null && !level.isClientSide()) {
+            BlockState state = getBlockState();
+            level.sendBlockUpdated(worldPosition, state, state, 3);
         }
     }
 
-    private static void tickClearing(ServerWorld world, BlockPos pos, BlockState state, LaserQuarryBlockEntity entity) {
+    private static void tickClearing(ServerLevel world, BlockPos pos, BlockState state, LaserQuarryBlockEntity entity) {
         // Need at least some energy to operate
         if (entity.energy == 0) {
             entity.resetBreakProgress();
@@ -159,7 +159,7 @@ public class LaserQuarryBlockEntity extends BlockEntity implements EnergyStorage
                 // Finished clearing, move to building phase
                 entity.currentPhase = Phase.BUILDING_FRAME;
                 entity.frameBuildIndex = 0;
-                entity.markDirty();
+                entity.setChanged();
                 return;
             }
 
@@ -180,7 +180,7 @@ public class LaserQuarryBlockEntity extends BlockEntity implements EnergyStorage
         // Calculate energy required if target changed
         if (!target.equals(entity.currentTarget) || entity.currentBreakTime < 0) {
             entity.currentTarget = target;
-            float hardness = targetState.getHardness(world, target);
+            float hardness = targetState.getDestroySpeed(world, target);
             entity.currentBreakTime = (float) (LaserQuarryConfig.BREAK_ENERGY_MULTIPLIER * (hardness + 1));
             entity.breakProgress = 0;
         }
@@ -201,7 +201,7 @@ public class LaserQuarryBlockEntity extends BlockEntity implements EnergyStorage
     }
 
     private static void tickBuildingFrame(
-            ServerWorld world, BlockPos pos, BlockState state, LaserQuarryBlockEntity entity) {
+            ServerLevel world, BlockPos pos, BlockState state, LaserQuarryBlockEntity entity) {
         // Check for energy before building
         if (!entity.hasEnergy(LaserQuarryConfig.FRAME_BUILD_COST)) {
             return;
@@ -218,7 +218,7 @@ public class LaserQuarryBlockEntity extends BlockEntity implements EnergyStorage
             entity.armInitialized = false; // Will be initialized on first mining tick
             entity.armState = ArmState.MOVING;
             entity.syncToClients();
-            entity.markDirty();
+            entity.setChanged();
             return;
         }
 
@@ -227,16 +227,16 @@ public class LaserQuarryBlockEntity extends BlockEntity implements EnergyStorage
 
         // Only place frame if the position is air or replaceable
         BlockState existingState = world.getBlockState(framePos);
-        if (existingState.isAir() || existingState.isReplaceable()) {
+        if (existingState.isAir() || existingState.canBeReplaced()) {
             BlockState frameState = entity.calculateFrameState(state, framePos);
-            world.setBlockState(framePos, frameState);
+            world.setBlockAndUpdate(framePos, frameState);
         }
 
         entity.frameBuildIndex++;
-        entity.markDirty();
+        entity.setChanged();
     }
 
-    private static void tickMining(ServerWorld world, BlockPos pos, BlockState state, LaserQuarryBlockEntity entity) {
+    private static void tickMining(ServerLevel world, BlockPos pos, BlockState state, LaserQuarryBlockEntity entity) {
         // Energy is consumed per-state:
         // - MOVING: move cost per tick
         // - SETTLING: no cost (waiting for client sync)
@@ -250,7 +250,7 @@ public class LaserQuarryBlockEntity extends BlockEntity implements EnergyStorage
             if (target == null) {
                 entity.clearBreakingAnimation(world);
                 entity.finished = true;
-                entity.markDirty();
+                entity.setChanged();
                 entity.syncToClients();
                 return;
             }
@@ -329,7 +329,7 @@ public class LaserQuarryBlockEntity extends BlockEntity implements EnergyStorage
             // Calculate energy required if target changed
             if (!target.equals(entity.currentTarget) || entity.currentBreakTime < 0) {
                 entity.currentTarget = target;
-                float hardness = targetState.getHardness(world, target);
+                float hardness = targetState.getDestroySpeed(world, target);
                 // BC formula: BREAK_ENERGY * miningMultiplier * ((hardness + 1) * 2)
                 entity.currentBreakTime = (float) (LaserQuarryConfig.BREAK_ENERGY_MULTIPLIER * (hardness + 1));
                 entity.breakProgress = 0;
@@ -346,11 +346,11 @@ public class LaserQuarryBlockEntity extends BlockEntity implements EnergyStorage
             // Update block breaking animation (0-9 progress stages)
             int breakStage = (int) ((entity.breakProgress / entity.currentBreakTime) * 10f);
             breakStage = Math.min(breakStage, 9);
-            world.setBlockBreakingInfo(entity.breakingEntityId, target, breakStage);
+            world.destroyBlockProgress(entity.breakingEntityId, target, breakStage);
 
             if (entity.breakProgress >= entity.currentBreakTime) {
                 // Clear breaking animation
-                world.setBlockBreakingInfo(entity.breakingEntityId, target, -1);
+                world.destroyBlockProgress(entity.breakingEntityId, target, -1);
 
                 entity.mineBlock(world, target, targetState);
                 entity.advanceMiningPosition();
@@ -443,7 +443,7 @@ public class LaserQuarryBlockEntity extends BlockEntity implements EnergyStorage
         return (int) Math.ceil(distance / getEffectiveArmSpeed());
     }
 
-    private boolean shouldSkipBlock(World world, BlockPos pos, BlockState state) {
+    private boolean shouldSkipBlock(Level world, BlockPos pos, BlockState state) {
         // Skip air
         if (state.isAir()) {
             return true;
@@ -453,20 +453,20 @@ public class LaserQuarryBlockEntity extends BlockEntity implements EnergyStorage
             return true;
         }
         // Skip unbreakable blocks (bedrock, barriers, etc.)
-        float hardness = state.getHardness(world, pos);
+        float hardness = state.getDestroySpeed(world, pos);
         if (hardness < 0) {
             return true;
         }
         return false;
     }
 
-    private void mineBlock(ServerWorld world, BlockPos target, BlockState targetState) {
+    private void mineBlock(ServerLevel world, BlockPos target, BlockState targetState) {
         // Get drops before breaking the block
         BlockEntity blockEntity = world.getBlockEntity(target);
-        List<ItemStack> drops = Block.getDroppedStacks(targetState, world, target, blockEntity, null, ItemStack.EMPTY);
+        List<ItemStack> drops = Block.getDrops(targetState, world, target, blockEntity, null, ItemStack.EMPTY);
 
         // Break the block without natural drops (we handle drops manually)
-        world.breakBlock(target, false);
+        world.destroyBlock(target, false);
 
         // Output the calculated drops
         for (ItemStack drop : drops) {
@@ -480,12 +480,12 @@ public class LaserQuarryBlockEntity extends BlockEntity implements EnergyStorage
         }
     }
 
-    private void collectNearbyItems(ServerWorld world, BlockPos target) {
-        List<ItemEntity> itemEntities = world.getEntitiesByClass(
-                ItemEntity.class, new net.minecraft.util.math.Box(target).expand(2.0), item -> true);
+    private void collectNearbyItems(ServerLevel world, BlockPos target) {
+        List<ItemEntity> itemEntities = world.getEntitiesOfClass(
+                ItemEntity.class, new net.minecraft.world.phys.AABB(target).inflate(2.0), item -> true);
 
         for (ItemEntity itemEntity : itemEntities) {
-            ItemStack stack = itemEntity.getStack();
+            ItemStack stack = itemEntity.getItem();
             if (!stack.isEmpty()) {
                 outputItem(world, stack.copy());
                 itemEntity.discard();
@@ -493,11 +493,11 @@ public class LaserQuarryBlockEntity extends BlockEntity implements EnergyStorage
         }
     }
 
-    private void outputItem(ServerWorld world, ItemStack stack) {
+    private void outputItem(ServerLevel world, ItemStack stack) {
         if (stack.isEmpty()) return;
 
-        BlockPos quarryPos = getPos();
-        BlockPos abovePos = quarryPos.up();
+        BlockPos quarryPos = getBlockPos();
+        BlockPos abovePos = quarryPos.above();
 
         // Check if there's a transport block above
         BlockState aboveState = world.getBlockState(abovePos);
@@ -510,20 +510,20 @@ public class LaserQuarryBlockEntity extends BlockEntity implements EnergyStorage
         // Check if there's an inventory above (chest, barrel, etc.)
         if (!stack.isEmpty()) {
             BlockEntity aboveEntity = world.getBlockEntity(abovePos);
-            if (aboveEntity instanceof Inventory inv) {
+            if (aboveEntity instanceof Container inv) {
                 // Check if it's a sided inventory and respects insertion from below
-                if (aboveEntity instanceof SidedInventory sidedInv) {
-                    int[] availableSlots = sidedInv.getAvailableSlots(Direction.DOWN);
+                if (aboveEntity instanceof WorldlyContainer sidedInv) {
+                    int[] availableSlots = sidedInv.getSlotsForFace(Direction.DOWN);
                     for (int slot : availableSlots) {
                         if (stack.isEmpty()) break;
-                        if (!sidedInv.canInsert(slot, stack, Direction.DOWN)) continue;
+                        if (!sidedInv.canPlaceItemThroughFace(slot, stack, Direction.DOWN)) continue;
                         stack = insertIntoSlot(inv, slot, stack);
                     }
                 } else {
                     // Regular inventory - try all slots
-                    for (int slot = 0; slot < inv.size(); slot++) {
+                    for (int slot = 0; slot < inv.getContainerSize(); slot++) {
                         if (stack.isEmpty()) break;
-                        if (!inv.isValid(slot, stack)) continue;
+                        if (!inv.canPlaceItem(slot, stack)) continue;
                         stack = insertIntoSlot(inv, slot, stack);
                     }
                 }
@@ -537,8 +537,8 @@ public class LaserQuarryBlockEntity extends BlockEntity implements EnergyStorage
             double z = quarryPos.getZ() + 0.5;
 
             ItemEntity itemEntity = new ItemEntity(world, x, y, z, stack);
-            itemEntity.setVelocity(0, 0.2, 0); // Small upward velocity
-            world.spawnEntity(itemEntity);
+            itemEntity.setDeltaMovement(0, 0.2, 0); // Small upward velocity
+            world.addFreshEntity(itemEntity);
         }
     }
 
@@ -546,20 +546,20 @@ public class LaserQuarryBlockEntity extends BlockEntity implements EnergyStorage
      * Try to insert a stack into a specific slot of an inventory.
      * @return the remaining stack (may be empty if fully inserted)
      */
-    private ItemStack insertIntoSlot(Inventory inv, int slot, ItemStack stack) {
-        ItemStack existing = inv.getStack(slot);
+    private ItemStack insertIntoSlot(Container inv, int slot, ItemStack stack) {
+        ItemStack existing = inv.getItem(slot);
 
         if (existing.isEmpty()) {
             // Empty slot - insert up to max stack size
-            int maxInsert = Math.min(stack.getCount(), Math.min(inv.getMaxCountPerStack(), stack.getMaxCount()));
-            inv.setStack(slot, stack.split(maxInsert));
-        } else if (ItemStack.areItemsAndComponentsEqual(existing, stack)) {
+            int maxInsert = Math.min(stack.getCount(), Math.min(inv.getMaxStackSize(), stack.getMaxStackSize()));
+            inv.setItem(slot, stack.split(maxInsert));
+        } else if (ItemStack.isSameItemSameComponents(existing, stack)) {
             // Same item - try to merge
-            int space = Math.min(inv.getMaxCountPerStack(), existing.getMaxCount()) - existing.getCount();
+            int space = Math.min(inv.getMaxStackSize(), existing.getMaxStackSize()) - existing.getCount();
             if (space > 0) {
                 int toInsert = Math.min(space, stack.getCount());
-                existing.increment(toInsert);
-                stack.decrement(toInsert);
+                existing.grow(toInsert);
+                stack.shrink(toInsert);
             }
         }
 
@@ -579,14 +579,14 @@ public class LaserQuarryBlockEntity extends BlockEntity implements EnergyStorage
                 miningY++;
             }
         }
-        markDirty();
+        setChanged();
     }
 
     /**
      * Calculate target position for clearing phase (area at/above quarry level).
      */
     private @Nullable BlockPos calculateClearingTargetPos(BlockState quarryState) {
-        BlockPos quarryPos = getPos();
+        BlockPos quarryPos = getBlockPos();
 
         int startX;
         int startZ;
@@ -637,7 +637,7 @@ public class LaserQuarryBlockEntity extends BlockEntity implements EnergyStorage
      * The area is inset 1 block from the frame to stay within it.
      */
     private @Nullable BlockPos calculateMiningTargetPos(BlockState quarryState) {
-        BlockPos quarryPos = getPos();
+        BlockPos quarryPos = getBlockPos();
 
         int startX;
         int startZ;
@@ -683,7 +683,7 @@ public class LaserQuarryBlockEntity extends BlockEntity implements EnergyStorage
         int currentY = startY - miningY;
 
         // Stop at bedrock or world bottom
-        if (currentY < world.getBottomY()) {
+        if (currentY < level.getMinY()) {
             return null;
         }
 
@@ -734,7 +734,7 @@ public class LaserQuarryBlockEntity extends BlockEntity implements EnergyStorage
                 miningY++;
             }
         }
-        markDirty();
+        setChanged();
     }
 
     /**
@@ -742,7 +742,7 @@ public class LaserQuarryBlockEntity extends BlockEntity implements EnergyStorage
      * Called after mining a block to immediately find the next real target
      * before syncing to clients (prevents arm hiccup).
      */
-    private void skipToNextSolidBlock(ServerWorld world, BlockState quarryState) {
+    private void skipToNextSolidBlock(ServerLevel world, BlockState quarryState) {
         for (int skipped = 0; skipped < LaserQuarryConfig.MAX_SKIP_PER_TICK; skipped++) {
             BlockPos target = calculateMiningTargetPos(quarryState);
             if (target == null) {
@@ -765,9 +765,9 @@ public class LaserQuarryBlockEntity extends BlockEntity implements EnergyStorage
      * Clear any active block breaking animation.
      * Called when the quarry stops or changes target.
      */
-    private void clearBreakingAnimation(ServerWorld world) {
+    private void clearBreakingAnimation(ServerLevel world) {
         if (currentTarget != null) {
-            world.setBlockBreakingInfo(breakingEntityId, currentTarget, -1);
+            world.destroyBlockProgress(breakingEntityId, currentTarget, -1);
         }
     }
 
@@ -779,7 +779,7 @@ public class LaserQuarryBlockEntity extends BlockEntity implements EnergyStorage
      * - Top ring at quarryY+4
      */
     private @Nullable BlockPos getNextFramePosition(BlockState quarryState) {
-        BlockPos quarryPos = getPos();
+        BlockPos quarryPos = getBlockPos();
 
         // Calculate frame bounds
         int startX;
@@ -897,7 +897,7 @@ public class LaserQuarryBlockEntity extends BlockEntity implements EnergyStorage
      * Calculate the frame block state with appropriate arm connections.
      */
     private BlockState calculateFrameState(BlockState quarryState, BlockPos framePos) {
-        BlockPos quarryPos = getPos();
+        BlockPos quarryPos = getBlockPos();
 
         // Calculate frame bounds
         int startX;
@@ -999,7 +999,7 @@ public class LaserQuarryBlockEntity extends BlockEntity implements EnergyStorage
         this.miningY = 0;
         this.miningZ = 0;
         this.finished = false;
-        markDirty();
+        setChanged();
     }
 
     private void resetBreakProgress() {
@@ -1026,7 +1026,7 @@ public class LaserQuarryBlockEntity extends BlockEntity implements EnergyStorage
         long accepted = Math.min(maxAmount, Math.min(space, LaserQuarryConfig.MAX_ENERGY_INPUT));
         if (!simulate && accepted > 0) {
             energy += accepted;
-            markDirty();
+            setChanged();
         }
         return accepted;
     }
@@ -1097,7 +1097,7 @@ public class LaserQuarryBlockEntity extends BlockEntity implements EnergyStorage
         float speed = LaserQuarryConfig.BASE_MOVE_SPEED + (moveCost / LaserQuarryConfig.SPEED_ENERGY_DIVISOR);
 
         // Apply rain penalty if quarry is exposed to rain
-        if (world != null && world.hasRain(pos.up())) {
+        if (level != null && level.isRainingAt(worldPosition.above())) {
             speed *= LaserQuarryConfig.RAIN_SPEED_MULTIPLIER;
         }
 
@@ -1120,17 +1120,17 @@ public class LaserQuarryBlockEntity extends BlockEntity implements EnergyStorage
                     case MINING -> "Mining";
                 };
         if (finished) {
-            builder.entry("Phase", "Finished", Formatting.AQUA);
+            builder.entry("Phase", "Finished", ChatFormatting.AQUA);
         } else if (currentPhase == Phase.BUILDING_FRAME) {
-            builder.entry("Phase", phaseName + " (need 240 RF)", Formatting.AQUA);
+            builder.entry("Phase", phaseName + " (need 240 RF)", ChatFormatting.AQUA);
         } else {
-            builder.entry("Phase", phaseName, Formatting.AQUA);
+            builder.entry("Phase", phaseName, ChatFormatting.AQUA);
         }
 
         // Energy
         double energyPercent = getEnergyLevel() * 100;
-        Formatting energyColor =
-                energyPercent > 50 ? Formatting.GREEN : energyPercent > 20 ? Formatting.YELLOW : Formatting.RED;
+        ChatFormatting energyColor =
+                energyPercent > 50 ? ChatFormatting.GREEN : energyPercent > 20 ? ChatFormatting.YELLOW : ChatFormatting.RED;
         builder.entry(
                 "Energy",
                 String.format("%,d / %,d RF (%.1f%%)", energy, LaserQuarryConfig.ENERGY_CAPACITY, energyPercent),
@@ -1139,15 +1139,15 @@ public class LaserQuarryBlockEntity extends BlockEntity implements EnergyStorage
         // Power consumption and speed (only during active phases)
         if (!finished) {
             long moveCost = getMoveCost();
-            builder.entry("Consumption", String.format("%,d RF/t", moveCost), Formatting.GOLD);
+            builder.entry("Consumption", String.format("%,d RF/t", moveCost), ChatFormatting.GOLD);
 
             if (currentPhase == Phase.MINING) {
                 float speed = getEffectiveArmSpeed();
                 String speedText = String.format("%.2f blocks/tick", speed);
-                if (world != null && world.hasRain(pos.up())) {
+                if (level != null && level.isRainingAt(worldPosition.above())) {
                     speedText += " (rain)";
                 }
-                builder.entry("Arm Speed", speedText, Formatting.LIGHT_PURPLE);
+                builder.entry("Arm Speed", speedText, ChatFormatting.LIGHT_PURPLE);
             }
         }
 
@@ -1161,16 +1161,16 @@ public class LaserQuarryBlockEntity extends BlockEntity implements EnergyStorage
 
     // NBT serialization using the new WriteView/ReadView API
     @Override
-    protected void writeData(WriteView view) {
-        super.writeData(view);
+    protected void saveAdditional(ValueOutput view) {
+        super.saveAdditional(view);
 
         // Save energy
-        NbtCompound energyState = new NbtCompound();
+        CompoundTag energyState = new CompoundTag();
         energyState.putLong("Amount", energy);
-        view.put("Energy", NbtCompound.CODEC, energyState);
+        view.store("Energy", CompoundTag.CODEC, energyState);
 
         // Save mining state
-        NbtCompound miningState = new NbtCompound();
+        CompoundTag miningState = new CompoundTag();
         miningState.putInt("X", miningX);
         miningState.putInt("Y", miningY);
         miningState.putInt("Z", miningZ);
@@ -1187,24 +1187,24 @@ public class LaserQuarryBlockEntity extends BlockEntity implements EnergyStorage
         miningState.putInt("SettlingTicks", settlingTicksRemaining);
         miningState.putInt("ExpectedTravelTicks", expectedTravelTicks);
         miningState.putFloat("SyncedArmSpeed", syncedArmSpeed);
-        view.put("MiningState", NbtCompound.CODEC, miningState);
+        view.store("MiningState", CompoundTag.CODEC, miningState);
 
         // Save custom bounds
         if (useCustomBounds) {
-            NbtCompound customBoundsNbt = new NbtCompound();
+            CompoundTag customBoundsNbt = new CompoundTag();
             customBoundsNbt.putInt("MinX", customMinX);
             customBoundsNbt.putInt("MinZ", customMinZ);
             customBoundsNbt.putInt("MaxX", customMaxX);
             customBoundsNbt.putInt("MaxZ", customMaxZ);
-            view.put("CustomBounds", NbtCompound.CODEC, customBoundsNbt);
+            view.store("CustomBounds", CompoundTag.CODEC, customBoundsNbt);
         } else {
-            view.remove("CustomBounds");
+            view.discard("CustomBounds");
         }
     }
 
     @Override
-    protected void readData(ReadView view) {
-        super.readData(view);
+    protected void loadAdditional(ValueInput view) {
+        super.loadAdditional(view);
 
         useCustomBounds = false;
         customMinX = 0;
@@ -1214,12 +1214,12 @@ public class LaserQuarryBlockEntity extends BlockEntity implements EnergyStorage
 
         // Load energy
         energy = 0;
-        view.read("Energy", NbtCompound.CODEC).ifPresent(energyState -> {
+        view.read("Energy", CompoundTag.CODEC).ifPresent(energyState -> {
             energy = energyState.getLong("Amount").orElse(0L);
         });
 
         // Load mining state
-        view.read("MiningState", NbtCompound.CODEC).ifPresent(miningState -> {
+        view.read("MiningState", CompoundTag.CODEC).ifPresent(miningState -> {
             miningX = miningState.getInt("X").orElse(0);
             miningY = miningState.getInt("Y").orElse(0);
             miningZ = miningState.getInt("Z").orElse(0);
@@ -1251,7 +1251,7 @@ public class LaserQuarryBlockEntity extends BlockEntity implements EnergyStorage
         });
 
         // Load custom bounds
-        view.read("CustomBounds", NbtCompound.CODEC).ifPresent(customBoundsNbt -> {
+        view.read("CustomBounds", CompoundTag.CODEC).ifPresent(customBoundsNbt -> {
             useCustomBounds = true;
             customMinX = customBoundsNbt.getInt("MinX").orElse(0);
             customMinZ = customBoundsNbt.getInt("MinZ").orElse(0);
@@ -1261,37 +1261,37 @@ public class LaserQuarryBlockEntity extends BlockEntity implements EnergyStorage
     }
 
     @Nullable @Override
-    public Packet<ClientPlayPacketListener> toUpdatePacket() {
-        return BlockEntityUpdateS2CPacket.create(this);
+    public Packet<ClientGamePacketListener> getUpdatePacket() {
+        return ClientboundBlockEntityDataPacket.create(this);
     }
 
     @Override
-    public NbtCompound toInitialChunkDataNbt(RegistryWrapper.WrapperLookup registryLookup) {
-        return createNbt(registryLookup);
+    public CompoundTag getUpdateTag(HolderLookup.Provider registryLookup) {
+        return saveWithoutMetadata(registryLookup);
     }
 
     @Override
-    public void onBlockReplaced(BlockPos pos, BlockState oldState) {
-        super.onBlockReplaced(pos, oldState);
+    public void preRemoveSideEffects(BlockPos pos, BlockState oldState) {
+        super.preRemoveSideEffects(pos, oldState);
 
-        if (world != null && world.isClient()) {
+        if (level != null && level.isClientSide()) {
             ClientRenderCacheHooks.clearQuarryInterpolationCache(pos);
         }
 
-        if (world != null && !world.isClient()) {
-            unregisterActiveQuarry((ServerWorld) world, pos);
+        if (level != null && !level.isClientSide()) {
+            unregisterActiveQuarry((ServerLevel) level, pos);
             // Clear any active breaking animation
             if (currentTarget != null) {
-                ((ServerWorld) world).setBlockBreakingInfo(breakingEntityId, currentTarget, -1);
+                ((ServerLevel) level).destroyBlockProgress(breakingEntityId, currentTarget, -1);
             }
         }
     }
 
     @Override
-    public void markRemoved() {
-        super.markRemoved();
-        if (world != null && world.isClient()) {
-            ClientRenderCacheHooks.clearQuarryInterpolationCache(pos);
+    public void setRemoved() {
+        super.setRemoved();
+        if (level != null && level.isClientSide()) {
+            ClientRenderCacheHooks.clearQuarryInterpolationCache(worldPosition);
         }
     }
 
@@ -1349,14 +1349,14 @@ public class LaserQuarryBlockEntity extends BlockEntity implements EnergyStorage
         return customMaxZ;
     }
 
-    public static List<BlockPos> getActiveQuarries(ServerWorld world) {
-        RegistryKey<World> key = world.getRegistryKey();
+    public static List<BlockPos> getActiveQuarries(ServerLevel world) {
+        ResourceKey<Level> key = world.dimension();
         Map<Long, Long> entries = ACTIVE_QUARRIES.get(key);
         if (entries == null || entries.isEmpty()) {
             return List.of();
         }
 
-        long now = world.getTime();
+        long now = world.getGameTime();
         java.util.Iterator<java.util.Map.Entry<Long, Long>> iterator =
                 entries.entrySet().iterator();
         while (iterator.hasNext()) {
@@ -1373,23 +1373,23 @@ public class LaserQuarryBlockEntity extends BlockEntity implements EnergyStorage
 
         List<BlockPos> positions = new ArrayList<>(entries.size());
         for (Long posLong : entries.keySet()) {
-            positions.add(BlockPos.fromLong(posLong));
+            positions.add(BlockPos.of(posLong));
         }
         return positions;
     }
 
-    public static void clearActiveQuarries(ServerWorld world) {
-        ACTIVE_QUARRIES.remove(world.getRegistryKey());
+    public static void clearActiveQuarries(ServerLevel world) {
+        ACTIVE_QUARRIES.remove(world.dimension());
     }
 
-    private static void registerActiveQuarry(ServerWorld world, BlockPos pos) {
-        RegistryKey<World> key = world.getRegistryKey();
+    private static void registerActiveQuarry(ServerLevel world, BlockPos pos) {
+        ResourceKey<Level> key = world.dimension();
         Map<Long, Long> entries = ACTIVE_QUARRIES.computeIfAbsent(key, unused -> new HashMap<>());
-        entries.put(pos.asLong(), world.getTime());
+        entries.put(pos.asLong(), world.getGameTime());
     }
 
-    private static void unregisterActiveQuarry(ServerWorld world, BlockPos pos) {
-        RegistryKey<World> key = world.getRegistryKey();
+    private static void unregisterActiveQuarry(ServerLevel world, BlockPos pos) {
+        ResourceKey<Level> key = world.dimension();
         Map<Long, Long> entries = ACTIVE_QUARRIES.get(key);
         if (entries == null) {
             return;

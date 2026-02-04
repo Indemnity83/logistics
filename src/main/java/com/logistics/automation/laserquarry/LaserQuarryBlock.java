@@ -6,74 +6,75 @@ import com.logistics.core.lib.block.Probeable;
 import com.logistics.core.lib.support.ProbeResult;
 import com.logistics.core.marker.MarkerManager;
 import com.mojang.serialization.MapCodec;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockRenderType;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.BlockWithEntity;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.BlockEntityTicker;
-import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemPlacementContext;
-import net.minecraft.item.ItemStack;
-import net.minecraft.sound.BlockSoundGroup;
-import net.minecraft.state.StateManager;
-import net.minecraft.state.property.EnumProperty;
-import net.minecraft.state.property.Properties;
-import net.minecraft.util.BlockMirror;
-import net.minecraft.util.BlockRotation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.World;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.RenderShape;
+import net.minecraft.world.level.block.state.BlockBehaviour.Properties;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.BaseEntityBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.Rotation;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
-public class LaserQuarryBlock extends BlockWithEntity implements Probeable {
-    public static final MapCodec<LaserQuarryBlock> CODEC = createCodec(LaserQuarryBlock::new);
-    public static final EnumProperty<Direction> FACING = Properties.HORIZONTAL_FACING;
+public class LaserQuarryBlock extends BaseEntityBlock implements Probeable {
+    public static final MapCodec<LaserQuarryBlock> CODEC = simpleCodec(LaserQuarryBlock::new);
+    public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
 
-    public LaserQuarryBlock(Settings settings) {
-        super(settings.strength(3.5f).sounds(BlockSoundGroup.STONE));
-        setDefaultState(getDefaultState().with(FACING, Direction.NORTH));
+    public LaserQuarryBlock(Properties settings) {
+        super(settings.strength(3.5f).sound(SoundType.STONE));
+        registerDefaultState(defaultBlockState().setValue(FACING, Direction.NORTH));
     }
 
     @Override
-    protected MapCodec<? extends BlockWithEntity> getCodec() {
+    protected MapCodec<? extends BaseEntityBlock> codec() {
         return CODEC;
     }
 
     @Override
-    protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(FACING);
     }
 
     @Override
-    public BlockRenderType getRenderType(BlockState state) {
-        return BlockRenderType.MODEL;
+    public RenderShape getRenderShape(BlockState state) {
+        return RenderShape.MODEL;
     }
 
     @Override
-    public BlockSoundGroup getSoundGroup(BlockState state) {
-        return BlockSoundGroup.STONE;
+    public SoundType getSoundType(BlockState state) {
+        return SoundType.STONE;
     }
 
     @Nullable @Override
-    public BlockState getPlacementState(ItemPlacementContext ctx) {
+    public BlockState getStateForPlacement(BlockPlaceContext ctx) {
         // FACING is the direction the quarry mines (the direction the player is looking)
-        return getDefaultState().with(FACING, ctx.getHorizontalPlayerFacing());
+        return defaultBlockState().setValue(FACING, ctx.getHorizontalDirection());
     }
 
     @Nullable @Override
-    public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
+    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return new LaserQuarryBlockEntity(pos, state);
     }
 
     @Override
-    public void onPlaced(
-            World world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack itemStack) {
-        super.onPlaced(world, pos, state, placer, itemStack);
+    public void setPlacedBy(
+            Level world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack itemStack) {
+        super.setPlacedBy(world, pos, state, placer, itemStack);
 
-        if (!world.isClient()) {
+        if (!world.isClientSide()) {
             // Check for adjacent marker-defined area
             MarkerManager.MarkerBounds bounds = MarkerManager.findAdjacentMarkerBounds(world, pos);
             if (bounds != null) {
@@ -95,29 +96,29 @@ public class LaserQuarryBlock extends BlockWithEntity implements Probeable {
 
     @Nullable @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
-            World world, BlockState state, BlockEntityType<T> type) {
-        return validateTicker(type, AutomationBlockEntities.LASER_QUARRY_BLOCK_ENTITY, LaserQuarryBlockEntity::tick);
+            Level world, BlockState state, BlockEntityType<T> type) {
+        return createTickerHelper(type, AutomationBlockEntities.LASER_QUARRY_BLOCK_ENTITY, LaserQuarryBlockEntity::tick);
     }
 
     @Override
-    protected BlockState rotate(BlockState state, BlockRotation rotation) {
-        return state.with(FACING, rotation.rotate(state.get(FACING)));
+    protected BlockState rotate(BlockState state, Rotation rotation) {
+        return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
     }
 
     @Override
-    protected BlockState mirror(BlockState state, BlockMirror mirror) {
-        return state.rotate(mirror.getRotation(state.get(FACING)));
+    protected BlockState mirror(BlockState state, Mirror mirror) {
+        return state.rotate(mirror.getRotation(state.getValue(FACING)));
     }
 
     /**
      * Gets the direction the quarry will mine in (behind the block).
      */
     public static Direction getMiningDirection(BlockState state) {
-        return state.get(FACING);
+        return state.getValue(FACING);
     }
 
     @Override
-    public ProbeResult onProbe(World world, BlockPos pos, PlayerEntity player) {
+    public ProbeResult onProbe(Level world, BlockPos pos, Player player) {
         if (world.getBlockEntity(pos) instanceof LaserQuarryBlockEntity quarry) {
             return quarry.getProbeResult();
         }
