@@ -83,6 +83,17 @@ public class MarkerBlock extends Block implements EntityBlock, Wrenchable {
     }
 
     @Override
+    public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
+        if (!level.isClientSide() && state.getValue(ACTIVE)) {
+            BlockEntity blockEntity = level.getBlockEntity(pos);
+            if (blockEntity instanceof MarkerBlockEntity marker) {
+                marker.deactivateConnectedMarkers();
+            }
+        }
+        return super.playerWillDestroy(level, pos, state, player);
+    }
+
+    @Override
     protected InteractionResult useWithoutItem(BlockState state, Level world, BlockPos pos, Player player, net.minecraft.world.phys.BlockHitResult hit) {
         if (player.isShiftKeyDown()) {
             return InteractionResult.PASS;
