@@ -7,26 +7,26 @@ import com.logistics.power.engine.block.StirlingEngineBlock;
 import com.logistics.power.engine.ui.StirlingEngineScreenHandler;
 import com.logistics.power.registry.PowerBlockEntities;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.SingleStackInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.screen.PropertyDelegate;
-import net.minecraft.screen.ScreenHandler;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.storage.ReadView;
-import net.minecraft.storage.WriteView;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.collection.DefaultedList;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.World;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.NonNullList;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ContainerData;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.ticks.ContainerSingleItem;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -49,7 +49,7 @@ import org.jetbrains.annotations.Nullable;
  * When buffer fills up, temperature rises and generation decreases.
  */
 public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
-        implements ExtendedScreenHandlerFactory<BlockPos>, SingleStackInventory.SingleStackBlockEntityInventory {
+        implements ExtendedScreenHandlerFactory<BlockPos>, ContainerSingleItem.BlockContainerSingleItem {
 
     // ==================== Constants ====================
 
@@ -85,10 +85,11 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
     private double generationCarry = 0.0;
 
     // Inventory (single fuel slot)
-    private final DefaultedList<ItemStack> inventory = DefaultedList.ofSize(1, ItemStack.EMPTY);
+    // TODO: This doesn't need to be a list... it is always a single ItemStack
+    private final NonNullList<ItemStack> inventory = NonNullList.withSize(1, ItemStack.EMPTY);
 
     // Property delegate for syncing data to GUI
-    private final PropertyDelegate propertyDelegate = new PropertyDelegate() {
+    private final ContainerData propertyDelegate = new ContainerData() {
         @Override
         public int get(int index) {
             return switch (index) {
@@ -114,7 +115,7 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
         }
 
         @Override
-        public int size() {
+        public int getCount() {
             return PROPERTY_COUNT;
         }
     };
@@ -125,16 +126,16 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
         super(PowerBlockEntities.STIRLING_ENGINE_BLOCK_ENTITY, pos, state);
     }
 
-    public static void tick(World world, BlockPos pos, BlockState state, StirlingEngineBlockEntity entity) {
+    public static void tick(Level world, BlockPos pos, BlockState state, StirlingEngineBlockEntity entity) {
         entity.tickEngine(world, pos, state);
 
         // Update LIT state based on burn time
-        if (!world.isClient()) {
+        if (!world.isClientSide()) {
             BlockState currentState = world.getBlockState(pos);
-            boolean wasLit = currentState.get(StirlingEngineBlock.LIT);
+            boolean wasLit = currentState.getValue(StirlingEngineBlock.LIT);
             boolean isLit = entity.burnTime > 0;
             if (isLit != wasLit) {
-                world.setBlockState(pos, currentState.with(StirlingEngineBlock.LIT, isLit), Block.NOTIFY_LISTENERS);
+                world.setBlock(pos, currentState.setValue(StirlingEngineBlock.LIT, isLit), Block.UPDATE_CLIENTS);
             }
         }
     }
@@ -156,12 +157,12 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
 
     @Override
     protected Direction getOutputDirection() {
-        return StirlingEngineBlock.getOutputDirection(getCachedState());
+        return StirlingEngineBlock.getOutputDirection(getBlockState());
     }
 
     @Override
     protected boolean isRedstonePowered() {
-        return getCachedState().get(StirlingEngineBlock.POWERED);
+        return getBlockState().getValue(StirlingEngineBlock.POWERED);
     }
 
     @Override
@@ -211,12 +212,12 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
     }
 
     private boolean refuel() {
-        if (world == null) {
+        if (level == null) {
             return false;
         }
 
         ItemStack fuel = inventory.getFirst();
-        int burnTicks = world.getFuelRegistry().getFuelTicks(fuel);
+        int burnTicks = level.fuelValues().burnDuration(fuel);
         if (burnTicks <= 0) {
             return false;
         }
@@ -224,12 +225,12 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
         fuelTime = burnTicks;
         burnTime = fuelTime;
 
-        if (fuel.isOf(Items.LAVA_BUCKET)) {
+        if (fuel.is(Items.LAVA_BUCKET)) {
             inventory.set(0, new ItemStack(Items.BUCKET));
         } else {
-            fuel.decrement(1);
+            fuel.shrink(1);
         }
-        markDirty();
+        setChanged();
         return true;
     }
 
@@ -269,7 +270,7 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
         return currentGeneration;
     }
 
-    public PropertyDelegate getPropertyDelegate() {
+    public ContainerData getPropertyDelegate() {
         return propertyDelegate;
     }
 
@@ -278,43 +279,40 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
         super.addProbeEntries(builder);
 
         // Generation rate (PID controlled)
-        builder.entry("Generation", String.format("%.2f RF/t", currentGeneration), Formatting.GREEN);
+        builder.entry("Generation", String.format("%.2f RF/t", currentGeneration), ChatFormatting.GREEN);
 
         // Fuel burn time
         if (fuelTime > 0) {
             builder.entry(
                     "Fuel",
                     String.format("%d / %d ticks (%.1f%%)", burnTime, fuelTime, (burnTime / (float) fuelTime) * 100),
-                    Formatting.YELLOW);
+                    ChatFormatting.YELLOW);
         } else {
-            builder.entry("Fuel", "None", Formatting.GRAY);
+            builder.entry("Fuel", "None", ChatFormatting.GRAY);
         }
     }
 
     // ==================== SingleStackInventory Implementation ====================
 
-    @Override
-    public ItemStack getStack() {
+    public ItemStack getTheItem() {
         return inventory.getFirst();
     }
 
-    @Override
-    public void setStack(ItemStack stack) {
+    public void setTheItem(ItemStack stack) {
         inventory.set(0, stack);
-        markDirty();
+        setChanged();
     }
 
     @Override
-    public BlockEntity asBlockEntity() {
+    public BlockEntity getContainerBlockEntity() {
         return this;
     }
 
-    @Override
     public boolean isValid(int slot, ItemStack stack) {
-        if (world == null) {
+        if (level == null) {
             return true; // Allow insertion when world not loaded, validate on use
         }
-        return world.getFuelRegistry().getFuelTicks(stack) > 0;
+        return level.fuelValues().isFuel(stack);
     }
 
     @Override
@@ -325,47 +323,47 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
     // ==================== ExtendedScreenHandlerFactory Implementation ====================
 
     @Override
-    public Text getDisplayName() {
-        return Text.translatable("block.logistics.power.stirling_engine");
+    public Component getDisplayName() {
+        return Component.translatable("block.logistics.power.stirling_engine");
     }
 
     @Override
-    public BlockPos getScreenOpeningData(ServerPlayerEntity player) {
-        return pos;
+    public BlockPos getScreenOpeningData(ServerPlayer player) {
+        return getBlockPos();
     }
 
     @Nullable @Override
-    public ScreenHandler createMenu(int syncId, PlayerInventory playerInventory, PlayerEntity player) {
+    public AbstractContainerMenu createMenu(int syncId, Inventory playerInventory, Player player) {
         return new StirlingEngineScreenHandler(syncId, playerInventory, this, propertyDelegate);
     }
 
     // ==================== NBT Serialization ====================
 
     @Override
-    protected void writeData(WriteView view) {
-        super.writeData(view);
+    protected void saveAdditional(ValueOutput view) {
+        super.saveAdditional(view);
 
-        NbtCompound stirlingData = new NbtCompound();
+        CompoundTag stirlingData = new CompoundTag();
         stirlingData.putInt("burnTime", burnTime);
         stirlingData.putInt("fuelTime", fuelTime);
         stirlingData.putDouble("currentGeneration", currentGeneration);
         stirlingData.putDouble("generationCarry", generationCarry);
         stirlingData.putDouble("pidIntegral", pidController.getIntegral());
-        view.put("StirlingData", NbtCompound.CODEC, stirlingData);
+        view.store("StirlingData", CompoundTag.CODEC, stirlingData);
 
         ItemStack fuelStack = inventory.getFirst();
         if (!fuelStack.isEmpty()) {
-            view.put("Fuel", ItemStack.CODEC, fuelStack);
+            view.store("Fuel", ItemStack.CODEC, fuelStack);
         } else {
-            view.remove("Fuel");
+            view.discard("Fuel");
         }
     }
 
     @Override
-    protected void readData(ReadView view) {
-        super.readData(view);
+    protected void loadAdditional(ValueInput view) {
+        super.loadAdditional(view);
 
-        view.read("StirlingData", NbtCompound.CODEC).ifPresent(stirlingData -> {
+        view.read("StirlingData", CompoundTag.CODEC).ifPresent(stirlingData -> {
             burnTime = stirlingData.getInt("burnTime").orElse(0);
             fuelTime = stirlingData.getInt("fuelTime").orElse(0);
             currentGeneration = stirlingData.getDouble("currentGeneration").orElse(MIN_GENERATION);

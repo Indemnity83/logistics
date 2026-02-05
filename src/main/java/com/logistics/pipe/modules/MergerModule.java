@@ -4,12 +4,12 @@ import com.logistics.LogisticsMod;
 import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.runtime.RoutePlan;
 import java.util.List;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Direction;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
 public class MergerModule implements Module {
@@ -42,9 +42,9 @@ public class MergerModule implements Module {
     }
 
     @Override
-    public ActionResult onWrench(PipeContext ctx, PlayerEntity player) {
-        if (ctx.world().isClient()) {
-            return ActionResult.SUCCESS;
+    public InteractionResult onWrench(PipeContext ctx, Player player) {
+        if (ctx.world().isClientSide()) {
+            return InteractionResult.SUCCESS;
         }
 
         List<Direction> connected = ctx.getConnectedDirections();
@@ -52,14 +52,14 @@ public class MergerModule implements Module {
         // No valid outputs: clear config.
         if (connected.isEmpty()) {
             setOutputDirection(ctx, null);
-            return ActionResult.SUCCESS;
+            return InteractionResult.SUCCESS;
         }
 
         Direction current = getOutputDirection(ctx);
         Direction next = nextInCycle(connected, current);
 
         setOutputDirection(ctx, next);
-        return ActionResult.SUCCESS;
+        return InteractionResult.SUCCESS;
     }
 
     @Override
@@ -69,11 +69,19 @@ public class MergerModule implements Module {
     }
 
     private @Nullable Direction getOutputDirection(PipeContext ctx) {
-        NbtCompound state = ctx.moduleState(getStateKey());
+        CompoundTag state = ctx.moduleState(getStateKey());
         if (!state.contains(OUTPUT_DIRECTION)) {
             return null;
         }
-        return state.getString(OUTPUT_DIRECTION).map(Direction::byId).orElse(null);
+        String directionStr = state.getString(OUTPUT_DIRECTION).orElse("");
+        if (directionStr.isEmpty()) {
+            return null;
+        }
+        try {
+            return Direction.from3DDataValue(Integer.parseInt(directionStr));
+        } catch (NumberFormatException e) {
+            return null;
+        }
     }
 
     private void setOutputDirection(PipeContext ctx, @Nullable Direction direction) {
@@ -85,7 +93,7 @@ public class MergerModule implements Module {
         if (direction == null) {
             ctx.remove(this, OUTPUT_DIRECTION);
         } else {
-            ctx.saveString(this, OUTPUT_DIRECTION, direction.getId());
+            ctx.saveString(this, OUTPUT_DIRECTION, String.valueOf(direction.get3DDataValue()));
         }
 
         ctx.markDirtyAndSync();
@@ -106,7 +114,7 @@ public class MergerModule implements Module {
             return null;
         }
         String suffix = ctx.isInventoryConnection(direction) ? "_feature_extended" : "_feature";
-        return Identifier.of(LogisticsMod.MOD_ID, "block/pipe/item_merger_pipe" + suffix);
+        return Identifier.fromNamespaceAndPath(LogisticsMod.MOD_ID, "block/pipe/item_merger_pipe" + suffix);
     }
 
     private boolean isOutputDirection(PipeContext ctx, Direction direction) {

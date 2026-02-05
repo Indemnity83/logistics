@@ -3,18 +3,18 @@ package com.logistics.core.marker;
 import com.logistics.core.registry.CoreBlockEntities;
 import java.util.ArrayList;
 import java.util.List;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.network.listener.ClientPlayPacketListener;
-import net.minecraft.network.packet.Packet;
-import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
-import net.minecraft.registry.RegistryWrapper;
-import net.minecraft.storage.ReadView;
-import net.minecraft.storage.WriteView;
-import net.minecraft.text.Text;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -36,39 +36,39 @@ public class MarkerBlockEntity extends BlockEntity {
     /**
      * Toggle marker activation when right-clicked with wrench.
      */
-    public void toggleActivation(PlayerEntity player) {
-        if (world == null || world.isClient()) return;
+    public void toggleActivation(Player player) {
+        if (level == null || level.isClientSide()) return;
 
-        boolean currentlyActive = getCachedState().get(MarkerBlock.ACTIVE);
+        boolean currentlyActive = getBlockState().getValue(MarkerBlock.ACTIVE);
 
         if (currentlyActive) {
             // Deactivate all connected markers first, then this one
             deactivateConnectedMarkers();
             deactivate();
-            player.sendMessage(Text.translatable("marker.deactivated"), true);
+            player.displayClientMessage(Component.translatable("marker.deactivated"), true);
         } else {
             // Always activate the marker
-            MarkerManager.ActivationResult result = MarkerManager.tryActivateMarker(world, pos);
+            MarkerManager.ActivationResult result = MarkerManager.tryActivateMarker(level, worldPosition);
             switch (result.status()) {
                 case SUCCESS -> {
                     if (result.detailKey() != null) {
                         Object[] args = result.detailArgs() == null ? new Object[0] : result.detailArgs();
-                        player.sendMessage(Text.translatable(result.detailKey(), args), true);
+                        player.displayClientMessage(Component.translatable(result.detailKey(), args), true);
                     } else {
-                        player.sendMessage(Text.translatable("marker.activated"), true);
+                        player.displayClientMessage(Component.translatable("marker.activated"), true);
                     }
                 }
                 case NO_CONNECTIONS -> {
                     // Activate solo (no connections, just project beams)
                     activateSolo();
-                    player.sendMessage(Text.translatable("marker.activated.solo"), true);
+                    player.displayClientMessage(Component.translatable("marker.activated.solo"), true);
                 }
                 case FAILURE -> {
                     if (result.detailKey() != null) {
                         Object[] args = result.detailArgs() == null ? new Object[0] : result.detailArgs();
-                        player.sendMessage(Text.translatable(result.detailKey(), args), true);
+                        player.displayClientMessage(Component.translatable(result.detailKey(), args), true);
                     } else {
-                        player.sendMessage(Text.translatable("marker.activation.failed"), true);
+                        player.displayClientMessage(Component.translatable("marker.activation.failed"), true);
                     }
                 }
                 default -> {}
@@ -80,15 +80,15 @@ public class MarkerBlockEntity extends BlockEntity {
      * Activate this marker without connections (solo mode - just projects beams).
      */
     public void activateSolo() {
-        if (world == null) return;
+        if (level == null) return;
 
         connectedMarkers.clear();
         this.boundMin = null;
         this.boundMax = null;
         this.isCornerMarker = false;
 
-        world.setBlockState(pos, getCachedState().with(MarkerBlock.ACTIVE, true));
-        markDirty();
+        level.setBlock(worldPosition, getBlockState().setValue(MarkerBlock.ACTIVE, true), 3);
+        setChanged();
         syncToClients();
     }
 
@@ -96,7 +96,7 @@ public class MarkerBlockEntity extends BlockEntity {
      * Activate this marker with connections to other markers.
      */
     public void activate(List<BlockPos> connections, @Nullable BlockPos min, @Nullable BlockPos max, boolean isCorner) {
-        if (world == null) return;
+        if (level == null) return;
 
         connectedMarkers.clear();
         connectedMarkers.addAll(connections);
@@ -104,8 +104,8 @@ public class MarkerBlockEntity extends BlockEntity {
         this.boundMax = max;
         this.isCornerMarker = isCorner;
 
-        world.setBlockState(pos, getCachedState().with(MarkerBlock.ACTIVE, true));
-        markDirty();
+        level.setBlock(worldPosition, getBlockState().setValue(MarkerBlock.ACTIVE, true), 3);
+        setChanged();
         syncToClients();
     }
 
@@ -113,15 +113,15 @@ public class MarkerBlockEntity extends BlockEntity {
      * Deactivate this marker.
      */
     public void deactivate() {
-        if (world == null) return;
+        if (level == null) return;
 
         connectedMarkers.clear();
         boundMin = null;
         boundMax = null;
         isCornerMarker = false;
 
-        world.setBlockState(pos, getCachedState().with(MarkerBlock.ACTIVE, false));
-        markDirty();
+        level.setBlock(worldPosition, getBlockState().setValue(MarkerBlock.ACTIVE, false), 3);
+        setChanged();
         syncToClients();
     }
 
@@ -129,10 +129,10 @@ public class MarkerBlockEntity extends BlockEntity {
      * Deactivate all markers connected to this one.
      */
     public void deactivateConnectedMarkers() {
-        if (world == null) return;
+        if (level == null) return;
 
         for (BlockPos connectedPos : new ArrayList<>(connectedMarkers)) {
-            BlockEntity entity = world.getBlockEntity(connectedPos);
+            BlockEntity entity = level.getBlockEntity(connectedPos);
             if (entity instanceof MarkerBlockEntity marker) {
                 marker.deactivate();
             }
@@ -140,7 +140,7 @@ public class MarkerBlockEntity extends BlockEntity {
     }
 
     public boolean isActive() {
-        return getCachedState().get(MarkerBlock.ACTIVE);
+        return getBlockState().getValue(MarkerBlock.ACTIVE);
     }
 
     public List<BlockPos> getConnectedMarkers() {
@@ -164,16 +164,16 @@ public class MarkerBlockEntity extends BlockEntity {
     }
 
     private void syncToClients() {
-        if (world != null && !world.isClient()) {
-            world.updateListeners(pos, getCachedState(), getCachedState(), 3);
+        if (level != null && !level.isClientSide()) {
+            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
         }
     }
 
     @Override
-    protected void writeData(WriteView view) {
-        super.writeData(view);
+    protected void saveAdditional(ValueOutput view) {
+        super.saveAdditional(view);
 
-        NbtCompound data = new NbtCompound();
+        CompoundTag data = new CompoundTag();
 
         // Save connected markers
         if (!connectedMarkers.isEmpty()) {
@@ -201,25 +201,27 @@ public class MarkerBlockEntity extends BlockEntity {
 
         data.putBoolean("IsCorner", isCornerMarker);
 
-        view.put("MarkerData", NbtCompound.CODEC, data);
+        view.store("MarkerData", CompoundTag.CODEC, data);
     }
 
     @Override
-    protected void readData(ReadView view) {
-        super.readData(view);
+    protected void loadAdditional(ValueInput view) {
+        super.loadAdditional(view);
 
-        connectedMarkers.clear();
-        boundMin = null;
-        boundMax = null;
-        isCornerMarker = false;
+        view.read("MarkerData", CompoundTag.CODEC).ifPresent(data -> {
+            connectedMarkers.clear();
+            boundMin = null;
+            boundMax = null;
+            isCornerMarker = false;
 
-        view.read("MarkerData", NbtCompound.CODEC).ifPresent(data -> {
             // Load connected markers
-            data.getIntArray("ConnectedMarkers").ifPresent(positions -> {
-                for (int i = 0; i < positions.length / 3; i++) {
-                    connectedMarkers.add(new BlockPos(positions[i * 3], positions[i * 3 + 1], positions[i * 3 + 2]));
-                }
-            });
+            if (data.contains("ConnectedMarkers")) {
+                data.getIntArray("ConnectedMarkers").ifPresent(positions -> {
+                    for (int i = 0; i < positions.length / 3; i++) {
+                        connectedMarkers.add(new BlockPos(positions[i * 3], positions[i * 3 + 1], positions[i * 3 + 2]));
+                    }
+                });
+            }
 
             // Load bounds
             boolean hasMin = data.contains("MinX");
@@ -236,27 +238,42 @@ public class MarkerBlockEntity extends BlockEntity {
                 boundMax = new BlockPos(maxX, maxY, maxZ);
             }
 
-            isCornerMarker = data.getBoolean("IsCorner").orElse(false);
+            if (data.contains("IsCorner")) {
+                isCornerMarker = data.getBoolean("IsCorner").orElse(false);
+            }
         });
     }
 
-    @Override
-    public void onBlockReplaced(BlockPos pos, BlockState oldState) {
-        super.onBlockReplaced(pos, oldState);
 
-        // Deactivate connected markers when this marker is removed
-        if (world != null && !world.isClient() && isActive()) {
+
+    @Override
+    public void setRemoved() {
+        super.setRemoved();
+
+        // Deactivate connected markers when chunk unloads OR block is broken
+        if (level != null && !level.isClientSide() && isActive()) {
             deactivateConnectedMarkers();
         }
     }
 
+    @Override
+    public void clearRemoved() {
+        super.clearRemoved();
+
+        // Reactivate connected markers when chunk loads again
+        if (level != null && !level.isClientSide() && isActive()) {
+            // TODO: Implement reactivation logic - may need to verify connected markers still exist
+            // This is called when the block entity is added back (chunk loads)
+        }
+    }
+
     @Nullable @Override
-    public Packet<ClientPlayPacketListener> toUpdatePacket() {
-        return BlockEntityUpdateS2CPacket.create(this);
+    public Packet<ClientGamePacketListener> getUpdatePacket() {
+        return ClientboundBlockEntityDataPacket.create(this);
     }
 
     @Override
-    public NbtCompound toInitialChunkDataNbt(RegistryWrapper.WrapperLookup registryLookup) {
-        return createNbt(registryLookup);
+    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
+        return saveWithoutMetadata(registries);
     }
 }

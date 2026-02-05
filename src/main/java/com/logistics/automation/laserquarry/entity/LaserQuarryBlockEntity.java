@@ -929,7 +929,7 @@ public class LaserQuarryBlockEntity extends BlockEntity implements EnergyStorage
                     startZ = quarryPos.getZ() - 8;
                     break;
                 default:
-                    return AutomationBlocks.LASER_QUARRY_FRAME.getDefaultState();
+                    return AutomationBlocks.LASER_QUARRY_FRAME.defaultBlockState();
             }
             endX = startX + LaserQuarryConfig.CHUNK_SIZE - 1;
             endZ = startZ + LaserQuarryConfig.CHUNK_SIZE - 1;

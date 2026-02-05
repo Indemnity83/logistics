@@ -25,7 +25,7 @@ public final class CoreDomainBootstrap implements DomainBootstrap {
             if (start > 0L) {
                 TimingLog.log(
                         LogisticsMod.LOGGER,
-                        "World load " + world.getRegistryKey().getValue(),
+                        "World load " + world.dimension(),
                         start);
             }
         });

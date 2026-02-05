@@ -7,17 +7,17 @@ import com.logistics.pipe.runtime.TravelingItem;
 import com.logistics.pipe.ui.ItemFilterScreenHandler;
 import java.util.ArrayList;
 import java.util.List;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtList;
-import net.minecraft.nbt.NbtString;
-import net.minecraft.registry.Registries;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Text;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.StringTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 
 /**
  * Routes items based on per-side filters.
@@ -37,7 +37,7 @@ public class ItemFilterModule implements Module {
             options = List.of();
         }
 
-        String itemId = Registries.ITEM.getId(item.getStack().getItem()).toString();
+        String itemId = BuiltInRegistries.ITEM.getKey(item.getStack().getItem()).toString();
         List<Direction> matches = new ArrayList<>();
         List<Direction> fallbacks = new ArrayList<>();
 
@@ -58,25 +58,25 @@ public class ItemFilterModule implements Module {
     }
 
     @Override
-    public ActionResult onWrench(PipeContext ctx, PlayerEntity player) {
-        if (ctx.world().isClient()) {
-            return ActionResult.SUCCESS;
+    public InteractionResult onWrench(PipeContext ctx, Player player) {
+        if (ctx.world().isClientSide()) {
+            return InteractionResult.SUCCESS;
         }
 
-        if (!(player instanceof ServerPlayerEntity serverPlayer)) {
-            return ActionResult.PASS;
+        if (!(player instanceof ServerPlayer serverPlayer)) {
+            return InteractionResult.PASS;
         }
 
-        World world = ctx.world();
+        Level world = ctx.world();
         BlockPos pos = ctx.pos();
-        serverPlayer.openHandledScreen(new net.minecraft.screen.SimpleNamedScreenHandlerFactory(
+        serverPlayer.openMenu(new net.minecraft.world.SimpleMenuProvider(
                 (syncId, inventory, playerEntity) -> {
                     PipeBlockEntity pipeEntity =
                             world.getBlockEntity(pos) instanceof PipeBlockEntity entity ? entity : null;
                     return new ItemFilterScreenHandler(syncId, inventory, pipeEntity);
                 },
-                Text.translatable("screen.logistics.item_filter")));
-        return ActionResult.SUCCESS;
+                Component.translatable("screen.logistics.item_filter")));
+        return InteractionResult.SUCCESS;
     }
 
     public static int getFilterColor(Direction direction) {
@@ -96,13 +96,22 @@ public class ItemFilterModule implements Module {
     }
 
     public List<String> getFilterSlots(PipeContext ctx, Direction direction) {
-        NbtCompound filters = ctx.getNbtCompound(this, FILTERS);
-        NbtList list = filters.getListOrEmpty(direction.getId());
+        CompoundTag filters = ctx.getCompoundTag(this, FILTERS);
         List<String> slots = new ArrayList<>(FILTER_SLOTS_PER_SIDE);
-        for (int i = 0; i < FILTER_SLOTS_PER_SIDE; i++) {
-            if (i < list.size()) {
-                slots.add(list.getString(i).orElse(""));
-            } else {
+
+        var listOpt = filters.getList(direction.getName());
+        if (listOpt.isPresent()) {
+            ListTag list = listOpt.get();
+            for (int i = 0; i < FILTER_SLOTS_PER_SIDE; i++) {
+                if (i < list.size()) {
+                    slots.add(list.getString(i).orElse(""));
+                } else {
+                    slots.add("");
+                }
+            }
+        } else {
+            // No saved filters - fill with empty strings
+            for (int i = 0; i < FILTER_SLOTS_PER_SIDE; i++) {
                 slots.add("");
             }
         }
@@ -110,8 +119,8 @@ public class ItemFilterModule implements Module {
     }
 
     public void setFilterSlots(PipeContext ctx, Direction direction, List<String> slots) {
-        NbtCompound filters = ctx.getNbtCompound(this, FILTERS);
-        NbtList list = new NbtList();
+        CompoundTag filters = ctx.getCompoundTag(this, FILTERS);
+        ListTag list = new ListTag();
         boolean hasAny = false;
 
         for (String slot : slots) {
@@ -119,17 +128,17 @@ public class ItemFilterModule implements Module {
             if (!value.isEmpty()) {
                 hasAny = true;
             }
-            list.add(NbtString.of(value));
+            list.add(StringTag.valueOf(value));
         }
 
         if (hasAny) {
-            filters.put(direction.getId(), list);
+            filters.put(direction.getName(), list);
         } else {
-            filters.remove(direction.getId());
+            filters.remove(direction.getName());
         }
 
         if (!filters.isEmpty()) {
-            ctx.putNbtCompound(this, FILTERS, filters);
+            ctx.putCompoundTag(this, FILTERS, filters);
         } else {
             ctx.remove(this, FILTERS);
         }

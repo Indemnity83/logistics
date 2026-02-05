@@ -2,12 +2,12 @@ package com.logistics.core.item;
 
 import com.logistics.core.lib.block.Probeable;
 import com.logistics.core.lib.support.ProbeResult;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemUsageContext;
-import net.minecraft.text.Text;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Formatting;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.ChatFormatting;
 
 /**
  * Probe tool for inspecting blocks and displaying diagnostic information.
@@ -15,63 +15,63 @@ import net.minecraft.util.Formatting;
  */
 public class ProbeItem extends Item {
 
-    private static final Formatting TITLE_COLOR = Formatting.GOLD;
-    private static final Formatting KEY_COLOR = Formatting.WHITE;
-    private static final Formatting DEFAULT_VALUE_COLOR = Formatting.GRAY;
-    private static final Formatting WARNING_COLOR = Formatting.RED;
+    private static final ChatFormatting TITLE_COLOR = ChatFormatting.GOLD;
+    private static final ChatFormatting KEY_COLOR = ChatFormatting.WHITE;
+    private static final ChatFormatting DEFAULT_VALUE_COLOR = ChatFormatting.GRAY;
+    private static final ChatFormatting WARNING_COLOR = ChatFormatting.RED;
 
-    public ProbeItem(Settings settings) {
+    public ProbeItem(Properties settings) {
         super(settings);
     }
 
     @Override
-    public ActionResult useOnBlock(ItemUsageContext context) {
+    public InteractionResult useOn(UseOnContext context) {
         if (context.getPlayer() == null) {
-            return ActionResult.PASS;
+            return InteractionResult.PASS;
         }
 
-        var world = context.getWorld();
-        var pos = context.getBlockPos();
+        var world = context.getLevel();
+        var pos = context.getClickedPos();
         var player = context.getPlayer();
         var block = world.getBlockState(pos).getBlock();
 
         if (block instanceof Probeable probeable) {
-            if (world.isClient()) {
-                return ActionResult.SUCCESS;
+            if (world.isClientSide()) {
+                return InteractionResult.SUCCESS;
             }
 
             ProbeResult result = probeable.onProbe(world, pos, player);
             if (result != null) {
                 displayResult(player, result);
-                return ActionResult.SUCCESS;
+                return InteractionResult.SUCCESS;
             }
         }
 
-        return ActionResult.PASS;
+        return InteractionResult.PASS;
     }
 
-    private void displayResult(PlayerEntity player, ProbeResult result) {
+    private void displayResult(Player player, ProbeResult result) {
         // Display title
-        player.sendMessage(Text.literal("=== " + result.title() + " ===").formatted(TITLE_COLOR), false);
+        player.displayClientMessage(Component.literal("=== " + result.title() + " ===").withStyle(TITLE_COLOR), false);
 
         // Display entries
         for (ProbeResult.Entry entry : result.entries()) {
             switch (entry) {
                 case ProbeResult.Entry.KeyValue kv -> {
-                    Formatting valueColor = kv.color() != null ? kv.color() : DEFAULT_VALUE_COLOR;
-                    player.sendMessage(
-                            Text.literal(kv.key() + ": ")
-                                    .formatted(KEY_COLOR)
-                                    .append(Text.literal(kv.value()).formatted(valueColor)),
+                    ChatFormatting valueColor = kv.color() != null ? kv.color() : DEFAULT_VALUE_COLOR;
+                    player.displayClientMessage(
+                            Component.literal(kv.key() + ": ")
+                                    .withStyle(KEY_COLOR)
+                                    .append(Component.literal(kv.value()).withStyle(valueColor)),
                             false);
                 }
                 case ProbeResult.Entry.Warning warning -> {
-                    player.sendMessage(
-                            Text.literal("WARNING: " + warning.message()).formatted(WARNING_COLOR, Formatting.BOLD),
+                    player.displayClientMessage(
+                            Component.literal("WARNING: " + warning.message()).withStyle(WARNING_COLOR, ChatFormatting.BOLD),
                             false);
                 }
                 case ProbeResult.Entry.Separator ignored -> {
-                    player.sendMessage(Text.literal("---").formatted(Formatting.DARK_GRAY), false);
+                    player.displayClientMessage(Component.literal("---").withStyle(ChatFormatting.DARK_GRAY), false);
                 }
             }
         }

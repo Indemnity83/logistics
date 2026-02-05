@@ -1,7 +1,7 @@
 package com.logistics.automation.render;
 
 import java.util.function.Consumer;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
 
 public final class ClientRenderCacheHooks {
     private static final Consumer<BlockPos> NOOP_CLEARER = pos -> {};

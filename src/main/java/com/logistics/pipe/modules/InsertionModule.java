@@ -64,7 +64,7 @@ public class InsertionModule implements Module {
     }
 
     private long getInsertSpace(PipeContext ctx, TravelingItem item, Direction direction) {
-        BlockPos targetPos = ctx.pos().offset(direction);
+        BlockPos targetPos = ctx.pos().relative(direction);
         Storage<ItemVariant> storage = ItemStorage.SIDED.find(ctx.world(), targetPos, direction.getOpposite());
         if (storage == null) {
             return 0;
@@ -146,7 +146,7 @@ public class InsertionModule implements Module {
 
     private Direction chooseRandomDirection(PipeContext ctx, TravelingItem item, List<Direction> options) {
         long seed = mixHash(
-                ctx.pos().asLong(), ctx.world().getTime(), item.getDirection().getIndex());
+                ctx.pos().asLong(), ctx.world().getGameTime(), item.getDirection().get3DDataValue());
         Random random = new Random(seed);
         return options.get(random.nextInt(options.size()));
     }

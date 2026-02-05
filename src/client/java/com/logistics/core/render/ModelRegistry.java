@@ -11,15 +11,14 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 import net.fabricmc.fabric.api.client.model.loading.v1.ExtraModelKey;
-import net.fabricmc.fabric.api.client.model.loading.v1.FabricBakedModelManager;
 import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
 import net.fabricmc.fabric.api.client.model.loading.v1.SimpleUnbakedExtraModel;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.model.BakedModelManager;
-import net.minecraft.client.render.model.BlockStateModel;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.block.model.BlockStateModel;
+import net.minecraft.client.resources.model.ModelManager;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 public final class ModelRegistry {
@@ -59,12 +58,14 @@ public final class ModelRegistry {
             return null;
         }
 
-        BakedModelManager modelManager = MinecraftClient.getInstance().getBakedModelManager();
-        if (!(modelManager instanceof FabricBakedModelManager fabricManager)) {
+        // Retrieve the baked model using ModelManager.getModel() with the ExtraModelKey
+        try {
+            ModelManager modelManager = Minecraft.getInstance().getModelManager();
+            return modelManager.getModel(key);
+        } catch (Exception e) {
+            LogisticsMod.LOGGER.warn("Failed to retrieve model for {}", id, e);
             return null;
         }
-
-        return fabricManager.getModel(key);
     }
 
     private static Set<Identifier> collectModelIds() {
@@ -82,7 +83,7 @@ public final class ModelRegistry {
                     return;
                 }
                 String name = relative.substring(0, relative.length() - ".json".length());
-                modelIds.add(Identifier.of(LogisticsMod.MOD_ID, "block/" + name));
+                modelIds.add(Identifier.fromNamespaceAndPath(LogisticsMod.MOD_ID, "block/" + name));
             });
         } catch (IOException e) {
             LogisticsMod.LOGGER.warn("Failed to scan model resources", e);

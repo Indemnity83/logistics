@@ -8,26 +8,27 @@ import com.logistics.core.lib.power.AbstractEngineBlockEntity.HeatStage;
 import com.logistics.core.lib.support.ProbeResult;
 import java.util.Collections;
 import java.util.List;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockRenderType;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.BlockWithEntity;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemPlacementContext;
-import net.minecraft.sound.BlockSoundGroup;
-import net.minecraft.state.StateManager;
-import net.minecraft.state.property.BooleanProperty;
-import net.minecraft.state.property.EnumProperty;
-import net.minecraft.state.property.Properties;
-import net.minecraft.state.property.Property;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.BlockMirror;
-import net.minecraft.util.BlockRotation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.World;
-import net.minecraft.world.block.WireOrientation;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.BaseEntityBlock;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockBehaviour.Properties;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.RenderShape;
+import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.block.state.properties.Property;
+import net.minecraft.world.level.redstone.Orientation;
 import org.jetbrains.annotations.Nullable;
 import team.reborn.energy.api.EnergyStorage;
 
@@ -37,22 +38,19 @@ import team.reborn.energy.api.EnergyStorage;
  *
  * @param <E> The type of engine block entity this block creates
  */
-public abstract class AbstractEngineBlock<E extends AbstractEngineBlockEntity> extends BlockWithEntity
+public abstract class AbstractEngineBlock<E extends AbstractEngineBlockEntity> extends BaseEntityBlock
         implements Probeable, Wrenchable {
-    public static final EnumProperty<Direction> FACING = Properties.FACING;
-    public static final BooleanProperty POWERED = Properties.POWERED;
+    public static final EnumProperty<Direction> FACING = BlockStateProperties.FACING;
+    public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
 
-    protected AbstractEngineBlock(Settings settings, BlockSoundGroup soundGroup) {
+    protected AbstractEngineBlock(Properties settings, SoundType soundGroup) {
         super(settings.strength(3.5f)
-                .sounds(soundGroup)
-                .nonOpaque()
-                .solidBlock((state, world, pos) -> false)
-                .suffocates((state, world, pos) -> false)
-                .blockVision((state, world, pos) -> false));
-        setDefaultState(getDefaultState()
-                .with(FACING, Direction.NORTH)
-                .with(POWERED, false)
-                .with(STAGE, HeatStage.COLD));
+                .sound(soundGroup)
+                .noOcclusion());
+        registerDefaultState(defaultBlockState()
+                .setValue(FACING, Direction.NORTH)
+                .setValue(POWERED, false)
+                .setValue(STAGE, HeatStage.COLD));
     }
 
     /**
@@ -71,7 +69,7 @@ public abstract class AbstractEngineBlock<E extends AbstractEngineBlockEntity> e
      * @param ctx the placement context
      * @return the state with additional properties applied
      */
-    protected BlockState applyAdditionalPlacementState(BlockState base, ItemPlacementContext ctx) {
+    protected BlockState applyAdditionalPlacementState(BlockState base, BlockPlaceContext ctx) {
         return base;
     }
 
@@ -86,12 +84,12 @@ public abstract class AbstractEngineBlock<E extends AbstractEngineBlockEntity> e
      * Return true to skip the default rotation behavior.
      * Base implementation returns false (always perform rotation).
      */
-    protected boolean handleSpecialWrench(World world, BlockPos pos, PlayerEntity player, BlockState state) {
+    protected boolean handleSpecialWrench(Level world, BlockPos pos, Player player, BlockState state) {
         return false;
     }
 
     @Override
-    protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(FACING, POWERED, STAGE);
         for (Property<?> property : getAdditionalProperties()) {
             builder.add(property);
@@ -99,25 +97,25 @@ public abstract class AbstractEngineBlock<E extends AbstractEngineBlockEntity> e
     }
 
     @Override
-    public BlockRenderType getRenderType(BlockState state) {
-        return BlockRenderType.MODEL;
+    protected RenderShape getRenderShape(BlockState state) {
+        return RenderShape.MODEL;
     }
 
     @Nullable @Override
-    public BlockState getPlacementState(ItemPlacementContext ctx) {
+    public BlockState getStateForPlacement(BlockPlaceContext ctx) {
         // Output faces an adjacent EnergyStorage if available, otherwise player look direction
-        Direction defaultFacing = ctx.getPlayerLookDirection();
-        Direction facing = findBestOutputDirection(ctx.getWorld(), ctx.getBlockPos(), defaultFacing);
-        boolean powered = hasDirectRedstonePower(ctx.getWorld(), ctx.getBlockPos());
+        Direction defaultFacing = ctx.getHorizontalDirection();
+        Direction facing = findBestOutputDirection(ctx.getLevel(), ctx.getClickedPos(), defaultFacing);
+        boolean powered = hasDirectRedstonePower(ctx.getLevel(), ctx.getClickedPos());
 
         BlockState base =
-                getDefaultState().with(FACING, facing).with(POWERED, powered).with(STAGE, HeatStage.COLD);
+                defaultBlockState().setValue(FACING, facing).setValue(POWERED, powered).setValue(STAGE, HeatStage.COLD);
 
         return applyAdditionalPlacementState(base, ctx);
     }
 
     @Override
-    public ProbeResult onProbe(World world, BlockPos pos, PlayerEntity player) {
+    public ProbeResult onProbe(Level world, BlockPos pos, Player player) {
         BlockEntity be = world.getBlockEntity(pos);
         if (be != null) {
             E engine = getEngineBlockEntity(be);
@@ -129,50 +127,52 @@ public abstract class AbstractEngineBlock<E extends AbstractEngineBlockEntity> e
     }
 
     @Override
-    public ActionResult onWrench(World world, BlockPos pos, PlayerEntity player) {
+    public InteractionResult onWrench(Level world, BlockPos pos, Player player) {
         BlockState state = world.getBlockState(pos);
 
         // Let subclasses handle special wrench behavior first
         if (handleSpecialWrench(world, pos, player, state)) {
-            return ActionResult.SUCCESS;
+            return InteractionResult.SUCCESS;
         }
 
         // Default behavior: snap to next EnergyStorage or rotate through all directions
-        if (!world.isClient()) {
-            Direction currentFacing = state.get(FACING);
+        if (!world.isClientSide()) {
+            Direction currentFacing = state.getValue(FACING);
             Direction newFacing = findNextOutputDirection(world, pos, currentFacing);
-            world.setBlockState(pos, state.with(FACING, newFacing), Block.NOTIFY_ALL);
+            world.setBlock(pos, state.setValue(FACING, newFacing), Block.UPDATE_ALL);
         }
 
-        return ActionResult.SUCCESS;
+        return InteractionResult.SUCCESS;
     }
 
     @Override
-    protected void neighborUpdate(
+    protected void neighborChanged(
             BlockState state,
-            World world,
+            Level world,
             BlockPos pos,
             Block block,
-            @Nullable WireOrientation wireOrientation,
+            @Nullable Orientation wireOrientation,
             boolean notify) {
-        if (!world.isClient()) {
+        if (!world.isClientSide()) {
             boolean powered = hasDirectRedstonePower(world, pos);
-            if (powered != state.get(POWERED)) {
-                world.setBlockState(pos, state.with(POWERED, powered), Block.NOTIFY_LISTENERS);
+            if (powered != state.getValue(POWERED)) {
+                world.setBlock(pos, state.setValue(POWERED, powered), Block.UPDATE_CLIENTS);
             }
         }
-        super.neighborUpdate(state, world, pos, block, wireOrientation, notify);
+        super.neighborChanged(state, world, pos, block, wireOrientation, notify);
     }
 
     /**
      * Check if the block has direct redstone power (from levers, buttons, etc.)
      * but not from redstone dust passing by.
      */
-    private boolean hasDirectRedstonePower(World world, BlockPos pos) {
+    private boolean hasDirectRedstonePower(Level world, BlockPos pos) {
         for (Direction direction : Direction.values()) {
             // Get emitted redstone power directly from neighbors
             // This excludes weak power from dust and only counts strong power sources
-            int power = world.getEmittedRedstonePower(pos.offset(direction), direction);
+            BlockPos neighborPos = pos.relative(direction);
+            BlockState neighborState = world.getBlockState(neighborPos);
+            int power = neighborState.getSignal(world, neighborPos, direction);
             if (power > 0) {
                 return true;
             }
@@ -181,20 +181,20 @@ public abstract class AbstractEngineBlock<E extends AbstractEngineBlockEntity> e
     }
 
     @Override
-    protected BlockState rotate(BlockState state, BlockRotation rotation) {
-        return state.with(FACING, rotation.rotate(state.get(FACING)));
+    protected BlockState rotate(BlockState state, Rotation rotation) {
+        return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
     }
 
     @Override
-    protected BlockState mirror(BlockState state, BlockMirror mirror) {
-        return state.rotate(mirror.getRotation(state.get(FACING)));
+    protected BlockState mirror(BlockState state, Mirror mirror) {
+        return state.rotate(mirror.getRotation(state.getValue(FACING)));
     }
 
     /**
      * Gets the direction this engine outputs energy to.
      */
     public static Direction getOutputDirection(BlockState state) {
-        return state.get(FACING);
+        return state.getValue(FACING);
     }
 
     /**
@@ -207,7 +207,7 @@ public abstract class AbstractEngineBlock<E extends AbstractEngineBlockEntity> e
      * @param defaultDirection the preferred direction (usually player look direction)
      * @return the direction to face
      */
-    public static Direction findBestOutputDirection(World world, BlockPos pos, Direction defaultDirection) {
+    public static Direction findBestOutputDirection(Level world, BlockPos pos, Direction defaultDirection) {
         // First check if the default direction has an EnergyStorage
         if (hasEnergyStorage(world, pos, defaultDirection)) {
             return defaultDirection;
@@ -233,7 +233,7 @@ public abstract class AbstractEngineBlock<E extends AbstractEngineBlockEntity> e
      * @param current the current facing direction
      * @return the next direction to face
      */
-    public static Direction findNextOutputDirection(World world, BlockPos pos, Direction current) {
+    public static Direction findNextOutputDirection(Level world, BlockPos pos, Direction current) {
         // Try to find an EnergyStorage in the remaining directions (cycling from current)
         Direction[] directions = Direction.values();
         int startIdx = (current.ordinal() + 1) % directions.length;
@@ -258,8 +258,8 @@ public abstract class AbstractEngineBlock<E extends AbstractEngineBlockEntity> e
      * @param direction the direction to check
      * @return true if an EnergyStorage exists in that direction
      */
-    private static boolean hasEnergyStorage(World world, BlockPos pos, Direction direction) {
-        BlockPos targetPos = pos.offset(direction);
+    private static boolean hasEnergyStorage(Level world, BlockPos pos, Direction direction) {
+        BlockPos targetPos = pos.relative(direction);
         EnergyStorage storage = EnergyStorage.SIDED.find(world, targetPos, direction.getOpposite());
         return storage != null && storage.supportsInsertion();
     }

@@ -12,10 +12,10 @@ import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
-import net.minecraft.block.BlockState;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
 public final class PipeRuntime {
@@ -25,7 +25,7 @@ public final class PipeRuntime {
      * Holds pipe configuration and context for the current tick.
      */
     private record TickContext(
-            World world,
+            Level world,
             BlockPos pos,
             BlockState state,
             PipeBlockEntity blockEntity,
@@ -35,7 +35,7 @@ public final class PipeRuntime {
             float accelerationRate,
             float dragCoefficient) {
 
-        static TickContext create(World world, BlockPos pos, BlockState state, PipeBlockEntity blockEntity) {
+        static TickContext create(Level world, BlockPos pos, BlockState state, PipeBlockEntity blockEntity) {
             float maxSpeed = PipeConfig.PIPE_MAX_SPEED;
             float accelerationRate = 0f;
             float dragCoefficient = PipeConfig.DRAG_COEFFICIENT;
@@ -59,11 +59,11 @@ public final class PipeRuntime {
         }
 
         boolean isClient() {
-            return world.isClient();
+            return world.isClientSide();
         }
 
         boolean isServer() {
-            return !world.isClient();
+            return !world.isClientSide();
         }
     }
 
@@ -112,7 +112,7 @@ public final class PipeRuntime {
      * modules to influence direction before the item commits to an exit. Final delivery to
      * adjacent inventories or pipes happens when items reach progress 1.0.
      */
-    public static void tick(World world, BlockPos pos, BlockState state, PipeBlockEntity blockEntity) {
+    public static void tick(Level world, BlockPos pos, BlockState state, PipeBlockEntity blockEntity) {
         TickContext ctx = TickContext.create(world, pos, state, blockEntity);
         ItemTickState itemState = new ItemTickState();
 
@@ -151,7 +151,7 @@ public final class PipeRuntime {
         List<Direction> connected = getAllConnectedDirections(ctx.world(), ctx.pos(), ctx.state());
         int mask = 0;
         for (Direction d : connected) {
-            mask |= (1 << d.getIndex());
+            mask |= (1 << d.get3DDataValue());
         }
 
         if (mask != ctx.blockEntity().getLastConnectionsMask()) {
@@ -311,8 +311,8 @@ public final class PipeRuntime {
 
     private static void syncIfNeeded(TickContext ctx, ItemTickState itemState) {
         if (ctx.isServer() && itemState.needsSync) {
-            ctx.blockEntity().markDirty();
-            ctx.world().updateListeners(ctx.pos(), ctx.state(), ctx.state(), 3);
+            ctx.blockEntity().setChanged();
+            ctx.world().sendBlockUpdated(ctx.pos(), ctx.state(), ctx.state(), 3);
         }
     }
 
@@ -332,17 +332,17 @@ public final class PipeRuntime {
             transferItem(ctx.world(), ctx.pos(), item);
         }
 
-        ctx.blockEntity().markDirty();
-        ctx.world().updateListeners(ctx.pos(), ctx.state(), ctx.state(), 3);
+        ctx.blockEntity().setChanged();
+        ctx.world().sendBlockUpdated(ctx.pos(), ctx.state(), ctx.state(), 3);
     }
 
     /**
      * Transfer an item to the next pipe or inventory at the end of this segment.
      * Direction was already determined at the pipe center (0.5 progress).
      */
-    private static void transferItem(World world, BlockPos pos, TravelingItem item) {
+    private static void transferItem(Level world, BlockPos pos, TravelingItem item) {
         Direction direction = item.getDirection();
-        BlockPos targetPos = pos.offset(direction);
+        BlockPos targetPos = pos.relative(direction);
 
         Storage<ItemVariant> storage = ItemStorage.SIDED.find(world, targetPos, direction.getOpposite());
         if (storage != null) {
@@ -358,7 +358,7 @@ public final class PipeRuntime {
                 if (inserted > 0) {
                     transaction.commit();
                     if (inserted < item.getStack().getCount()) {
-                        item.getStack().decrement((int) inserted);
+                        item.getStack().shrink((int) inserted);
                         PipeBlockEntity.dropItem(world, pos, item);
                     }
                     return;
@@ -370,7 +370,7 @@ public final class PipeRuntime {
     }
 
     private static List<Direction> getValidDirections(
-            World world, BlockPos pos, BlockState state, Direction currentDirection) {
+            Level world, BlockPos pos, BlockState state, Direction currentDirection) {
         List<Direction> validDirections = new ArrayList<>();
         Direction oppositeDirection = currentDirection.getOpposite();
 
@@ -393,13 +393,13 @@ public final class PipeRuntime {
     }
 
     private static Direction chooseRandomDirection(
-            World world, BlockPos pos, Direction currentDirection, List<Direction> options) {
-        long seed = mixHash(pos.asLong(), world.getTime(), currentDirection.getIndex());
+            Level world, BlockPos pos, Direction currentDirection, List<Direction> options) {
+        long seed = mixHash(pos.asLong(), world.getGameTime(), currentDirection.get3DDataValue());
         java.util.Random random = new java.util.Random(seed);
         return options.get(random.nextInt(options.size()));
     }
 
-    private static List<Direction> getAllConnectedDirections(World world, BlockPos pos, BlockState state) {
+    private static List<Direction> getAllConnectedDirections(Level world, BlockPos pos, BlockState state) {
         List<Direction> connected = new ArrayList<>();
         if (!(state.getBlock() instanceof PipeBlock pipeBlock)) {
             return connected;

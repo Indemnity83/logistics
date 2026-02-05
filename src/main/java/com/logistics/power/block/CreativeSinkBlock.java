@@ -6,18 +6,19 @@ import com.logistics.core.lib.support.ProbeResult;
 import com.logistics.power.block.entity.CreativeSinkBlockEntity;
 import com.logistics.power.registry.PowerBlockEntities;
 import com.mojang.serialization.MapCodec;
-import net.minecraft.block.BlockRenderType;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.BlockWithEntity;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.BlockEntityTicker;
-import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.sound.BlockSoundGroup;
-import net.minecraft.text.Text;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.BaseEntityBlock;
+import net.minecraft.world.level.block.RenderShape;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockBehaviour.Properties;
+import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -29,40 +30,40 @@ import org.jetbrains.annotations.Nullable;
  *   <li>Sneak + right-click with wrench: Cycle through drain rates</li>
  * </ul>
  */
-public class CreativeSinkBlock extends BlockWithEntity implements Probeable, Wrenchable {
-    public static final MapCodec<CreativeSinkBlock> CODEC = createCodec(CreativeSinkBlock::new);
+public class CreativeSinkBlock extends BaseEntityBlock implements Probeable, Wrenchable {
+    public static final MapCodec<CreativeSinkBlock> CODEC = simpleCodec(CreativeSinkBlock::new);
 
-    public CreativeSinkBlock(Settings settings) {
-        super(settings.strength(1.0f).sounds(BlockSoundGroup.STONE));
+    public CreativeSinkBlock(Properties settings) {
+        super(settings.strength(1.0f).sound(SoundType.STONE));
     }
 
     @Override
-    protected MapCodec<? extends BlockWithEntity> getCodec() {
+    protected MapCodec<? extends BaseEntityBlock> codec() {
         return CODEC;
     }
 
     @Override
-    public BlockRenderType getRenderType(BlockState state) {
-        return BlockRenderType.MODEL;
+    public RenderShape getRenderShape(BlockState state) {
+        return RenderShape.MODEL;
     }
 
     @Nullable @Override
-    public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
+    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return new CreativeSinkBlockEntity(pos, state);
     }
 
     @Nullable @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
-            World world, BlockState state, BlockEntityType<T> type) {
+            Level world, BlockState state, BlockEntityType<T> type) {
         // Only tick on server - energy tracking is server-side only
-        if (world.isClient()) {
+        if (world.isClientSide()) {
             return null;
         }
-        return validateTicker(type, PowerBlockEntities.CREATIVE_SINK_BLOCK_ENTITY, CreativeSinkBlockEntity::tick);
+        return createTickerHelper(type, PowerBlockEntities.CREATIVE_SINK_BLOCK_ENTITY, CreativeSinkBlockEntity::tick);
     }
 
     @Nullable @Override
-    public ProbeResult onProbe(World world, BlockPos pos, PlayerEntity player) {
+    public ProbeResult onProbe(Level world, BlockPos pos, Player player) {
         if (world.getBlockEntity(pos) instanceof CreativeSinkBlockEntity sink) {
             return sink.getProbeResult();
         }
@@ -70,18 +71,18 @@ public class CreativeSinkBlock extends BlockWithEntity implements Probeable, Wre
     }
 
     @Override
-    public ActionResult onWrench(World world, BlockPos pos, PlayerEntity player) {
-        if (!player.isSneaking()) {
-            return ActionResult.PASS;
+    public InteractionResult onWrench(Level world, BlockPos pos, Player player) {
+        if (!player.isShiftKeyDown()) {
+            return InteractionResult.PASS;
         }
         if (world.getBlockEntity(pos) instanceof CreativeSinkBlockEntity sink) {
-            if (!world.isClient()) {
+            if (!world.isClientSide()) {
                 long newRate = sink.cycleDrainRate();
-                player.sendMessage(
-                        Text.translatable("message.logistics.power.creative_sink.drain_rate", newRate), true);
+                player.displayClientMessage(
+                        Component.translatable("message.logistics.power.creative_sink.drain_rate", newRate), true);
             }
-            return ActionResult.SUCCESS;
+            return InteractionResult.SUCCESS;
         }
-        return ActionResult.PASS;
+        return InteractionResult.PASS;
     }
 }

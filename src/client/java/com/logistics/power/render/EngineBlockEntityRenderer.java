@@ -9,23 +9,21 @@ import com.logistics.core.render.ModelRegistry;
 import com.logistics.power.engine.block.entity.CreativeEngineBlockEntity;
 import com.logistics.power.engine.block.entity.RedstoneEngineBlockEntity;
 import com.logistics.power.engine.block.entity.StirlingEngineBlockEntity;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.OverlayTexture;
-import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.RenderLayers;
-import net.minecraft.client.render.WorldRenderer;
-import net.minecraft.client.render.block.entity.BlockEntityRenderer;
-import net.minecraft.client.render.block.entity.BlockEntityRendererFactory;
-import net.minecraft.client.render.command.OrderedRenderCommandQueue;
-import net.minecraft.client.render.model.BlockStateModel;
-import net.minecraft.client.render.state.CameraRenderState;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.state.property.Properties;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.RotationAxis;
-import net.minecraft.util.math.Vec3d;
-import org.jetbrains.annotations.Nullable;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Axis;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.block.model.BlockStateModel;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
+import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.client.renderer.state.CameraRenderState;
+import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.phys.Vec3;
 
 /**
  * Renders engine block entities with animated pistons.
@@ -39,24 +37,24 @@ import org.jetbrains.annotations.Nullable;
 public class EngineBlockEntityRenderer implements BlockEntityRenderer<AbstractEngineBlockEntity, EngineRenderState> {
     // Shared model identifiers
     private static final Identifier TRUNK_BASE_MODEL =
-            Identifier.of(LogisticsMod.MOD_ID, "block/power/engine_trunk_base");
+            Identifier.fromNamespaceAndPath(LogisticsMod.MOD_ID, "block/power/engine_trunk_base");
     private static final Identifier TRUNK_OVERLAY_MODEL =
-            Identifier.of(LogisticsMod.MOD_ID, "block/power/engine_trunk_overlay");
-    private static final Identifier CHAMBER_MODEL = Identifier.of(LogisticsMod.MOD_ID, "block/power/engine_chamber");
+            Identifier.fromNamespaceAndPath(LogisticsMod.MOD_ID, "block/power/engine_trunk_overlay");
+    private static final Identifier CHAMBER_MODEL = Identifier.fromNamespaceAndPath(LogisticsMod.MOD_ID, "block/power/engine_chamber");
 
     // Per-engine model identifiers (base static and moving have engine-specific textures)
     private static final Identifier REDSTONE_BASE_STATIC =
-            Identifier.of(LogisticsMod.MOD_ID, "block/power/redstone_engine_base_static");
+            Identifier.fromNamespaceAndPath(LogisticsMod.MOD_ID, "block/power/redstone_engine_base_static");
     private static final Identifier REDSTONE_BASE_MOVING =
-            Identifier.of(LogisticsMod.MOD_ID, "block/power/redstone_engine_base_moving");
+            Identifier.fromNamespaceAndPath(LogisticsMod.MOD_ID, "block/power/redstone_engine_base_moving");
     private static final Identifier STIRLING_BASE_STATIC =
-            Identifier.of(LogisticsMod.MOD_ID, "block/power/stirling_engine_base_static");
+            Identifier.fromNamespaceAndPath(LogisticsMod.MOD_ID, "block/power/stirling_engine_base_static");
     private static final Identifier STIRLING_BASE_MOVING =
-            Identifier.of(LogisticsMod.MOD_ID, "block/power/stirling_engine_base_moving");
+            Identifier.fromNamespaceAndPath(LogisticsMod.MOD_ID, "block/power/stirling_engine_base_moving");
     private static final Identifier CREATIVE_BASE_STATIC =
-            Identifier.of(LogisticsMod.MOD_ID, "block/power/creative_engine_base_static");
+            Identifier.fromNamespaceAndPath(LogisticsMod.MOD_ID, "block/power/creative_engine_base_static");
     private static final Identifier CREATIVE_BASE_MOVING =
-            Identifier.of(LogisticsMod.MOD_ID, "block/power/creative_engine_base_moving");
+            Identifier.fromNamespaceAndPath(LogisticsMod.MOD_ID, "block/power/creative_engine_base_moving");
 
     // Stage colors (RGB 0-1 range) for trunk tinting
     private static final float[] COLOR_BLUE = {0.2f, 0.4f, 0.8f};
@@ -66,7 +64,7 @@ public class EngineBlockEntityRenderer implements BlockEntityRenderer<AbstractEn
     private static final float[] COLOR_OVERHEAT = {0.1f, 0.1f, 0.1f};
 
     // Animation cache - persists between frames, cleaned up when block entities are removed
-    private static final java.util.Map<net.minecraft.util.math.BlockPos, AnimationCache> ANIMATION_CACHE =
+    private static final java.util.Map<net.minecraft.core.BlockPos, AnimationCache> ANIMATION_CACHE =
             new java.util.concurrent.ConcurrentHashMap<>();
 
     private static final class AnimationCache {
@@ -78,7 +76,7 @@ public class EngineBlockEntityRenderer implements BlockEntityRenderer<AbstractEn
      * Removes the animation cache entry for a block position.
      * Should be called when an engine block entity is removed.
      */
-    public static void clearAnimationCache(net.minecraft.util.math.BlockPos pos) {
+    public static void clearAnimationCache(net.minecraft.core.BlockPos pos) {
         ANIMATION_CACHE.remove(pos);
     }
 
@@ -90,7 +88,7 @@ public class EngineBlockEntityRenderer implements BlockEntityRenderer<AbstractEn
         ANIMATION_CACHE.clear();
     }
 
-    public EngineBlockEntityRenderer(BlockEntityRendererFactory.Context ctx) {}
+    public EngineBlockEntityRenderer(BlockEntityRendererProvider.Context ctx) {}
 
     @Override
     public EngineRenderState createRenderState() {
@@ -98,20 +96,20 @@ public class EngineBlockEntityRenderer implements BlockEntityRenderer<AbstractEn
     }
 
     @Override
-    public void updateRenderState(
+    public void extractRenderState(
             AbstractEngineBlockEntity entity,
             EngineRenderState state,
             float tickDelta,
-            Vec3d cameraPos,
-            @Nullable net.minecraft.client.render.command.ModelCommandRenderer.CrumblingOverlayCommand crumblingOverlay) {
-        net.minecraft.client.render.block.entity.state.BlockEntityRenderState.updateBlockEntityRenderState(
+            Vec3 cameraPos,
+            net.minecraft.client.renderer.feature.ModelFeatureRenderer.CrumblingOverlay crumblingOverlay) {
+        net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState.extractBase(
                 entity, state, crumblingOverlay);
 
-        state.pos = entity.getPos();
-        state.facing = entity.getCachedState().get(Properties.FACING);
+        state.pos = entity.getBlockPos();
+        state.facing = entity.getBlockState().getValue(BlockStateProperties.FACING);
 
         // Get stage from block state (synced automatically) for reliable rendering
-        state.stage = entity.getCachedState().get(STAGE);
+        state.stage = entity.getBlockState().getValue(STAGE);
 
         // Determine engine type
         if (entity instanceof RedstoneEngineBlockEntity) {
@@ -135,12 +133,12 @@ public class EngineBlockEntityRenderer implements BlockEntityRenderer<AbstractEn
     private static final float DEFAULT_PISTON_SPEED = 0.02f;
 
     private void updateAnimationCache(AnimationCache cache, float pistonSpeed, boolean isRunning) {
-        MinecraftClient client = MinecraftClient.getInstance();
-        if (client.world == null) {
+        Minecraft client = Minecraft.getInstance();
+        if (client.level == null) {
             return;
         }
 
-        long currentTick = client.world.getTime();
+        long currentTick = client.level.getGameTime();
 
         if (cache.lastGameTick < 0) {
             cache.lastGameTick = currentTick;
@@ -170,10 +168,10 @@ public class EngineBlockEntityRenderer implements BlockEntityRenderer<AbstractEn
     }
 
     @Override
-    public void render(
+    public void submit(
             EngineRenderState state,
-            MatrixStack matrices,
-            OrderedRenderCommandQueue queue,
+            PoseStack matrices,
+            SubmitNodeCollector queue,
             CameraRenderState cameraState) {
 
         // Select per-engine base models
@@ -191,10 +189,9 @@ public class EngineBlockEntityRenderer implements BlockEntityRenderer<AbstractEn
             return;
         }
 
-        RenderLayer renderLayer = RenderLayers.cutout();
+        RenderType renderLayer = RenderTypes.cutoutMovingBlock();
 
-        int light = WorldRenderer.getLightmapCoordinates(
-                net.minecraft.client.MinecraftClient.getInstance().world, state.pos);
+        int light = state.lightCoords;
 
         // Calculate piston offset (0 to ~0.5 blocks)
         float pistonOffset = state.getPistonOffset();
@@ -202,14 +199,14 @@ public class EngineBlockEntityRenderer implements BlockEntityRenderer<AbstractEn
         // Get tint color for trunk based on heat stage (with oscillation for non-overheating engines)
         float[] trunkColor = getStageColor(state);
 
-        matrices.push();
+        matrices.pushPose();
 
         // Apply rotation based on facing direction
         applyFacingRotation(matrices, state.facing);
 
         // 1. Render static base (Y=0-4)
-        matrices.push();
-        queue.submitBlockStateModel(
+        matrices.pushPose();
+        queue.submitBlockModel(
                 matrices,
                 renderLayer,
                 baseStaticModel,
@@ -217,14 +214,14 @@ public class EngineBlockEntityRenderer implements BlockEntityRenderer<AbstractEn
                 1.0f,
                 1.0f, // No tint
                 light,
-                OverlayTexture.DEFAULT_UV,
+                OverlayTexture.NO_OVERLAY,
                 0);
-        matrices.pop();
+        matrices.popPose();
 
         // 2. Render moving base (Y=4+offset to Y=8+offset)
-        matrices.push();
+        matrices.pushPose();
         matrices.translate(0, 4 / 16f + pistonOffset, 0);
-        queue.submitBlockStateModel(
+        queue.submitBlockModel(
                 matrices,
                 renderLayer,
                 baseMovingModel,
@@ -232,14 +229,14 @@ public class EngineBlockEntityRenderer implements BlockEntityRenderer<AbstractEn
                 1.0f,
                 1.0f, // No tint
                 light,
-                OverlayTexture.DEFAULT_UV,
+                OverlayTexture.NO_OVERLAY,
                 0);
-        matrices.pop();
+        matrices.popPose();
 
         // 3. Render trunk base (Y=4-16, no tint)
-        matrices.push();
+        matrices.pushPose();
         matrices.translate(0, 4 / 16f, 0);
-        queue.submitBlockStateModel(
+        queue.submitBlockModel(
                 matrices,
                 renderLayer,
                 trunkBaseModel,
@@ -247,14 +244,14 @@ public class EngineBlockEntityRenderer implements BlockEntityRenderer<AbstractEn
                 1.0f,
                 1.0f, // No tint
                 light,
-                OverlayTexture.DEFAULT_UV,
+                OverlayTexture.NO_OVERLAY,
                 0);
-        matrices.pop();
+        matrices.popPose();
 
         // 4. Render trunk overlay (Y=4-16, with stage color tint)
-        matrices.push();
+        matrices.pushPose();
         matrices.translate(0, 4 / 16f, 0);
-        queue.submitBlockStateModel(
+        queue.submitBlockModel(
                 matrices,
                 renderLayer,
                 trunkOverlayModel,
@@ -262,19 +259,19 @@ public class EngineBlockEntityRenderer implements BlockEntityRenderer<AbstractEn
                 trunkColor[1],
                 trunkColor[2], // Apply tint
                 light,
-                OverlayTexture.DEFAULT_UV,
+                OverlayTexture.NO_OVERLAY,
                 0);
-        matrices.pop();
+        matrices.popPose();
 
         // 5. Render chamber (Y=4 to Y=4+offset, scaled by progress)
         if (pistonOffset > 0.01f) {
-            matrices.push();
+            matrices.pushPose();
             matrices.translate(0, 4 / 16f, 0);
             // Scale the chamber height based on piston offset
             // The model is 8 pixels tall, we scale it to match pistonOffset (in blocks)
             float chamberScale = pistonOffset / 0.5f; // Normalize to 0-1 range
             matrices.scale(1.0f, chamberScale, 1.0f);
-            queue.submitBlockStateModel(
+            queue.submitBlockModel(
                     matrices,
                     renderLayer,
                     chamberModel,
@@ -282,26 +279,26 @@ public class EngineBlockEntityRenderer implements BlockEntityRenderer<AbstractEn
                     1.0f,
                     1.0f, // No tint
                     light,
-                    OverlayTexture.DEFAULT_UV,
+                    OverlayTexture.NO_OVERLAY,
                     0);
-            matrices.pop();
+            matrices.popPose();
         }
 
-        matrices.pop();
+        matrices.popPose();
     }
 
     /**
      * Applies rotation to the matrix stack based on the engine's facing direction.
      * Engine models are created facing UP, so we rotate to match the actual facing.
      */
-    private void applyFacingRotation(MatrixStack matrices, Direction facing) {
+    private void applyFacingRotation(PoseStack matrices, Direction facing) {
         matrices.translate(0.5, 0.5, 0.5);
         switch (facing) {
-            case DOWN -> matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(180));
-            case NORTH -> matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(-90));
-            case SOUTH -> matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(90));
-            case EAST -> matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(-90));
-            case WEST -> matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(90));
+            case DOWN -> matrices.mulPose(Axis.XP.rotationDegrees(180));
+            case NORTH -> matrices.mulPose(Axis.XP.rotationDegrees(-90));
+            case SOUTH -> matrices.mulPose(Axis.XP.rotationDegrees(90));
+            case EAST -> matrices.mulPose(Axis.ZP.rotationDegrees(-90));
+            case WEST -> matrices.mulPose(Axis.ZP.rotationDegrees(90));
             default -> {} // UP - default orientation, no rotation needed
         }
         matrices.translate(-0.5, -0.5, -0.5);
@@ -328,10 +325,6 @@ public class EngineBlockEntityRenderer implements BlockEntityRenderer<AbstractEn
         };
     }
 
-    @Override
-    public int getRenderDistance() {
-        return 64;
-    }
 
     /**
      * Gets the base static model for the given engine type.

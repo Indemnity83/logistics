@@ -1,9 +1,9 @@
 package com.logistics.core.lib.block;
 
 import com.logistics.core.lib.support.ProbeResult;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -27,5 +27,5 @@ public interface Probeable {
      * @param player the player using the probe
      * @return the probe result, or null if this block cannot be probed
      */
-    @Nullable ProbeResult onProbe(World world, BlockPos pos, PlayerEntity player);
+    @Nullable ProbeResult onProbe(Level world, BlockPos pos, Player player);
 }

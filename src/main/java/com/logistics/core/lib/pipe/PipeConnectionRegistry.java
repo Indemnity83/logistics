@@ -2,8 +2,8 @@ package com.logistics.core.lib.pipe;
 
 import com.logistics.LogisticsMod;
 import net.fabricmc.fabric.api.lookup.v1.block.BlockApiLookup;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Direction;
+import net.minecraft.resources.Identifier;
+import net.minecraft.core.Direction;
 
 /**
  * Fabric-specific registry for pipe connections.
@@ -25,7 +25,7 @@ public final class PipeConnectionRegistry {
      * Returns a {@link PipeConnection} if a pipe can connect from the given direction, null otherwise.
      */
     public static final BlockApiLookup<PipeConnection, Direction> SIDED = BlockApiLookup.get(
-            Identifier.of(LogisticsMod.MOD_ID, "pipe_connection"), PipeConnection.class, Direction.class);
+            Identifier.fromNamespaceAndPath(LogisticsMod.MOD_ID, "pipe_connection"), PipeConnection.class, Direction.class);
 
     private PipeConnectionRegistry() {}
 }

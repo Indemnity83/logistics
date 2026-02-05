@@ -11,13 +11,13 @@ import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
 public class ExtractionModule implements Module {
@@ -29,7 +29,7 @@ public class ExtractionModule implements Module {
     @Override
     public void onTick(PipeContext ctx) {
         Module.super.onTick(ctx);
-        if (ctx.world().isClient()) {
+        if (ctx.world().isClientSide()) {
             return;
         }
 
@@ -76,9 +76,9 @@ public class ExtractionModule implements Module {
     }
 
     @Override
-    public ActionResult onWrench(PipeContext ctx, PlayerEntity player) {
-        if (ctx.world().isClient()) {
-            return ActionResult.SUCCESS;
+    public InteractionResult onWrench(PipeContext ctx, Player player) {
+        if (ctx.world().isClientSide()) {
+            return InteractionResult.SUCCESS;
         }
 
         List<Direction> connected = ctx.getInventoryConnections();
@@ -86,22 +86,30 @@ public class ExtractionModule implements Module {
         // No valid outputs: clear config.
         if (connected.isEmpty()) {
             setExtractionDirection(ctx, null);
-            return ActionResult.SUCCESS;
+            return InteractionResult.SUCCESS;
         }
 
         Direction current = getExtractionDirection(ctx);
         Direction next = nextInCycle(connected, current);
 
         setExtractionDirection(ctx, next);
-        return ActionResult.SUCCESS;
+        return InteractionResult.SUCCESS;
     }
 
     private @Nullable Direction getExtractionDirection(PipeContext ctx) {
-        NbtCompound state = ctx.moduleState(getStateKey());
+        CompoundTag state = ctx.moduleState(getStateKey());
         if (!state.contains(EXTRACT_FROM)) {
             return null;
         }
-        return state.getString(EXTRACT_FROM).map(Direction::byId).orElse(null);
+        String directionStr = state.getString(EXTRACT_FROM).orElse("");
+        if (directionStr.isEmpty()) {
+            return null;
+        }
+        try {
+            return Direction.from3DDataValue(Integer.parseInt(directionStr));
+        } catch (NumberFormatException e) {
+            return null;
+        }
     }
 
     private void setExtractionDirection(PipeContext ctx, @Nullable Direction direction) {
@@ -113,7 +121,7 @@ public class ExtractionModule implements Module {
         if (direction == null) {
             ctx.remove(this, EXTRACT_FROM);
         } else {
-            ctx.saveString(this, EXTRACT_FROM, direction.getId());
+            ctx.saveString(this, EXTRACT_FROM, String.valueOf(direction.get3DDataValue()));
         }
 
         ctx.markDirtyAndSync();
@@ -152,7 +160,7 @@ public class ExtractionModule implements Module {
             return 0;
         }
 
-        BlockPos targetPos = ctx.pos().offset(direction);
+        BlockPos targetPos = ctx.pos().relative(direction);
         Storage<ItemVariant> storage = ItemStorage.SIDED.find(ctx.world(), targetPos, direction.getOpposite());
 
         if (storage == null) {
@@ -163,7 +171,7 @@ public class ExtractionModule implements Module {
         for (StorageView<ItemVariant> view : storage) {
             ItemVariant variant = view.getResource();
             if (!variant.isBlank()) {
-                return Math.min(64, variant.getItem().getMaxCount());
+                return Math.min(64, variant.getItem().getDefaultMaxStackSize());
             }
         }
         return 0;
@@ -191,7 +199,7 @@ public class ExtractionModule implements Module {
             return false; // Not enough space for full extraction, skip to preserve full stacks
         }
 
-        BlockPos targetPos = ctx.pos().offset(direction);
+        BlockPos targetPos = ctx.pos().relative(direction);
         Storage<ItemVariant> storage = ItemStorage.SIDED.find(ctx.world(), targetPos, direction.getOpposite());
 
         if (storage == null) {
@@ -225,7 +233,7 @@ public class ExtractionModule implements Module {
             return null;
         }
         String suffix = ctx.isInventoryConnection(direction) ? "_feature_extended" : "_feature";
-        return Identifier.of(LogisticsMod.MOD_ID, "block/pipe/item_extractor_pipe" + suffix);
+        return Identifier.fromNamespaceAndPath(LogisticsMod.MOD_ID, "block/pipe/item_extractor_pipe" + suffix);
     }
 
     private boolean isExtractionFace(PipeContext ctx, Direction direction) {

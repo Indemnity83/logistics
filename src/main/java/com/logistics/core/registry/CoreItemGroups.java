@@ -4,41 +4,41 @@ import com.logistics.LogisticsMod;
 import java.util.ArrayList;
 import java.util.List;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemStack;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.ItemStack;
 
 public final class CoreItemGroups {
     @FunctionalInterface
     public interface EntryProvider {
-        void addEntries(ItemGroup.DisplayContext displayContext, ItemGroup.Entries entries);
+        void addEntries(CreativeModeTab.ItemDisplayParameters displayContext, CreativeModeTab.Output entries);
     }
 
     private static final List<EntryProvider> ENTRY_PROVIDERS = new ArrayList<>();
 
     private CoreItemGroups() {}
 
-    public static final ItemGroup LOGISTICS_TRANSPORT = Registry.register(
-            Registries.ITEM_GROUP,
-            Identifier.of(LogisticsMod.MOD_ID, "logistics_transport"),
+    public static final CreativeModeTab LOGISTICS_TRANSPORT = Registry.register(
+            BuiltInRegistries.CREATIVE_MODE_TAB,
+            Identifier.fromNamespaceAndPath(LogisticsMod.MOD_ID, "logistics_transport"),
             FabricItemGroup.builder()
-                    .displayName(Text.translatable("itemgroup.logistics.transport"))
+                    .title(Component.translatable("itemgroup.logistics.transport"))
                     .icon(() -> new ItemStack(CoreBlocks.MARKER))
-                    .entries((displayContext, entries) -> {
-                        entries.add(CoreItems.WRENCH);
-                        entries.add(CoreItems.PROBE);
+                    .displayItems((displayContext, entries) -> {
+                        entries.accept(CoreItems.WRENCH);
+                        entries.accept(CoreItems.PROBE);
                         // Gears
-                        entries.add(CoreItems.WOODEN_GEAR);
-                        entries.add(CoreItems.STONE_GEAR);
-                        entries.add(CoreItems.COPPER_GEAR);
-                        entries.add(CoreItems.IRON_GEAR);
-                        entries.add(CoreItems.GOLD_GEAR);
-                        entries.add(CoreItems.DIAMOND_GEAR);
-                        entries.add(CoreItems.NETHERITE_GEAR);
-                        entries.add(CoreBlocks.MARKER);
+                        entries.accept(CoreItems.WOODEN_GEAR);
+                        entries.accept(CoreItems.STONE_GEAR);
+                        entries.accept(CoreItems.COPPER_GEAR);
+                        entries.accept(CoreItems.IRON_GEAR);
+                        entries.accept(CoreItems.GOLD_GEAR);
+                        entries.accept(CoreItems.DIAMOND_GEAR);
+                        entries.accept(CoreItems.NETHERITE_GEAR);
+                        entries.accept(CoreBlocks.MARKER);
 
                         for (EntryProvider provider : ENTRY_PROVIDERS) {
                             provider.addEntries(displayContext, entries);

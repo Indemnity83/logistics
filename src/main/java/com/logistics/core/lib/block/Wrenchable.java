@@ -1,9 +1,9 @@
 package com.logistics.core.lib.block;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 
 /**
  * Interface for blocks that support wrench interactions.
@@ -26,5 +26,5 @@ public interface Wrenchable {
      * @param player the player using the wrench
      * @return the action result
      */
-    ActionResult onWrench(World world, BlockPos pos, PlayerEntity player);
+    InteractionResult onWrench(Level world, BlockPos pos, Player player);
 }

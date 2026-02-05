@@ -1,8 +1,8 @@
 package com.logistics.core.lib.pipe;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.StringIdentifiable;
-import net.minecraft.util.math.Direction;
+import net.minecraft.core.Direction;
+import net.minecraft.util.StringRepresentable;
+import net.minecraft.world.item.ItemStack;
 
 /**
  * Interface for blocks that can connect to pipes.
@@ -22,7 +22,7 @@ public interface PipeConnection {
     /**
      * Represents the type of connection a block provides to pipes.
      */
-    enum Type implements StringIdentifiable {
+    enum Type implements StringRepresentable {
         /**
          * No connection allowed.
          */
@@ -45,7 +45,7 @@ public interface PipeConnection {
         }
 
         @Override
-        public String asString() {
+        public String getSerializedName() {
             return name;
         }
     }
