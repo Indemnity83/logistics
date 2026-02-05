@@ -171,7 +171,7 @@ public abstract class AbstractEngineBlockEntity extends BlockEntity implements E
      *   <li>advanceCycle - move the piston cycle forward</li>
      * </ol>
      */
-    public void tickEngine(Level world, BlockPos pos, BlockState state) {
+    public void tickEngine(Level level, BlockPos pos, BlockState state) {
         if (level.isClientSide()) {
             return;
         }
@@ -548,11 +548,11 @@ public abstract class AbstractEngineBlockEntity extends BlockEntity implements E
     @Override
     protected void loadAdditional(ValueInput view) {
         view.read("Engine", CompoundTag.CODEC).ifPresent(engineData -> {
-            energy = view.getLong("energy").orElse(0L);
-            temperature = view.getDoubleOr("heat", 0.0); // getDouble with default
-            progress = view.getFloatOr("progress", 0f); // getFloat with default
-            cyclePhase = CyclePhase.fromOrdinal(view.getInt("cyclePhase").orElse(0));
-            heatStage = HeatStage.fromOrdinal(view.getInt("stage").orElse(0));
+            energy = engineData.getLong("energy").orElse(0L);
+            temperature = engineData.getDoubleOr("heat", 0.0); // getDouble with default
+            progress = engineData.getFloatOr("progress", 0f); // getFloat with default
+            cyclePhase = CyclePhase.fromOrdinal(engineData.getInt("cyclePhase").orElse(0));
+            heatStage = HeatStage.fromOrdinal(engineData.getInt("stage").orElse(0));
         });
     }
 

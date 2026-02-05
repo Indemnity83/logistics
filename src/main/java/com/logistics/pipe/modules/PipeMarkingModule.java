@@ -7,7 +7,9 @@ import com.logistics.pipe.block.PipeBlock;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.pipe.registry.PipeItems;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.InteractionResult;
@@ -73,7 +75,10 @@ public class PipeMarkingModule implements Module {
 
         ctx.saveString(this, COLOR_KEY, colorId);
         ctx.markDirtyAndSync();
-        stack.hurtAndBreak(1, player, usage.getHand());
+        EquipmentSlot slot = usage.getHand() == InteractionHand.MAIN_HAND
+                ? EquipmentSlot.MAINHAND
+                : EquipmentSlot.OFFHAND;
+        stack.hurtAndBreak(1, player, slot);
         return InteractionResult.SUCCESS;
     }
 

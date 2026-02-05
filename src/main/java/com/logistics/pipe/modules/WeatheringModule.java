@@ -10,13 +10,16 @@ import com.logistics.pipe.data.PipeDataComponents.WeatheringState;
 import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.component.DataComponentGetter;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.ItemStack;
@@ -185,7 +188,10 @@ public class WeatheringModule implements Module {
         ctx.markDirtyAndSync();
 
         if (player != null && !player.getAbilities().instabuild) {
-            stack.hurtAndBreak(1, player, usage.getHand());
+            EquipmentSlot slot = usage.getHand() == InteractionHand.MAIN_HAND
+                    ? EquipmentSlot.MAINHAND
+                    : EquipmentSlot.OFFHAND;
+            stack.hurtAndBreak(1, player, slot);
         }
 
         return InteractionResult.SUCCESS;
@@ -226,7 +232,7 @@ public class WeatheringModule implements Module {
     }
 
     @Override
-    public void readItemComponents(net.minecraft.core.component.DataComponentGetter components, PipeContext ctx) {
+    public void readItemComponents(DataComponentGetter components, PipeContext ctx) {
         WeatheringState state = components.get(PipeDataComponents.WEATHERING_STATE);
         if (state == null || state.isDefault()) return;
 

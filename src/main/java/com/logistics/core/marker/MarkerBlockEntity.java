@@ -244,29 +244,6 @@ public class MarkerBlockEntity extends BlockEntity {
         });
     }
 
-
-
-    @Override
-    public void setRemoved() {
-        super.setRemoved();
-
-        // Deactivate connected markers when chunk unloads OR block is broken
-        if (level != null && !level.isClientSide() && isActive()) {
-            deactivateConnectedMarkers();
-        }
-    }
-
-    @Override
-    public void clearRemoved() {
-        super.clearRemoved();
-
-        // Reactivate connected markers when chunk loads again
-        if (level != null && !level.isClientSide() && isActive()) {
-            // TODO: Implement reactivation logic - may need to verify connected markers still exist
-            // This is called when the block entity is added back (chunk loads)
-        }
-    }
-
     @Nullable @Override
     public Packet<ClientGamePacketListener> getUpdatePacket() {
         return ClientboundBlockEntityDataPacket.create(this);
