@@ -116,6 +116,21 @@ public class PipeBlock extends BaseEntityBlock implements Probeable, SimpleWater
         return SoundType.METAL;
     }
 
+    @Override
+    public BlockState playerWillDestroy(
+            Level level, BlockPos pos, BlockState state, net.minecraft.world.entity.player.Player player) {
+        // Drop traveling items when pipe is broken by player
+        if (!level.isClientSide()) {
+            BlockEntity blockEntity = level.getBlockEntity(pos);
+            if (blockEntity instanceof PipeBlockEntity pipeEntity) {
+                for (com.logistics.pipe.runtime.TravelingItem item : pipeEntity.getTravelingItems()) {
+                    PipeBlockEntity.dropItem(level, pos, item);
+                }
+            }
+        }
+        return super.playerWillDestroy(level, pos, state, player);
+    }
+
     /**
      * Route item use interactions to pipe modules before default block handling.
      */

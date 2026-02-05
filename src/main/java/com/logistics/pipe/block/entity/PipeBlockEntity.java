@@ -259,20 +259,7 @@ public class PipeBlockEntity extends BlockEntity implements PipeConnection, Ener
     @Override
     public void setRemoved() {
         super.setRemoved();
-
-        if (level != null && !level.isClientSide()) {
-            // Drop all traveling items
-            for (TravelingItem travelingItem : travelingItems) {
-                ItemEntity itemEntity = new ItemEntity(
-                        level,
-                        getBlockPos().getX() + 0.5,
-                        getBlockPos().getY() + 0.5,
-                        getBlockPos().getZ() + 0.5,
-                        travelingItem.getStack().copy());
-                itemEntity.setDefaultPickUpDelay();
-                level.addFreshEntity(itemEntity);
-            }
-        }
+        // Item dropping is handled in PipeBlock.onRemove() instead
     }
 
     public CompoundTag getOrCreateModuleState(String key) {
