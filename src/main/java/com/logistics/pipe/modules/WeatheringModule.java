@@ -261,7 +261,7 @@ public class WeatheringModule implements Module {
     }
 
     @Override
-    public String getItemNameSuffixFromComponents(net.minecraft.core.component.DataComponentGetter components) {
+    public String getItemNameSuffixFromComponents(DataComponentGetter components) {
         WeatheringState state = components.get(PipeDataComponents.WEATHERING_STATE);
         if (state == null || state.isDefault()) {
             return "";

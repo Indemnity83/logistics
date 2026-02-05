@@ -263,12 +263,12 @@ public abstract class AbstractEngineBlockEntity extends BlockEntity implements E
 
     /** Computes the engine stage based on current heat level. */
     protected HeatStage computeStage() {
-        double level = getHeatLevel();
+        double heatLevelRatio = getHeatLevel();
 
-        if (level < 0.25) return HeatStage.COLD;
-        if (level < 0.50) return HeatStage.COOL;
-        if (level < 0.75) return HeatStage.WARM;
-        if (level < 1.0 || !canOverheat()) return HeatStage.HOT;
+        if (heatLevelRatio < 0.25) return HeatStage.COLD;
+        if (heatLevelRatio < 0.50) return HeatStage.COOL;
+        if (heatLevelRatio < 0.75) return HeatStage.WARM;
+        if (heatLevelRatio < 1.0 || !canOverheat()) return HeatStage.HOT;
 
         return HeatStage.OVERHEAT;
     }

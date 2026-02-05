@@ -214,14 +214,7 @@ public class MarkerBlockEntity extends BlockEntity {
             boundMax = null;
             isCornerMarker = false;
 
-            // Load connected markers
-            if (data.contains("ConnectedMarkers")) {
-                data.getIntArray("ConnectedMarkers").ifPresent(positions -> {
-                    for (int i = 0; i < positions.length / 3; i++) {
-                        connectedMarkers.add(new BlockPos(positions[i * 3], positions[i * 3 + 1], positions[i * 3 + 2]));
-                    }
-                });
-            }
+            loadConnectedMarkers(data);
 
             // Load bounds
             boolean hasMin = data.contains("MinX");
@@ -242,6 +235,16 @@ public class MarkerBlockEntity extends BlockEntity {
                 isCornerMarker = data.getBoolean("IsCorner").orElse(false);
             }
         });
+    }
+
+    private void loadConnectedMarkers(CompoundTag data) {
+        if (data.contains("ConnectedMarkers")) {
+            data.getIntArray("ConnectedMarkers").ifPresent(positions -> {
+                for (int i = 0; i < positions.length / 3; i++) {
+                    connectedMarkers.add(new BlockPos(positions[i * 3], positions[i * 3 + 1], positions[i * 3 + 2]));
+                }
+            });
+        }
     }
 
     @Nullable @Override
