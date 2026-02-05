@@ -19,9 +19,9 @@ import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.state.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
@@ -94,8 +94,8 @@ public class LaserQuarryBlockEntityRenderer implements BlockEntityRenderer<Laser
         BlockPos abovePos = state.quarryPos.above();
         BlockState aboveState = level.getBlockState(abovePos);
         state.hasPipeAbove = aboveState.getBlock() instanceof PipeBlock;
-        int blockLightAbove = level.getBrightness(net.minecraft.world.level.LightLayer.BLOCK, abovePos);
-        int skyLightAbove = level.getBrightness(net.minecraft.world.level.LightLayer.SKY, abovePos);
+        int blockLightAbove = level.getBrightness(LightLayer.BLOCK, abovePos);
+        int skyLightAbove = level.getBrightness(LightLayer.SKY, abovePos);
         state.aboveLight = LightTexture.pack(blockLightAbove, skyLightAbove);
 
         // Only render arm during mining phase when arm is initialized
@@ -143,8 +143,8 @@ public class LaserQuarryBlockEntityRenderer implements BlockEntityRenderer<Laser
         int centerX = (state.frameStartX + state.frameEndX) / 2;
         int centerZ = (state.frameStartZ + state.frameEndZ) / 2;
         BlockPos frameTopPos = new BlockPos(centerX, state.frameTopY, centerZ);
-        int blockLight = level.getBrightness(net.minecraft.world.level.LightLayer.BLOCK, frameTopPos);
-        int skyLight = level.getBrightness(net.minecraft.world.level.LightLayer.SKY, frameTopPos);
+        int blockLight = level.getBrightness(LightLayer.BLOCK, frameTopPos);
+        int skyLight = level.getBrightness(LightLayer.SKY, frameTopPos);
         state.frameTopLight = LightTexture.pack(blockLight, skyLight);
 
         // Get server-synced arm position (interpolation happens in render() for smooth frame-rate independent movement)

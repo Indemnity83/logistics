@@ -178,11 +178,9 @@ public class PipeBlockEntity extends BlockEntity implements PipeConnection, Ener
             if (pipeData.contains("TravelingItems")) {
                 pipeData.getList("TravelingItems").ifPresent(itemsList -> {
                     for (int i = 0; i < itemsList.size(); i++) {
-                        itemsList.getCompound(i).ifPresent(itemTag -> {
-                            TravelingItem.CODEC.parse(NbtOps.INSTANCE, itemTag)
-                                    .result()
-                                    .ifPresent(travelingItems::add);
-                        });
+                        itemsList.getCompound(i)
+                                .flatMap(itemTag -> TravelingItem.CODEC.parse(NbtOps.INSTANCE, itemTag).result())
+                                .ifPresent(travelingItems::add);
                     }
                 });
             }
@@ -205,12 +203,7 @@ public class PipeBlockEntity extends BlockEntity implements PipeConnection, Ener
                 // Load saved connections
                 for (Direction direction : Direction.values()) {
                     String typeName = connectionsNbt.getString(direction.name().toLowerCase()).orElse("none");
-                    for (PipeConnection.Type type : PipeConnection.Type.values()) {
-                        if (type.getSerializedName().equals(typeName)) {
-                            connectionTypes[direction.ordinal()] = type;
-                            break;
-                        }
-                    }
+                    connectionTypes[direction.ordinal()] = PipeConnection.Type.fromSerializedName(typeName);
                 }
             }
         });

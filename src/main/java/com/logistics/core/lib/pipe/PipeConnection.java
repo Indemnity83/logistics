@@ -1,5 +1,8 @@
 package com.logistics.core.lib.pipe;
 
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import net.minecraft.core.Direction;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.item.ItemStack;
@@ -38,6 +41,9 @@ public interface PipeConnection {
          */
         INVENTORY("inventory");
 
+        private static final Map<String, Type> BY_NAME =
+                Stream.of(values()).collect(Collectors.toMap(Type::getSerializedName, type -> type));
+
         private final String name;
 
         Type(String name) {
@@ -47,6 +53,16 @@ public interface PipeConnection {
         @Override
         public String getSerializedName() {
             return name;
+        }
+
+        /**
+         * Get the Type by its serialized name.
+         *
+         * @param name the serialized name
+         * @return the Type, or NONE if not found
+         */
+        public static Type fromSerializedName(String name) {
+            return BY_NAME.getOrDefault(name, NONE);
         }
     }
 
