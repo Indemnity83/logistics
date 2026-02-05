@@ -286,8 +286,9 @@ public class WeatheringModule implements Module {
         ItemStack stack = baseStack.copy();
         stack.set(PipeDataComponents.WEATHERING_STATE, new WeatheringState(stage, waxed));
 
-        String modelKey = getModelKey(stage, waxed);
-        if (!modelKey.isEmpty()) {
+        // Add custom model data string key for item model variant selection
+        if (stage > 0 || waxed) {
+            String modelKey = getModelKey(stage, waxed);
             stack.set(
                     DataComponents.CUSTOM_MODEL_DATA,
                     new CustomModelData(List.of(), List.of(), List.of(modelKey), List.of()));
