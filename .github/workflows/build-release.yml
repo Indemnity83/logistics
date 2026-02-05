@@ -108,6 +108,11 @@ jobs:
 
           # Create shortened version for Modrinth (32 char limit) by dropping loader suffix
           MODRINTH_VERSION="${VERSION}+mc${MC_VERSION}"
+          # Explicitly truncate to 32 chars if needed
+          if (( ${#MODRINTH_VERSION} > 32 )); then
+            MODRINTH_VERSION="${MODRINTH_VERSION:0:32}"
+            echo "⚠️  Modrinth version truncated to 32 chars: $MODRINTH_VERSION"
+          fi
 
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
           echo "modrinth_version=$MODRINTH_VERSION" >> "$GITHUB_OUTPUT"
