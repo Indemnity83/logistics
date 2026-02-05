@@ -11,7 +11,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 import net.fabricmc.fabric.api.client.model.loading.v1.ExtraModelKey;
-import net.fabricmc.fabric.api.client.model.loading.v1.FabricBakedModelManager;
+import net.fabricmc.fabric.api.client.model.loading.v1.FabricModelManager;
 import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
 import net.fabricmc.fabric.api.client.model.loading.v1.SimpleUnbakedExtraModel;
 import net.fabricmc.loader.api.FabricLoader;
@@ -59,11 +59,11 @@ public final class ModelRegistry {
             return null;
         }
 
-        // Retrieve the baked model using FabricBakedModelManager.getModel() with the ExtraModelKey
-        // Note: ModelManager is mixed into by Fabric to provide the FabricBakedModelManager interface
+        // Retrieve the baked model using FabricModelManager.getModel() with the ExtraModelKey
+        // Note: ModelManager is mixed into by Fabric to provide the FabricModelManager interface
         try {
-            FabricBakedModelManager modelManager =
-                    (FabricBakedModelManager) Minecraft.getInstance().getModelManager();
+            FabricModelManager modelManager =
+                    (FabricModelManager) Minecraft.getInstance().getModelManager();
             return modelManager.getModel(key);
         } catch (Exception e) {
             LogisticsMod.LOGGER.warn("Failed to retrieve model for {}", id, e);

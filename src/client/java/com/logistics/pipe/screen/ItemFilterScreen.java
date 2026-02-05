@@ -18,9 +18,7 @@ public class ItemFilterScreen extends AbstractContainerScreen<ItemFilterScreenHa
     private static final int SLOT_INNER_SIZE = 16;
 
     public ItemFilterScreen(ItemFilterScreenHandler handler, Inventory inventory, Component title) {
-        super(handler, inventory, title);
-        this.imageWidth = 176;
-        this.imageHeight = 222;
+        super(handler, inventory, title, 176, 222);
     }
 
     @Override

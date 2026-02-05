@@ -24,9 +24,7 @@ public class StirlingEngineScreen extends AbstractContainerScreen<StirlingEngine
     private static final int FLAME_Y = 22;
 
     public StirlingEngineScreen(StirlingEngineScreenHandler handler, Inventory inventory, Component title) {
-        super(handler, inventory, title);
-        this.imageWidth = 176;
-        this.imageHeight = 166;
+        super(handler, inventory, title, 176, 166);
     }
 
     @Override

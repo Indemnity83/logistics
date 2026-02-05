@@ -3,7 +3,7 @@ package com.logistics.core.registry;
 import com.logistics.core.bootstrap.ClientDomainBootstrap;
 import com.logistics.core.render.MarkerBlockEntityRenderer;
 import net.fabricmc.fabric.api.client.rendering.v1.BlockEntityRendererRegistry;
-import net.fabricmc.fabric.api.client.rendering.v1.BlockRenderLayerMap;
+import net.fabricmc.fabric.api.client.rendering.v1.ChunkSectionLayerMap;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 
 public final class CoreClientBootstrap implements ClientDomainBootstrap {
@@ -14,7 +14,7 @@ public final class CoreClientBootstrap implements ClientDomainBootstrap {
 
     @Override
     public void initClient() {
-        BlockRenderLayerMap.putBlock(CoreBlocks.MARKER, ChunkSectionLayer.CUTOUT);
+        ChunkSectionLayerMap.putBlock(CoreBlocks.MARKER, ChunkSectionLayer.CUTOUT);
         BlockEntityRendererRegistry.register(CoreBlockEntities.MARKER_BLOCK_ENTITY, MarkerBlockEntityRenderer::new);
     }
 

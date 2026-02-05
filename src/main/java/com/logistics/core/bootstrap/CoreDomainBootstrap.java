@@ -7,7 +7,7 @@ import com.logistics.core.registry.CoreItemGroups;
 import com.logistics.core.registry.CoreItems;
 import com.logistics.core.util.TimingLog;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLevelEvents;
 
 public final class CoreDomainBootstrap implements DomainBootstrap {
     @Override
@@ -20,7 +20,7 @@ public final class CoreDomainBootstrap implements DomainBootstrap {
         ServerLifecycleEvents.SERVER_STARTING.register(server -> TimingLog.start("server_starting"));
         ServerLifecycleEvents.SERVER_STARTED.register(
                 server -> TimingLog.logSince(LogisticsMod.LOGGER, "server_starting", "Server starting"));
-        ServerWorldEvents.LOAD.register((server, world) -> {
+        ServerLevelEvents.LOAD.register((server, world) -> {
             long start = TimingLog.getStart("server_starting");
             if (start > 0L) {
                 TimingLog.log(

@@ -3,7 +3,7 @@ package com.logistics.core.registry;
 import com.logistics.LogisticsMod;
 import java.util.ArrayList;
 import java.util.List;
-import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
+import net.fabricmc.fabric.api.creativetab.v1.FabricCreativeModeTab;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
@@ -24,7 +24,7 @@ public final class CoreItemGroups {
     public static final CreativeModeTab LOGISTICS_TRANSPORT = Registry.register(
             BuiltInRegistries.CREATIVE_MODE_TAB,
             Identifier.fromNamespaceAndPath(LogisticsMod.MOD_ID, "logistics_transport"),
-            FabricItemGroup.builder()
+            FabricCreativeModeTab.builder()
                     .title(Component.translatable("itemgroup.logistics.transport"))
                     .icon(() -> new ItemStack(CoreBlocks.MARKER))
                     .displayItems((displayContext, entries) -> {

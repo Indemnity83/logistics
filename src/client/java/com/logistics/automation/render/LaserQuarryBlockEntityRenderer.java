@@ -8,7 +8,6 @@ import com.logistics.core.render.ModelRegistry;
 import com.logistics.pipe.block.PipeBlock;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.block.model.BlockStateModel;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
@@ -96,7 +95,7 @@ public class LaserQuarryBlockEntityRenderer implements BlockEntityRenderer<Laser
         state.hasPipeAbove = aboveState.getBlock() instanceof PipeBlock;
         int blockLightAbove = level.getBrightness(LightLayer.BLOCK, abovePos);
         int skyLightAbove = level.getBrightness(LightLayer.SKY, abovePos);
-        state.aboveLight = LightTexture.pack(blockLightAbove, skyLightAbove);
+        state.aboveLight = (blockLightAbove << 4) | (skyLightAbove << 20);
 
         // Only render arm during mining phase when arm is initialized
         state.shouldRenderArm = (state.phase == LaserQuarryBlockEntity.Phase.MINING) && entity.isArmInitialized();
@@ -145,7 +144,7 @@ public class LaserQuarryBlockEntityRenderer implements BlockEntityRenderer<Laser
         BlockPos frameTopPos = new BlockPos(centerX, state.frameTopY, centerZ);
         int blockLight = level.getBrightness(LightLayer.BLOCK, frameTopPos);
         int skyLight = level.getBrightness(LightLayer.SKY, frameTopPos);
-        state.frameTopLight = LightTexture.pack(blockLight, skyLight);
+        state.frameTopLight = (blockLight << 4) | (skyLight << 20);
 
         // Get server-synced arm position (interpolation happens in render() for smooth frame-rate independent movement)
         state.serverArmX = entity.getArmX();
