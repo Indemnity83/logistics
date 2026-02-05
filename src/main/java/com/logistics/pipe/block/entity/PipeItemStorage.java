@@ -8,8 +8,8 @@ import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext.Result;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.Direction;
+import net.minecraft.core.Direction;
+import net.minecraft.world.item.ItemStack;
 
 public class PipeItemStorage implements Storage<ItemVariant> {
     private final PipeBlockEntity pipe;

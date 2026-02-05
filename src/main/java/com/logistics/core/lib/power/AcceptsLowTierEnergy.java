@@ -1,6 +1,6 @@
 package com.logistics.core.lib.power;
 
-import net.minecraft.util.math.Direction;
+import net.minecraft.core.Direction;
 
 /**
  * Interface for blocks that can receive energy from {@link LowTierEnergySource} implementations.

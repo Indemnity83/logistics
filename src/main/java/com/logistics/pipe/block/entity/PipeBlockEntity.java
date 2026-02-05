@@ -12,30 +12,32 @@ import com.logistics.pipe.runtime.PipeRuntime;
 import com.logistics.pipe.runtime.TravelingItem;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.component.ComponentMap;
-import net.minecraft.component.ComponentsAccess;
-import net.minecraft.entity.ItemEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.network.listener.ClientPlayPacketListener;
-import net.minecraft.network.packet.Packet;
-import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
-import net.minecraft.storage.ReadView;
-import net.minecraft.storage.WriteView;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponentGetter;
+import net.minecraft.core.component.DataComponentMap;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import org.jetbrains.annotations.Nullable;
 
 public class PipeBlockEntity extends BlockEntity implements PipeConnection, EnergyStorage, AcceptsLowTierEnergy {
     public static final int VIRTUAL_CAPACITY = 5 * 64;
     private final List<TravelingItem> travelingItems = new ArrayList<>();
-    private final NbtCompound moduleState = new NbtCompound();
+    private final CompoundTag moduleState = new CompoundTag();
 
     // Tracks changes in connected sides so modules can react deterministically.
     private int lastConnectionsMask = -1;
@@ -82,7 +84,7 @@ public class PipeBlockEntity extends BlockEntity implements PipeConnection, Ener
     public boolean addItem(TravelingItem item, Direction fromDirection, boolean bypassIngress) {
         long accepted = getInsertableAmount(item.getStack().getCount(), fromDirection, item.getStack(), bypassIngress);
         if (accepted <= 0) {
-            dropItem(world, pos, item);
+            dropItem(level, getBlockPos(), item);
             return false;
         }
 
@@ -98,7 +100,7 @@ public class PipeBlockEntity extends BlockEntity implements PipeConnection, Ener
         acceptInsertedStack(acceptedStack, fromDirection, item.getSpeed());
 
         if (remainder != null) {
-            dropItem(world, pos, remainder);
+            dropItem(level, getBlockPos(), remainder);
             return false;
         }
 
@@ -127,80 +129,87 @@ public class PipeBlockEntity extends BlockEntity implements PipeConnection, Ener
     }
 
     @Override
-    protected void writeData(WriteView view) {
-        super.writeData(view);
+    protected void saveAdditional(ValueOutput view) {
+        super.saveAdditional(view);
+
+        // Save all data to a CompoundTag, then store it
+        CompoundTag pipeData = new CompoundTag();
 
         // Save traveling items
         if (!travelingItems.isEmpty()) {
-            // Requires TravelingItem.CODEC (see TravelingItem class)
-            WriteView.ListAppender<TravelingItem> appender =
-                    view.getListAppender("TravelingItems", TravelingItem.CODEC);
+            ListTag itemsList = new ListTag();
             for (TravelingItem item : travelingItems) {
-                appender.add(item);
+                CompoundTag itemTag = (CompoundTag) TravelingItem.CODEC
+                        .encodeStart(NbtOps.INSTANCE, item)
+                        .getOrThrow();
+                itemsList.add(itemTag);
             }
-        } else {
-            view.remove("TravelingItems");
+            pipeData.put("TravelingItems", itemsList);
         }
 
         // Save module state
         if (!moduleState.isEmpty()) {
-            view.put("ModuleState", NbtCompound.CODEC, moduleState);
-        } else {
-            view.remove("ModuleState");
+            pipeData.put("ModuleState", moduleState);
         }
 
         // Save connection types (for client rendering)
-        NbtCompound connectionsNbt = new NbtCompound();
+        CompoundTag connectionsNbt = new CompoundTag();
         for (Direction direction : Direction.values()) {
             PipeConnection.Type type = connectionTypes[direction.ordinal()];
             if (type != PipeConnection.Type.NONE) {
-                connectionsNbt.putString(direction.name().toLowerCase(), type.asString());
+                connectionsNbt.putString(direction.name().toLowerCase(), type.getSerializedName());
             }
         }
         if (!connectionsNbt.isEmpty()) {
-            view.put("Connections", NbtCompound.CODEC, connectionsNbt);
-        } else {
-            view.remove("Connections");
+            pipeData.put("Connections", connectionsNbt);
         }
+
+        view.store("PipeData", CompoundTag.CODEC, pipeData);
     }
 
     @Override
-    protected void readData(ReadView view) {
+    protected void loadAdditional(ValueInput view) {
         long readStart = System.nanoTime();
-        super.readData(view);
+        super.loadAdditional(view);
 
-        // Load traveling items
-        travelingItems.clear();
-        view.getOptionalTypedListView("TravelingItems", TravelingItem.CODEC)
-                .ifPresent(list -> list.forEach(travelingItems::add));
-
-        // Load module state
-        if (!moduleState.getKeys().isEmpty()) {
-            for (String key : new ArrayList<>(moduleState.getKeys())) {
-                moduleState.remove(key);
-            }
-        }
-        view.read("ModuleState", NbtCompound.CODEC).ifPresent(stored -> {
-            for (String key : stored.getKeys()) {
-                moduleState.put(key, Objects.requireNonNull(stored.get(key)).copy());
-            }
-        });
-
-        // Load connection types
-        view.read("Connections", NbtCompound.CODEC).ifPresent(connectionsNbt -> {
-            // Reset all to NONE first
-            for (int i = 0; i < 6; i++) {
-                connectionTypes[i] = PipeConnection.Type.NONE;
-            }
-            // Load saved connections
-            for (Direction direction : Direction.values()) {
-                String typeName =
-                        connectionsNbt.getString(direction.name().toLowerCase()).orElse("none");
-                for (PipeConnection.Type type : PipeConnection.Type.values()) {
-                    if (type.asString().equals(typeName)) {
-                        connectionTypes[direction.ordinal()] = type;
-                        break;
+        view.read("PipeData", CompoundTag.CODEC).ifPresent(pipeData -> {
+            // Load traveling items
+            travelingItems.clear();
+            if (pipeData.contains("TravelingItems")) {
+                pipeData.getList("TravelingItems").ifPresent(itemsList -> {
+                    for (int i = 0; i < itemsList.size(); i++) {
+                        itemsList.getCompound(i)
+                                .flatMap(itemTag -> TravelingItem.CODEC.parse(NbtOps.INSTANCE, itemTag).result())
+                                .ifPresent(travelingItems::add);
                     }
+                });
+            }
+
+            // Load module state
+            if (!moduleState.isEmpty()) {
+                for (String key : new java.util.ArrayList<>(moduleState.keySet())) {
+                    moduleState.remove(key);
+                }
+            }
+            if (pipeData.contains("ModuleState")) {
+                pipeData.getCompound("ModuleState").ifPresent(stored -> {
+                    for (String key : stored.keySet()) {
+                        moduleState.put(key, java.util.Objects.requireNonNull(stored.get(key)).copy());
+                    }
+                });
+            }
+
+            // Load connection types
+            if (pipeData.contains("Connections")) {
+                CompoundTag connectionsNbt = pipeData.getCompound("Connections").orElse(new CompoundTag());
+                // Reset all to NONE first
+                for (int i = 0; i < 6; i++) {
+                    connectionTypes[i] = PipeConnection.Type.NONE;
+                }
+                // Load saved connections
+                for (Direction direction : Direction.values()) {
+                    String typeName = connectionsNbt.getString(direction.name().toLowerCase()).orElse("none");
+                    connectionTypes[direction.ordinal()] = PipeConnection.Type.fromSerializedName(typeName);
                 }
             }
         });
@@ -208,72 +217,59 @@ public class PipeBlockEntity extends BlockEntity implements PipeConnection, Ener
         long durationMs = (System.nanoTime() - readStart) / 1_000_000L;
         if (durationMs >= 2L && Boolean.getBoolean("logistics.timing")) {
             com.logistics.LogisticsMod.LOGGER.info(
-                    "[timing] PipeBlockEntity readData at {} took {} ms (items={})",
-                    getPos(),
+                    "[timing] PipeBlockEntity loadAdditional at {} took {} ms (items={})",
+                    getBlockPos(),
                     durationMs,
                     travelingItems.size());
         }
     }
 
     @Nullable @Override
-    public Packet<ClientPlayPacketListener> toUpdatePacket() {
-        return BlockEntityUpdateS2CPacket.create(this);
+    public Packet<ClientGamePacketListener> getUpdatePacket() {
+        return ClientboundBlockEntityDataPacket.create(this);
     }
 
     @Override
-    public NbtCompound toInitialChunkDataNbt(net.minecraft.registry.RegistryWrapper.WrapperLookup registries) {
-        return createNbt(registries);
+    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
+        return saveWithoutMetadata(registries);
     }
 
     public static void tick(
-            net.minecraft.world.World world, BlockPos pos, BlockState state, PipeBlockEntity blockEntity) {
+            net.minecraft.world.level.Level world, BlockPos pos, BlockState state, PipeBlockEntity blockEntity) {
         PipeRuntime.tick(world, pos, state, blockEntity);
     }
 
     /**
      * Drop an item entity at the pipe's position
      */
-    public static void dropItem(net.minecraft.world.World world, BlockPos pos, TravelingItem item) {
+    public static void dropItem(net.minecraft.world.level.Level level, BlockPos pos, TravelingItem item) {
         // Create item entity at center of pipe
-        Vec3d spawnPos = Vec3d.ofCenter(pos);
+        Vec3 spawnPos = Vec3.atCenterOf(pos);
 
         ItemEntity itemEntity = new ItemEntity(
-                world, spawnPos.x, spawnPos.y, spawnPos.z, item.getStack().copy());
+                level, spawnPos.x, spawnPos.y, spawnPos.z, item.getStack().copy());
 
         // Prevent immediate pickup
-        itemEntity.setToDefaultPickupDelay();
+        itemEntity.setDefaultPickUpDelay();
 
-        world.spawnEntity(itemEntity);
+        level.addFreshEntity(itemEntity);
     }
 
     @Override
-    public void onBlockReplaced(BlockPos pos, BlockState oldState) {
-        super.onBlockReplaced(pos, oldState);
-
-        if (world != null && !world.isClient()) {
-            // Drop all traveling items
-            for (TravelingItem travelingItem : travelingItems) {
-                ItemEntity itemEntity = new ItemEntity(
-                        world,
-                        pos.getX() + 0.5,
-                        pos.getY() + 0.5,
-                        pos.getZ() + 0.5,
-                        travelingItem.getStack().copy());
-                itemEntity.setToDefaultPickupDelay();
-                world.spawnEntity(itemEntity);
-            }
-        }
+    public void setRemoved() {
+        super.setRemoved();
+        // Item dropping is handled in PipeBlock.onRemove() instead
     }
 
-    public NbtCompound getOrCreateModuleState(String key) {
+    public CompoundTag getOrCreateModuleState(String key) {
         if (!moduleState.contains(key)) {
-            moduleState.put(key, new NbtCompound());
+            moduleState.put(key, new CompoundTag());
         }
-        return moduleState.getCompound(key).orElseGet(NbtCompound::new);
+        return moduleState.getCompound(key).orElseThrow();
     }
 
     public PipeContext createContext() {
-        return new PipeContext(world, pos, getCachedState(), this);
+        return new PipeContext(level, worldPosition, getBlockState(), this);
     }
 
     public int getLastConnectionsMask() {
@@ -285,17 +281,17 @@ public class PipeBlockEntity extends BlockEntity implements PipeConnection, Ener
     }
 
     @Nullable public Storage<ItemVariant> getItemStorage(@Nullable Direction side) {
-        if (side == null || world == null) {
+        if (side == null || level == null) {
             return null;
         }
 
-        BlockState state = getCachedState();
+        BlockState state = getBlockState();
         if (!(state.getBlock() instanceof PipeBlock pipeBlock)) {
             return null;
         }
 
         if (pipeBlock.getPipe() != null) {
-            PipeContext context = new PipeContext(world, pos, state, this);
+            PipeContext context = new PipeContext(level, worldPosition, state, this);
             Pipe modulePipe = pipeBlock.getPipe();
             if (modulePipe.canAcceptFrom(context, side, ItemStack.EMPTY)) {
                 return new PipeItemStorage(this, side);
@@ -337,19 +333,19 @@ public class PipeBlockEntity extends BlockEntity implements PipeConnection, Ener
         float speed = speedOverride != null ? speedOverride : getInitialSpeed();
         TravelingItem newItem = new TravelingItem(stack, fromDirection.getOpposite(), speed);
         travelingItems.add(newItem);
-        markDirty();
+        setChanged();
 
-        if (world != null && !world.isClient()) {
-            world.updateListeners(pos, getCachedState(), getCachedState(), 3);
+        if (level != null && !level.isClientSide()) {
+            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
         }
     }
 
     private float getInitialSpeed() {
-        if (world == null) {
+        if (level == null) {
             return PipeConfig.ITEM_MIN_SPEED;
         }
 
-        BlockState state = getCachedState();
+        BlockState state = getBlockState();
         if (state.getBlock() instanceof PipeBlock pipeBlock && pipeBlock.getPipe() != null) {
             return PipeConfig.ITEM_MIN_SPEED;
         }
@@ -358,27 +354,27 @@ public class PipeBlockEntity extends BlockEntity implements PipeConnection, Ener
     }
 
     private boolean isNeighborPipe(Direction fromDirection) {
-        if (world == null) {
+        if (level == null) {
             return false;
         }
 
-        BlockPos sourcePos = pos.offset(fromDirection);
-        BlockState sourceState = world.getBlockState(sourcePos);
+        BlockPos sourcePos = worldPosition.relative(fromDirection);
+        BlockState sourceState = level.getBlockState(sourcePos);
         return sourceState.getBlock() instanceof PipeBlock;
     }
 
     private boolean canAcceptFrom(Direction fromDirection, boolean fromPipe, ItemStack stack) {
-        if (world == null) {
+        if (level == null) {
             return false;
         }
 
-        BlockState state = getCachedState();
+        BlockState state = getBlockState();
         if (!(state.getBlock() instanceof PipeBlock pipeBlock)) {
             return false;
         }
 
         if (pipeBlock.getPipe() != null) {
-            PipeContext context = new PipeContext(world, pos, state, this);
+            PipeContext context = new PipeContext(level, worldPosition, state, this);
             return pipeBlock.getPipe().canAcceptFrom(context, fromDirection, stack);
         }
 
@@ -391,12 +387,12 @@ public class PipeBlockEntity extends BlockEntity implements PipeConnection, Ener
      */
     @Override
     public boolean canAcceptFrom(Direction from, ItemStack stack) {
-        PipeBlock pipeBlock = (PipeBlock) getCachedState().getBlock();
+        PipeBlock pipeBlock = (PipeBlock) getBlockState().getBlock();
         Pipe pipe = pipeBlock.getPipe();
         if (pipe == null) {
             return false;
         }
-        PipeContext ctx = new PipeContext(world, pos, getCachedState(), this);
+        PipeContext ctx = new PipeContext(level, getBlockPos(), getBlockState(), this);
         return pipe.canAcceptFrom(ctx, from, stack);
     }
 
@@ -425,7 +421,7 @@ public class PipeBlockEntity extends BlockEntity implements PipeConnection, Ener
 
     @Override
     public long getAmount() {
-        BlockState state = getCachedState();
+        BlockState state = getBlockState();
         if (state.getBlock() instanceof PipeBlock pipeBlock && pipeBlock.getPipe() != null) {
             PipeContext ctx = createContext();
             return pipeBlock.getPipe().getEnergyAmount(ctx);
@@ -435,7 +431,7 @@ public class PipeBlockEntity extends BlockEntity implements PipeConnection, Ener
 
     @Override
     public long getCapacity() {
-        BlockState state = getCachedState();
+        BlockState state = getBlockState();
         if (state.getBlock() instanceof PipeBlock pipeBlock && pipeBlock.getPipe() != null) {
             PipeContext ctx = createContext();
             return pipeBlock.getPipe().getEnergyCapacity(ctx);
@@ -445,7 +441,7 @@ public class PipeBlockEntity extends BlockEntity implements PipeConnection, Ener
 
     @Override
     public long insert(long maxAmount, boolean simulate) {
-        BlockState state = getCachedState();
+        BlockState state = getBlockState();
         if (state.getBlock() instanceof PipeBlock pipeBlock && pipeBlock.getPipe() != null) {
             PipeContext ctx = createContext();
             return pipeBlock.getPipe().insertEnergy(ctx, maxAmount, simulate);
@@ -455,7 +451,7 @@ public class PipeBlockEntity extends BlockEntity implements PipeConnection, Ener
 
     @Override
     public long extract(long maxAmount, boolean simulate) {
-        BlockState state = getCachedState();
+        BlockState state = getBlockState();
         if (state.getBlock() instanceof PipeBlock pipeBlock && pipeBlock.getPipe() != null) {
             PipeContext ctx = createContext();
             return pipeBlock.getPipe().extractEnergy(ctx, maxAmount, simulate);
@@ -465,7 +461,7 @@ public class PipeBlockEntity extends BlockEntity implements PipeConnection, Ener
 
     @Override
     public boolean canInsert() {
-        BlockState state = getCachedState();
+        BlockState state = getBlockState();
         if (state.getBlock() instanceof PipeBlock pipeBlock && pipeBlock.getPipe() != null) {
             PipeContext ctx = createContext();
             return pipeBlock.getPipe().canInsertEnergy(ctx);
@@ -475,7 +471,7 @@ public class PipeBlockEntity extends BlockEntity implements PipeConnection, Ener
 
     @Override
     public boolean canExtract() {
-        BlockState state = getCachedState();
+        BlockState state = getBlockState();
         if (state.getBlock() instanceof PipeBlock pipeBlock && pipeBlock.getPipe() != null) {
             PipeContext ctx = createContext();
             return pipeBlock.getPipe().canExtractEnergy(ctx);
@@ -485,7 +481,7 @@ public class PipeBlockEntity extends BlockEntity implements PipeConnection, Ener
 
     @Override
     public boolean acceptsLowTierEnergyFrom(Direction from) {
-        BlockState state = getCachedState();
+        BlockState state = getBlockState();
         if (state.getBlock() instanceof PipeBlock pipeBlock && pipeBlock.getPipe() != null) {
             PipeContext ctx = createContext();
             return pipeBlock.getPipe().acceptsLowTierEnergyFrom(ctx, from);
@@ -496,24 +492,10 @@ public class PipeBlockEntity extends BlockEntity implements PipeConnection, Ener
     // --- Component handling for item drops ---
 
     @Override
-    protected void addComponents(ComponentMap.Builder builder) {
-        super.addComponents(builder);
+    protected void applyImplicitComponents(DataComponentGetter components) {
+        super.applyImplicitComponents(components);
 
-        BlockState state = getCachedState();
-        if (!(state.getBlock() instanceof PipeBlock pipeBlock)) return;
-
-        Pipe pipe = pipeBlock.getPipe();
-        if (pipe == null) return;
-
-        PipeContext ctx = createContext();
-        pipe.addItemComponents(builder, ctx);
-    }
-
-    @Override
-    protected void readComponents(ComponentsAccess components) {
-        super.readComponents(components);
-
-        BlockState state = getCachedState();
+        BlockState state = getBlockState();
         if (!(state.getBlock() instanceof PipeBlock pipeBlock)) return;
 
         Pipe pipe = pipeBlock.getPipe();
@@ -521,5 +503,19 @@ public class PipeBlockEntity extends BlockEntity implements PipeConnection, Ener
 
         PipeContext ctx = createContext();
         pipe.readItemComponents(components, ctx);
+    }
+
+    @Override
+    protected void collectImplicitComponents(DataComponentMap.Builder builder) {
+        super.collectImplicitComponents(builder);
+
+        BlockState state = getBlockState();
+        if (!(state.getBlock() instanceof PipeBlock pipeBlock)) return;
+
+        Pipe pipe = pipeBlock.getPipe();
+        if (pipe == null) return;
+
+        PipeContext ctx = createContext();
+        pipe.addItemComponents(builder, ctx);
     }
 }

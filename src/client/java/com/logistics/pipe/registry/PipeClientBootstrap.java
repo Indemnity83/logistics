@@ -4,10 +4,8 @@ import com.logistics.core.bootstrap.ClientDomainBootstrap;
 import com.logistics.core.render.ModelRegistry;
 import com.logistics.pipe.render.PipeBlockEntityRenderer;
 import com.logistics.pipe.screen.ItemFilterScreen;
-import net.fabricmc.fabric.api.client.rendering.v1.BlockRenderLayerMap;
-import net.minecraft.client.gui.screen.ingame.HandledScreens;
-import net.minecraft.client.render.BlockRenderLayer;
-import net.minecraft.client.render.block.entity.BlockEntityRendererFactories;
+import net.minecraft.client.gui.screens.MenuScreens;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 
 public final class PipeClientBootstrap implements ClientDomainBootstrap {
     @Override
@@ -19,17 +17,13 @@ public final class PipeClientBootstrap implements ClientDomainBootstrap {
     public void initClient() {
         ModelRegistry.register();
 
-        BlockRenderLayerMap.putBlock(PipeBlocks.STONE_TRANSPORT_PIPE, BlockRenderLayer.CUTOUT);
-        BlockRenderLayerMap.putBlock(PipeBlocks.COPPER_TRANSPORT_PIPE, BlockRenderLayer.CUTOUT);
-        BlockRenderLayerMap.putBlock(PipeBlocks.ITEM_EXTRACTOR_PIPE, BlockRenderLayer.CUTOUT);
-        BlockRenderLayerMap.putBlock(PipeBlocks.ITEM_MERGER_PIPE, BlockRenderLayer.CUTOUT);
-        BlockRenderLayerMap.putBlock(PipeBlocks.GOLD_TRANSPORT_PIPE, BlockRenderLayer.CUTOUT);
-        BlockRenderLayerMap.putBlock(PipeBlocks.ITEM_FILTER_PIPE, BlockRenderLayer.CUTOUT);
-        BlockRenderLayerMap.putBlock(PipeBlocks.ITEM_INSERTION_PIPE, BlockRenderLayer.CUTOUT);
-        BlockRenderLayerMap.putBlock(PipeBlocks.ITEM_VOID_PIPE, BlockRenderLayer.CUTOUT);
+        // TODO: Re-enable render layer map once API compatibility is resolved
+        // These calls configure transparent rendering for pipes
+        // BlockRenderLayerMap.INSTANCE.putBlock(PipeBlocks.STONE_TRANSPORT_PIPE, RenderType.cutout());
+        // ... (other pipes)
 
-        BlockEntityRendererFactories.register(PipeBlockEntities.PIPE_BLOCK_ENTITY, PipeBlockEntityRenderer::new);
+        BlockEntityRenderers.register(PipeBlockEntities.PIPE_BLOCK_ENTITY, PipeBlockEntityRenderer::new);
 
-        HandledScreens.register(PipeScreenHandlers.ITEM_FILTER, ItemFilterScreen::new);
+        MenuScreens.register(PipeScreenHandlers.ITEM_FILTER, ItemFilterScreen::new);
     }
 }

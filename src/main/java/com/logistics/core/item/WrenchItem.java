@@ -1,9 +1,9 @@
 package com.logistics.core.item;
 
 import com.logistics.core.lib.block.Wrenchable;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemUsageContext;
-import net.minecraft.util.ActionResult;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.InteractionResult;
 
 /**
  * Wrench tool for rotating blocks and special interactions.
@@ -11,18 +11,18 @@ import net.minecraft.util.ActionResult;
  */
 public class WrenchItem extends Item {
 
-    public WrenchItem(Settings settings) {
+    public WrenchItem(Properties settings) {
         super(settings);
     }
 
     @Override
-    public ActionResult useOnBlock(ItemUsageContext context) {
+    public InteractionResult useOn(UseOnContext context) {
         if (context.getPlayer() == null) {
-            return ActionResult.PASS;
+            return InteractionResult.PASS;
         }
 
-        var world = context.getWorld();
-        var pos = context.getBlockPos();
+        var world = context.getLevel();
+        var pos = context.getClickedPos();
         var player = context.getPlayer();
         var block = world.getBlockState(pos).getBlock();
 
@@ -30,6 +30,6 @@ public class WrenchItem extends Item {
             return wrenchable.onWrench(world, pos, player);
         }
 
-        return ActionResult.PASS;
+        return InteractionResult.PASS;
     }
 }

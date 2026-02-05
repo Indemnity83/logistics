@@ -6,15 +6,17 @@ import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.block.PipeBlock;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.pipe.registry.PipeItems;
-import net.minecraft.block.Block;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemUsageContext;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.DyeColor;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.resources.Identifier;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import org.jetbrains.annotations.Nullable;
 
 public class PipeMarkingModule implements Module {
@@ -29,7 +31,7 @@ public class PipeMarkingModule implements Module {
             return null;
         }
         for (DyeColor color : DyeColor.values()) {
-            if (color.getId().equals(colorId)) {
+            if (color.getName().equals(colorId)) {
                 return color;
             }
         }
@@ -37,44 +39,56 @@ public class PipeMarkingModule implements Module {
     }
 
     /**
-     * Apply or clear pipe markings based on the used item.
+     * Apply pipe markings with marking fluid bottles.
      */
-    public ActionResult onUseWithItem(PipeContext ctx, ItemUsageContext usage) {
-        ItemStack stack = usage.getStack();
-        PlayerEntity player = usage.getPlayer();
-        if (stack.isEmpty() && player != null && player.isInSneakingPose()) {
-            if (!ctx.getString(this, COLOR_KEY, "").isEmpty()) {
-                if (ctx.world().isClient()) {
-                    return ActionResult.SUCCESS;
-                }
-                ctx.remove(this, COLOR_KEY);
-                ctx.markDirtyAndSync();
-            }
-            return ActionResult.SUCCESS;
-        }
+    public InteractionResult onUseWithItem(PipeContext ctx, UseOnContext usage) {
+        ItemStack stack = usage.getItemInHand();
+        Player player = usage.getPlayer();
+
         DyeColor color = PipeItems.getMarkingFluidColor(stack);
         if (color == null) {
-            return ActionResult.PASS;
+            return InteractionResult.PASS;
         }
 
-        if (ctx.world().isClient()) {
-            return ActionResult.SUCCESS;
+        if (ctx.world().isClientSide()) {
+            return InteractionResult.SUCCESS;
         }
 
         if (player == null) {
-            return ActionResult.PASS;
+            return InteractionResult.PASS;
         }
 
-        String colorId = color.getId();
+        String colorId = color.getName();
         String current = ctx.getString(this, COLOR_KEY, "");
         if (colorId.equals(current)) {
-            return ActionResult.SUCCESS;
+            return InteractionResult.SUCCESS;
         }
 
         ctx.saveString(this, COLOR_KEY, colorId);
         ctx.markDirtyAndSync();
-        stack.damage(1, player, usage.getHand());
-        return ActionResult.SUCCESS;
+        EquipmentSlot slot = usage.getHand() == InteractionHand.MAIN_HAND
+                ? EquipmentSlot.MAINHAND
+                : EquipmentSlot.OFFHAND;
+        stack.hurtAndBreak(1, player, slot);
+        return InteractionResult.SUCCESS;
+    }
+
+    /**
+     * Clear pipe markings with shift+empty hand.
+     */
+    public InteractionResult onUseWithoutItem(PipeContext ctx, UseOnContext usage) {
+        Player player = usage.getPlayer();
+        if (player != null && player.isShiftKeyDown()) {
+            if (!ctx.getString(this, COLOR_KEY, "").isEmpty()) {
+                if (ctx.world().isClientSide()) {
+                    return InteractionResult.SUCCESS;
+                }
+                ctx.remove(this, COLOR_KEY);
+                ctx.markDirtyAndSync();
+            }
+            return InteractionResult.SUCCESS;
+        }
+        return InteractionResult.PASS;
     }
 
     /**
@@ -85,8 +99,8 @@ public class PipeMarkingModule implements Module {
         if (color == null || ctx.pipe() == null) {
             return java.util.List.of();
         }
-        Identifier pipeMarkings = Identifier.of(LogisticsMod.MOD_ID, "block/pipe/pipe_markings");
-        return java.util.List.of(new Pipe.CoreDecoration(pipeMarkings, color.getEntityColor()));
+        Identifier pipeMarkings = Identifier.fromNamespaceAndPath(LogisticsMod.MOD_ID, "block/pipe/pipe_markings");
+        return java.util.List.of(new Pipe.CoreDecoration(pipeMarkings, color.getFireworkColor()));
     }
 
     /**
@@ -108,7 +122,7 @@ public class PipeMarkingModule implements Module {
             return true;
         }
 
-        BlockPos neighborPos = ctx.pos().offset(direction);
+        BlockPos neighborPos = ctx.pos().relative(direction);
         if (!(ctx.world().getBlockEntity(neighborPos) instanceof PipeBlockEntity neighborEntity)) {
             return true;
         }

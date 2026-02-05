@@ -1,42 +1,39 @@
 plugins {
-	id 'fabric-loom' version '1.14.10'
+	id 'net.fabricmc.fabric-loom-remap' version "${loom_version}"
 	id 'maven-publish'
-	id 'checkstyle'
 }
 
-// Allow CI to override version via MOD_VERSION env var
 version = System.getenv("MOD_VERSION") ?: project.mod_version
-
 group = project.maven_group
+
+base {
+	archivesName = project.archives_base_name
+}
+
+repositories {
+	maven { url = "https://maven.terraformersmc.com/releases/" }
+}
 
 loom {
 	splitEnvironmentSourceSets()
 
 	mods {
-		logistics {
+		"logistics" {
 			sourceSet sourceSets.main
 			sourceSet sourceSets.client
 		}
 	}
 
-	runs {
-		client {
-			vmArg "-Dlogistics.timing=true"
-		}
-	}
-}
-
-repositories {
-	mavenCentral()
-	maven { url "https://maven.terraformersmc.com/releases/" }
 }
 
 dependencies {
+	// To change the versions see the gradle.properties file
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
-	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
+	mappings loom.officialMojangMappings()
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
-	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+	// Fabric API.
+	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
 	// Team Reborn Energy API (Fabric standard energy system)
 	modApi include("teamreborn:energy:${project.energy_version}")
@@ -46,7 +43,7 @@ processResources {
 	inputs.property "version", project.version
 
 	filesMatching("fabric.mod.json") {
-		expand "version": project.version
+		expand "version": inputs.properties.version
 	}
 }
 
@@ -55,32 +52,37 @@ tasks.withType(JavaCompile).configureEach {
 }
 
 java {
+	// Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
+	// if it is present.
+	// If you remove this line, sources will not be generated.
 	withSourcesJar()
 
 	sourceCompatibility = JavaVersion.VERSION_21
 	targetCompatibility = JavaVersion.VERSION_21
-
-	toolchain {
-		languageVersion = JavaLanguageVersion.of(21)
-	}
 }
 
 jar {
+	inputs.property "archivesName", project.base.archivesName
+
 	from("LICENSE") {
-		rename { "${it}_${project.archives_base_name}"}
+		rename { "${it}_${inputs.properties.archivesName}"}
 	}
 }
 
-// Checkstyle configuration
-checkstyle {
-	toolVersion = '10.21.4'
-	configFile = file("${rootDir}/config/checkstyle/checkstyle.xml")
-	maxWarnings = 0
-}
+// configure the maven publication
+publishing {
+	publications {
+		create("mavenJava", MavenPublication) {
+			artifactId = project.archives_base_name
+			from components.java
+		}
+	}
 
-tasks.withType(Checkstyle).configureEach {
-	reports {
-		xml.required = false
-		html.required = true
+	// See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
+	repositories {
+		// Add repositories to publish to here.
+		// Notice: This block does NOT have the same function as the block in the top level.
+		// The repositories here will be used for publishing your artifact, not for
+		// retrieving dependencies.
 	}
 }

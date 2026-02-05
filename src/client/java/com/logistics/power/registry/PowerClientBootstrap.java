@@ -5,8 +5,8 @@ import com.logistics.core.lib.power.AbstractEngineBlockEntity;
 import com.logistics.power.render.EngineBlockEntityRenderer;
 import com.logistics.power.screen.StirlingEngineScreen;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
-import net.minecraft.client.gui.screen.ingame.HandledScreens;
-import net.minecraft.client.render.block.entity.BlockEntityRendererFactories;
+import net.minecraft.client.gui.screens.MenuScreens;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 
 public final class PowerClientBootstrap implements ClientDomainBootstrap {
     @Override
@@ -17,15 +17,15 @@ public final class PowerClientBootstrap implements ClientDomainBootstrap {
     @Override
     public void initClient() {
         // Register engine block entity renderers
-        BlockEntityRendererFactories.register(
+        BlockEntityRenderers.register(
                 PowerBlockEntities.REDSTONE_ENGINE_BLOCK_ENTITY, EngineBlockEntityRenderer::new);
-        BlockEntityRendererFactories.register(
+        BlockEntityRenderers.register(
                 PowerBlockEntities.STIRLING_ENGINE_BLOCK_ENTITY, EngineBlockEntityRenderer::new);
-        BlockEntityRendererFactories.register(
+        BlockEntityRenderers.register(
                 PowerBlockEntities.CREATIVE_ENGINE_BLOCK_ENTITY, EngineBlockEntityRenderer::new);
 
         // Register screens
-        HandledScreens.register(PowerScreenHandlers.STIRLING_ENGINE, StirlingEngineScreen::new);
+        MenuScreens.register(PowerScreenHandlers.STIRLING_ENGINE, StirlingEngineScreen::new);
 
         // Register cleanup callback for engine animation cache
         AbstractEngineBlockEntity.setOnRemovedCallback(EngineBlockEntityRenderer::clearAnimationCache);

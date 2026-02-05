@@ -4,14 +4,14 @@ import com.logistics.api.EnergyStorage;
 import com.logistics.core.lib.power.AcceptsLowTierEnergy;
 import com.logistics.core.lib.support.ProbeResult;
 import com.logistics.power.registry.PowerBlockEntities;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.storage.ReadView;
-import net.minecraft.storage.WriteView;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 
 /**
  * Block entity for the Creative Sink.
@@ -27,7 +27,7 @@ public class CreativeSinkBlockEntity extends BlockEntity implements EnergyStorag
         super(PowerBlockEntities.CREATIVE_SINK_BLOCK_ENTITY, pos, state);
     }
 
-    public static void tick(World world, BlockPos pos, BlockState state, CreativeSinkBlockEntity entity) {
+    public static void tick(Level world, BlockPos pos, BlockState state, CreativeSinkBlockEntity entity) {
         // Reset energy counter each tick - energy is discarded
         entity.energyThisTick = 0;
     }
@@ -38,12 +38,12 @@ public class CreativeSinkBlockEntity extends BlockEntity implements EnergyStorag
 
     public void increaseDrainRate() {
         drainRateIndex = Math.min(drainRateIndex + 1, DRAIN_RATES.length - 1);
-        markDirty();
+        setChanged();
     }
 
     public void decreaseDrainRate() {
         drainRateIndex = Math.max(drainRateIndex - 1, 0);
-        markDirty();
+        setChanged();
     }
 
     /**
@@ -53,7 +53,7 @@ public class CreativeSinkBlockEntity extends BlockEntity implements EnergyStorag
      */
     public long cycleDrainRate() {
         drainRateIndex = (drainRateIndex + 1) % DRAIN_RATES.length;
-        markDirty();
+        setChanged();
         return DRAIN_RATES[drainRateIndex];
     }
 
@@ -62,8 +62,8 @@ public class CreativeSinkBlockEntity extends BlockEntity implements EnergyStorag
      */
     public ProbeResult getProbeResult() {
         return ProbeResult.builder("Creative Sink Stats")
-                .entry("Drain Rate", String.format("%d RF/t", getDrainRate()), Formatting.AQUA)
-                .entry("Energy Received", String.format("%d / %d RF", energyThisTick, getDrainRate()), Formatting.GREEN)
+                .entry("Drain Rate", String.format("%d RF/t", getDrainRate()), ChatFormatting.AQUA)
+                .entry("Energy Received", String.format("%d / %d RF", energyThisTick, getDrainRate()), ChatFormatting.GREEN)
                 .build();
     }
 
@@ -107,17 +107,15 @@ public class CreativeSinkBlockEntity extends BlockEntity implements EnergyStorag
     // ==================== NBT Serialization ====================
 
     @Override
-    protected void writeData(WriteView view) {
-        super.writeData(view);
-        NbtCompound data = new NbtCompound();
+    protected void saveAdditional(ValueOutput view) {
+        CompoundTag data = new CompoundTag();
         data.putInt("drainRateIndex", drainRateIndex);
-        view.put("CreativeSink", NbtCompound.CODEC, data);
+        view.store("CreativeSink", CompoundTag.CODEC, data);
     }
 
     @Override
-    protected void readData(ReadView view) {
-        super.readData(view);
-        view.read("CreativeSink", NbtCompound.CODEC).ifPresent(data -> {
+    protected void loadAdditional(ValueInput view) {
+        view.read("CreativeSink", CompoundTag.CODEC).ifPresent(data -> {
             drainRateIndex = data.getInt("drainRateIndex").orElse(4);
             // Clamp to valid range
             if (drainRateIndex < 0 || drainRateIndex >= DRAIN_RATES.length) {

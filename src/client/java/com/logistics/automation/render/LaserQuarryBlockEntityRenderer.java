@@ -5,45 +5,46 @@ import com.logistics.automation.laserquarry.LaserQuarryBlock;
 import com.logistics.automation.laserquarry.LaserQuarryConfig;
 import com.logistics.automation.laserquarry.entity.LaserQuarryBlockEntity;
 import com.logistics.core.render.ModelRegistry;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
-import net.minecraft.block.BlockState;
-import net.minecraft.client.render.OverlayTexture;
-import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.RenderLayers;
-import net.minecraft.client.render.block.entity.BlockEntityRenderer;
-import net.minecraft.client.render.block.entity.BlockEntityRendererFactory;
-import net.minecraft.client.render.command.OrderedRenderCommandQueue;
-import net.minecraft.client.render.model.BlockStateModel;
-import net.minecraft.client.render.state.CameraRenderState;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.RotationAxis;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
-import org.jetbrains.annotations.Nullable;
+import com.logistics.pipe.block.PipeBlock;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Axis;
+import net.minecraft.client.renderer.LightTexture;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.block.model.BlockStateModel;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
+import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
+import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.client.renderer.state.CameraRenderState;
+import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.core.BlockPos;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LightLayer;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 
 /**
- * Renders the laser quarry arm visualization.
+ * Renders the quarry arm visualization.
  * Shows horizontal beams on top of the frame and a vertical drill arm
  * that moves smoothly to the current mining position.
  */
-public class LaserQuarryBlockEntityRenderer
-        implements BlockEntityRenderer<LaserQuarryBlockEntity, LaserQuarryRenderState> {
+public class LaserQuarryBlockEntityRenderer implements BlockEntityRenderer<LaserQuarryBlockEntity, LaserQuarryRenderState> {
     private static final Identifier ARM_MODEL_ID =
-            Identifier.of(LogisticsMod.MOD_ID, "block/automation/laser_quarry_gantry_arm");
+            Identifier.fromNamespaceAndPath(LogisticsMod.MOD_ID, "block/automation/laser_quarry_gantry_arm");
     private static final Identifier DRILL_MODEL_ID =
-            Identifier.of(LogisticsMod.MOD_ID, "block/automation/laser_quarry_drill");
+            Identifier.fromNamespaceAndPath(LogisticsMod.MOD_ID, "block/automation/laser_quarry_drill");
     private static final Identifier LED_GREEN_MODEL_ID =
-            Identifier.of(LogisticsMod.MOD_ID, "block/automation/laser_quarry_led_green");
+            Identifier.fromNamespaceAndPath(LogisticsMod.MOD_ID, "block/automation/laser_quarry_led_green");
     private static final Identifier LED_RED_MODEL_ID =
-            Identifier.of(LogisticsMod.MOD_ID, "block/automation/laser_quarry_led_red");
+            Identifier.fromNamespaceAndPath(LogisticsMod.MOD_ID, "block/automation/laser_quarry_led_red");
     private static final Identifier DISPLAY_MODEL_ID =
-            Identifier.of(LogisticsMod.MOD_ID, "block/automation/laser_quarry_display");
+            Identifier.fromNamespaceAndPath(LogisticsMod.MOD_ID, "block/automation/laser_quarry_display");
     private static final Identifier TOP_HATCH_MODEL_ID =
-            Identifier.of(LogisticsMod.MOD_ID, "block/automation/laser_quarry_top_hatch");
+            Identifier.fromNamespaceAndPath(LogisticsMod.MOD_ID, "block/automation/laser_quarry_top_hatch");
 
-    public LaserQuarryBlockEntityRenderer(BlockEntityRendererFactory.Context ctx) {}
+    public LaserQuarryBlockEntityRenderer(BlockEntityRendererProvider.Context ctx) {}
 
     @Override
     public LaserQuarryRenderState createRenderState() {
@@ -51,16 +52,15 @@ public class LaserQuarryBlockEntityRenderer
     }
 
     @Override
-    public void updateRenderState(
+    public void extractRenderState(
             LaserQuarryBlockEntity entity,
             LaserQuarryRenderState state,
             float tickDelta,
-            Vec3d cameraPos,
-            @Nullable net.minecraft.client.render.command.ModelCommandRenderer.CrumblingOverlayCommand crumblingOverlay) {
-        net.minecraft.client.render.block.entity.state.BlockEntityRenderState.updateBlockEntityRenderState(
-                entity, state, crumblingOverlay);
+            Vec3 cameraPos,
+            net.minecraft.client.renderer.feature.ModelFeatureRenderer.CrumblingOverlay crumblingOverlay) {
+        BlockEntityRenderState.extractBase(entity, state, crumblingOverlay);
 
-        state.quarryPos = entity.getPos();
+        state.quarryPos = entity.getBlockPos();
         state.phase = entity.getCurrentPhase();
         state.armState = entity.getArmState();
         state.syncedArmSpeed = entity.getSyncedArmSpeed();
@@ -70,14 +70,14 @@ public class LaserQuarryBlockEntityRenderer
         state.isFinished = entity.isFinished();
         state.isWorking = !state.isFinished && state.energyLevel > 0;
 
-        World world = entity.getWorld();
-        if (world == null) {
+        Level level = entity.getLevel();
+        if (level == null) {
             state.shouldRenderArm = false;
             return;
         }
 
         // Check if the block is still a quarry (could be removed/replaced)
-        BlockState blockState = world.getBlockState(state.quarryPos);
+        BlockState blockState = level.getBlockState(state.quarryPos);
         if (!(blockState.getBlock() instanceof LaserQuarryBlock)) {
             state.shouldRenderArm = false;
             return;
@@ -88,15 +88,22 @@ public class LaserQuarryBlockEntityRenderer
         state.blockFacing = state.facing;
 
         // Sample light at quarry position for display overlay
-        state.quarryLight = net.minecraft.client.render.WorldRenderer.getLightmapCoordinates(world, state.quarryPos);
+        state.quarryLight = state.lightCoords; // Use base light from quarry position
 
-        // Check for pipe connected above (pipes expose ItemStorage.SIDED)
-        BlockPos abovePos = state.quarryPos.up();
-        state.hasPipeAbove = ItemStorage.SIDED.find(world, abovePos, net.minecraft.util.math.Direction.DOWN) != null;
-        state.aboveLight = net.minecraft.client.render.WorldRenderer.getLightmapCoordinates(world, abovePos);
+        // Check for pipe connected above by checking block type
+        BlockPos abovePos = state.quarryPos.above();
+        BlockState aboveState = level.getBlockState(abovePos);
+        state.hasPipeAbove = aboveState.getBlock() instanceof PipeBlock;
+        int blockLightAbove = level.getBrightness(LightLayer.BLOCK, abovePos);
+        int skyLightAbove = level.getBrightness(LightLayer.SKY, abovePos);
+        state.aboveLight = LightTexture.pack(blockLightAbove, skyLightAbove);
 
         // Only render arm during mining phase when arm is initialized
         state.shouldRenderArm = (state.phase == LaserQuarryBlockEntity.Phase.MINING) && entity.isArmInitialized();
+
+        if (!state.shouldRenderArm) {
+            return;
+        }
 
         // Calculate frame bounds - use custom bounds if available, otherwise calculate from facing
         BlockPos quarryPos = state.quarryPos;
@@ -132,10 +139,13 @@ public class LaserQuarryBlockEntityRenderer
         }
         state.frameTopY = quarryPos.getY() + LaserQuarryConfig.Y_OFFSET_ABOVE;
 
-        // Sample light at the frame top level (where the horizontal beams are)
-        BlockPos frameTopPos = new BlockPos(
-                (state.frameStartX + state.frameEndX) / 2, state.frameTopY, (state.frameStartZ + state.frameEndZ) / 2);
-        state.frameTopLight = net.minecraft.client.render.WorldRenderer.getLightmapCoordinates(world, frameTopPos);
+        // Sample light at the center of the frame top for more accurate lighting
+        int centerX = (state.frameStartX + state.frameEndX) / 2;
+        int centerZ = (state.frameStartZ + state.frameEndZ) / 2;
+        BlockPos frameTopPos = new BlockPos(centerX, state.frameTopY, centerZ);
+        int blockLight = level.getBrightness(LightLayer.BLOCK, frameTopPos);
+        int skyLight = level.getBrightness(LightLayer.SKY, frameTopPos);
+        state.frameTopLight = LightTexture.pack(blockLight, skyLight);
 
         // Get server-synced arm position (interpolation happens in render() for smooth frame-rate independent movement)
         state.serverArmX = entity.getArmX();
@@ -144,11 +154,8 @@ public class LaserQuarryBlockEntityRenderer
     }
 
     @Override
-    public void render(
-            LaserQuarryRenderState state,
-            MatrixStack matrices,
-            OrderedRenderCommandQueue queue,
-            CameraRenderState cameraState) {
+    public void submit(
+            LaserQuarryRenderState state, PoseStack matrices, SubmitNodeCollector queue, CameraRenderState cameraState) {
         // Always render LEDs and overlays
         renderLEDs(state, matrices, queue);
         renderTopHatch(state, matrices, queue);
@@ -165,7 +172,7 @@ public class LaserQuarryBlockEntityRenderer
         // Update interpolation every frame for smooth movement
         state.updateClientInterpolation();
 
-        RenderLayer renderLayer = RenderLayers.cutout();
+        RenderType renderLayer = RenderTypes.cutoutMovingBlock();
 
         // Calculate positions relative to the quarry block (render origin)
         float quarryX = state.quarryPos.getX();
@@ -222,13 +229,13 @@ public class LaserQuarryBlockEntityRenderer
         // Render drill head at the bottom of the vertical beam
         BlockStateModel drillModel = ModelRegistry.getModel(DRILL_MODEL_ID);
         if (drillModel != null) {
-            matrices.push();
+            matrices.pushPose();
             // Position drill at arm location, offset to center the model
             // Drill model is centered at X=0.5, Z=0.5, extends from Y=0.125 to Y=1
             matrices.translate(relArmX - 0.5, relArmY, relArmZ - 0.5);
-            queue.submitBlockStateModel(
-                    matrices, renderLayer, drillModel, 1.0f, 1.0f, 1.0f, light, OverlayTexture.DEFAULT_UV, 0);
-            matrices.pop();
+            queue.submitBlockModel(
+                    matrices, renderLayer, drillModel, 1.0f, 1.0f, 1.0f, light, OverlayTexture.NO_OVERLAY, 0);
+            matrices.popPose();
         }
     }
 
@@ -240,10 +247,10 @@ public class LaserQuarryBlockEntityRenderer
      * @param startZ for alongX: centered arm Z position; for !alongX: block-aligned start Z
      */
     private void renderHorizontalBeam(
-            MatrixStack matrices,
-            OrderedRenderCommandQueue queue,
+            PoseStack matrices,
+            SubmitNodeCollector queue,
             BlockStateModel model,
-            RenderLayer renderLayer,
+            RenderType renderLayer,
             int lightmap,
             float startX,
             float startY,
@@ -251,13 +258,13 @@ public class LaserQuarryBlockEntityRenderer
             int length,
             boolean alongX) {
         for (int i = 0; i < length; i++) {
-            matrices.push();
+            matrices.pushPose();
 
             if (alongX) {
                 // Beam extends along X axis (east-west)
                 // Position at segment, centered on startZ
                 matrices.translate(startX + i + 0.5, startY + 0.5, startZ);
-                matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(-90)); // Point east
+                matrices.mulPose(Axis.YP.rotationDegrees(-90)); // Point east
                 // Center the model (model is at X=0.5, Y=0.5)
                 matrices.translate(-0.5, -0.5, 0.0);
             } else {
@@ -269,10 +276,10 @@ public class LaserQuarryBlockEntityRenderer
                 matrices.translate(-0.5, -0.5, -0.5);
             }
 
-            queue.submitBlockStateModel(
-                    matrices, renderLayer, model, 1.0f, 1.0f, 1.0f, lightmap, OverlayTexture.DEFAULT_UV, 0);
+            queue.submitBlockModel(
+                    matrices, renderLayer, model, 1.0f, 1.0f, 1.0f, lightmap, OverlayTexture.NO_OVERLAY, 0);
 
-            matrices.pop();
+            matrices.popPose();
         }
     }
 
@@ -285,10 +292,10 @@ public class LaserQuarryBlockEntityRenderer
      * @param z centered Z position (already includes +0.5 offset)
      */
     private void renderVerticalBeam(
-            MatrixStack matrices,
-            OrderedRenderCommandQueue queue,
+            PoseStack matrices,
+            SubmitNodeCollector queue,
             BlockStateModel model,
-            RenderLayer renderLayer,
+            RenderType renderLayer,
             int lightmap,
             float x,
             float startY,
@@ -299,45 +306,40 @@ public class LaserQuarryBlockEntityRenderer
 
         // Render partial segment at the TOP first (obscured by horizontal beams)
         if (remainder > 0.1f) {
-            matrices.push();
+            matrices.pushPose();
 
             // Partial segment starts at startY and grows downward
             matrices.translate(x, startY, z);
-            matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(90));
+            matrices.mulPose(Axis.XP.rotationDegrees(90));
             // Scale the partial segment in Z (which is now -Y after rotation)
             matrices.scale(1.0f, 1.0f, remainder);
             matrices.translate(-0.5, -0.5, 0.0);
 
-            queue.submitBlockStateModel(
-                    matrices, renderLayer, model, 1.0f, 1.0f, 1.0f, lightmap, OverlayTexture.DEFAULT_UV, 0);
+            queue.submitBlockModel(
+                    matrices, renderLayer, model, 1.0f, 1.0f, 1.0f, lightmap, OverlayTexture.NO_OVERLAY, 0);
 
-            matrices.pop();
+            matrices.popPose();
         }
 
         // Render full block segments below the partial segment
         for (int i = 0; i < fullSegments; i++) {
-            matrices.push();
+            matrices.pushPose();
 
             // Full segments start below the partial segment
             matrices.translate(x, startY - remainder - i, z);
             // Rotate to point downward
-            matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(90));
+            matrices.mulPose(Axis.XP.rotationDegrees(90));
             matrices.translate(-0.5, -0.5, 0.0);
 
-            queue.submitBlockStateModel(
-                    matrices, renderLayer, model, 1.0f, 1.0f, 1.0f, lightmap, OverlayTexture.DEFAULT_UV, 0);
+            queue.submitBlockModel(
+                    matrices, renderLayer, model, 1.0f, 1.0f, 1.0f, lightmap, OverlayTexture.NO_OVERLAY, 0);
 
-            matrices.pop();
+            matrices.popPose();
         }
     }
 
-    /**
-     * Render LED overlays on the front face of the quarry.
-     * Green LED: full brightness when working
-     * Red LED: brightness proportional to energy buffer level
-     */
-    private void renderLEDs(LaserQuarryRenderState state, MatrixStack matrices, OrderedRenderCommandQueue queue) {
-        RenderLayer renderLayer = RenderLayers.translucentMovingBlock();
+    private void renderLEDs(LaserQuarryRenderState state, PoseStack matrices, SubmitNodeCollector queue) {
+        RenderType renderLayer = RenderTypes.translucentMovingBlock();
 
         // Update green LED fade effect
         state.updateGreenLedBrightness();
@@ -357,16 +359,16 @@ public class LaserQuarryBlockEntityRenderer
         if (state.greenLedBrightness > 0) {
             BlockStateModel greenLed = ModelRegistry.getModel(LED_GREEN_MODEL_ID);
             if (greenLed != null) {
-                matrices.push();
+                matrices.pushPose();
                 matrices.translate(0.5, 0.5, 0.5);
-                matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(rotation));
+                matrices.mulPose(Axis.YP.rotationDegrees(rotation));
                 matrices.translate(-0.5, -0.5, -0.5);
                 // Brightness scales with fade (0-15)
                 int brightness = (int) (state.greenLedBrightness * 15);
                 int light = (brightness << 4) | (brightness << 20);
-                queue.submitBlockStateModel(
-                        matrices, renderLayer, greenLed, 1.0f, 1.0f, 1.0f, light, OverlayTexture.DEFAULT_UV, 0);
-                matrices.pop();
+                queue.submitBlockModel(
+                        matrices, renderLayer, greenLed, 1.0f, 1.0f, 1.0f, light, OverlayTexture.NO_OVERLAY, 0);
+                matrices.popPose();
             }
         }
 
@@ -374,16 +376,16 @@ public class LaserQuarryBlockEntityRenderer
         if (state.energyLevel > 0) {
             BlockStateModel redLed = ModelRegistry.getModel(LED_RED_MODEL_ID);
             if (redLed != null) {
-                matrices.push();
+                matrices.pushPose();
                 matrices.translate(0.5, 0.5, 0.5);
-                matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(rotation));
+                matrices.mulPose(Axis.YP.rotationDegrees(rotation));
                 matrices.translate(-0.5, -0.5, -0.5);
                 // Brightness scaled by energy level (0-15)
                 int brightness = (int) (state.energyLevel * 15);
                 int light = (brightness << 4) | (brightness << 20);
-                queue.submitBlockStateModel(
-                        matrices, renderLayer, redLed, 1.0f, 1.0f, 1.0f, light, OverlayTexture.DEFAULT_UV, 0);
-                matrices.pop();
+                queue.submitBlockModel(
+                        matrices, renderLayer, redLed, 1.0f, 1.0f, 1.0f, light, OverlayTexture.NO_OVERLAY, 0);
+                matrices.popPose();
             }
         }
 
@@ -392,24 +394,21 @@ public class LaserQuarryBlockEntityRenderer
         if (state.greenLedBrightness > 0) {
             BlockStateModel display = ModelRegistry.getModel(DISPLAY_MODEL_ID);
             if (display != null) {
-                matrices.push();
+                matrices.pushPose();
                 matrices.translate(0.5, 0.5, 0.5);
-                matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(rotation));
+                matrices.mulPose(Axis.YP.rotationDegrees(rotation));
                 matrices.translate(-0.5, -0.5, -0.5);
                 // Scale brightness with fade (min 8 at full brightness, scales down to 0)
-                int brightness = (int) (state.greenLedBrightness * 12);
-                int displayLight = (brightness << 4) | (brightness << 20);
-                queue.submitBlockStateModel(
-                        matrices, renderLayer, display, 1.0f, 1.0f, 1.0f, displayLight, OverlayTexture.DEFAULT_UV, 0);
-                matrices.pop();
+                int brightness = Math.max(0, (int) (state.greenLedBrightness * 8));
+                int light = (brightness << 4) | (brightness << 20);
+                queue.submitBlockModel(
+                        matrices, renderLayer, display, 1.0f, 1.0f, 1.0f, light, OverlayTexture.NO_OVERLAY, 0);
+                matrices.popPose();
             }
         }
     }
 
-    /**
-     * Render top hatch overlay when a pipe is connected above.
-     */
-    private void renderTopHatch(LaserQuarryRenderState state, MatrixStack matrices, OrderedRenderCommandQueue queue) {
+    private void renderTopHatch(LaserQuarryRenderState state, PoseStack matrices, SubmitNodeCollector queue) {
         if (!state.hasPipeAbove) {
             return;
         }
@@ -419,17 +418,17 @@ public class LaserQuarryBlockEntityRenderer
             return;
         }
 
-        RenderLayer renderLayer = RenderLayers.translucentMovingBlock();
-        matrices.push();
+        RenderType renderLayer = RenderTypes.translucentMovingBlock();
+        matrices.pushPose();
         // No rotation needed - top face is always up
         // Use light from above the quarry where the hatch is visible
-        queue.submitBlockStateModel(
-                matrices, renderLayer, hatch, 1.0f, 1.0f, 1.0f, state.aboveLight, OverlayTexture.DEFAULT_UV, 0);
-        matrices.pop();
+        queue.submitBlockModel(
+                matrices, renderLayer, hatch, 1.0f, 1.0f, 1.0f, state.aboveLight, OverlayTexture.NO_OVERLAY, 0);
+        matrices.popPose();
     }
 
     @Override
-    public int getRenderDistance() {
+    public int getViewDistance() {
         return 256; // Visible from far away
     }
 }

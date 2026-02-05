@@ -5,11 +5,11 @@ import com.logistics.core.lib.power.AcceptsLowTierEnergy;
 import com.logistics.core.lib.power.LowTierEnergySource;
 import com.logistics.power.engine.block.RedstoneEngineBlock;
 import com.logistics.power.registry.PowerBlockEntities;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 
 /**
  * Block entity for the Redstone Engine.
@@ -26,8 +26,8 @@ public class RedstoneEngineBlockEntity extends AbstractEngineBlockEntity impleme
         super(PowerBlockEntities.REDSTONE_ENGINE_BLOCK_ENTITY, pos, state);
     }
 
-    public static void tick(World world, BlockPos pos, BlockState state, RedstoneEngineBlockEntity entity) {
-        entity.tickEngine(world, pos, state);
+    public static void tick(Level level, BlockPos pos, BlockState state, RedstoneEngineBlockEntity entity) {
+        entity.tickEngine(level, pos, state);
     }
 
     @Override
@@ -47,12 +47,12 @@ public class RedstoneEngineBlockEntity extends AbstractEngineBlockEntity impleme
 
     @Override
     protected Direction getOutputDirection() {
-        return RedstoneEngineBlock.getOutputDirection(getCachedState());
+        return RedstoneEngineBlock.getOutputDirection(getBlockState());
     }
 
     @Override
     protected boolean isRedstonePowered() {
-        return getCachedState().get(RedstoneEngineBlock.POWERED);
+        return getBlockState().getValue(RedstoneEngineBlock.POWERED);
     }
 
     @Override
@@ -62,13 +62,13 @@ public class RedstoneEngineBlockEntity extends AbstractEngineBlockEntity impleme
         }
 
         // Don't run if target doesn't accept low-tier energy
-        if (world == null) {
+        if (level == null) {
             return false;
         }
 
         Direction outputDir = getOutputDirection();
-        BlockPos targetPos = pos.offset(outputDir);
-        BlockEntity target = world.getBlockEntity(targetPos);
+        BlockPos targetPos = worldPosition.relative(outputDir);
+        BlockEntity target = level.getBlockEntity(targetPos);
 
         if (target instanceof AcceptsLowTierEnergy acceptor) {
             return acceptor.acceptsLowTierEnergyFrom(outputDir.getOpposite());
@@ -79,11 +79,11 @@ public class RedstoneEngineBlockEntity extends AbstractEngineBlockEntity impleme
 
     @Override
     protected void produceEnergy() {
-        if (!isRedstonePowered() || world == null) {
+        if (!isRedstonePowered() || level == null) {
             return;
         }
 
-        if (world.getTime() % ENERGY_TICK_INTERVAL == 0) {
+        if (level.getGameTime() % ENERGY_TICK_INTERVAL == 0) {
             addEnergy(ENERGY_PER_INTERVAL);
         }
     }

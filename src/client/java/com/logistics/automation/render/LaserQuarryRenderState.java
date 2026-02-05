@@ -4,18 +4,17 @@ import com.logistics.automation.laserquarry.LaserQuarryConfig;
 import com.logistics.automation.laserquarry.entity.LaserQuarryBlockEntity;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.block.entity.state.BlockEntityRenderState;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
+import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.Level;
 
 /**
  * Render state for the laser quarry arm visualization.
  */
 public class LaserQuarryRenderState extends BlockEntityRenderState {
     public boolean shouldRenderArm = false;
-    public BlockPos quarryPos = BlockPos.ORIGIN;
+    public BlockPos quarryPos = BlockPos.ZERO;
     public Direction facing = Direction.NORTH;
 
     // Frame bounds
@@ -112,12 +111,9 @@ public class LaserQuarryRenderState extends BlockEntityRenderState {
         // Clamp delta to avoid huge jumps after pauses
         deltaSeconds = Math.min(deltaSeconds, 0.1f);
 
-        // Get current tick rate (default 20, but can be changed with /tick rate)
+        // Get current tick rate (MC 1.21.11 always runs at 20 TPS)
+        // TODO: Use getTickManager() when MC 26.1+ support is added
         float tickRate = 20f;
-        MinecraftClient client = MinecraftClient.getInstance();
-        if (client.world != null) {
-            tickRate = client.world.getTickManager().getTickRate();
-        }
 
         // Speed in blocks per second = synced speed per tick * ticks per second
         float speedPerSecond = syncedArmSpeed * tickRate;
@@ -170,11 +166,9 @@ public class LaserQuarryRenderState extends BlockEntityRenderState {
             greenLedBrightness = 1.0f;
         } else if (fade.isFading) {
             // Currently fading - calculate brightness based on elapsed time
+            // MC 1.21.11 always runs at 20 TPS
+            // TODO: Use getTickManager() when MC 26.1+ support is added
             float tickRate = 20f;
-            MinecraftClient client = MinecraftClient.getInstance();
-            if (client.world != null) {
-                tickRate = client.world.getTickManager().getTickRate();
-            }
 
             float elapsedSeconds = (currentTime - fade.fadeStartTimeNanos) / 1_000_000_000f;
             float elapsedTicks = elapsedSeconds * tickRate;
@@ -204,7 +198,7 @@ public class LaserQuarryRenderState extends BlockEntityRenderState {
     /**
      * Prune cache entries that no longer have a quarry block entity in the current world.
      */
-    public static void pruneInterpolationCache(ClientWorld world) {
+    public static void pruneInterpolationCache(Level world) {
         INTERPOLATION_CACHE.keySet().removeIf(pos -> !(world.getBlockEntity(pos) instanceof LaserQuarryBlockEntity));
         LED_FADE_CACHE.keySet().removeIf(pos -> !(world.getBlockEntity(pos) instanceof LaserQuarryBlockEntity));
     }

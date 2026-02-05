@@ -1,7 +1,7 @@
 package com.logistics.automation.registry;
 
 import com.logistics.core.registry.CoreItemGroups;
-import net.minecraft.item.ItemGroup;
+import net.minecraft.world.item.CreativeModeTab;
 
 public final class AutomationItemGroups {
     private AutomationItemGroups() {}
@@ -10,8 +10,8 @@ public final class AutomationItemGroups {
         CoreItemGroups.registerEntries(AutomationItemGroups::addEntries);
     }
 
-    private static void addEntries(ItemGroup.DisplayContext displayContext, ItemGroup.Entries entries) {
-        entries.add(AutomationBlocks.LASER_QUARRY);
+    private static void addEntries(CreativeModeTab.ItemDisplayParameters displayContext, CreativeModeTab.Output entries) {
+        entries.accept(AutomationBlocks.LASER_QUARRY);
     }
 
     public static void initialize() {

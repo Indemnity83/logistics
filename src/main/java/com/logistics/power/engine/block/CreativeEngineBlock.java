@@ -4,16 +4,17 @@ import com.logistics.core.lib.power.AbstractEngineBlock;
 import com.logistics.power.engine.block.entity.CreativeEngineBlockEntity;
 import com.logistics.power.registry.PowerBlockEntities;
 import com.mojang.serialization.MapCodec;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.BlockWithEntity;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.BlockEntityTicker;
-import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.sound.BlockSoundGroup;
-import net.minecraft.text.Text;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.BaseEntityBlock;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockBehaviour.Properties;
+import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -29,14 +30,14 @@ import org.jetbrains.annotations.Nullable;
  * </ul>
  */
 public class CreativeEngineBlock extends AbstractEngineBlock<CreativeEngineBlockEntity> {
-    public static final MapCodec<CreativeEngineBlock> CODEC = createCodec(CreativeEngineBlock::new);
+    public static final MapCodec<CreativeEngineBlock> CODEC = simpleCodec(CreativeEngineBlock::new);
 
-    public CreativeEngineBlock(Settings settings) {
-        super(settings, BlockSoundGroup.STONE);
+    public CreativeEngineBlock(Properties settings) {
+        super(settings, SoundType.STONE);
     }
 
     @Override
-    protected MapCodec<? extends BlockWithEntity> getCodec() {
+    protected MapCodec<? extends BaseEntityBlock> codec() {
         return CODEC;
     }
 
@@ -46,12 +47,12 @@ public class CreativeEngineBlock extends AbstractEngineBlock<CreativeEngineBlock
     }
 
     @Override
-    protected boolean handleSpecialWrench(World world, BlockPos pos, PlayerEntity player, BlockState state) {
+    protected boolean handleSpecialWrench(Level world, BlockPos pos, Player player, BlockState state) {
         // Sneak + wrench: cycle output level
-        if (player.isSneaking() && world.getBlockEntity(pos) instanceof CreativeEngineBlockEntity engine) {
-            if (!world.isClient()) {
+        if (player.isShiftKeyDown() && world.getBlockEntity(pos) instanceof CreativeEngineBlockEntity engine) {
+            if (!world.isClientSide()) {
                 long newRate = engine.cycleOutputLevel();
-                player.sendMessage(Text.translatable("message.logistics.power.creative_engine.output", newRate), true);
+                player.displayClientMessage(Component.translatable("message.logistics.power.creative_engine.output", newRate), true);
             }
             return true;
         }
@@ -59,13 +60,13 @@ public class CreativeEngineBlock extends AbstractEngineBlock<CreativeEngineBlock
     }
 
     @Nullable @Override
-    public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
+    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return new CreativeEngineBlockEntity(pos, state);
     }
 
     @Nullable @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
-            World world, BlockState state, BlockEntityType<T> type) {
-        return validateTicker(type, PowerBlockEntities.CREATIVE_ENGINE_BLOCK_ENTITY, CreativeEngineBlockEntity::tick);
+            Level world, BlockState state, BlockEntityType<T> type) {
+        return createTickerHelper(type, PowerBlockEntities.CREATIVE_ENGINE_BLOCK_ENTITY, CreativeEngineBlockEntity::tick);
     }
 }

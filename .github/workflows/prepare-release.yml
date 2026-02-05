@@ -1,8 +1,8 @@
-name: Prepare Release (MC 1.21.11)
+name: Prepare Release
 
 on:
   push:
-    branches: [mc/1.21.11]
+    branches: [mc/*]
 
 permissions:
   contents: write

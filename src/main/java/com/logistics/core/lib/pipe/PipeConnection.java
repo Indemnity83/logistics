@@ -1,8 +1,11 @@
 package com.logistics.core.lib.pipe;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.StringIdentifiable;
-import net.minecraft.util.math.Direction;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import net.minecraft.core.Direction;
+import net.minecraft.util.StringRepresentable;
+import net.minecraft.world.item.ItemStack;
 
 /**
  * Interface for blocks that can connect to pipes.
@@ -22,7 +25,7 @@ public interface PipeConnection {
     /**
      * Represents the type of connection a block provides to pipes.
      */
-    enum Type implements StringIdentifiable {
+    enum Type implements StringRepresentable {
         /**
          * No connection allowed.
          */
@@ -38,6 +41,9 @@ public interface PipeConnection {
          */
         INVENTORY("inventory");
 
+        private static final Map<String, Type> BY_NAME =
+                Stream.of(values()).collect(Collectors.toMap(Type::getSerializedName, type -> type));
+
         private final String name;
 
         Type(String name) {
@@ -45,8 +51,18 @@ public interface PipeConnection {
         }
 
         @Override
-        public String asString() {
+        public String getSerializedName() {
             return name;
+        }
+
+        /**
+         * Get the Type by its serialized name.
+         *
+         * @param name the serialized name
+         * @return the Type, or NONE if not found
+         */
+        public static Type fromSerializedName(String name) {
+            return BY_NAME.getOrDefault(name, NONE);
         }
     }
 

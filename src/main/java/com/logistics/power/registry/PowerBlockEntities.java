@@ -7,36 +7,36 @@ import com.logistics.power.engine.block.entity.CreativeEngineBlockEntity;
 import com.logistics.power.engine.block.entity.RedstoneEngineBlockEntity;
 import com.logistics.power.engine.block.entity.StirlingEngineBlockEntity;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
-import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
-import net.minecraft.util.Identifier;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import team.reborn.energy.api.EnergyStorage;
 
 public final class PowerBlockEntities {
     private PowerBlockEntities() {}
 
     public static final BlockEntityType<RedstoneEngineBlockEntity> REDSTONE_ENGINE_BLOCK_ENTITY = Registry.register(
-            Registries.BLOCK_ENTITY_TYPE,
-            Identifier.of(LogisticsMod.MOD_ID, "power/redstone_engine"),
+            BuiltInRegistries.BLOCK_ENTITY_TYPE,
+            Identifier.fromNamespaceAndPath(LogisticsMod.MOD_ID, "power/redstone_engine"),
             FabricBlockEntityTypeBuilder.create(RedstoneEngineBlockEntity::new, PowerBlocks.REDSTONE_ENGINE)
                     .build());
 
     public static final BlockEntityType<StirlingEngineBlockEntity> STIRLING_ENGINE_BLOCK_ENTITY = Registry.register(
-            Registries.BLOCK_ENTITY_TYPE,
-            Identifier.of(LogisticsMod.MOD_ID, "power/stirling_engine"),
+            BuiltInRegistries.BLOCK_ENTITY_TYPE,
+            Identifier.fromNamespaceAndPath(LogisticsMod.MOD_ID, "power/stirling_engine"),
             FabricBlockEntityTypeBuilder.create(StirlingEngineBlockEntity::new, PowerBlocks.STIRLING_ENGINE)
                     .build());
 
     public static final BlockEntityType<CreativeEngineBlockEntity> CREATIVE_ENGINE_BLOCK_ENTITY = Registry.register(
-            Registries.BLOCK_ENTITY_TYPE,
-            Identifier.of(LogisticsMod.MOD_ID, "power/creative_engine"),
+            BuiltInRegistries.BLOCK_ENTITY_TYPE,
+            Identifier.fromNamespaceAndPath(LogisticsMod.MOD_ID, "power/creative_engine"),
             FabricBlockEntityTypeBuilder.create(CreativeEngineBlockEntity::new, PowerBlocks.CREATIVE_ENGINE)
                     .build());
 
     public static final BlockEntityType<CreativeSinkBlockEntity> CREATIVE_SINK_BLOCK_ENTITY = Registry.register(
-            Registries.BLOCK_ENTITY_TYPE,
-            Identifier.of(LogisticsMod.MOD_ID, "power/creative_sink"),
+            BuiltInRegistries.BLOCK_ENTITY_TYPE,
+            Identifier.fromNamespaceAndPath(LogisticsMod.MOD_ID, "power/creative_sink"),
             FabricBlockEntityTypeBuilder.create(CreativeSinkBlockEntity::new, PowerBlocks.CREATIVE_SINK)
                     .build());
 

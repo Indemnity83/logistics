@@ -8,22 +8,24 @@ import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.pipe.data.PipeDataComponents;
 import com.logistics.pipe.data.PipeDataComponents.WeatheringState;
 import java.util.List;
-import net.minecraft.component.ComponentMap;
-import net.minecraft.component.ComponentsAccess;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.CustomModelDataComponent;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.AxeItem;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemUsageContext;
-import net.minecraft.item.Items;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.random.Random;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.component.DataComponentGetter;
+import net.minecraft.core.component.DataComponentMap;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.resources.Identifier;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.AxeItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.CustomModelData;
+import net.minecraft.world.item.context.UseOnContext;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -66,14 +68,14 @@ public class WeatheringModule implements Module {
     }
 
     @Override
-    public void randomTick(PipeContext ctx, Random rand) {
-        if (ctx.world().isClient()) {
+    public void randomTick(PipeContext ctx, RandomSource rand) {
+        if (ctx.world().isClientSide()) {
             return;
         }
         tryOxidize(ctx, rand);
     }
 
-    public void tryOxidize(PipeContext ctx, Random rand) {
+    public void tryOxidize(PipeContext ctx, RandomSource rand) {
         if (isWaxed(ctx)) return;
 
         int stage = getOxidationStage(ctx);
@@ -87,9 +89,9 @@ public class WeatheringModule implements Module {
         int b = 0; // nearby pipes more oxidized than me
         BlockPos origin = ctx.pos();
 
-        for (BlockPos p : BlockPos.iterateOutwards(origin, 4, 4, 4)) {
+        for (BlockPos p : BlockPos.betweenClosed(origin.offset(-4, -4, -4), origin.offset(4, 4, 4))) {
             if (p.equals(origin)) continue;
-            if (origin.getManhattanDistance(p) > 4) continue;
+            if (origin.distManhattan(p) > 4) continue;
 
             if (!(ctx.world().getBlockState(p).getBlock() instanceof PipeBlock pipeBlock)) continue;
             if (!(ctx.world().getBlockEntity(p) instanceof PipeBlockEntity be)) continue;
@@ -122,12 +124,12 @@ public class WeatheringModule implements Module {
     }
 
     @Override
-    public ActionResult onUseWithItem(PipeContext ctx, ItemUsageContext usage) {
-        ItemStack stack = usage.getStack();
-        PlayerEntity player = usage.getPlayer();
+    public InteractionResult onUseWithItem(PipeContext ctx, UseOnContext usage) {
+        ItemStack stack = usage.getItemInHand();
+        Player player = usage.getPlayer();
 
         // Handle honeycomb waxing
-        if (stack.isOf(Items.HONEYCOMB)) {
+        if (stack.is(Items.HONEYCOMB)) {
             return handleWaxing(ctx, usage, player, stack);
         }
 
@@ -136,60 +138,63 @@ public class WeatheringModule implements Module {
             return handleScraping(ctx, usage, player, stack);
         }
 
-        return ActionResult.PASS;
+        return InteractionResult.PASS;
     }
 
-    private ActionResult handleWaxing(PipeContext ctx, ItemUsageContext usage, PlayerEntity player, ItemStack stack) {
+    private InteractionResult handleWaxing(PipeContext ctx, UseOnContext usage, Player player, ItemStack stack) {
         if (isWaxed(ctx)) {
-            return ActionResult.PASS;
+            return InteractionResult.PASS;
         }
 
-        if (ctx.world().isClient()) {
-            return ActionResult.SUCCESS;
+        if (ctx.world().isClientSide()) {
+            return InteractionResult.SUCCESS;
         }
 
         ctx.saveInt(this, WAXED_KEY, 1);
         ctx.markDirtyAndSync();
 
-        ctx.world().playSound(null, ctx.pos(), SoundEvents.ITEM_HONEYCOMB_WAX_ON, SoundCategory.BLOCKS, 1.0f, 1.0f);
+        ctx.world().playSound(null, ctx.pos(), SoundEvents.HONEYCOMB_WAX_ON, SoundSource.BLOCKS, 1.0f, 1.0f);
 
-        if (player != null && !player.isCreative()) {
-            stack.decrement(1);
+        if (player != null && !player.getAbilities().instabuild) {
+            stack.shrink(1);
         }
 
-        return ActionResult.SUCCESS;
+        return InteractionResult.SUCCESS;
     }
 
-    private ActionResult handleScraping(PipeContext ctx, ItemUsageContext usage, PlayerEntity player, ItemStack stack) {
+    private InteractionResult handleScraping(PipeContext ctx, UseOnContext usage, Player player, ItemStack stack) {
         boolean waxed = isWaxed(ctx);
         int stage = getOxidationStage(ctx);
 
         // Nothing to scrape
         if (!waxed && stage == STAGE_UNAFFECTED) {
-            return ActionResult.PASS;
+            return InteractionResult.PASS;
         }
 
-        if (ctx.world().isClient()) {
-            return ActionResult.SUCCESS;
+        if (ctx.world().isClientSide()) {
+            return InteractionResult.SUCCESS;
         }
 
         if (waxed) {
             // Remove wax first, keep oxidation stage
             ctx.saveInt(this, WAXED_KEY, 0);
-            ctx.world().playSound(null, ctx.pos(), SoundEvents.ITEM_AXE_WAX_OFF, SoundCategory.BLOCKS, 1.0f, 1.0f);
+            ctx.world().playSound(null, ctx.pos(), SoundEvents.AXE_WAX_OFF, SoundSource.BLOCKS, 1.0f, 1.0f);
         } else {
             // Reduce oxidation by one stage
             ctx.saveInt(this, OXIDATION_KEY, stage - 1);
-            ctx.world().playSound(null, ctx.pos(), SoundEvents.ITEM_AXE_SCRAPE, SoundCategory.BLOCKS, 1.0f, 1.0f);
+            ctx.world().playSound(null, ctx.pos(), SoundEvents.AXE_SCRAPE, SoundSource.BLOCKS, 1.0f, 1.0f);
         }
 
         ctx.markDirtyAndSync();
 
-        if (player != null && !player.isCreative()) {
-            stack.damage(1, player, usage.getHand());
+        if (player != null && !player.getAbilities().instabuild) {
+            EquipmentSlot slot = usage.getHand() == InteractionHand.MAIN_HAND
+                    ? EquipmentSlot.MAINHAND
+                    : EquipmentSlot.OFFHAND;
+            stack.hurtAndBreak(1, player, slot);
         }
 
-        return ActionResult.SUCCESS;
+        return InteractionResult.SUCCESS;
     }
 
     @Override
@@ -199,7 +204,7 @@ public class WeatheringModule implements Module {
             return null; // Use default model
         }
         String suffix = getStageSuffix(stage);
-        return Identifier.of(LogisticsMod.MOD_ID, "block/pipe/copper_transport_pipe_core" + suffix);
+        return Identifier.fromNamespaceAndPath(LogisticsMod.MOD_ID, "block/pipe/copper_transport_pipe_core" + suffix);
     }
 
     @Override
@@ -210,24 +215,24 @@ public class WeatheringModule implements Module {
         }
         String suffix = getStageSuffix(stage);
         String armType = ctx.isInventoryConnection(direction) ? "_arm_extended" : "_arm";
-        return Identifier.of(LogisticsMod.MOD_ID, "block/pipe/copper_transport_pipe" + armType + suffix);
+        return Identifier.fromNamespaceAndPath(LogisticsMod.MOD_ID, "block/pipe/copper_transport_pipe" + armType + suffix);
     }
 
     // --- Item component handling ---
 
     @Override
-    public void addItemComponents(ComponentMap.Builder builder, PipeContext ctx) {
+    public void addItemComponents(DataComponentMap.Builder builder, PipeContext ctx) {
         int stage = getOxidationStage(ctx);
         boolean waxed = isWaxed(ctx);
 
         WeatheringState state = new WeatheringState(stage, waxed);
         if (!state.isDefault()) {
-            builder.add(PipeDataComponents.WEATHERING_STATE, state);
+            builder.set(PipeDataComponents.WEATHERING_STATE, state);
         }
     }
 
     @Override
-    public void readItemComponents(ComponentsAccess components, PipeContext ctx) {
+    public void readItemComponents(DataComponentGetter components, PipeContext ctx) {
         WeatheringState state = components.get(PipeDataComponents.WEATHERING_STATE);
         if (state == null || state.isDefault()) return;
 
@@ -256,7 +261,7 @@ public class WeatheringModule implements Module {
     }
 
     @Override
-    public String getItemNameSuffixFromComponents(ComponentsAccess components) {
+    public String getItemNameSuffixFromComponents(DataComponentGetter components) {
         WeatheringState state = components.get(PipeDataComponents.WEATHERING_STATE);
         if (state == null || state.isDefault()) {
             return "";
@@ -281,11 +286,12 @@ public class WeatheringModule implements Module {
         ItemStack stack = baseStack.copy();
         stack.set(PipeDataComponents.WEATHERING_STATE, new WeatheringState(stage, waxed));
 
-        String modelKey = getModelKey(stage, waxed);
-        if (!modelKey.isEmpty()) {
+        // Add custom model data string key for item model variant selection
+        if (stage > 0 || waxed) {
+            String modelKey = getModelKey(stage, waxed);
             stack.set(
-                    DataComponentTypes.CUSTOM_MODEL_DATA,
-                    new CustomModelDataComponent(List.of(), List.of(), List.of(modelKey), List.of()));
+                    DataComponents.CUSTOM_MODEL_DATA,
+                    new CustomModelData(List.of(), List.of(), List.of(modelKey), List.of()));
         }
 
         return stack;

@@ -1,9 +1,9 @@
 package com.logistics.power.render;
 
 import com.logistics.core.lib.power.AbstractEngineBlockEntity.HeatStage;
-import net.minecraft.client.render.block.entity.state.BlockEntityRenderState;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
+import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 
 /**
  * Render state for engine block entities.
@@ -13,7 +13,7 @@ import net.minecraft.util.math.Direction;
  * This avoids depending on infrequent network updates for smooth animation.
  */
 public class EngineRenderState extends BlockEntityRenderState {
-    public BlockPos pos = BlockPos.ORIGIN;
+    public BlockPos pos = BlockPos.ZERO;
     public Direction facing = Direction.UP;
     public HeatStage stage = HeatStage.COLD;
     public boolean isRunning = false;

@@ -3,14 +3,14 @@ package com.logistics.power.engine.block.entity;
 import com.logistics.core.lib.power.AbstractEngineBlockEntity;
 import com.logistics.power.engine.block.CreativeEngineBlock;
 import com.logistics.power.registry.PowerBlockEntities;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.storage.ReadView;
-import net.minecraft.storage.WriteView;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 
 /**
  * Block entity for the Creative Engine.
@@ -35,7 +35,7 @@ public class CreativeEngineBlockEntity extends AbstractEngineBlockEntity {
         super(PowerBlockEntities.CREATIVE_ENGINE_BLOCK_ENTITY, pos, state);
     }
 
-    public static void tick(World world, BlockPos pos, BlockState state, CreativeEngineBlockEntity entity) {
+    public static void tick(Level world, BlockPos pos, BlockState state, CreativeEngineBlockEntity entity) {
         entity.tickEngine(world, pos, state);
     }
 
@@ -58,12 +58,12 @@ public class CreativeEngineBlockEntity extends AbstractEngineBlockEntity {
 
     @Override
     protected Direction getOutputDirection() {
-        return CreativeEngineBlock.getOutputDirection(getCachedState());
+        return CreativeEngineBlock.getOutputDirection(getBlockState());
     }
 
     @Override
     protected boolean isRedstonePowered() {
-        return getCachedState().get(CreativeEngineBlock.POWERED);
+        return getBlockState().getValue(CreativeEngineBlock.POWERED);
     }
 
     @Override
@@ -106,11 +106,11 @@ public class CreativeEngineBlockEntity extends AbstractEngineBlockEntity {
      */
     public long cycleOutputLevel() {
         outputLevelIndex = (outputLevelIndex + 1) % OUTPUT_LEVELS.length;
-        markDirty();
+        setChanged();
 
         // Sync to clients so renderer can update piston speed
-        if (world != null) {
-            world.updateListeners(pos, getCachedState(), getCachedState(), Block.NOTIFY_LISTENERS);
+        if (level != null) {
+            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
         }
 
         return OUTPUT_LEVELS[outputLevelIndex];
@@ -133,19 +133,19 @@ public class CreativeEngineBlockEntity extends AbstractEngineBlockEntity {
     // ==================== NBT Serialization ====================
 
     @Override
-    protected void writeData(WriteView view) {
-        super.writeData(view);
+    protected void saveAdditional(ValueOutput view) {
+        super.saveAdditional(view);
 
-        NbtCompound creativeData = new NbtCompound();
+        CompoundTag creativeData = new CompoundTag();
         creativeData.putInt("outputLevelIndex", outputLevelIndex);
-        view.put("CreativeData", NbtCompound.CODEC, creativeData);
+        view.store("CreativeData", CompoundTag.CODEC, creativeData);
     }
 
     @Override
-    protected void readData(ReadView view) {
-        super.readData(view);
+    protected void loadAdditional(ValueInput view) {
+        super.loadAdditional(view);
 
-        view.read("CreativeData", NbtCompound.CODEC).ifPresent(creativeData -> {
+        view.read("CreativeData", CompoundTag.CODEC).ifPresent(creativeData -> {
             outputLevelIndex = creativeData.getInt("outputLevelIndex").orElse(0);
             // Clamp to valid range
             if (outputLevelIndex < 0 || outputLevelIndex >= OUTPUT_LEVELS.length) {

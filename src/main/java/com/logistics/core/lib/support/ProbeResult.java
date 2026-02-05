@@ -2,7 +2,7 @@ package com.logistics.core.lib.support;
 
 import java.util.ArrayList;
 import java.util.List;
-import net.minecraft.util.Formatting;
+import net.minecraft.ChatFormatting;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -12,7 +12,7 @@ import org.jetbrains.annotations.Nullable;
  * <p>Usage:
  * <pre>{@code
  * ProbeResult.builder("Engine Stats")
- *     .entry("Stage", stage.name(), Formatting.GREEN)
+ *     .entry("Stage", stage.name(), ChatFormatting.GREEN)
  *     .entry("Temperature", String.format("%.0f°C", temp))
  *     .warning("OVERHEATED!")
  *     .build();
@@ -43,7 +43,7 @@ public final class ProbeResult {
      * A single entry in the probe result.
      */
     public sealed interface Entry {
-        record KeyValue(String key, String value, @Nullable Formatting color) implements Entry {}
+        record KeyValue(String key, String value, @Nullable ChatFormatting color) implements Entry {}
 
         record Warning(String message) implements Entry {}
 
@@ -64,7 +64,7 @@ public final class ProbeResult {
         /**
          * Adds a key-value entry with optional color formatting.
          */
-        public Builder entry(String key, String value, @Nullable Formatting color) {
+        public Builder entry(String key, String value, @Nullable ChatFormatting color) {
             entries.add(new Entry.KeyValue(key, value, color));
             return this;
         }

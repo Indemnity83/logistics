@@ -6,7 +6,7 @@ import com.logistics.core.bootstrap.DomainBootstrap;
 import com.logistics.core.lib.pipe.PipeConnectionRegistry;
 import com.logistics.core.util.TimingLog;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
-import net.minecraft.util.math.Direction;
+import net.minecraft.core.Direction;
 
 public final class AutomationDomainBootstrap implements DomainBootstrap {
     @Override

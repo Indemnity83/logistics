@@ -5,23 +5,24 @@ import com.logistics.power.engine.block.entity.StirlingEngineBlockEntity;
 import com.logistics.power.registry.PowerBlockEntities;
 import com.mojang.serialization.MapCodec;
 import java.util.List;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.BlockWithEntity;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.BlockEntityTicker;
-import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemPlacementContext;
-import net.minecraft.item.ItemStack;
-import net.minecraft.sound.BlockSoundGroup;
-import net.minecraft.state.property.BooleanProperty;
-import net.minecraft.state.property.Properties;
-import net.minecraft.state.property.Property;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.BaseEntityBlock;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.state.BlockBehaviour.Properties;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.Property;
+import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -38,16 +39,16 @@ import org.jetbrains.annotations.Nullable;
  * </ul>
  */
 public class StirlingEngineBlock extends AbstractEngineBlock<StirlingEngineBlockEntity> {
-    public static final MapCodec<StirlingEngineBlock> CODEC = createCodec(StirlingEngineBlock::new);
-    public static final BooleanProperty LIT = Properties.LIT; // True when burning fuel
+    public static final MapCodec<StirlingEngineBlock> CODEC = simpleCodec(StirlingEngineBlock::new);
+    public static final BooleanProperty LIT = BlockStateProperties.LIT; // True when burning fuel
 
-    public StirlingEngineBlock(Settings settings) {
-        super(settings, BlockSoundGroup.COPPER);
-        setDefaultState(getDefaultState().with(LIT, false));
+    public StirlingEngineBlock(Properties settings) {
+        super(settings, SoundType.COPPER);
+        registerDefaultState(defaultBlockState().setValue(LIT, false));
     }
 
     @Override
-    protected MapCodec<? extends BlockWithEntity> getCodec() {
+    protected MapCodec<? extends BaseEntityBlock> codec() {
         return CODEC;
     }
 
@@ -57,8 +58,8 @@ public class StirlingEngineBlock extends AbstractEngineBlock<StirlingEngineBlock
     }
 
     @Override
-    protected BlockState applyAdditionalPlacementState(BlockState base, ItemPlacementContext ctx) {
-        return base.with(LIT, false);
+    protected BlockState applyAdditionalPlacementState(BlockState base, BlockPlaceContext ctx) {
+        return base.setValue(LIT, false);
     }
 
     @Override
@@ -67,10 +68,10 @@ public class StirlingEngineBlock extends AbstractEngineBlock<StirlingEngineBlock
     }
 
     @Override
-    protected boolean handleSpecialWrench(World world, BlockPos pos, PlayerEntity player, BlockState state) {
+    protected boolean handleSpecialWrench(Level world, BlockPos pos, Player player, BlockState state) {
         // Reset overheat if engine is overheated
         if (world.getBlockEntity(pos) instanceof StirlingEngineBlockEntity engine && engine.isOverheated()) {
-            if (!world.isClient()) {
+            if (!world.isClientSide()) {
                 engine.resetOverheat();
             }
             return true;
@@ -79,41 +80,41 @@ public class StirlingEngineBlock extends AbstractEngineBlock<StirlingEngineBlock
     }
 
     @Nullable @Override
-    public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
+    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return new StirlingEngineBlockEntity(pos, state);
     }
 
     @Nullable @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
-            World world, BlockState state, BlockEntityType<T> type) {
-        return validateTicker(type, PowerBlockEntities.STIRLING_ENGINE_BLOCK_ENTITY, StirlingEngineBlockEntity::tick);
+            Level world, BlockState state, BlockEntityType<T> type) {
+        return createTickerHelper(type, PowerBlockEntities.STIRLING_ENGINE_BLOCK_ENTITY, StirlingEngineBlockEntity::tick);
     }
 
     @Override
-    protected ActionResult onUseWithItem(
+    protected InteractionResult useItemOn(
             ItemStack stack,
             BlockState state,
-            World world,
+            Level world,
             BlockPos pos,
-            PlayerEntity player,
-            Hand hand,
+            Player player,
+            InteractionHand hand,
             BlockHitResult hit) {
         return openGui(world, pos, player);
     }
 
     @Override
-    protected ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
+    protected InteractionResult useWithoutItem(BlockState state, Level world, BlockPos pos, Player player, BlockHitResult hit) {
         // Empty hand: open GUI
         return openGui(world, pos, player);
     }
 
-    private ActionResult openGui(World world, BlockPos pos, PlayerEntity player) {
-        if (!world.isClient()) {
+    private InteractionResult openGui(Level world, BlockPos pos, Player player) {
+        if (!world.isClientSide()) {
             BlockEntity entity = world.getBlockEntity(pos);
             if (entity instanceof StirlingEngineBlockEntity stirlingEngine) {
-                player.openHandledScreen(stirlingEngine);
+                player.openMenu(stirlingEngine);
             }
         }
-        return ActionResult.SUCCESS;
+        return InteractionResult.SUCCESS;
     }
 }

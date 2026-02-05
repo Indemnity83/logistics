@@ -3,18 +3,15 @@ package com.logistics.pipe.ui;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.pipe.modules.ItemFilterModule;
 import com.logistics.pipe.registry.PipeScreenHandlers;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.screen.ScreenHandler;
-import net.minecraft.screen.ScreenHandlerContext;
-import net.minecraft.screen.slot.Slot;
-import net.minecraft.screen.slot.SlotActionType;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ContainerLevelAccess;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.Container;
+import net.minecraft.world.item.ItemStack;
 
-public class ItemFilterScreenHandler extends ScreenHandler {
+public class ItemFilterScreenHandler extends AbstractContainerMenu {
     private static final int FILTER_SLOT_COUNT =
             ItemFilterModule.FILTER_ORDER.length * ItemFilterModule.FILTER_SLOTS_PER_SIDE;
     private static final int SLOT_SIZE = 18;
@@ -25,29 +22,31 @@ public class ItemFilterScreenHandler extends ScreenHandler {
     private static final int FILTER_SLOT_START_X = SLOT_START_X + SLOT_SIZE;
 
     private final FilterInventory filterInventory;
-    private final ScreenHandlerContext context;
+    private final ContainerLevelAccess context;
 
-    public ItemFilterScreenHandler(int syncId, PlayerInventory playerInventory) {
+    public ItemFilterScreenHandler(int syncId, Container playerInventory) {
         super(PipeScreenHandlers.ITEM_FILTER, syncId);
-        this.context = ScreenHandlerContext.EMPTY;
+        this.context = ContainerLevelAccess.NULL;
         this.filterInventory = new FilterInventory(null);
 
         addFilterSlots(filterInventory);
         addPlayerInventorySlots(playerInventory);
     }
 
-    public ItemFilterScreenHandler(int syncId, PlayerInventory playerInventory, PipeBlockEntity pipeEntity) {
+    public ItemFilterScreenHandler(int syncId, Container playerInventory, PipeBlockEntity pipeEntity) {
         super(PipeScreenHandlers.ITEM_FILTER, syncId);
-        World world = pipeEntity != null ? pipeEntity.getWorld() : playerInventory.player.getEntityWorld();
-        BlockPos pos = pipeEntity != null ? pipeEntity.getPos() : playerInventory.player.getBlockPos();
-        this.context = ScreenHandlerContext.create(world, pos);
+        if (pipeEntity != null) {
+            this.context = ContainerLevelAccess.create(pipeEntity.getLevel(), pipeEntity.getBlockPos());
+        } else {
+            this.context = ContainerLevelAccess.NULL;
+        }
         this.filterInventory = new FilterInventory(pipeEntity);
 
         addFilterSlots(filterInventory);
         addPlayerInventorySlots(playerInventory);
     }
 
-    private void addFilterSlots(Inventory inventory) {
+    private void addFilterSlots(Container inventory) {
         int slotIndex = 0;
         for (int row = 0; row < ItemFilterModule.FILTER_ORDER.length; row++) {
             for (int col = 0; col < ItemFilterModule.FILTER_SLOTS_PER_SIDE; col++) {
@@ -58,7 +57,7 @@ public class ItemFilterScreenHandler extends ScreenHandler {
         }
     }
 
-    private void addPlayerInventorySlots(PlayerInventory playerInventory) {
+    private void addPlayerInventorySlots(Container playerInventory) {
         for (int row = 0; row < 3; row++) {
             for (int col = 0; col < 9; col++) {
                 addSlot(new Slot(
@@ -75,47 +74,47 @@ public class ItemFilterScreenHandler extends ScreenHandler {
     }
 
     @Override
-    public boolean canUse(PlayerEntity player) {
+    public boolean stillValid(Player player) {
         return true;
     }
 
     @Override
-    public void onSlotClick(int slotIndex, int button, SlotActionType actionType, PlayerEntity player) {
+    public void clicked(int slotIndex, int button, ClickType actionType, Player player) {
         if (slotIndex >= 0 && slotIndex < FILTER_SLOT_COUNT) {
-            if (actionType == SlotActionType.QUICK_MOVE) {
+            if (actionType == ClickType.QUICK_MOVE) {
                 return;
             }
 
-            ItemStack cursor = getCursorStack();
+            ItemStack cursor = getCarried();
             if (cursor.isEmpty()) {
-                filterInventory.setStack(slotIndex, ItemStack.EMPTY);
+                filterInventory.setItem(slotIndex, ItemStack.EMPTY);
             } else {
-                filterInventory.setStack(slotIndex, cursor.copyWithCount(1));
+                filterInventory.setItem(slotIndex, cursor.copyWithCount(1));
             }
-            sendContentUpdates();
+            broadcastChanges();
             return;
         }
 
-        super.onSlotClick(slotIndex, button, actionType, player);
+        super.clicked(slotIndex, button, actionType, player);
     }
 
     @Override
-    public ItemStack quickMove(PlayerEntity player, int slot) {
+    public ItemStack quickMoveStack(Player player, int slot) {
         return ItemStack.EMPTY;
     }
 
     private static class FilterSlot extends Slot {
-        FilterSlot(Inventory inventory, int index, int x, int y) {
+        FilterSlot(Container inventory, int index, int x, int y) {
             super(inventory, index, x, y);
         }
 
         @Override
-        public boolean canInsert(ItemStack stack) {
+        public boolean mayPlace(ItemStack stack) {
             return false;
         }
 
         @Override
-        public boolean canTakeItems(PlayerEntity playerEntity) {
+        public boolean mayPickup(Player playerEntity) {
             return false;
         }
     }

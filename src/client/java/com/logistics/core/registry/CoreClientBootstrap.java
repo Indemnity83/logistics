@@ -2,9 +2,9 @@ package com.logistics.core.registry;
 
 import com.logistics.core.bootstrap.ClientDomainBootstrap;
 import com.logistics.core.render.MarkerBlockEntityRenderer;
+import net.fabricmc.fabric.api.client.rendering.v1.BlockEntityRendererRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.BlockRenderLayerMap;
-import net.minecraft.client.render.BlockRenderLayer;
-import net.minecraft.client.render.block.entity.BlockEntityRendererFactories;
+import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 
 public final class CoreClientBootstrap implements ClientDomainBootstrap {
     @Override
@@ -14,8 +14,8 @@ public final class CoreClientBootstrap implements ClientDomainBootstrap {
 
     @Override
     public void initClient() {
-        BlockRenderLayerMap.putBlock(CoreBlocks.MARKER, BlockRenderLayer.CUTOUT);
-        BlockEntityRendererFactories.register(CoreBlockEntities.MARKER_BLOCK_ENTITY, MarkerBlockEntityRenderer::new);
+        BlockRenderLayerMap.putBlock(CoreBlocks.MARKER, ChunkSectionLayer.CUTOUT);
+        BlockEntityRendererRegistry.register(CoreBlockEntities.MARKER_BLOCK_ENTITY, MarkerBlockEntityRenderer::new);
     }
 
     @Override

@@ -3,25 +3,25 @@ package com.logistics.core.lib.power;
 import com.logistics.api.EnergyStorage;
 import com.logistics.core.lib.support.ProbeResult;
 import java.util.Locale;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.network.listener.ClientPlayPacketListener;
-import net.minecraft.network.packet.Packet;
-import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
-import net.minecraft.particle.ParticleTypes;
-import net.minecraft.registry.RegistryWrapper;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.state.property.EnumProperty;
-import net.minecraft.storage.ReadView;
-import net.minecraft.storage.WriteView;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.StringIdentifiable;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.World;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.StringRepresentable;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -47,7 +47,7 @@ public abstract class AbstractEngineBlockEntity extends BlockEntity implements E
     // ==================== Heat Stage Enum ====================
 
     /** Represents the heat stages of an engine. */
-    public enum HeatStage implements StringIdentifiable {
+    public enum HeatStage implements StringRepresentable {
         COLD,
         COOL,
         WARM,
@@ -57,7 +57,7 @@ public abstract class AbstractEngineBlockEntity extends BlockEntity implements E
         private static final HeatStage[] VALUES = values();
 
         @Override
-        public String asString() {
+        public String getSerializedName() {
             return name().toLowerCase(Locale.ROOT);
         }
 
@@ -67,7 +67,7 @@ public abstract class AbstractEngineBlockEntity extends BlockEntity implements E
     }
 
     /** Block state property for engine heat stage. */
-    public static final EnumProperty<HeatStage> STAGE = EnumProperty.of("stage", HeatStage.class);
+    public static final EnumProperty<HeatStage> STAGE = EnumProperty.create("stage", HeatStage.class);
 
     /** Client-side callback for cleanup when an engine is removed. Set by client bootstrap. */
     private static java.util.function.Consumer<BlockPos> onRemovedCallback;
@@ -171,8 +171,8 @@ public abstract class AbstractEngineBlockEntity extends BlockEntity implements E
      *   <li>advanceCycle - move the piston cycle forward</li>
      * </ol>
      */
-    public void tickEngine(World world, BlockPos pos, BlockState state) {
-        if (world.isClient()) {
+    public void tickEngine(Level level, BlockPos pos, BlockState state) {
+        if (level.isClientSide()) {
             return;
         }
 
@@ -190,7 +190,7 @@ public abstract class AbstractEngineBlockEntity extends BlockEntity implements E
         syncStage();
         produceEnergy();
         advanceCycle();
-        markDirty();
+        setChanged();
     }
 
     /**
@@ -220,11 +220,11 @@ public abstract class AbstractEngineBlockEntity extends BlockEntity implements E
     private void tickOverheat() {
         energy = Math.max(energy - 50, 0);
 
-        if (world instanceof ServerWorld serverWorld && world.random.nextInt(4) == 0) {
-            double x = pos.getX() + 0.5 + (world.random.nextDouble() - 0.5) * 0.5;
-            double y = pos.getY() + 1.0;
-            double z = pos.getZ() + 0.5 + (world.random.nextDouble() - 0.5) * 0.5;
-            serverWorld.spawnParticles(ParticleTypes.LARGE_SMOKE, x, y, z, 1, 0, 0.05, 0, 0.01);
+        if (level instanceof ServerLevel serverLevel && level.getRandom().nextInt(4) == 0) {
+            double x = getBlockPos().getX() + 0.5 + (level.getRandom().nextDouble() - 0.5) * 0.5;
+            double y = getBlockPos().getY() + 1.0;
+            double z = getBlockPos().getZ() + 0.5 + (level.getRandom().nextDouble() - 0.5) * 0.5;
+            serverLevel.sendParticles(ParticleTypes.LARGE_SMOKE, x, y, z, 1, 0, 0.05, 0, 0.01);
         }
     }
 
@@ -239,19 +239,19 @@ public abstract class AbstractEngineBlockEntity extends BlockEntity implements E
 
         if (canOverheat()
                 && newStage == HeatStage.HOT
-                && world instanceof ServerWorld serverWorld
-                && world.random.nextInt(4) == 0) {
-            double x = pos.getX() + 0.5 + (world.random.nextDouble() - 0.5) * 0.5;
-            double y = pos.getY() + 1.0;
-            double z = pos.getZ() + 0.5 + (world.random.nextDouble() - 0.5) * 0.5;
-            serverWorld.spawnParticles(ParticleTypes.SMOKE, x, y, z, 1, 0, 0.05, 0, 0.01);
+                && level instanceof ServerLevel serverLevel
+                && level.getRandom().nextInt(4) == 0) {
+            double x = getBlockPos().getX() + 0.5 + (level.getRandom().nextDouble() - 0.5) * 0.5;
+            double y = getBlockPos().getY() + 1.0;
+            double z = getBlockPos().getZ() + 0.5 + (level.getRandom().nextDouble() - 0.5) * 0.5;
+            serverLevel.sendParticles(ParticleTypes.SMOKE, x, y, z, 1, 0, 0.05, 0, 0.01);
         }
     }
 
     private void syncStageToBlock() {
-        if (world == null) return;
-        BlockState newState = getCachedState().with(STAGE, heatStage);
-        world.setBlockState(pos, newState, Block.NOTIFY_ALL);
+        if (level == null) return;
+        BlockState newState = getBlockState().setValue(STAGE, heatStage);
+        level.setBlock(getBlockPos(), newState, Block.UPDATE_ALL);
     }
 
     // ==================== Heat System ====================
@@ -263,12 +263,12 @@ public abstract class AbstractEngineBlockEntity extends BlockEntity implements E
 
     /** Computes the engine stage based on current heat level. */
     protected HeatStage computeStage() {
-        double level = getHeatLevel();
+        double heatLevelRatio = getHeatLevel();
 
-        if (level < 0.25) return HeatStage.COLD;
-        if (level < 0.50) return HeatStage.COOL;
-        if (level < 0.75) return HeatStage.WARM;
-        if (level < 1.0 || !canOverheat()) return HeatStage.HOT;
+        if (heatLevelRatio < 0.25) return HeatStage.COLD;
+        if (heatLevelRatio < 0.50) return HeatStage.COOL;
+        if (heatLevelRatio < 0.75) return HeatStage.WARM;
+        if (heatLevelRatio < 1.0 || !canOverheat()) return HeatStage.HOT;
 
         return HeatStage.OVERHEAT;
     }
@@ -326,13 +326,13 @@ public abstract class AbstractEngineBlockEntity extends BlockEntity implements E
 
     /** Sends energy to the block this engine is facing via Team Reborn Energy API. */
     protected void sendEnergy() {
-        if (world == null || energy <= 0 || !isRedstonePowered()) return;
+        if (level == null || energy <= 0 || !isRedstonePowered()) return;
 
         Direction outputDir = getOutputDirection();
-        BlockPos targetPos = pos.offset(outputDir);
+        BlockPos targetPos = getBlockPos().relative(outputDir);
 
         team.reborn.energy.api.EnergyStorage target =
-                team.reborn.energy.api.EnergyStorage.SIDED.find(world, targetPos, outputDir.getOpposite());
+                team.reborn.energy.api.EnergyStorage.SIDED.find(level, targetPos, outputDir.getOpposite());
 
         if (target != null && target.supportsInsertion()) {
             long maxSend = getOutputPower();
@@ -379,7 +379,7 @@ public abstract class AbstractEngineBlockEntity extends BlockEntity implements E
         temperature = getTemperatureFloor();
         heatStage = HeatStage.COLD;
         syncStageToBlock();
-        markDirty();
+        setChanged();
         return true;
     }
 
@@ -460,8 +460,8 @@ public abstract class AbstractEngineBlockEntity extends BlockEntity implements E
         double temp = getTemperature();
         double maxTemp = getMaxTemperature();
         double heatLevel = getHeatLevel();
-        Formatting tempColor =
-                heatLevel >= 1.0 ? Formatting.RED : heatLevel >= 0.75 ? Formatting.YELLOW : Formatting.GREEN;
+        ChatFormatting tempColor =
+                heatLevel >= 1.0 ? ChatFormatting.RED : heatLevel >= 0.75 ? ChatFormatting.YELLOW : ChatFormatting.GREEN;
         builder.entry("Temperature", String.format("%.0f\u00B0C (%.0f Max)", temp, maxTemp), tempColor);
 
         // Energy info (buffer)
@@ -470,13 +470,13 @@ public abstract class AbstractEngineBlockEntity extends BlockEntity implements E
         builder.entry(
                 "Energy",
                 String.format("%,d / %,d RF (%.1f%%)", storedEnergy, getCapacity(), energyLevel * 100),
-                Formatting.AQUA);
+                ChatFormatting.AQUA);
 
         // Output power
-        builder.entry("Output Power", String.format("%d RF/t", getCurrentOutputPower()), Formatting.LIGHT_PURPLE);
+        builder.entry("Output Power", String.format("%d RF/t", getCurrentOutputPower()), ChatFormatting.LIGHT_PURPLE);
 
         // Running state
-        builder.entry("Running", isRunning() ? "Yes" : "No", isRunning() ? Formatting.GREEN : Formatting.GRAY);
+        builder.entry("Running", isRunning() ? "Yes" : "No", isRunning() ? ChatFormatting.GREEN : ChatFormatting.GRAY);
 
         // Overheat warning
         if (isOverheated()) {
@@ -484,13 +484,13 @@ public abstract class AbstractEngineBlockEntity extends BlockEntity implements E
         }
     }
 
-    private static Formatting getStageColor(HeatStage stage) {
+    private static ChatFormatting getStageColor(HeatStage stage) {
         return switch (stage) {
-            case COLD -> Formatting.BLUE;
-            case COOL -> Formatting.GREEN;
-            case WARM -> Formatting.YELLOW;
-            case HOT -> Formatting.RED;
-            case OVERHEAT -> Formatting.DARK_RED;
+            case COLD -> ChatFormatting.BLUE;
+            case COOL -> ChatFormatting.GREEN;
+            case WARM -> ChatFormatting.YELLOW;
+            case HOT -> ChatFormatting.RED;
+            case OVERHEAT -> ChatFormatting.DARK_RED;
         };
     }
 
@@ -516,7 +516,7 @@ public abstract class AbstractEngineBlockEntity extends BlockEntity implements E
         long extracted = Math.min(maxAmount, energy);
         if (!simulate && extracted > 0) {
             energy -= extracted;
-            markDirty();
+            setChanged();
         }
         return extracted;
     }
@@ -534,23 +534,20 @@ public abstract class AbstractEngineBlockEntity extends BlockEntity implements E
     // ==================== NBT Serialization ====================
 
     @Override
-    protected void writeData(WriteView view) {
-        super.writeData(view);
-
-        NbtCompound engineData = new NbtCompound();
+    protected void saveAdditional(ValueOutput view) {
+        CompoundTag engineData = new CompoundTag();
         engineData.putLong("energy", energy);
-        engineData.putDouble("heat", temperature);
-        engineData.putFloat("progress", progress);
+        engineData.putDouble("heat", temperature); // putDouble
+        engineData.putFloat("progress", progress); // putFloat
         engineData.putInt("cyclePhase", cyclePhase.ordinal());
         engineData.putInt("stage", heatStage.ordinal());
-        view.put("Engine", NbtCompound.CODEC, engineData);
+
+        view.store("Engine", CompoundTag.CODEC, engineData);
     }
 
     @Override
-    protected void readData(ReadView view) {
-        super.readData(view);
-
-        view.read("Engine", NbtCompound.CODEC).ifPresent(engineData -> {
+    protected void loadAdditional(ValueInput view) {
+        view.read("Engine", CompoundTag.CODEC).ifPresent(engineData -> {
             energy = engineData.getLong("energy").orElse(0L);
             temperature = engineData.getDouble("heat").orElse(0.0);
             progress = engineData.getFloat("progress").orElse(0f);
@@ -560,13 +557,13 @@ public abstract class AbstractEngineBlockEntity extends BlockEntity implements E
     }
 
     @Nullable @Override
-    public Packet<ClientPlayPacketListener> toUpdatePacket() {
-        return BlockEntityUpdateS2CPacket.create(this);
+    public Packet<ClientGamePacketListener> getUpdatePacket() {
+        return ClientboundBlockEntityDataPacket.create(this);
     }
 
     @Override
-    public NbtCompound toInitialChunkDataNbt(RegistryWrapper.WrapperLookup registryLookup) {
-        return createNbt(registryLookup);
+    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
+        return saveWithoutMetadata(registries);
     }
 
     // ==================== Lifecycle ====================
@@ -580,10 +577,10 @@ public abstract class AbstractEngineBlockEntity extends BlockEntity implements E
     }
 
     @Override
-    public void markRemoved() {
-        super.markRemoved();
-        if (onRemovedCallback != null && world != null && world.isClient()) {
-            onRemovedCallback.accept(pos);
+    public void setRemoved() {
+        super.setRemoved();
+        if (onRemovedCallback != null && level != null && level.isClientSide()) {
+            onRemovedCallback.accept(getBlockPos());
         }
     }
 }

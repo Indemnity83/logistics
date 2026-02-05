@@ -1,8 +1,8 @@
 package com.logistics.api;
 
 import net.fabricmc.fabric.api.lookup.v1.block.BlockApiLookup;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Direction;
+import net.minecraft.resources.Identifier;
+import net.minecraft.core.Direction;
 
 /**
  * API for looking up energy storage on blocks.
@@ -19,5 +19,5 @@ public final class EnergyApi {
      * use {@code SIDED.find(world, pos, Direction.UP)}.
      */
     public static final BlockApiLookup<EnergyStorage, Direction> SIDED =
-            BlockApiLookup.get(Identifier.of("logistics", "energy_storage"), EnergyStorage.class, Direction.class);
+            BlockApiLookup.get(Identifier.fromNamespaceAndPath("logistics", "energy_storage"), EnergyStorage.class, Direction.class);
 }

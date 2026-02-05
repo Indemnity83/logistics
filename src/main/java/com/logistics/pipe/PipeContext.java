@@ -5,14 +5,14 @@ import com.logistics.pipe.block.PipeBlock;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.pipe.modules.Module;
 import java.util.List;
-import net.minecraft.block.BlockState;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
-public record PipeContext(World world, BlockPos pos, BlockState state, PipeBlockEntity blockEntity) {
+public record PipeContext(Level world, BlockPos pos, BlockState state, PipeBlockEntity blockEntity) {
 
     /**
      * Get the Pipe instance for this pipe block.
@@ -25,13 +25,13 @@ public record PipeContext(World world, BlockPos pos, BlockState state, PipeBlock
         return null;
     }
 
-    public NbtCompound moduleState(String key) {
+    public CompoundTag moduleState(String key) {
         return blockEntity.getOrCreateModuleState(key);
     }
 
     // Convenience methods for module state access (with Module instance)
     public String getString(Module module, String key, String defaultValue) {
-        return moduleState(module.getStateKey()).getString(key, defaultValue);
+        return moduleState(module.getStateKey()).getString(key).orElse(defaultValue);
     }
 
     public void saveString(Module module, String key, String value) {
@@ -39,7 +39,7 @@ public record PipeContext(World world, BlockPos pos, BlockState state, PipeBlock
     }
 
     public int getInt(Module module, String key, int defaultValue) {
-        return moduleState(module.getStateKey()).getInt(key, defaultValue);
+        return moduleState(module.getStateKey()).getInt(key).orElse(defaultValue);
     }
 
     public void saveInt(Module module, String key, int value) {
@@ -47,7 +47,7 @@ public record PipeContext(World world, BlockPos pos, BlockState state, PipeBlock
     }
 
     public long getLong(Module module, String key, long defaultValue) {
-        return moduleState(module.getStateKey()).getLong(key, defaultValue);
+        return moduleState(module.getStateKey()).getLong(key).orElse(defaultValue);
     }
 
     public void saveLong(Module module, String key, long value) {
@@ -72,23 +72,23 @@ public record PipeContext(World world, BlockPos pos, BlockState state, PipeBlock
         markDirty();
     }
 
-    public NbtCompound getNbtCompound(Module module, String key) {
+    public CompoundTag getCompoundTag(Module module, String key) {
         return moduleState(module.getStateKey()).getCompoundOrEmpty(key);
     }
 
-    public void putNbtCompound(Module module, String key, NbtCompound value) {
+    public void putCompoundTag(Module module, String key, CompoundTag value) {
         moduleState(module.getStateKey()).put(key, value);
     }
 
     public void markDirty() {
-        blockEntity.markDirty();
+        blockEntity.setChanged();
     }
 
     public void markDirtyAndSync() {
         markDirty();
 
-        if (!world.isClient()) {
-            world.updateListeners(pos, state, state, 3);
+        if (!world.isClientSide()) {
+            world.sendBlockUpdated(pos, state, state, 3);
         }
     }
 
@@ -99,7 +99,7 @@ public record PipeContext(World world, BlockPos pos, BlockState state, PipeBlock
      * @return true if the pipe is powered by redstone
      */
     public boolean isPowered() {
-        return state.contains(PipeBlock.POWERED) && state.get(PipeBlock.POWERED);
+        return state.hasProperty(PipeBlock.POWERED) && state.getValue(PipeBlock.POWERED);
     }
 
     /**
@@ -110,7 +110,7 @@ public record PipeContext(World world, BlockPos pos, BlockState state, PipeBlock
      * @return The BlockState of the neighboring block
      */
     public BlockState getNeighborState(Direction direction) {
-        return world.getBlockState(pos.offset(direction));
+        return world.getBlockState(pos.relative(direction));
     }
 
     /**
@@ -171,6 +171,14 @@ public record PipeContext(World world, BlockPos pos, BlockState state, PipeBlock
             return PipeConnection.Type.NONE;
         }
         return pipeBlock.getConnectionType(world, pos, direction);
+    }
+
+    /**
+     * Get the cached connection type for the given direction.
+     * Always uses the cached value from the block entity.
+     */
+    public PipeConnection.Type getCachedConnectionType(Direction direction) {
+        return blockEntity.getCachedConnectionType(direction);
     }
 
     /**

@@ -2,22 +2,22 @@ package com.logistics.power.engine.ui;
 
 import com.logistics.power.engine.block.entity.StirlingEngineBlockEntity;
 import com.logistics.power.registry.PowerScreenHandlers;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.inventory.SimpleInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.screen.ArrayPropertyDelegate;
-import net.minecraft.screen.PropertyDelegate;
-import net.minecraft.screen.ScreenHandler;
-import net.minecraft.screen.slot.Slot;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.Container;
+import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ContainerData;
+import net.minecraft.world.inventory.SimpleContainerData;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 
 /**
  * Screen handler for the Stirling Engine GUI.
  * Manages the fuel slot and syncs burn time/heat data to the client.
  */
-public class StirlingEngineScreenHandler extends ScreenHandler {
+public class StirlingEngineScreenHandler extends AbstractContainerMenu {
     private static final int SLOT_SIZE = 18;
     private static final int PLAYER_INV_START_Y = 84;
     private static final int HOTBAR_Y = 142;
@@ -27,48 +27,48 @@ public class StirlingEngineScreenHandler extends ScreenHandler {
     private static final int FUEL_SLOT_X = 80;
     private static final int FUEL_SLOT_Y = 39;
 
-    private final Inventory inventory;
-    private final PropertyDelegate propertyDelegate;
+    private final Container inventory;
+    private final ContainerData propertyDelegate;
 
-    // Client constructor (called from ExtendedScreenHandlerType packet)
+    // Client constructor (called from ExtendedAbstractContainerMenuType packet)
     @SuppressWarnings("unused")
-    public StirlingEngineScreenHandler(int syncId, PlayerInventory playerInventory, BlockPos unusedPos) {
+    public StirlingEngineScreenHandler(int syncId, Inventory playerInventory, BlockPos unusedPos) {
         this(
                 syncId,
                 playerInventory,
-                new SimpleInventory(1),
-                new ArrayPropertyDelegate(StirlingEngineBlockEntity.PROPERTY_COUNT));
+                new SimpleContainer(1),
+                new SimpleContainerData(StirlingEngineBlockEntity.PROPERTY_COUNT));
     }
 
     // Server constructor
     public StirlingEngineScreenHandler(
             int syncId,
-            PlayerInventory playerInventory,
+            Inventory playerInventory,
             StirlingEngineBlockEntity entity,
-            PropertyDelegate propertyDelegate) {
-        this(syncId, playerInventory, (Inventory) entity, propertyDelegate);
+            ContainerData propertyDelegate) {
+        this(syncId, playerInventory, (Container) entity, propertyDelegate);
     }
 
     private StirlingEngineScreenHandler(
-            int syncId, PlayerInventory playerInventory, Inventory inventory, PropertyDelegate propertyDelegate) {
+            int syncId, Inventory playerInventory, Container inventory, ContainerData propertyDelegate) {
         super(PowerScreenHandlers.STIRLING_ENGINE, syncId);
         this.inventory = inventory;
         this.propertyDelegate = propertyDelegate;
 
-        checkSize(inventory, 1);
-        inventory.onOpen(playerInventory.player);
+        checkContainerSize(inventory, 1);
+        inventory.startOpen(playerInventory.player);
 
         // Add the fuel slot
         addSlot(new FuelSlot(inventory, 0, FUEL_SLOT_X, FUEL_SLOT_Y));
 
         // Add player inventory slots
-        addPlayerInventorySlots(playerInventory);
+        addInventorySlots(playerInventory);
 
         // Register property delegate for syncing
-        addProperties(propertyDelegate);
+        addDataSlots(propertyDelegate);
     }
 
-    private void addPlayerInventorySlots(PlayerInventory playerInventory) {
+    private void addInventorySlots(Inventory playerInventory) {
         // Main inventory (3 rows of 9)
         for (int row = 0; row < 3; row++) {
             for (int col = 0; col < 9; col++) {
@@ -87,43 +87,43 @@ public class StirlingEngineScreenHandler extends ScreenHandler {
     }
 
     @Override
-    public boolean canUse(PlayerEntity player) {
-        return inventory.canPlayerUse(player);
+    public boolean stillValid(Player player) {
+        return inventory.stillValid(player);
     }
 
     @Override
-    public ItemStack quickMove(PlayerEntity player, int slotIndex) {
+    public ItemStack quickMoveStack(Player player, int slotIndex) {
         Slot slot = slots.get(slotIndex);
-        if (!slot.hasStack()) {
+        if (!slot.hasItem()) {
             return ItemStack.EMPTY;
         }
 
-        ItemStack originalStack = slot.getStack();
+        ItemStack originalStack = slot.getItem();
         ItemStack newStack = originalStack.copy();
 
         // Slot 0: fuel slot, 1-27: player main inventory, 28-36: hotbar
         if (slotIndex == 0) {
             // Moving from fuel slot to player inventory
-            if (!insertItem(originalStack, 1, 37, true)) {
+            if (!moveItemStackTo(originalStack, 1, 37, true)) {
                 return ItemStack.EMPTY;
             }
-        } else if (isFuel(player, originalStack) && insertItem(originalStack, 0, 1, false)) {
+        } else if (isFuel(player, originalStack) && moveItemStackTo(originalStack, 0, 1, false)) {
             // Successfully moved fuel to fuel slot
-        } else if (!moveWithinPlayerInventory(originalStack, slotIndex)) {
+        } else if (!moveWithinInventory(originalStack, slotIndex)) {
             return ItemStack.EMPTY;
         }
 
         if (originalStack.isEmpty()) {
-            slot.setStack(ItemStack.EMPTY);
+            slot.set(ItemStack.EMPTY);
         } else {
-            slot.markDirty();
+            slot.setChanged();
         }
 
         if (originalStack.getCount() == newStack.getCount()) {
             return ItemStack.EMPTY;
         }
 
-        slot.onTakeItem(player, originalStack);
+        slot.onTake(player, originalStack);
         return newStack;
     }
 
@@ -131,20 +131,20 @@ public class StirlingEngineScreenHandler extends ScreenHandler {
      * Moves an item between main inventory and hotbar.
      * @return true if the item was successfully moved
      */
-    private boolean moveWithinPlayerInventory(ItemStack stack, int slotIndex) {
+    private boolean moveWithinInventory(ItemStack stack, int slotIndex) {
         if (slotIndex < 28) {
             // Move from main inventory to hotbar
-            return insertItem(stack, 28, 37, false);
+            return moveItemStackTo(stack, 28, 37, false);
         } else {
             // Move from hotbar to main inventory
-            return insertItem(stack, 1, 28, false);
+            return moveItemStackTo(stack, 1, 28, false);
         }
     }
 
     @Override
-    public void onClosed(PlayerEntity player) {
-        super.onClosed(player);
-        inventory.onClose(player);
+    public void removed(Player player) {
+        super.removed(player);
+        inventory.stopOpen(player);
     }
 
     // Getters for GUI rendering
@@ -219,25 +219,15 @@ public class StirlingEngineScreenHandler extends ScreenHandler {
      * Custom slot that only accepts fuel items.
      */
     private static class FuelSlot extends Slot {
-        FuelSlot(Inventory inventory, int index, int x, int y) {
+        FuelSlot(Container inventory, int index, int x, int y) {
             super(inventory, index, x, y);
-        }
-
-        @Override
-        public boolean canInsert(ItemStack stack) {
-            // Delegate to the block entity's isValid method if available
-            if (inventory instanceof StirlingEngineBlockEntity entity) {
-                return entity.isValid(0, stack);
-            }
-            // Client-side SimpleInventory - allow insertion, server validates
-            return true;
         }
     }
 
     /**
      * Checks if an item is valid fuel using the world's fuel registry.
      */
-    private static boolean isFuel(PlayerEntity player, ItemStack stack) {
-        return player.getEntityWorld().getFuelRegistry().getFuelTicks(stack) > 0;
+    private static boolean isFuel(Player player, ItemStack stack) {
+        return player.level().fuelValues().isFuel(stack);
     }
 }

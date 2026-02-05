@@ -1,7 +1,7 @@
 package com.logistics.power.registry;
 
 import com.logistics.core.registry.CoreItemGroups;
-import net.minecraft.item.ItemGroup;
+import net.minecraft.world.item.CreativeModeTab;
 
 public final class PowerItemGroups {
     private PowerItemGroups() {}
@@ -10,11 +10,11 @@ public final class PowerItemGroups {
         CoreItemGroups.registerEntries(PowerItemGroups::addEntries);
     }
 
-    private static void addEntries(ItemGroup.DisplayContext displayContext, ItemGroup.Entries entries) {
-        entries.add(PowerBlocks.REDSTONE_ENGINE);
-        entries.add(PowerBlocks.STIRLING_ENGINE);
-        entries.add(PowerBlocks.CREATIVE_ENGINE);
-        entries.add(PowerBlocks.CREATIVE_SINK);
+    private static void addEntries(CreativeModeTab.ItemDisplayParameters displayContext, CreativeModeTab.Output entries) {
+        entries.accept(PowerBlocks.REDSTONE_ENGINE);
+        entries.accept(PowerBlocks.STIRLING_ENGINE);
+        entries.accept(PowerBlocks.CREATIVE_ENGINE);
+        entries.accept(PowerBlocks.CREATIVE_SINK);
     }
 
     public static void initialize() {
