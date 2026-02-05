@@ -186,10 +186,16 @@ public class PipeBlockEntity extends BlockEntity implements PipeConnection, Ener
             }
 
             // Load module state
-            // Note: moduleState is final, so we merge the data instead of replacing
+            if (!moduleState.isEmpty()) {
+                for (String key : new java.util.ArrayList<>(moduleState.keySet())) {
+                    moduleState.remove(key);
+                }
+            }
             if (pipeData.contains("ModuleState")) {
                 pipeData.getCompound("ModuleState").ifPresent(stored -> {
-                    moduleState.merge(stored);
+                    for (String key : stored.keySet()) {
+                        moduleState.put(key, java.util.Objects.requireNonNull(stored.get(key)).copy());
+                    }
                 });
             }
 

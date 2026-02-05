@@ -46,15 +46,10 @@ public interface Module {
         return InteractionResult.PASS;
     }
 
-    /**
-     * Called when a wrench is used on the pipe.
-     * Implementers can check {@code player.isSneaking()} if different behavior
-     * is needed for sneak vs non-sneak interactions.
-     *
-     * @param ctx the pipe context
-     * @param player the player using the wrench
-     * @return the action result
-     */
+    default InteractionResult onUseWithoutItem(PipeContext ctx, UseOnContext usage) {
+        return InteractionResult.PASS;
+    }
+
     default InteractionResult onWrench(PipeContext ctx, Player player) {
         return InteractionResult.PASS;
     }

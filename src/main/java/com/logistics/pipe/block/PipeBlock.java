@@ -134,6 +134,7 @@ public class PipeBlock extends BaseEntityBlock implements Probeable, SimpleWater
     /**
      * Route item use interactions to pipe modules before default block handling.
      */
+    @Override
     protected InteractionResult useItemOn(
             ItemStack stack,
             BlockState state,
@@ -158,6 +159,26 @@ public class PipeBlock extends BaseEntityBlock implements Probeable, SimpleWater
         }
 
         return super.useItemOn(stack, state, world, pos, player, hand, hit);
+    }
+
+    @Override
+    protected InteractionResult useWithoutItem(BlockState state, Level world, BlockPos pos, Player player, BlockHitResult hit) {
+        if (pipe == null) {
+            return InteractionResult.PASS;
+        }
+
+        BlockEntity blockEntity = world.getBlockEntity(pos);
+        if (!(blockEntity instanceof PipeBlockEntity pipeEntity)) {
+            return InteractionResult.PASS;
+        }
+
+        PipeContext pipeContext = new PipeContext(world, pos, state, pipeEntity);
+        InteractionResult result = pipe.onUseWithoutItem(pipeContext, new UseOnContext(player, InteractionHand.MAIN_HAND, hit));
+        if (result != InteractionResult.PASS) {
+            return result;
+        }
+
+        return super.useWithoutItem(state, world, pos, player, hit);
     }
 
     @Override

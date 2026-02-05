@@ -300,6 +300,16 @@ public abstract class Pipe {
         return InteractionResult.PASS;
     }
 
+    public InteractionResult onUseWithoutItem(PipeContext ctx, net.minecraft.world.item.context.UseOnContext usage) {
+        for (Module module : modules) {
+            InteractionResult result = module.onUseWithoutItem(ctx, usage);
+            if (result != InteractionResult.PASS) {
+                return result;
+            }
+        }
+        return InteractionResult.PASS;
+    }
+
     public InteractionResult onWrench(PipeContext ctx, Player player) {
         for (Module module : modules) {
             InteractionResult result = module.onWrench(ctx, player);

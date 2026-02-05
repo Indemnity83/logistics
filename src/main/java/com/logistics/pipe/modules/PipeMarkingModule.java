@@ -39,21 +39,12 @@ public class PipeMarkingModule implements Module {
     }
 
     /**
-     * Apply or clear pipe markings based on the used item.
+     * Apply pipe markings with marking fluid bottles.
      */
     public InteractionResult onUseWithItem(PipeContext ctx, UseOnContext usage) {
         ItemStack stack = usage.getItemInHand();
         Player player = usage.getPlayer();
-        if (stack.isEmpty() && player != null && player.isShiftKeyDown()) {
-            if (!ctx.getString(this, COLOR_KEY, "").isEmpty()) {
-                if (ctx.world().isClientSide()) {
-                    return InteractionResult.SUCCESS;
-                }
-                ctx.remove(this, COLOR_KEY);
-                ctx.markDirtyAndSync();
-            }
-            return InteractionResult.SUCCESS;
-        }
+
         DyeColor color = PipeItems.getMarkingFluidColor(stack);
         if (color == null) {
             return InteractionResult.PASS;
@@ -80,6 +71,24 @@ public class PipeMarkingModule implements Module {
                 : EquipmentSlot.OFFHAND;
         stack.hurtAndBreak(1, player, slot);
         return InteractionResult.SUCCESS;
+    }
+
+    /**
+     * Clear pipe markings with shift+empty hand.
+     */
+    public InteractionResult onUseWithoutItem(PipeContext ctx, UseOnContext usage) {
+        Player player = usage.getPlayer();
+        if (player != null && player.isShiftKeyDown()) {
+            if (!ctx.getString(this, COLOR_KEY, "").isEmpty()) {
+                if (ctx.world().isClientSide()) {
+                    return InteractionResult.SUCCESS;
+                }
+                ctx.remove(this, COLOR_KEY);
+                ctx.markDirtyAndSync();
+            }
+            return InteractionResult.SUCCESS;
+        }
+        return InteractionResult.PASS;
     }
 
     /**
