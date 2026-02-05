@@ -94,7 +94,7 @@ public class MarkerBlock extends Block implements EntityBlock, Wrenchable {
     }
 
     @Override
-    protected InteractionResult useWithoutItem(BlockState state, Level world, BlockPos pos, Player player, net.minecraft.world.phys.BlockHitResult hit) {
+    public InteractionResult onWrench(Level world, BlockPos pos, Player player) {
         if (player.isShiftKeyDown()) {
             return InteractionResult.PASS;
         }
@@ -105,12 +105,6 @@ public class MarkerBlock extends Block implements EntityBlock, Wrenchable {
             }
         }
         return InteractionResult.SUCCESS;
-    }
-
-    @Override
-    public InteractionResult onWrench(Level world, BlockPos pos, Player player) {
-        // Wrench interaction - same as use
-        return useWithoutItem(world.getBlockState(pos), world, pos, player, null);
     }
 
     @Nullable @Override
