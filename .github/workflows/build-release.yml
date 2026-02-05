@@ -68,17 +68,14 @@ jobs:
           # Extract MC version from gradle.properties
           MC_VERSION="$(grep '^minecraft_version=' gradle.properties | cut -d'=' -f2)"
 
-          # Clean MC version for artifact naming (remove -snapshot-N suffix)
-          MC_VERSION_CLEAN="$(echo "$MC_VERSION" | sed 's/-snapshot-[0-9]\+$//')"
-
           # Get loader from matrix
           LOADER="${{ matrix.loader }}"
 
-          # Build full version string with SemVer build metadata: VERSION+mcMC_VERSION_CLEAN.LOADER
+          # Build full version string with SemVer build metadata: VERSION+mcMC_VERSION.LOADER
           # Tag: mc1.21.11-v0.4.0 (for release-please tracking)
           # Version: 0.4.0+mc1.21.11.fabric (SemVer build metadata for artifacts)
           # The +mc1.21.11.fabric is SemVer build metadata - platform and loader identifiers
-          FULL_VERSION="${VERSION}+mc${MC_VERSION_CLEAN}.${LOADER}"
+          FULL_VERSION="${VERSION}+mc${MC_VERSION}.${LOADER}"
 
           # Determine Gradle task based on MC version
           # MC 26.1+ is not obfuscated (use jar)
@@ -95,13 +92,30 @@ jobs:
             GRADLE_TASK="remapJar"
           fi
 
+          # Detect snapshot/alpha/beta versions for publishing configuration
+          if [[ "$MC_VERSION" =~ (snapshot|alpha|beta) ]]; then
+            IS_SNAPSHOT="true"
+            VERSION_TYPE="beta"
+            GAME_VERSION_FILTER="none"
+            MODRINTH_FEATURED="false"
+            echo "📦 Snapshot/alpha/beta detected - will publish as beta, not featured"
+          else
+            IS_SNAPSHOT="false"
+            VERSION_TYPE="release"
+            GAME_VERSION_FILTER="releases"
+            MODRINTH_FEATURED="true"
+          fi
+
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "full_version=$FULL_VERSION" >> "$GITHUB_OUTPUT"
           echo "minecraft_version=$MC_VERSION" >> "$GITHUB_OUTPUT"
-          echo "minecraft_version_clean=$MC_VERSION_CLEAN" >> "$GITHUB_OUTPUT"
           echo "loader=$LOADER" >> "$GITHUB_OUTPUT"
           echo "gradle_task=$GRADLE_TASK" >> "$GITHUB_OUTPUT"
+          echo "is_snapshot=$IS_SNAPSHOT" >> "$GITHUB_OUTPUT"
+          echo "version_type=$VERSION_TYPE" >> "$GITHUB_OUTPUT"
+          echo "game_version_filter=$GAME_VERSION_FILTER" >> "$GITHUB_OUTPUT"
+          echo "modrinth_featured=$MODRINTH_FEATURED" >> "$GITHUB_OUTPUT"
           echo "📦 Tag: $TAG"
           echo "📦 Version: $VERSION"
           echo "📦 Built for MC: $MC_VERSION"
@@ -109,6 +123,9 @@ jobs:
           echo "📦 Full version: $FULL_VERSION (will be passed to Gradle as MOD_VERSION)"
           echo "📦 Expected artifact: logistics-$FULL_VERSION.jar"
           echo "🔨 Gradle task: $GRADLE_TASK"
+          echo "📦 Version type: $VERSION_TYPE"
+          echo "📦 Game version filter: $GAME_VERSION_FILTER"
+          echo "📦 Modrinth featured: $MODRINTH_FEATURED"
 
       - name: Build with Gradle
         run: ./gradlew ${{ steps.version.outputs.gradle_task }} --console=plain
@@ -128,7 +145,7 @@ jobs:
         with:
           modrinth-id: ${{ vars.MODRINTH_PROJECT_ID }}
           modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
-          modrinth-featured: true
+          modrinth-featured: ${{ steps.version.outputs.modrinth_featured }}
 
           curseforge-id: ${{ vars.CURSEFORGE_PROJECT_ID }}
           curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
@@ -136,7 +153,8 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           github-tag: ${{ steps.version.outputs.tag }}
 
-          version-type: release
+          game-version-filter: ${{ steps.version.outputs.game_version_filter }}
+          version-type: ${{ steps.version.outputs.version_type }}
           name: "Logistics v${{ steps.version.outputs.version }} for ${{ steps.version.outputs.loader }} ${{ steps.version.outputs.minecraft_version }}"
           version: "${{ steps.version.outputs.full_version }}"
 
