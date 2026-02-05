@@ -5,6 +5,7 @@ import com.logistics.automation.laserquarry.LaserQuarryBlock;
 import com.logistics.automation.laserquarry.LaserQuarryConfig;
 import com.logistics.automation.laserquarry.entity.LaserQuarryBlockEntity;
 import com.logistics.core.render.ModelRegistry;
+import com.logistics.pipe.block.PipeBlock;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import net.minecraft.client.renderer.LightTexture;
@@ -18,6 +19,7 @@ import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.state.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
@@ -33,6 +35,14 @@ public class LaserQuarryBlockEntityRenderer implements BlockEntityRenderer<Laser
             Identifier.fromNamespaceAndPath(LogisticsMod.MOD_ID, "block/automation/laser_quarry_gantry_arm");
     private static final Identifier DRILL_MODEL_ID =
             Identifier.fromNamespaceAndPath(LogisticsMod.MOD_ID, "block/automation/laser_quarry_drill");
+    private static final Identifier LED_GREEN_MODEL_ID =
+            Identifier.fromNamespaceAndPath(LogisticsMod.MOD_ID, "block/automation/laser_quarry_led_green");
+    private static final Identifier LED_RED_MODEL_ID =
+            Identifier.fromNamespaceAndPath(LogisticsMod.MOD_ID, "block/automation/laser_quarry_led_red");
+    private static final Identifier DISPLAY_MODEL_ID =
+            Identifier.fromNamespaceAndPath(LogisticsMod.MOD_ID, "block/automation/laser_quarry_display");
+    private static final Identifier TOP_HATCH_MODEL_ID =
+            Identifier.fromNamespaceAndPath(LogisticsMod.MOD_ID, "block/automation/laser_quarry_top_hatch");
 
     public LaserQuarryBlockEntityRenderer(BlockEntityRendererProvider.Context ctx) {}
 
@@ -53,13 +63,12 @@ public class LaserQuarryBlockEntityRenderer implements BlockEntityRenderer<Laser
         state.quarryPos = entity.getBlockPos();
         state.phase = entity.getCurrentPhase();
         state.armState = entity.getArmState();
+        state.syncedArmSpeed = entity.getSyncedArmSpeed();
 
-        // Only render arm during mining phase when arm is initialized
-        state.shouldRenderArm = (state.phase == LaserQuarryBlockEntity.Phase.MINING) && entity.isArmInitialized();
-
-        if (!state.shouldRenderArm) {
-            return;
-        }
+        // LED state - always populated for LED rendering
+        state.energyLevel = (float) entity.getEnergyLevel();
+        state.isFinished = entity.isFinished();
+        state.isWorking = !state.isFinished && state.energyLevel > 0;
 
         Level level = entity.getLevel();
         if (level == null) {
@@ -74,8 +83,27 @@ public class LaserQuarryBlockEntityRenderer implements BlockEntityRenderer<Laser
             return;
         }
 
-        // Get facing direction
+        // Get facing direction for both arm rendering and LED orientation
         state.facing = LaserQuarryBlock.getMiningDirection(blockState);
+        state.blockFacing = state.facing;
+
+        // Sample light at quarry position for display overlay
+        state.quarryLight = state.lightCoords; // Use base light from quarry position
+
+        // Check for pipe connected above by checking block type
+        BlockPos abovePos = state.quarryPos.above();
+        BlockState aboveState = level.getBlockState(abovePos);
+        state.hasPipeAbove = aboveState.getBlock() instanceof PipeBlock;
+        int blockLightAbove = level.getBrightness(net.minecraft.world.level.LightLayer.BLOCK, abovePos);
+        int skyLightAbove = level.getBrightness(net.minecraft.world.level.LightLayer.SKY, abovePos);
+        state.aboveLight = LightTexture.pack(blockLightAbove, skyLightAbove);
+
+        // Only render arm during mining phase when arm is initialized
+        state.shouldRenderArm = (state.phase == LaserQuarryBlockEntity.Phase.MINING) && entity.isArmInitialized();
+
+        if (!state.shouldRenderArm) {
+            return;
+        }
 
         // Calculate frame bounds - use custom bounds if available, otherwise calculate from facing
         BlockPos quarryPos = state.quarryPos;
@@ -128,6 +156,10 @@ public class LaserQuarryBlockEntityRenderer implements BlockEntityRenderer<Laser
     @Override
     public void submit(
             LaserQuarryRenderState state, PoseStack matrices, SubmitNodeCollector queue, CameraRenderState cameraState) {
+        // Always render LEDs and overlays
+        renderLEDs(state, matrices, queue);
+        renderTopHatch(state, matrices, queue);
+
         if (!state.shouldRenderArm) {
             return;
         }
@@ -304,6 +336,95 @@ public class LaserQuarryBlockEntityRenderer implements BlockEntityRenderer<Laser
 
             matrices.popPose();
         }
+    }
+
+    private void renderLEDs(LaserQuarryRenderState state, PoseStack matrices, SubmitNodeCollector queue) {
+        RenderType renderLayer = RenderTypes.translucentMovingBlock();
+
+        // Update green LED fade effect
+        state.updateGreenLedBrightness();
+
+        // Calculate rotation based on block facing - must match blockstate JSON rotations
+        // The LED model faces north (-Z), same as the block model's front face
+        float rotation =
+                switch (state.blockFacing) {
+                    case NORTH -> 180f; // blockstate y: 180
+                    case SOUTH -> 0f; // blockstate y: 0
+                    case WEST -> 90f; // blockstate y: 90
+                    case EAST -> 270f; // blockstate y: 270
+                    default -> 0f;
+                };
+
+        // Green LED - instant on, gradual fade off over 12 ticks
+        if (state.greenLedBrightness > 0) {
+            BlockStateModel greenLed = ModelRegistry.getModel(LED_GREEN_MODEL_ID);
+            if (greenLed != null) {
+                matrices.pushPose();
+                matrices.translate(0.5, 0.5, 0.5);
+                matrices.mulPose(Axis.YP.rotationDegrees(rotation));
+                matrices.translate(-0.5, -0.5, -0.5);
+                // Brightness scales with fade (0-15)
+                int brightness = (int) (state.greenLedBrightness * 15);
+                int light = (brightness << 4) | (brightness << 20);
+                queue.submitBlockModel(
+                        matrices, renderLayer, greenLed, 1.0f, 1.0f, 1.0f, light, OverlayTexture.NO_OVERLAY, 0);
+                matrices.popPose();
+            }
+        }
+
+        // Red LED - brightness proportional to energy level (0-15)
+        if (state.energyLevel > 0) {
+            BlockStateModel redLed = ModelRegistry.getModel(LED_RED_MODEL_ID);
+            if (redLed != null) {
+                matrices.pushPose();
+                matrices.translate(0.5, 0.5, 0.5);
+                matrices.mulPose(Axis.YP.rotationDegrees(rotation));
+                matrices.translate(-0.5, -0.5, -0.5);
+                // Brightness scaled by energy level (0-15)
+                int brightness = (int) (state.energyLevel * 15);
+                int light = (brightness << 4) | (brightness << 20);
+                queue.submitBlockModel(
+                        matrices, renderLayer, redLed, 1.0f, 1.0f, 1.0f, light, OverlayTexture.NO_OVERLAY, 0);
+                matrices.popPose();
+            }
+        }
+
+        // Display overlay - scrolling data screen (animated via .mcmeta)
+        // Follows green LED: on when working, fades out when stopped
+        if (state.greenLedBrightness > 0) {
+            BlockStateModel display = ModelRegistry.getModel(DISPLAY_MODEL_ID);
+            if (display != null) {
+                matrices.pushPose();
+                matrices.translate(0.5, 0.5, 0.5);
+                matrices.mulPose(Axis.YP.rotationDegrees(rotation));
+                matrices.translate(-0.5, -0.5, -0.5);
+                // Scale brightness with fade (min 8 at full brightness, scales down to 0)
+                int brightness = Math.max(0, (int) (state.greenLedBrightness * 8));
+                int light = (brightness << 4) | (brightness << 20);
+                queue.submitBlockModel(
+                        matrices, renderLayer, display, 1.0f, 1.0f, 1.0f, light, OverlayTexture.NO_OVERLAY, 0);
+                matrices.popPose();
+            }
+        }
+    }
+
+    private void renderTopHatch(LaserQuarryRenderState state, PoseStack matrices, SubmitNodeCollector queue) {
+        if (!state.hasPipeAbove) {
+            return;
+        }
+
+        BlockStateModel hatch = ModelRegistry.getModel(TOP_HATCH_MODEL_ID);
+        if (hatch == null) {
+            return;
+        }
+
+        RenderType renderLayer = RenderTypes.translucentMovingBlock();
+        matrices.pushPose();
+        // No rotation needed - top face is always up
+        // Use light from above the quarry where the hatch is visible
+        queue.submitBlockModel(
+                matrices, renderLayer, hatch, 1.0f, 1.0f, 1.0f, state.aboveLight, OverlayTexture.NO_OVERLAY, 0);
+        matrices.popPose();
     }
 
     @Override
