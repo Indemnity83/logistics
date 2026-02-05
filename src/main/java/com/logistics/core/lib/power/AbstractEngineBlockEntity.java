@@ -549,8 +549,8 @@ public abstract class AbstractEngineBlockEntity extends BlockEntity implements E
     protected void loadAdditional(ValueInput view) {
         view.read("Engine", CompoundTag.CODEC).ifPresent(engineData -> {
             energy = engineData.getLong("energy").orElse(0L);
-            temperature = engineData.getDoubleOr("heat", 0.0); // getDouble with default
-            progress = engineData.getFloatOr("progress", 0f); // getFloat with default
+            temperature = engineData.getDouble("heat").orElse(0.0);
+            progress = engineData.getFloat("progress").orElse(0f);
             cyclePhase = CyclePhase.fromOrdinal(engineData.getInt("cyclePhase").orElse(0));
             heatStage = HeatStage.fromOrdinal(engineData.getInt("stage").orElse(0));
         });
