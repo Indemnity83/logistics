@@ -340,15 +340,6 @@ public class PipeBlockEntity extends BlockEntity implements PipeConnection, Ener
     }
 
     private float getInitialSpeed() {
-        if (level == null) {
-            return LogisticsPipe.CONFIG.ITEM_MIN_SPEED;
-        }
-
-        BlockState state = getBlockState();
-        if (state.getBlock() instanceof PipeBlock pipeBlock && pipeBlock.getPipe() != null) {
-            return LogisticsPipe.CONFIG.ITEM_MIN_SPEED;
-        }
-
         return LogisticsPipe.CONFIG.ITEM_MIN_SPEED;
     }
 

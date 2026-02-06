@@ -114,11 +114,6 @@ public class PipeBlock extends BaseEntityBlock implements Probeable, SimpleWater
     }
 
     @Override
-    public SoundType getSoundType(BlockState state) {
-        return SoundType.METAL;
-    }
-
-    @Override
     public BlockState playerWillDestroy(
             Level level, BlockPos pos, BlockState state, net.minecraft.world.entity.player.Player player) {
         // Drop traveling items when pipe is broken by player

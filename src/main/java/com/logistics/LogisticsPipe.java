@@ -29,7 +29,12 @@ import net.minecraft.world.level.material.MapColor;
 import org.jetbrains.annotations.Nullable;
 import team.reborn.energy.api.EnergyStorage;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap {
     private static final LogisticsPipe INSTANCE = new LogisticsPipe();
@@ -101,6 +106,8 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
     }
 
     public static final class BLOCK {
+        private BLOCK() {}
+
         public static final Block STONE_TRANSPORT_PIPE = INSTANCE.registerBlockWithItem("stone_transport_pipe",
             props -> new PipeBlock(createPipeProperties(props), PipeTypes.STONE_TRANSPORT_PIPE));
         public static final Block ITEM_PASSTHROUGH_PIPE = INSTANCE.registerBlockWithItem("item_passthrough_pipe",
@@ -120,8 +127,6 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
             props -> new PipeBlock(createPipeProperties(props), PipeTypes.ITEM_INSERTION));
         public static final Block ITEM_VOID_PIPE = INSTANCE.registerBlockWithItem("item_void_pipe",
             props -> new PipeBlock(createPipeProperties(props), PipeTypes.ITEM_VOID));
-
-        private BLOCK() {}
     }
 
     public static final class ENTITY {

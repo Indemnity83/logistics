@@ -43,6 +43,8 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
     }
 
     public static final class BLOCK {
+        private BLOCK() {}
+
         public static final Block REDSTONE_ENGINE = INSTANCE.registerBlockWithItem("redstone_engine",
             props -> new RedstoneEngineBlock(props.strength(5.0f).sound(SoundType.WOOD).noOcclusion()));
         public static final Block STIRLING_ENGINE = INSTANCE.registerBlockWithItem("stirling_engine",
@@ -51,9 +53,6 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
             props -> new CreativeEngineBlock(props.strength(5.0f).sound(SoundType.STONE).noOcclusion()));
         public static final Block CREATIVE_SINK = INSTANCE.registerBlockWithItem("creative_sink",
             props -> new CreativeSinkBlock(props.strength(5.0f).sound(SoundType.STONE)));
-
-        private BLOCK() {}
-
     }
 
     public static final class ENTITY {

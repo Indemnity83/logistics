@@ -52,11 +52,6 @@ public class LaserQuarryBlock extends BaseEntityBlock implements Probeable {
         return RenderShape.MODEL;
     }
 
-    @Override
-    public SoundType getSoundType(BlockState state) {
-        return SoundType.STONE;
-    }
-
     @Nullable @Override
     public BlockState getStateForPlacement(BlockPlaceContext ctx) {
         // FACING is the direction the quarry mines (the direction the player is looking)

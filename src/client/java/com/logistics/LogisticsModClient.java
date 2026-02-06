@@ -19,16 +19,16 @@ public class LogisticsModClient implements ClientModInitializer {
     }
 
     private static DomainBootstrap createClientBootstrap(DomainBootstrap serverBootstrap) {
-        String domainName = serverBootstrap.getClass().getSimpleName();
-        return switch (domainName) {
-            case "LogisticsCore" -> new LogisticsCoreClient();
-            case "LogisticsPipe" -> new LogisticsPipeClient();
-            case "LogisticsPower" -> new LogisticsPowerClient();
-            case "LogisticAutomation" -> new LogisticsAutomationClient();
-            default -> {
-                LogisticsMod.LOGGER.debug("No client bootstrap for domain: {}", domainName);
-                yield null;
-            }
-        };
+        if (serverBootstrap instanceof LogisticsCore) {
+            return new LogisticsCoreClient();
+        } else if (serverBootstrap instanceof LogisticsPipe) {
+            return new LogisticsPipeClient();
+        } else if (serverBootstrap instanceof LogisticsPower) {
+            return new LogisticsPowerClient();
+        } else if (serverBootstrap instanceof LogisticsAutomation) {
+            return new LogisticsAutomationClient();
+        }
+        LogisticsMod.LOGGER.debug("No client bootstrap for domain: {}", serverBootstrap.getClass().getSimpleName());
+        return null;
     }
 }

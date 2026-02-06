@@ -32,7 +32,7 @@ public class LogisticsMod implements ModInitializer {
 
     @Override
     public void onInitialize() {
-        LOGGER.info("Initializing " + MOD_ID);
+        LOGGER.info("Initializing {}", MOD_ID);
 
         for (DomainBootstrap bootstrap : DomainBootstraps.all()) {
             bootstrap.initCommon();
@@ -49,7 +49,8 @@ public class LogisticsMod implements ModInitializer {
     //  Trade-off: Slash aids internal organization but is unconventional for mod IDs.
     //  Changing requires alias migration for existing worlds.
     @NonNull protected Identifier getDomainIdentifier(String name) {
-        return getIdentifier(domain() + "/" + name);
+        String d = domain();
+        return getIdentifier(d.isEmpty() ? name : d + "/" + name);
     }
 
     protected Item registerItem(String name, Function<Item.Properties, Item> itemFactory) {
@@ -82,8 +83,8 @@ public class LogisticsMod implements ModInitializer {
             FabricBlockEntityTypeBuilder.Factory<T> factory,
             Block... blocks) {
         Identifier identifier = getDomainIdentifier(name);
-        BlockEntityType<T> blockEntities = FabricBlockEntityTypeBuilder.create(factory, blocks).build();
-        return Registry.register(BuiltInRegistries.BLOCK_ENTITY_TYPE, identifier, blockEntities);
+        BlockEntityType<T> blockEntityType = FabricBlockEntityTypeBuilder.create(factory, blocks).build();
+        return Registry.register(BuiltInRegistries.BLOCK_ENTITY_TYPE, identifier, blockEntityType);
     }
 
     protected void registerItemAlias(String name, Item item) {
