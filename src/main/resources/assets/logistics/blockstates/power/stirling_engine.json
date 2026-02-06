@@ -1,7 +1,7 @@
 {
   "variants": {
     "": {
-      "model": "logistics:block/power/engine_empty"
+      "model": "logistics:block/power/stirling_engine"
     }
   }
 }
