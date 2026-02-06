@@ -38,6 +38,8 @@ import java.util.Map;
 
 public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap {
     private static final LogisticsPipe INSTANCE = new LogisticsPipe();
+    private static final Map<Item, DyeColor> MARKING_FLUID_ITEM_COLORS = new HashMap<>();
+    private static final Map<DyeColor, Item> MARKING_FLUID_ITEMS = registerMarkingFluidItems();
 
     @Override
     protected String domain() {
@@ -177,8 +179,6 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
         public static final float PIPE_MAX_SPEED = 0.16f;
 
         private static final int MARKING_FLUID_USES = 16;
-        private static final Map<Item, DyeColor> MARKING_FLUID_ITEM_COLORS = new HashMap<>();
-        private static final Map<DyeColor, Item> MARKING_FLUID_ITEMS = registerMarkingFluidItems();
 
         private CONFIG() {}
     }
@@ -206,17 +206,17 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
             Item item = INSTANCE.registerItem(name, props ->
                 new Item(props.stacksTo(1).durability(CONFIG.MARKING_FLUID_USES)));
             items.put(color, item);
-            CONFIG.MARKING_FLUID_ITEM_COLORS.put(item, color);
+            MARKING_FLUID_ITEM_COLORS.put(item, color);
         }
         return Collections.unmodifiableMap(items);
     }
 
     public static Item getMarkingFluidItem(DyeColor color) {
-        return CONFIG.MARKING_FLUID_ITEMS.get(color);
+        return MARKING_FLUID_ITEMS.get(color);
     }
 
     public static @Nullable DyeColor getMarkingFluidColor(ItemStack stack) {
-        return CONFIG.MARKING_FLUID_ITEM_COLORS.get(stack.getItem());
+        return MARKING_FLUID_ITEM_COLORS.get(stack.getItem());
     }
 
     private void registerLegacyAliases() {
@@ -225,7 +225,7 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
 
         for (DyeColor color : DyeColor.values()) {
             String name = "marking_fluid_" + color.getName();
-            registerItemAlias(name, CONFIG.MARKING_FLUID_ITEMS.get(color));
+            registerItemAlias(name, MARKING_FLUID_ITEMS.get(color));
         }
 
         Identifier newMenuId = BuiltInRegistries.MENU.getKey(SCREEN.ITEM_FILTER);

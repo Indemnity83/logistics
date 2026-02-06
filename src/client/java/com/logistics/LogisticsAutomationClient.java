@@ -20,7 +20,7 @@ public final class LogisticsAutomationClient implements DomainBootstrap {
 
     @Override
     public void initCommon() {
-        // Client-only bootstrap; common init handled in LogisticAutomation
+        // Client-only bootstrap; common init handled in LogisticsAutomation
     }
 
     @Override
