@@ -6,7 +6,7 @@ import net.fabricmc.fabric.api.client.rendering.v1.BlockEntityRendererRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.BlockRenderLayerMap;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 
-import static com.mojang.text2speech.Narrator.LOGGER;
+import static com.logistics.LogisticsMod.LOGGER;
 
 public final class LogisticsCoreClient implements DomainBootstrap {
     public LogisticsCoreClient() {

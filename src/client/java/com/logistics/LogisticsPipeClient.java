@@ -7,7 +7,7 @@ import com.logistics.pipe.screen.ItemFilterScreen;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 
-import static com.mojang.text2speech.Narrator.LOGGER;
+import static com.logistics.LogisticsMod.LOGGER;
 
 public final class LogisticsPipeClient implements DomainBootstrap {
     public LogisticsPipeClient() {

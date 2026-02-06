@@ -1,7 +1,7 @@
 package com.logistics.automation.laserquarry;
 
 import com.logistics.automation.laserquarry.entity.LaserQuarryBlockEntity;
-import com.logistics.LogisticAutomation;
+import com.logistics.LogisticsAutomation;
 import com.logistics.core.lib.block.Probeable;
 import com.logistics.core.lib.support.ProbeResult;
 import com.logistics.core.marker.MarkerManager;
@@ -96,7 +96,7 @@ public class LaserQuarryBlock extends BaseEntityBlock implements Probeable {
     @Nullable @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
             Level world, BlockState state, BlockEntityType<T> type) {
-        return createTickerHelper(type, LogisticAutomation.ENTITY.LASER_QUARRY_BLOCK_ENTITY, LaserQuarryBlockEntity::tick);
+        return createTickerHelper(type, LogisticsAutomation.ENTITY.LASER_QUARRY_BLOCK_ENTITY, LaserQuarryBlockEntity::tick);
     }
 
     @Override

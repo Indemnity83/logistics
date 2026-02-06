@@ -14,8 +14,8 @@ import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import team.reborn.energy.api.EnergyStorage;
 
-public final class LogisticAutomation extends LogisticsMod implements DomainBootstrap {
-    private static final LogisticAutomation INSTANCE = new LogisticAutomation();
+public final class LogisticsAutomation extends LogisticsMod implements DomainBootstrap {
+    private static final LogisticsAutomation INSTANCE = new LogisticsAutomation();
 
     @Override
     protected String domain() {
@@ -37,7 +37,7 @@ public final class LogisticAutomation extends LogisticsMod implements DomainBoot
         // Register pipe connectivity for quarry (only accepts connections from above)
         PipeConnectionRegistry.SIDED.registerForBlockEntity(
                 (quarry, direction) -> direction == Direction.UP ? quarry : null,
-                LogisticAutomation.ENTITY.LASER_QUARRY_BLOCK_ENTITY);
+                LogisticsAutomation.ENTITY.LASER_QUARRY_BLOCK_ENTITY);
 
         ServerWorldEvents.UNLOAD.register((server, world) -> LaserQuarryBlockEntity.clearActiveQuarries(world));
     }

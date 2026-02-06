@@ -32,7 +32,7 @@ public class LogisticsMod implements ModInitializer {
 
     @Override
     public void onInitialize() {
-        LOGGER.info("Initializing" + MOD_ID);
+        LOGGER.info("Initializing " + MOD_ID);
 
         for (DomainBootstrap bootstrap : DomainBootstraps.all()) {
             bootstrap.initCommon();

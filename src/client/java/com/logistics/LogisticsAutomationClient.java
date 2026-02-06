@@ -11,7 +11,7 @@ import net.fabricmc.fabric.api.client.rendering.v1.BlockEntityRendererRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.BlockRenderLayerMap;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 
-import static com.mojang.text2speech.Narrator.LOGGER;
+import static com.logistics.LogisticsMod.LOGGER;
 
 public final class LogisticsAutomationClient implements DomainBootstrap {
     public LogisticsAutomationClient() {
@@ -27,10 +27,10 @@ public final class LogisticsAutomationClient implements DomainBootstrap {
     public void initClient() {
         LOGGER.info("Registering automation (client)");
         // Register quarry frame for cutout rendering (transparency support)
-        BlockRenderLayerMap.putBlock(LogisticAutomation.BLOCK.LASER_QUARRY_FRAME, ChunkSectionLayer.CUTOUT);
+        BlockRenderLayerMap.putBlock(LogisticsAutomation.BLOCK.LASER_QUARRY_FRAME, ChunkSectionLayer.CUTOUT);
 
         BlockEntityRendererRegistry.register(
-                LogisticAutomation.ENTITY.LASER_QUARRY_BLOCK_ENTITY, LaserQuarryBlockEntityRenderer::new);
+                LogisticsAutomation.ENTITY.LASER_QUARRY_BLOCK_ENTITY, LaserQuarryBlockEntityRenderer::new);
 
         // No screen handler for laser quarry (no GUI)
 
