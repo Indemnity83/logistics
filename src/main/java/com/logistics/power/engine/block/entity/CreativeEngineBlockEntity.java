@@ -2,7 +2,7 @@ package com.logistics.power.engine.block.entity;
 
 import com.logistics.core.lib.power.AbstractEngineBlockEntity;
 import com.logistics.power.engine.block.CreativeEngineBlock;
-import com.logistics.power.registry.PowerBlockEntities;
+import com.logistics.LogisticsPower;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -32,7 +32,7 @@ public class CreativeEngineBlockEntity extends AbstractEngineBlockEntity {
     // ==================== Constructor & Ticker ====================
 
     public CreativeEngineBlockEntity(BlockPos pos, BlockState state) {
-        super(PowerBlockEntities.CREATIVE_ENGINE_BLOCK_ENTITY, pos, state);
+        super(LogisticsPower.ENTITY.CREATIVE_ENGINE_BLOCK_ENTITY, pos, state);
     }
 
     public static void tick(Level world, BlockPos pos, BlockState state, CreativeEngineBlockEntity entity) {

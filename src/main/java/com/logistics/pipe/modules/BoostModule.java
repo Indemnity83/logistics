@@ -1,8 +1,8 @@
 package com.logistics.pipe.modules;
 
 import com.logistics.LogisticsMod;
+import com.logistics.LogisticsPipe;
 import com.logistics.pipe.PipeContext;
-import com.logistics.pipe.runtime.PipeConfig;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
@@ -13,7 +13,7 @@ public class BoostModule implements Module {
 
     public BoostModule(float accelerationRate) {
         this.accelerationRate = accelerationRate;
-        this.maxSpeed = PipeConfig.PIPE_MAX_SPEED * 4.0f;
+        this.maxSpeed = LogisticsPipe.CONFIG.PIPE_MAX_SPEED * 4.0f;
     }
 
     @Override

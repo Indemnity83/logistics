@@ -1,5 +1,6 @@
 package com.logistics.pipe.runtime;
 
+import com.logistics.LogisticsPipe;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.Direction;
@@ -20,7 +21,7 @@ public class TravelingItem {
                             .xmap(Direction::from3DDataValue, Direction::get3DDataValue)
                             .forGetter(t -> t.direction),
                     Codec.FLOAT
-                            .optionalFieldOf("speed", PipeConfig.ITEM_MIN_SPEED)
+                            .optionalFieldOf("speed", LogisticsPipe.CONFIG.ITEM_MIN_SPEED)
                             .forGetter(t -> t.speed),
                     Codec.FLOAT.optionalFieldOf("progress", 0.0f).forGetter(t -> t.progress),
                     Codec.BOOL.optionalFieldOf("routed", false).forGetter(t -> t.routed))
@@ -73,8 +74,8 @@ public class TravelingItem {
             speed -= speed * dragCoefficient;
         }
 
-        if (speed < PipeConfig.ITEM_MIN_SPEED) {
-            speed = PipeConfig.ITEM_MIN_SPEED;
+        if (speed < LogisticsPipe.CONFIG.ITEM_MIN_SPEED) {
+            speed = LogisticsPipe.CONFIG.ITEM_MIN_SPEED;
         } else if (!deceleratingToMax && speed > maxSpeed) {
             speed = maxSpeed;
         }

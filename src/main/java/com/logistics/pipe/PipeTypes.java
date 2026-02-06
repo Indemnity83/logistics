@@ -1,5 +1,6 @@
 package com.logistics.pipe;
 
+import com.logistics.LogisticsPipe;
 import com.logistics.pipe.modules.BlockConnectionModule;
 import com.logistics.pipe.modules.BoostModule;
 import com.logistics.pipe.modules.ExtractionModule;
@@ -11,7 +12,6 @@ import com.logistics.pipe.modules.PipeOnlyModule;
 import com.logistics.pipe.modules.TransportModule;
 import com.logistics.pipe.modules.VoidModule;
 import com.logistics.pipe.modules.WeatheringModule;
-import com.logistics.pipe.runtime.PipeConfig;
 
 public final class PipeTypes {
     // -----------------
@@ -20,14 +20,14 @@ public final class PipeTypes {
 
     // Early transport pipe - slow item movement.
     public static final Pipe STONE_TRANSPORT_PIPE =
-            new Pipe(new TransportModule(PipeConfig.ITEM_MIN_SPEED, PipeConfig.DRAG_COEFFICIENT)) {};
+            new Pipe(new TransportModule(LogisticsPipe.CONFIG.ITEM_MIN_SPEED, LogisticsPipe.CONFIG.DRAG_COEFFICIENT)) {};
 
     // Base transport pipe - simple item movement.
     // NOTE: No special connection restrictions; this is the default backbone pipe.
     public static final Pipe COPPER_TRANSPORT_PIPE = new Pipe(new WeatheringModule(), new PipeMarkingModule()) {};
 
     // Accelerator transport - accelerates items when powered by redstone.
-    public static final Pipe GOLD_TRANSPORT = new Pipe(new BoostModule(PipeConfig.ACCELERATION_RATE)) {};
+    public static final Pipe GOLD_TRANSPORT = new Pipe(new BoostModule(LogisticsPipe.CONFIG.ACCELERATION_RATE)) {};
 
     // Item extractor - pulls items from an adjacent inventory
     public static final Pipe ITEM_EXTRACTOR =

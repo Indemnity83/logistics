@@ -4,7 +4,7 @@ import com.logistics.core.lib.block.Probeable;
 import com.logistics.core.lib.block.Wrenchable;
 import com.logistics.core.lib.support.ProbeResult;
 import com.logistics.power.block.entity.CreativeSinkBlockEntity;
-import com.logistics.power.registry.PowerBlockEntities;
+import com.logistics.LogisticsPower;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -13,11 +13,9 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.RenderShape;
-import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.block.state.BlockBehaviour.Properties;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
@@ -34,7 +32,7 @@ public class CreativeSinkBlock extends BaseEntityBlock implements Probeable, Wre
     public static final MapCodec<CreativeSinkBlock> CODEC = simpleCodec(CreativeSinkBlock::new);
 
     public CreativeSinkBlock(Properties settings) {
-        super(settings.strength(1.0f).sound(SoundType.STONE));
+        super(settings);
     }
 
     @Override
@@ -59,7 +57,7 @@ public class CreativeSinkBlock extends BaseEntityBlock implements Probeable, Wre
         if (world.isClientSide()) {
             return null;
         }
-        return createTickerHelper(type, PowerBlockEntities.CREATIVE_SINK_BLOCK_ENTITY, CreativeSinkBlockEntity::tick);
+        return createTickerHelper(type, LogisticsPower.ENTITY.CREATIVE_SINK_BLOCK_ENTITY, CreativeSinkBlockEntity::tick);
     }
 
     @Nullable @Override

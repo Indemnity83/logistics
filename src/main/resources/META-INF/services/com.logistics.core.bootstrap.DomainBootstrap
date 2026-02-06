@@ -1,4 +1,4 @@
-com.logistics.core.bootstrap.CoreDomainBootstrap
-com.logistics.pipe.registry.PipeDomainBootstrap
-com.logistics.automation.registry.AutomationDomainBootstrap
-com.logistics.power.PowerDomainBootstrap
+com.logistics.LogisticsCore
+com.logistics.LogisticsPipe
+com.logistics.LogisticsPower
+com.logistics.LogisticsAutomation

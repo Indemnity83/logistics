@@ -1,11 +1,11 @@
 package com.logistics.pipe.render;
 
+import com.logistics.LogisticsPipe;
 import com.logistics.core.render.ModelRegistry;
 import com.logistics.pipe.Pipe;
 import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.block.PipeBlock;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
-import com.logistics.pipe.runtime.PipeConfig;
 import com.logistics.pipe.runtime.TravelingItem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
@@ -62,9 +62,9 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
         // Get pipe properties for speed calculations
         BlockState blockState = entity.getBlockState();
         state.blockState = blockState;
-        float maxSpeed = PipeConfig.PIPE_MAX_SPEED;
+        float maxSpeed = LogisticsPipe.CONFIG.PIPE_MAX_SPEED;
         float accelerationRate = 0f;
-        float dragCoefficient = PipeConfig.DRAG_COEFFICIENT;
+        float dragCoefficient = LogisticsPipe.CONFIG.DRAG_COEFFICIENT;
 
         if (blockState.getBlock() instanceof PipeBlock pipeBlock) {
             if (pipeBlock.getPipe() != null && entity.getLevel() != null) {
@@ -187,8 +187,8 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
 
             // Speed at the end of this partial tick
             float interpolatedSpeed = itemState.currentSpeed + speedChange;
-            if (interpolatedSpeed < PipeConfig.ITEM_MIN_SPEED) {
-                interpolatedSpeed = PipeConfig.ITEM_MIN_SPEED;
+            if (interpolatedSpeed < LogisticsPipe.CONFIG.ITEM_MIN_SPEED) {
+                interpolatedSpeed = LogisticsPipe.CONFIG.ITEM_MIN_SPEED;
             } else if (!deceleratingToMax && interpolatedSpeed > state.maxSpeed) {
                 interpolatedSpeed = state.maxSpeed;
             }

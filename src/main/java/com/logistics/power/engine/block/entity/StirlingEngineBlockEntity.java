@@ -5,7 +5,7 @@ import com.logistics.core.lib.support.ProbeResult;
 import com.logistics.power.engine.PIDController;
 import com.logistics.power.engine.block.StirlingEngineBlock;
 import com.logistics.power.engine.ui.StirlingEngineScreenHandler;
-import com.logistics.power.registry.PowerBlockEntities;
+import com.logistics.LogisticsPower;
 import net.fabricmc.fabric.api.menu.v1.ExtendedMenuProvider;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -123,7 +123,7 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
     // ==================== Constructor & Ticker ====================
 
     public StirlingEngineBlockEntity(BlockPos pos, BlockState state) {
-        super(PowerBlockEntities.STIRLING_ENGINE_BLOCK_ENTITY, pos, state);
+        super(LogisticsPower.ENTITY.STIRLING_ENGINE_BLOCK_ENTITY, pos, state);
     }
 
     public static void tick(Level world, BlockPos pos, BlockState state, StirlingEngineBlockEntity entity) {
