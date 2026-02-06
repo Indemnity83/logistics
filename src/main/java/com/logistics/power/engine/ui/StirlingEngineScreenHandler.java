@@ -1,7 +1,7 @@
 package com.logistics.power.engine.ui;
 
+import com.logistics.LogisticsPower;
 import com.logistics.power.engine.block.entity.StirlingEngineBlockEntity;
-import com.logistics.power.registry.PowerScreenHandlers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
@@ -51,7 +51,7 @@ public class StirlingEngineScreenHandler extends AbstractContainerMenu {
 
     private StirlingEngineScreenHandler(
             int syncId, Inventory playerInventory, Container inventory, ContainerData propertyDelegate) {
-        super(PowerScreenHandlers.STIRLING_ENGINE, syncId);
+        super(LogisticsPower.SCREEN.STIRLING_ENGINE, syncId);
         this.inventory = inventory;
         this.propertyDelegate = propertyDelegate;
 

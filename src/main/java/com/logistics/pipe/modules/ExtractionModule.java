@@ -1,9 +1,9 @@
 package com.logistics.pipe.modules;
 
 import com.logistics.LogisticsMod;
+import com.logistics.LogisticsPipe;
 import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
-import com.logistics.pipe.runtime.PipeConfig;
 import com.logistics.pipe.runtime.TravelingItem;
 import java.util.List;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
@@ -216,7 +216,7 @@ public class ExtractionModule implements Module {
                 long extracted = view.extract(variant, maxItems, transaction);
                 if (extracted > 0) {
                     ItemStack stack = variant.toStack((int) extracted);
-                    TravelingItem item = new TravelingItem(stack, direction.getOpposite(), PipeConfig.ITEM_MIN_SPEED);
+                    TravelingItem item = new TravelingItem(stack, direction.getOpposite(), LogisticsPipe.CONFIG.ITEM_MIN_SPEED);
                     ctx.blockEntity().forceAddItem(item, direction);
                     transaction.commit();
                     return true;

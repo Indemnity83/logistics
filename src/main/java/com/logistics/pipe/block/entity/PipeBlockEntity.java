@@ -6,8 +6,7 @@ import com.logistics.core.lib.power.AcceptsLowTierEnergy;
 import com.logistics.pipe.Pipe;
 import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.block.PipeBlock;
-import com.logistics.pipe.registry.PipeBlockEntities;
-import com.logistics.pipe.runtime.PipeConfig;
+import com.logistics.LogisticsPipe;
 import com.logistics.pipe.runtime.PipeRuntime;
 import com.logistics.pipe.runtime.TravelingItem;
 import java.util.ArrayList;
@@ -46,7 +45,7 @@ public class PipeBlockEntity extends BlockEntity implements PipeConnection, Ener
     private final PipeConnection.Type[] connectionTypes = new PipeConnection.Type[6];
 
     public PipeBlockEntity(BlockPos pos, BlockState state) {
-        super(PipeBlockEntities.PIPE_BLOCK_ENTITY, pos, state);
+        super(LogisticsPipe.ENTITY.PIPE_BLOCK_ENTITY, pos, state);
         // Initialize connection types to NONE
         for (int i = 0; i < 6; i++) {
             connectionTypes[i] = PipeConnection.Type.NONE;
@@ -113,7 +112,7 @@ public class PipeBlockEntity extends BlockEntity implements PipeConnection, Ener
      */
     @Override
     public boolean addItem(Direction from, ItemStack stack) {
-        TravelingItem item = new TravelingItem(stack, from.getOpposite(), PipeConfig.ITEM_MIN_SPEED);
+        TravelingItem item = new TravelingItem(stack, from.getOpposite(), LogisticsPipe.CONFIG.ITEM_MIN_SPEED);
         return addItem(item, from, false);
     }
 
@@ -342,15 +341,15 @@ public class PipeBlockEntity extends BlockEntity implements PipeConnection, Ener
 
     private float getInitialSpeed() {
         if (level == null) {
-            return PipeConfig.ITEM_MIN_SPEED;
+            return LogisticsPipe.CONFIG.ITEM_MIN_SPEED;
         }
 
         BlockState state = getBlockState();
         if (state.getBlock() instanceof PipeBlock pipeBlock && pipeBlock.getPipe() != null) {
-            return PipeConfig.ITEM_MIN_SPEED;
+            return LogisticsPipe.CONFIG.ITEM_MIN_SPEED;
         }
 
-        return PipeConfig.ITEM_MIN_SPEED;
+        return LogisticsPipe.CONFIG.ITEM_MIN_SPEED;
     }
 
     private boolean isNeighborPipe(Direction fromDirection) {

@@ -1,8 +1,8 @@
 package com.logistics.pipe.modules;
 
+import com.logistics.LogisticsPipe;
 import com.logistics.pipe.Pipe;
 import com.logistics.pipe.PipeContext;
-import com.logistics.pipe.runtime.PipeConfig;
 import com.logistics.pipe.runtime.RoutePlan;
 import java.util.List;
 import net.minecraft.core.Direction;
@@ -25,11 +25,11 @@ public interface Module {
     }
 
     default float getDrag(PipeContext ctx) {
-        return PipeConfig.DRAG_COEFFICIENT;
+        return LogisticsPipe.CONFIG.DRAG_COEFFICIENT;
     }
 
     default float getMaxSpeed(PipeContext ctx) {
-        return PipeConfig.PIPE_MAX_SPEED;
+        return LogisticsPipe.CONFIG.PIPE_MAX_SPEED;
     }
 
     default RoutePlan route(PipeContext ctx, com.logistics.pipe.runtime.TravelingItem item, List<Direction> options) {

@@ -1,14 +1,13 @@
 package com.logistics.automation.laserquarry;
 
 import com.logistics.automation.laserquarry.entity.LaserQuarryBlockEntity;
-import com.logistics.automation.registry.AutomationBlockEntities;
+import com.logistics.LogisticAutomation;
 import com.logistics.core.lib.block.Probeable;
 import com.logistics.core.lib.support.ProbeResult;
 import com.logistics.core.marker.MarkerManager;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RenderShape;
-import net.minecraft.world.level.block.state.BlockBehaviour.Properties;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -34,7 +33,7 @@ public class LaserQuarryBlock extends BaseEntityBlock implements Probeable {
     public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
 
     public LaserQuarryBlock(Properties settings) {
-        super(settings.strength(3.5f).sound(SoundType.STONE));
+        super(settings);
         registerDefaultState(defaultBlockState().setValue(FACING, Direction.NORTH));
     }
 
@@ -97,7 +96,7 @@ public class LaserQuarryBlock extends BaseEntityBlock implements Probeable {
     @Nullable @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
             Level world, BlockState state, BlockEntityType<T> type) {
-        return createTickerHelper(type, AutomationBlockEntities.LASER_QUARRY_BLOCK_ENTITY, LaserQuarryBlockEntity::tick);
+        return createTickerHelper(type, LogisticAutomation.ENTITY.LASER_QUARRY_BLOCK_ENTITY, LaserQuarryBlockEntity::tick);
     }
 
     @Override

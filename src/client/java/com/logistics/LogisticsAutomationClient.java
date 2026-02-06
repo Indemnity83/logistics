@@ -1,9 +1,9 @@
-package com.logistics.automation.registry;
+package com.logistics;
 
 import com.logistics.automation.render.ClientRenderCacheHooks;
 import com.logistics.automation.render.LaserQuarryBlockEntityRenderer;
 import com.logistics.automation.render.LaserQuarryRenderState;
-import com.logistics.core.bootstrap.ClientDomainBootstrap;
+import com.logistics.core.bootstrap.DomainBootstrap;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
@@ -11,19 +11,26 @@ import net.fabricmc.fabric.api.client.rendering.v1.BlockEntityRendererRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.BlockRenderLayerMap;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 
-public final class AutomationClientBootstrap implements ClientDomainBootstrap {
+import static com.mojang.text2speech.Narrator.LOGGER;
+
+public final class LogisticsAutomationClient implements DomainBootstrap {
+    public LogisticsAutomationClient() {
+        // Public constructor for ServiceLoader
+    }
+
     @Override
     public void initCommon() {
-        // Client-only bootstrap; common init handled in main bootstrap.
+        // Client-only bootstrap; common init handled in LogisticAutomation
     }
 
     @Override
     public void initClient() {
+        LOGGER.info("Registering automation (client)");
         // Register quarry frame for cutout rendering (transparency support)
-        BlockRenderLayerMap.putBlock(AutomationBlocks.LASER_QUARRY_FRAME, ChunkSectionLayer.CUTOUT);
+        BlockRenderLayerMap.putBlock(LogisticAutomation.BLOCK.LASER_QUARRY_FRAME, ChunkSectionLayer.CUTOUT);
 
         BlockEntityRendererRegistry.register(
-                AutomationBlockEntities.LASER_QUARRY_BLOCK_ENTITY, LaserQuarryBlockEntityRenderer::new);
+                LogisticAutomation.ENTITY.LASER_QUARRY_BLOCK_ENTITY, LaserQuarryBlockEntityRenderer::new);
 
         // No screen handler for laser quarry (no GUI)
 

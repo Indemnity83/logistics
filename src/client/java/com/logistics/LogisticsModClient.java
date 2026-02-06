@@ -1,7 +1,5 @@
 package com.logistics;
 
-import com.logistics.core.bootstrap.ClientDomainBootstrap;
-import com.logistics.core.bootstrap.ClientDomainBootstraps;
 import com.logistics.core.bootstrap.DomainBootstrap;
 import com.logistics.core.bootstrap.DomainBootstraps;
 import net.fabricmc.api.ClientModInitializer;
@@ -11,12 +9,26 @@ public class LogisticsModClient implements ClientModInitializer {
     public void onInitializeClient() {
         LogisticsMod.LOGGER.info("Initializing Logistics client");
 
+        // Initialize client bootstraps in server domain order
         for (DomainBootstrap bootstrap : DomainBootstraps.all()) {
-            bootstrap.initClient();
+            DomainBootstrap clientBootstrap = createClientBootstrap(bootstrap);
+            if (clientBootstrap != null) {
+                clientBootstrap.initClient();
+            }
         }
+    }
 
-        for (ClientDomainBootstrap bootstrap : ClientDomainBootstraps.all()) {
-            bootstrap.initClient();
-        }
+    private static DomainBootstrap createClientBootstrap(DomainBootstrap serverBootstrap) {
+        String domainName = serverBootstrap.getClass().getSimpleName();
+        return switch (domainName) {
+            case "LogisticsCore" -> new LogisticsCoreClient();
+            case "LogisticsPipe" -> new LogisticsPipeClient();
+            case "LogisticsPower" -> new LogisticsPowerClient();
+            case "LogisticAutomation" -> new LogisticsAutomationClient();
+            default -> {
+                LogisticsMod.LOGGER.debug("No client bootstrap for domain: {}", domainName);
+                yield null;
+            }
+        };
     }
 }

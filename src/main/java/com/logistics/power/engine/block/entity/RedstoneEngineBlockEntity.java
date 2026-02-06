@@ -4,7 +4,7 @@ import com.logistics.core.lib.power.AbstractEngineBlockEntity;
 import com.logistics.core.lib.power.AcceptsLowTierEnergy;
 import com.logistics.core.lib.power.LowTierEnergySource;
 import com.logistics.power.engine.block.RedstoneEngineBlock;
-import com.logistics.power.registry.PowerBlockEntities;
+import com.logistics.LogisticsPower;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
@@ -23,7 +23,7 @@ public class RedstoneEngineBlockEntity extends AbstractEngineBlockEntity impleme
     private static final long ENERGY_PER_INTERVAL = 10L;
 
     public RedstoneEngineBlockEntity(BlockPos pos, BlockState state) {
-        super(PowerBlockEntities.REDSTONE_ENGINE_BLOCK_ENTITY, pos, state);
+        super(LogisticsPower.ENTITY.REDSTONE_ENGINE_BLOCK_ENTITY, pos, state);
     }
 
     public static void tick(Level level, BlockPos pos, BlockState state, RedstoneEngineBlockEntity entity) {

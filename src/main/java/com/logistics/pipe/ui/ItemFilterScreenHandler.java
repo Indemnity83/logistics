@@ -1,8 +1,8 @@
 package com.logistics.pipe.ui;
 
+import com.logistics.LogisticsPipe;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.pipe.modules.ItemFilterModule;
-import com.logistics.pipe.registry.PipeScreenHandlers;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerLevelAccess;
@@ -25,7 +25,7 @@ public class ItemFilterScreenHandler extends AbstractContainerMenu {
     private final ContainerLevelAccess context;
 
     public ItemFilterScreenHandler(int syncId, Container playerInventory) {
-        super(PipeScreenHandlers.ITEM_FILTER, syncId);
+        super(LogisticsPipe.SCREEN.ITEM_FILTER, syncId);
         this.context = ContainerLevelAccess.NULL;
         this.filterInventory = new FilterInventory(null);
 
@@ -34,7 +34,7 @@ public class ItemFilterScreenHandler extends AbstractContainerMenu {
     }
 
     public ItemFilterScreenHandler(int syncId, Container playerInventory, PipeBlockEntity pipeEntity) {
-        super(PipeScreenHandlers.ITEM_FILTER, syncId);
+        super(LogisticsPipe.SCREEN.ITEM_FILTER, syncId);
         if (pipeEntity != null) {
             this.context = ContainerLevelAccess.create(pipeEntity.getLevel(), pipeEntity.getBlockPos());
         } else {

@@ -43,10 +43,8 @@ public abstract class AbstractEngineBlock<E extends AbstractEngineBlockEntity> e
     public static final EnumProperty<Direction> FACING = BlockStateProperties.FACING;
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
 
-    protected AbstractEngineBlock(Properties settings, SoundType soundGroup) {
-        super(settings.strength(3.5f)
-                .sound(soundGroup)
-                .noOcclusion());
+    protected AbstractEngineBlock(Properties settings) {
+        super(settings);
         registerDefaultState(defaultBlockState()
                 .setValue(FACING, Direction.NORTH)
                 .setValue(POWERED, false)

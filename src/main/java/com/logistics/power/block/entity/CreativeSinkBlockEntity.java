@@ -3,7 +3,7 @@ package com.logistics.power.block.entity;
 import com.logistics.api.EnergyStorage;
 import com.logistics.core.lib.power.AcceptsLowTierEnergy;
 import com.logistics.core.lib.support.ProbeResult;
-import com.logistics.power.registry.PowerBlockEntities;
+import com.logistics.LogisticsPower;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -24,7 +24,7 @@ public class CreativeSinkBlockEntity extends BlockEntity implements EnergyStorag
     private long energyThisTick = 0;
 
     public CreativeSinkBlockEntity(BlockPos pos, BlockState state) {
-        super(PowerBlockEntities.CREATIVE_SINK_BLOCK_ENTITY, pos, state);
+        super(LogisticsPower.ENTITY.CREATIVE_SINK_BLOCK_ENTITY, pos, state);
     }
 
     public static void tick(Level world, BlockPos pos, BlockState state, CreativeSinkBlockEntity entity) {
