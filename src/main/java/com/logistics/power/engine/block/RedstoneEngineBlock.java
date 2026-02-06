@@ -2,13 +2,11 @@ package com.logistics.power.engine.block;
 
 import com.logistics.core.lib.power.AbstractEngineBlock;
 import com.logistics.power.engine.block.entity.RedstoneEngineBlockEntity;
-import com.logistics.power.registry.PowerBlockEntities;
+import com.logistics.LogisticsPower;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
-import net.minecraft.world.level.block.SoundType;
-import net.minecraft.world.level.block.state.BlockBehaviour.Properties;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -30,7 +28,7 @@ public class RedstoneEngineBlock extends AbstractEngineBlock<RedstoneEngineBlock
     public static final MapCodec<RedstoneEngineBlock> CODEC = simpleCodec(RedstoneEngineBlock::new);
 
     public RedstoneEngineBlock(Properties settings) {
-        super(settings, SoundType.STONE);
+        super(settings);
     }
 
     @Override
@@ -51,6 +49,6 @@ public class RedstoneEngineBlock extends AbstractEngineBlock<RedstoneEngineBlock
     @Nullable @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
             Level world, BlockState state, BlockEntityType<T> type) {
-        return createTickerHelper(type, PowerBlockEntities.REDSTONE_ENGINE_BLOCK_ENTITY, RedstoneEngineBlockEntity::tick);
+        return createTickerHelper(type, LogisticsPower.ENTITY.REDSTONE_ENGINE_BLOCK_ENTITY, RedstoneEngineBlockEntity::tick);
     }
 }

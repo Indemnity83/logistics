@@ -38,10 +38,7 @@ public class MarkerBlock extends Block implements EntityBlock, Wrenchable {
     private static final VoxelShape SHAPE = Block.box(6.0, 0.0, 6.0, 10.0, 10.0, 10.0);
 
     public MarkerBlock(Properties properties) {
-        super(properties.strength(0.0f)
-                .sound(SoundType.GLASS)
-                .noCollision()
-                .lightLevel(state -> state.getValue(ACTIVE) ? 7 : 0));
+        super(properties.lightLevel(state -> state.getValue(ACTIVE) ? 7 : 0));
         this.registerDefaultState(this.getStateDefinition().any().setValue(ACTIVE, false));
     }
 

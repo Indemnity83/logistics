@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    "logistics:automation/laser_quarry",
+    "logistics:power/creative_engine",
+    "logistics:power/stirling_engine",
+    "logistics:power/creative_sink"
+  ]
+}

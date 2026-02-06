@@ -8,7 +8,7 @@ import com.logistics.core.lib.support.ProbeResult;
 import com.logistics.pipe.Pipe;
 import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
-import com.logistics.pipe.registry.PipeBlockEntities;
+import com.logistics.LogisticsPipe;
 import com.logistics.pipe.runtime.TravelingItem;
 import com.mojang.serialization.MapCodec;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
@@ -41,7 +41,6 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
-import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
@@ -87,8 +86,11 @@ public class PipeBlock extends BaseEntityBlock implements Probeable, SimpleWater
     }
 
     public PipeBlock(Properties settings, Pipe pipe) {
-        super(settings.mapColor(MapColor.NONE).noOcclusion().strength(0.0f));
+        super(settings);
         this.pipe = pipe;
+        if (pipe != null) {
+            pipe.setPipeBlock(this);
+        }
         registerDefaultState(defaultBlockState().setValue(POWERED, false).setValue(WATERLOGGED, false));
     }
 
@@ -109,11 +111,6 @@ public class PipeBlock extends BaseEntityBlock implements Probeable, SimpleWater
     @Override
     public RenderShape getRenderShape(BlockState state) {
         return RenderShape.INVISIBLE;
-    }
-
-    @Override
-    public SoundType getSoundType(BlockState state) {
-        return SoundType.METAL;
     }
 
     @Override
@@ -208,7 +205,7 @@ public class PipeBlock extends BaseEntityBlock implements Probeable, SimpleWater
             Level world, BlockState state, BlockEntityType<T> type) {
         return createTickerHelper(
                 type,
-                PipeBlockEntities.PIPE_BLOCK_ENTITY,
+                LogisticsPipe.ENTITY.PIPE_BLOCK_ENTITY,
                 (world1, pos, state1, blockEntity) -> PipeBlockEntity.tick(world1, pos, state1, blockEntity));
     }
 

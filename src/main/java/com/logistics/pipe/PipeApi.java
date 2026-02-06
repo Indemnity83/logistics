@@ -1,9 +1,9 @@
 package com.logistics.pipe;
 
+import com.logistics.LogisticsPipe;
 import com.logistics.api.TransportApi;
 import com.logistics.pipe.block.PipeBlock;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
-import com.logistics.pipe.runtime.PipeConfig;
 import com.logistics.pipe.runtime.TravelingItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -22,7 +22,7 @@ public final class PipeApi implements TransportApi {
     public boolean tryInsert(ServerLevel world, BlockPos targetPos, ItemStack stack, Direction from) {
         BlockEntity aboveEntity = world.getBlockEntity(targetPos);
         if (aboveEntity instanceof PipeBlockEntity pipeEntity) {
-            TravelingItem travelingItem = new TravelingItem(stack.copy(), from, PipeConfig.ITEM_MIN_SPEED);
+            TravelingItem travelingItem = new TravelingItem(stack.copy(), from, LogisticsPipe.CONFIG.ITEM_MIN_SPEED);
             pipeEntity.addItem(travelingItem, from.getOpposite(), false);
             return true;
         }
@@ -33,7 +33,7 @@ public final class PipeApi implements TransportApi {
     public boolean forceInsert(ServerLevel world, BlockPos targetPos, ItemStack stack, Direction from) {
         BlockEntity aboveEntity = world.getBlockEntity(targetPos);
         if (aboveEntity instanceof PipeBlockEntity pipeEntity) {
-            TravelingItem travelingItem = new TravelingItem(stack.copy(), from, PipeConfig.ITEM_MIN_SPEED);
+            TravelingItem travelingItem = new TravelingItem(stack.copy(), from, LogisticsPipe.CONFIG.ITEM_MIN_SPEED);
             pipeEntity.addItem(travelingItem, from.getOpposite(), true);
             return true;
         }

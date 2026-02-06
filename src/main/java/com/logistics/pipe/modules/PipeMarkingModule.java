@@ -5,7 +5,7 @@ import com.logistics.pipe.Pipe;
 import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.block.PipeBlock;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
-import com.logistics.pipe.registry.PipeItems;
+import com.logistics.LogisticsPipe;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
@@ -45,7 +45,7 @@ public class PipeMarkingModule implements Module {
         ItemStack stack = usage.getItemInHand();
         Player player = usage.getPlayer();
 
-        DyeColor color = PipeItems.getMarkingFluidColor(stack);
+        DyeColor color = LogisticsPipe.getMarkingFluidColor(stack);
         if (color == null) {
             return InteractionResult.PASS;
         }

@@ -2,7 +2,7 @@ package com.logistics.power.engine.block;
 
 import com.logistics.core.lib.power.AbstractEngineBlock;
 import com.logistics.power.engine.block.entity.StirlingEngineBlockEntity;
-import com.logistics.power.registry.PowerBlockEntities;
+import com.logistics.LogisticsPower;
 import com.mojang.serialization.MapCodec;
 import java.util.List;
 import net.minecraft.core.BlockPos;
@@ -13,8 +13,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
-import net.minecraft.world.level.block.SoundType;
-import net.minecraft.world.level.block.state.BlockBehaviour.Properties;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -43,7 +41,7 @@ public class StirlingEngineBlock extends AbstractEngineBlock<StirlingEngineBlock
     public static final BooleanProperty LIT = BlockStateProperties.LIT; // True when burning fuel
 
     public StirlingEngineBlock(Properties settings) {
-        super(settings, SoundType.COPPER);
+        super(settings);
         registerDefaultState(defaultBlockState().setValue(LIT, false));
     }
 
@@ -87,7 +85,7 @@ public class StirlingEngineBlock extends AbstractEngineBlock<StirlingEngineBlock
     @Nullable @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
             Level world, BlockState state, BlockEntityType<T> type) {
-        return createTickerHelper(type, PowerBlockEntities.STIRLING_ENGINE_BLOCK_ENTITY, StirlingEngineBlockEntity::tick);
+        return createTickerHelper(type, LogisticsPower.ENTITY.STIRLING_ENGINE_BLOCK_ENTITY, StirlingEngineBlockEntity::tick);
     }
 
     @Override

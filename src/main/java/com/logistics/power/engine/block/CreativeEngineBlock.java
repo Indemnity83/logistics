@@ -2,18 +2,16 @@ package com.logistics.power.engine.block;
 
 import com.logistics.core.lib.power.AbstractEngineBlock;
 import com.logistics.power.engine.block.entity.CreativeEngineBlockEntity;
-import com.logistics.power.registry.PowerBlockEntities;
+import com.logistics.LogisticsPower;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
-import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.block.state.BlockBehaviour.Properties;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
@@ -33,7 +31,7 @@ public class CreativeEngineBlock extends AbstractEngineBlock<CreativeEngineBlock
     public static final MapCodec<CreativeEngineBlock> CODEC = simpleCodec(CreativeEngineBlock::new);
 
     public CreativeEngineBlock(Properties settings) {
-        super(settings, SoundType.STONE);
+        super(settings);
     }
 
     @Override
@@ -67,6 +65,6 @@ public class CreativeEngineBlock extends AbstractEngineBlock<CreativeEngineBlock
     @Nullable @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
             Level world, BlockState state, BlockEntityType<T> type) {
-        return createTickerHelper(type, PowerBlockEntities.CREATIVE_ENGINE_BLOCK_ENTITY, CreativeEngineBlockEntity::tick);
+        return createTickerHelper(type, LogisticsPower.ENTITY.CREATIVE_ENGINE_BLOCK_ENTITY, CreativeEngineBlockEntity::tick);
     }
 }

@@ -6,8 +6,7 @@ import com.logistics.api.TransportApi;
 import com.logistics.automation.laserquarry.LaserQuarryBlock;
 import com.logistics.automation.laserquarry.LaserQuarryConfig;
 import com.logistics.automation.laserquarry.LaserQuarryFrameBlock;
-import com.logistics.automation.registry.AutomationBlockEntities;
-import com.logistics.automation.registry.AutomationBlocks;
+import com.logistics.LogisticsAutomation;
 import com.logistics.automation.render.ClientRenderCacheHooks;
 import com.logistics.core.lib.pipe.PipeConnection;
 import com.logistics.core.lib.support.ProbeResult;
@@ -99,7 +98,7 @@ public class LaserQuarryBlockEntity extends BlockEntity implements EnergyStorage
     private float syncedArmSpeed = LaserQuarryConfig.ARM_SPEED; // Speed synced to clients for interpolation
 
     public LaserQuarryBlockEntity(BlockPos pos, BlockState state) {
-        super(AutomationBlockEntities.LASER_QUARRY_BLOCK_ENTITY, pos, state);
+        super(LogisticsAutomation.ENTITY.LASER_QUARRY_BLOCK_ENTITY, pos, state);
         // Use position hash as unique entity ID for breaking animation
         this.breakingEntityId = pos.hashCode();
     }
@@ -929,7 +928,7 @@ public class LaserQuarryBlockEntity extends BlockEntity implements EnergyStorage
                     startZ = quarryPos.getZ() - 8;
                     break;
                 default:
-                    return AutomationBlocks.LASER_QUARRY_FRAME.defaultBlockState();
+                    return LogisticsAutomation.BLOCK.LASER_QUARRY_FRAME.defaultBlockState();
             }
             endX = startX + LaserQuarryConfig.CHUNK_SIZE - 1;
             endZ = startZ + LaserQuarryConfig.CHUNK_SIZE - 1;
@@ -981,7 +980,7 @@ public class LaserQuarryBlockEntity extends BlockEntity implements EnergyStorage
             }
         }
 
-        LaserQuarryFrameBlock frameBlock = (LaserQuarryFrameBlock) AutomationBlocks.LASER_QUARRY_FRAME;
+        LaserQuarryFrameBlock frameBlock = (LaserQuarryFrameBlock) LogisticsAutomation.BLOCK.LASER_QUARRY_FRAME;
         return frameBlock.withArms(north, south, east, west, up, down);
     }
 

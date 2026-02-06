@@ -1,10 +1,10 @@
 package com.logistics.pipe;
 
 import com.logistics.LogisticsMod;
+import com.logistics.LogisticsPipe;
 import com.logistics.core.lib.pipe.PipeConnection;
 import com.logistics.pipe.block.PipeBlock;
 import com.logistics.pipe.modules.Module;
-import com.logistics.pipe.runtime.PipeConfig;
 import com.logistics.pipe.runtime.RoutePlan;
 import com.logistics.pipe.runtime.TravelingItem;
 import java.util.ArrayList;
@@ -250,7 +250,7 @@ public abstract class Pipe {
                 return drag;
             }
         }
-        return PipeConfig.DRAG_COEFFICIENT;
+        return LogisticsPipe.CONFIG.DRAG_COEFFICIENT;
     }
 
     public float getMaxSpeed(PipeContext ctx) {
@@ -260,7 +260,7 @@ public abstract class Pipe {
                 return max;
             }
         }
-        return PipeConfig.PIPE_MAX_SPEED;
+        return LogisticsPipe.CONFIG.PIPE_MAX_SPEED;
     }
 
     public RoutePlan route(PipeContext ctx, TravelingItem item, List<Direction> options) {

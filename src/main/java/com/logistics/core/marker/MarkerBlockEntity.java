@@ -1,6 +1,6 @@
 package com.logistics.core.marker;
 
-import com.logistics.core.registry.CoreBlockEntities;
+import com.logistics.LogisticsCore;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.core.HolderLookup;
@@ -30,7 +30,7 @@ public class MarkerBlockEntity extends BlockEntity {
     private boolean isCornerMarker = false;
 
     public MarkerBlockEntity(BlockPos pos, BlockState state) {
-        super(CoreBlockEntities.MARKER_BLOCK_ENTITY, pos, state);
+        super(LogisticsCore.ENTITY.MARKER_BLOCK_ENTITY, pos, state);
     }
 
     /**
