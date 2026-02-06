@@ -10,7 +10,7 @@ import static com.logistics.LogisticsMod.LOGGER;
 
 public final class LogisticsCoreClient implements DomainBootstrap {
     public LogisticsCoreClient() {
-        // Public constructor for ServiceLoader
+        // Public constructor for direct instantiation
     }
 
     @Override

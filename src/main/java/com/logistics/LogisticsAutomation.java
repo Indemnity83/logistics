@@ -52,10 +52,10 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
     }
 
     public static final class ENTITY {
+        private ENTITY() {}
+
         public static final BlockEntityType<LaserQuarryBlockEntity> LASER_QUARRY_BLOCK_ENTITY =
             INSTANCE.registerBlockEntity("laser_quarry", LaserQuarryBlockEntity::new, BLOCK.LASER_QUARRY);
-
-        private ENTITY() {}
     }
 
     private static void registerEnergyApi() {

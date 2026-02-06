@@ -11,7 +11,7 @@ import static com.logistics.LogisticsMod.LOGGER;
 
 public final class LogisticsPipeClient implements DomainBootstrap {
     public LogisticsPipeClient() {
-        // Public constructor for ServiceLoader
+        // Public constructor for direct instantiation
     }
 
     @Override

@@ -4,7 +4,16 @@ import com.logistics.core.bootstrap.DomainBootstrap;
 import com.logistics.core.bootstrap.DomainBootstraps;
 import net.fabricmc.api.ClientModInitializer;
 
+import java.util.Map;
+import java.util.function.Supplier;
+
 public class LogisticsModClient implements ClientModInitializer {
+    private static final Map<Class<? extends DomainBootstrap>, Supplier<DomainBootstrap>> CLIENT_BOOTSTRAPS = Map.of(
+            LogisticsCore.class, LogisticsCoreClient::new,
+            LogisticsPipe.class, LogisticsPipeClient::new,
+            LogisticsPower.class, LogisticsPowerClient::new,
+            LogisticsAutomation.class, LogisticsAutomationClient::new
+    );
     @Override
     public void onInitializeClient() {
         LogisticsMod.LOGGER.info("Initializing Logistics client");
@@ -19,14 +28,9 @@ public class LogisticsModClient implements ClientModInitializer {
     }
 
     private static DomainBootstrap createClientBootstrap(DomainBootstrap serverBootstrap) {
-        if (serverBootstrap instanceof LogisticsCore) {
-            return new LogisticsCoreClient();
-        } else if (serverBootstrap instanceof LogisticsPipe) {
-            return new LogisticsPipeClient();
-        } else if (serverBootstrap instanceof LogisticsPower) {
-            return new LogisticsPowerClient();
-        } else if (serverBootstrap instanceof LogisticsAutomation) {
-            return new LogisticsAutomationClient();
+        Supplier<DomainBootstrap> factory = CLIENT_BOOTSTRAPS.get(serverBootstrap.getClass());
+        if (factory != null) {
+            return factory.get();
         }
         LogisticsMod.LOGGER.debug("No client bootstrap for domain: {}", serverBootstrap.getClass().getSimpleName());
         return null;

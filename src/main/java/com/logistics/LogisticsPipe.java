@@ -228,12 +228,18 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
             registerItemAlias(name, CONFIG.MARKING_FLUID_ITEMS.get(color));
         }
 
-        BuiltInRegistries.MENU.addAlias(
-                LogisticsMod.getIdentifier("item_filter"),
-                BuiltInRegistries.MENU.getKey(SCREEN.ITEM_FILTER));
+        Identifier newMenuId = BuiltInRegistries.MENU.getKey(SCREEN.ITEM_FILTER);
+        if (newMenuId != null) {
+            BuiltInRegistries.MENU.addAlias(
+                    LogisticsMod.getIdentifier("item_filter"),
+                    newMenuId);
+        }
 
-        BuiltInRegistries.DATA_COMPONENT_TYPE.addAlias(
-                LogisticsMod.getIdentifier("weathering_state"),
-                BuiltInRegistries.DATA_COMPONENT_TYPE.getKey(DATA.WEATHERING_STATE));
+        Identifier newDataId = BuiltInRegistries.DATA_COMPONENT_TYPE.getKey(DATA.WEATHERING_STATE);
+        if (newDataId != null) {
+            BuiltInRegistries.DATA_COMPONENT_TYPE.addAlias(
+                    LogisticsMod.getIdentifier("weathering_state"),
+                    newDataId);
+        }
     }
 }

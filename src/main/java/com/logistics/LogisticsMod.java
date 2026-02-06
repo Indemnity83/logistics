@@ -91,14 +91,18 @@ public class LogisticsMod implements ModInitializer {
         Identifier oldItem = getIdentifier(name);
         Identifier newItem = BuiltInRegistries.ITEM.getKey(item);
 
-        BuiltInRegistries.ITEM.addAlias(oldItem, newItem);
+        if (newItem != null) {
+            BuiltInRegistries.ITEM.addAlias(oldItem, newItem);
+        }
     }
 
     protected void registerBlockAlias(String name, Block block) {
         Identifier oldBlock = getIdentifier(name);
         Identifier newBlock = BuiltInRegistries.BLOCK.getKey(block);
 
-        BuiltInRegistries.BLOCK.addAlias(oldBlock, newBlock);
+        if (newBlock != null) {
+            BuiltInRegistries.BLOCK.addAlias(oldBlock, newBlock);
+        }
     }
 
     protected void registerBlockEntityAlias(String name, BlockEntityType<?> blockEntityType) {

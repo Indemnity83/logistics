@@ -56,6 +56,8 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
     }
 
     public static final class ENTITY {
+        private ENTITY() {}
+
         public static final BlockEntityType<RedstoneEngineBlockEntity> REDSTONE_ENGINE_BLOCK_ENTITY =
             INSTANCE.registerBlockEntity("redstone_engine", RedstoneEngineBlockEntity::new, BLOCK.REDSTONE_ENGINE);
         public static final BlockEntityType<StirlingEngineBlockEntity> STIRLING_ENGINE_BLOCK_ENTITY =
@@ -64,8 +66,6 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
             INSTANCE.registerBlockEntity("creative_engine", CreativeEngineBlockEntity::new, BLOCK.CREATIVE_ENGINE);
         public static final BlockEntityType<CreativeSinkBlockEntity> CREATIVE_SINK_BLOCK_ENTITY =
             INSTANCE.registerBlockEntity("creative_sink", CreativeSinkBlockEntity::new, BLOCK.CREATIVE_SINK);
-
-        private ENTITY() {}
     }
 
     public static final class SCREEN {
