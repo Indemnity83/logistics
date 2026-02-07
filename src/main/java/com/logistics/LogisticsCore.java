@@ -94,8 +94,8 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
                 BuiltInRegistries.CREATIVE_MODE_TAB,
                 LogisticsMod.getIdentifier("logistics_transport"),
                 FabricItemGroup.builder()
-                        .title(Component.translatable("itemgroup.logistics.transport"))
-                        .icon(() -> new ItemStack(LogisticsCore.BLOCK.MARKER))
+                        .title(Component.literal("Logistics"))
+                        .icon(() -> new ItemStack(ITEM.IRON_GEAR))
                         .displayItems((params, entries) -> {
                             for (Consumer<CreativeModeTab.Output> entry : ENTRIES) {
                                 entry.accept(entries);
