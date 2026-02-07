@@ -7,11 +7,11 @@ import com.logistics.LogisticsPower;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
+import team.reborn.energy.api.EnergyStorage;
 
 /**
  * Block entity for the Creative Sink.
@@ -21,47 +21,34 @@ import net.minecraft.world.level.storage.ValueOutput;
 public class CreativeSinkBlockEntity extends BlockEntity implements AcceptsLowTierEnergy {
     private static final long[] DRAIN_RATES = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 50, 100};
     private int drainRateIndex = 4; // Default 5 RF/t
-    private long energyThisTick = 0;  // Energy received this tick (for rate limiting)
-    private long energyLastTick = 0;  // Energy received last tick (for display)
+    private long energyReceived = 0;
 
-    // Energy storage implementation
-    public final team.reborn.energy.api.EnergyStorage energyStorage =
-            new team.reborn.energy.api.EnergyStorage() {
+    public final EnergyStorage energyStorage = new EnergyStorage() {
+        @Override
+        public boolean supportsExtraction() {
+            return false;
+        }
 
         @Override
         public long insert(long maxAmount, TransactionContext transaction) {
-            long canAccept = Math.max(0, getDrainRate() - energyThisTick);
-            long toAccept = Math.min(maxAmount, canAccept);
-            if (toAccept > 0 && transaction == null) {
-                energyThisTick += toAccept; // Track for this tick
-                setChanged();
-            }
-            return toAccept;
+            long insert = Math.min(getDrainRate(), maxAmount);
+            energyReceived = insert;
+            return insert;
         }
 
         @Override
         public long extract(long maxAmount, TransactionContext transaction) {
-            return 0; // Cannot extract
+            return 0;
         }
 
         @Override
         public long getAmount() {
-            return 0; // Always empty (infinite sink)
+            return 0;
         }
 
         @Override
         public long getCapacity() {
-            return getDrainRate();
-        }
-
-        @Override
-        public boolean supportsInsertion() {
-            return true;
-        }
-
-        @Override
-        public boolean supportsExtraction() {
-            return false;
+            return Long.MAX_VALUE;
         }
     };
 
@@ -69,24 +56,8 @@ public class CreativeSinkBlockEntity extends BlockEntity implements AcceptsLowTi
         super(LogisticsPower.ENTITY.CREATIVE_SINK_BLOCK_ENTITY, pos, state);
     }
 
-    public static void tick(Level world, BlockPos pos, BlockState state, CreativeSinkBlockEntity entity) {
-        // Save current tick's energy for display, then reset for next tick
-        entity.energyLastTick = entity.energyThisTick;
-        entity.energyThisTick = 0;
-    }
-
     public long getDrainRate() {
         return DRAIN_RATES[drainRateIndex];
-    }
-
-    public void increaseDrainRate() {
-        drainRateIndex = Math.min(drainRateIndex + 1, DRAIN_RATES.length - 1);
-        setChanged();
-    }
-
-    public void decreaseDrainRate() {
-        drainRateIndex = Math.max(drainRateIndex - 1, 0);
-        setChanged();
     }
 
     /**
@@ -106,11 +77,9 @@ public class CreativeSinkBlockEntity extends BlockEntity implements AcceptsLowTi
     public ProbeResult getProbeResult() {
         return ProbeResult.builder("Creative Sink Stats")
                 .entry("Drain Rate", String.format("%d RF/t", getDrainRate()), ChatFormatting.AQUA)
-                .entry("Energy Received", String.format("%d / %d RF", energyLastTick, getDrainRate()), ChatFormatting.GREEN)
+                .entry("Energy Received", String.format("%d RF", energyReceived), ChatFormatting.GREEN)
                 .build();
     }
-
-    // ==================== Energy Storage Access ====================
 
     // ==================== NBT Serialization ====================
 

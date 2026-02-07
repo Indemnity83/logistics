@@ -1,8 +1,9 @@
 package com.logistics.pipe.block.entity;
 
 import com.logistics.core.lib.pipe.PipeConnection;
-import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import com.logistics.core.lib.power.AcceptsLowTierEnergy;
+import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
+import team.reborn.energy.api.EnergyStorage;
 import com.logistics.pipe.Pipe;
 import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.block.PipeBlock;
@@ -45,8 +46,7 @@ public class PipeBlockEntity extends BlockEntity implements PipeConnection, Acce
     private final PipeConnection.Type[] connectionTypes = new PipeConnection.Type[6];
 
     // Energy storage implementation
-    public final team.reborn.energy.api.EnergyStorage energyStorage =
-            new team.reborn.energy.api.EnergyStorage() {
+    public final EnergyStorage energyStorage = new EnergyStorage() {
 
         @Override
         public long insert(long maxAmount, TransactionContext transaction) {
@@ -58,13 +58,15 @@ public class PipeBlockEntity extends BlockEntity implements PipeConnection, Acce
             Pipe pipe = pipeBlock.getPipe();
 
             if (transaction == null) {
-                // Immediate execution
                 return pipe.insertEnergy(ctx, maxAmount, false);
             } else {
-                // Simulate first, then execute if successful
                 long simulated = pipe.insertEnergy(ctx, maxAmount, true);
                 if (simulated > 0) {
-                    pipe.insertEnergy(ctx, simulated, false);
+                    transaction.addCloseCallback((context, result) -> {
+                        if (result.wasCommitted()) {
+                            pipe.insertEnergy(ctx, simulated, false);
+                        }
+                    });
                 }
                 return simulated;
             }
@@ -80,13 +82,15 @@ public class PipeBlockEntity extends BlockEntity implements PipeConnection, Acce
             Pipe pipe = pipeBlock.getPipe();
 
             if (transaction == null) {
-                // Immediate execution
                 return pipe.extractEnergy(ctx, maxAmount, false);
             } else {
-                // Simulate first, then execute if successful
                 long simulated = pipe.extractEnergy(ctx, maxAmount, true);
                 if (simulated > 0) {
-                    pipe.extractEnergy(ctx, simulated, false);
+                    transaction.addCloseCallback((context, result) -> {
+                        if (result.wasCommitted()) {
+                            pipe.extractEnergy(ctx, simulated, false);
+                        }
+                    });
                 }
                 return simulated;
             }
