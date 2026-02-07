@@ -51,6 +51,16 @@ public class CreativeSinkBlock extends BaseEntityBlock implements Probeable, Wre
     }
 
     @Nullable @Override
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
+            Level world, BlockState state, BlockEntityType<T> type) {
+        // Only tick on server - energy tracking is server-side only
+        if (world.isClientSide()) {
+            return null;
+        }
+        return createTickerHelper(type, LogisticsPower.ENTITY.CREATIVE_SINK_BLOCK_ENTITY, CreativeSinkBlockEntity::tick);
+    }
+
+    @Nullable @Override
     public ProbeResult onProbe(Level world, BlockPos pos, Player player) {
         if (world.getBlockEntity(pos) instanceof CreativeSinkBlockEntity sink) {
             return sink.getProbeResult();

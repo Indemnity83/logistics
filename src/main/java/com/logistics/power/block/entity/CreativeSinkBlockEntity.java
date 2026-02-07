@@ -7,6 +7,7 @@ import com.logistics.LogisticsPower;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
@@ -21,7 +22,8 @@ import team.reborn.energy.api.EnergyStorage;
 public class CreativeSinkBlockEntity extends BlockEntity implements AcceptsLowTierEnergy {
     private static final long[] DRAIN_RATES = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 50, 100};
     private int drainRateIndex = 4; // Default 5 RF/t
-    private long energyReceived = 0;
+    private long energyLastTick = 0;
+    private long energyThisTick = 0;
 
     public final EnergyStorage energyStorage = new EnergyStorage() {
         @Override
@@ -31,9 +33,12 @@ public class CreativeSinkBlockEntity extends BlockEntity implements AcceptsLowTi
 
         @Override
         public long insert(long maxAmount, TransactionContext transaction) {
-            long insert = Math.min(getDrainRate(), maxAmount);
-            energyReceived = insert;
-            return insert;
+            long canAccept = Math.max(0, getDrainRate() - energyThisTick);
+            long toAccept = Math.min(maxAmount, canAccept);
+            if (toAccept > 0) {
+                energyThisTick += toAccept;
+            }
+            return toAccept;
         }
 
         @Override
@@ -54,6 +59,12 @@ public class CreativeSinkBlockEntity extends BlockEntity implements AcceptsLowTi
 
     public CreativeSinkBlockEntity(BlockPos pos, BlockState state) {
         super(LogisticsPower.ENTITY.CREATIVE_SINK_BLOCK_ENTITY, pos, state);
+    }
+
+    public static void tick(Level world, BlockPos pos, BlockState state, CreativeSinkBlockEntity entity) {
+        // Reset energy counter each tick - energy is discarded
+        entity.energyLastTick = entity.energyThisTick;
+        entity.energyThisTick = 0;
     }
 
     public long getDrainRate() {
@@ -77,7 +88,7 @@ public class CreativeSinkBlockEntity extends BlockEntity implements AcceptsLowTi
     public ProbeResult getProbeResult() {
         return ProbeResult.builder("Creative Sink Stats")
                 .entry("Drain Rate", String.format("%d RF/t", getDrainRate()), ChatFormatting.AQUA)
-                .entry("Energy Received", String.format("%d RF", energyReceived), ChatFormatting.GREEN)
+                .entry("Energy Received", String.format("%d RF", energyLastTick), ChatFormatting.GREEN)
                 .build();
     }
 
