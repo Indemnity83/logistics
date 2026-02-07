@@ -29,9 +29,10 @@ public final class PipeTypes {
     // Accelerator transport - accelerates items when powered by redstone.
     public static final Pipe GOLD_TRANSPORT = new Pipe(new BoostModule(LogisticsPipe.CONFIG.ACCELERATION_RATE)) {};
 
-    // Item extractor - pulls items from an adjacent inventory
+    // Item extractor - pulls items from an adjacent inventory (requires energy)
     public static final Pipe ITEM_EXTRACTOR =
-            new Pipe(new ExtractionModule(), new BlockConnectionModule(() -> PipeTypes.ITEM_EXTRACTOR)) {};
+            new Pipe(new ExtractionModule(), new BlockConnectionModule(() -> PipeTypes.ITEM_EXTRACTOR))
+                    .withEnergy();
 
     // Item merger - combines multiple incoming streams into a single output.
     public static final Pipe ITEM_MERGER = new Pipe(new MergerModule()) {};

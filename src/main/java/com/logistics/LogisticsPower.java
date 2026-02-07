@@ -1,6 +1,5 @@
 package com.logistics;
 
-import com.logistics.api.fabric.TREnergyStorageAdapter;
 import com.logistics.core.bootstrap.DomainBootstrap;
 import com.logistics.power.block.CreativeSinkBlock;
 import com.logistics.power.block.entity.CreativeSinkBlockEntity;
@@ -92,20 +91,28 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
     }
 
     private static void registerEnergyApi() {
+        // Engines - directional output only
         EnergyStorage.SIDED.registerForBlockEntity(
-                (engine, direction) -> engine.isOutputDirection(direction) ? new TREnergyStorageAdapter(engine) : null,
+                (engine, direction) -> engine.isOutputDirection(direction)
+                        ? engine.energyStorage.getSideStorage(direction)
+                        : null,
                 ENTITY.REDSTONE_ENGINE_BLOCK_ENTITY);
 
         EnergyStorage.SIDED.registerForBlockEntity(
-                (engine, direction) -> engine.isOutputDirection(direction) ? new TREnergyStorageAdapter(engine) : null,
+                (engine, direction) -> engine.isOutputDirection(direction)
+                        ? engine.energyStorage.getSideStorage(direction)
+                        : null,
                 ENTITY.STIRLING_ENGINE_BLOCK_ENTITY);
 
         EnergyStorage.SIDED.registerForBlockEntity(
-                (engine, direction) -> engine.isOutputDirection(direction) ? new TREnergyStorageAdapter(engine) : null,
+                (engine, direction) -> engine.isOutputDirection(direction)
+                        ? engine.energyStorage.getSideStorage(direction)
+                        : null,
                 ENTITY.CREATIVE_ENGINE_BLOCK_ENTITY);
 
+        // Creative Sink - all sides
         EnergyStorage.SIDED.registerForBlockEntity(
-                (sink, direction) -> new TREnergyStorageAdapter(sink),
+                (sink, direction) -> sink.energyStorage,
                 ENTITY.CREATIVE_SINK_BLOCK_ENTITY);
     }
 }

@@ -59,17 +59,14 @@ public record PipeContext(Level world, BlockPos pos, BlockState state, PipeBlock
     }
 
     // Convenience methods for energy access
-    public long getEnergy(Module module) {
-        return getLong(module, "energy", 0L);
+    public long getEnergy() {
+        return blockEntity().energyStorage != null ? blockEntity().energyStorage.amount : 0;
     }
 
-    public void setEnergy(Module module, long amount) {
-        if (amount <= 0) {
-            remove(module, "energy");
-        } else {
-            saveLong(module, "energy", amount);
+    public void setEnergy(long amount) {
+        if (blockEntity().energyStorage != null) {
+            blockEntity().energyStorage.amount = amount;
         }
-        markDirty();
     }
 
     public CompoundTag getCompoundTag(Module module, String key) {
