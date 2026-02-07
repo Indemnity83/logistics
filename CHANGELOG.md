@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.3.1](https://github.com/Indemnity83/logistics/compare/mc1.21.11-v0.3.0...mc1.21.11-v0.3.1) (2026-02-07)
+
+
+### Features
+
+* refresh gear textures and update creative tab ([#91](https://github.com/Indemnity83/logistics/issues/91)) ([516c75f](https://github.com/Indemnity83/logistics/commit/516c75f1e1d25bc42eefb13af054a75108220dc4))
+
+
+### Bug Fixes
+
+* correct engine blockstates, particles, and drops ([#86](https://github.com/Indemnity83/logistics/issues/86)) ([b39c296](https://github.com/Indemnity83/logistics/commit/b39c2960b0d9a9b58608526a2df71414d1501a41))
+
 ## [0.3.0](https://github.com/Indemnity83/logistics/compare/v0.2.5...v0.3.0) (2026-02-02)
 
 
