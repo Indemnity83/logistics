@@ -27,6 +27,11 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
     }
 
     @Override
+    public int order() {
+        return 20;
+    }
+
+    @Override
     public void initCommon() {
         LOGGER.info("Registering {}", domain());
 
