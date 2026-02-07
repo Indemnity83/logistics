@@ -35,6 +35,11 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
     }
 
     @Override
+    public int order() {
+        return 10;
+    }
+
+    @Override
     public void initCommon() {
         LOGGER.info("Registering {}", domain());
 
