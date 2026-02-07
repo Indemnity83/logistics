@@ -58,7 +58,7 @@ public class ExtractionModule implements Module {
 
         // Always reset tick counter and zero energy buffer
         ctx.saveInt(this, TICKS_SINCE_PULL, 0);
-        ctx.setEnergy(this, 0);
+        ctx.setEnergy(0);
     }
 
     @Override
@@ -137,7 +137,7 @@ public class ExtractionModule implements Module {
     }
 
     private boolean shouldExtract(PipeContext ctx, int ticks) {
-        long energy = ctx.getEnergy(this);
+        long energy = ctx.getEnergy();
 
         // 0-7 ticks: cooldown, never extract
         if (ticks < 8) {
@@ -183,7 +183,7 @@ public class ExtractionModule implements Module {
     }
 
     private boolean extractFromDirection(PipeContext ctx, Direction direction) {
-        long energy = ctx.getEnergy(this);
+        long energy = ctx.getEnergy();
         long maxItems = Math.min(64, energy / RF_PER_ITEM);
 
         if (maxItems <= 0) {
@@ -238,54 +238,6 @@ public class ExtractionModule implements Module {
 
     private boolean isExtractionFace(PipeContext ctx, Direction direction) {
         return getExtractionDirection(ctx) == direction;
-    }
-
-    // --- Energy methods ---
-
-    @Override
-    public long getEnergyAmount(PipeContext ctx) {
-        return ctx.getEnergy(this);
-    }
-
-    @Override
-    public long getEnergyCapacity(PipeContext ctx) {
-        return ENERGY_CAPACITY;
-    }
-
-    @Override
-    public long insertEnergy(PipeContext ctx, long maxAmount, boolean simulate) {
-        long current = getEnergyAmount(ctx);
-        long space = Math.max(0, ENERGY_CAPACITY - current);
-        long accepted = Math.min(maxAmount, space);
-
-        if (accepted > 0 && !simulate) {
-            ctx.setEnergy(this, current + accepted);
-        }
-
-        return accepted;
-    }
-
-    @Override
-    public long extractEnergy(PipeContext ctx, long maxAmount, boolean simulate) {
-        long current = getEnergyAmount(ctx);
-        long extracted = Math.min(maxAmount, current);
-
-        if (extracted > 0 && !simulate) {
-            long remaining = current - extracted;
-            ctx.setEnergy(this, remaining);
-        }
-
-        return extracted;
-    }
-
-    @Override
-    public boolean canInsertEnergy(PipeContext ctx) {
-        return true;
-    }
-
-    @Override
-    public boolean canExtractEnergy(PipeContext ctx) {
-        return false; // Module extracts internally, not exposed externally
     }
 
     @Override

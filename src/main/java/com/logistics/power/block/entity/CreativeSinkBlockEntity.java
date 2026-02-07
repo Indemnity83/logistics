@@ -1,7 +1,7 @@
 package com.logistics.power.block.entity;
 
-import com.logistics.api.EnergyStorage;
 import com.logistics.core.lib.power.AcceptsLowTierEnergy;
+import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import com.logistics.core.lib.support.ProbeResult;
 import com.logistics.LogisticsPower;
 import net.minecraft.ChatFormatting;
@@ -12,16 +12,50 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
+import team.reborn.energy.api.EnergyStorage;
 
 /**
  * Block entity for the Creative Sink.
  * Accepts energy from all sides and discards it at a configurable rate.
  * Useful for testing engine output and PID tuning.
  */
-public class CreativeSinkBlockEntity extends BlockEntity implements EnergyStorage, AcceptsLowTierEnergy {
+public class CreativeSinkBlockEntity extends BlockEntity implements AcceptsLowTierEnergy {
     private static final long[] DRAIN_RATES = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 50, 100};
     private int drainRateIndex = 4; // Default 5 RF/t
+    private long energyLastTick = 0;
     private long energyThisTick = 0;
+
+    public final EnergyStorage energyStorage = new EnergyStorage() {
+        @Override
+        public boolean supportsExtraction() {
+            return false;
+        }
+
+        @Override
+        public long insert(long maxAmount, TransactionContext transaction) {
+            long canAccept = Math.max(0, getDrainRate() - energyThisTick);
+            long toAccept = Math.min(maxAmount, canAccept);
+            if (toAccept > 0) {
+                energyThisTick += toAccept;
+            }
+            return toAccept;
+        }
+
+        @Override
+        public long extract(long maxAmount, TransactionContext transaction) {
+            return 0;
+        }
+
+        @Override
+        public long getAmount() {
+            return 0;
+        }
+
+        @Override
+        public long getCapacity() {
+            return Long.MAX_VALUE;
+        }
+    };
 
     public CreativeSinkBlockEntity(BlockPos pos, BlockState state) {
         super(LogisticsPower.ENTITY.CREATIVE_SINK_BLOCK_ENTITY, pos, state);
@@ -29,21 +63,12 @@ public class CreativeSinkBlockEntity extends BlockEntity implements EnergyStorag
 
     public static void tick(Level world, BlockPos pos, BlockState state, CreativeSinkBlockEntity entity) {
         // Reset energy counter each tick - energy is discarded
+        entity.energyLastTick = entity.energyThisTick;
         entity.energyThisTick = 0;
     }
 
     public long getDrainRate() {
         return DRAIN_RATES[drainRateIndex];
-    }
-
-    public void increaseDrainRate() {
-        drainRateIndex = Math.min(drainRateIndex + 1, DRAIN_RATES.length - 1);
-        setChanged();
-    }
-
-    public void decreaseDrainRate() {
-        drainRateIndex = Math.max(drainRateIndex - 1, 0);
-        setChanged();
     }
 
     /**
@@ -63,45 +88,8 @@ public class CreativeSinkBlockEntity extends BlockEntity implements EnergyStorag
     public ProbeResult getProbeResult() {
         return ProbeResult.builder("Creative Sink Stats")
                 .entry("Drain Rate", String.format("%d RF/t", getDrainRate()), ChatFormatting.AQUA)
-                .entry("Energy Received", String.format("%d / %d RF", energyThisTick, getDrainRate()), ChatFormatting.GREEN)
+                .entry("Energy Received", String.format("%d RF", energyLastTick), ChatFormatting.GREEN)
                 .build();
-    }
-
-    // ==================== EnergyStorage Implementation ====================
-
-    @Override
-    public long getAmount() {
-        return 0; // Always empty - we discard energy
-    }
-
-    @Override
-    public long getCapacity() {
-        return getDrainRate(); // Capacity = drain rate for display purposes
-    }
-
-    @Override
-    public long insert(long maxAmount, boolean simulate) {
-        long canAccept = Math.max(0, getDrainRate() - energyThisTick);
-        long toAccept = Math.min(maxAmount, canAccept);
-        if (!simulate && toAccept > 0) {
-            energyThisTick += toAccept;
-        }
-        return toAccept;
-    }
-
-    @Override
-    public long extract(long maxAmount, boolean simulate) {
-        return 0; // Cannot extract
-    }
-
-    @Override
-    public boolean canInsert() {
-        return true;
-    }
-
-    @Override
-    public boolean canExtract() {
-        return false;
     }
 
     // ==================== NBT Serialization ====================

@@ -1,8 +1,8 @@
 package com.logistics.automation.laserquarry.entity;
 
-import com.logistics.api.EnergyStorage;
 import com.logistics.api.LogisticsApi;
 import com.logistics.api.TransportApi;
+import team.reborn.energy.api.base.SimpleEnergyStorage;
 import com.logistics.automation.laserquarry.LaserQuarryBlock;
 import com.logistics.automation.laserquarry.LaserQuarryConfig;
 import com.logistics.automation.laserquarry.LaserQuarryFrameBlock;
@@ -36,7 +36,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
-public class LaserQuarryBlockEntity extends BlockEntity implements EnergyStorage, PipeConnection {
+public class LaserQuarryBlockEntity extends BlockEntity implements PipeConnection {
     private static final long REGISTRY_TTL_TICKS = 200L;
     private static final Map<ResourceKey<Level>, Map<Long, Long>> ACTIVE_QUARRIES = new HashMap<>();
 
@@ -59,7 +59,16 @@ public class LaserQuarryBlockEntity extends BlockEntity implements EnergyStorage
     }
 
     // Energy storage
-    private long energy = 0;
+    public final SimpleEnergyStorage energyStorage = new SimpleEnergyStorage(
+            LaserQuarryConfig.ENERGY_CAPACITY,
+            LaserQuarryConfig.MAX_ENERGY_INPUT,
+            0
+    ) {
+        @Override
+        protected void onFinalCommit() {
+            setChanged(); // Trigger NBT save
+        }
+    };
     private long lastSyncedEnergy = 0; // For client sync
 
     // Phase state
@@ -125,8 +134,8 @@ public class LaserQuarryBlockEntity extends BlockEntity implements EnergyStorage
 
         // Sync energy and arm speed to clients when energy changes
         // Check at end of tick after operations may have consumed energy
-        if (entity.energy != entity.lastSyncedEnergy) {
-            entity.lastSyncedEnergy = entity.energy;
+        if (entity.energyStorage.amount != entity.lastSyncedEnergy) {
+            entity.lastSyncedEnergy = entity.energyStorage.amount;
             entity.syncedArmSpeed = entity.getEffectiveArmSpeed();
             entity.syncToClients();
         }
@@ -144,7 +153,7 @@ public class LaserQuarryBlockEntity extends BlockEntity implements EnergyStorage
 
     private static void tickClearing(ServerLevel world, BlockPos pos, BlockState state, LaserQuarryBlockEntity entity) {
         // Need at least some energy to operate
-        if (entity.energy == 0) {
+        if (entity.energyStorage.amount == 0) {
             entity.resetBreakProgress();
             return;
         }
@@ -186,7 +195,7 @@ public class LaserQuarryBlockEntity extends BlockEntity implements EnergyStorage
 
         // Consume as much energy as possible towards breaking (like BC)
         long energyNeeded = (long) Math.ceil(entity.currentBreakTime - entity.breakProgress);
-        long energyToUse = Math.min(entity.energy, energyNeeded);
+        long energyToUse = Math.min(entity.energyStorage.amount, energyNeeded);
         if (energyToUse > 0) {
             entity.consumeEnergy(energyToUse);
             entity.breakProgress += energyToUse;
@@ -336,7 +345,7 @@ public class LaserQuarryBlockEntity extends BlockEntity implements EnergyStorage
 
             // Consume as much energy as possible towards breaking (like BC)
             long energyNeeded = (long) Math.ceil(entity.currentBreakTime - entity.breakProgress);
-            long energyToUse = Math.min(entity.energy, energyNeeded);
+            long energyToUse = Math.min(entity.energyStorage.amount, energyNeeded);
             if (energyToUse > 0) {
                 entity.consumeEnergy(energyToUse);
                 entity.breakProgress += energyToUse;
@@ -1007,57 +1016,16 @@ public class LaserQuarryBlockEntity extends BlockEntity implements EnergyStorage
         currentBreakTime = -1f;
     }
 
-    // ==================== EnergyStorage Implementation ====================
-
-    @Override
-    public long getAmount() {
-        return energy;
-    }
-
-    @Override
-    public long getCapacity() {
-        return LaserQuarryConfig.ENERGY_CAPACITY;
-    }
-
-    @Override
-    public long insert(long maxAmount, boolean simulate) {
-        long space = LaserQuarryConfig.ENERGY_CAPACITY - energy;
-        long accepted = Math.min(maxAmount, Math.min(space, LaserQuarryConfig.MAX_ENERGY_INPUT));
-        if (!simulate && accepted > 0) {
-            energy += accepted;
-            setChanged();
-        }
-        return accepted;
-    }
-
-    @Override
-    public long extract(long maxAmount, boolean simulate) {
-        // Quarry doesn't allow external extraction
-        return 0;
-    }
-
-    @Override
-    public boolean canInsert() {
-        return true;
-    }
-
-    @Override
-    public boolean canExtract() {
-        return false;
-    }
+    // ==================== Energy Storage Access ====================
 
     /**
      * Consumes energy from the buffer if available.
-     *
-     * @param amount the amount of energy to consume
-     * @return true if the energy was consumed, false if insufficient energy
      */
-    private boolean consumeEnergy(long amount) {
-        if (energy >= amount) {
-            energy -= amount;
-            return true;
+    private void consumeEnergy(long amount) {
+        if (energyStorage.amount >= amount) {
+            energyStorage.amount -= amount;
+            setChanged();
         }
-        return false;
     }
 
     /**
@@ -1067,14 +1035,14 @@ public class LaserQuarryBlockEntity extends BlockEntity implements EnergyStorage
      * @return true if enough energy is available
      */
     private boolean hasEnergy(long amount) {
-        return energy >= amount;
+        return energyStorage.amount >= amount;
     }
 
     /**
      * Gets the energy level as a ratio from 0.0 to 1.0.
      */
     public double getEnergyLevel() {
-        return (double) energy / LaserQuarryConfig.ENERGY_CAPACITY;
+        return (double) energyStorage.amount / LaserQuarryConfig.ENERGY_CAPACITY;
     }
 
     /**
@@ -1083,7 +1051,7 @@ public class LaserQuarryBlockEntity extends BlockEntity implements EnergyStorage
      */
     private long getMoveCost() {
         return (long) Math.ceil(
-                LaserQuarryConfig.BASE_MOVE_COST + (double) energy / LaserQuarryConfig.MOVE_COST_BUFFER_DIVISOR);
+                LaserQuarryConfig.BASE_MOVE_COST + (double) energyStorage.amount / LaserQuarryConfig.MOVE_COST_BUFFER_DIVISOR);
     }
 
     /**
@@ -1132,7 +1100,7 @@ public class LaserQuarryBlockEntity extends BlockEntity implements EnergyStorage
                 energyPercent > 50 ? ChatFormatting.GREEN : energyPercent > 20 ? ChatFormatting.YELLOW : ChatFormatting.RED;
         builder.entry(
                 "Energy",
-                String.format("%,d / %,d RF (%.1f%%)", energy, LaserQuarryConfig.ENERGY_CAPACITY, energyPercent),
+                String.format("%,d / %,d RF (%.1f%%)", energyStorage.amount, LaserQuarryConfig.ENERGY_CAPACITY, energyPercent),
                 energyColor);
 
         // Power consumption and speed (only during active phases)
@@ -1151,7 +1119,7 @@ public class LaserQuarryBlockEntity extends BlockEntity implements EnergyStorage
         }
 
         // Warnings
-        if (energy == 0 && !finished) {
+        if (energyStorage.amount == 0 && !finished) {
             builder.warning("No power!");
         }
 
@@ -1165,7 +1133,7 @@ public class LaserQuarryBlockEntity extends BlockEntity implements EnergyStorage
 
         // Save energy
         CompoundTag energyState = new CompoundTag();
-        energyState.putLong("Amount", energy);
+        energyState.putLong("Amount", energyStorage.amount);
         view.store("Energy", CompoundTag.CODEC, energyState);
 
         // Save mining state
@@ -1212,9 +1180,8 @@ public class LaserQuarryBlockEntity extends BlockEntity implements EnergyStorage
         customMaxZ = 0;
 
         // Load energy
-        energy = 0;
         view.read("Energy", CompoundTag.CODEC).ifPresent(energyState -> {
-            energy = energyState.getLong("Amount").orElse(0L);
+            energyStorage.amount = energyState.getLong("Amount").orElse(0L);
         });
 
         // Load mining state
