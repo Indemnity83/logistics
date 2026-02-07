@@ -8,8 +8,8 @@
 
 [![GitHub](https://img.shields.io/badge/GitHub-indemnity83%2Flogistics-blue?logo=github)](https://github.com/indemnity83/logistics)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Minecraft](https://img.shields.io/badge/Minecraft-1.21-brightgreen.svg)](https://www.minecraft.net/)
-[![Fabric](https://img.shields.io/badge/Fabric-0.16.7-orange.svg)](https://fabricmc.net/)
+[![Minecraft](https://img.shields.io/badge/Minecraft-1.21.11-brightgreen.svg)](https://www.minecraft.net/)
+[![Fabric](https://img.shields.io/badge/Fabric-0.18.4-orange.svg)](https://fabricmc.net/)
 
 </div>
 
@@ -132,13 +132,13 @@ Configuration tool for pipes. Right-click to cycle output directions on iron pip
 ## Installation
 
 ### Requirements
-- Minecraft 1.21
-- Fabric Loader 0.16.7+
+- Minecraft 1.21.11
+- Fabric Loader 0.18.4+
 - Fabric API
 - Java 21+
 
 ### Steps
-1. Install [Fabric Loader](https://fabricmc.net/use/) for Minecraft 1.21
+1. Install [Fabric Loader](https://fabricmc.net/use/) for Minecraft 1.21.11
 2. Download [Fabric API](https://modrinth.com/mod/fabric-api)
 3. Download Logistics from:
    - [GitHub Releases](https://github.com/indemnity83/logistics/releases) (includes dev builds)
