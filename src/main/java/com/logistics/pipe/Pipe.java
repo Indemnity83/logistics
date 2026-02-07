@@ -22,12 +22,29 @@ import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
 import org.jetbrains.annotations.Nullable;
 
-public abstract class Pipe {
+public class Pipe {
     private final List<Module> modules;
     private PipeBlock pipeBlock;
+    private boolean hasEnergy = false;
 
     protected Pipe(Module... modules) {
         this.modules = List.of(modules);
+    }
+
+    /**
+     * Marks this pipe as having energy storage capability.
+     * Only pipes with this flag will have energy storage created.
+     */
+    public Pipe withEnergy() {
+        this.hasEnergy = true;
+        return this;
+    }
+
+    /**
+     * Returns whether this pipe has energy storage capability.
+     */
+    public boolean hasEnergy() {
+        return hasEnergy;
     }
 
     /**
@@ -368,70 +385,18 @@ public abstract class Pipe {
         return candidate;
     }
 
-    // --- Energy delegation ---
-
-    public long getEnergyAmount(PipeContext ctx) {
-        for (Module module : modules) {
-            long amount = module.getEnergyAmount(ctx);
-            if (amount > 0) {
-                return amount; // Return first non-zero
-            }
-        }
-        return 0;
-    }
-
-    public long getEnergyCapacity(PipeContext ctx) {
-        for (Module module : modules) {
-            long capacity = module.getEnergyCapacity(ctx);
-            if (capacity > 0) {
-                return capacity; // Return first non-zero
-            }
-        }
-        return 0;
-    }
-
-    public long insertEnergy(PipeContext ctx, long maxAmount, boolean simulate) {
-        for (Module module : modules) {
-            if (module.canInsertEnergy(ctx)) {
-                return module.insertEnergy(ctx, maxAmount, simulate);
-            }
-        }
-        return 0;
-    }
-
-    public long extractEnergy(PipeContext ctx, long maxAmount, boolean simulate) {
-        for (Module module : modules) {
-            if (module.canExtractEnergy(ctx)) {
-                return module.extractEnergy(ctx, maxAmount, simulate);
-            }
-        }
-        return 0;
-    }
-
-    public boolean canInsertEnergy(PipeContext ctx) {
-        for (Module module : modules) {
-            if (module.canInsertEnergy(ctx)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public boolean canExtractEnergy(PipeContext ctx) {
-        for (Module module : modules) {
-            if (module.canExtractEnergy(ctx)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
+    // Energy capability check for low-tier energy sources
     public boolean acceptsLowTierEnergyFrom(PipeContext ctx, Direction from) {
+        // Only accept low-tier energy if this pipe has energy storage
+        if (!hasEnergy) {
+            return false;
+        }
+        // Delegate to modules for additional logic
         for (Module module : modules) {
-            if (module.canInsertEnergy(ctx)) {
-                return module.acceptsLowTierEnergyFrom(ctx, from);
+            if (module.acceptsLowTierEnergyFrom(ctx, from)) {
+                return true;
             }
         }
-        return false; // No energy-capable modules installed
+        return false;
     }
 }

@@ -2,8 +2,7 @@ package com.logistics.pipe.block.entity;
 
 import com.logistics.core.lib.pipe.PipeConnection;
 import com.logistics.core.lib.power.AcceptsLowTierEnergy;
-import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
-import team.reborn.energy.api.EnergyStorage;
+import team.reborn.energy.api.base.SimpleEnergyStorage;
 import com.logistics.pipe.Pipe;
 import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.block.PipeBlock;
@@ -45,103 +44,30 @@ public class PipeBlockEntity extends BlockEntity implements PipeConnection, Acce
     // Connection type cache for rendering (updated when connections change)
     private final PipeConnection.Type[] connectionTypes = new PipeConnection.Type[6];
 
-    // Energy storage implementation
-    public final EnergyStorage energyStorage = new EnergyStorage() {
-
-        @Override
-        public long insert(long maxAmount, TransactionContext transaction) {
-            BlockState state = getBlockState();
-            if (!(state.getBlock() instanceof PipeBlock pipeBlock)) return 0;
-            if (pipeBlock.getPipe() == null) return 0;
-
-            PipeContext ctx = createContext();
-            Pipe pipe = pipeBlock.getPipe();
-
-            if (transaction == null) {
-                return pipe.insertEnergy(ctx, maxAmount, false);
-            } else {
-                long simulated = pipe.insertEnergy(ctx, maxAmount, true);
-                if (simulated > 0) {
-                    transaction.addCloseCallback((context, result) -> {
-                        if (result.wasCommitted()) {
-                            pipe.insertEnergy(ctx, simulated, false);
-                        }
-                    });
-                }
-                return simulated;
-            }
-        }
-
-        @Override
-        public long extract(long maxAmount, TransactionContext transaction) {
-            BlockState state = getBlockState();
-            if (!(state.getBlock() instanceof PipeBlock pipeBlock)) return 0;
-            if (pipeBlock.getPipe() == null) return 0;
-
-            PipeContext ctx = createContext();
-            Pipe pipe = pipeBlock.getPipe();
-
-            if (transaction == null) {
-                return pipe.extractEnergy(ctx, maxAmount, false);
-            } else {
-                long simulated = pipe.extractEnergy(ctx, maxAmount, true);
-                if (simulated > 0) {
-                    transaction.addCloseCallback((context, result) -> {
-                        if (result.wasCommitted()) {
-                            pipe.extractEnergy(ctx, simulated, false);
-                        }
-                    });
-                }
-                return simulated;
-            }
-        }
-
-        @Override
-        public long getAmount() {
-            BlockState state = getBlockState();
-            if (state.getBlock() instanceof PipeBlock pipeBlock && pipeBlock.getPipe() != null) {
-                PipeContext ctx = createContext();
-                return pipeBlock.getPipe().getEnergyAmount(ctx);
-            }
-            return 0;
-        }
-
-        @Override
-        public long getCapacity() {
-            BlockState state = getBlockState();
-            if (state.getBlock() instanceof PipeBlock pipeBlock && pipeBlock.getPipe() != null) {
-                PipeContext ctx = createContext();
-                return pipeBlock.getPipe().getEnergyCapacity(ctx);
-            }
-            return 0;
-        }
-
-        @Override
-        public boolean supportsInsertion() {
-            BlockState state = getBlockState();
-            if (state.getBlock() instanceof PipeBlock pipeBlock && pipeBlock.getPipe() != null) {
-                PipeContext ctx = createContext();
-                return pipeBlock.getPipe().canInsertEnergy(ctx);
-            }
-            return false;
-        }
-
-        @Override
-        public boolean supportsExtraction() {
-            BlockState state = getBlockState();
-            if (state.getBlock() instanceof PipeBlock pipeBlock && pipeBlock.getPipe() != null) {
-                PipeContext ctx = createContext();
-                return pipeBlock.getPipe().canExtractEnergy(ctx);
-            }
-            return false;
-        }
-    };
+    // Energy storage (only created for pipes with energy capability)
+    @Nullable
+    public final SimpleEnergyStorage energyStorage;
 
     public PipeBlockEntity(BlockPos pos, BlockState state) {
         super(LogisticsPipe.ENTITY.PIPE_BLOCK_ENTITY, pos, state);
+
         // Initialize connection types to NONE
         for (int i = 0; i < 6; i++) {
             connectionTypes[i] = PipeConnection.Type.NONE;
+        }
+
+        // Create energy storage only if pipe has energy capability
+        Pipe pipe = state.getBlock() instanceof PipeBlock pipeBlock ? pipeBlock.getPipe() : null;
+        if (pipe != null && pipe.hasEnergy()) {
+            // TODO: Configure capacity/maxInsert/maxExtract based on pipe type
+            this.energyStorage = new SimpleEnergyStorage(1000, 100, 0) {
+                @Override
+                protected void onFinalCommit() {
+                    setChanged();
+                }
+            };
+        } else {
+            this.energyStorage = null;
         }
     }
 
