@@ -4,53 +4,83 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Branch Strategy (IMPORTANT!)
 
-**You are on: `mc/1.21.11` - Stable Minecraft 1.21.11 branch**
+**FIRST:** Always check your current branch using `git branch --show-current` or by checking the working directory path (e.g., `../logistics-mc-1.21.11/` indicates mc/1.21.11 branch).
 
 This repository uses a multi-version strategy to support different Minecraft releases:
-- **`mc/1.21.11`** (this branch) - Stable releases for MC 1.21.11, maintenance focus
-- **`main`** - Snapshot development for MC 26.1+, active feature development
+- **`mc/1.21.1`** - Stable releases for MC 1.21.1, maintenance focus
+- **`mc/1.21.11`** - Stable releases for MC 1.21.11, active feature development
+- **`mc/26.1`** - Snapshot development for MC 26.1 snapshots, forward-port for testing
 
 ### Critical Understanding
 
-**MC 26.1 introduced massive API changes.** Almost every Minecraft method has changed. This means:
-- ❌ **Cannot cherry-pick** commits between branches
-- ❌ **Cannot share code** between versions
-- ❌ **Cannot expect feature parity** across versions
-- ✅ **Can re-implement** fixes/features manually on other branch
+**Domain architecture enables cross-version cherry-picking.** After significant refactoring to isolate version-specific code:
+- ✅ **Can cherry-pick** commits between branches (mc/1.21.1 ↔ mc/1.21.11 ↔ mc/26.1)
+- ✅ **Can share code** across versions via git operations
+- ✅ **Can maintain feature parity** with minimal manual intervention
+- ✅ **Cherry-pick is the primary porting mechanism**
 
-**Porting = manual re-implementation, not git operations.**
+**Porting = git cherry-pick, with occasional conflict resolution for API differences.**
 
-### Development Strategy (Phased)
+### Recommended Worktree Setup
 
-**Current Phase (Pre-1.0):**
-- **This branch (mc/1.21.11)**: Primary development target (where players are!)
-- **`main` branch**: Port features occasionally to stay current with MC 26.1
+For easier cross-version development, consider setting up git worktrees for each mc/* branch in sibling directories:
+- `../logistics-mc-1.21.1/` - mc/1.21.1 branch worktree
+- `../logistics-mc-1.21.11/` - mc/1.21.11 branch worktree
+- `../logistics-mc-26.1/` - mc/26.1 branch worktree
 
-**Future Phase (After MC 26.1 releases):**
-- **`main` branch**: Primary development target (latest MC)
-- **`mc/26.1` branch**: Stable MC 26.1 releases
-- **This branch (mc/1.21.11)**: Critical bug fixes only, eventual EOL
+The current working directory path indicates which branch you're on.
 
-**See `BRANCH_DIVERGENCE_REALITY.md` for full details.**
+**Benefits:**
+- Reference code across versions without switching branches
+- Compare implementations when cherry-picking
+- Resolve conflicts by viewing other version's code directly
 
-### Working on This Branch
+If worktrees are detected at these paths, they may be referenced when working on cross-version changes.
 
-**Targeting fixes/features for mc/1.21.11:**
-- This is the **stable, production branch**
-- Focus on **bug fixes** and **essential features**
-- Keep changes **minimal and tested**
-- Avoid refactoring unless necessary
+### Development Strategy
 
-**Cross-version bugs:**
-1. Fix on this branch first (where reported)
-2. Check if bug exists on `main` branch
-3. **Re-implement** the fix for `main`'s API (don't cherry-pick)
-4. Test independently on both branches
+- **`mc/1.21.11`**: Primary development target (latest stable release, most players)
+- **`mc/26.1`**: Port features to keep up with snapshot releases
+- **`mc/1.21.1`**: Backport features/fixes (many tech mod users still on this version)
 
-**New features:**
-- Develop here during Pre-1.0 phase
-- Port to `main` occasionally (manual re-implementation)
-- After MC 26.1 releases, focus shifts to `main` branch
+### Cross-Version Workflow
+
+**When fixing bugs:**
+1. Fix on the branch where reported (typically mc/1.21.11 during Pre-1.0)
+2. Check if bug exists on other branches
+3. **Cherry-pick** the fix to affected branches (resolve conflicts if needed)
+4. Test on each target branch after cherry-pick
+5. Priority order for porting: mc/1.21.11 → mc/26.1 → mc/1.21.1
+
+**When adding features:**
+- **During Pre-1.0 phase**: Develop on mc/1.21.11, cherry-pick to mc/26.1 and mc/1.21.1
+- **After MC 26.1 releases**: Develop on mc/26.1, backport to mc/1.21.11 if needed
+- Keep changes minimal and tested
+- Avoid large refactorings unless coordinated across all branches
+
+### Writing Cherry-Pick-Friendly Code
+
+Since commits will be cherry-picked across branches, write code that minimizes conflicts:
+
+**Before committing:**
+1. **Compare implementations** across worktrees (if available):
+   - Check `../logistics-mc-1.21.1/` for how mc/1.21.1 implements similar features
+   - Check `../logistics-mc-26.1/` for how mc/26.1 handles the same areas
+2. **Match structure** where possible:
+   - Use similar method names and signatures across versions
+   - Keep file organization consistent
+   - Align formatting and code structure
+3. **Isolate version-specific code**:
+   - Keep Minecraft API calls isolated in specific methods/classes
+   - Use abstractions to hide version differences
+   - Document any version-specific workarounds with comments
+
+**When reviewing commits:**
+- Test cherry-picks to other branches before pushing
+- If conflicts arise, consider whether the code structure could be improved
+- Document any intentional divergences in commit messages
+
+**Goal:** Minimize cherry-pick conflicts by maintaining structural consistency across versions while isolating version-specific API differences.
 
 ## Build Commands
 
@@ -59,7 +89,6 @@ This repository uses a multi-version strategy to support different Minecraft rel
 ./gradlew remapJar           # Build with obfuscation remapping (MC 1.21.11 is obfuscated)
 ./gradlew runClient          # Launch Minecraft client for testing
 ./gradlew runServer          # Launch Minecraft server
-./gradlew check              # Run checkstyle checks
 ```
 
 **Requirements:**
@@ -73,20 +102,48 @@ This repository uses a multi-version strategy to support different Minecraft rel
 
 ### Version Management
 
-This branch uses **release-please** for automated versioning with **SemVer build metadata**:
-- Push conventional commits: `feat:`, `fix:`, etc.
-- Release-please creates PR with version bump and changelog
-- Merge PR → automatic GitHub release
-- Tags: `mc1.21.11-v0.4.0`
-- Version format: `0.4.0+mc1.21.11.fabric` (SemVer 2.0.0 build metadata)
-  - The `0.4.0` is the semantic version
-  - The `+mc1.21.11.fabric` is build metadata (platform and loader identifiers)
+All branches use **release-please** for automated versioning with **SemVer build metadata**.
 
-**Do NOT manually edit version numbers.** Let release-please manage it.
+**How it works:**
+1. Create a feature/fix branch (short, meaningful name - no specific format required)
+2. Make commits using imperative mood (non-conventional format)
+3. Work freely - squash commits, force push, iterate as needed
+4. Create PR with:
+   - Title: conventional commit format (`fix:`, `feat:`, etc.)
+   - Body: release notes style
+5. PR gets squash-merged into target branch with the conventional commit message
+6. Release-please sees the conventional commit and creates a release PR
+7. Merge the release PR to create a GitHub release
+8. Release workflow builds and publishes to Modrinth/CurseForge
+
+**When versions bump:**
+- `fix:` commits → patch version (0.3.0 → 0.3.1)
+- `feat:` commits → minor version (0.3.0 → 0.4.0)
+- `feat!:` or `BREAKING CHANGE:` → major version (0.3.0 → 1.0.0)
+
+**Naming conventions:**
+- Git tags: `mc{version}-v{semver}` (e.g., `mc1.21.11-v0.4.0`)
+- Artifacts: `logistics-{semver}+mc{version}.{loader}.jar` (e.g., `logistics-0.4.0+mc1.21.11.fabric.jar`)
+- Published version: `{semver}+mc{version}.{loader}` (e.g., `0.4.0+mc1.21.11.fabric`)
+- Display name: `Logistics v{semver} for {loader} {version}` (e.g., `Logistics v0.4.0 for fabric 1.21.11`)
+
+**Do NOT manually edit version numbers.** Let release-please manage it. If you need to manually set a version, edit `.release-please-manifest.json` and commit the change.
 
 ## Architecture
 
-This is a Fabric mod organized into **independent domains** for maintainability and potential future modular packaging.
+This is a Fabric mod organized into **independent domains** following **SOLID principles** to maximize maintainability.
+
+The domain architecture applies the **Dependency Inversion Principle** (DIP) - domains depend on abstractions in `core.lib`, not on each other. This enables:
+- Decoupled domains that can be tested and modified independently
+- Potential future modular packaging (splitting into separate JARs)
+- Clear separation of concerns with minimal cross-domain dependencies
+
+**Throughout the codebase, follow SOLID principles:**
+- **S**ingle Responsibility: Classes have one reason to change
+- **O**pen/Closed: Open for extension, closed for modification
+- **L**iskov Substitution: Subtypes must be substitutable for their base types
+- **I**nterface Segregation: Clients shouldn't depend on interfaces they don't use
+- **D**ependency Inversion: Depend on abstractions, not concretions
 
 ### Domain Structure
 
@@ -107,32 +164,95 @@ src/client/java/com/logistics/
 └── power/                   # Engine rendering
 ```
 
-### Domain Isolation Rules
+### Domain Isolation Rules (Dependency Inversion Principle)
 
 - **Domains must not import from each other** (no `pipe` → `power` imports)
-- **Exception:** All domains may import from `core.lib` for shared interfaces
-- This keeps domains decoupled and allows splitting into separate JARs later
+- **All domains depend on abstractions in `core.lib`**, not on concrete implementations
+- Shared interfaces live in `core.lib`, concrete implementations live in domains
+- This applies DIP: high-level modules (domains) and low-level modules (implementations) both depend on abstractions (core.lib)
+
+**Benefits:**
+- Domains remain decoupled and independently testable
+- Changes in one domain don't cascade to others
+- Enables future modular packaging (split into separate JARs)
+- Clear separation of concerns
 
 ### Bootstrap System
 
-Each domain implements `DomainBootstrap` for initialization. The main mod class discovers and initializes all domains via service loader.
+Domains are initialized using a two-phase pattern (server/common + client):
+
+**Server/Common initialization (ServiceLoader):**
+1. **Entry point**: `fabric.mod.json` declares `LogisticsMod` as the main entry point
+2. **Discovery**: `LogisticsMod.onInitialize()` calls `DomainBootstraps.all()` which uses Java's ServiceLoader
+3. **Registration**: Each domain provides a `DomainBootstrap` implementation listed in `META-INF/services/com.logistics.core.bootstrap.DomainBootstrap`:
+   - `com.logistics.LogisticsCore`
+   - `com.logistics.LogisticsPipe`
+   - `com.logistics.LogisticsPower`
+   - `com.logistics.LogisticsAutomation`
+4. **Initialization**: Each domain's `initCommon()` method is called to register blocks, items, etc.
+
+**Client initialization (explicit mapping):**
+1. **Entry point**: `fabric.mod.json` declares `LogisticsModClient` as the client entry point
+2. **Mapping**: `LogisticsModClient` has a hardcoded map of server bootstrap classes to client bootstrap factories
+3. **Initialization**: For each server domain, creates corresponding client bootstrap and calls `initClient()` to register renderers, etc.
+
+**Adding a new domain:**
+1. **Create packages**:
+   - `src/main/java/com/logistics/newdomain/` - Server/common code
+   - `src/client/java/com/logistics/newdomain/` - Client-only code
+2. **Implement server bootstrap**:
+   - Create `LogisticsNewDomain implements DomainBootstrap`
+   - Implement `initCommon()` for registration
+   - Add to `META-INF/services/com.logistics.core.bootstrap.DomainBootstrap`
+3. **Implement client bootstrap**:
+   - Create `LogisticsNewDomainClient implements DomainBootstrap`
+   - Implement `initClient()` for rendering
+   - Add mapping to `LogisticsModClient.CLIENT_BOOTSTRAPS` map
+4. **Build will fail if client bootstrap is missing** from the map
 
 ### Domain Details
 
-See `docs/DESIGN.md` for full architectural vision. Key patterns per domain:
+**For detailed architecture and design philosophy, see:**
+- `docs/DESIGN.md` - Vision, three-tier model, and detailed pipe architecture
+- `docs/PIPE_TYPES.md` - Pipe behavior specifications
+- Source code in `src/main/java/com/logistics/{domain}/` for implementation details
 
-**Pipe Domain:** Module composition system where `Pipe` composes `Module` instances. Modules control routing, acceptance, and speed. `TravelingItem` represents items in transit with progress-based movement.
+**Current domain patterns:**
 
-**Power Domain:** Engine hierarchy with `AbstractEngineBlockEntity` base class. Engines have heat stages (COLD → COOL → WARM → HOT → OVERHEAT) and integrate with Team Reborn Energy API.
+**Core Domain** (`com.logistics.core`):
+- **Foundation for all domains** - provides shared abstractions via `core.lib`
+- **Dependency Inversion**: All domains depend on `core.lib` interfaces/abstracts, not on each other
+- Contains core game elements: tools (wrenches), crafting intermediates, shared utilities
+- **Key abstractions in `core.lib`**:
+  - `AbstractEngineBlockEntity` - base for all engines
+  - `DomainBootstrap` - interface for domain initialization
+  - Shared interfaces that enable cross-domain functionality without coupling
+- Think of `core.lib` as the "contract layer" that keeps domains decoupled
+
+**Pipe Domain** (`com.logistics.pipe`):
+- Module composition: `Pipe` composes `Module` instances for behavior
+- Modules control routing, acceptance, and speed
+- `TravelingItem` represents items in transit with progress-based movement
+- See DESIGN.md for comprehensive pipe architecture
+
+**Power Domain** (`com.logistics.power`):
+- Engine hierarchy: `AbstractEngineBlockEntity` base class
+- Heat management: COLD → COOL → WARM → HOT → OVERHEAT stages
+- Integrates with Team Reborn Energy API
+- Types: Redstone Engine, Stirling Engine (with fuel), Creative Engine
+
+**Automation Domain** (`com.logistics.automation`):
+- Laser Quarry: Mining machine with frame and laser rendering
+- Expandable for future machines
 
 ## Code Style
 
 - **Formatting:** Manual - prioritize minimal diffs across branches over strict style
-- **Linting:** Checkstyle enforces naming, imports, nesting depth (max 3)
+- **No automated linting** - focus on readable, maintainable code
 - **Single-line if/for allowed** but braces preferred for multi-line
-- Use `@SuppressWarnings` to suppress checkstyle only when needed
+- Keep nesting depth reasonable (prefer max 3 levels)
 
-**Note:** Spotless was removed to maintain minimal diffs between mc/1.21.11 and mc/26.1 branches. This makes cross-version maintenance and comparison easier.
+**Note:** Automated formatters (Spotless) and linters (Checkstyle) were removed to maintain minimal diffs between branches. This makes cross-version maintenance and cherry-picking easier.
 
 ## Commit Messages
 
@@ -143,6 +263,8 @@ Output a SINGLE-LINE commit subject only:
 - Aim for <= 72 characters
 - Be specific about what changed
 
+**Note:** While individual commits don't use conventional format, this keeps diffs minimal and makes history easier to read. The PR title will use conventional format for release-please.
+
 ## Pull Requests
 
 Use conventional commit format for PR title (no scope):
@@ -150,30 +272,49 @@ Use conventional commit format for PR title (no scope):
 <type>: <description>
 ```
 
-Valid types: `feat`, `fix`, `refactor`, `perf`, `test`, `docs`, `build`, `ci`, `chore`, `revert`
+**Valid types:**
+- `feat` - New features
+- `fix` - Bug fixes
+- `refactor` - Code changes that neither fix bugs nor add features
+- `perf` - Performance improvements
+- `test` - Adding or updating tests
+- `docs` - Documentation only
+- `build` - Build process or tooling changes
+- `ci` - CI/CD changes
+- `chore` - Maintenance tasks
+- `revert` - Reverting previous changes
 
-PR body should read like release notes:
+**Breaking changes:**
+```
+feat!: redesign storage API
+```
+or add `BREAKING CHANGE:` footer in the PR body.
+
+**PR body should read like release notes:**
 - Focus on WHAT changed and WHY it matters
 - Use short sections: Summary / Changes / Notes
 - Bullet points, grouped and scannable
 - No low-level implementation details unless they affect behavior or compatibility
-- Add `BREAKING CHANGE: ...` footer only if applicable
 
-## Tools
-
-Python 3 with PIL is available for graphics/texture development:
-```bash
-scripts/venv/bin/python
-```
+**Examples:**
+- `fix: correct pipe rendering in dark mode`
+- `feat: add quantum pipes`
+- `feat!: redesign storage API` (breaking change)
 
 ## Documentation
 
-**Multi-Version Strategy:**
-- `BRANCH_DIVERGENCE_REALITY.md` - Why branches diverge, development strategy
-- `VERSION_STRATEGY.md` - Version management approach
-- `IMPORTANT_JAVA_VERSIONS.md` - Java 21 vs Java 25 requirements
-- `MC26_GRADLE_CHANGES.md` - Why MC 26.1 doesn't need remapJar
-
-**Architecture:**
+**Architecture & Design:**
 - `docs/DESIGN.md` - Technical architecture and vision (read this first for deep understanding)
 - `docs/PIPE_TYPES.md` - Detailed pipe behavior specifications
+- `docs/ASSETS.md` - Asset and texture documentation
+
+**Development:**
+- `CLAUDE.md` (this file) - Primary development guidance for Claude Code
+- `README.md` - Project overview and user-facing documentation
+- `CHANGELOG.md` - Auto-generated release notes
+
+**Version Management:**
+- `.release-please-manifest.json` - Current version per branch
+- `release-please-config.json` - Release-please configuration
+- `.github/workflows/prepare-release.yml` - Release automation workflow
+- `.github/workflows/build-release.yml` - Build and publish workflow
