@@ -96,7 +96,7 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
                 case PROPERTY_BURN_TIME -> burnTime;
                 case PROPERTY_FUEL_TIME -> fuelTime;
                 case PROPERTY_HEAT -> (int) temperature;
-                case PROPERTY_ENERGY -> (int) (energy / 100);
+                case PROPERTY_ENERGY -> (int) (getEnergy() / 100);
                 case PROPERTY_GENERATION -> (int) (currentGeneration * 100);
                 default -> 0;
             };
@@ -108,7 +108,7 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
                 case PROPERTY_BURN_TIME -> burnTime = value;
                 case PROPERTY_FUEL_TIME -> fuelTime = value;
                 case PROPERTY_HEAT -> temperature = value;
-                case PROPERTY_ENERGY -> energy = value * 100L;
+                case PROPERTY_ENERGY -> energyStorage.amount = value * 100L;
                 case PROPERTY_GENERATION -> currentGeneration = value / 100.0;
                 default -> {}
             }
@@ -243,7 +243,7 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
             return;
         }
 
-        long space = getEnergyBufferCapacity() - energy;
+        long space = getEnergyBufferCapacity() - getEnergy();
         long toAdd = Math.min(whole, space);
 
         if (toAdd > 0) {

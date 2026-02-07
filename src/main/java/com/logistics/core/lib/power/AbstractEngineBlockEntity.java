@@ -1,7 +1,9 @@
 package com.logistics.core.lib.power;
 
-import com.logistics.api.EnergyStorage;
 import com.logistics.core.lib.support.ProbeResult;
+import team.reborn.energy.api.EnergyStorageUtil;
+import team.reborn.energy.api.base.SimpleSidedEnergyContainer;
+import team.reborn.energy.api.EnergyStorage;
 import java.util.Locale;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -42,7 +44,7 @@ import org.jetbrains.annotations.Nullable;
  *   <li>Compression stroke (0.5-1): energy is pushed to output</li>
  * </ul>
  */
-public abstract class AbstractEngineBlockEntity extends BlockEntity implements EnergyStorage {
+public abstract class AbstractEngineBlockEntity extends BlockEntity {
 
     // ==================== Heat Stage Enum ====================
 
@@ -87,11 +89,33 @@ public abstract class AbstractEngineBlockEntity extends BlockEntity implements E
 
     // State tracking
     protected double temperature = 0;
-    protected long energy = 0;
     protected float progress = 0;
     protected CyclePhase cyclePhase = CyclePhase.IDLE;
     protected HeatStage heatStage = HeatStage.COLD;
     private boolean wasRunning = false;
+
+    // Energy storage
+    public final SimpleSidedEnergyContainer energyStorage = new SimpleSidedEnergyContainer() {
+        @Override
+        public long getCapacity() {
+            return getEnergyBufferCapacity();
+        }
+
+        @Override
+        public long getMaxInsert(@Nullable Direction side) {
+            return 0;
+        }
+
+        @Override
+        public long getMaxExtract(@Nullable Direction side) {
+            return (side != null && isOutputDirection(side)) ? getOutputPower() : 0;
+        }
+
+        @Override
+        protected void onFinalCommit() {
+            setChanged();
+        }
+    };
 
     protected AbstractEngineBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
@@ -209,16 +233,18 @@ public abstract class AbstractEngineBlockEntity extends BlockEntity implements E
     /** Applies energy decay when engine is idle. */
     private void applyDecay() {
         long decay = getEnergyDecayRate();
-        if (energy >= decay) {
-            energy -= decay;
+        if (energyStorage.amount >= decay) {
+            energyStorage.amount -= decay;
         } else {
-            energy = 0;
+            energyStorage.amount = 0;
         }
+        setChanged();
     }
 
     /** Handles overheat state: drains energy and emits smoke particles. */
     private void tickOverheat() {
-        energy = Math.max(energy - 50, 0);
+        energyStorage.amount = Math.max(energyStorage.amount - 50, 0);
+        setChanged();
 
         if (level instanceof ServerLevel serverLevel && level.getRandom().nextInt(4) == 0) {
             double x = getBlockPos().getX() + 0.5 + (level.getRandom().nextDouble() - 0.5) * 0.5;
@@ -326,36 +352,27 @@ public abstract class AbstractEngineBlockEntity extends BlockEntity implements E
 
     /** Sends energy to the block this engine is facing via Team Reborn Energy API. */
     protected void sendEnergy() {
-        if (level == null || energy <= 0 || !isRedstonePowered()) return;
+        if (level == null || !isRedstonePowered()) return;
 
         Direction outputDir = getOutputDirection();
         BlockPos targetPos = getBlockPos().relative(outputDir);
 
-        team.reborn.energy.api.EnergyStorage target =
-                team.reborn.energy.api.EnergyStorage.SIDED.find(level, targetPos, outputDir.getOpposite());
+        EnergyStorage target = EnergyStorage.SIDED.find(level, targetPos, outputDir.getOpposite());
 
-        if (target != null && target.supportsInsertion()) {
-            long maxSend = getOutputPower();
-            long toSend = Math.min(maxSend, energy);
-
-            if (toSend > 0) {
-                try (var transaction = net.fabricmc.fabric.api.transfer.v1.transaction.Transaction.openOuter()) {
-                    long accepted = target.insert(toSend, transaction);
-                    if (accepted > 0) {
-                        energy -= accepted;
-                        transaction.commit();
-                    }
-                }
-            }
+        if (target != null) {
+            long maxSend = Math.min(getOutputPower(), energyStorage.amount);
+            EnergyStorage source = energyStorage.getSideStorage(outputDir);
+            EnergyStorageUtil.move(source, target, maxSend, null);
         }
     }
 
     /** Adds energy to the buffer, capped at max capacity. */
     protected void addEnergy(long amount) {
-        energy += amount;
-        if (energy > getEnergyBufferCapacity()) {
-            energy = getEnergyBufferCapacity();
+        energyStorage.amount += amount;
+        if (energyStorage.amount > getEnergyBufferCapacity()) {
+            energyStorage.amount = getEnergyBufferCapacity();
         }
+        setChanged();
     }
 
     // ==================== Public API ====================
@@ -375,7 +392,7 @@ public abstract class AbstractEngineBlockEntity extends BlockEntity implements E
         if (!isOverheated()) {
             return false;
         }
-        energy = 0;
+        energyStorage.amount = 0;
         temperature = getTemperatureFloor();
         heatStage = HeatStage.COLD;
         syncStageToBlock();
@@ -398,7 +415,7 @@ public abstract class AbstractEngineBlockEntity extends BlockEntity implements E
     }
 
     public long getEnergy() {
-        return energy;
+        return energyStorage.amount;
     }
 
     public float getProgress() {
@@ -426,7 +443,7 @@ public abstract class AbstractEngineBlockEntity extends BlockEntity implements E
         if (capacity <= 0) {
             return 0.0;
         }
-        return energy / (double) capacity;
+        return energyStorage.amount / (double) capacity;
     }
 
     public long getCurrentOutputPower() {
@@ -469,7 +486,7 @@ public abstract class AbstractEngineBlockEntity extends BlockEntity implements E
         double energyLevel = getEnergyLevel();
         builder.entry(
                 "Energy",
-                String.format("%,d / %,d RF (%.1f%%)", storedEnergy, getCapacity(), energyLevel * 100),
+                String.format("%,d / %,d RF (%.1f%%)", storedEnergy, getEnergyBufferCapacity(), energyLevel * 100),
                 ChatFormatting.AQUA);
 
         // Output power
@@ -494,49 +511,14 @@ public abstract class AbstractEngineBlockEntity extends BlockEntity implements E
         };
     }
 
-    // ==================== EnergyStorage Implementation ====================
-
-    @Override
-    public long getAmount() {
-        return energy;
-    }
-
-    @Override
-    public long getCapacity() {
-        return getEnergyBufferCapacity();
-    }
-
-    @Override
-    public long insert(long maxAmount, boolean simulate) {
-        return 0; // Engines don't accept external energy
-    }
-
-    @Override
-    public long extract(long maxAmount, boolean simulate) {
-        long extracted = Math.min(maxAmount, energy);
-        if (!simulate && extracted > 0) {
-            energy -= extracted;
-            setChanged();
-        }
-        return extracted;
-    }
-
-    @Override
-    public boolean canInsert() {
-        return false;
-    }
-
-    @Override
-    public boolean canExtract() {
-        return true;
-    }
+    // ==================== Energy Storage Access ====================
 
     // ==================== NBT Serialization ====================
 
     @Override
     protected void saveAdditional(ValueOutput view) {
         CompoundTag engineData = new CompoundTag();
-        engineData.putLong("energy", energy);
+        engineData.putLong("energy", energyStorage.amount);
         engineData.putDouble("heat", temperature); // putDouble
         engineData.putFloat("progress", progress); // putFloat
         engineData.putInt("cyclePhase", cyclePhase.ordinal());
@@ -548,7 +530,7 @@ public abstract class AbstractEngineBlockEntity extends BlockEntity implements E
     @Override
     protected void loadAdditional(ValueInput view) {
         view.read("Engine", CompoundTag.CODEC).ifPresent(engineData -> {
-            energy = engineData.getLong("energy").orElse(0L);
+            energyStorage.amount = engineData.getLong("energy").orElse(0L);
             temperature = engineData.getDouble("heat").orElse(0.0);
             progress = engineData.getFloat("progress").orElse(0f);
             cyclePhase = CyclePhase.fromOrdinal(engineData.getInt("cyclePhase").orElse(0));

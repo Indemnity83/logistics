@@ -1,7 +1,6 @@
 package com.logistics;
 
 import com.logistics.api.LogisticsApi;
-import com.logistics.api.fabric.TREnergyStorageAdapter;
 import com.logistics.core.bootstrap.DomainBootstrap;
 import com.logistics.core.lib.pipe.PipeConnectionRegistry;
 import com.logistics.pipe.Pipe;
@@ -64,7 +63,7 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
                 LogisticsPipe.ENTITY.PIPE_BLOCK_ENTITY);
 
         EnergyStorage.SIDED.registerForBlockEntity(
-                (blockEntity, direction) -> new TREnergyStorageAdapter(blockEntity),
+                (blockEntity, direction) -> blockEntity.energyStorage,
                 LogisticsPipe.ENTITY.PIPE_BLOCK_ENTITY);
 
         // Register pipe-to-pipe connections (pipes accept connections from all sides)

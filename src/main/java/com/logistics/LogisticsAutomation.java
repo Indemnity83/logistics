@@ -1,6 +1,5 @@
 package com.logistics;
 
-import com.logistics.api.fabric.TREnergyStorageAdapter;
 import com.logistics.automation.laserquarry.LaserQuarryBlock;
 import com.logistics.automation.laserquarry.LaserQuarryFrameBlock;
 import com.logistics.automation.laserquarry.entity.LaserQuarryBlockEntity;
@@ -65,7 +64,7 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
 
     private static void registerEnergyApi() {
         EnergyStorage.SIDED.registerForBlockEntity(
-            (quarry, direction) -> new TREnergyStorageAdapter(quarry),
+            (quarry, direction) -> quarry.energyStorage,
             ENTITY.LASER_QUARRY_BLOCK_ENTITY);
     }
 

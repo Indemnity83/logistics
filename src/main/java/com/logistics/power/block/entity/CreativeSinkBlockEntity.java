@@ -1,7 +1,7 @@
 package com.logistics.power.block.entity;
 
-import com.logistics.api.EnergyStorage;
 import com.logistics.core.lib.power.AcceptsLowTierEnergy;
+import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import com.logistics.core.lib.support.ProbeResult;
 import com.logistics.LogisticsPower;
 import net.minecraft.ChatFormatting;
@@ -18,17 +18,60 @@ import net.minecraft.world.level.storage.ValueOutput;
  * Accepts energy from all sides and discards it at a configurable rate.
  * Useful for testing engine output and PID tuning.
  */
-public class CreativeSinkBlockEntity extends BlockEntity implements EnergyStorage, AcceptsLowTierEnergy {
+public class CreativeSinkBlockEntity extends BlockEntity implements AcceptsLowTierEnergy {
     private static final long[] DRAIN_RATES = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 50, 100};
     private int drainRateIndex = 4; // Default 5 RF/t
-    private long energyThisTick = 0;
+    private long energyThisTick = 0;  // Energy received this tick (for rate limiting)
+    private long energyLastTick = 0;  // Energy received last tick (for display)
+
+    // Energy storage implementation
+    public final team.reborn.energy.api.EnergyStorage energyStorage =
+            new team.reborn.energy.api.EnergyStorage() {
+
+        @Override
+        public long insert(long maxAmount, TransactionContext transaction) {
+            long canAccept = Math.max(0, getDrainRate() - energyThisTick);
+            long toAccept = Math.min(maxAmount, canAccept);
+            if (toAccept > 0 && transaction == null) {
+                energyThisTick += toAccept; // Track for this tick
+                setChanged();
+            }
+            return toAccept;
+        }
+
+        @Override
+        public long extract(long maxAmount, TransactionContext transaction) {
+            return 0; // Cannot extract
+        }
+
+        @Override
+        public long getAmount() {
+            return 0; // Always empty (infinite sink)
+        }
+
+        @Override
+        public long getCapacity() {
+            return getDrainRate();
+        }
+
+        @Override
+        public boolean supportsInsertion() {
+            return true;
+        }
+
+        @Override
+        public boolean supportsExtraction() {
+            return false;
+        }
+    };
 
     public CreativeSinkBlockEntity(BlockPos pos, BlockState state) {
         super(LogisticsPower.ENTITY.CREATIVE_SINK_BLOCK_ENTITY, pos, state);
     }
 
     public static void tick(Level world, BlockPos pos, BlockState state, CreativeSinkBlockEntity entity) {
-        // Reset energy counter each tick - energy is discarded
+        // Save current tick's energy for display, then reset for next tick
+        entity.energyLastTick = entity.energyThisTick;
         entity.energyThisTick = 0;
     }
 
@@ -63,46 +106,11 @@ public class CreativeSinkBlockEntity extends BlockEntity implements EnergyStorag
     public ProbeResult getProbeResult() {
         return ProbeResult.builder("Creative Sink Stats")
                 .entry("Drain Rate", String.format("%d RF/t", getDrainRate()), ChatFormatting.AQUA)
-                .entry("Energy Received", String.format("%d / %d RF", energyThisTick, getDrainRate()), ChatFormatting.GREEN)
+                .entry("Energy Received", String.format("%d / %d RF", energyLastTick, getDrainRate()), ChatFormatting.GREEN)
                 .build();
     }
 
-    // ==================== EnergyStorage Implementation ====================
-
-    @Override
-    public long getAmount() {
-        return 0; // Always empty - we discard energy
-    }
-
-    @Override
-    public long getCapacity() {
-        return getDrainRate(); // Capacity = drain rate for display purposes
-    }
-
-    @Override
-    public long insert(long maxAmount, boolean simulate) {
-        long canAccept = Math.max(0, getDrainRate() - energyThisTick);
-        long toAccept = Math.min(maxAmount, canAccept);
-        if (!simulate && toAccept > 0) {
-            energyThisTick += toAccept;
-        }
-        return toAccept;
-    }
-
-    @Override
-    public long extract(long maxAmount, boolean simulate) {
-        return 0; // Cannot extract
-    }
-
-    @Override
-    public boolean canInsert() {
-        return true;
-    }
-
-    @Override
-    public boolean canExtract() {
-        return false;
-    }
+    // ==================== Energy Storage Access ====================
 
     // ==================== NBT Serialization ====================
 
