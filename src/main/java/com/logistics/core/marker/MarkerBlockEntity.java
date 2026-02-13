@@ -1,26 +1,21 @@
 package com.logistics.core.marker;
 
 import com.logistics.LogisticsCore;
+import com.logistics.core.lib.block.BaseBlockEntity;
 import java.util.ArrayList;
 import java.util.List;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.level.storage.ValueInput;
-import net.minecraft.world.level.storage.ValueOutput;
-import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
-import net.minecraft.network.protocol.game.ClientGamePacketListener;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.network.protocol.Packet;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
 /**
  * Block entity for markers that stores connection and bounding box data.
  */
-public class MarkerBlockEntity extends BlockEntity {
+public class MarkerBlockEntity extends BaseBlockEntity {
     // Connected marker positions (up to 2 horizontal + 1 vertical)
     private final List<BlockPos> connectedMarkers = new ArrayList<>();
 
@@ -88,8 +83,7 @@ public class MarkerBlockEntity extends BlockEntity {
         this.isCornerMarker = false;
 
         level.setBlock(worldPosition, getBlockState().setValue(MarkerBlock.ACTIVE, true), 3);
-        setChanged();
-        syncToClients();
+        markDirtyAndSync();
     }
 
     /**
@@ -105,8 +99,7 @@ public class MarkerBlockEntity extends BlockEntity {
         this.isCornerMarker = isCorner;
 
         level.setBlock(worldPosition, getBlockState().setValue(MarkerBlock.ACTIVE, true), 3);
-        setChanged();
-        syncToClients();
+        markDirtyAndSync();
     }
 
     /**
@@ -121,8 +114,7 @@ public class MarkerBlockEntity extends BlockEntity {
         isCornerMarker = false;
 
         level.setBlock(worldPosition, getBlockState().setValue(MarkerBlock.ACTIVE, false), 3);
-        setChanged();
-        syncToClients();
+        markDirtyAndSync();
     }
 
     /**
@@ -163,18 +155,8 @@ public class MarkerBlockEntity extends BlockEntity {
         return boundMin != null && boundMax != null;
     }
 
-    private void syncToClients() {
-        if (level != null && !level.isClientSide()) {
-            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
-        }
-    }
-
     @Override
-    protected void saveAdditional(ValueOutput view) {
-        super.saveAdditional(view);
-
-        CompoundTag data = new CompoundTag();
-
+    protected void saveCustomData(CompoundTag data) {
         // Save connected markers
         if (!connectedMarkers.isEmpty()) {
             int[] positions = new int[connectedMarkers.size() * 3];
@@ -200,41 +182,37 @@ public class MarkerBlockEntity extends BlockEntity {
         }
 
         data.putBoolean("IsCorner", isCornerMarker);
-
-        view.store("MarkerData", CompoundTag.CODEC, data);
     }
 
     @Override
-    protected void loadAdditional(ValueInput view) {
-        super.loadAdditional(view);
+    protected void loadCustomData(CompoundTag data) {
+        connectedMarkers.clear();
+        boundMin = null;
+        boundMax = null;
+        isCornerMarker = false;
 
-        view.read("MarkerData", CompoundTag.CODEC).ifPresent(data -> {
-            connectedMarkers.clear();
-            boundMin = null;
-            boundMax = null;
-            isCornerMarker = false;
+        loadConnectedMarkers(data);
+        loadBounds(data);
+    }
 
-            loadConnectedMarkers(data);
+    private void loadBounds(CompoundTag data) {
+        boolean hasMin = data.contains("MinX");
+        boolean hasMax = data.contains("MaxX");
+        if (hasMin && hasMax) {
+            int minX = data.getInt("MinX").orElse(0);
+            int minY = data.getInt("MinY").orElse(0);
+            int minZ = data.getInt("MinZ").orElse(0);
+            boundMin = new BlockPos(minX, minY, minZ);
 
-            // Load bounds
-            boolean hasMin = data.contains("MinX");
-            boolean hasMax = data.contains("MaxX");
-            if (hasMin && hasMax) {
-                int minX = data.getInt("MinX").orElse(0);
-                int minY = data.getInt("MinY").orElse(0);
-                int minZ = data.getInt("MinZ").orElse(0);
-                boundMin = new BlockPos(minX, minY, minZ);
+            int maxX = data.getInt("MaxX").orElse(0);
+            int maxY = data.getInt("MaxY").orElse(0);
+            int maxZ = data.getInt("MaxZ").orElse(0);
+            boundMax = new BlockPos(maxX, maxY, maxZ);
+        }
 
-                int maxX = data.getInt("MaxX").orElse(0);
-                int maxY = data.getInt("MaxY").orElse(0);
-                int maxZ = data.getInt("MaxZ").orElse(0);
-                boundMax = new BlockPos(maxX, maxY, maxZ);
-            }
-
-            if (data.contains("IsCorner")) {
-                isCornerMarker = data.getBoolean("IsCorner").orElse(false);
-            }
-        });
+        if (data.contains("IsCorner")) {
+            isCornerMarker = data.getBoolean("IsCorner").orElse(false);
+        }
     }
 
     private void loadConnectedMarkers(CompoundTag data) {
@@ -245,15 +223,5 @@ public class MarkerBlockEntity extends BlockEntity {
                 }
             });
         }
-    }
-
-    @Nullable @Override
-    public Packet<ClientGamePacketListener> getUpdatePacket() {
-        return ClientboundBlockEntityDataPacket.create(this);
-    }
-
-    @Override
-    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
-        return saveWithoutMetadata(registries);
     }
 }
