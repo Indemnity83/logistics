@@ -37,6 +37,8 @@ public abstract class BaseBlockEntity extends BlockEntity {
      * Save custom block entity data to NBT.
      * Override this instead of {@link #saveAdditional(ValueOutput)}.
      *
+     * <p>Note: Use {@code level.registryAccess()} to serialize ItemStacks and other registry objects.
+     *
      * @param tag the compound tag to write custom data into
      */
     protected void saveCustomData(CompoundTag tag) {
@@ -46,6 +48,8 @@ public abstract class BaseBlockEntity extends BlockEntity {
     /**
      * Load custom block entity data from NBT.
      * Override this instead of {@link #loadAdditional(ValueInput)}.
+     *
+     * <p>Note: Use {@code level.registryAccess()} to deserialize ItemStacks and other registry objects.
      *
      * @param tag the compound tag to read custom data from
      */

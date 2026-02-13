@@ -133,24 +133,18 @@ public class CreativeEngineBlockEntity extends AbstractEngineBlockEntity {
     // ==================== NBT Serialization ====================
 
     @Override
-    protected void saveAdditional(ValueOutput view) {
-        super.saveAdditional(view);
-
-        CompoundTag creativeData = new CompoundTag();
-        creativeData.putInt("outputLevelIndex", outputLevelIndex);
-        view.store("CreativeData", CompoundTag.CODEC, creativeData);
+    protected void saveCustomData(CompoundTag nbt) {
+        super.saveCustomData(nbt);
+        nbt.putInt("outputLevelIndex", outputLevelIndex);
     }
 
     @Override
-    protected void loadAdditional(ValueInput view) {
-        super.loadAdditional(view);
-
-        view.read("CreativeData", CompoundTag.CODEC).ifPresent(creativeData -> {
-            outputLevelIndex = creativeData.getInt("outputLevelIndex").orElse(0);
-            // Clamp to valid range
-            if (outputLevelIndex < 0 || outputLevelIndex >= OUTPUT_LEVELS.length) {
-                outputLevelIndex = 0;
-            }
-        });
+    protected void loadCustomData(CompoundTag nbt) {
+        super.loadCustomData(nbt);
+        outputLevelIndex = nbt.getInt("outputLevelIndex").orElse(0);
+        // Clamp to valid range
+        if (outputLevelIndex < 0 || outputLevelIndex >= OUTPUT_LEVELS.length) {
+            outputLevelIndex = 0;
+        }
     }
 }
