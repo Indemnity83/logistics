@@ -1,42 +1,37 @@
 package com.logistics.automation.laserquarry.entity;
 
+import com.logistics.LogisticsAutomation;
 import com.logistics.api.LogisticsApi;
 import com.logistics.api.TransportApi;
-import team.reborn.energy.api.base.SimpleEnergyStorage;
 import com.logistics.automation.laserquarry.LaserQuarryBlock;
 import com.logistics.automation.laserquarry.LaserQuarryConfig;
 import com.logistics.automation.laserquarry.LaserQuarryFrameBlock;
-import com.logistics.LogisticsAutomation;
 import com.logistics.automation.render.ClientRenderCacheHooks;
+import com.logistics.core.lib.block.BaseBlockEntity;
 import com.logistics.core.lib.pipe.PipeConnection;
 import com.logistics.core.lib.support.ProbeResult;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.Container;
-import net.minecraft.world.WorldlyContainer;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.protocol.game.ClientGamePacketListener;
-import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.storage.ValueInput;
-import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.Container;
+import net.minecraft.world.WorldlyContainer;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
+import team.reborn.energy.api.base.SimpleEnergyStorage;
 
-public class LaserQuarryBlockEntity extends BlockEntity implements PipeConnection {
+public class LaserQuarryBlockEntity extends BaseBlockEntity implements PipeConnection {
     private static final long REGISTRY_TTL_TICKS = 200L;
     private static final Map<ResourceKey<Level>, Map<Long, Long>> ACTIVE_QUARRIES = new HashMap<>();
 
@@ -1126,114 +1121,94 @@ public class LaserQuarryBlockEntity extends BlockEntity implements PipeConnectio
         return builder.build();
     }
 
-    // NBT serialization using the new WriteView/ReadView API
+    // NBT serialization
     @Override
-    protected void saveAdditional(ValueOutput view) {
-        super.saveAdditional(view);
+    protected void saveCustomData(CompoundTag nbt) {
+        super.saveCustomData(nbt);
 
-        // Save energy
-        CompoundTag energyState = new CompoundTag();
-        energyState.putLong("Amount", energyStorage.amount);
-        view.store("Energy", CompoundTag.CODEC, energyState);
+        // Save energy (using old key name for compatibility)
+        nbt.putLong("Amount", energyStorage.amount);
 
-        // Save mining state
-        CompoundTag miningState = new CompoundTag();
-        miningState.putInt("X", miningX);
-        miningState.putInt("Y", miningY);
-        miningState.putInt("Z", miningZ);
-        miningState.putFloat("Progress", breakProgress);
-        miningState.putBoolean("Finished", finished);
-        miningState.putString("Phase", currentPhase.name());
-        miningState.putInt("FrameBuildIndex", frameBuildIndex);
-        // Arm state
-        miningState.putString("ArmState", armState.name());
-        miningState.putFloat("ArmX", armX);
-        miningState.putFloat("ArmY", armY);
-        miningState.putFloat("ArmZ", armZ);
-        miningState.putBoolean("ArmInitialized", armInitialized);
-        miningState.putInt("SettlingTicks", settlingTicksRemaining);
-        miningState.putInt("ExpectedTravelTicks", expectedTravelTicks);
-        miningState.putFloat("SyncedArmSpeed", syncedArmSpeed);
-        view.store("MiningState", CompoundTag.CODEC, miningState);
+        // Save mining state (using old key names)
+        nbt.putInt("X", miningX);
+        nbt.putInt("Y", miningY);
+        nbt.putInt("Z", miningZ);
+        nbt.putFloat("Progress", breakProgress);
+        nbt.putBoolean("Finished", finished);
+        nbt.putString("Phase", currentPhase.name());
+        nbt.putInt("FrameBuildIndex", frameBuildIndex);
+
+        // Save arm state
+        nbt.putString("ArmState", armState.name());
+        nbt.putFloat("ArmX", armX);
+        nbt.putFloat("ArmY", armY);
+        nbt.putFloat("ArmZ", armZ);
+        nbt.putBoolean("ArmInitialized", armInitialized);
+        nbt.putInt("SettlingTicks", settlingTicksRemaining);
+        nbt.putInt("ExpectedTravelTicks", expectedTravelTicks);
+        nbt.putFloat("SyncedArmSpeed", syncedArmSpeed);
 
         // Save custom bounds
         if (useCustomBounds) {
-            CompoundTag customBoundsNbt = new CompoundTag();
-            customBoundsNbt.putInt("MinX", customMinX);
-            customBoundsNbt.putInt("MinZ", customMinZ);
-            customBoundsNbt.putInt("MaxX", customMaxX);
-            customBoundsNbt.putInt("MaxZ", customMaxZ);
-            view.store("CustomBounds", CompoundTag.CODEC, customBoundsNbt);
-        } else {
-            view.discard("CustomBounds");
+            nbt.putInt("MinX", customMinX);
+            nbt.putInt("MinZ", customMinZ);
+            nbt.putInt("MaxX", customMaxX);
+            nbt.putInt("MaxZ", customMaxZ);
         }
     }
 
     @Override
-    protected void loadAdditional(ValueInput view) {
-        super.loadAdditional(view);
+    protected void loadCustomData(CompoundTag nbt) {
+        super.loadCustomData(nbt);
 
-        useCustomBounds = false;
-        customMinX = 0;
-        customMinZ = 0;
-        customMaxX = 0;
-        customMaxZ = 0;
+        // Load energy (using old key name for compatibility)
+        energyStorage.amount = nbt.getLong("Amount").orElse(0L);
 
-        // Load energy
-        view.read("Energy", CompoundTag.CODEC).ifPresent(energyState -> {
-            energyStorage.amount = energyState.getLong("Amount").orElse(0L);
+        // Load mining state (using old key names)
+        miningX = nbt.getInt("X").orElse(0);
+        miningY = nbt.getInt("Y").orElse(0);
+        miningZ = nbt.getInt("Z").orElse(0);
+        breakProgress = nbt.getFloat("Progress").orElse(0f);
+        finished = nbt.getBoolean("Finished").orElse(false);
+        frameBuildIndex = nbt.getInt("FrameBuildIndex").orElse(0);
+
+        nbt.getString("Phase").ifPresent(phaseName -> {
+            try {
+                currentPhase = Phase.valueOf(phaseName);
+            } catch (IllegalArgumentException e) {
+                currentPhase = Phase.CLEARING;
+            }
         });
 
-        // Load mining state
-        view.read("MiningState", CompoundTag.CODEC).ifPresent(miningState -> {
-            miningX = miningState.getInt("X").orElse(0);
-            miningY = miningState.getInt("Y").orElse(0);
-            miningZ = miningState.getInt("Z").orElse(0);
-            breakProgress = miningState.getFloat("Progress").orElse(0f);
-            finished = miningState.getBoolean("Finished").orElse(false);
-            frameBuildIndex = miningState.getInt("FrameBuildIndex").orElse(0);
-            miningState.getString("Phase").ifPresent(phaseName -> {
-                try {
-                    currentPhase = Phase.valueOf(phaseName);
-                } catch (IllegalArgumentException e) {
-                    currentPhase = Phase.CLEARING;
-                }
-            });
-            // Load arm state
-            miningState.getString("ArmState").ifPresent(armStateName -> {
-                try {
-                    armState = ArmState.valueOf(armStateName);
-                } catch (IllegalArgumentException e) {
-                    armState = ArmState.MOVING;
-                }
-            });
-            armX = miningState.getFloat("ArmX").orElse(0f);
-            armY = miningState.getFloat("ArmY").orElse(0f);
-            armZ = miningState.getFloat("ArmZ").orElse(0f);
-            armInitialized = miningState.getBoolean("ArmInitialized").orElse(false);
-            settlingTicksRemaining = miningState.getInt("SettlingTicks").orElse(0);
-            expectedTravelTicks = miningState.getInt("ExpectedTravelTicks").orElse(0);
-            syncedArmSpeed = miningState.getFloat("SyncedArmSpeed").orElse(LaserQuarryConfig.ARM_SPEED);
+        // Load arm state
+        nbt.getString("ArmState").ifPresent(armStateName -> {
+            try {
+                armState = ArmState.valueOf(armStateName);
+            } catch (IllegalArgumentException e) {
+                armState = ArmState.MOVING;
+            }
         });
+        armX = nbt.getFloat("ArmX").orElse(0f);
+        armY = nbt.getFloat("ArmY").orElse(0f);
+        armZ = nbt.getFloat("ArmZ").orElse(0f);
+        armInitialized = nbt.getBoolean("ArmInitialized").orElse(false);
+        settlingTicksRemaining = nbt.getInt("SettlingTicks").orElse(0);
+        expectedTravelTicks = nbt.getInt("ExpectedTravelTicks").orElse(0);
+        syncedArmSpeed = nbt.getFloat("SyncedArmSpeed").orElse(LaserQuarryConfig.ARM_SPEED);
 
-        // Load custom bounds
-        view.read("CustomBounds", CompoundTag.CODEC).ifPresent(customBoundsNbt -> {
-            useCustomBounds = true;
-            customMinX = customBoundsNbt.getInt("MinX").orElse(0);
-            customMinZ = customBoundsNbt.getInt("MinZ").orElse(0);
-            customMaxX = customBoundsNbt.getInt("MaxX").orElse(0);
-            customMaxZ = customBoundsNbt.getInt("MaxZ").orElse(0);
-        });
-    }
-
-    @Nullable @Override
-    public Packet<ClientGamePacketListener> getUpdatePacket() {
-        return ClientboundBlockEntityDataPacket.create(this);
-    }
-
-    @Override
-    public CompoundTag getUpdateTag(HolderLookup.Provider registryLookup) {
-        return saveWithoutMetadata(registryLookup);
+        // Load custom bounds (check if any bounds keys exist)
+        useCustomBounds = nbt.contains("MinX");
+        if (useCustomBounds) {
+            customMinX = nbt.getInt("MinX").orElse(0);
+            customMinZ = nbt.getInt("MinZ").orElse(0);
+            customMaxX = nbt.getInt("MaxX").orElse(0);
+            customMaxZ = nbt.getInt("MaxZ").orElse(0);
+        } else {
+            customMinX = 0;
+            customMinZ = 0;
+            customMaxX = 0;
+            customMaxZ = 0;
+        }
     }
 
     @Override
