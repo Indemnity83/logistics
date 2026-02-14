@@ -3,6 +3,8 @@ package com.logistics.core.lib.storage;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 
+import java.util.function.Consumer;
+
 /**
  * NBT compatibility layer to abstract API differences between Minecraft versions.
  *
@@ -119,7 +121,7 @@ public final class NbtCompat {
      * <p><b>mc/1.21.11 implementation:</b> {@code tag.getCompound(key).ifPresent(action)}
      * <p><b>mc/1.21.1 backport:</b> Same code works!
      */
-    public static void ifHasCompound(CompoundTag tag, String key, java.util.function.Consumer<CompoundTag> action) {
+    public static void ifHasCompound(CompoundTag tag, String key, Consumer<CompoundTag> action) {
         tag.getCompound(key).ifPresent(action);
     }
 
@@ -131,7 +133,7 @@ public final class NbtCompat {
      * <p><b>mc/1.21.11 implementation:</b> {@code tag.getList(key).ifPresent(action)}
      * <p><b>mc/1.21.1 backport:</b> {@code if (tag.contains(key)) action.accept(tag.getList(key, 10));}
      */
-    public static void ifHasList(CompoundTag tag, String key, java.util.function.Consumer<ListTag> action) {
+    public static void ifHasList(CompoundTag tag, String key, Consumer<ListTag> action) {
         tag.getList(key).ifPresent(action);
     }
 
@@ -151,7 +153,7 @@ public final class NbtCompat {
      * <p><b>mc/1.21.11 implementation:</b> {@code list.getCompound(index).ifPresent(action)}
      * <p><b>mc/1.21.1 backport:</b> Same code works!
      */
-    public static void ifHasCompoundAt(ListTag list, int index, java.util.function.Consumer<CompoundTag> action) {
+    public static void ifHasCompoundAt(ListTag list, int index, Consumer<CompoundTag> action) {
         if (index >= 0 && index < list.size()) {
             list.getCompound(index).ifPresent(action);
         }
@@ -178,7 +180,7 @@ public final class NbtCompat {
      * <p><b>mc/1.21.11 implementation:</b> {@code tag.getIntArray(key).ifPresent(action)}
      * <p><b>mc/1.21.1 backport:</b> Same code works!
      */
-    public static void ifHasIntArray(CompoundTag tag, String key, java.util.function.Consumer<int[]> action) {
+    public static void ifHasIntArray(CompoundTag tag, String key, Consumer<int[]> action) {
         tag.getIntArray(key).ifPresent(action);
     }
 }

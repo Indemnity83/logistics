@@ -100,17 +100,9 @@ public class ItemFilterModule implements Module {
         CompoundTag filters = ctx.getCompoundTag(this, FILTERS);
         List<String> slots = new ArrayList<>(FILTER_SLOTS_PER_SIDE);
 
-        var listOpt = filters.getList(direction.getName());
-        if (listOpt.isPresent()) {
-            ListTag list = listOpt.get();
-            for (int i = 0; i < FILTER_SLOTS_PER_SIDE; i++) {
-                slots.add(NbtCompat.getStringAt(list, i, ""));
-            }
-        } else {
-            // No saved filters - fill with empty strings
-            for (int i = 0; i < FILTER_SLOTS_PER_SIDE; i++) {
-                slots.add("");
-            }
+        ListTag list = NbtCompat.getListOrEmpty(filters, direction.getName());
+        for (int i = 0; i < FILTER_SLOTS_PER_SIDE; i++) {
+            slots.add(NbtCompat.getStringAt(list, i, ""));
         }
         return slots;
     }
