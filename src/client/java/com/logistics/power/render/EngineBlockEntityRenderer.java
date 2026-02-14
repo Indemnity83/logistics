@@ -2,7 +2,7 @@ package com.logistics.power.render;
 
 import static com.logistics.core.lib.power.AbstractEngineBlockEntity.STAGE;
 
-import com.logistics.LogisticsMod;
+import com.logistics.LogisticsPower;
 import com.logistics.core.lib.power.AbstractEngineBlockEntity;
 import com.logistics.core.lib.power.AbstractEngineBlockEntity.HeatStage;
 import com.logistics.core.render.ModelRegistry;
@@ -37,24 +37,24 @@ import net.minecraft.world.phys.Vec3;
 public class EngineBlockEntityRenderer implements BlockEntityRenderer<AbstractEngineBlockEntity, EngineRenderState> {
     // Shared model identifiers
     private static final Identifier TRUNK_BASE_MODEL =
-            Identifier.fromNamespaceAndPath(LogisticsMod.MOD_ID, "block/power/engine_trunk_base");
+            LogisticsPower.blockModelIdentifier("engine_trunk_base");
     private static final Identifier TRUNK_OVERLAY_MODEL =
-            Identifier.fromNamespaceAndPath(LogisticsMod.MOD_ID, "block/power/engine_trunk_overlay");
-    private static final Identifier CHAMBER_MODEL = Identifier.fromNamespaceAndPath(LogisticsMod.MOD_ID, "block/power/engine_chamber");
+            LogisticsPower.blockModelIdentifier("engine_trunk_overlay");
+    private static final Identifier CHAMBER_MODEL = LogisticsPower.blockModelIdentifier("engine_chamber");
 
     // Per-engine model identifiers (base static and moving have engine-specific textures)
     private static final Identifier REDSTONE_BASE_STATIC =
-            Identifier.fromNamespaceAndPath(LogisticsMod.MOD_ID, "block/power/redstone_engine_base_static");
+            LogisticsPower.blockModelIdentifier("redstone_engine_base_static");
     private static final Identifier REDSTONE_BASE_MOVING =
-            Identifier.fromNamespaceAndPath(LogisticsMod.MOD_ID, "block/power/redstone_engine_base_moving");
+            LogisticsPower.blockModelIdentifier("redstone_engine_base_moving");
     private static final Identifier STIRLING_BASE_STATIC =
-            Identifier.fromNamespaceAndPath(LogisticsMod.MOD_ID, "block/power/stirling_engine_base_static");
+            LogisticsPower.blockModelIdentifier("stirling_engine_base_static");
     private static final Identifier STIRLING_BASE_MOVING =
-            Identifier.fromNamespaceAndPath(LogisticsMod.MOD_ID, "block/power/stirling_engine_base_moving");
+            LogisticsPower.blockModelIdentifier("stirling_engine_base_moving");
     private static final Identifier CREATIVE_BASE_STATIC =
-            Identifier.fromNamespaceAndPath(LogisticsMod.MOD_ID, "block/power/creative_engine_base_static");
+            LogisticsPower.blockModelIdentifier("creative_engine_base_static");
     private static final Identifier CREATIVE_BASE_MOVING =
-            Identifier.fromNamespaceAndPath(LogisticsMod.MOD_ID, "block/power/creative_engine_base_moving");
+            LogisticsPower.blockModelIdentifier("creative_engine_base_moving");
 
     // Stage colors (RGB 0-1 range) for trunk tinting
     private static final float[] COLOR_BLUE = {0.2f, 0.4f, 0.8f};

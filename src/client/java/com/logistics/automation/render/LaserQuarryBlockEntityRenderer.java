@@ -1,6 +1,6 @@
 package com.logistics.automation.render;
 
-import com.logistics.LogisticsMod;
+import com.logistics.LogisticsAutomation;
 import com.logistics.automation.laserquarry.LaserQuarryBlock;
 import com.logistics.automation.laserquarry.LaserQuarryConfig;
 import com.logistics.automation.laserquarry.entity.LaserQuarryBlockEntity;
@@ -32,17 +32,17 @@ import net.minecraft.world.phys.Vec3;
  */
 public class LaserQuarryBlockEntityRenderer implements BlockEntityRenderer<LaserQuarryBlockEntity, LaserQuarryRenderState> {
     private static final Identifier ARM_MODEL_ID =
-            Identifier.fromNamespaceAndPath(LogisticsMod.MOD_ID, "block/automation/laser_quarry_gantry_arm");
+            LogisticsAutomation.blockModelIdentifier("laser_quarry_gantry_arm");
     private static final Identifier DRILL_MODEL_ID =
-            Identifier.fromNamespaceAndPath(LogisticsMod.MOD_ID, "block/automation/laser_quarry_drill");
+            LogisticsAutomation.blockModelIdentifier("laser_quarry_drill");
     private static final Identifier LED_GREEN_MODEL_ID =
-            Identifier.fromNamespaceAndPath(LogisticsMod.MOD_ID, "block/automation/laser_quarry_led_green");
+            LogisticsAutomation.blockModelIdentifier("laser_quarry_led_green");
     private static final Identifier LED_RED_MODEL_ID =
-            Identifier.fromNamespaceAndPath(LogisticsMod.MOD_ID, "block/automation/laser_quarry_led_red");
+            LogisticsAutomation.blockModelIdentifier("laser_quarry_led_red");
     private static final Identifier DISPLAY_MODEL_ID =
-            Identifier.fromNamespaceAndPath(LogisticsMod.MOD_ID, "block/automation/laser_quarry_display");
+            LogisticsAutomation.blockModelIdentifier("laser_quarry_display");
     private static final Identifier TOP_HATCH_MODEL_ID =
-            Identifier.fromNamespaceAndPath(LogisticsMod.MOD_ID, "block/automation/laser_quarry_top_hatch");
+            LogisticsAutomation.blockModelIdentifier("laser_quarry_top_hatch");
 
     public LaserQuarryBlockEntityRenderer(BlockEntityRendererProvider.Context ctx) {}
 
