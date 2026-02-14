@@ -87,13 +87,11 @@ public abstract class BaseBlockEntity extends BlockEntity {
     @Override
     protected final void loadAdditional(ValueInput view) {
         super.loadAdditional(view);
-        // Try to read new format first (LogisticsData wrapper)
-        if (view.read(DATA_KEY, CompoundTag.CODEC).isPresent()) {
-            view.read(DATA_KEY, CompoundTag.CODEC).ifPresent(this::loadLogisticsData);
-        } else {
-            // Fall back to legacy format (root-level keys)
-            loadLegacyData(view);
-        }
+        // Try to read new format first; fall back to legacy root-level keys
+        view.read(DATA_KEY, CompoundTag.CODEC).ifPresentOrElse(
+                this::loadLogisticsData,
+                () -> loadLegacyData(view)
+        );
     }
 
     // ==================== Client Sync ====================

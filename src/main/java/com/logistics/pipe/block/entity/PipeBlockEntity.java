@@ -147,6 +147,8 @@ public class PipeBlockEntity extends BaseBlockEntity implements PipeConnection, 
 
     @Override
     protected void saveLogisticsData(CompoundTag pipeData) {
+        super.saveLogisticsData(pipeData);
+
         // Save traveling items
         if (!travelingItems.isEmpty()) {
             ListTag itemsList = new ListTag();
@@ -179,6 +181,8 @@ public class PipeBlockEntity extends BaseBlockEntity implements PipeConnection, 
 
     @Override
     protected void loadLogisticsData(CompoundTag pipeData) {
+        super.loadLogisticsData(pipeData);
+
         long readStart = System.nanoTime();
 
         // Load traveling items
@@ -229,6 +233,8 @@ public class PipeBlockEntity extends BaseBlockEntity implements PipeConnection, 
 
     @Override
     protected void loadLegacyData(ValueInput view) {
+        super.loadLegacyData(view);
+
         view.read("PipeData", CompoundTag.CODEC).ifPresent(oldData -> {
             long readStart = System.nanoTime();
 
@@ -237,17 +243,17 @@ public class PipeBlockEntity extends BaseBlockEntity implements PipeConnection, 
 
             // Rename "TravelingItems" -> "ItemsInTransit"
             if (oldData.contains("TravelingItems")) {
-                massaged.put("ItemsInTransit", oldData.get("TravelingItems"));
+                massaged.put("ItemsInTransit", Objects.requireNonNull(oldData.get("TravelingItems")));
             }
 
             // "ModuleState" has same key name
             if (oldData.contains("ModuleState")) {
-                massaged.put("ModuleState", oldData.get("ModuleState"));
+                massaged.put("ModuleState", Objects.requireNonNull(oldData.get("ModuleState")));
             }
 
             // Rename "Connections" -> "ConnectionTypes"
             if (oldData.contains("Connections")) {
-                massaged.put("ConnectionTypes", oldData.get("Connections"));
+                massaged.put("ConnectionTypes", Objects.requireNonNull(oldData.get("Connections")));
             }
 
             // Now load using the standard loader which expects new keys

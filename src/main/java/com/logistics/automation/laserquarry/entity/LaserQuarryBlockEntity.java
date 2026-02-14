@@ -1218,6 +1218,8 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity implements PipeConne
 
     @Override
     protected void loadLegacyData(net.minecraft.world.level.storage.ValueInput view) {
+        super.loadLegacyData(view);
+
         useCustomBounds = false;
         customMinX = 0;
         customMinZ = 0;

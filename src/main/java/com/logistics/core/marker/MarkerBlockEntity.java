@@ -157,6 +157,8 @@ public class MarkerBlockEntity extends BaseBlockEntity {
 
     @Override
     protected void saveLogisticsData(CompoundTag data) {
+        super.saveLogisticsData(data);
+
         // Save connected markers
         if (!connectedMarkers.isEmpty()) {
             int[] positions = new int[connectedMarkers.size() * 3];
@@ -186,6 +188,8 @@ public class MarkerBlockEntity extends BaseBlockEntity {
 
     @Override
     protected void loadLogisticsData(CompoundTag data) {
+        super.loadLogisticsData(data);
+
         connectedMarkers.clear();
         boundMin = null;
         boundMax = null;
@@ -197,6 +201,8 @@ public class MarkerBlockEntity extends BaseBlockEntity {
 
     @Override
     protected void loadLegacyData(net.minecraft.world.level.storage.ValueInput view) {
+        super.loadLegacyData(view);
+
         view.read("MarkerData", net.minecraft.nbt.CompoundTag.CODEC).ifPresent(data -> {
             connectedMarkers.clear();
             boundMin = null;
