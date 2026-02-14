@@ -1,6 +1,6 @@
 package com.logistics.core.render;
 
-import com.logistics.LogisticsMod;
+import com.logistics.LogisticsCore;
 import com.logistics.core.marker.MarkerBlockEntity;
 import com.logistics.core.marker.MarkerManager;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -23,7 +23,7 @@ import net.minecraft.world.phys.Vec3;
  */
 public class MarkerBlockEntityRenderer implements BlockEntityRenderer<MarkerBlockEntity, MarkerRenderState> {
     private static final Identifier BEAM_MODEL_ID =
-            Identifier.fromNamespaceAndPath(LogisticsMod.MOD_ID, "block/core/marker_beam");
+            LogisticsCore.blockModelIdentifier("marker_beam");
 
     // No tinting needed - texture is pre-colored blue (#0132FD)
     private static final float BEAM_RED = 1.0f;

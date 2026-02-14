@@ -76,7 +76,7 @@ public class Pipe {
                 return override;
             }
         }
-        return Identifier.fromNamespaceAndPath(LogisticsMod.MOD_ID, "block/" + getPipeName() + "_core");
+        return LogisticsMod.getIdentifier("block/" + getPipeName() + "_core");
     }
 
     /**
@@ -109,7 +109,7 @@ public class Pipe {
         }
 
         String suffix = ctx.isInventoryConnection(direction) ? "_arm_extended" : "_arm";
-        return Identifier.fromNamespaceAndPath(LogisticsMod.MOD_ID, "block/" + getPipeName() + suffix);
+        return LogisticsMod.getIdentifier("block/" + getPipeName() + suffix);
     }
 
     /**

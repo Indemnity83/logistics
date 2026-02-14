@@ -53,6 +53,16 @@ public class LogisticsMod implements ModInitializer {
         return getIdentifier(d.isEmpty() ? name : d + "/" + name);
     }
 
+    /**
+     * Creates an identifier for a block model resource.
+     * Automatically prepends "block/" and the domain path.
+     * Example: LogisticsPipe.blockIdentifier("copper_pipe_core") → logistics:block/pipe/copper_pipe_core
+     */
+    @NonNull protected Identifier getBlockModelIdentifier(String name) {
+        String d = domain();
+        return getIdentifier(d.isEmpty() ? "block/" + name : "block/" + d + "/" + name);
+    }
+
     protected Item registerItem(String name, Function<Item.Properties, Item> itemFactory) {
         ResourceKey<Item> itemKey = ResourceKey.create(Registries.ITEM, getDomainIdentifier(name));
         Item item = itemFactory.apply(new Item.Properties().setId(itemKey));

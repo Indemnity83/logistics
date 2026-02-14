@@ -1,6 +1,5 @@
 package com.logistics.pipe.modules;
 
-import com.logistics.LogisticsMod;
 import com.logistics.LogisticsPipe;
 import com.logistics.pipe.Pipe;
 import com.logistics.pipe.PipeContext;
@@ -204,7 +203,7 @@ public class WeatheringModule implements Module {
             return null; // Use default model
         }
         String suffix = getStageSuffix(stage);
-        return Identifier.fromNamespaceAndPath(LogisticsMod.MOD_ID, "block/pipe/copper_transport_pipe_core" + suffix);
+        return LogisticsPipe.blockModelIdentifier("copper_transport_pipe_core" + suffix);
     }
 
     @Override
@@ -215,7 +214,7 @@ public class WeatheringModule implements Module {
         }
         String suffix = getStageSuffix(stage);
         String armType = ctx.isInventoryConnection(direction) ? "_arm_extended" : "_arm";
-        return Identifier.fromNamespaceAndPath(LogisticsMod.MOD_ID, "block/pipe/copper_transport_pipe" + armType + suffix);
+        return LogisticsPipe.blockModelIdentifier("copper_transport_pipe" + armType + suffix);
     }
 
     // --- Item component handling ---

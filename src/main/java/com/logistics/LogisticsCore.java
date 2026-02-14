@@ -34,6 +34,10 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         return INSTANCE.getDomainIdentifier(name);
     }
 
+    public static Identifier blockModelIdentifier(String name) {
+        return INSTANCE.getBlockModelIdentifier(name);
+    }
+
     @Override
     public void initCommon() {
         LOGGER.info("Registering {}", domain());

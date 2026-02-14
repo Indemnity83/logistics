@@ -1,6 +1,5 @@
 package com.logistics.pipe.modules;
 
-import com.logistics.LogisticsMod;
 import com.logistics.LogisticsPipe;
 import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
@@ -233,7 +232,7 @@ public class ExtractionModule implements Module {
             return null;
         }
         String suffix = ctx.isInventoryConnection(direction) ? "_feature_extended" : "_feature";
-        return Identifier.fromNamespaceAndPath(LogisticsMod.MOD_ID, "block/pipe/item_extractor_pipe" + suffix);
+        return LogisticsPipe.blockModelIdentifier("item_extractor_pipe" + suffix);
     }
 
     private boolean isExtractionFace(PipeContext ctx, Direction direction) {

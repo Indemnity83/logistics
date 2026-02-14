@@ -1,11 +1,10 @@
 package com.logistics.pipe.modules;
 
-import com.logistics.LogisticsMod;
+import com.logistics.LogisticsPipe;
 import com.logistics.pipe.Pipe;
 import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.block.PipeBlock;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
-import com.logistics.LogisticsPipe;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
@@ -99,7 +98,7 @@ public class PipeMarkingModule implements Module {
         if (color == null || ctx.pipe() == null) {
             return java.util.List.of();
         }
-        Identifier pipeMarkings = Identifier.fromNamespaceAndPath(LogisticsMod.MOD_ID, "block/pipe/pipe_markings");
+        Identifier pipeMarkings = LogisticsPipe.blockModelIdentifier("pipe_markings");
         return java.util.List.of(new Pipe.CoreDecoration(pipeMarkings, color.getFireworkColor()));
     }
 
