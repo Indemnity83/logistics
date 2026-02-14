@@ -7,7 +7,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 
 /**
@@ -104,13 +103,7 @@ public class CreativeEngineBlockEntity extends AbstractEngineBlockEntity {
      */
     public long cycleOutputLevel() {
         outputLevelIndex = (outputLevelIndex + 1) % OUTPUT_LEVELS.length;
-        setChanged();
-
-        // Sync to clients so renderer can update piston speed
-        if (level != null) {
-            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
-        }
-
+        markDirtyAndSync(); // Sync to clients so renderer can update piston speed
         return OUTPUT_LEVELS[outputLevelIndex];
     }
 

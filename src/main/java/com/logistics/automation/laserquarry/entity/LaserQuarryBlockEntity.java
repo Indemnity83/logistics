@@ -138,6 +138,10 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity implements PipeConne
 
     /**
      * Sync arm state to clients. Called on arm state transitions.
+     *
+     * Note: Does not call setChanged() - chunk dirty is managed separately by tick(),
+     * which marks dirty when energy is consumed or mining advances. This avoids
+     * redundant chunk dirty marks on every arm position update (per-tick).
      */
     private void syncToClients() {
         if (level != null && !level.isClientSide()) {

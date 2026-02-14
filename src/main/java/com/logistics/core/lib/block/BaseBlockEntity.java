@@ -106,7 +106,14 @@ public abstract class BaseBlockEntity extends BlockEntity {
      * <ul>
      *   <li>Chunk saving (via {@link #setChanged()})</li>
      *   <li>Client block updates (via {@link net.minecraft.world.level.Level#sendBlockUpdated})</li>
+     *   <li>Neighbor block updates (comparators, redstone) via {@link Block#UPDATE_ALL}</li>
      * </ul>
+     *
+     * <p><b>Note on UPDATE_ALL:</b> Uses {@code Block.UPDATE_ALL} (flag 3) which includes
+     * both {@code UPDATE_CLIENTS} and {@code UPDATE_NEIGHBORS}. This ensures comparators
+     * and redstone circuits update correctly when block entity state changes (e.g., energy
+     * levels, inventory contents). If neighbor updates are not needed for performance,
+     * subclasses can call {@code level.sendBlockUpdated} directly with {@code UPDATE_CLIENTS}.
      */
     protected final void markDirtyAndSync() {
         setChanged();

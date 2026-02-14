@@ -1,5 +1,6 @@
 package com.logistics.pipe.block.entity;
 
+import com.logistics.LogisticsMod;
 import com.logistics.LogisticsPipe;
 import com.logistics.core.lib.block.BaseBlockEntity;
 import com.logistics.core.lib.pipe.PipeConnection;
@@ -11,6 +12,8 @@ import com.logistics.pipe.runtime.PipeRuntime;
 import com.logistics.pipe.runtime.TravelingItem;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.minecraft.core.BlockPos;
@@ -22,7 +25,9 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import team.reborn.energy.api.base.SimpleEnergyStorage;
@@ -189,15 +194,11 @@ public class PipeBlockEntity extends BaseBlockEntity implements PipeConnection, 
         }
 
         // Load module state
-        if (!moduleState.isEmpty()) {
-            for (String key : new java.util.ArrayList<>(moduleState.keySet())) {
-                moduleState.remove(key);
-            }
-        }
+        new ArrayList<>(moduleState.keySet()).forEach(moduleState::remove);
         if (pipeData.contains("ModuleState")) {
             pipeData.getCompound("ModuleState").ifPresent(stored -> {
                 for (String key : stored.keySet()) {
-                    moduleState.put(key, java.util.Objects.requireNonNull(stored.get(key)).copy());
+                    moduleState.put(key, Objects.requireNonNull(stored.get(key)).copy());
                 }
             });
         }
@@ -227,7 +228,7 @@ public class PipeBlockEntity extends BaseBlockEntity implements PipeConnection, 
     }
 
     @Override
-    protected void loadLegacyData(net.minecraft.world.level.storage.ValueInput view) {
+    protected void loadLegacyData(ValueInput view) {
         view.read("PipeData", CompoundTag.CODEC).ifPresent(oldData -> {
             long readStart = System.nanoTime();
 
@@ -254,7 +255,7 @@ public class PipeBlockEntity extends BaseBlockEntity implements PipeConnection, 
 
             long durationMs = (System.nanoTime() - readStart) / 1_000_000L;
             if (durationMs >= 2L && Boolean.getBoolean("logistics.timing")) {
-                com.logistics.LogisticsMod.LOGGER.info(
+                LogisticsMod.LOGGER.info(
                         "[timing] PipeBlockEntity loadLegacyData at {} took {} ms (items={})",
                         getBlockPos(),
                         durationMs,
@@ -264,14 +265,14 @@ public class PipeBlockEntity extends BaseBlockEntity implements PipeConnection, 
     }
 
     public static void tick(
-            net.minecraft.world.level.Level world, BlockPos pos, BlockState state, PipeBlockEntity blockEntity) {
+            Level world, BlockPos pos, BlockState state, PipeBlockEntity blockEntity) {
         PipeRuntime.tick(world, pos, state, blockEntity);
     }
 
     /**
      * Drop an item entity at the pipe's position
      */
-    public static void dropItem(net.minecraft.world.level.Level level, BlockPos pos, TravelingItem item) {
+    public static void dropItem(Level level, BlockPos pos, TravelingItem item) {
         // Create item entity at center of pipe
         Vec3 spawnPos = Vec3.atCenterOf(pos);
 

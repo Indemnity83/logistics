@@ -76,7 +76,7 @@ public class CreativeSinkBlockEntity extends BaseBlockEntity implements AcceptsL
      */
     public long cycleDrainRate() {
         drainRateIndex = (drainRateIndex + 1) % DRAIN_RATES.length;
-        setChanged();
+        markDirtyAndSync(); // Sync to clients for potential UI/tooltip updates
         return DRAIN_RATES[drainRateIndex];
     }
 
