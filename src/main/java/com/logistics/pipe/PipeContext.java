@@ -1,6 +1,7 @@
 package com.logistics.pipe;
 
 import com.logistics.core.lib.pipe.PipeConnection;
+import com.logistics.core.lib.storage.NbtCompat;
 import com.logistics.pipe.block.PipeBlock;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.pipe.modules.Module;
@@ -31,7 +32,7 @@ public record PipeContext(Level world, BlockPos pos, BlockState state, PipeBlock
 
     // Convenience methods for module state access (with Module instance)
     public String getString(Module module, String key, String defaultValue) {
-        return moduleState(module.getStateKey()).getString(key).orElse(defaultValue);
+        return NbtCompat.getString(moduleState(module.getStateKey()), key, defaultValue);
     }
 
     public void saveString(Module module, String key, String value) {
@@ -39,7 +40,7 @@ public record PipeContext(Level world, BlockPos pos, BlockState state, PipeBlock
     }
 
     public int getInt(Module module, String key, int defaultValue) {
-        return moduleState(module.getStateKey()).getInt(key).orElse(defaultValue);
+        return NbtCompat.getInt(moduleState(module.getStateKey()), key, defaultValue);
     }
 
     public void saveInt(Module module, String key, int value) {
@@ -47,7 +48,7 @@ public record PipeContext(Level world, BlockPos pos, BlockState state, PipeBlock
     }
 
     public long getLong(Module module, String key, long defaultValue) {
-        return moduleState(module.getStateKey()).getLong(key).orElse(defaultValue);
+        return NbtCompat.getLong(moduleState(module.getStateKey()), key, defaultValue);
     }
 
     public void saveLong(Module module, String key, long value) {
@@ -70,7 +71,7 @@ public record PipeContext(Level world, BlockPos pos, BlockState state, PipeBlock
     }
 
     public CompoundTag getCompoundTag(Module module, String key) {
-        return moduleState(module.getStateKey()).getCompoundOrEmpty(key);
+        return NbtCompat.getCompoundOrEmpty(moduleState(module.getStateKey()), key);
     }
 
     public void putCompoundTag(Module module, String key, CompoundTag value) {

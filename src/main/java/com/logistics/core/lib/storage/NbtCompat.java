@@ -1,6 +1,7 @@
 package com.logistics.core.lib.storage;
 
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 
 /**
  * NBT compatibility layer to abstract API differences between Minecraft versions.
@@ -98,5 +99,86 @@ public final class NbtCompat {
      */
     public static int[] getIntArray(CompoundTag tag, String key, int[] defaultValue) {
         return tag.getIntArray(key).orElse(defaultValue);
+    }
+
+    // ==================== Compound Tag Helpers ====================
+
+    /**
+     * Read a compound tag from NBT, or return an empty tag if missing.
+     *
+     * <p><b>mc/1.21.11 implementation:</b> {@code tag.getCompound(key).orElse(new CompoundTag())}
+     * <p><b>mc/1.21.1 backport:</b> Same code works! (getCompound returns CompoundTag directly)
+     */
+    public static CompoundTag getCompoundOrEmpty(CompoundTag tag, String key) {
+        return tag.getCompound(key).orElse(new CompoundTag());
+    }
+
+    /**
+     * Execute action if compound tag exists at key.
+     *
+     * <p><b>mc/1.21.11 implementation:</b> {@code tag.getCompound(key).ifPresent(action)}
+     * <p><b>mc/1.21.1 backport:</b> Same code works!
+     */
+    public static void ifHasCompound(CompoundTag tag, String key, java.util.function.Consumer<CompoundTag> action) {
+        tag.getCompound(key).ifPresent(action);
+    }
+
+    // ==================== List Tag Helpers ====================
+
+    /**
+     * Execute action if list tag exists at key.
+     *
+     * <p><b>mc/1.21.11 implementation:</b> {@code tag.getList(key).ifPresent(action)}
+     * <p><b>mc/1.21.1 backport:</b> {@code if (tag.contains(key)) action.accept(tag.getList(key, 10));}
+     */
+    public static void ifHasList(CompoundTag tag, String key, java.util.function.Consumer<ListTag> action) {
+        tag.getList(key).ifPresent(action);
+    }
+
+    /**
+     * Get list tag or return empty list if missing.
+     *
+     * <p><b>mc/1.21.11 implementation:</b> {@code tag.getList(key).orElseGet(ListTag::new)}
+     * <p><b>mc/1.21.1 backport:</b> {@code tag.contains(key) ? tag.getList(key, 10) : new ListTag()}
+     */
+    public static ListTag getListOrEmpty(CompoundTag tag, String key) {
+        return tag.getList(key).orElseGet(ListTag::new);
+    }
+
+    /**
+     * Execute action if compound tag exists at index in list.
+     *
+     * <p><b>mc/1.21.11 implementation:</b> {@code list.getCompound(index).ifPresent(action)}
+     * <p><b>mc/1.21.1 backport:</b> Same code works!
+     */
+    public static void ifHasCompoundAt(ListTag list, int index, java.util.function.Consumer<CompoundTag> action) {
+        if (index >= 0 && index < list.size()) {
+            list.getCompound(index).ifPresent(action);
+        }
+    }
+
+    /**
+     * Get string at index in list with a default value.
+     *
+     * <p><b>mc/1.21.11 implementation:</b> {@code list.getString(index).orElse(defaultValue)}
+     * <p><b>mc/1.21.1 backport:</b> {@code index < list.size() ? list.getString(index) : defaultValue}
+     */
+    public static String getStringAt(ListTag list, int index, String defaultValue) {
+        if (index >= 0 && index < list.size()) {
+            return list.getString(index).orElse(defaultValue);
+        }
+        return defaultValue;
+    }
+
+    // ==================== Int Array Helper ====================
+
+    /**
+     * Execute action if int array exists at key.
+     *
+     * <p><b>mc/1.21.11 implementation:</b> {@code tag.getIntArray(key).ifPresent(action)}
+     * <p><b>mc/1.21.1 backport:</b> Same code works!
+     */
+    public static void ifHasIntArray(CompoundTag tag, String key, java.util.function.Consumer<int[]> action) {
+        tag.getIntArray(key).ifPresent(action);
     }
 }

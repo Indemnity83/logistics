@@ -188,40 +188,35 @@ public class PipeBlockEntity extends BaseBlockEntity implements PipeConnection, 
 
         // Load traveling items
         travelingItems.clear();
-        if (pipeData.contains("ItemsInTransit")) {
-            pipeData.getList("ItemsInTransit").ifPresent(itemsList -> {
-                for (int i = 0; i < itemsList.size(); i++) {
-                    itemsList.getCompound(i)
-                            .flatMap(itemTag -> TravelingItem.CODEC.parse(NbtOps.INSTANCE, itemTag).result())
-                            .ifPresent(travelingItems::add);
-                }
-            });
-        }
+        NbtCompat.ifHasList(pipeData, "ItemsInTransit", itemsList -> {
+            for (int i = 0; i < itemsList.size(); i++) {
+                NbtCompat.ifHasCompoundAt(itemsList, i, itemTag ->
+                    TravelingItem.CODEC.parse(NbtOps.INSTANCE, itemTag).result()
+                            .ifPresent(travelingItems::add));
+            }
+        });
 
         // Load module state
         // CompoundTag lacks clear() method, so copy keys then remove each
         new ArrayList<>(moduleState.keySet()).forEach(moduleState::remove);
-        if (pipeData.contains("ModuleState")) {
-            pipeData.getCompound("ModuleState").ifPresent(stored -> {
-                for (String key : stored.keySet()) {
-                    moduleState.put(key, Objects.requireNonNull(stored.get(key)).copy());
-                }
-            });
-        }
+        NbtCompat.ifHasCompound(pipeData, "ModuleState", stored -> {
+            for (String key : stored.keySet()) {
+                moduleState.put(key, Objects.requireNonNull(stored.get(key)).copy());
+            }
+        });
 
         // Load connection types
-        if (pipeData.contains("ConnectionTypes")) {
-            CompoundTag connectionsNbt = pipeData.getCompound("ConnectionTypes").orElse(new CompoundTag());
-            // Reset all to NONE first
-            for (int i = 0; i < 6; i++) {
-                connectionTypes[i] = PipeConnection.Type.NONE;
-            }
+        // Reset all to NONE first
+        for (int i = 0; i < 6; i++) {
+            connectionTypes[i] = PipeConnection.Type.NONE;
+        }
+        NbtCompat.ifHasCompound(pipeData, "ConnectionTypes", connectionsNbt -> {
             // Load saved connections
             for (Direction direction : Direction.values()) {
                 String typeName = NbtCompat.getString(connectionsNbt, direction.name().toLowerCase(), "none");
                 connectionTypes[direction.ordinal()] = PipeConnection.Type.fromSerializedName(typeName);
             }
-        }
+        });
 
         long durationMs = (System.nanoTime() - readStart) / 1_000_000L;
         if (durationMs >= 2L && Boolean.getBoolean("logistics.timing")) {
@@ -303,7 +298,7 @@ public class PipeBlockEntity extends BaseBlockEntity implements PipeConnection, 
         if (!moduleState.contains(key)) {
             moduleState.put(key, new CompoundTag());
         }
-        return moduleState.getCompound(key).orElseThrow();
+        return NbtCompat.getCompoundOrEmpty(moduleState, key);
     }
 
     public PipeContext createContext() {

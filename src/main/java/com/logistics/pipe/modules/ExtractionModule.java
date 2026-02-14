@@ -1,6 +1,7 @@
 package com.logistics.pipe.modules;
 
 import com.logistics.LogisticsPipe;
+import com.logistics.core.lib.storage.NbtCompat;
 import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.pipe.runtime.TravelingItem;
@@ -97,10 +98,7 @@ public class ExtractionModule implements Module {
 
     private @Nullable Direction getExtractionDirection(PipeContext ctx) {
         CompoundTag state = ctx.moduleState(getStateKey());
-        if (!state.contains(EXTRACT_FROM)) {
-            return null;
-        }
-        String directionStr = state.getString(EXTRACT_FROM).orElse("");
+        String directionStr = NbtCompat.getString(state, EXTRACT_FROM, "");
         if (directionStr.isEmpty()) {
             return null;
         }

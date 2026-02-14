@@ -1,5 +1,6 @@
 package com.logistics.pipe.modules;
 
+import com.logistics.core.lib.storage.NbtCompat;
 import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.pipe.runtime.RoutePlan;
@@ -103,11 +104,7 @@ public class ItemFilterModule implements Module {
         if (listOpt.isPresent()) {
             ListTag list = listOpt.get();
             for (int i = 0; i < FILTER_SLOTS_PER_SIDE; i++) {
-                if (i < list.size()) {
-                    slots.add(list.getString(i).orElse(""));
-                } else {
-                    slots.add("");
-                }
+                slots.add(NbtCompat.getStringAt(list, i, ""));
             }
         } else {
             // No saved filters - fill with empty strings
