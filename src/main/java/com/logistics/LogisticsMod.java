@@ -56,7 +56,7 @@ public class LogisticsMod implements ModInitializer {
     /**
      * Creates an identifier for a block model resource.
      * Automatically prepends "block/" and the domain path.
-     * Example: LogisticsPipe.blockIdentifier("copper_pipe_core") → logistics:block/pipe/copper_pipe_core
+     * Example: LogisticsPipe.blockModelIdentifier("copper_pipe_core") → logistics:block/pipe/copper_pipe_core
      */
     @NonNull protected Identifier getBlockModelIdentifier(String name) {
         String d = domain();
