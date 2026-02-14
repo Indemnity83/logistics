@@ -138,6 +138,7 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity implements PipeConne
         // Idle power consumption: 1 RF every 4 ticks (5 RF/second) to slowly drain buffer
         if (world.getGameTime() % 4 == 0 && entity.energyStorage.amount > 0) {
             entity.energyStorage.amount = Math.max(0, entity.energyStorage.amount - 1);
+            entity.setChanged(); // Mark chunk dirty for persistence
         }
 
         // Sync when energy OR consumption flag changes
@@ -1149,7 +1150,6 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity implements PipeConne
 
         // Save energy
         nbt.putLong("StoredEnergy", energyStorage.amount);
-        nbt.putBoolean("ConsumedEnergyThisTick", consumedEnergyThisTick);
 
         // Save mining state
         nbt.putInt("MiningX", miningX);
@@ -1186,7 +1186,6 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity implements PipeConne
 
         // Load energy
         energyStorage.amount = NbtCompat.getLong(nbt, "StoredEnergy", 0L);
-        consumedEnergyThisTick = NbtCompat.getBoolean(nbt, "ConsumedEnergyThisTick", false);
 
         // Load mining state
         miningX = NbtCompat.getInt(nbt, "MiningX", 0);
