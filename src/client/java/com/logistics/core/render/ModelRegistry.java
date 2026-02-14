@@ -19,11 +19,11 @@ import net.fabricmc.loader.api.ModContainer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.BlockStateModel;
 import net.minecraft.client.resources.model.ModelManager;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
 public final class ModelRegistry {
-    private static final Map<Identifier, ExtraModelKey<BlockStateModel>> MODEL_KEYS = new HashMap<>();
+    private static final Map<ResourceLocation, ExtraModelKey<BlockStateModel>> MODEL_KEYS = new HashMap<>();
     private static boolean registered;
 
     private ModelRegistry() {}
@@ -34,17 +34,17 @@ public final class ModelRegistry {
         }
         registered = true;
 
-        Set<Identifier> modelIds = collectModelIds();
+        Set<ResourceLocation> modelIds = collectModelIds();
         if (modelIds.isEmpty()) {
             LogisticsMod.LOGGER.warn("No models found to register for block entity rendering");
         }
 
-        for (Identifier id : modelIds) {
+        for (ResourceLocation id : modelIds) {
             MODEL_KEYS.put(id, ExtraModelKey.create(id::toString));
         }
 
         ModelLoadingPlugin.register(context -> {
-            for (Identifier id : modelIds) {
+            for (ResourceLocation id : modelIds) {
                 ExtraModelKey<BlockStateModel> key = MODEL_KEYS.get(id);
                 if (key != null) {
                     context.addModel(key, SimpleUnbakedExtraModel.blockStateModel(id));
@@ -53,7 +53,7 @@ public final class ModelRegistry {
         });
     }
 
-    @Nullable public static BlockStateModel getModel(Identifier id) {
+    @Nullable public static BlockStateModel getModel(ResourceLocation id) {
         ExtraModelKey<BlockStateModel> key = MODEL_KEYS.get(id);
         if (key == null) {
             return null;
@@ -71,14 +71,14 @@ public final class ModelRegistry {
         }
     }
 
-    private static Set<Identifier> collectModelIds() {
+    private static Set<ResourceLocation> collectModelIds() {
         Optional<ModContainer> container = FabricLoader.getInstance().getModContainer(LogisticsMod.MOD_ID);
         Optional<Path> root = container.flatMap(mod -> mod.findPath("assets/" + LogisticsMod.MOD_ID + "/models/block"));
         if (root.isEmpty()) {
             return Set.of();
         }
 
-        Set<Identifier> modelIds = new HashSet<>();
+        Set<ResourceLocation> modelIds = new HashSet<>();
         try (Stream<Path> files = Files.walk(root.get())) {
             files.filter(Files::isRegularFile).forEach(path -> {
                 String relative = root.get().relativize(path).toString().replace('\\', '/');
@@ -86,7 +86,7 @@ public final class ModelRegistry {
                     return;
                 }
                 String name = relative.substring(0, relative.length() - ".json".length());
-                modelIds.add(LogisticsMod.getIdentifier("block/" + name));
+                modelIds.add(LogisticsMod.getResourceLocation("block/" + name));
             });
         } catch (IOException e) {
             LogisticsMod.LOGGER.warn("Failed to scan model resources", e);

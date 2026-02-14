@@ -2,7 +2,7 @@ package com.logistics.core.lib.pipe;
 
 import com.logistics.LogisticsMod;
 import net.fabricmc.fabric.api.lookup.v1.block.BlockApiLookup;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.core.Direction;
 
 /**
@@ -25,7 +25,7 @@ public final class PipeConnectionRegistry {
      * Returns a {@link PipeConnection} if a pipe can connect from the given direction, null otherwise.
      */
     public static final BlockApiLookup<PipeConnection, Direction> SIDED = BlockApiLookup.get(
-            LogisticsMod.getIdentifier("pipe_connection"), PipeConnection.class, Direction.class);
+            LogisticsMod.getResourceLocation("pipe_connection"), PipeConnection.class, Direction.class);
 
     private PipeConnectionRegistry() {}
 }

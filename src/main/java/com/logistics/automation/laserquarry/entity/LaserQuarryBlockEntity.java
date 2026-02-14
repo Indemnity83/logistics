@@ -691,7 +691,7 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity implements PipeConne
         int currentY = startY - miningY;
 
         // Stop at bedrock or world bottom
-        if (currentY < level.getMinY()) {
+        if (currentY < level.getMinBuildHeight()) {
             return null;
         }
 
@@ -1216,8 +1216,8 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity implements PipeConne
     }
 
     @Override
-    protected void loadLegacyData(net.minecraft.world.level.storage.ValueInput view) {
-        super.loadLegacyData(view);
+    protected void loadLegacyData(CompoundTag nbt) {
+        super.loadLegacyData(nbt);
 
         useCustomBounds = false;
         customMinX = 0;
@@ -1226,12 +1226,14 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity implements PipeConne
         customMaxZ = 0;
 
         // Load energy from old "Energy" tag
-        view.read("Energy", CompoundTag.CODEC).ifPresent(energyState -> {
+        if (nbt.contains("Energy")) {
+            CompoundTag energyState = nbt.getCompound("Energy");
             energyStorage.amount = NbtCompat.getLong(energyState, "Amount", 0L);
-        });
+        }
 
         // Load mining state from old "MiningState" tag
-        view.read("MiningState", CompoundTag.CODEC).ifPresent(miningState -> {
+        if (nbt.contains("MiningState")) {
+            CompoundTag miningState = nbt.getCompound("MiningState");
             miningX = NbtCompat.getInt(miningState, "X", 0);
             miningY = NbtCompat.getInt(miningState, "Y", 0);
             miningZ = NbtCompat.getInt(miningState, "Z", 0);
@@ -1260,40 +1262,33 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity implements PipeConne
             settlingTicksRemaining = NbtCompat.getInt(miningState, "SettlingTicks", 0);
             expectedTravelTicks = NbtCompat.getInt(miningState, "ExpectedTravelTicks", 0);
             syncedArmSpeed = NbtCompat.getFloat(miningState, "SyncedArmSpeed", LaserQuarryConfig.ARM_SPEED);
-        });
+        }
 
         // Load custom bounds from old "CustomBounds" tag
-        view.read("CustomBounds", CompoundTag.CODEC).ifPresent(customBoundsNbt -> {
+        if (nbt.contains("CustomBounds")) {
+            CompoundTag customBoundsNbt = nbt.getCompound("CustomBounds");
             useCustomBounds = true;
             customMinX = NbtCompat.getInt(customBoundsNbt, "MinX", 0);
             customMinZ = NbtCompat.getInt(customBoundsNbt, "MinZ", 0);
             customMaxX = NbtCompat.getInt(customBoundsNbt, "MaxX", 0);
             customMaxZ = NbtCompat.getInt(customBoundsNbt, "MaxZ", 0);
-        });
-    }
-
-    @Override
-    public void preRemoveSideEffects(BlockPos pos, BlockState oldState) {
-        super.preRemoveSideEffects(pos, oldState);
-
-        if (level != null && level.isClientSide()) {
-            ClientRenderCacheHooks.clearQuarryInterpolationCache(pos);
-        }
-
-        if (level != null && !level.isClientSide()) {
-            unregisterActiveQuarry((ServerLevel) level, pos);
-            // Clear any active breaking animation
-            if (currentTarget != null) {
-                ((ServerLevel) level).destroyBlockProgress(breakingEntityId, currentTarget, -1);
-            }
         }
     }
 
     @Override
     public void setRemoved() {
         super.setRemoved();
+
         if (level != null && level.isClientSide()) {
             ClientRenderCacheHooks.clearQuarryInterpolationCache(worldPosition);
+        }
+
+        if (level != null && !level.isClientSide()) {
+            unregisterActiveQuarry((ServerLevel) level, worldPosition);
+            // Clear any active breaking animation
+            if (currentTarget != null) {
+                ((ServerLevel) level).destroyBlockProgress(breakingEntityId, currentTarget, -1);
+            }
         }
     }
 

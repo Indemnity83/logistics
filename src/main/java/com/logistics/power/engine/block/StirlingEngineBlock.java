@@ -8,6 +8,7 @@ import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -89,7 +90,7 @@ public class StirlingEngineBlock extends AbstractEngineBlock<StirlingEngineBlock
     }
 
     @Override
-    protected InteractionResult useItemOn(
+    protected ItemInteractionResult useItemOn(
             ItemStack stack,
             BlockState state,
             Level world,
@@ -97,7 +98,8 @@ public class StirlingEngineBlock extends AbstractEngineBlock<StirlingEngineBlock
             Player player,
             InteractionHand hand,
             BlockHitResult hit) {
-        return openGui(world, pos, player);
+        InteractionResult result = openGui(world, pos, player);
+        return result == InteractionResult.SUCCESS ? ItemInteractionResult.SUCCESS : ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
     }
 
     @Override

@@ -7,7 +7,7 @@ import com.logistics.core.bootstrap.DomainBootstrap;
 import com.logistics.core.lib.pipe.PipeConnectionRegistry;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -21,12 +21,12 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
         return "automation";
     }
 
-    public static Identifier identifier(String name) {
-        return INSTANCE.getDomainIdentifier(name);
+    public static ResourceLocation identifier(String name) {
+        return INSTANCE.getDomainResourceLocation(name);
     }
 
-    public static Identifier blockModelIdentifier(String name) {
-        return INSTANCE.getBlockModelIdentifier(name);
+    public static ResourceLocation blockModelIdentifier(String name) {
+        return INSTANCE.getBlockModelResourceLocation(name);
     }
 
     @Override

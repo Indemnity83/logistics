@@ -19,8 +19,6 @@ import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.component.DataComponentGetter;
-import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtOps;
@@ -28,7 +26,6 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import team.reborn.energy.api.base.SimpleEnergyStorage;
@@ -198,9 +195,9 @@ public class PipeBlockEntity extends BaseBlockEntity implements PipeConnection, 
 
         // Load module state
         // CompoundTag lacks clear() method, so copy keys then remove each
-        new ArrayList<>(moduleState.keySet()).forEach(moduleState::remove);
+        new ArrayList<>(moduleState.getAllKeys()).forEach(moduleState::remove);
         NbtCompat.ifHasCompound(pipeData, "ModuleState", stored -> {
-            for (String key : stored.keySet()) {
+            for (String key : stored.getAllKeys()) {
                 moduleState.put(key, Objects.requireNonNull(stored.get(key)).copy());
             }
         });
@@ -229,10 +226,11 @@ public class PipeBlockEntity extends BaseBlockEntity implements PipeConnection, 
     }
 
     @Override
-    protected void loadLegacyData(ValueInput view) {
-        super.loadLegacyData(view);
+    protected void loadLegacyData(CompoundTag nbt) {
+        super.loadLegacyData(nbt);
 
-        view.read("PipeData", CompoundTag.CODEC).ifPresent(oldData -> {
+        if (nbt.contains("PipeData")) {
+            CompoundTag oldData = nbt.getCompound("PipeData");
             long readStart = System.nanoTime();
 
             // Massage old format to new format
@@ -264,7 +262,7 @@ public class PipeBlockEntity extends BaseBlockEntity implements PipeConnection, 
                         durationMs,
                         travelingItems.size());
             }
-        });
+        }
     }
 
     public static void tick(
@@ -453,31 +451,7 @@ public class PipeBlockEntity extends BaseBlockEntity implements PipeConnection, 
 
     // --- Component handling for item drops ---
 
-    @Override
-    protected void applyImplicitComponents(DataComponentGetter components) {
-        super.applyImplicitComponents(components);
-
-        BlockState state = getBlockState();
-        if (!(state.getBlock() instanceof PipeBlock pipeBlock)) return;
-
-        Pipe pipe = pipeBlock.getPipe();
-        if (pipe == null) return;
-
-        PipeContext ctx = createContext();
-        pipe.readItemComponents(components, ctx);
-    }
-
-    @Override
-    protected void collectImplicitComponents(DataComponentMap.Builder builder) {
-        super.collectImplicitComponents(builder);
-
-        BlockState state = getBlockState();
-        if (!(state.getBlock() instanceof PipeBlock pipeBlock)) return;
-
-        Pipe pipe = pipeBlock.getPipe();
-        if (pipe == null) return;
-
-        PipeContext ctx = createContext();
-        pipe.addItemComponents(builder, ctx);
-    }
+    // MC 1.21.1: Component system methods don't exist in this version.
+    // Copper pipes lose oxidation state when picked up.
+    // These methods are present in MC 1.21.11+ only.
 }

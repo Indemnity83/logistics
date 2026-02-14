@@ -8,7 +8,7 @@ import java.util.List;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -125,14 +125,11 @@ public class FilterInventory implements Container {
                 String id = slots.get(i);
                 ItemStack stack = ItemStack.EMPTY;
                 if (!id.isEmpty()) {
-                    Identifier identifier = Identifier.tryParse(id);
+                    ResourceLocation identifier = ResourceLocation.tryParse(id);
                     if (identifier != null) {
-                        var itemOpt = BuiltInRegistries.ITEM.get(identifier);
-                        if (itemOpt.isPresent()) {
-                            Item item = itemOpt.get().value();
-                            if (item != Items.AIR) {
-                                stack = new ItemStack(item);
-                            }
+                        Item item = BuiltInRegistries.ITEM.get(identifier);
+                        if (item != null && item != Items.AIR) {
+                            stack = new ItemStack(item);
                         }
                     }
                 }
@@ -156,7 +153,7 @@ public class FilterInventory implements Container {
                 if (stack.isEmpty()) {
                     slots.add("");
                 } else {
-                    Identifier id = BuiltInRegistries.ITEM.getKey(stack.getItem());
+                    ResourceLocation id = BuiltInRegistries.ITEM.getKey(stack.getItem());
                     slots.add(id.toString());
                 }
             }

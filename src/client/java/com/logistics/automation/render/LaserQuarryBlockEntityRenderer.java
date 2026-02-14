@@ -19,7 +19,7 @@ import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.state.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.block.state.BlockState;
@@ -31,18 +31,18 @@ import net.minecraft.world.phys.Vec3;
  * that moves smoothly to the current mining position.
  */
 public class LaserQuarryBlockEntityRenderer implements BlockEntityRenderer<LaserQuarryBlockEntity, LaserQuarryRenderState> {
-    private static final Identifier ARM_MODEL_ID =
-            LogisticsAutomation.blockModelIdentifier("laser_quarry_gantry_arm");
-    private static final Identifier DRILL_MODEL_ID =
-            LogisticsAutomation.blockModelIdentifier("laser_quarry_drill");
-    private static final Identifier LED_GREEN_MODEL_ID =
-            LogisticsAutomation.blockModelIdentifier("laser_quarry_led_green");
-    private static final Identifier LED_RED_MODEL_ID =
-            LogisticsAutomation.blockModelIdentifier("laser_quarry_led_red");
-    private static final Identifier DISPLAY_MODEL_ID =
-            LogisticsAutomation.blockModelIdentifier("laser_quarry_display");
-    private static final Identifier TOP_HATCH_MODEL_ID =
-            LogisticsAutomation.blockModelIdentifier("laser_quarry_top_hatch");
+    private static final ResourceLocation ARM_MODEL_ID =
+            LogisticsAutomation.blockModelResourceLocation("laser_quarry_gantry_arm");
+    private static final ResourceLocation DRILL_MODEL_ID =
+            LogisticsAutomation.blockModelResourceLocation("laser_quarry_drill");
+    private static final ResourceLocation LED_GREEN_MODEL_ID =
+            LogisticsAutomation.blockModelResourceLocation("laser_quarry_led_green");
+    private static final ResourceLocation LED_RED_MODEL_ID =
+            LogisticsAutomation.blockModelResourceLocation("laser_quarry_led_red");
+    private static final ResourceLocation DISPLAY_MODEL_ID =
+            LogisticsAutomation.blockModelResourceLocation("laser_quarry_display");
+    private static final ResourceLocation TOP_HATCH_MODEL_ID =
+            LogisticsAutomation.blockModelResourceLocation("laser_quarry_top_hatch");
 
     public LaserQuarryBlockEntityRenderer(BlockEntityRendererProvider.Context ctx) {}
 

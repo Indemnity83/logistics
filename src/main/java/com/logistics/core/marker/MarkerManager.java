@@ -167,7 +167,7 @@ public final class MarkerManager {
 
             // Stop at non-air blocks that would obstruct the beam
             // (but allow transparent blocks, fluids, etc.)
-            if (state.isSolidRender()) {
+            if (state.isSolidRender(world, mutable)) {
                 break;
             }
         }

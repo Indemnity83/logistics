@@ -204,10 +204,11 @@ public class MarkerBlockEntity extends BaseBlockEntity {
     }
 
     @Override
-    protected void loadLegacyData(net.minecraft.world.level.storage.ValueInput view) {
-        super.loadLegacyData(view);
+    protected void loadLegacyData(CompoundTag nbt) {
+        super.loadLegacyData(nbt);
 
-        view.read("MarkerData", net.minecraft.nbt.CompoundTag.CODEC).ifPresent(data -> {
+        if (nbt.contains("MarkerData")) {
+            CompoundTag data = nbt.getCompound("MarkerData");
             connectedMarkers.clear();
             boundMin = null;
             boundMax = null;
@@ -229,7 +230,7 @@ public class MarkerBlockEntity extends BaseBlockEntity {
             if (!hasValidBounds()) {
                 isCornerMarker = false;
             }
-        });
+        }
     }
 
     private void loadBounds(CompoundTag data) {

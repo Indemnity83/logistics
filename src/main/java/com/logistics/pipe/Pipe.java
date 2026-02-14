@@ -10,14 +10,10 @@ import com.logistics.pipe.runtime.TravelingItem;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.core.component.DataComponentMap;
-import net.minecraft.core.component.DataComponentGetter;
-import net.minecraft.core.component.DataComponents;
-import net.minecraft.world.item.component.CustomModelData;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
 import org.jetbrains.annotations.Nullable;
@@ -69,14 +65,14 @@ public class Pipe {
      * Get the model identifier for the core part of this pipe.
      * Delegates to modules first to allow state-dependent overrides (e.g., powered gold pipe).
      */
-    public Identifier getCoreModelId(PipeContext ctx) {
+    public ResourceLocation getCoreModelId(PipeContext ctx) {
         for (Module module : modules) {
-            Identifier override = module.getCoreModel(ctx);
+            ResourceLocation override = module.getCoreModel(ctx);
             if (override != null) {
                 return override;
             }
         }
-        return LogisticsMod.getIdentifier("block/" + getPipeName() + "_core");
+        return LogisticsMod.getResourceLocation("block/" + getPipeName() + "_core");
     }
 
     /**
@@ -100,16 +96,16 @@ public class Pipe {
      * @param direction the direction of the arm
      * @return the arm model identifier
      */
-    public Identifier getPipeArm(PipeContext ctx, Direction direction) {
+    public ResourceLocation getPipeArm(PipeContext ctx, Direction direction) {
         for (Module module : modules) {
-            Identifier override = module.getPipeArm(ctx, direction);
+            ResourceLocation override = module.getPipeArm(ctx, direction);
             if (override != null) {
                 return override;
             }
         }
 
         String suffix = ctx.isInventoryConnection(direction) ? "_arm_extended" : "_arm";
-        return LogisticsMod.getIdentifier("block/" + getPipeName() + suffix);
+        return LogisticsMod.getResourceLocation("block/" + getPipeName() + suffix);
     }
 
     /**
@@ -121,8 +117,8 @@ public class Pipe {
      * @param direction the direction of the arm
      * @return a (possibly empty) list of decoration model identifiers
      */
-    public List<Identifier> getPipeDecorations(PipeContext ctx, Direction direction) {
-        List<Identifier> models = new ArrayList<>();
+    public List<ResourceLocation> getPipeDecorations(PipeContext ctx, Direction direction) {
+        List<ResourceLocation> models = new ArrayList<>();
         for (Module module : modules) {
             models.addAll(module.getPipeDecorations(ctx, direction));
         }
@@ -167,31 +163,21 @@ public class Pipe {
     /**
      * Add item components from all modules when the block is broken.
      * Also adds custom model data component if any module provides model data strings.
+     *
+     * <p><b>MC 1.21.1:</b> No-op stub - component system doesn't exist.
+     * Copper pipes lose oxidation state when picked up in this version.
      */
-    public void addItemComponents(DataComponentMap.Builder builder, PipeContext ctx) {
-        for (Module module : modules) {
-            module.addItemComponents(builder, ctx);
-        }
-
-        // Aggregate custom model data strings from all modules
-        List<String> modelStrings = new ArrayList<>();
-        for (Module module : modules) {
-            modelStrings.addAll(module.getCustomModelDataStrings(ctx));
-        }
-        if (!modelStrings.isEmpty()) {
-            builder.set(
-                    DataComponents.CUSTOM_MODEL_DATA,
-                    new CustomModelData(List.of(), List.of(), modelStrings, List.of()));
-        }
+    public void addItemComponents(Object builder, PipeContext ctx) {
+        // No-op in MC 1.21.1 - component system doesn't exist
     }
 
     /**
      * Read item components into all modules when the block is placed.
+     *
+     * <p><b>MC 1.21.1:</b> No-op stub - component system doesn't exist.
      */
-    public void readItemComponents(DataComponentGetter components, PipeContext ctx) {
-        for (Module module : modules) {
-            module.readItemComponents(components, ctx);
-        }
+    public void readItemComponents(Object components, PipeContext ctx) {
+        // No-op in MC 1.21.1 - component system doesn't exist
     }
 
     /**
@@ -210,14 +196,11 @@ public class Pipe {
     /**
      * Get the item name suffix from item components.
      * Used for item display names when we don't have a block context.
+     *
+     * <p><b>MC 1.21.1:</b> No-op stub - always returns empty string.
      */
-    public String getItemNameSuffixFromComponents(DataComponentGetter components) {
-        for (Module module : modules) {
-            String suffix = module.getItemNameSuffixFromComponents(components);
-            if (!suffix.isEmpty()) {
-                return suffix;
-            }
-        }
+    public String getItemNameSuffixFromComponents(Object components) {
+        // No-op in MC 1.21.1 - component system doesn't exist
         return "";
     }
 
@@ -234,7 +217,7 @@ public class Pipe {
     /**
      * Core overlay model with an optional tint color.
      */
-    public record CoreDecoration(Identifier modelId, int color) {}
+    public record CoreDecoration(ResourceLocation modelId, int color) {}
 
     public String getModelBasePath(Direction direction) {
         return "block/" + getPipeName() + "_" + direction.name().toLowerCase();

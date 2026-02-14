@@ -15,11 +15,11 @@ import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.world.level.redstone.Orientation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.context.UseOnContext;
@@ -45,7 +45,6 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraft.world.level.ScheduledTickAccess;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
 
@@ -132,7 +131,7 @@ public class PipeBlock extends BaseEntityBlock implements Probeable, SimpleWater
      * Route item use interactions to pipe modules before default block handling.
      */
     @Override
-    protected InteractionResult useItemOn(
+    protected ItemInteractionResult useItemOn(
             ItemStack stack,
             BlockState state,
             Level world,
@@ -141,18 +140,19 @@ public class PipeBlock extends BaseEntityBlock implements Probeable, SimpleWater
             InteractionHand hand,
             BlockHitResult hit) {
         if (pipe == null) {
-            return InteractionResult.PASS;
+            return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
         }
 
         BlockEntity blockEntity = world.getBlockEntity(pos);
         if (!(blockEntity instanceof PipeBlockEntity pipeEntity)) {
-            return InteractionResult.PASS;
+            return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
         }
 
         PipeContext pipeContext = new PipeContext(world, pos, state, pipeEntity);
         InteractionResult result = pipe.onUseWithItem(pipeContext, new UseOnContext(player, hand, hit));
         if (result != InteractionResult.PASS) {
-            return result;
+            // Convert InteractionResult to ItemInteractionResult
+            return result == InteractionResult.SUCCESS ? ItemInteractionResult.SUCCESS : ItemInteractionResult.FAIL;
         }
 
         return super.useItemOn(stack, state, world, pos, player, hand, hit);
@@ -249,15 +249,13 @@ public class PipeBlock extends BaseEntityBlock implements Probeable, SimpleWater
     @Override
     protected BlockState updateShape(
             BlockState state,
-            LevelReader world,
-            ScheduledTickAccess tickView,
-            BlockPos pos,
             Direction direction,
-            BlockPos neighborPos,
             BlockState neighborState,
-            RandomSource random) {
+            net.minecraft.world.level.LevelAccessor world,
+            BlockPos pos,
+            BlockPos neighborPos) {
         if (state.getValue(WATERLOGGED)) {
-            tickView.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(world));
+            world.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(world));
         }
 
         return state;
@@ -269,7 +267,7 @@ public class PipeBlock extends BaseEntityBlock implements Probeable, SimpleWater
             Level world,
             BlockPos pos,
             Block block,
-            @Nullable Orientation orientation,
+            BlockPos fromPos,
             boolean notify) {
         if (!world.isClientSide()) {
             boolean powered = world.hasNeighborSignal(pos);
@@ -277,7 +275,7 @@ public class PipeBlock extends BaseEntityBlock implements Probeable, SimpleWater
                 world.setBlock(pos, state.setValue(POWERED, powered), Block.UPDATE_CLIENTS);
             }
         }
-        super.neighborChanged(state, world, pos, block, orientation, notify);
+        super.neighborChanged(state, world, pos, block, fromPos, notify);
     }
 
     @Override
@@ -301,17 +299,10 @@ public class PipeBlock extends BaseEntityBlock implements Probeable, SimpleWater
     }
 
     @Override
-    public ItemStack getCloneItemStack(
-            LevelReader world, BlockPos pos, BlockState state, boolean includeData) {
-        ItemStack stack = super.getCloneItemStack(world, pos, state, includeData);
-
-        // Copy components from block entity to preserve state (e.g., weathering) on normal pick-block.
-        BlockEntity blockEntity = world.getBlockEntity(pos);
-        if (blockEntity instanceof PipeBlockEntity pipeEntity) {
-            stack.applyComponents(pipeEntity.collectComponents());
-        }
-
-        return stack;
+    public ItemStack getCloneItemStack(LevelReader world, BlockPos pos, BlockState state) {
+        // MC 1.21.1: Component system doesn't exist, so pipes lose state when picked
+        // This means copper pipes lose oxidation/waxing state when picked with middle click
+        return super.getCloneItemStack(world, pos, state);
     }
 
     @Override

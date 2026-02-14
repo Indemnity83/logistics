@@ -141,16 +141,17 @@ public class CreativeEngineBlockEntity extends AbstractEngineBlockEntity {
     }
 
     @Override
-    protected void loadLegacyData(net.minecraft.world.level.storage.ValueInput view) {
-        super.loadLegacyData(view); // Loads engine data from "Engine" tag
+    protected void loadLegacyData(CompoundTag nbt) {
+        super.loadLegacyData(nbt); // Loads engine data from "Engine" tag
 
         // Load Creative-specific data from old "CreativeData" tag
-        view.read("CreativeData", CompoundTag.CODEC).ifPresent(creativeData -> {
+        if (nbt.contains("CreativeData")) {
+            CompoundTag creativeData = nbt.getCompound("CreativeData");
             outputLevelIndex = NbtCompat.getInt(creativeData, "outputLevelIndex", 0);
             // Clamp to valid range
             if (outputLevelIndex < 0 || outputLevelIndex >= OUTPUT_LEVELS.length) {
                 outputLevelIndex = 0;
             }
-        });
+        }
     }
 }

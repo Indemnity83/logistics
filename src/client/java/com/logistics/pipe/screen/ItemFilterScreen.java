@@ -6,12 +6,12 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 
 public class ItemFilterScreen extends AbstractContainerScreen<ItemFilterScreenHandler> {
-    private static final Identifier BACKGROUND_TEXTURE =
-            Identifier.withDefaultNamespace("textures/gui/container/generic_54.png");
+    private static final ResourceLocation BACKGROUND_TEXTURE =
+            ResourceLocation.withDefaultNamespace("textures/gui/container/generic_54.png");
     private static final int SLOT_START_X = 8;
     private static final int SLOT_START_Y = 18;
     private static final int SLOT_SIZE = 18;

@@ -15,15 +15,15 @@ import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.state.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec3;
 
 /**
  * Renders laser beams and ghost cube outline for active markers.
  */
 public class MarkerBlockEntityRenderer implements BlockEntityRenderer<MarkerBlockEntity, MarkerRenderState> {
-    private static final Identifier BEAM_MODEL_ID =
-            LogisticsCore.blockModelIdentifier("marker_beam");
+    private static final ResourceLocation BEAM_MODEL_ID =
+            LogisticsCore.blockModelResourceLocation("marker_beam");
 
     // No tinting needed - texture is pre-colored blue (#0132FD)
     private static final float BEAM_RED = 1.0f;

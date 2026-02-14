@@ -9,7 +9,7 @@ import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -30,12 +30,12 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         return "core";
     }
 
-    public static Identifier identifier(String name) {
-        return INSTANCE.getDomainIdentifier(name);
+    public static ResourceLocation identifier(String name) {
+        return INSTANCE.getDomainResourceLocation(name);
     }
 
-    public static Identifier blockModelIdentifier(String name) {
-        return INSTANCE.getBlockModelIdentifier(name);
+    public static ResourceLocation blockModelIdentifier(String name) {
+        return INSTANCE.getBlockModelResourceLocation(name);
     }
 
     @Override
@@ -53,7 +53,7 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
 
     public static final class BLOCK {
         public static final Block MARKER = INSTANCE.registerBlockWithItem("marker",
-            props -> new MarkerBlock(props.strength(0.0f).sound(SoundType.WOOD).noCollision()));
+            props -> new MarkerBlock(props.strength(0.0f).sound(SoundType.WOOD).noOcclusion()));
 
         private BLOCK() {}
 
@@ -96,7 +96,7 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
 
         public static final CreativeModeTab LOGISTICS_TRANSPORT = Registry.register(
                 BuiltInRegistries.CREATIVE_MODE_TAB,
-                LogisticsMod.getIdentifier("logistics_transport"),
+                LogisticsMod.getResourceLocation("logistics_transport"),
                 FabricItemGroup.builder()
                         .title(Component.literal("Logistics"))
                         .icon(() -> new ItemStack(ITEM.IRON_GEAR))

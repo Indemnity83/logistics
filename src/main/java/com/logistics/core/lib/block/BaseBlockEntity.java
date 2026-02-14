@@ -10,8 +10,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.storage.ValueInput;
-import net.minecraft.world.level.storage.ValueOutput;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -23,7 +21,7 @@ import org.jetbrains.annotations.Nullable;
  * </ul>
  *
  * <p>Subclasses override {@link #saveLogisticsData(CompoundTag)} and {@link #loadLogisticsData(CompoundTag)}
- * instead of dealing with {@link ValueInput}/{@link ValueOutput} directly.
+ * for normal persistence, using the simple NBT tag-based API.
  */
 public abstract class BaseBlockEntity extends BlockEntity {
 
@@ -37,7 +35,7 @@ public abstract class BaseBlockEntity extends BlockEntity {
 
     /**
      * Save logistics block entity data to NBT.
-     * Override this instead of {@link #saveAdditional(ValueOutput)}.
+     * Override this instead of {@link #saveAdditional(CompoundTag, net.minecraft.core.HolderLookup.Provider)}.
      *
      * <p>Note: Use {@code level.registryAccess()} to serialize ItemStacks and other registry objects.
      *
@@ -49,7 +47,7 @@ public abstract class BaseBlockEntity extends BlockEntity {
 
     /**
      * Load logistics block entity data from NBT.
-     * Override this instead of {@link #loadAdditional(ValueInput)}.
+     * Override this instead of {@link #loadAdditional(CompoundTag, net.minecraft.core.HolderLookup.Provider)}.
      *
      * <p>Note: Use {@code level.registryAccess()} to deserialize ItemStacks and other registry objects.
      *
@@ -68,30 +66,30 @@ public abstract class BaseBlockEntity extends BlockEntity {
      *
      * <p>TODO: This method should be removed prior to v1.0 release
      *
-     * @param view the value input to read legacy data from
+     * @param nbt the compound tag to read legacy data from
      */
-    protected void loadLegacyData(ValueInput view) {
+    protected void loadLegacyData(CompoundTag nbt) {
         // Default: no legacy data migration needed
     }
 
     @Override
-    protected final void saveAdditional(ValueOutput view) {
-        super.saveAdditional(view);
+    protected final void saveAdditional(CompoundTag nbt, HolderLookup.Provider registries) {
+        super.saveAdditional(nbt, registries);
         CompoundTag logisticsData = new CompoundTag();
         saveLogisticsData(logisticsData);
         if (!logisticsData.isEmpty()) {
-            view.store(DATA_KEY, CompoundTag.CODEC, logisticsData);
+            nbt.put(DATA_KEY, logisticsData);
         }
     }
 
     @Override
-    protected final void loadAdditional(ValueInput view) {
-        super.loadAdditional(view);
-        // Try to read new format first; fall back to legacy root-level keys
-        view.read(DATA_KEY, CompoundTag.CODEC).ifPresentOrElse(
-                this::loadLogisticsData,
-                () -> loadLegacyData(view)
-        );
+    protected final void loadAdditional(CompoundTag nbt, HolderLookup.Provider registries) {
+        super.loadAdditional(nbt, registries);
+        if (nbt.contains(DATA_KEY)) {
+            loadLogisticsData(nbt.getCompound(DATA_KEY));
+        } else {
+            loadLegacyData(nbt);  // Changed signature: CompoundTag instead of ValueInput
+        }
     }
 
     // ==================== Client Sync ====================

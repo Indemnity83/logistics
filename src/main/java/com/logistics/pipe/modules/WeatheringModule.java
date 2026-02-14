@@ -9,10 +9,7 @@ import com.logistics.pipe.data.PipeDataComponents.WeatheringState;
 import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.component.DataComponentGetter;
-import net.minecraft.core.component.DataComponentMap;
-import net.minecraft.core.component.DataComponents;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
@@ -197,7 +194,7 @@ public class WeatheringModule implements Module {
     }
 
     @Override
-    public @Nullable Identifier getCoreModel(PipeContext ctx) {
+    public @Nullable ResourceLocation getCoreModel(PipeContext ctx) {
         int stage = getOxidationStage(ctx);
         if (stage == STAGE_UNAFFECTED) {
             return null; // Use default model
@@ -207,7 +204,7 @@ public class WeatheringModule implements Module {
     }
 
     @Override
-    public @Nullable Identifier getPipeArm(PipeContext ctx, Direction direction) {
+    public @Nullable ResourceLocation getPipeArm(PipeContext ctx, Direction direction) {
         int stage = getOxidationStage(ctx);
         if (stage == STAGE_UNAFFECTED) {
             return null; // Use default model
@@ -220,23 +217,14 @@ public class WeatheringModule implements Module {
     // --- Item component handling ---
 
     @Override
-    public void addItemComponents(DataComponentMap.Builder builder, PipeContext ctx) {
-        int stage = getOxidationStage(ctx);
-        boolean waxed = isWaxed(ctx);
-
-        WeatheringState state = new WeatheringState(stage, waxed);
-        if (!state.isDefault()) {
-            builder.set(LogisticsPipe.DATA.WEATHERING_STATE, state);
-        }
+    public void addItemComponents(Object builder, PipeContext ctx) {
+        // No-op in MC 1.21.1 - component system doesn't exist
+        // Copper pipes lose oxidation state when picked up
     }
 
     @Override
-    public void readItemComponents(DataComponentGetter components, PipeContext ctx) {
-        WeatheringState state = components.get(LogisticsPipe.DATA.WEATHERING_STATE);
-        if (state == null || state.isDefault()) return;
-
-        ctx.saveInt(this, OXIDATION_KEY, state.oxidationStage());
-        ctx.saveInt(this, WAXED_KEY, state.waxed() ? 1 : 0);
+    public void readItemComponents(Object components, PipeContext ctx) {
+        // No-op in MC 1.21.1 - component system doesn't exist
     }
 
     @Override
@@ -260,40 +248,15 @@ public class WeatheringModule implements Module {
     }
 
     @Override
-    public String getItemNameSuffixFromComponents(DataComponentGetter components) {
-        WeatheringState state = components.get(LogisticsPipe.DATA.WEATHERING_STATE);
-        if (state == null || state.isDefault()) {
-            return "";
-        }
-        return buildItemNameSuffix(state.oxidationStage(), state.waxed());
+    public String getItemNameSuffixFromComponents(Object components) {
+        // No-op in MC 1.21.1 - component system doesn't exist
+        return "";
     }
 
     @Override
     public void appendCreativeMenuVariants(List<ItemStack> stacks, ItemStack baseStack) {
-        // Add all oxidation stages (unwaxed)
-        for (int stage = STAGE_EXPOSED; stage <= STAGE_OXIDIZED; stage++) {
-            stacks.add(createVariant(baseStack, stage, false));
-        }
-
-        // Add all waxed variants (including waxed unaffected)
-        for (int stage = STAGE_UNAFFECTED; stage <= STAGE_OXIDIZED; stage++) {
-            stacks.add(createVariant(baseStack, stage, true));
-        }
-    }
-
-    private static ItemStack createVariant(ItemStack baseStack, int stage, boolean waxed) {
-        ItemStack stack = baseStack.copy();
-        stack.set(LogisticsPipe.DATA.WEATHERING_STATE, new WeatheringState(stage, waxed));
-
-        // Add custom model data string key for item model variant selection
-        if (stage > 0 || waxed) {
-            String modelKey = getModelKey(stage, waxed);
-            stack.set(
-                    DataComponents.CUSTOM_MODEL_DATA,
-                    new CustomModelData(List.of(), List.of(), List.of(modelKey), List.of()));
-        }
-
-        return stack;
+        // No-op in MC 1.21.1 - component system doesn't exist
+        // Only base (unoxidized) copper pipes appear in creative menu
     }
 
     private static String buildItemNameSuffix(int stage, boolean waxed) {

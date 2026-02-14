@@ -14,7 +14,7 @@ import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -225,7 +225,7 @@ public class ExtractionModule implements Module {
     }
 
     @Override
-    public @Nullable Identifier getPipeArm(PipeContext ctx, Direction direction) {
+    public @Nullable ResourceLocation getPipeArm(PipeContext ctx, Direction direction) {
         if (!isExtractionFace(ctx, direction)) {
             return null;
         }

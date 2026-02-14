@@ -1,8 +1,8 @@
 {
   "packages": {
     ".": {
-      "package-name": "logistics-mc1.21.11",
-      "component": "mc1.21.11",
+      "package-name": "logistics-mc1.21.1",
+      "component": "mc1.21.1",
       "release-type": "simple",
       "include-component-in-tag": true,
       "pull-request-title-pattern": "chore: release ${version} for ${component}",

@@ -21,7 +21,7 @@ import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.state.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
@@ -86,12 +86,12 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
                     }
 
                     // Get arm model (module override or base), rotate at render time
-                    Identifier armModel = pipe.getPipeArm(context, direction);
+                    ResourceLocation armModel = pipe.getPipeArm(context, direction);
                     Integer armTint = pipe.getArmTint(context, direction);
                     int armColor = armTint != null ? armTint : 0xFFFFFF;
                     state.models.add(new PipeRenderState.ModelRenderInfo(armModel, armColor, direction));
 
-                    for (Identifier decoration : pipe.getPipeDecorations(context, direction)) {
+                    for (ResourceLocation decoration : pipe.getPipeDecorations(context, direction)) {
                         state.models.add(new PipeRenderState.ModelRenderInfo(decoration, 0xFFFFFF));
                     }
                 }

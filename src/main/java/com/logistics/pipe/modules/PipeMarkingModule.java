@@ -13,7 +13,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.DyeColor;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import org.jetbrains.annotations.Nullable;
@@ -98,7 +98,7 @@ public class PipeMarkingModule implements Module {
         if (color == null || ctx.pipe() == null) {
             return java.util.List.of();
         }
-        Identifier pipeMarkings = LogisticsPipe.blockModelIdentifier("pipe_markings");
+        ResourceLocation pipeMarkings = LogisticsPipe.blockModelIdentifier("pipe_markings");
         return java.util.List.of(new Pipe.CoreDecoration(pipeMarkings, color.getFireworkColor()));
     }
 

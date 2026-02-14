@@ -2,6 +2,7 @@ package com.logistics.core.lib.storage;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
 
 import java.util.function.Consumer;
 
@@ -38,7 +39,7 @@ public final class NbtCompat {
      * <p><b>mc/1.21.1 backport:</b> Replace with {@code tag.contains(key, Tag.TAG_INT) ? tag.getInt(key) : defaultValue}
      */
     public static int getInt(CompoundTag tag, String key, int defaultValue) {
-        return tag.getInt(key).orElse(defaultValue);
+        return tag.contains(key, Tag.TAG_INT) ? tag.getInt(key) : defaultValue;
     }
 
     /**
@@ -48,7 +49,7 @@ public final class NbtCompat {
      * <p><b>mc/1.21.1 backport:</b> Replace with {@code tag.contains(key, Tag.TAG_LONG) ? tag.getLong(key) : defaultValue}
      */
     public static long getLong(CompoundTag tag, String key, long defaultValue) {
-        return tag.getLong(key).orElse(defaultValue);
+        return tag.contains(key, Tag.TAG_LONG) ? tag.getLong(key) : defaultValue;
     }
 
     /**
@@ -58,7 +59,7 @@ public final class NbtCompat {
      * <p><b>mc/1.21.1 backport:</b> Replace with {@code tag.contains(key, Tag.TAG_DOUBLE) ? tag.getDouble(key) : defaultValue}
      */
     public static double getDouble(CompoundTag tag, String key, double defaultValue) {
-        return tag.getDouble(key).orElse(defaultValue);
+        return tag.contains(key, Tag.TAG_DOUBLE) ? tag.getDouble(key) : defaultValue;
     }
 
     /**
@@ -68,7 +69,7 @@ public final class NbtCompat {
      * <p><b>mc/1.21.1 backport:</b> Replace with {@code tag.contains(key, Tag.TAG_FLOAT) ? tag.getFloat(key) : defaultValue}
      */
     public static float getFloat(CompoundTag tag, String key, float defaultValue) {
-        return tag.getFloat(key).orElse(defaultValue);
+        return tag.contains(key, Tag.TAG_FLOAT) ? tag.getFloat(key) : defaultValue;
     }
 
     /**
@@ -78,7 +79,7 @@ public final class NbtCompat {
      * <p><b>mc/1.21.1 backport:</b> Replace with {@code tag.contains(key, Tag.TAG_BYTE) ? tag.getBoolean(key) : defaultValue}
      */
     public static boolean getBoolean(CompoundTag tag, String key, boolean defaultValue) {
-        return tag.getBoolean(key).orElse(defaultValue);
+        return tag.contains(key, Tag.TAG_BYTE) ? tag.getBoolean(key) : defaultValue;
     }
 
     /**
@@ -88,7 +89,7 @@ public final class NbtCompat {
      * <p><b>mc/1.21.1 backport:</b> Replace with {@code tag.contains(key, Tag.TAG_STRING) ? tag.getString(key) : defaultValue}
      */
     public static String getString(CompoundTag tag, String key, String defaultValue) {
-        return tag.getString(key).orElse(defaultValue);
+        return tag.contains(key, Tag.TAG_STRING) ? tag.getString(key) : defaultValue;
     }
 
     // ==================== Array Getters ====================
@@ -100,7 +101,7 @@ public final class NbtCompat {
      * <p><b>mc/1.21.1 backport:</b> Replace with {@code tag.contains(key, Tag.TAG_INT_ARRAY) ? tag.getIntArray(key) : defaultValue}
      */
     public static int[] getIntArray(CompoundTag tag, String key, int[] defaultValue) {
-        return tag.getIntArray(key).orElse(defaultValue);
+        return tag.contains(key, Tag.TAG_INT_ARRAY) ? tag.getIntArray(key) : defaultValue;
     }
 
     // ==================== Compound Tag Helpers ====================
@@ -112,7 +113,8 @@ public final class NbtCompat {
      * <p><b>mc/1.21.1 backport:</b> Same code works! (getCompound returns CompoundTag directly)
      */
     public static CompoundTag getCompoundOrEmpty(CompoundTag tag, String key) {
-        return tag.getCompound(key).orElse(new CompoundTag());
+        // MC 1.21.1: getCompound() returns CompoundTag directly (empty if missing)
+        return tag.contains(key, Tag.TAG_COMPOUND) ? tag.getCompound(key) : new CompoundTag();
     }
 
     /**
@@ -122,7 +124,10 @@ public final class NbtCompat {
      * <p><b>mc/1.21.1 backport:</b> Same code works!
      */
     public static void ifHasCompound(CompoundTag tag, String key, Consumer<CompoundTag> action) {
-        tag.getCompound(key).ifPresent(action);
+        // MC 1.21.1: Check if exists, then get directly
+        if (tag.contains(key, Tag.TAG_COMPOUND)) {
+            action.accept(tag.getCompound(key));
+        }
     }
 
     // ==================== List Tag Helpers ====================
@@ -134,7 +139,10 @@ public final class NbtCompat {
      * <p><b>mc/1.21.1 backport:</b> {@code if (tag.contains(key)) action.accept(tag.getList(key, 10));}
      */
     public static void ifHasList(CompoundTag tag, String key, Consumer<ListTag> action) {
-        tag.getList(key).ifPresent(action);
+        // MC 1.21.1: getList(key, type) requires type parameter (10 = TAG_COMPOUND)
+        if (tag.contains(key, Tag.TAG_LIST)) {
+            action.accept(tag.getList(key, Tag.TAG_COMPOUND));
+        }
     }
 
     /**
@@ -144,7 +152,8 @@ public final class NbtCompat {
      * <p><b>mc/1.21.1 backport:</b> {@code tag.contains(key) ? tag.getList(key, 10) : new ListTag()}
      */
     public static ListTag getListOrEmpty(CompoundTag tag, String key) {
-        return tag.getList(key).orElseGet(ListTag::new);
+        // MC 1.21.1: getList(key, type) returns empty list if missing
+        return tag.contains(key, Tag.TAG_LIST) ? tag.getList(key, Tag.TAG_COMPOUND) : new ListTag();
     }
 
     /**
@@ -154,8 +163,9 @@ public final class NbtCompat {
      * <p><b>mc/1.21.1 backport:</b> Same code works!
      */
     public static void ifHasCompoundAt(ListTag list, int index, Consumer<CompoundTag> action) {
+        // MC 1.21.1: getCompound(index) returns CompoundTag directly
         if (index >= 0 && index < list.size()) {
-            list.getCompound(index).ifPresent(action);
+            action.accept(list.getCompound(index));
         }
     }
 
@@ -166,8 +176,9 @@ public final class NbtCompat {
      * <p><b>mc/1.21.1 backport:</b> {@code index < list.size() ? list.getString(index) : defaultValue}
      */
     public static String getStringAt(ListTag list, int index, String defaultValue) {
+        // MC 1.21.1: getString(index) returns String directly
         if (index >= 0 && index < list.size()) {
-            return list.getString(index).orElse(defaultValue);
+            return list.getString(index);
         }
         return defaultValue;
     }
@@ -181,6 +192,9 @@ public final class NbtCompat {
      * <p><b>mc/1.21.1 backport:</b> Same code works!
      */
     public static void ifHasIntArray(CompoundTag tag, String key, Consumer<int[]> action) {
-        tag.getIntArray(key).ifPresent(action);
+        // MC 1.21.1: getIntArray() returns int[] directly
+        if (tag.contains(key, Tag.TAG_INT_ARRAY)) {
+            action.accept(tag.getIntArray(key));
+        }
     }
 }

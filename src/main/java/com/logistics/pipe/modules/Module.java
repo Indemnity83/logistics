@@ -6,9 +6,7 @@ import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.runtime.RoutePlan;
 import java.util.List;
 import net.minecraft.core.Direction;
-import net.minecraft.core.component.DataComponentGetter;
-import net.minecraft.core.component.DataComponentMap;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -92,7 +90,7 @@ public interface Module {
      * @param direction the direction of the arm being rendered
      * @return the arm model identifier, or null to use the default arm model
      */
-    @Nullable default Identifier getPipeArm(PipeContext ctx, Direction direction) {
+    @Nullable default ResourceLocation getPipeArm(PipeContext ctx, Direction direction) {
         return null;
     }
 
@@ -115,7 +113,7 @@ public interface Module {
      * @param direction the direction of the arm being rendered
      * @return decoration model identifiers to render for this arm direction
      */
-    default List<Identifier> getPipeDecorations(PipeContext ctx, Direction direction) {
+    default List<ResourceLocation> getPipeDecorations(PipeContext ctx, Direction direction) {
         return List.of();
     }
 
@@ -136,7 +134,7 @@ public interface Module {
      * @param ctx the pipe context
      * @return the core model identifier, or null to use the default core model
      */
-    @Nullable default Identifier getCoreModel(PipeContext ctx) {
+    @Nullable default ResourceLocation getCoreModel(PipeContext ctx) {
         return null;
     }
 
@@ -154,19 +152,23 @@ public interface Module {
      * Add components to the item stack when the block is broken.
      * Called for each module to allow adding custom components to dropped items.
      *
-     * @param builder the component map builder
+     * <p><b>MC 1.21.1:</b> No-op stub - component system doesn't exist.
+     *
+     * @param builder the component map builder (Object in MC 1.21.1)
      * @param ctx the pipe context
      */
-    default void addItemComponents(DataComponentMap.Builder builder, PipeContext ctx) {}
+    default void addItemComponents(Object builder, PipeContext ctx) {}
 
     /**
      * Read components from the item stack when the block is placed.
      * Called for each module to allow reading custom components from placed items.
      *
-     * @param components the components from the item
+     * <p><b>MC 1.21.1:</b> No-op stub - component system doesn't exist.
+     *
+     * @param components the components from the item (Object in MC 1.21.1)
      * @param ctx the pipe context
      */
-    default void readItemComponents(DataComponentGetter components, PipeContext ctx) {}
+    default void readItemComponents(Object components, PipeContext ctx) {}
 
     /**
      * Get custom model data strings for item model selection.
@@ -195,10 +197,12 @@ public interface Module {
      * Used for item display names when we don't have a block context.
      * For example, ".exposed" or ".waxed.oxidized" for weathering states.
      *
-     * @param components the item components
+     * <p><b>MC 1.21.1:</b> No-op stub - always returns empty string.
+     *
+     * @param components the item components (Object in MC 1.21.1)
      * @return the translation key suffix, or empty string for default name
      */
-    default String getItemNameSuffixFromComponents(DataComponentGetter components) {
+    default String getItemNameSuffixFromComponents(Object components) {
         return "";
     }
 

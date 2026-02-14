@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
@@ -18,17 +18,17 @@ public class PipeRenderState extends BlockEntityRenderState {
     public float maxSpeed;
 
     public static final class ModelRenderInfo {
-        public final Identifier modelId;
+        public final ResourceLocation modelId;
         public final int color;
         public final @Nullable Direction armDirection;
 
         /** Constructor for cores/decorations (no rotation needed). */
-        public ModelRenderInfo(Identifier modelId, int color) {
+        public ModelRenderInfo(ResourceLocation modelId, int color) {
             this(modelId, color, null);
         }
 
         /** Constructor for arm models that need rotation based on direction. */
-        public ModelRenderInfo(Identifier modelId, int color, @Nullable Direction armDirection) {
+        public ModelRenderInfo(ResourceLocation modelId, int color, @Nullable Direction armDirection) {
             this.modelId = modelId;
             this.color = color;
             this.armDirection = armDirection;

@@ -21,7 +21,7 @@ import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.state.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.Vec3;
 
@@ -36,25 +36,25 @@ import net.minecraft.world.phys.Vec3;
  */
 public class EngineBlockEntityRenderer implements BlockEntityRenderer<AbstractEngineBlockEntity, EngineRenderState> {
     // Shared model identifiers
-    private static final Identifier TRUNK_BASE_MODEL =
-            LogisticsPower.blockModelIdentifier("engine_trunk_base");
-    private static final Identifier TRUNK_OVERLAY_MODEL =
-            LogisticsPower.blockModelIdentifier("engine_trunk_overlay");
-    private static final Identifier CHAMBER_MODEL = LogisticsPower.blockModelIdentifier("engine_chamber");
+    private static final ResourceLocation TRUNK_BASE_MODEL =
+            LogisticsPower.blockModelResourceLocation("engine_trunk_base");
+    private static final ResourceLocation TRUNK_OVERLAY_MODEL =
+            LogisticsPower.blockModelResourceLocation("engine_trunk_overlay");
+    private static final ResourceLocation CHAMBER_MODEL = LogisticsPower.blockModelResourceLocation("engine_chamber");
 
     // Per-engine model identifiers (base static and moving have engine-specific textures)
-    private static final Identifier REDSTONE_BASE_STATIC =
-            LogisticsPower.blockModelIdentifier("redstone_engine_base_static");
-    private static final Identifier REDSTONE_BASE_MOVING =
-            LogisticsPower.blockModelIdentifier("redstone_engine_base_moving");
-    private static final Identifier STIRLING_BASE_STATIC =
-            LogisticsPower.blockModelIdentifier("stirling_engine_base_static");
-    private static final Identifier STIRLING_BASE_MOVING =
-            LogisticsPower.blockModelIdentifier("stirling_engine_base_moving");
-    private static final Identifier CREATIVE_BASE_STATIC =
-            LogisticsPower.blockModelIdentifier("creative_engine_base_static");
-    private static final Identifier CREATIVE_BASE_MOVING =
-            LogisticsPower.blockModelIdentifier("creative_engine_base_moving");
+    private static final ResourceLocation REDSTONE_BASE_STATIC =
+            LogisticsPower.blockModelResourceLocation("redstone_engine_base_static");
+    private static final ResourceLocation REDSTONE_BASE_MOVING =
+            LogisticsPower.blockModelResourceLocation("redstone_engine_base_moving");
+    private static final ResourceLocation STIRLING_BASE_STATIC =
+            LogisticsPower.blockModelResourceLocation("stirling_engine_base_static");
+    private static final ResourceLocation STIRLING_BASE_MOVING =
+            LogisticsPower.blockModelResourceLocation("stirling_engine_base_moving");
+    private static final ResourceLocation CREATIVE_BASE_STATIC =
+            LogisticsPower.blockModelResourceLocation("creative_engine_base_static");
+    private static final ResourceLocation CREATIVE_BASE_MOVING =
+            LogisticsPower.blockModelResourceLocation("creative_engine_base_moving");
 
     // Stage colors (RGB 0-1 range) for trunk tinting
     private static final float[] COLOR_BLUE = {0.2f, 0.4f, 0.8f};

@@ -15,7 +15,7 @@ import net.minecraft.core.component.DataComponentType;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.DyeColor;
@@ -45,12 +45,12 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
         return "pipe";
     }
 
-    public static Identifier identifier(String name) {
-        return INSTANCE.getDomainIdentifier(name);
+    public static ResourceLocation identifier(String name) {
+        return INSTANCE.getDomainResourceLocation(name);
     }
 
-    public static Identifier blockModelIdentifier(String name) {
-        return INSTANCE.getBlockModelIdentifier(name);
+    public static ResourceLocation blockModelIdentifier(String name) {
+        return INSTANCE.getBlockModelResourceLocation(name);
     }
 
     @Override
@@ -232,17 +232,17 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
             registerItemAlias(name, MARKING_FLUID_ITEMS.get(color));
         }
 
-        Identifier newMenuId = BuiltInRegistries.MENU.getKey(SCREEN.ITEM_FILTER);
+        ResourceLocation newMenuId = BuiltInRegistries.MENU.getKey(SCREEN.ITEM_FILTER);
         if (newMenuId != null) {
             BuiltInRegistries.MENU.addAlias(
-                    LogisticsMod.getIdentifier("item_filter"),
+                    LogisticsMod.getResourceLocation("item_filter"),
                     newMenuId);
         }
 
-        Identifier newDataId = BuiltInRegistries.DATA_COMPONENT_TYPE.getKey(DATA.WEATHERING_STATE);
+        ResourceLocation newDataId = BuiltInRegistries.DATA_COMPONENT_TYPE.getKey(DATA.WEATHERING_STATE);
         if (newDataId != null) {
             BuiltInRegistries.DATA_COMPONENT_TYPE.addAlias(
-                    LogisticsMod.getIdentifier("weathering_state"),
+                    LogisticsMod.getResourceLocation("weathering_state"),
                     newDataId);
         }
     }

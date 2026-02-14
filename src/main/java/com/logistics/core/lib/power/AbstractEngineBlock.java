@@ -28,7 +28,6 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.Property;
-import net.minecraft.world.level.redstone.Orientation;
 import org.jetbrains.annotations.Nullable;
 import team.reborn.energy.api.EnergyStorage;
 
@@ -149,7 +148,7 @@ public abstract class AbstractEngineBlock<E extends AbstractEngineBlockEntity> e
             Level world,
             BlockPos pos,
             Block block,
-            @Nullable Orientation wireOrientation,
+            BlockPos fromPos,
             boolean notify) {
         if (!world.isClientSide()) {
             boolean powered = hasDirectRedstonePower(world, pos);
@@ -157,7 +156,7 @@ public abstract class AbstractEngineBlock<E extends AbstractEngineBlockEntity> e
                 world.setBlock(pos, state.setValue(POWERED, powered), Block.UPDATE_CLIENTS);
             }
         }
-        super.neighborChanged(state, world, pos, block, wireOrientation, notify);
+        super.neighborChanged(state, world, pos, block, fromPos, notify);
     }
 
     /**

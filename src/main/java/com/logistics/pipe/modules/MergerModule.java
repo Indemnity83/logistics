@@ -7,7 +7,7 @@ import com.logistics.pipe.runtime.RoutePlan;
 import java.util.List;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -107,7 +107,7 @@ public class MergerModule implements Module {
     }
 
     @Override
-    public @Nullable Identifier getPipeArm(PipeContext ctx, Direction direction) {
+    public @Nullable ResourceLocation getPipeArm(PipeContext ctx, Direction direction) {
         if (!isOutputDirection(ctx, direction)) {
             return null;
         }

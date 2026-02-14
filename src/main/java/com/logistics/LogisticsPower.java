@@ -14,7 +14,7 @@ import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
@@ -29,12 +29,12 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
         return "power";
     }
 
-    public static Identifier identifier(String name) {
-        return INSTANCE.getDomainIdentifier(name);
+    public static ResourceLocation identifier(String name) {
+        return INSTANCE.getDomainResourceLocation(name);
     }
 
-    public static Identifier blockModelIdentifier(String name) {
-        return INSTANCE.getBlockModelIdentifier(name);
+    public static ResourceLocation blockModelIdentifier(String name) {
+        return INSTANCE.getBlockModelResourceLocation(name);
     }
 
     @Override

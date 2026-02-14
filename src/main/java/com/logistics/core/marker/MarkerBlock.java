@@ -21,6 +21,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.core.particles.DustParticleOptions;
+import org.joml.Vector3f;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -31,8 +32,8 @@ import org.jetbrains.annotations.Nullable;
 public class MarkerBlock extends Block implements EntityBlock, Wrenchable {
     public static final MapCodec<MarkerBlock> CODEC = simpleCodec(MarkerBlock::new);
     public static final BooleanProperty ACTIVE = BooleanProperty.create("active");
-    // Blue particle color for active markers
-    private static final int ACTIVE_PARTICLE_COLOR = 0x0132FD;
+    // Blue particle color for active markers (0x0132FD - bright blue)
+    private static final Vector3f ACTIVE_PARTICLE_COLOR = new Vector3f(1/255.0f, 50/255.0f, 253/255.0f);
 
     // Torch-like shape matching vanilla torch dimensions
     private static final VoxelShape SHAPE = Block.box(6.0, 0.0, 6.0, 10.0, 10.0, 10.0);
