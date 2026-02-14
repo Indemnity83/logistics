@@ -197,6 +197,9 @@ public class MarkerBlockEntity extends BaseBlockEntity {
 
         loadConnectedMarkers(data);
         loadBounds(data);
+        if (!hasValidBounds()) {
+            isCornerMarker = false;
+        }
     }
 
     @Override
