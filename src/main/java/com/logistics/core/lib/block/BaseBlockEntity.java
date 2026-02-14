@@ -22,10 +22,12 @@ import org.jetbrains.annotations.Nullable;
  *   <li>Proper client chunk sync and update packets</li>
  * </ul>
  *
- * <p>Subclasses override {@link #saveCustomData(CompoundTag)} and {@link #loadCustomData(CompoundTag)}
+ * <p>Subclasses override {@link #saveLogisticsData(CompoundTag)} and {@link #loadLogisticsData(CompoundTag)}
  * instead of dealing with {@link ValueInput}/{@link ValueOutput} directly.
  */
 public abstract class BaseBlockEntity extends BlockEntity {
+
+    private static final String DATA_KEY = "LogisticsData";
 
     protected BaseBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
@@ -34,43 +36,64 @@ public abstract class BaseBlockEntity extends BlockEntity {
     // ==================== Disk Persistence ====================
 
     /**
-     * Save custom block entity data to NBT.
+     * Save logistics block entity data to NBT.
      * Override this instead of {@link #saveAdditional(ValueOutput)}.
      *
      * <p>Note: Use {@code level.registryAccess()} to serialize ItemStacks and other registry objects.
      *
-     * @param tag the compound tag to write custom data into
+     * @param tag the compound tag to write logistics data into
      */
-    protected void saveCustomData(CompoundTag tag) {
-        // Default: no custom data
+    protected void saveLogisticsData(CompoundTag tag) {
+        // Default: no logistics data
     }
 
     /**
-     * Load custom block entity data from NBT.
+     * Load logistics block entity data from NBT.
      * Override this instead of {@link #loadAdditional(ValueInput)}.
      *
      * <p>Note: Use {@code level.registryAccess()} to deserialize ItemStacks and other registry objects.
      *
-     * @param tag the compound tag to read custom data from
+     * @param tag the compound tag to read logistics data from
      */
-    protected void loadCustomData(CompoundTag tag) {
-        // Default: no custom data
+    protected void loadLogisticsData(CompoundTag tag) {
+        // Default: no logistics data
+    }
+
+    /**
+     * Load legacy NBT data from the root level (pre-BaseBlockEntity format).
+     * Override this to provide backward compatibility for worlds saved before the BaseBlockEntity migration.
+     *
+     * <p>This method is called when DATA_KEY tag is not present in the NBT,
+     * indicating an old save format where data was stored at the root level.
+     *
+     * <p>TODO: This method should be removed prior to v1.0 release
+     *
+     * @param view the value input to read legacy data from
+     */
+    protected void loadLegacyData(ValueInput view) {
+        // Default: no legacy data migration needed
     }
 
     @Override
     protected final void saveAdditional(ValueOutput view) {
         super.saveAdditional(view);
-        CompoundTag customData = new CompoundTag();
-        saveCustomData(customData);
-        if (!customData.isEmpty()) {
-            view.store("CustomData", CompoundTag.CODEC, customData);
+        CompoundTag logisticsData = new CompoundTag();
+        saveLogisticsData(logisticsData);
+        if (!logisticsData.isEmpty()) {
+            view.store(DATA_KEY, CompoundTag.CODEC, logisticsData);
         }
     }
 
     @Override
     protected final void loadAdditional(ValueInput view) {
         super.loadAdditional(view);
-        view.read("CustomData", CompoundTag.CODEC).ifPresent(this::loadCustomData);
+        // Try to read new format first (LogisticsData wrapper)
+        if (view.read(DATA_KEY, CompoundTag.CODEC).isPresent()) {
+            view.read(DATA_KEY, CompoundTag.CODEC).ifPresent(this::loadLogisticsData);
+        } else {
+            // Fall back to legacy format (root-level keys)
+            loadLegacyData(view);
+        }
     }
 
     // ==================== Client Sync ====================
@@ -88,7 +111,6 @@ public abstract class BaseBlockEntity extends BlockEntity {
     protected final void markDirtyAndSync() {
         setChanged();
         if (level != null && !level.isClientSide()) {
-            // Push block updates to clients (redraw + blockstate listeners)
             level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), Block.UPDATE_ALL);
         }
     }

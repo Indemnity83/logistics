@@ -1123,19 +1123,19 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity implements PipeConne
 
     // NBT serialization
     @Override
-    protected void saveCustomData(CompoundTag nbt) {
-        super.saveCustomData(nbt);
+    protected void saveLogisticsData(CompoundTag nbt) {
+        super.saveLogisticsData(nbt);
 
-        // Save energy (using old key name for compatibility)
-        nbt.putLong("Amount", energyStorage.amount);
+        // Save energy
+        nbt.putLong("StoredEnergy", energyStorage.amount);
 
-        // Save mining state (using old key names)
-        nbt.putInt("X", miningX);
-        nbt.putInt("Y", miningY);
-        nbt.putInt("Z", miningZ);
-        nbt.putFloat("Progress", breakProgress);
-        nbt.putBoolean("Finished", finished);
-        nbt.putString("Phase", currentPhase.name());
+        // Save mining state
+        nbt.putInt("MiningX", miningX);
+        nbt.putInt("MiningY", miningY);
+        nbt.putInt("MiningZ", miningZ);
+        nbt.putFloat("BreakProgress", breakProgress);
+        nbt.putBoolean("MiningFinished", finished);
+        nbt.putString("CurrentPhase", currentPhase.name());
         nbt.putInt("FrameBuildIndex", frameBuildIndex);
 
         // Save arm state
@@ -1144,35 +1144,36 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity implements PipeConne
         nbt.putFloat("ArmY", armY);
         nbt.putFloat("ArmZ", armZ);
         nbt.putBoolean("ArmInitialized", armInitialized);
-        nbt.putInt("SettlingTicks", settlingTicksRemaining);
-        nbt.putInt("ExpectedTravelTicks", expectedTravelTicks);
-        nbt.putFloat("SyncedArmSpeed", syncedArmSpeed);
+        nbt.putInt("ArmSettlingTicks", settlingTicksRemaining);
+        nbt.putInt("ArmExpectedTravelTicks", expectedTravelTicks);
+        nbt.putFloat("ArmSyncedSpeed", syncedArmSpeed);
 
         // Save custom bounds
+        nbt.putBoolean("UseCustomBounds", useCustomBounds);
         if (useCustomBounds) {
-            nbt.putInt("MinX", customMinX);
-            nbt.putInt("MinZ", customMinZ);
-            nbt.putInt("MaxX", customMaxX);
-            nbt.putInt("MaxZ", customMaxZ);
+            nbt.putInt("CustomBoundsMinX", customMinX);
+            nbt.putInt("CustomBoundsMinZ", customMinZ);
+            nbt.putInt("CustomBoundsMaxX", customMaxX);
+            nbt.putInt("CustomBoundsMaxZ", customMaxZ);
         }
     }
 
     @Override
-    protected void loadCustomData(CompoundTag nbt) {
-        super.loadCustomData(nbt);
+    protected void loadLogisticsData(CompoundTag nbt) {
+        super.loadLogisticsData(nbt);
 
-        // Load energy (using old key name for compatibility)
-        energyStorage.amount = nbt.getLong("Amount").orElse(0L);
+        // Load energy
+        energyStorage.amount = nbt.getLong("StoredEnergy").orElse(0L);
 
-        // Load mining state (using old key names)
-        miningX = nbt.getInt("X").orElse(0);
-        miningY = nbt.getInt("Y").orElse(0);
-        miningZ = nbt.getInt("Z").orElse(0);
-        breakProgress = nbt.getFloat("Progress").orElse(0f);
-        finished = nbt.getBoolean("Finished").orElse(false);
+        // Load mining state
+        miningX = nbt.getInt("MiningX").orElse(0);
+        miningY = nbt.getInt("MiningY").orElse(0);
+        miningZ = nbt.getInt("MiningZ").orElse(0);
+        breakProgress = nbt.getFloat("BreakProgress").orElse(0f);
+        finished = nbt.getBoolean("MiningFinished").orElse(false);
         frameBuildIndex = nbt.getInt("FrameBuildIndex").orElse(0);
 
-        nbt.getString("Phase").ifPresent(phaseName -> {
+        nbt.getString("CurrentPhase").ifPresent(phaseName -> {
             try {
                 currentPhase = Phase.valueOf(phaseName);
             } catch (IllegalArgumentException e) {
@@ -1192,23 +1193,80 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity implements PipeConne
         armY = nbt.getFloat("ArmY").orElse(0f);
         armZ = nbt.getFloat("ArmZ").orElse(0f);
         armInitialized = nbt.getBoolean("ArmInitialized").orElse(false);
-        settlingTicksRemaining = nbt.getInt("SettlingTicks").orElse(0);
-        expectedTravelTicks = nbt.getInt("ExpectedTravelTicks").orElse(0);
-        syncedArmSpeed = nbt.getFloat("SyncedArmSpeed").orElse(LaserQuarryConfig.ARM_SPEED);
+        settlingTicksRemaining = nbt.getInt("ArmSettlingTicks").orElse(0);
+        expectedTravelTicks = nbt.getInt("ArmExpectedTravelTicks").orElse(0);
+        syncedArmSpeed = nbt.getFloat("ArmSyncedSpeed").orElse(LaserQuarryConfig.ARM_SPEED);
 
-        // Load custom bounds (check if any bounds keys exist)
-        useCustomBounds = nbt.contains("MinX");
+        // Load custom bounds
+        useCustomBounds = nbt.getBoolean("UseCustomBounds").orElse(false);
         if (useCustomBounds) {
-            customMinX = nbt.getInt("MinX").orElse(0);
-            customMinZ = nbt.getInt("MinZ").orElse(0);
-            customMaxX = nbt.getInt("MaxX").orElse(0);
-            customMaxZ = nbt.getInt("MaxZ").orElse(0);
+            customMinX = nbt.getInt("CustomBoundsMinX").orElse(0);
+            customMinZ = nbt.getInt("CustomBoundsMinZ").orElse(0);
+            customMaxX = nbt.getInt("CustomBoundsMaxX").orElse(0);
+            customMaxZ = nbt.getInt("CustomBoundsMaxZ").orElse(0);
         } else {
             customMinX = 0;
             customMinZ = 0;
             customMaxX = 0;
             customMaxZ = 0;
         }
+    }
+
+    @Override
+    protected void loadLegacyData(net.minecraft.world.level.storage.ValueInput view) {
+        useCustomBounds = false;
+        customMinX = 0;
+        customMinZ = 0;
+        customMaxX = 0;
+        customMaxZ = 0;
+
+        // Load energy from old "Energy" tag
+        view.read("Energy", CompoundTag.CODEC).ifPresent(energyState -> {
+            energyStorage.amount = energyState.getLong("Amount").orElse(0L);
+        });
+
+        // Load mining state from old "MiningState" tag
+        view.read("MiningState", CompoundTag.CODEC).ifPresent(miningState -> {
+            miningX = miningState.getInt("X").orElse(0);
+            miningY = miningState.getInt("Y").orElse(0);
+            miningZ = miningState.getInt("Z").orElse(0);
+            breakProgress = miningState.getFloat("Progress").orElse(0f);
+            finished = miningState.getBoolean("Finished").orElse(false);
+            frameBuildIndex = miningState.getInt("FrameBuildIndex").orElse(0);
+
+            miningState.getString("Phase").ifPresent(phaseName -> {
+                try {
+                    currentPhase = Phase.valueOf(phaseName);
+                } catch (IllegalArgumentException e) {
+                    currentPhase = Phase.CLEARING;
+                }
+            });
+
+            // Load arm state
+            miningState.getString("ArmState").ifPresent(armStateName -> {
+                try {
+                    armState = ArmState.valueOf(armStateName);
+                } catch (IllegalArgumentException e) {
+                    armState = ArmState.MOVING;
+                }
+            });
+            armX = miningState.getFloat("ArmX").orElse(0f);
+            armY = miningState.getFloat("ArmY").orElse(0f);
+            armZ = miningState.getFloat("ArmZ").orElse(0f);
+            armInitialized = miningState.getBoolean("ArmInitialized").orElse(false);
+            settlingTicksRemaining = miningState.getInt("SettlingTicks").orElse(0);
+            expectedTravelTicks = miningState.getInt("ExpectedTravelTicks").orElse(0);
+            syncedArmSpeed = miningState.getFloat("SyncedArmSpeed").orElse(LaserQuarryConfig.ARM_SPEED);
+        });
+
+        // Load custom bounds from old "CustomBounds" tag
+        view.read("CustomBounds", CompoundTag.CODEC).ifPresent(customBoundsNbt -> {
+            useCustomBounds = true;
+            customMinX = customBoundsNbt.getInt("MinX").orElse(0);
+            customMinZ = customBoundsNbt.getInt("MinZ").orElse(0);
+            customMaxX = customBoundsNbt.getInt("MaxX").orElse(0);
+            customMaxZ = customBoundsNbt.getInt("MaxZ").orElse(0);
+        });
     }
 
     @Override

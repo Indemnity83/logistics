@@ -93,16 +93,28 @@ public class CreativeSinkBlockEntity extends BaseBlockEntity implements AcceptsL
     // ==================== NBT Serialization ====================
 
     @Override
-    protected void saveCustomData(CompoundTag nbt) {
-        nbt.putInt("drainRateIndex", drainRateIndex);
+    protected void saveLogisticsData(CompoundTag nbt) {
+        nbt.putInt("DrainRateIndex", drainRateIndex);
     }
 
     @Override
-    protected void loadCustomData(CompoundTag nbt) {
-        drainRateIndex = nbt.getInt("drainRateIndex").orElse(4);
+    protected void loadLogisticsData(CompoundTag nbt) {
+        drainRateIndex = nbt.getInt("DrainRateIndex").orElse(4);
         // Clamp to valid range
         if (drainRateIndex < 0 || drainRateIndex >= DRAIN_RATES.length) {
             drainRateIndex = 4; // Default to 5 RF/t
         }
+    }
+
+    @Override
+    protected void loadLegacyData(net.minecraft.world.level.storage.ValueInput view) {
+        view.read("CreativeSink", net.minecraft.nbt.CompoundTag.CODEC).ifPresent(data -> {
+            // Load old key name (before BaseBlockEntity refactoring)
+            drainRateIndex = data.getInt("drainRateIndex").orElse(4);
+            // Clamp to valid range
+            if (drainRateIndex < 0 || drainRateIndex >= DRAIN_RATES.length) {
+                drainRateIndex = 4; // Default to 5 RF/t
+            }
+        });
     }
 }

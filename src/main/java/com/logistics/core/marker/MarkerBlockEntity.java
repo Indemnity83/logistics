@@ -156,7 +156,7 @@ public class MarkerBlockEntity extends BaseBlockEntity {
     }
 
     @Override
-    protected void saveCustomData(CompoundTag data) {
+    protected void saveLogisticsData(CompoundTag data) {
         // Save connected markers
         if (!connectedMarkers.isEmpty()) {
             int[] positions = new int[connectedMarkers.size() * 3];
@@ -171,21 +171,21 @@ public class MarkerBlockEntity extends BaseBlockEntity {
 
         // Save bounds
         if (boundMin != null) {
-            data.putInt("MinX", boundMin.getX());
-            data.putInt("MinY", boundMin.getY());
-            data.putInt("MinZ", boundMin.getZ());
+            data.putInt("BoundMinX", boundMin.getX());
+            data.putInt("BoundMinY", boundMin.getY());
+            data.putInt("BoundMinZ", boundMin.getZ());
         }
         if (boundMax != null) {
-            data.putInt("MaxX", boundMax.getX());
-            data.putInt("MaxY", boundMax.getY());
-            data.putInt("MaxZ", boundMax.getZ());
+            data.putInt("BoundMaxX", boundMax.getX());
+            data.putInt("BoundMaxY", boundMax.getY());
+            data.putInt("BoundMaxZ", boundMax.getZ());
         }
 
-        data.putBoolean("IsCorner", isCornerMarker);
+        data.putBoolean("IsCornerMarker", isCornerMarker);
     }
 
     @Override
-    protected void loadCustomData(CompoundTag data) {
+    protected void loadLogisticsData(CompoundTag data) {
         connectedMarkers.clear();
         boundMin = null;
         boundMax = null;
@@ -195,23 +195,47 @@ public class MarkerBlockEntity extends BaseBlockEntity {
         loadBounds(data);
     }
 
+    @Override
+    protected void loadLegacyData(net.minecraft.world.level.storage.ValueInput view) {
+        view.read("MarkerData", net.minecraft.nbt.CompoundTag.CODEC).ifPresent(data -> {
+            connectedMarkers.clear();
+            boundMin = null;
+            boundMax = null;
+            isCornerMarker = false;
+
+            loadConnectedMarkers(data);
+
+            // Convert old key names to new format for loadBounds
+            CompoundTag massaged = new CompoundTag();
+            if (data.contains("MinX")) massaged.putInt("BoundMinX", data.getInt("MinX").orElse(0));
+            if (data.contains("MinY")) massaged.putInt("BoundMinY", data.getInt("MinY").orElse(0));
+            if (data.contains("MinZ")) massaged.putInt("BoundMinZ", data.getInt("MinZ").orElse(0));
+            if (data.contains("MaxX")) massaged.putInt("BoundMaxX", data.getInt("MaxX").orElse(0));
+            if (data.contains("MaxY")) massaged.putInt("BoundMaxY", data.getInt("MaxY").orElse(0));
+            if (data.contains("MaxZ")) massaged.putInt("BoundMaxZ", data.getInt("MaxZ").orElse(0));
+            if (data.contains("IsCorner")) massaged.putBoolean("IsCornerMarker", data.getBoolean("IsCorner").orElse(false));
+
+            loadBounds(massaged);
+        });
+    }
+
     private void loadBounds(CompoundTag data) {
-        boolean hasMin = data.contains("MinX");
-        boolean hasMax = data.contains("MaxX");
+        boolean hasMin = data.contains("BoundMinX");
+        boolean hasMax = data.contains("BoundMaxX");
         if (hasMin && hasMax) {
-            int minX = data.getInt("MinX").orElse(0);
-            int minY = data.getInt("MinY").orElse(0);
-            int minZ = data.getInt("MinZ").orElse(0);
+            int minX = data.getInt("BoundMinX").orElse(0);
+            int minY = data.getInt("BoundMinY").orElse(0);
+            int minZ = data.getInt("BoundMinZ").orElse(0);
             boundMin = new BlockPos(minX, minY, minZ);
 
-            int maxX = data.getInt("MaxX").orElse(0);
-            int maxY = data.getInt("MaxY").orElse(0);
-            int maxZ = data.getInt("MaxZ").orElse(0);
+            int maxX = data.getInt("BoundMaxX").orElse(0);
+            int maxY = data.getInt("BoundMaxY").orElse(0);
+            int maxZ = data.getInt("BoundMaxZ").orElse(0);
             boundMax = new BlockPos(maxX, maxY, maxZ);
         }
 
-        if (data.contains("IsCorner")) {
-            isCornerMarker = data.getBoolean("IsCorner").orElse(false);
+        if (data.contains("IsCornerMarker")) {
+            isCornerMarker = data.getBoolean("IsCornerMarker").orElse(false);
         }
     }
 

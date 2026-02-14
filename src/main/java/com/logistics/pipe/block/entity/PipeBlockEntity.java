@@ -141,7 +141,7 @@ public class PipeBlockEntity extends BaseBlockEntity implements PipeConnection, 
     }
 
     @Override
-    protected void saveCustomData(CompoundTag pipeData) {
+    protected void saveLogisticsData(CompoundTag pipeData) {
         // Save traveling items
         if (!travelingItems.isEmpty()) {
             ListTag itemsList = new ListTag();
@@ -151,7 +151,7 @@ public class PipeBlockEntity extends BaseBlockEntity implements PipeConnection, 
                         .getOrThrow();
                 itemsList.add(itemTag);
             }
-            pipeData.put("TravelingItems", itemsList);
+            pipeData.put("ItemsInTransit", itemsList);
         }
 
         // Save module state
@@ -168,18 +168,18 @@ public class PipeBlockEntity extends BaseBlockEntity implements PipeConnection, 
             }
         }
         if (!connectionsNbt.isEmpty()) {
-            pipeData.put("Connections", connectionsNbt);
+            pipeData.put("ConnectionTypes", connectionsNbt);
         }
     }
 
     @Override
-    protected void loadCustomData(CompoundTag pipeData) {
+    protected void loadLogisticsData(CompoundTag pipeData) {
         long readStart = System.nanoTime();
 
         // Load traveling items
         travelingItems.clear();
-        if (pipeData.contains("TravelingItems")) {
-            pipeData.getList("TravelingItems").ifPresent(itemsList -> {
+        if (pipeData.contains("ItemsInTransit")) {
+            pipeData.getList("ItemsInTransit").ifPresent(itemsList -> {
                 for (int i = 0; i < itemsList.size(); i++) {
                     itemsList.getCompound(i)
                             .flatMap(itemTag -> TravelingItem.CODEC.parse(NbtOps.INSTANCE, itemTag).result())
@@ -203,8 +203,8 @@ public class PipeBlockEntity extends BaseBlockEntity implements PipeConnection, 
         }
 
         // Load connection types
-        if (pipeData.contains("Connections")) {
-            CompoundTag connectionsNbt = pipeData.getCompound("Connections").orElse(new CompoundTag());
+        if (pipeData.contains("ConnectionTypes")) {
+            CompoundTag connectionsNbt = pipeData.getCompound("ConnectionTypes").orElse(new CompoundTag());
             // Reset all to NONE first
             for (int i = 0; i < 6; i++) {
                 connectionTypes[i] = PipeConnection.Type.NONE;
@@ -219,11 +219,48 @@ public class PipeBlockEntity extends BaseBlockEntity implements PipeConnection, 
         long durationMs = (System.nanoTime() - readStart) / 1_000_000L;
         if (durationMs >= 2L && Boolean.getBoolean("logistics.timing")) {
             com.logistics.LogisticsMod.LOGGER.info(
-                    "[timing] PipeBlockEntity loadCustomData at {} took {} ms (items={})",
+                    "[timing] PipeBlockEntity loadLogisticsData at {} took {} ms (items={})",
                     getBlockPos(),
                     durationMs,
                     travelingItems.size());
         }
+    }
+
+    @Override
+    protected void loadLegacyData(net.minecraft.world.level.storage.ValueInput view) {
+        view.read("PipeData", CompoundTag.CODEC).ifPresent(oldData -> {
+            long readStart = System.nanoTime();
+
+            // Massage old format to new format
+            CompoundTag massaged = new CompoundTag();
+
+            // Rename "TravelingItems" -> "ItemsInTransit"
+            if (oldData.contains("TravelingItems")) {
+                massaged.put("ItemsInTransit", oldData.get("TravelingItems"));
+            }
+
+            // "ModuleState" has same key name
+            if (oldData.contains("ModuleState")) {
+                massaged.put("ModuleState", oldData.get("ModuleState"));
+            }
+
+            // Rename "Connections" -> "ConnectionTypes"
+            if (oldData.contains("Connections")) {
+                massaged.put("ConnectionTypes", oldData.get("Connections"));
+            }
+
+            // Now load using the standard loader which expects new keys
+            loadLogisticsData(massaged);
+
+            long durationMs = (System.nanoTime() - readStart) / 1_000_000L;
+            if (durationMs >= 2L && Boolean.getBoolean("logistics.timing")) {
+                com.logistics.LogisticsMod.LOGGER.info(
+                        "[timing] PipeBlockEntity loadLegacyData at {} took {} ms (items={})",
+                        getBlockPos(),
+                        durationMs,
+                        travelingItems.size());
+            }
+        });
     }
 
     public static void tick(

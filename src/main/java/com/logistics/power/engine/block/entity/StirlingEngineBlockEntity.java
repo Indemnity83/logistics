@@ -22,8 +22,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.storage.ValueInput;
-import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.ticks.ContainerSingleItem;
@@ -340,43 +338,62 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
     // ==================== NBT Serialization ====================
 
     @Override
-    protected void saveCustomData(CompoundTag nbt) {
-        super.saveCustomData(nbt);
+    protected void saveLogisticsData(CompoundTag nbt) {
+        super.saveLogisticsData(nbt);
 
         // Save Stirling-specific data
-        nbt.putInt("burnTime", burnTime);
-        nbt.putInt("fuelTime", fuelTime);
-        nbt.putDouble("currentGeneration", currentGeneration);
-        nbt.putDouble("generationCarry", generationCarry);
-        nbt.putDouble("pidIntegral", pidController.getIntegral());
+        nbt.putInt("BurnTimeRemaining", burnTime);
+        nbt.putInt("TotalFuelTime", fuelTime);
+        nbt.putDouble("CurrentGeneration", currentGeneration);
+        nbt.putDouble("GenerationCarryover", generationCarry);
+        nbt.putDouble("PIDIntegral", pidController.getIntegral());
 
         // Save fuel inventory using CODEC
         ItemStack fuelStack = inventory.getFirst();
         if (!fuelStack.isEmpty()) {
             ItemStack.CODEC.encodeStart(net.minecraft.nbt.NbtOps.INSTANCE, fuelStack)
                     .result()
-                    .ifPresent(tag -> nbt.put("Fuel", tag));
+                    .ifPresent(tag -> nbt.put("FuelStack", tag));
         }
     }
 
     @Override
-    protected void loadCustomData(CompoundTag nbt) {
-        super.loadCustomData(nbt);
+    protected void loadLogisticsData(CompoundTag nbt) {
+        super.loadLogisticsData(nbt);
 
         // Load Stirling-specific data
-        burnTime = nbt.getInt("burnTime").orElse(0);
-        fuelTime = nbt.getInt("fuelTime").orElse(0);
-        currentGeneration = nbt.getDouble("currentGeneration").orElse(MIN_GENERATION);
-        generationCarry = nbt.getDouble("generationCarry").orElse(0.0);
-        double pidIntegral = nbt.getDouble("pidIntegral").orElse(0.0);
+        burnTime = nbt.getInt("BurnTimeRemaining").orElse(0);
+        fuelTime = nbt.getInt("TotalFuelTime").orElse(0);
+        currentGeneration = nbt.getDouble("CurrentGeneration").orElse(MIN_GENERATION);
+        generationCarry = nbt.getDouble("GenerationCarryover").orElse(0.0);
+        double pidIntegral = nbt.getDouble("PIDIntegral").orElse(0.0);
         pidController.setIntegral(pidIntegral);
 
         // Load fuel inventory using CODEC
         inventory.set(0, ItemStack.EMPTY);
-        if (nbt.contains("Fuel")) {
-            ItemStack.CODEC.parse(net.minecraft.nbt.NbtOps.INSTANCE, nbt.get("Fuel"))
+        if (nbt.contains("FuelStack")) {
+            ItemStack.CODEC.parse(net.minecraft.nbt.NbtOps.INSTANCE, nbt.get("FuelStack"))
                     .result()
                     .ifPresent(stack -> inventory.set(0, stack));
         }
+    }
+
+    @Override
+    protected void loadLegacyData(net.minecraft.world.level.storage.ValueInput view) {
+        super.loadLegacyData(view); // Loads engine data from "Engine" tag
+
+        // Load Stirling-specific data from old "StirlingData" tag
+        view.read("StirlingData", net.minecraft.nbt.CompoundTag.CODEC).ifPresent(stirlingData -> {
+            burnTime = stirlingData.getInt("burnTime").orElse(0);
+            fuelTime = stirlingData.getInt("fuelTime").orElse(0);
+            currentGeneration = stirlingData.getDouble("currentGeneration").orElse(MIN_GENERATION);
+            generationCarry = stirlingData.getDouble("generationCarry").orElse(0.0);
+            double pidIntegral = stirlingData.getDouble("pidIntegral").orElse(0.0);
+            pidController.setIntegral(pidIntegral);
+        });
+
+        // Load fuel from old "Fuel" tag at root level
+        inventory.set(0, ItemStack.EMPTY);
+        view.read("Fuel", ItemStack.CODEC).ifPresent(stack -> inventory.set(0, stack));
     }
 }

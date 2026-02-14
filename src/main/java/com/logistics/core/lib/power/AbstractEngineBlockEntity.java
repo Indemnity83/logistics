@@ -510,21 +510,33 @@ public abstract class AbstractEngineBlockEntity extends BaseBlockEntity {
     // ==================== NBT Serialization ====================
 
     @Override
-    protected void saveCustomData(CompoundTag engineData) {
-        engineData.putLong("energy", energyStorage.amount);
-        engineData.putDouble("heat", temperature);
-        engineData.putFloat("progress", progress);
-        engineData.putInt("cyclePhase", cyclePhase.ordinal());
-        engineData.putInt("stage", heatStage.ordinal());
+    protected void saveLogisticsData(CompoundTag engineData) {
+        engineData.putLong("StoredEnergy", energyStorage.amount);
+        engineData.putDouble("Temperature", temperature);
+        engineData.putFloat("CycleProgress", progress);
+        engineData.putInt("CyclePhase", cyclePhase.ordinal());
+        engineData.putInt("HeatStage", heatStage.ordinal());
     }
 
     @Override
-    protected void loadCustomData(CompoundTag engineData) {
-        energyStorage.amount = engineData.getLong("energy").orElse(0L);
-        temperature = engineData.getDouble("heat").orElse(0.0);
-        progress = engineData.getFloat("progress").orElse(0f);
-        cyclePhase = CyclePhase.fromOrdinal(engineData.getInt("cyclePhase").orElse(0));
-        heatStage = HeatStage.fromOrdinal(engineData.getInt("stage").orElse(0));
+    protected void loadLogisticsData(CompoundTag engineData) {
+        energyStorage.amount = engineData.getLong("StoredEnergy").orElse(0L);
+        temperature = engineData.getDouble("Temperature").orElse(0.0);
+        progress = engineData.getFloat("CycleProgress").orElse(0f);
+        cyclePhase = CyclePhase.fromOrdinal(engineData.getInt("CyclePhase").orElse(0));
+        heatStage = HeatStage.fromOrdinal(engineData.getInt("HeatStage").orElse(0));
+    }
+
+    @Override
+    protected void loadLegacyData(net.minecraft.world.level.storage.ValueInput view) {
+        view.read("Engine", CompoundTag.CODEC).ifPresent(engineData -> {
+            // Load old key names (before BaseBlockEntity refactoring)
+            energyStorage.amount = engineData.getLong("energy").orElse(0L);
+            temperature = engineData.getDouble("heat").orElse(0.0);
+            progress = engineData.getFloat("progress").orElse(0f);
+            cyclePhase = CyclePhase.fromOrdinal(engineData.getInt("cyclePhase").orElse(0));
+            heatStage = HeatStage.fromOrdinal(engineData.getInt("stage").orElse(0));
+        });
     }
 
     // ==================== Lifecycle ====================

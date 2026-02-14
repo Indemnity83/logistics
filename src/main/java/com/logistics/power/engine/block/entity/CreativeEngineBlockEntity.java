@@ -9,8 +9,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.storage.ValueInput;
-import net.minecraft.world.level.storage.ValueOutput;
 
 /**
  * Block entity for the Creative Engine.
@@ -133,18 +131,32 @@ public class CreativeEngineBlockEntity extends AbstractEngineBlockEntity {
     // ==================== NBT Serialization ====================
 
     @Override
-    protected void saveCustomData(CompoundTag nbt) {
-        super.saveCustomData(nbt);
-        nbt.putInt("outputLevelIndex", outputLevelIndex);
+    protected void saveLogisticsData(CompoundTag nbt) {
+        super.saveLogisticsData(nbt);
+        nbt.putInt("OutputLevelIndex", outputLevelIndex);
     }
 
     @Override
-    protected void loadCustomData(CompoundTag nbt) {
-        super.loadCustomData(nbt);
-        outputLevelIndex = nbt.getInt("outputLevelIndex").orElse(0);
+    protected void loadLogisticsData(CompoundTag nbt) {
+        super.loadLogisticsData(nbt);
+        outputLevelIndex = nbt.getInt("OutputLevelIndex").orElse(0);
         // Clamp to valid range
         if (outputLevelIndex < 0 || outputLevelIndex >= OUTPUT_LEVELS.length) {
             outputLevelIndex = 0;
         }
+    }
+
+    @Override
+    protected void loadLegacyData(net.minecraft.world.level.storage.ValueInput view) {
+        super.loadLegacyData(view); // Loads engine data from "Engine" tag
+
+        // Load Creative-specific data from old "CreativeData" tag
+        view.read("CreativeData", CompoundTag.CODEC).ifPresent(creativeData -> {
+            outputLevelIndex = creativeData.getInt("outputLevelIndex").orElse(0);
+            // Clamp to valid range
+            if (outputLevelIndex < 0 || outputLevelIndex >= OUTPUT_LEVELS.length) {
+                outputLevelIndex = 0;
+            }
+        });
     }
 }
