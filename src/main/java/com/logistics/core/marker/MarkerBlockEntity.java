@@ -253,12 +253,10 @@ public class MarkerBlockEntity extends BaseBlockEntity {
     }
 
     private void loadConnectedMarkers(CompoundTag data) {
-        if (data.contains("ConnectedMarkers")) {
-            data.getIntArray("ConnectedMarkers").ifPresent(positions -> {
-                for (int i = 0; i < positions.length / 3; i++) {
-                    connectedMarkers.add(new BlockPos(positions[i * 3], positions[i * 3 + 1], positions[i * 3 + 2]));
-                }
-            });
-        }
+        NbtCompat.ifHasIntArray(data, "ConnectedMarkers", positions -> {
+            for (int i = 0; i < positions.length / 3; i++) {
+                connectedMarkers.add(new BlockPos(positions[i * 3], positions[i * 3 + 1], positions[i * 3 + 2]));
+            }
+        });
     }
 }
