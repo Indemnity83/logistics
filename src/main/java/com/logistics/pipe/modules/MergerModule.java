@@ -1,6 +1,7 @@
 package com.logistics.pipe.modules;
 
 import com.logistics.LogisticsPipe;
+import com.logistics.core.lib.storage.NbtCompat;
 import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.runtime.RoutePlan;
 import java.util.List;
@@ -70,10 +71,7 @@ public class MergerModule implements Module {
 
     private @Nullable Direction getOutputDirection(PipeContext ctx) {
         CompoundTag state = ctx.moduleState(getStateKey());
-        if (!state.contains(OUTPUT_DIRECTION)) {
-            return null;
-        }
-        String directionStr = state.getString(OUTPUT_DIRECTION).orElse("");
+        String directionStr = NbtCompat.getString(state, OUTPUT_DIRECTION, "");
         if (directionStr.isEmpty()) {
             return null;
         }

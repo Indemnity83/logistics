@@ -1,5 +1,6 @@
 package com.logistics.pipe.modules;
 
+import com.logistics.core.lib.storage.NbtCompat;
 import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.pipe.runtime.RoutePlan;
@@ -99,21 +100,9 @@ public class ItemFilterModule implements Module {
         CompoundTag filters = ctx.getCompoundTag(this, FILTERS);
         List<String> slots = new ArrayList<>(FILTER_SLOTS_PER_SIDE);
 
-        var listOpt = filters.getList(direction.getName());
-        if (listOpt.isPresent()) {
-            ListTag list = listOpt.get();
-            for (int i = 0; i < FILTER_SLOTS_PER_SIDE; i++) {
-                if (i < list.size()) {
-                    slots.add(list.getString(i).orElse(""));
-                } else {
-                    slots.add("");
-                }
-            }
-        } else {
-            // No saved filters - fill with empty strings
-            for (int i = 0; i < FILTER_SLOTS_PER_SIDE; i++) {
-                slots.add("");
-            }
+        ListTag list = NbtCompat.getListOrEmpty(filters, direction.getName());
+        for (int i = 0; i < FILTER_SLOTS_PER_SIDE; i++) {
+            slots.add(NbtCompat.getStringAt(list, i, ""));
         }
         return slots;
     }
