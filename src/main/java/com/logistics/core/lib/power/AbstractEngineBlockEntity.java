@@ -1,30 +1,25 @@
 package com.logistics.core.lib.power;
 
+import com.logistics.core.lib.block.BaseBlockEntity;
+import com.logistics.core.lib.storage.NbtCompat;
 import com.logistics.core.lib.support.ProbeResult;
-import team.reborn.energy.api.EnergyStorageUtil;
-import team.reborn.energy.api.base.SimpleSidedEnergyContainer;
-import team.reborn.energy.api.EnergyStorage;
 import java.util.Locale;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.ClientGamePacketListener;
-import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
-import net.minecraft.world.level.storage.ValueInput;
-import net.minecraft.world.level.storage.ValueOutput;
 import org.jetbrains.annotations.Nullable;
+import team.reborn.energy.api.EnergyStorage;
+import team.reborn.energy.api.EnergyStorageUtil;
+import team.reborn.energy.api.base.SimpleSidedEnergyContainer;
 
 /**
  * Abstract base class for all engine block entities.
@@ -44,7 +39,7 @@ import org.jetbrains.annotations.Nullable;
  *   <li>Compression stroke (0.5-1): energy is pushed to output</li>
  * </ul>
  */
-public abstract class AbstractEngineBlockEntity extends BlockEntity {
+public abstract class AbstractEngineBlockEntity extends BaseBlockEntity {
 
     // ==================== Heat Stage Enum ====================
 
@@ -516,36 +511,33 @@ public abstract class AbstractEngineBlockEntity extends BlockEntity {
     // ==================== NBT Serialization ====================
 
     @Override
-    protected void saveAdditional(ValueOutput view) {
-        CompoundTag engineData = new CompoundTag();
-        engineData.putLong("energy", energyStorage.amount);
-        engineData.putDouble("heat", temperature); // putDouble
-        engineData.putFloat("progress", progress); // putFloat
-        engineData.putInt("cyclePhase", cyclePhase.ordinal());
-        engineData.putInt("stage", heatStage.ordinal());
-
-        view.store("Engine", CompoundTag.CODEC, engineData);
+    protected void saveLogisticsData(CompoundTag engineData) {
+        engineData.putLong("StoredEnergy", energyStorage.amount);
+        engineData.putDouble("Temperature", temperature);
+        engineData.putFloat("CycleProgress", progress);
+        engineData.putInt("CyclePhase", cyclePhase.ordinal());
+        engineData.putInt("HeatStage", heatStage.ordinal());
     }
 
     @Override
-    protected void loadAdditional(ValueInput view) {
+    protected void loadLogisticsData(CompoundTag engineData) {
+        energyStorage.amount = NbtCompat.getLong(engineData, "StoredEnergy", 0L);
+        temperature = NbtCompat.getDouble(engineData, "Temperature", 0.0);
+        progress = NbtCompat.getFloat(engineData, "CycleProgress", 0f);
+        cyclePhase = CyclePhase.fromOrdinal(NbtCompat.getInt(engineData, "CyclePhase", 0));
+        heatStage = HeatStage.fromOrdinal(NbtCompat.getInt(engineData, "HeatStage", 0));
+    }
+
+    @Override
+    protected void loadLegacyData(net.minecraft.world.level.storage.ValueInput view) {
         view.read("Engine", CompoundTag.CODEC).ifPresent(engineData -> {
-            energyStorage.amount = engineData.getLong("energy").orElse(0L);
-            temperature = engineData.getDouble("heat").orElse(0.0);
-            progress = engineData.getFloat("progress").orElse(0f);
-            cyclePhase = CyclePhase.fromOrdinal(engineData.getInt("cyclePhase").orElse(0));
-            heatStage = HeatStage.fromOrdinal(engineData.getInt("stage").orElse(0));
+            // Load old key names (before BaseBlockEntity refactoring)
+            energyStorage.amount = NbtCompat.getLong(engineData, "energy", 0L);
+            temperature = NbtCompat.getDouble(engineData, "heat", 0.0);
+            progress = NbtCompat.getFloat(engineData, "progress", 0f);
+            cyclePhase = CyclePhase.fromOrdinal(NbtCompat.getInt(engineData, "cyclePhase", 0));
+            heatStage = HeatStage.fromOrdinal(NbtCompat.getInt(engineData, "stage", 0));
         });
-    }
-
-    @Nullable @Override
-    public Packet<ClientGamePacketListener> getUpdatePacket() {
-        return ClientboundBlockEntityDataPacket.create(this);
-    }
-
-    @Override
-    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
-        return saveWithoutMetadata(registries);
     }
 
     // ==================== Lifecycle ====================

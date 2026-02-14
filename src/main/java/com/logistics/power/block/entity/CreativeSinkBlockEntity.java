@@ -1,17 +1,16 @@
 package com.logistics.power.block.entity;
 
-import com.logistics.core.lib.power.AcceptsLowTierEnergy;
-import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
-import com.logistics.core.lib.support.ProbeResult;
 import com.logistics.LogisticsPower;
+import com.logistics.core.lib.block.BaseBlockEntity;
+import com.logistics.core.lib.power.AcceptsLowTierEnergy;
+import com.logistics.core.lib.storage.NbtCompat;
+import com.logistics.core.lib.support.ProbeResult;
+import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.storage.ValueInput;
-import net.minecraft.world.level.storage.ValueOutput;
 import team.reborn.energy.api.EnergyStorage;
 
 /**
@@ -19,7 +18,7 @@ import team.reborn.energy.api.EnergyStorage;
  * Accepts energy from all sides and discards it at a configurable rate.
  * Useful for testing engine output and PID tuning.
  */
-public class CreativeSinkBlockEntity extends BlockEntity implements AcceptsLowTierEnergy {
+public class CreativeSinkBlockEntity extends BaseBlockEntity implements AcceptsLowTierEnergy {
     private static final long[] DRAIN_RATES = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 50, 100};
     private int drainRateIndex = 4; // Default 5 RF/t
     private long energyLastTick = 0;
@@ -36,6 +35,8 @@ public class CreativeSinkBlockEntity extends BlockEntity implements AcceptsLowTi
             long canAccept = Math.max(0, getDrainRate() - energyThisTick);
             long toAccept = Math.min(maxAmount, canAccept);
             if (toAccept > 0) {
+                // Note: energyThisTick mutated outside transaction lifecycle is intentional.
+                // Counter resets every tick (Line ~65) and energy is discarded anyway.
                 energyThisTick += toAccept;
             }
             return toAccept;
@@ -78,7 +79,7 @@ public class CreativeSinkBlockEntity extends BlockEntity implements AcceptsLowTi
      */
     public long cycleDrainRate() {
         drainRateIndex = (drainRateIndex + 1) % DRAIN_RATES.length;
-        setChanged();
+        markDirtyAndSync(); // Sync to clients for potential UI/tooltip updates
         return DRAIN_RATES[drainRateIndex];
     }
 
@@ -95,16 +96,27 @@ public class CreativeSinkBlockEntity extends BlockEntity implements AcceptsLowTi
     // ==================== NBT Serialization ====================
 
     @Override
-    protected void saveAdditional(ValueOutput view) {
-        CompoundTag data = new CompoundTag();
-        data.putInt("drainRateIndex", drainRateIndex);
-        view.store("CreativeSink", CompoundTag.CODEC, data);
+    protected void saveLogisticsData(CompoundTag nbt) {
+        super.saveLogisticsData(nbt);
+        nbt.putInt("DrainRateIndex", drainRateIndex);
     }
 
     @Override
-    protected void loadAdditional(ValueInput view) {
-        view.read("CreativeSink", CompoundTag.CODEC).ifPresent(data -> {
-            drainRateIndex = data.getInt("drainRateIndex").orElse(4);
+    protected void loadLogisticsData(CompoundTag nbt) {
+        super.loadLogisticsData(nbt);
+        drainRateIndex = NbtCompat.getInt(nbt, "DrainRateIndex", 4);
+        // Clamp to valid range
+        if (drainRateIndex < 0 || drainRateIndex >= DRAIN_RATES.length) {
+            drainRateIndex = 4; // Default to 5 RF/t
+        }
+    }
+
+    @Override
+    protected void loadLegacyData(net.minecraft.world.level.storage.ValueInput view) {
+        super.loadLegacyData(view);
+        view.read("CreativeSink", net.minecraft.nbt.CompoundTag.CODEC).ifPresent(data -> {
+            // Load old key name (before BaseBlockEntity refactoring)
+            drainRateIndex = NbtCompat.getInt(data, "drainRateIndex", 4);
             // Clamp to valid range
             if (drainRateIndex < 0 || drainRateIndex >= DRAIN_RATES.length) {
                 drainRateIndex = 4; // Default to 5 RF/t

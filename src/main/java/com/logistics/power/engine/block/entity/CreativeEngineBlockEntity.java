@@ -1,16 +1,14 @@
 package com.logistics.power.engine.block.entity;
 
 import com.logistics.core.lib.power.AbstractEngineBlockEntity;
+import com.logistics.core.lib.storage.NbtCompat;
 import com.logistics.power.engine.block.CreativeEngineBlock;
 import com.logistics.LogisticsPower;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.storage.ValueInput;
-import net.minecraft.world.level.storage.ValueOutput;
 
 /**
  * Block entity for the Creative Engine.
@@ -106,13 +104,7 @@ public class CreativeEngineBlockEntity extends AbstractEngineBlockEntity {
      */
     public long cycleOutputLevel() {
         outputLevelIndex = (outputLevelIndex + 1) % OUTPUT_LEVELS.length;
-        setChanged();
-
-        // Sync to clients so renderer can update piston speed
-        if (level != null) {
-            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
-        }
-
+        markDirtyAndSync(); // Sync to clients so renderer can update piston speed
         return OUTPUT_LEVELS[outputLevelIndex];
     }
 
@@ -133,20 +125,28 @@ public class CreativeEngineBlockEntity extends AbstractEngineBlockEntity {
     // ==================== NBT Serialization ====================
 
     @Override
-    protected void saveAdditional(ValueOutput view) {
-        super.saveAdditional(view);
-
-        CompoundTag creativeData = new CompoundTag();
-        creativeData.putInt("outputLevelIndex", outputLevelIndex);
-        view.store("CreativeData", CompoundTag.CODEC, creativeData);
+    protected void saveLogisticsData(CompoundTag nbt) {
+        super.saveLogisticsData(nbt);
+        nbt.putInt("OutputLevelIndex", outputLevelIndex);
     }
 
     @Override
-    protected void loadAdditional(ValueInput view) {
-        super.loadAdditional(view);
+    protected void loadLogisticsData(CompoundTag nbt) {
+        super.loadLogisticsData(nbt);
+        outputLevelIndex = NbtCompat.getInt(nbt, "OutputLevelIndex", 0);
+        // Clamp to valid range
+        if (outputLevelIndex < 0 || outputLevelIndex >= OUTPUT_LEVELS.length) {
+            outputLevelIndex = 0;
+        }
+    }
 
+    @Override
+    protected void loadLegacyData(net.minecraft.world.level.storage.ValueInput view) {
+        super.loadLegacyData(view); // Loads engine data from "Engine" tag
+
+        // Load Creative-specific data from old "CreativeData" tag
         view.read("CreativeData", CompoundTag.CODEC).ifPresent(creativeData -> {
-            outputLevelIndex = creativeData.getInt("outputLevelIndex").orElse(0);
+            outputLevelIndex = NbtCompat.getInt(creativeData, "outputLevelIndex", 0);
             // Clamp to valid range
             if (outputLevelIndex < 0 || outputLevelIndex >= OUTPUT_LEVELS.length) {
                 outputLevelIndex = 0;
