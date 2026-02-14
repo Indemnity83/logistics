@@ -34,6 +34,8 @@ public class CreativeSinkBlockEntity extends BaseBlockEntity implements AcceptsL
             long canAccept = Math.max(0, getDrainRate() - energyThisTick);
             long toAccept = Math.min(maxAmount, canAccept);
             if (toAccept > 0) {
+                // Note: energyThisTick mutated outside transaction lifecycle is intentional.
+                // Counter resets every tick (Line ~65) and energy is discarded anyway.
                 energyThisTick += toAccept;
             }
             return toAccept;
@@ -94,11 +96,13 @@ public class CreativeSinkBlockEntity extends BaseBlockEntity implements AcceptsL
 
     @Override
     protected void saveLogisticsData(CompoundTag nbt) {
+        super.saveLogisticsData(nbt);
         nbt.putInt("DrainRateIndex", drainRateIndex);
     }
 
     @Override
     protected void loadLogisticsData(CompoundTag nbt) {
+        super.loadLogisticsData(nbt);
         drainRateIndex = nbt.getInt("DrainRateIndex").orElse(4);
         // Clamp to valid range
         if (drainRateIndex < 0 || drainRateIndex >= DRAIN_RATES.length) {
@@ -108,6 +112,7 @@ public class CreativeSinkBlockEntity extends BaseBlockEntity implements AcceptsL
 
     @Override
     protected void loadLegacyData(net.minecraft.world.level.storage.ValueInput view) {
+        super.loadLegacyData(view);
         view.read("CreativeSink", net.minecraft.nbt.CompoundTag.CODEC).ifPresent(data -> {
             // Load old key name (before BaseBlockEntity refactoring)
             drainRateIndex = data.getInt("drainRateIndex").orElse(4);

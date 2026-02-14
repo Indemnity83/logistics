@@ -146,7 +146,7 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity implements PipeConne
     private void syncToClients() {
         if (level != null && !level.isClientSide()) {
             BlockState state = getBlockState();
-            level.sendBlockUpdated(worldPosition, state, state, 3);
+            level.sendBlockUpdated(worldPosition, state, state, Block.UPDATE_ALL);
         }
     }
 

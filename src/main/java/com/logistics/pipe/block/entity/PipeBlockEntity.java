@@ -198,6 +198,7 @@ public class PipeBlockEntity extends BaseBlockEntity implements PipeConnection, 
         }
 
         // Load module state
+        // CompoundTag lacks clear() method, so copy keys then remove each
         new ArrayList<>(moduleState.keySet()).forEach(moduleState::remove);
         if (pipeData.contains("ModuleState")) {
             pipeData.getCompound("ModuleState").ifPresent(stored -> {
@@ -369,6 +370,8 @@ public class PipeBlockEntity extends BaseBlockEntity implements PipeConnection, 
         float speed = speedOverride != null ? speedOverride : getInitialSpeed();
         TravelingItem newItem = new TravelingItem(stack, fromDirection.getOpposite(), speed);
         travelingItems.add(newItem);
+        // Note: Per-item sync matches pre-refactoring behavior. Could potentially be
+        // batched at tick boundaries for high-throughput pipes, but unchanged for now.
         markDirtyAndSync();
     }
 
