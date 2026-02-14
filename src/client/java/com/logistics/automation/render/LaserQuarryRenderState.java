@@ -177,6 +177,7 @@ public class LaserQuarryRenderState extends BlockEntityRenderState {
                 // Fade complete
                 greenLedBrightness = 0f;
                 fade.isFading = false;
+                fade.wasWorking = false;
             } else {
                 // Linear fade from 1.0 to 0.0
                 greenLedBrightness = 1.0f - (elapsedTicks / LED_FADE_TICKS);

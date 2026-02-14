@@ -66,6 +66,7 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity implements PipeConne
         }
     };
     private long lastSyncedEnergy = 0; // For client sync
+    private boolean consumedEnergyThisTick = false; // For LED when buffer is low
 
     // Phase state
     private Phase currentPhase = Phase.CLEARING;
@@ -121,6 +122,12 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity implements PipeConne
 
         ServerLevel serverWorld = (ServerLevel) world;
 
+        // Track previous state for sync detection
+        boolean wasConsumedEnergy = entity.consumedEnergyThisTick;
+
+        // Reset consumption flag at start of tick - will be set by consumeEnergy()
+        entity.consumedEnergyThisTick = false;
+
         switch (entity.currentPhase) {
             case CLEARING -> tickClearing(serverWorld, pos, state, entity);
             case BUILDING_FRAME -> tickBuildingFrame(serverWorld, pos, state, entity);
@@ -128,9 +135,17 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity implements PipeConne
             default -> {}
         }
 
-        // Sync energy and arm speed to clients when energy changes
-        // Check at end of tick after operations may have consumed energy
-        if (entity.energyStorage.amount != entity.lastSyncedEnergy) {
+        // Idle power consumption: 1 RF every 4 ticks (5 RF/second) to slowly drain buffer
+        if (world.getGameTime() % 4 == 0 && entity.energyStorage.amount > 0) {
+            entity.energyStorage.amount = Math.max(0, entity.energyStorage.amount - 1);
+            entity.setChanged(); // Mark chunk dirty for persistence
+        }
+
+        // Sync when energy OR consumption flag changes
+        boolean needsSync = entity.energyStorage.amount != entity.lastSyncedEnergy
+                || entity.consumedEnergyThisTick != wasConsumedEnergy;
+
+        if (needsSync) {
             entity.lastSyncedEnergy = entity.energyStorage.amount;
             entity.syncedArmSpeed = entity.getEffectiveArmSpeed();
             entity.syncToClients();
@@ -1020,10 +1035,12 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity implements PipeConne
 
     /**
      * Consumes energy from the buffer if available.
+     * Sets consumedEnergyThisTick flag for LED rendering.
      */
     private void consumeEnergy(long amount) {
         if (energyStorage.amount >= amount) {
             energyStorage.amount -= amount;
+            consumedEnergyThisTick = true; // Flag for LED when buffer is low
             setChanged();
         }
     }
@@ -1328,6 +1345,10 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity implements PipeConne
 
     public boolean isFinished() {
         return finished;
+    }
+
+    public boolean consumedEnergyThisTick() {
+        return consumedEnergyThisTick;
     }
 
     // Custom bounds getters for frame decay logic
