@@ -348,10 +348,10 @@ public class LaserQuarryBlockEntityRenderer implements BlockEntityRenderer<Laser
         // The LED model faces north (-Z), same as the block model's front face
         float rotation =
                 switch (state.blockFacing) {
-                    case NORTH -> 180f; // blockstate y: 180
-                    case SOUTH -> 0f; // blockstate y: 0
-                    case WEST -> 90f; // blockstate y: 90
-                    case EAST -> 270f; // blockstate y: 270
+                    case NORTH -> 180f;
+                    case SOUTH -> 0f;
+                    case WEST -> 270f;
+                    case EAST -> 90f;
                     default -> 0f;
                 };
 
