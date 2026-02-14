@@ -68,7 +68,8 @@ public class LaserQuarryBlockEntityRenderer implements BlockEntityRenderer<Laser
         // LED state - always populated for LED rendering
         state.energyLevel = (float) entity.getEnergyLevel();
         state.isFinished = entity.isFinished();
-        state.isWorking = !state.isFinished && state.energyLevel > 0;
+        // Show LED if: (has energy in buffer) OR (consumed energy this tick, even if buffer now empty)
+        state.isWorking = !state.isFinished && (state.energyLevel > 0 || entity.consumedEnergyThisTick());
 
         Level level = entity.getLevel();
         if (level == null) {
