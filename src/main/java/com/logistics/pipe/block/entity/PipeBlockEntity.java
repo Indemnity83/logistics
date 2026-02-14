@@ -1,39 +1,39 @@
 package com.logistics.pipe.block.entity;
 
+import com.logistics.LogisticsMod;
+import com.logistics.LogisticsPipe;
+import com.logistics.core.lib.block.BaseBlockEntity;
+import com.logistics.core.lib.storage.NbtCompat;
 import com.logistics.core.lib.pipe.PipeConnection;
 import com.logistics.core.lib.power.AcceptsLowTierEnergy;
-import team.reborn.energy.api.base.SimpleEnergyStorage;
 import com.logistics.pipe.Pipe;
 import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.block.PipeBlock;
-import com.logistics.LogisticsPipe;
 import com.logistics.pipe.runtime.PipeRuntime;
 import com.logistics.pipe.runtime.TravelingItem;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentGetter;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtOps;
-import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.ClientGamePacketListener;
-import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
-import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
-import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
+import team.reborn.energy.api.base.SimpleEnergyStorage;
 
-public class PipeBlockEntity extends BlockEntity implements PipeConnection, AcceptsLowTierEnergy {
+public class PipeBlockEntity extends BaseBlockEntity implements PipeConnection, AcceptsLowTierEnergy {
     public static final int VIRTUAL_CAPACITY = 5 * 64;
     private final List<TravelingItem> travelingItems = new ArrayList<>();
     private final CompoundTag moduleState = new CompoundTag();
@@ -147,11 +147,8 @@ public class PipeBlockEntity extends BlockEntity implements PipeConnection, Acce
     }
 
     @Override
-    protected void saveAdditional(ValueOutput view) {
-        super.saveAdditional(view);
-
-        // Save all data to a CompoundTag, then store it
-        CompoundTag pipeData = new CompoundTag();
+    protected void saveLogisticsData(CompoundTag pipeData) {
+        super.saveLogisticsData(pipeData);
 
         // Save traveling items
         if (!travelingItems.isEmpty()) {
@@ -162,7 +159,7 @@ public class PipeBlockEntity extends BlockEntity implements PipeConnection, Acce
                         .getOrThrow();
                 itemsList.add(itemTag);
             }
-            pipeData.put("TravelingItems", itemsList);
+            pipeData.put("ItemsInTransit", itemsList);
         }
 
         // Save module state
@@ -179,88 +176,111 @@ public class PipeBlockEntity extends BlockEntity implements PipeConnection, Acce
             }
         }
         if (!connectionsNbt.isEmpty()) {
-            pipeData.put("Connections", connectionsNbt);
+            pipeData.put("ConnectionTypes", connectionsNbt);
         }
-
-        view.store("PipeData", CompoundTag.CODEC, pipeData);
     }
 
     @Override
-    protected void loadAdditional(ValueInput view) {
+    protected void loadLogisticsData(CompoundTag pipeData) {
+        super.loadLogisticsData(pipeData);
+
         long readStart = System.nanoTime();
-        super.loadAdditional(view);
 
-        view.read("PipeData", CompoundTag.CODEC).ifPresent(pipeData -> {
-            // Load traveling items
-            travelingItems.clear();
-            if (pipeData.contains("TravelingItems")) {
-                pipeData.getList("TravelingItems").ifPresent(itemsList -> {
-                    for (int i = 0; i < itemsList.size(); i++) {
-                        itemsList.getCompound(i)
-                                .flatMap(itemTag -> TravelingItem.CODEC.parse(NbtOps.INSTANCE, itemTag).result())
-                                .ifPresent(travelingItems::add);
-                    }
-                });
-            }
+        // Load traveling items
+        travelingItems.clear();
+        if (pipeData.contains("ItemsInTransit")) {
+            pipeData.getList("ItemsInTransit").ifPresent(itemsList -> {
+                for (int i = 0; i < itemsList.size(); i++) {
+                    itemsList.getCompound(i)
+                            .flatMap(itemTag -> TravelingItem.CODEC.parse(NbtOps.INSTANCE, itemTag).result())
+                            .ifPresent(travelingItems::add);
+                }
+            });
+        }
 
-            // Load module state
-            if (!moduleState.isEmpty()) {
-                for (String key : new java.util.ArrayList<>(moduleState.keySet())) {
-                    moduleState.remove(key);
+        // Load module state
+        // CompoundTag lacks clear() method, so copy keys then remove each
+        new ArrayList<>(moduleState.keySet()).forEach(moduleState::remove);
+        if (pipeData.contains("ModuleState")) {
+            pipeData.getCompound("ModuleState").ifPresent(stored -> {
+                for (String key : stored.keySet()) {
+                    moduleState.put(key, Objects.requireNonNull(stored.get(key)).copy());
                 }
-            }
-            if (pipeData.contains("ModuleState")) {
-                pipeData.getCompound("ModuleState").ifPresent(stored -> {
-                    for (String key : stored.keySet()) {
-                        moduleState.put(key, java.util.Objects.requireNonNull(stored.get(key)).copy());
-                    }
-                });
-            }
+            });
+        }
 
-            // Load connection types
-            if (pipeData.contains("Connections")) {
-                CompoundTag connectionsNbt = pipeData.getCompound("Connections").orElse(new CompoundTag());
-                // Reset all to NONE first
-                for (int i = 0; i < 6; i++) {
-                    connectionTypes[i] = PipeConnection.Type.NONE;
-                }
-                // Load saved connections
-                for (Direction direction : Direction.values()) {
-                    String typeName = connectionsNbt.getString(direction.name().toLowerCase()).orElse("none");
-                    connectionTypes[direction.ordinal()] = PipeConnection.Type.fromSerializedName(typeName);
-                }
+        // Load connection types
+        if (pipeData.contains("ConnectionTypes")) {
+            CompoundTag connectionsNbt = pipeData.getCompound("ConnectionTypes").orElse(new CompoundTag());
+            // Reset all to NONE first
+            for (int i = 0; i < 6; i++) {
+                connectionTypes[i] = PipeConnection.Type.NONE;
             }
-        });
+            // Load saved connections
+            for (Direction direction : Direction.values()) {
+                String typeName = NbtCompat.getString(connectionsNbt, direction.name().toLowerCase(), "none");
+                connectionTypes[direction.ordinal()] = PipeConnection.Type.fromSerializedName(typeName);
+            }
+        }
 
         long durationMs = (System.nanoTime() - readStart) / 1_000_000L;
         if (durationMs >= 2L && Boolean.getBoolean("logistics.timing")) {
             com.logistics.LogisticsMod.LOGGER.info(
-                    "[timing] PipeBlockEntity loadAdditional at {} took {} ms (items={})",
+                    "[timing] PipeBlockEntity loadLogisticsData at {} took {} ms (items={})",
                     getBlockPos(),
                     durationMs,
                     travelingItems.size());
         }
     }
 
-    @Nullable @Override
-    public Packet<ClientGamePacketListener> getUpdatePacket() {
-        return ClientboundBlockEntityDataPacket.create(this);
-    }
-
     @Override
-    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
-        return saveWithoutMetadata(registries);
+    protected void loadLegacyData(ValueInput view) {
+        super.loadLegacyData(view);
+
+        view.read("PipeData", CompoundTag.CODEC).ifPresent(oldData -> {
+            long readStart = System.nanoTime();
+
+            // Massage old format to new format
+            CompoundTag massaged = new CompoundTag();
+
+            // Rename "TravelingItems" -> "ItemsInTransit"
+            if (oldData.contains("TravelingItems")) {
+                massaged.put("ItemsInTransit", Objects.requireNonNull(oldData.get("TravelingItems")));
+            }
+
+            // "ModuleState" has same key name
+            if (oldData.contains("ModuleState")) {
+                massaged.put("ModuleState", Objects.requireNonNull(oldData.get("ModuleState")));
+            }
+
+            // Rename "Connections" -> "ConnectionTypes"
+            if (oldData.contains("Connections")) {
+                massaged.put("ConnectionTypes", Objects.requireNonNull(oldData.get("Connections")));
+            }
+
+            // Now load using the standard loader which expects new keys
+            loadLogisticsData(massaged);
+
+            long durationMs = (System.nanoTime() - readStart) / 1_000_000L;
+            if (durationMs >= 2L && Boolean.getBoolean("logistics.timing")) {
+                LogisticsMod.LOGGER.info(
+                        "[timing] PipeBlockEntity loadLegacyData at {} took {} ms (items={})",
+                        getBlockPos(),
+                        durationMs,
+                        travelingItems.size());
+            }
+        });
     }
 
     public static void tick(
-            net.minecraft.world.level.Level world, BlockPos pos, BlockState state, PipeBlockEntity blockEntity) {
+            Level world, BlockPos pos, BlockState state, PipeBlockEntity blockEntity) {
         PipeRuntime.tick(world, pos, state, blockEntity);
     }
 
     /**
      * Drop an item entity at the pipe's position
      */
-    public static void dropItem(net.minecraft.world.level.Level level, BlockPos pos, TravelingItem item) {
+    public static void dropItem(Level level, BlockPos pos, TravelingItem item) {
         // Create item entity at center of pipe
         Vec3 spawnPos = Vec3.atCenterOf(pos);
 
@@ -351,11 +371,9 @@ public class PipeBlockEntity extends BlockEntity implements PipeConnection, Acce
         float speed = speedOverride != null ? speedOverride : getInitialSpeed();
         TravelingItem newItem = new TravelingItem(stack, fromDirection.getOpposite(), speed);
         travelingItems.add(newItem);
-        setChanged();
-
-        if (level != null && !level.isClientSide()) {
-            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
-        }
+        // Note: Per-item sync matches pre-refactoring behavior. Could potentially be
+        // batched at tick boundaries for high-throughput pipes, but unchanged for now.
+        markDirtyAndSync();
     }
 
     private float getInitialSpeed() {

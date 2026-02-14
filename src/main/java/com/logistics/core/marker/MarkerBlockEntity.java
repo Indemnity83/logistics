@@ -1,26 +1,22 @@
 package com.logistics.core.marker;
 
 import com.logistics.LogisticsCore;
+import com.logistics.core.lib.block.BaseBlockEntity;
+import com.logistics.core.lib.storage.NbtCompat;
 import java.util.ArrayList;
 import java.util.List;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.level.storage.ValueInput;
-import net.minecraft.world.level.storage.ValueOutput;
-import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
-import net.minecraft.network.protocol.game.ClientGamePacketListener;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.network.protocol.Packet;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
 /**
  * Block entity for markers that stores connection and bounding box data.
  */
-public class MarkerBlockEntity extends BlockEntity {
+public class MarkerBlockEntity extends BaseBlockEntity {
     // Connected marker positions (up to 2 horizontal + 1 vertical)
     private final List<BlockPos> connectedMarkers = new ArrayList<>();
 
@@ -88,8 +84,7 @@ public class MarkerBlockEntity extends BlockEntity {
         this.isCornerMarker = false;
 
         level.setBlock(worldPosition, getBlockState().setValue(MarkerBlock.ACTIVE, true), 3);
-        setChanged();
-        syncToClients();
+        markDirtyAndSync();
     }
 
     /**
@@ -105,8 +100,7 @@ public class MarkerBlockEntity extends BlockEntity {
         this.isCornerMarker = isCorner;
 
         level.setBlock(worldPosition, getBlockState().setValue(MarkerBlock.ACTIVE, true), 3);
-        setChanged();
-        syncToClients();
+        markDirtyAndSync();
     }
 
     /**
@@ -121,8 +115,7 @@ public class MarkerBlockEntity extends BlockEntity {
         isCornerMarker = false;
 
         level.setBlock(worldPosition, getBlockState().setValue(MarkerBlock.ACTIVE, false), 3);
-        setChanged();
-        syncToClients();
+        markDirtyAndSync();
     }
 
     /**
@@ -163,17 +156,9 @@ public class MarkerBlockEntity extends BlockEntity {
         return boundMin != null && boundMax != null;
     }
 
-    private void syncToClients() {
-        if (level != null && !level.isClientSide()) {
-            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
-        }
-    }
-
     @Override
-    protected void saveAdditional(ValueOutput view) {
-        super.saveAdditional(view);
-
-        CompoundTag data = new CompoundTag();
+    protected void saveLogisticsData(CompoundTag data) {
+        super.saveLogisticsData(data);
 
         // Save connected markers
         if (!connectedMarkers.isEmpty()) {
@@ -189,26 +174,40 @@ public class MarkerBlockEntity extends BlockEntity {
 
         // Save bounds
         if (boundMin != null) {
-            data.putInt("MinX", boundMin.getX());
-            data.putInt("MinY", boundMin.getY());
-            data.putInt("MinZ", boundMin.getZ());
+            data.putInt("BoundMinX", boundMin.getX());
+            data.putInt("BoundMinY", boundMin.getY());
+            data.putInt("BoundMinZ", boundMin.getZ());
         }
         if (boundMax != null) {
-            data.putInt("MaxX", boundMax.getX());
-            data.putInt("MaxY", boundMax.getY());
-            data.putInt("MaxZ", boundMax.getZ());
+            data.putInt("BoundMaxX", boundMax.getX());
+            data.putInt("BoundMaxY", boundMax.getY());
+            data.putInt("BoundMaxZ", boundMax.getZ());
         }
 
-        data.putBoolean("IsCorner", isCornerMarker);
-
-        view.store("MarkerData", CompoundTag.CODEC, data);
+        data.putBoolean("IsCornerMarker", isCornerMarker);
     }
 
     @Override
-    protected void loadAdditional(ValueInput view) {
-        super.loadAdditional(view);
+    protected void loadLogisticsData(CompoundTag data) {
+        super.loadLogisticsData(data);
 
-        view.read("MarkerData", CompoundTag.CODEC).ifPresent(data -> {
+        connectedMarkers.clear();
+        boundMin = null;
+        boundMax = null;
+        isCornerMarker = false;
+
+        loadConnectedMarkers(data);
+        loadBounds(data);
+        if (!hasValidBounds()) {
+            isCornerMarker = false;
+        }
+    }
+
+    @Override
+    protected void loadLegacyData(net.minecraft.world.level.storage.ValueInput view) {
+        super.loadLegacyData(view);
+
+        view.read("MarkerData", net.minecraft.nbt.CompoundTag.CODEC).ifPresent(data -> {
             connectedMarkers.clear();
             boundMin = null;
             boundMax = null;
@@ -216,25 +215,41 @@ public class MarkerBlockEntity extends BlockEntity {
 
             loadConnectedMarkers(data);
 
-            // Load bounds
-            boolean hasMin = data.contains("MinX");
-            boolean hasMax = data.contains("MaxX");
-            if (hasMin && hasMax) {
-                int minX = data.getInt("MinX").orElse(0);
-                int minY = data.getInt("MinY").orElse(0);
-                int minZ = data.getInt("MinZ").orElse(0);
-                boundMin = new BlockPos(minX, minY, minZ);
+            // Convert old key names to new format for loadBounds
+            CompoundTag massaged = new CompoundTag();
+            if (data.contains("MinX")) massaged.putInt("BoundMinX", NbtCompat.getInt(data, "MinX", 0));
+            if (data.contains("MinY")) massaged.putInt("BoundMinY", NbtCompat.getInt(data, "MinY", 0));
+            if (data.contains("MinZ")) massaged.putInt("BoundMinZ", NbtCompat.getInt(data, "MinZ", 0));
+            if (data.contains("MaxX")) massaged.putInt("BoundMaxX", NbtCompat.getInt(data, "MaxX", 0));
+            if (data.contains("MaxY")) massaged.putInt("BoundMaxY", NbtCompat.getInt(data, "MaxY", 0));
+            if (data.contains("MaxZ")) massaged.putInt("BoundMaxZ", NbtCompat.getInt(data, "MaxZ", 0));
+            if (data.contains("IsCorner")) massaged.putBoolean("IsCornerMarker", NbtCompat.getBoolean(data, "IsCorner", false));
 
-                int maxX = data.getInt("MaxX").orElse(0);
-                int maxY = data.getInt("MaxY").orElse(0);
-                int maxZ = data.getInt("MaxZ").orElse(0);
-                boundMax = new BlockPos(maxX, maxY, maxZ);
-            }
-
-            if (data.contains("IsCorner")) {
-                isCornerMarker = data.getBoolean("IsCorner").orElse(false);
+            loadBounds(massaged);
+            if (!hasValidBounds()) {
+                isCornerMarker = false;
             }
         });
+    }
+
+    private void loadBounds(CompoundTag data) {
+        boolean hasMin = data.contains("BoundMinX");
+        boolean hasMax = data.contains("BoundMaxX");
+        if (hasMin && hasMax) {
+            int minX = NbtCompat.getInt(data, "BoundMinX", 0);
+            int minY = NbtCompat.getInt(data, "BoundMinY", 0);
+            int minZ = NbtCompat.getInt(data, "BoundMinZ", 0);
+            boundMin = new BlockPos(minX, minY, minZ);
+
+            int maxX = NbtCompat.getInt(data, "BoundMaxX", 0);
+            int maxY = NbtCompat.getInt(data, "BoundMaxY", 0);
+            int maxZ = NbtCompat.getInt(data, "BoundMaxZ", 0);
+            boundMax = new BlockPos(maxX, maxY, maxZ);
+        }
+
+        if (data.contains("IsCornerMarker")) {
+            isCornerMarker = NbtCompat.getBoolean(data, "IsCornerMarker", false);
+        }
     }
 
     private void loadConnectedMarkers(CompoundTag data) {
@@ -245,15 +260,5 @@ public class MarkerBlockEntity extends BlockEntity {
                 }
             });
         }
-    }
-
-    @Nullable @Override
-    public Packet<ClientGamePacketListener> getUpdatePacket() {
-        return ClientboundBlockEntityDataPacket.create(this);
-    }
-
-    @Override
-    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
-        return saveWithoutMetadata(registries);
     }
 }
