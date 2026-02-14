@@ -3,6 +3,7 @@ package com.logistics.pipe.block.entity;
 import com.logistics.LogisticsMod;
 import com.logistics.LogisticsPipe;
 import com.logistics.core.lib.block.BaseBlockEntity;
+import com.logistics.core.lib.storage.NbtCompat;
 import com.logistics.core.lib.pipe.PipeConnection;
 import com.logistics.core.lib.power.AcceptsLowTierEnergy;
 import com.logistics.pipe.Pipe;
@@ -217,7 +218,7 @@ public class PipeBlockEntity extends BaseBlockEntity implements PipeConnection, 
             }
             // Load saved connections
             for (Direction direction : Direction.values()) {
-                String typeName = connectionsNbt.getString(direction.name().toLowerCase()).orElse("none");
+                String typeName = NbtCompat.getString(connectionsNbt, direction.name().toLowerCase(), "none");
                 connectionTypes[direction.ordinal()] = PipeConnection.Type.fromSerializedName(typeName);
             }
         }

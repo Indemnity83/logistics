@@ -1,6 +1,7 @@
 package com.logistics.power.engine.block.entity;
 
 import com.logistics.core.lib.power.AbstractEngineBlockEntity;
+import com.logistics.core.lib.storage.NbtCompat;
 import com.logistics.power.engine.block.CreativeEngineBlock;
 import com.logistics.LogisticsPower;
 import net.minecraft.core.BlockPos;
@@ -132,7 +133,7 @@ public class CreativeEngineBlockEntity extends AbstractEngineBlockEntity {
     @Override
     protected void loadLogisticsData(CompoundTag nbt) {
         super.loadLogisticsData(nbt);
-        outputLevelIndex = nbt.getInt("OutputLevelIndex").orElse(0);
+        outputLevelIndex = NbtCompat.getInt(nbt, "OutputLevelIndex", 0);
         // Clamp to valid range
         if (outputLevelIndex < 0 || outputLevelIndex >= OUTPUT_LEVELS.length) {
             outputLevelIndex = 0;
@@ -145,7 +146,7 @@ public class CreativeEngineBlockEntity extends AbstractEngineBlockEntity {
 
         // Load Creative-specific data from old "CreativeData" tag
         view.read("CreativeData", CompoundTag.CODEC).ifPresent(creativeData -> {
-            outputLevelIndex = creativeData.getInt("outputLevelIndex").orElse(0);
+            outputLevelIndex = NbtCompat.getInt(creativeData, "outputLevelIndex", 0);
             // Clamp to valid range
             if (outputLevelIndex < 0 || outputLevelIndex >= OUTPUT_LEVELS.length) {
                 outputLevelIndex = 0;

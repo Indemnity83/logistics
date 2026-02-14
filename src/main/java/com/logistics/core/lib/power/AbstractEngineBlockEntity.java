@@ -1,6 +1,7 @@
 package com.logistics.core.lib.power;
 
 import com.logistics.core.lib.block.BaseBlockEntity;
+import com.logistics.core.lib.storage.NbtCompat;
 import com.logistics.core.lib.support.ProbeResult;
 import java.util.Locale;
 import net.minecraft.ChatFormatting;
@@ -520,22 +521,22 @@ public abstract class AbstractEngineBlockEntity extends BaseBlockEntity {
 
     @Override
     protected void loadLogisticsData(CompoundTag engineData) {
-        energyStorage.amount = engineData.getLong("StoredEnergy").orElse(0L);
-        temperature = engineData.getDouble("Temperature").orElse(0.0);
-        progress = engineData.getFloat("CycleProgress").orElse(0f);
-        cyclePhase = CyclePhase.fromOrdinal(engineData.getInt("CyclePhase").orElse(0));
-        heatStage = HeatStage.fromOrdinal(engineData.getInt("HeatStage").orElse(0));
+        energyStorage.amount = NbtCompat.getLong(engineData, "StoredEnergy", 0L);
+        temperature = NbtCompat.getDouble(engineData, "Temperature", 0.0);
+        progress = NbtCompat.getFloat(engineData, "CycleProgress", 0f);
+        cyclePhase = CyclePhase.fromOrdinal(NbtCompat.getInt(engineData, "CyclePhase", 0));
+        heatStage = HeatStage.fromOrdinal(NbtCompat.getInt(engineData, "HeatStage", 0));
     }
 
     @Override
     protected void loadLegacyData(net.minecraft.world.level.storage.ValueInput view) {
         view.read("Engine", CompoundTag.CODEC).ifPresent(engineData -> {
             // Load old key names (before BaseBlockEntity refactoring)
-            energyStorage.amount = engineData.getLong("energy").orElse(0L);
-            temperature = engineData.getDouble("heat").orElse(0.0);
-            progress = engineData.getFloat("progress").orElse(0f);
-            cyclePhase = CyclePhase.fromOrdinal(engineData.getInt("cyclePhase").orElse(0));
-            heatStage = HeatStage.fromOrdinal(engineData.getInt("stage").orElse(0));
+            energyStorage.amount = NbtCompat.getLong(engineData, "energy", 0L);
+            temperature = NbtCompat.getDouble(engineData, "heat", 0.0);
+            progress = NbtCompat.getFloat(engineData, "progress", 0f);
+            cyclePhase = CyclePhase.fromOrdinal(NbtCompat.getInt(engineData, "cyclePhase", 0));
+            heatStage = HeatStage.fromOrdinal(NbtCompat.getInt(engineData, "stage", 0));
         });
     }
 

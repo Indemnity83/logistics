@@ -1,6 +1,7 @@
 package com.logistics.power.engine.block.entity;
 
 import com.logistics.core.lib.power.AbstractEngineBlockEntity;
+import com.logistics.core.lib.storage.NbtCompat;
 import com.logistics.core.lib.support.ProbeResult;
 import com.logistics.power.engine.PIDController;
 import com.logistics.power.engine.block.StirlingEngineBlock;
@@ -362,11 +363,11 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
         super.loadLogisticsData(nbt);
 
         // Load Stirling-specific data
-        burnTime = nbt.getInt("BurnTimeRemaining").orElse(0);
-        fuelTime = nbt.getInt("TotalFuelTime").orElse(0);
-        currentGeneration = nbt.getDouble("CurrentGeneration").orElse(MIN_GENERATION);
-        generationCarry = nbt.getDouble("GenerationCarryover").orElse(0.0);
-        double pidIntegral = nbt.getDouble("PIDIntegral").orElse(0.0);
+        burnTime = NbtCompat.getInt(nbt, "BurnTimeRemaining", 0);
+        fuelTime = NbtCompat.getInt(nbt, "TotalFuelTime", 0);
+        currentGeneration = NbtCompat.getDouble(nbt, "CurrentGeneration", MIN_GENERATION);
+        generationCarry = NbtCompat.getDouble(nbt, "GenerationCarryover", 0.0);
+        double pidIntegral = NbtCompat.getDouble(nbt, "PIDIntegral", 0.0);
         pidController.setIntegral(pidIntegral);
 
         // Load fuel inventory using CODEC
@@ -384,11 +385,11 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
 
         // Load Stirling-specific data from old "StirlingData" tag
         view.read("StirlingData", net.minecraft.nbt.CompoundTag.CODEC).ifPresent(stirlingData -> {
-            burnTime = stirlingData.getInt("burnTime").orElse(0);
-            fuelTime = stirlingData.getInt("fuelTime").orElse(0);
-            currentGeneration = stirlingData.getDouble("currentGeneration").orElse(MIN_GENERATION);
-            generationCarry = stirlingData.getDouble("generationCarry").orElse(0.0);
-            double pidIntegral = stirlingData.getDouble("pidIntegral").orElse(0.0);
+            burnTime = NbtCompat.getInt(stirlingData, "burnTime", 0);
+            fuelTime = NbtCompat.getInt(stirlingData, "fuelTime", 0);
+            currentGeneration = NbtCompat.getDouble(stirlingData, "currentGeneration", MIN_GENERATION);
+            generationCarry = NbtCompat.getDouble(stirlingData, "generationCarry", 0.0);
+            double pidIntegral = NbtCompat.getDouble(stirlingData, "pidIntegral", 0.0);
             pidController.setIntegral(pidIntegral);
         });
 

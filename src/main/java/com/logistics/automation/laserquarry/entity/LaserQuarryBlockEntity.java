@@ -9,6 +9,7 @@ import com.logistics.automation.laserquarry.LaserQuarryFrameBlock;
 import com.logistics.automation.render.ClientRenderCacheHooks;
 import com.logistics.core.lib.block.BaseBlockEntity;
 import com.logistics.core.lib.pipe.PipeConnection;
+import com.logistics.core.lib.storage.NbtCompat;
 import com.logistics.core.lib.support.ProbeResult;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -1167,47 +1168,45 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity implements PipeConne
         super.loadLogisticsData(nbt);
 
         // Load energy
-        energyStorage.amount = nbt.getLong("StoredEnergy").orElse(0L);
+        energyStorage.amount = NbtCompat.getLong(nbt, "StoredEnergy", 0L);
 
         // Load mining state
-        miningX = nbt.getInt("MiningX").orElse(0);
-        miningY = nbt.getInt("MiningY").orElse(0);
-        miningZ = nbt.getInt("MiningZ").orElse(0);
-        breakProgress = nbt.getFloat("BreakProgress").orElse(0f);
-        finished = nbt.getBoolean("MiningFinished").orElse(false);
-        frameBuildIndex = nbt.getInt("FrameBuildIndex").orElse(0);
+        miningX = NbtCompat.getInt(nbt, "MiningX", 0);
+        miningY = NbtCompat.getInt(nbt, "MiningY", 0);
+        miningZ = NbtCompat.getInt(nbt, "MiningZ", 0);
+        breakProgress = NbtCompat.getFloat(nbt, "BreakProgress", 0f);
+        finished = NbtCompat.getBoolean(nbt, "MiningFinished", false);
+        frameBuildIndex = NbtCompat.getInt(nbt, "FrameBuildIndex", 0);
 
-        nbt.getString("CurrentPhase").ifPresent(phaseName -> {
-            try {
-                currentPhase = Phase.valueOf(phaseName);
-            } catch (IllegalArgumentException e) {
-                currentPhase = Phase.CLEARING;
-            }
-        });
+        String phaseName = NbtCompat.getString(nbt, "CurrentPhase", "CLEARING");
+        try {
+            currentPhase = Phase.valueOf(phaseName);
+        } catch (IllegalArgumentException e) {
+            currentPhase = Phase.CLEARING;
+        }
 
         // Load arm state
-        nbt.getString("ArmState").ifPresent(armStateName -> {
-            try {
-                armState = ArmState.valueOf(armStateName);
-            } catch (IllegalArgumentException e) {
-                armState = ArmState.MOVING;
-            }
-        });
-        armX = nbt.getFloat("ArmX").orElse(0f);
-        armY = nbt.getFloat("ArmY").orElse(0f);
-        armZ = nbt.getFloat("ArmZ").orElse(0f);
-        armInitialized = nbt.getBoolean("ArmInitialized").orElse(false);
-        settlingTicksRemaining = nbt.getInt("ArmSettlingTicks").orElse(0);
-        expectedTravelTicks = nbt.getInt("ArmExpectedTravelTicks").orElse(0);
-        syncedArmSpeed = nbt.getFloat("ArmSyncedSpeed").orElse(LaserQuarryConfig.ARM_SPEED);
+        String armStateName = NbtCompat.getString(nbt, "ArmState", "MOVING");
+        try {
+            armState = ArmState.valueOf(armStateName);
+        } catch (IllegalArgumentException e) {
+            armState = ArmState.MOVING;
+        }
+        armX = NbtCompat.getFloat(nbt, "ArmX", 0f);
+        armY = NbtCompat.getFloat(nbt, "ArmY", 0f);
+        armZ = NbtCompat.getFloat(nbt, "ArmZ", 0f);
+        armInitialized = NbtCompat.getBoolean(nbt, "ArmInitialized", false);
+        settlingTicksRemaining = NbtCompat.getInt(nbt, "ArmSettlingTicks", 0);
+        expectedTravelTicks = NbtCompat.getInt(nbt, "ArmExpectedTravelTicks", 0);
+        syncedArmSpeed = NbtCompat.getFloat(nbt, "ArmSyncedSpeed", LaserQuarryConfig.ARM_SPEED);
 
         // Load custom bounds
-        useCustomBounds = nbt.getBoolean("UseCustomBounds").orElse(false);
+        useCustomBounds = NbtCompat.getBoolean(nbt, "UseCustomBounds", false);
         if (useCustomBounds) {
-            customMinX = nbt.getInt("CustomBoundsMinX").orElse(0);
-            customMinZ = nbt.getInt("CustomBoundsMinZ").orElse(0);
-            customMaxX = nbt.getInt("CustomBoundsMaxX").orElse(0);
-            customMaxZ = nbt.getInt("CustomBoundsMaxZ").orElse(0);
+            customMinX = NbtCompat.getInt(nbt, "CustomBoundsMinX", 0);
+            customMinZ = NbtCompat.getInt(nbt, "CustomBoundsMinZ", 0);
+            customMaxX = NbtCompat.getInt(nbt, "CustomBoundsMaxX", 0);
+            customMaxZ = NbtCompat.getInt(nbt, "CustomBoundsMaxZ", 0);
         } else {
             customMinX = 0;
             customMinZ = 0;
@@ -1228,50 +1227,48 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity implements PipeConne
 
         // Load energy from old "Energy" tag
         view.read("Energy", CompoundTag.CODEC).ifPresent(energyState -> {
-            energyStorage.amount = energyState.getLong("Amount").orElse(0L);
+            energyStorage.amount = NbtCompat.getLong(energyState, "Amount", 0L);
         });
 
         // Load mining state from old "MiningState" tag
         view.read("MiningState", CompoundTag.CODEC).ifPresent(miningState -> {
-            miningX = miningState.getInt("X").orElse(0);
-            miningY = miningState.getInt("Y").orElse(0);
-            miningZ = miningState.getInt("Z").orElse(0);
-            breakProgress = miningState.getFloat("Progress").orElse(0f);
-            finished = miningState.getBoolean("Finished").orElse(false);
-            frameBuildIndex = miningState.getInt("FrameBuildIndex").orElse(0);
+            miningX = NbtCompat.getInt(miningState, "X", 0);
+            miningY = NbtCompat.getInt(miningState, "Y", 0);
+            miningZ = NbtCompat.getInt(miningState, "Z", 0);
+            breakProgress = NbtCompat.getFloat(miningState, "Progress", 0f);
+            finished = NbtCompat.getBoolean(miningState, "Finished", false);
+            frameBuildIndex = NbtCompat.getInt(miningState, "FrameBuildIndex", 0);
 
-            miningState.getString("Phase").ifPresent(phaseName -> {
-                try {
-                    currentPhase = Phase.valueOf(phaseName);
-                } catch (IllegalArgumentException e) {
-                    currentPhase = Phase.CLEARING;
-                }
-            });
+            String phaseName = NbtCompat.getString(miningState, "Phase", "CLEARING");
+            try {
+                currentPhase = Phase.valueOf(phaseName);
+            } catch (IllegalArgumentException e) {
+                currentPhase = Phase.CLEARING;
+            }
 
             // Load arm state
-            miningState.getString("ArmState").ifPresent(armStateName -> {
-                try {
-                    armState = ArmState.valueOf(armStateName);
-                } catch (IllegalArgumentException e) {
-                    armState = ArmState.MOVING;
-                }
-            });
-            armX = miningState.getFloat("ArmX").orElse(0f);
-            armY = miningState.getFloat("ArmY").orElse(0f);
-            armZ = miningState.getFloat("ArmZ").orElse(0f);
-            armInitialized = miningState.getBoolean("ArmInitialized").orElse(false);
-            settlingTicksRemaining = miningState.getInt("SettlingTicks").orElse(0);
-            expectedTravelTicks = miningState.getInt("ExpectedTravelTicks").orElse(0);
-            syncedArmSpeed = miningState.getFloat("SyncedArmSpeed").orElse(LaserQuarryConfig.ARM_SPEED);
+            String armStateName = NbtCompat.getString(miningState, "ArmState", "MOVING");
+            try {
+                armState = ArmState.valueOf(armStateName);
+            } catch (IllegalArgumentException e) {
+                armState = ArmState.MOVING;
+            }
+            armX = NbtCompat.getFloat(miningState, "ArmX", 0f);
+            armY = NbtCompat.getFloat(miningState, "ArmY", 0f);
+            armZ = NbtCompat.getFloat(miningState, "ArmZ", 0f);
+            armInitialized = NbtCompat.getBoolean(miningState, "ArmInitialized", false);
+            settlingTicksRemaining = NbtCompat.getInt(miningState, "SettlingTicks", 0);
+            expectedTravelTicks = NbtCompat.getInt(miningState, "ExpectedTravelTicks", 0);
+            syncedArmSpeed = NbtCompat.getFloat(miningState, "SyncedArmSpeed", LaserQuarryConfig.ARM_SPEED);
         });
 
         // Load custom bounds from old "CustomBounds" tag
         view.read("CustomBounds", CompoundTag.CODEC).ifPresent(customBoundsNbt -> {
             useCustomBounds = true;
-            customMinX = customBoundsNbt.getInt("MinX").orElse(0);
-            customMinZ = customBoundsNbt.getInt("MinZ").orElse(0);
-            customMaxX = customBoundsNbt.getInt("MaxX").orElse(0);
-            customMaxZ = customBoundsNbt.getInt("MaxZ").orElse(0);
+            customMinX = NbtCompat.getInt(customBoundsNbt, "MinX", 0);
+            customMinZ = NbtCompat.getInt(customBoundsNbt, "MinZ", 0);
+            customMaxX = NbtCompat.getInt(customBoundsNbt, "MaxX", 0);
+            customMaxZ = NbtCompat.getInt(customBoundsNbt, "MaxZ", 0);
         });
     }
 

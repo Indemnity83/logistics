@@ -3,6 +3,7 @@ package com.logistics.power.block.entity;
 import com.logistics.LogisticsPower;
 import com.logistics.core.lib.block.BaseBlockEntity;
 import com.logistics.core.lib.power.AcceptsLowTierEnergy;
+import com.logistics.core.lib.storage.NbtCompat;
 import com.logistics.core.lib.support.ProbeResult;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.ChatFormatting;
@@ -103,7 +104,7 @@ public class CreativeSinkBlockEntity extends BaseBlockEntity implements AcceptsL
     @Override
     protected void loadLogisticsData(CompoundTag nbt) {
         super.loadLogisticsData(nbt);
-        drainRateIndex = nbt.getInt("DrainRateIndex").orElse(4);
+        drainRateIndex = NbtCompat.getInt(nbt, "DrainRateIndex", 4);
         // Clamp to valid range
         if (drainRateIndex < 0 || drainRateIndex >= DRAIN_RATES.length) {
             drainRateIndex = 4; // Default to 5 RF/t
@@ -115,7 +116,7 @@ public class CreativeSinkBlockEntity extends BaseBlockEntity implements AcceptsL
         super.loadLegacyData(view);
         view.read("CreativeSink", net.minecraft.nbt.CompoundTag.CODEC).ifPresent(data -> {
             // Load old key name (before BaseBlockEntity refactoring)
-            drainRateIndex = data.getInt("drainRateIndex").orElse(4);
+            drainRateIndex = NbtCompat.getInt(data, "drainRateIndex", 4);
             // Clamp to valid range
             if (drainRateIndex < 0 || drainRateIndex >= DRAIN_RATES.length) {
                 drainRateIndex = 4; // Default to 5 RF/t

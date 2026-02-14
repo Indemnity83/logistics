@@ -2,6 +2,7 @@ package com.logistics.core.marker;
 
 import com.logistics.LogisticsCore;
 import com.logistics.core.lib.block.BaseBlockEntity;
+import com.logistics.core.lib.storage.NbtCompat;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.core.BlockPos;
@@ -216,13 +217,13 @@ public class MarkerBlockEntity extends BaseBlockEntity {
 
             // Convert old key names to new format for loadBounds
             CompoundTag massaged = new CompoundTag();
-            if (data.contains("MinX")) massaged.putInt("BoundMinX", data.getInt("MinX").orElse(0));
-            if (data.contains("MinY")) massaged.putInt("BoundMinY", data.getInt("MinY").orElse(0));
-            if (data.contains("MinZ")) massaged.putInt("BoundMinZ", data.getInt("MinZ").orElse(0));
-            if (data.contains("MaxX")) massaged.putInt("BoundMaxX", data.getInt("MaxX").orElse(0));
-            if (data.contains("MaxY")) massaged.putInt("BoundMaxY", data.getInt("MaxY").orElse(0));
-            if (data.contains("MaxZ")) massaged.putInt("BoundMaxZ", data.getInt("MaxZ").orElse(0));
-            if (data.contains("IsCorner")) massaged.putBoolean("IsCornerMarker", data.getBoolean("IsCorner").orElse(false));
+            if (data.contains("MinX")) massaged.putInt("BoundMinX", NbtCompat.getInt(data, "MinX", 0));
+            if (data.contains("MinY")) massaged.putInt("BoundMinY", NbtCompat.getInt(data, "MinY", 0));
+            if (data.contains("MinZ")) massaged.putInt("BoundMinZ", NbtCompat.getInt(data, "MinZ", 0));
+            if (data.contains("MaxX")) massaged.putInt("BoundMaxX", NbtCompat.getInt(data, "MaxX", 0));
+            if (data.contains("MaxY")) massaged.putInt("BoundMaxY", NbtCompat.getInt(data, "MaxY", 0));
+            if (data.contains("MaxZ")) massaged.putInt("BoundMaxZ", NbtCompat.getInt(data, "MaxZ", 0));
+            if (data.contains("IsCorner")) massaged.putBoolean("IsCornerMarker", NbtCompat.getBoolean(data, "IsCorner", false));
 
             loadBounds(massaged);
             if (!hasValidBounds()) {
@@ -235,19 +236,19 @@ public class MarkerBlockEntity extends BaseBlockEntity {
         boolean hasMin = data.contains("BoundMinX");
         boolean hasMax = data.contains("BoundMaxX");
         if (hasMin && hasMax) {
-            int minX = data.getInt("BoundMinX").orElse(0);
-            int minY = data.getInt("BoundMinY").orElse(0);
-            int minZ = data.getInt("BoundMinZ").orElse(0);
+            int minX = NbtCompat.getInt(data, "BoundMinX", 0);
+            int minY = NbtCompat.getInt(data, "BoundMinY", 0);
+            int minZ = NbtCompat.getInt(data, "BoundMinZ", 0);
             boundMin = new BlockPos(minX, minY, minZ);
 
-            int maxX = data.getInt("BoundMaxX").orElse(0);
-            int maxY = data.getInt("BoundMaxY").orElse(0);
-            int maxZ = data.getInt("BoundMaxZ").orElse(0);
+            int maxX = NbtCompat.getInt(data, "BoundMaxX", 0);
+            int maxY = NbtCompat.getInt(data, "BoundMaxY", 0);
+            int maxZ = NbtCompat.getInt(data, "BoundMaxZ", 0);
             boundMax = new BlockPos(maxX, maxY, maxZ);
         }
 
         if (data.contains("IsCornerMarker")) {
-            isCornerMarker = data.getBoolean("IsCornerMarker").orElse(false);
+            isCornerMarker = NbtCompat.getBoolean(data, "IsCornerMarker", false);
         }
     }
 
