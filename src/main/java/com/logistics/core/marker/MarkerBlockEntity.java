@@ -222,6 +222,9 @@ public class MarkerBlockEntity extends BaseBlockEntity {
             if (data.contains("IsCorner")) massaged.putBoolean("IsCornerMarker", data.getBoolean("IsCorner").orElse(false));
 
             loadBounds(massaged);
+            if (!hasValidBounds()) {
+                isCornerMarker = false;
+            }
         });
     }
 
