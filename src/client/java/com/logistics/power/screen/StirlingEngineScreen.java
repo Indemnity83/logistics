@@ -1,5 +1,6 @@
 package com.logistics.power.screen;
 
+import com.logistics.LogisticsMod;
 import com.logistics.power.engine.ui.StirlingEngineScreenHandler;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -14,7 +15,7 @@ import net.minecraft.world.entity.player.Inventory;
  */
 public class StirlingEngineScreen extends AbstractContainerScreen<StirlingEngineScreenHandler> {
     private static final Identifier BACKGROUND_TEXTURE =
-            Identifier.fromNamespaceAndPath("logistics", "textures/gui/power/stirling_engine.png");
+            LogisticsMod.getIdentifier("textures/gui/power/stirling_engine.png");
 
     // Reuse vanilla's lit flame sprite
     private static final Identifier LIT_PROGRESS_SPRITE = Identifier.withDefaultNamespace("container/furnace/lit_progress");

@@ -33,6 +33,10 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
         return INSTANCE.getDomainIdentifier(name);
     }
 
+    public static Identifier blockModelIdentifier(String name) {
+        return INSTANCE.getBlockModelIdentifier(name);
+    }
+
     @Override
     public int order() {
         return 10;

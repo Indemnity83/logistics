@@ -86,7 +86,7 @@ public final class ModelRegistry {
                     return;
                 }
                 String name = relative.substring(0, relative.length() - ".json".length());
-                modelIds.add(Identifier.fromNamespaceAndPath(LogisticsMod.MOD_ID, "block/" + name));
+                modelIds.add(LogisticsMod.getIdentifier("block/" + name));
             });
         } catch (IOException e) {
             LogisticsMod.LOGGER.warn("Failed to scan model resources", e);

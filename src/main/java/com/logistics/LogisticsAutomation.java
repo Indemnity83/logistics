@@ -25,6 +25,10 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
         return INSTANCE.getDomainIdentifier(name);
     }
 
+    public static Identifier blockModelIdentifier(String name) {
+        return INSTANCE.getBlockModelIdentifier(name);
+    }
+
     @Override
     public int order() {
         return 20;
