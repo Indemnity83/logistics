@@ -1,0 +1,6 @@
+{
+  "model": {
+    "model": "logistics:item/core/sturdy_casing",
+    "type": "minecraft:model"
+  }
+}

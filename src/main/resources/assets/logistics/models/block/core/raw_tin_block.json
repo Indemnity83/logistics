@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cube_all",
+  "textures": {
+    "all": "logistics:block/core/raw_tin_block"
+  }
+}

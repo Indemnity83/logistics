@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:smelting",
+  "ingredient": "logistics:core/deepslate_tin_ore",
+  "result": {
+    "id": "logistics:core/tin_ingot"
+  },
+  "experience": 0.7,
+  "cookingtime": 200
+}
