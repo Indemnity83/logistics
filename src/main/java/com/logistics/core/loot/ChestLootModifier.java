@@ -34,40 +34,46 @@ public class ChestLootModifier {
 
     public static void register() {
         LootTableEvents.MODIFY.register((key, tableBuilder, source, registries) -> {
-            // Raw tin in mineshafts and dungeons (ore discovery)
+            // Raw tin and apatite in mineshafts and dungeons (ore discovery)
             if (ABANDONED_MINESHAFT.equals(key) || SIMPLE_DUNGEON.equals(key)) {
                 tableBuilder.pool(LootPool.lootPool()
                     .setRolls(ConstantValue.exactly(1))
                     .add(LootItem.lootTableItem(LogisticsCore.ITEM.RAW_TIN)
                         .setWeight(10)
                         .apply(SetItemCountFunction.setCount(UniformGenerator.between(2, 8))))
+                    .add(LootItem.lootTableItem(LogisticsCore.ITEM.APATITE)
+                        .setWeight(15)
+                        .apply(SetItemCountFunction.setCount(UniformGenerator.between(4, 12))))
                     .build());
             }
 
-            // Tin ingots and nuggets in villages and dungeons
+            // Tin nuggets, ingots, and apatite in villages and dungeons (favor nuggets)
             if (VILLAGE_TOOLSMITH.equals(key) || SIMPLE_DUNGEON.equals(key)) {
                 tableBuilder.pool(LootPool.lootPool()
                     .setRolls(ConstantValue.exactly(1))
-                    .add(LootItem.lootTableItem(LogisticsCore.ITEM.TIN_INGOT)
-                        .setWeight(8)
-                        .apply(SetItemCountFunction.setCount(UniformGenerator.between(1, 4))))
                     .add(LootItem.lootTableItem(LogisticsCore.ITEM.TIN_NUGGET)
-                        .setWeight(6)
-                        .apply(SetItemCountFunction.setCount(UniformGenerator.between(3, 9))))
+                        .setWeight(12)
+                        .apply(SetItemCountFunction.setCount(UniformGenerator.between(5, 15))))
+                    .add(LootItem.lootTableItem(LogisticsCore.ITEM.TIN_INGOT)
+                        .setWeight(5)
+                        .apply(SetItemCountFunction.setCount(UniformGenerator.between(1, 3))))
+                    .add(LootItem.lootTableItem(LogisticsCore.ITEM.APATITE)
+                        .setWeight(12)
+                        .apply(SetItemCountFunction.setCount(UniformGenerator.between(3, 10))))
                     .add(LootItem.lootTableItem(LogisticsCore.ITEM.TIN_GEAR).setWeight(5))
                     .build());
             }
 
-            // Bronze ingots and gear in toolsmith and strongholds (rarer, better loot)
+            // Bronze nuggets, ingots, and gear in villages and strongholds (favor nuggets)
             if (VILLAGE_TOOLSMITH.equals(key) || VILLAGE_ARMORER.equals(key) || STRONGHOLD_CORRIDOR.equals(key)) {
                 tableBuilder.pool(LootPool.lootPool()
                     .setRolls(ConstantValue.exactly(1))
-                    .add(LootItem.lootTableItem(LogisticsCore.ITEM.BRONZE_INGOT)
-                        .setWeight(6)
-                        .apply(SetItemCountFunction.setCount(UniformGenerator.between(1, 3))))
                     .add(LootItem.lootTableItem(LogisticsCore.ITEM.BRONZE_NUGGET)
-                        .setWeight(5)
-                        .apply(SetItemCountFunction.setCount(UniformGenerator.between(2, 7))))
+                        .setWeight(10)
+                        .apply(SetItemCountFunction.setCount(UniformGenerator.between(4, 12))))
+                    .add(LootItem.lootTableItem(LogisticsCore.ITEM.BRONZE_INGOT)
+                        .setWeight(4)
+                        .apply(SetItemCountFunction.setCount(UniformGenerator.between(1, 2))))
                     .add(LootItem.lootTableItem(LogisticsCore.ITEM.BRONZE_GEAR).setWeight(4))
                     .build());
             }
@@ -82,37 +88,46 @@ public class ChestLootModifier {
                     .build());
             }
 
-            // Buried treasure - good amounts of ingots and gears
+            // Buried treasure - mix of nuggets/ingots, gears, and apatite
             if (BURIED_TREASURE.equals(key)) {
                 tableBuilder.pool(LootPool.lootPool()
                     .setRolls(ConstantValue.exactly(1))
-                    .add(LootItem.lootTableItem(LogisticsCore.ITEM.TIN_INGOT)
-                        .setWeight(7)
-                        .apply(SetItemCountFunction.setCount(UniformGenerator.between(3, 8))))
-                    .add(LootItem.lootTableItem(LogisticsCore.ITEM.BRONZE_INGOT)
+                    .add(LootItem.lootTableItem(LogisticsCore.ITEM.TIN_NUGGET)
                         .setWeight(8)
-                        .apply(SetItemCountFunction.setCount(UniformGenerator.between(2, 6))))
+                        .apply(SetItemCountFunction.setCount(UniformGenerator.between(8, 20))))
+                    .add(LootItem.lootTableItem(LogisticsCore.ITEM.TIN_INGOT)
+                        .setWeight(5)
+                        .apply(SetItemCountFunction.setCount(UniformGenerator.between(2, 5))))
+                    .add(LootItem.lootTableItem(LogisticsCore.ITEM.BRONZE_NUGGET)
+                        .setWeight(9)
+                        .apply(SetItemCountFunction.setCount(UniformGenerator.between(6, 18))))
+                    .add(LootItem.lootTableItem(LogisticsCore.ITEM.BRONZE_INGOT)
+                        .setWeight(6)
+                        .apply(SetItemCountFunction.setCount(UniformGenerator.between(1, 4))))
+                    .add(LootItem.lootTableItem(LogisticsCore.ITEM.APATITE)
+                        .setWeight(10)
+                        .apply(SetItemCountFunction.setCount(UniformGenerator.between(6, 16))))
                     .add(LootItem.lootTableItem(LogisticsCore.ITEM.BRONZE_GEAR)
                         .setWeight(5)
                         .apply(SetItemCountFunction.setCount(UniformGenerator.between(1, 3))))
                     .build());
             }
 
-            // Shipwreck treasure - bronze items (nautical theme)
+            // Shipwreck treasure - bronze nuggets/ingots (nautical theme, favor nuggets)
             if (SHIPWRECK_TREASURE.equals(key)) {
                 tableBuilder.pool(LootPool.lootPool()
                     .setRolls(ConstantValue.exactly(1))
-                    .add(LootItem.lootTableItem(LogisticsCore.ITEM.BRONZE_INGOT)
-                        .setWeight(10)
-                        .apply(SetItemCountFunction.setCount(UniformGenerator.between(1, 5))))
                     .add(LootItem.lootTableItem(LogisticsCore.ITEM.BRONZE_NUGGET)
-                        .setWeight(8)
-                        .apply(SetItemCountFunction.setCount(UniformGenerator.between(4, 12))))
+                        .setWeight(12)
+                        .apply(SetItemCountFunction.setCount(UniformGenerator.between(6, 18))))
+                    .add(LootItem.lootTableItem(LogisticsCore.ITEM.BRONZE_INGOT)
+                        .setWeight(6)
+                        .apply(SetItemCountFunction.setCount(UniformGenerator.between(1, 3))))
                     .add(LootItem.lootTableItem(LogisticsCore.ITEM.BRONZE_GEAR).setWeight(6))
                     .build());
             }
 
-            // Shipwreck supply - raw materials and tin
+            // Shipwreck supply - raw materials, tin, and apatite
             if (SHIPWRECK_SUPPLY.equals(key)) {
                 tableBuilder.pool(LootPool.lootPool()
                     .setRolls(ConstantValue.exactly(1))
@@ -122,6 +137,9 @@ public class ChestLootModifier {
                     .add(LootItem.lootTableItem(LogisticsCore.ITEM.TIN_INGOT)
                         .setWeight(6)
                         .apply(SetItemCountFunction.setCount(UniformGenerator.between(1, 4))))
+                    .add(LootItem.lootTableItem(LogisticsCore.ITEM.APATITE)
+                        .setWeight(10)
+                        .apply(SetItemCountFunction.setCount(UniformGenerator.between(3, 8))))
                     .build());
             }
 

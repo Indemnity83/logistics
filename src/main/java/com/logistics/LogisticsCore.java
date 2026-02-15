@@ -13,6 +13,9 @@ import com.logistics.core.ore.TinOreBlock;
 import net.fabricmc.fabric.api.biome.v1.BiomeModifications;
 import net.fabricmc.fabric.api.biome.v1.BiomeSelectors;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
+import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
+import net.minecraft.world.item.CreativeModeTabs;
+import net.minecraft.world.item.Items;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -54,6 +57,7 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
 
         registerLegacyAliases();
         addCreativeTabEntries();
+        addVanillaCreativeTabEntries();
         registerWorldgen();
         ChestLootModifier.register();
     }
@@ -222,32 +226,60 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         CREATIVE_TAB.addItems(
                 ITEM.WRENCH,
                 ITEM.PROBE,
-                BLOCK.MARKER,
-                BLOCK.TIN_ORE,
-                BLOCK.DEEPSLATE_TIN_ORE,
-                BLOCK.RAW_TIN_BLOCK,
-                BLOCK.TIN_BLOCK,
-                BLOCK.BRONZE_BLOCK,
-                BLOCK.APATITE_ORE,
-                BLOCK.DEEPSLATE_APATITE_ORE,
-                BLOCK.APATITE_BLOCK,
-                ITEM.RAW_TIN,
-                ITEM.TIN_INGOT,
-                ITEM.TIN_NUGGET,
-                ITEM.BRONZE_INGOT,
-                ITEM.BRONZE_NUGGET,
-                ITEM.APATITE,
-                ITEM.STURDY_CASING,
-                ITEM.WOODEN_GEAR,
-                ITEM.STONE_GEAR,
-                ITEM.COPPER_GEAR,
-                ITEM.TIN_GEAR,
-                ITEM.IRON_GEAR,
-                ITEM.GOLD_GEAR,
-                ITEM.BRONZE_GEAR,
-                ITEM.DIAMOND_GEAR,
-                ITEM.NETHERITE_GEAR
+                BLOCK.MARKER
         );
+    }
+
+    private static void addVanillaCreativeTabEntries() {
+        // Add storage blocks to Building Blocks tab, between coal and iron
+        ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.BUILDING_BLOCKS).register(entries -> {
+            entries.addAfter(Items.COAL_BLOCK, BLOCK.APATITE_BLOCK);
+            entries.addBefore(Items.IRON_BLOCK, BLOCK.TIN_BLOCK);
+            entries.addAfter(Items.IRON_BLOCK, BLOCK.BRONZE_BLOCK);
+        });
+
+        // Add materials to Ingredients tab
+        ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.INGREDIENTS).register(entries -> {
+            // Raw materials (after raw copper)
+            entries.addBefore(Items.RAW_IRON, ITEM.RAW_TIN);
+
+            // Ingots (after copper ingot for tin, after tin ingot for bronze)
+            entries.addBefore(Items.IRON_INGOT, ITEM.TIN_INGOT);
+            entries.addAfter(ITEM.TIN_INGOT, ITEM.BRONZE_INGOT);
+
+            // Nuggets (after iron nugget for tin, after tin nugget for bronze)
+            entries.addBefore(Items.IRON_NUGGET, ITEM.TIN_NUGGET);
+            entries.addAfter(ITEM.TIN_NUGGET, ITEM.BRONZE_NUGGET);
+
+            // Apatite (before amethyst shard)
+            entries.addBefore(Items.AMETHYST_SHARD, ITEM.APATITE);
+
+            // Intermediate Crafting Items
+            entries.addBefore(Items.HEAVY_CORE, ITEM.STURDY_CASING);
+            entries.addAfter(ITEM.STURDY_CASING, ITEM.WOODEN_GEAR);
+            entries.addAfter(ITEM.WOODEN_GEAR, ITEM.STONE_GEAR);
+            entries.addAfter(ITEM.STONE_GEAR, ITEM.COPPER_GEAR);
+            entries.addAfter(ITEM.COPPER_GEAR, ITEM.TIN_GEAR);
+            entries.addAfter(ITEM.TIN_GEAR, ITEM.IRON_GEAR);
+            entries.addAfter(ITEM.IRON_GEAR, ITEM.BRONZE_GEAR);
+            entries.addAfter(ITEM.BRONZE_GEAR, ITEM.GOLD_GEAR);
+            entries.addAfter(ITEM.GOLD_GEAR, ITEM.DIAMOND_GEAR);
+            entries.addAfter(ITEM.DIAMOND_GEAR, ITEM.NETHERITE_GEAR);
+        });
+
+        // Add ore blocks to Natural Blocks tab
+        ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.NATURAL_BLOCKS).register(entries -> {
+            // Tin ores (after copper ores)
+            entries.addAfter(Items.DEEPSLATE_COAL_ORE, BLOCK.TIN_ORE);
+            entries.addAfter(BLOCK.TIN_ORE, BLOCK.DEEPSLATE_TIN_ORE);
+
+            // Apatite ores (after iron ores)
+            entries.addBefore(Items.AMETHYST_BLOCK, BLOCK.APATITE_ORE);
+            entries.addAfter(BLOCK.APATITE_ORE, BLOCK.DEEPSLATE_APATITE_ORE);
+
+            // Raw tin block (after raw copper block)
+            entries.addBefore(Items.RAW_IRON_BLOCK, BLOCK.RAW_TIN_BLOCK);
+        });
     }
 
     private void registerLegacyAliases() {
