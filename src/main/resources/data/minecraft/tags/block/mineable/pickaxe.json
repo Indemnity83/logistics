@@ -9,6 +9,9 @@
     "logistics:core/deepslate_tin_ore",
     "logistics:core/tin_block",
     "logistics:core/raw_tin_block",
-    "logistics:core/bronze_block"
+    "logistics:core/bronze_block",
+    "logistics:core/apatite_ore",
+    "logistics:core/deepslate_apatite_ore",
+    "logistics:core/apatite_block"
   ]
 }

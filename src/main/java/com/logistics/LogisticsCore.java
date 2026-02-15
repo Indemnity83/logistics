@@ -6,6 +6,8 @@ import com.logistics.core.item.WrenchItem;
 import com.logistics.core.loot.ChestLootModifier;
 import com.logistics.core.marker.MarkerBlock;
 import com.logistics.core.marker.MarkerBlockEntity;
+import com.logistics.core.ore.ApatiteOreBlock;
+import com.logistics.core.ore.DeepslateApatiteOreBlock;
 import com.logistics.core.ore.DeepslateTinOreBlock;
 import com.logistics.core.ore.TinOreBlock;
 import net.fabricmc.fabric.api.biome.v1.BiomeModifications;
@@ -71,6 +73,20 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
             GenerationStep.Decoration.UNDERGROUND_ORES,
             ResourceKey.create(Registries.PLACED_FEATURE, LogisticsMod.getIdentifier("tin_ore_deepslate"))
         );
+
+        // Apatite ore worldgen: replaces some copper generation
+        // Stone: ~20% of copper's rate (3 veins/chunk)
+        // Deepslate: ~5% of copper's rate (1 vein/chunk)
+        BiomeModifications.addFeature(
+            BiomeSelectors.foundInOverworld(),
+            GenerationStep.Decoration.UNDERGROUND_ORES,
+            ResourceKey.create(Registries.PLACED_FEATURE, LogisticsMod.getIdentifier("apatite_ore_stone"))
+        );
+        BiomeModifications.addFeature(
+            BiomeSelectors.foundInOverworld(),
+            GenerationStep.Decoration.UNDERGROUND_ORES,
+            ResourceKey.create(Registries.PLACED_FEATURE, LogisticsMod.getIdentifier("apatite_ore_deepslate"))
+        );
     }
 
     @Override
@@ -95,6 +111,14 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         // Bronze Storage Block
         public static final Block BRONZE_BLOCK = INSTANCE.registerBlockWithItem("bronze_block",
             props -> new Block(props.strength(3.0f, 6.0f).sound(SoundType.METAL).requiresCorrectToolForDrops()));
+
+        // Apatite Ore and Storage Block
+        public static final Block APATITE_ORE = INSTANCE.registerBlockWithItem("apatite_ore",
+            props -> new ApatiteOreBlock(props.strength(3.0f, 3.0f).sound(SoundType.STONE).requiresCorrectToolForDrops()));
+        public static final Block DEEPSLATE_APATITE_ORE = INSTANCE.registerBlockWithItem("deepslate_apatite_ore",
+            props -> new DeepslateApatiteOreBlock(props.strength(4.5f, 3.0f).sound(SoundType.DEEPSLATE).requiresCorrectToolForDrops()));
+        public static final Block APATITE_BLOCK = INSTANCE.registerBlockWithItem("apatite_block",
+            props -> new Block(props.strength(5.0f, 6.0f).sound(SoundType.STONE).requiresCorrectToolForDrops()));
 
         private BLOCK() {}
 
@@ -127,6 +151,10 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         public static final Item BRONZE_INGOT = INSTANCE.registerItem("bronze_ingot",
             props -> new Item(props));
         public static final Item BRONZE_NUGGET = INSTANCE.registerItem("bronze_nugget",
+            props -> new Item(props));
+
+        // Apatite
+        public static final Item APATITE = INSTANCE.registerItem("apatite",
             props -> new Item(props));
 
         // Components
@@ -200,11 +228,15 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
                 BLOCK.RAW_TIN_BLOCK,
                 BLOCK.TIN_BLOCK,
                 BLOCK.BRONZE_BLOCK,
+                BLOCK.APATITE_ORE,
+                BLOCK.DEEPSLATE_APATITE_ORE,
+                BLOCK.APATITE_BLOCK,
                 ITEM.RAW_TIN,
                 ITEM.TIN_INGOT,
                 ITEM.TIN_NUGGET,
                 ITEM.BRONZE_INGOT,
                 ITEM.BRONZE_NUGGET,
+                ITEM.APATITE,
                 ITEM.STURDY_CASING,
                 ITEM.WOODEN_GEAR,
                 ITEM.STONE_GEAR,
