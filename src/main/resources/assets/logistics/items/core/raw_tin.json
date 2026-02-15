@@ -1,0 +1,6 @@
+{
+  "model": {
+    "model": "logistics:item/core/raw_tin",
+    "type": "minecraft:model"
+  }
+}

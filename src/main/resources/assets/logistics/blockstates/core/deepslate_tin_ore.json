@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "logistics:block/core/deepslate_tin_ore"
+    }
+  }
+}
