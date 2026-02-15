@@ -20,13 +20,13 @@ Our bronze uses a warm golden-bronze color (#C8A858) that's distinct from both c
 
 ### Technical Details
 
-**Bronze Composition** (2:1 copper-to-tin ratio):
-```
-2 Copper Ingots + 1 Tin Ingot → 3 Bronze Ingots
+**Bronze Composition** (3:1 copper-to-tin ratio):
+```text
+3 Copper Ingots + 1 Tin Ingot → 3 Bronze Ingots
 ```
 
-This 2:1 ratio matches historical bronze composition (~67% copper, ~33% tin) and provides balanced crafting:
-- Not too expensive (3 ingots output for 3 input)
+This 3:1 ratio matches historical bronze composition (75% copper, 25% tin) and provides balanced crafting:
+- Not too expensive (4 ingots output for 4 input)
 - Requires tin mining (progression gate)
 - Consistent with vanilla metal crafting patterns
 
@@ -80,12 +80,12 @@ Gears are crafted using a tiered progression system:
 3. **Copper Gear** - Copper Ingots + Stone Gear
 4. **Tin Gear** - Tin Ingots + Stone Gear
 5. **Iron Gear** - Iron Ingots + Tin Gear (or Copper Gear)
-6. **Gold Gear** - Gold Ingots + Iron Gear
-7. **Bronze Gear** - Bronze Ingots + Tin Gear
+6. **Bronze Gear** - Bronze Ingots + Tin Gear
+7. **Gold Gear** - Gold Ingots + Iron Gear
 8. **Diamond Gear** - Diamond + Gold Gear
 9. **Netherite Gear** - Netherite + Diamond Gear
 
-**Bronze Gear** sits between Tin and Gold in the progression, offering a mid-tier option for machines.
+**Bronze Gear** sits between Iron and Gold in the progression, offering a mid-tier option for machines.
 
 ## Storage Blocks
 

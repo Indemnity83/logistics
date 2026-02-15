@@ -3,10 +3,11 @@
   "ingredients": [
     "minecraft:copper_ingot",
     "minecraft:copper_ingot",
+    "minecraft:copper_ingot",
     "logistics:core/tin_ingot"
   ],
   "result": {
-    "count": 3,
+    "count": 4,
     "id": "logistics:core/bronze_ingot"
   }
 }

@@ -145,7 +145,7 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         public static final Item GOLD_GEAR = INSTANCE.registerItem("gold_gear",
             props -> new Item(props));
         public static final Item BRONZE_GEAR = INSTANCE.registerItem("bronze_gear",
-                props -> new Item(props));
+            props -> new Item(props));
         public static final Item DIAMOND_GEAR = INSTANCE.registerItem("diamond_gear",
             props -> new Item(props));
         public static final Item NETHERITE_GEAR = INSTANCE.registerItem("netherite_gear",
@@ -229,25 +229,5 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         registerItemAlias("gold_gear", ITEM.GOLD_GEAR);
         registerItemAlias("diamond_gear", ITEM.DIAMOND_GEAR);
         registerItemAlias("netherite_gear", ITEM.NETHERITE_GEAR);
-
-        // Tin and bronze items (new in v0.4)
-        registerBlockAlias("tin_ore", BLOCK.TIN_ORE);
-        registerBlockAlias("deepslate_tin_ore", BLOCK.DEEPSLATE_TIN_ORE);
-        registerBlockAlias("tin_block", BLOCK.TIN_BLOCK);
-        registerBlockAlias("raw_tin_block", BLOCK.RAW_TIN_BLOCK);
-        registerBlockAlias("bronze_block", BLOCK.BRONZE_BLOCK);
-        registerItemAlias("tin_ore", BLOCK.TIN_ORE.asItem());
-        registerItemAlias("deepslate_tin_ore", BLOCK.DEEPSLATE_TIN_ORE.asItem());
-        registerItemAlias("tin_block", BLOCK.TIN_BLOCK.asItem());
-        registerItemAlias("raw_tin_block", BLOCK.RAW_TIN_BLOCK.asItem());
-        registerItemAlias("bronze_block", BLOCK.BRONZE_BLOCK.asItem());
-        registerItemAlias("raw_tin", ITEM.RAW_TIN);
-        registerItemAlias("tin_ingot", ITEM.TIN_INGOT);
-        registerItemAlias("tin_nugget", ITEM.TIN_NUGGET);
-        registerItemAlias("tin_gear", ITEM.TIN_GEAR);
-        registerItemAlias("bronze_ingot", ITEM.BRONZE_INGOT);
-        registerItemAlias("bronze_nugget", ITEM.BRONZE_NUGGET);
-        registerItemAlias("bronze_gear", ITEM.BRONZE_GEAR);
-        registerItemAlias("sturdy_casing", ITEM.STURDY_CASING);
     }
 }

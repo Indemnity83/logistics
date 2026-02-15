@@ -1,7 +1,7 @@
 {
   "replace": false,
   "values": [
-    "#c:tin_nuggets",
-    "#c:bronze_nuggets"
+    "#c:nuggets/tin",
+    "#c:nuggets/bronze"
   ]
 }
