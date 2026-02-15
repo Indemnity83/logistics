@@ -1,7 +1,7 @@
 package com.logistics.power.block.entity;
 
 import com.logistics.LogisticsPower;
-import com.logistics.core.lib.block.BaseBlockEntity;
+import com.logistics.core.lib.BaseBlockEntity;
 import com.logistics.core.lib.power.AcceptsLowTierEnergy;
 import com.logistics.core.lib.storage.NbtCompat;
 import com.logistics.core.lib.support.ProbeResult;

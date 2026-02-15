@@ -1,4 +1,4 @@
-package com.logistics.core.lib.block;
+package com.logistics.core.lib;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;

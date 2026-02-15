@@ -1,6 +1,6 @@
 package com.logistics.core.lib.power;
 
-import com.logistics.core.lib.block.BaseBlockEntity;
+import com.logistics.core.lib.BaseBlockEntity;
 import com.logistics.core.lib.storage.NbtCompat;
 import com.logistics.core.lib.support.ProbeResult;
 import java.util.Locale;

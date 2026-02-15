@@ -7,7 +7,7 @@ import com.logistics.automation.laserquarry.LaserQuarryBlock;
 import com.logistics.automation.laserquarry.LaserQuarryConfig;
 import com.logistics.automation.laserquarry.LaserQuarryFrameBlock;
 import com.logistics.automation.render.ClientRenderCacheHooks;
-import com.logistics.core.lib.block.BaseBlockEntity;
+import com.logistics.core.lib.BaseBlockEntity;
 import com.logistics.core.lib.pipe.PipeConnection;
 import com.logistics.core.lib.storage.NbtCompat;
 import com.logistics.core.lib.support.ProbeResult;
