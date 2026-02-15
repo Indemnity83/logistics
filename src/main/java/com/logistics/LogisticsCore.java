@@ -5,11 +5,18 @@ import com.logistics.core.item.ProbeItem;
 import com.logistics.core.item.WrenchItem;
 import com.logistics.core.marker.MarkerBlock;
 import com.logistics.core.marker.MarkerBlockEntity;
+import com.logistics.core.ore.DeepslateTinOreBlock;
+import com.logistics.core.ore.TinOreBlock;
+import net.fabricmc.fabric.api.biome.v1.BiomeModifications;
+import net.fabricmc.fabric.api.biome.v1.BiomeSelectors;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -44,6 +51,24 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
 
         registerLegacyAliases();
         addCreativeTabEntries();
+        registerWorldgen();
+    }
+
+    private void registerWorldgen() {
+        // Tin ore worldgen: separate features for stone (rare) and deepslate (abundant)
+        // Stone: ~7% of copper's effective rate (1 vein/chunk vs copper's 16)
+        // Deepslate: ~80% of copper's rate (13 veins/chunk)
+        // Use LogisticsMod.getIdentifier() to avoid core/ prefix
+        BiomeModifications.addFeature(
+            BiomeSelectors.foundInOverworld(),
+            GenerationStep.Decoration.UNDERGROUND_ORES,
+            ResourceKey.create(Registries.PLACED_FEATURE, LogisticsMod.getIdentifier("tin_ore_stone"))
+        );
+        BiomeModifications.addFeature(
+            BiomeSelectors.foundInOverworld(),
+            GenerationStep.Decoration.UNDERGROUND_ORES,
+            ResourceKey.create(Registries.PLACED_FEATURE, LogisticsMod.getIdentifier("tin_ore_deepslate"))
+        );
     }
 
     @Override
@@ -54,6 +79,20 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
     public static final class BLOCK {
         public static final Block MARKER = INSTANCE.registerBlockWithItem("marker",
             props -> new MarkerBlock(props.strength(0.0f).sound(SoundType.WOOD).noCollision()));
+
+        // Tin Ore and Storage Blocks
+        public static final Block TIN_ORE = INSTANCE.registerBlockWithItem("tin_ore",
+            props -> new TinOreBlock(props.strength(3.0f, 3.0f).sound(SoundType.STONE).requiresCorrectToolForDrops()));
+        public static final Block DEEPSLATE_TIN_ORE = INSTANCE.registerBlockWithItem("deepslate_tin_ore",
+            props -> new DeepslateTinOreBlock(props.strength(4.5f, 3.0f).sound(SoundType.DEEPSLATE).requiresCorrectToolForDrops()));
+        public static final Block TIN_BLOCK = INSTANCE.registerBlockWithItem("tin_block",
+            props -> new Block(props.strength(3.0f, 6.0f).sound(SoundType.METAL).requiresCorrectToolForDrops()));
+        public static final Block RAW_TIN_BLOCK = INSTANCE.registerBlockWithItem("raw_tin_block",
+            props -> new Block(props.strength(5.0f, 6.0f).sound(SoundType.STONE).requiresCorrectToolForDrops()));
+
+        // Bronze Storage Block
+        public static final Block BRONZE_BLOCK = INSTANCE.registerBlockWithItem("bronze_block",
+            props -> new Block(props.strength(3.0f, 6.0f).sound(SoundType.METAL).requiresCorrectToolForDrops()));
 
         private BLOCK() {}
 
@@ -67,21 +106,46 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
 
     }
 
+
     public static final class ITEM {
         public static final Item WRENCH = INSTANCE.registerItem("wrench",
             props -> new WrenchItem(props.stacksTo(1)));
         public static final Item PROBE = INSTANCE.registerItem("probe",
             props -> new ProbeItem(props.stacksTo(1)));
+
+        // Tin Materials
+        public static final Item RAW_TIN = INSTANCE.registerItem("raw_tin",
+            props -> new Item(props));
+        public static final Item TIN_INGOT = INSTANCE.registerItem("tin_ingot",
+            props -> new Item(props));
+        public static final Item TIN_NUGGET = INSTANCE.registerItem("tin_nugget",
+            props -> new Item(props));
+
+        // Bronze Materials
+        public static final Item BRONZE_INGOT = INSTANCE.registerItem("bronze_ingot",
+            props -> new Item(props));
+        public static final Item BRONZE_NUGGET = INSTANCE.registerItem("bronze_nugget",
+            props -> new Item(props));
+
+        // Components
+        public static final Item STURDY_CASING = INSTANCE.registerItem("sturdy_casing",
+            props -> new Item(props));
+
+        // Gears
         public static final Item WOODEN_GEAR = INSTANCE.registerItem("wooden_gear",
             props -> new Item(props));
         public static final Item STONE_GEAR = INSTANCE.registerItem("stone_gear",
             props -> new Item(props));
         public static final Item COPPER_GEAR = INSTANCE.registerItem("copper_gear",
             props -> new Item(props));
+        public static final Item TIN_GEAR = INSTANCE.registerItem("tin_gear",
+            props -> new Item(props));
         public static final Item IRON_GEAR = INSTANCE.registerItem("iron_gear",
             props -> new Item(props));
         public static final Item GOLD_GEAR = INSTANCE.registerItem("gold_gear",
             props -> new Item(props));
+        public static final Item BRONZE_GEAR = INSTANCE.registerItem("bronze_gear",
+                props -> new Item(props));
         public static final Item DIAMOND_GEAR = INSTANCE.registerItem("diamond_gear",
             props -> new Item(props));
         public static final Item NETHERITE_GEAR = INSTANCE.registerItem("netherite_gear",
@@ -128,14 +192,27 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         CREATIVE_TAB.addItems(
                 ITEM.WRENCH,
                 ITEM.PROBE,
+                BLOCK.MARKER,
+                BLOCK.TIN_ORE,
+                BLOCK.DEEPSLATE_TIN_ORE,
+                BLOCK.RAW_TIN_BLOCK,
+                BLOCK.TIN_BLOCK,
+                BLOCK.BRONZE_BLOCK,
+                ITEM.RAW_TIN,
+                ITEM.TIN_INGOT,
+                ITEM.TIN_NUGGET,
+                ITEM.BRONZE_INGOT,
+                ITEM.BRONZE_NUGGET,
+                ITEM.STURDY_CASING,
                 ITEM.WOODEN_GEAR,
                 ITEM.STONE_GEAR,
                 ITEM.COPPER_GEAR,
+                ITEM.TIN_GEAR,
                 ITEM.IRON_GEAR,
                 ITEM.GOLD_GEAR,
+                ITEM.BRONZE_GEAR,
                 ITEM.DIAMOND_GEAR,
-                ITEM.NETHERITE_GEAR,
-                BLOCK.MARKER
+                ITEM.NETHERITE_GEAR
         );
     }
 
@@ -152,5 +229,25 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         registerItemAlias("gold_gear", ITEM.GOLD_GEAR);
         registerItemAlias("diamond_gear", ITEM.DIAMOND_GEAR);
         registerItemAlias("netherite_gear", ITEM.NETHERITE_GEAR);
+
+        // Tin and bronze items (new in v0.4)
+        registerBlockAlias("tin_ore", BLOCK.TIN_ORE);
+        registerBlockAlias("deepslate_tin_ore", BLOCK.DEEPSLATE_TIN_ORE);
+        registerBlockAlias("tin_block", BLOCK.TIN_BLOCK);
+        registerBlockAlias("raw_tin_block", BLOCK.RAW_TIN_BLOCK);
+        registerBlockAlias("bronze_block", BLOCK.BRONZE_BLOCK);
+        registerItemAlias("tin_ore", BLOCK.TIN_ORE.asItem());
+        registerItemAlias("deepslate_tin_ore", BLOCK.DEEPSLATE_TIN_ORE.asItem());
+        registerItemAlias("tin_block", BLOCK.TIN_BLOCK.asItem());
+        registerItemAlias("raw_tin_block", BLOCK.RAW_TIN_BLOCK.asItem());
+        registerItemAlias("bronze_block", BLOCK.BRONZE_BLOCK.asItem());
+        registerItemAlias("raw_tin", ITEM.RAW_TIN);
+        registerItemAlias("tin_ingot", ITEM.TIN_INGOT);
+        registerItemAlias("tin_nugget", ITEM.TIN_NUGGET);
+        registerItemAlias("tin_gear", ITEM.TIN_GEAR);
+        registerItemAlias("bronze_ingot", ITEM.BRONZE_INGOT);
+        registerItemAlias("bronze_nugget", ITEM.BRONZE_NUGGET);
+        registerItemAlias("bronze_gear", ITEM.BRONZE_GEAR);
+        registerItemAlias("sturdy_casing", ITEM.STURDY_CASING);
     }
 }

@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "T": "logistics:core/tin_ingot",
+    "G": "logistics:core/stone_gear"
+  },
+  "pattern": [
+    " T ",
+    "TGT",
+    " T "
+  ],
+  "result": {
+    "count": 1,
+    "id": "logistics:core/tin_gear"
+  }
+}

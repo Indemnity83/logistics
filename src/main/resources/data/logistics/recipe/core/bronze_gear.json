@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "B": "logistics:core/bronze_ingot",
+    "G": "logistics:core/tin_gear"
+  },
+  "pattern": [
+    " B ",
+    "BGB",
+    " B "
+  ],
+  "result": {
+    "count": 1,
+    "id": "logistics:core/bronze_gear"
+  }
+}
