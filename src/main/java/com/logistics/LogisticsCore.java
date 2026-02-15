@@ -229,7 +229,7 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
     }
 
     private static void addVanillaCreativeTabEntries() {
-        // Add storage blocks to Building Blocks tab, between coal and iron
+        // Add storage blocks to Building Blocks tab
         ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.BUILDING_BLOCKS).register(entries -> {
             entries.addAfter(Items.COAL_BLOCK, BLOCK.APATITE_BLOCK);
             entries.addBefore(Items.IRON_BLOCK, BLOCK.TIN_BLOCK);
@@ -238,18 +238,18 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
 
         // Add materials to Ingredients tab
         ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.INGREDIENTS).register(entries -> {
-            // Raw materials (after raw copper)
+            // Raw materials
             entries.addBefore(Items.RAW_IRON, ITEM.RAW_TIN);
 
-            // Ingots (after copper ingot for tin, after tin ingot for bronze)
+            // Ingots
             entries.addBefore(Items.IRON_INGOT, ITEM.TIN_INGOT);
             entries.addAfter(ITEM.TIN_INGOT, ITEM.BRONZE_INGOT);
 
-            // Nuggets (after iron nugget for tin, after tin nugget for bronze)
+            // Nuggets
             entries.addBefore(Items.IRON_NUGGET, ITEM.TIN_NUGGET);
             entries.addAfter(ITEM.TIN_NUGGET, ITEM.BRONZE_NUGGET);
 
-            // Apatite (before amethyst shard)
+            // Apatite
             entries.addBefore(Items.AMETHYST_SHARD, ITEM.APATITE);
 
             // Intermediate Crafting Items
@@ -267,15 +267,15 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
 
         // Add ore blocks to Natural Blocks tab
         ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.NATURAL_BLOCKS).register(entries -> {
-            // Tin ores (after copper ores)
+            // Tin ores
             entries.addAfter(Items.DEEPSLATE_COAL_ORE, BLOCK.TIN_ORE);
             entries.addAfter(BLOCK.TIN_ORE, BLOCK.DEEPSLATE_TIN_ORE);
 
-            // Apatite ores (after iron ores)
+            // Apatite ores
             entries.addBefore(Items.AMETHYST_BLOCK, BLOCK.APATITE_ORE);
             entries.addAfter(BLOCK.APATITE_ORE, BLOCK.DEEPSLATE_APATITE_ORE);
 
-            // Raw tin block (after raw copper block)
+            // Raw tin block
             entries.addBefore(Items.RAW_IRON_BLOCK, BLOCK.RAW_TIN_BLOCK);
         });
     }
