@@ -3,6 +3,7 @@ package com.logistics;
 import com.logistics.core.bootstrap.DomainBootstrap;
 import com.logistics.core.item.ProbeItem;
 import com.logistics.core.item.WrenchItem;
+import com.logistics.core.loot.ChestLootModifier;
 import com.logistics.core.marker.MarkerBlock;
 import com.logistics.core.marker.MarkerBlockEntity;
 import com.logistics.core.ore.DeepslateTinOreBlock;
@@ -52,6 +53,7 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         registerLegacyAliases();
         addCreativeTabEntries();
         registerWorldgen();
+        ChestLootModifier.register();
     }
 
     private void registerWorldgen() {

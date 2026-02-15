@@ -22,7 +22,7 @@ Our bronze uses a warm golden-bronze color (#C8A858) that's distinct from both c
 
 **Bronze Composition** (3:1 copper-to-tin ratio):
 ```text
-3 Copper Ingots + 1 Tin Ingot → 3 Bronze Ingots
+3 Copper Ingots + 1 Tin Ingot → 4 Bronze Ingots
 ```
 
 This 3:1 ratio matches historical bronze composition (75% copper, 25% tin) and provides balanced crafting:
