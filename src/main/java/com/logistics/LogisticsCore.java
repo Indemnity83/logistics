@@ -6,10 +6,6 @@ import com.logistics.core.item.WrenchItem;
 import com.logistics.core.loot.ChestLootModifier;
 import com.logistics.core.marker.MarkerBlock;
 import com.logistics.core.marker.MarkerBlockEntity;
-import com.logistics.core.ore.ApatiteOreBlock;
-import com.logistics.core.ore.DeepslateApatiteOreBlock;
-import com.logistics.core.ore.DeepslateTinOreBlock;
-import com.logistics.core.ore.TinOreBlock;
 import net.fabricmc.fabric.api.biome.v1.BiomeModifications;
 import net.fabricmc.fabric.api.biome.v1.BiomeSelectors;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
@@ -27,7 +23,9 @@ import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
+import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.DropExperienceBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 
@@ -104,9 +102,9 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
 
         // Tin Ore and Storage Blocks
         public static final Block TIN_ORE = INSTANCE.registerBlockWithItem("tin_ore",
-            props -> new TinOreBlock(props.strength(3.0f, 3.0f).sound(SoundType.STONE).requiresCorrectToolForDrops()));
+            props -> new Block(props.strength(3.0f, 3.0f).sound(SoundType.STONE).requiresCorrectToolForDrops()));
         public static final Block DEEPSLATE_TIN_ORE = INSTANCE.registerBlockWithItem("deepslate_tin_ore",
-            props -> new DeepslateTinOreBlock(props.strength(4.5f, 3.0f).sound(SoundType.DEEPSLATE).requiresCorrectToolForDrops()));
+            props -> new Block(props.strength(4.5f, 3.0f).sound(SoundType.DEEPSLATE).requiresCorrectToolForDrops()));
         public static final Block TIN_BLOCK = INSTANCE.registerBlockWithItem("tin_block",
             props -> new Block(props.strength(3.0f, 6.0f).sound(SoundType.METAL).requiresCorrectToolForDrops()));
         public static final Block RAW_TIN_BLOCK = INSTANCE.registerBlockWithItem("raw_tin_block",
@@ -118,9 +116,9 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
 
         // Apatite Ore and Storage Block
         public static final Block APATITE_ORE = INSTANCE.registerBlockWithItem("apatite_ore",
-            props -> new ApatiteOreBlock(props.strength(3.0f, 3.0f).sound(SoundType.STONE).requiresCorrectToolForDrops()));
+            props -> new DropExperienceBlock(UniformInt.of(0, 2), props.strength(3.0f, 3.0f).sound(SoundType.STONE).requiresCorrectToolForDrops()));
         public static final Block DEEPSLATE_APATITE_ORE = INSTANCE.registerBlockWithItem("deepslate_apatite_ore",
-            props -> new DeepslateApatiteOreBlock(props.strength(4.5f, 3.0f).sound(SoundType.DEEPSLATE).requiresCorrectToolForDrops()));
+            props -> new DropExperienceBlock(UniformInt.of(0, 2), props.strength(4.5f, 3.0f).sound(SoundType.DEEPSLATE).requiresCorrectToolForDrops()));
         public static final Block APATITE_BLOCK = INSTANCE.registerBlockWithItem("apatite_block",
             props -> new Block(props.strength(5.0f, 6.0f).sound(SoundType.STONE).requiresCorrectToolForDrops()));
 

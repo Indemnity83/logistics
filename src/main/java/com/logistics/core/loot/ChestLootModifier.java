@@ -34,8 +34,8 @@ public class ChestLootModifier {
 
     public static void register() {
         LootTableEvents.MODIFY.register((key, tableBuilder, source, registries) -> {
-            // Raw tin and apatite in mineshafts and dungeons (ore discovery)
-            if (ABANDONED_MINESHAFT.equals(key) || SIMPLE_DUNGEON.equals(key)) {
+            // Abandoned mineshaft - raw tin and apatite (ore discovery)
+            if (ABANDONED_MINESHAFT.equals(key)) {
                 tableBuilder.pool(LootPool.lootPool()
                     .setRolls(ConstantValue.exactly(1))
                     .add(LootItem.lootTableItem(LogisticsCore.ITEM.RAW_TIN)
@@ -47,10 +47,13 @@ public class ChestLootModifier {
                     .build());
             }
 
-            // Tin nuggets, ingots, and apatite in villages and dungeons (favor nuggets)
-            if (VILLAGE_TOOLSMITH.equals(key) || SIMPLE_DUNGEON.equals(key)) {
+            // Simple dungeon - raw tin, tin materials, and apatite
+            if (SIMPLE_DUNGEON.equals(key)) {
                 tableBuilder.pool(LootPool.lootPool()
                     .setRolls(ConstantValue.exactly(1))
+                    .add(LootItem.lootTableItem(LogisticsCore.ITEM.RAW_TIN)
+                        .setWeight(8)
+                        .apply(SetItemCountFunction.setCount(UniformGenerator.between(2, 8))))
                     .add(LootItem.lootTableItem(LogisticsCore.ITEM.TIN_NUGGET)
                         .setWeight(12)
                         .apply(SetItemCountFunction.setCount(UniformGenerator.between(5, 15))))
@@ -58,14 +61,38 @@ public class ChestLootModifier {
                         .setWeight(5)
                         .apply(SetItemCountFunction.setCount(UniformGenerator.between(1, 3))))
                     .add(LootItem.lootTableItem(LogisticsCore.ITEM.APATITE)
-                        .setWeight(12)
+                        .setWeight(15)
                         .apply(SetItemCountFunction.setCount(UniformGenerator.between(3, 10))))
-                    .add(LootItem.lootTableItem(LogisticsCore.ITEM.TIN_GEAR).setWeight(5))
+                    .add(LootItem.lootTableItem(LogisticsCore.ITEM.TIN_GEAR).setWeight(4))
                     .build());
             }
 
-            // Bronze nuggets, ingots, and gear in villages and strongholds (favor nuggets)
-            if (VILLAGE_TOOLSMITH.equals(key) || VILLAGE_ARMORER.equals(key) || STRONGHOLD_CORRIDOR.equals(key)) {
+            // Village toolsmith - tin and bronze materials, apatite, and gears
+            if (VILLAGE_TOOLSMITH.equals(key)) {
+                tableBuilder.pool(LootPool.lootPool()
+                    .setRolls(ConstantValue.exactly(1))
+                    .add(LootItem.lootTableItem(LogisticsCore.ITEM.TIN_NUGGET)
+                        .setWeight(10)
+                        .apply(SetItemCountFunction.setCount(UniformGenerator.between(5, 15))))
+                    .add(LootItem.lootTableItem(LogisticsCore.ITEM.TIN_INGOT)
+                        .setWeight(4)
+                        .apply(SetItemCountFunction.setCount(UniformGenerator.between(1, 3))))
+                    .add(LootItem.lootTableItem(LogisticsCore.ITEM.BRONZE_NUGGET)
+                        .setWeight(8)
+                        .apply(SetItemCountFunction.setCount(UniformGenerator.between(4, 12))))
+                    .add(LootItem.lootTableItem(LogisticsCore.ITEM.BRONZE_INGOT)
+                        .setWeight(3)
+                        .apply(SetItemCountFunction.setCount(UniformGenerator.between(1, 2))))
+                    .add(LootItem.lootTableItem(LogisticsCore.ITEM.APATITE)
+                        .setWeight(10)
+                        .apply(SetItemCountFunction.setCount(UniformGenerator.between(3, 10))))
+                    .add(LootItem.lootTableItem(LogisticsCore.ITEM.TIN_GEAR).setWeight(4))
+                    .add(LootItem.lootTableItem(LogisticsCore.ITEM.BRONZE_GEAR).setWeight(3))
+                    .build());
+            }
+
+            // Village armorer - bronze materials
+            if (VILLAGE_ARMORER.equals(key)) {
                 tableBuilder.pool(LootPool.lootPool()
                     .setRolls(ConstantValue.exactly(1))
                     .add(LootItem.lootTableItem(LogisticsCore.ITEM.BRONZE_NUGGET)
@@ -78,10 +105,17 @@ public class ChestLootModifier {
                     .build());
             }
 
-            // Sturdy casing in strongholds (advanced component, rare)
+            // Stronghold corridor - bronze materials and sturdy casing
             if (STRONGHOLD_CORRIDOR.equals(key)) {
                 tableBuilder.pool(LootPool.lootPool()
                     .setRolls(ConstantValue.exactly(1))
+                    .add(LootItem.lootTableItem(LogisticsCore.ITEM.BRONZE_NUGGET)
+                        .setWeight(10)
+                        .apply(SetItemCountFunction.setCount(UniformGenerator.between(4, 12))))
+                    .add(LootItem.lootTableItem(LogisticsCore.ITEM.BRONZE_INGOT)
+                        .setWeight(4)
+                        .apply(SetItemCountFunction.setCount(UniformGenerator.between(1, 2))))
+                    .add(LootItem.lootTableItem(LogisticsCore.ITEM.BRONZE_GEAR).setWeight(4))
                     .add(LootItem.lootTableItem(LogisticsCore.ITEM.STURDY_CASING)
                         .setWeight(3)
                         .apply(SetItemCountFunction.setCount(UniformGenerator.between(1, 2))))
