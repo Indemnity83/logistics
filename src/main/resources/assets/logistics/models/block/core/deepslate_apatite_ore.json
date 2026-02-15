@@ -1,6 +1,0 @@
-{
-  "parent": "minecraft:block/cube_all",
-  "textures": {
-    "all": "logistics:block/core/deepslate_apatite_ore"
-  }
-}

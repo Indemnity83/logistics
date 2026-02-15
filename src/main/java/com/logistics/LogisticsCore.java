@@ -76,18 +76,12 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
             ResourceKey.create(Registries.PLACED_FEATURE, LogisticsMod.getIdentifier("tin_ore_deepslate"))
         );
 
-        // Apatite ore worldgen: replaces some copper generation
-        // Stone: ~20% of copper's rate (3 veins/chunk)
-        // Deepslate: ~5% of copper's rate (1 vein/chunk)
+        // Apatite ore worldgen: large veins (up to 48 blocks) spawning above Y 60
+        // 2 veins per chunk, Y 60-256 (uniform distribution)
         BiomeModifications.addFeature(
             BiomeSelectors.foundInOverworld(),
             GenerationStep.Decoration.UNDERGROUND_ORES,
             ResourceKey.create(Registries.PLACED_FEATURE, LogisticsMod.getIdentifier("apatite_ore_stone"))
-        );
-        BiomeModifications.addFeature(
-            BiomeSelectors.foundInOverworld(),
-            GenerationStep.Decoration.UNDERGROUND_ORES,
-            ResourceKey.create(Registries.PLACED_FEATURE, LogisticsMod.getIdentifier("apatite_ore_deepslate"))
         );
     }
 
@@ -117,8 +111,6 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         // Apatite Ore and Storage Block
         public static final Block APATITE_ORE = INSTANCE.registerBlockWithItem("apatite_ore",
             props -> new DropExperienceBlock(UniformInt.of(0, 2), props.strength(3.0f, 3.0f).sound(SoundType.STONE).requiresCorrectToolForDrops()));
-        public static final Block DEEPSLATE_APATITE_ORE = INSTANCE.registerBlockWithItem("deepslate_apatite_ore",
-            props -> new DropExperienceBlock(UniformInt.of(0, 2), props.strength(4.5f, 3.0f).sound(SoundType.DEEPSLATE).requiresCorrectToolForDrops()));
         public static final Block APATITE_BLOCK = INSTANCE.registerBlockWithItem("apatite_block",
             props -> new Block(props.strength(5.0f, 6.0f).sound(SoundType.STONE).requiresCorrectToolForDrops()));
 
@@ -271,9 +263,8 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
             entries.addAfter(Items.DEEPSLATE_COAL_ORE, BLOCK.TIN_ORE);
             entries.addAfter(BLOCK.TIN_ORE, BLOCK.DEEPSLATE_TIN_ORE);
 
-            // Apatite ores
+            // Apatite ore
             entries.addBefore(Items.AMETHYST_BLOCK, BLOCK.APATITE_ORE);
-            entries.addAfter(BLOCK.APATITE_ORE, BLOCK.DEEPSLATE_APATITE_ORE);
 
             // Raw tin block
             entries.addBefore(Items.RAW_IRON_BLOCK, BLOCK.RAW_TIN_BLOCK);
