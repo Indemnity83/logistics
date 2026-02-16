@@ -1,6 +1,7 @@
 package com.logistics.pipe;
 
-import com.logistics.core.lib.pipe.PipeConnection;
+import com.logistics.core.lib.block.capability.PipeConnection;
+import com.logistics.core.lib.energy.EnergyComponent;
 import com.logistics.core.lib.storage.NbtCompat;
 import com.logistics.pipe.block.PipeBlock;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
@@ -61,12 +62,15 @@ public record PipeContext(Level world, BlockPos pos, BlockState state, PipeBlock
 
     // Convenience methods for energy access
     public long getEnergy() {
-        return blockEntity().energyStorage != null ? blockEntity().energyStorage.amount : 0;
+        EnergyComponent energy = blockEntity().getEnergy();
+        return energy != null ? energy.amount : 0;
     }
 
     public void setEnergy(long amount) {
-        if (blockEntity().energyStorage != null) {
-            blockEntity().energyStorage.amount = amount;
+        EnergyComponent energy = blockEntity().getEnergy();
+        if (energy != null) {
+            energy.amount = amount;
+            markDirtyAndSync();
         }
     }
 

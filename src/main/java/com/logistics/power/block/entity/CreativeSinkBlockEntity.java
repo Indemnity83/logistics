@@ -1,30 +1,38 @@
 package com.logistics.power.block.entity;
 
 import com.logistics.LogisticsPower;
-import com.logistics.core.lib.block.BaseBlockEntity;
+import com.logistics.core.lib.BaseBlockEntity;
+import com.logistics.core.lib.block.capability.HasEnergyStorage;
 import com.logistics.core.lib.power.AcceptsLowTierEnergy;
 import com.logistics.core.lib.storage.NbtCompat;
 import com.logistics.core.lib.support.ProbeResult;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.Nullable;
 import team.reborn.energy.api.EnergyStorage;
 
 /**
  * Block entity for the Creative Sink.
  * Accepts energy from all sides and discards it at a configurable rate.
  * Useful for testing engine output and PID tuning.
+ * <p>
+ * Note: Implements {@link HasEnergyStorage} with custom storage that discards energy
+ * rather than storing it. This demonstrates that the trait can be implemented with
+ * custom logic instead of using {@link com.logistics.core.lib.energy.EnergyComponent}.
  */
-public class CreativeSinkBlockEntity extends BaseBlockEntity implements AcceptsLowTierEnergy {
+public class CreativeSinkBlockEntity extends BaseBlockEntity
+        implements AcceptsLowTierEnergy, HasEnergyStorage {
     private static final long[] DRAIN_RATES = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 50, 100};
     private int drainRateIndex = 4; // Default 5 RF/t
     private long energyLastTick = 0;
     private long energyThisTick = 0;
 
-    public final EnergyStorage energyStorage = new EnergyStorage() {
+    private final EnergyStorage energyStorage = new EnergyStorage() {
         @Override
         public boolean supportsExtraction() {
             return false;
@@ -61,6 +69,16 @@ public class CreativeSinkBlockEntity extends BaseBlockEntity implements AcceptsL
     public CreativeSinkBlockEntity(BlockPos pos, BlockState state) {
         super(LogisticsPower.ENTITY.CREATIVE_SINK_BLOCK_ENTITY, pos, state);
     }
+
+    // ==================== HasEnergyStorage ====================
+
+    @Override
+    public EnergyStorage energyStorage(@Nullable Direction side) {
+        // Creative sink accepts energy from all sides
+        return energyStorage;
+    }
+
+    // ==================== Drain Rate & Stats ====================
 
     public static void tick(Level world, BlockPos pos, BlockState state, CreativeSinkBlockEntity entity) {
         // Reset energy counter each tick - energy is discarded

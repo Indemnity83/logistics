@@ -39,7 +39,6 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
         LOGGER.info("Registering {}", domain());
 
         registerLegacyAliases();
-        registerEnergyApi();
         addCreativeTabEntries();
 
         // Register pipe connectivity for quarry (only accepts connections from above)
@@ -64,12 +63,6 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
 
         public static final BlockEntityType<LaserQuarryBlockEntity> LASER_QUARRY_BLOCK_ENTITY =
             INSTANCE.registerBlockEntity("laser_quarry", LaserQuarryBlockEntity::new, BLOCK.LASER_QUARRY);
-    }
-
-    private static void registerEnergyApi() {
-        EnergyStorage.SIDED.registerForBlockEntity(
-            (quarry, direction) -> quarry.energyStorage,
-            ENTITY.LASER_QUARRY_BLOCK_ENTITY);
     }
 
     private static void addCreativeTabEntries() {

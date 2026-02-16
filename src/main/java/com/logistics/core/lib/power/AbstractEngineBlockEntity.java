@@ -1,6 +1,7 @@
 package com.logistics.core.lib.power;
 
-import com.logistics.core.lib.block.BaseBlockEntity;
+import com.logistics.core.lib.BaseBlockEntity;
+import com.logistics.core.lib.block.capability.HasEnergyStorage;
 import com.logistics.core.lib.storage.NbtCompat;
 import com.logistics.core.lib.support.ProbeResult;
 import java.util.Locale;
@@ -38,8 +39,11 @@ import team.reborn.energy.api.base.SimpleSidedEnergyContainer;
  *   <li>Expansion stroke (0-0.5): energy accumulates in buffer</li>
  *   <li>Compression stroke (0.5-1): energy is pushed to output</li>
  * </ul>
+ *
+ * <p>Note: Implements {@link HasEnergyStorage} with custom sided storage.
+ * Uses {@link SimpleSidedEnergyContainer} for direction-based output control.
  */
-public abstract class AbstractEngineBlockEntity extends BaseBlockEntity {
+public abstract class AbstractEngineBlockEntity extends BaseBlockEntity implements HasEnergyStorage {
 
     // ==================== Heat Stage Enum ====================
 
@@ -114,6 +118,17 @@ public abstract class AbstractEngineBlockEntity extends BaseBlockEntity {
 
     protected AbstractEngineBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
+    }
+
+    // ==================== HasEnergyStorage ====================
+
+    @Override
+    public EnergyStorage energyStorage(@Nullable Direction side) {
+        // Engines only expose energy storage on their output face
+        if (side != null && !isOutputDirection(side)) {
+            return null;
+        }
+        return energyStorage.getSideStorage(side);
     }
 
     // ==================== Subclass Configuration ====================

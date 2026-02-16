@@ -1,7 +1,7 @@
 package com.logistics.core.marker;
 
 import com.logistics.LogisticsCore;
-import com.logistics.core.lib.block.BaseBlockEntity;
+import com.logistics.core.lib.BaseBlockEntity;
 import com.logistics.core.lib.storage.NbtCompat;
 import java.util.ArrayList;
 import java.util.List;
