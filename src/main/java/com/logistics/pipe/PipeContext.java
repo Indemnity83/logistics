@@ -67,8 +67,10 @@ public record PipeContext(Level world, BlockPos pos, BlockState state, PipeBlock
     }
 
     public void setEnergy(long amount) {
-        if (blockEntity().getEnergy() != null) {
-            blockEntity().getEnergy().amount = amount;
+        EnergyComponent energy = blockEntity().getEnergy();
+        if (energy != null) {
+            energy.amount = amount;
+            markDirtyAndSync();
         }
     }
 

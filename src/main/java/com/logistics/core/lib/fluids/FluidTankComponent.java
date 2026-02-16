@@ -42,7 +42,7 @@ public abstract class FluidTankComponent extends SingleVariantStorage<FluidVaria
 
     public void readNbt(CompoundTag nbt, String key) {
         CompoundTag data = NbtCompat.getCompoundOrEmpty(nbt, key);
-        if (data.isEmpty()) return;
+        if (data.isEmpty() || !data.contains("fluid")) return;
 
         String id = NbtCompat.getString(data, "fluid", "");
         Fluid fluid = id.isEmpty() ? Fluids.EMPTY : BuiltInRegistries.FLUID.getValue(Identifier.parse(id));
@@ -62,8 +62,10 @@ public abstract class FluidTankComponent extends SingleVariantStorage<FluidVaria
                 DataComponentPatch.CODEC.encodeStart(NbtOps.INSTANCE, variant.getComponents())
                         .result().ifPresent(tag -> data.put("components", tag));
             }
+            data.putLong("amount", amount);
         }
-        data.putLong("amount", amount);
-        nbt.put(key, data);
+        if (!data.isEmpty()) {
+            nbt.put(key, data);
+        }
     }
 }

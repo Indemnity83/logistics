@@ -13,6 +13,9 @@ import com.logistics.LogisticsPower;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
+import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
+import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
+import java.util.Iterator;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -132,8 +135,29 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
 
     @Override
     public Storage<ItemVariant> itemStorage(@Nullable Direction side) {
-        // Fuel can be inserted from any side
-        return inventory.storage();
+        Storage<ItemVariant> baseStorage = inventory.storage();
+
+        // Wrap storage to validate fuel items (matches GUI validation behavior)
+        return new Storage<ItemVariant>() {
+            @Override
+            public long insert(ItemVariant resource, long maxAmount, TransactionContext transaction) {
+                // Reject non-fuel items (same validation as isValid() for GUI)
+                if (level == null || !level.fuelValues().isFuel(resource.toStack())) {
+                    return 0;
+                }
+                return baseStorage.insert(resource, maxAmount, transaction);
+            }
+
+            @Override
+            public long extract(ItemVariant resource, long maxAmount, TransactionContext transaction) {
+                return baseStorage.extract(resource, maxAmount, transaction);
+            }
+
+            @Override
+            public Iterator<StorageView<ItemVariant>> iterator() {
+                return baseStorage.iterator();
+            }
+        };
     }
 
     // ==================== Ticker ====================

@@ -52,7 +52,7 @@ public final class BlockEntityUtil {
                 ItemStack sampleStack = variant.toStack(1);
                 int maxStackSize = sampleStack.getMaxStackSize();
 
-                long remaining = amount;
+                long remaining = view.extract(variant, amount, tx);
                 while (remaining > 0) {
                     int stackSize = (int) Math.min(remaining, maxStackSize);
                     drops.add(variant.toStack(stackSize));
