@@ -1,5 +1,6 @@
 package com.logistics.power.engine.block;
 
+import com.logistics.core.lib.block.BlockHelpers;
 import com.logistics.core.lib.power.AbstractEngineBlock;
 import com.logistics.power.engine.block.entity.StirlingEngineBlockEntity;
 import com.logistics.LogisticsPower;
@@ -20,6 +21,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.Property;
+import net.minecraft.world.level.storage.loot.LootParams;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.Nullable;
 
@@ -114,5 +117,17 @@ public class StirlingEngineBlock extends AbstractEngineBlock<StirlingEngineBlock
             }
         }
         return InteractionResult.SUCCESS;
+    }
+
+    @Override
+    protected List<ItemStack> getDrops(BlockState blockState, LootParams.Builder builder) {
+        List<ItemStack> drops = super.getDrops(blockState, builder);
+
+        BlockEntity blockEntity = builder.getOptionalParameter(LootContextParams.BLOCK_ENTITY);
+        if (blockEntity != null) {
+            drops.addAll(BlockHelpers.getInventoryDrops(blockEntity));
+        }
+
+        return drops;
     }
 }
