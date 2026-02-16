@@ -1,11 +1,16 @@
 package com.logistics.core.lib.block;
 
 import com.logistics.core.lib.entity.HasItemStorage;
+import com.logistics.core.lib.entity.HasMenu;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
 import java.util.ArrayList;
@@ -55,5 +60,31 @@ public final class BlockHelpers {
         }
 
         return drops;
+    }
+
+    /**
+     * Try to open a menu/GUI for the block entity at the given position.
+     * Only works if the block entity implements HasMenu.
+     *
+     * <p>This is intended for use in Block.useWithoutItem() or Block.useItemOn()
+     * to conditionally open GUIs only for blocks that support them.
+     *
+     * @param level The world
+     * @param pos The block position
+     * @param player The player trying to open the menu
+     * @return SUCCESS if menu was opened, PASS if no menu available
+     */
+    public static InteractionResult tryOpenMenu(Level level, BlockPos pos, Player player) {
+        if (level.isClientSide()) {
+            return InteractionResult.SUCCESS;
+        }
+
+        BlockEntity blockEntity = level.getBlockEntity(pos);
+        if (blockEntity instanceof HasMenu hasMenu) {
+            player.openMenu(hasMenu.createMenuProvider());
+            return InteractionResult.CONSUME;
+        }
+
+        return InteractionResult.PASS;
     }
 }

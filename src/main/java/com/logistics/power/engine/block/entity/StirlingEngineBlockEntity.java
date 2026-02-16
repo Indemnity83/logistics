@@ -1,6 +1,7 @@
 package com.logistics.power.engine.block.entity;
 
 import com.logistics.core.lib.entity.HasItemStorage;
+import com.logistics.core.lib.entity.HasMenu;
 import com.logistics.core.lib.items.ItemInventoryComponent;
 import com.logistics.core.lib.power.AbstractEngineBlockEntity;
 import com.logistics.core.lib.storage.NbtCompat;
@@ -51,7 +52,7 @@ import org.jetbrains.annotations.Nullable;
  * When buffer fills up, temperature rises and generation decreases.
  */
 public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
-        implements ExtendedScreenHandlerFactory<BlockPos>, ContainerSingleItem.BlockContainerSingleItem, HasItemStorage {
+        implements ExtendedScreenHandlerFactory<BlockPos>, ContainerSingleItem.BlockContainerSingleItem, HasItemStorage, HasMenu {
 
     // ==================== Constants ====================
 
@@ -345,6 +346,11 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
     @Nullable @Override
     public AbstractContainerMenu createMenu(int syncId, Inventory playerInventory, Player player) {
         return new StirlingEngineScreenHandler(syncId, playerInventory, this, propertyDelegate);
+    }
+
+    @Override
+    public net.minecraft.world.MenuProvider createMenuProvider() {
+        return this; // StirlingEngineBlockEntity already implements MenuProvider via ExtendedScreenHandlerFactory
     }
 
     // ==================== NBT Serialization ====================

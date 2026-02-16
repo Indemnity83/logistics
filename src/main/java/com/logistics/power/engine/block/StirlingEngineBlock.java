@@ -100,23 +100,12 @@ public class StirlingEngineBlock extends AbstractEngineBlock<StirlingEngineBlock
             Player player,
             InteractionHand hand,
             BlockHitResult hit) {
-        return openGui(world, pos, player);
+        return BlockHelpers.tryOpenMenu(world, pos, player);
     }
 
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level world, BlockPos pos, Player player, BlockHitResult hit) {
-        // Empty hand: open GUI
-        return openGui(world, pos, player);
-    }
-
-    private InteractionResult openGui(Level world, BlockPos pos, Player player) {
-        if (!world.isClientSide()) {
-            BlockEntity entity = world.getBlockEntity(pos);
-            if (entity instanceof StirlingEngineBlockEntity stirlingEngine) {
-                player.openMenu(stirlingEngine);
-            }
-        }
-        return InteractionResult.SUCCESS;
+        return BlockHelpers.tryOpenMenu(world, pos, player);
     }
 
     @Override
