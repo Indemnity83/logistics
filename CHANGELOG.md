@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.1](https://github.com/Indemnity83/logistics/compare/mc1.21.1-v0.3.0...mc1.21.1-v0.3.1) (2026-02-16)
+
+
+### Features
+
+* add tin, bronze, and apatite materials with worldgen and progression ([#100](https://github.com/Indemnity83/logistics/issues/100)) ([e4a1fde](https://github.com/Indemnity83/logistics/commit/e4a1fde00cc90bc7a8f7d689eb22545b1f37739b))
+
 ## [0.3.0](https://github.com/Indemnity83/logistics/compare/v0.2.5...v0.3.0) (2026-02-02)
 
 
