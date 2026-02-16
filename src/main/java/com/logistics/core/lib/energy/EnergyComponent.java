@@ -23,7 +23,7 @@ public final class EnergyComponent extends SimpleEnergyStorage {
     }
 
     public void readNbt(CompoundTag nbt, String key) {
-        this.amount = NbtCompat.getLong(nbt, key, 0L);
+        this.amount = Math.min(NbtCompat.getLong(nbt, key, 0L), this.capacity);
     }
 
     public void writeNbt(CompoundTag nbt, String key) {

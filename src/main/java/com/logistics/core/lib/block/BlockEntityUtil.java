@@ -38,6 +38,7 @@ public final class BlockEntityUtil {
         }
 
         Storage<ItemVariant> storage = hasItems.itemStorage(null);
+        if (storage == null) return drops;
 
         try (Transaction tx = Transaction.openOuter()) {
             for (StorageView<ItemVariant> view : storage) {
@@ -45,12 +46,20 @@ public final class BlockEntityUtil {
 
                 ItemVariant variant = view.getResource();
                 long amount = view.getAmount();
+                if (amount <= 0) continue;
 
-                if (amount > 0) {
-                    ItemStack stack = variant.toStack((int) amount);
-                    drops.add(stack);
-                    view.extract(variant, amount, tx);
+                // Split large amounts into multiple stacks respecting max stack size
+                ItemStack sampleStack = variant.toStack(1);
+                int maxStackSize = sampleStack.getMaxStackSize();
+
+                long remaining = amount;
+                while (remaining > 0) {
+                    int stackSize = (int) Math.min(remaining, maxStackSize);
+                    drops.add(variant.toStack(stackSize));
+                    remaining -= stackSize;
                 }
+
+                view.extract(variant, amount, tx);
             }
             tx.commit();
         }

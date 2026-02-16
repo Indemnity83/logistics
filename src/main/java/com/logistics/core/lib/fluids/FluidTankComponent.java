@@ -1,8 +1,15 @@
 package com.logistics.core.lib.fluids;
 
+import com.logistics.core.lib.storage.NbtCompat;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.base.SingleVariantStorage;
+import net.minecraft.core.component.DataComponentPatch;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.Fluids;
 
 /**
  * Minimal fluid tank component using the Transfer API's {@link SingleVariantStorage}.
@@ -34,14 +41,29 @@ public abstract class FluidTankComponent extends SingleVariantStorage<FluidVaria
     }
 
     public void readNbt(CompoundTag nbt, String key) {
-        if (nbt.contains(key)) {
-            readNbt(nbt.getCompound(key).orElseGet(CompoundTag::new), null);
-        }
+        CompoundTag data = NbtCompat.getCompoundOrEmpty(nbt, key);
+        if (data.isEmpty()) return;
+
+        String id = NbtCompat.getString(data, "fluid", "");
+        Fluid fluid = id.isEmpty() ? Fluids.EMPTY : BuiltInRegistries.FLUID.getValue(Identifier.parse(id));
+        CompoundTag compTag = NbtCompat.getCompoundOrEmpty(data, "components");
+        DataComponentPatch comp = compTag.isEmpty() ? DataComponentPatch.EMPTY :
+                DataComponentPatch.CODEC.parse(NbtOps.INSTANCE, compTag).result().orElse(DataComponentPatch.EMPTY);
+
+        variant = FluidVariant.of(fluid, comp);
+        amount = NbtCompat.getLong(data, "amount", 0L);
     }
 
     public void writeNbt(CompoundTag nbt, String key) {
-        CompoundTag fluidTag = new CompoundTag();
-        writeNbt(fluidTag, null);
-        nbt.put(key, fluidTag);
+        CompoundTag data = new CompoundTag();
+        if (variant.getFluid() != Fluids.EMPTY) {
+            data.putString("fluid", BuiltInRegistries.FLUID.getKey(variant.getFluid()).toString());
+            if (!variant.getComponents().isEmpty()) {
+                DataComponentPatch.CODEC.encodeStart(NbtOps.INSTANCE, variant.getComponents())
+                        .result().ifPresent(tag -> data.put("components", tag));
+            }
+        }
+        data.putLong("amount", amount);
+        nbt.put(key, data);
     }
 }

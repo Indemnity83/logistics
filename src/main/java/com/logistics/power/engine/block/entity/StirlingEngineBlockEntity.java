@@ -238,7 +238,7 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
         burnTime = fuelTime;
 
         if (fuel.is(Items.LAVA_BUCKET)) {
-            inventory.setItem(0,new ItemStack(Items.BUCKET));
+            inventory.setItem(0, new ItemStack(Items.BUCKET));
         } else {
             fuel.shrink(1);
         }
@@ -388,10 +388,10 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
             inventory.readNbt(nbt, "Inventory");
         } else if (nbt.contains("FuelStack")) {
             // Legacy: single item stored with CODEC
-            inventory.setItem(0,ItemStack.EMPTY);
+            inventory.setItem(0, ItemStack.EMPTY);
             ItemStack.CODEC.parse(net.minecraft.nbt.NbtOps.INSTANCE, nbt.get("FuelStack"))
                     .result()
-                    .ifPresent(stack -> inventory.setItem(0,stack));
+                    .ifPresent(stack -> inventory.setItem(0, stack));
         }
     }
 
@@ -410,7 +410,7 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
         });
 
         // Load fuel from old "Fuel" tag at root level
-        inventory.setItem(0,ItemStack.EMPTY);
-        view.read("Fuel", ItemStack.CODEC).ifPresent(stack -> inventory.setItem(0,stack));
+        inventory.setItem(0, ItemStack.EMPTY);
+        view.read("Fuel", ItemStack.CODEC).ifPresent(stack -> inventory.setItem(0, stack));
     }
 }

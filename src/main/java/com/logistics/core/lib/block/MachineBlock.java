@@ -8,12 +8,14 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
+import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.BlockHitResult;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -35,8 +37,13 @@ public abstract class MachineBlock extends BaseEntityBlock {
     }
 
     @Override
+    protected RenderShape getRenderShape(BlockState blockState) {
+        return RenderShape.MODEL;
+    }
+
+    @Override
     protected List<ItemStack> getDrops(BlockState blockState, LootParams.Builder builder) {
-        List<ItemStack> drops = super.getDrops(blockState, builder);
+        List<ItemStack> drops = new ArrayList<>(super.getDrops(blockState, builder));
 
         // Drop inventory contents if the machine has storage
         BlockEntity blockEntity = builder.getOptionalParameter(LootContextParams.BLOCK_ENTITY);

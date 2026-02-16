@@ -6,6 +6,8 @@ import com.logistics.core.lib.power.AbstractEngineBlock;
 import com.logistics.power.engine.block.entity.StirlingEngineBlockEntity;
 import com.logistics.LogisticsPower;
 import com.mojang.serialization.MapCodec;
+
+import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
@@ -112,7 +114,7 @@ public class StirlingEngineBlock extends AbstractEngineBlock<StirlingEngineBlock
 
     @Override
     protected List<ItemStack> getDrops(BlockState blockState, LootParams.Builder builder) {
-        List<ItemStack> drops = super.getDrops(blockState, builder);
+        List<ItemStack> drops = new ArrayList<>(super.getDrops(blockState, builder));
 
         BlockEntity blockEntity = builder.getOptionalParameter(LootContextParams.BLOCK_ENTITY);
         if (blockEntity != null) {

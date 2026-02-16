@@ -128,8 +128,8 @@ public final class ItemInventoryComponent implements Container {
 
     @Override
     public ItemStack removeItemNoUpdate(int slot) {
-        ItemStack result = getItem(slot);
-        setItem(slot, ItemStack.EMPTY);
+        ItemStack result = stacks.get(slot);
+        stacks.set(slot, ItemStack.EMPTY);
         return result;
     }
 
@@ -151,7 +151,7 @@ public final class ItemInventoryComponent implements Container {
 
     @Override
     public void clearContent() {
-        stacks.clear();
+        Collections.fill(stacks, ItemStack.EMPTY);
         onChanged.run();
     }
 }
