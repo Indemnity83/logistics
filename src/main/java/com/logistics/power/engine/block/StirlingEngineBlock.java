@@ -1,32 +1,25 @@
 package com.logistics.power.engine.block;
 
-import com.logistics.core.lib.block.behavior.MenuBehavior;
-import com.logistics.core.lib.block.BlockEntityUtil;
 import com.logistics.core.lib.power.AbstractEngineBlock;
 import com.logistics.power.engine.block.entity.StirlingEngineBlockEntity;
 import com.logistics.LogisticsPower;
 import com.mojang.serialization.MapCodec;
 
-import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockBehaviour.Properties;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.Property;
-import net.minecraft.world.level.storage.loot.LootParams;
-import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
-import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -93,34 +86,5 @@ public class StirlingEngineBlock extends AbstractEngineBlock<StirlingEngineBlock
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
             Level world, BlockState state, BlockEntityType<T> type) {
         return createTickerHelper(type, LogisticsPower.ENTITY.STIRLING_ENGINE_BLOCK_ENTITY, StirlingEngineBlockEntity::tick);
-    }
-
-    @Override
-    protected InteractionResult useItemOn(
-            ItemStack stack,
-            BlockState state,
-            Level world,
-            BlockPos pos,
-            Player player,
-            InteractionHand hand,
-            BlockHitResult hit) {
-        return MenuBehavior.tryOpenMenu(world, pos, player);
-    }
-
-    @Override
-    protected InteractionResult useWithoutItem(BlockState state, Level world, BlockPos pos, Player player, BlockHitResult hit) {
-        return MenuBehavior.tryOpenMenu(world, pos, player);
-    }
-
-    @Override
-    protected List<ItemStack> getDrops(BlockState blockState, LootParams.Builder builder) {
-        List<ItemStack> drops = new ArrayList<>(super.getDrops(blockState, builder));
-
-        BlockEntity blockEntity = builder.getOptionalParameter(LootContextParams.BLOCK_ENTITY);
-        if (blockEntity != null) {
-            drops.addAll(BlockEntityUtil.getInventoryDrops(blockEntity));
-        }
-
-        return drops;
     }
 }

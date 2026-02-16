@@ -2,6 +2,7 @@ package com.logistics.core.lib.power;
 
 import static com.logistics.core.lib.power.AbstractEngineBlockEntity.STAGE;
 
+import com.logistics.core.lib.block.MachineBlock;
 import com.logistics.core.lib.block.behavior.ProbeBehavior;
 import com.logistics.core.lib.block.behavior.WrenchBehavior;
 import com.logistics.core.lib.power.AbstractEngineBlockEntity.HeatStage;
@@ -14,13 +15,9 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockBehaviour.Properties;
 import net.minecraft.world.level.block.Mirror;
-import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.Rotation;
-import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
@@ -38,7 +35,7 @@ import team.reborn.energy.api.EnergyStorage;
  *
  * @param <E> The type of engine block entity this block creates
  */
-public abstract class AbstractEngineBlock<E extends AbstractEngineBlockEntity> extends BaseEntityBlock
+public abstract class AbstractEngineBlock<E extends AbstractEngineBlockEntity> extends MachineBlock
         implements ProbeBehavior.Probeable, WrenchBehavior.Wrenchable {
     public static final EnumProperty<Direction> FACING = BlockStateProperties.FACING;
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
@@ -83,11 +80,6 @@ public abstract class AbstractEngineBlock<E extends AbstractEngineBlockEntity> e
         for (Property<?> property : getAdditionalProperties()) {
             builder.add(property);
         }
-    }
-
-    @Override
-    protected RenderShape getRenderShape(BlockState state) {
-        return RenderShape.MODEL;
     }
 
     @Nullable @Override
