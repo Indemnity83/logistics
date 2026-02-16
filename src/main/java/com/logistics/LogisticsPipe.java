@@ -2,7 +2,6 @@ package com.logistics;
 
 import com.logistics.api.LogisticsApi;
 import com.logistics.core.bootstrap.DomainBootstrap;
-import com.logistics.core.lib.pipe.PipeConnectionRegistry;
 import com.logistics.pipe.Pipe;
 import com.logistics.pipe.PipeApi;
 import com.logistics.pipe.PipeTypes;
@@ -12,7 +11,6 @@ import com.logistics.pipe.data.PipeDataComponents.WeatheringState;
 import com.logistics.pipe.item.ModularPipeBlockItem;
 import com.logistics.pipe.ui.ItemFilterScreenHandler;
 import net.minecraft.core.component.DataComponentType;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
@@ -26,7 +24,6 @@ import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.material.MapColor;
 import org.jetbrains.annotations.Nullable;
-import team.reborn.energy.api.EnergyStorage;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -61,19 +58,6 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
         addCreativeTabEntries();
 
         LogisticsApi.Registry.transport(new PipeApi());
-
-        ItemStorage.SIDED.registerForBlockEntity(
-                (blockEntity, direction) -> blockEntity.getItemStorage(direction),
-                LogisticsPipe.ENTITY.PIPE_BLOCK_ENTITY);
-
-        // Only register energy storage for pipes that have energy capability
-        EnergyStorage.SIDED.registerForBlockEntity(
-                (blockEntity, direction) -> blockEntity.energyStorage, // Returns null if pipe doesn't have energy
-                LogisticsPipe.ENTITY.PIPE_BLOCK_ENTITY);
-
-        // Register pipe-to-pipe connections (pipes accept connections from all sides)
-        PipeConnectionRegistry.SIDED.registerForBlockEntity(
-                (pipeEntity, direction) -> pipeEntity, LogisticsPipe.ENTITY.PIPE_BLOCK_ENTITY);
     }
 
     private static void addCreativeTabEntries() {

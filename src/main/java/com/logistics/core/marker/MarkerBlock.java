@@ -1,6 +1,6 @@
 package com.logistics.core.marker;
 
-import com.logistics.core.lib.block.Wrenchable;
+import com.logistics.core.lib.block.behavior.WrenchBehavior;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RenderShape;
@@ -29,7 +29,7 @@ import org.jetbrains.annotations.Nullable;
  * Place 3 markers in an L-shape on the ground and activate with a wrench
  * to create a bounding box that a quarry can use.
  */
-public class MarkerBlock extends Block implements EntityBlock, Wrenchable {
+public class MarkerBlock extends Block implements EntityBlock, WrenchBehavior.Wrenchable {
     public static final MapCodec<MarkerBlock> CODEC = simpleCodec(MarkerBlock::new);
     public static final BooleanProperty ACTIVE = BooleanProperty.create("active");
     // Blue particle color for active markers (0x0132FD - bright blue)

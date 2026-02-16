@@ -1,7 +1,7 @@
 package com.logistics.pipe.runtime;
 
 import com.logistics.LogisticsPipe;
-import com.logistics.core.lib.pipe.PipeConnection;
+import com.logistics.core.lib.block.capability.PipeConnection;
 import com.logistics.pipe.Pipe;
 import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.block.PipeBlock;

@@ -1,5 +1,8 @@
 package com.logistics.power.engine.block.entity;
 
+import com.logistics.core.lib.block.behavior.MenuBehavior;
+import com.logistics.core.lib.block.capability.HasItemStorage;
+import com.logistics.core.lib.items.ItemInventoryComponent;
 import com.logistics.core.lib.power.AbstractEngineBlockEntity;
 import com.logistics.core.lib.storage.NbtCompat;
 import com.logistics.core.lib.support.ProbeResult;
@@ -9,10 +12,14 @@ import com.logistics.power.engine.ui.StirlingEngineScreenHandler;
 import com.logistics.LogisticsPower;
 import net.fabricmc.fabric.api.registry.FuelRegistry;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
+import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
+import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
+import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
+import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
+import java.util.Iterator;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -49,7 +56,7 @@ import org.jetbrains.annotations.Nullable;
  * When buffer fills up, temperature rises and generation decreases.
  */
 public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
-        implements ExtendedScreenHandlerFactory<BlockPos>, ContainerSingleItem.BlockContainerSingleItem {
+        implements ExtendedScreenHandlerFactory<BlockPos>, ContainerSingleItem.BlockContainerSingleItem, HasItemStorage, MenuBehavior.HasMenu {
 
     // ==================== Constants ====================
 
@@ -85,8 +92,7 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
     private double generationCarry = 0.0;
 
     // Inventory (single fuel slot)
-    // TODO: This doesn't need to be a list... it is always a single ItemStack
-    private final NonNullList<ItemStack> inventory = NonNullList.withSize(1, ItemStack.EMPTY);
+    private final ItemInventoryComponent inventory = new ItemInventoryComponent(1, this::setChanged);
 
     // Property delegate for syncing data to GUI
     private final ContainerData propertyDelegate = new ContainerData() {
@@ -125,6 +131,37 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
     public StirlingEngineBlockEntity(BlockPos pos, BlockState state) {
         super(LogisticsPower.ENTITY.STIRLING_ENGINE_BLOCK_ENTITY, pos, state);
     }
+
+    // ==================== HasItemStorage ====================
+
+    @Override
+    public Storage<ItemVariant> itemStorage(@Nullable Direction side) {
+        Storage<ItemVariant> baseStorage = inventory.storage();
+
+        // Wrap storage to validate fuel items (matches GUI validation behavior)
+        return new Storage<ItemVariant>() {
+            @Override
+            public long insert(ItemVariant resource, long maxAmount, TransactionContext transaction) {
+                // Reject non-fuel items (same validation as isValid() for GUI)
+                if (level == null || FuelRegistry.INSTANCE.get(resource.getItem()) != null) {
+                    return 0;
+                }
+                return baseStorage.insert(resource, maxAmount, transaction);
+            }
+
+            @Override
+            public long extract(ItemVariant resource, long maxAmount, TransactionContext transaction) {
+                return baseStorage.extract(resource, maxAmount, transaction);
+            }
+
+            @Override
+            public Iterator<StorageView<ItemVariant>> iterator() {
+                return baseStorage.iterator();
+            }
+        };
+    }
+
+    // ==================== Ticker ====================
 
     public static void tick(Level world, BlockPos pos, BlockState state, StirlingEngineBlockEntity entity) {
         entity.tickEngine(world, pos, state);
@@ -216,7 +253,7 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
             return false;
         }
 
-        ItemStack fuel = inventory.getFirst();
+        ItemStack fuel = inventory.getItem(0);
         Integer burnTicks = FuelRegistry.INSTANCE.get(fuel.getItem());
         if (burnTicks == null || burnTicks <= 0) {
             return false;
@@ -226,7 +263,7 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
         burnTime = fuelTime;
 
         if (fuel.is(Items.LAVA_BUCKET)) {
-            inventory.set(0, new ItemStack(Items.BUCKET));
+            inventory.setItem(0, new ItemStack(Items.BUCKET));
         } else {
             fuel.shrink(1);
         }
@@ -295,12 +332,12 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
     // ==================== SingleStackInventory Implementation ====================
 
     public ItemStack getTheItem() {
-        return inventory.getFirst();
+        return inventory.getItem(0);
     }
 
     public void setTheItem(ItemStack stack) {
-        inventory.set(0, stack);
-        setChanged();
+        inventory.setItem(0, stack);
+        // Note: setChanged() already called by inventory component
     }
 
     @Override
@@ -317,7 +354,7 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
 
     @Override
     public boolean isEmpty() {
-        return inventory.getFirst().isEmpty();
+        return inventory.getItem(0).isEmpty();
     }
 
     // ==================== ExtendedScreenHandlerFactory Implementation ====================
@@ -337,6 +374,11 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
         return new StirlingEngineScreenHandler(syncId, playerInventory, this, propertyDelegate);
     }
 
+    @Override
+    public net.minecraft.world.MenuProvider createMenuProvider() {
+        return this; // StirlingEngineBlockEntity already implements MenuProvider via ExtendedScreenHandlerFactory
+    }
+
     // ==================== NBT Serialization ====================
 
     @Override
@@ -350,13 +392,8 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
         nbt.putDouble("GenerationCarryover", generationCarry);
         nbt.putDouble("PIDIntegral", pidController.getIntegral());
 
-        // Save fuel inventory using CODEC
-        ItemStack fuelStack = inventory.getFirst();
-        if (!fuelStack.isEmpty()) {
-            ItemStack.CODEC.encodeStart(net.minecraft.nbt.NbtOps.INSTANCE, fuelStack)
-                    .result()
-                    .ifPresent(tag -> nbt.put("FuelStack", tag));
-        }
+        // Save fuel inventory
+        inventory.writeNbt(nbt, "Inventory");
     }
 
     @Override
@@ -371,12 +408,15 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
         double pidIntegral = NbtCompat.getDouble(nbt, "PIDIntegral", 0.0);
         pidController.setIntegral(pidIntegral);
 
-        // Load fuel inventory using CODEC
-        inventory.set(0, ItemStack.EMPTY);
-        if (nbt.contains("FuelStack")) {
+        // Load fuel inventory (try new key first, fall back to legacy)
+        if (nbt.contains("Inventory")) {
+            inventory.readNbt(nbt, "Inventory");
+        } else if (nbt.contains("FuelStack")) {
+            // Legacy: single item stored with CODEC
+            inventory.setItem(0, ItemStack.EMPTY);
             ItemStack.CODEC.parse(net.minecraft.nbt.NbtOps.INSTANCE, nbt.get("FuelStack"))
                     .result()
-                    .ifPresent(stack -> inventory.set(0, stack));
+                    .ifPresent(stack -> inventory.setItem(0, stack));
         }
     }
 
@@ -396,11 +436,11 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
         }
 
         // Load fuel from old "Fuel" tag at root level
-        inventory.set(0, ItemStack.EMPTY);
+        inventory.setItem(0, ItemStack.EMPTY);
         if (nbt.contains("Fuel")) {
             ItemStack.CODEC.parse(net.minecraft.nbt.NbtOps.INSTANCE, nbt.get("Fuel"))
                     .result()
-                    .ifPresent(stack -> inventory.set(0, stack));
+                    .ifPresent(stack -> inventory.setItem(0, stack));
         }
     }
 }

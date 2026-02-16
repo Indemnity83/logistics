@@ -3,6 +3,10 @@ package com.logistics;
 import com.logistics.core.bootstrap.DomainBootstrap;
 import com.logistics.core.item.ProbeItem;
 import com.logistics.core.item.WrenchItem;
+import com.logistics.core.lib.block.lookup.EnergyStorageAccess;
+import com.logistics.core.lib.block.lookup.FluidStorageAccess;
+import com.logistics.core.lib.block.lookup.ItemStorageAccess;
+import com.logistics.core.lib.block.lookup.PipeConnectionAccess;
 import com.logistics.core.loot.ChestLootModifier;
 import com.logistics.core.marker.MarkerBlock;
 import com.logistics.core.marker.MarkerBlockEntity;
@@ -51,11 +55,19 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
     public void initCommon() {
         LOGGER.info("Registering {}", domain());
 
+        registerStorageAccess();
         registerLegacyAliases();
         addCreativeTabEntries();
         addVanillaCreativeTabEntries();
         registerWorldgen();
         ChestLootModifier.register();
+    }
+
+    private void registerStorageAccess() {
+        ItemStorageAccess.register();
+        FluidStorageAccess.register();
+        EnergyStorageAccess.register();
+        PipeConnectionAccess.register();
     }
 
     private void registerWorldgen() {

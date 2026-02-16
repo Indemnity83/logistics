@@ -1,6 +1,6 @@
 package com.logistics.core.item;
 
-import com.logistics.core.lib.block.Wrenchable;
+import com.logistics.core.lib.block.behavior.WrenchBehavior;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.InteractionResult;
@@ -21,15 +21,10 @@ public class WrenchItem extends Item {
             return InteractionResult.PASS;
         }
 
-        var world = context.getLevel();
-        var pos = context.getClickedPos();
-        var player = context.getPlayer();
-        var block = world.getBlockState(pos).getBlock();
-
-        if (block instanceof Wrenchable wrenchable) {
-            return wrenchable.onWrench(world, pos, player);
-        }
-
-        return InteractionResult.PASS;
+        return WrenchBehavior.tryWrench(
+            context.getLevel(),
+            context.getClickedPos(),
+            context.getPlayer()
+        );
     }
 }
