@@ -68,7 +68,7 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
 
         // Only register energy storage for pipes that have energy capability
         EnergyStorage.SIDED.registerForBlockEntity(
-                (blockEntity, direction) -> blockEntity.energyStorage, // Returns null if pipe doesn't have energy
+                (blockEntity, direction) -> blockEntity.getEnergy(), // Returns null if pipe doesn't have energy
                 LogisticsPipe.ENTITY.PIPE_BLOCK_ENTITY);
 
         // Register pipe-to-pipe connections (pipes accept connections from all sides)

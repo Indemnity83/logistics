@@ -1,14 +1,18 @@
 package com.logistics.core.lib.items;
 
+import com.logistics.core.lib.storage.NbtCompat;
 import net.fabricmc.fabric.api.transfer.v1.item.InventoryStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.world.Container;
-import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+
+import java.util.Collections;
 
 /**
  * Minimal item inventory component that implements vanilla {@link Container}
@@ -35,13 +39,52 @@ public final class ItemInventoryComponent implements Container {
     }
 
     public void readNbt(CompoundTag nbt, String key) {
-        if (nbt.contains(key)) {
-            ContainerHelper.loadAllItems(nbt.getCompound(key), stacks, null);
+        ListTag list = NbtCompat.getListOrEmpty(nbt, key);
+
+        // Clear existing stacks
+        Collections.fill(stacks, ItemStack.EMPTY);
+
+        // Load items from list
+        for (int i = 0; i < list.size(); i++) {
+            loadItemAt(list, i);
         }
     }
 
     public void writeNbt(CompoundTag nbt, String key) {
-        nbt.put(key, ContainerHelper.saveAllItems(new CompoundTag(), stacks, null));
+        ListTag listTag = new ListTag();
+        for (int i = 0; i < stacks.size(); i++) {
+            saveItemAt(listTag, i);
+        }
+        if (!listTag.isEmpty()) {
+            nbt.put(key, listTag);
+        }
+    }
+
+    private void loadItemAt(ListTag list, int index) {
+        NbtCompat.ifHasCompoundAt(list, index, itemTag -> {
+            int slot = NbtCompat.getInt(itemTag, "Slot", 0) & 255;
+            if (slot < stacks.size()) {
+                ItemStack.CODEC.parse(NbtOps.INSTANCE, itemTag)
+                        .result()
+                        .ifPresent(stack -> stacks.set(slot, stack));
+            }
+        });
+    }
+
+    private void saveItemAt(ListTag list, int slot) {
+        ItemStack stack = stacks.get(slot);
+        if (stack.isEmpty()) {
+            return;
+        }
+
+        ItemStack.CODEC.encodeStart(NbtOps.INSTANCE, stack)
+                .result()
+                .ifPresent(tag -> {
+                    if (tag instanceof CompoundTag itemTag) {
+                        itemTag.putByte("Slot", (byte) slot);
+                        list.add(itemTag);
+                    }
+                });
     }
 
     // ----- Container impl -----
@@ -63,19 +106,30 @@ public final class ItemInventoryComponent implements Container {
 
     @Override
     public ItemStack removeItem(int slot, int amount) {
-        ItemStack result = ContainerHelper.removeItem(stacks, slot, amount);
-        if (!result.isEmpty()) {
-            onChanged.run();
+        ItemStack stack = getItem(slot);
+        if (stack.isEmpty()) {
+            return ItemStack.EMPTY;
+        }
+
+        ItemStack result;
+        if (stack.getCount() <= amount) {
+            result = stack;
+            setItem(slot, ItemStack.EMPTY);
+        } else {
+            result = stack.split(amount);
+            if (stack.isEmpty()) {
+                setItem(slot, ItemStack.EMPTY);
+            } else {
+                onChanged.run();
+            }
         }
         return result;
     }
 
     @Override
     public ItemStack removeItemNoUpdate(int slot) {
-        ItemStack result = ContainerHelper.takeItem(stacks, slot);
-        if (!result.isEmpty()) {
-            onChanged.run();
-        }
+        ItemStack result = getItem(slot);
+        setItem(slot, ItemStack.EMPTY);
         return result;
     }
 

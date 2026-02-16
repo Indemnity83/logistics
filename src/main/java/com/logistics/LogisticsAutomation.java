@@ -68,7 +68,7 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
 
     private static void registerEnergyApi() {
         EnergyStorage.SIDED.registerForBlockEntity(
-            (quarry, direction) -> quarry.energyStorage,
+            (quarry, direction) -> quarry.energyStorage(),
             ENTITY.LASER_QUARRY_BLOCK_ENTITY);
     }
 

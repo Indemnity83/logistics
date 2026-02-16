@@ -61,12 +61,12 @@ public record PipeContext(Level world, BlockPos pos, BlockState state, PipeBlock
 
     // Convenience methods for energy access
     public long getEnergy() {
-        return blockEntity().energyStorage != null ? blockEntity().energyStorage.amount : 0;
+        return blockEntity().getEnergy() != null ? blockEntity().getEnergy().amount : 0;
     }
 
     public void setEnergy(long amount) {
-        if (blockEntity().energyStorage != null) {
-            blockEntity().energyStorage.amount = amount;
+        if (blockEntity().getEnergy() != null) {
+            blockEntity().getEnergy().amount = amount;
         }
     }
 

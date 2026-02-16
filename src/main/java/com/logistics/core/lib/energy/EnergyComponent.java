@@ -1,5 +1,6 @@
 package com.logistics.core.lib.energy;
 
+import com.logistics.core.lib.storage.NbtCompat;
 import net.minecraft.nbt.CompoundTag;
 import team.reborn.energy.api.base.SimpleEnergyStorage;
 
@@ -22,9 +23,7 @@ public final class EnergyComponent extends SimpleEnergyStorage {
     }
 
     public void readNbt(CompoundTag nbt, String key) {
-        if (nbt.contains(key)) {
-            this.amount = nbt.getLong(key);
-        }
+        this.amount = NbtCompat.getLong(nbt, key, 0L);
     }
 
     public void writeNbt(CompoundTag nbt, String key) {

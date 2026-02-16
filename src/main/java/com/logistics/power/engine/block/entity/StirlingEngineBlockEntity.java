@@ -1,5 +1,7 @@
 package com.logistics.power.engine.block.entity;
 
+import com.logistics.core.lib.entity.HasItemStorage;
+import com.logistics.core.lib.items.ItemInventoryComponent;
 import com.logistics.core.lib.power.AbstractEngineBlockEntity;
 import com.logistics.core.lib.storage.NbtCompat;
 import com.logistics.core.lib.support.ProbeResult;
@@ -8,10 +10,11 @@ import com.logistics.power.engine.block.StirlingEngineBlock;
 import com.logistics.power.engine.ui.StirlingEngineScreenHandler;
 import com.logistics.LogisticsPower;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
+import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
+import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -48,7 +51,7 @@ import org.jetbrains.annotations.Nullable;
  * When buffer fills up, temperature rises and generation decreases.
  */
 public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
-        implements ExtendedScreenHandlerFactory<BlockPos>, ContainerSingleItem.BlockContainerSingleItem {
+        implements ExtendedScreenHandlerFactory<BlockPos>, ContainerSingleItem.BlockContainerSingleItem, HasItemStorage {
 
     // ==================== Constants ====================
 
@@ -84,8 +87,7 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
     private double generationCarry = 0.0;
 
     // Inventory (single fuel slot)
-    // TODO: This doesn't need to be a list... it is always a single ItemStack
-    private final NonNullList<ItemStack> inventory = NonNullList.withSize(1, ItemStack.EMPTY);
+    private final ItemInventoryComponent inventory = new ItemInventoryComponent(1, this::setChanged);
 
     // Property delegate for syncing data to GUI
     private final ContainerData propertyDelegate = new ContainerData() {
@@ -124,6 +126,15 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
     public StirlingEngineBlockEntity(BlockPos pos, BlockState state) {
         super(LogisticsPower.ENTITY.STIRLING_ENGINE_BLOCK_ENTITY, pos, state);
     }
+
+    // ==================== HasItemStorage ====================
+
+    @Override
+    public Storage<ItemVariant> itemStorage() {
+        return inventory.storage();
+    }
+
+    // ==================== Ticker ====================
 
     public static void tick(Level world, BlockPos pos, BlockState state, StirlingEngineBlockEntity entity) {
         entity.tickEngine(world, pos, state);
@@ -215,7 +226,7 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
             return false;
         }
 
-        ItemStack fuel = inventory.getFirst();
+        ItemStack fuel = inventory.getItem(0);
         int burnTicks = level.fuelValues().burnDuration(fuel);
         if (burnTicks <= 0) {
             return false;
@@ -225,7 +236,7 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
         burnTime = fuelTime;
 
         if (fuel.is(Items.LAVA_BUCKET)) {
-            inventory.set(0, new ItemStack(Items.BUCKET));
+            inventory.setItem(0,new ItemStack(Items.BUCKET));
         } else {
             fuel.shrink(1);
         }
@@ -294,12 +305,12 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
     // ==================== SingleStackInventory Implementation ====================
 
     public ItemStack getTheItem() {
-        return inventory.getFirst();
+        return inventory.getItem(0);
     }
 
     public void setTheItem(ItemStack stack) {
-        inventory.set(0, stack);
-        setChanged();
+        inventory.setItem(0, stack);
+        // Note: setChanged() already called by inventory component
     }
 
     @Override
@@ -316,7 +327,7 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
 
     @Override
     public boolean isEmpty() {
-        return inventory.getFirst().isEmpty();
+        return inventory.getItem(0).isEmpty();
     }
 
     // ==================== ExtendedScreenHandlerFactory Implementation ====================
@@ -349,13 +360,8 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
         nbt.putDouble("GenerationCarryover", generationCarry);
         nbt.putDouble("PIDIntegral", pidController.getIntegral());
 
-        // Save fuel inventory using CODEC
-        ItemStack fuelStack = inventory.getFirst();
-        if (!fuelStack.isEmpty()) {
-            ItemStack.CODEC.encodeStart(net.minecraft.nbt.NbtOps.INSTANCE, fuelStack)
-                    .result()
-                    .ifPresent(tag -> nbt.put("FuelStack", tag));
-        }
+        // Save fuel inventory
+        inventory.writeNbt(nbt, "Inventory");
     }
 
     @Override
@@ -370,12 +376,15 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
         double pidIntegral = NbtCompat.getDouble(nbt, "PIDIntegral", 0.0);
         pidController.setIntegral(pidIntegral);
 
-        // Load fuel inventory using CODEC
-        inventory.set(0, ItemStack.EMPTY);
-        if (nbt.contains("FuelStack")) {
+        // Load fuel inventory (try new key first, fall back to legacy)
+        if (nbt.contains("Inventory")) {
+            inventory.readNbt(nbt, "Inventory");
+        } else if (nbt.contains("FuelStack")) {
+            // Legacy: single item stored with CODEC
+            inventory.setItem(0,ItemStack.EMPTY);
             ItemStack.CODEC.parse(net.minecraft.nbt.NbtOps.INSTANCE, nbt.get("FuelStack"))
                     .result()
-                    .ifPresent(stack -> inventory.set(0, stack));
+                    .ifPresent(stack -> inventory.setItem(0,stack));
         }
     }
 
@@ -394,7 +403,7 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
         });
 
         // Load fuel from old "Fuel" tag at root level
-        inventory.set(0, ItemStack.EMPTY);
-        view.read("Fuel", ItemStack.CODEC).ifPresent(stack -> inventory.set(0, stack));
+        inventory.setItem(0,ItemStack.EMPTY);
+        view.read("Fuel", ItemStack.CODEC).ifPresent(stack -> inventory.setItem(0,stack));
     }
 }

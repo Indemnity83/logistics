@@ -35,11 +35,13 @@ public abstract class FluidTankComponent extends SingleVariantStorage<FluidVaria
 
     public void readNbt(CompoundTag nbt, String key) {
         if (nbt.contains(key)) {
-            fromNbt(nbt.getCompound(key));
+            readNbt(nbt.getCompound(key).orElseGet(CompoundTag::new), null);
         }
     }
 
     public void writeNbt(CompoundTag nbt, String key) {
-        nbt.put(key, toNbt());
+        CompoundTag fluidTag = new CompoundTag();
+        writeNbt(fluidTag, null);
+        nbt.put(key, fluidTag);
     }
 }

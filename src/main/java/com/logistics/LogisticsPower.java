@@ -98,25 +98,25 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
         // Engines - directional output only
         EnergyStorage.SIDED.registerForBlockEntity(
                 (engine, direction) -> engine.isOutputDirection(direction)
-                        ? engine.energyStorage.getSideStorage(direction)
+                        ? engine.getSideStorage(direction)
                         : null,
                 ENTITY.REDSTONE_ENGINE_BLOCK_ENTITY);
 
         EnergyStorage.SIDED.registerForBlockEntity(
                 (engine, direction) -> engine.isOutputDirection(direction)
-                        ? engine.energyStorage.getSideStorage(direction)
+                        ? engine.getSideStorage(direction)
                         : null,
                 ENTITY.STIRLING_ENGINE_BLOCK_ENTITY);
 
         EnergyStorage.SIDED.registerForBlockEntity(
                 (engine, direction) -> engine.isOutputDirection(direction)
-                        ? engine.energyStorage.getSideStorage(direction)
+                        ? engine.getSideStorage(direction)
                         : null,
                 ENTITY.CREATIVE_ENGINE_BLOCK_ENTITY);
 
         // Creative Sink - all sides
         EnergyStorage.SIDED.registerForBlockEntity(
-                (sink, direction) -> sink.energyStorage,
+                (sink, direction) -> sink.energyStorage(),
                 ENTITY.CREATIVE_SINK_BLOCK_ENTITY);
     }
 }

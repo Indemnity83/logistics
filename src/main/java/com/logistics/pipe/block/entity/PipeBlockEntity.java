@@ -3,6 +3,7 @@ package com.logistics.pipe.block.entity;
 import com.logistics.LogisticsMod;
 import com.logistics.LogisticsPipe;
 import com.logistics.core.lib.BaseBlockEntity;
+import com.logistics.core.lib.energy.EnergyComponent;
 import com.logistics.core.lib.storage.NbtCompat;
 import com.logistics.core.lib.pipe.PipeConnection;
 import com.logistics.core.lib.power.AcceptsLowTierEnergy;
@@ -31,7 +32,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
-import team.reborn.energy.api.base.SimpleEnergyStorage;
 
 public class PipeBlockEntity extends BaseBlockEntity implements PipeConnection, AcceptsLowTierEnergy {
     public static final int VIRTUAL_CAPACITY = 5 * 64;
@@ -46,7 +46,7 @@ public class PipeBlockEntity extends BaseBlockEntity implements PipeConnection, 
 
     // Energy storage (only created for pipes with energy capability)
     @Nullable
-    public final SimpleEnergyStorage energyStorage;
+    private final EnergyComponent energy;
 
     public PipeBlockEntity(BlockPos pos, BlockState state) {
         super(LogisticsPipe.ENTITY.PIPE_BLOCK_ENTITY, pos, state);
@@ -60,15 +60,18 @@ public class PipeBlockEntity extends BaseBlockEntity implements PipeConnection, 
         Pipe pipe = state.getBlock() instanceof PipeBlock pipeBlock ? pipeBlock.getPipe() : null;
         if (pipe != null && pipe.hasEnergy()) {
             // TODO: Configure capacity/maxInsert/maxExtract based on pipe type
-            this.energyStorage = new SimpleEnergyStorage(1000, 100, 0) {
-                @Override
-                protected void onFinalCommit() {
-                    setChanged();
-                }
-            };
+            this.energy = new EnergyComponent(1000, 100, 0, this::setChanged);
         } else {
-            this.energyStorage = null;
+            this.energy = null;
         }
+    }
+
+    /**
+     * Gets the energy storage for this pipe, or null if the pipe doesn't support energy.
+     */
+    @Nullable
+    public EnergyComponent getEnergy() {
+        return energy;
     }
 
     /**
@@ -178,6 +181,11 @@ public class PipeBlockEntity extends BaseBlockEntity implements PipeConnection, 
         if (!connectionsNbt.isEmpty()) {
             pipeData.put("ConnectionTypes", connectionsNbt);
         }
+
+        // Save energy (if this pipe has energy capability)
+        if (energy != null) {
+            energy.writeNbt(pipeData, "Energy");
+        }
     }
 
     @Override
@@ -217,6 +225,11 @@ public class PipeBlockEntity extends BaseBlockEntity implements PipeConnection, 
                 connectionTypes[direction.ordinal()] = PipeConnection.Type.fromSerializedName(typeName);
             }
         });
+
+        // Load energy (if this pipe has energy capability)
+        if (energy != null) {
+            energy.readNbt(pipeData, "Energy");
+        }
 
         long durationMs = (System.nanoTime() - readStart) / 1_000_000L;
         if (durationMs >= 2L && Boolean.getBoolean("logistics.timing")) {
