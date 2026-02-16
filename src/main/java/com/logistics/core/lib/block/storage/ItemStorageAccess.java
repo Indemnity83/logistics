@@ -1,4 +1,4 @@
-package com.logistics.core.lib.storage;
+package com.logistics.core.lib.block.storage;
 
 import com.logistics.core.lib.entity.HasItemStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;

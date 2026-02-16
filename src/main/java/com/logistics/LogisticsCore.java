@@ -3,6 +3,10 @@ package com.logistics;
 import com.logistics.core.bootstrap.DomainBootstrap;
 import com.logistics.core.item.ProbeItem;
 import com.logistics.core.item.WrenchItem;
+import com.logistics.core.lib.block.storage.EnergyStorageAccess;
+import com.logistics.core.lib.block.storage.FluidStorageAccess;
+import com.logistics.core.lib.block.storage.ItemStorageAccess;
+import com.logistics.core.lib.block.storage.PipeConnectionAccess;
 import com.logistics.core.loot.ChestLootModifier;
 import com.logistics.core.marker.MarkerBlock;
 import com.logistics.core.marker.MarkerBlockEntity;
@@ -62,9 +66,10 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
     }
 
     private void registerStorageAccess() {
-        com.logistics.core.lib.storage.ItemStorageAccess.register();
-        com.logistics.core.lib.storage.FluidStorageAccess.register();
-        com.logistics.core.lib.storage.EnergyStorageAccess.register();
+        ItemStorageAccess.register();
+        FluidStorageAccess.register();
+        EnergyStorageAccess.register();
+        PipeConnectionAccess.register();
     }
 
     private void registerWorldgen() {

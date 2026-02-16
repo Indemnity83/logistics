@@ -4,6 +4,8 @@ import com.logistics.LogisticsMod;
 import com.logistics.LogisticsPipe;
 import com.logistics.core.lib.BaseBlockEntity;
 import com.logistics.core.lib.energy.EnergyComponent;
+import com.logistics.core.lib.entity.HasEnergyStorage;
+import com.logistics.core.lib.entity.HasItemStorage;
 import com.logistics.core.lib.storage.NbtCompat;
 import com.logistics.core.lib.pipe.PipeConnection;
 import com.logistics.core.lib.power.AcceptsLowTierEnergy;
@@ -33,7 +35,8 @@ import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
-public class PipeBlockEntity extends BaseBlockEntity implements PipeConnection, AcceptsLowTierEnergy {
+public class PipeBlockEntity extends BaseBlockEntity
+        implements PipeConnection, AcceptsLowTierEnergy, HasItemStorage, HasEnergyStorage {
     public static final int VIRTUAL_CAPACITY = 5 * 64;
     private final List<TravelingItem> travelingItems = new ArrayList<>();
     private final CompoundTag moduleState = new CompoundTag();
@@ -73,6 +76,23 @@ public class PipeBlockEntity extends BaseBlockEntity implements PipeConnection, 
     public EnergyComponent getEnergy() {
         return energy;
     }
+
+    // ==================== HasItemStorage & HasEnergyStorage ====================
+
+    @Override
+    @Nullable
+    public Storage<ItemVariant> itemStorage(@Nullable Direction side) {
+        return getItemStorage(side);
+    }
+
+    @Override
+    @Nullable
+    public team.reborn.energy.api.EnergyStorage energyStorage(@Nullable Direction side) {
+        // Pipes accept energy from all sides (if they support energy at all)
+        return getEnergy();
+    }
+
+    // ==================== PipeConnection ====================
 
     /**
      * PipeConnection interface: Pipes always accept connections from all sides.
