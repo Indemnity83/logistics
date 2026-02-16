@@ -2,7 +2,7 @@ package com.logistics.pipe;
 
 import com.logistics.LogisticsMod;
 import com.logistics.LogisticsPipe;
-import com.logistics.core.lib.pipe.PipeConnection;
+import com.logistics.core.lib.block.capability.PipeConnection;
 import com.logistics.pipe.block.PipeBlock;
 import com.logistics.pipe.modules.Module;
 import com.logistics.pipe.runtime.RoutePlan;

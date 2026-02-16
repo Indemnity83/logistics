@@ -1,6 +1,7 @@
 package com.logistics.pipe.render;
 
 import com.logistics.LogisticsPipe;
+import com.logistics.core.lib.block.capability.PipeConnection;
 import com.logistics.core.render.ModelRegistry;
 import com.logistics.pipe.Pipe;
 import com.logistics.pipe.PipeContext;
@@ -80,8 +81,8 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
                 }
 
                 for (Direction direction : Direction.values()) {
-                    com.logistics.core.lib.pipe.PipeConnection.Type type = entity.getCachedConnectionType(direction);
-                    if (type == com.logistics.core.lib.pipe.PipeConnection.Type.NONE) {
+                    PipeConnection.Type type = entity.getCachedConnectionType(direction);
+                    if (type == PipeConnection.Type.NONE) {
                         continue;
                     }
 

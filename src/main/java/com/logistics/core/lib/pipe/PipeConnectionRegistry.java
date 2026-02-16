@@ -1,8 +1,8 @@
 package com.logistics.core.lib.pipe;
 
 import com.logistics.LogisticsMod;
+import com.logistics.core.lib.block.capability.PipeConnection;
 import net.fabricmc.fabric.api.lookup.v1.block.BlockApiLookup;
-import net.minecraft.resources.Identifier;
 import net.minecraft.core.Direction;
 
 /**
