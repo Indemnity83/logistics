@@ -6,6 +6,7 @@ import com.logistics.LogisticsPower;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
@@ -45,16 +46,17 @@ public class CreativeEngineBlock extends AbstractEngineBlock<CreativeEngineBlock
     }
 
     @Override
-    protected boolean handleSpecialWrench(Level world, BlockPos pos, Player player, BlockState state) {
+    public InteractionResult onWrench(Level world, BlockPos pos, Player player) {
         // Sneak + wrench: cycle output level
         if (player.isShiftKeyDown() && world.getBlockEntity(pos) instanceof CreativeEngineBlockEntity engine) {
             if (!world.isClientSide()) {
                 long newRate = engine.cycleOutputLevel();
                 player.displayClientMessage(Component.translatable("message.logistics.power.creative_engine.output", newRate), true);
             }
-            return true;
+            return InteractionResult.SUCCESS;
         }
-        return false;
+
+        return super.onWrench(world, pos, player);
     }
 
     @Nullable @Override

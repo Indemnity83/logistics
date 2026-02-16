@@ -1,7 +1,7 @@
 package com.logistics.pipe.block;
 
-import com.logistics.core.lib.block.Probeable;
-import com.logistics.core.lib.block.Wrenchable;
+import com.logistics.core.lib.block.behavior.ProbeBehavior;
+import com.logistics.core.lib.block.behavior.WrenchBehavior;
 import com.logistics.core.lib.pipe.PipeConnection;
 import com.logistics.core.lib.pipe.PipeConnectionRegistry;
 import com.logistics.core.lib.support.ProbeResult;
@@ -49,7 +49,7 @@ import net.minecraft.world.level.ScheduledTickAccess;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
 
-public class PipeBlock extends BaseEntityBlock implements Probeable, SimpleWaterloggedBlock, Wrenchable {
+public class PipeBlock extends BaseEntityBlock implements ProbeBehavior.Probeable, SimpleWaterloggedBlock, WrenchBehavior.Wrenchable {
     public static final MapCodec<PipeBlock> CODEC = simpleCodec(PipeBlock::new);
 
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;

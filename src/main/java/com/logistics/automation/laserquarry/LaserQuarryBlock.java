@@ -2,7 +2,7 @@ package com.logistics.automation.laserquarry;
 
 import com.logistics.automation.laserquarry.entity.LaserQuarryBlockEntity;
 import com.logistics.LogisticsAutomation;
-import com.logistics.core.lib.block.Probeable;
+import com.logistics.core.lib.block.behavior.ProbeBehavior;
 import com.logistics.core.lib.support.ProbeResult;
 import com.logistics.core.marker.MarkerManager;
 import com.mojang.serialization.MapCodec;
@@ -28,7 +28,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
-public class LaserQuarryBlock extends BaseEntityBlock implements Probeable {
+public class LaserQuarryBlock extends BaseEntityBlock implements ProbeBehavior.Probeable {
     public static final MapCodec<LaserQuarryBlock> CODEC = simpleCodec(LaserQuarryBlock::new);
     public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
 

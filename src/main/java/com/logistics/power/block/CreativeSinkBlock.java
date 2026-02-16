@@ -1,7 +1,7 @@
 package com.logistics.power.block;
 
-import com.logistics.core.lib.block.Probeable;
-import com.logistics.core.lib.block.Wrenchable;
+import com.logistics.core.lib.block.behavior.ProbeBehavior;
+import com.logistics.core.lib.block.behavior.WrenchBehavior;
 import com.logistics.core.lib.support.ProbeResult;
 import com.logistics.power.block.entity.CreativeSinkBlockEntity;
 import com.logistics.LogisticsPower;
@@ -28,7 +28,7 @@ import org.jetbrains.annotations.Nullable;
  *   <li>Sneak + right-click with wrench: Cycle through drain rates</li>
  * </ul>
  */
-public class CreativeSinkBlock extends BaseEntityBlock implements Probeable, Wrenchable {
+public class CreativeSinkBlock extends BaseEntityBlock implements ProbeBehavior.Probeable, WrenchBehavior.Wrenchable {
     public static final MapCodec<CreativeSinkBlock> CODEC = simpleCodec(CreativeSinkBlock::new);
 
     public CreativeSinkBlock(Properties settings) {

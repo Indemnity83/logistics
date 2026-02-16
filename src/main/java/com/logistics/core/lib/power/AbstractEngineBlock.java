@@ -2,8 +2,8 @@ package com.logistics.core.lib.power;
 
 import static com.logistics.core.lib.power.AbstractEngineBlockEntity.STAGE;
 
-import com.logistics.core.lib.block.Probeable;
-import com.logistics.core.lib.block.Wrenchable;
+import com.logistics.core.lib.block.behavior.ProbeBehavior;
+import com.logistics.core.lib.block.behavior.WrenchBehavior;
 import com.logistics.core.lib.power.AbstractEngineBlockEntity.HeatStage;
 import com.logistics.core.lib.support.ProbeResult;
 import java.util.Collections;
@@ -39,7 +39,7 @@ import team.reborn.energy.api.EnergyStorage;
  * @param <E> The type of engine block entity this block creates
  */
 public abstract class AbstractEngineBlock<E extends AbstractEngineBlockEntity> extends BaseEntityBlock
-        implements Probeable, Wrenchable {
+        implements ProbeBehavior.Probeable, WrenchBehavior.Wrenchable {
     public static final EnumProperty<Direction> FACING = BlockStateProperties.FACING;
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
 
@@ -76,15 +76,6 @@ public abstract class AbstractEngineBlock<E extends AbstractEngineBlockEntity> e
      * Subclasses implement this to cast to their specific block entity type.
      */
     protected abstract E getEngineBlockEntity(BlockEntity be);
-
-    /**
-     * Handles special wrench behavior before the default rotation.
-     * Return true to skip the default rotation behavior.
-     * Base implementation returns false (always perform rotation).
-     */
-    protected boolean handleSpecialWrench(Level world, BlockPos pos, Player player, BlockState state) {
-        return false;
-    }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
@@ -126,15 +117,8 @@ public abstract class AbstractEngineBlock<E extends AbstractEngineBlockEntity> e
 
     @Override
     public InteractionResult onWrench(Level world, BlockPos pos, Player player) {
-        BlockState state = world.getBlockState(pos);
-
-        // Let subclasses handle special wrench behavior first
-        if (handleSpecialWrench(world, pos, player, state)) {
-            return InteractionResult.SUCCESS;
-        }
-
-        // Default behavior: snap to next EnergyStorage or rotate through all directions
         if (!world.isClientSide()) {
+            BlockState state = world.getBlockState(pos);
             Direction currentFacing = state.getValue(FACING);
             Direction newFacing = findNextOutputDirection(world, pos, currentFacing);
             world.setBlock(pos, state.setValue(FACING, newFacing), Block.UPDATE_ALL);

@@ -1,6 +1,6 @@
 package com.logistics.core.item;
 
-import com.logistics.core.lib.block.Probeable;
+import com.logistics.core.lib.block.behavior.ProbeBehavior;
 import com.logistics.core.lib.support.ProbeResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -35,7 +35,7 @@ public class ProbeItem extends Item {
         var player = context.getPlayer();
         var block = world.getBlockState(pos).getBlock();
 
-        if (block instanceof Probeable probeable) {
+        if (block instanceof ProbeBehavior.Probeable probeable) {
             if (world.isClientSide()) {
                 return InteractionResult.SUCCESS;
             }

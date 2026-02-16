@@ -1,7 +1,7 @@
 package com.logistics.power.engine.block.entity;
 
+import com.logistics.core.lib.block.behavior.MenuBehavior;
 import com.logistics.core.lib.entity.HasItemStorage;
-import com.logistics.core.lib.entity.HasMenu;
 import com.logistics.core.lib.items.ItemInventoryComponent;
 import com.logistics.core.lib.power.AbstractEngineBlockEntity;
 import com.logistics.core.lib.storage.NbtCompat;
@@ -52,7 +52,7 @@ import org.jetbrains.annotations.Nullable;
  * When buffer fills up, temperature rises and generation decreases.
  */
 public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
-        implements ExtendedScreenHandlerFactory<BlockPos>, ContainerSingleItem.BlockContainerSingleItem, HasItemStorage, HasMenu {
+        implements ExtendedScreenHandlerFactory<BlockPos>, ContainerSingleItem.BlockContainerSingleItem, HasItemStorage, MenuBehavior.HasMenu {
 
     // ==================== Constants ====================
 

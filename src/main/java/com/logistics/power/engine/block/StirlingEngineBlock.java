@@ -1,6 +1,7 @@
 package com.logistics.power.engine.block;
 
-import com.logistics.core.lib.block.BlockHelpers;
+import com.logistics.core.lib.block.behavior.MenuBehavior;
+import com.logistics.core.lib.block.BlockEntityUtil;
 import com.logistics.core.lib.power.AbstractEngineBlock;
 import com.logistics.power.engine.block.entity.StirlingEngineBlockEntity;
 import com.logistics.LogisticsPower;
@@ -69,15 +70,16 @@ public class StirlingEngineBlock extends AbstractEngineBlock<StirlingEngineBlock
     }
 
     @Override
-    protected boolean handleSpecialWrench(Level world, BlockPos pos, Player player, BlockState state) {
+    public InteractionResult onWrench(Level world, BlockPos pos, Player player) {
         // Reset overheat if engine is overheated
         if (world.getBlockEntity(pos) instanceof StirlingEngineBlockEntity engine && engine.isOverheated()) {
             if (!world.isClientSide()) {
                 engine.resetOverheat();
             }
-            return true;
+            return InteractionResult.SUCCESS;
         }
-        return false;
+
+        return super.onWrench(world, pos, player);
     }
 
     @Nullable @Override
@@ -100,12 +102,12 @@ public class StirlingEngineBlock extends AbstractEngineBlock<StirlingEngineBlock
             Player player,
             InteractionHand hand,
             BlockHitResult hit) {
-        return BlockHelpers.tryOpenMenu(world, pos, player);
+        return MenuBehavior.tryOpenMenu(world, pos, player);
     }
 
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level world, BlockPos pos, Player player, BlockHitResult hit) {
-        return BlockHelpers.tryOpenMenu(world, pos, player);
+        return MenuBehavior.tryOpenMenu(world, pos, player);
     }
 
     @Override
@@ -114,7 +116,7 @@ public class StirlingEngineBlock extends AbstractEngineBlock<StirlingEngineBlock
 
         BlockEntity blockEntity = builder.getOptionalParameter(LootContextParams.BLOCK_ENTITY);
         if (blockEntity != null) {
-            drops.addAll(BlockHelpers.getInventoryDrops(blockEntity));
+            drops.addAll(BlockEntityUtil.getInventoryDrops(blockEntity));
         }
 
         return drops;
