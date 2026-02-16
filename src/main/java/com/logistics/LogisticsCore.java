@@ -53,11 +53,18 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
     public void initCommon() {
         LOGGER.info("Registering {}", domain());
 
+        registerStorageAccess();
         registerLegacyAliases();
         addCreativeTabEntries();
         addVanillaCreativeTabEntries();
         registerWorldgen();
         ChestLootModifier.register();
+    }
+
+    private void registerStorageAccess() {
+        com.logistics.core.lib.storage.ItemStorageAccess.register();
+        com.logistics.core.lib.storage.FluidStorageAccess.register();
+        com.logistics.core.lib.storage.EnergyStorageAccess.register();
     }
 
     private void registerWorldgen() {

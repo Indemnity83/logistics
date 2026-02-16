@@ -110,7 +110,8 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity implements PipeConne
     // ==================== HasEnergyStorage ====================
 
     @Override
-    public EnergyStorage energyStorage() {
+    public EnergyStorage energyStorage(@Nullable Direction side) {
+        // Quarry accepts energy from all sides
         return energy;
     }
 

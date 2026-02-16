@@ -9,9 +9,11 @@ import com.logistics.core.lib.support.ProbeResult;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.Nullable;
 import team.reborn.energy.api.EnergyStorage;
 
 /**
@@ -71,7 +73,8 @@ public class CreativeSinkBlockEntity extends BaseBlockEntity
     // ==================== HasEnergyStorage ====================
 
     @Override
-    public EnergyStorage energyStorage() {
+    public EnergyStorage energyStorage(@Nullable Direction side) {
+        // Creative sink accepts energy from all sides
         return energyStorage;
     }
 

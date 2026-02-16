@@ -131,7 +131,8 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
     // ==================== HasItemStorage ====================
 
     @Override
-    public Storage<ItemVariant> itemStorage() {
+    public Storage<ItemVariant> itemStorage(@Nullable Direction side) {
+        // Fuel can be inserted from any side
         return inventory.storage();
     }
 

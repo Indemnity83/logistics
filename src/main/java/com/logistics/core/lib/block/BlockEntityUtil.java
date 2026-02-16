@@ -37,7 +37,7 @@ public final class BlockEntityUtil {
             return drops;
         }
 
-        Storage<ItemVariant> storage = hasItems.itemStorage();
+        Storage<ItemVariant> storage = hasItems.itemStorage(null);
 
         try (Transaction tx = Transaction.openOuter()) {
             for (StorageView<ItemVariant> view : storage) {

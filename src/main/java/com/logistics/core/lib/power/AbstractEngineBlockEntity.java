@@ -123,17 +123,12 @@ public abstract class AbstractEngineBlockEntity extends BaseBlockEntity implemen
     // ==================== HasEnergyStorage ====================
 
     @Override
-    public EnergyStorage energyStorage() {
-        // Return the internal storage (null side = no-sided access)
-        return energyStorage.getSideStorage(null);
-    }
-
-    /**
-     * Gets the sided energy storage for the specified direction.
-     * Used for energy transfer registration.
-     */
-    public EnergyStorage getSideStorage(Direction direction) {
-        return energyStorage.getSideStorage(direction);
+    public EnergyStorage energyStorage(@Nullable Direction side) {
+        // Engines only expose energy storage on their output face
+        if (side != null && !isOutputDirection(side)) {
+            return null;
+        }
+        return energyStorage.getSideStorage(side);
     }
 
     // ==================== Subclass Configuration ====================
