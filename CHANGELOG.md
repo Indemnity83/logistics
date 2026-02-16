@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.3.1](https://github.com/Indemnity83/logistics/compare/mc1.21.11-v0.3.0...mc1.21.11-v0.3.1) (2026-02-16)
+
+
+### Features
+
+* add tin, bronze, and apatite materials with worldgen and progression ([#100](https://github.com/Indemnity83/logistics/issues/100)) ([cdd2341](https://github.com/Indemnity83/logistics/commit/cdd234100d125dfd02a047b58b9f92b214ea5fd7))
+* refresh gear textures and update creative tab ([#91](https://github.com/Indemnity83/logistics/issues/91)) ([516c75f](https://github.com/Indemnity83/logistics/commit/516c75f1e1d25bc42eefb13af054a75108220dc4))
+
+
+### Bug Fixes
+
+* correct engine blockstates, particles, and drops ([#86](https://github.com/Indemnity83/logistics/issues/86)) ([b39c296](https://github.com/Indemnity83/logistics/commit/b39c2960b0d9a9b58608526a2df71414d1501a41))
+* correct laser quarry LED working state and screen rotation ([#99](https://github.com/Indemnity83/logistics/issues/99)) ([a51c360](https://github.com/Indemnity83/logistics/commit/a51c3606b3c5803818784b008060d75dcf68803c))
+
 ## [0.3.0](https://github.com/Indemnity83/logistics/compare/v0.2.5...v0.3.0) (2026-02-02)
 
 
