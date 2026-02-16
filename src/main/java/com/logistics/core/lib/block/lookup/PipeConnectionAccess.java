@@ -1,6 +1,6 @@
-package com.logistics.core.lib.block.storage;
+package com.logistics.core.lib.block.lookup;
 
-import com.logistics.core.lib.pipe.PipeConnection;
+import com.logistics.core.lib.block.capability.PipeConnection;
 import com.logistics.core.lib.pipe.PipeConnectionRegistry;
 
 /**

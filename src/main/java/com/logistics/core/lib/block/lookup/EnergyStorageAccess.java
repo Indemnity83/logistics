@@ -1,6 +1,6 @@
-package com.logistics.core.lib.block.storage;
+package com.logistics.core.lib.block.lookup;
 
-import com.logistics.core.lib.entity.HasEnergyStorage;
+import com.logistics.core.lib.block.capability.HasEnergyStorage;
 import team.reborn.energy.api.EnergyStorage;
 
 /**

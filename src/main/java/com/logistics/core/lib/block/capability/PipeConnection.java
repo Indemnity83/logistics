@@ -1,8 +1,10 @@
-package com.logistics.core.lib.pipe;
+package com.logistics.core.lib.block.capability;
 
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import com.logistics.core.lib.pipe.PipeConnectionRegistry;
 import net.minecraft.core.Direction;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.item.ItemStack;

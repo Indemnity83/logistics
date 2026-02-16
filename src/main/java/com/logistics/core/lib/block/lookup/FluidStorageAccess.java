@@ -1,6 +1,6 @@
-package com.logistics.core.lib.block.storage;
+package com.logistics.core.lib.block.lookup;
 
-import com.logistics.core.lib.entity.HasFluidStorage;
+import com.logistics.core.lib.block.capability.HasFluidStorage;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage;
 
 /**

@@ -1,6 +1,6 @@
 package com.logistics.pipe;
 
-import com.logistics.core.lib.pipe.PipeConnection;
+import com.logistics.core.lib.block.capability.PipeConnection;
 import com.logistics.core.lib.storage.NbtCompat;
 import com.logistics.pipe.block.PipeBlock;
 import com.logistics.pipe.block.entity.PipeBlockEntity;

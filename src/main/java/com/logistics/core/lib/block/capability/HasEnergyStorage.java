@@ -1,4 +1,4 @@
-package com.logistics.core.lib.entity;
+package com.logistics.core.lib.block.capability;
 
 import com.logistics.core.lib.energy.EnergyComponent;
 import net.minecraft.core.Direction;

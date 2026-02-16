@@ -1,4 +1,4 @@
-package com.logistics.core.lib.entity;
+package com.logistics.core.lib.block.capability;
 
 import com.logistics.core.lib.fluids.FluidTankComponent;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;

@@ -1,4 +1,4 @@
-package com.logistics.core.lib.entity;
+package com.logistics.core.lib.block.capability;
 
 import com.logistics.core.lib.items.ItemInventoryComponent;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;

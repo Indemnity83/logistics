@@ -1,7 +1,7 @@
 package com.logistics.power.engine.block.entity;
 
 import com.logistics.core.lib.block.behavior.MenuBehavior;
-import com.logistics.core.lib.entity.HasItemStorage;
+import com.logistics.core.lib.block.capability.HasItemStorage;
 import com.logistics.core.lib.items.ItemInventoryComponent;
 import com.logistics.core.lib.power.AbstractEngineBlockEntity;
 import com.logistics.core.lib.storage.NbtCompat;
