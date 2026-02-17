@@ -3,7 +3,6 @@
   "values": [
     "#c:storage_blocks/tin",
     "#c:storage_blocks/raw_tin",
-    "#c:storage_blocks/bronze",
-    "#c:storage_blocks/apatite"
+    "#c:storage_blocks/bronze"
   ]
 }

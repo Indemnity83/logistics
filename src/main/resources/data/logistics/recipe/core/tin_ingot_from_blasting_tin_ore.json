@@ -1,6 +1,6 @@
 {
   "type": "minecraft:blasting",
-  "ingredient": "logistics:core/tin_ore",
+  "ingredient": {"tag": "c:ores/tin"},
   "result": {
     "id": "logistics:core/tin_ingot"
   },

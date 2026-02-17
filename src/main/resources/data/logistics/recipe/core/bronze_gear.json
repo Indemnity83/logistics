@@ -1,7 +1,7 @@
 {
   "type": "minecraft:crafting_shaped",
   "key": {
-    "B": "#c:ingots/bronze",
+    "B": {"tag": "c:ingots/bronze"},
     "G": "logistics:core/iron_gear"
   },
   "pattern": [

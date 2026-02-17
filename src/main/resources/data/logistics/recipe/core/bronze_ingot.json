@@ -4,7 +4,7 @@
     "minecraft:copper_ingot",
     "minecraft:copper_ingot",
     "minecraft:copper_ingot",
-    "logistics:core/tin_ingot"
+    {"tag": "c:ingots/tin"}
   ],
   "result": {
     "count": 4,

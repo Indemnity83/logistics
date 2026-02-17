@@ -1,7 +1,7 @@
 {
   "type": "minecraft:crafting_shaped",
   "key": {
-    "T": "logistics:core/tin_ingot",
+    "T": {"tag": "c:ingots/tin"},
     "G": "logistics:core/copper_gear"
   },
   "pattern": [

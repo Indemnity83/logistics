@@ -1,7 +1,7 @@
 {
   "type": "minecraft:crafting_shapeless",
   "ingredients": [
-    "logistics:core/tin_block"
+    {"tag": "c:storage_blocks/tin"}
   ],
   "result": {
     "count": 9,

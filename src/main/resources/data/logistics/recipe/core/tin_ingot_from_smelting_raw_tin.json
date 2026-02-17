@@ -1,6 +1,6 @@
 {
   "type": "minecraft:smelting",
-  "ingredient": "logistics:core/raw_tin",
+  "ingredient": {"tag": "c:raw_materials/tin"},
   "result": {
     "id": "logistics:core/tin_ingot"
   },
