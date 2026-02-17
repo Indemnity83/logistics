@@ -304,20 +304,23 @@ public abstract class AbstractEngineBlockEntity extends BaseBlockEntity implemen
         if (heatLevelRatio < 0.25) return HeatStage.COLD;
         if (heatLevelRatio < 0.50) return HeatStage.COOL;
         if (heatLevelRatio < 0.75) return HeatStage.WARM;
-        if (heatLevelRatio < 1.0 || !canOverheat()) return HeatStage.HOT;
+        if (heatLevelRatio < 1.0 || !canOverheat()) {
+            // Non-overheating engines flash WARM during compression to show max heat without danger
+            if (!canOverheat() && cyclePhase == CyclePhase.COMPRESSION) return HeatStage.WARM;
+            return HeatStage.HOT;
+        }
 
         return HeatStage.OVERHEAT;
     }
 
-    /** Compute the piston speed based on current heat stage. */
+    /** Compute the piston speed based on current heat level. */
     public float getPistonSpeed() {
-        return switch (heatStage) {
-            case COLD -> 0.01f;
-            case COOL -> 0.02f;
-            case WARM -> 0.04f;
-            case HOT -> 0.08f;
-            case OVERHEAT -> 0.0f;
-        };
+        double heatLevel = getHeatLevel();
+        if (heatLevel < 0.25) return 0.01f;
+        if (heatLevel < 0.50) return 0.02f;
+        if (heatLevel < 0.75) return 0.04f;
+        if (heatLevel < 1.0 || !canOverheat()) return 0.08f;
+        return 0.0f; // OVERHEAT
     }
 
     // ==================== Cycle System ====================
