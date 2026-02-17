@@ -1,5 +1,25 @@
 # Changelog
 
+## [0.3.1](https://github.com/Indemnity83/logistics/compare/mc1.21.1-v0.3.0...mc1.21.1-v0.3.1) (2026-02-17)
+
+
+### Features
+
+* add tin, bronze, and apatite materials with worldgen and progression ([#100](https://github.com/Indemnity83/logistics/issues/100)) ([efd6acc](https://github.com/Indemnity83/logistics/commit/efd6acca1810f32d43f3566925914c6ce71e48e6))
+* port to Minecraft 1.21.1 ([0a9d65f](https://github.com/Indemnity83/logistics/commit/0a9d65f7f4bffcf16edc05eb7317f5ba1b1dfd6c))
+
+
+### Bug Fixes
+
+* back-port basic rendering functions ([f36c8ea](https://github.com/Indemnity83/logistics/commit/f36c8eae9bc8ff5db03b4f1aeaf81501a2d24e1b))
+* engine renderer tick handling and texture scaling ([d56d568](https://github.com/Indemnity83/logistics/commit/d56d56827a1409e0b006da1eea3763df16044533))
+* item tinting on marking fluid items ([81db3ed](https://github.com/Indemnity83/logistics/commit/81db3edd9143f905124038234525ac37483f6e8c))
+* migrate tin/bronze recipes to c: tags and drop apatite tag entries ([#110](https://github.com/Indemnity83/logistics/issues/110)) ([7121d47](https://github.com/Indemnity83/logistics/commit/7121d47036c597accd9b860f551f774c1d25bf70))
+* pipe rendering with cutout layers, model loading, and BE renderer ([09c0623](https://github.com/Indemnity83/logistics/commit/09c0623f2bd929a36e60af0a45917baeb4ab00ca))
+* recipes to match 1.21.1 format ([9097c4d](https://github.com/Indemnity83/logistics/commit/9097c4de2d09104152dff1ebb4ea38a27ec13a2a))
+* render marker beams using baked model segments ([add119c](https://github.com/Indemnity83/logistics/commit/add119cdc75899e6806d2f79f80d6ac62b3818f4))
+* restore non-overheating engine warm flash and scale piston speed by heat ([#111](https://github.com/Indemnity83/logistics/issues/111)) ([7976ef2](https://github.com/Indemnity83/logistics/commit/7976ef28e6e6e146ed692b2ca5090d8b637a2ae6))
+
 ## [0.3.0](https://github.com/Indemnity83/logistics/compare/v0.2.5...v0.3.0) (2026-02-02)
 
 
