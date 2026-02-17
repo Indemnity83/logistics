@@ -182,6 +182,11 @@ public class EngineBlockEntityRenderer implements BlockEntityRenderer<AbstractEn
 
         long elapsedTicks = currentTick - cache.lastGameTick;
 
+        if (elapsedTicks <= 0) {
+            cache.lastGameTick = currentTick;
+            return;
+        }
+
         if (isRunning) {
             cache.progress += pistonSpeed * elapsedTicks;
             while (cache.progress >= 1.0f) {
