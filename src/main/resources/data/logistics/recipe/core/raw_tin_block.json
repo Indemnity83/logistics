@@ -1,7 +1,7 @@
 {
   "type": "minecraft:crafting_shaped",
   "key": {
-    "R": "logistics:core/raw_tin"
+    "R": "#c:raw_materials/tin"
   },
   "pattern": [
     "RRR",
