@@ -4,7 +4,6 @@ import com.logistics.LogisticsMod;
 import com.logistics.power.engine.ui.StirlingEngineScreenHandler;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
@@ -34,7 +33,6 @@ public class StirlingEngineScreen extends AbstractContainerScreen<StirlingEngine
     protected void renderBg(GuiGraphics context, float delta, int mouseX, int mouseY) {
         // Draw main background
         context.blit(
-                RenderPipelines.GUI_TEXTURED,
                 BACKGROUND_TEXTURE,
                 leftPos,
                 topPos,
@@ -52,7 +50,6 @@ public class StirlingEngineScreen extends AbstractContainerScreen<StirlingEngine
             int pixelsToShow = (int) ((1.0f - progress) * (flameHeight - 1)) + 1;
             int yOffset = flameHeight - pixelsToShow;
             context.blitSprite(
-                    RenderPipelines.GUI_TEXTURED,
                     LIT_PROGRESS_SPRITE,
                     14,
                     14,

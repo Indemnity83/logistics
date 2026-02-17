@@ -4,7 +4,6 @@ import com.logistics.pipe.modules.ItemFilterModule;
 import com.logistics.pipe.ui.ItemFilterScreenHandler;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
@@ -26,7 +25,6 @@ public class ItemFilterScreen extends AbstractContainerScreen<ItemFilterScreenHa
     @Override
     protected void renderBg(GuiGraphics context, float delta, int mouseX, int mouseY) {
         context.blit(
-                RenderPipelines.GUI_TEXTURED,
                 BACKGROUND_TEXTURE,
                 leftPos,
                 topPos,

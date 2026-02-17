@@ -137,6 +137,7 @@ public abstract class AbstractEngineBlock<E extends AbstractEngineBlockEntity> e
             Direction currentFacing = state.getValue(FACING);
             Direction newFacing = findNextOutputDirection(world, pos, currentFacing);
             world.setBlock(pos, state.setValue(FACING, newFacing), Block.UPDATE_ALL);
+            System.out.println(newFacing.toString());
         }
 
         return InteractionResult.SUCCESS;

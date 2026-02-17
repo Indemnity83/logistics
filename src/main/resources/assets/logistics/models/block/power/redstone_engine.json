@@ -1,5 +1,80 @@
 {
-  "textures": {
-    "particle": "logistics:block/power/redstone_engine_side"
-  }
+	"format_version": "1.9.0",
+	"credit": "Made with Blockbench",
+	"parent": "minecraft:block/cube",
+	"texture_size": [64, 64],
+	"textures": {
+		"particle": "logistics:block/power/redstone_engine",
+		"texture": "logistics:block/power/redstone_engine"
+	},
+	"elements": [
+		{
+			"name": "base",
+			"from": [0, 0, 0],
+			"to": [16, 4, 16],
+			"faces": {
+				"north": {"uv": [4, 4, 8, 5], "texture": "#texture"},
+				"east": {"uv": [0, 4, 4, 5], "texture": "#texture"},
+				"south": {"uv": [12, 4, 16, 5], "texture": "#texture"},
+				"west": {"uv": [8, 4, 12, 5], "texture": "#texture"},
+				"up": {"uv": [8, 4, 4, 0], "texture": "#texture"},
+				"down": {"uv": [12, 0, 8, 4], "texture": "#texture"}
+			}
+		},
+		{
+			"name": "base",
+			"from": [0, 12, 0],
+			"to": [16, 16, 16],
+			"rotation": {"angle": 0, "axis": "y", "origin": [0, 12, 0]},
+			"faces": {
+				"north": {"uv": [4, 4, 8, 5], "texture": "#texture"},
+				"east": {"uv": [0, 4, 4, 5], "texture": "#texture"},
+				"south": {"uv": [12, 4, 16, 5], "texture": "#texture"},
+				"west": {"uv": [8, 4, 12, 5], "texture": "#texture"},
+				"up": {"uv": [8, 4, 4, 0], "texture": "#texture"},
+				"down": {"uv": [12, 0, 8, 4], "texture": "#texture"}
+			}
+		},
+		{
+			"name": "frame",
+			"from": [3.99, 4, 3.99],
+			"to": [12.01, 16.01, 12.01],
+			"rotation": {"angle": 0, "axis": "y", "origin": [4, 0, 4]},
+			"faces": {
+				"north": {"uv": [2, 7, 4, 10], "texture": "#texture"},
+				"east": {"uv": [0, 7, 2, 10], "texture": "#texture"},
+				"south": {"uv": [6, 7, 8, 10], "texture": "#texture"},
+				"west": {"uv": [4, 7, 6, 10], "texture": "#texture"},
+				"up": {"uv": [4, 7, 2, 5], "texture": "#texture"},
+				"down": {"uv": [6, 5, 4, 7], "texture": "#texture"}
+			}
+		},
+		{
+			"name": "core",
+			"from": [4, 4, 4],
+			"to": [12, 16, 12],
+			"rotation": {"angle": 0, "axis": "y", "origin": [4, 0, 4]},
+			"faces": {
+				"north": {"uv": [10, 7, 12, 10], "texture": "#texture", "tintindex": 0},
+				"east": {"uv": [8, 7, 10, 10], "texture": "#texture", "tintindex": 0},
+				"south": {"uv": [14, 7, 16, 10], "texture": "#texture", "tintindex": 0},
+				"west": {"uv": [12, 7, 14, 10], "texture": "#texture", "tintindex": 0},
+				"up": {"uv": [12, 7, 10, 5], "texture": "#texture", "tintindex": 0},
+				"down": {"uv": [14, 5, 12, 7], "texture": "#texture", "tintindex": 0}
+			}
+		},
+		{
+			"name": "bellow",
+			"from": [2, 4, 2],
+			"to": [14, 12, 14],
+			"rotation": {"angle": 0, "axis": "y", "origin": [1, 0, 2]},
+			"faces": {
+				"north": {"uv": [0.5, 12, 3.5, 14], "texture": "#texture"},
+				"east": {"uv": [0.5, 12, 3.5, 14], "texture": "#texture"},
+				"south": {"uv": [0.5, 12, 3.5, 14], "texture": "#texture"},
+				"west": {"uv": [0.5, 12, 3.5, 14], "texture": "#texture"}
+			}
+		}
+	],
+	"display": {}
 }

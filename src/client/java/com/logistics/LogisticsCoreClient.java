@@ -2,9 +2,9 @@ package com.logistics;
 
 import com.logistics.core.bootstrap.DomainBootstrap;
 import com.logistics.core.render.MarkerBlockEntityRenderer;
-import net.fabricmc.fabric.api.client.rendering.v1.BlockEntityRendererRegistry;
-import net.fabricmc.fabric.api.client.rendering.v1.BlockRenderLayerMap;
-import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
+import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 
 import static com.logistics.LogisticsMod.LOGGER;
 
@@ -21,8 +21,10 @@ public final class LogisticsCoreClient implements DomainBootstrap {
     @Override
     public void initClient() {
         LOGGER.info("Registering core (client)");
-        BlockRenderLayerMap.putBlock(LogisticsCore.BLOCK.MARKER, ChunkSectionLayer.CUTOUT);
-        BlockEntityRendererRegistry.register(LogisticsCore.ENTITY.MARKER_BLOCK_ENTITY, MarkerBlockEntityRenderer::new);
+        // Set marker to cutout layer for transparent texture support
+        BlockRenderLayerMap.INSTANCE.putBlock(LogisticsCore.BLOCK.MARKER, RenderType.cutout());
+        // Register marker block entity renderer
+        BlockEntityRenderers.register(LogisticsCore.ENTITY.MARKER_BLOCK_ENTITY, MarkerBlockEntityRenderer::new);
     }
 
     @Override
