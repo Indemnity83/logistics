@@ -90,6 +90,11 @@ public final class LogisticsPowerClient implements DomainBootstrap {
     /**
      * Registers block color providers for engines to tint based on heat stage.
      * Uses the STAGE block state property to determine color.
+     *
+     * <p>TODO: The non-overheating flash effect (HOT/WARM oscillation) is driven by block state
+     * changes on the server tick, which causes chunk rebuilds at each half-stroke transition.
+     * The better long-term solution is to render the engine core dynamically in the block entity
+     * renderer, where per-frame animation progress is available for smooth, rebuild-free coloring.
      */
     private void registerEngineBlockColors() {
         BlockColorRegistry.register((state, level, pos, tintIndex) -> {
