@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.3.2](https://github.com/Indemnity83/logistics/compare/mc1.21.11-v0.3.1...mc1.21.11-v0.3.2) (2026-02-17)
+
+
+### Bug Fixes
+
+* migrate tin/bronze recipes to c: tags and drop apatite tag entries ([#110](https://github.com/Indemnity83/logistics/issues/110)) ([dd4a564](https://github.com/Indemnity83/logistics/commit/dd4a564a8b9e8f340bb93a0d2375d782483e4bb7))
+* normalize engine rendering with extra models, cutout layer, and heat tints ([#106](https://github.com/Indemnity83/logistics/issues/106)) ([317f9a7](https://github.com/Indemnity83/logistics/commit/317f9a7737d7f0d47fbbe43c3b452145cb9336f3))
+* restore non-overheating engine warm flash and scale piston speed by heat ([#111](https://github.com/Indemnity83/logistics/issues/111)) ([1b909c6](https://github.com/Indemnity83/logistics/commit/1b909c67ec35279887b4b3f648e963ec7406f90b))
+
 ## [0.3.1](https://github.com/Indemnity83/logistics/compare/mc1.21.11-v0.3.0...mc1.21.11-v0.3.1) (2026-02-16)
 
 
