@@ -3,6 +3,7 @@ package com.logistics;
 import com.logistics.core.bootstrap.DomainBootstrap;
 import com.logistics.core.render.MarkerBlockEntityRenderer;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
+import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 
@@ -10,7 +11,9 @@ import static com.logistics.LogisticsMod.LOGGER;
 
 public final class LogisticsCoreClient implements DomainBootstrap {
     public LogisticsCoreClient() {
-        // Public constructor for direct instantiation
+        ModelLoadingPlugin.register(pluginContext -> {
+            pluginContext.addModels(LogisticsCore.blockModelIdentifier("marker_beam"));
+        });
     }
 
     @Override

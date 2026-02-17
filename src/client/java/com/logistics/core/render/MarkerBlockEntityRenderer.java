@@ -1,31 +1,37 @@
 package com.logistics.core.render;
 
+import com.logistics.LogisticsCore;
 import com.logistics.core.marker.MarkerBlockEntity;
 import com.logistics.core.marker.MarkerManager;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Axis;
+import net.fabricmc.fabric.api.client.model.loading.v1.FabricBakedModelManager;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.block.ModelBlockRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
-import org.joml.Matrix4f;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.RandomSource;
 
 import java.util.List;
 
 /**
  * Renders laser beams for active markers in MC 1.21.1.
- * TODO: Improve beam rendering to match MC 1.21.11 version (quad-based beams with proper thickness)
- * Currently uses simple line rendering for compatibility.
+ * Uses baked model segments for quad-based beams with proper thickness.
  */
 public class MarkerBlockEntityRenderer implements BlockEntityRenderer<MarkerBlockEntity> {
-    // Beam color (bright blue: #0132FD)
-    private static final float BEAM_RED = 0.2f;
-    private static final float BEAM_GREEN = 0.5f;
-    private static final float BEAM_BLUE = 1.0f;
-    private static final float BEAM_ALPHA = 1.0f;
+    private static final ResourceLocation BEAM_MODEL_ID = LogisticsCore.blockModelIdentifier("marker_beam");
 
-    public MarkerBlockEntityRenderer(BlockEntityRendererProvider.Context ctx) {}
+    private final ModelBlockRenderer modelRenderer;
+
+    public MarkerBlockEntityRenderer(BlockEntityRendererProvider.Context ctx) {
+        this.modelRenderer = ctx.getBlockRenderDispatcher().getModelRenderer();
+    }
 
     @Override
     public void render(
@@ -39,35 +45,74 @@ public class MarkerBlockEntityRenderer implements BlockEntityRenderer<MarkerBloc
             return;
         }
 
-        // Calculate which beams to render
+        BakedModel beamModel = getBeamModel();
+        if (beamModel == null) {
+            return;
+        }
+
         BeamLengths beams = calculateBeamLengths(entity);
-
-        // Render beams as simple blue lines
-        VertexConsumer lineBuffer = bufferSource.getBuffer(RenderType.lines());
-
-        poseStack.pushPose();
-        poseStack.translate(0.5, 0.3, 0.5); // Center of marker
-
-        Matrix4f matrix = poseStack.last().pose();
+        VertexConsumer buffer = bufferSource.getBuffer(RenderType.cutout());
 
         if (beams.north > 0) {
-            lineBuffer.addVertex(matrix, 0, 0, 0).setColor(BEAM_RED, BEAM_GREEN, BEAM_BLUE, BEAM_ALPHA).setNormal(0, 1, 0);
-            lineBuffer.addVertex(matrix, 0, 0, -beams.north).setColor(BEAM_RED, BEAM_GREEN, BEAM_BLUE, BEAM_ALPHA).setNormal(0, 1, 0);
+            renderBeamInDirection(entity, beamModel, poseStack, buffer, packedOverlay, 180, beams.north);
         }
         if (beams.south > 0) {
-            lineBuffer.addVertex(matrix, 0, 0, 0).setColor(BEAM_RED, BEAM_GREEN, BEAM_BLUE, BEAM_ALPHA).setNormal(0, 1, 0);
-            lineBuffer.addVertex(matrix, 0, 0, beams.south).setColor(BEAM_RED, BEAM_GREEN, BEAM_BLUE, BEAM_ALPHA).setNormal(0, 1, 0);
+            renderBeamInDirection(entity, beamModel, poseStack, buffer, packedOverlay, 0, beams.south);
         }
         if (beams.east > 0) {
-            lineBuffer.addVertex(matrix, 0, 0, 0).setColor(BEAM_RED, BEAM_GREEN, BEAM_BLUE, BEAM_ALPHA).setNormal(0, 1, 0);
-            lineBuffer.addVertex(matrix, beams.east, 0, 0).setColor(BEAM_RED, BEAM_GREEN, BEAM_BLUE, BEAM_ALPHA).setNormal(0, 1, 0);
+            renderBeamInDirection(entity, beamModel, poseStack, buffer, packedOverlay, 90, beams.east);
         }
         if (beams.west > 0) {
-            lineBuffer.addVertex(matrix, 0, 0, 0).setColor(BEAM_RED, BEAM_GREEN, BEAM_BLUE, BEAM_ALPHA).setNormal(0, 1, 0);
-            lineBuffer.addVertex(matrix, -beams.west, 0, 0).setColor(BEAM_RED, BEAM_GREEN, BEAM_BLUE, BEAM_ALPHA).setNormal(0, 1, 0);
+            renderBeamInDirection(entity, beamModel, poseStack, buffer, packedOverlay, -90, beams.west);
         }
+    }
 
-        poseStack.popPose();
+    private void renderBeamInDirection(
+            MarkerBlockEntity entity,
+            BakedModel beamModel,
+            PoseStack poseStack,
+            VertexConsumer buffer,
+            int packedOverlay,
+            float yRotation,
+            int length) {
+        for (int i = 0; i < length; i++) {
+            poseStack.pushPose();
+
+            // Move to center of marker block (Y is at base of beam model)
+            poseStack.translate(0.5, -0.0625, 0.5);
+
+            // Rotate to face the correct direction (model extends in +Z)
+            poseStack.mulPose(Axis.YP.rotationDegrees(yRotation));
+
+            // Move to segment position
+            poseStack.translate(0, 0, i);
+
+            // Shift back to align model center with block center
+            poseStack.translate(-0.5, 0.0, 0.0);
+
+            modelRenderer.tesselateWithoutAO(
+                    entity.getLevel(),
+                    beamModel,
+                    entity.getBlockState(),
+                    entity.getBlockPos(),
+                    poseStack,
+                    buffer,
+                    false,
+                    RandomSource.create(),
+                    42L,
+                    packedOverlay);
+
+            poseStack.popPose();
+        }
+    }
+
+    private BakedModel getBeamModel() {
+        FabricBakedModelManager modelManager = (FabricBakedModelManager) Minecraft.getInstance().getModelManager();
+        BakedModel model = modelManager.getModel(BEAM_MODEL_ID);
+        if (model == null || model == Minecraft.getInstance().getModelManager().getMissingModel()) {
+            return null;
+        }
+        return model;
     }
 
     private BeamLengths calculateBeamLengths(MarkerBlockEntity entity) {
