@@ -94,7 +94,7 @@ public class EngineBlockEntityRenderer implements BlockEntityRenderer<AbstractEn
         poseStack.pushPose();
         poseStack.translate(0, 4 / 16f, 0);
         // Scale bellow height based on piston offset (bellow model is 8 pixels tall, max offset is 0.5 blocks)
-        float bellowScale = pistonOffset / 0.5f; // Normalize to 0-1 range
+        float bellowScale = Math.max(pistonOffset / 0.5f, 0.01f);
         poseStack.scale(1.0f, bellowScale, 1.0f);
         renderModel(entity, bellowModel, poseStack, bufferSource, packedLight, packedOverlay);
         poseStack.popPose();
@@ -145,6 +145,11 @@ public class EngineBlockEntityRenderer implements BlockEntityRenderer<AbstractEn
         }
 
         long elapsedTicks = currentTick - cache.lastGameTick;
+
+        if (elapsedTicks <= 0) {
+            cache.lastGameTick = currentTick;
+            return;
+        }
 
         if (isRunning) {
             cache.progress += pistonSpeed * elapsedTicks;

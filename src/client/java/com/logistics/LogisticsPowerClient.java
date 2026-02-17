@@ -17,14 +17,14 @@ import static com.logistics.LogisticsMod.LOGGER;
 public final class LogisticsPowerClient implements DomainBootstrap {
     public LogisticsPowerClient() {
         ModelLoadingPlugin.register(pluginContext -> {
-            net.minecraft.resources.ResourceLocation redstone_bellow = LogisticsPower.blockModelIdentifier("redstone_engine_bellow");
-            net.minecraft.resources.ResourceLocation redstone_piston = LogisticsPower.blockModelIdentifier("redstone_engine_piston");
-            net.minecraft.resources.ResourceLocation stirling_bellow = LogisticsPower.blockModelIdentifier("stirling_engine_bellow");
-            net.minecraft.resources.ResourceLocation stirling_piston = LogisticsPower.blockModelIdentifier("stirling_engine_piston");
-            net.minecraft.resources.ResourceLocation creative_bellow = LogisticsPower.blockModelIdentifier("creative_engine_bellow");
-            net.minecraft.resources.ResourceLocation creative_piston = LogisticsPower.blockModelIdentifier("creative_engine_piston");
+            net.minecraft.resources.ResourceLocation redstoneBellow = LogisticsPower.blockModelIdentifier("redstone_engine_bellow");
+            net.minecraft.resources.ResourceLocation redstonePiston = LogisticsPower.blockModelIdentifier("redstone_engine_piston");
+            net.minecraft.resources.ResourceLocation stirlingBellow = LogisticsPower.blockModelIdentifier("stirling_engine_bellow");
+            net.minecraft.resources.ResourceLocation stirlingPiston = LogisticsPower.blockModelIdentifier("stirling_engine_piston");
+            net.minecraft.resources.ResourceLocation creativeBellow = LogisticsPower.blockModelIdentifier("creative_engine_bellow");
+            net.minecraft.resources.ResourceLocation creativePiston = LogisticsPower.blockModelIdentifier("creative_engine_piston");
 
-            pluginContext.addModels(redstone_bellow, redstone_piston, stirling_bellow, stirling_piston, creative_bellow, creative_piston);
+            pluginContext.addModels(redstoneBellow, redstonePiston, stirlingBellow, stirlingPiston, creativeBellow, creativePiston);
         });
     }
 
@@ -78,7 +78,7 @@ public final class LogisticsPowerClient implements DomainBootstrap {
                 case COOL -> 0x33CC33;
                 case WARM -> 0xCCCC33;
                 case HOT -> 0xCC3333;
-                default -> 0x191919;
+                case OVERHEAT -> 0x191919;
             };
         },
         LogisticsPower.BLOCK.REDSTONE_ENGINE,
