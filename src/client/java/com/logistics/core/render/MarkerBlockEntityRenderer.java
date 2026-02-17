@@ -1,10 +1,12 @@
 package com.logistics.core.render;
 
-import com.logistics.LogisticsCore;
+import com.logistics.LogisticsCoreClient;
 import com.logistics.core.marker.MarkerBlockEntity;
 import com.logistics.core.marker.MarkerManager;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
+import net.fabricmc.fabric.api.client.model.loading.v1.FabricModelManager;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.block.model.BlockStateModel;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
@@ -15,21 +17,13 @@ import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.state.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.Identifier;
 import net.minecraft.world.phys.Vec3;
 
 /**
- * Renders laser beams and ghost cube outline for active markers.
+ * Renders laser beams for active markers.
+ * Uses baked model segments for quad-based beams with proper thickness.
  */
 public class MarkerBlockEntityRenderer implements BlockEntityRenderer<MarkerBlockEntity, MarkerRenderState> {
-    private static final Identifier BEAM_MODEL_ID =
-            LogisticsCore.blockModelIdentifier("marker_beam");
-
-    // No tinting needed - texture is pre-colored blue (#0132FD)
-    private static final float BEAM_RED = 1.0f;
-    private static final float BEAM_GREEN = 1.0f;
-    private static final float BEAM_BLUE = 1.0f;
-
     public MarkerBlockEntityRenderer(BlockEntityRendererProvider.Context ctx) {}
 
     @Override
@@ -54,11 +48,8 @@ public class MarkerBlockEntityRenderer implements BlockEntityRenderer<MarkerBloc
         state.boundMax = entity.getBoundMax();
         state.isCornerMarker = entity.isCornerMarker();
 
-        // Calculate beam lengths
-        if (state.active) {
-            if (entity.getLevel() != null) {
-                calculateBeamLengths(state, entity.getBlockPos());
-            }
+        if (state.active && entity.getLevel() != null) {
+            calculateBeamLengths(state, entity.getBlockPos());
         } else {
             state.beamNorth = 0;
             state.beamSouth = 0;
@@ -68,21 +59,15 @@ public class MarkerBlockEntityRenderer implements BlockEntityRenderer<MarkerBloc
     }
 
     private void calculateBeamLengths(MarkerRenderState state, BlockPos pos) {
+        int north = 0, south = 0, east = 0, west = 0;
+
         if (!state.connectedMarkers.isEmpty()) {
             // Connected mode - draw beams to form rectangle outline
-            state.beamNorth = 0;
-            state.beamSouth = 0;
-            state.beamEast = 0;
-            state.beamWest = 0;
-
             int posX = pos.getX();
             int posZ = pos.getZ();
 
-            // Compute the rectangle bounds from this marker + connected markers
-            int minX = posX;
-            int maxX = posX;
-            int minZ = posZ;
-            int maxZ = posZ;
+            int minX = posX, maxX = posX;
+            int minZ = posZ, maxZ = posZ;
 
             for (BlockPos connected : state.connectedMarkers) {
                 minX = Math.min(minX, connected.getX());
@@ -92,64 +77,61 @@ public class MarkerBlockEntityRenderer implements BlockEntityRenderer<MarkerBloc
             }
 
             // Check which corners have markers
-            boolean hasMarkerAtNW = hasMarkerAt(state, pos, minX, minZ); // (minX, minZ)
-            boolean hasMarkerAtNE = hasMarkerAt(state, pos, maxX, minZ); // (maxX, minZ)
-            boolean hasMarkerAtSW = hasMarkerAt(state, pos, minX, maxZ); // (minX, maxZ)
+            boolean hasMarkerAtNW = hasMarkerAt(state, pos, minX, minZ);
+            boolean hasMarkerAtNE = hasMarkerAt(state, pos, maxX, minZ);
+            boolean hasMarkerAtSW = hasMarkerAt(state, pos, minX, maxZ);
 
             // North edge (z = minZ): from (minX, minZ) to (maxX, minZ)
             if (posZ == minZ) {
                 if (posX == minX) {
-                    // At west end of north edge - draw east
-                    state.beamEast = maxX - minX;
+                    east = maxX - minX;
                 } else if (posX == maxX && !hasMarkerAtNW) {
-                    // At east end and no marker at west end - draw west
-                    state.beamWest = maxX - minX;
+                    west = maxX - minX;
                 }
             }
 
             // South edge (z = maxZ): from (minX, maxZ) to (maxX, maxZ)
             if (posZ == maxZ) {
                 if (posX == minX) {
-                    // At west end of south edge - draw east
-                    state.beamEast = maxX - minX;
+                    east = maxX - minX;
                 } else if (posX == maxX && !hasMarkerAtSW) {
-                    // At east end and no marker at west end - draw west
-                    state.beamWest = maxX - minX;
+                    west = maxX - minX;
                 }
             }
 
             // West edge (x = minX): from (minX, minZ) to (minX, maxZ)
             if (posX == minX) {
                 if (posZ == minZ) {
-                    // At north end of west edge - draw south
-                    state.beamSouth = maxZ - minZ;
+                    south = maxZ - minZ;
                 } else if (posZ == maxZ && !hasMarkerAtNW) {
-                    // At south end and no marker at north end - draw north
-                    state.beamNorth = maxZ - minZ;
+                    north = maxZ - minZ;
                 }
             }
 
             // East edge (x = maxX): from (maxX, minZ) to (maxX, maxZ)
             if (posX == maxX) {
                 if (posZ == minZ) {
-                    // At north end of east edge - draw south
-                    state.beamSouth = maxZ - minZ;
+                    south = maxZ - minZ;
                 } else if (posZ == maxZ && !hasMarkerAtNE) {
-                    // At south end and no marker at north end - draw north
-                    state.beamNorth = maxZ - minZ;
+                    north = maxZ - minZ;
                 }
             }
         } else {
-            // Solo mode - project beams in all directions up to MAX_MARKER_DISTANCE
-            state.beamNorth = MarkerManager.MAX_MARKER_DISTANCE;
-            state.beamSouth = MarkerManager.MAX_MARKER_DISTANCE;
-            state.beamEast = MarkerManager.MAX_MARKER_DISTANCE;
-            state.beamWest = MarkerManager.MAX_MARKER_DISTANCE;
+            // Solo mode - project beams in all directions
+            int distance = MarkerManager.MAX_MARKER_DISTANCE;
+            north = distance;
+            south = distance;
+            east = distance;
+            west = distance;
         }
+
+        state.beamNorth = north;
+        state.beamSouth = south;
+        state.beamEast = east;
+        state.beamWest = west;
     }
 
     private boolean hasMarkerAt(MarkerRenderState state, BlockPos thisPos, int x, int z) {
-        // Check if this marker or any connected marker is at the given X,Z position
         if (thisPos.getX() == x && thisPos.getZ() == z) {
             return true;
         }
@@ -168,15 +150,13 @@ public class MarkerBlockEntityRenderer implements BlockEntityRenderer<MarkerBloc
             return;
         }
 
-        BlockStateModel beamModel = ModelRegistry.getModel(BEAM_MODEL_ID);
+        BlockStateModel beamModel = getBeamModel();
         if (beamModel == null) {
             return;
         }
 
         RenderType renderLayer = RenderTypes.cutoutMovingBlock();
 
-        // Render beams in each direction
-        // Model extends in +Z, so rotate to point in the desired direction
         if (state.beamNorth > 0) {
             renderBeamInDirection(matrices, queue, beamModel, renderLayer, state.lightCoords, 180, state.beamNorth);
         }
@@ -191,6 +171,15 @@ public class MarkerBlockEntityRenderer implements BlockEntityRenderer<MarkerBloc
         }
     }
 
+    private BlockStateModel getBeamModel() {
+        FabricModelManager modelManager = (FabricModelManager) Minecraft.getInstance().getModelManager();
+        BlockStateModel model = modelManager.getModel(LogisticsCoreClient.MODEL.BEAM);
+        if (model == null || model == Minecraft.getInstance().getModelManager().getMissingBlockStateModel()) {
+            return null;
+        }
+        return model;
+    }
+
     private void renderBeamInDirection(
             PoseStack matrices,
             SubmitNodeCollector queue,
@@ -199,7 +188,6 @@ public class MarkerBlockEntityRenderer implements BlockEntityRenderer<MarkerBloc
             int lightmap,
             float yRotation,
             int length) {
-        // Render beam segments starting from center of marker
         for (int i = 0; i < length; i++) {
             matrices.pushPose();
 
@@ -209,20 +197,19 @@ public class MarkerBlockEntityRenderer implements BlockEntityRenderer<MarkerBloc
             // Rotate to face the correct direction (model extends in +Z)
             matrices.mulPose(Axis.YP.rotationDegrees(yRotation));
 
-            // Move to segment position - start at center, end at center of last block
-            // i=0 places segment at 0, covering 0 to 1 (starts at marker center in local coords)
+            // Move to segment position
             matrices.translate(0, 0, i);
 
-            // Move back from center for model rendering
+            // Shift back to align model center with block center
             matrices.translate(-0.5, 0.0, 0.0);
 
             queue.submitBlockModel(
                     matrices,
                     renderLayer,
                     beamModel,
-                    BEAM_RED,
-                    BEAM_GREEN,
-                    BEAM_BLUE,
+                    1f,
+                    1f,
+                    1f,
                     lightmap,
                     OverlayTexture.NO_OVERLAY,
                     0);
