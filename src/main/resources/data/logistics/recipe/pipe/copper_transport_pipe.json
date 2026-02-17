@@ -1,9 +1,15 @@
 {
   "key": {
-    "C": "minecraft:copper_ingot",
-    "G": "minecraft:glass"
+    "C": {
+      "item": "minecraft:copper_ingot"
+    },
+    "G": {
+      "item": "minecraft:glass"
+    }
   },
-  "pattern": ["CGC"],
+  "pattern": [
+    "CGC"
+  ],
   "result": {
     "count": 8,
     "id": "logistics:pipe/copper_transport_pipe"

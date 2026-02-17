@@ -1,7 +1,9 @@
 {
   "type": "minecraft:crafting_shapeless",
   "ingredients": [
-    "logistics:core/apatite_block"
+    {
+      "item": "logistics:core/apatite_block"
+    }
   ],
   "result": {
     "count": 9,

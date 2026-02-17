@@ -1,8 +1,12 @@
 {
   "ingredients": [
-    "minecraft:yellow_dye",
     {
-      "base": "minecraft:potion",
+      "item": "minecraft:yellow_dye"
+    },
+    {
+      "base": {
+        "item": "minecraft:potion"
+      },
       "components": {
         "minecraft:potion_contents": {
           "potion": "minecraft:water"

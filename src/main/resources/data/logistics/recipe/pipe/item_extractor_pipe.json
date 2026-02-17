@@ -1,9 +1,15 @@
 {
   "key": {
-    "G": "minecraft:glass",
-    "W": "#minecraft:planks"
+    "G": {
+      "item": "minecraft:glass"
+    },
+    "W": {
+      "tag": "minecraft:planks"
+    }
   },
-  "pattern": ["WGW"],
+  "pattern": [
+    "WGW"
+  ],
   "result": {
     "count": 8,
     "id": "logistics:pipe/item_extractor_pipe"

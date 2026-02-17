@@ -1,8 +1,14 @@
 {
   "key": {
-    "S": "minecraft:stick"
+    "S": {
+      "item": "minecraft:stick"
+    }
   },
-  "pattern": [" S ", "S S", " S "],
+  "pattern": [
+    " S ",
+    "S S",
+    " S "
+  ],
   "result": {
     "count": 1,
     "id": "logistics:core/wooden_gear"

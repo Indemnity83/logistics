@@ -1,9 +1,17 @@
 {
   "key": {
-    "G": "logistics:core/diamond_gear",
-    "N": "minecraft:netherite_ingot"
+    "G": {
+      "item": "logistics:core/diamond_gear"
+    },
+    "N": {
+      "item": "minecraft:netherite_ingot"
+    }
   },
-  "pattern": [" N ", "NGN", " N "],
+  "pattern": [
+    " N ",
+    "NGN",
+    " N "
+  ],
   "result": {
     "count": 1,
     "id": "logistics:core/netherite_gear"

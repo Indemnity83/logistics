@@ -1,10 +1,18 @@
 {
   "type": "minecraft:crafting_shapeless",
   "ingredients": [
-    "minecraft:copper_ingot",
-    "minecraft:copper_ingot",
-    "minecraft:copper_ingot",
-    {"tag": "c:ingots/tin"}
+    {
+      "item": "minecraft:copper_ingot"
+    },
+    {
+      "item": "minecraft:copper_ingot"
+    },
+    {
+      "item": "minecraft:copper_ingot"
+    },
+    {
+      "tag": "c:ingots/tin"
+    }
   ],
   "result": {
     "count": 4,

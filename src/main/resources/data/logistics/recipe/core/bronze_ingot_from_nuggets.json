@@ -1,7 +1,9 @@
 {
   "type": "minecraft:crafting_shaped",
   "key": {
-    "N": {"tag": "c:nuggets/bronze"}
+    "N": {
+      "tag": "c:nuggets/bronze"
+    }
   },
   "pattern": [
     "NNN",

@@ -1,12 +1,19 @@
 {
   "type": "minecraft:crafting_shaped",
-  "pattern": ["L", "S"],
+  "pattern": [
+    "L",
+    "S"
+  ],
   "key": {
-    "L": "minecraft:lapis_lazuli",
-    "S": "minecraft:stick"
+    "L": {
+      "item": "minecraft:lapis_lazuli"
+    },
+    "S": {
+      "item": "minecraft:stick"
+    }
   },
   "result": {
-    "id": "logistics:core/marker",
-    "count": 2
+    "count": 2,
+    "id": "logistics:core/marker"
   }
 }

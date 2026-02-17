@@ -1,9 +1,15 @@
 {
   "key": {
-    "G": "minecraft:glass",
-    "S": "minecraft:sandstone"
+    "G": {
+      "item": "minecraft:glass"
+    },
+    "S": {
+      "item": "minecraft:sandstone"
+    }
   },
-  "pattern": ["SGS"],
+  "pattern": [
+    "SGS"
+  ],
   "result": {
     "count": 8,
     "id": "logistics:pipe/item_passthrough_pipe"

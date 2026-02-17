@@ -1,9 +1,17 @@
 {
   "key": {
-    "G": "logistics:core/copper_gear",
-    "I": "minecraft:iron_ingot"
+    "G": {
+      "item": "logistics:core/copper_gear"
+    },
+    "I": {
+      "item": "minecraft:iron_ingot"
+    }
   },
-  "pattern": [" I ", "IGI", " I "],
+  "pattern": [
+    " I ",
+    "IGI",
+    " I "
+  ],
   "result": {
     "count": 1,
     "id": "logistics:core/iron_gear"

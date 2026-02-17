@@ -1,9 +1,17 @@
 {
   "key": {
-    "C": "minecraft:copper_ingot",
-    "G": "logistics:core/stone_gear"
+    "C": {
+      "item": "minecraft:copper_ingot"
+    },
+    "G": {
+      "item": "logistics:core/stone_gear"
+    }
   },
-  "pattern": [" C ", "CGC", " C "],
+  "pattern": [
+    " C ",
+    "CGC",
+    " C "
+  ],
   "result": {
     "count": 1,
     "id": "logistics:core/copper_gear"

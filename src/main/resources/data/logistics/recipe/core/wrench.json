@@ -1,8 +1,14 @@
 {
   "key": {
-    "I": "minecraft:iron_ingot"
+    "I": {
+      "item": "minecraft:iron_ingot"
+    }
   },
-  "pattern": ["I I", " I ", " I "],
+  "pattern": [
+    "I I",
+    " I ",
+    " I "
+  ],
   "result": {
     "count": 1,
     "id": "logistics:core/wrench"

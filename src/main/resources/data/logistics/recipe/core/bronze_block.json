@@ -1,7 +1,9 @@
 {
   "type": "minecraft:crafting_shaped",
   "key": {
-    "B": {"tag": "c:ingots/bronze"}
+    "B": {
+      "tag": "c:ingots/bronze"
+    }
   },
   "pattern": [
     "BBB",

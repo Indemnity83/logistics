@@ -1,7 +1,9 @@
 {
   "type": "minecraft:crafting_shaped",
   "key": {
-    "R": {"tag": "c:raw_materials/tin"}
+    "R": {
+      "tag": "c:raw_materials/tin"
+    }
   },
   "pattern": [
     "RRR",

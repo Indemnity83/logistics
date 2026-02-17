@@ -1,7 +1,9 @@
 {
   "type": "minecraft:crafting_shapeless",
   "ingredients": [
-    {"tag": "c:storage_blocks/bronze"}
+    {
+      "tag": "c:storage_blocks/bronze"
+    }
   ],
   "result": {
     "count": 9,

@@ -1,14 +1,26 @@
 {
   "type": "minecraft:crafting_shaped",
-  "pattern": ["SSS", " G ", "sps"],
+  "pattern": [
+    "SSS",
+    " G ",
+    "sps"
+  ],
   "key": {
-    "S": "minecraft:stone",
-    "G": "minecraft:glass",
-    "s": "logistics:core/stone_gear",
-    "p": "minecraft:piston"
+    "S": {
+      "item": "minecraft:stone"
+    },
+    "G": {
+      "item": "minecraft:glass"
+    },
+    "s": {
+      "item": "logistics:core/stone_gear"
+    },
+    "p": {
+      "item": "minecraft:piston"
+    }
   },
   "result": {
-    "id": "logistics:power/stirling_engine",
-    "count": 1
+    "count": 1,
+    "id": "logistics:power/stirling_engine"
   }
 }

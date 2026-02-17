@@ -1,9 +1,15 @@
 {
   "key": {
-    "G": "minecraft:glass",
-    "S": "minecraft:stone"
+    "G": {
+      "item": "minecraft:glass"
+    },
+    "S": {
+      "item": "minecraft:stone"
+    }
   },
-  "pattern": ["SGS"],
+  "pattern": [
+    "SGS"
+  ],
   "result": {
     "count": 8,
     "id": "logistics:pipe/stone_transport_pipe"

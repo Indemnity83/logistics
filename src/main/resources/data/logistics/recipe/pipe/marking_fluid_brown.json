@@ -1,8 +1,12 @@
 {
   "ingredients": [
-    "minecraft:brown_dye",
     {
-      "base": "minecraft:potion",
+      "item": "minecraft:brown_dye"
+    },
+    {
+      "base": {
+        "item": "minecraft:potion"
+      },
       "components": {
         "minecraft:potion_contents": {
           "potion": "minecraft:water"

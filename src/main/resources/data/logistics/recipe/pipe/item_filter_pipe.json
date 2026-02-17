@@ -1,9 +1,15 @@
 {
   "key": {
-    "D": "minecraft:diamond",
-    "G": "minecraft:glass"
+    "D": {
+      "item": "minecraft:diamond"
+    },
+    "G": {
+      "item": "minecraft:glass"
+    }
   },
-  "pattern": ["DGD"],
+  "pattern": [
+    "DGD"
+  ],
   "result": {
     "count": 8,
     "id": "logistics:pipe/item_filter_pipe"

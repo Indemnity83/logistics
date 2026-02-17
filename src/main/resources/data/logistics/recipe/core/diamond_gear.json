@@ -1,9 +1,17 @@
 {
   "key": {
-    "D": "minecraft:diamond",
-    "G": "logistics:core/gold_gear"
+    "D": {
+      "item": "minecraft:diamond"
+    },
+    "G": {
+      "item": "logistics:core/gold_gear"
+    }
   },
-  "pattern": [" D ", "DGD", " D "],
+  "pattern": [
+    " D ",
+    "DGD",
+    " D "
+  ],
   "result": {
     "count": 1,
     "id": "logistics:core/diamond_gear"

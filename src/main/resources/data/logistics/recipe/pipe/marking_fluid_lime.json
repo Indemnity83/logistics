@@ -1,8 +1,12 @@
 {
   "ingredients": [
-    "minecraft:lime_dye",
     {
-      "base": "minecraft:potion",
+      "item": "minecraft:lime_dye"
+    },
+    {
+      "base": {
+        "item": "minecraft:potion"
+      },
       "components": {
         "minecraft:potion_contents": {
           "potion": "minecraft:water"

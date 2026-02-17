@@ -1,9 +1,17 @@
 {
   "key": {
-    "G": "logistics:core/wooden_gear",
-    "S": "minecraft:stone"
+    "G": {
+      "item": "logistics:core/wooden_gear"
+    },
+    "S": {
+      "item": "minecraft:stone"
+    }
   },
-  "pattern": [" S ", "SGS", " S "],
+  "pattern": [
+    " S ",
+    "SGS",
+    " S "
+  ],
   "result": {
     "count": 1,
     "id": "logistics:core/stone_gear"

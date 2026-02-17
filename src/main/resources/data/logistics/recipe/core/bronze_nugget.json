@@ -1,7 +1,9 @@
 {
   "type": "minecraft:crafting_shapeless",
   "ingredients": [
-    {"tag": "c:ingots/bronze"}
+    {
+      "tag": "c:ingots/bronze"
+    }
   ],
   "result": {
     "count": 9,

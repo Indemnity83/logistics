@@ -6,7 +6,9 @@
     "BBB"
   ],
   "key": {
-    "B": "logistics:core/bronze_ingot"
+    "B": {
+      "item": "logistics:core/bronze_ingot"
+    }
   },
   "result": {
     "count": 1,

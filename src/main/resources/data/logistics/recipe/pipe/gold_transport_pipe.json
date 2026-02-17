@@ -1,9 +1,15 @@
 {
   "key": {
-    "A": "minecraft:gold_ingot",
-    "G": "minecraft:glass"
+    "A": {
+      "item": "minecraft:gold_ingot"
+    },
+    "G": {
+      "item": "minecraft:glass"
+    }
   },
-  "pattern": ["AGA"],
+  "pattern": [
+    "AGA"
+  ],
   "result": {
     "count": 8,
     "id": "logistics:pipe/gold_transport_pipe"

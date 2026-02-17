@@ -1,7 +1,9 @@
 {
   "type": "minecraft:crafting_shaped",
   "key": {
-    "T": {"tag": "c:ingots/tin"}
+    "T": {
+      "tag": "c:ingots/tin"
+    }
   },
   "pattern": [
     "TTT",

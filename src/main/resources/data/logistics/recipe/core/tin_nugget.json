@@ -1,7 +1,9 @@
 {
   "type": "minecraft:crafting_shapeless",
   "ingredients": [
-    {"tag": "c:ingots/tin"}
+    {
+      "tag": "c:ingots/tin"
+    }
   ],
   "result": {
     "count": 9,
