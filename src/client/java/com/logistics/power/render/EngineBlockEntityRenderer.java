@@ -119,7 +119,7 @@ public class EngineBlockEntityRenderer implements BlockEntityRenderer<AbstractEn
         // Render bellow (stretches from Y=4 to piston bottom)
         matrices.pushPose();
         matrices.translate(0, 4 / 16f, 0);
-        float bellowScale = pistonOffset / 0.5f;
+        float bellowScale = Math.max(pistonOffset / 0.5f, 0.01f);
         matrices.scale(1.0f, bellowScale, 1.0f);
         queue.submitBlockModel(
                 matrices,

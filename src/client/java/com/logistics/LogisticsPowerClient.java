@@ -21,26 +21,26 @@ import static com.logistics.LogisticsMod.LOGGER;
 public final class LogisticsPowerClient implements DomainBootstrap {
     public LogisticsPowerClient() {
         ModelLoadingPlugin.register(pluginContext -> {
-            Identifier redstone_bellow = LogisticsPower.blockModelIdentifier("redstone_engine_bellow");
-            Identifier redstone_piston = LogisticsPower.blockModelIdentifier("redstone_engine_piston");
-            Identifier stirling_bellow = LogisticsPower.blockModelIdentifier("stirling_engine_bellow");
-            Identifier stirling_piston = LogisticsPower.blockModelIdentifier("stirling_engine_piston");
-            Identifier creative_bellow = LogisticsPower.blockModelIdentifier("creative_engine_bellow");
-            Identifier creative_piston = LogisticsPower.blockModelIdentifier("creative_engine_piston");
+            Identifier redstoneBellow = LogisticsPower.blockModelIdentifier("redstone_engine_bellow");
+            Identifier redstonePiston = LogisticsPower.blockModelIdentifier("redstone_engine_piston");
+            Identifier stirlingBellow = LogisticsPower.blockModelIdentifier("stirling_engine_bellow");
+            Identifier stirlingPiston = LogisticsPower.blockModelIdentifier("stirling_engine_piston");
+            Identifier creativeBellow = LogisticsPower.blockModelIdentifier("creative_engine_bellow");
+            Identifier creativePiston = LogisticsPower.blockModelIdentifier("creative_engine_piston");
 
-            MODEL.REDSTONE_BELLOW = ExtraModelKey.create(redstone_bellow::toString);
-            MODEL.REDSTONE_PISTON = ExtraModelKey.create(redstone_piston::toString);
-            MODEL.STIRLING_BELLOW = ExtraModelKey.create(stirling_bellow::toString);
-            MODEL.STIRLING_PISTON = ExtraModelKey.create(stirling_piston::toString);
-            MODEL.CREATIVE_BELLOW = ExtraModelKey.create(creative_bellow::toString);
-            MODEL.CREATIVE_PISTON = ExtraModelKey.create(creative_piston::toString);
+            MODEL.REDSTONE_BELLOW = ExtraModelKey.create(redstoneBellow::toString);
+            MODEL.REDSTONE_PISTON = ExtraModelKey.create(redstonePiston::toString);
+            MODEL.STIRLING_BELLOW = ExtraModelKey.create(stirlingBellow::toString);
+            MODEL.STIRLING_PISTON = ExtraModelKey.create(stirlingPiston::toString);
+            MODEL.CREATIVE_BELLOW = ExtraModelKey.create(creativeBellow::toString);
+            MODEL.CREATIVE_PISTON = ExtraModelKey.create(creativePiston::toString);
 
-            pluginContext.addModel(MODEL.REDSTONE_BELLOW, SimpleUnbakedExtraModel.blockStateModel(redstone_bellow));
-            pluginContext.addModel(MODEL.REDSTONE_PISTON, SimpleUnbakedExtraModel.blockStateModel(redstone_piston));
-            pluginContext.addModel(MODEL.STIRLING_BELLOW, SimpleUnbakedExtraModel.blockStateModel(stirling_bellow));
-            pluginContext.addModel(MODEL.STIRLING_PISTON, SimpleUnbakedExtraModel.blockStateModel(stirling_piston));
-            pluginContext.addModel(MODEL.CREATIVE_BELLOW, SimpleUnbakedExtraModel.blockStateModel(creative_bellow));
-            pluginContext.addModel(MODEL.CREATIVE_PISTON, SimpleUnbakedExtraModel.blockStateModel(creative_piston));
+            pluginContext.addModel(MODEL.REDSTONE_BELLOW, SimpleUnbakedExtraModel.blockStateModel(redstoneBellow));
+            pluginContext.addModel(MODEL.REDSTONE_PISTON, SimpleUnbakedExtraModel.blockStateModel(redstonePiston));
+            pluginContext.addModel(MODEL.STIRLING_BELLOW, SimpleUnbakedExtraModel.blockStateModel(stirlingBellow));
+            pluginContext.addModel(MODEL.STIRLING_PISTON, SimpleUnbakedExtraModel.blockStateModel(stirlingPiston));
+            pluginContext.addModel(MODEL.CREATIVE_BELLOW, SimpleUnbakedExtraModel.blockStateModel(creativeBellow));
+            pluginContext.addModel(MODEL.CREATIVE_PISTON, SimpleUnbakedExtraModel.blockStateModel(creativePiston));
         });
     }
 
@@ -102,7 +102,7 @@ public final class LogisticsPowerClient implements DomainBootstrap {
                 case COOL -> 0x33CC33;
                 case WARM -> 0xCCCC33;
                 case HOT -> 0xCC3333;
-                default -> 0x191919;
+                case OVERHEAT -> 0x191919;
             };
         },
         LogisticsPower.BLOCK.REDSTONE_ENGINE,
