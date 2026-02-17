@@ -1,7 +1,7 @@
 {
   "type": "minecraft:crafting_shaped",
   "key": {
-    "N": "logistics:core/bronze_nugget"
+    "N": "#c:nuggets/bronze"
   },
   "pattern": [
     "NNN",
