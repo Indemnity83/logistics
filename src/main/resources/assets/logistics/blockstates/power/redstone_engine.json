@@ -1,7 +1,29 @@
 {
   "variants": {
-    "": {
-      "model": "logistics:block/power/redstone_engine"
+    "facing=down": {
+      "model": "logistics:block/power/redstone_engine_static",
+      "x": 180
+    },
+    "facing=up": {
+      "model": "logistics:block/power/redstone_engine_static"
+    },
+    "facing=north": {
+      "model": "logistics:block/power/redstone_engine_static",
+      "x": 90
+    },
+    "facing=south": {
+      "model": "logistics:block/power/redstone_engine_static",
+      "x": 270
+    },
+    "facing=west": {
+      "model": "logistics:block/power/redstone_engine_static",
+      "x": 90,
+      "y": 270
+    },
+    "facing=east": {
+      "model": "logistics:block/power/redstone_engine_static",
+      "x": 90,
+      "y": 90
     }
   }
 }
