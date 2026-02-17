@@ -1,7 +1,7 @@
 {
   "type": "minecraft:crafting_shapeless",
   "ingredients": [
-    "logistics:core/bronze_block"
+    "#c:storage_blocks/bronze"
   ],
   "result": {
     "count": 9,
