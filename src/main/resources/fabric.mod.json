@@ -6,12 +6,6 @@
     "issues": "https://github.com/indemnity83/logistics/issues",
     "sources": "https://github.com/indemnity83/logistics"
   },
-  "custom": {
-    "mc-publish": {
-      "curseforge": 1425041,
-      "modrinth": "cyW2SS1x"
-    }
-  },
   "depends": {
     "fabric-api": "*",
     "fabricloader": ">=0.18.4",
