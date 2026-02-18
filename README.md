@@ -88,7 +88,7 @@ Basic transport pipe that moves items through your network. When an item reaches
 Mark copper pipes with **marking fluid** (water bottle + dye) to segment networks by color. Pipes with the same marking will not connect; sneak + empty hand clears the marking.
 
 ### Item Extractor Pipe (Wood)
-Extraction pipe that actively pulls items from an adjacent inventor into your pipe network. Right-click with a wrench to select which face extracts. Only one face can be active at a time. Wooden pipes extract one item per operation.
+Extraction pipe that actively pulls items from an adjacent inventory into your pipe network. Right-click with a wrench to select which face extracts. Only one face can be active at a time. Wooden pipes extract one item per operation.
 
 *Recipe: planks + glass → 8 pipes*
 
@@ -123,9 +123,34 @@ Deletion pipe that destroys any items that enter it. Items are deleted when they
 *Recipe: obsidian + glass + ender pearl → 8 pipes*
 
 ### Wrench
-Configuration tool for pipes. Right-click to cycle output directions on iron pipes, select extraction faces on wooden pipes, open filter GUIs on diamond pipes, and interact with other configurable pipe types.
+Configuration tool for pipes and machines. Right-click to cycle output directions on iron pipes, select extraction faces on wooden pipes, open filter GUIs on diamond pipes, rotate engine output faces, and interact with other configurable blocks.
 
 *Recipe: 4 iron ingots in wrench shape → 1 wrench*
+
+---
+
+## Power
+
+Engines generate RF energy to power automation machines. All engines require a direct redstone signal to run and output energy from one face — use a wrench to rotate which face that is.
+
+### Redstone Engine (Wood)
+The simplest engine. Converts a redstone signal into a small, steady energy output. Cannot overheat — safe to run indefinitely.
+
+*Recipe: 3 planks + glass + 2 wooden gears + piston*
+
+### Stirling Engine (Stone)
+Burns fuel to generate substantially more energy than a Redstone Engine. Requires both a redstone signal and fuel (coal, charcoal, wood, lava buckets, etc.). Right-click to open the fuel GUI. Temperature rises with use — if the engine overheats it shuts down and must cool before resuming. Sneak + right-click with a wrench to reset from overheat.
+
+*Recipe: 3 stone + glass + 2 stone gears + piston*
+
+---
+
+## Automation
+
+### Laser Quarry
+A powered mining machine that excavates a 16×16 area below it. Place it, connect an engine for power, and it automatically builds a frame and mines downward indefinitely. Mined items drop above the quarry — connect pipes to collect them automatically. Energy throughput determines mining speed; a well-fed quarry mines faster.
+
+*Recipe: iron gears + copper gears + diamond gears + diamond pickaxe + redstone*
 
 ---
 
@@ -175,6 +200,8 @@ Configuration tool for pipes. Right-click to cycle output directions on iron pip
 - Client-side smooth visual rendering
 - Extraction from and insertion into adjacent inventories
 - Mechanical and Smart pipe behaviors
+- Redstone and Stirling engines with heat management
+- Laser Quarry with automatic frame construction and energy-scaled mining speed
 
 ### 🚧 Future
 - Request Table block with GUI
@@ -192,13 +219,7 @@ See [`docs/DESIGN.md`](docs/DESIGN.md) for architecture details and technical de
 
 ## Contributing
 
-Contributions welcome! When reporting bugs:
-- Use [GitHub Issues](https://github.com/indemnity83/logistics/issues)
-- Include version info (Minecraft, Fabric Loader, mod version)
-- Provide steps to reproduce
-- Check existing issues first
-
-For code contributions, see the development docs in `docs/`.
+Contributions welcome! Report issues on [GitHub Issues](https://github.com/indemnity83/logistics/issues) — the issue template will guide you through the details. For code contributions, see the development docs in `docs/`.
 
 ---
 
