@@ -149,11 +149,16 @@ public final class NbtCompat {
      * Get list tag or return empty list if missing.
      *
      * <p><b>mc/1.21.11 implementation:</b> {@code tag.getList(key).orElseGet(ListTag::new)}
-     * <p><b>mc/1.21.1 backport:</b> {@code tag.contains(key) ? tag.getList(key, 10) : new ListTag()}
+     * <p><b>mc/1.21.1 backport:</b> Access via tag.get() to avoid element-type filtering in getList(key, type).
+     * MC 1.21.1's getList(key, type) returns empty if the stored list element type doesn't match,
+     * which would break reading string lists (e.g. filter slots) using TAG_COMPOUND.
      */
     public static ListTag getListOrEmpty(CompoundTag tag, String key) {
-        // MC 1.21.1: getList(key, type) returns empty list if missing
-        return tag.contains(key, Tag.TAG_LIST) ? tag.getList(key, Tag.TAG_COMPOUND) : new ListTag();
+        if (!tag.contains(key, Tag.TAG_LIST)) {
+            return new ListTag();
+        }
+        Tag t = tag.get(key);
+        return t instanceof ListTag listTag ? listTag : new ListTag();
     }
 
     /**
