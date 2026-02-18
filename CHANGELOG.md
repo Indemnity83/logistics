@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.3.2](https://github.com/Indemnity83/logistics/compare/mc1.21.1-v0.3.1...mc1.21.1-v0.3.2) (2026-02-18)
+
+
+### Bug Fixes
+
+* correct engine piston back-face lighting in renderer ([#123](https://github.com/Indemnity83/logistics/issues/123)) ([bf7eb98](https://github.com/Indemnity83/logistics/commit/bf7eb98064f061fd93f77f14e6846659efaaed59))
+* correct vertical centering for block items rendered inside pipes ([#113](https://github.com/Indemnity83/logistics/issues/113)) ([e967e05](https://github.com/Indemnity83/logistics/commit/e967e05e566fea7ffa5a4e437ea870a9f3295e39))
+* preserve item filter pipe GUI entries when closing ([#122](https://github.com/Indemnity83/logistics/issues/122)) ([0d751fe](https://github.com/Indemnity83/logistics/commit/0d751feb6f713c0629efb11e6c2a40878d6a677b))
+
 ## [0.3.1](https://github.com/Indemnity83/logistics/compare/mc1.21.1-v0.3.0...mc1.21.1-v0.3.1) (2026-02-17)
 
 
