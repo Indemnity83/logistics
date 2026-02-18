@@ -23,6 +23,7 @@ import net.minecraft.client.renderer.state.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
@@ -31,6 +32,9 @@ import net.minecraft.world.phys.Vec3;
  * Renders traveling items inside pipes
  */
 public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEntity, PipeRenderState> {
+    private static final float BLOCK_OFFSET = 0.3125f;
+    private static final float ITEM_OFFSET = 0.375f;
+
     private final ItemModelResolver itemModelManager;
 
     public PipeBlockEntityRenderer(BlockEntityRendererProvider.Context ctx) {
@@ -117,6 +121,7 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
             itemState.direction = travelingItem.getDirection();
             itemState.progress = travelingItem.getProgress();
             itemState.currentSpeed = travelingItem.getSpeed();
+            itemState.yOffset = travelingItem.getStack().getItem() instanceof BlockItem ? BLOCK_OFFSET : ITEM_OFFSET;
 
             state.travelingItems.add(itemState);
         }
@@ -198,8 +203,9 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
             float avgSpeed = (itemState.currentSpeed + interpolatedSpeed) / 2.0f;
             float interpolatedProgress = itemState.progress + (avgSpeed * state.tickDelta);
 
-            // Start at center of pipe (offset Y down slightly to account for ground item offset)
-            matrices.translate(0.5, 0.375, 0.5);
+            // Start at center of pipe. The Y offset accounts for the GROUND display transform's
+            // built-in upward translation, which differs between block items and regular items.
+            matrices.translate(0.5, itemState.yOffset, 0.5);
 
             // Calculate position along the travel direction
             // Progress 0.0 = entering from opposite direction (-0.5)
