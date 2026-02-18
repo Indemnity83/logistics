@@ -21,6 +21,7 @@ import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -45,6 +46,8 @@ import java.util.List;
  * designated color; untinted quads render at full white.
  */
 public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEntity> {
+    private static final float BLOCK_OFFSET = 0.3125f;
+    private static final float ITEM_OFFSET = 0.375f;
 
     public PipeBlockEntityRenderer(BlockEntityRendererProvider.Context ctx) {
     }
@@ -195,7 +198,8 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
         poseStack.pushPose();
 
         // Ground display context renders items slightly above the "ground", offset Y to center in pipe
-        poseStack.translate(0.5, 0.375, 0.5);
+        float yOffset = item.getStack().getItem() instanceof BlockItem ? BLOCK_OFFSET : ITEM_OFFSET;
+        poseStack.translate(0.5, yOffset, 0.5);
 
         // Calculate speed change during this partial tick
         float speedChange = 0f;
