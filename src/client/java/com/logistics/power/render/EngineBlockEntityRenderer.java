@@ -9,8 +9,7 @@ import net.fabricmc.fabric.api.client.model.loading.v1.FabricBakedModelManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.block.BlockRenderDispatcher;
-import net.minecraft.client.renderer.block.ModelBlockRenderer;
+import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.resources.model.BakedModel;
@@ -19,6 +18,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 
 /**
@@ -27,8 +27,6 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
  * Uses client-side animation cache for smooth piston movement independent of server updates.
  */
 public class EngineBlockEntityRenderer implements BlockEntityRenderer<AbstractEngineBlockEntity> {
-    private final BlockRenderDispatcher blockRenderer;
-
     // Animation cache - persists between frames, cleaned up when block entities are removed
     private static final java.util.Map<BlockPos, AnimationCache> ANIMATION_CACHE =
             new java.util.concurrent.ConcurrentHashMap<>();
@@ -56,9 +54,7 @@ public class EngineBlockEntityRenderer implements BlockEntityRenderer<AbstractEn
         ANIMATION_CACHE.clear();
     }
 
-    public EngineBlockEntityRenderer(BlockEntityRendererProvider.Context ctx) {
-        this.blockRenderer = ctx.getBlockRenderDispatcher();
-    }
+    public EngineBlockEntityRenderer(BlockEntityRendererProvider.Context ctx) {}
 
     @Override
     public void render(
@@ -159,7 +155,6 @@ public class EngineBlockEntityRenderer implements BlockEntityRenderer<AbstractEn
         } else if (cache.progress > 0.001f) {
             // When stopped, finish the cycle back to zero
             float speed = pistonSpeed > 0 ? pistonSpeed : DEFAULT_PISTON_SPEED;
-
             cache.progress += speed * elapsedTicks;
 
             // Once we complete the cycle, snap to zero and stop
@@ -187,6 +182,11 @@ public class EngineBlockEntityRenderer implements BlockEntityRenderer<AbstractEn
 
     /**
      * Renders a baked model at the current transformation.
+     *
+     * Uses direct quad rendering with the BER-provided packedLight rather than
+     * tesselateWithoutAO, which samples light from adjacent blocks in the baked
+     * quad's direction. For the piston's DOWN face (baked at Y=0), that would
+     * sample from the block below the engine, which is often solid ground (light=0).
      */
     private void renderModel(
             AbstractEngineBlockEntity entity,
@@ -197,19 +197,20 @@ public class EngineBlockEntityRenderer implements BlockEntityRenderer<AbstractEn
             int packedOverlay) {
 
         VertexConsumer buffer = bufferSource.getBuffer(RenderType.cutout());
-        ModelBlockRenderer modelRenderer = blockRenderer.getModelRenderer();
+        RandomSource random = RandomSource.create(42L);
+        BlockState state = entity.getBlockState();
 
-        modelRenderer.tesselateWithoutAO(
-                entity.getLevel(),
-                model,
-                entity.getBlockState(),
-                entity.getBlockPos(),
-                poseStack,
-                buffer,
-                false,
-                RandomSource.create(),
-                42L,
-                packedOverlay);
+        for (BakedQuad quad : model.getQuads(state, null, random)) {
+            float shade = entity.getLevel().getShade(quad.getDirection(), quad.isShade());
+            buffer.putBulkData(poseStack.last(), quad, shade, shade, shade, 1.0f, packedLight, packedOverlay);
+        }
+        for (Direction face : Direction.values()) {
+            random.setSeed(42L);
+            for (BakedQuad quad : model.getQuads(state, face, random)) {
+                float shade = entity.getLevel().getShade(quad.getDirection(), quad.isShade());
+                buffer.putBulkData(poseStack.last(), quad, shade, shade, shade, 1.0f, packedLight, packedOverlay);
+            }
+        }
     }
 
     /**
