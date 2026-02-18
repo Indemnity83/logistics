@@ -37,6 +37,4 @@ Thumbs.db
 *.bak
 
 # Scripts
-scripts/venv/
-scripts/fonts/
 scripts/

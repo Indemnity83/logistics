@@ -139,7 +139,7 @@ The simplest engine. Converts a redstone signal into a small, steady energy outp
 *Recipe: 3 planks + glass + 2 wooden gears + piston*
 
 ### Stirling Engine (Stone)
-Burns fuel to generate substantially more energy than a Redstone Engine. Requires both a redstone signal and fuel (coal, charcoal, wood, lava buckets, etc.). Right-click to open the fuel GUI. Temperature rises with use — if the engine overheats it shuts down and must cool before resuming. Sneak + right-click with a wrench to reset from overheat.
+Burns fuel to generate substantially more energy than a Redstone Engine. Requires both a redstone signal and fuel (coal, charcoal, wood, lava buckets, etc.). Right-click to open the fuel GUI. Temperature rises with use — if the engine overheats it shuts down and must cool before resuming. Right-click with a wrench to reset from overheat.
 
 *Recipe: 3 stone + glass + 2 stone gears + piston*
 

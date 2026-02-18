@@ -32,6 +32,7 @@ body:
         - Minecraft:
         - Fabric Loader:
         - Fabric API:
+        - Other Mods:
 
         ## Notes
 
