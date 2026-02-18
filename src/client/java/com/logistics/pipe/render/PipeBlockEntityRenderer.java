@@ -32,8 +32,8 @@ import net.minecraft.world.phys.Vec3;
  * Renders traveling items inside pipes
  */
 public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEntity, PipeRenderState> {
-    public static final float BLOCK_OFFSET = 0.3125f;
-    public static final float ITEM_OFFSET = 0.375f;
+    private static final float BLOCK_OFFSET = 0.3125f;
+    private static final float ITEM_OFFSET = 0.375f;
 
     private final ItemModelResolver itemModelManager;
 
