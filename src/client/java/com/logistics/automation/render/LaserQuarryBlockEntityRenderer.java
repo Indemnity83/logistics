@@ -1,0 +1,579 @@
+package com.logistics.automation.render;
+
+import com.logistics.LogisticsAutomation;
+import com.logistics.automation.laserquarry.LaserQuarryBlock;
+import com.logistics.automation.laserquarry.LaserQuarryConfig;
+import com.logistics.automation.laserquarry.entity.LaserQuarryBlockEntity;
+import com.logistics.pipe.block.PipeBlock;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Axis;
+import net.fabricmc.fabric.api.client.model.loading.v1.FabricBakedModelManager;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.LightTexture;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
+import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LightLayer;
+import net.minecraft.world.level.block.state.BlockState;
+
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+/**
+ * Renders the quarry arm visualization.
+ * Shows horizontal beams on top of the frame and a vertical drill arm
+ * that moves smoothly to the current mining position.
+ */
+public class LaserQuarryBlockEntityRenderer implements BlockEntityRenderer<LaserQuarryBlockEntity> {
+    // Persistent interpolation state stored per quarry position (survives render calls)
+    private static final Map<BlockPos, InterpolationState> INTERPOLATION_CACHE = new ConcurrentHashMap<>();
+    private static final Map<BlockPos, LedFadeState> LED_FADE_CACHE = new ConcurrentHashMap<>();
+
+    // Green LED fade duration in ticks
+    private static final int LED_FADE_TICKS = 12;
+
+    private static final class InterpolationState {
+        float renderArmX;
+        float renderArmY;
+        float renderArmZ;
+        long lastUpdateTimeNanos;
+        boolean initialized;
+    }
+
+    private static final class LedFadeState {
+        boolean wasWorking;
+        long fadeStartTimeNanos;
+        boolean isFading;
+    }
+
+    /**
+     * Clear interpolation cache for a specific quarry (call when quarry is removed).
+     */
+    public static void clearInterpolationCache(BlockPos pos) {
+        INTERPOLATION_CACHE.remove(pos);
+        LED_FADE_CACHE.remove(pos);
+    }
+
+    /**
+     * Prune cache entries that no longer have a quarry block entity in the current world.
+     */
+    public static void pruneInterpolationCache(Level world) {
+        INTERPOLATION_CACHE.keySet().removeIf(pos -> !(world.getBlockEntity(pos) instanceof LaserQuarryBlockEntity));
+        LED_FADE_CACHE.keySet().removeIf(pos -> !(world.getBlockEntity(pos) instanceof LaserQuarryBlockEntity));
+    }
+
+    /**
+     * Clear all interpolation caches (call on world unload).
+     */
+    public static void clearAllInterpolationCaches() {
+        INTERPOLATION_CACHE.clear();
+        LED_FADE_CACHE.clear();
+    }
+
+    public LaserQuarryBlockEntityRenderer(BlockEntityRendererProvider.Context ctx) {}
+
+    private BakedModel getModel(ResourceLocation modelId) {
+        FabricBakedModelManager modelManager = (FabricBakedModelManager) Minecraft.getInstance().getModelManager();
+        BakedModel model = modelManager.getModel(modelId);
+
+        if (model == null || model == Minecraft.getInstance().getModelManager().getMissingModel()) {
+            return null;
+        }
+
+        return model;
+    }
+
+    @Override
+    public void render(
+            LaserQuarryBlockEntity entity,
+            float partialTick,
+            PoseStack matrices,
+            MultiBufferSource bufferSource,
+            int packedLight,
+            int packedOverlay) {
+
+        // Always render LEDs and overlays
+        renderLEDs(entity, matrices, bufferSource, packedLight, packedOverlay);
+        renderTopHatch(entity, matrices, bufferSource, packedLight, packedOverlay);
+
+        // Only render arm during mining phase when arm is initialized
+        boolean shouldRenderArm = (entity.getCurrentPhase() == LaserQuarryBlockEntity.Phase.MINING) && entity.isArmInitialized();
+
+        if (!shouldRenderArm) {
+            return;
+        }
+
+        Level level = entity.getLevel();
+        if (level == null) {
+            return;
+        }
+
+        BlockPos quarryPos = entity.getBlockPos();
+        BlockState blockState = level.getBlockState(quarryPos);
+
+        if (!(blockState.getBlock() instanceof LaserQuarryBlock)) {
+            return;
+        }
+
+        Direction facing = LaserQuarryBlock.getMiningDirection(blockState);
+
+        // Calculate frame bounds
+        int frameStartX;
+        int frameStartZ;
+        int frameEndX;
+        int frameEndZ;
+
+        if (entity.hasCustomBounds()) {
+            frameStartX = entity.getCustomMinX();
+            frameStartZ = entity.getCustomMinZ();
+            frameEndX = entity.getCustomMaxX();
+            frameEndZ = entity.getCustomMaxZ();
+        } else {
+            switch (facing) {
+                case NORTH:
+                    frameStartX = quarryPos.getX() - 8;
+                    frameStartZ = quarryPos.getZ() - LaserQuarryConfig.CHUNK_SIZE;
+                    break;
+                case SOUTH:
+                    frameStartX = quarryPos.getX() - 8;
+                    frameStartZ = quarryPos.getZ() + 1;
+                    break;
+                case EAST:
+                    frameStartX = quarryPos.getX() + 1;
+                    frameStartZ = quarryPos.getZ() - 8;
+                    break;
+                case WEST:
+                    frameStartX = quarryPos.getX() - LaserQuarryConfig.CHUNK_SIZE;
+                    frameStartZ = quarryPos.getZ() - 8;
+                    break;
+                default:
+                    return;
+            }
+            frameEndX = frameStartX + LaserQuarryConfig.CHUNK_SIZE - 1;
+            frameEndZ = frameStartZ + LaserQuarryConfig.CHUNK_SIZE - 1;
+        }
+        int frameTopY = quarryPos.getY() + LaserQuarryConfig.Y_OFFSET_ABOVE;
+
+        BakedModel armModel = getModel(LogisticsAutomation.blockModelIdentifier("laser_quarry_gantry_arm"));
+        if (armModel == null) {
+            return;
+        }
+
+        // Update client-side interpolation
+        float renderArmX = entity.getArmX();
+        float renderArmY = entity.getArmY();
+        float renderArmZ = entity.getArmZ();
+
+        InterpolationState interp = INTERPOLATION_CACHE.computeIfAbsent(quarryPos, k -> new InterpolationState());
+        updateClientInterpolation(interp, renderArmX, renderArmY, renderArmZ, entity.getSyncedArmSpeed());
+
+        renderArmX = interp.renderArmX;
+        renderArmY = interp.renderArmY;
+        renderArmZ = interp.renderArmZ;
+
+        // Sample light at the center of the frame top for more accurate lighting
+        int centerX = (frameStartX + frameEndX) / 2;
+        int centerZ = (frameStartZ + frameEndZ) / 2;
+        BlockPos frameTopPos = new BlockPos(centerX, frameTopY, centerZ);
+        int blockLight = level.getBrightness(LightLayer.BLOCK, frameTopPos);
+        int skyLight = level.getBrightness(LightLayer.SKY, frameTopPos);
+        int light = LightTexture.pack(blockLight, skyLight);
+
+        // Calculate positions relative to the quarry block (render origin)
+        float quarryX = quarryPos.getX();
+        float quarryY = quarryPos.getY();
+        float quarryZ = quarryPos.getZ();
+
+        float relArmX = renderArmX - quarryX;
+        float relArmZ = renderArmZ - quarryZ;
+        float relArmY = renderArmY - quarryY;
+        float relFrameTopY = frameTopY - quarryY;
+
+        // Calculate beam lengths from actual frame bounds
+        int beamLengthX = frameEndX - frameStartX;
+        int beamLengthZ = frameEndZ - frameStartZ;
+
+        // East-West beam: at armZ, spanning inside the frame
+        renderHorizontalBeam(
+                matrices,
+                bufferSource,
+                armModel,
+                light,
+                packedOverlay,
+                frameStartX + 1 - quarryX,
+                relFrameTopY,
+                relArmZ,
+                beamLengthX,
+                true,
+                entity);
+
+        // North-South beam: at armX, spanning inside the frame
+        renderHorizontalBeam(
+                matrices,
+                bufferSource,
+                armModel,
+                light,
+                packedOverlay,
+                relArmX,
+                relFrameTopY,
+                frameStartZ + 1 - quarryZ,
+                beamLengthZ,
+                false,
+                entity);
+
+        // Vertical drill beam
+        float verticalStartY = relFrameTopY + 0.75f;
+        float verticalLength = verticalStartY - relArmY - 1;
+        if (verticalLength > 0.1f) {
+            renderVerticalBeam(
+                    matrices, bufferSource, armModel, light, packedOverlay, relArmX, verticalStartY, relArmZ, verticalLength, entity);
+        }
+
+        // Render drill head at the bottom of the vertical beam
+        BakedModel drillModel = getModel(LogisticsAutomation.blockModelIdentifier("laser_quarry_drill"));
+        if (drillModel != null) {
+            matrices.pushPose();
+            matrices.translate(relArmX - 0.5, relArmY, relArmZ - 0.5);
+            renderModel(entity, drillModel, matrices, bufferSource, light, packedOverlay);
+            matrices.popPose();
+        }
+    }
+
+    /**
+     * Update client-side interpolated position to smoothly move towards server position.
+     */
+    private void updateClientInterpolation(
+            InterpolationState interp, float serverArmX, float serverArmY, float serverArmZ, float syncedArmSpeed) {
+        long currentTime = System.nanoTime();
+
+        if (!interp.initialized || interp.lastUpdateTimeNanos == 0) {
+            // First time - snap to server position
+            interp.renderArmX = serverArmX;
+            interp.renderArmY = serverArmY;
+            interp.renderArmZ = serverArmZ;
+            interp.initialized = true;
+            interp.lastUpdateTimeNanos = currentTime;
+            return;
+        }
+
+        // Calculate delta time in seconds
+        float deltaSeconds = (currentTime - interp.lastUpdateTimeNanos) / 1_000_000_000f;
+        interp.lastUpdateTimeNanos = currentTime;
+
+        // Clamp delta to avoid huge jumps after pauses
+        deltaSeconds = Math.min(deltaSeconds, 0.1f);
+
+        // Get current tick rate (MC 1.21.1 always runs at 20 TPS)
+        float tickRate = 20f;
+
+        // Speed in blocks per second = synced speed per tick * ticks per second
+        float speedPerSecond = syncedArmSpeed * tickRate;
+        float moveDistance = speedPerSecond * deltaSeconds;
+
+        // Smoothly interpolate towards server position
+        float dx = serverArmX - interp.renderArmX;
+        float dy = serverArmY - interp.renderArmY;
+        float dz = serverArmZ - interp.renderArmZ;
+        float distance = (float) Math.sqrt(dx * dx + dy * dy + dz * dz);
+
+        if (distance <= moveDistance) {
+            // Close enough, snap to server position
+            interp.renderArmX = serverArmX;
+            interp.renderArmY = serverArmY;
+            interp.renderArmZ = serverArmZ;
+        } else {
+            // Move towards server position at constant speed
+            float factor = moveDistance / distance;
+            interp.renderArmX += dx * factor;
+            interp.renderArmY += dy * factor;
+            interp.renderArmZ += dz * factor;
+        }
+    }
+
+    /**
+     * Render a horizontal beam.
+     */
+    private void renderHorizontalBeam(
+            PoseStack matrices,
+            MultiBufferSource bufferSource,
+            BakedModel model,
+            int lightmap,
+            int overlay,
+            float startX,
+            float startY,
+            float startZ,
+            int length,
+            boolean alongX,
+            LaserQuarryBlockEntity entity) {
+        for (int i = 0; i < length; i++) {
+            matrices.pushPose();
+
+            if (alongX) {
+                matrices.translate(startX + i + 0.5, startY + 0.5, startZ);
+                matrices.mulPose(Axis.YP.rotationDegrees(-90));
+                matrices.translate(-0.5, -0.5, 0.0);
+            } else {
+                matrices.translate(startX, startY + 0.5, startZ + i);
+                matrices.translate(-0.5, -0.5, -0.5);
+            }
+
+            renderModel(entity, model, matrices, bufferSource, lightmap, overlay);
+            matrices.popPose();
+        }
+    }
+
+    /**
+     * Render a vertical beam going downward with smooth length.
+     */
+    private void renderVerticalBeam(
+            PoseStack matrices,
+            MultiBufferSource bufferSource,
+            BakedModel model,
+            int lightmap,
+            int overlay,
+            float x,
+            float startY,
+            float z,
+            float length,
+            LaserQuarryBlockEntity entity) {
+        int fullSegments = (int) length;
+        float remainder = length - fullSegments;
+
+        // Render partial segment at the TOP first
+        if (remainder > 0.1f) {
+            matrices.pushPose();
+            matrices.translate(x, startY, z);
+            matrices.mulPose(Axis.XP.rotationDegrees(90));
+            matrices.scale(1.0f, 1.0f, remainder);
+            matrices.translate(-0.5, -0.5, 0.0);
+            renderModel(entity, model, matrices, bufferSource, lightmap, overlay);
+            matrices.popPose();
+        }
+
+        // Render full block segments below the partial segment
+        for (int i = 0; i < fullSegments; i++) {
+            matrices.pushPose();
+            matrices.translate(x, startY - remainder - i, z);
+            matrices.mulPose(Axis.XP.rotationDegrees(90));
+            matrices.translate(-0.5, -0.5, 0.0);
+            renderModel(entity, model, matrices, bufferSource, lightmap, overlay);
+            matrices.popPose();
+        }
+    }
+
+    private void renderLEDs(
+            LaserQuarryBlockEntity entity,
+            PoseStack matrices,
+            MultiBufferSource bufferSource,
+            int packedLight,
+            int packedOverlay) {
+        BlockState state = entity.getBlockState();
+        if (!(state.getBlock() instanceof LaserQuarryBlock)) {
+            return;
+        }
+
+        Direction blockFacing = LaserQuarryBlock.getMiningDirection(state);
+        float energyLevel = (float) entity.getEnergyLevel();
+        boolean isFinished = entity.isFinished();
+        boolean isWorking = !isFinished && (energyLevel > 0 || entity.consumedEnergyThisTick());
+
+        // Update green LED fade effect
+        float greenLedBrightness = updateGreenLedBrightness(entity.getBlockPos(), isWorking);
+
+        // Calculate rotation based on block facing
+        float rotation =
+                switch (blockFacing) {
+                    case NORTH -> 180f;
+                    case SOUTH -> 0f;
+                    case WEST -> 270f;
+                    case EAST -> 90f;
+                    default -> 0f;
+                };
+
+        // Green LED - instant on, gradual fade off
+        if (greenLedBrightness > 0) {
+            BakedModel greenLed = getModel(LogisticsAutomation.blockModelIdentifier("laser_quarry_led_green"));
+            if (greenLed != null) {
+                matrices.pushPose();
+                matrices.translate(0.5, 0.5, 0.5);
+                matrices.mulPose(Axis.YP.rotationDegrees(rotation));
+                matrices.translate(-0.5, -0.5, -0.5);
+                int brightness = (int) (greenLedBrightness * 15);
+                int light = (brightness << 4) | (brightness << 20);
+                renderModelTranslucent(entity, greenLed, matrices, bufferSource, light, packedOverlay);
+                matrices.popPose();
+            }
+        }
+
+        // Red LED - brightness proportional to energy level
+        if (energyLevel > 0) {
+            BakedModel redLed = getModel(LogisticsAutomation.blockModelIdentifier("laser_quarry_led_red"));
+            if (redLed != null) {
+                matrices.pushPose();
+                matrices.translate(0.5, 0.5, 0.5);
+                matrices.mulPose(Axis.YP.rotationDegrees(rotation));
+                matrices.translate(-0.5, -0.5, -0.5);
+                int brightness = (int) (energyLevel * 15);
+                int light = (brightness << 4) | (brightness << 20);
+                renderModelTranslucent(entity, redLed, matrices, bufferSource, light, packedOverlay);
+                matrices.popPose();
+            }
+        }
+
+        // Display overlay - follows green LED
+        if (greenLedBrightness > 0) {
+            BakedModel display = getModel(LogisticsAutomation.blockModelIdentifier("laser_quarry_display"));
+            if (display != null) {
+                matrices.pushPose();
+                matrices.translate(0.5, 0.5, 0.5);
+                matrices.mulPose(Axis.YP.rotationDegrees(rotation));
+                matrices.translate(-0.5, -0.5, -0.5);
+                int brightness = Math.max(0, (int) (greenLedBrightness * 8));
+                int light = (brightness << 4) | (brightness << 20);
+                renderModelTranslucent(entity, display, matrices, bufferSource, light, packedOverlay);
+                matrices.popPose();
+            }
+        }
+    }
+
+    /**
+     * Update green LED brightness with fade-out effect.
+     */
+    private float updateGreenLedBrightness(BlockPos quarryPos, boolean isWorking) {
+        LedFadeState fade = LED_FADE_CACHE.computeIfAbsent(quarryPos, k -> new LedFadeState());
+        long currentTime = System.nanoTime();
+
+        if (isWorking) {
+            // Instant on - full brightness
+            fade.isFading = false;
+            fade.wasWorking = true;
+            return 1.0f;
+        } else if (fade.wasWorking && !fade.isFading) {
+            // Just stopped working - start fade
+            fade.isFading = true;
+            fade.fadeStartTimeNanos = currentTime;
+            fade.wasWorking = false;
+            return 1.0f;
+        } else if (fade.isFading) {
+            // Currently fading - calculate brightness based on elapsed time
+            float tickRate = 20f;
+            float elapsedSeconds = (currentTime - fade.fadeStartTimeNanos) / 1_000_000_000f;
+            float elapsedTicks = elapsedSeconds * tickRate;
+
+            if (elapsedTicks >= LED_FADE_TICKS) {
+                // Fade complete
+                fade.isFading = false;
+                fade.wasWorking = false;
+                return 0f;
+            } else {
+                // Linear fade from 1.0 to 0.0
+                return 1.0f - (elapsedTicks / LED_FADE_TICKS);
+            }
+        } else {
+            // Not working, not fading - LED is off
+            return 0f;
+        }
+    }
+
+    private void renderTopHatch(
+            LaserQuarryBlockEntity entity,
+            PoseStack matrices,
+            MultiBufferSource bufferSource,
+            int packedLight,
+            int packedOverlay) {
+        Level level = entity.getLevel();
+        if (level == null) {
+            return;
+        }
+
+        BlockPos quarryPos = entity.getBlockPos();
+        BlockPos abovePos = quarryPos.above();
+        BlockState aboveState = level.getBlockState(abovePos);
+
+        if (!(aboveState.getBlock() instanceof PipeBlock)) {
+            return;
+        }
+
+        BakedModel hatch = getModel(LogisticsAutomation.blockModelIdentifier("laser_quarry_top_hatch"));
+        if (hatch == null) {
+            return;
+        }
+
+        matrices.pushPose();
+        int blockLightAbove = level.getBrightness(LightLayer.BLOCK, abovePos);
+        int skyLightAbove = level.getBrightness(LightLayer.SKY, abovePos);
+        int aboveLight = LightTexture.pack(blockLightAbove, skyLightAbove);
+        renderModelTranslucent(entity, hatch, matrices, bufferSource, aboveLight, packedOverlay);
+        matrices.popPose();
+    }
+
+    /**
+     * Renders a baked model at the current transformation using cutout render type.
+     */
+    private void renderModel(
+            LaserQuarryBlockEntity entity,
+            BakedModel model,
+            PoseStack poseStack,
+            MultiBufferSource bufferSource,
+            int packedLight,
+            int packedOverlay) {
+
+        VertexConsumer buffer = bufferSource.getBuffer(RenderType.cutout());
+        RandomSource random = RandomSource.create(42L);
+        BlockState state = entity.getBlockState();
+
+        for (BakedQuad quad : model.getQuads(state, null, random)) {
+            float shade = entity.getLevel().getShade(quad.getDirection(), quad.isShade());
+            buffer.putBulkData(poseStack.last(), quad, shade, shade, shade, 1.0f, packedLight, packedOverlay);
+        }
+        for (Direction face : Direction.values()) {
+            random.setSeed(42L);
+            for (BakedQuad quad : model.getQuads(state, face, random)) {
+                float shade = entity.getLevel().getShade(quad.getDirection(), quad.isShade());
+                buffer.putBulkData(poseStack.last(), quad, shade, shade, shade, 1.0f, packedLight, packedOverlay);
+            }
+        }
+    }
+
+    /**
+     * Renders a baked model at the current transformation using translucent render type.
+     */
+    private void renderModelTranslucent(
+            LaserQuarryBlockEntity entity,
+            BakedModel model,
+            PoseStack poseStack,
+            MultiBufferSource bufferSource,
+            int packedLight,
+            int packedOverlay) {
+
+        VertexConsumer buffer = bufferSource.getBuffer(RenderType.translucent());
+        RandomSource random = RandomSource.create(42L);
+        BlockState state = entity.getBlockState();
+
+        for (BakedQuad quad : model.getQuads(state, null, random)) {
+            float shade = entity.getLevel().getShade(quad.getDirection(), quad.isShade());
+            buffer.putBulkData(poseStack.last(), quad, shade, shade, shade, 1.0f, packedLight, packedOverlay);
+        }
+        for (Direction face : Direction.values()) {
+            random.setSeed(42L);
+            for (BakedQuad quad : model.getQuads(state, face, random)) {
+                float shade = entity.getLevel().getShade(quad.getDirection(), quad.isShade());
+                buffer.putBulkData(poseStack.last(), quad, shade, shade, shade, 1.0f, packedLight, packedOverlay);
+            }
+        }
+    }
+
+    @Override
+    public int getViewDistance() {
+        return 256; // Visible from far away
+    }
+}
