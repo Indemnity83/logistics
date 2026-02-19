@@ -16,9 +16,9 @@ import static com.logistics.LogisticsMod.LOGGER;
 public final class LogisticsCoreClient implements DomainBootstrap {
     public LogisticsCoreClient() {
         ModelLoadingPlugin.register(pluginContext -> {
-            Identifier beamModel = LogisticsCore.blockModelIdentifier("marker_beam");
-            MODEL.BEAM = ExtraModelKey.create(beamModel::toString);
-            pluginContext.addModel(MODEL.BEAM, SimpleUnbakedExtraModel.blockStateModel(beamModel));
+            Identifier beam = LogisticsCore.blockModelIdentifier("marker_beam");
+
+            pluginContext.addModel(MODEL.BEAM, SimpleUnbakedExtraModel.blockStateModel(beam));
         });
     }
 
@@ -40,7 +40,8 @@ public final class LogisticsCoreClient implements DomainBootstrap {
     }
 
     public static final class MODEL {
-        public static ExtraModelKey<BlockStateModel> BEAM;
+        public static final ExtraModelKey<BlockStateModel> BEAM =
+                ExtraModelKey.create(() -> LogisticsCore.blockModelIdentifier("marker_beam").toString());
 
         private MODEL() {}
     }

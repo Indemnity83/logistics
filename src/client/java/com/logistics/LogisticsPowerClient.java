@@ -28,13 +28,6 @@ public final class LogisticsPowerClient implements DomainBootstrap {
             Identifier creativeBellow = LogisticsPower.blockModelIdentifier("creative_engine_bellow");
             Identifier creativePiston = LogisticsPower.blockModelIdentifier("creative_engine_piston");
 
-            MODEL.REDSTONE_BELLOW = ExtraModelKey.create(redstoneBellow::toString);
-            MODEL.REDSTONE_PISTON = ExtraModelKey.create(redstonePiston::toString);
-            MODEL.STIRLING_BELLOW = ExtraModelKey.create(stirlingBellow::toString);
-            MODEL.STIRLING_PISTON = ExtraModelKey.create(stirlingPiston::toString);
-            MODEL.CREATIVE_BELLOW = ExtraModelKey.create(creativeBellow::toString);
-            MODEL.CREATIVE_PISTON = ExtraModelKey.create(creativePiston::toString);
-
             pluginContext.addModel(MODEL.REDSTONE_BELLOW, SimpleUnbakedExtraModel.blockStateModel(redstoneBellow));
             pluginContext.addModel(MODEL.REDSTONE_PISTON, SimpleUnbakedExtraModel.blockStateModel(redstonePiston));
             pluginContext.addModel(MODEL.STIRLING_BELLOW, SimpleUnbakedExtraModel.blockStateModel(stirlingBellow));
@@ -77,12 +70,18 @@ public final class LogisticsPowerClient implements DomainBootstrap {
     }
 
     public static final class MODEL {
-        public static ExtraModelKey<BlockStateModel> REDSTONE_BELLOW;
-        public static ExtraModelKey<BlockStateModel> REDSTONE_PISTON;
-        public static ExtraModelKey<BlockStateModel> STIRLING_BELLOW;
-        public static ExtraModelKey<BlockStateModel> STIRLING_PISTON;
-        public static ExtraModelKey<BlockStateModel> CREATIVE_BELLOW;
-        public static ExtraModelKey<BlockStateModel> CREATIVE_PISTON;
+        public static final ExtraModelKey<BlockStateModel> REDSTONE_BELLOW =
+                ExtraModelKey.create(() -> LogisticsPower.blockModelIdentifier("redstone_engine_bellow").toString());
+        public static final ExtraModelKey<BlockStateModel> REDSTONE_PISTON =
+                ExtraModelKey.create(() -> LogisticsPower.blockModelIdentifier("redstone_engine_piston").toString());
+        public static final ExtraModelKey<BlockStateModel> STIRLING_BELLOW =
+                ExtraModelKey.create(() -> LogisticsPower.blockModelIdentifier("stirling_engine_bellow").toString());
+        public static final ExtraModelKey<BlockStateModel> STIRLING_PISTON =
+                ExtraModelKey.create(() -> LogisticsPower.blockModelIdentifier("stirling_engine_piston").toString());
+        public static final ExtraModelKey<BlockStateModel> CREATIVE_BELLOW =
+                ExtraModelKey.create(() -> LogisticsPower.blockModelIdentifier("creative_engine_bellow").toString());
+        public static final ExtraModelKey<BlockStateModel> CREATIVE_PISTON =
+                ExtraModelKey.create(() -> LogisticsPower.blockModelIdentifier("creative_engine_piston").toString());
 
         private MODEL() {}
     }
