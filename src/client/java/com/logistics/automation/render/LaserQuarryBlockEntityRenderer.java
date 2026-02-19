@@ -1,6 +1,6 @@
 package com.logistics.automation.render;
 
-import com.logistics.LogisticsAutomation;
+import com.logistics.LogisticsAutomationClient;
 import com.logistics.automation.laserquarry.LaserQuarryBlock;
 import com.logistics.automation.laserquarry.LaserQuarryConfig;
 import com.logistics.automation.laserquarry.entity.LaserQuarryBlockEntity;
@@ -163,7 +163,7 @@ public class LaserQuarryBlockEntityRenderer implements BlockEntityRenderer<Laser
         }
         int frameTopY = quarryPos.getY() + LaserQuarryConfig.Y_OFFSET_ABOVE;
 
-        BakedModel armModel = getModel(LogisticsAutomation.blockModelIdentifier("laser_quarry_gantry_arm"));
+        BakedModel armModel = getModel(LogisticsAutomationClient.MODEL.ARM);
         if (armModel == null) {
             return;
         }
@@ -239,7 +239,7 @@ public class LaserQuarryBlockEntityRenderer implements BlockEntityRenderer<Laser
         }
 
         // Render drill head at the bottom of the vertical beam
-        BakedModel drillModel = getModel(LogisticsAutomation.blockModelIdentifier("laser_quarry_drill"));
+        BakedModel drillModel = getModel(LogisticsAutomationClient.MODEL.DRILL);
         if (drillModel != null) {
             matrices.pushPose();
             matrices.translate(relArmX - 0.5, relArmY, relArmZ - 0.5);
@@ -399,9 +399,9 @@ public class LaserQuarryBlockEntityRenderer implements BlockEntityRenderer<Laser
                     default -> 0f;
                 };
 
-        // Green LED - instant on, gradual fade off
+        // Green LED - instant on, gradual fade off over 12 ticks
         if (greenLedBrightness > 0) {
-            BakedModel greenLed = getModel(LogisticsAutomation.blockModelIdentifier("laser_quarry_led_green"));
+            BakedModel greenLed = getModel(LogisticsAutomationClient.MODEL.LED_GREEN);
             if (greenLed != null) {
                 matrices.pushPose();
                 matrices.translate(0.5, 0.5, 0.5);
@@ -414,9 +414,9 @@ public class LaserQuarryBlockEntityRenderer implements BlockEntityRenderer<Laser
             }
         }
 
-        // Red LED - brightness proportional to energy level
+        // Red LED - brightness proportional to energy level (0-15)
         if (energyLevel > 0) {
-            BakedModel redLed = getModel(LogisticsAutomation.blockModelIdentifier("laser_quarry_led_red"));
+            BakedModel redLed = getModel(LogisticsAutomationClient.MODEL.LED_RED);
             if (redLed != null) {
                 matrices.pushPose();
                 matrices.translate(0.5, 0.5, 0.5);
@@ -429,9 +429,10 @@ public class LaserQuarryBlockEntityRenderer implements BlockEntityRenderer<Laser
             }
         }
 
-        // Display overlay - follows green LED
+        // Display overlay - scrolling data screen (animated via .mcmeta)
+        // Follows green LED: on when working, fades out when stopped
         if (greenLedBrightness > 0) {
-            BakedModel display = getModel(LogisticsAutomation.blockModelIdentifier("laser_quarry_display"));
+            BakedModel display = getModel(LogisticsAutomationClient.MODEL.DISPLAY);
             if (display != null) {
                 matrices.pushPose();
                 matrices.translate(0.5, 0.5, 0.5);
@@ -503,7 +504,7 @@ public class LaserQuarryBlockEntityRenderer implements BlockEntityRenderer<Laser
             return;
         }
 
-        BakedModel hatch = getModel(LogisticsAutomation.blockModelIdentifier("laser_quarry_top_hatch"));
+        BakedModel hatch = getModel(LogisticsAutomationClient.MODEL.TOP_HATCH);
         if (hatch == null) {
             return;
         }

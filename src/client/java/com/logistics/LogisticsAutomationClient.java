@@ -17,14 +17,14 @@ import static com.logistics.LogisticsMod.LOGGER;
 public final class LogisticsAutomationClient implements DomainBootstrap {
     public LogisticsAutomationClient() {
         ModelLoadingPlugin.register(pluginContext -> {
-            ResourceLocation arm = LogisticsAutomation.blockModelIdentifier("laser_quarry_gantry_arm");
-            ResourceLocation drill = LogisticsAutomation.blockModelIdentifier("laser_quarry_drill");
-            ResourceLocation ledGreen = LogisticsAutomation.blockModelIdentifier("laser_quarry_led_green");
-            ResourceLocation ledRed = LogisticsAutomation.blockModelIdentifier("laser_quarry_led_red");
-            ResourceLocation display = LogisticsAutomation.blockModelIdentifier("laser_quarry_display");
-            ResourceLocation topHatch = LogisticsAutomation.blockModelIdentifier("laser_quarry_top_hatch");
-
-            pluginContext.addModels(arm, drill, ledGreen, ledRed, display, topHatch);
+            pluginContext.addModels(
+                    MODEL.ARM,
+                    MODEL.DRILL,
+                    MODEL.LED_GREEN,
+                    MODEL.LED_RED,
+                    MODEL.DISPLAY,
+                    MODEL.TOP_HATCH
+            );
         });
     }
 
@@ -56,5 +56,22 @@ public final class LogisticsAutomationClient implements DomainBootstrap {
         ClientPlayConnectionEvents.DISCONNECT.register(
                 (handler, client) -> ClientRenderCacheHooks.clearAllInterpolationCaches());
         ClientLifecycleEvents.CLIENT_STOPPING.register(client -> ClientRenderCacheHooks.clearAllInterpolationCaches());
+    }
+
+    public static final class MODEL {
+        public static final ResourceLocation ARM =
+                LogisticsAutomation.blockModelIdentifier("laser_quarry_gantry_arm");
+        public static final ResourceLocation DRILL =
+                LogisticsAutomation.blockModelIdentifier("laser_quarry_drill");
+        public static final ResourceLocation LED_GREEN =
+                LogisticsAutomation.blockModelIdentifier("laser_quarry_led_green");
+        public static final ResourceLocation LED_RED =
+                LogisticsAutomation.blockModelIdentifier("laser_quarry_led_red");
+        public static final ResourceLocation DISPLAY =
+                LogisticsAutomation.blockModelIdentifier("laser_quarry_display");
+        public static final ResourceLocation TOP_HATCH =
+                LogisticsAutomation.blockModelIdentifier("laser_quarry_top_hatch");
+
+        private MODEL() {}
     }
 }
