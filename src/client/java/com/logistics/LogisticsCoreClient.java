@@ -2,6 +2,7 @@ package com.logistics;
 
 import com.logistics.core.bootstrap.DomainBootstrap;
 import com.logistics.core.render.MarkerBlockEntityRenderer;
+import com.logistics.core.render.ModelKeyRegistry;
 import net.fabricmc.fabric.api.client.model.loading.v1.ExtraModelKey;
 import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
 import net.fabricmc.fabric.api.client.model.loading.v1.SimpleUnbakedExtraModel;
@@ -11,7 +12,6 @@ import net.minecraft.client.renderer.block.model.BlockStateModel;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 import net.minecraft.resources.Identifier;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import static com.logistics.LogisticsMod.LOGGER;
@@ -43,19 +43,12 @@ public final class LogisticsCoreClient implements DomainBootstrap {
     }
 
     public static final class MODEL {
-        private static final Map<ExtraModelKey<BlockStateModel>, Identifier> MODELS = new HashMap<>();
+        private static final ModelKeyRegistry REGISTRY = new ModelKeyRegistry(LogisticsCore::blockModelIdentifier);
 
-        private static ExtraModelKey<BlockStateModel> registerModel(String name) {
-            Identifier id = LogisticsCore.blockModelIdentifier(name);
-            ExtraModelKey<BlockStateModel> key = ExtraModelKey.create(id::toString);
-            MODELS.put(key, id);
-            return key;
-        }
-
-        public static final ExtraModelKey<BlockStateModel> BEAM = registerModel("marker_beam");
+        public static final ExtraModelKey<BlockStateModel> BEAM = REGISTRY.registerModel("marker_beam");
 
         static Iterable<Map.Entry<ExtraModelKey<BlockStateModel>, Identifier>> getAllModels() {
-            return MODELS.entrySet();
+            return REGISTRY.getAllModels();
         }
 
         private MODEL() {}

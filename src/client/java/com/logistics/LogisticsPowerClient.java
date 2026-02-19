@@ -2,6 +2,7 @@ package com.logistics;
 
 import com.logistics.core.bootstrap.DomainBootstrap;
 import com.logistics.core.lib.power.AbstractEngineBlockEntity;
+import com.logistics.core.render.ModelKeyRegistry;
 import com.logistics.power.render.EngineBlockEntityRenderer;
 import com.logistics.power.screen.StirlingEngineScreen;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
@@ -16,7 +17,6 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 import net.minecraft.resources.Identifier;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import static com.logistics.LogisticsMod.LOGGER;
@@ -63,24 +63,17 @@ public final class LogisticsPowerClient implements DomainBootstrap {
     }
 
     public static final class MODEL {
-        private static final Map<ExtraModelKey<BlockStateModel>, Identifier> MODELS = new HashMap<>();
+        private static final ModelKeyRegistry REGISTRY = new ModelKeyRegistry(LogisticsPower::blockModelIdentifier);
 
-        private static ExtraModelKey<BlockStateModel> registerModel(String name) {
-            Identifier id = LogisticsPower.blockModelIdentifier(name);
-            ExtraModelKey<BlockStateModel> key = ExtraModelKey.create(id::toString);
-            MODELS.put(key, id);
-            return key;
-        }
-
-        public static final ExtraModelKey<BlockStateModel> REDSTONE_BELLOW = registerModel("redstone_engine_bellow");
-        public static final ExtraModelKey<BlockStateModel> REDSTONE_PISTON = registerModel("redstone_engine_piston");
-        public static final ExtraModelKey<BlockStateModel> STIRLING_BELLOW = registerModel("stirling_engine_bellow");
-        public static final ExtraModelKey<BlockStateModel> STIRLING_PISTON = registerModel("stirling_engine_piston");
-        public static final ExtraModelKey<BlockStateModel> CREATIVE_BELLOW = registerModel("creative_engine_bellow");
-        public static final ExtraModelKey<BlockStateModel> CREATIVE_PISTON = registerModel("creative_engine_piston");
+        public static final ExtraModelKey<BlockStateModel> REDSTONE_BELLOW = REGISTRY.registerModel("redstone_engine_bellow");
+        public static final ExtraModelKey<BlockStateModel> REDSTONE_PISTON = REGISTRY.registerModel("redstone_engine_piston");
+        public static final ExtraModelKey<BlockStateModel> STIRLING_BELLOW = REGISTRY.registerModel("stirling_engine_bellow");
+        public static final ExtraModelKey<BlockStateModel> STIRLING_PISTON = REGISTRY.registerModel("stirling_engine_piston");
+        public static final ExtraModelKey<BlockStateModel> CREATIVE_BELLOW = REGISTRY.registerModel("creative_engine_bellow");
+        public static final ExtraModelKey<BlockStateModel> CREATIVE_PISTON = REGISTRY.registerModel("creative_engine_piston");
 
         static Iterable<Map.Entry<ExtraModelKey<BlockStateModel>, Identifier>> getAllModels() {
-            return MODELS.entrySet();
+            return REGISTRY.getAllModels();
         }
 
         private MODEL() {}
