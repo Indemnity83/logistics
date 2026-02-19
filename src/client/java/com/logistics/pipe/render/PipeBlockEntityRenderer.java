@@ -49,9 +49,10 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
         if (key == null) {
             return null;
         }
-        FabricBakedModelManager modelManager = (FabricBakedModelManager) Minecraft.getInstance().getModelManager();
+        Minecraft mc = Minecraft.getInstance();
+        FabricBakedModelManager modelManager = (FabricBakedModelManager) mc.getModelManager();
         BlockStateModel model = modelManager.getModel(key);
-        if (model == null || model == Minecraft.getInstance().getModelManager().getMissingBlockStateModel()) {
+        if (model == null || model == mc.getModelManager().getMissingBlockStateModel()) {
             return null;
         }
         return model;
