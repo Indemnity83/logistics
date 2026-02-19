@@ -12,6 +12,8 @@ import com.logistics.core.lib.power.AcceptsLowTierEnergy;
 import com.logistics.pipe.Pipe;
 import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.block.PipeBlock;
+import com.logistics.pipe.data.PipeDataComponents.WeatheringState;
+import com.logistics.pipe.modules.WeatheringModule;
 import com.logistics.pipe.runtime.PipeRuntime;
 import com.logistics.pipe.runtime.TravelingItem;
 import java.util.ArrayList;
@@ -22,12 +24,14 @@ import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
@@ -334,6 +338,42 @@ public class PipeBlockEntity extends BaseBlockEntity
 
     public PipeContext createContext() {
         return new PipeContext(level, worldPosition, getBlockState(), this);
+    }
+
+    // --- Component handling for item drops ---
+
+    @Override
+    protected void collectImplicitComponents(DataComponentMap.Builder builder) {
+        super.collectImplicitComponents(builder);
+
+        BlockState state = getBlockState();
+        if (!(state.getBlock() instanceof PipeBlock pipeBlock)) return;
+
+        Pipe pipe = pipeBlock.getPipe();
+        if (pipe == null) return;
+
+        pipe.addItemComponents(builder, createContext());
+    }
+
+    @Override
+    protected void applyImplicitComponents(BlockEntity.DataComponentInput components) {
+        super.applyImplicitComponents(components);
+
+        BlockState state = getBlockState();
+        if (!(state.getBlock() instanceof PipeBlock pipeBlock)) return;
+
+        Pipe pipe = pipeBlock.getPipe();
+        if (pipe == null) return;
+
+        // Apply weathering state directly - DataComponentInput has protected access
+        // so we handle it here in the BlockEntity subclass rather than in module code.
+        WeatheringState ws = components.get(LogisticsPipe.DATA.WEATHERING_STATE);
+        if (ws != null && !ws.isDefault()) {
+            WeatheringModule wm = pipe.getModule(WeatheringModule.class);
+            if (wm != null) {
+                wm.applyWeatheringState(ws, createContext());
+            }
+        }
     }
 
     public int getLastConnectionsMask() {

@@ -6,6 +6,7 @@ import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.runtime.RoutePlan;
 import java.util.List;
 import net.minecraft.core.Direction;
+import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionResult;
@@ -152,20 +153,20 @@ public interface Module {
      * Add components to the item stack when the block is broken.
      * Called for each module to allow adding custom components to dropped items.
      *
-     * <p><b>MC 1.21.1:</b> No-op stub - component system doesn't exist.
-     *
-     * @param builder the component map builder (Object in MC 1.21.1)
+     * @param builder the component map builder
      * @param ctx the pipe context
      */
-    default void addItemComponents(Object builder, PipeContext ctx) {}
+    default void addItemComponents(DataComponentMap.Builder builder, PipeContext ctx) {}
 
     /**
      * Read components from the item stack when the block is placed.
      * Called for each module to allow reading custom components from placed items.
      *
-     * <p><b>MC 1.21.1:</b> No-op stub - component system doesn't exist.
+     * <p><b>Note:</b> The parameter type differs between MC versions:
+     * MC 1.21.1 passes {@code BlockEntity.DataComponentInput};
+     * newer versions pass {@code DataComponentGetter}.
      *
-     * @param components the components from the item (Object in MC 1.21.1)
+     * @param components the components from the item
      * @param ctx the pipe context
      */
     default void readItemComponents(Object components, PipeContext ctx) {}
@@ -179,6 +180,18 @@ public interface Module {
      */
     default List<String> getCustomModelDataStrings(PipeContext ctx) {
         return List.of();
+    }
+
+    /**
+     * Get custom model data integer value for item model selection.
+     * Used in MC 1.21.1 where CustomModelData is an integer, not a string list.
+     * Return 0 for no custom model data.
+     *
+     * @param ctx the pipe context
+     * @return integer model data value, or 0 for none
+     */
+    default int getCustomModelDataValue(PipeContext ctx) {
+        return 0;
     }
 
     /**
@@ -197,9 +210,11 @@ public interface Module {
      * Used for item display names when we don't have a block context.
      * For example, ".exposed" or ".waxed.oxidized" for weathering states.
      *
-     * <p><b>MC 1.21.1:</b> No-op stub - always returns empty string.
+     * <p><b>Note:</b> The parameter is an {@code ItemStack} (which implements
+     * {@code DataComponentHolder} in MC 1.21.1 and {@code DataComponentGetter}
+     * in newer versions). Use {@code DataComponentHolder} cast to read components.
      *
-     * @param components the item components (Object in MC 1.21.1)
+     * @param components the item stack (as Object to bridge version differences)
      * @return the translation key suffix, or empty string for default name
      */
     default String getItemNameSuffixFromComponents(Object components) {

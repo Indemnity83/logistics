@@ -9,6 +9,7 @@ import com.logistics.pipe.runtime.RoutePlan;
 import com.logistics.pipe.runtime.TravelingItem;
 import java.util.ArrayList;
 import java.util.List;
+import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -16,6 +17,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.component.CustomModelData;
 import org.jetbrains.annotations.Nullable;
 
 public class Pipe {
@@ -162,22 +164,38 @@ public class Pipe {
 
     /**
      * Add item components from all modules when the block is broken.
-     * Also adds custom model data component if any module provides model data strings.
-     *
-     * <p><b>MC 1.21.1:</b> No-op stub - component system doesn't exist.
-     * Copper pipes lose oxidation state when picked up in this version.
+     * Also adds custom model data component if any module provides model data.
      */
-    public void addItemComponents(Object builder, PipeContext ctx) {
-        // No-op in MC 1.21.1 - component system doesn't exist
+    public void addItemComponents(DataComponentMap.Builder builder, PipeContext ctx) {
+        for (Module module : modules) {
+            module.addItemComponents(builder, ctx);
+        }
+
+        // Aggregate custom model data integer from all modules (MC 1.21.1 uses int-based CMD)
+        int modelValue = 0;
+        for (Module module : modules) {
+            int v = module.getCustomModelDataValue(ctx);
+            if (v != 0) {
+                modelValue = v;
+                break;
+            }
+        }
+        if (modelValue != 0) {
+            builder.set(net.minecraft.core.component.DataComponents.CUSTOM_MODEL_DATA,
+                    new CustomModelData(modelValue));
+        }
     }
 
     /**
      * Read item components into all modules when the block is placed.
      *
-     * <p><b>MC 1.21.1:</b> No-op stub - component system doesn't exist.
+     * <p><b>Note:</b> The parameter type differs between MC versions.
+     * In MC 1.21.1 it is {@code BlockEntity.DataComponentInput}.
      */
     public void readItemComponents(Object components, PipeContext ctx) {
-        // No-op in MC 1.21.1 - component system doesn't exist
+        for (Module module : modules) {
+            module.readItemComponents(components, ctx);
+        }
     }
 
     /**
@@ -196,11 +214,14 @@ public class Pipe {
     /**
      * Get the item name suffix from item components.
      * Used for item display names when we don't have a block context.
-     *
-     * <p><b>MC 1.21.1:</b> No-op stub - always returns empty string.
      */
     public String getItemNameSuffixFromComponents(Object components) {
-        // No-op in MC 1.21.1 - component system doesn't exist
+        for (Module module : modules) {
+            String suffix = module.getItemNameSuffixFromComponents(components);
+            if (!suffix.isEmpty()) {
+                return suffix;
+            }
+        }
         return "";
     }
 
