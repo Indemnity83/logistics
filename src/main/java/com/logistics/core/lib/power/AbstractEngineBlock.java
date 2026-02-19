@@ -1,11 +1,11 @@
 package com.logistics.core.lib.power;
 
-import static com.logistics.core.lib.power.AbstractEngineBlockEntity.STAGE;
+import static com.logistics.core.lib.block.behavior.HeatBehavior.STAGE;
 
 import com.logistics.core.lib.block.MachineBlock;
 import com.logistics.core.lib.block.behavior.ProbeBehavior;
 import com.logistics.core.lib.block.behavior.WrenchBehavior;
-import com.logistics.core.lib.power.AbstractEngineBlockEntity.HeatStage;
+import com.logistics.core.lib.heat.HeatStage;
 import com.logistics.core.lib.support.ProbeResult;
 import java.util.Collections;
 import java.util.List;
