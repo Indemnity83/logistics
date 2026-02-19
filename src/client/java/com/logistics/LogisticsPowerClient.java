@@ -2,6 +2,7 @@ package com.logistics;
 
 import com.logistics.core.bootstrap.DomainBootstrap;
 import com.logistics.core.lib.power.AbstractEngineBlockEntity;
+import com.logistics.core.render.ModelKeyRegistry;
 import com.logistics.power.render.EngineBlockEntityRenderer;
 import com.logistics.power.screen.StirlingEngineScreen;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
@@ -11,20 +12,14 @@ import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
+import net.minecraft.resources.ResourceLocation;
 
 import static com.logistics.LogisticsMod.LOGGER;
 
 public final class LogisticsPowerClient implements DomainBootstrap {
     public LogisticsPowerClient() {
         ModelLoadingPlugin.register(pluginContext -> {
-            net.minecraft.resources.ResourceLocation redstoneBellow = LogisticsPower.blockModelIdentifier("redstone_engine_bellow");
-            net.minecraft.resources.ResourceLocation redstonePiston = LogisticsPower.blockModelIdentifier("redstone_engine_piston");
-            net.minecraft.resources.ResourceLocation stirlingBellow = LogisticsPower.blockModelIdentifier("stirling_engine_bellow");
-            net.minecraft.resources.ResourceLocation stirlingPiston = LogisticsPower.blockModelIdentifier("stirling_engine_piston");
-            net.minecraft.resources.ResourceLocation creativeBellow = LogisticsPower.blockModelIdentifier("creative_engine_bellow");
-            net.minecraft.resources.ResourceLocation creativePiston = LogisticsPower.blockModelIdentifier("creative_engine_piston");
-
-            pluginContext.addModels(redstoneBellow, redstonePiston, stirlingBellow, stirlingPiston, creativeBellow, creativePiston);
+            pluginContext.addModels(MODEL.getAllModels());
         });
     }
 
@@ -61,6 +56,23 @@ public final class LogisticsPowerClient implements DomainBootstrap {
 
         // Clear all animation caches when disconnecting from server
         ClientLifecycleEvents.CLIENT_STOPPING.register(client -> EngineBlockEntityRenderer.clearAllAnimationCache());
+    }
+
+    public static final class MODEL {
+        private static final ModelKeyRegistry REGISTRY = new ModelKeyRegistry(LogisticsPower::blockModelIdentifier);
+
+        public static final ResourceLocation REDSTONE_BELLOW = REGISTRY.registerModel("redstone_engine_bellow");
+        public static final ResourceLocation REDSTONE_PISTON = REGISTRY.registerModel("redstone_engine_piston");
+        public static final ResourceLocation STIRLING_BELLOW = REGISTRY.registerModel("stirling_engine_bellow");
+        public static final ResourceLocation STIRLING_PISTON = REGISTRY.registerModel("stirling_engine_piston");
+        public static final ResourceLocation CREATIVE_BELLOW = REGISTRY.registerModel("creative_engine_bellow");
+        public static final ResourceLocation CREATIVE_PISTON = REGISTRY.registerModel("creative_engine_piston");
+
+        static ResourceLocation[] getAllModels() {
+            return REGISTRY.getAllModels();
+        }
+
+        private MODEL() {}
     }
 
     /**

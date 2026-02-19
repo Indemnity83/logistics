@@ -6,31 +6,23 @@ import com.logistics.pipe.screen.ItemFilterScreen;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
 import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
+import org.jetbrains.annotations.Nullable;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Stream;
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.logistics.LogisticsMod.LOGGER;
 
 public final class LogisticsPipeClient implements DomainBootstrap {
     public LogisticsPipeClient() {
         ModelLoadingPlugin.register(pluginContext -> {
-            List<ResourceLocation> models = collectPipeModelIds();
-            if (!models.isEmpty()) {
-                pluginContext.addModels(models.toArray(new ResourceLocation[0]));
-            }
+            pluginContext.addModels(MODEL.getAllModels());
         });
     }
 
@@ -79,36 +71,72 @@ public final class LogisticsPipeClient implements DomainBootstrap {
         }, items);
     }
 
-    /**
-     * Scans the mod's pipe model directory and returns resource locations for all
-     * pipe model JSON files. These are registered with the model loading plugin so
-     * they are baked and available for the block entity renderer at runtime.
-     *
-     * <p>Core models referenced in blockstate JSON files are baked automatically;
-     * arm/feature/variant models need explicit registration via this mechanism.
-     */
-    private static List<ResourceLocation> collectPipeModelIds() {
-        Optional<Path> pipeModelDir = FabricLoader.getInstance()
-                .getModContainer(LogisticsMod.MOD_ID)
-                .flatMap(mod -> mod.findPath("assets/" + LogisticsMod.MOD_ID + "/models/block/pipe"));
+    public static final class MODEL {
+        private static final Map<ResourceLocation, ResourceLocation> TEMP_LOOKUP = new HashMap<>();
 
-        if (pipeModelDir.isEmpty()) {
-            LOGGER.warn("Could not find pipe model directory - pipe rendering will be missing");
-            return List.of();
+        private static void registerModel(String name) {
+            ResourceLocation id = LogisticsPipe.blockModelIdentifier(name);
+            TEMP_LOOKUP.put(id, id);
         }
 
-        List<ResourceLocation> modelIds = new ArrayList<>();
-        try (Stream<Path> files = Files.walk(pipeModelDir.get())) {
-            files.filter(Files::isRegularFile).forEach(path -> {
-                String relative = pipeModelDir.get().relativize(path).toString().replace('\\', '/');
-                if (!relative.endsWith(".json")) return;
-                String name = relative.substring(0, relative.length() - ".json".length());
-                modelIds.add(LogisticsMod.getResourceLocation("block/pipe/" + name));
-            });
-        } catch (IOException e) {
-            LOGGER.warn("Failed to scan pipe model resources", e);
+        static {
+            registerModel("pipe_markings");
+            registerModel("stone_transport_pipe_core");
+            registerModel("stone_transport_pipe_arm");
+            registerModel("stone_transport_pipe_arm_extended");
+            registerModel("copper_transport_pipe_core");
+            registerModel("copper_transport_pipe_core_exposed");
+            registerModel("copper_transport_pipe_core_weathered");
+            registerModel("copper_transport_pipe_core_oxidized");
+            registerModel("copper_transport_pipe_arm");
+            registerModel("copper_transport_pipe_arm_exposed");
+            registerModel("copper_transport_pipe_arm_weathered");
+            registerModel("copper_transport_pipe_arm_oxidized");
+            registerModel("copper_transport_pipe_arm_extended");
+            registerModel("copper_transport_pipe_arm_extended_exposed");
+            registerModel("copper_transport_pipe_arm_extended_weathered");
+            registerModel("copper_transport_pipe_arm_extended_oxidized");
+            registerModel("gold_transport_pipe_core");
+            registerModel("gold_transport_pipe_core_powered");
+            registerModel("gold_transport_pipe_arm");
+            registerModel("gold_transport_pipe_arm_powered");
+            registerModel("gold_transport_pipe_arm_extended");
+            registerModel("gold_transport_pipe_arm_extended_powered");
+            registerModel("item_extractor_pipe_core");
+            registerModel("item_extractor_pipe_arm");
+            registerModel("item_extractor_pipe_arm_extended");
+            registerModel("item_extractor_pipe_feature");
+            registerModel("item_extractor_pipe_feature_extended");
+            registerModel("item_filter_pipe_core");
+            registerModel("item_filter_pipe_arm");
+            registerModel("item_filter_pipe_arm_extended");
+            registerModel("item_insertion_pipe_core");
+            registerModel("item_insertion_pipe_arm");
+            registerModel("item_insertion_pipe_arm_extended");
+            registerModel("item_merger_pipe_core");
+            registerModel("item_merger_pipe_arm");
+            registerModel("item_merger_pipe_arm_extended");
+            registerModel("item_merger_pipe_feature");
+            registerModel("item_merger_pipe_feature_extended");
+            registerModel("item_passthrough_pipe_core");
+            registerModel("item_passthrough_pipe_arm");
+            registerModel("item_passthrough_pipe_arm_extended");
+            registerModel("item_void_pipe_core");
+            registerModel("item_void_pipe_arm");
+            registerModel("item_void_pipe_arm_extended");
         }
 
-        return modelIds;
+        private static final Map<ResourceLocation, ResourceLocation> MODEL_LOOKUP = Map.copyOf(TEMP_LOOKUP);
+
+        @Nullable
+        public static ResourceLocation getKey(ResourceLocation modelId) {
+            return MODEL_LOOKUP.get(modelId);
+        }
+
+        static ResourceLocation[] getAllModels() {
+            return MODEL_LOOKUP.values().toArray(new ResourceLocation[0]);
+        }
+
+        private MODEL() {}
     }
 }

@@ -3,6 +3,7 @@ package com.logistics;
 import com.logistics.automation.render.ClientRenderCacheHooks;
 import com.logistics.automation.render.LaserQuarryBlockEntityRenderer;
 import com.logistics.core.bootstrap.DomainBootstrap;
+import com.logistics.core.render.ModelKeyRegistry;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -17,14 +18,7 @@ import static com.logistics.LogisticsMod.LOGGER;
 public final class LogisticsAutomationClient implements DomainBootstrap {
     public LogisticsAutomationClient() {
         ModelLoadingPlugin.register(pluginContext -> {
-            pluginContext.addModels(
-                    MODEL.ARM,
-                    MODEL.DRILL,
-                    MODEL.LED_GREEN,
-                    MODEL.LED_RED,
-                    MODEL.DISPLAY,
-                    MODEL.TOP_HATCH
-            );
+            pluginContext.addModels(MODEL.getAllModels());
         });
     }
 
@@ -59,18 +53,18 @@ public final class LogisticsAutomationClient implements DomainBootstrap {
     }
 
     public static final class MODEL {
-        public static final ResourceLocation ARM =
-                LogisticsAutomation.blockModelIdentifier("laser_quarry_gantry_arm");
-        public static final ResourceLocation DRILL =
-                LogisticsAutomation.blockModelIdentifier("laser_quarry_drill");
-        public static final ResourceLocation LED_GREEN =
-                LogisticsAutomation.blockModelIdentifier("laser_quarry_led_green");
-        public static final ResourceLocation LED_RED =
-                LogisticsAutomation.blockModelIdentifier("laser_quarry_led_red");
-        public static final ResourceLocation DISPLAY =
-                LogisticsAutomation.blockModelIdentifier("laser_quarry_display");
-        public static final ResourceLocation TOP_HATCH =
-                LogisticsAutomation.blockModelIdentifier("laser_quarry_top_hatch");
+        private static final ModelKeyRegistry REGISTRY = new ModelKeyRegistry(LogisticsAutomation::blockModelIdentifier);
+
+        public static final ResourceLocation ARM = REGISTRY.registerModel("laser_quarry_gantry_arm");
+        public static final ResourceLocation DRILL = REGISTRY.registerModel("laser_quarry_drill");
+        public static final ResourceLocation LED_GREEN = REGISTRY.registerModel("laser_quarry_led_green");
+        public static final ResourceLocation LED_RED = REGISTRY.registerModel("laser_quarry_led_red");
+        public static final ResourceLocation DISPLAY = REGISTRY.registerModel("laser_quarry_display");
+        public static final ResourceLocation TOP_HATCH = REGISTRY.registerModel("laser_quarry_top_hatch");
+
+        static ResourceLocation[] getAllModels() {
+            return REGISTRY.getAllModels();
+        }
 
         private MODEL() {}
     }

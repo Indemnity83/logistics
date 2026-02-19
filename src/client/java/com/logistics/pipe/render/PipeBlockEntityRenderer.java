@@ -1,6 +1,7 @@
 package com.logistics.pipe.render;
 
 import com.logistics.LogisticsPipe;
+import com.logistics.LogisticsPipeClient;
 import com.logistics.core.lib.block.capability.PipeConnection;
 import com.logistics.pipe.Pipe;
 import com.logistics.pipe.PipeContext;
@@ -249,8 +250,15 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
     }
 
     private BakedModel getModel(ResourceLocation id) {
+        // Check if this model ID is registered in our static MODEL class
+        // This ensures we only try to load models we explicitly registered
+        ResourceLocation registeredId = LogisticsPipeClient.MODEL.getKey(id);
+        if (registeredId == null) {
+            return null;
+        }
+
         FabricBakedModelManager modelManager = (FabricBakedModelManager) Minecraft.getInstance().getModelManager();
-        BakedModel model = modelManager.getModel(id);
+        BakedModel model = modelManager.getModel(registeredId);
 
         if (model == null || model == Minecraft.getInstance().getModelManager().getMissingModel()) {
             return null;
