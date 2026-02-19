@@ -28,9 +28,16 @@ public final class ModelKeyRegistry {
      * Registers a model and returns its key.
      * @param name Model name (will be passed to the identifier factory)
      * @return ExtraModelKey for the registered model
+     * @throws IllegalArgumentException if the model is already registered (indicates a programming error)
      */
     public ExtraModelKey<BlockStateModel> registerModel(String name) {
         Identifier id = identifierFactory.apply(name);
+
+        // Detect duplicate registration (programming error)
+        if (models.containsValue(id)) {
+            throw new IllegalArgumentException("Model already registered: " + id);
+        }
+
         ExtraModelKey<BlockStateModel> key = ExtraModelKey.create(id::toString);
         models.put(key, id);
         return key;
@@ -39,8 +46,9 @@ public final class ModelKeyRegistry {
     /**
      * Returns all registered models as key-identifier pairs.
      * Used by ModelLoadingPlugin to register models with Fabric.
+     * @return Immutable view of registered models
      */
     public Iterable<Map.Entry<ExtraModelKey<BlockStateModel>, Identifier>> getAllModels() {
-        return models.entrySet();
+        return models.entrySet().stream().toList();
     }
 }
