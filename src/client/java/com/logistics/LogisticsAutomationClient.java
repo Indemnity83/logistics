@@ -28,13 +28,6 @@ public final class LogisticsAutomationClient implements DomainBootstrap {
             Identifier display = LogisticsAutomation.blockModelIdentifier("laser_quarry_display");
             Identifier topHatch = LogisticsAutomation.blockModelIdentifier("laser_quarry_top_hatch");
 
-            MODEL.ARM = ExtraModelKey.create(arm::toString);
-            MODEL.DRILL = ExtraModelKey.create(drill::toString);
-            MODEL.LED_GREEN = ExtraModelKey.create(ledGreen::toString);
-            MODEL.LED_RED = ExtraModelKey.create(ledRed::toString);
-            MODEL.DISPLAY = ExtraModelKey.create(display::toString);
-            MODEL.TOP_HATCH = ExtraModelKey.create(topHatch::toString);
-
             pluginContext.addModel(MODEL.ARM, SimpleUnbakedExtraModel.blockStateModel(arm));
             pluginContext.addModel(MODEL.DRILL, SimpleUnbakedExtraModel.blockStateModel(drill));
             pluginContext.addModel(MODEL.LED_GREEN, SimpleUnbakedExtraModel.blockStateModel(ledGreen));
@@ -74,12 +67,18 @@ public final class LogisticsAutomationClient implements DomainBootstrap {
     }
 
     public static final class MODEL {
-        public static ExtraModelKey<BlockStateModel> ARM;
-        public static ExtraModelKey<BlockStateModel> DRILL;
-        public static ExtraModelKey<BlockStateModel> LED_GREEN;
-        public static ExtraModelKey<BlockStateModel> LED_RED;
-        public static ExtraModelKey<BlockStateModel> DISPLAY;
-        public static ExtraModelKey<BlockStateModel> TOP_HATCH;
+        public static final ExtraModelKey<BlockStateModel> ARM =
+                ExtraModelKey.create(() -> LogisticsAutomation.blockModelIdentifier("laser_quarry_gantry_arm").toString());
+        public static final ExtraModelKey<BlockStateModel> DRILL =
+                ExtraModelKey.create(() -> LogisticsAutomation.blockModelIdentifier("laser_quarry_drill").toString());
+        public static final ExtraModelKey<BlockStateModel> LED_GREEN =
+                ExtraModelKey.create(() -> LogisticsAutomation.blockModelIdentifier("laser_quarry_led_green").toString());
+        public static final ExtraModelKey<BlockStateModel> LED_RED =
+                ExtraModelKey.create(() -> LogisticsAutomation.blockModelIdentifier("laser_quarry_led_red").toString());
+        public static final ExtraModelKey<BlockStateModel> DISPLAY =
+                ExtraModelKey.create(() -> LogisticsAutomation.blockModelIdentifier("laser_quarry_display").toString());
+        public static final ExtraModelKey<BlockStateModel> TOP_HATCH =
+                ExtraModelKey.create(() -> LogisticsAutomation.blockModelIdentifier("laser_quarry_top_hatch").toString());
 
         private MODEL() {}
     }
