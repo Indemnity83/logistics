@@ -9,6 +9,8 @@ import com.logistics.pipe.data.PipeDataComponents.WeatheringState;
 import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.component.DataComponentHolder;
+import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -217,27 +219,38 @@ public class WeatheringModule implements Module {
     // --- Item component handling ---
 
     @Override
-    public void addItemComponents(Object builder, PipeContext ctx) {
-        // No-op in MC 1.21.1 - component system doesn't exist
-        // Copper pipes lose oxidation state when picked up
+    public void addItemComponents(DataComponentMap.Builder builder, PipeContext ctx) {
+        int stage = getOxidationStage(ctx);
+        boolean waxed = isWaxed(ctx);
+
+        WeatheringState state = new WeatheringState(stage, waxed);
+        if (!state.isDefault()) {
+            builder.set(LogisticsPipe.DATA.WEATHERING_STATE, state);
+        }
     }
 
     @Override
     public void readItemComponents(Object components, PipeContext ctx) {
-        // No-op in MC 1.21.1 - component system doesn't exist
+        // In MC 1.21.1, BlockEntity.DataComponentInput has protected access,
+        // so reading is handled directly in PipeBlockEntity.applyImplicitComponents.
+    }
+
+    /**
+     * Applies the given weathering state to this module's persistent storage.
+     * Called from PipeBlockEntity where DataComponentInput is accessible.
+     */
+    public void applyWeatheringState(WeatheringState state, PipeContext ctx) {
+        ctx.saveInt(this, OXIDATION_KEY, state.oxidationStage());
+        ctx.saveInt(this, WAXED_KEY, state.waxed() ? 1 : 0);
     }
 
     @Override
-    public List<String> getCustomModelDataStrings(PipeContext ctx) {
+    public int getCustomModelDataValue(PipeContext ctx) {
         int stage = getOxidationStage(ctx);
         boolean waxed = isWaxed(ctx);
-
-        if (stage == STAGE_UNAFFECTED && !waxed) {
-            return List.of();
-        }
-
-        String modelKey = getModelKey(stage, waxed);
-        return List.of(modelKey);
+        // Encode stage + waxed as a single integer: 1-4 = unwaxed stages, 5-8 = waxed stages
+        if (stage == STAGE_UNAFFECTED && !waxed) return 0;
+        return waxed ? stage + 5 : stage;
     }
 
     @Override
@@ -249,14 +262,38 @@ public class WeatheringModule implements Module {
 
     @Override
     public String getItemNameSuffixFromComponents(Object components) {
-        // No-op in MC 1.21.1 - component system doesn't exist
-        return "";
+        // components is an ItemStack (implements DataComponentHolder) in MC 1.21.1
+        if (!(components instanceof DataComponentHolder holder)) return "";
+        WeatheringState state = holder.get(LogisticsPipe.DATA.WEATHERING_STATE);
+        if (state == null || state.isDefault()) return "";
+        return buildItemNameSuffix(state.oxidationStage(), state.waxed());
     }
 
     @Override
     public void appendCreativeMenuVariants(List<ItemStack> stacks, ItemStack baseStack) {
-        // No-op in MC 1.21.1 - component system doesn't exist
-        // Only base (unoxidized) copper pipes appear in creative menu
+        // Add all oxidation stages (unwaxed)
+        for (int stage = STAGE_EXPOSED; stage <= STAGE_OXIDIZED; stage++) {
+            stacks.add(createVariant(baseStack, stage, false));
+        }
+
+        // Add all waxed variants (including waxed unaffected)
+        for (int stage = STAGE_UNAFFECTED; stage <= STAGE_OXIDIZED; stage++) {
+            stacks.add(createVariant(baseStack, stage, true));
+        }
+    }
+
+    private static ItemStack createVariant(ItemStack baseStack, int stage, boolean waxed) {
+        ItemStack stack = baseStack.copy();
+        stack.set(LogisticsPipe.DATA.WEATHERING_STATE, new WeatheringState(stage, waxed));
+
+        // Add integer-based custom model data for item model variant selection
+        int modelValue = waxed ? stage + 5 : stage;
+        if (modelValue != 0) {
+            stack.set(net.minecraft.core.component.DataComponents.CUSTOM_MODEL_DATA,
+                    new CustomModelData(modelValue));
+        }
+
+        return stack;
     }
 
     private static String buildItemNameSuffix(int stage, boolean waxed) {
@@ -274,20 +311,4 @@ public class WeatheringModule implements Module {
         return oxidationSuffix;
     }
 
-    private static String getModelKey(int stage, boolean waxed) {
-        String stageName =
-                switch (stage) {
-                    case STAGE_EXPOSED -> "exposed";
-                    case STAGE_WEATHERED -> "weathered";
-                    case STAGE_OXIDIZED -> "oxidized";
-                    default -> "";
-                };
-
-        if (waxed && !stageName.isEmpty()) {
-            return "waxed_" + stageName;
-        } else if (waxed) {
-            return "waxed";
-        }
-        return stageName;
-    }
 }

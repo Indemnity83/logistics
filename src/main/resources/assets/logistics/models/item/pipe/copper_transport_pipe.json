@@ -34,5 +34,14 @@
     "particle": "logistics:block/pipe/copper_pipe_core",
     "core": "logistics:block/pipe/copper_pipe_core",
     "arm":  "logistics:block/pipe/copper_pipe_arm"
-  }
+  },
+  "overrides": [
+    {"predicate": {"custom_model_data": 1}, "model": "logistics:item/pipe/copper_transport_pipe_exposed"},
+    {"predicate": {"custom_model_data": 2}, "model": "logistics:item/pipe/copper_transport_pipe_weathered"},
+    {"predicate": {"custom_model_data": 3}, "model": "logistics:item/pipe/copper_transport_pipe_oxidized"},
+    {"predicate": {"custom_model_data": 5}, "model": "logistics:item/pipe/copper_transport_pipe_waxed"},
+    {"predicate": {"custom_model_data": 6}, "model": "logistics:item/pipe/copper_transport_pipe_waxed_exposed"},
+    {"predicate": {"custom_model_data": 7}, "model": "logistics:item/pipe/copper_transport_pipe_waxed_weathered"},
+    {"predicate": {"custom_model_data": 8}, "model": "logistics:item/pipe/copper_transport_pipe_waxed_oxidized"}
+  ]
 }

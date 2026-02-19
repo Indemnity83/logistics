@@ -28,6 +28,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.SimpleWaterloggedBlock;
@@ -299,9 +300,15 @@ public class PipeBlock extends BaseEntityBlock implements ProbeBehavior.Probeabl
 
     @Override
     public ItemStack getCloneItemStack(LevelReader world, BlockPos pos, BlockState state) {
-        // MC 1.21.1: Component system doesn't exist, so pipes lose state when picked
-        // This means copper pipes lose oxidation/waxing state when picked with middle click
-        return super.getCloneItemStack(world, pos, state);
+        ItemStack stack = super.getCloneItemStack(world, pos, state);
+
+        // Copy components from block entity to preserve weathering state on pick-block.
+        BlockEntity blockEntity = world.getBlockEntity(pos);
+        if (blockEntity instanceof PipeBlockEntity pipeEntity) {
+            stack.applyComponents(pipeEntity.collectComponents());
+        }
+
+        return stack;
     }
 
     @Override
