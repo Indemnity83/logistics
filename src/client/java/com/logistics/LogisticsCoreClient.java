@@ -11,14 +11,17 @@ import net.minecraft.client.renderer.block.model.BlockStateModel;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 import net.minecraft.resources.Identifier;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import static com.logistics.LogisticsMod.LOGGER;
 
 public final class LogisticsCoreClient implements DomainBootstrap {
     public LogisticsCoreClient() {
         ModelLoadingPlugin.register(pluginContext -> {
-            Identifier beam = LogisticsCore.blockModelIdentifier("marker_beam");
-
-            pluginContext.addModel(MODEL.BEAM, SimpleUnbakedExtraModel.blockStateModel(beam));
+            for (var entry : MODEL.getAllModels()) {
+                pluginContext.addModel(entry.getKey(), SimpleUnbakedExtraModel.blockStateModel(entry.getValue()));
+            }
         });
     }
 
@@ -40,12 +43,20 @@ public final class LogisticsCoreClient implements DomainBootstrap {
     }
 
     public static final class MODEL {
+        private static final Map<ExtraModelKey<BlockStateModel>, Identifier> MODELS = new HashMap<>();
+
         private static ExtraModelKey<BlockStateModel> registerModel(String name) {
             Identifier id = LogisticsCore.blockModelIdentifier(name);
-            return ExtraModelKey.create(id::toString);
+            ExtraModelKey<BlockStateModel> key = ExtraModelKey.create(id::toString);
+            MODELS.put(key, id);
+            return key;
         }
 
         public static final ExtraModelKey<BlockStateModel> BEAM = registerModel("marker_beam");
+
+        static Iterable<Map.Entry<ExtraModelKey<BlockStateModel>, Identifier>> getAllModels() {
+            return MODELS.entrySet();
+        }
 
         private MODEL() {}
     }

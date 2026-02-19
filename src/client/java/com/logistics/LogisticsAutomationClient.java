@@ -16,24 +16,17 @@ import net.minecraft.client.renderer.block.model.BlockStateModel;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 import net.minecraft.resources.Identifier;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import static com.logistics.LogisticsMod.LOGGER;
 
 public final class LogisticsAutomationClient implements DomainBootstrap {
     public LogisticsAutomationClient() {
         ModelLoadingPlugin.register(pluginContext -> {
-            Identifier arm = LogisticsAutomation.blockModelIdentifier("laser_quarry_gantry_arm");
-            Identifier drill = LogisticsAutomation.blockModelIdentifier("laser_quarry_drill");
-            Identifier ledGreen = LogisticsAutomation.blockModelIdentifier("laser_quarry_led_green");
-            Identifier ledRed = LogisticsAutomation.blockModelIdentifier("laser_quarry_led_red");
-            Identifier display = LogisticsAutomation.blockModelIdentifier("laser_quarry_display");
-            Identifier topHatch = LogisticsAutomation.blockModelIdentifier("laser_quarry_top_hatch");
-
-            pluginContext.addModel(MODEL.ARM, SimpleUnbakedExtraModel.blockStateModel(arm));
-            pluginContext.addModel(MODEL.DRILL, SimpleUnbakedExtraModel.blockStateModel(drill));
-            pluginContext.addModel(MODEL.LED_GREEN, SimpleUnbakedExtraModel.blockStateModel(ledGreen));
-            pluginContext.addModel(MODEL.LED_RED, SimpleUnbakedExtraModel.blockStateModel(ledRed));
-            pluginContext.addModel(MODEL.DISPLAY, SimpleUnbakedExtraModel.blockStateModel(display));
-            pluginContext.addModel(MODEL.TOP_HATCH, SimpleUnbakedExtraModel.blockStateModel(topHatch));
+            for (var entry : MODEL.getAllModels()) {
+                pluginContext.addModel(entry.getKey(), SimpleUnbakedExtraModel.blockStateModel(entry.getValue()));
+            }
         });
     }
 
@@ -67,9 +60,13 @@ public final class LogisticsAutomationClient implements DomainBootstrap {
     }
 
     public static final class MODEL {
+        private static final Map<ExtraModelKey<BlockStateModel>, Identifier> MODELS = new HashMap<>();
+
         private static ExtraModelKey<BlockStateModel> registerModel(String name) {
             Identifier id = LogisticsAutomation.blockModelIdentifier(name);
-            return ExtraModelKey.create(id::toString);
+            ExtraModelKey<BlockStateModel> key = ExtraModelKey.create(id::toString);
+            MODELS.put(key, id);
+            return key;
         }
 
         public static final ExtraModelKey<BlockStateModel> ARM = registerModel("laser_quarry_gantry_arm");
@@ -78,6 +75,10 @@ public final class LogisticsAutomationClient implements DomainBootstrap {
         public static final ExtraModelKey<BlockStateModel> LED_RED = registerModel("laser_quarry_led_red");
         public static final ExtraModelKey<BlockStateModel> DISPLAY = registerModel("laser_quarry_display");
         public static final ExtraModelKey<BlockStateModel> TOP_HATCH = registerModel("laser_quarry_top_hatch");
+
+        static Iterable<Map.Entry<ExtraModelKey<BlockStateModel>, Identifier>> getAllModels() {
+            return MODELS.entrySet();
+        }
 
         private MODEL() {}
     }

@@ -16,24 +16,17 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 import net.minecraft.resources.Identifier;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import static com.logistics.LogisticsMod.LOGGER;
 
 public final class LogisticsPowerClient implements DomainBootstrap {
     public LogisticsPowerClient() {
         ModelLoadingPlugin.register(pluginContext -> {
-            Identifier redstoneBellow = LogisticsPower.blockModelIdentifier("redstone_engine_bellow");
-            Identifier redstonePiston = LogisticsPower.blockModelIdentifier("redstone_engine_piston");
-            Identifier stirlingBellow = LogisticsPower.blockModelIdentifier("stirling_engine_bellow");
-            Identifier stirlingPiston = LogisticsPower.blockModelIdentifier("stirling_engine_piston");
-            Identifier creativeBellow = LogisticsPower.blockModelIdentifier("creative_engine_bellow");
-            Identifier creativePiston = LogisticsPower.blockModelIdentifier("creative_engine_piston");
-
-            pluginContext.addModel(MODEL.REDSTONE_BELLOW, SimpleUnbakedExtraModel.blockStateModel(redstoneBellow));
-            pluginContext.addModel(MODEL.REDSTONE_PISTON, SimpleUnbakedExtraModel.blockStateModel(redstonePiston));
-            pluginContext.addModel(MODEL.STIRLING_BELLOW, SimpleUnbakedExtraModel.blockStateModel(stirlingBellow));
-            pluginContext.addModel(MODEL.STIRLING_PISTON, SimpleUnbakedExtraModel.blockStateModel(stirlingPiston));
-            pluginContext.addModel(MODEL.CREATIVE_BELLOW, SimpleUnbakedExtraModel.blockStateModel(creativeBellow));
-            pluginContext.addModel(MODEL.CREATIVE_PISTON, SimpleUnbakedExtraModel.blockStateModel(creativePiston));
+            for (var entry : MODEL.getAllModels()) {
+                pluginContext.addModel(entry.getKey(), SimpleUnbakedExtraModel.blockStateModel(entry.getValue()));
+            }
         });
     }
 
@@ -70,9 +63,13 @@ public final class LogisticsPowerClient implements DomainBootstrap {
     }
 
     public static final class MODEL {
+        private static final Map<ExtraModelKey<BlockStateModel>, Identifier> MODELS = new HashMap<>();
+
         private static ExtraModelKey<BlockStateModel> registerModel(String name) {
             Identifier id = LogisticsPower.blockModelIdentifier(name);
-            return ExtraModelKey.create(id::toString);
+            ExtraModelKey<BlockStateModel> key = ExtraModelKey.create(id::toString);
+            MODELS.put(key, id);
+            return key;
         }
 
         public static final ExtraModelKey<BlockStateModel> REDSTONE_BELLOW = registerModel("redstone_engine_bellow");
@@ -81,6 +78,10 @@ public final class LogisticsPowerClient implements DomainBootstrap {
         public static final ExtraModelKey<BlockStateModel> STIRLING_PISTON = registerModel("stirling_engine_piston");
         public static final ExtraModelKey<BlockStateModel> CREATIVE_BELLOW = registerModel("creative_engine_bellow");
         public static final ExtraModelKey<BlockStateModel> CREATIVE_PISTON = registerModel("creative_engine_piston");
+
+        static Iterable<Map.Entry<ExtraModelKey<BlockStateModel>, Identifier>> getAllModels() {
+            return MODELS.entrySet();
+        }
 
         private MODEL() {}
     }
