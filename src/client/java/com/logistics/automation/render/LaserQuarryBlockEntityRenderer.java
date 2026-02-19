@@ -1,13 +1,15 @@
 package com.logistics.automation.render;
 
-import com.logistics.LogisticsAutomation;
+import com.logistics.LogisticsAutomationClient;
 import com.logistics.automation.laserquarry.LaserQuarryBlock;
 import com.logistics.automation.laserquarry.LaserQuarryConfig;
 import com.logistics.automation.laserquarry.entity.LaserQuarryBlockEntity;
-import com.logistics.core.render.ModelRegistry;
 import com.logistics.pipe.block.PipeBlock;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
+import net.fabricmc.fabric.api.client.model.loading.v1.ExtraModelKey;
+import net.fabricmc.fabric.api.client.model.loading.v1.FabricBakedModelManager;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.block.model.BlockStateModel;
@@ -19,7 +21,6 @@ import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.state.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.block.state.BlockState;
@@ -31,20 +32,16 @@ import net.minecraft.world.phys.Vec3;
  * that moves smoothly to the current mining position.
  */
 public class LaserQuarryBlockEntityRenderer implements BlockEntityRenderer<LaserQuarryBlockEntity, LaserQuarryRenderState> {
-    private static final Identifier ARM_MODEL_ID =
-            LogisticsAutomation.blockModelIdentifier("laser_quarry_gantry_arm");
-    private static final Identifier DRILL_MODEL_ID =
-            LogisticsAutomation.blockModelIdentifier("laser_quarry_drill");
-    private static final Identifier LED_GREEN_MODEL_ID =
-            LogisticsAutomation.blockModelIdentifier("laser_quarry_led_green");
-    private static final Identifier LED_RED_MODEL_ID =
-            LogisticsAutomation.blockModelIdentifier("laser_quarry_led_red");
-    private static final Identifier DISPLAY_MODEL_ID =
-            LogisticsAutomation.blockModelIdentifier("laser_quarry_display");
-    private static final Identifier TOP_HATCH_MODEL_ID =
-            LogisticsAutomation.blockModelIdentifier("laser_quarry_top_hatch");
-
     public LaserQuarryBlockEntityRenderer(BlockEntityRendererProvider.Context ctx) {}
+
+    private BlockStateModel getModel(ExtraModelKey<BlockStateModel> key) {
+        FabricBakedModelManager modelManager = (FabricBakedModelManager) Minecraft.getInstance().getModelManager();
+        BlockStateModel model = modelManager.getModel(key);
+        if (model == null || model == Minecraft.getInstance().getModelManager().getMissingBlockStateModel()) {
+            return null;
+        }
+        return model;
+    }
 
     @Override
     public LaserQuarryRenderState createRenderState() {
@@ -165,7 +162,7 @@ public class LaserQuarryBlockEntityRenderer implements BlockEntityRenderer<Laser
             return;
         }
 
-        BlockStateModel armModel = ModelRegistry.getModel(ARM_MODEL_ID);
+        BlockStateModel armModel = getModel(LogisticsAutomationClient.MODEL.ARM);
         if (armModel == null) {
             return;
         }
@@ -228,7 +225,7 @@ public class LaserQuarryBlockEntityRenderer implements BlockEntityRenderer<Laser
         }
 
         // Render drill head at the bottom of the vertical beam
-        BlockStateModel drillModel = ModelRegistry.getModel(DRILL_MODEL_ID);
+        BlockStateModel drillModel = getModel(LogisticsAutomationClient.MODEL.DRILL);
         if (drillModel != null) {
             matrices.pushPose();
             // Position drill at arm location, offset to center the model
@@ -358,7 +355,7 @@ public class LaserQuarryBlockEntityRenderer implements BlockEntityRenderer<Laser
 
         // Green LED - instant on, gradual fade off over 12 ticks
         if (state.greenLedBrightness > 0) {
-            BlockStateModel greenLed = ModelRegistry.getModel(LED_GREEN_MODEL_ID);
+            BlockStateModel greenLed = getModel(LogisticsAutomationClient.MODEL.LED_GREEN);
             if (greenLed != null) {
                 matrices.pushPose();
                 matrices.translate(0.5, 0.5, 0.5);
@@ -375,7 +372,7 @@ public class LaserQuarryBlockEntityRenderer implements BlockEntityRenderer<Laser
 
         // Red LED - brightness proportional to energy level (0-15)
         if (state.energyLevel > 0) {
-            BlockStateModel redLed = ModelRegistry.getModel(LED_RED_MODEL_ID);
+            BlockStateModel redLed = getModel(LogisticsAutomationClient.MODEL.LED_RED);
             if (redLed != null) {
                 matrices.pushPose();
                 matrices.translate(0.5, 0.5, 0.5);
@@ -393,7 +390,7 @@ public class LaserQuarryBlockEntityRenderer implements BlockEntityRenderer<Laser
         // Display overlay - scrolling data screen (animated via .mcmeta)
         // Follows green LED: on when working, fades out when stopped
         if (state.greenLedBrightness > 0) {
-            BlockStateModel display = ModelRegistry.getModel(DISPLAY_MODEL_ID);
+            BlockStateModel display = getModel(LogisticsAutomationClient.MODEL.DISPLAY);
             if (display != null) {
                 matrices.pushPose();
                 matrices.translate(0.5, 0.5, 0.5);
@@ -414,7 +411,7 @@ public class LaserQuarryBlockEntityRenderer implements BlockEntityRenderer<Laser
             return;
         }
 
-        BlockStateModel hatch = ModelRegistry.getModel(TOP_HATCH_MODEL_ID);
+        BlockStateModel hatch = getModel(LogisticsAutomationClient.MODEL.TOP_HATCH);
         if (hatch == null) {
             return;
         }
