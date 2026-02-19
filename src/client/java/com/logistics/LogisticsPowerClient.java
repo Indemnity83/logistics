@@ -2,6 +2,7 @@ package com.logistics;
 
 import com.logistics.core.bootstrap.DomainBootstrap;
 import com.logistics.core.lib.power.AbstractEngineBlockEntity;
+import com.logistics.core.render.ModelKeyRegistry;
 import com.logistics.power.render.EngineBlockEntityRenderer;
 import com.logistics.power.screen.StirlingEngineScreen;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
@@ -16,31 +17,16 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 import net.minecraft.resources.Identifier;
 
+import java.util.Map;
+
 import static com.logistics.LogisticsMod.LOGGER;
 
 public final class LogisticsPowerClient implements DomainBootstrap {
     public LogisticsPowerClient() {
         ModelLoadingPlugin.register(pluginContext -> {
-            Identifier redstoneBellow = LogisticsPower.blockModelIdentifier("redstone_engine_bellow");
-            Identifier redstonePiston = LogisticsPower.blockModelIdentifier("redstone_engine_piston");
-            Identifier stirlingBellow = LogisticsPower.blockModelIdentifier("stirling_engine_bellow");
-            Identifier stirlingPiston = LogisticsPower.blockModelIdentifier("stirling_engine_piston");
-            Identifier creativeBellow = LogisticsPower.blockModelIdentifier("creative_engine_bellow");
-            Identifier creativePiston = LogisticsPower.blockModelIdentifier("creative_engine_piston");
-
-            MODEL.REDSTONE_BELLOW = ExtraModelKey.create(redstoneBellow::toString);
-            MODEL.REDSTONE_PISTON = ExtraModelKey.create(redstonePiston::toString);
-            MODEL.STIRLING_BELLOW = ExtraModelKey.create(stirlingBellow::toString);
-            MODEL.STIRLING_PISTON = ExtraModelKey.create(stirlingPiston::toString);
-            MODEL.CREATIVE_BELLOW = ExtraModelKey.create(creativeBellow::toString);
-            MODEL.CREATIVE_PISTON = ExtraModelKey.create(creativePiston::toString);
-
-            pluginContext.addModel(MODEL.REDSTONE_BELLOW, SimpleUnbakedExtraModel.blockStateModel(redstoneBellow));
-            pluginContext.addModel(MODEL.REDSTONE_PISTON, SimpleUnbakedExtraModel.blockStateModel(redstonePiston));
-            pluginContext.addModel(MODEL.STIRLING_BELLOW, SimpleUnbakedExtraModel.blockStateModel(stirlingBellow));
-            pluginContext.addModel(MODEL.STIRLING_PISTON, SimpleUnbakedExtraModel.blockStateModel(stirlingPiston));
-            pluginContext.addModel(MODEL.CREATIVE_BELLOW, SimpleUnbakedExtraModel.blockStateModel(creativeBellow));
-            pluginContext.addModel(MODEL.CREATIVE_PISTON, SimpleUnbakedExtraModel.blockStateModel(creativePiston));
+            for (var entry : MODEL.getAllModels()) {
+                pluginContext.addModel(entry.getKey(), SimpleUnbakedExtraModel.blockStateModel(entry.getValue()));
+            }
         });
     }
 
@@ -77,12 +63,18 @@ public final class LogisticsPowerClient implements DomainBootstrap {
     }
 
     public static final class MODEL {
-        public static ExtraModelKey<BlockStateModel> REDSTONE_BELLOW;
-        public static ExtraModelKey<BlockStateModel> REDSTONE_PISTON;
-        public static ExtraModelKey<BlockStateModel> STIRLING_BELLOW;
-        public static ExtraModelKey<BlockStateModel> STIRLING_PISTON;
-        public static ExtraModelKey<BlockStateModel> CREATIVE_BELLOW;
-        public static ExtraModelKey<BlockStateModel> CREATIVE_PISTON;
+        private static final ModelKeyRegistry REGISTRY = new ModelKeyRegistry(LogisticsPower::blockModelIdentifier);
+
+        public static final ExtraModelKey<BlockStateModel> REDSTONE_BELLOW = REGISTRY.registerModel("redstone_engine_bellow");
+        public static final ExtraModelKey<BlockStateModel> REDSTONE_PISTON = REGISTRY.registerModel("redstone_engine_piston");
+        public static final ExtraModelKey<BlockStateModel> STIRLING_BELLOW = REGISTRY.registerModel("stirling_engine_bellow");
+        public static final ExtraModelKey<BlockStateModel> STIRLING_PISTON = REGISTRY.registerModel("stirling_engine_piston");
+        public static final ExtraModelKey<BlockStateModel> CREATIVE_BELLOW = REGISTRY.registerModel("creative_engine_bellow");
+        public static final ExtraModelKey<BlockStateModel> CREATIVE_PISTON = REGISTRY.registerModel("creative_engine_piston");
+
+        static Iterable<Map.Entry<ExtraModelKey<BlockStateModel>, Identifier>> getAllModels() {
+            return REGISTRY.getAllModels();
+        }
 
         private MODEL() {}
     }

@@ -1,8 +1,8 @@
 package com.logistics.pipe.render;
 
 import com.logistics.LogisticsPipe;
+import com.logistics.LogisticsPipeClient;
 import com.logistics.core.lib.block.capability.PipeConnection;
-import com.logistics.core.render.ModelRegistry;
 import com.logistics.pipe.Pipe;
 import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.block.PipeBlock;
@@ -10,6 +10,9 @@ import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.pipe.runtime.TravelingItem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
+import net.fabricmc.fabric.api.client.model.loading.v1.ExtraModelKey;
+import net.fabricmc.fabric.api.client.model.loading.v1.FabricBakedModelManager;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.block.model.BlockStateModel;
@@ -36,9 +39,23 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
     private static final float ITEM_OFFSET = 0.375f;
 
     private final ItemModelResolver itemModelManager;
+    private final FabricBakedModelManager modelManager;
 
     public PipeBlockEntityRenderer(BlockEntityRendererProvider.Context ctx) {
         this.itemModelManager = ctx.itemModelResolver();
+        this.modelManager = (FabricBakedModelManager) Minecraft.getInstance().getModelManager();
+    }
+
+    private BlockStateModel getModel(Identifier modelId) {
+        ExtraModelKey<BlockStateModel> key = LogisticsPipeClient.MODEL.getKey(modelId);
+        if (key == null) {
+            return null;
+        }
+        BlockStateModel model = modelManager.getModel(key);
+        if (model == null || model == Minecraft.getInstance().getModelManager().getMissingBlockStateModel()) {
+            return null;
+        }
+        return model;
     }
 
     @Override
@@ -139,7 +156,7 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
                     ? RenderTypes.cutoutMovingBlock()
                     : ItemBlockRenderTypes.getRenderType(state.blockState);
             for (PipeRenderState.ModelRenderInfo modelInfo : state.models) {
-                BlockStateModel model = ModelRegistry.getModel(modelInfo.modelId);
+                BlockStateModel model = getModel(modelInfo.modelId);
                 if (model == null) {
                     continue;
                 }
