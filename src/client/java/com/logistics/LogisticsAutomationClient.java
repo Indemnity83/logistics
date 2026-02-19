@@ -6,16 +6,35 @@ import com.logistics.automation.render.LaserQuarryRenderState;
 import com.logistics.core.bootstrap.DomainBootstrap;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.model.loading.v1.ExtraModelKey;
+import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
+import net.fabricmc.fabric.api.client.model.loading.v1.SimpleUnbakedExtraModel;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.BlockEntityRendererRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.ChunkSectionLayerMap;
+import net.minecraft.client.renderer.block.model.BlockStateModel;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
+import net.minecraft.resources.Identifier;
 
 import static com.logistics.LogisticsMod.LOGGER;
 
 public final class LogisticsAutomationClient implements DomainBootstrap {
     public LogisticsAutomationClient() {
-        // Public constructor for direct instantiation
+        ModelLoadingPlugin.register(pluginContext -> {
+            Identifier arm = LogisticsAutomation.blockModelIdentifier("laser_quarry_gantry_arm");
+            Identifier drill = LogisticsAutomation.blockModelIdentifier("laser_quarry_drill");
+            Identifier ledGreen = LogisticsAutomation.blockModelIdentifier("laser_quarry_led_green");
+            Identifier ledRed = LogisticsAutomation.blockModelIdentifier("laser_quarry_led_red");
+            Identifier display = LogisticsAutomation.blockModelIdentifier("laser_quarry_display");
+            Identifier topHatch = LogisticsAutomation.blockModelIdentifier("laser_quarry_top_hatch");
+
+            pluginContext.addModel(MODEL.ARM, SimpleUnbakedExtraModel.blockStateModel(arm));
+            pluginContext.addModel(MODEL.DRILL, SimpleUnbakedExtraModel.blockStateModel(drill));
+            pluginContext.addModel(MODEL.LED_GREEN, SimpleUnbakedExtraModel.blockStateModel(ledGreen));
+            pluginContext.addModel(MODEL.LED_RED, SimpleUnbakedExtraModel.blockStateModel(ledRed));
+            pluginContext.addModel(MODEL.DISPLAY, SimpleUnbakedExtraModel.blockStateModel(display));
+            pluginContext.addModel(MODEL.TOP_HATCH, SimpleUnbakedExtraModel.blockStateModel(topHatch));
+        });
     }
 
     @Override
@@ -45,5 +64,22 @@ public final class LogisticsAutomationClient implements DomainBootstrap {
         ClientPlayConnectionEvents.DISCONNECT.register(
                 (handler, client) -> ClientRenderCacheHooks.clearAllInterpolationCaches());
         ClientLifecycleEvents.CLIENT_STOPPING.register(client -> ClientRenderCacheHooks.clearAllInterpolationCaches());
+    }
+
+    public static final class MODEL {
+        public static final ExtraModelKey<BlockStateModel> ARM =
+                ExtraModelKey.create(() -> LogisticsAutomation.blockModelIdentifier("laser_quarry_gantry_arm").toString());
+        public static final ExtraModelKey<BlockStateModel> DRILL =
+                ExtraModelKey.create(() -> LogisticsAutomation.blockModelIdentifier("laser_quarry_drill").toString());
+        public static final ExtraModelKey<BlockStateModel> LED_GREEN =
+                ExtraModelKey.create(() -> LogisticsAutomation.blockModelIdentifier("laser_quarry_led_green").toString());
+        public static final ExtraModelKey<BlockStateModel> LED_RED =
+                ExtraModelKey.create(() -> LogisticsAutomation.blockModelIdentifier("laser_quarry_led_red").toString());
+        public static final ExtraModelKey<BlockStateModel> DISPLAY =
+                ExtraModelKey.create(() -> LogisticsAutomation.blockModelIdentifier("laser_quarry_display").toString());
+        public static final ExtraModelKey<BlockStateModel> TOP_HATCH =
+                ExtraModelKey.create(() -> LogisticsAutomation.blockModelIdentifier("laser_quarry_top_hatch").toString());
+
+        private MODEL() {}
     }
 }
