@@ -40,8 +40,12 @@ public final class LogisticsCoreClient implements DomainBootstrap {
     }
 
     public static final class MODEL {
-        public static final ExtraModelKey<BlockStateModel> BEAM =
-                ExtraModelKey.create(() -> LogisticsCore.blockModelIdentifier("marker_beam").toString());
+        private static ExtraModelKey<BlockStateModel> registerModel(String name) {
+            Identifier id = LogisticsCore.blockModelIdentifier(name);
+            return ExtraModelKey.create(id::toString);
+        }
+
+        public static final ExtraModelKey<BlockStateModel> BEAM = registerModel("marker_beam");
 
         private MODEL() {}
     }

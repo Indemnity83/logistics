@@ -70,18 +70,17 @@ public final class LogisticsPowerClient implements DomainBootstrap {
     }
 
     public static final class MODEL {
-        public static final ExtraModelKey<BlockStateModel> REDSTONE_BELLOW =
-                ExtraModelKey.create(() -> LogisticsPower.blockModelIdentifier("redstone_engine_bellow").toString());
-        public static final ExtraModelKey<BlockStateModel> REDSTONE_PISTON =
-                ExtraModelKey.create(() -> LogisticsPower.blockModelIdentifier("redstone_engine_piston").toString());
-        public static final ExtraModelKey<BlockStateModel> STIRLING_BELLOW =
-                ExtraModelKey.create(() -> LogisticsPower.blockModelIdentifier("stirling_engine_bellow").toString());
-        public static final ExtraModelKey<BlockStateModel> STIRLING_PISTON =
-                ExtraModelKey.create(() -> LogisticsPower.blockModelIdentifier("stirling_engine_piston").toString());
-        public static final ExtraModelKey<BlockStateModel> CREATIVE_BELLOW =
-                ExtraModelKey.create(() -> LogisticsPower.blockModelIdentifier("creative_engine_bellow").toString());
-        public static final ExtraModelKey<BlockStateModel> CREATIVE_PISTON =
-                ExtraModelKey.create(() -> LogisticsPower.blockModelIdentifier("creative_engine_piston").toString());
+        private static ExtraModelKey<BlockStateModel> registerModel(String name) {
+            Identifier id = LogisticsPower.blockModelIdentifier(name);
+            return ExtraModelKey.create(id::toString);
+        }
+
+        public static final ExtraModelKey<BlockStateModel> REDSTONE_BELLOW = registerModel("redstone_engine_bellow");
+        public static final ExtraModelKey<BlockStateModel> REDSTONE_PISTON = registerModel("redstone_engine_piston");
+        public static final ExtraModelKey<BlockStateModel> STIRLING_BELLOW = registerModel("stirling_engine_bellow");
+        public static final ExtraModelKey<BlockStateModel> STIRLING_PISTON = registerModel("stirling_engine_piston");
+        public static final ExtraModelKey<BlockStateModel> CREATIVE_BELLOW = registerModel("creative_engine_bellow");
+        public static final ExtraModelKey<BlockStateModel> CREATIVE_PISTON = registerModel("creative_engine_piston");
 
         private MODEL() {}
     }

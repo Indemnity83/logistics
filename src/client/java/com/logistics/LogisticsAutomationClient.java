@@ -67,18 +67,17 @@ public final class LogisticsAutomationClient implements DomainBootstrap {
     }
 
     public static final class MODEL {
-        public static final ExtraModelKey<BlockStateModel> ARM =
-                ExtraModelKey.create(() -> LogisticsAutomation.blockModelIdentifier("laser_quarry_gantry_arm").toString());
-        public static final ExtraModelKey<BlockStateModel> DRILL =
-                ExtraModelKey.create(() -> LogisticsAutomation.blockModelIdentifier("laser_quarry_drill").toString());
-        public static final ExtraModelKey<BlockStateModel> LED_GREEN =
-                ExtraModelKey.create(() -> LogisticsAutomation.blockModelIdentifier("laser_quarry_led_green").toString());
-        public static final ExtraModelKey<BlockStateModel> LED_RED =
-                ExtraModelKey.create(() -> LogisticsAutomation.blockModelIdentifier("laser_quarry_led_red").toString());
-        public static final ExtraModelKey<BlockStateModel> DISPLAY =
-                ExtraModelKey.create(() -> LogisticsAutomation.blockModelIdentifier("laser_quarry_display").toString());
-        public static final ExtraModelKey<BlockStateModel> TOP_HATCH =
-                ExtraModelKey.create(() -> LogisticsAutomation.blockModelIdentifier("laser_quarry_top_hatch").toString());
+        private static ExtraModelKey<BlockStateModel> registerModel(String name) {
+            Identifier id = LogisticsAutomation.blockModelIdentifier(name);
+            return ExtraModelKey.create(id::toString);
+        }
+
+        public static final ExtraModelKey<BlockStateModel> ARM = registerModel("laser_quarry_gantry_arm");
+        public static final ExtraModelKey<BlockStateModel> DRILL = registerModel("laser_quarry_drill");
+        public static final ExtraModelKey<BlockStateModel> LED_GREEN = registerModel("laser_quarry_led_green");
+        public static final ExtraModelKey<BlockStateModel> LED_RED = registerModel("laser_quarry_led_red");
+        public static final ExtraModelKey<BlockStateModel> DISPLAY = registerModel("laser_quarry_display");
+        public static final ExtraModelKey<BlockStateModel> TOP_HATCH = registerModel("laser_quarry_top_hatch");
 
         private MODEL() {}
     }

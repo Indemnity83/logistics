@@ -151,144 +151,61 @@ public final class LogisticsPipeClient implements DomainBootstrap {
     }
 
     public static final class MODEL {
-        private static final Map<Identifier, ExtraModelKey<BlockStateModel>> MODEL_LOOKUP = new HashMap<>();
+        private static final Map<Identifier, ExtraModelKey<BlockStateModel>> TEMP_LOOKUP = new HashMap<>();
 
-        public static final ExtraModelKey<BlockStateModel> PIPE_MARKINGS =
-                ExtraModelKey.create(() -> LogisticsPipe.blockModelIdentifier("pipe_markings").toString());
-        public static final ExtraModelKey<BlockStateModel> STONE_CORE =
-                ExtraModelKey.create(() -> LogisticsPipe.blockModelIdentifier("stone_transport_pipe_core").toString());
-        public static final ExtraModelKey<BlockStateModel> STONE_ARM =
-                ExtraModelKey.create(() -> LogisticsPipe.blockModelIdentifier("stone_transport_pipe_arm").toString());
-        public static final ExtraModelKey<BlockStateModel> STONE_ARM_EXTENDED =
-                ExtraModelKey.create(() -> LogisticsPipe.blockModelIdentifier("stone_transport_pipe_arm_extended").toString());
-        public static final ExtraModelKey<BlockStateModel> COPPER_CORE =
-                ExtraModelKey.create(() -> LogisticsPipe.blockModelIdentifier("copper_transport_pipe_core").toString());
-        public static final ExtraModelKey<BlockStateModel> COPPER_CORE_EXPOSED =
-                ExtraModelKey.create(() -> LogisticsPipe.blockModelIdentifier("copper_transport_pipe_core_exposed").toString());
-        public static final ExtraModelKey<BlockStateModel> COPPER_CORE_WEATHERED =
-                ExtraModelKey.create(() -> LogisticsPipe.blockModelIdentifier("copper_transport_pipe_core_weathered").toString());
-        public static final ExtraModelKey<BlockStateModel> COPPER_CORE_OXIDIZED =
-                ExtraModelKey.create(() -> LogisticsPipe.blockModelIdentifier("copper_transport_pipe_core_oxidized").toString());
-        public static final ExtraModelKey<BlockStateModel> COPPER_ARM =
-                ExtraModelKey.create(() -> LogisticsPipe.blockModelIdentifier("copper_transport_pipe_arm").toString());
-        public static final ExtraModelKey<BlockStateModel> COPPER_ARM_EXPOSED =
-                ExtraModelKey.create(() -> LogisticsPipe.blockModelIdentifier("copper_transport_pipe_arm_exposed").toString());
-        public static final ExtraModelKey<BlockStateModel> COPPER_ARM_WEATHERED =
-                ExtraModelKey.create(() -> LogisticsPipe.blockModelIdentifier("copper_transport_pipe_arm_weathered").toString());
-        public static final ExtraModelKey<BlockStateModel> COPPER_ARM_OXIDIZED =
-                ExtraModelKey.create(() -> LogisticsPipe.blockModelIdentifier("copper_transport_pipe_arm_oxidized").toString());
-        public static final ExtraModelKey<BlockStateModel> COPPER_ARM_EXTENDED =
-                ExtraModelKey.create(() -> LogisticsPipe.blockModelIdentifier("copper_transport_pipe_arm_extended").toString());
-        public static final ExtraModelKey<BlockStateModel> COPPER_ARM_EXTENDED_EXPOSED =
-                ExtraModelKey.create(() -> LogisticsPipe.blockModelIdentifier("copper_transport_pipe_arm_extended_exposed").toString());
-        public static final ExtraModelKey<BlockStateModel> COPPER_ARM_EXTENDED_WEATHERED =
-                ExtraModelKey.create(() -> LogisticsPipe.blockModelIdentifier("copper_transport_pipe_arm_extended_weathered").toString());
-        public static final ExtraModelKey<BlockStateModel> COPPER_ARM_EXTENDED_OXIDIZED =
-                ExtraModelKey.create(() -> LogisticsPipe.blockModelIdentifier("copper_transport_pipe_arm_extended_oxidized").toString());
-        public static final ExtraModelKey<BlockStateModel> GOLD_CORE =
-                ExtraModelKey.create(() -> LogisticsPipe.blockModelIdentifier("gold_transport_pipe_core").toString());
-        public static final ExtraModelKey<BlockStateModel> GOLD_CORE_POWERED =
-                ExtraModelKey.create(() -> LogisticsPipe.blockModelIdentifier("gold_transport_pipe_core_powered").toString());
-        public static final ExtraModelKey<BlockStateModel> GOLD_ARM =
-                ExtraModelKey.create(() -> LogisticsPipe.blockModelIdentifier("gold_transport_pipe_arm").toString());
-        public static final ExtraModelKey<BlockStateModel> GOLD_ARM_POWERED =
-                ExtraModelKey.create(() -> LogisticsPipe.blockModelIdentifier("gold_transport_pipe_arm_powered").toString());
-        public static final ExtraModelKey<BlockStateModel> GOLD_ARM_EXTENDED =
-                ExtraModelKey.create(() -> LogisticsPipe.blockModelIdentifier("gold_transport_pipe_arm_extended").toString());
-        public static final ExtraModelKey<BlockStateModel> GOLD_ARM_EXTENDED_POWERED =
-                ExtraModelKey.create(() -> LogisticsPipe.blockModelIdentifier("gold_transport_pipe_arm_extended_powered").toString());
-        public static final ExtraModelKey<BlockStateModel> EXTRACTOR_CORE =
-                ExtraModelKey.create(() -> LogisticsPipe.blockModelIdentifier("item_extractor_pipe_core").toString());
-        public static final ExtraModelKey<BlockStateModel> EXTRACTOR_ARM =
-                ExtraModelKey.create(() -> LogisticsPipe.blockModelIdentifier("item_extractor_pipe_arm").toString());
-        public static final ExtraModelKey<BlockStateModel> EXTRACTOR_ARM_EXTENDED =
-                ExtraModelKey.create(() -> LogisticsPipe.blockModelIdentifier("item_extractor_pipe_arm_extended").toString());
-        public static final ExtraModelKey<BlockStateModel> EXTRACTOR_FEATURE =
-                ExtraModelKey.create(() -> LogisticsPipe.blockModelIdentifier("item_extractor_pipe_feature").toString());
-        public static final ExtraModelKey<BlockStateModel> EXTRACTOR_FEATURE_EXTENDED =
-                ExtraModelKey.create(() -> LogisticsPipe.blockModelIdentifier("item_extractor_pipe_feature_extended").toString());
-        public static final ExtraModelKey<BlockStateModel> FILTER_CORE =
-                ExtraModelKey.create(() -> LogisticsPipe.blockModelIdentifier("item_filter_pipe_core").toString());
-        public static final ExtraModelKey<BlockStateModel> FILTER_ARM =
-                ExtraModelKey.create(() -> LogisticsPipe.blockModelIdentifier("item_filter_pipe_arm").toString());
-        public static final ExtraModelKey<BlockStateModel> FILTER_ARM_EXTENDED =
-                ExtraModelKey.create(() -> LogisticsPipe.blockModelIdentifier("item_filter_pipe_arm_extended").toString());
-        public static final ExtraModelKey<BlockStateModel> INSERTION_CORE =
-                ExtraModelKey.create(() -> LogisticsPipe.blockModelIdentifier("item_insertion_pipe_core").toString());
-        public static final ExtraModelKey<BlockStateModel> INSERTION_ARM =
-                ExtraModelKey.create(() -> LogisticsPipe.blockModelIdentifier("item_insertion_pipe_arm").toString());
-        public static final ExtraModelKey<BlockStateModel> INSERTION_ARM_EXTENDED =
-                ExtraModelKey.create(() -> LogisticsPipe.blockModelIdentifier("item_insertion_pipe_arm_extended").toString());
-        public static final ExtraModelKey<BlockStateModel> MERGER_CORE =
-                ExtraModelKey.create(() -> LogisticsPipe.blockModelIdentifier("item_merger_pipe_core").toString());
-        public static final ExtraModelKey<BlockStateModel> MERGER_ARM =
-                ExtraModelKey.create(() -> LogisticsPipe.blockModelIdentifier("item_merger_pipe_arm").toString());
-        public static final ExtraModelKey<BlockStateModel> MERGER_ARM_EXTENDED =
-                ExtraModelKey.create(() -> LogisticsPipe.blockModelIdentifier("item_merger_pipe_arm_extended").toString());
-        public static final ExtraModelKey<BlockStateModel> MERGER_FEATURE =
-                ExtraModelKey.create(() -> LogisticsPipe.blockModelIdentifier("item_merger_pipe_feature").toString());
-        public static final ExtraModelKey<BlockStateModel> MERGER_FEATURE_EXTENDED =
-                ExtraModelKey.create(() -> LogisticsPipe.blockModelIdentifier("item_merger_pipe_feature_extended").toString());
-        public static final ExtraModelKey<BlockStateModel> PASSTHROUGH_CORE =
-                ExtraModelKey.create(() -> LogisticsPipe.blockModelIdentifier("item_passthrough_pipe_core").toString());
-        public static final ExtraModelKey<BlockStateModel> PASSTHROUGH_ARM =
-                ExtraModelKey.create(() -> LogisticsPipe.blockModelIdentifier("item_passthrough_pipe_arm").toString());
-        public static final ExtraModelKey<BlockStateModel> PASSTHROUGH_ARM_EXTENDED =
-                ExtraModelKey.create(() -> LogisticsPipe.blockModelIdentifier("item_passthrough_pipe_arm_extended").toString());
-        public static final ExtraModelKey<BlockStateModel> VOID_CORE =
-                ExtraModelKey.create(() -> LogisticsPipe.blockModelIdentifier("item_void_pipe_core").toString());
-        public static final ExtraModelKey<BlockStateModel> VOID_ARM =
-                ExtraModelKey.create(() -> LogisticsPipe.blockModelIdentifier("item_void_pipe_arm").toString());
-        public static final ExtraModelKey<BlockStateModel> VOID_ARM_EXTENDED =
-                ExtraModelKey.create(() -> LogisticsPipe.blockModelIdentifier("item_void_pipe_arm_extended").toString());
-
-        static {
-            // Build lookup map for dynamic model retrieval
-            MODEL_LOOKUP.put(LogisticsPipe.blockModelIdentifier("pipe_markings"), PIPE_MARKINGS);
-            MODEL_LOOKUP.put(LogisticsPipe.blockModelIdentifier("stone_transport_pipe_core"), STONE_CORE);
-            MODEL_LOOKUP.put(LogisticsPipe.blockModelIdentifier("stone_transport_pipe_arm"), STONE_ARM);
-            MODEL_LOOKUP.put(LogisticsPipe.blockModelIdentifier("stone_transport_pipe_arm_extended"), STONE_ARM_EXTENDED);
-            MODEL_LOOKUP.put(LogisticsPipe.blockModelIdentifier("copper_transport_pipe_core"), COPPER_CORE);
-            MODEL_LOOKUP.put(LogisticsPipe.blockModelIdentifier("copper_transport_pipe_core_exposed"), COPPER_CORE_EXPOSED);
-            MODEL_LOOKUP.put(LogisticsPipe.blockModelIdentifier("copper_transport_pipe_core_weathered"), COPPER_CORE_WEATHERED);
-            MODEL_LOOKUP.put(LogisticsPipe.blockModelIdentifier("copper_transport_pipe_core_oxidized"), COPPER_CORE_OXIDIZED);
-            MODEL_LOOKUP.put(LogisticsPipe.blockModelIdentifier("copper_transport_pipe_arm"), COPPER_ARM);
-            MODEL_LOOKUP.put(LogisticsPipe.blockModelIdentifier("copper_transport_pipe_arm_exposed"), COPPER_ARM_EXPOSED);
-            MODEL_LOOKUP.put(LogisticsPipe.blockModelIdentifier("copper_transport_pipe_arm_weathered"), COPPER_ARM_WEATHERED);
-            MODEL_LOOKUP.put(LogisticsPipe.blockModelIdentifier("copper_transport_pipe_arm_oxidized"), COPPER_ARM_OXIDIZED);
-            MODEL_LOOKUP.put(LogisticsPipe.blockModelIdentifier("copper_transport_pipe_arm_extended"), COPPER_ARM_EXTENDED);
-            MODEL_LOOKUP.put(LogisticsPipe.blockModelIdentifier("copper_transport_pipe_arm_extended_exposed"), COPPER_ARM_EXTENDED_EXPOSED);
-            MODEL_LOOKUP.put(LogisticsPipe.blockModelIdentifier("copper_transport_pipe_arm_extended_weathered"), COPPER_ARM_EXTENDED_WEATHERED);
-            MODEL_LOOKUP.put(LogisticsPipe.blockModelIdentifier("copper_transport_pipe_arm_extended_oxidized"), COPPER_ARM_EXTENDED_OXIDIZED);
-            MODEL_LOOKUP.put(LogisticsPipe.blockModelIdentifier("gold_transport_pipe_core"), GOLD_CORE);
-            MODEL_LOOKUP.put(LogisticsPipe.blockModelIdentifier("gold_transport_pipe_core_powered"), GOLD_CORE_POWERED);
-            MODEL_LOOKUP.put(LogisticsPipe.blockModelIdentifier("gold_transport_pipe_arm"), GOLD_ARM);
-            MODEL_LOOKUP.put(LogisticsPipe.blockModelIdentifier("gold_transport_pipe_arm_powered"), GOLD_ARM_POWERED);
-            MODEL_LOOKUP.put(LogisticsPipe.blockModelIdentifier("gold_transport_pipe_arm_extended"), GOLD_ARM_EXTENDED);
-            MODEL_LOOKUP.put(LogisticsPipe.blockModelIdentifier("gold_transport_pipe_arm_extended_powered"), GOLD_ARM_EXTENDED_POWERED);
-            MODEL_LOOKUP.put(LogisticsPipe.blockModelIdentifier("item_extractor_pipe_core"), EXTRACTOR_CORE);
-            MODEL_LOOKUP.put(LogisticsPipe.blockModelIdentifier("item_extractor_pipe_arm"), EXTRACTOR_ARM);
-            MODEL_LOOKUP.put(LogisticsPipe.blockModelIdentifier("item_extractor_pipe_arm_extended"), EXTRACTOR_ARM_EXTENDED);
-            MODEL_LOOKUP.put(LogisticsPipe.blockModelIdentifier("item_extractor_pipe_feature"), EXTRACTOR_FEATURE);
-            MODEL_LOOKUP.put(LogisticsPipe.blockModelIdentifier("item_extractor_pipe_feature_extended"), EXTRACTOR_FEATURE_EXTENDED);
-            MODEL_LOOKUP.put(LogisticsPipe.blockModelIdentifier("item_filter_pipe_core"), FILTER_CORE);
-            MODEL_LOOKUP.put(LogisticsPipe.blockModelIdentifier("item_filter_pipe_arm"), FILTER_ARM);
-            MODEL_LOOKUP.put(LogisticsPipe.blockModelIdentifier("item_filter_pipe_arm_extended"), FILTER_ARM_EXTENDED);
-            MODEL_LOOKUP.put(LogisticsPipe.blockModelIdentifier("item_insertion_pipe_core"), INSERTION_CORE);
-            MODEL_LOOKUP.put(LogisticsPipe.blockModelIdentifier("item_insertion_pipe_arm"), INSERTION_ARM);
-            MODEL_LOOKUP.put(LogisticsPipe.blockModelIdentifier("item_insertion_pipe_arm_extended"), INSERTION_ARM_EXTENDED);
-            MODEL_LOOKUP.put(LogisticsPipe.blockModelIdentifier("item_merger_pipe_core"), MERGER_CORE);
-            MODEL_LOOKUP.put(LogisticsPipe.blockModelIdentifier("item_merger_pipe_arm"), MERGER_ARM);
-            MODEL_LOOKUP.put(LogisticsPipe.blockModelIdentifier("item_merger_pipe_arm_extended"), MERGER_ARM_EXTENDED);
-            MODEL_LOOKUP.put(LogisticsPipe.blockModelIdentifier("item_merger_pipe_feature"), MERGER_FEATURE);
-            MODEL_LOOKUP.put(LogisticsPipe.blockModelIdentifier("item_merger_pipe_feature_extended"), MERGER_FEATURE_EXTENDED);
-            MODEL_LOOKUP.put(LogisticsPipe.blockModelIdentifier("item_passthrough_pipe_core"), PASSTHROUGH_CORE);
-            MODEL_LOOKUP.put(LogisticsPipe.blockModelIdentifier("item_passthrough_pipe_arm"), PASSTHROUGH_ARM);
-            MODEL_LOOKUP.put(LogisticsPipe.blockModelIdentifier("item_passthrough_pipe_arm_extended"), PASSTHROUGH_ARM_EXTENDED);
-            MODEL_LOOKUP.put(LogisticsPipe.blockModelIdentifier("item_void_pipe_core"), VOID_CORE);
-            MODEL_LOOKUP.put(LogisticsPipe.blockModelIdentifier("item_void_pipe_arm"), VOID_ARM);
-            MODEL_LOOKUP.put(LogisticsPipe.blockModelIdentifier("item_void_pipe_arm_extended"), VOID_ARM_EXTENDED);
+        private static ExtraModelKey<BlockStateModel> registerModel(String name) {
+            Identifier id = LogisticsPipe.blockModelIdentifier(name);
+            ExtraModelKey<BlockStateModel> key = ExtraModelKey.create(id::toString);
+            TEMP_LOOKUP.put(id, key);
+            return key;
         }
+
+        public static final ExtraModelKey<BlockStateModel> PIPE_MARKINGS = registerModel("pipe_markings");
+        public static final ExtraModelKey<BlockStateModel> STONE_CORE = registerModel("stone_transport_pipe_core");
+        public static final ExtraModelKey<BlockStateModel> STONE_ARM = registerModel("stone_transport_pipe_arm");
+        public static final ExtraModelKey<BlockStateModel> STONE_ARM_EXTENDED = registerModel("stone_transport_pipe_arm_extended");
+        public static final ExtraModelKey<BlockStateModel> COPPER_CORE = registerModel("copper_transport_pipe_core");
+        public static final ExtraModelKey<BlockStateModel> COPPER_CORE_EXPOSED = registerModel("copper_transport_pipe_core_exposed");
+        public static final ExtraModelKey<BlockStateModel> COPPER_CORE_WEATHERED = registerModel("copper_transport_pipe_core_weathered");
+        public static final ExtraModelKey<BlockStateModel> COPPER_CORE_OXIDIZED = registerModel("copper_transport_pipe_core_oxidized");
+        public static final ExtraModelKey<BlockStateModel> COPPER_ARM = registerModel("copper_transport_pipe_arm");
+        public static final ExtraModelKey<BlockStateModel> COPPER_ARM_EXPOSED = registerModel("copper_transport_pipe_arm_exposed");
+        public static final ExtraModelKey<BlockStateModel> COPPER_ARM_WEATHERED = registerModel("copper_transport_pipe_arm_weathered");
+        public static final ExtraModelKey<BlockStateModel> COPPER_ARM_OXIDIZED = registerModel("copper_transport_pipe_arm_oxidized");
+        public static final ExtraModelKey<BlockStateModel> COPPER_ARM_EXTENDED = registerModel("copper_transport_pipe_arm_extended");
+        public static final ExtraModelKey<BlockStateModel> COPPER_ARM_EXTENDED_EXPOSED = registerModel("copper_transport_pipe_arm_extended_exposed");
+        public static final ExtraModelKey<BlockStateModel> COPPER_ARM_EXTENDED_WEATHERED = registerModel("copper_transport_pipe_arm_extended_weathered");
+        public static final ExtraModelKey<BlockStateModel> COPPER_ARM_EXTENDED_OXIDIZED = registerModel("copper_transport_pipe_arm_extended_oxidized");
+        public static final ExtraModelKey<BlockStateModel> GOLD_CORE = registerModel("gold_transport_pipe_core");
+        public static final ExtraModelKey<BlockStateModel> GOLD_CORE_POWERED = registerModel("gold_transport_pipe_core_powered");
+        public static final ExtraModelKey<BlockStateModel> GOLD_ARM = registerModel("gold_transport_pipe_arm");
+        public static final ExtraModelKey<BlockStateModel> GOLD_ARM_POWERED = registerModel("gold_transport_pipe_arm_powered");
+        public static final ExtraModelKey<BlockStateModel> GOLD_ARM_EXTENDED = registerModel("gold_transport_pipe_arm_extended");
+        public static final ExtraModelKey<BlockStateModel> GOLD_ARM_EXTENDED_POWERED = registerModel("gold_transport_pipe_arm_extended_powered");
+        public static final ExtraModelKey<BlockStateModel> EXTRACTOR_CORE = registerModel("item_extractor_pipe_core");
+        public static final ExtraModelKey<BlockStateModel> EXTRACTOR_ARM = registerModel("item_extractor_pipe_arm");
+        public static final ExtraModelKey<BlockStateModel> EXTRACTOR_ARM_EXTENDED = registerModel("item_extractor_pipe_arm_extended");
+        public static final ExtraModelKey<BlockStateModel> EXTRACTOR_FEATURE = registerModel("item_extractor_pipe_feature");
+        public static final ExtraModelKey<BlockStateModel> EXTRACTOR_FEATURE_EXTENDED = registerModel("item_extractor_pipe_feature_extended");
+        public static final ExtraModelKey<BlockStateModel> FILTER_CORE = registerModel("item_filter_pipe_core");
+        public static final ExtraModelKey<BlockStateModel> FILTER_ARM = registerModel("item_filter_pipe_arm");
+        public static final ExtraModelKey<BlockStateModel> FILTER_ARM_EXTENDED = registerModel("item_filter_pipe_arm_extended");
+        public static final ExtraModelKey<BlockStateModel> INSERTION_CORE = registerModel("item_insertion_pipe_core");
+        public static final ExtraModelKey<BlockStateModel> INSERTION_ARM = registerModel("item_insertion_pipe_arm");
+        public static final ExtraModelKey<BlockStateModel> INSERTION_ARM_EXTENDED = registerModel("item_insertion_pipe_arm_extended");
+        public static final ExtraModelKey<BlockStateModel> MERGER_CORE = registerModel("item_merger_pipe_core");
+        public static final ExtraModelKey<BlockStateModel> MERGER_ARM = registerModel("item_merger_pipe_arm");
+        public static final ExtraModelKey<BlockStateModel> MERGER_ARM_EXTENDED = registerModel("item_merger_pipe_arm_extended");
+        public static final ExtraModelKey<BlockStateModel> MERGER_FEATURE = registerModel("item_merger_pipe_feature");
+        public static final ExtraModelKey<BlockStateModel> MERGER_FEATURE_EXTENDED = registerModel("item_merger_pipe_feature_extended");
+        public static final ExtraModelKey<BlockStateModel> PASSTHROUGH_CORE = registerModel("item_passthrough_pipe_core");
+        public static final ExtraModelKey<BlockStateModel> PASSTHROUGH_ARM = registerModel("item_passthrough_pipe_arm");
+        public static final ExtraModelKey<BlockStateModel> PASSTHROUGH_ARM_EXTENDED = registerModel("item_passthrough_pipe_arm_extended");
+        public static final ExtraModelKey<BlockStateModel> VOID_CORE = registerModel("item_void_pipe_core");
+        public static final ExtraModelKey<BlockStateModel> VOID_ARM = registerModel("item_void_pipe_arm");
+        public static final ExtraModelKey<BlockStateModel> VOID_ARM_EXTENDED = registerModel("item_void_pipe_arm_extended");
+
+        private static final Map<Identifier, ExtraModelKey<BlockStateModel>> MODEL_LOOKUP = Map.copyOf(TEMP_LOOKUP);
 
         @Nullable
         public static ExtraModelKey<BlockStateModel> getKey(Identifier modelId) {
