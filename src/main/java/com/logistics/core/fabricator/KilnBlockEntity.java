@@ -304,33 +304,16 @@ public class KilnBlockEntity extends BaseBlockEntity
         if (activeRecipeId == null) {
             KilnRecipe recipe = findMatchingRecipe();
             if (recipe == null) {
-                // Debug: print grid contents
-                if (level != null && !level.isClientSide() && level.getGameTime() % 20 == 0) {
-                    System.out.println("No recipe found. Grid contents:");
-                    for (int i = 0; i < 9; i++) {
-                        ItemStack stack = inventory.getItem(GRID_START_SLOT + i);
-                        System.out.println("  Slot " + i + ": " + (stack.isEmpty() ? "empty" : stack.getItem()));
-                    }
-                    System.out.println("Total recipes loaded: " + KilnRecipeManager.getAllRecipes().size());
-                }
                 annealProgressTicks = 0;
                 return;
             }
 
             // Check start conditions
             if (!canStartCraft(recipe)) {
-                // Debug: why can't we start?
-                if (level != null && !level.isClientSide() && level.getGameTime() % 20 == 0) {
-                    System.out.println("Found recipe " + recipe.getId() + " but can't start:");
-                    System.out.println("  Glass: " + glassTank.amount + " / " + recipe.getMoltenCost());
-                    System.out.println("  Heat: " + heat + " / " + recipe.getRequiredHeat());
-                    System.out.println("  Can accept output: " + canAcceptOutput(recipe.getResultItem()));
-                }
                 annealProgressTicks = 0;
                 return;
             }
 
-            System.out.println("Starting recipe: " + recipe.getId());
             activeRecipeId = recipe.getId();
         }
 
@@ -570,7 +553,14 @@ public class KilnBlockEntity extends BaseBlockEntity
                     case 5 -> (int) (glassTank.amount & 0xFFFFFFFF);
                     case 6 -> (int) (glassTank.amount >> 32);
                     case 7 -> glassMeltProgress;
-                    case 8 -> annealProgressTicks;
+                    case 8 -> {
+                        // Calculate anneal progress as percentage (0-100)
+                        KilnRecipe recipe = getRecipeById(activeRecipeId);
+                        if (recipe == null || annealProgressTicks == 0) {
+                            yield 0;
+                        }
+                        yield Math.min(100, (100 * annealProgressTicks) / recipe.getSoakTicks());
+                    }
                     default -> 0;
                 };
             }

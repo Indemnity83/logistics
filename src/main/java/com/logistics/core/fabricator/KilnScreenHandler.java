@@ -77,7 +77,7 @@ public class KilnScreenHandler extends AbstractContainerMenu {
         }
 
         // Output slot (11)
-        this.addSlot(new Slot(inventory, OUTPUT_SLOT, 141, 35) {
+        this.addSlot(new Slot(inventory, OUTPUT_SLOT, 141, 49) {
             @Override
             public boolean mayPlace(ItemStack stack) {
                 return false; // Output only

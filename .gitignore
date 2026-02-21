@@ -24,6 +24,11 @@ classes/
 net/
 run/
 logs/
+patches/
+patches.lzma
+META-INF/
+ats/
+config.json
 
 # MacOS
 .DS_Store

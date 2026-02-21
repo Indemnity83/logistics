@@ -6,11 +6,11 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.mojang.serialization.JsonOps;
-import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
-import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
+import net.fabricmc.fabric.api.resource.v1.ResourceLoader;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.PackType;
+import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -25,6 +25,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 
 /**
  * Custom recipe manager for kiln recipes.
@@ -37,22 +39,37 @@ public class KilnRecipeManager {
 
     public static void register() {
         LOGGER.info("Registering kiln recipe reload listener");
-        ResourceManagerHelper.get(PackType.SERVER_DATA).registerReloadListener(new SimpleSynchronousResourceReloadListener() {
-            @Override
-            public Identifier getFabricId() {
-                return Identifier.parse("logistics:kiln_recipes");
+        ResourceLoader.get(PackType.SERVER_DATA).registerReloader(
+            Identifier.parse("logistics:kiln_recipes"),
+            new PreparableReloadListener() {
+                @Override
+                public CompletableFuture<Void> reload(
+                    SharedState sharedState,
+                    Executor backgroundExecutor,
+                    PreparationBarrier barrier,
+                    Executor gameExecutor
+                ) {
+                    // Preparation phase - can run async on background thread
+                    return CompletableFuture.supplyAsync(() -> {
+                        LOGGER.info("Kiln recipe reload triggered");
+                        Map<Identifier, KilnRecipe> loadedRecipes = new HashMap<>();
+                        loadRecipesInto(sharedState.resourceManager(), loadedRecipes);
+                        return loadedRecipes;
+                    }, backgroundExecutor)
+                    // Wait for all reload listeners to finish preparation
+                    .thenCompose(barrier::wait)
+                    // Apply phase - runs on game thread, must be synchronous
+                    .thenAcceptAsync(loadedRecipes -> {
+                        RECIPES.clear();
+                        RECIPES.putAll(loadedRecipes);
+                        LOGGER.info("Applied {} kiln recipes", RECIPES.size());
+                    }, gameExecutor);
+                }
             }
-
-            @Override
-            public void onResourceManagerReload(ResourceManager manager) {
-                LOGGER.info("Kiln recipe reload triggered");
-                RECIPES.clear();
-                loadRecipes(manager);
-            }
-        });
+        );
     }
 
-    private static void loadRecipes(ResourceManager manager) {
+    private static void loadRecipesInto(ResourceManager manager, Map<Identifier, KilnRecipe> targetMap) {
         LOGGER.info("Loading kiln recipes from resources...");
         // Find all recipe files matching data/*/recipes/kiln/*.json
         var resources = manager.listResources("recipes/kiln", path -> path.getPath().endsWith(".json"));
@@ -68,16 +85,14 @@ public class KilnRecipeManager {
 
                     // Parse manually
                     KilnRecipe recipe = parseRecipe(recipeId, json);
-                    RECIPES.put(recipeId, recipe);
-
-                    LOGGER.info("Loaded kiln recipe: {}", recipeId);
+                    targetMap.put(recipeId, recipe);
                 } catch (Exception e) {
                     LOGGER.error("Failed to load kiln recipe {}: {}", resourceLocation, e.getMessage());
                     e.printStackTrace();
                 }
             });
 
-        LOGGER.info("Loaded {} kiln recipes", RECIPES.size());
+        LOGGER.info("Loaded {} kiln recipes", targetMap.size());
     }
 
     private static KilnRecipe parseRecipe(Identifier recipeId, JsonObject json) {

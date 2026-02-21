@@ -113,6 +113,28 @@ public class KilnScreen extends AbstractContainerScreen<KilnScreenHandler> {
             }
         }
 
+        // Render annealing arrow (fills left to right)
+        // Display box: x=128-156 (28px wide), y=21-39 (18px tall)
+        // Overlay texture: x=187-215 (28px wide), y=21-39 (18px tall)
+        int annealProgress = menu.getAnnealProgress();
+        if (annealProgress > 0) {
+            // Arrow fills from left to right based on percentage (0-100)
+            int arrowWidth = Math.min(28, (28 * annealProgress) / 100);
+            if (arrowWidth > 0) {
+                graphics.blit(
+                    RenderPipelines.GUI_TEXTURED,
+                    TEXTURE,
+                    leftPos + 128,
+                    topPos + 21,
+                    187,
+                    21,
+                    arrowWidth,
+                    18,
+                    TEXTURE_WIDTH,
+                    TEXTURE_HEIGHT);
+            }
+        }
+
         // Render temperature gauge with sliding window
         // Display box: x=16-37 (21px wide), y=18-28 (10px tall)
         // Source strip: x=0-244 (244px wide), y=174-184 (10px tall)
