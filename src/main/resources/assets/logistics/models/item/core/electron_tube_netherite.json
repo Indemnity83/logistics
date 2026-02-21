@@ -1,6 +1,0 @@
-{
-  "parent": "item/generated",
-  "textures": {
-    "layer0": "logistics:item/core/netherite_electron_tube"
-  }
-}

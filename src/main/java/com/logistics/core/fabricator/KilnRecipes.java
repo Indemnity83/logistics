@@ -12,9 +12,9 @@ import java.util.Map;
 
 /**
  * Recipe system for the Kiln.
- * Uses pattern matching in a 3x3 grid to determine electron tube output.
+ * Uses pattern matching in a 3x3 grid to determine valve output.
  *
- * <p>Pattern (all tubes):
+ * <p>Pattern (all valves):
  * <pre>
  * [M] [M] [M]
  * [M] [C] [M]  (M = material, C = center item: redstone or ender eye)
@@ -23,10 +23,10 @@ import java.util.Map;
  *
  * <p>Requirements:
  * - 7 material items in specific positions
- * - 2 center items (redstone or ender eye for ender tubes)
+ * - 2 center items (redstone or ender eye for ender valves)
  * - 1000mb molten glass in tank
  * - Minimum temperature based on material tier
- * → Produces 4 electron tubes
+ * → Produces 4 valves
  */
 public final class KilnRecipes {
 
@@ -37,9 +37,9 @@ public final class KilnRecipes {
     public static final int OUTPUT_COUNT = 4;
 
     /**
-     * Recipe definition for pattern-based electron tube crafting.
+     * Recipe definition for pattern-based valve crafting.
      *
-     * @param outputTube electron tube item produced
+     * @param outputTube valve item produced
      * @param material material item for grid (7 pieces)
      * @param centerItem center item (redstone or ender eye, 2 pieces)
      * @param requiredTemp minimum temperature in °C
@@ -55,23 +55,23 @@ public final class KilnRecipes {
     private static final Map<Item, RecipePattern> MATERIAL_RECIPES = new HashMap<>();
 
     static {
-        // Low-tier tubes (2000-4000°C)
-        register(Items.COPPER_INGOT, LogisticsCore.ITEM.ELECTRON_TUBE_COPPER, Items.REDSTONE, 2000);
-        register(LogisticsCore.ITEM.TIN_INGOT, LogisticsCore.ITEM.ELECTRON_TUBE_TIN, Items.REDSTONE, 2000);
-        register(LogisticsCore.ITEM.BRONZE_INGOT, LogisticsCore.ITEM.ELECTRON_TUBE_BRONZE, Items.REDSTONE, 2500);
-        register(Items.IRON_INGOT, LogisticsCore.ITEM.ELECTRON_TUBE_IRON, Items.REDSTONE, 3000);
+        // Low-tier valves (2000-4000°C)
+        register(Items.COPPER_INGOT, LogisticsCore.ITEM.VALVE_COPPER, Items.REDSTONE, 2000);
+        register(LogisticsCore.ITEM.TIN_INGOT, LogisticsCore.ITEM.VALVE_TIN, Items.REDSTONE, 2000);
+        register(LogisticsCore.ITEM.BRONZE_INGOT, LogisticsCore.ITEM.VALVE_BRONZE, Items.REDSTONE, 2500);
+        register(Items.IRON_INGOT, LogisticsCore.ITEM.VALVE_IRON, Items.REDSTONE, 3000);
 
-        // Mid-tier tubes (4000-7000°C)
-        register(Items.GOLD_INGOT, LogisticsCore.ITEM.ELECTRON_TUBE_GOLD, Items.REDSTONE, 4000);
-        register(Items.OBSIDIAN, LogisticsCore.ITEM.ELECTRON_TUBE_OBSIDIAN, Items.REDSTONE, 5000);
-        register(Items.BLAZE_POWDER, LogisticsCore.ITEM.ELECTRON_TUBE_BLAZING, Items.REDSTONE, 6000);
+        // Mid-tier valves (4000-7000°C)
+        register(Items.GOLD_INGOT, LogisticsCore.ITEM.VALVE_GOLD, Items.REDSTONE, 4000);
+        register(Items.OBSIDIAN, LogisticsCore.ITEM.VALVE_OBSIDIAN, Items.REDSTONE, 5000);
+        register(Items.BLAZE_POWDER, LogisticsCore.ITEM.VALVE_BLAZING, Items.REDSTONE, 6000);
 
-        // High-tier tubes (7000-9500°C)
-        register(Items.EMERALD, LogisticsCore.ITEM.ELECTRON_TUBE_EMERALD, Items.REDSTONE, 7000);
-        register(Items.DIAMOND, LogisticsCore.ITEM.ELECTRON_TUBE_DIAMOND, Items.REDSTONE, 8000);
-        register(LogisticsCore.ITEM.APATITE, LogisticsCore.ITEM.ELECTRON_TUBE_APATINE, Items.REDSTONE, 8500);
-        register(Items.LAPIS_LAZULI, LogisticsCore.ITEM.ELECTRON_TUBE_LAPIS, Items.REDSTONE, 9000);
-        register(Items.ENDER_PEARL, LogisticsCore.ITEM.ELECTRON_TUBE_ENDER, Items.ENDER_EYE, 9500);
+        // High-tier valves (7000-9500°C)
+        register(Items.EMERALD, LogisticsCore.ITEM.VALVE_EMERALD, Items.REDSTONE, 7000);
+        register(Items.DIAMOND, LogisticsCore.ITEM.VALVE_DIAMOND, Items.REDSTONE, 8000);
+        register(LogisticsCore.ITEM.APATITE, LogisticsCore.ITEM.VALVE_APATINE, Items.REDSTONE, 8500);
+        register(Items.LAPIS_LAZULI, LogisticsCore.ITEM.VALVE_LAPIS, Items.REDSTONE, 9000);
+        register(Items.ENDER_PEARL, LogisticsCore.ITEM.VALVE_ENDER, Items.ENDER_EYE, 9500);
     }
 
     private static void register(Item material, Item outputTube, Item centerItem, int requiredTemp) {

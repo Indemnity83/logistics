@@ -198,32 +198,32 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         public static Item DIAMOND_GEAR;
         public static Item NETHERITE_GEAR;
 
-        // Electron Tubes (Thermionic Fabricator outputs)
-        public static final Item ELECTRON_TUBE_COPPER = INSTANCE.registerItem("electron_tube_copper",
+        // Valves (Thermionic Fabricator outputs)
+        public static final Item VALVE_COPPER = INSTANCE.registerItem("valve_copper",
             props -> new Item(props));
-        public static final Item ELECTRON_TUBE_TIN = INSTANCE.registerItem("electron_tube_tin",
+        public static final Item VALVE_TIN = INSTANCE.registerItem("valve_tin",
             props -> new Item(props));
-        public static final Item ELECTRON_TUBE_BRONZE = INSTANCE.registerItem("electron_tube_bronze",
+        public static final Item VALVE_BRONZE = INSTANCE.registerItem("valve_bronze",
             props -> new Item(props));
-        public static final Item ELECTRON_TUBE_IRON = INSTANCE.registerItem("electron_tube_iron",
+        public static final Item VALVE_IRON = INSTANCE.registerItem("valve_iron",
             props -> new Item(props));
-        public static final Item ELECTRON_TUBE_GOLD = INSTANCE.registerItem("electron_tube_gold",
+        public static final Item VALVE_GOLD = INSTANCE.registerItem("valve_gold",
             props -> new Item(props));
-        public static final Item ELECTRON_TUBE_DIAMOND = INSTANCE.registerItem("electron_tube_diamond",
+        public static final Item VALVE_DIAMOND = INSTANCE.registerItem("valve_diamond",
             props -> new Item(props));
-        public static final Item ELECTRON_TUBE_OBSIDIAN = INSTANCE.registerItem("electron_tube_obsidian",
+        public static final Item VALVE_OBSIDIAN = INSTANCE.registerItem("valve_obsidian",
             props -> new Item(props));
-        public static final Item ELECTRON_TUBE_BLAZING = INSTANCE.registerItem("electron_tube_blazing",
+        public static final Item VALVE_BLAZING = INSTANCE.registerItem("valve_blazing",
             props -> new Item(props));
-        public static final Item ELECTRON_TUBE_EMERALD = INSTANCE.registerItem("electron_tube_emerald",
+        public static final Item VALVE_EMERALD = INSTANCE.registerItem("valve_emerald",
             props -> new Item(props));
-        public static final Item ELECTRON_TUBE_APATINE = INSTANCE.registerItem("electron_tube_apatine",
+        public static final Item VALVE_APATINE = INSTANCE.registerItem("valve_apatine",
             props -> new Item(props));
-        public static final Item ELECTRON_TUBE_LAPIS = INSTANCE.registerItem("electron_tube_lapis",
+        public static final Item VALVE_LAPIS = INSTANCE.registerItem("valve_lapis",
             props -> new Item(props));
-        public static final Item ELECTRON_TUBE_ENDER = INSTANCE.registerItem("electron_tube_ender",
+        public static final Item VALVE_ENDER = INSTANCE.registerItem("valve_ender",
             props -> new Item(props));
-        public static final Item ELECTRON_TUBE_NETHERITE = INSTANCE.registerItem("electron_tube_netherite",
+        public static final Item VALVE_NETHERITE = INSTANCE.registerItem("valve_netherite",
             props -> new Item(props));
 
         private ITEM() {}
@@ -344,21 +344,21 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
             entries.addAfter(ITEM.BRONZE_GEAR, ITEM.GOLD_GEAR);
             entries.addAfter(ITEM.GOLD_GEAR, ITEM.DIAMOND_GEAR);
             entries.addAfter(ITEM.DIAMOND_GEAR, ITEM.NETHERITE_GEAR);
-            entries.addAfter(ITEM.NETHERITE_GEAR, ITEM.ELECTRON_TUBE_COPPER);
 
-            // Electron Tubes (Thermionic Fabricator outputs)
-            entries.addAfter(ITEM.ELECTRON_TUBE_COPPER, ITEM.ELECTRON_TUBE_TIN);
-            entries.addAfter(ITEM.ELECTRON_TUBE_TIN, ITEM.ELECTRON_TUBE_BRONZE);
-            entries.addAfter(ITEM.ELECTRON_TUBE_BRONZE, ITEM.ELECTRON_TUBE_IRON);
-            entries.addAfter(ITEM.ELECTRON_TUBE_IRON, ITEM.ELECTRON_TUBE_GOLD);
-            entries.addAfter(ITEM.ELECTRON_TUBE_GOLD, ITEM.ELECTRON_TUBE_DIAMOND);
-            entries.addAfter(ITEM.ELECTRON_TUBE_DIAMOND, ITEM.ELECTRON_TUBE_OBSIDIAN);
-            entries.addAfter(ITEM.ELECTRON_TUBE_OBSIDIAN, ITEM.ELECTRON_TUBE_BLAZING);
-            entries.addAfter(ITEM.ELECTRON_TUBE_BLAZING, ITEM.ELECTRON_TUBE_EMERALD);
-            entries.addAfter(ITEM.ELECTRON_TUBE_EMERALD, ITEM.ELECTRON_TUBE_APATINE);
-            entries.addAfter(ITEM.ELECTRON_TUBE_APATINE, ITEM.ELECTRON_TUBE_LAPIS);
-            entries.addAfter(ITEM.ELECTRON_TUBE_LAPIS, ITEM.ELECTRON_TUBE_ENDER);
-            entries.addAfter(ITEM.ELECTRON_TUBE_ENDER, ITEM.ELECTRON_TUBE_NETHERITE);
+            // Valves (Thermionic Fabricator outputs)
+            entries.addAfter(ITEM.NETHERITE_GEAR, ITEM.VALVE_COPPER);
+            entries.addAfter(ITEM.VALVE_COPPER, ITEM.VALVE_TIN);
+            entries.addAfter(ITEM.VALVE_TIN, ITEM.VALVE_BRONZE);
+            entries.addAfter(ITEM.VALVE_BRONZE, ITEM.VALVE_IRON);
+            entries.addAfter(ITEM.VALVE_IRON, ITEM.VALVE_GOLD);
+            entries.addAfter(ITEM.VALVE_GOLD, ITEM.VALVE_DIAMOND);
+            entries.addAfter(ITEM.VALVE_DIAMOND, ITEM.VALVE_OBSIDIAN);
+            entries.addAfter(ITEM.VALVE_OBSIDIAN, ITEM.VALVE_BLAZING);
+            entries.addAfter(ITEM.VALVE_BLAZING, ITEM.VALVE_EMERALD);
+            entries.addAfter(ITEM.VALVE_EMERALD, ITEM.VALVE_APATINE);
+            entries.addAfter(ITEM.VALVE_APATINE, ITEM.VALVE_LAPIS);
+            entries.addAfter(ITEM.VALVE_LAPIS, ITEM.VALVE_ENDER);
+            entries.addAfter(ITEM.VALVE_ENDER, ITEM.VALVE_NETHERITE);
         });
 
         // Add ore blocks to Natural Blocks tab

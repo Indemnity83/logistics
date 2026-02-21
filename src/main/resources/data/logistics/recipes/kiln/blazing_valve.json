@@ -1,0 +1,19 @@
+{
+  "pattern": [
+    " M ",
+    "RMR",
+    "MMM"
+  ],
+  "key": {
+    "M": "minecraft:blaze_powder",
+    "R": "minecraft:redstone"
+  },
+  "requiredHeat": 1200,
+  "soakTicks": 200,
+  "moltenCost": 250,
+  "heatCost": 270,
+  "result": {
+    "count": 4,
+    "id": "logistics:core/valve_blazing"
+  }
+}

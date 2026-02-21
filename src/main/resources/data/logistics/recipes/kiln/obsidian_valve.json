@@ -1,0 +1,19 @@
+{
+  "pattern": [
+    " M ",
+    "RMR",
+    "MMM"
+  ],
+  "key": {
+    "M": "minecraft:obsidian",
+    "R": "minecraft:redstone"
+  },
+  "requiredHeat": 1100,
+  "soakTicks": 180,
+  "moltenCost": 250,
+  "heatCost": 240,
+  "result": {
+    "count": 4,
+    "id": "logistics:core/valve_obsidian"
+  }
+}

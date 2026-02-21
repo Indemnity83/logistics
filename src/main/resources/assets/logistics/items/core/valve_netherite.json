@@ -1,0 +1,6 @@
+{
+  "model": {
+    "model": "logistics:item/core/valve_netherite",
+    "type": "minecraft:model"
+  }
+}
