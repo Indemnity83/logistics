@@ -1,0 +1,6 @@
+{
+  "model": {
+    "model": "logistics:item/core/electron_tube_lapis",
+    "type": "minecraft:model"
+  }
+}

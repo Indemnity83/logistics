@@ -1,0 +1,19 @@
+{
+  "pattern": [
+    " M ",
+    "RMR",
+    "MMM"
+  ],
+  "key": {
+    "M": "minecraft:netherite_ingot",
+    "R": "minecraft:redstone"
+  },
+  "requiredHeat": 1600,
+  "soakTicks": 280,
+  "moltenCost": 250,
+  "heatCost": 350,
+  "result": {
+    "count": 4,
+    "id": "logistics:core/electron_tube_netherite"
+  }
+}

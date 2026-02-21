@@ -223,6 +223,8 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
             props -> new Item(props));
         public static final Item ELECTRON_TUBE_ENDER = INSTANCE.registerItem("electron_tube_ender",
             props -> new Item(props));
+        public static final Item ELECTRON_TUBE_NETHERITE = INSTANCE.registerItem("electron_tube_netherite",
+            props -> new Item(props));
 
         private ITEM() {}
 
@@ -356,6 +358,7 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
             entries.addAfter(ITEM.ELECTRON_TUBE_EMERALD, ITEM.ELECTRON_TUBE_APATINE);
             entries.addAfter(ITEM.ELECTRON_TUBE_APATINE, ITEM.ELECTRON_TUBE_LAPIS);
             entries.addAfter(ITEM.ELECTRON_TUBE_LAPIS, ITEM.ELECTRON_TUBE_ENDER);
+            entries.addAfter(ITEM.ELECTRON_TUBE_ENDER, ITEM.ELECTRON_TUBE_NETHERITE);
         });
 
         // Add ore blocks to Natural Blocks tab
