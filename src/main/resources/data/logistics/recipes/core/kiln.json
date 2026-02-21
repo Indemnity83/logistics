@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "BBB",
+    "BCB",
+    "BBB"
+  ],
+  "key": {
+    "B": "minecraft:bricks",
+    "C": "logistics:core/sturdy_casing"
+  },
+  "result": {
+    "id": "logistics:core/kiln",
+    "count": 1
+  }
+}
