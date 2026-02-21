@@ -1,0 +1,19 @@
+{
+  "pattern": [
+    " M ",
+    "RMR",
+    "MMM"
+  ],
+  "key": {
+    "M": "minecraft:iron_ingot",
+    "R": "minecraft:redstone"
+  },
+  "requiredHeat": 900,
+  "soakTicks": 140,
+  "moltenCost": 250,
+  "heatCost": 180,
+  "result": {
+    "count": 4,
+    "id": "logistics:core/electron_tube_iron"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "pattern": [
+    " M ",
+    "RMR",
+    "MMM"
+  ],
+  "key": {
+    "M": "minecraft:diamond",
+    "R": "minecraft:redstone"
+  },
+  "requiredHeat": 1300,
+  "soakTicks": 220,
+  "moltenCost": 250,
+  "heatCost": 300,
+  "result": {
+    "count": 4,
+    "id": "logistics:core/electron_tube_diamond"
+  }
+}

@@ -2,6 +2,7 @@ package com.logistics.core.lib.fluids;
 
 import com.logistics.core.lib.storage.NbtCompat;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
+import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.storage.base.SingleVariantStorage;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -31,6 +32,11 @@ public abstract class FluidTankComponent extends SingleVariantStorage<FluidVaria
     }
 
     @Override
+    protected FluidVariant getBlankVariant() {
+        return FluidVariant.blank();
+    }
+
+    @Override
     protected long getCapacity(FluidVariant variant) {
         return capacity;
     }
@@ -38,6 +44,14 @@ public abstract class FluidTankComponent extends SingleVariantStorage<FluidVaria
     @Override
     protected void onFinalCommit() {
         onChanged.run();
+    }
+
+    public Storage<FluidVariant> storage() {
+        return this;
+    }
+
+    public long getCapacity() {
+        return capacity;
     }
 
     public void readNbt(CompoundTag nbt, String key) {

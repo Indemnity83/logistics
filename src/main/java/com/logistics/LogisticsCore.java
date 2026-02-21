@@ -1,12 +1,17 @@
 package com.logistics;
 
 import com.logistics.core.bootstrap.DomainBootstrap;
+import com.logistics.core.fabricator.KilnBlock;
+import com.logistics.core.fabricator.KilnBlockEntity;
+import com.logistics.core.fabricator.KilnRecipeManager;
+import com.logistics.core.fabricator.KilnScreenHandler;
 import com.logistics.core.item.ProbeItem;
 import com.logistics.core.item.WrenchItem;
 import com.logistics.core.lib.block.lookup.EnergyStorageAccess;
 import com.logistics.core.lib.block.lookup.FluidStorageAccess;
 import com.logistics.core.lib.block.lookup.ItemStorageAccess;
 import com.logistics.core.lib.block.lookup.PipeConnectionAccess;
+import com.logistics.core.lib.fluids.ModFluids;
 import com.logistics.core.loot.ChestLootModifier;
 import com.logistics.core.marker.MarkerBlock;
 import com.logistics.core.marker.MarkerBlockEntity;
@@ -32,6 +37,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.DropExperienceBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.inventory.MenuType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,6 +68,8 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         ENTITY.register();
         CREATIVE_TAB.register();
 
+        ModFluids.register();
+        KilnRecipeManager.register();
         registerStorageAccess();
         registerLegacyAliases();
         addCreativeTabEntries();
@@ -116,6 +124,7 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         public static Block BRONZE_BLOCK;
         public static Block APATITE_ORE;
         public static Block APATITE_BLOCK;
+        public static Block KILN;
 
         private BLOCK() {}
 
@@ -142,17 +151,30 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
                 props -> new DropExperienceBlock(UniformInt.of(0, 2), props.strength(3.0f, 3.0f).sound(SoundType.STONE).requiresCorrectToolForDrops()));
             APATITE_BLOCK = INSTANCE.registerBlockWithItem("apatite_block",
                 props -> new Block(props.strength(5.0f, 6.0f).sound(SoundType.STONE).requiresCorrectToolForDrops()));
+
+            // Machines
+            KILN = INSTANCE.registerBlockWithItem("kiln",
+                props -> new KilnBlock(props.strength(3.5f).sound(SoundType.METAL).requiresCorrectToolForDrops()));
         }
     }
 
     public static final class ENTITY {
         public static BlockEntityType<MarkerBlockEntity> MARKER_BLOCK_ENTITY;
+        public static BlockEntityType<KilnBlockEntity> KILN;
 
         private ENTITY() {}
 
         static void register() {
             MARKER_BLOCK_ENTITY = INSTANCE.registerBlockEntity("marker", MarkerBlockEntity::new, BLOCK.MARKER);
+            KILN = INSTANCE.registerBlockEntity("kiln", KilnBlockEntity::new, BLOCK.KILN);
         }
+    }
+
+    public static final class MENU {
+        public static final MenuType<KilnScreenHandler> KILN =
+            INSTANCE.registerMenuType("kiln", KilnScreenHandler::new);
+
+        private MENU() {}
     }
 
 
@@ -175,6 +197,32 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         public static Item BRONZE_GEAR;
         public static Item DIAMOND_GEAR;
         public static Item NETHERITE_GEAR;
+
+        // Electron Tubes (Thermionic Fabricator outputs)
+        public static final Item ELECTRON_TUBE_COPPER = INSTANCE.registerItem("electron_tube_copper",
+            props -> new Item(props));
+        public static final Item ELECTRON_TUBE_TIN = INSTANCE.registerItem("electron_tube_tin",
+            props -> new Item(props));
+        public static final Item ELECTRON_TUBE_BRONZE = INSTANCE.registerItem("electron_tube_bronze",
+            props -> new Item(props));
+        public static final Item ELECTRON_TUBE_IRON = INSTANCE.registerItem("electron_tube_iron",
+            props -> new Item(props));
+        public static final Item ELECTRON_TUBE_GOLD = INSTANCE.registerItem("electron_tube_gold",
+            props -> new Item(props));
+        public static final Item ELECTRON_TUBE_DIAMOND = INSTANCE.registerItem("electron_tube_diamond",
+            props -> new Item(props));
+        public static final Item ELECTRON_TUBE_OBSIDIAN = INSTANCE.registerItem("electron_tube_obsidian",
+            props -> new Item(props));
+        public static final Item ELECTRON_TUBE_BLAZING = INSTANCE.registerItem("electron_tube_blazing",
+            props -> new Item(props));
+        public static final Item ELECTRON_TUBE_EMERALD = INSTANCE.registerItem("electron_tube_emerald",
+            props -> new Item(props));
+        public static final Item ELECTRON_TUBE_APATINE = INSTANCE.registerItem("electron_tube_apatine",
+            props -> new Item(props));
+        public static final Item ELECTRON_TUBE_LAPIS = INSTANCE.registerItem("electron_tube_lapis",
+            props -> new Item(props));
+        public static final Item ELECTRON_TUBE_ENDER = INSTANCE.registerItem("electron_tube_ender",
+            props -> new Item(props));
 
         private ITEM() {}
 
@@ -254,7 +302,8 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         CREATIVE_TAB.addItems(
                 ITEM.WRENCH,
                 ITEM.PROBE,
-                BLOCK.MARKER
+                BLOCK.MARKER,
+                BLOCK.KILN
         );
     }
 
@@ -293,6 +342,20 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
             entries.addAfter(ITEM.BRONZE_GEAR, ITEM.GOLD_GEAR);
             entries.addAfter(ITEM.GOLD_GEAR, ITEM.DIAMOND_GEAR);
             entries.addAfter(ITEM.DIAMOND_GEAR, ITEM.NETHERITE_GEAR);
+            entries.addAfter(ITEM.NETHERITE_GEAR, ITEM.ELECTRON_TUBE_COPPER);
+
+            // Electron Tubes (Thermionic Fabricator outputs)
+            entries.addAfter(ITEM.ELECTRON_TUBE_COPPER, ITEM.ELECTRON_TUBE_TIN);
+            entries.addAfter(ITEM.ELECTRON_TUBE_TIN, ITEM.ELECTRON_TUBE_BRONZE);
+            entries.addAfter(ITEM.ELECTRON_TUBE_BRONZE, ITEM.ELECTRON_TUBE_IRON);
+            entries.addAfter(ITEM.ELECTRON_TUBE_IRON, ITEM.ELECTRON_TUBE_GOLD);
+            entries.addAfter(ITEM.ELECTRON_TUBE_GOLD, ITEM.ELECTRON_TUBE_DIAMOND);
+            entries.addAfter(ITEM.ELECTRON_TUBE_DIAMOND, ITEM.ELECTRON_TUBE_OBSIDIAN);
+            entries.addAfter(ITEM.ELECTRON_TUBE_OBSIDIAN, ITEM.ELECTRON_TUBE_BLAZING);
+            entries.addAfter(ITEM.ELECTRON_TUBE_BLAZING, ITEM.ELECTRON_TUBE_EMERALD);
+            entries.addAfter(ITEM.ELECTRON_TUBE_EMERALD, ITEM.ELECTRON_TUBE_APATINE);
+            entries.addAfter(ITEM.ELECTRON_TUBE_APATINE, ITEM.ELECTRON_TUBE_LAPIS);
+            entries.addAfter(ITEM.ELECTRON_TUBE_LAPIS, ITEM.ELECTRON_TUBE_ENDER);
         });
 
         // Add ore blocks to Natural Blocks tab

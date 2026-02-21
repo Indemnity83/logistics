@@ -1,6 +1,7 @@
 package com.logistics;
 
 import com.logistics.core.bootstrap.DomainBootstrap;
+import com.logistics.core.fabricator.KilnScreen;
 import com.logistics.core.render.MarkerBlockEntityRenderer;
 import com.logistics.core.render.ModelKeyRegistry;
 import net.fabricmc.fabric.api.client.model.loading.v1.ExtraModelKey;
@@ -8,6 +9,7 @@ import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
 import net.fabricmc.fabric.api.client.model.loading.v1.SimpleUnbakedExtraModel;
 import net.fabricmc.fabric.api.client.rendering.v1.BlockEntityRendererRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.BlockRenderLayerMap;
+import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.renderer.block.model.BlockStateModel;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 import net.minecraft.resources.Identifier;
@@ -35,6 +37,7 @@ public final class LogisticsCoreClient implements DomainBootstrap {
         LOGGER.info("Registering core (client)");
         BlockRenderLayerMap.putBlock(LogisticsCore.BLOCK.MARKER, ChunkSectionLayer.CUTOUT);
         BlockEntityRendererRegistry.register(LogisticsCore.ENTITY.MARKER_BLOCK_ENTITY, MarkerBlockEntityRenderer::new);
+        MenuScreens.register(LogisticsCore.MENU.KILN, KilnScreen::new);
     }
 
     @Override

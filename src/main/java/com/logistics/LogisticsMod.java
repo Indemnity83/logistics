@@ -15,6 +15,9 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.flag.FeatureFlags;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -95,6 +98,14 @@ public class LogisticsMod implements ModInitializer {
         Identifier identifier = getDomainIdentifier(name);
         BlockEntityType<T> blockEntityType = FabricBlockEntityTypeBuilder.create(factory, blocks).build();
         return Registry.register(BuiltInRegistries.BLOCK_ENTITY_TYPE, identifier, blockEntityType);
+    }
+
+    protected <T extends AbstractContainerMenu> MenuType<T> registerMenuType(
+            String name,
+            MenuType.MenuSupplier<T> factory) {
+        Identifier identifier = getDomainIdentifier(name);
+        MenuType<T> menuType = new MenuType<>(factory, FeatureFlags.DEFAULT_FLAGS);
+        return Registry.register(BuiltInRegistries.MENU, identifier, menuType);
     }
 
     protected void registerItemAlias(String name, Item item) {

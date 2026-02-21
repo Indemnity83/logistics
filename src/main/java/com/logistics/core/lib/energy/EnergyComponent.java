@@ -22,6 +22,10 @@ public final class EnergyComponent extends SimpleEnergyStorage {
         onChanged.run();
     }
 
+    public team.reborn.energy.api.EnergyStorage storage() {
+        return this;
+    }
+
     public void readNbt(CompoundTag nbt, String key) {
         this.amount = Math.min(NbtCompat.getLong(nbt, key, 0L), this.capacity);
     }

@@ -1,0 +1,19 @@
+{
+  "pattern": [
+    " M ",
+    "EME",
+    "MMM"
+  ],
+  "key": {
+    "M": "minecraft:ender_pearl",
+    "E": "minecraft:ender_eye"
+  },
+  "requiredHeat": 1500,
+  "soakTicks": 260,
+  "moltenCost": 250,
+  "heatCost": 360,
+  "result": {
+    "count": 4,
+    "id": "logistics:core/electron_tube_ender"
+  }
+}
