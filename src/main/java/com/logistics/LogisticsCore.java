@@ -198,7 +198,7 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         public static Item DIAMOND_GEAR;
         public static Item NETHERITE_GEAR;
 
-        // Valves (Thermionic Fabricator outputs)
+        // Valves (Kiln outputs)
         public static final Item VALVE_COPPER = INSTANCE.registerItem("valve_copper",
             props -> new Item(props));
         public static final Item VALVE_TIN = INSTANCE.registerItem("valve_tin",
@@ -345,7 +345,7 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
             entries.addAfter(ITEM.GOLD_GEAR, ITEM.DIAMOND_GEAR);
             entries.addAfter(ITEM.DIAMOND_GEAR, ITEM.NETHERITE_GEAR);
 
-            // Valves (Thermionic Fabricator outputs)
+            // Valves (Kiln outputs)
             entries.addAfter(ITEM.NETHERITE_GEAR, ITEM.VALVE_COPPER);
             entries.addAfter(ITEM.VALVE_COPPER, ITEM.VALVE_TIN);
             entries.addAfter(ITEM.VALVE_TIN, ITEM.VALVE_BRONZE);

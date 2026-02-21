@@ -17,7 +17,7 @@ import net.minecraft.world.level.material.FluidState;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Molten glass fluid for Thermionic Fabricator.
+ * Molten glass fluid for Kiln.
  * A hot, glowing orange liquid created by melting glass/sand.
  *
  * <p>This is a tank-only fluid that doesn't flow in the world.

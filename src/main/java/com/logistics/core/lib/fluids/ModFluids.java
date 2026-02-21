@@ -8,11 +8,11 @@ import net.minecraft.world.level.material.Fluid;
 
 /**
  * Registry for custom fluids used by Logistics machines.
- * Currently provides molten glass for the Thermionic Fabricator.
+ * Currently provides molten glass for the Kiln.
  */
 public final class ModFluids {
 
-    // Molten Glass - used by Thermionic Fabricator
+    // Molten Glass - used by Kiln
     public static final FlowingFluid MOLTEN_GLASS_FLOWING;
     public static final Fluid MOLTEN_GLASS_STILL;
 
