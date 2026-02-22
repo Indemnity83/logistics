@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.3.3](https://github.com/Indemnity83/logistics/compare/mc1.21.11-v0.3.2...mc1.21.11-v0.3.3) (2026-02-22)
+
+
+### Bug Fixes
+
+* correct vertical centering for block items rendered inside pipes ([#113](https://github.com/Indemnity83/logistics/issues/113)) ([ab2bcb8](https://github.com/Indemnity83/logistics/commit/ab2bcb870745c73e0c94e33c4017194292bf57eb))
+* register mod content during common initialization ([#132](https://github.com/Indemnity83/logistics/issues/132)) ([3855965](https://github.com/Indemnity83/logistics/commit/3855965915f305c9fa3c3419b71b7213a5a967b0))
+
 ## [0.3.2](https://github.com/Indemnity83/logistics/compare/mc1.21.11-v0.3.1...mc1.21.11-v0.3.2) (2026-02-17)
 
 
