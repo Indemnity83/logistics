@@ -35,7 +35,7 @@ import java.util.Map;
 public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap {
     private static final LogisticsPipe INSTANCE = new LogisticsPipe();
     private static final Map<Item, DyeColor> MARKING_FLUID_ITEM_COLORS = new HashMap<>();
-    private static final Map<DyeColor, Item> MARKING_FLUID_ITEMS = registerMarkingFluidItems();
+    private static Map<DyeColor, Item> MARKING_FLUID_ITEMS = Collections.emptyMap();
 
     @Override
     protected String domain() {
@@ -53,6 +53,12 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
     @Override
     public void initCommon() {
         LOGGER.info("Registering {}", domain());
+
+        BLOCK.register();
+        ENTITY.register();
+        DATA.register();
+        SCREEN.register();
+        registerMarkingFluidItems();
 
         registerLegacyAliases();
         addCreativeTabEntries();
@@ -98,52 +104,72 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
     public static final class BLOCK {
         private BLOCK() {}
 
-        public static final Block STONE_TRANSPORT_PIPE = INSTANCE.registerBlockWithItem("stone_transport_pipe",
-            props -> new PipeBlock(createPipeProperties(props), PipeTypes.STONE_TRANSPORT_PIPE));
-        public static final Block ITEM_PASSTHROUGH_PIPE = INSTANCE.registerBlockWithItem("item_passthrough_pipe",
-            props -> new PipeBlock(createPipeProperties(props), PipeTypes.ITEM_PASSTHROUGH_PIPE));
-        public static final Block COPPER_TRANSPORT_PIPE = INSTANCE.registerBlockWithItem("copper_transport_pipe",
-            props -> new PipeBlock(createPipeProperties(props), PipeTypes.COPPER_TRANSPORT_PIPE),
-            ModularPipeBlockItem::new);
-        public static final Block ITEM_EXTRACTOR_PIPE = INSTANCE.registerBlockWithItem("item_extractor_pipe",
-            props -> new PipeBlock(createPipeProperties(props), PipeTypes.ITEM_EXTRACTOR));
-        public static final Block ITEM_MERGER_PIPE = INSTANCE.registerBlockWithItem("item_merger_pipe",
-            props -> new PipeBlock(createPipeProperties(props), PipeTypes.ITEM_MERGER));
-        public static final Block GOLD_TRANSPORT_PIPE = INSTANCE.registerBlockWithItem("gold_transport_pipe",
-            props -> new PipeBlock(createPipeProperties(props), PipeTypes.GOLD_TRANSPORT));
-        public static final Block ITEM_FILTER_PIPE = INSTANCE.registerBlockWithItem("item_filter_pipe",
-            props -> new PipeBlock(createPipeProperties(props), PipeTypes.ITEM_FILTER));
-        public static final Block ITEM_INSERTION_PIPE = INSTANCE.registerBlockWithItem("item_insertion_pipe",
-            props -> new PipeBlock(createPipeProperties(props), PipeTypes.ITEM_INSERTION));
-        public static final Block ITEM_VOID_PIPE = INSTANCE.registerBlockWithItem("item_void_pipe",
-            props -> new PipeBlock(createPipeProperties(props), PipeTypes.ITEM_VOID));
+        public static Block STONE_TRANSPORT_PIPE;
+        public static Block ITEM_PASSTHROUGH_PIPE;
+        public static Block COPPER_TRANSPORT_PIPE;
+        public static Block ITEM_EXTRACTOR_PIPE;
+        public static Block ITEM_MERGER_PIPE;
+        public static Block GOLD_TRANSPORT_PIPE;
+        public static Block ITEM_FILTER_PIPE;
+        public static Block ITEM_INSERTION_PIPE;
+        public static Block ITEM_VOID_PIPE;
+
+        static void register() {
+            STONE_TRANSPORT_PIPE = INSTANCE.registerBlockWithItem("stone_transport_pipe",
+                props -> new PipeBlock(createPipeProperties(props), PipeTypes.STONE_TRANSPORT_PIPE));
+            ITEM_PASSTHROUGH_PIPE = INSTANCE.registerBlockWithItem("item_passthrough_pipe",
+                props -> new PipeBlock(createPipeProperties(props), PipeTypes.ITEM_PASSTHROUGH_PIPE));
+            COPPER_TRANSPORT_PIPE = INSTANCE.registerBlockWithItem("copper_transport_pipe",
+                props -> new PipeBlock(createPipeProperties(props), PipeTypes.COPPER_TRANSPORT_PIPE),
+                ModularPipeBlockItem::new);
+            ITEM_EXTRACTOR_PIPE = INSTANCE.registerBlockWithItem("item_extractor_pipe",
+                props -> new PipeBlock(createPipeProperties(props), PipeTypes.ITEM_EXTRACTOR));
+            ITEM_MERGER_PIPE = INSTANCE.registerBlockWithItem("item_merger_pipe",
+                props -> new PipeBlock(createPipeProperties(props), PipeTypes.ITEM_MERGER));
+            GOLD_TRANSPORT_PIPE = INSTANCE.registerBlockWithItem("gold_transport_pipe",
+                props -> new PipeBlock(createPipeProperties(props), PipeTypes.GOLD_TRANSPORT));
+            ITEM_FILTER_PIPE = INSTANCE.registerBlockWithItem("item_filter_pipe",
+                props -> new PipeBlock(createPipeProperties(props), PipeTypes.ITEM_FILTER));
+            ITEM_INSERTION_PIPE = INSTANCE.registerBlockWithItem("item_insertion_pipe",
+                props -> new PipeBlock(createPipeProperties(props), PipeTypes.ITEM_INSERTION));
+            ITEM_VOID_PIPE = INSTANCE.registerBlockWithItem("item_void_pipe",
+                props -> new PipeBlock(createPipeProperties(props), PipeTypes.ITEM_VOID));
+        }
     }
 
     public static final class ENTITY {
-        public static final BlockEntityType<PipeBlockEntity> PIPE_BLOCK_ENTITY = INSTANCE.registerBlockEntity("pipe",
-            PipeBlockEntity::new,
-            BLOCK.STONE_TRANSPORT_PIPE,
-            BLOCK.ITEM_EXTRACTOR_PIPE,
-            BLOCK.ITEM_MERGER_PIPE,
-            BLOCK.GOLD_TRANSPORT_PIPE,
-            BLOCK.ITEM_FILTER_PIPE,
-            BLOCK.COPPER_TRANSPORT_PIPE,
-            BLOCK.ITEM_PASSTHROUGH_PIPE,
-            BLOCK.ITEM_INSERTION_PIPE,
-            BLOCK.ITEM_VOID_PIPE);
+        public static BlockEntityType<PipeBlockEntity> PIPE_BLOCK_ENTITY;
 
         private ENTITY() {}
+
+        static void register() {
+            PIPE_BLOCK_ENTITY = INSTANCE.registerBlockEntity("pipe",
+                PipeBlockEntity::new,
+                BLOCK.STONE_TRANSPORT_PIPE,
+                BLOCK.ITEM_EXTRACTOR_PIPE,
+                BLOCK.ITEM_MERGER_PIPE,
+                BLOCK.GOLD_TRANSPORT_PIPE,
+                BLOCK.ITEM_FILTER_PIPE,
+                BLOCK.COPPER_TRANSPORT_PIPE,
+                BLOCK.ITEM_PASSTHROUGH_PIPE,
+                BLOCK.ITEM_INSERTION_PIPE,
+                BLOCK.ITEM_VOID_PIPE);
+        }
     }
 
     public static final class DATA {
-        public static final DataComponentType<WeatheringState> WEATHERING_STATE = Registry.register(
-                BuiltInRegistries.DATA_COMPONENT_TYPE,
-                LogisticsPipe.identifier("weathering_state"),
-                DataComponentType.<WeatheringState>builder()
-                        .persistent(WeatheringState.CODEC)
-                        .build());
+        public static DataComponentType<WeatheringState> WEATHERING_STATE;
 
         private DATA() {}
+
+        static void register() {
+            WEATHERING_STATE = Registry.register(
+                    BuiltInRegistries.DATA_COMPONENT_TYPE,
+                    LogisticsPipe.identifier("weathering_state"),
+                    DataComponentType.<WeatheringState>builder()
+                            .persistent(WeatheringState.CODEC)
+                            .build());
+        }
     }
 
     public static final class CONFIG {
@@ -172,12 +198,16 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
     }
 
     public static final class SCREEN {
-        public static final MenuType<ItemFilterScreenHandler> ITEM_FILTER = Registry.register(
-                BuiltInRegistries.MENU,
-                LogisticsPipe.identifier("item_filter"),
-                new MenuType<>(ItemFilterScreenHandler::new, FeatureFlagSet.of()));
+        public static MenuType<ItemFilterScreenHandler> ITEM_FILTER;
 
         private SCREEN() {}
+
+        static void register() {
+            ITEM_FILTER = Registry.register(
+                    BuiltInRegistries.MENU,
+                    LogisticsPipe.identifier("item_filter"),
+                    new MenuType<>(ItemFilterScreenHandler::new, FeatureFlagSet.of()));
+        }
     }
 
     private static Block.Properties createPipeProperties(Block.Properties props) {
@@ -187,7 +217,7 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
                 .noOcclusion();
     }
 
-    private static Map<DyeColor, Item> registerMarkingFluidItems() {
+    private static void registerMarkingFluidItems() {
         Map<DyeColor, Item> items = new EnumMap<>(DyeColor.class);
         for (DyeColor color : DyeColor.values()) {
             String name = "marking_fluid_" + color.getName();
@@ -196,7 +226,7 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
             items.put(color, item);
             MARKING_FLUID_ITEM_COLORS.put(item, color);
         }
-        return Collections.unmodifiableMap(items);
+        MARKING_FLUID_ITEMS = Collections.unmodifiableMap(items);
     }
 
     public static Item getMarkingFluidItem(DyeColor color) {
