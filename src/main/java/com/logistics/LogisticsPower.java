@@ -94,9 +94,9 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
     }
 
     public static final class SCREEN {
-        public static MenuType<StirlingEngineScreenHandler> STIRLING_ENGINE;
-
         private SCREEN() {}
+
+        public static MenuType<StirlingEngineScreenHandler> STIRLING_ENGINE;
 
         static void register() {
             STIRLING_ENGINE = Registry.register(

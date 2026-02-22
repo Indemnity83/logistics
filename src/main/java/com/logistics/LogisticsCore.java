@@ -185,46 +185,30 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
                 props -> new ProbeItem(props.stacksTo(1)));
 
             // Tin Materials
-            RAW_TIN = INSTANCE.registerItem("raw_tin",
-                props -> new Item(props));
-            TIN_INGOT = INSTANCE.registerItem("tin_ingot",
-                props -> new Item(props));
-            TIN_NUGGET = INSTANCE.registerItem("tin_nugget",
-                props -> new Item(props));
+            RAW_TIN = INSTANCE.registerItem("raw_tin", Item::new);
+            TIN_INGOT = INSTANCE.registerItem("tin_ingot", Item::new);
+            TIN_NUGGET = INSTANCE.registerItem("tin_nugget", Item::new);
 
             // Bronze Materials
-            BRONZE_INGOT = INSTANCE.registerItem("bronze_ingot",
-                props -> new Item(props));
-            BRONZE_NUGGET = INSTANCE.registerItem("bronze_nugget",
-                props -> new Item(props));
+            BRONZE_INGOT = INSTANCE.registerItem("bronze_ingot", Item::new);
+            BRONZE_NUGGET = INSTANCE.registerItem("bronze_nugget", Item::new);
 
             // Apatite
-            APATITE = INSTANCE.registerItem("apatite",
-                props -> new Item(props));
+            APATITE = INSTANCE.registerItem("apatite", Item::new);
 
             // Components
-            STURDY_CASING = INSTANCE.registerItem("sturdy_casing",
-                props -> new Item(props));
+            STURDY_CASING = INSTANCE.registerItem("sturdy_casing", Item::new);
 
             // Gears
-            WOODEN_GEAR = INSTANCE.registerItem("wooden_gear",
-                props -> new Item(props));
-            STONE_GEAR = INSTANCE.registerItem("stone_gear",
-                props -> new Item(props));
-            COPPER_GEAR = INSTANCE.registerItem("copper_gear",
-                props -> new Item(props));
-            TIN_GEAR = INSTANCE.registerItem("tin_gear",
-                props -> new Item(props));
-            IRON_GEAR = INSTANCE.registerItem("iron_gear",
-                props -> new Item(props));
-            GOLD_GEAR = INSTANCE.registerItem("gold_gear",
-                props -> new Item(props));
-            BRONZE_GEAR = INSTANCE.registerItem("bronze_gear",
-                props -> new Item(props));
-            DIAMOND_GEAR = INSTANCE.registerItem("diamond_gear",
-                props -> new Item(props));
-            NETHERITE_GEAR = INSTANCE.registerItem("netherite_gear",
-                props -> new Item(props));
+            WOODEN_GEAR = INSTANCE.registerItem("wooden_gear", Item::new);
+            STONE_GEAR = INSTANCE.registerItem("stone_gear", Item::new);
+            COPPER_GEAR = INSTANCE.registerItem("copper_gear", Item::new);
+            TIN_GEAR = INSTANCE.registerItem("tin_gear", Item::new);
+            IRON_GEAR = INSTANCE.registerItem("iron_gear", Item::new);
+            GOLD_GEAR = INSTANCE.registerItem("gold_gear", Item::new);
+            BRONZE_GEAR = INSTANCE.registerItem("bronze_gear", Item::new);
+            DIAMOND_GEAR = INSTANCE.registerItem("diamond_gear", Item::new);
+            NETHERITE_GEAR = INSTANCE.registerItem("netherite_gear", Item::new);
         }
     }
 
