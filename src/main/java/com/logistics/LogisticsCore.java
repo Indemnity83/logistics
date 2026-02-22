@@ -57,6 +57,11 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
     public void initCommon() {
         LOGGER.info("Registering {}", domain());
 
+        BLOCK.register();
+        ITEM.register();
+        ENTITY.register();
+        CREATIVE_TAB.register();
+
         registerStorageAccess();
         registerLegacyAliases();
         addCreativeTabEntries();
@@ -103,109 +108,130 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
     }
 
     public static final class BLOCK {
-        public static final Block MARKER = INSTANCE.registerBlockWithItem("marker",
-            props -> new MarkerBlock(props.strength(0.0f).sound(SoundType.WOOD).noCollision()));
-
-        // Tin Ore and Storage Blocks
-        public static final Block TIN_ORE = INSTANCE.registerBlockWithItem("tin_ore",
-            props -> new Block(props.strength(3.0f, 3.0f).sound(SoundType.STONE).requiresCorrectToolForDrops()));
-        public static final Block DEEPSLATE_TIN_ORE = INSTANCE.registerBlockWithItem("deepslate_tin_ore",
-            props -> new Block(props.strength(4.5f, 3.0f).sound(SoundType.DEEPSLATE).requiresCorrectToolForDrops()));
-        public static final Block TIN_BLOCK = INSTANCE.registerBlockWithItem("tin_block",
-            props -> new Block(props.strength(3.0f, 6.0f).sound(SoundType.METAL).requiresCorrectToolForDrops()));
-        public static final Block RAW_TIN_BLOCK = INSTANCE.registerBlockWithItem("raw_tin_block",
-            props -> new Block(props.strength(5.0f, 6.0f).sound(SoundType.STONE).requiresCorrectToolForDrops()));
-
-        // Bronze Storage Block
-        public static final Block BRONZE_BLOCK = INSTANCE.registerBlockWithItem("bronze_block",
-            props -> new Block(props.strength(3.0f, 6.0f).sound(SoundType.METAL).requiresCorrectToolForDrops()));
-
-        // Apatite Ore and Storage Block
-        public static final Block APATITE_ORE = INSTANCE.registerBlockWithItem("apatite_ore",
-            props -> new DropExperienceBlock(UniformInt.of(0, 2), props.strength(3.0f, 3.0f).sound(SoundType.STONE).requiresCorrectToolForDrops()));
-        public static final Block APATITE_BLOCK = INSTANCE.registerBlockWithItem("apatite_block",
-            props -> new Block(props.strength(5.0f, 6.0f).sound(SoundType.STONE).requiresCorrectToolForDrops()));
+        public static Block MARKER;
+        public static Block TIN_ORE;
+        public static Block DEEPSLATE_TIN_ORE;
+        public static Block TIN_BLOCK;
+        public static Block RAW_TIN_BLOCK;
+        public static Block BRONZE_BLOCK;
+        public static Block APATITE_ORE;
+        public static Block APATITE_BLOCK;
 
         private BLOCK() {}
 
+        static void register() {
+            MARKER = INSTANCE.registerBlockWithItem("marker",
+                props -> new MarkerBlock(props.strength(0.0f).sound(SoundType.WOOD).noCollision()));
+
+            // Tin Ore and Storage Blocks
+            TIN_ORE = INSTANCE.registerBlockWithItem("tin_ore",
+                props -> new Block(props.strength(3.0f, 3.0f).sound(SoundType.STONE).requiresCorrectToolForDrops()));
+            DEEPSLATE_TIN_ORE = INSTANCE.registerBlockWithItem("deepslate_tin_ore",
+                props -> new Block(props.strength(4.5f, 3.0f).sound(SoundType.DEEPSLATE).requiresCorrectToolForDrops()));
+            TIN_BLOCK = INSTANCE.registerBlockWithItem("tin_block",
+                props -> new Block(props.strength(3.0f, 6.0f).sound(SoundType.METAL).requiresCorrectToolForDrops()));
+            RAW_TIN_BLOCK = INSTANCE.registerBlockWithItem("raw_tin_block",
+                props -> new Block(props.strength(5.0f, 6.0f).sound(SoundType.STONE).requiresCorrectToolForDrops()));
+
+            // Bronze Storage Block
+            BRONZE_BLOCK = INSTANCE.registerBlockWithItem("bronze_block",
+                props -> new Block(props.strength(3.0f, 6.0f).sound(SoundType.METAL).requiresCorrectToolForDrops()));
+
+            // Apatite Ore and Storage Block
+            APATITE_ORE = INSTANCE.registerBlockWithItem("apatite_ore",
+                props -> new DropExperienceBlock(UniformInt.of(0, 2), props.strength(3.0f, 3.0f).sound(SoundType.STONE).requiresCorrectToolForDrops()));
+            APATITE_BLOCK = INSTANCE.registerBlockWithItem("apatite_block",
+                props -> new Block(props.strength(5.0f, 6.0f).sound(SoundType.STONE).requiresCorrectToolForDrops()));
+        }
     }
 
     public static final class ENTITY {
-        public static final BlockEntityType<MarkerBlockEntity> MARKER_BLOCK_ENTITY =
-            INSTANCE.registerBlockEntity("marker", MarkerBlockEntity::new, BLOCK.MARKER);
+        public static BlockEntityType<MarkerBlockEntity> MARKER_BLOCK_ENTITY;
 
         private ENTITY() {}
 
+        static void register() {
+            MARKER_BLOCK_ENTITY = INSTANCE.registerBlockEntity("marker", MarkerBlockEntity::new, BLOCK.MARKER);
+        }
     }
 
 
     public static final class ITEM {
-        public static final Item WRENCH = INSTANCE.registerItem("wrench",
-            props -> new WrenchItem(props.stacksTo(1)));
-        public static final Item PROBE = INSTANCE.registerItem("probe",
-            props -> new ProbeItem(props.stacksTo(1)));
-
-        // Tin Materials
-        public static final Item RAW_TIN = INSTANCE.registerItem("raw_tin",
-            props -> new Item(props));
-        public static final Item TIN_INGOT = INSTANCE.registerItem("tin_ingot",
-            props -> new Item(props));
-        public static final Item TIN_NUGGET = INSTANCE.registerItem("tin_nugget",
-            props -> new Item(props));
-
-        // Bronze Materials
-        public static final Item BRONZE_INGOT = INSTANCE.registerItem("bronze_ingot",
-            props -> new Item(props));
-        public static final Item BRONZE_NUGGET = INSTANCE.registerItem("bronze_nugget",
-            props -> new Item(props));
-
-        // Apatite
-        public static final Item APATITE = INSTANCE.registerItem("apatite",
-            props -> new Item(props));
-
-        // Components
-        public static final Item STURDY_CASING = INSTANCE.registerItem("sturdy_casing",
-            props -> new Item(props));
-
-        // Gears
-        public static final Item WOODEN_GEAR = INSTANCE.registerItem("wooden_gear",
-            props -> new Item(props));
-        public static final Item STONE_GEAR = INSTANCE.registerItem("stone_gear",
-            props -> new Item(props));
-        public static final Item COPPER_GEAR = INSTANCE.registerItem("copper_gear",
-            props -> new Item(props));
-        public static final Item TIN_GEAR = INSTANCE.registerItem("tin_gear",
-            props -> new Item(props));
-        public static final Item IRON_GEAR = INSTANCE.registerItem("iron_gear",
-            props -> new Item(props));
-        public static final Item GOLD_GEAR = INSTANCE.registerItem("gold_gear",
-            props -> new Item(props));
-        public static final Item BRONZE_GEAR = INSTANCE.registerItem("bronze_gear",
-            props -> new Item(props));
-        public static final Item DIAMOND_GEAR = INSTANCE.registerItem("diamond_gear",
-            props -> new Item(props));
-        public static final Item NETHERITE_GEAR = INSTANCE.registerItem("netherite_gear",
-            props -> new Item(props));
+        public static Item WRENCH;
+        public static Item PROBE;
+        public static Item RAW_TIN;
+        public static Item TIN_INGOT;
+        public static Item TIN_NUGGET;
+        public static Item BRONZE_INGOT;
+        public static Item BRONZE_NUGGET;
+        public static Item APATITE;
+        public static Item STURDY_CASING;
+        public static Item WOODEN_GEAR;
+        public static Item STONE_GEAR;
+        public static Item COPPER_GEAR;
+        public static Item TIN_GEAR;
+        public static Item IRON_GEAR;
+        public static Item GOLD_GEAR;
+        public static Item BRONZE_GEAR;
+        public static Item DIAMOND_GEAR;
+        public static Item NETHERITE_GEAR;
 
         private ITEM() {}
+
+        static void register() {
+            WRENCH = INSTANCE.registerItem("wrench",
+                props -> new WrenchItem(props.stacksTo(1)));
+            PROBE = INSTANCE.registerItem("probe",
+                props -> new ProbeItem(props.stacksTo(1)));
+
+            // Tin Materials
+            RAW_TIN = INSTANCE.registerItem("raw_tin", Item::new);
+            TIN_INGOT = INSTANCE.registerItem("tin_ingot", Item::new);
+            TIN_NUGGET = INSTANCE.registerItem("tin_nugget", Item::new);
+
+            // Bronze Materials
+            BRONZE_INGOT = INSTANCE.registerItem("bronze_ingot", Item::new);
+            BRONZE_NUGGET = INSTANCE.registerItem("bronze_nugget", Item::new);
+
+            // Apatite
+            APATITE = INSTANCE.registerItem("apatite", Item::new);
+
+            // Components
+            STURDY_CASING = INSTANCE.registerItem("sturdy_casing", Item::new);
+
+            // Gears
+            WOODEN_GEAR = INSTANCE.registerItem("wooden_gear", Item::new);
+            STONE_GEAR = INSTANCE.registerItem("stone_gear", Item::new);
+            COPPER_GEAR = INSTANCE.registerItem("copper_gear", Item::new);
+            TIN_GEAR = INSTANCE.registerItem("tin_gear", Item::new);
+            IRON_GEAR = INSTANCE.registerItem("iron_gear", Item::new);
+            GOLD_GEAR = INSTANCE.registerItem("gold_gear", Item::new);
+            BRONZE_GEAR = INSTANCE.registerItem("bronze_gear", Item::new);
+            DIAMOND_GEAR = INSTANCE.registerItem("diamond_gear", Item::new);
+            NETHERITE_GEAR = INSTANCE.registerItem("netherite_gear", Item::new);
+        }
     }
 
     public static final class CREATIVE_TAB {
         private CREATIVE_TAB() {}
         private static final List<Consumer<CreativeModeTab.Output>> ENTRIES = new ArrayList<>();
 
-        public static final CreativeModeTab LOGISTICS_TRANSPORT = Registry.register(
-                BuiltInRegistries.CREATIVE_MODE_TAB,
-                LogisticsMod.getIdentifier("logistics_transport"),
-                FabricItemGroup.builder()
-                        .title(Component.literal("Logistics"))
-                        .icon(() -> new ItemStack(ITEM.IRON_GEAR))
-                        .displayItems((params, entries) -> {
-                            for (Consumer<CreativeModeTab.Output> entry : ENTRIES) {
-                                entry.accept(entries);
-                            }
-                        })
-                        .build());
+        public static CreativeModeTab LOGISTICS_TRANSPORT;
+
+        static void register() {
+            LOGISTICS_TRANSPORT = Registry.register(
+                    BuiltInRegistries.CREATIVE_MODE_TAB,
+                    LogisticsMod.getIdentifier("logistics_transport"),
+                    FabricItemGroup.builder()
+                            .title(Component.literal("Logistics"))
+                            .icon(() -> new ItemStack(ITEM.IRON_GEAR))
+                            .displayItems((params, entries) -> {
+                                for (Consumer<CreativeModeTab.Output> entry : ENTRIES) {
+                                    entry.accept(entries);
+                                }
+                            })
+                            .build());
+        }
 
         public static void add(Consumer<CreativeModeTab.Output> entryBuilder) {
             ENTRIES.add(entryBuilder);

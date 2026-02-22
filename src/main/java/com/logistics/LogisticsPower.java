@@ -46,42 +46,64 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
     public void initCommon() {
         LOGGER.info("Registering {}", domain());
 
+        BLOCK.register();
+        ENTITY.register();
+        SCREEN.register();
+
         addCreativeTabEntries();
     }
 
     public static final class BLOCK {
         private BLOCK() {}
 
-        public static final Block REDSTONE_ENGINE = INSTANCE.registerBlockWithItem("redstone_engine",
-            props -> new RedstoneEngineBlock(props.strength(5.0f).sound(SoundType.WOOD).noOcclusion()));
-        public static final Block STIRLING_ENGINE = INSTANCE.registerBlockWithItem("stirling_engine",
-            props -> new StirlingEngineBlock(props.strength(5.0f).sound(SoundType.COPPER).noOcclusion()));
-        public static final Block CREATIVE_ENGINE = INSTANCE.registerBlockWithItem("creative_engine",
-            props -> new CreativeEngineBlock(props.strength(5.0f).sound(SoundType.STONE).noOcclusion()));
-        public static final Block CREATIVE_SINK = INSTANCE.registerBlockWithItem("creative_sink",
-            props -> new CreativeSinkBlock(props.strength(5.0f).sound(SoundType.STONE)));
+        public static Block REDSTONE_ENGINE;
+        public static Block STIRLING_ENGINE;
+        public static Block CREATIVE_ENGINE;
+        public static Block CREATIVE_SINK;
+
+        static void register() {
+            REDSTONE_ENGINE = INSTANCE.registerBlockWithItem("redstone_engine",
+                props -> new RedstoneEngineBlock(props.strength(5.0f).sound(SoundType.WOOD).noOcclusion()));
+            STIRLING_ENGINE = INSTANCE.registerBlockWithItem("stirling_engine",
+                props -> new StirlingEngineBlock(props.strength(5.0f).sound(SoundType.COPPER).noOcclusion()));
+            CREATIVE_ENGINE = INSTANCE.registerBlockWithItem("creative_engine",
+                props -> new CreativeEngineBlock(props.strength(5.0f).sound(SoundType.STONE).noOcclusion()));
+            CREATIVE_SINK = INSTANCE.registerBlockWithItem("creative_sink",
+                props -> new CreativeSinkBlock(props.strength(5.0f).sound(SoundType.STONE)));
+        }
     }
 
     public static final class ENTITY {
         private ENTITY() {}
 
-        public static final BlockEntityType<RedstoneEngineBlockEntity> REDSTONE_ENGINE_BLOCK_ENTITY =
-            INSTANCE.registerBlockEntity("redstone_engine", RedstoneEngineBlockEntity::new, BLOCK.REDSTONE_ENGINE);
-        public static final BlockEntityType<StirlingEngineBlockEntity> STIRLING_ENGINE_BLOCK_ENTITY =
-            INSTANCE.registerBlockEntity("stirling_engine", StirlingEngineBlockEntity::new, BLOCK.STIRLING_ENGINE);
-        public static final BlockEntityType<CreativeEngineBlockEntity> CREATIVE_ENGINE_BLOCK_ENTITY =
-            INSTANCE.registerBlockEntity("creative_engine", CreativeEngineBlockEntity::new, BLOCK.CREATIVE_ENGINE);
-        public static final BlockEntityType<CreativeSinkBlockEntity> CREATIVE_SINK_BLOCK_ENTITY =
-            INSTANCE.registerBlockEntity("creative_sink", CreativeSinkBlockEntity::new, BLOCK.CREATIVE_SINK);
+        public static BlockEntityType<RedstoneEngineBlockEntity> REDSTONE_ENGINE_BLOCK_ENTITY;
+        public static BlockEntityType<StirlingEngineBlockEntity> STIRLING_ENGINE_BLOCK_ENTITY;
+        public static BlockEntityType<CreativeEngineBlockEntity> CREATIVE_ENGINE_BLOCK_ENTITY;
+        public static BlockEntityType<CreativeSinkBlockEntity> CREATIVE_SINK_BLOCK_ENTITY;
+
+        static void register() {
+            REDSTONE_ENGINE_BLOCK_ENTITY =
+                INSTANCE.registerBlockEntity("redstone_engine", RedstoneEngineBlockEntity::new, BLOCK.REDSTONE_ENGINE);
+            STIRLING_ENGINE_BLOCK_ENTITY =
+                INSTANCE.registerBlockEntity("stirling_engine", StirlingEngineBlockEntity::new, BLOCK.STIRLING_ENGINE);
+            CREATIVE_ENGINE_BLOCK_ENTITY =
+                INSTANCE.registerBlockEntity("creative_engine", CreativeEngineBlockEntity::new, BLOCK.CREATIVE_ENGINE);
+            CREATIVE_SINK_BLOCK_ENTITY =
+                INSTANCE.registerBlockEntity("creative_sink", CreativeSinkBlockEntity::new, BLOCK.CREATIVE_SINK);
+        }
     }
 
     public static final class SCREEN {
-        public static final MenuType<StirlingEngineScreenHandler> STIRLING_ENGINE = Registry.register(
-                BuiltInRegistries.MENU,
-                LogisticsPower.identifier("stirling_engine"),
-                new ExtendedScreenHandlerType<>(StirlingEngineScreenHandler::new, BlockPos.STREAM_CODEC));
-
         private SCREEN() {}
+
+        public static MenuType<StirlingEngineScreenHandler> STIRLING_ENGINE;
+
+        static void register() {
+            STIRLING_ENGINE = Registry.register(
+                    BuiltInRegistries.MENU,
+                    LogisticsPower.identifier("stirling_engine"),
+                    new ExtendedScreenHandlerType<>(StirlingEngineScreenHandler::new, BlockPos.STREAM_CODEC));
+        }
     }
 
     private static void addCreativeTabEntries() {

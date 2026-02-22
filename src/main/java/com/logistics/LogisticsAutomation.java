@@ -38,6 +38,9 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
     public void initCommon() {
         LOGGER.info("Registering {}", domain());
 
+        BLOCK.register();
+        ENTITY.register();
+
         registerLegacyAliases();
         addCreativeTabEntries();
 
@@ -52,17 +55,26 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
     public static final class BLOCK {
         private BLOCK() {}
 
-        public static final Block LASER_QUARRY = INSTANCE.registerBlockWithItem("laser_quarry",
-            props -> new LaserQuarryBlock(props.strength(5.0f).sound(SoundType.STONE)));
-        public static final Block LASER_QUARRY_FRAME = INSTANCE.registerBlock("laser_quarry_frame",
-            props -> new LaserQuarryFrameBlock(props.strength(-1.0f, 3600000.0f).noOcclusion().noLootTable().randomTicks()));
+        public static Block LASER_QUARRY;
+        public static Block LASER_QUARRY_FRAME;
+
+        static void register() {
+            LASER_QUARRY = INSTANCE.registerBlockWithItem("laser_quarry",
+                props -> new LaserQuarryBlock(props.strength(5.0f).sound(SoundType.STONE)));
+            LASER_QUARRY_FRAME = INSTANCE.registerBlock("laser_quarry_frame",
+                props -> new LaserQuarryFrameBlock(props.strength(-1.0f, 3600000.0f).noOcclusion().noLootTable().randomTicks()));
+        }
     }
 
     public static final class ENTITY {
         private ENTITY() {}
 
-        public static final BlockEntityType<LaserQuarryBlockEntity> LASER_QUARRY_BLOCK_ENTITY =
-            INSTANCE.registerBlockEntity("laser_quarry", LaserQuarryBlockEntity::new, BLOCK.LASER_QUARRY);
+        public static BlockEntityType<LaserQuarryBlockEntity> LASER_QUARRY_BLOCK_ENTITY;
+
+        static void register() {
+            LASER_QUARRY_BLOCK_ENTITY =
+                INSTANCE.registerBlockEntity("laser_quarry", LaserQuarryBlockEntity::new, BLOCK.LASER_QUARRY);
+        }
     }
 
     private static void addCreativeTabEntries() {
