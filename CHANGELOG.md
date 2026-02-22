@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.3.3](https://github.com/Indemnity83/logistics/compare/mc1.21.1-v0.3.2...mc1.21.1-v0.3.3) (2026-02-22)
+
+
+### Bug Fixes
+
+* preserve copper pipe weathering in item state and models ([#125](https://github.com/Indemnity83/logistics/issues/125)) ([60ec68e](https://github.com/Indemnity83/logistics/commit/60ec68e654388f2ccdc5b8bee280bfd72f944b63))
+* register mod content during common initialization ([#132](https://github.com/Indemnity83/logistics/issues/132)) ([43667d4](https://github.com/Indemnity83/logistics/commit/43667d4d6eec9a0e8b1d0a6808b7ec207203c0ca))
+* restore laser quarry block entity renderer and client render cache cleanup ([#127](https://github.com/Indemnity83/logistics/issues/127)) ([105defa](https://github.com/Indemnity83/logistics/commit/105defad83b30b65b574220b9798c17d3958b6bb))
+
 ## [0.3.2](https://github.com/Indemnity83/logistics/compare/mc1.21.1-v0.3.1...mc1.21.1-v0.3.2) (2026-02-18)
 
 
