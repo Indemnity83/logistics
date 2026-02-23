@@ -2,6 +2,7 @@ package com.logistics.core.lib.energy;
 
 import com.logistics.core.lib.storage.NbtCompat;
 import net.minecraft.nbt.CompoundTag;
+import team.reborn.energy.api.EnergyStorage;
 import team.reborn.energy.api.base.SimpleEnergyStorage;
 
 /**
@@ -22,7 +23,7 @@ public final class EnergyComponent extends SimpleEnergyStorage {
         onChanged.run();
     }
 
-    public team.reborn.energy.api.EnergyStorage storage() {
+    public EnergyStorage storage() {
         return this;
     }
 
