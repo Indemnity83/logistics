@@ -6,7 +6,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.logistics.LogisticsMod;
-import com.mojang.serialization.JsonOps;
 import net.fabricmc.fabric.api.resource.v1.ResourceLoader;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
@@ -137,11 +136,18 @@ public class KilnRecipeManager {
 
         int energyPerTick = json.get("energyPerTick").getAsInt();
 
-        // Parse result
-        ItemStack result = ItemStack.CODEC.parse(JsonOps.INSTANCE, json.get("result"))
-            .getOrThrow();
+        // Parse result ID and count (defer ItemStack creation to avoid component initialization timing issues)
+        JsonObject resultObj = json.getAsJsonObject("result");
+        String itemIdStr = resultObj.get("id").getAsString();
+        int resultCount = resultObj.get("count").getAsInt();
+        Identifier resultItemId = LogisticsMod.parseIdentifier(itemIdStr);
 
-        return new KilnRecipe(recipeId, ingredients, processTimeTicks, fluidId, fluidAmountMb, energyPerTick, result);
+        // Validate item exists in registry
+        if (BuiltInRegistries.ITEM.get(resultItemId).isEmpty()) {
+            throw new IllegalArgumentException("Unknown result item: " + itemIdStr);
+        }
+
+        return new KilnRecipe(recipeId, ingredients, processTimeTicks, fluidId, fluidAmountMb, energyPerTick, resultItemId, resultCount);
     }
 
     public static Map<Identifier, KilnRecipe> getAllRecipes() {

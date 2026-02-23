@@ -5,6 +5,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
@@ -32,7 +33,8 @@ public class KilnRecipe {
     private final Identifier fluidId;          // Fluid type (e.g., molten glass)
     private final int fluidAmountMb;           // Fluid amount in millibuckets
     private final int energyPerTick;           // Energy cost per tick (total = energyPerTick * processTimeTicks)
-    private final ItemStack result;
+    private final Identifier resultItemId;     // Result item ID (lazy ItemStack creation)
+    private final int resultCount;             // Result item count
 
     public KilnRecipe(
         Identifier id,
@@ -41,7 +43,8 @@ public class KilnRecipe {
         Identifier fluidId,
         int fluidAmountMb,
         int energyPerTick,
-        ItemStack result
+        Identifier resultItemId,
+        int resultCount
     ) {
         if (ingredients.size() != 9) {
             throw new IllegalArgumentException("Kiln recipes must have exactly 9 ingredient slots, got " + ingredients.size());
@@ -52,7 +55,8 @@ public class KilnRecipe {
         this.fluidId = fluidId;
         this.fluidAmountMb = fluidAmountMb;
         this.energyPerTick = energyPerTick;
-        this.result = result;
+        this.resultItemId = resultItemId;
+        this.resultCount = resultCount;
     }
 
     public Identifier getId() {
@@ -73,7 +77,10 @@ public class KilnRecipe {
     }
 
     public ItemStack getResultItem() {
-        return result.copy();
+        // Create ItemStack on demand (components are initialized by the time recipes are accessed)
+        var itemHolder = BuiltInRegistries.ITEM.get(resultItemId)
+            .orElseThrow(() -> new IllegalStateException("Result item not found: " + resultItemId));
+        return new ItemStack(itemHolder.value(), resultCount);
     }
 
     // Getters for recipe parameters
