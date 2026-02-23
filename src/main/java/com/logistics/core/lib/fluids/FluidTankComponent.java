@@ -51,6 +51,7 @@ public abstract class FluidTankComponent extends SingleVariantStorage<FluidVaria
         return this;
     }
 
+    @Override
     public long getCapacity() {
         return capacity;
     }
