@@ -28,7 +28,7 @@ patches/
 patches.lzma
 META-INF/
 ats/
-config.json
+/config.json
 
 # MacOS
 .DS_Store
