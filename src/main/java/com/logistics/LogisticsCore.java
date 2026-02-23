@@ -217,7 +217,7 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
             props -> new Item(props));
         public static final Item VALVE_EMERALD = INSTANCE.registerItem("valve_emerald",
             props -> new Item(props));
-        public static final Item VALVE_APATINE = INSTANCE.registerItem("valve_apatine",
+        public static final Item VALVE_APATITE = INSTANCE.registerItem("valve_apatite",
             props -> new Item(props));
         public static final Item VALVE_LAPIS = INSTANCE.registerItem("valve_lapis",
             props -> new Item(props));
@@ -355,8 +355,8 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
             entries.addAfter(ITEM.VALVE_DIAMOND, ITEM.VALVE_OBSIDIAN);
             entries.addAfter(ITEM.VALVE_OBSIDIAN, ITEM.VALVE_BLAZING);
             entries.addAfter(ITEM.VALVE_BLAZING, ITEM.VALVE_EMERALD);
-            entries.addAfter(ITEM.VALVE_EMERALD, ITEM.VALVE_APATINE);
-            entries.addAfter(ITEM.VALVE_APATINE, ITEM.VALVE_LAPIS);
+            entries.addAfter(ITEM.VALVE_EMERALD, ITEM.VALVE_APATITE);
+            entries.addAfter(ITEM.VALVE_APATITE, ITEM.VALVE_LAPIS);
             entries.addAfter(ITEM.VALVE_LAPIS, ITEM.VALVE_ENDER);
             entries.addAfter(ITEM.VALVE_ENDER, ITEM.VALVE_NETHERITE);
         });

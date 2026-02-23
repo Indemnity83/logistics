@@ -1,6 +1,6 @@
 {
   "parent": "item/generated",
   "textures": {
-    "layer0": "logistics:item/core/apatine_valve"
+    "layer0": "logistics:item/core/apatite_valve"
   }
 }
