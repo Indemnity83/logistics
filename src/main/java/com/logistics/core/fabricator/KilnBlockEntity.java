@@ -480,15 +480,15 @@ public class KilnBlockEntity extends BaseBlockEntity
         glassTank.readNbt(tag, "GlassTank");
 
         heat = NbtCompat.getInt(tag, "Heat", 0);
-        heatFrac = tag.getDouble("HeatFrac").orElse(0.0);
+        heatFrac = NbtCompat.getDouble(tag, "HeatFrac", 0.0);
         burnTicksRemaining = NbtCompat.getInt(tag, "BurnTicksRemaining", 0);
         burnTicksTotal = NbtCompat.getInt(tag, "BurnTicksTotal", 0);
-        activeHeatPerTick = tag.getDouble("ActiveHeatPerTick").orElse(0.0);
+        activeHeatPerTick = NbtCompat.getDouble(tag, "ActiveHeatPerTick", 0.0);
         activeFuelMaxHeat = NbtCompat.getInt(tag, "ActiveFuelMaxHeat", 0);
         glassMeltProgress = NbtCompat.getInt(tag, "GlassMeltProgress", 0);
-        meltHeatDebtFrac = tag.getDouble("MeltHeatDebtFrac").orElse(0.0);
+        meltHeatDebtFrac = NbtCompat.getDouble(tag, "MeltHeatDebtFrac", 0.0);
         annealProgressTicks = NbtCompat.getInt(tag, "AnnealProgressTicks", 0);
-        heatDebtFrac = tag.getDouble("HeatDebtFrac").orElse(0.0);
+        heatDebtFrac = NbtCompat.getDouble(tag, "HeatDebtFrac", 0.0);
 
         if (tag.contains("ActiveRecipeId")) {
             tag.getString("ActiveRecipeId").ifPresent(s -> activeRecipeId = Identifier.parse(s));
