@@ -389,6 +389,14 @@ public class KilnBlockEntity extends BaseBlockEntity
     }
 
     private void completeCraft(KilnRecipe recipe) {
+        if (glassTank.amount < recipe.getMoltenCost()) {
+            // Insufficient glass - abort craft and reset state
+            activeRecipeId = null;
+            annealProgressTicks = 0;
+            heatDebtFrac = 0.0;
+            return;
+        }
+
         // Consume inputs
         recipe.consumeIngredients(inventory, GRID_START_SLOT);
 
@@ -438,7 +446,9 @@ public class KilnBlockEntity extends BaseBlockEntity
 
     @Override
     public Storage<FluidVariant> fluidStorage(@Nullable Direction side) {
-        return glassTank.storage();
+        // Molten glass is internal-only - cannot be extracted or inserted from outside
+        // (conceptually, molten glass wouldn't stay hot outside the kiln)
+        return null;
     }
 
     // ==================== NBT Persistence ====================
