@@ -627,7 +627,7 @@ public class KilnBlockEntity extends BaseBlockEntity
                     case 4 -> {
                         // Calculate anneal progress as percentage (0-100)
                         KilnRecipe recipe = getRecipeById(activeRecipeId);
-                        if (recipe == null || annealProgressTicks == 0) {
+                        if (recipe == null || annealProgressTicks == 0 || recipe.getProcessTimeTicks() <= 0) {
                             yield 0;
                         }
                         yield Math.min(100, (100 * annealProgressTicks) / recipe.getProcessTimeTicks());
