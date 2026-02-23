@@ -1,20 +1,22 @@
 package com.logistics.core.lib.power;
 
 import com.logistics.core.lib.BaseBlockEntity;
-import com.logistics.core.lib.block.behavior.HeatBehavior;
 import com.logistics.core.lib.block.capability.HasEnergyStorage;
-import com.logistics.core.lib.heat.HeatComponent;
-import com.logistics.core.lib.heat.HeatStage;
 import com.logistics.core.lib.storage.NbtCompat;
 import com.logistics.core.lib.support.ProbeResult;
+import java.util.Locale;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
 import org.jetbrains.annotations.Nullable;
 import team.reborn.energy.api.EnergyStorage;
 import team.reborn.energy.api.EnergyStorageUtil;
@@ -43,6 +45,31 @@ import team.reborn.energy.api.base.SimpleSidedEnergyContainer;
  */
 public abstract class AbstractEngineBlockEntity extends BaseBlockEntity implements HasEnergyStorage {
 
+    // ==================== Heat Stage Enum ====================
+
+    /** Represents the heat stages of an engine. */
+    public enum HeatStage implements StringRepresentable {
+        COLD,
+        COOL,
+        WARM,
+        HOT,
+        OVERHEAT;
+
+        private static final HeatStage[] VALUES = values();
+
+        @Override
+        public String getSerializedName() {
+            return name().toLowerCase(Locale.ROOT);
+        }
+
+        public static HeatStage fromOrdinal(int ordinal) {
+            return (ordinal >= 0 && ordinal < VALUES.length) ? VALUES[ordinal] : COLD;
+        }
+    }
+
+    /** Block state property for engine heat stage. */
+    public static final EnumProperty<HeatStage> STAGE = EnumProperty.create("stage", HeatStage.class);
+
     /** Client-side callback for cleanup when an engine is removed. Set by client bootstrap. */
     private static java.util.function.Consumer<BlockPos> onRemovedCallback;
 
@@ -59,10 +86,8 @@ public abstract class AbstractEngineBlockEntity extends BaseBlockEntity implemen
         }
     }
 
-    // Heat system
-    protected final HeatComponent heat;
-
     // State tracking
+    protected double temperature = 0;
     protected float progress = 0;
     protected CyclePhase cyclePhase = CyclePhase.IDLE;
     protected HeatStage heatStage = HeatStage.COLD;
@@ -93,8 +118,6 @@ public abstract class AbstractEngineBlockEntity extends BaseBlockEntity implemen
 
     protected AbstractEngineBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
-        this.heat = new HeatComponent(getMaxTemperature(), getTemperatureFloor(), this::setChanged);
-        this.heat.setTemperatureCalculator(() -> (getMaxTemperature() - getTemperatureFloor()) * getEnergyLevel() + getTemperatureFloor());
     }
 
     // ==================== HasEnergyStorage ====================
@@ -187,7 +210,7 @@ public abstract class AbstractEngineBlockEntity extends BaseBlockEntity implemen
             return;
         }
 
-        heat.computeTemperature();
+        computeTemperature();
 
         if (isOverheated()) {
             tickOverheat();
@@ -233,43 +256,63 @@ public abstract class AbstractEngineBlockEntity extends BaseBlockEntity implemen
         energyStorage.amount = Math.max(energyStorage.amount - 50, 0);
         setChanged();
 
-        if (level instanceof ServerLevel serverLevel) {
-            HeatBehavior.spawnHeatParticles(serverLevel, getBlockPos(), HeatStage.OVERHEAT);
+        if (level instanceof ServerLevel serverLevel && level.getRandom().nextInt(4) == 0) {
+            double x = getBlockPos().getX() + 0.5 + (level.getRandom().nextDouble() - 0.5) * 0.5;
+            double y = getBlockPos().getY() + 1.0;
+            double z = getBlockPos().getZ() + 0.5 + (level.getRandom().nextDouble() - 0.5) * 0.5;
+            serverLevel.sendParticles(ParticleTypes.LARGE_SMOKE, x, y, z, 1, 0, 0.05, 0, 0.01);
         }
     }
 
     /** Syncs engine stage to block state if changed. */
     private void syncStage() {
         HeatStage newStage = computeStage();
-        HeatStage previousStage = heatStage;
 
         if (newStage != heatStage) {
             heatStage = newStage;
-            HeatBehavior.syncStageToBlock(level, getBlockPos(), newStage, previousStage);
+            syncStageToBlock();
         }
 
-        if (canOverheat() && newStage == HeatStage.HOT && level instanceof ServerLevel serverLevel) {
-            HeatBehavior.spawnHeatParticles(serverLevel, getBlockPos(), HeatStage.HOT);
+        if (canOverheat()
+                && newStage == HeatStage.HOT
+                && level instanceof ServerLevel serverLevel
+                && level.getRandom().nextInt(4) == 0) {
+            double x = getBlockPos().getX() + 0.5 + (level.getRandom().nextDouble() - 0.5) * 0.5;
+            double y = getBlockPos().getY() + 1.0;
+            double z = getBlockPos().getZ() + 0.5 + (level.getRandom().nextDouble() - 0.5) * 0.5;
+            serverLevel.sendParticles(ParticleTypes.SMOKE, x, y, z, 1, 0, 0.05, 0, 0.01);
         }
+    }
+
+    private void syncStageToBlock() {
+        if (level == null) return;
+        BlockState newState = getBlockState().setValue(STAGE, heatStage);
+        level.setBlock(getBlockPos(), newState, Block.UPDATE_ALL);
     }
 
     // ==================== Heat System ====================
 
+    /** Computes temperature from energy level. Hotter when buffer is fuller. */
+    protected void computeTemperature() {
+        temperature = (getMaxTemperature() - getTemperatureFloor()) * getEnergyLevel() + getTemperatureFloor();
+    }
+
     /** Computes the engine stage based on current heat level. */
     protected HeatStage computeStage() {
-        HeatStage stage = heat.computeStage(canOverheat());
+        double heatLevelRatio = getHeatLevel();
 
-        // Special visual cue for non-overheating engines: flash WARM during compression
-        if (!canOverheat() && stage == HeatStage.HOT && cyclePhase == CyclePhase.COMPRESSION) {
-            return HeatStage.WARM;
-        }
+        if (heatLevelRatio < 0.25) return HeatStage.COLD;
+        if (heatLevelRatio < 0.50) return HeatStage.COOL;
+        if (heatLevelRatio < 0.75) return HeatStage.WARM;
+        if (heatLevelRatio >= 1.0 && canOverheat()) return HeatStage.OVERHEAT;
 
-        return stage;
+        // HOT is the max stage for non-overheating engines; flash WARM during compression as a visual cue
+        return !canOverheat() && cyclePhase == CyclePhase.COMPRESSION ? HeatStage.WARM : HeatStage.HOT;
     }
 
     /** Compute the piston speed based on current heat level. */
     public float getPistonSpeed() {
-        double heatLevel = heat.getHeatLevel();
+        double heatLevel = getHeatLevel();
         if (heatLevel < 0.25) return 0.01f;
         if (heatLevel < 0.50) return 0.02f;
         if (heatLevel < 0.75) return 0.04f;
@@ -360,10 +403,9 @@ public abstract class AbstractEngineBlockEntity extends BaseBlockEntity implemen
             return false;
         }
         energyStorage.amount = 0;
-        heat.resetToFloor();
-        HeatStage previousStage = heatStage;
+        temperature = getTemperatureFloor();
         heatStage = HeatStage.COLD;
-        HeatBehavior.syncStageToBlock(level, getBlockPos(), HeatStage.COLD, previousStage);
+        syncStageToBlock();
         setChanged();
         return true;
     }
@@ -379,7 +421,7 @@ public abstract class AbstractEngineBlockEntity extends BaseBlockEntity implemen
     }
 
     public double getTemperature() {
-        return heat.getTemperature();
+        return temperature;
     }
 
     public long getEnergy() {
@@ -398,7 +440,11 @@ public abstract class AbstractEngineBlockEntity extends BaseBlockEntity implemen
 
     /** Gets the heat level as a ratio from 0.0 to 1.0. */
     public double getHeatLevel() {
-        return heat.getHeatLevel();
+        double maxTemp = getMaxTemperature();
+        if (maxTemp <= 0) {
+            return 0.0;
+        }
+        return temperature / maxTemp;
     }
 
     /** Gets the energy level as a ratio from 0.0 to 1.0. */
@@ -482,7 +528,7 @@ public abstract class AbstractEngineBlockEntity extends BaseBlockEntity implemen
     @Override
     protected void saveLogisticsData(CompoundTag engineData) {
         engineData.putLong("StoredEnergy", energyStorage.amount);
-        heat.writeNbt(engineData);
+        engineData.putDouble("Temperature", temperature);
         engineData.putFloat("CycleProgress", progress);
         engineData.putInt("CyclePhase", cyclePhase.ordinal());
         engineData.putInt("HeatStage", heatStage.ordinal());
@@ -491,7 +537,7 @@ public abstract class AbstractEngineBlockEntity extends BaseBlockEntity implemen
     @Override
     protected void loadLogisticsData(CompoundTag engineData) {
         energyStorage.amount = NbtCompat.getLong(engineData, "StoredEnergy", 0L);
-        heat.readNbt(engineData);
+        temperature = NbtCompat.getDouble(engineData, "Temperature", 0.0);
         progress = NbtCompat.getFloat(engineData, "CycleProgress", 0f);
         cyclePhase = CyclePhase.fromOrdinal(NbtCompat.getInt(engineData, "CyclePhase", 0));
         heatStage = HeatStage.fromOrdinal(NbtCompat.getInt(engineData, "HeatStage", 0));
@@ -502,14 +548,7 @@ public abstract class AbstractEngineBlockEntity extends BaseBlockEntity implemen
         view.read("Engine", CompoundTag.CODEC).ifPresent(engineData -> {
             // Load old key names (before BaseBlockEntity refactoring)
             energyStorage.amount = NbtCompat.getLong(engineData, "energy", 0L);
-
-            // Migrate legacy "heat" key to "Temperature" for HeatComponent
-            if (engineData.contains("heat")) {
-                double legacyHeat = NbtCompat.getDouble(engineData, "heat", heat.getTemperatureFloor());
-                engineData.putDouble("Temperature", legacyHeat);
-            }
-            heat.readNbt(engineData);
-
+            temperature = NbtCompat.getDouble(engineData, "heat", 0.0);
             progress = NbtCompat.getFloat(engineData, "progress", 0f);
             cyclePhase = CyclePhase.fromOrdinal(NbtCompat.getInt(engineData, "cyclePhase", 0));
             heatStage = HeatStage.fromOrdinal(NbtCompat.getInt(engineData, "stage", 0));

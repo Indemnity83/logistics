@@ -100,7 +100,7 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
             return switch (index) {
                 case PROPERTY_BURN_TIME -> burnTime;
                 case PROPERTY_FUEL_TIME -> fuelTime;
-                case PROPERTY_HEAT -> (int) heat.getTemperature();
+                case PROPERTY_HEAT -> (int) getTemperature();
                 case PROPERTY_ENERGY -> (int) (getEnergy() / 100);
                 case PROPERTY_GENERATION -> (int) (currentGeneration * 100);
                 default -> 0;
@@ -185,7 +185,7 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
 
     @Override
     protected long getOutputPower() {
-        double temp = heat.getTemperature();
+        double temp = getTemperature();
         double tempRatio =
                 Math.min(1.0, (temp - getTemperatureFloor()) / (TARGET_TEMPERATURE - getTemperatureFloor()));
         double output = MIN_GENERATION + tempRatio * (MAX_GENERATION - MIN_GENERATION);
@@ -272,7 +272,7 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
     }
 
     private void generateWithCarry() {
-        double temp = heat.getTemperature();
+        double temp = getTemperature();
         currentGeneration = pidController.compute(TARGET_TEMPERATURE, temp, MIN_GENERATION, MAX_GENERATION);
         generationCarry += currentGeneration;
 

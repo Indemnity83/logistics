@@ -1,7 +1,6 @@
 package com.logistics;
 
 import com.logistics.core.bootstrap.DomainBootstrap;
-import com.logistics.core.lib.block.behavior.HeatBehavior;
 import com.logistics.core.lib.power.AbstractEngineBlockEntity;
 import com.logistics.core.render.ModelKeyRegistry;
 import com.logistics.power.render.EngineBlockEntityRenderer;
@@ -95,7 +94,7 @@ public final class LogisticsPowerClient implements DomainBootstrap {
                 return 0xFFFFFF;
             }
 
-            return switch (state.getValue(HeatBehavior.STAGE)) {
+            return switch (state.getValue(AbstractEngineBlockEntity.STAGE)) {
                 case COLD -> 0x3366CC;
                 case COOL -> 0x33CC33;
                 case WARM -> 0xCCCC33;
