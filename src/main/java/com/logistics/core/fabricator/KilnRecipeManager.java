@@ -30,7 +30,7 @@ import java.util.concurrent.Executor;
 
 /**
  * Custom recipe manager for kiln recipes.
- * Loads recipes from data/<namespace>/recipe/kiln/*.json
+ * Loads recipes from data/<namespace>/recipes/kiln/*.json
  */
 public class KilnRecipeManager {
     private static final Logger LOGGER = LoggerFactory.getLogger("Logistics/KilnRecipes");
