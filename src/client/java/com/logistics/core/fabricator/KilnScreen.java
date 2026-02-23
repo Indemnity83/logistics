@@ -55,7 +55,7 @@ public class KilnScreen extends AbstractContainerScreen<KilnScreenHandler> {
         int burnProgress = menu.getBurnProgress();
         if (burnProgress > 0) {
             int flameHeight = 13;
-            int pixelsToShow = burnProgress;
+            int pixelsToShow = Math.min(burnProgress, flameHeight); // Clamp to max height
             int yOffset = flameHeight - pixelsToShow;
             graphics.blitSprite(
                 RenderPipelines.GUI_TEXTURED,
