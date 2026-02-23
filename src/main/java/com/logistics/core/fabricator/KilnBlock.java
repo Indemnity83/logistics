@@ -1,5 +1,6 @@
 package com.logistics.core.fabricator;
 
+import com.logistics.LogisticsCore;
 import com.logistics.core.lib.block.MachineBlock;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
@@ -62,10 +63,6 @@ public class KilnBlock extends MachineBlock {
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
-        return level.isClientSide() ? null : (lvl, pos, st, be) -> {
-            if (be instanceof KilnBlockEntity kiln) {
-                KilnBlockEntity.tick(lvl, pos, st, kiln);
-            }
-        };
+        return level.isClientSide() ? null : createTickerHelper(type, LogisticsCore.ENTITY.KILN, KilnBlockEntity::tick);
     }
 }
