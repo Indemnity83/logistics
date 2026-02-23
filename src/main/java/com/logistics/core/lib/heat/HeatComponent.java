@@ -17,7 +17,7 @@ import net.minecraft.nbt.CompoundTag;
  * HeatComponent heat = new HeatComponent(10000, 20, this::setChanged);
  * heat.setTemperatureCalculator(() -> operationState ? 5000 : 20);
  * heat.computeTemperature();
- * HeatStage stage = heat.computeStage();
+ * HeatStage stage = heat.computeStage(true); // true = machine can overheat
  * }</pre>
  */
 public class HeatComponent {
