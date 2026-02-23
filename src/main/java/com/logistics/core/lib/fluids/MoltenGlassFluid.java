@@ -21,7 +21,7 @@ import org.jetbrains.annotations.Nullable;
  * A hot, glowing orange liquid created by melting glass/sand.
  *
  * <p>This is a tank-only fluid that doesn't flow in the world.
- * Used only in machine tanks for crafting electron tubes.
+ * Used only in machine tanks for crafting valves.
  */
 public abstract class MoltenGlassFluid extends FlowingFluid {
 
