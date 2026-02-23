@@ -502,7 +502,14 @@ public abstract class AbstractEngineBlockEntity extends BaseBlockEntity implemen
         view.read("Engine", CompoundTag.CODEC).ifPresent(engineData -> {
             // Load old key names (before BaseBlockEntity refactoring)
             energyStorage.amount = NbtCompat.getLong(engineData, "energy", 0L);
-            heat.readNbt(engineData); // Uses new key "Temperature" but also handles legacy "heat"
+
+            // Migrate legacy "heat" key to "Temperature" for HeatComponent
+            if (engineData.contains("heat")) {
+                double legacyHeat = NbtCompat.getDouble(engineData, "heat", heat.getTemperatureFloor());
+                engineData.putDouble("Temperature", legacyHeat);
+            }
+            heat.readNbt(engineData);
+
             progress = NbtCompat.getFloat(engineData, "progress", 0f);
             cyclePhase = CyclePhase.fromOrdinal(NbtCompat.getInt(engineData, "cyclePhase", 0));
             heatStage = HeatStage.fromOrdinal(NbtCompat.getInt(engineData, "stage", 0));

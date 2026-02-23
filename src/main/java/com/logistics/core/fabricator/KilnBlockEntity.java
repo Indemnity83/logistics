@@ -266,7 +266,7 @@ public class KilnBlockEntity extends BaseBlockEntity
 
         // Complete melt operation
         if (glassMeltProgress >= MELT_INTERVAL_TICKS) {
-            if (heat >= MELT_MIN_HEAT && glassTank.amount + mbYield <= GLASS_TANK_CAPACITY) {
+            if (glassTank.amount + mbYield <= GLASS_TANK_CAPACITY) {
                 // Apply any remaining fractional heat cost
                 int remainingHeat = (int) Math.ceil(meltHeatDebtFrac);
                 heat = Math.max(0, heat - remainingHeat);

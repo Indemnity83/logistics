@@ -12,9 +12,9 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.material.FlowingFluid;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * Molten glass fluid for Kiln.
@@ -56,8 +56,8 @@ public abstract class MoltenGlassFluid extends FlowingFluid {
     }
 
     @Override
-    public @Nullable Item getBucket() {
-        return null; // No bucket
+    public Item getBucket() {
+        return Items.AIR; // No bucket
     }
 
     @Override
