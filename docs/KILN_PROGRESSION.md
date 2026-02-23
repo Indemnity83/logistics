@@ -35,7 +35,7 @@ burnCap = clamp(burnCap, BURN_CAP_MIN, BURN_CAP_MAX)
 ```
 
 Where:
-- `BURN_CAP_REFERENCE_RATE` = 80 (coal baseline)
+- `BURN_CAP_REFERENCE_RATE` = 20 (coal baseline)
 - `BURN_CAP_REFERENCE_ITEM_TIME` = 1600 (coal burn time)
 - `BURN_CAP_EXPONENT` = 0.5 (square root scaling)
 - `BURN_CAP_MIN` = 5, `BURN_CAP_MAX` = 320
@@ -50,9 +50,9 @@ At 1500°C with ~5 energy/tick thermal decay (BURN_CAP_REFERENCE_RATE = 20):
 | Wood Plank | 300 | 8.7 | 8.7 | **~4 energy/tick** |
 | Coal | 1600 | 20 | 20 | **~15 energy/tick** |
 | Blaze Rod | 2400 | 24.5 | 24.5 | ~20 energy/tick |
-| Lava Bucket | 20000 | 80* | 80 | **~75 energy/tick** |
+| Lava Bucket | 20000 | 70.7 | 70.7 | **~66 energy/tick** |
 
-*Capped at BURN_CAP_MIN (5) or BURN_CAP_MAX (320 → scaled to 80)
+*Stick is capped at BURN_CAP_MIN (5)
 
 **Net Available** = Max Input - Thermal Decay (available for recipe work)
 
