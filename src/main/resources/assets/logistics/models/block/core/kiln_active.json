@@ -1,6 +1,6 @@
 {
   "parent": "logistics:block/core/kiln",
   "textures": {
-    "north": "logistics:block/core/kiln_front_active"
+    "south": "logistics:block/core/kiln_front_active"
   }
 }

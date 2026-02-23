@@ -2,7 +2,7 @@
   "parent": "minecraft:block/cube",
   "display": {
     "gui": {
-      "rotation": [30, 225, 0],
+      "rotation": [30, 45, 0],
       "translation": [0, 0, 0],
       "scale": [0.625, 0.625, 0.625]
     },
@@ -36,8 +36,8 @@
     "particle": "logistics:block/core/kiln_side",
     "down": "logistics:block/core/kiln_bottom",
     "up": "logistics:block/core/kiln_top",
-    "north": "logistics:block/core/kiln_front",
-    "south": "logistics:block/core/kiln_side",
+    "north": "logistics:block/core/kiln_side",
+    "south": "logistics:block/core/kiln_front",
     "east": "logistics:block/core/kiln_side",
     "west": "logistics:block/core/kiln_side"
   }
