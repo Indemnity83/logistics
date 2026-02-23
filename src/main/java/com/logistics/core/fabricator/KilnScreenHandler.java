@@ -31,17 +31,14 @@ public class KilnScreenHandler extends AbstractContainerMenu {
     private final Container inventory;
     private final ContainerData data;
 
-    // Data indices for syncing
-    private static final int HEAT = 0;
-    private static final int BURN_TICKS_REMAINING = 1;
-    private static final int BURN_TICKS_TOTAL = 2;
-    private static final int ACTIVE_HEAT_PER_TICK = 3;
-    private static final int ACTIVE_FUEL_MAX_HEAT = 4;
-    private static final int GLASS_AMOUNT_LOW = 5;
-    private static final int GLASS_AMOUNT_HIGH = 6;
-    private static final int MELT_PROGRESS = 7;
-    private static final int ANNEAL_PROGRESS = 8;
-    private static final int DATA_COUNT = 9;
+    // Data indices for syncing (updated for energy-based system)
+    private static final int TEMPERATURE = 0;
+    private static final int GLASS_AMOUNT_LOW = 1;
+    private static final int GLASS_AMOUNT_HIGH = 2;
+    private static final int MELT_PROGRESS = 3;
+    private static final int ANNEAL_PROGRESS = 4;
+    private static final int BURNING_FLAG = 5;
+    private static final int DATA_COUNT = 6;
 
     /**
      * Client-side constructor.
@@ -171,24 +168,12 @@ public class KilnScreenHandler extends AbstractContainerMenu {
 
     // Getters for GUI rendering
 
-    public int getHeat() {
-        return this.data.get(HEAT);
+    public int getTemperature() {
+        return this.data.get(TEMPERATURE);
     }
 
-    public int getBurnTicksRemaining() {
-        return this.data.get(BURN_TICKS_REMAINING);
-    }
-
-    public int getBurnTicksTotal() {
-        return this.data.get(BURN_TICKS_TOTAL);
-    }
-
-    public double getActiveHeatPerTick() {
-        return this.data.get(ACTIVE_HEAT_PER_TICK) / 10.0;
-    }
-
-    public int getActiveFuelMaxHeat() {
-        return this.data.get(ACTIVE_FUEL_MAX_HEAT);
+    public boolean isBurning() {
+        return this.data.get(BURNING_FLAG) > 0;
     }
 
     public int getMeltProgress() {
@@ -197,12 +182,6 @@ public class KilnScreenHandler extends AbstractContainerMenu {
 
     public int getAnnealProgress() {
         return this.data.get(ANNEAL_PROGRESS);
-    }
-
-    public int getBurnProgress() {
-        int burnTime = this.data.get(BURN_TICKS_REMAINING);
-        int fuelTime = this.data.get(BURN_TICKS_TOTAL);
-        return fuelTime > 0 ? burnTime * 13 / fuelTime : 0;
     }
 
     public long getGlassAmount() {

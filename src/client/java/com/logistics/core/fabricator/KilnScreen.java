@@ -51,23 +51,20 @@ public class KilnScreen extends AbstractContainerScreen<KilnScreenHandler> {
             TEXTURE_WIDTH,
             TEXTURE_HEIGHT);
 
-        // Render fuel burn progress (flame icon) using vanilla sprite
-        int burnProgress = menu.getBurnProgress();
-        if (burnProgress > 0) {
-            int flameHeight = 13;
-            int pixelsToShow = Math.min(burnProgress, flameHeight); // Clamp to max height
-            int yOffset = flameHeight - pixelsToShow;
+        // Render fuel burn indicator (full flame when burning, simplified from progress bar)
+        if (menu.isBurning()) {
+            // Render at same position as old code when fully lit (topPos + 49 - 13)
             graphics.blitSprite(
                 RenderPipelines.GUI_TEXTURED,
                 LIT_PROGRESS_SPRITE,
                 14,
                 14,
                 0,
-                yOffset,
+                0,
                 leftPos + 19,
-                topPos + 49 - pixelsToShow,
+                topPos + 36,
                 14,
-                pixelsToShow);
+                13);
         }
 
         // Render glass tank level (2000 mB = 2 buckets)
@@ -138,16 +135,16 @@ public class KilnScreen extends AbstractContainerScreen<KilnScreenHandler> {
         // Render temperature gauge with sliding window
         // Display box: x=16-37 (21px wide), y=18-28 (10px tall)
         // Source strip: x=0-244 (244px wide), y=174-184 (10px tall)
-        int heat = menu.getHeat();
+        int temperature = menu.getTemperature();
 
         // Calculate window position in the strip
-        // At heat=0, window left edge at x=0
-        // At heat=2000, window right edge at x=244 (left edge at x=223)
+        // At temp=0, window left edge at x=0
+        // At temp=2000, window right edge at x=244 (left edge at x=223)
         int stripWidth = 244;
         int windowWidth = 21;
         int maxWindowLeft = stripWidth - windowWidth; // 223
 
-        int windowLeft = (int) (maxWindowLeft * Math.min(heat, 2000) / 2000.0);
+        int windowLeft = (int) (maxWindowLeft * Math.min(temperature, 2000) / 2000.0);
 
         // Render the window portion of the strip
         graphics.blit(

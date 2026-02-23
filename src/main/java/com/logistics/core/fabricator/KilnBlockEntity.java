@@ -10,6 +10,7 @@ import com.logistics.core.lib.fluids.FluidTankComponent;
 import com.logistics.core.lib.fluids.ModFluids;
 import com.logistics.core.lib.items.ItemInventoryComponent;
 import com.logistics.core.lib.storage.NbtCompat;
+import com.logistics.power.engine.PIDController;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
@@ -41,7 +42,8 @@ import org.jetbrains.annotations.Nullable;
  *   <li>Fuel-powered: Burns coal, wood, etc. like a furnace</li>
  *   <li>Glass melting: Glass/sand/panes → molten glass (requires heat)</li>
  *   <li>Valve crafting: Pattern-based recipes using molten glass in a 3x3 grid (data-driven)</li>
- *   <li>Heat system: 20-10,000°C range, rises when burning fuel, decays when idle</li>
+ *   <li>Energy-based heat system: Internal energy buffer maps to temperature via exponential curve</li>
+ *   <li>PID-controlled fuel consumption: Variable burn rate maintains target temperature</li>
  * </ul>
  *
  * <p>Inventory layout (12 slots):
@@ -50,6 +52,15 @@ import org.jetbrains.annotations.Nullable;
  *   <li>Slot 1: Glass input (glass/sand/panes only)</li>
  *   <li>Slots 2-10: 3x3 crafting grid</li>
  *   <li>Slot 11: Output (valves)</li>
+ * </ul>
+ *
+ * <p>Heat system:
+ * <ul>
+ *   <li>Internal energy (E) accumulates from fuel consumption</li>
+ *   <li>Temperature derived via: T = TMAX * (1 - exp(-E / C))</li>
+ *   <li>PID controller adjusts throttle (0-1) to maintain operating setpoint</li>
+ *   <li>Burn rate: BASE * (throttle * fuelBurnCap) ticks/tick</li>
+ *   <li>Energy decay: E_loss = E / TAU per tick (replaces passive cooling)</li>
  * </ul>
  */
 public class KilnBlockEntity extends BaseBlockEntity
@@ -67,23 +78,10 @@ public class KilnBlockEntity extends BaseBlockEntity
     private static final long GLASS_TANK_CAPACITY = 2000L; // 2 buckets
 
     private static final int MELT_INTERVAL_TICKS = 40; // 2 seconds
-    private static final int MELT_MIN_HEAT = 600;
-    private static final int MELT_HEAT_COST = 1;
-
-    private static final double DEFAULT_HEAT_PER_TICK = 2.0;
 
     // Glass conversion rates (in millibuckets)
     private static final long GLASS_BLOCK_MB = 1000;
     private static final long GLASS_PANE_MB = 300;
-
-    // Heat buffer constants (kiln-specific integer heat system)
-    private static final int MAX_HEAT = 2000;
-    private static final int HEAT_COLD = 0;
-    private static final int HEAT_WARMING = 200;
-    private static final int HEAT_WORKING = 600;
-    private static final int HEAT_HOT = 1000;
-    private static final int HEAT_EXTREME = 1400;
-    private static final int HEAT_OVERFIRE = 1700;
 
     // ==================== Components ====================
 
@@ -92,24 +90,22 @@ public class KilnBlockEntity extends BaseBlockEntity
 
     // ==================== State ====================
 
-    // Heat buffer (0-2000) - kiln-specific integer heat system
-    private int heat = 0;
-    private double heatFrac = 0.0; // Fractional accumulator for heat generation
-
-    // Fuel state with pause mechanics
-    private int burnTicksRemaining = 0;
-    private int burnTicksTotal = 0;
-    private double activeHeatPerTick = 0.0;
-    private int activeFuelMaxHeat = 0;
+    // Energy-based heat system
+    private double energyE = 0.0;              // Internal energy buffer
+    private double temperature = 0.0;          // Derived from energy each tick
+    private double fuelEnergyTicks = 0.0;      // Fractional fuel buffer
+    private double activeFuelBurnCap = 0.0;    // Current fuel's burn cap (ticks/tick)
+    private final PIDController pidController; // PID for throttle control
+    private double currentThrottle = 0.0;      // Last computed throttle (for display/debug)
 
     // Melting and crafting progress
     private int glassMeltProgress = 0;
-    private double meltHeatDebtFrac = 0.0; // Fractional accumulator for distributed melt heat cost
+    private double meltEnergyDebtFrac = 0.0; // Fractional accumulator for distributed melt energy cost
 
-    // Recipe state (will be updated for JSON recipes)
+    // Recipe state
     private Identifier activeRecipeId = null;
     private int annealProgressTicks = 0;
-    private double heatDebtFrac = 0.0;
+    private double craftEnergyDebtFrac = 0.0;
 
     // ==================== Constructor ====================
 
@@ -118,6 +114,13 @@ public class KilnBlockEntity extends BaseBlockEntity
 
         // Initialize fluid tank (molten glass only)
         this.glassTank = new FluidTankComponent(GLASS_TANK_CAPACITY, this::setChanged) {};
+
+        // Initialize PID controller
+        this.pidController = new PIDController(
+            KilnConstants.PID_KP,
+            KilnConstants.PID_KI,
+            KilnConstants.PID_KD
+        );
     }
 
     // ==================== Ticker ====================
@@ -127,102 +130,145 @@ public class KilnBlockEntity extends BaseBlockEntity
             return;
         }
 
-        // Per spec tick order:
-        // 1. Passive cooling
-        entity.tickPassiveCooling();
+        // Energy-based PID heat system tick order:
+        // 1. Update temperature from energy
+        entity.updateTemperature();
 
-        // 2. Fuel burn tick (with pause mechanic)
-        entity.tickFuelBurning();
+        // 2. PID-controlled fuel burn
+        entity.tickFuelSystem();
 
-        // 3. Melting
+        // 3. Apply energy decay (replaces passive cooling)
+        entity.applyEnergyDecay();
+
+        // 4. Glass melting (temp checks + energy work cost)
         entity.tickGlassMelting();
 
-        // 4. Annealing crafting
+        // 5. Recipe crafting (temp checks + energy work cost)
         entity.tickCrafting();
 
-        // 5. Sync to client
+        // 6. Sync to client
         entity.syncLitState();
         entity.setChanged();
     }
 
-    // ==================== Fuel System ====================
+    // ==================== Helper Methods ====================
 
-    private void tickFuelBurning() {
-        // Consume fuel if available and not currently burning (constant fire)
-        if (burnTicksRemaining <= 0 && !inventory.getItem(FUEL_SLOT).isEmpty()) {
-            refuel();
-        }
-
-        // Burn tick with pause mechanic (damps fire when at max heat)
-        if (burnTicksRemaining > 0) {
-            // Compute effective max heat (for future upgrades)
-            int effectiveMaxHeat = Math.min(MAX_HEAT, activeFuelMaxHeat); // + bonusFromUpgrades
-
-            // Accumulate heat
-            heatFrac += activeHeatPerTick;
-            int deltaHeat = (int) Math.floor(heatFrac);
-
-            if (deltaHeat > 0) {
-                if (heat + deltaHeat <= effectiveMaxHeat) {
-                    // Add heat and consume fuel
-                    heat += deltaHeat;
-                    heatFrac -= deltaHeat;
-                    burnTicksRemaining--;
-                } else {
-                    // Fuel pauses - no heat added, no burn consumed (damping)
-                    // Clamp accumulator to prevent large debt
-                    heatFrac = Math.min(heatFrac, activeHeatPerTick * 2);
-                }
-            }
-        }
+    /**
+     * Updates temperature from current energy using exponential mapping.
+     * T = TMAX * (1 - exp(-E / C))
+     */
+    private void updateTemperature() {
+        temperature = KilnConstants.TMAX * (1.0 - Math.exp(-energyE / KilnConstants.THERMAL_MASS_C));
     }
 
-    private void refuel() {
+    /**
+     * Derives burn cap for a given fuel burn time.
+     * cap = REFERENCE_RATE * (burnTime / REFERENCE_TIME) ^ EXPONENT
+     * Clamped to [BURN_CAP_MIN, BURN_CAP_MAX]
+     */
+    private double deriveBurnCap(int burnTimeTicks) {
+        double ratio = burnTimeTicks / KilnConstants.BURN_CAP_REFERENCE_ITEM_TIME;
+        double cap = KilnConstants.BURN_CAP_REFERENCE_RATE * Math.pow(ratio, KilnConstants.BURN_CAP_EXPONENT);
+        return Math.max(KilnConstants.BURN_CAP_MIN, Math.min(cap, KilnConstants.BURN_CAP_MAX));
+    }
+
+    /**
+     * Computes throttle using PID controller with optional startup kick.
+     * Startup kick provides aggressive warmup when below 80% of setpoint.
+     */
+    private double computeThrottle() {
+        double pidThrottle = pidController.compute(
+            KilnConstants.OPERATING_SETPOINT,
+            temperature,
+            0.0,
+            1.0
+        );
+
+        // Startup kick for aggressive warmup from cold
+        if (temperature < KilnConstants.OPERATING_SETPOINT * 0.8) {
+            double tempRatio = temperature / KilnConstants.OPERATING_SETPOINT;
+            double kick = Math.pow(1.0 - tempRatio, KilnConstants.KICK_EXPONENT);
+            double kickAmount = kick * (1.0 - KilnConstants.MIN_THROTTLE_KICK);
+            pidThrottle = Math.max(pidThrottle, KilnConstants.MIN_THROTTLE_KICK + kickAmount);
+        }
+
+        return Math.max(0.0, Math.min(1.0, pidThrottle));
+    }
+
+    /**
+     * Computes energy decay (loss) for this tick.
+     * loss = E / TAU_TICKS (exponential decay)
+     */
+    private double computeEnergyDecay() {
+        return energyE / KilnConstants.ENERGY_LOSS_TAU_TICKS;
+    }
+
+    // ==================== Fuel System ====================
+
+    /**
+     * PID-controlled fuel system.
+     * Loads fuel from slot when buffer empty, computes throttle, burns at variable rate.
+     */
+    private void tickFuelSystem() {
+        // Load fuel if buffer empty and fuel available
+        if (fuelEnergyTicks <= 0.0 && !inventory.getItem(FUEL_SLOT).isEmpty()) {
+            loadFuel();
+        }
+
+        // No fuel available - reset PID and idle
+        if (fuelEnergyTicks <= 0.0) {
+            pidController.reset();
+            currentThrottle = 0.0;
+            return;
+        }
+
+        // Compute PID throttle
+        currentThrottle = computeThrottle();
+
+        // Variable burn rate based on throttle and fuel burn cap
+        double burnRate = KilnConstants.BASE_BURN_RATE * (currentThrottle * activeFuelBurnCap);
+        double fuelConsumed = Math.min(burnRate, fuelEnergyTicks);
+        fuelEnergyTicks -= fuelConsumed;
+
+        // Add energy from burned fuel
+        energyE += fuelConsumed * KilnConstants.ENERGY_PER_FUEL_TICK;
+    }
+
+    /**
+     * Loads fuel from the fuel slot into the energy buffer.
+     * Derives burn cap from vanilla burn time and consumes the item.
+     */
+    private void loadFuel() {
         if (level == null) return;
 
         ItemStack fuel = inventory.getItem(FUEL_SLOT);
         int burnTicks = (int) level.fuelValues().burnDuration(fuel);
         if (burnTicks <= 0) return;
 
-        // Derive fuel properties
-        double heatPerTick = DEFAULT_HEAT_PER_TICK;
-        int fuelMaxHeat = deriveFuelMaxHeat(burnTicks);
+        // Derive burn cap from fuel type
+        activeFuelBurnCap = deriveBurnCap(burnTicks);
+        fuelEnergyTicks = burnTicks;
 
-        // Override table (for future special fuels)
-        // Currently empty
-
-        // Consume fuel
+        // Consume fuel item
         if (fuel.is(Items.LAVA_BUCKET)) {
             inventory.setItem(FUEL_SLOT, new ItemStack(Items.BUCKET));
         } else {
             fuel.shrink(1);
         }
 
-        // Set burn state
-        burnTicksRemaining = burnTicks;
-        burnTicksTotal = burnTicks;
-        activeHeatPerTick = heatPerTick;
-        activeFuelMaxHeat = fuelMaxHeat;
-        heatFrac = 0.0;
-
         setChanged();
     }
 
-    private int deriveFuelMaxHeat(int burnTicks) {
-        if (burnTicks < 200) return 700;
-        if (burnTicks < 400) return 900;
-        if (burnTicks < 800) return 1100;
-        if (burnTicks < 1600) return 1200;
-        if (burnTicks < 3200) return 1300;
-        return 1400;
-    }
+    // ==================== Energy Decay ====================
 
-    // ==================== Passive Cooling ====================
-
-    private void tickPassiveCooling() {
-        if (heat > 0) {
-            int passiveLoss = Math.max(1, heat / 500);
-            heat = Math.max(0, heat - passiveLoss);
+    /**
+     * Applies energy decay (replaces passive cooling).
+     * loss = E / TAU_TICKS per tick
+     */
+    private void applyEnergyDecay() {
+        if (energyE > 0.0) {
+            double loss = computeEnergyDecay();
+            energyE = Math.max(0.0, energyE - loss);
         }
     }
 
@@ -244,28 +290,29 @@ public class KilnBlockEntity extends BaseBlockEntity
             return;
         }
 
-        if (heat < MELT_MIN_HEAT) {
+        // Check temperature requirement
+        if (temperature < KilnConstants.GLASS_MELT_MIN_TEMP) {
             return; // Pause, don't reset
         }
 
         // Increment progress
         glassMeltProgress++;
 
-        // Distributed heat consumption: 0.5 heat per tick while melting
-        meltHeatDebtFrac += 0.5;
-        int heatToConsume = (int) Math.floor(meltHeatDebtFrac);
-        if (heatToConsume > 0) {
-            heat = Math.max(0, heat - heatToConsume);
-            meltHeatDebtFrac -= heatToConsume;
+        // Distributed energy consumption while melting
+        meltEnergyDebtFrac += KilnConstants.MELT_ENERGY_COST_PER_TICK;
+        double energyToConsume = Math.floor(meltEnergyDebtFrac);
+        if (energyToConsume > 0.0) {
+            energyE = Math.max(0.0, energyE - energyToConsume);
+            meltEnergyDebtFrac -= energyToConsume;
         }
 
         // Complete melt operation
         if (glassMeltProgress >= MELT_INTERVAL_TICKS) {
             if (glassTank.amount + mbYield <= GLASS_TANK_CAPACITY) {
-                // Apply any remaining fractional heat cost
-                int remainingHeat = (int) Math.ceil(meltHeatDebtFrac);
-                heat = Math.max(0, heat - remainingHeat);
-                meltHeatDebtFrac = 0.0;
+                // Apply any remaining fractional energy cost
+                double remainingEnergy = Math.ceil(meltEnergyDebtFrac);
+                energyE = Math.max(0.0, energyE - remainingEnergy);
+                meltEnergyDebtFrac = 0.0;
 
                 // Add molten glass
                 glassTank.variant = FluidVariant.of(ModFluids.MOLTEN_GLASS_STILL);
@@ -321,7 +368,7 @@ public class KilnBlockEntity extends BaseBlockEntity
         if (!recipe.matches(inventory, GRID_START_SLOT)) {
             activeRecipeId = null;
             annealProgressTicks = 0;
-            heatDebtFrac = 0.0;
+            craftEnergyDebtFrac = 0.0;
             return;
         }
 
@@ -334,13 +381,13 @@ public class KilnBlockEntity extends BaseBlockEntity
         // Progress annealing
         annealProgressTicks++;
 
-        // Distributed heat draw
-        double perTickHeat = (double) recipe.getHeatCost() / recipe.getSoakTicks();
-        heatDebtFrac += perTickHeat;
-        int heatToConsume = (int) Math.floor(heatDebtFrac);
-        if (heatToConsume > 0) {
-            heat = Math.max(0, heat - heatToConsume);
-            heatDebtFrac -= heatToConsume;
+        // Distributed energy draw (recipe heat cost now represents energy)
+        double perTickEnergy = (double) recipe.getHeatCost() / recipe.getSoakTicks();
+        craftEnergyDebtFrac += perTickEnergy;
+        double energyToConsume = Math.floor(craftEnergyDebtFrac);
+        if (energyToConsume > 0.0) {
+            energyE = Math.max(0.0, energyE - energyToConsume);
+            craftEnergyDebtFrac -= energyToConsume;
         }
 
         // Complete craft
@@ -362,12 +409,12 @@ public class KilnBlockEntity extends BaseBlockEntity
 
     private boolean canStartCraft(KilnRecipe recipe) {
         return glassTank.amount >= recipe.getMoltenCost()
-            && heat >= recipe.getRequiredHeat()
+            && temperature >= recipe.getRequiredHeat()
             && canAcceptOutput(recipe.getResultItem());
     }
 
     private boolean canContinueCraft(KilnRecipe recipe) {
-        return heat >= recipe.getRequiredHeat()
+        return temperature >= recipe.getRequiredHeat()
             && canAcceptOutput(recipe.getResultItem());
     }
 
@@ -385,7 +432,7 @@ public class KilnBlockEntity extends BaseBlockEntity
             // Insufficient glass - abort craft and reset state
             activeRecipeId = null;
             annealProgressTicks = 0;
-            heatDebtFrac = 0.0;
+            craftEnergyDebtFrac = 0.0;
             return;
         }
 
@@ -395,10 +442,10 @@ public class KilnBlockEntity extends BaseBlockEntity
         // Consume molten glass
         glassTank.amount -= recipe.getMoltenCost();
 
-        // Apply remaining heat cost
-        int remainingHeat = (int) Math.ceil(heatDebtFrac);
-        heat = Math.max(0, heat - remainingHeat);
-        heatDebtFrac = 0.0;
+        // Apply remaining energy cost
+        double remainingEnergy = Math.ceil(craftEnergyDebtFrac);
+        energyE = Math.max(0.0, energyE - remainingEnergy);
+        craftEnergyDebtFrac = 0.0;
 
         // Insert result
         insertOutput(recipe.getResultItem());
@@ -422,7 +469,7 @@ public class KilnBlockEntity extends BaseBlockEntity
 
         BlockState state = getBlockState();
         boolean wasLit = state.getValue(KilnBlock.LIT);
-        boolean isLit = burnTicksRemaining > 0;
+        boolean isLit = fuelEnergyTicks > 0.0;
 
         if (isLit != wasLit) {
             level.setBlock(getBlockPos(), state.setValue(KilnBlock.LIT, isLit), Block.UPDATE_ALL);
@@ -450,16 +497,19 @@ public class KilnBlockEntity extends BaseBlockEntity
         inventory.writeNbt(tag, "Inventory");
         glassTank.writeNbt(tag, "GlassTank");
 
-        tag.putInt("Heat", heat);
-        tag.putDouble("HeatFrac", heatFrac);
-        tag.putInt("BurnTicksRemaining", burnTicksRemaining);
-        tag.putInt("BurnTicksTotal", burnTicksTotal);
-        tag.putDouble("ActiveHeatPerTick", activeHeatPerTick);
-        tag.putInt("ActiveFuelMaxHeat", activeFuelMaxHeat);
+        // Energy-based heat system
+        tag.putDouble("EnergyE", energyE);
+        tag.putDouble("Temperature", temperature);
+        tag.putDouble("FuelEnergyTicks", fuelEnergyTicks);
+        tag.putDouble("ActiveFuelBurnCap", activeFuelBurnCap);
+        tag.putDouble("PIDIntegral", pidController.getIntegral());
+        tag.putDouble("CurrentThrottle", currentThrottle);
+
+        // Progress state
         tag.putInt("GlassMeltProgress", glassMeltProgress);
-        tag.putDouble("MeltHeatDebtFrac", meltHeatDebtFrac);
+        tag.putDouble("MeltEnergyDebtFrac", meltEnergyDebtFrac);
         tag.putInt("AnnealProgressTicks", annealProgressTicks);
-        tag.putDouble("HeatDebtFrac", heatDebtFrac);
+        tag.putDouble("CraftEnergyDebtFrac", craftEnergyDebtFrac);
 
         if (activeRecipeId != null) {
             tag.putString("ActiveRecipeId", activeRecipeId.toString());
@@ -471,42 +521,54 @@ public class KilnBlockEntity extends BaseBlockEntity
         inventory.readNbt(tag, "Inventory");
         glassTank.readNbt(tag, "GlassTank");
 
-        heat = NbtCompat.getInt(tag, "Heat", 0);
-        heatFrac = NbtCompat.getDouble(tag, "HeatFrac", 0.0);
-        burnTicksRemaining = NbtCompat.getInt(tag, "BurnTicksRemaining", 0);
-        burnTicksTotal = NbtCompat.getInt(tag, "BurnTicksTotal", 0);
-        activeHeatPerTick = NbtCompat.getDouble(tag, "ActiveHeatPerTick", 0.0);
-        activeFuelMaxHeat = NbtCompat.getInt(tag, "ActiveFuelMaxHeat", 0);
+        // Load new energy-based system
+        energyE = NbtCompat.getDouble(tag, "EnergyE", 0.0);
+        temperature = NbtCompat.getDouble(tag, "Temperature", 0.0);
+        fuelEnergyTicks = NbtCompat.getDouble(tag, "FuelEnergyTicks", 0.0);
+        activeFuelBurnCap = NbtCompat.getDouble(tag, "ActiveFuelBurnCap", 0.0);
+        pidController.setIntegral(NbtCompat.getDouble(tag, "PIDIntegral", 0.0));
+        currentThrottle = NbtCompat.getDouble(tag, "CurrentThrottle", 0.0);
+
         glassMeltProgress = NbtCompat.getInt(tag, "GlassMeltProgress", 0);
-        meltHeatDebtFrac = NbtCompat.getDouble(tag, "MeltHeatDebtFrac", 0.0);
+        meltEnergyDebtFrac = NbtCompat.getDouble(tag, "MeltEnergyDebtFrac", 0.0);
         annealProgressTicks = NbtCompat.getInt(tag, "AnnealProgressTicks", 0);
-        heatDebtFrac = NbtCompat.getDouble(tag, "HeatDebtFrac", 0.0);
+        craftEnergyDebtFrac = NbtCompat.getDouble(tag, "CraftEnergyDebtFrac", 0.0);
 
         if (tag.contains("ActiveRecipeId")) {
             tag.getString("ActiveRecipeId").ifPresent(s -> activeRecipeId = LogisticsMod.parseIdentifier(s));
+        }
+
+        // Migration: convert old heat system to energy if present
+        if (tag.contains("Heat") && !tag.contains("EnergyE")) {
+            int oldHeat = NbtCompat.getInt(tag, "Heat", 0);
+            if (oldHeat > 0) {
+                // Inverse of T = TMAX * (1 - exp(-E / C))
+                // E = -C * ln(1 - T / TMAX)
+                double targetTemp = Math.min(oldHeat, KilnConstants.TMAX - 1);
+                energyE = -KilnConstants.THERMAL_MASS_C * Math.log(1.0 - targetTemp / KilnConstants.TMAX);
+                temperature = targetTemp;
+            }
+        }
+
+        // Migrate old fuel buffer to new system
+        if (tag.contains("BurnTicksRemaining") && !tag.contains("FuelEnergyTicks")) {
+            int oldBurnTicks = NbtCompat.getInt(tag, "BurnTicksRemaining", 0);
+            if (oldBurnTicks > 0) {
+                fuelEnergyTicks = oldBurnTicks;
+                // Use default burn cap if no migration info available
+                activeFuelBurnCap = KilnConstants.BURN_CAP_REFERENCE_RATE;
+            }
         }
     }
 
     // ==================== Getters ====================
 
-    public int getHeat() {
-        return heat;
+    public double getTemperature() {
+        return temperature;
     }
 
-    public int getBurnTicksRemaining() {
-        return burnTicksRemaining;
-    }
-
-    public int getBurnTicksTotal() {
-        return burnTicksTotal;
-    }
-
-    public double getActiveHeatPerTick() {
-        return activeHeatPerTick;
-    }
-
-    public int getActiveFuelMaxHeat() {
-        return activeFuelMaxHeat;
+    public boolean isBurning() {
+        return fuelEnergyTicks > 0.0;
     }
 
     public int getGlassMeltProgress() {
@@ -523,6 +585,18 @@ public class KilnBlockEntity extends BaseBlockEntity
 
     public Container getInventory() {
         return inventory;
+    }
+
+    public double getCurrentThrottle() {
+        return currentThrottle;
+    }
+
+    public double getEnergyE() {
+        return energyE;
+    }
+
+    public double getFuelEnergyTicks() {
+        return fuelEnergyTicks;
     }
 
     // ==================== Menu / GUI ====================
@@ -547,15 +621,11 @@ public class KilnBlockEntity extends BaseBlockEntity
             @Override
             public int get(int index) {
                 return switch (index) {
-                    case 0 -> heat;
-                    case 1 -> burnTicksRemaining;
-                    case 2 -> burnTicksTotal;
-                    case 3 -> (int) (activeHeatPerTick * 10); // Encode as fixed-point
-                    case 4 -> activeFuelMaxHeat;
-                    case 5 -> (int) (glassTank.amount & 0xFFFFFFFF);
-                    case 6 -> (int) (glassTank.amount >> 32);
-                    case 7 -> glassMeltProgress;
-                    case 8 -> {
+                    case 0 -> (int) temperature; // Display temperature
+                    case 1 -> (int) (glassTank.amount & 0xFFFFFFFF); // Glass tank low bits
+                    case 2 -> (int) (glassTank.amount >> 32); // Glass tank high bits
+                    case 3 -> glassMeltProgress;
+                    case 4 -> {
                         // Calculate anneal progress as percentage (0-100)
                         KilnRecipe recipe = getRecipeById(activeRecipeId);
                         if (recipe == null || annealProgressTicks == 0) {
@@ -563,6 +633,7 @@ public class KilnBlockEntity extends BaseBlockEntity
                         }
                         yield Math.min(100, (100 * annealProgressTicks) / recipe.getSoakTicks());
                     }
+                    case 5 -> (fuelEnergyTicks > 0.0) ? 1 : 0; // Burning flag
                     default -> 0;
                 };
             }
@@ -570,21 +641,18 @@ public class KilnBlockEntity extends BaseBlockEntity
             @Override
             public void set(int index, int value) {
                 switch (index) {
-                    case 0 -> heat = value;
-                    case 1 -> burnTicksRemaining = value;
-                    case 2 -> burnTicksTotal = value;
-                    case 3 -> activeHeatPerTick = value / 10.0;
-                    case 4 -> activeFuelMaxHeat = value;
-                    case 5 -> glassTank.amount = (glassTank.amount & 0xFFFFFFFF00000000L) | (value & 0xFFFFFFFFL);
-                    case 6 -> glassTank.amount = (glassTank.amount & 0xFFFFFFFFL) | ((long) value << 32);
-                    case 7 -> glassMeltProgress = value;
-                    case 8 -> annealProgressTicks = value;
+                    case 0 -> temperature = value;
+                    case 1 -> glassTank.amount = (glassTank.amount & 0xFFFFFFFF00000000L) | (value & 0xFFFFFFFFL);
+                    case 2 -> glassTank.amount = (glassTank.amount & 0xFFFFFFFFL) | ((long) value << 32);
+                    case 3 -> glassMeltProgress = value;
+                    case 4 -> annealProgressTicks = value;
+                    case 5 -> fuelEnergyTicks = (value > 0) ? 1.0 : 0.0;
                 }
             }
 
             @Override
             public int getCount() {
-                return 9;
+                return 6;
             }
         };
     }
