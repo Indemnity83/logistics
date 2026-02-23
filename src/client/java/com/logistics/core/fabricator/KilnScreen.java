@@ -1,9 +1,13 @@
 package com.logistics.core.fabricator;
 
+import com.logistics.LogisticsCore;
 import com.logistics.LogisticsMod;
+import net.fabricmc.fabric.api.transfer.v1.client.fluid.FluidVariantRendering;
+import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
@@ -67,14 +71,19 @@ public class KilnScreen extends AbstractContainerScreen<KilnScreenHandler> {
                 13);
         }
 
-        // Render glass tank level (2000 mB = 2 buckets)
+        // Render glass tank level using actual fluid texture (2000 mB = 2 buckets)
         // Display box: x=46-61 (16px wide), y=46-68 (23px tall)
-        // Overlay texture: x=200-215 (16px wide), y=59-81 (23px tall)
         // Scale: 1000 mB = 12px, 2000 mB = 24px, but we cap display at 23px
         // Tank appears visually full at 1916+ mB
         long glassAmount = menu.getGlassAmount();
         int tankHeight = Math.min(23, (int) (24 * glassAmount / 2000)); // Cap at 23px (hide top pixel)
         if (tankHeight > 0) {
+            // Render fluid texture
+            FluidVariant moltenGlass = FluidVariant.of(LogisticsCore.FLUID.MOLTEN_GLASS_STILL);
+            renderFluid(graphics, moltenGlass, leftPos + 46, topPos + 69 - tankHeight, 16, tankHeight);
+
+            // Render overlay markings on top
+            // Overlay texture: x=200-215 (16px wide), y=59-81 (23px tall)
             graphics.blit(
                 RenderPipelines.GUI_TEXTURED,
                 TEXTURE,
@@ -158,6 +167,76 @@ public class KilnScreen extends AbstractContainerScreen<KilnScreenHandler> {
             10,                     // Height
             TEXTURE_WIDTH,
             TEXTURE_HEIGHT);
+    }
+
+    /**
+     * Renders a fluid texture scaled to fill the specified area.
+     * The fluid texture will tile and animate if the fluid has animation frames.
+     *
+     * @param graphics the GuiGraphics context
+     * @param fluid the fluid variant to render
+     * @param x the left edge of the render area
+     * @param y the top edge of the render area
+     * @param width the width of the render area
+     * @param height the height of the render area
+     */
+    private void renderFluid(GuiGraphics graphics, FluidVariant fluid, int x, int y, int width, int height) {
+        TextureAtlasSprite sprite = FluidVariantRendering.getSprite(fluid);
+        if (sprite == null) {
+            return;
+        }
+
+        int color = FluidVariantRendering.getColor(fluid);
+
+        // Get sprite dimensions in pixels (usually 16x16 for fluids)
+        int spriteWidth = sprite.contents().width();
+        int spriteHeight = sprite.contents().height();
+
+        // Calculate UV coordinates for the sprite in the atlas
+        float u0 = sprite.getU0();
+        float u1 = sprite.getU1();
+        float v0 = sprite.getV0();
+        float v1 = sprite.getV1();
+
+        // Calculate atlas dimensions in pixels
+        int atlasWidth = (int) (spriteWidth / (u1 - u0));
+        int atlasHeight = (int) (spriteHeight / (v1 - v0));
+
+        // Tile vertically to fill the area
+        int fullTiles = height / spriteHeight;
+        int remainingHeight = height % spriteHeight;
+
+        // Render full tiles
+        for (int i = 0; i < fullTiles; i++) {
+            graphics.blit(
+                RenderPipelines.GUI_TEXTURED,
+                sprite.atlasLocation(),
+                x,
+                y + i * spriteHeight,
+                (int) (u0 * atlasWidth),      // source X in atlas
+                (int) (v0 * atlasHeight),     // source Y in atlas
+                width,
+                spriteHeight,
+                atlasWidth,
+                atlasHeight
+            );
+        }
+
+        // Render partial tile at the bottom if needed
+        if (remainingHeight > 0) {
+            graphics.blit(
+                RenderPipelines.GUI_TEXTURED,
+                sprite.atlasLocation(),
+                x,
+                y + fullTiles * spriteHeight,
+                (int) (u0 * atlasWidth),
+                (int) (v0 * atlasHeight),
+                width,
+                remainingHeight,
+                atlasWidth,
+                atlasHeight
+            );
+        }
     }
 
     @Override

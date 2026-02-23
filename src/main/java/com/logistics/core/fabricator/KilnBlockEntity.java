@@ -7,7 +7,6 @@ import com.logistics.core.lib.block.behavior.MenuBehavior;
 import com.logistics.core.lib.block.capability.HasFluidStorage;
 import com.logistics.core.lib.block.capability.HasItemStorage;
 import com.logistics.core.lib.fluids.FluidTankComponent;
-import com.logistics.core.lib.fluids.ModFluids;
 import com.logistics.core.lib.items.ItemInventoryComponent;
 import com.logistics.core.lib.storage.NbtCompat;
 import com.logistics.power.engine.PIDController;
@@ -315,7 +314,7 @@ public class KilnBlockEntity extends BaseBlockEntity
                 meltEnergyDebtFrac = 0.0;
 
                 // Add molten glass
-                glassTank.variant = FluidVariant.of(ModFluids.MOLTEN_GLASS_STILL);
+                glassTank.variant = FluidVariant.of(LogisticsCore.FLUID.MOLTEN_GLASS_STILL);
                 glassTank.amount += mbYield;
 
                 // Consume input

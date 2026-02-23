@@ -7,6 +7,8 @@ import com.logistics.core.render.ModelKeyRegistry;
 import net.fabricmc.fabric.api.client.model.loading.v1.ExtraModelKey;
 import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
 import net.fabricmc.fabric.api.client.model.loading.v1.SimpleUnbakedExtraModel;
+import net.fabricmc.fabric.api.client.render.fluid.v1.FluidRenderHandlerRegistry;
+import net.fabricmc.fabric.api.client.render.fluid.v1.SimpleFluidRenderHandler;
 import net.fabricmc.fabric.api.client.rendering.v1.BlockEntityRendererRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.BlockRenderLayerMap;
 import net.minecraft.client.gui.screens.MenuScreens;
@@ -38,6 +40,17 @@ public final class LogisticsCoreClient implements DomainBootstrap {
         BlockRenderLayerMap.putBlock(LogisticsCore.BLOCK.MARKER, ChunkSectionLayer.CUTOUT);
         BlockEntityRendererRegistry.register(LogisticsCore.ENTITY.MARKER_BLOCK_ENTITY, MarkerBlockEntityRenderer::new);
         MenuScreens.register(LogisticsCore.MENU.KILN, KilnScreen::new);
+
+        // Register molten glass fluid rendering
+        FluidRenderHandlerRegistry.INSTANCE.register(
+            LogisticsCore.FLUID.MOLTEN_GLASS_STILL,
+            LogisticsCore.FLUID.MOLTEN_GLASS_FLOWING,
+            new SimpleFluidRenderHandler(
+                LogisticsMod.getIdentifier("block/core/liquid_glass"),
+                LogisticsMod.getIdentifier("block/core/liquid_glass"),
+                0xFF8800 // Orange color tint
+            )
+        );
     }
 
     @Override

@@ -1,5 +1,6 @@
-package com.logistics.core.lib.fluids;
+package com.logistics.core.fluids;
 
+import com.logistics.LogisticsCore;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -27,12 +28,12 @@ public abstract class MoltenGlassFluid extends FlowingFluid {
 
     @Override
     public Fluid getFlowing() {
-        return ModFluids.MOLTEN_GLASS_FLOWING;
+        return LogisticsCore.FLUID.MOLTEN_GLASS_FLOWING;
     }
 
     @Override
     public Fluid getSource() {
-        return ModFluids.MOLTEN_GLASS_STILL;
+        return LogisticsCore.FLUID.MOLTEN_GLASS_STILL;
     }
 
     @Override

@@ -11,7 +11,7 @@ import com.logistics.core.lib.block.lookup.EnergyStorageAccess;
 import com.logistics.core.lib.block.lookup.FluidStorageAccess;
 import com.logistics.core.lib.block.lookup.ItemStorageAccess;
 import com.logistics.core.lib.block.lookup.PipeConnectionAccess;
-import com.logistics.core.lib.fluids.ModFluids;
+import com.logistics.core.fluids.MoltenGlassFluid;
 import com.logistics.core.loot.ChestLootModifier;
 import com.logistics.core.marker.MarkerBlock;
 import com.logistics.core.marker.MarkerBlockEntity;
@@ -66,9 +66,9 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         BLOCK.register();
         ITEM.register();
         ENTITY.register();
+        FLUID.register();
         CREATIVE_TAB.register();
 
-        ModFluids.register();
         KilnRecipeManager.register();
         registerStorageAccess();
         registerLegacyAliases();
@@ -167,6 +167,29 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         static void register() {
             MARKER_BLOCK_ENTITY = INSTANCE.registerBlockEntity("marker", MarkerBlockEntity::new, BLOCK.MARKER);
             KILN = INSTANCE.registerBlockEntity("kiln", KilnBlockEntity::new, BLOCK.KILN);
+        }
+    }
+
+    public static final class FLUID {
+        public static net.minecraft.world.level.material.FlowingFluid MOLTEN_GLASS_FLOWING;
+        public static net.minecraft.world.level.material.Fluid MOLTEN_GLASS_STILL;
+
+        private FLUID() {}
+
+        static void register() {
+            // Register flowing variant first (required by still variant)
+            MOLTEN_GLASS_FLOWING = Registry.register(
+                BuiltInRegistries.FLUID,
+                LogisticsMod.getIdentifier("molten_glass_flowing"),
+                new MoltenGlassFluid.Flowing()
+            );
+
+            // Register still variant
+            MOLTEN_GLASS_STILL = Registry.register(
+                BuiltInRegistries.FLUID,
+                LogisticsMod.getIdentifier("molten_glass"),
+                new MoltenGlassFluid.Still()
+            );
         }
     }
 
