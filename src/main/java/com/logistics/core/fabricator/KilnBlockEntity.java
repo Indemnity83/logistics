@@ -409,7 +409,7 @@ public class KilnBlockEntity extends BaseBlockEntity
         heatDebtFrac = 0.0;
 
         // Insert result
-        insertOutput(recipe.getResultItem().copy());
+        insertOutput(recipe.getResultItem());
 
         // Reset
         activeRecipeId = null;

@@ -68,7 +68,7 @@ public class KilnRecipe {
     }
 
     public ItemStack getResultItem() {
-        return result;
+        return result.copy();
     }
 
     // Getters for recipe parameters
