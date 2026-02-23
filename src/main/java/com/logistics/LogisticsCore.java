@@ -1,12 +1,17 @@
 package com.logistics;
 
 import com.logistics.core.bootstrap.DomainBootstrap;
+import com.logistics.core.fabricator.KilnBlock;
+import com.logistics.core.fabricator.KilnBlockEntity;
+import com.logistics.core.fabricator.KilnRecipeManager;
+import com.logistics.core.fabricator.KilnScreenHandler;
 import com.logistics.core.item.ProbeItem;
 import com.logistics.core.item.WrenchItem;
 import com.logistics.core.lib.block.lookup.EnergyStorageAccess;
 import com.logistics.core.lib.block.lookup.FluidStorageAccess;
 import com.logistics.core.lib.block.lookup.ItemStorageAccess;
 import com.logistics.core.lib.block.lookup.PipeConnectionAccess;
+import com.logistics.core.fluids.MoltenGlassFluid;
 import com.logistics.core.loot.ChestLootModifier;
 import com.logistics.core.marker.MarkerBlock;
 import com.logistics.core.marker.MarkerBlockEntity;
@@ -32,6 +37,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.DropExperienceBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.inventory.MenuType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,8 +66,10 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         BLOCK.register();
         ITEM.register();
         ENTITY.register();
+        FLUID.register();
         CREATIVE_TAB.register();
 
+        KilnRecipeManager.register();
         registerStorageAccess();
         registerLegacyAliases();
         addCreativeTabEntries();
@@ -116,6 +124,7 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         public static Block BRONZE_BLOCK;
         public static Block APATITE_ORE;
         public static Block APATITE_BLOCK;
+        public static Block KILN;
 
         private BLOCK() {}
 
@@ -142,17 +151,53 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
                 props -> new DropExperienceBlock(UniformInt.of(0, 2), props.strength(3.0f, 3.0f).sound(SoundType.STONE).requiresCorrectToolForDrops()));
             APATITE_BLOCK = INSTANCE.registerBlockWithItem("apatite_block",
                 props -> new Block(props.strength(5.0f, 6.0f).sound(SoundType.STONE).requiresCorrectToolForDrops()));
+
+            // Machines
+            KILN = INSTANCE.registerBlockWithItem("kiln",
+                props -> new KilnBlock(props.strength(3.5f).sound(SoundType.METAL).requiresCorrectToolForDrops()));
         }
     }
 
     public static final class ENTITY {
         public static BlockEntityType<MarkerBlockEntity> MARKER_BLOCK_ENTITY;
+        public static BlockEntityType<KilnBlockEntity> KILN;
 
         private ENTITY() {}
 
         static void register() {
             MARKER_BLOCK_ENTITY = INSTANCE.registerBlockEntity("marker", MarkerBlockEntity::new, BLOCK.MARKER);
+            KILN = INSTANCE.registerBlockEntity("kiln", KilnBlockEntity::new, BLOCK.KILN);
         }
+    }
+
+    public static final class FLUID {
+        public static net.minecraft.world.level.material.FlowingFluid MOLTEN_GLASS_FLOWING;
+        public static net.minecraft.world.level.material.Fluid MOLTEN_GLASS_STILL;
+
+        private FLUID() {}
+
+        static void register() {
+            // Register flowing variant first (required by still variant)
+            MOLTEN_GLASS_FLOWING = Registry.register(
+                BuiltInRegistries.FLUID,
+                LogisticsMod.getIdentifier("molten_glass_flowing"),
+                new MoltenGlassFluid.Flowing()
+            );
+
+            // Register still variant
+            MOLTEN_GLASS_STILL = Registry.register(
+                BuiltInRegistries.FLUID,
+                LogisticsMod.getIdentifier("molten_glass"),
+                new MoltenGlassFluid.Still()
+            );
+        }
+    }
+
+    public static final class MENU {
+        public static final MenuType<KilnScreenHandler> KILN =
+            INSTANCE.registerMenuType("kiln", KilnScreenHandler::new);
+
+        private MENU() {}
     }
 
 
@@ -175,6 +220,21 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         public static Item BRONZE_GEAR;
         public static Item DIAMOND_GEAR;
         public static Item NETHERITE_GEAR;
+
+        // Valves (Kiln outputs)
+        public static Item VALVE_COPPER;
+        public static Item VALVE_TIN;
+        public static Item VALVE_BRONZE;
+        public static Item VALVE_IRON;
+        public static Item VALVE_GOLD;
+        public static Item VALVE_DIAMOND;
+        public static Item VALVE_OBSIDIAN;
+        public static Item VALVE_BLAZING;
+        public static Item VALVE_EMERALD;
+        public static Item VALVE_APATITE;
+        public static Item VALVE_LAPIS;
+        public static Item VALVE_ENDER;
+        public static Item VALVE_NETHERITE;
 
         private ITEM() {}
 
@@ -209,6 +269,21 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
             BRONZE_GEAR = INSTANCE.registerItem("bronze_gear", Item::new);
             DIAMOND_GEAR = INSTANCE.registerItem("diamond_gear", Item::new);
             NETHERITE_GEAR = INSTANCE.registerItem("netherite_gear", Item::new);
+
+            // Valves (Kiln outputs)
+            VALVE_COPPER = INSTANCE.registerItem("valve_copper", Item::new);
+            VALVE_TIN = INSTANCE.registerItem("valve_tin", Item::new);
+            VALVE_BRONZE = INSTANCE.registerItem("valve_bronze", Item::new);
+            VALVE_IRON = INSTANCE.registerItem("valve_iron", Item::new);
+            VALVE_GOLD = INSTANCE.registerItem("valve_gold", Item::new);
+            VALVE_DIAMOND = INSTANCE.registerItem("valve_diamond", Item::new);
+            VALVE_OBSIDIAN = INSTANCE.registerItem("valve_obsidian", Item::new);
+            VALVE_BLAZING = INSTANCE.registerItem("valve_blazing", Item::new);
+            VALVE_EMERALD = INSTANCE.registerItem("valve_emerald", Item::new);
+            VALVE_APATITE = INSTANCE.registerItem("valve_apatite", Item::new);
+            VALVE_LAPIS = INSTANCE.registerItem("valve_lapis", Item::new);
+            VALVE_ENDER = INSTANCE.registerItem("valve_ender", Item::new);
+            VALVE_NETHERITE = INSTANCE.registerItem("valve_netherite", Item::new);
         }
     }
 
@@ -254,7 +329,8 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         CREATIVE_TAB.addItems(
                 ITEM.WRENCH,
                 ITEM.PROBE,
-                BLOCK.MARKER
+                BLOCK.MARKER,
+                BLOCK.KILN
         );
     }
 
@@ -293,6 +369,21 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
             entries.addAfter(ITEM.BRONZE_GEAR, ITEM.GOLD_GEAR);
             entries.addAfter(ITEM.GOLD_GEAR, ITEM.DIAMOND_GEAR);
             entries.addAfter(ITEM.DIAMOND_GEAR, ITEM.NETHERITE_GEAR);
+
+            // Valves (Kiln outputs)
+            entries.addAfter(ITEM.NETHERITE_GEAR, ITEM.VALVE_COPPER);
+            entries.addAfter(ITEM.VALVE_COPPER, ITEM.VALVE_TIN);
+            entries.addAfter(ITEM.VALVE_TIN, ITEM.VALVE_BRONZE);
+            entries.addAfter(ITEM.VALVE_BRONZE, ITEM.VALVE_IRON);
+            entries.addAfter(ITEM.VALVE_IRON, ITEM.VALVE_GOLD);
+            entries.addAfter(ITEM.VALVE_GOLD, ITEM.VALVE_DIAMOND);
+            entries.addAfter(ITEM.VALVE_DIAMOND, ITEM.VALVE_OBSIDIAN);
+            entries.addAfter(ITEM.VALVE_OBSIDIAN, ITEM.VALVE_BLAZING);
+            entries.addAfter(ITEM.VALVE_BLAZING, ITEM.VALVE_EMERALD);
+            entries.addAfter(ITEM.VALVE_EMERALD, ITEM.VALVE_APATITE);
+            entries.addAfter(ITEM.VALVE_APATITE, ITEM.VALVE_LAPIS);
+            entries.addAfter(ITEM.VALVE_LAPIS, ITEM.VALVE_ENDER);
+            entries.addAfter(ITEM.VALVE_ENDER, ITEM.VALVE_NETHERITE);
         });
 
         // Add ore blocks to Natural Blocks tab
