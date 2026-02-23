@@ -35,7 +35,7 @@ import java.util.concurrent.Executor;
  */
 public class KilnRecipeManager {
     private static final Logger LOGGER = LoggerFactory.getLogger("Logistics/KilnRecipes");
-    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
+    private static final Gson GSON = new GsonBuilder().create();
     private static final Map<Identifier, KilnRecipe> RECIPES = new HashMap<>();
 
     public static void register() {
