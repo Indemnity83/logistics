@@ -13,6 +13,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.Level;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -89,7 +90,7 @@ public class KilnRecipe {
     }
 
     public List<Optional<Ingredient>> getIngredients() {
-        return ingredients;
+        return Collections.unmodifiableList(ingredients);
     }
 
     /**
