@@ -1,0 +1,21 @@
+{
+  "pattern": [
+    " M ",
+    "RMR",
+    "MMM"
+  ],
+  "key": {
+    "M": "minecraft:copper_ingot",
+    "R": "minecraft:redstone"
+  },
+  "result": {
+    "count": 4,
+    "id": "logistics:core/valve_copper"
+  },
+  "processTimeTicks": 100,
+  "fluid": {
+    "id": "logistics:core/liquid_glass",
+    "amountMb": 250
+  },
+  "energyPerTick": 40
+}

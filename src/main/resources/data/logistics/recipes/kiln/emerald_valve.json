@@ -1,0 +1,21 @@
+{
+  "pattern": [
+    " M ",
+    "RMR",
+    "MMM"
+  ],
+  "key": {
+    "M": "minecraft:emerald",
+    "R": "minecraft:redstone"
+  },
+  "result": {
+    "count": 4,
+    "id": "logistics:core/valve_emerald"
+  },
+  "processTimeTicks": 220,
+  "fluid": {
+    "id": "logistics:core/liquid_glass",
+    "amountMb": 250
+  },
+  "energyPerTick": 280
+}

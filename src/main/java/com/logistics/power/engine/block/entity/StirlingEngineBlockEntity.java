@@ -100,7 +100,7 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
             return switch (index) {
                 case PROPERTY_BURN_TIME -> burnTime;
                 case PROPERTY_FUEL_TIME -> fuelTime;
-                case PROPERTY_HEAT -> (int) temperature;
+                case PROPERTY_HEAT -> (int) getTemperature();
                 case PROPERTY_ENERGY -> (int) (getEnergy() / 100);
                 case PROPERTY_GENERATION -> (int) (currentGeneration * 100);
                 default -> 0;
@@ -112,7 +112,7 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
             switch (index) {
                 case PROPERTY_BURN_TIME -> burnTime = value;
                 case PROPERTY_FUEL_TIME -> fuelTime = value;
-                case PROPERTY_HEAT -> temperature = value;
+                case PROPERTY_HEAT -> {} // Read-only on client, computed from energy level
                 case PROPERTY_ENERGY -> energyStorage.amount = value * 100L;
                 case PROPERTY_GENERATION -> currentGeneration = value / 100.0;
                 default -> {}
@@ -185,8 +185,9 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
 
     @Override
     protected long getOutputPower() {
+        double temp = getTemperature();
         double tempRatio =
-                Math.min(1.0, (temperature - getTemperatureFloor()) / (TARGET_TEMPERATURE - getTemperatureFloor()));
+                Math.min(1.0, (temp - getTemperatureFloor()) / (TARGET_TEMPERATURE - getTemperatureFloor()));
         double output = MIN_GENERATION + tempRatio * (MAX_GENERATION - MIN_GENERATION);
         return Math.round(output);
     }
@@ -271,7 +272,8 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
     }
 
     private void generateWithCarry() {
-        currentGeneration = pidController.compute(TARGET_TEMPERATURE, temperature, MIN_GENERATION, MAX_GENERATION);
+        double temp = getTemperature();
+        currentGeneration = pidController.compute(TARGET_TEMPERATURE, temp, MIN_GENERATION, MAX_GENERATION);
         generationCarry += currentGeneration;
 
         long whole = (long) Math.floor(generationCarry);
