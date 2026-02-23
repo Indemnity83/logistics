@@ -20,7 +20,7 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Block for the Kiln machine.
- * Crafts electron tubes using molten glass and pattern-based recipes.
+ * Crafts valves using molten glass and pattern-based recipes.
  * Burns fuel (coal, wood, etc.) to generate heat.
  */
 public class KilnBlock extends MachineBlock {
