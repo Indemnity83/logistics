@@ -18,7 +18,7 @@ import java.util.Optional;
 
 /**
  * Recipe for kiln annealing.
- * Requires a 3x3 grid pattern, molten glass, and heat to produce electron tubes.
+ * Requires a 3x3 grid pattern, molten glass, and heat to produce valves.
  *
  * Note: This doesn't implement Recipe<T> interface since we use Container directly
  * and don't need the full Recipe API integration for this custom machine.
