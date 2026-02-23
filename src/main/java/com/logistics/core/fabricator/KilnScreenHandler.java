@@ -10,6 +10,7 @@ import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.inventory.SimpleContainerData;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 /**
  * Screen handler for the Kiln GUI.
@@ -158,9 +159,9 @@ public class KilnScreenHandler extends AbstractContainerMenu {
     }
 
     private boolean isGlassItem(ItemStack stack) {
-        return stack.is(net.minecraft.world.item.Items.GLASS)
-            || stack.is(net.minecraft.world.item.Items.SAND)
-            || stack.is(net.minecraft.world.item.Items.GLASS_PANE);
+        return stack.is(Items.GLASS)
+            || stack.is(Items.SAND)
+            || stack.is(Items.GLASS_PANE);
     }
 
     @Override
