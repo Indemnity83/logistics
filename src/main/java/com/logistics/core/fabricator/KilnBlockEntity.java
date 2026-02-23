@@ -253,10 +253,6 @@ public class KilnBlockEntity extends BaseBlockEntity
             return; // Pause, don't reset
         }
 
-        if (glassTank.amount >= GLASS_TANK_CAPACITY) {
-            return;
-        }
-
         // Increment progress
         glassMeltProgress++;
 
