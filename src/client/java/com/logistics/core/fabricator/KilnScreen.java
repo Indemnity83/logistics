@@ -168,8 +168,10 @@ public class KilnScreen extends AbstractContainerScreen<KilnScreenHandler> {
         super.render(graphics, mouseX, mouseY, delta);
         renderTooltip(graphics, mouseX, mouseY);
 
-        // Debug: show glass amount
-        long glassAmount = menu.getGlassAmount();
-        graphics.drawString(this.font, "Glass: " + glassAmount + " mB", leftPos + imageWidth + 10, topPos + 10, 0xFFFFFF);
+    `@Override`
+    public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
+        super.render(graphics, mouseX, mouseY, delta);
+        renderTooltip(graphics, mouseX, mouseY);
+    }
     }
 }
