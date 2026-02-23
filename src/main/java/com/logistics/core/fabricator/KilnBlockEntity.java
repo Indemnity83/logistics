@@ -148,12 +148,12 @@ public class KilnBlockEntity extends BaseBlockEntity
     // ==================== Fuel System ====================
 
     private void tickFuelBurning() {
-        // Start new fuel if needed
-        if (burnTicksRemaining <= 0 && needsHeat()) {
+        // Consume fuel if available and not currently burning (constant fire)
+        if (burnTicksRemaining <= 0 && !inventory.getItem(FUEL_SLOT).isEmpty()) {
             refuel();
         }
 
-        // Burn tick with pause mechanic
+        // Burn tick with pause mechanic (damps fire when at max heat)
         if (burnTicksRemaining > 0) {
             // Compute effective max heat (for future upgrades)
             int effectiveMaxHeat = Math.min(MAX_HEAT, activeFuelMaxHeat); // + bonusFromUpgrades
@@ -169,17 +169,12 @@ public class KilnBlockEntity extends BaseBlockEntity
                     heatFrac -= deltaHeat;
                     burnTicksRemaining--;
                 } else {
-                    // Fuel pauses - no heat added, no burn consumed
+                    // Fuel pauses - no heat added, no burn consumed (damping)
                     // Clamp accumulator to prevent large debt
                     heatFrac = Math.min(heatFrac, activeHeatPerTick * 2);
                 }
             }
         }
-    }
-
-    private boolean needsHeat() {
-        // Maintain kiln at the temperature the last/current fuel can achieve
-        return activeFuelMaxHeat > 0 && heat < activeFuelMaxHeat;
     }
 
     private void refuel() {
