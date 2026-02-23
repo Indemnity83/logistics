@@ -43,6 +43,9 @@ public class KilnRecipe {
         int energyPerTick,
         ItemStack result
     ) {
+        if (ingredients.size() != 9) {
+            throw new IllegalArgumentException("Kiln recipes must have exactly 9 ingredient slots, got " + ingredients.size());
+        }
         this.id = id;
         this.ingredients = ingredients;
         this.processTimeTicks = processTimeTicks;
