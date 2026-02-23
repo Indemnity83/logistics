@@ -1,6 +1,7 @@
 package com.logistics.core.fabricator;
 
 import com.logistics.LogisticsCore;
+import com.logistics.LogisticsMod;
 import com.logistics.core.lib.BaseBlockEntity;
 import com.logistics.core.lib.block.behavior.MenuBehavior;
 import com.logistics.core.lib.block.capability.HasFluidStorage;
@@ -491,7 +492,7 @@ public class KilnBlockEntity extends BaseBlockEntity
         heatDebtFrac = NbtCompat.getDouble(tag, "HeatDebtFrac", 0.0);
 
         if (tag.contains("ActiveRecipeId")) {
-            tag.getString("ActiveRecipeId").ifPresent(s -> activeRecipeId = Identifier.parse(s));
+            tag.getString("ActiveRecipeId").ifPresent(s -> activeRecipeId = LogisticsMod.parseIdentifier(s));
         }
     }
 

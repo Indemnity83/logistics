@@ -1,8 +1,8 @@
 package com.logistics.core.lib.fluids;
 
+import com.logistics.LogisticsMod;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.material.FlowingFluid;
 import net.minecraft.world.level.material.Fluid;
 
@@ -20,14 +20,14 @@ public final class ModFluids {
         // Register flowing variant first (required by still variant)
         MOLTEN_GLASS_FLOWING = Registry.register(
                 BuiltInRegistries.FLUID,
-                Identifier.parse("logistics:molten_glass_flowing"),
+                LogisticsMod.getIdentifier("molten_glass_flowing"),
                 new MoltenGlassFluid.Flowing()
         );
 
         // Register still variant
         MOLTEN_GLASS_STILL = Registry.register(
                 BuiltInRegistries.FLUID,
-                Identifier.parse("logistics:molten_glass"),
+                LogisticsMod.getIdentifier("molten_glass"),
                 new MoltenGlassFluid.Still()
         );
     }

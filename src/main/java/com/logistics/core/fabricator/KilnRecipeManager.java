@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.logistics.LogisticsMod;
 import com.mojang.serialization.JsonOps;
 import net.fabricmc.fabric.api.resource.v1.ResourceLoader;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -40,7 +41,7 @@ public class KilnRecipeManager {
     public static void register() {
         LOGGER.info("Registering kiln recipe reload listener");
         ResourceLoader.get(PackType.SERVER_DATA).registerReloader(
-            Identifier.parse("logistics:kiln_recipes"),
+            LogisticsMod.getIdentifier("kiln_recipes"),
             new PreparableReloadListener() {
                 @Override
                 public CompletableFuture<Void> reload(
@@ -81,7 +82,7 @@ public class KilnRecipeManager {
                     // Extract recipe ID from file path
                     String path = resourceLocation.getPath();
                     String recipeIdPath = path.substring("recipes/kiln/".length(), path.length() - ".json".length());
-                    Identifier recipeId = Identifier.parse(resourceLocation.getNamespace() + ":" + recipeIdPath);
+                    Identifier recipeId = LogisticsMod.createIdentifier(resourceLocation.getNamespace(), recipeIdPath);
 
                     // Parse manually
                     KilnRecipe recipe = parseRecipe(recipeId, json);
@@ -113,7 +114,7 @@ public class KilnRecipeManager {
             char symbol = entry.getKey().charAt(0);
             String itemId = entry.getValue().getAsString();
             // Create ingredient from item ID
-            var itemHolder = BuiltInRegistries.ITEM.get(Identifier.parse(itemId))
+            var itemHolder = BuiltInRegistries.ITEM.get(LogisticsMod.parseIdentifier(itemId))
                 .orElseThrow(() -> new IllegalArgumentException("Unknown item: " + itemId));
             Ingredient ingredient = Ingredient.of(itemHolder.value());
             keyMap.put(symbol, ingredient);

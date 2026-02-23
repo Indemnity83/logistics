@@ -42,8 +42,33 @@ public class LogisticsMod implements ModInitializer {
         }
     }
 
+    // TODO(post-1.0): Consider creating ResourceHelper in core.lib.resource (like NbtCompat)
+    //  This would centralize all Identifier API calls in a compatibility layer to better
+    //  facilitate cross-version cherry-picking. Proposed API:
+    //    ResourceHelper.id("path") // logistics namespace
+    //    ResourceHelper.parse("namespace:path") // from strings
+    //    ResourceHelper.of("namespace", "path") // arbitrary
+    //  Benefits: cleaner API, consistent with NbtCompat pattern, easier version migrations
+    //  Trade-off: requires creating new package and moving helpers from LogisticsMod
+
     public static Identifier getIdentifier(String path) {
         return Identifier.fromNamespaceAndPath(MOD_ID, path);
+    }
+
+    /**
+     * Parse an identifier from a string like "namespace:path".
+     * Use when reading identifiers from JSON, NBT, or other external sources.
+     */
+    public static Identifier parseIdentifier(String id) {
+        return Identifier.parse(id);
+    }
+
+    /**
+     * Create an identifier from namespace and path.
+     * Use when you need non-Logistics namespaces (e.g., "minecraft", other mods).
+     */
+    public static Identifier createIdentifier(String namespace, String path) {
+        return Identifier.fromNamespaceAndPath(namespace, path);
     }
 
     // TODO(pre-1.0): Consider if domain/ separator should be flattened to domain_
