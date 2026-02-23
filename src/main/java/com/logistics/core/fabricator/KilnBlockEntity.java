@@ -33,13 +33,13 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Block entity for the Kiln.
- * Crafts electron tubes using molten glass and pattern matching in a 3x3 grid.
+ * Crafts valves using molten glass and configurable recipes provided by KilnRecipeManager.
  *
  * <p>Key features:
  * <ul>
  *   <li>Fuel-powered: Burns coal, wood, etc. like a furnace</li>
- *   <li>Glass melting: Glass/sand/panes → molten glass (requires heat, 5 seconds)</li>
- *   <li>Tube crafting: 7 material + 2 redstone/ender eye + 1000mb glass → 4 tubes (10 seconds)</li>
+ *   <li>Glass melting: Glass/sand/panes → molten glass (requires heat)</li>
+ *   <li>Valve crafting: Pattern-based recipes using molten glass in a 3x3 grid (data-driven)</li>
  *   <li>Heat system: 20-10,000°C range, rises when burning fuel, decays when idle</li>
  * </ul>
  *
@@ -48,7 +48,7 @@ import org.jetbrains.annotations.Nullable;
  *   <li>Slot 0: Fuel input (coal, wood, lava buckets, etc.)</li>
  *   <li>Slot 1: Glass input (glass/sand/panes only)</li>
  *   <li>Slots 2-10: 3x3 crafting grid</li>
- *   <li>Slot 11: Output (electron tubes)</li>
+ *   <li>Slot 11: Output (valves)</li>
  * </ul>
  */
 public class KilnBlockEntity extends BaseBlockEntity
