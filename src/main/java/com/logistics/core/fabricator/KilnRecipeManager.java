@@ -88,8 +88,7 @@ public class KilnRecipeManager {
                     KilnRecipe recipe = parseRecipe(recipeId, json);
                     targetMap.put(recipeId, recipe);
                 } catch (Exception e) {
-                    LOGGER.error("Failed to load kiln recipe {}: {}", resourceLocation, e.getMessage());
-                    e.printStackTrace();
+                    LOGGER.error("Failed to load kiln recipe {}", resourceLocation, e);
                 }
             });
 
