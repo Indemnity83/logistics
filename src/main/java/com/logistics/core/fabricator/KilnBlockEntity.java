@@ -380,8 +380,8 @@ public class KilnBlockEntity extends BaseBlockEntity
         // Progress annealing
         annealProgressTicks++;
 
-        // Distributed energy draw (recipe heat cost now represents energy)
-        double perTickEnergy = (double) recipe.getHeatCost() / recipe.getSoakTicks();
+        // Distributed energy draw per tick
+        double perTickEnergy = recipe.getEnergyPerTick();
         craftEnergyDebtFrac += perTickEnergy;
         double energyToConsume = Math.floor(craftEnergyDebtFrac);
         if (energyToConsume > 0.0) {
@@ -390,7 +390,7 @@ public class KilnBlockEntity extends BaseBlockEntity
         }
 
         // Complete craft
-        if (annealProgressTicks >= recipe.getSoakTicks()) {
+        if (annealProgressTicks >= recipe.getProcessTimeTicks()) {
             completeCraft(recipe);
         }
     }
@@ -407,13 +407,13 @@ public class KilnBlockEntity extends BaseBlockEntity
     }
 
     private boolean canStartCraft(KilnRecipe recipe) {
-        return glassTank.amount >= recipe.getMoltenCost()
-            && temperature >= recipe.getRequiredHeat()
+        return glassTank.amount >= recipe.getFluidAmountMb()
+            && temperature >= KilnConstants.CRAFTING_MIN_TEMP
             && canAcceptOutput(recipe.getResultItem());
     }
 
     private boolean canContinueCraft(KilnRecipe recipe) {
-        return temperature >= recipe.getRequiredHeat()
+        return temperature >= KilnConstants.CRAFTING_MIN_TEMP
             && canAcceptOutput(recipe.getResultItem());
     }
 
@@ -427,7 +427,7 @@ public class KilnBlockEntity extends BaseBlockEntity
     }
 
     private void completeCraft(KilnRecipe recipe) {
-        if (glassTank.amount < recipe.getMoltenCost()) {
+        if (glassTank.amount < recipe.getFluidAmountMb()) {
             // Insufficient glass - abort craft and reset state
             activeRecipeId = null;
             annealProgressTicks = 0;
@@ -439,7 +439,7 @@ public class KilnBlockEntity extends BaseBlockEntity
         recipe.consumeIngredients(inventory, GRID_START_SLOT);
 
         // Consume molten glass
-        glassTank.amount -= recipe.getMoltenCost();
+        glassTank.amount -= recipe.getFluidAmountMb();
 
         // Apply remaining energy cost
         double remainingEnergy = Math.ceil(craftEnergyDebtFrac);
@@ -630,7 +630,7 @@ public class KilnBlockEntity extends BaseBlockEntity
                         if (recipe == null || annealProgressTicks == 0) {
                             yield 0;
                         }
-                        yield Math.min(100, (100 * annealProgressTicks) / recipe.getSoakTicks());
+                        yield Math.min(100, (100 * annealProgressTicks) / recipe.getProcessTimeTicks());
                     }
                     case 5 -> (fuelEnergyTicks > 0.0) ? 1 : 0; // Burning flag
                     default -> 0;

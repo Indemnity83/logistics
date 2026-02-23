@@ -8,12 +8,14 @@
     "M": "minecraft:copper_ingot",
     "R": "minecraft:redstone"
   },
-  "requiredHeat": 700,
-  "soakTicks": 100,
-  "moltenCost": 250,
-  "heatCost": 120,
   "result": {
     "count": 4,
     "id": "logistics:core/valve_copper"
-  }
+  },
+  "processTimeTicks": 100,
+  "fluid": {
+    "id": "logistics:core/liquid_glass",
+    "amountMb": 250
+  },
+  "energyPerTick": 40
 }

@@ -8,12 +8,14 @@
     "M": "logistics:core/bronze_ingot",
     "R": "minecraft:redstone"
   },
-  "requiredHeat": 800,
-  "soakTicks": 120,
-  "moltenCost": 250,
-  "heatCost": 150,
   "result": {
     "count": 4,
     "id": "logistics:core/valve_bronze"
-  }
+  },
+  "processTimeTicks": 120,
+  "fluid": {
+    "id": "logistics:core/liquid_glass",
+    "amountMb": 250
+  },
+  "energyPerTick": 140
 }

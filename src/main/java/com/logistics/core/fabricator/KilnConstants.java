@@ -33,6 +33,12 @@ public final class KilnConstants {
     public static final double GLASS_MELT_MIN_TEMP = 1000.0;
 
     /**
+     * Minimum temperature (°C) required for recipe crafting.
+     * The kiln must reach this temperature before any recipe can be processed.
+     */
+    public static final double CRAFTING_MIN_TEMP = 1200.0;
+
+    /**
      * Thermal mass constant (C) in the exponential temperature mapping.
      * Higher values = slower warmup. Adjust to tune warmup time.
      * Target: ~60 seconds from cold to 1500°C at full throttle.
@@ -72,9 +78,10 @@ public final class KilnConstants {
 
     /**
      * Burn cap (ticks/tick) for the reference fuel at full throttle.
-     * Coal can burn at 80 ticks/tick = 1 second of fuel per game tick.
+     * Coal can burn at 20 ticks/tick = 0.25 second of fuel per game tick.
+     * Reduced from 80 to slow down fuel consumption and balance high recipe energy demands.
      */
-    public static final double BURN_CAP_REFERENCE_RATE = 80.0;
+    public static final double BURN_CAP_REFERENCE_RATE = 20.0;
 
     /**
      * Exponent for burn cap scaling.

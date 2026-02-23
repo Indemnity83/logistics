@@ -127,16 +127,21 @@ public class KilnRecipeManager {
         List<Optional<Ingredient>> ingredients = pattern.ingredients();
 
         // Parse recipe parameters
-        int requiredHeat = json.get("requiredHeat").getAsInt();
-        int soakTicks = json.get("soakTicks").getAsInt();
-        int moltenCost = json.get("moltenCost").getAsInt();
-        int heatCost = json.get("heatCost").getAsInt();
+        int processTimeTicks = json.get("processTimeTicks").getAsInt();
+
+        // Parse fluid requirement
+        JsonObject fluidObj = json.getAsJsonObject("fluid");
+        String fluidIdStr = fluidObj.get("id").getAsString();
+        Identifier fluidId = LogisticsMod.parseIdentifier(fluidIdStr);
+        int fluidAmountMb = fluidObj.get("amountMb").getAsInt();
+
+        int energyPerTick = json.get("energyPerTick").getAsInt();
 
         // Parse result
         ItemStack result = ItemStack.STRICT_CODEC.parse(JsonOps.INSTANCE, json.get("result"))
             .getOrThrow();
 
-        return new KilnRecipe(recipeId, ingredients, requiredHeat, soakTicks, moltenCost, heatCost, result);
+        return new KilnRecipe(recipeId, ingredients, processTimeTicks, fluidId, fluidAmountMb, energyPerTick, result);
     }
 
     public static Map<Identifier, KilnRecipe> getAllRecipes() {

@@ -8,12 +8,14 @@
     "M": "minecraft:ender_pearl",
     "E": "minecraft:ender_eye"
   },
-  "requiredHeat": 1500,
-  "soakTicks": 260,
-  "moltenCost": 250,
-  "heatCost": 360,
   "result": {
     "count": 4,
     "id": "logistics:core/valve_ender"
-  }
+  },
+  "processTimeTicks": 260,
+  "fluid": {
+    "id": "logistics:core/liquid_glass",
+    "amountMb": 250
+  },
+  "energyPerTick": 260
 }

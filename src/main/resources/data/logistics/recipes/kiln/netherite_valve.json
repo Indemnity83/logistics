@@ -8,12 +8,14 @@
     "M": "minecraft:netherite_ingot",
     "R": "minecraft:redstone"
   },
-  "requiredHeat": 1600,
-  "soakTicks": 280,
-  "moltenCost": 250,
-  "heatCost": 350,
   "result": {
     "count": 4,
     "id": "logistics:core/valve_netherite"
-  }
+  },
+  "processTimeTicks": 280,
+  "fluid": {
+    "id": "logistics:core/liquid_glass",
+    "amountMb": 250
+  },
+  "energyPerTick": 400
 }

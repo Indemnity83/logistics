@@ -8,12 +8,14 @@
     "M": "minecraft:gold_ingot",
     "R": "minecraft:redstone"
   },
-  "requiredHeat": 1000,
-  "soakTicks": 160,
-  "moltenCost": 250,
-  "heatCost": 210,
   "result": {
     "count": 4,
     "id": "logistics:core/valve_gold"
-  }
+  },
+  "processTimeTicks": 160,
+  "fluid": {
+    "id": "logistics:core/liquid_glass",
+    "amountMb": 250
+  },
+  "energyPerTick": 180
 }

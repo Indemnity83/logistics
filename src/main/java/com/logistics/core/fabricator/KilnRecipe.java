@@ -19,7 +19,8 @@ import java.util.Optional;
 
 /**
  * Recipe for kiln annealing.
- * Requires a 3x3 grid pattern, molten glass, and heat to produce valves.
+ * Requires a 3x3 grid pattern, molten glass fluid, and energy to produce valves.
+ * The kiln must reach the baseline crafting temperature before any recipe can be processed.
  *
  * Note: This doesn't implement Recipe<T> interface since we use Container directly
  * and don't need the full Recipe API integration for this custom machine.
@@ -27,27 +28,27 @@ import java.util.Optional;
 public class KilnRecipe {
     private final Identifier id;
     private final List<Optional<Ingredient>> ingredients; // 9 slots (3x3 grid)
-    private final int requiredHeat;
-    private final int soakTicks;
-    private final int moltenCost;  // millibuckets
-    private final int heatCost;
+    private final int processTimeTicks;        // Duration of the crafting process
+    private final Identifier fluidId;          // Fluid type (e.g., molten glass)
+    private final int fluidAmountMb;           // Fluid amount in millibuckets
+    private final int energyPerTick;           // Energy cost per tick (total = energyPerTick * processTimeTicks)
     private final ItemStack result;
 
     public KilnRecipe(
         Identifier id,
         List<Optional<Ingredient>> ingredients,
-        int requiredHeat,
-        int soakTicks,
-        int moltenCost,
-        int heatCost,
+        int processTimeTicks,
+        Identifier fluidId,
+        int fluidAmountMb,
+        int energyPerTick,
         ItemStack result
     ) {
         this.id = id;
         this.ingredients = ingredients;
-        this.requiredHeat = requiredHeat;
-        this.soakTicks = soakTicks;
-        this.moltenCost = moltenCost;
-        this.heatCost = heatCost;
+        this.processTimeTicks = processTimeTicks;
+        this.fluidId = fluidId;
+        this.fluidAmountMb = fluidAmountMb;
+        this.energyPerTick = energyPerTick;
         this.result = result;
     }
 
@@ -73,20 +74,20 @@ public class KilnRecipe {
     }
 
     // Getters for recipe parameters
-    public int getRequiredHeat() {
-        return requiredHeat;
+    public int getProcessTimeTicks() {
+        return processTimeTicks;
     }
 
-    public int getSoakTicks() {
-        return soakTicks;
+    public Identifier getFluidId() {
+        return fluidId;
     }
 
-    public int getMoltenCost() {
-        return moltenCost;
+    public int getFluidAmountMb() {
+        return fluidAmountMb;
     }
 
-    public int getHeatCost() {
-        return heatCost;
+    public int getEnergyPerTick() {
+        return energyPerTick;
     }
 
     public List<Optional<Ingredient>> getIngredients() {
