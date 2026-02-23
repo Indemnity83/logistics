@@ -77,11 +77,11 @@ public class KilnRecipe {
 
     public ItemStack getResultItem() {
         // Create ItemStack on demand (components are initialized by the time recipes are accessed)
-        var item = BuiltInRegistries.ITEM.get(resultItemId);
-        if (item == null) {
+        var itemHolder = BuiltInRegistries.ITEM.get(resultItemId);
+        if (itemHolder == null) {
             throw new IllegalStateException("Result item not found: " + resultItemId);
         }
-        return new ItemStack(item, resultCount);
+        return new ItemStack(itemHolder, resultCount);
     }
 
     // Getters for recipe parameters
