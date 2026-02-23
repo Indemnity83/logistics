@@ -74,7 +74,7 @@ public class Pipe {
                 return override;
             }
         }
-        return LogisticsMod.getResourceLocation("block/" + getPipeName() + "_core");
+        return LogisticsMod.getIdentifier("block/" + getPipeName() + "_core");
     }
 
     /**
@@ -107,7 +107,7 @@ public class Pipe {
         }
 
         String suffix = ctx.isInventoryConnection(direction) ? "_arm_extended" : "_arm";
-        return LogisticsMod.getResourceLocation("block/" + getPipeName() + suffix);
+        return LogisticsMod.getIdentifier("block/" + getPipeName() + suffix);
     }
 
     /**

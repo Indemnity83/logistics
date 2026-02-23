@@ -249,14 +249,14 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
         ResourceLocation newMenuId = BuiltInRegistries.MENU.getKey(SCREEN.ITEM_FILTER);
         if (newMenuId != null) {
             BuiltInRegistries.MENU.addAlias(
-                    LogisticsMod.getResourceLocation("item_filter"),
+                    LogisticsMod.getIdentifier("item_filter"),
                     newMenuId);
         }
 
         ResourceLocation newDataId = BuiltInRegistries.DATA_COMPONENT_TYPE.getKey(DATA.WEATHERING_STATE);
         if (newDataId != null) {
             BuiltInRegistries.DATA_COMPONENT_TYPE.addAlias(
-                    LogisticsMod.getResourceLocation("weathering_state"),
+                    LogisticsMod.getIdentifier("weathering_state"),
                     newDataId);
         }
     }

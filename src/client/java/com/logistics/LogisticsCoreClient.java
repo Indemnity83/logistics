@@ -1,6 +1,7 @@
 package com.logistics;
 
 import com.logistics.core.bootstrap.DomainBootstrap;
+import com.logistics.core.fabricator.KilnScreen;
 import com.logistics.core.render.MarkerBlockEntityRenderer;
 import com.logistics.core.render.ModelKeyRegistry;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
@@ -8,6 +9,9 @@ import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraft.resources.ResourceLocation;
+import net.fabricmc.fabric.api.client.render.fluid.v1.FluidRenderHandlerRegistry;
+import net.fabricmc.fabric.api.client.render.fluid.v1.SimpleFluidRenderHandler;
+import net.minecraft.client.gui.screens.MenuScreens;
 
 import static com.logistics.LogisticsMod.LOGGER;
 
@@ -26,10 +30,20 @@ public final class LogisticsCoreClient implements DomainBootstrap {
     @Override
     public void initClient() {
         LOGGER.info("Registering core (client)");
-        // Set marker to cutout layer for transparent texture support
         BlockRenderLayerMap.INSTANCE.putBlock(LogisticsCore.BLOCK.MARKER, RenderType.cutout());
-        // Register marker block entity renderer
         BlockEntityRenderers.register(LogisticsCore.ENTITY.MARKER_BLOCK_ENTITY, MarkerBlockEntityRenderer::new);
+        MenuScreens.register(LogisticsCore.MENU.KILN, KilnScreen::new);
+
+        // Register molten glass fluid rendering
+        FluidRenderHandlerRegistry.INSTANCE.register(
+            LogisticsCore.FLUID.MOLTEN_GLASS_STILL,
+            LogisticsCore.FLUID.MOLTEN_GLASS_FLOWING,
+            new SimpleFluidRenderHandler(
+                LogisticsMod.getIdentifier("block/core/liquid_glass"),
+                LogisticsMod.getIdentifier("block/core/liquid_glass"),
+                0xFF8800 // Orange color tint
+            )
+        );
     }
 
     @Override

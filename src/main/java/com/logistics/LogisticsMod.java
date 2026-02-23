@@ -15,6 +15,9 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.flag.FeatureFlags;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,8 +41,33 @@ public class LogisticsMod implements ModInitializer {
         }
     }
 
-    public static ResourceLocation getResourceLocation(String path) {
+    // TODO(post-1.0): Consider creating ResourceHelper in core.lib.resource (like NbtCompat)
+    //  This would centralize all Identifier API calls in a compatibility layer to better
+    //  facilitate cross-version cherry-picking. Proposed API:
+    //    ResourceHelper.id("path") // logistics namespace
+    //    ResourceHelper.parse("namespace:path") // from strings
+    //    ResourceHelper.of("namespace", "path") // arbitrary
+    //  Benefits: cleaner API, consistent with NbtCompat pattern, easier version migrations
+    //  Trade-off: requires creating new package and moving helpers from LogisticsMod
+
+    public static ResourceLocation getIdentifier(String path) {
         return ResourceLocation.fromNamespaceAndPath(MOD_ID, path);
+    }
+
+    /**
+     * Parse an identifier from a string like "namespace:path".
+     * Use when reading identifiers from JSON, NBT, or other external sources.
+     */
+    public static ResourceLocation parseIdentifier(String id) {
+        return ResourceLocation.parse(id);
+    }
+
+    /**
+     * Create an identifier from namespace and path.
+     * Use when you need non-Logistics namespaces (e.g., "minecraft", other mods).
+     */
+    public static ResourceLocation createIdentifier(String namespace, String path) {
+        return ResourceLocation.fromNamespaceAndPath(namespace, path);
     }
 
     // TODO(pre-1.0): Consider if domain/ separator should be flattened to domain_
@@ -49,7 +77,7 @@ public class LogisticsMod implements ModInitializer {
     //  Changing requires alias migration for existing worlds.
     protected ResourceLocation getDomainResourceLocation(String name) {
         String d = domain();
-        return getResourceLocation(d.isEmpty() ? name : d + "/" + name);
+        return getIdentifier(d.isEmpty() ? name : d + "/" + name);
     }
 
     /**
@@ -59,7 +87,7 @@ public class LogisticsMod implements ModInitializer {
      */
     protected ResourceLocation getBlockModelResourceLocation(String name) {
         String d = domain();
-        return getResourceLocation(d.isEmpty() ? "block/" + name : "block/" + d + "/" + name);
+        return getIdentifier(d.isEmpty() ? "block/" + name : "block/" + d + "/" + name);
     }
 
     protected Item registerItem(String name, Function<Item.Properties, Item> itemFactory) {
@@ -96,8 +124,16 @@ public class LogisticsMod implements ModInitializer {
         return Registry.register(BuiltInRegistries.BLOCK_ENTITY_TYPE, identifier, blockEntityType);
     }
 
+    protected <T extends AbstractContainerMenu> MenuType<T> registerMenuType(
+            String name,
+            MenuType.MenuSupplier<T> factory) {
+        ResourceLocation identifier = getDomainResourceLocation(name);
+        MenuType<T> menuType = new MenuType<>(factory, FeatureFlags.DEFAULT_FLAGS);
+        return Registry.register(BuiltInRegistries.MENU, identifier, menuType);
+    }
+
     protected void registerItemAlias(String name, Item item) {
-        ResourceLocation oldItem = getResourceLocation(name);
+        ResourceLocation oldItem = getIdentifier(name);
         ResourceLocation newItem = BuiltInRegistries.ITEM.getKey(item);
 
         if (newItem != null) {
@@ -106,7 +142,7 @@ public class LogisticsMod implements ModInitializer {
     }
 
     protected void registerBlockAlias(String name, Block block) {
-        ResourceLocation oldBlock = getResourceLocation(name);
+        ResourceLocation oldBlock = getIdentifier(name);
         ResourceLocation newBlock = BuiltInRegistries.BLOCK.getKey(block);
 
         if (newBlock != null) {
@@ -115,7 +151,7 @@ public class LogisticsMod implements ModInitializer {
     }
 
     protected void registerBlockEntityAlias(String name, BlockEntityType<?> blockEntityType) {
-        ResourceLocation oldBlockEntity = getResourceLocation(name);
+        ResourceLocation oldBlockEntity = getIdentifier(name);
         ResourceLocation newBlockEntity = BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(blockEntityType);
 
         if(newBlockEntity != null) {

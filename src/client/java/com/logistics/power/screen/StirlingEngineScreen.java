@@ -14,7 +14,7 @@ import net.minecraft.world.entity.player.Inventory;
  */
 public class StirlingEngineScreen extends AbstractContainerScreen<StirlingEngineScreenHandler> {
     private static final ResourceLocation BACKGROUND_TEXTURE =
-            LogisticsMod.getResourceLocation("textures/gui/power/stirling_engine.png");
+            LogisticsMod.getIdentifier("textures/gui/power/stirling_engine.png");
 
     // Reuse vanilla's lit flame sprite
     private static final ResourceLocation LIT_PROGRESS_SPRITE = ResourceLocation.withDefaultNamespace("container/furnace/lit_progress");

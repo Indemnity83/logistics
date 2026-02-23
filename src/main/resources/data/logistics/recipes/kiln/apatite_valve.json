@@ -1,0 +1,21 @@
+{
+  "pattern": [
+    " M ",
+    "RMR",
+    "MMM"
+  ],
+  "key": {
+    "M": "logistics:core/apatite",
+    "R": "minecraft:redstone"
+  },
+  "processTimeTicks": 240,
+  "fluid": {
+    "id": "logistics:core/liquid_glass",
+    "amountMb": 250
+  },
+  "result": {
+    "count": 4,
+    "id": "logistics:core/valve_apatite"
+  },
+  "energyPerTick": 200
+}
