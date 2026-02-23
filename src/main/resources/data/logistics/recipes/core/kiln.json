@@ -2,12 +2,11 @@
   "type": "minecraft:crafting_shaped",
   "pattern": [
     "BBB",
-    "BCB",
+    "B B",
     "BBB"
   ],
   "key": {
-    "B": "minecraft:bricks",
-    "C": "logistics:core/sturdy_casing"
+    "B": "minecraft:bricks"
   },
   "result": {
     "id": "logistics:core/kiln",
