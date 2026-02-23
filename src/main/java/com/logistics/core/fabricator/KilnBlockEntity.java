@@ -178,8 +178,8 @@ public class KilnBlockEntity extends BaseBlockEntity
     }
 
     private boolean needsHeat() {
-        // Need heat if we're melting glass or have active recipe
-        return !inventory.getItem(GLASS_INPUT_SLOT).isEmpty() || activeRecipeId != null;
+        // Maintain kiln at the temperature the last/current fuel can achieve
+        return activeFuelMaxHeat > 0 && heat < activeFuelMaxHeat;
     }
 
     private void refuel() {
