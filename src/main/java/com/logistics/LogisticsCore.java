@@ -222,32 +222,19 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         public static Item NETHERITE_GEAR;
 
         // Valves (Kiln outputs)
-        public static final Item VALVE_COPPER = INSTANCE.registerItem("valve_copper",
-            props -> new Item(props));
-        public static final Item VALVE_TIN = INSTANCE.registerItem("valve_tin",
-            props -> new Item(props));
-        public static final Item VALVE_BRONZE = INSTANCE.registerItem("valve_bronze",
-            props -> new Item(props));
-        public static final Item VALVE_IRON = INSTANCE.registerItem("valve_iron",
-            props -> new Item(props));
-        public static final Item VALVE_GOLD = INSTANCE.registerItem("valve_gold",
-            props -> new Item(props));
-        public static final Item VALVE_DIAMOND = INSTANCE.registerItem("valve_diamond",
-            props -> new Item(props));
-        public static final Item VALVE_OBSIDIAN = INSTANCE.registerItem("valve_obsidian",
-            props -> new Item(props));
-        public static final Item VALVE_BLAZING = INSTANCE.registerItem("valve_blazing",
-            props -> new Item(props));
-        public static final Item VALVE_EMERALD = INSTANCE.registerItem("valve_emerald",
-            props -> new Item(props));
-        public static final Item VALVE_APATITE = INSTANCE.registerItem("valve_apatite",
-            props -> new Item(props));
-        public static final Item VALVE_LAPIS = INSTANCE.registerItem("valve_lapis",
-            props -> new Item(props));
-        public static final Item VALVE_ENDER = INSTANCE.registerItem("valve_ender",
-            props -> new Item(props));
-        public static final Item VALVE_NETHERITE = INSTANCE.registerItem("valve_netherite",
-            props -> new Item(props));
+        public static Item VALVE_COPPER;
+        public static Item VALVE_TIN;
+        public static Item VALVE_BRONZE;
+        public static Item VALVE_IRON;
+        public static Item VALVE_GOLD;
+        public static Item VALVE_DIAMOND;
+        public static Item VALVE_OBSIDIAN;
+        public static Item VALVE_BLAZING;
+        public static Item VALVE_EMERALD;
+        public static Item VALVE_APATITE;
+        public static Item VALVE_LAPIS;
+        public static Item VALVE_ENDER;
+        public static Item VALVE_NETHERITE;
 
         private ITEM() {}
 
@@ -282,6 +269,21 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
             BRONZE_GEAR = INSTANCE.registerItem("bronze_gear", Item::new);
             DIAMOND_GEAR = INSTANCE.registerItem("diamond_gear", Item::new);
             NETHERITE_GEAR = INSTANCE.registerItem("netherite_gear", Item::new);
+
+            // Valves (Kiln outputs)
+            VALVE_COPPER = INSTANCE.registerItem("valve_copper", Item::new);
+            VALVE_TIN = INSTANCE.registerItem("valve_tin", Item::new);
+            VALVE_BRONZE = INSTANCE.registerItem("valve_bronze", Item::new);
+            VALVE_IRON = INSTANCE.registerItem("valve_iron", Item::new);
+            VALVE_GOLD = INSTANCE.registerItem("valve_gold", Item::new);
+            VALVE_DIAMOND = INSTANCE.registerItem("valve_diamond", Item::new);
+            VALVE_OBSIDIAN = INSTANCE.registerItem("valve_obsidian", Item::new);
+            VALVE_BLAZING = INSTANCE.registerItem("valve_blazing", Item::new);
+            VALVE_EMERALD = INSTANCE.registerItem("valve_emerald", Item::new);
+            VALVE_APATITE = INSTANCE.registerItem("valve_apatite", Item::new);
+            VALVE_LAPIS = INSTANCE.registerItem("valve_lapis", Item::new);
+            VALVE_ENDER = INSTANCE.registerItem("valve_ender", Item::new);
+            VALVE_NETHERITE = INSTANCE.registerItem("valve_netherite", Item::new);
         }
     }
 
