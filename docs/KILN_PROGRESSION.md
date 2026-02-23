@@ -29,7 +29,7 @@ At 1500°C operating temperature:
 
 Each fuel has a maximum burn rate (ticks/tick) based on its vanilla burn time:
 
-```
+```text
 burnCap = BURN_CAP_REFERENCE_RATE * (burnTime / BURN_CAP_REFERENCE_ITEM_TIME)^0.5
 burnCap = clamp(burnCap, BURN_CAP_MIN, BURN_CAP_MAX)
 ```
@@ -135,21 +135,21 @@ Total energy cost = `energyPerTick * processTimeTicks`
 To determine if a fuel can sustain a recipe:
 
 1. **Calculate fuel net capacity**:
-   ```
+   ```text
    netCapacity = (burnCap * throttle) - thermalDecay
    ```
    At full throttle (1.0) and 1500°C:
-   ```
+   ```text
    netCapacity ≈ burnCap - 5
    ```
 
 2. **Calculate recipe energy demand**:
-   ```
+   ```text
    energyPerTick = energyDemand / processTimeTicks
    ```
 
 3. **Check sustainability**:
-   ```
+   ```text
    isSustainable = netCapacity >= energyPerTick
    ```
 
