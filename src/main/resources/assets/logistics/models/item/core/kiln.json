@@ -1,5 +1,5 @@
 {
-  "parent": "minecraft:block/cube",
+  "parent": "logistics:block/core/kiln",
   "display": {
     "gui": {
       "rotation": [30, 45, 0],
@@ -31,14 +31,5 @@
       "translation": [0, 0, 0],
       "scale": [0.40, 0.40, 0.40]
     }
-  },
-  "textures": {
-    "particle": "logistics:block/core/kiln_side",
-    "down": "logistics:block/core/kiln_bottom",
-    "up": "logistics:block/core/kiln_top",
-    "north": "logistics:block/core/kiln_side",
-    "south": "logistics:block/core/kiln_front",
-    "east": "logistics:block/core/kiln_side",
-    "west": "logistics:block/core/kiln_side"
   }
 }
