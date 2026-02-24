@@ -42,14 +42,11 @@ public final class LogisticsCoreClient implements DomainBootstrap {
         MenuScreens.register(LogisticsCore.MENU.KILN, KilnScreen::new);
 
         // Register molten glass fluid rendering
+        var liquidGlassTexture = LogisticsMod.modId("block/core/liquid_glass").toIdentifier();
         FluidRenderHandlerRegistry.INSTANCE.register(
             LogisticsCore.FLUID.MOLTEN_GLASS_STILL,
             LogisticsCore.FLUID.MOLTEN_GLASS_FLOWING,
-            new SimpleFluidRenderHandler(
-                LogisticsMod.modId("block/core/liquid_glass").toIdentifier(),
-                LogisticsMod.modId("block/core/liquid_glass").toIdentifier(),
-                0xFF8800 // Orange color tint
-            )
+            new SimpleFluidRenderHandler(liquidGlassTexture, liquidGlassTexture, 0xFF8800)
         );
     }
 

@@ -532,7 +532,12 @@ public class KilnBlockEntity extends BaseBlockEntity
         craftEnergyDebtFrac = NbtCompat.getDouble(tag, "CraftEnergyDebtFrac", 0.0);
 
         if (tag.contains("ActiveRecipeId")) {
-            tag.getString("ActiveRecipeId").ifPresent(s -> activeRecipeId = ResourceId.parse(s));
+            tag.getString("ActiveRecipeId").ifPresent(s -> {
+                ResourceId parsed = ResourceId.tryParse(s);
+                if (parsed != null) {
+                    activeRecipeId = parsed;
+                }
+            });
         }
 
         // Migration: convert old heat system to energy if present

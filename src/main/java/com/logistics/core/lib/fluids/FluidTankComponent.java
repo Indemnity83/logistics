@@ -60,7 +60,14 @@ public abstract class FluidTankComponent extends SingleVariantStorage<FluidVaria
         if (data.isEmpty() || !data.contains("fluid")) return;
 
         String id = NbtCompat.getString(data, "fluid", "");
-        Fluid fluid = id.isEmpty() ? Fluids.EMPTY : BuiltInRegistries.FLUID.getValue(ResourceId.parse(id).toIdentifier());
+        ResourceId resourceId = ResourceId.tryParse(id);
+        Fluid fluid = Fluids.EMPTY;
+        if (resourceId != null) {
+            Fluid registryFluid = BuiltInRegistries.FLUID.getValue(resourceId.toIdentifier());
+            if (registryFluid != null) {
+                fluid = registryFluid;
+            }
+        }
         CompoundTag compTag = NbtCompat.getCompoundOrEmpty(data, "components");
         DataComponentPatch comp = compTag.isEmpty() ? DataComponentPatch.EMPTY :
                 DataComponentPatch.CODEC.parse(NbtOps.INSTANCE, compTag).result().orElse(DataComponentPatch.EMPTY);
