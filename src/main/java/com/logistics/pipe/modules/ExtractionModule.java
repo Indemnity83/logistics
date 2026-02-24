@@ -1,6 +1,7 @@
 package com.logistics.pipe.modules;
 
 import com.logistics.LogisticsPipe;
+import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.core.lib.storage.NbtCompat;
 import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
@@ -14,7 +15,6 @@ import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.Identifier;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -225,12 +225,12 @@ public class ExtractionModule implements Module {
     }
 
     @Override
-    public @Nullable Identifier getPipeArm(PipeContext ctx, Direction direction) {
+    public @Nullable ResourceId getPipeArm(PipeContext ctx, Direction direction) {
         if (!isExtractionFace(ctx, direction)) {
             return null;
         }
         String suffix = ctx.isInventoryConnection(direction) ? "_feature_extended" : "_feature";
-        return LogisticsPipe.blockModelIdentifier("item_extractor_pipe" + suffix);
+        return LogisticsPipe.model("item_extractor_pipe" + suffix);
     }
 
     private boolean isExtractionFace(PipeContext ctx, Direction direction) {

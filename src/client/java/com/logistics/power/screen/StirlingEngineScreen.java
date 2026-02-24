@@ -1,12 +1,12 @@
 package com.logistics.power.screen;
 
 import com.logistics.LogisticsMod;
+import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.power.engine.ui.StirlingEngineScreenHandler;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 
 /**
@@ -14,11 +14,11 @@ import net.minecraft.world.entity.player.Inventory;
  * Displays fuel slot with burn progress flame.
  */
 public class StirlingEngineScreen extends AbstractContainerScreen<StirlingEngineScreenHandler> {
-    private static final Identifier BACKGROUND_TEXTURE =
-            LogisticsMod.getIdentifier("textures/gui/power/stirling_engine.png");
+    private static final ResourceId BACKGROUND_TEXTURE =
+            LogisticsMod.modId("textures/gui/power/stirling_engine.png");
 
     // Reuse vanilla's lit flame sprite
-    private static final Identifier LIT_PROGRESS_SPRITE = Identifier.withDefaultNamespace("container/furnace/lit_progress");
+    private static final ResourceId LIT_PROGRESS_SPRITE = ResourceId.in("minecraft", "container/furnace/lit_progress");
 
     // Flame position (below the fuel slot)
     private static final int FLAME_X = 80;
@@ -35,7 +35,7 @@ public class StirlingEngineScreen extends AbstractContainerScreen<StirlingEngine
         // Draw main background
         context.blit(
                 RenderPipelines.GUI_TEXTURED,
-                BACKGROUND_TEXTURE,
+                BACKGROUND_TEXTURE.toIdentifier(),
                 leftPos,
                 topPos,
                 0,
@@ -53,7 +53,7 @@ public class StirlingEngineScreen extends AbstractContainerScreen<StirlingEngine
             int yOffset = flameHeight - pixelsToShow;
             context.blitSprite(
                     RenderPipelines.GUI_TEXTURED,
-                    LIT_PROGRESS_SPRITE,
+                    LIT_PROGRESS_SPRITE.toIdentifier(),
                     14,
                     14,
                     0,
