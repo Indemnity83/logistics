@@ -1,7 +1,7 @@
 package com.logistics.core.fabricator;
 
+import com.logistics.core.lib.resource.ResourceId;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.*;
@@ -19,23 +19,23 @@ import java.util.Optional;
  * and don't need the full Recipe API integration for this custom machine.
  */
 public class KilnRecipe {
-    private final ResourceLocation id;
+    private final ResourceId id;
     private final List<Optional<Ingredient>> ingredients; // 9 slots (3x3 grid)
     private final int processTimeTicks;        // Duration of the crafting process
-    private final ResourceLocation fluidId;          // Fluid type (e.g., molten glass)
+    private final ResourceId fluidId;      // Fluid type (e.g., molten glass)
     private final int fluidAmountMb;           // Fluid amount in millibuckets
     private final int energyPerTick;           // Energy cost per tick (total = energyPerTick * processTimeTicks)
-    private final ResourceLocation resultItemId;     // Result item ID (lazy ItemStack creation)
+    private final ResourceId resultItemId; // Result item ID (lazy ItemStack creation)
     private final int resultCount;             // Result item count
 
     public KilnRecipe(
-        ResourceLocation id,
+        ResourceId id,
         List<Optional<Ingredient>> ingredients,
         int processTimeTicks,
-        ResourceLocation fluidId,
+        ResourceId fluidId,
         int fluidAmountMb,
         int energyPerTick,
-        ResourceLocation resultItemId,
+        ResourceId resultItemId,
         int resultCount
     ) {
         if (ingredients.size() != 9) {
@@ -51,7 +51,7 @@ public class KilnRecipe {
         this.resultCount = resultCount;
     }
 
-    public ResourceLocation getId() {
+    public ResourceId getId() {
         return id;
     }
 
@@ -77,7 +77,7 @@ public class KilnRecipe {
 
     public ItemStack getResultItem() {
         // Create ItemStack on demand (components are initialized by the time recipes are accessed)
-        var itemHolder = BuiltInRegistries.ITEM.get(resultItemId);
+        var itemHolder = BuiltInRegistries.ITEM.get(resultItemId.toIdentifier());
         if (itemHolder == null) {
             throw new IllegalStateException("Result item not found: " + resultItemId);
         }
@@ -89,7 +89,7 @@ public class KilnRecipe {
         return processTimeTicks;
     }
 
-    public ResourceLocation getFluidId() {
+    public ResourceId getFluidId() {
         return fluidId;
     }
 

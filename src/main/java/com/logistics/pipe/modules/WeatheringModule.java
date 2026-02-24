@@ -1,6 +1,7 @@
 package com.logistics.pipe.modules;
 
 import com.logistics.LogisticsPipe;
+import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.pipe.Pipe;
 import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.block.PipeBlock;
@@ -9,9 +10,8 @@ import com.logistics.pipe.data.PipeDataComponents.WeatheringState;
 import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.component.DataComponentHolder;
 import net.minecraft.core.component.DataComponentMap;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
@@ -196,24 +196,24 @@ public class WeatheringModule implements Module {
     }
 
     @Override
-    public @Nullable ResourceLocation getCoreModel(PipeContext ctx) {
+    public @Nullable ResourceId getCoreModel(PipeContext ctx) {
         int stage = getOxidationStage(ctx);
         if (stage == STAGE_UNAFFECTED) {
             return null; // Use default model
         }
         String suffix = getStageSuffix(stage);
-        return LogisticsPipe.blockModelIdentifier("copper_transport_pipe_core" + suffix);
+        return LogisticsPipe.model("copper_transport_pipe_core" + suffix);
     }
 
     @Override
-    public @Nullable ResourceLocation getPipeArm(PipeContext ctx, Direction direction) {
+    public @Nullable ResourceId getPipeArm(PipeContext ctx, Direction direction) {
         int stage = getOxidationStage(ctx);
         if (stage == STAGE_UNAFFECTED) {
             return null; // Use default model
         }
         String suffix = getStageSuffix(stage);
         String armType = ctx.isInventoryConnection(direction) ? "_arm_extended" : "_arm";
-        return LogisticsPipe.blockModelIdentifier("copper_transport_pipe" + armType + suffix);
+        return LogisticsPipe.model("copper_transport_pipe" + armType + suffix);
     }
 
     // --- Item component handling ---
@@ -263,7 +263,7 @@ public class WeatheringModule implements Module {
     @Override
     public String getItemNameSuffixFromComponents(Object components) {
         // components is an ItemStack (implements DataComponentHolder) in MC 1.21.1
-        if (!(components instanceof DataComponentHolder holder)) return "";
+        if (!(components instanceof net.minecraft.core.component.DataComponentHolder holder)) return "";
         WeatheringState state = holder.get(LogisticsPipe.DATA.WEATHERING_STATE);
         if (state == null || state.isDefault()) return "";
         return buildItemNameSuffix(state.oxidationStage(), state.waxed());
@@ -290,7 +290,7 @@ public class WeatheringModule implements Module {
         int modelValue = waxed ? stage + 5 : stage;
         if (modelValue != 0) {
             stack.set(net.minecraft.core.component.DataComponents.CUSTOM_MODEL_DATA,
-                    new CustomModelData(modelValue));
+                    new net.minecraft.world.item.component.CustomModelData(modelValue));
         }
 
         return stack;
@@ -311,4 +311,20 @@ public class WeatheringModule implements Module {
         return oxidationSuffix;
     }
 
+    private static String getModelKey(int stage, boolean waxed) {
+        String stageName =
+                switch (stage) {
+                    case STAGE_EXPOSED -> "exposed";
+                    case STAGE_WEATHERED -> "weathered";
+                    case STAGE_OXIDIZED -> "oxidized";
+                    default -> "";
+                };
+
+        if (waxed && !stageName.isEmpty()) {
+            return "waxed_" + stageName;
+        } else if (waxed) {
+            return "waxed";
+        }
+        return stageName;
+    }
 }

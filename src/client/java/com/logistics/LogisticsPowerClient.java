@@ -59,7 +59,7 @@ public final class LogisticsPowerClient implements DomainBootstrap {
     }
 
     public static final class MODEL {
-        private static final ModelKeyRegistry REGISTRY = new ModelKeyRegistry(LogisticsPower::blockModelIdentifier);
+        private static final ModelKeyRegistry REGISTRY = new ModelKeyRegistry(name -> LogisticsPower.model(name).toIdentifier());
 
         public static final ResourceLocation REDSTONE_BELLOW = REGISTRY.registerModel("redstone_engine_bellow");
         public static final ResourceLocation REDSTONE_PISTON = REGISTRY.registerModel("redstone_engine_piston");

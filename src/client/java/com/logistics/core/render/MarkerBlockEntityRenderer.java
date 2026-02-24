@@ -25,7 +25,7 @@ import java.util.List;
  * Uses baked model segments for quad-based beams with proper thickness.
  */
 public class MarkerBlockEntityRenderer implements BlockEntityRenderer<MarkerBlockEntity> {
-    private static final ResourceLocation BEAM_MODEL_ID = LogisticsCore.blockModelIdentifier("marker_beam");
+    private static final ResourceLocation BEAM_MODEL_ID = LogisticsCore.model("marker_beam").toIdentifier();
 
     private final ModelBlockRenderer modelRenderer;
 

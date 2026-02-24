@@ -6,10 +6,10 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.logistics.LogisticsMod;
+import com.logistics.core.lib.resource.ResourceId;
 import net.fabricmc.fabric.api.resource.IdentifiableResourceReloadListener;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.profiling.ProfilerFiller;
@@ -35,15 +35,15 @@ import java.util.concurrent.Executor;
 public class KilnRecipeManager {
     private static final Logger LOGGER = LoggerFactory.getLogger("Logistics/KilnRecipes");
     private static final Gson GSON = new GsonBuilder().create();
-    private static final Map<ResourceLocation, KilnRecipe> RECIPES = new HashMap<>();
+    private static final Map<ResourceId, KilnRecipe> RECIPES = new HashMap<>();
 
     public static void register() {
         LOGGER.info("Registering kiln recipe reload listener");
         ResourceManagerHelper.get(PackType.SERVER_DATA).registerReloadListener(
             new IdentifiableResourceReloadListener() {
                 @Override
-                public ResourceLocation getFabricId() {
-                    return LogisticsMod.getIdentifier("kiln_recipes");
+                public net.minecraft.resources.ResourceLocation getFabricId() {
+                    return LogisticsMod.modId("kiln_recipes").toIdentifier();
                 }
 
                 @Override
@@ -59,7 +59,7 @@ public class KilnRecipeManager {
                     return CompletableFuture.supplyAsync(() -> {
                         LOGGER.info("Kiln recipe reload triggered");
                         preparationProfiler.startTick();
-                        Map<ResourceLocation, KilnRecipe> loadedRecipes = new HashMap<>();
+                        Map<ResourceId, KilnRecipe> loadedRecipes = new HashMap<>();
                         loadRecipesInto(resourceManager, loadedRecipes);
                         preparationProfiler.endTick();
                         return loadedRecipes;
@@ -79,7 +79,7 @@ public class KilnRecipeManager {
         );
     }
 
-    private static void loadRecipesInto(ResourceManager manager, Map<ResourceLocation, KilnRecipe> targetMap) {
+    private static void loadRecipesInto(ResourceManager manager, Map<ResourceId, KilnRecipe> targetMap) {
         LOGGER.info("Loading kiln recipes from resources...");
         // Find all recipe files matching data/*/recipes/kiln/*.json
         var resources = manager.listResources("recipes/kiln", path -> path.getPath().endsWith(".json"));
@@ -91,7 +91,7 @@ public class KilnRecipeManager {
                     // Extract recipe ID from file path
                     String path = resourceLocation.getPath();
                     String recipeIdPath = path.substring("recipes/kiln/".length(), path.length() - ".json".length());
-                    ResourceLocation recipeId = LogisticsMod.createIdentifier(resourceLocation.getNamespace(), recipeIdPath);
+                    ResourceId recipeId = ResourceId.in(resourceLocation.getNamespace(), recipeIdPath);
 
                     // Parse manually
                     KilnRecipe recipe = parseRecipe(recipeId, json);
@@ -104,7 +104,7 @@ public class KilnRecipeManager {
         LOGGER.info("Loaded {} kiln recipes", targetMap.size());
     }
 
-    private static KilnRecipe parseRecipe(ResourceLocation recipeId, JsonObject json) {
+    private static KilnRecipe parseRecipe(ResourceId recipeId, JsonObject json) {
         // Parse pattern strings
         JsonArray patternArray = json.getAsJsonArray("pattern");
         List<String> patternList = new ArrayList<>();
@@ -122,7 +122,7 @@ public class KilnRecipeManager {
             char symbol = entry.getKey().charAt(0);
             String itemId = entry.getValue().getAsString();
             // Create ingredient from item ID
-            var item = BuiltInRegistries.ITEM.get(LogisticsMod.parseIdentifier(itemId));
+            var item = BuiltInRegistries.ITEM.get(ResourceId.parse(itemId).toIdentifier());
             if (item == null) {
                 throw new IllegalArgumentException("Unknown item: " + itemId);
             }
@@ -151,7 +151,7 @@ public class KilnRecipeManager {
         // Parse fluid requirement
         JsonObject fluidObj = json.getAsJsonObject("fluid");
         String fluidIdStr = fluidObj.get("id").getAsString();
-        ResourceLocation fluidId = LogisticsMod.parseIdentifier(fluidIdStr);
+        ResourceId fluidId = ResourceId.parse(fluidIdStr);
         int fluidAmountMb = fluidObj.get("amountMb").getAsInt();
 
         int energyPerTick = json.get("energyPerTick").getAsInt();
@@ -160,21 +160,21 @@ public class KilnRecipeManager {
         JsonObject resultObj = json.getAsJsonObject("result");
         String itemIdStr = resultObj.get("id").getAsString();
         int resultCount = resultObj.get("count").getAsInt();
-        ResourceLocation resultItemId = LogisticsMod.parseIdentifier(itemIdStr);
+        ResourceId resultItemId = ResourceId.parse(itemIdStr);
 
         // Validate item exists in registry
-        if (BuiltInRegistries.ITEM.get(resultItemId) == null) {
+        if (BuiltInRegistries.ITEM.get(resultItemId.toIdentifier()) == null) {
             throw new IllegalArgumentException("Unknown result item: " + itemIdStr);
         }
 
         return new KilnRecipe(recipeId, ingredients, processTimeTicks, fluidId, fluidAmountMb, energyPerTick, resultItemId, resultCount);
     }
 
-    public static Map<ResourceLocation, KilnRecipe> getAllRecipes() {
+    public static Map<ResourceId, KilnRecipe> getAllRecipes() {
         return RECIPES;
     }
 
-    public static KilnRecipe getRecipe(ResourceLocation id) {
+    public static KilnRecipe getRecipe(ResourceId id) {
         return RECIPES.get(id);
     }
 }

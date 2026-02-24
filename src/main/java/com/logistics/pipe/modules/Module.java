@@ -1,13 +1,13 @@
 package com.logistics.pipe.modules;
 
 import com.logistics.LogisticsPipe;
+import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.pipe.Pipe;
 import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.runtime.RoutePlan;
 import java.util.List;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponentMap;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -91,7 +91,7 @@ public interface Module {
      * @param direction the direction of the arm being rendered
      * @return the arm model identifier, or null to use the default arm model
      */
-    @Nullable default ResourceLocation getPipeArm(PipeContext ctx, Direction direction) {
+    @Nullable default ResourceId getPipeArm(PipeContext ctx, Direction direction) {
         return null;
     }
 
@@ -114,7 +114,7 @@ public interface Module {
      * @param direction the direction of the arm being rendered
      * @return decoration model identifiers to render for this arm direction
      */
-    default List<ResourceLocation> getPipeDecorations(PipeContext ctx, Direction direction) {
+    default List<ResourceId> getPipeDecorations(PipeContext ctx, Direction direction) {
         return List.of();
     }
 
@@ -135,7 +135,7 @@ public interface Module {
      * @param ctx the pipe context
      * @return the core model identifier, or null to use the default core model
      */
-    @Nullable default ResourceLocation getCoreModel(PipeContext ctx) {
+    @Nullable default ResourceId getCoreModel(PipeContext ctx) {
         return null;
     }
 
@@ -185,10 +185,9 @@ public interface Module {
     /**
      * Get custom model data integer value for item model selection.
      * Used in MC 1.21.1 where CustomModelData is an integer, not a string list.
-     * Return 0 for no custom model data.
      *
      * @param ctx the pipe context
-     * @return integer model data value, or 0 for none
+     * @return the custom model data integer (0 for none)
      */
     default int getCustomModelDataValue(PipeContext ctx) {
         return 0;

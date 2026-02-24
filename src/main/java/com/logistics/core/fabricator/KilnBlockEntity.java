@@ -1,13 +1,13 @@
 package com.logistics.core.fabricator;
 
 import com.logistics.LogisticsCore;
-import com.logistics.LogisticsMod;
 import com.logistics.core.lib.BaseBlockEntity;
 import com.logistics.core.lib.block.behavior.MenuBehavior;
 import com.logistics.core.lib.block.capability.HasFluidStorage;
 import com.logistics.core.lib.block.capability.HasItemStorage;
 import com.logistics.core.lib.fluids.FluidTankComponent;
 import com.logistics.core.lib.items.ItemInventoryComponent;
+import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.core.lib.storage.NbtCompat;
 import com.logistics.power.engine.PIDController;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
@@ -17,8 +17,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Container;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
@@ -102,7 +100,7 @@ public class KilnBlockEntity extends BaseBlockEntity
     private double meltEnergyDebtFrac = 0.0; // Fractional accumulator for distributed melt energy cost
 
     // Recipe state
-    private ResourceLocation activeRecipeId = null;
+    private ResourceId activeRecipeId = null;
     private int annealProgressTicks = 0;
     private double craftEnergyDebtFrac = 0.0;
 
@@ -402,7 +400,7 @@ public class KilnBlockEntity extends BaseBlockEntity
             .orElse(null);
     }
 
-    private KilnRecipe getRecipeById(ResourceLocation recipeId) {
+    private KilnRecipe getRecipeById(ResourceId recipeId) {
         return KilnRecipeManager.getRecipe(recipeId);
     }
 
@@ -536,7 +534,10 @@ public class KilnBlockEntity extends BaseBlockEntity
         if (tag.contains("ActiveRecipeId")) {
             String recipeIdStr = tag.getString("ActiveRecipeId");
             if (!recipeIdStr.isEmpty()) {
-                activeRecipeId = LogisticsMod.parseIdentifier(recipeIdStr);
+                ResourceId parsed = ResourceId.tryParse(recipeIdStr);
+                if (parsed != null) {
+                    activeRecipeId = parsed;
+                }
             }
         }
 

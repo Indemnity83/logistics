@@ -105,11 +105,11 @@ public class EngineBlockEntityRenderer implements BlockEntityRenderer<AbstractEn
     }
 
     private ResourceLocation getBellowKey(AbstractEngineBlockEntity entity) {
-        return LogisticsPower.blockModelIdentifier(getEngineName(entity) + "_bellow");
+        return LogisticsPower.model(getEngineName(entity) + "_bellow").toIdentifier();
     }
 
     private ResourceLocation getPistonKey(AbstractEngineBlockEntity entity) {
-        return LogisticsPower.blockModelIdentifier(getEngineName(entity) + "_piston");
+        return LogisticsPower.model(getEngineName(entity) + "_piston").toIdentifier();
     }
 
     /**

@@ -3,6 +3,7 @@ package com.logistics.pipe;
 import com.logistics.LogisticsMod;
 import com.logistics.LogisticsPipe;
 import com.logistics.core.lib.block.capability.PipeConnection;
+import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.pipe.block.PipeBlock;
 import com.logistics.pipe.modules.Module;
 import com.logistics.pipe.runtime.RoutePlan;
@@ -14,10 +15,8 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.item.component.CustomModelData;
 import org.jetbrains.annotations.Nullable;
 
 public class Pipe {
@@ -67,14 +66,14 @@ public class Pipe {
      * Get the model identifier for the core part of this pipe.
      * Delegates to modules first to allow state-dependent overrides (e.g., powered gold pipe).
      */
-    public ResourceLocation getCoreModelId(PipeContext ctx) {
+    public ResourceId getCoreModelId(PipeContext ctx) {
         for (Module module : modules) {
-            ResourceLocation override = module.getCoreModel(ctx);
+            ResourceId override = module.getCoreModel(ctx);
             if (override != null) {
                 return override;
             }
         }
-        return LogisticsMod.getIdentifier("block/" + getPipeName() + "_core");
+        return LogisticsMod.modId("block/" + getPipeName() + "_core");
     }
 
     /**
@@ -98,16 +97,16 @@ public class Pipe {
      * @param direction the direction of the arm
      * @return the arm model identifier
      */
-    public ResourceLocation getPipeArm(PipeContext ctx, Direction direction) {
+    public ResourceId getPipeArm(PipeContext ctx, Direction direction) {
         for (Module module : modules) {
-            ResourceLocation override = module.getPipeArm(ctx, direction);
+            ResourceId override = module.getPipeArm(ctx, direction);
             if (override != null) {
                 return override;
             }
         }
 
         String suffix = ctx.isInventoryConnection(direction) ? "_arm_extended" : "_arm";
-        return LogisticsMod.getIdentifier("block/" + getPipeName() + suffix);
+        return LogisticsMod.modId("block/" + getPipeName() + suffix);
     }
 
     /**
@@ -119,8 +118,8 @@ public class Pipe {
      * @param direction the direction of the arm
      * @return a (possibly empty) list of decoration model identifiers
      */
-    public List<ResourceLocation> getPipeDecorations(PipeContext ctx, Direction direction) {
-        List<ResourceLocation> models = new ArrayList<>();
+    public List<ResourceId> getPipeDecorations(PipeContext ctx, Direction direction) {
+        List<ResourceId> models = new ArrayList<>();
         for (Module module : modules) {
             models.addAll(module.getPipeDecorations(ctx, direction));
         }
@@ -182,7 +181,7 @@ public class Pipe {
         }
         if (modelValue != 0) {
             builder.set(net.minecraft.core.component.DataComponents.CUSTOM_MODEL_DATA,
-                    new CustomModelData(modelValue));
+                    new net.minecraft.world.item.component.CustomModelData(modelValue));
         }
     }
 
@@ -214,6 +213,9 @@ public class Pipe {
     /**
      * Get the item name suffix from item components.
      * Used for item display names when we don't have a block context.
+     *
+     * <p><b>Note:</b> The parameter type differs between MC versions.
+     * In MC 1.21.1 it is {@code BlockEntity.DataComponentInput}.
      */
     public String getItemNameSuffixFromComponents(Object components) {
         for (Module module : modules) {
@@ -238,7 +240,7 @@ public class Pipe {
     /**
      * Core overlay model with an optional tint color.
      */
-    public record CoreDecoration(ResourceLocation modelId, int color) {}
+    public record CoreDecoration(ResourceId modelId, int color) {}
 
     public String getModelBasePath(Direction direction) {
         return "block/" + getPipeName() + "_" + direction.name().toLowerCase();

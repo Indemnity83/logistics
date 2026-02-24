@@ -3,6 +3,7 @@ package com.logistics.pipe.render;
 import com.logistics.LogisticsPipe;
 import com.logistics.LogisticsPipeClient;
 import com.logistics.core.lib.block.capability.PipeConnection;
+import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.pipe.Pipe;
 import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.block.PipeBlock;
@@ -83,13 +84,13 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
         for (Direction direction : Direction.values()) {
             if (entity.getCachedConnectionType(direction) == PipeConnection.Type.NONE) continue;
 
-            ResourceLocation armId = pipe.getPipeArm(ctx, direction);
+            ResourceId armId = pipe.getPipeArm(ctx, direction);
             Integer armTint = pipe.getArmTint(ctx, direction);
             int armColor = armTint != null ? armTint : 0xFFFFFF;
 
             renderModel(getModel(armId), direction, armColor, state, poseStack, buffer, packedLight, packedOverlay);
 
-            for (ResourceLocation decoration : pipe.getPipeDecorations(ctx, direction)) {
+            for (ResourceId decoration : pipe.getPipeDecorations(ctx, direction)) {
                 renderModel(getModel(decoration), direction, 0xFFFFFF, state, poseStack, buffer, packedLight, packedOverlay);
             }
         }
@@ -249,10 +250,10 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
         poseStack.popPose();
     }
 
-    private BakedModel getModel(ResourceLocation id) {
+    private BakedModel getModel(ResourceId id) {
         // Check if this model ID is registered in our static MODEL class
         // This ensures we only try to load models we explicitly registered
-        ResourceLocation registeredId = LogisticsPipeClient.MODEL.getKey(id);
+        ResourceLocation registeredId = LogisticsPipeClient.MODEL.getKey(id.toIdentifier());
         if (registeredId == null) {
             return null;
         }

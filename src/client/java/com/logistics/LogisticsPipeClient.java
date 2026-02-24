@@ -75,7 +75,7 @@ public final class LogisticsPipeClient implements DomainBootstrap {
         private static final Map<ResourceLocation, ResourceLocation> TEMP_LOOKUP = new HashMap<>();
 
         private static void registerModel(String name) {
-            ResourceLocation id = LogisticsPipe.blockModelIdentifier(name);
+            ResourceLocation id = LogisticsPipe.model(name).toIdentifier();
             TEMP_LOOKUP.put(id, id);
         }
 

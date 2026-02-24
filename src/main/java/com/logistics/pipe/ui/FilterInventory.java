@@ -1,5 +1,6 @@
 package com.logistics.pipe.ui;
 
+import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.pipe.modules.ItemFilterModule;
@@ -8,7 +9,6 @@ import java.util.List;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -125,9 +125,9 @@ public class FilterInventory implements Container {
                 String id = slots.get(i);
                 ItemStack stack = ItemStack.EMPTY;
                 if (!id.isEmpty()) {
-                    ResourceLocation identifier = ResourceLocation.tryParse(id);
-                    if (identifier != null) {
-                        Item item = BuiltInRegistries.ITEM.get(identifier);
+                    ResourceId resource = ResourceId.tryParse(id);
+                    if (resource != null) {
+                        Item item = BuiltInRegistries.ITEM.get(resource.toIdentifier());
                         if (item != null && item != Items.AIR) {
                             stack = new ItemStack(item);
                         }
@@ -153,8 +153,7 @@ public class FilterInventory implements Container {
                 if (stack.isEmpty()) {
                     slots.add("");
                 } else {
-                    ResourceLocation id = BuiltInRegistries.ITEM.getKey(stack.getItem());
-                    slots.add(id.toString());
+                    slots.add(BuiltInRegistries.ITEM.getKey(stack.getItem()).toString());
                 }
             }
             module.setFilterSlots(ctx, direction, slots);

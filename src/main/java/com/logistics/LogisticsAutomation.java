@@ -5,13 +5,12 @@ import com.logistics.automation.laserquarry.LaserQuarryFrameBlock;
 import com.logistics.automation.laserquarry.entity.LaserQuarryBlockEntity;
 import com.logistics.core.bootstrap.DomainBootstrap;
 import com.logistics.core.lib.pipe.PipeConnectionRegistry;
+import com.logistics.core.lib.resource.ResourceId;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import team.reborn.energy.api.EnergyStorage;
 
 public final class LogisticsAutomation extends LogisticsMod implements DomainBootstrap {
     private static final LogisticsAutomation INSTANCE = new LogisticsAutomation();
@@ -21,12 +20,12 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
         return "automation";
     }
 
-    public static ResourceLocation identifier(String name) {
-        return INSTANCE.getDomainResourceLocation(name);
+    public static ResourceId resource(String name) {
+        return INSTANCE.domainResource(name);
     }
 
-    public static ResourceLocation blockModelIdentifier(String name) {
-        return INSTANCE.getBlockModelResourceLocation(name);
+    public static ResourceId model(String name) {
+        return INSTANCE.domainModelResource(name);
     }
 
     @Override

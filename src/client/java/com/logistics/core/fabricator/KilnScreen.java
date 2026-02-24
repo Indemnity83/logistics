@@ -17,7 +17,7 @@ import net.minecraft.world.entity.player.Inventory;
  */
 public class KilnScreen extends AbstractContainerScreen<KilnScreenHandler> {
 
-    private static final ResourceLocation TEXTURE = LogisticsMod.getIdentifier("textures/gui/core/kiln.png");
+    private static final ResourceLocation TEXTURE = LogisticsMod.modId("textures/gui/core/kiln.png").toIdentifier();
 
     // GUI texture dimensions (standard)
     private static final int TEXTURE_WIDTH = 256;

@@ -2,6 +2,7 @@ package com.logistics;
 
 import com.logistics.api.LogisticsApi;
 import com.logistics.core.bootstrap.DomainBootstrap;
+import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.pipe.Pipe;
 import com.logistics.pipe.PipeApi;
 import com.logistics.pipe.PipeTypes;
@@ -13,7 +14,6 @@ import com.logistics.pipe.ui.ItemFilterScreenHandler;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.DyeColor;
@@ -42,12 +42,12 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
         return "pipe";
     }
 
-    public static ResourceLocation identifier(String name) {
-        return INSTANCE.getDomainResourceLocation(name);
+    public static ResourceId resource(String name) {
+        return INSTANCE.domainResource(name);
     }
 
-    public static ResourceLocation blockModelIdentifier(String name) {
-        return INSTANCE.getBlockModelResourceLocation(name);
+    public static ResourceId model(String name) {
+        return INSTANCE.domainModelResource(name);
     }
 
     @Override
@@ -165,7 +165,7 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
         static void register() {
             WEATHERING_STATE = Registry.register(
                     BuiltInRegistries.DATA_COMPONENT_TYPE,
-                    LogisticsPipe.identifier("weathering_state"),
+                    LogisticsPipe.resource("weathering_state").toIdentifier(),
                     DataComponentType.<WeatheringState>builder()
                             .persistent(WeatheringState.CODEC)
                             .build());
@@ -205,7 +205,7 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
         static void register() {
             ITEM_FILTER = Registry.register(
                     BuiltInRegistries.MENU,
-                    LogisticsPipe.identifier("item_filter"),
+                    LogisticsPipe.resource("item_filter").toIdentifier(),
                     new MenuType<>(ItemFilterScreenHandler::new, FeatureFlagSet.of()));
         }
     }
@@ -246,17 +246,17 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
             registerItemAlias(name, MARKING_FLUID_ITEMS.get(color));
         }
 
-        ResourceLocation newMenuId = BuiltInRegistries.MENU.getKey(SCREEN.ITEM_FILTER);
+        var newMenuId = BuiltInRegistries.MENU.getKey(SCREEN.ITEM_FILTER);
         if (newMenuId != null) {
             BuiltInRegistries.MENU.addAlias(
-                    LogisticsMod.getIdentifier("item_filter"),
+                    LogisticsMod.modId("item_filter").toIdentifier(),
                     newMenuId);
         }
 
-        ResourceLocation newDataId = BuiltInRegistries.DATA_COMPONENT_TYPE.getKey(DATA.WEATHERING_STATE);
+        var newDataId = BuiltInRegistries.DATA_COMPONENT_TYPE.getKey(DATA.WEATHERING_STATE);
         if (newDataId != null) {
             BuiltInRegistries.DATA_COMPONENT_TYPE.addAlias(
-                    LogisticsMod.getIdentifier("weathering_state"),
+                    LogisticsMod.modId("weathering_state").toIdentifier(),
                     newDataId);
         }
     }

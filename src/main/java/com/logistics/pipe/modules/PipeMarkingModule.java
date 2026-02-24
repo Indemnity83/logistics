@@ -1,6 +1,7 @@
 package com.logistics.pipe.modules;
 
 import com.logistics.LogisticsPipe;
+import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.pipe.Pipe;
 import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.block.PipeBlock;
@@ -13,7 +14,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.DyeColor;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import org.jetbrains.annotations.Nullable;
@@ -98,7 +98,7 @@ public class PipeMarkingModule implements Module {
         if (color == null || ctx.pipe() == null) {
             return java.util.List.of();
         }
-        ResourceLocation pipeMarkings = LogisticsPipe.blockModelIdentifier("pipe_markings");
+        ResourceId pipeMarkings = LogisticsPipe.model("pipe_markings");
         return java.util.List.of(new Pipe.CoreDecoration(pipeMarkings, color.getFireworkColor()));
     }
 

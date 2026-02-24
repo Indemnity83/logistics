@@ -39,8 +39,8 @@ public final class LogisticsCoreClient implements DomainBootstrap {
             LogisticsCore.FLUID.MOLTEN_GLASS_STILL,
             LogisticsCore.FLUID.MOLTEN_GLASS_FLOWING,
             new SimpleFluidRenderHandler(
-                LogisticsMod.getIdentifier("block/core/liquid_glass"),
-                LogisticsMod.getIdentifier("block/core/liquid_glass"),
+                LogisticsMod.modId("block/core/liquid_glass").toIdentifier(),
+                LogisticsMod.modId("block/core/liquid_glass").toIdentifier(),
                 0xFF8800 // Orange color tint
             )
         );
@@ -52,7 +52,7 @@ public final class LogisticsCoreClient implements DomainBootstrap {
     }
 
     public static final class MODEL {
-        private static final ModelKeyRegistry REGISTRY = new ModelKeyRegistry(LogisticsCore::blockModelIdentifier);
+        private static final ModelKeyRegistry REGISTRY = new ModelKeyRegistry(name -> LogisticsCore.model(name).toIdentifier());
 
         public static final ResourceLocation BEAM = REGISTRY.registerModel("marker_beam");
 
