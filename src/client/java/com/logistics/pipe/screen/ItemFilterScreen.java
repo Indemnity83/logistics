@@ -1,17 +1,17 @@
 package com.logistics.pipe.screen;
 
+import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.pipe.modules.ItemFilterModule;
 import com.logistics.pipe.ui.ItemFilterScreenHandler;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 
 public class ItemFilterScreen extends AbstractContainerScreen<ItemFilterScreenHandler> {
-    private static final Identifier BACKGROUND_TEXTURE =
-            Identifier.withDefaultNamespace("textures/gui/container/generic_54.png");
+    private static final ResourceId BACKGROUND_TEXTURE =
+            ResourceId.in("minecraft", "textures/gui/container/generic_54.png");
     private static final int SLOT_START_X = 8;
     private static final int SLOT_START_Y = 18;
     private static final int SLOT_SIZE = 18;
@@ -27,7 +27,7 @@ public class ItemFilterScreen extends AbstractContainerScreen<ItemFilterScreenHa
     protected void renderBg(GuiGraphics context, float delta, int mouseX, int mouseY) {
         context.blit(
                 RenderPipelines.GUI_TEXTURED,
-                BACKGROUND_TEXTURE,
+                BACKGROUND_TEXTURE.toIdentifier(),
                 leftPos,
                 topPos,
                 0,

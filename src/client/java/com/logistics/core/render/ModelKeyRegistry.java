@@ -1,8 +1,8 @@
 package com.logistics.core.render;
 
+import com.logistics.core.lib.resource.ResourceId;
 import net.fabricmc.fabric.api.client.model.loading.v1.ExtraModelKey;
 import net.minecraft.client.renderer.block.model.BlockStateModel;
-import net.minecraft.resources.Identifier;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -13,14 +13,14 @@ import java.util.function.Function;
  * Maintains a registry of model keys and their corresponding identifiers.
  */
 public final class ModelKeyRegistry {
-    private final Map<ExtraModelKey<BlockStateModel>, Identifier> models = new HashMap<>();
-    private final Function<String, Identifier> identifierFactory;
+    private final Map<ExtraModelKey<BlockStateModel>, ResourceId> models = new HashMap<>();
+    private final Function<String, ResourceId> identifierFactory;
 
     /**
      * Creates a new model registry.
-     * @param identifierFactory Function to create identifiers from model names (e.g., LogisticsDomain::blockModelIdentifier)
+     * @param identifierFactory Function to create resource helpers from model names (e.g., LogisticsDomain::blockModelIdentifier)
      */
-    public ModelKeyRegistry(Function<String, Identifier> identifierFactory) {
+    public ModelKeyRegistry(Function<String, ResourceId> identifierFactory) {
         this.identifierFactory = identifierFactory;
     }
 
@@ -31,7 +31,7 @@ public final class ModelKeyRegistry {
      * @throws IllegalArgumentException if the model is already registered (indicates a programming error)
      */
     public ExtraModelKey<BlockStateModel> registerModel(String name) {
-        Identifier id = identifierFactory.apply(name);
+        ResourceId id = identifierFactory.apply(name);
 
         // Detect duplicate registration (programming error)
         if (models.containsValue(id)) {
@@ -44,11 +44,14 @@ public final class ModelKeyRegistry {
     }
 
     /**
-     * Returns all registered models as key-identifier pairs.
+     * Returns all registered models as key-ResourceHelper pairs.
      * Used by ModelLoadingPlugin to register models with Fabric.
+     * Callers should unwrap ResourceHelper when passing to Fabric APIs.
      * @return Immutable view of registered models
      */
-    public Iterable<Map.Entry<ExtraModelKey<BlockStateModel>, Identifier>> getAllModels() {
-        return models.entrySet().stream().toList();
+    public Iterable<Map.Entry<ExtraModelKey<BlockStateModel>, ResourceId>> getAllModels() {
+        return models.entrySet().stream()
+            .map(entry -> Map.entry(entry.getKey(), entry.getValue()))
+            .toList();
     }
 }

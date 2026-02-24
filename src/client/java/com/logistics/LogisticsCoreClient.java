@@ -2,6 +2,7 @@ package com.logistics;
 
 import com.logistics.core.bootstrap.DomainBootstrap;
 import com.logistics.core.fabricator.KilnScreen;
+import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.core.render.MarkerBlockEntityRenderer;
 import com.logistics.core.render.ModelKeyRegistry;
 import net.fabricmc.fabric.api.client.model.loading.v1.ExtraModelKey;
@@ -14,7 +15,6 @@ import net.fabricmc.fabric.api.client.rendering.v1.BlockRenderLayerMap;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.renderer.block.model.BlockStateModel;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
-import net.minecraft.resources.Identifier;
 
 import java.util.Map;
 
@@ -24,7 +24,7 @@ public final class LogisticsCoreClient implements DomainBootstrap {
     public LogisticsCoreClient() {
         ModelLoadingPlugin.register(pluginContext -> {
             for (var entry : MODEL.getAllModels()) {
-                pluginContext.addModel(entry.getKey(), SimpleUnbakedExtraModel.blockStateModel(entry.getValue()));
+                pluginContext.addModel(entry.getKey(), SimpleUnbakedExtraModel.blockStateModel(entry.getValue().toIdentifier()));
             }
         });
     }
@@ -46,8 +46,8 @@ public final class LogisticsCoreClient implements DomainBootstrap {
             LogisticsCore.FLUID.MOLTEN_GLASS_STILL,
             LogisticsCore.FLUID.MOLTEN_GLASS_FLOWING,
             new SimpleFluidRenderHandler(
-                LogisticsMod.getIdentifier("block/core/liquid_glass"),
-                LogisticsMod.getIdentifier("block/core/liquid_glass"),
+                LogisticsMod.modId("block/core/liquid_glass").toIdentifier(),
+                LogisticsMod.modId("block/core/liquid_glass").toIdentifier(),
                 0xFF8800 // Orange color tint
             )
         );
@@ -59,11 +59,11 @@ public final class LogisticsCoreClient implements DomainBootstrap {
     }
 
     public static final class MODEL {
-        private static final ModelKeyRegistry REGISTRY = new ModelKeyRegistry(LogisticsCore::blockModelIdentifier);
+        private static final ModelKeyRegistry REGISTRY = new ModelKeyRegistry(LogisticsCore::model);
 
         public static final ExtraModelKey<BlockStateModel> BEAM = REGISTRY.registerModel("marker_beam");
 
-        static Iterable<Map.Entry<ExtraModelKey<BlockStateModel>, Identifier>> getAllModels() {
+        static Iterable<Map.Entry<ExtraModelKey<BlockStateModel>, ResourceId>> getAllModels() {
             return REGISTRY.getAllModels();
         }
 

@@ -1,6 +1,7 @@
 package com.logistics.pipe.modules;
 
 import com.logistics.LogisticsPipe;
+import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.pipe.Pipe;
 import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.runtime.RoutePlan;
@@ -8,7 +9,6 @@ import java.util.List;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponentGetter;
 import net.minecraft.core.component.DataComponentMap;
-import net.minecraft.resources.Identifier;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -92,7 +92,7 @@ public interface Module {
      * @param direction the direction of the arm being rendered
      * @return the arm model identifier, or null to use the default arm model
      */
-    @Nullable default Identifier getPipeArm(PipeContext ctx, Direction direction) {
+    @Nullable default ResourceId getPipeArm(PipeContext ctx, Direction direction) {
         return null;
     }
 
@@ -115,7 +115,7 @@ public interface Module {
      * @param direction the direction of the arm being rendered
      * @return decoration model identifiers to render for this arm direction
      */
-    default List<Identifier> getPipeDecorations(PipeContext ctx, Direction direction) {
+    default List<ResourceId> getPipeDecorations(PipeContext ctx, Direction direction) {
         return List.of();
     }
 
@@ -136,7 +136,7 @@ public interface Module {
      * @param ctx the pipe context
      * @return the core model identifier, or null to use the default core model
      */
-    @Nullable default Identifier getCoreModel(PipeContext ctx) {
+    @Nullable default ResourceId getCoreModel(PipeContext ctx) {
         return null;
     }
 

@@ -25,7 +25,7 @@ public final class PipeConnectionRegistry {
      * Returns a {@link PipeConnection} if a pipe can connect from the given direction, null otherwise.
      */
     public static final BlockApiLookup<PipeConnection, Direction> SIDED = BlockApiLookup.get(
-            LogisticsMod.getIdentifier("pipe_connection"), PipeConnection.class, Direction.class);
+            LogisticsMod.modId("pipe_connection").toIdentifier(), PipeConnection.class, Direction.class);
 
     private PipeConnectionRegistry() {}
 }

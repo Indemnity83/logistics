@@ -1,6 +1,7 @@
 package com.logistics.pipe.modules;
 
 import com.logistics.LogisticsPipe;
+import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.pipe.Pipe;
 import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.block.PipeBlock;
@@ -12,7 +13,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponentGetter;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
@@ -197,24 +197,24 @@ public class WeatheringModule implements Module {
     }
 
     @Override
-    public @Nullable Identifier getCoreModel(PipeContext ctx) {
+    public @Nullable ResourceId getCoreModel(PipeContext ctx) {
         int stage = getOxidationStage(ctx);
         if (stage == STAGE_UNAFFECTED) {
             return null; // Use default model
         }
         String suffix = getStageSuffix(stage);
-        return LogisticsPipe.blockModelIdentifier("copper_transport_pipe_core" + suffix);
+        return LogisticsPipe.model("copper_transport_pipe_core" + suffix);
     }
 
     @Override
-    public @Nullable Identifier getPipeArm(PipeContext ctx, Direction direction) {
+    public @Nullable ResourceId getPipeArm(PipeContext ctx, Direction direction) {
         int stage = getOxidationStage(ctx);
         if (stage == STAGE_UNAFFECTED) {
             return null; // Use default model
         }
         String suffix = getStageSuffix(stage);
         String armType = ctx.isInventoryConnection(direction) ? "_arm_extended" : "_arm";
-        return LogisticsPipe.blockModelIdentifier("copper_transport_pipe" + armType + suffix);
+        return LogisticsPipe.model("copper_transport_pipe" + armType + suffix);
     }
 
     // --- Item component handling ---

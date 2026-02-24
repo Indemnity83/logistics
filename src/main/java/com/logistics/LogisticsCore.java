@@ -11,6 +11,7 @@ import com.logistics.core.lib.block.lookup.EnergyStorageAccess;
 import com.logistics.core.lib.block.lookup.FluidStorageAccess;
 import com.logistics.core.lib.block.lookup.ItemStorageAccess;
 import com.logistics.core.lib.block.lookup.PipeConnectionAccess;
+import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.core.fluids.MoltenGlassFluid;
 import com.logistics.core.loot.ChestLootModifier;
 import com.logistics.core.marker.MarkerBlock;
@@ -25,7 +26,6 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.item.CreativeModeTab;
@@ -51,12 +51,12 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         return "core";
     }
 
-    public static Identifier identifier(String name) {
-        return INSTANCE.getDomainIdentifier(name);
+    public static ResourceId resource(String name) {
+        return INSTANCE.domainResource(name);
     }
 
-    public static Identifier blockModelIdentifier(String name) {
-        return INSTANCE.getBlockModelIdentifier(name);
+    public static ResourceId model(String name) {
+        return INSTANCE.domainModelResource(name);
     }
 
     @Override
@@ -89,16 +89,16 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         // Tin ore worldgen: separate features for stone (rare) and deepslate (abundant)
         // Stone: ~7% of copper's effective rate (1 vein/chunk vs copper's 16)
         // Deepslate: ~80% of copper's rate (13 veins/chunk)
-        // Use LogisticsMod.getIdentifier() to avoid core/ prefix
+        // Use LogisticsMod.modId() to avoid core/ prefix
         BiomeModifications.addFeature(
             BiomeSelectors.foundInOverworld(),
             GenerationStep.Decoration.UNDERGROUND_ORES,
-            ResourceKey.create(Registries.PLACED_FEATURE, LogisticsMod.getIdentifier("tin_ore_stone"))
+            ResourceKey.create(Registries.PLACED_FEATURE, LogisticsMod.modId("tin_ore_stone").toIdentifier())
         );
         BiomeModifications.addFeature(
             BiomeSelectors.foundInOverworld(),
             GenerationStep.Decoration.UNDERGROUND_ORES,
-            ResourceKey.create(Registries.PLACED_FEATURE, LogisticsMod.getIdentifier("tin_ore_deepslate"))
+            ResourceKey.create(Registries.PLACED_FEATURE, LogisticsMod.modId("tin_ore_deepslate").toIdentifier())
         );
 
         // Apatite ore worldgen: large veins (up to 48 blocks) spawning above Y 60
@@ -106,7 +106,7 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         BiomeModifications.addFeature(
             BiomeSelectors.foundInOverworld(),
             GenerationStep.Decoration.UNDERGROUND_ORES,
-            ResourceKey.create(Registries.PLACED_FEATURE, LogisticsMod.getIdentifier("apatite_ore_stone"))
+            ResourceKey.create(Registries.PLACED_FEATURE, LogisticsMod.modId("apatite_ore_stone").toIdentifier())
         );
     }
 
@@ -180,14 +180,14 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
             // Register flowing variant first (required by still variant)
             MOLTEN_GLASS_FLOWING = Registry.register(
                 BuiltInRegistries.FLUID,
-                LogisticsMod.getIdentifier("molten_glass_flowing"),
+                LogisticsMod.modId("molten_glass_flowing").toIdentifier(),
                 new MoltenGlassFluid.Flowing()
             );
 
             // Register still variant
             MOLTEN_GLASS_STILL = Registry.register(
                 BuiltInRegistries.FLUID,
-                LogisticsMod.getIdentifier("molten_glass"),
+                LogisticsMod.modId("molten_glass").toIdentifier(),
                 new MoltenGlassFluid.Still()
             );
         }
@@ -296,7 +296,7 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         static void register() {
             LOGISTICS_TRANSPORT = Registry.register(
                     BuiltInRegistries.CREATIVE_MODE_TAB,
-                    LogisticsMod.getIdentifier("logistics_transport"),
+                    LogisticsMod.modId("logistics_transport").toIdentifier(),
                     FabricItemGroup.builder()
                             .title(Component.literal("Logistics"))
                             .icon(() -> new ItemStack(ITEM.IRON_GEAR))
