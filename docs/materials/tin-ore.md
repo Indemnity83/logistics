@@ -1,3 +1,32 @@
+<div class="infobox">
+    <div class="infobox-header">Tin Ore</div>
+    <div class="infobox-image">
+        <img src="/assets/icons/logistics__core___tin_ore.png" alt="Tin Ore">
+    </div>
+    <table class="infobox-table">
+        <tr>
+            <td class="infobox-label">ID</td>
+            <td class="infobox-value"><code>logistics:core/tin_ore</code></td>
+        </tr>
+        <tr>
+            <td class="infobox-label">Type</td>
+            <td class="infobox-value">Block (Ore)</td>
+        </tr>
+        <tr>
+            <td class="infobox-label">Stackable</td>
+            <td class="infobox-value"><span class="stackable-yes">Yes (64)</span></td>
+        </tr>
+        <tr>
+            <td class="infobox-label">Tool</td>
+            <td class="infobox-value">Pickaxe (Stone+)</td>
+        </tr>
+        <tr>
+            <td class="infobox-label">Added</td>
+            <td class="infobox-value">v0.2.0</td>
+        </tr>
+    </table>
+</div>
+
 # Tin Ore
 
 **Tin Ore** is a common ore found underground. Smelt it to create [tin ingots](tin-ingot.md) for crafting bronze and tin valves.

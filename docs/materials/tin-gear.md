@@ -1,11 +1,53 @@
+<div class="infobox">
+    <div class="infobox-header">Tin Gear</div>
+    <div class="infobox-image">
+        <img src="/assets/icons/logistics__core___tin_gear.png" alt="Tin Gear">
+    </div>
+    <table class="infobox-table">
+        <tr>
+            <td class="infobox-label">ID</td>
+            <td class="infobox-value"><code>logistics:core/tin_gear</code></td>
+        </tr>
+        <tr>
+            <td class="infobox-label">Type</td>
+            <td class="infobox-value">Item</td>
+        </tr>
+        <tr>
+            <td class="infobox-label">Stackable</td>
+            <td class="infobox-value"><span class="stackable-yes">Yes (64)</span></td>
+        </tr>
+        <tr>
+            <td class="infobox-label">Added</td>
+            <td class="infobox-value">v0.2.0</td>
+        </tr>
+    </table>
+</div>
+
 # Tin Gear
 
 The **Tin Gear** is a mid-tier crafting component made from [tin ingots](tin-ingot.md). It's equivalent in tier to iron and copper gears.
 
 ## Recipe
-**Crafting:**
-- 4× [Tin Ingot](tin-ingot.md)
-- **Yields:** 1× Tin Gear
+
+<div class="crafting-recipe">
+    <div class="crafting-grid">
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"><img src="/assets/icons/logistics__core___tin_ingot.png" class="crafting-item" alt="Tin Ingot"></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"><img src="/assets/icons/logistics__core___tin_ingot.png" class="crafting-item" alt="Tin Ingot"></div>
+        <div class="crafting-slot"><img src="/assets/icons/logistics__core___copper_gear.png" class="crafting-item" alt="Copper Gear"></div>
+        <div class="crafting-slot"><img src="/assets/icons/logistics__core___tin_ingot.png" class="crafting-item" alt="Tin Ingot"></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"><img src="/assets/icons/logistics__core___tin_ingot.png" class="crafting-item" alt="Tin Ingot"></div>
+        <div class="crafting-slot"></div>
+    </div>
+    <div class="crafting-arrow">→</div>
+    <div class="crafting-output">
+        <img src="/assets/icons/logistics__core___tin_gear.png" class="crafting-item" alt="Tin Gear">
+    </div>
+</div>
+
+**Yields:** 1× Tin Gear (requires [Tin Ingot](tin-ingot.md) + [Copper Gear](copper-gear.md))
 
 ## Uses
 

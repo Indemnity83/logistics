@@ -1,23 +1,62 @@
+<div class="infobox">
+    <div class="infobox-header">Diamond Valve</div>
+    <div class="infobox-image">
+        <img src="/assets/icons/logistics__core___valve_diamond.png" alt="Diamond Valve">
+    </div>
+    <table class="infobox-table">
+        <tr>
+            <td class="infobox-label">ID</td>
+            <td class="infobox-value"><code>logistics:core/valve_diamond</code></td>
+        </tr>
+        <tr>
+            <td class="infobox-label">Type</td>
+            <td class="infobox-value">Item</td>
+        </tr>
+        <tr>
+            <td class="infobox-label">Stackable</td>
+            <td class="infobox-value"><span class="stackable-yes">Yes (64)</span></td>
+        </tr>
+        <tr>
+            <td class="infobox-label">Kiln Tier</td>
+            <td class="infobox-value"><span class="infobox-tier infobox-tier-4">Tier 4</span></td>
+        </tr>
+        <tr>
+            <td class="infobox-label">Added</td>
+            <td class="infobox-value">v0.2.0</td>
+        </tr>
+    </table>
+</div>
+
 # Diamond Valve
 
 The **Diamond Valve** is a Tier 4 valve crafted in the [Kiln](../automation/kiln.md). It requires lava buckets for reliable operation.
 
 ## Recipe
+
+<div class="crafting-recipe">
+    <div class="crafting-grid">
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"><img src="/assets/icons/minecraft__diamond.png" class="crafting-item" alt="Diamond"></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"><img src="/assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone"></div>
+        <div class="crafting-slot"><img src="/assets/icons/minecraft__diamond.png" class="crafting-item" alt="Diamond"></div>
+        <div class="crafting-slot"><img src="/assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone"></div>
+        <div class="crafting-slot"><img src="/assets/icons/minecraft__diamond.png" class="crafting-item" alt="Diamond"></div>
+        <div class="crafting-slot"><img src="/assets/icons/minecraft__diamond.png" class="crafting-item" alt="Diamond"></div>
+        <div class="crafting-slot"><img src="/assets/icons/minecraft__diamond.png" class="crafting-item" alt="Diamond"></div>
+    </div>
+    <div class="crafting-arrow">→</div>
+    <div class="crafting-output">
+        <img src="/assets/icons/logistics__core___valve_diamond.png" class="crafting-item" alt="Diamond Valve">
+        <span class="crafting-count">4</span>
+    </div>
+</div>
+
 **[Kiln](../automation/kiln.md) crafting:**
-- 5× Diamond
-- 2× Redstone
-- 250mb Molten Glass
+- 5× Diamond + 2× Redstone + 250mb Molten Glass
 - **Process time:** 220 ticks
 - **Energy demand:** 240 energy/tick
 - **Yields:** 4× Diamond Valve
-
-**Pattern:**
-```
- D
-RDR
-DDD
-```
-D = Diamond, R = Redstone
 
 ## Fuel Requirements
 

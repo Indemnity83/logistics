@@ -1,12 +1,58 @@
+<div class="infobox">
+    <div class="infobox-header">Item Filter Pipe</div>
+    <div class="infobox-image">
+        <img src="/assets/icons/logistics__pipe___item_filter_pipe.png" alt="Item Filter Pipe">
+    </div>
+    <table class="infobox-table">
+        <tr>
+            <td class="infobox-label">ID</td>
+            <td class="infobox-value"><code>logistics:pipe/item_filter_pipe</code></td>
+        </tr>
+        <tr>
+            <td class="infobox-label">Type</td>
+            <td class="infobox-value">Block (Pipe)</td>
+        </tr>
+        <tr>
+            <td class="infobox-label">Stackable</td>
+            <td class="infobox-value"><span class="stackable-yes">Yes (64)</span></td>
+        </tr>
+        <tr>
+            <td class="infobox-label">Tier</td>
+            <td class="infobox-value"><span class="infobox-tier infobox-tier-2">Tier 2 - Smart</span></td>
+        </tr>
+        <tr>
+            <td class="infobox-label">Added</td>
+            <td class="infobox-value">v0.1.0</td>
+        </tr>
+    </table>
+</div>
+
 # Item Filter Pipe
 
 The **Item Filter Pipe** is a [Tier 2](../core/tier-system.md) smart pipe that routes items based on configurable per-side filters. It's the key to building item-aware sorting systems.
 
 ## Recipe
-**Crafting:**
-- 1× Diamond
-- 1× Glass
-- **Yields:** 8× Item Filter Pipe
+
+<div class="crafting-recipe">
+    <div class="crafting-grid">
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"><img src="/assets/icons/minecraft__diamond.png" class="crafting-item" alt="Diamond"></div>
+        <div class="crafting-slot"><img src="/assets/icons/minecraft__glass.png" class="crafting-item" alt="Glass"></div>
+        <div class="crafting-slot"><img src="/assets/icons/minecraft__diamond.png" class="crafting-item" alt="Diamond"></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"></div>
+    </div>
+    <div class="crafting-arrow">→</div>
+    <div class="crafting-output">
+        <img src="/assets/icons/logistics__pipe___item_filter_pipe.png" class="crafting-item" alt="Item Filter Pipe">
+        <span class="crafting-count">8</span>
+    </div>
+</div>
+
+**Yields:** 8× Item Filter Pipe
 
 ## Behavior
 

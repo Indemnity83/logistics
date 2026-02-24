@@ -1,12 +1,58 @@
+<div class="infobox">
+    <div class="infobox-header">Golden Transport Pipe</div>
+    <div class="infobox-image">
+        <img src="/assets/icons/logistics__pipe___gold_transport_pipe.png" alt="Golden Transport Pipe">
+    </div>
+    <table class="infobox-table">
+        <tr>
+            <td class="infobox-label">ID</td>
+            <td class="infobox-value"><code>logistics:pipe/gold_transport_pipe</code></td>
+        </tr>
+        <tr>
+            <td class="infobox-label">Type</td>
+            <td class="infobox-value">Block (Pipe)</td>
+        </tr>
+        <tr>
+            <td class="infobox-label">Stackable</td>
+            <td class="infobox-value"><span class="stackable-yes">Yes (64)</span></td>
+        </tr>
+        <tr>
+            <td class="infobox-label">Tier</td>
+            <td class="infobox-value"><span class="infobox-tier infobox-tier-1">Tier 1 - Mechanical</span></td>
+        </tr>
+        <tr>
+            <td class="infobox-label">Added</td>
+            <td class="infobox-value">v0.1.0</td>
+        </tr>
+    </table>
+</div>
+
 # Golden Transport Pipe
 
 The **Golden Transport Pipe** is a [Tier 1](../core/tier-system.md) mechanical pipe that accelerates items when powered by redstone. Use it to speed up item transport in your network.
 
 ## Recipe
-**Crafting:**
-- 1× Gold Ingot
-- 1× Glass
-- **Yields:** 8× Golden Transport Pipe
+
+<div class="crafting-recipe">
+    <div class="crafting-grid">
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"><img src="/assets/icons/minecraft__gold_ingot.png" class="crafting-item" alt="Gold Ingot"></div>
+        <div class="crafting-slot"><img src="/assets/icons/minecraft__glass.png" class="crafting-item" alt="Glass"></div>
+        <div class="crafting-slot"><img src="/assets/icons/minecraft__gold_ingot.png" class="crafting-item" alt="Gold Ingot"></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"></div>
+    </div>
+    <div class="crafting-arrow">→</div>
+    <div class="crafting-output">
+        <img src="/assets/icons/logistics__pipe___golden_transport_pipe.png" class="crafting-item" alt="Golden Transport Pipe">
+        <span class="crafting-count">8</span>
+    </div>
+</div>
+
+**Yields:** 8× Golden Transport Pipe
 
 ## Behavior
 

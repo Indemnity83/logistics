@@ -1,11 +1,53 @@
+<div class="infobox">
+    <div class="infobox-header">Copper Gear</div>
+    <div class="infobox-image">
+        <img src="/assets/icons/logistics__core___copper_gear.png" alt="Copper Gear">
+    </div>
+    <table class="infobox-table">
+        <tr>
+            <td class="infobox-label">ID</td>
+            <td class="infobox-value"><code>logistics:core/copper_gear</code></td>
+        </tr>
+        <tr>
+            <td class="infobox-label">Type</td>
+            <td class="infobox-value">Item</td>
+        </tr>
+        <tr>
+            <td class="infobox-label">Stackable</td>
+            <td class="infobox-value"><span class="stackable-yes">Yes (64)</span></td>
+        </tr>
+        <tr>
+            <td class="infobox-label">Added</td>
+            <td class="infobox-value">v0.1.0</td>
+        </tr>
+    </table>
+</div>
+
 # Copper Gear
 
 The **Copper Gear** is a mid-tier crafting component used to create advanced machines and automation equipment. It's equivalent in tier to the [Iron Gear](iron-gear.md) but uses copper instead.
 
 ## Recipe
-**Crafting:**
-- 4× Copper Ingot
-- **Yields:** 1× Copper Gear
+
+<div class="crafting-recipe">
+    <div class="crafting-grid">
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"><img src="/assets/icons/minecraft__copper_ingot.png" class="crafting-item" alt="Copper Ingot"></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"><img src="/assets/icons/minecraft__copper_ingot.png" class="crafting-item" alt="Copper Ingot"></div>
+        <div class="crafting-slot"><img src="/assets/icons/logistics__core___stone_gear.png" class="crafting-item" alt="Stone Gear"></div>
+        <div class="crafting-slot"><img src="/assets/icons/minecraft__copper_ingot.png" class="crafting-item" alt="Copper Ingot"></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"><img src="/assets/icons/minecraft__copper_ingot.png" class="crafting-item" alt="Copper Ingot"></div>
+        <div class="crafting-slot"></div>
+    </div>
+    <div class="crafting-arrow">→</div>
+    <div class="crafting-output">
+        <img src="/assets/icons/logistics__core___copper_gear.png" class="crafting-item" alt="Copper Gear">
+    </div>
+</div>
+
+**Yields:** 1× Copper Gear (requires [Stone Gear](stone-gear.md))
 
 ## Uses
 

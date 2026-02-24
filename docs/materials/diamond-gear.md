@@ -1,11 +1,53 @@
+<div class="infobox">
+    <div class="infobox-header">Diamond Gear</div>
+    <div class="infobox-image">
+        <img src="/assets/icons/logistics__core___diamond_gear.png" alt="Diamond Gear">
+    </div>
+    <table class="infobox-table">
+        <tr>
+            <td class="infobox-label">ID</td>
+            <td class="infobox-value"><code>logistics:core/diamond_gear</code></td>
+        </tr>
+        <tr>
+            <td class="infobox-label">Type</td>
+            <td class="infobox-value">Item</td>
+        </tr>
+        <tr>
+            <td class="infobox-label">Stackable</td>
+            <td class="infobox-value"><span class="stackable-yes">Yes (64)</span></td>
+        </tr>
+        <tr>
+            <td class="infobox-label">Added</td>
+            <td class="infobox-value">v0.1.0</td>
+        </tr>
+    </table>
+</div>
+
 # Diamond Gear
 
 The **Diamond Gear** is an advanced-tier crafting component used to create end-game machines and automation equipment. It requires diamonds, making it the most valuable gear type.
 
 ## Recipe
-**Crafting:**
-- 4× Diamond
-- **Yields:** 1× Diamond Gear
+
+<div class="crafting-recipe">
+    <div class="crafting-grid">
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"><img src="/assets/icons/minecraft__diamond.png" class="crafting-item" alt="Diamond"></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"><img src="/assets/icons/minecraft__diamond.png" class="crafting-item" alt="Diamond"></div>
+        <div class="crafting-slot"><img src="/assets/icons/logistics__core___gold_gear.png" class="crafting-item" alt="Gold Gear"></div>
+        <div class="crafting-slot"><img src="/assets/icons/minecraft__diamond.png" class="crafting-item" alt="Diamond"></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"><img src="/assets/icons/minecraft__diamond.png" class="crafting-item" alt="Diamond"></div>
+        <div class="crafting-slot"></div>
+    </div>
+    <div class="crafting-arrow">→</div>
+    <div class="crafting-output">
+        <img src="/assets/icons/logistics__core___diamond_gear.png" class="crafting-item" alt="Diamond Gear">
+    </div>
+</div>
+
+**Yields:** 1× Diamond Gear (requires [Gold Gear](gold-gear.md))
 
 ## Uses
 

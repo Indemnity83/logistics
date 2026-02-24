@@ -1,11 +1,53 @@
+<div class="infobox">
+    <div class="infobox-header">Iron Gear</div>
+    <div class="infobox-image">
+        <img src="/assets/icons/logistics__core___iron_gear.png" alt="Iron Gear">
+    </div>
+    <table class="infobox-table">
+        <tr>
+            <td class="infobox-label">ID</td>
+            <td class="infobox-value"><code>logistics:core/iron_gear</code></td>
+        </tr>
+        <tr>
+            <td class="infobox-label">Type</td>
+            <td class="infobox-value">Item</td>
+        </tr>
+        <tr>
+            <td class="infobox-label">Stackable</td>
+            <td class="infobox-value"><span class="stackable-yes">Yes (64)</span></td>
+        </tr>
+        <tr>
+            <td class="infobox-label">Added</td>
+            <td class="infobox-value">v0.1.0</td>
+        </tr>
+    </table>
+</div>
+
 # Iron Gear
 
 The **Iron Gear** is a mid-tier crafting component used to create advanced machines and automation equipment. It requires more valuable materials than early-game gears.
 
 ## Recipe
-**Crafting:**
-- 4× Iron Ingot
-- **Yields:** 1× Iron Gear
+
+<div class="crafting-recipe">
+    <div class="crafting-grid">
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"><img src="/assets/icons/minecraft__iron_ingot.png" class="crafting-item" alt="Iron Ingot"></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"><img src="/assets/icons/minecraft__iron_ingot.png" class="crafting-item" alt="Iron Ingot"></div>
+        <div class="crafting-slot"><img src="/assets/icons/logistics__core___copper_gear.png" class="crafting-item" alt="Copper Gear"></div>
+        <div class="crafting-slot"><img src="/assets/icons/minecraft__iron_ingot.png" class="crafting-item" alt="Iron Ingot"></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"><img src="/assets/icons/minecraft__iron_ingot.png" class="crafting-item" alt="Iron Ingot"></div>
+        <div class="crafting-slot"></div>
+    </div>
+    <div class="crafting-arrow">→</div>
+    <div class="crafting-output">
+        <img src="/assets/icons/logistics__core___iron_gear.png" class="crafting-item" alt="Iron Gear">
+    </div>
+</div>
+
+**Yields:** 1× Iron Gear (requires [Copper Gear](copper-gear.md))
 
 ## Uses
 

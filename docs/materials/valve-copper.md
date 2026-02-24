@@ -1,23 +1,62 @@
+<div class="infobox">
+    <div class="infobox-header">Copper Valve</div>
+    <div class="infobox-image">
+        <img src="/assets/icons/logistics__core___valve_copper.png" alt="Copper Valve">
+    </div>
+    <table class="infobox-table">
+        <tr>
+            <td class="infobox-label">ID</td>
+            <td class="infobox-value"><code>logistics:core/valve_copper</code></td>
+        </tr>
+        <tr>
+            <td class="infobox-label">Type</td>
+            <td class="infobox-value">Item</td>
+        </tr>
+        <tr>
+            <td class="infobox-label">Stackable</td>
+            <td class="infobox-value"><span class="stackable-yes">Yes (64)</span></td>
+        </tr>
+        <tr>
+            <td class="infobox-label">Kiln Tier</td>
+            <td class="infobox-value"><span class="infobox-tier infobox-tier-1">Tier 1</span></td>
+        </tr>
+        <tr>
+            <td class="infobox-label">Added</td>
+            <td class="infobox-value">v0.2.0</td>
+        </tr>
+    </table>
+</div>
+
 # Copper Valve
 
 The **Copper Valve** is a Tier 1 valve crafted in the [Kiln](../automation/kiln.md). It's the easiest valve to produce, requiring only coal as fuel.
 
 ## Recipe
+
+<div class="crafting-recipe">
+    <div class="crafting-grid">
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"><img src="/assets/icons/minecraft__copper_ingot.png" class="crafting-item" alt="Copper Ingot"></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"><img src="/assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone"></div>
+        <div class="crafting-slot"><img src="/assets/icons/minecraft__copper_ingot.png" class="crafting-item" alt="Copper Ingot"></div>
+        <div class="crafting-slot"><img src="/assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone"></div>
+        <div class="crafting-slot"><img src="/assets/icons/minecraft__copper_ingot.png" class="crafting-item" alt="Copper Ingot"></div>
+        <div class="crafting-slot"><img src="/assets/icons/minecraft__copper_ingot.png" class="crafting-item" alt="Copper Ingot"></div>
+        <div class="crafting-slot"><img src="/assets/icons/minecraft__copper_ingot.png" class="crafting-item" alt="Copper Ingot"></div>
+    </div>
+    <div class="crafting-arrow">→</div>
+    <div class="crafting-output">
+        <img src="/assets/icons/logistics__core___valve_copper.png" class="crafting-item" alt="Copper Valve">
+        <span class="crafting-count">4</span>
+    </div>
+</div>
+
 **[Kiln](../automation/kiln.md) crafting:**
-- 5× Copper Ingot
-- 2× Redstone
-- 250mb Molten Glass
+- 5× Copper Ingot + 2× Redstone + 250mb Molten Glass
 - **Process time:** 100 ticks
 - **Energy demand:** 40 energy/tick
 - **Yields:** 4× Copper Valve
-
-**Pattern:**
-```
- C
-RCR
-CCC
-```
-C = Copper Ingot, R = Redstone
 
 ## Fuel Requirements
 

@@ -1,12 +1,58 @@
+<div class="infobox">
+    <div class="infobox-header">Item Merger Pipe</div>
+    <div class="infobox-image">
+        <img src="/assets/icons/logistics__pipe___item_merger_pipe.png" alt="Item Merger Pipe">
+    </div>
+    <table class="infobox-table">
+        <tr>
+            <td class="infobox-label">ID</td>
+            <td class="infobox-value"><code>logistics:pipe/item_merger_pipe</code></td>
+        </tr>
+        <tr>
+            <td class="infobox-label">Type</td>
+            <td class="infobox-value">Block (Pipe)</td>
+        </tr>
+        <tr>
+            <td class="infobox-label">Stackable</td>
+            <td class="infobox-value"><span class="stackable-yes">Yes (64)</span></td>
+        </tr>
+        <tr>
+            <td class="infobox-label">Tier</td>
+            <td class="infobox-value"><span class="infobox-tier infobox-tier-1">Tier 1 - Mechanical</span></td>
+        </tr>
+        <tr>
+            <td class="infobox-label">Added</td>
+            <td class="infobox-value">v0.1.0</td>
+        </tr>
+    </table>
+</div>
+
 # Item Merger Pipe
 
 The **Item Merger Pipe** is a [Tier 1](../core/tier-system.md) mechanical pipe that takes items from any input direction and routes them all to a single configured output direction. It's essential for controlled directional routing.
 
 ## Recipe
-**Crafting:**
-- 1× Iron Ingot
-- 1× Glass
-- **Yields:** 8× Item Merger Pipe
+
+<div class="crafting-recipe">
+    <div class="crafting-grid">
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"><img src="/assets/icons/minecraft__iron_ingot.png" class="crafting-item" alt="Iron Ingot"></div>
+        <div class="crafting-slot"><img src="/assets/icons/minecraft__glass.png" class="crafting-item" alt="Glass"></div>
+        <div class="crafting-slot"><img src="/assets/icons/minecraft__iron_ingot.png" class="crafting-item" alt="Iron Ingot"></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"></div>
+    </div>
+    <div class="crafting-arrow">→</div>
+    <div class="crafting-output">
+        <img src="/assets/icons/logistics__pipe___item_merger_pipe.png" class="crafting-item" alt="Item Merger Pipe">
+        <span class="crafting-count">8</span>
+    </div>
+</div>
+
+**Yields:** 8× Item Merger Pipe
 
 ## Behavior
 

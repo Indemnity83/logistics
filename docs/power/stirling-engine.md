@@ -1,14 +1,65 @@
+<div class="infobox">
+    <div class="infobox-header">Stirling Engine</div>
+    <div class="infobox-image">
+        <img src="/assets/icons/logistics__power___stirling_engine.png" alt="Stirling Engine">
+    </div>
+    <table class="infobox-table">
+        <tr>
+            <td class="infobox-label">ID</td>
+            <td class="infobox-value"><code>logistics:power/stirling_engine</code></td>
+        </tr>
+        <tr>
+            <td class="infobox-label">Type</td>
+            <td class="infobox-value">Block (Engine)</td>
+        </tr>
+        <tr>
+            <td class="infobox-label">Stackable</td>
+            <td class="infobox-value"><span class="stackable-no">No</span></td>
+        </tr>
+        <tr>
+            <td class="infobox-label">Function</td>
+            <td class="infobox-value">RF Generation</td>
+        </tr>
+        <tr>
+            <td class="infobox-label">Fuel</td>
+            <td class="infobox-value">Coal/Wood/Lava</td>
+        </tr>
+        <tr>
+            <td class="infobox-label">Output</td>
+            <td class="infobox-value">High RF</td>
+        </tr>
+        <tr>
+            <td class="infobox-label">Added</td>
+            <td class="infobox-value">v0.1.0</td>
+        </tr>
+    </table>
+</div>
+
 # Stirling Engine
 
 The **Stirling Engine** is a high-power generator that burns fuel to produce substantial RF energy. It can overheat if run continuously without cooling, requiring careful management.
 
 ## Recipe
-**Crafting:**
-- 3× Stone
-- 1× Glass
-- 2× [Stone Gear](../materials/stone-gear.md)
-- 1× Piston
-- **Yields:** 1× Stirling Engine
+
+<div class="crafting-recipe">
+    <div class="crafting-grid">
+        <div class="crafting-slot"><img src="/assets/icons/minecraft__stone.png" class="crafting-item" alt="Stone"></div>
+        <div class="crafting-slot"><img src="/assets/icons/minecraft__stone.png" class="crafting-item" alt="Stone"></div>
+        <div class="crafting-slot"><img src="/assets/icons/minecraft__stone.png" class="crafting-item" alt="Stone"></div>
+        <div class="crafting-slot"><img src="/assets/icons/logistics__core___stone_gear.png" class="crafting-item" alt="Stone Gear"></div>
+        <div class="crafting-slot"><img src="/assets/icons/minecraft__glass.png" class="crafting-item" alt="Glass"></div>
+        <div class="crafting-slot"><img src="/assets/icons/logistics__core___stone_gear.png" class="crafting-item" alt="Stone Gear"></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"><img src="/assets/icons/minecraft__piston.png" class="crafting-item" alt="Piston"></div>
+        <div class="crafting-slot"></div>
+    </div>
+    <div class="crafting-arrow">→</div>
+    <div class="crafting-output">
+        <img src="/assets/icons/logistics__core___stirling_engine.png" class="crafting-item" alt="Stirling Engine">
+    </div>
+</div>
+
+**Yields:** 1× Stirling Engine
 
 ## Behavior
 

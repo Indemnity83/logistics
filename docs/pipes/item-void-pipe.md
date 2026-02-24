@@ -1,13 +1,58 @@
+<div class="infobox">
+    <div class="infobox-header">Item Void Pipe</div>
+    <div class="infobox-image">
+        <img src="/assets/icons/logistics__pipe___item_void_pipe.png" alt="Item Void Pipe">
+    </div>
+    <table class="infobox-table">
+        <tr>
+            <td class="infobox-label">ID</td>
+            <td class="infobox-value"><code>logistics:pipe/item_void_pipe</code></td>
+        </tr>
+        <tr>
+            <td class="infobox-label">Type</td>
+            <td class="infobox-value">Block (Pipe)</td>
+        </tr>
+        <tr>
+            <td class="infobox-label">Stackable</td>
+            <td class="infobox-value"><span class="stackable-yes">Yes (64)</span></td>
+        </tr>
+        <tr>
+            <td class="infobox-label">Tier</td>
+            <td class="infobox-value"><span class="infobox-tier infobox-tier-1">Tier 1 - Mechanical</span></td>
+        </tr>
+        <tr>
+            <td class="infobox-label">Added</td>
+            <td class="infobox-value">v0.1.0</td>
+        </tr>
+    </table>
+</div>
+
 # Item Void Pipe
 
 The **Item Void Pipe** is a [Tier 1](../core/tier-system.md) mechanical pipe that destroys any items that enter it. Use it for overflow management or disposing of unwanted items.
 
 ## Recipe
-**Crafting:**
-- 1× Obsidian
-- 1× Glass
-- 1× Ender Pearl
-- **Yields:** 8× Item Void Pipe
+
+<div class="crafting-recipe">
+    <div class="crafting-grid">
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"><img src="/assets/icons/minecraft__obsidian.png" class="crafting-item" alt="Obsidian"></div>
+        <div class="crafting-slot"><img src="/assets/icons/minecraft__glass.png" class="crafting-item" alt="Glass"></div>
+        <div class="crafting-slot"><img src="/assets/icons/minecraft__ender_pearl.png" class="crafting-item" alt="Ender Pearl"></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"></div>
+    </div>
+    <div class="crafting-arrow">→</div>
+    <div class="crafting-output">
+        <img src="/assets/icons/logistics__pipe___item_void_pipe.png" class="crafting-item" alt="Item Void Pipe">
+        <span class="crafting-count">8</span>
+    </div>
+</div>
+
+**Yields:** 8× Item Void Pipe
 
 ## Behavior
 

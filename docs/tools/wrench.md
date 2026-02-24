@@ -1,11 +1,57 @@
+<div class="infobox">
+    <div class="infobox-header">Wrench</div>
+    <div class="infobox-image">
+        <img src="/assets/icons/logistics__core___wrench.png" alt="Wrench">
+    </div>
+    <table class="infobox-table">
+        <tr>
+            <td class="infobox-label">ID</td>
+            <td class="infobox-value"><code>logistics:tool/wrench</code></td>
+        </tr>
+        <tr>
+            <td class="infobox-label">Type</td>
+            <td class="infobox-value">Tool</td>
+        </tr>
+        <tr>
+            <td class="infobox-label">Stackable</td>
+            <td class="infobox-value"><span class="stackable-no">No</span></td>
+        </tr>
+        <tr>
+            <td class="infobox-label">Function</td>
+            <td class="infobox-value">Configuration</td>
+        </tr>
+        <tr>
+            <td class="infobox-label">Added</td>
+            <td class="infobox-value">v0.1.0</td>
+        </tr>
+    </table>
+</div>
+
 # Wrench
 
 The **Wrench** is a configuration tool for pipes, engines, and machines. Use it to rotate output faces, select extraction directions, open filter GUIs, and reset overheated engines.
 
 ## Recipe
-**Crafting:**
-- 4× Iron Ingot (wrench shape)
-- **Yields:** 1× Wrench
+
+<div class="crafting-recipe">
+    <div class="crafting-grid">
+        <div class="crafting-slot"><img src="/assets/icons/minecraft__iron_ingot.png" class="crafting-item" alt="Iron Ingot"></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"><img src="/assets/icons/minecraft__iron_ingot.png" class="crafting-item" alt="Iron Ingot"></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"><img src="/assets/icons/minecraft__iron_ingot.png" class="crafting-item" alt="Iron Ingot"></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"><img src="/assets/icons/minecraft__iron_ingot.png" class="crafting-item" alt="Iron Ingot"></div>
+        <div class="crafting-slot"></div>
+    </div>
+    <div class="crafting-arrow">→</div>
+    <div class="crafting-output">
+        <img src="/assets/icons/logistics__core___wrench.png" class="crafting-item" alt="Wrench">
+    </div>
+</div>
+
+**Yields:** 1× Wrench
 
 ## Usage
 

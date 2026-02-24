@@ -1,11 +1,53 @@
+<div class="infobox">
+    <div class="infobox-header">Netherite Gear</div>
+    <div class="infobox-image">
+        <img src="/assets/icons/logistics__core___netherite_gear.png" alt="Netherite Gear">
+    </div>
+    <table class="infobox-table">
+        <tr>
+            <td class="infobox-label">ID</td>
+            <td class="infobox-value"><code>logistics:core/netherite_gear</code></td>
+        </tr>
+        <tr>
+            <td class="infobox-label">Type</td>
+            <td class="infobox-value">Item</td>
+        </tr>
+        <tr>
+            <td class="infobox-label">Stackable</td>
+            <td class="infobox-value"><span class="stackable-yes">Yes (64)</span></td>
+        </tr>
+        <tr>
+            <td class="infobox-label">Added</td>
+            <td class="infobox-value">v0.1.0</td>
+        </tr>
+    </table>
+</div>
+
 # Netherite Gear
 
 The **Netherite Gear** is an end-tier crafting component made from netherite ingots. It represents the highest tier of crafting materials.
 
 ## Recipe
-**Crafting:**
-- 4× Netherite Ingot
-- **Yields:** 1× Netherite Gear
+
+<div class="crafting-recipe">
+    <div class="crafting-grid">
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"><img src="/assets/icons/minecraft__netherite_ingot.png" class="crafting-item" alt="Netherite Ingot"></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"><img src="/assets/icons/minecraft__netherite_ingot.png" class="crafting-item" alt="Netherite Ingot"></div>
+        <div class="crafting-slot"><img src="/assets/icons/logistics__core___diamond_gear.png" class="crafting-item" alt="Diamond Gear"></div>
+        <div class="crafting-slot"><img src="/assets/icons/minecraft__netherite_ingot.png" class="crafting-item" alt="Netherite Ingot"></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"><img src="/assets/icons/minecraft__netherite_ingot.png" class="crafting-item" alt="Netherite Ingot"></div>
+        <div class="crafting-slot"></div>
+    </div>
+    <div class="crafting-arrow">→</div>
+    <div class="crafting-output">
+        <img src="/assets/icons/logistics__core___netherite_gear.png" class="crafting-item" alt="Netherite Gear">
+    </div>
+</div>
+
+**Yields:** 1× Netherite Gear (requires [Diamond Gear](diamond-gear.md))
 
 ## Uses
 

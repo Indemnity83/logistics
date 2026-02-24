@@ -1,11 +1,53 @@
+<div class="infobox">
+    <div class="infobox-header">Stone Gear</div>
+    <div class="infobox-image">
+        <img src="/assets/icons/logistics__core___stone_gear.png" alt="Stone Gear">
+    </div>
+    <table class="infobox-table">
+        <tr>
+            <td class="infobox-label">ID</td>
+            <td class="infobox-value"><code>logistics:core/stone_gear</code></td>
+        </tr>
+        <tr>
+            <td class="infobox-label">Type</td>
+            <td class="infobox-value">Item</td>
+        </tr>
+        <tr>
+            <td class="infobox-label">Stackable</td>
+            <td class="infobox-value"><span class="stackable-yes">Yes (64)</span></td>
+        </tr>
+        <tr>
+            <td class="infobox-label">Added</td>
+            <td class="infobox-value">v0.1.0</td>
+        </tr>
+    </table>
+</div>
+
 # Stone Gear
 
 The **Stone Gear** is a stone-tier crafting component used to create more advanced machines and engines. It represents progression beyond wooden-tier components.
 
 ## Recipe
-**Crafting:**
-- 4× Cobblestone (or Stone)
-- **Yields:** 1× Stone Gear
+
+<div class="crafting-recipe">
+    <div class="crafting-grid">
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"><img src="/assets/icons/minecraft__stone.png" class="crafting-item" alt="Stone"></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"><img src="/assets/icons/minecraft__stone.png" class="crafting-item" alt="Stone"></div>
+        <div class="crafting-slot"><img src="/assets/icons/logistics__core___wooden_gear.png" class="crafting-item" alt="Wooden Gear"></div>
+        <div class="crafting-slot"><img src="/assets/icons/minecraft__stone.png" class="crafting-item" alt="Stone"></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"><img src="/assets/icons/minecraft__stone.png" class="crafting-item" alt="Stone"></div>
+        <div class="crafting-slot"></div>
+    </div>
+    <div class="crafting-arrow">→</div>
+    <div class="crafting-output">
+        <img src="/assets/icons/logistics__core___stone_gear.png" class="crafting-item" alt="Stone Gear">
+    </div>
+</div>
+
+**Yields:** 1× Stone Gear (requires [Wooden Gear](wooden-gear.md))
 
 ## Uses
 

@@ -1,11 +1,61 @@
+<div class="infobox">
+    <div class="infobox-header">Kiln</div>
+    <div class="infobox-image">
+        <img src="/assets/icons/logistics__core___kiln.png" alt="Kiln">
+    </div>
+    <table class="infobox-table">
+        <tr>
+            <td class="infobox-label">ID</td>
+            <td class="infobox-value"><code>logistics:core/kiln</code></td>
+        </tr>
+        <tr>
+            <td class="infobox-label">Type</td>
+            <td class="infobox-value">Block (Machine)</td>
+        </tr>
+        <tr>
+            <td class="infobox-label">Stackable</td>
+            <td class="infobox-value"><span class="stackable-yes">Yes (64)</span></td>
+        </tr>
+        <tr>
+            <td class="infobox-label">Function</td>
+            <td class="infobox-value">Valve crafting</td>
+        </tr>
+        <tr>
+            <td class="infobox-label">Fuel</td>
+            <td class="infobox-value">Coal/Blaze Rod/Lava</td>
+        </tr>
+        <tr>
+            <td class="infobox-label">Added</td>
+            <td class="infobox-value">v0.2.0</td>
+        </tr>
+    </table>
+</div>
+
 # Kiln
 
-The **Kiln** is a temperature-controlled crafting machine that produces [valves](../materials/index.md#valves) using molten glass and metal. It uses an energy-based heating system with fuel progression - more advanced valves require hotter temperatures and better fuels.
+The **Kiln** is a temperature-controlled crafting machine that produces [valves](../materials/index.md#valves) using glass and metal. It uses an energy-based heating system with fuel progression - more advanced valves require hotter temperatures and better fuels.
 
 ## Recipe
-**Crafting:**
-- 8× Bricks (hollow cube pattern)
-- **Yields:** 1× Kiln
+
+<div class="crafting-recipe">
+    <div class="crafting-grid">
+        <div class="crafting-slot"><img src="/assets/icons/minecraft__bricks.png" class="crafting-item" alt="Bricks"></div>
+        <div class="crafting-slot"><img src="/assets/icons/minecraft__bricks.png" class="crafting-item" alt="Bricks"></div>
+        <div class="crafting-slot"><img src="/assets/icons/minecraft__bricks.png" class="crafting-item" alt="Bricks"></div>
+        <div class="crafting-slot"><img src="/assets/icons/minecraft__bricks.png" class="crafting-item" alt="Bricks"></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"><img src="/assets/icons/minecraft__bricks.png" class="crafting-item" alt="Bricks"></div>
+        <div class="crafting-slot"><img src="/assets/icons/minecraft__bricks.png" class="crafting-item" alt="Bricks"></div>
+        <div class="crafting-slot"><img src="/assets/icons/minecraft__bricks.png" class="crafting-item" alt="Bricks"></div>
+        <div class="crafting-slot"><img src="/assets/icons/minecraft__bricks.png" class="crafting-item" alt="Bricks"></div>
+    </div>
+    <div class="crafting-arrow">→</div>
+    <div class="crafting-output">
+        <img src="/assets/icons/logistics__core___kiln.png" class="crafting-item" alt="Kiln">
+    </div>
+</div>
+
+**Yields:** 1× Kiln
 
 ## How It Works
 
@@ -13,9 +63,10 @@ The Kiln operates on a **temperature and energy system**:
 
 1. **Add fuel** - Coal, lava buckets, blaze rods, etc.
 2. **Temperature rises** - Fuel burns and heats the kiln
-3. **Craft valves** - Place materials and molten glass in crafting pattern
-4. **Energy consumption** - Recipes consume energy over time
-5. **Maintain temperature** - Better fuels sustain higher energy recipes
+3. **Craft valves** - Place materials and glass/sand in crafting pattern
+4. **Glass melts** - Kiln melts glass internally during crafting
+5. **Energy consumption** - Recipes consume energy over time
+6. **Maintain temperature** - Better fuels sustain higher energy recipes
 
 **Key mechanics:**
 - Temperature derived from internal energy
@@ -32,8 +83,8 @@ The Kiln operates on a **temperature and energy system**:
 3. **Add fuel** to fuel slot (bottom left)
 4. **Wait for heating** - temperature rises to operating point (1500°C)
 5. **Place pattern** - Arrange metal + redstone in crafting grid
-6. **Add molten glass** - 250mb required per recipe
-7. **Crafting begins** - Progress bar shows completion
+6. **Add glass/sand** - Kiln melts it internally (1 block → 1000mb → 4 recipes)
+7. **Crafting begins** - Progress bar shows completion (uses 250mb molten glass)
 8. **Collect output** - Valves appear in output slot
 
 ### Fuel Requirements
@@ -97,14 +148,16 @@ Different valve tiers require different fuel quality:
 - Low-tier recipes work with any fuel (just slower)
 - High-tier recipes **require** premium fuels or they stall
 
-## Molten Glass
+## Glass Requirements
 
-All valve recipes require **250mb of molten glass** (liquid glass fluid).
+All valve recipes require **250mb of molten glass**.
 
-**Obtaining molten glass:**
-- Created by smelting sand/glass (details TBD)
-- Stored in tanks or buckets
-- Transferred into kiln via fluid pipes or buckets
+**Using glass:**
+- Add glass blocks or sand directly to the kiln
+- Each block produces 1 bucket (1000mb) of molten glass when melted
+- One glass block = enough for 4 valve recipes
+- Kiln melts it internally during crafting
+- No external smelting or fluid infrastructure needed
 
 ## Tips
 
@@ -113,7 +166,7 @@ All valve recipes require **250mb of molten glass** (liquid glass fluid).
 - Watch temperature gauge - if it drops, crafting pauses
 - Better fuels = faster, uninterrupted crafting
 - Keep spare fuel on hand for continuous operation
-- Molten glass requirement means you need fluid infrastructure
+- Stock glass blocks or sand for valve crafting
 
 ## Common Patterns
 
@@ -127,9 +180,9 @@ All valve recipes require **250mb of molten glass** (liquid glass fluid).
 [Kiln] + Lava Bucket → [Diamond/Emerald/Netherite Valves]
 ```
 
-**With fluid system (future):**
+**With glass storage:**
 ```
-[Glass smelting] → [Fluid pipes] → [Kiln] → [Valves]
+[Sand/Glass blocks] → [Kiln] → [Valves]
 ```
 
 ## Troubleshooting
@@ -139,14 +192,14 @@ All valve recipes require **250mb of molten glass** (liquid glass fluid).
 - Upgrade to better fuel (coal → blaze rod → lava)
 - Low-tier recipes will complete eventually, just slowly
 
-**No molten glass:**
-- Need 250mb molten glass to start crafting
-- Create molten glass from smelted sand/glass
-- Transfer via buckets or fluid pipes
+**No glass available:**
+- Need glass blocks or sand to start crafting
+- Add glass/sand directly to the kiln GUI
+- No pre-smelting required
 
 **Pattern not accepted:**
 - Check recipe pattern (materials + redstone configuration)
-- Ensure molten glass is available
+- Ensure glass/sand is available
 - Verify minimum temperature reached (1200°C)
 
 ## See Also

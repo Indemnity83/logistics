@@ -1,23 +1,62 @@
+<div class="infobox">
+    <div class="infobox-header">Bronze Valve</div>
+    <div class="infobox-image">
+        <img src="/assets/icons/logistics__core___valve_bronze.png" alt="Bronze Valve">
+    </div>
+    <table class="infobox-table">
+        <tr>
+            <td class="infobox-label">ID</td>
+            <td class="infobox-value"><code>logistics:core/valve_bronze</code></td>
+        </tr>
+        <tr>
+            <td class="infobox-label">Type</td>
+            <td class="infobox-value">Item</td>
+        </tr>
+        <tr>
+            <td class="infobox-label">Stackable</td>
+            <td class="infobox-value"><span class="stackable-yes">Yes (64)</span></td>
+        </tr>
+        <tr>
+            <td class="infobox-label">Kiln Tier</td>
+            <td class="infobox-value"><span class="infobox-tier infobox-tier-2">Tier 2</span></td>
+        </tr>
+        <tr>
+            <td class="infobox-label">Added</td>
+            <td class="infobox-value">v0.2.0</td>
+        </tr>
+    </table>
+</div>
+
 # Bronze Valve
 
 The **Bronze Valve** is a Tier 2 valve crafted in the [Kiln](../automation/kiln.md). It requires [bronze ingots](bronze-ingot.md) and exceeds coal's capacity - upgrade fuel is needed.
 
 ## Recipe
+
+<div class="crafting-recipe">
+    <div class="crafting-grid">
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"><img src="/assets/icons/logistics__core___bronze_ingot.png" class="crafting-item" alt="Bronze Ingot"></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"><img src="/assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone"></div>
+        <div class="crafting-slot"><img src="/assets/icons/logistics__core___bronze_ingot.png" class="crafting-item" alt="Bronze Ingot"></div>
+        <div class="crafting-slot"><img src="/assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone"></div>
+        <div class="crafting-slot"><img src="/assets/icons/logistics__core___bronze_ingot.png" class="crafting-item" alt="Bronze Ingot"></div>
+        <div class="crafting-slot"><img src="/assets/icons/logistics__core___bronze_ingot.png" class="crafting-item" alt="Bronze Ingot"></div>
+        <div class="crafting-slot"><img src="/assets/icons/logistics__core___bronze_ingot.png" class="crafting-item" alt="Bronze Ingot"></div>
+    </div>
+    <div class="crafting-arrow">→</div>
+    <div class="crafting-output">
+        <img src="/assets/icons/logistics__core___valve_bronze.png" class="crafting-item" alt="Bronze Valve">
+        <span class="crafting-count">4</span>
+    </div>
+</div>
+
 **[Kiln](../automation/kiln.md) crafting:**
-- 5× [Bronze Ingot](bronze-ingot.md)
-- 2× Redstone
-- 250mb Molten Glass
+- 5× [Bronze Ingot](bronze-ingot.md) + 2× Redstone + 250mb Molten Glass
 - **Process time:** 120 ticks
 - **Energy demand:** 140 energy/tick
 - **Yields:** 4× Bronze Valve
-
-**Pattern:**
-```
- B
-RBR
-BBB
-```
-B = Bronze Ingot, R = Redstone
 
 ## Fuel Requirements
 

@@ -1,3 +1,28 @@
+<div class="infobox">
+    <div class="infobox-header">Bronze Ingot</div>
+    <div class="infobox-image">
+        <img src="/assets/icons/logistics__core___bronze_ingot.png" alt="Bronze Ingot">
+    </div>
+    <table class="infobox-table">
+        <tr>
+            <td class="infobox-label">ID</td>
+            <td class="infobox-value"><code>logistics:core/bronze_ingot</code></td>
+        </tr>
+        <tr>
+            <td class="infobox-label">Type</td>
+            <td class="infobox-value">Item (Alloy)</td>
+        </tr>
+        <tr>
+            <td class="infobox-label">Stackable</td>
+            <td class="infobox-value"><span class="stackable-yes">Yes (64)</span></td>
+        </tr>
+        <tr>
+            <td class="infobox-label">Added</td>
+            <td class="infobox-value">v0.2.0</td>
+        </tr>
+    </table>
+</div>
+
 # Bronze Ingot
 
 **Bronze Ingot** is an alloy created from copper and tin. It's used for bronze valves and gears.
@@ -5,11 +30,109 @@
 ## Recipe
 
 **Alloy Crafting:**
-- Copper Ingot + [Tin Ingot](tin-ingot.md) → Bronze Ingot
-- (Exact recipe TBD - likely vanilla crafting or smelting)
+
+<div class="crafting-recipe">
+    <div class="crafting-grid">
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"><img src="/assets/icons/minecraft__copper_ingot.png" class="crafting-item" alt="Copper Ingot"></div>
+        <div class="crafting-slot"><img src="/assets/icons/minecraft__copper_ingot.png" class="crafting-item" alt="Copper Ingot"></div>
+        <div class="crafting-slot"><img src="/assets/icons/minecraft__copper_ingot.png" class="crafting-item" alt="Copper Ingot"></div>
+        <div class="crafting-slot"><img src="/assets/icons/logistics__core___tin_ingot.png" class="crafting-item" alt="Tin Ingot"></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"></div>
+    </div>
+    <div class="crafting-arrow">→</div>
+    <div class="crafting-output">
+        <img src="/assets/icons/logistics__core___bronze_ingot.png" class="crafting-item" alt="Bronze Ingot">
+        <span class="crafting-count">4</span>
+    </div>
+</div>
+
+**Shapeless crafting:** 3× Copper Ingot + 1× [Tin Ingot](tin-ingot.md) = 4× Bronze Ingot
+
+**Crafting (to block):**
+
+<div class="crafting-recipe">
+    <div class="crafting-grid">
+        <div class="crafting-slot"><img src="/assets/icons/logistics__core___bronze_ingot.png" class="crafting-item" alt="Bronze Ingot"></div>
+        <div class="crafting-slot"><img src="/assets/icons/logistics__core___bronze_ingot.png" class="crafting-item" alt="Bronze Ingot"></div>
+        <div class="crafting-slot"><img src="/assets/icons/logistics__core___bronze_ingot.png" class="crafting-item" alt="Bronze Ingot"></div>
+        <div class="crafting-slot"><img src="/assets/icons/logistics__core___bronze_ingot.png" class="crafting-item" alt="Bronze Ingot"></div>
+        <div class="crafting-slot"><img src="/assets/icons/logistics__core___bronze_ingot.png" class="crafting-item" alt="Bronze Ingot"></div>
+        <div class="crafting-slot"><img src="/assets/icons/logistics__core___bronze_ingot.png" class="crafting-item" alt="Bronze Ingot"></div>
+        <div class="crafting-slot"><img src="/assets/icons/logistics__core___bronze_ingot.png" class="crafting-item" alt="Bronze Ingot"></div>
+        <div class="crafting-slot"><img src="/assets/icons/logistics__core___bronze_ingot.png" class="crafting-item" alt="Bronze Ingot"></div>
+        <div class="crafting-slot"><img src="/assets/icons/logistics__core___bronze_ingot.png" class="crafting-item" alt="Bronze Ingot"></div>
+    </div>
+    <div class="crafting-arrow">→</div>
+    <div class="crafting-output">
+        <img src="/assets/icons/logistics__core___bronze_block.png" class="crafting-item" alt="Bronze Block">
+    </div>
+</div>
 
 **Crafting (from block):**
-- 1× Bronze Block → 9× Bronze Ingot
+
+<div class="crafting-recipe">
+    <div class="crafting-grid">
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"><img src="/assets/icons/logistics__core___bronze_block.png" class="crafting-item" alt="Bronze Block"></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"></div>
+    </div>
+    <div class="crafting-arrow">→</div>
+    <div class="crafting-output">
+        <img src="/assets/icons/logistics__core___bronze_ingot.png" class="crafting-item" alt="Bronze Ingot">
+        <span class="crafting-count">9</span>
+    </div>
+</div>
+
+**Crafting (from nuggets):**
+
+<div class="crafting-recipe">
+    <div class="crafting-grid">
+        <div class="crafting-slot"><img src="/assets/icons/logistics__core___bronze_nugget.png" class="crafting-item" alt="Bronze Nugget"></div>
+        <div class="crafting-slot"><img src="/assets/icons/logistics__core___bronze_nugget.png" class="crafting-item" alt="Bronze Nugget"></div>
+        <div class="crafting-slot"><img src="/assets/icons/logistics__core___bronze_nugget.png" class="crafting-item" alt="Bronze Nugget"></div>
+        <div class="crafting-slot"><img src="/assets/icons/logistics__core___bronze_nugget.png" class="crafting-item" alt="Bronze Nugget"></div>
+        <div class="crafting-slot"><img src="/assets/icons/logistics__core___bronze_nugget.png" class="crafting-item" alt="Bronze Nugget"></div>
+        <div class="crafting-slot"><img src="/assets/icons/logistics__core___bronze_nugget.png" class="crafting-item" alt="Bronze Nugget"></div>
+        <div class="crafting-slot"><img src="/assets/icons/logistics__core___bronze_nugget.png" class="crafting-item" alt="Bronze Nugget"></div>
+        <div class="crafting-slot"><img src="/assets/icons/logistics__core___bronze_nugget.png" class="crafting-item" alt="Bronze Nugget"></div>
+        <div class="crafting-slot"><img src="/assets/icons/logistics__core___bronze_nugget.png" class="crafting-item" alt="Bronze Nugget"></div>
+    </div>
+    <div class="crafting-arrow">→</div>
+    <div class="crafting-output">
+        <img src="/assets/icons/logistics__core___bronze_ingot.png" class="crafting-item" alt="Bronze Ingot">
+    </div>
+</div>
+
+**Crafting (to nuggets):**
+
+<div class="crafting-recipe">
+    <div class="crafting-grid">
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"><img src="/assets/icons/logistics__core___bronze_ingot.png" class="crafting-item" alt="Bronze Ingot"></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"></div>
+    </div>
+    <div class="crafting-arrow">→</div>
+    <div class="crafting-output">
+        <img src="/assets/icons/logistics__core___bronze_nugget.png" class="crafting-item" alt="Bronze Nugget">
+        <span class="crafting-count">9</span>
+    </div>
+</div>
 
 ## Usage
 
