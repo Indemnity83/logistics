@@ -1,6 +1,7 @@
 package com.logistics;
 
 import com.logistics.core.bootstrap.DomainBootstrap;
+import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.pipe.render.PipeBlockEntityRenderer;
 import com.logistics.pipe.screen.ItemFilterScreen;
 import net.fabricmc.fabric.api.client.model.loading.v1.ExtraModelKey;
@@ -9,7 +10,6 @@ import net.fabricmc.fabric.api.client.model.loading.v1.SimpleUnbakedExtraModel;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.renderer.block.model.BlockStateModel;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
-import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
@@ -21,7 +21,7 @@ public final class LogisticsPipeClient implements DomainBootstrap {
     public LogisticsPipeClient() {
         ModelLoadingPlugin.register(pluginContext -> {
             for (var entry : MODEL.getAllModels()) {
-                pluginContext.addModel(entry.getKey(), SimpleUnbakedExtraModel.blockStateModel(entry.getValue()));
+                pluginContext.addModel(entry.getKey(), SimpleUnbakedExtraModel.blockStateModel(entry.getValue().toIdentifier()));
             }
         });
     }
@@ -41,10 +41,10 @@ public final class LogisticsPipeClient implements DomainBootstrap {
     }
 
     public static final class MODEL {
-        private static final Map<Identifier, ExtraModelKey<BlockStateModel>> TEMP_LOOKUP = new HashMap<>();
+        private static final Map<ResourceId, ExtraModelKey<BlockStateModel>> TEMP_LOOKUP = new HashMap<>();
 
         private static void registerModel(String name) {
-            Identifier id = LogisticsPipe.blockModelIdentifier(name);
+            ResourceId id = LogisticsPipe.model(name);
             ExtraModelKey<BlockStateModel> key = ExtraModelKey.create(id::toString);
             TEMP_LOOKUP.put(id, key);
         }
@@ -96,14 +96,14 @@ public final class LogisticsPipeClient implements DomainBootstrap {
             registerModel("item_void_pipe_arm_extended");
         }
 
-        private static final Map<Identifier, ExtraModelKey<BlockStateModel>> MODEL_LOOKUP = Map.copyOf(TEMP_LOOKUP);
+        private static final Map<ResourceId, ExtraModelKey<BlockStateModel>> MODEL_LOOKUP = Map.copyOf(TEMP_LOOKUP);
 
         @Nullable
-        public static ExtraModelKey<BlockStateModel> getKey(Identifier modelId) {
+        public static ExtraModelKey<BlockStateModel> getKey(ResourceId modelId) {
             return MODEL_LOOKUP.get(modelId);
         }
 
-        static Iterable<Map.Entry<ExtraModelKey<BlockStateModel>, Identifier>> getAllModels() {
+        static Iterable<Map.Entry<ExtraModelKey<BlockStateModel>, ResourceId>> getAllModels() {
             return MODEL_LOOKUP.entrySet().stream()
                     .map(e -> Map.entry(e.getValue(), e.getKey()))
                     .toList();

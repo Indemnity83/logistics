@@ -4,6 +4,7 @@ import com.logistics.automation.render.ClientRenderCacheHooks;
 import com.logistics.automation.render.LaserQuarryBlockEntityRenderer;
 import com.logistics.automation.render.LaserQuarryRenderState;
 import com.logistics.core.bootstrap.DomainBootstrap;
+import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.core.render.ModelKeyRegistry;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -15,7 +16,6 @@ import net.fabricmc.fabric.api.client.rendering.v1.BlockEntityRendererRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.ChunkSectionLayerMap;
 import net.minecraft.client.renderer.block.model.BlockStateModel;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
-import net.minecraft.resources.Identifier;
 
 import java.util.Map;
 
@@ -25,7 +25,7 @@ public final class LogisticsAutomationClient implements DomainBootstrap {
     public LogisticsAutomationClient() {
         ModelLoadingPlugin.register(pluginContext -> {
             for (var entry : MODEL.getAllModels()) {
-                pluginContext.addModel(entry.getKey(), SimpleUnbakedExtraModel.blockStateModel(entry.getValue()));
+                pluginContext.addModel(entry.getKey(), SimpleUnbakedExtraModel.blockStateModel(entry.getValue().toIdentifier()));
             }
         });
     }
@@ -60,7 +60,7 @@ public final class LogisticsAutomationClient implements DomainBootstrap {
     }
 
     public static final class MODEL {
-        private static final ModelKeyRegistry REGISTRY = new ModelKeyRegistry(LogisticsAutomation::blockModelIdentifier);
+        private static final ModelKeyRegistry REGISTRY = new ModelKeyRegistry(LogisticsAutomation::model);
 
         public static final ExtraModelKey<BlockStateModel> ARM = REGISTRY.registerModel("laser_quarry_gantry_arm");
         public static final ExtraModelKey<BlockStateModel> DRILL = REGISTRY.registerModel("laser_quarry_drill");
@@ -69,7 +69,7 @@ public final class LogisticsAutomationClient implements DomainBootstrap {
         public static final ExtraModelKey<BlockStateModel> DISPLAY = REGISTRY.registerModel("laser_quarry_display");
         public static final ExtraModelKey<BlockStateModel> TOP_HATCH = REGISTRY.registerModel("laser_quarry_top_hatch");
 
-        static Iterable<Map.Entry<ExtraModelKey<BlockStateModel>, Identifier>> getAllModels() {
+        static Iterable<Map.Entry<ExtraModelKey<BlockStateModel>, ResourceId>> getAllModels() {
             return REGISTRY.getAllModels();
         }
 

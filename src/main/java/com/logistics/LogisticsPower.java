@@ -1,6 +1,7 @@
 package com.logistics;
 
 import com.logistics.core.bootstrap.DomainBootstrap;
+import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.power.block.CreativeSinkBlock;
 import com.logistics.power.block.entity.CreativeSinkBlockEntity;
 import com.logistics.power.engine.block.CreativeEngineBlock;
@@ -14,12 +15,10 @@ import net.fabricmc.fabric.api.menu.v1.ExtendedMenuType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.Identifier;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import team.reborn.energy.api.EnergyStorage;
 
 public final class LogisticsPower extends LogisticsMod implements DomainBootstrap {
     private static final LogisticsPower INSTANCE = new LogisticsPower();
@@ -29,12 +28,12 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
         return "power";
     }
 
-    public static Identifier identifier(String name) {
-        return INSTANCE.getDomainIdentifier(name);
+    public static ResourceId resource(String name) {
+        return INSTANCE.domainResource(name);
     }
 
-    public static Identifier blockModelIdentifier(String name) {
-        return INSTANCE.getBlockModelIdentifier(name);
+    public static ResourceId model(String name) {
+        return INSTANCE.domainModelResource(name);
     }
 
     @Override
@@ -101,7 +100,7 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
         static void register() {
             STIRLING_ENGINE = Registry.register(
                     BuiltInRegistries.MENU,
-                    LogisticsPower.identifier("stirling_engine"),
+                    LogisticsPower.resource("stirling_engine").toIdentifier(),
                     new ExtendedMenuType<>(StirlingEngineScreenHandler::new, BlockPos.STREAM_CODEC));
         }
     }

@@ -3,6 +3,7 @@ package com.logistics.pipe.render;
 import com.logistics.LogisticsPipe;
 import com.logistics.LogisticsPipeClient;
 import com.logistics.core.lib.block.capability.PipeConnection;
+import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.pipe.Pipe;
 import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.block.PipeBlock;
@@ -25,7 +26,6 @@ import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.state.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.level.block.state.BlockState;
@@ -46,7 +46,7 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
         this.modelManager = (FabricModelManager) Minecraft.getInstance().getModelManager();
     }
 
-    private BlockStateModel getModel(Identifier modelId) {
+    private BlockStateModel getModel(ResourceId modelId) {
         ExtraModelKey<BlockStateModel> key = LogisticsPipeClient.MODEL.getKey(modelId);
         if (key == null) {
             return null;
@@ -108,12 +108,12 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
                     }
 
                     // Get arm model (module override or base), rotate at render time
-                    Identifier armModel = pipe.getPipeArm(context, direction);
+                    var armModel = pipe.getPipeArm(context, direction);
                     Integer armTint = pipe.getArmTint(context, direction);
                     int armColor = armTint != null ? armTint : 0xFFFFFF;
                     state.models.add(new PipeRenderState.ModelRenderInfo(armModel, armColor, direction));
 
-                    for (Identifier decoration : pipe.getPipeDecorations(context, direction)) {
+                    for (var decoration : pipe.getPipeDecorations(context, direction)) {
                         state.models.add(new PipeRenderState.ModelRenderInfo(decoration, 0xFFFFFF));
                     }
                 }

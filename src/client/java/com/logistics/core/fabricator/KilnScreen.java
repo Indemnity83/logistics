@@ -2,6 +2,7 @@ package com.logistics.core.fabricator;
 
 import com.logistics.LogisticsCore;
 import com.logistics.LogisticsMod;
+import com.logistics.core.lib.resource.ResourceId;
 import net.fabricmc.fabric.api.transfer.v1.client.fluid.FluidVariantRendering;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 import net.minecraft.client.gui.GuiGraphics;
@@ -9,7 +10,6 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 
 /**
@@ -18,14 +18,14 @@ import net.minecraft.world.entity.player.Inventory;
  */
 public class KilnScreen extends AbstractContainerScreen<KilnScreenHandler> {
 
-    private static final Identifier TEXTURE = LogisticsMod.getIdentifier("textures/gui/core/kiln.png");
+    private static final ResourceId TEXTURE = LogisticsMod.modId("textures/gui/core/kiln.png");
 
     // GUI texture dimensions (standard)
     private static final int TEXTURE_WIDTH = 256;
     private static final int TEXTURE_HEIGHT = 256;
 
     // Reuse vanilla's lit flame sprite
-    private static final Identifier LIT_PROGRESS_SPRITE = Identifier.withDefaultNamespace("container/furnace/lit_progress");
+    private static final ResourceId LIT_PROGRESS_SPRITE = ResourceId.in("minecraft", "container/furnace/lit_progress");
 
     public KilnScreen(KilnScreenHandler handler, Inventory inventory, Component title) {
         super(handler, inventory, title, 176, 166);
@@ -43,7 +43,7 @@ public class KilnScreen extends AbstractContainerScreen<KilnScreenHandler> {
         // Render main GUI texture
         graphics.blit(
             RenderPipelines.GUI_TEXTURED,
-            TEXTURE,
+            TEXTURE.toIdentifier(),
             leftPos,
             topPos,
             0,
@@ -58,7 +58,7 @@ public class KilnScreen extends AbstractContainerScreen<KilnScreenHandler> {
             // Render at same position as old code when fully lit (topPos + 49 - 13)
             graphics.blitSprite(
                 RenderPipelines.GUI_TEXTURED,
-                LIT_PROGRESS_SPRITE,
+                LIT_PROGRESS_SPRITE.toIdentifier(),
                 14,
                 14,
                 0,
@@ -84,7 +84,7 @@ public class KilnScreen extends AbstractContainerScreen<KilnScreenHandler> {
             // Overlay texture: x=200-215 (16px wide), y=59-81 (23px tall)
             graphics.blit(
                 RenderPipelines.GUI_TEXTURED,
-                TEXTURE,
+                TEXTURE.toIdentifier(),
                 leftPos + 46,
                 topPos + 69 - tankHeight,
                 200,
@@ -105,7 +105,7 @@ public class KilnScreen extends AbstractContainerScreen<KilnScreenHandler> {
             if (arrowHeight > 0) {
                 graphics.blit(
                     RenderPipelines.GUI_TEXTURED,
-                    TEXTURE,
+                    TEXTURE.toIdentifier(),
                     leftPos + 47,
                     topPos + 35,
                     201,
@@ -127,7 +127,7 @@ public class KilnScreen extends AbstractContainerScreen<KilnScreenHandler> {
             if (arrowWidth > 0) {
                 graphics.blit(
                     RenderPipelines.GUI_TEXTURED,
-                    TEXTURE,
+                    TEXTURE.toIdentifier(),
                     leftPos + 128,
                     topPos + 21,
                     187,
@@ -156,7 +156,7 @@ public class KilnScreen extends AbstractContainerScreen<KilnScreenHandler> {
         // Render the window portion of the strip
         graphics.blit(
             RenderPipelines.GUI_TEXTURED,
-            TEXTURE,
+            TEXTURE.toIdentifier(),
             leftPos + 16,           // Destination X
             topPos + 18,            // Destination Y
             windowLeft,             // Source X (sliding window position)

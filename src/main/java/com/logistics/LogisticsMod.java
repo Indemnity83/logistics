@@ -2,12 +2,12 @@ package com.logistics;
 
 import com.logistics.core.bootstrap.DomainBootstrap;
 import com.logistics.core.bootstrap.DomainBootstraps;
+import com.logistics.core.lib.resource.ResourceId;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
@@ -42,43 +42,27 @@ public class LogisticsMod implements ModInitializer {
         }
     }
 
-    // TODO(post-1.0): Consider creating ResourceHelper in core.lib.resource (like NbtCompat)
-    //  This would centralize all Identifier API calls in a compatibility layer to better
-    //  facilitate cross-version cherry-picking. Proposed API:
-    //    ResourceHelper.id("path") // logistics namespace
-    //    ResourceHelper.parse("namespace:path") // from strings
-    //    ResourceHelper.of("namespace", "path") // arbitrary
-    //  Benefits: cleaner API, consistent with NbtCompat pattern, easier version migrations
-    //  Trade-off: requires creating new package and moving helpers from LogisticsMod
-
-    public static Identifier getIdentifier(String path) {
-        return Identifier.fromNamespaceAndPath(MOD_ID, path);
-    }
-
     /**
-     * Parse an identifier from a string like "namespace:path".
-     * Use when reading identifiers from JSON, NBT, or other external sources.
+     * Creates a ResourceId for a Logistics-namespaced identifier.
+     * <p>
+     * Example: {@code modId("pipe/copper")} → {@code logistics:pipe/copper}
+     *
+     * @param path the resource path
+     * @return a new ResourceId in the Logistics namespace
      */
-    public static Identifier parseIdentifier(String id) {
-        return Identifier.parse(id);
+    public static ResourceId modId(String path) {
+        return ResourceId.in(MOD_ID, path);
     }
 
-    /**
-     * Create an identifier from namespace and path.
-     * Use when you need non-Logistics namespaces (e.g., "minecraft", other mods).
-     */
-    public static Identifier createIdentifier(String namespace, String path) {
-        return Identifier.fromNamespaceAndPath(namespace, path);
-    }
 
     // TODO(pre-1.0): Consider if domain/ separator should be flattened to domain_
     //  Current: logistics:pipe/copper_transport_pipe
     //  Alternative: logistics:pipe_copper_transport_pipe
     //  Trade-off: Slash aids internal organization but is unconventional for mod IDs.
     //  Changing requires alias migration for existing worlds.
-    @NonNull protected Identifier getDomainIdentifier(String name) {
+    @NonNull protected ResourceId domainResource(String name) {
         String d = domain();
-        return getIdentifier(d.isEmpty() ? name : d + "/" + name);
+        return modId(d.isEmpty() ? name : d + "/" + name);
     }
 
     /**
@@ -86,20 +70,20 @@ public class LogisticsMod implements ModInitializer {
      * Automatically prepends "block/" and the domain path.
      * Example: LogisticsPipe.blockModelIdentifier("copper_pipe_core") → logistics:block/pipe/copper_pipe_core
      */
-    @NonNull protected Identifier getBlockModelIdentifier(String name) {
+    @NonNull protected ResourceId domainModelResource(String name) {
         String d = domain();
-        return getIdentifier(d.isEmpty() ? "block/" + name : "block/" + d + "/" + name);
+        return modId(d.isEmpty() ? "block/" + name : "block/" + d + "/" + name);
     }
 
     protected Item registerItem(String name, Function<Item.Properties, Item> itemFactory) {
-        ResourceKey<Item> itemKey = ResourceKey.create(Registries.ITEM, getDomainIdentifier(name));
+        ResourceKey<Item> itemKey = ResourceKey.create(Registries.ITEM, domainResource(name).toIdentifier());
         Item item = itemFactory.apply(new Item.Properties().setId(itemKey));
 
         return Registry.register(BuiltInRegistries.ITEM, itemKey, item);
     }
 
     protected Block registerBlock(String name, Function<BlockBehaviour.Properties, Block> blockFactory) {
-        ResourceKey<Block> blockKey = ResourceKey.create(Registries.BLOCK, getDomainIdentifier(name));
+        ResourceKey<Block> blockKey = ResourceKey.create(Registries.BLOCK, domainResource(name).toIdentifier());
         Block block = blockFactory.apply(BlockBehaviour.Properties.of().setId(blockKey));
 
         return Registry.register(BuiltInRegistries.BLOCK, blockKey, block);
@@ -120,43 +104,35 @@ public class LogisticsMod implements ModInitializer {
             String name,
             FabricBlockEntityTypeBuilder.Factory<T> factory,
             Block... blocks) {
-        Identifier identifier = getDomainIdentifier(name);
         BlockEntityType<T> blockEntityType = FabricBlockEntityTypeBuilder.create(factory, blocks).build();
-        return Registry.register(BuiltInRegistries.BLOCK_ENTITY_TYPE, identifier, blockEntityType);
+        return Registry.register(BuiltInRegistries.BLOCK_ENTITY_TYPE, domainResource(name).toIdentifier(), blockEntityType);
     }
 
     protected <T extends AbstractContainerMenu> MenuType<T> registerMenuType(
             String name,
             MenuType.MenuSupplier<T> factory) {
-        Identifier identifier = getDomainIdentifier(name);
         MenuType<T> menuType = new MenuType<>(factory, FeatureFlags.DEFAULT_FLAGS);
-        return Registry.register(BuiltInRegistries.MENU, identifier, menuType);
+        return Registry.register(BuiltInRegistries.MENU, domainResource(name).toIdentifier(), menuType);
     }
 
     protected void registerItemAlias(String name, Item item) {
-        Identifier oldItem = getIdentifier(name);
-        Identifier newItem = BuiltInRegistries.ITEM.getKey(item);
-
+        var newItem = BuiltInRegistries.ITEM.getKey(item);
         if (newItem != null) {
-            BuiltInRegistries.ITEM.addAlias(oldItem, newItem);
+            BuiltInRegistries.ITEM.addAlias(modId(name).toIdentifier(), newItem);
         }
     }
 
     protected void registerBlockAlias(String name, Block block) {
-        Identifier oldBlock = getIdentifier(name);
-        Identifier newBlock = BuiltInRegistries.BLOCK.getKey(block);
-
+        var newBlock = BuiltInRegistries.BLOCK.getKey(block);
         if (newBlock != null) {
-            BuiltInRegistries.BLOCK.addAlias(oldBlock, newBlock);
+            BuiltInRegistries.BLOCK.addAlias(modId(name).toIdentifier(), newBlock);
         }
     }
 
     protected void registerBlockEntityAlias(String name, BlockEntityType<?> blockEntityType) {
-        Identifier oldBlockEntity = getIdentifier(name);
-        Identifier newBlockEntity = BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(blockEntityType);
-
+        var newBlockEntity = BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(blockEntityType);
         if(newBlockEntity != null) {
-            BuiltInRegistries.BLOCK_ENTITY_TYPE.addAlias(oldBlockEntity, newBlockEntity);
+            BuiltInRegistries.BLOCK_ENTITY_TYPE.addAlias(modId(name).toIdentifier(), newBlockEntity);
         }
     }
 }
