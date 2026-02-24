@@ -106,6 +106,17 @@ public final class ResourceId {
     }
 
     /**
+     * Wraps an existing Minecraft Identifier in a ResourceId.
+     *
+     * @param identifier the Minecraft identifier to wrap
+     * @return a new ResourceId wrapping the given identifier
+     * @throws IllegalArgumentException if identifier is null
+     */
+    public static ResourceId wrap(Identifier identifier) {
+        return new ResourceId(identifier);
+    }
+
+    /**
      * Gets the namespace part of this identifier.
      * <p>
      * Example: {@code logistics:pipe/wood} → {@code "logistics"}

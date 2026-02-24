@@ -5,6 +5,7 @@ import net.fabricmc.fabric.api.client.model.loading.v1.ExtraModelKey;
 import net.minecraft.client.renderer.block.model.BlockStateModel;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -50,8 +51,6 @@ public final class ModelKeyRegistry {
      * @return Immutable view of registered models
      */
     public Iterable<Map.Entry<ExtraModelKey<BlockStateModel>, ResourceId>> getAllModels() {
-        return models.entrySet().stream()
-            .map(entry -> Map.entry(entry.getKey(), entry.getValue()))
-            .toList();
+        return List.copyOf(models.entrySet());
     }
 }
