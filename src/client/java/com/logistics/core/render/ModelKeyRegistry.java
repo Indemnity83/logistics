@@ -18,7 +18,7 @@ public final class ModelKeyRegistry {
 
     /**
      * Creates a new model registry.
-     * @param identifierFactory Function to create resource helpers from model names (e.g., LogisticsDomain::blockModelIdentifier)
+     * @param identifierFactory Function to create ResourceId instances from model names (e.g., LogisticsDomain::model)
      */
     public ModelKeyRegistry(Function<String, ResourceId> identifierFactory) {
         this.identifierFactory = identifierFactory;
@@ -44,9 +44,9 @@ public final class ModelKeyRegistry {
     }
 
     /**
-     * Returns all registered models as key-ResourceHelper pairs.
+     * Returns all registered models as key-ResourceId pairs.
      * Used by ModelLoadingPlugin to register models with Fabric.
-     * Callers should unwrap ResourceHelper when passing to Fabric APIs.
+     * Callers should unwrap ResourceId when passing to Fabric APIs.
      * @return Immutable view of registered models
      */
     public Iterable<Map.Entry<ExtraModelKey<BlockStateModel>, ResourceId>> getAllModels() {
