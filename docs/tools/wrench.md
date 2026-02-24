@@ -1,7 +1,7 @@
 <div class="infobox">
     <div class="infobox-header">Wrench</div>
     <div class="infobox-image">
-        <img src="../assets/icons/logistics__core___wrench.png" alt="Wrench">
+        <img src="../../assets/icons/logistics__core___wrench.png" alt="Wrench">
     </div>
     <table class="infobox-table">
         <tr>
@@ -35,19 +35,19 @@ The **Wrench** is a configuration tool for pipes, engines, and machines. Use it 
 
 <div class="crafting-recipe">
     <div class="crafting-grid">
-        <div class="crafting-slot"><img src="../assets/icons/minecraft__iron_ingot.png" class="crafting-item" alt="Iron Ingot"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__iron_ingot.png" class="crafting-item" alt="Iron Ingot"></div>
         <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="../assets/icons/minecraft__iron_ingot.png" class="crafting-item" alt="Iron Ingot"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__iron_ingot.png" class="crafting-item" alt="Iron Ingot"></div>
         <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="../assets/icons/minecraft__iron_ingot.png" class="crafting-item" alt="Iron Ingot"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__iron_ingot.png" class="crafting-item" alt="Iron Ingot"></div>
         <div class="crafting-slot"></div>
         <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="../assets/icons/minecraft__iron_ingot.png" class="crafting-item" alt="Iron Ingot"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__iron_ingot.png" class="crafting-item" alt="Iron Ingot"></div>
         <div class="crafting-slot"></div>
     </div>
     <div class="crafting-arrow">→</div>
     <div class="crafting-output">
-        <img src="../assets/icons/logistics__core___wrench.png" class="crafting-item" alt="Wrench">
+        <img src="../../assets/icons/logistics__core___wrench.png" class="crafting-item" alt="Wrench">
     </div>
 </div>
 

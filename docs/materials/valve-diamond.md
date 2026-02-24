@@ -1,7 +1,7 @@
 <div class="infobox">
     <div class="infobox-header">Diamond Valve</div>
     <div class="infobox-image">
-        <img src="../assets/icons/logistics__core___valve_diamond.png" alt="Diamond Valve">
+        <img src="../../assets/icons/logistics__core___valve_diamond.png" alt="Diamond Valve">
     </div>
     <table class="infobox-table">
         <tr>
@@ -36,18 +36,18 @@ The **Diamond Valve** is a Tier 4 valve crafted in the [Kiln](../automation/kiln
 <div class="crafting-recipe">
     <div class="crafting-grid">
         <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="../assets/icons/minecraft__diamond.png" class="crafting-item" alt="Diamond"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__diamond.png" class="crafting-item" alt="Diamond"></div>
         <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone"></div>
-        <div class="crafting-slot"><img src="../assets/icons/minecraft__diamond.png" class="crafting-item" alt="Diamond"></div>
-        <div class="crafting-slot"><img src="../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone"></div>
-        <div class="crafting-slot"><img src="../assets/icons/minecraft__diamond.png" class="crafting-item" alt="Diamond"></div>
-        <div class="crafting-slot"><img src="../assets/icons/minecraft__diamond.png" class="crafting-item" alt="Diamond"></div>
-        <div class="crafting-slot"><img src="../assets/icons/minecraft__diamond.png" class="crafting-item" alt="Diamond"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__diamond.png" class="crafting-item" alt="Diamond"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__diamond.png" class="crafting-item" alt="Diamond"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__diamond.png" class="crafting-item" alt="Diamond"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__diamond.png" class="crafting-item" alt="Diamond"></div>
     </div>
     <div class="crafting-arrow">→</div>
     <div class="crafting-output">
-        <img src="../assets/icons/logistics__core___valve_diamond.png" class="crafting-item" alt="Diamond Valve">
+        <img src="../../assets/icons/logistics__core___valve_diamond.png" class="crafting-item" alt="Diamond Valve">
         <span class="crafting-count">4</span>
     </div>
 </div>

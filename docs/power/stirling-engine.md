@@ -1,7 +1,7 @@
 <div class="infobox">
     <div class="infobox-header">Stirling Engine</div>
     <div class="infobox-image">
-        <img src="../assets/icons/logistics__power___stirling_engine.png" alt="Stirling Engine">
+        <img src="../../assets/icons/logistics__power___stirling_engine.png" alt="Stirling Engine">
     </div>
     <table class="infobox-table">
         <tr>
@@ -43,19 +43,19 @@ The **Stirling Engine** is a high-power generator that burns fuel to produce sub
 
 <div class="crafting-recipe">
     <div class="crafting-grid">
-        <div class="crafting-slot"><img src="../assets/icons/minecraft__stone.png" class="crafting-item" alt="Stone"></div>
-        <div class="crafting-slot"><img src="../assets/icons/minecraft__stone.png" class="crafting-item" alt="Stone"></div>
-        <div class="crafting-slot"><img src="../assets/icons/minecraft__stone.png" class="crafting-item" alt="Stone"></div>
-        <div class="crafting-slot"><img src="../assets/icons/logistics__core___stone_gear.png" class="crafting-item" alt="Stone Gear"></div>
-        <div class="crafting-slot"><img src="../assets/icons/minecraft__glass.png" class="crafting-item" alt="Glass"></div>
-        <div class="crafting-slot"><img src="../assets/icons/logistics__core___stone_gear.png" class="crafting-item" alt="Stone Gear"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__stone.png" class="crafting-item" alt="Stone"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__stone.png" class="crafting-item" alt="Stone"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__stone.png" class="crafting-item" alt="Stone"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___stone_gear.png" class="crafting-item" alt="Stone Gear"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__glass.png" class="crafting-item" alt="Glass"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___stone_gear.png" class="crafting-item" alt="Stone Gear"></div>
         <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="../assets/icons/minecraft__piston.png" class="crafting-item" alt="Piston"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__piston.png" class="crafting-item" alt="Piston"></div>
         <div class="crafting-slot"></div>
     </div>
     <div class="crafting-arrow">→</div>
     <div class="crafting-output">
-        <img src="../assets/icons/logistics__core___stirling_engine.png" class="crafting-item" alt="Stirling Engine">
+        <img src="../../assets/icons/logistics__core___stirling_engine.png" class="crafting-item" alt="Stirling Engine">
     </div>
 </div>
 

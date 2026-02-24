@@ -1,7 +1,7 @@
 <div class="infobox">
     <div class="infobox-header">Apatite Valve</div>
     <div class="infobox-image">
-        <img src="../assets/icons/logistics__core___valve_apatite.png" alt="Apatite Valve">
+        <img src="../../assets/icons/logistics__core___valve_apatite.png" alt="Apatite Valve">
     </div>
     <table class="infobox-table">
         <tr>
@@ -36,18 +36,18 @@ The **Apatite Valve** is a Tier 3 valve crafted in the [Kiln](../automation/kiln
 <div class="crafting-recipe">
     <div class="crafting-grid">
         <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="../assets/icons/logistics__core___apatite.png" class="crafting-item" alt="Apatite"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___apatite.png" class="crafting-item" alt="Apatite"></div>
         <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone"></div>
-        <div class="crafting-slot"><img src="../assets/icons/logistics__core___apatite.png" class="crafting-item" alt="Apatite"></div>
-        <div class="crafting-slot"><img src="../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone"></div>
-        <div class="crafting-slot"><img src="../assets/icons/logistics__core___apatite.png" class="crafting-item" alt="Apatite"></div>
-        <div class="crafting-slot"><img src="../assets/icons/logistics__core___apatite.png" class="crafting-item" alt="Apatite"></div>
-        <div class="crafting-slot"><img src="../assets/icons/logistics__core___apatite.png" class="crafting-item" alt="Apatite"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___apatite.png" class="crafting-item" alt="Apatite"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___apatite.png" class="crafting-item" alt="Apatite"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___apatite.png" class="crafting-item" alt="Apatite"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___apatite.png" class="crafting-item" alt="Apatite"></div>
     </div>
     <div class="crafting-arrow">→</div>
     <div class="crafting-output">
-        <img src="../assets/icons/logistics__core___valve_apatite.png" class="crafting-item" alt="Apatite Valve">
+        <img src="../../assets/icons/logistics__core___valve_apatite.png" class="crafting-item" alt="Apatite Valve">
         <span class="crafting-count">4</span>
     </div>
 </div>

@@ -1,7 +1,7 @@
 <div class="infobox">
     <div class="infobox-header">Tin Gear</div>
     <div class="infobox-image">
-        <img src="../assets/icons/logistics__core___tin_gear.png" alt="Tin Gear">
+        <img src="../../assets/icons/logistics__core___tin_gear.png" alt="Tin Gear">
     </div>
     <table class="infobox-table">
         <tr>
@@ -32,18 +32,18 @@ The **Tin Gear** is a mid-tier crafting component made from [tin ingots](tin-ing
 <div class="crafting-recipe">
     <div class="crafting-grid">
         <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="../assets/icons/logistics__core___tin_ingot.png" class="crafting-item" alt="Tin Ingot"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___tin_ingot.png" class="crafting-item" alt="Tin Ingot"></div>
         <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="../assets/icons/logistics__core___tin_ingot.png" class="crafting-item" alt="Tin Ingot"></div>
-        <div class="crafting-slot"><img src="../assets/icons/logistics__core___copper_gear.png" class="crafting-item" alt="Copper Gear"></div>
-        <div class="crafting-slot"><img src="../assets/icons/logistics__core___tin_ingot.png" class="crafting-item" alt="Tin Ingot"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___tin_ingot.png" class="crafting-item" alt="Tin Ingot"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___copper_gear.png" class="crafting-item" alt="Copper Gear"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___tin_ingot.png" class="crafting-item" alt="Tin Ingot"></div>
         <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="../assets/icons/logistics__core___tin_ingot.png" class="crafting-item" alt="Tin Ingot"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___tin_ingot.png" class="crafting-item" alt="Tin Ingot"></div>
         <div class="crafting-slot"></div>
     </div>
     <div class="crafting-arrow">→</div>
     <div class="crafting-output">
-        <img src="../assets/icons/logistics__core___tin_gear.png" class="crafting-item" alt="Tin Gear">
+        <img src="../../assets/icons/logistics__core___tin_gear.png" class="crafting-item" alt="Tin Gear">
     </div>
 </div>
 

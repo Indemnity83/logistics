@@ -1,7 +1,7 @@
 <div class="infobox">
     <div class="infobox-header">Wooden Gear</div>
     <div class="infobox-image">
-        <img src="../assets/icons/logistics__core___wooden_gear.png" alt="Wooden Gear">
+        <img src="../../assets/icons/logistics__core___wooden_gear.png" alt="Wooden Gear">
     </div>
     <table class="infobox-table">
         <tr>
@@ -32,18 +32,18 @@ The **Wooden Gear** is a basic crafting component used to create early-game mach
 <div class="crafting-recipe">
     <div class="crafting-grid">
         <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="../assets/icons/minecraft__stick.png" class="crafting-item" alt="Stick"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__stick.png" class="crafting-item" alt="Stick"></div>
         <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="../assets/icons/minecraft__stick.png" class="crafting-item" alt="Stick"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__stick.png" class="crafting-item" alt="Stick"></div>
         <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="../assets/icons/minecraft__stick.png" class="crafting-item" alt="Stick"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__stick.png" class="crafting-item" alt="Stick"></div>
         <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="../assets/icons/minecraft__stick.png" class="crafting-item" alt="Stick"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__stick.png" class="crafting-item" alt="Stick"></div>
         <div class="crafting-slot"></div>
     </div>
     <div class="crafting-arrow">→</div>
     <div class="crafting-output">
-        <img src="../assets/icons/logistics__core___wooden_gear.png" class="crafting-item" alt="Wooden Gear">
+        <img src="../../assets/icons/logistics__core___wooden_gear.png" class="crafting-item" alt="Wooden Gear">
     </div>
 </div>
 

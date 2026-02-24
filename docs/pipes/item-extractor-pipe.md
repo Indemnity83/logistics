@@ -1,7 +1,7 @@
 <div class="infobox">
     <div class="infobox-header">Item Extractor Pipe</div>
     <div class="infobox-image">
-        <img src="../assets/icons/logistics__pipe___item_extractor_pipe.png" alt="Item Extractor Pipe">
+        <img src="../../assets/icons/logistics__pipe___item_extractor_pipe.png" alt="Item Extractor Pipe">
     </div>
     <table class="infobox-table">
         <tr>
@@ -38,16 +38,16 @@ The **Item Extractor Pipe** is a [Tier 1](../core/tier-system.md) mechanical pip
         <div class="crafting-slot"></div>
         <div class="crafting-slot"></div>
         <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="../assets/icons/minecraft__oak_planks.png" class="crafting-item" alt="Planks"></div>
-        <div class="crafting-slot"><img src="../assets/icons/minecraft__glass.png" class="crafting-item" alt="Glass"></div>
-        <div class="crafting-slot"><img src="../assets/icons/minecraft__oak_planks.png" class="crafting-item" alt="Planks"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__oak_planks.png" class="crafting-item" alt="Planks"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__glass.png" class="crafting-item" alt="Glass"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__oak_planks.png" class="crafting-item" alt="Planks"></div>
         <div class="crafting-slot"></div>
         <div class="crafting-slot"></div>
         <div class="crafting-slot"></div>
     </div>
     <div class="crafting-arrow">→</div>
     <div class="crafting-output">
-        <img src="../assets/icons/logistics__pipe___item_extractor_pipe.png" class="crafting-item" alt="Item Extractor Pipe">
+        <img src="../../assets/icons/logistics__pipe___item_extractor_pipe.png" class="crafting-item" alt="Item Extractor Pipe">
         <span class="crafting-count">8</span>
     </div>
 </div>

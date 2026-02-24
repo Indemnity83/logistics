@@ -1,7 +1,7 @@
 <div class="infobox">
     <div class="infobox-header">Apatite</div>
     <div class="infobox-image">
-        <img src="../assets/icons/logistics__core___apatite.png" alt="Apatite">
+        <img src="../../assets/icons/logistics__core___apatite.png" alt="Apatite">
     </div>
     <table class="infobox-table">
         <tr>
@@ -41,7 +41,7 @@
         <div class="crafting-slot"></div>
         <div class="crafting-slot"></div>
         <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="../assets/icons/logistics__core___apatite_block.png" class="crafting-item" alt="Apatite Block"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___apatite_block.png" class="crafting-item" alt="Apatite Block"></div>
         <div class="crafting-slot"></div>
         <div class="crafting-slot"></div>
         <div class="crafting-slot"></div>
@@ -49,7 +49,7 @@
     </div>
     <div class="crafting-arrow">→</div>
     <div class="crafting-output">
-        <img src="../assets/icons/logistics__core___apatite.png" class="crafting-item" alt="Apatite">
+        <img src="../../assets/icons/logistics__core___apatite.png" class="crafting-item" alt="Apatite">
         <span class="crafting-count">9</span>
     </div>
 </div>
@@ -58,19 +58,19 @@
 
 <div class="crafting-recipe">
     <div class="crafting-grid">
-        <div class="crafting-slot"><img src="../assets/icons/logistics__core___apatite.png" class="crafting-item" alt="Apatite"></div>
-        <div class="crafting-slot"><img src="../assets/icons/logistics__core___apatite.png" class="crafting-item" alt="Apatite"></div>
-        <div class="crafting-slot"><img src="../assets/icons/logistics__core___apatite.png" class="crafting-item" alt="Apatite"></div>
-        <div class="crafting-slot"><img src="../assets/icons/logistics__core___apatite.png" class="crafting-item" alt="Apatite"></div>
-        <div class="crafting-slot"><img src="../assets/icons/logistics__core___apatite.png" class="crafting-item" alt="Apatite"></div>
-        <div class="crafting-slot"><img src="../assets/icons/logistics__core___apatite.png" class="crafting-item" alt="Apatite"></div>
-        <div class="crafting-slot"><img src="../assets/icons/logistics__core___apatite.png" class="crafting-item" alt="Apatite"></div>
-        <div class="crafting-slot"><img src="../assets/icons/logistics__core___apatite.png" class="crafting-item" alt="Apatite"></div>
-        <div class="crafting-slot"><img src="../assets/icons/logistics__core___apatite.png" class="crafting-item" alt="Apatite"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___apatite.png" class="crafting-item" alt="Apatite"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___apatite.png" class="crafting-item" alt="Apatite"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___apatite.png" class="crafting-item" alt="Apatite"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___apatite.png" class="crafting-item" alt="Apatite"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___apatite.png" class="crafting-item" alt="Apatite"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___apatite.png" class="crafting-item" alt="Apatite"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___apatite.png" class="crafting-item" alt="Apatite"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___apatite.png" class="crafting-item" alt="Apatite"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___apatite.png" class="crafting-item" alt="Apatite"></div>
     </div>
     <div class="crafting-arrow">→</div>
     <div class="crafting-output">
-        <img src="../assets/icons/logistics__core___apatite_block.png" class="crafting-item" alt="Apatite Block">
+        <img src="../../assets/icons/logistics__core___apatite_block.png" class="crafting-item" alt="Apatite Block">
     </div>
 </div>
 
