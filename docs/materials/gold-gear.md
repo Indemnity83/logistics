@@ -1,7 +1,7 @@
 <div class="infobox">
     <div class="infobox-header">Gold Gear</div>
     <div class="infobox-image">
-        <img src="/assets/icons/logistics__core___gold_gear.png" alt="Gold Gear">
+        <img src="../assets/icons/logistics__core___gold_gear.png" alt="Gold Gear">
     </div>
     <table class="infobox-table">
         <tr>
@@ -32,18 +32,18 @@ The **Gold Gear** is an advanced-tier crafting component made from gold ingots.
 <div class="crafting-recipe">
     <div class="crafting-grid">
         <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="/assets/icons/minecraft__gold_ingot.png" class="crafting-item" alt="Gold Ingot"></div>
+        <div class="crafting-slot"><img src="../assets/icons/minecraft__gold_ingot.png" class="crafting-item" alt="Gold Ingot"></div>
         <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="/assets/icons/minecraft__gold_ingot.png" class="crafting-item" alt="Gold Ingot"></div>
-        <div class="crafting-slot"><img src="/assets/icons/logistics__core___bronze_gear.png" class="crafting-item" alt="Bronze Gear"></div>
-        <div class="crafting-slot"><img src="/assets/icons/minecraft__gold_ingot.png" class="crafting-item" alt="Gold Ingot"></div>
+        <div class="crafting-slot"><img src="../assets/icons/minecraft__gold_ingot.png" class="crafting-item" alt="Gold Ingot"></div>
+        <div class="crafting-slot"><img src="../assets/icons/logistics__core___bronze_gear.png" class="crafting-item" alt="Bronze Gear"></div>
+        <div class="crafting-slot"><img src="../assets/icons/minecraft__gold_ingot.png" class="crafting-item" alt="Gold Ingot"></div>
         <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="/assets/icons/minecraft__gold_ingot.png" class="crafting-item" alt="Gold Ingot"></div>
+        <div class="crafting-slot"><img src="../assets/icons/minecraft__gold_ingot.png" class="crafting-item" alt="Gold Ingot"></div>
         <div class="crafting-slot"></div>
     </div>
     <div class="crafting-arrow">→</div>
     <div class="crafting-output">
-        <img src="/assets/icons/logistics__core___gold_gear.png" class="crafting-item" alt="Gold Gear">
+        <img src="../assets/icons/logistics__core___gold_gear.png" class="crafting-item" alt="Gold Gear">
     </div>
 </div>
 

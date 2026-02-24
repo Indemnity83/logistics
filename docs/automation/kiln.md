@@ -1,7 +1,7 @@
 <div class="infobox">
     <div class="infobox-header">Kiln</div>
     <div class="infobox-image">
-        <img src="/assets/icons/logistics__core___kiln.png" alt="Kiln">
+        <img src="../assets/icons/logistics__core___kiln.png" alt="Kiln">
     </div>
     <table class="infobox-table">
         <tr>
@@ -39,19 +39,19 @@ The **Kiln** is a temperature-controlled crafting machine that produces [valves]
 
 <div class="crafting-recipe">
     <div class="crafting-grid">
-        <div class="crafting-slot"><img src="/assets/icons/minecraft__bricks.png" class="crafting-item" alt="Bricks"></div>
-        <div class="crafting-slot"><img src="/assets/icons/minecraft__bricks.png" class="crafting-item" alt="Bricks"></div>
-        <div class="crafting-slot"><img src="/assets/icons/minecraft__bricks.png" class="crafting-item" alt="Bricks"></div>
-        <div class="crafting-slot"><img src="/assets/icons/minecraft__bricks.png" class="crafting-item" alt="Bricks"></div>
+        <div class="crafting-slot"><img src="../assets/icons/minecraft__bricks.png" class="crafting-item" alt="Bricks"></div>
+        <div class="crafting-slot"><img src="../assets/icons/minecraft__bricks.png" class="crafting-item" alt="Bricks"></div>
+        <div class="crafting-slot"><img src="../assets/icons/minecraft__bricks.png" class="crafting-item" alt="Bricks"></div>
+        <div class="crafting-slot"><img src="../assets/icons/minecraft__bricks.png" class="crafting-item" alt="Bricks"></div>
         <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="/assets/icons/minecraft__bricks.png" class="crafting-item" alt="Bricks"></div>
-        <div class="crafting-slot"><img src="/assets/icons/minecraft__bricks.png" class="crafting-item" alt="Bricks"></div>
-        <div class="crafting-slot"><img src="/assets/icons/minecraft__bricks.png" class="crafting-item" alt="Bricks"></div>
-        <div class="crafting-slot"><img src="/assets/icons/minecraft__bricks.png" class="crafting-item" alt="Bricks"></div>
+        <div class="crafting-slot"><img src="../assets/icons/minecraft__bricks.png" class="crafting-item" alt="Bricks"></div>
+        <div class="crafting-slot"><img src="../assets/icons/minecraft__bricks.png" class="crafting-item" alt="Bricks"></div>
+        <div class="crafting-slot"><img src="../assets/icons/minecraft__bricks.png" class="crafting-item" alt="Bricks"></div>
+        <div class="crafting-slot"><img src="../assets/icons/minecraft__bricks.png" class="crafting-item" alt="Bricks"></div>
     </div>
     <div class="crafting-arrow">→</div>
     <div class="crafting-output">
-        <img src="/assets/icons/logistics__core___kiln.png" class="crafting-item" alt="Kiln">
+        <img src="../assets/icons/logistics__core___kiln.png" class="crafting-item" alt="Kiln">
     </div>
 </div>
 

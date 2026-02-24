@@ -1,7 +1,7 @@
 <div class="infobox">
     <div class="infobox-header">Ender Valve</div>
     <div class="infobox-image">
-        <img src="/assets/icons/logistics__core___valve_ender.png" alt="Ender Valve">
+        <img src="../assets/icons/logistics__core___valve_ender.png" alt="Ender Valve">
     </div>
     <table class="infobox-table">
         <tr>
@@ -36,18 +36,18 @@ The **Ender Valve** is a Tier 4 valve crafted in the [Kiln](../automation/kiln.m
 <div class="crafting-recipe">
     <div class="crafting-grid">
         <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="/assets/icons/minecraft__ender_pearl.png" class="crafting-item" alt="Ender Pearl"></div>
+        <div class="crafting-slot"><img src="../assets/icons/minecraft__ender_pearl.png" class="crafting-item" alt="Ender Pearl"></div>
         <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="/assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone"></div>
-        <div class="crafting-slot"><img src="/assets/icons/minecraft__ender_pearl.png" class="crafting-item" alt="Ender Pearl"></div>
-        <div class="crafting-slot"><img src="/assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone"></div>
-        <div class="crafting-slot"><img src="/assets/icons/minecraft__ender_pearl.png" class="crafting-item" alt="Ender Pearl"></div>
-        <div class="crafting-slot"><img src="/assets/icons/minecraft__ender_pearl.png" class="crafting-item" alt="Ender Pearl"></div>
-        <div class="crafting-slot"><img src="/assets/icons/minecraft__ender_pearl.png" class="crafting-item" alt="Ender Pearl"></div>
+        <div class="crafting-slot"><img src="../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone"></div>
+        <div class="crafting-slot"><img src="../assets/icons/minecraft__ender_pearl.png" class="crafting-item" alt="Ender Pearl"></div>
+        <div class="crafting-slot"><img src="../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone"></div>
+        <div class="crafting-slot"><img src="../assets/icons/minecraft__ender_pearl.png" class="crafting-item" alt="Ender Pearl"></div>
+        <div class="crafting-slot"><img src="../assets/icons/minecraft__ender_pearl.png" class="crafting-item" alt="Ender Pearl"></div>
+        <div class="crafting-slot"><img src="../assets/icons/minecraft__ender_pearl.png" class="crafting-item" alt="Ender Pearl"></div>
     </div>
     <div class="crafting-arrow">→</div>
     <div class="crafting-output">
-        <img src="/assets/icons/logistics__core___valve_ender.png" class="crafting-item" alt="Ender Valve">
+        <img src="../assets/icons/logistics__core___valve_ender.png" class="crafting-item" alt="Ender Valve">
         <span class="crafting-count">4</span>
     </div>
 </div>

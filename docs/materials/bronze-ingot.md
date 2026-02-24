@@ -1,7 +1,7 @@
 <div class="infobox">
     <div class="infobox-header">Bronze Ingot</div>
     <div class="infobox-image">
-        <img src="/assets/icons/logistics__core___bronze_ingot.png" alt="Bronze Ingot">
+        <img src="../assets/icons/logistics__core___bronze_ingot.png" alt="Bronze Ingot">
     </div>
     <table class="infobox-table">
         <tr>
@@ -36,16 +36,16 @@
         <div class="crafting-slot"></div>
         <div class="crafting-slot"></div>
         <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="/assets/icons/minecraft__copper_ingot.png" class="crafting-item" alt="Copper Ingot"></div>
-        <div class="crafting-slot"><img src="/assets/icons/minecraft__copper_ingot.png" class="crafting-item" alt="Copper Ingot"></div>
-        <div class="crafting-slot"><img src="/assets/icons/minecraft__copper_ingot.png" class="crafting-item" alt="Copper Ingot"></div>
-        <div class="crafting-slot"><img src="/assets/icons/logistics__core___tin_ingot.png" class="crafting-item" alt="Tin Ingot"></div>
+        <div class="crafting-slot"><img src="../assets/icons/minecraft__copper_ingot.png" class="crafting-item" alt="Copper Ingot"></div>
+        <div class="crafting-slot"><img src="../assets/icons/minecraft__copper_ingot.png" class="crafting-item" alt="Copper Ingot"></div>
+        <div class="crafting-slot"><img src="../assets/icons/minecraft__copper_ingot.png" class="crafting-item" alt="Copper Ingot"></div>
+        <div class="crafting-slot"><img src="../assets/icons/logistics__core___tin_ingot.png" class="crafting-item" alt="Tin Ingot"></div>
         <div class="crafting-slot"></div>
         <div class="crafting-slot"></div>
     </div>
     <div class="crafting-arrow">→</div>
     <div class="crafting-output">
-        <img src="/assets/icons/logistics__core___bronze_ingot.png" class="crafting-item" alt="Bronze Ingot">
+        <img src="../assets/icons/logistics__core___bronze_ingot.png" class="crafting-item" alt="Bronze Ingot">
         <span class="crafting-count">4</span>
     </div>
 </div>
@@ -56,19 +56,19 @@
 
 <div class="crafting-recipe">
     <div class="crafting-grid">
-        <div class="crafting-slot"><img src="/assets/icons/logistics__core___bronze_ingot.png" class="crafting-item" alt="Bronze Ingot"></div>
-        <div class="crafting-slot"><img src="/assets/icons/logistics__core___bronze_ingot.png" class="crafting-item" alt="Bronze Ingot"></div>
-        <div class="crafting-slot"><img src="/assets/icons/logistics__core___bronze_ingot.png" class="crafting-item" alt="Bronze Ingot"></div>
-        <div class="crafting-slot"><img src="/assets/icons/logistics__core___bronze_ingot.png" class="crafting-item" alt="Bronze Ingot"></div>
-        <div class="crafting-slot"><img src="/assets/icons/logistics__core___bronze_ingot.png" class="crafting-item" alt="Bronze Ingot"></div>
-        <div class="crafting-slot"><img src="/assets/icons/logistics__core___bronze_ingot.png" class="crafting-item" alt="Bronze Ingot"></div>
-        <div class="crafting-slot"><img src="/assets/icons/logistics__core___bronze_ingot.png" class="crafting-item" alt="Bronze Ingot"></div>
-        <div class="crafting-slot"><img src="/assets/icons/logistics__core___bronze_ingot.png" class="crafting-item" alt="Bronze Ingot"></div>
-        <div class="crafting-slot"><img src="/assets/icons/logistics__core___bronze_ingot.png" class="crafting-item" alt="Bronze Ingot"></div>
+        <div class="crafting-slot"><img src="../assets/icons/logistics__core___bronze_ingot.png" class="crafting-item" alt="Bronze Ingot"></div>
+        <div class="crafting-slot"><img src="../assets/icons/logistics__core___bronze_ingot.png" class="crafting-item" alt="Bronze Ingot"></div>
+        <div class="crafting-slot"><img src="../assets/icons/logistics__core___bronze_ingot.png" class="crafting-item" alt="Bronze Ingot"></div>
+        <div class="crafting-slot"><img src="../assets/icons/logistics__core___bronze_ingot.png" class="crafting-item" alt="Bronze Ingot"></div>
+        <div class="crafting-slot"><img src="../assets/icons/logistics__core___bronze_ingot.png" class="crafting-item" alt="Bronze Ingot"></div>
+        <div class="crafting-slot"><img src="../assets/icons/logistics__core___bronze_ingot.png" class="crafting-item" alt="Bronze Ingot"></div>
+        <div class="crafting-slot"><img src="../assets/icons/logistics__core___bronze_ingot.png" class="crafting-item" alt="Bronze Ingot"></div>
+        <div class="crafting-slot"><img src="../assets/icons/logistics__core___bronze_ingot.png" class="crafting-item" alt="Bronze Ingot"></div>
+        <div class="crafting-slot"><img src="../assets/icons/logistics__core___bronze_ingot.png" class="crafting-item" alt="Bronze Ingot"></div>
     </div>
     <div class="crafting-arrow">→</div>
     <div class="crafting-output">
-        <img src="/assets/icons/logistics__core___bronze_block.png" class="crafting-item" alt="Bronze Block">
+        <img src="../assets/icons/logistics__core___bronze_block.png" class="crafting-item" alt="Bronze Block">
     </div>
 </div>
 
@@ -80,7 +80,7 @@
         <div class="crafting-slot"></div>
         <div class="crafting-slot"></div>
         <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="/assets/icons/logistics__core___bronze_block.png" class="crafting-item" alt="Bronze Block"></div>
+        <div class="crafting-slot"><img src="../assets/icons/logistics__core___bronze_block.png" class="crafting-item" alt="Bronze Block"></div>
         <div class="crafting-slot"></div>
         <div class="crafting-slot"></div>
         <div class="crafting-slot"></div>
@@ -88,7 +88,7 @@
     </div>
     <div class="crafting-arrow">→</div>
     <div class="crafting-output">
-        <img src="/assets/icons/logistics__core___bronze_ingot.png" class="crafting-item" alt="Bronze Ingot">
+        <img src="../assets/icons/logistics__core___bronze_ingot.png" class="crafting-item" alt="Bronze Ingot">
         <span class="crafting-count">9</span>
     </div>
 </div>
@@ -97,19 +97,19 @@
 
 <div class="crafting-recipe">
     <div class="crafting-grid">
-        <div class="crafting-slot"><img src="/assets/icons/logistics__core___bronze_nugget.png" class="crafting-item" alt="Bronze Nugget"></div>
-        <div class="crafting-slot"><img src="/assets/icons/logistics__core___bronze_nugget.png" class="crafting-item" alt="Bronze Nugget"></div>
-        <div class="crafting-slot"><img src="/assets/icons/logistics__core___bronze_nugget.png" class="crafting-item" alt="Bronze Nugget"></div>
-        <div class="crafting-slot"><img src="/assets/icons/logistics__core___bronze_nugget.png" class="crafting-item" alt="Bronze Nugget"></div>
-        <div class="crafting-slot"><img src="/assets/icons/logistics__core___bronze_nugget.png" class="crafting-item" alt="Bronze Nugget"></div>
-        <div class="crafting-slot"><img src="/assets/icons/logistics__core___bronze_nugget.png" class="crafting-item" alt="Bronze Nugget"></div>
-        <div class="crafting-slot"><img src="/assets/icons/logistics__core___bronze_nugget.png" class="crafting-item" alt="Bronze Nugget"></div>
-        <div class="crafting-slot"><img src="/assets/icons/logistics__core___bronze_nugget.png" class="crafting-item" alt="Bronze Nugget"></div>
-        <div class="crafting-slot"><img src="/assets/icons/logistics__core___bronze_nugget.png" class="crafting-item" alt="Bronze Nugget"></div>
+        <div class="crafting-slot"><img src="../assets/icons/logistics__core___bronze_nugget.png" class="crafting-item" alt="Bronze Nugget"></div>
+        <div class="crafting-slot"><img src="../assets/icons/logistics__core___bronze_nugget.png" class="crafting-item" alt="Bronze Nugget"></div>
+        <div class="crafting-slot"><img src="../assets/icons/logistics__core___bronze_nugget.png" class="crafting-item" alt="Bronze Nugget"></div>
+        <div class="crafting-slot"><img src="../assets/icons/logistics__core___bronze_nugget.png" class="crafting-item" alt="Bronze Nugget"></div>
+        <div class="crafting-slot"><img src="../assets/icons/logistics__core___bronze_nugget.png" class="crafting-item" alt="Bronze Nugget"></div>
+        <div class="crafting-slot"><img src="../assets/icons/logistics__core___bronze_nugget.png" class="crafting-item" alt="Bronze Nugget"></div>
+        <div class="crafting-slot"><img src="../assets/icons/logistics__core___bronze_nugget.png" class="crafting-item" alt="Bronze Nugget"></div>
+        <div class="crafting-slot"><img src="../assets/icons/logistics__core___bronze_nugget.png" class="crafting-item" alt="Bronze Nugget"></div>
+        <div class="crafting-slot"><img src="../assets/icons/logistics__core___bronze_nugget.png" class="crafting-item" alt="Bronze Nugget"></div>
     </div>
     <div class="crafting-arrow">→</div>
     <div class="crafting-output">
-        <img src="/assets/icons/logistics__core___bronze_ingot.png" class="crafting-item" alt="Bronze Ingot">
+        <img src="../assets/icons/logistics__core___bronze_ingot.png" class="crafting-item" alt="Bronze Ingot">
     </div>
 </div>
 
@@ -121,7 +121,7 @@
         <div class="crafting-slot"></div>
         <div class="crafting-slot"></div>
         <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="/assets/icons/logistics__core___bronze_ingot.png" class="crafting-item" alt="Bronze Ingot"></div>
+        <div class="crafting-slot"><img src="../assets/icons/logistics__core___bronze_ingot.png" class="crafting-item" alt="Bronze Ingot"></div>
         <div class="crafting-slot"></div>
         <div class="crafting-slot"></div>
         <div class="crafting-slot"></div>
@@ -129,7 +129,7 @@
     </div>
     <div class="crafting-arrow">→</div>
     <div class="crafting-output">
-        <img src="/assets/icons/logistics__core___bronze_nugget.png" class="crafting-item" alt="Bronze Nugget">
+        <img src="../assets/icons/logistics__core___bronze_nugget.png" class="crafting-item" alt="Bronze Nugget">
         <span class="crafting-count">9</span>
     </div>
 </div>

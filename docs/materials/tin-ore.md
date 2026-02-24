@@ -1,7 +1,7 @@
 <div class="infobox">
     <div class="infobox-header">Tin Ore</div>
     <div class="infobox-image">
-        <img src="/assets/icons/logistics__core___tin_ore.png" alt="Tin Ore">
+        <img src="../assets/icons/logistics__core___tin_ore.png" alt="Tin Ore">
     </div>
     <table class="infobox-table">
         <tr>

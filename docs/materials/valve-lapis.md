@@ -1,7 +1,7 @@
 <div class="infobox">
     <div class="infobox-header">Lapis Valve</div>
     <div class="infobox-image">
-        <img src="/assets/icons/logistics__core___valve_lapis.png" alt="Lapis Valve">
+        <img src="../assets/icons/logistics__core___valve_lapis.png" alt="Lapis Valve">
     </div>
     <table class="infobox-table">
         <tr>
@@ -36,18 +36,18 @@ The **Lapis Valve** is a Tier 5 valve crafted in the [Kiln](../automation/kiln.m
 <div class="crafting-recipe">
     <div class="crafting-grid">
         <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="/assets/icons/minecraft__lapis_lazuli.png" class="crafting-item" alt="Lapis Lazuli"></div>
+        <div class="crafting-slot"><img src="../assets/icons/minecraft__lapis_lazuli.png" class="crafting-item" alt="Lapis Lazuli"></div>
         <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="/assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone"></div>
-        <div class="crafting-slot"><img src="/assets/icons/minecraft__lapis_lazuli.png" class="crafting-item" alt="Lapis Lazuli"></div>
-        <div class="crafting-slot"><img src="/assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone"></div>
-        <div class="crafting-slot"><img src="/assets/icons/minecraft__lapis_lazuli.png" class="crafting-item" alt="Lapis Lazuli"></div>
-        <div class="crafting-slot"><img src="/assets/icons/minecraft__lapis_lazuli.png" class="crafting-item" alt="Lapis Lazuli"></div>
-        <div class="crafting-slot"><img src="/assets/icons/minecraft__lapis_lazuli.png" class="crafting-item" alt="Lapis Lazuli"></div>
+        <div class="crafting-slot"><img src="../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone"></div>
+        <div class="crafting-slot"><img src="../assets/icons/minecraft__lapis_lazuli.png" class="crafting-item" alt="Lapis Lazuli"></div>
+        <div class="crafting-slot"><img src="../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone"></div>
+        <div class="crafting-slot"><img src="../assets/icons/minecraft__lapis_lazuli.png" class="crafting-item" alt="Lapis Lazuli"></div>
+        <div class="crafting-slot"><img src="../assets/icons/minecraft__lapis_lazuli.png" class="crafting-item" alt="Lapis Lazuli"></div>
+        <div class="crafting-slot"><img src="../assets/icons/minecraft__lapis_lazuli.png" class="crafting-item" alt="Lapis Lazuli"></div>
     </div>
     <div class="crafting-arrow">→</div>
     <div class="crafting-output">
-        <img src="/assets/icons/logistics__core___valve_lapis.png" class="crafting-item" alt="Lapis Valve">
+        <img src="../assets/icons/logistics__core___valve_lapis.png" class="crafting-item" alt="Lapis Valve">
         <span class="crafting-count">4</span>
     </div>
 </div>

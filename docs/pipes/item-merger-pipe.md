@@ -1,7 +1,7 @@
 <div class="infobox">
     <div class="infobox-header">Item Merger Pipe</div>
     <div class="infobox-image">
-        <img src="/assets/icons/logistics__pipe___item_merger_pipe.png" alt="Item Merger Pipe">
+        <img src="../assets/icons/logistics__pipe___item_merger_pipe.png" alt="Item Merger Pipe">
     </div>
     <table class="infobox-table">
         <tr>
@@ -38,16 +38,16 @@ The **Item Merger Pipe** is a [Tier 1](../core/tier-system.md) mechanical pipe t
         <div class="crafting-slot"></div>
         <div class="crafting-slot"></div>
         <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="/assets/icons/minecraft__iron_ingot.png" class="crafting-item" alt="Iron Ingot"></div>
-        <div class="crafting-slot"><img src="/assets/icons/minecraft__glass.png" class="crafting-item" alt="Glass"></div>
-        <div class="crafting-slot"><img src="/assets/icons/minecraft__iron_ingot.png" class="crafting-item" alt="Iron Ingot"></div>
+        <div class="crafting-slot"><img src="../assets/icons/minecraft__iron_ingot.png" class="crafting-item" alt="Iron Ingot"></div>
+        <div class="crafting-slot"><img src="../assets/icons/minecraft__glass.png" class="crafting-item" alt="Glass"></div>
+        <div class="crafting-slot"><img src="../assets/icons/minecraft__iron_ingot.png" class="crafting-item" alt="Iron Ingot"></div>
         <div class="crafting-slot"></div>
         <div class="crafting-slot"></div>
         <div class="crafting-slot"></div>
     </div>
     <div class="crafting-arrow">→</div>
     <div class="crafting-output">
-        <img src="/assets/icons/logistics__pipe___item_merger_pipe.png" class="crafting-item" alt="Item Merger Pipe">
+        <img src="../assets/icons/logistics__pipe___item_merger_pipe.png" class="crafting-item" alt="Item Merger Pipe">
         <span class="crafting-count">8</span>
     </div>
 </div>

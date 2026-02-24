@@ -1,7 +1,7 @@
 <div class="infobox">
     <div class="infobox-header">Copper Transport Pipe</div>
     <div class="infobox-image">
-        <img src="/assets/icons/logistics__pipe___copper_transport_pipe.png" alt="Copper Transport Pipe">
+        <img src="../assets/icons/logistics__pipe___copper_transport_pipe.png" alt="Copper Transport Pipe">
     </div>
     <table class="infobox-table">
         <tr>
@@ -38,16 +38,16 @@ The **Copper Transport Pipe** is a [Tier 1](../core/tier-system.md) mechanical p
         <div class="crafting-slot"></div>
         <div class="crafting-slot"></div>
         <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="/assets/icons/minecraft__copper_ingot.png" class="crafting-item" alt="Copper Ingot"></div>
-        <div class="crafting-slot"><img src="/assets/icons/minecraft__glass.png" class="crafting-item" alt="Glass"></div>
-        <div class="crafting-slot"><img src="/assets/icons/minecraft__copper_ingot.png" class="crafting-item" alt="Copper Ingot"></div>
+        <div class="crafting-slot"><img src="../assets/icons/minecraft__copper_ingot.png" class="crafting-item" alt="Copper Ingot"></div>
+        <div class="crafting-slot"><img src="../assets/icons/minecraft__glass.png" class="crafting-item" alt="Glass"></div>
+        <div class="crafting-slot"><img src="../assets/icons/minecraft__copper_ingot.png" class="crafting-item" alt="Copper Ingot"></div>
         <div class="crafting-slot"></div>
         <div class="crafting-slot"></div>
         <div class="crafting-slot"></div>
     </div>
     <div class="crafting-arrow">→</div>
     <div class="crafting-output">
-        <img src="/assets/icons/logistics__pipe___copper_transport_pipe.png" class="crafting-item" alt="Copper Transport Pipe">
+        <img src="../assets/icons/logistics__pipe___copper_transport_pipe.png" class="crafting-item" alt="Copper Transport Pipe">
         <span class="crafting-count">8</span>
     </div>
 </div>
@@ -84,25 +84,25 @@ Copper pipes oxidize naturally like vanilla copper blocks, going through all the
 
 <div style="display: flex; gap: 20px; align-items: center; margin: 20px 0;">
     <div style="text-align: center;">
-        <img src="/assets/icons/logistics__pipe___copper_transport_pipe.png" alt="Copper" style="width: 64px; height: 64px; image-rendering: pixelated;">
+        <img src="../assets/icons/logistics__pipe___copper_transport_pipe.png" alt="Copper" style="width: 64px; height: 64px; image-rendering: pixelated;">
         <div><strong>Copper</strong></div>
         <div style="font-size: 0.9em;">Fresh, orange</div>
     </div>
     <div style="font-size: 1.5em;">→</div>
     <div style="text-align: center;">
-        <img src="/assets/icons/logistics__pipe___copper_transport_pipe__{'logistics__pipe___weathering_state'__{oxidation_stage__1},'minecraft__custom_model_data'__{strings__['exposed']}}.png" alt="Exposed" style="width: 64px; height: 64px; image-rendering: pixelated;">
+        <img src="../assets/icons/logistics__pipe___copper_transport_pipe__{'logistics__pipe___weathering_state'__{oxidation_stage__1},'minecraft__custom_model_data'__{strings__['exposed']}}.png" alt="Exposed" style="width: 64px; height: 64px; image-rendering: pixelated;">
         <div><strong>Exposed</strong></div>
         <div style="font-size: 0.9em;">Slightly weathered</div>
     </div>
     <div style="font-size: 1.5em;">→</div>
     <div style="text-align: center;">
-        <img src="/assets/icons/logistics__pipe___copper_transport_pipe__{'logistics__pipe___weathering_state'__{oxidation_stage__2},'minecraft__custom_model_data'__{strings__['weathered']}}.png" alt="Weathered" style="width: 64px; height: 64px; image-rendering: pixelated;">
+        <img src="../assets/icons/logistics__pipe___copper_transport_pipe__{'logistics__pipe___weathering_state'__{oxidation_stage__2},'minecraft__custom_model_data'__{strings__['weathered']}}.png" alt="Weathered" style="width: 64px; height: 64px; image-rendering: pixelated;">
         <div><strong>Weathered</strong></div>
         <div style="font-size: 0.9em;">Green-tinted</div>
     </div>
     <div style="font-size: 1.5em;">→</div>
     <div style="text-align: center;">
-        <img src="/assets/icons/logistics__pipe___copper_transport_pipe__{'logistics__pipe___weathering_state'__{oxidation_stage__3},'minecraft__custom_model_data'__{strings__['oxidized']}}.png" alt="Oxidized" style="width: 64px; height: 64px; image-rendering: pixelated;">
+        <img src="../assets/icons/logistics__pipe___copper_transport_pipe__{'logistics__pipe___weathering_state'__{oxidation_stage__3},'minecraft__custom_model_data'__{strings__['oxidized']}}.png" alt="Oxidized" style="width: 64px; height: 64px; image-rendering: pixelated;">
         <div><strong>Oxidized</strong></div>
         <div style="font-size: 0.9em;">Fully green</div>
     </div>

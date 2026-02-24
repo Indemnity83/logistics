@@ -1,7 +1,7 @@
 <div class="infobox">
     <div class="infobox-header">Stone Gear</div>
     <div class="infobox-image">
-        <img src="/assets/icons/logistics__core___stone_gear.png" alt="Stone Gear">
+        <img src="../assets/icons/logistics__core___stone_gear.png" alt="Stone Gear">
     </div>
     <table class="infobox-table">
         <tr>
@@ -32,18 +32,18 @@ The **Stone Gear** is a stone-tier crafting component used to create more advanc
 <div class="crafting-recipe">
     <div class="crafting-grid">
         <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="/assets/icons/minecraft__stone.png" class="crafting-item" alt="Stone"></div>
+        <div class="crafting-slot"><img src="../assets/icons/minecraft__stone.png" class="crafting-item" alt="Stone"></div>
         <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="/assets/icons/minecraft__stone.png" class="crafting-item" alt="Stone"></div>
-        <div class="crafting-slot"><img src="/assets/icons/logistics__core___wooden_gear.png" class="crafting-item" alt="Wooden Gear"></div>
-        <div class="crafting-slot"><img src="/assets/icons/minecraft__stone.png" class="crafting-item" alt="Stone"></div>
+        <div class="crafting-slot"><img src="../assets/icons/minecraft__stone.png" class="crafting-item" alt="Stone"></div>
+        <div class="crafting-slot"><img src="../assets/icons/logistics__core___wooden_gear.png" class="crafting-item" alt="Wooden Gear"></div>
+        <div class="crafting-slot"><img src="../assets/icons/minecraft__stone.png" class="crafting-item" alt="Stone"></div>
         <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="/assets/icons/minecraft__stone.png" class="crafting-item" alt="Stone"></div>
+        <div class="crafting-slot"><img src="../assets/icons/minecraft__stone.png" class="crafting-item" alt="Stone"></div>
         <div class="crafting-slot"></div>
     </div>
     <div class="crafting-arrow">→</div>
     <div class="crafting-output">
-        <img src="/assets/icons/logistics__core___stone_gear.png" class="crafting-item" alt="Stone Gear">
+        <img src="../assets/icons/logistics__core___stone_gear.png" class="crafting-item" alt="Stone Gear">
     </div>
 </div>
 

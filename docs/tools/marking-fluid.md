@@ -1,7 +1,7 @@
 <div class="infobox">
     <div class="infobox-header">Marking Fluid</div>
     <div class="infobox-image">
-        <img src="/assets/icons/logistics__pipe___marking_fluid_red.png" alt="Marking Fluid">
+        <img src="../assets/icons/logistics__pipe___marking_fluid_red.png" alt="Marking Fluid">
     </div>
     <table class="infobox-table">
         <tr>
@@ -38,8 +38,8 @@
         <div class="crafting-slot"></div>
         <div class="crafting-slot"></div>
         <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="/assets/icons/minecraft__potion__{'minecraft__potion_contents'__{potion__'minecraft__water'}}.png" class="crafting-item" alt="Water Bottle"></div>
-        <div class="crafting-slot"><img src="/assets/icons/minecraft__red_dye.png" class="crafting-item" alt="Dye"></div>
+        <div class="crafting-slot"><img src="../assets/icons/minecraft__potion__{'minecraft__potion_contents'__{potion__'minecraft__water'}}.png" class="crafting-item" alt="Water Bottle"></div>
+        <div class="crafting-slot"><img src="../assets/icons/minecraft__red_dye.png" class="crafting-item" alt="Dye"></div>
         <div class="crafting-slot"></div>
         <div class="crafting-slot"></div>
         <div class="crafting-slot"></div>
@@ -47,7 +47,7 @@
     </div>
     <div class="crafting-arrow">→</div>
     <div class="crafting-output">
-        <img src="/assets/icons/logistics__pipe___marking_fluid_red.png" class="crafting-item" alt="Marking Fluid">
+        <img src="../assets/icons/logistics__pipe___marking_fluid_red.png" class="crafting-item" alt="Marking Fluid">
     </div>
 </div>
 
@@ -58,22 +58,22 @@
 Marking fluid comes in all 16 Minecraft dye colors:
 
 <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 20px 0;">
-    <div style="text-align: center;"><img src="/assets/icons/logistics__pipe___marking_fluid_white.png" alt="White" style="width: 48px;"><br>White</div>
-    <div style="text-align: center;"><img src="/assets/icons/logistics__pipe___marking_fluid_light_gray.png" alt="Light Gray" style="width: 48px;"><br>Light Gray</div>
-    <div style="text-align: center;"><img src="/assets/icons/logistics__pipe___marking_fluid_gray.png" alt="Gray" style="width: 48px;"><br>Gray</div>
-    <div style="text-align: center;"><img src="/assets/icons/logistics__pipe___marking_fluid_black.png" alt="Black" style="width: 48px;"><br>Black</div>
-    <div style="text-align: center;"><img src="/assets/icons/logistics__pipe___marking_fluid_red.png" alt="Red" style="width: 48px;"><br>Red</div>
-    <div style="text-align: center;"><img src="/assets/icons/logistics__pipe___marking_fluid_orange.png" alt="Orange" style="width: 48px;"><br>Orange</div>
-    <div style="text-align: center;"><img src="/assets/icons/logistics__pipe___marking_fluid_yellow.png" alt="Yellow" style="width: 48px;"><br>Yellow</div>
-    <div style="text-align: center;"><img src="/assets/icons/logistics__pipe___marking_fluid_lime.png" alt="Lime" style="width: 48px;"><br>Lime</div>
-    <div style="text-align: center;"><img src="/assets/icons/logistics__pipe___marking_fluid_green.png" alt="Green" style="width: 48px;"><br>Green</div>
-    <div style="text-align: center;"><img src="/assets/icons/logistics__pipe___marking_fluid_cyan.png" alt="Cyan" style="width: 48px;"><br>Cyan</div>
-    <div style="text-align: center;"><img src="/assets/icons/logistics__pipe___marking_fluid_light_blue.png" alt="Light Blue" style="width: 48px;"><br>Light Blue</div>
-    <div style="text-align: center;"><img src="/assets/icons/logistics__pipe___marking_fluid_blue.png" alt="Blue" style="width: 48px;"><br>Blue</div>
-    <div style="text-align: center;"><img src="/assets/icons/logistics__pipe___marking_fluid_purple.png" alt="Purple" style="width: 48px;"><br>Purple</div>
-    <div style="text-align: center;"><img src="/assets/icons/logistics__pipe___marking_fluid_magenta.png" alt="Magenta" style="width: 48px;"><br>Magenta</div>
-    <div style="text-align: center;"><img src="/assets/icons/logistics__pipe___marking_fluid_pink.png" alt="Pink" style="width: 48px;"><br>Pink</div>
-    <div style="text-align: center;"><img src="/assets/icons/logistics__pipe___marking_fluid_brown.png" alt="Brown" style="width: 48px;"><br>Brown</div>
+    <div style="text-align: center;"><img src="../assets/icons/logistics__pipe___marking_fluid_white.png" alt="White" style="width: 48px;"><br>White</div>
+    <div style="text-align: center;"><img src="../assets/icons/logistics__pipe___marking_fluid_light_gray.png" alt="Light Gray" style="width: 48px;"><br>Light Gray</div>
+    <div style="text-align: center;"><img src="../assets/icons/logistics__pipe___marking_fluid_gray.png" alt="Gray" style="width: 48px;"><br>Gray</div>
+    <div style="text-align: center;"><img src="../assets/icons/logistics__pipe___marking_fluid_black.png" alt="Black" style="width: 48px;"><br>Black</div>
+    <div style="text-align: center;"><img src="../assets/icons/logistics__pipe___marking_fluid_red.png" alt="Red" style="width: 48px;"><br>Red</div>
+    <div style="text-align: center;"><img src="../assets/icons/logistics__pipe___marking_fluid_orange.png" alt="Orange" style="width: 48px;"><br>Orange</div>
+    <div style="text-align: center;"><img src="../assets/icons/logistics__pipe___marking_fluid_yellow.png" alt="Yellow" style="width: 48px;"><br>Yellow</div>
+    <div style="text-align: center;"><img src="../assets/icons/logistics__pipe___marking_fluid_lime.png" alt="Lime" style="width: 48px;"><br>Lime</div>
+    <div style="text-align: center;"><img src="../assets/icons/logistics__pipe___marking_fluid_green.png" alt="Green" style="width: 48px;"><br>Green</div>
+    <div style="text-align: center;"><img src="../assets/icons/logistics__pipe___marking_fluid_cyan.png" alt="Cyan" style="width: 48px;"><br>Cyan</div>
+    <div style="text-align: center;"><img src="../assets/icons/logistics__pipe___marking_fluid_light_blue.png" alt="Light Blue" style="width: 48px;"><br>Light Blue</div>
+    <div style="text-align: center;"><img src="../assets/icons/logistics__pipe___marking_fluid_blue.png" alt="Blue" style="width: 48px;"><br>Blue</div>
+    <div style="text-align: center;"><img src="../assets/icons/logistics__pipe___marking_fluid_purple.png" alt="Purple" style="width: 48px;"><br>Purple</div>
+    <div style="text-align: center;"><img src="../assets/icons/logistics__pipe___marking_fluid_magenta.png" alt="Magenta" style="width: 48px;"><br>Magenta</div>
+    <div style="text-align: center;"><img src="../assets/icons/logistics__pipe___marking_fluid_pink.png" alt="Pink" style="width: 48px;"><br>Pink</div>
+    <div style="text-align: center;"><img src="../assets/icons/logistics__pipe___marking_fluid_brown.png" alt="Brown" style="width: 48px;"><br>Brown</div>
 </div>
 
 ## Usage

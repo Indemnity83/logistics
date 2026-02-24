@@ -1,7 +1,7 @@
 <div class="infobox">
     <div class="infobox-header">Item Void Pipe</div>
     <div class="infobox-image">
-        <img src="/assets/icons/logistics__pipe___item_void_pipe.png" alt="Item Void Pipe">
+        <img src="../assets/icons/logistics__pipe___item_void_pipe.png" alt="Item Void Pipe">
     </div>
     <table class="infobox-table">
         <tr>
@@ -38,16 +38,16 @@ The **Item Void Pipe** is a [Tier 1](../core/tier-system.md) mechanical pipe tha
         <div class="crafting-slot"></div>
         <div class="crafting-slot"></div>
         <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="/assets/icons/minecraft__obsidian.png" class="crafting-item" alt="Obsidian"></div>
-        <div class="crafting-slot"><img src="/assets/icons/minecraft__glass.png" class="crafting-item" alt="Glass"></div>
-        <div class="crafting-slot"><img src="/assets/icons/minecraft__ender_pearl.png" class="crafting-item" alt="Ender Pearl"></div>
+        <div class="crafting-slot"><img src="../assets/icons/minecraft__obsidian.png" class="crafting-item" alt="Obsidian"></div>
+        <div class="crafting-slot"><img src="../assets/icons/minecraft__glass.png" class="crafting-item" alt="Glass"></div>
+        <div class="crafting-slot"><img src="../assets/icons/minecraft__ender_pearl.png" class="crafting-item" alt="Ender Pearl"></div>
         <div class="crafting-slot"></div>
         <div class="crafting-slot"></div>
         <div class="crafting-slot"></div>
     </div>
     <div class="crafting-arrow">→</div>
     <div class="crafting-output">
-        <img src="/assets/icons/logistics__pipe___item_void_pipe.png" class="crafting-item" alt="Item Void Pipe">
+        <img src="../assets/icons/logistics__pipe___item_void_pipe.png" class="crafting-item" alt="Item Void Pipe">
         <span class="crafting-count">8</span>
     </div>
 </div>

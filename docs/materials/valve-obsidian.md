@@ -1,7 +1,7 @@
 <div class="infobox">
     <div class="infobox-header">Obsidian Valve</div>
     <div class="infobox-image">
-        <img src="/assets/icons/logistics__core___valve_obsidian.png" alt="Obsidian Valve">
+        <img src="../assets/icons/logistics__core___valve_obsidian.png" alt="Obsidian Valve">
     </div>
     <table class="infobox-table">
         <tr>
@@ -36,18 +36,18 @@ The **Obsidian Valve** is a Tier 6 valve crafted in the [Kiln](../automation/kil
 <div class="crafting-recipe">
     <div class="crafting-grid">
         <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="/assets/icons/minecraft__obsidian.png" class="crafting-item" alt="Obsidian"></div>
+        <div class="crafting-slot"><img src="../assets/icons/minecraft__obsidian.png" class="crafting-item" alt="Obsidian"></div>
         <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="/assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone"></div>
-        <div class="crafting-slot"><img src="/assets/icons/minecraft__obsidian.png" class="crafting-item" alt="Obsidian"></div>
-        <div class="crafting-slot"><img src="/assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone"></div>
-        <div class="crafting-slot"><img src="/assets/icons/minecraft__obsidian.png" class="crafting-item" alt="Obsidian"></div>
-        <div class="crafting-slot"><img src="/assets/icons/minecraft__obsidian.png" class="crafting-item" alt="Obsidian"></div>
-        <div class="crafting-slot"><img src="/assets/icons/minecraft__obsidian.png" class="crafting-item" alt="Obsidian"></div>
+        <div class="crafting-slot"><img src="../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone"></div>
+        <div class="crafting-slot"><img src="../assets/icons/minecraft__obsidian.png" class="crafting-item" alt="Obsidian"></div>
+        <div class="crafting-slot"><img src="../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone"></div>
+        <div class="crafting-slot"><img src="../assets/icons/minecraft__obsidian.png" class="crafting-item" alt="Obsidian"></div>
+        <div class="crafting-slot"><img src="../assets/icons/minecraft__obsidian.png" class="crafting-item" alt="Obsidian"></div>
+        <div class="crafting-slot"><img src="../assets/icons/minecraft__obsidian.png" class="crafting-item" alt="Obsidian"></div>
     </div>
     <div class="crafting-arrow">→</div>
     <div class="crafting-output">
-        <img src="/assets/icons/logistics__core___valve_obsidian.png" class="crafting-item" alt="Obsidian Valve">
+        <img src="../assets/icons/logistics__core___valve_obsidian.png" class="crafting-item" alt="Obsidian Valve">
         <span class="crafting-count">4</span>
     </div>
 </div>

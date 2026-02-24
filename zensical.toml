@@ -1,6 +1,7 @@
 [project]
 site_name = "Logistics Mod"
 site_description = "Documentation for the Logistics Minecraft mod"
+site_url = "https://indemnity83.github.io/logistics/"
 docs_dir = "docs"
 site_dir = "site"
 # Custom CSS for infoboxes and styling

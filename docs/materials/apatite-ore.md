@@ -1,7 +1,7 @@
 <div class="infobox">
     <div class="infobox-header">Apatite Ore</div>
     <div class="infobox-image">
-        <img src="/assets/icons/logistics__core___apatite_ore.png" alt="Apatite Ore">
+        <img src="../assets/icons/logistics__core___apatite_ore.png" alt="Apatite Ore">
     </div>
     <table class="infobox-table">
         <tr>

@@ -1,7 +1,7 @@
 <div class="infobox">
     <div class="infobox-header">Netherite Gear</div>
     <div class="infobox-image">
-        <img src="/assets/icons/logistics__core___netherite_gear.png" alt="Netherite Gear">
+        <img src="../assets/icons/logistics__core___netherite_gear.png" alt="Netherite Gear">
     </div>
     <table class="infobox-table">
         <tr>
@@ -32,18 +32,18 @@ The **Netherite Gear** is an end-tier crafting component made from netherite ing
 <div class="crafting-recipe">
     <div class="crafting-grid">
         <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="/assets/icons/minecraft__netherite_ingot.png" class="crafting-item" alt="Netherite Ingot"></div>
+        <div class="crafting-slot"><img src="../assets/icons/minecraft__netherite_ingot.png" class="crafting-item" alt="Netherite Ingot"></div>
         <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="/assets/icons/minecraft__netherite_ingot.png" class="crafting-item" alt="Netherite Ingot"></div>
-        <div class="crafting-slot"><img src="/assets/icons/logistics__core___diamond_gear.png" class="crafting-item" alt="Diamond Gear"></div>
-        <div class="crafting-slot"><img src="/assets/icons/minecraft__netherite_ingot.png" class="crafting-item" alt="Netherite Ingot"></div>
+        <div class="crafting-slot"><img src="../assets/icons/minecraft__netherite_ingot.png" class="crafting-item" alt="Netherite Ingot"></div>
+        <div class="crafting-slot"><img src="../assets/icons/logistics__core___diamond_gear.png" class="crafting-item" alt="Diamond Gear"></div>
+        <div class="crafting-slot"><img src="../assets/icons/minecraft__netherite_ingot.png" class="crafting-item" alt="Netherite Ingot"></div>
         <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="/assets/icons/minecraft__netherite_ingot.png" class="crafting-item" alt="Netherite Ingot"></div>
+        <div class="crafting-slot"><img src="../assets/icons/minecraft__netherite_ingot.png" class="crafting-item" alt="Netherite Ingot"></div>
         <div class="crafting-slot"></div>
     </div>
     <div class="crafting-arrow">→</div>
     <div class="crafting-output">
-        <img src="/assets/icons/logistics__core___netherite_gear.png" class="crafting-item" alt="Netherite Gear">
+        <img src="../assets/icons/logistics__core___netherite_gear.png" class="crafting-item" alt="Netherite Gear">
     </div>
 </div>
 

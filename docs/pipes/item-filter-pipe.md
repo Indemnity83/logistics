@@ -1,7 +1,7 @@
 <div class="infobox">
     <div class="infobox-header">Item Filter Pipe</div>
     <div class="infobox-image">
-        <img src="/assets/icons/logistics__pipe___item_filter_pipe.png" alt="Item Filter Pipe">
+        <img src="../assets/icons/logistics__pipe___item_filter_pipe.png" alt="Item Filter Pipe">
     </div>
     <table class="infobox-table">
         <tr>
@@ -38,16 +38,16 @@ The **Item Filter Pipe** is a [Tier 2](../core/tier-system.md) smart pipe that r
         <div class="crafting-slot"></div>
         <div class="crafting-slot"></div>
         <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="/assets/icons/minecraft__diamond.png" class="crafting-item" alt="Diamond"></div>
-        <div class="crafting-slot"><img src="/assets/icons/minecraft__glass.png" class="crafting-item" alt="Glass"></div>
-        <div class="crafting-slot"><img src="/assets/icons/minecraft__diamond.png" class="crafting-item" alt="Diamond"></div>
+        <div class="crafting-slot"><img src="../assets/icons/minecraft__diamond.png" class="crafting-item" alt="Diamond"></div>
+        <div class="crafting-slot"><img src="../assets/icons/minecraft__glass.png" class="crafting-item" alt="Glass"></div>
+        <div class="crafting-slot"><img src="../assets/icons/minecraft__diamond.png" class="crafting-item" alt="Diamond"></div>
         <div class="crafting-slot"></div>
         <div class="crafting-slot"></div>
         <div class="crafting-slot"></div>
     </div>
     <div class="crafting-arrow">→</div>
     <div class="crafting-output">
-        <img src="/assets/icons/logistics__pipe___item_filter_pipe.png" class="crafting-item" alt="Item Filter Pipe">
+        <img src="../assets/icons/logistics__pipe___item_filter_pipe.png" class="crafting-item" alt="Item Filter Pipe">
         <span class="crafting-count">8</span>
     </div>
 </div>

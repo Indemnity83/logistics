@@ -1,7 +1,7 @@
 <div class="infobox">
     <div class="infobox-header">Diamond Gear</div>
     <div class="infobox-image">
-        <img src="/assets/icons/logistics__core___diamond_gear.png" alt="Diamond Gear">
+        <img src="../assets/icons/logistics__core___diamond_gear.png" alt="Diamond Gear">
     </div>
     <table class="infobox-table">
         <tr>
@@ -32,18 +32,18 @@ The **Diamond Gear** is an advanced-tier crafting component used to create end-g
 <div class="crafting-recipe">
     <div class="crafting-grid">
         <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="/assets/icons/minecraft__diamond.png" class="crafting-item" alt="Diamond"></div>
+        <div class="crafting-slot"><img src="../assets/icons/minecraft__diamond.png" class="crafting-item" alt="Diamond"></div>
         <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="/assets/icons/minecraft__diamond.png" class="crafting-item" alt="Diamond"></div>
-        <div class="crafting-slot"><img src="/assets/icons/logistics__core___gold_gear.png" class="crafting-item" alt="Gold Gear"></div>
-        <div class="crafting-slot"><img src="/assets/icons/minecraft__diamond.png" class="crafting-item" alt="Diamond"></div>
+        <div class="crafting-slot"><img src="../assets/icons/minecraft__diamond.png" class="crafting-item" alt="Diamond"></div>
+        <div class="crafting-slot"><img src="../assets/icons/logistics__core___gold_gear.png" class="crafting-item" alt="Gold Gear"></div>
+        <div class="crafting-slot"><img src="../assets/icons/minecraft__diamond.png" class="crafting-item" alt="Diamond"></div>
         <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="/assets/icons/minecraft__diamond.png" class="crafting-item" alt="Diamond"></div>
+        <div class="crafting-slot"><img src="../assets/icons/minecraft__diamond.png" class="crafting-item" alt="Diamond"></div>
         <div class="crafting-slot"></div>
     </div>
     <div class="crafting-arrow">→</div>
     <div class="crafting-output">
-        <img src="/assets/icons/logistics__core___diamond_gear.png" class="crafting-item" alt="Diamond Gear">
+        <img src="../assets/icons/logistics__core___diamond_gear.png" class="crafting-item" alt="Diamond Gear">
     </div>
 </div>
 
