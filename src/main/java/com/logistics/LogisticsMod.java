@@ -43,12 +43,12 @@ public class LogisticsMod implements ModInitializer {
     }
 
     /**
-     * Creates a ResourceHelper for a Logistics-namespaced identifier.
+     * Creates a ResourceId for a Logistics-namespaced identifier.
      * <p>
      * Example: {@code modId("pipe/copper")} → {@code logistics:pipe/copper}
      *
      * @param path the resource path
-     * @return a new ResourceHelper in the Logistics namespace
+     * @return a new ResourceId in the Logistics namespace
      */
     public static ResourceId modId(String path) {
         return ResourceId.in(MOD_ID, path);
