@@ -1,0 +1,14 @@
+[project]
+site_name = "Logistics Mod"
+site_description = "Documentation for the Logistics Minecraft mod"
+docs_dir = "docs"
+site_dir = "site"
+
+[project.theme]
+# "classic" matches Material for MkDocs look/feel; "modern" is the newer design.
+variant = "classic"
+
+[project.repository]
+# Enables “view source / edit” buttons (optional, but nice)
+name = "Indemnity83/logistics"
+url = "https://github.com/Indemnity83/logistics"
