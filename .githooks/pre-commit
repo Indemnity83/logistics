@@ -11,7 +11,7 @@ if [ -z "$STAGED_FILES" ]; then
 fi
 
 # Run spotlessApply to format all files
-./gradlew spotlessApply --daemon --quiet
+./gradlew spotlessApply --daemon --quiet || exit 1
 
 # Re-stage only the files that were originally staged
 echo "$STAGED_FILES" | while read -r file; do
