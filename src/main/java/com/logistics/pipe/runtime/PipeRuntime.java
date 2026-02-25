@@ -346,6 +346,7 @@ public final class PipeRuntime {
         BlockPos targetPos = pos.relative(direction);
 
         Storage<ItemVariant> storage = ItemStorage.SIDED.find(world, targetPos, direction.getOpposite());
+
         if (storage != null) {
             try (Transaction transaction = Transaction.openOuter()) {
                 long inserted;
