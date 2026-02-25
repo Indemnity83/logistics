@@ -84,7 +84,15 @@ public class CreativeSinkBlockEntity extends BaseBlockEntity
     public static void tick(Level world, BlockPos pos, BlockState state, CreativeSinkBlockEntity entity) {
         // Reset energy counter each tick - energy is discarded
         entity.energyLastTick = entity.energyThisTick;
-        entity.totalEnergyReceived += entity.energyThisTick;
+
+        // Accumulate total energy with saturation to prevent overflow
+        // When at Long.MAX_VALUE drain rate, this could otherwise wrap around
+        if (entity.energyThisTick > 0 && Long.MAX_VALUE - entity.totalEnergyReceived <= entity.energyThisTick) {
+            entity.totalEnergyReceived = Long.MAX_VALUE;
+        } else {
+            entity.totalEnergyReceived += entity.energyThisTick;
+        }
+
         entity.energyThisTick = 0;
     }
 
@@ -142,7 +150,7 @@ public class CreativeSinkBlockEntity extends BaseBlockEntity
     protected void saveLogisticsData(CompoundTag nbt) {
         super.saveLogisticsData(nbt);
         nbt.putInt("DrainRateIndex", drainRateIndex);
-        nbt.putLong("TotalEnergyReceived", totalEnergyReceived);
+        // Note: totalEnergyReceived not persisted - testing-only counter, resets on reload
     }
 
     @Override
@@ -153,7 +161,7 @@ public class CreativeSinkBlockEntity extends BaseBlockEntity
         if (drainRateIndex < 0 || drainRateIndex >= DRAIN_RATES.length) {
             drainRateIndex = 4; // Default to 5 RF/t
         }
-        totalEnergyReceived = NbtCompat.getLong(nbt, "TotalEnergyReceived", 0);
+        // Note: totalEnergyReceived not loaded - testing-only counter, starts at 0
     }
 
     @Override
