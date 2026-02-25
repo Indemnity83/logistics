@@ -31,7 +31,10 @@ public class CreativeSinkBlockEntity extends BaseBlockEntity
     private int drainRateIndex = 4; // Default 5 RF/t
     private long energyLastTick = 0;
     private long energyThisTick = 0;
-    private long totalEnergyReceived = 0; // Total energy ever received (for testing)
+
+    // Test-only counter - not persisted, resets on reload
+    // Used only for validating energy consumption in tests
+    long totalEnergyReceived = 0;
 
     private final EnergyStorage energyStorage = new EnergyStorage() {
         @Override
@@ -112,26 +115,16 @@ public class CreativeSinkBlockEntity extends BaseBlockEntity
     }
 
     /**
-     * Sets the drain rate to unlimited (for testing).
+     * Sets the drain rate to unlimited.
+     * <p>
+     * <b>Testing API:</b> This method is primarily intended for game tests.
+     * In production, use {@link #cycleDrainRate()} to cycle through drain rates.
+     * </p>
      * This allows the sink to accept any amount of energy per tick.
      */
     public void setUnlimitedDrainRate() {
         drainRateIndex = DRAIN_RATES.length - 1; // Last index is Long.MAX_VALUE
         markDirtyAndSync();
-    }
-
-    /**
-     * Gets the total energy received since the sink was placed (for testing).
-     */
-    public long getTotalEnergyReceived() {
-        return totalEnergyReceived;
-    }
-
-    /**
-     * Gets the energy received in the last tick (for testing).
-     */
-    public long getEnergyLastTick() {
-        return energyLastTick;
     }
 
     /**
