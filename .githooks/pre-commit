@@ -1,40 +1,17 @@
-#!/bin/bash
-# Pre-commit hook to run Spotless formatting on staged files only
+#!/bin/sh
+# Pre-commit hook to check Spotless formatting
 
-set -e
+echo "Checking code formatting..."
 
-# Get list of staged files
-STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM)
-
-if [ -z "$STAGED_FILES" ]; then
-    echo "No staged files to check"
-    exit 0
+if ! ./gradlew spotlessCheck --daemon --quiet; then
+    echo ""
+    echo "❌ Code formatting check failed!"
+    echo ""
+    echo "Run './gradlew spotlessApply' to fix formatting, then commit again."
+    echo "Or use 'git commit --no-verify' to skip this check."
+    echo ""
+    exit 1
 fi
 
-echo "Running Spotless formatting on staged files..."
-
-# Stash unstaged changes to avoid formatting them
-STASH_NAME="pre-commit-$(date +%s)"
-git stash push --keep-index --include-untracked -m "$STASH_NAME" > /dev/null 2>&1
-STASHED=$?
-
-# Run spotlessApply to format code
-./gradlew spotlessApply --quiet
-
-# Re-stage any files that were modified by spotless (only if they were originally staged)
-MODIFIED_FILES=$(git diff --name-only)
-if [ -n "$MODIFIED_FILES" ]; then
-    echo "$MODIFIED_FILES" | while read -r file; do
-        if echo "$STAGED_FILES" | grep -q "^${file}$"; then
-            git add "$file"
-            echo "  ✨ Formatted: $file"
-        fi
-    done
-fi
-
-# Restore stashed changes if we stashed anything
-if [ $STASHED -eq 0 ]; then
-    git stash pop --index > /dev/null 2>&1 || true
-fi
-
-echo "✅ Pre-commit checks passed"
+echo "✅ Code formatting check passed"
+exit 0

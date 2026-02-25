@@ -26,47 +26,8 @@ jobs:
         with:
           cache-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
 
-      - name: Check formatting on changed files
-        run: |
-          set -e
-
-          # Get the list of changed files in this PR
-          git fetch origin ${{ github.base_ref }}
-          CHANGED_FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD)
-
-          if [ -z "$CHANGED_FILES" ]; then
-            echo "No files changed in this PR"
-            exit 0
-          fi
-
-          echo "Files changed in this PR:"
-          echo "$CHANGED_FILES"
-          echo ""
-
-          # Run spotlessApply to format code
-          ./gradlew spotlessApply --console=plain
-
-          # Check if any changed files were modified by spotless
-          UNFORMATTED_FILES=""
-          for file in $CHANGED_FILES; do
-            if git diff --exit-code --quiet -- "$file"; then
-              # File unchanged by spotless
-              continue
-            else
-              # File was modified by spotless - not properly formatted
-              UNFORMATTED_FILES="$UNFORMATTED_FILES\n  - $file"
-            fi
-          done
-
-          if [ -n "$UNFORMATTED_FILES" ]; then
-            echo "❌ The following files are not properly formatted:"
-            echo -e "$UNFORMATTED_FILES"
-            echo ""
-            echo "Please run './gradlew spotlessApply' locally and commit the changes."
-            exit 1
-          fi
-
-          echo "✅ All changed files are properly formatted"
+      - name: Check formatting
+        run: ./gradlew spotlessCheck --console=plain
 
       - name: Compute version
         id: version

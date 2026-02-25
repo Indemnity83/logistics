@@ -263,13 +263,20 @@ This project uses Spotless for minimal automated formatting to ensure consistenc
 ./gradlew installGitHooks
 ```
 
-This installs a pre-commit hook that automatically formats code before each commit.
+This installs a pre-commit hook that checks formatting before each commit.
 
 **Manual formatting:**
 ```bash
 ./gradlew spotlessApply    # Format all files
 ./gradlew spotlessCheck    # Check formatting without changes
 ```
+
+**Skipping the hook:**
+```bash
+git commit --no-verify     # Skip pre-commit formatting check
+```
+
+Use `--no-verify` when making infrastructure commits (like the initial spotless setup) or when you plan to format in a separate commit.
 
 **CI Enforcement:** Pull requests must pass `spotlessCheck` before merging.
 
