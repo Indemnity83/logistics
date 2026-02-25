@@ -11,7 +11,7 @@ import org.junit.jupiter.api.BeforeAll;
  * Bootstraps the game environment once before all tests run.
  */
 public abstract class MinecraftTestEnvironment {
-    private static boolean bootstrapped = false;
+    private static volatile boolean bootstrapped = false;
 
     @BeforeAll
     public static void bootstrapMinecraft() {
