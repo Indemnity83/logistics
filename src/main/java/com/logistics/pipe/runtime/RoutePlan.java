@@ -47,7 +47,7 @@ public final class RoutePlan {
     }
 
     public static RoutePlan split(List<TravelingItem> items) {
-        return new RoutePlan(Type.SPLIT, List.of(), items);
+        return new RoutePlan(Type.SPLIT, List.of(), List.copyOf(items));
     }
 
     public Type getType() {
