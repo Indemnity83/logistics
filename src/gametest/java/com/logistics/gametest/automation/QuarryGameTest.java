@@ -1,11 +1,15 @@
 package com.logistics.gametest.automation;
 
 import com.logistics.LogisticsAutomation;
+import com.logistics.automation.laserquarry.LaserQuarryBlock;
 import com.logistics.automation.laserquarry.entity.LaserQuarryBlockEntity;
+import com.logistics.core.lib.block.capability.PipeConnection;
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.state.BlockState;
 import team.reborn.energy.api.EnergyStorage;
 
@@ -80,8 +84,7 @@ public class QuarryGameTest {
         }
 
         // Create a test item stack
-        net.minecraft.world.item.ItemStack testStack =
-                new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.DIAMOND);
+        ItemStack testStack = new ItemStack(Items.DIAMOND);
 
         // Test all directions reject items
         for (Direction direction : Direction.values()) {
@@ -146,9 +149,8 @@ public class QuarryGameTest {
         }
 
         // Test UP direction (should connect as PIPE)
-        var upConnection = quarry.getConnectionType(Direction.UP);
-        if (upConnection
-                != com.logistics.core.lib.block.capability.PipeConnection.Type.PIPE) {
+        PipeConnection.Type upConnection = quarry.getConnectionType(Direction.UP);
+        if (upConnection != PipeConnection.Type.PIPE) {
             context.fail("Laser quarry should accept pipe connection from UP, got: " + upConnection);
             return;
         }
@@ -158,8 +160,8 @@ public class QuarryGameTest {
             if (direction == Direction.UP)
                 continue;
 
-            var connection = quarry.getConnectionType(direction);
-            if (connection != com.logistics.core.lib.block.capability.PipeConnection.Type.NONE) {
+            PipeConnection.Type connection = quarry.getConnectionType(direction);
+            if (connection != PipeConnection.Type.NONE) {
                 context.fail("Laser quarry should NOT connect to pipes from " + direction + ", got: " + connection);
                 return;
             }
@@ -180,13 +182,13 @@ public class QuarryGameTest {
         BlockState state = context.getBlockState(pos);
 
         // Verify FACING property exists
-        if (!state.hasProperty(com.logistics.automation.laserquarry.LaserQuarryBlock.FACING)) {
+        if (!state.hasProperty(LaserQuarryBlock.FACING)) {
             context.fail("Laser quarry should have FACING property");
             return;
         }
 
         // Verify FACING is a valid horizontal direction
-        Direction facing = state.getValue(com.logistics.automation.laserquarry.LaserQuarryBlock.FACING);
+        Direction facing = state.getValue(LaserQuarryBlock.FACING);
         if (facing == Direction.UP || facing == Direction.DOWN) {
             context.fail("Laser quarry FACING should be horizontal, got: " + facing);
             return;
