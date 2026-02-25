@@ -213,8 +213,7 @@ Domains are initialized using a two-phase pattern (server/common + client):
 ### Domain Details
 
 **For detailed architecture and design philosophy, see:**
-- `docs/DESIGN.md` - Vision, three-tier model, and detailed pipe architecture
-- `docs/PIPE_TYPES.md` - Pipe behavior specifications
+- [Documentation](https://indemnity83.github.io/logistics/) - Vision, three-tier model, pipe specifications, and more
 - Source code in `src/main/java/com/logistics/{domain}/` for implementation details
 
 **Current domain patterns:**
@@ -304,9 +303,7 @@ or add `BREAKING CHANGE:` footer in the PR body.
 ## Documentation
 
 **Architecture & Design:**
-- `docs/DESIGN.md` - Technical architecture and vision (read this first for deep understanding)
-- `docs/PIPE_TYPES.md` - Detailed pipe behavior specifications
-- `docs/ASSETS.md` - Asset and texture documentation
+- [Documentation](https://indemnity83.github.io/logistics/) - Detailed information on pipes, power, automation, and technical design
 
 **Development:**
 - `CLAUDE.md` (this file) - Primary development guidance for Claude Code
