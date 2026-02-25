@@ -1,7 +1,7 @@
 <div class="infobox">
     <div class="infobox-header">Tin Valve</div>
     <div class="infobox-image">
-        <img src="../../assets/icons/logistics__core___valve_tin.png" alt="Tin Valve">
+        <img src="../../assets/icons/logistics__core___valve_tin.png" alt="Tin Valve" title="Tin Valve">
     </div>
     <table class="infobox-table">
         <tr>
@@ -36,18 +36,18 @@ The **Tin Valve** is a Tier 1 valve crafted in the [Kiln](../automation/kiln.md)
 <div class="crafting-recipe">
     <div class="crafting-grid">
         <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___tin_ingot.png" class="crafting-item" alt="Tin Ingot"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___tin_ingot.png" class="crafting-item" alt="Tin Ingot" title="Tin Ingot"></div>
         <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___tin_ingot.png" class="crafting-item" alt="Tin Ingot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___tin_ingot.png" class="crafting-item" alt="Tin Ingot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___tin_ingot.png" class="crafting-item" alt="Tin Ingot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___tin_ingot.png" class="crafting-item" alt="Tin Ingot"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone" title="Redstone"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___tin_ingot.png" class="crafting-item" alt="Tin Ingot" title="Tin Ingot"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone" title="Redstone"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___tin_ingot.png" class="crafting-item" alt="Tin Ingot" title="Tin Ingot"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___tin_ingot.png" class="crafting-item" alt="Tin Ingot" title="Tin Ingot"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___tin_ingot.png" class="crafting-item" alt="Tin Ingot" title="Tin Ingot"></div>
     </div>
     <div class="crafting-arrow">→</div>
     <div class="crafting-output">
-        <img src="../../assets/icons/logistics__core___valve_tin.png" class="crafting-item" alt="Tin Valve">
+        <a href="../valve-tin/"><img src="../../assets/icons/logistics__core___valve_tin.png" class="crafting-item" alt="Tin Valve" title="Tin Valve"></a>
         <span class="crafting-count">4</span>
     </div>
 </div>

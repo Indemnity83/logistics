@@ -1,7 +1,7 @@
 <div class="infobox">
     <div class="infobox-header">Copper Gear</div>
     <div class="infobox-image">
-        <img src="../../assets/icons/logistics__core___copper_gear.png" alt="Copper Gear">
+        <img src="../../assets/icons/logistics__core___copper_gear.png" alt="Copper Gear" title="Copper Gear">
     </div>
     <table class="infobox-table">
         <tr>
@@ -32,18 +32,18 @@ The **Copper Gear** is a mid-tier crafting component used to create advanced mac
 <div class="crafting-recipe">
     <div class="crafting-grid">
         <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__copper_ingot.png" class="crafting-item" alt="Copper Ingot"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__copper_ingot.png" class="crafting-item" alt="Copper Ingot" title="Copper Ingot"></div>
         <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__copper_ingot.png" class="crafting-item" alt="Copper Ingot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___stone_gear.png" class="crafting-item" alt="Stone Gear"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__copper_ingot.png" class="crafting-item" alt="Copper Ingot"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__copper_ingot.png" class="crafting-item" alt="Copper Ingot" title="Copper Ingot"></div>
+        <div class="crafting-slot"><a href="../stone-gear/"><img src="../../assets/icons/logistics__core___stone_gear.png" class="crafting-item" alt="Stone Gear" title="Stone Gear"></a></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__copper_ingot.png" class="crafting-item" alt="Copper Ingot" title="Copper Ingot"></div>
         <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__copper_ingot.png" class="crafting-item" alt="Copper Ingot"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__copper_ingot.png" class="crafting-item" alt="Copper Ingot" title="Copper Ingot"></div>
         <div class="crafting-slot"></div>
     </div>
     <div class="crafting-arrow">→</div>
     <div class="crafting-output">
-        <img src="../../assets/icons/logistics__core___copper_gear.png" class="crafting-item" alt="Copper Gear">
+        <a href="../copper-gear/"><img src="../../assets/icons/logistics__core___copper_gear.png" class="crafting-item" alt="Copper Gear" title="Copper Gear"></a>
     </div>
 </div>
 
@@ -51,12 +51,65 @@ The **Copper Gear** is a mid-tier crafting component used to create advanced mac
 
 ## Uses
 
-Copper Gears are used to craft:
+**[Iron Gear](iron-gear.md):**
+
+<div class="crafting-recipe">
+    <div class="crafting-grid">
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__iron_ingot.png" class="crafting-item" alt="Iron Ingot" title="Iron Ingot"></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__iron_ingot.png" class="crafting-item" alt="Iron Ingot" title="Iron Ingot"></div>
+        <div class="crafting-slot"><a href="../copper-gear/"><img src="../../assets/icons/logistics__core___copper_gear.png" class="crafting-item" alt="Copper Gear" title="Copper Gear"></a></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__iron_ingot.png" class="crafting-item" alt="Iron Ingot" title="Iron Ingot"></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__iron_ingot.png" class="crafting-item" alt="Iron Ingot" title="Iron Ingot"></div>
+        <div class="crafting-slot"></div>
+    </div>
+    <div class="crafting-arrow">→</div>
+    <div class="crafting-output">
+        <a href="../iron-gear/"><img src="../../assets/icons/logistics__core___iron_gear.png" class="crafting-item" alt="Iron Gear" title="Iron Gear"></a>
+    </div>
+</div>
+
+**[Tin Gear](tin-gear.md):**
+
+<div class="crafting-recipe">
+    <div class="crafting-grid">
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"><a href="../tin-ingot/"><img src="../../assets/icons/logistics__core___tin_ingot.png" class="crafting-item" alt="Tin Ingot" title="Tin Ingot"></a></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"><a href="../tin-ingot/"><img src="../../assets/icons/logistics__core___tin_ingot.png" class="crafting-item" alt="Tin Ingot" title="Tin Ingot"></a></div>
+        <div class="crafting-slot"><a href="../copper-gear/"><img src="../../assets/icons/logistics__core___copper_gear.png" class="crafting-item" alt="Copper Gear" title="Copper Gear"></a></div>
+        <div class="crafting-slot"><a href="../tin-ingot/"><img src="../../assets/icons/logistics__core___tin_ingot.png" class="crafting-item" alt="Tin Ingot" title="Tin Ingot"></a></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"><a href="../tin-ingot/"><img src="../../assets/icons/logistics__core___tin_ingot.png" class="crafting-item" alt="Tin Ingot" title="Tin Ingot"></a></div>
+        <div class="crafting-slot"></div>
+    </div>
+    <div class="crafting-arrow">→</div>
+    <div class="crafting-output">
+        <a href="../tin-gear/"><img src="../../assets/icons/logistics__core___tin_gear.png" class="crafting-item" alt="Tin Gear" title="Tin Gear"></a>
+    </div>
+</div>
 
 **[Laser Quarry](../automation/laser-quarry.md):**
-- 1× Copper Gear required (part of multi-gear recipe)
-- Automated mining machine
-- Combined with [Iron Gear](iron-gear.md) and [Diamond Gear](diamond-gear.md)
+
+<div class="crafting-recipe">
+    <div class="crafting-grid">
+        <div class="crafting-slot"><a href="../iron-gear/"><img src="../../assets/icons/logistics__core___iron_gear.png" class="crafting-item" alt="Iron Gear" title="Iron Gear"></a></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone" title="Redstone"></div>
+        <div class="crafting-slot"><a href="../iron-gear/"><img src="../../assets/icons/logistics__core___iron_gear.png" class="crafting-item" alt="Iron Gear" title="Iron Gear"></a></div>
+        <div class="crafting-slot"><a href="../gold-gear/"><img src="../../assets/icons/logistics__core___gold_gear.png" class="crafting-item" alt="Gold Gear" title="Gold Gear"></a></div>
+        <div class="crafting-slot"><a href="../copper-gear/"><img src="../../assets/icons/logistics__core___copper_gear.png" class="crafting-item" alt="Copper Gear" title="Copper Gear"></a></div>
+        <div class="crafting-slot"><a href="../gold-gear/"><img src="../../assets/icons/logistics__core___gold_gear.png" class="crafting-item" alt="Gold Gear" title="Gold Gear"></a></div>
+        <div class="crafting-slot"><a href="../diamond-gear/"><img src="../../assets/icons/logistics__core___diamond_gear.png" class="crafting-item" alt="Diamond Gear" title="Diamond Gear"></a></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__diamond_pickaxe.png" class="crafting-item" alt="Diamond Pickaxe" title="Diamond Pickaxe"></div>
+        <div class="crafting-slot"><a href="../diamond-gear/"><img src="../../assets/icons/logistics__core___diamond_gear.png" class="crafting-item" alt="Diamond Gear" title="Diamond Gear"></a></div>
+    </div>
+    <div class="crafting-arrow">→</div>
+    <div class="crafting-output">
+        <a href="../../automation/laser-quarry/"><img src="../../assets/icons/logistics__automation___laser_quarry.png" class="crafting-item" alt="Laser Quarry" title="Laser Quarry"></a>
+    </div>
+</div>
 
 ## Progression
 

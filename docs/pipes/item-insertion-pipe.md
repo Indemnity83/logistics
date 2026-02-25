@@ -1,7 +1,7 @@
 <div class="infobox">
     <div class="infobox-header">Item Insertion Pipe</div>
     <div class="infobox-image">
-        <img src="../../assets/icons/logistics__pipe___item_insertion_pipe.png" alt="Item Insertion Pipe">
+        <img src="../../assets/icons/logistics__pipe___item_insertion_pipe.png" alt="Item Insertion Pipe" title="Item Insertion Pipe">
     </div>
     <table class="infobox-table">
         <tr>
@@ -38,16 +38,16 @@ The **Item Insertion Pipe** is a [Tier 2](../core/tier-system.md) smart pipe tha
         <div class="crafting-slot"></div>
         <div class="crafting-slot"></div>
         <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__quartz.png" class="crafting-item" alt="Quartz"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__glass.png" class="crafting-item" alt="Glass"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__quartz.png" class="crafting-item" alt="Quartz"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__quartz.png" class="crafting-item" alt="Quartz" title="Quartz"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__glass.png" class="crafting-item" alt="Glass" title="Glass"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__quartz.png" class="crafting-item" alt="Quartz" title="Quartz"></div>
         <div class="crafting-slot"></div>
         <div class="crafting-slot"></div>
         <div class="crafting-slot"></div>
     </div>
     <div class="crafting-arrow">→</div>
     <div class="crafting-output">
-        <img src="../../assets/icons/logistics__pipe___item_insertion_pipe.png" class="crafting-item" alt="Item Insertion Pipe">
+        <img src="../../assets/icons/logistics__pipe___item_insertion_pipe.png" class="crafting-item" alt="Item Insertion Pipe" title="Item Insertion Pipe">
         <span class="crafting-count">8</span>
     </div>
 </div>

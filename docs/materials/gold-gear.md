@@ -1,7 +1,7 @@
 <div class="infobox">
     <div class="infobox-header">Gold Gear</div>
     <div class="infobox-image">
-        <img src="../../assets/icons/logistics__core___gold_gear.png" alt="Gold Gear">
+        <img src="../../assets/icons/logistics__core___gold_gear.png" alt="Gold Gear" title="Gold Gear">
     </div>
     <table class="infobox-table">
         <tr>
@@ -32,18 +32,18 @@ The **Gold Gear** is an advanced-tier crafting component made from gold ingots.
 <div class="crafting-recipe">
     <div class="crafting-grid">
         <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__gold_ingot.png" class="crafting-item" alt="Gold Ingot"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__gold_ingot.png" class="crafting-item" alt="Gold Ingot" title="Gold Ingot"></div>
         <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__gold_ingot.png" class="crafting-item" alt="Gold Ingot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___bronze_gear.png" class="crafting-item" alt="Bronze Gear"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__gold_ingot.png" class="crafting-item" alt="Gold Ingot"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__gold_ingot.png" class="crafting-item" alt="Gold Ingot" title="Gold Ingot"></div>
+        <div class="crafting-slot"><a href="../bronze-gear/"><img src="../../assets/icons/logistics__core___bronze_gear.png" class="crafting-item" alt="Bronze Gear" title="Bronze Gear"></a></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__gold_ingot.png" class="crafting-item" alt="Gold Ingot" title="Gold Ingot"></div>
         <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__gold_ingot.png" class="crafting-item" alt="Gold Ingot"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__gold_ingot.png" class="crafting-item" alt="Gold Ingot" title="Gold Ingot"></div>
         <div class="crafting-slot"></div>
     </div>
     <div class="crafting-arrow">→</div>
     <div class="crafting-output">
-        <img src="../../assets/icons/logistics__core___gold_gear.png" class="crafting-item" alt="Gold Gear">
+        <a href="../gold-gear/"><img src="../../assets/icons/logistics__core___gold_gear.png" class="crafting-item" alt="Gold Gear" title="Gold Gear"></a>
     </div>
 </div>
 
@@ -51,7 +51,45 @@ The **Gold Gear** is an advanced-tier crafting component made from gold ingots.
 
 ## Uses
 
-Gold Gears are crafting components for advanced machines and engines (specific uses TBD).
+**[Diamond Gear](diamond-gear.md):**
+
+<div class="crafting-recipe">
+    <div class="crafting-grid">
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__diamond.png" class="crafting-item" alt="Diamond" title="Diamond"></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__diamond.png" class="crafting-item" alt="Diamond" title="Diamond"></div>
+        <div class="crafting-slot"><a href="../gold-gear/"><img src="../../assets/icons/logistics__core___gold_gear.png" class="crafting-item" alt="Gold Gear" title="Gold Gear"></a></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__diamond.png" class="crafting-item" alt="Diamond" title="Diamond"></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__diamond.png" class="crafting-item" alt="Diamond" title="Diamond"></div>
+        <div class="crafting-slot"></div>
+    </div>
+    <div class="crafting-arrow">→</div>
+    <div class="crafting-output">
+        <a href="../diamond-gear/"><img src="../../assets/icons/logistics__core___diamond_gear.png" class="crafting-item" alt="Diamond Gear" title="Diamond Gear"></a>
+    </div>
+</div>
+
+**[Laser Quarry](../automation/laser-quarry.md):**
+
+<div class="crafting-recipe">
+    <div class="crafting-grid">
+        <div class="crafting-slot"><a href="../iron-gear/"><img src="../../assets/icons/logistics__core___iron_gear.png" class="crafting-item" alt="Iron Gear" title="Iron Gear"></a></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone" title="Redstone"></div>
+        <div class="crafting-slot"><a href="../iron-gear/"><img src="../../assets/icons/logistics__core___iron_gear.png" class="crafting-item" alt="Iron Gear" title="Iron Gear"></a></div>
+        <div class="crafting-slot"><a href="../gold-gear/"><img src="../../assets/icons/logistics__core___gold_gear.png" class="crafting-item" alt="Gold Gear" title="Gold Gear"></a></div>
+        <div class="crafting-slot"><a href="../copper-gear/"><img src="../../assets/icons/logistics__core___copper_gear.png" class="crafting-item" alt="Copper Gear" title="Copper Gear"></a></div>
+        <div class="crafting-slot"><a href="../gold-gear/"><img src="../../assets/icons/logistics__core___gold_gear.png" class="crafting-item" alt="Gold Gear" title="Gold Gear"></a></div>
+        <div class="crafting-slot"><a href="../diamond-gear/"><img src="../../assets/icons/logistics__core___diamond_gear.png" class="crafting-item" alt="Diamond Gear" title="Diamond Gear"></a></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__diamond_pickaxe.png" class="crafting-item" alt="Diamond Pickaxe" title="Diamond Pickaxe"></div>
+        <div class="crafting-slot"><a href="../diamond-gear/"><img src="../../assets/icons/logistics__core___diamond_gear.png" class="crafting-item" alt="Diamond Gear" title="Diamond Gear"></a></div>
+    </div>
+    <div class="crafting-arrow">→</div>
+    <div class="crafting-output">
+        <a href="../../automation/laser-quarry/"><img src="../../assets/icons/logistics__automation___laser_quarry.png" class="crafting-item" alt="Laser Quarry" title="Laser Quarry"></a>
+    </div>
+</div>
 
 ## Progression
 

@@ -1,7 +1,7 @@
 <div class="infobox">
     <div class="infobox-header">Blazing Valve</div>
     <div class="infobox-image">
-        <img src="../../assets/icons/logistics__core___valve_blazing.png" alt="Blazing Valve">
+        <img src="../../assets/icons/logistics__core___valve_blazing.png" alt="Blazing Valve" title="Blazing Valve">
     </div>
     <table class="infobox-table">
         <tr>
@@ -36,18 +36,18 @@ The **Blazing Valve** is a Tier 6 valve crafted in the [Kiln](../automation/kiln
 <div class="crafting-recipe">
     <div class="crafting-grid">
         <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__blaze_powder.png" class="crafting-item" alt="Blaze Powder"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__blaze_powder.png" class="crafting-item" alt="Blaze Powder" title="Blaze Powder"></div>
         <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__blaze_powder.png" class="crafting-item" alt="Blaze Powder"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__blaze_powder.png" class="crafting-item" alt="Blaze Powder"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__blaze_powder.png" class="crafting-item" alt="Blaze Powder"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__blaze_powder.png" class="crafting-item" alt="Blaze Powder"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone" title="Redstone"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__blaze_powder.png" class="crafting-item" alt="Blaze Powder" title="Blaze Powder"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone" title="Redstone"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__blaze_powder.png" class="crafting-item" alt="Blaze Powder" title="Blaze Powder"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__blaze_powder.png" class="crafting-item" alt="Blaze Powder" title="Blaze Powder"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__blaze_powder.png" class="crafting-item" alt="Blaze Powder" title="Blaze Powder"></div>
     </div>
     <div class="crafting-arrow">→</div>
     <div class="crafting-output">
-        <img src="../../assets/icons/logistics__core___valve_blazing.png" class="crafting-item" alt="Blazing Valve">
+        <a href="../valve-blazing/"><img src="../../assets/icons/logistics__core___valve_blazing.png" class="crafting-item" alt="Blazing Valve" title="Blazing Valve"></a>
         <span class="crafting-count">4</span>
     </div>
 </div>

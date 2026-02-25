@@ -1,7 +1,7 @@
 <div class="infobox">
     <div class="infobox-header">Gold Valve</div>
     <div class="infobox-image">
-        <img src="../../assets/icons/logistics__core___valve_gold.png" alt="Gold Valve">
+        <img src="../../assets/icons/logistics__core___valve_gold.png" alt="Gold Valve" title="Gold Valve">
     </div>
     <table class="infobox-table">
         <tr>
@@ -36,18 +36,18 @@ The **Gold Valve** is a Tier 3 valve crafted in the [Kiln](../automation/kiln.md
 <div class="crafting-recipe">
     <div class="crafting-grid">
         <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__gold_ingot.png" class="crafting-item" alt="Gold Ingot"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__gold_ingot.png" class="crafting-item" alt="Gold Ingot" title="Gold Ingot"></div>
         <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__gold_ingot.png" class="crafting-item" alt="Gold Ingot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__gold_ingot.png" class="crafting-item" alt="Gold Ingot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__gold_ingot.png" class="crafting-item" alt="Gold Ingot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__gold_ingot.png" class="crafting-item" alt="Gold Ingot"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone" title="Redstone"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__gold_ingot.png" class="crafting-item" alt="Gold Ingot" title="Gold Ingot"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone" title="Redstone"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__gold_ingot.png" class="crafting-item" alt="Gold Ingot" title="Gold Ingot"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__gold_ingot.png" class="crafting-item" alt="Gold Ingot" title="Gold Ingot"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__gold_ingot.png" class="crafting-item" alt="Gold Ingot" title="Gold Ingot"></div>
     </div>
     <div class="crafting-arrow">→</div>
     <div class="crafting-output">
-        <img src="../../assets/icons/logistics__core___valve_gold.png" class="crafting-item" alt="Gold Valve">
+        <a href="../valve-gold/"><img src="../../assets/icons/logistics__core___valve_gold.png" class="crafting-item" alt="Gold Valve" title="Gold Valve"></a>
         <span class="crafting-count">4</span>
     </div>
 </div>

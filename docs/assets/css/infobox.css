@@ -238,6 +238,43 @@ h2 {
     image-rendering: -moz-crisp-edges;
     image-rendering: crisp-edges;
     -ms-interpolation-mode: nearest-neighbor;
+    cursor: help;
+}
+
+/* Links in crafting slots */
+.crafting-slot a {
+    display: block;
+    width: 32px;
+    height: 32px;
+    text-decoration: none;
+    position: relative;
+}
+
+.crafting-slot a:hover {
+    opacity: 0.8;
+}
+
+.crafting-slot a .crafting-item {
+    cursor: pointer;
+}
+
+/* Tooltip styling */
+.crafting-item[title]:hover::after {
+    content: attr(title);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.9);
+    color: #fff;
+    padding: 4px 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+    font-size: 12px;
+    font-family: 'Minecraft', monospace;
+    z-index: 1000;
+    pointer-events: none;
+    margin-bottom: 4px;
 }
 
 /* Arrow between grid and output */

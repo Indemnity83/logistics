@@ -1,7 +1,7 @@
 <div class="infobox">
     <div class="infobox-header">Item Passthrough Pipe</div>
     <div class="infobox-image">
-        <img src="../../assets/icons/logistics__pipe___item_passthrough_pipe.png" alt="Item Passthrough Pipe">
+        <img src="../../assets/icons/logistics__pipe___item_passthrough_pipe.png" alt="Item Passthrough Pipe" title="Item Passthrough Pipe">
     </div>
     <table class="infobox-table">
         <tr>
@@ -38,16 +38,16 @@ The **Item Passthrough Pipe** is a [Tier 1](../core/tier-system.md) mechanical p
         <div class="crafting-slot"></div>
         <div class="crafting-slot"></div>
         <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__sandstone.png" class="crafting-item" alt="Sandstone"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__glass.png" class="crafting-item" alt="Glass"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__sandstone.png" class="crafting-item" alt="Sandstone"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__sandstone.png" class="crafting-item" alt="Sandstone" title="Sandstone"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__glass.png" class="crafting-item" alt="Glass" title="Glass"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__sandstone.png" class="crafting-item" alt="Sandstone" title="Sandstone"></div>
         <div class="crafting-slot"></div>
         <div class="crafting-slot"></div>
         <div class="crafting-slot"></div>
     </div>
     <div class="crafting-arrow">→</div>
     <div class="crafting-output">
-        <img src="../../assets/icons/logistics__pipe___item_passthrough_pipe.png" class="crafting-item" alt="Item Passthrough Pipe">
+        <img src="../../assets/icons/logistics__pipe___item_passthrough_pipe.png" class="crafting-item" alt="Item Passthrough Pipe" title="Item Passthrough Pipe">
         <span class="crafting-count">8</span>
     </div>
 </div>

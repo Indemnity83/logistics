@@ -1,7 +1,7 @@
 <div class="infobox">
     <div class="infobox-header">Wooden Gear</div>
     <div class="infobox-image">
-        <img src="../../assets/icons/logistics__core___wooden_gear.png" alt="Wooden Gear">
+        <img src="../../assets/icons/logistics__core___wooden_gear.png" alt="Wooden Gear" title="Wooden Gear">
     </div>
     <table class="infobox-table">
         <tr>
@@ -32,18 +32,18 @@ The **Wooden Gear** is a basic crafting component used to create early-game mach
 <div class="crafting-recipe">
     <div class="crafting-grid">
         <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__stick.png" class="crafting-item" alt="Stick"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__stick.png" class="crafting-item" alt="Stick" title="Stick"></div>
         <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__stick.png" class="crafting-item" alt="Stick"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__stick.png" class="crafting-item" alt="Stick" title="Stick"></div>
         <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__stick.png" class="crafting-item" alt="Stick"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__stick.png" class="crafting-item" alt="Stick" title="Stick"></div>
         <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__stick.png" class="crafting-item" alt="Stick"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__stick.png" class="crafting-item" alt="Stick" title="Stick"></div>
         <div class="crafting-slot"></div>
     </div>
     <div class="crafting-arrow">→</div>
     <div class="crafting-output">
-        <img src="../../assets/icons/logistics__core___wooden_gear.png" class="crafting-item" alt="Wooden Gear">
+        <a href="../wooden-gear/"><img src="../../assets/icons/logistics__core___wooden_gear.png" class="crafting-item" alt="Wooden Gear" title="Wooden Gear"></a>
     </div>
 </div>
 
@@ -51,12 +51,45 @@ The **Wooden Gear** is a basic crafting component used to create early-game mach
 
 ## Uses
 
-Wooden Gears are used to craft:
+**[Stone Gear](stone-gear.md):**
+
+<div class="crafting-recipe">
+    <div class="crafting-grid">
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__stone.png" class="crafting-item" alt="Stone" title="Stone"></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__stone.png" class="crafting-item" alt="Stone" title="Stone"></div>
+        <div class="crafting-slot"><a href="../wooden-gear/"><img src="../../assets/icons/logistics__core___wooden_gear.png" class="crafting-item" alt="Wooden Gear" title="Wooden Gear"></a></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__stone.png" class="crafting-item" alt="Stone" title="Stone"></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__stone.png" class="crafting-item" alt="Stone" title="Stone"></div>
+        <div class="crafting-slot"></div>
+    </div>
+    <div class="crafting-arrow">→</div>
+    <div class="crafting-output">
+        <a href="../stone-gear/"><img src="../../assets/icons/logistics__core___stone_gear.png" class="crafting-item" alt="Stone Gear" title="Stone Gear"></a>
+    </div>
+</div>
 
 **[Redstone Engine](../power/redstone-engine.md):**
-- 2× Wooden Gear required
-- Basic power generation
-- Entry-level engine
+
+<div class="crafting-recipe">
+    <div class="crafting-grid">
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__oak_planks.png" class="crafting-item" alt="Planks" title="Oak Planks"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__oak_planks.png" class="crafting-item" alt="Planks" title="Oak Planks"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__oak_planks.png" class="crafting-item" alt="Planks" title="Oak Planks"></div>
+        <div class="crafting-slot"><a href="../wooden-gear/"><img src="../../assets/icons/logistics__core___wooden_gear.png" class="crafting-item" alt="Wooden Gear" title="Wooden Gear"></a></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__glass.png" class="crafting-item" alt="Glass" title="Glass"></div>
+        <div class="crafting-slot"><a href="../wooden-gear/"><img src="../../assets/icons/logistics__core___wooden_gear.png" class="crafting-item" alt="Wooden Gear" title="Wooden Gear"></a></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__piston.png" class="crafting-item" alt="Piston" title="Piston"></div>
+        <div class="crafting-slot"></div>
+    </div>
+    <div class="crafting-arrow">→</div>
+    <div class="crafting-output">
+        <a href="../../power/redstone-engine/"><img src="../../assets/icons/logistics__power___redstone_engine.png" class="crafting-item" alt="Redstone Engine" title="Redstone Engine"></a>
+    </div>
+</div>
 
 ## Progression
 

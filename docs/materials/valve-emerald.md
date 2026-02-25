@@ -1,7 +1,7 @@
 <div class="infobox">
     <div class="infobox-header">Emerald Valve</div>
     <div class="infobox-image">
-        <img src="../../assets/icons/logistics__core___valve_emerald.png" alt="Emerald Valve">
+        <img src="../../assets/icons/logistics__core___valve_emerald.png" alt="Emerald Valve" title="Emerald Valve">
     </div>
     <table class="infobox-table">
         <tr>
@@ -36,18 +36,18 @@ The **Emerald Valve** is a Tier 5 valve crafted in the [Kiln](../automation/kiln
 <div class="crafting-recipe">
     <div class="crafting-grid">
         <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__emerald.png" class="crafting-item" alt="Emerald"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__emerald.png" class="crafting-item" alt="Emerald" title="Emerald"></div>
         <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__emerald.png" class="crafting-item" alt="Emerald"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__emerald.png" class="crafting-item" alt="Emerald"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__emerald.png" class="crafting-item" alt="Emerald"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__emerald.png" class="crafting-item" alt="Emerald"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone" title="Redstone"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__emerald.png" class="crafting-item" alt="Emerald" title="Emerald"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone" title="Redstone"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__emerald.png" class="crafting-item" alt="Emerald" title="Emerald"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__emerald.png" class="crafting-item" alt="Emerald" title="Emerald"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__emerald.png" class="crafting-item" alt="Emerald" title="Emerald"></div>
     </div>
     <div class="crafting-arrow">→</div>
     <div class="crafting-output">
-        <img src="../../assets/icons/logistics__core___valve_emerald.png" class="crafting-item" alt="Emerald Valve">
+        <a href="../valve-emerald/"><img src="../../assets/icons/logistics__core___valve_emerald.png" class="crafting-item" alt="Emerald Valve" title="Emerald Valve"></a>
         <span class="crafting-count">4</span>
     </div>
 </div>

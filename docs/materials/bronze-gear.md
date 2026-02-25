@@ -1,7 +1,7 @@
 <div class="infobox">
     <div class="infobox-header">Bronze Gear</div>
     <div class="infobox-image">
-        <img src="../../assets/icons/logistics__core___bronze_gear.png" alt="Bronze Gear">
+        <img src="../../assets/icons/logistics__core___bronze_gear.png" alt="Bronze Gear" title="Bronze Gear">
     </div>
     <table class="infobox-table">
         <tr>
@@ -32,18 +32,18 @@ The **Bronze Gear** is a mid-tier crafting component made from [bronze ingots](b
 <div class="crafting-recipe">
     <div class="crafting-grid">
         <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___bronze_ingot.png" class="crafting-item" alt="Bronze Ingot"></div>
+        <div class="crafting-slot"><a href="../bronze-ingot/"><img src="../../assets/icons/logistics__core___bronze_ingot.png" class="crafting-item" alt="Bronze Ingot" title="Bronze Ingot"></a></div>
         <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___bronze_ingot.png" class="crafting-item" alt="Bronze Ingot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___iron_gear.png" class="crafting-item" alt="Iron Gear"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___bronze_ingot.png" class="crafting-item" alt="Bronze Ingot"></div>
+        <div class="crafting-slot"><a href="../bronze-ingot/"><img src="../../assets/icons/logistics__core___bronze_ingot.png" class="crafting-item" alt="Bronze Ingot" title="Bronze Ingot"></a></div>
+        <div class="crafting-slot"><a href="../iron-gear/"><img src="../../assets/icons/logistics__core___iron_gear.png" class="crafting-item" alt="Iron Gear" title="Iron Gear"></a></div>
+        <div class="crafting-slot"><a href="../bronze-ingot/"><img src="../../assets/icons/logistics__core___bronze_ingot.png" class="crafting-item" alt="Bronze Ingot" title="Bronze Ingot"></a></div>
         <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___bronze_ingot.png" class="crafting-item" alt="Bronze Ingot"></div>
+        <div class="crafting-slot"><a href="../bronze-ingot/"><img src="../../assets/icons/logistics__core___bronze_ingot.png" class="crafting-item" alt="Bronze Ingot" title="Bronze Ingot"></a></div>
         <div class="crafting-slot"></div>
     </div>
     <div class="crafting-arrow">→</div>
     <div class="crafting-output">
-        <img src="../../assets/icons/logistics__core___bronze_gear.png" class="crafting-item" alt="Bronze Gear">
+        <a href="../bronze-gear/"><img src="../../assets/icons/logistics__core___bronze_gear.png" class="crafting-item" alt="Bronze Gear" title="Bronze Gear"></a>
     </div>
 </div>
 
@@ -51,7 +51,25 @@ The **Bronze Gear** is a mid-tier crafting component made from [bronze ingots](b
 
 ## Uses
 
-Bronze Gears are crafting components for machines and engines (specific uses TBD).
+**[Gold Gear](gold-gear.md):**
+
+<div class="crafting-recipe">
+    <div class="crafting-grid">
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__gold_ingot.png" class="crafting-item" alt="Gold Ingot" title="Gold Ingot"></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__gold_ingot.png" class="crafting-item" alt="Gold Ingot" title="Gold Ingot"></div>
+        <div class="crafting-slot"><a href="../bronze-gear/"><img src="../../assets/icons/logistics__core___bronze_gear.png" class="crafting-item" alt="Bronze Gear" title="Bronze Gear"></a></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__gold_ingot.png" class="crafting-item" alt="Gold Ingot" title="Gold Ingot"></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__gold_ingot.png" class="crafting-item" alt="Gold Ingot" title="Gold Ingot"></div>
+        <div class="crafting-slot"></div>
+    </div>
+    <div class="crafting-arrow">→</div>
+    <div class="crafting-output">
+        <a href="../gold-gear/"><img src="../../assets/icons/logistics__core___gold_gear.png" class="crafting-item" alt="Gold Gear" title="Gold Gear"></a>
+    </div>
+</div>
 
 ## Progression
 

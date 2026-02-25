@@ -1,7 +1,7 @@
 <div class="infobox">
     <div class="infobox-header">Laser Quarry</div>
     <div class="infobox-image">
-        <img src="../../assets/icons/logistics__automation___laser_quarry.png" alt="Laser Quarry">
+        <img src="../../assets/icons/logistics__automation___laser_quarry.png" alt="Laser Quarry" title="Laser Quarry">
     </div>
     <table class="infobox-table">
         <tr>
@@ -43,19 +43,19 @@ The **Laser Quarry** is a powered mining machine that automatically excavates an
 
 <div class="crafting-recipe">
     <div class="crafting-grid">
-        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___iron_gear.png" class="crafting-item" alt="Iron Gear"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___iron_gear.png" class="crafting-item" alt="Iron Gear"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___gold_gear.png" class="crafting-item" alt="Gold Gear"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___copper_gear.png" class="crafting-item" alt="Copper Gear"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___gold_gear.png" class="crafting-item" alt="Gold Gear"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___diamond_gear.png" class="crafting-item" alt="Diamond Gear"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__diamond_pickaxe.png" class="crafting-item" alt="Diamond Pickaxe"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___diamond_gear.png" class="crafting-item" alt="Diamond Gear"></div>
+        <div class="crafting-slot"><a href="../../materials/iron-gear/"><img src="../../assets/icons/logistics__core___iron_gear.png" class="crafting-item" alt="Iron Gear" title="Iron Gear"></a></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone" title="Redstone"></div>
+        <div class="crafting-slot"><a href="../../materials/iron-gear/"><img src="../../assets/icons/logistics__core___iron_gear.png" class="crafting-item" alt="Iron Gear" title="Iron Gear"></a></div>
+        <div class="crafting-slot"><a href="../../materials/gold-gear/"><img src="../../assets/icons/logistics__core___gold_gear.png" class="crafting-item" alt="Gold Gear" title="Gold Gear"></a></div>
+        <div class="crafting-slot"><a href="../../materials/copper-gear/"><img src="../../assets/icons/logistics__core___copper_gear.png" class="crafting-item" alt="Copper Gear" title="Copper Gear"></a></div>
+        <div class="crafting-slot"><a href="../../materials/gold-gear/"><img src="../../assets/icons/logistics__core___gold_gear.png" class="crafting-item" alt="Gold Gear" title="Gold Gear"></a></div>
+        <div class="crafting-slot"><a href="../../materials/diamond-gear/"><img src="../../assets/icons/logistics__core___diamond_gear.png" class="crafting-item" alt="Diamond Gear" title="Diamond Gear"></a></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__diamond_pickaxe.png" class="crafting-item" alt="Diamond Pickaxe" title="Diamond Pickaxe"></div>
+        <div class="crafting-slot"><a href="../../materials/diamond-gear/"><img src="../../assets/icons/logistics__core___diamond_gear.png" class="crafting-item" alt="Diamond Gear" title="Diamond Gear"></a></div>
     </div>
     <div class="crafting-arrow">→</div>
     <div class="crafting-output">
-        <img src="../../assets/icons/logistics__automation___laser_quarry.png" class="crafting-item" alt="Laser Quarry">
+        <a href="../laser-quarry/"><img src="../../assets/icons/logistics__automation___laser_quarry.png" class="crafting-item" alt="Laser Quarry" title="Laser Quarry"></a>
     </div>
 </div>
 

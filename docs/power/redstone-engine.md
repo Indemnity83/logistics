@@ -1,7 +1,7 @@
 <div class="infobox">
     <div class="infobox-header">Redstone Engine</div>
     <div class="infobox-image">
-        <img src="../../assets/icons/logistics__power___redstone_engine.png" alt="Redstone Engine">
+        <img src="../../assets/icons/logistics__power___redstone_engine.png" alt="Redstone Engine" title="Redstone Engine">
     </div>
     <table class="infobox-table">
         <tr>
@@ -43,19 +43,19 @@ The **Redstone Engine** is a basic power generator that converts a redstone sign
 
 <div class="crafting-recipe">
     <div class="crafting-grid">
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__oak_planks.png" class="crafting-item" alt="Planks"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__oak_planks.png" class="crafting-item" alt="Planks"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__oak_planks.png" class="crafting-item" alt="Planks"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___wooden_gear.png" class="crafting-item" alt="Wooden Gear"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__glass.png" class="crafting-item" alt="Glass"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___wooden_gear.png" class="crafting-item" alt="Wooden Gear"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__oak_planks.png" class="crafting-item" alt="Planks" title="Planks"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__oak_planks.png" class="crafting-item" alt="Planks" title="Planks"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__oak_planks.png" class="crafting-item" alt="Planks" title="Planks"></div>
+        <div class="crafting-slot"><a href="../../materials/wooden-gear/"><img src="../../assets/icons/logistics__core___wooden_gear.png" class="crafting-item" alt="Wooden Gear" title="Wooden Gear"></a></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__glass.png" class="crafting-item" alt="Glass" title="Glass"></div>
+        <div class="crafting-slot"><a href="../../materials/wooden-gear/"><img src="../../assets/icons/logistics__core___wooden_gear.png" class="crafting-item" alt="Wooden Gear" title="Wooden Gear"></a></div>
         <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__piston.png" class="crafting-item" alt="Piston"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__piston.png" class="crafting-item" alt="Piston" title="Piston"></div>
         <div class="crafting-slot"></div>
     </div>
     <div class="crafting-arrow">→</div>
     <div class="crafting-output">
-        <img src="../../assets/icons/logistics__core___redstone_engine.png" class="crafting-item" alt="Redstone Engine">
+        <a href="../redstone-engine/"><img src="../../assets/icons/logistics__power___redstone_engine.png" class="crafting-item" alt="Redstone Engine" title="Redstone Engine"></a>
     </div>
 </div>
 
