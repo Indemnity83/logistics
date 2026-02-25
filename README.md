@@ -156,11 +156,16 @@ See the [documentation](https://indemnity83.github.io/logistics/) for detailed i
 
 ### Testing
 
-This project uses JUnit 5 for unit testing. Tests focus on pure Java components without Minecraft dependencies.
+**124 tests** (73 unit + 51 game tests) ensure code quality and prevent regression bugs.
 
-**Run all tests:**
+**Run unit tests:**
 ```bash
 ./gradlew test
+```
+
+**Run game tests** (full Minecraft server environment):
+```bash
+./gradlew runGameTest
 ```
 
 **Run specific test class:**
@@ -172,7 +177,25 @@ This project uses JUnit 5 for unit testing. Tests focus on pure Java components 
 
 **CI Integration:** All tests run automatically on pull requests. Tests must pass before merge.
 
-See `CLAUDE.md` for comprehensive development guidance including testing strategy, code style, and version management.
+**Test Coverage:**
+- **Unit tests (73):** PID control, item physics, routing logic, cross-version compatibility
+- **Game tests (51):**
+  - **Core domain (9 tests):**
+    - Ore generation feature registration (5 tests) - ✅ Tin and apatite worldgen configured
+    - Ore block placement and replacement (4 tests)
+  - **Pipe domain (15 tests):**
+    - Pipe placement and connections (4 tests)
+    - Module placement (7 tests) and routing behavior (4 tests)
+  - **Power domain (12 tests):**
+    - Engine placement (3 tests) and configuration (2 tests)
+    - **Stirling engine inventory access** (4 tests) - ✅ Verified NOT accessible from front face
+    - Stirling engine fuel acceptance/rejection (2 tests)
+    - Creative sink unlimited drain rate (1 test)
+  - **Automation domain (15 tests):**
+    - Laser quarry placement, energy acceptance, and item handling (6 tests)
+    - Kiln placement, inventory access, and initial state (9 tests)
+
+See `CLAUDE.md` for comprehensive development guidance including testing strategy.
 
 ---
 
