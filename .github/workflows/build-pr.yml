@@ -31,6 +31,8 @@ jobs:
 
       - name: Run tests
         run: ./gradlew test --console=plain
+        # Note: Game tests (./gradlew runGameTest) are not run in CI due to resource constraints
+        # and long execution time. Run locally before merging if testing game mechanics.
 
       - name: Upload test reports
         if: failure()

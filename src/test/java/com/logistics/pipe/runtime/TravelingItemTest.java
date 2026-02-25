@@ -1,5 +1,6 @@
 package com.logistics.pipe.runtime;
 
+import com.logistics.LogisticsPipe;
 import com.logistics.test.MinecraftTestEnvironment;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
@@ -14,7 +15,6 @@ import static org.assertj.core.api.Assertions.within;
 class TravelingItemTest extends MinecraftTestEnvironment {
 
     private static final float TOLERANCE = 0.0001f;
-    private static final float ITEM_MIN_SPEED = 0.02f; // LogisticsPipe.CONFIG.ITEM_MIN_SPEED
 
     private TravelingItem createItem(float speed) {
         ItemStack stack = new ItemStack(Items.DIAMOND, 1);
@@ -132,7 +132,7 @@ class TravelingItemTest extends MinecraftTestEnvironment {
 
         item.tick(0f, dragCoefficient, 0.15f);
 
-        assertThat(item.getSpeed()).isCloseTo(ITEM_MIN_SPEED, within(TOLERANCE));
+        assertThat(item.getSpeed()).isCloseTo(LogisticsPipe.CONFIG.ITEM_MIN_SPEED, within(TOLERANCE));
     }
 
     @Test
@@ -142,7 +142,7 @@ class TravelingItemTest extends MinecraftTestEnvironment {
 
         item.tick(-0.02f, 0f, 0.15f);
 
-        assertThat(item.getSpeed()).isCloseTo(ITEM_MIN_SPEED, within(TOLERANCE));
+        assertThat(item.getSpeed()).isCloseTo(LogisticsPipe.CONFIG.ITEM_MIN_SPEED, within(TOLERANCE));
     }
 
     // ==================== Progress Tracking Tests ====================
@@ -284,7 +284,7 @@ class TravelingItemTest extends MinecraftTestEnvironment {
         item.tick(0f, 0f, 0.0f);
 
         // When maxSpeed is 0 and current speed > 0, uses deceleration mode
-        // Speed will decelerate toward 0 but get clamped to ITEM_MIN_SPEED
-        assertThat(item.getSpeed()).isGreaterThanOrEqualTo(ITEM_MIN_SPEED);
+        // Speed will decelerate toward 0 but get clamped to LogisticsPipe.CONFIG.ITEM_MIN_SPEED
+        assertThat(item.getSpeed()).isGreaterThanOrEqualTo(LogisticsPipe.CONFIG.ITEM_MIN_SPEED);
     }
 }

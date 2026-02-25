@@ -16,6 +16,11 @@ import net.minecraft.world.level.block.state.BlockState;
 
 public class KilnGameTest {
 
+    // Kiln slot indices (from KilnBlockEntity)
+    private static final int SLOT_FUEL = 0;
+    private static final int SLOT_GLASS_INPUT = 1;
+    private static final int SLOT_OUTPUT = 11;
+
     /**
      * Test that kiln can be placed and creates block entity.
      */
@@ -60,24 +65,26 @@ public class KilnGameTest {
 
         // Top: should only allow glass input slot
         int[] topSlots = sidedInv.getSlotsForFace(Direction.UP);
-        if (topSlots.length != 1 || topSlots[0] != 1) {
-            context.fail("Top should only expose glass input slot (1), got: " + java.util.Arrays.toString(topSlots));
+        if (topSlots.length != 1 || topSlots[0] != SLOT_GLASS_INPUT) {
+            context.fail("Top should only expose glass input slot (" + SLOT_GLASS_INPUT + "), got: "
+                    + java.util.Arrays.toString(topSlots));
             return;
         }
 
         // Bottom: should only allow output slot
         int[] bottomSlots = sidedInv.getSlotsForFace(Direction.DOWN);
-        if (bottomSlots.length != 1 || bottomSlots[0] != 11) {
-            context.fail("Bottom should only expose output slot (11), got: " + java.util.Arrays.toString(bottomSlots));
+        if (bottomSlots.length != 1 || bottomSlots[0] != SLOT_OUTPUT) {
+            context.fail("Bottom should only expose output slot (" + SLOT_OUTPUT + "), got: "
+                    + java.util.Arrays.toString(bottomSlots));
             return;
         }
 
         // Sides (NORTH, SOUTH, EAST, WEST): should only allow fuel slot
         for (Direction side : new Direction[] {Direction.NORTH, Direction.SOUTH, Direction.EAST, Direction.WEST}) {
             int[] sideSlots = sidedInv.getSlotsForFace(side);
-            if (sideSlots.length != 1 || sideSlots[0] != 0) {
-                context.fail(
-                        side + " should only expose fuel slot (0), got: " + java.util.Arrays.toString(sideSlots));
+            if (sideSlots.length != 1 || sideSlots[0] != SLOT_FUEL) {
+                context.fail(side + " should only expose fuel slot (" + SLOT_FUEL + "), got: "
+                        + java.util.Arrays.toString(sideSlots));
                 return;
             }
         }

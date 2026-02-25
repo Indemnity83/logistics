@@ -42,7 +42,7 @@ public class ModuleGameTest {
         }
 
         // Verify the pipe block has the correct Pipe instance
-        if (!(context.getBlockState(pos).getBlock() instanceof PipeBlock pipeBlock)) {
+        if (!(context.getBlockState(pos).getBlock() instanceof PipeBlock)) {
             context.fail("Block should be a PipeBlock");
         }
 

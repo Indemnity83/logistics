@@ -27,14 +27,14 @@ public abstract class MinecraftTestEnvironment {
             // This is equivalent to what Minecraft does on startup
             Bootstrap.bootStrap();
 
-            // Verify registries are initialized
-            if (BuiltInRegistries.ITEM.size() == 0) {
-                throw new IllegalStateException("Item registry not initialized");
-            }
-
             bootstrapped = true;
         } catch (Exception e) {
             throw new RuntimeException("Failed to bootstrap Minecraft test environment", e);
+        }
+
+        // Verify registries are initialized (outside try block so IllegalStateException isn't wrapped)
+        if (BuiltInRegistries.ITEM.size() == 0) {
+            throw new IllegalStateException("Item registry not initialized");
         }
     }
 

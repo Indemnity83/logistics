@@ -67,14 +67,14 @@ dependencies {
 	modApi include("teamreborn:energy:${project.energy_version}")
 
 	// Test infrastructure
-	testImplementation 'org.junit.jupiter:junit-jupiter:5.11.0'
+	testImplementation "org.junit.jupiter:junit-jupiter:${project.junit_version}"
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
 	// Fabric test utilities (for Minecraft registry access if needed)
 	testImplementation "net.fabricmc:fabric-loader-junit:${project.loader_version}"
 
 	// Assertions library for readable test failures
-	testImplementation 'org.assertj:assertj-core:3.26.0'
+	testImplementation "org.assertj:assertj-core:${project.assertj_version}"
 }
 
 processResources {
@@ -87,10 +87,6 @@ processResources {
 
 tasks.withType(JavaCompile).configureEach {
 	it.options.release = 21
-}
-
-tasks.named('check') {
-	dependsOn 'spotlessCheck'
 }
 
 // Configure test task
@@ -108,6 +104,7 @@ test {
 }
 
 tasks.named('check') {
+	dependsOn 'spotlessCheck'
 	dependsOn 'test'
 }
 

@@ -1,7 +1,7 @@
 {
 	"schemaVersion": 1,
 	"id": "logistics-gametest",
-	"version": "1.0.0",
+	"version": "${version}",
 	"name": "Logistics Game Tests",
 	"description": "Integration tests for Logistics mod",
 	"authors": ["Logistics Contributors"],

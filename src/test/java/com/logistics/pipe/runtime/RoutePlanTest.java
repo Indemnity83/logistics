@@ -25,7 +25,9 @@ class RoutePlanTest extends MinecraftTestEnvironment {
 
         assertThat(plan.getType()).isEqualTo(RoutePlan.Type.PASS);
         assertThat(plan.getDirections()).isEmpty();
+        assertThat(plan.getDirections()).isUnmodifiable();
         assertThat(plan.getItems()).isEmpty();
+        assertThat(plan.getItems()).isUnmodifiable();
     }
 
     @Test
@@ -35,7 +37,9 @@ class RoutePlanTest extends MinecraftTestEnvironment {
 
         assertThat(plan.getType()).isEqualTo(RoutePlan.Type.DROP);
         assertThat(plan.getDirections()).isEmpty();
+        assertThat(plan.getDirections()).isUnmodifiable();
         assertThat(plan.getItems()).isEmpty();
+        assertThat(plan.getItems()).isUnmodifiable();
     }
 
     @Test
@@ -45,7 +49,9 @@ class RoutePlanTest extends MinecraftTestEnvironment {
 
         assertThat(plan.getType()).isEqualTo(RoutePlan.Type.DISCARD);
         assertThat(plan.getDirections()).isEmpty();
+        assertThat(plan.getDirections()).isUnmodifiable();
         assertThat(plan.getItems()).isEmpty();
+        assertThat(plan.getItems()).isUnmodifiable();
     }
 
     @Test

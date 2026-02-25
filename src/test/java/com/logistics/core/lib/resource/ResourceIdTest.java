@@ -57,7 +57,7 @@ class ResourceIdTest extends MinecraftTestEnvironment {
     @DisplayName("should throw exception for invalid identifier in parse")
     void parseInvalidThrows() {
         assertThatThrownBy(() -> ResourceId.parse("invalid::id"))
-                .isInstanceOf(Exception.class);
+                .isInstanceOf(net.minecraft.IdentifierException.class);
     }
 
     @Test
