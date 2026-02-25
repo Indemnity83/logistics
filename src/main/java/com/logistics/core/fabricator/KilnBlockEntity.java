@@ -532,8 +532,7 @@ public class KilnBlockEntity extends BaseBlockEntity
     }
 
     private boolean isGlassInput(ItemStack stack) {
-        return stack.is(Items.GLASS) || stack.is(Items.SAND) ||
-               stack.is(Items.GLASS_PANE) || stack.is(Items.RED_SAND);
+        return stack.is(Items.GLASS) || stack.is(Items.SAND) || stack.is(Items.GLASS_PANE);
     }
 
     private boolean isFuel(ItemStack stack) {

@@ -347,13 +347,6 @@ public final class PipeRuntime {
 
         Storage<ItemVariant> storage = ItemStorage.SIDED.find(world, targetPos, direction.getOpposite());
 
-        // Debug: log what storage was found
-        if (world.getBlockEntity(targetPos) instanceof com.logistics.power.engine.block.entity.StirlingEngineBlockEntity) {
-            System.out.println("[PipeRuntime] transferItem - targetPos: " + targetPos +
-                             ", querySide: " + direction.getOpposite() +
-                             ", storage: " + (storage != null ? storage.getClass().getSimpleName() : "null"));
-        }
-
         if (storage != null) {
             try (Transaction transaction = Transaction.openOuter()) {
                 long inserted;
