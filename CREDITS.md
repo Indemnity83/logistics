@@ -15,6 +15,7 @@ Some textures in this mod are adapted from or inspired by the following sources:
 This mod draws inspiration from:
 - **BuildCraft** — Classic pipe mechanics and visual style
 - **Logistics Pipes** — Request/provider logistics system design
+- **Forestry** — Machines and progressive automation
 
 ## Code & Libraries
 

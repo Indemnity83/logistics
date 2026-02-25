@@ -135,6 +135,7 @@ RF energy generation with engines:
 - Extraction from and insertion into adjacent inventories
 - Mechanical and Smart pipe behaviors
 - Redstone and Stirling engines with heat management
+- Kiln for temperature-controlled crafting
 - Laser Quarry with automatic frame construction and energy-scaled mining speed
 
 ### 🚧 Future
