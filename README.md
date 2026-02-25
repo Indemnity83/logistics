@@ -109,7 +109,7 @@ RF energy generation with engines:
 **Download from:**
 - [GitHub Releases](https://github.com/indemnity83/logistics/releases) (includes dev builds)
 - [Modrinth](https://modrinth.com/mod/logistics) (stable releases)
-- [CurseForge](https://www.curseforge.com/minecraft/mc-mods/logistics) (stable releases)
+- [CurseForge](https://www.curseforge.com/minecraft/mc-mods/logistics-automation) (stable releases)
 
 [Full installation guide →](https://indemnity83.github.io/logistics/getting-started/install/)
 
