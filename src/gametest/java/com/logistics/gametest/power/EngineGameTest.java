@@ -333,5 +333,5 @@ public class EngineGameTest {
     // What needs manual testing:
     // - Redstone engine produces 10 RF every 16 ticks when powered
     // - Stirling engine produces 3-10 RF/t based on PID control
-    // - Energy transfer to adjacent blocks works correctly}
+    // - Energy transfer to adjacent blocks works correctly
 }
