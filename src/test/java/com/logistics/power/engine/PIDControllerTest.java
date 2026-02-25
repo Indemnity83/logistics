@@ -82,7 +82,7 @@ class PIDControllerTest {
 
         // If anti-windup is working, integral should be close to the saturation point (50.0)
         // not accumulated to 3000 (3 ticks * 1000)
-        assertThat(integral).isLessThan(1500.0);
+        assertThat(integral).isLessThan(150.0);
     }
 
     @Test
@@ -101,7 +101,7 @@ class PIDControllerTest {
 
         // If anti-windup is working, integral should be close to the saturation point (-50.0)
         // not accumulated to -3000 (3 ticks * -1000)
-        assertThat(integral).isGreaterThan(-1500.0);
+        assertThat(integral).isGreaterThan(-150.0);
     }
 
     @Test
