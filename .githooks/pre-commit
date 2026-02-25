@@ -3,22 +3,35 @@
 
 echo "Formatting code with Spotless..."
 
-# Get list of staged files before formatting
+# Exit early if no staged files
 STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM)
-
 if [ -z "$STAGED_FILES" ]; then
     exit 0
 fi
 
-# Run spotlessApply to format all files
-./gradlew spotlessApply --daemon --quiet || exit 1
+# Stash unstaged changes, keeping staged changes in working tree
+git stash push --keep-index -u -m "pre-commit-auto-format" --quiet
+STASH_RESULT=$?
 
-# Re-stage only the files that were originally staged
-echo "$STAGED_FILES" | while read -r file; do
-    if [ -f "$file" ]; then
-        git add "$file"
+# Run spotlessApply to format staged files
+if ! ./gradlew spotlessApply --daemon --quiet; then
+    # Restore stashed changes on failure
+    if [ $STASH_RESULT -eq 0 ]; then
+        git stash pop --quiet 2>/dev/null || true
     fi
-done
+    exit 1
+fi
+
+# Stage all formatted files (only originally staged files are in working tree after stash)
+git add -u
+
+# Restore unstaged changes
+if [ $STASH_RESULT -eq 0 ]; then
+    if ! git stash pop --quiet 2>/dev/null; then
+        echo "⚠️  Warning: Could not restore unstaged changes automatically."
+        echo "   Run 'git stash pop' to restore them manually."
+    fi
+fi
 
 echo "✅ Code formatted and staged"
 exit 0

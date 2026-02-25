@@ -87,7 +87,7 @@ tasks.register('installGitHooks') {
 
 		if (gitDir.isFile()) {
 			// This is a worktree - read the gitdir path
-			def gitDirPath = gitDir.text.trim().replaceFirst('gitdir: ', '')
+			def gitDirPath = gitDir.text.trim().replace('gitdir: ', '')
 			// For worktrees, hooks are in the main repo's .git/hooks
 			def worktreeGitDir = file(gitDirPath)
 			// Navigate up to find the main .git directory
@@ -96,7 +96,7 @@ tasks.register('installGitHooks') {
 				def commonPath = commonDir.text.trim()
 				gitHooksDir = file("${worktreeGitDir}/${commonPath}/hooks")
 			} else {
-				gitHooksDir = file("${worktreeGitDir}/hooks")
+				gitHooksDir = new File(worktreeGitDir, commonPath).canonicalFile.toPath().resolve("hooks").toFile()
 			}
 		} else {
 			// Regular git repository
