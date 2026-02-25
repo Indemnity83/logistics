@@ -73,6 +73,58 @@ tasks.named('check') {
 	dependsOn 'spotlessCheck'
 }
 
+// Task to install Git hooks for developers
+tasks.register('installGitHooks') {
+	description = 'Install Git hooks for code formatting'
+	group = 'build setup'
+
+	doLast {
+		def hooksDir = file('.githooks')
+
+		// Find the git hooks directory (handles worktrees)
+		def gitDir = file('.git')
+		def gitHooksDir
+
+		if (gitDir.isFile()) {
+			// This is a worktree - read the gitdir path
+			def gitDirPath = gitDir.text.trim().replaceFirst('gitdir: ', '')
+			// For worktrees, hooks are in the main repo's .git/hooks
+			def worktreeGitDir = file(gitDirPath)
+			// Navigate up to find the main .git directory
+			def commonDir = new File(worktreeGitDir, 'commondir')
+			if (commonDir.exists()) {
+				def commonPath = commonDir.text.trim()
+				gitHooksDir = file("${worktreeGitDir}/${commonPath}/hooks")
+			} else {
+				gitHooksDir = file("${worktreeGitDir}/hooks")
+			}
+		} else {
+			// Regular git repository
+			gitHooksDir = file('.git/hooks')
+		}
+
+		if (!gitHooksDir.exists()) {
+			gitHooksDir.mkdirs()
+		}
+
+		println "Installing hooks to: ${gitHooksDir}"
+
+		hooksDir.listFiles()?.each { hookFile ->
+			if (hookFile.isFile()) {
+				def targetFile = new File(gitHooksDir, hookFile.name)
+				targetFile.text = hookFile.text
+				targetFile.setExecutable(true)
+				println "  ✓ Installed: ${hookFile.name}"
+			}
+		}
+	}
+}
+
+// Automatically install hooks on build
+tasks.named('build') {
+	dependsOn 'installGitHooks'
+}
+
 java {
 	// Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
 	// if it is present.
