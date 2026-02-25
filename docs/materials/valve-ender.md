@@ -38,9 +38,9 @@ The **Ender Valve** is a Tier 4 valve crafted in the [Kiln](../automation/kiln.m
         <div class="crafting-slot"></div>
         <div class="crafting-slot"><img src="../../assets/icons/minecraft__ender_pearl.png" class="crafting-item" alt="Ender Pearl"></div>
         <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__ender_eye.png" class="crafting-item" alt="Eye of Ender"></div>
         <div class="crafting-slot"><img src="../../assets/icons/minecraft__ender_pearl.png" class="crafting-item" alt="Ender Pearl"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__ender_eye.png" class="crafting-item" alt="Eye of Ender"></div>
         <div class="crafting-slot"><img src="../../assets/icons/minecraft__ender_pearl.png" class="crafting-item" alt="Ender Pearl"></div>
         <div class="crafting-slot"><img src="../../assets/icons/minecraft__ender_pearl.png" class="crafting-item" alt="Ender Pearl"></div>
         <div class="crafting-slot"><img src="../../assets/icons/minecraft__ender_pearl.png" class="crafting-item" alt="Ender Pearl"></div>
@@ -53,7 +53,7 @@ The **Ender Valve** is a Tier 4 valve crafted in the [Kiln](../automation/kiln.m
 </div>
 
 **[Kiln](../automation/kiln.md) crafting:**
-- 5× Ender Pearl + 2× Redstone + 250mb Molten Glass
+- 5× Ender Pearl + 2× Eye of Ender + 250mb Molten Glass
 - **Process time:** 260 ticks
 - **Energy demand:** 260 energy/tick
 - **Yields:** 4× Ender Valve
