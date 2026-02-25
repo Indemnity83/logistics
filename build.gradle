@@ -1,6 +1,7 @@
 plugins {
 	id 'net.fabricmc.fabric-loom' version "${loom_version}"
 	id 'maven-publish'
+	id 'com.diffplug.spotless' version '6.25.0'
 }
 
 version = System.getenv("MOD_VERSION") ?: project.mod_version
@@ -12,6 +13,23 @@ base {
 
 repositories {
 	maven { url = "https://maven.terraformersmc.com/releases/" }
+}
+
+spotless {
+	// Keep this intentionally minimal to avoid churny formatting diffs.
+	java {
+		target 'src/**/*.java'
+		removeUnusedImports()
+		trimTrailingWhitespace()
+		endWithNewline()
+	}
+
+	// Whitespace hygiene for common text files.
+	format('misc') {
+		target '*.gradle', '*.md', '*.yml', '*.yaml', '*.json', '*.properties', '.gitignore'
+		trimTrailingWhitespace()
+		endWithNewline()
+	}
 }
 
 loom {
@@ -49,6 +67,62 @@ processResources {
 
 tasks.withType(JavaCompile).configureEach {
 	it.options.release = 25
+}
+
+tasks.named('check') {
+	dependsOn 'spotlessCheck'
+}
+
+// Task to install Git hooks for developers
+tasks.register('installGitHooks') {
+	description = 'Install Git hooks for code formatting'
+	group = 'build setup'
+
+	doLast {
+		def hooksDir = file('.githooks')
+
+		// Find the git hooks directory (handles worktrees)
+		def gitDir = file('.git')
+		def gitHooksDir
+
+		if (gitDir.isFile()) {
+			// This is a worktree - read the gitdir path
+			def gitDirPath = gitDir.text.trim().replace('gitdir: ', '')
+			// For worktrees, hooks are in the main repo's .git/hooks
+			def worktreeGitDir = file(gitDirPath)
+			// Navigate up to find the main .git directory
+			def commonDir = new File(worktreeGitDir, 'commondir')
+			if (commonDir.exists()) {
+				def commonPath = commonDir.text.trim()
+				gitHooksDir = file("${worktreeGitDir}/${commonPath}/hooks")
+			} else {
+				gitHooksDir = new File(worktreeGitDir, commonPath).canonicalFile.toPath().resolve("hooks").toFile()
+			}
+		} else {
+			// Regular git repository
+			gitHooksDir = file('.git/hooks')
+		}
+
+		if (!gitHooksDir.exists()) {
+			gitHooksDir.mkdirs()
+		}
+
+		println "Installing hooks to: ${gitHooksDir}"
+
+		hooksDir.listFiles()?.each { hookFile ->
+			if (hookFile.isFile()) {
+				def targetFile = new File(gitHooksDir, hookFile.name)
+				targetFile.text = hookFile.text
+				targetFile.setExecutable(true)
+				println "  ✓ Installed: ${hookFile.name}"
+			}
+		}
+	}
+}
+
+// Automatically install hooks on build
+tasks.named('build') {
+	dependsOn 'installGitHooks'
 }
 
 java {

@@ -246,12 +246,40 @@ Domains are initialized using a two-phase pattern (server/common + client):
 
 ## Code Style
 
-- **Formatting:** Manual - prioritize minimal diffs across branches over strict style
-- **No automated linting** - focus on readable, maintainable code
+- **Formatting:** Automated via Spotless (minimal rules for consistency)
 - **Single-line if/for allowed** but braces preferred for multi-line
 - Keep nesting depth reasonable (prefer max 3 levels)
 
-**Note:** Automated formatters (Spotless) and linters (Checkstyle) were removed to maintain minimal diffs between branches. This makes cross-version maintenance and cherry-picking easier.
+### Code Formatting (Spotless)
+
+This project uses Spotless for minimal automated formatting to ensure consistency:
+- Remove unused imports
+- Trim trailing whitespace
+- End files with newline
+
+**Setup (one-time per developer):**
+```bash
+./gradlew installGitHooks
+```
+
+This installs a pre-commit hook that automatically formats code before each commit.
+
+**Manual formatting:**
+```bash
+./gradlew spotlessApply    # Format all files
+./gradlew spotlessCheck    # Check formatting without changes
+```
+
+**Skipping the hook:**
+```bash
+git commit --no-verify     # Skip pre-commit formatting check
+```
+
+Use `--no-verify` when making infrastructure commits (like the initial spotless setup) or when you plan to format in a separate commit.
+
+**CI Enforcement:** Pull requests must pass `spotlessCheck` before merging.
+
+**Note:** The formatting rules are intentionally minimal to avoid churny diffs and maintain easy cherry-picking between branches.
 
 ## Commit Messages
 
