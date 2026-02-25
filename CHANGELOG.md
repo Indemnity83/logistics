@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.3.4](https://github.com/Indemnity83/logistics/compare/mc1.21.11-v0.3.3...mc1.21.11-v0.3.4) (2026-02-25)
+
+
+### Features
+
+* add kiln machine with molten glass, valve recipes, and shared heat component ([#131](https://github.com/Indemnity83/logistics/issues/131)) ([2e96ed8](https://github.com/Indemnity83/logistics/commit/2e96ed83c0c60f82e315ddc7d3534dadba6dea8e))
+* add ResourceId compatibility layer and migrate identifier usage ([#136](https://github.com/Indemnity83/logistics/issues/136)) ([bb97139](https://github.com/Indemnity83/logistics/commit/bb97139fa6306ff910e4eb93ad5dae223c5777bb))
+
+
+### Bug Fixes
+
+* kiln recipe loading ([758ffbd](https://github.com/Indemnity83/logistics/commit/758ffbd3efab51278e7bc2287554b22a3233ef36))
+* properly set sided inventory for engines and kiln ([#138](https://github.com/Indemnity83/logistics/issues/138)) ([933bd0e](https://github.com/Indemnity83/logistics/commit/933bd0e9cfef99aebcba1bdd3e80dadc27934035))
+
 ## [0.3.3](https://github.com/Indemnity83/logistics/compare/mc1.21.11-v0.3.2...mc1.21.11-v0.3.3) (2026-02-22)
 
 
