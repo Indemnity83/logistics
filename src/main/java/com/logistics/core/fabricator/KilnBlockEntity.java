@@ -25,6 +25,7 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.WorldlyContainer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
@@ -61,7 +62,7 @@ import org.jetbrains.annotations.Nullable;
  * </ul>
  */
 public class KilnBlockEntity extends BaseBlockEntity
-        implements HasItemStorage, HasFluidStorage, MenuBehavior.HasMenu {
+        implements HasItemStorage, HasFluidStorage, WorldlyContainer, MenuBehavior.HasMenu {
 
     // ==================== Constants ====================
 
@@ -485,6 +486,101 @@ public class KilnBlockEntity extends BaseBlockEntity
         // Molten glass is internal-only - cannot be extracted or inserted from outside
         // (conceptually, molten glass wouldn't stay hot outside the kiln)
         return null;
+    }
+
+    // ==================== WorldlyContainer Implementation (Sided Inventory) ====================
+
+    private static final int[] SLOTS_FOR_TOP = new int[]{GLASS_INPUT_SLOT};        // Glass input only
+    private static final int[] SLOTS_FOR_SIDES = new int[]{FUEL_SLOT};             // Fuel input only
+    private static final int[] SLOTS_FOR_BOTTOM = new int[]{OUTPUT_SLOT};          // Output only
+    private static final int[] SLOTS_EMPTY = new int[]{};                          // No access
+
+    @Override
+    public int[] getSlotsForFace(Direction side) {
+        return switch (side) {
+            case UP -> SLOTS_FOR_TOP;      // Glass input from top
+            case DOWN -> SLOTS_FOR_BOTTOM; // Output extraction from bottom
+            default -> SLOTS_FOR_SIDES;    // Fuel input from sides
+        };
+    }
+
+    @Override
+    public boolean canPlaceItemThroughFace(int slot, ItemStack stack, Direction direction) {
+        // Top: Accept glass input items only
+        if (direction == Direction.UP) {
+            return slot == GLASS_INPUT_SLOT && isGlassInput(stack);
+        }
+
+        // Sides: Accept fuel items only
+        if (direction != Direction.DOWN) {
+            return slot == FUEL_SLOT && isFuel(stack);
+        }
+
+        // Bottom: No insertion allowed
+        return false;
+    }
+
+    @Override
+    public boolean canTakeItemThroughFace(int slot, ItemStack stack, Direction direction) {
+        // Bottom: Extract from output slot only
+        if (direction == Direction.DOWN) {
+            return slot == OUTPUT_SLOT;
+        }
+
+        // Top/Sides: No extraction allowed
+        return false;
+    }
+
+    private boolean isGlassInput(ItemStack stack) {
+        return stack.is(Items.GLASS) || stack.is(Items.SAND) ||
+               stack.is(Items.GLASS_PANE) || stack.is(Items.RED_SAND);
+    }
+
+    private boolean isFuel(ItemStack stack) {
+        if (level == null) return true; // Allow during world load
+        return level.fuelValues().isFuel(stack);
+    }
+
+    // ==================== Container Delegation ====================
+
+    @Override
+    public int getContainerSize() {
+        return inventory.getContainerSize();
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return inventory.isEmpty();
+    }
+
+    @Override
+    public ItemStack getItem(int slot) {
+        return inventory.getItem(slot);
+    }
+
+    @Override
+    public ItemStack removeItem(int slot, int amount) {
+        return inventory.removeItem(slot, amount);
+    }
+
+    @Override
+    public ItemStack removeItemNoUpdate(int slot) {
+        return inventory.removeItemNoUpdate(slot);
+    }
+
+    @Override
+    public void setItem(int slot, ItemStack stack) {
+        inventory.setItem(slot, stack);
+    }
+
+    @Override
+    public boolean stillValid(Player player) {
+        return inventory.stillValid(player);
+    }
+
+    @Override
+    public void clearContent() {
+        inventory.clearContent();
     }
 
     // ==================== NBT Persistence ====================
