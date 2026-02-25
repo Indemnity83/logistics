@@ -27,10 +27,14 @@ import team.reborn.energy.api.EnergyStorage;
  */
 public class CreativeSinkBlockEntity extends BaseBlockEntity
         implements AcceptsLowTierEnergy, HasEnergyStorage {
-    private static final long[] DRAIN_RATES = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 50, 100};
+    private static final long[] DRAIN_RATES = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 50, 100, Long.MAX_VALUE};
     private int drainRateIndex = 4; // Default 5 RF/t
     private long energyLastTick = 0;
     private long energyThisTick = 0;
+
+    // Test-only counter - not persisted, resets on reload
+    // Used only for validating energy consumption in tests
+    long totalEnergyReceived = 0;
 
     private final EnergyStorage energyStorage = new EnergyStorage() {
         @Override
@@ -83,6 +87,15 @@ public class CreativeSinkBlockEntity extends BaseBlockEntity
     public static void tick(Level world, BlockPos pos, BlockState state, CreativeSinkBlockEntity entity) {
         // Reset energy counter each tick - energy is discarded
         entity.energyLastTick = entity.energyThisTick;
+
+        // Accumulate total energy with saturation to prevent overflow
+        // When at Long.MAX_VALUE drain rate, this could otherwise wrap around
+        if (entity.energyThisTick > 0 && Long.MAX_VALUE - entity.totalEnergyReceived <= entity.energyThisTick) {
+            entity.totalEnergyReceived = Long.MAX_VALUE;
+        } else {
+            entity.totalEnergyReceived += entity.energyThisTick;
+        }
+
         entity.energyThisTick = 0;
     }
 
@@ -102,6 +115,19 @@ public class CreativeSinkBlockEntity extends BaseBlockEntity
     }
 
     /**
+     * Sets the drain rate to unlimited.
+     * <p>
+     * <b>Testing API:</b> This method is primarily intended for game tests.
+     * In production, use {@link #cycleDrainRate()} to cycle through drain rates.
+     * </p>
+     * This allows the sink to accept any amount of energy per tick.
+     */
+    public void setUnlimitedDrainRate() {
+        drainRateIndex = DRAIN_RATES.length - 1; // Last index is Long.MAX_VALUE
+        markDirtyAndSync();
+    }
+
+    /**
      * Returns probe diagnostic information.
      */
     public ProbeResult getProbeResult() {
@@ -117,6 +143,7 @@ public class CreativeSinkBlockEntity extends BaseBlockEntity
     protected void saveLogisticsData(CompoundTag nbt) {
         super.saveLogisticsData(nbt);
         nbt.putInt("DrainRateIndex", drainRateIndex);
+        // Note: totalEnergyReceived not persisted - testing-only counter, resets on reload
     }
 
     @Override
@@ -127,6 +154,7 @@ public class CreativeSinkBlockEntity extends BaseBlockEntity
         if (drainRateIndex < 0 || drainRateIndex >= DRAIN_RATES.length) {
             drainRateIndex = 4; // Default to 5 RF/t
         }
+        // Note: totalEnergyReceived not loaded - testing-only counter, starts at 0
     }
 
     @Override
