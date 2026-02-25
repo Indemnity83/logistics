@@ -52,7 +52,7 @@ public abstract class MinecraftTestEnvironment {
      */
     protected static void assertRegistryPopulated(Registry<?> registry, String name) {
         if (registry.size() == 0) {
-            throw new IllegalStateException(name + " registry is empty - bootstrap may have failed");
+            throw new AssertionError(name + " registry is empty - bootstrap may have failed");
         }
     }
 }
