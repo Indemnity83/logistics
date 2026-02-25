@@ -73,122 +73,56 @@ Each tier builds on the previous one—you'll use all three together as your bas
 
 ---
 
-## Pipes & Tools
+## Features
 
-### Stone Transport Pipe (Stone)
-Early transport pipe that moves items through your network at a very slow speed. When an item reaches a junction with multiple outputs, it randomly selects a direction. Pipes have a small internal capacity (about five items), so slow pipes can drop items if your early network gets too busy.
+Logistics includes a complete system for item transport, power generation, and automation.
 
-*Recipe: stone + glass → 8 pipes*
+### Pipes
+Transport items through networks with different behaviors:
+- **Basic Transport** - Stone and Copper pipes for backbone connectivity
+- **Extraction & Routing** - Wood (extractor), Iron (merger), Diamond (filter), Quartz (insertion) pipes
+- **Special Pipes** - Gold (speed boost), Sandstone (passthrough), Obsidian (void)
 
-### Copper Transport Pipe (Copper)
-Basic transport pipe that moves items through your network. When an item reaches a junction with multiple outputs, it randomly selects a direction. This is your backbone—simple, reliable connectivity.
+[View all pipes →](https://indemnity83.github.io/logistics/pipes/)
 
-*Recipe: copper ingot + glass → 8 pipes*
+### Power
+RF energy generation with engines:
+- **Redstone Engine** - Simple, safe, steady power
+- **Stirling Engine** - Fuel-powered with heat management
 
-Mark copper pipes with **marking fluid** (water bottle + dye) to segment networks by color. Pipes with the same marking will not connect; sneak + empty hand clears the marking.
+[Learn about power systems →](https://indemnity83.github.io/logistics/power/)
 
-### Item Extractor Pipe (Wood)
-Extraction pipe that actively pulls items from an adjacent inventory into your pipe network. Right-click with a wrench to select which face extracts. Only one face can be active at a time. Wooden pipes extract one item per operation.
+### Automation
+- **[Kiln](https://indemnity83.github.io/logistics/automation/kiln/)** - Temperature-controlled crafting for molten glass and advanced materials
+- **[Laser Quarry](https://indemnity83.github.io/logistics/automation/laser-quarry/)** - Automated 16×16 mining with energy-scaled speed
 
-*Recipe: planks + glass → 8 pipes*
-
-### Item Merger Pipe (Iron)
-Merger pipe that takes items from any input direction and routes them all to a single output direction. The output is indicated by an opaque connector. Right-click with a wrench to change the output direction. Items cannot enter through the output face.
-
-*Recipe: iron ingot + glass → 8 pipes*
-
-### Golden Transport Pipe (Gold)
-Acceleration pipe that speeds up items when powered by redstone. Items passing through a powered gold pipe move faster than normal pipe transit speed.
-
-*Recipe: gold ingot + glass → 8 pipes*
-
-### Item Filter Pipe (Diamond)
-Filter pipe that routes items based on configurable per-side filters. Right-click to open a GUI where you can set which item types go to which connected face. Items that don't match any filter are routed to unfiltered outputs. If an item matches no filters and there are no unfiltered directions, the item drops.
-
-*Recipe: diamond + glass → 8 pipes*
-
-### Item Insertion Pipe (Quartz)
-Insertion pipe that routes items into connected inventories that will accept them; otherwise it continues them along the pipe network. Items drop if there are no valid outputs.
-
-*Recipe: quartz + glass → 8 pipes*
-
-### Item Passthrough Pipe (Sandstone)
-Passthrough pipe that only connects to other pipes and never to inventories. Useful for bypassing inventories or forcing routing around storage.
-
-*Recipe: sandstone + glass → 8 pipes*
-
-### Item Void Pipe (Obsidian)
-Deletion pipe that destroys any items that enter it. Items are deleted when they reach the center of the pipe, giving you time to react if needed. Useful for overflow management or disposing of unwanted items.
-
-*Recipe: obsidian + glass + ender pearl → 8 pipes*
-
-### Wrench
-Configuration tool for pipes and machines. Right-click to cycle output directions on iron pipes, select extraction faces on wooden pipes, open filter GUIs on diamond pipes, rotate engine output faces, and interact with other configurable blocks.
-
-*Recipe: 4 iron ingots in wrench shape → 1 wrench*
-
----
-
-## Power
-
-Engines generate RF energy to power automation machines. All engines require a direct redstone signal to run and output energy from one face — use a wrench to rotate which face that is.
-
-### Redstone Engine (Wood)
-The simplest engine. Converts a redstone signal into a small, steady energy output. Cannot overheat — safe to run indefinitely.
-
-*Recipe: 3 planks + glass + 2 wooden gears + piston*
-
-### Stirling Engine (Stone)
-Burns fuel to generate substantially more energy than a Redstone Engine. Requires both a redstone signal and fuel (coal, charcoal, wood, lava buckets, etc.). Right-click to open the fuel GUI. Temperature rises with use — if the engine overheats it shuts down and must cool before resuming. Right-click with a wrench to reset from overheat.
-
-*Recipe: 3 stone + glass + 2 stone gears + piston*
-
----
-
-## Automation
-
-### Laser Quarry
-A powered mining machine that excavates a 16×16 area below it. Place it, connect an engine for power, and it automatically builds a frame and mines downward indefinitely. Mined items drop above the quarry — connect pipes to collect them automatically. Energy throughput determines mining speed; a well-fed quarry mines faster.
-
-*Recipe: iron gears + copper gears + diamond gears + diamond pickaxe + redstone*
+### Tools
+- **[Wrench](https://indemnity83.github.io/logistics/tools/wrench/)** - Configuration tool for pipes and machines
+- **[Marking Fluid](https://indemnity83.github.io/logistics/tools/marking-fluid/)** - Color-code your pipe networks
 
 ---
 
 ## Installation
 
-### Requirements
-- Minecraft 1.21.11
-- Fabric Loader 0.18.4+
-- Fabric API
-- Java 21+
+**Requirements:** Minecraft 1.21.11 • Fabric Loader 0.18.4+ • Fabric API • Java 21+
 
-### Steps
-1. Install [Fabric Loader](https://fabricmc.net/use/) for Minecraft 1.21.11
-2. Download [Fabric API](https://modrinth.com/mod/fabric-api)
-3. Download Logistics from:
-   - [GitHub Releases](https://github.com/indemnity83/logistics/releases) (includes dev builds)
-   - [Modrinth](https://modrinth.com/mod/logistics) (stable releases)
-   - [CurseForge](https://www.curseforge.com/minecraft/mc-mods/logistics) (stable releases)
-4. Place the Fabric API and Logistics `.jar` files in your `.minecraft/mods` folder
-5. Launch Minecraft with the Fabric profile
+**Download from:**
+- [GitHub Releases](https://github.com/indemnity83/logistics/releases) (includes dev builds)
+- [Modrinth](https://modrinth.com/mod/logistics) (stable releases)
+- [CurseForge](https://www.curseforge.com/minecraft/mc-mods/logistics) (stable releases)
+
+[Full installation guide →](https://indemnity83.github.io/logistics/getting-started/install/)
 
 ---
 
-## Getting Started
+## Quick Start
 
-1. **Craft Pipes** — Start with stone or copper pipes for basic transport
-2. **Connect to Inventories** — Pipes automatically connect to adjacent chests and other inventories
-3. **Extract Items** — Use Item Extractor Pipes to pull items from inventories (wrench to select face)
-4. **Control Flow** — Item Merger Pipes for directional routing
-5. **Filter Items** — Item Filter Pipes route specific items to specific destinations
-6. **Speed Things Up** — Golden Transport Pipes accelerate items when powered by redstone
+1. **Craft pipes** - Start with stone or copper transport pipes
+2. **Connect to inventories** - Pipes automatically connect to chests and other storage
+3. **Extract items** - Use wood extractor pipes (wrench to configure)
+4. **Route and filter** - Combine different pipe types to build your network
 
-**Tips:**
-- Items drop if they can't find a valid destination
-- Use Void pipes to delete overflow or unwanted items
-- Item Insertion Pipes prefer inventories with space and otherwise route to pipes
-- All pipe tiers connect to each other—build complex networks by combining them
-- The wrench is your friend
+[Build your first pipe network →](https://indemnity83.github.io/logistics/getting-started/first-network/)
 
 ---
 
@@ -213,13 +147,13 @@ A powered mining machine that excavates a 16×16 area below it. Place it, connec
 - Power/cost system for logistics operations
 - Additional pipe upgrades and advanced logistics features
 
-See [`docs/DESIGN.md`](docs/DESIGN.md) for architecture details and technical design.
+See the [documentation](https://indemnity83.github.io/logistics/) for detailed information on pipes, power, automation, and more.
 
 ---
 
 ## Contributing
 
-Contributions welcome! Report issues on [GitHub Issues](https://github.com/indemnity83/logistics/issues) — the issue template will guide you through the details. For code contributions, see the development docs in `docs/`.
+Contributions welcome! Report issues on [GitHub Issues](https://github.com/indemnity83/logistics/issues). For code contributions, see `CLAUDE.md` for development guidance.
 
 ---
 
@@ -236,6 +170,7 @@ Some textures are licensed under CC BY 4.0 - see [CREDITS.md](CREDITS.md) for at
 Inspired by:
 - **BuildCraft** — Classic pipe mechanics and visual style
 - **Logistics Pipes** — Request/provider logistics system design
+- **Forestry** — machines and progressive automation
 - The Fabric community for excellent modding tools and APIs
 
 **Textures:**
@@ -245,6 +180,6 @@ Inspired by:
 
 <div align="center">
 
-[Report an Issue](https://github.com/indemnity83/logistics/issues) • [Technical Design](docs/DESIGN.md) • [Pipe Behaviors](docs/PIPE_TYPES.md)
+[Report an Issue](https://github.com/indemnity83/logistics/issues) • [Documentation](https://indemnity83.github.io/logistics/)
 
 </div>
