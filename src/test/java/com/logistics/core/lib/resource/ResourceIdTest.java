@@ -1,7 +1,7 @@
 package com.logistics.core.lib.resource;
 
 import com.logistics.test.MinecraftTestEnvironment;
-import net.minecraft.ResourceLocationException;
+import net.minecraft.resources.ResourceLocation;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -14,7 +14,7 @@ class ResourceIdTest extends MinecraftTestEnvironment {
     // ==================== Creation Tests ====================
 
     @Test
-    @DisplayName("should create identifier in default namespace")
+    @DisplayName("should create resourceLocation in default namespace")
     void createWithDefaultNamespace() {
         ResourceId id = ResourceId.of("pipe/wood");
 
@@ -24,7 +24,7 @@ class ResourceIdTest extends MinecraftTestEnvironment {
     }
 
     @Test
-    @DisplayName("should create identifier with explicit namespace")
+    @DisplayName("should create resourceLocation with explicit namespace")
     void createWithExplicitNamespace() {
         ResourceId id = ResourceId.in("logistics", "pipe/wood");
 
@@ -54,14 +54,14 @@ class ResourceIdTest extends MinecraftTestEnvironment {
     }
 
     @Test
-    @DisplayName("should throw exception for invalid identifier in parse")
+    @DisplayName("should throw exception for invalid resourceLocation in parse")
     void parseInvalidThrows() {
         assertThatThrownBy(() -> ResourceId.parse("invalid::id"))
-                .isInstanceOf(ResourceLocationException.class);
+            .isInstanceOf(net.minecraft.ResourceLocationException.class);
     }
 
     @Test
-    @DisplayName("should return null for invalid identifier in tryParse")
+    @DisplayName("should return null for invalid resourceLocation in tryParse")
     void tryParseInvalidReturnsNull() {
         ResourceId id = ResourceId.tryParse("invalid::id");
 
@@ -69,7 +69,7 @@ class ResourceIdTest extends MinecraftTestEnvironment {
     }
 
     @Test
-    @DisplayName("should parse valid identifier in tryParse")
+    @DisplayName("should parse valid resourceLocation in tryParse")
     void tryParseValidReturnsId() {
         ResourceId id = ResourceId.tryParse("logistics:pipe/wood");
 
@@ -81,9 +81,10 @@ class ResourceIdTest extends MinecraftTestEnvironment {
     // ==================== Wrapping Tests ====================
 
     @Test
-    @DisplayName("should wrap existing Identifier")
-    void wrapIdentifier() {
-        ResourceId id = ResourceId.in("logistics", "pipe/wood");
+    @DisplayName("should wrap existing ResourceLocation")
+    void wrapResourceLocation() {
+        ResourceLocation mc = ResourceLocation.fromNamespaceAndPath("logistics", "pipe/wood");
+        ResourceId id = ResourceId.wrap(mc);
 
         assertThat(id.getNamespace()).isEqualTo("logistics");
         assertThat(id.getPath()).isEqualTo("pipe/wood");
@@ -93,15 +94,15 @@ class ResourceIdTest extends MinecraftTestEnvironment {
     @DisplayName("should throw exception when wrapping null")
     void wrapNullThrows() {
         assertThatThrownBy(() -> ResourceId.wrap(null))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("cannot be null");
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("cannot be null");
     }
 
     @Test
-    @DisplayName("should unwrap to Identifier")
-    void unwrapToIdentifier() {
+    @DisplayName("should unwrap to ResourceLocation")
+    void unwrapToResourceLocation() {
         ResourceId id = ResourceId.in("logistics", "pipe/wood");
-        var mc = id.toIdentifier();
+        ResourceLocation mc = id.toIdentifier();
 
         assertThat(mc.getNamespace()).isEqualTo("logistics");
         assertThat(mc.getPath()).isEqualTo("pipe/wood");
