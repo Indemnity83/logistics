@@ -44,6 +44,16 @@ loom {
 
 }
 
+// Configure Fabric API game tests
+fabricApi {
+	configureTests {
+		createSourceSet = true
+		modId = "logistics-gametest"
+		enableGameTests = true
+		eula = true
+	}
+}
+
 dependencies {
 	// To change the versions see the gradle.properties file
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
@@ -55,6 +65,16 @@ dependencies {
 
 	// Team Reborn Energy API (Fabric standard energy system)
 	api include("teamreborn:energy:${project.energy_version}")
+
+	// Test infrastructure
+	testImplementation "org.junit.jupiter:junit-jupiter:${project.junit_version}"
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+	// Fabric test utilities (for Minecraft registry access if needed)
+	testImplementation "net.fabricmc:fabric-loader-junit:${project.loader_version}"
+
+	// Assertions library for readable test failures
+	testImplementation "org.assertj:assertj-core:${project.assertj_version}"
 }
 
 processResources {
@@ -69,8 +89,31 @@ tasks.withType(JavaCompile).configureEach {
 	it.options.release = 25
 }
 
+// Configure test task
+test {
+	useJUnitPlatform()
+
+	testLogging {
+		events "passed", "skipped", "failed"
+		exceptionFormat "full"
+		showStandardStreams = false
+	}
+
+	failFast = false
+	maxParallelForks = Runtime.runtime.availableProcessors().intdiv(2) ?: 1
+}
+
 tasks.named('check') {
 	dependsOn 'spotlessCheck'
+	dependsOn 'test'
+}
+
+sourceSets {
+	test {
+		java {
+			srcDir 'src/test/java'
+		}
+	}
 }
 
 // Task to install Git hooks for developers

@@ -29,6 +29,18 @@ jobs:
       - name: Check formatting
         run: ./gradlew spotlessCheck --console=plain
 
+      - name: Run tests
+        run: ./gradlew test --console=plain
+        # Note: Game tests (./gradlew runGameTest) are not run in CI due to resource constraints
+        # and long execution time. Run locally before merging if testing game mechanics.
+
+      - name: Upload test reports
+        if: failure()
+        uses: actions/upload-artifact@v6
+        with:
+          name: test-reports-${{ github.run_id }}
+          path: build/reports/tests/test/
+
       - name: Compute version
         id: version
         run: |
