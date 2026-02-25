@@ -29,6 +29,16 @@ jobs:
       - name: Check formatting
         run: ./gradlew spotlessCheck --console=plain
 
+      - name: Run tests
+        run: ./gradlew test --console=plain
+
+      - name: Upload test reports
+        if: failure()
+        uses: actions/upload-artifact@v6
+        with:
+          name: test-reports-${{ github.run_id }}
+          path: build/reports/tests/test/
+
       - name: Compute version
         id: version
         run: |

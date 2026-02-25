@@ -55,6 +55,16 @@ dependencies {
 
 	// Team Reborn Energy API (Fabric standard energy system)
 	modApi include("teamreborn:energy:${project.energy_version}")
+
+	// Test infrastructure
+	testImplementation 'org.junit.jupiter:junit-jupiter:5.11.0'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+	// Fabric test utilities (for Minecraft registry access if needed)
+	testImplementation "net.fabricmc:fabric-loader-junit:${project.loader_version}"
+
+	// Assertions library for readable test failures
+	testImplementation 'org.assertj:assertj-core:3.26.0'
 }
 
 processResources {
@@ -71,6 +81,32 @@ tasks.withType(JavaCompile).configureEach {
 
 tasks.named('check') {
 	dependsOn 'spotlessCheck'
+}
+
+// Configure test task
+test {
+	useJUnitPlatform()
+
+	testLogging {
+		events "passed", "skipped", "failed"
+		exceptionFormat "full"
+		showStandardStreams = false
+	}
+
+	failFast = false
+	maxParallelForks = Runtime.runtime.availableProcessors().intdiv(2) ?: 1
+}
+
+tasks.named('check') {
+	dependsOn 'test'
+}
+
+sourceSets {
+	test {
+		java {
+			srcDir 'src/test/java'
+		}
+	}
 }
 
 // Task to install Git hooks for developers

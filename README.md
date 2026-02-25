@@ -152,6 +152,30 @@ See the [documentation](https://indemnity83.github.io/logistics/) for detailed i
 
 ---
 
+## Development
+
+### Testing
+
+This project uses JUnit 5 for unit testing. Tests focus on pure Java components without Minecraft dependencies.
+
+**Run all tests:**
+```bash
+./gradlew test
+```
+
+**Run specific test class:**
+```bash
+./gradlew test --tests "com.logistics.power.engine.PIDControllerTest"
+```
+
+**Test reports:** After running tests, view detailed results at `build/reports/tests/test/index.html`
+
+**CI Integration:** All tests run automatically on pull requests. Tests must pass before merge.
+
+See `CLAUDE.md` for comprehensive development guidance including testing strategy, code style, and version management.
+
+---
+
 ## Contributing
 
 Contributions welcome! Report issues on [GitHub Issues](https://github.com/indemnity83/logistics/issues). For code contributions, see `CLAUDE.md` for development guidance.
