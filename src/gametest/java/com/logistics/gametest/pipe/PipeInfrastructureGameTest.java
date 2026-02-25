@@ -63,15 +63,19 @@ public class PipeInfrastructureGameTest {
         // Verify all have block entities
         if (context.getBlockEntity(new BlockPos(0, 1, 0), PipeBlockEntity.class) == null) {
             context.fail("Stone pipe should have block entity");
+            return;
         }
         if (context.getBlockEntity(new BlockPos(1, 1, 0), PipeBlockEntity.class) == null) {
             context.fail("Copper pipe should have block entity");
+            return;
         }
         if (context.getBlockEntity(new BlockPos(2, 1, 0), PipeBlockEntity.class) == null) {
             context.fail("Filter pipe should have block entity");
+            return;
         }
         if (context.getBlockEntity(new BlockPos(3, 1, 0), PipeBlockEntity.class) == null) {
             context.fail("Extractor pipe should have block entity");
+            return;
         }
 
         context.succeed();
