@@ -15,26 +15,34 @@ public abstract class MinecraftTestEnvironment {
 
     @BeforeAll
     public static void bootstrapMinecraft() {
+        // Double-checked locking with synchronization to prevent race conditions
         if (bootstrapped) {
             return;
         }
 
-        try {
-            // Initialize Minecraft's shared constants (game version, protocol version, etc.)
-            SharedConstants.tryDetectVersion();
+        synchronized (MinecraftTestEnvironment.class) {
+            // Re-check inside synchronized block (double-checked locking pattern)
+            if (bootstrapped) {
+                return;
+            }
 
-            // Bootstrap registries (blocks, items, entities, etc.)
-            // This is equivalent to what Minecraft does on startup
-            Bootstrap.bootStrap();
+            try {
+                // Initialize Minecraft's shared constants (game version, protocol version, etc.)
+                SharedConstants.tryDetectVersion();
 
-            bootstrapped = true;
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to bootstrap Minecraft test environment", e);
-        }
+                // Bootstrap registries (blocks, items, entities, etc.)
+                // This is equivalent to what Minecraft does on startup
+                Bootstrap.bootStrap();
 
-        // Verify registries are initialized (outside try block so IllegalStateException isn't wrapped)
-        if (BuiltInRegistries.ITEM.size() == 0) {
-            throw new IllegalStateException("Item registry not initialized");
+                bootstrapped = true;
+            } catch (Exception e) {
+                throw new RuntimeException("Failed to bootstrap Minecraft test environment", e);
+            }
+
+            // Verify registries are initialized (outside try block so IllegalStateException isn't wrapped)
+            if (BuiltInRegistries.ITEM.size() == 0) {
+                throw new IllegalStateException("Item registry not initialized");
+            }
         }
     }
 
