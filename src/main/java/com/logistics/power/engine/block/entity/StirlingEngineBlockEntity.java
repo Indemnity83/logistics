@@ -26,6 +26,7 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.WorldlyContainer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -55,7 +56,7 @@ import org.jetbrains.annotations.Nullable;
  * When buffer fills up, temperature rises and generation decreases.
  */
 public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
-        implements ExtendedScreenHandlerFactory<BlockPos>, ContainerSingleItem.BlockContainerSingleItem, HasItemStorage, MenuBehavior.HasMenu {
+        implements ExtendedScreenHandlerFactory<BlockPos>, ContainerSingleItem.BlockContainerSingleItem, WorldlyContainer, HasItemStorage, MenuBehavior.HasMenu {
 
     // ==================== Constants ====================
 
@@ -135,6 +136,11 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
 
     @Override
     public Storage<ItemVariant> itemStorage(@Nullable Direction side) {
+        // Don't expose inventory on the output face (facing direction)
+        if (side != null && isOutputDirection(side)) {
+            return null;
+        }
+
         Storage<ItemVariant> baseStorage = inventory.storage();
 
         // Wrap storage to validate fuel items (matches GUI validation behavior)
@@ -356,6 +362,40 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
     @Override
     public boolean isEmpty() {
         return inventory.getItem(0).isEmpty();
+    }
+
+    // ==================== WorldlyContainer Implementation (Sided Inventory) ====================
+
+    private static final int[] SLOTS_FOR_INPUT = new int[]{0};
+    private static final int[] SLOTS_FOR_OUTPUT = new int[]{};
+
+    @Override
+    public int[] getSlotsForFace(Direction side) {
+        Direction outputDir = getOutputDirection();
+        // No slots accessible from output face
+        if (side == outputDir) {
+            return SLOTS_FOR_OUTPUT;
+        }
+        // Fuel slot accessible from all other faces
+        return SLOTS_FOR_INPUT;
+    }
+
+    @Override
+    public boolean canPlaceItemThroughFace(int slot, ItemStack stack, Direction direction) {
+        Direction outputDir = getOutputDirection();
+        // Cannot insert items from output face
+        if (direction == outputDir) {
+            return false;
+        }
+        // Can insert fuel from other faces
+        return isValid(slot, stack);
+    }
+
+    @Override
+    public boolean canTakeItemThroughFace(int slot, ItemStack stack, Direction direction) {
+        Direction outputDir = getOutputDirection();
+        // Cannot extract items from output face
+        return direction != outputDir;
     }
 
     // ==================== ExtendedScreenHandlerFactory Implementation ====================
