@@ -26,6 +26,9 @@ jobs:
         with:
           cache-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
 
+      - name: Check formatting
+        run: ./gradlew spotlessCheck --console=plain
+
       - name: Compute version
         id: version
         run: |
