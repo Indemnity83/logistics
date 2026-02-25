@@ -1,6 +1,5 @@
 package com.logistics.power.render;
 
-import com.logistics.LogisticsPower;
 import com.logistics.LogisticsPowerClient;
 import com.logistics.core.lib.power.AbstractEngineBlockEntity;
 import com.logistics.power.engine.block.entity.CreativeEngineBlockEntity;
