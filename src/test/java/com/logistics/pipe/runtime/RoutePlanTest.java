@@ -172,6 +172,26 @@ class RoutePlanTest extends MinecraftTestEnvironment {
         assertThat(retrieved.getSpeed()).isCloseTo(0.05f, within(0.0001f));
     }
 
+    @Test
+    @DisplayName("should defensively copy items list")
+    void splitDefensiveCopy() {
+        TravelingItem item1 = new TravelingItem(new ItemStack(Items.DIAMOND), Direction.NORTH, 0.05f);
+        TravelingItem item2 = new TravelingItem(new ItemStack(Items.GOLD_INGOT), Direction.SOUTH, 0.05f);
+
+        List<TravelingItem> original = new ArrayList<>();
+        original.add(item1);
+        original.add(item2);
+
+        RoutePlan plan = RoutePlan.split(original);
+
+        // Modify original list
+        original.add(new TravelingItem(new ItemStack(Items.IRON_INGOT), Direction.EAST, 0.05f));
+        original.clear();
+
+        // Plan should be unaffected
+        assertThat(plan.getItems()).containsExactly(item1, item2);
+    }
+
     // ==================== Type Verification Tests ====================
 
     @Test
