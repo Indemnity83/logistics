@@ -10,6 +10,7 @@ import com.logistics.core.lib.items.ItemInventoryComponent;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.core.lib.storage.NbtCompat;
 import com.logistics.power.engine.PIDController;
+import net.fabricmc.fabric.api.registry.FuelRegistry;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
@@ -537,7 +538,7 @@ public class KilnBlockEntity extends BaseBlockEntity
 
     private boolean isFuel(ItemStack stack) {
         if (level == null) return true; // Allow during world load
-        return level.fuelValues().isFuel(stack);
+        return FuelRegistry.INSTANCE.get(stack.getItem()) != null;
     }
 
     // ==================== Container Delegation ====================
