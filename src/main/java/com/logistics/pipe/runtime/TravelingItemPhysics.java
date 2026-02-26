@@ -5,6 +5,7 @@ package com.logistics.pipe.runtime;
  * Handles acceleration, drag, and physics-based deceleration to target speeds.
  */
 public class TravelingItemPhysics {
+    private static final float EPSILON = 1e-6f;
     private final float minSpeed;
 
     /**
@@ -33,8 +34,9 @@ public class TravelingItemPhysics {
             float accelerationRate,
             float dragCoefficient,
             float maxSpeed) {
-        float speed = simulate(currentSpeed, currentProgress, accelerationRate, dragCoefficient, maxSpeed);
-        return clampSpeed(speed, maxSpeed, currentSpeed > maxSpeed);
+        float effectiveMax = Math.max(maxSpeed, minSpeed);
+        float speed = simulate(currentSpeed, currentProgress, accelerationRate, dragCoefficient, effectiveMax);
+        return clampSpeed(speed, effectiveMax, currentSpeed > effectiveMax);
     }
 
     /**
@@ -53,9 +55,10 @@ public class TravelingItemPhysics {
             float accelerationRate,
             float dragCoefficient,
             float maxSpeed) {
+
         boolean isOverspeed = currentSpeed > maxSpeed;
-        boolean hasAcceleration = accelerationRate != 0f;
-        boolean hasDrag = dragCoefficient != 0f;
+        boolean hasAcceleration = Math.abs(accelerationRate) > EPSILON;
+        boolean hasDrag = Math.abs(dragCoefficient) > EPSILON;
 
         if (isOverspeed) return decelerateToTarget(currentSpeed, currentProgress, maxSpeed);
         if (hasAcceleration) return currentSpeed + accelerationRate;

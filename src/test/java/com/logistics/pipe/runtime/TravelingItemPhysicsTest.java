@@ -231,6 +231,20 @@ class TravelingItemPhysicsTest {
         }
 
         @Test
+        @DisplayName("should clamp to minSpeed when at zero speed with drag only")
+        void shouldClampZeroSpeedWithDrag() {
+            float result = physics.updateSpeed(
+                0f,     // currentSpeed
+                0.25f,  // currentProgress
+                0f,     // accelerationRate
+                0.5f,   // dragCoefficient
+                0.1f    // maxSpeed
+            );
+
+            assertThat(result).isCloseTo(MIN_SPEED, within(EPSILON));
+        }
+
+        @Test
         @DisplayName("should handle progress at start")
         void shouldHandleStartProgress() {
             float result = physics.updateSpeed(
