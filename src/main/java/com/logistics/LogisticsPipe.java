@@ -97,7 +97,10 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
                 BLOCK.GOLD_TRANSPORT_PIPE,
                 BLOCK.ITEM_FILTER_PIPE,
                 BLOCK.ITEM_INSERTION_PIPE,
-                BLOCK.ITEM_VOID_PIPE
+                BLOCK.ITEM_VOID_PIPE,
+                BLOCK.BASIC_LOGISTICS_PIPE,
+                BLOCK.PROVIDER_LOGISTICS_PIPE,
+                BLOCK.REQUESTER_LOGISTICS_PIPE
         );
     }
 
@@ -113,6 +116,9 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
         public static Block ITEM_FILTER_PIPE;
         public static Block ITEM_INSERTION_PIPE;
         public static Block ITEM_VOID_PIPE;
+        public static Block BASIC_LOGISTICS_PIPE;
+        public static Block PROVIDER_LOGISTICS_PIPE;
+        public static Block REQUESTER_LOGISTICS_PIPE;
 
         static void register() {
             STONE_TRANSPORT_PIPE = INSTANCE.registerBlockWithItem("stone_transport_pipe",
@@ -134,6 +140,12 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
                 props -> new PipeBlock(createPipeProperties(props), PipeTypes.ITEM_INSERTION));
             ITEM_VOID_PIPE = INSTANCE.registerBlockWithItem("item_void_pipe",
                 props -> new PipeBlock(createPipeProperties(props), PipeTypes.ITEM_VOID));
+            BASIC_LOGISTICS_PIPE = INSTANCE.registerBlockWithItem("basic_logistics_pipe",
+                props -> new PipeBlock(createPipeProperties(props), PipeTypes.BASIC_LOGISTICS_PIPE));
+            PROVIDER_LOGISTICS_PIPE = INSTANCE.registerBlockWithItem("provider_logistics_pipe",
+                props -> new PipeBlock(createPipeProperties(props), PipeTypes.PROVIDER_LOGISTICS_PIPE));
+            REQUESTER_LOGISTICS_PIPE = INSTANCE.registerBlockWithItem("requester_logistics_pipe",
+                props -> new PipeBlock(createPipeProperties(props), PipeTypes.REQUESTER_LOGISTICS_PIPE));
         }
     }
 
@@ -153,7 +165,10 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
                 BLOCK.COPPER_TRANSPORT_PIPE,
                 BLOCK.ITEM_PASSTHROUGH_PIPE,
                 BLOCK.ITEM_INSERTION_PIPE,
-                BLOCK.ITEM_VOID_PIPE);
+                BLOCK.ITEM_VOID_PIPE,
+                BLOCK.BASIC_LOGISTICS_PIPE,
+                BLOCK.PROVIDER_LOGISTICS_PIPE,
+                BLOCK.REQUESTER_LOGISTICS_PIPE);
         }
     }
 

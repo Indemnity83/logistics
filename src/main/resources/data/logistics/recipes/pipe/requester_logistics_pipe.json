@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "E",
+    "B",
+    "I"
+  ],
+  "key": {
+    "E": "logistics:core/gold_gear",
+    "B": "logistics:pipe/basic_logistics_pipe",
+    "I": "logistics:core/iron_gear"
+  },
+  "result": {
+    "id": "logistics:pipe/requester_logistics_pipe"
+  }
+}

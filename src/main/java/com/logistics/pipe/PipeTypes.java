@@ -54,6 +54,25 @@ public final class PipeTypes {
     // Tier 3 (Network Logistics)
     // -----------------
 
+    // Basic Logistics Pipe - network-aware routing with destination-based pathfinding.
+    public static final Pipe BASIC_LOGISTICS_PIPE = new Pipe(
+            new TransportModule(LogisticsPipe.CONFIG.ITEM_MIN_SPEED, LogisticsPipe.CONFIG.DRAG_COEFFICIENT),
+            new com.logistics.pipe.modules.NetworkModule()) {};
+
+    // Provider Logistics Pipe - scans adjacent inventories and fulfills network requests.
+    public static final Pipe PROVIDER_LOGISTICS_PIPE = new Pipe(
+            new TransportModule(LogisticsPipe.CONFIG.ITEM_MIN_SPEED, LogisticsPipe.CONFIG.DRAG_COEFFICIENT),
+            new com.logistics.pipe.modules.NetworkModule(),
+            new com.logistics.pipe.modules.ProviderModule())
+            .withEnergy();
+
+    // Requester Logistics Pipe - creates requests for items from the network.
+    public static final Pipe REQUESTER_LOGISTICS_PIPE = new Pipe(
+            new TransportModule(LogisticsPipe.CONFIG.ITEM_MIN_SPEED, LogisticsPipe.CONFIG.DRAG_COEFFICIENT),
+            new com.logistics.pipe.modules.NetworkModule(),
+            new com.logistics.pipe.modules.RequesterModule())
+            .withEnergy();
+
     // -----------------
     // Special
     // -----------------
