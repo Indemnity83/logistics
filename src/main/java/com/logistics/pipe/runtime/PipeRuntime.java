@@ -119,10 +119,7 @@ public final class PipeRuntime {
 
         // Update connection cache and notify modules of topology changes
         if (ctx.hasPipe()) {
-            updateConnectionCache(ctx);
-            if (handleConnectionChanges(ctx)) {
-                itemState.markNeedsSync();
-            }
+            updateConnections(ctx, itemState);
             ctx.pipe().onTick(ctx.pipeContext());
         }
 
@@ -139,12 +136,16 @@ public final class PipeRuntime {
         transferCompletedItems(ctx, itemState);
     }
 
-    private static void updateConnectionCache(TickContext ctx) {
-        // Only recalculate connections when topology changes (neighbor updates)
+    private static void updateConnections(TickContext ctx, ItemTickState itemState) {
         if (!ctx.blockEntity().isConnectionCacheDirty()) {
             return;
         }
 
+        updateConnectionCache(ctx);
+        if (handleConnectionChanges(ctx)) itemState.markNeedsSync();
+    }
+
+    private static void updateConnectionCache(TickContext ctx) {
         if (ctx.state().getBlock() instanceof PipeBlock pipeBlock) {
             for (Direction direction : Direction.values()) {
                 PipeConnection.Type type = pipeBlock.getDynamicConnectionType(ctx.world(), ctx.pos(), direction);
