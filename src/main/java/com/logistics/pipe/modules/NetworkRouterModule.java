@@ -20,7 +20,7 @@ import java.util.List;
  * <p>Add this module to pipes that should participate in smart routing (Provider, Requester, Routing pipes).
  * Regular transport pipes (copper, iron, etc.) should NOT have this module.
  */
-public class NetworkModule implements Module {
+public class NetworkRouterModule implements Module {
     @Override
     public RoutePlan route(PipeContext ctx, TravelingItem item, List<Direction> options) {
         if (ctx.world().isClientSide()) {

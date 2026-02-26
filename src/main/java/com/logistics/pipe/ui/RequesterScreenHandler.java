@@ -105,9 +105,8 @@ public class RequesterScreenHandler extends AbstractContainerMenu {
 
                     if (module != null) {
                         com.logistics.pipe.PipeContext ctx = pipeEntity.createContext();
-                        // Request 1 of the clicked item (or full stack if shift-clicked)
-                        int amount = button == 1 ? 1 : Math.min(clickedItem.getCount(), 64); // Right-click = 1, left-click = shown amount
-                        module.requestItem(ctx, clickedItem, amount);
+                        // Request 1 of the clicked item
+                        module.requestItem(ctx, clickedItem, 1);
                     }
                 }
             });

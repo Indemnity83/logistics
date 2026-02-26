@@ -1,7 +1,9 @@
 package com.logistics.core.lib.network;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.*;
 
@@ -35,18 +37,34 @@ public class NetworkRegistry {
         }
 
         // Scan neighbors for existing networks
-        // Also recursively add any pipe neighbors that aren't in a network yet
+        // Also recursively scan any pipe neighbors that aren't in a network yet
         Set<UUID> neighborNetworks = new HashSet<>();
-        List<BlockPos> unmappedPipes = new ArrayList<>();
+        Set<BlockPos> unmappedPipes = new HashSet<>();
 
-        for (BlockPos neighbor : getNeighbors(pos)) {
+        for (BlockPos neighbor : getNeighbors(level, pos)) {
             // Check if neighbor is already in a network
             UUID neighborId = levelPositions.get(neighbor);
             if (neighborId != null) {
                 neighborNetworks.add(neighborId);
             } else if (isPipe(level, neighbor)) {
-                // Found a pipe that's not in any network yet - we'll add it
+                // Found a pipe that's not in any network yet
                 unmappedPipes.add(neighbor);
+            }
+        }
+
+        // Recursively scan unmapped pipes to find networks they connect to
+        if (!unmappedPipes.isEmpty()) {
+            Set<BlockPos> allUnmappedPipes = findConnectedUnmappedPipes(level, unmappedPipes, levelPositions);
+            unmappedPipes = allUnmappedPipes;
+
+            // Check if any of these unmapped pipes have neighbors in existing networks
+            for (BlockPos unmappedPipe : allUnmappedPipes) {
+                for (BlockPos unmappedNeighbor : getNeighbors(level, unmappedPipe)) {
+                    UUID unmappedNeighborId = levelPositions.get(unmappedNeighbor);
+                    if (unmappedNeighborId != null) {
+                        neighborNetworks.add(unmappedNeighborId);
+                    }
+                }
             }
         }
 
@@ -211,7 +229,7 @@ public class NetworkRegistry {
 
         // Pick arbitrary starting point
         BlockPos start = members.iterator().next();
-        Set<BlockPos> reachable = floodFill(start, members);
+        Set<BlockPos> reachable = floodFill(level, start, members);
 
         if (reachable.size() == members.size()) {
             // Network still connected
@@ -228,9 +246,38 @@ public class NetworkRegistry {
     }
 
     /**
+     * Find all unmapped pipes connected to the given set of unmapped pipes.
+     * Uses flood fill to traverse through unmapped pipes only.
+     */
+    private static Set<BlockPos> findConnectedUnmappedPipes(
+        Level level,
+        Set<BlockPos> startingPipes,
+        Map<BlockPos, UUID> levelPositions
+    ) {
+        Set<BlockPos> visited = new HashSet<>(startingPipes);
+        Queue<BlockPos> queue = new LinkedList<>(startingPipes);
+
+        while (!queue.isEmpty()) {
+            BlockPos current = queue.poll();
+
+            for (BlockPos neighbor : getNeighbors(level, current)) {
+                // Only traverse through unmapped pipes
+                if (!visited.contains(neighbor) &&
+                    levelPositions.get(neighbor) == null &&
+                    isPipe(level, neighbor)) {
+                    visited.add(neighbor);
+                    queue.add(neighbor);
+                }
+            }
+        }
+
+        return visited;
+    }
+
+    /**
      * Flood-fill to find connected component.
      */
-    private static Set<BlockPos> floodFill(BlockPos start, Set<BlockPos> available) {
+    private static Set<BlockPos> floodFill(Level level, BlockPos start, Set<BlockPos> available) {
         Set<BlockPos> visited = new HashSet<>();
         Queue<BlockPos> queue = new LinkedList<>();
         queue.add(start);
@@ -239,7 +286,7 @@ public class NetworkRegistry {
         while (!queue.isEmpty()) {
             BlockPos current = queue.poll();
 
-            for (BlockPos neighbor : getNeighbors(current)) {
+            for (BlockPos neighbor : getNeighbors(level, current)) {
                 if (available.contains(neighbor) && !visited.contains(neighbor)) {
                     visited.add(neighbor);
                     queue.add(neighbor);
@@ -275,7 +322,7 @@ public class NetworkRegistry {
 
         while (!remaining.isEmpty()) {
             BlockPos start = remaining.iterator().next();
-            Set<BlockPos> component = floodFill(start, remaining);
+            Set<BlockPos> component = floodFill(level, start, remaining);
 
             UUID id = UUID.randomUUID();
             PipeNetwork network = new PipeNetwork(id);
@@ -289,15 +336,28 @@ public class NetworkRegistry {
         }
     }
 
-    private static List<BlockPos> getNeighbors(BlockPos pos) {
-        return List.of(
-            pos.north(),
-            pos.south(),
-            pos.east(),
-            pos.west(),
-            pos.above(),
-            pos.below()
-        );
+    private static List<BlockPos> getNeighbors(Level level, BlockPos pos) {
+        List<BlockPos> neighbors = new ArrayList<>();
+
+        // Only include neighbors where pipes are actually connected
+        for (Direction direction : Direction.values()) {
+            BlockPos neighborPos = pos.relative(direction);
+            BlockState state = level.getBlockState(pos);
+
+            if (state.getBlock() instanceof com.logistics.pipe.block.PipeBlock pipeBlock) {
+                com.logistics.core.lib.block.capability.PipeConnection.Type connectionType =
+                    pipeBlock.getConnectionType(level, pos, direction);
+
+                if (connectionType != com.logistics.core.lib.block.capability.PipeConnection.Type.NONE) {
+                    // Check if neighbor is also a pipe
+                    if (isPipe(level, neighborPos)) {
+                        neighbors.add(neighborPos);
+                    }
+                }
+            }
+        }
+
+        return neighbors;
     }
 
     /**

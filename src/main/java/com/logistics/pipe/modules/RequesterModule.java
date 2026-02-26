@@ -271,7 +271,7 @@ public class RequesterModule implements Module {
 
         // TODO(Phase 11): Check and consume energy (5 RF per request)
 
-        PipeNetwork network = NetworkRegistry.getOrCreateNetwork(ctx.world(), ctx.pos());
+        PipeNetwork network = NetworkRegistry.getNetwork(ctx.world(), ctx.pos());
         if (network == null) {
             return;
         }

@@ -1,17 +1,7 @@
 package com.logistics.pipe;
 
 import com.logistics.LogisticsPipe;
-import com.logistics.pipe.modules.BlockConnectionModule;
-import com.logistics.pipe.modules.BoostModule;
-import com.logistics.pipe.modules.ExtractionModule;
-import com.logistics.pipe.modules.InsertionModule;
-import com.logistics.pipe.modules.ItemFilterModule;
-import com.logistics.pipe.modules.MergerModule;
-import com.logistics.pipe.modules.PipeMarkingModule;
-import com.logistics.pipe.modules.PipeOnlyModule;
-import com.logistics.pipe.modules.TransportModule;
-import com.logistics.pipe.modules.VoidModule;
-import com.logistics.pipe.modules.WeatheringModule;
+import com.logistics.pipe.modules.*;
 
 public final class PipeTypes {
     // -----------------
@@ -56,21 +46,18 @@ public final class PipeTypes {
 
     // Basic Logistics Pipe - network-aware routing with destination-based pathfinding.
     public static final Pipe BASIC_LOGISTICS_PIPE = new Pipe(
-            new TransportModule(LogisticsPipe.CONFIG.ITEM_MIN_SPEED, LogisticsPipe.CONFIG.DRAG_COEFFICIENT),
-            new com.logistics.pipe.modules.NetworkModule()) {};
+            new NetworkRouterModule()) {};
 
     // Provider Logistics Pipe - scans adjacent inventories and fulfills network requests.
     public static final Pipe PROVIDER_LOGISTICS_PIPE = new Pipe(
-            new TransportModule(LogisticsPipe.CONFIG.ITEM_MIN_SPEED, LogisticsPipe.CONFIG.DRAG_COEFFICIENT),
-            new com.logistics.pipe.modules.NetworkModule(),
-            new com.logistics.pipe.modules.ProviderModule())
+            new NetworkRouterModule(),
+            new ProviderModule())
             .withEnergy();
 
     // Requester Logistics Pipe - creates requests for items from the network.
     public static final Pipe REQUESTER_LOGISTICS_PIPE = new Pipe(
-            new TransportModule(LogisticsPipe.CONFIG.ITEM_MIN_SPEED, LogisticsPipe.CONFIG.DRAG_COEFFICIENT),
-            new com.logistics.pipe.modules.NetworkModule(),
-            new com.logistics.pipe.modules.RequesterModule())
+            new NetworkRouterModule(),
+            new RequesterModule())
             .withEnergy();
 
     // -----------------

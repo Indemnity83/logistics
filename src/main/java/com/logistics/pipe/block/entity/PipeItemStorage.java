@@ -58,7 +58,7 @@ public class PipeItemStorage implements Storage<ItemVariant> {
 
         transaction.addCloseCallback((context, result) -> {
             if (result == Result.COMMITTED) {
-                pipe.acceptInsertedStack(stack, fromDirection, speed);
+                pipe.acceptInsertedStack(stack, fromDirection, speed, item.getDestination());
             }
         });
 
