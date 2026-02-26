@@ -148,7 +148,7 @@ public class PipeBlockEntity extends BaseBlockEntity
     public boolean addItem(TravelingItem item, Direction fromDirection, boolean bypassIngress) {
         long accepted = getInsertableAmount(item.getStack().getCount(), fromDirection, item.getStack(), bypassIngress);
         if (accepted <= 0) {
-            dropItem(level, getBlockPos(), item);
+            dropItemInWorld(item);
             return false;
         }
 
@@ -164,7 +164,7 @@ public class PipeBlockEntity extends BaseBlockEntity
         acceptInsertedStack(acceptedStack, fromDirection, item.getSpeed());
 
         if (remainder != null) {
-            dropItem(level, getBlockPos(), remainder);
+            dropItemInWorld(remainder);
             return false;
         }
 
@@ -329,7 +329,16 @@ public class PipeBlockEntity extends BaseBlockEntity
     }
 
     /**
-     * Drop an item entity at the pipe's position
+     * Drop an item into the world at this pipe's position.
+     * Convenience method for internal use within PipeBlockEntity.
+     */
+    private void dropItemInWorld(TravelingItem item) {
+        dropItem(level, getBlockPos(), item);
+    }
+
+    /**
+     * Drop an item entity at the specified pipe position.
+     * Static method for external callers (PipeBlock, PipeRuntime).
      */
     public static void dropItem(Level level, BlockPos pos, TravelingItem item) {
         // Create item entity at center of pipe
