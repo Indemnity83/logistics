@@ -94,6 +94,18 @@ public final class LogisticsPipeClient implements DomainBootstrap {
             registerModel("item_void_pipe_core");
             registerModel("item_void_pipe_arm");
             registerModel("item_void_pipe_arm_extended");
+            registerModel("basic_logistics_pipe_core");
+            registerModel("basic_logistics_pipe_arm");
+            registerModel("basic_logistics_pipe_arm_extended");
+            registerModel("provider_logistics_pipe_core");
+            registerModel("provider_logistics_pipe_arm");
+            registerModel("provider_logistics_pipe_arm_extended");
+            registerModel("provider_logistics_pipe_feature_extended");
+            registerModel("requester_logistics_pipe_core");
+            registerModel("requester_logistics_pipe_arm");
+            registerModel("requester_logistics_pipe_arm_extended");
+            registerModel("requester_logistics_pipe_feature");
+            registerModel("requester_logistics_pipe_feature_extended");
         }
 
         private static final Map<ResourceId, ExtraModelKey<BlockStateModel>> MODEL_LOOKUP = Map.copyOf(TEMP_LOOKUP);

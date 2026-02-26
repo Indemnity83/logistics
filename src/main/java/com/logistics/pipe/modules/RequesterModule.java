@@ -97,7 +97,7 @@ public class RequesterModule implements Module {
             return null;
         }
         String suffix = ctx.isInventoryConnection(direction) ? "_feature_extended" : "_feature";
-        return com.logistics.LogisticsPipe.model("requester_pipe" + suffix);
+        return com.logistics.LogisticsPipe.model("requester_logistics_pipe" + suffix);
     }
 
     /**

@@ -64,7 +64,7 @@ public class ProviderModule implements Module {
         if (!ctx.isInventoryConnection(direction)) {
             return null;
         }
-        return LogisticsPipe.model("provider_pipe_feature_extended");
+        return LogisticsPipe.model("provider_logistics_pipe_feature_extended");
     }
 
     /**
