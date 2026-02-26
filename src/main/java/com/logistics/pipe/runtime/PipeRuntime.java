@@ -140,11 +140,17 @@ public final class PipeRuntime {
     }
 
     private static void updateConnectionCache(TickContext ctx) {
+        // Only recalculate connections when topology changes (neighbor updates)
+        if (!ctx.blockEntity().isConnectionCacheDirty()) {
+            return;
+        }
+
         if (ctx.state().getBlock() instanceof PipeBlock pipeBlock) {
             for (Direction direction : Direction.values()) {
                 PipeConnection.Type type = pipeBlock.getDynamicConnectionType(ctx.world(), ctx.pos(), direction);
                 ctx.blockEntity().setConnectionType(direction, type);
             }
+            ctx.blockEntity().markConnectionCacheClean();
         }
     }
 
