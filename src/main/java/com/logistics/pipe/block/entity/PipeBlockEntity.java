@@ -47,6 +47,7 @@ public class PipeBlockEntity extends BaseBlockEntity
 
     // Connection type cache for rendering (updated when connections change)
     private final PipeConnection.Type[] connectionTypes = new PipeConnection.Type[6];
+    private boolean connectionCacheDirty = true;
 
     // Energy storage (only created for pipes with energy capability)
     @Nullable
@@ -114,6 +115,28 @@ public class PipeBlockEntity extends BaseBlockEntity
 
     public void setConnectionType(Direction direction, PipeConnection.Type type) {
         connectionTypes[direction.ordinal()] = type;
+    }
+
+    /**
+     * Mark the connection cache as dirty, forcing recalculation on next tick.
+     * Called when a neighbor block changes.
+     */
+    public void invalidateConnectionCache() {
+        connectionCacheDirty = true;
+    }
+
+    /**
+     * Check if the connection cache needs recalculation.
+     */
+    public boolean isConnectionCacheDirty() {
+        return connectionCacheDirty;
+    }
+
+    /**
+     * Mark the connection cache as clean after recalculation.
+     */
+    public void markConnectionCacheClean() {
+        connectionCacheDirty = false;
     }
 
     /**
