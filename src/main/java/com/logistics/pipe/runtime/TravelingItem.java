@@ -12,6 +12,20 @@ import net.minecraft.world.item.ItemStack;
  */
 public class TravelingItem {
     /**
+     * Progress threshold where routing decisions are made (item reaches pipe center).
+     */
+    public static final float ROUTE_POINT = 0.5f;
+
+    /**
+     * Progress threshold where server transfers item to next pipe/inventory.
+     */
+    public static final float SERVER_EXIT_THRESHOLD = 1.0f;
+
+    /**
+     * Progress threshold where client removes item from rendering (visual buffer to prevent flicker).
+     */
+    public static final float CLIENT_EXIT_THRESHOLD = 1.3f;
+    /**
      * Codec used for saving/loading TravelingItem via ReadView/WriteView (1.21.8+).
      */
     public static final Codec<TravelingItem> CODEC = RecordCodecBuilder.create(instance -> instance.group(
@@ -81,7 +95,7 @@ public class TravelingItem {
         }
 
         progress += speed;
-        return progress >= 1.0f;
+        return progress >= SERVER_EXIT_THRESHOLD;
     }
 
     /**
