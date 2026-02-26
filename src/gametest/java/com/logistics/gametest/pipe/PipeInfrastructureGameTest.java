@@ -156,10 +156,8 @@ public class PipeInfrastructureGameTest {
         // Place a neighbor block
         context.setBlock(pipePos.north(), Blocks.CHEST);
 
-        // Manually invalidate cache (simulating neighborChanged callback)
-        pipeEntity.invalidateConnectionCache();
-
         // Cache should be dirty after neighbor change
+        // (neighborChanged should have invalidated it automatically)
         context.assertTrue(
                 pipeEntity.isConnectionCacheDirty(),
                 "Connection cache should be dirty after neighbor change"
