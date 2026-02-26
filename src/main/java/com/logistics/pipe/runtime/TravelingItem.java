@@ -11,6 +11,7 @@ import net.minecraft.world.item.ItemStack;
  * Items move along pipe edges from one connection point to another.
  */
 public class TravelingItem {
+    private static final TravelingItemPhysics PHYSICS = new TravelingItemPhysics(LogisticsPipe.CONFIG.ITEM_MIN_SPEED);
     /**
      * Progress threshold where routing decisions are made (item reaches pipe center).
      */
@@ -72,28 +73,7 @@ public class TravelingItem {
      * @return true if item reached the end of this pipe segment
      */
     public boolean tick(float accelerationRate, float dragCoefficient, float maxSpeed) {
-        boolean deceleratingToMax = speed > maxSpeed;
-        if (deceleratingToMax) {
-            float remaining = Math.max(1.0e-4f, 1.0f - progress);
-            float targetSquared = maxSpeed * maxSpeed;
-            float currentSquared = speed * speed;
-            float decel = (targetSquared - currentSquared) / (2.0f * remaining);
-            speed += decel;
-            if (speed < maxSpeed) {
-                speed = maxSpeed;
-            }
-        } else if (accelerationRate != 0f) {
-            speed += accelerationRate;
-        } else if (dragCoefficient != 0f) {
-            speed -= speed * dragCoefficient;
-        }
-
-        if (speed < LogisticsPipe.CONFIG.ITEM_MIN_SPEED) {
-            speed = LogisticsPipe.CONFIG.ITEM_MIN_SPEED;
-        } else if (!deceleratingToMax && speed > maxSpeed) {
-            speed = maxSpeed;
-        }
-
+        speed = PHYSICS.updateSpeed(speed, progress, accelerationRate, dragCoefficient, maxSpeed);
         progress += speed;
         return progress >= SERVER_EXIT_THRESHOLD;
     }
