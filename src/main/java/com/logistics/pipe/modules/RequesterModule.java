@@ -75,19 +75,19 @@ public class RequesterModule implements Module {
             return InteractionResult.SUCCESS;
         }
 
-        // TODO(Phase 9): Open GUI for request configuration
-        // For now, cycle through inventory connections
-        List<Direction> connected = ctx.getInventoryConnections();
-
-        if (connected.isEmpty()) {
-            setRequesterDirection(ctx, null);
-            return InteractionResult.SUCCESS;
+        if (!(player instanceof net.minecraft.server.level.ServerPlayer serverPlayer)) {
+            return InteractionResult.PASS;
         }
 
-        Direction current = getRequesterDirection(ctx);
-        Direction next = nextInCycle(connected, current);
-
-        setRequesterDirection(ctx, next);
+        net.minecraft.world.level.Level world = ctx.world();
+        net.minecraft.core.BlockPos pos = ctx.pos();
+        serverPlayer.openMenu(new net.minecraft.world.SimpleMenuProvider(
+                (syncId, inventory, playerEntity) -> {
+                    com.logistics.pipe.block.entity.PipeBlockEntity pipeEntity =
+                            world.getBlockEntity(pos) instanceof com.logistics.pipe.block.entity.PipeBlockEntity entity ? entity : null;
+                    return new com.logistics.pipe.ui.RequesterScreenHandler(syncId, inventory, pipeEntity);
+                },
+                net.minecraft.network.chat.Component.translatable("screen.logistics.requester")));
         return InteractionResult.SUCCESS;
     }
 
@@ -258,6 +258,34 @@ public class RequesterModule implements Module {
     public boolean acceptsLowTierEnergyFrom(PipeContext ctx, Direction from) {
         // TODO(Phase 11): Accept energy for request costs
         return false; // For now, no energy required
+    }
+
+    /**
+     * Request an item from the network (GUI-triggered request).
+     * Creates an ItemRequest that will be fulfilled by a provider.
+     */
+    public void requestItem(PipeContext ctx, ItemStack stack, int amount) {
+        if (ctx.world().isClientSide()) {
+            return;
+        }
+
+        // TODO(Phase 11): Check and consume energy (5 RF per request)
+
+        PipeNetwork network = NetworkRegistry.getOrCreateNetwork(ctx.world(), ctx.pos());
+        if (network == null) {
+            return;
+        }
+
+        String itemId = BuiltInRegistries.ITEM.getKey(stack.getItem()).toString();
+        ItemRequest request = new ItemRequest(
+                ctx.pos(),
+                stack,
+                amount,
+                ctx.world().getGameTime(),
+                0 // Normal priority
+        );
+
+        network.addRequest(request);
     }
 
     /**

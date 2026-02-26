@@ -214,6 +214,7 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
 
     public static final class SCREEN {
         public static MenuType<ItemFilterScreenHandler> ITEM_FILTER;
+        public static MenuType<com.logistics.pipe.ui.RequesterScreenHandler> REQUESTER;
 
         private SCREEN() {}
 
@@ -222,6 +223,10 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
                     BuiltInRegistries.MENU,
                     LogisticsPipe.resource("item_filter").toIdentifier(),
                     new MenuType<>(ItemFilterScreenHandler::new, FeatureFlagSet.of()));
+            REQUESTER = Registry.register(
+                    BuiltInRegistries.MENU,
+                    LogisticsPipe.resource("requester").toIdentifier(),
+                    new MenuType<>(com.logistics.pipe.ui.RequesterScreenHandler::new, FeatureFlagSet.of()));
         }
     }
 

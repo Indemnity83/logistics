@@ -71,7 +71,7 @@ public class ProviderModule implements Module {
      * Scan ALL adjacent inventories and update the network provider cache.
      */
     private void scanAndUpdateCache(PipeContext ctx) {
-        PipeNetwork network = NetworkRegistry.getNetwork(ctx.world(), ctx.pos());
+        PipeNetwork network = NetworkRegistry.getOrCreateNetwork(ctx.world(), ctx.pos());
         if (network == null) {
             return;
         }

@@ -137,6 +137,37 @@ public class PipeNetwork {
     }
 
     /**
+     * Get all available items from all providers in the network.
+     * Returns a map of ItemStack to total available amount.
+     */
+    public Map<ItemStack, Long> getAllAvailableItems() {
+        Map<ItemStack, Long> aggregated = new HashMap<>();
+
+        for (ProviderCache cache : providerCaches.values()) {
+            for (Map.Entry<ItemStack, Long> entry : cache.getAvailableItems().entrySet()) {
+                ItemStack stack = entry.getKey();
+                long amount = entry.getValue();
+
+                // Find matching stack in aggregated map
+                boolean found = false;
+                for (Map.Entry<ItemStack, Long> existing : aggregated.entrySet()) {
+                    if (ItemStack.isSameItemSameComponents(existing.getKey(), stack)) {
+                        existing.setValue(existing.getValue() + amount);
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (!found) {
+                    aggregated.put(stack.copy(), amount);
+                }
+            }
+        }
+
+        return aggregated;
+    }
+
+    /**
      * Find provider position that has the requested item.
      * Returns null if no provider has sufficient quantity.
      */

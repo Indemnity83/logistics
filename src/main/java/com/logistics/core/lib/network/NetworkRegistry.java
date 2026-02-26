@@ -35,33 +35,50 @@ public class NetworkRegistry {
         }
 
         // Scan neighbors for existing networks
+        // Also recursively add any pipe neighbors that aren't in a network yet
         Set<UUID> neighborNetworks = new HashSet<>();
+        List<BlockPos> unmappedPipes = new ArrayList<>();
+
         for (BlockPos neighbor : getNeighbors(pos)) {
+            // Check if neighbor is already in a network
             UUID neighborId = levelPositions.get(neighbor);
             if (neighborId != null) {
                 neighborNetworks.add(neighborId);
+            } else if (isPipe(level, neighbor)) {
+                // Found a pipe that's not in any network yet - we'll add it
+                unmappedPipes.add(neighbor);
             }
         }
 
+        PipeNetwork network;
+        UUID networkId;
+
         if (neighborNetworks.isEmpty()) {
             // Create new network
-            UUID newId = UUID.randomUUID();
-            PipeNetwork network = new PipeNetwork(newId);
+            networkId = UUID.randomUUID();
+            network = new PipeNetwork(networkId);
             network.addPipe(pos);
-            levelNetworks.put(newId, network);
-            levelPositions.put(pos, newId);
-            return network;
+            levelNetworks.put(networkId, network);
+            levelPositions.put(pos, networkId);
         } else if (neighborNetworks.size() == 1) {
             // Join existing network
-            UUID networkId = neighborNetworks.iterator().next();
-            PipeNetwork network = levelNetworks.get(networkId);
+            networkId = neighborNetworks.iterator().next();
+            network = levelNetworks.get(networkId);
             network.addPipe(pos);
             levelPositions.put(pos, networkId);
-            return network;
         } else {
             // Merge multiple networks
-            return mergeNetworks(level, pos, neighborNetworks, levelNetworks, levelPositions);
+            network = mergeNetworks(level, pos, neighborNetworks, levelNetworks, levelPositions);
+            networkId = levelPositions.get(pos);
         }
+
+        // Add any unmapped pipe neighbors to this network
+        for (BlockPos unmappedPipe : unmappedPipes) {
+            network.addPipe(unmappedPipe);
+            levelPositions.put(unmappedPipe, networkId);
+        }
+
+        return network;
     }
 
     /**
@@ -281,6 +298,13 @@ public class NetworkRegistry {
             pos.above(),
             pos.below()
         );
+    }
+
+    /**
+     * Check if a block at the given position is a pipe.
+     */
+    private static boolean isPipe(Level level, BlockPos pos) {
+        return level.getBlockState(pos).getBlock() instanceof com.logistics.pipe.block.PipeBlock;
     }
 
     /**
