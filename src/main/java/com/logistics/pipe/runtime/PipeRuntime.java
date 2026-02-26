@@ -109,9 +109,9 @@ public final class PipeRuntime {
      * Main tick handler for pipe block entities. Processes item movement, routing decisions,
      * and synchronization between client and server.
      *
-     * <p>Items make routing decisions when crossing the pipe center (0.5 progress), allowing
+     * <p>Items make routing decisions when crossing the pipe center (ROUTE_POINT), allowing
      * modules to influence direction before the item commits to an exit. Final delivery to
-     * adjacent inventories or pipes happens when items reach progress 1.0.
+     * adjacent inventories or pipes happens when items reach SERVER_EXIT_THRESHOLD.
      */
     public static void tick(Level world, BlockPos pos, BlockState state, PipeBlockEntity blockEntity) {
         TickContext ctx = TickContext.create(world, pos, state, blockEntity);
@@ -184,12 +184,14 @@ public final class PipeRuntime {
         }
 
         // Handle routing decision at pipe center
-        if (progressBefore < 0.5f && item.getProgress() >= 0.5f && !item.isRouted()) {
+        if (progressBefore < TravelingItem.ROUTE_POINT
+                && item.getProgress() >= TravelingItem.ROUTE_POINT
+                && !item.isRouted()) {
             routeItem(ctx, item, itemState);
         }
 
         // Client-side removal buffer (prevents flicker during handoff)
-        if (ctx.isClient() && item.getProgress() > 1.3f) {
+        if (ctx.isClient() && item.getProgress() > TravelingItem.CLIENT_EXIT_THRESHOLD) {
             itemState.markForRemoval(item);
         }
     }
@@ -197,7 +199,7 @@ public final class PipeRuntime {
     /**
      * Determine and execute the routing decision for an item.
      *
-     * <p>Called when an item crosses the pipe center (0.5 progress). The item's exit direction
+     * <p>Called when an item crosses the pipe center (ROUTE_POINT). The item's exit direction
      * is determined and locked in, allowing rendering to show the item moving toward its
      * destination during the second half of travel, and ensuring client/server agreement
      * on routing using deterministic randomness.
@@ -296,9 +298,9 @@ public final class PipeRuntime {
     /**
      * Apply pending item list modifications after processing.
      *
-     * <p>Client and server handle removals differently: the server removes items at progress 1.0
-     * for routing, while the client keeps them slightly longer (until 1.3) to prevent visual
-     * flicker during the handoff to the next pipe.
+     * <p>Client and server handle removals differently: the server removes items at
+     * SERVER_EXIT_THRESHOLD for routing, while the client keeps them slightly longer
+     * (until CLIENT_EXIT_THRESHOLD) to prevent visual flicker during the handoff to the next pipe.
      */
     private static void applyItemChanges(TickContext ctx, ItemTickState itemState) {
         List<TravelingItem> items = ctx.blockEntity().getTravelingItems();
@@ -345,7 +347,7 @@ public final class PipeRuntime {
 
     /**
      * Transfer an item to the next pipe or inventory at the end of this segment.
-     * Direction was already determined at the pipe center (0.5 progress).
+     * Direction was already determined at the pipe center (ROUTE_POINT).
      */
     private static void transferItem(Level world, BlockPos pos, TravelingItem item) {
         Direction direction = item.getDirection();
