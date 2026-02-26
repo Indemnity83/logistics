@@ -275,6 +275,11 @@ public class PipeBlock extends BaseEntityBlock implements ProbeBehavior.Probeabl
             if (powered != state.getValue(POWERED)) {
                 world.setBlock(pos, state.setValue(POWERED, powered), Block.UPDATE_CLIENTS);
             }
+
+            // Invalidate connection cache when neighbors change
+            if (world.getBlockEntity(pos) instanceof PipeBlockEntity pipeEntity) {
+                pipeEntity.invalidateConnectionCache();
+            }
         }
         super.neighborChanged(state, world, pos, block, orientation, notify);
     }

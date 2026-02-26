@@ -103,4 +103,81 @@ public class PipeInfrastructureGameTest {
 
         context.succeed();
     }
+
+    /**
+     * Test that connection cache is only recalculated when neighbors change.
+     * This verifies the performance optimization that avoids per-tick recalculation.
+     */
+    @GameTest
+    public void testConnectionCacheOptimization(GameTestHelper context) {
+        BlockPos pipePos = new BlockPos(1, 1, 1);
+
+        // Place a pipe
+        context.setBlock(pipePos, LogisticsPipe.BLOCK.COPPER_TRANSPORT_PIPE);
+        PipeBlockEntity pipeEntity = context.getBlockEntity(pipePos, PipeBlockEntity.class);
+        if (pipeEntity == null) {
+            context.fail("Pipe block entity should exist");
+            return;
+        }
+
+        // Cache should be dirty initially
+        context.assertTrue(
+                pipeEntity.isConnectionCacheDirty(),
+                "Connection cache should be dirty on first tick"
+        );
+
+        // Manually tick the pipe - should recalculate connections
+        PipeBlockEntity.tick(
+                context.getLevel(),
+                pipePos,
+                context.getBlockState(pipePos),
+                pipeEntity
+        );
+
+        // After first tick, cache should be clean
+        context.assertFalse(
+                pipeEntity.isConnectionCacheDirty(),
+                "Connection cache should be clean after first tick"
+        );
+
+        // Tick again - cache should remain clean (no topology change)
+        PipeBlockEntity.tick(
+                context.getLevel(),
+                pipePos,
+                context.getBlockState(pipePos),
+                pipeEntity
+        );
+
+        context.assertFalse(
+                pipeEntity.isConnectionCacheDirty(),
+                "Connection cache should remain clean when no neighbors change"
+        );
+
+        // Place a neighbor block
+        context.setBlock(pipePos.north(), Blocks.CHEST);
+
+        // Manually invalidate cache (simulating neighborChanged callback)
+        pipeEntity.invalidateConnectionCache();
+
+        // Cache should be dirty after neighbor change
+        context.assertTrue(
+                pipeEntity.isConnectionCacheDirty(),
+                "Connection cache should be dirty after neighbor change"
+        );
+
+        // Tick - should recalculate and clean cache
+        PipeBlockEntity.tick(
+                context.getLevel(),
+                pipePos,
+                context.getBlockState(pipePos),
+                pipeEntity
+        );
+
+        context.assertFalse(
+                pipeEntity.isConnectionCacheDirty(),
+                "Connection cache should be clean after recalculation"
+        );
+
+        context.succeed();
+    }
 }
