@@ -5,6 +5,7 @@ import com.logistics.core.lib.network.PipeNetwork;
 import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.runtime.RoutePlan;
 import com.logistics.pipe.runtime.TravelingItem;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import org.jetbrains.annotations.Nullable;
 
@@ -13,7 +14,8 @@ import java.util.List;
 /**
  * Module that enables network-aware routing for pipes.
  * Routes items with explicit destinations using A* pathfinding through the pipe network.
- * Falls back to random routing for items without destinations.
+ * For items without destinations, attempts to find a suitable sink in the network.
+ * Drops items if no destination can be found.
  *
  * <p>Add this module to pipes that should participate in smart routing (Provider, Requester, Routing pipes).
  * Regular transport pipes (copper, iron, etc.) should NOT have this module.
@@ -21,38 +23,47 @@ import java.util.List;
 public class NetworkModule implements Module {
     @Override
     public RoutePlan route(PipeContext ctx, TravelingItem item, List<Direction> options) {
-        // Try network routing if item has destination
-        if (item.getDestination() != null) {
-            RoutePlan networkPlan = tryNetworkRouting(ctx, item, options);
-            if (networkPlan != null) {
-                return networkPlan;
-            }
-        }
-
-        // No destination or network routing failed - use default random routing
-        return RoutePlan.pass();
-    }
-
-    /**
-     * Attempt to route item using network pathfinding.
-     * @return RoutePlan if network routing succeeds, null otherwise
-     */
-    @Nullable
-    private RoutePlan tryNetworkRouting(PipeContext ctx, TravelingItem item, List<Direction> options) {
         if (ctx.world().isClientSide()) {
-            return null; // Networks only exist on server
+            return RoutePlan.pass(); // Networks only exist on server
         }
 
         PipeNetwork network = NetworkRegistry.getNetwork(ctx.world(), ctx.pos());
         if (network == null) {
-            return null;
+            return RoutePlan.pass(); // Not in a network, fall back to default routing
         }
 
+        // If item has no destination, try to find one
+        if (item.getDestination() == null) {
+            BlockPos destination = findDestinationForItem(ctx, item, network);
+            if (destination != null) {
+                item.setDestination(destination);
+            } else {
+                // No destination available - drop the item
+                return RoutePlan.drop();
+            }
+        }
+
+        // Route item to destination using pathfinding
         Direction nextHop = network.getNextHop(ctx.pos(), item.getDestination());
         if (nextHop != null && options.contains(nextHop)) {
             return RoutePlan.reroute(nextHop);
         }
 
-        return null; // Network routing failed
+        // Pathfinding failed - drop the item
+        return RoutePlan.drop();
+    }
+
+    /**
+     * Find a suitable destination for an item without an explicit destination.
+     * Priority order:
+     * 1. Requesters that want this item (highest priority - TODO: Phase 5+)
+     * 2. Default route sinks that accept any item
+     * 3. Any sink that can accept this item
+     *
+     * @return BlockPos of destination, or null if no destination found
+     */
+    @Nullable
+    private BlockPos findDestinationForItem(PipeContext ctx, TravelingItem item, PipeNetwork network) {
+        return network.findSinkFor(item.getStack());
     }
 }

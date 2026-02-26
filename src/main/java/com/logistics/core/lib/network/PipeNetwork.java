@@ -18,7 +18,13 @@ public class PipeNetwork {
     private final Map<BlockPos, List<LogisticsOrder>> pendingOrders = new HashMap<>();
     private final Map<PathKey, CachedPath> pathCache = new HashMap<>();
 
+    // Sink management for item routing
+    private final Set<BlockPos> defaultRouteSinks = new HashSet<>(); // Accepts any item
+    private final Map<BlockPos, Integer> sinkPriorities = new HashMap<>(); // Priority per sink (higher = better)
+
     private static final int PATH_CACHE_MAX_AGE = 200; // 10 seconds
+    private static final int DEFAULT_SINK_PRIORITY = 0;
+    private static final int REQUESTER_PRIORITY = 100; // Requesters have higher priority
 
     private record PathKey(BlockPos start, BlockPos end) {}
 
@@ -42,6 +48,8 @@ public class PipeNetwork {
         if (members.remove(pos)) {
             providerCaches.remove(pos);
             pendingOrders.remove(pos);
+            defaultRouteSinks.remove(pos);
+            sinkPriorities.remove(pos);
             invalidatePathCache();
         }
     }
@@ -215,6 +223,56 @@ public class PipeNetwork {
     }
 
     /**
+     * Register a sink that accepts any item (default route).
+     * @param sink BlockPos of the sink pipe
+     * @param priority Priority level (higher values = preferred, default = 0)
+     */
+    public void registerDefaultRouteSink(BlockPos sink, int priority) {
+        defaultRouteSinks.add(sink);
+        sinkPriorities.put(sink, priority);
+    }
+
+    /**
+     * Unregister a default route sink.
+     */
+    public void unregisterDefaultRouteSink(BlockPos sink) {
+        defaultRouteSinks.remove(sink);
+        sinkPriorities.remove(sink);
+    }
+
+    /**
+     * Find a suitable destination for an item.
+     * Priority order:
+     * 1. Requesters that want this specific item (REQUESTER_PRIORITY = 100)
+     * 2. Default route sinks (priority 0+)
+     *
+     * @param stack ItemStack to find destination for
+     * @return BlockPos of highest-priority available sink, or null if none found
+     */
+    public BlockPos findSinkFor(ItemStack stack) {
+        // TODO: Phase 5+: Check requesters first (higher priority)
+        // For now, just check default route sinks
+
+        if (defaultRouteSinks.isEmpty()) {
+            return null;
+        }
+
+        // Find highest-priority default route sink
+        BlockPos bestSink = null;
+        int bestPriority = Integer.MIN_VALUE;
+
+        for (BlockPos sink : defaultRouteSinks) {
+            int priority = sinkPriorities.getOrDefault(sink, DEFAULT_SINK_PRIORITY);
+            if (priority > bestPriority && members.contains(sink)) {
+                bestSink = sink;
+                bestPriority = priority;
+            }
+        }
+
+        return bestSink;
+    }
+
+    /**
      * Merge another network into this one.
      */
     public void merge(PipeNetwork other) {
@@ -225,6 +283,9 @@ public class PipeNetwork {
         for (Map.Entry<BlockPos, List<LogisticsOrder>> entry : other.pendingOrders.entrySet()) {
             pendingOrders.computeIfAbsent(entry.getKey(), k -> new ArrayList<>()).addAll(entry.getValue());
         }
+
+        defaultRouteSinks.addAll(other.defaultRouteSinks);
+        sinkPriorities.putAll(other.sinkPriorities);
 
         invalidatePathCache();
     }
