@@ -30,7 +30,7 @@ import java.util.concurrent.Executor;
 
 /**
  * Custom recipe manager for kiln recipes.
- * Loads recipes from data/<namespace>/recipes/kiln/*.json
+ * Loads recipes from data/<namespace>/recipe/kiln/*.json
  */
 public class KilnRecipeManager {
     private static final Logger LOGGER = LoggerFactory.getLogger("Logistics/KilnRecipes");
@@ -81,8 +81,8 @@ public class KilnRecipeManager {
 
     private static void loadRecipesInto(ResourceManager manager, Map<ResourceId, KilnRecipe> targetMap) {
         LOGGER.info("Loading kiln recipes from resources...");
-        // Find all recipe files matching data/*/recipes/kiln/*.json
-        var resources = manager.listResources("recipes/kiln", path -> path.getPath().endsWith(".json"));
+        // Find all recipe files matching data/*/recipe/kiln/*.json
+        var resources = manager.listResources("recipe/kiln", path -> path.getPath().endsWith(".json"));
         LOGGER.info("Found {} recipe files", resources.size());
         resources.forEach((resourceLocation, resource) -> {
                 try (BufferedReader reader = new BufferedReader(new InputStreamReader(resource.open()))) {
@@ -90,7 +90,7 @@ public class KilnRecipeManager {
 
                     // Extract recipe ID from file path
                     String path = resourceLocation.getPath();
-                    String recipeIdPath = path.substring("recipes/kiln/".length(), path.length() - ".json".length());
+                    String recipeIdPath = path.substring("recipe/kiln/".length(), path.length() - ".json".length());
                     ResourceId recipeId = ResourceId.in(resourceLocation.getNamespace(), recipeIdPath);
 
                     // Parse manually
