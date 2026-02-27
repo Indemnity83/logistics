@@ -16,6 +16,9 @@
   "changelog-sections": [
     { "type": "feat", "section": "Features" },
     { "type": "fix", "section": "Bug Fixes" },
-    { "type": "perf", "section": "Performance" }
+    { "type": "perf", "section": "Performance" },
+    { "type": "refactor", "section": "Refactorings" },
+    { "type": "test", "section": "Testing" },
+    { "type": "build", "section": "Build System" }
   ]
 }
