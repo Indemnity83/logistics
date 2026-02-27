@@ -230,6 +230,7 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
         public static MenuType<ItemFilterScreenHandler> ITEM_FILTER;
         public static MenuType<com.logistics.pipe.ui.RequesterScreenHandler> REQUESTER;
         public static MenuType<com.logistics.pipe.ui.SupplierScreenHandler> SUPPLIER;
+        public static MenuType<com.logistics.pipe.ui.ProviderScreenHandler> PROVIDER;
         public static MenuType<com.logistics.pipe.ui.SinkScreenHandler> SINK;
 
         private SCREEN() {}
@@ -247,6 +248,10 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
                     BuiltInRegistries.MENU,
                     LogisticsPipe.resource("supplier").toIdentifier(),
                     new MenuType<>(com.logistics.pipe.ui.SupplierScreenHandler::new, FeatureFlagSet.of()));
+            PROVIDER = Registry.register(
+                    BuiltInRegistries.MENU,
+                    LogisticsPipe.resource("provider").toIdentifier(),
+                    new MenuType<>(com.logistics.pipe.ui.ProviderScreenHandler::new, FeatureFlagSet.of()));
             SINK = Registry.register(
                     BuiltInRegistries.MENU,
                     LogisticsPipe.resource("sink").toIdentifier(),
