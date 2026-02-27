@@ -43,15 +43,26 @@ import static com.logistics.LogisticsMod.LOGGER;
  * <p>Energy: TODO (Phase 11): 1 RF per item requested
  */
 public class SupplierModule implements Module {
+    /**
+     * Supply modes for the Supplier Pipe.
+     * Based on LogisticsPipes supply modes.
+     */
+    public enum SupplyMode {
+        STOCKED,    // Bulk50 - only request when inventory <= 50% of target
+        INFINITE,   // Request 1 stack at a time (gradual filling)
+        PARTIAL,    // Request whatever is available (default)
+        FULL        // Only request if full amount is available (all-or-nothing)
+    }
+
     private static final String SUPPLIES = "supplies"; // NBT key for supply configurations
     private static final String SUPPLIER_DIRECTION = "supplier_direction";
     private static final String TICKS_SINCE_CHECK = "ticks_since_check";
     private static final String PENDING_REQUESTS = "pending_requests"; // Track in-transit items per item type
-    private static final String DELIVERY_COOLDOWN_REMAINING = "delivery_cooldown_remaining"; // Ticks remaining before allowing new requests
+    private static final String PREVIOUS_AMOUNTS = "previous_amounts"; // Track previous inventory amounts to detect deliveries
+    private static final String MODE = "mode"; // Supply mode
     private static final int CHECK_INTERVAL = 20; // Check inventory every 20 ticks (1 second)
-    private static final int PENDING_TIMEOUT = 1200; // Clear pending after 1200 ticks (60 seconds) if not delivered
-    private static final int DELIVERY_COOLDOWN = 100; // Wait 100 ticks (5 seconds) after routing items before making new requests
     public static final int MAX_SUPPLY_SLOTS = 9;
+
     // TODO(Phase 11): Energy costs
     // private static final int RF_PER_ITEM = 1;
 
@@ -127,8 +138,6 @@ public class SupplierModule implements Module {
             Direction supplierDir = getSupplierDirection(ctx);
             if (supplierDir != null && options.contains(supplierDir)) {
                 if (!ctx.world().isClientSide()) {
-                    // Set cooldown to prevent immediate re-requesting during insertion delay
-                    ctx.saveInt(this, DELIVERY_COOLDOWN_REMAINING, DELIVERY_COOLDOWN);
                     LOGGER.info("[Supplier @ {}] Routing {} x{} to inventory ({})",
                             ctx.pos(), item.getStack().getItem(), item.getStack().getCount(), supplierDir);
                 }
@@ -167,28 +176,18 @@ public class SupplierModule implements Module {
 
         LOGGER.debug("[Supplier @ {}] Scanning inventory (direction: {})", ctx.pos(), supplierDir);
 
-        // Decrement and check delivery cooldown
-        int cooldownRemaining = ctx.getInt(this, DELIVERY_COOLDOWN_REMAINING, 0);
-        if (cooldownRemaining > 0) {
-            cooldownRemaining -= CHECK_INTERVAL;
-            if (cooldownRemaining > 0) {
-                ctx.saveInt(this, DELIVERY_COOLDOWN_REMAINING, cooldownRemaining);
-                LOGGER.debug("[Supplier @ {}] In delivery cooldown ({} ticks remaining), skipping requests",
-                        ctx.pos(), cooldownRemaining);
-                return;
-            } else {
-                // Cooldown expired
-                LOGGER.debug("[Supplier @ {}] Delivery cooldown expired, resuming requests", ctx.pos());
-                ctx.remove(this, DELIVERY_COOLDOWN_REMAINING);
-            }
-        }
-
         // Load pending requests and decrement timeouts
         CompoundTag pending = ctx.getCompoundTag(this, PENDING_REQUESTS);
         decrementAndCleanupPending(pending);
 
         // Get current inventory contents
         Map<ItemStack, Long> currentStock = scanInventory(ctx, supplierDir);
+
+        // Load previous inventory amounts to detect deliveries
+        CompoundTag previousAmounts = ctx.getCompoundTag(this, PREVIOUS_AMOUNTS);
+
+        // Get current mode
+        SupplyMode mode = getMode(ctx);
 
         // Check each configured supply and create requests for missing items
         for (SupplyConfig config : configs) {
@@ -213,46 +212,115 @@ public class SupplierModule implements Module {
             // Get pending amount for this item (items currently in transit)
             long pendingAmount = getPendingAmount(pending, config.itemId());
 
-            // If inventory has reached or exceeded target, clear pending (items were delivered successfully)
-            if (currentAmount >= config.amount() && pendingAmount > 0) {
-                LOGGER.info("[Supplier @ {}] Delivery confirmed for {}: inventory={}, target={}, clearing pending={}",
-                        ctx.pos(), config.itemId(), currentAmount, config.amount(), pendingAmount);
-                pending.remove(config.itemId());
-                pendingAmount = 0;
+            // Detect deliveries by comparing to previous amount
+            long previousAmount = NbtCompat.getLong(previousAmounts, config.itemId(), 0);
+
+            if (currentAmount > previousAmount && pendingAmount > 0) {
+                // Items were delivered - decrement pending by the amount delivered
+                long delivered = currentAmount - previousAmount;
+                long newPending = Math.max(0, pendingAmount - delivered);
+
+                if (newPending == 0) {
+                    pending.remove(config.itemId());
+                    LOGGER.info("[Supplier @ {}] Delivery confirmed for {}: received {} (pending cleared)",
+                            ctx.pos(), config.itemId(), delivered);
+                } else {
+                    CompoundTag itemPending = NbtCompat.getCompoundOrEmpty(pending, config.itemId());
+                    itemPending.putLong("amount", newPending);
+                    pending.put(config.itemId(), itemPending);
+                    LOGGER.info("[Supplier @ {}] Delivery confirmed for {}: received {} (pending: {} -> {})",
+                            ctx.pos(), config.itemId(), delivered, pendingAmount, newPending);
+                }
+
+                pendingAmount = newPending;
             }
+
+            // Update previous amount for next tick
+            previousAmounts.putLong(config.itemId(), currentAmount);
 
             // Calculate actual need: target - current - pending
             long needed = config.amount() - currentAmount - pendingAmount;
 
-            LOGGER.debug("[Supplier @ {}] Checking {}: target={}, current={}, pending={}, needed={}",
-                    ctx.pos(), config.itemId(), config.amount(), currentAmount, pendingAmount, needed);
+            LOGGER.debug("[Supplier @ {}] Checking {} (mode {}): target={}, current={}, pending={}, needed={}",
+                    ctx.pos(), config.itemId(), mode, config.amount(), currentAmount, pendingAmount, needed);
 
-            // If inventory needs more items, create request
-            if (needed > 0) {
-                long available = network.getAvailableAmount(stack);
+            // Mode-specific request logic
+            boolean shouldRequest = false;
+            long toRequest = 0;
+            long available = network.getAvailableAmount(stack);
 
-                if (available > 0) {
-                    long toRequest = Math.min(needed, available);
-                    LOGGER.info("[Supplier @ {}] Requesting {} x{} from network (available: {})",
-                            ctx.pos(), config.itemId(), toRequest, available);
-
-                    ItemRequest request = new ItemRequest(
-                        ctx.pos(),
-                        stack,
-                        toRequest,
-                        ctx.world().getGameTime()
-                    );
-                    network.addRequest(request);
-
-                    // Track this request as pending with timeout
-                    addPendingRequest(pending, config.itemId(), toRequest);
-
-                    // TODO(Phase 11): Consume energy
-                    // ctx.setEnergy(ctx.getEnergy() - (toRequest * RF_PER_ITEM));
-                } else {
-                    LOGGER.warn("[Supplier @ {}] Need {} x{} but NONE available in network!",
-                            ctx.pos(), config.itemId(), needed);
+            // Infinite mode ignores target and just fills available space
+            if (mode == SupplyMode.INFINITE) {
+                long availableSpace = getAvailableSpace(ctx, supplierDir, stack);
+                long spaceToFill = availableSpace - pendingAmount;
+                if (spaceToFill > 0) {
+                    int maxStackSize = stack.getMaxStackSize();
+                    toRequest = Math.min(Math.min(maxStackSize, spaceToFill), available);
+                    shouldRequest = toRequest > 0;
+                    if (shouldRequest) {
+                        LOGGER.info("[Supplier @ {}] Infinite mode: requesting {} x{} (space available: {}, 1 stack at a time)",
+                                ctx.pos(), config.itemId(), toRequest, availableSpace);
+                    }
                 }
+            } else if (needed > 0) {
+                switch (mode) {
+                    case STOCKED:
+                        // Bulk50 - only request when inventory drops to 50% or less of target
+                        if (currentAmount <= config.amount() / 2) {
+                            toRequest = Math.min(needed, available);
+                            shouldRequest = toRequest > 0;
+                            long percentFull = config.amount() > 0 ? (currentAmount * 100) / config.amount() : 0;
+                            if (shouldRequest) {
+                                LOGGER.info("[Supplier @ {}] Stocked mode: requesting {} x{} (at {}%)",
+                                        ctx.pos(), config.itemId(), toRequest, percentFull);
+                            }
+                        }
+                        break;
+
+                    case FULL:
+                        // Only request if the full needed amount is available
+                        if (available >= needed) {
+                            toRequest = needed;
+                            shouldRequest = true;
+                            LOGGER.info("[Supplier @ {}] Full mode: requesting {} x{} (full amount available)",
+                                    ctx.pos(), config.itemId(), toRequest);
+                        } else {
+                            LOGGER.debug("[Supplier @ {}] Full mode: need {} but only {} available, waiting",
+                                    ctx.pos(), config.itemId(), needed, available);
+                        }
+                        break;
+
+                    case PARTIAL:
+                    default:
+                        // Request whatever is available (original behavior)
+                        toRequest = Math.min(needed, available);
+                        shouldRequest = toRequest > 0;
+                        if (shouldRequest) {
+                            LOGGER.info("[Supplier @ {}] Partial mode: requesting {} x{} from network (available: {})",
+                                    ctx.pos(), config.itemId(), toRequest, available);
+                        }
+                        break;
+                }
+            }
+
+            // Create request if mode logic approved it
+            if (shouldRequest) {
+                ItemRequest request = new ItemRequest(
+                    ctx.pos(),
+                    stack,
+                    toRequest,
+                    ctx.world().getGameTime()
+                );
+                network.addRequest(request);
+
+                // Track this request as pending with timeout
+                addPendingRequest(pending, config.itemId(), toRequest);
+
+                // TODO(Phase 11): Consume energy
+                // ctx.setEnergy(ctx.getEnergy() - (toRequest * RF_PER_ITEM));
+            } else if (needed > 0 && available == 0) {
+                LOGGER.warn("[Supplier @ {}] Need {} x{} but NONE available in network!",
+                        ctx.pos(), config.itemId(), needed);
             }
         }
 
@@ -261,6 +329,13 @@ public class SupplierModule implements Module {
             ctx.putCompoundTag(this, PENDING_REQUESTS, pending);
         } else {
             ctx.remove(this, PENDING_REQUESTS);
+        }
+
+        // Save previous inventory amounts for next tick's delivery detection
+        if (!previousAmounts.isEmpty()) {
+            ctx.putCompoundTag(this, PREVIOUS_AMOUNTS, previousAmounts);
+        } else {
+            ctx.remove(this, PREVIOUS_AMOUNTS);
         }
     }
 
@@ -288,10 +363,57 @@ public class SupplierModule implements Module {
             }
 
             ItemStack stack = variant.toStack();
-            stock.merge(stack, amount, Long::sum);
+
+            // Find existing matching stack in map to properly aggregate
+            ItemStack existingKey = null;
+            for (ItemStack key : stock.keySet()) {
+                if (ItemStack.isSameItemSameComponents(key, stack)) {
+                    existingKey = key;
+                    break;
+                }
+            }
+
+            if (existingKey != null) {
+                stock.put(existingKey, stock.get(existingKey) + amount);
+            } else {
+                stock.put(stack, amount);
+            }
         }
 
         return stock;
+    }
+
+    /**
+     * Calculate available space in inventory for a specific item.
+     */
+    private long getAvailableSpace(PipeContext ctx, Direction direction, ItemStack targetStack) {
+        BlockPos targetPos = ctx.pos().relative(direction);
+        Storage<ItemVariant> storage = ItemStorage.SIDED.find(ctx.world(), targetPos, direction.getOpposite());
+
+        if (storage == null) {
+            return 0;
+        }
+
+        ItemVariant targetVariant = ItemVariant.of(targetStack);
+        long availableSpace = 0;
+
+        for (StorageView<ItemVariant> view : storage) {
+            long capacity = view.getCapacity();
+            ItemVariant variant = view.getResource();
+            long currentAmount = view.getAmount();
+
+            if (variant.isBlank()) {
+                // Empty slot - can hold full stack
+                availableSpace += targetStack.getMaxStackSize();
+            } else if (variant.equals(targetVariant)) {
+                // Slot has same item - can hold more up to capacity
+                long spaceInSlot = capacity - currentAmount;
+                availableSpace += spaceInSlot;
+            }
+            // Different item - can't use this slot
+        }
+
+        return availableSpace;
     }
 
     /**
@@ -328,7 +450,7 @@ public class SupplierModule implements Module {
         entry.putLong("amount", existing + amount);
 
         // Reset timeout to full duration when adding new request
-        entry.putInt("ticksRemaining", PENDING_TIMEOUT);
+        entry.putInt("ticksRemaining", LogisticsPipe.CONFIG.ORDER_TTL);
 
         pending.put(itemId, entry);
     }
@@ -457,6 +579,39 @@ public class SupplierModule implements Module {
     public boolean acceptsLowTierEnergyFrom(PipeContext ctx, Direction from) {
         // TODO(Phase 11): Accept energy for supply costs
         return false; // For now, no energy required
+    }
+
+    /**
+     * Get the current supply mode.
+     */
+    public SupplyMode getMode(PipeContext ctx) {
+        int ordinal = ctx.getInt(this, MODE, SupplyMode.PARTIAL.ordinal());
+        return SupplyMode.values()[ordinal];
+    }
+
+    /**
+     * Get the current supply mode as an integer (for GUI sync).
+     */
+    public int getModeOrdinal(PipeContext ctx) {
+        return ctx.getInt(this, MODE, SupplyMode.PARTIAL.ordinal());
+    }
+
+    /**
+     * Set the supply mode.
+     */
+    public void setMode(PipeContext ctx, SupplyMode mode) {
+        ctx.saveInt(this, MODE, mode.ordinal());
+        ctx.markDirtyAndSync();
+    }
+
+    /**
+     * Set the supply mode from ordinal (for GUI).
+     */
+    public void setModeFromOrdinal(PipeContext ctx, int ordinal) {
+        if (ordinal < 0 || ordinal >= SupplyMode.values().length) {
+            throw new IllegalArgumentException("Invalid mode ordinal: " + ordinal);
+        }
+        setMode(ctx, SupplyMode.values()[ordinal]);
     }
 
     /**

@@ -1,6 +1,9 @@
 package com.logistics.pipe.ui;
 
 import com.logistics.LogisticsPipe;
+import com.logistics.pipe.Pipe;
+import com.logistics.pipe.PipeContext;
+import com.logistics.pipe.block.PipeBlock;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.pipe.modules.SupplierModule;
 import net.minecraft.world.entity.player.Player;
@@ -43,8 +46,15 @@ public class SupplierScreenHandler extends AbstractContainerMenu {
 
         if (pipeEntity != null) {
             this.context = ContainerLevelAccess.create(pipeEntity.getLevel(), pipeEntity.getBlockPos());
-            // Load current mode (placeholder - will be implemented later)
-            data.set(0, 3); // Default to Partial mode
+            // Load current mode from module
+            PipeBlock block = (PipeBlock) pipeEntity.getBlockState().getBlock();
+            Pipe pipe = block.getPipe();
+            SupplierModule module = pipe.getModule(SupplierModule.class);
+            if (module != null) {
+                data.set(0, module.getModeOrdinal(pipeEntity.createContext()));
+            } else {
+                data.set(0, SupplierModule.SupplyMode.PARTIAL.ordinal());
+            }
         } else {
             this.context = ContainerLevelAccess.NULL;
         }
@@ -116,11 +126,26 @@ public class SupplierScreenHandler extends AbstractContainerMenu {
                 return;
             }
 
-            // Left-click: Add to count or place new item
+            // Left-click with empty cursor: Clear slot
             if (cursor.isEmpty()) {
-                return; // Nothing to do
+                supplyInventory.setItem(slotIndex, ItemStack.EMPTY);
+                context.execute((world, pos) -> {
+                    if (world.getBlockEntity(pos) instanceof PipeBlockEntity pipeEntity) {
+                        PipeBlock block = (PipeBlock) pipeEntity.getBlockState().getBlock();
+                        Pipe pipe = block.getPipe();
+                        SupplierModule module = pipe.getModule(SupplierModule.class);
+
+                        if (module != null) {
+                            PipeContext ctx = pipeEntity.createContext();
+                            module.setSupplyConfig(ctx, slotIndex, "", 0);
+                        }
+                    }
+                });
+                broadcastChanges();
+                return;
             }
 
+            // Left-click with item: Add to count or place new item
             String itemId = net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(cursor.getItem()).toString();
             int addAmount = cursor.getCount();
             int newAmount;
@@ -142,14 +167,13 @@ public class SupplierScreenHandler extends AbstractContainerMenu {
             // Save to module configuration
             int finalAmount = newAmount;
             context.execute((world, pos) -> {
-                if (world.getBlockEntity(pos) instanceof com.logistics.pipe.block.entity.PipeBlockEntity pipeEntity) {
-                    com.logistics.pipe.block.PipeBlock block =
-                            (com.logistics.pipe.block.PipeBlock) pipeEntity.getBlockState().getBlock();
-                    com.logistics.pipe.Pipe pipe = block.getPipe();
-                    com.logistics.pipe.modules.SupplierModule module = pipe.getModule(com.logistics.pipe.modules.SupplierModule.class);
+                if (world.getBlockEntity(pos) instanceof PipeBlockEntity pipeEntity) {
+                    PipeBlock block = (PipeBlock) pipeEntity.getBlockState().getBlock();
+                    Pipe pipe = block.getPipe();
+                    SupplierModule module = pipe.getModule(SupplierModule.class);
 
                     if (module != null) {
-                        com.logistics.pipe.PipeContext ctx = pipeEntity.createContext();
+                        PipeContext ctx = pipeEntity.createContext();
                         module.setSupplyConfig(ctx, slotIndex, itemId, finalAmount);
                     }
                 }
@@ -170,12 +194,24 @@ public class SupplierScreenHandler extends AbstractContainerMenu {
     @Override
     public boolean clickMenuButton(Player player, int id) {
         if (id == 0) {
-            // Cycle through modes: Bulk50(0) -> Bulk100(1) -> Infinite(2) -> Partial(3) -> Full(4) -> wrap to Bulk50
+            // Cycle through modes: Stocked(0) -> Infinite(1) -> Partial(2) -> Full(3) -> wrap to Stocked
             int currentMode = data.get(0);
-            int nextMode = (currentMode + 1) % 5;
+            int nextMode = (currentMode + 1) % 4;
             data.set(0, nextMode);
 
-            // TODO: Save mode to module when implemented
+            // Save mode to module
+            context.execute((world, pos) -> {
+                if (world.getBlockEntity(pos) instanceof PipeBlockEntity pipeEntity) {
+                    PipeBlock block = (PipeBlock) pipeEntity.getBlockState().getBlock();
+                    Pipe pipe = block.getPipe();
+                    SupplierModule module = pipe.getModule(SupplierModule.class);
+
+                    if (module != null) {
+                        PipeContext ctx = pipeEntity.createContext();
+                        module.setModeFromOrdinal(ctx, nextMode);
+                    }
+                }
+            });
             return true;
         }
         return false;
@@ -188,7 +224,19 @@ public class SupplierScreenHandler extends AbstractContainerMenu {
     @Override
     public void broadcastChanges() {
         super.broadcastChanges();
-        // TODO: Sync mode from module when implemented
+        // Sync mode from module to data slot
+        context.execute((world, pos) -> {
+            if (world.getBlockEntity(pos) instanceof PipeBlockEntity pipeEntity) {
+                PipeBlock block = (PipeBlock) pipeEntity.getBlockState().getBlock();
+                Pipe pipe = block.getPipe();
+                SupplierModule module = pipe.getModule(SupplierModule.class);
+
+                if (module != null) {
+                    PipeContext ctx = pipeEntity.createContext();
+                    data.set(0, module.getModeOrdinal(ctx));
+                }
+            }
+        });
     }
 
     private static class SupplySlot extends Slot {

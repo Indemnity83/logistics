@@ -189,11 +189,11 @@ public class ProviderModule implements Module {
             long extracted = storage.extract(variant, order.amount(), transaction);
             if (extracted > 0) {
                 ItemStack stack = variant.toStack((int) extracted);
-                // Create TravelingItem with destination
+                // Create TravelingItem with destination at max speed for fast delivery
                 TravelingItem item = new TravelingItem(
                     stack,
                     direction.getOpposite(),
-                    LogisticsPipe.CONFIG.ITEM_MIN_SPEED,
+                    LogisticsPipe.CONFIG.PROVIDER_PIPE_SPEED,
                     order.requester() // Set destination to requester position
                 );
                 ctx.blockEntity().forceAddItem(item, direction);
