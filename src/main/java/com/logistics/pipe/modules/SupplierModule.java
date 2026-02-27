@@ -105,7 +105,7 @@ public class SupplierModule implements Module {
                             world.getBlockEntity(pos) instanceof PipeBlockEntity entity ? entity : null;
                     return new SupplierScreenHandler(syncId, inventory, pipeEntity);
                 },
-                net.minecraft.network.chat.Component.translatable("screen.logistics.supplier")));
+                net.minecraft.network.chat.Component.translatable("screen.logistics.supplier.items_to_keep_stocked")));
         return InteractionResult.SUCCESS;
     }
 

@@ -5,7 +5,9 @@ import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.pipe.modules.SupplierModule;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.inventory.ContainerLevelAccess;
+import net.minecraft.world.inventory.SimpleContainerData;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.Container;
@@ -18,27 +20,31 @@ import net.minecraft.world.item.ItemStack;
 public class SupplierScreenHandler extends AbstractContainerMenu {
     private static final int SUPPLY_SLOT_COUNT = SupplierModule.MAX_SUPPLY_SLOTS;
     private static final int SLOT_SIZE = 18;
-    private static final int PLAYER_INV_START_Y = 84;
-    private static final int HOTBAR_Y = 142;
+    private static final int PLAYER_INV_START_Y = 60;
+    private static final int HOTBAR_Y = 118;
     private static final int SLOT_START_X = 8;
     private static final int SLOT_START_Y = 18;
 
     private final SupplyInventory supplyInventory;
     private final ContainerLevelAccess context;
+    private final ContainerData data;
 
     public SupplierScreenHandler(int syncId, Container playerInventory) {
-        super(LogisticsPipe.SCREEN.SUPPLIER, syncId);
-        this.context = ContainerLevelAccess.NULL;
-        this.supplyInventory = new SupplyInventory(null);
-
-        addSupplySlots(supplyInventory);
-        addPlayerInventorySlots(playerInventory);
+        this(syncId, playerInventory, null, new SimpleContainerData(1));
     }
 
     public SupplierScreenHandler(int syncId, Container playerInventory, PipeBlockEntity pipeEntity) {
+        this(syncId, playerInventory, pipeEntity, new SimpleContainerData(1));
+    }
+
+    private SupplierScreenHandler(int syncId, Container playerInventory, PipeBlockEntity pipeEntity, ContainerData data) {
         super(LogisticsPipe.SCREEN.SUPPLIER, syncId);
+        this.data = data;
+
         if (pipeEntity != null) {
             this.context = ContainerLevelAccess.create(pipeEntity.getLevel(), pipeEntity.getBlockPos());
+            // Load current mode (placeholder - will be implemented later)
+            data.set(0, 3); // Default to Partial mode
         } else {
             this.context = ContainerLevelAccess.NULL;
         }
@@ -46,17 +52,15 @@ public class SupplierScreenHandler extends AbstractContainerMenu {
 
         addSupplySlots(supplyInventory);
         addPlayerInventorySlots(playerInventory);
+        addDataSlots(data);
     }
 
     private void addSupplySlots(Container inventory) {
-        // 3x3 grid of supply slots
-        for (int row = 0; row < 3; row++) {
-            for (int col = 0; col < 3; col++) {
-                int x = SLOT_START_X + col * SLOT_SIZE;
-                int y = SLOT_START_Y + row * SLOT_SIZE;
-                int slotIndex = col + row * 3;
-                addSlot(new SupplySlot(inventory, slotIndex, x, y));
-            }
+        // Single row of 9 supply slots
+        for (int col = 0; col < 9; col++) {
+            int x = SLOT_START_X + col * SLOT_SIZE;
+            int y = SLOT_START_Y;
+            addSlot(new SupplySlot(inventory, col, x, y));
         }
     }
 
@@ -161,6 +165,30 @@ public class SupplierScreenHandler extends AbstractContainerMenu {
     @Override
     public ItemStack quickMoveStack(Player player, int slot) {
         return ItemStack.EMPTY;
+    }
+
+    @Override
+    public boolean clickMenuButton(Player player, int id) {
+        if (id == 0) {
+            // Cycle through modes: Bulk50(0) -> Bulk100(1) -> Infinite(2) -> Partial(3) -> Full(4) -> wrap to Bulk50
+            int currentMode = data.get(0);
+            int nextMode = (currentMode + 1) % 5;
+            data.set(0, nextMode);
+
+            // TODO: Save mode to module when implemented
+            return true;
+        }
+        return false;
+    }
+
+    public int getMode() {
+        return data.get(0);
+    }
+
+    @Override
+    public void broadcastChanges() {
+        super.broadcastChanges();
+        // TODO: Sync mode from module when implemented
     }
 
     private static class SupplySlot extends Slot {
