@@ -8,7 +8,8 @@
       "pull-request-title-pattern": "chore: release ${version} for ${component}",
       "initial-version": "0.3.0",
       "bump-minor-pre-major": true,
-      "bump-patch-for-minor-pre-major": true
+      "bump-patch-for-minor-pre-major": true,
+      "bootstrap-sha": "085d95cf5ff6314f0ba83a3733c60a6d36091963"
     }
   },
   "changelog-sections": [
