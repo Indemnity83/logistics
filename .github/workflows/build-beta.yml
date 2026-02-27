@@ -5,9 +5,6 @@ on:
     branches:
       - 'release-please--mc-**'
 
-permissions:
-  contents: write
-
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -42,7 +39,13 @@ jobs:
           BASE_BRANCH=${BASE_BRANCH//-/\/}
 
           # Count commits on this branch since divergence from base branch
-          BUILD_NUM=$(git rev-list --count origin/${BASE_BRANCH}..HEAD)
+          # Verify base ref exists before using it
+          if git rev-parse --verify origin/${BASE_BRANCH} >/dev/null 2>&1; then
+            BUILD_NUM=$(git rev-list --count origin/${BASE_BRANCH}..HEAD)
+          else
+            echo "⚠️  Base branch origin/${BASE_BRANCH} not found, falling back to HEAD commit count"
+            BUILD_NUM=$(git rev-list --count HEAD)
+          fi
 
           # Construct beta version
           BETA_VERSION="${BASE_VERSION}-beta.${BUILD_NUM}"
