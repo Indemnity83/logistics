@@ -4,6 +4,8 @@ import com.logistics.core.bootstrap.DomainBootstrap;
 import com.logistics.core.fabricator.KilnBlock;
 import com.logistics.core.fabricator.KilnBlockEntity;
 import com.logistics.core.fabricator.KilnRecipeManager;
+import com.logistics.core.fabricator.KilnRecipeSerializer;
+import com.logistics.core.fabricator.KilnRecipeWrapper;
 import com.logistics.core.fabricator.KilnScreenHandler;
 import com.logistics.core.item.ProbeItem;
 import com.logistics.core.item.WrenchItem;
@@ -38,6 +40,8 @@ import net.minecraft.world.level.block.DropExperienceBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.item.crafting.RecipeType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -68,6 +72,11 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         ENTITY.register();
         FLUID.register();
         CREATIVE_TAB.register();
+        RECIPE.register();
+
+        // Initialize public references
+        KILN_RECIPE_TYPE = RECIPE.KILN_RECIPE_TYPE;
+        KILN_RECIPE_SERIALIZER = RECIPE.KILN_RECIPE_SERIALIZER;
 
         KilnRecipeManager.register();
         registerStorageAccess();
@@ -200,6 +209,35 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         private MENU() {}
     }
 
+    public static final class RECIPE {
+        public static RecipeType<KilnRecipeWrapper> KILN_RECIPE_TYPE;
+        public static RecipeSerializer<KilnRecipeWrapper> KILN_RECIPE_SERIALIZER;
+
+        private RECIPE() {}
+
+        static void register() {
+            KILN_RECIPE_TYPE = Registry.register(
+                BuiltInRegistries.RECIPE_TYPE,
+                LogisticsMod.modId("kiln").toIdentifier(),
+                new RecipeType<KilnRecipeWrapper>() {
+                    @Override
+                    public String toString() {
+                        return "logistics:kiln";
+                    }
+                }
+            );
+
+            KILN_RECIPE_SERIALIZER = Registry.register(
+                BuiltInRegistries.RECIPE_SERIALIZER,
+                LogisticsMod.modId("kiln").toIdentifier(),
+                new KilnRecipeSerializer()
+            );
+        }
+    }
+
+    // Keep these public for reference in KilnRecipeWrapper
+    public static RecipeType<KilnRecipeWrapper> KILN_RECIPE_TYPE;
+    public static RecipeSerializer<KilnRecipeWrapper> KILN_RECIPE_SERIALIZER;
 
     public static final class ITEM {
         public static Item WRENCH;

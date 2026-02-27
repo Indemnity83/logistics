@@ -6,7 +6,9 @@
     "BBB"
   ],
   "key": {
-    "B": "minecraft:bricks"
+    "B": {
+      "item": "minecraft:bricks"
+    }
   },
   "result": {
     "id": "logistics:core/kiln",
