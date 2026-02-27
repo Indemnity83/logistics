@@ -1,5 +1,25 @@
 # Changelog
 
+## [0.3.5](https://github.com/Indemnity83/logistics/compare/mc1.21.1-v0.3.4...mc1.21.1-v0.3.5) (2026-02-27)
+
+
+### Features
+
+* register kiln recipe type and serializer for JSON parsing ([#154](https://github.com/Indemnity83/logistics/issues/154)) ([6261829](https://github.com/Indemnity83/logistics/commit/6261829ce0a7d99e094b2759ab7db90b25021a14))
+
+
+### Bug Fixes
+
+* restore crafting and kiln recipe loading by updating recipe data paths ([#152](https://github.com/Indemnity83/logistics/issues/152)) ([455374c](https://github.com/Indemnity83/logistics/commit/455374c521a16a58d6bbc1de1b75216e06ba2e88))
+* standardize internal pipe item drops via PipeBlockEntity helper ([#149](https://github.com/Indemnity83/logistics/issues/149)) ([7fa55db](https://github.com/Indemnity83/logistics/commit/7fa55dbed90af089936ec05609d72708ba2f630b))
+* update Gradle testLogging exceptionFormat syntax ([#147](https://github.com/Indemnity83/logistics/issues/147)) ([ac53503](https://github.com/Indemnity83/logistics/commit/ac53503ead76099964d34081778a0cd5374bee9d))
+
+
+### Performance
+
+* avoid per-tick pipe connection cache recalculation ([#143](https://github.com/Indemnity83/logistics/issues/143)) ([c1761a7](https://github.com/Indemnity83/logistics/commit/c1761a7c0592017dbcc8ef194851e476f92f122e))
+* gate pipe connection updates behind cache dirty flag ([#150](https://github.com/Indemnity83/logistics/issues/150)) ([ffddf08](https://github.com/Indemnity83/logistics/commit/ffddf08db5702b6a4e2ff5721c9f0eeb58afb03f))
+
 ## [0.3.4](https://github.com/Indemnity83/logistics/compare/mc1.21.1-v0.3.3...mc1.21.1-v0.3.4) (2026-02-25)
 
 
