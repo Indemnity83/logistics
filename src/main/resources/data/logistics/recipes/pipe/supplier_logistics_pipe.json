@@ -5,11 +5,11 @@
     "RBR"
   ],
   "key": {
-    "E": "logistics:core/bronze_gear",
+    "E": "logistics:core/gold_gear",
     "R": "minecraft:redstone",
     "B": "logistics:pipe/basic_logistics_pipe"
   },
   "result": {
-    "id": "logistics:pipe/provider_logistics_pipe"
+    "id": "logistics:pipe/supplier_logistics_pipe"
   }
 }

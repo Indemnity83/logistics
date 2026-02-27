@@ -71,7 +71,8 @@ public class ProviderModule implements Module {
      * Scan ALL adjacent inventories and update the network provider cache.
      */
     private void scanAndUpdateCache(PipeContext ctx) {
-        PipeNetwork network = NetworkRegistry.getNetwork(ctx.world(), ctx.pos());
+        // Ensure this pipe is part of a network (creates/joins on first tick after load)
+        PipeNetwork network = NetworkRegistry.getOrCreateNetwork(ctx.world(), ctx.pos());
         if (network == null) {
             return;
         }
@@ -123,7 +124,8 @@ public class ProviderModule implements Module {
      * Try to extract items from ANY connected inventory.
      */
     private void processPendingOrders(PipeContext ctx) {
-        PipeNetwork network = NetworkRegistry.getNetwork(ctx.world(), ctx.pos());
+        // Ensure this pipe is part of a network (creates/joins on first tick after load)
+        PipeNetwork network = NetworkRegistry.getOrCreateNetwork(ctx.world(), ctx.pos());
         if (network == null) {
             return;
         }

@@ -1,5 +1,7 @@
 package com.logistics.core.lib.network;
 
+import com.logistics.core.lib.block.capability.PipeConnection;
+import com.logistics.pipe.block.PipeBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
@@ -344,11 +346,11 @@ public class NetworkRegistry {
             BlockPos neighborPos = pos.relative(direction);
             BlockState state = level.getBlockState(pos);
 
-            if (state.getBlock() instanceof com.logistics.pipe.block.PipeBlock pipeBlock) {
-                com.logistics.core.lib.block.capability.PipeConnection.Type connectionType =
+            if (state.getBlock() instanceof PipeBlock pipeBlock) {
+                PipeConnection.Type connectionType =
                     pipeBlock.getConnectionType(level, pos, direction);
 
-                if (connectionType != com.logistics.core.lib.block.capability.PipeConnection.Type.NONE) {
+                if (connectionType != PipeConnection.Type.NONE) {
                     // Check if neighbor is also a pipe
                     if (isPipe(level, neighborPos)) {
                         neighbors.add(neighborPos);
@@ -364,7 +366,7 @@ public class NetworkRegistry {
      * Check if a block at the given position is a pipe.
      */
     private static boolean isPipe(Level level, BlockPos pos) {
-        return level.getBlockState(pos).getBlock() instanceof com.logistics.pipe.block.PipeBlock;
+        return level.getBlockState(pos).getBlock() instanceof PipeBlock;
     }
 
     /**

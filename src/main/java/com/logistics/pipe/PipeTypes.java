@@ -60,6 +60,12 @@ public final class PipeTypes {
             new RequesterModule())
             .withEnergy();
 
+    // Supplier Logistics Pipe - maintains inventory stock levels by requesting items from the network.
+    public static final Pipe SUPPLIER_LOGISTICS_PIPE = new Pipe(
+            new SupplierModule(),
+            new NetworkRouterModule())
+            .withEnergy();
+
     // -----------------
     // Special
     // -----------------

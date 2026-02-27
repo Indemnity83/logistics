@@ -39,6 +39,7 @@ public final class LogisticsPipeClient implements DomainBootstrap {
 
         MenuScreens.register(LogisticsPipe.SCREEN.ITEM_FILTER, ItemFilterScreen::new);
         MenuScreens.register(LogisticsPipe.SCREEN.REQUESTER, com.logistics.pipe.screen.RequesterScreen::new);
+        MenuScreens.register(LogisticsPipe.SCREEN.SUPPLIER, com.logistics.pipe.screen.SupplierScreen::new);
     }
 
     public static final class MODEL {
@@ -107,6 +108,11 @@ public final class LogisticsPipeClient implements DomainBootstrap {
             registerModel("requester_logistics_pipe_arm_extended");
             registerModel("requester_logistics_pipe_feature");
             registerModel("requester_logistics_pipe_feature_extended");
+            registerModel("supplier_logistics_pipe_core");
+            registerModel("supplier_logistics_pipe_arm");
+            registerModel("supplier_logistics_pipe_arm_extended");
+            registerModel("supplier_logistics_pipe_feature");
+            registerModel("supplier_logistics_pipe_feature_extended");
         }
 
         private static final Map<ResourceId, ExtraModelKey<BlockStateModel>> MODEL_LOOKUP = Map.copyOf(TEMP_LOOKUP);

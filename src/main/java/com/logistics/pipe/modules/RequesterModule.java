@@ -1,11 +1,14 @@
 package com.logistics.pipe.modules;
 
+import com.logistics.LogisticsPipe;
 import com.logistics.core.lib.network.ItemRequest;
 import com.logistics.core.lib.network.NetworkRegistry;
 import com.logistics.core.lib.network.PipeNetwork;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.core.lib.storage.NbtCompat;
 import com.logistics.pipe.PipeContext;
+import com.logistics.pipe.block.entity.PipeBlockEntity;
+import com.logistics.pipe.ui.RequesterScreenHandler;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
@@ -83,9 +86,9 @@ public class RequesterModule implements Module {
         net.minecraft.core.BlockPos pos = ctx.pos();
         serverPlayer.openMenu(new net.minecraft.world.SimpleMenuProvider(
                 (syncId, inventory, playerEntity) -> {
-                    com.logistics.pipe.block.entity.PipeBlockEntity pipeEntity =
-                            world.getBlockEntity(pos) instanceof com.logistics.pipe.block.entity.PipeBlockEntity entity ? entity : null;
-                    return new com.logistics.pipe.ui.RequesterScreenHandler(syncId, inventory, pipeEntity);
+                    PipeBlockEntity pipeEntity =
+                            world.getBlockEntity(pos) instanceof PipeBlockEntity entity ? entity : null;
+                    return new RequesterScreenHandler(syncId, inventory, pipeEntity);
                 },
                 net.minecraft.network.chat.Component.translatable("screen.logistics.requester")));
         return InteractionResult.SUCCESS;
@@ -97,14 +100,15 @@ public class RequesterModule implements Module {
             return null;
         }
         String suffix = ctx.isInventoryConnection(direction) ? "_feature_extended" : "_feature";
-        return com.logistics.LogisticsPipe.model("requester_logistics_pipe" + suffix);
+        return LogisticsPipe.model("requester_logistics_pipe" + suffix);
     }
 
     /**
      * Process configured requests - check network availability and create ItemRequest objects.
      */
     private void processRequests(PipeContext ctx) {
-        PipeNetwork network = NetworkRegistry.getNetwork(ctx.world(), ctx.pos());
+        // Ensure this pipe is part of a network (creates/joins on first tick after load)
+        PipeNetwork network = NetworkRegistry.getOrCreateNetwork(ctx.world(), ctx.pos());
         if (network == null) {
             return;
         }
@@ -271,7 +275,8 @@ public class RequesterModule implements Module {
 
         // TODO(Phase 11): Check and consume energy (5 RF per request)
 
-        PipeNetwork network = NetworkRegistry.getNetwork(ctx.world(), ctx.pos());
+        // Ensure this pipe is part of a network (creates/joins on first tick after load)
+        PipeNetwork network = NetworkRegistry.getOrCreateNetwork(ctx.world(), ctx.pos());
         if (network == null) {
             return;
         }
