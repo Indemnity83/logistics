@@ -37,12 +37,7 @@ public class SupplyInventory implements Container {
 
     @Override
     public boolean isEmpty() {
-        for (ItemStack stack : stacks) {
-            if (!stack.isEmpty()) {
-                return false;
-            }
-        }
-        return true;
+        return stacks.stream().allMatch(ItemStack::isEmpty);
     }
 
     @Override

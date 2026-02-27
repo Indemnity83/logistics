@@ -2,10 +2,16 @@ package com.logistics.core.lib.network;
 
 import net.minecraft.core.BlockPos;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.PriorityQueue;
+import java.util.Set;
 
 /**
- * A* pathfinding for pipe networks.
+ * A* algorithm pathfinding for pipe networks.
  * Finds shortest path between two positions using Manhattan distance heuristic.
  */
 public class NetworkPathfinder {

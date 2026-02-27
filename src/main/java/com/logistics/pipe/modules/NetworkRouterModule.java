@@ -43,7 +43,7 @@ public class NetworkRouterModule implements Module {
             }
         }
 
-        // If destination is the current position, item has arrived pass on routing
+        // If destination is the current position, item has arrived - pass it on for routing
         if (item.getDestination().equals(ctx.pos())) {
             return RoutePlan.pass();
         }

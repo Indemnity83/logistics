@@ -7,7 +7,16 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
+import java.util.Set;
+import java.util.UUID;
 
 import static com.logistics.LogisticsMod.LOGGER;
 
@@ -69,14 +78,7 @@ public class NetworkRegistry {
             unmappedPipes = allUnmappedPipes;
 
             // Check if any of these unmapped pipes have neighbors in existing networks
-            for (BlockPos unmappedPipe : allUnmappedPipes) {
-                for (BlockPos unmappedNeighbor : getNeighbors(level, unmappedPipe)) {
-                    UUID unmappedNeighborId = levelPositions.get(unmappedNeighbor);
-                    if (unmappedNeighborId != null) {
-                        neighborNetworks.add(unmappedNeighborId);
-                    }
-                }
-            }
+            addNetworksAdjacentToUnmappedPipes(level, allUnmappedPipes, levelPositions, neighborNetworks);
         }
 
         PipeNetwork network;
@@ -292,6 +294,26 @@ public class NetworkRegistry {
         }
 
         return visited;
+    }
+
+    /**
+     * Find all networks that are adjacent to the given unmapped pipes.
+     * Adds found network IDs to the neighborNetworks set.
+     */
+    private static void addNetworksAdjacentToUnmappedPipes(
+        Level level,
+        Set<BlockPos> unmappedPipes,
+        Map<BlockPos, UUID> levelPositions,
+        Set<UUID> neighborNetworks
+    ) {
+        for (BlockPos unmappedPipe : unmappedPipes) {
+            for (BlockPos neighbor : getNeighbors(level, unmappedPipe)) {
+                UUID neighborId = levelPositions.get(neighbor);
+                if (neighborId != null) {
+                    neighborNetworks.add(neighborId);
+                }
+            }
+        }
     }
 
     /**
