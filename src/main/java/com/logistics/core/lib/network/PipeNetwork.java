@@ -168,26 +168,28 @@ public class PipeNetwork {
 
         for (ProviderCache cache : providerCaches.values()) {
             for (Map.Entry<ItemStack, Long> entry : cache.getAvailableItems().entrySet()) {
-                ItemStack stack = entry.getKey();
-                long amount = entry.getValue();
-
-                // Find matching stack in aggregated map
-                boolean found = false;
-                for (Map.Entry<ItemStack, Long> existing : aggregated.entrySet()) {
-                    if (ItemStack.isSameItemSameComponents(existing.getKey(), stack)) {
-                        existing.setValue(existing.getValue() + amount);
-                        found = true;
-                        break;
-                    }
-                }
-
-                if (!found) {
-                    aggregated.put(stack.copy(), amount);
-                }
+                addToAggregatedItems(aggregated, entry.getKey(), entry.getValue());
             }
         }
 
         return aggregated;
+    }
+
+    /**
+     * Add an item amount to the aggregated map, combining with existing amounts
+     * for items that are the same (same item and components).
+     */
+    private void addToAggregatedItems(Map<ItemStack, Long> aggregated, ItemStack stack, long amount) {
+        // Try to find existing matching stack
+        for (Map.Entry<ItemStack, Long> existing : aggregated.entrySet()) {
+            if (ItemStack.isSameItemSameComponents(existing.getKey(), stack)) {
+                existing.setValue(existing.getValue() + amount);
+                return;
+            }
+        }
+
+        // No match found - add new entry
+        aggregated.put(stack.copy(), amount);
     }
 
     /**
@@ -309,52 +311,78 @@ public class PipeNetwork {
         LogisticsMod.LOGGER.info("[Network {}] Finding sink for {} (members: {}, default routes: {})",
                 getNetworkIdShort(id), stack.getItem(), members.size(), defaultRouteSinks.size());
 
-        BlockPos bestSink = null;
-        int bestPriority = Integer.MIN_VALUE;
-
-        // Check all network members for SinkModules with matching filters
-        for (BlockPos pos : members) {
-            if (world.getBlockEntity(pos) instanceof PipeBlockEntity pipeEntity) {
-                PipeBlock block = (PipeBlock) pipeEntity.getBlockState().getBlock();
-                Pipe pipe = block.getPipe();
-                SinkModule sinkModule = pipe.getModule(SinkModule.class);
-
-                if (sinkModule != null) {
-                    PipeContext ctx = pipeEntity.createContext();
-
-                    // Check if this sink has a matching filter
-                    if (sinkModule.matchesFilter(ctx, stack)) {
-                        int priority = FILTERED_SINK_PRIORITY;
-                        if (priority > bestPriority) {
-                            bestSink = pos;
-                            bestPriority = priority;
-                            LogisticsMod.LOGGER.info("[Network {}] Found filtered sink at {} (priority: {})",
-                                    getNetworkIdShort(id), pos, priority);
-                        }
-                    }
-                }
-            }
-        }
-
-        // If no filtered sink found, check default route sinks
+        // Check filtered sinks first, then fall back to default routes
+        BlockPos bestSink = findFilteredSink(world, stack);
         if (bestSink == null) {
-            LogisticsMod.LOGGER.info("[Network {}] No filtered sink, checking {} default routes",
-                    getNetworkIdShort(id), defaultRouteSinks.size());
-            for (BlockPos sink : defaultRouteSinks) {
-                LogisticsMod.LOGGER.info("[Network {}] Checking default route at {} (in members: {})",
-                        getNetworkIdShort(id), sink, members.contains(sink));
-                int priority = sinkPriorities.getOrDefault(sink, DEFAULT_SINK_PRIORITY);
-                if (priority > bestPriority && members.contains(sink)) {
-                    bestSink = sink;
-                    bestPriority = priority;
-                    LogisticsMod.LOGGER.info("[Network {}] Selected default route at {} (priority: {})",
-                            getNetworkIdShort(id), sink, priority);
-                }
-            }
+            bestSink = findDefaultRouteSink();
         }
 
         if (bestSink == null) {
             LogisticsMod.LOGGER.warn("[Network {}] No sink found for {}", getNetworkIdShort(id), stack.getItem());
+        }
+
+        return bestSink;
+    }
+
+    /**
+     * Find a sink with a matching filter for the given item.
+     * @param world Level to query pipe entities
+     * @param stack ItemStack to find sink for
+     * @return BlockPos of filtered sink, or null if none matches
+     */
+    private BlockPos findFilteredSink(Level world, ItemStack stack) {
+        for (BlockPos pos : members) {
+            if (!(world.getBlockEntity(pos) instanceof PipeBlockEntity pipeEntity)) {
+                continue;
+            }
+
+            PipeBlock block = (PipeBlock) pipeEntity.getBlockState().getBlock();
+            Pipe pipe = block.getPipe();
+            SinkModule sinkModule = pipe.getModule(SinkModule.class);
+
+            if (sinkModule == null) {
+                continue;
+            }
+
+            PipeContext ctx = pipeEntity.createContext();
+            if (sinkModule.matchesFilter(ctx, stack)) {
+                LogisticsMod.LOGGER.info("[Network {}] Found filtered sink at {}",
+                        getNetworkIdShort(id), pos);
+                return pos;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Find the highest-priority default route sink.
+     * @return BlockPos of best default route sink, or null if none available
+     */
+    private BlockPos findDefaultRouteSink() {
+        LogisticsMod.LOGGER.info("[Network {}] No filtered sink, checking {} default routes",
+                getNetworkIdShort(id), defaultRouteSinks.size());
+
+        BlockPos bestSink = null;
+        int bestPriority = Integer.MIN_VALUE;
+
+        for (BlockPos sink : defaultRouteSinks) {
+            if (!members.contains(sink)) {
+                continue;
+            }
+
+            int priority = sinkPriorities.getOrDefault(sink, DEFAULT_SINK_PRIORITY);
+            if (priority > bestPriority) {
+                LogisticsMod.LOGGER.info("[Network {}] Found default route at {} (priority: {})",
+                        getNetworkIdShort(id), sink, priority);
+                bestSink = sink;
+                bestPriority = priority;
+            }
+        }
+
+        if (bestSink != null) {
+            LogisticsMod.LOGGER.info("[Network {}] Selected default route at {}",
+                    getNetworkIdShort(id), bestSink);
         }
 
         return bestSink;

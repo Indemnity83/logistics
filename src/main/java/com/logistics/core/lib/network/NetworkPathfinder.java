@@ -69,24 +69,49 @@ public class NetworkPathfinder {
                 return reconstructPath(current);
             }
 
-            // Check all 6 adjacent positions
-            for (BlockPos neighbor : getNeighbors(current.pos)) {
-                if (!networkMembers.contains(neighbor)) {
-                    continue;
-                }
-
-                double newGCost = current.gCost + MOVE_COST;
-                Double existingCost = bestCosts.get(neighbor);
-
-                if (existingCost == null || newGCost < existingCost) {
-                    bestCosts.put(neighbor, newGCost);
-                    double hCost = manhattanDistance(neighbor, goal);
-                    openSet.add(new Node(neighbor, newGCost, hCost, current));
-                }
-            }
+            evaluateNeighbors(current, goal, networkMembers, openSet, bestCosts);
         }
 
         return null; // No path found
+    }
+
+    /**
+     * Evaluate all neighbors of the current node and add them to the open set if they offer a better path.
+     */
+    private static void evaluateNeighbors(
+        Node current,
+        BlockPos goal,
+        Set<BlockPos> networkMembers,
+        PriorityQueue<Node> openSet,
+        Map<BlockPos, Double> bestCosts
+    ) {
+        for (BlockPos neighbor : getNeighbors(current.pos)) {
+            if (!networkMembers.contains(neighbor)) {
+                continue;
+            }
+
+            updatePathIfBetter(current, neighbor, goal, openSet, bestCosts);
+        }
+    }
+
+    /**
+     * Update the path to a neighbor if the new route offers a lower cost.
+     */
+    private static void updatePathIfBetter(
+        Node current,
+        BlockPos neighbor,
+        BlockPos goal,
+        PriorityQueue<Node> openSet,
+        Map<BlockPos, Double> bestCosts
+    ) {
+        double newGCost = current.gCost + MOVE_COST;
+        Double existingCost = bestCosts.get(neighbor);
+
+        if (existingCost == null || newGCost < existingCost) {
+            bestCosts.put(neighbor, newGCost);
+            double hCost = manhattanDistance(neighbor, goal);
+            openSet.add(new Node(neighbor, newGCost, hCost, current));
+        }
     }
 
     private static List<BlockPos> reconstructPath(Node goal) {
