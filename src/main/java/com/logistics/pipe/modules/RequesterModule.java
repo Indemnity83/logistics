@@ -245,15 +245,6 @@ public class RequesterModule implements Module {
         ctx.markDirtyAndSync();
     }
 
-    private Direction nextInCycle(List<Direction> ordered, @Nullable Direction current) {
-        if (ordered.isEmpty()) {
-            throw new IllegalArgumentException("ordered directions must not be empty");
-        }
-
-        int idx = (current == null) ? -1 : ordered.indexOf(current);
-        return (idx < 0) ? ordered.getFirst() : ordered.get((idx + 1) % ordered.size());
-    }
-
     private boolean isRequesterFace(PipeContext ctx, Direction direction) {
         return getRequesterDirection(ctx) == direction;
     }

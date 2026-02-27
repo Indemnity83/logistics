@@ -107,16 +107,11 @@ public class RequestInventory implements Container {
         // Get network
         PipeNetwork network = NetworkRegistry.getOrCreateNetwork(pipeEntity.getLevel(), pipeEntity.getBlockPos());
         if (network == null) {
-            System.out.println("[RequestInventory @ " + pipeEntity.getBlockPos() + "] No network found!");
             return;
         }
 
         // Get all available items from network
         Map<ItemStack, Long> availableItems = network.getAllAvailableItems();
-        System.out.println("[RequestInventory @ " + pipeEntity.getBlockPos() + "] Network " + network.getId() + " has " + availableItems.size() + " item types:");
-        for (Map.Entry<ItemStack, Long> entry : availableItems.entrySet()) {
-            System.out.println("  - " + entry.getKey().getItem() + " x" + entry.getValue());
-        }
 
         // Show first 9 item types
         List<Map.Entry<ItemStack, Long>> entries = new ArrayList<>(availableItems.entrySet());

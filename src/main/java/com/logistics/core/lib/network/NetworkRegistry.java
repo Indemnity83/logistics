@@ -355,7 +355,7 @@ public class NetworkRegistry {
         // Only include neighbors where pipes are actually connected
         for (Direction direction : Direction.values()) {
             BlockPos neighborPos = pos.relative(direction);
-            BlockState state = level.getBlockState(pos);
+            BlockState state = level.getBlockState(neighborPos);
 
             if (state.getBlock() instanceof PipeBlock pipeBlock) {
                 PipeConnection.Type connectionType =
