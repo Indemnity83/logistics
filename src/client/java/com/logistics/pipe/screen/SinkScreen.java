@@ -40,10 +40,10 @@ public class SinkScreen extends AbstractContainerScreen<SinkScreenHandler> {
         this.defaultRouteButton = Button.builder(
                 getDefaultRouteButtonText(),
                 button -> {
-                    // Toggle default route
-                    boolean newValue = !menu.isDefaultRoute();
-                    menu.setDefaultRoute(newValue);
-                    button.setMessage(getDefaultRouteButtonText());
+                    // Send button click to server (button ID = 0)
+                    if (minecraft != null && minecraft.gameMode != null) {
+                        minecraft.gameMode.handleInventoryButtonClick(menu.containerId, 0);
+                    }
                 })
                 .bounds(buttonX, buttonY, buttonWidth, buttonHeight)
                 .build();

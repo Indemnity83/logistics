@@ -1,6 +1,8 @@
 package com.logistics.pipe.modules;
 
 import com.logistics.LogisticsPipe;
+import com.logistics.core.lib.network.NetworkRegistry;
+import com.logistics.core.lib.network.PipeNetwork;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.core.lib.storage.NbtCompat;
 import com.logistics.pipe.PipeContext;
@@ -35,6 +37,20 @@ public class SinkModule implements Module {
     private static final String DEFAULT_ROUTE = "default_route"; // Accept any item without destination
     private static final String SINK_DIRECTION = "sink_direction"; // Connected inventory face
     public static final int MAX_FILTER_SLOTS = 9;
+
+    @Override
+    public void onTick(PipeContext ctx) {
+        // Ensure this sink is registered/unregistered with the network based on default route setting
+        if (ctx.world().isClientSide()) {
+            return;
+        }
+
+        PipeNetwork network = NetworkRegistry.getNetwork(ctx.world(), ctx.pos());
+        if (network != null && isDefaultRoute(ctx)) {
+            // Register as default route sink
+            network.registerDefaultRouteSink(ctx.pos(), 0);
+        }
+    }
 
     @Override
     public void onConnectionsChanged(PipeContext ctx, List<Direction> options) {
@@ -88,20 +104,40 @@ public class SinkModule implements Module {
             return RoutePlan.pass();
         }
 
-        // Check if item matches any filter
+        // Check if item matches any filter (HIGHEST PRIORITY)
         if (matchesFilter(ctx, item.getStack())) {
             LOGGER.debug("[Sink @ {}] Item {} matches filter, routing to inventory ({})",
                     ctx.pos(), item.getStack().getItem(), sinkDir);
             return RoutePlan.reroute(sinkDir);
         }
 
-        // Check if this is a default route sink
+        // Check if item's destination is this sink (network routed it here)
+        if (item.getDestination() != null && item.getDestination().equals(ctx.pos())) {
+            LOGGER.info("[Sink @ {}] Item {} arrived at destination, routing to inventory ({})",
+                    ctx.pos(), item.getStack().getItem(), sinkDir);
+            return RoutePlan.reroute(sinkDir);
+        }
+
+        // Check if this is a default route sink (FALLBACK - lowest priority)
         if (isDefaultRoute(ctx)) {
-            // Accept items without a destination
+            // Only accept items without a destination if there are NO other routing options
+            // (i.e., this is the last chance before the item would be dropped)
             if (item.getDestination() == null) {
-                LOGGER.info("[Sink @ {}] Default route accepting {} without destination, routing to inventory ({})",
-                        ctx.pos(), item.getStack().getItem(), sinkDir);
-                return RoutePlan.reroute(sinkDir);
+                // Check if there are other directions besides the sink direction
+                long otherDirections = options.stream()
+                        .filter(dir -> !dir.equals(sinkDir))
+                        .count();
+
+                // Only accept if this is the last option (no other pipes to try)
+                if (otherDirections == 0) {
+                    LOGGER.info("[Sink @ {}] Default route accepting {} (no other options), routing to inventory ({})",
+                            ctx.pos(), item.getStack().getItem(), sinkDir);
+                    return RoutePlan.reroute(sinkDir);
+                } else {
+                    LOGGER.debug("[Sink @ {}] Default route passing on {} ({} other directions available)",
+                            ctx.pos(), item.getStack().getItem(), otherDirections);
+                    return RoutePlan.pass();
+                }
             }
         }
 
@@ -111,7 +147,7 @@ public class SinkModule implements Module {
     /**
      * Check if item matches any configured filter.
      */
-    private boolean matchesFilter(PipeContext ctx, ItemStack stack) {
+    public boolean matchesFilter(PipeContext ctx, ItemStack stack) {
         CompoundTag filters = ctx.getCompoundTag(this, FILTERS);
 
         for (int i = 0; i < MAX_FILTER_SLOTS; i++) {
@@ -199,7 +235,19 @@ public class SinkModule implements Module {
         ctx.saveInt(this, DEFAULT_ROUTE, enabled ? 1 : 0);
         ctx.markDirtyAndSync();
 
-        LOGGER.info("[Sink @ {}] Default route set to: {}", ctx.pos(), enabled);
+        // Register/unregister with network
+        if (!ctx.world().isClientSide()) {
+            PipeNetwork network = NetworkRegistry.getNetwork(ctx.world(), ctx.pos());
+            if (network != null) {
+                if (enabled) {
+                    network.registerDefaultRouteSink(ctx.pos(), 0);
+                    LOGGER.info("[Sink @ {}] Default route enabled and registered with network", ctx.pos());
+                } else {
+                    network.unregisterDefaultRouteSink(ctx.pos());
+                    LOGGER.info("[Sink @ {}] Default route disabled and unregistered from network", ctx.pos());
+                }
+            }
+        }
     }
 
     @Nullable

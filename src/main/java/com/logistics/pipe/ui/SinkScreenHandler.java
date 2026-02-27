@@ -7,7 +7,9 @@ import com.logistics.pipe.modules.SinkModule;
 import com.logistics.pipe.Pipe;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.inventory.ContainerLevelAccess;
+import net.minecraft.world.inventory.SimpleContainerData;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.Container;
@@ -27,28 +29,29 @@ public class SinkScreenHandler extends AbstractContainerMenu {
 
     private final SinkInventory sinkInventory;
     private final ContainerLevelAccess context;
-    private boolean defaultRoute = false;
+    private final ContainerData data;
 
     public SinkScreenHandler(int syncId, Container playerInventory) {
-        super(LogisticsPipe.SCREEN.SINK, syncId);
-        this.context = ContainerLevelAccess.NULL;
-        this.sinkInventory = new SinkInventory(null);
-
-        addFilterSlots(sinkInventory);
-        addPlayerInventorySlots(playerInventory);
+        this(syncId, playerInventory, null, new SimpleContainerData(1));
     }
 
     public SinkScreenHandler(int syncId, Container playerInventory, PipeBlockEntity pipeEntity) {
+        this(syncId, playerInventory, pipeEntity, new SimpleContainerData(1));
+    }
+
+    private SinkScreenHandler(int syncId, Container playerInventory, PipeBlockEntity pipeEntity, ContainerData data) {
         super(LogisticsPipe.SCREEN.SINK, syncId);
+        this.data = data;
+
         if (pipeEntity != null) {
             this.context = ContainerLevelAccess.create(pipeEntity.getLevel(), pipeEntity.getBlockPos());
 
-            // Load default route setting
+            // Load default route setting (server-side)
             PipeBlock block = (PipeBlock) pipeEntity.getBlockState().getBlock();
             Pipe pipe = block.getPipe();
             SinkModule module = pipe.getModule(SinkModule.class);
             if (module != null) {
-                this.defaultRoute = module.isDefaultRoute(pipeEntity.createContext());
+                data.set(0, module.isDefaultRoute(pipeEntity.createContext()) ? 1 : 0);
             }
         } else {
             this.context = ContainerLevelAccess.NULL;
@@ -57,6 +60,24 @@ public class SinkScreenHandler extends AbstractContainerMenu {
 
         addFilterSlots(sinkInventory);
         addPlayerInventorySlots(playerInventory);
+        addDataSlots(data);
+    }
+
+    @Override
+    public void broadcastChanges() {
+        super.broadcastChanges();
+
+        // Sync default route value from module to data slot
+        context.execute((world, pos) -> {
+            if (world.getBlockEntity(pos) instanceof PipeBlockEntity pipeEntity) {
+                PipeBlock block = (PipeBlock) pipeEntity.getBlockState().getBlock();
+                Pipe pipe = block.getPipe();
+                SinkModule module = pipe.getModule(SinkModule.class);
+                if (module != null) {
+                    data.set(0, module.isDefaultRoute(pipeEntity.createContext()) ? 1 : 0);
+                }
+            }
+        });
     }
 
     private void addFilterSlots(Container inventory) {
@@ -151,24 +172,31 @@ public class SinkScreenHandler extends AbstractContainerMenu {
         return ItemStack.EMPTY;
     }
 
-    public boolean isDefaultRoute() {
-        return defaultRoute;
+    @Override
+    public boolean clickMenuButton(Player player, int id) {
+        if (id == 0) {
+            // Toggle default route (server-side only)
+            boolean newValue = data.get(0) == 0;
+            data.set(0, newValue ? 1 : 0);
+
+            context.execute((world, pos) -> {
+                if (world.getBlockEntity(pos) instanceof PipeBlockEntity pipeEntity) {
+                    PipeBlock block = (PipeBlock) pipeEntity.getBlockState().getBlock();
+                    Pipe pipe = block.getPipe();
+                    SinkModule module = pipe.getModule(SinkModule.class);
+
+                    if (module != null) {
+                        module.setDefaultRoute(pipeEntity.createContext(), newValue);
+                    }
+                }
+            });
+            return true;
+        }
+        return false;
     }
 
-    public void setDefaultRoute(boolean enabled) {
-        this.defaultRoute = enabled;
-
-        context.execute((world, pos) -> {
-            if (world.getBlockEntity(pos) instanceof PipeBlockEntity pipeEntity) {
-                PipeBlock block = (PipeBlock) pipeEntity.getBlockState().getBlock();
-                Pipe pipe = block.getPipe();
-                SinkModule module = pipe.getModule(SinkModule.class);
-
-                if (module != null) {
-                    module.setDefaultRoute(pipeEntity.createContext(), enabled);
-                }
-            }
-        });
+    public boolean isDefaultRoute() {
+        return data.get(0) == 1;
     }
 
     private static class FilterSlot extends Slot {

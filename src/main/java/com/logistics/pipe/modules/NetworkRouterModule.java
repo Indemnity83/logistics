@@ -43,6 +43,11 @@ public class NetworkRouterModule implements Module {
             }
         }
 
+        // If destination is the current position, item has arrived pass on routing
+        if (item.getDestination().equals(ctx.pos())) {
+            return RoutePlan.pass();
+        }
+
         // Route item to destination using pathfinding
         Direction nextHop = network.getNextHop(ctx.pos(), item.getDestination());
         if (nextHop != null && options.contains(nextHop)) {
@@ -64,6 +69,6 @@ public class NetworkRouterModule implements Module {
      */
     @Nullable
     private BlockPos findDestinationForItem(PipeContext ctx, TravelingItem item, PipeNetwork network) {
-        return network.findSinkFor(item.getStack());
+        return network.findSinkFor(ctx.world(), item.getStack());
     }
 }

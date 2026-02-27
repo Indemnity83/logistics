@@ -46,8 +46,8 @@ public final class PipeTypes {
 
     // Basic Logistics Pipe - network sink with filtering and default route capability.
     public static final Pipe BASIC_LOGISTICS_PIPE = new Pipe(
-            new SinkModule(),
-            new NetworkRouterModule()) {};
+            new NetworkRouterModule(),
+            new SinkModule()) {};
 
     // Provider Logistics Pipe - scans adjacent inventories and fulfills network requests.
     public static final Pipe PROVIDER_LOGISTICS_PIPE = new Pipe(
@@ -63,8 +63,8 @@ public final class PipeTypes {
 
     // Supplier Logistics Pipe - maintains inventory stock levels by requesting items from the network.
     public static final Pipe SUPPLIER_LOGISTICS_PIPE = new Pipe(
-            new SupplierModule(),
-            new NetworkRouterModule())
+            new NetworkRouterModule(),
+            new SupplierModule())
             .withEnergy();
 
     // -----------------
