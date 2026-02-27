@@ -3,7 +3,7 @@ name: Build (Beta)
 on:
   push:
     branches:
-      - 'release-please--mc-**'
+      - 'release-please--branches*/**'
 
 jobs:
   build:
@@ -34,9 +34,9 @@ jobs:
           BASE_VERSION=$(jq -r '."."' .release-please-manifest.json)
 
           # Extract base branch name from release-please branch
-          # release-please--mc-1.21.11 → mc/1.21.11
-          BASE_BRANCH=${GITHUB_REF_NAME#release-please--}
-          BASE_BRANCH=${BASE_BRANCH//-/\/}
+          # release-please--branches--mc/1.21.11--components--mc1.21.11 → mc/1.21.11
+          BASE_BRANCH=${GITHUB_REF_NAME#release-please--branches--}
+          BASE_BRANCH=${BASE_BRANCH%%--components--*}
 
           # Count commits on this branch since divergence from base branch
           # Verify base ref exists before using it
