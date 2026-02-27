@@ -9,6 +9,8 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.*;
 
+import static com.logistics.LogisticsMod.LOGGER;
+
 /**
  * Global registry for pipe networks.
  * Handles network discovery, merging, and splitting.
@@ -80,22 +82,31 @@ public class NetworkRegistry {
             network.addPipe(pos);
             levelNetworks.put(networkId, network);
             levelPositions.put(pos, networkId);
+            LOGGER.info("[Network] Created new network {} with pipe at {}",
+                    networkId.toString().substring(0, 8), pos);
         } else if (neighborNetworks.size() == 1) {
             // Join existing network
             networkId = neighborNetworks.iterator().next();
             network = levelNetworks.get(networkId);
             network.addPipe(pos);
             levelPositions.put(pos, networkId);
+            LOGGER.info("[Network {}] Pipe joined at {} (total pipes: {})",
+                    networkId.toString().substring(0, 8), pos, network.size());
         } else {
             // Merge multiple networks
+            LOGGER.info("[Network] Merging {} networks at {}", neighborNetworks.size(), pos);
             network = mergeNetworks(level, pos, neighborNetworks, levelNetworks, levelPositions);
             networkId = levelPositions.get(pos);
         }
 
         // Add any unmapped pipe neighbors to this network
-        for (BlockPos unmappedPipe : unmappedPipes) {
-            network.addPipe(unmappedPipe);
-            levelPositions.put(unmappedPipe, networkId);
+        if (!unmappedPipes.isEmpty()) {
+            for (BlockPos unmappedPipe : unmappedPipes) {
+                network.addPipe(unmappedPipe);
+                levelPositions.put(unmappedPipe, networkId);
+            }
+            LOGGER.info("[Network {}] Added {} unmapped pipes (total pipes: {})",
+                    networkId.toString().substring(0, 8), unmappedPipes.size(), network.size());
         }
 
         return network;

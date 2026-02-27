@@ -165,7 +165,7 @@ public class SupplierModule implements Module {
             return;
         }
 
-        LOGGER.info("[Supplier @ {}] Scanning inventory (direction: {})", ctx.pos(), supplierDir);
+        LOGGER.debug("[Supplier @ {}] Scanning inventory (direction: {})", ctx.pos(), supplierDir);
 
         // Decrement and check delivery cooldown
         int cooldownRemaining = ctx.getInt(this, DELIVERY_COOLDOWN_REMAINING, 0);
@@ -173,11 +173,12 @@ public class SupplierModule implements Module {
             cooldownRemaining -= CHECK_INTERVAL;
             if (cooldownRemaining > 0) {
                 ctx.saveInt(this, DELIVERY_COOLDOWN_REMAINING, cooldownRemaining);
-                LOGGER.info("[Supplier @ {}] In delivery cooldown ({} ticks remaining), skipping requests",
+                LOGGER.debug("[Supplier @ {}] In delivery cooldown ({} ticks remaining), skipping requests",
                         ctx.pos(), cooldownRemaining);
                 return;
             } else {
                 // Cooldown expired
+                LOGGER.debug("[Supplier @ {}] Delivery cooldown expired, resuming requests", ctx.pos());
                 ctx.remove(this, DELIVERY_COOLDOWN_REMAINING);
             }
         }
@@ -223,14 +224,12 @@ public class SupplierModule implements Module {
             // Calculate actual need: target - current - pending
             long needed = config.amount() - currentAmount - pendingAmount;
 
-            LOGGER.info("[Supplier @ {}] Checking {}: target={}, current={}, pending={}, needed={}",
+            LOGGER.debug("[Supplier @ {}] Checking {}: target={}, current={}, pending={}, needed={}",
                     ctx.pos(), config.itemId(), config.amount(), currentAmount, pendingAmount, needed);
 
             // If inventory needs more items, create request
             if (needed > 0) {
                 long available = network.getAvailableAmount(stack);
-                LOGGER.info("[Supplier @ {}] Checking network availability for {}: available={}",
-                        ctx.pos(), config.itemId(), available);
 
                 if (available > 0) {
                     long toRequest = Math.min(needed, available);

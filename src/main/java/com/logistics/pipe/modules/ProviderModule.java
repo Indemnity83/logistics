@@ -21,6 +21,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.logistics.LogisticsMod.LOGGER;
+
 /**
  * Provider module - scans ALL adjacent inventories and fulfills orders from the network.
  * Periodically updates the network cache with available items from all connected inventories.
@@ -117,6 +119,12 @@ public class ProviderModule implements Module {
 
         // Update network cache with aggregated contents
         network.updateProviderCache(ctx.pos(), availableItems, ctx.world().getGameTime());
+
+        if (!availableItems.isEmpty()) {
+            long totalItems = availableItems.values().stream().mapToLong(Long::longValue).sum();
+            LOGGER.info("[Provider @ {}] Updated cache: {} item types, {} total items",
+                    ctx.pos(), availableItems.size(), totalItems);
+        }
     }
 
     /**
