@@ -44,8 +44,9 @@ public final class PipeTypes {
     // Tier 3 (Network Logistics)
     // -----------------
 
-    // Basic Logistics Pipe - network-aware routing with destination-based pathfinding.
+    // Basic Logistics Pipe - network sink with filtering and default route capability.
     public static final Pipe BASIC_LOGISTICS_PIPE = new Pipe(
+            new SinkModule(),
             new NetworkRouterModule()) {};
 
     // Provider Logistics Pipe - scans adjacent inventories and fulfills network requests.
