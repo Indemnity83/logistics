@@ -1,9 +1,6 @@
 package com.logistics.pipe.ui;
 
 import com.logistics.LogisticsPipe;
-import com.logistics.pipe.Pipe;
-import com.logistics.pipe.PipeContext;
-import com.logistics.pipe.block.PipeBlock;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.pipe.modules.ProviderModule;
 import net.minecraft.world.entity.player.Player;
@@ -48,16 +45,13 @@ public class ProviderScreenHandler extends AbstractContainerMenu {
         if (pipeEntity != null) {
             this.context = ContainerLevelAccess.create(pipeEntity.getLevel(), pipeEntity.getBlockPos());
             // Load current mode and filter inversion from module
-            PipeBlock block = (PipeBlock) pipeEntity.getBlockState().getBlock();
-            Pipe pipe = block.getPipe();
-            ProviderModule module = pipe.getModule(ProviderModule.class);
-            if (module != null) {
-                PipeContext ctx = pipeEntity.createContext();
+            PipeModuleHelper.withModule(this.context, ProviderModule.class, (module, ctx) -> {
                 data.set(0, module.getModeOrdinal(ctx));
                 data.set(1, module.isFilterInverted(ctx) ? 1 : 0);
-            } else {
+            });
+            if (data.get(0) == 0 && data.get(1) == 0) {
+                // Set defaults if module not found
                 data.set(0, ProviderModule.ProviderMode.SUPPLY.ordinal());
-                data.set(1, 0);
             }
         } else {
             this.context = ContainerLevelAccess.NULL;
@@ -116,17 +110,8 @@ public class ProviderScreenHandler extends AbstractContainerMenu {
             // Right-click or left-click with empty cursor: Clear slot
             if (button == 1 || cursor.isEmpty()) {
                 filterInventory.setItem(slotIndex, ItemStack.EMPTY);
-                context.execute((world, pos) -> {
-                    if (world.getBlockEntity(pos) instanceof PipeBlockEntity pipeEntity) {
-                        PipeBlock block = (PipeBlock) pipeEntity.getBlockState().getBlock();
-                        Pipe pipe = block.getPipe();
-                        ProviderModule module = pipe.getModule(ProviderModule.class);
-
-                        if (module != null) {
-                            PipeContext ctx = pipeEntity.createContext();
-                            module.setFilterItem(ctx, slotIndex, "");
-                        }
-                    }
+                PipeModuleHelper.withModule(context, ProviderModule.class, (module, ctx) -> {
+                    module.setFilterItem(ctx, slotIndex, "");
                 });
                 broadcastChanges();
                 return;
@@ -138,17 +123,8 @@ public class ProviderScreenHandler extends AbstractContainerMenu {
             filterInventory.setItem(slotIndex, ghostItem);
 
             // Save to module configuration
-            context.execute((world, pos) -> {
-                if (world.getBlockEntity(pos) instanceof PipeBlockEntity pipeEntity) {
-                    PipeBlock block = (PipeBlock) pipeEntity.getBlockState().getBlock();
-                    Pipe pipe = block.getPipe();
-                    ProviderModule module = pipe.getModule(ProviderModule.class);
-
-                    if (module != null) {
-                        PipeContext ctx = pipeEntity.createContext();
-                        module.setFilterItem(ctx, slotIndex, itemId);
-                    }
-                }
+            PipeModuleHelper.withModule(context, ProviderModule.class, (module, ctx) -> {
+                module.setFilterItem(ctx, slotIndex, itemId);
             });
 
             broadcastChanges();
@@ -163,21 +139,12 @@ public class ProviderScreenHandler extends AbstractContainerMenu {
         if (id == 0) {
             // Cycle through modes: Supply(0) -> Reserve(1) -> Guarded(2) -> Seeded(3) -> Sample(4) -> wrap to Supply
             int currentMode = data.get(0);
-            int nextMode = (currentMode + 1) % 5;
+            int nextMode = (currentMode + 1) % ProviderModule.ProviderMode.values().length;
             data.set(0, nextMode);
 
             // Save mode to module
-            context.execute((world, pos) -> {
-                if (world.getBlockEntity(pos) instanceof PipeBlockEntity pipeEntity) {
-                    PipeBlock block = (PipeBlock) pipeEntity.getBlockState().getBlock();
-                    Pipe pipe = block.getPipe();
-                    ProviderModule module = pipe.getModule(ProviderModule.class);
-
-                    if (module != null) {
-                        PipeContext ctx = pipeEntity.createContext();
-                        module.setModeFromOrdinal(ctx, nextMode);
-                    }
-                }
+            PipeModuleHelper.withModule(context, ProviderModule.class, (module, ctx) -> {
+                module.setModeFromOrdinal(ctx, nextMode);
             });
             return true;
         } else if (id == 1) {
@@ -187,17 +154,8 @@ public class ProviderScreenHandler extends AbstractContainerMenu {
             data.set(1, newInverted);
 
             // Save to module
-            context.execute((world, pos) -> {
-                if (world.getBlockEntity(pos) instanceof PipeBlockEntity pipeEntity) {
-                    PipeBlock block = (PipeBlock) pipeEntity.getBlockState().getBlock();
-                    Pipe pipe = block.getPipe();
-                    ProviderModule module = pipe.getModule(ProviderModule.class);
-
-                    if (module != null) {
-                        PipeContext ctx = pipeEntity.createContext();
-                        module.setFilterInverted(ctx, newInverted == 1);
-                    }
-                }
+            PipeModuleHelper.withModule(context, ProviderModule.class, (module, ctx) -> {
+                module.setFilterInverted(ctx, newInverted == 1);
             });
             return true;
         }
@@ -216,18 +174,9 @@ public class ProviderScreenHandler extends AbstractContainerMenu {
     public void broadcastChanges() {
         super.broadcastChanges();
         // Sync mode and filter inversion from module to data slots
-        context.execute((world, pos) -> {
-            if (world.getBlockEntity(pos) instanceof PipeBlockEntity pipeEntity) {
-                PipeBlock block = (PipeBlock) pipeEntity.getBlockState().getBlock();
-                Pipe pipe = block.getPipe();
-                ProviderModule module = pipe.getModule(ProviderModule.class);
-
-                if (module != null) {
-                    PipeContext ctx = pipeEntity.createContext();
-                    data.set(0, module.getModeOrdinal(ctx));
-                    data.set(1, module.isFilterInverted(ctx) ? 1 : 0);
-                }
-            }
+        PipeModuleHelper.withModule(context, ProviderModule.class, (module, ctx) -> {
+            data.set(0, module.getModeOrdinal(ctx));
+            data.set(1, module.isFilterInverted(ctx) ? 1 : 0);
         });
     }
 

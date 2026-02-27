@@ -20,6 +20,13 @@ public class NetworkRegistry {
     private static final Map<Level, Map<BlockPos, UUID>> positionLookup = new HashMap<>();
 
     /**
+     * Get short network ID for logging (first 8 characters).
+     */
+    private static String getNetworkIdShort(UUID id) {
+        return id.toString().substring(0, 8);
+    }
+
+    /**
      * Get or create network for a pipe at the given position.
      * Scans neighbors and merges networks if necessary.
      */
@@ -83,7 +90,7 @@ public class NetworkRegistry {
             levelNetworks.put(networkId, network);
             levelPositions.put(pos, networkId);
             LOGGER.info("[Network] Created new network {} with pipe at {}",
-                    networkId.toString().substring(0, 8), pos);
+        getNetworkIdShort(networkId), pos);
         } else if (neighborNetworks.size() == 1) {
             // Join existing network
             networkId = neighborNetworks.iterator().next();
@@ -91,7 +98,7 @@ public class NetworkRegistry {
             network.addPipe(pos);
             levelPositions.put(pos, networkId);
             LOGGER.info("[Network {}] Pipe joined at {} (total pipes: {})",
-                    networkId.toString().substring(0, 8), pos, network.size());
+        getNetworkIdShort(networkId), pos, network.size());
         } else {
             // Merge multiple networks
             LOGGER.info("[Network] Merging {} networks at {}", neighborNetworks.size(), pos);
@@ -106,7 +113,7 @@ public class NetworkRegistry {
                 levelPositions.put(unmappedPipe, networkId);
             }
             LOGGER.info("[Network {}] Added {} unmapped pipes (total pipes: {})",
-                    networkId.toString().substring(0, 8), unmappedPipes.size(), network.size());
+        getNetworkIdShort(networkId), unmappedPipes.size(), network.size());
         }
 
         return network;

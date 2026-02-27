@@ -1,10 +1,8 @@
 package com.logistics.pipe.ui;
 
 import com.logistics.LogisticsPipe;
-import com.logistics.pipe.block.PipeBlock;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.pipe.modules.SinkModule;
-import com.logistics.pipe.Pipe;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
@@ -47,12 +45,9 @@ public class SinkScreenHandler extends AbstractContainerMenu {
             this.context = ContainerLevelAccess.create(pipeEntity.getLevel(), pipeEntity.getBlockPos());
 
             // Load default route setting (server-side)
-            PipeBlock block = (PipeBlock) pipeEntity.getBlockState().getBlock();
-            Pipe pipe = block.getPipe();
-            SinkModule module = pipe.getModule(SinkModule.class);
-            if (module != null) {
-                data.set(0, module.isDefaultRoute(pipeEntity.createContext()) ? 1 : 0);
-            }
+            PipeModuleHelper.withModule(this.context, SinkModule.class, (module, ctx) -> {
+                data.set(0, module.isDefaultRoute(ctx) ? 1 : 0);
+            });
         } else {
             this.context = ContainerLevelAccess.NULL;
         }
@@ -68,15 +63,8 @@ public class SinkScreenHandler extends AbstractContainerMenu {
         super.broadcastChanges();
 
         // Sync default route value from module to data slot
-        context.execute((world, pos) -> {
-            if (world.getBlockEntity(pos) instanceof PipeBlockEntity pipeEntity) {
-                PipeBlock block = (PipeBlock) pipeEntity.getBlockState().getBlock();
-                Pipe pipe = block.getPipe();
-                SinkModule module = pipe.getModule(SinkModule.class);
-                if (module != null) {
-                    data.set(0, module.isDefaultRoute(pipeEntity.createContext()) ? 1 : 0);
-                }
-            }
+        PipeModuleHelper.withModule(context, SinkModule.class, (module, ctx) -> {
+            data.set(0, module.isDefaultRoute(ctx) ? 1 : 0);
         });
     }
 
@@ -123,16 +111,8 @@ public class SinkScreenHandler extends AbstractContainerMenu {
             // Right-click: Clear slot
             if (button == 1) {
                 sinkInventory.setItem(slotIndex, ItemStack.EMPTY);
-                context.execute((world, pos) -> {
-                    if (world.getBlockEntity(pos) instanceof PipeBlockEntity pipeEntity) {
-                        PipeBlock block = (PipeBlock) pipeEntity.getBlockState().getBlock();
-                        Pipe pipe = block.getPipe();
-                        SinkModule module = pipe.getModule(SinkModule.class);
-
-                        if (module != null) {
-                            module.setFilter(pipeEntity.createContext(), slotIndex, "");
-                        }
-                    }
+                PipeModuleHelper.withModule(context, SinkModule.class, (module, ctx) -> {
+                    module.setFilter(ctx, slotIndex, "");
                 });
                 broadcastChanges();
                 return;
@@ -148,16 +128,8 @@ public class SinkScreenHandler extends AbstractContainerMenu {
             sinkInventory.setItem(slotIndex, ghostItem);
 
             // Save to module configuration
-            context.execute((world, pos) -> {
-                if (world.getBlockEntity(pos) instanceof PipeBlockEntity pipeEntity) {
-                    PipeBlock block = (PipeBlock) pipeEntity.getBlockState().getBlock();
-                    Pipe pipe = block.getPipe();
-                    SinkModule module = pipe.getModule(SinkModule.class);
-
-                    if (module != null) {
-                        module.setFilter(pipeEntity.createContext(), slotIndex, itemId);
-                    }
-                }
+            PipeModuleHelper.withModule(context, SinkModule.class, (module, ctx) -> {
+                module.setFilter(ctx, slotIndex, itemId);
             });
 
             broadcastChanges();
@@ -179,16 +151,8 @@ public class SinkScreenHandler extends AbstractContainerMenu {
             boolean newValue = data.get(0) == 0;
             data.set(0, newValue ? 1 : 0);
 
-            context.execute((world, pos) -> {
-                if (world.getBlockEntity(pos) instanceof PipeBlockEntity pipeEntity) {
-                    PipeBlock block = (PipeBlock) pipeEntity.getBlockState().getBlock();
-                    Pipe pipe = block.getPipe();
-                    SinkModule module = pipe.getModule(SinkModule.class);
-
-                    if (module != null) {
-                        module.setDefaultRoute(pipeEntity.createContext(), newValue);
-                    }
-                }
+            PipeModuleHelper.withModule(context, SinkModule.class, (module, ctx) -> {
+                module.setDefaultRoute(ctx, newValue);
             });
             return true;
         }

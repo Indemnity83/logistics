@@ -96,19 +96,9 @@ public class RequesterScreenHandler extends AbstractContainerMenu {
             }
 
             // Request this item from the network
-            context.execute((world, pos) -> {
-                if (world.getBlockEntity(pos) instanceof com.logistics.pipe.block.entity.PipeBlockEntity pipeEntity) {
-                    com.logistics.pipe.block.PipeBlock block =
-                            (com.logistics.pipe.block.PipeBlock) pipeEntity.getBlockState().getBlock();
-                    com.logistics.pipe.Pipe pipe = block.getPipe();
-                    com.logistics.pipe.modules.RequesterModule module = pipe.getModule(com.logistics.pipe.modules.RequesterModule.class);
-
-                    if (module != null) {
-                        com.logistics.pipe.PipeContext ctx = pipeEntity.createContext();
-                        // Request 1 of the clicked item
-                        module.requestItem(ctx, clickedItem, 1);
-                    }
-                }
+            PipeModuleHelper.withModule(context, RequesterModule.class, (module, ctx) -> {
+                // Request 1 of the clicked item
+                module.requestItem(ctx, clickedItem, 1);
             });
 
             return;

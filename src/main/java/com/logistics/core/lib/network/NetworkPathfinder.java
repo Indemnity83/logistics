@@ -9,6 +9,8 @@ import java.util.*;
  * Finds shortest path between two positions using Manhattan distance heuristic.
  */
 public class NetworkPathfinder {
+    private static final double MOVE_COST = 1.0;
+
     private static class Node implements Comparable<Node> {
         final BlockPos pos;
         final double gCost; // Actual cost from start
@@ -67,7 +69,7 @@ public class NetworkPathfinder {
                     continue;
                 }
 
-                double newGCost = current.gCost + 1.0;
+                double newGCost = current.gCost + MOVE_COST;
                 Double existingCost = bestCosts.get(neighbor);
 
                 if (existingCost == null || newGCost < existingCost) {

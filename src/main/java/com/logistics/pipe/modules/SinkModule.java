@@ -252,31 +252,11 @@ public class SinkModule implements Module {
 
     @Nullable
     private Direction getSinkDirection(PipeContext ctx) {
-        CompoundTag state = ctx.moduleState(getStateKey());
-        String directionStr = NbtCompat.getString(state, SINK_DIRECTION, "");
-        if (directionStr.isEmpty()) {
-            return null;
-        }
-        try {
-            return Direction.from3DDataValue(Integer.parseInt(directionStr));
-        } catch (NumberFormatException e) {
-            return null;
-        }
+        return com.logistics.core.lib.storage.DirectionSerializer.load(ctx, this, SINK_DIRECTION);
     }
 
     private void setSinkDirection(PipeContext ctx, @Nullable Direction direction) {
-        Direction current = getSinkDirection(ctx);
-        if (current == direction) {
-            return;
-        }
-
-        if (direction == null) {
-            ctx.remove(this, SINK_DIRECTION);
-        } else {
-            ctx.saveString(this, SINK_DIRECTION, String.valueOf(direction.get3DDataValue()));
-        }
-
-        ctx.markDirtyAndSync();
+        com.logistics.core.lib.storage.DirectionSerializer.save(ctx, this, SINK_DIRECTION, direction);
     }
 
     private boolean isSinkFace(PipeContext ctx, Direction direction) {

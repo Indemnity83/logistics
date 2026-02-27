@@ -25,6 +25,7 @@ public class PipeNetwork {
 
     private static final int PATH_CACHE_MAX_AGE = 200; // 10 seconds
     private static final int DEFAULT_SINK_PRIORITY = 0;
+    private static final int FILTERED_SINK_PRIORITY = 50; // Filtered sinks have higher priority than default routes
     private static final int REQUESTER_PRIORITY = 100; // Requesters have higher priority
 
     private record PathKey(BlockPos start, BlockPos end) {}
@@ -302,9 +303,9 @@ public class PipeNetwork {
                 if (sinkModule != null) {
                     com.logistics.pipe.PipeContext ctx = pipeEntity.createContext();
 
-                    // Check if this sink has a matching filter (higher priority than default routes)
+                    // Check if this sink has a matching filter
                     if (sinkModule.matchesFilter(ctx, stack)) {
-                        int priority = 50; // Filtered sinks have higher priority than default routes
+                        int priority = FILTERED_SINK_PRIORITY;
                         if (priority > bestPriority) {
                             bestSink = pos;
                             bestPriority = priority;

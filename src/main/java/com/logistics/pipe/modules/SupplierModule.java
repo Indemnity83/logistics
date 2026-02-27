@@ -544,31 +544,11 @@ public class SupplierModule implements Module {
 
     @Nullable
     private Direction getSupplierDirection(PipeContext ctx) {
-        CompoundTag state = ctx.moduleState(getStateKey());
-        String directionStr = NbtCompat.getString(state, SUPPLIER_DIRECTION, "");
-        if (directionStr.isEmpty()) {
-            return null;
-        }
-        try {
-            return Direction.from3DDataValue(Integer.parseInt(directionStr));
-        } catch (NumberFormatException e) {
-            return null;
-        }
+        return com.logistics.core.lib.storage.DirectionSerializer.load(ctx, this, SUPPLIER_DIRECTION);
     }
 
     private void setSupplierDirection(PipeContext ctx, @Nullable Direction direction) {
-        Direction current = getSupplierDirection(ctx);
-        if (current == direction) {
-            return;
-        }
-
-        if (direction == null) {
-            ctx.remove(this, SUPPLIER_DIRECTION);
-        } else {
-            ctx.saveString(this, SUPPLIER_DIRECTION, String.valueOf(direction.get3DDataValue()));
-        }
-
-        ctx.markDirtyAndSync();
+        com.logistics.core.lib.storage.DirectionSerializer.save(ctx, this, SUPPLIER_DIRECTION, direction);
     }
 
     private boolean isSupplierFace(PipeContext ctx, Direction direction) {
