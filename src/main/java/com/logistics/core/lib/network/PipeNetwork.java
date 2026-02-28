@@ -9,11 +9,8 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -29,9 +26,7 @@ public class PipeNetwork implements ILogisticsNetwork {
     private final UUID id;
     private final INetworkGraph graph;
     private final IWorldView worldView;
-    private final Map<BlockPos, ProviderCache> providerCaches = new HashMap<>();
-    private final List<ItemRequest> pendingRequests = new ArrayList<>();
-    private final Map<BlockPos, List<LogisticsOrder>> pendingOrders = new HashMap<>();
+    private final RequestMatcher requestMatcher;
 
     // Sink management for item routing
     private final Set<BlockPos> defaultRouteSinks = new HashSet<>(); // Accepts any item
@@ -51,6 +46,7 @@ public class PipeNetwork implements ILogisticsNetwork {
         this.id = id;
         this.graph = graph;
         this.worldView = worldView;
+        this.requestMatcher = new RequestMatcher();
     }
 
     /**
@@ -63,6 +59,7 @@ public class PipeNetwork implements ILogisticsNetwork {
         this.id = id;
         this.graph = new NetworkGraph();
         this.worldView = null; // Tests will need to be updated to provide this
+        this.requestMatcher = new RequestMatcher();
     }
 
     public UUID getId() {
@@ -82,8 +79,8 @@ public class PipeNetwork implements ILogisticsNetwork {
 
     public void removePipe(BlockPos pos) {
         graph.removeNode(pos);
-        providerCaches.remove(pos);
-        pendingOrders.remove(pos);
+        requestMatcher.removeProviderCache(pos);
+        requestMatcher.removeOrdersFor(pos);
         defaultRouteSinks.remove(pos);
         sinkPriorities.remove(pos);
     }
@@ -118,127 +115,57 @@ public class PipeNetwork implements ILogisticsNetwork {
     /**
      * Update provider cache for a specific position.
      */
+    @Override
     public void updateProviderCache(BlockPos pos, Map<ItemStack, Long> items, long gameTime) {
-        providerCaches.computeIfAbsent(pos, k -> new ProviderCache()).update(items, gameTime);
+        requestMatcher.updateProviderCache(pos, items, gameTime);
     }
 
     /**
      * Get available amount of an item across all providers.
      */
+    @Override
     public long getAvailableAmount(ItemStack stack) {
-        long total = 0;
-        for (ProviderCache cache : providerCaches.values()) {
-            total += cache.getAvailableAmount(stack);
-        }
-        return total;
+        return requestMatcher.getAvailableAmount(stack);
     }
 
     /**
      * Get all available items from all providers in the network.
      * Returns a map of ItemStack to total available amount.
      */
+    @Override
     public Map<ItemStack, Long> getAllAvailableItems() {
-        Map<ItemStack, Long> aggregated = new HashMap<>();
-
-        for (ProviderCache cache : providerCaches.values()) {
-            for (Map.Entry<ItemStack, Long> entry : cache.getAvailableItems().entrySet()) {
-                addToAggregatedItems(aggregated, entry.getKey(), entry.getValue());
-            }
-        }
-
-        return aggregated;
-    }
-
-    /**
-     * Add an item amount to the aggregated map, combining with existing amounts
-     * for items that are the same (same item and components).
-     */
-    private void addToAggregatedItems(Map<ItemStack, Long> aggregated, ItemStack stack, long amount) {
-        // Try to find existing matching stack
-        for (Map.Entry<ItemStack, Long> existing : aggregated.entrySet()) {
-            if (ItemStack.isSameItemSameComponents(existing.getKey(), stack)) {
-                existing.setValue(existing.getValue() + amount);
-                return;
-            }
-        }
-
-        // No match found - add new entry
-        aggregated.put(stack.copy(), amount);
-    }
-
-    /**
-     * Find provider position that has the requested item.
-     * Returns null if no provider has sufficient quantity.
-     */
-    public BlockPos findProviderFor(ItemStack stack, long amount) {
-        for (Map.Entry<BlockPos, ProviderCache> entry : providerCaches.entrySet()) {
-            if (entry.getValue().getAvailableAmount(stack) >= amount) {
-                return entry.getKey();
-            }
-        }
-        return null;
+        return requestMatcher.getAllAvailableItems();
     }
 
     /**
      * Add a request to the queue.
      */
+    @Override
     public void addRequest(ItemRequest request) {
-        pendingRequests.add(request);
-    }
-
-    /**
-     * Add an order for a specific provider.
-     */
-    public void addOrder(LogisticsOrder order) {
-        pendingOrders.computeIfAbsent(order.provider(), k -> new ArrayList<>()).add(order);
+        requestMatcher.addRequest(request);
     }
 
     /**
      * Get pending orders for a specific provider.
      */
+    @Override
     public List<LogisticsOrder> getOrdersFor(BlockPos provider) {
-        return pendingOrders.getOrDefault(provider, Collections.emptyList());
+        return requestMatcher.getOrdersFor(provider);
     }
 
     /**
      * Remove a completed order.
      */
+    @Override
     public void removeOrder(LogisticsOrder order) {
-        List<LogisticsOrder> orders = pendingOrders.get(order.provider());
-        if (orders != null) {
-            orders.remove(order);
-        }
-    }
-
-    /**
-     * Process pending requests and create orders.
-     * Called during network tick.
-     */
-    public void processRequests(long gameTime) {
-        Iterator<ItemRequest> iterator = pendingRequests.iterator();
-        while (iterator.hasNext()) {
-            ItemRequest request = iterator.next();
-
-            BlockPos provider = findProviderFor(request.stack(), request.amount());
-            if (provider != null) {
-                LogisticsOrder order = new LogisticsOrder(
-                    provider,
-                    request.requester(),
-                    request.stack(),
-                    request.amount(),
-                    gameTime
-                );
-                addOrder(order);
-                iterator.remove();
-            }
-        }
+        requestMatcher.removeOrder(order);
     }
 
     /**
      * Tick the network (process requests).
      */
     public void tick(long gameTime) {
-        processRequests(gameTime);
+        requestMatcher.processRequests(gameTime);
     }
 
     /**
@@ -360,13 +287,7 @@ public class PipeNetwork implements ILogisticsNetwork {
      */
     public void merge(PipeNetwork other) {
         graph.merge(other.graph);
-        providerCaches.putAll(other.providerCaches);
-        pendingRequests.addAll(other.pendingRequests);
-
-        for (Map.Entry<BlockPos, List<LogisticsOrder>> entry : other.pendingOrders.entrySet()) {
-            pendingOrders.computeIfAbsent(entry.getKey(), k -> new ArrayList<>()).addAll(entry.getValue());
-        }
-
+        requestMatcher.merge(other.requestMatcher);
         defaultRouteSinks.addAll(other.defaultRouteSinks);
         sinkPriorities.putAll(other.sinkPriorities);
     }
