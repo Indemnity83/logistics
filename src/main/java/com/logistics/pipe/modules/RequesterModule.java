@@ -1,21 +1,27 @@
 package com.logistics.pipe.modules;
 
 import com.logistics.LogisticsPipe;
-import com.logistics.pipe.network.ItemRequest;
-import com.logistics.pipe.network.NetworkRegistry;
 import com.logistics.core.lib.network.ILogisticsNetwork;
 import com.logistics.core.lib.resource.ResourceId;
+import com.logistics.core.lib.storage.DirectionSerializer;
 import com.logistics.core.lib.storage.NbtCompat;
 import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
+import com.logistics.pipe.network.ItemRequest;
+import com.logistics.pipe.network.NetworkRegistry;
 import com.logistics.pipe.ui.RequesterScreenHandler;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -32,10 +38,10 @@ import java.util.List;
  * <p>Energy: TODO (Phase 11): 5 RF per request cycle
  */
 public class RequesterModule implements Module {
-    private static final String REQUESTS = "requests"; // NBT key for request configurations
+    private static final String REQUESTS = "requests";
     private static final String REQUESTER_DIRECTION = "requester_direction";
     private static final String TICKS_SINCE_REQUEST = "ticks_since_request";
-    private static final int REQUEST_INTERVAL = 20; // Check requests every 20 ticks (1 second)
+    private static final int REQUEST_INTERVAL = 20;
     public static final int MAX_REQUEST_SLOTS = 9;
     // TODO(Phase 11): Energy costs
     // private static final int RF_PER_REQUEST_CYCLE = 5;
@@ -46,12 +52,10 @@ public class RequesterModule implements Module {
             return;
         }
 
-        // Increment tick counter
         int ticks = ctx.getInt(this, TICKS_SINCE_REQUEST, 0);
         ticks++;
         ctx.saveInt(this, TICKS_SINCE_REQUEST, ticks);
 
-        // Process requests periodically
         if (ticks >= REQUEST_INTERVAL) {
             processRequests(ctx);
             ctx.saveInt(this, TICKS_SINCE_REQUEST, 0);
@@ -78,19 +82,20 @@ public class RequesterModule implements Module {
             return InteractionResult.SUCCESS;
         }
 
-        if (!(player instanceof net.minecraft.server.level.ServerPlayer serverPlayer)) {
+        if (!(player instanceof ServerPlayer serverPlayer)) {
             return InteractionResult.PASS;
         }
 
-        net.minecraft.world.level.Level world = ctx.world();
-        net.minecraft.core.BlockPos pos = ctx.pos();
-        serverPlayer.openMenu(new net.minecraft.world.SimpleMenuProvider(
-                (syncId, inventory, playerEntity) -> {
-                    PipeBlockEntity pipeEntity =
-                            world.getBlockEntity(pos) instanceof PipeBlockEntity entity ? entity : null;
-                    return new RequesterScreenHandler(syncId, inventory, pipeEntity);
-                },
-                net.minecraft.network.chat.Component.translatable("screen.logistics.requester")));
+        Level world = ctx.world();
+        BlockPos pos = ctx.pos();
+        serverPlayer.openMenu(new SimpleMenuProvider(
+                (syncId, inventory, p) -> new RequesterScreenHandler(
+                        syncId,
+                        inventory,
+                        world.getBlockEntity(pos) instanceof PipeBlockEntity entity ? entity : null
+                ),
+                Component.translatable("screen.logistics.requester")
+        ));
         return InteractionResult.SUCCESS;
     }
 
@@ -105,9 +110,9 @@ public class RequesterModule implements Module {
 
     /**
      * Process configured requests - check network availability and create ItemRequest objects.
+     * Only processes one request per cycle to avoid flooding the network.
      */
     private void processRequests(PipeContext ctx) {
-        // Ensure this pipe is part of a network (creates/joins on first tick after load)
         ILogisticsNetwork network = NetworkRegistry.getOrCreateNetwork(ctx.world(), ctx.pos());
         if (network == null) {
             return;
@@ -121,13 +126,11 @@ public class RequesterModule implements Module {
             return;
         }
 
-        // Check each configured request
         for (RequestConfig config : configs) {
             if (config.itemId().isEmpty() || config.amount() <= 0) {
                 continue;
             }
 
-            // Parse item from ID
             ResourceId itemId = ResourceId.tryParse(config.itemId());
             if (itemId == null) {
                 continue;
@@ -141,7 +144,6 @@ public class RequesterModule implements Module {
             ItemStack stack = new ItemStack(item);
             long available = network.getAvailableAmount(stack);
 
-            // If network has sufficient items, create request
             if (available >= config.amount()) {
                 ItemRequest request = new ItemRequest(
                     ctx.pos(),
@@ -154,14 +156,15 @@ public class RequesterModule implements Module {
                 // TODO(Phase 11): Consume energy
                 // ctx.setEnergy(ctx.getEnergy() - RF_PER_REQUEST_CYCLE);
 
-                // Only process one request per cycle
-                break;
+                break; // Only process one request per cycle
             }
         }
     }
 
     /**
      * Get all configured requests from NBT.
+     * @param ctx Pipe context
+     * @return List of configured requests (empty if none)
      */
     public List<RequestConfig> getRequestConfigs(PipeContext ctx) {
         CompoundTag requests = ctx.getCompoundTag(this, REQUESTS);
@@ -187,6 +190,10 @@ public class RequesterModule implements Module {
 
     /**
      * Set a request configuration for a specific slot.
+     * @param ctx Pipe context
+     * @param slotIndex Request slot index (0-8)
+     * @param itemId Item resource ID (empty to clear slot)
+     * @param amount Amount to request (0 or negative to clear slot)
      */
     public void setRequestConfig(PipeContext ctx, int slotIndex, String itemId, int amount) {
         if (slotIndex < 0 || slotIndex >= MAX_REQUEST_SLOTS) {
@@ -197,10 +204,8 @@ public class RequesterModule implements Module {
         String key = String.valueOf(slotIndex);
 
         if (itemId.isEmpty() || amount <= 0) {
-            // Clear slot
             requests.remove(key);
         } else {
-            // Set slot
             CompoundTag slotTag = new CompoundTag();
             slotTag.putString("item", itemId);
             slotTag.putInt("amount", amount);
@@ -218,11 +223,11 @@ public class RequesterModule implements Module {
 
     @Nullable
     private Direction getRequesterDirection(PipeContext ctx) {
-        return com.logistics.core.lib.storage.DirectionSerializer.load(ctx, this, REQUESTER_DIRECTION);
+        return DirectionSerializer.load(ctx, this, REQUESTER_DIRECTION);
     }
 
     private void setRequesterDirection(PipeContext ctx, @Nullable Direction direction) {
-        com.logistics.core.lib.storage.DirectionSerializer.save(ctx, this, REQUESTER_DIRECTION, direction);
+        DirectionSerializer.save(ctx, this, REQUESTER_DIRECTION, direction);
     }
 
     private boolean isRequesterFace(PipeContext ctx, Direction direction) {
@@ -232,12 +237,15 @@ public class RequesterModule implements Module {
     @Override
     public boolean acceptsLowTierEnergyFrom(PipeContext ctx, Direction from) {
         // TODO(Phase 11): Accept energy for request costs
-        return false; // For now, no energy required
+        return false;
     }
 
     /**
      * Request an item from the network (GUI-triggered request).
      * Creates an ItemRequest that will be fulfilled by a provider.
+     * @param ctx Pipe context
+     * @param stack Item to request
+     * @param amount Amount to request
      */
     public void requestItem(PipeContext ctx, ItemStack stack, int amount) {
         if (ctx.world().isClientSide()) {
@@ -246,19 +254,17 @@ public class RequesterModule implements Module {
 
         // TODO(Phase 11): Check and consume energy (5 RF per request)
 
-        // Ensure this pipe is part of a network (creates/joins on first tick after load)
         ILogisticsNetwork network = NetworkRegistry.getOrCreateNetwork(ctx.world(), ctx.pos());
         if (network == null) {
             return;
         }
 
-        String itemId = BuiltInRegistries.ITEM.getKey(stack.getItem()).toString();
         ItemRequest request = new ItemRequest(
                 ctx.pos(),
                 stack,
                 amount,
                 ctx.world().getGameTime(),
-                0 // Normal priority
+                0
         );
 
         network.addRequest(request);
@@ -266,6 +272,8 @@ public class RequesterModule implements Module {
 
     /**
      * Configuration for a single request slot.
+     * @param itemId Item resource ID (e.g., "minecraft:diamond")
+     * @param amount Amount to request when available
      */
     public record RequestConfig(String itemId, int amount) {}
 }
