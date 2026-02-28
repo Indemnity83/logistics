@@ -40,7 +40,7 @@ import static com.logistics.LogisticsMod.LOGGER;
  * <p>Provider modes control which items are available:
  * <ul>
  *   <li>SUPPLY - Provide all items</li>
- *   <li>RESERVE - Leave 1 stack (64 items) total</li>
+ *   <li>RESERVE - Skip first inventory slot entirely</li>
  *   <li>SEEDED - Leave 1 item in each slot</li>
  *   <li>SAMPLE - Leave 1 item of each type</li>
  * </ul>
@@ -65,26 +65,29 @@ public class ProviderModule implements Module {
      * Each mode defines behavior through properties rather than scattered if-checks.
      */
     public enum ProviderMode {
-        SUPPLY("Normal", false, false, 0),
-        RESERVE("Leave 1 Stack", false, false, 64),
-        SEEDED("Leave 1 Per Slot", true, false, 0),
-        SAMPLE("Leave 1 Per Type", false, true, 0);
+        SUPPLY("Normal", false, false, 0, 0),
+        RESERVE("Leave First Slot", false, false, 1, 0),
+        SEEDED("Leave 1 Per Slot", true, false, 0, 0),
+        SAMPLE("Leave 1 Per Type", false, true, 0, 0);
 
         private final String translationKey;
         private final boolean hideOnePerSlot;
         private final boolean hideOnePerType;
-        private final int reserveAmount;
+        private final int cropStart;  // Number of slots to skip at start
+        private final int cropEnd;    // Number of slots to skip at end
 
-        ProviderMode(String translationKey, boolean hideOnePerSlot, boolean hideOnePerType, int reserveAmount) {
+        ProviderMode(String translationKey, boolean hideOnePerSlot, boolean hideOnePerType, int cropStart, int cropEnd) {
             this.translationKey = translationKey;
             this.hideOnePerSlot = hideOnePerSlot;
             this.hideOnePerType = hideOnePerType;
-            this.reserveAmount = reserveAmount;
+            this.cropStart = cropStart;
+            this.cropEnd = cropEnd;
         }
 
         public boolean isHideOnePerSlot() { return hideOnePerSlot; }
         public boolean isHideOnePerType() { return hideOnePerType; }
-        public int getReserveAmount() { return reserveAmount; }
+        public int getCropStart() { return cropStart; }
+        public int getCropEnd() { return cropEnd; }
         public String getTranslationKey() { return translationKey; }
     }
 
@@ -109,9 +112,6 @@ public class ProviderModule implements Module {
         if (mode.isHideOnePerType() && isFirstSlotOfType) {
             rawAmount = Math.max(0, rawAmount - 1);
         }
-
-        // Note: Global reserve (RESERVE mode) is handled at aggregation level,
-        // not per-slot, so it's applied in scanAndUpdateCache() after totaling.
 
         return rawAmount;
     }
@@ -243,7 +243,7 @@ public class ProviderModule implements Module {
 
     /**
      * Scan all adjacent inventories and update the network provider cache.
-     * Applies per-slot mode logic during scanning, then applies reserve mode to totals.
+     * Applies per-slot mode logic and slot cropping during scanning.
      */
     private void scanAndUpdateCache(PipeContext ctx) {
         ILogisticsNetwork network = NetworkRegistry.getOrCreateNetwork(ctx.world(), ctx.pos());
@@ -257,7 +257,6 @@ public class ProviderModule implements Module {
 
         ProviderMode mode = getMode(ctx);
         Map<ItemStack, Long> availableItems = aggregateInventoryItems(ctx, inventoryFaces, mode);
-        availableItems = applyReserveMode(availableItems, mode);
 
         network.updateProviderCache(ctx.pos(), availableItems, ctx.world().getGameTime());
         logCacheUpdate(ctx, mode, availableItems);
@@ -279,6 +278,7 @@ public class ProviderModule implements Module {
 
     /**
      * Scan a single inventory direction and accumulate items.
+     * Skips slots based on provider mode's cropStart/cropEnd (RESERVE mode).
      */
     private void scanInventoryAtDirection(
             PipeContext ctx,
@@ -291,9 +291,21 @@ public class ProviderModule implements Module {
         Storage<ItemVariant> storage = ItemStorage.SIDED.find(ctx.world(), targetPos, direction.getOpposite());
         if (storage == null) return;
 
+        // Collect all views to determine range to scan
+        List<StorageView<ItemVariant>> views = new ArrayList<>();
+        for (StorageView<ItemVariant> view : storage) {
+            views.add(view);
+        }
+
+        // Calculate scan range based on crop settings
+        int startIndex = mode.getCropStart();
+        int endIndex = Math.max(0, views.size() - mode.getCropEnd());
+
         Map<ItemVariant, Boolean> firstSlotSeen = new HashMap<>();
 
-        for (StorageView<ItemVariant> view : storage) {
+        // Scan only the non-cropped range
+        for (int i = startIndex; i < endIndex; i++) {
+            StorageView<ItemVariant> view = views.get(i);
             ItemVariant variant = view.getResource();
             if (variant.isBlank()) continue;
 
@@ -327,27 +339,6 @@ public class ProviderModule implements Module {
             result.put(stack, entry.getValue());
         }
         return result;
-    }
-
-    /**
-     * Apply RESERVE mode to aggregated totals.
-     * RESERVE mode leaves N items total across all slots (applied after aggregation).
-     *
-     * @param items Aggregated items from all slots
-     * @param mode Provider mode
-     * @return Items with RESERVE mode applied (if applicable)
-     */
-    private Map<ItemStack, Long> applyReserveMode(Map<ItemStack, Long> items, ProviderMode mode) {
-        if (mode.getReserveAmount() == 0) return items;
-
-        Map<ItemStack, Long> adjustedItems = new HashMap<>();
-        for (Map.Entry<ItemStack, Long> entry : items.entrySet()) {
-            long adjusted = Math.max(0, entry.getValue() - mode.getReserveAmount());
-            if (adjusted > 0) {
-                adjustedItems.put(entry.getKey(), adjusted);
-            }
-        }
-        return adjustedItems;
     }
 
     /**
@@ -443,7 +434,7 @@ public class ProviderModule implements Module {
 
     /**
      * Extract items from storage respecting provider mode.
-     * Maintains slot-position order by iterating through slots sequentially.
+     * Skips slots based on cropStart/cropEnd and applies per-slot hiding logic.
      *
      * @param storage Fabric ItemStorage
      * @param variant ItemVariant to extract
@@ -453,14 +444,23 @@ public class ProviderModule implements Module {
      * @return Actual amount extracted
      */
     private long extractItems(Storage<ItemVariant> storage, ItemVariant variant, long requested, Transaction transaction, ProviderMode mode) {
+        // Collect all non-empty views to determine range
+        List<StorageView<ItemVariant>> views = new ArrayList<>();
+        for (StorageView<ItemVariant> view : storage.nonEmptyViews()) {
+            views.add(view);
+        }
+
+        // Calculate extraction range based on crop settings
+        int startIndex = mode.getCropStart();
+        int endIndex = Math.max(0, views.size() - mode.getCropEnd());
+
         long totalExtracted = 0;
         long remaining = requested;
         boolean isFirstSlotOfType = true;
 
-        // Iterate slots in order (maintains slot-position binding)
-        for (StorageView<ItemVariant> view : storage.nonEmptyViews()) {
-            if (remaining <= 0) break;
-
+        // Extract only from non-cropped range
+        for (int i = startIndex; i < endIndex && remaining > 0; i++) {
+            StorageView<ItemVariant> view = views.get(i);
             ItemVariant viewVariant = view.getResource();
             if (!viewVariant.equals(variant)) continue;
 

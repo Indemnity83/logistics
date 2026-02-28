@@ -137,7 +137,7 @@ public class ProviderScreenHandler extends AbstractContainerMenu {
     @Override
     public boolean clickMenuButton(Player player, int id) {
         if (id == 0) {
-            // Cycle through modes: Supply(0) -> Reserve(1) -> Guarded(2) -> Seeded(3) -> Sample(4) -> wrap to Supply
+            // Cycle through modes: Supply(0) -> Reserve(1) -> Seeded(2) -> Sample(3) -> wrap to Supply
             int currentMode = data.get(0);
             int nextMode = (currentMode + 1) % ProviderModule.ProviderMode.values().length;
             data.set(0, nextMode);
