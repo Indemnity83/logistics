@@ -2,7 +2,7 @@ package com.logistics.pipe.modules;
 
 import com.logistics.LogisticsPipe;
 import com.logistics.core.lib.network.NetworkRegistry;
-import com.logistics.core.lib.network.PipeNetwork;
+import com.logistics.core.lib.network.ILogisticsNetwork;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.core.lib.storage.NbtCompat;
 import com.logistics.pipe.PipeContext;
@@ -45,7 +45,7 @@ public class SinkModule implements Module {
             return;
         }
 
-        PipeNetwork network = NetworkRegistry.getNetwork(ctx.world(), ctx.pos());
+        ILogisticsNetwork network = NetworkRegistry.getNetwork(ctx.world(), ctx.pos());
         if (network != null && isDefaultRoute(ctx)) {
             // Register as default route sink
             network.registerDefaultRouteSink(ctx.pos(), 0);
@@ -237,7 +237,7 @@ public class SinkModule implements Module {
 
         // Register/unregister with network
         if (!ctx.world().isClientSide()) {
-            PipeNetwork network = NetworkRegistry.getNetwork(ctx.world(), ctx.pos());
+            ILogisticsNetwork network = NetworkRegistry.getNetwork(ctx.world(), ctx.pos());
             if (network != null) {
                 if (enabled) {
                     network.registerDefaultRouteSink(ctx.pos(), 0);

@@ -3,7 +3,7 @@ package com.logistics.pipe.modules;
 import com.logistics.LogisticsPipe;
 import com.logistics.core.lib.network.ItemRequest;
 import com.logistics.core.lib.network.NetworkRegistry;
-import com.logistics.core.lib.network.PipeNetwork;
+import com.logistics.core.lib.network.ILogisticsNetwork;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.core.lib.storage.NbtCompat;
 import com.logistics.pipe.PipeContext;
@@ -156,7 +156,7 @@ public class SupplierModule implements Module {
      */
     private void checkAndSupply(PipeContext ctx) {
         // Ensure this pipe is part of a network (creates/joins on first tick after load)
-        PipeNetwork network = NetworkRegistry.getOrCreateNetwork(ctx.world(), ctx.pos());
+        ILogisticsNetwork network = NetworkRegistry.getOrCreateNetwork(ctx.world(), ctx.pos());
         if (network == null) {
             return;
         }

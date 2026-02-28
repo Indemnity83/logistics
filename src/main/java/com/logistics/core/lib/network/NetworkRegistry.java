@@ -58,7 +58,7 @@ public class NetworkRegistry {
 
         // Create, join, or merge networks as appropriate
         PipeNetwork network = createOrJoinNetwork(
-            pos, scanResult.neighborNetworks(), levelNetworks, levelPositions
+            level, pos, scanResult.neighborNetworks(), levelNetworks, levelPositions
         );
 
         // Add any unmapped pipes to the network
@@ -131,13 +131,14 @@ public class NetworkRegistry {
      * Create a new network, join an existing one, or merge multiple networks.
      */
     private static PipeNetwork createOrJoinNetwork(
+        Level level,
         BlockPos pos,
         Set<UUID> neighborNetworks,
         Map<UUID, PipeNetwork> levelNetworks,
         Map<BlockPos, UUID> levelPositions
     ) {
         if (neighborNetworks.isEmpty()) {
-            return createNewNetwork(pos, levelNetworks, levelPositions);
+            return createNewNetwork(level, pos, levelNetworks, levelPositions);
         } else if (neighborNetworks.size() == 1) {
             return joinExistingNetwork(pos, neighborNetworks.iterator().next(), levelNetworks, levelPositions);
         } else {
@@ -150,12 +151,15 @@ public class NetworkRegistry {
      * Create a new network for a single pipe.
      */
     private static PipeNetwork createNewNetwork(
+        Level level,
         BlockPos pos,
         Map<UUID, PipeNetwork> levelNetworks,
         Map<BlockPos, UUID> levelPositions
     ) {
         UUID networkId = UUID.randomUUID();
-        PipeNetwork network = new PipeNetwork(networkId);
+        IWorldView worldView = new MinecraftWorldView(level);
+        INetworkGraph graph = new NetworkGraph();
+        PipeNetwork network = new PipeNetwork(networkId, graph, worldView);
         network.addPipe(pos);
         levelNetworks.put(networkId, network);
         levelPositions.put(pos, networkId);
@@ -442,9 +446,12 @@ public class NetworkRegistry {
         Map<UUID, PipeNetwork> levelNetworks,
         Map<BlockPos, UUID> levelPositions
     ) {
+        IWorldView worldView = new MinecraftWorldView(level);
+
         // Create network for first component
         UUID firstId = UUID.randomUUID();
-        PipeNetwork firstNetwork = new PipeNetwork(firstId);
+        INetworkGraph firstGraph = new NetworkGraph();
+        PipeNetwork firstNetwork = new PipeNetwork(firstId, firstGraph, worldView);
         for (BlockPos pos : firstComponent) {
             firstNetwork.addPipe(pos);
             levelPositions.put(pos, firstId);
@@ -460,7 +467,8 @@ public class NetworkRegistry {
             Set<BlockPos> component = floodFill(level, start, remaining);
 
             UUID id = UUID.randomUUID();
-            PipeNetwork network = new PipeNetwork(id);
+            INetworkGraph graph = new NetworkGraph();
+            PipeNetwork network = new PipeNetwork(id, graph, worldView);
             for (BlockPos pos : component) {
                 network.addPipe(pos);
                 levelPositions.put(pos, id);

@@ -3,7 +3,7 @@ package com.logistics.pipe.modules;
 import com.logistics.LogisticsPipe;
 import com.logistics.core.lib.network.LogisticsOrder;
 import com.logistics.core.lib.network.NetworkRegistry;
-import com.logistics.core.lib.network.PipeNetwork;
+import com.logistics.core.lib.network.ILogisticsNetwork;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.runtime.TravelingItem;
@@ -211,7 +211,7 @@ public class ProviderModule implements Module {
      */
     private void scanAndUpdateCache(PipeContext ctx) {
         // Ensure this pipe is part of a network (creates/joins on first tick after load)
-        PipeNetwork network = NetworkRegistry.getOrCreateNetwork(ctx.world(), ctx.pos());
+        ILogisticsNetwork network = NetworkRegistry.getOrCreateNetwork(ctx.world(), ctx.pos());
         if (network == null) {
             return;
         }
@@ -319,7 +319,7 @@ public class ProviderModule implements Module {
      */
     private void processPendingOrders(PipeContext ctx) {
         // Ensure this pipe is part of a network (creates/joins on first tick after load)
-        PipeNetwork network = NetworkRegistry.getOrCreateNetwork(ctx.world(), ctx.pos());
+        ILogisticsNetwork network = NetworkRegistry.getOrCreateNetwork(ctx.world(), ctx.pos());
         if (network == null) {
             return;
         }

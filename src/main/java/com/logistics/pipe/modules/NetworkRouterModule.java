@@ -1,7 +1,7 @@
 package com.logistics.pipe.modules;
 
 import com.logistics.core.lib.network.NetworkRegistry;
-import com.logistics.core.lib.network.PipeNetwork;
+import com.logistics.core.lib.network.ILogisticsNetwork;
 import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.runtime.RoutePlan;
 import com.logistics.pipe.runtime.TravelingItem;
@@ -27,7 +27,7 @@ public class NetworkRouterModule implements Module {
             return RoutePlan.pass(); // Networks only exist on server
         }
 
-        PipeNetwork network = NetworkRegistry.getNetwork(ctx.world(), ctx.pos());
+        ILogisticsNetwork network = NetworkRegistry.getNetwork(ctx.world(), ctx.pos());
         if (network == null) {
             return RoutePlan.pass(); // Not in a network, fall back to default routing
         }
@@ -68,7 +68,7 @@ public class NetworkRouterModule implements Module {
      * @return BlockPos of destination, or null if no destination found
      */
     @Nullable
-    private BlockPos findDestinationForItem(PipeContext ctx, TravelingItem item, PipeNetwork network) {
-        return network.findSinkFor(ctx.world(), item.getStack());
+    private BlockPos findDestinationForItem(PipeContext ctx, TravelingItem item, ILogisticsNetwork network) {
+        return network.findSinkFor(item.getStack());
     }
 }

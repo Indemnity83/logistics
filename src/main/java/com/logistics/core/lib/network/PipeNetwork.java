@@ -1,9 +1,7 @@
 package com.logistics.core.lib.network;
 
 import com.logistics.LogisticsMod;
-import com.logistics.pipe.Pipe;
 import com.logistics.pipe.PipeContext;
-import com.logistics.pipe.block.PipeBlock;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.pipe.modules.SinkModule;
 import net.minecraft.core.BlockPos;
@@ -24,30 +22,47 @@ import java.util.UUID;
 /**
  * Represents a connected network of pipes.
  * Manages network state, pathfinding, and request/order queues.
+ *
+ * Implements ILogisticsNetwork to provide abstraction for modules.
  */
-public class PipeNetwork {
+public class PipeNetwork implements ILogisticsNetwork {
     private final UUID id;
-    private final Set<BlockPos> members = new HashSet<>();
+    private final INetworkGraph graph;
+    private final IWorldView worldView;
     private final Map<BlockPos, ProviderCache> providerCaches = new HashMap<>();
     private final List<ItemRequest> pendingRequests = new ArrayList<>();
     private final Map<BlockPos, List<LogisticsOrder>> pendingOrders = new HashMap<>();
-    private final Map<PathKey, CachedPath> pathCache = new HashMap<>();
 
     // Sink management for item routing
     private final Set<BlockPos> defaultRouteSinks = new HashSet<>(); // Accepts any item
     private final Map<BlockPos, Integer> sinkPriorities = new HashMap<>(); // Priority per sink (higher = better)
 
-    private static final int PATH_CACHE_MAX_AGE = 200; // 10 seconds
     private static final int DEFAULT_SINK_PRIORITY = 0;
     private static final int FILTERED_SINK_PRIORITY = 50; // Filtered sinks have higher priority than default routes
     private static final int REQUESTER_PRIORITY = 100; // Requesters have higher priority
 
-    private record PathKey(BlockPos start, BlockPos end) {}
+    /**
+     * Constructor with dependency injection.
+     * @param id Network UUID
+     * @param graph Graph implementation
+     * @param worldView World query abstraction
+     */
+    public PipeNetwork(UUID id, INetworkGraph graph, IWorldView worldView) {
+        this.id = id;
+        this.graph = graph;
+        this.worldView = worldView;
+    }
 
-    private record CachedPath(List<BlockPos> path, long createdAt) {}
-
+    /**
+     * Legacy constructor for tests.
+     * Creates a PipeNetwork without IWorldView (will fail if sink operations are used).
+     * @deprecated Use constructor with IWorldView injection
+     */
+    @Deprecated
     public PipeNetwork(UUID id) {
         this.id = id;
+        this.graph = new NetworkGraph();
+        this.worldView = null; // Tests will need to be updated to provide this
     }
 
     public UUID getId() {
@@ -62,31 +77,27 @@ public class PipeNetwork {
     }
 
     public void addPipe(BlockPos pos) {
-        if (members.add(pos)) {
-            invalidatePathCache();
-        }
+        graph.addNode(pos);
     }
 
     public void removePipe(BlockPos pos) {
-        if (members.remove(pos)) {
-            providerCaches.remove(pos);
-            pendingOrders.remove(pos);
-            defaultRouteSinks.remove(pos);
-            sinkPriorities.remove(pos);
-            invalidatePathCache();
-        }
+        graph.removeNode(pos);
+        providerCaches.remove(pos);
+        pendingOrders.remove(pos);
+        defaultRouteSinks.remove(pos);
+        sinkPriorities.remove(pos);
     }
 
     public boolean contains(BlockPos pos) {
-        return members.contains(pos);
+        return graph.contains(pos);
     }
 
     public Set<BlockPos> getMembers() {
-        return Collections.unmodifiableSet(members);
+        return graph.getNodes();
     }
 
     public int size() {
-        return members.size();
+        return graph.size();
     }
 
     /**
@@ -94,51 +105,14 @@ public class PipeNetwork {
      * Uses cached paths when available.
      */
     public Direction getNextHop(BlockPos current, BlockPos destination) {
-        if (!members.contains(current) || !members.contains(destination)) {
-            return null;
-        }
-
-        List<BlockPos> path = findPath(current, destination);
-        if (path == null || path.size() < 2) {
-            return null;
-        }
-
-        BlockPos nextPos = path.get(1);
-        return directionFromDelta(
-            nextPos.getX() - current.getX(),
-            nextPos.getY() - current.getY(),
-            nextPos.getZ() - current.getZ()
-        );
-    }
-
-    private static Direction directionFromDelta(int dx, int dy, int dz) {
-        if (dx == 1) return Direction.EAST;
-        if (dx == -1) return Direction.WEST;
-        if (dy == 1) return Direction.UP;
-        if (dy == -1) return Direction.DOWN;
-        if (dz == 1) return Direction.SOUTH;
-        if (dz == -1) return Direction.NORTH;
-        return null;
+        return graph.getNextHop(current, destination);
     }
 
     /**
      * Find path between two positions, using cache when available.
      */
     public List<BlockPos> findPath(BlockPos start, BlockPos goal) {
-        PathKey key = new PathKey(start, goal);
-        CachedPath cached = pathCache.get(key);
-
-        long currentTime = System.currentTimeMillis();
-        if (cached != null && currentTime - cached.createdAt < PATH_CACHE_MAX_AGE) {
-            return cached.path;
-        }
-
-        List<BlockPos> path = NetworkPathfinder.findPath(start, goal, members);
-        if (path != null) {
-            pathCache.put(key, new CachedPath(path, currentTime));
-        }
-
-        return path;
+        return graph.findPath(start, goal);
     }
 
     /**
@@ -261,21 +235,10 @@ public class PipeNetwork {
     }
 
     /**
-     * Tick the network (process requests, clean up stale cache entries).
+     * Tick the network (process requests).
      */
     public void tick(long gameTime) {
         processRequests(gameTime);
-        cleanupStaleCache(gameTime);
-    }
-
-    private void cleanupStaleCache(long gameTime) {
-        pathCache.entrySet().removeIf(entry ->
-            gameTime - entry.getValue().createdAt > PATH_CACHE_MAX_AGE
-        );
-    }
-
-    private void invalidatePathCache() {
-        pathCache.clear();
     }
 
     /**
@@ -303,16 +266,20 @@ public class PipeNetwork {
      * 2. Sinks with matching filters (FILTERED_SINK_PRIORITY)
      * 3. Default route sinks (DEFAULT_SINK_PRIORITY)
      *
-     * @param world Level to query pipe entities
      * @param stack ItemStack to find destination for
      * @return BlockPos of highest-priority available sink, or null if none found
      */
-    public BlockPos findSinkFor(Level world, ItemStack stack) {
+    @Override
+    public BlockPos findSinkFor(ItemStack stack) {
+        if (worldView == null) {
+            throw new IllegalStateException("Cannot use findSinkFor without IWorldView - update tests to use proper constructor");
+        }
+
         LogisticsMod.LOGGER.info("[Network {}] Finding sink for {} (members: {}, default routes: {})",
-                getNetworkIdShort(id), stack.getItem(), members.size(), defaultRouteSinks.size());
+                getNetworkIdShort(id), stack.getItem(), graph.size(), defaultRouteSinks.size());
 
         // Check filtered sinks first, then fall back to default routes
-        BlockPos bestSink = findFilteredSink(world, stack);
+        BlockPos bestSink = findFilteredSink(stack);
         if (bestSink == null) {
             bestSink = findDefaultRouteSink();
         }
@@ -326,29 +293,29 @@ public class PipeNetwork {
 
     /**
      * Find a sink with a matching filter for the given item.
-     * @param world Level to query pipe entities
+     * Uses injected IWorldView to query modules.
      * @param stack ItemStack to find sink for
      * @return BlockPos of filtered sink, or null if none matches
      */
-    private BlockPos findFilteredSink(Level world, ItemStack stack) {
-        for (BlockPos pos : members) {
-            if (!(world.getBlockEntity(pos) instanceof PipeBlockEntity pipeEntity)) {
-                continue;
-            }
-
-            PipeBlock block = (PipeBlock) pipeEntity.getBlockState().getBlock();
-            Pipe pipe = block.getPipe();
-            SinkModule sinkModule = pipe.getModule(SinkModule.class);
-
+    private BlockPos findFilteredSink(ItemStack stack) {
+        for (BlockPos pos : graph.getNodes()) {
+            SinkModule sinkModule = worldView.getModule(pos, SinkModule.class);
             if (sinkModule == null) {
                 continue;
             }
 
-            PipeContext ctx = pipeEntity.createContext();
-            if (sinkModule.matchesFilter(ctx, stack)) {
-                LogisticsMod.LOGGER.info("[Network {}] Found filtered sink at {}",
-                        getNetworkIdShort(id), pos);
-                return pos;
+            // TODO: Need to get PipeContext somehow - for now we need to access Level
+            // This is a temporary bridge until we refactor module API
+            if (worldView instanceof MinecraftWorldView minecraftView) {
+                Level world = minecraftView.getLevel();
+                if (world.getBlockEntity(pos) instanceof PipeBlockEntity pipeEntity) {
+                    PipeContext ctx = pipeEntity.createContext();
+                    if (sinkModule.matchesFilter(ctx, stack)) {
+                        LogisticsMod.LOGGER.info("[Network {}] Found filtered sink at {}",
+                                getNetworkIdShort(id), pos);
+                        return pos;
+                    }
+                }
             }
         }
 
@@ -367,7 +334,7 @@ public class PipeNetwork {
         int bestPriority = Integer.MIN_VALUE;
 
         for (BlockPos sink : defaultRouteSinks) {
-            if (!members.contains(sink)) {
+            if (!graph.contains(sink)) {
                 continue;
             }
 
@@ -392,7 +359,7 @@ public class PipeNetwork {
      * Merge another network into this one.
      */
     public void merge(PipeNetwork other) {
-        members.addAll(other.members);
+        graph.merge(other.graph);
         providerCaches.putAll(other.providerCaches);
         pendingRequests.addAll(other.pendingRequests);
 
@@ -402,7 +369,5 @@ public class PipeNetwork {
 
         defaultRouteSinks.addAll(other.defaultRouteSinks);
         sinkPriorities.putAll(other.sinkPriorities);
-
-        invalidatePathCache();
     }
 }
