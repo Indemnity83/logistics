@@ -1,4 +1,4 @@
-package com.logistics.core.lib.network;
+package com.logistics.pipe.network;
 
 import static org.junit.jupiter.api.Assertions.*;
 

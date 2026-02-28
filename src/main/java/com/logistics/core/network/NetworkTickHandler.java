@@ -1,6 +1,6 @@
 package com.logistics.core.network;
 
-import com.logistics.core.lib.network.NetworkRegistry;
+import com.logistics.pipe.network.NetworkRegistry;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 
 /**

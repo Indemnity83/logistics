@@ -1,6 +1,7 @@
-package com.logistics.core.lib.network;
+package com.logistics.pipe.network;
 
 import com.logistics.core.lib.block.capability.PipeConnection;
+import com.logistics.core.lib.network.IWorldView;
 import com.logistics.pipe.Pipe;
 import com.logistics.pipe.block.PipeBlock;
 import com.logistics.pipe.block.entity.PipeBlockEntity;

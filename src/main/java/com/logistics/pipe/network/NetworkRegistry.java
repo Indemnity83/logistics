@@ -1,6 +1,9 @@
-package com.logistics.core.lib.network;
+package com.logistics.pipe.network;
 
 import com.logistics.core.lib.block.capability.PipeConnection;
+import com.logistics.core.lib.network.INetworkGraph;
+import com.logistics.core.lib.network.IWorldView;
+import com.logistics.core.lib.network.NetworkGraph;
 import com.logistics.pipe.block.PipeBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;

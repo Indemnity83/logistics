@@ -1,12 +1,14 @@
 package com.logistics.pipe.modules;
 
 import com.logistics.LogisticsPipe;
-import com.logistics.core.lib.network.LogisticsOrder;
-import com.logistics.core.lib.network.NetworkRegistry;
 import com.logistics.core.lib.network.ILogisticsNetwork;
 import com.logistics.core.lib.resource.ResourceId;
+import com.logistics.core.lib.storage.NbtCompat;
 import com.logistics.pipe.PipeContext;
+import com.logistics.pipe.network.LogisticsOrder;
+import com.logistics.pipe.network.NetworkRegistry;
 import com.logistics.pipe.runtime.TravelingItem;
+import com.logistics.pipe.ui.ProviderScreenHandler;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
@@ -14,7 +16,12 @@ import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
@@ -47,13 +54,58 @@ public class ProviderModule implements Module {
 
     /**
      * Provider modes control which items are available for extraction.
+     * Each mode defines behavior through properties rather than scattered if-checks.
      */
     public enum ProviderMode {
-        SUPPLY,      // Provides all items (default)
-        RESERVE,     // Leave first stack of each inventory
-        GUARDED,     // Leave first and last stacks
-        SEEDED,      // Leave 1 item per stack
-        SAMPLE       // Leave 1 item per type
+        SUPPLY("Normal", false, false, 0),
+        RESERVE("Leave 1 Stack", false, false, 64),
+        SEEDED("Leave 1 Per Slot", true, false, 0),
+        SAMPLE("Leave 1 Per Type", false, true, 0);
+
+        private final String translationKey;
+        private final boolean hideOnePerSlot;
+        private final boolean hideOnePerType;
+        private final int reserveAmount;
+
+        ProviderMode(String translationKey, boolean hideOnePerSlot, boolean hideOnePerType, int reserveAmount) {
+            this.translationKey = translationKey;
+            this.hideOnePerSlot = hideOnePerSlot;
+            this.hideOnePerType = hideOnePerType;
+            this.reserveAmount = reserveAmount;
+        }
+
+        public boolean isHideOnePerSlot() { return hideOnePerSlot; }
+        public boolean isHideOnePerType() { return hideOnePerType; }
+        public int getReserveAmount() { return reserveAmount; }
+        public String getTranslationKey() { return translationKey; }
+    }
+
+    // ==================== Mode Configuration ====================
+
+    /**
+     * Calculate available amount for provision based on provider mode.
+     * Applies mode-specific hiding logic consistently.
+     *
+     * @param mode Provider mode
+     * @param rawAmount Raw amount from inventory
+     * @param isFirstSlotOfType True if this is the first slot containing this item type
+     * @return Amount available for provision after mode logic
+     */
+    private long calculateAvailableAmount(ProviderMode mode, long rawAmount, boolean isFirstSlotOfType) {
+        // Per-slot hiding (SEEDED mode)
+        if (mode.isHideOnePerSlot()) {
+            rawAmount = Math.max(0, rawAmount - 1);
+        }
+
+        // Per-type hiding (SAMPLE mode)
+        if (mode.isHideOnePerType() && isFirstSlotOfType) {
+            rawAmount = Math.max(0, rawAmount - 1);
+        }
+
+        // Note: Global reserve (RESERVE mode) is handled at aggregation level,
+        // not per-slot, so it's applied in scanAndUpdateCache() after totaling.
+
+        return rawAmount;
     }
 
     public ProviderMode getMode(PipeContext ctx) {
@@ -77,11 +129,13 @@ public class ProviderModule implements Module {
         setMode(ctx, ProviderMode.values()[ordinal]);
     }
 
+    // ==================== Filter Configuration ====================
+
     public List<String> getFilterItems(PipeContext ctx) {
         CompoundTag filterItems = ctx.getCompoundTag(this, FILTER_ITEMS);
         List<String> items = new ArrayList<>();
         for (int i = 0; i < MAX_FILTER_SLOTS; i++) {
-            String itemId = com.logistics.core.lib.storage.NbtCompat.getString(filterItems, String.valueOf(i), "");
+            String itemId = NbtCompat.getString(filterItems, String.valueOf(i), "");
             if (!itemId.isEmpty()) {
                 items.add(itemId);
             }
@@ -113,64 +167,43 @@ public class ProviderModule implements Module {
     }
 
     /**
-     * Check if an item passes the filter.
+     * Check if an item should be filtered out (not provided).
      * @param ctx Pipe context
      * @param stack Item to check
-     * @return true if the item should be provided, false otherwise
+     * @return true if the item should be filtered out, false if it should be provided
      */
-    private boolean passesFilter(PipeContext ctx, ItemStack stack) {
+    private boolean isFilteredOut(PipeContext ctx, ItemStack stack) {
         List<String> filterItems = getFilterItems(ctx);
 
-        // Empty filter = provide all items
+        // Empty filter = provide all items (don't filter anything)
         if (filterItems.isEmpty()) {
-            return true;
+            return false;
         }
 
-        String itemId = net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(stack.getItem()).toString();
+        String itemId = BuiltInRegistries.ITEM.getKey(stack.getItem()).toString();
         boolean itemInFilter = filterItems.contains(itemId);
         boolean isInverted = isFilterInverted(ctx);
 
-        // Include mode: only provide items in filter
-        // Exclude mode: provide all items EXCEPT those in filter
-        return isInverted ? !itemInFilter : itemInFilter;
+        // Include mode: filter out items NOT in filter
+        // Exclude mode: filter out items IN filter
+        return isInverted == itemInFilter;
     }
 
-    /**
-     * Apply the provider mode to determine how much of an item should be available.
-     * @param ctx Pipe context
-     * @param amount Raw amount from inventory
-     * @return Amount available for provision after applying mode
-     */
-    private long applyMode(PipeContext ctx, long amount) {
-        ProviderMode mode = getMode(ctx);
-
-        return switch (mode) {
-            case SUPPLY -> amount; // Provide everything
-            case RESERVE -> Math.max(0, amount - 64); // Leave 1 stack (64 items)
-            case GUARDED -> Math.max(0, amount - 128); // Leave 2 stacks (128 items)
-            case SEEDED -> Math.max(0, amount - 1); // Leave 1 item per slot (simplified)
-            case SAMPLE -> Math.max(0, amount - 1); // Leave 1 item per type
-        };
-    }
+    // ==================== Module Interface ====================
 
     @Override
     public void onTick(PipeContext ctx) {
-        if (ctx.world().isClientSide()) {
-            return;
-        }
+        if (ctx.world().isClientSide()) return;
 
-        // Increment tick counter
         int ticks = ctx.getInt(this, TICKS_SINCE_SCAN, 0);
         ticks++;
         ctx.saveInt(this, TICKS_SINCE_SCAN, ticks);
 
-        // Scan inventory periodically
         if (ticks >= SCAN_INTERVAL) {
             scanAndUpdateCache(ctx);
             ctx.saveInt(this, TICKS_SINCE_SCAN, 0);
         }
 
-        // Process pending orders
         processPendingOrders(ctx);
     }
 
@@ -184,125 +217,137 @@ public class ProviderModule implements Module {
     }
 
     @Override
-    public net.minecraft.world.InteractionResult onWrench(PipeContext ctx, net.minecraft.world.entity.player.Player player) {
-        if (ctx.world().isClientSide()) {
-            return net.minecraft.world.InteractionResult.SUCCESS;
-        }
+    public InteractionResult onWrench(PipeContext ctx, net.minecraft.world.entity.player.Player player) {
+        if (ctx.world().isClientSide()) return InteractionResult.SUCCESS;
+        if (!(player instanceof ServerPlayer serverPlayer)) return InteractionResult.PASS;
 
-        if (!(player instanceof net.minecraft.server.level.ServerPlayer serverPlayer)) {
-            return net.minecraft.world.InteractionResult.PASS;
-        }
-
-        // Open Provider GUI
-        serverPlayer.openMenu(new net.minecraft.world.SimpleMenuProvider(
-                (syncId, playerInventory, p) -> new com.logistics.pipe.ui.ProviderScreenHandler(
+        serverPlayer.openMenu(new SimpleMenuProvider(
+                (syncId, playerInventory, p) -> new ProviderScreenHandler(
                         syncId,
                         playerInventory,
                         ctx.blockEntity()
                 ),
-                net.minecraft.network.chat.Component.translatable("screen.logistics.provider")
+                Component.translatable("screen.logistics.provider")
         ));
 
-        return net.minecraft.world.InteractionResult.SUCCESS;
+        return InteractionResult.SUCCESS;
     }
+
+    // ==================== Inventory Scanning ====================
 
     /**
      * Scan ALL adjacent inventories and update the network provider cache.
      */
     private void scanAndUpdateCache(PipeContext ctx) {
-        // Ensure this pipe is part of a network (creates/joins on first tick after load)
         ILogisticsNetwork network = NetworkRegistry.getOrCreateNetwork(ctx.world(), ctx.pos());
-        if (network == null) {
-            return;
-        }
-
-        // TODO(Phase 11): Check energy availability
-        // if (ctx.getEnergy() < RF_PER_SCAN) return;
+        if (network == null) return;
 
         List<Direction> inventoryFaces = ctx.getInventoryConnections();
         if (inventoryFaces.isEmpty()) {
-            // No inventories - clear cache
             network.updateProviderCache(ctx.pos(), new HashMap<>(), ctx.world().getGameTime());
             return;
         }
 
-        // Scan all connected inventories
-        // Use ItemStack as key with proper aggregation
-        Map<ItemStack, Long> availableItems = new HashMap<>();
         ProviderMode mode = getMode(ctx);
+        Map<ItemStack, Long> availableItems = aggregateInventoryItems(ctx, inventoryFaces, mode);
+        availableItems = applyReserveMode(availableItems, mode);
 
-        // Track items by variant for proper merging
+        network.updateProviderCache(ctx.pos(), availableItems, ctx.world().getGameTime());
+        logCacheUpdate(ctx, mode, availableItems);
+    }
+
+    /**
+     * Scan all connected inventories and aggregate available items.
+     */
+    private Map<ItemStack, Long> aggregateInventoryItems(PipeContext ctx, List<Direction> inventoryFaces, ProviderMode mode) {
         Map<ItemVariant, ItemStack> variantToStack = new HashMap<>();
         Map<ItemVariant, Long> variantAmounts = new HashMap<>();
 
         for (Direction direction : inventoryFaces) {
-            BlockPos targetPos = ctx.pos().relative(direction);
-            Storage<ItemVariant> storage = ItemStorage.SIDED.find(ctx.world(), targetPos, direction.getOpposite());
-
-            if (storage == null) {
-                continue;
-            }
-
-            // Aggregate inventory contents by variant
-            for (StorageView<ItemVariant> view : storage) {
-                ItemVariant variant = view.getResource();
-                if (variant.isBlank()) {
-                    continue;
-                }
-
-                long amount = view.getAmount();
-                if (amount <= 0) {
-                    continue;
-                }
-
-                ItemStack stack = variant.toStack();
-
-                // Apply filter
-                if (!passesFilter(ctx, stack)) {
-                    continue;
-                }
-
-                // Apply SEEDED mode per-slot (leave 1 item in each slot)
-                if (mode == ProviderMode.SEEDED) {
-                    long originalAmount = amount;
-                    amount = Math.max(0, amount - 1);
-                    LOGGER.info("[Provider @ {}] SEEDED: {} slot - original: {}, providing: {}",
-                            ctx.pos(), stack.getDisplayName().getString(), originalAmount, amount);
-                    if (amount == 0) {
-                        continue; // Skip if nothing left to provide
-                    }
-                }
-
-                // Merge quantities by variant (this properly handles same items)
-                variantToStack.putIfAbsent(variant, stack);
-                variantAmounts.merge(variant, amount, Long::sum);
-            }
+            scanInventoryAtDirection(ctx, direction, mode, variantToStack, variantAmounts);
         }
 
-        // Convert variant map to ItemStack map
+        return convertToItemStackMap(variantToStack, variantAmounts);
+    }
+
+    /**
+     * Scan a single inventory direction and accumulate items.
+     */
+    private void scanInventoryAtDirection(
+            PipeContext ctx,
+            Direction direction,
+            ProviderMode mode,
+            Map<ItemVariant, ItemStack> variantToStack,
+            Map<ItemVariant, Long> variantAmounts) {
+
+        BlockPos targetPos = ctx.pos().relative(direction);
+        Storage<ItemVariant> storage = ItemStorage.SIDED.find(ctx.world(), targetPos, direction.getOpposite());
+        if (storage == null) return;
+
+        Map<ItemVariant, Boolean> firstSlotSeen = new HashMap<>();
+
+        for (StorageView<ItemVariant> view : storage) {
+            ItemVariant variant = view.getResource();
+            if (variant.isBlank()) continue;
+
+            long rawAmount = view.getAmount();
+            if (rawAmount <= 0) continue;
+
+            ItemStack stack = variant.toStack();
+            if (isFilteredOut(ctx, stack)) continue;
+
+            boolean isFirstSlot = !firstSlotSeen.containsKey(variant);
+            firstSlotSeen.put(variant, true);
+
+            // Unified mode application
+            long adjustedAmount = calculateAvailableAmount(mode, rawAmount, isFirstSlot);
+            if (adjustedAmount <= 0) continue;
+
+            variantToStack.putIfAbsent(variant, stack);
+            variantAmounts.merge(variant, adjustedAmount, Long::sum);
+        }
+    }
+
+    /**
+     * Convert variant map to ItemStack map for network cache.
+     */
+    private Map<ItemStack, Long> convertToItemStackMap(
+            Map<ItemVariant, ItemStack> variantToStack,
+            Map<ItemVariant, Long> variantAmounts) {
+
+        Map<ItemStack, Long> result = new HashMap<>();
         for (Map.Entry<ItemVariant, Long> entry : variantAmounts.entrySet()) {
             ItemStack stack = variantToStack.get(entry.getKey());
-            availableItems.put(stack, entry.getValue());
+            result.put(stack, entry.getValue());
         }
+        return result;
+    }
 
-        // Apply mode to aggregated amounts (RESERVE, GUARDED, SAMPLE)
-        if (mode != ProviderMode.SUPPLY && mode != ProviderMode.SEEDED) {
-            Map<ItemStack, Long> adjustedItems = new HashMap<>();
-            for (Map.Entry<ItemStack, Long> entry : availableItems.entrySet()) {
-                long original = entry.getValue();
-                long adjusted = applyMode(ctx, original);
-                LOGGER.info("[Provider @ {}] Mode {}: {} - original: {}, adjusted: {}",
-                        ctx.pos(), mode, entry.getKey().getDisplayName().getString(), original, adjusted);
-                if (adjusted > 0) {
-                    adjustedItems.put(entry.getKey(), adjusted);
-                }
+    /**
+     * Apply RESERVE mode to aggregated totals.
+     * RESERVE mode leaves N items total across all slots (applied after aggregation).
+     *
+     * @param items Aggregated items from all slots
+     * @param mode Provider mode
+     * @return Items with RESERVE mode applied (if applicable)
+     */
+    private Map<ItemStack, Long> applyReserveMode(Map<ItemStack, Long> items, ProviderMode mode) {
+        if (mode.getReserveAmount() == 0) return items;
+
+        Map<ItemStack, Long> adjustedItems = new HashMap<>();
+        for (Map.Entry<ItemStack, Long> entry : items.entrySet()) {
+            long adjusted = Math.max(0, entry.getValue() - mode.getReserveAmount());
+            if (adjusted > 0) {
+                adjustedItems.put(entry.getKey(), adjusted);
             }
-            availableItems = adjustedItems;
         }
+        return adjustedItems;
+    }
 
-        // Update network cache with aggregated contents
-        network.updateProviderCache(ctx.pos(), availableItems, ctx.world().getGameTime());
-
+    /**
+     * Log cache update results.
+     */
+    private void logCacheUpdate(PipeContext ctx, ProviderMode mode, Map<ItemStack, Long> availableItems) {
         if (!availableItems.isEmpty()) {
             long totalItems = availableItems.values().stream().mapToLong(Long::longValue).sum();
             LOGGER.info("[Provider @ {}] Mode {} - Updated cache: {} item types, {} total items",
@@ -313,64 +358,55 @@ public class ProviderModule implements Module {
         }
     }
 
+    // ==================== Order Processing ====================
+
     /**
      * Process pending orders from the network.
-     * Try to extract items from ANY connected inventory.
+     * Tries to extract items from any connected inventory.
      */
     private void processPendingOrders(PipeContext ctx) {
-        // Ensure this pipe is part of a network (creates/joins on first tick after load)
         ILogisticsNetwork network = NetworkRegistry.getOrCreateNetwork(ctx.world(), ctx.pos());
-        if (network == null) {
-            return;
-        }
+        if (network == null) return;
 
         List<LogisticsOrder> orders = network.getOrdersFor(ctx.pos());
-        if (orders.isEmpty()) {
-            return;
-        }
+        if (orders.isEmpty()) return;
 
         List<Direction> inventoryFaces = ctx.getInventoryConnections();
-        if (inventoryFaces.isEmpty()) {
-            return;
-        }
+        if (inventoryFaces.isEmpty()) return;
 
-        // Process orders one at a time
         for (LogisticsOrder order : List.copyOf(orders)) {
-            // TODO(Phase 11): Check energy
-            // long energyCost = order.amount() * RF_PER_ITEM;
-            // if (ctx.getEnergy() < energyCost) continue;
-
-            // Try to fulfill from any connected inventory
-            boolean fulfilled = false;
-            for (Direction direction : inventoryFaces) {
-                BlockPos targetPos = ctx.pos().relative(direction);
-                Storage<ItemVariant> storage = ItemStorage.SIDED.find(ctx.world(), targetPos, direction.getOpposite());
-
-                if (storage == null) {
-                    continue;
-                }
-
-                fulfilled = fulfillOrder(ctx, storage, order, direction);
-                if (fulfilled) {
-                    network.removeOrder(order);
-                    // TODO(Phase 11): Consume energy
-                    // ctx.setEnergy(ctx.getEnergy() - energyCost);
-                    break; // Order fulfilled, move to next order
-                }
-            }
-
-            if (fulfilled) {
-                break; // Process one order per tick
+            if (tryFulfillOrder(ctx, network, order, inventoryFaces)) {
+                break;
             }
         }
     }
+
+    /**
+     * Try to fulfill an order from any connected inventory.
+     * @return true if order was fulfilled (stop processing more orders this tick)
+     */
+    private boolean tryFulfillOrder(PipeContext ctx, ILogisticsNetwork network, LogisticsOrder order, List<Direction> inventoryFaces) {
+        for (Direction direction : inventoryFaces) {
+            BlockPos targetPos = ctx.pos().relative(direction);
+            Storage<ItemVariant> storage = ItemStorage.SIDED.find(ctx.world(), targetPos, direction.getOpposite());
+            if (storage == null) continue;
+
+            if (fulfillOrder(ctx, storage, order, direction)) {
+                network.removeOrder(order);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // ==================== Item Extraction ====================
 
     /**
      * Fulfill a single order by extracting items and creating a TravelingItem with destination.
      */
     private boolean fulfillOrder(PipeContext ctx, Storage<ItemVariant> storage, LogisticsOrder order, Direction direction) {
         // Double-check filter before fulfilling order
-        if (!passesFilter(ctx, order.stack())) {
+        if (isFilteredOut(ctx, order.stack())) {
             return false;
         }
 
@@ -378,15 +414,8 @@ public class ProviderModule implements Module {
         ProviderMode mode = getMode(ctx);
 
         try (Transaction transaction = Transaction.openOuter()) {
-            long extracted;
-
-            // SEEDED mode: manually extract from slots, never taking the last item from any slot
-            if (mode == ProviderMode.SEEDED) {
-                extracted = extractWithSeeding(storage, variant, order.amount(), transaction);
-            } else {
-                // Normal extraction for other modes
-                extracted = storage.extract(variant, order.amount(), transaction);
-            }
+            // Unified extraction for all modes
+            long extracted = extractItems(storage, variant, order.amount(), transaction, mode);
 
             if (extracted > 0) {
                 ItemStack stack = variant.toStack((int) extracted);
@@ -407,31 +436,35 @@ public class ProviderModule implements Module {
     }
 
     /**
-     * Extract items while respecting SEEDED mode: never extract the last item from any slot.
+     * Extract items from storage respecting provider mode.
+     * Maintains slot-position order by iterating through slots sequentially.
+     *
+     * @param storage Fabric ItemStorage
+     * @param variant ItemVariant to extract
+     * @param requested Amount requested
+     * @param transaction Active transaction
+     * @param mode Provider mode
+     * @return Actual amount extracted
      */
-    private long extractWithSeeding(Storage<ItemVariant> storage, ItemVariant variant, long requested, Transaction transaction) {
+    private long extractItems(Storage<ItemVariant> storage, ItemVariant variant, long requested, Transaction transaction, ProviderMode mode) {
         long totalExtracted = 0;
         long remaining = requested;
+        boolean isFirstSlotOfType = true;
 
-        // Iterate through all storage views (slots)
+        // Iterate slots in order (maintains slot-position binding)
         for (StorageView<ItemVariant> view : storage.nonEmptyViews()) {
-            if (remaining <= 0) {
-                break;
-            }
+            if (remaining <= 0) break;
 
             ItemVariant viewVariant = view.getResource();
-            if (!viewVariant.equals(variant)) {
-                continue;
-            }
+            if (!viewVariant.equals(variant)) continue;
 
             long available = view.getAmount();
-            if (available <= 1) {
-                // Keep the last item in this slot (seeded)
-                continue;
-            }
+            long adjustedAmount = calculateAvailableAmount(mode, available, isFirstSlotOfType);
+            isFirstSlotOfType = false;
 
-            // Extract at most (available - 1) to leave 1 item seeded
-            long canExtract = Math.min(available - 1, remaining);
+            if (adjustedAmount <= 0) continue;
+
+            long canExtract = Math.min(adjustedAmount, remaining);
             long extracted = view.extract(variant, canExtract, transaction);
 
             totalExtracted += extracted;

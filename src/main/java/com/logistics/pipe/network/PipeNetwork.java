@@ -1,6 +1,7 @@
-package com.logistics.core.lib.network;
+package com.logistics.pipe.network;
 
 import com.logistics.LogisticsMod;
+import com.logistics.core.lib.network.*;
 import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.pipe.modules.SinkModule;

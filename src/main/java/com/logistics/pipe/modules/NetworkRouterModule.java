@@ -1,13 +1,12 @@
 package com.logistics.pipe.modules;
 
-import com.logistics.core.lib.network.NetworkRegistry;
+import com.logistics.pipe.network.NetworkRegistry;
 import com.logistics.core.lib.network.ILogisticsNetwork;
 import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.runtime.RoutePlan;
 import com.logistics.pipe.runtime.TravelingItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -23,52 +22,25 @@ import java.util.List;
 public class NetworkRouterModule implements Module {
     @Override
     public RoutePlan route(PipeContext ctx, TravelingItem item, List<Direction> options) {
-        if (ctx.world().isClientSide()) {
-            return RoutePlan.pass(); // Networks only exist on server
-        }
+        if (ctx.world().isClientSide()) return RoutePlan.pass();
 
         ILogisticsNetwork network = NetworkRegistry.getNetwork(ctx.world(), ctx.pos());
-        if (network == null) {
-            return RoutePlan.pass(); // Not in a network, fall back to default routing
-        }
+        if (network == null) return RoutePlan.pass();
 
-        // If item has no destination, try to find one
         if (item.getDestination() == null) {
-            BlockPos destination = findDestinationForItem(ctx, item, network);
-            if (destination != null) {
-                item.setDestination(destination);
-            } else {
-                // No destination available - drop the item
-                return RoutePlan.drop();
-            }
+            BlockPos destination = network.findSinkFor(item.getStack());
+            if (destination == null) return RoutePlan.drop();
+            item.setDestination(destination);
         }
 
-        // If destination is the current position, item has arrived - pass it on for routing
-        if (item.getDestination().equals(ctx.pos())) {
-            return RoutePlan.pass();
-        }
+        if (item.getDestination().equals(ctx.pos())) return RoutePlan.pass();
 
-        // Route item to destination using pathfinding
         Direction nextHop = network.getNextHop(ctx.pos(), item.getDestination());
         if (nextHop != null && options.contains(nextHop)) {
             return RoutePlan.reroute(nextHop);
         }
 
-        // Pathfinding failed - drop the item
         return RoutePlan.drop();
     }
 
-    /**
-     * Find a suitable destination for an item without an explicit destination.
-     * Priority order:
-     * 1. Requesters that want this item (highest priority - TODO: Phase 5+)
-     * 2. Default route sinks that accept any item
-     * 3. Any sink that can accept this item
-     *
-     * @return BlockPos of destination, or null if no destination found
-     */
-    @Nullable
-    private BlockPos findDestinationForItem(PipeContext ctx, TravelingItem item, ILogisticsNetwork network) {
-        return network.findSinkFor(item.getStack());
-    }
 }

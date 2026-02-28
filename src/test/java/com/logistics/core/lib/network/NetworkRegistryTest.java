@@ -1,5 +1,6 @@
 package com.logistics.core.lib.network;
 
+import com.logistics.pipe.network.PipeNetwork;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import org.junit.jupiter.api.Test;

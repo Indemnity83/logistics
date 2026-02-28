@@ -1,7 +1,7 @@
 package com.logistics.pipe.ui;
 
-import com.logistics.core.lib.network.NetworkRegistry;
-import com.logistics.core.lib.network.PipeNetwork;
+import com.logistics.pipe.network.NetworkRegistry;
+import com.logistics.pipe.network.PipeNetwork;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.pipe.modules.RequesterModule;
 import net.minecraft.core.NonNullList;

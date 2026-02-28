@@ -3,7 +3,7 @@ package com.logistics.pipe.block;
 import com.logistics.core.lib.block.behavior.ProbeBehavior;
 import com.logistics.core.lib.block.behavior.WrenchBehavior;
 import com.logistics.core.lib.block.capability.PipeConnection;
-import com.logistics.core.lib.network.NetworkRegistry;
+import com.logistics.pipe.network.NetworkRegistry;
 import com.logistics.core.lib.pipe.PipeConnectionRegistry;
 import com.logistics.core.lib.support.ProbeResult;
 import com.logistics.pipe.Pipe;
