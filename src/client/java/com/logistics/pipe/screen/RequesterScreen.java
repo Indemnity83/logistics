@@ -1,45 +1,151 @@
 package com.logistics.pipe.screen;
 
-import com.logistics.core.lib.resource.ResourceId;
+import com.logistics.pipe.network.RequestItemPacket;
+import com.logistics.pipe.screen.widget.ItemGridWidget;
 import com.logistics.pipe.ui.RequesterScreenHandler;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.item.ItemStack;
 
 /**
  * Client-side screen for the Requester GUI.
- * Displays a 3x3 grid of request slots with item and amount.
+ * Displays a scrollable grid of network items with search and request functionality.
  */
 public class RequesterScreen extends AbstractContainerScreen<RequesterScreenHandler> {
-    private static final ResourceId BACKGROUND_TEXTURE =
-            ResourceId.in("minecraft", "textures/gui/container/generic_54.png");
+    private ItemGridWidget itemGrid;
+    private EditBox searchField;
+    private EditBox amountField;
+    private Button requestButton;
+    private ItemStack selectedItem = ItemStack.EMPTY;
 
     public RequesterScreen(RequesterScreenHandler handler, Inventory inventory, Component title) {
         super(handler, inventory, title);
         this.imageWidth = 176;
-        this.imageHeight = 166;
+        this.imageHeight = 180;
+        this.inventoryLabelY = this.imageHeight - 94;
+    }
+
+    @Override
+    protected void init() {
+        super.init();
+
+        // Item grid (8×5 grid at 20px slots = 160x100)
+        this.itemGrid = new ItemGridWidget(leftPos + 8, topPos + 20, 160, 100, this::onItemSelected);
+
+        // Search field
+        this.searchField = new EditBox(
+                font,
+                leftPos + 8,
+                topPos + 125,
+                140,
+                12,
+                Component.translatable("gui.logistics.requester.search")
+        );
+        searchField.setHint(Component.translatable("gui.logistics.requester.search"));
+        searchField.setMaxLength(50);
+        searchField.setResponder(this::onSearchChanged);
+        addRenderableWidget(searchField);
+
+        // Amount field
+        this.amountField = new EditBox(
+                font,
+                leftPos + 8,
+                topPos + 142,
+                50,
+                16,
+                Component.literal("Amount")
+        );
+        amountField.setValue("64");
+        amountField.setMaxLength(6);
+        addRenderableWidget(amountField);
+
+        // Request button
+        this.requestButton = Button.builder(
+                        Component.translatable("gui.logistics.requester.request"),
+                        btn -> onRequestClick())
+                .bounds(leftPos + 112, topPos + 142, 56, 16)
+                .build();
+        addRenderableWidget(requestButton);
+
+        // Load items from screen handler
+        refreshItems();
+    }
+
+    private void refreshItems() {
+        itemGrid.setItems(getMenu().getAllItems());
+    }
+
+    private void onItemSelected(ItemStack stack) {
+        selectedItem = stack;
+        itemGrid.setSelectedItem(stack);
+
+        // Auto-fill amount with available quantity (capped at 64)
+        long available = getMenu().getAvailableAmount(stack);
+        amountField.setValue(String.valueOf(Math.min(available, 64)));
+
+        // Update button state
+        updateRequestButton();
+    }
+
+    private void onSearchChanged(String search) {
+        itemGrid.setItems(getMenu().getFilteredItems(search));
+        selectedItem = ItemStack.EMPTY;
+        updateRequestButton();
+    }
+
+    private void onRequestClick() {
+        int amount = getAmount();
+        if (!selectedItem.isEmpty() && amount > 0) {
+            // Send packet to server
+            ClientPlayNetworking.send(new RequestItemPacket(
+                    getMenu().getPipePos(),
+                    selectedItem,
+                    amount
+            ));
+            onClose();
+        }
+    }
+
+    private int getAmount() {
+        try {
+            return Integer.parseInt(amountField.getValue());
+        } catch (NumberFormatException e) {
+            return 0;
+        }
+    }
+
+    private void updateRequestButton() {
+        requestButton.active = !selectedItem.isEmpty() && getAmount() > 0;
     }
 
     @Override
     protected void renderBg(GuiGraphics context, float delta, int mouseX, int mouseY) {
-        // Draw background texture
-        context.blit(
-                RenderPipelines.GUI_TEXTURED,
-                BACKGROUND_TEXTURE.toIdentifier(),
-                leftPos,
-                topPos,
-                0,
-                0,
-                imageWidth,
-                imageHeight,
-                256,
-                256);
+        // Draw simple gray background
+        int bgColor = 0xFFC6C6C6;
+        context.fill(leftPos, topPos, leftPos + imageWidth, topPos + imageHeight, bgColor);
+
+        // Draw darker border
+        int borderColor = 0xFF8B8B8B;
+        context.fill(leftPos, topPos, leftPos + imageWidth, topPos + 1, borderColor);
+        context.fill(leftPos, topPos, leftPos + 1, topPos + imageHeight, borderColor);
+        context.fill(leftPos + imageWidth - 1, topPos, leftPos + imageWidth, topPos + imageHeight, borderColor);
+        context.fill(leftPos, topPos + imageHeight - 1, leftPos + imageWidth, topPos + imageHeight, borderColor);
+
+        // Render item grid
+        itemGrid.render(context, mouseX, mouseY, delta);
     }
 
     @Override
     protected void renderLabels(GuiGraphics context, int mouseX, int mouseY) {
         context.drawString(font, title, titleLabelX, titleLabelY, 0x404040, false);
+
+        // Draw "Amount:" label
+        Component amountLabel = Component.translatable("gui.logistics.requester.amount");
+        context.drawString(font, amountLabel, 8, 130, 0x404040, false);
     }
 }

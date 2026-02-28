@@ -42,4 +42,30 @@ public class PipeModuleHelper {
             }
         });
     }
+
+    /**
+     * Execute an action with a pipe module and context (direct pipe entity access).
+     * Handles all the boilerplate of retrieving the pipe and module.
+     *
+     * @param pipeEntity The pipe block entity
+     * @param moduleClass The module class to retrieve
+     * @param action The action to perform with the context and module
+     * @param <T> The module type
+     */
+    public static <T extends Module> void withModule(
+        PipeBlockEntity pipeEntity,
+        Class<T> moduleClass,
+        BiConsumer<PipeContext, T> action
+    ) {
+        if (pipeEntity != null) {
+            PipeBlock block = (PipeBlock) pipeEntity.getBlockState().getBlock();
+            Pipe pipe = block.getPipe();
+            T module = pipe.getModule(moduleClass);
+
+            if (module != null) {
+                PipeContext ctx = pipeEntity.createContext();
+                action.accept(ctx, module);
+            }
+        }
+    }
 }

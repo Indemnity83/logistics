@@ -86,8 +86,64 @@ public class RequestInventory implements Container {
     }
 
     /**
+     * Get all available items from the network (no limit).
+     * Returns a list of ItemStacks with counts set to display amount (capped at 64).
+     */
+    public List<ItemStack> getAllItems() {
+        Map<ItemStack, Long> available = getAvailableItemsFromNetwork();
+        List<ItemStack> result = new ArrayList<>();
+
+        for (var entry : available.entrySet()) {
+            ItemStack display = entry.getKey().copy();
+            display.setCount((int) Math.min(entry.getValue(), 64));
+            result.add(display);
+        }
+
+        return result;
+    }
+
+    /**
+     * Get the available amount of a specific item in the network.
+     */
+    public long getAvailableAmount(ItemStack stack) {
+        if (pipeEntity == null || pipeEntity.getLevel() == null) {
+            return 0;
+        }
+
+        PipeNetwork network = NetworkRegistry.getOrCreateNetwork(pipeEntity.getLevel(), pipeEntity.getBlockPos());
+        if (network == null) {
+            return 0;
+        }
+
+        Map<ItemStack, Long> available = network.getAllAvailableItems();
+        for (var entry : available.entrySet()) {
+            if (ItemStack.isSameItemSameComponents(entry.getKey(), stack)) {
+                return entry.getValue();
+            }
+        }
+
+        return 0;
+    }
+
+    /**
+     * Get available items from the network.
+     */
+    private Map<ItemStack, Long> getAvailableItemsFromNetwork() {
+        if (pipeEntity == null || pipeEntity.getLevel() == null) {
+            return Map.of();
+        }
+
+        PipeNetwork network = NetworkRegistry.getOrCreateNetwork(pipeEntity.getLevel(), pipeEntity.getBlockPos());
+        if (network == null) {
+            return Map.of();
+        }
+
+        return network.getAllAvailableItems();
+    }
+
+    /**
      * Load available items from the network.
-     * Shows first 9 item types available from providers.
+     * Shows first 9 item types available from providers (for backwards compatibility).
      */
     private void loadFromNetwork() {
         // Clear slots
@@ -95,18 +151,12 @@ public class RequestInventory implements Container {
             stacks.set(i, ItemStack.EMPTY);
         }
 
-        if (pipeEntity.getLevel() == null || pipeEntity.getLevel().isClientSide()) {
-            return;
-        }
-
-        // Get network
-        PipeNetwork network = NetworkRegistry.getOrCreateNetwork(pipeEntity.getLevel(), pipeEntity.getBlockPos());
-        if (network == null) {
+        if (pipeEntity == null || pipeEntity.getLevel() == null || pipeEntity.getLevel().isClientSide()) {
             return;
         }
 
         // Get all available items from network
-        Map<ItemStack, Long> availableItems = network.getAllAvailableItems();
+        Map<ItemStack, Long> availableItems = getAvailableItemsFromNetwork();
 
         // Show first 9 item types
         List<Map.Entry<ItemStack, Long>> entries = new ArrayList<>(availableItems.entrySet());

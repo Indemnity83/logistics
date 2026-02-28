@@ -59,11 +59,16 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
         DATA.register();
         SCREEN.register();
         registerMarkingFluidItems();
+        registerNetworkPackets();
 
         registerLegacyAliases();
         addCreativeTabEntries();
 
         LogisticsApi.Registry.transport(new PipeApi());
+    }
+
+    private static void registerNetworkPackets() {
+        com.logistics.pipe.network.RequestItemPacket.register();
     }
 
     private static void addCreativeTabEntries() {

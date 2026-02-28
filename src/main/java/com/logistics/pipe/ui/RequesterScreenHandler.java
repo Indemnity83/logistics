@@ -2,78 +2,81 @@ package com.logistics.pipe.ui;
 
 import com.logistics.LogisticsPipe;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
-import com.logistics.pipe.modules.RequesterModule;
+import java.util.List;
+import java.util.stream.Collectors;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.ContainerLevelAccess;
-import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.inventory.ClickType;
-import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
 
 /**
  * Screen handler for the Requester GUI.
- * Displays 9 request slots where players can configure items and amounts to request from the network.
+ * Provides access to network items for the client screen widgets.
  */
 public class RequesterScreenHandler extends AbstractContainerMenu {
-    private static final int REQUEST_SLOT_COUNT = RequesterModule.MAX_REQUEST_SLOTS;
-    private static final int SLOT_SIZE = 18;
-    private static final int PLAYER_INV_START_Y = 84;
-    private static final int HOTBAR_Y = 142;
-    private static final int SLOT_START_X = 8;
-    private static final int SLOT_START_Y = 18;
-
     private final RequestInventory requestInventory;
-    private final ContainerLevelAccess context;
+    private final PipeBlockEntity pipeEntity;
 
     public RequesterScreenHandler(int syncId, Container playerInventory) {
         super(LogisticsPipe.SCREEN.REQUESTER, syncId);
-        this.context = ContainerLevelAccess.NULL;
+        this.pipeEntity = null;
         this.requestInventory = new RequestInventory(null);
-
-        addRequestSlots(requestInventory);
-        addPlayerInventorySlots(playerInventory);
     }
 
     public RequesterScreenHandler(int syncId, Container playerInventory, PipeBlockEntity pipeEntity) {
         super(LogisticsPipe.SCREEN.REQUESTER, syncId);
-        if (pipeEntity != null) {
-            this.context = ContainerLevelAccess.create(pipeEntity.getLevel(), pipeEntity.getBlockPos());
-        } else {
-            this.context = ContainerLevelAccess.NULL;
-        }
+        this.pipeEntity = pipeEntity;
         this.requestInventory = new RequestInventory(pipeEntity);
-
-        addRequestSlots(requestInventory);
-        addPlayerInventorySlots(playerInventory);
     }
 
-    private void addRequestSlots(Container inventory) {
-        // 3x3 grid of request slots
-        for (int row = 0; row < 3; row++) {
-            for (int col = 0; col < 3; col++) {
-                int x = SLOT_START_X + col * SLOT_SIZE;
-                int y = SLOT_START_Y + row * SLOT_SIZE;
-                int slotIndex = col + row * 3;
-                addSlot(new RequestSlot(inventory, slotIndex, x, y));
-            }
-        }
+    /**
+     * Get all available items from the network.
+     */
+    public List<ItemStack> getAllItems() {
+        return requestInventory.getAllItems();
     }
 
-    private void addPlayerInventorySlots(Container playerInventory) {
-        for (int row = 0; row < 3; row++) {
-            for (int col = 0; col < 9; col++) {
-                addSlot(new Slot(
-                        playerInventory,
-                        col + row * 9 + 9,
-                        SLOT_START_X + col * SLOT_SIZE,
-                        PLAYER_INV_START_Y + row * SLOT_SIZE));
+    /**
+     * Get filtered items based on search text.
+     * Matches if all space-separated keywords are found in the item name (case-insensitive).
+     */
+    public List<ItemStack> getFilteredItems(String searchText) {
+        if (searchText == null || searchText.trim().isEmpty()) {
+            return getAllItems();
+        }
+
+        String[] keywords = searchText.toLowerCase().trim().split("\\s+");
+
+        return getAllItems().stream()
+                .filter(stack -> matchesSearch(stack, keywords))
+                .collect(Collectors.toList());
+    }
+
+    private boolean matchesSearch(ItemStack stack, String[] keywords) {
+        String itemName = stack.getHoverName().getString().toLowerCase();
+
+        for (String keyword : keywords) {
+            if (!itemName.contains(keyword)) {
+                return false;
             }
         }
 
-        for (int col = 0; col < 9; col++) {
-            addSlot(new Slot(playerInventory, col, SLOT_START_X + col * SLOT_SIZE, HOTBAR_Y));
-        }
+        return true;
+    }
+
+    /**
+     * Get the available amount of a specific item in the network.
+     */
+    public long getAvailableAmount(ItemStack stack) {
+        return requestInventory.getAvailableAmount(stack);
+    }
+
+    /**
+     * Get the pipe's block position for network packet.
+     */
+    public BlockPos getPipePos() {
+        return pipeEntity != null ? pipeEntity.getBlockPos() : BlockPos.ZERO;
     }
 
     @Override
@@ -82,49 +85,7 @@ public class RequesterScreenHandler extends AbstractContainerMenu {
     }
 
     @Override
-    public void clicked(int slotIndex, int button, ClickType actionType, Player player) {
-        if (slotIndex >= 0 && slotIndex < REQUEST_SLOT_COUNT) {
-            // Prevent shift-click and other complex interactions
-            if (actionType != ClickType.PICKUP) {
-                return;
-            }
-
-            // Get the item in the clicked slot
-            ItemStack clickedItem = requestInventory.getItem(slotIndex);
-            if (clickedItem.isEmpty()) {
-                return;
-            }
-
-            // Request this item from the network
-            PipeModuleHelper.withModule(context, RequesterModule.class, (module, ctx) -> {
-                // Request 1 of the clicked item
-                module.requestItem(ctx, clickedItem, 1);
-            });
-
-            return;
-        }
-
-        super.clicked(slotIndex, button, actionType, player);
-    }
-
-    @Override
     public ItemStack quickMoveStack(Player player, int slot) {
         return ItemStack.EMPTY;
-    }
-
-    private static class RequestSlot extends Slot {
-        RequestSlot(Container inventory, int index, int x, int y) {
-            super(inventory, index, x, y);
-        }
-
-        @Override
-        public boolean mayPlace(ItemStack stack) {
-            return false;
-        }
-
-        @Override
-        public boolean mayPickup(Player playerEntity) {
-            return false;
-        }
     }
 }
