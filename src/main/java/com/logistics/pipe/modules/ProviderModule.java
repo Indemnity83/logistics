@@ -33,11 +33,19 @@ import java.util.Map;
 import static com.logistics.LogisticsMod.LOGGER;
 
 /**
- * Provider module - scans ALL adjacent inventories and fulfills orders from the network.
+ * Provider module - scans all adjacent inventories and fulfills orders from the network.
  * Periodically updates the network cache with available items from all connected inventories.
  * When orders arrive, extracts items from any connected inventory and sends them with destination metadata.
  *
- * <p>Unlike ExtractionModule, Provider connects to ALL adjacent inventories simultaneously.
+ * <p>Provider modes control which items are available:
+ * <ul>
+ *   <li>SUPPLY - Provide all items</li>
+ *   <li>RESERVE - Leave 1 stack (64 items) total</li>
+ *   <li>SEEDED - Leave 1 item in each slot</li>
+ *   <li>SAMPLE - Leave 1 item of each type</li>
+ * </ul>
+ *
+ * <p>Unlike ExtractionModule, Provider connects to all adjacent inventories simultaneously.
  * No wrench configuration needed - it automatically provides from any connected inventory.
  *
  * <p>Energy: TODO (Phase 11): 1 RF per item extracted
@@ -175,7 +183,6 @@ public class ProviderModule implements Module {
     private boolean isFilteredOut(PipeContext ctx, ItemStack stack) {
         List<String> filterItems = getFilterItems(ctx);
 
-        // Empty filter = provide all items (don't filter anything)
         if (filterItems.isEmpty()) {
             return false;
         }
@@ -209,7 +216,6 @@ public class ProviderModule implements Module {
 
     @Override
     public @Nullable ResourceId getPipeArm(PipeContext ctx, Direction direction) {
-        // Show feature arm on ALL inventory connections
         if (!ctx.isInventoryConnection(direction)) {
             return null;
         }
@@ -236,7 +242,8 @@ public class ProviderModule implements Module {
     // ==================== Inventory Scanning ====================
 
     /**
-     * Scan ALL adjacent inventories and update the network provider cache.
+     * Scan all adjacent inventories and update the network provider cache.
+     * Applies per-slot mode logic during scanning, then applies reserve mode to totals.
      */
     private void scanAndUpdateCache(PipeContext ctx) {
         ILogisticsNetwork network = NetworkRegistry.getOrCreateNetwork(ctx.world(), ctx.pos());
@@ -299,7 +306,6 @@ public class ProviderModule implements Module {
             boolean isFirstSlot = !firstSlotSeen.containsKey(variant);
             firstSlotSeen.put(variant, true);
 
-            // Unified mode application
             long adjustedAmount = calculateAvailableAmount(mode, rawAmount, isFirstSlot);
             if (adjustedAmount <= 0) continue;
 
@@ -346,6 +352,9 @@ public class ProviderModule implements Module {
 
     /**
      * Log cache update results.
+     * @param ctx Pipe context
+     * @param mode Current provider mode
+     * @param availableItems Items available after mode filtering
      */
     private void logCacheUpdate(PipeContext ctx, ProviderMode mode, Map<ItemStack, Long> availableItems) {
         if (!availableItems.isEmpty()) {
@@ -405,7 +414,6 @@ public class ProviderModule implements Module {
      * Fulfill a single order by extracting items and creating a TravelingItem with destination.
      */
     private boolean fulfillOrder(PipeContext ctx, Storage<ItemVariant> storage, LogisticsOrder order, Direction direction) {
-        // Double-check filter before fulfilling order
         if (isFilteredOut(ctx, order.stack())) {
             return false;
         }
@@ -414,17 +422,15 @@ public class ProviderModule implements Module {
         ProviderMode mode = getMode(ctx);
 
         try (Transaction transaction = Transaction.openOuter()) {
-            // Unified extraction for all modes
             long extracted = extractItems(storage, variant, order.amount(), transaction, mode);
 
             if (extracted > 0) {
                 ItemStack stack = variant.toStack((int) extracted);
-                // Create TravelingItem with destination at max speed for fast delivery
                 TravelingItem item = new TravelingItem(
                     stack,
                     direction.getOpposite(),
                     LogisticsPipe.CONFIG.PROVIDER_PIPE_SPEED,
-                    order.requester() // Set destination to requester position
+                    order.requester()
                 );
                 ctx.blockEntity().forceAddItem(item, direction);
                 transaction.commit();
@@ -477,6 +483,6 @@ public class ProviderModule implements Module {
     @Override
     public boolean acceptsLowTierEnergyFrom(PipeContext ctx, Direction from) {
         // TODO(Phase 11): Accept energy for extraction costs
-        return false; // For now, no energy required
+        return false;
     }
 }
