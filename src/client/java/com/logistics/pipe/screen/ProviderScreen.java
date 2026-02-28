@@ -88,8 +88,9 @@ public class ProviderScreen extends AbstractContainerScreen<ProviderScreenHandle
         return switch (mode) {
             case 0 -> "gui.logistics.provider.mode.supply";
             case 1 -> "gui.logistics.provider.mode.reserve";
-            case 2 -> "gui.logistics.provider.mode.seeded";
-            case 3 -> "gui.logistics.provider.mode.sample";
+            case 2 -> "gui.logistics.provider.mode.guarded";
+            case 3 -> "gui.logistics.provider.mode.seeded";
+            case 4 -> "gui.logistics.provider.mode.sample";
             default -> "gui.logistics.provider.mode.supply";
         };
     }

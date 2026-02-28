@@ -40,7 +40,8 @@ import static com.logistics.LogisticsMod.LOGGER;
  * <p>Provider modes control which items are available:
  * <ul>
  *   <li>SUPPLY - Provide all items</li>
- *   <li>RESERVE - Skip first inventory slot entirely</li>
+ *   <li>RESERVE - Skip first inventory slot</li>
+ *   <li>GUARDED - Skip first and last inventory slots</li>
  *   <li>SEEDED - Leave 1 item in each slot</li>
  *   <li>SAMPLE - Leave 1 item of each type</li>
  * </ul>
@@ -67,6 +68,7 @@ public class ProviderModule implements Module {
     public enum ProviderMode {
         SUPPLY("Normal", false, false, 0, 0),
         RESERVE("Leave First Slot", false, false, 1, 0),
+        GUARDED("Leave First & Last Slot", false, false, 1, 1),
         SEEDED("Leave 1 Per Slot", true, false, 0, 0),
         SAMPLE("Leave 1 Per Type", false, true, 0, 0);
 

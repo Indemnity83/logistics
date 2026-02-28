@@ -90,6 +90,7 @@
   "gui.logistics.mode.full": "Full",
   "gui.logistics.provider.mode.supply": "Supply",
   "gui.logistics.provider.mode.reserve": "Leave First Slot",
+  "gui.logistics.provider.mode.guarded": "Guarded",
   "gui.logistics.provider.mode.seeded": "Seeded",
   "gui.logistics.provider.mode.sample": "Sample",
   "gui.logistics.filter": "Filter",
