@@ -2,6 +2,7 @@ package com.logistics.core.network;
 
 import com.logistics.pipe.network.NetworkRegistry;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
 
 /**
  * Handles ticking of pipe networks.
@@ -14,5 +15,6 @@ public class NetworkTickHandler {
                 NetworkRegistry.tickNetworks(level);
             }
         });
+        ServerWorldEvents.UNLOAD.register((server, level) -> NetworkRegistry.clearLevel(level));
     }
 }

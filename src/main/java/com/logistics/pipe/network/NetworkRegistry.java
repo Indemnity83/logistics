@@ -514,6 +514,14 @@ public class NetworkRegistry {
     }
 
     /**
+     * Clear all networks for a level when it is unloaded.
+     */
+    public static void clearLevel(Level level) {
+        networks.remove(level);
+        positionLookup.remove(level);
+    }
+
+    /**
      * Clear all networks (for testing).
      */
     public static void clear() {
