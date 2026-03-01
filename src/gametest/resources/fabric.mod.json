@@ -9,7 +9,7 @@
 	"environment": "server",
 
 	"depends": {
-		"minecraft": "~1.21.1",
+		"minecraft": "*",
 		"fabricloader": ">=0.16.0",
 		"fabric-api": "*",
 		"logistics": "*"

@@ -3,8 +3,10 @@ package com.logistics.pipe.runtime;
 import com.logistics.LogisticsPipe;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents an item traveling through the pipe network.
@@ -39,14 +41,16 @@ public class TravelingItem {
                             .optionalFieldOf("speed", LogisticsPipe.CONFIG.ITEM_MIN_SPEED)
                             .forGetter(t -> t.speed),
                     Codec.FLOAT.optionalFieldOf("progress", 0.0f).forGetter(t -> t.progress),
-                    Codec.BOOL.optionalFieldOf("routed", false).forGetter(t -> t.routed))
+                    Codec.BOOL.optionalFieldOf("routed", false).forGetter(t -> t.routed),
+                    BlockPos.CODEC.optionalFieldOf("destination").forGetter(t -> java.util.Optional.ofNullable(t.destination)))
             .apply(instance, TravelingItem::fromCodec));
 
     private static TravelingItem fromCodec(
-            ItemStack stack, Direction direction, float speed, float progress, boolean routed) {
+            ItemStack stack, Direction direction, float speed, float progress, boolean routed, java.util.Optional<BlockPos> destination) {
         TravelingItem item = new TravelingItem(stack, direction, speed);
         item.progress = progress;
         item.routed = routed;
+        item.destination = destination.orElse(null);
         return item;
     }
 
@@ -55,6 +59,7 @@ public class TravelingItem {
     private Direction direction; // Direction of travel through current pipe
     private float speed; // Blocks per tick (varies by pipe material)
     private boolean routed; // True once the item has been routed at the center
+    @Nullable private BlockPos destination; // Optional destination for network routing
 
     public TravelingItem(ItemStack stack, Direction direction, float speed) {
         this.stack = stack.copy();
@@ -62,6 +67,19 @@ public class TravelingItem {
         this.direction = direction;
         this.speed = speed;
         this.routed = false;
+        this.destination = null;
+    }
+
+    /**
+     * Create a TravelingItem with an explicit destination for network routing.
+     */
+    public TravelingItem(ItemStack stack, Direction direction, float speed, @Nullable BlockPos destination) {
+        this.stack = stack.copy();
+        this.progress = 0.0f;
+        this.direction = direction;
+        this.speed = speed;
+        this.routed = false;
+        this.destination = destination;
     }
 
     /**
@@ -134,5 +152,21 @@ public class TravelingItem {
 
     public void setRouted(boolean routed) {
         this.routed = routed;
+    }
+
+    /**
+     * Get the destination position for network routing.
+     * @return Destination BlockPos, or null if not set
+     */
+    @Nullable
+    public BlockPos getDestination() {
+        return destination;
+    }
+
+    /**
+     * Set the destination position for network routing.
+     */
+    public void setDestination(@Nullable BlockPos destination) {
+        this.destination = destination;
     }
 }

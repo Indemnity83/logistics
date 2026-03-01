@@ -59,11 +59,17 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
         DATA.register();
         SCREEN.register();
         registerMarkingFluidItems();
+        registerNetworkPackets();
 
         registerLegacyAliases();
         addCreativeTabEntries();
 
         LogisticsApi.Registry.transport(new PipeApi());
+    }
+
+    private static void registerNetworkPackets() {
+        com.logistics.pipe.network.RequestItemPacket.register();
+        com.logistics.pipe.network.SyncRequesterInventoryPacket.register();
     }
 
     private static void addCreativeTabEntries() {
@@ -97,7 +103,11 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
                 BLOCK.GOLD_TRANSPORT_PIPE,
                 BLOCK.ITEM_FILTER_PIPE,
                 BLOCK.ITEM_INSERTION_PIPE,
-                BLOCK.ITEM_VOID_PIPE
+                BLOCK.ITEM_VOID_PIPE,
+                BLOCK.BASIC_LOGISTICS_PIPE,
+                BLOCK.PROVIDER_LOGISTICS_PIPE,
+                BLOCK.REQUESTER_LOGISTICS_PIPE,
+                BLOCK.SUPPLIER_LOGISTICS_PIPE
         );
     }
 
@@ -113,6 +123,10 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
         public static Block ITEM_FILTER_PIPE;
         public static Block ITEM_INSERTION_PIPE;
         public static Block ITEM_VOID_PIPE;
+        public static Block BASIC_LOGISTICS_PIPE;
+        public static Block PROVIDER_LOGISTICS_PIPE;
+        public static Block REQUESTER_LOGISTICS_PIPE;
+        public static Block SUPPLIER_LOGISTICS_PIPE;
 
         static void register() {
             STONE_TRANSPORT_PIPE = INSTANCE.registerBlockWithItem("stone_transport_pipe",
@@ -134,6 +148,14 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
                 props -> new PipeBlock(createPipeProperties(props), PipeTypes.ITEM_INSERTION));
             ITEM_VOID_PIPE = INSTANCE.registerBlockWithItem("item_void_pipe",
                 props -> new PipeBlock(createPipeProperties(props), PipeTypes.ITEM_VOID));
+            BASIC_LOGISTICS_PIPE = INSTANCE.registerBlockWithItem("basic_logistics_pipe",
+                props -> new PipeBlock(createPipeProperties(props), PipeTypes.BASIC_LOGISTICS_PIPE));
+            PROVIDER_LOGISTICS_PIPE = INSTANCE.registerBlockWithItem("provider_logistics_pipe",
+                props -> new PipeBlock(createPipeProperties(props), PipeTypes.PROVIDER_LOGISTICS_PIPE));
+            REQUESTER_LOGISTICS_PIPE = INSTANCE.registerBlockWithItem("requester_logistics_pipe",
+                props -> new PipeBlock(createPipeProperties(props), PipeTypes.REQUESTER_LOGISTICS_PIPE));
+            SUPPLIER_LOGISTICS_PIPE = INSTANCE.registerBlockWithItem("supplier_logistics_pipe",
+                props -> new PipeBlock(createPipeProperties(props), PipeTypes.SUPPLIER_LOGISTICS_PIPE));
         }
     }
 
@@ -153,7 +175,11 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
                 BLOCK.COPPER_TRANSPORT_PIPE,
                 BLOCK.ITEM_PASSTHROUGH_PIPE,
                 BLOCK.ITEM_INSERTION_PIPE,
-                BLOCK.ITEM_VOID_PIPE);
+                BLOCK.ITEM_VOID_PIPE,
+                BLOCK.BASIC_LOGISTICS_PIPE,
+                BLOCK.PROVIDER_LOGISTICS_PIPE,
+                BLOCK.REQUESTER_LOGISTICS_PIPE,
+                BLOCK.SUPPLIER_LOGISTICS_PIPE);
         }
     }
 
@@ -192,6 +218,15 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
         // Individual pipes can override this up or down via getMaxSpeed.
         public static final float PIPE_MAX_SPEED = 0.16f;
 
+        // Initial speed for items put into the network by a provider
+        // Pipe.
+        public static final float PROVIDER_PIPE_SPEED = 0.10f;
+
+        // Timeout for pending requests in supplier/requester pipes (in ticks).
+        // If items don't arrive within this time, the pending request is cleared and assumed lost.
+        // 6000 ticks = 5 minutes. Increase if items take longer to travel through large networks.
+        public static final int ORDER_TTL = 6000;
+
         private static final int MARKING_FLUID_USES = 16;
 
         private CONFIG() {}
@@ -199,6 +234,10 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
 
     public static final class SCREEN {
         public static MenuType<ItemFilterScreenHandler> ITEM_FILTER;
+        public static MenuType<com.logistics.pipe.ui.RequesterScreenHandler> REQUESTER;
+        public static MenuType<com.logistics.pipe.ui.SupplierScreenHandler> SUPPLIER;
+        public static MenuType<com.logistics.pipe.ui.ProviderScreenHandler> PROVIDER;
+        public static MenuType<com.logistics.pipe.ui.SinkScreenHandler> SINK;
 
         private SCREEN() {}
 
@@ -207,6 +246,22 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
                     BuiltInRegistries.MENU,
                     LogisticsPipe.resource("item_filter").toIdentifier(),
                     new MenuType<>(ItemFilterScreenHandler::new, FeatureFlagSet.of()));
+            REQUESTER = Registry.register(
+                    BuiltInRegistries.MENU,
+                    LogisticsPipe.resource("requester").toIdentifier(),
+                    new MenuType<>(com.logistics.pipe.ui.RequesterScreenHandler::new, FeatureFlagSet.of()));
+            SUPPLIER = Registry.register(
+                    BuiltInRegistries.MENU,
+                    LogisticsPipe.resource("supplier").toIdentifier(),
+                    new MenuType<>(com.logistics.pipe.ui.SupplierScreenHandler::new, FeatureFlagSet.of()));
+            PROVIDER = Registry.register(
+                    BuiltInRegistries.MENU,
+                    LogisticsPipe.resource("provider").toIdentifier(),
+                    new MenuType<>(com.logistics.pipe.ui.ProviderScreenHandler::new, FeatureFlagSet.of()));
+            SINK = Registry.register(
+                    BuiltInRegistries.MENU,
+                    LogisticsPipe.resource("sink").toIdentifier(),
+                    new MenuType<>(com.logistics.pipe.ui.SinkScreenHandler::new, FeatureFlagSet.of()));
         }
     }
 
