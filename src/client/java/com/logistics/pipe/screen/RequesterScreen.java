@@ -7,7 +7,9 @@ import com.logistics.pipe.screen.widget.NetworkItemButton;
 import com.logistics.pipe.screen.widget.PageButton;
 import com.logistics.pipe.ui.RequesterScreenHandler;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -267,6 +269,21 @@ public class RequesterScreen extends AbstractContainerScreen<RequesterScreenHand
         getMenu().setAvailableItems(items, amounts);
         getMenu().refreshSearch(searchBox.getValue());
         refreshItems();
+    }
+
+    @Override
+    public boolean keyPressed(KeyEvent keyEvent) {
+        if (keyEvent.key() != InputConstants.KEY_ESCAPE) {
+            if (searchBox.isFocused()) {
+                searchBox.keyPressed(keyEvent);
+                return true;
+            }
+            if (amountField.isFocused()) {
+                amountField.keyPressed(keyEvent);
+                return true;
+            }
+        }
+        return super.keyPressed(keyEvent);
     }
 
     @Override
