@@ -252,6 +252,11 @@ public class RequesterModule implements Module {
             return;
         }
 
+        int maxAmount = stack.getMaxStackSize() * 64;
+        if (amount <= 0 || amount > maxAmount) {
+            return;
+        }
+
         // TODO(Phase 11): Check and consume energy (5 RF per request)
 
         ILogisticsNetwork network = NetworkRegistry.getOrCreateNetwork(ctx.world(), ctx.pos());
