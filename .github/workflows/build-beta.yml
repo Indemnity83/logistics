@@ -81,6 +81,14 @@ jobs:
             echo "⚠️  Modrinth version truncated to 32 chars: $MODRINTH_VERSION"
           fi
 
+          # Detect snapshot versions for publishing configuration
+          if [[ "$MC_VERSION" =~ (snapshot|alpha|beta) ]]; then
+            GAME_VERSION_FILTER="none"
+            echo "📦 Snapshot/alpha/beta detected - using no game version filter"
+          else
+            GAME_VERSION_FILTER="releases"
+          fi
+
           echo "base_version=$BASE_VERSION" >> "$GITHUB_OUTPUT"
           echo "beta_version=$BETA_VERSION" >> "$GITHUB_OUTPUT"
           echo "modrinth_version=$MODRINTH_VERSION" >> "$GITHUB_OUTPUT"
@@ -88,6 +96,7 @@ jobs:
           echo "minecraft_version=$MC_VERSION" >> "$GITHUB_OUTPUT"
           echo "loader=$LOADER" >> "$GITHUB_OUTPUT"
           echo "gradle_task=$GRADLE_TASK" >> "$GITHUB_OUTPUT"
+          echo "game_version_filter=$GAME_VERSION_FILTER" >> "$GITHUB_OUTPUT"
           echo "📦 Base version: $BASE_VERSION"
           echo "📦 Beta version: $BETA_VERSION"
           echo "📦 Build number: $BUILD_NUM"
@@ -128,6 +137,7 @@ jobs:
           curseforge-id: ${{ vars.CURSEFORGE_PROJECT_ID }}
           curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
 
+          game-version-filter: ${{ steps.version.outputs.game_version_filter }}
           version-type: beta
           name: "Logistics v${{ steps.version.outputs.beta_version }} (BETA) for ${{ steps.version.outputs.loader }} ${{ steps.version.outputs.minecraft_version }}"
           version: "${{ steps.version.outputs.full_version }}"
