@@ -20,7 +20,7 @@ public class NetworkGraph implements INetworkGraph {
     private final Set<BlockPos> nodes = new HashSet<>();
     private final Map<PathKey, CachedPath> pathCache = new HashMap<>();
 
-    private static final int PATH_CACHE_MAX_AGE = 200; // 10 seconds (in milliseconds)
+    private static final int PATH_CACHE_MAX_AGE = 200;
 
     private record PathKey(BlockPos start, BlockPos end) {}
 
