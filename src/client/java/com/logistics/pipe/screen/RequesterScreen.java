@@ -12,6 +12,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 
+import java.util.List;
+
 /**
  * Client-side screen for the Requester GUI.
  * Displays a scrollable grid of network items with search and request functionality.
@@ -36,6 +38,7 @@ public class RequesterScreen extends AbstractContainerScreen<RequesterScreenHand
 
         // Item grid (8×5 grid at 20px slots = 160x100)
         this.itemGrid = new ItemGridWidget(leftPos + 8, topPos + 20, 160, 100, this::onItemSelected);
+        addRenderableWidget(itemGrid);
 
         // Search field
         this.searchField = new EditBox(
@@ -111,6 +114,12 @@ public class RequesterScreen extends AbstractContainerScreen<RequesterScreenHand
         }
     }
 
+    @Override
+    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+        super.render(graphics, mouseX, mouseY, partialTick);
+        renderTooltip(graphics, mouseX, mouseY);
+    }
+
     private int getAmount() {
         try {
             return Integer.parseInt(amountField.getValue());
@@ -121,6 +130,19 @@ public class RequesterScreen extends AbstractContainerScreen<RequesterScreenHand
 
     private void updateRequestButton() {
         requestButton.active = !selectedItem.isEmpty() && getAmount() > 0;
+    }
+
+    /**
+     * Called by packet receiver to update available items from server.
+     */
+    public void updateAvailableItems(List<ItemStack> items, List<Long> amounts) {
+        getMenu().setAvailableItems(items, amounts);
+        String currentSearch = searchField.getValue();
+        if (currentSearch.isEmpty()) {
+            itemGrid.setItems(items);
+        } else {
+            itemGrid.setItems(getMenu().getFilteredItems(currentSearch));
+        }
     }
 
     @Override
@@ -136,8 +158,7 @@ public class RequesterScreen extends AbstractContainerScreen<RequesterScreenHand
         context.fill(leftPos + imageWidth - 1, topPos, leftPos + imageWidth, topPos + imageHeight, borderColor);
         context.fill(leftPos, topPos + imageHeight - 1, leftPos + imageWidth, topPos + imageHeight, borderColor);
 
-        // Render item grid
-        itemGrid.render(context, mouseX, mouseY, delta);
+        // Item grid renders itself as a widget
     }
 
     @Override

@@ -2,13 +2,17 @@ package com.logistics.pipe.ui;
 
 import com.logistics.LogisticsPipe;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
-import java.util.List;
-import java.util.stream.Collectors;
+import com.logistics.pipe.network.SyncRequesterInventoryPacket;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Screen handler for the Requester GUI.
@@ -17,6 +21,7 @@ import net.minecraft.world.item.ItemStack;
 public class RequesterScreenHandler extends AbstractContainerMenu {
     private final RequestInventory requestInventory;
     private final PipeBlockEntity pipeEntity;
+    private boolean initialSyncSent = false;
 
     public RequesterScreenHandler(int syncId, Container playerInventory) {
         super(LogisticsPipe.SCREEN.REQUESTER, syncId);
@@ -35,6 +40,13 @@ public class RequesterScreenHandler extends AbstractContainerMenu {
      */
     public List<ItemStack> getAllItems() {
         return requestInventory.getAllItems();
+    }
+
+    /**
+     * Set available items (client-side only, called from packet receiver).
+     */
+    public void setAvailableItems(List<ItemStack> items, List<Long> amounts) {
+        requestInventory.setAllItems(items, amounts);
     }
 
     /**
@@ -87,5 +99,27 @@ public class RequesterScreenHandler extends AbstractContainerMenu {
     @Override
     public ItemStack quickMoveStack(Player player, int slot) {
         return ItemStack.EMPTY;
+    }
+
+    @Override
+    public void broadcastChanges() {
+        super.broadcastChanges();
+
+        // Send initial sync on first broadcast
+        if (!initialSyncSent && pipeEntity != null && !pipeEntity.getLevel().isClientSide()) {
+            var itemsAndAmounts = requestInventory.getAllItemsWithAmounts();
+            SyncRequesterInventoryPacket packet = new SyncRequesterInventoryPacket(
+                    pipeEntity.getBlockPos(),
+                    itemsAndAmounts.items(),
+                    itemsAndAmounts.amounts()
+            );
+
+            // Send to all players on the server (they'll filter based on open screen)
+            for (ServerPlayer player : pipeEntity.getLevel().getServer().getPlayerList().getPlayers()) {
+                ServerPlayNetworking.send(player, packet);
+            }
+
+            initialSyncSent = true;
+        }
     }
 }

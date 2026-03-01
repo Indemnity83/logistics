@@ -21,6 +21,8 @@ public class RequestInventory implements Container {
     private final NonNullList<ItemStack> stacks =
             NonNullList.withSize(RequesterModule.MAX_REQUEST_SLOTS, ItemStack.EMPTY);
     private final PipeBlockEntity pipeEntity;
+    private List<ItemStack> cachedItems = new ArrayList<>();  // Client-side cached items from sync packet
+    private List<Long> cachedAmounts = new ArrayList<>();  // Client-side cached full amounts
 
     public RequestInventory(PipeBlockEntity pipeEntity) {
         this.pipeEntity = pipeEntity;
@@ -88,8 +90,16 @@ public class RequestInventory implements Container {
     /**
      * Get all available items from the network (no limit).
      * Returns a list of ItemStacks with counts set to display amount (capped at 64).
+     * On client, returns cached items from sync packet.
+     * On server, queries network directly.
      */
     public List<ItemStack> getAllItems() {
+        // Client-side: use cached items from sync packet
+        if (pipeEntity == null || pipeEntity.getLevel() == null || pipeEntity.getLevel().isClientSide()) {
+            return new ArrayList<>(cachedItems);
+        }
+
+        // Server-side: query network
         Map<ItemStack, Long> available = getAvailableItemsFromNetwork();
         List<ItemStack> result = new ArrayList<>();
 
@@ -103,13 +113,52 @@ public class RequestInventory implements Container {
     }
 
     /**
+     * Set all available items (client-side only, called from sync packet).
+     */
+    public void setAllItems(List<ItemStack> items, List<Long> amounts) {
+        cachedItems = new ArrayList<>(items);
+        cachedAmounts = new ArrayList<>(amounts);
+    }
+
+    /**
+     * Get all items with their full amounts (server-side, for sync packet).
+     */
+    public record ItemsWithAmounts(List<ItemStack> items, List<Long> amounts) {}
+
+    public ItemsWithAmounts getAllItemsWithAmounts() {
+        Map<ItemStack, Long> available = getAvailableItemsFromNetwork();
+        List<ItemStack> items = new ArrayList<>();
+        List<Long> amounts = new ArrayList<>();
+
+        for (var entry : available.entrySet()) {
+            ItemStack display = entry.getKey().copy();
+            // Use full amount - Minecraft can display counts > 64
+            int count = (int) Math.min(entry.getValue(), Integer.MAX_VALUE);
+            display.setCount(count);
+            items.add(display);
+            amounts.add(entry.getValue());
+        }
+
+        return new ItemsWithAmounts(items, amounts);
+    }
+
+    /**
      * Get the available amount of a specific item in the network.
+     * On client, uses cached amounts from sync packet.
+     * On server, queries network directly.
      */
     public long getAvailableAmount(ItemStack stack) {
-        if (pipeEntity == null || pipeEntity.getLevel() == null) {
+        // Client-side: use cached amounts
+        if (pipeEntity == null || pipeEntity.getLevel() == null || pipeEntity.getLevel().isClientSide()) {
+            for (int i = 0; i < cachedItems.size(); i++) {
+                if (ItemStack.isSameItemSameComponents(cachedItems.get(i), stack)) {
+                    return cachedAmounts.get(i);
+                }
+            }
             return 0;
         }
 
+        // Server-side: query network
         PipeNetwork network = NetworkRegistry.getOrCreateNetwork(pipeEntity.getLevel(), pipeEntity.getBlockPos());
         if (network == null) {
             return 0;

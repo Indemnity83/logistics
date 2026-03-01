@@ -2,11 +2,15 @@ package com.logistics;
 
 import com.logistics.core.bootstrap.DomainBootstrap;
 import com.logistics.core.lib.resource.ResourceId;
+import com.logistics.pipe.network.SyncRequesterInventoryPacket;
 import com.logistics.pipe.render.PipeBlockEntityRenderer;
 import com.logistics.pipe.screen.ItemFilterScreen;
+import com.logistics.pipe.screen.RequesterScreen;
 import net.fabricmc.fabric.api.client.model.loading.v1.ExtraModelKey;
 import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
 import net.fabricmc.fabric.api.client.model.loading.v1.SimpleUnbakedExtraModel;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.renderer.block.model.BlockStateModel;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
@@ -42,6 +46,20 @@ public final class LogisticsPipeClient implements DomainBootstrap {
         MenuScreens.register(LogisticsPipe.SCREEN.SUPPLIER, com.logistics.pipe.screen.SupplierScreen::new);
         MenuScreens.register(LogisticsPipe.SCREEN.PROVIDER, com.logistics.pipe.screen.ProviderScreen::new);
         MenuScreens.register(LogisticsPipe.SCREEN.SINK, com.logistics.pipe.screen.SinkScreen::new);
+
+        registerPacketReceivers();
+    }
+
+    private void registerPacketReceivers() {
+        // Sync requester inventory from server
+        ClientPlayNetworking.registerGlobalReceiver(SyncRequesterInventoryPacket.TYPE, (packet, context) -> {
+            context.client().execute(() -> {
+                // Update the requester screen if it's open
+                if (Minecraft.getInstance().screen instanceof RequesterScreen requesterScreen) {
+                    requesterScreen.updateAvailableItems(packet.items(), packet.amounts());
+                }
+            });
+        });
     }
 
     public static final class MODEL {

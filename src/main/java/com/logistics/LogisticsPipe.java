@@ -69,6 +69,7 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
 
     private static void registerNetworkPackets() {
         com.logistics.pipe.network.RequestItemPacket.register();
+        com.logistics.pipe.network.SyncRequesterInventoryPacket.register();
     }
 
     private static void addCreativeTabEntries() {

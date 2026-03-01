@@ -5,22 +5,21 @@ import java.util.List;
 import java.util.function.Consumer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 
 /**
  * Scrollable grid widget displaying network items.
  * Shows items in 8 columns with vertical scrolling.
  */
-public class ItemGridWidget {
+public class ItemGridWidget extends AbstractWidget {
     private static final int COLUMNS = 8;
     private static final int VISIBLE_ROWS = 5;
     private static final int SLOT_SIZE = 20; // 18px item + 2px padding
     private static final int SCROLL_BAR_WIDTH = 6;
 
-    private final int x;
-    private final int y;
-    private final int width;
-    private final int height;
     private List<ItemStack> items = new ArrayList<>();
     private int scrollOffset = 0;
     private int selectedIndex = -1;
@@ -28,11 +27,14 @@ public class ItemGridWidget {
     private final Consumer<ItemStack> onItemSelected;
 
     public ItemGridWidget(int x, int y, int width, int height, Consumer<ItemStack> onItemSelected) {
-        this.x = x;
-        this.y = y;
-        this.width = width;
-        this.height = height;
+        super(x, y, width, height, Component.empty());
         this.onItemSelected = onItemSelected;
+    }
+
+    @Override
+    protected void updateWidgetNarration(NarrationElementOutput output) {
+        // Accessibility narration
+        defaultButtonNarrationText(output);
     }
 
     public void setItems(List<ItemStack> items) {
@@ -56,7 +58,8 @@ public class ItemGridWidget {
         }
     }
 
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+    @Override
+    protected void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         // Reset hovered index
         hoveredIndex = -1;
 
@@ -72,8 +75,8 @@ public class ItemGridWidget {
 
             int column = i % COLUMNS;
             int row = i / COLUMNS;
-            int slotX = x + column * SLOT_SIZE;
-            int slotY = y + row * SLOT_SIZE;
+            int slotX = getX() + column * SLOT_SIZE;
+            int slotY = getY() + row * SLOT_SIZE;
 
             // Check if hovered
             boolean hovered = mouseX >= slotX && mouseX < slotX + SLOT_SIZE
@@ -108,16 +111,16 @@ public class ItemGridWidget {
     }
 
     private void renderScrollBar(GuiGraphics graphics, int totalRows) {
-        int scrollBarX = x + width - SCROLL_BAR_WIDTH;
-        int scrollBarHeight = height;
+        int scrollBarX = getX() + getWidth() - SCROLL_BAR_WIDTH;
+        int scrollBarHeight = getHeight();
         int scrollThumbHeight = Math.max(10, scrollBarHeight * VISIBLE_ROWS / totalRows);
 
         // Background
-        graphics.fill(scrollBarX, y, scrollBarX + SCROLL_BAR_WIDTH, y + scrollBarHeight, 0xFF8B8B8B);
+        graphics.fill(scrollBarX, getY(), scrollBarX + SCROLL_BAR_WIDTH, getY() + scrollBarHeight, 0xFF8B8B8B);
 
         // Thumb
         int maxScroll = totalRows - VISIBLE_ROWS;
-        int thumbY = y + (scrollBarHeight - scrollThumbHeight) * scrollOffset / maxScroll;
+        int thumbY = getY() + (scrollBarHeight - scrollThumbHeight) * scrollOffset / maxScroll;
         graphics.fill(
                 scrollBarX,
                 thumbY,
@@ -140,8 +143,8 @@ public class ItemGridWidget {
 
             int column = i % COLUMNS;
             int row = i / COLUMNS;
-            int slotX = x + column * SLOT_SIZE;
-            int slotY = y + row * SLOT_SIZE;
+            int slotX = getX() + column * SLOT_SIZE;
+            int slotY = getY() + row * SLOT_SIZE;
 
             if (mouseX >= slotX && mouseX < slotX + SLOT_SIZE
                     && mouseY >= slotY && mouseY < slotY + SLOT_SIZE) {
