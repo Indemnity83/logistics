@@ -32,8 +32,6 @@ public class RequesterScreen extends AbstractContainerScreen<RequesterScreenHand
 
     private EditBox searchBox;
     private EditBox amountField;
-    private Button decrementButton;
-    private Button incrementButton;
     private Button requestButton;
     private PageButton prevPageButton;
     private PageButton nextPageButton;
@@ -94,7 +92,7 @@ public class RequesterScreen extends AbstractContainerScreen<RequesterScreenHand
         );
         addRenderableWidget(nextPageButton);
 
-        decrementButton = Button.builder(
+        Button decrementButton = Button.builder(
                 Component.literal("-"),
                 this::subOne)
             .bounds(leftPos + 14, topPos + 163, 14, 14)
@@ -113,9 +111,10 @@ public class RequesterScreen extends AbstractContainerScreen<RequesterScreenHand
         amountField.setValue("1");
         amountField.setMaxLength(4);
         amountField.setCentered(true);
+        amountField.setFilter(s -> s.isEmpty() || s.matches("\\d+"));
         addRenderableWidget(amountField);
 
-        incrementButton = Button.builder(
+        Button incrementButton = Button.builder(
                 Component.literal("+"),
                 this::addOne)
             .bounds(leftPos + 64, topPos + 163, 14, 14)
