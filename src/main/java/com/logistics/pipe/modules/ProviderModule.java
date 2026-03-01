@@ -53,11 +53,14 @@ import static com.logistics.LogisticsMod.LOGGER;
  */
 public class ProviderModule implements Module {
     private static final String TICKS_SINCE_SCAN = "ticks_since_scan";
+    private static final String TICKS_SINCE_EXTRACT = "ticks_since_extract";
     private static final String MODE = "mode";
     private static final String FILTER_ITEMS = "filter_items";
     private static final String FILTER_INVERTED = "filter_inverted";
     private static final int SCAN_INTERVAL = 20; // Scan every 20 ticks (1 second)
     private static final int MAX_FILTER_SLOTS = 9;
+
+    private final int extractInterval;
     // TODO(Phase 11): Energy costs
     // private static final int RF_PER_ITEM = 1;
 
@@ -91,6 +94,10 @@ public class ProviderModule implements Module {
         public int getCropStart() { return cropStart; }
         public int getCropEnd() { return cropEnd; }
         public String getTranslationKey() { return translationKey; }
+    }
+
+    public ProviderModule(int extractInterval) {
+        this.extractInterval = extractInterval;
     }
 
     // ==================== Mode Configuration ====================
@@ -213,7 +220,14 @@ public class ProviderModule implements Module {
             ctx.saveInt(this, TICKS_SINCE_SCAN, 0);
         }
 
-        processPendingOrders(ctx);
+        int extractTicks = ctx.getInt(this, TICKS_SINCE_EXTRACT, 0);
+        extractTicks++;
+        ctx.saveInt(this, TICKS_SINCE_EXTRACT, extractTicks);
+
+        if (extractTicks >= extractInterval) {
+            processPendingOrders(ctx);
+            ctx.saveInt(this, TICKS_SINCE_EXTRACT, 0);
+        }
     }
 
     @Override

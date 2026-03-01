@@ -104,7 +104,7 @@ public class RequesterScreen extends AbstractContainerScreen<RequesterScreenHand
                 this.font,
                 leftPos + 30,
                 topPos + 163,
-                24,
+                36,
                 14,
                 Component.literal("Amount")
         );
@@ -115,7 +115,7 @@ public class RequesterScreen extends AbstractContainerScreen<RequesterScreenHand
         incrementButton = Button.builder(
                 Component.literal("+"),
                 this::addOne)
-            .bounds(leftPos + 56, topPos + 163, 14, 14)
+            .bounds(leftPos + 68, topPos + 163, 14, 14)
             .build();
         addRenderableWidget(incrementButton);
 
