@@ -66,7 +66,7 @@ public class PipeNetwork implements ILogisticsNetwork {
     /**
      * Get short network ID for logging (first 8 characters).
      */
-    private static String getNetworkIdShort(UUID id) {
+    static String getNetworkIdShort(UUID id) {
         return id.toString().substring(0, 8);
     }
 
