@@ -21,13 +21,13 @@ public class PipeModuleHelper {
      *
      * @param context The container level access
      * @param moduleClass The module class to retrieve
-     * @param action The action to perform with the module and context
+     * @param action The action to perform with the context and module
      * @param <T> The module type
      */
     public static <T extends Module> void withModule(
         ContainerLevelAccess context,
         Class<T> moduleClass,
-        BiConsumer<T, PipeContext> action
+        BiConsumer<PipeContext, T> action
     ) {
         context.execute((world, pos) -> {
             if (world.getBlockEntity(pos) instanceof PipeBlockEntity pipeEntity) {
@@ -37,7 +37,7 @@ public class PipeModuleHelper {
 
                 if (module != null) {
                     PipeContext ctx = pipeEntity.createContext();
-                    action.accept(module, ctx);
+                    action.accept(ctx, module);
                 }
             }
         });

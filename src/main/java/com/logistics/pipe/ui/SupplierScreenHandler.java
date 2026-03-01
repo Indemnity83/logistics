@@ -44,7 +44,7 @@ public class SupplierScreenHandler extends AbstractContainerMenu {
         if (pipeEntity != null) {
             this.context = ContainerLevelAccess.create(pipeEntity.getLevel(), pipeEntity.getBlockPos());
             // Load current mode from module
-            PipeModuleHelper.withModule(this.context, SupplierModule.class, (module, ctx) -> {
+            PipeModuleHelper.withModule(this.context, SupplierModule.class, (ctx, module) -> {
                 data.set(0, module.getModeOrdinal(ctx));
             });
             if (data.get(0) == 0) {
@@ -105,7 +105,7 @@ public class SupplierScreenHandler extends AbstractContainerMenu {
             // Right-click: Clear slot
             if (button == 1) {
                 supplyInventory.setItem(slotIndex, ItemStack.EMPTY);
-                PipeModuleHelper.withModule(context, SupplierModule.class, (module, ctx) -> {
+                PipeModuleHelper.withModule(context, SupplierModule.class, (ctx, module) -> {
                     module.setSupplyConfig(ctx, slotIndex, "", 0);
                 });
                 broadcastChanges();
@@ -115,7 +115,7 @@ public class SupplierScreenHandler extends AbstractContainerMenu {
             // Left-click with empty cursor: Clear slot
             if (cursor.isEmpty()) {
                 supplyInventory.setItem(slotIndex, ItemStack.EMPTY);
-                PipeModuleHelper.withModule(context, SupplierModule.class, (module, ctx) -> {
+                PipeModuleHelper.withModule(context, SupplierModule.class, (ctx, module) -> {
                     module.setSupplyConfig(ctx, slotIndex, "", 0);
                 });
                 broadcastChanges();
@@ -143,7 +143,7 @@ public class SupplierScreenHandler extends AbstractContainerMenu {
 
             // Save to module configuration
             int finalAmount = newAmount;
-            PipeModuleHelper.withModule(context, SupplierModule.class, (module, ctx) -> {
+            PipeModuleHelper.withModule(context, SupplierModule.class, (ctx, module) -> {
                 module.setSupplyConfig(ctx, slotIndex, itemId, finalAmount);
             });
 
@@ -168,7 +168,7 @@ public class SupplierScreenHandler extends AbstractContainerMenu {
             data.set(0, nextMode);
 
             // Save mode to module
-            PipeModuleHelper.withModule(context, SupplierModule.class, (module, ctx) -> {
+            PipeModuleHelper.withModule(context, SupplierModule.class, (ctx, module) -> {
                 module.setModeFromOrdinal(ctx, nextMode);
             });
             return true;
@@ -184,7 +184,7 @@ public class SupplierScreenHandler extends AbstractContainerMenu {
     public void broadcastChanges() {
         super.broadcastChanges();
         // Sync mode from module to data slot
-        PipeModuleHelper.withModule(context, SupplierModule.class, (module, ctx) -> {
+        PipeModuleHelper.withModule(context, SupplierModule.class, (ctx, module) -> {
             data.set(0, module.getModeOrdinal(ctx));
         });
     }

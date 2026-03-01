@@ -45,7 +45,7 @@ public class SinkScreenHandler extends AbstractContainerMenu {
             this.context = ContainerLevelAccess.create(pipeEntity.getLevel(), pipeEntity.getBlockPos());
 
             // Load default route setting (server-side)
-            PipeModuleHelper.withModule(this.context, SinkModule.class, (module, ctx) -> {
+            PipeModuleHelper.withModule(this.context, SinkModule.class, (ctx, module) -> {
                 data.set(0, module.isDefaultRoute(ctx) ? 1 : 0);
             });
         } else {
@@ -63,7 +63,7 @@ public class SinkScreenHandler extends AbstractContainerMenu {
         super.broadcastChanges();
 
         // Sync default route value from module to data slot
-        PipeModuleHelper.withModule(context, SinkModule.class, (module, ctx) -> {
+        PipeModuleHelper.withModule(context, SinkModule.class, (ctx, module) -> {
             data.set(0, module.isDefaultRoute(ctx) ? 1 : 0);
         });
     }
@@ -111,7 +111,7 @@ public class SinkScreenHandler extends AbstractContainerMenu {
             // Right-click: Clear slot
             if (button == 1) {
                 sinkInventory.setItem(slotIndex, ItemStack.EMPTY);
-                PipeModuleHelper.withModule(context, SinkModule.class, (module, ctx) -> {
+                PipeModuleHelper.withModule(context, SinkModule.class, (ctx, module) -> {
                     module.setFilter(ctx, slotIndex, "");
                 });
                 broadcastChanges();
@@ -128,7 +128,7 @@ public class SinkScreenHandler extends AbstractContainerMenu {
             sinkInventory.setItem(slotIndex, ghostItem);
 
             // Save to module configuration
-            PipeModuleHelper.withModule(context, SinkModule.class, (module, ctx) -> {
+            PipeModuleHelper.withModule(context, SinkModule.class, (ctx, module) -> {
                 module.setFilter(ctx, slotIndex, itemId);
             });
 
@@ -151,7 +151,7 @@ public class SinkScreenHandler extends AbstractContainerMenu {
             boolean newValue = data.get(0) == 0;
             data.set(0, newValue ? 1 : 0);
 
-            PipeModuleHelper.withModule(context, SinkModule.class, (module, ctx) -> {
+            PipeModuleHelper.withModule(context, SinkModule.class, (ctx, module) -> {
                 module.setDefaultRoute(ctx, newValue);
             });
             return true;
