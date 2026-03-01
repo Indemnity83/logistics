@@ -116,6 +116,10 @@ public class RequestInventory implements Container {
      * Set all available items (client-side only, called from sync packet).
      */
     public void setAllItems(List<ItemStack> items, List<Long> amounts) {
+        if (items.size() != amounts.size()) {
+            throw new IllegalArgumentException(
+                    "items and amounts must have the same size, got " + items.size() + " vs " + amounts.size());
+        }
         cachedItems = new ArrayList<>(items);
         cachedAmounts = new ArrayList<>(amounts);
     }
