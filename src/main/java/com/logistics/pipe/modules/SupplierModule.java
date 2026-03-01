@@ -212,7 +212,12 @@ public class SupplierModule implements Module {
             // Get pending amount for this item (items currently in transit)
             long pendingAmount = getPendingAmount(pending, config.itemId());
 
-            // Detect deliveries by comparing to previous amount
+            // Detect deliveries by comparing to previous amount.
+            // Limitation: if items are manually removed from the inventory in the same tick that
+            // a delivery arrives, the net change may be zero or negative and the delivery goes
+            // undetected. This leaves pendingAmount inflated until ORDER_TTL expires and clears
+            // it. A proper fix would require delivery receipts (a callback when the item reaches
+            // its destination), which is tracked for a future phase.
             long previousAmount = NbtCompat.getLong(previousAmounts, config.itemId(), 0);
 
             if (currentAmount > previousAmount && pendingAmount > 0) {
