@@ -42,6 +42,8 @@ public class SinkModule implements Module {
     private static final String FILTERS = "filters";
     private static final String DEFAULT_ROUTE = "default_route";
     private static final String SINK_DIRECTION = "sink_direction";
+    private static final String TICKS_SINCE_SYNC = "ticks_since_sync";
+    private static final int SYNC_INTERVAL = 20; // Re-register with network every second to recover from splits
     public static final int MAX_FILTER_SLOTS = 9;
 
     @Override
@@ -50,6 +52,15 @@ public class SinkModule implements Module {
             return;
         }
 
+        int ticks = ctx.getInt(this, TICKS_SINCE_SYNC, 0) + 1;
+        if (ticks < SYNC_INTERVAL) {
+            ctx.saveInt(this, TICKS_SINCE_SYNC, ticks);
+            return;
+        }
+        ctx.saveInt(this, TICKS_SINCE_SYNC, 0);
+
+        // Re-register with the network periodically to recover after network splits/merges.
+        // setDefaultRoute() handles immediate registration on change; this is just the recovery path.
         ILogisticsNetwork network = NetworkRegistry.getNetwork(ctx.world(), ctx.pos());
         if (network != null && isDefaultRoute(ctx)) {
             network.registerDefaultRouteSink(ctx.pos(), 0);
