@@ -151,17 +151,20 @@ public class RequestMatcher {
 
         while (iterator.hasNext()) {
             ItemRequest request = iterator.next();
+            int maxStackSize = request.stack().getMaxStackSize();
+            long remaining = request.amount();
+            List<LogisticsOrder> orders = new ArrayList<>();
 
-            BlockPos provider = findProviderFor(request.stack(), request.amount());
-            if (provider != null) {
-                LogisticsOrder order = new LogisticsOrder(
-                    provider,
-                    request.requester(),
-                    request.stack(),
-                    request.amount(),
-                    gameTime
-                );
-                addOrder(order);
+            while (remaining > 0) {
+                long chunkSize = Math.min(remaining, maxStackSize);
+                BlockPos provider = findProviderFor(request.stack(), chunkSize);
+                if (provider == null) break;
+                orders.add(new LogisticsOrder(provider, request.requester(), request.stack(), chunkSize, gameTime));
+                remaining -= chunkSize;
+            }
+
+            if (remaining == 0) {
+                orders.forEach(this::addOrder);
                 iterator.remove();
                 matchedCount++;
             }
