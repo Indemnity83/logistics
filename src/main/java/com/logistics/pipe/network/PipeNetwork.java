@@ -2,13 +2,9 @@ package com.logistics.pipe.network;
 
 import com.logistics.LogisticsMod;
 import com.logistics.core.lib.network.*;
-import com.logistics.pipe.PipeContext;
-import com.logistics.pipe.block.entity.PipeBlockEntity;
-import com.logistics.pipe.modules.SinkModule;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -227,23 +223,10 @@ public class PipeNetwork implements ILogisticsNetwork {
      */
     private BlockPos findFilteredSink(ItemStack stack) {
         for (BlockPos pos : graph.getNodes()) {
-            SinkModule sinkModule = worldView.getModule(pos, SinkModule.class);
-            if (sinkModule == null) {
-                continue;
-            }
-
-            // TODO: Need to get PipeContext somehow - for now we need to access Level
-            // This is a temporary bridge until we refactor module API
-            if (worldView instanceof MinecraftWorldView minecraftView) {
-                Level world = minecraftView.getLevel();
-                if (world.getBlockEntity(pos) instanceof PipeBlockEntity pipeEntity) {
-                    PipeContext ctx = pipeEntity.createContext();
-                    if (sinkModule.matchesFilter(ctx, stack)) {
-                        LogisticsMod.LOGGER.debug("[Network {}] Found filtered sink at {}",
-                                getNetworkIdShort(id), pos);
-                        return pos;
-                    }
-                }
+            if (worldView.matchesSinkFilter(pos, stack)) {
+                LogisticsMod.LOGGER.debug("[Network {}] Found filtered sink at {}",
+                        getNetworkIdShort(id), pos);
+                return pos;
             }
         }
 

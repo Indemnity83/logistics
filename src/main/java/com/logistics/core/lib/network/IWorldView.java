@@ -30,6 +30,12 @@ public interface IWorldView {
     <T extends Module> T getModule(BlockPos pos, Class<T> moduleClass);
 
     /**
+     * Check whether the pipe at the given position has a sink module whose filter accepts the item.
+     * Returns false if the position has no pipe, no sink module, or the filter does not match.
+     */
+    boolean matchesSinkFilter(BlockPos pos, net.minecraft.world.item.ItemStack stack);
+
+    /**
      * Check if this is a client-side world.
      */
     boolean isClientSide();

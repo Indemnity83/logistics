@@ -5,11 +5,14 @@ import com.logistics.core.lib.network.IWorldView;
 import com.logistics.pipe.Pipe;
 import com.logistics.pipe.block.PipeBlock;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
+import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.modules.Module;
+import com.logistics.pipe.modules.SinkModule;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
@@ -61,6 +64,20 @@ public class MinecraftWorldView implements IWorldView {
         PipeBlock block = (PipeBlock) pipeEntity.getBlockState().getBlock();
         Pipe pipe = block.getPipe();
         return pipe.getModule(moduleClass);
+    }
+
+    @Override
+    public boolean matchesSinkFilter(BlockPos pos, ItemStack stack) {
+        if (!(level.getBlockEntity(pos) instanceof PipeBlockEntity pipeEntity)) {
+            return false;
+        }
+        PipeBlock block = (PipeBlock) pipeEntity.getBlockState().getBlock();
+        SinkModule sinkModule = block.getPipe().getModule(SinkModule.class);
+        if (sinkModule == null) {
+            return false;
+        }
+        PipeContext ctx = pipeEntity.createContext();
+        return sinkModule.matchesFilter(ctx, stack);
     }
 
     @Override
