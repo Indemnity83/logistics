@@ -78,7 +78,7 @@ class RequestMatcherTest extends MinecraftTestEnvironment {
 
         matcher.updateProviderCache(provider, items, 0);
 
-        BlockPos result = matcher.findProviderFor(new ItemStack(Items.DIAMOND), 32L);
+        BlockPos result = matcher.findProviderFor(new ItemStack(Items.DIAMOND), 32L, 0L);
 
         assertEquals(provider, result);
     }
@@ -91,14 +91,14 @@ class RequestMatcherTest extends MinecraftTestEnvironment {
 
         matcher.updateProviderCache(provider, items, 0);
 
-        BlockPos result = matcher.findProviderFor(new ItemStack(Items.DIAMOND), 32L);
+        BlockPos result = matcher.findProviderFor(new ItemStack(Items.DIAMOND), 32L, 0L);
 
         assertNull(result, "Should return null when no provider has sufficient quantity");
     }
 
     @Test
     void testFindProviderForNoProviders() {
-        BlockPos result = matcher.findProviderFor(new ItemStack(Items.DIAMOND), 32L);
+        BlockPos result = matcher.findProviderFor(new ItemStack(Items.DIAMOND), 32L, 0L);
 
         assertNull(result, "Should return null when no providers exist");
     }
@@ -166,7 +166,7 @@ class RequestMatcherTest extends MinecraftTestEnvironment {
         BlockPos provider = new BlockPos(10, 64, 10);
         Map<ItemStack, Long> items = new HashMap<>();
         items.put(new ItemStack(Items.DIAMOND), 64L);
-        matcher.updateProviderCache(provider, items, 0);
+        matcher.updateProviderCache(provider, items, 100);
 
         // Add request
         BlockPos requester = new BlockPos(5, 64, 5);
@@ -201,12 +201,12 @@ class RequestMatcherTest extends MinecraftTestEnvironment {
         BlockPos provider1 = new BlockPos(10, 64, 10);
         Map<ItemStack, Long> items1 = new HashMap<>();
         items1.put(new ItemStack(Items.DIAMOND), 64L);
-        matcher.updateProviderCache(provider1, items1, 0);
+        matcher.updateProviderCache(provider1, items1, 100);
 
         BlockPos provider2 = new BlockPos(20, 64, 20);
         Map<ItemStack, Long> items2 = new HashMap<>();
         items2.put(new ItemStack(Items.EMERALD), 32L);
-        matcher.updateProviderCache(provider2, items2, 0);
+        matcher.updateProviderCache(provider2, items2, 100);
 
         // Add requests
         BlockPos requester = new BlockPos(5, 64, 5);

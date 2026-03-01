@@ -77,7 +77,7 @@ public class RequestMatcher {
      * Returns null if no active provider has sufficient quantity.
      */
     @Nullable
-    private BlockPos findProviderFor(ItemStack stack, long amount, long gameTime) {
+    BlockPos findProviderFor(ItemStack stack, long amount, long gameTime) {
         for (Map.Entry<BlockPos, ProviderCache> entry : providerCaches.entrySet()) {
             if (entry.getValue().isStale(gameTime, CACHE_MAX_AGE_TICKS)) {
                 continue;
