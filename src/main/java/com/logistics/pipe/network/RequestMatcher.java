@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
@@ -55,32 +56,19 @@ public class RequestMatcher {
      * Returns a map of ItemStack to total available amount.
      */
     public Map<ItemStack, Long> getAllAvailableItems() {
-        Map<ItemStack, Long> aggregated = new HashMap<>();
+        Map<ItemVariant, Long> aggregated = new HashMap<>();
 
         for (ProviderCache cache : providerCaches.values()) {
             for (Map.Entry<ItemStack, Long> entry : cache.getAvailableItems().entrySet()) {
-                addToAggregatedItems(aggregated, entry.getKey(), entry.getValue());
+                aggregated.merge(ItemVariant.of(entry.getKey()), entry.getValue(), Long::sum);
             }
         }
 
-        return aggregated;
-    }
-
-    /**
-     * Add an item amount to the aggregated map, combining with existing amounts
-     * for items that are the same (same item and components).
-     */
-    private void addToAggregatedItems(Map<ItemStack, Long> aggregated, ItemStack stack, long amount) {
-        // Try to find existing matching stack
-        for (Map.Entry<ItemStack, Long> existing : aggregated.entrySet()) {
-            if (ItemStack.isSameItemSameComponents(existing.getKey(), stack)) {
-                existing.setValue(existing.getValue() + amount);
-                return;
-            }
+        Map<ItemStack, Long> result = new HashMap<>(aggregated.size());
+        for (Map.Entry<ItemVariant, Long> entry : aggregated.entrySet()) {
+            result.put(entry.getKey().toStack(1), entry.getValue());
         }
-
-        // No match found - add new entry
-        aggregated.put(stack.copy(), amount);
+        return result;
     }
 
     /**

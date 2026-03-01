@@ -1,5 +1,6 @@
 package com.logistics.pipe.network;
 
+import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.HashMap;
@@ -10,21 +11,20 @@ import java.util.Map;
  * Updated periodically (every 1 second) to avoid constant inventory scanning.
  */
 public class ProviderCache {
-    private Map<ItemStack, Long> availableItems = new HashMap<>();
+    private Map<ItemVariant, Long> availableItems = new HashMap<>();
     private long lastUpdate;
 
     public void update(Map<ItemStack, Long> items, long gameTime) {
-        this.availableItems = new HashMap<>(items);
+        Map<ItemVariant, Long> converted = new HashMap<>(items.size());
+        for (Map.Entry<ItemStack, Long> entry : items.entrySet()) {
+            converted.merge(ItemVariant.of(entry.getKey()), entry.getValue(), Long::sum);
+        }
+        this.availableItems = converted;
         this.lastUpdate = gameTime;
     }
 
     public long getAvailableAmount(ItemStack stack) {
-        for (Map.Entry<ItemStack, Long> entry : availableItems.entrySet()) {
-            if (ItemStack.isSameItemSameComponents(entry.getKey(), stack)) {
-                return entry.getValue();
-            }
-        }
-        return 0;
+        return availableItems.getOrDefault(ItemVariant.of(stack), 0L);
     }
 
     public boolean isStale(long currentTime, int maxAge) {
@@ -32,7 +32,11 @@ public class ProviderCache {
     }
 
     public Map<ItemStack, Long> getAvailableItems() {
-        return new HashMap<>(availableItems);
+        Map<ItemStack, Long> result = new HashMap<>(availableItems.size());
+        for (Map.Entry<ItemVariant, Long> entry : availableItems.entrySet()) {
+            result.put(entry.getKey().toStack(1), entry.getValue());
+        }
+        return result;
     }
 
     public long getLastUpdate() {
