@@ -11,6 +11,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -19,19 +20,28 @@ import java.util.stream.Collectors;
  * Provides access to network items for the client screen widgets.
  */
 public class RequesterScreenHandler extends AbstractContainerMenu {
+    public static final int ITEMS_PER_PAGE = 20; // 5×4 grid
+
     private final RequestInventory requestInventory;
     private final PipeBlockEntity pipeEntity;
+    private BlockPos pipePos;
     private boolean initialSyncSent = false;
+
+    private List<ItemStack> filteredItems = new ArrayList<>();
+    private int currentPage = 0;
+    private String currentSearch = "";
 
     public RequesterScreenHandler(int syncId, Container playerInventory) {
         super(LogisticsPipe.SCREEN.REQUESTER, syncId);
         this.pipeEntity = null;
+        this.pipePos = BlockPos.ZERO;
         this.requestInventory = new RequestInventory(null);
     }
 
     public RequesterScreenHandler(int syncId, Container playerInventory, PipeBlockEntity pipeEntity) {
         super(LogisticsPipe.SCREEN.REQUESTER, syncId);
         this.pipeEntity = pipeEntity;
+        this.pipePos = pipeEntity.getBlockPos();
         this.requestInventory = new RequestInventory(pipeEntity);
     }
 
@@ -88,7 +98,70 @@ public class RequesterScreenHandler extends AbstractContainerMenu {
      * Get the pipe's block position for network packet.
      */
     public BlockPos getPipePos() {
-        return pipeEntity != null ? pipeEntity.getBlockPos() : BlockPos.ZERO;
+        return pipePos;
+    }
+
+    /**
+     * Set the pipe's block position (client-side, from sync packet).
+     */
+    public void setPipePos(BlockPos pos) {
+        this.pipePos = pos;
+    }
+
+    /**
+     * Refresh search results and reset to page 1.
+     */
+    public void refreshSearch(String query) {
+        this.currentSearch = query;
+        this.filteredItems = getFilteredItems(query);
+        this.currentPage = 0;
+    }
+
+    /**
+     * Get items for the current page (max 20 items).
+     */
+    public List<ItemStack> getCurrentPageItems() {
+        int startIndex = currentPage * ITEMS_PER_PAGE;
+        int endIndex = Math.min(startIndex + ITEMS_PER_PAGE, filteredItems.size());
+        if (startIndex >= filteredItems.size()) {
+            return new ArrayList<>();
+        }
+        return filteredItems.subList(startIndex, endIndex);
+    }
+
+    /**
+     * Get total number of pages based on filtered items.
+     */
+    public int getTotalPages() {
+        if (filteredItems.isEmpty()) {
+            return 0;
+        }
+        return (int) Math.ceil(filteredItems.size() / (double) ITEMS_PER_PAGE);
+    }
+
+    /**
+     * Navigate to next page.
+     */
+    public void nextPage() {
+        if (currentPage < getTotalPages() - 1) {
+            currentPage++;
+        }
+    }
+
+    /**
+     * Navigate to previous page.
+     */
+    public void previousPage() {
+        if (currentPage > 0) {
+            currentPage--;
+        }
+    }
+
+    /**
+     * Get current page number (0-based).
+     */
+    public int getCurrentPage() {
+        return currentPage;
     }
 
     @Override

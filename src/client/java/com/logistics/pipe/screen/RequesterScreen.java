@@ -1,172 +1,326 @@
 package com.logistics.pipe.screen;
 
+import com.logistics.LogisticsMod;
+import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.pipe.network.RequestItemPacket;
-import com.logistics.pipe.screen.widget.ItemGridWidget;
+import com.logistics.pipe.screen.widget.NetworkItemButton;
+import com.logistics.pipe.screen.widget.PageButton;
 import com.logistics.pipe.ui.RequesterScreenHandler;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Client-side screen for the Requester GUI.
- * Displays a scrollable grid of network items with search and request functionality.
+ * Recipe Book-style requester screen with compact 5×4 grid, search, and pagination.
+ * Uses requester-alt.png background texture (147×166 pixels).
  */
 public class RequesterScreen extends AbstractContainerScreen<RequesterScreenHandler> {
-    private ItemGridWidget itemGrid;
-    private EditBox searchField;
+    private static final ResourceId BACKGROUND =
+            LogisticsMod.modId("textures/gui/pipe/requester-alt.png");
+
+    private EditBox searchBox;
     private EditBox amountField;
+    private Button decrementButton;
+    private Button incrementButton;
     private Button requestButton;
-    private ItemStack selectedItem = ItemStack.EMPTY;
+    private PageButton prevPageButton;
+    private PageButton nextPageButton;
+
+    private final List<NetworkItemButton> itemButtons = new ArrayList<>();
+    private NetworkItemButton selectedButton = null;
 
     public RequesterScreen(RequesterScreenHandler handler, Inventory inventory, Component title) {
         super(handler, inventory, title);
-        this.imageWidth = 176;
-        this.imageHeight = 180;
-        this.inventoryLabelY = this.imageHeight - 94;
+        this.imageWidth = 147;
+        this.imageHeight = 183;
     }
 
     @Override
     protected void init() {
         super.init();
 
-        // Item grid (8×5 grid at 20px slots = 160x100)
-        this.itemGrid = new ItemGridWidget(leftPos + 8, topPos + 20, 160, 100, this::onItemSelected);
-        addRenderableWidget(itemGrid);
-
-        // Search field
-        this.searchField = new EditBox(
-                font,
-                leftPos + 8,
-                topPos + 125,
-                140,
-                12,
+        // Search box at top
+        this.searchBox = new EditBox(
+                this.font,
+                this.leftPos + 27,
+                this.topPos + 14,
+                108,
+                14,
                 Component.translatable("gui.logistics.requester.search")
         );
-        searchField.setHint(Component.translatable("gui.logistics.requester.search"));
-        searchField.setMaxLength(50);
-        searchField.setResponder(this::onSearchChanged);
-        addRenderableWidget(searchField);
+        this.searchBox.setMaxLength(50);
+        this.searchBox.setHint(Component.translatable("gui.logistics.requester.search"));
+        this.searchBox.setResponder(this::onSearchChanged);
+        this.addRenderableWidget(searchBox);
+
+        // Item button grid (5×4 = 20 buttons)
+        itemButtons.clear();
+        for (int row = 0; row < 4; row++) {
+            for (int col = 0; col < 5; col++) {
+                int x = leftPos + 12 + col * 25; // 25px slot, no spacing
+                int y = topPos + 32 + row * 25;
+                NetworkItemButton button = new NetworkItemButton(x, y, this::onItemClicked);
+                itemButtons.add(button);
+                addRenderableWidget(button);
+            }
+        }
+
+        // Pagination buttons (12×17 pixels)
+        prevPageButton = new PageButton(
+                leftPos + 43,
+                topPos + 137,
+                false, // backward
+                this::previousPage
+        );
+        addRenderableWidget(prevPageButton);
+
+        nextPageButton = new PageButton(
+                leftPos + imageWidth - 72, // 12px button + 60px margin
+                topPos + 137,
+                true, // forward
+                this::nextPage
+        );
+        addRenderableWidget(nextPageButton);
+
+        decrementButton = Button.builder(
+                Component.literal("-"),
+                this::subOne)
+            .bounds(leftPos + 14, topPos + 163, 14, 14)
+            .build();
+        addRenderableWidget(decrementButton);
 
         // Amount field
-        this.amountField = new EditBox(
-                font,
-                leftPos + 8,
-                topPos + 142,
-                50,
-                16,
+        amountField = new EditBox(
+                this.font,
+                leftPos + 30,
+                topPos + 163,
+                24,
+                14,
                 Component.literal("Amount")
         );
-        amountField.setValue("64");
+        amountField.setValue("1");
         amountField.setMaxLength(6);
         addRenderableWidget(amountField);
 
+        incrementButton = Button.builder(
+                Component.literal("+"),
+                this::addOne)
+            .bounds(leftPos + 56, topPos + 163, 14, 14)
+            .build();
+        addRenderableWidget(incrementButton);
+
         // Request button
-        this.requestButton = Button.builder(
+        requestButton = Button.builder(
                         Component.translatable("gui.logistics.requester.request"),
-                        btn -> onRequestClick())
-                .bounds(leftPos + 112, topPos + 142, 56, 16)
+                        this::onRequestClick)
+                .bounds(leftPos + 90, topPos + 162, 50, 16)
                 .build();
         addRenderableWidget(requestButton);
 
-        // Load items from screen handler
+        // Load initial items
+        getMenu().refreshSearch("");
+        refreshItems();
+    }
+
+    private void subOne(Button button) {
+        try {
+            int currentAmount = Integer.parseInt(amountField.getValue());
+            int newAmount = Math.max(1, currentAmount - 1);
+            amountField.setValue(String.valueOf(newAmount));
+        } catch (NumberFormatException e) {
+            amountField.setValue("1");
+        }
+    }
+
+    private void addOne(Button button) {
+        try {
+            int currentAmount = Integer.parseInt(amountField.getValue());
+            // Cap at available amount if item is selected
+            int maxAmount = Integer.MAX_VALUE;
+            if (selectedButton != null && !selectedButton.getItem().isEmpty()) {
+                maxAmount = (int) Math.min(selectedButton.getAvailableAmount(), Integer.MAX_VALUE);
+            }
+            int newAmount = Math.min(maxAmount, currentAmount + 1);
+            amountField.setValue(String.valueOf(newAmount));
+        } catch (NumberFormatException e) {
+            amountField.setValue("1");
+        }
+    }
+
+    private void onSearchChanged(String query) {
+        getMenu().refreshSearch(query);
+        selectedButton = null; // Clear selection when search changes
         refreshItems();
     }
 
     private void refreshItems() {
-        itemGrid.setItems(getMenu().getAllItems());
+        List<ItemStack> pageItems = getMenu().getCurrentPageItems();
+
+        // Update button display
+        for (int i = 0; i < itemButtons.size(); i++) {
+            NetworkItemButton button = itemButtons.get(i);
+            if (i < pageItems.size()) {
+                ItemStack stack = pageItems.get(i);
+                long amount = getMenu().getAvailableAmount(stack);
+                button.setItem(stack, amount);
+                button.visible = true;
+
+                // Restore selection if same item is on current page
+                if (selectedButton != null &&
+                        ItemStack.isSameItemSameComponents(selectedButton.getItem(), stack)) {
+                    selectedButton = button;
+                    button.setSelected(true);
+                } else {
+                    button.setSelected(false);
+                }
+            } else {
+                button.setItem(ItemStack.EMPTY, 0);
+                button.setSelected(false);
+                button.visible = false;
+            }
+        }
+
+        // Update pagination buttons
+        boolean hasMultiplePages = getMenu().getTotalPages() > 1;
+        prevPageButton.visible = hasMultiplePages;
+        nextPageButton.visible = hasMultiplePages;
+        prevPageButton.active = getMenu().getCurrentPage() > 0;
+        nextPageButton.active = getMenu().getCurrentPage() < getMenu().getTotalPages() - 1;
+
+        // Update request button
+        updateRequestButton();
     }
 
-    private void onItemSelected(ItemStack stack) {
-        selectedItem = stack;
-        itemGrid.setSelectedItem(stack);
+    private void onItemClicked(NetworkItemButton button) {
+        // Deselect previous
+        if (selectedButton != null) {
+            selectedButton.setSelected(false);
+        }
 
-        // Auto-fill amount with available quantity (capped at 64)
-        long available = getMenu().getAvailableAmount(stack);
+        // Select new
+        selectedButton = button;
+        button.setSelected(true);
+
+        // Update amount field with available amount (capped at 64)
+        long available = button.getAvailableAmount();
         amountField.setValue(String.valueOf(Math.min(available, 64)));
 
-        // Update button state
         updateRequestButton();
     }
 
-    private void onSearchChanged(String search) {
-        itemGrid.setItems(getMenu().getFilteredItems(search));
-        selectedItem = ItemStack.EMPTY;
-        updateRequestButton();
+    private void previousPage() {
+        getMenu().previousPage();
+        refreshItems();
     }
 
-    private void onRequestClick() {
-        int amount = getAmount();
-        if (!selectedItem.isEmpty() && amount > 0) {
-            // Send packet to server
-            ClientPlayNetworking.send(new RequestItemPacket(
-                    getMenu().getPipePos(),
-                    selectedItem,
-                    amount
-            ));
-            onClose();
-        }
+    private void nextPage() {
+        getMenu().nextPage();
+        refreshItems();
     }
 
-    @Override
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        super.render(graphics, mouseX, mouseY, partialTick);
-        renderTooltip(graphics, mouseX, mouseY);
-    }
+    private void onRequestClick(Button button) {
+        if (selectedButton != null && !selectedButton.getItem().isEmpty()) {
+            try {
+                int amount = Integer.parseInt(amountField.getValue());
+                if (amount > 0) {
+                    // Normalize the ItemStack to count=1 (actual amount is sent separately)
+                    ItemStack requestStack = selectedButton.getItem().copy();
+                    requestStack.setCount(1);
 
-    private int getAmount() {
-        try {
-            return Integer.parseInt(amountField.getValue());
-        } catch (NumberFormatException e) {
-            return 0;
+                    ClientPlayNetworking.send(new RequestItemPacket(
+                            getMenu().getPipePos(),
+                            requestStack,
+                            amount
+                    ));
+                    onClose();
+                }
+            } catch (NumberFormatException e) {
+                // Invalid amount - do nothing
+            }
         }
     }
 
     private void updateRequestButton() {
-        requestButton.active = !selectedItem.isEmpty() && getAmount() > 0;
+        boolean hasSelection = selectedButton != null && !selectedButton.getItem().isEmpty();
+        boolean hasValidAmount = false;
+        try {
+            int amount = Integer.parseInt(amountField.getValue());
+            hasValidAmount = amount > 0;
+        } catch (NumberFormatException e) {
+            // Invalid amount
+        }
+        requestButton.active = hasSelection && hasValidAmount;
     }
 
     /**
      * Called by packet receiver to update available items from server.
      */
-    public void updateAvailableItems(List<ItemStack> items, List<Long> amounts) {
+    public void updateAvailableItems(BlockPos pipePos, List<ItemStack> items, List<Long> amounts) {
+        getMenu().setPipePos(pipePos);
         getMenu().setAvailableItems(items, amounts);
-        String currentSearch = searchField.getValue();
-        if (currentSearch.isEmpty()) {
-            itemGrid.setItems(items);
-        } else {
-            itemGrid.setItems(getMenu().getFilteredItems(currentSearch));
+        getMenu().refreshSearch(searchBox.getValue());
+        refreshItems();
+    }
+
+    @Override
+    protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
+        // Draw requester-alt.png background
+        graphics.blit(
+                RenderPipelines.GUI_TEXTURED,
+                BACKGROUND.toIdentifier(),
+                leftPos,
+                topPos,
+                0,
+                0,
+                imageWidth,
+                imageHeight,
+                256,
+                256
+        );
+
+        // Draw page indicator if multiple pages
+        if (getMenu().getTotalPages() > 0) {
+            String pageText = (getMenu().getCurrentPage() + 1) + "/" + getMenu().getTotalPages();
+            int textWidth = font.width(pageText);
+            graphics.drawString(
+                    font,
+                    pageText,
+                    leftPos + (imageWidth - textWidth) / 2,
+                    topPos + imageHeight - 57,
+                    0x404040,
+                    false
+            );
         }
     }
 
     @Override
-    protected void renderBg(GuiGraphics context, float delta, int mouseX, int mouseY) {
-        // Draw simple gray background
-        int bgColor = 0xFFC6C6C6;
-        context.fill(leftPos, topPos, leftPos + imageWidth, topPos + imageHeight, bgColor);
-
-        // Draw darker border
-        int borderColor = 0xFF8B8B8B;
-        context.fill(leftPos, topPos, leftPos + imageWidth, topPos + 1, borderColor);
-        context.fill(leftPos, topPos, leftPos + 1, topPos + imageHeight, borderColor);
-        context.fill(leftPos + imageWidth - 1, topPos, leftPos + imageWidth, topPos + imageHeight, borderColor);
-        context.fill(leftPos, topPos + imageHeight - 1, leftPos + imageWidth, topPos + imageHeight, borderColor);
-
-        // Item grid renders itself as a widget
+    protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
+        // Title is rendered by texture, no need for text overlay
+        // Amount label
+        Component amountLabel = Component.translatable("gui.logistics.requester.amount");
+        graphics.drawString(font, amountLabel, 8, imageHeight - 52, 0x404040, false);
     }
 
     @Override
-    protected void renderLabels(GuiGraphics context, int mouseX, int mouseY) {
-        context.drawString(font, title, titleLabelX, titleLabelY, 0x404040, false);
+    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+        super.render(graphics, mouseX, mouseY, partialTick);
 
-        // Draw "Amount:" label
-        Component amountLabel = Component.translatable("gui.logistics.requester.amount");
-        context.drawString(font, amountLabel, 8, 130, 0x404040, false);
+        // Render item tooltips
+        for (NetworkItemButton button : itemButtons) {
+            if (button.isHoveredOrFocused() && !button.getItem().isEmpty()) {
+                renderTooltip(graphics, mouseX, mouseY);
+                break;
+            }
+        }
     }
 }

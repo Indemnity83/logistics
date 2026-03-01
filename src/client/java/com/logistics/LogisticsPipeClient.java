@@ -56,7 +56,7 @@ public final class LogisticsPipeClient implements DomainBootstrap {
             context.client().execute(() -> {
                 // Update the requester screen if it's open
                 if (Minecraft.getInstance().screen instanceof RequesterScreen requesterScreen) {
-                    requesterScreen.updateAvailableItems(packet.items(), packet.amounts());
+                    requesterScreen.updateAvailableItems(packet.pipePos(), packet.items(), packet.amounts());
                 }
             });
         });
