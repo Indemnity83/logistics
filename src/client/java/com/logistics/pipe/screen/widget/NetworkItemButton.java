@@ -64,33 +64,27 @@ public class NetworkItemButton extends AbstractWidget {
         if (!item.isEmpty()) {
             // Center item in 25x25 slot (item is 16x16, so offset by 4.5 ≈ 4-5 pixels)
             graphics.renderItem(item, getX() + 4, getY() + 4);
-
-            // Render amount text if > 1
-            if (availableAmount > 1) {
-                String amountText = formatAmount(availableAmount);
-                graphics.drawString(
-                        Minecraft.getInstance().font,
-                        amountText,
-                        getX() + 6,
-                        getY() + 15,
-                        0xFFFFFF,
-                        true // with shadow
-                );
-            }
+            graphics.renderItemDecorations(
+                    Minecraft.getInstance().font,
+                    item,
+                    getX() + 4,
+                    getY() + 4,
+                    availableAmount > 1 ? formatAmount(availableAmount) : null
+            );
         }
     }
 
     private String formatAmount(long amount) {
-        if (amount <= 64) {
-            return String.valueOf(amount);
+        if (amount >= 1_000_000) {
+            long millions = amount / 1_000_000;
+            long tenths = (amount % 1_000_000) / 100_000;
+            return tenths > 0 ? millions + "." + tenths + "M" : millions + "M";
+        } else if (amount >= 1_000) {
+            long thousands = amount / 1_000;
+            long tenths = (amount % 1_000) / 100;
+            return tenths > 0 ? thousands + "." + tenths + "K" : thousands + "K";
         }
-        long stacks = amount / 64;
-        long remainder = amount % 64;
-        if (remainder > 0) {
-            return stacks + "×64+" + remainder;
-        } else {
-            return stacks + "×64";
-        }
+        return String.valueOf(amount);
     }
 
     @Override

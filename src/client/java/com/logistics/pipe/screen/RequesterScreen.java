@@ -41,7 +41,7 @@ public class RequesterScreen extends AbstractContainerScreen<RequesterScreenHand
 
     public RequesterScreen(RequesterScreenHandler handler, Inventory inventory, Component title) {
         super(handler, inventory, title);
-        this.imageWidth = 147;
+        this.imageWidth = 222;
         this.imageHeight = 183;
     }
 
@@ -54,7 +54,7 @@ public class RequesterScreen extends AbstractContainerScreen<RequesterScreenHand
                 this.font,
                 this.leftPos + 27,
                 this.topPos + 14,
-                108,
+                183,
                 14,
                 Component.translatable("gui.logistics.requester.search")
         );
@@ -66,7 +66,7 @@ public class RequesterScreen extends AbstractContainerScreen<RequesterScreenHand
         // Item button grid (5×4 = 20 buttons)
         itemButtons.clear();
         for (int row = 0; row < 4; row++) {
-            for (int col = 0; col < 5; col++) {
+            for (int col = 0; col < 8; col++) {
                 int x = leftPos + 12 + col * 25; // 25px slot, no spacing
                 int y = topPos + 32 + row * 25;
                 NetworkItemButton button = new NetworkItemButton(x, y, this::onItemClicked);
@@ -77,7 +77,7 @@ public class RequesterScreen extends AbstractContainerScreen<RequesterScreenHand
 
         // Pagination buttons (12×17 pixels)
         prevPageButton = new PageButton(
-                leftPos + 43,
+                leftPos + 74,
                 topPos + 137,
                 false, // backward
                 this::previousPage
@@ -85,7 +85,7 @@ public class RequesterScreen extends AbstractContainerScreen<RequesterScreenHand
         addRenderableWidget(prevPageButton);
 
         nextPageButton = new PageButton(
-                leftPos + imageWidth - 72, // 12px button + 60px margin
+                leftPos + 136,
                 topPos + 137,
                 true, // forward
                 this::nextPage
@@ -123,7 +123,7 @@ public class RequesterScreen extends AbstractContainerScreen<RequesterScreenHand
         requestButton = Button.builder(
                         Component.translatable("gui.logistics.requester.request"),
                         this::onRequestClick)
-                .bounds(leftPos + 90, topPos + 162, 50, 16)
+                .bounds(leftPos + 155, topPos + 162, 60, 16)
                 .build();
         addRenderableWidget(requestButton);
 
