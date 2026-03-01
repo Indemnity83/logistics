@@ -3,6 +3,7 @@ package com.logistics.pipe.network;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.minecraft.world.item.ItemStack;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,6 +30,11 @@ public class ProviderCache {
 
     public boolean isStale(long currentTime, int maxAge) {
         return currentTime - lastUpdate > maxAge;
+    }
+
+    /** Returns an unmodifiable view of the internal variant map — no copies. */
+    Map<ItemVariant, Long> getAvailableVariants() {
+        return Collections.unmodifiableMap(availableItems);
     }
 
     public Map<ItemStack, Long> getAvailableItems() {

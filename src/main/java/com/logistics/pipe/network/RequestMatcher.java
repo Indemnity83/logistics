@@ -59,9 +59,8 @@ public class RequestMatcher {
         Map<ItemVariant, Long> aggregated = new HashMap<>();
 
         for (ProviderCache cache : providerCaches.values()) {
-            for (Map.Entry<ItemStack, Long> entry : cache.getAvailableItems().entrySet()) {
-                aggregated.merge(ItemVariant.of(entry.getKey()), entry.getValue(), Long::sum);
-            }
+            cache.getAvailableVariants().forEach((variant, amount) ->
+                    aggregated.merge(variant, amount, Long::sum));
         }
 
         Map<ItemStack, Long> result = new HashMap<>(aggregated.size());
