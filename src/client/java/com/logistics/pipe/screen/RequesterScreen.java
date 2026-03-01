@@ -104,18 +104,19 @@ public class RequesterScreen extends AbstractContainerScreen<RequesterScreenHand
                 this.font,
                 leftPos + 30,
                 topPos + 163,
-                36,
+                30,
                 14,
                 Component.literal("Amount")
         );
         amountField.setValue("1");
-        amountField.setMaxLength(6);
+        amountField.setMaxLength(4);
+        amountField.setCentered(true);
         addRenderableWidget(amountField);
 
         incrementButton = Button.builder(
                 Component.literal("+"),
                 this::addOne)
-            .bounds(leftPos + 68, topPos + 163, 14, 14)
+            .bounds(leftPos + 64, topPos + 163, 14, 14)
             .build();
         addRenderableWidget(incrementButton);
 
@@ -210,10 +211,6 @@ public class RequesterScreen extends AbstractContainerScreen<RequesterScreenHand
         // Select new
         selectedButton = button;
         button.setSelected(true);
-
-        // Update amount field with available amount (capped at 64)
-        long available = button.getAvailableAmount();
-        amountField.setValue(String.valueOf(Math.min(available, 64)));
 
         updateRequestButton();
     }

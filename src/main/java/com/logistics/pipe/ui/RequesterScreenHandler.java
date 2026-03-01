@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
  * Provides access to network items for the client screen widgets.
  */
 public class RequesterScreenHandler extends AbstractContainerMenu {
-    public static final int ITEMS_PER_PAGE = 20; // 5×4 grid
+    public static final int ITEMS_PER_PAGE = 32; // 8×4 grid
 
     private final RequestInventory requestInventory;
     private final PipeBlockEntity pipeEntity;
@@ -118,7 +118,7 @@ public class RequesterScreenHandler extends AbstractContainerMenu {
     }
 
     /**
-     * Get items for the current page (max 20 items).
+     * Get items for the current page (max 32 items).
      */
     public List<ItemStack> getCurrentPageItems() {
         int startIndex = currentPage * ITEMS_PER_PAGE;
