@@ -203,7 +203,7 @@ public class PipeNetwork implements ILogisticsNetwork {
             throw new IllegalStateException("Cannot use findSinkFor without IWorldView - update tests to use proper constructor");
         }
 
-        LogisticsMod.LOGGER.info("[Network {}] Finding sink for {} (members: {}, default routes: {})",
+        LogisticsMod.LOGGER.debug("[Network {}] Finding sink for {} (members: {}, default routes: {})",
                 getNetworkIdShort(id), stack.getItem(), graph.size(), defaultRouteSinks.size());
 
         // Check filtered sinks first, then fall back to default routes
@@ -239,7 +239,7 @@ public class PipeNetwork implements ILogisticsNetwork {
                 if (world.getBlockEntity(pos) instanceof PipeBlockEntity pipeEntity) {
                     PipeContext ctx = pipeEntity.createContext();
                     if (sinkModule.matchesFilter(ctx, stack)) {
-                        LogisticsMod.LOGGER.info("[Network {}] Found filtered sink at {}",
+                        LogisticsMod.LOGGER.debug("[Network {}] Found filtered sink at {}",
                                 getNetworkIdShort(id), pos);
                         return pos;
                     }
@@ -255,7 +255,7 @@ public class PipeNetwork implements ILogisticsNetwork {
      * @return BlockPos of best default route sink, or null if none available
      */
     private BlockPos findDefaultRouteSink() {
-        LogisticsMod.LOGGER.info("[Network {}] No filtered sink, checking {} default routes",
+        LogisticsMod.LOGGER.debug("[Network {}] No filtered sink, checking {} default routes",
                 getNetworkIdShort(id), defaultRouteSinks.size());
 
         BlockPos bestSink = null;
@@ -268,7 +268,7 @@ public class PipeNetwork implements ILogisticsNetwork {
 
             int priority = sinkPriorities.getOrDefault(sink, DEFAULT_SINK_PRIORITY);
             if (priority > bestPriority) {
-                LogisticsMod.LOGGER.info("[Network {}] Found default route at {} (priority: {})",
+                LogisticsMod.LOGGER.debug("[Network {}] Found default route at {} (priority: {})",
                         getNetworkIdShort(id), sink, priority);
                 bestSink = sink;
                 bestPriority = priority;
@@ -276,7 +276,7 @@ public class PipeNetwork implements ILogisticsNetwork {
         }
 
         if (bestSink != null) {
-            LogisticsMod.LOGGER.info("[Network {}] Selected default route at {}",
+            LogisticsMod.LOGGER.debug("[Network {}] Selected default route at {}",
                     getNetworkIdShort(id), bestSink);
         }
 
