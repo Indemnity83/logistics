@@ -16,6 +16,7 @@ import com.logistics.core.fluids.MoltenGlassFluid;
 import com.logistics.core.loot.ChestLootModifier;
 import com.logistics.core.marker.MarkerBlock;
 import com.logistics.core.marker.MarkerBlockEntity;
+import com.logistics.core.network.NetworkTickHandler;
 import net.fabricmc.fabric.api.biome.v1.BiomeModifications;
 import net.fabricmc.fabric.api.biome.v1.BiomeSelectors;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
@@ -76,6 +77,7 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         addVanillaCreativeTabEntries();
         registerWorldgen();
         ChestLootModifier.register();
+        NetworkTickHandler.register();
     }
 
     private void registerStorageAccess() {

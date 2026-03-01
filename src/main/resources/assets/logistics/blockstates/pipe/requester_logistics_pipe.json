@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "logistics:block/pipe/requester_logistics_pipe_core"
+    }
+  }
+}

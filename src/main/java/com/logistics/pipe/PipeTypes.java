@@ -1,17 +1,7 @@
 package com.logistics.pipe;
 
 import com.logistics.LogisticsPipe;
-import com.logistics.pipe.modules.BlockConnectionModule;
-import com.logistics.pipe.modules.BoostModule;
-import com.logistics.pipe.modules.ExtractionModule;
-import com.logistics.pipe.modules.InsertionModule;
-import com.logistics.pipe.modules.ItemFilterModule;
-import com.logistics.pipe.modules.MergerModule;
-import com.logistics.pipe.modules.PipeMarkingModule;
-import com.logistics.pipe.modules.PipeOnlyModule;
-import com.logistics.pipe.modules.TransportModule;
-import com.logistics.pipe.modules.VoidModule;
-import com.logistics.pipe.modules.WeatheringModule;
+import com.logistics.pipe.modules.*;
 
 public final class PipeTypes {
     // -----------------
@@ -53,6 +43,29 @@ public final class PipeTypes {
     // -----------------
     // Tier 3 (Network Logistics)
     // -----------------
+
+    // Basic Logistics Pipe - network sink with filtering and default route capability.
+    public static final Pipe BASIC_LOGISTICS_PIPE = new Pipe(
+            new NetworkRouterModule(),
+            new SinkModule()) {};
+
+    // Provider Logistics Pipe - scans adjacent inventories and fulfills network requests.
+    public static final Pipe PROVIDER_LOGISTICS_PIPE = new Pipe(
+            new NetworkRouterModule(),
+            new ProviderModule(20))
+            .withEnergy();
+
+    // Requester Logistics Pipe - creates requests for items from the network.
+    public static final Pipe REQUESTER_LOGISTICS_PIPE = new Pipe(
+            new NetworkRouterModule(),
+            new RequesterModule())
+            .withEnergy();
+
+    // Supplier Logistics Pipe - maintains inventory stock levels by requesting items from the network.
+    public static final Pipe SUPPLIER_LOGISTICS_PIPE = new Pipe(
+            new NetworkRouterModule(),
+            new SupplierModule())
+            .withEnergy();
 
     // -----------------
     // Special
