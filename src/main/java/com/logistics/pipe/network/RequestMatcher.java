@@ -17,6 +17,10 @@ import org.jetbrains.annotations.Nullable;
  * Zero Minecraft API coupling - 100% testable with pure Java.
  */
 public class RequestMatcher {
+    // Skip provider caches that haven't been updated in 3 scan intervals (60 ticks = 3 seconds).
+    // Providers update every 20 ticks; if a provider misses 3 updates it is considered offline.
+    private static final int CACHE_MAX_AGE_TICKS = 60;
+
     private final Map<BlockPos, ProviderCache> providerCaches = new HashMap<>();
     private final List<ItemRequest> pendingRequests = new ArrayList<>();
     private final Map<BlockPos, List<LogisticsOrder>> pendingOrders = new HashMap<>();
@@ -81,11 +85,15 @@ public class RequestMatcher {
 
     /**
      * Find provider position that has the requested item.
-     * Returns null if no provider has sufficient quantity.
+     * Skips stale caches (providers that have not updated recently).
+     * Returns null if no active provider has sufficient quantity.
      */
     @Nullable
-    public BlockPos findProviderFor(ItemStack stack, long amount) {
+    private BlockPos findProviderFor(ItemStack stack, long amount, long gameTime) {
         for (Map.Entry<BlockPos, ProviderCache> entry : providerCaches.entrySet()) {
+            if (entry.getValue().isStale(gameTime, CACHE_MAX_AGE_TICKS)) {
+                continue;
+            }
             if (entry.getValue().getAvailableAmount(stack) >= amount) {
                 return entry.getKey();
             }
@@ -157,7 +165,7 @@ public class RequestMatcher {
 
             while (remaining > 0) {
                 long chunkSize = Math.min(remaining, maxStackSize);
-                BlockPos provider = findProviderFor(request.stack(), chunkSize);
+                BlockPos provider = findProviderFor(request.stack(), chunkSize, gameTime);
                 if (provider == null) break;
                 orders.add(new LogisticsOrder(provider, request.requester(), request.stack(), chunkSize, gameTime));
                 remaining -= chunkSize;
