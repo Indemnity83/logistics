@@ -268,11 +268,13 @@ public class PipeNetwork implements ILogisticsNetwork {
 
     /**
      * Merge another network into this one.
+     * For sink priorities, the higher value wins when both networks have the same position.
      */
     public void merge(PipeNetwork other) {
         graph.merge(other.graph);
         requestMatcher.merge(other.requestMatcher);
         defaultRouteSinks.addAll(other.defaultRouteSinks);
-        sinkPriorities.putAll(other.sinkPriorities);
+        other.sinkPriorities.forEach((pos, priority) ->
+                sinkPriorities.merge(pos, priority, Math::max));
     }
 }
