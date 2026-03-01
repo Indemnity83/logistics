@@ -366,10 +366,10 @@ public class ProviderModule implements Module {
     private void logCacheUpdate(PipeContext ctx, ProviderMode mode, Map<ItemStack, Long> availableItems) {
         if (!availableItems.isEmpty()) {
             long totalItems = availableItems.values().stream().mapToLong(Long::longValue).sum();
-            LOGGER.info("[Provider @ {}] Mode {} - Updated cache: {} item types, {} total items",
+            LOGGER.debug("[Provider @ {}] Mode {} - Updated cache: {} item types, {} total items",
                     ctx.pos(), mode, availableItems.size(), totalItems);
         } else if (mode != ProviderMode.SUPPLY) {
-            LOGGER.info("[Provider @ {}] Mode {} - No items available after mode filter",
+            LOGGER.debug("[Provider @ {}] Mode {} - No items available after mode filter",
                     ctx.pos(), mode);
         }
     }

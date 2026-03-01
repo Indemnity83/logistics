@@ -138,7 +138,7 @@ public class SupplierModule implements Module {
             Direction supplierDir = getSupplierDirection(ctx);
             if (supplierDir != null && options.contains(supplierDir)) {
                 if (!ctx.world().isClientSide()) {
-                    LOGGER.info("[Supplier @ {}] Routing {} x{} to inventory ({})",
+                    LOGGER.debug("[Supplier @ {}] Routing {} x{} to inventory ({})",
                             ctx.pos(), item.getStack().getItem(), item.getStack().getCount(), supplierDir);
                 }
                 return RoutePlan.reroute(supplierDir);
@@ -227,13 +227,13 @@ public class SupplierModule implements Module {
 
                 if (newPending == 0) {
                     pending.remove(config.itemId());
-                    LOGGER.info("[Supplier @ {}] Delivery confirmed for {}: received {} (pending cleared)",
+                    LOGGER.debug("[Supplier @ {}] Delivery confirmed for {}: received {} (pending cleared)",
                             ctx.pos(), config.itemId(), delivered);
                 } else {
                     CompoundTag itemPending = NbtCompat.getCompoundOrEmpty(pending, config.itemId());
                     itemPending.putLong("amount", newPending);
                     pending.put(config.itemId(), itemPending);
-                    LOGGER.info("[Supplier @ {}] Delivery confirmed for {}: received {} (pending: {} -> {})",
+                    LOGGER.debug("[Supplier @ {}] Delivery confirmed for {}: received {} (pending: {} -> {})",
                             ctx.pos(), config.itemId(), delivered, pendingAmount, newPending);
                 }
 
@@ -263,7 +263,7 @@ public class SupplierModule implements Module {
                     toRequest = Math.min(Math.min(maxStackSize, spaceToFill), available);
                     shouldRequest = toRequest > 0;
                     if (shouldRequest) {
-                        LOGGER.info("[Supplier @ {}] Infinite mode: requesting {} x{} (space available: {}, 1 stack at a time)",
+                        LOGGER.debug("[Supplier @ {}] Infinite mode: requesting {} x{} (space available: {}, 1 stack at a time)",
                                 ctx.pos(), config.itemId(), toRequest, availableSpace);
                     }
                 }
@@ -276,7 +276,7 @@ public class SupplierModule implements Module {
                             shouldRequest = toRequest > 0;
                             long percentFull = config.amount() > 0 ? (currentAmount * 100) / config.amount() : 0;
                             if (shouldRequest) {
-                                LOGGER.info("[Supplier @ {}] Stocked mode: requesting {} x{} (at {}%)",
+                                LOGGER.debug("[Supplier @ {}] Stocked mode: requesting {} x{} (at {}%)",
                                         ctx.pos(), config.itemId(), toRequest, percentFull);
                             }
                         }
@@ -287,10 +287,10 @@ public class SupplierModule implements Module {
                         if (available >= needed) {
                             toRequest = needed;
                             shouldRequest = true;
-                            LOGGER.info("[Supplier @ {}] Full mode: requesting {} x{} (full amount available)",
+                            LOGGER.debug("[Supplier @ {}] Full mode: requesting {} x{} (full amount available)",
                                     ctx.pos(), config.itemId(), toRequest);
                         } else {
-                            LOGGER.debug("[Supplier @ {}] Full mode: need {} but only {} available, waiting",
+                            LOGGER.debug("[Supplier @ {}] Full mode: need {} x{} but only {} available, waiting",
                                     ctx.pos(), config.itemId(), needed, available);
                         }
                         break;
@@ -301,7 +301,7 @@ public class SupplierModule implements Module {
                         toRequest = Math.min(needed, available);
                         shouldRequest = toRequest > 0;
                         if (shouldRequest) {
-                            LOGGER.info("[Supplier @ {}] Partial mode: requesting {} x{} from network (available: {})",
+                            LOGGER.debug("[Supplier @ {}] Partial mode: requesting {} x{} from network (available: {})",
                                     ctx.pos(), config.itemId(), toRequest, available);
                         }
                         break;
@@ -324,7 +324,7 @@ public class SupplierModule implements Module {
                 // TODO(Phase 11): Consume energy
                 // ctx.setEnergy(ctx.getEnergy() - (toRequest * RF_PER_ITEM));
             } else if (needed > 0 && available == 0) {
-                LOGGER.warn("[Supplier @ {}] Need {} x{} but NONE available in network!",
+                LOGGER.debug("[Supplier @ {}] Need {} x{} but NONE available in network!",
                         ctx.pos(), config.itemId(), needed);
             }
         }

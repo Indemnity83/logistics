@@ -129,7 +129,7 @@ public class SinkModule implements Module {
 
         // Priority 2: Destination match
         if (item.getDestination() != null && item.getDestination().equals(ctx.pos())) {
-            LOGGER.info("[Sink @ {}] Item {} arrived at destination, routing to inventory ({})",
+            LOGGER.debug("[Sink @ {}] Item {} arrived at destination, routing to inventory ({})",
                     ctx.pos(), item.getStack().getItem(), sinkDir);
             return RoutePlan.reroute(sinkDir);
         }
@@ -138,7 +138,7 @@ public class SinkModule implements Module {
         if (isDefaultRoute(ctx) && item.getDestination() == null) {
             boolean hasOtherOptions = options.stream().anyMatch(dir -> !dir.equals(sinkDir));
             if (!hasOtherOptions) {
-                LOGGER.info("[Sink @ {}] Default route accepting {} (no other options), routing to inventory ({})",
+                LOGGER.debug("[Sink @ {}] Default route accepting {} (no other options), routing to inventory ({})",
                         ctx.pos(), item.getStack().getItem(), sinkDir);
                 return RoutePlan.reroute(sinkDir);
             }
@@ -256,10 +256,10 @@ public class SinkModule implements Module {
             if (network != null) {
                 if (enabled) {
                     network.registerDefaultRouteSink(ctx.pos(), 0);
-                    LOGGER.info("[Sink @ {}] Default route enabled and registered with network", ctx.pos());
+                    LOGGER.debug("[Sink @ {}] Default route enabled and registered with network", ctx.pos());
                 } else {
                     network.unregisterDefaultRouteSink(ctx.pos());
-                    LOGGER.info("[Sink @ {}] Default route disabled and unregistered from network", ctx.pos());
+                    LOGGER.debug("[Sink @ {}] Default route disabled and unregistered from network", ctx.pos());
                 }
             }
         }

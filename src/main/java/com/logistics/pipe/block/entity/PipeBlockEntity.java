@@ -276,7 +276,7 @@ public class PipeBlockEntity extends BaseBlockEntity
 
         long durationMs = (System.nanoTime() - readStart) / 1_000_000L;
         if (durationMs >= 2L && Boolean.getBoolean("logistics.timing")) {
-            com.logistics.LogisticsMod.LOGGER.info(
+            com.logistics.LogisticsMod.LOGGER.debug(
                     "[timing] PipeBlockEntity loadLogisticsData at {} took {} ms (items={})",
                     getBlockPos(),
                     durationMs,
@@ -314,7 +314,7 @@ public class PipeBlockEntity extends BaseBlockEntity
 
             long durationMs = (System.nanoTime() - readStart) / 1_000_000L;
             if (durationMs >= 2L && Boolean.getBoolean("logistics.timing")) {
-                LogisticsMod.LOGGER.info(
+                LogisticsMod.LOGGER.debug(
                         "[timing] PipeBlockEntity loadLegacyData at {} took {} ms (items={})",
                         getBlockPos(),
                         durationMs,

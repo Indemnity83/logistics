@@ -138,7 +138,7 @@ public class NetworkRegistry {
         } else if (neighborNetworks.size() == 1) {
             return joinExistingNetwork(pos, neighborNetworks.iterator().next(), levelNetworks, levelPositions);
         } else {
-            LOGGER.info("[Network] Merging {} networks at {}", neighborNetworks.size(), pos);
+            LOGGER.debug("[Network] Merging {} networks at {}", neighborNetworks.size(), pos);
             return mergeNetworks(pos, neighborNetworks, levelNetworks, levelPositions);
         }
     }
@@ -159,7 +159,7 @@ public class NetworkRegistry {
         network.addPipe(pos);
         levelNetworks.put(networkId, network);
         levelPositions.put(pos, networkId);
-        LOGGER.info("[Network] Created new network {} with pipe at {}",
+        LOGGER.debug("[Network] Created new network {} with pipe at {}",
             PipeNetwork.getNetworkIdShort(networkId), pos);
         return network;
     }
@@ -176,7 +176,7 @@ public class NetworkRegistry {
         PipeNetwork network = levelNetworks.get(networkId);
         network.addPipe(pos);
         levelPositions.put(pos, networkId);
-        LOGGER.info("[Network {}] Pipe joined at {} (total pipes: {})",
+        LOGGER.debug("[Network {}] Pipe joined at {} (total pipes: {})",
             PipeNetwork.getNetworkIdShort(networkId), pos, network.size());
         return network;
     }
@@ -198,7 +198,7 @@ public class NetworkRegistry {
             network.addPipe(unmappedPipe);
             levelPositions.put(unmappedPipe, networkId);
         }
-        LOGGER.info("[Network {}] Added {} unmapped pipes (total pipes: {})",
+        LOGGER.debug("[Network {}] Added {} unmapped pipes (total pipes: {})",
             PipeNetwork.getNetworkIdShort(networkId), unmappedPipes.size(), network.size());
     }
 
