@@ -1,4 +1,4 @@
-name: Build (Pre)
+name: Build (Snapshot)
 
 on:
   workflow_dispatch:
@@ -37,6 +37,10 @@ jobs:
           set -euo pipefail
 
           BASE_VERSION="$(jq -r '."."' .release-please-manifest.json)"
+          if [[ -z "$BASE_VERSION" || "$BASE_VERSION" == "null" ]]; then
+            echo "Failed to resolve BASE_VERSION from .release-please-manifest.json" >&2
+            exit1
+          fi
 
           # If run from release-please branch derive real base branch
           REF_NAME="${GITHUB_REF_NAME}"
@@ -48,7 +52,7 @@ jobs:
           fi
 
           # Minecraft-style PRE id
-          YY="$(date -u +%y)"
+          YY="$(date -u +%g)"
           WW="$(date -u +%V)"
           REV="${{ inputs.rev }}"
           REV="$(echo "$REV" | head -c1 | tr '[:upper:]' '[:lower:]')"
@@ -82,7 +86,7 @@ jobs:
           (( ${#MODRINTH_VERSION} > 32 )) && MODRINTH_VERSION="${MODRINTH_VERSION:0:32}"
 
           # Snapshot / prerelease MC detection (supports 24w45a format)
-          if [[ "$MC_VERSION" =~ (snapshot|alpha|beta) ]] || [[ "$MC_VERSION" =~ ^[0-9]{2}w[0-9]{2}[a-z]$ ]]; then
+          if [[ "$MC_VERSION" =~ (snapshot|alpha|beta|-pre[0-9]+|-rc[0-9]+) ]] || [[ "$MC_VERSION" =~ ^[0-9]{2}w[0-9]{2}[a-z]$ ]]; then
             GAME_VERSION_FILTER="none"
           else
             GAME_VERSION_FILTER="releases"
