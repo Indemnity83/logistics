@@ -1,0 +1,134 @@
+name: Build (Snapshot)
+
+on:
+  workflow_dispatch:
+    inputs:
+      rev:
+        description: "Revision letter if multiple builds in same week (a,b,c...)"
+        required: false
+        default: "a"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        loader: [fabric]
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '25'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v5
+        with:
+          cache-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
+
+      - name: Extract version information
+        id: version
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          BASE_VERSION="$(jq -r '."."' .release-please-manifest.json)"
+          if [[ -z "$BASE_VERSION" || "$BASE_VERSION" == "null" ]]; then
+            echo "Failed to resolve BASE_VERSION from .release-please-manifest.json" >&2
+            exit1
+          fi
+
+          # If run from release-please branch derive real base branch
+          REF_NAME="${GITHUB_REF_NAME}"
+          if [[ "$REF_NAME" == release-please--branches--* ]]; then
+            BASE_BRANCH="${REF_NAME#release-please--branches--}"
+            BASE_BRANCH="${BASE_BRANCH%%--components--*}"
+          else
+            BASE_BRANCH="$REF_NAME"
+          fi
+
+          # Minecraft-style PRE id
+          YY="$(date -u +%g)"
+          WW="$(date -u +%V)"
+          REV="${{ inputs.rev }}"
+          REV="$(echo "$REV" | head -c1 | tr '[:upper:]' '[:lower:]')"
+          [[ "$REV" =~ ^[a-z]$ ]] || { echo "Invalid rev"; exit 1; }
+
+          PRE_ID="${YY}w${WW}${REV}"
+          PRE_VERSION="${BASE_VERSION}-pre.${PRE_ID}"
+
+          MC_VERSION="$(grep '^minecraft_version=' gradle.properties | cut -d'=' -f2)"
+          LOADER="${{ matrix.loader }}"
+
+          FULL_VERSION="${PRE_VERSION}+mc${MC_VERSION}.${LOADER}"
+
+          # Gradle task
+          if [[ "$MC_VERSION" =~ ^([0-9]+)\. ]]; then
+            (( ${BASH_REMATCH[1]} >= 26 )) && GRADLE_TASK="jar" || GRADLE_TASK="remapJar"
+          else
+            GRADLE_TASK="remapJar"
+          fi
+
+          # Short loader token for Modrinth
+          case "$LOADER" in
+            fabric) LOADER_SHORT="f" ;;
+            quilt) LOADER_SHORT="q" ;;
+            forge) LOADER_SHORT="fg" ;;
+            neoforge) LOADER_SHORT="nf" ;;
+            *) LOADER_SHORT="$LOADER" ;;
+          esac
+
+          MODRINTH_VERSION="${PRE_VERSION}+mc${MC_VERSION}.${LOADER_SHORT}"
+          (( ${#MODRINTH_VERSION} > 32 )) && MODRINTH_VERSION="${MODRINTH_VERSION:0:32}"
+
+          # Snapshot / prerelease MC detection (supports 24w45a format)
+          if [[ "$MC_VERSION" =~ (snapshot|alpha|beta|-pre[0-9]+|-rc[0-9]+) ]] || [[ "$MC_VERSION" =~ ^[0-9]{2}w[0-9]{2}[a-z]$ ]]; then
+            GAME_VERSION_FILTER="none"
+          else
+            GAME_VERSION_FILTER="releases"
+          fi
+
+          echo "base_version=$BASE_VERSION" >> $GITHUB_OUTPUT
+          echo "pre_id=$PRE_ID" >> $GITHUB_OUTPUT
+          echo "pre_version=$PRE_VERSION" >> $GITHUB_OUTPUT
+          echo "modrinth_version=$MODRINTH_VERSION" >> $GITHUB_OUTPUT
+          echo "full_version=$FULL_VERSION" >> $GITHUB_OUTPUT
+          echo "minecraft_version=$MC_VERSION" >> $GITHUB_OUTPUT
+          echo "loader=$LOADER" >> $GITHUB_OUTPUT
+          echo "gradle_task=$GRADLE_TASK" >> $GITHUB_OUTPUT
+          echo "game_version_filter=$GAME_VERSION_FILTER" >> $GITHUB_OUTPUT
+          echo "base_branch=$BASE_BRANCH" >> $GITHUB_OUTPUT
+
+          echo "Building $FULL_VERSION"
+
+      - name: Build
+        run: ./gradlew ${{ steps.version.outputs.gradle_task }} --console=plain
+        env:
+          MOD_VERSION: ${{ steps.version.outputs.full_version }}
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: logistics-${{ steps.version.outputs.full_version }}
+          path: build/libs/logistics-${{ steps.version.outputs.full_version }}.jar
+
+      - name: Publish
+        uses: Kir-Antipov/mc-publish@v3.3
+        with:
+          modrinth-id: ${{ vars.MODRINTH_PROJECT_ID }}
+          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+          modrinth-version: ${{ steps.version.outputs.modrinth_version }}
+
+          curseforge-id: ${{ vars.CURSEFORGE_PROJECT_ID }}
+          curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
+
+          game-version-filter: ${{ steps.version.outputs.game_version_filter }}
+          version-type: beta
+          version: ${{ steps.version.outputs.full_version }}
+          name: "Logistics v${{ steps.version.outputs.pre_version }} (PRE) for ${{ steps.version.outputs.loader }} ${{ steps.version.outputs.minecraft_version }}"
+
+          files: build/libs/logistics-${{ steps.version.outputs.full_version }}.jar
