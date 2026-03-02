@@ -57,7 +57,8 @@ public class ProviderModule implements Module {
     private static final String MODE = "mode";
     private static final String FILTER_ITEMS = "filter_items";
     private static final String FILTER_INVERTED = "filter_inverted";
-    private static final int SCAN_INTERVAL = 20; // Scan every 20 ticks (1 second)
+    private static final int SCAN_INTERVAL = 6;
+    private static final int ITEMS_PER_EXTRACT = 8;
     private static final int MAX_FILTER_SLOTS = 9;
 
     private final int extractInterval;
@@ -399,7 +400,8 @@ public class ProviderModule implements Module {
 
     /**
      * Try to fulfill an order from any connected inventory.
-     * @return true if order was fulfilled (stop processing more orders this tick)
+     * Removes the order only when fully fulfilled; leaves it for next cycle if partial.
+     * @return true if any items were extracted (stop processing more orders this cycle)
      */
     private boolean tryFulfillOrder(PipeContext ctx, ILogisticsNetwork network, LogisticsOrder order, List<Direction> inventoryFaces) {
         for (Direction direction : inventoryFaces) {
@@ -407,8 +409,11 @@ public class ProviderModule implements Module {
             Storage<ItemVariant> storage = ItemStorage.SIDED.find(ctx.world(), targetPos, direction.getOpposite());
             if (storage == null) continue;
 
-            if (fulfillOrder(ctx, storage, order, direction)) {
-                network.removeOrder(order);
+            long extracted = fulfillOrder(ctx, storage, order, direction);
+            if (extracted > 0) {
+                if (extracted >= order.amount()) {
+                    network.removeOrder(order);
+                }
                 return true;
             }
         }
@@ -419,17 +424,17 @@ public class ProviderModule implements Module {
 
     /**
      * Fulfill a single order by extracting items and creating a TravelingItem with destination.
+     * @return actual number of items extracted (0 if none)
      */
-    private boolean fulfillOrder(PipeContext ctx, Storage<ItemVariant> storage, LogisticsOrder order, Direction direction) {
-        if (isFilteredOut(ctx, order.stack())) {
-            return false;
-        }
+    private long fulfillOrder(PipeContext ctx, Storage<ItemVariant> storage, LogisticsOrder order, Direction direction) {
+        if (isFilteredOut(ctx, order.stack())) return 0;
 
         ItemVariant variant = ItemVariant.of(order.stack());
         ProviderMode mode = getMode(ctx);
+        long toExtract = Math.min(order.amount(), ITEMS_PER_EXTRACT);
 
         try (Transaction transaction = Transaction.openOuter()) {
-            long extracted = extractItems(storage, variant, order.amount(), transaction, mode);
+            long extracted = extractItems(storage, variant, toExtract, transaction, mode);
 
             if (extracted > 0) {
                 ItemStack stack = variant.toStack((int) extracted);
@@ -441,11 +446,11 @@ public class ProviderModule implements Module {
                 );
                 ctx.blockEntity().forceAddItem(item, direction);
                 transaction.commit();
-                return true;
+                return extracted;
             }
         }
 
-        return false;
+        return 0;
     }
 
     /**
