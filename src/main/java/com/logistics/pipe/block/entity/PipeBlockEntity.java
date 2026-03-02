@@ -162,7 +162,7 @@ public class PipeBlockEntity extends BaseBlockEntity
 
         ItemStack acceptedStack = item.getStack().copy();
         acceptedStack.setCount((int) accepted);
-        acceptInsertedStack(acceptedStack, fromDirection, item.getSpeed());
+        acceptInsertedStack(acceptedStack, fromDirection, item.getSpeed(), item.getDestination());
 
         if (remainder != null) {
             dropItemInWorld(remainder);
@@ -277,7 +277,7 @@ public class PipeBlockEntity extends BaseBlockEntity
 
         long durationMs = (System.nanoTime() - readStart) / 1_000_000L;
         if (durationMs >= 2L && Boolean.getBoolean("logistics.timing")) {
-            com.logistics.LogisticsMod.LOGGER.info(
+            com.logistics.LogisticsMod.LOGGER.debug(
                     "[timing] PipeBlockEntity loadLogisticsData at {} took {} ms (items={})",
                     getBlockPos(),
                     durationMs,
@@ -316,7 +316,7 @@ public class PipeBlockEntity extends BaseBlockEntity
 
             long durationMs = (System.nanoTime() - readStart) / 1_000_000L;
             if (durationMs >= 2L && Boolean.getBoolean("logistics.timing")) {
-                LogisticsMod.LOGGER.info(
+                LogisticsMod.LOGGER.debug(
                         "[timing] PipeBlockEntity loadLegacyData at {} took {} ms (items={})",
                         getBlockPos(),
                         durationMs,
@@ -462,12 +462,16 @@ public class PipeBlockEntity extends BaseBlockEntity
     }
 
     void acceptInsertedStack(ItemStack stack, Direction fromDirection, @Nullable Float speedOverride) {
+        acceptInsertedStack(stack, fromDirection, speedOverride, null);
+    }
+
+    void acceptInsertedStack(ItemStack stack, Direction fromDirection, @Nullable Float speedOverride, @Nullable BlockPos destination) {
         if (stack.isEmpty()) {
             return;
         }
 
         float speed = speedOverride != null ? speedOverride : getInitialSpeed();
-        TravelingItem newItem = new TravelingItem(stack, fromDirection.getOpposite(), speed);
+        TravelingItem newItem = new TravelingItem(stack, fromDirection.getOpposite(), speed, destination);
         travelingItems.add(newItem);
         // Note: Per-item sync matches pre-refactoring behavior. Could potentially be
         // batched at tick boundaries for high-throughput pipes, but unchanged for now.

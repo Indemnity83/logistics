@@ -1,11 +1,15 @@
 package com.logistics;
 
 import com.logistics.core.bootstrap.DomainBootstrap;
+import com.logistics.pipe.network.SyncRequesterInventoryPacket;
 import com.logistics.pipe.render.PipeBlockEntityRenderer;
 import com.logistics.pipe.screen.ItemFilterScreen;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
+import com.logistics.pipe.screen.RequesterScreen;
 import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
 import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
@@ -52,6 +56,24 @@ public final class LogisticsPipeClient implements DomainBootstrap {
         registerMarkingFluidColors();
 
         MenuScreens.register(LogisticsPipe.SCREEN.ITEM_FILTER, ItemFilterScreen::new);
+        MenuScreens.register(LogisticsPipe.SCREEN.REQUESTER, com.logistics.pipe.screen.RequesterScreen::new);
+        MenuScreens.register(LogisticsPipe.SCREEN.SUPPLIER, com.logistics.pipe.screen.SupplierScreen::new);
+        MenuScreens.register(LogisticsPipe.SCREEN.PROVIDER, com.logistics.pipe.screen.ProviderScreen::new);
+        MenuScreens.register(LogisticsPipe.SCREEN.SINK, com.logistics.pipe.screen.SinkScreen::new);
+
+        registerPacketReceivers();
+    }
+
+    private void registerPacketReceivers() {
+        // Sync requester inventory from server
+        ClientPlayNetworking.registerGlobalReceiver(SyncRequesterInventoryPacket.TYPE, (packet, context) -> {
+            context.client().execute(() -> {
+                // Update the requester screen if it's open
+                if (Minecraft.getInstance().screen instanceof RequesterScreen requesterScreen) {
+                    requesterScreen.updateAvailableItems(packet.pipePos(), packet.items(), packet.amounts());
+                }
+            });
+        });
     }
 
     /**
@@ -124,6 +146,23 @@ public final class LogisticsPipeClient implements DomainBootstrap {
             registerModel("item_void_pipe_core");
             registerModel("item_void_pipe_arm");
             registerModel("item_void_pipe_arm_extended");
+            registerModel("basic_logistics_pipe_core");
+            registerModel("basic_logistics_pipe_arm");
+            registerModel("basic_logistics_pipe_arm_extended");
+            registerModel("provider_logistics_pipe_core");
+            registerModel("provider_logistics_pipe_arm");
+            registerModel("provider_logistics_pipe_arm_extended");
+            registerModel("provider_logistics_pipe_feature_extended");
+            registerModel("requester_logistics_pipe_core");
+            registerModel("requester_logistics_pipe_arm");
+            registerModel("requester_logistics_pipe_arm_extended");
+            registerModel("requester_logistics_pipe_feature");
+            registerModel("requester_logistics_pipe_feature_extended");
+            registerModel("supplier_logistics_pipe_core");
+            registerModel("supplier_logistics_pipe_arm");
+            registerModel("supplier_logistics_pipe_arm_extended");
+            registerModel("supplier_logistics_pipe_feature");
+            registerModel("supplier_logistics_pipe_feature_extended");
         }
 
         private static final Map<ResourceLocation, ResourceLocation> MODEL_LOOKUP = Map.copyOf(TEMP_LOOKUP);

@@ -3,6 +3,7 @@ package com.logistics.pipe.block;
 import com.logistics.core.lib.block.behavior.ProbeBehavior;
 import com.logistics.core.lib.block.behavior.WrenchBehavior;
 import com.logistics.core.lib.block.capability.PipeConnection;
+import com.logistics.pipe.network.NetworkRegistry;
 import com.logistics.core.lib.pipe.PipeConnectionRegistry;
 import com.logistics.core.lib.support.ProbeResult;
 import com.logistics.pipe.Pipe;
@@ -123,6 +124,8 @@ public class PipeBlock extends BaseEntityBlock implements ProbeBehavior.Probeabl
                     PipeBlockEntity.dropItem(level, pos, item);
                 }
             }
+            // Remove pipe from network
+            NetworkRegistry.removePipe(level, pos);
         }
         return super.playerWillDestroy(level, pos, state, player);
     }
@@ -247,6 +250,16 @@ public class PipeBlock extends BaseEntityBlock implements ProbeBehavior.Probeabl
     }
 
     @Override
+    protected void onPlace(BlockState state, Level world, BlockPos pos, BlockState oldState, boolean movedByPiston) {
+        super.onPlace(state, world, pos, oldState, movedByPiston);
+
+        // Join or create network when pipe is placed
+        if (!world.isClientSide() && !oldState.is(state.getBlock())) {
+            NetworkRegistry.getOrCreateNetwork(world, pos);
+        }
+    }
+
+    @Override
     protected BlockState updateShape(
             BlockState state,
             Direction direction,
@@ -279,6 +292,9 @@ public class PipeBlock extends BaseEntityBlock implements ProbeBehavior.Probeabl
             if (world.getBlockEntity(pos) instanceof PipeBlockEntity pipeEntity) {
                 pipeEntity.invalidateConnectionCache();
             }
+
+            // Update network membership when neighbors change
+            NetworkRegistry.getOrCreateNetwork(world, pos);
         }
         super.neighborChanged(state, world, pos, block, fromPos, notify);
     }
@@ -334,7 +350,6 @@ public class PipeBlock extends BaseEntityBlock implements ProbeBehavior.Probeabl
 
         var items = pipeEntity.getTravelingItems();
         ProbeResult.Builder builder = ProbeResult.builder("Pipe Contents");
-
         if (items.isEmpty()) {
             builder.entry("Items", "Empty", ChatFormatting.GRAY);
         } else {
