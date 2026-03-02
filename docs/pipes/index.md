@@ -19,6 +19,14 @@ Item-aware pipes that make routing decisions based on what they're transporting.
 - **[Item Filter Pipe](item-filter-pipe.md)** - Route specific items to specific destinations
 - **[Item Insertion Pipe](item-insertion-pipe.md)** - Prefer inventories with space, otherwise route to pipes
 
+## Tier 3: Network Logistics
+System-aware pipes that participate in a logistics network. These pipes communicate with each other to advertise available items, fulfill requests, and maintain stock levels automatically.
+
+- **[Basic Logistics Pipe](basic-logistics-pipe.md)** - Accept and deposit network items; the foundation for all Tier 3 pipes
+- **[Provider Logistics Pipe](provider-logistics-pipe.md)** - Advertise adjacent inventory contents and fulfill network requests
+- **[Supplier Logistics Pipe](supplier-logistics-pipe.md)** - Automatically maintain configured stock levels by requesting from the network
+- **[Requester Logistics Pipe](requester-logistics-pipe.md)** - Manually request items from the network via a browsable GUI
+
 ## See Also
 - [Pipe Networks](../core/pipe-networks.md) - Understanding how pipes connect
 - [Tier System](../core/tier-system.md) - Mechanical vs Smart vs Network tiers
