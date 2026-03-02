@@ -48,7 +48,8 @@ public class SupplierModule implements Module {
      * Based on LogisticsPipes supply modes.
      */
     public enum SupplyMode {
-        STOCKED,    // Bulk50 - only request when inventory <= 50% of target
+        BULK50,    // Bulk50 - only request when inventory <= 50% of target
+        BULK100,    // Only request when inventory is completely empty
         INFINITE,   // Request 1 stack at a time (gradual filling)
         PARTIAL,    // Request whatever is available (default)
         FULL        // Only request if full amount is available (all-or-nothing)
@@ -60,7 +61,7 @@ public class SupplierModule implements Module {
     private static final String PENDING_REQUESTS = "pending_requests"; // Track in-transit items per item type
     private static final String PREVIOUS_AMOUNTS = "previous_amounts"; // Track previous inventory amounts to detect deliveries
     private static final String MODE = "mode"; // Supply mode
-    private static final int CHECK_INTERVAL = 20; // Check inventory every 20 ticks (1 second)
+    private static final int CHECK_INTERVAL = 100;
     public static final int MAX_SUPPLY_SLOTS = 9;
 
     // TODO(Phase 11): Energy costs
@@ -269,15 +270,26 @@ public class SupplierModule implements Module {
                 }
             } else if (needed > 0) {
                 switch (mode) {
-                    case STOCKED:
+                    case BULK50:
                         // Bulk50 - only request when inventory drops to 50% or less of target
                         if (currentAmount <= config.amount() / 2) {
                             toRequest = Math.min(needed, available);
                             shouldRequest = toRequest > 0;
-                            long percentFull = config.amount() > 0 ? (currentAmount * 100) / config.amount() : 0;
                             if (shouldRequest) {
                                 LOGGER.debug("[Supplier @ {}] Stocked mode: requesting {} x{} (at {}%)",
-                                        ctx.pos(), config.itemId(), toRequest, percentFull);
+                                        ctx.pos(), config.itemId(), toRequest, (currentAmount * 100) / config.amount());
+                            }
+                        }
+                        break;
+
+                    case BULK100:
+                        // Only request when inventory is completely empty
+                        if (currentAmount == 0) {
+                            toRequest = Math.min(needed, available);
+                            shouldRequest = toRequest > 0;
+                            if (shouldRequest) {
+                                LOGGER.debug("[Supplier @ {}] Bulk100 mode: requesting {} x{} (inventory empty)",
+                                        ctx.pos(), config.itemId(), toRequest);
                             }
                         }
                         break;
