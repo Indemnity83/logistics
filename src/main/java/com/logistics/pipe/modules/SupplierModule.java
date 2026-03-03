@@ -47,11 +47,11 @@ public class SupplierModule implements Module {
      * Based on LogisticsPipes supply modes.
      */
     public enum SupplyMode {
-        BULK50,     // Bulk50 - only request when inventory <= 50% of target
-        BULK100,    // Only request when inventory is completely empty
-        INFINITE,   // Request 1 stack at a time (gradual filling)
-        PARTIAL,    // Request whatever is available (default)
-        FULL        // Only request if full amount is available (all-or-nothing)
+        BULK50,     // ordinal 0 - only request when inventory <= 50% of target
+        INFINITE,   // ordinal 1 - request 1 stack at a time (gradual filling)
+        PARTIAL,    // ordinal 2 - request whatever is available (default)
+        FULL,       // ordinal 3 - only request if full amount is available (all-or-nothing)
+        BULK100     // ordinal 4 - only request when inventory is completely empty (appended to preserve existing ordinals)
     }
 
     private static final String SUPPLIES = "supplies"; // NBT key for supply configurations

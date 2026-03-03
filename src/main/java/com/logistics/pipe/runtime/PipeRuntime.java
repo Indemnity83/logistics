@@ -377,8 +377,11 @@ public final class PipeRuntime {
 
                 if (inserted > 0) {
                     transaction.commit();
-                    // Confirm delivery when item enters a real inventory (not another pipe)
-                    if (!(storage instanceof PipeItemStorage) && item.getInTransitOrder() != null) {
+                    // Confirm delivery when item fully enters a real inventory (not another pipe).
+                    // Skip confirmation on partial insertion — the in-transit cleanup TTL will
+                    // recover orderedForRequester accounting for any dropped remainder.
+                    if (!(storage instanceof PipeItemStorage) && item.getInTransitOrder() != null
+                            && inserted == item.getStack().getCount()) {
                         PipeNetwork network = NetworkRegistry.getNetwork(world, pos);
                         if (network != null) {
                             network.confirmDelivery(item.getInTransitOrder());
