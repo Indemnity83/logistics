@@ -39,6 +39,7 @@
   ],
   "parent": "block/block",
   "textures": {
+    "particle": "logistics:block/pipe/pipe_markings",
     "texture": "logistics:block/pipe/pipe_markings"
   }
 }
