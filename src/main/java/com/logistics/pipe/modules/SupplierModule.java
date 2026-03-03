@@ -1,7 +1,7 @@
 package com.logistics.pipe.modules;
 
 import com.logistics.LogisticsPipe;
-import com.logistics.pipe.network.ItemRequest;
+import com.logistics.core.lib.network.ItemRequest;
 import com.logistics.pipe.network.NetworkRegistry;
 import com.logistics.core.lib.network.ILogisticsNetwork;
 import com.logistics.core.lib.resource.ResourceId;

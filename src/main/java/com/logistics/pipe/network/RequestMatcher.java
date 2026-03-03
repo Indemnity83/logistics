@@ -7,6 +7,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import com.logistics.core.lib.network.ItemRequest;
+import com.logistics.core.lib.network.LogisticsOrder;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.ItemStack;
@@ -177,24 +179,25 @@ public class RequestMatcher {
      * @param shippedAmount Actual amount extracted (≤ pendingOrder.amount())
      * @return The in-transit order to attach to the TravelingItem
      */
-    public LogisticsOrder markShipped(LogisticsOrder pendingOrder, long shippedAmount) {
+    public LogisticsOrder markShipped(LogisticsOrder pendingOrder, long shippedAmount, long gameTime) {
         // Remove from pending (without touching orderedForRequester)
         List<LogisticsOrder> orders = pendingOrders.get(pendingOrder.provider());
         if (orders != null) orders.remove(pendingOrder);
 
-        // Requeue remainder directly into pendingOrders (amount already counted in orderedForRequester)
+        // Requeue remainder using current gameTime so the remainder doesn't inherit a stale
+        // createdAt and get cleaned up prematurely by cleanupStaleInTransit.
         long remainder = pendingOrder.amount() - shippedAmount;
         if (remainder > 0) {
             LogisticsOrder remainderOrder = new LogisticsOrder(
                 pendingOrder.provider(), pendingOrder.requester(), pendingOrder.stack(),
-                remainder, pendingOrder.createdAt());
+                remainder, gameTime);
             pendingOrders.computeIfAbsent(pendingOrder.provider(), k -> new ArrayList<>()).add(remainderOrder);
         }
 
-        // Create in-transit record — orderedForRequester stays the same until delivery
+        // Create in-transit record with current gameTime for accurate staleness tracking
         LogisticsOrder inTransitOrder = new LogisticsOrder(
             pendingOrder.provider(), pendingOrder.requester(), pendingOrder.stack(),
-            shippedAmount, pendingOrder.createdAt());
+            shippedAmount, gameTime);
         inTransitOrders.add(inTransitOrder);
         return inTransitOrder;
     }

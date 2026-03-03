@@ -1,4 +1,4 @@
-package com.logistics.pipe.network;
+package com.logistics.core.lib.network;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.ItemStack;

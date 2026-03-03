@@ -5,8 +5,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import com.logistics.pipe.network.ItemRequest;
-import com.logistics.pipe.network.LogisticsOrder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
@@ -100,7 +98,7 @@ public interface ILogisticsNetwork {
      * @param shippedAmount Actual amount extracted (≤ order.amount())
      * @return In-transit order to attach to the TravelingItem
      */
-    LogisticsOrder markShipped(LogisticsOrder order, long shippedAmount);
+    LogisticsOrder markShipped(LogisticsOrder order, long shippedAmount, long gameTime);
 
     /**
      * Confirm physical delivery of an in-transit item to an inventory.

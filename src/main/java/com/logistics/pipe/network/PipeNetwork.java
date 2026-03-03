@@ -175,8 +175,8 @@ public class PipeNetwork implements ILogisticsNetwork {
      * Transition a pending order to in-transit when items are shipped.
      */
     @Override
-    public LogisticsOrder markShipped(LogisticsOrder order, long shippedAmount) {
-        return requestMatcher.markShipped(order, shippedAmount);
+    public LogisticsOrder markShipped(LogisticsOrder order, long shippedAmount, long gameTime) {
+        return requestMatcher.markShipped(order, shippedAmount, gameTime);
     }
 
     /**

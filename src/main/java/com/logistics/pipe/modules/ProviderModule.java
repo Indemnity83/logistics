@@ -5,7 +5,7 @@ import com.logistics.core.lib.network.ILogisticsNetwork;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.core.lib.storage.NbtCompat;
 import com.logistics.pipe.PipeContext;
-import com.logistics.pipe.network.LogisticsOrder;
+import com.logistics.core.lib.network.LogisticsOrder;
 import com.logistics.pipe.network.NetworkRegistry;
 import com.logistics.pipe.runtime.TravelingItem;
 import com.logistics.pipe.ui.ProviderScreenHandler;
@@ -443,7 +443,7 @@ public class ProviderModule implements Module {
                     order.requester()
                 );
                 // markShipped: removes pending order, requeues remainder, creates in-transit record
-                LogisticsOrder inTransitOrder = network.markShipped(order, extracted);
+                LogisticsOrder inTransitOrder = network.markShipped(order, extracted, ctx.world().getGameTime());
                 item.setInTransitOrder(inTransitOrder);
                 ctx.blockEntity().forceAddItem(item, direction);
                 transaction.commit();

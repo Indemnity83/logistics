@@ -1,6 +1,7 @@
 package com.logistics.pipe.runtime;
 
 import com.logistics.LogisticsPipe;
+import static com.logistics.LogisticsMod.LOGGER;
 import com.logistics.core.lib.block.capability.PipeConnection;
 import com.logistics.pipe.Pipe;
 import com.logistics.pipe.PipeContext;
@@ -379,7 +380,12 @@ public final class PipeRuntime {
                     // Confirm delivery when item enters a real inventory (not another pipe)
                     if (!(storage instanceof PipeItemStorage) && item.getInTransitOrder() != null) {
                         PipeNetwork network = NetworkRegistry.getNetwork(world, pos);
-                        if (network != null) network.confirmDelivery(item.getInTransitOrder());
+                        if (network != null) {
+                            network.confirmDelivery(item.getInTransitOrder());
+                        } else {
+                            LOGGER.debug("[PipeRuntime] confirmDelivery skipped at {}: no network found for {} ({})",
+                                    pos, item.getStack().getItem(), item.getInTransitOrder());
+                        }
                     }
                     if (inserted < item.getStack().getCount()) {
                         item.getStack().shrink((int) inserted);

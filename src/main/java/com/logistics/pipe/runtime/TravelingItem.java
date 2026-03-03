@@ -1,7 +1,7 @@
 package com.logistics.pipe.runtime;
 
 import com.logistics.LogisticsPipe;
-import com.logistics.pipe.network.LogisticsOrder;
+import com.logistics.core.lib.network.LogisticsOrder;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
@@ -107,7 +107,7 @@ public class TravelingItem {
     public boolean tick(float accelerationRate, float dragCoefficient, float maxSpeed) {
         speed = PHYSICS.updateSpeed(speed, progress, accelerationRate, dragCoefficient, maxSpeed);
         progress += speed;
-        if (remainingTtl > 0) remainingTtl--;
+        if (destination != null && remainingTtl > 0) remainingTtl--;
         return progress >= SERVER_EXIT_THRESHOLD;
     }
 

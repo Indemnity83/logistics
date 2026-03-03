@@ -12,6 +12,9 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
 
 public class PipeItemStorage implements Storage<ItemVariant> {
+    /** Sentinel passed to the speed-overload of acceptInsertedStack to indicate no speed override. */
+    private static final Float NO_SPEED = null;
+
     private final PipeBlockEntity pipe;
     private final Direction fromDirection;
 
@@ -35,7 +38,7 @@ public class PipeItemStorage implements Storage<ItemVariant> {
         transaction.addCloseCallback((context, result) -> {
             if (result == Result.COMMITTED) {
                 ItemStack stack = resource.toStack((int) accepted);
-                pipe.acceptInsertedStack(stack, fromDirection, (Float) null);
+                pipe.acceptInsertedStack(stack, fromDirection, NO_SPEED);
             }
         });
 
