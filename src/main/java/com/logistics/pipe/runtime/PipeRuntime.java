@@ -1,12 +1,15 @@
 package com.logistics.pipe.runtime;
 
 import com.logistics.LogisticsPipe;
+import static com.logistics.LogisticsMod.LOGGER;
 import com.logistics.core.lib.block.capability.PipeConnection;
 import com.logistics.pipe.Pipe;
 import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.block.PipeBlock;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.pipe.block.entity.PipeItemStorage;
+import com.logistics.pipe.network.NetworkRegistry;
+import com.logistics.pipe.network.PipeNetwork;
 import java.util.ArrayList;
 import java.util.List;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
@@ -206,6 +209,12 @@ public final class PipeRuntime {
      * on routing using deterministic randomness.
      */
     private static void routeItem(TickContext ctx, TravelingItem item, ItemTickState itemState) {
+        // TTL expiry: if the item has been traveling too long, release its destination so it
+        // falls back to default routing rather than being stuck forever.
+        if (ctx.isServer() && item.isExpired() && item.getDestination() != null) {
+            item.setDestination(null);
+            item.setInTransitOrder(null); // release ref; accounting cleaned by cleanupStaleInTransit
+        }
         RoutePlan plan = resolveRoutePlan(ctx, item);
         executeRoutePlan(ctx, item, plan, itemState);
     }
@@ -368,6 +377,19 @@ public final class PipeRuntime {
 
                 if (inserted > 0) {
                     transaction.commit();
+                    // Confirm delivery when item fully enters a real inventory (not another pipe).
+                    // Skip confirmation on partial insertion — the in-transit cleanup TTL will
+                    // recover orderedForRequester accounting for any dropped remainder.
+                    if (!(storage instanceof PipeItemStorage) && item.getInTransitOrder() != null
+                            && inserted == item.getStack().getCount()) {
+                        PipeNetwork network = NetworkRegistry.getNetwork(world, pos);
+                        if (network != null) {
+                            network.confirmDelivery(item.getInTransitOrder());
+                        } else {
+                            LOGGER.debug("[PipeRuntime] confirmDelivery skipped at {}: no network found for {} ({})",
+                                    pos, item.getStack().getItem(), item.getInTransitOrder());
+                        }
+                    }
                     if (inserted < item.getStack().getCount()) {
                         item.getStack().shrink((int) inserted);
                         PipeBlockEntity.dropItem(world, pos, item);
