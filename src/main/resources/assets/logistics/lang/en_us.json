@@ -115,5 +115,14 @@
   "block.logistics.power.creative_engine": "Creative Engine",
   "block.logistics.power.creative_sink": "Creative Sink",
   "message.logistics.power.creative_sink.drain_rate": "Creative Sink: %s RF/t",
-  "message.logistics.power.creative_engine.output": "Creative Engine: %s RF/t"
+  "message.logistics.power.creative_engine.output": "Creative Engine: %s RF/t",
+  "tag.item.c.ingots.tin": "Tin Ingots",
+  "tag.item.c.ingots.bronze": "Bronze Ingots",
+  "tag.item.c.nuggets.tin": "Tin Nuggets",
+  "tag.item.c.nuggets.bronze": "Bronze Nuggets",
+  "tag.item.c.ores.tin": "Tin Ores",
+  "tag.item.c.raw_materials.tin": "Raw Tin",
+  "tag.item.c.storage_blocks.tin": "Blocks of Tin",
+  "tag.item.c.storage_blocks.raw_tin": "Blocks of Raw Tin",
+  "tag.item.c.storage_blocks.bronze": "Blocks of Bronze"
 }
