@@ -7,7 +7,7 @@ import com.logistics.core.lib.storage.DirectionSerializer;
 import com.logistics.core.lib.storage.NbtCompat;
 import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
-import com.logistics.pipe.network.ItemRequest;
+import com.logistics.core.lib.network.ItemRequest;
 import com.logistics.pipe.network.NetworkRegistry;
 import com.logistics.pipe.ui.RequesterScreenHandler;
 import net.minecraft.core.BlockPos;
