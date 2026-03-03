@@ -1,4 +1,5 @@
 {
+  "schemaVersion": 1,
   "authors": ["Kyle Klaus (@indemnity83)"],
   "contributors": ["Malcolm Riley (textures, CC BY 4.0)"],
   "contact": {
@@ -23,7 +24,6 @@
   "license": "MIT",
   "mixins": ["logistics.mixins.json"],
   "name": "Logistics",
-  "schemaVersion": 1,
   "suggests": {},
   "version": "${version}"
 }
