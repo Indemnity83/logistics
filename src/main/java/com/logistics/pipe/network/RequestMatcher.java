@@ -207,12 +207,14 @@ public class RequestMatcher {
      * Decrements orderedForRequester so the supplier knows stock has arrived.
      */
     public void confirmDelivery(LogisticsOrder inTransitOrder) {
-        inTransitOrders.remove(inTransitOrder);
-        Map<ItemVariant, Long> requesterMap = orderedForRequester.get(inTransitOrder.requester());
-        if (requesterMap != null) {
-            ItemVariant variant = ItemVariant.of(inTransitOrder.stack());
-            long remaining = requesterMap.merge(variant, -inTransitOrder.amount(), Long::sum);
-            if (remaining <= 0) requesterMap.remove(variant);
+        boolean removed = inTransitOrders.remove(inTransitOrder);
+        if (removed) {
+            Map<ItemVariant, Long> requesterMap = orderedForRequester.get(inTransitOrder.requester());
+            if (requesterMap != null) {
+                ItemVariant variant = ItemVariant.of(inTransitOrder.stack());
+                long remaining = requesterMap.merge(variant, -inTransitOrder.amount(), Long::sum);
+                if (remaining <= 0) requesterMap.remove(variant);
+            }
         }
     }
 
