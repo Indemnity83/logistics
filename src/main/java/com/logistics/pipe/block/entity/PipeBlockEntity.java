@@ -162,7 +162,7 @@ public class PipeBlockEntity extends BaseBlockEntity
 
         ItemStack acceptedStack = item.getStack().copy();
         acceptedStack.setCount((int) accepted);
-        acceptInsertedStack(acceptedStack, fromDirection, item.getSpeed(), item.getDestination());
+        acceptInsertedStack(acceptedStack, fromDirection, item);
 
         if (remainder != null) {
             dropItemInWorld(remainder);
@@ -475,6 +475,23 @@ public class PipeBlockEntity extends BaseBlockEntity
         travelingItems.add(newItem);
         // Note: Per-item sync matches pre-refactoring behavior. Could potentially be
         // batched at tick boundaries for high-throughput pipes, but unchanged for now.
+        markDirtyAndSync();
+    }
+
+    /**
+     * Accept an item from a pipe-to-pipe transfer, preserving transient state (inTransitOrder, remainingTtl).
+     * Used when routing items between pipes so that in-transit accounting and TTL are not lost.
+     */
+    void acceptInsertedStack(ItemStack stack, Direction fromDirection, TravelingItem source) {
+        if (stack.isEmpty()) {
+            return;
+        }
+
+        float speed = source.getSpeed();
+        TravelingItem newItem = new TravelingItem(stack, fromDirection.getOpposite(), speed, source.getDestination());
+        newItem.setInTransitOrder(source.getInTransitOrder());
+        newItem.setRemainingTtl(source.getRemainingTtl());
+        travelingItems.add(newItem);
         markDirtyAndSync();
     }
 

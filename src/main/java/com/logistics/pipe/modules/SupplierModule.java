@@ -1,7 +1,7 @@
 package com.logistics.pipe.modules;
 
 import com.logistics.LogisticsPipe;
-import com.logistics.pipe.network.ItemRequest;
+import com.logistics.core.lib.network.ItemRequest;
 import com.logistics.pipe.network.NetworkRegistry;
 import com.logistics.core.lib.network.ILogisticsNetwork;
 import com.logistics.core.lib.resource.ResourceId;
@@ -48,19 +48,18 @@ public class SupplierModule implements Module {
      * Based on LogisticsPipes supply modes.
      */
     public enum SupplyMode {
-        STOCKED,    // Bulk50 - only request when inventory <= 50% of target
-        INFINITE,   // Request 1 stack at a time (gradual filling)
-        PARTIAL,    // Request whatever is available (default)
-        FULL        // Only request if full amount is available (all-or-nothing)
+        BULK50,     // ordinal 0 - only request when inventory <= 50% of target
+        INFINITE,   // ordinal 1 - request 1 stack at a time (gradual filling)
+        PARTIAL,    // ordinal 2 - request whatever is available (default)
+        FULL,       // ordinal 3 - only request if full amount is available (all-or-nothing)
+        BULK100     // ordinal 4 - only request when inventory is completely empty (appended to preserve existing ordinals)
     }
 
     private static final String SUPPLIES = "supplies"; // NBT key for supply configurations
     private static final String SUPPLIER_DIRECTION = "supplier_direction";
     private static final String TICKS_SINCE_CHECK = "ticks_since_check";
-    private static final String PENDING_REQUESTS = "pending_requests"; // Track in-transit items per item type
-    private static final String PREVIOUS_AMOUNTS = "previous_amounts"; // Track previous inventory amounts to detect deliveries
     private static final String MODE = "mode"; // Supply mode
-    private static final int CHECK_INTERVAL = 20; // Check inventory every 20 ticks (1 second)
+    private static final int CHECK_INTERVAL = 100;
     public static final int MAX_SUPPLY_SLOTS = 9;
 
     // TODO(Phase 11): Energy costs
@@ -151,196 +150,90 @@ public class SupplierModule implements Module {
 
     /**
      * Check inventory levels and request items to maintain stock levels.
-     * Tracks pending requests per item type to avoid duplicates while allowing
-     * multiple different items to be requested simultaneously.
+     * Uses network order tracking for pending amounts — accurate even when items
+     * are consumed immediately (e.g. furnace input), avoiding NBT drift.
      */
     private void checkAndSupply(PipeContext ctx) {
-        // Ensure this pipe is part of a network (creates/joins on first tick after load)
         ILogisticsNetwork network = NetworkRegistry.getOrCreateNetwork(ctx.world(), ctx.pos());
-        if (network == null) {
-            return;
-        }
+        if (network == null) return;
 
         Direction supplierDir = getSupplierDirection(ctx);
-        if (supplierDir == null) {
-            return;
-        }
-
-        // TODO(Phase 11): Check energy availability
-        // if (ctx.getEnergy() < RF_PER_ITEM) return;
+        if (supplierDir == null) return;
 
         List<SupplyConfig> configs = getSupplyConfigs(ctx);
-        if (configs.isEmpty()) {
-            return;
-        }
+        if (configs.isEmpty()) return;
 
-        LOGGER.debug("[Supplier @ {}] Scanning inventory (direction: {})", ctx.pos(), supplierDir);
-
-        // Load pending requests and decrement timeouts
-        CompoundTag pending = ctx.getCompoundTag(this, PENDING_REQUESTS);
-        decrementAndCleanupPending(pending);
-
-        // Get current inventory contents
         Map<ItemStack, Long> currentStock = scanInventory(ctx, supplierDir);
-
-        // Load previous inventory amounts to detect deliveries
-        CompoundTag previousAmounts = ctx.getCompoundTag(this, PREVIOUS_AMOUNTS);
-
-        // Get current mode
         SupplyMode mode = getMode(ctx);
 
-        // Check each configured supply and create requests for missing items
         for (SupplyConfig config : configs) {
-            if (config.itemId().isEmpty() || config.amount() <= 0) {
-                continue;
-            }
+            if (config.itemId().isEmpty() || config.amount() <= 0) continue;
 
-            // Parse item from ID
             ResourceId itemId = ResourceId.tryParse(config.itemId());
             if (itemId == null) {
                 continue;
             }
             // MC 1.21.1: get() returns Item directly, not Optional<Holder<Item>>
-            Item item = BuiltInRegistries.ITEM.get(itemId.toIdentifier());
-            if (item == null) {
+            Item itemHolder = BuiltInRegistries.ITEM.get(itemId.toIdentifier());
+            if (itemHolder == null) {
                 continue;
             }
 
-            ItemStack stack = new ItemStack(item);
+            ItemStack stack = new ItemStack(itemHolder);
             long currentAmount = getCurrentAmount(currentStock, stack);
 
-            // Get pending amount for this item (items currently in transit)
-            long pendingAmount = getPendingAmount(pending, config.itemId());
+            // Ask the network how many items are still in pending orders for us.
+            // This drops to 0 as soon as the provider ships, so fast-consuming inventories
+            // (furnaces) are handled correctly without any NBT drift.
+            long pendingAmount = network.getOrderedAmountFor(ctx.pos(), stack);
 
-            // Detect deliveries by comparing to previous amount.
-            // Limitation: if items are manually removed from the inventory in the same tick that
-            // a delivery arrives, the net change may be zero or negative and the delivery goes
-            // undetected. This leaves pendingAmount inflated until ORDER_TTL expires and clears
-            // it. A proper fix would require delivery receipts (a callback when the item reaches
-            // its destination), which is tracked for a future phase.
-            long previousAmount = NbtCompat.getLong(previousAmounts, config.itemId(), 0);
-
-            if (currentAmount > previousAmount && pendingAmount > 0) {
-                // Items were delivered - decrement pending by the amount delivered
-                long delivered = currentAmount - previousAmount;
-                long newPending = Math.max(0, pendingAmount - delivered);
-
-                if (newPending == 0) {
-                    pending.remove(config.itemId());
-                    LOGGER.debug("[Supplier @ {}] Delivery confirmed for {}: received {} (pending cleared)",
-                            ctx.pos(), config.itemId(), delivered);
-                } else {
-                    CompoundTag itemPending = NbtCompat.getCompoundOrEmpty(pending, config.itemId());
-                    itemPending.putLong("amount", newPending);
-                    pending.put(config.itemId(), itemPending);
-                    LOGGER.debug("[Supplier @ {}] Delivery confirmed for {}: received {} (pending: {} -> {})",
-                            ctx.pos(), config.itemId(), delivered, pendingAmount, newPending);
-                }
-
-                pendingAmount = newPending;
-            }
-
-            // Update previous amount for next tick
-            previousAmounts.putLong(config.itemId(), currentAmount);
-
-            // Calculate actual need: target - current - pending
             long needed = config.amount() - currentAmount - pendingAmount;
 
             LOGGER.debug("[Supplier @ {}] Checking {} (mode {}): target={}, current={}, pending={}, needed={}",
                     ctx.pos(), config.itemId(), mode, config.amount(), currentAmount, pendingAmount, needed);
 
-            // Mode-specific request logic
+            long available = network.getAvailableAmount(stack);
             boolean shouldRequest = false;
             long toRequest = 0;
-            long available = network.getAvailableAmount(stack);
 
-            // Infinite mode ignores target and just fills available space
             if (mode == SupplyMode.INFINITE) {
                 long availableSpace = getAvailableSpace(ctx, supplierDir, stack);
                 long spaceToFill = availableSpace - pendingAmount;
                 if (spaceToFill > 0) {
-                    int maxStackSize = stack.getMaxStackSize();
-                    toRequest = Math.min(Math.min(maxStackSize, spaceToFill), available);
+                    toRequest = Math.min(Math.min(stack.getMaxStackSize(), spaceToFill), available);
                     shouldRequest = toRequest > 0;
-                    if (shouldRequest) {
-                        LOGGER.debug("[Supplier @ {}] Infinite mode: requesting {} x{} (space available: {}, 1 stack at a time)",
-                                ctx.pos(), config.itemId(), toRequest, availableSpace);
-                    }
                 }
             } else if (needed > 0) {
                 switch (mode) {
-                    case STOCKED:
-                        // Bulk50 - only request when inventory drops to 50% or less of target
+                    case BULK50:
                         if (currentAmount <= config.amount() / 2) {
                             toRequest = Math.min(needed, available);
                             shouldRequest = toRequest > 0;
-                            long percentFull = config.amount() > 0 ? (currentAmount * 100) / config.amount() : 0;
-                            if (shouldRequest) {
-                                LOGGER.debug("[Supplier @ {}] Stocked mode: requesting {} x{} (at {}%)",
-                                        ctx.pos(), config.itemId(), toRequest, percentFull);
-                            }
                         }
                         break;
-
+                    case BULK100:
+                        if (currentAmount == 0) {
+                            toRequest = Math.min(needed, available);
+                            shouldRequest = toRequest > 0;
+                        }
+                        break;
                     case FULL:
-                        // Only request if the full needed amount is available
                         if (available >= needed) {
                             toRequest = needed;
                             shouldRequest = true;
-                            LOGGER.debug("[Supplier @ {}] Full mode: requesting {} x{} (full amount available)",
-                                    ctx.pos(), config.itemId(), toRequest);
-                        } else {
-                            LOGGER.debug("[Supplier @ {}] Full mode: need {} x{} but only {} available, waiting",
-                                    ctx.pos(), config.itemId(), needed, available);
                         }
                         break;
-
                     case PARTIAL:
                     default:
-                        // Request whatever is available (original behavior)
                         toRequest = Math.min(needed, available);
                         shouldRequest = toRequest > 0;
-                        if (shouldRequest) {
-                            LOGGER.debug("[Supplier @ {}] Partial mode: requesting {} x{} from network (available: {})",
-                                    ctx.pos(), config.itemId(), toRequest, available);
-                        }
                         break;
                 }
             }
 
-            // Create request if mode logic approved it
             if (shouldRequest) {
-                ItemRequest request = new ItemRequest(
-                    ctx.pos(),
-                    stack,
-                    toRequest,
-                    ctx.world().getGameTime()
-                );
-                network.addRequest(request);
-
-                // Track this request as pending with timeout
-                addPendingRequest(pending, config.itemId(), toRequest);
-
-                // TODO(Phase 11): Consume energy
-                // ctx.setEnergy(ctx.getEnergy() - (toRequest * RF_PER_ITEM));
-            } else if (needed > 0 && available == 0) {
-                LOGGER.debug("[Supplier @ {}] Need {} x{} but NONE available in network!",
-                        ctx.pos(), config.itemId(), needed);
+                network.addRequest(new ItemRequest(ctx.pos(), stack, toRequest, ctx.world().getGameTime()));
             }
-        }
-
-        // Save updated pending requests
-        if (!pending.isEmpty()) {
-            ctx.putCompoundTag(this, PENDING_REQUESTS, pending);
-        } else {
-            ctx.remove(this, PENDING_REQUESTS);
-        }
-
-        // Save previous inventory amounts for next tick's delivery detection
-        if (!previousAmounts.isEmpty()) {
-            ctx.putCompoundTag(this, PREVIOUS_AMOUNTS, previousAmounts);
-        } else {
-            ctx.remove(this, PREVIOUS_AMOUNTS);
         }
     }
 
@@ -431,65 +324,6 @@ public class SupplierModule implements Module {
             }
         }
         return 0;
-    }
-
-    /**
-     * Get pending amount for a specific item (items in transit).
-     */
-    private long getPendingAmount(CompoundTag pending, String itemId) {
-        if (!pending.contains(itemId)) {
-            return 0;
-        }
-        CompoundTag entry = NbtCompat.getCompoundOrEmpty(pending, itemId);
-        return NbtCompat.getLong(entry, "amount", 0);
-    }
-
-    /**
-     * Add a pending request for tracking with a fresh timeout.
-     */
-    private void addPendingRequest(CompoundTag pending, String itemId, long amount) {
-        CompoundTag entry = new CompoundTag();
-
-        // Add to existing pending amount if there is one
-        long existing = getPendingAmount(pending, itemId);
-        entry.putLong("amount", existing + amount);
-
-        // Reset timeout to full duration when adding new request
-        entry.putInt("ticksRemaining", LogisticsPipe.CONFIG.ORDER_TTL);
-
-        pending.put(itemId, entry);
-    }
-
-    /**
-     * Decrement timeouts and clean up expired pending requests.
-     * Called every CHECK_INTERVAL ticks (1 second).
-     */
-    private void decrementAndCleanupPending(CompoundTag pending) {
-        List<String> toRemove = new ArrayList<>();
-
-        // MC 1.21.1: CompoundTag uses getAllKeys() instead of keySet()
-        for (String key : pending.getAllKeys()) {
-            CompoundTag entry = NbtCompat.getCompoundOrEmpty(pending, key);
-            int ticksRemaining = NbtCompat.getInt(entry, "ticksRemaining", 0);
-            long pendingAmount = NbtCompat.getLong(entry, "amount", 0);
-
-            // Decrement by CHECK_INTERVAL (amount of time since last check)
-            ticksRemaining -= CHECK_INTERVAL;
-
-            if (ticksRemaining <= 0) {
-                // Timeout expired - item assumed lost in transit
-                LOGGER.warn("[Supplier] Pending timeout expired for {}: {} items lost in transit",
-                        key, pendingAmount);
-                toRemove.add(key);
-            } else {
-                // Update remaining ticks
-                entry.putInt("ticksRemaining", ticksRemaining);
-            }
-        }
-
-        for (String key : toRemove) {
-            pending.remove(key);
-        }
     }
 
     /**

@@ -56,10 +56,11 @@ public class SupplierScreen extends AbstractContainerScreen<SupplierScreenHandle
 
     private String getModeName(int mode) {
         return switch (mode) {
-            case 0 -> "gui.logistics.mode.stocked";
-            case 1 -> "gui.logistics.mode.infinite";
-            case 2 -> "gui.logistics.mode.partial";
-            case 3 -> "gui.logistics.mode.full";
+            case 0 -> "gui.logistics.mode.bulk50";
+            case 1 -> "gui.logistics.mode.bulk100";
+            case 2 -> "gui.logistics.mode.infinite";
+            case 3 -> "gui.logistics.mode.partial";
+            case 4 -> "gui.logistics.mode.full";
             default -> "gui.logistics.mode.partial";
         };
     }

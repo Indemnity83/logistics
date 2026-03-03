@@ -2,6 +2,8 @@ package com.logistics.pipe.network;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.logistics.core.lib.network.ItemRequest;
+import com.logistics.core.lib.network.LogisticsOrder;
 import com.logistics.test.MinecraftTestEnvironment;
 import java.util.HashMap;
 import java.util.List;
