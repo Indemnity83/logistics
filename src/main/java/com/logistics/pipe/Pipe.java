@@ -291,11 +291,34 @@ public class Pipe {
         return RoutePlan.pass();
     }
 
+    /**
+     * Give modules a chance to handle transfer of a TravelingItem into an adjacent non-pipe
+     * storage. Returns null if a module fully handled the transfer (PipeRuntime skips generic
+     * insertion), or the item (possibly modified) if no module handled it.
+     */
+    @Nullable
+    public TravelingItem handleTransfer(PipeContext ctx, TravelingItem item, Direction direction) {
+        TravelingItem current = item;
+        for (Module module : modules) {
+            current = module.onTransferToStorage(ctx, current, direction);
+            if (current == null) return null;
+        }
+        return current;
+    }
+
     public boolean canAcceptFrom(PipeContext ctx, Direction from, net.minecraft.world.item.ItemStack stack) {
         // Default behavior: pipes only accept items from other pipes (not from inventories/hoppers)
         // This prevents free automation and preserves the extraction energy cost
         if (!ctx.isNeighborPipe(from)) {
-            return false;
+            // Allow non-pipe insertion if any module explicitly permits it
+            boolean allowed = false;
+            for (Module module : modules) {
+                if (module.canAcceptFromNonPipe(ctx, from)) {
+                    allowed = true;
+                    break;
+                }
+            }
+            if (!allowed) return false;
         }
 
         // Check all modules for additional acceptance criteria

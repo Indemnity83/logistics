@@ -107,7 +107,8 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
                 BLOCK.BASIC_LOGISTICS_PIPE,
                 BLOCK.PROVIDER_LOGISTICS_PIPE,
                 BLOCK.REQUESTER_LOGISTICS_PIPE,
-                BLOCK.SUPPLIER_LOGISTICS_PIPE
+                BLOCK.SUPPLIER_LOGISTICS_PIPE,
+                BLOCK.CRAFTING_LOGISTICS_PIPE
         );
     }
 
@@ -127,6 +128,7 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
         public static Block PROVIDER_LOGISTICS_PIPE;
         public static Block REQUESTER_LOGISTICS_PIPE;
         public static Block SUPPLIER_LOGISTICS_PIPE;
+        public static Block CRAFTING_LOGISTICS_PIPE;
 
         static void register() {
             STONE_TRANSPORT_PIPE = INSTANCE.registerBlockWithItem("stone_transport_pipe",
@@ -156,6 +158,8 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
                 props -> new PipeBlock(createPipeProperties(props), PipeTypes.REQUESTER_LOGISTICS_PIPE));
             SUPPLIER_LOGISTICS_PIPE = INSTANCE.registerBlockWithItem("supplier_logistics_pipe",
                 props -> new PipeBlock(createPipeProperties(props), PipeTypes.SUPPLIER_LOGISTICS_PIPE));
+            CRAFTING_LOGISTICS_PIPE = INSTANCE.registerBlockWithItem("crafting_logistics_pipe",
+                props -> new PipeBlock(createPipeProperties(props), PipeTypes.CRAFTING_LOGISTICS_PIPE));
         }
     }
 
@@ -179,7 +183,8 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
                 BLOCK.BASIC_LOGISTICS_PIPE,
                 BLOCK.PROVIDER_LOGISTICS_PIPE,
                 BLOCK.REQUESTER_LOGISTICS_PIPE,
-                BLOCK.SUPPLIER_LOGISTICS_PIPE);
+                BLOCK.SUPPLIER_LOGISTICS_PIPE,
+                BLOCK.CRAFTING_LOGISTICS_PIPE);
         }
     }
 
@@ -238,6 +243,7 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
         public static MenuType<com.logistics.pipe.ui.SupplierScreenHandler> SUPPLIER;
         public static MenuType<com.logistics.pipe.ui.ProviderScreenHandler> PROVIDER;
         public static MenuType<com.logistics.pipe.ui.SinkScreenHandler> SINK;
+        public static MenuType<com.logistics.pipe.ui.CraftingScreenHandler> CRAFTING;
 
         private SCREEN() {}
 
@@ -262,6 +268,10 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
                     BuiltInRegistries.MENU,
                     LogisticsPipe.resource("sink").toIdentifier(),
                     new MenuType<>(com.logistics.pipe.ui.SinkScreenHandler::new, FeatureFlagSet.of()));
+            CRAFTING = Registry.register(
+                    BuiltInRegistries.MENU,
+                    LogisticsPipe.resource("crafting").toIdentifier(),
+                    new MenuType<>(com.logistics.pipe.ui.CraftingScreenHandler::new, FeatureFlagSet.of()));
         }
     }
 

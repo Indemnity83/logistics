@@ -33,6 +33,24 @@ public interface ILogisticsNetwork {
     void updateProviderCache(BlockPos pos, Map<ItemStack, Long> items, long gameTime);
 
     /**
+     * Update the crafter cache for a crafting pipe position.
+     * Advertises craftable items as available in the network.
+     *
+     * @param pos Position of the crafting pipe
+     * @param craftableItems Items this pipe can craft (typically Long.MAX_VALUE per item)
+     * @param gameTime Current game time for staleness tracking
+     */
+    void updateCrafterCache(BlockPos pos, Map<ItemStack, Long> craftableItems, long gameTime);
+
+    /**
+     * Check if a position is registered as a crafting provider.
+     *
+     * @param pos Position to check
+     * @return true if position has an active crafter cache
+     */
+    boolean isCraftingProvider(BlockPos pos);
+
+    /**
      * Get the total available amount of an item across all providers.
      *
      * @param stack Item to query

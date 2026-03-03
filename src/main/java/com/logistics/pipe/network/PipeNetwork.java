@@ -77,6 +77,7 @@ public class PipeNetwork implements ILogisticsNetwork {
     public void removePipe(BlockPos pos) {
         graph.removeNode(pos);
         requestMatcher.removeProviderCache(pos);
+        requestMatcher.removeCrafterCache(pos);
         requestMatcher.removeOrdersFor(pos);
         defaultRouteSinks.remove(pos);
         sinkPriorities.remove(pos);
@@ -115,6 +116,22 @@ public class PipeNetwork implements ILogisticsNetwork {
     @Override
     public void updateProviderCache(BlockPos pos, Map<ItemStack, Long> items, long gameTime) {
         requestMatcher.updateProviderCache(pos, items, gameTime);
+    }
+
+    /**
+     * Update crafter cache for a crafting pipe position.
+     */
+    @Override
+    public void updateCrafterCache(BlockPos pos, Map<ItemStack, Long> items, long gameTime) {
+        requestMatcher.updateCrafterCache(pos, items, gameTime);
+    }
+
+    /**
+     * Check if a position is a registered crafting provider.
+     */
+    @Override
+    public boolean isCraftingProvider(BlockPos pos) {
+        return requestMatcher.isCraftingProvider(pos);
     }
 
     /**

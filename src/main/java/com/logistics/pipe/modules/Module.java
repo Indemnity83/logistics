@@ -5,8 +5,10 @@ import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.pipe.Pipe;
 import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.runtime.RoutePlan;
+import com.logistics.pipe.runtime.TravelingItem;
 import java.util.List;
 import net.minecraft.core.Direction;
+import org.jetbrains.annotations.Nullable;
 import net.minecraft.core.component.DataComponentGetter;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.util.RandomSource;
@@ -32,12 +34,46 @@ public interface Module {
         return LogisticsPipe.CONFIG.PIPE_MAX_SPEED;
     }
 
-    default RoutePlan route(PipeContext ctx, com.logistics.pipe.runtime.TravelingItem item, List<Direction> options) {
+    default RoutePlan route(PipeContext ctx, TravelingItem item, List<Direction> options) {
         return RoutePlan.pass();
+    }
+
+    /**
+     * Called when a TravelingItem is about to exit this pipe into an adjacent non-pipe storage
+     * (at SERVER_EXIT_THRESHOLD), before the default generic {@code storage.insert()} runs.
+     *
+     * <p>Return {@code null} if the module fully handled the transfer (item consumed). PipeRuntime
+     * will not perform any further insertion. The module is responsible for calling
+     * {@code network.confirmDelivery()} if needed.
+     *
+     * <p>Return the item (or a modified copy with a reduced count) if the module did not handle
+     * it — PipeRuntime will perform the default generic insertion on whatever is returned.
+     *
+     * @param ctx       the pipe context
+     * @param item      the traveling item being transferred
+     * @param direction the direction the item is exiting (toward the storage)
+     * @return null if fully handled, or the item (possibly with reduced count) to fall through
+     */
+    @Nullable
+    default TravelingItem onTransferToStorage(PipeContext ctx, TravelingItem item, Direction direction) {
+        return item;
     }
 
     default boolean canAcceptFrom(PipeContext ctx, Direction from, ItemStack stack) {
         return true;
+    }
+
+    /**
+     * Return true to allow item insertion from a non-pipe neighbor in the given direction.
+     * By default, Pipe.canAcceptFrom blocks all non-pipe insertion.
+     * Override this to allow specific non-pipe neighbors (e.g., autocrafters) to push items in.
+     *
+     * @param ctx the pipe context
+     * @param from direction items are coming from
+     * @return true if non-pipe insertion from this direction should be allowed
+     */
+    default boolean canAcceptFromNonPipe(PipeContext ctx, Direction from) {
+        return false;
     }
 
     default void onConnectionsChanged(PipeContext ctx, List<Direction> options) {}

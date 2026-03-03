@@ -75,6 +75,7 @@ public class NetworkItemButton extends AbstractWidget {
     }
 
     private String formatAmount(long amount) {
+        if (amount == Long.MAX_VALUE) return "*";
         if (amount >= 1_000_000) {
             long millions = amount / 1_000_000;
             long tenths = (amount % 1_000_000) / 100_000;

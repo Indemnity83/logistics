@@ -29,6 +29,7 @@ public class RequestMatcher {
     private static final int IN_TRANSIT_CLEANUP_TTL = 1200; // 60 seconds
 
     private final Map<BlockPos, ProviderCache> providerCaches = new HashMap<>();
+    private final Map<BlockPos, ProviderCache> crafterCaches = new HashMap<>();
     private final List<ItemRequest> pendingRequests = new ArrayList<>();
     private final Map<BlockPos, List<LogisticsOrder>> pendingOrders = new HashMap<>();
     private final Map<BlockPos, Map<ItemVariant, Long>> orderedForRequester = new HashMap<>();
@@ -49,12 +50,40 @@ public class RequestMatcher {
     }
 
     /**
-     * Get available amount of an item across all providers.
+     * Update crafter cache for a crafting pipe position.
+     */
+    public void updateCrafterCache(BlockPos pos, Map<ItemStack, Long> items, long gameTime) {
+        crafterCaches.computeIfAbsent(pos, k -> new ProviderCache()).update(items, gameTime);
+    }
+
+    /**
+     * Remove crafter cache for a position (when crafting pipe is removed).
+     */
+    public void removeCrafterCache(BlockPos pos) {
+        crafterCaches.remove(pos);
+    }
+
+    /**
+     * Check if a position has an active crafter cache.
+     */
+    public boolean isCraftingProvider(BlockPos pos) {
+        return crafterCaches.containsKey(pos);
+    }
+
+    /**
+     * Get available amount of an item across all providers and crafters.
      */
     public long getAvailableAmount(ItemStack stack) {
         long total = 0;
         for (ProviderCache cache : providerCaches.values()) {
             total += cache.getAvailableAmount(stack);
+        }
+        for (ProviderCache cache : crafterCaches.values()) {
+            long crafterAmount = cache.getAvailableAmount(stack);
+            // Crafter caches advertise Long.MAX_VALUE; cap to avoid overflow
+            if (crafterAmount > 0) {
+                return Long.MAX_VALUE;
+            }
         }
         return total;
     }
@@ -71,6 +100,14 @@ public class RequestMatcher {
                     aggregated.merge(variant, amount, Long::sum));
         }
 
+        for (ProviderCache cache : crafterCaches.values()) {
+            cache.getAvailableVariants().forEach((variant, amount) -> {
+                if (amount > 0) {
+                    aggregated.merge(variant, Long.MAX_VALUE, (a, b) -> Long.MAX_VALUE);
+                }
+            });
+        }
+
         Map<ItemStack, Long> result = new HashMap<>(aggregated.size());
         for (Map.Entry<ItemVariant, Long> entry : aggregated.entrySet()) {
             result.put(entry.getKey().toStack(1), entry.getValue());
@@ -81,6 +118,7 @@ public class RequestMatcher {
     /**
      * Find provider position that has the requested item.
      * Skips stale caches (providers that have not updated recently).
+     * Checks crafterCaches when providerCaches yields nothing.
      * Returns null if no active provider has sufficient quantity.
      */
     @Nullable
@@ -90,6 +128,15 @@ public class RequestMatcher {
                 continue;
             }
             if (entry.getValue().getAvailableAmount(stack) >= amount) {
+                return entry.getKey();
+            }
+        }
+        // Fall back to crafter caches
+        for (Map.Entry<BlockPos, ProviderCache> entry : crafterCaches.entrySet()) {
+            if (entry.getValue().isStale(gameTime, CACHE_MAX_AGE_TICKS)) {
+                continue;
+            }
+            if (entry.getValue().getAvailableAmount(stack) > 0) {
                 return entry.getKey();
             }
         }
@@ -280,6 +327,7 @@ public class RequestMatcher {
      */
     public void merge(RequestMatcher other) {
         providerCaches.putAll(other.providerCaches);
+        crafterCaches.putAll(other.crafterCaches);
         pendingRequests.addAll(other.pendingRequests);
         inTransitOrders.addAll(other.inTransitOrders);
 
