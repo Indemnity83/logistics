@@ -143,6 +143,19 @@ public class PipeNetwork implements ILogisticsNetwork {
     }
 
     /**
+     * Add an order for a provider to fulfill.
+     */
+    @Override
+    public void addOrder(LogisticsOrder order) {
+        requestMatcher.addOrder(order);
+    }
+
+    @Override
+    public long getOrderedAmountFor(BlockPos requester, ItemStack stack) {
+        return requestMatcher.getOrderedAmountFor(requester, net.fabricmc.fabric.api.transfer.v1.item.ItemVariant.of(stack));
+    }
+
+    /**
      * Get pending orders for a specific provider.
      */
     @Override
@@ -159,10 +172,27 @@ public class PipeNetwork implements ILogisticsNetwork {
     }
 
     /**
-     * Tick the network (process requests).
+     * Transition a pending order to in-transit when items are shipped.
+     */
+    @Override
+    public LogisticsOrder markShipped(LogisticsOrder order, long shippedAmount) {
+        return requestMatcher.markShipped(order, shippedAmount);
+    }
+
+    /**
+     * Confirm physical delivery of an in-transit item to an inventory.
+     */
+    @Override
+    public void confirmDelivery(LogisticsOrder order) {
+        requestMatcher.confirmDelivery(order);
+    }
+
+    /**
+     * Tick the network (process requests and clean up stale in-transit orders).
      */
     public void tick(long gameTime) {
         requestMatcher.processRequests(gameTime);
+        requestMatcher.cleanupStaleInTransit(gameTime);
     }
 
     /**

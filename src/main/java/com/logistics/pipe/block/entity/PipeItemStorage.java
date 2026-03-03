@@ -35,7 +35,7 @@ public class PipeItemStorage implements Storage<ItemVariant> {
         transaction.addCloseCallback((context, result) -> {
             if (result == Result.COMMITTED) {
                 ItemStack stack = resource.toStack((int) accepted);
-                pipe.acceptInsertedStack(stack, fromDirection, null);
+                pipe.acceptInsertedStack(stack, fromDirection, (Float) null);
             }
         });
 
@@ -52,13 +52,14 @@ public class PipeItemStorage implements Storage<ItemVariant> {
             return 0;
         }
 
-        float speed = item.getSpeed();
         ItemStack stack = item.getStack().copy();
         stack.setCount((int) accepted);
 
+        // Capture item reference so the close-callback can propagate transient state
+        // (inTransitOrder, remainingTtl) to the new TravelingItem in the next pipe.
         transaction.addCloseCallback((context, result) -> {
             if (result == Result.COMMITTED) {
-                pipe.acceptInsertedStack(stack, fromDirection, speed, item.getDestination());
+                pipe.acceptInsertedStack(stack, fromDirection, item);
             }
         });
 

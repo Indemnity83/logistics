@@ -59,6 +59,23 @@ public interface ILogisticsNetwork {
     void addRequest(ItemRequest request);
 
     /**
+     * Add an order for a provider to fulfill.
+     *
+     * @param order Order to add
+     */
+    void addOrder(LogisticsOrder order);
+
+    /**
+     * Get the total amount of an item currently ordered for a requester but not yet shipped.
+     * Used by supplier pipes to avoid duplicate requests without fragile NBT pending tracking.
+     *
+     * @param requester Position of the requester (e.g. supplier pipe)
+     * @param stack Item to query
+     * @return Total ordered amount currently in the order queue for this requester
+     */
+    long getOrderedAmountFor(BlockPos requester, ItemStack stack);
+
+    /**
      * Get all pending orders for a provider.
      *
      * @param provider Position of the provider
@@ -67,11 +84,31 @@ public interface ILogisticsNetwork {
     List<LogisticsOrder> getOrdersFor(BlockPos provider);
 
     /**
-     * Remove a completed order from the network.
+     * Remove a completed or superseded order from the network.
      *
      * @param order Order to remove
      */
     void removeOrder(LogisticsOrder order);
+
+    /**
+     * Transition a pending order to in-transit state when the provider ships items.
+     * Removes the pending order, requeues any remainder, and returns an in-transit record
+     * to attach to the TravelingItem. orderedForRequester is NOT decremented — it stays
+     * positive until confirmDelivery is called.
+     *
+     * @param order Pending order that is being fulfilled
+     * @param shippedAmount Actual amount extracted (≤ order.amount())
+     * @return In-transit order to attach to the TravelingItem
+     */
+    LogisticsOrder markShipped(LogisticsOrder order, long shippedAmount);
+
+    /**
+     * Confirm physical delivery of an in-transit item to an inventory.
+     * Decrements orderedForRequester so suppliers know the stock has arrived.
+     *
+     * @param order In-transit order returned by markShipped
+     */
+    void confirmDelivery(LogisticsOrder order);
 
     // ===== Sink Operations =====
 

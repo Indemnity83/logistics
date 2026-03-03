@@ -43,14 +43,10 @@ public class SupplierScreenHandler extends AbstractContainerMenu {
 
         if (pipeEntity != null) {
             this.context = ContainerLevelAccess.create(pipeEntity.getLevel(), pipeEntity.getBlockPos());
-            // Load current mode from module
+            data.set(0, SupplierModule.SupplyMode.PARTIAL.ordinal());
             PipeModuleHelper.withModule(this.context, SupplierModule.class, (ctx, module) -> {
                 data.set(0, module.getModeOrdinal(ctx));
             });
-            if (data.get(0) == 0) {
-                // Set default if module not found
-                data.set(0, SupplierModule.SupplyMode.PARTIAL.ordinal());
-            }
         } else {
             this.context = ContainerLevelAccess.NULL;
         }
@@ -162,12 +158,8 @@ public class SupplierScreenHandler extends AbstractContainerMenu {
     @Override
     public boolean clickMenuButton(Player player, int id) {
         if (id == 0) {
-            // Cycle through modes: Stocked(0) -> Infinite(1) -> Partial(2) -> Full(3) -> wrap to Stocked
-            int currentMode = data.get(0);
-            int nextMode = (currentMode + 1) % SupplierModule.SupplyMode.values().length;
+            int nextMode = (data.get(0) + 1) % SupplierModule.SupplyMode.values().length;
             data.set(0, nextMode);
-
-            // Save mode to module
             PipeModuleHelper.withModule(context, SupplierModule.class, (ctx, module) -> {
                 module.setModeFromOrdinal(ctx, nextMode);
             });
@@ -183,10 +175,6 @@ public class SupplierScreenHandler extends AbstractContainerMenu {
     @Override
     public void broadcastChanges() {
         super.broadcastChanges();
-        // Sync mode from module to data slot
-        PipeModuleHelper.withModule(context, SupplierModule.class, (ctx, module) -> {
-            data.set(0, module.getModeOrdinal(ctx));
-        });
     }
 
     private static class SupplySlot extends Slot {

@@ -85,7 +85,7 @@
   "screen.logistics.sink.requested_items": "Requested Items",
   "gui.logistics.default_route": "Default Route:",
   "gui.logistics.mode.bulk50": "Stocked",
-  "gui.logistics.mode.bulk100": "Empty Only",
+  "gui.logistics.mode.bulk100": "Bulk",
   "gui.logistics.mode.infinite": "Infinite",
   "gui.logistics.mode.partial": "Partial",
   "gui.logistics.mode.full": "Full",

@@ -57,7 +57,8 @@ public class ProviderModule implements Module {
     private static final String MODE = "mode";
     private static final String FILTER_ITEMS = "filter_items";
     private static final String FILTER_INVERTED = "filter_inverted";
-    private static final int SCAN_INTERVAL = 20; // Scan every 20 ticks (1 second)
+    private static final int SCAN_INTERVAL = 6;           // Scan every 6 ticks (~3x/second, matches original LP)
+    private static final int ITEMS_PER_EXTRACT = 8;       // Max items extracted per cycle (matches original LP base)
     private static final int MAX_FILTER_SLOTS = 9;
 
     private final int extractInterval;
@@ -399,7 +400,7 @@ public class ProviderModule implements Module {
 
     /**
      * Try to fulfill an order from any connected inventory.
-     * @return true if order was fulfilled (stop processing more orders this tick)
+     * @return true if any items were shipped (stop processing more orders this tick)
      */
     private boolean tryFulfillOrder(PipeContext ctx, ILogisticsNetwork network, LogisticsOrder order, List<Direction> inventoryFaces) {
         for (Direction direction : inventoryFaces) {
@@ -407,10 +408,8 @@ public class ProviderModule implements Module {
             Storage<ItemVariant> storage = ItemStorage.SIDED.find(ctx.world(), targetPos, direction.getOpposite());
             if (storage == null) continue;
 
-            if (fulfillOrder(ctx, storage, order, direction)) {
-                network.removeOrder(order);
-                return true;
-            }
+            long extracted = fulfillOrder(ctx, network, storage, order, direction);
+            if (extracted > 0) return true;
         }
         return false;
     }
@@ -418,18 +417,22 @@ public class ProviderModule implements Module {
     // ==================== Item Extraction ====================
 
     /**
-     * Fulfill a single order by extracting items and creating a TravelingItem with destination.
+     * Fulfill a single order by extracting up to ITEMS_PER_EXTRACT items and creating a TravelingItem.
+     * Calls markShipped on the network so the order stays "outstanding" until physical delivery.
+     * Returns the actual number of items extracted (0 if nothing was extracted).
+     * Large orders are shipped in multiple cycles of ITEMS_PER_EXTRACT each.
      */
-    private boolean fulfillOrder(PipeContext ctx, Storage<ItemVariant> storage, LogisticsOrder order, Direction direction) {
+    private long fulfillOrder(PipeContext ctx, ILogisticsNetwork network, Storage<ItemVariant> storage, LogisticsOrder order, Direction direction) {
         if (isFilteredOut(ctx, order.stack())) {
-            return false;
+            return 0;
         }
 
         ItemVariant variant = ItemVariant.of(order.stack());
         ProviderMode mode = getMode(ctx);
+        long toExtract = Math.min(order.amount(), ITEMS_PER_EXTRACT); // cap per cycle
 
         try (Transaction transaction = Transaction.openOuter()) {
-            long extracted = extractItems(storage, variant, order.amount(), transaction, mode);
+            long extracted = extractItems(storage, variant, toExtract, transaction, mode);
 
             if (extracted > 0) {
                 ItemStack stack = variant.toStack((int) extracted);
@@ -439,13 +442,16 @@ public class ProviderModule implements Module {
                     LogisticsPipe.CONFIG.PROVIDER_PIPE_SPEED,
                     order.requester()
                 );
+                // markShipped: removes pending order, requeues remainder, creates in-transit record
+                LogisticsOrder inTransitOrder = network.markShipped(order, extracted);
+                item.setInTransitOrder(inTransitOrder);
                 ctx.blockEntity().forceAddItem(item, direction);
                 transaction.commit();
-                return true;
+                return extracted;
             }
         }
 
-        return false;
+        return 0;
     }
 
     /**

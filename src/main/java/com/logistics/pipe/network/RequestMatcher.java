@@ -22,9 +22,15 @@ public class RequestMatcher {
     // Providers update every 20 ticks; if a provider misses 3 updates it is considered offline.
     private static final int CACHE_MAX_AGE_TICKS = 60;
 
+    // In-transit orders whose TravelingItem has gone missing (e.g. chunk reload) are cleaned up
+    // after this many ticks so orderedForRequester doesn't drift forever.
+    private static final int IN_TRANSIT_CLEANUP_TTL = 1200; // 60 seconds
+
     private final Map<BlockPos, ProviderCache> providerCaches = new HashMap<>();
     private final List<ItemRequest> pendingRequests = new ArrayList<>();
     private final Map<BlockPos, List<LogisticsOrder>> pendingOrders = new HashMap<>();
+    private final Map<BlockPos, Map<ItemVariant, Long>> orderedForRequester = new HashMap<>();
+    private final List<LogisticsOrder> inTransitOrders = new ArrayList<>();
 
     /**
      * Update provider cache for a specific position.
@@ -107,6 +113,18 @@ public class RequestMatcher {
      */
     public void addOrder(LogisticsOrder order) {
         pendingOrders.computeIfAbsent(order.provider(), k -> new ArrayList<>()).add(order);
+        orderedForRequester
+            .computeIfAbsent(order.requester(), k -> new HashMap<>())
+            .merge(ItemVariant.of(order.stack()), order.amount(), Long::sum);
+    }
+
+    /**
+     * Get the total amount of an item currently ordered for a requester.
+     * Returns 0 once the provider has shipped the items (order removed).
+     */
+    public long getOrderedAmountFor(BlockPos requester, ItemVariant variant) {
+        Map<ItemVariant, Long> map = orderedForRequester.get(requester);
+        return map == null ? 0L : map.getOrDefault(variant, 0L);
     }
 
     /**
@@ -124,13 +142,96 @@ public class RequestMatcher {
         if (orders != null) {
             orders.remove(order);
         }
+        Map<ItemVariant, Long> requesterMap = orderedForRequester.get(order.requester());
+        if (requesterMap != null) {
+            ItemVariant variant = ItemVariant.of(order.stack());
+            long remaining = requesterMap.merge(variant, -order.amount(), Long::sum);
+            if (remaining <= 0) requesterMap.remove(variant);
+        }
     }
 
     /**
-     * Remove all orders for a position (when pipe is removed).
+     * Remove all orders for a position (when pipe is removed as provider).
      */
-    public void removeOrdersFor(BlockPos pos) {
-        pendingOrders.remove(pos);
+    public void removeOrdersFor(BlockPos providerPos) {
+        List<LogisticsOrder> removed = pendingOrders.remove(providerPos);
+        if (removed != null) {
+            for (LogisticsOrder order : removed) {
+                Map<ItemVariant, Long> requesterMap = orderedForRequester.get(order.requester());
+                if (requesterMap != null) {
+                    ItemVariant variant = ItemVariant.of(order.stack());
+                    long remaining = requesterMap.merge(variant, -order.amount(), Long::sum);
+                    if (remaining <= 0) requesterMap.remove(variant);
+                }
+            }
+        }
+    }
+
+    /**
+     * Transition an order from pending to in-transit when a provider ships items.
+     * Removes the pending order, requeues any unshipped remainder, and creates an
+     * in-transit record that keeps orderedForRequester positive until delivery.
+     * Does NOT change orderedForRequester — that only decrements on confirmDelivery.
+     *
+     * @param pendingOrder The order that was pending at the provider
+     * @param shippedAmount Actual amount extracted (≤ pendingOrder.amount())
+     * @return The in-transit order to attach to the TravelingItem
+     */
+    public LogisticsOrder markShipped(LogisticsOrder pendingOrder, long shippedAmount) {
+        // Remove from pending (without touching orderedForRequester)
+        List<LogisticsOrder> orders = pendingOrders.get(pendingOrder.provider());
+        if (orders != null) orders.remove(pendingOrder);
+
+        // Requeue remainder directly into pendingOrders (amount already counted in orderedForRequester)
+        long remainder = pendingOrder.amount() - shippedAmount;
+        if (remainder > 0) {
+            LogisticsOrder remainderOrder = new LogisticsOrder(
+                pendingOrder.provider(), pendingOrder.requester(), pendingOrder.stack(),
+                remainder, pendingOrder.createdAt());
+            pendingOrders.computeIfAbsent(pendingOrder.provider(), k -> new ArrayList<>()).add(remainderOrder);
+        }
+
+        // Create in-transit record — orderedForRequester stays the same until delivery
+        LogisticsOrder inTransitOrder = new LogisticsOrder(
+            pendingOrder.provider(), pendingOrder.requester(), pendingOrder.stack(),
+            shippedAmount, pendingOrder.createdAt());
+        inTransitOrders.add(inTransitOrder);
+        return inTransitOrder;
+    }
+
+    /**
+     * Confirm that an in-transit item was physically delivered to an inventory.
+     * Decrements orderedForRequester so the supplier knows stock has arrived.
+     */
+    public void confirmDelivery(LogisticsOrder inTransitOrder) {
+        inTransitOrders.remove(inTransitOrder);
+        Map<ItemVariant, Long> requesterMap = orderedForRequester.get(inTransitOrder.requester());
+        if (requesterMap != null) {
+            ItemVariant variant = ItemVariant.of(inTransitOrder.stack());
+            long remaining = requesterMap.merge(variant, -inTransitOrder.amount(), Long::sum);
+            if (remaining <= 0) requesterMap.remove(variant);
+        }
+    }
+
+    /**
+     * Clean up in-transit orders whose TravelingItem has gone missing (e.g. chunk reload).
+     * Uses the order's createdAt timestamp; orders older than IN_TRANSIT_CLEANUP_TTL are removed
+     * and their amounts are removed from orderedForRequester.
+     */
+    public void cleanupStaleInTransit(long gameTime) {
+        Iterator<LogisticsOrder> it = inTransitOrders.iterator();
+        while (it.hasNext()) {
+            LogisticsOrder order = it.next();
+            if (gameTime - order.createdAt() > IN_TRANSIT_CLEANUP_TTL) {
+                it.remove();
+                Map<ItemVariant, Long> requesterMap = orderedForRequester.get(order.requester());
+                if (requesterMap != null) {
+                    ItemVariant variant = ItemVariant.of(order.stack());
+                    long remaining = requesterMap.merge(variant, -order.amount(), Long::sum);
+                    if (remaining <= 0) requesterMap.remove(variant);
+                }
+            }
+        }
     }
 
     /**
@@ -175,9 +276,16 @@ public class RequestMatcher {
     public void merge(RequestMatcher other) {
         providerCaches.putAll(other.providerCaches);
         pendingRequests.addAll(other.pendingRequests);
+        inTransitOrders.addAll(other.inTransitOrders);
 
         for (Map.Entry<BlockPos, List<LogisticsOrder>> entry : other.pendingOrders.entrySet()) {
             pendingOrders.computeIfAbsent(entry.getKey(), k -> new ArrayList<>()).addAll(entry.getValue());
+        }
+
+        for (Map.Entry<BlockPos, Map<ItemVariant, Long>> entry : other.orderedForRequester.entrySet()) {
+            Map<ItemVariant, Long> thisMap =
+                orderedForRequester.computeIfAbsent(entry.getKey(), k -> new HashMap<>());
+            entry.getValue().forEach((variant, amount) -> thisMap.merge(variant, amount, Long::sum));
         }
     }
 }
