@@ -12,13 +12,6 @@ import com.logistics.pipe.network.NetworkRegistry;
 import com.logistics.pipe.runtime.RoutePlan;
 import com.logistics.pipe.runtime.TravelingItem;
 import com.logistics.pipe.ui.CraftingScreenHandler;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
-import net.fabricmc.fabric.api.transfer.v1.storage.SlottedStorage;
-import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
-import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
-import net.fabricmc.fabric.api.transfer.v1.storage.base.SingleSlotStorage;
-import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -361,28 +354,20 @@ public class CraftingModule implements Module {
         }
     }
 
-    /** Check if the autocrafter already holds all required ingredients. */
+    /** Check if the autocrafter already holds all required ingredients, per slot. */
     private boolean autocrafterHasIngredients(PipeContext ctx, Direction autocrafterDir) {
         BlockPos autocrafterPos = ctx.pos().relative(autocrafterDir);
-        Storage<ItemVariant> storage = ItemStorage.SIDED.find(ctx.world(), autocrafterPos, autocrafterDir.getOpposite());
-        if (storage == null) return false;
+        if (!(ctx.world().getBlockEntity(autocrafterPos) instanceof CrafterBlockEntity crafter)) return false;
 
         for (int slot = 0; slot < 9; slot++) {
             String ingredientId = getIngredientItem(ctx, slot);
             if (ingredientId.isEmpty()) continue;
             int needed = getIngredientCount(ctx, slot);
 
-            ItemStack ingredientStack = resolveItem(ingredientId);
-            if (ingredientStack.isEmpty()) return false;
-
-            ItemVariant variant = ItemVariant.of(ingredientStack);
-            long found = 0;
-            for (StorageView<ItemVariant> view : storage) {
-                if (view.getResource().equals(variant)) {
-                    found += view.getAmount();
-                }
-            }
-            if (found < needed) return false;
+            ItemStack inSlot = crafter.getItem(slot);
+            if (inSlot.isEmpty()) return false;
+            if (!ingredientId.equals(BuiltInRegistries.ITEM.getKey(inSlot.getItem()).toString())) return false;
+            if (inSlot.getCount() < needed) return false;
         }
         return true;
     }
@@ -434,7 +419,6 @@ public class CraftingModule implements Module {
         if (state == CraftState.SOURCING && item.getDestination() != null && item.getDestination().equals(ctx.pos())) {
             Direction autocrafterDir = findAutocrafterDirection(ctx);
             if (autocrafterDir != null && options.contains(autocrafterDir)) {
-                // Check if it matches an ingredient
                 if (isIngredient(ctx, item.getStack())) {
                     item.setDestination(null); // Delivered
                     return RoutePlan.reroute(autocrafterDir);
@@ -486,35 +470,27 @@ public class CraftingModule implements Module {
     }
 
     /**
-     * Insert an ingredient into the first recipe slot that matches the item type
-     * and is currently empty in the adjacent autocrafter, using per-slot Fabric Transfer API.
+     * Insert an ingredient directly into the matching recipe slot in the adjacent autocrafter.
+     * Uses Container.setItem() directly to bypass the autocrafter's canPlaceItem() equalization
+     * logic, which rejects insertion into a slot when a later slot with the same ingredient
+     * is still empty. We own the recipe layout, so we place items exactly where we want them.
      */
     private boolean insertIngredientIntoSlot(PipeContext ctx, Direction autocrafterDir, TravelingItem item) {
         BlockPos autocrafterPos = ctx.pos().relative(autocrafterDir);
-        Storage<ItemVariant> storage = ItemStorage.SIDED.find(
-                ctx.world(), autocrafterPos, autocrafterDir.getOpposite());
-        if (!(storage instanceof SlottedStorage<ItemVariant> slotted)) return false;
+        if (!(ctx.world().getBlockEntity(autocrafterPos) instanceof CrafterBlockEntity crafter)) return false;
 
         String itemId = BuiltInRegistries.ITEM.getKey(item.getStack().getItem()).toString();
-        ItemVariant variant = ItemVariant.of(item.getStack());
 
         for (int slot = 0; slot < 9; slot++) {
             if (!itemId.equals(getIngredientItem(ctx, slot))) continue;
+            if (!crafter.getItem(slot).isEmpty()) continue; // slot already occupied
 
-            SingleSlotStorage<ItemVariant> slotView = slotted.getSlot(slot);
-            if (!slotView.getResource().isBlank()) continue; // slot already occupied
-
-            try (Transaction transaction = Transaction.openOuter()) {
-                long inserted = slotView.insert(variant, item.getStack().getCount(), transaction);
-                if (inserted > 0) {
-                    transaction.commit();
-                    if (item.getInTransitOrder() != null) {
-                        ILogisticsNetwork network = NetworkRegistry.getNetwork(ctx.world(), ctx.pos());
-                        if (network != null) network.confirmDelivery(item.getInTransitOrder());
-                    }
-                    return true;
-                }
+            crafter.setItem(slot, item.getStack().copy());
+            if (item.getInTransitOrder() != null) {
+                ILogisticsNetwork network = NetworkRegistry.getNetwork(ctx.world(), ctx.pos());
+                if (network != null) network.confirmDelivery(item.getInTransitOrder());
             }
+            return true;
         }
         return false;
     }
