@@ -439,7 +439,7 @@ public class ProviderModule implements Module {
                 TravelingItem item = new TravelingItem(
                     stack,
                     direction.getOpposite(),
-                    LogisticsPipe.CONFIG.PROVIDER_PIPE_SPEED,
+                    LogisticsPipe.CONFIG.ITEM_MIN_SPEED,
                     order.requester()
                 );
                 // markShipped: removes pending order, requeues remainder, creates in-transit record

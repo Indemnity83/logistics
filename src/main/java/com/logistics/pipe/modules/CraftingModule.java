@@ -56,11 +56,15 @@ public class CraftingModule implements Module {
     private static final String PENDING_ORDER_TIME = "pending_order_time";
 
     // Timing constants
-    private static final int SCAN_INTERVAL = 20;      // Update crafter cache every 20 ticks
-    private static final int ORDER_CHECK_INTERVAL = 20; // Check for orders every 20 ticks
-    private static final int PULSE_DURATION = 4;      // Redstone pulse length (ticks)
-    private static final int SOURCING_TIMEOUT = 600;  // 30 seconds
-    private static final int COLLECTING_TIMEOUT = 200; // 10 seconds
+    private static final int SCAN_INTERVAL = 20;        // Update crafter cache every 20 ticks
+    private static final int ORDER_CHECK_INTERVAL = 20;  // Check for orders every 20 ticks
+    private static final int PULSE_DURATION = 4;        // Redstone pulse length (ticks)
+    // SOURCING_TIMEOUT resets each time an ingredient is placed — this is the "no progress" limit.
+    // Must be >= IN_TRANSIT_CLEANUP_TTL in RequestMatcher (1200 ticks / 60s) so we never give up
+    // and re-request while the original ingredient items are still in-transit.
+    private static final int SOURCING_TIMEOUT = 1200;   // 60 seconds with no progress
+    // COLLECTING_TIMEOUT starts after the redstone pulse is sent (end of TRIGGERING).
+    private static final int COLLECTING_TIMEOUT = 200;  // 10 seconds after crafting signal
 
     public enum CraftState {
         IDLE,
@@ -267,7 +271,9 @@ public class CraftingModule implements Module {
         setPendingOrderTime(ctx, order.createdAt());
         ctx.markDirty();
 
-        // Request each ingredient from the network (requester = this pipe's pos)
+        // Request each ingredient from the network (requester = this pipe's pos).
+        // Subtract any already-ordered/in-transit amount to avoid duplicate requests
+        // if a previous sourcing cycle partially completed before timing out.
         for (int slot = 0; slot < 9; slot++) {
             String ingredientId = getIngredientItem(ctx, slot);
             if (ingredientId.isEmpty()) continue;
@@ -276,7 +282,11 @@ public class CraftingModule implements Module {
             ItemStack ingredientStack = resolveItem(ingredientId);
             if (ingredientStack.isEmpty()) continue;
 
-            ItemRequest request = new ItemRequest(ctx.pos(), ingredientStack, count, ctx.world().getGameTime());
+            long alreadyOrdered = network.getOrderedAmountFor(ctx.pos(), ingredientStack);
+            long needed = count - alreadyOrdered;
+            if (needed <= 0) continue;
+
+            ItemRequest request = new ItemRequest(ctx.pos(), ingredientStack, needed, ctx.world().getGameTime());
             network.addRequest(request);
         }
 
@@ -379,41 +389,9 @@ public class CraftingModule implements Module {
         if (ctx.world().isClientSide()) return RoutePlan.pass();
 
         CraftState state = getCraftState(ctx);
-        String resultId = getResultItem(ctx);
 
-        // Result routing: item arrived during COLLECTING — route it to the requester
-        if (state == CraftState.COLLECTING && !resultId.isEmpty()) {
-            ItemStack resultStack = resolveItem(resultId);
-            if (!resultStack.isEmpty() && ItemStack.isSameItemSameComponents(item.getStack(), resultStack)) {
-                BlockPos requester = getPendingRequester(ctx);
-                if (requester != null) {
-                    // Find and mark the in-transit order
-                    ILogisticsNetwork network = NetworkRegistry.getNetwork(ctx.world(), ctx.pos());
-                    if (network != null) {
-                        long orderTime = getPendingOrderTime(ctx);
-                        List<LogisticsOrder> orders = network.getOrdersFor(ctx.pos());
-                        // The order may already have been removed by markShipped from requester - check inTransit
-                        // Just ship directly: find any order for this requester
-                        LogisticsOrder matchingOrder = null;
-                        for (LogisticsOrder o : orders) {
-                            if (o.requester().equals(requester) && o.createdAt() == orderTime) {
-                                matchingOrder = o;
-                                break;
-                            }
-                        }
-                        if (matchingOrder != null) {
-                            long extracted = Math.min(item.getStack().getCount(), matchingOrder.amount());
-                            LogisticsOrder inTransit = network.markShipped(matchingOrder, extracted, ctx.world().getGameTime());
-                            item.setInTransitOrder(inTransit);
-                        }
-                    }
-
-                    item.setDestination(requester);
-                    resetToIdle(ctx);
-                    return RoutePlan.pass(); // Let NetworkRouterModule handle actual routing
-                }
-            }
-        }
+        // Result items arrive with their destination already set by onExternalInsert.
+        // Nothing to do here — NetworkRouterModule routes them to the requester.
 
         // Ingredient routing: item is an ingredient destined for this pipe — route it toward the autocrafter
         if (state == CraftState.SOURCING && item.getDestination() != null && item.getDestination().equals(ctx.pos())) {
@@ -490,9 +468,70 @@ public class CraftingModule implements Module {
                 ILogisticsNetwork network = NetworkRegistry.getNetwork(ctx.world(), ctx.pos());
                 if (network != null) network.confirmDelivery(item.getInTransitOrder());
             }
+            // Reset the sourcing timeout each time an ingredient arrives — the timeout
+            // is "time with no progress", not "time since sourcing started".
+            ctx.saveInt(this, TICKS_TIMEOUT, 0);
             return true;
         }
         return false;
+    }
+
+    /**
+     * Intercept the autocrafter's result being pushed into this pipe.
+     * Splits the stack at insertion time: the ordered amount gets a destination=requester
+     * and an in-transit order, while any surplus enters as a fresh unrouted item.
+     * Both TravelingItems receive proper routing decisions when they cross ROUTE_POINT.
+     */
+    @Override
+    public boolean onExternalInsert(PipeContext ctx, ItemStack stack, Direction fromDirection) {
+        // Guard by pending requester rather than exact state: the autocrafter can eject while
+        // we are still in TRIGGERING (before onTick has advanced us to COLLECTING).
+        BlockPos requester = getPendingRequester(ctx);
+        if (requester == null) return false;
+
+        Direction autocrafterDir = findAutocrafterDirection(ctx);
+        if (autocrafterDir == null || autocrafterDir != fromDirection) return false;
+
+        String resultId = getResultItem(ctx);
+        if (resultId.isEmpty()) return false;
+        ItemStack resultStack = resolveItem(resultId);
+        if (resultStack.isEmpty() || !ItemStack.isSameItemSameComponents(stack, resultStack)) return false;
+
+        // Determine how many to send to the requester vs. return to the network
+        long ordered = stack.getCount();
+        LogisticsOrder inTransit = null;
+        ILogisticsNetwork network = NetworkRegistry.getNetwork(ctx.world(), ctx.pos());
+        if (network != null) {
+            long orderTime = getPendingOrderTime(ctx);
+            for (LogisticsOrder o : network.getOrdersFor(ctx.pos())) {
+                if (o.requester().equals(requester) && o.createdAt() == orderTime) {
+                    ordered = Math.min(stack.getCount(), o.amount());
+                    inTransit = network.markShipped(o, ordered, ctx.world().getGameTime());
+                    break;
+                }
+            }
+        }
+
+        // Ordered portion: tagged with destination and in-transit order
+        ItemStack orderedStack = stack.copy();
+        orderedStack.setCount((int) ordered);
+        TravelingItem orderedItem = new TravelingItem(
+                orderedStack, fromDirection.getOpposite(), LogisticsPipe.CONFIG.ITEM_MIN_SPEED, requester);
+        if (inTransit != null) orderedItem.setInTransitOrder(inTransit);
+        ctx.blockEntity().forceAddItem(orderedItem, fromDirection);
+
+        // Surplus (if recipe yields more than was ordered): unrouted, flows freely into the network
+        int surplus = stack.getCount() - (int) ordered;
+        if (surplus > 0) {
+            ItemStack surplusStack = stack.copy();
+            surplusStack.setCount(surplus);
+            TravelingItem surplusItem = new TravelingItem(
+                    surplusStack, fromDirection.getOpposite(), LogisticsPipe.CONFIG.ITEM_MIN_SPEED);
+            ctx.blockEntity().forceAddItem(surplusItem, fromDirection);
+        }
+
+        resetToIdle(ctx);
+        return true;
     }
 
     // ==================== Visual ====================

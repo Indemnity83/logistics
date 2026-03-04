@@ -306,6 +306,18 @@ public class Pipe {
         return current;
     }
 
+    /**
+     * Called when an item is inserted from an external (non-pipe) source before the default
+     * single TravelingItem is created. Delegates to modules in order; stops at the first that
+     * returns true (handled).
+     */
+    public boolean onExternalInsert(PipeContext ctx, net.minecraft.world.item.ItemStack stack, Direction from) {
+        for (Module module : modules) {
+            if (module.onExternalInsert(ctx, stack, from)) return true;
+        }
+        return false;
+    }
+
     public boolean canAcceptFrom(PipeContext ctx, Direction from, net.minecraft.world.item.ItemStack stack) {
         // Default behavior: pipes only accept items from other pipes (not from inventories/hoppers)
         // This prevents free automation and preserves the extraction energy cost

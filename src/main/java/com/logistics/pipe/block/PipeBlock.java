@@ -402,7 +402,7 @@ public class PipeBlock extends BaseEntityBlock implements ProbeBehavior.Probeabl
             if (m != null) {
                 PipeContext ctx = pbe.createContext();
                 Direction autocrafterDir = m.findAutocrafterDirection(ctx);
-                if (autocrafterDir != null && autocrafterDir == dir) return 15;
+                if (autocrafterDir != null && autocrafterDir.getOpposite() == dir) return 15;
             }
         }
         return 0;

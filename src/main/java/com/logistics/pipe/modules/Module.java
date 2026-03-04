@@ -76,6 +76,22 @@ public interface Module {
         return false;
     }
 
+    /**
+     * Called when an item is inserted into the pipe from an external (non-pipe) source via the
+     * Fabric Transfer API, before the default single TravelingItem is created.
+     *
+     * <p>Return {@code true} if the module fully handled the insertion (e.g., split the stack into
+     * multiple TravelingItems). Return {@code false} to proceed with the default behavior.
+     *
+     * @param ctx           the pipe context
+     * @param stack         the item stack being inserted
+     * @param fromDirection the direction the item arrived from
+     * @return true if the module handled the insertion, false to use default behaviour
+     */
+    default boolean onExternalInsert(PipeContext ctx, ItemStack stack, Direction fromDirection) {
+        return false;
+    }
+
     default void onConnectionsChanged(PipeContext ctx, List<Direction> options) {}
 
     default InteractionResult onUseWithItem(PipeContext ctx, UseOnContext usage) {

@@ -223,9 +223,9 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
         // Individual pipes can override this up or down via getMaxSpeed.
         public static final float PIPE_MAX_SPEED = 0.16f;
 
-        // Initial speed for items put into the network by a provider
-        // Pipe.
-        public static final float PROVIDER_PIPE_SPEED = 0.10f;
+        // Initial speed for items injected into the network by provider and crafting pipes.
+        // Matches LP's effective routed injection speed (PIPE_NORMAL_SPEED × 20 boost = 0.2f).
+        public static final float ITEM_NETWORK_SPEED = 0.2f;
 
         // Timeout for pending requests in supplier/requester pipes (in ticks).
         // If items don't arrive within this time, the pending request is cleared and assumed lost.

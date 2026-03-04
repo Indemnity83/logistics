@@ -432,6 +432,18 @@ public class PipeBlockEntity extends BaseBlockEntity
             return;
         }
 
+        // Give modules the first chance to handle external insertions (e.g., split a craft result).
+        BlockState insertState = getBlockState();
+        if (insertState.getBlock() instanceof PipeBlock insertPipeBlock
+                && insertPipeBlock.getPipe() != null
+                && level != null
+                && !level.isClientSide()) {
+            PipeContext ctx = createContext();
+            if (insertPipeBlock.getPipe().onExternalInsert(ctx, stack, fromDirection)) {
+                return;
+            }
+        }
+
         float speed = speedOverride != null ? speedOverride : getInitialSpeed();
         TravelingItem newItem = new TravelingItem(stack, fromDirection.getOpposite(), speed, destination);
         travelingItems.add(newItem);
