@@ -1,7 +1,7 @@
 plugins {
 	id 'net.fabricmc.fabric-loom-remap' version "${loom_version}"
 	id 'maven-publish'
-	id 'com.diffplug.spotless' version '6.25.0'
+	id 'com.diffplug.spotless' version '8.3.0'
 }
 
 version = System.getenv("MOD_VERSION") ?: project.mod_version
