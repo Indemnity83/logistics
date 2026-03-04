@@ -27,6 +27,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -271,23 +272,26 @@ public class CraftingModule implements Module {
         setPendingOrderTime(ctx, order.createdAt());
         ctx.markDirty();
 
-        // Request each ingredient from the network (requester = this pipe's pos).
-        // Subtract any already-ordered/in-transit amount to avoid duplicate requests
-        // if a previous sourcing cycle partially completed before timing out.
+        // Aggregate ingredient amounts by item type across all slots before requesting.
+        // Two plank slots (slot 0 + slot 4) must become ONE request for 2 planks total,
+        // not two separate requests — otherwise each triggers its own independent craft
+        // cycle and we produce far more items than needed.
+        Map<String, Integer> neededByItem = new LinkedHashMap<>();
         for (int slot = 0; slot < 9; slot++) {
             String ingredientId = getIngredientItem(ctx, slot);
             if (ingredientId.isEmpty()) continue;
-            int count = getIngredientCount(ctx, slot);
+            neededByItem.merge(ingredientId, getIngredientCount(ctx, slot), Integer::sum);
+        }
 
-            ItemStack ingredientStack = resolveItem(ingredientId);
+        for (Map.Entry<String, Integer> entry : neededByItem.entrySet()) {
+            ItemStack ingredientStack = resolveItem(entry.getKey());
             if (ingredientStack.isEmpty()) continue;
 
             long alreadyOrdered = network.getOrderedAmountFor(ctx.pos(), ingredientStack);
-            long needed = count - alreadyOrdered;
+            long needed = entry.getValue() - alreadyOrdered;
             if (needed <= 0) continue;
 
-            ItemRequest request = new ItemRequest(ctx.pos(), ingredientStack, needed, ctx.world().getGameTime());
-            network.addRequest(request);
+            network.addRequest(new ItemRequest(ctx.pos(), ingredientStack, needed, ctx.world().getGameTime()));
         }
 
         setCraftState(ctx, CraftState.SOURCING);
@@ -453,23 +457,34 @@ public class CraftingModule implements Module {
      * logic, which rejects insertion into a slot when a later slot with the same ingredient
      * is still empty. We own the recipe layout, so we place items exactly where we want them.
      */
+    /**
+     * Distribute an ingredient stack across all matching empty recipe slots in the autocrafter.
+     * A consolidated request (e.g., 2 planks for slot 0 + slot 4) arrives as a single
+     * TravelingItem with count=2 and must be split across both slots.
+     */
     private boolean insertIngredientIntoSlot(PipeContext ctx, Direction autocrafterDir, TravelingItem item) {
         BlockPos autocrafterPos = ctx.pos().relative(autocrafterDir);
         if (!(ctx.world().getBlockEntity(autocrafterPos) instanceof CrafterBlockEntity crafter)) return false;
 
         String itemId = BuiltInRegistries.ITEM.getKey(item.getStack().getItem()).toString();
+        int remaining = item.getStack().getCount();
 
-        for (int slot = 0; slot < 9; slot++) {
+        for (int slot = 0; slot < 9 && remaining > 0; slot++) {
             if (!itemId.equals(getIngredientItem(ctx, slot))) continue;
-            if (!crafter.getItem(slot).isEmpty()) continue; // slot already occupied
+            if (!crafter.getItem(slot).isEmpty()) continue;
 
-            crafter.setItem(slot, item.getStack().copy());
+            int toPlace = Math.min(remaining, getIngredientCount(ctx, slot));
+            crafter.setItem(slot, item.getStack().copyWithCount(toPlace));
+            remaining -= toPlace;
+        }
+
+        if (remaining < item.getStack().getCount()) {
+            // At least some was placed — consider the item consumed
             if (item.getInTransitOrder() != null) {
                 ILogisticsNetwork network = NetworkRegistry.getNetwork(ctx.world(), ctx.pos());
                 if (network != null) network.confirmDelivery(item.getInTransitOrder());
             }
-            // Reset the sourcing timeout each time an ingredient arrives — the timeout
-            // is "time with no progress", not "time since sourcing started".
+            // Reset the sourcing timeout — the timeout is "time with no progress"
             ctx.saveInt(this, TICKS_TIMEOUT, 0);
             return true;
         }
