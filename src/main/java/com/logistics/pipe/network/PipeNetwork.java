@@ -2,6 +2,7 @@ package com.logistics.pipe.network;
 
 import com.logistics.LogisticsMod;
 import com.logistics.core.lib.network.*;
+import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
@@ -15,7 +16,7 @@ import java.util.UUID;
 
 /**
  * Represents a connected network of pipes.
- * Manages network state, pathfinding, and request/order queues.
+ * Manages network state, pathfinding, and standing order dispatch.
  *
  * Implements ILogisticsNetwork to provide abstraction for modules.
  */
@@ -23,15 +24,13 @@ public class PipeNetwork implements ILogisticsNetwork {
     private final UUID id;
     private final INetworkGraph graph;
     private final IWorldView worldView;
-    private final RequestMatcher requestMatcher;
+    private final NetworkController controller;
 
     // Sink management for item routing
     private final Set<BlockPos> defaultRouteSinks = new HashSet<>(); // Accepts any item
     private final Map<BlockPos, Integer> sinkPriorities = new HashMap<>(); // Priority per sink (higher = better)
 
     private static final int DEFAULT_SINK_PRIORITY = 0;
-    private static final int FILTERED_SINK_PRIORITY = 50; // Filtered sinks have higher priority than default routes
-    private static final int REQUESTER_PRIORITY = 100; // Requesters have higher priority
 
     /**
      * Constructor with dependency injection.
@@ -43,20 +42,20 @@ public class PipeNetwork implements ILogisticsNetwork {
         this.id = id;
         this.graph = graph;
         this.worldView = worldView;
-        this.requestMatcher = new RequestMatcher();
+        this.controller = new NetworkController();
     }
 
     /**
      * Legacy constructor for tests.
-     * Creates a PipeNetwork without IWorldView (will fail if sink operations are used).
+     * Creates a PipeNetwork without IWorldView (will fail if sink/dispatch operations are used).
      * @deprecated Use constructor with IWorldView injection
      */
     @Deprecated
     public PipeNetwork(UUID id) {
         this.id = id;
         this.graph = new NetworkGraph();
-        this.worldView = null; // Tests will need to be updated to provide this
-        this.requestMatcher = new RequestMatcher();
+        this.worldView = null;
+        this.controller = new NetworkController();
     }
 
     public UUID getId() {
@@ -76,8 +75,8 @@ public class PipeNetwork implements ILogisticsNetwork {
 
     public void removePipe(BlockPos pos) {
         graph.removeNode(pos);
-        requestMatcher.removeProviderCache(pos);
-        requestMatcher.removeOrdersFor(pos);
+        controller.removeSupply(pos);
+        controller.cancelOrdersFor(pos);
         defaultRouteSinks.remove(pos);
         sinkPriorities.remove(pos);
     }
@@ -96,109 +95,80 @@ public class PipeNetwork implements ILogisticsNetwork {
 
     /**
      * Get next hop direction from current position toward destination.
-     * Uses cached paths when available.
      */
     public Direction getNextHop(BlockPos current, BlockPos destination) {
         return graph.getNextHop(current, destination);
     }
 
     /**
-     * Find path between two positions, using cache when available.
+     * Find path between two positions.
      */
     public List<BlockPos> findPath(BlockPos start, BlockPos goal) {
         return graph.findPath(start, goal);
     }
 
-    /**
-     * Update provider cache for a specific position.
-     */
     @Override
-    public void updateProviderCache(BlockPos pos, Map<ItemStack, Long> items, long gameTime) {
-        requestMatcher.updateProviderCache(pos, items, gameTime);
+    public void registerSupply(BlockPos pos, Map<ItemVariant, Long> items, int priority) {
+        controller.registerSupply(pos, items, priority);
     }
 
-    /**
-     * Get available amount of an item across all providers.
-     */
     @Override
     public long getAvailableAmount(ItemStack stack) {
-        return requestMatcher.getAvailableAmount(stack);
+        return controller.getAvailableAmount(ItemVariant.of(stack));
     }
 
-    /**
-     * Get all available items from all providers in the network.
-     * Returns a map of ItemStack to total available amount.
-     */
     @Override
     public Map<ItemStack, Long> getAllAvailableItems() {
-        return requestMatcher.getAllAvailableItems();
+        return controller.getAllAvailableItems();
     }
 
-    /**
-     * Add a request to the queue.
-     */
     @Override
-    public void addRequest(ItemRequest request) {
-        requestMatcher.addRequest(request);
+    public UUID placeOrder(ItemVariant item, long amount, BlockPos requester) {
+        return controller.placeOrder(item, amount, requester);
     }
 
-    /**
-     * Add an order for a provider to fulfill.
-     */
     @Override
-    public void addOrder(LogisticsOrder order) {
-        requestMatcher.addOrder(order);
+    public void cancelOrder(UUID orderId) {
+        controller.cancelOrder(orderId);
     }
 
     @Override
     public long getOrderedAmountFor(BlockPos requester, ItemStack stack) {
-        return requestMatcher.getOrderedAmountFor(requester, net.fabricmc.fabric.api.transfer.v1.item.ItemVariant.of(stack));
+        return controller.getOrderedAmountFor(requester, ItemVariant.of(stack));
     }
 
-    /**
-     * Get pending orders for a specific provider.
-     */
     @Override
-    public List<LogisticsOrder> getOrdersFor(BlockPos provider) {
-        return requestMatcher.getOrdersFor(provider);
+    public void notifyDelivery(BlockPos requester, ItemVariant item, long amount) {
+        controller.notifyDelivery(requester, item, amount);
     }
 
     /**
-     * Remove a completed order.
-     */
-    @Override
-    public void removeOrder(LogisticsOrder order) {
-        requestMatcher.removeOrder(order);
-    }
-
-    /**
-     * Transition a pending order to in-transit when items are shipped.
-     */
-    @Override
-    public LogisticsOrder markShipped(LogisticsOrder order, long shippedAmount, long gameTime) {
-        return requestMatcher.markShipped(order, shippedAmount, gameTime);
-    }
-
-    /**
-     * Confirm physical delivery of an in-transit item to an inventory.
-     */
-    @Override
-    public void confirmDelivery(LogisticsOrder order) {
-        requestMatcher.confirmDelivery(order);
-    }
-
-    /**
-     * Tick the network (process requests and clean up stale in-transit orders).
+     * Tick the network: dispatch all fulfillable standing orders synchronously.
+     * Provider modules extract items and inject TravelingItems before returning.
+     * Supply table is updated after each dispatch so subsequent orders see accurate stock.
      */
     public void tick(long gameTime) {
-        requestMatcher.processRequests(gameTime);
-        requestMatcher.cleanupStaleInTransit(gameTime);
+        if (worldView == null) return;
+        NetworkController.DispatchCommand cmd;
+        while ((cmd = controller.nextDispatchable()) != null) {
+            try {
+                long shipped = worldView.dispatch(
+                        cmd.provider(), cmd.requester(), cmd.item(), cmd.amount(), cmd.orderId());
+                if (shipped > 0) {
+                    controller.recordDispatched(cmd.orderId(), shipped);
+                } else {
+                    controller.markSupplyUnavailable(cmd.provider());
+                }
+            } catch (Exception e) {
+                LogisticsMod.LOGGER.error("[Network {}] Dispatch failed for order {}: {}",
+                        getNetworkIdShort(id), cmd.orderId(), e.getMessage(), e);
+                controller.markSupplyUnavailable(cmd.provider());
+            }
+        }
     }
 
     /**
      * Register a sink that accepts any item (default route).
-     * @param sink BlockPos of the sink pipe
-     * @param priority Priority level (higher values = preferred, default = 0)
      */
     public void registerDefaultRouteSink(BlockPos sink, int priority) {
         defaultRouteSinks.add(sink);
@@ -216,12 +186,8 @@ public class PipeNetwork implements ILogisticsNetwork {
     /**
      * Find a suitable destination for an item.
      * Priority order:
-     * 1. Requesters that want this specific item (handled via pendingRequests)
-     * 2. Sinks with matching filters (FILTERED_SINK_PRIORITY)
-     * 3. Default route sinks (DEFAULT_SINK_PRIORITY)
-     *
-     * @param stack ItemStack to find destination for
-     * @return BlockPos of highest-priority available sink, or null if none found
+     * 1. Sinks with matching filters
+     * 2. Default route sinks
      */
     @Override
     public BlockPos findSinkFor(ItemStack stack) {
@@ -232,7 +198,6 @@ public class PipeNetwork implements ILogisticsNetwork {
         LogisticsMod.LOGGER.debug("[Network {}] Finding sink for {} (members: {}, default routes: {})",
                 getNetworkIdShort(id), stack.getItem(), graph.size(), defaultRouteSinks.size());
 
-        // Check filtered sinks first, then fall back to default routes
         BlockPos bestSink = findFilteredSink(stack);
         if (bestSink == null) {
             bestSink = findDefaultRouteSink();
@@ -245,12 +210,6 @@ public class PipeNetwork implements ILogisticsNetwork {
         return bestSink;
     }
 
-    /**
-     * Find a sink with a matching filter for the given item.
-     * Uses injected IWorldView to query modules.
-     * @param stack ItemStack to find sink for
-     * @return BlockPos of filtered sink, or null if none matches
-     */
     private BlockPos findFilteredSink(ItemStack stack) {
         for (BlockPos pos : graph.getNodes()) {
             if (worldView.matchesSinkFilter(pos, stack)) {
@@ -259,14 +218,9 @@ public class PipeNetwork implements ILogisticsNetwork {
                 return pos;
             }
         }
-
         return null;
     }
 
-    /**
-     * Find the highest-priority default route sink.
-     * @return BlockPos of best default route sink, or null if none available
-     */
     private BlockPos findDefaultRouteSink() {
         LogisticsMod.LOGGER.debug("[Network {}] No filtered sink, checking {} default routes",
                 getNetworkIdShort(id), defaultRouteSinks.size());
@@ -275,9 +229,7 @@ public class PipeNetwork implements ILogisticsNetwork {
         int bestPriority = Integer.MIN_VALUE;
 
         for (BlockPos sink : defaultRouteSinks) {
-            if (!graph.contains(sink)) {
-                continue;
-            }
+            if (!graph.contains(sink)) continue;
 
             int priority = sinkPriorities.getOrDefault(sink, DEFAULT_SINK_PRIORITY);
             if (priority > bestPriority) {
@@ -298,11 +250,10 @@ public class PipeNetwork implements ILogisticsNetwork {
 
     /**
      * Merge another network into this one.
-     * For sink priorities, the higher value wins when both networks have the same position.
      */
     public void merge(PipeNetwork other) {
         graph.merge(other.graph);
-        requestMatcher.merge(other.requestMatcher);
+        controller.merge(other.controller);
         defaultRouteSinks.addAll(other.defaultRouteSinks);
         other.sinkPriorities.forEach((pos, priority) ->
                 sinkPriorities.merge(pos, priority, Math::max));

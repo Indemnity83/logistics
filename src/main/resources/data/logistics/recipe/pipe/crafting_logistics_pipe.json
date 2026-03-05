@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " R ",
+    "RBR",
+    " G "
+  ],
+  "key": {
+    "R": "minecraft:redstone",
+    "B": "logistics:pipe/basic_logistics_pipe",
+    "G": "logistics:core/stone_gear"
+  },
+  "result": {
+    "id": "logistics:pipe/crafting_logistics_pipe",
+    "count": 1
+  }
+}

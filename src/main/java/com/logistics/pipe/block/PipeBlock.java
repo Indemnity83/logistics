@@ -3,6 +3,7 @@ package com.logistics.pipe.block;
 import com.logistics.core.lib.block.behavior.ProbeBehavior;
 import com.logistics.core.lib.block.behavior.WrenchBehavior;
 import com.logistics.core.lib.block.capability.PipeConnection;
+import com.logistics.pipe.modules.CraftingModule;
 import com.logistics.pipe.network.NetworkRegistry;
 import com.logistics.core.lib.pipe.PipeConnectionRegistry;
 import com.logistics.core.lib.support.ProbeResult;
@@ -54,6 +55,7 @@ public class PipeBlock extends BaseEntityBlock implements ProbeBehavior.Probeabl
 
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
+    public static final BooleanProperty CRAFTING = BooleanProperty.create("crafting");
 
     // Uniform 8px thickness for both core and arms
     private static final double PIPE_SIZE = 8.0;
@@ -91,7 +93,7 @@ public class PipeBlock extends BaseEntityBlock implements ProbeBehavior.Probeabl
         if (pipe != null) {
             pipe.setPipeBlock(this);
         }
-        registerDefaultState(defaultBlockState().setValue(POWERED, false).setValue(WATERLOGGED, false));
+        registerDefaultState(defaultBlockState().setValue(POWERED, false).setValue(WATERLOGGED, false).setValue(CRAFTING, false));
     }
 
     public Pipe getPipe() {
@@ -105,7 +107,7 @@ public class PipeBlock extends BaseEntityBlock implements ProbeBehavior.Probeabl
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(POWERED, WATERLOGGED);
+        builder.add(POWERED, WATERLOGGED, CRAFTING);
     }
 
     @Override
@@ -383,6 +385,27 @@ public class PipeBlock extends BaseEntityBlock implements ProbeBehavior.Probeabl
 
         PipeContext ctx = new PipeContext(world, pos, world.getBlockState(pos), pipeEntity);
         return pipe.onWrench(ctx, player);
+    }
+
+    @Override
+    public boolean isSignalSource(BlockState state) {
+        return state.getValue(CRAFTING);
+    }
+
+    @Override
+    public int getSignal(BlockState state, BlockGetter level, BlockPos pos, Direction dir) {
+        if (!state.getValue(CRAFTING)) return 0;
+        BlockEntity be = level.getBlockEntity(pos);
+        if (be instanceof PipeBlockEntity pbe && state.getBlock() instanceof PipeBlock pb) {
+            Pipe p = pb.getPipe();
+            CraftingModule m = p != null ? p.getModule(CraftingModule.class) : null;
+            if (m != null) {
+                PipeContext ctx = pbe.createContext();
+                Direction autocrafterDir = m.findAutocrafterDirection(ctx);
+                if (autocrafterDir != null && autocrafterDir.getOpposite() == dir) return 15;
+            }
+        }
+        return 0;
     }
 
     public PipeConnection.Type getConnectionType(BlockGetter world, BlockPos pos, Direction direction) {
