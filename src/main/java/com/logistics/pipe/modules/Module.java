@@ -7,8 +7,10 @@ import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.runtime.RoutePlan;
 import com.logistics.pipe.runtime.TravelingItem;
 import java.util.List;
+import java.util.UUID;
+import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import org.jetbrains.annotations.Nullable;
 import net.minecraft.core.component.DataComponentGetter;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.util.RandomSource;
@@ -263,6 +265,25 @@ public interface Module {
      * @param baseStack the base item stack to copy and modify
      */
     default void appendCreativeMenuVariants(List<ItemStack> stacks, ItemStack baseStack) {}
+
+    /**
+     * Called by the network when it wants this module to dispatch items to a requester.
+     * The module must extract items, update the network supply, create a TravelingItem,
+     * and return the actual amount dispatched (0 if nothing could be sent).
+     *
+     * <p>This is called synchronously from the network tick. The module should commit
+     * the extraction transaction and inject the TravelingItem into the pipe before returning.
+     *
+     * @param ctx        the pipe context
+     * @param requester  position the items should be routed to
+     * @param item       item variant to extract
+     * @param amount     requested amount
+     * @param deliveryId UUID to attach to the TravelingItem for delivery accounting
+     * @return actual amount dispatched (0 if module could not fulfill)
+     */
+    default long onDispatch(PipeContext ctx, BlockPos requester, ItemVariant item, long amount, UUID deliveryId) {
+        return 0;
+    }
 
     /**
      * Whether this module accepts low-tier energy from the given direction.

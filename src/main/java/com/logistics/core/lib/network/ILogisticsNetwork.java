@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
@@ -21,40 +22,24 @@ public interface ILogisticsNetwork {
      */
     UUID getId();
 
-    // ===== Provider Operations =====
+    // ===== Supply Operations =====
 
     /**
-     * Update the provider cache for a position.
+     * Register (or refresh) supply for a provider position.
+     * Replaces all previous supply entries for this position.
+     * Called periodically by provider and crafter modules after scanning their inventories.
      *
-     * @param pos Position of the provider
-     * @param items Available items at this provider
-     * @param gameTime Current game time for staleness tracking
+     * @param pos      position of the provider pipe
+     * @param items    items currently available (ItemVariant → amount); pass empty map to remove
+     * @param priority dispatch priority (1 = real stock, 5 = crafter/on-demand)
      */
-    void updateProviderCache(BlockPos pos, Map<ItemStack, Long> items, long gameTime);
-
-    /**
-     * Update the crafter cache for a crafting pipe position.
-     * Advertises craftable items as available in the network.
-     *
-     * @param pos Position of the crafting pipe
-     * @param craftableItems Items this pipe can craft (typically Long.MAX_VALUE per item)
-     * @param gameTime Current game time for staleness tracking
-     */
-    void updateCrafterCache(BlockPos pos, Map<ItemStack, Long> craftableItems, long gameTime);
-
-    /**
-     * Check if a position is registered as a crafting provider.
-     *
-     * @param pos Position to check
-     * @return true if position has an active crafter cache
-     */
-    boolean isCraftingProvider(BlockPos pos);
+    void registerSupply(BlockPos pos, Map<ItemVariant, Long> items, int priority);
 
     /**
      * Get the total available amount of an item across all providers.
      *
      * @param stack Item to query
-     * @return Total available amount
+     * @return Total available amount (Long.MAX_VALUE if any crafter can produce it)
      */
     long getAvailableAmount(ItemStack stack);
 
@@ -65,66 +50,46 @@ public interface ILogisticsNetwork {
      */
     Map<ItemStack, Long> getAllAvailableItems();
 
-    // ===== Request Operations =====
+    // ===== Order Operations =====
 
     /**
-     * Add a request to the network.
+     * Place a standing order for items. Increments orderedForRequester immediately.
+     * The order persists until cancelled or fulfilled via notifyDelivery.
      *
-     * @param request Request to add
+     * @param item      item variant to request
+     * @param amount    amount needed
+     * @param requester position of the requesting pipe
+     * @return UUID of the order (store for cancellation)
      */
-    void addRequest(ItemRequest request);
+    UUID placeOrder(ItemVariant item, long amount, BlockPos requester);
 
     /**
-     * Add an order for a provider to fulfill.
+     * Cancel a standing order by ID. Decrements orderedForRequester.
      *
-     * @param order Order to add
+     * @param orderId order to cancel
      */
-    void addOrder(LogisticsOrder order);
+    void cancelOrder(UUID orderId);
 
     /**
-     * Get the total amount of an item currently ordered for a requester but not yet shipped.
-     * Used by supplier pipes to avoid duplicate requests without fragile NBT pending tracking.
+     * Get the total amount of an item currently ordered for a requester but not yet delivered.
+     * Used by supplier/requester pipes to avoid placing duplicate orders.
      *
-     * @param requester Position of the requester (e.g. supplier pipe)
-     * @param stack Item to query
-     * @return Total ordered amount currently in the order queue for this requester
+     * @param requester Position of the requester
+     * @param stack     Item to query
+     * @return Total ordered amount for this requester that has not yet been delivered
      */
     long getOrderedAmountFor(BlockPos requester, ItemStack stack);
 
     /**
-     * Get all pending orders for a provider.
+     * Record physical delivery of items to a requester inventory.
+     * Decrements orderedForRequester so that suppliers know the stock has arrived.
+     * Called by PipeRuntime when a TravelingItem enters a storage.
      *
-     * @param provider Position of the provider
-     * @return List of orders waiting to be fulfilled
+     * @param requester destination the item was delivered to
+     * @param item      item variant delivered
+     * @param amount    amount delivered
      */
-    List<LogisticsOrder> getOrdersFor(BlockPos provider);
-
-    /**
-     * Remove a completed or superseded order from the network.
-     *
-     * @param order Order to remove
-     */
-    void removeOrder(LogisticsOrder order);
-
-    /**
-     * Transition a pending order to in-transit state when the provider ships items.
-     * Removes the pending order, requeues any remainder, and returns an in-transit record
-     * to attach to the TravelingItem. orderedForRequester is NOT decremented — it stays
-     * positive until confirmDelivery is called.
-     *
-     * @param order Pending order that is being fulfilled
-     * @param shippedAmount Actual amount extracted (≤ order.amount())
-     * @return In-transit order to attach to the TravelingItem
-     */
-    LogisticsOrder markShipped(LogisticsOrder order, long shippedAmount, long gameTime);
-
-    /**
-     * Confirm physical delivery of an in-transit item to an inventory.
-     * Decrements orderedForRequester so suppliers know the stock has arrived.
-     *
-     * @param order In-transit order returned by markShipped
-     */
-    void confirmDelivery(LogisticsOrder order);
+    void notifyDelivery(BlockPos requester, ItemVariant item, long amount);
 
     // ===== Sink Operations =====
 

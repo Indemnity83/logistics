@@ -2,8 +2,6 @@ package com.logistics.pipe.modules;
 
 import com.logistics.LogisticsPipe;
 import com.logistics.core.lib.network.ILogisticsNetwork;
-import com.logistics.core.lib.network.ItemRequest;
-import com.logistics.core.lib.network.LogisticsOrder;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.core.lib.storage.NbtCompat;
 import com.logistics.pipe.PipeContext;
@@ -12,6 +10,7 @@ import com.logistics.pipe.network.NetworkRegistry;
 import com.logistics.pipe.runtime.RoutePlan;
 import com.logistics.pipe.runtime.TravelingItem;
 import com.logistics.pipe.ui.CraftingScreenHandler;
+import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -26,64 +25,59 @@ import net.minecraft.world.level.block.entity.CrafterBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * Crafting pipe module - presents craftable items as available to the network,
  * sources ingredients from the network, routes them into an adjacent Minecraft Autocrafter,
- * triggers crafting via a redstone pulse, then collects and routes the result to the requester.
+ * and triggers crafting via a redstone pulse whenever a complete recipe set is loaded.
  *
- * <p>State machine: IDLE → SOURCING → TRIGGERING → COLLECTING → IDLE
+ * <p>Triggering is poll-based: every {@code PULSE_COOLDOWN} ticks, if the autocrafter holds a
+ * complete recipe set the pipe pulses its redstone output. Multiple batches are handled
+ * naturally — the crafter fires each time a full set of ingredients is present.
  *
- * <p>Placement rule: The crafting pipe must be placed adjacent to an autocrafter.
- * The pipe automatically detects the autocrafter in any adjacent direction.
+ * <p>Ingredients are routed to the autocrafter slot that currently holds the fewest of that
+ * item type relative to the recipe requirement (fewest-complete-batches-first distribution).
  */
 public class CraftingModule implements Module {
-    // NBT keys
+    // NBT keys — recipe config
     private static final String RECIPE_ITEMS = "recipe_items";
     private static final String RECIPE_COUNTS = "recipe_counts";
     private static final String RESULT_ITEM = "result_item";
     private static final String RESULT_COUNT = "result_count";
-    private static final String CRAFT_STATE = "craft_state";
+    // NBT keys — behavior
     private static final String BLOCKING = "blocking";
+    // NBT keys — timing
     private static final String TICKS_SCAN = "ticks_scan";
-    private static final String TICKS_ORDER = "ticks_order";
-    private static final String TICKS_TRIGGER = "ticks_trigger";
-    private static final String TICKS_TIMEOUT = "ticks_timeout";
+    private static final String TICKS_PULSE = "ticks_pulse";
+    // NBT keys — active order state
+    private static final String ACTIVE = "active";
     private static final String PENDING_REQUESTER = "pending_requester";
-    private static final String PENDING_ORDER_TIME = "pending_order_time";
+    private static final String PENDING_DELIVERY_ID = "pending_delivery_id";
+    private static final String PENDING_AMOUNT = "pending_amount";
+    private static final String INGREDIENT_ORDER_IDS = "ingredient_order_ids";
 
     // Timing constants
-    private static final int SCAN_INTERVAL = 20;        // Update crafter cache every 20 ticks
-    private static final int ORDER_CHECK_INTERVAL = 20;  // Check for orders every 20 ticks
-    private static final int PULSE_DURATION = 4;        // Redstone pulse length (ticks)
-    // SOURCING_TIMEOUT resets each time an ingredient is placed — this is the "no progress" limit.
-    // Must be >= IN_TRANSIT_CLEANUP_TTL in RequestMatcher (1200 ticks / 60s) so we never give up
-    // and re-request while the original ingredient items are still in-transit.
-    private static final int SOURCING_TIMEOUT = 1200;   // 60 seconds with no progress
-    // COLLECTING_TIMEOUT starts after the redstone pulse is sent (end of TRIGGERING).
-    private static final int COLLECTING_TIMEOUT = 200;  // 10 seconds after crafting signal
+    private static final int SCAN_INTERVAL = 20;    // Update crafter supply every 20 ticks
+    private static final int PULSE_DURATION = 4;    // Redstone pulse length (ticks)
+    private static final int PULSE_COOLDOWN = 20;   // Ticks after pulse ends before next check
 
-    public enum CraftState {
-        IDLE,
-        SOURCING,
-        TRIGGERING,
-        COLLECTING
-    }
+    // Dispatch priority: crafters are fallback (prefer real stock in providers)
+    private static final int CRAFTER_PRIORITY = 5;
 
     // ==================== NBT State Accessors ====================
 
-    public CraftState getCraftState(PipeContext ctx) {
-        int ordinal = ctx.getInt(this, CRAFT_STATE, 0);
-        CraftState[] values = CraftState.values();
-        return ordinal >= 0 && ordinal < values.length ? values[ordinal] : CraftState.IDLE;
+    public boolean isActive(PipeContext ctx) {
+        return ctx.getInt(this, ACTIVE, 0) == 1;
     }
 
-    private void setCraftState(PipeContext ctx, CraftState state) {
-        ctx.saveInt(this, CRAFT_STATE, state.ordinal());
+    private void setActive(PipeContext ctx, boolean active) {
+        ctx.saveInt(this, ACTIVE, active ? 1 : 0);
         ctx.markDirtyAndSync();
     }
 
@@ -96,19 +90,16 @@ public class CraftingModule implements Module {
         ctx.markDirtyAndSync();
     }
 
-    /** Get recipe ingredient item ID for slot 0-8. Returns "" if empty. */
     public String getIngredientItem(PipeContext ctx, int slot) {
         CompoundTag items = ctx.getCompoundTag(this, RECIPE_ITEMS);
         return NbtCompat.getString(items, String.valueOf(slot), "");
     }
 
-    /** Get recipe ingredient count for slot 0-8. */
     public int getIngredientCount(PipeContext ctx, int slot) {
         CompoundTag counts = ctx.getCompoundTag(this, RECIPE_COUNTS);
         return NbtCompat.getInt(counts, String.valueOf(slot), 1);
     }
 
-    /** Set recipe ingredient for slot 0-8. Empty itemId clears slot. */
     public void setIngredient(PipeContext ctx, int slot, String itemId, int count) {
         if (slot < 0 || slot > 8) return;
         CompoundTag items = ctx.getCompoundTag(this, RECIPE_ITEMS);
@@ -150,7 +141,8 @@ public class CraftingModule implements Module {
         if (s.isEmpty()) return null;
         try {
             String[] parts = s.split(",");
-            return new BlockPos(Integer.parseInt(parts[0]), Integer.parseInt(parts[1]), Integer.parseInt(parts[2]));
+            return new BlockPos(
+                    Integer.parseInt(parts[0]), Integer.parseInt(parts[1]), Integer.parseInt(parts[2]));
         } catch (Exception e) {
             return null;
         }
@@ -160,24 +152,40 @@ public class CraftingModule implements Module {
         if (pos == null) {
             ctx.moduleState(getStateKey()).remove(PENDING_REQUESTER);
         } else {
-            ctx.saveString(this, PENDING_REQUESTER, pos.getX() + "," + pos.getY() + "," + pos.getZ());
+            ctx.saveString(
+                    this, PENDING_REQUESTER, pos.getX() + "," + pos.getY() + "," + pos.getZ());
         }
     }
 
-    private long getPendingOrderTime(PipeContext ctx) {
-        return ctx.getLong(this, PENDING_ORDER_TIME, -1L);
+    @Nullable
+    private UUID getPendingDeliveryId(PipeContext ctx) {
+        String s = ctx.getString(this, PENDING_DELIVERY_ID, "");
+        if (s.isEmpty()) return null;
+        try {
+            return UUID.fromString(s);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
-    private void setPendingOrderTime(PipeContext ctx, long time) {
-        ctx.saveLong(this, PENDING_ORDER_TIME, time);
+    private void setPendingDeliveryId(PipeContext ctx, @Nullable UUID id) {
+        if (id == null) {
+            ctx.moduleState(getStateKey()).remove(PENDING_DELIVERY_ID);
+        } else {
+            ctx.saveString(this, PENDING_DELIVERY_ID, id.toString());
+        }
+    }
+
+    private long getPendingAmount(PipeContext ctx) {
+        return ctx.getLong(this, PENDING_AMOUNT, 0L);
+    }
+
+    private void setPendingAmount(PipeContext ctx, long amount) {
+        ctx.saveLong(this, PENDING_AMOUNT, amount);
     }
 
     // ==================== Autocrafter Detection ====================
 
-    /**
-     * Find an adjacent autocrafter in any direction.
-     * @return Direction toward the autocrafter, or null if none found
-     */
     @Nullable
     public Direction findAutocrafterDirection(PipeContext ctx) {
         for (Direction dir : Direction.values()) {
@@ -195,94 +203,86 @@ public class CraftingModule implements Module {
     public void onTick(PipeContext ctx) {
         if (ctx.world().isClientSide()) return;
 
-        // Periodic: update crafter cache
+        // Periodic: update crafter supply table
         int scanTicks = ctx.getInt(this, TICKS_SCAN, 0) + 1;
         ctx.saveInt(this, TICKS_SCAN, scanTicks);
         if (scanTicks >= SCAN_INTERVAL) {
             ctx.saveInt(this, TICKS_SCAN, 0);
-            updateCrafterCache(ctx);
+            updateCrafterSupply(ctx);
         }
 
-        // Dispatch to state machine
-        CraftState state = getCraftState(ctx);
-        switch (state) {
-            case IDLE -> {
-                // Periodically check for orders
-                int orderTicks = ctx.getInt(this, TICKS_ORDER, 0) + 1;
-                ctx.saveInt(this, TICKS_ORDER, orderTicks);
-                if (orderTicks >= ORDER_CHECK_INTERVAL) {
-                    ctx.saveInt(this, TICKS_ORDER, 0);
-                    processOrders(ctx);
-                }
+        if (!isActive(ctx)) return;
+
+        Direction autocrafterDir = findAutocrafterDirection(ctx);
+        if (autocrafterDir == null) {
+            resetToIdle(ctx);
+            return;
+        }
+
+        // Pulse cycle: at tick 1 check ingredients and fire; at PULSE_DURATION+1 drive low;
+        // reset the counter after PULSE_DURATION + PULSE_COOLDOWN ticks for the next check.
+        int ticks = ctx.getInt(this, TICKS_PULSE, 0) + 1;
+        ctx.saveInt(this, TICKS_PULSE, ticks);
+
+        if (ticks == 1) {
+            if (autocrafterHasIngredients(ctx, autocrafterDir)) {
+                BlockState newState =
+                        ctx.world().getBlockState(ctx.pos()).setValue(PipeBlock.CRAFTING, true);
+                ctx.world().setBlock(ctx.pos(), newState, 3);
+                ctx.world().updateNeighborsAt(ctx.pos(), newState.getBlock());
             }
-            case SOURCING -> tickSourcing(ctx);
-            case TRIGGERING -> tickTriggering(ctx);
-            case COLLECTING -> tickCollecting(ctx);
+        } else if (ticks == PULSE_DURATION + 1) {
+            BlockState newState =
+                    ctx.world().getBlockState(ctx.pos()).setValue(PipeBlock.CRAFTING, false);
+            ctx.world().setBlock(ctx.pos(), newState, 3);
+            ctx.world().updateNeighborsAt(ctx.pos(), newState.getBlock());
+        } else if (ticks >= PULSE_DURATION + PULSE_COOLDOWN) {
+            ctx.saveInt(this, TICKS_PULSE, 0);
         }
     }
 
-    /** Update the crafter cache so the network knows we can craft the result item. */
-    private void updateCrafterCache(PipeContext ctx) {
-        ILogisticsNetwork network = NetworkRegistry.getOrCreateNetwork(ctx.world(), ctx.pos());
-        if (network == null) return;
+    /**
+     * Called by the network to start a crafting run.
+     * Records the delivery promise, places ingredient orders, and activates the module.
+     * Returns {@code amount} immediately as a promise; delivery happens after crafting.
+     */
+    @Override
+    public long onDispatch(
+            PipeContext ctx, BlockPos requester, ItemVariant item, long amount, UUID deliveryId) {
+        if (ctx.world().isClientSide()) return 0;
+        if (isActive(ctx)) return 0;
 
         String resultId = getResultItem(ctx);
-        if (resultId.isEmpty()) {
-            network.updateCrafterCache(ctx.pos(), new HashMap<>(), ctx.world().getGameTime());
-            return;
-        }
+        if (resultId.isEmpty()) return 0;
+        if (findAutocrafterDirection(ctx) == null) return 0;
 
-        // Only advertise if there's an adjacent autocrafter
-        if (findAutocrafterDirection(ctx) == null) {
-            network.updateCrafterCache(ctx.pos(), new HashMap<>(), ctx.world().getGameTime());
-            return;
-        }
-
-        // Advertise Long.MAX_VALUE - on-demand crafting supply
         ItemStack resultStack = resolveItem(resultId);
-        if (resultStack.isEmpty()) {
-            network.updateCrafterCache(ctx.pos(), new HashMap<>(), ctx.world().getGameTime());
-            return;
-        }
-
-        Map<ItemStack, Long> craftable = new HashMap<>();
-        craftable.put(resultStack, Long.MAX_VALUE);
-        network.updateCrafterCache(ctx.pos(), craftable, ctx.world().getGameTime());
-    }
-
-    /** Check network for pending orders and start sourcing ingredients. */
-    private void processOrders(PipeContext ctx) {
-        // Only start a new craft in IDLE (or if non-blocking allows it)
-        if (getCraftState(ctx) != CraftState.IDLE) return;
-
-        String resultId = getResultItem(ctx);
-        if (resultId.isEmpty()) return;
-
-        if (findAutocrafterDirection(ctx) == null) return;
+        if (resultStack.isEmpty() || !item.matches(resultStack)) return 0;
 
         ILogisticsNetwork network = NetworkRegistry.getOrCreateNetwork(ctx.world(), ctx.pos());
-        if (network == null) return;
+        if (network == null) return 0;
 
-        List<LogisticsOrder> orders = network.getOrdersFor(ctx.pos());
-        if (orders.isEmpty()) return;
+        int resultCount = getResultCount(ctx);
+        int batchCount = (int) Math.ceil((double) amount / resultCount);
 
-        LogisticsOrder order = orders.get(0);
-        // Save requester info
-        setPendingRequester(ctx, order.requester());
-        setPendingOrderTime(ctx, order.createdAt());
-        ctx.markDirty();
+        setPendingRequester(ctx, requester);
+        setPendingDeliveryId(ctx, deliveryId);
+        setPendingAmount(ctx, amount);
 
-        // Aggregate ingredient amounts by item type across all slots before requesting.
-        // Two plank slots (slot 0 + slot 4) must become ONE request for 2 planks total,
-        // not two separate requests — otherwise each triggers its own independent craft
-        // cycle and we produce far more items than needed.
+        // Blocking mode: remove from supply so new orders don't arrive while crafting
+        if (isBlocking(ctx)) {
+            network.registerSupply(ctx.pos(), new HashMap<>(), CRAFTER_PRIORITY);
+        }
+
+        // Aggregate ingredient amounts for all batches and place orders
         Map<String, Integer> neededByItem = new LinkedHashMap<>();
         for (int slot = 0; slot < 9; slot++) {
             String ingredientId = getIngredientItem(ctx, slot);
             if (ingredientId.isEmpty()) continue;
-            neededByItem.merge(ingredientId, getIngredientCount(ctx, slot), Integer::sum);
+            neededByItem.merge(ingredientId, getIngredientCount(ctx, slot) * batchCount, Integer::sum);
         }
 
+        CompoundTag orderIds = new CompoundTag();
         for (Map.Entry<String, Integer> entry : neededByItem.entrySet()) {
             ItemStack ingredientStack = resolveItem(entry.getKey());
             if (ingredientStack.isEmpty()) continue;
@@ -291,96 +291,94 @@ public class CraftingModule implements Module {
             long needed = entry.getValue() - alreadyOrdered;
             if (needed <= 0) continue;
 
-            network.addRequest(new ItemRequest(ctx.pos(), ingredientStack, needed, ctx.world().getGameTime()));
+            UUID ingredientOrderId =
+                    network.placeOrder(ItemVariant.of(ingredientStack), needed, ctx.pos());
+            orderIds.putString(entry.getKey(), ingredientOrderId.toString());
         }
+        ctx.putCompoundTag(this, INGREDIENT_ORDER_IDS, orderIds);
 
-        setCraftState(ctx, CraftState.SOURCING);
-        ctx.saveInt(this, TICKS_TIMEOUT, 0);
+        setActive(ctx, true);
+        ctx.saveInt(this, TICKS_PULSE, 0);
+
+        return amount; // Promise: delivery happens after crafting completes
     }
 
-    /** SOURCING: check if all ingredients have arrived in the autocrafter. */
-    private void tickSourcing(PipeContext ctx) {
-        int timeout = ctx.getInt(this, TICKS_TIMEOUT, 0) + 1;
-        ctx.saveInt(this, TICKS_TIMEOUT, timeout);
+    private void updateCrafterSupply(PipeContext ctx) {
+        ILogisticsNetwork network = NetworkRegistry.getOrCreateNetwork(ctx.world(), ctx.pos());
+        if (network == null) return;
 
-        if (timeout >= SOURCING_TIMEOUT) {
-            // Give up and return to IDLE
-            resetToIdle(ctx);
+        String resultId = getResultItem(ctx);
+        if (resultId.isEmpty() || findAutocrafterDirection(ctx) == null) {
+            network.registerSupply(ctx.pos(), new HashMap<>(), CRAFTER_PRIORITY);
             return;
         }
 
-        Direction autocrafterDir = findAutocrafterDirection(ctx);
-        if (autocrafterDir == null) {
-            resetToIdle(ctx);
+        // Blocking mode while active: don't advertise supply
+        if (isBlocking(ctx) && isActive(ctx)) {
+            network.registerSupply(ctx.pos(), new HashMap<>(), CRAFTER_PRIORITY);
             return;
         }
 
-        // Check if autocrafter has all required ingredients
-        if (autocrafterHasIngredients(ctx, autocrafterDir)) {
-            setCraftState(ctx, CraftState.TRIGGERING);
-            ctx.saveInt(this, TICKS_TRIGGER, 0);
-            ctx.saveInt(this, TICKS_TIMEOUT, 0);
+        ItemStack resultStack = resolveItem(resultId);
+        if (resultStack.isEmpty()) {
+            network.registerSupply(ctx.pos(), new HashMap<>(), CRAFTER_PRIORITY);
+            return;
         }
-    }
 
-    /** TRIGGERING: emit redstone pulse to activate autocrafter. */
-    private void tickTriggering(PipeContext ctx) {
-        int triggerTick = ctx.getInt(this, TICKS_TRIGGER, 0) + 1;
-        ctx.saveInt(this, TICKS_TRIGGER, triggerTick);
-
-        if (triggerTick == 1) {
-            // Rising edge: set CRAFTING=true, emit redstone
-            BlockState newState = ctx.state().setValue(PipeBlock.CRAFTING, true);
-            ctx.world().setBlock(ctx.pos(), newState, 3);
-            ctx.world().updateNeighborsAt(ctx.pos(), newState.getBlock());
-        } else if (triggerTick > PULSE_DURATION) {
-            // Falling edge: clear CRAFTING=false
-            BlockState newState = ctx.world().getBlockState(ctx.pos()).setValue(PipeBlock.CRAFTING, false);
-            ctx.world().setBlock(ctx.pos(), newState, 3);
-            ctx.world().updateNeighborsAt(ctx.pos(), newState.getBlock());
-            setCraftState(ctx, CraftState.COLLECTING);
-            ctx.saveInt(this, TICKS_TIMEOUT, 0);
-        }
-    }
-
-    /** COLLECTING: wait for the result to arrive via route(). Timeout safety. */
-    private void tickCollecting(PipeContext ctx) {
-        int timeout = ctx.getInt(this, TICKS_TIMEOUT, 0) + 1;
-        ctx.saveInt(this, TICKS_TIMEOUT, timeout);
-
-        if (timeout >= COLLECTING_TIMEOUT) {
-            resetToIdle(ctx);
-        }
+        // Advertise Long.MAX_VALUE — on-demand crafting supply
+        Map<ItemVariant, Long> craftable = new HashMap<>();
+        craftable.put(ItemVariant.of(resultStack), Long.MAX_VALUE);
+        network.registerSupply(ctx.pos(), craftable, CRAFTER_PRIORITY);
     }
 
     private void resetToIdle(PipeContext ctx) {
-        setCraftState(ctx, CraftState.IDLE);
-        setPendingRequester(ctx, null);
-        setPendingOrderTime(ctx, -1L);
-        ctx.saveInt(this, TICKS_TIMEOUT, 0);
+        ILogisticsNetwork network = NetworkRegistry.getNetwork(ctx.world(), ctx.pos());
+        if (network != null) {
+            CompoundTag orderIds = ctx.getCompoundTag(this, INGREDIENT_ORDER_IDS);
+            for (String key : orderIds.keySet()) {
+                String uuidStr = NbtCompat.getString(orderIds, key, "");
+                if (!uuidStr.isEmpty()) {
+                    try {
+                        network.cancelOrder(UUID.fromString(uuidStr));
+                    } catch (Exception ignored) {
+                    }
+                }
+            }
+        }
 
-        // Ensure CRAFTING block state is cleared
+        setActive(ctx, false);
+        setPendingRequester(ctx, null);
+        setPendingDeliveryId(ctx, null);
+        setPendingAmount(ctx, 0L);
+        ctx.moduleState(getStateKey()).remove(INGREDIENT_ORDER_IDS);
+        ctx.saveInt(this, TICKS_PULSE, 0);
+
+        // Clear CRAFTING block state if stuck on
         BlockState currentState = ctx.world().getBlockState(ctx.pos());
-        if (currentState.hasProperty(PipeBlock.CRAFTING) && currentState.getValue(PipeBlock.CRAFTING)) {
+        if (currentState.hasProperty(PipeBlock.CRAFTING)
+                && currentState.getValue(PipeBlock.CRAFTING)) {
             BlockState newState = currentState.setValue(PipeBlock.CRAFTING, false);
             ctx.world().setBlock(ctx.pos(), newState, 3);
             ctx.world().updateNeighborsAt(ctx.pos(), newState.getBlock());
         }
     }
 
-    /** Check if the autocrafter already holds all required ingredients, per slot. */
+    /**
+     * Check if the autocrafter holds at least one complete set of recipe ingredients.
+     */
     private boolean autocrafterHasIngredients(PipeContext ctx, Direction autocrafterDir) {
         BlockPos autocrafterPos = ctx.pos().relative(autocrafterDir);
-        if (!(ctx.world().getBlockEntity(autocrafterPos) instanceof CrafterBlockEntity crafter)) return false;
+        if (!(ctx.world().getBlockEntity(autocrafterPos) instanceof CrafterBlockEntity crafter))
+            return false;
 
         for (int slot = 0; slot < 9; slot++) {
             String ingredientId = getIngredientItem(ctx, slot);
             if (ingredientId.isEmpty()) continue;
             int needed = getIngredientCount(ctx, slot);
-
             ItemStack inSlot = crafter.getItem(slot);
             if (inSlot.isEmpty()) return false;
-            if (!ingredientId.equals(BuiltInRegistries.ITEM.getKey(inSlot.getItem()).toString())) return false;
+            if (!ingredientId.equals(
+                    BuiltInRegistries.ITEM.getKey(inSlot.getItem()).toString())) return false;
             if (inSlot.getCount() < needed) return false;
         }
         return true;
@@ -392,17 +390,14 @@ public class CraftingModule implements Module {
     public RoutePlan route(PipeContext ctx, TravelingItem item, List<Direction> options) {
         if (ctx.world().isClientSide()) return RoutePlan.pass();
 
-        CraftState state = getCraftState(ctx);
-
-        // Result items arrive with their destination already set by onExternalInsert.
-        // Nothing to do here — NetworkRouterModule routes them to the requester.
-
-        // Ingredient routing: item is an ingredient destined for this pipe — route it toward the autocrafter
-        if (state == CraftState.SOURCING && item.getDestination() != null && item.getDestination().equals(ctx.pos())) {
+        // Ingredient routing: item destined for this crafting pipe → redirect to autocrafter
+        if (isActive(ctx)
+                && item.getDestination() != null
+                && item.getDestination().equals(ctx.pos())) {
             Direction autocrafterDir = findAutocrafterDirection(ctx);
             if (autocrafterDir != null && options.contains(autocrafterDir)) {
                 if (isIngredient(ctx, item.getStack())) {
-                    item.setDestination(null); // Delivered
+                    item.setDestination(null);
                     return RoutePlan.reroute(autocrafterDir);
                 }
             }
@@ -411,14 +406,12 @@ public class CraftingModule implements Module {
         return RoutePlan.pass();
     }
 
-    /** Check if this item matches any recipe ingredient. */
     private boolean isIngredient(PipeContext ctx, ItemStack stack) {
+        String stackId = BuiltInRegistries.ITEM.getKey(stack.getItem()).toString();
         for (int slot = 0; slot < 9; slot++) {
             String id = getIngredientItem(ctx, slot);
             if (id.isEmpty()) continue;
-            if (BuiltInRegistries.ITEM.getKey(stack.getItem()).toString().equals(id)) {
-                return true;
-            }
+            if (stackId.equals(id)) return true;
         }
         return false;
     }
@@ -427,80 +420,124 @@ public class CraftingModule implements Module {
 
     @Override
     public boolean canAcceptFromNonPipe(PipeContext ctx, Direction from) {
-        // Allow the autocrafter to push its output into this pipe
         Direction autocrafterDir = findAutocrafterDirection(ctx);
         return autocrafterDir != null && autocrafterDir == from;
     }
 
     /**
      * Intercept ingredient delivery into the adjacent autocrafter.
-     * Called by PipeRuntime at SERVER_EXIT_THRESHOLD instead of the default generic
-     * storage.insert(), so we can place each ingredient into its exact recipe slot.
-     * Returns null if handled (item consumed), or item if not handled (fall through to default).
+     * Distributes the ingredient across matching recipe slots using a fewest-complete-batches-first
+     * strategy: slots with the least progress relative to their recipe count receive items first.
      */
     @Override
     @Nullable
-    public TravelingItem onTransferToStorage(PipeContext ctx, TravelingItem item, Direction direction) {
+    public TravelingItem onTransferToStorage(
+            PipeContext ctx, TravelingItem item, Direction direction) {
         if (ctx.world().isClientSide()) return item;
-        if (getCraftState(ctx) != CraftState.SOURCING) return item;
+        if (!isActive(ctx)) return item;
 
         Direction autocrafterDir = findAutocrafterDirection(ctx);
         if (autocrafterDir == null || autocrafterDir != direction) return item;
         if (!isIngredient(ctx, item.getStack())) return item;
 
-        return insertIngredientIntoSlot(ctx, direction, item) ? null : item;
+        int placed = distributeIngredient(ctx, autocrafterDir, item);
+        if (placed <= 0) return item;
+
+        // Accounting
+        if (item.getDeliveryId() != null) {
+            ILogisticsNetwork network = NetworkRegistry.getNetwork(ctx.world(), ctx.pos());
+            if (network != null) {
+                network.notifyDelivery(ctx.pos(), ItemVariant.of(item.getStack()), placed);
+            }
+        }
+
+        item.getStack().shrink(placed);
+        return item.getStack().isEmpty() ? null : item;
     }
 
     /**
-     * Insert an ingredient directly into the matching recipe slot in the adjacent autocrafter.
-     * Uses Container.setItem() directly to bypass the autocrafter's canPlaceItem() equalization
-     * logic, which rejects insertion into a slot when a later slot with the same ingredient
-     * is still empty. We own the recipe layout, so we place items exactly where we want them.
+     * Distribute an ingredient stack across matching recipe slots.
+     * Uses fewest-complete-batches-first ordering: the slot that is furthest behind relative to
+     * its recipe count receives items first, ensuring all slots fill at the same batch rate.
+     *
+     * @return number of items actually placed
      */
-    /**
-     * Distribute an ingredient stack across all matching empty recipe slots in the autocrafter.
-     * A consolidated request (e.g., 2 planks for slot 0 + slot 4) arrives as a single
-     * TravelingItem with count=2 and must be split across both slots.
-     */
-    private boolean insertIngredientIntoSlot(PipeContext ctx, Direction autocrafterDir, TravelingItem item) {
+    private int distributeIngredient(
+            PipeContext ctx, Direction autocrafterDir, TravelingItem item) {
         BlockPos autocrafterPos = ctx.pos().relative(autocrafterDir);
-        if (!(ctx.world().getBlockEntity(autocrafterPos) instanceof CrafterBlockEntity crafter)) return false;
+        if (!(ctx.world().getBlockEntity(autocrafterPos) instanceof CrafterBlockEntity crafter))
+            return 0;
 
         String itemId = BuiltInRegistries.ITEM.getKey(item.getStack().getItem()).toString();
+
+        // Collect matching recipe slots
+        List<Integer> matchingSlots = new ArrayList<>();
+        for (int slot = 0; slot < 9; slot++) {
+            if (itemId.equals(getIngredientItem(ctx, slot))) matchingSlots.add(slot);
+        }
+        if (matchingSlots.isEmpty()) return 0;
+
+        int n = matchingSlots.size();
+        int[] current = new int[n];
+        int[] recipeCounts = new int[n];
+        for (int i = 0; i < n; i++) {
+            int slot = matchingSlots.get(i);
+            ItemStack inSlot = crafter.getItem(slot);
+            current[i] = inSlot.isEmpty() ? 0 : inSlot.getCount();
+            recipeCounts[i] = getIngredientCount(ctx, slot);
+        }
+
         int remaining = item.getStack().getCount();
+        int maxStackSize = item.getStack().getMaxStackSize();
 
-        for (int slot = 0; slot < 9 && remaining > 0; slot++) {
-            if (!itemId.equals(getIngredientItem(ctx, slot))) continue;
-            if (!crafter.getItem(slot).isEmpty()) continue;
-
-            int toPlace = Math.min(remaining, getIngredientCount(ctx, slot));
-            crafter.setItem(slot, item.getStack().copyWithCount(toPlace));
-            remaining -= toPlace;
-        }
-
-        if (remaining < item.getStack().getCount()) {
-            // At least some was placed — consider the item consumed
-            if (item.getInTransitOrder() != null) {
-                ILogisticsNetwork network = NetworkRegistry.getNetwork(ctx.world(), ctx.pos());
-                if (network != null) network.confirmDelivery(item.getInTransitOrder());
+        // Fill round by round: each round brings all slots with the minimum batch count up to the
+        // next batch level. This ensures all slots fill at the same rate regardless of recipe counts.
+        while (remaining > 0) {
+            int minBatches = Integer.MAX_VALUE;
+            for (int i = 0; i < n; i++) {
+                minBatches = Math.min(minBatches, current[i] / recipeCounts[i]);
             }
-            // Reset the sourcing timeout — the timeout is "time with no progress"
-            ctx.saveInt(this, TICKS_TIMEOUT, 0);
-            return true;
+
+            boolean placedAny = false;
+            for (int i = 0; i < n && remaining > 0; i++) {
+                if (current[i] / recipeCounts[i] != minBatches) continue;
+                int target = Math.min((minBatches + 1) * recipeCounts[i], maxStackSize);
+                int canAdd = target - current[i];
+                if (canAdd <= 0) continue;
+                int toPlace = Math.min(remaining, canAdd);
+                current[i] += toPlace;
+                remaining -= toPlace;
+                placedAny = true;
+            }
+            if (!placedAny) break; // All slots maxed out
         }
-        return false;
+
+        // Apply changes to crafter
+        int totalPlaced = item.getStack().getCount() - remaining;
+        if (totalPlaced > 0) {
+            for (int i = 0; i < n; i++) {
+                int slot = matchingSlots.get(i);
+                ItemStack inSlot = crafter.getItem(slot);
+                int originalCount = inSlot.isEmpty() ? 0 : inSlot.getCount();
+                if (current[i] != originalCount) {
+                    if (inSlot.isEmpty()) {
+                        crafter.setItem(slot, item.getStack().copyWithCount(current[i]));
+                    } else {
+                        crafter.setItem(slot, inSlot.copyWithCount(current[i]));
+                    }
+                }
+            }
+        }
+
+        return totalPlaced;
     }
 
     /**
      * Intercept the autocrafter's result being pushed into this pipe.
-     * Splits the stack at insertion time: the ordered amount gets a destination=requester
-     * and an in-transit order, while any surplus enters as a fresh unrouted item.
-     * Both TravelingItems receive proper routing decisions when they cross ROUTE_POINT.
+     * Ordered amount gets destination=requester with deliveryId; surplus flows freely.
      */
     @Override
     public boolean onExternalInsert(PipeContext ctx, ItemStack stack, Direction fromDirection) {
-        // Guard by pending requester rather than exact state: the autocrafter can eject while
-        // we are still in TRIGGERING (before onTick has advanced us to COLLECTING).
         BlockPos requester = getPendingRequester(ctx);
         if (requester == null) return false;
 
@@ -510,42 +547,37 @@ public class CraftingModule implements Module {
         String resultId = getResultItem(ctx);
         if (resultId.isEmpty()) return false;
         ItemStack resultStack = resolveItem(resultId);
-        if (resultStack.isEmpty() || !ItemStack.isSameItemSameComponents(stack, resultStack)) return false;
+        if (resultStack.isEmpty() || !ItemStack.isSameItemSameComponents(stack, resultStack))
+            return false;
 
-        // Determine how many to send to the requester vs. return to the network
-        long ordered = stack.getCount();
-        LogisticsOrder inTransit = null;
-        ILogisticsNetwork network = NetworkRegistry.getNetwork(ctx.world(), ctx.pos());
-        if (network != null) {
-            long orderTime = getPendingOrderTime(ctx);
-            for (LogisticsOrder o : network.getOrdersFor(ctx.pos())) {
-                if (o.requester().equals(requester) && o.createdAt() == orderTime) {
-                    ordered = Math.min(stack.getCount(), o.amount());
-                    inTransit = network.markShipped(o, ordered, ctx.world().getGameTime());
-                    break;
-                }
-            }
-        }
+        long ordered = getPendingAmount(ctx);
+        UUID deliveryId = getPendingDeliveryId(ctx);
 
-        // Ordered portion: tagged with destination and in-transit order
-        ItemStack orderedStack = stack.copy();
-        orderedStack.setCount((int) ordered);
+        // Ordered portion: routed to requester with delivery tracking
+        long orderedCount = Math.min(stack.getCount(), ordered);
+        ItemStack orderedStack = stack.copyWithCount((int) orderedCount);
         TravelingItem orderedItem = new TravelingItem(
                 orderedStack, fromDirection.getOpposite(), LogisticsPipe.CONFIG.ITEM_MIN_SPEED, requester);
-        if (inTransit != null) orderedItem.setInTransitOrder(inTransit);
+        if (deliveryId != null) orderedItem.setDeliveryId(deliveryId);
         ctx.blockEntity().forceAddItem(orderedItem, fromDirection);
 
-        // Surplus (if recipe yields more than was ordered): unrouted, flows freely into the network
-        int surplus = stack.getCount() - (int) ordered;
+        // Surplus: unrouted, flows freely into the network
+        int surplus = stack.getCount() - (int) orderedCount;
         if (surplus > 0) {
-            ItemStack surplusStack = stack.copy();
-            surplusStack.setCount(surplus);
             TravelingItem surplusItem = new TravelingItem(
-                    surplusStack, fromDirection.getOpposite(), LogisticsPipe.CONFIG.ITEM_MIN_SPEED);
+                    stack.copyWithCount(surplus),
+                    fromDirection.getOpposite(),
+                    LogisticsPipe.CONFIG.ITEM_MIN_SPEED);
             ctx.blockEntity().forceAddItem(surplusItem, fromDirection);
         }
 
-        resetToIdle(ctx);
+        long remaining = ordered - orderedCount;
+        setPendingAmount(ctx, remaining);
+        if (remaining <= 0) {
+            resetToIdle(ctx);
+        }
+        // Otherwise stay active; the pulse cycle will keep checking for more ingredients
+
         return true;
     }
 
@@ -569,20 +601,15 @@ public class CraftingModule implements Module {
         if (!(player instanceof ServerPlayer serverPlayer)) return InteractionResult.PASS;
 
         serverPlayer.openMenu(new SimpleMenuProvider(
-                (syncId, playerInventory, p) -> new CraftingScreenHandler(
-                        syncId,
-                        playerInventory,
-                        ctx.blockEntity()
-                ),
-                Component.translatable("screen.logistics.crafting")
-        ));
+                (syncId, playerInventory, p) ->
+                        new CraftingScreenHandler(syncId, playerInventory, ctx.blockEntity()),
+                Component.translatable("screen.logistics.crafting")));
 
         return InteractionResult.SUCCESS;
     }
 
     // ==================== Helpers ====================
 
-    /** Resolve an item ID to an ItemStack. Returns EMPTY if not found. */
     private static ItemStack resolveItem(String itemId) {
         if (itemId == null || itemId.isEmpty()) return ItemStack.EMPTY;
         try {

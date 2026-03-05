@@ -50,7 +50,7 @@ public class CraftingScreenHandler extends AbstractContainerMenu {
         if (pipeEntity != null) {
             this.context = ContainerLevelAccess.create(pipeEntity.getLevel(), pipeEntity.getBlockPos());
             PipeModuleHelper.withModule(pipeEntity, CraftingModule.class, (ctx, module) -> {
-                data.set(DATA_CRAFT_STATE, module.getCraftState(ctx).ordinal());
+                data.set(DATA_CRAFT_STATE, module.isActive(ctx) ? 1 : 0);
                 data.set(DATA_BLOCKING, module.isBlocking(ctx) ? 1 : 0);
             });
         } else {
@@ -170,7 +170,7 @@ public class CraftingScreenHandler extends AbstractContainerMenu {
     public void broadcastChanges() {
         super.broadcastChanges();
         PipeModuleHelper.withModule(context, CraftingModule.class, (ctx, module) -> {
-            data.set(DATA_CRAFT_STATE, module.getCraftState(ctx).ordinal());
+            data.set(DATA_CRAFT_STATE, module.isActive(ctx) ? 1 : 0);
             data.set(DATA_BLOCKING, module.isBlocking(ctx) ? 1 : 0);
         });
     }

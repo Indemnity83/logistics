@@ -7,8 +7,8 @@ import com.logistics.core.lib.storage.DirectionSerializer;
 import com.logistics.core.lib.storage.NbtCompat;
 import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
-import com.logistics.core.lib.network.ItemRequest;
 import com.logistics.pipe.network.NetworkRegistry;
+import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import com.logistics.pipe.ui.RequesterScreenHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -143,15 +143,11 @@ public class RequesterModule implements Module {
 
             ItemStack stack = new ItemStack(item);
             long available = network.getAvailableAmount(stack);
+            long alreadyOrdered = network.getOrderedAmountFor(ctx.pos(), stack);
+            long needed = config.amount() - alreadyOrdered;
 
-            if (available >= config.amount()) {
-                ItemRequest request = new ItemRequest(
-                    ctx.pos(),
-                    stack,
-                    config.amount(),
-                    ctx.world().getGameTime()
-                );
-                network.addRequest(request);
+            if (needed > 0 && available >= needed) {
+                network.placeOrder(ItemVariant.of(stack), needed, ctx.pos());
 
                 // TODO(Phase 11): Consume energy
                 // ctx.setEnergy(ctx.getEnergy() - RF_PER_REQUEST_CYCLE);
@@ -264,15 +260,11 @@ public class RequesterModule implements Module {
             return;
         }
 
-        ItemRequest request = new ItemRequest(
-                ctx.pos(),
-                stack,
-                amount,
-                ctx.world().getGameTime(),
-                0
-        );
-
-        network.addRequest(request);
+        long alreadyOrdered = network.getOrderedAmountFor(ctx.pos(), stack);
+        long needed = amount - alreadyOrdered;
+        if (needed > 0) {
+            network.placeOrder(ItemVariant.of(stack), needed, ctx.pos());
+        }
     }
 
     /**

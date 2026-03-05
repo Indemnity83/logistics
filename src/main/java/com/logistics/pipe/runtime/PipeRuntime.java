@@ -213,7 +213,7 @@ public final class PipeRuntime {
         // falls back to default routing rather than being stuck forever.
         if (ctx.isServer() && item.isExpired() && item.getDestination() != null) {
             item.setDestination(null);
-            item.setInTransitOrder(null); // release ref; accounting cleaned by cleanupStaleInTransit
+            item.setDeliveryId(null); // release ref; orderedForRequester accounting is best-effort
         }
         RoutePlan plan = resolveRoutePlan(ctx, item);
         executeRoutePlan(ctx, item, plan, itemState);
@@ -392,17 +392,19 @@ public final class PipeRuntime {
 
                 if (inserted > 0) {
                     transaction.commit();
-                    // Confirm delivery when item fully enters a real inventory (not another pipe).
-                    // Skip confirmation on partial insertion — the in-transit cleanup TTL will
-                    // recover orderedForRequester accounting for any dropped remainder.
-                    if (!(storage instanceof PipeItemStorage) && item.getInTransitOrder() != null
-                            && inserted == item.getStack().getCount()) {
+                    // Notify delivery when item fully enters a real inventory (not another pipe).
+                    // Skip on partial insertion — orderedForRequester accounting is best-effort.
+                    if (!(storage instanceof PipeItemStorage) && item.getDeliveryId() != null
+                            && item.getDestination() != null && inserted == item.getStack().getCount()) {
                         PipeNetwork network = NetworkRegistry.getNetwork(world, pos);
                         if (network != null) {
-                            network.confirmDelivery(item.getInTransitOrder());
+                            network.notifyDelivery(
+                                    item.getDestination(),
+                                    ItemVariant.of(item.getStack()),
+                                    inserted);
                         } else {
-                            LOGGER.debug("[PipeRuntime] confirmDelivery skipped at {}: no network found for {} ({})",
-                                    pos, item.getStack().getItem(), item.getInTransitOrder());
+                            LOGGER.debug("[PipeRuntime] notifyDelivery skipped at {}: no network found for {} ({})",
+                                    pos, item.getStack().getItem(), item.getDeliveryId());
                         }
                     }
                     if (inserted < item.getStack().getCount()) {

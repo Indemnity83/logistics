@@ -10,6 +10,9 @@ import com.logistics.pipe.runtime.RoutePlan;
 import com.logistics.pipe.runtime.TravelingItem;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
+import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.core.component.DataComponentGetter;
@@ -418,6 +421,20 @@ public class Pipe {
             }
         }
         return candidate;
+    }
+
+    /**
+     * Dispatch items to a requester by asking the first module that can fulfill to extract.
+     * Called by MinecraftWorldView.dispatch() during the network tick.
+     *
+     * @return actual amount dispatched (0 if no module could fulfill)
+     */
+    public long dispatch(PipeContext ctx, BlockPos requester, ItemVariant item, long amount, UUID deliveryId) {
+        for (Module module : modules) {
+            long dispatched = module.onDispatch(ctx, requester, item, amount, deliveryId);
+            if (dispatched > 0) return dispatched;
+        }
+        return 0;
     }
 
     // Energy capability check for low-tier energy sources

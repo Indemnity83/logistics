@@ -20,10 +20,7 @@ public class CraftingScreen extends AbstractContainerScreen<CraftingScreenHandle
             ResourceId.in("logistics", "textures/gui/pipe/crafting.png");
 
     private static final List<String> CRAFT_STATE_NAMES =
-            List.of("gui.logistics.crafting.state.idle",
-                    "gui.logistics.crafting.state.sourcing",
-                    "gui.logistics.crafting.state.triggering",
-                    "gui.logistics.crafting.state.collecting");
+            List.of("gui.logistics.crafting.state.idle", "gui.logistics.crafting.state.active");
 
     private Button blockingButton;
 
