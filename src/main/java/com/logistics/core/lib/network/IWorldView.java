@@ -2,6 +2,8 @@ package com.logistics.core.lib.network;
 
 import com.logistics.pipe.modules.Module;
 import java.util.List;
+import java.util.UUID;
+import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.minecraft.core.BlockPos;
 import org.jetbrains.annotations.Nullable;
 
@@ -34,6 +36,19 @@ public interface IWorldView {
      * Returns false if the position has no pipe, no sink module, or the filter does not match.
      */
     boolean matchesSinkFilter(BlockPos pos, net.minecraft.world.item.ItemStack stack);
+
+    /**
+     * Ask the provider pipe at {@code provider} to extract and dispatch items to {@code requester}.
+     * Finds the pipe's modules and calls {@code onDispatch()} on the first module that can fulfill.
+     *
+     * @param provider   position of the provider pipe
+     * @param requester  position of the destination requester
+     * @param item       item variant to extract
+     * @param amount     requested amount
+     * @param deliveryId UUID to attach to the TravelingItem for delivery accounting
+     * @return actual amount dispatched (0 if provider could not fulfill)
+     */
+    long dispatch(BlockPos provider, BlockPos requester, ItemVariant item, long amount, UUID deliveryId);
 
     /**
      * Check if this is a client-side world.
