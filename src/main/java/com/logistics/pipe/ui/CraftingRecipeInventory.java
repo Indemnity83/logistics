@@ -73,7 +73,11 @@ public class CraftingRecipeInventory implements Container {
     }
 
     @Override
-    public void clearContent() {}
+    public void clearContent() {
+        for (int i = 0; i < stacks.size(); i++) {
+            stacks.set(i, ItemStack.EMPTY);
+        }
+    }
 
     private void loadFromModule() {
         for (int i = 0; i < SLOT_COUNT; i++) {

@@ -142,11 +142,10 @@ public class RequesterModule implements Module {
             Item item = itemHolder.get().value();
 
             ItemStack stack = new ItemStack(item);
-            long available = network.getAvailableAmount(stack);
             long alreadyOrdered = network.getOrderedAmountFor(ctx.pos(), stack);
             long needed = config.amount() - alreadyOrdered;
 
-            if (needed > 0 && available >= needed) {
+            if (needed > 0) {
                 network.placeOrder(ItemVariant.of(stack), needed, ctx.pos());
 
                 // TODO(Phase 11): Consume energy

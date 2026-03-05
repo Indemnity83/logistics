@@ -93,6 +93,7 @@ public class NetworkController {
      * @return UUID of the new order (store for later cancellation)
      */
     public UUID placeOrder(ItemVariant item, long amount, BlockPos requester) {
+        if (amount <= 0) throw new IllegalArgumentException("Order amount must be positive, got: " + amount);
         UUID id = UUID.randomUUID();
         orderQueue.put(id, new Order(id, item, amount, requester));
         orderedForRequester
@@ -160,6 +161,7 @@ public class NetworkController {
      * @param shipped actual amount dispatched (≤ order amount)
      */
     public void recordDispatched(UUID orderId, long shipped) {
+        if (shipped <= 0) return;
         Order order = orderQueue.get(orderId);
         if (order == null) return;
         if (shipped >= order.amount()) {
@@ -186,6 +188,7 @@ public class NetworkController {
      * Called by PipeRuntime when a TravelingItem enters an inventory.
      */
     public void notifyDelivery(BlockPos requester, ItemVariant item, long amount) {
+        if (amount <= 0) return;
         decrementOrdered(requester, item, amount);
     }
 

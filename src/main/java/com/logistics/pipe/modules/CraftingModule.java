@@ -263,7 +263,18 @@ public class CraftingModule implements Module {
         if (network == null) return 0;
 
         int resultCount = getResultCount(ctx);
-        int batchCount = (int) Math.ceil((double) amount / resultCount);
+        long batchCount = (amount + resultCount - 1L) / resultCount;
+
+        // Aggregate ingredient amounts for all batches
+        Map<String, Long> neededByItem = new LinkedHashMap<>();
+        for (int slot = 0; slot < 9; slot++) {
+            String ingredientId = getIngredientItem(ctx, slot);
+            if (ingredientId.isEmpty()) continue;
+            neededByItem.merge(ingredientId, (long) getIngredientCount(ctx, slot) * batchCount, Long::sum);
+        }
+
+        // No ingredients configured — reject the dispatch
+        if (neededByItem.isEmpty()) return 0;
 
         setPendingRequester(ctx, requester);
         setPendingDeliveryId(ctx, deliveryId);
@@ -274,16 +285,8 @@ public class CraftingModule implements Module {
             network.registerSupply(ctx.pos(), new HashMap<>(), CRAFTER_PRIORITY);
         }
 
-        // Aggregate ingredient amounts for all batches and place orders
-        Map<String, Integer> neededByItem = new LinkedHashMap<>();
-        for (int slot = 0; slot < 9; slot++) {
-            String ingredientId = getIngredientItem(ctx, slot);
-            if (ingredientId.isEmpty()) continue;
-            neededByItem.merge(ingredientId, getIngredientCount(ctx, slot) * batchCount, Integer::sum);
-        }
-
         CompoundTag orderIds = new CompoundTag();
-        for (Map.Entry<String, Integer> entry : neededByItem.entrySet()) {
+        for (Map.Entry<String, Long> entry : neededByItem.entrySet()) {
             ItemStack ingredientStack = resolveItem(entry.getKey());
             if (ingredientStack.isEmpty()) continue;
 
@@ -470,10 +473,13 @@ public class CraftingModule implements Module {
 
         String itemId = BuiltInRegistries.ITEM.getKey(item.getStack().getItem()).toString();
 
-        // Collect matching recipe slots
+        // Collect matching recipe slots that are empty or already hold the same item type
         List<Integer> matchingSlots = new ArrayList<>();
         for (int slot = 0; slot < 9; slot++) {
-            if (itemId.equals(getIngredientItem(ctx, slot))) matchingSlots.add(slot);
+            if (!itemId.equals(getIngredientItem(ctx, slot))) continue;
+            ItemStack inSlot = crafter.getItem(slot);
+            if (!inSlot.isEmpty() && !itemId.equals(BuiltInRegistries.ITEM.getKey(inSlot.getItem()).toString())) continue;
+            matchingSlots.add(slot);
         }
         if (matchingSlots.isEmpty()) return 0;
 
@@ -516,20 +522,27 @@ public class CraftingModule implements Module {
         int totalPlaced = item.getStack().getCount() - remaining;
         if (totalPlaced > 0) {
             for (int i = 0; i < n; i++) {
-                int slot = matchingSlots.get(i);
-                ItemStack inSlot = crafter.getItem(slot);
-                int originalCount = inSlot.isEmpty() ? 0 : inSlot.getCount();
-                if (current[i] != originalCount) {
-                    if (inSlot.isEmpty()) {
-                        crafter.setItem(slot, item.getStack().copyWithCount(current[i]));
-                    } else {
-                        crafter.setItem(slot, inSlot.copyWithCount(current[i]));
-                    }
-                }
+                applySlotCount(crafter, matchingSlots.get(i), item.getStack(), current[i]);
             }
         }
 
         return totalPlaced;
+    }
+
+    /**
+     * Apply a new count to a crafter slot. If the slot is empty, creates a new stack from
+     * {@code ingredient}; otherwise copies the existing stack with the new count.
+     * No-ops when the count hasn't changed.
+     */
+    private static void applySlotCount(CrafterBlockEntity crafter, int slot, ItemStack ingredient, int newCount) {
+        ItemStack inSlot = crafter.getItem(slot);
+        int originalCount = inSlot.isEmpty() ? 0 : inSlot.getCount();
+        if (newCount == originalCount) return;
+        if (inSlot.isEmpty()) {
+            crafter.setItem(slot, ingredient.copyWithCount(newCount));
+        } else {
+            crafter.setItem(slot, inSlot.copyWithCount(newCount));
+        }
     }
 
     /**

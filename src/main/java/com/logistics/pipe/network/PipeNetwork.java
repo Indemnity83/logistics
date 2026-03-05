@@ -151,11 +151,17 @@ public class PipeNetwork implements ILogisticsNetwork {
         if (worldView == null) return;
         NetworkController.DispatchCommand cmd;
         while ((cmd = controller.nextDispatchable()) != null) {
-            long shipped = worldView.dispatch(
-                    cmd.provider(), cmd.requester(), cmd.item(), cmd.amount(), cmd.orderId());
-            if (shipped > 0) {
-                controller.recordDispatched(cmd.orderId(), shipped);
-            } else {
+            try {
+                long shipped = worldView.dispatch(
+                        cmd.provider(), cmd.requester(), cmd.item(), cmd.amount(), cmd.orderId());
+                if (shipped > 0) {
+                    controller.recordDispatched(cmd.orderId(), shipped);
+                } else {
+                    controller.markSupplyUnavailable(cmd.provider());
+                }
+            } catch (Exception e) {
+                LogisticsMod.LOGGER.error("[Network {}] Dispatch failed for order {}: {}",
+                        getNetworkIdShort(id), cmd.orderId(), e.getMessage(), e);
                 controller.markSupplyUnavailable(cmd.provider());
             }
         }

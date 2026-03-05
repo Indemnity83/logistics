@@ -11,6 +11,7 @@
     "G": "logistics:core/stone_gear"
   },
   "result": {
-    "id": "logistics:pipe/crafting_logistics_pipe"
+    "id": "logistics:pipe/crafting_logistics_pipe",
+    "count": 1
   }
 }

@@ -80,10 +80,9 @@ public class CraftingScreen extends AbstractContainerScreen<CraftingScreenHandle
 
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        super.render(graphics, mouseX, mouseY, partialTick);
-
-        // Update blocking button text
+        // Update blocking button text before rendering so the label is current this frame
         blockingButton.setMessage(getBlockingText());
+        super.render(graphics, mouseX, mouseY, partialTick);
 
         // Draw craft state label
         Component stateText = getCraftStateText();
