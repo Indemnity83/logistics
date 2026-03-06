@@ -352,7 +352,9 @@ public class CraftingModule implements Module {
                     if (id != null) {
                         try {
                             network.cancelOrder(id);
-                        } catch (Exception ignored) {
+                        } catch (Exception e) {
+                            LogisticsPipe.LOGGER.warn(
+                                    "[Crafter @ {}] Failed to cancel ingredient order {}", ctx.pos(), id, e);
                         }
                     }
                 }
