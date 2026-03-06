@@ -261,14 +261,27 @@ public class CraftingModule implements Module {
         // No ingredients configured — reject the dispatch
         if (neededByItem.isEmpty()) return 0;
 
+        // Pre-validate all ingredients before placing any orders — fail fast so we never
+        // queue a craft with a missing ingredient order that will never arrive.
+        Map<String, ItemStack> resolvedIngredients = new LinkedHashMap<>();
+        for (Map.Entry<String, Long> entry : neededByItem.entrySet()) {
+            ItemStack ingredientStack = resolveItem(entry.getKey());
+            if (ingredientStack.isEmpty()) {
+                LogisticsPipe.LOGGER.warn(
+                        "[Crafter @ {}] Cannot fulfil craft of '{}': ingredient '{}' is not a known item."
+                                + " Check the recipe configured in the crafting pipe.",
+                        ctx.pos(), getResultItem(ctx), entry.getKey());
+                return 0;
+            }
+            resolvedIngredients.put(entry.getKey(), ingredientStack);
+        }
+
         // Place ingredient orders immediately — each queued order orders its own ingredients
         // independently so materials arrive in parallel rather than waiting for prior orders.
         CompoundTag ingredientOrderIds = new CompoundTag();
         for (Map.Entry<String, Long> entry : neededByItem.entrySet()) {
-            ItemStack ingredientStack = resolveItem(entry.getKey());
-            if (ingredientStack.isEmpty()) continue;
-            UUID ingredientOrderId =
-                    network.placeOrder(ItemVariant.of(ingredientStack), entry.getValue(), ctx.pos());
+            UUID ingredientOrderId = network.placeOrder(
+                    ItemVariant.of(resolvedIngredients.get(entry.getKey())), entry.getValue(), ctx.pos());
             ingredientOrderIds.putString(entry.getKey(), ingredientOrderId.toString());
         }
 
@@ -541,19 +554,14 @@ public class CraftingModule implements Module {
 
     /**
      * Intercept the autocrafter's result being pushed into this pipe.
-     * Routes the ordered amount to the head entry's requester; dequeues the entry when
-     * fulfilled and starts the pulse cycle for the next entry if one exists.
-     * Surplus beyond the ordered amount flows freely into the network.
+     * Distributes items FIFO across queued entries: satisfies the head entry first,
+     * then continues into subsequent entries if the batch covers more than one order.
+     * Only items remaining after the queue is exhausted flow freely as surplus.
      */
     @Override
     public boolean onExternalInsert(PipeContext ctx, ItemStack stack, Direction fromDirection) {
         ListTag queue = getQueue(ctx);
         if (queue.isEmpty()) return false;
-
-        CompoundTag head = queue.getCompound(0).orElse(null);
-        if (head == null) return false;
-        BlockPos requester = parseBlockPos(NbtCompat.getString(head, ENTRY_REQ, ""));
-        if (requester == null) return false;
 
         Direction autocrafterDir = findAutocrafterDirection(ctx);
         if (autocrafterDir == null || autocrafterDir != fromDirection) return false;
@@ -564,49 +572,62 @@ public class CraftingModule implements Module {
         if (resultStack.isEmpty() || !ItemStack.isSameItemSameComponents(stack, resultStack))
             return false;
 
-        long ordered = NbtCompat.getLong(head, ENTRY_AMT, 0L);
-        UUID deliveryId = parseUUID(NbtCompat.getString(head, ENTRY_DLV, ""));
+        // Consume items FIFO across the queue: satisfy as many queued entries as possible
+        // before treating any remainder as surplus. This prevents leaking items when the
+        // autocrafter outputs a batch that covers more than one queued order.
+        int available = stack.getCount();
+        boolean headChanged = false;
 
-        // Ordered portion: routed to requester with delivery tracking
-        long orderedCount = Math.min(stack.getCount(), ordered);
-        ItemStack orderedStack = stack.copyWithCount((int) orderedCount);
-        TravelingItem orderedItem = new TravelingItem(
-                orderedStack, fromDirection.getOpposite(), LogisticsPipe.CONFIG.ITEM_MIN_SPEED, requester);
-        if (deliveryId != null) orderedItem.setDeliveryId(deliveryId);
-        ctx.blockEntity().forceAddItem(orderedItem, fromDirection);
+        while (available > 0 && !queue.isEmpty()) {
+            CompoundTag entry = queue.getCompound(0).orElse(null);
+            if (entry == null) { queue.remove(0); headChanged = true; continue; }
 
-        // Surplus: unrouted, flows freely into the network
-        int surplus = stack.getCount() - (int) orderedCount;
-        if (surplus > 0) {
+            BlockPos entryRequester = parseBlockPos(NbtCompat.getString(entry, ENTRY_REQ, ""));
+            if (entryRequester == null) { queue.remove(0); headChanged = true; continue; }
+
+            long entryOrdered = NbtCompat.getLong(entry, ENTRY_AMT, 0L);
+            UUID entryDeliveryId = parseUUID(NbtCompat.getString(entry, ENTRY_DLV, ""));
+
+            long toSend = Math.min(available, entryOrdered);
+            TravelingItem routed = new TravelingItem(
+                    stack.copyWithCount((int) toSend),
+                    fromDirection.getOpposite(), LogisticsPipe.CONFIG.ITEM_MIN_SPEED, entryRequester);
+            if (entryDeliveryId != null) routed.setDeliveryId(entryDeliveryId);
+            ctx.blockEntity().forceAddItem(routed, fromDirection);
+
+            available -= (int) toSend;
+            if (toSend >= entryOrdered) {
+                queue.remove(0);
+                headChanged = true;
+            } else {
+                entry.putLong(ENTRY_AMT, entryOrdered - toSend);
+                break;
+            }
+        }
+
+        saveQueue(ctx, queue);
+
+        if (queue.isEmpty()) {
+            ctx.saveInt(this, TICKS_PULSE, 0);
+            BlockState currentState = ctx.world().getBlockState(ctx.pos());
+            if (currentState.hasProperty(PipeBlock.CRAFTING)
+                    && currentState.getValue(PipeBlock.CRAFTING)) {
+                BlockState newState = currentState.setValue(PipeBlock.CRAFTING, false);
+                ctx.world().setBlock(ctx.pos(), newState, 3);
+                ctx.world().updateNeighborsAt(ctx.pos(), newState.getBlock());
+            }
+        } else if (headChanged) {
+            // Head was dequeued; reset pulse so the new head starts its craft cycle
+            ctx.saveInt(this, TICKS_PULSE, 0);
+        }
+
+        // Surplus: items not consumed by any queued order flow freely into the network
+        if (available > 0) {
             TravelingItem surplusItem = new TravelingItem(
-                    stack.copyWithCount(surplus),
+                    stack.copyWithCount(available),
                     fromDirection.getOpposite(),
                     LogisticsPipe.CONFIG.ITEM_MIN_SPEED);
             ctx.blockEntity().forceAddItem(surplusItem, fromDirection);
-        }
-
-        long remaining = ordered - orderedCount;
-        if (remaining <= 0) {
-            // Head order fulfilled — dequeue and start next if present
-            queue.remove(0);
-            saveQueue(ctx, queue);
-            if (queue.isEmpty()) {
-                // All orders done — clear block state
-                ctx.saveInt(this, TICKS_PULSE, 0);
-                BlockState currentState = ctx.world().getBlockState(ctx.pos());
-                if (currentState.hasProperty(PipeBlock.CRAFTING)
-                        && currentState.getValue(PipeBlock.CRAFTING)) {
-                    BlockState newState = currentState.setValue(PipeBlock.CRAFTING, false);
-                    ctx.world().setBlock(ctx.pos(), newState, 3);
-                    ctx.world().updateNeighborsAt(ctx.pos(), newState.getBlock());
-                }
-            } else {
-                // Next order's ingredients are already ordered — reset pulse to start crafting
-                ctx.saveInt(this, TICKS_PULSE, 0);
-            }
-        } else {
-            head.putLong(ENTRY_AMT, remaining);
-            saveQueue(ctx, queue);
         }
 
         return true;
