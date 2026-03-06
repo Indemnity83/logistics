@@ -9,6 +9,9 @@ import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.network.chat.Component;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -24,7 +27,13 @@ public final class LogisticsCommands {
     private LogisticsCommands() {}
 
     private static final SuggestionProvider<CommandSourceStack> DOMAIN_SUGGESTIONS =
-        (ctx, builder) -> SharedSuggestionProvider.suggest(DebugLog.getRegisteredDomains(), builder);
+        (ctx, builder) -> SharedSuggestionProvider.suggest(sortedDomains(), builder);
+
+    private static List<String> sortedDomains() {
+        List<String> domains = new ArrayList<>(DebugLog.getRegisteredDomains());
+        Collections.sort(domains);
+        return domains;
+    }
 
     public static void register() {
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) ->
@@ -33,7 +42,7 @@ public final class LogisticsCommands {
                     .then(Commands.literal("debug")
                         .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
                         .executes(ctx -> {
-                            Set<String> registered = DebugLog.getRegisteredDomains();
+                            List<String> registered = sortedDomains();
                             Set<String> enabled = DebugLog.getEnabledDomains();
                             if (registered.isEmpty()) {
                                 ctx.getSource().sendSuccess(
@@ -58,7 +67,7 @@ public final class LogisticsCommands {
                                     if (!DebugLog.getRegisteredDomains().contains(domain)) {
                                         ctx.getSource().sendFailure(Component.literal(
                                             "Unknown debug domain: " + domain
-                                            + ". Known: " + DebugLog.getRegisteredDomains()));
+                                            + ". Known: " + sortedDomains()));
                                         return 0;
                                     }
                                     DebugLog.setEnabled(domain, state);
