@@ -256,6 +256,17 @@ public final class PipeRuntime {
 
     private static void dropItem(TickContext ctx, TravelingItem item, ItemTickState itemState) {
         if (ctx.isServer()) {
+            // If item had delivery tracking, notify network before dropping so
+            // orderedForRequester doesn't stay permanently elevated.
+            if (item.getDeliveryId() != null && item.getDestination() != null) {
+                PipeNetwork network = NetworkRegistry.getNetwork(ctx.world(), ctx.pos());
+                if (network != null) {
+                    network.notifyDelivery(
+                            item.getDestination(),
+                            ItemVariant.of(item.getStack()),
+                            item.getStack().getCount());
+                }
+            }
             PipeBlockEntity.dropItem(ctx.world(), ctx.pos(), item);
         }
         itemState.markForDiscard(item);
@@ -416,6 +427,17 @@ public final class PipeRuntime {
             }
         }
 
+        // Item could not enter any storage — drop it. If it had delivery tracking,
+        // notify the network so orderedForRequester doesn't stay permanently elevated.
+        if (item.getDeliveryId() != null && item.getDestination() != null) {
+            PipeNetwork network = NetworkRegistry.getNetwork(world, pos);
+            if (network != null) {
+                network.notifyDelivery(
+                        item.getDestination(),
+                        ItemVariant.of(item.getStack()),
+                        item.getStack().getCount());
+            }
+        }
         PipeBlockEntity.dropItem(world, pos, item);
     }
 
