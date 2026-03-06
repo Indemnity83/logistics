@@ -2,6 +2,7 @@ package com.logistics.pipe.modules;
 
 import com.logistics.LogisticsPipe;
 import com.logistics.core.lib.network.ILogisticsNetwork;
+import com.logistics.pipe.network.NetDbg;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.core.lib.storage.NbtCompat;
 import com.logistics.pipe.PipeContext;
@@ -29,8 +30,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-
-import static com.logistics.LogisticsMod.LOGGER;
 
 /**
  * Provider module - scans all adjacent inventories and fulfills orders from the network.
@@ -252,9 +251,9 @@ public class ProviderModule implements Module {
         Map<ItemStack, Long> availableItems = aggregateInventoryItems(ctx, inventoryFaces, mode);
         network.registerSupply(ctx.pos(), toVariantMap(availableItems), SUPPLY_PRIORITY);
 
-        if (!availableItems.isEmpty()) {
+        if (!availableItems.isEmpty() && NetDbg.isEnabled()) {
             long totalItems = availableItems.values().stream().mapToLong(Long::longValue).sum();
-            LOGGER.debug("[Provider @ {}] Mode {} - Updated supply: {} item types, {} total",
+            NetDbg.out("[Provider @ {}] Mode {} - Updated supply: {} item types, {} total",
                     ctx.pos(), mode, availableItems.size(), totalItems);
         }
     }

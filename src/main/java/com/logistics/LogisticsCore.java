@@ -1,5 +1,6 @@
 package com.logistics;
 
+import com.logistics.core.LogisticsCommands;
 import com.logistics.core.bootstrap.DomainBootstrap;
 import com.logistics.core.fabricator.KilnBlock;
 import com.logistics.core.fabricator.KilnBlockEntity;
@@ -87,6 +88,7 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         registerWorldgen();
         ChestLootModifier.register();
         NetworkTickHandler.register();
+        LogisticsCommands.register();
     }
 
     private void registerStorageAccess() {
