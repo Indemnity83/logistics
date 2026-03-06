@@ -55,6 +55,12 @@ public final class LogisticsCommands {
                                 .executes(ctx -> {
                                     String domain = StringArgumentType.getString(ctx, "domain");
                                     boolean state = BoolArgumentType.getBool(ctx, "state");
+                                    if (!DebugLog.getRegisteredDomains().contains(domain)) {
+                                        ctx.getSource().sendFailure(Component.literal(
+                                            "Unknown debug domain: " + domain
+                                            + ". Known: " + DebugLog.getRegisteredDomains()));
+                                        return 0;
+                                    }
                                     DebugLog.setEnabled(domain, state);
                                     ctx.getSource().sendSuccess(
                                         () -> Component.literal(

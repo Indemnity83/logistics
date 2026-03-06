@@ -1,8 +1,8 @@
 package com.logistics.pipe.modules;
 
 import com.logistics.LogisticsPipe;
-import com.logistics.pipe.network.NetDbg;
 import com.logistics.core.lib.network.ILogisticsNetwork;
+import com.logistics.pipe.network.NetDbg;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.core.lib.storage.NbtCompat;
 import com.logistics.pipe.PipeContext;
@@ -251,7 +251,7 @@ public class ProviderModule implements Module {
         Map<ItemStack, Long> availableItems = aggregateInventoryItems(ctx, inventoryFaces, mode);
         network.registerSupply(ctx.pos(), toVariantMap(availableItems), SUPPLY_PRIORITY);
 
-        if (!availableItems.isEmpty()) {
+        if (!availableItems.isEmpty() && NetDbg.isEnabled()) {
             long totalItems = availableItems.values().stream().mapToLong(Long::longValue).sum();
             NetDbg.out("[Provider @ {}] Mode {} - Updated supply: {} item types, {} total",
                     ctx.pos(), mode, availableItems.size(), totalItems);

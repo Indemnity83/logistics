@@ -11,6 +11,10 @@ public final class NetDbg {
 
     private NetDbg() {}
 
+    public static boolean isEnabled() {
+        return DebugLog.isEnabled(DOMAIN);
+    }
+
     public static void out(String format, Object... args) {
         DebugLog.debug(DOMAIN, format, args);
     }
