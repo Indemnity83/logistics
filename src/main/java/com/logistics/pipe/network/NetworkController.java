@@ -99,6 +99,8 @@ public class NetworkController {
         orderedForRequester
                 .computeIfAbsent(requester, k -> new HashMap<>())
                 .merge(item, amount, Long::sum);
+        NetDbg.out("Order placed: {} | {}x {} → {} (requester)",
+                id.toString().substring(0, 8), amount, item.toStack().getItem(), requester);
         return id;
     }
 
@@ -108,6 +110,7 @@ public class NetworkController {
     public void cancelOrder(UUID id) {
         Order order = orderQueue.remove(id);
         if (order != null) {
+            NetDbg.out("Order cancelled: {}", id.toString().substring(0, 8));
             decrementOrdered(order.requester(), order.item(), order.amount());
         }
     }
@@ -164,6 +167,7 @@ public class NetworkController {
         if (shipped <= 0) return;
         Order order = orderQueue.get(orderId);
         if (order == null) return;
+        NetDbg.out("Recorded dispatch: {} | {} items shipped", orderId.toString().substring(0, 8), shipped);
         if (shipped >= order.amount()) {
             orderQueue.remove(orderId);
         } else {
@@ -189,6 +193,7 @@ public class NetworkController {
      */
     public void notifyDelivery(BlockPos requester, ItemVariant item, long amount) {
         if (amount <= 0) return;
+        NetDbg.out("Delivery notified: {} received {}x {}", requester, amount, item.toStack().getItem());
         decrementOrdered(requester, item, amount);
     }
 

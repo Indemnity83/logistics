@@ -1,6 +1,7 @@
 package com.logistics.pipe.modules;
 
 import com.logistics.LogisticsPipe;
+import com.logistics.pipe.network.NetDbg;
 import com.logistics.core.lib.network.ILogisticsNetwork;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.core.lib.storage.DirectionSerializer;
@@ -26,8 +27,6 @@ import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
-
-import static com.logistics.LogisticsMod.LOGGER;
 
 /**
  * Sink module - routes items from the network into an adjacent inventory.
@@ -122,14 +121,14 @@ public class SinkModule implements Module {
 
         // Priority 1: Filter match
         if (matchesFilter(ctx, item.getStack())) {
-            LOGGER.debug("[Sink @ {}] Item {} matches filter, routing to inventory ({})",
+            NetDbg.out("[Sink @ {}] Item {} matches filter, routing to inventory ({})",
                     ctx.pos(), item.getStack().getItem(), sinkDir);
             return RoutePlan.reroute(sinkDir);
         }
 
         // Priority 2: Destination match
         if (item.getDestination() != null && item.getDestination().equals(ctx.pos())) {
-            LOGGER.debug("[Sink @ {}] Item {} arrived at destination, routing to inventory ({})",
+            NetDbg.out("[Sink @ {}] Item {} arrived at destination, routing to inventory ({})",
                     ctx.pos(), item.getStack().getItem(), sinkDir);
             return RoutePlan.reroute(sinkDir);
         }
@@ -138,11 +137,11 @@ public class SinkModule implements Module {
         if (isDefaultRoute(ctx) && item.getDestination() == null) {
             boolean hasOtherOptions = options.stream().anyMatch(dir -> !dir.equals(sinkDir));
             if (!hasOtherOptions) {
-                LOGGER.debug("[Sink @ {}] Default route accepting {} (no other options), routing to inventory ({})",
+                NetDbg.out("[Sink @ {}] Default route accepting {} (no other options), routing to inventory ({})",
                         ctx.pos(), item.getStack().getItem(), sinkDir);
                 return RoutePlan.reroute(sinkDir);
             }
-            LOGGER.debug("[Sink @ {}] Default route passing on {} (other directions available)",
+            NetDbg.out("[Sink @ {}] Default route passing on {} (other directions available)",
                     ctx.pos(), item.getStack().getItem());
         }
 
@@ -255,10 +254,10 @@ public class SinkModule implements Module {
             if (network != null) {
                 if (enabled) {
                     network.registerDefaultRouteSink(ctx.pos(), 0);
-                    LOGGER.debug("[Sink @ {}] Default route enabled and registered with network", ctx.pos());
+                    NetDbg.out("[Sink @ {}] Default route enabled and registered with network", ctx.pos());
                 } else {
                     network.unregisterDefaultRouteSink(ctx.pos());
-                    LOGGER.debug("[Sink @ {}] Default route disabled and unregistered from network", ctx.pos());
+                    NetDbg.out("[Sink @ {}] Default route disabled and unregistered from network", ctx.pos());
                 }
             }
         }

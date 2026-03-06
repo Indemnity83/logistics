@@ -1,6 +1,7 @@
 package com.logistics.pipe.modules;
 
 import com.logistics.LogisticsPipe;
+import com.logistics.pipe.network.NetDbg;
 import com.logistics.pipe.network.NetworkRegistry;
 import com.logistics.core.lib.network.ILogisticsNetwork;
 import com.logistics.core.lib.resource.ResourceId;
@@ -28,8 +29,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static com.logistics.LogisticsMod.LOGGER;
 
 /**
  * Supplier module - maintains inventory stock levels by requesting items from the network.
@@ -136,7 +135,7 @@ public class SupplierModule implements Module {
             Direction supplierDir = getSupplierDirection(ctx);
             if (supplierDir != null && options.contains(supplierDir)) {
                 if (!ctx.world().isClientSide()) {
-                    LOGGER.debug("[Supplier @ {}] Routing {} x{} to inventory ({})",
+                    NetDbg.out("[Supplier @ {}] Routing {} x{} to inventory ({})",
                             ctx.pos(), item.getStack().getItem(), item.getStack().getCount(), supplierDir);
                 }
                 return RoutePlan.reroute(supplierDir);
@@ -188,7 +187,7 @@ public class SupplierModule implements Module {
 
             long needed = config.amount() - currentAmount - pendingAmount;
 
-            LOGGER.debug("[Supplier @ {}] Checking {} (mode {}): target={}, current={}, pending={}, needed={}",
+            NetDbg.out("[Supplier @ {}] Checking {} (mode {}): target={}, current={}, pending={}, needed={}",
                     ctx.pos(), config.itemId(), mode, config.amount(), currentAmount, pendingAmount, needed);
 
             long available = network.getAvailableAmount(stack);
