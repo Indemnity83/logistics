@@ -259,11 +259,7 @@ public class RequesterModule implements Module {
             return;
         }
 
-        long alreadyOrdered = network.getOrderedAmountFor(ctx.pos(), stack);
-        long needed = amount - alreadyOrdered;
-        if (needed > 0) {
-            network.placeOrder(ItemVariant.of(stack), needed, ctx.pos());
-        }
+        network.placeOrder(ItemVariant.of(stack), amount, ctx.pos());
     }
 
     /**
