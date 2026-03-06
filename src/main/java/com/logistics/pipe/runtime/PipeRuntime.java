@@ -1,7 +1,7 @@
 package com.logistics.pipe.runtime;
 
 import com.logistics.LogisticsPipe;
-import static com.logistics.LogisticsMod.LOGGER;
+import com.logistics.pipe.network.NetDbg;
 import com.logistics.core.lib.block.capability.PipeConnection;
 import com.logistics.pipe.Pipe;
 import com.logistics.pipe.PipeContext;
@@ -414,7 +414,7 @@ public final class PipeRuntime {
                                     ItemVariant.of(item.getStack()),
                                     inserted);
                         } else {
-                            LOGGER.debug("[PipeRuntime] notifyDelivery skipped at {}: no network found for {} ({})",
+                            NetDbg.out("[PipeRuntime] notifyDelivery skipped at {}: no network found for {} ({})",
                                     pos, item.getStack().getItem(), item.getDeliveryId());
                         }
                     }

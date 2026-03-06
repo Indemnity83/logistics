@@ -151,10 +151,15 @@ public class PipeNetwork implements ILogisticsNetwork {
         if (worldView == null) return;
         NetworkController.DispatchCommand cmd;
         while ((cmd = controller.nextDispatchable()) != null) {
+            NetDbg.out("[Network {}] Dispatch: {} | provider={} → requester={} | {}x {}",
+                    getNetworkIdShort(id), cmd.orderId().toString().substring(0, 8),
+                    cmd.provider(), cmd.requester(), cmd.amount(), cmd.item().toStack().getItem());
             try {
                 long shipped = worldView.dispatch(
                         cmd.provider(), cmd.requester(), cmd.item(), cmd.amount(), cmd.orderId());
                 if (shipped > 0) {
+                    NetDbg.out("[Network {}] Shipped: {} | {} items",
+                            getNetworkIdShort(id), cmd.orderId().toString().substring(0, 8), shipped);
                     controller.recordDispatched(cmd.orderId(), shipped);
                 } else {
                     controller.markSupplyUnavailable(cmd.provider());
@@ -195,7 +200,7 @@ public class PipeNetwork implements ILogisticsNetwork {
             throw new IllegalStateException("Cannot use findSinkFor without IWorldView - update tests to use proper constructor");
         }
 
-        LogisticsMod.LOGGER.debug("[Network {}] Finding sink for {} (members: {}, default routes: {})",
+        NetDbg.out("[Network {}] Finding sink for {} (members: {}, default routes: {})",
                 getNetworkIdShort(id), stack.getItem(), graph.size(), defaultRouteSinks.size());
 
         BlockPos bestSink = findFilteredSink(stack);
@@ -204,7 +209,7 @@ public class PipeNetwork implements ILogisticsNetwork {
         }
 
         if (bestSink == null) {
-            LogisticsMod.LOGGER.warn("[Network {}] No sink found for {}", getNetworkIdShort(id), stack.getItem());
+            NetDbg.out("[Network {}] No sink found for {}", getNetworkIdShort(id), stack.getItem());
         }
 
         return bestSink;
@@ -213,7 +218,7 @@ public class PipeNetwork implements ILogisticsNetwork {
     private BlockPos findFilteredSink(ItemStack stack) {
         for (BlockPos pos : graph.getNodes()) {
             if (worldView.matchesSinkFilter(pos, stack)) {
-                LogisticsMod.LOGGER.debug("[Network {}] Found filtered sink at {}",
+                NetDbg.out("[Network {}] Found filtered sink at {}",
                         getNetworkIdShort(id), pos);
                 return pos;
             }
@@ -222,7 +227,7 @@ public class PipeNetwork implements ILogisticsNetwork {
     }
 
     private BlockPos findDefaultRouteSink() {
-        LogisticsMod.LOGGER.debug("[Network {}] No filtered sink, checking {} default routes",
+        NetDbg.out("[Network {}] No filtered sink, checking {} default routes",
                 getNetworkIdShort(id), defaultRouteSinks.size());
 
         BlockPos bestSink = null;
@@ -233,7 +238,7 @@ public class PipeNetwork implements ILogisticsNetwork {
 
             int priority = sinkPriorities.getOrDefault(sink, DEFAULT_SINK_PRIORITY);
             if (priority > bestPriority) {
-                LogisticsMod.LOGGER.debug("[Network {}] Found default route at {} (priority: {})",
+                NetDbg.out("[Network {}] Found default route at {} (priority: {})",
                         getNetworkIdShort(id), sink, priority);
                 bestSink = sink;
                 bestPriority = priority;
@@ -241,7 +246,7 @@ public class PipeNetwork implements ILogisticsNetwork {
         }
 
         if (bestSink != null) {
-            LogisticsMod.LOGGER.debug("[Network {}] Selected default route at {}",
+            NetDbg.out("[Network {}] Selected default route at {}",
                     getNetworkIdShort(id), bestSink);
         }
 
