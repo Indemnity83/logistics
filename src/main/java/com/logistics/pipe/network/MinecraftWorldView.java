@@ -3,13 +3,15 @@ package com.logistics.pipe.network;
 import com.logistics.core.lib.block.capability.PipeConnection;
 import com.logistics.core.lib.network.IWorldView;
 import com.logistics.pipe.Pipe;
+import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.block.PipeBlock;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
-import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.modules.Module;
 import com.logistics.pipe.modules.SinkModule;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
+import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
@@ -78,6 +80,17 @@ public class MinecraftWorldView implements IWorldView {
         }
         PipeContext ctx = pipeEntity.createContext();
         return sinkModule.matchesFilter(ctx, stack);
+    }
+
+    @Override
+    public long dispatch(BlockPos provider, BlockPos requester, ItemVariant item, long amount, UUID deliveryId) {
+        if (!(level.getBlockEntity(provider) instanceof PipeBlockEntity pipeEntity)) return 0;
+        BlockState state = level.getBlockState(provider);
+        if (!(state.getBlock() instanceof PipeBlock pipeBlock)) return 0;
+
+        Pipe pipe = pipeBlock.getPipe();
+        PipeContext ctx = pipeEntity.createContext();
+        return pipe.dispatch(ctx, requester, item, amount, deliveryId);
     }
 
     @Override

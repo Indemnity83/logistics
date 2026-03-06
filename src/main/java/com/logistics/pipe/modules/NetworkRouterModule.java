@@ -1,5 +1,6 @@
 package com.logistics.pipe.modules;
 
+import com.logistics.LogisticsPipe;
 import com.logistics.pipe.network.NetworkRegistry;
 import com.logistics.core.lib.network.ILogisticsNetwork;
 import com.logistics.pipe.PipeContext;
@@ -20,6 +21,20 @@ import java.util.List;
  * Regular transport pipes (copper, iron, etc.) should NOT have this module.
  */
 public class NetworkRouterModule implements Module {
+    // Accelerate aggressively so items reach ITEM_NETWORK_SPEED within one pipe segment.
+    // ITEM_NETWORK_SPEED (0.2) - ITEM_MIN_SPEED (0.02) = 0.18 over ~5 ticks → 0.036/tick.
+    private static final float NETWORK_ACCELERATION = 0.04f;
+
+    @Override
+    public float getAcceleration(PipeContext ctx) {
+        return NETWORK_ACCELERATION;
+    }
+
+    @Override
+    public float getMaxSpeed(PipeContext ctx) {
+        return LogisticsPipe.CONFIG.ITEM_NETWORK_SPEED;
+    }
+
     @Override
     public RoutePlan route(PipeContext ctx, TravelingItem item, List<Direction> options) {
         if (ctx.world().isClientSide()) return RoutePlan.pass();

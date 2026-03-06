@@ -470,6 +470,18 @@ public class PipeBlockEntity extends BaseBlockEntity
             return;
         }
 
+        // Give modules the first chance to handle external insertions (e.g., split a craft result).
+        BlockState insertState = getBlockState();
+        if (insertState.getBlock() instanceof PipeBlock insertPipeBlock
+                && insertPipeBlock.getPipe() != null
+                && level != null
+                && !level.isClientSide()) {
+            PipeContext ctx = createContext();
+            if (insertPipeBlock.getPipe().onExternalInsert(ctx, stack, fromDirection)) {
+                return;
+            }
+        }
+
         float speed = speedOverride != null ? speedOverride : getInitialSpeed();
         TravelingItem newItem = new TravelingItem(stack, fromDirection.getOpposite(), speed, destination);
         travelingItems.add(newItem);
@@ -479,7 +491,7 @@ public class PipeBlockEntity extends BaseBlockEntity
     }
 
     /**
-     * Accept an item from a pipe-to-pipe transfer, preserving transient state (inTransitOrder, remainingTtl).
+     * Accept an item from a pipe-to-pipe transfer, preserving transient state (deliveryId, remainingTtl).
      * Used when routing items between pipes so that in-transit accounting and TTL are not lost.
      */
     void acceptInsertedStack(ItemStack stack, Direction fromDirection, TravelingItem source) {
@@ -489,7 +501,7 @@ public class PipeBlockEntity extends BaseBlockEntity
 
         float speed = source.getSpeed();
         TravelingItem newItem = new TravelingItem(stack, fromDirection.getOpposite(), speed, source.getDestination());
-        newItem.setInTransitOrder(source.getInTransitOrder());
+        newItem.setDeliveryId(source.getDeliveryId());
         newItem.setRemainingTtl(source.getRemainingTtl());
         travelingItems.add(newItem);
         markDirtyAndSync();

@@ -107,7 +107,8 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
                 BLOCK.BASIC_LOGISTICS_PIPE,
                 BLOCK.PROVIDER_LOGISTICS_PIPE,
                 BLOCK.REQUESTER_LOGISTICS_PIPE,
-                BLOCK.SUPPLIER_LOGISTICS_PIPE
+                BLOCK.SUPPLIER_LOGISTICS_PIPE,
+                BLOCK.CRAFTING_LOGISTICS_PIPE
         );
     }
 
@@ -127,6 +128,7 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
         public static Block PROVIDER_LOGISTICS_PIPE;
         public static Block REQUESTER_LOGISTICS_PIPE;
         public static Block SUPPLIER_LOGISTICS_PIPE;
+        public static Block CRAFTING_LOGISTICS_PIPE;
 
         static void register() {
             STONE_TRANSPORT_PIPE = INSTANCE.registerBlockWithItem("stone_transport_pipe",
@@ -156,6 +158,8 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
                 props -> new PipeBlock(createPipeProperties(props), PipeTypes.REQUESTER_LOGISTICS_PIPE));
             SUPPLIER_LOGISTICS_PIPE = INSTANCE.registerBlockWithItem("supplier_logistics_pipe",
                 props -> new PipeBlock(createPipeProperties(props), PipeTypes.SUPPLIER_LOGISTICS_PIPE));
+            CRAFTING_LOGISTICS_PIPE = INSTANCE.registerBlockWithItem("crafting_logistics_pipe",
+                props -> new PipeBlock(createPipeProperties(props), PipeTypes.CRAFTING_LOGISTICS_PIPE));
         }
     }
 
@@ -179,7 +183,8 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
                 BLOCK.BASIC_LOGISTICS_PIPE,
                 BLOCK.PROVIDER_LOGISTICS_PIPE,
                 BLOCK.REQUESTER_LOGISTICS_PIPE,
-                BLOCK.SUPPLIER_LOGISTICS_PIPE);
+                BLOCK.SUPPLIER_LOGISTICS_PIPE,
+                BLOCK.CRAFTING_LOGISTICS_PIPE);
         }
     }
 
@@ -218,9 +223,9 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
         // Individual pipes can override this up or down via getMaxSpeed.
         public static final float PIPE_MAX_SPEED = 0.16f;
 
-        // Initial speed for items put into the network by a provider
-        // Pipe.
-        public static final float PROVIDER_PIPE_SPEED = 0.10f;
+        // Initial speed for items injected into the network by provider and crafting pipes.
+        // Matches LP's effective routed injection speed (PIPE_NORMAL_SPEED × 20 boost = 0.2f).
+        public static final float ITEM_NETWORK_SPEED = 0.2f;
 
         // Timeout for pending requests in supplier/requester pipes (in ticks).
         // If items don't arrive within this time, the pending request is cleared and assumed lost.
@@ -238,6 +243,7 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
         public static MenuType<com.logistics.pipe.ui.SupplierScreenHandler> SUPPLIER;
         public static MenuType<com.logistics.pipe.ui.ProviderScreenHandler> PROVIDER;
         public static MenuType<com.logistics.pipe.ui.SinkScreenHandler> SINK;
+        public static MenuType<com.logistics.pipe.ui.CraftingScreenHandler> CRAFTING;
 
         private SCREEN() {}
 
@@ -262,6 +268,10 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
                     BuiltInRegistries.MENU,
                     LogisticsPipe.resource("sink").toIdentifier(),
                     new MenuType<>(com.logistics.pipe.ui.SinkScreenHandler::new, FeatureFlagSet.of()));
+            CRAFTING = Registry.register(
+                    BuiltInRegistries.MENU,
+                    LogisticsPipe.resource("crafting").toIdentifier(),
+                    new MenuType<>(com.logistics.pipe.ui.CraftingScreenHandler::new, FeatureFlagSet.of()));
         }
     }
 

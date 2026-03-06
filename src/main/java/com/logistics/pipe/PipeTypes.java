@@ -52,7 +52,7 @@ public final class PipeTypes {
     // Provider Logistics Pipe - scans adjacent inventories and fulfills network requests.
     public static final Pipe PROVIDER_LOGISTICS_PIPE = new Pipe(
             new NetworkRouterModule(),
-            new ProviderModule(6))
+            new ProviderModule())
             .withEnergy();
 
     // Requester Logistics Pipe - creates requests for items from the network.
@@ -65,6 +65,12 @@ public final class PipeTypes {
     public static final Pipe SUPPLIER_LOGISTICS_PIPE = new Pipe(
             new NetworkRouterModule(),
             new SupplierModule())
+            .withEnergy();
+
+    // Crafting Logistics Pipe - on-demand crafting via adjacent Autocrafter.
+    public static final Pipe CRAFTING_LOGISTICS_PIPE = new Pipe(
+            new CraftingModule(),
+            new NetworkRouterModule())
             .withEnergy();
 
     // -----------------

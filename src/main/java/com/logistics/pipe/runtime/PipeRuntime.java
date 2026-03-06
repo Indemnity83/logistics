@@ -213,7 +213,7 @@ public final class PipeRuntime {
         // falls back to default routing rather than being stuck forever.
         if (ctx.isServer() && item.isExpired() && item.getDestination() != null) {
             item.setDestination(null);
-            item.setInTransitOrder(null); // release ref; accounting cleaned by cleanupStaleInTransit
+            item.setDeliveryId(null); // release ref; orderedForRequester accounting is best-effort
         }
         RoutePlan plan = resolveRoutePlan(ctx, item);
         executeRoutePlan(ctx, item, plan, itemState);
@@ -348,7 +348,7 @@ public final class PipeRuntime {
         }
 
         for (TravelingItem item : itemState.toRoute) {
-            transferItem(ctx.world(), ctx.pos(), item);
+            transferItem(ctx, item);
         }
 
         ctx.blockEntity().setChanged();
@@ -358,14 +358,29 @@ public final class PipeRuntime {
     /**
      * Transfer an item to the next pipe or inventory at the end of this segment.
      * Direction was already determined at the pipe center (ROUTE_POINT).
+     *
+     * <p>For non-pipe storages, modules are consulted first via
+     * {@link com.logistics.pipe.Pipe#handleTransfer} before the default generic insertion.
+     * This allows modules like {@link com.logistics.pipe.modules.CraftingModule} to perform
+     * slot-specific insertion rather than relying on the storage's default ordering.
      */
-    private static void transferItem(Level world, BlockPos pos, TravelingItem item) {
+    private static void transferItem(TickContext ctx, TravelingItem item) {
+        Level world = ctx.world();
+        BlockPos pos = ctx.pos();
         Direction direction = item.getDirection();
         BlockPos targetPos = pos.relative(direction);
 
         Storage<ItemVariant> storage = ItemStorage.SIDED.find(world, targetPos, direction.getOpposite());
 
         if (storage != null) {
+            // For non-pipe storages, give modules a chance to handle the insertion themselves
+            // (e.g., slot-specific insertion into an autocrafter).
+            if (!(storage instanceof PipeItemStorage) && ctx.hasPipe()) {
+                TravelingItem remaining = ctx.pipe().handleTransfer(ctx.pipeContext(), item, direction);
+                if (remaining == null) return; // module fully handled it
+                item = remaining; // use possibly-modified item for default insertion
+            }
+
             try (Transaction transaction = Transaction.openOuter()) {
                 long inserted;
                 if (storage instanceof PipeItemStorage pipeStorage) {
@@ -377,17 +392,19 @@ public final class PipeRuntime {
 
                 if (inserted > 0) {
                     transaction.commit();
-                    // Confirm delivery when item fully enters a real inventory (not another pipe).
-                    // Skip confirmation on partial insertion — the in-transit cleanup TTL will
-                    // recover orderedForRequester accounting for any dropped remainder.
-                    if (!(storage instanceof PipeItemStorage) && item.getInTransitOrder() != null
-                            && inserted == item.getStack().getCount()) {
+                    // Notify delivery when item fully enters a real inventory (not another pipe).
+                    // Skip on partial insertion — orderedForRequester accounting is best-effort.
+                    if (!(storage instanceof PipeItemStorage) && item.getDeliveryId() != null
+                            && item.getDestination() != null && inserted == item.getStack().getCount()) {
                         PipeNetwork network = NetworkRegistry.getNetwork(world, pos);
                         if (network != null) {
-                            network.confirmDelivery(item.getInTransitOrder());
+                            network.notifyDelivery(
+                                    item.getDestination(),
+                                    ItemVariant.of(item.getStack()),
+                                    inserted);
                         } else {
-                            LOGGER.debug("[PipeRuntime] confirmDelivery skipped at {}: no network found for {} ({})",
-                                    pos, item.getStack().getItem(), item.getInTransitOrder());
+                            LOGGER.debug("[PipeRuntime] notifyDelivery skipped at {}: no network found for {} ({})",
+                                    pos, item.getStack().getItem(), item.getDeliveryId());
                         }
                     }
                     if (inserted < item.getStack().getCount()) {

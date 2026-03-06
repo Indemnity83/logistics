@@ -1,13 +1,14 @@
 package com.logistics.pipe.runtime;
 
 import com.logistics.LogisticsPipe;
-import com.logistics.core.lib.network.LogisticsOrder;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.UUID;
 
 /**
  * Represents an item traveling through the pipe network.
@@ -72,8 +73,8 @@ public class TravelingItem {
     private boolean routed; // True once the item has been routed at the center
     @Nullable private BlockPos destination; // Optional destination for network routing
     private int remainingTtl = ITEM_TTL; // Ticks remaining before destination is cleared (serialized)
-    // Not serialized — lost on chunk reload; accounting recovered by cleanupStaleInTransit
-    @Nullable private LogisticsOrder inTransitOrder;
+    // Not serialized — lost on chunk reload; notifyDelivery accounting is best-effort
+    @Nullable private UUID deliveryId;
 
     public TravelingItem(ItemStack stack, Direction direction, float speed) {
         this.stack = stack.copy();
@@ -201,15 +202,16 @@ public class TravelingItem {
     }
 
     /**
-     * The order this item is fulfilling. Not serialized — lost on chunk reload.
-     * Used by PipeRuntime to call confirmDelivery when the item enters an inventory.
+     * Delivery tracking ID. When non-null, PipeRuntime calls network.notifyDelivery() when
+     * this item is physically inserted into an inventory.
+     * Not serialized — lost on chunk reload; orderedForRequester will drift but remains bounded.
      */
     @Nullable
-    public LogisticsOrder getInTransitOrder() {
-        return inTransitOrder;
+    public UUID getDeliveryId() {
+        return deliveryId;
     }
 
-    public void setInTransitOrder(@Nullable LogisticsOrder inTransitOrder) {
-        this.inTransitOrder = inTransitOrder;
+    public void setDeliveryId(@Nullable UUID deliveryId) {
+        this.deliveryId = deliveryId;
     }
 }

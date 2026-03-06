@@ -5,7 +5,11 @@ import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.pipe.Pipe;
 import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.runtime.RoutePlan;
+import com.logistics.pipe.runtime.TravelingItem;
 import java.util.List;
+import java.util.UUID;
+import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.util.RandomSource;
@@ -31,12 +35,62 @@ public interface Module {
         return LogisticsPipe.CONFIG.PIPE_MAX_SPEED;
     }
 
-    default RoutePlan route(PipeContext ctx, com.logistics.pipe.runtime.TravelingItem item, List<Direction> options) {
+    default RoutePlan route(PipeContext ctx, TravelingItem item, List<Direction> options) {
         return RoutePlan.pass();
+    }
+
+    /**
+     * Called when a TravelingItem is about to exit this pipe into an adjacent non-pipe storage
+     * (at SERVER_EXIT_THRESHOLD), before the default generic {@code storage.insert()} runs.
+     *
+     * <p>Return {@code null} if the module fully handled the transfer (item consumed). PipeRuntime
+     * will not perform any further insertion. The module is responsible for calling
+     * {@code network.confirmDelivery()} if needed.
+     *
+     * <p>Return the item (or a modified copy with a reduced count) if the module did not handle
+     * it — PipeRuntime will perform the default generic insertion on whatever is returned.
+     *
+     * @param ctx       the pipe context
+     * @param item      the traveling item being transferred
+     * @param direction the direction the item is exiting (toward the storage)
+     * @return null if fully handled, or the item (possibly with reduced count) to fall through
+     */
+    @Nullable
+    default TravelingItem onTransferToStorage(PipeContext ctx, TravelingItem item, Direction direction) {
+        return item;
     }
 
     default boolean canAcceptFrom(PipeContext ctx, Direction from, ItemStack stack) {
         return true;
+    }
+
+    /**
+     * Return true to allow item insertion from a non-pipe neighbor in the given direction.
+     * By default, Pipe.canAcceptFrom blocks all non-pipe insertion.
+     * Override this to allow specific non-pipe neighbors (e.g., autocrafters) to push items in.
+     *
+     * @param ctx the pipe context
+     * @param from direction items are coming from
+     * @return true if non-pipe insertion from this direction should be allowed
+     */
+    default boolean canAcceptFromNonPipe(PipeContext ctx, Direction from) {
+        return false;
+    }
+
+    /**
+     * Called when an item is inserted into the pipe from an external (non-pipe) source via the
+     * Fabric Transfer API, before the default single TravelingItem is created.
+     *
+     * <p>Return {@code true} if the module fully handled the insertion (e.g., split the stack into
+     * multiple TravelingItems). Return {@code false} to proceed with the default behavior.
+     *
+     * @param ctx           the pipe context
+     * @param stack         the item stack being inserted
+     * @param fromDirection the direction the item arrived from
+     * @return true if the module handled the insertion, false to use default behaviour
+     */
+    default boolean onExternalInsert(PipeContext ctx, ItemStack stack, Direction fromDirection) {
+        return false;
     }
 
     default void onConnectionsChanged(PipeContext ctx, List<Direction> options) {}
@@ -229,6 +283,25 @@ public interface Module {
      * @param baseStack the base item stack to copy and modify
      */
     default void appendCreativeMenuVariants(List<ItemStack> stacks, ItemStack baseStack) {}
+
+    /**
+     * Called by the network when it wants this module to dispatch items to a requester.
+     * The module must extract items, update the network supply, create a TravelingItem,
+     * and return the actual amount dispatched (0 if nothing could be sent).
+     *
+     * <p>This is called synchronously from the network tick. The module should commit
+     * the extraction transaction and inject the TravelingItem into the pipe before returning.
+     *
+     * @param ctx        the pipe context
+     * @param requester  position the items should be routed to
+     * @param item       item variant to extract
+     * @param amount     requested amount
+     * @param deliveryId UUID to attach to the TravelingItem for delivery accounting
+     * @return actual amount dispatched (0 if module could not fulfill)
+     */
+    default long onDispatch(PipeContext ctx, BlockPos requester, ItemVariant item, long amount, UUID deliveryId) {
+        return 0;
+    }
 
     /**
      * Whether this module accepts low-tier energy from the given direction.

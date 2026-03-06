@@ -10,6 +10,10 @@ import com.logistics.pipe.runtime.RoutePlan;
 import com.logistics.pipe.runtime.TravelingItem;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
+import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.entity.player.Player;
@@ -163,7 +167,7 @@ public class Pipe {
 
     /**
      * Add item components from all modules when the block is broken.
-     * Also adds custom model data component if any module provides model data.
+     * Also adds custom model data component if any module provides model data strings.
      */
     public void addItemComponents(DataComponentMap.Builder builder, PipeContext ctx) {
         for (Module module : modules) {
@@ -297,11 +301,46 @@ public class Pipe {
         return RoutePlan.pass();
     }
 
+    /**
+     * Give modules a chance to handle transfer of a TravelingItem into an adjacent non-pipe
+     * storage. Returns null if a module fully handled the transfer (PipeRuntime skips generic
+     * insertion), or the item (possibly modified) if no module handled it.
+     */
+    @Nullable
+    public TravelingItem handleTransfer(PipeContext ctx, TravelingItem item, Direction direction) {
+        TravelingItem current = item;
+        for (Module module : modules) {
+            current = module.onTransferToStorage(ctx, current, direction);
+            if (current == null) return null;
+        }
+        return current;
+    }
+
+    /**
+     * Called when an item is inserted from an external (non-pipe) source before the default
+     * single TravelingItem is created. Delegates to modules in order; stops at the first that
+     * returns true (handled).
+     */
+    public boolean onExternalInsert(PipeContext ctx, net.minecraft.world.item.ItemStack stack, Direction from) {
+        for (Module module : modules) {
+            if (module.onExternalInsert(ctx, stack, from)) return true;
+        }
+        return false;
+    }
+
     public boolean canAcceptFrom(PipeContext ctx, Direction from, net.minecraft.world.item.ItemStack stack) {
         // Default behavior: pipes only accept items from other pipes (not from inventories/hoppers)
         // This prevents free automation and preserves the extraction energy cost
         if (!ctx.isNeighborPipe(from)) {
-            return false;
+            // Allow non-pipe insertion if any module explicitly permits it
+            boolean allowed = false;
+            for (Module module : modules) {
+                if (module.canAcceptFromNonPipe(ctx, from)) {
+                    allowed = true;
+                    break;
+                }
+            }
+            if (!allowed) return false;
         }
 
         // Check all modules for additional acceptance criteria
@@ -389,6 +428,20 @@ public class Pipe {
             }
         }
         return candidate;
+    }
+
+    /**
+     * Dispatch items to a requester by asking the first module that can fulfill to extract.
+     * Called by MinecraftWorldView.dispatch() during the network tick.
+     *
+     * @return actual amount dispatched (0 if no module could fulfill)
+     */
+    public long dispatch(PipeContext ctx, BlockPos requester, ItemVariant item, long amount, UUID deliveryId) {
+        for (Module module : modules) {
+            long dispatched = module.onDispatch(ctx, requester, item, amount, deliveryId);
+            if (dispatched > 0) return dispatched;
+        }
+        return 0;
     }
 
     // Energy capability check for low-tier energy sources

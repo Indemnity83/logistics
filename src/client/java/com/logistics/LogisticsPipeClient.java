@@ -60,6 +60,7 @@ public final class LogisticsPipeClient implements DomainBootstrap {
         MenuScreens.register(LogisticsPipe.SCREEN.SUPPLIER, com.logistics.pipe.screen.SupplierScreen::new);
         MenuScreens.register(LogisticsPipe.SCREEN.PROVIDER, com.logistics.pipe.screen.ProviderScreen::new);
         MenuScreens.register(LogisticsPipe.SCREEN.SINK, com.logistics.pipe.screen.SinkScreen::new);
+        MenuScreens.register(LogisticsPipe.SCREEN.CRAFTING, com.logistics.pipe.screen.CraftingScreen::new);
 
         registerPacketReceivers();
     }
@@ -163,6 +164,10 @@ public final class LogisticsPipeClient implements DomainBootstrap {
             registerModel("supplier_logistics_pipe_arm_extended");
             registerModel("supplier_logistics_pipe_feature");
             registerModel("supplier_logistics_pipe_feature_extended");
+            registerModel("crafting_logistics_pipe_core");
+            registerModel("crafting_logistics_pipe_arm");
+            registerModel("crafting_logistics_pipe_arm_extended");
+            registerModel("crafting_logistics_pipe_feature_extended");
         }
 
         private static final Map<ResourceLocation, ResourceLocation> MODEL_LOOKUP = Map.copyOf(TEMP_LOOKUP);
