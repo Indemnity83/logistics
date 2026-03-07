@@ -148,13 +148,7 @@ public class RequesterScreen extends AbstractContainerScreen<RequesterScreenHand
     private void addOne(Button button) {
         try {
             int currentAmount = Integer.parseInt(amountField.getValue());
-            // Cap at available amount if item is selected
-            int maxAmount = Integer.MAX_VALUE;
-            if (selectedButton != null && !selectedButton.getItem().isEmpty()) {
-                maxAmount = (int) Math.min(selectedButton.getAvailableAmount(), Integer.MAX_VALUE);
-            }
-            int newAmount = Math.min(maxAmount, currentAmount + 1);
-            amountField.setValue(String.valueOf(newAmount));
+            amountField.setValue(String.valueOf(Math.min(576, currentAmount + 1)));
         } catch (NumberFormatException e) {
             amountField.setValue("1");
         }

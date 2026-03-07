@@ -139,18 +139,32 @@ public class NetworkController {
 
             for (int i = 0; i < entries.size(); i++) {
                 SupplyEntry supply = entries.get(i);
-                // available == 0 means "craftable on demand" — always matches any order amount
-                if (supply.available == 0 || supply.available >= order.amount()) {
-                    if (supply.available > 0) {
-                        supply.available -= order.amount();
-                        if (supply.available == 0) {
-                            entries.remove(i);
-                            if (entries.isEmpty()) supplyTable.remove(order.item());
-                        }
+
+                // On-demand supply (crafter, available == 0): always dispatchable, never decremented
+                if (supply.available == 0) {
+                    return new DispatchCommand(
+                            order.id(), supply.pos, order.requester(), order.item(), order.amount());
+                }
+
+                if (supply.available >= order.amount()) {
+                    // Full fill from real stock
+                    supply.available -= order.amount();
+                    if (supply.available == 0) {
+                        entries.remove(i);
+                        if (entries.isEmpty()) supplyTable.remove(order.item());
                     }
                     return new DispatchCommand(
                             order.id(), supply.pos, order.requester(), order.item(), order.amount());
                 }
+
+                // Partial fill from real stock: dispatch what's available now; the remainder
+                // will be picked up from the next entry (or a crafter) on the next loop iteration.
+                long partialAmount = supply.available;
+                supply.available = 0;
+                entries.remove(i);
+                if (entries.isEmpty()) supplyTable.remove(order.item());
+                return new DispatchCommand(
+                        order.id(), supply.pos, order.requester(), order.item(), partialAmount);
             }
         }
         return null;
@@ -208,16 +222,16 @@ public class NetworkController {
 
     /**
      * Get total available supply for an item across all providers.
-     * Returns Long.MAX_VALUE if any entry has unlimited supply (e.g., crafters).
+     * Returns Long.MAX_VALUE if any crafter entry (available == 0) can produce it on demand,
+     * since the item can always be crafted. Otherwise returns the sum of real-stock amounts.
      */
     public long getAvailableAmount(ItemVariant item) {
         List<SupplyEntry> entries = supplyTable.get(item);
         if (entries == null || entries.isEmpty()) return 0L;
         long total = 0;
         for (SupplyEntry e : entries) {
-            if (e.available == Long.MAX_VALUE) return Long.MAX_VALUE;
+            if (e.available == 0) return Long.MAX_VALUE; // crafter: on-demand, effectively unlimited
             total += e.available;
-            if (total < 0) return Long.MAX_VALUE; // overflow guard
         }
         return total;
     }
@@ -230,19 +244,9 @@ public class NetworkController {
         for (Map.Entry<ItemVariant, List<SupplyEntry>> entry : supplyTable.entrySet()) {
             long total = 0;
             for (SupplyEntry e : entry.getValue()) {
-                if (e.available == Long.MAX_VALUE) {
-                    total = Long.MAX_VALUE;
-                    break;
-                }
-                total += e.available;
-                if (total < 0) {
-                    total = Long.MAX_VALUE;
-                    break;
-                }
+                total += e.available; // 0 for crafters; positive for real stock
             }
-            if (total >= 0) {
-                result.merge(entry.getKey().toStack(1), total, Long::sum);
-            }
+            result.merge(entry.getKey().toStack(1), total, Long::sum);
         }
         return result;
     }
