@@ -2,6 +2,7 @@ package com.logistics.pipe.screen;
 
 import com.logistics.LogisticsMod;
 import com.logistics.core.lib.resource.ResourceId;
+import com.logistics.pipe.modules.RequesterModule;
 import com.logistics.pipe.network.RequestItemPacket;
 import com.logistics.pipe.screen.widget.NetworkItemButton;
 import com.logistics.pipe.screen.widget.PageButton;
@@ -28,6 +29,7 @@ import java.util.List;
 public class RequesterScreen extends AbstractContainerScreen<RequesterScreenHandler> {
     private static final ResourceId BACKGROUND =
             LogisticsMod.modId("textures/gui/pipe/requester-alt.png");
+    private static final int MAX_REQUEST_CAP = RequesterModule.MAX_REQUEST_AMOUNT;
 
     private EditBox searchBox;
     private EditBox amountField;
@@ -135,9 +137,8 @@ public class RequesterScreen extends AbstractContainerScreen<RequesterScreenHand
 
     private void subOne(Button button) {
         try {
-            int currentAmount = Integer.parseInt(amountField.getValue());
-            int newAmount = Math.max(1, currentAmount - 1);
-            amountField.setValue(String.valueOf(newAmount));
+            int currentAmount = Math.min(MAX_REQUEST_CAP, Integer.parseInt(amountField.getValue()));
+            amountField.setValue(String.valueOf(Math.max(1, currentAmount - 1)));
         } catch (NumberFormatException e) {
             amountField.setValue("1");
         }
@@ -146,13 +147,7 @@ public class RequesterScreen extends AbstractContainerScreen<RequesterScreenHand
     private void addOne(Button button) {
         try {
             int currentAmount = Integer.parseInt(amountField.getValue());
-            // Cap at available amount if item is selected
-            int maxAmount = Integer.MAX_VALUE;
-            if (selectedButton != null && !selectedButton.getItem().isEmpty()) {
-                maxAmount = (int) Math.min(selectedButton.getAvailableAmount(), Integer.MAX_VALUE);
-            }
-            int newAmount = Math.min(maxAmount, currentAmount + 1);
-            amountField.setValue(String.valueOf(newAmount));
+            amountField.setValue(String.valueOf(Math.min(MAX_REQUEST_CAP, currentAmount + 1)));
         } catch (NumberFormatException e) {
             amountField.setValue("1");
         }
@@ -228,7 +223,8 @@ public class RequesterScreen extends AbstractContainerScreen<RequesterScreenHand
     private void onRequestClick(Button button) {
         if (selectedButton != null && !selectedButton.getItem().isEmpty()) {
             try {
-                int amount = Integer.parseInt(amountField.getValue());
+                int amount = Math.min(MAX_REQUEST_CAP, Math.max(1, Integer.parseInt(amountField.getValue())));
+                amountField.setValue(String.valueOf(amount)); // reflect any clamping visibly
                 if (amount > 0) {
                     // Normalize the ItemStack to count=1 (actual amount is sent separately)
                     ItemStack requestStack = selectedButton.getItem().copy();

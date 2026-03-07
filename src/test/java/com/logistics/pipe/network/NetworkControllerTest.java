@@ -73,34 +73,44 @@ class NetworkControllerTest extends MinecraftTestEnvironment {
     // ===== Priority Dispatch =====
 
     @Test
-    void testPriority_lowerPriorityDispatchedFirst() {
-        // Priority 1 (real stock) preferred over priority 5 (crafter)
+    void testDispatch_realStockBeforeCrafter() {
+        // Real stock (32) dispatched before crafter (0) even when crafter is also registered
         controller.registerSupply(PROVIDER1, Map.of(diamond(), 32L), 1); // real stock
-        controller.registerSupply(PROVIDER2, Map.of(diamond(), Long.MAX_VALUE), 5); // crafter
+        controller.registerSupply(PROVIDER2, Map.of(diamond(), 0L), 5);  // crafter
 
         UUID orderId = controller.placeOrder(diamond(), 16L, REQUESTER);
         assertNotNull(orderId);
 
         NetworkController.DispatchCommand cmd = controller.nextDispatchable();
         assertNotNull(cmd);
-        assertEquals(PROVIDER1, cmd.provider(), "Should dispatch from real stock first (priority 1)");
+        assertEquals(PROVIDER1, cmd.provider(), "Should dispatch from real stock first");
         assertEquals(REQUESTER, cmd.requester());
         assertEquals(16L, cmd.amount());
     }
 
     @Test
-    void testDispatch_fallsThroughToHigherPriority() {
-        // Provider 1 doesn't have enough; only crafter has unlimited
-        controller.registerSupply(PROVIDER1, Map.of(diamond(), 5L), 1);   // only 5
-        controller.registerSupply(PROVIDER2, Map.of(diamond(), Long.MAX_VALUE), 5); // crafter
+    void testDispatch_partialStockThenCraft() {
+        // Provider has only 5, order needs 16 — dispatch 5 from stock, then 11 from crafter
+        controller.registerSupply(PROVIDER1, Map.of(diamond(), 5L), 1); // real stock (partial)
+        controller.registerSupply(PROVIDER2, Map.of(diamond(), 0L), 5); // crafter
 
         UUID orderId = controller.placeOrder(diamond(), 16L, REQUESTER);
         assertNotNull(orderId);
 
-        NetworkController.DispatchCommand cmd = controller.nextDispatchable();
-        assertNotNull(cmd);
-        // Provider1 has only 5, order needs 16, so it should skip to provider2
-        assertEquals(PROVIDER2, cmd.provider(), "Should fall through to crafter when real stock insufficient");
+        // First dispatch: partial fill from real stock
+        NetworkController.DispatchCommand cmd1 = controller.nextDispatchable();
+        assertNotNull(cmd1);
+        assertEquals(PROVIDER1, cmd1.provider(), "Should dispatch partial stock from provider first");
+        assertEquals(5L, cmd1.amount(), "Should dispatch only what real stock has available");
+
+        // Record the partial dispatch — order amount drops to 11
+        controller.recordDispatched(orderId, 5L);
+
+        // Second dispatch: remainder from crafter
+        NetworkController.DispatchCommand cmd2 = controller.nextDispatchable();
+        assertNotNull(cmd2);
+        assertEquals(PROVIDER2, cmd2.provider(), "Should dispatch remainder from crafter");
+        assertEquals(11L, cmd2.amount(), "Should dispatch exactly the remaining amount");
     }
 
     // ===== Supply Reservation =====
