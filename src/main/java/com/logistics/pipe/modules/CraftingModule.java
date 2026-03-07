@@ -609,6 +609,7 @@ public class CraftingModule implements Module {
 
             available -= (int) toSend;
             if (toSend >= entryOrdered) {
+                cancelEntryOrders(ctx, entry);
                 queue.remove(0);
                 headChanged = true;
             } else {
