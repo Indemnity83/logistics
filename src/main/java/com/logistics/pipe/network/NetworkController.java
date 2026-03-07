@@ -180,58 +180,70 @@ public class NetworkController {
      */
     public DispatchCommand nextDispatchable() {
         Iterator<Map.Entry<UUID, Order>> orderIt = orderQueue.entrySet().iterator();
-        outer:
         while (orderIt.hasNext()) {
             Order order = orderIt.next().getValue();
             List<SupplyEntry> entries = supplyTable.get(order.item());
             if (entries == null || entries.isEmpty()) continue;
-
-            for (int i = 0; i < entries.size(); i++) {
-                SupplyEntry supply = entries.get(i);
-
-                if (supply.available == 0) {
-                    // On-demand supply (crafter): validate ingredient chain before dispatching
-                    List<ItemVariant> missing = getMissingIngredients(order.item(), order.amount());
-                    if (!missing.isEmpty()) {
-                        cancelAndNotify(orderIt, order, missing);
-                        continue outer;
-                    }
-                    return new DispatchCommand(
-                            order.id(), supply.pos, order.requester(), order.item(), order.amount());
-                }
-
-                if (supply.available >= order.amount()) {
-                    // Full fill from real stock: no pre-check needed
-                    supply.available -= order.amount();
-                    if (supply.available == 0) {
-                        entries.remove(i);
-                        if (entries.isEmpty()) supplyTable.remove(order.item());
-                    }
-                    return new DispatchCommand(
-                            order.id(), supply.pos, order.requester(), order.item(), order.amount());
-                }
-
-                // Partial fill from real stock — pre-check only when a crafter also covers this item
-                // (the crafter will be needed to fill the remainder on a subsequent tick)
-                boolean crafterExists = entries.stream().anyMatch(e -> e.available == 0);
-                if (crafterExists) {
-                    List<ItemVariant> missing = getMissingIngredients(order.item(), order.amount());
-                    if (!missing.isEmpty()) {
-                        cancelAndNotify(orderIt, order, missing);
-                        continue outer;
-                    }
-                }
-
-                // Pre-check passed (or no crafter covers this item): dispatch partial stock now
-                long partial = supply.available;
-                supply.available = 0;
-                entries.remove(i);
-                if (entries.isEmpty()) supplyTable.remove(order.item());
-                return new DispatchCommand(
-                        order.id(), supply.pos, order.requester(), order.item(), partial);
-            }
+            DispatchCommand cmd = tryDispatch(orderIt, order, entries);
+            if (cmd != null) return cmd;
         }
         return null;
+    }
+
+    /**
+     * Attempt to create a dispatch command for a single order given its current supply entries.
+     * Always operates on the first (highest-priority) entry in the list; the list is sorted by
+     * priority so real stock (priority 1) always precedes crafters (priority 5).
+     * Validates the ingredient chain before committing to any crafter or partial-stock dispatch.
+     *
+     * @return a dispatch command if ready, or null if the order cannot be dispatched now
+     *         (either no matching supply, or the order was cancelled due to a missing ingredient)
+     */
+    @Nullable
+    private DispatchCommand tryDispatch(
+            Iterator<Map.Entry<UUID, Order>> orderIt, Order order, List<SupplyEntry> entries) {
+        SupplyEntry supply = entries.getFirst();
+
+        if (supply.available == 0) {
+            // On-demand supply (crafter): validate ingredient chain before dispatching
+            List<ItemVariant> missing = getMissingIngredients(order.item(), order.amount());
+            if (!missing.isEmpty()) {
+                cancelAndNotify(orderIt, order, missing);
+                return null;
+            }
+            return new DispatchCommand(
+                    order.id(), supply.pos, order.requester(), order.item(), order.amount());
+        }
+
+        if (supply.available >= order.amount()) {
+            // Full fill from real stock: no pre-check needed
+            supply.available -= order.amount();
+            if (supply.available == 0) {
+                entries.removeFirst();
+                if (entries.isEmpty()) supplyTable.remove(order.item());
+            }
+            return new DispatchCommand(
+                    order.id(), supply.pos, order.requester(), order.item(), order.amount());
+        }
+
+        // Partial fill from real stock — pre-check only when a crafter also covers this item
+        // (the crafter will be needed to fill the remainder on a subsequent tick)
+        boolean crafterExists = entries.stream().anyMatch(e -> e.available == 0);
+        if (crafterExists) {
+            List<ItemVariant> missing = getMissingIngredients(order.item(), order.amount());
+            if (!missing.isEmpty()) {
+                cancelAndNotify(orderIt, order, missing);
+                return null;
+            }
+        }
+
+        // Pre-check passed (or no crafter covers this item): dispatch partial stock now
+        long partial = supply.available;
+        supply.available = 0;
+        entries.removeFirst();
+        if (entries.isEmpty()) supplyTable.remove(order.item());
+        return new DispatchCommand(
+                order.id(), supply.pos, order.requester(), order.item(), partial);
     }
 
     /**

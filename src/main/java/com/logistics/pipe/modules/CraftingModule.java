@@ -347,9 +347,15 @@ public class CraftingModule implements Module {
             for (int slot = 0; slot < 9; slot++) {
                 String id = getIngredientItem(ctx, slot);
                 if (id.isEmpty()) continue;
-                ItemStack stack = resolveItem(id);
-                if (stack.isEmpty()) continue;
                 long needed = (long) getIngredientCount(ctx, slot) * batchCount;
+                ItemStack stack = resolveItem(id);
+                if (stack.isEmpty()) {
+                    // Ingredient ID is not in the registry — recipe is misconfigured.
+                    // Use a placeholder so the missing list records a failure rather than
+                    // silently skipping the slot and letting a doomed order proceed.
+                    missing.addAll(checker.check(new ItemStack(net.minecraft.world.item.Items.AIR), needed));
+                    continue;
+                }
                 missing.addAll(checker.check(stack, needed));
             }
             return missing;
