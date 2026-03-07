@@ -45,14 +45,10 @@ public class ProviderScreenHandler extends AbstractContainerMenu {
         if (pipeEntity != null) {
             this.context = ContainerLevelAccess.create(pipeEntity.getLevel(), pipeEntity.getBlockPos());
             // Load current mode and filter inversion from module
-            PipeModuleHelper.withModule(this.context, ProviderModule.class, (ctx, module) -> {
+            PipeModuleHelper.withModule(pipeEntity, ProviderModule.class, (ctx, module) -> {
                 data.set(0, module.getModeOrdinal(ctx));
                 data.set(1, module.isFilterInverted(ctx) ? 1 : 0);
             });
-            if (data.get(0) == 0 && data.get(1) == 0) {
-                // Set defaults if module not found
-                data.set(0, ProviderModule.ProviderMode.SUPPLY.ordinal());
-            }
         } else {
             this.context = ContainerLevelAccess.NULL;
         }
@@ -172,12 +168,12 @@ public class ProviderScreenHandler extends AbstractContainerMenu {
 
     @Override
     public void broadcastChanges() {
-        super.broadcastChanges();
-        // Sync mode and filter inversion from module to data slots
+        // Sync module state into data slots before super sends them to the client
         PipeModuleHelper.withModule(context, ProviderModule.class, (ctx, module) -> {
             data.set(0, module.getModeOrdinal(ctx));
             data.set(1, module.isFilterInverted(ctx) ? 1 : 0);
         });
+        super.broadcastChanges();
     }
 
     private static class FilterSlot extends Slot {
