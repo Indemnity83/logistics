@@ -105,7 +105,7 @@ public class RequestInventory implements Container {
 
         for (var entry : available.entrySet()) {
             ItemStack display = entry.getKey().copy();
-            display.setCount((int) Math.min(entry.getValue(), 64));
+            display.setCount((int) Math.max(1, Math.min(entry.getValue(), 64)));
             result.add(display);
         }
 
@@ -137,7 +137,7 @@ public class RequestInventory implements Container {
         for (var entry : available.entrySet()) {
             ItemStack display = entry.getKey().copy();
             // Use full amount - Minecraft can display counts > 64
-            int count = (int) Math.min(entry.getValue(), Integer.MAX_VALUE);
+            int count = (int) Math.max(1, Math.min(entry.getValue(), Integer.MAX_VALUE));
             display.setCount(count);
             items.add(display);
             amounts.add(entry.getValue());
@@ -222,7 +222,7 @@ public class RequestInventory implements Container {
             ItemStack displayStack = entry.getKey().copy();
             // Show available amount as stack count (capped at 64 for display)
             long available = entry.getValue();
-            displayStack.setCount((int) Math.min(available, 64));
+            displayStack.setCount((int) Math.max(1, Math.min(available, 64)));
             stacks.set(slotIndex++, displayStack);
         }
     }

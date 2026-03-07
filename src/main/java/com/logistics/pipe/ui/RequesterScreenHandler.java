@@ -5,6 +5,7 @@ import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.pipe.network.SyncRequesterInventoryPacket;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
@@ -12,6 +13,7 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -114,6 +116,8 @@ public class RequesterScreenHandler extends AbstractContainerMenu {
     public void refreshSearch(String query) {
         this.currentSearch = query;
         this.filteredItems = getFilteredItems(query);
+        this.filteredItems.sort(Comparator.comparing(
+                stack -> BuiltInRegistries.ITEM.getKey(stack.getItem()).toString()));
         this.currentPage = 0;
     }
 
