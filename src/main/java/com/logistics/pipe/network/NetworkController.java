@@ -1,9 +1,12 @@
 package com.logistics.pipe.network;
 
+import com.logistics.core.lib.network.IngredientChecker;
 import com.logistics.core.lib.network.Order;
+import com.logistics.core.lib.network.ProviderCanFulfill;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
@@ -16,6 +19,12 @@ import java.util.*;
  * <p>Dispatch is synchronous: the network calls {@link #nextDispatchable()} each tick,
  * then calls the provider's {@code onDispatch()} directly via {@link com.logistics.core.lib.network.IWorldView}.
  * Supply is immediately updated after extraction so subsequent orders in the same tick see accurate stock.
+ *
+ * <p>Before dispatching to a dynamic provider (crafter, etc.), a dry-run ingredient-chain check
+ * validates that all required raw materials are actually available. The check uses a shared
+ * "claimed" scratch-pad so that sibling branches that need the same ingredient see the combined
+ * deduction. Orders whose chain cannot be satisfied are cancelled and the failure listener is
+ * notified.
  *
  * <p>Zero Minecraft API coupling — 100% testable with pure Java.
  */
@@ -44,6 +53,16 @@ public class NetworkController {
     public record DispatchCommand(
             UUID orderId, BlockPos provider, BlockPos requester, ItemVariant item, long amount) {}
 
+    /**
+     * Listener notified when an order is cancelled because its ingredient chain cannot be
+     * satisfied. Called synchronously inside {@link #nextDispatchable()}.
+     */
+    @FunctionalInterface
+    public interface OrderFailureListener {
+        void onOrderFailed(UUID orderId, BlockPos requester, ItemVariant item,
+                           long amount, List<ItemVariant> missing);
+    }
+
     // Per-item supply entries, sorted by priority ascending (1 = real stock first, 5 = crafter fallback)
     private final Map<ItemVariant, List<SupplyEntry>> supplyTable = new HashMap<>();
 
@@ -52,6 +71,28 @@ public class NetworkController {
 
     // How many items each requester has outstanding (ordered but not yet delivered)
     private final Map<BlockPos, Map<ItemVariant, Long>> orderedForRequester = new HashMap<>();
+
+    // Fulfillment-check callbacks for dynamic providers (crafters, machines, etc.)
+    private final Map<BlockPos, ProviderCanFulfill> providerChecks = new HashMap<>();
+
+    @Nullable
+    private OrderFailureListener failureListener;
+
+    // ===== Provider Check Registration =====
+
+    public void registerProviderCheck(BlockPos pos, ProviderCanFulfill check) {
+        providerChecks.put(pos, check);
+    }
+
+    public void unregisterProviderCheck(BlockPos pos) {
+        providerChecks.remove(pos);
+    }
+
+    public void setOrderFailureListener(@Nullable OrderFailureListener listener) {
+        this.failureListener = listener;
+    }
+
+    // ===== Supply Registration =====
 
     /**
      * Register (or replace) supply for a provider position.
@@ -86,6 +127,8 @@ public class NetworkController {
         }
         supplyTable.entrySet().removeIf(e -> e.getValue().isEmpty());
     }
+
+    // ===== Order Management =====
 
     /**
      * Place a standing order. Increments orderedForRequester immediately.
@@ -124,30 +167,41 @@ public class NetworkController {
         orderedForRequester.remove(requester);
     }
 
+    // ===== Dispatch =====
+
     /**
-     * Find the next dispatchable order: an order whose full amount is available from a single
-     * supply entry. Reserves (decrements) that supply immediately so subsequent calls in the
-     * same tick see accurate remaining stock.
+     * Find the next dispatchable order. Performs a pre-validation ingredient-chain check before
+     * dispatching to any dynamic provider (crafter) or when real stock is only a partial fill
+     * and a crafter would be needed for the remainder.
+     *
+     * <p>If the chain check fails the order is cancelled and the failure listener is notified.
      *
      * @return dispatch command, or null if no order can be fulfilled right now
      */
     public DispatchCommand nextDispatchable() {
-        for (Map.Entry<UUID, Order> entry : orderQueue.entrySet()) {
-            Order order = entry.getValue();
+        Iterator<Map.Entry<UUID, Order>> orderIt = orderQueue.entrySet().iterator();
+        outer:
+        while (orderIt.hasNext()) {
+            Order order = orderIt.next().getValue();
             List<SupplyEntry> entries = supplyTable.get(order.item());
             if (entries == null || entries.isEmpty()) continue;
 
             for (int i = 0; i < entries.size(); i++) {
                 SupplyEntry supply = entries.get(i);
 
-                // On-demand supply (crafter, available == 0): always dispatchable, never decremented
                 if (supply.available == 0) {
+                    // On-demand supply (crafter): validate ingredient chain before dispatching
+                    List<ItemVariant> missing = getMissingIngredients(order.item(), order.amount());
+                    if (!missing.isEmpty()) {
+                        cancelAndNotify(orderIt, order, missing);
+                        continue outer;
+                    }
                     return new DispatchCommand(
                             order.id(), supply.pos, order.requester(), order.item(), order.amount());
                 }
 
                 if (supply.available >= order.amount()) {
-                    // Full fill from real stock
+                    // Full fill from real stock: no pre-check needed
                     supply.available -= order.amount();
                     if (supply.available == 0) {
                         entries.remove(i);
@@ -157,14 +211,24 @@ public class NetworkController {
                             order.id(), supply.pos, order.requester(), order.item(), order.amount());
                 }
 
-                // Partial fill from real stock: dispatch what's available now; the remainder
-                // will be picked up from the next entry (or a crafter) on the next loop iteration.
-                long partialAmount = supply.available;
+                // Partial fill from real stock — pre-check only when a crafter also covers this item
+                // (the crafter will be needed to fill the remainder on a subsequent tick)
+                boolean crafterExists = entries.stream().anyMatch(e -> e.available == 0);
+                if (crafterExists) {
+                    List<ItemVariant> missing = getMissingIngredients(order.item(), order.amount());
+                    if (!missing.isEmpty()) {
+                        cancelAndNotify(orderIt, order, missing);
+                        continue outer;
+                    }
+                }
+
+                // Pre-check passed (or no crafter covers this item): dispatch partial stock now
+                long partial = supply.available;
                 supply.available = 0;
                 entries.remove(i);
                 if (entries.isEmpty()) supplyTable.remove(order.item());
                 return new DispatchCommand(
-                        order.id(), supply.pos, order.requester(), order.item(), partialAmount);
+                        order.id(), supply.pos, order.requester(), order.item(), partial);
             }
         }
         return null;
@@ -211,6 +275,82 @@ public class NetworkController {
         decrementOrdered(requester, item, amount);
     }
 
+    // ===== Ingredient Chain Validation =====
+
+    /**
+     * Dry-run check: returns empty list if the network can satisfy {@code amount} of {@code item}
+     * (from real stock + dynamic providers, recursively). Otherwise returns the terminal missing
+     * ingredient(s). Creates a fresh shared-reservation context for the whole validation tree.
+     */
+    public List<ItemVariant> getMissingIngredients(ItemVariant item, long amount) {
+        Map<ItemVariant, Long> claimed = new HashMap<>();
+        Set<ItemVariant> visited = new HashSet<>();
+        return collectMissing(item, amount, claimed, visited);
+    }
+
+    /**
+     * Recursive dry-run that walks the ingredient tree.
+     *
+     * <p>{@code claimed} is a shared scratch-pad: as each branch "uses" stock during the check,
+     * the amounts are deducted from effective availability so sibling branches that need the same
+     * material see reduced stock. It is never written back to the real supply table.
+     *
+     * <p>{@code visited} is a DFS path guard against ingredient cycles. Items are removed on
+     * exit from the {@code finally} block so they can appear in separate branches.
+     */
+    private List<ItemVariant> collectMissing(
+            ItemVariant item, long amount,
+            Map<ItemVariant, Long> claimed, Set<ItemVariant> visited) {
+        if (!visited.add(item)) return List.of(); // cycle guard: optimistically assume satisfiable
+
+        try {
+            // Sum real stock across all provider entries for this item
+            long realStock = 0;
+            List<SupplyEntry> entries = supplyTable.get(item);
+            if (entries != null) {
+                for (SupplyEntry e : entries) {
+                    if (e.available > 0) realStock += e.available;
+                }
+            }
+
+            long alreadyClaimed = claimed.getOrDefault(item, 0L);
+            long effectiveStock = Math.max(0L, realStock - alreadyClaimed);
+
+            if (effectiveStock >= amount) {
+                // Enough real stock: reserve in the dry-run and succeed
+                claimed.merge(item, amount, Long::sum);
+                return List.of();
+            }
+
+            // Partially covered by real stock: consume what's available and check providers for rest
+            long remaining = amount - effectiveStock;
+            if (effectiveStock > 0) {
+                claimed.merge(item, effectiveStock, Long::sum);
+            }
+
+            // Try the first dynamic provider (crafter) that covers this item
+            if (entries != null) {
+                for (SupplyEntry e : entries) {
+                    if (e.available != 0) continue; // skip real-stock entries
+                    ProviderCanFulfill check = providerChecks.get(e.pos);
+                    if (check == null) return List.of(); // no check = backward compat: assume OK
+                    IngredientChecker checker = (ing, amt) ->
+                            collectMissing(ItemVariant.of(ing), amt, claimed, visited);
+                    List<ItemVariant> missing = check.getMissing(remaining, checker);
+                    if (missing.isEmpty()) return List.of();
+                    return missing; // return first failure; only one provider is tried
+                }
+            }
+
+            // No dynamic provider can cover the remainder
+            return List.of(item);
+        } finally {
+            visited.remove(item); // allow item to be revisited in sibling branches
+        }
+    }
+
+    // ===== Query =====
+
     /**
      * Get how many items are currently ordered (in-flight or pending) for a requester.
      * Used by suppliers/requesters to avoid placing duplicate orders.
@@ -251,6 +391,8 @@ public class NetworkController {
         return result;
     }
 
+    // ===== Merge =====
+
     /**
      * Merge another NetworkController into this one (used when two networks join).
      */
@@ -274,6 +416,24 @@ public class NetworkController {
             Map<ItemVariant, Long> myMap =
                     orderedForRequester.computeIfAbsent(entry.getKey(), k -> new HashMap<>());
             entry.getValue().forEach((variant, amount) -> myMap.merge(variant, amount, Long::sum));
+        }
+
+        // Merge provider checks
+        providerChecks.putAll(other.providerChecks);
+    }
+
+    // ===== Helpers =====
+
+    private void cancelAndNotify(
+            Iterator<Map.Entry<UUID, Order>> orderIt, Order order, List<ItemVariant> missing) {
+        orderIt.remove();
+        decrementOrdered(order.requester(), order.item(), order.amount());
+        NetDbg.out("Order failed (missing ingredients): {} | {}x {} → {} | missing: {}",
+                order.id().toString().substring(0, 8), order.amount(),
+                order.item().toStack().getItem(), order.requester(), missing);
+        if (failureListener != null) {
+            failureListener.onOrderFailed(
+                    order.id(), order.requester(), order.item(), order.amount(), missing);
         }
     }
 
