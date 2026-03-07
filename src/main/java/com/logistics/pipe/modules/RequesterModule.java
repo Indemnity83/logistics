@@ -43,6 +43,7 @@ public class RequesterModule implements Module {
     private static final String TICKS_SINCE_REQUEST = "ticks_since_request";
     private static final int REQUEST_INTERVAL = 20;
     public static final int MAX_REQUEST_SLOTS = 9;
+    public static final int MAX_REQUEST_AMOUNT = 576;
     // TODO(Phase 11): Energy costs
     // private static final int RF_PER_REQUEST_CYCLE = 5;
 
@@ -145,8 +146,9 @@ public class RequesterModule implements Module {
             long alreadyOrdered = network.getOrderedAmountFor(ctx.pos(), stack);
             long needed = config.amount() - alreadyOrdered;
 
-            if (needed > 0) {
-                network.placeOrder(ItemVariant.of(stack), needed, ctx.pos());
+            long clamped = Math.min(needed, MAX_REQUEST_AMOUNT);
+            if (clamped > 0) {
+                network.placeOrder(ItemVariant.of(stack), clamped, ctx.pos());
 
                 // TODO(Phase 11): Consume energy
                 // ctx.setEnergy(ctx.getEnergy() - RF_PER_REQUEST_CYCLE);
@@ -201,9 +203,10 @@ public class RequesterModule implements Module {
         if (itemId.isEmpty() || amount <= 0) {
             requests.remove(key);
         } else {
+            int clamped = Math.min(amount, MAX_REQUEST_AMOUNT);
             CompoundTag slotTag = new CompoundTag();
             slotTag.putString("item", itemId);
-            slotTag.putInt("amount", amount);
+            slotTag.putInt("amount", clamped);
             requests.put(key, slotTag);
         }
 
@@ -249,7 +252,7 @@ public class RequesterModule implements Module {
             return;
         }
 
-        if (amount <= 0 || amount > 576) {
+        if (amount <= 0 || amount > MAX_REQUEST_AMOUNT) {
             return;
         }
 

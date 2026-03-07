@@ -2,6 +2,7 @@ package com.logistics.pipe.screen;
 
 import com.logistics.LogisticsMod;
 import com.logistics.core.lib.resource.ResourceId;
+import com.logistics.pipe.modules.RequesterModule;
 import com.logistics.pipe.network.RequestItemPacket;
 import com.logistics.pipe.screen.widget.NetworkItemButton;
 import com.logistics.pipe.screen.widget.PageButton;
@@ -30,8 +31,7 @@ import java.util.List;
 public class RequesterScreen extends AbstractContainerScreen<RequesterScreenHandler> {
     private static final ResourceId BACKGROUND =
             LogisticsMod.modId("textures/gui/pipe/requester-alt.png");
-    /** Absolute upper bound on request amounts (64 stacks × 9 slots). */
-    private static final int MAX_REQUEST_CAP = 576;
+    private static final int MAX_REQUEST_CAP = RequesterModule.MAX_REQUEST_AMOUNT;
 
     private EditBox searchBox;
     private EditBox amountField;
