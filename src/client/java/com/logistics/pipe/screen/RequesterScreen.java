@@ -137,9 +137,8 @@ public class RequesterScreen extends AbstractContainerScreen<RequesterScreenHand
 
     private void subOne(Button button) {
         try {
-            int currentAmount = Integer.parseInt(amountField.getValue());
-            int newAmount = Math.max(1, currentAmount - 1);
-            amountField.setValue(String.valueOf(newAmount));
+            int currentAmount = Math.min(576, Integer.parseInt(amountField.getValue()));
+            amountField.setValue(String.valueOf(Math.max(1, currentAmount - 1)));
         } catch (NumberFormatException e) {
             amountField.setValue("1");
         }
@@ -224,7 +223,7 @@ public class RequesterScreen extends AbstractContainerScreen<RequesterScreenHand
     private void onRequestClick(Button button) {
         if (selectedButton != null && !selectedButton.getItem().isEmpty()) {
             try {
-                int amount = Integer.parseInt(amountField.getValue());
+                int amount = Math.min(576, Math.max(1, Integer.parseInt(amountField.getValue())));
                 if (amount > 0) {
                     // Normalize the ItemStack to count=1 (actual amount is sent separately)
                     ItemStack requestStack = selectedButton.getItem().copy();
