@@ -1,5 +1,6 @@
 package com.logistics.pipe.network;
 
+import com.logistics.LogisticsMod;
 import com.logistics.core.lib.network.IngredientChecker;
 import com.logistics.core.lib.network.Order;
 import com.logistics.core.lib.network.ProviderCanFulfill;
@@ -345,7 +346,14 @@ public class NetworkController {
                 for (SupplyEntry e : entries) {
                     if (e.available != 0) continue; // skip real-stock entries
                     ProviderCanFulfill check = providerChecks.get(e.pos);
-                    if (check == null) return List.of(); // no check = backward compat: assume OK
+                    if (check == null) {
+                        // Provider registered supply with available=0 but never registered a
+                        // ProviderCanFulfill check — treat as unfulfillable so we don't silently
+                        // dispatch to a provider that cannot prove it can satisfy the request.
+                        LogisticsMod.LOGGER.warn("No ProviderCanFulfill registered for provider at {} — "
+                                + "treating as missing (missing registerProviderCheck call?)", e.pos);
+                        return List.of(item);
+                    }
                     IngredientChecker checker = (ing, amt) ->
                             collectMissing(ItemVariant.of(ing), amt, claimed, visited);
                     List<ItemVariant> missing = check.getMissing(remaining, checker);

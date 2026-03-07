@@ -114,6 +114,7 @@ class NetworkControllerTest extends MinecraftTestEnvironment {
         // Provider has only 5, order needs 16 — dispatch 5 from stock, then 11 from crafter
         controller.registerSupply(PROVIDER1, Map.of(diamond(), 5L), 1); // real stock (partial)
         controller.registerSupply(PROVIDER2, Map.of(diamond(), 0L), 5); // crafter
+        controller.registerProviderCheck(PROVIDER2, (amount, checker) -> List.of()); // can always fulfill
 
         UUID orderId = controller.placeOrder(diamond(), 16L, REQUESTER);
         assertNotNull(orderId);
@@ -367,16 +368,20 @@ class NetworkControllerTest extends MinecraftTestEnvironment {
     }
 
     @Test
-    void testNoCheckRegistered_crafterDispatchesOptimistically() {
-        // Crafter with available=0 but no ProviderCanFulfill registered → dispatch proceeds
+    void testNoCheckRegistered_crafterOrderFails() {
+        // Crafter with available=0 but no ProviderCanFulfill registered → order is cancelled
         controller.registerSupply(CRAFTER_POS, Map.of(oakPlanks(), 0L), 5);
         // No registerProviderCheck call
 
-        controller.placeOrder(oakPlanks(), 8L, REQUESTER);
+        List<UUID> failedOrders = new ArrayList<>();
+        controller.setOrderFailureListener((orderId, req, item, amt, missing) ->
+                failedOrders.add(orderId));
+
+        UUID orderId = controller.placeOrder(oakPlanks(), 8L, REQUESTER);
 
         NetworkController.DispatchCommand cmd = controller.nextDispatchable();
-        assertNotNull(cmd, "Crafter without a registered check should dispatch optimistically");
-        assertEquals(CRAFTER_POS, cmd.provider());
+        assertNull(cmd, "Crafter without a registered check should not dispatch");
+        assertTrue(failedOrders.contains(orderId), "Order should be cancelled when check is missing");
     }
 
     @Test
