@@ -236,11 +236,13 @@ public class RequesterModule implements Module {
     }
 
     /**
-     * Request an item from the network (GUI-triggered request).
-     * Creates an ItemRequest that will be fulfilled by a provider.
-     * @param ctx Pipe context
-     * @param stack Item to request
-     * @param amount Amount to request
+     * Additive/manual order — places {@code amount} as a new discrete order regardless of
+     * what is already in-flight. Each call creates an independent request, so two calls
+     * will result in two deliveries. Intended for GUI-triggered one-shot requests.
+     *
+     * <p>This differs from {@link #processRequests}, which is top-up ordering: it checks
+     * how much is already ordered and only requests the shortfall to reach the slot target.
+     * Do not consolidate the two — the distinct semantics are intentional.
      */
     public void requestItem(PipeContext ctx, ItemStack stack, int amount) {
         if (ctx.world().isClientSide()) {
@@ -259,11 +261,7 @@ public class RequesterModule implements Module {
             return;
         }
 
-        long alreadyOrdered = network.getOrderedAmountFor(ctx.pos(), stack);
-        long needed = amount - alreadyOrdered;
-        if (needed > 0) {
-            network.placeOrder(ItemVariant.of(stack), needed, ctx.pos());
-        }
+        network.placeOrder(ItemVariant.of(stack), amount, ctx.pos());
     }
 
     /**
