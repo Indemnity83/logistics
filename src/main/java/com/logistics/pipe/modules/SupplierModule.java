@@ -56,7 +56,7 @@ public class SupplierModule implements Module {
     private static final String SUPPLIER_DIRECTION = "supplier_direction";
     private static final String TICKS_SINCE_CHECK = "ticks_since_check";
     private static final String MODE = "mode"; // Supply mode
-    private static final int CHECK_INTERVAL = 100;
+    private static final int CHECK_INTERVAL = 20;
     public static final int MAX_SUPPLY_SLOTS = 9;
 
     // TODO(Phase 11): Energy costs
@@ -184,7 +184,6 @@ public class SupplierModule implements Module {
             NetDbg.out("[Supplier @ {}] Checking {} (mode {}): target={}, current={}, pending={}, needed={}",
                     ctx.pos(), config.itemId(), mode, config.amount(), currentAmount, pendingAmount, needed);
 
-            long available = network.getAvailableAmount(stack);
             boolean shouldRequest = false;
             long toRequest = 0;
 
@@ -192,33 +191,40 @@ public class SupplierModule implements Module {
                 long availableSpace = getAvailableSpace(ctx, supplierDir, stack);
                 long spaceToFill = availableSpace - pendingAmount;
                 if (spaceToFill > 0) {
-                    toRequest = Math.min(Math.min(stack.getMaxStackSize(), spaceToFill), available);
-                    shouldRequest = toRequest > 0;
+                    toRequest = Math.min(stack.getMaxStackSize(), spaceToFill);
+                    shouldRequest = true;
                 }
             } else if (needed > 0) {
                 switch (mode) {
                     case BULK50:
                         if (currentAmount <= config.amount() / 2) {
-                            toRequest = Math.min(needed, available);
-                            shouldRequest = toRequest > 0;
+                            toRequest = needed;
+                            shouldRequest = true;
                         }
                         break;
                     case BULK100:
                         if (currentAmount == 0) {
-                            toRequest = Math.min(needed, available);
-                            shouldRequest = toRequest > 0;
+                            toRequest = needed;
+                            shouldRequest = true;
                         }
                         break;
-                    case FULL:
+                    case FULL: {
+                        // All-or-nothing: only request when full amount is available (chest)
+                        // or on-demand craftable (Long.MAX_VALUE). Crafter-busy (0) waits
+                        // for next check interval when the crafter re-advertises supply.
+                        long available = network.getAvailableAmount(stack);
                         if (available >= needed) {
                             toRequest = needed;
                             shouldRequest = true;
                         }
                         break;
+                    }
                     case PARTIAL:
                     default:
-                        toRequest = Math.min(needed, available);
-                        shouldRequest = toRequest > 0;
+                        // Request needed amount regardless of current availability;
+                        // dispatch validation handles fulfillability (same as RequesterModule).
+                        toRequest = needed;
+                        shouldRequest = true;
                         break;
                 }
             }
