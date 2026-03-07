@@ -5,6 +5,7 @@ import com.logistics.core.lib.network.*;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.HashMap;
@@ -13,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * Represents a connected network of pipes.
@@ -43,6 +45,17 @@ public class PipeNetwork implements ILogisticsNetwork {
         this.graph = graph;
         this.worldView = worldView;
         this.controller = new NetworkController();
+        controller.setOrderFailureListener((orderId, requester, item, amount, missing) -> {
+            if (worldView == null) return;
+            String name = item.toStack(1).getHoverName().getString();
+            String missingNames = missing.stream()
+                    .map(v -> v.toStack(1).getHoverName().getString())
+                    .distinct()
+                    .collect(Collectors.joining(", "));
+            worldView.broadcastAlert(requester,
+                    Component.literal("[Logistics] Cannot fill order for "
+                            + name + " — missing: " + missingNames));
+        });
     }
 
     /**
@@ -77,6 +90,7 @@ public class PipeNetwork implements ILogisticsNetwork {
         graph.removeNode(pos);
         controller.removeSupply(pos);
         controller.cancelOrdersFor(pos);
+        controller.unregisterProviderCheck(pos);
         defaultRouteSinks.remove(pos);
         sinkPriorities.remove(pos);
     }
@@ -130,6 +144,21 @@ public class PipeNetwork implements ILogisticsNetwork {
     @Override
     public void cancelOrder(UUID orderId) {
         controller.cancelOrder(orderId);
+    }
+
+    @Override
+    public void registerProviderCheck(BlockPos pos, ProviderCanFulfill check) {
+        controller.registerProviderCheck(pos, check);
+    }
+
+    @Override
+    public void unregisterProviderCheck(BlockPos pos) {
+        controller.unregisterProviderCheck(pos);
+    }
+
+    @Override
+    public List<ItemVariant> getMissingIngredients(ItemVariant item, long amount) {
+        return controller.getMissingIngredients(item, amount);
     }
 
     @Override

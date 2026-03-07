@@ -8,7 +8,9 @@ import net.minecraft.world.item.ItemStack;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -25,6 +27,9 @@ class NetworkControllerTest extends MinecraftTestEnvironment {
     private NetworkController controller;
     private static final BlockPos PROVIDER1 = new BlockPos(0, 0, 0);
     private static final BlockPos PROVIDER2 = new BlockPos(10, 0, 0);
+    private static final BlockPos CRAFTER_POS = new BlockPos(20, 0, 0);
+    private static final BlockPos CRAFTER_POS2 = new BlockPos(21, 0, 0);
+    private static final BlockPos CRAFTER_POS3 = new BlockPos(22, 0, 0);
     private static final BlockPos REQUESTER = new BlockPos(5, 0, 0);
     private static final BlockPos REQUESTER2 = new BlockPos(6, 0, 0);
 
@@ -39,6 +44,22 @@ class NetworkControllerTest extends MinecraftTestEnvironment {
 
     private ItemVariant emerald() {
         return ItemVariant.of(new ItemStack(Items.EMERALD));
+    }
+
+    private ItemVariant oakLog() {
+        return ItemVariant.of(new ItemStack(Items.OAK_LOG));
+    }
+
+    private ItemVariant oakPlanks() {
+        return ItemVariant.of(new ItemStack(Items.OAK_PLANKS));
+    }
+
+    private ItemVariant stick() {
+        return ItemVariant.of(new ItemStack(Items.STICK));
+    }
+
+    private ItemVariant ironIngot() {
+        return ItemVariant.of(new ItemStack(Items.IRON_INGOT));
     }
 
     // ===== Supply Registration =====
@@ -93,6 +114,7 @@ class NetworkControllerTest extends MinecraftTestEnvironment {
         // Provider has only 5, order needs 16 — dispatch 5 from stock, then 11 from crafter
         controller.registerSupply(PROVIDER1, Map.of(diamond(), 5L), 1); // real stock (partial)
         controller.registerSupply(PROVIDER2, Map.of(diamond(), 0L), 5); // crafter
+        controller.registerProviderCheck(PROVIDER2, (amount, checker) -> List.of()); // can always fulfill
 
         UUID orderId = controller.placeOrder(diamond(), 16L, REQUESTER);
         assertNotNull(orderId);
@@ -270,5 +292,149 @@ class NetworkControllerTest extends MinecraftTestEnvironment {
 
         Map<ItemStack, Long> items = controller.getAllAvailableItems();
         assertEquals(2, items.size());
+    }
+
+    // ===== Ingredient chain validation =====
+
+    @Test
+    void testIngredientChainFail_cancelsCrafterOrder() {
+        // Crafter can make planks but needs logs; 0 logs available
+        controller.registerSupply(CRAFTER_POS, Map.of(oakPlanks(), 0L), 5);
+        controller.registerProviderCheck(CRAFTER_POS, (amount, checker) ->
+                checker.check(new ItemStack(Items.OAK_LOG), amount));
+
+        List<UUID> failedOrders = new ArrayList<>();
+        controller.setOrderFailureListener((orderId, req, item, amt, missing) ->
+                failedOrders.add(orderId));
+
+        UUID orderId = controller.placeOrder(oakPlanks(), 8L, REQUESTER);
+
+        NetworkController.DispatchCommand cmd = controller.nextDispatchable();
+        assertNull(cmd, "Order with missing ingredients should not dispatch");
+        assertTrue(failedOrders.contains(orderId), "Failure listener should be called");
+        assertEquals(0L, controller.getOrderedAmountFor(REQUESTER, oakPlanks()),
+                "orderedForRequester should be decremented on failure");
+    }
+
+    @Test
+    void testIngredientChainOk_dispatchesCrafter() {
+        // Crafter can make planks; logs are in stock
+        controller.registerSupply(CRAFTER_POS, Map.of(oakPlanks(), 0L), 5);
+        controller.registerSupply(PROVIDER1, Map.of(oakLog(), 10L), 1);
+        controller.registerProviderCheck(CRAFTER_POS, (amount, checker) ->
+                checker.check(new ItemStack(Items.OAK_LOG), amount));
+
+        controller.placeOrder(oakPlanks(), 4L, REQUESTER);
+
+        NetworkController.DispatchCommand cmd = controller.nextDispatchable();
+        assertNotNull(cmd, "Order should dispatch when ingredients are available");
+        assertEquals(CRAFTER_POS, cmd.provider());
+        assertEquals(4L, cmd.amount());
+    }
+
+    @Test
+    void testPartialFillWithCrafterFail_preventsPartialDispatch() {
+        // 20 planks in stock + crafter (needs logs), need 30, 0 logs → full order cancelled
+        controller.registerSupply(PROVIDER1, Map.of(oakPlanks(), 20L), 1);
+        controller.registerSupply(CRAFTER_POS, Map.of(oakPlanks(), 0L), 5);
+        controller.registerProviderCheck(CRAFTER_POS, (amount, checker) ->
+                checker.check(new ItemStack(Items.OAK_LOG), amount)); // no logs registered
+
+        List<UUID> failedOrders = new ArrayList<>();
+        controller.setOrderFailureListener((orderId, req, item, amt, missing) ->
+                failedOrders.add(orderId));
+
+        UUID orderId = controller.placeOrder(oakPlanks(), 30L, REQUESTER);
+
+        NetworkController.DispatchCommand cmd = controller.nextDispatchable();
+        assertNull(cmd, "Partial dispatch should be blocked when crafter chain will fail");
+        assertTrue(failedOrders.contains(orderId), "Failure listener should be called");
+        // Ordered amount should be decremented (order cancelled, not just deferred)
+        assertEquals(0L, controller.getOrderedAmountFor(REQUESTER, oakPlanks()),
+                "orderedForRequester should be decremented when order is cancelled");
+    }
+
+    @Test
+    void testPartialFillNoCrafter_stillDispatchesPartial() {
+        // 15 planks in stock, need 16, no crafter → dispatch partial 15 (no pre-check)
+        controller.registerSupply(PROVIDER1, Map.of(oakPlanks(), 15L), 1);
+
+        controller.placeOrder(oakPlanks(), 16L, REQUESTER);
+
+        NetworkController.DispatchCommand cmd = controller.nextDispatchable();
+        assertNotNull(cmd, "Partial dispatch should proceed when there is no crafter");
+        assertEquals(PROVIDER1, cmd.provider());
+        assertEquals(15L, cmd.amount());
+    }
+
+    @Test
+    void testNoCheckRegistered_crafterOrderFails() {
+        // Crafter with available=0 but no ProviderCanFulfill registered → order is cancelled
+        controller.registerSupply(CRAFTER_POS, Map.of(oakPlanks(), 0L), 5);
+        // No registerProviderCheck call
+
+        List<UUID> failedOrders = new ArrayList<>();
+        controller.setOrderFailureListener((orderId, req, item, amt, missing) ->
+                failedOrders.add(orderId));
+
+        UUID orderId = controller.placeOrder(oakPlanks(), 8L, REQUESTER);
+
+        NetworkController.DispatchCommand cmd = controller.nextDispatchable();
+        assertNull(cmd, "Crafter without a registered check should not dispatch");
+        assertTrue(failedOrders.contains(orderId), "Order should be cancelled when check is missing");
+    }
+
+    @Test
+    void testSharedClaimed_siblingBranchesSeeSameStock() {
+        // Chain: G crafter needs 1 A + 1 B; A crafter needs 1 X; B crafter needs 1 X; only 1 X in stock
+        // Validation of G should fail because X cannot satisfy both A and B
+        ItemVariant x = ironIngot();
+        ItemVariant a = oakPlanks();
+        ItemVariant b = stick();
+        ItemVariant g = diamond();
+
+        controller.registerSupply(PROVIDER1, Map.of(x, 1L), 1);
+        controller.registerSupply(CRAFTER_POS, Map.of(a, 0L), 5);
+        controller.registerSupply(CRAFTER_POS2, Map.of(b, 0L), 5);
+        controller.registerSupply(CRAFTER_POS3, Map.of(g, 0L), 5);
+
+        // A crafter: 1 X → 1 A
+        controller.registerProviderCheck(CRAFTER_POS, (amount, checker) ->
+                checker.check(x.toStack(1), amount));
+        // B crafter: 1 X → 1 B
+        controller.registerProviderCheck(CRAFTER_POS2, (amount, checker) ->
+                checker.check(x.toStack(1), amount));
+        // G crafter: 1 A + 1 B → 1 G
+        controller.registerProviderCheck(CRAFTER_POS3, (amount, checker) -> {
+            List<ItemVariant> missing = new ArrayList<>();
+            missing.addAll(checker.check(a.toStack(1), amount)); // uses 1 X
+            missing.addAll(checker.check(b.toStack(1), amount)); // needs another X — none left
+            return missing;
+        });
+
+        controller.placeOrder(g, 1L, REQUESTER);
+
+        NetworkController.DispatchCommand cmd = controller.nextDispatchable();
+        assertNull(cmd, "G order should fail: only 1 X available but both A and B need it");
+    }
+
+    @Test
+    void testDeepChain_failsWithRootCause() {
+        // Chain: planks crafter (needs logs) → logs not available
+        // Result: order fails and reported missing item is the root (logs), not the intermediate
+        controller.registerSupply(CRAFTER_POS, Map.of(oakPlanks(), 0L), 5);
+        controller.registerProviderCheck(CRAFTER_POS, (amount, checker) ->
+                checker.check(new ItemStack(Items.OAK_LOG), amount));
+
+        List<ItemVariant> capturedMissing = new ArrayList<>();
+        controller.setOrderFailureListener((orderId, req, item, amt, missing) ->
+                capturedMissing.addAll(missing));
+
+        controller.placeOrder(oakPlanks(), 4L, REQUESTER);
+        controller.nextDispatchable();
+
+        assertFalse(capturedMissing.isEmpty(), "Missing list should be reported");
+        assertTrue(capturedMissing.stream().anyMatch(v -> v.getItem() == Items.OAK_LOG),
+                "Missing item should be the root ingredient (oak log), got: " + capturedMissing);
     }
 }
