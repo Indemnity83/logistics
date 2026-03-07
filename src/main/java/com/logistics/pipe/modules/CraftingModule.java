@@ -302,6 +302,7 @@ public class CraftingModule implements Module {
         // Blocking mode: immediately suppress supply so no further orders arrive
         if (isBlocking(ctx)) {
             network.registerSupply(ctx.pos(), new HashMap<>(), CRAFTER_PRIORITY);
+            network.unregisterProviderCheck(ctx.pos());
         }
 
         return amount; // Promise: delivery happens after crafting completes
@@ -314,6 +315,7 @@ public class CraftingModule implements Module {
         String resultId = getResultItem(ctx);
         if (resultId.isEmpty() || findAutocrafterDirection(ctx) == null) {
             network.registerSupply(ctx.pos(), new HashMap<>(), CRAFTER_PRIORITY);
+            network.unregisterProviderCheck(ctx.pos());
             return;
         }
 
@@ -322,12 +324,14 @@ public class CraftingModule implements Module {
         // orders can be queued; the queue prevents dispatch loops since dispatches succeed.
         if (isBlocking(ctx) && isActive(ctx)) {
             network.registerSupply(ctx.pos(), new HashMap<>(), CRAFTER_PRIORITY);
+            network.unregisterProviderCheck(ctx.pos());
             return;
         }
 
         ItemStack resultStack = resolveItem(resultId);
         if (resultStack.isEmpty()) {
             network.registerSupply(ctx.pos(), new HashMap<>(), CRAFTER_PRIORITY);
+            network.unregisterProviderCheck(ctx.pos());
             return;
         }
 
@@ -335,6 +339,27 @@ public class CraftingModule implements Module {
         Map<ItemVariant, Long> craftable = new HashMap<>();
         craftable.put(ItemVariant.of(resultStack), 0L);
         network.registerSupply(ctx.pos(), craftable, CRAFTER_PRIORITY);
+        network.registerProviderCheck(ctx.pos(), (amount, checker) -> {
+            int resultCount = getResultCount(ctx);
+            if (resultCount <= 0) return List.of();
+            long batchCount = (amount + resultCount - 1L) / resultCount;
+            List<ItemVariant> missing = new ArrayList<>();
+            for (int slot = 0; slot < 9; slot++) {
+                String id = getIngredientItem(ctx, slot);
+                if (id.isEmpty()) continue;
+                long needed = (long) getIngredientCount(ctx, slot) * batchCount;
+                ItemStack stack = resolveItem(id);
+                if (stack.isEmpty()) {
+                    // Ingredient ID is not in the registry — recipe is misconfigured.
+                    // Use a placeholder so the missing list records a failure rather than
+                    // silently skipping the slot and letting a doomed order proceed.
+                    missing.addAll(checker.check(new ItemStack(net.minecraft.world.item.Items.AIR), needed));
+                    continue;
+                }
+                missing.addAll(checker.check(stack, needed));
+            }
+            return missing;
+        });
     }
 
     /** Cancel all ingredient orders recorded in a single queue {@code entry}. */

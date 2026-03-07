@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.UUID;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -54,4 +55,13 @@ public interface IWorldView {
      * Check if this is a client-side world.
      */
     boolean isClientSide();
+
+    /**
+     * Send an alert message to all players within 64 blocks of {@code pos}.
+     * No-op on the client side.
+     *
+     * @param pos     position of the event (used for proximity filtering)
+     * @param message message to broadcast
+     */
+    void broadcastAlert(BlockPos pos, Component message);
 }

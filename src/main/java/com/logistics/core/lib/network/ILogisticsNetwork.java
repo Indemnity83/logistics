@@ -71,6 +71,37 @@ public interface ILogisticsNetwork {
     void cancelOrder(UUID orderId);
 
     /**
+     * Register a fulfillment-check callback for a dynamic provider (crafter, machine, etc.).
+     * The network calls this before dispatching to the provider to validate the ingredient chain.
+     *
+     * @param pos   position of the provider pipe
+     * @param check callback that returns missing ingredients (empty = can fulfill)
+     */
+    void registerProviderCheck(BlockPos pos, ProviderCanFulfill check);
+
+    /**
+     * Remove the fulfillment-check callback for a provider position.
+     * Call when the provider can no longer produce its item (recipe cleared, no autocrafter, etc.).
+     *
+     * @param pos position of the provider pipe
+     */
+    void unregisterProviderCheck(BlockPos pos);
+
+    /**
+     * Dry-run check: returns empty list if the network can satisfy {@code amount} of
+     * {@code item} (from stock + dynamic providers, recursively). Otherwise returns
+     * the terminal missing ingredient(s).
+     *
+     * <p>Creates a fresh shared-reservation context for the whole validation tree so that
+     * sibling branches that both need the same raw material see the combined deduction.
+     *
+     * @param item   item to check
+     * @param amount amount needed
+     * @return empty list if satisfiable; otherwise the root missing ingredient(s)
+     */
+    List<ItemVariant> getMissingIngredients(ItemVariant item, long amount);
+
+    /**
      * Get the total amount of an item currently ordered for a requester but not yet delivered.
      * Used by supplier/requester pipes to avoid placing duplicate orders.
      *
