@@ -244,6 +244,8 @@ public class CraftingModule implements Module {
         ItemStack resultStack = resolveItem(resultId);
         if (resultStack.isEmpty() || !item.matches(resultStack)) return 0;
 
+        if (amount <= 0) return 0;
+
         ILogisticsNetwork network = NetworkRegistry.getOrCreateNetwork(ctx.world(), ctx.pos());
         if (network == null) return 0;
 
@@ -335,30 +337,33 @@ public class CraftingModule implements Module {
         network.registerSupply(ctx.pos(), craftable, CRAFTER_PRIORITY);
     }
 
+    /** Cancel all ingredient orders recorded in a single queue {@code entry}. */
+    private void cancelEntryOrders(PipeContext ctx, CompoundTag entry) {
+        ILogisticsNetwork network = NetworkRegistry.getNetwork(ctx.world(), ctx.pos());
+        if (network == null) return;
+        CompoundTag ingredientIds = NbtCompat.getCompoundOrEmpty(entry, ENTRY_IDS);
+        for (String key : ingredientIds.keySet()) {
+            UUID id = parseUUID(NbtCompat.getString(ingredientIds, key, ""));
+            if (id != null) {
+                try {
+                    network.cancelOrder(id);
+                } catch (Exception e) {
+                    LogisticsPipe.LOGGER.warn(
+                            "[Crafter @ {}] Failed to cancel ingredient order {}", ctx.pos(), id, e);
+                }
+            }
+        }
+    }
+
     /**
      * Error reset: cancel all outstanding ingredient orders for every queued entry, clear
      * the queue, and turn off the redstone signal. Called when the autocrafter goes missing.
      */
     private void resetToIdle(PipeContext ctx) {
-        ILogisticsNetwork network = NetworkRegistry.getNetwork(ctx.world(), ctx.pos());
-        if (network != null) {
-            ListTag queue = getQueue(ctx);
-            for (int i = 0; i < queue.size(); i++) {
-                CompoundTag entry = queue.getCompound(i).orElse(null);
-                if (entry == null) continue;
-                CompoundTag ingredientIds = NbtCompat.getCompoundOrEmpty(entry, ENTRY_IDS);
-                for (String key : ingredientIds.keySet()) {
-                    UUID id = parseUUID(NbtCompat.getString(ingredientIds, key, ""));
-                    if (id != null) {
-                        try {
-                            network.cancelOrder(id);
-                        } catch (Exception e) {
-                            LogisticsPipe.LOGGER.warn(
-                                    "[Crafter @ {}] Failed to cancel ingredient order {}", ctx.pos(), id, e);
-                        }
-                    }
-                }
-            }
+        ListTag queue = getQueue(ctx);
+        for (int i = 0; i < queue.size(); i++) {
+            CompoundTag entry = queue.getCompound(i).orElse(null);
+            if (entry != null) cancelEntryOrders(ctx, entry);
         }
 
         ctx.moduleState(getStateKey()).remove(QUEUE);
@@ -585,7 +590,12 @@ public class CraftingModule implements Module {
             if (entry == null) { queue.remove(0); headChanged = true; continue; }
 
             BlockPos entryRequester = parseBlockPos(NbtCompat.getString(entry, ENTRY_REQ, ""));
-            if (entryRequester == null) { queue.remove(0); headChanged = true; continue; }
+            if (entryRequester == null) {
+                cancelEntryOrders(ctx, entry);
+                queue.remove(0);
+                headChanged = true;
+                continue;
+            }
 
             long entryOrdered = NbtCompat.getLong(entry, ENTRY_AMT, 0L);
             UUID entryDeliveryId = parseUUID(NbtCompat.getString(entry, ENTRY_DLV, ""));
@@ -618,6 +628,7 @@ public class CraftingModule implements Module {
                 ctx.world().setBlock(ctx.pos(), newState, 3);
                 ctx.world().updateNeighborsAt(ctx.pos(), newState.getBlock());
             }
+            updateCrafterSupply(ctx);
         } else if (headChanged) {
             // Head was dequeued; reset pulse so the new head starts its craft cycle
             ctx.saveInt(this, TICKS_PULSE, 0);
