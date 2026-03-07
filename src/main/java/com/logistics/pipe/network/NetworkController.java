@@ -70,7 +70,7 @@ public class NetworkController {
 
         // Add fresh entries, maintaining sorted order by priority
         for (Map.Entry<ItemVariant, Long> entry : items.entrySet()) {
-            if (entry.getValue() <= 0) continue;
+            if (entry.getValue() < 0) continue;
             List<SupplyEntry> list = supplyTable.computeIfAbsent(entry.getKey(), k -> new ArrayList<>());
             list.add(new SupplyEntry(pos, entry.getValue(), priority));
             list.sort(Comparator.comparingInt(e -> e.priority));
@@ -139,14 +139,14 @@ public class NetworkController {
 
             for (int i = 0; i < entries.size(); i++) {
                 SupplyEntry supply = entries.get(i);
-                if (supply.available >= order.amount()) {
-                    // Reserve supply (unlimited sources like crafters keep Long.MAX_VALUE)
-                    if (supply.available != Long.MAX_VALUE) {
+                // available == 0 means "craftable on demand" — always matches any order amount
+                if (supply.available == 0 || supply.available >= order.amount()) {
+                    if (supply.available > 0) {
                         supply.available -= order.amount();
-                    }
-                    if (supply.available == 0) {
-                        entries.remove(i);
-                        if (entries.isEmpty()) supplyTable.remove(order.item());
+                        if (supply.available == 0) {
+                            entries.remove(i);
+                            if (entries.isEmpty()) supplyTable.remove(order.item());
+                        }
                     }
                     return new DispatchCommand(
                             order.id(), supply.pos, order.requester(), order.item(), order.amount());
@@ -240,7 +240,7 @@ public class NetworkController {
                     break;
                 }
             }
-            if (total > 0) {
+            if (total >= 0) {
                 result.merge(entry.getKey().toStack(1), total, Long::sum);
             }
         }

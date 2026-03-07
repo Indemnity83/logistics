@@ -331,9 +331,9 @@ public class CraftingModule implements Module {
             return;
         }
 
-        // Advertise Long.MAX_VALUE — on-demand crafting supply
+        // Advertise 0 — signals "craftable on demand" (no stock, but can fulfill any order)
         Map<ItemVariant, Long> craftable = new HashMap<>();
-        craftable.put(ItemVariant.of(resultStack), Long.MAX_VALUE);
+        craftable.put(ItemVariant.of(resultStack), 0L);
         network.registerSupply(ctx.pos(), craftable, CRAFTER_PRIORITY);
     }
 
