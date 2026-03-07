@@ -30,6 +30,8 @@ import java.util.List;
 public class RequesterScreen extends AbstractContainerScreen<RequesterScreenHandler> {
     private static final ResourceId BACKGROUND =
             LogisticsMod.modId("textures/gui/pipe/requester-alt.png");
+    /** Absolute upper bound on request amounts (64 stacks × 9 slots). */
+    private static final int MAX_REQUEST_CAP = 576;
 
     private EditBox searchBox;
     private EditBox amountField;
@@ -137,7 +139,7 @@ public class RequesterScreen extends AbstractContainerScreen<RequesterScreenHand
 
     private void subOne(Button button) {
         try {
-            int currentAmount = Math.min(576, Integer.parseInt(amountField.getValue()));
+            int currentAmount = Math.min(MAX_REQUEST_CAP, Integer.parseInt(amountField.getValue()));
             amountField.setValue(String.valueOf(Math.max(1, currentAmount - 1)));
         } catch (NumberFormatException e) {
             amountField.setValue("1");
@@ -147,7 +149,7 @@ public class RequesterScreen extends AbstractContainerScreen<RequesterScreenHand
     private void addOne(Button button) {
         try {
             int currentAmount = Integer.parseInt(amountField.getValue());
-            amountField.setValue(String.valueOf(Math.min(576, currentAmount + 1)));
+            amountField.setValue(String.valueOf(Math.min(MAX_REQUEST_CAP, currentAmount + 1)));
         } catch (NumberFormatException e) {
             amountField.setValue("1");
         }
@@ -223,7 +225,8 @@ public class RequesterScreen extends AbstractContainerScreen<RequesterScreenHand
     private void onRequestClick(Button button) {
         if (selectedButton != null && !selectedButton.getItem().isEmpty()) {
             try {
-                int amount = Math.min(576, Math.max(1, Integer.parseInt(amountField.getValue())));
+                int amount = Math.min(MAX_REQUEST_CAP, Math.max(1, Integer.parseInt(amountField.getValue())));
+                amountField.setValue(String.valueOf(amount)); // reflect any clamping visibly
                 if (amount > 0) {
                     // Normalize the ItemStack to count=1 (actual amount is sent separately)
                     ItemStack requestStack = selectedButton.getItem().copy();

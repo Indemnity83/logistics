@@ -249,8 +249,7 @@ public class RequesterModule implements Module {
             return;
         }
 
-        int maxAmount = stack.getMaxStackSize() * 64;
-        if (amount <= 0 || amount > maxAmount) {
+        if (amount <= 0 || amount > 576) {
             return;
         }
 
