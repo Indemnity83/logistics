@@ -117,7 +117,8 @@ public class RequesterScreenHandler extends AbstractContainerMenu {
         this.currentSearch = query;
         this.filteredItems = getFilteredItems(query);
         this.filteredItems.sort(Comparator.comparing(
-                stack -> BuiltInRegistries.ITEM.getKey(stack.getItem()).toString()));
+                        (ItemStack stack) -> BuiltInRegistries.ITEM.getKey(stack.getItem()).toString())
+                .thenComparing(stack -> stack.getComponents().toString()));
         this.currentPage = 0;
     }
 
