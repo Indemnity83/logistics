@@ -15,6 +15,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.SimpleMenuProvider;
@@ -263,7 +264,27 @@ public class RequesterModule implements Module {
             return;
         }
 
-        network.placeOrder(ItemVariant.of(stack), amount, ctx.pos(),
+        // Pre-validate: fail immediately if the full amount cannot be satisfied right now.
+        // Unlike Supplier (which holds a standing order and waits), a GUI-triggered request
+        // should give instant feedback rather than silently queuing forever.
+        ItemVariant variant = ItemVariant.of(stack);
+        List<ItemVariant> missing = network.getMissingIngredients(variant, amount);
+        if (!missing.isEmpty()) {
+            String itemName = stack.getHoverName().getString();
+            String missingName = missing.getFirst().toStack().getHoverName().getString();
+            Component msg = Component.literal(
+                    "[Logistics] Cannot fill order for " + itemName + " \u2014 missing: " + missingName);
+            if (ctx.world() instanceof ServerLevel serverLevel) {
+                double x = ctx.pos().getX(), y = ctx.pos().getY(), z = ctx.pos().getZ();
+                for (ServerPlayer player : serverLevel.getPlayers(
+                        p -> p.distanceToSqr(x, y, z) < 64 * 64)) {
+                    player.sendSystemMessage(msg);
+                }
+            }
+            return;
+        }
+
+        network.placeOrder(variant, amount, ctx.pos(),
                 com.logistics.pipe.network.FulfillmentMode.FULL);
     }
 
