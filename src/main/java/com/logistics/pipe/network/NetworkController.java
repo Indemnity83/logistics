@@ -397,6 +397,13 @@ public class NetworkController implements PlanningView {
         }
     }
 
+    // ===== Order Query =====
+
+    /** {@code true} if the order is still pending in the queue (not yet fully dispatched). */
+    public boolean hasOrder(UUID orderId) {
+        return orderQueue.containsKey(orderId);
+    }
+
     // ===== PlanningView =====
 
     /**

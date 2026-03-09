@@ -207,6 +207,7 @@ public class PipeNetwork implements ILogisticsNetwork {
                 controller.markSupplyUnavailable(cmd.provider());
             }
         }
+        jobCoordinator.tick(controller);
     }
 
     /**
