@@ -197,18 +197,20 @@ public class PipeNetwork implements ILogisticsNetwork {
      */
     public void tick(long gameTime) {
         if (worldView == null) return;
+        NetworkCommandExecutor executor = new NetworkCommandExecutor(worldView);
         NetworkController.DispatchCommand cmd;
         while ((cmd = controller.nextDispatchable()) != null) {
             NetDbg.out("[Network {}] Dispatch: {} | provider={} → requester={} | {}x {}",
                     getNetworkIdShort(id), cmd.orderId().toString().substring(0, 8),
                     cmd.provider(), cmd.requester(), cmd.amount(), cmd.item().toStack().getItem());
             try {
-                long shipped = worldView.dispatch(
-                        cmd.provider(), cmd.requester(), cmd.item(), cmd.amount(), cmd.orderId());
-                if (shipped > 0) {
+                CommandResult result = executor.execute(new NetworkCommand.ExtractCommand(
+                        cmd.provider(), cmd.requester(), cmd.item(), cmd.amount(), cmd.orderId()));
+                if (result.isSuccess()) {
                     NetDbg.out("[Network {}] Shipped: {} | {} items",
-                            getNetworkIdShort(id), cmd.orderId().toString().substring(0, 8), shipped);
-                    controller.recordDispatched(cmd.orderId(), shipped);
+                            getNetworkIdShort(id), cmd.orderId().toString().substring(0, 8),
+                            result.itemsHandled());
+                    controller.recordDispatched(cmd.orderId(), result.itemsHandled());
                 } else {
                     controller.markSupplyUnavailable(cmd.provider());
                 }
