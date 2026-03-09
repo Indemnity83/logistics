@@ -418,6 +418,52 @@ class NetworkControllerTest extends MinecraftTestEnvironment {
         assertNull(cmd, "G order should fail: only 1 X available but both A and B need it");
     }
 
+    // ===== FulfillmentMode =====
+
+    @Test
+    void testFULL_blocksPartialDispatch_whenStockInsufficient() {
+        // 5 in stock, need 10 in FULL mode → should NOT dispatch partial
+        controller.registerSupply(PROVIDER1, Map.of(diamond(), 5L), 1);
+
+        UUID orderId = controller.placeOrder(diamond(), 10L, REQUESTER, FulfillmentMode.FULL);
+
+        NetworkController.DispatchCommand cmd = controller.nextDispatchable();
+        assertNull(cmd, "FULL mode should not dispatch when stock < requested amount");
+    }
+
+    @Test
+    void testFULL_dispatchesWhenExactStockAvailable() {
+        controller.registerSupply(PROVIDER1, Map.of(diamond(), 10L), 1);
+
+        UUID orderId = controller.placeOrder(diamond(), 10L, REQUESTER, FulfillmentMode.FULL);
+
+        NetworkController.DispatchCommand cmd = controller.nextDispatchable();
+        assertNotNull(cmd, "FULL mode should dispatch when supply exactly meets demand");
+        assertEquals(10L, cmd.amount());
+    }
+
+    @Test
+    void testFULL_dispatchesWhenMoreThanEnoughStock() {
+        controller.registerSupply(PROVIDER1, Map.of(diamond(), 64L), 1);
+
+        UUID orderId = controller.placeOrder(diamond(), 10L, REQUESTER, FulfillmentMode.FULL);
+
+        NetworkController.DispatchCommand cmd = controller.nextDispatchable();
+        assertNotNull(cmd, "FULL mode should dispatch when supply exceeds demand");
+        assertEquals(10L, cmd.amount());
+    }
+
+    @Test
+    void testPARTIAL_dispatchesPartialWhenStockInsufficient() {
+        controller.registerSupply(PROVIDER1, Map.of(diamond(), 5L), 1);
+
+        UUID orderId = controller.placeOrder(diamond(), 10L, REQUESTER, FulfillmentMode.PARTIAL);
+
+        NetworkController.DispatchCommand cmd = controller.nextDispatchable();
+        assertNotNull(cmd, "PARTIAL mode should dispatch even when supply < demand");
+        assertEquals(5L, cmd.amount(), "PARTIAL dispatch should be capped to available stock");
+    }
+
     @Test
     void testDeepChain_failsWithRootCause() {
         // Chain: planks crafter (needs logs) → logs not available
