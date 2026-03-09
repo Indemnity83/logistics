@@ -47,7 +47,7 @@ public class SupplierModule implements Module {
      */
     public enum SupplyMode {
         BULK50,     // ordinal 0 - only request when inventory <= 50% of target
-        INFINITE,   // ordinal 1 - request 1 stack at a time (gradual filling)
+        INFINITE,   // ordinal 1 - request 1 stack at a time, wait for delivery before requesting more
         PARTIAL,    // ordinal 2 - request whatever is available (default)
         FULL,       // ordinal 3 - only request if full amount is available (all-or-nothing)
         BULK100     // ordinal 4 - only request when inventory is completely empty (appended to preserve existing ordinals)
@@ -57,7 +57,7 @@ public class SupplierModule implements Module {
     private static final String SUPPLIER_DIRECTION = "supplier_direction";
     private static final String TICKS_SINCE_CHECK = "ticks_since_check";
     private static final String MODE = "mode"; // Supply mode
-    private static final int CHECK_INTERVAL = 100;
+    private static final int CHECK_INTERVAL = 20;
     public static final int MAX_SUPPLY_SLOTS = 9;
 
     // TODO(Phase 11): Energy costs
@@ -180,9 +180,12 @@ public class SupplierModule implements Module {
             ItemStack stack = new ItemStack(itemHolder);
             long currentAmount = getCurrentAmount(currentStock, stack);
 
-            // Ask the network how many items are still in pending orders for us.
-            // This drops to 0 as soon as the provider ships, so fast-consuming inventories
-            // (furnaces) are handled correctly without any NBT drift.
+            // Ask the network how many items are ordered but not yet physically delivered.
+            // orderedForRequester is incremented on placeOrder() and decremented only when a
+            // TravelingItem actually arrives (notifyDelivery). With the provider's async
+            // dispatch queue there is an additional delay between the network accepting the
+            // order and the items entering the pipe, so pendingAmount may remain > 0 for
+            // several ticks after a provider starts working the order.
             long pendingAmount = network.getOrderedAmountFor(ctx.pos(), stack);
 
             long needed = config.amount() - currentAmount - pendingAmount;
@@ -190,41 +193,46 @@ public class SupplierModule implements Module {
             NetDbg.out("[Supplier @ {}] Checking {} (mode {}): target={}, current={}, pending={}, needed={}",
                     ctx.pos(), config.itemId(), mode, config.amount(), currentAmount, pendingAmount, needed);
 
-            long available = network.getAvailableAmount(stack);
             boolean shouldRequest = false;
             long toRequest = 0;
 
             if (mode == SupplyMode.INFINITE) {
                 long availableSpace = getAvailableSpace(ctx, supplierDir, stack);
-                long spaceToFill = availableSpace - pendingAmount;
-                if (spaceToFill > 0) {
-                    toRequest = Math.min(Math.min(stack.getMaxStackSize(), spaceToFill), available);
-                    shouldRequest = toRequest > 0;
+                if (availableSpace > 0 && pendingAmount == 0) {
+                    toRequest = Math.min(stack.getMaxStackSize(), availableSpace);
+                    shouldRequest = true;
                 }
             } else if (needed > 0) {
                 switch (mode) {
                     case BULK50:
                         if (currentAmount <= config.amount() / 2) {
-                            toRequest = Math.min(needed, available);
-                            shouldRequest = toRequest > 0;
+                            toRequest = needed;
+                            shouldRequest = true;
                         }
                         break;
                     case BULK100:
                         if (currentAmount == 0) {
-                            toRequest = Math.min(needed, available);
-                            shouldRequest = toRequest > 0;
+                            toRequest = needed;
+                            shouldRequest = true;
                         }
                         break;
-                    case FULL:
+                    case FULL: {
+                        // All-or-nothing: only request when full amount is available (chest)
+                        // or on-demand craftable (Long.MAX_VALUE). Crafter-busy (0) waits
+                        // for next check interval when the crafter re-advertises supply.
+                        long available = network.getAvailableAmount(stack);
                         if (available >= needed) {
                             toRequest = needed;
                             shouldRequest = true;
                         }
                         break;
+                    }
                     case PARTIAL:
                     default:
-                        toRequest = Math.min(needed, available);
-                        shouldRequest = toRequest > 0;
+                        // Request needed amount regardless of current availability;
+                        // dispatch validation handles fulfillability (same as RequesterModule).
+                        toRequest = needed;
+                        shouldRequest = true;
                         break;
                 }
             }
