@@ -260,7 +260,7 @@ public class CraftingModule implements Module {
         // Cap batches to what the autocrafter's input buffer can currently absorb
         CrafterBufferState bufferState = computeBufferState(ctx, autocrafterDir);
         long batchCount = new CraftBatchingService().safeBatchCount(amount, resultCount, bufferState);
-        if (batchCount <= 0) return 0; // no buffer capacity right now
+        if (batchCount <= 0) return -1; // buffer full: defer, don't remove from supply table
 
         long actualAmount = batchCount * resultCount; // may be less than amount
 
@@ -290,59 +290,64 @@ public class CraftingModule implements Module {
             resolvedIngredients.put(entry.getKey(), ingredientStack);
         }
 
-        // Deduct "free" existing autocrafter stock so we only source what the autocrafter
-        // doesn't already have available. "Free" means stock not already spoken for by a
-        // prior queue entry that relies on existing stock (i.e. that entry placed no
-        // ingredient orders). We do NOT deduct in-transit pending orders here — those belong
-        // to specific queue entries and are not available to cover a new entry's needs.
+        // Compute how many of each ingredient the new queue entry must order from the network.
+        //
+        // The crafter's "usable pool" for a new entry is:
+        //   physicalStock + pending - totalCommittedByExistingEntries
+        //
+        // where pending = orders still in transit (getOrderedAmountFor), and
+        // totalCommitted = what all existing queue entries have already claimed (regardless of
+        // whether those ingredients arrived physically or are still en route).
+        // The new entry only needs to order the shortfall from that free pool.
+        //
+        // This correctly handles concurrent requests: ingredients ordered by Entry A that have
+        // already physically arrived in the crafter are "committed" to A's quota, so Entry B
+        // cannot mistakenly treat them as free stock.
         BlockPos autocrafterPos = ctx.pos().relative(autocrafterDir);
         CrafterBlockEntity crafterEntity = null;
         if (ctx.world().getBlockEntity(autocrafterPos) instanceof CrafterBlockEntity ce) {
             crafterEntity = ce;
         }
 
-        // Compute how much existing stock each ingredient is already "claimed" by queue entries
-        // that have no ingredient orders (those entries depend entirely on existing crafter stock).
-        Map<String, Long> stockClaimed = new LinkedHashMap<>();
         ListTag existingQueue = getQueue(ctx);
-        for (int qi = 0; qi < existingQueue.size(); qi++) {
-            CompoundTag qe = existingQueue.getCompound(qi).orElse(null);
-            if (qe == null) continue;
-            CompoundTag entryIds = NbtCompat.getCompoundOrEmpty(qe, ENTRY_IDS);
-            long qeAmt = NbtCompat.getLong(qe, ENTRY_AMT, 0L);
-            // Compute batches for this entry (batchCount = amount / resultCount, but we need per-ingredient)
-            for (int slot = 0; slot < 9; slot++) {
-                String ingredientId = getIngredientItem(ctx, slot);
-                if (ingredientId.isEmpty()) continue;
-                // This entry claims existing stock for this ingredient if it has no order for it
-                if (!entryIds.contains(ingredientId)) {
-                    long perBatch = getIngredientCount(ctx, slot);
-                    long batchesForEntry = resultCount > 0 ? qeAmt / resultCount : 0;
-                    stockClaimed.merge(ingredientId, perBatch * batchesForEntry, Long::sum);
-                }
-            }
-        }
 
         Map<String, Long> neededByItem = new LinkedHashMap<>();
         for (Map.Entry<String, Long> entry : totalNeededByItem.entrySet()) {
             String ingredientId = entry.getKey();
             long needed = entry.getValue();
 
-            // Subtract free existing stock (total existing minus what prior entries have claimed)
+            // Physical stock currently in the autocrafter for this ingredient
+            long physicalStock = 0;
             if (crafterEntity != null) {
-                long currentTotal = 0;
                 for (int slot = 0; slot < 9; slot++) {
                     if (!ingredientId.equals(getIngredientItem(ctx, slot))) continue;
                     ItemStack inSlot = crafterEntity.getItem(slot);
-                    currentTotal += inSlot.isEmpty() ? 0 : inSlot.getCount();
+                    physicalStock += inSlot.isEmpty() ? 0 : inSlot.getCount();
                 }
-                long claimed = stockClaimed.getOrDefault(ingredientId, 0L);
-                long freeExisting = Math.max(0, currentTotal - claimed);
-                needed = Math.max(0, needed - freeExisting);
             }
 
-            if (needed > 0) {
-                neededByItem.put(ingredientId, needed);
+            // Orders placed by this crafter pipe that haven't physically arrived yet
+            long pending = network.getOrderedAmountFor(ctx.pos(), resolvedIngredients.get(ingredientId));
+
+            // Ingredients committed to all existing queue entries (arrived + still in transit)
+            long totalCommitted = 0;
+            for (int qi = 0; qi < existingQueue.size(); qi++) {
+                CompoundTag qe = existingQueue.getCompound(qi).orElse(null);
+                if (qe == null) continue;
+                long qeAmt = NbtCompat.getLong(qe, ENTRY_AMT, 0L);
+                long qeBatches = resultCount > 0 ? qeAmt / resultCount : 0;
+                for (int slot = 0; slot < 9; slot++) {
+                    if (!ingredientId.equals(getIngredientItem(ctx, slot))) continue;
+                    totalCommitted += (long) getIngredientCount(ctx, slot) * qeBatches;
+                }
+            }
+
+            // Free pool = total that will eventually be in the crafter minus what's already spoken for
+            long freePool = Math.max(0, physicalStock + pending - totalCommitted);
+            long toOrder = Math.max(0, needed - freePool);
+
+            if (toOrder > 0) {
+                neededByItem.put(ingredientId, toOrder);
             }
         }
 

@@ -264,28 +264,38 @@ public class RequesterModule implements Module {
             return;
         }
 
-        // Pre-validate: fail immediately if the full amount cannot be satisfied right now.
-        // Unlike Supplier (which holds a standing order and waits), a GUI-triggered request
-        // should give instant feedback rather than silently queuing forever.
         ItemVariant variant = ItemVariant.of(stack);
-        List<ItemVariant> missing = network.getMissingIngredients(variant, amount);
-        if (!missing.isEmpty()) {
-            String itemName = stack.getHoverName().getString();
-            String missingName = missing.getFirst().toStack().getHoverName().getString();
-            Component msg = Component.literal(
-                    "[Logistics] Cannot fill order for " + itemName + " \u2014 missing: " + missingName);
-            if (ctx.world() instanceof ServerLevel serverLevel) {
-                double x = ctx.pos().getX(), y = ctx.pos().getY(), z = ctx.pos().getZ();
-                for (ServerPlayer player : serverLevel.getPlayers(
-                        p -> p.distanceToSqr(x, y, z) < 64 * 64)) {
-                    player.sendSystemMessage(msg);
-                }
-            }
+
+        // Pre-validate: fail immediately only if there is no supply path at all for this item
+        // (no provider and no crafter). For craftable items we allow queuing even when
+        // ingredients are temporarily committed to other in-progress orders — the order will
+        // wait in the queue until the crafter has buffer space and ingredients are available.
+        long available = network.getAvailableAmount(stack);
+        String itemName = stack.getHoverName().getString();
+        if (available == 0) {
+            // Nothing can produce this item
+            sendAlert(ctx, Component.literal(
+                    "[Logistics] Cannot fill order for " + itemName + " \u2014 not available in network"));
+            return;
+        }
+        if (available != Long.MAX_VALUE && available < amount) {
+            // Directly stocked item with insufficient quantity (not craftable)
+            sendAlert(ctx, Component.literal(
+                    "[Logistics] Cannot fill order for " + itemName + " \u2014 only "
+                            + available + " available, need " + amount));
             return;
         }
 
         network.placeOrder(variant, amount, ctx.pos(),
                 com.logistics.pipe.network.FulfillmentMode.FULL);
+    }
+
+    private void sendAlert(PipeContext ctx, Component msg) {
+        if (!(ctx.world() instanceof ServerLevel serverLevel)) return;
+        double x = ctx.pos().getX(), y = ctx.pos().getY(), z = ctx.pos().getZ();
+        for (ServerPlayer player : serverLevel.getPlayers(p -> p.distanceToSqr(x, y, z) < 64 * 64)) {
+            player.sendSystemMessage(msg);
+        }
     }
 
     /**

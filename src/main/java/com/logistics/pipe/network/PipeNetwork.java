@@ -197,6 +197,7 @@ public class PipeNetwork implements ILogisticsNetwork {
      */
     public void tick(long gameTime) {
         if (worldView == null) return;
+        controller.clearDeferredProviders();
         NetworkCommandExecutor executor = new NetworkCommandExecutor(worldView);
         NetworkController.DispatchCommand cmd;
         while ((cmd = controller.nextDispatchable()) != null) {
@@ -211,6 +212,11 @@ public class PipeNetwork implements ILogisticsNetwork {
                             getNetworkIdShort(id), cmd.orderId().toString().substring(0, 8),
                             result.itemsHandled());
                     controller.recordDispatched(cmd.orderId(), result.itemsHandled());
+                } else if (result.isDeferred()) {
+                    // Provider temporarily unavailable (e.g. crafter buffer full): skip this
+                    // provider for the rest of this tick but leave supply in the table so the
+                    // item remains visible in the network UI.
+                    controller.deferProvider(cmd.provider());
                 } else {
                     controller.markSupplyUnavailable(cmd.provider());
                 }
