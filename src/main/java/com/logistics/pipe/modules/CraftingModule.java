@@ -15,6 +15,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
@@ -43,6 +44,10 @@ import java.util.UUID;
  *
  * <p>Ingredients are routed to the autocrafter slot that currently holds the fewest of that
  * item type relative to the recipe requirement (fewest-complete-batches-first distribution).
+ *
+ * <p>Orders are queued: a second dispatch is accepted while the first is still crafting, and
+ * ingredient orders for all queued entries are placed immediately so materials arrive in
+ * parallel rather than serially.
  */
 public class CraftingModule implements Module {
     // NBT keys — recipe config
@@ -55,12 +60,12 @@ public class CraftingModule implements Module {
     // NBT keys — timing
     private static final String TICKS_SCAN = "ticks_scan";
     private static final String TICKS_PULSE = "ticks_pulse";
-    // NBT keys — active order state
-    private static final String ACTIVE = "active";
-    private static final String PENDING_REQUESTER = "pending_requester";
-    private static final String PENDING_DELIVERY_ID = "pending_delivery_id";
-    private static final String PENDING_AMOUNT = "pending_amount";
-    private static final String INGREDIENT_ORDER_IDS = "ingredient_order_ids";
+    // NBT keys — order queue (ListTag of CompoundTag entries)
+    private static final String QUEUE = "queue";
+    private static final String ENTRY_REQ = "req";   // BlockPos as "x,y,z"
+    private static final String ENTRY_DLV = "dlv";   // UUID as string
+    private static final String ENTRY_AMT = "amt";   // remaining amount (long)
+    private static final String ENTRY_IDS = "ids";   // ingredient order IDs (CompoundTag)
 
     // Timing constants
     private static final int SCAN_INTERVAL = 20;    // Update crafter supply every 20 ticks
@@ -72,13 +77,9 @@ public class CraftingModule implements Module {
 
     // ==================== NBT State Accessors ====================
 
+    /** True when there is at least one order in the queue. */
     public boolean isActive(PipeContext ctx) {
-        return ctx.getInt(this, ACTIVE, 0) == 1;
-    }
-
-    private void setActive(PipeContext ctx, boolean active) {
-        ctx.saveInt(this, ACTIVE, active ? 1 : 0);
-        ctx.markDirtyAndSync();
+        return !getQueue(ctx).isEmpty();
     }
 
     public boolean isBlocking(PipeContext ctx) {
@@ -135,10 +136,20 @@ public class CraftingModule implements Module {
         ctx.markDirtyAndSync();
     }
 
+    // ==================== Queue Accessors ====================
+
+    private ListTag getQueue(PipeContext ctx) {
+        return NbtCompat.getListOrEmpty(ctx.moduleState(getStateKey()), QUEUE);
+    }
+
+    private void saveQueue(PipeContext ctx, ListTag queue) {
+        ctx.moduleState(getStateKey()).put(QUEUE, queue);
+        ctx.markDirtyAndSync();
+    }
+
     @Nullable
-    private BlockPos getPendingRequester(PipeContext ctx) {
-        String s = ctx.getString(this, PENDING_REQUESTER, "");
-        if (s.isEmpty()) return null;
+    private static BlockPos parseBlockPos(String s) {
+        if (s == null || s.isEmpty()) return null;
         try {
             String[] parts = s.split(",");
             return new BlockPos(
@@ -148,40 +159,14 @@ public class CraftingModule implements Module {
         }
     }
 
-    private void setPendingRequester(PipeContext ctx, @Nullable BlockPos pos) {
-        if (pos == null) {
-            ctx.moduleState(getStateKey()).remove(PENDING_REQUESTER);
-        } else {
-            ctx.saveString(
-                    this, PENDING_REQUESTER, pos.getX() + "," + pos.getY() + "," + pos.getZ());
-        }
-    }
-
     @Nullable
-    private UUID getPendingDeliveryId(PipeContext ctx) {
-        String s = ctx.getString(this, PENDING_DELIVERY_ID, "");
-        if (s.isEmpty()) return null;
+    private static UUID parseUUID(String s) {
+        if (s == null || s.isEmpty()) return null;
         try {
             return UUID.fromString(s);
         } catch (Exception e) {
             return null;
         }
-    }
-
-    private void setPendingDeliveryId(PipeContext ctx, @Nullable UUID id) {
-        if (id == null) {
-            ctx.moduleState(getStateKey()).remove(PENDING_DELIVERY_ID);
-        } else {
-            ctx.saveString(this, PENDING_DELIVERY_ID, id.toString());
-        }
-    }
-
-    private long getPendingAmount(PipeContext ctx) {
-        return ctx.getLong(this, PENDING_AMOUNT, 0L);
-    }
-
-    private void setPendingAmount(PipeContext ctx, long amount) {
-        ctx.saveLong(this, PENDING_AMOUNT, amount);
     }
 
     // ==================== Autocrafter Detection ====================
@@ -243,14 +228,14 @@ public class CraftingModule implements Module {
 
     /**
      * Called by the network to start a crafting run.
-     * Records the delivery promise, places ingredient orders, and activates the module.
-     * Returns {@code amount} immediately as a promise; delivery happens after crafting.
+     * Adds the order to the queue and immediately places ingredient orders so materials
+     * arrive in parallel with any currently-active crafting. Returns {@code amount} as a
+     * promise; delivery happens after crafting completes.
      */
     @Override
     public long onDispatch(
             PipeContext ctx, BlockPos requester, ItemVariant item, long amount, UUID deliveryId) {
         if (ctx.world().isClientSide()) return 0;
-        if (isActive(ctx)) return 0;
 
         String resultId = getResultItem(ctx);
         if (resultId.isEmpty()) return 0;
@@ -258,6 +243,8 @@ public class CraftingModule implements Module {
 
         ItemStack resultStack = resolveItem(resultId);
         if (resultStack.isEmpty() || !item.matches(resultStack)) return 0;
+
+        if (amount <= 0) return 0;
 
         ILogisticsNetwork network = NetworkRegistry.getOrCreateNetwork(ctx.world(), ctx.pos());
         if (network == null) return 0;
@@ -276,32 +263,46 @@ public class CraftingModule implements Module {
         // No ingredients configured — reject the dispatch
         if (neededByItem.isEmpty()) return 0;
 
-        setPendingRequester(ctx, requester);
-        setPendingDeliveryId(ctx, deliveryId);
-        setPendingAmount(ctx, amount);
+        // Pre-validate all ingredients before placing any orders — fail fast so we never
+        // queue a craft with a missing ingredient order that will never arrive.
+        Map<String, ItemStack> resolvedIngredients = new LinkedHashMap<>();
+        for (Map.Entry<String, Long> entry : neededByItem.entrySet()) {
+            ItemStack ingredientStack = resolveItem(entry.getKey());
+            if (ingredientStack.isEmpty()) {
+                LogisticsPipe.LOGGER.warn(
+                        "[Crafter @ {}] Cannot fulfil craft of '{}': ingredient '{}' is not a known item."
+                                + " Check the recipe configured in the crafting pipe.",
+                        ctx.pos(), getResultItem(ctx), entry.getKey());
+                return 0;
+            }
+            resolvedIngredients.put(entry.getKey(), ingredientStack);
+        }
 
-        // Blocking mode: remove from supply so new orders don't arrive while crafting
+        // Place ingredient orders immediately — each queued order orders its own ingredients
+        // independently so materials arrive in parallel rather than waiting for prior orders.
+        CompoundTag ingredientOrderIds = new CompoundTag();
+        for (Map.Entry<String, Long> entry : neededByItem.entrySet()) {
+            UUID ingredientOrderId = network.placeOrder(
+                    ItemVariant.of(resolvedIngredients.get(entry.getKey())), entry.getValue(), ctx.pos());
+            ingredientOrderIds.putString(entry.getKey(), ingredientOrderId.toString());
+        }
+
+        // Append entry to queue
+        CompoundTag queueEntry = new CompoundTag();
+        queueEntry.putString(ENTRY_REQ, requester.getX() + "," + requester.getY() + "," + requester.getZ());
+        queueEntry.putString(ENTRY_DLV, deliveryId.toString());
+        queueEntry.putLong(ENTRY_AMT, amount);
+        queueEntry.put(ENTRY_IDS, ingredientOrderIds);
+
+        ListTag queue = getQueue(ctx);
+        queue.add(queueEntry);
+        saveQueue(ctx, queue);
+        ctx.saveInt(this, TICKS_PULSE, 0);
+
+        // Blocking mode: immediately suppress supply so no further orders arrive
         if (isBlocking(ctx)) {
             network.registerSupply(ctx.pos(), new HashMap<>(), CRAFTER_PRIORITY);
         }
-
-        CompoundTag orderIds = new CompoundTag();
-        for (Map.Entry<String, Long> entry : neededByItem.entrySet()) {
-            ItemStack ingredientStack = resolveItem(entry.getKey());
-            if (ingredientStack.isEmpty()) continue;
-
-            long alreadyOrdered = network.getOrderedAmountFor(ctx.pos(), ingredientStack);
-            long needed = entry.getValue() - alreadyOrdered;
-            if (needed <= 0) continue;
-
-            UUID ingredientOrderId =
-                    network.placeOrder(ItemVariant.of(ingredientStack), needed, ctx.pos());
-            orderIds.putString(entry.getKey(), ingredientOrderId.toString());
-        }
-        ctx.putCompoundTag(this, INGREDIENT_ORDER_IDS, orderIds);
-
-        setActive(ctx, true);
-        ctx.saveInt(this, TICKS_PULSE, 0);
 
         return amount; // Promise: delivery happens after crafting completes
     }
@@ -316,7 +317,9 @@ public class CraftingModule implements Module {
             return;
         }
 
-        // Blocking mode while active: don't advertise supply
+        // In blocking mode, suppress supply while the queue is non-empty so no further
+        // orders are accepted. In non-blocking mode, continue advertising so additional
+        // orders can be queued; the queue prevents dispatch loops since dispatches succeed.
         if (isBlocking(ctx) && isActive(ctx)) {
             network.registerSupply(ctx.pos(), new HashMap<>(), CRAFTER_PRIORITY);
             return;
@@ -334,27 +337,38 @@ public class CraftingModule implements Module {
         network.registerSupply(ctx.pos(), craftable, CRAFTER_PRIORITY);
     }
 
-    private void resetToIdle(PipeContext ctx) {
+    /** Cancel all ingredient orders recorded in a single queue {@code entry}. */
+    private void cancelEntryOrders(PipeContext ctx, CompoundTag entry) {
         ILogisticsNetwork network = NetworkRegistry.getNetwork(ctx.world(), ctx.pos());
-        if (network != null) {
-            CompoundTag orderIds = ctx.getCompoundTag(this, INGREDIENT_ORDER_IDS);
-            for (String key : orderIds.getAllKeys()) {
-                String uuidStr = NbtCompat.getString(orderIds, key, "");
-                if (!uuidStr.isEmpty()) {
-                    try {
-                        network.cancelOrder(UUID.fromString(uuidStr));
-                    } catch (Exception ignored) {
-                    }
+        if (network == null) return;
+        CompoundTag ingredientIds = NbtCompat.getCompoundOrEmpty(entry, ENTRY_IDS);
+        for (String key : ingredientIds.getAllKeys()) {
+            UUID id = parseUUID(NbtCompat.getString(ingredientIds, key, ""));
+            if (id != null) {
+                try {
+                    network.cancelOrder(id);
+                } catch (Exception e) {
+                    LogisticsPipe.LOGGER.warn(
+                            "[Crafter @ {}] Failed to cancel ingredient order {}", ctx.pos(), id, e);
                 }
             }
         }
+    }
 
-        setActive(ctx, false);
-        setPendingRequester(ctx, null);
-        setPendingDeliveryId(ctx, null);
-        setPendingAmount(ctx, 0L);
-        ctx.moduleState(getStateKey()).remove(INGREDIENT_ORDER_IDS);
+    /**
+     * Error reset: cancel all outstanding ingredient orders for every queued entry, clear
+     * the queue, and turn off the redstone signal. Called when the autocrafter goes missing.
+     */
+    private void resetToIdle(PipeContext ctx) {
+        ListTag queue = getQueue(ctx);
+        for (int i = 0; i < queue.size(); i++) {
+            CompoundTag entry = queue.getCompound(i);
+            if (entry != null) cancelEntryOrders(ctx, entry);
+        }
+
+        ctx.moduleState(getStateKey()).remove(QUEUE);
         ctx.saveInt(this, TICKS_PULSE, 0);
+        ctx.markDirtyAndSync();
 
         // Clear CRAFTING block state if stuck on
         BlockState currentState = ctx.world().getBlockState(ctx.pos());
@@ -547,12 +561,14 @@ public class CraftingModule implements Module {
 
     /**
      * Intercept the autocrafter's result being pushed into this pipe.
-     * Ordered amount gets destination=requester with deliveryId; surplus flows freely.
+     * Distributes items FIFO across queued entries: satisfies the head entry first,
+     * then continues into subsequent entries if the batch covers more than one order.
+     * Only items remaining after the queue is exhausted flow freely as surplus.
      */
     @Override
     public boolean onExternalInsert(PipeContext ctx, ItemStack stack, Direction fromDirection) {
-        BlockPos requester = getPendingRequester(ctx);
-        if (requester == null) return false;
+        ListTag queue = getQueue(ctx);
+        if (queue.isEmpty()) return false;
 
         Direction autocrafterDir = findAutocrafterDirection(ctx);
         if (autocrafterDir == null || autocrafterDir != fromDirection) return false;
@@ -563,33 +579,69 @@ public class CraftingModule implements Module {
         if (resultStack.isEmpty() || !ItemStack.isSameItemSameComponents(stack, resultStack))
             return false;
 
-        long ordered = getPendingAmount(ctx);
-        UUID deliveryId = getPendingDeliveryId(ctx);
+        // Consume items FIFO across the queue: satisfy as many queued entries as possible
+        // before treating any remainder as surplus. This prevents leaking items when the
+        // autocrafter outputs a batch that covers more than one queued order.
+        int available = stack.getCount();
+        boolean headChanged = false;
 
-        // Ordered portion: routed to requester with delivery tracking
-        long orderedCount = Math.min(stack.getCount(), ordered);
-        ItemStack orderedStack = stack.copyWithCount((int) orderedCount);
-        TravelingItem orderedItem = new TravelingItem(
-                orderedStack, fromDirection.getOpposite(), LogisticsPipe.CONFIG.ITEM_MIN_SPEED, requester);
-        if (deliveryId != null) orderedItem.setDeliveryId(deliveryId);
-        ctx.blockEntity().forceAddItem(orderedItem, fromDirection);
+        while (available > 0 && !queue.isEmpty()) {
+            CompoundTag entry = queue.getCompound(0);
+            if (entry == null) { queue.remove(0); headChanged = true; continue; }
 
-        // Surplus: unrouted, flows freely into the network
-        int surplus = stack.getCount() - (int) orderedCount;
-        if (surplus > 0) {
+            BlockPos entryRequester = parseBlockPos(NbtCompat.getString(entry, ENTRY_REQ, ""));
+            if (entryRequester == null) {
+                cancelEntryOrders(ctx, entry);
+                queue.remove(0);
+                headChanged = true;
+                continue;
+            }
+
+            long entryOrdered = NbtCompat.getLong(entry, ENTRY_AMT, 0L);
+            UUID entryDeliveryId = parseUUID(NbtCompat.getString(entry, ENTRY_DLV, ""));
+
+            long toSend = Math.min(available, entryOrdered);
+            TravelingItem routed = new TravelingItem(
+                    stack.copyWithCount((int) toSend),
+                    fromDirection.getOpposite(), LogisticsPipe.CONFIG.ITEM_MIN_SPEED, entryRequester);
+            if (entryDeliveryId != null) routed.setDeliveryId(entryDeliveryId);
+            ctx.blockEntity().forceAddItem(routed, fromDirection);
+
+            available -= (int) toSend;
+            if (toSend >= entryOrdered) {
+                queue.remove(0);
+                headChanged = true;
+            } else {
+                entry.putLong(ENTRY_AMT, entryOrdered - toSend);
+                break;
+            }
+        }
+
+        saveQueue(ctx, queue);
+
+        if (queue.isEmpty()) {
+            ctx.saveInt(this, TICKS_PULSE, 0);
+            BlockState currentState = ctx.world().getBlockState(ctx.pos());
+            if (currentState.hasProperty(PipeBlock.CRAFTING)
+                    && currentState.getValue(PipeBlock.CRAFTING)) {
+                BlockState newState = currentState.setValue(PipeBlock.CRAFTING, false);
+                ctx.world().setBlock(ctx.pos(), newState, 3);
+                ctx.world().updateNeighborsAt(ctx.pos(), newState.getBlock());
+            }
+            updateCrafterSupply(ctx);
+        } else if (headChanged) {
+            // Head was dequeued; reset pulse so the new head starts its craft cycle
+            ctx.saveInt(this, TICKS_PULSE, 0);
+        }
+
+        // Surplus: items not consumed by any queued order flow freely into the network
+        if (available > 0) {
             TravelingItem surplusItem = new TravelingItem(
-                    stack.copyWithCount(surplus),
+                    stack.copyWithCount(available),
                     fromDirection.getOpposite(),
                     LogisticsPipe.CONFIG.ITEM_MIN_SPEED);
             ctx.blockEntity().forceAddItem(surplusItem, fromDirection);
         }
-
-        long remaining = ordered - orderedCount;
-        setPendingAmount(ctx, remaining);
-        if (remaining <= 0) {
-            resetToIdle(ctx);
-        }
-        // Otherwise stay active; the pulse cycle will keep checking for more ingredients
 
         return true;
     }
