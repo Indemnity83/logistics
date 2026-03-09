@@ -18,6 +18,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
@@ -34,8 +35,15 @@ import java.util.UUID;
 /**
  * Provider module - scans all adjacent inventories and fulfills orders from the network.
  * Periodically updates the network supply table with available items from all connected inventories.
- * When the network dispatches an order (via {@link #onDispatch}), extracts items from any connected
- * inventory, creates a TravelingItem destined for the requester, and updates the supply table.
+ *
+ * <p>Dispatch is asynchronous: when the network calls {@link #onDispatch}, the request is added to
+ * an internal dispatch queue and the full amount is returned as a promise. Every {@code SCAN_INTERVAL}
+ * ticks the provider extracts up to {@code ITEMS_PER_EXTRACT} items from the queue head and injects
+ * a TravelingItem into the pipe. This decouples network ordering from physical extraction, preventing
+ * flooding when large orders are placed.
+ *
+ * <p>Supply scans subtract queue reservations so the network never double-counts items that are
+ * already committed to a queued delivery.
  *
  * <p>Provider modes control which items are available:
  * <ul>
@@ -51,8 +59,15 @@ public class ProviderModule implements Module {
     private static final String MODE = "mode";
     private static final String FILTER_ITEMS = "filter_items";
     private static final String FILTER_INVERTED = "filter_inverted";
+    // Dispatch queue NBT keys (values kept short to minimise NBT size)
+    private static final String DISPATCH_QUEUE = "dispatch_queue";
+    private static final String DQ_ITEM = "i";  // item registry key string
+    private static final String DQ_AMT  = "a";  // remaining amount (long)
+    private static final String DQ_REQ  = "r";  // requester "x,y,z"
+    private static final String DQ_DLV  = "d";  // delivery UUID string (optional)
+
     private static final int SCAN_INTERVAL = 6;        // Scan every 6 ticks (~3x/second)
-    private static final int ITEMS_PER_EXTRACT = 8;    // Max items extracted per dispatch
+    private static final int ITEMS_PER_EXTRACT = 8;    // Items sent per queue-drain cycle
     private static final int MAX_FILTER_SLOTS = 9;
     private static final int SUPPLY_PRIORITY = 1;      // Real stock; lower = preferred
 
@@ -169,48 +184,161 @@ public class ProviderModule implements Module {
         ctx.saveInt(this, TICKS_SINCE_SCAN, ticks);
 
         if (ticks >= SCAN_INTERVAL) {
-            scanAndUpdateSupply(ctx);
+            scanAndUpdateSupply(ctx);    // Update supply (subtracts queue reservations)
+            processDispatchQueue(ctx);   // Drain one batch from the queue
             ctx.saveInt(this, TICKS_SINCE_SCAN, 0);
         }
     }
 
     /**
-     * Called by the network to extract and dispatch items synchronously.
-     * Extracts up to {@code amount} (capped at ITEMS_PER_EXTRACT) from any connected inventory,
-     * injects a TravelingItem into the pipe, and refreshes the supply table.
+     * Called by the network to accept a dispatch order.
+     * Enqueues the request and returns {@code amount} as a promise; physical extraction
+     * happens asynchronously in {@link #onTick} at {@code ITEMS_PER_EXTRACT} per
+     * {@code SCAN_INTERVAL} ticks. This prevents flooding the pipe with many TravelingItems
+     * when the network places a large order.
      */
     @Override
     public long onDispatch(PipeContext ctx, BlockPos requester, ItemVariant item, long amount, UUID deliveryId) {
         if (ctx.world().isClientSide()) return 0;
         if (isFilteredOut(ctx, item.toStack())) return 0;
+        if (ctx.getInventoryConnections().isEmpty()) return 0;
 
-        List<Direction> inventoryFaces = ctx.getInventoryConnections();
-        if (inventoryFaces.isEmpty()) return 0;
+        enqueueDispatch(ctx, item, amount, requester, deliveryId);
+        NetDbg.out("[Provider @ {}] Queued dispatch: {}x {} → {} (delivery {})",
+                ctx.pos(), amount, item.toStack().getItem(), requester,
+                deliveryId == null ? "none" : deliveryId.toString().substring(0, 8));
+        return amount; // Promise: extraction happens from queue at rate-limited pace
+    }
+
+    private void enqueueDispatch(PipeContext ctx, ItemVariant item, long amount,
+            BlockPos requester, @Nullable UUID deliveryId) {
+        ProviderDispatchQueue queue = loadQueue(ctx);
+        queue.enqueue(BuiltInRegistries.ITEM.getKey(item.getItem()).toString(), amount, requester, deliveryId);
+        saveQueue(ctx, queue);
+    }
+
+    /**
+     * Drain one batch from the dispatch queue: extract up to {@code ITEMS_PER_EXTRACT} items
+     * from any adjacent inventory and inject a TravelingItem into the pipe.
+     * Called every {@code SCAN_INTERVAL} ticks (same cadence as the supply scan).
+     */
+    private void processDispatchQueue(PipeContext ctx) {
+        ProviderDispatchQueue queue = loadQueue(ctx);
+        if (queue.isEmpty()) return;
+
+        ProviderDispatchQueue.Entry head = queue.peekHead();
+        if (head == null) return; // shouldn't happen but guard anyway
+
+        ResourceId rid = ResourceId.tryParse(head.itemId());
+        if (rid == null) { queue.removeHead(); saveQueue(ctx, queue); return; }
+        var holder = BuiltInRegistries.ITEM.get(rid.toIdentifier());
+        if (holder.isEmpty()) { queue.removeHead(); saveQueue(ctx, queue); return; }
+        ItemVariant item = ItemVariant.of(new ItemStack(holder.get().value()));
 
         ProviderMode mode = getMode(ctx);
-        long toExtract = Math.min(amount, ITEMS_PER_EXTRACT);
+        long toExtract = Math.min(head.remaining(), ITEMS_PER_EXTRACT);
+        long extracted = 0;
+        Direction extractDir = null;
 
-        for (Direction direction : inventoryFaces) {
+        for (Direction direction : ctx.getInventoryConnections()) {
             BlockPos targetPos = ctx.pos().relative(direction);
-            Storage<ItemVariant> storage = ItemStorage.SIDED.find(ctx.world(), targetPos, direction.getOpposite());
+            Storage<ItemVariant> storage =
+                    ItemStorage.SIDED.find(ctx.world(), targetPos, direction.getOpposite());
             if (storage == null) continue;
 
             try (Transaction transaction = Transaction.openOuter()) {
-                long extracted = extractItems(storage, item, toExtract, transaction, mode);
-                if (extracted > 0) {
-                    ItemStack stack = item.toStack((int) extracted);
-                    TravelingItem traveling = new TravelingItem(
-                            stack, direction.getOpposite(), LogisticsPipe.CONFIG.ITEM_MIN_SPEED, requester);
-                    traveling.setDeliveryId(deliveryId);
-                    ctx.blockEntity().forceAddItem(traveling, direction);
+                long got = extractItems(storage, item, toExtract, transaction, mode);
+                if (got > 0) {
                     transaction.commit();
-                    // Re-register updated supply so subsequent dispatch calls see accurate stock
-                    scanAndUpdateSupply(ctx);
-                    return extracted;
+                    extracted = got;
+                    extractDir = direction;
+                    break;
                 }
             }
         }
-        return 0;
+
+        if (extracted > 0) {
+            ItemStack stack = item.toStack((int) extracted);
+            TravelingItem traveling = new TravelingItem(
+                    stack, extractDir.getOpposite(), LogisticsPipe.CONFIG.ITEM_MIN_SPEED, head.requester());
+            traveling.setDeliveryId(head.deliveryId());
+            ctx.blockEntity().forceAddItem(traveling, extractDir);
+            queue.consumeFromHead(extracted);
+            NetDbg.out("[Provider @ {}] Queue drain: {}x {} → {} ({} remaining)",
+                    ctx.pos(), extracted, item.toStack().getItem(), head.requester(),
+                    head.remaining() - extracted);
+        } else {
+            // Inventory empty or inaccessible — drop the entry so the queue doesn't block
+            // forever, but also notify the network so orderedForRequester is decremented.
+            // Without the notify call, orderedForRequester would stay elevated permanently
+            // (it only decrements on physical TravelingItem delivery), which would prevent
+            // suppliers from re-ordering these items.
+            ILogisticsNetwork network = NetworkRegistry.getOrCreateNetwork(ctx.world(), ctx.pos());
+            if (network != null) {
+                network.notifyDelivery(head.requester(), item, head.remaining());
+            }
+            NetDbg.out("[Provider @ {}] Queue drain failed (empty?): {}x {} — dropping entry",
+                    ctx.pos(), head.remaining(), item.toStack().getItem());
+            queue.removeHead();
+        }
+
+        saveQueue(ctx, queue);
+    }
+
+    // ===== Queue NBT serialisation =====
+
+    /** Load the dispatch queue from NBT state. Returns an empty queue if nothing is stored. */
+    private ProviderDispatchQueue loadQueue(PipeContext ctx) {
+        ProviderDispatchQueue queue = new ProviderDispatchQueue();
+        ListTag tag = NbtCompat.getListOrEmpty(ctx.moduleState(getStateKey()), DISPATCH_QUEUE);
+        for (int i = 0; i < tag.size(); i++) {
+            CompoundTag entry = tag.getCompound(i).orElse(null);
+            if (entry == null) continue;
+            String itemId    = NbtCompat.getString(entry, DQ_ITEM, "");
+            long   amount    = NbtCompat.getLong(entry, DQ_AMT, 0L);
+            String reqStr    = NbtCompat.getString(entry, DQ_REQ, "");
+            String dlvStr    = NbtCompat.getString(entry, DQ_DLV, "");
+            if (itemId.isEmpty() || amount <= 0 || reqStr.isEmpty()) continue;
+            BlockPos requester = parseBlockPos(reqStr);
+            if (requester == null) continue;
+            UUID deliveryId = null;
+            if (!dlvStr.isEmpty()) {
+                try { deliveryId = UUID.fromString(dlvStr); } catch (Exception ignored) {}
+            }
+            queue.enqueue(itemId, amount, requester, deliveryId);
+        }
+        return queue;
+    }
+
+    /** Persist the dispatch queue to NBT state. */
+    private void saveQueue(PipeContext ctx, ProviderDispatchQueue queue) {
+        if (queue.isEmpty()) {
+            ctx.moduleState(getStateKey()).remove(DISPATCH_QUEUE);
+        } else {
+            ListTag tag = new ListTag();
+            for (ProviderDispatchQueue.Entry e : queue.entries()) {
+                CompoundTag entry = new CompoundTag();
+                entry.putString(DQ_ITEM, e.itemId());
+                entry.putLong(DQ_AMT, e.remaining());
+                entry.putString(DQ_REQ, e.requester().getX() + "," + e.requester().getY() + "," + e.requester().getZ());
+                if (e.deliveryId() != null) entry.putString(DQ_DLV, e.deliveryId().toString());
+                tag.add(entry);
+            }
+            ctx.moduleState(getStateKey()).put(DISPATCH_QUEUE, tag);
+        }
+        ctx.markDirtyAndSync();
+    }
+
+    @Nullable
+    private static BlockPos parseBlockPos(String s) {
+        if (s == null || s.isEmpty()) return null;
+        try {
+            String[] parts = s.split(",");
+            return new BlockPos(
+                    Integer.parseInt(parts[0]), Integer.parseInt(parts[1]), Integer.parseInt(parts[2]));
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     @Override
@@ -264,6 +392,22 @@ public class ProviderModule implements Module {
 
         for (Direction direction : inventoryFaces) {
             scanInventoryAtDirection(ctx, direction, mode, variantToStack, variantAmounts);
+        }
+
+        // Subtract items already committed to queued dispatch entries so the supply table
+        // does not double-count items that are reserved but not yet physically extracted.
+        Map<String, Long> reservations = loadQueue(ctx).getReservations();
+        if (!reservations.isEmpty()) {
+            for (Map.Entry<ItemVariant, Long> entry : new ArrayList<>(variantAmounts.entrySet())) {
+                String id = BuiltInRegistries.ITEM.getKey(entry.getKey().getItem()).toString();
+                long adjusted = ProviderDispatchQueue.subtractReservation(entry.getValue(), reservations, id);
+                if (adjusted == 0) {
+                    variantAmounts.remove(entry.getKey());
+                    variantToStack.remove(entry.getKey());
+                } else {
+                    variantAmounts.put(entry.getKey(), adjusted);
+                }
+            }
         }
 
         Map<ItemStack, Long> result = new HashMap<>();
