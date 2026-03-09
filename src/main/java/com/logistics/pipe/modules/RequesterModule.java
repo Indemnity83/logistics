@@ -15,6 +15,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.SimpleMenuProvider;
@@ -263,7 +264,38 @@ public class RequesterModule implements Module {
             return;
         }
 
-        network.placeOrder(ItemVariant.of(stack), amount, ctx.pos());
+        ItemVariant variant = ItemVariant.of(stack);
+
+        // Pre-validate: fail immediately only if there is no supply path at all for this item
+        // (no provider and no crafter). For craftable items we allow queuing even when
+        // ingredients are temporarily committed to other in-progress orders — the order will
+        // wait in the queue until the crafter has buffer space and ingredients are available.
+        long available = network.getAvailableAmount(stack);
+        String itemName = stack.getHoverName().getString();
+        if (available == 0) {
+            // Nothing can produce this item
+            sendAlert(ctx, Component.literal(
+                    "[Logistics] Cannot fill order for " + itemName + " \u2014 not available in network"));
+            return;
+        }
+        if (available != Long.MAX_VALUE && available < amount) {
+            // Directly stocked item with insufficient quantity (not craftable)
+            sendAlert(ctx, Component.literal(
+                    "[Logistics] Cannot fill order for " + itemName + " \u2014 only "
+                            + available + " available, need " + amount));
+            return;
+        }
+
+        network.placeOrder(variant, amount, ctx.pos(),
+                com.logistics.pipe.network.FulfillmentMode.FULL);
+    }
+
+    private void sendAlert(PipeContext ctx, Component msg) {
+        if (!(ctx.world() instanceof ServerLevel serverLevel)) return;
+        double x = ctx.pos().getX(), y = ctx.pos().getY(), z = ctx.pos().getZ();
+        for (ServerPlayer player : serverLevel.getPlayers(p -> p.distanceToSqr(x, y, z) < 64 * 64)) {
+            player.sendSystemMessage(msg);
+        }
     }
 
     /**
