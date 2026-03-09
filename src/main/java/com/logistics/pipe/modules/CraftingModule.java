@@ -264,21 +264,21 @@ public class CraftingModule implements Module {
 
         long actualAmount = batchCount * resultCount; // may be less than amount
 
-        // Aggregate ingredient amounts for the capped batch count
-        Map<String, Long> neededByItem = new LinkedHashMap<>();
+        // Aggregate total ingredient amounts needed for the capped batch count
+        Map<String, Long> totalNeededByItem = new LinkedHashMap<>();
         for (int slot = 0; slot < 9; slot++) {
             String ingredientId = getIngredientItem(ctx, slot);
             if (ingredientId.isEmpty()) continue;
-            neededByItem.merge(ingredientId, (long) getIngredientCount(ctx, slot) * batchCount, Long::sum);
+            totalNeededByItem.merge(ingredientId, (long) getIngredientCount(ctx, slot) * batchCount, Long::sum);
         }
 
         // No ingredients configured — reject the dispatch
-        if (neededByItem.isEmpty()) return 0;
+        if (totalNeededByItem.isEmpty()) return 0;
 
         // Pre-validate all ingredients before placing any orders — fail fast so we never
         // queue a craft with a missing ingredient order that will never arrive.
         Map<String, ItemStack> resolvedIngredients = new LinkedHashMap<>();
-        for (Map.Entry<String, Long> entry : neededByItem.entrySet()) {
+        for (Map.Entry<String, Long> entry : totalNeededByItem.entrySet()) {
             ItemStack ingredientStack = resolveItem(entry.getKey());
             if (ingredientStack.isEmpty()) {
                 LogisticsPipe.LOGGER.warn(
@@ -288,6 +288,62 @@ public class CraftingModule implements Module {
                 return 0;
             }
             resolvedIngredients.put(entry.getKey(), ingredientStack);
+        }
+
+        // Deduct "free" existing autocrafter stock so we only source what the autocrafter
+        // doesn't already have available. "Free" means stock not already spoken for by a
+        // prior queue entry that relies on existing stock (i.e. that entry placed no
+        // ingredient orders). We do NOT deduct in-transit pending orders here — those belong
+        // to specific queue entries and are not available to cover a new entry's needs.
+        BlockPos autocrafterPos = ctx.pos().relative(autocrafterDir);
+        CrafterBlockEntity crafterEntity = null;
+        if (ctx.world().getBlockEntity(autocrafterPos) instanceof CrafterBlockEntity ce) {
+            crafterEntity = ce;
+        }
+
+        // Compute how much existing stock each ingredient is already "claimed" by queue entries
+        // that have no ingredient orders (those entries depend entirely on existing crafter stock).
+        Map<String, Long> stockClaimed = new LinkedHashMap<>();
+        ListTag existingQueue = getQueue(ctx);
+        for (int qi = 0; qi < existingQueue.size(); qi++) {
+            CompoundTag qe = existingQueue.getCompound(qi).orElse(null);
+            if (qe == null) continue;
+            CompoundTag entryIds = NbtCompat.getCompoundOrEmpty(qe, ENTRY_IDS);
+            long qeAmt = NbtCompat.getLong(qe, ENTRY_AMT, 0L);
+            // Compute batches for this entry (batchCount = amount / resultCount, but we need per-ingredient)
+            for (int slot = 0; slot < 9; slot++) {
+                String ingredientId = getIngredientItem(ctx, slot);
+                if (ingredientId.isEmpty()) continue;
+                // This entry claims existing stock for this ingredient if it has no order for it
+                if (!entryIds.contains(ingredientId)) {
+                    long perBatch = getIngredientCount(ctx, slot);
+                    long batchesForEntry = resultCount > 0 ? qeAmt / resultCount : 0;
+                    stockClaimed.merge(ingredientId, perBatch * batchesForEntry, Long::sum);
+                }
+            }
+        }
+
+        Map<String, Long> neededByItem = new LinkedHashMap<>();
+        for (Map.Entry<String, Long> entry : totalNeededByItem.entrySet()) {
+            String ingredientId = entry.getKey();
+            long needed = entry.getValue();
+
+            // Subtract free existing stock (total existing minus what prior entries have claimed)
+            if (crafterEntity != null) {
+                long currentTotal = 0;
+                for (int slot = 0; slot < 9; slot++) {
+                    if (!ingredientId.equals(getIngredientItem(ctx, slot))) continue;
+                    ItemStack inSlot = crafterEntity.getItem(slot);
+                    currentTotal += inSlot.isEmpty() ? 0 : inSlot.getCount();
+                }
+                long claimed = stockClaimed.getOrDefault(ingredientId, 0L);
+                long freeExisting = Math.max(0, currentTotal - claimed);
+                needed = Math.max(0, needed - freeExisting);
+            }
+
+            if (needed > 0) {
+                neededByItem.put(ingredientId, needed);
+            }
         }
 
         // Place ingredient orders immediately — each queued order orders its own ingredients
