@@ -73,8 +73,8 @@ public class CraftingModule implements Module {
 
     // Timing constants
     private static final int SCAN_INTERVAL = 20;    // Update crafter supply every 20 ticks
-    private static final int PULSE_DURATION = 4;    // Redstone pulse length (ticks)
-    private static final int PULSE_COOLDOWN = 20;   // Ticks after pulse ends before next check
+    private static final int PULSE_DURATION = 2;    // Redstone pulse length (ticks)
+    private static final int PULSE_COOLDOWN = 4;   // Ticks after pulse ends before next check
 
     // Dispatch priority: crafters are fallback (prefer real stock in providers)
     private static final int CRAFTER_PRIORITY = 5;
