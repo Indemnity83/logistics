@@ -73,6 +73,9 @@ public class NetworkController {
     // Fulfillment-check callbacks for dynamic providers (crafters, machines, etc.)
     private final Map<BlockPos, ProviderCanFulfill> providerChecks = new HashMap<>();
 
+    // Explicit reservation tracking: replaces implicit SupplyEntry.available mutation
+    private final ReservationManager reservationManager = new ReservationManager();
+
     @Nullable
     private OrderFailureListener failureListener;
 
@@ -158,6 +161,7 @@ public class NetworkController {
         if (order != null) {
             NetDbg.out("Order cancelled: {}", id.toString().substring(0, 8));
             decrementOrdered(order.requester(), order.item(), order.amount());
+            reservationManager.releaseByOrder(id);
         }
     }
 
@@ -166,7 +170,13 @@ public class NetworkController {
      * Used when a pipe is removed from the network.
      */
     public void cancelOrdersFor(BlockPos requester) {
-        orderQueue.entrySet().removeIf(e -> e.getValue().requester().equals(requester));
+        orderQueue.entrySet().removeIf(e -> {
+            if (e.getValue().requester().equals(requester)) {
+                reservationManager.releaseByOrder(e.getKey());
+                return true;
+            }
+            return false;
+        });
         orderedForRequester.remove(requester);
     }
 
@@ -218,10 +228,19 @@ public class NetworkController {
                     order.id(), supply.pos, order.requester(), order.item(), order.amount());
         }
 
-        if (supply.available >= order.amount()) {
-            // Full fill from real stock: no pre-check needed
-            supply.available -= order.amount();
-            if (supply.available == 0) {
+        // Real stock: compute effective availability (raw minus active reservations)
+        long effective = reservationManager.effectiveAvailable(supply.pos, order.item(), supply.available);
+
+        if (effective == 0) {
+            // Fully reserved by other in-flight orders; skip this entry for now
+            return null;
+        }
+
+        if (effective >= order.amount()) {
+            // Full fill from real stock: create a hard reservation
+            reservationManager.reserve(order.id(), supply.pos, order.requester(),
+                    order.item(), order.amount(), true);
+            if (effective - order.amount() == 0) {
                 entries.removeFirst();
                 if (entries.isEmpty()) supplyTable.remove(order.item());
             }
@@ -244,12 +263,12 @@ public class NetworkController {
         }
 
         // Pre-check passed (or no crafter covers this item): dispatch partial stock now
-        long partial = supply.available;
-        supply.available = 0;
+        reservationManager.reserve(order.id(), supply.pos, order.requester(),
+                order.item(), effective, true);
         entries.removeFirst();
         if (entries.isEmpty()) supplyTable.remove(order.item());
         return new DispatchCommand(
-                order.id(), supply.pos, order.requester(), order.item(), partial);
+                order.id(), supply.pos, order.requester(), order.item(), effective);
     }
 
     /**
@@ -264,6 +283,7 @@ public class NetworkController {
         Order order = orderQueue.get(orderId);
         if (order == null) return;
         NetDbg.out("Recorded dispatch: {} | {} items shipped", orderId.toString().substring(0, 8), shipped);
+        reservationManager.transitionByOrder(orderId, AllocationState.IN_TRANSIT);
         if (shipped >= order.amount()) {
             orderQueue.remove(orderId);
         } else {
@@ -282,6 +302,7 @@ public class NetworkController {
             entries.removeIf(e -> e.pos.equals(provider));
         }
         supplyTable.entrySet().removeIf(e -> e.getValue().isEmpty());
+        reservationManager.invalidateByProvider(provider);
     }
 
     /**
@@ -292,6 +313,7 @@ public class NetworkController {
         if (amount <= 0) return;
         NetDbg.out("Delivery notified: {} received {}x {}", requester, amount, item.toStack().getItem());
         decrementOrdered(requester, item, amount);
+        reservationManager.markDelivered(requester, item);
     }
 
     // ===== Ingredient Chain Validation =====
@@ -446,6 +468,9 @@ public class NetworkController {
 
         // Merge provider checks
         providerChecks.putAll(other.providerChecks);
+
+        // Merge reservations
+        reservationManager.merge(other.reservationManager);
     }
 
     // ===== Helpers =====
