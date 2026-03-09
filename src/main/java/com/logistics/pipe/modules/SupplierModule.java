@@ -174,9 +174,12 @@ public class SupplierModule implements Module {
             ItemStack stack = new ItemStack(itemHolder.get().value());
             long currentAmount = getCurrentAmount(currentStock, stack);
 
-            // Ask the network how many items are still in pending orders for us.
-            // This drops to 0 as soon as the provider ships, so fast-consuming inventories
-            // (furnaces) are handled correctly without any NBT drift.
+            // Ask the network how many items are ordered but not yet physically delivered.
+            // orderedForRequester is incremented on placeOrder() and decremented only when a
+            // TravelingItem actually arrives (notifyDelivery). With the provider's async
+            // dispatch queue there is an additional delay between the network accepting the
+            // order and the items entering the pipe, so pendingAmount may remain > 0 for
+            // several ticks after a provider starts working the order.
             long pendingAmount = network.getOrderedAmountFor(ctx.pos(), stack);
 
             long needed = config.amount() - currentAmount - pendingAmount;

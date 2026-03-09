@@ -268,8 +268,15 @@ public class ProviderModule implements Module {
                     ctx.pos(), extracted, item.toStack().getItem(), head.requester(),
                     head.remaining() - extracted);
         } else {
-            // Inventory empty or inaccessible — drop entry so orderedForRequester can settle
-            // on the next supplier check rather than blocking the queue forever.
+            // Inventory empty or inaccessible — drop the entry so the queue doesn't block
+            // forever, but also notify the network so orderedForRequester is decremented.
+            // Without the notify call, orderedForRequester would stay elevated permanently
+            // (it only decrements on physical TravelingItem delivery), which would prevent
+            // suppliers from re-ordering these items.
+            ILogisticsNetwork network = NetworkRegistry.getOrCreateNetwork(ctx.world(), ctx.pos());
+            if (network != null) {
+                network.notifyDelivery(head.requester(), item, head.remaining());
+            }
             NetDbg.out("[Provider @ {}] Queue drain failed (empty?): {}x {} — dropping entry",
                     ctx.pos(), head.remaining(), item.toStack().getItem());
             queue.removeHead();
