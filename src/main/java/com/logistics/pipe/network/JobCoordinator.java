@@ -50,12 +50,22 @@ public class JobCoordinator implements NetworkController.OrderFailureListener {
      */
     public NetworkJob submit(ItemRequest request) {
         UUID jobId = UUID.randomUUID();
-        // plannedAmount = requestedAmount until RequestPlanner (Phase 6) refines it
         NetworkJob job = new NetworkJob(jobId, request.item(), request.amount(),
                 request.amount(), request.fulfillmentMode(), request.destination());
         jobs.put(jobId, job);
 
-        // Placeholder work order: will be replaced by RequestPlanner in Phase 6
+        // Build work orders from RequestPlanner (controller implements PlanningView)
+        FulfillmentPlan plan = new RequestPlanner().plan(
+                request.item(), request.amount(), request.fulfillmentMode(), controller);
+        for (PlanNode node : plan.roots()) {
+            if (node instanceof PlanNode.ExtractNode ext) {
+                job.addWorkOrder(new WorkOrder.ExtractWorkOrder(
+                        null, ext.provider(), ext.item(), ext.amount(), CommitmentLevel.PLANNED));
+            } else if (node instanceof PlanNode.CraftNode craft) {
+                job.addWorkOrder(new WorkOrder.CraftWorkOrder(
+                        craft.crafter(), craft.output(), craft.batches(), CommitmentLevel.PLANNED));
+            }
+        }
         job.addWorkOrder(new WorkOrder.DeliverWorkOrder(
                 request.destination(), request.item(), request.amount(), CommitmentLevel.PLANNED));
 
@@ -65,8 +75,9 @@ public class JobCoordinator implements NetworkController.OrderFailureListener {
         orderToJob.put(orderId, jobId);
 
         job.transitionTo(JobState.ACTIVE);
-        NetDbg.out("[Jobs] Submitted job {} for {}x {}", jobId.toString().substring(0, 8),
-                request.amount(), request.item().toStack().getItem());
+        NetDbg.out("[Jobs] Submitted job {} for {}x {} | plan: {} extract/craft nodes",
+                jobId.toString().substring(0, 8), request.amount(),
+                request.item().toStack().getItem(), plan.roots().size());
         return job;
     }
 
