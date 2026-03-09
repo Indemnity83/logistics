@@ -46,7 +46,7 @@ public class SupplierModule implements Module {
      */
     public enum SupplyMode {
         BULK50,     // ordinal 0 - only request when inventory <= 50% of target
-        INFINITE,   // ordinal 1 - request 1 stack at a time (gradual filling)
+        INFINITE,   // ordinal 1 - request 1 stack at a time, wait for delivery before requesting more
         PARTIAL,    // ordinal 2 - request whatever is available (default)
         FULL,       // ordinal 3 - only request if full amount is available (all-or-nothing)
         BULK100     // ordinal 4 - only request when inventory is completely empty (appended to preserve existing ordinals)
@@ -189,9 +189,8 @@ public class SupplierModule implements Module {
 
             if (mode == SupplyMode.INFINITE) {
                 long availableSpace = getAvailableSpace(ctx, supplierDir, stack);
-                long spaceToFill = availableSpace - pendingAmount;
-                if (spaceToFill > 0) {
-                    toRequest = Math.min(stack.getMaxStackSize(), spaceToFill);
+                if (availableSpace > 0 && pendingAmount == 0) {
+                    toRequest = Math.min(stack.getMaxStackSize(), availableSpace);
                     shouldRequest = true;
                 }
             } else if (needed > 0) {
