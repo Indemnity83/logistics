@@ -263,7 +263,8 @@ public class RequesterModule implements Module {
             return;
         }
 
-        network.placeOrder(ItemVariant.of(stack), amount, ctx.pos());
+        network.placeOrder(ItemVariant.of(stack), amount, ctx.pos(),
+                com.logistics.pipe.network.FulfillmentMode.FULL);
     }
 
     /**

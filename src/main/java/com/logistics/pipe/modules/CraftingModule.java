@@ -330,7 +330,11 @@ public class CraftingModule implements Module {
         if (!(ctx.world().getBlockEntity(autocrafterPos) instanceof CrafterBlockEntity crafter)) {
             return CrafterBufferState.FULL;
         }
-        int minBatchCapacity = Integer.MAX_VALUE;
+        ILogisticsNetwork network = NetworkRegistry.getOrCreateNetwork(ctx.world(), ctx.pos());
+
+        // Aggregate per unique ingredient: total slot space and total recipe count per batch.
+        // Tracking by ingredient ID handles recipes where the same item appears in multiple slots.
+        Map<String, long[]> perIngredient = new LinkedHashMap<>(); // ingredientId → [totalSpace, recipeCountPerBatch]
         boolean hasRecipeSlots = false;
         for (int slot = 0; slot < 9; slot++) {
             String ingredientId = getIngredientItem(ctx, slot);
@@ -342,9 +346,33 @@ public class CraftingModule implements Module {
             ItemStack ingredient = resolveItem(ingredientId);
             int maxStack = ingredient.isEmpty() ? 64 : ingredient.getMaxStackSize();
             int space = Math.max(0, maxStack - current);
-            minBatchCapacity = Math.min(minBatchCapacity, space / recipeCount);
+            long[] agg = perIngredient.computeIfAbsent(ingredientId, k -> new long[2]);
+            agg[0] += space;
+            agg[1] += recipeCount;
         }
-        if (!hasRecipeSlots || minBatchCapacity == Integer.MAX_VALUE) return CrafterBufferState.FULL;
+        if (!hasRecipeSlots) return CrafterBufferState.FULL;
+
+        int minBatchCapacity = Integer.MAX_VALUE;
+        for (Map.Entry<String, long[]> entry : perIngredient.entrySet()) {
+            long totalSpace = entry.getValue()[0];
+            long recipeCountPerBatch = entry.getValue()[1];
+
+            // Deduct ingredient orders already placed but not yet physically arrived.
+            // This prevents double-dispatching when the controller re-dispatches a partial
+            // crafter order before the first batch's ingredients have been inserted.
+            if (network != null) {
+                ItemStack ingredient = resolveItem(entry.getKey());
+                if (!ingredient.isEmpty()) {
+                    long pending = network.getOrderedAmountFor(ctx.pos(), ingredient);
+                    totalSpace = Math.max(0, totalSpace - pending);
+                }
+            }
+
+            long batches = totalSpace / recipeCountPerBatch;
+            minBatchCapacity = (int) Math.min(minBatchCapacity, batches);
+        }
+
+        if (minBatchCapacity == Integer.MAX_VALUE) return CrafterBufferState.FULL;
         // maxCraftsFromOutputSpace = unlimited: the pipe accepts output directly via onExternalInsert
         return new CrafterBufferState(minBatchCapacity, Integer.MAX_VALUE);
     }
