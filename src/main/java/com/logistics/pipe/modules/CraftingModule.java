@@ -332,7 +332,7 @@ public class CraftingModule implements Module {
             // Ingredients committed to all existing queue entries (arrived + still in transit)
             long totalCommitted = 0;
             for (int qi = 0; qi < existingQueue.size(); qi++) {
-                CompoundTag qe = existingQueue.getCompound(qi).orElse(null);
+                CompoundTag qe = existingQueue.getCompound(qi);
                 if (qe == null) continue;
                 long qeAmt = NbtCompat.getLong(qe, ENTRY_AMT, 0L);
                 long qeBatches = resultCount > 0 ? qeAmt / resultCount : 0;
