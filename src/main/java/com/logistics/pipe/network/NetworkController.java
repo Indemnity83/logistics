@@ -26,7 +26,7 @@ import java.util.*;
  *
  * <p>Zero Minecraft API coupling — 100% testable with pure Java.
  */
-public class NetworkController {
+public class NetworkController implements PlanningView {
 
     /** Mutable supply entry for a single provider position. */
     private static class SupplyEntry {
@@ -395,6 +395,33 @@ public class NetworkController {
         } finally {
             visited.remove(item); // allow item to be revisited in sibling branches
         }
+    }
+
+    // ===== PlanningView =====
+
+    /**
+     * Return supply entries for an item as immutable {@link PlanningView.SupplyPoint} records.
+     * Entries are in priority order (same as the internal supply table).
+     */
+    @Override
+    public List<PlanningView.SupplyPoint> getSupply(ItemVariant item) {
+        List<SupplyEntry> entries = supplyTable.get(item);
+        if (entries == null || entries.isEmpty()) return List.of();
+        List<PlanningView.SupplyPoint> result = new ArrayList<>(entries.size());
+        for (SupplyEntry e : entries) {
+            result.add(new PlanningView.SupplyPoint(e.pos, e.available, e.priority));
+        }
+        return Collections.unmodifiableList(result);
+    }
+
+    /**
+     * Return the registered {@link ProviderCanFulfill} check for a dynamic provider, or
+     * {@code null} if none is registered.
+     */
+    @Override
+    @Nullable
+    public ProviderCanFulfill getCrafterCheck(BlockPos provider) {
+        return providerChecks.get(provider);
     }
 
     // ===== Query =====
