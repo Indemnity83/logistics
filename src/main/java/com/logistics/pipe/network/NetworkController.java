@@ -76,6 +76,9 @@ public class NetworkController implements PlanningView {
     // Explicit reservation tracking: replaces implicit SupplyEntry.available mutation
     private final ReservationManager reservationManager = new ReservationManager();
 
+    // Crafter buffer snapshots registered by CraftingModule each scan cycle
+    private final Map<BlockPos, CrafterSnapshot> crafterSnapshots = new HashMap<>();
+
     @Nullable
     private OrderFailureListener failureListener;
 
@@ -397,6 +400,16 @@ public class NetworkController implements PlanningView {
         }
     }
 
+    // ===== Crafter Snapshot Registration =====
+
+    public void registerCrafterSnapshot(BlockPos pos, CrafterSnapshot snapshot) {
+        crafterSnapshots.put(pos, snapshot);
+    }
+
+    public void unregisterCrafterSnapshot(BlockPos pos) {
+        crafterSnapshots.remove(pos);
+    }
+
     // ===== Order Query =====
 
     /** {@code true} if the order is still pending in the queue (not yet fully dispatched). */
@@ -429,6 +442,16 @@ public class NetworkController implements PlanningView {
     @Nullable
     public ProviderCanFulfill getCrafterCheck(BlockPos provider) {
         return providerChecks.get(provider);
+    }
+
+    /**
+     * Return the most recent {@link CrafterSnapshot} for a crafter position, or {@code null}
+     * if none has been registered yet.
+     */
+    @Override
+    @Nullable
+    public CrafterSnapshot getCrafterSnapshot(BlockPos provider) {
+        return crafterSnapshots.get(provider);
     }
 
     // ===== Query =====
@@ -505,6 +528,9 @@ public class NetworkController implements PlanningView {
 
         // Merge reservations
         reservationManager.merge(other.reservationManager);
+
+        // Merge crafter snapshots
+        crafterSnapshots.putAll(other.crafterSnapshots);
     }
 
     // ===== Helpers =====
