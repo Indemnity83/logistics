@@ -139,8 +139,8 @@ public class PipeNetwork implements ILogisticsNetwork {
     }
 
     @Override
-    public UUID placeOrder(ItemVariant item, long amount, BlockPos requester) {
-        return controller.placeOrder(item, amount, requester);
+    public UUID placeOrder(ItemVariant item, long amount, BlockPos requester, FulfillmentMode fulfillmentMode) {
+        return controller.placeOrder(item, amount, requester, fulfillmentMode);
     }
 
     @Override
