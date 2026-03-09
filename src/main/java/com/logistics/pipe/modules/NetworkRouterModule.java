@@ -2,7 +2,7 @@ package com.logistics.pipe.modules;
 
 import com.logistics.LogisticsPipe;
 import com.logistics.pipe.network.NetworkRegistry;
-import com.logistics.core.lib.network.ILogisticsNetwork;
+import com.logistics.pipe.network.ILogisticsNetwork;
 import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.runtime.RoutePlan;
 import com.logistics.pipe.runtime.TravelingItem;

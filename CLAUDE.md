@@ -150,9 +150,11 @@ The domain architecture applies the **Dependency Inversion Principle** (DIP) - d
 ```
 src/main/java/com/logistics/
 ├── LogisticsMod.java        # Entry point, initializes all domains
+├── api/                     # Public API surface (LogisticsApi, TransportApi)
 ├── core/                    # Shared interfaces and utilities
 │   ├── bootstrap/           # Domain initialization system
 │   └── lib/                 # Interfaces that other domains may import
+│       └── network/         # ILogisticsNetwork, IWorldView, Order, etc.
 ├── pipe/                    # Item transport pipes
 ├── power/                   # Energy generation (engines)
 └── automation/              # Machines (quarry, etc.)
@@ -225,12 +227,17 @@ Domains are initialized using a two-phase pattern (server/common + client):
 - **Key abstractions in `core.lib`**:
   - `AbstractEngineBlockEntity` - base for all engines
   - `DomainBootstrap` - interface for domain initialization
+  - `BaseBlockEntity` - base class for block entities with common NBT/tick patterns
+  - `HasItemStorage`, `HasEnergyStorage`, `HasFluidStorage` - capability interfaces block entities implement
+  - `core.lib.network` - logistics network contracts (`ILogisticsNetwork`, `IWorldView`, `INetworkGraph`, `Order`, `IngredientChecker`, `ProviderCanFulfill`)
   - Shared interfaces that enable cross-domain functionality without coupling
 - Think of `core.lib` as the "contract layer" that keeps domains decoupled
 
 **Pipe Domain** (`com.logistics.pipe`):
 - Module composition: `Pipe` composes `Module` instances for behavior
-- Modules control routing, acceptance, and speed
+- Module types: `ProviderModule`, `SupplierModule`, `RequesterModule`, `SinkModule`, `NetworkRouterModule`, `CraftingModule`
+- Module ordering: CraftingModule runs first, NetworkRouterModule runs last
+- Network layer: `NetworkRegistry`, `PipeNetwork` (implements `ILogisticsNetwork`), `NetworkController`, `NetworkGraph`
 - `TravelingItem` represents items in transit with progress-based movement
 - See DESIGN.md for comprehensive pipe architecture
 

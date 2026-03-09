@@ -1,7 +1,9 @@
 package com.logistics.pipe.network;
 
 import com.logistics.LogisticsMod;
-import com.logistics.core.lib.network.*;
+import com.logistics.core.lib.network.INetworkGraph;
+import com.logistics.core.lib.network.IWorldView;
+import com.logistics.core.lib.network.NetworkGraph;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
