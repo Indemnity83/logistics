@@ -40,7 +40,7 @@ public final class LogisticsCommands {
             dispatcher.register(
                 Commands.literal("logistics")
                     .then(Commands.literal("debug")
-                        .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+                        .requires(source -> source.hasPermission(Commands.LEVEL_GAMEMASTERS))
                         .executes(ctx -> {
                             List<String> registered = sortedDomains();
                             Set<String> enabled = DebugLog.getEnabledDomains();

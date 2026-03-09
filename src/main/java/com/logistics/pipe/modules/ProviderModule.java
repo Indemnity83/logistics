@@ -232,8 +232,8 @@ public class ProviderModule implements Module {
         ResourceId rid = ResourceId.tryParse(head.itemId());
         if (rid == null) { queue.removeHead(); saveQueue(ctx, queue); return; }
         var holder = BuiltInRegistries.ITEM.get(rid.toIdentifier());
-        if (holder.isEmpty()) { queue.removeHead(); saveQueue(ctx, queue); return; }
-        ItemVariant item = ItemVariant.of(new ItemStack(holder.get().value()));
+        if (holder == null) { queue.removeHead(); saveQueue(ctx, queue); return; }
+        ItemVariant item = ItemVariant.of(new ItemStack(holder.asItem()));
 
         ProviderMode mode = getMode(ctx);
         long toExtract = Math.min(head.remaining(), ITEMS_PER_EXTRACT);
@@ -292,7 +292,7 @@ public class ProviderModule implements Module {
         ProviderDispatchQueue queue = new ProviderDispatchQueue();
         ListTag tag = NbtCompat.getListOrEmpty(ctx.moduleState(getStateKey()), DISPATCH_QUEUE);
         for (int i = 0; i < tag.size(); i++) {
-            CompoundTag entry = tag.getCompound(i).orElse(null);
+            CompoundTag entry = tag.getCompound(i);
             if (entry == null) continue;
             String itemId    = NbtCompat.getString(entry, DQ_ITEM, "");
             long   amount    = NbtCompat.getLong(entry, DQ_AMT, 0L);
