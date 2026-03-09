@@ -260,25 +260,25 @@ public class CraftingModule implements Module {
         // Cap batches to what the autocrafter's input buffer can currently absorb
         CrafterBufferState bufferState = computeBufferState(ctx, autocrafterDir);
         long batchCount = new CraftBatchingService().safeBatchCount(amount, resultCount, bufferState);
-        if (batchCount <= 0) return 0; // no buffer capacity right now
+        if (batchCount <= 0) return -1; // buffer full: defer, don't remove from supply table
 
         long actualAmount = batchCount * resultCount; // may be less than amount
 
-        // Aggregate ingredient amounts for the capped batch count
-        Map<String, Long> neededByItem = new LinkedHashMap<>();
+        // Aggregate total ingredient amounts needed for the capped batch count
+        Map<String, Long> totalNeededByItem = new LinkedHashMap<>();
         for (int slot = 0; slot < 9; slot++) {
             String ingredientId = getIngredientItem(ctx, slot);
             if (ingredientId.isEmpty()) continue;
-            neededByItem.merge(ingredientId, (long) getIngredientCount(ctx, slot) * batchCount, Long::sum);
+            totalNeededByItem.merge(ingredientId, (long) getIngredientCount(ctx, slot) * batchCount, Long::sum);
         }
 
         // No ingredients configured — reject the dispatch
-        if (neededByItem.isEmpty()) return 0;
+        if (totalNeededByItem.isEmpty()) return 0;
 
         // Pre-validate all ingredients before placing any orders — fail fast so we never
         // queue a craft with a missing ingredient order that will never arrive.
         Map<String, ItemStack> resolvedIngredients = new LinkedHashMap<>();
-        for (Map.Entry<String, Long> entry : neededByItem.entrySet()) {
+        for (Map.Entry<String, Long> entry : totalNeededByItem.entrySet()) {
             ItemStack ingredientStack = resolveItem(entry.getKey());
             if (ingredientStack.isEmpty()) {
                 LogisticsPipe.LOGGER.warn(
@@ -288,6 +288,67 @@ public class CraftingModule implements Module {
                 return 0;
             }
             resolvedIngredients.put(entry.getKey(), ingredientStack);
+        }
+
+        // Compute how many of each ingredient the new queue entry must order from the network.
+        //
+        // The crafter's "usable pool" for a new entry is:
+        //   physicalStock + pending - totalCommittedByExistingEntries
+        //
+        // where pending = orders still in transit (getOrderedAmountFor), and
+        // totalCommitted = what all existing queue entries have already claimed (regardless of
+        // whether those ingredients arrived physically or are still en route).
+        // The new entry only needs to order the shortfall from that free pool.
+        //
+        // This correctly handles concurrent requests: ingredients ordered by Entry A that have
+        // already physically arrived in the crafter are "committed" to A's quota, so Entry B
+        // cannot mistakenly treat them as free stock.
+        BlockPos autocrafterPos = ctx.pos().relative(autocrafterDir);
+        CrafterBlockEntity crafterEntity = null;
+        if (ctx.world().getBlockEntity(autocrafterPos) instanceof CrafterBlockEntity ce) {
+            crafterEntity = ce;
+        }
+
+        ListTag existingQueue = getQueue(ctx);
+
+        Map<String, Long> neededByItem = new LinkedHashMap<>();
+        for (Map.Entry<String, Long> entry : totalNeededByItem.entrySet()) {
+            String ingredientId = entry.getKey();
+            long needed = entry.getValue();
+
+            // Physical stock currently in the autocrafter for this ingredient
+            long physicalStock = 0;
+            if (crafterEntity != null) {
+                for (int slot = 0; slot < 9; slot++) {
+                    if (!ingredientId.equals(getIngredientItem(ctx, slot))) continue;
+                    ItemStack inSlot = crafterEntity.getItem(slot);
+                    physicalStock += inSlot.isEmpty() ? 0 : inSlot.getCount();
+                }
+            }
+
+            // Orders placed by this crafter pipe that haven't physically arrived yet
+            long pending = network.getOrderedAmountFor(ctx.pos(), resolvedIngredients.get(ingredientId));
+
+            // Ingredients committed to all existing queue entries (arrived + still in transit)
+            long totalCommitted = 0;
+            for (int qi = 0; qi < existingQueue.size(); qi++) {
+                CompoundTag qe = existingQueue.getCompound(qi).orElse(null);
+                if (qe == null) continue;
+                long qeAmt = NbtCompat.getLong(qe, ENTRY_AMT, 0L);
+                long qeBatches = resultCount > 0 ? qeAmt / resultCount : 0;
+                for (int slot = 0; slot < 9; slot++) {
+                    if (!ingredientId.equals(getIngredientItem(ctx, slot))) continue;
+                    totalCommitted += (long) getIngredientCount(ctx, slot) * qeBatches;
+                }
+            }
+
+            // Free pool = total that will eventually be in the crafter minus what's already spoken for
+            long freePool = Math.max(0, physicalStock + pending - totalCommitted);
+            long toOrder = Math.max(0, needed - freePool);
+
+            if (toOrder > 0) {
+                neededByItem.put(ingredientId, toOrder);
+            }
         }
 
         // Place ingredient orders immediately — each queued order orders its own ingredients
@@ -330,7 +391,11 @@ public class CraftingModule implements Module {
         if (!(ctx.world().getBlockEntity(autocrafterPos) instanceof CrafterBlockEntity crafter)) {
             return CrafterBufferState.FULL;
         }
-        int minBatchCapacity = Integer.MAX_VALUE;
+        ILogisticsNetwork network = NetworkRegistry.getOrCreateNetwork(ctx.world(), ctx.pos());
+
+        // Aggregate per unique ingredient: total slot space and total recipe count per batch.
+        // Tracking by ingredient ID handles recipes where the same item appears in multiple slots.
+        Map<String, long[]> perIngredient = new LinkedHashMap<>(); // ingredientId → [totalSpace, recipeCountPerBatch]
         boolean hasRecipeSlots = false;
         for (int slot = 0; slot < 9; slot++) {
             String ingredientId = getIngredientItem(ctx, slot);
@@ -342,9 +407,33 @@ public class CraftingModule implements Module {
             ItemStack ingredient = resolveItem(ingredientId);
             int maxStack = ingredient.isEmpty() ? 64 : ingredient.getMaxStackSize();
             int space = Math.max(0, maxStack - current);
-            minBatchCapacity = Math.min(minBatchCapacity, space / recipeCount);
+            long[] agg = perIngredient.computeIfAbsent(ingredientId, k -> new long[2]);
+            agg[0] += space;
+            agg[1] += recipeCount;
         }
-        if (!hasRecipeSlots || minBatchCapacity == Integer.MAX_VALUE) return CrafterBufferState.FULL;
+        if (!hasRecipeSlots) return CrafterBufferState.FULL;
+
+        int minBatchCapacity = Integer.MAX_VALUE;
+        for (Map.Entry<String, long[]> entry : perIngredient.entrySet()) {
+            long totalSpace = entry.getValue()[0];
+            long recipeCountPerBatch = entry.getValue()[1];
+
+            // Deduct ingredient orders already placed but not yet physically arrived.
+            // This prevents double-dispatching when the controller re-dispatches a partial
+            // crafter order before the first batch's ingredients have been inserted.
+            if (network != null) {
+                ItemStack ingredient = resolveItem(entry.getKey());
+                if (!ingredient.isEmpty()) {
+                    long pending = network.getOrderedAmountFor(ctx.pos(), ingredient);
+                    totalSpace = Math.max(0, totalSpace - pending);
+                }
+            }
+
+            long batches = totalSpace / recipeCountPerBatch;
+            minBatchCapacity = (int) Math.min(minBatchCapacity, batches);
+        }
+
+        if (minBatchCapacity == Integer.MAX_VALUE) return CrafterBufferState.FULL;
         // maxCraftsFromOutputSpace = unlimited: the pipe accepts output directly via onExternalInsert
         return new CrafterBufferState(minBatchCapacity, Integer.MAX_VALUE);
     }

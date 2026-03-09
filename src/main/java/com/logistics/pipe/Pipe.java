@@ -434,12 +434,13 @@ public class Pipe {
      * Dispatch items to a requester by asking the first module that can fulfill to extract.
      * Called by MinecraftWorldView.dispatch() during the network tick.
      *
-     * @return actual amount dispatched (0 if no module could fulfill)
+     * @return actual amount dispatched (&gt;0), -1 if the provider is temporarily busy (deferred),
+     *         or 0 if no module could fulfill
      */
     public long dispatch(PipeContext ctx, BlockPos requester, ItemVariant item, long amount, UUID deliveryId) {
         for (Module module : modules) {
             long dispatched = module.onDispatch(ctx, requester, item, amount, deliveryId);
-            if (dispatched > 0) return dispatched;
+            if (dispatched != 0) return dispatched; // propagate both success (>0) and deferred (<0)
         }
         return 0;
     }
