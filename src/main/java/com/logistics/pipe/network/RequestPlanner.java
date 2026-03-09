@@ -78,12 +78,22 @@ public class RequestPlanner {
             // Try crafters for any remainder
             long remaining = needed - planned;
             if (remaining > 0) {
+                CraftBatchingService batcher = new CraftBatchingService();
                 for (PlanningView.SupplyPoint sp : supply) {
                     if (sp.available() != 0) continue; // skip real-stock entries
                     if (view.getCrafterCheck(sp.provider()) == null) continue; // no check registered
-                    // Phase 6: ingredient deps are not recursed; added as empty list
-                    out.add(new PlanNode.CraftNode(sp.provider(), item, remaining, List.of()));
-                    planned += remaining;
+                    CrafterSnapshot snapshot = view.getCrafterSnapshot(sp.provider());
+                    if (snapshot != null) {
+                        // Cap to what the crafter's buffer can currently absorb
+                        long batches = batcher.safeBatchCount(remaining, snapshot.outputCount(), snapshot.buffer());
+                        if (batches <= 0) continue; // crafter buffer is full — try next
+                        out.add(new PlanNode.CraftNode(sp.provider(), item, batches, List.of()));
+                        planned += batches * snapshot.outputCount();
+                    } else {
+                        // No snapshot yet (first scan not complete): treat as unlimited capacity
+                        out.add(new PlanNode.CraftNode(sp.provider(), item, remaining, List.of()));
+                        planned += remaining;
+                    }
                     break; // use first valid crafter
                 }
             }
