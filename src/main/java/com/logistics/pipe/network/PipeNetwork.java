@@ -29,6 +29,7 @@ public class PipeNetwork implements ILogisticsNetwork {
     private final INetworkGraph graph;
     private final IWorldView worldView;
     private final NetworkController controller;
+    private final JobCoordinator jobCoordinator;
 
     // Sink management for item routing
     private final Set<BlockPos> defaultRouteSinks = new HashSet<>(); // Accepts any item
@@ -47,7 +48,10 @@ public class PipeNetwork implements ILogisticsNetwork {
         this.graph = graph;
         this.worldView = worldView;
         this.controller = new NetworkController();
+        this.jobCoordinator = new JobCoordinator(controller);
         controller.setOrderFailureListener((orderId, requester, item, amount, missing) -> {
+            // Notify job coordinator first so job state is updated before the alert fires
+            jobCoordinator.onOrderFailed(orderId, requester, item, amount, missing);
             if (worldView == null) return;
             String name = item.toStack(1).getHoverName().getString();
             String missingNames = missing.stream()
@@ -71,6 +75,7 @@ public class PipeNetwork implements ILogisticsNetwork {
         this.graph = new NetworkGraph();
         this.worldView = null;
         this.controller = new NetworkController();
+        this.jobCoordinator = new JobCoordinator(controller);
     }
 
     public UUID getId() {
@@ -171,6 +176,7 @@ public class PipeNetwork implements ILogisticsNetwork {
     @Override
     public void notifyDelivery(BlockPos requester, ItemVariant item, long amount) {
         controller.notifyDelivery(requester, item, amount);
+        jobCoordinator.onDelivery(requester, item, amount);
     }
 
     /**
@@ -284,12 +290,18 @@ public class PipeNetwork implements ILogisticsNetwork {
         return bestSink;
     }
 
+    /** Access the job coordinator for this network (for diagnostics or future API use). */
+    public JobCoordinator getJobCoordinator() {
+        return jobCoordinator;
+    }
+
     /**
      * Merge another network into this one.
      */
     public void merge(PipeNetwork other) {
         graph.merge(other.graph);
         controller.merge(other.controller);
+        jobCoordinator.merge(other.jobCoordinator);
         defaultRouteSinks.addAll(other.defaultRouteSinks);
         other.sinkPriorities.forEach((pos, priority) ->
                 sinkPriorities.merge(pos, priority, Math::max));
