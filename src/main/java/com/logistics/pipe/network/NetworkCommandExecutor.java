@@ -40,7 +40,9 @@ public class NetworkCommandExecutor {
     private CommandResult executeExtract(NetworkCommand.ExtractCommand cmd) {
         long shipped = worldView.dispatch(
                 cmd.provider(), cmd.requester(), cmd.item(), cmd.amount(), cmd.deliveryId());
-        return shipped > 0 ? CommandResult.ok(shipped) : CommandResult.failed();
+        if (shipped > 0) return CommandResult.ok(shipped);
+        if (shipped < 0) return CommandResult.defer(); // provider temporarily busy (e.g. buffer full)
+        return CommandResult.failed();
     }
 
     private CommandResult executeInsertCrafterInputs(NetworkCommand.InsertCrafterInputsCommand cmd) {

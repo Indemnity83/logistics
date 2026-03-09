@@ -79,6 +79,10 @@ public class NetworkController implements PlanningView {
     // Crafter buffer snapshots registered by CraftingModule each scan cycle
     private final Map<BlockPos, CrafterSnapshot> crafterSnapshots = new HashMap<>();
 
+    // Providers skipped this tick because they returned a deferred result (e.g. buffer full).
+    // Cleared at the start of each network tick via clearDeferredProviders().
+    private final Set<BlockPos> deferredProviders = new HashSet<>();
+
     @Nullable
     private OrderFailureListener failureListener;
 
@@ -186,6 +190,21 @@ public class NetworkController implements PlanningView {
     // ===== Dispatch =====
 
     /**
+     * Mark a provider as deferred for the rest of this tick (e.g. crafter buffer is full).
+     * Deferred providers are skipped in {@link #nextDispatchable()} but remain in the supply
+     * table so the item stays visible in the network UI. Call {@link #clearDeferredProviders()}
+     * at the start of each tick to reset this state.
+     */
+    public void deferProvider(BlockPos provider) {
+        deferredProviders.add(provider);
+    }
+
+    /** Reset the deferred-provider set; must be called at the start of each network tick. */
+    public void clearDeferredProviders() {
+        deferredProviders.clear();
+    }
+
+    /**
      * Find the next dispatchable order. Performs a pre-validation ingredient-chain check before
      * dispatching to any dynamic provider (crafter) or when real stock is only a partial fill
      * and a crafter would be needed for the remainder.
@@ -200,6 +219,8 @@ public class NetworkController implements PlanningView {
             Order order = orderIt.next().getValue();
             List<SupplyEntry> entries = supplyTable.get(order.item());
             if (entries == null || entries.isEmpty()) continue;
+            // Skip orders whose only available provider was deferred this tick (buffer full)
+            if (entries.stream().allMatch(e -> deferredProviders.contains(e.pos))) continue;
             DispatchCommand cmd = tryDispatch(orderIt, order, entries);
             if (cmd != null) return cmd;
         }
