@@ -1,9 +1,6 @@
 package com.logistics.pipe.network;
 
 import com.logistics.LogisticsMod;
-import com.logistics.core.lib.network.IngredientChecker;
-import com.logistics.core.lib.network.Order;
-import com.logistics.core.lib.network.ProviderCanFulfill;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.ItemStack;
@@ -18,7 +15,7 @@ import java.util.*;
  * and per-requester ordered-amount tracking (how much is already on the way).
  *
  * <p>Dispatch is synchronous: the network calls {@link #nextDispatchable()} each tick,
- * then calls the provider's {@code onDispatch()} directly via {@link com.logistics.core.lib.network.IWorldView}.
+ * then calls the provider's {@code onDispatch()} directly via {@link com.logistics.core.lib.network.IWorldView IWorldView}.
  * Supply is immediately updated after extraction so subsequent orders in the same tick see accurate stock.
  *
  * <p>Before dispatching to a dynamic provider (crafter, etc.), a dry-run ingredient-chain check

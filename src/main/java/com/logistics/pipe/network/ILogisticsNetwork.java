@@ -1,4 +1,4 @@
-package com.logistics.core.lib.network;
+package com.logistics.pipe.network;
 
 import java.util.List;
 import java.util.Map;
