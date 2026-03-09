@@ -1,7 +1,11 @@
 package com.logistics.pipe.modules;
 
 import com.logistics.LogisticsPipe;
+import com.logistics.pipe.network.CraftBatchingService;
+import com.logistics.pipe.network.CrafterBufferState;
+import com.logistics.pipe.network.CrafterSnapshot;
 import com.logistics.pipe.network.ILogisticsNetwork;
+import com.logistics.pipe.network.RecipeIngredient;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.core.lib.storage.NbtCompat;
 import com.logistics.pipe.PipeContext;
@@ -239,7 +243,8 @@ public class CraftingModule implements Module {
 
         String resultId = getResultItem(ctx);
         if (resultId.isEmpty()) return 0;
-        if (findAutocrafterDirection(ctx) == null) return 0;
+        Direction autocrafterDir = findAutocrafterDirection(ctx);
+        if (autocrafterDir == null) return 0;
 
         ItemStack resultStack = resolveItem(resultId);
         if (resultStack.isEmpty() || !item.matches(resultStack)) return 0;
@@ -250,9 +255,16 @@ public class CraftingModule implements Module {
         if (network == null) return 0;
 
         int resultCount = getResultCount(ctx);
-        long batchCount = (amount + resultCount - 1L) / resultCount;
+        if (resultCount <= 0) return 0;
 
-        // Aggregate ingredient amounts for all batches
+        // Cap batches to what the autocrafter's input buffer can currently absorb
+        CrafterBufferState bufferState = computeBufferState(ctx, autocrafterDir);
+        long batchCount = new CraftBatchingService().safeBatchCount(amount, resultCount, bufferState);
+        if (batchCount <= 0) return 0; // no buffer capacity right now
+
+        long actualAmount = batchCount * resultCount; // may be less than amount
+
+        // Aggregate ingredient amounts for the capped batch count
         Map<String, Long> neededByItem = new LinkedHashMap<>();
         for (int slot = 0; slot < 9; slot++) {
             String ingredientId = getIngredientItem(ctx, slot);
@@ -287,11 +299,11 @@ public class CraftingModule implements Module {
             ingredientOrderIds.putString(entry.getKey(), ingredientOrderId.toString());
         }
 
-        // Append entry to queue
+        // Append entry to queue (for the capped amount we actually accepted)
         CompoundTag queueEntry = new CompoundTag();
         queueEntry.putString(ENTRY_REQ, requester.getX() + "," + requester.getY() + "," + requester.getZ());
         queueEntry.putString(ENTRY_DLV, deliveryId.toString());
-        queueEntry.putLong(ENTRY_AMT, amount);
+        queueEntry.putLong(ENTRY_AMT, actualAmount);
         queueEntry.put(ENTRY_IDS, ingredientOrderIds);
 
         ListTag queue = getQueue(ctx);
@@ -305,7 +317,65 @@ public class CraftingModule implements Module {
             network.unregisterProviderCheck(ctx.pos());
         }
 
-        return amount; // Promise: delivery happens after crafting completes
+        return actualAmount; // Promise: delivery happens after crafting completes (capped to buffer capacity)
+    }
+
+    /**
+     * Compute the autocrafter's current input buffer capacity: how many batches worth of
+     * ingredients can still fit in the crafter's input slots. Returns {@link CrafterBufferState#FULL}
+     * when the crafter cannot be found.
+     */
+    private CrafterBufferState computeBufferState(PipeContext ctx, Direction autocrafterDir) {
+        BlockPos autocrafterPos = ctx.pos().relative(autocrafterDir);
+        if (!(ctx.world().getBlockEntity(autocrafterPos) instanceof CrafterBlockEntity crafter)) {
+            return CrafterBufferState.FULL;
+        }
+        int minBatchCapacity = Integer.MAX_VALUE;
+        boolean hasRecipeSlots = false;
+        for (int slot = 0; slot < 9; slot++) {
+            String ingredientId = getIngredientItem(ctx, slot);
+            if (ingredientId.isEmpty()) continue;
+            hasRecipeSlots = true;
+            int recipeCount = Math.max(1, getIngredientCount(ctx, slot));
+            ItemStack inSlot = crafter.getItem(slot);
+            int current = inSlot.isEmpty() ? 0 : inSlot.getCount();
+            ItemStack ingredient = resolveItem(ingredientId);
+            int maxStack = ingredient.isEmpty() ? 64 : ingredient.getMaxStackSize();
+            int space = Math.max(0, maxStack - current);
+            minBatchCapacity = Math.min(minBatchCapacity, space / recipeCount);
+        }
+        if (!hasRecipeSlots || minBatchCapacity == Integer.MAX_VALUE) return CrafterBufferState.FULL;
+        // maxCraftsFromOutputSpace = unlimited: the pipe accepts output directly via onExternalInsert
+        return new CrafterBufferState(minBatchCapacity, Integer.MAX_VALUE);
+    }
+
+    /**
+     * Build a {@link CrafterSnapshot} from the current recipe config and autocrafter state.
+     * Returns {@code null} when the recipe or autocrafter is not fully configured.
+     */
+    @Nullable
+    private CrafterSnapshot buildCrafterSnapshot(PipeContext ctx) {
+        String resultId = getResultItem(ctx);
+        if (resultId.isEmpty()) return null;
+        ItemStack resultStack = resolveItem(resultId);
+        if (resultStack.isEmpty()) return null;
+        int resultCount = getResultCount(ctx);
+        if (resultCount <= 0) return null;
+        Direction autocrafterDir = findAutocrafterDirection(ctx);
+        if (autocrafterDir == null) return null;
+
+        List<RecipeIngredient> ingredients = new ArrayList<>();
+        for (int slot = 0; slot < 9; slot++) {
+            String ingredientId = getIngredientItem(ctx, slot);
+            if (ingredientId.isEmpty()) continue;
+            ItemStack ingredientStack = resolveItem(ingredientId);
+            if (ingredientStack.isEmpty()) continue;
+            ingredients.add(new RecipeIngredient(ItemVariant.of(ingredientStack), getIngredientCount(ctx, slot)));
+        }
+        if (ingredients.isEmpty()) return null;
+
+        CrafterBufferState buffer = computeBufferState(ctx, autocrafterDir);
+        return new CrafterSnapshot(ctx.pos(), ItemVariant.of(resultStack), resultCount, ingredients, buffer);
     }
 
     private void updateCrafterSupply(PipeContext ctx) {
@@ -316,6 +386,7 @@ public class CraftingModule implements Module {
         if (resultId.isEmpty() || findAutocrafterDirection(ctx) == null) {
             network.registerSupply(ctx.pos(), new HashMap<>(), CRAFTER_PRIORITY);
             network.unregisterProviderCheck(ctx.pos());
+            network.unregisterCrafterSnapshot(ctx.pos());
             return;
         }
 
@@ -325,6 +396,7 @@ public class CraftingModule implements Module {
         if (isBlocking(ctx) && isActive(ctx)) {
             network.registerSupply(ctx.pos(), new HashMap<>(), CRAFTER_PRIORITY);
             network.unregisterProviderCheck(ctx.pos());
+            network.unregisterCrafterSnapshot(ctx.pos());
             return;
         }
 
@@ -332,6 +404,7 @@ public class CraftingModule implements Module {
         if (resultStack.isEmpty()) {
             network.registerSupply(ctx.pos(), new HashMap<>(), CRAFTER_PRIORITY);
             network.unregisterProviderCheck(ctx.pos());
+            network.unregisterCrafterSnapshot(ctx.pos());
             return;
         }
 
@@ -339,6 +412,15 @@ public class CraftingModule implements Module {
         Map<ItemVariant, Long> craftable = new HashMap<>();
         craftable.put(ItemVariant.of(resultStack), 0L);
         network.registerSupply(ctx.pos(), craftable, CRAFTER_PRIORITY);
+
+        // Register buffer snapshot so RequestPlanner can cap batch sizes
+        CrafterSnapshot snapshot = buildCrafterSnapshot(ctx);
+        if (snapshot != null) {
+            network.registerCrafterSnapshot(ctx.pos(), snapshot);
+        } else {
+            network.unregisterCrafterSnapshot(ctx.pos());
+        }
+
         network.registerProviderCheck(ctx.pos(), (amount, checker) -> {
             int resultCount = getResultCount(ctx);
             if (resultCount <= 0) return List.of();

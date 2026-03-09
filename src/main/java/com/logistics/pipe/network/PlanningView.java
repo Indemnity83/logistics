@@ -35,4 +35,12 @@ public interface PlanningView {
      */
     @Nullable
     ProviderCanFulfill getCrafterCheck(BlockPos provider);
+
+    /**
+     * Current buffer snapshot for a crafter at the given position.
+     * Returns {@code null} if no snapshot has been registered (crafter not yet scanned).
+     * When null, callers should treat buffer capacity as unlimited.
+     */
+    @Nullable
+    CrafterSnapshot getCrafterSnapshot(BlockPos provider);
 }
