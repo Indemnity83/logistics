@@ -136,6 +136,26 @@ public interface ILogisticsNetwork {
      */
     void notifyDelivery(BlockPos requester, ItemVariant item, long amount);
 
+    // ===== Crafter Snapshot =====
+
+    /**
+     * Register (or replace) a crafter buffer snapshot for use by the request planner.
+     * Called by crafter modules each scan cycle so the planner sees current buffer capacity.
+     * Default no-op — implementations override when snapshot storage is available.
+     *
+     * @param pos      crafting pipe position
+     * @param snapshot current crafter state (recipe, output count, buffer capacity)
+     */
+    default void registerCrafterSnapshot(BlockPos pos, CrafterSnapshot snapshot) {}
+
+    /**
+     * Remove the crafter snapshot for a position (e.g. when recipe is cleared or pipe removed).
+     * Default no-op — implementations override when snapshot storage is available.
+     *
+     * @param pos crafting pipe position
+     */
+    default void unregisterCrafterSnapshot(BlockPos pos) {}
+
     // ===== Sink Operations =====
 
     /**

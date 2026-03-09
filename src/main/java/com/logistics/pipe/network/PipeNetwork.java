@@ -98,6 +98,7 @@ public class PipeNetwork implements ILogisticsNetwork {
         controller.removeSupply(pos);
         controller.cancelOrdersFor(pos);
         controller.unregisterProviderCheck(pos);
+        controller.unregisterCrafterSnapshot(pos);
         defaultRouteSinks.remove(pos);
         sinkPriorities.remove(pos);
     }
@@ -151,6 +152,16 @@ public class PipeNetwork implements ILogisticsNetwork {
     @Override
     public void cancelOrder(UUID orderId) {
         controller.cancelOrder(orderId);
+    }
+
+    @Override
+    public void registerCrafterSnapshot(BlockPos pos, CrafterSnapshot snapshot) {
+        controller.registerCrafterSnapshot(pos, snapshot);
+    }
+
+    @Override
+    public void unregisterCrafterSnapshot(BlockPos pos) {
+        controller.unregisterCrafterSnapshot(pos);
     }
 
     @Override
