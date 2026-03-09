@@ -53,15 +53,29 @@ public interface ILogisticsNetwork {
     // ===== Order Operations =====
 
     /**
-     * Place a standing order for items. Increments orderedForRequester immediately.
+     * Place a standing order for items with explicit fulfillment mode.
+     * Increments orderedForRequester immediately.
      * The order persists until cancelled or fulfilled via notifyDelivery.
+     *
+     * @param item            item variant to request
+     * @param amount          amount needed
+     * @param requester       position of the requesting pipe
+     * @param fulfillmentMode whether partial dispatch is acceptable
+     * @return UUID of the order (store for cancellation)
+     */
+    UUID placeOrder(ItemVariant item, long amount, BlockPos requester, FulfillmentMode fulfillmentMode);
+
+    /**
+     * Place a standing order with default {@link FulfillmentMode#PARTIAL} fulfillment.
      *
      * @param item      item variant to request
      * @param amount    amount needed
      * @param requester position of the requesting pipe
      * @return UUID of the order (store for cancellation)
      */
-    UUID placeOrder(ItemVariant item, long amount, BlockPos requester);
+    default UUID placeOrder(ItemVariant item, long amount, BlockPos requester) {
+        return placeOrder(item, amount, requester, FulfillmentMode.PARTIAL);
+    }
 
     /**
      * Cancel a standing order by ID. Decrements orderedForRequester.

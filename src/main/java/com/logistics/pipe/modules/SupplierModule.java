@@ -3,7 +3,9 @@ package com.logistics.pipe.modules;
 import com.logistics.LogisticsPipe;
 import com.logistics.pipe.network.NetDbg;
 import com.logistics.pipe.network.NetworkRegistry;
+import com.logistics.pipe.network.FulfillmentMode;
 import com.logistics.pipe.network.ILogisticsNetwork;
+import com.logistics.pipe.network.SupplierModeConfig;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.core.lib.storage.NbtCompat;
 import com.logistics.pipe.PipeContext;
@@ -193,52 +195,37 @@ public class SupplierModule implements Module {
             NetDbg.out("[Supplier @ {}] Checking {} (mode {}): target={}, current={}, pending={}, needed={}",
                     ctx.pos(), config.itemId(), mode, config.amount(), currentAmount, pendingAmount, needed);
 
+            SupplierModeConfig modeConfig = SupplierModeConfig.forMode(mode, stack.getMaxStackSize());
             boolean shouldRequest = false;
             long toRequest = 0;
 
-            if (mode == SupplyMode.INFINITE) {
+            if (modeConfig.isWindowBounded()) {
+                // INFINITE mode: one-stack-at-a-time window; bypass needed and trigger checks
                 long availableSpace = getAvailableSpace(ctx, supplierDir, stack);
                 if (availableSpace > 0 && pendingAmount == 0) {
-                    toRequest = Math.min(stack.getMaxStackSize(), availableSpace);
+                    toRequest = Math.min(modeConfig.maxOpenRequestWindow(), availableSpace);
                     shouldRequest = true;
                 }
-            } else if (needed > 0) {
-                switch (mode) {
-                    case BULK50:
-                        if (currentAmount <= config.amount() / 2) {
-                            toRequest = needed;
-                            shouldRequest = true;
-                        }
-                        break;
-                    case BULK100:
-                        if (currentAmount == 0) {
-                            toRequest = needed;
-                            shouldRequest = true;
-                        }
-                        break;
-                    case FULL: {
-                        // All-or-nothing: only request when full amount is available (chest)
-                        // or on-demand craftable (Long.MAX_VALUE). Crafter-busy (0) waits
-                        // for next check interval when the crafter re-advertises supply.
-                        long available = network.getAvailableAmount(stack);
-                        if (available >= needed) {
-                            toRequest = needed;
-                            shouldRequest = true;
-                        }
-                        break;
-                    }
-                    case PARTIAL:
-                    default:
-                        // Request needed amount regardless of current availability;
-                        // dispatch validation handles fulfillability (same as RequesterModule).
+            } else if (needed > 0 && modeConfig.isTriggerMet(currentAmount, config.amount())) {
+                if (modeConfig.fulfillmentMode() == FulfillmentMode.FULL) {
+                    // All-or-nothing: only request when full amount is available (chest)
+                    // or on-demand craftable (Long.MAX_VALUE). Crafter-busy (0) waits
+                    // for next check interval when the crafter re-advertises supply.
+                    long available = network.getAvailableAmount(stack);
+                    if (available >= needed) {
                         toRequest = needed;
                         shouldRequest = true;
-                        break;
+                    }
+                } else {
+                    // PARTIAL: request needed regardless of availability;
+                    // dispatch validation handles fulfillability (same as RequesterModule).
+                    toRequest = needed;
+                    shouldRequest = true;
                 }
             }
 
             if (shouldRequest) {
-                network.placeOrder(ItemVariant.of(stack), toRequest, ctx.pos());
+                network.placeOrder(ItemVariant.of(stack), toRequest, ctx.pos(), modeConfig.fulfillmentMode());
             }
         }
     }
