@@ -1,0 +1,34 @@
+package com.logistics.pipe.network;
+
+import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
+import net.minecraft.core.BlockPos;
+
+import java.util.List;
+
+/**
+ * Immutable snapshot of a crafting pipe's state at the moment of capture.
+ * Contains the output item, the per-batch output count, the recipe ingredients,
+ * and the autocrafter's current buffer capacity.
+ *
+ * <p>Pure value object — no Minecraft world coupling beyond BlockPos/ItemVariant.
+ */
+public record CrafterSnapshot(
+        BlockPos pos,
+        ItemVariant output,
+        long outputCount,
+        List<RecipeIngredient> ingredients,
+        CrafterBufferState buffer) {
+
+    public CrafterSnapshot {
+        if (pos == null) throw new NullPointerException("pos must not be null");
+        if (output == null) throw new NullPointerException("output must not be null");
+        if (outputCount <= 0) throw new IllegalArgumentException("outputCount must be positive, got: " + outputCount);
+        if (buffer == null) throw new NullPointerException("buffer must not be null");
+        ingredients = List.copyOf(ingredients); // defensive immutable copy
+    }
+
+    /** How many complete batches can be submitted right now given buffer capacity. */
+    public int availableBatchCapacity() {
+        return buffer.safeBatchCapacity();
+    }
+}
