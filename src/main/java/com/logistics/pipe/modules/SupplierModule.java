@@ -3,7 +3,7 @@ package com.logistics.pipe.modules;
 import com.logistics.LogisticsPipe;
 import com.logistics.pipe.network.NetDbg;
 import com.logistics.pipe.network.NetworkRegistry;
-import com.logistics.core.lib.network.ILogisticsNetwork;
+import com.logistics.pipe.network.ILogisticsNetwork;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.core.lib.storage.NbtCompat;
 import com.logistics.pipe.PipeContext;
