@@ -129,20 +129,25 @@ public class NetworkController {
     // ===== Order Management =====
 
     /**
-     * Place a standing order. Increments orderedForRequester immediately.
+     * Place a standing order with explicit fulfillment mode. Increments orderedForRequester immediately.
      *
      * @return UUID of the new order (store for later cancellation)
      */
-    public UUID placeOrder(ItemVariant item, long amount, BlockPos requester) {
+    public UUID placeOrder(ItemVariant item, long amount, BlockPos requester, FulfillmentMode fulfillmentMode) {
         if (amount <= 0) throw new IllegalArgumentException("Order amount must be positive, got: " + amount);
         UUID id = UUID.randomUUID();
-        orderQueue.put(id, new Order(id, item, amount, requester));
+        orderQueue.put(id, new Order(id, item, amount, requester, fulfillmentMode));
         orderedForRequester
                 .computeIfAbsent(requester, k -> new HashMap<>())
                 .merge(item, amount, Long::sum);
         NetDbg.out("Order placed: {} | {}x {} → {} (requester)",
                 id.toString().substring(0, 8), amount, item.toStack().getItem(), requester);
         return id;
+    }
+
+    /** Place a standing order with default {@link FulfillmentMode#PARTIAL} fulfillment. */
+    public UUID placeOrder(ItemVariant item, long amount, BlockPos requester) {
+        return placeOrder(item, amount, requester, FulfillmentMode.PARTIAL);
     }
 
     /**
@@ -224,6 +229,9 @@ public class NetworkController {
                     order.id(), supply.pos, order.requester(), order.item(), order.amount());
         }
 
+        // FULL mode: never dispatch a partial fill; wait until supply is sufficient
+        if (order.fulfillmentMode() == FulfillmentMode.FULL) return null;
+
         // Partial fill from real stock — pre-check only when a crafter also covers this item
         // (the crafter will be needed to fill the remainder on a subsequent tick)
         boolean crafterExists = entries.stream().anyMatch(e -> e.available == 0);
@@ -259,7 +267,8 @@ public class NetworkController {
         if (shipped >= order.amount()) {
             orderQueue.remove(orderId);
         } else {
-            orderQueue.put(orderId, new Order(orderId, order.item(), order.amount() - shipped, order.requester()));
+            orderQueue.put(orderId, new Order(orderId, order.item(), order.amount() - shipped,
+                    order.requester(), order.fulfillmentMode()));
         }
     }
 
