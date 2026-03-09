@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -20,12 +21,14 @@ import java.util.UUID;
  * delivery progress. When all items arrive the job transitions to
  * {@link JobState#COMPLETE} automatically.
  *
- * <p>Phase 5 scope: job creation, delivery tracking, failure notification.
- * Full planning ({@code RequestPlanner}) and reconciliation are added in later phases.
+ * <p>{@link #tick} runs periodic reconciliation: if a job's supply disappears mid-order, the
+ * coordinator attempts to replan from alternative sources or marks the job as failed.
  *
  * <p>Zero Minecraft API coupling — 100% testable with pure Java.
  */
 public class JobCoordinator implements NetworkController.OrderFailureListener {
+
+    private static final int RECONCILE_INTERVAL = 100; // ~5 s at 20 tps
 
     private final NetworkController controller;
 
@@ -34,6 +37,11 @@ public class JobCoordinator implements NetworkController.OrderFailureListener {
 
     // Cross-index: orderId → jobId (for failure callbacks)
     private final Map<UUID, UUID> orderToJob = new HashMap<>();
+
+    // Cross-index: jobId → orderId (gates reconciliation to pending orders only)
+    private final Map<UUID, UUID> jobToOrder = new HashMap<>();
+
+    private int ticksSinceReconcile = 0;
 
     public JobCoordinator(NetworkController controller) {
         this.controller = controller;
@@ -73,12 +81,68 @@ public class JobCoordinator implements NetworkController.OrderFailureListener {
         UUID orderId = controller.placeOrder(
                 request.item(), request.amount(), request.destination(), request.fulfillmentMode());
         orderToJob.put(orderId, jobId);
+        jobToOrder.put(jobId, orderId);
 
         job.transitionTo(JobState.ACTIVE);
         NetDbg.out("[Jobs] Submitted job {} for {}x {} | plan: {} extract/craft nodes",
                 jobId.toString().substring(0, 8), request.amount(),
                 request.item().toStack().getItem(), plan.roots().size());
         return job;
+    }
+
+    // ===== Tick / Reconciliation =====
+
+    /**
+     * Run periodic reconciliation. Called once per network tick.
+     *
+     * <p>Every {@value #RECONCILE_INTERVAL} ticks, checks each active job to see if its supply
+     * is still available. If supply has disappeared mid-order the coordinator attempts to replan
+     * from alternative sources; if no alternative exists the job is transitioned to
+     * {@link JobState#FAILED} (FULL mode) or left to complete with reduced scope (PARTIAL mode).
+     *
+     * @param view current network supply state ({@link NetworkController} implements this)
+     */
+    public void tick(PlanningView view) {
+        if (++ticksSinceReconcile < RECONCILE_INTERVAL) return;
+        ticksSinceReconcile = 0;
+
+        ReconciliationService service = new ReconciliationService();
+        for (NetworkJob job : activeJobs()) {
+            // Only reconcile if the underlying order is still pending (not yet dispatched).
+            // Once dispatched, items are in transit and 'outstanding' no longer reflects
+            // sourceable supply — we'd get false positives.
+            UUID orderId = jobToOrder.get(job.id());
+            if (orderId == null || !controller.hasOrder(orderId)) continue;
+
+            ReconciliationResult result = service.reconcile(job, view);
+            if (!result.hasLoss()) continue;
+
+            long lost = result.amountLost();
+            NetDbg.out("[Jobs] Reconciliation: job {} lost {}x {}",
+                    job.id().toString().substring(0, 8), lost, job.item().toStack().getItem());
+
+            // Attempt to replan from alternative supply
+            Optional<FulfillmentPlan> replan = service.replan(job, lost, view);
+            if (replan.isPresent()) {
+                FulfillmentPlan newPlan = replan.get();
+                // Cancel stale order and place a new one for the replanned amount
+                controller.cancelOrder(orderId);
+                UUID newOrderId = controller.placeOrder(
+                        job.item(), newPlan.plannedAmount(), job.destination(), job.fulfillmentMode());
+                orderToJob.remove(orderId);
+                orderToJob.put(newOrderId, job.id());
+                jobToOrder.put(job.id(), newOrderId);
+                job.transitionTo(JobState.REPLANNING);
+                job.transitionTo(JobState.ACTIVE); // back to active after successful replan
+                NetDbg.out("[Jobs] Replanned job {} | {} items from new sources",
+                        job.id().toString().substring(0, 8), newPlan.plannedAmount());
+            } else {
+                // No alternative supply: record the loss and let the job settle
+                job.recordInvalidation(lost);
+                NetDbg.out("[Jobs] Job {} cannot be replanned | lost={} state={}",
+                        job.id().toString().substring(0, 8), lost, job.state());
+            }
+        }
     }
 
     // ===== Event Handlers =====
@@ -109,6 +173,7 @@ public class JobCoordinator implements NetworkController.OrderFailureListener {
                               long amount, List<ItemVariant> missing) {
         UUID jobId = orderToJob.remove(orderId);
         if (jobId == null) return;
+        jobToOrder.remove(jobId);
         NetworkJob job = jobs.get(jobId);
         if (job == null) return;
         job.transitionTo(JobState.FAILED);
@@ -148,6 +213,7 @@ public class JobCoordinator implements NetworkController.OrderFailureListener {
             jobs.remove(id);
         }
         orderToJob.entrySet().removeIf(e -> !jobs.containsKey(e.getValue()));
+        jobToOrder.entrySet().removeIf(e -> !jobs.containsKey(e.getKey()));
     }
 
     /**
@@ -156,5 +222,6 @@ public class JobCoordinator implements NetworkController.OrderFailureListener {
     public void merge(JobCoordinator other) {
         jobs.putAll(other.jobs);
         orderToJob.putAll(other.orderToJob);
+        jobToOrder.putAll(other.jobToOrder);
     }
 }
