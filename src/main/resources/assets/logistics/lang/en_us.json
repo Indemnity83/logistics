@@ -98,7 +98,6 @@
   "screen.logistics.provider": "Items to provide",
   "screen.logistics.sink": "Basic Logistics Pipe",
   "screen.logistics.crafting": "Crafting Logistics Pipe",
-  "screen.logistics.chassis": "Chassis Logistics Pipe",
   "screen.logistics.sink.requested_items": "Requested Items",
   "gui.logistics.default_route": "Default Route:",
   "gui.logistics.mode.bulk50": "Stocked",

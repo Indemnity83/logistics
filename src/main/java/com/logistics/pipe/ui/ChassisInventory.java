@@ -15,6 +15,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.Level;
 
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.NonNullList;
+
 /**
  * Real inventory for the Chassis Logistics Pipe GUI.
  * Holds up to {@link ChassisPipe#MAX_SLOTS} module slots backed by full ItemStacks
@@ -134,6 +137,7 @@ public class ChassisInventory implements Container {
             syncStateToItem(result);
         }
         existing.shrink(removed);
+        if (existing.isEmpty()) items.set(slot, ItemStack.EMPTY);
         if (existing.isEmpty()) {
             detachModule(result);
             items.set(slot, ItemStack.EMPTY);
@@ -147,6 +151,7 @@ public class ChassisInventory implements Container {
         if (slot < 0 || slot >= items.size()) return ItemStack.EMPTY;
         ItemStack existing = items.get(slot);
         items.set(slot, ItemStack.EMPTY);
+        saveToEntity();
         return existing;
     }
 
@@ -182,7 +187,9 @@ public class ChassisInventory implements Container {
 
     @Override
     public boolean stillValid(Player player) {
-        return true;
+        if (pipeEntity == null || pipeEntity.isRemoved()) return false;
+        BlockPos pos = pipeEntity.getBlockPos();
+        return player.distanceToSqr(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5) <= 64.0;
     }
 
     @Override

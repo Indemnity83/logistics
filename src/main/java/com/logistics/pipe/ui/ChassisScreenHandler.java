@@ -38,6 +38,8 @@ public class ChassisScreenHandler extends AbstractContainerMenu {
     public ChassisScreenHandler(
             int syncId, Container playerInventory, int slotCount, PipeBlockEntity pipeEntity) {
         super(menuTypeFor(slotCount), syncId);
+        if (slotCount != 1 && slotCount != 2 && slotCount != 3 && slotCount != 4 && slotCount != 8)
+            throw new IllegalArgumentException("Invalid chassis slot count: " + slotCount);
         this.slotCount = slotCount;
         this.pipeEntity = pipeEntity;
         this.chassisInventory = new ChassisInventory(pipeEntity);
@@ -85,7 +87,7 @@ public class ChassisScreenHandler extends AbstractContainerMenu {
 
     @Override
     public boolean stillValid(Player player) {
-        return true;
+        return chassisInventory.stillValid(player);
     }
 
     @Override
