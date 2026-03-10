@@ -60,6 +60,7 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
 
         BLOCK.register();
         ENTITY.register();
+        ITEM.register();
         DATA.register();
         SCREEN.register();
         registerMarkingFluidItems();
@@ -117,7 +118,10 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
                 BLOCK.CHASSIS_LOGISTICS_PIPE_MK2,
                 BLOCK.CHASSIS_LOGISTICS_PIPE_MK3,
                 BLOCK.CHASSIS_LOGISTICS_PIPE_MK4,
-                BLOCK.CHASSIS_LOGISTICS_PIPE_MK5
+                BLOCK.CHASSIS_LOGISTICS_PIPE_MK5,
+                ITEM.BLANK_MODULE,
+                ITEM.EXTRACTOR_MODULE,
+                ITEM.ITEM_SINK_MODULE
         );
     }
 
@@ -214,6 +218,20 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
                 BLOCK.CHASSIS_LOGISTICS_PIPE_MK3,
                 BLOCK.CHASSIS_LOGISTICS_PIPE_MK4,
                 BLOCK.CHASSIS_LOGISTICS_PIPE_MK5);
+        }
+    }
+
+    public static final class ITEM {
+        private ITEM() {}
+
+        public static Item BLANK_MODULE;
+        public static Item EXTRACTOR_MODULE;
+        public static Item ITEM_SINK_MODULE;
+
+        static void register() {
+            BLANK_MODULE = INSTANCE.registerItem("blank_module", Item::new);
+            EXTRACTOR_MODULE = INSTANCE.registerItem("extractor_module", Item::new);
+            ITEM_SINK_MODULE = INSTANCE.registerItem("item_sink_module", Item::new);
         }
     }
 
