@@ -6,13 +6,13 @@
     "DRD"
   ],
   "key": {
-    "D": "minecraft:green_dye",
-    "G": "logistics:core/iron_gear",
+    "D": "minecraft:orange_dye",
+    "G": "logistics:core/bronze_gear",
     "R": "minecraft:redstone",
     "B": "logistics:pipe/blank_module"
   },
   "result": {
     "count": 1,
-    "id": "logistics:pipe/item_sink_module"
+    "id": "logistics:pipe/polymorphic_sink_module"
   }
 }

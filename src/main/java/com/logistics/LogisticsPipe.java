@@ -120,8 +120,13 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
                 BLOCK.CHASSIS_LOGISTICS_PIPE_MK4,
                 BLOCK.CHASSIS_LOGISTICS_PIPE_MK5,
                 ITEM.BLANK_MODULE,
+                ITEM.ITEM_SINK_MODULE,
+                ITEM.POLYMORPHIC_SINK_MODULE,
+                ITEM.PASSIVE_SUPPLIER_MODULE,
                 ITEM.EXTRACTOR_MODULE,
-                ITEM.ITEM_SINK_MODULE
+                ITEM.EXTRACTOR_MODULE_MKII,
+                ITEM.QUICKSORT_MODULE,
+                ITEM.TERMINUS_MODULE
         );
     }
 
@@ -225,13 +230,23 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
         private ITEM() {}
 
         public static Item BLANK_MODULE;
-        public static Item EXTRACTOR_MODULE;
         public static Item ITEM_SINK_MODULE;
+        public static Item POLYMORPHIC_SINK_MODULE;
+        public static Item PASSIVE_SUPPLIER_MODULE;
+        public static Item EXTRACTOR_MODULE;
+        public static Item EXTRACTOR_MODULE_MKII;
+        public static Item QUICKSORT_MODULE;
+        public static Item TERMINUS_MODULE;
 
         static void register() {
             BLANK_MODULE = INSTANCE.registerItem("blank_module", Item::new);
-            EXTRACTOR_MODULE = INSTANCE.registerItem("extractor_module", Item::new);
             ITEM_SINK_MODULE = INSTANCE.registerItem("item_sink_module", Item::new);
+            POLYMORPHIC_SINK_MODULE = INSTANCE.registerItem("polymorphic_sink_module", Item::new);
+            PASSIVE_SUPPLIER_MODULE = INSTANCE.registerItem("passive_supplier_module", Item::new);
+            EXTRACTOR_MODULE = INSTANCE.registerItem("extractor_module", Item::new);
+            EXTRACTOR_MODULE_MKII = INSTANCE.registerItem("extractor_module_mkii", Item::new);
+            QUICKSORT_MODULE = INSTANCE.registerItem("quicksort_module", Item::new);
+            TERMINUS_MODULE = INSTANCE.registerItem("terminus_module", Item::new);
         }
     }
 
