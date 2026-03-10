@@ -53,6 +53,15 @@ public class ChassisPipe extends Pipe {
         return maxSlots;
     }
 
+    @Override
+    public <T extends Module> T getModule(Class<T> moduleClass, PipeBlockEntity entity) {
+        PipeContext ctx = entity.createContext();
+        for (Module m : getDynamicModules(ctx)) {
+            if (moduleClass.isInstance(m)) return moduleClass.cast(m);
+        }
+        return super.getModule(moduleClass);
+    }
+
     /**
      * Returns the dynamically-installed modules for this chassis pipe.
      * Reads each slot's ItemStack from NBT; slots holding a {@link ModuleItem}

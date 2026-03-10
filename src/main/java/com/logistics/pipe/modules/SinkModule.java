@@ -67,6 +67,14 @@ public class SinkModule implements Module {
     }
 
     @Override
+    public void onDetach(PipeContext ctx) {
+        ILogisticsNetwork network = NetworkRegistry.getNetwork(ctx.world(), ctx.pos());
+        if (network != null) {
+            network.unregisterDefaultRouteSink(ctx.pos());
+        }
+    }
+
+    @Override
     public void onConnectionsChanged(PipeContext ctx, List<Direction> options) {
         List<Direction> inventoryFaces = ctx.getInventoryConnections();
         if (inventoryFaces.isEmpty()) {

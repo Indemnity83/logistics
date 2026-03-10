@@ -67,7 +67,7 @@ public class MinecraftWorldView implements IWorldView {
 
         PipeBlock block = (PipeBlock) pipeEntity.getBlockState().getBlock();
         Pipe pipe = block.getPipe();
-        return pipe.getModule(moduleClass);
+        return pipe.getModule(moduleClass, pipeEntity);
     }
 
     @Override
@@ -76,7 +76,7 @@ public class MinecraftWorldView implements IWorldView {
             return false;
         }
         PipeBlock block = (PipeBlock) pipeEntity.getBlockState().getBlock();
-        SinkModule sinkModule = block.getPipe().getModule(SinkModule.class);
+        SinkModule sinkModule = block.getPipe().getModule(SinkModule.class, pipeEntity);
         if (sinkModule == null) {
             return false;
         }

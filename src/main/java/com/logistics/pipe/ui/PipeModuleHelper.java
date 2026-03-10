@@ -33,7 +33,7 @@ public class PipeModuleHelper {
             if (world.getBlockEntity(pos) instanceof PipeBlockEntity pipeEntity) {
                 PipeBlock block = (PipeBlock) pipeEntity.getBlockState().getBlock();
                 Pipe pipe = block.getPipe();
-                T module = pipe.getModule(moduleClass);
+                T module = pipe.getModule(moduleClass, pipeEntity);
 
                 if (module != null) {
                     PipeContext ctx = pipeEntity.createContext();
@@ -60,7 +60,7 @@ public class PipeModuleHelper {
         if (pipeEntity != null) {
             PipeBlock block = (PipeBlock) pipeEntity.getBlockState().getBlock();
             Pipe pipe = block.getPipe();
-            T module = pipe.getModule(moduleClass);
+            T module = pipe.getModule(moduleClass, pipeEntity);
 
             if (module != null) {
                 PipeContext ctx = pipeEntity.createContext();

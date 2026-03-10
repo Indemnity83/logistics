@@ -348,6 +348,14 @@ public class ProviderModule implements Module {
     }
 
     @Override
+    public void onDetach(PipeContext ctx) {
+        ILogisticsNetwork network = NetworkRegistry.getOrCreateNetwork(ctx.world(), ctx.pos());
+        if (network != null) {
+            network.registerSupply(ctx.pos(), new HashMap<>(), SUPPLY_PRIORITY);
+        }
+    }
+
+    @Override
     public InteractionResult onWrench(PipeContext ctx, net.minecraft.world.entity.player.Player player) {
         if (ctx.world().isClientSide()) return InteractionResult.SUCCESS;
         if (!(player instanceof ServerPlayer serverPlayer)) return InteractionResult.PASS;

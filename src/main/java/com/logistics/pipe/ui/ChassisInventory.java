@@ -47,6 +47,15 @@ public class ChassisInventory implements Container {
         }
     }
 
+    /** Call the module's onDetach lifecycle hook so it can clean up network registrations. */
+    private void detachModule(ItemStack stack) {
+        if (pipeEntity == null) return;
+        Level level = pipeEntity.getLevel();
+        if (level == null || level.isClientSide()) return;
+        if (!(stack.getItem() instanceof ModuleItem moduleItem)) return;
+        moduleItem.createModule().onDetach(pipeEntity.createContext());
+    }
+
     /** Before returning a module item, copy the block entity module state → item's CustomData. */
     private void syncStateToItem(ItemStack stack) {
         if (!(stack.getItem() instanceof ModuleItem moduleItem)) return;
@@ -125,7 +134,10 @@ public class ChassisInventory implements Container {
             syncStateToItem(result);
         }
         existing.shrink(removed);
-        if (existing.isEmpty()) items.set(slot, ItemStack.EMPTY);
+        if (existing.isEmpty()) {
+            detachModule(result);
+            items.set(slot, ItemStack.EMPTY);
+        }
         saveToEntity();
         return result;
     }
@@ -141,6 +153,10 @@ public class ChassisInventory implements Container {
     @Override
     public void setItem(int slot, ItemStack stack) {
         if (slot < 0 || slot >= items.size()) return;
+        ItemStack previous = items.get(slot);
+        if (!previous.isEmpty() && (stack.isEmpty() || !ItemStack.isSameItem(previous, stack))) {
+            detachModule(previous);
+        }
         items.set(slot, stack);
         if (!stack.isEmpty() && pipeEntity != null) {
             syncStateFromItem(stack);
@@ -160,6 +176,9 @@ public class ChassisInventory implements Container {
 
     @Override
     public void clearContent() {
+        for (ItemStack stack : items) {
+            detachModule(stack);
+        }
         for (int i = 0; i < items.size(); i++) {
             items.set(i, ItemStack.EMPTY);
         }
