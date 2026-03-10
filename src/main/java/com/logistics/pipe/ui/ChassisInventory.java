@@ -10,6 +10,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
 
 /**
@@ -96,6 +97,7 @@ public class ChassisInventory implements Container {
         if (slot < 0 || slot >= items.size()) return ItemStack.EMPTY;
         ItemStack existing = items.get(slot);
         items.set(slot, ItemStack.EMPTY);
+        saveToEntity();
         return existing;
     }
 
@@ -113,7 +115,9 @@ public class ChassisInventory implements Container {
 
     @Override
     public boolean stillValid(Player player) {
-        return true;
+        if (pipeEntity == null || pipeEntity.isRemoved()) return false;
+        BlockPos pos = pipeEntity.getBlockPos();
+        return player.distanceToSqr(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5) <= 64.0;
     }
 
     @Override

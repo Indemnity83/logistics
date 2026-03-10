@@ -6,7 +6,7 @@
     "N N"
   ],
   "key": {
-    "N": "minecraft:netherite_ingot",
+    "N": "#c:ingots/netherite",
     "B": "logistics:pipe/basic_logistics_pipe"
   },
   "result": {

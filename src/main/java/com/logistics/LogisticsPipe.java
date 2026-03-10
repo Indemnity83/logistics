@@ -287,7 +287,8 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
                 case 2 -> CHASSIS_MK2;
                 case 3 -> CHASSIS_MK3;
                 case 4 -> CHASSIS_MK4;
-                default -> CHASSIS_MK5;
+                case 8 -> CHASSIS_MK5;
+                default -> throw new IllegalArgumentException("Invalid chassis slot count: " + slotCount);
             };
         }
 
