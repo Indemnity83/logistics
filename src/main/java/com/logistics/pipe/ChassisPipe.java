@@ -59,22 +59,6 @@ public class ChassisPipe extends Pipe {
     }
 
     // -------------------------------------------------------------------------
-    // Slot data helpers — store module item IDs in module state
-    // -------------------------------------------------------------------------
-
-    public static String getSlotItem(PipeContext ctx, int slot) {
-        return ctx.moduleState(STATE_KEY).getString(String.valueOf(slot)).orElse("");
-    }
-
-    public static void setSlotItem(PipeContext ctx, int slot, String itemId) {
-        if (itemId.isEmpty()) {
-            ctx.moduleState(STATE_KEY).remove(String.valueOf(slot));
-        } else {
-            ctx.moduleState(STATE_KEY).putString(String.valueOf(slot), itemId);
-        }
-        ctx.markDirtyAndSync();
-    }
-
     // -------------------------------------------------------------------------
     // Routing / ticking — dynamic modules run BEFORE fixed modules
     // -------------------------------------------------------------------------

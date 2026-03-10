@@ -1,49 +1,66 @@
 package com.logistics.pipe.ui;
 
-import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.pipe.ChassisPipe;
-import com.logistics.pipe.block.PipeBlock;
+import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
-import net.minecraft.core.NonNullList;
-import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.Tag;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+
+import net.minecraft.core.NonNullList;
 
 /**
- * Inventory for the Chassis Logistics Pipe GUI.
- * Holds up to {@link ChassisPipe#MAX_SLOTS} ghost module slots, backed by item ID strings
- * stored in the pipe block entity's module state.
+ * Real inventory for the Chassis Logistics Pipe GUI.
+ * Holds up to {@link ChassisPipe#MAX_SLOTS} module slots backed by full ItemStacks
+ * persisted in the pipe block entity's module state.
  */
 public class ChassisInventory implements Container {
     private final NonNullList<ItemStack> items =
             NonNullList.withSize(ChassisPipe.MAX_SLOTS, ItemStack.EMPTY);
+    private final PipeBlockEntity pipeEntity;
 
     public ChassisInventory(PipeBlockEntity pipeEntity) {
+        this.pipeEntity = pipeEntity;
         if (pipeEntity != null) {
-            loadFromEntity(pipeEntity);
+            loadFromEntity();
         }
     }
 
-    private void loadFromEntity(PipeBlockEntity pipeEntity) {
-        if (!(pipeEntity.getBlockState().getBlock() instanceof PipeBlock pb)
-                || !(pb.getPipe() instanceof ChassisPipe)) {
-            return;
-        }
-
-        var ctx = pipeEntity.createContext();
+    private void loadFromEntity() {
+        PipeContext ctx = pipeEntity.createContext();
+        var state = ctx.moduleState(ChassisPipe.STATE_KEY);
         for (int slot = 0; slot < ChassisPipe.MAX_SLOTS; slot++) {
-            String itemId = ChassisPipe.getSlotItem(ctx, slot);
-            if (itemId.isEmpty()) continue;
-
-            ResourceId rid = ResourceId.tryParse(itemId);
-            if (rid == null) continue;
-
-            var holder = BuiltInRegistries.ITEM.get(rid.toIdentifier());
-            if (holder.isEmpty()) continue;
-
-            items.set(slot, new ItemStack(holder.get().value()));
+            final int s = slot;
+            Tag tag = state.get(String.valueOf(slot));
+            if (tag != null) {
+                ItemStack.CODEC.parse(NbtOps.INSTANCE, tag).result()
+                        .ifPresent(stack -> items.set(s, stack));
+            }
         }
+    }
+
+    private void saveToEntity() {
+        if (pipeEntity == null) return;
+        Level level = pipeEntity.getLevel();
+        if (level == null || level.isClientSide()) return;
+
+        PipeContext ctx = pipeEntity.createContext();
+        var state = ctx.moduleState(ChassisPipe.STATE_KEY);
+        for (int slot = 0; slot < ChassisPipe.MAX_SLOTS; slot++) {
+            String key = String.valueOf(slot);
+            ItemStack stack = items.get(slot);
+            if (stack.isEmpty()) {
+                state.remove(key);
+            } else {
+                final String k = key;
+                ItemStack.CODEC.encodeStart(NbtOps.INSTANCE, stack).result()
+                        .ifPresent(tag -> state.put(k, tag));
+            }
+        }
+        ctx.markDirtyAndSync();
     }
 
     @Override
@@ -63,23 +80,36 @@ public class ChassisInventory implements Container {
 
     @Override
     public ItemStack removeItem(int slot, int amount) {
-        return ItemStack.EMPTY;
+        if (slot < 0 || slot >= items.size()) return ItemStack.EMPTY;
+        ItemStack existing = items.get(slot);
+        if (existing.isEmpty()) return ItemStack.EMPTY;
+        int removed = Math.min(amount, existing.getCount());
+        ItemStack result = existing.copyWithCount(removed);
+        existing.shrink(removed);
+        if (existing.isEmpty()) items.set(slot, ItemStack.EMPTY);
+        saveToEntity();
+        return result;
     }
 
     @Override
     public ItemStack removeItemNoUpdate(int slot) {
-        return ItemStack.EMPTY;
+        if (slot < 0 || slot >= items.size()) return ItemStack.EMPTY;
+        ItemStack existing = items.get(slot);
+        items.set(slot, ItemStack.EMPTY);
+        return existing;
     }
 
     @Override
     public void setItem(int slot, ItemStack stack) {
-        if (slot >= 0 && slot < items.size()) {
-            items.set(slot, stack);
-        }
+        if (slot < 0 || slot >= items.size()) return;
+        items.set(slot, stack);
+        saveToEntity();
     }
 
     @Override
-    public void setChanged() {}
+    public void setChanged() {
+        saveToEntity();
+    }
 
     @Override
     public boolean stillValid(Player player) {
@@ -91,5 +121,6 @@ public class ChassisInventory implements Container {
         for (int i = 0; i < items.size(); i++) {
             items.set(i, ItemStack.EMPTY);
         }
+        saveToEntity();
     }
 }
