@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "logistics:block/pipe/chassis_logistics_pipe_mk3_core"
+    }
+  }
+}

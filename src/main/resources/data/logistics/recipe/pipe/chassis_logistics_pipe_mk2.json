@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "BBB",
+    "BCB",
+    "BBB"
+  ],
+  "key": {
+    "B": "#c:ingots/bronze",
+    "C": "logistics:pipe/basic_logistics_pipe"
+  },
+  "result": {
+    "count": 1,
+    "id": "logistics:pipe/chassis_logistics_pipe_mk2"
+  }
+}

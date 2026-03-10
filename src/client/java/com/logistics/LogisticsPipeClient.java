@@ -47,6 +47,11 @@ public final class LogisticsPipeClient implements DomainBootstrap {
         MenuScreens.register(LogisticsPipe.SCREEN.PROVIDER, com.logistics.pipe.screen.ProviderScreen::new);
         MenuScreens.register(LogisticsPipe.SCREEN.SINK, com.logistics.pipe.screen.SinkScreen::new);
         MenuScreens.register(LogisticsPipe.SCREEN.CRAFTING, com.logistics.pipe.screen.CraftingScreen::new);
+        MenuScreens.register(LogisticsPipe.SCREEN.CHASSIS_MK1, com.logistics.pipe.screen.ChassisScreen::new);
+        MenuScreens.register(LogisticsPipe.SCREEN.CHASSIS_MK2, com.logistics.pipe.screen.ChassisScreen::new);
+        MenuScreens.register(LogisticsPipe.SCREEN.CHASSIS_MK3, com.logistics.pipe.screen.ChassisScreen::new);
+        MenuScreens.register(LogisticsPipe.SCREEN.CHASSIS_MK4, com.logistics.pipe.screen.ChassisScreen::new);
+        MenuScreens.register(LogisticsPipe.SCREEN.CHASSIS_MK5, com.logistics.pipe.screen.ChassisScreen::new);
 
         registerPacketReceivers();
     }
@@ -138,6 +143,21 @@ public final class LogisticsPipeClient implements DomainBootstrap {
             registerModel("crafting_logistics_pipe_arm");
             registerModel("crafting_logistics_pipe_arm_extended");
             registerModel("crafting_logistics_pipe_feature_extended");
+            registerModel("chassis_logistics_pipe_mk1_core");
+            registerModel("chassis_logistics_pipe_mk1_arm");
+            registerModel("chassis_logistics_pipe_mk1_arm_extended");
+            registerModel("chassis_logistics_pipe_mk2_core");
+            registerModel("chassis_logistics_pipe_mk2_arm");
+            registerModel("chassis_logistics_pipe_mk2_arm_extended");
+            registerModel("chassis_logistics_pipe_mk3_core");
+            registerModel("chassis_logistics_pipe_mk3_arm");
+            registerModel("chassis_logistics_pipe_mk3_arm_extended");
+            registerModel("chassis_logistics_pipe_mk4_core");
+            registerModel("chassis_logistics_pipe_mk4_arm");
+            registerModel("chassis_logistics_pipe_mk4_arm_extended");
+            registerModel("chassis_logistics_pipe_mk5_core");
+            registerModel("chassis_logistics_pipe_mk5_arm");
+            registerModel("chassis_logistics_pipe_mk5_arm_extended");
         }
 
         private static final Map<ResourceId, ExtraModelKey<BlockStateModel>> MODEL_LOOKUP = Map.copyOf(TEMP_LOOKUP);
