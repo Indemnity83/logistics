@@ -74,6 +74,30 @@ public final class PipeTypes {
             .withEnergy();
 
     // -----------------
+    // Tier 3 (Chassis)
+    // -----------------
+
+    // Chassis Logistics Pipe MkI - 1 module slot.
+    public static final ChassisPipe CHASSIS_LOGISTICS_PIPE_MK1 =
+            new ChassisPipe(1, new NetworkRouterModule());
+
+    // Chassis Logistics Pipe MkII - 2 module slots.
+    public static final ChassisPipe CHASSIS_LOGISTICS_PIPE_MK2 =
+            new ChassisPipe(2, new NetworkRouterModule());
+
+    // Chassis Logistics Pipe MkIII - 3 module slots.
+    public static final ChassisPipe CHASSIS_LOGISTICS_PIPE_MK3 =
+            new ChassisPipe(3, new NetworkRouterModule());
+
+    // Chassis Logistics Pipe MkIV - 4 module slots.
+    public static final ChassisPipe CHASSIS_LOGISTICS_PIPE_MK4 =
+            new ChassisPipe(4, new NetworkRouterModule());
+
+    // Chassis Logistics Pipe MkV - 8 module slots.
+    public static final ChassisPipe CHASSIS_LOGISTICS_PIPE_MK5 =
+            new ChassisPipe(8, new NetworkRouterModule());
+
+    // -----------------
     // Special
     // -----------------
 
