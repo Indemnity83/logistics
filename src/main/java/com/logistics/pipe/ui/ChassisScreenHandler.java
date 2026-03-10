@@ -8,6 +8,7 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Screen handler for the Chassis Logistics Pipe GUI.
@@ -26,6 +27,7 @@ public class ChassisScreenHandler extends AbstractContainerMenu {
 
     private final int slotCount;
     private final ChassisInventory chassisInventory;
+    @Nullable private final PipeBlockEntity pipeEntity;
 
     /** Client-side constructor — called by the MenuType factory. */
     public ChassisScreenHandler(int syncId, Container playerInventory, int slotCount) {
@@ -37,10 +39,17 @@ public class ChassisScreenHandler extends AbstractContainerMenu {
             int syncId, Container playerInventory, int slotCount, PipeBlockEntity pipeEntity) {
         super(menuTypeFor(slotCount), syncId);
         this.slotCount = slotCount;
+        this.pipeEntity = pipeEntity;
         this.chassisInventory = new ChassisInventory(pipeEntity);
 
         addChassisSlots();
         addPlayerInventorySlots(playerInventory);
+    }
+
+    /** Returns the backing pipe entity; non-null only on the server side. */
+    @Nullable
+    public PipeBlockEntity getPipeEntity() {
+        return pipeEntity;
     }
 
     /** Returns the MenuType registered for the given active slot count. */

@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "DGD",
+    "RBR",
+    "DRD"
+  ],
+  "key": {
+    "D": "minecraft:cyan_dye",
+    "G": "logistics:core/bronze_gear",
+    "R": "minecraft:redstone",
+    "B": "logistics:pipe/blank_module"
+  },
+  "result": {
+    "count": 1,
+    "id": "logistics:pipe/provider_module"
+  }
+}

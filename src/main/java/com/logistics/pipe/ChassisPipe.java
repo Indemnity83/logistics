@@ -2,6 +2,7 @@ package com.logistics.pipe;
 
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
+import com.logistics.pipe.item.ModuleItem;
 import com.logistics.pipe.modules.Module;
 import com.logistics.pipe.runtime.RoutePlan;
 import com.logistics.pipe.runtime.TravelingItem;
@@ -9,6 +10,8 @@ import com.logistics.pipe.ui.ChassisScreenHandler;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.SimpleMenuProvider;
@@ -52,10 +55,22 @@ public class ChassisPipe extends Pipe {
 
     /**
      * Returns the dynamically-installed modules for this chassis pipe.
-     * Currently a stub — returns empty until the module item registry is implemented.
+     * Reads each slot's ItemStack from NBT; slots holding a {@link ModuleItem}
+     * contribute an active module instance.
      */
     protected List<Module> getDynamicModules(PipeContext ctx) {
-        return List.of();
+        List<Module> modules = new ArrayList<>();
+        var state = ctx.moduleState(STATE_KEY);
+        for (int slot = 0; slot < maxSlots; slot++) {
+            Tag tag = state.get(String.valueOf(slot));
+            if (tag == null) continue;
+            ItemStack.CODEC.parse(NbtOps.INSTANCE, tag).result()
+                    .map(ItemStack::getItem)
+                    .filter(item -> item instanceof ModuleItem)
+                    .map(item -> ((ModuleItem) item).createModule())
+                    .ifPresent(modules::add);
+        }
+        return modules;
     }
 
     // -------------------------------------------------------------------------

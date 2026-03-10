@@ -29,6 +29,7 @@
   "item.logistics.pipe.item_sink_module": "ItemSink Module",
   "item.logistics.pipe.polymorphic_sink_module": "Polymorphic ItemSink Module",
   "item.logistics.pipe.passive_supplier_module": "Passive Supplier Module",
+  "item.logistics.pipe.provider_module": "Provider Module",
   "item.logistics.pipe.extractor_module": "Extractor Module",
   "item.logistics.pipe.extractor_module_mkii": "Extractor MkII Module",
   "item.logistics.pipe.quicksort_module": "QuickSort Module",

@@ -12,6 +12,8 @@ import com.logistics.pipe.block.PipeBlock;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.pipe.data.PipeDataComponents.WeatheringState;
 import com.logistics.pipe.item.ModularPipeBlockItem;
+import com.logistics.pipe.item.ModuleItem;
+import com.logistics.pipe.modules.ProviderModule;
 import com.logistics.pipe.ui.ItemFilterScreenHandler;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.Registry;
@@ -75,6 +77,7 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
     private static void registerNetworkPackets() {
         com.logistics.pipe.network.RequestItemPacket.register();
         com.logistics.pipe.network.SyncRequesterInventoryPacket.register();
+        com.logistics.pipe.network.OpenChassisSlotPacket.register();
     }
 
     private static void addCreativeTabEntries() {
@@ -123,6 +126,7 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
                 ITEM.ITEM_SINK_MODULE,
                 ITEM.POLYMORPHIC_SINK_MODULE,
                 ITEM.PASSIVE_SUPPLIER_MODULE,
+                ITEM.PROVIDER_MODULE,
                 ITEM.EXTRACTOR_MODULE,
                 ITEM.EXTRACTOR_MODULE_MKII,
                 ITEM.QUICKSORT_MODULE,
@@ -233,6 +237,7 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
         public static Item ITEM_SINK_MODULE;
         public static Item POLYMORPHIC_SINK_MODULE;
         public static Item PASSIVE_SUPPLIER_MODULE;
+        public static Item PROVIDER_MODULE;
         public static Item EXTRACTOR_MODULE;
         public static Item EXTRACTOR_MODULE_MKII;
         public static Item QUICKSORT_MODULE;
@@ -243,6 +248,8 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
             ITEM_SINK_MODULE = INSTANCE.registerItem("item_sink_module", Item::new);
             POLYMORPHIC_SINK_MODULE = INSTANCE.registerItem("polymorphic_sink_module", Item::new);
             PASSIVE_SUPPLIER_MODULE = INSTANCE.registerItem("passive_supplier_module", Item::new);
+            PROVIDER_MODULE = INSTANCE.registerItem("provider_module",
+                    props -> new ModuleItem(props, ProviderModule::new));
             EXTRACTOR_MODULE = INSTANCE.registerItem("extractor_module", Item::new);
             EXTRACTOR_MODULE_MKII = INSTANCE.registerItem("extractor_module_mkii", Item::new);
             QUICKSORT_MODULE = INSTANCE.registerItem("quicksort_module", Item::new);
