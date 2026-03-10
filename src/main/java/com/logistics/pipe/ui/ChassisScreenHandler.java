@@ -1,22 +1,18 @@
 package com.logistics.pipe.ui;
 
 import com.logistics.LogisticsPipe;
-import com.logistics.pipe.ChassisPipe;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.ClickType;
-import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
 /**
  * Screen handler for the Chassis Logistics Pipe GUI.
- * Dynamically creates 1, 2, 3, 4, or 8 ghost module slots depending on the chassis mark.
- * Slot positions are centered in a row (or two rows for 8 slots).
+ * Dynamically creates 1, 2, 3, 4, or 8 module slots depending on the chassis mark.
+ * Each slot holds exactly one module item (real inventory, not ghost).
  */
 public class ChassisScreenHandler extends AbstractContainerMenu {
     private static final int SLOT_SIZE = 18;
@@ -24,9 +20,12 @@ public class ChassisScreenHandler extends AbstractContainerMenu {
     private static final int PLAYER_INV_START_Y = 102;
     private static final int HOTBAR_Y = 160;
 
+    // Two columns of 4 slots: left at x=26, right at x=106, 18px apart vertically
+    private static final int[] SLOT_X = {26, 26, 26, 26, 106, 106, 106, 106};
+    private static final int[] SLOT_Y = {18, 36, 54, 72,  18,  36,  54,  72};
+
     private final int slotCount;
     private final ChassisInventory chassisInventory;
-    private final ContainerLevelAccess context;
 
     /** Client-side constructor — called by the MenuType factory. */
     public ChassisScreenHandler(int syncId, Container playerInventory, int slotCount) {
@@ -39,9 +38,6 @@ public class ChassisScreenHandler extends AbstractContainerMenu {
         super(menuTypeFor(slotCount), syncId);
         this.slotCount = slotCount;
         this.chassisInventory = new ChassisInventory(pipeEntity);
-        this.context = pipeEntity != null
-                ? ContainerLevelAccess.create(pipeEntity.getLevel(), pipeEntity.getBlockPos())
-                : ContainerLevelAccess.NULL;
 
         addChassisSlots();
         addPlayerInventorySlots(playerInventory);
@@ -56,10 +52,6 @@ public class ChassisScreenHandler extends AbstractContainerMenu {
     public int getSlotCount() {
         return slotCount;
     }
-
-    // Slot positions: two columns of 4, left column at x=26, right column at x=106, y spacing of 18px
-    private static final int[] SLOT_X = {26, 26, 26, 26, 106, 106, 106, 106};
-    private static final int[] SLOT_Y = {18, 36, 54, 72,  18,  36,  54,  72};
 
     private void addChassisSlots() {
         for (int i = 0; i < slotCount; i++) {
@@ -88,63 +80,19 @@ public class ChassisScreenHandler extends AbstractContainerMenu {
     }
 
     @Override
-    public void clicked(int slotIndex, int button, ClickType actionType, Player player) {
-        if (slotIndex >= 0 && slotIndex < slotCount) {
-            // Ghost slot interaction for chassis module slots
-            if (actionType == ClickType.QUICK_MOVE) {
-                return;
-            }
-
-            if (button == 1) {
-                // Right-click: clear slot
-                chassisInventory.setItem(slotIndex, ItemStack.EMPTY);
-                context.execute((world, pos) -> {
-                    if (world.getBlockEntity(pos) instanceof PipeBlockEntity pe) {
-                        ChassisPipe.setSlotItem(pe.createContext(), slotIndex, "");
-                    }
-                });
-                broadcastChanges();
-                return;
-            }
-
-            ItemStack cursor = getCarried();
-            if (cursor.isEmpty()) {
-                return;
-            }
-
-            // Left-click with item: set module slot
-            String itemId = BuiltInRegistries.ITEM.getKey(cursor.getItem()).toString();
-            chassisInventory.setItem(slotIndex, cursor.copyWithCount(1));
-            context.execute((world, pos) -> {
-                if (world.getBlockEntity(pos) instanceof PipeBlockEntity pe) {
-                    ChassisPipe.setSlotItem(pe.createContext(), slotIndex, itemId);
-                }
-            });
-            broadcastChanges();
-            return;
-        }
-
-        super.clicked(slotIndex, button, actionType, player);
-    }
-
-    @Override
     public ItemStack quickMoveStack(Player player, int slot) {
         return ItemStack.EMPTY;
     }
 
+    /** Module slots: accept any item, limit to one per slot. */
     private static class ChassisSlot extends Slot {
         ChassisSlot(Container inventory, int index, int x, int y) {
             super(inventory, index, x, y);
         }
 
         @Override
-        public boolean mayPlace(ItemStack stack) {
-            return false;
-        }
-
-        @Override
-        public boolean mayPickup(Player player) {
-            return false;
+        public int getMaxStackSize() {
+            return 1;
         }
     }
 }
