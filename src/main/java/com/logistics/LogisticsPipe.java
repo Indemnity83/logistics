@@ -13,6 +13,7 @@ import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.pipe.data.PipeDataComponents.WeatheringState;
 import com.logistics.pipe.item.ModularPipeBlockItem;
 import com.logistics.pipe.item.ModuleItem;
+import com.logistics.pipe.modules.PolymorphicSinkModule;
 import com.logistics.pipe.modules.ProviderModule;
 import com.logistics.pipe.modules.SinkModule;
 import com.logistics.pipe.ui.ItemFilterScreenHandler;
@@ -248,7 +249,8 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
             BLANK_MODULE = INSTANCE.registerItem("blank_module", Item::new);
             ITEM_SINK_MODULE = INSTANCE.registerItem("item_sink_module",
                     props -> new ModuleItem(props, SinkModule::new));
-            POLYMORPHIC_SINK_MODULE = INSTANCE.registerItem("polymorphic_sink_module", Item::new);
+            POLYMORPHIC_SINK_MODULE = INSTANCE.registerItem("polymorphic_sink_module",
+                    props -> new ModuleItem(props, PolymorphicSinkModule::new));
             PASSIVE_SUPPLIER_MODULE = INSTANCE.registerItem("passive_supplier_module", Item::new);
             PROVIDER_MODULE = INSTANCE.registerItem("provider_module",
                     props -> new ModuleItem(props, ProviderModule::new));

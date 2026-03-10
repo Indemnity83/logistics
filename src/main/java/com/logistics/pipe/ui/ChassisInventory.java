@@ -162,6 +162,17 @@ public class ChassisInventory implements Container {
             syncStateFromItem(stack);
         }
         saveToEntity();
+
+        // When inserting a module, force onConnectionsChanged to re-fire on the next tick.
+        // The module was just saved, but the connection cache is already clean (no physical
+        // neighbor change occurred), so without this the new module's sinkDirection stays null.
+        if (!stack.isEmpty() && pipeEntity != null) {
+            Level level = pipeEntity.getLevel();
+            if (level != null && !level.isClientSide()) {
+                pipeEntity.setLastConnectionsMask(-1);
+                pipeEntity.invalidateConnectionCache();
+            }
+        }
     }
 
     @Override
