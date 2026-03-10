@@ -13,6 +13,7 @@ import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.pipe.data.PipeDataComponents.WeatheringState;
 import com.logistics.pipe.item.ModularPipeBlockItem;
 import com.logistics.pipe.item.ModuleItem;
+import com.logistics.pipe.modules.BasicExtractorModule;
 import com.logistics.pipe.modules.PolymorphicSinkModule;
 import com.logistics.pipe.modules.ProviderModule;
 import com.logistics.pipe.modules.SinkModule;
@@ -254,8 +255,10 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
             PASSIVE_SUPPLIER_MODULE = INSTANCE.registerItem("passive_supplier_module", Item::new);
             PROVIDER_MODULE = INSTANCE.registerItem("provider_module",
                     props -> new ModuleItem(props, ProviderModule::new));
-            EXTRACTOR_MODULE = INSTANCE.registerItem("extractor_module", Item::new);
-            EXTRACTOR_MODULE_MKII = INSTANCE.registerItem("extractor_module_mkii", Item::new);
+            EXTRACTOR_MODULE = INSTANCE.registerItem("extractor_module",
+                    props -> new ModuleItem(props, () -> new BasicExtractorModule(1, 100)));
+            EXTRACTOR_MODULE_MKII = INSTANCE.registerItem("extractor_module_mkii",
+                    props -> new ModuleItem(props, () -> new BasicExtractorModule(1, 20)));
             QUICKSORT_MODULE = INSTANCE.registerItem("quicksort_module", Item::new);
             TERMINUS_MODULE = INSTANCE.registerItem("terminus_module", Item::new);
         }
