@@ -9,7 +9,6 @@ import com.logistics.pipe.modules.AdvancedExtractorModule;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.Container;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.List;
@@ -87,15 +86,14 @@ public class AdvancedExtractorFilterInventory implements Container {
         PipeContext ctx = pipeEntity.createContext();
         List<String> filterItems = module.getFilterItems(ctx);
 
-        int slotIndex = 0;
-        for (String itemId : filterItems) {
-            if (slotIndex >= FILTER_SLOT_COUNT) break;
+        for (int i = 0; i < filterItems.size() && i < FILTER_SLOT_COUNT; i++) {
+            String itemId = filterItems.get(i);
+            if (itemId.isEmpty()) continue;
             ResourceId resourceId = ResourceId.tryParse(itemId);
             if (resourceId == null) continue;
             var itemHolder = BuiltInRegistries.ITEM.get(resourceId.toIdentifier());
             if (itemHolder.isEmpty()) continue;
-            Item item = itemHolder.get().value();
-            stacks.set(slotIndex++, new ItemStack(item));
+            stacks.set(i, new ItemStack(itemHolder.get().value()));
         }
     }
 

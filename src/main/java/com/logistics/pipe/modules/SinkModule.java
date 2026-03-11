@@ -44,7 +44,6 @@ public class SinkModule implements Module {
     private static final String TICKS_SINCE_SYNC = "ticks_since_sync";
     private static final int SYNC_INTERVAL = 20; // Re-register with network every second to recover from splits
     public static final int MAX_FILTER_SLOTS = 9;
-    public static final int DEFAULT_ROUTE_PRIORITY = 0;
 
     private final int priority;
 
@@ -80,7 +79,7 @@ public class SinkModule implements Module {
                         network.registerSinkInterest(ctx.pos(), holder.value()));
             }
             if (isDefaultRoute(ctx)) {
-                network.registerDefaultRouteSink(ctx.pos(), DEFAULT_ROUTE_PRIORITY);
+                network.registerDefaultRouteSink(ctx.pos());
                 network.registerGenericSinkInterest(ctx.pos());
             }
         }
@@ -283,7 +282,7 @@ public class SinkModule implements Module {
             ILogisticsNetwork network = NetworkRegistry.getNetwork(ctx.world(), ctx.pos());
             if (network != null) {
                 if (enabled) {
-                    network.registerDefaultRouteSink(ctx.pos(), DEFAULT_ROUTE_PRIORITY);
+                    network.registerDefaultRouteSink(ctx.pos());
                     network.registerGenericSinkInterest(ctx.pos());
                     NetDbg.out("[Sink @ {}] Default route enabled and registered with network", ctx.pos());
                 } else {

@@ -56,13 +56,12 @@ public class AdvancedExtractorModule implements Module {
 
     // ==================== Filter Configuration ====================
 
-    /** Returns the non-empty filter item IDs in slot order. */
+    /** Returns filter item IDs in slot order; empty string means the slot is empty. */
     public List<String> getFilterItems(PipeContext ctx) {
         CompoundTag tag = ctx.getCompoundTag(this, FILTER_ITEMS);
-        List<String> items = new ArrayList<>();
+        List<String> items = new ArrayList<>(MAX_FILTER_SLOTS);
         for (int i = 0; i < MAX_FILTER_SLOTS; i++) {
-            String itemId = NbtCompat.getString(tag, String.valueOf(i), "");
-            if (!itemId.isEmpty()) items.add(itemId);
+            items.add(NbtCompat.getString(tag, String.valueOf(i), ""));
         }
         return items;
     }
@@ -96,7 +95,8 @@ public class AdvancedExtractorModule implements Module {
      */
     private boolean isFilteredOut(PipeContext ctx, ItemStack stack) {
         List<String> filterItems = getFilterItems(ctx);
-        if (filterItems.isEmpty()) return false;
+        boolean hasFilter = filterItems.stream().anyMatch(s -> !s.isEmpty());
+        if (!hasFilter) return false;
         String itemId = BuiltInRegistries.ITEM.getKey(stack.getItem()).toString();
         boolean itemInFilter = filterItems.contains(itemId);
         return isFilterInverted(ctx) == itemInFilter;

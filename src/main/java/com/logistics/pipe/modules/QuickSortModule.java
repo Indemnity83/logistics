@@ -139,6 +139,11 @@ public class QuickSortModule implements Module {
                 // Success: clear stall, record last successful slot
                 ctx.saveInt(this, STALLED, 0);
                 ctx.saveInt(this, LAST_SUCCESS_SLOT, candidate);
+            } else {
+                // Slot appeared non-empty but extraction failed (temporarily locked) —
+                // advance past it and back off to the stall delay
+                ctx.saveInt(this, LAST_SLOT_SCANNED, (candidate + 1) % size);
+                ctx.saveInt(this, STALLED, 1);
             }
         }
     }
