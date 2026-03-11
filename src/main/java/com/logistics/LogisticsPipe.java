@@ -288,7 +288,7 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
             PROVIDER_MODULE = INSTANCE.registerItem("provider_module",
                     props -> new ModuleItem(props, () -> new ProviderModule(8, 1)));
             PROVIDER_MODULE_MKII = INSTANCE.registerItem("provider_mkii_module",
-                    props -> new ModuleItem(props, () -> new Module() {}));
+                    props -> new ModuleItem(props, () -> new ProviderModule(128, 8)));
             EXTRACTOR_MODULE = INSTANCE.registerItem("extractor_module",
                     props -> new ModuleItem(props, () -> new BasicExtractorModule(1, 100)));
             EXTRACTOR_MODULE_MKII = INSTANCE.registerItem("extractor_module_mkii",

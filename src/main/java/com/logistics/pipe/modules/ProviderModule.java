@@ -70,8 +70,8 @@ public class ProviderModule implements Module {
     private static final int MAX_FILTER_SLOTS = 9;
     private static final int SUPPLY_PRIORITY = 1;      // Real stock; lower = preferred
 
-    private final int itemsPerAction;
-    private final int stacksPerAction;
+    private final int itemLimit;
+    private final int stackLimit;
 
     /**
      * Provider modes control which items are available for extraction.
@@ -104,9 +104,9 @@ public class ProviderModule implements Module {
         public String getTranslationKey() { return translationKey; }
     }
 
-    public ProviderModule(int itemsPerAction, int stacksPerAction) {
-        this.itemsPerAction = itemsPerAction;
-        this.stacksPerAction = stacksPerAction;
+    public ProviderModule(int itemLimit, int stackLimit) {
+        this.itemLimit = itemLimit;
+        this.stackLimit = stackLimit;
     }
 
     // ==================== Mode Configuration ====================
@@ -223,9 +223,14 @@ public class ProviderModule implements Module {
     }
 
     /**
-     * Drain up to {@code stacksPerAction} batches from the dispatch queue head, extracting
-     * up to {@code itemsPerAction} items per batch and injecting each as a TravelingItem.
-     * Called every {@code SCAN_INTERVAL} ticks (same cadence as the supply scan).
+     * Drain the dispatch queue head using dual simultaneous caps:
+     * <ul>
+     *   <li>{@code itemLimit} — total items budget across all stacks this cycle</li>
+     *   <li>{@code stackLimit} — max number of TravelingItems (stacks) injected this cycle</li>
+     * </ul>
+     * Each iteration extracts one stack (up to {@code itemsLeft} items), injects a TravelingItem,
+     * then decrements both {@code itemsLeft} and {@code stacksLeft}. The loop stops as soon as
+     * either limit is exhausted or the queue is empty.
      */
     private void processDispatchQueue(PipeContext ctx) {
         ProviderDispatchQueue queue = loadQueue(ctx);
@@ -241,12 +246,14 @@ public class ProviderModule implements Module {
         ItemVariant item = ItemVariant.of(new ItemStack(holder.get().value()));
 
         ProviderMode mode = getMode(ctx);
+        long itemsLeft = itemLimit;
+        int stacksLeft = stackLimit;
 
-        for (int i = 0; i < stacksPerAction; i++) {
+        while (itemsLeft > 0 && stacksLeft > 0) {
             head = queue.peekHead();
             if (head == null) break;
 
-            long toExtract = Math.min(head.remaining(), itemsPerAction);
+            long toExtract = Math.min(head.remaining(), itemsLeft);
             long extracted = 0;
             Direction extractDir = null;
 
@@ -274,6 +281,8 @@ public class ProviderModule implements Module {
                 traveling.setDeliveryId(head.deliveryId());
                 ctx.blockEntity().forceAddItem(traveling, extractDir);
                 queue.consumeFromHead(extracted);
+                itemsLeft -= extracted;
+                stacksLeft -= 1;
                 NetDbg.out("[Provider @ {}] Queue drain: {}x {} → {} ({} remaining)",
                         ctx.pos(), extracted, item.toStack().getItem(), head.requester(),
                         head.remaining() - extracted);
