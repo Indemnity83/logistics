@@ -396,7 +396,7 @@ public class PipeBlock extends BaseEntityBlock implements ProbeBehavior.Probeabl
         BlockEntity be = level.getBlockEntity(pos);
         if (be instanceof PipeBlockEntity pbe && state.getBlock() instanceof PipeBlock pb) {
             Pipe p = pb.getPipe();
-            CraftingModule m = p != null ? p.getModule(CraftingModule.class) : null;
+            CraftingModule m = p != null ? p.getModule(CraftingModule.class, pbe) : null;
             if (m != null) {
                 PipeContext ctx = pbe.createContext();
                 Direction autocrafterDir = m.findAutocrafterDirection(ctx);

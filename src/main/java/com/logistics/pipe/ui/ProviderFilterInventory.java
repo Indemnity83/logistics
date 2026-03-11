@@ -100,7 +100,7 @@ public class ProviderFilterInventory implements Container {
 
         PipeBlock block = (PipeBlock) pipeEntity.getBlockState().getBlock();
         Pipe pipe = block.getPipe();
-        ProviderModule module = pipe.getModule(ProviderModule.class);
+        ProviderModule module = pipe.getModule(ProviderModule.class, pipeEntity);
 
         if (module == null) {
             return;

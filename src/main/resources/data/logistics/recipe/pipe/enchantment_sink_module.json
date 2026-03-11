@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "DGD",
+    "RBR",
+    "DRD"
+  ],
+  "key": {
+    "D": "minecraft:black_dye",
+    "G": "minecraft:book",
+    "R": "minecraft:redstone",
+    "B": "logistics:pipe/blank_module"
+  },
+  "result": {
+    "count": 1,
+    "id": "logistics:pipe/enchantment_sink_module"
+  }
+}

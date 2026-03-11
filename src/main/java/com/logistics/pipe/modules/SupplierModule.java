@@ -376,7 +376,7 @@ public class SupplierModule implements Module {
     }
 
     @Nullable
-    private Direction getSupplierDirection(PipeContext ctx) {
+    protected Direction getSupplierDirection(PipeContext ctx) {
         return com.logistics.core.lib.storage.DirectionSerializer.load(ctx, this, SUPPLIER_DIRECTION);
     }
 

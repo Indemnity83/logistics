@@ -1,0 +1,6 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "logistics:item/pipe/item_sink_module"
+  }
+}

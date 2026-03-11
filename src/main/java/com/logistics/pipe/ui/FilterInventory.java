@@ -38,7 +38,7 @@ public class FilterInventory implements Container {
         com.logistics.pipe.block.PipeBlock block =
                 (com.logistics.pipe.block.PipeBlock) entity.getBlockState().getBlock();
         com.logistics.pipe.Pipe pipe = block.getPipe();
-        ItemFilterModule pipeModule = pipe.getModule(ItemFilterModule.class);
+        ItemFilterModule pipeModule = pipe.getModule(ItemFilterModule.class, entity);
 
         return pipeModule != null ? pipeModule : new ItemFilterModule();
     }

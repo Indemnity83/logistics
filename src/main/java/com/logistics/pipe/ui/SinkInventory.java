@@ -27,7 +27,7 @@ public class SinkInventory implements Container {
     private void loadFilters(PipeBlockEntity pipeEntity) {
         PipeBlock block = (PipeBlock) pipeEntity.getBlockState().getBlock();
         Pipe pipe = block.getPipe();
-        SinkModule module = pipe.getModule(SinkModule.class);
+        SinkModule module = pipe.getModule(SinkModule.class, pipeEntity);
 
         if (module == null) {
             return;

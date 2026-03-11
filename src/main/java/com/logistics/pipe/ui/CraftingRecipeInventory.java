@@ -88,7 +88,7 @@ public class CraftingRecipeInventory implements Container {
 
         PipeBlock block = (PipeBlock) pipeEntity.getBlockState().getBlock();
         Pipe pipe = block.getPipe();
-        CraftingModule module = pipe.getModule(CraftingModule.class);
+        CraftingModule module = pipe.getModule(CraftingModule.class, pipeEntity);
         if (module == null) return;
 
         PipeContext ctx = pipeEntity.createContext();

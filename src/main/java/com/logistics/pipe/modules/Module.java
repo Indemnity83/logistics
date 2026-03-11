@@ -95,6 +95,12 @@ public interface Module {
 
     default void onConnectionsChanged(PipeContext ctx, List<Direction> options) {}
 
+    /**
+     * Called when this module is removed from a chassis slot (or the pipe is broken).
+     * Modules that register network resources should clean them up here.
+     */
+    default void onDetach(PipeContext ctx) {}
+
     default InteractionResult onUseWithItem(PipeContext ctx, UseOnContext usage) {
         return InteractionResult.PASS;
     }

@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "DGD",
+    "RBR",
+    "DRD"
+  ],
+  "key": {
+    "D": "minecraft:blue_dye",
+    "G": "logistics:core/diamond_gear",
+    "R": "minecraft:redstone",
+    "B": "logistics:pipe/blank_module"
+  },
+  "result": {
+    "count": 1,
+    "id": "logistics:pipe/advanced_extractor_mkiii_module"
+  }
+}

@@ -116,13 +116,13 @@ public class PipeMarkingModule implements Module {
             return true;
         }
 
-        Pipe neighborPipe = neighborPipeBlock.getPipe();
-        if (neighborPipe == null || neighborPipe.getModule(PipeMarkingModule.class) == null) {
+        BlockPos neighborPos = ctx.pos().relative(direction);
+        if (!(ctx.world().getBlockEntity(neighborPos) instanceof PipeBlockEntity neighborEntity)) {
             return true;
         }
 
-        BlockPos neighborPos = ctx.pos().relative(direction);
-        if (!(ctx.world().getBlockEntity(neighborPos) instanceof PipeBlockEntity neighborEntity)) {
+        Pipe neighborPipe = neighborPipeBlock.getPipe();
+        if (neighborPipe == null || neighborPipe.getModule(PipeMarkingModule.class, neighborEntity) == null) {
             return true;
         }
 

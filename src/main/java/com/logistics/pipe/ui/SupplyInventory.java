@@ -102,7 +102,7 @@ public class SupplyInventory implements Container {
         // Get the supplier module
         PipeBlock block = (PipeBlock) pipeEntity.getBlockState().getBlock();
         Pipe pipe = block.getPipe();
-        SupplierModule module = pipe.getModule(SupplierModule.class);
+        SupplierModule module = pipe.getModule(SupplierModule.class, pipeEntity);
 
         if (module == null) {
             return;
