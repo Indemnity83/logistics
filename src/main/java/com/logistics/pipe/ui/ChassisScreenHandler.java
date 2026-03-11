@@ -2,12 +2,14 @@ package com.logistics.pipe.ui;
 
 import com.logistics.LogisticsPipe;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
+import com.logistics.pipe.item.ModuleItem;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Screen handler for the Chassis Logistics Pipe GUI.
@@ -26,6 +28,7 @@ public class ChassisScreenHandler extends AbstractContainerMenu {
 
     private final int slotCount;
     private final ChassisInventory chassisInventory;
+    @Nullable private final PipeBlockEntity pipeEntity;
 
     /** Client-side constructor — called by the MenuType factory. */
     public ChassisScreenHandler(int syncId, Container playerInventory, int slotCount) {
@@ -39,10 +42,17 @@ public class ChassisScreenHandler extends AbstractContainerMenu {
         if (slotCount != 1 && slotCount != 2 && slotCount != 3 && slotCount != 4 && slotCount != 8)
             throw new IllegalArgumentException("Invalid chassis slot count: " + slotCount);
         this.slotCount = slotCount;
+        this.pipeEntity = pipeEntity;
         this.chassisInventory = new ChassisInventory(pipeEntity);
 
         addChassisSlots();
         addPlayerInventorySlots(playerInventory);
+    }
+
+    /** Returns the backing pipe entity; non-null only on the server side. */
+    @Nullable
+    public PipeBlockEntity getPipeEntity() {
+        return pipeEntity;
     }
 
     /** Returns the MenuType registered for the given active slot count. */
@@ -82,14 +92,35 @@ public class ChassisScreenHandler extends AbstractContainerMenu {
     }
 
     @Override
-    public ItemStack quickMoveStack(Player player, int slot) {
-        return ItemStack.EMPTY;
+    public ItemStack quickMoveStack(Player player, int index) {
+        Slot slot = slots.get(index);
+        if (slot == null || !slot.hasItem()) return ItemStack.EMPTY;
+        ItemStack stack = slot.getItem();
+        ItemStack original = stack.copy();
+        if (index < slotCount) {
+            // Chassis slot → player inventory
+            if (!moveItemStackTo(stack, slotCount, slotCount + 36, true)) return ItemStack.EMPTY;
+        } else {
+            // Player inventory → chassis slot (only ModuleItems)
+            if (!(stack.getItem() instanceof ModuleItem)) return ItemStack.EMPTY;
+            if (!moveItemStackTo(stack, 0, slotCount, false)) return ItemStack.EMPTY;
+        }
+        if (stack.isEmpty()) slot.set(ItemStack.EMPTY);
+        else slot.setChanged();
+        if (stack.getCount() == original.getCount()) return ItemStack.EMPTY;
+        slot.onTake(player, stack);
+        return original;
     }
 
-    /** Module slots: accept any item, limit to one per slot. */
+    /** Module slots: only accept ModuleItem, limit to one per slot. */
     private static class ChassisSlot extends Slot {
         ChassisSlot(Container inventory, int index, int x, int y) {
             super(inventory, index, x, y);
+        }
+
+        @Override
+        public boolean mayPlace(ItemStack stack) {
+            return stack.getItem() instanceof ModuleItem;
         }
 
         @Override

@@ -1,0 +1,6 @@
+{
+  "model": {
+    "model": "logistics:item/pipe/mod_item_sink_module",
+    "type": "minecraft:model"
+  }
+}

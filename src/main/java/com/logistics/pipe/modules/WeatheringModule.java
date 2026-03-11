@@ -96,7 +96,7 @@ public class WeatheringModule implements Module {
             if (!(ctx.world().getBlockEntity(p) instanceof PipeBlockEntity be)) continue;
 
             Pipe pipe = pipeBlock.getPipe();
-            if (pipe == null || pipe.getModule(WeatheringModule.class) == null) continue;
+            if (pipe == null || pipe.getModule(WeatheringModule.class, be) == null) continue;
 
             PipeContext neighbor = new PipeContext(ctx.world(), p, ctx.world().getBlockState(p), be);
             if (isWaxed(neighbor)) continue;

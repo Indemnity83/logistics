@@ -8,8 +8,10 @@ import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -31,11 +33,11 @@ public class PipeNetwork implements ILogisticsNetwork {
     private final NetworkController controller;
     private final JobCoordinator jobCoordinator;
 
-    // Sink management for item routing
-    private final Set<BlockPos> defaultRouteSinks = new HashSet<>(); // Accepts any item
-    private final Map<BlockPos, Integer> sinkPriorities = new HashMap<>(); // Priority per sink (higher = better)
-
-    private static final int DEFAULT_SINK_PRIORITY = 0;
+    // Unified sink registry: all sink-capable pipes → priority (0 = default/catch-all, higher = preferred)
+    private final Map<BlockPos, Integer> sinkRegistry = new HashMap<>();
+    // Interest index: only pipes that declared interest are checked during findSink
+    private final Map<Item, Set<BlockPos>> specificInterests = new HashMap<>(); // item → sinks that want it
+    private final Set<BlockPos> genericInterests = new HashSet<>(); // sinks that want any item
 
     /**
      * Constructor with dependency injection.
@@ -99,8 +101,9 @@ public class PipeNetwork implements ILogisticsNetwork {
         controller.cancelOrdersFor(pos);
         controller.unregisterProviderCheck(pos);
         controller.unregisterCrafterSnapshot(pos);
-        defaultRouteSinks.remove(pos);
-        sinkPriorities.remove(pos);
+        sinkRegistry.remove(pos);
+        specificInterests.values().forEach(set -> set.remove(pos));
+        genericInterests.remove(pos);
     }
 
     public boolean contains(BlockPos pos) {
@@ -229,20 +232,36 @@ public class PipeNetwork implements ILogisticsNetwork {
         jobCoordinator.tick(controller);
     }
 
-    /**
-     * Register a sink that accepts any item (default route).
-     */
-    public void registerDefaultRouteSink(BlockPos sink, int priority) {
-        defaultRouteSinks.add(sink);
-        sinkPriorities.put(sink, priority);
+    @Override
+    public void registerSink(BlockPos pos, int priority) {
+        sinkRegistry.put(pos, priority);
     }
 
-    /**
-     * Unregister a default route sink.
-     */
-    public void unregisterDefaultRouteSink(BlockPos sink) {
-        defaultRouteSinks.remove(sink);
-        sinkPriorities.remove(sink);
+    @Override
+    public void unregisterSink(BlockPos pos) {
+        sinkRegistry.remove(pos);
+        specificInterests.values().forEach(set -> set.remove(pos));
+        genericInterests.remove(pos);
+    }
+
+    @Override
+    public void registerSinkInterest(BlockPos pos, Item item) {
+        specificInterests.computeIfAbsent(item, k -> new HashSet<>()).add(pos);
+    }
+
+    @Override
+    public void unregisterSinkInterests(BlockPos pos) {
+        specificInterests.values().forEach(set -> set.remove(pos));
+    }
+
+    @Override
+    public void registerGenericSinkInterest(BlockPos pos) {
+        genericInterests.add(pos);
+    }
+
+    @Override
+    public void unregisterGenericSinkInterest(BlockPos pos) {
+        genericInterests.remove(pos);
     }
 
     /**
@@ -257,13 +276,10 @@ public class PipeNetwork implements ILogisticsNetwork {
             throw new IllegalStateException("Cannot use findSinkFor without IWorldView - update tests to use proper constructor");
         }
 
-        NetDbg.out("[Network {}] Finding sink for {} (members: {}, default routes: {})",
-                getNetworkIdShort(id), stack.getItem(), graph.size(), defaultRouteSinks.size());
+        NetDbg.out("[Network {}] Finding sink for {} (members: {}, registered sinks: {})",
+                getNetworkIdShort(id), stack.getItem(), graph.size(), sinkRegistry.size());
 
-        BlockPos bestSink = findFilteredSink(stack);
-        if (bestSink == null) {
-            bestSink = findDefaultRouteSink();
-        }
+        BlockPos bestSink = findSink(stack, false);
 
         if (bestSink == null) {
             NetDbg.out("[Network {}] No sink found for {}", getNetworkIdShort(id), stack.getItem());
@@ -272,42 +288,36 @@ public class PipeNetwork implements ILogisticsNetwork {
         return bestSink;
     }
 
-    private BlockPos findFilteredSink(ItemStack stack) {
-        for (BlockPos pos : graph.getNodes()) {
-            if (worldView.matchesSinkFilter(pos, stack)) {
-                NetDbg.out("[Network {}] Found filtered sink at {}",
-                        getNetworkIdShort(id), pos);
-                return pos;
-            }
+    @Override
+    public BlockPos findFilteredSinkFor(ItemStack stack) {
+        if (worldView == null) {
+            throw new IllegalStateException("Cannot use findFilteredSinkFor without IWorldView - update tests to use proper constructor");
         }
-        return null;
+        return findSink(stack, true);
     }
 
-    private BlockPos findDefaultRouteSink() {
-        NetDbg.out("[Network {}] No filtered sink, checking {} default routes",
-                getNetworkIdShort(id), defaultRouteSinks.size());
+    /**
+     * Find the highest-priority registered sink that accepts the given item.
+     * Uses an interest index (OG LogisticsPipes strategy) to skip pipes that
+     * declared no interest in this item type, avoiding expensive inventory scans.
+     *
+     * @param stack        item to route
+     * @param filteredOnly if true, skip priority-0 (default-route/catch-all) sinks
+     */
+    private BlockPos findSink(ItemStack stack, boolean filteredOnly) {
+        // Build candidate set: generic-interest pipes ∪ pipes interested in this item
+        Set<BlockPos> candidates = new HashSet<>(genericInterests);
+        Set<BlockPos> specific = specificInterests.get(stack.getItem());
+        if (specific != null) candidates.addAll(specific);
 
-        BlockPos bestSink = null;
-        int bestPriority = Integer.MIN_VALUE;
-
-        for (BlockPos sink : defaultRouteSinks) {
-            if (!graph.contains(sink)) continue;
-
-            int priority = sinkPriorities.getOrDefault(sink, DEFAULT_SINK_PRIORITY);
-            if (priority > bestPriority) {
-                NetDbg.out("[Network {}] Found default route at {} (priority: {})",
-                        getNetworkIdShort(id), sink, priority);
-                bestSink = sink;
-                bestPriority = priority;
-            }
-        }
-
-        if (bestSink != null) {
-            NetDbg.out("[Network {}] Selected default route at {}",
-                    getNetworkIdShort(id), bestSink);
-        }
-
-        return bestSink;
+        return candidates.stream()
+                .filter(pos -> sinkRegistry.containsKey(pos) && graph.contains(pos))
+                .filter(pos -> !filteredOnly || sinkRegistry.get(pos) > 0)
+                .sorted(Comparator.comparingInt(pos -> -sinkRegistry.getOrDefault(pos, 0)))
+                .filter(pos -> worldView.matchesSinkFilter(pos, stack))
+                .peek(pos -> NetDbg.out("[Network {}] Found sink at {}", getNetworkIdShort(id), pos))
+                .findFirst()
+                .orElse(null);
     }
 
     /** Access the job coordinator for this network (for diagnostics or future API use). */
@@ -322,8 +332,10 @@ public class PipeNetwork implements ILogisticsNetwork {
         graph.merge(other.graph);
         controller.merge(other.controller);
         jobCoordinator.merge(other.jobCoordinator);
-        defaultRouteSinks.addAll(other.defaultRouteSinks);
-        other.sinkPriorities.forEach((pos, priority) ->
-                sinkPriorities.merge(pos, priority, Math::max));
+        other.sinkRegistry.forEach((pos, priority) ->
+                sinkRegistry.merge(pos, priority, Math::max));
+        genericInterests.addAll(other.genericInterests);
+        other.specificInterests.forEach((item, positions) ->
+                specificInterests.computeIfAbsent(item, k -> new HashSet<>()).addAll(positions));
     }
 }

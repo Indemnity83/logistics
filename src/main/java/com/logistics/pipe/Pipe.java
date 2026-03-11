@@ -5,6 +5,7 @@ import com.logistics.LogisticsPipe;
 import com.logistics.core.lib.block.capability.PipeConnection;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.pipe.block.PipeBlock;
+import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.pipe.modules.Module;
 import com.logistics.pipe.runtime.RoutePlan;
 import com.logistics.pipe.runtime.TravelingItem;
@@ -243,14 +244,22 @@ public class Pipe {
         return "block/" + getPipeName() + "_" + direction.name().toLowerCase();
     }
 
-    @SuppressWarnings("unchecked")
-    public <T extends Module> T getModule(Class<T> moduleClass) {
+    protected <T extends Module> T getModule(Class<T> moduleClass) {
         for (Module module : modules) {
             if (moduleClass.isInstance(module)) {
-                return (T) module;
+                return moduleClass.cast(module);
             }
         }
         return null;
+    }
+
+    /**
+     * Returns a module of the given type, considering dynamic modules when a block entity
+     * is available. Subclasses (e.g. ChassisPipe) override this to support runtime-installed
+     * modules that cannot be found in the static module list.
+     */
+    public <T extends Module> T getModule(Class<T> moduleClass, PipeBlockEntity entity) {
+        return getModule(moduleClass);
     }
 
     public float getAccelerationRate(PipeContext ctx) {

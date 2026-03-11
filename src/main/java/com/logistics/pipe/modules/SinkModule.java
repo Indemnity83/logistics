@@ -9,6 +9,7 @@ import com.logistics.core.lib.storage.NbtCompat;
 import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.pipe.network.NetworkRegistry;
+import net.minecraft.world.item.Item;
 import com.logistics.pipe.runtime.RoutePlan;
 import com.logistics.pipe.runtime.TravelingItem;
 import com.logistics.pipe.ui.SinkScreenHandler;
@@ -21,7 +22,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
@@ -44,6 +44,13 @@ public class SinkModule implements Module {
     private static final String TICKS_SINCE_SYNC = "ticks_since_sync";
     private static final int SYNC_INTERVAL = 20; // Re-register with network every second to recover from splits
     public static final int MAX_FILTER_SLOTS = 9;
+    public static final int DEFAULT_ROUTE_PRIORITY = 0;
+
+    private final int priority;
+
+    public SinkModule(int priority) {
+        this.priority = priority;
+    }
 
     @Override
     public void onTick(PipeContext ctx) {
@@ -61,8 +68,30 @@ public class SinkModule implements Module {
         // Re-register with the network periodically to recover after network splits/merges.
         // setDefaultRoute() handles immediate registration on change; this is just the recovery path.
         ILogisticsNetwork network = NetworkRegistry.getNetwork(ctx.world(), ctx.pos());
-        if (network != null && isDefaultRoute(ctx)) {
-            network.registerDefaultRouteSink(ctx.pos(), 0);
+        if (network != null) {
+            network.registerSink(ctx.pos(), priority);
+            // Rebuild specific-item interests from current filter slots
+            network.unregisterSinkInterests(ctx.pos());
+            for (String itemId : getFilters(ctx)) {
+                if (itemId.isEmpty()) continue;
+                ResourceId rid = ResourceId.tryParse(itemId);
+                if (rid == null) continue;
+                BuiltInRegistries.ITEM.get(rid.toIdentifier()).ifPresent(holder ->
+                        network.registerSinkInterest(ctx.pos(), holder.value()));
+            }
+            if (isDefaultRoute(ctx)) {
+                network.registerDefaultRouteSink(ctx.pos(), DEFAULT_ROUTE_PRIORITY);
+                network.registerGenericSinkInterest(ctx.pos());
+            }
+        }
+    }
+
+    @Override
+    public void onDetach(PipeContext ctx) {
+        ILogisticsNetwork network = NetworkRegistry.getNetwork(ctx.world(), ctx.pos());
+        if (network != null) {
+            network.unregisterSink(ctx.pos()); // also clears both interest maps
+            network.unregisterDefaultRouteSink(ctx.pos());
         }
     }
 
@@ -254,10 +283,12 @@ public class SinkModule implements Module {
             ILogisticsNetwork network = NetworkRegistry.getNetwork(ctx.world(), ctx.pos());
             if (network != null) {
                 if (enabled) {
-                    network.registerDefaultRouteSink(ctx.pos(), 0);
+                    network.registerDefaultRouteSink(ctx.pos(), DEFAULT_ROUTE_PRIORITY);
+                    network.registerGenericSinkInterest(ctx.pos());
                     NetDbg.out("[Sink @ {}] Default route enabled and registered with network", ctx.pos());
                 } else {
                     network.unregisterDefaultRouteSink(ctx.pos());
+                    network.unregisterGenericSinkInterest(ctx.pos());
                     NetDbg.out("[Sink @ {}] Default route disabled and unregistered from network", ctx.pos());
                 }
             }

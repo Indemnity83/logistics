@@ -7,6 +7,9 @@ import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.block.PipeBlock;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.pipe.modules.Module;
+import com.logistics.pipe.modules.EnchantmentSinkModule;
+import com.logistics.pipe.modules.PassiveSupplierModule;
+import com.logistics.pipe.modules.PolymorphicSinkModule;
 import com.logistics.pipe.modules.SinkModule;
 import java.util.ArrayList;
 import java.util.List;
@@ -67,7 +70,7 @@ public class MinecraftWorldView implements IWorldView {
 
         PipeBlock block = (PipeBlock) pipeEntity.getBlockState().getBlock();
         Pipe pipe = block.getPipe();
-        return pipe.getModule(moduleClass);
+        return pipe.getModule(moduleClass, pipeEntity);
     }
 
     @Override
@@ -76,12 +79,22 @@ public class MinecraftWorldView implements IWorldView {
             return false;
         }
         PipeBlock block = (PipeBlock) pipeEntity.getBlockState().getBlock();
-        SinkModule sinkModule = block.getPipe().getModule(SinkModule.class);
-        if (sinkModule == null) {
-            return false;
-        }
+        Pipe pipe = block.getPipe();
         PipeContext ctx = pipeEntity.createContext();
-        return sinkModule.matchesFilter(ctx, stack);
+
+        SinkModule sinkModule = pipe.getModule(SinkModule.class, pipeEntity);
+        if (sinkModule != null && (sinkModule.matchesFilter(ctx, stack) || sinkModule.isDefaultRoute(ctx))) return true;
+
+        PolymorphicSinkModule polyModule = pipe.getModule(PolymorphicSinkModule.class, pipeEntity);
+        if (polyModule != null && polyModule.matchesFilter(ctx, stack)) return true;
+
+        EnchantmentSinkModule enchantModule = pipe.getModule(EnchantmentSinkModule.class, pipeEntity);
+        if (enchantModule != null && enchantModule.matchesItem(stack)) return true;
+
+        PassiveSupplierModule passiveModule = pipe.getModule(PassiveSupplierModule.class, pipeEntity);
+        if (passiveModule != null && passiveModule.matchesItem(ctx, stack)) return true;
+
+        return false;
     }
 
     @Override
