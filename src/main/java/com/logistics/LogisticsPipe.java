@@ -14,7 +14,9 @@ import com.logistics.pipe.data.PipeDataComponents.WeatheringState;
 import com.logistics.pipe.item.ModularPipeBlockItem;
 import com.logistics.pipe.item.ModuleItem;
 import com.logistics.pipe.modules.BasicExtractorModule;
+import com.logistics.pipe.modules.EnchantmentSinkModule;
 import com.logistics.pipe.modules.Module;
+import com.logistics.pipe.modules.SupplierModule;
 import com.logistics.pipe.modules.PolymorphicSinkModule;
 import com.logistics.pipe.modules.ProviderModule;
 import com.logistics.pipe.modules.SinkModule;
@@ -276,15 +278,15 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
             POLYMORPHIC_SINK_MODULE = INSTANCE.registerItem("polymorphic_sink_module",
                     props -> new ModuleItem(props, PolymorphicSinkModule::new));
             ENCHANTMENT_SINK_MODULE = INSTANCE.registerItem("enchantment_sink_module",
-                    props -> new ModuleItem(props, () -> new Module() {}));
+                    props -> new ModuleItem(props, EnchantmentSinkModule::new));
             MOD_ITEM_SINK_MODULE = INSTANCE.registerItem("mod_item_sink_module",
                     props -> new ModuleItem(props, () -> new Module() {}));
             PASSIVE_SUPPLIER_MODULE = INSTANCE.registerItem("passive_supplier_module",
                     props -> new ModuleItem(props, () -> new Module() {}));
             ACTIVE_SUPPLIER_MODULE = INSTANCE.registerItem("active_supplier_module",
-                    props -> new ModuleItem(props, () -> new Module() {}));
+                    props -> new ModuleItem(props, SupplierModule::new));
             PROVIDER_MODULE = INSTANCE.registerItem("provider_module",
-                    props -> new ModuleItem(props, ProviderModule::new));
+                    props -> new ModuleItem(props, () -> new ProviderModule(8, 1)));
             PROVIDER_MODULE_MKII = INSTANCE.registerItem("provider_mkii_module",
                     props -> new ModuleItem(props, () -> new Module() {}));
             EXTRACTOR_MODULE = INSTANCE.registerItem("extractor_module",
