@@ -272,6 +272,14 @@ public class PipeNetwork implements ILogisticsNetwork {
         return bestSink;
     }
 
+    @Override
+    public BlockPos findFilteredSinkFor(ItemStack stack) {
+        if (worldView == null) {
+            throw new IllegalStateException("Cannot use findFilteredSinkFor without IWorldView - update tests to use proper constructor");
+        }
+        return findFilteredSink(stack);
+    }
+
     private BlockPos findFilteredSink(ItemStack stack) {
         for (BlockPos pos : graph.getNodes()) {
             if (worldView.matchesSinkFilter(pos, stack)) {

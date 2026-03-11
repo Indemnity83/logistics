@@ -183,6 +183,19 @@ public interface ILogisticsNetwork {
     @Nullable
     BlockPos findSinkFor(ItemStack stack);
 
+    /**
+     * Find a filtered sink for an item stack (no default-route fallback).
+     * Only returns pipes that have an explicit item filter matching the stack.
+     * Used by QuickSort to avoid dumping items into catch-all default routes.
+     *
+     * @param stack Item to find sink for
+     * @return Position of a filtered sink, or null if none found
+     */
+    @Nullable
+    default BlockPos findFilteredSinkFor(ItemStack stack) {
+        return findSinkFor(stack); // safe fallback; PipeNetwork overrides properly
+    }
+
     // ===== Routing Operations =====
 
     /**
