@@ -14,6 +14,7 @@ import com.logistics.pipe.data.PipeDataComponents.WeatheringState;
 import com.logistics.pipe.item.ModularPipeBlockItem;
 import com.logistics.pipe.item.ModuleItem;
 import com.logistics.pipe.modules.BasicExtractorModule;
+import com.logistics.pipe.modules.Module;
 import com.logistics.pipe.modules.PolymorphicSinkModule;
 import com.logistics.pipe.modules.ProviderModule;
 import com.logistics.pipe.modules.SinkModule;
@@ -274,26 +275,40 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
                     props -> new ModuleItem(props, SinkModule::new));
             POLYMORPHIC_SINK_MODULE = INSTANCE.registerItem("polymorphic_sink_module",
                     props -> new ModuleItem(props, PolymorphicSinkModule::new));
-            ENCHANTMENT_SINK_MODULE = INSTANCE.registerItem("enchantment_sink_module", Item::new);
-            MOD_ITEM_SINK_MODULE = INSTANCE.registerItem("mod_item_sink_module", Item::new);
-            PASSIVE_SUPPLIER_MODULE = INSTANCE.registerItem("passive_supplier_module", Item::new);
-            ACTIVE_SUPPLIER_MODULE = INSTANCE.registerItem("active_supplier_module", Item::new);
+            ENCHANTMENT_SINK_MODULE = INSTANCE.registerItem("enchantment_sink_module",
+                    props -> new ModuleItem(props, () -> new Module() {}));
+            MOD_ITEM_SINK_MODULE = INSTANCE.registerItem("mod_item_sink_module",
+                    props -> new ModuleItem(props, () -> new Module() {}));
+            PASSIVE_SUPPLIER_MODULE = INSTANCE.registerItem("passive_supplier_module",
+                    props -> new ModuleItem(props, () -> new Module() {}));
+            ACTIVE_SUPPLIER_MODULE = INSTANCE.registerItem("active_supplier_module",
+                    props -> new ModuleItem(props, () -> new Module() {}));
             PROVIDER_MODULE = INSTANCE.registerItem("provider_module",
                     props -> new ModuleItem(props, ProviderModule::new));
-            PROVIDER_MODULE_MKII = INSTANCE.registerItem("provider_mkii_module", Item::new);
+            PROVIDER_MODULE_MKII = INSTANCE.registerItem("provider_mkii_module",
+                    props -> new ModuleItem(props, () -> new Module() {}));
             EXTRACTOR_MODULE = INSTANCE.registerItem("extractor_module",
                     props -> new ModuleItem(props, () -> new BasicExtractorModule(1, 100)));
             EXTRACTOR_MODULE_MKII = INSTANCE.registerItem("extractor_module_mkii",
                     props -> new ModuleItem(props, () -> new BasicExtractorModule(1, 20)));
-            EXTRACTOR_MODULE_MKIII = INSTANCE.registerItem("extractor_module_mkiii", Item::new);
-            ADVANCED_EXTRACTOR_MODULE = INSTANCE.registerItem("advanced_extractor_module", Item::new);
-            ADVANCED_EXTRACTOR_MODULE_MKII = INSTANCE.registerItem("advanced_extractor_mkii_module", Item::new);
-            ADVANCED_EXTRACTOR_MODULE_MKIII = INSTANCE.registerItem("advanced_extractor_mkiii_module", Item::new);
-            CRAFTER_MODULE = INSTANCE.registerItem("crafter_module", Item::new);
-            CRAFTER_MODULE_MKII = INSTANCE.registerItem("crafter_mkii_module", Item::new);
-            CRAFTER_MODULE_MKIII = INSTANCE.registerItem("crafter_mkiii_module", Item::new);
-            QUICKSORT_MODULE = INSTANCE.registerItem("quicksort_module", Item::new);
-            TERMINUS_MODULE = INSTANCE.registerItem("terminus_module", Item::new);
+            EXTRACTOR_MODULE_MKIII = INSTANCE.registerItem("extractor_module_mkiii",
+                    props -> new ModuleItem(props, () -> new BasicExtractorModule(64, 6)));
+            ADVANCED_EXTRACTOR_MODULE = INSTANCE.registerItem("advanced_extractor_module",
+                    props -> new ModuleItem(props, () -> new Module() {}));
+            ADVANCED_EXTRACTOR_MODULE_MKII = INSTANCE.registerItem("advanced_extractor_mkii_module",
+                    props -> new ModuleItem(props, () -> new Module() {}));
+            ADVANCED_EXTRACTOR_MODULE_MKIII = INSTANCE.registerItem("advanced_extractor_mkiii_module",
+                    props -> new ModuleItem(props, () -> new Module() {}));
+            CRAFTER_MODULE = INSTANCE.registerItem("crafter_module",
+                    props -> new ModuleItem(props, () -> new Module() {}));
+            CRAFTER_MODULE_MKII = INSTANCE.registerItem("crafter_mkii_module",
+                    props -> new ModuleItem(props, () -> new Module() {}));
+            CRAFTER_MODULE_MKIII = INSTANCE.registerItem("crafter_mkiii_module",
+                    props -> new ModuleItem(props, () -> new Module() {}));
+            QUICKSORT_MODULE = INSTANCE.registerItem("quicksort_module",
+                    props -> new ModuleItem(props, () -> new Module() {}));
+            TERMINUS_MODULE = INSTANCE.registerItem("terminus_module",
+                    props -> new ModuleItem(props, () -> new Module() {}));
         }
     }
 

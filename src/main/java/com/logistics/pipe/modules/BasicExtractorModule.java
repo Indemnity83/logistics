@@ -25,7 +25,7 @@ import java.util.List;
  * <ul>
  *   <li>MkI  — 1 item every 100 ticks</li>
  *   <li>MkII — 1 item every 20 ticks</li>
- *   <li>MkIII — 64 items every 1 tick (future)</li>
+ *   <li>MkIII — 64 items every 6 ticks</li>
  * </ul>
  *
  * <p>No GUI, no energy requirement.
