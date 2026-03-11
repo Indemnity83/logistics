@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import net.minecraft.world.item.Item;
 
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.minecraft.core.BlockPos;
@@ -159,19 +160,62 @@ public interface ILogisticsNetwork {
     // ===== Sink Operations =====
 
     /**
-     * Register a position as a default route sink with priority.
+     * Register a position as an item-specific sink with priority.
+     * Used by filter, enchantment, polymorphic, and passive-supplier sinks.
+     * Priority table: 0=default-route, 1=mod-based, 2=enchantment, 4=terminus,
+     *                 5=item-sink filter, 10=passive-supplier.
      *
-     * @param sink Position of the sink
-     * @param priority Sink priority (higher = preferred)
+     * @param pos      Position of the sink
+     * @param priority Sink priority (higher = preferred; 0 = lowest)
      */
-    void registerDefaultRouteSink(BlockPos sink, int priority);
+    void registerSink(BlockPos pos, int priority);
 
     /**
-     * Unregister a default route sink.
+     * Unregister an item-specific sink.
      *
-     * @param sink Position of the sink
+     * @param pos Position of the sink to remove
      */
-    void unregisterDefaultRouteSink(BlockPos sink);
+    void unregisterSink(BlockPos pos);
+
+    /**
+     * Register a position as a default-route (catch-all) sink at priority 0.
+     * Convenience for {@code registerSink(sink, 0)}.
+     */
+    default void registerDefaultRouteSink(BlockPos sink, int priority) {
+        registerSink(sink, priority);
+    }
+
+    /**
+     * Unregister a default-route sink.
+     * Convenience for {@code unregisterSink(sink)}.
+     */
+    default void unregisterDefaultRouteSink(BlockPos sink) {
+        unregisterSink(sink);
+    }
+
+    /**
+     * Declare that the sink at {@code pos} wants to receive items of this specific type.
+     * Called by filtered sinks (SinkModule filter slots, PassiveSupplierModule config items).
+     * These are indexed so only interested sinks are considered during lookup.
+     */
+    void registerSinkInterest(BlockPos pos, Item item);
+
+    /**
+     * Remove all specific-item interests for a sink position.
+     * Call before re-registering interests (e.g., when filter changes) or on detach.
+     */
+    void unregisterSinkInterests(BlockPos pos);
+
+    /**
+     * Declare that the sink at {@code pos} wants to be considered for ALL items.
+     * Used by default-route, enchantment, and polymorphic sinks.
+     */
+    void registerGenericSinkInterest(BlockPos pos);
+
+    /**
+     * Remove generic interest for a sink position.
+     */
+    void unregisterGenericSinkInterest(BlockPos pos);
 
     /**
      * Find a sink for an item stack.
@@ -182,6 +226,19 @@ public interface ILogisticsNetwork {
      */
     @Nullable
     BlockPos findSinkFor(ItemStack stack);
+
+    /**
+     * Find a filtered sink for an item stack (no default-route fallback).
+     * Only returns pipes that have an explicit item filter matching the stack.
+     * Used by QuickSort to avoid dumping items into catch-all default routes.
+     *
+     * @param stack Item to find sink for
+     * @return Position of a filtered sink, or null if none found
+     */
+    @Nullable
+    default BlockPos findFilteredSinkFor(ItemStack stack) {
+        return findSinkFor(stack); // safe fallback; PipeNetwork overrides properly
+    }
 
     // ===== Routing Operations =====
 

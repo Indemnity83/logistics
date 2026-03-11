@@ -67,9 +67,11 @@ public class ProviderModule implements Module {
     private static final String DQ_DLV  = "d";  // delivery UUID string (optional)
 
     private static final int SCAN_INTERVAL = 6;        // Scan every 6 ticks (~3x/second)
-    private static final int ITEMS_PER_EXTRACT = 8;    // Items sent per queue-drain cycle
     private static final int MAX_FILTER_SLOTS = 9;
     private static final int SUPPLY_PRIORITY = 1;      // Real stock; lower = preferred
+
+    private final int itemLimit;
+    private final int stackLimit;
 
     /**
      * Provider modes control which items are available for extraction.
@@ -102,7 +104,10 @@ public class ProviderModule implements Module {
         public String getTranslationKey() { return translationKey; }
     }
 
-    public ProviderModule() {}
+    public ProviderModule(int itemLimit, int stackLimit) {
+        this.itemLimit = itemLimit;
+        this.stackLimit = stackLimit;
+    }
 
     // ==================== Mode Configuration ====================
 
@@ -218,16 +223,21 @@ public class ProviderModule implements Module {
     }
 
     /**
-     * Drain one batch from the dispatch queue: extract up to {@code ITEMS_PER_EXTRACT} items
-     * from any adjacent inventory and inject a TravelingItem into the pipe.
-     * Called every {@code SCAN_INTERVAL} ticks (same cadence as the supply scan).
+     * Drain the dispatch queue head using dual simultaneous caps:
+     * <ul>
+     *   <li>{@code itemLimit} — total items budget across all stacks this cycle</li>
+     *   <li>{@code stackLimit} — max number of TravelingItems (stacks) injected this cycle</li>
+     * </ul>
+     * Each iteration extracts one stack (up to {@code itemsLeft} items), injects a TravelingItem,
+     * then decrements both {@code itemsLeft} and {@code stacksLeft}. The loop stops as soon as
+     * either limit is exhausted or the queue is empty.
      */
     private void processDispatchQueue(PipeContext ctx) {
         ProviderDispatchQueue queue = loadQueue(ctx);
         if (queue.isEmpty()) return;
 
         ProviderDispatchQueue.Entry head = queue.peekHead();
-        if (head == null) return; // shouldn't happen but guard anyway
+        if (head == null) return;
 
         ResourceId rid = ResourceId.tryParse(head.itemId());
         if (rid == null) { queue.removeHead(); saveQueue(ctx, queue); return; }
@@ -236,50 +246,61 @@ public class ProviderModule implements Module {
         ItemVariant item = ItemVariant.of(new ItemStack(holder.get().value()));
 
         ProviderMode mode = getMode(ctx);
-        long toExtract = Math.min(head.remaining(), ITEMS_PER_EXTRACT);
-        long extracted = 0;
-        Direction extractDir = null;
+        long itemsLeft = itemLimit;
+        int stacksLeft = stackLimit;
 
-        for (Direction direction : ctx.getInventoryConnections()) {
-            BlockPos targetPos = ctx.pos().relative(direction);
-            Storage<ItemVariant> storage =
-                    ItemStorage.SIDED.find(ctx.world(), targetPos, direction.getOpposite());
-            if (storage == null) continue;
+        while (itemsLeft > 0 && stacksLeft > 0) {
+            head = queue.peekHead();
+            if (head == null) break;
 
-            try (Transaction transaction = Transaction.openOuter()) {
-                long got = extractItems(storage, item, toExtract, transaction, mode);
-                if (got > 0) {
-                    transaction.commit();
-                    extracted = got;
-                    extractDir = direction;
-                    break;
+            long toExtract = Math.min(head.remaining(), itemsLeft);
+            long extracted = 0;
+            Direction extractDir = null;
+
+            for (Direction direction : ctx.getInventoryConnections()) {
+                BlockPos targetPos = ctx.pos().relative(direction);
+                Storage<ItemVariant> storage =
+                        ItemStorage.SIDED.find(ctx.world(), targetPos, direction.getOpposite());
+                if (storage == null) continue;
+
+                try (Transaction transaction = Transaction.openOuter()) {
+                    long got = extractItems(storage, item, toExtract, transaction, mode);
+                    if (got > 0) {
+                        transaction.commit();
+                        extracted = got;
+                        extractDir = direction;
+                        break;
+                    }
                 }
             }
-        }
 
-        if (extracted > 0) {
-            ItemStack stack = item.toStack((int) extracted);
-            TravelingItem traveling = new TravelingItem(
-                    stack, extractDir.getOpposite(), LogisticsPipe.CONFIG.ITEM_MIN_SPEED, head.requester());
-            traveling.setDeliveryId(head.deliveryId());
-            ctx.blockEntity().forceAddItem(traveling, extractDir);
-            queue.consumeFromHead(extracted);
-            NetDbg.out("[Provider @ {}] Queue drain: {}x {} → {} ({} remaining)",
-                    ctx.pos(), extracted, item.toStack().getItem(), head.requester(),
-                    head.remaining() - extracted);
-        } else {
-            // Inventory empty or inaccessible — drop the entry so the queue doesn't block
-            // forever, but also notify the network so orderedForRequester is decremented.
-            // Without the notify call, orderedForRequester would stay elevated permanently
-            // (it only decrements on physical TravelingItem delivery), which would prevent
-            // suppliers from re-ordering these items.
-            ILogisticsNetwork network = NetworkRegistry.getOrCreateNetwork(ctx.world(), ctx.pos());
-            if (network != null) {
-                network.notifyDelivery(head.requester(), item, head.remaining());
+            if (extracted > 0) {
+                ItemStack stack = item.toStack((int) extracted);
+                TravelingItem traveling = new TravelingItem(
+                        stack, extractDir.getOpposite(), LogisticsPipe.CONFIG.ITEM_MIN_SPEED, head.requester());
+                traveling.setDeliveryId(head.deliveryId());
+                ctx.blockEntity().forceAddItem(traveling, extractDir);
+                queue.consumeFromHead(extracted);
+                itemsLeft -= extracted;
+                stacksLeft -= 1;
+                NetDbg.out("[Provider @ {}] Queue drain: {}x {} → {} ({} remaining)",
+                        ctx.pos(), extracted, item.toStack().getItem(), head.requester(),
+                        head.remaining() - extracted);
+            } else {
+                // Inventory empty or inaccessible — drop the entry so the queue doesn't block
+                // forever, but also notify the network so orderedForRequester is decremented.
+                // Without the notify call, orderedForRequester would stay elevated permanently
+                // (it only decrements on physical TravelingItem delivery), which would prevent
+                // suppliers from re-ordering these items.
+                ILogisticsNetwork network = NetworkRegistry.getOrCreateNetwork(ctx.world(), ctx.pos());
+                if (network != null) {
+                    network.notifyDelivery(head.requester(), item, head.remaining());
+                }
+                NetDbg.out("[Provider @ {}] Queue drain failed (empty?): {}x {} — dropping entry",
+                        ctx.pos(), head.remaining(), item.toStack().getItem());
+                queue.removeHead();
+                break;
             }
-            NetDbg.out("[Provider @ {}] Queue drain failed (empty?): {}x {} — dropping entry",
-                    ctx.pos(), head.remaining(), item.toStack().getItem());
-            queue.removeHead();
         }
 
         saveQueue(ctx, queue);
@@ -345,6 +366,14 @@ public class ProviderModule implements Module {
     public @Nullable ResourceId getPipeArm(PipeContext ctx, Direction direction) {
         if (!ctx.isInventoryConnection(direction)) return null;
         return LogisticsPipe.model("provider_logistics_pipe_feature_extended");
+    }
+
+    @Override
+    public void onDetach(PipeContext ctx) {
+        ILogisticsNetwork network = NetworkRegistry.getOrCreateNetwork(ctx.world(), ctx.pos());
+        if (network != null) {
+            network.registerSupply(ctx.pos(), new HashMap<>(), SUPPLY_PRIORITY);
+        }
     }
 
     @Override

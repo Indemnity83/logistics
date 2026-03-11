@@ -4,6 +4,8 @@ import com.logistics.api.LogisticsApi;
 import com.logistics.core.DebugLog;
 import com.logistics.core.bootstrap.DomainBootstrap;
 import com.logistics.core.lib.resource.ResourceId;
+import com.logistics.pipe.modules.*;
+import com.logistics.pipe.modules.Module;
 import com.logistics.pipe.network.NetDbg;
 import com.logistics.pipe.Pipe;
 import com.logistics.pipe.PipeApi;
@@ -12,6 +14,7 @@ import com.logistics.pipe.block.PipeBlock;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.pipe.data.PipeDataComponents.WeatheringState;
 import com.logistics.pipe.item.ModularPipeBlockItem;
+import com.logistics.pipe.item.ModuleItem;
 import com.logistics.pipe.ui.ItemFilterScreenHandler;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.Registry;
@@ -60,6 +63,7 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
 
         BLOCK.register();
         ENTITY.register();
+        ITEM.register();
         DATA.register();
         SCREEN.register();
         registerMarkingFluidItems();
@@ -74,6 +78,7 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
     private static void registerNetworkPackets() {
         com.logistics.pipe.network.RequestItemPacket.register();
         com.logistics.pipe.network.SyncRequesterInventoryPacket.register();
+        com.logistics.pipe.network.OpenChassisSlotPacket.register();
     }
 
     private static void addCreativeTabEntries() {
@@ -117,7 +122,27 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
                 BLOCK.CHASSIS_LOGISTICS_PIPE_MK2,
                 BLOCK.CHASSIS_LOGISTICS_PIPE_MK3,
                 BLOCK.CHASSIS_LOGISTICS_PIPE_MK4,
-                BLOCK.CHASSIS_LOGISTICS_PIPE_MK5
+                BLOCK.CHASSIS_LOGISTICS_PIPE_MK5,
+                ITEM.BLANK_MODULE,
+                ITEM.ITEM_SINK_MODULE,
+                ITEM.POLYMORPHIC_SINK_MODULE,
+                ITEM.ENCHANTMENT_SINK_MODULE,
+                ITEM.MOD_ITEM_SINK_MODULE,
+                ITEM.PASSIVE_SUPPLIER_MODULE,
+                ITEM.ACTIVE_SUPPLIER_MODULE,
+                ITEM.PROVIDER_MODULE,
+                ITEM.PROVIDER_MODULE_MKII,
+                ITEM.EXTRACTOR_MODULE,
+                ITEM.EXTRACTOR_MODULE_MKII,
+                ITEM.EXTRACTOR_MODULE_MKIII,
+                ITEM.ADVANCED_EXTRACTOR_MODULE,
+                ITEM.ADVANCED_EXTRACTOR_MODULE_MKII,
+                ITEM.ADVANCED_EXTRACTOR_MODULE_MKIII,
+                ITEM.CRAFTER_MODULE,
+                ITEM.CRAFTER_MODULE_MKII,
+                ITEM.CRAFTER_MODULE_MKIII,
+                ITEM.QUICKSORT_MODULE,
+                ITEM.TERMINUS_MODULE
         );
     }
 
@@ -217,6 +242,73 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
         }
     }
 
+    public static final class ITEM {
+        private ITEM() {}
+
+        public static Item BLANK_MODULE;
+        public static Item ITEM_SINK_MODULE;
+        public static Item POLYMORPHIC_SINK_MODULE;
+        public static Item ENCHANTMENT_SINK_MODULE;
+        public static Item MOD_ITEM_SINK_MODULE;
+        public static Item PASSIVE_SUPPLIER_MODULE;
+        public static Item ACTIVE_SUPPLIER_MODULE;
+        public static Item PROVIDER_MODULE;
+        public static Item PROVIDER_MODULE_MKII;
+        public static Item EXTRACTOR_MODULE;
+        public static Item EXTRACTOR_MODULE_MKII;
+        public static Item EXTRACTOR_MODULE_MKIII;
+        public static Item ADVANCED_EXTRACTOR_MODULE;
+        public static Item ADVANCED_EXTRACTOR_MODULE_MKII;
+        public static Item ADVANCED_EXTRACTOR_MODULE_MKIII;
+        public static Item CRAFTER_MODULE;
+        public static Item CRAFTER_MODULE_MKII;
+        public static Item CRAFTER_MODULE_MKIII;
+        public static Item QUICKSORT_MODULE;
+        public static Item TERMINUS_MODULE;
+
+        static void register() {
+            BLANK_MODULE = INSTANCE.registerItem("blank_module", Item::new);
+            ITEM_SINK_MODULE = INSTANCE.registerItem("item_sink_module",
+                    props -> new ModuleItem(props, () -> new SinkModule(7)));
+            POLYMORPHIC_SINK_MODULE = INSTANCE.registerItem("polymorphic_sink_module",
+                    props -> new ModuleItem(props, () -> new PolymorphicSinkModule(7)));
+            ENCHANTMENT_SINK_MODULE = INSTANCE.registerItem("enchantment_sink_module",
+                    props -> new ModuleItem(props, () -> new EnchantmentSinkModule(3)));
+            MOD_ITEM_SINK_MODULE = INSTANCE.registerItem("mod_item_sink_module",
+                    props -> new ModuleItem(props, () -> new Module() {}));
+            PASSIVE_SUPPLIER_MODULE = INSTANCE.registerItem("passive_supplier_module",
+                    props -> new ModuleItem(props, () -> new PassiveSupplierModule(8)));
+            ACTIVE_SUPPLIER_MODULE = INSTANCE.registerItem("active_supplier_module",
+                    props -> new ModuleItem(props, SupplierModule::new));
+            PROVIDER_MODULE = INSTANCE.registerItem("provider_module",
+                    props -> new ModuleItem(props, () -> new ProviderModule(8, 1)));
+            PROVIDER_MODULE_MKII = INSTANCE.registerItem("provider_mkii_module",
+                    props -> new ModuleItem(props, () -> new ProviderModule(128, 8)));
+            EXTRACTOR_MODULE = INSTANCE.registerItem("extractor_module",
+                    props -> new ModuleItem(props, () -> new BasicExtractorModule(1, 100)));
+            EXTRACTOR_MODULE_MKII = INSTANCE.registerItem("extractor_module_mkii",
+                    props -> new ModuleItem(props, () -> new BasicExtractorModule(1, 20)));
+            EXTRACTOR_MODULE_MKIII = INSTANCE.registerItem("extractor_module_mkiii",
+                    props -> new ModuleItem(props, () -> new BasicExtractorModule(64, 1)));
+            ADVANCED_EXTRACTOR_MODULE = INSTANCE.registerItem("advanced_extractor_module",
+                    props -> new ModuleItem(props, () -> new AdvancedExtractorModule(1, 100)));
+            ADVANCED_EXTRACTOR_MODULE_MKII = INSTANCE.registerItem("advanced_extractor_mkii_module",
+                    props -> new ModuleItem(props, () -> new AdvancedExtractorModule(1, 20)));
+            ADVANCED_EXTRACTOR_MODULE_MKIII = INSTANCE.registerItem("advanced_extractor_mkiii_module",
+                    props -> new ModuleItem(props, () -> new AdvancedExtractorModule(64, 1)));
+            CRAFTER_MODULE = INSTANCE.registerItem("crafter_module",
+                    props -> new ModuleItem(props, () -> new CraftingModule() {}));
+            CRAFTER_MODULE_MKII = INSTANCE.registerItem("crafter_mkii_module",
+                    props -> new ModuleItem(props, () -> new CraftingModule() {}));
+            CRAFTER_MODULE_MKIII = INSTANCE.registerItem("crafter_mkiii_module",
+                    props -> new ModuleItem(props, () -> new CraftingModule() {}));
+            QUICKSORT_MODULE = INSTANCE.registerItem("quicksort_module",
+                    props -> new ModuleItem(props, QuickSortModule::new));
+            TERMINUS_MODULE = INSTANCE.registerItem("terminus_module",
+                    props -> new ModuleItem(props, () -> new TerminusModule(4)));
+        }
+    }
+
     public static final class DATA {
         public static DataComponentType<WeatheringState> WEATHERING_STATE;
 
@@ -278,6 +370,7 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
         public static MenuType<com.logistics.pipe.ui.ChassisScreenHandler> CHASSIS_MK3;
         public static MenuType<com.logistics.pipe.ui.ChassisScreenHandler> CHASSIS_MK4;
         public static MenuType<com.logistics.pipe.ui.ChassisScreenHandler> CHASSIS_MK5;
+        public static MenuType<com.logistics.pipe.ui.AdvancedExtractorScreenHandler> ADVANCED_EXTRACTOR;
 
         private SCREEN() {}
 
@@ -337,6 +430,10 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
                     BuiltInRegistries.MENU,
                     LogisticsPipe.resource("chassis_mk5").toIdentifier(),
                     new MenuType<>((syncId, inv) -> new com.logistics.pipe.ui.ChassisScreenHandler(syncId, inv, 8), FeatureFlagSet.of()));
+            ADVANCED_EXTRACTOR = Registry.register(
+                    BuiltInRegistries.MENU,
+                    LogisticsPipe.resource("advanced_extractor").toIdentifier(),
+                    new MenuType<>(com.logistics.pipe.ui.AdvancedExtractorScreenHandler::new, FeatureFlagSet.of()));
         }
     }
 

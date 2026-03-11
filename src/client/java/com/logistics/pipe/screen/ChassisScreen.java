@@ -1,7 +1,9 @@
 package com.logistics.pipe.screen;
 
 import com.logistics.core.lib.resource.ResourceId;
+import com.logistics.pipe.network.OpenChassisSlotPacket;
 import com.logistics.pipe.ui.ChassisScreenHandler;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -45,9 +47,11 @@ public class ChassisScreen extends AbstractContainerScreen<ChassisScreenHandler>
     protected void init() {
         super.init();
         for (int i = 0; i < menu.getSlotCount(); i++) {
+            final int slotIndex = i;
             int bx = leftPos + SLOT_X[i] - BUTTON_GAP - BUTTON_SIZE;
             int by = topPos + SLOT_Y[i] + (18 - BUTTON_SIZE) / 2 - 1;
-            addRenderableWidget(Button.builder(Component.literal("!"), btn -> {})
+            addRenderableWidget(Button.builder(Component.literal("!"),
+                            btn -> ClientPlayNetworking.send(new OpenChassisSlotPacket(slotIndex)))
                     .bounds(bx, by, BUTTON_SIZE, BUTTON_SIZE)
                     .build());
         }

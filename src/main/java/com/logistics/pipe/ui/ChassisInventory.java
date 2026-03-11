@@ -3,11 +3,16 @@ package com.logistics.pipe.ui;
 import com.logistics.pipe.ChassisPipe;
 import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
+import com.logistics.pipe.item.ModuleItem;
+import net.minecraft.core.NonNullList;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.Level;
 
 import net.minecraft.core.BlockPos;
@@ -30,6 +35,41 @@ public class ChassisInventory implements Container {
         }
     }
 
+    /** When a module item is inserted, copy its stored CustomData → block entity module state. */
+    private void syncStateFromItem(ItemStack stack) {
+        if (!(stack.getItem() instanceof ModuleItem moduleItem)) return;
+        CustomData customData = stack.get(DataComponents.CUSTOM_DATA);
+        if (customData == null) return;
+        PipeContext ctx = pipeEntity.createContext();
+        String stateKey = moduleItem.createModule().getStateKey();
+        CompoundTag state = ctx.moduleState(stateKey);
+        CompoundTag itemState = customData.copyTag();
+        for (String key : itemState.keySet()) {
+            Tag value = itemState.get(key);
+            if (value != null) state.put(key, value);
+        }
+    }
+
+    /** Call the module's onDetach lifecycle hook so it can clean up network registrations. */
+    private void detachModule(ItemStack stack) {
+        if (pipeEntity == null) return;
+        Level level = pipeEntity.getLevel();
+        if (level == null || level.isClientSide()) return;
+        if (!(stack.getItem() instanceof ModuleItem moduleItem)) return;
+        moduleItem.createModule().onDetach(pipeEntity.createContext());
+    }
+
+    /** Before returning a module item, copy the block entity module state → item's CustomData. */
+    private void syncStateToItem(ItemStack stack) {
+        if (!(stack.getItem() instanceof ModuleItem moduleItem)) return;
+        PipeContext ctx = pipeEntity.createContext();
+        String stateKey = moduleItem.createModule().getStateKey();
+        CompoundTag state = ctx.moduleState(stateKey);
+        if (!state.isEmpty()) {
+            stack.set(DataComponents.CUSTOM_DATA, CustomData.of(state.copy()));
+        }
+    }
+
     private void loadFromEntity() {
         PipeContext ctx = pipeEntity.createContext();
         var state = ctx.moduleState(ChassisPipe.STATE_KEY);
@@ -47,6 +87,13 @@ public class ChassisInventory implements Container {
         if (pipeEntity == null) return;
         Level level = pipeEntity.getLevel();
         if (level == null || level.isClientSide()) return;
+
+        // Sync current module state back into each item before persisting
+        for (ItemStack stack : items) {
+            if (!stack.isEmpty()) {
+                syncStateToItem(stack);
+            }
+        }
 
         PipeContext ctx = pipeEntity.createContext();
         var state = ctx.moduleState(ChassisPipe.STATE_KEY);
@@ -86,8 +133,15 @@ public class ChassisInventory implements Container {
         if (existing.isEmpty()) return ItemStack.EMPTY;
         int removed = Math.min(amount, existing.getCount());
         ItemStack result = existing.copyWithCount(removed);
+        if (pipeEntity != null) {
+            syncStateToItem(result);
+        }
         existing.shrink(removed);
         if (existing.isEmpty()) items.set(slot, ItemStack.EMPTY);
+        if (existing.isEmpty()) {
+            detachModule(result);
+            items.set(slot, ItemStack.EMPTY);
+        }
         saveToEntity();
         return result;
     }
@@ -104,8 +158,26 @@ public class ChassisInventory implements Container {
     @Override
     public void setItem(int slot, ItemStack stack) {
         if (slot < 0 || slot >= items.size()) return;
+        ItemStack previous = items.get(slot);
+        if (!previous.isEmpty() && (stack.isEmpty() || !ItemStack.isSameItem(previous, stack))) {
+            detachModule(previous);
+        }
         items.set(slot, stack);
+        if (!stack.isEmpty() && pipeEntity != null) {
+            syncStateFromItem(stack);
+        }
         saveToEntity();
+
+        // When inserting a module, force onConnectionsChanged to re-fire on the next tick.
+        // The module was just saved, but the connection cache is already clean (no physical
+        // neighbor change occurred), so without this the new module's sinkDirection stays null.
+        if (!stack.isEmpty() && pipeEntity != null) {
+            Level level = pipeEntity.getLevel();
+            if (level != null && !level.isClientSide()) {
+                pipeEntity.setLastConnectionsMask(-1);
+                pipeEntity.invalidateConnectionCache();
+            }
+        }
     }
 
     @Override
@@ -122,6 +194,9 @@ public class ChassisInventory implements Container {
 
     @Override
     public void clearContent() {
+        for (ItemStack stack : items) {
+            detachModule(stack);
+        }
         for (int i = 0; i < items.size(); i++) {
             items.set(i, ItemStack.EMPTY);
         }

@@ -1,0 +1,6 @@
+{
+  "model": {
+    "model": "logistics:item/pipe/provider_module",
+    "type": "minecraft:model"
+  }
+}
