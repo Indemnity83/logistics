@@ -4,6 +4,8 @@ import com.logistics.LogisticsPipe;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.core.lib.storage.DirectionSerializer;
 import com.logistics.pipe.PipeContext;
+import com.logistics.pipe.network.ILogisticsNetwork;
+import com.logistics.pipe.network.NetworkRegistry;
 import com.logistics.pipe.runtime.RoutePlan;
 import com.logistics.pipe.runtime.TravelingItem;
 import net.minecraft.core.Direction;
@@ -20,6 +22,11 @@ import java.util.List;
  */
 public class EnchantmentSinkModule implements Module {
     private static final String SINK_DIRECTION = "sink_direction";
+    private final int priority;
+
+    public EnchantmentSinkModule(int priority) {
+        this.priority = priority;
+    }
 
     @Override
     public void onConnectionsChanged(PipeContext ctx, List<Direction> options) {
@@ -32,6 +39,22 @@ public class EnchantmentSinkModule implements Module {
         if (current == null || !inventoryFaces.contains(current)) {
             setSinkDirection(ctx, inventoryFaces.getFirst());
         }
+
+        if (!ctx.world().isClientSide()) {
+            ILogisticsNetwork network = NetworkRegistry.getNetwork(ctx.world(), ctx.pos());
+            if (network != null) {
+                network.registerSink(ctx.pos(), priority);
+                network.registerGenericSinkInterest(ctx.pos()); // enchantment check is dynamic
+            }
+        }
+    }
+
+    @Override
+    public void onDetach(PipeContext ctx) {
+        if (!ctx.world().isClientSide()) {
+            ILogisticsNetwork network = NetworkRegistry.getNetwork(ctx.world(), ctx.pos());
+            if (network != null) network.unregisterSink(ctx.pos()); // also clears interests
+        }
     }
 
     @Override
@@ -40,7 +63,7 @@ public class EnchantmentSinkModule implements Module {
         if (sinkDir == null || !options.contains(sinkDir)) {
             return RoutePlan.pass();
         }
-        if (isEnchanted(item.getStack())) {
+        if (matchesItem(item.getStack())) {
             return RoutePlan.reroute(sinkDir);
         }
         return RoutePlan.pass();
@@ -53,7 +76,7 @@ public class EnchantmentSinkModule implements Module {
         return LogisticsPipe.model("basic_logistics_pipe" + suffix);
     }
 
-    private static boolean isEnchanted(ItemStack stack) {
+    public boolean matchesItem(ItemStack stack) {
         var enchantments = stack.get(DataComponents.ENCHANTMENTS);
         if (enchantments != null && !enchantments.isEmpty()) return true;
         var stored = stack.get(DataComponents.STORED_ENCHANTMENTS);

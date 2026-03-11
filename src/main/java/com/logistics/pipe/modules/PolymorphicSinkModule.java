@@ -4,7 +4,9 @@ import com.logistics.LogisticsPipe;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.core.lib.storage.DirectionSerializer;
 import com.logistics.pipe.PipeContext;
+import com.logistics.pipe.network.ILogisticsNetwork;
 import com.logistics.pipe.network.NetDbg;
+import com.logistics.pipe.network.NetworkRegistry;
 import com.logistics.pipe.runtime.RoutePlan;
 import com.logistics.pipe.runtime.TravelingItem;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
@@ -26,6 +28,11 @@ import java.util.List;
  */
 public class PolymorphicSinkModule implements Module {
     private static final String SINK_DIRECTION = "sink_direction";
+    private final int priority;
+
+    public PolymorphicSinkModule(int priority) {
+        this.priority = priority;
+    }
 
     @Override
     public void onConnectionsChanged(PipeContext ctx, List<Direction> options) {
@@ -39,11 +46,22 @@ public class PolymorphicSinkModule implements Module {
         if (current == null || !inventoryFaces.contains(current)) {
             setSinkDirection(ctx, inventoryFaces.getFirst());
         }
+
+        if (!ctx.world().isClientSide()) {
+            ILogisticsNetwork network = NetworkRegistry.getNetwork(ctx.world(), ctx.pos());
+            if (network != null) {
+                network.registerSink(ctx.pos(), priority);
+                network.registerGenericSinkInterest(ctx.pos()); // inventory check is dynamic
+            }
+        }
     }
 
     @Override
     public void onDetach(PipeContext ctx) {
-        // No network registration was made, nothing to clean up
+        if (!ctx.world().isClientSide()) {
+            ILogisticsNetwork network = NetworkRegistry.getNetwork(ctx.world(), ctx.pos());
+            if (network != null) network.unregisterSink(ctx.pos()); // also clears interests
+        }
     }
 
     @Override

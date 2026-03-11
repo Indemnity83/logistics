@@ -269,15 +269,15 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
         static void register() {
             BLANK_MODULE = INSTANCE.registerItem("blank_module", Item::new);
             ITEM_SINK_MODULE = INSTANCE.registerItem("item_sink_module",
-                    props -> new ModuleItem(props, SinkModule::new));
+                    props -> new ModuleItem(props, () -> new SinkModule(7)));
             POLYMORPHIC_SINK_MODULE = INSTANCE.registerItem("polymorphic_sink_module",
-                    props -> new ModuleItem(props, PolymorphicSinkModule::new));
+                    props -> new ModuleItem(props, () -> new PolymorphicSinkModule(7)));
             ENCHANTMENT_SINK_MODULE = INSTANCE.registerItem("enchantment_sink_module",
-                    props -> new ModuleItem(props, EnchantmentSinkModule::new));
+                    props -> new ModuleItem(props, () -> new EnchantmentSinkModule(3)));
             MOD_ITEM_SINK_MODULE = INSTANCE.registerItem("mod_item_sink_module",
                     props -> new ModuleItem(props, () -> new Module() {}));
             PASSIVE_SUPPLIER_MODULE = INSTANCE.registerItem("passive_supplier_module",
-                    props -> new ModuleItem(props, PassiveSupplierModule::new));
+                    props -> new ModuleItem(props, () -> new PassiveSupplierModule(8)));
             ACTIVE_SUPPLIER_MODULE = INSTANCE.registerItem("active_supplier_module",
                     props -> new ModuleItem(props, SupplierModule::new));
             PROVIDER_MODULE = INSTANCE.registerItem("provider_module",
@@ -305,7 +305,7 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
             QUICKSORT_MODULE = INSTANCE.registerItem("quicksort_module",
                     props -> new ModuleItem(props, QuickSortModule::new));
             TERMINUS_MODULE = INSTANCE.registerItem("terminus_module",
-                    props -> new ModuleItem(props, SinkModule::new));
+                    props -> new ModuleItem(props, () -> new TerminusModule(4)));
         }
     }
 
