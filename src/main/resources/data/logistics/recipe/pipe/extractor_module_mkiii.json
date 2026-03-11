@@ -6,12 +6,12 @@
     " R "
   ],
   "key": {
-    "G": "logistics:core/gold_gear",
+    "G": "logistics:core/diamond_gear",
     "R": "minecraft:redstone",
     "B": "logistics:pipe/blank_module"
   },
   "result": {
     "count": 1,
-    "id": "logistics:pipe/extractor_module_mkii"
+    "id": "logistics:pipe/extractor_module_mkiii"
   }
 }

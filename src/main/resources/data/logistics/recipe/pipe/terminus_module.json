@@ -7,7 +7,7 @@
   ],
   "key": {
     "D": "minecraft:purple_dye",
-    "G": "logistics:core/iron_gear",
+    "G": "minecraft:ender_pearl",
     "R": "minecraft:redstone",
     "B": "logistics:pipe/blank_module"
   },

@@ -128,10 +128,21 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
                 ITEM.BLANK_MODULE,
                 ITEM.ITEM_SINK_MODULE,
                 ITEM.POLYMORPHIC_SINK_MODULE,
+                ITEM.ENCHANTMENT_SINK_MODULE,
+                ITEM.MOD_ITEM_SINK_MODULE,
                 ITEM.PASSIVE_SUPPLIER_MODULE,
+                ITEM.ACTIVE_SUPPLIER_MODULE,
                 ITEM.PROVIDER_MODULE,
+                ITEM.PROVIDER_MODULE_MKII,
                 ITEM.EXTRACTOR_MODULE,
                 ITEM.EXTRACTOR_MODULE_MKII,
+                ITEM.EXTRACTOR_MODULE_MKIII,
+                ITEM.ADVANCED_EXTRACTOR_MODULE,
+                ITEM.ADVANCED_EXTRACTOR_MODULE_MKII,
+                ITEM.ADVANCED_EXTRACTOR_MODULE_MKIII,
+                ITEM.CRAFTER_MODULE,
+                ITEM.CRAFTER_MODULE_MKII,
+                ITEM.CRAFTER_MODULE_MKIII,
                 ITEM.QUICKSORT_MODULE,
                 ITEM.TERMINUS_MODULE
         );
@@ -239,10 +250,21 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
         public static Item BLANK_MODULE;
         public static Item ITEM_SINK_MODULE;
         public static Item POLYMORPHIC_SINK_MODULE;
+        public static Item ENCHANTMENT_SINK_MODULE;
+        public static Item MOD_ITEM_SINK_MODULE;
         public static Item PASSIVE_SUPPLIER_MODULE;
+        public static Item ACTIVE_SUPPLIER_MODULE;
         public static Item PROVIDER_MODULE;
+        public static Item PROVIDER_MODULE_MKII;
         public static Item EXTRACTOR_MODULE;
         public static Item EXTRACTOR_MODULE_MKII;
+        public static Item EXTRACTOR_MODULE_MKIII;
+        public static Item ADVANCED_EXTRACTOR_MODULE;
+        public static Item ADVANCED_EXTRACTOR_MODULE_MKII;
+        public static Item ADVANCED_EXTRACTOR_MODULE_MKIII;
+        public static Item CRAFTER_MODULE;
+        public static Item CRAFTER_MODULE_MKII;
+        public static Item CRAFTER_MODULE_MKIII;
         public static Item QUICKSORT_MODULE;
         public static Item TERMINUS_MODULE;
 
@@ -252,13 +274,24 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
                     props -> new ModuleItem(props, SinkModule::new));
             POLYMORPHIC_SINK_MODULE = INSTANCE.registerItem("polymorphic_sink_module",
                     props -> new ModuleItem(props, PolymorphicSinkModule::new));
+            ENCHANTMENT_SINK_MODULE = INSTANCE.registerItem("enchantment_sink_module", Item::new);
+            MOD_ITEM_SINK_MODULE = INSTANCE.registerItem("mod_item_sink_module", Item::new);
             PASSIVE_SUPPLIER_MODULE = INSTANCE.registerItem("passive_supplier_module", Item::new);
+            ACTIVE_SUPPLIER_MODULE = INSTANCE.registerItem("active_supplier_module", Item::new);
             PROVIDER_MODULE = INSTANCE.registerItem("provider_module",
                     props -> new ModuleItem(props, ProviderModule::new));
+            PROVIDER_MODULE_MKII = INSTANCE.registerItem("provider_mkii_module", Item::new);
             EXTRACTOR_MODULE = INSTANCE.registerItem("extractor_module",
                     props -> new ModuleItem(props, () -> new BasicExtractorModule(1, 100)));
             EXTRACTOR_MODULE_MKII = INSTANCE.registerItem("extractor_module_mkii",
                     props -> new ModuleItem(props, () -> new BasicExtractorModule(1, 20)));
+            EXTRACTOR_MODULE_MKIII = INSTANCE.registerItem("extractor_module_mkiii", Item::new);
+            ADVANCED_EXTRACTOR_MODULE = INSTANCE.registerItem("advanced_extractor_module", Item::new);
+            ADVANCED_EXTRACTOR_MODULE_MKII = INSTANCE.registerItem("advanced_extractor_mkii_module", Item::new);
+            ADVANCED_EXTRACTOR_MODULE_MKIII = INSTANCE.registerItem("advanced_extractor_mkiii_module", Item::new);
+            CRAFTER_MODULE = INSTANCE.registerItem("crafter_module", Item::new);
+            CRAFTER_MODULE_MKII = INSTANCE.registerItem("crafter_mkii_module", Item::new);
+            CRAFTER_MODULE_MKIII = INSTANCE.registerItem("crafter_mkiii_module", Item::new);
             QUICKSORT_MODULE = INSTANCE.registerItem("quicksort_module", Item::new);
             TERMINUS_MODULE = INSTANCE.registerItem("terminus_module", Item::new);
         }

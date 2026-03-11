@@ -1,17 +1,18 @@
 {
   "type": "minecraft:crafting_shaped",
   "pattern": [
-    " G ",
+    "DGD",
     "RBR",
-    " R "
+    "DRD"
   ],
   "key": {
+    "D": "minecraft:brown_dye",
     "G": "logistics:core/gold_gear",
     "R": "minecraft:redstone",
     "B": "logistics:pipe/blank_module"
   },
   "result": {
     "count": 1,
-    "id": "logistics:pipe/extractor_module_mkii"
+    "id": "logistics:pipe/crafter_mkii_module"
   }
 }
