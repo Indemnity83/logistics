@@ -1,0 +1,149 @@
+package com.logistics.pipe.ui;
+
+import com.logistics.LogisticsPipe;
+import com.logistics.pipe.block.entity.PipeBlockEntity;
+import com.logistics.pipe.modules.AdvancedExtractorModule;
+import net.minecraft.world.Container;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.inventory.ContainerData;
+import net.minecraft.world.inventory.ContainerLevelAccess;
+import net.minecraft.world.inventory.SimpleContainerData;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
+
+/**
+ * Screen handler for the Advanced Extractor filter GUI.
+ * Shows 9 filter ghost slots and an Include/Exclude toggle.
+ * No mode selection (unlike the Provider GUI).
+ */
+public class AdvancedExtractorScreenHandler extends AbstractContainerMenu {
+    private static final int FILTER_SLOT_COUNT = 9;
+    private static final int SLOT_SIZE = 18;
+    private static final int FILTER_START_Y = 18;
+    private static final int PLAYER_INV_START_Y = 60;
+    private static final int HOTBAR_Y = 118;
+    private static final int SLOT_START_X = 8;
+
+    // data[0] = filter inverted (0 = include, 1 = exclude)
+    private final ContainerData data;
+    private final AdvancedExtractorFilterInventory filterInventory;
+    private final ContainerLevelAccess context;
+
+    public AdvancedExtractorScreenHandler(int syncId, Container playerInventory) {
+        this(syncId, playerInventory, null, new SimpleContainerData(1));
+    }
+
+    public AdvancedExtractorScreenHandler(int syncId, Container playerInventory, PipeBlockEntity pipeEntity) {
+        this(syncId, playerInventory, pipeEntity, new SimpleContainerData(1));
+    }
+
+    private AdvancedExtractorScreenHandler(
+            int syncId, Container playerInventory, PipeBlockEntity pipeEntity, ContainerData data) {
+        super(LogisticsPipe.SCREEN.ADVANCED_EXTRACTOR, syncId);
+        this.data = data;
+        this.filterInventory = new AdvancedExtractorFilterInventory(pipeEntity);
+
+        if (pipeEntity != null) {
+            this.context = ContainerLevelAccess.create(pipeEntity.getLevel(), pipeEntity.getBlockPos());
+            PipeModuleHelper.withModule(pipeEntity, AdvancedExtractorModule.class, (ctx, module) ->
+                    data.set(0, module.isFilterInverted(ctx) ? 1 : 0));
+        } else {
+            this.context = ContainerLevelAccess.NULL;
+        }
+
+        addFilterSlots(filterInventory);
+        addPlayerInventorySlots(playerInventory);
+        addDataSlots(data);
+    }
+
+    private void addFilterSlots(Container inventory) {
+        for (int col = 0; col < 9; col++) {
+            addSlot(new FilterSlot(inventory, col, SLOT_START_X + col * SLOT_SIZE, FILTER_START_Y));
+        }
+    }
+
+    private void addPlayerInventorySlots(Container playerInventory) {
+        for (int row = 0; row < 3; row++) {
+            for (int col = 0; col < 9; col++) {
+                addSlot(new Slot(
+                        playerInventory,
+                        col + row * 9 + 9,
+                        SLOT_START_X + col * SLOT_SIZE,
+                        PLAYER_INV_START_Y + row * SLOT_SIZE));
+            }
+        }
+        for (int col = 0; col < 9; col++) {
+            addSlot(new Slot(playerInventory, col, SLOT_START_X + col * SLOT_SIZE, HOTBAR_Y));
+        }
+    }
+
+    @Override
+    public boolean stillValid(Player player) { return true; }
+
+    @Override
+    public ItemStack quickMoveStack(Player player, int slot) { return ItemStack.EMPTY; }
+
+    @Override
+    public void clicked(int slotIndex, int button, ClickType actionType, Player player) {
+        if (slotIndex >= 0 && slotIndex < FILTER_SLOT_COUNT) {
+            if (actionType == ClickType.QUICK_MOVE) return;
+
+            ItemStack cursor = getCarried();
+
+            if (button == 1 || cursor.isEmpty()) {
+                filterInventory.setItem(slotIndex, ItemStack.EMPTY);
+                PipeModuleHelper.withModule(context, AdvancedExtractorModule.class, (ctx, module) ->
+                        module.setFilterItem(ctx, slotIndex, ""));
+                broadcastChanges();
+                return;
+            }
+
+            String itemId = net.minecraft.core.registries.BuiltInRegistries.ITEM
+                    .getKey(cursor.getItem()).toString();
+            filterInventory.setItem(slotIndex, cursor.copyWithCount(1));
+            PipeModuleHelper.withModule(context, AdvancedExtractorModule.class, (ctx, module) ->
+                    module.setFilterItem(ctx, slotIndex, itemId));
+            broadcastChanges();
+            return;
+        }
+
+        super.clicked(slotIndex, button, actionType, player);
+    }
+
+    @Override
+    public boolean clickMenuButton(Player player, int id) {
+        if (id == 0) {
+            int newInverted = data.get(0) == 0 ? 1 : 0;
+            data.set(0, newInverted);
+            PipeModuleHelper.withModule(context, AdvancedExtractorModule.class, (ctx, module) ->
+                    module.setFilterInverted(ctx, newInverted == 1));
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isFilterInverted() {
+        return data.get(0) == 1;
+    }
+
+    @Override
+    public void broadcastChanges() {
+        PipeModuleHelper.withModule(context, AdvancedExtractorModule.class, (ctx, module) ->
+                data.set(0, module.isFilterInverted(ctx) ? 1 : 0));
+        super.broadcastChanges();
+    }
+
+    private static class FilterSlot extends Slot {
+        FilterSlot(Container inventory, int index, int x, int y) {
+            super(inventory, index, x, y);
+        }
+
+        @Override
+        public boolean mayPlace(ItemStack stack) { return false; }
+
+        @Override
+        public boolean mayPickup(Player player) { return false; }
+    }
+}

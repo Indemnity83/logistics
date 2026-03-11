@@ -289,13 +289,13 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
             EXTRACTOR_MODULE_MKII = INSTANCE.registerItem("extractor_module_mkii",
                     props -> new ModuleItem(props, () -> new BasicExtractorModule(1, 20)));
             EXTRACTOR_MODULE_MKIII = INSTANCE.registerItem("extractor_module_mkiii",
-                    props -> new ModuleItem(props, () -> new BasicExtractorModule(64, 6)));
+                    props -> new ModuleItem(props, () -> new BasicExtractorModule(64, 1)));
             ADVANCED_EXTRACTOR_MODULE = INSTANCE.registerItem("advanced_extractor_module",
-                    props -> new ModuleItem(props, () -> new Module() {}));
+                    props -> new ModuleItem(props, () -> new AdvancedExtractorModule(1, 100)));
             ADVANCED_EXTRACTOR_MODULE_MKII = INSTANCE.registerItem("advanced_extractor_mkii_module",
-                    props -> new ModuleItem(props, () -> new Module() {}));
+                    props -> new ModuleItem(props, () -> new AdvancedExtractorModule(1, 20)));
             ADVANCED_EXTRACTOR_MODULE_MKIII = INSTANCE.registerItem("advanced_extractor_mkiii_module",
-                    props -> new ModuleItem(props, () -> new Module() {}));
+                    props -> new ModuleItem(props, () -> new AdvancedExtractorModule(64, 1)));
             CRAFTER_MODULE = INSTANCE.registerItem("crafter_module",
                     props -> new ModuleItem(props, () -> new CraftingModule() {}));
             CRAFTER_MODULE_MKII = INSTANCE.registerItem("crafter_mkii_module",
@@ -305,7 +305,7 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
             QUICKSORT_MODULE = INSTANCE.registerItem("quicksort_module",
                     props -> new ModuleItem(props, QuickSortModule::new));
             TERMINUS_MODULE = INSTANCE.registerItem("terminus_module",
-                    props -> new ModuleItem(props, () -> new Module() {}));
+                    props -> new ModuleItem(props, SinkModule::new));
         }
     }
 
@@ -370,6 +370,7 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
         public static MenuType<com.logistics.pipe.ui.ChassisScreenHandler> CHASSIS_MK3;
         public static MenuType<com.logistics.pipe.ui.ChassisScreenHandler> CHASSIS_MK4;
         public static MenuType<com.logistics.pipe.ui.ChassisScreenHandler> CHASSIS_MK5;
+        public static MenuType<com.logistics.pipe.ui.AdvancedExtractorScreenHandler> ADVANCED_EXTRACTOR;
 
         private SCREEN() {}
 
@@ -429,6 +430,10 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
                     BuiltInRegistries.MENU,
                     LogisticsPipe.resource("chassis_mk5").toIdentifier(),
                     new MenuType<>((syncId, inv) -> new com.logistics.pipe.ui.ChassisScreenHandler(syncId, inv, 8), FeatureFlagSet.of()));
+            ADVANCED_EXTRACTOR = Registry.register(
+                    BuiltInRegistries.MENU,
+                    LogisticsPipe.resource("advanced_extractor").toIdentifier(),
+                    new MenuType<>(com.logistics.pipe.ui.AdvancedExtractorScreenHandler::new, FeatureFlagSet.of()));
         }
     }
 
