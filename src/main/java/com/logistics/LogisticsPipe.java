@@ -301,7 +301,7 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
             CRAFTER_MODULE_MKII = INSTANCE.registerItem("crafter_mkii_module",
                     props -> new ModuleItem(props, () -> new CraftingModule(64, 1)));
             CRAFTER_MODULE_MKIII = INSTANCE.registerItem("crafter_mkiii_module",
-                    props -> new ModuleItem(props, () -> new CraftingModule(128, 8)));
+                    props -> new ModuleItem(props, () -> new CraftingModule(128, 8, 16)));
             QUICKSORT_MODULE = INSTANCE.registerItem("quicksort_module",
                     props -> new ModuleItem(props, QuickSortModule::new));
             TERMINUS_MODULE = INSTANCE.registerItem("terminus_module",

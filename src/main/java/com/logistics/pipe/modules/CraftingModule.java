@@ -30,6 +30,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.CrafterBlock;
 import net.minecraft.world.level.block.entity.CrafterBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -64,10 +65,17 @@ public class CraftingModule implements Module {
     private final int itemLimit;
     /** Max output stacks to dispatch per cycle (future use; stored for tier identity). */
     private final int stackLimit;
+    /** Internal ingredient buffer slots (MK3+). 0 = no buffer. */
+    private final int bufferSlots;
 
     public CraftingModule(int itemLimit, int stackLimit) {
+        this(itemLimit, stackLimit, 0);
+    }
+
+    public CraftingModule(int itemLimit, int stackLimit, int bufferSlots) {
         this.itemLimit = itemLimit;
         this.stackLimit = stackLimit;
+        this.bufferSlots = bufferSlots;
     }
 
     // NBT keys — recipe config
@@ -86,6 +94,8 @@ public class CraftingModule implements Module {
     private static final String ENTRY_DLV = "dlv";   // UUID as string
     private static final String ENTRY_AMT = "amt";   // remaining amount (long)
     private static final String ENTRY_IDS = "ids";   // ingredient order IDs (CompoundTag)
+    // NBT keys — ingredient buffer (MK3+)
+    private static final String INGREDIENT_BUFFER = "ingredient_buffer"; // CompoundTag: itemId → longCount
 
     // Timing constants
     private static final int SCAN_INTERVAL = 20;    // Update crafter supply every 20 ticks
@@ -186,6 +196,51 @@ public class CraftingModule implements Module {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    // ==================== Ingredient Buffer (MK3+) ====================
+
+    private CompoundTag getBufferTag(PipeContext ctx) {
+        return NbtCompat.getCompoundOrEmpty(ctx.moduleState(getStateKey()), INGREDIENT_BUFFER);
+    }
+
+    private long getBufferCount(PipeContext ctx, String ingredientId) {
+        return NbtCompat.getLong(getBufferTag(ctx), ingredientId, 0L);
+    }
+
+    /** Max items this buffer can hold for one ingredient: bufferSlots × maxStackSize. */
+    private long bufferCapacity(String ingredientId) {
+        if (bufferSlots <= 0) return 0;
+        ItemStack ingredient = resolveItem(ingredientId);
+        int maxStack = ingredient.isEmpty() ? 64 : ingredient.getMaxStackSize();
+        return (long) bufferSlots * maxStack;
+    }
+
+    /** Add up to {@code count} of {@code ingredientId} to the buffer. Returns amount actually added. */
+    private long addToBuffer(PipeContext ctx, String ingredientId, long count) {
+        long capacity = bufferCapacity(ingredientId);
+        long current = getBufferCount(ctx, ingredientId);
+        long toBuffer = Math.min(count, Math.max(0, capacity - current));
+        if (toBuffer <= 0) return 0;
+        CompoundTag buffer = getBufferTag(ctx);
+        buffer.putLong(ingredientId, current + toBuffer);
+        ctx.moduleState(getStateKey()).put(INGREDIENT_BUFFER, buffer);
+        ctx.markDirtyAndSync();
+        return toBuffer;
+    }
+
+    /** Remove up to {@code count} of {@code ingredientId} from the buffer. Returns amount removed. */
+    private long removeFromBuffer(PipeContext ctx, String ingredientId, long count) {
+        long current = getBufferCount(ctx, ingredientId);
+        long toRemove = Math.min(count, current);
+        if (toRemove <= 0) return 0;
+        CompoundTag buffer = getBufferTag(ctx);
+        long remaining = current - toRemove;
+        if (remaining <= 0) buffer.remove(ingredientId);
+        else buffer.putLong(ingredientId, remaining);
+        ctx.moduleState(getStateKey()).put(INGREDIENT_BUFFER, buffer);
+        ctx.markDirtyAndSync();
+        return toRemove;
     }
 
     // ==================== Autocrafter Detection ====================
@@ -337,6 +392,62 @@ public class CraftingModule implements Module {
             if (pipeState.hasProperty(PipeBlock.CRAFTING) && !pipeState.getValue(PipeBlock.CRAFTING)) {
                 ctx.world().setBlock(ctx.pos(), pipeState.setValue(PipeBlock.CRAFTING, true), 2);
             }
+        }
+
+        // Refill autocrafter slots from the internal ingredient buffer (MK3+)
+        if (bufferSlots > 0) {
+            refillAutocrafterFromBuffer(ctx, crafter);
+        }
+    }
+
+    /**
+     * Drain items from the internal ingredient buffer into matching recipe slots in the autocrafter.
+     * Called every craft cycle (regardless of whether crafting succeeded) so the autocrafter stays
+     * loaded as fast as possible.
+     */
+    private void refillAutocrafterFromBuffer(PipeContext ctx, CrafterBlockEntity crafter) {
+        CompoundTag buffer = getBufferTag(ctx);
+        if (buffer.isEmpty()) return;
+
+        boolean crafterChanged = false;
+        boolean bufferChanged = false;
+
+        for (String ingredientId : new ArrayList<>(buffer.keySet())) {
+            long inBuffer = NbtCompat.getLong(buffer, ingredientId, 0L);
+            if (inBuffer <= 0) continue;
+
+            ItemStack ingredient = resolveItem(ingredientId);
+            if (ingredient.isEmpty()) continue;
+
+            int maxStack = ingredient.getMaxStackSize();
+
+            for (int slot = 0; slot < 9 && inBuffer > 0; slot++) {
+                if (!ingredientId.equals(getIngredientItem(ctx, slot))) continue;
+                ItemStack inSlot = crafter.getItem(slot);
+                int current = inSlot.isEmpty() ? 0 : inSlot.getCount();
+                int space = Math.max(0, maxStack - current);
+                if (space <= 0) continue;
+
+                int toMove = (int) Math.min(inBuffer, space);
+                applySlotCount(crafter, slot, ingredient, current + toMove);
+                inBuffer -= toMove;
+                crafterChanged = true;
+            }
+
+            long original = NbtCompat.getLong(buffer, ingredientId, 0L);
+            if (inBuffer != original) {
+                bufferChanged = true;
+                if (inBuffer <= 0) buffer.remove(ingredientId);
+                else buffer.putLong(ingredientId, inBuffer);
+            }
+        }
+
+        if (bufferChanged) {
+            ctx.moduleState(getStateKey()).put(INGREDIENT_BUFFER, buffer);
+            ctx.markDirtyAndSync();
+        }
+        if (crafterChanged) {
+            crafter.setChanged();
         }
     }
 
@@ -523,6 +634,15 @@ public class CraftingModule implements Module {
         }
         if (!hasRecipeSlots) return CrafterBufferState.FULL;
 
+        // Add internal buffer free space so the network knows it can send more batches
+        if (bufferSlots > 0) {
+            for (Map.Entry<String, long[]> entry : perIngredient.entrySet()) {
+                String ingredientId = entry.getKey();
+                long bufferFree = Math.max(0, bufferCapacity(ingredientId) - getBufferCount(ctx, ingredientId));
+                entry.getValue()[0] += bufferFree;
+            }
+        }
+
         int minBatchCapacity = Integer.MAX_VALUE;
         for (Map.Entry<String, long[]> entry : perIngredient.entrySet()) {
             long totalSpace = entry.getValue()[0];
@@ -672,6 +792,21 @@ public class CraftingModule implements Module {
             if (entry != null) cancelEntryOrders(ctx, entry);
         }
 
+        // Clear internal buffer, warn about any lost items
+        if (bufferSlots > 0) {
+            CompoundTag buffer = getBufferTag(ctx);
+            long totalLost = 0;
+            for (String key : buffer.keySet()) {
+                totalLost += NbtCompat.getLong(buffer, key, 0L);
+            }
+            if (totalLost > 0) {
+                LogisticsPipe.LOGGER.warn(
+                        "[Crafter @ {}] Lost {} buffered ingredient(s) — autocrafter removed while active",
+                        ctx.pos(), totalLost);
+            }
+            ctx.moduleState(getStateKey()).remove(INGREDIENT_BUFFER);
+        }
+
         ctx.moduleState(getStateKey()).remove(QUEUE);
         ctx.saveInt(this, TICKS_PULSE, 0);
         ctx.markDirtyAndSync();
@@ -741,17 +876,29 @@ public class CraftingModule implements Module {
         if (!isIngredient(ctx, item.getStack())) return item;
 
         int placed = distributeIngredient(ctx, autocrafterDir, item);
-        if (placed <= 0) return item;
+
+        // Overflow any items that didn't fit in the autocrafter into the pipe's internal buffer
+        int buffered = 0;
+        if (bufferSlots > 0) {
+            int overflow = item.getStack().getCount() - placed;
+            if (overflow > 0) {
+                String ingredientId = BuiltInRegistries.ITEM.getKey(item.getStack().getItem()).toString();
+                buffered = (int) addToBuffer(ctx, ingredientId, overflow);
+            }
+        }
+
+        int totalHandled = placed + buffered;
+        if (totalHandled <= 0) return item;
 
         // Accounting
         if (item.getDeliveryId() != null) {
             ILogisticsNetwork network = NetworkRegistry.getNetwork(ctx.world(), ctx.pos());
             if (network != null) {
-                network.notifyDelivery(ctx.pos(), ItemVariant.of(item.getStack()), placed);
+                network.notifyDelivery(ctx.pos(), ItemVariant.of(item.getStack()), totalHandled);
             }
         }
 
-        item.getStack().shrink(placed);
+        item.getStack().shrink(totalHandled);
         return item.getStack().isEmpty() ? null : item;
     }
 
@@ -938,6 +1085,37 @@ public class CraftingModule implements Module {
             return LogisticsPipe.model("crafting_logistics_pipe_feature_extended");
         }
         return null;
+    }
+
+    // ==================== Lifecycle ====================
+
+    @Override
+    public void onDetach(PipeContext ctx) {
+        if (ctx.world().isClientSide()) return;
+
+        // Cancel outstanding ingredient orders and drop any buffered ingredients as item entities
+        ListTag queue = getQueue(ctx);
+        for (int i = 0; i < queue.size(); i++) {
+            CompoundTag entry = queue.getCompound(i).orElse(null);
+            if (entry != null) cancelEntryOrders(ctx, entry);
+        }
+
+        if (bufferSlots > 0) {
+            CompoundTag buffer = getBufferTag(ctx);
+            for (String ingredientId : buffer.keySet()) {
+                long count = NbtCompat.getLong(buffer, ingredientId, 0L);
+                if (count <= 0) continue;
+                ItemStack ingredient = resolveItem(ingredientId);
+                if (ingredient.isEmpty()) continue;
+                // Drop in full stacks
+                int maxStack = ingredient.getMaxStackSize();
+                while (count > 0) {
+                    int batch = (int) Math.min(count, maxStack);
+                    Block.popResource(ctx.world(), ctx.pos(), ingredient.copyWithCount(batch));
+                    count -= batch;
+                }
+            }
+        }
     }
 
     // ==================== GUI ====================
