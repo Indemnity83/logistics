@@ -236,10 +236,7 @@ public interface ILogisticsNetwork {
      * @return Position of a filtered sink, or null if none found
      */
     @Nullable
-    default BlockPos findFilteredSinkFor(ItemStack stack) {
-        throw new UnsupportedOperationException(
-                "findFilteredSinkFor must be overridden — default fallback to findSinkFor would include default-route sinks");
-    }
+    BlockPos findFilteredSinkFor(ItemStack stack);
 
     // ===== Routing Operations =====
 
