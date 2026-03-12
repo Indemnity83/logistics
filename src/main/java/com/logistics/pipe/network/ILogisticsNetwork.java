@@ -181,8 +181,8 @@ public interface ILogisticsNetwork {
      * Register a position as a default-route (catch-all) sink at priority 0.
      * Convenience for {@code registerSink(sink, 0)}.
      */
-    default void registerDefaultRouteSink(BlockPos sink, int priority) {
-        registerSink(sink, priority);
+    default void registerDefaultRouteSink(BlockPos sink) {
+        registerSink(sink, 0);
     }
 
     /**
@@ -236,9 +236,7 @@ public interface ILogisticsNetwork {
      * @return Position of a filtered sink, or null if none found
      */
     @Nullable
-    default BlockPos findFilteredSinkFor(ItemStack stack) {
-        return findSinkFor(stack); // safe fallback; PipeNetwork overrides properly
-    }
+    BlockPos findFilteredSinkFor(ItemStack stack);
 
     // ===== Routing Operations =====
 
