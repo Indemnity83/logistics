@@ -24,10 +24,14 @@ public record SupplierModeConfig(
      */
     public static SupplierModeConfig forMode(SupplyMode mode, int stackSize) {
         return switch (mode) {
-            case BULK50 -> new SupplierModeConfig(50, FulfillmentMode.PARTIAL, Long.MAX_VALUE);
-            case BULK100 -> new SupplierModeConfig(0, FulfillmentMode.PARTIAL, Long.MAX_VALUE);
-            case PARTIAL -> new SupplierModeConfig(100, FulfillmentMode.PARTIAL, Long.MAX_VALUE);
-            case FULL -> new SupplierModeConfig(100, FulfillmentMode.FULL, Long.MAX_VALUE);
+            // triggerThresholdPercent: stock % at or below which a restock is triggered
+            //   100 → any deficit (currentAmount < desired)
+            //    50 → at or below half (currentAmount ≤ desired/2)
+            //     0 → only when completely empty (currentAmount == 0)
+            case BULK50 ->   new SupplierModeConfig(50,  FulfillmentMode.PARTIAL, Long.MAX_VALUE);
+            case BULK100 ->  new SupplierModeConfig(0,   FulfillmentMode.PARTIAL, Long.MAX_VALUE);
+            case PARTIAL ->  new SupplierModeConfig(100, FulfillmentMode.PARTIAL, Long.MAX_VALUE);
+            case FULL ->     new SupplierModeConfig(100, FulfillmentMode.FULL,    Long.MAX_VALUE);
             case INFINITE -> new SupplierModeConfig(100, FulfillmentMode.PARTIAL, stackSize);
         };
     }
