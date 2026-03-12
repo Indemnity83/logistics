@@ -383,7 +383,7 @@ public class CraftingModule implements Module {
 
             // Trigger the vanilla autocrafter's crafting animation once per cycle.
             // CrafterBlockEntity.serverTick() counts down and resets CRAFTING=false automatically.
-            crafter.setCraftingTicksRemaining(6);
+            crafter.setCraftingTicksRemaining(CRAFT_INTERVAL);
             BlockState autocrafterState = serverLevel.getBlockState(autocrafterPos);
             if (autocrafterState.hasProperty(CrafterBlock.CRAFTING)) {
                 serverLevel.setBlock(
