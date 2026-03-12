@@ -47,11 +47,11 @@ public class SupplierModule implements Module {
      * Based on LogisticsPipes supply modes.
      */
     public enum SupplyMode {
-        BULK50,     // ordinal 0 - only request when inventory <= 50% of target
-        INFINITE,   // ordinal 1 - request 1 stack at a time, wait for delivery before requesting more
+        BULK50,     // ordinal 0 - request in bulk when inventory <= 50% of target
+        INFINITE,   // ordinal 1 - continuously fill up to one stack of available space
         PARTIAL,    // ordinal 2 - request whatever is available (default)
         FULL,       // ordinal 3 - only request if full amount is available (all-or-nothing)
-        BULK100     // ordinal 4 - only request when inventory is completely empty (appended to preserve existing ordinals)
+        BULK100     // ordinal 4 - request whenever any amount is missing (appended to preserve existing ordinals)
     }
 
     private static final String SUPPLIES = "supplies"; // NBT key for supply configurations
@@ -194,10 +194,14 @@ public class SupplierModule implements Module {
             long toRequest = 0;
 
             if (modeConfig.isWindowBounded()) {
-                // INFINITE mode: one-stack-at-a-time window; bypass needed and trigger checks
+                // INFINITE mode: continuously top-up; ignore target amount.
+                // Request = min(maxStack, roomForItem - inTransit), so we keep filling
+                // available space even while items are already in transit.
                 long availableSpace = getAvailableSpace(ctx, supplierDir, stack);
-                if (availableSpace > 0 && pendingAmount == 0) {
-                    toRequest = Math.min(modeConfig.maxOpenRequestWindow(), availableSpace);
+                long toFill = Math.min(modeConfig.maxOpenRequestWindow(),
+                        Math.max(0, availableSpace - pendingAmount));
+                if (toFill > 0) {
+                    toRequest = toFill;
                     shouldRequest = true;
                 }
             } else if (needed > 0 && modeConfig.isTriggerMet(currentAmount, config.amount())) {
