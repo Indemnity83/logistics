@@ -25,7 +25,7 @@ import java.util.List;
  * <ul>
  *   <li>MkI  — 1 item every 100 ticks</li>
  *   <li>MkII — 1 item every 20 ticks</li>
- *   <li>MkIII — 64 items every 6 ticks</li>
+ *   <li>MkIII — 64 items every tick</li>
  * </ul>
  *
  * <p>No GUI, no energy requirement.
@@ -74,30 +74,34 @@ public class BasicExtractorModule implements Module {
     }
 
     private void extract(PipeContext ctx, Direction dir) {
-        // Check pipe has room
         int occupied = ctx.blockEntity().getTravelingItems().stream()
                 .mapToInt(i -> i.getStack().getCount())
                 .sum();
-        if (PipeBlockEntity.VIRTUAL_CAPACITY - occupied < itemsPerPull) return;
+        int remaining = PipeBlockEntity.VIRTUAL_CAPACITY - occupied;
+        if (remaining <= 0) return;
 
         BlockPos targetPos = ctx.pos().relative(dir);
         Storage<ItemVariant> storage = ItemStorage.SIDED.find(ctx.world(), targetPos, dir.getOpposite());
         if (storage == null) return;
 
+        boolean anyExtracted = false;
         try (Transaction tx = Transaction.openOuter()) {
             for (StorageView<ItemVariant> view : storage) {
+                if (remaining <= 0) break;
                 ItemVariant variant = view.getResource();
                 if (variant.isBlank()) continue;
 
-                long extracted = view.extract(variant, itemsPerPull, tx);
+                int toExtract = Math.min(itemsPerPull, remaining);
+                long extracted = view.extract(variant, toExtract, tx);
                 if (extracted > 0) {
                     ItemStack stack = variant.toStack((int) extracted);
                     TravelingItem item = new TravelingItem(stack, dir.getOpposite(), LogisticsPipe.CONFIG.ITEM_MIN_SPEED);
                     ctx.blockEntity().forceAddItem(item, dir);
-                    tx.commit();
-                    return;
+                    remaining -= (int) extracted;
+                    anyExtracted = true;
                 }
             }
+            if (anyExtracted) tx.commit();
         }
     }
 

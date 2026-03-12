@@ -33,6 +33,10 @@ public class EnchantmentSinkModule implements Module {
         List<Direction> inventoryFaces = ctx.getInventoryConnections();
         if (inventoryFaces.isEmpty()) {
             setSinkDirection(ctx, null);
+            if (!ctx.world().isClientSide()) {
+                ILogisticsNetwork network = NetworkRegistry.getNetwork(ctx.world(), ctx.pos());
+                if (network != null) network.unregisterSink(ctx.pos());
+            }
             return;
         }
         Direction current = getSinkDirection(ctx);
