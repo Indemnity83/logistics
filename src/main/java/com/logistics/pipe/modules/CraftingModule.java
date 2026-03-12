@@ -558,7 +558,11 @@ public class CraftingModule implements Module {
                 for (int slot = 0; slot < 9; slot++) {
                     if (!ingredientId.equals(getIngredientItem(ctx, slot))) continue;
                     ItemStack inSlot = crafterEntity.getItem(slot);
-                    physicalStock += inSlot.isEmpty() ? 0 : inSlot.getCount();
+                    if (inSlot.isEmpty()) continue;
+                    // Only count if the slot actually holds the expected ingredient.
+                    // A stale or wrong item should not inflate the available stock estimate.
+                    if (!ingredientId.equals(BuiltInRegistries.ITEM.getKey(inSlot.getItem()).toString())) continue;
+                    physicalStock += inSlot.getCount();
                 }
             }
 
@@ -1096,7 +1100,7 @@ public class CraftingModule implements Module {
     public void onDetach(PipeContext ctx) {
         if (ctx.world().isClientSide()) return;
 
-        // Cancel outstanding ingredient orders
+        // Cancel all outstanding ingredient orders
         ListTag queue = getQueue(ctx);
         for (int i = 0; i < queue.size(); i++) {
             CompoundTag entry = queue.getCompound(i).orElse(null);
@@ -1106,9 +1110,28 @@ public class CraftingModule implements Module {
         // Drop any buffered ingredients into the world
         dropBufferedIngredients(ctx);
 
-        // Unregister supply/snapshot from the network so no stale craftables remain
-        // (critical for chassis removal where the pipe itself stays alive)
-        updateCrafterSupply(ctx);
+        // Clear queue and tick counters so stale state doesn't survive a re-attach
+        ctx.moduleState(getStateKey()).remove(QUEUE);
+        ctx.saveInt(this, TICKS_PULSE, 0);
+        ctx.saveInt(this, TICKS_SCAN, 0);
+
+        // Unconditional network teardown — do NOT delegate to updateCrafterSupply because
+        // that method may re-register supply when a recipe and autocrafter are still present
+        // (e.g. chassis slot removal while the autocrafter is still adjacent).
+        ILogisticsNetwork network = NetworkRegistry.getNetwork(ctx.world(), ctx.pos());
+        if (network != null) {
+            network.registerSupply(ctx.pos(), new HashMap<>(), CRAFTER_PRIORITY);
+            network.unregisterProviderCheck(ctx.pos());
+            network.unregisterCrafterSnapshot(ctx.pos());
+        }
+
+        // Clear visual CRAFTING indicator
+        BlockState currentState = ctx.world().getBlockState(ctx.pos());
+        if (currentState.hasProperty(PipeBlock.CRAFTING) && currentState.getValue(PipeBlock.CRAFTING)) {
+            ctx.world().setBlock(ctx.pos(), currentState.setValue(PipeBlock.CRAFTING, false), 2);
+        }
+
+        ctx.markDirtyAndSync();
     }
 
     /**
@@ -1120,11 +1143,20 @@ public class CraftingModule implements Module {
         CompoundTag buffer = getBufferTag(ctx);
         if (buffer.isEmpty()) return;
 
+        // Build a new buffer containing only entries whose item ID could not be resolved.
+        // Unresolved entries are preserved (with a log warning) so the count isn't silently lost.
+        CompoundTag unresolved = new CompoundTag();
         for (String ingredientId : buffer.keySet()) {
             long count = NbtCompat.getLong(buffer, ingredientId, 0L);
             if (count <= 0) continue;
             ItemStack ingredient = resolveItem(ingredientId);
-            if (ingredient.isEmpty()) continue;
+            if (ingredient.isEmpty()) {
+                LogisticsPipe.LOGGER.warn(
+                        "[Crafter @ {}] Cannot drop {} buffered '{}' — item ID not in registry",
+                        ctx.pos(), count, ingredientId);
+                unresolved.putLong(ingredientId, count);
+                continue;
+            }
             int maxStack = ingredient.getMaxStackSize();
             while (count > 0) {
                 int batch = (int) Math.min(count, maxStack);
@@ -1133,7 +1165,11 @@ public class CraftingModule implements Module {
             }
         }
 
-        ctx.moduleState(getStateKey()).remove(INGREDIENT_BUFFER);
+        if (unresolved.isEmpty()) {
+            ctx.moduleState(getStateKey()).remove(INGREDIENT_BUFFER);
+        } else {
+            ctx.moduleState(getStateKey()).put(INGREDIENT_BUFFER, unresolved);
+        }
         ctx.markDirtyAndSync();
     }
 
