@@ -69,7 +69,7 @@ public final class PipeTypes {
 
     // Crafting Logistics Pipe - on-demand crafting via adjacent Autocrafter.
     public static final Pipe CRAFTING_LOGISTICS_PIPE = new Pipe(
-            new CraftingModule(),
+            new CraftingModule(1, 1),
             new NetworkRouterModule())
             .withEnergy();
 
