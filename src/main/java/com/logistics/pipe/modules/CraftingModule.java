@@ -231,6 +231,45 @@ public class CraftingModule implements Module {
         return null;
     }
 
+    /**
+     * Reads the adjacent autocrafter's current slot contents and recipe result, and writes them
+     * into this module's ghost recipe config. Clears any slots in the crafter that are empty.
+     */
+    public void importFromAutocrafter(PipeContext ctx) {
+        if (!(ctx.world() instanceof ServerLevel serverLevel)) return;
+        Direction dir = findAutocrafterDirection(ctx);
+        if (dir == null) return;
+        BlockPos autocrafterPos = ctx.pos().relative(dir);
+        if (!(serverLevel.getBlockEntity(autocrafterPos) instanceof CrafterBlockEntity crafter)) return;
+
+        // Import ingredients from crafter input slots
+        for (int slot = 0; slot < 9; slot++) {
+            ItemStack stack = crafter.getItem(slot);
+            if (stack.isEmpty()) {
+                setIngredient(ctx, slot, "", 1);
+            } else {
+                String itemId = BuiltInRegistries.ITEM.getKey(stack.getItem()).toString();
+                setIngredient(ctx, slot, itemId, stack.getCount());
+            }
+        }
+
+        // Compute recipe result and import it
+        CraftingInput craftInput = crafter.asCraftInput();
+        Optional<RecipeHolder<CraftingRecipe>> recipeOpt = CrafterBlock.getPotentialResults(serverLevel, craftInput);
+        if (recipeOpt.isPresent()) {
+            CraftingRecipe recipe = recipeOpt.get().value();
+            ItemStack result = recipe.assemble(craftInput, serverLevel.registryAccess());
+            if (!result.isEmpty()) {
+                String resultId = BuiltInRegistries.ITEM.getKey(result.getItem()).toString();
+                setResult(ctx, resultId, result.getCount());
+            } else {
+                setResult(ctx, "", 1);
+            }
+        } else {
+            setResult(ctx, "", 1);
+        }
+    }
+
     // ==================== Module Interface ====================
 
     @Override

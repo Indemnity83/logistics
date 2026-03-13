@@ -82,7 +82,7 @@ public class CraftingRecipeInventory implements Container {
         }
     }
 
-    private void loadFromModule() {
+    void loadFromModule() {
         for (int i = 0; i < SLOT_COUNT; i++) {
             stacks.set(i, ItemStack.EMPTY);
         }

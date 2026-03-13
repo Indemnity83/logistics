@@ -258,6 +258,13 @@ public class CraftingScreenHandler extends AbstractContainerMenu {
             }
             return true;
         }
+        if (id == 1 && itemConfigPlayer == null) {
+            // Import recipe from adjacent autocrafter
+            PipeModuleHelper.withModule(context, CraftingModule.class, (ctx, module) -> module.importFromAutocrafter(ctx));
+            recipeInventory.loadFromModule();
+            broadcastChanges();
+            return true;
+        }
         return false;
     }
 
