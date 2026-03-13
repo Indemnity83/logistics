@@ -1,17 +1,24 @@
 package com.logistics.pipe.ui;
 
 import com.logistics.LogisticsPipe;
+import com.logistics.core.lib.storage.NbtCompat;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.pipe.modules.SupplierModule;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.Container;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.SimpleContainerData;
 import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.inventory.ClickType;
-import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.CustomData;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Screen handler for the Supplier GUI.
@@ -28,6 +35,9 @@ public class SupplierScreenHandler extends AbstractContainerMenu {
     private final SupplyInventory supplyInventory;
     private final ContainerLevelAccess context;
     private final ContainerData data;
+    @Nullable private final ServerPlayer itemConfigPlayer;
+    @Nullable private final InteractionHand itemConfigHand;
+    @Nullable private final ItemStack originalStack;
 
     public SupplierScreenHandler(int syncId, Container playerInventory) {
         this(syncId, playerInventory, null, new SimpleContainerData(1));
@@ -37,9 +47,31 @@ public class SupplierScreenHandler extends AbstractContainerMenu {
         this(syncId, playerInventory, pipeEntity, new SimpleContainerData(1));
     }
 
+    public SupplierScreenHandler(int syncId, Container playerInventory, ServerPlayer player, InteractionHand hand) {
+        super(LogisticsPipe.SCREEN.SUPPLIER, syncId);
+        this.data = new SimpleContainerData(1);
+        this.itemConfigPlayer = player;
+        this.itemConfigHand = hand;
+        this.context = ContainerLevelAccess.NULL;
+        ItemStack stack = player.getItemInHand(hand);
+        this.originalStack = stack;
+        this.supplyInventory = new SupplyInventory(null);
+        this.supplyInventory.loadFromItem(stack);
+        CustomData customData = stack.get(DataComponents.CUSTOM_DATA);
+        if (customData != null) {
+            data.set(0, NbtCompat.getInt(customData.copyTag(), SupplierModule.MODE, 0));
+        }
+        addSupplySlots(supplyInventory);
+        addPlayerInventorySlots(playerInventory);
+        addDataSlots(data);
+    }
+
     private SupplierScreenHandler(int syncId, Container playerInventory, PipeBlockEntity pipeEntity, ContainerData data) {
         super(LogisticsPipe.SCREEN.SUPPLIER, syncId);
         this.data = data;
+        this.itemConfigPlayer = null;
+        this.itemConfigHand = null;
+        this.originalStack = null;
 
         if (pipeEntity != null) {
             this.context = ContainerLevelAccess.create(pipeEntity.getLevel(), pipeEntity.getBlockPos());
@@ -82,38 +114,30 @@ public class SupplierScreenHandler extends AbstractContainerMenu {
         }
     }
 
+    private boolean isPinnedItemStillHeld() {
+        return originalStack != null && itemConfigPlayer != null
+                && itemConfigPlayer.getItemInHand(itemConfigHand) == originalStack;
+    }
+
     @Override
     public boolean stillValid(Player player) {
+        if (itemConfigPlayer != null) {
+            return isPinnedItemStillHeld();
+        }
         return true;
     }
 
     @Override
     public void clicked(int slotIndex, int button, ClickType actionType, Player player) {
         if (slotIndex >= 0 && slotIndex < SUPPLY_SLOT_COUNT) {
-            // Prevent shift-click
-            if (actionType == ClickType.QUICK_MOVE) {
-                return;
-            }
+            if (actionType == ClickType.QUICK_MOVE) return;
+            if (itemConfigPlayer != null && !isPinnedItemStillHeld()) return;
 
             ItemStack cursor = getCarried();
             ItemStack slotItem = supplyInventory.getItem(slotIndex);
 
-            // Right-click: Clear slot
-            if (button == 1) {
-                supplyInventory.setItem(slotIndex, ItemStack.EMPTY);
-                PipeModuleHelper.withModule(context, SupplierModule.class, (ctx, module) -> {
-                    module.setSupplyConfig(ctx, slotIndex, "", 0);
-                });
-                broadcastChanges();
-                return;
-            }
-
-            // Left-click with empty cursor: Clear slot
-            if (cursor.isEmpty()) {
-                supplyInventory.setItem(slotIndex, ItemStack.EMPTY);
-                PipeModuleHelper.withModule(context, SupplierModule.class, (ctx, module) -> {
-                    module.setSupplyConfig(ctx, slotIndex, "", 0);
-                });
+            if (button == 1 || cursor.isEmpty()) {
+                clearSupplySlot(slotIndex);
                 broadcastChanges();
                 return;
             }
@@ -124,30 +148,53 @@ public class SupplierScreenHandler extends AbstractContainerMenu {
             int newAmount;
 
             if (slotItem.isEmpty()) {
-                // Place new item
                 newAmount = addAmount;
             } else if (ItemStack.isSameItemSameComponents(cursor, slotItem)) {
-                // Same item - add to existing count
                 newAmount = Math.min(slotItem.getCount() + addAmount, 999); // Cap at 999
             } else {
-                // Different item - replace
                 newAmount = addAmount;
             }
 
-            ItemStack ghostItem = cursor.copyWithCount(newAmount);
-            supplyInventory.setItem(slotIndex, ghostItem);
-
-            // Save to module configuration
-            int finalAmount = newAmount;
-            PipeModuleHelper.withModule(context, SupplierModule.class, (ctx, module) -> {
-                module.setSupplyConfig(ctx, slotIndex, itemId, finalAmount);
-            });
-
+            supplyInventory.setItem(slotIndex, cursor.copyWithCount(newAmount));
+            saveSupplySlot(slotIndex, itemId, newAmount);
             broadcastChanges();
             return;
         }
 
         super.clicked(slotIndex, button, actionType, player);
+    }
+
+    private void clearSupplySlot(int slotIndex) {
+        if (itemConfigPlayer != null) {
+            supplyInventory.setItem(slotIndex, ItemStack.EMPTY);
+            final int s = slotIndex;
+            ItemTagUtils.writeToItemTag(itemConfigPlayer, itemConfigHand, tag -> {
+                CompoundTag supplies = NbtCompat.getCompoundOrEmpty(tag, SupplierModule.SUPPLIES);
+                supplies.remove(String.valueOf(s));
+                tag.put(SupplierModule.SUPPLIES, supplies);
+            });
+        } else {
+            supplyInventory.setItem(slotIndex, ItemStack.EMPTY);
+            PipeModuleHelper.withModule(context, SupplierModule.class, (ctx, module) ->
+                    module.setSupplyConfig(ctx, slotIndex, "", 0));
+        }
+    }
+
+    private void saveSupplySlot(int slotIndex, String itemId, int amount) {
+        if (itemConfigPlayer != null) {
+            final int s = slotIndex;
+            ItemTagUtils.writeToItemTag(itemConfigPlayer, itemConfigHand, tag -> {
+                CompoundTag supplies = NbtCompat.getCompoundOrEmpty(tag, SupplierModule.SUPPLIES);
+                CompoundTag slotTag = new CompoundTag();
+                slotTag.putString("item", itemId);
+                slotTag.putInt("amount", amount);
+                supplies.put(String.valueOf(s), slotTag);
+                tag.put(SupplierModule.SUPPLIES, supplies);
+            });
+        } else {
+            PipeModuleHelper.withModule(context, SupplierModule.class, (ctx, module) ->
+                    module.setSupplyConfig(ctx, slotIndex, itemId, amount));
+        }
     }
 
     @Override
@@ -159,10 +206,16 @@ public class SupplierScreenHandler extends AbstractContainerMenu {
     public boolean clickMenuButton(Player player, int id) {
         if (id == 0) {
             int nextMode = (data.get(0) + 1) % SupplierModule.SupplyMode.values().length;
-            data.set(0, nextMode);
-            PipeModuleHelper.withModule(context, SupplierModule.class, (ctx, module) -> {
-                module.setModeFromOrdinal(ctx, nextMode);
-            });
+            if (itemConfigPlayer != null) {
+                if (!isPinnedItemStillHeld()) return true;
+                data.set(0, nextMode);
+                ItemTagUtils.writeToItemTag(itemConfigPlayer, itemConfigHand, tag -> tag.putInt(SupplierModule.MODE, nextMode));
+            } else {
+                data.set(0, nextMode);
+                PipeModuleHelper.withModule(context, SupplierModule.class, (ctx, module) -> {
+                    module.setModeFromOrdinal(ctx, nextMode);
+                });
+            }
             return true;
         }
         return false;
@@ -174,6 +227,22 @@ public class SupplierScreenHandler extends AbstractContainerMenu {
 
     @Override
     public void broadcastChanges() {
+        if (itemConfigPlayer != null) {
+            if (isPinnedItemStillHeld()) {
+                ItemStack stack = itemConfigPlayer.getItemInHand(itemConfigHand);
+                CustomData customData = stack.get(DataComponents.CUSTOM_DATA);
+                if (customData != null) {
+                    data.set(0, NbtCompat.getInt(customData.copyTag(), SupplierModule.MODE, 0));
+                } else {
+                    data.set(0, 0);
+                }
+            }
+            super.broadcastChanges();
+            return;
+        }
+        PipeModuleHelper.withModule(context, SupplierModule.class, (ctx, module) -> {
+            data.set(0, module.getModeOrdinal(ctx));
+        });
         super.broadcastChanges();
     }
 

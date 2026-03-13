@@ -60,6 +60,11 @@ public record PipeContext(Level world, BlockPos pos, BlockState state, PipeBlock
         moduleState(module.getStateKey()).remove(key);
     }
 
+    public void clearModuleState(Module module) {
+        blockEntity.clearModuleState(module.getStateKey());
+        markDirtyAndSync();
+    }
+
     // Convenience methods for energy access
     public long getEnergy() {
         EnergyComponent energy = blockEntity().getEnergy();

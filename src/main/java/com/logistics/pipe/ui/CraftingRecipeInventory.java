@@ -7,9 +7,12 @@ import com.logistics.pipe.block.PipeBlock;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.pipe.modules.CraftingModule;
 import net.minecraft.core.NonNullList;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.CustomData;
 
 /**
  * Inventory for the Crafting Logistics Pipe GUI.
@@ -111,6 +114,34 @@ public class CraftingRecipeInventory implements Container {
             ItemStack stack = resolveItem(resultId, count);
             if (!stack.isEmpty()) {
                 stacks.set(9, stack);
+            }
+        }
+    }
+
+    public void loadFromItem(ItemStack stack) {
+        for (int i = 0; i < SLOT_COUNT; i++) {
+            stacks.set(i, ItemStack.EMPTY);
+        }
+        CustomData customData = stack.get(DataComponents.CUSTOM_DATA);
+        if (customData == null) return;
+        CompoundTag tag = customData.copyTag();
+
+        for (int slot = 0; slot < 9; slot++) {
+            String itemId = CraftingModule.getIngredientItemFromTag(tag, slot);
+            if (itemId.isEmpty()) continue;
+            int count = CraftingModule.getIngredientCountFromTag(tag, slot);
+            ItemStack itemStack = resolveItem(itemId, count);
+            if (!itemStack.isEmpty()) {
+                stacks.set(slot, itemStack);
+            }
+        }
+
+        String resultId = CraftingModule.getResultItemFromTag(tag);
+        if (!resultId.isEmpty()) {
+            int count = CraftingModule.getResultCountFromTag(tag);
+            ItemStack itemStack = resolveItem(resultId, count);
+            if (!itemStack.isEmpty()) {
+                stacks.set(9, itemStack);
             }
         }
     }

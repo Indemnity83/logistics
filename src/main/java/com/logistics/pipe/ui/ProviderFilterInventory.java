@@ -1,15 +1,20 @@
 package com.logistics.pipe.ui;
 
+import com.logistics.core.lib.resource.ResourceId;
+import com.logistics.core.lib.storage.NbtCompat;
 import com.logistics.pipe.Pipe;
 import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.block.PipeBlock;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.pipe.modules.ProviderModule;
 import net.minecraft.core.NonNullList;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.CustomData;
 
 import java.util.List;
 
@@ -132,10 +137,30 @@ public class ProviderFilterInventory implements Container {
         }
     }
 
+    public void loadFromItem(ItemStack stack) {
+        for (int i = 0; i < FILTER_SLOT_COUNT; i++) stacks.set(i, ItemStack.EMPTY);
+        CustomData customData = stack.get(DataComponents.CUSTOM_DATA);
+        if (customData == null) return;
+        CompoundTag tag = customData.copyTag();
+        CompoundTag filterItems = NbtCompat.getCompoundOrEmpty(tag, ProviderModule.FILTER_ITEMS);
+        int displaySlot = 0;
+        for (int i = 0; i < FILTER_SLOT_COUNT && displaySlot < FILTER_SLOT_COUNT; i++) {
+            String itemId = NbtCompat.getString(filterItems, String.valueOf(i), "");
+            if (itemId.isEmpty()) continue;
+            ResourceId rid = ResourceId.tryParse(itemId);
+            if (rid == null) continue;
+            var holder = BuiltInRegistries.ITEM.get(rid.toIdentifier());
+            if (holder.isEmpty()) continue;
+            Item item = holder.get().value();
+            stacks.set(displaySlot++, new ItemStack(item));
+        }
+    }
+
     /**
      * Refresh the inventory from the module.
      */
     public void refresh() {
+        if (pipeEntity == null) return;
         loadFromModule();
     }
 }
