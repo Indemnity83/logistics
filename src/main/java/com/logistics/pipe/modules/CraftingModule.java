@@ -231,6 +231,53 @@ public class CraftingModule implements Module {
         return null;
     }
 
+    /**
+     * Reads the adjacent autocrafter's current slot contents and recipe result, and writes them
+     * into this module's ghost recipe config. Clears any slots in the crafter that are empty.
+     */
+    public void importFromAutocrafter(PipeContext ctx) {
+        if (!(ctx.world() instanceof ServerLevel serverLevel)) return;
+        Direction dir = findAutocrafterDirection(ctx);
+        if (dir == null) return;
+        BlockPos autocrafterPos = ctx.pos().relative(dir);
+        if (!(serverLevel.getBlockEntity(autocrafterPos) instanceof CrafterBlockEntity crafter)) return;
+
+        // Collect all ingredient data locally before touching NBT
+        CompoundTag items = new CompoundTag();
+        CompoundTag counts = new CompoundTag();
+        for (int slot = 0; slot < 9; slot++) {
+            ItemStack stack = crafter.getItem(slot);
+            if (!stack.isEmpty()) {
+                String itemId = BuiltInRegistries.ITEM.getKey(stack.getItem()).toString();
+                items.putString(String.valueOf(slot), itemId);
+                counts.putInt(String.valueOf(slot), Math.max(1, stack.getCount()));
+            }
+        }
+        ctx.putCompoundTag(this, RECIPE_ITEMS, items);
+        ctx.putCompoundTag(this, RECIPE_COUNTS, counts);
+
+        // Compute and store recipe result
+        CraftingInput craftInput = crafter.asCraftInput();
+        Optional<RecipeHolder<CraftingRecipe>> recipeOpt = CrafterBlock.getPotentialResults(serverLevel, craftInput);
+        CompoundTag state = ctx.moduleState(getStateKey());
+        if (recipeOpt.isPresent()) {
+            CraftingRecipe recipe = recipeOpt.get().value();
+            ItemStack result = recipe.assemble(craftInput, serverLevel.registryAccess());
+            if (!result.isEmpty()) {
+                state.putString(RESULT_ITEM, BuiltInRegistries.ITEM.getKey(result.getItem()).toString());
+                state.putInt(RESULT_COUNT, Math.max(1, result.getCount()));
+            } else {
+                state.remove(RESULT_ITEM);
+                state.remove(RESULT_COUNT);
+            }
+        } else {
+            state.remove(RESULT_ITEM);
+            state.remove(RESULT_COUNT);
+        }
+
+        ctx.markDirtyAndSync();
+    }
+
     // ==================== Module Interface ====================
 
     @Override

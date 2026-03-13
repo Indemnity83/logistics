@@ -82,11 +82,12 @@ public class CraftingRecipeInventory implements Container {
         }
     }
 
-    private void loadFromModule() {
+    void loadFromModule() {
         for (int i = 0; i < SLOT_COUNT; i++) {
             stacks.set(i, ItemStack.EMPTY);
         }
 
+        if (pipeEntity == null) return;
         if (pipeEntity.getLevel() == null || pipeEntity.getLevel().isClientSide()) return;
 
         PipeBlock block = (PipeBlock) pipeEntity.getBlockState().getBlock();
