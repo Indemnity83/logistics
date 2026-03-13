@@ -134,7 +134,7 @@ public class AdvancedExtractorScreenHandler extends AbstractContainerMenu {
                 filterInventory.setItem(slotIndex, ItemStack.EMPTY);
                 if (itemConfigPlayer != null) {
                     final int s = slotIndex;
-                    writeToItemTag(tag -> {
+                    ItemTagUtils.writeToItemTag(itemConfigPlayer, itemConfigHand,tag -> {
                         CompoundTag fi = NbtCompat.getCompoundOrEmpty(tag, AdvancedExtractorModule.FILTER_ITEMS);
                         fi.remove(String.valueOf(s));
                         tag.put(AdvancedExtractorModule.FILTER_ITEMS, fi);
@@ -152,7 +152,7 @@ public class AdvancedExtractorScreenHandler extends AbstractContainerMenu {
             filterInventory.setItem(slotIndex, cursor.copyWithCount(1));
             if (itemConfigPlayer != null) {
                 final int s = slotIndex;
-                writeToItemTag(tag -> {
+                ItemTagUtils.writeToItemTag(itemConfigPlayer, itemConfigHand,tag -> {
                     CompoundTag fi = NbtCompat.getCompoundOrEmpty(tag, AdvancedExtractorModule.FILTER_ITEMS);
                     fi.putString(String.valueOf(s), itemId);
                     tag.put(AdvancedExtractorModule.FILTER_ITEMS, fi);
@@ -174,7 +174,7 @@ public class AdvancedExtractorScreenHandler extends AbstractContainerMenu {
             int newInverted = data.get(0) == 0 ? 1 : 0;
             data.set(0, newInverted);
             if (itemConfigPlayer != null) {
-                writeToItemTag(tag -> tag.putInt(AdvancedExtractorModule.FILTER_INVERTED, newInverted));
+                ItemTagUtils.writeToItemTag(itemConfigPlayer, itemConfigHand,tag -> tag.putInt(AdvancedExtractorModule.FILTER_INVERTED, newInverted));
             } else {
                 PipeModuleHelper.withModule(context, AdvancedExtractorModule.class, (ctx, module) ->
                         module.setFilterInverted(ctx, newInverted == 1));
@@ -202,16 +202,6 @@ public class AdvancedExtractorScreenHandler extends AbstractContainerMenu {
         PipeModuleHelper.withModule(context, AdvancedExtractorModule.class, (ctx, module) ->
                 data.set(0, module.isFilterInverted(ctx) ? 1 : 0));
         super.broadcastChanges();
-    }
-
-    private void writeToItemTag(java.util.function.Consumer<CompoundTag> modifier) {
-        if (itemConfigPlayer == null) return;
-        ItemStack stack = itemConfigPlayer.getItemInHand(itemConfigHand);
-        CustomData existing = stack.get(DataComponents.CUSTOM_DATA);
-        CompoundTag tag = existing != null ? existing.copyTag() : new CompoundTag();
-        modifier.accept(tag);
-        stack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
-        itemConfigPlayer.getInventory().setChanged();
     }
 
     private static class FilterSlot extends Slot {

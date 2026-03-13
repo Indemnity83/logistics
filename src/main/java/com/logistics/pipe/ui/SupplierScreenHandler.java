@@ -137,7 +137,7 @@ public class SupplierScreenHandler extends AbstractContainerMenu {
                 supplyInventory.setItem(slotIndex, ItemStack.EMPTY);
                 if (itemConfigPlayer != null) {
                     final int s = slotIndex;
-                    writeToItemTag(tag -> {
+                    ItemTagUtils.writeToItemTag(itemConfigPlayer, itemConfigHand,tag -> {
                         CompoundTag supplies = NbtCompat.getCompoundOrEmpty(tag, SupplierModule.SUPPLIES);
                         supplies.remove(String.valueOf(s));
                         tag.put(SupplierModule.SUPPLIES, supplies);
@@ -156,7 +156,7 @@ public class SupplierScreenHandler extends AbstractContainerMenu {
                 supplyInventory.setItem(slotIndex, ItemStack.EMPTY);
                 if (itemConfigPlayer != null) {
                     final int s = slotIndex;
-                    writeToItemTag(tag -> {
+                    ItemTagUtils.writeToItemTag(itemConfigPlayer, itemConfigHand,tag -> {
                         CompoundTag supplies = NbtCompat.getCompoundOrEmpty(tag, SupplierModule.SUPPLIES);
                         supplies.remove(String.valueOf(s));
                         tag.put(SupplierModule.SUPPLIES, supplies);
@@ -193,7 +193,7 @@ public class SupplierScreenHandler extends AbstractContainerMenu {
             int finalAmount = newAmount;
             if (itemConfigPlayer != null) {
                 final int s = slotIndex;
-                writeToItemTag(tag -> {
+                ItemTagUtils.writeToItemTag(itemConfigPlayer, itemConfigHand,tag -> {
                     CompoundTag supplies = NbtCompat.getCompoundOrEmpty(tag, SupplierModule.SUPPLIES);
                     CompoundTag slotTag = new CompoundTag();
                     slotTag.putString("item", itemId);
@@ -225,7 +225,7 @@ public class SupplierScreenHandler extends AbstractContainerMenu {
             int nextMode = (data.get(0) + 1) % SupplierModule.SupplyMode.values().length;
             data.set(0, nextMode);
             if (itemConfigPlayer != null) {
-                writeToItemTag(tag -> tag.putInt(SupplierModule.MODE, nextMode));
+                ItemTagUtils.writeToItemTag(itemConfigPlayer, itemConfigHand,tag -> tag.putInt(SupplierModule.MODE, nextMode));
             } else {
                 PipeModuleHelper.withModule(context, SupplierModule.class, (ctx, module) -> {
                     module.setModeFromOrdinal(ctx, nextMode);
@@ -255,16 +255,6 @@ public class SupplierScreenHandler extends AbstractContainerMenu {
             data.set(0, module.getModeOrdinal(ctx));
         });
         super.broadcastChanges();
-    }
-
-    private void writeToItemTag(java.util.function.Consumer<CompoundTag> modifier) {
-        if (itemConfigPlayer == null) return;
-        ItemStack stack = itemConfigPlayer.getItemInHand(itemConfigHand);
-        CustomData existing = stack.get(DataComponents.CUSTOM_DATA);
-        CompoundTag tag = existing != null ? existing.copyTag() : new CompoundTag();
-        modifier.accept(tag);
-        stack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
-        itemConfigPlayer.getInventory().setChanged();
     }
 
     private static class SupplySlot extends Slot {

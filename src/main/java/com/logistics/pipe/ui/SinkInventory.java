@@ -107,15 +107,14 @@ public class SinkInventory implements Container {
         if (customData == null) return;
         CompoundTag tag = customData.copyTag();
         CompoundTag filters = NbtCompat.getCompoundOrEmpty(tag, SinkModule.FILTERS);
-        int displaySlot = 0;
-        for (int i = 0; i < SinkModule.MAX_FILTER_SLOTS && displaySlot < SinkModule.MAX_FILTER_SLOTS; i++) {
+        for (int i = 0; i < SinkModule.MAX_FILTER_SLOTS; i++) {
             String itemId = NbtCompat.getString(filters, String.valueOf(i), "");
             if (itemId.isEmpty()) continue;
             ResourceId rid = ResourceId.tryParse(itemId);
             if (rid == null) continue;
             var holder = BuiltInRegistries.ITEM.get(rid.toIdentifier());
             if (holder.isEmpty()) continue;
-            items.set(displaySlot++, new ItemStack(holder.get()));
+            items.set(i, new ItemStack(holder.get()));
         }
     }
 }

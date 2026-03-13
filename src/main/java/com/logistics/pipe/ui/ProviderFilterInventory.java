@@ -161,6 +161,7 @@ public class ProviderFilterInventory implements Container {
      * Refresh the inventory from the module.
      */
     public void refresh() {
+        if (pipeEntity == null) return;
         loadFromModule();
     }
 }

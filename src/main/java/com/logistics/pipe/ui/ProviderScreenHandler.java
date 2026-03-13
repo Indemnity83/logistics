@@ -143,7 +143,7 @@ public class ProviderScreenHandler extends AbstractContainerMenu {
                 filterInventory.setItem(slotIndex, ItemStack.EMPTY);
                 if (itemConfigPlayer != null) {
                     final int s = slotIndex;
-                    writeToItemTag(tag -> {
+                    ItemTagUtils.writeToItemTag(itemConfigPlayer, itemConfigHand,tag -> {
                         CompoundTag fi = NbtCompat.getCompoundOrEmpty(tag, ProviderModule.FILTER_ITEMS);
                         fi.remove(String.valueOf(s));
                         tag.put(ProviderModule.FILTER_ITEMS, fi);
@@ -160,7 +160,7 @@ public class ProviderScreenHandler extends AbstractContainerMenu {
             filterInventory.setItem(slotIndex, cursor.copyWithCount(1));
             if (itemConfigPlayer != null) {
                 final int s = slotIndex;
-                writeToItemTag(tag -> {
+                ItemTagUtils.writeToItemTag(itemConfigPlayer, itemConfigHand,tag -> {
                     CompoundTag fi = NbtCompat.getCompoundOrEmpty(tag, ProviderModule.FILTER_ITEMS);
                     fi.putString(String.valueOf(s), itemId);
                     tag.put(ProviderModule.FILTER_ITEMS, fi);
@@ -181,7 +181,7 @@ public class ProviderScreenHandler extends AbstractContainerMenu {
             int nextMode = (data.get(0) + 1) % ProviderModule.ProviderMode.values().length;
             data.set(0, nextMode);
             if (itemConfigPlayer != null) {
-                writeToItemTag(tag -> tag.putInt(ProviderModule.MODE, nextMode));
+                ItemTagUtils.writeToItemTag(itemConfigPlayer, itemConfigHand,tag -> tag.putInt(ProviderModule.MODE, nextMode));
             } else {
                 PipeModuleHelper.withModule(context, ProviderModule.class, (ctx, module) -> module.setModeFromOrdinal(ctx, nextMode));
             }
@@ -190,7 +190,7 @@ public class ProviderScreenHandler extends AbstractContainerMenu {
             int newInverted = data.get(1) == 0 ? 1 : 0;
             data.set(1, newInverted);
             if (itemConfigPlayer != null) {
-                writeToItemTag(tag -> tag.putInt(ProviderModule.FILTER_INVERTED, newInverted));
+                ItemTagUtils.writeToItemTag(itemConfigPlayer, itemConfigHand,tag -> tag.putInt(ProviderModule.FILTER_INVERTED, newInverted));
             } else {
                 PipeModuleHelper.withModule(context, ProviderModule.class, (ctx, module) -> module.setFilterInverted(ctx, newInverted == 1));
             }
@@ -225,16 +225,6 @@ public class ProviderScreenHandler extends AbstractContainerMenu {
             data.set(1, module.isFilterInverted(ctx) ? 1 : 0);
         });
         super.broadcastChanges();
-    }
-
-    private void writeToItemTag(java.util.function.Consumer<CompoundTag> modifier) {
-        if (itemConfigPlayer == null) return;
-        ItemStack stack = itemConfigPlayer.getItemInHand(itemConfigHand);
-        CustomData existing = stack.get(DataComponents.CUSTOM_DATA);
-        CompoundTag tag = existing != null ? existing.copyTag() : new CompoundTag();
-        modifier.accept(tag);
-        stack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
-        itemConfigPlayer.getInventory().setChanged();
     }
 
     private static class FilterSlot extends Slot {

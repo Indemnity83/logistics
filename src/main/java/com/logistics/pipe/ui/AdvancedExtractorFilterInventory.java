@@ -107,19 +107,19 @@ public class AdvancedExtractorFilterInventory implements Container {
         if (customData == null) return;
         CompoundTag tag = customData.copyTag();
         CompoundTag filterItems = NbtCompat.getCompoundOrEmpty(tag, AdvancedExtractorModule.FILTER_ITEMS);
-        int displaySlot = 0;
-        for (int i = 0; i < FILTER_SLOT_COUNT && displaySlot < FILTER_SLOT_COUNT; i++) {
+        for (int i = 0; i < FILTER_SLOT_COUNT; i++) {
             String itemId = NbtCompat.getString(filterItems, String.valueOf(i), "");
             if (itemId.isEmpty()) continue;
             ResourceId rid = ResourceId.tryParse(itemId);
             if (rid == null) continue;
             var holder = BuiltInRegistries.ITEM.get(rid.toIdentifier());
             if (holder.isEmpty()) continue;
-            stacks.set(displaySlot++, new ItemStack(holder.get().value()));
+            stacks.set(i, new ItemStack(holder.get().value()));
         }
     }
 
     public void refresh() {
+        if (pipeEntity == null) return;
         loadFromModule();
     }
 }

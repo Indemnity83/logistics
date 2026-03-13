@@ -155,7 +155,7 @@ public class SinkScreenHandler extends AbstractContainerMenu {
                 sinkInventory.setItem(slotIndex, ItemStack.EMPTY);
                 if (itemConfigPlayer != null) {
                     final int s = slotIndex;
-                    writeToItemTag(tag -> {
+                    ItemTagUtils.writeToItemTag(itemConfigPlayer, itemConfigHand,tag -> {
                         CompoundTag filters = NbtCompat.getCompoundOrEmpty(tag, SinkModule.FILTERS);
                         filters.remove(String.valueOf(s));
                         tag.put(SinkModule.FILTERS, filters);
@@ -181,7 +181,7 @@ public class SinkScreenHandler extends AbstractContainerMenu {
             // Save to module configuration
             if (itemConfigPlayer != null) {
                 final int s = slotIndex;
-                writeToItemTag(tag -> {
+                ItemTagUtils.writeToItemTag(itemConfigPlayer, itemConfigHand,tag -> {
                     CompoundTag filters = NbtCompat.getCompoundOrEmpty(tag, SinkModule.FILTERS);
                     filters.putString(String.valueOf(s), itemId);
                     tag.put(SinkModule.FILTERS, filters);
@@ -212,7 +212,7 @@ public class SinkScreenHandler extends AbstractContainerMenu {
             data.set(0, newValue ? 1 : 0);
 
             if (itemConfigPlayer != null) {
-                writeToItemTag(tag -> tag.putInt(SinkModule.DEFAULT_ROUTE, newValue ? 1 : 0));
+                ItemTagUtils.writeToItemTag(itemConfigPlayer, itemConfigHand,tag -> tag.putInt(SinkModule.DEFAULT_ROUTE, newValue ? 1 : 0));
             } else {
                 PipeModuleHelper.withModule(context, SinkModule.class, (ctx, module) -> {
                     module.setDefaultRoute(ctx, newValue);
@@ -225,16 +225,6 @@ public class SinkScreenHandler extends AbstractContainerMenu {
 
     public boolean isDefaultRoute() {
         return data.get(0) == 1;
-    }
-
-    private void writeToItemTag(java.util.function.Consumer<CompoundTag> modifier) {
-        if (itemConfigPlayer == null) return;
-        ItemStack stack = itemConfigPlayer.getItemInHand(itemConfigHand);
-        CustomData existing = stack.get(DataComponents.CUSTOM_DATA);
-        CompoundTag tag = existing != null ? existing.copyTag() : new CompoundTag();
-        modifier.accept(tag);
-        stack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
-        itemConfigPlayer.getInventory().setChanged();
     }
 
     private static class FilterSlot extends Slot {

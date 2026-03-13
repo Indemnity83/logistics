@@ -149,8 +149,7 @@ public class SupplyInventory implements Container {
         if (customData == null) return;
         CompoundTag tag = customData.copyTag();
         CompoundTag supplies = NbtCompat.getCompoundOrEmpty(tag, SupplierModule.SUPPLIES);
-        int displaySlot = 0;
-        for (int i = 0; i < SupplierModule.MAX_SUPPLY_SLOTS && displaySlot < SupplierModule.MAX_SUPPLY_SLOTS; i++) {
+        for (int i = 0; i < SupplierModule.MAX_SUPPLY_SLOTS; i++) {
             CompoundTag slotTag = NbtCompat.getCompoundOrEmpty(supplies, String.valueOf(i));
             String itemId = NbtCompat.getString(slotTag, "item", "");
             int amount = NbtCompat.getInt(slotTag, "amount", 0);
@@ -162,7 +161,7 @@ public class SupplyInventory implements Container {
             Item item = holder.get().value();
             ItemStack display = new ItemStack(item);
             display.setCount((int) Math.min(amount, 64));
-            stacks.set(displaySlot++, display);
+            stacks.set(i, display);
         }
     }
 

@@ -2,7 +2,6 @@ package com.logistics.pipe.ui;
 
 import com.logistics.LogisticsPipe;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
-import com.logistics.pipe.item.ModuleItem;
 import com.logistics.pipe.modules.ItemFilterModule;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
@@ -35,12 +34,14 @@ public class ItemFilterScreenHandler extends AbstractContainerMenu {
     private final ContainerLevelAccess context;
     @Nullable private final ServerPlayer itemConfigPlayer;
     @Nullable private final InteractionHand itemConfigHand;
+    @Nullable private final ItemStack originalStack;
 
     public ItemFilterScreenHandler(int syncId, Container playerInventory) {
         super(LogisticsPipe.SCREEN.ITEM_FILTER, syncId);
         this.context = ContainerLevelAccess.NULL;
         this.itemConfigPlayer = null;
         this.itemConfigHand = null;
+        this.originalStack = null;
         this.filterInventory = new FilterInventory(null);
 
         addFilterSlots(filterInventory);
@@ -51,6 +52,7 @@ public class ItemFilterScreenHandler extends AbstractContainerMenu {
         super(LogisticsPipe.SCREEN.ITEM_FILTER, syncId);
         this.itemConfigPlayer = null;
         this.itemConfigHand = null;
+        this.originalStack = null;
         if (pipeEntity != null) {
             this.context = ContainerLevelAccess.create(pipeEntity.getLevel(), pipeEntity.getBlockPos());
         } else {
@@ -66,9 +68,10 @@ public class ItemFilterScreenHandler extends AbstractContainerMenu {
         super(LogisticsPipe.SCREEN.ITEM_FILTER, syncId);
         this.itemConfigPlayer = player;
         this.itemConfigHand = hand;
+        this.originalStack = player.getItemInHand(hand);
         this.context = ContainerLevelAccess.NULL;
         this.filterInventory = new FilterInventory(null);
-        this.filterInventory.loadFromItem(player.getItemInHand(hand));
+        this.filterInventory.loadFromItem(this.originalStack);
 
         addFilterSlots(filterInventory);
         addPlayerInventorySlots(playerInventory);
@@ -104,8 +107,7 @@ public class ItemFilterScreenHandler extends AbstractContainerMenu {
     @Override
     public boolean stillValid(Player player) {
         if (itemConfigPlayer != null) {
-            ItemStack held = player.getItemInHand(itemConfigHand);
-            return !held.isEmpty() && held.getItem() instanceof ModuleItem;
+            return player.getItemInHand(itemConfigHand) == originalStack;
         }
         return true;
     }
@@ -142,8 +144,8 @@ public class ItemFilterScreenHandler extends AbstractContainerMenu {
 
     /** Writes the full filter state to the held item's CUSTOM_DATA. */
     private void syncFiltersToItem() {
-        if (itemConfigPlayer == null) return;
-        ItemStack stack = itemConfigPlayer.getItemInHand(itemConfigHand);
+        if (itemConfigPlayer == null || itemConfigPlayer.getItemInHand(itemConfigHand) != originalStack) return;
+        ItemStack stack = originalStack;
         CustomData existing = stack.get(DataComponents.CUSTOM_DATA);
         CompoundTag tag = existing != null ? existing.copyTag() : new CompoundTag();
 

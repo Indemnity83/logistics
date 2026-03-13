@@ -158,13 +158,13 @@ public class CraftingScreenHandler extends AbstractContainerMenu {
                 recipeInventory.setItem(slotIndex, ItemStack.EMPTY);
                 if (itemConfigPlayer != null) {
                     if (isResultSlot) {
-                        writeToItemTag(tag -> {
+                        ItemTagUtils.writeToItemTag(itemConfigPlayer, itemConfigHand,tag -> {
                             tag.remove(CraftingModule.RESULT_ITEM);
                             tag.remove(CraftingModule.RESULT_COUNT);
                         });
                     } else {
                         final int s = slotIndex;
-                        writeToItemTag(tag -> {
+                        ItemTagUtils.writeToItemTag(itemConfigPlayer, itemConfigHand,tag -> {
                             CompoundTag items = NbtCompat.getCompoundOrEmpty(tag, CraftingModule.RECIPE_ITEMS);
                             CompoundTag counts = NbtCompat.getCompoundOrEmpty(tag, CraftingModule.RECIPE_COUNTS);
                             items.remove(String.valueOf(s));
@@ -190,13 +190,13 @@ public class CraftingScreenHandler extends AbstractContainerMenu {
 
             if (itemConfigPlayer != null) {
                 if (isResultSlot) {
-                    writeToItemTag(tag -> {
+                    ItemTagUtils.writeToItemTag(itemConfigPlayer, itemConfigHand,tag -> {
                         tag.putString(CraftingModule.RESULT_ITEM, itemId);
                         tag.putInt(CraftingModule.RESULT_COUNT, count);
                     });
                 } else {
                     final int s = slotIndex;
-                    writeToItemTag(tag -> {
+                    ItemTagUtils.writeToItemTag(itemConfigPlayer, itemConfigHand,tag -> {
                         CompoundTag items = NbtCompat.getCompoundOrEmpty(tag, CraftingModule.RECIPE_ITEMS);
                         CompoundTag counts = NbtCompat.getCompoundOrEmpty(tag, CraftingModule.RECIPE_COUNTS);
                         items.putString(String.valueOf(s), itemId);
@@ -218,16 +218,6 @@ public class CraftingScreenHandler extends AbstractContainerMenu {
         super.clicked(slotIndex, button, actionType, player);
     }
 
-    private void writeToItemTag(java.util.function.Consumer<CompoundTag> modifier) {
-        if (itemConfigPlayer == null) return;
-        ItemStack stack = itemConfigPlayer.getItemInHand(itemConfigHand);
-        CustomData existing = stack.get(DataComponents.CUSTOM_DATA);
-        CompoundTag tag = existing != null ? existing.copyTag() : new CompoundTag();
-        modifier.accept(tag);
-        stack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
-        itemConfigPlayer.getInventory().setChanged();
-    }
-
     @Override
     public boolean clickMenuButton(Player player, int id) {
         if (id == 0) {
@@ -235,7 +225,7 @@ public class CraftingScreenHandler extends AbstractContainerMenu {
             int newBlocking = data.get(DATA_BLOCKING) == 0 ? 1 : 0;
             data.set(DATA_BLOCKING, newBlocking);
             if (itemConfigPlayer != null) {
-                writeToItemTag(tag -> tag.putInt(CraftingModule.BLOCKING, newBlocking));
+                ItemTagUtils.writeToItemTag(itemConfigPlayer, itemConfigHand,tag -> tag.putInt(CraftingModule.BLOCKING, newBlocking));
             } else {
                 PipeModuleHelper.withModule(context, CraftingModule.class, (ctx, module) -> {
                     module.setBlocking(ctx, newBlocking == 1);
@@ -248,7 +238,6 @@ public class CraftingScreenHandler extends AbstractContainerMenu {
 
     @Override
     public void broadcastChanges() {
-        super.broadcastChanges();
         if (itemConfigPlayer != null) {
             ItemStack stack = itemConfigPlayer.getItemInHand(itemConfigHand);
             CustomData customData = stack.get(DataComponents.CUSTOM_DATA);
@@ -256,12 +245,14 @@ public class CraftingScreenHandler extends AbstractContainerMenu {
                 CompoundTag tag = customData.copyTag();
                 data.set(DATA_BLOCKING, NbtCompat.getInt(tag, CraftingModule.BLOCKING, 0));
             }
+            super.broadcastChanges();
             return;
         }
         PipeModuleHelper.withModule(context, CraftingModule.class, (ctx, module) -> {
             data.set(DATA_CRAFT_STATE, module.isActive(ctx) ? 1 : 0);
             data.set(DATA_BLOCKING, module.isBlocking(ctx) ? 1 : 0);
         });
+        super.broadcastChanges();
     }
 
     public int getCraftState() {
