@@ -21,6 +21,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -54,10 +56,10 @@ public class SupplierModule implements Module {
         BULK100     // ordinal 4 - request whenever any amount is missing (appended to preserve existing ordinals)
     }
 
-    private static final String SUPPLIES = "supplies"; // NBT key for supply configurations
+    public static final String SUPPLIES = "supplies"; // NBT key for supply configurations
     private static final String SUPPLIER_DIRECTION = "supplier_direction";
     private static final String TICKS_SINCE_CHECK = "ticks_since_check";
-    private static final String MODE = "mode"; // Supply mode
+    public static final String MODE = "mode"; // Supply mode
     private static final int CHECK_INTERVAL = 20;
     public static final int MAX_SUPPLY_SLOTS = 9;
 
@@ -114,6 +116,14 @@ public class SupplierModule implements Module {
                             world.getBlockEntity(pos) instanceof PipeBlockEntity entity ? entity : null;
                     return new SupplierScreenHandler(syncId, inventory, pipeEntity);
                 },
+                net.minecraft.network.chat.Component.translatable("screen.logistics.supplier.items_to_keep_stocked")));
+        return InteractionResult.SUCCESS;
+    }
+
+    @Override
+    public InteractionResult openItemConfig(ServerPlayer player, InteractionHand hand, ItemStack stack) {
+        player.openMenu(new net.minecraft.world.SimpleMenuProvider(
+                (syncId, inv, p) -> new SupplierScreenHandler(syncId, inv, player, hand),
                 net.minecraft.network.chat.Component.translatable("screen.logistics.supplier.items_to_keep_stocked")));
         return InteractionResult.SUCCESS;
     }

@@ -16,8 +16,10 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
 /**
@@ -26,7 +28,7 @@ import net.minecraft.world.level.Level;
  * Otherwise, route to any side with no filters.
  */
 public class ItemFilterModule implements Module {
-    private static final String FILTERS = "filters"; // NBT key for save compatibility
+    public static final String FILTERS = "filters"; // NBT key for save compatibility
     public static final int FILTER_SLOTS_PER_SIDE = 8;
     public static final Direction[] FILTER_ORDER = {
         Direction.NORTH, Direction.SOUTH, Direction.WEST, Direction.EAST, Direction.UP, Direction.DOWN
@@ -76,6 +78,14 @@ public class ItemFilterModule implements Module {
                             world.getBlockEntity(pos) instanceof PipeBlockEntity entity ? entity : null;
                     return new ItemFilterScreenHandler(syncId, inventory, pipeEntity);
                 },
+                Component.translatable("screen.logistics.item_filter")));
+        return InteractionResult.SUCCESS;
+    }
+
+    @Override
+    public InteractionResult openItemConfig(ServerPlayer player, InteractionHand hand, ItemStack stack) {
+        player.openMenu(new net.minecraft.world.SimpleMenuProvider(
+                (syncId, inv, p) -> new ItemFilterScreenHandler(syncId, inv, player, hand),
                 Component.translatable("screen.logistics.item_filter")));
         return InteractionResult.SUCCESS;
     }

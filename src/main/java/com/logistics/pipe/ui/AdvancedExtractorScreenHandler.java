@@ -1,9 +1,15 @@
 package com.logistics.pipe.ui;
 
 import com.logistics.LogisticsPipe;
+import com.logistics.core.lib.storage.NbtCompat;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
+import com.logistics.pipe.item.ModuleItem;
 import com.logistics.pipe.modules.AdvancedExtractorModule;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ClickType;
@@ -12,6 +18,8 @@ import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.SimpleContainerData;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.CustomData;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Screen handler for the Advanced Extractor filter GUI.
@@ -30,6 +38,8 @@ public class AdvancedExtractorScreenHandler extends AbstractContainerMenu {
     private final ContainerData data;
     private final AdvancedExtractorFilterInventory filterInventory;
     private final ContainerLevelAccess context;
+    @Nullable private final ServerPlayer itemConfigPlayer;
+    @Nullable private final InteractionHand itemConfigHand;
 
     public AdvancedExtractorScreenHandler(int syncId, Container playerInventory) {
         this(syncId, playerInventory, null, new SimpleContainerData(1));
@@ -39,10 +49,30 @@ public class AdvancedExtractorScreenHandler extends AbstractContainerMenu {
         this(syncId, playerInventory, pipeEntity, new SimpleContainerData(1));
     }
 
+    public AdvancedExtractorScreenHandler(int syncId, Container playerInventory, ServerPlayer player, InteractionHand hand) {
+        super(LogisticsPipe.SCREEN.ADVANCED_EXTRACTOR, syncId);
+        this.data = new SimpleContainerData(1);
+        this.itemConfigPlayer = player;
+        this.itemConfigHand = hand;
+        this.context = ContainerLevelAccess.NULL;
+        ItemStack stack = player.getItemInHand(hand);
+        this.filterInventory = new AdvancedExtractorFilterInventory(null);
+        this.filterInventory.loadFromItem(stack);
+        CustomData customData = stack.get(DataComponents.CUSTOM_DATA);
+        if (customData != null) {
+            data.set(0, NbtCompat.getInt(customData.copyTag(), AdvancedExtractorModule.FILTER_INVERTED, 0));
+        }
+        addFilterSlots(filterInventory);
+        addPlayerInventorySlots(playerInventory);
+        addDataSlots(data);
+    }
+
     private AdvancedExtractorScreenHandler(
             int syncId, Container playerInventory, PipeBlockEntity pipeEntity, ContainerData data) {
         super(LogisticsPipe.SCREEN.ADVANCED_EXTRACTOR, syncId);
         this.data = data;
+        this.itemConfigPlayer = null;
+        this.itemConfigHand = null;
         this.filterInventory = new AdvancedExtractorFilterInventory(pipeEntity);
 
         if (pipeEntity != null) {
@@ -81,6 +111,10 @@ public class AdvancedExtractorScreenHandler extends AbstractContainerMenu {
 
     @Override
     public boolean stillValid(Player player) {
+        if (itemConfigPlayer != null) {
+            ItemStack held = player.getItemInHand(itemConfigHand);
+            return !held.isEmpty() && held.getItem() instanceof ModuleItem;
+        }
         return context.evaluate(
                 (level, pos) -> player.distanceToSqr(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5) <= 64.0,
                 true);
@@ -98,8 +132,17 @@ public class AdvancedExtractorScreenHandler extends AbstractContainerMenu {
 
             if (button == 1 || cursor.isEmpty()) {
                 filterInventory.setItem(slotIndex, ItemStack.EMPTY);
-                PipeModuleHelper.withModule(context, AdvancedExtractorModule.class, (ctx, module) ->
-                        module.setFilterItem(ctx, slotIndex, ""));
+                if (itemConfigPlayer != null) {
+                    final int s = slotIndex;
+                    writeToItemTag(tag -> {
+                        CompoundTag fi = NbtCompat.getCompoundOrEmpty(tag, AdvancedExtractorModule.FILTER_ITEMS);
+                        fi.remove(String.valueOf(s));
+                        tag.put(AdvancedExtractorModule.FILTER_ITEMS, fi);
+                    });
+                } else {
+                    PipeModuleHelper.withModule(context, AdvancedExtractorModule.class, (ctx, module) ->
+                            module.setFilterItem(ctx, slotIndex, ""));
+                }
                 broadcastChanges();
                 return;
             }
@@ -107,8 +150,17 @@ public class AdvancedExtractorScreenHandler extends AbstractContainerMenu {
             String itemId = net.minecraft.core.registries.BuiltInRegistries.ITEM
                     .getKey(cursor.getItem()).toString();
             filterInventory.setItem(slotIndex, cursor.copyWithCount(1));
-            PipeModuleHelper.withModule(context, AdvancedExtractorModule.class, (ctx, module) ->
-                    module.setFilterItem(ctx, slotIndex, itemId));
+            if (itemConfigPlayer != null) {
+                final int s = slotIndex;
+                writeToItemTag(tag -> {
+                    CompoundTag fi = NbtCompat.getCompoundOrEmpty(tag, AdvancedExtractorModule.FILTER_ITEMS);
+                    fi.putString(String.valueOf(s), itemId);
+                    tag.put(AdvancedExtractorModule.FILTER_ITEMS, fi);
+                });
+            } else {
+                PipeModuleHelper.withModule(context, AdvancedExtractorModule.class, (ctx, module) ->
+                        module.setFilterItem(ctx, slotIndex, itemId));
+            }
             broadcastChanges();
             return;
         }
@@ -121,8 +173,12 @@ public class AdvancedExtractorScreenHandler extends AbstractContainerMenu {
         if (id == 0) {
             int newInverted = data.get(0) == 0 ? 1 : 0;
             data.set(0, newInverted);
-            PipeModuleHelper.withModule(context, AdvancedExtractorModule.class, (ctx, module) ->
-                    module.setFilterInverted(ctx, newInverted == 1));
+            if (itemConfigPlayer != null) {
+                writeToItemTag(tag -> tag.putInt(AdvancedExtractorModule.FILTER_INVERTED, newInverted));
+            } else {
+                PipeModuleHelper.withModule(context, AdvancedExtractorModule.class, (ctx, module) ->
+                        module.setFilterInverted(ctx, newInverted == 1));
+            }
             return true;
         }
         return false;
@@ -134,9 +190,28 @@ public class AdvancedExtractorScreenHandler extends AbstractContainerMenu {
 
     @Override
     public void broadcastChanges() {
+        if (itemConfigPlayer != null) {
+            ItemStack stack = itemConfigPlayer.getItemInHand(itemConfigHand);
+            CustomData customData = stack.get(DataComponents.CUSTOM_DATA);
+            if (customData != null) {
+                data.set(0, NbtCompat.getInt(customData.copyTag(), AdvancedExtractorModule.FILTER_INVERTED, 0));
+            }
+            super.broadcastChanges();
+            return;
+        }
         PipeModuleHelper.withModule(context, AdvancedExtractorModule.class, (ctx, module) ->
                 data.set(0, module.isFilterInverted(ctx) ? 1 : 0));
         super.broadcastChanges();
+    }
+
+    private void writeToItemTag(java.util.function.Consumer<CompoundTag> modifier) {
+        if (itemConfigPlayer == null) return;
+        ItemStack stack = itemConfigPlayer.getItemInHand(itemConfigHand);
+        CustomData existing = stack.get(DataComponents.CUSTOM_DATA);
+        CompoundTag tag = existing != null ? existing.copyTag() : new CompoundTag();
+        modifier.accept(tag);
+        stack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
+        itemConfigPlayer.getInventory().setChanged();
     }
 
     private static class FilterSlot extends Slot {

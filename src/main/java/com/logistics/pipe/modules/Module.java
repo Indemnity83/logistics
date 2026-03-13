@@ -14,7 +14,9 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponentGetter;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
@@ -111,6 +113,10 @@ public interface Module {
     }
 
     default InteractionResult onWrench(PipeContext ctx, Player player) {
+        return InteractionResult.PASS;
+    }
+
+    default InteractionResult openItemConfig(ServerPlayer player, InteractionHand hand, ItemStack stack) {
         return InteractionResult.PASS;
     }
 

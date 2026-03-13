@@ -1,10 +1,16 @@
 package com.logistics.pipe.ui;
 
 import com.logistics.LogisticsPipe;
+import com.logistics.core.lib.storage.NbtCompat;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
+import com.logistics.pipe.item.ModuleItem;
 import com.logistics.pipe.modules.CraftingModule;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ClickType;
@@ -13,6 +19,8 @@ import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.SimpleContainerData;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.CustomData;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Screen handler for the Crafting Logistics Pipe GUI.
@@ -32,6 +40,8 @@ public class CraftingScreenHandler extends AbstractContainerMenu {
     private final CraftingRecipeInventory recipeInventory;
     private final ContainerLevelAccess context;
     private final ContainerData data;
+    @Nullable private final ServerPlayer itemConfigPlayer;
+    @Nullable private final InteractionHand itemConfigHand;
 
     public CraftingScreenHandler(int syncId, Container playerInventory) {
         this(syncId, playerInventory, null, new SimpleContainerData(2));
@@ -41,10 +51,35 @@ public class CraftingScreenHandler extends AbstractContainerMenu {
         this(syncId, playerInventory, pipeEntity, new SimpleContainerData(2));
     }
 
+    /** Item-mode constructor: backs the screen with a module item in the player's hand. */
+    public CraftingScreenHandler(int syncId, Container playerInventory, ServerPlayer player, InteractionHand hand) {
+        super(LogisticsPipe.SCREEN.CRAFTING, syncId);
+        this.data = new SimpleContainerData(2);
+        this.itemConfigPlayer = player;
+        this.itemConfigHand = hand;
+        this.context = ContainerLevelAccess.NULL;
+
+        ItemStack stack = player.getItemInHand(hand);
+        this.recipeInventory = new CraftingRecipeInventory(null);
+        this.recipeInventory.loadFromItem(stack);
+
+        CustomData customData = stack.get(DataComponents.CUSTOM_DATA);
+        if (customData != null) {
+            CompoundTag tag = customData.copyTag();
+            data.set(DATA_BLOCKING, NbtCompat.getInt(tag, CraftingModule.BLOCKING, 0));
+        }
+
+        addGhostSlots(recipeInventory);
+        addPlayerInventorySlots(playerInventory);
+        addDataSlots(data);
+    }
+
     private CraftingScreenHandler(
             int syncId, Container playerInventory, PipeBlockEntity pipeEntity, ContainerData data) {
         super(LogisticsPipe.SCREEN.CRAFTING, syncId);
         this.data = data;
+        this.itemConfigPlayer = null;
+        this.itemConfigHand = null;
         this.recipeInventory = new CraftingRecipeInventory(pipeEntity);
 
         if (pipeEntity != null) {
@@ -96,6 +131,10 @@ public class CraftingScreenHandler extends AbstractContainerMenu {
 
     @Override
     public boolean stillValid(Player player) {
+        if (itemConfigPlayer != null) {
+            ItemStack held = player.getItemInHand(itemConfigHand);
+            return !held.isEmpty() && held.getItem() instanceof ModuleItem;
+        }
         return context.evaluate(
                 (level, pos) -> player.distanceToSqr(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5) <= 64.0,
                 true);
@@ -117,15 +156,28 @@ public class CraftingScreenHandler extends AbstractContainerMenu {
             // Right-click or empty cursor clears slot
             if (button == 1 || cursor.isEmpty()) {
                 recipeInventory.setItem(slotIndex, ItemStack.EMPTY);
-                if (isResultSlot) {
-                    PipeModuleHelper.withModule(context, CraftingModule.class, (ctx, module) -> {
-                        module.setResult(ctx, "", 1);
-                    });
+                if (itemConfigPlayer != null) {
+                    if (isResultSlot) {
+                        writeToItemTag(tag -> {
+                            tag.remove(CraftingModule.RESULT_ITEM);
+                            tag.remove(CraftingModule.RESULT_COUNT);
+                        });
+                    } else {
+                        final int s = slotIndex;
+                        writeToItemTag(tag -> {
+                            CompoundTag items = NbtCompat.getCompoundOrEmpty(tag, CraftingModule.RECIPE_ITEMS);
+                            CompoundTag counts = NbtCompat.getCompoundOrEmpty(tag, CraftingModule.RECIPE_COUNTS);
+                            items.remove(String.valueOf(s));
+                            counts.remove(String.valueOf(s));
+                            tag.put(CraftingModule.RECIPE_ITEMS, items);
+                            tag.put(CraftingModule.RECIPE_COUNTS, counts);
+                        });
+                    }
+                } else if (isResultSlot) {
+                    PipeModuleHelper.withModule(context, CraftingModule.class, (ctx, module) -> module.setResult(ctx, "", 1));
                 } else {
                     final int s = slotIndex;
-                    PipeModuleHelper.withModule(context, CraftingModule.class, (ctx, module) -> {
-                        module.setIngredient(ctx, s, "", 1);
-                    });
+                    PipeModuleHelper.withModule(context, CraftingModule.class, (ctx, module) -> module.setIngredient(ctx, s, "", 1));
                 }
                 broadcastChanges();
                 return;
@@ -134,18 +186,30 @@ public class CraftingScreenHandler extends AbstractContainerMenu {
             // Left-click with item: place ghost item
             String itemId = BuiltInRegistries.ITEM.getKey(cursor.getItem()).toString();
             int count = cursor.getCount();
-            ItemStack ghost = cursor.copyWithCount(count);
-            recipeInventory.setItem(slotIndex, ghost);
+            recipeInventory.setItem(slotIndex, cursor.copyWithCount(count));
 
-            if (isResultSlot) {
-                PipeModuleHelper.withModule(context, CraftingModule.class, (ctx, module) -> {
-                    module.setResult(ctx, itemId, count);
-                });
+            if (itemConfigPlayer != null) {
+                if (isResultSlot) {
+                    writeToItemTag(tag -> {
+                        tag.putString(CraftingModule.RESULT_ITEM, itemId);
+                        tag.putInt(CraftingModule.RESULT_COUNT, count);
+                    });
+                } else {
+                    final int s = slotIndex;
+                    writeToItemTag(tag -> {
+                        CompoundTag items = NbtCompat.getCompoundOrEmpty(tag, CraftingModule.RECIPE_ITEMS);
+                        CompoundTag counts = NbtCompat.getCompoundOrEmpty(tag, CraftingModule.RECIPE_COUNTS);
+                        items.putString(String.valueOf(s), itemId);
+                        counts.putInt(String.valueOf(s), Math.max(1, count));
+                        tag.put(CraftingModule.RECIPE_ITEMS, items);
+                        tag.put(CraftingModule.RECIPE_COUNTS, counts);
+                    });
+                }
+            } else if (isResultSlot) {
+                PipeModuleHelper.withModule(context, CraftingModule.class, (ctx, module) -> module.setResult(ctx, itemId, count));
             } else {
                 final int s = slotIndex;
-                PipeModuleHelper.withModule(context, CraftingModule.class, (ctx, module) -> {
-                    module.setIngredient(ctx, s, itemId, count);
-                });
+                PipeModuleHelper.withModule(context, CraftingModule.class, (ctx, module) -> module.setIngredient(ctx, s, itemId, count));
             }
             broadcastChanges();
             return;
@@ -154,15 +218,29 @@ public class CraftingScreenHandler extends AbstractContainerMenu {
         super.clicked(slotIndex, button, actionType, player);
     }
 
+    private void writeToItemTag(java.util.function.Consumer<CompoundTag> modifier) {
+        if (itemConfigPlayer == null) return;
+        ItemStack stack = itemConfigPlayer.getItemInHand(itemConfigHand);
+        CustomData existing = stack.get(DataComponents.CUSTOM_DATA);
+        CompoundTag tag = existing != null ? existing.copyTag() : new CompoundTag();
+        modifier.accept(tag);
+        stack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
+        itemConfigPlayer.getInventory().setChanged();
+    }
+
     @Override
     public boolean clickMenuButton(Player player, int id) {
         if (id == 0) {
             // Toggle blocking mode
             int newBlocking = data.get(DATA_BLOCKING) == 0 ? 1 : 0;
             data.set(DATA_BLOCKING, newBlocking);
-            PipeModuleHelper.withModule(context, CraftingModule.class, (ctx, module) -> {
-                module.setBlocking(ctx, newBlocking == 1);
-            });
+            if (itemConfigPlayer != null) {
+                writeToItemTag(tag -> tag.putInt(CraftingModule.BLOCKING, newBlocking));
+            } else {
+                PipeModuleHelper.withModule(context, CraftingModule.class, (ctx, module) -> {
+                    module.setBlocking(ctx, newBlocking == 1);
+                });
+            }
             return true;
         }
         return false;
@@ -171,6 +249,15 @@ public class CraftingScreenHandler extends AbstractContainerMenu {
     @Override
     public void broadcastChanges() {
         super.broadcastChanges();
+        if (itemConfigPlayer != null) {
+            ItemStack stack = itemConfigPlayer.getItemInHand(itemConfigHand);
+            CustomData customData = stack.get(DataComponents.CUSTOM_DATA);
+            if (customData != null) {
+                CompoundTag tag = customData.copyTag();
+                data.set(DATA_BLOCKING, NbtCompat.getInt(tag, CraftingModule.BLOCKING, 0));
+            }
+            return;
+        }
         PipeModuleHelper.withModule(context, CraftingModule.class, (ctx, module) -> {
             data.set(DATA_CRAFT_STATE, module.isActive(ctx) ? 1 : 0);
             data.set(DATA_BLOCKING, module.isBlocking(ctx) ? 1 : 0);

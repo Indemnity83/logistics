@@ -70,13 +70,13 @@ public class CraftingModule implements Module {
         this.stackLimit = stackLimit;
     }
 
-    // NBT keys — recipe config
-    private static final String RECIPE_ITEMS = "recipe_items";
-    private static final String RECIPE_COUNTS = "recipe_counts";
-    private static final String RESULT_ITEM = "result_item";
-    private static final String RESULT_COUNT = "result_count";
-    // NBT keys — behavior
-    private static final String BLOCKING = "blocking";
+    // NBT keys — recipe config (public for item-mode access)
+    public static final String RECIPE_ITEMS = "recipe_items";
+    public static final String RECIPE_COUNTS = "recipe_counts";
+    public static final String RESULT_ITEM = "result_item";
+    public static final String RESULT_COUNT = "result_count";
+    // NBT keys — behavior (public for item-mode access)
+    public static final String BLOCKING = "blocking";
     // NBT keys — timing
     private static final String TICKS_SCAN = "ticks_scan";
     private static final String TICKS_PULSE = "ticks_pulse";
@@ -152,6 +152,37 @@ public class CraftingModule implements Module {
             ctx.saveInt(this, RESULT_COUNT, Math.max(1, count));
         }
         ctx.markDirtyAndSync();
+    }
+
+    // ==================== Static Tag Helpers (for item-mode) ====================
+
+    public static String getIngredientItemFromTag(CompoundTag tag, int slot) {
+        CompoundTag items = NbtCompat.getCompoundOrEmpty(tag, RECIPE_ITEMS);
+        return NbtCompat.getString(items, String.valueOf(slot), "");
+    }
+
+    public static int getIngredientCountFromTag(CompoundTag tag, int slot) {
+        CompoundTag counts = NbtCompat.getCompoundOrEmpty(tag, RECIPE_COUNTS);
+        return NbtCompat.getInt(counts, String.valueOf(slot), 1);
+    }
+
+    public static String getResultItemFromTag(CompoundTag tag) {
+        return NbtCompat.getString(tag, RESULT_ITEM, "");
+    }
+
+    public static int getResultCountFromTag(CompoundTag tag) {
+        return NbtCompat.getInt(tag, RESULT_COUNT, 1);
+    }
+
+    // ==================== Item Config ====================
+
+    @Override
+    public InteractionResult openItemConfig(
+            ServerPlayer player, net.minecraft.world.InteractionHand hand, ItemStack stack) {
+        player.openMenu(new SimpleMenuProvider(
+                (syncId, inv, p) -> new CraftingScreenHandler(syncId, inv, player, hand),
+                Component.translatable("block.logistics.crafting_logistics_pipe")));
+        return InteractionResult.SUCCESS;
     }
 
     // ==================== Queue Accessors ====================
