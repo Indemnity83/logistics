@@ -19,6 +19,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Player;
@@ -42,8 +43,8 @@ import java.util.List;
 public class AdvancedExtractorModule implements Module {
     private static final String EXTRACT_DIRECTION = "extract_direction";
     private static final String TICKS_SINCE_PULL = "ticks_since_pull";
-    private static final String FILTER_ITEMS = "filter_items";
-    private static final String FILTER_INVERTED = "filter_inverted";
+    public static final String FILTER_ITEMS = "filter_items";
+    public static final String FILTER_INVERTED = "filter_inverted";
     public static final int MAX_FILTER_SLOTS = 9;
 
     private final int itemsPerPull;
@@ -143,6 +144,14 @@ public class AdvancedExtractorModule implements Module {
         serverPlayer.openMenu(new SimpleMenuProvider(
                 (syncId, playerInventory, p) -> new AdvancedExtractorScreenHandler(
                         syncId, playerInventory, ctx.blockEntity()),
+                Component.translatable("screen.logistics.advanced_extractor")));
+        return InteractionResult.SUCCESS;
+    }
+
+    @Override
+    public InteractionResult openItemConfig(ServerPlayer player, InteractionHand hand, ItemStack stack) {
+        player.openMenu(new SimpleMenuProvider(
+                (syncId, inv, p) -> new AdvancedExtractorScreenHandler(syncId, inv, player, hand),
                 Component.translatable("screen.logistics.advanced_extractor")));
         return InteractionResult.SUCCESS;
     }

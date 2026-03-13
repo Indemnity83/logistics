@@ -3,13 +3,22 @@ package com.logistics.pipe.ui;
 import com.logistics.LogisticsPipe;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.pipe.modules.ItemFilterModule;
+import net.minecraft.core.Direction;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.StringTag;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.Container;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.inventory.ClickType;
-import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.CustomData;
+import org.jetbrains.annotations.Nullable;
 
 public class ItemFilterScreenHandler extends AbstractContainerMenu {
     private static final int FILTER_SLOT_COUNT =
@@ -23,10 +32,16 @@ public class ItemFilterScreenHandler extends AbstractContainerMenu {
 
     private final FilterInventory filterInventory;
     private final ContainerLevelAccess context;
+    @Nullable private final ServerPlayer itemConfigPlayer;
+    @Nullable private final InteractionHand itemConfigHand;
+    @Nullable private final ItemStack originalStack;
 
     public ItemFilterScreenHandler(int syncId, Container playerInventory) {
         super(LogisticsPipe.SCREEN.ITEM_FILTER, syncId);
         this.context = ContainerLevelAccess.NULL;
+        this.itemConfigPlayer = null;
+        this.itemConfigHand = null;
+        this.originalStack = null;
         this.filterInventory = new FilterInventory(null);
 
         addFilterSlots(filterInventory);
@@ -35,12 +50,28 @@ public class ItemFilterScreenHandler extends AbstractContainerMenu {
 
     public ItemFilterScreenHandler(int syncId, Container playerInventory, PipeBlockEntity pipeEntity) {
         super(LogisticsPipe.SCREEN.ITEM_FILTER, syncId);
+        this.itemConfigPlayer = null;
+        this.itemConfigHand = null;
+        this.originalStack = null;
         if (pipeEntity != null) {
             this.context = ContainerLevelAccess.create(pipeEntity.getLevel(), pipeEntity.getBlockPos());
         } else {
             this.context = ContainerLevelAccess.NULL;
         }
         this.filterInventory = new FilterInventory(pipeEntity);
+
+        addFilterSlots(filterInventory);
+        addPlayerInventorySlots(playerInventory);
+    }
+
+    public ItemFilterScreenHandler(int syncId, Container playerInventory, ServerPlayer player, InteractionHand hand) {
+        super(LogisticsPipe.SCREEN.ITEM_FILTER, syncId);
+        this.itemConfigPlayer = player;
+        this.itemConfigHand = hand;
+        this.originalStack = player.getItemInHand(hand);
+        this.context = ContainerLevelAccess.NULL;
+        this.filterInventory = new FilterInventory(null);
+        this.filterInventory.loadFromItem(this.originalStack);
 
         addFilterSlots(filterInventory);
         addPlayerInventorySlots(playerInventory);
@@ -75,6 +106,9 @@ public class ItemFilterScreenHandler extends AbstractContainerMenu {
 
     @Override
     public boolean stillValid(Player player) {
+        if (itemConfigPlayer != null) {
+            return player.getItemInHand(itemConfigHand) == originalStack;
+        }
         return true;
     }
 
@@ -91,6 +125,11 @@ public class ItemFilterScreenHandler extends AbstractContainerMenu {
             } else {
                 filterInventory.setItem(slotIndex, cursor.copyWithCount(1));
             }
+
+            if (itemConfigPlayer != null) {
+                syncFiltersToItem();
+            }
+
             broadcastChanges();
             return;
         }
@@ -101,6 +140,33 @@ public class ItemFilterScreenHandler extends AbstractContainerMenu {
     @Override
     public ItemStack quickMoveStack(Player player, int slot) {
         return ItemStack.EMPTY;
+    }
+
+    /** Writes the full filter state to the held item's CUSTOM_DATA. */
+    private void syncFiltersToItem() {
+        if (itemConfigPlayer == null || itemConfigPlayer.getItemInHand(itemConfigHand) != originalStack) return;
+        ItemStack stack = originalStack;
+        CustomData existing = stack.get(DataComponents.CUSTOM_DATA);
+        CompoundTag tag = existing != null ? existing.copyTag() : new CompoundTag();
+
+        CompoundTag filtersTag = new CompoundTag();
+        int slotIndex = 0;
+        for (Direction direction : ItemFilterModule.FILTER_ORDER) {
+            ListTag list = new ListTag();
+            for (int i = 0; i < ItemFilterModule.FILTER_SLOTS_PER_SIDE; i++) {
+                ItemStack slotItem = filterInventory.getItem(slotIndex++);
+                String itemId = slotItem.isEmpty()
+                        ? ""
+                        : net.minecraft.core.registries.BuiltInRegistries.ITEM
+                                .getKey(slotItem.getItem()).toString();
+                list.add(StringTag.valueOf(itemId));
+            }
+            filtersTag.put(direction.getName(), list);
+        }
+        tag.put(ItemFilterModule.FILTERS, filtersTag);
+
+        stack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
+        itemConfigPlayer.getInventory().setChanged();
     }
 
     private static class FilterSlot extends Slot {

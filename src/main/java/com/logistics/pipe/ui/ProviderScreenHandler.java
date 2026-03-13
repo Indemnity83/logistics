@@ -1,8 +1,14 @@
 package com.logistics.pipe.ui;
 
 import com.logistics.LogisticsPipe;
+import com.logistics.core.lib.storage.NbtCompat;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.pipe.modules.ProviderModule;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.Container;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ClickType;
@@ -10,8 +16,9 @@ import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.SimpleContainerData;
 import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.CustomData;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Screen handler for the Provider GUI.
@@ -28,6 +35,9 @@ public class ProviderScreenHandler extends AbstractContainerMenu {
     private final ProviderFilterInventory filterInventory;
     private final ContainerLevelAccess context;
     private final ContainerData data;
+    @Nullable private final ServerPlayer itemConfigPlayer;
+    @Nullable private final InteractionHand itemConfigHand;
+    @Nullable private final ItemStack pinnedItemStack;
 
     public ProviderScreenHandler(int syncId, Container playerInventory) {
         this(syncId, playerInventory, null, new SimpleContainerData(2));
@@ -37,14 +47,37 @@ public class ProviderScreenHandler extends AbstractContainerMenu {
         this(syncId, playerInventory, pipeEntity, new SimpleContainerData(2));
     }
 
+    public ProviderScreenHandler(int syncId, Container playerInventory, ServerPlayer player, InteractionHand hand) {
+        super(LogisticsPipe.SCREEN.PROVIDER, syncId);
+        this.data = new SimpleContainerData(2);
+        this.itemConfigPlayer = player;
+        this.itemConfigHand = hand;
+        this.context = ContainerLevelAccess.NULL;
+        ItemStack stack = player.getItemInHand(hand);
+        this.pinnedItemStack = stack;
+        this.filterInventory = new ProviderFilterInventory(null);
+        this.filterInventory.loadFromItem(stack);
+        CustomData customData = stack.get(DataComponents.CUSTOM_DATA);
+        if (customData != null) {
+            CompoundTag tag = customData.copyTag();
+            data.set(0, NbtCompat.getInt(tag, ProviderModule.MODE, 0));
+            data.set(1, NbtCompat.getInt(tag, ProviderModule.FILTER_INVERTED, 0));
+        }
+        addFilterSlots(filterInventory);
+        addPlayerInventorySlots(playerInventory);
+        addDataSlots(data);
+    }
+
     private ProviderScreenHandler(int syncId, Container playerInventory, PipeBlockEntity pipeEntity, ContainerData data) {
         super(LogisticsPipe.SCREEN.PROVIDER, syncId);
         this.data = data;
+        this.itemConfigPlayer = null;
+        this.itemConfigHand = null;
+        this.pinnedItemStack = null;
         this.filterInventory = new ProviderFilterInventory(pipeEntity);
 
         if (pipeEntity != null) {
             this.context = ContainerLevelAccess.create(pipeEntity.getLevel(), pipeEntity.getBlockPos());
-            // Load current mode and filter inversion from module
             PipeModuleHelper.withModule(pipeEntity, ProviderModule.class, (ctx, module) -> {
                 data.set(0, module.getModeOrdinal(ctx));
                 data.set(1, module.isFilterInverted(ctx) ? 1 : 0);
@@ -83,8 +116,16 @@ public class ProviderScreenHandler extends AbstractContainerMenu {
         }
     }
 
+    private boolean isPinnedItemStillHeld() {
+        return pinnedItemStack != null && itemConfigPlayer != null
+                && itemConfigPlayer.getItemInHand(itemConfigHand) == pinnedItemStack;
+    }
+
     @Override
     public boolean stillValid(Player player) {
+        if (itemConfigPlayer != null) {
+            return isPinnedItemStillHeld();
+        }
         return true;
     }
 
@@ -96,33 +137,19 @@ public class ProviderScreenHandler extends AbstractContainerMenu {
     @Override
     public void clicked(int slotIndex, int button, ClickType actionType, Player player) {
         if (slotIndex >= 0 && slotIndex < FILTER_SLOT_COUNT) {
-            // Prevent shift-click
-            if (actionType == ClickType.QUICK_MOVE) {
-                return;
-            }
+            if (actionType == ClickType.QUICK_MOVE) return;
 
             ItemStack cursor = getCarried();
 
-            // Right-click or left-click with empty cursor: Clear slot
             if (button == 1 || cursor.isEmpty()) {
-                filterInventory.setItem(slotIndex, ItemStack.EMPTY);
-                PipeModuleHelper.withModule(context, ProviderModule.class, (ctx, module) -> {
-                    module.setFilterItem(ctx, slotIndex, "");
-                });
+                if (itemConfigPlayer != null) handleClearSlotForPlayer(slotIndex);
+                else handleClearSlotForModule(slotIndex);
                 broadcastChanges();
                 return;
             }
 
-            // Left-click with item: Place ghost item
-            String itemId = net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(cursor.getItem()).toString();
-            ItemStack ghostItem = cursor.copyWithCount(1);
-            filterInventory.setItem(slotIndex, ghostItem);
-
-            // Save to module configuration
-            PipeModuleHelper.withModule(context, ProviderModule.class, (ctx, module) -> {
-                module.setFilterItem(ctx, slotIndex, itemId);
-            });
-
+            if (itemConfigPlayer != null) handlePlaceItemForPlayer(slotIndex, cursor);
+            else handlePlaceItemForModule(slotIndex, cursor);
             broadcastChanges();
             return;
         }
@@ -130,29 +157,61 @@ public class ProviderScreenHandler extends AbstractContainerMenu {
         super.clicked(slotIndex, button, actionType, player);
     }
 
+    private void handleClearSlotForPlayer(int slotIndex) {
+        if (!isPinnedItemStillHeld()) return;
+        filterInventory.setItem(slotIndex, ItemStack.EMPTY);
+        final int s = slotIndex;
+        ItemTagUtils.writeToItemTag(itemConfigPlayer, itemConfigHand, tag -> {
+            CompoundTag fi = NbtCompat.getCompoundOrEmpty(tag, ProviderModule.FILTER_ITEMS);
+            fi.remove(String.valueOf(s));
+            tag.put(ProviderModule.FILTER_ITEMS, fi);
+        });
+    }
+
+    private void handleClearSlotForModule(int slotIndex) {
+        filterInventory.setItem(slotIndex, ItemStack.EMPTY);
+        PipeModuleHelper.withModule(context, ProviderModule.class, (ctx, module) -> module.setFilterItem(ctx, slotIndex, ""));
+    }
+
+    private void handlePlaceItemForPlayer(int slotIndex, ItemStack cursor) {
+        if (!isPinnedItemStillHeld()) return;
+        String itemId = net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(cursor.getItem()).toString();
+        filterInventory.setItem(slotIndex, cursor.copyWithCount(1));
+        final int s = slotIndex;
+        ItemTagUtils.writeToItemTag(itemConfigPlayer, itemConfigHand, tag -> {
+            CompoundTag fi = NbtCompat.getCompoundOrEmpty(tag, ProviderModule.FILTER_ITEMS);
+            fi.putString(String.valueOf(s), itemId);
+            tag.put(ProviderModule.FILTER_ITEMS, fi);
+        });
+    }
+
+    private void handlePlaceItemForModule(int slotIndex, ItemStack cursor) {
+        String itemId = net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(cursor.getItem()).toString();
+        filterInventory.setItem(slotIndex, cursor.copyWithCount(1));
+        PipeModuleHelper.withModule(context, ProviderModule.class, (ctx, module) -> module.setFilterItem(ctx, slotIndex, itemId));
+    }
+
     @Override
     public boolean clickMenuButton(Player player, int id) {
         if (id == 0) {
-            // Cycle through modes: Supply(0) -> Reserve(1) -> Guarded(2) -> Seeded(3) -> Sample(4) -> wrap to Supply
-            int currentMode = data.get(0);
-            int nextMode = (currentMode + 1) % ProviderModule.ProviderMode.values().length;
+            int nextMode = (data.get(0) + 1) % ProviderModule.ProviderMode.values().length;
             data.set(0, nextMode);
-
-            // Save mode to module
-            PipeModuleHelper.withModule(context, ProviderModule.class, (ctx, module) -> {
-                module.setModeFromOrdinal(ctx, nextMode);
-            });
+            if (itemConfigPlayer != null) {
+                if (!isPinnedItemStillHeld()) return true;
+                ItemTagUtils.writeToItemTag(itemConfigPlayer, itemConfigHand,tag -> tag.putInt(ProviderModule.MODE, nextMode));
+            } else {
+                PipeModuleHelper.withModule(context, ProviderModule.class, (ctx, module) -> module.setModeFromOrdinal(ctx, nextMode));
+            }
             return true;
         } else if (id == 1) {
-            // Toggle filter inversion
-            int currentInverted = data.get(1);
-            int newInverted = currentInverted == 0 ? 1 : 0;
+            int newInverted = data.get(1) == 0 ? 1 : 0;
             data.set(1, newInverted);
-
-            // Save to module
-            PipeModuleHelper.withModule(context, ProviderModule.class, (ctx, module) -> {
-                module.setFilterInverted(ctx, newInverted == 1);
-            });
+            if (itemConfigPlayer != null) {
+                if (!isPinnedItemStillHeld()) return true;
+                ItemTagUtils.writeToItemTag(itemConfigPlayer, itemConfigHand,tag -> tag.putInt(ProviderModule.FILTER_INVERTED, newInverted));
+            } else {
+                PipeModuleHelper.withModule(context, ProviderModule.class, (ctx, module) -> module.setFilterInverted(ctx, newInverted == 1));
+            }
             return true;
         }
         return false;
@@ -168,7 +227,22 @@ public class ProviderScreenHandler extends AbstractContainerMenu {
 
     @Override
     public void broadcastChanges() {
-        // Sync module state into data slots before super sends them to the client
+        if (itemConfigPlayer != null) {
+            if (isPinnedItemStillHeld()) {
+                ItemStack stack = itemConfigPlayer.getItemInHand(itemConfigHand);
+                CustomData customData = stack.get(DataComponents.CUSTOM_DATA);
+                if (customData != null) {
+                    CompoundTag tag = customData.copyTag();
+                    data.set(0, NbtCompat.getInt(tag, ProviderModule.MODE, 0));
+                    data.set(1, NbtCompat.getInt(tag, ProviderModule.FILTER_INVERTED, 0));
+                } else {
+                    data.set(0, 0);
+                    data.set(1, 0);
+                }
+            }
+            super.broadcastChanges();
+            return;
+        }
         PipeModuleHelper.withModule(context, ProviderModule.class, (ctx, module) -> {
             data.set(0, module.getModeOrdinal(ctx));
             data.set(1, module.isFilterInverted(ctx) ? 1 : 0);

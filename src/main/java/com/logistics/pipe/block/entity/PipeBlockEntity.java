@@ -366,6 +366,10 @@ public class PipeBlockEntity extends BaseBlockEntity
         return NbtCompat.getCompoundOrEmpty(moduleState, key);
     }
 
+    public void clearModuleState(String key) {
+        moduleState.remove(key);
+    }
+
     public PipeContext createContext() {
         return new PipeContext(level, worldPosition, getBlockState(), this);
     }
