@@ -207,6 +207,8 @@ public class AdvancedExtractorScreenHandler extends AbstractContainerMenu {
                 CustomData customData = stack.get(DataComponents.CUSTOM_DATA);
                 if (customData != null) {
                     data.set(0, NbtCompat.getInt(customData.copyTag(), AdvancedExtractorModule.FILTER_INVERTED, 0));
+                } else {
+                    data.set(0, 0);
                 }
             }
             super.broadcastChanges();

@@ -102,6 +102,8 @@ public class SinkScreenHandler extends AbstractContainerMenu {
                 CustomData customData = stack.get(DataComponents.CUSTOM_DATA);
                 if (customData != null) {
                     data.set(0, NbtCompat.getInt(customData.copyTag(), SinkModule.DEFAULT_ROUTE, 0));
+                } else {
+                    data.set(0, 0);
                 }
             }
             super.broadcastChanges();

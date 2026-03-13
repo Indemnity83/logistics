@@ -233,6 +233,8 @@ public class SupplierScreenHandler extends AbstractContainerMenu {
                 CustomData customData = stack.get(DataComponents.CUSTOM_DATA);
                 if (customData != null) {
                     data.set(0, NbtCompat.getInt(customData.copyTag(), SupplierModule.MODE, 0));
+                } else {
+                    data.set(0, 0);
                 }
             }
             super.broadcastChanges();
