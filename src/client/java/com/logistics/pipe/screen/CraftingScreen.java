@@ -35,6 +35,19 @@ public class CraftingScreen extends AbstractContainerScreen<CraftingScreenHandle
     protected void init() {
         super.init();
 
+        // Import recipe from adjacent autocrafter (only when backed by a pipe entity)
+        if (menu.supportsAutocrafterImport()) {
+            addRenderableWidget(Button.builder(
+                    Component.translatable("gui.logistics.crafting.import"),
+                    button -> {
+                        if (minecraft != null && minecraft.gameMode != null) {
+                            minecraft.gameMode.handleInventoryButtonClick(menu.containerId, 1);
+                        }
+                    })
+                    .bounds(leftPos + 100, topPos + 15, 68, 14)
+                    .build());
+        }
+
         // Blocking mode toggle button
         this.blockingButton = Button.builder(
                 getBlockingText(),
