@@ -160,9 +160,9 @@ public class SinkScreenHandler extends AbstractContainerMenu {
 
             // Right-click: Clear slot
             if (button == 1) {
-                sinkInventory.setItem(slotIndex, ItemStack.EMPTY);
                 if (itemConfigPlayer != null) {
                     if (!isPinnedItemStillHeld()) return;
+                    sinkInventory.setItem(slotIndex, ItemStack.EMPTY);
                     final int s = slotIndex;
                     ItemTagUtils.writeToItemTag(itemConfigPlayer, itemConfigHand,tag -> {
                         CompoundTag filters = NbtCompat.getCompoundOrEmpty(tag, SinkModule.FILTERS);
@@ -174,6 +174,7 @@ public class SinkScreenHandler extends AbstractContainerMenu {
                         }
                     });
                 } else {
+                    sinkInventory.setItem(slotIndex, ItemStack.EMPTY);
                     PipeModuleHelper.withModule(context, SinkModule.class, (ctx, module) -> {
                         module.setFilter(ctx, slotIndex, "");
                     });
@@ -189,11 +190,11 @@ public class SinkScreenHandler extends AbstractContainerMenu {
 
             String itemId = net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(cursor.getItem()).toString();
             ItemStack ghostItem = cursor.copyWithCount(1); // Filters don't need count
-            sinkInventory.setItem(slotIndex, ghostItem);
 
             // Save to module configuration
             if (itemConfigPlayer != null) {
                 if (!isPinnedItemStillHeld()) return;
+                sinkInventory.setItem(slotIndex, ghostItem);
                 final int s = slotIndex;
                 ItemTagUtils.writeToItemTag(itemConfigPlayer, itemConfigHand,tag -> {
                     CompoundTag filters = NbtCompat.getCompoundOrEmpty(tag, SinkModule.FILTERS);
@@ -201,6 +202,7 @@ public class SinkScreenHandler extends AbstractContainerMenu {
                     tag.put(SinkModule.FILTERS, filters);
                 });
             } else {
+                sinkInventory.setItem(slotIndex, ghostItem);
                 PipeModuleHelper.withModule(context, SinkModule.class, (ctx, module) -> {
                     module.setFilter(ctx, slotIndex, itemId);
                 });

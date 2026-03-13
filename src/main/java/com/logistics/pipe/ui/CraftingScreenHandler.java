@@ -159,33 +159,9 @@ public class CraftingScreenHandler extends AbstractContainerMenu {
             ItemStack cursor = getCarried();
             boolean isResultSlot = slotIndex == RESULT_SLOT;
 
-            // Right-click or empty cursor clears slot
             if (button == 1 || cursor.isEmpty()) {
-                recipeInventory.setItem(slotIndex, ItemStack.EMPTY);
-                if (itemConfigPlayer != null) {
-                    if (!isPinnedItemStillHeld()) return;
-                    if (isResultSlot) {
-                        ItemTagUtils.writeToItemTag(itemConfigPlayer, itemConfigHand,tag -> {
-                            tag.remove(CraftingModule.RESULT_ITEM);
-                            tag.remove(CraftingModule.RESULT_COUNT);
-                        });
-                    } else {
-                        final int s = slotIndex;
-                        ItemTagUtils.writeToItemTag(itemConfigPlayer, itemConfigHand,tag -> {
-                            CompoundTag items = NbtCompat.getCompoundOrEmpty(tag, CraftingModule.RECIPE_ITEMS);
-                            CompoundTag counts = NbtCompat.getCompoundOrEmpty(tag, CraftingModule.RECIPE_COUNTS);
-                            items.remove(String.valueOf(s));
-                            counts.remove(String.valueOf(s));
-                            tag.put(CraftingModule.RECIPE_ITEMS, items);
-                            tag.put(CraftingModule.RECIPE_COUNTS, counts);
-                        });
-                    }
-                } else if (isResultSlot) {
-                    PipeModuleHelper.withModule(context, CraftingModule.class, (ctx, module) -> module.setResult(ctx, "", 1));
-                } else {
-                    final int s = slotIndex;
-                    PipeModuleHelper.withModule(context, CraftingModule.class, (ctx, module) -> module.setIngredient(ctx, s, "", 1));
-                }
+                if (isResultSlot) clearResultSlot();
+                else clearIngredientSlot(slotIndex);
                 broadcastChanges();
                 return;
             }
@@ -193,37 +169,77 @@ public class CraftingScreenHandler extends AbstractContainerMenu {
             // Left-click with item: place ghost item
             String itemId = BuiltInRegistries.ITEM.getKey(cursor.getItem()).toString();
             int count = cursor.getCount();
-            recipeInventory.setItem(slotIndex, cursor.copyWithCount(count));
-
-            if (itemConfigPlayer != null) {
-                if (!isPinnedItemStillHeld()) return;
-                if (isResultSlot) {
-                    ItemTagUtils.writeToItemTag(itemConfigPlayer, itemConfigHand,tag -> {
-                        tag.putString(CraftingModule.RESULT_ITEM, itemId);
-                        tag.putInt(CraftingModule.RESULT_COUNT, count);
-                    });
-                } else {
-                    final int s = slotIndex;
-                    ItemTagUtils.writeToItemTag(itemConfigPlayer, itemConfigHand,tag -> {
-                        CompoundTag items = NbtCompat.getCompoundOrEmpty(tag, CraftingModule.RECIPE_ITEMS);
-                        CompoundTag counts = NbtCompat.getCompoundOrEmpty(tag, CraftingModule.RECIPE_COUNTS);
-                        items.putString(String.valueOf(s), itemId);
-                        counts.putInt(String.valueOf(s), Math.max(1, count));
-                        tag.put(CraftingModule.RECIPE_ITEMS, items);
-                        tag.put(CraftingModule.RECIPE_COUNTS, counts);
-                    });
-                }
-            } else if (isResultSlot) {
-                PipeModuleHelper.withModule(context, CraftingModule.class, (ctx, module) -> module.setResult(ctx, itemId, count));
-            } else {
-                final int s = slotIndex;
-                PipeModuleHelper.withModule(context, CraftingModule.class, (ctx, module) -> module.setIngredient(ctx, s, itemId, count));
-            }
+            if (isResultSlot) setResultSlot(cursor.copyWithCount(count), itemId, count);
+            else setIngredientSlot(slotIndex, cursor.copyWithCount(count), itemId, count);
             broadcastChanges();
             return;
         }
 
         super.clicked(slotIndex, button, actionType, player);
+    }
+
+    private void clearResultSlot() {
+        if (itemConfigPlayer != null) {
+            if (!isPinnedItemStillHeld()) return;
+            recipeInventory.setItem(RESULT_SLOT, ItemStack.EMPTY);
+            ItemTagUtils.writeToItemTag(itemConfigPlayer, itemConfigHand,tag -> {
+                tag.remove(CraftingModule.RESULT_ITEM);
+                tag.remove(CraftingModule.RESULT_COUNT);
+            });
+        } else {
+            recipeInventory.setItem(RESULT_SLOT, ItemStack.EMPTY);
+            PipeModuleHelper.withModule(context, CraftingModule.class, (ctx, module) -> module.setResult(ctx, "", 1));
+        }
+    }
+
+    private void clearIngredientSlot(int slot) {
+        if (itemConfigPlayer != null) {
+            if (!isPinnedItemStillHeld()) return;
+            recipeInventory.setItem(slot, ItemStack.EMPTY);
+            ItemTagUtils.writeToItemTag(itemConfigPlayer, itemConfigHand,tag -> {
+                CompoundTag items = NbtCompat.getCompoundOrEmpty(tag, CraftingModule.RECIPE_ITEMS);
+                CompoundTag counts = NbtCompat.getCompoundOrEmpty(tag, CraftingModule.RECIPE_COUNTS);
+                items.remove(String.valueOf(slot));
+                counts.remove(String.valueOf(slot));
+                tag.put(CraftingModule.RECIPE_ITEMS, items);
+                tag.put(CraftingModule.RECIPE_COUNTS, counts);
+            });
+        } else {
+            recipeInventory.setItem(slot, ItemStack.EMPTY);
+            PipeModuleHelper.withModule(context, CraftingModule.class, (ctx, module) -> module.setIngredient(ctx, slot, "", 1));
+        }
+    }
+
+    private void setResultSlot(ItemStack display, String itemId, int count) {
+        if (itemConfigPlayer != null) {
+            if (!isPinnedItemStillHeld()) return;
+            recipeInventory.setItem(RESULT_SLOT, display);
+            ItemTagUtils.writeToItemTag(itemConfigPlayer, itemConfigHand,tag -> {
+                tag.putString(CraftingModule.RESULT_ITEM, itemId);
+                tag.putInt(CraftingModule.RESULT_COUNT, count);
+            });
+        } else {
+            recipeInventory.setItem(RESULT_SLOT, display);
+            PipeModuleHelper.withModule(context, CraftingModule.class, (ctx, module) -> module.setResult(ctx, itemId, count));
+        }
+    }
+
+    private void setIngredientSlot(int slot, ItemStack display, String itemId, int count) {
+        if (itemConfigPlayer != null) {
+            if (!isPinnedItemStillHeld()) return;
+            recipeInventory.setItem(slot, display);
+            ItemTagUtils.writeToItemTag(itemConfigPlayer, itemConfigHand,tag -> {
+                CompoundTag items = NbtCompat.getCompoundOrEmpty(tag, CraftingModule.RECIPE_ITEMS);
+                CompoundTag counts = NbtCompat.getCompoundOrEmpty(tag, CraftingModule.RECIPE_COUNTS);
+                items.putString(String.valueOf(slot), itemId);
+                counts.putInt(String.valueOf(slot), Math.max(1, count));
+                tag.put(CraftingModule.RECIPE_ITEMS, items);
+                tag.put(CraftingModule.RECIPE_COUNTS, counts);
+            });
+        } else {
+            recipeInventory.setItem(slot, display);
+            PipeModuleHelper.withModule(context, CraftingModule.class, (ctx, module) -> module.setIngredient(ctx, slot, itemId, count));
+        }
     }
 
     @Override

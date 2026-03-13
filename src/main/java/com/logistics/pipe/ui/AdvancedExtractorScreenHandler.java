@@ -137,9 +137,9 @@ public class AdvancedExtractorScreenHandler extends AbstractContainerMenu {
             ItemStack cursor = getCarried();
 
             if (button == 1 || cursor.isEmpty()) {
-                filterInventory.setItem(slotIndex, ItemStack.EMPTY);
                 if (itemConfigPlayer != null) {
                     if (!isPinnedItemStillHeld()) return;
+                    filterInventory.setItem(slotIndex, ItemStack.EMPTY);
                     final int s = slotIndex;
                     ItemTagUtils.writeToItemTag(itemConfigPlayer, itemConfigHand,tag -> {
                         CompoundTag fi = NbtCompat.getCompoundOrEmpty(tag, AdvancedExtractorModule.FILTER_ITEMS);
@@ -147,6 +147,7 @@ public class AdvancedExtractorScreenHandler extends AbstractContainerMenu {
                         tag.put(AdvancedExtractorModule.FILTER_ITEMS, fi);
                     });
                 } else {
+                    filterInventory.setItem(slotIndex, ItemStack.EMPTY);
                     PipeModuleHelper.withModule(context, AdvancedExtractorModule.class, (ctx, module) ->
                             module.setFilterItem(ctx, slotIndex, ""));
                 }
@@ -156,9 +157,9 @@ public class AdvancedExtractorScreenHandler extends AbstractContainerMenu {
 
             String itemId = net.minecraft.core.registries.BuiltInRegistries.ITEM
                     .getKey(cursor.getItem()).toString();
-            filterInventory.setItem(slotIndex, cursor.copyWithCount(1));
             if (itemConfigPlayer != null) {
                 if (!isPinnedItemStillHeld()) return;
+                filterInventory.setItem(slotIndex, cursor.copyWithCount(1));
                 final int s = slotIndex;
                 ItemTagUtils.writeToItemTag(itemConfigPlayer, itemConfigHand,tag -> {
                     CompoundTag fi = NbtCompat.getCompoundOrEmpty(tag, AdvancedExtractorModule.FILTER_ITEMS);
@@ -166,6 +167,7 @@ public class AdvancedExtractorScreenHandler extends AbstractContainerMenu {
                     tag.put(AdvancedExtractorModule.FILTER_ITEMS, fi);
                 });
             } else {
+                filterInventory.setItem(slotIndex, cursor.copyWithCount(1));
                 PipeModuleHelper.withModule(context, AdvancedExtractorModule.class, (ctx, module) ->
                         module.setFilterItem(ctx, slotIndex, itemId));
             }

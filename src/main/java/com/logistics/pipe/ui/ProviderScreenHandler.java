@@ -146,9 +146,9 @@ public class ProviderScreenHandler extends AbstractContainerMenu {
 
             // Right-click or left-click with empty cursor: Clear slot
             if (button == 1 || cursor.isEmpty()) {
-                filterInventory.setItem(slotIndex, ItemStack.EMPTY);
                 if (itemConfigPlayer != null) {
                     if (!isPinnedItemStillHeld()) return;
+                    filterInventory.setItem(slotIndex, ItemStack.EMPTY);
                     final int s = slotIndex;
                     ItemTagUtils.writeToItemTag(itemConfigPlayer, itemConfigHand,tag -> {
                         CompoundTag fi = NbtCompat.getCompoundOrEmpty(tag, ProviderModule.FILTER_ITEMS);
@@ -156,6 +156,7 @@ public class ProviderScreenHandler extends AbstractContainerMenu {
                         tag.put(ProviderModule.FILTER_ITEMS, fi);
                     });
                 } else {
+                    filterInventory.setItem(slotIndex, ItemStack.EMPTY);
                     PipeModuleHelper.withModule(context, ProviderModule.class, (ctx, module) -> module.setFilterItem(ctx, slotIndex, ""));
                 }
                 broadcastChanges();
@@ -164,9 +165,9 @@ public class ProviderScreenHandler extends AbstractContainerMenu {
 
             // Left-click with item: Place ghost item
             String itemId = net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(cursor.getItem()).toString();
-            filterInventory.setItem(slotIndex, cursor.copyWithCount(1));
             if (itemConfigPlayer != null) {
                 if (!isPinnedItemStillHeld()) return;
+                filterInventory.setItem(slotIndex, cursor.copyWithCount(1));
                 final int s = slotIndex;
                 ItemTagUtils.writeToItemTag(itemConfigPlayer, itemConfigHand,tag -> {
                     CompoundTag fi = NbtCompat.getCompoundOrEmpty(tag, ProviderModule.FILTER_ITEMS);
@@ -174,6 +175,7 @@ public class ProviderScreenHandler extends AbstractContainerMenu {
                     tag.put(ProviderModule.FILTER_ITEMS, fi);
                 });
             } else {
+                filterInventory.setItem(slotIndex, cursor.copyWithCount(1));
                 PipeModuleHelper.withModule(context, ProviderModule.class, (ctx, module) -> module.setFilterItem(ctx, slotIndex, itemId));
             }
             broadcastChanges();
