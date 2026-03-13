@@ -181,7 +181,7 @@ public class CraftingModule implements Module {
             ServerPlayer player, net.minecraft.world.InteractionHand hand, ItemStack stack) {
         player.openMenu(new SimpleMenuProvider(
                 (syncId, inv, p) -> new CraftingScreenHandler(syncId, inv, player, hand),
-                Component.translatable("block.logistics.crafting_logistics_pipe")));
+                stack.getHoverName()));
         return InteractionResult.SUCCESS;
     }
 

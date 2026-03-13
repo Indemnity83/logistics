@@ -254,7 +254,7 @@ public class ProviderModule implements Module {
             head = queue.peekHead();
             if (head == null) break;
 
-            long toExtract = Math.min(head.remaining(), itemsLeft);
+            long toExtract = Math.min(head.remaining(), Math.min(itemsLeft, item.toStack(1).getMaxStackSize()));
             long extracted = 0;
             Direction extractDir = null;
 

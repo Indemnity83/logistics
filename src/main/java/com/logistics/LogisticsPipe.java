@@ -283,7 +283,7 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
             PROVIDER_MODULE = INSTANCE.registerItem("provider_module",
                     props -> new ModuleItem(props, () -> new ProviderModule(8, 1)));
             PROVIDER_MODULE_MKII = INSTANCE.registerItem("provider_mkii_module",
-                    props -> new ModuleItem(props, () -> new ProviderModule(128, 8)));
+                    props -> new ModuleItem(props, () -> new ProviderModule(64, 4)));
             EXTRACTOR_MODULE = INSTANCE.registerItem("extractor_module",
                     props -> new ModuleItem(props, () -> new BasicExtractorModule(1, 100)));
             EXTRACTOR_MODULE_MKII = INSTANCE.registerItem("extractor_module_mkii",
@@ -299,9 +299,9 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
             CRAFTER_MODULE = INSTANCE.registerItem("crafter_module",
                     props -> new ModuleItem(props, () -> new CraftingModule(1, 1)));
             CRAFTER_MODULE_MKII = INSTANCE.registerItem("crafter_mkii_module",
-                    props -> new ModuleItem(props, () -> new CraftingModule(64, 1)));
+                    props -> new ModuleItem(props, () -> new CraftingModule(16, 1)));
             CRAFTER_MODULE_MKIII = INSTANCE.registerItem("crafter_mkiii_module",
-                    props -> new ModuleItem(props, () -> new CraftingModule(128, 8)));
+                    props -> new ModuleItem(props, () -> new CraftingModule(64, 4)));
             QUICKSORT_MODULE = INSTANCE.registerItem("quicksort_module",
                     props -> new ModuleItem(props, QuickSortModule::new));
             TERMINUS_MODULE = INSTANCE.registerItem("terminus_module",
