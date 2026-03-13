@@ -497,7 +497,11 @@ public class CraftingModule implements Module {
         long batchCount = new CraftBatchingService().safeBatchCount(amount, resultCount, bufferState);
         if (batchCount <= 0) return -1; // buffer full: defer, don't remove from supply table
 
-        long actualAmount = batchCount * resultCount; // may be less than amount
+        // Cap to the originally-requested amount: the recipe may produce more per batch than was
+        // ordered (e.g. 4 planks/craft for a 2-plank order). Committing only what was requested
+        // means onExternalInsert routes the excess as un-destined surplus to a sink rather than
+        // force-routing all crafted output to the requester regardless of how much they wanted.
+        long actualAmount = Math.min(amount, batchCount * resultCount);
 
         // Aggregate total ingredient amounts needed for the capped batch count
         Map<String, Long> totalNeededByItem = new LinkedHashMap<>();
@@ -575,7 +579,7 @@ public class CraftingModule implements Module {
                 CompoundTag qe = existingQueue.getCompound(qi);
                 if (qe == null) continue;
                 long qeAmt = NbtCompat.getLong(qe, ENTRY_AMT, 0L);
-                long qeBatches = resultCount > 0 ? qeAmt / resultCount : 0;
+                long qeBatches = resultCount > 0 ? (qeAmt + resultCount - 1) / resultCount : 0;
                 for (int slot = 0; slot < 9; slot++) {
                     if (!ingredientId.equals(getIngredientItem(ctx, slot))) continue;
                     totalCommitted += (long) getIngredientCount(ctx, slot) * qeBatches;
