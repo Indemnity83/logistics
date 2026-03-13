@@ -3,7 +3,6 @@ package com.logistics.pipe.ui;
 import com.logistics.LogisticsPipe;
 import com.logistics.core.lib.storage.NbtCompat;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
-import com.logistics.pipe.item.ModuleItem;
 import com.logistics.pipe.modules.SinkModule;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
@@ -38,6 +37,7 @@ public class SinkScreenHandler extends AbstractContainerMenu {
     private final ContainerData data;
     @Nullable private final ServerPlayer itemConfigPlayer;
     @Nullable private final InteractionHand itemConfigHand;
+    @Nullable private final ItemStack originalModuleStack;
 
     public SinkScreenHandler(int syncId, Container playerInventory) {
         this(syncId, playerInventory, null, new SimpleContainerData(1));
@@ -54,6 +54,7 @@ public class SinkScreenHandler extends AbstractContainerMenu {
         this.itemConfigHand = hand;
         this.context = ContainerLevelAccess.NULL;
         ItemStack stack = player.getItemInHand(hand);
+        this.originalModuleStack = stack;
         this.sinkInventory = new SinkInventory(null);
         this.sinkInventory.loadFromItem(stack);
         CustomData customData = stack.get(DataComponents.CUSTOM_DATA);
@@ -70,6 +71,7 @@ public class SinkScreenHandler extends AbstractContainerMenu {
         this.data = data;
         this.itemConfigPlayer = null;
         this.itemConfigHand = null;
+        this.originalModuleStack = null;
 
         if (pipeEntity != null) {
             this.context = ContainerLevelAccess.create(pipeEntity.getLevel(), pipeEntity.getBlockPos());
@@ -91,10 +93,12 @@ public class SinkScreenHandler extends AbstractContainerMenu {
     @Override
     public void broadcastChanges() {
         if (itemConfigPlayer != null) {
-            ItemStack stack = itemConfigPlayer.getItemInHand(itemConfigHand);
-            CustomData customData = stack.get(DataComponents.CUSTOM_DATA);
-            if (customData != null) {
-                data.set(0, NbtCompat.getInt(customData.copyTag(), SinkModule.DEFAULT_ROUTE, 0));
+            if (isPinnedItemStillHeld()) {
+                ItemStack stack = itemConfigPlayer.getItemInHand(itemConfigHand);
+                CustomData customData = stack.get(DataComponents.CUSTOM_DATA);
+                if (customData != null) {
+                    data.set(0, NbtCompat.getInt(customData.copyTag(), SinkModule.DEFAULT_ROUTE, 0));
+                }
             }
             super.broadcastChanges();
             return;
@@ -131,11 +135,15 @@ public class SinkScreenHandler extends AbstractContainerMenu {
         }
     }
 
+    private boolean isPinnedItemStillHeld() {
+        return originalModuleStack != null && itemConfigPlayer != null
+                && itemConfigPlayer.getItemInHand(itemConfigHand) == originalModuleStack;
+    }
+
     @Override
     public boolean stillValid(Player player) {
         if (itemConfigPlayer != null) {
-            ItemStack held = player.getItemInHand(itemConfigHand);
-            return !held.isEmpty() && held.getItem() instanceof ModuleItem;
+            return isPinnedItemStillHeld();
         }
         return true;
     }
@@ -154,11 +162,16 @@ public class SinkScreenHandler extends AbstractContainerMenu {
             if (button == 1) {
                 sinkInventory.setItem(slotIndex, ItemStack.EMPTY);
                 if (itemConfigPlayer != null) {
+                    if (!isPinnedItemStillHeld()) return;
                     final int s = slotIndex;
                     ItemTagUtils.writeToItemTag(itemConfigPlayer, itemConfigHand,tag -> {
                         CompoundTag filters = NbtCompat.getCompoundOrEmpty(tag, SinkModule.FILTERS);
                         filters.remove(String.valueOf(s));
-                        tag.put(SinkModule.FILTERS, filters);
+                        if (filters.isEmpty()) {
+                            tag.remove(SinkModule.FILTERS);
+                        } else {
+                            tag.put(SinkModule.FILTERS, filters);
+                        }
                     });
                 } else {
                     PipeModuleHelper.withModule(context, SinkModule.class, (ctx, module) -> {
@@ -180,6 +193,7 @@ public class SinkScreenHandler extends AbstractContainerMenu {
 
             // Save to module configuration
             if (itemConfigPlayer != null) {
+                if (!isPinnedItemStillHeld()) return;
                 final int s = slotIndex;
                 ItemTagUtils.writeToItemTag(itemConfigPlayer, itemConfigHand,tag -> {
                     CompoundTag filters = NbtCompat.getCompoundOrEmpty(tag, SinkModule.FILTERS);
@@ -212,6 +226,7 @@ public class SinkScreenHandler extends AbstractContainerMenu {
             data.set(0, newValue ? 1 : 0);
 
             if (itemConfigPlayer != null) {
+                if (!isPinnedItemStillHeld()) return true;
                 ItemTagUtils.writeToItemTag(itemConfigPlayer, itemConfigHand,tag -> tag.putInt(SinkModule.DEFAULT_ROUTE, newValue ? 1 : 0));
             } else {
                 PipeModuleHelper.withModule(context, SinkModule.class, (ctx, module) -> {

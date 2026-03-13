@@ -3,7 +3,6 @@ package com.logistics.pipe.ui;
 import com.logistics.LogisticsPipe;
 import com.logistics.core.lib.storage.NbtCompat;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
-import com.logistics.pipe.item.ModuleItem;
 import com.logistics.pipe.modules.ProviderModule;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
@@ -38,6 +37,7 @@ public class ProviderScreenHandler extends AbstractContainerMenu {
     private final ContainerData data;
     @Nullable private final ServerPlayer itemConfigPlayer;
     @Nullable private final InteractionHand itemConfigHand;
+    @Nullable private final ItemStack pinnedItemStack;
 
     public ProviderScreenHandler(int syncId, Container playerInventory) {
         this(syncId, playerInventory, null, new SimpleContainerData(2));
@@ -54,6 +54,7 @@ public class ProviderScreenHandler extends AbstractContainerMenu {
         this.itemConfigHand = hand;
         this.context = ContainerLevelAccess.NULL;
         ItemStack stack = player.getItemInHand(hand);
+        this.pinnedItemStack = stack;
         this.filterInventory = new ProviderFilterInventory(null);
         this.filterInventory.loadFromItem(stack);
         CustomData customData = stack.get(DataComponents.CUSTOM_DATA);
@@ -72,6 +73,7 @@ public class ProviderScreenHandler extends AbstractContainerMenu {
         this.data = data;
         this.itemConfigPlayer = null;
         this.itemConfigHand = null;
+        this.pinnedItemStack = null;
         this.filterInventory = new ProviderFilterInventory(pipeEntity);
 
         if (pipeEntity != null) {
@@ -114,11 +116,15 @@ public class ProviderScreenHandler extends AbstractContainerMenu {
         }
     }
 
+    private boolean isPinnedItemStillHeld() {
+        return pinnedItemStack != null && itemConfigPlayer != null
+                && itemConfigPlayer.getItemInHand(itemConfigHand) == pinnedItemStack;
+    }
+
     @Override
     public boolean stillValid(Player player) {
         if (itemConfigPlayer != null) {
-            ItemStack held = player.getItemInHand(itemConfigHand);
-            return !held.isEmpty() && held.getItem() instanceof ModuleItem;
+            return isPinnedItemStillHeld();
         }
         return true;
     }
@@ -142,6 +148,7 @@ public class ProviderScreenHandler extends AbstractContainerMenu {
             if (button == 1 || cursor.isEmpty()) {
                 filterInventory.setItem(slotIndex, ItemStack.EMPTY);
                 if (itemConfigPlayer != null) {
+                    if (!isPinnedItemStillHeld()) return;
                     final int s = slotIndex;
                     ItemTagUtils.writeToItemTag(itemConfigPlayer, itemConfigHand,tag -> {
                         CompoundTag fi = NbtCompat.getCompoundOrEmpty(tag, ProviderModule.FILTER_ITEMS);
@@ -159,6 +166,7 @@ public class ProviderScreenHandler extends AbstractContainerMenu {
             String itemId = net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(cursor.getItem()).toString();
             filterInventory.setItem(slotIndex, cursor.copyWithCount(1));
             if (itemConfigPlayer != null) {
+                if (!isPinnedItemStillHeld()) return;
                 final int s = slotIndex;
                 ItemTagUtils.writeToItemTag(itemConfigPlayer, itemConfigHand,tag -> {
                     CompoundTag fi = NbtCompat.getCompoundOrEmpty(tag, ProviderModule.FILTER_ITEMS);
@@ -181,6 +189,7 @@ public class ProviderScreenHandler extends AbstractContainerMenu {
             int nextMode = (data.get(0) + 1) % ProviderModule.ProviderMode.values().length;
             data.set(0, nextMode);
             if (itemConfigPlayer != null) {
+                if (!isPinnedItemStillHeld()) return true;
                 ItemTagUtils.writeToItemTag(itemConfigPlayer, itemConfigHand,tag -> tag.putInt(ProviderModule.MODE, nextMode));
             } else {
                 PipeModuleHelper.withModule(context, ProviderModule.class, (ctx, module) -> module.setModeFromOrdinal(ctx, nextMode));
@@ -190,6 +199,7 @@ public class ProviderScreenHandler extends AbstractContainerMenu {
             int newInverted = data.get(1) == 0 ? 1 : 0;
             data.set(1, newInverted);
             if (itemConfigPlayer != null) {
+                if (!isPinnedItemStillHeld()) return true;
                 ItemTagUtils.writeToItemTag(itemConfigPlayer, itemConfigHand,tag -> tag.putInt(ProviderModule.FILTER_INVERTED, newInverted));
             } else {
                 PipeModuleHelper.withModule(context, ProviderModule.class, (ctx, module) -> module.setFilterInverted(ctx, newInverted == 1));
@@ -210,12 +220,14 @@ public class ProviderScreenHandler extends AbstractContainerMenu {
     @Override
     public void broadcastChanges() {
         if (itemConfigPlayer != null) {
-            ItemStack stack = itemConfigPlayer.getItemInHand(itemConfigHand);
-            CustomData customData = stack.get(DataComponents.CUSTOM_DATA);
-            if (customData != null) {
-                CompoundTag tag = customData.copyTag();
-                data.set(0, NbtCompat.getInt(tag, ProviderModule.MODE, 0));
-                data.set(1, NbtCompat.getInt(tag, ProviderModule.FILTER_INVERTED, 0));
+            if (isPinnedItemStillHeld()) {
+                ItemStack stack = itemConfigPlayer.getItemInHand(itemConfigHand);
+                CustomData customData = stack.get(DataComponents.CUSTOM_DATA);
+                if (customData != null) {
+                    CompoundTag tag = customData.copyTag();
+                    data.set(0, NbtCompat.getInt(tag, ProviderModule.MODE, 0));
+                    data.set(1, NbtCompat.getInt(tag, ProviderModule.FILTER_INVERTED, 0));
+                }
             }
             super.broadcastChanges();
             return;

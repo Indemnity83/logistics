@@ -3,7 +3,6 @@ package com.logistics.pipe.ui;
 import com.logistics.LogisticsPipe;
 import com.logistics.core.lib.storage.NbtCompat;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
-import com.logistics.pipe.item.ModuleItem;
 import com.logistics.pipe.modules.CraftingModule;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -42,6 +41,7 @@ public class CraftingScreenHandler extends AbstractContainerMenu {
     private final ContainerData data;
     @Nullable private final ServerPlayer itemConfigPlayer;
     @Nullable private final InteractionHand itemConfigHand;
+    @Nullable private final ItemStack pinnedStack;
 
     public CraftingScreenHandler(int syncId, Container playerInventory) {
         this(syncId, playerInventory, null, new SimpleContainerData(2));
@@ -60,6 +60,7 @@ public class CraftingScreenHandler extends AbstractContainerMenu {
         this.context = ContainerLevelAccess.NULL;
 
         ItemStack stack = player.getItemInHand(hand);
+        this.pinnedStack = stack;
         this.recipeInventory = new CraftingRecipeInventory(null);
         this.recipeInventory.loadFromItem(stack);
 
@@ -80,6 +81,7 @@ public class CraftingScreenHandler extends AbstractContainerMenu {
         this.data = data;
         this.itemConfigPlayer = null;
         this.itemConfigHand = null;
+        this.pinnedStack = null;
         this.recipeInventory = new CraftingRecipeInventory(pipeEntity);
 
         if (pipeEntity != null) {
@@ -129,11 +131,15 @@ public class CraftingScreenHandler extends AbstractContainerMenu {
         }
     }
 
+    private boolean isPinnedItemStillHeld() {
+        return pinnedStack != null && itemConfigPlayer != null
+                && itemConfigPlayer.getItemInHand(itemConfigHand) == pinnedStack;
+    }
+
     @Override
     public boolean stillValid(Player player) {
         if (itemConfigPlayer != null) {
-            ItemStack held = player.getItemInHand(itemConfigHand);
-            return !held.isEmpty() && held.getItem() instanceof ModuleItem;
+            return isPinnedItemStillHeld();
         }
         return context.evaluate(
                 (level, pos) -> player.distanceToSqr(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5) <= 64.0,
@@ -157,6 +163,7 @@ public class CraftingScreenHandler extends AbstractContainerMenu {
             if (button == 1 || cursor.isEmpty()) {
                 recipeInventory.setItem(slotIndex, ItemStack.EMPTY);
                 if (itemConfigPlayer != null) {
+                    if (!isPinnedItemStillHeld()) return;
                     if (isResultSlot) {
                         ItemTagUtils.writeToItemTag(itemConfigPlayer, itemConfigHand,tag -> {
                             tag.remove(CraftingModule.RESULT_ITEM);
@@ -189,6 +196,7 @@ public class CraftingScreenHandler extends AbstractContainerMenu {
             recipeInventory.setItem(slotIndex, cursor.copyWithCount(count));
 
             if (itemConfigPlayer != null) {
+                if (!isPinnedItemStillHeld()) return;
                 if (isResultSlot) {
                     ItemTagUtils.writeToItemTag(itemConfigPlayer, itemConfigHand,tag -> {
                         tag.putString(CraftingModule.RESULT_ITEM, itemId);
@@ -225,6 +233,7 @@ public class CraftingScreenHandler extends AbstractContainerMenu {
             int newBlocking = data.get(DATA_BLOCKING) == 0 ? 1 : 0;
             data.set(DATA_BLOCKING, newBlocking);
             if (itemConfigPlayer != null) {
+                if (!isPinnedItemStillHeld()) return true;
                 ItemTagUtils.writeToItemTag(itemConfigPlayer, itemConfigHand,tag -> tag.putInt(CraftingModule.BLOCKING, newBlocking));
             } else {
                 PipeModuleHelper.withModule(context, CraftingModule.class, (ctx, module) -> {
@@ -239,11 +248,13 @@ public class CraftingScreenHandler extends AbstractContainerMenu {
     @Override
     public void broadcastChanges() {
         if (itemConfigPlayer != null) {
-            ItemStack stack = itemConfigPlayer.getItemInHand(itemConfigHand);
-            CustomData customData = stack.get(DataComponents.CUSTOM_DATA);
-            if (customData != null) {
-                CompoundTag tag = customData.copyTag();
-                data.set(DATA_BLOCKING, NbtCompat.getInt(tag, CraftingModule.BLOCKING, 0));
+            if (isPinnedItemStillHeld()) {
+                ItemStack stack = itemConfigPlayer.getItemInHand(itemConfigHand);
+                CustomData customData = stack.get(DataComponents.CUSTOM_DATA);
+                if (customData != null) {
+                    CompoundTag tag = customData.copyTag();
+                    data.set(DATA_BLOCKING, NbtCompat.getInt(tag, CraftingModule.BLOCKING, 0));
+                }
             }
             super.broadcastChanges();
             return;

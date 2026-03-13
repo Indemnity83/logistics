@@ -3,7 +3,6 @@ package com.logistics.pipe.ui;
 import com.logistics.LogisticsPipe;
 import com.logistics.core.lib.storage.NbtCompat;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
-import com.logistics.pipe.item.ModuleItem;
 import com.logistics.pipe.modules.AdvancedExtractorModule;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
@@ -40,6 +39,7 @@ public class AdvancedExtractorScreenHandler extends AbstractContainerMenu {
     private final ContainerLevelAccess context;
     @Nullable private final ServerPlayer itemConfigPlayer;
     @Nullable private final InteractionHand itemConfigHand;
+    @Nullable private final ItemStack pinnedStack;
 
     public AdvancedExtractorScreenHandler(int syncId, Container playerInventory) {
         this(syncId, playerInventory, null, new SimpleContainerData(1));
@@ -56,6 +56,7 @@ public class AdvancedExtractorScreenHandler extends AbstractContainerMenu {
         this.itemConfigHand = hand;
         this.context = ContainerLevelAccess.NULL;
         ItemStack stack = player.getItemInHand(hand);
+        this.pinnedStack = stack;
         this.filterInventory = new AdvancedExtractorFilterInventory(null);
         this.filterInventory.loadFromItem(stack);
         CustomData customData = stack.get(DataComponents.CUSTOM_DATA);
@@ -73,6 +74,7 @@ public class AdvancedExtractorScreenHandler extends AbstractContainerMenu {
         this.data = data;
         this.itemConfigPlayer = null;
         this.itemConfigHand = null;
+        this.pinnedStack = null;
         this.filterInventory = new AdvancedExtractorFilterInventory(pipeEntity);
 
         if (pipeEntity != null) {
@@ -109,11 +111,15 @@ public class AdvancedExtractorScreenHandler extends AbstractContainerMenu {
         }
     }
 
+    private boolean isPinnedItemStillHeld() {
+        return pinnedStack != null && itemConfigPlayer != null
+                && itemConfigPlayer.getItemInHand(itemConfigHand) == pinnedStack;
+    }
+
     @Override
     public boolean stillValid(Player player) {
         if (itemConfigPlayer != null) {
-            ItemStack held = player.getItemInHand(itemConfigHand);
-            return !held.isEmpty() && held.getItem() instanceof ModuleItem;
+            return isPinnedItemStillHeld();
         }
         return context.evaluate(
                 (level, pos) -> player.distanceToSqr(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5) <= 64.0,
@@ -133,6 +139,7 @@ public class AdvancedExtractorScreenHandler extends AbstractContainerMenu {
             if (button == 1 || cursor.isEmpty()) {
                 filterInventory.setItem(slotIndex, ItemStack.EMPTY);
                 if (itemConfigPlayer != null) {
+                    if (!isPinnedItemStillHeld()) return;
                     final int s = slotIndex;
                     ItemTagUtils.writeToItemTag(itemConfigPlayer, itemConfigHand,tag -> {
                         CompoundTag fi = NbtCompat.getCompoundOrEmpty(tag, AdvancedExtractorModule.FILTER_ITEMS);
@@ -151,6 +158,7 @@ public class AdvancedExtractorScreenHandler extends AbstractContainerMenu {
                     .getKey(cursor.getItem()).toString();
             filterInventory.setItem(slotIndex, cursor.copyWithCount(1));
             if (itemConfigPlayer != null) {
+                if (!isPinnedItemStillHeld()) return;
                 final int s = slotIndex;
                 ItemTagUtils.writeToItemTag(itemConfigPlayer, itemConfigHand,tag -> {
                     CompoundTag fi = NbtCompat.getCompoundOrEmpty(tag, AdvancedExtractorModule.FILTER_ITEMS);
@@ -174,6 +182,7 @@ public class AdvancedExtractorScreenHandler extends AbstractContainerMenu {
             int newInverted = data.get(0) == 0 ? 1 : 0;
             data.set(0, newInverted);
             if (itemConfigPlayer != null) {
+                if (!isPinnedItemStillHeld()) return true;
                 ItemTagUtils.writeToItemTag(itemConfigPlayer, itemConfigHand,tag -> tag.putInt(AdvancedExtractorModule.FILTER_INVERTED, newInverted));
             } else {
                 PipeModuleHelper.withModule(context, AdvancedExtractorModule.class, (ctx, module) ->
@@ -191,10 +200,12 @@ public class AdvancedExtractorScreenHandler extends AbstractContainerMenu {
     @Override
     public void broadcastChanges() {
         if (itemConfigPlayer != null) {
-            ItemStack stack = itemConfigPlayer.getItemInHand(itemConfigHand);
-            CustomData customData = stack.get(DataComponents.CUSTOM_DATA);
-            if (customData != null) {
-                data.set(0, NbtCompat.getInt(customData.copyTag(), AdvancedExtractorModule.FILTER_INVERTED, 0));
+            if (isPinnedItemStillHeld()) {
+                ItemStack stack = itemConfigPlayer.getItemInHand(itemConfigHand);
+                CustomData customData = stack.get(DataComponents.CUSTOM_DATA);
+                if (customData != null) {
+                    data.set(0, NbtCompat.getInt(customData.copyTag(), AdvancedExtractorModule.FILTER_INVERTED, 0));
+                }
             }
             super.broadcastChanges();
             return;
