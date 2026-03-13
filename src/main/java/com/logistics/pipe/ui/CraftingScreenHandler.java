@@ -299,6 +299,11 @@ public class CraftingScreenHandler extends AbstractContainerMenu {
         return data.get(DATA_BLOCKING) == 1;
     }
 
+    /** Returns true when this screen is backed by a pipe entity with an adjacent autocrafter. */
+    public boolean supportsAutocrafterImport() {
+        return itemConfigPlayer == null;
+    }
+
     private static class GhostSlot extends Slot {
         GhostSlot(Container inventory, int index, int x, int y) {
             super(inventory, index, x, y);

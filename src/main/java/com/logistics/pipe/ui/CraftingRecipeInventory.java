@@ -87,6 +87,7 @@ public class CraftingRecipeInventory implements Container {
             stacks.set(i, ItemStack.EMPTY);
         }
 
+        if (pipeEntity == null) return;
         if (pipeEntity.getLevel() == null || pipeEntity.getLevel().isClientSide()) return;
 
         PipeBlock block = (PipeBlock) pipeEntity.getBlockState().getBlock();

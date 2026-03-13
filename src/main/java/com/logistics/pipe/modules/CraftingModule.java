@@ -242,32 +242,40 @@ public class CraftingModule implements Module {
         BlockPos autocrafterPos = ctx.pos().relative(dir);
         if (!(serverLevel.getBlockEntity(autocrafterPos) instanceof CrafterBlockEntity crafter)) return;
 
-        // Import ingredients from crafter input slots
+        // Collect all ingredient data locally before touching NBT
+        CompoundTag items = new CompoundTag();
+        CompoundTag counts = new CompoundTag();
         for (int slot = 0; slot < 9; slot++) {
             ItemStack stack = crafter.getItem(slot);
-            if (stack.isEmpty()) {
-                setIngredient(ctx, slot, "", 1);
-            } else {
+            if (!stack.isEmpty()) {
                 String itemId = BuiltInRegistries.ITEM.getKey(stack.getItem()).toString();
-                setIngredient(ctx, slot, itemId, stack.getCount());
+                items.putString(String.valueOf(slot), itemId);
+                counts.putInt(String.valueOf(slot), Math.max(1, stack.getCount()));
             }
         }
+        ctx.putCompoundTag(this, RECIPE_ITEMS, items);
+        ctx.putCompoundTag(this, RECIPE_COUNTS, counts);
 
-        // Compute recipe result and import it
+        // Compute and store recipe result
         CraftingInput craftInput = crafter.asCraftInput();
         Optional<RecipeHolder<CraftingRecipe>> recipeOpt = CrafterBlock.getPotentialResults(serverLevel, craftInput);
+        CompoundTag state = ctx.moduleState(getStateKey());
         if (recipeOpt.isPresent()) {
             CraftingRecipe recipe = recipeOpt.get().value();
             ItemStack result = recipe.assemble(craftInput, serverLevel.registryAccess());
             if (!result.isEmpty()) {
-                String resultId = BuiltInRegistries.ITEM.getKey(result.getItem()).toString();
-                setResult(ctx, resultId, result.getCount());
+                state.putString(RESULT_ITEM, BuiltInRegistries.ITEM.getKey(result.getItem()).toString());
+                state.putInt(RESULT_COUNT, Math.max(1, result.getCount()));
             } else {
-                setResult(ctx, "", 1);
+                state.remove(RESULT_ITEM);
+                state.remove(RESULT_COUNT);
             }
         } else {
-            setResult(ctx, "", 1);
+            state.remove(RESULT_ITEM);
+            state.remove(RESULT_COUNT);
         }
+
+        ctx.markDirtyAndSync();
     }
 
     // ==================== Module Interface ====================
