@@ -130,6 +130,7 @@
   "gui.logistics.requester.search": "Search...",
   "gui.logistics.requester.amount": "Amount:",
   "gui.logistics.requester.request": "Request",
+  "gui.logistics.crafting.import": "Import",
   "gui.logistics.crafting.blocking.on": "Blocking: ON",
   "gui.logistics.crafting.blocking.off": "Blocking: OFF",
   "gui.logistics.crafting.state.idle": "Idle",

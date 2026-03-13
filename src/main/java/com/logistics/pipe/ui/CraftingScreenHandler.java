@@ -258,6 +258,13 @@ public class CraftingScreenHandler extends AbstractContainerMenu {
             }
             return true;
         }
+        if (id == 1 && itemConfigPlayer == null) {
+            // Import recipe from adjacent autocrafter
+            PipeModuleHelper.withModule(context, CraftingModule.class, (ctx, module) -> module.importFromAutocrafter(ctx));
+            recipeInventory.loadFromModule();
+            broadcastChanges();
+            return true;
+        }
         return false;
     }
 
@@ -290,6 +297,11 @@ public class CraftingScreenHandler extends AbstractContainerMenu {
 
     public boolean isBlocking() {
         return data.get(DATA_BLOCKING) == 1;
+    }
+
+    /** Returns true when this screen is backed by a pipe entity with an adjacent autocrafter. */
+    public boolean supportsAutocrafterImport() {
+        return itemConfigPlayer == null;
     }
 
     private static class GhostSlot extends Slot {
