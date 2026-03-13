@@ -137,52 +137,58 @@ public class ProviderScreenHandler extends AbstractContainerMenu {
     @Override
     public void clicked(int slotIndex, int button, ClickType actionType, Player player) {
         if (slotIndex >= 0 && slotIndex < FILTER_SLOT_COUNT) {
-            // Prevent shift-click
-            if (actionType == ClickType.QUICK_MOVE) {
-                return;
-            }
+            if (actionType == ClickType.QUICK_MOVE) return;
 
             ItemStack cursor = getCarried();
 
-            // Right-click or left-click with empty cursor: Clear slot
             if (button == 1 || cursor.isEmpty()) {
-                if (itemConfigPlayer != null) {
-                    if (!isPinnedItemStillHeld()) return;
-                    filterInventory.setItem(slotIndex, ItemStack.EMPTY);
-                    final int s = slotIndex;
-                    ItemTagUtils.writeToItemTag(itemConfigPlayer, itemConfigHand,tag -> {
-                        CompoundTag fi = NbtCompat.getCompoundOrEmpty(tag, ProviderModule.FILTER_ITEMS);
-                        fi.remove(String.valueOf(s));
-                        tag.put(ProviderModule.FILTER_ITEMS, fi);
-                    });
-                } else {
-                    filterInventory.setItem(slotIndex, ItemStack.EMPTY);
-                    PipeModuleHelper.withModule(context, ProviderModule.class, (ctx, module) -> module.setFilterItem(ctx, slotIndex, ""));
-                }
+                if (itemConfigPlayer != null) handleClearSlotForPlayer(slotIndex);
+                else handleClearSlotForModule(slotIndex);
                 broadcastChanges();
                 return;
             }
 
-            // Left-click with item: Place ghost item
-            String itemId = net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(cursor.getItem()).toString();
-            if (itemConfigPlayer != null) {
-                if (!isPinnedItemStillHeld()) return;
-                filterInventory.setItem(slotIndex, cursor.copyWithCount(1));
-                final int s = slotIndex;
-                ItemTagUtils.writeToItemTag(itemConfigPlayer, itemConfigHand,tag -> {
-                    CompoundTag fi = NbtCompat.getCompoundOrEmpty(tag, ProviderModule.FILTER_ITEMS);
-                    fi.putString(String.valueOf(s), itemId);
-                    tag.put(ProviderModule.FILTER_ITEMS, fi);
-                });
-            } else {
-                filterInventory.setItem(slotIndex, cursor.copyWithCount(1));
-                PipeModuleHelper.withModule(context, ProviderModule.class, (ctx, module) -> module.setFilterItem(ctx, slotIndex, itemId));
-            }
+            if (itemConfigPlayer != null) handlePlaceItemForPlayer(slotIndex, cursor);
+            else handlePlaceItemForModule(slotIndex, cursor);
             broadcastChanges();
             return;
         }
 
         super.clicked(slotIndex, button, actionType, player);
+    }
+
+    private void handleClearSlotForPlayer(int slotIndex) {
+        if (!isPinnedItemStillHeld()) return;
+        filterInventory.setItem(slotIndex, ItemStack.EMPTY);
+        final int s = slotIndex;
+        ItemTagUtils.writeToItemTag(itemConfigPlayer, itemConfigHand, tag -> {
+            CompoundTag fi = NbtCompat.getCompoundOrEmpty(tag, ProviderModule.FILTER_ITEMS);
+            fi.remove(String.valueOf(s));
+            tag.put(ProviderModule.FILTER_ITEMS, fi);
+        });
+    }
+
+    private void handleClearSlotForModule(int slotIndex) {
+        filterInventory.setItem(slotIndex, ItemStack.EMPTY);
+        PipeModuleHelper.withModule(context, ProviderModule.class, (ctx, module) -> module.setFilterItem(ctx, slotIndex, ""));
+    }
+
+    private void handlePlaceItemForPlayer(int slotIndex, ItemStack cursor) {
+        if (!isPinnedItemStillHeld()) return;
+        String itemId = net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(cursor.getItem()).toString();
+        filterInventory.setItem(slotIndex, cursor.copyWithCount(1));
+        final int s = slotIndex;
+        ItemTagUtils.writeToItemTag(itemConfigPlayer, itemConfigHand, tag -> {
+            CompoundTag fi = NbtCompat.getCompoundOrEmpty(tag, ProviderModule.FILTER_ITEMS);
+            fi.putString(String.valueOf(s), itemId);
+            tag.put(ProviderModule.FILTER_ITEMS, fi);
+        });
+    }
+
+    private void handlePlaceItemForModule(int slotIndex, ItemStack cursor) {
+        String itemId = net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(cursor.getItem()).toString();
+        filterInventory.setItem(slotIndex, cursor.copyWithCount(1));
+        PipeModuleHelper.withModule(context, ProviderModule.class, (ctx, module) -> module.setFilterItem(ctx, slotIndex, itemId));
     }
 
     @Override
@@ -229,6 +235,9 @@ public class ProviderScreenHandler extends AbstractContainerMenu {
                     CompoundTag tag = customData.copyTag();
                     data.set(0, NbtCompat.getInt(tag, ProviderModule.MODE, 0));
                     data.set(1, NbtCompat.getInt(tag, ProviderModule.FILTER_INVERTED, 0));
+                } else {
+                    data.set(0, 0);
+                    data.set(1, 0);
                 }
             }
             super.broadcastChanges();

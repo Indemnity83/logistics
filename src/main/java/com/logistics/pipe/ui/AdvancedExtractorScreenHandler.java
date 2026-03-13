@@ -141,7 +141,7 @@ public class AdvancedExtractorScreenHandler extends AbstractContainerMenu {
                     if (!isPinnedItemStillHeld()) return;
                     filterInventory.setItem(slotIndex, ItemStack.EMPTY);
                     final int s = slotIndex;
-                    ItemTagUtils.writeToItemTag(itemConfigPlayer, itemConfigHand,tag -> {
+                    ItemTagUtils.writeToItemTag(itemConfigPlayer, itemConfigHand, tag -> {
                         CompoundTag fi = NbtCompat.getCompoundOrEmpty(tag, AdvancedExtractorModule.FILTER_ITEMS);
                         fi.remove(String.valueOf(s));
                         tag.put(AdvancedExtractorModule.FILTER_ITEMS, fi);
@@ -161,7 +161,7 @@ public class AdvancedExtractorScreenHandler extends AbstractContainerMenu {
                 if (!isPinnedItemStillHeld()) return;
                 filterInventory.setItem(slotIndex, cursor.copyWithCount(1));
                 final int s = slotIndex;
-                ItemTagUtils.writeToItemTag(itemConfigPlayer, itemConfigHand,tag -> {
+                ItemTagUtils.writeToItemTag(itemConfigPlayer, itemConfigHand, tag -> {
                     CompoundTag fi = NbtCompat.getCompoundOrEmpty(tag, AdvancedExtractorModule.FILTER_ITEMS);
                     fi.putString(String.valueOf(s), itemId);
                     tag.put(AdvancedExtractorModule.FILTER_ITEMS, fi);
@@ -185,7 +185,7 @@ public class AdvancedExtractorScreenHandler extends AbstractContainerMenu {
             data.set(0, newInverted);
             if (itemConfigPlayer != null) {
                 if (!isPinnedItemStillHeld()) return true;
-                ItemTagUtils.writeToItemTag(itemConfigPlayer, itemConfigHand,tag -> tag.putInt(AdvancedExtractorModule.FILTER_INVERTED, newInverted));
+                ItemTagUtils.writeToItemTag(itemConfigPlayer, itemConfigHand, tag -> tag.putInt(AdvancedExtractorModule.FILTER_INVERTED, newInverted));
             } else {
                 PipeModuleHelper.withModule(context, AdvancedExtractorModule.class, (ctx, module) ->
                         module.setFilterInverted(ctx, newInverted == 1));

@@ -270,6 +270,8 @@ public class CraftingScreenHandler extends AbstractContainerMenu {
                 if (customData != null) {
                     CompoundTag tag = customData.copyTag();
                     data.set(DATA_BLOCKING, NbtCompat.getInt(tag, CraftingModule.BLOCKING, 0));
+                } else {
+                    data.set(DATA_BLOCKING, 0);
                 }
             }
             super.broadcastChanges();

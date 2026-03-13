@@ -130,52 +130,14 @@ public class SupplierScreenHandler extends AbstractContainerMenu {
     @Override
     public void clicked(int slotIndex, int button, ClickType actionType, Player player) {
         if (slotIndex >= 0 && slotIndex < SUPPLY_SLOT_COUNT) {
-            // Prevent shift-click
-            if (actionType == ClickType.QUICK_MOVE) {
-                return;
-            }
+            if (actionType == ClickType.QUICK_MOVE) return;
+            if (itemConfigPlayer != null && !isPinnedItemStillHeld()) return;
 
             ItemStack cursor = getCarried();
             ItemStack slotItem = supplyInventory.getItem(slotIndex);
 
-            // Right-click: Clear slot
-            if (button == 1) {
-                if (itemConfigPlayer != null) {
-                    if (!isPinnedItemStillHeld()) return;
-                    supplyInventory.setItem(slotIndex, ItemStack.EMPTY);
-                    final int s = slotIndex;
-                    ItemTagUtils.writeToItemTag(itemConfigPlayer, itemConfigHand,tag -> {
-                        CompoundTag supplies = NbtCompat.getCompoundOrEmpty(tag, SupplierModule.SUPPLIES);
-                        supplies.remove(String.valueOf(s));
-                        tag.put(SupplierModule.SUPPLIES, supplies);
-                    });
-                } else {
-                    supplyInventory.setItem(slotIndex, ItemStack.EMPTY);
-                    PipeModuleHelper.withModule(context, SupplierModule.class, (ctx, module) -> {
-                        module.setSupplyConfig(ctx, slotIndex, "", 0);
-                    });
-                }
-                broadcastChanges();
-                return;
-            }
-
-            // Left-click with empty cursor: Clear slot
-            if (cursor.isEmpty()) {
-                if (itemConfigPlayer != null) {
-                    if (!isPinnedItemStillHeld()) return;
-                    supplyInventory.setItem(slotIndex, ItemStack.EMPTY);
-                    final int s = slotIndex;
-                    ItemTagUtils.writeToItemTag(itemConfigPlayer, itemConfigHand,tag -> {
-                        CompoundTag supplies = NbtCompat.getCompoundOrEmpty(tag, SupplierModule.SUPPLIES);
-                        supplies.remove(String.valueOf(s));
-                        tag.put(SupplierModule.SUPPLIES, supplies);
-                    });
-                } else {
-                    supplyInventory.setItem(slotIndex, ItemStack.EMPTY);
-                    PipeModuleHelper.withModule(context, SupplierModule.class, (ctx, module) -> {
-                        module.setSupplyConfig(ctx, slotIndex, "", 0);
-                    });
-                }
+            if (button == 1 || cursor.isEmpty()) {
+                clearSupplySlot(slotIndex);
                 broadcastChanges();
                 return;
             }
@@ -186,42 +148,53 @@ public class SupplierScreenHandler extends AbstractContainerMenu {
             int newAmount;
 
             if (slotItem.isEmpty()) {
-                // Place new item
                 newAmount = addAmount;
             } else if (ItemStack.isSameItemSameComponents(cursor, slotItem)) {
-                // Same item - add to existing count
                 newAmount = Math.min(slotItem.getCount() + addAmount, 999); // Cap at 999
             } else {
-                // Different item - replace
                 newAmount = addAmount;
             }
 
-            // Save to module configuration
-            int finalAmount = newAmount;
-            if (itemConfigPlayer != null) {
-                if (!isPinnedItemStillHeld()) return;
-                supplyInventory.setItem(slotIndex, cursor.copyWithCount(newAmount));
-                final int s = slotIndex;
-                ItemTagUtils.writeToItemTag(itemConfigPlayer, itemConfigHand,tag -> {
-                    CompoundTag supplies = NbtCompat.getCompoundOrEmpty(tag, SupplierModule.SUPPLIES);
-                    CompoundTag slotTag = new CompoundTag();
-                    slotTag.putString("item", itemId);
-                    slotTag.putInt("amount", finalAmount);
-                    supplies.put(String.valueOf(s), slotTag);
-                    tag.put(SupplierModule.SUPPLIES, supplies);
-                });
-            } else {
-                supplyInventory.setItem(slotIndex, cursor.copyWithCount(newAmount));
-                PipeModuleHelper.withModule(context, SupplierModule.class, (ctx, module) -> {
-                    module.setSupplyConfig(ctx, slotIndex, itemId, finalAmount);
-                });
-            }
-
+            supplyInventory.setItem(slotIndex, cursor.copyWithCount(newAmount));
+            saveSupplySlot(slotIndex, itemId, newAmount);
             broadcastChanges();
             return;
         }
 
         super.clicked(slotIndex, button, actionType, player);
+    }
+
+    private void clearSupplySlot(int slotIndex) {
+        if (itemConfigPlayer != null) {
+            supplyInventory.setItem(slotIndex, ItemStack.EMPTY);
+            final int s = slotIndex;
+            ItemTagUtils.writeToItemTag(itemConfigPlayer, itemConfigHand, tag -> {
+                CompoundTag supplies = NbtCompat.getCompoundOrEmpty(tag, SupplierModule.SUPPLIES);
+                supplies.remove(String.valueOf(s));
+                tag.put(SupplierModule.SUPPLIES, supplies);
+            });
+        } else {
+            supplyInventory.setItem(slotIndex, ItemStack.EMPTY);
+            PipeModuleHelper.withModule(context, SupplierModule.class, (ctx, module) ->
+                    module.setSupplyConfig(ctx, slotIndex, "", 0));
+        }
+    }
+
+    private void saveSupplySlot(int slotIndex, String itemId, int amount) {
+        if (itemConfigPlayer != null) {
+            final int s = slotIndex;
+            ItemTagUtils.writeToItemTag(itemConfigPlayer, itemConfigHand, tag -> {
+                CompoundTag supplies = NbtCompat.getCompoundOrEmpty(tag, SupplierModule.SUPPLIES);
+                CompoundTag slotTag = new CompoundTag();
+                slotTag.putString("item", itemId);
+                slotTag.putInt("amount", amount);
+                supplies.put(String.valueOf(s), slotTag);
+                tag.put(SupplierModule.SUPPLIES, supplies);
+            });
+        } else {
+            PipeModuleHelper.withModule(context, SupplierModule.class, (ctx, module) ->
+                    module.setSupplyConfig(ctx, slotIndex, itemId, amount));
+        }
     }
 
     @Override
@@ -233,11 +206,12 @@ public class SupplierScreenHandler extends AbstractContainerMenu {
     public boolean clickMenuButton(Player player, int id) {
         if (id == 0) {
             int nextMode = (data.get(0) + 1) % SupplierModule.SupplyMode.values().length;
-            data.set(0, nextMode);
             if (itemConfigPlayer != null) {
                 if (!isPinnedItemStillHeld()) return true;
-                ItemTagUtils.writeToItemTag(itemConfigPlayer, itemConfigHand,tag -> tag.putInt(SupplierModule.MODE, nextMode));
+                data.set(0, nextMode);
+                ItemTagUtils.writeToItemTag(itemConfigPlayer, itemConfigHand, tag -> tag.putInt(SupplierModule.MODE, nextMode));
             } else {
+                data.set(0, nextMode);
                 PipeModuleHelper.withModule(context, SupplierModule.class, (ctx, module) -> {
                     module.setModeFromOrdinal(ctx, nextMode);
                 });
