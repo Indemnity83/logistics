@@ -1,6 +1,7 @@
 package com.logistics.pipe.modules;
 
 import com.logistics.LogisticsPipe;
+import com.logistics.pipe.network.FulfillmentMode;
 import com.logistics.pipe.network.ILogisticsNetwork;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.core.lib.storage.DirectionSerializer;
@@ -303,7 +304,7 @@ public class RequesterModule implements Module {
             }
         }
 
-        network.placeOrder(variant, amount, ctx.pos());
+        network.placeOrder(variant, amount, ctx.pos(), FulfillmentMode.FULL);
     }
 
     private void sendAlert(PipeContext ctx, Component msg) {

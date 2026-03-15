@@ -272,12 +272,15 @@ public class NetworkController implements PlanningView {
                     order.id(), supply.pos, order.requester(), order.item(), order.amount());
         }
 
-        // FULL mode: never dispatch a partial fill; wait until supply is sufficient
-        if (order.fulfillmentMode() == FulfillmentMode.FULL) return null;
-
         // Partial fill from real stock — pre-check only when a crafter also covers this item
         // (the crafter will be needed to fill the remainder on a subsequent tick)
         boolean crafterExists = entries.stream().anyMatch(e -> e.available == 0);
+
+        // FULL mode: never dispatch a partial fill unless a crafter can supply the remainder.
+        // When a crafter is registered, the full-order guarantee was already validated at
+        // order-placement time (requestItem calls getMissingIngredients before placing), so
+        // we allow the partial real-stock dispatch here and let the crafter handle the rest.
+        if (order.fulfillmentMode() == FulfillmentMode.FULL && !crafterExists) return null;
         if (crafterExists) {
             List<ItemVariant> missing = getMissingIngredients(order.item(), order.amount());
             if (!missing.isEmpty()) {
