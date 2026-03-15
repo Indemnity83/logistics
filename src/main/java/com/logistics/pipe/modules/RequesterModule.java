@@ -27,6 +27,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Requester module - creates requests for items from the network.
@@ -286,8 +287,23 @@ public class RequesterModule implements Module {
             return;
         }
 
-        network.placeOrder(variant, amount, ctx.pos(),
-                com.logistics.pipe.network.FulfillmentMode.FULL);
+        // For craftable items, validate upfront that real stock + crafter output can cover
+        // the full requested amount. getMissingIngredients accounts for existing stock and
+        // asks the crafter only for the remainder, so this mirrors the dispatch logic exactly.
+        if (available == Long.MAX_VALUE) {
+            List<ItemVariant> missing = network.getMissingIngredients(variant, amount);
+            if (!missing.isEmpty()) {
+                String missingNames = missing.stream()
+                        .map(v -> v.toStack().getHoverName().getString())
+                        .collect(Collectors.joining(", "));
+                sendAlert(ctx, Component.literal(
+                        "[Logistics] Cannot fill order for " + itemName
+                                + " \u2014 missing ingredients: " + missingNames));
+                return;
+            }
+        }
+
+        network.placeOrder(variant, amount, ctx.pos());
     }
 
     private void sendAlert(PipeContext ctx, Component msg) {
