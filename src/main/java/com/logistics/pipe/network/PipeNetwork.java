@@ -106,6 +106,7 @@ public class PipeNetwork implements ILogisticsNetwork {
         sinkRegistry.remove(pos);
         specificInterests.values().forEach(set -> set.remove(pos));
         genericInterests.remove(pos);
+        satellites.entrySet().removeIf(e -> pos.equals(e.getValue()));
     }
 
     public boolean contains(BlockPos pos) {
@@ -331,7 +332,7 @@ public class PipeNetwork implements ILogisticsNetwork {
 
     @Override
     public void unregisterSatellite(String id, BlockPos pos) {
-        if (id != null && pos.equals(satellites.get(id))) {
+        if (id != null && java.util.Objects.equals(pos, satellites.get(id))) {
             satellites.remove(id);
         }
     }

@@ -240,7 +240,7 @@ public class ProcessModule implements Module {
         if (outCount <= 0) return 0;
 
         long executions = (amount + outCount - 1) / outCount; // ceil division
-        long actualAmount = executions * outCount;
+        long actualAmount = executions * outCount; // may exceed amount; excess is routed to a sink
 
         ILogisticsNetwork network = NetworkRegistry.getOrCreateNetwork(ctx.world(), ctx.pos());
         if (network == null) return 0;
@@ -468,6 +468,7 @@ public class ProcessModule implements Module {
                     tx.commit();
                     extracted += got;
                     long forRequester = Math.min(got, toRequester);
+                    toRequester -= forRequester;
                     long forSink = got - forRequester;
                     if (forRequester > 0) {
                         int safe = (int) Math.min(forRequester, Integer.MAX_VALUE);
@@ -485,7 +486,7 @@ public class ProcessModule implements Module {
                                 LogisticsPipe.CONFIG.ITEM_NETWORK_SPEED, null);
                         ctx.blockEntity().forceAddItem(t, dir);
                     }
-                    break;
+                    if (extracted >= needed) break;
                 }
             }
         }
@@ -550,10 +551,4 @@ public class ProcessModule implements Module {
     public static final int MAX_INPUTS = 9;
     public static final int MAX_OUTPUTS = 1;
 
-    // ==================== Nested helper interface for ProviderCanFulfill ====================
-
-    @FunctionalInterface
-    private interface IngredientCheck {
-        List<ItemVariant> check(ItemVariant item, long amount);
-    }
 }
