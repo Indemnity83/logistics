@@ -1,12 +1,10 @@
 package com.logistics.core.lib.network;
 
-import com.logistics.pipe.modules.Module;
 import java.util.List;
 import java.util.UUID;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * Abstraction for world/pipe queries to enable testing.
@@ -24,13 +22,6 @@ public interface IWorldView {
      * Only returns neighbors where pipes are actually connected.
      */
     List<BlockPos> getConnectedNeighbors(BlockPos pos);
-
-    /**
-     * Query pipe modules at a position.
-     * Returns null if not a pipe or module not found.
-     */
-    @Nullable
-    <T extends Module> T getModule(BlockPos pos, Class<T> moduleClass);
 
     /**
      * Check whether the pipe at the given position has a sink module whose filter accepts the item.

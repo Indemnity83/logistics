@@ -62,7 +62,6 @@ public class MinecraftWorldView implements IWorldView {
         return neighbors;
     }
 
-    @Override
     @Nullable
     public <T extends Module> T getModule(BlockPos pos, Class<T> moduleClass) {
         if (!(level.getBlockEntity(pos) instanceof PipeBlockEntity pipeEntity)) {
