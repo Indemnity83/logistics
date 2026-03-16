@@ -26,7 +26,7 @@
  *    and a provider confirms it can supply the item.
  *         │
  *         ▼
- *  TravelingItem  (in {@code com.logistics.pipe})
+ *  TravelingItem  (in {`@code` com.logistics.pipe.runtime})
  *    A physical item moving through pipe block entities toward its destination.
  *    Created when the item is extracted from the provider's inventory.
  * </pre>
