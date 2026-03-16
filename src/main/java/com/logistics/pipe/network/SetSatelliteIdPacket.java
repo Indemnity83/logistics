@@ -41,13 +41,19 @@ public record SetSatelliteIdPacket(BlockPos pipePos, String satelliteId)
 
         ServerPlayNetworking.registerGlobalReceiver(TYPE, (packet, context) -> {
             context.server().execute(() -> {
-                if (context.player().level() instanceof ServerLevel level) {
-                    BlockEntity be = level.getBlockEntity(packet.pipePos);
+                var player = context.player();
+                BlockPos pos = packet.pipePos();
+                double dx = player.getX() - (pos.getX() + 0.5);
+                double dy = player.getY() - (pos.getY() + 0.5);
+                double dz = player.getZ() - (pos.getZ() + 0.5);
+                if (dx * dx + dy * dy + dz * dz > 64.0 * 64.0) return;
+                if (player.level() instanceof ServerLevel level) {
+                    BlockEntity be = level.getBlockEntity(pos);
                     if (be instanceof PipeBlockEntity pipeEntity) {
                         PipeModuleHelper.withModule(
                                 pipeEntity,
                                 SatelliteModule.class,
-                                (ctx, module) -> module.setSatelliteId(ctx, packet.satelliteId));
+                                (ctx, module) -> module.setSatelliteId(ctx, packet.satelliteId()));
                     }
                 }
             });

@@ -363,6 +363,14 @@ public class PipeNetwork implements ILogisticsNetwork {
         genericInterests.addAll(other.genericInterests);
         other.specificInterests.forEach((item, positions) ->
                 specificInterests.computeIfAbsent(item, k -> new HashSet<>()).addAll(positions));
-        satellites.putAll(other.satellites);
+        other.satellites.forEach((satId, pos) -> {
+            BlockPos existing = satellites.get(satId);
+            if (existing != null && !existing.equals(pos)) {
+                LogisticsMod.LOGGER.warn(
+                        "[Network merge] Satellite ID '{}' collision: {} (this) vs {} (other); overwriting",
+                        satId, existing, pos);
+            }
+            satellites.put(satId, pos);
+        });
     }
 }

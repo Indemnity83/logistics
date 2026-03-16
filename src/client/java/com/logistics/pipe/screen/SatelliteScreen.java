@@ -54,7 +54,6 @@ public class SatelliteScreen extends AbstractContainerScreen<SatelliteScreenHand
                 })
                 .bounds(leftPos + PLUS_X, topPos + BTN_Y, BTN_WIDTH, BTN_HEIGHT)
                 .build());
-
     }
 
     @Override

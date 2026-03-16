@@ -18,7 +18,7 @@ import java.util.Set;
 
 /**
  * Screen handler for the Satellite Logistics Pipe GUI.
- * Exposes the current satellite ID (integer 1-32) via ContainerData and handles
+ * Exposes the current satellite ID (integer 1-512, up to MAX_ID) via ContainerData and handles
  * +/- button clicks to cycle through available IDs, skipping duplicates.
  */
 public class SatelliteScreenHandler extends AbstractContainerMenu {
@@ -31,7 +31,8 @@ public class SatelliteScreenHandler extends AbstractContainerMenu {
     private final ContainerLevelAccess context;
     @Nullable private final PipeBlockEntity pipeEntity;
 
-    // Synced data: [0] = current satellite ID (0=unset), [1] = taken-IDs bitmask
+    // Synced data: [0] = current satellite ID (0=unset), [1] = boolean flag (0/1) for whether
+    // the current ID is taken by another satellite pipe (not a bitmask — MAX_ID exceeds 32 bits)
     private final int[] syncedData = new int[2];
     private final ContainerData satelliteData = new ContainerData() {
         @Override

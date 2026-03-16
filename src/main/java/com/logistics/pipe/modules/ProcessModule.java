@@ -41,7 +41,7 @@ import java.util.UUID;
  * sources inputs from the network (routing them to satellite pipes or self),
  * and extracts outputs from the adjacent machine once they appear.
  *
- * <p>V1 scope: up to 4 inputs, up to 2 outputs, fixed items only (no tags),
+ * <p>V1 scope: up to 9 inputs (MAX_INPUTS), up to 1 output (MAX_OUTPUTS), fixed items only (no tags),
  * one active job at a time.
  */
 public class ProcessModule implements Module {
@@ -470,16 +470,18 @@ public class ProcessModule implements Module {
                     long forRequester = Math.min(got, toRequester);
                     long forSink = got - forRequester;
                     if (forRequester > 0) {
+                        int safe = (int) Math.min(forRequester, Integer.MAX_VALUE);
                         TravelingItem t = new TravelingItem(
-                                variant.toStack((int) forRequester), dir.getOpposite(),
+                                variant.toStack(safe), dir.getOpposite(),
                                 LogisticsPipe.CONFIG.ITEM_NETWORK_SPEED, requester);
                         t.setDeliveryId(getJobDeliveryId(ctx));
                         ctx.blockEntity().forceAddItem(t, dir);
                     }
                     if (forSink > 0) {
                         // Route excess to a sink (null destination = find default route)
+                        int safe = (int) Math.min(forSink, Integer.MAX_VALUE);
                         TravelingItem t = new TravelingItem(
-                                variant.toStack((int) forSink), dir.getOpposite(),
+                                variant.toStack(safe), dir.getOpposite(),
                                 LogisticsPipe.CONFIG.ITEM_NETWORK_SPEED, null);
                         ctx.blockEntity().forceAddItem(t, dir);
                     }
