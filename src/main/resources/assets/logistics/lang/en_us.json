@@ -117,6 +117,8 @@
   "gui.logistics.satellite.confirm": "Set",
   "screen.logistics.advanced_extractor": "Advanced Extractor Filter",
   "screen.logistics.sink.requested_items": "Requested Items",
+  "screen.logistics.mod_sink": "Mod-Based Item Sink",
+  "gui.logistics.mod_sink.add": "Add",
   "gui.logistics.default_route": "Default Route:",
   "gui.logistics.mode.bulk50": "Bulk 50%",
   "gui.logistics.mode.bulk100": "Bulk 100%",
