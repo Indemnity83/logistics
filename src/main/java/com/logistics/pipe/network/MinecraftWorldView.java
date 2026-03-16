@@ -8,6 +8,7 @@ import com.logistics.pipe.block.PipeBlock;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.pipe.modules.Module;
 import com.logistics.pipe.modules.EnchantmentSinkModule;
+import com.logistics.pipe.modules.ModSinkModule;
 import com.logistics.pipe.modules.PassiveSupplierModule;
 import com.logistics.pipe.modules.PolymorphicSinkModule;
 import com.logistics.pipe.modules.SinkModule;
@@ -90,6 +91,9 @@ public class MinecraftWorldView implements IWorldView {
 
         EnchantmentSinkModule enchantModule = pipe.getModule(EnchantmentSinkModule.class, pipeEntity);
         if (enchantModule != null && enchantModule.matchesItem(stack)) return true;
+
+        ModSinkModule modSinkModule = pipe.getModule(ModSinkModule.class, pipeEntity);
+        if (modSinkModule != null && modSinkModule.matchesFilter(ctx, stack)) return true;
 
         PassiveSupplierModule passiveModule = pipe.getModule(PassiveSupplierModule.class, pipeEntity);
         if (passiveModule != null && passiveModule.matchesItem(ctx, stack)) return true;
