@@ -1,4 +1,4 @@
-package com.logistics.pipe.network;
+package com.logistics.pipe.network.packet;
 
 import com.logistics.LogisticsPipe;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
