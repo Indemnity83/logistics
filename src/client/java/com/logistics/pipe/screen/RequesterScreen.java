@@ -3,7 +3,7 @@ package com.logistics.pipe.screen;
 import com.logistics.LogisticsMod;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.pipe.modules.RequesterModule;
-import com.logistics.pipe.network.RequestItemPacket;
+import com.logistics.pipe.network.packet.RequestItemPacket;
 import com.logistics.pipe.screen.widget.NetworkItemButton;
 import com.logistics.pipe.screen.widget.PageButton;
 import com.logistics.pipe.ui.RequesterScreenHandler;

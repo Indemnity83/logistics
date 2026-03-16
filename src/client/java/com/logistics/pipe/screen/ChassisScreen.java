@@ -1,7 +1,7 @@
 package com.logistics.pipe.screen;
 
 import com.logistics.core.lib.resource.ResourceId;
-import com.logistics.pipe.network.OpenChassisSlotPacket;
+import com.logistics.pipe.network.packet.OpenChassisSlotPacket;
 import com.logistics.pipe.ui.ChassisScreenHandler;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.gui.GuiGraphics;
