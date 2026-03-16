@@ -5,7 +5,6 @@ import com.logistics.core.DebugLog;
 import com.logistics.core.bootstrap.DomainBootstrap;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.pipe.modules.*;
-import com.logistics.pipe.modules.Module;
 import com.logistics.pipe.network.NetDbg;
 import com.logistics.pipe.Pipe;
 import com.logistics.pipe.PipeApi;
@@ -286,7 +285,7 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
             ENCHANTMENT_SINK_MODULE = INSTANCE.registerItem("enchantment_sink_module",
                     props -> new ModuleItem(props, () -> new EnchantmentSinkModule(3)));
             MOD_ITEM_SINK_MODULE = INSTANCE.registerItem("mod_item_sink_module",
-                    props -> new ModuleItem(props, () -> new Module() {}));
+                    props -> new ModuleItem(props, () -> new ModSinkModule(5)));
             PASSIVE_SUPPLIER_MODULE = INSTANCE.registerItem("passive_supplier_module",
                     props -> new ModuleItem(props, () -> new PassiveSupplierModule(8)));
             ACTIVE_SUPPLIER_MODULE = INSTANCE.registerItem("active_supplier_module",
@@ -384,6 +383,7 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
         public static MenuType<com.logistics.pipe.ui.ChassisScreenHandler> CHASSIS_MK4;
         public static MenuType<com.logistics.pipe.ui.ChassisScreenHandler> CHASSIS_MK5;
         public static MenuType<com.logistics.pipe.ui.AdvancedExtractorScreenHandler> ADVANCED_EXTRACTOR;
+        public static MenuType<com.logistics.pipe.ui.ModSinkScreenHandler> MOD_SINK;
 
         private SCREEN() {}
 
@@ -455,6 +455,10 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
                     BuiltInRegistries.MENU,
                     LogisticsPipe.resource("advanced_extractor").toIdentifier(),
                     new MenuType<>(com.logistics.pipe.ui.AdvancedExtractorScreenHandler::new, FeatureFlagSet.of()));
+            MOD_SINK = Registry.register(
+                    BuiltInRegistries.MENU,
+                    LogisticsPipe.resource("mod_sink").toIdentifier(),
+                    new MenuType<>(com.logistics.pipe.ui.ModSinkScreenHandler::new, FeatureFlagSet.of()));
         }
     }
 
