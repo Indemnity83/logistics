@@ -73,6 +73,18 @@ public final class PipeTypes {
             new NetworkRouterModule())
             .withEnergy();
 
+    // Process Logistics Pipe - machine-style transformation (furnace smelting, alloy machines, etc.)
+    public static final Pipe PROCESS_LOGISTICS_PIPE = new Pipe(
+            new ProcessModule(),
+            new NetworkRouterModule())
+            .withEnergy();
+
+    // Satellite Logistics Pipe - named insertion endpoint for routing inputs to machine faces.
+    public static final Pipe SATELLITE_LOGISTICS_PIPE = new Pipe(
+            new SatelliteModule(),
+            new NetworkRouterModule())
+            .withEnergy();
+
     // -----------------
     // Tier 3 (Chassis)
     // -----------------

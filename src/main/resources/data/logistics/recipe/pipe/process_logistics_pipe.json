@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "IBI"
+  ],
+  "key": {
+    "I": "minecraft:iron_ingot",
+    "B": "logistics:pipe/basic_logistics_pipe"
+  },
+  "result": {
+    "id": "logistics:pipe/process_logistics_pipe"
+  }
+}

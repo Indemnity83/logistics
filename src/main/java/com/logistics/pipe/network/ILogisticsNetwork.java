@@ -238,6 +238,42 @@ public interface ILogisticsNetwork {
     @Nullable
     BlockPos findFilteredSinkFor(ItemStack stack);
 
+    // ===== Satellite Registry =====
+
+    /**
+     * Register (or overwrite) a satellite pipe with the given logical ID.
+     * Called periodically by SatelliteModule so the ProcessModule can resolve destinations.
+     *
+     * @param id  logical satellite name (e.g. "furnace_input")
+     * @param pos pipe block position of the satellite
+     */
+    default void registerSatellite(String id, BlockPos pos) {}
+
+    /**
+     * Unregister a satellite pipe.
+     * Called when the SatelliteModule is detached or the pipe is broken.
+     *
+     * @param id  logical satellite name
+     * @param pos pipe block position to remove (only removes if this pos is the current mapping)
+     */
+    default void unregisterSatellite(String id, BlockPos pos) {}
+
+    /**
+     * Find the pipe position registered for a given satellite ID.
+     *
+     * @param id logical satellite name
+     * @return the registered block position, or {@code null} if not found
+     */
+    @Nullable
+    default BlockPos findSatellite(String id) { return null; }
+
+    /**
+     * Get all satellite IDs currently registered with this network.
+     *
+     * @return set of known satellite IDs (may be empty)
+     */
+    default Set<String> getAvailableSatelliteIds() { return Set.of(); }
+
     // ===== Routing Operations =====
 
     /**
