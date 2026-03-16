@@ -79,6 +79,7 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
         com.logistics.pipe.network.RequestItemPacket.register();
         com.logistics.pipe.network.SyncRequesterInventoryPacket.register();
         com.logistics.pipe.network.OpenChassisSlotPacket.register();
+        com.logistics.pipe.network.SetSatelliteIdPacket.register();
     }
 
     private static void addCreativeTabEntries() {
@@ -118,6 +119,8 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
                 BLOCK.REQUESTER_LOGISTICS_PIPE,
                 BLOCK.SUPPLIER_LOGISTICS_PIPE,
                 BLOCK.CRAFTING_LOGISTICS_PIPE,
+                BLOCK.PROCESS_LOGISTICS_PIPE,
+                BLOCK.SATELLITE_LOGISTICS_PIPE,
                 BLOCK.CHASSIS_LOGISTICS_PIPE_MK1,
                 BLOCK.CHASSIS_LOGISTICS_PIPE_MK2,
                 BLOCK.CHASSIS_LOGISTICS_PIPE_MK3,
@@ -163,6 +166,8 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
         public static Block REQUESTER_LOGISTICS_PIPE;
         public static Block SUPPLIER_LOGISTICS_PIPE;
         public static Block CRAFTING_LOGISTICS_PIPE;
+        public static Block PROCESS_LOGISTICS_PIPE;
+        public static Block SATELLITE_LOGISTICS_PIPE;
         public static Block CHASSIS_LOGISTICS_PIPE_MK1;
         public static Block CHASSIS_LOGISTICS_PIPE_MK2;
         public static Block CHASSIS_LOGISTICS_PIPE_MK3;
@@ -199,6 +204,10 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
                 props -> new PipeBlock(createPipeProperties(props), PipeTypes.SUPPLIER_LOGISTICS_PIPE));
             CRAFTING_LOGISTICS_PIPE = INSTANCE.registerBlockWithItem("crafting_logistics_pipe",
                 props -> new PipeBlock(createPipeProperties(props), PipeTypes.CRAFTING_LOGISTICS_PIPE));
+            PROCESS_LOGISTICS_PIPE = INSTANCE.registerBlockWithItem("process_logistics_pipe",
+                props -> new PipeBlock(createPipeProperties(props), PipeTypes.PROCESS_LOGISTICS_PIPE));
+            SATELLITE_LOGISTICS_PIPE = INSTANCE.registerBlockWithItem("satellite_logistics_pipe",
+                props -> new PipeBlock(createPipeProperties(props), PipeTypes.SATELLITE_LOGISTICS_PIPE));
             CHASSIS_LOGISTICS_PIPE_MK1 = INSTANCE.registerBlockWithItem("chassis_logistics_pipe_mk1",
                 props -> new PipeBlock(createPipeProperties(props), PipeTypes.CHASSIS_LOGISTICS_PIPE_MK1));
             CHASSIS_LOGISTICS_PIPE_MK2 = INSTANCE.registerBlockWithItem("chassis_logistics_pipe_mk2",
@@ -234,6 +243,8 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
                 BLOCK.REQUESTER_LOGISTICS_PIPE,
                 BLOCK.SUPPLIER_LOGISTICS_PIPE,
                 BLOCK.CRAFTING_LOGISTICS_PIPE,
+                BLOCK.PROCESS_LOGISTICS_PIPE,
+                BLOCK.SATELLITE_LOGISTICS_PIPE,
                 BLOCK.CHASSIS_LOGISTICS_PIPE_MK1,
                 BLOCK.CHASSIS_LOGISTICS_PIPE_MK2,
                 BLOCK.CHASSIS_LOGISTICS_PIPE_MK3,
@@ -365,6 +376,8 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
         public static MenuType<com.logistics.pipe.ui.ProviderScreenHandler> PROVIDER;
         public static MenuType<com.logistics.pipe.ui.SinkScreenHandler> SINK;
         public static MenuType<com.logistics.pipe.ui.CraftingScreenHandler> CRAFTING;
+        public static MenuType<com.logistics.pipe.ui.ProcessScreenHandler> PROCESS;
+        public static MenuType<com.logistics.pipe.ui.SatelliteScreenHandler> SATELLITE;
         public static MenuType<com.logistics.pipe.ui.ChassisScreenHandler> CHASSIS_MK1;
         public static MenuType<com.logistics.pipe.ui.ChassisScreenHandler> CHASSIS_MK2;
         public static MenuType<com.logistics.pipe.ui.ChassisScreenHandler> CHASSIS_MK3;
@@ -410,6 +423,14 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
                     BuiltInRegistries.MENU,
                     LogisticsPipe.resource("crafting").toIdentifier(),
                     new MenuType<>(com.logistics.pipe.ui.CraftingScreenHandler::new, FeatureFlagSet.of()));
+            PROCESS = Registry.register(
+                    BuiltInRegistries.MENU,
+                    LogisticsPipe.resource("process").toIdentifier(),
+                    new MenuType<>(com.logistics.pipe.ui.ProcessScreenHandler::new, FeatureFlagSet.of()));
+            SATELLITE = Registry.register(
+                    BuiltInRegistries.MENU,
+                    LogisticsPipe.resource("satellite").toIdentifier(),
+                    new MenuType<>(com.logistics.pipe.ui.SatelliteScreenHandler::new, FeatureFlagSet.of()));
             CHASSIS_MK1 = Registry.register(
                     BuiltInRegistries.MENU,
                     LogisticsPipe.resource("chassis_mk1").toIdentifier(),
