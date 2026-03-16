@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -60,12 +61,12 @@ public class ProviderModule implements Module {
     public static final String MODE = "mode";
     public static final String FILTER_ITEMS = "filter_items";
     public static final String FILTER_INVERTED = "filter_inverted";
-    // Dispatch queue NBT keys (values kept short to minimise NBT size)
+    // Dispatch queue NBT keys
     private static final String DISPATCH_QUEUE = "dispatch_queue";
-    private static final String DQ_ITEM = "i";  // item registry key string
-    private static final String DQ_AMT  = "a";  // remaining amount (long)
-    private static final String DQ_REQ  = "r";  // requester "x,y,z"
-    private static final String DQ_DLV  = "d";  // delivery UUID string (optional)
+    private static final String DQ_ITEM = "item";
+    private static final String DQ_AMOUNT = "amount";
+    private static final String DQ_REQUESTER = "requester";
+    private static final String DQ_DELIVERY_ID = "delivery_id";
 
     private static final int SCAN_INTERVAL = 6;        // Scan every 6 ticks (~3x/second)
     private static final int MAX_FILTER_SLOTS = 9;
@@ -316,13 +317,13 @@ public class ProviderModule implements Module {
         for (int i = 0; i < tag.size(); i++) {
             CompoundTag entry = tag.getCompound(i).orElse(null);
             if (entry == null) continue;
-            String itemId    = NbtCompat.getString(entry, DQ_ITEM, "");
-            long   amount    = NbtCompat.getLong(entry, DQ_AMT, 0L);
-            String reqStr    = NbtCompat.getString(entry, DQ_REQ, "");
-            String dlvStr    = NbtCompat.getString(entry, DQ_DLV, "");
-            if (itemId.isEmpty() || amount <= 0 || reqStr.isEmpty()) continue;
-            BlockPos requester = parseBlockPos(reqStr);
-            if (requester == null) continue;
+            String itemId = NbtCompat.getString(entry, DQ_ITEM, "");
+            long amount = NbtCompat.getLong(entry, DQ_AMOUNT, 0L);
+            Optional<int[]> reqArr = entry.getIntArray(DQ_REQUESTER);
+            String dlvStr = NbtCompat.getString(entry, DQ_DELIVERY_ID, "");
+            if (itemId.isEmpty() || amount <= 0 || reqArr.isEmpty() || reqArr.get().length < 3) continue;
+            int[] arr = reqArr.get();
+            BlockPos requester = new BlockPos(arr[0], arr[1], arr[2]);
             UUID deliveryId = null;
             if (!dlvStr.isEmpty()) {
                 try { deliveryId = UUID.fromString(dlvStr); } catch (Exception ignored) {}
@@ -341,26 +342,14 @@ public class ProviderModule implements Module {
             for (ProviderDispatchQueue.Entry e : queue.entries()) {
                 CompoundTag entry = new CompoundTag();
                 entry.putString(DQ_ITEM, e.itemId());
-                entry.putLong(DQ_AMT, e.remaining());
-                entry.putString(DQ_REQ, e.requester().getX() + "," + e.requester().getY() + "," + e.requester().getZ());
-                if (e.deliveryId() != null) entry.putString(DQ_DLV, e.deliveryId().toString());
+                entry.putLong(DQ_AMOUNT, e.remaining());
+                entry.putIntArray(DQ_REQUESTER, new int[]{e.requester().getX(), e.requester().getY(), e.requester().getZ()});
+                if (e.deliveryId() != null) entry.putString(DQ_DELIVERY_ID, e.deliveryId().toString());
                 tag.add(entry);
             }
             ctx.moduleState(getStateKey()).put(DISPATCH_QUEUE, tag);
         }
         ctx.markDirtyAndSync();
-    }
-
-    @Nullable
-    private static BlockPos parseBlockPos(String s) {
-        if (s == null || s.isEmpty()) return null;
-        try {
-            String[] parts = s.split(",");
-            return new BlockPos(
-                    Integer.parseInt(parts[0]), Integer.parseInt(parts[1]), Integer.parseInt(parts[2]));
-        } catch (Exception e) {
-            return null;
-        }
     }
 
     @Override
