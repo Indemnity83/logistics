@@ -26,7 +26,7 @@ import java.util.List;
  * <p>No static filter configuration - the inventory contents are checked live at routing time.
  * <p>No GUI needed - no wrench interaction.
  */
-public class PolymorphicSinkModule implements Module {
+public class PolymorphicSinkModule implements Module, RoutingModule, ItemAcceptingModule {
     private static final String SINK_DIRECTION = "sink_direction";
     private final int priority;
 
@@ -124,6 +124,11 @@ public class PolymorphicSinkModule implements Module {
         }
         String suffix = ctx.isInventoryConnection(direction) ? "_arm_extended" : "_arm";
         return LogisticsPipe.model("basic_logistics_pipe" + suffix);
+    }
+
+    @Override
+    public boolean acceptsItem(PipeContext ctx, ItemStack stack) {
+        return matchesFilter(ctx, stack);
     }
 
     @Nullable

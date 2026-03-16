@@ -40,7 +40,7 @@ import java.util.List;
  *   <li>MkIII — 64 items every 6 ticks</li>
  * </ul>
  */
-public class AdvancedExtractorModule implements Module {
+public class AdvancedExtractorModule implements Module, TickingModule {
     private static final String EXTRACT_DIRECTION = "extract_direction";
     private static final String TICKS_SINCE_PULL = "ticks_since_pull";
     public static final String FILTER_ITEMS = "filter_items";
@@ -120,8 +120,6 @@ public class AdvancedExtractorModule implements Module {
 
     @Override
     public void onTick(PipeContext ctx) {
-        if (ctx.world().isClientSide()) return;
-
         int ticks = ctx.getInt(this, TICKS_SINCE_PULL, 0) + 1;
         if (ticks < ticksBetweenPulls) {
             ctx.saveInt(this, TICKS_SINCE_PULL, ticks);

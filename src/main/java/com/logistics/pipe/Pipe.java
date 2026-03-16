@@ -6,7 +6,11 @@ import com.logistics.core.lib.block.capability.PipeConnection;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.pipe.block.PipeBlock;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
+import com.logistics.pipe.modules.DispatchableModule;
 import com.logistics.pipe.modules.Module;
+import com.logistics.pipe.modules.RandomTickModule;
+import com.logistics.pipe.modules.RoutingModule;
+import com.logistics.pipe.modules.TickingModule;
 import com.logistics.pipe.runtime.RoutePlan;
 import com.logistics.pipe.runtime.TravelingItem;
 import java.util.ArrayList;
@@ -153,7 +157,7 @@ public class Pipe {
 
     public boolean hasRandomTicks() {
         for (Module module : modules) {
-            if (module.hasRandomTicks()) {
+            if (module instanceof RandomTickModule) {
                 return true;
             }
         }
@@ -162,7 +166,9 @@ public class Pipe {
 
     public void randomTick(PipeContext ctx, RandomSource random) {
         for (Module module : modules) {
-            module.randomTick(ctx, random);
+            if (module instanceof RandomTickModule randomTick) {
+                randomTick.randomTick(ctx, random);
+            }
         }
     }
 
@@ -262,6 +268,14 @@ public class Pipe {
         return getModule(moduleClass);
     }
 
+    /**
+     * Returns all modules for this pipe. For chassis pipes, includes dynamically-installed modules.
+     * Used when iterating all modules (e.g., to find all ItemAcceptingModules).
+     */
+    public List<Module> getModules(PipeBlockEntity entity) {
+        return modules;
+    }
+
     public float getAccelerationRate(PipeContext ctx) {
         for (Module module : modules) {
             float accel = module.getAcceleration(ctx);
@@ -294,9 +308,11 @@ public class Pipe {
 
     public RoutePlan route(PipeContext ctx, TravelingItem item, List<Direction> options) {
         for (Module module : modules) {
-            RoutePlan plan = module.route(ctx, item, options);
-            if (plan.getType() != RoutePlan.Type.PASS) {
-                return plan;
+            if (module instanceof RoutingModule router) {
+                RoutePlan plan = router.route(ctx, item, options);
+                if (plan.getType() != RoutePlan.Type.PASS) {
+                    return plan;
+                }
             }
         }
 
@@ -391,8 +407,11 @@ public class Pipe {
     }
 
     public void onTick(PipeContext ctx) {
+        if (ctx.world().isClientSide()) return;
         for (Module module : modules) {
-            module.onTick(ctx);
+            if (module instanceof TickingModule ticking) {
+                ticking.onTick(ctx);
+            }
         }
     }
 
@@ -440,9 +459,12 @@ public class Pipe {
      *         or 0 if no module could fulfill
      */
     public long dispatch(PipeContext ctx, BlockPos requester, ItemVariant item, long amount, UUID deliveryId) {
+        if (ctx.world().isClientSide()) return 0;
         for (Module module : modules) {
-            long dispatched = module.onDispatch(ctx, requester, item, amount, deliveryId);
-            if (dispatched != 0) return dispatched; // propagate both success (>0) and deferred (<0)
+            if (module instanceof DispatchableModule dispatchable) {
+                long dispatched = dispatchable.onDispatch(ctx, requester, item, amount, deliveryId);
+                if (dispatched != 0) return dispatched; // propagate both success (>0) and deferred (<0)
+            }
         }
         return 0;
     }

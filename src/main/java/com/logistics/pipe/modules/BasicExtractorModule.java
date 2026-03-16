@@ -30,7 +30,7 @@ import java.util.List;
  *
  * <p>No GUI, no energy requirement.
  */
-public class BasicExtractorModule implements Module {
+public class BasicExtractorModule implements Module, TickingModule {
     private static final String EXTRACT_DIRECTION = "extract_direction";
     private static final String TICKS_SINCE_PULL = "ticks_since_pull";
 
@@ -57,8 +57,6 @@ public class BasicExtractorModule implements Module {
 
     @Override
     public void onTick(PipeContext ctx) {
-        if (ctx.world().isClientSide()) return;
-
         int ticks = ctx.getInt(this, TICKS_SINCE_PULL, 0) + 1;
         if (ticks < ticksBetweenPulls) {
             ctx.saveInt(this, TICKS_SINCE_PULL, ticks);

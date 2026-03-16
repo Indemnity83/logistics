@@ -62,6 +62,14 @@ public class ChassisPipe extends Pipe {
         return super.getModule(moduleClass);
     }
 
+    @Override
+    public List<Module> getModules(PipeBlockEntity entity) {
+        PipeContext ctx = entity.createContext();
+        List<Module> all = new ArrayList<>(getDynamicModules(ctx));
+        all.addAll(super.getModules(entity));
+        return all;
+    }
+
     /**
      * Returns the dynamically-installed modules for this chassis pipe.
      * Reads each slot's ItemStack from NBT; slots holding a {@link ModuleItem}
@@ -90,25 +98,33 @@ public class ChassisPipe extends Pipe {
     @Override
     public RoutePlan route(PipeContext ctx, TravelingItem item, List<Direction> options) {
         for (Module m : getDynamicModules(ctx)) {
-            RoutePlan plan = m.route(ctx, item, options);
-            if (plan.getType() != RoutePlan.Type.PASS) return plan;
+            if (m instanceof com.logistics.pipe.modules.RoutingModule router) {
+                RoutePlan plan = router.route(ctx, item, options);
+                if (plan.getType() != RoutePlan.Type.PASS) return plan;
+            }
         }
         return super.route(ctx, item, options);
     }
 
     @Override
     public void onTick(PipeContext ctx) {
+        if (ctx.world().isClientSide()) return;
         for (Module m : getDynamicModules(ctx)) {
-            m.onTick(ctx);
+            if (m instanceof com.logistics.pipe.modules.TickingModule ticking) {
+                ticking.onTick(ctx);
+            }
         }
         super.onTick(ctx);
     }
 
     @Override
     public long dispatch(PipeContext ctx, BlockPos requester, ItemVariant item, long amount, UUID deliveryId) {
+        if (ctx.world().isClientSide()) return 0;
         for (Module m : getDynamicModules(ctx)) {
-            long d = m.onDispatch(ctx, requester, item, amount, deliveryId);
-            if (d != 0) return d;
+            if (m instanceof com.logistics.pipe.modules.DispatchableModule dispatchable) {
+                long d = dispatchable.onDispatch(ctx, requester, item, amount, deliveryId);
+                if (d != 0) return d;
+            }
         }
         return super.dispatch(ctx, requester, item, amount, deliveryId);
     }
