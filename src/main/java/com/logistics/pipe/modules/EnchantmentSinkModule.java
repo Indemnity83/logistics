@@ -82,7 +82,7 @@ public class EnchantmentSinkModule implements Module, RoutingModule, ItemAccepti
 
     @Override
     public boolean acceptsItem(PipeContext ctx, ItemStack stack) {
-        return matchesItem(stack);
+        return matchesItem(stack); // ctx unused — accept decision is purely item-based, no per-instance config
     }
 
     public boolean matchesItem(ItemStack stack) {

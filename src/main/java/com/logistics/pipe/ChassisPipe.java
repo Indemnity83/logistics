@@ -4,8 +4,10 @@ import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.pipe.item.ModuleItem;
 import com.logistics.pipe.modules.Module;
+import com.logistics.pipe.modules.RandomTickModule;
 import com.logistics.pipe.runtime.RoutePlan;
 import com.logistics.pipe.runtime.TravelingItem;
+import net.minecraft.util.RandomSource;
 import com.logistics.pipe.ui.ChassisScreenHandler;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.minecraft.core.BlockPos;
@@ -127,6 +129,26 @@ public class ChassisPipe extends Pipe {
             }
         }
         return super.dispatch(ctx, requester, item, amount, deliveryId);
+    }
+
+    /**
+     * Returns {@code true} whenever this chassis has slots, because any slot could hold a
+     * {@link RandomTickModule}. The overhead of scheduling random ticks on empty chassis pipes is
+     * negligible; the alternative would require reading NBT here without a PipeBlockEntity param.
+     */
+    @Override
+    public boolean hasRandomTicks() {
+        return maxSlots > 0 || super.hasRandomTicks();
+    }
+
+    @Override
+    public void randomTick(PipeContext ctx, RandomSource random) {
+        for (Module m : getDynamicModules(ctx)) {
+            if (m instanceof RandomTickModule rt) {
+                rt.randomTick(ctx, random);
+            }
+        }
+        super.randomTick(ctx, random);
     }
 
     @Override
