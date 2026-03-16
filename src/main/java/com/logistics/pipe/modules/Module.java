@@ -145,7 +145,17 @@ public interface Module {
     /**
      * Get the NBT state key for this module.
      * Defaults to lowercase class simple name (e.g., "mergermodule").
-     * Override to provide custom key for backwards compatibility.
+     *
+     * <p><strong>WARNING — serialization contract:</strong> this key is persisted in world NBT.
+     * Changing the return value (including by renaming the class) will silently discard all
+     * existing module state in saved worlds. If you rename a module class, override this method
+     * to keep returning the original stable string:
+     * <pre>{@code
+     *   @Override
+     *   public String getStateKey() {
+     *       return "oldmodulename"; // DO NOT RENAME — changing this corrupts existing worlds
+     *   }
+     * }</pre>
      */
     default String getStateKey() {
         return this.getClass().getSimpleName().toLowerCase();
