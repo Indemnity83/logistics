@@ -133,7 +133,8 @@ public class ProcessModule implements Module {
 
     private void setEntry(PipeContext ctx, String listKey, int slot, String itemId, int count,
             @Nullable String dest) {
-        if (slot < 0) return;
+        int maxSlot = KEY_INPUTS.equals(listKey) ? MAX_INPUTS : MAX_OUTPUTS;
+        if (slot < 0 || slot >= maxSlot) return;
         ListTag list = NbtCompat.getListOrEmpty(ctx.moduleState(getStateKey()), listKey);
 
         // Expand list to required size
@@ -245,13 +246,8 @@ public class ProcessModule implements Module {
         ILogisticsNetwork network = NetworkRegistry.getOrCreateNetwork(ctx.world(), ctx.pos());
         if (network == null) return 0;
 
-        // Validate global satellite destination exists
         int satId = getInputSatelliteId(ctx);
         String globalDest = satId > 0 ? String.valueOf(satId) : "";
-        if (!globalDest.isEmpty() && network.findSatellite(globalDest) == null) {
-            LogisticsPipe.LOGGER.warn("[Process @ {}] Satellite '{}' not found; aborting dispatch", ctx.pos(), satId);
-            return 0;
-        }
 
         // Place orders for each input
         ListTag orderIds = new ListTag();
@@ -266,12 +262,18 @@ public class ProcessModule implements Module {
             ItemVariant inputVariant = ItemVariant.of(inputStack);
             long needed = executions * inputCount;
 
+            // Resolve destination: per-input dest first, then global, then self
+            String perInputDest = getInputDest(ctx, i);
+            String effectiveDest = !perInputDest.isEmpty() ? perInputDest : globalDest;
             BlockPos orderDest;
-            if (globalDest.isEmpty()) {
+            if (effectiveDest.isEmpty()) {
                 orderDest = ctx.pos(); // local: arrive at this pipe, then route to machine
             } else {
-                orderDest = network.findSatellite(globalDest);
-                if (orderDest == null) return 0;
+                orderDest = network.findSatellite(effectiveDest);
+                if (orderDest == null) {
+                    LogisticsPipe.LOGGER.warn("[Process @ {}] Satellite '{}' not found for input {}; aborting dispatch", ctx.pos(), effectiveDest, i);
+                    return 0;
+                }
             }
 
             UUID orderId = network.placeOrder(inputVariant, needed, orderDest);
@@ -470,21 +472,25 @@ public class ProcessModule implements Module {
                     long forRequester = Math.min(got, toRequester);
                     toRequester -= forRequester;
                     long forSink = got - forRequester;
-                    if (forRequester > 0) {
-                        int safe = (int) Math.min(forRequester, Integer.MAX_VALUE);
+                    long rem = forRequester;
+                    while (rem > 0) {
+                        int chunk = (int) Math.min(rem, Integer.MAX_VALUE);
                         TravelingItem t = new TravelingItem(
-                                variant.toStack(safe), dir.getOpposite(),
+                                variant.toStack(chunk), dir.getOpposite(),
                                 LogisticsPipe.CONFIG.ITEM_NETWORK_SPEED, requester);
                         t.setDeliveryId(getJobDeliveryId(ctx));
                         ctx.blockEntity().forceAddItem(t, dir);
+                        rem -= chunk;
                     }
-                    if (forSink > 0) {
+                    rem = forSink;
+                    while (rem > 0) {
                         // Route excess to a sink (null destination = find default route)
-                        int safe = (int) Math.min(forSink, Integer.MAX_VALUE);
+                        int chunk = (int) Math.min(rem, Integer.MAX_VALUE);
                         TravelingItem t = new TravelingItem(
-                                variant.toStack(safe), dir.getOpposite(),
+                                variant.toStack(chunk), dir.getOpposite(),
                                 LogisticsPipe.CONFIG.ITEM_NETWORK_SPEED, null);
                         ctx.blockEntity().forceAddItem(t, dir);
+                        rem -= chunk;
                     }
                     if (extracted >= needed) break;
                 }

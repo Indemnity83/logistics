@@ -326,7 +326,11 @@ public class PipeNetwork implements ILogisticsNetwork {
     @Override
     public void registerSatellite(String id, BlockPos pos) {
         if (id != null && !id.isEmpty() && pos != null) {
-            satellites.put(id, pos);
+            // Only register if unowned or re-registering by the same pipe; ignore collisions
+            BlockPos existing = satellites.get(id);
+            if (existing == null || existing.equals(pos)) {
+                satellites.put(id, pos);
+            }
         }
     }
 

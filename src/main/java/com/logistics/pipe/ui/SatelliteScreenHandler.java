@@ -153,7 +153,10 @@ public class SatelliteScreenHandler extends AbstractContainerMenu {
         var network = NetworkRegistry.getNetwork(pipeEntity.getLevel(), pipeEntity.getBlockPos());
         if (network == null) return Set.of();
         Set<String> taken = new HashSet<>(network.getAvailableSatelliteIds());
-        if (!ownId[0].isEmpty()) taken.remove(ownId[0]);
+        // Only exclude ownId if this pipe is the confirmed owner in the network
+        if (!ownId[0].isEmpty() && pipeEntity.getBlockPos().equals(network.findSatellite(ownId[0]))) {
+            taken.remove(ownId[0]);
+        }
         return taken;
     }
 
