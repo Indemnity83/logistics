@@ -106,6 +106,8 @@ public class JobCoordinator implements NetworkController.OrderFailureListener {
         if (++ticksSinceReconcile < RECONCILE_INTERVAL) return;
         ticksSinceReconcile = 0;
 
+        purgeTerminal();
+
         ReconciliationService service = new ReconciliationService();
         for (NetworkJob job : activeJobs()) {
             // Only reconcile if the underlying order is still pending (not yet dispatched).
