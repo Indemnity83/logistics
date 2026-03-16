@@ -47,6 +47,8 @@ public final class LogisticsPipeClient implements DomainBootstrap {
         MenuScreens.register(LogisticsPipe.SCREEN.PROVIDER, com.logistics.pipe.screen.ProviderScreen::new);
         MenuScreens.register(LogisticsPipe.SCREEN.SINK, com.logistics.pipe.screen.SinkScreen::new);
         MenuScreens.register(LogisticsPipe.SCREEN.CRAFTING, com.logistics.pipe.screen.CraftingScreen::new);
+        MenuScreens.register(LogisticsPipe.SCREEN.PROCESS, com.logistics.pipe.screen.ProcessScreen::new);
+        MenuScreens.register(LogisticsPipe.SCREEN.SATELLITE, com.logistics.pipe.screen.SatelliteScreen::new);
         MenuScreens.register(LogisticsPipe.SCREEN.CHASSIS_MK1, com.logistics.pipe.screen.ChassisScreen::new);
         MenuScreens.register(LogisticsPipe.SCREEN.CHASSIS_MK2, com.logistics.pipe.screen.ChassisScreen::new);
         MenuScreens.register(LogisticsPipe.SCREEN.CHASSIS_MK3, com.logistics.pipe.screen.ChassisScreen::new);
@@ -144,6 +146,12 @@ public final class LogisticsPipeClient implements DomainBootstrap {
             registerModel("crafting_logistics_pipe_arm");
             registerModel("crafting_logistics_pipe_arm_extended");
             registerModel("crafting_logistics_pipe_feature_extended");
+            registerModel("process_logistics_pipe_core");
+            registerModel("process_logistics_pipe_arm");
+            registerModel("process_logistics_pipe_arm_extended");
+            registerModel("satellite_logistics_pipe_core");
+            registerModel("satellite_logistics_pipe_arm");
+            registerModel("satellite_logistics_pipe_arm_extended");
             registerModel("chassis_logistics_pipe_mk1_core");
             registerModel("chassis_logistics_pipe_mk1_arm");
             registerModel("chassis_logistics_pipe_mk1_arm_extended");

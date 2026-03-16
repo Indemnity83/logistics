@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " D ",
+    "RBR",
+    " G "
+  ],
+  "key": {
+    "D": "logistics:core/diamond_gear",
+    "R": "minecraft:redstone",
+    "B": "logistics:pipe/crafting_logistics_pipe",
+    "G": "logistics:core/gold_gear"
+  },
+  "result": {
+    "id": "logistics:pipe/process_logistics_pipe",
+    "count": 1
+  }
+}

@@ -35,6 +35,8 @@ public class PipeNetwork implements ILogisticsNetwork {
 
     // Unified sink registry: all sink-capable pipes → priority (0 = default/catch-all, higher = preferred)
     private final Map<BlockPos, Integer> sinkRegistry = new HashMap<>();
+    // Satellite registry: logical ID → pipe position
+    private final Map<String, BlockPos> satellites = new HashMap<>();
     // Interest index: only pipes that declared interest are checked during findSink
     private final Map<Item, Set<BlockPos>> specificInterests = new HashMap<>(); // item → sinks that want it
     private final Set<BlockPos> genericInterests = new HashSet<>(); // sinks that want any item
@@ -320,6 +322,30 @@ public class PipeNetwork implements ILogisticsNetwork {
                 .orElse(null);
     }
 
+    @Override
+    public void registerSatellite(String id, BlockPos pos) {
+        if (id != null && !id.isEmpty() && pos != null) {
+            satellites.put(id, pos);
+        }
+    }
+
+    @Override
+    public void unregisterSatellite(String id, BlockPos pos) {
+        if (id != null && pos.equals(satellites.get(id))) {
+            satellites.remove(id);
+        }
+    }
+
+    @Override
+    public BlockPos findSatellite(String id) {
+        return id != null ? satellites.get(id) : null;
+    }
+
+    @Override
+    public java.util.Set<String> getAvailableSatelliteIds() {
+        return java.util.Collections.unmodifiableSet(satellites.keySet());
+    }
+
     /** Access the job coordinator for this network (for diagnostics or future API use). */
     public JobCoordinator getJobCoordinator() {
         return jobCoordinator;
@@ -337,5 +363,6 @@ public class PipeNetwork implements ILogisticsNetwork {
         genericInterests.addAll(other.genericInterests);
         other.specificInterests.forEach((item, positions) ->
                 specificInterests.computeIfAbsent(item, k -> new HashSet<>()).addAll(positions));
+        satellites.putAll(other.satellites);
     }
 }
