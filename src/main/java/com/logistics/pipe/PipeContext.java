@@ -6,6 +6,7 @@ import com.logistics.core.lib.storage.NbtCompat;
 import com.logistics.pipe.block.PipeBlock;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.pipe.modules.Module;
+import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -138,7 +139,7 @@ public record PipeContext(Level world, BlockPos pos, BlockState state, PipeBlock
      * @return List of connected directions
      */
     public List<Direction> getConnectedDirections() {
-        List<Direction> connected = new java.util.ArrayList<>();
+        List<Direction> connected = new ArrayList<>();
         if (!(state.getBlock() instanceof PipeBlock pipeBlock)) {
             return connected;
         }
@@ -192,7 +193,7 @@ public record PipeContext(Level world, BlockPos pos, BlockState state, PipeBlock
      * Get connected directions that lead to other pipes.
      */
     public List<Direction> getPipeConnections() {
-        List<Direction> outputs = new java.util.ArrayList<>();
+        List<Direction> outputs = new ArrayList<>();
         for (Direction direction : getConnectedDirections()) {
             if (isNeighborPipe(direction)) {
                 outputs.add(direction);
@@ -208,7 +209,7 @@ public record PipeContext(Level world, BlockPos pos, BlockState state, PipeBlock
      * and avoids duplicating ItemStorage probing here.
      */
     public List<Direction> getInventoryConnections() {
-        List<Direction> faces = new java.util.ArrayList<>();
+        List<Direction> faces = new ArrayList<>();
         for (Direction direction : Direction.values()) {
             if (isInventoryConnection(direction)) {
                 faces.add(direction);
