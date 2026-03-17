@@ -178,22 +178,6 @@ public interface ILogisticsNetwork {
     void unregisterSink(BlockPos pos);
 
     /**
-     * Register a position as a default-route (catch-all) sink at priority 0.
-     * Convenience for {@code registerSink(sink, 0)}.
-     */
-    default void registerDefaultRouteSink(BlockPos sink) {
-        registerSink(sink, 0);
-    }
-
-    /**
-     * Unregister a default-route sink.
-     * Convenience for {@code unregisterSink(sink)}.
-     */
-    default void unregisterDefaultRouteSink(BlockPos sink) {
-        unregisterSink(sink);
-    }
-
-    /**
      * Declare that the sink at {@code pos} wants to receive items of this specific type.
      * Called by filtered sinks (SinkModule filter slots, PassiveSupplierModule config items).
      * These are indexed so only interested sinks are considered during lookup.
