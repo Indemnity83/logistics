@@ -4,6 +4,7 @@ import com.logistics.LogisticsPipe;
 import com.logistics.pipe.network.ILogisticsNetwork;
 import com.logistics.pipe.network.NetDbg;
 import com.logistics.core.lib.resource.ResourceId;
+import com.logistics.core.lib.storage.FilterSlots;
 import com.logistics.core.lib.storage.NbtCompat;
 import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.network.NetworkRegistry;
@@ -142,25 +143,18 @@ public class ProviderModule implements Module, TickingModule, DispatchableModule
 
     // ==================== Filter Configuration ====================
 
-    public List<String> getFilterItems(PipeContext ctx) {
-        CompoundTag filterItems = ctx.getCompoundTag(this, FILTER_ITEMS);
-        List<String> items = new ArrayList<>();
-        for (int i = 0; i < MAX_FILTER_SLOTS; i++) {
-            String itemId = NbtCompat.getString(filterItems, String.valueOf(i), "");
-            if (!itemId.isEmpty()) items.add(itemId);
-        }
-        return items;
+    public FilterSlots getFilterItems(PipeContext ctx) {
+        return FilterSlots.load(ctx.getCompoundTag(this, FILTER_ITEMS), MAX_FILTER_SLOTS);
     }
 
     public void setFilterItem(PipeContext ctx, int slot, String itemId) {
         if (slot < 0 || slot >= MAX_FILTER_SLOTS) return;
-        CompoundTag filterItems = ctx.getCompoundTag(this, FILTER_ITEMS);
-        if (itemId == null || itemId.isEmpty()) {
-            filterItems.remove(String.valueOf(slot));
+        FilterSlots updated = getFilterItems(ctx).with(slot, itemId);
+        if (updated.isEmpty()) {
+            ctx.remove(this, FILTER_ITEMS);
         } else {
-            filterItems.putString(String.valueOf(slot), itemId);
+            ctx.putCompoundTag(this, FILTER_ITEMS, updated.toTag());
         }
-        ctx.putCompoundTag(this, FILTER_ITEMS, filterItems);
         ctx.markDirtyAndSync();
     }
 
@@ -174,10 +168,10 @@ public class ProviderModule implements Module, TickingModule, DispatchableModule
     }
 
     private boolean isFilteredOut(PipeContext ctx, ItemStack stack) {
-        List<String> filterItems = getFilterItems(ctx);
-        if (filterItems.isEmpty()) return false;
+        List<String> nonEmpty = getFilterItems(ctx).nonEmpty();
+        if (nonEmpty.isEmpty()) return false;
         String itemId = BuiltInRegistries.ITEM.getKey(stack.getItem()).toString();
-        boolean itemInFilter = filterItems.contains(itemId);
+        boolean itemInFilter = nonEmpty.contains(itemId);
         return isFilterInverted(ctx) == itemInFilter;
     }
 

@@ -1,6 +1,7 @@
 package com.logistics.pipe.ui;
 
 import com.logistics.core.lib.resource.ResourceId;
+import com.logistics.core.lib.storage.FilterSlots;
 import com.logistics.core.lib.storage.NbtCompat;
 import com.logistics.pipe.Pipe;
 import com.logistics.pipe.PipeContext;
@@ -12,11 +13,8 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.Container;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
-
-import java.util.List;
 
 /**
  * Inventory for the Provider filter GUI.
@@ -112,29 +110,16 @@ public class ProviderFilterInventory implements Container {
         }
 
         PipeContext ctx = pipeEntity.createContext();
-        List<String> filterItems = module.getFilterItems(ctx);
+        FilterSlots filterItems = module.getFilterItems(ctx);
 
-        int slotIndex = 0;
-        for (String itemId : filterItems) {
-            if (slotIndex >= FILTER_SLOT_COUNT) {
-                break;
-            }
-
-            com.logistics.core.lib.resource.ResourceId resourceId =
-                    com.logistics.core.lib.resource.ResourceId.tryParse(itemId);
-            if (resourceId == null) {
-                continue;
-            }
-
+        for (int i = 0; i < filterItems.size(); i++) {
+            String itemId = filterItems.get(i);
+            if (itemId.isEmpty()) continue;
+            ResourceId resourceId = ResourceId.tryParse(itemId);
+            if (resourceId == null) continue;
             var itemHolder = BuiltInRegistries.ITEM.get(resourceId.toIdentifier());
-            if (itemHolder.isEmpty()) {
-                continue;
-            }
-
-            Item item = itemHolder.get().value();
-            ItemStack displayStack = new ItemStack(item);
-            displayStack.setCount(1);
-            stacks.set(slotIndex++, displayStack);
+            if (itemHolder.isEmpty()) continue;
+            stacks.set(i, new ItemStack(itemHolder.get().value()));
         }
     }
 
@@ -143,17 +128,15 @@ public class ProviderFilterInventory implements Container {
         CustomData customData = stack.get(DataComponents.CUSTOM_DATA);
         if (customData == null) return;
         CompoundTag tag = customData.copyTag();
-        CompoundTag filterItems = NbtCompat.getCompoundOrEmpty(tag, ProviderModule.FILTER_ITEMS);
-        int displaySlot = 0;
-        for (int i = 0; i < FILTER_SLOT_COUNT && displaySlot < FILTER_SLOT_COUNT; i++) {
-            String itemId = NbtCompat.getString(filterItems, String.valueOf(i), "");
+        FilterSlots filterItems = FilterSlots.load(NbtCompat.getCompoundOrEmpty(tag, ProviderModule.FILTER_ITEMS), FILTER_SLOT_COUNT);
+        for (int i = 0; i < filterItems.size(); i++) {
+            String itemId = filterItems.get(i);
             if (itemId.isEmpty()) continue;
             ResourceId rid = ResourceId.tryParse(itemId);
             if (rid == null) continue;
             var holder = BuiltInRegistries.ITEM.get(rid.toIdentifier());
             if (holder.isEmpty()) continue;
-            Item item = holder.get().value();
-            stacks.set(displaySlot++, new ItemStack(item));
+            stacks.set(i, new ItemStack(holder.get().value()));
         }
     }
 
