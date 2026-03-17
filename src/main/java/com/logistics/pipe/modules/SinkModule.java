@@ -74,7 +74,6 @@ public class SinkModule implements Module, TickingModule, RoutingModule, ItemAcc
                         network.registerSinkInterest(ctx.pos(), holder.value()));
             }
             if (isDefaultRoute(ctx)) {
-                network.registerDefaultRouteSink(ctx.pos());
                 network.registerGenericSinkInterest(ctx.pos());
             }
         }
@@ -85,7 +84,6 @@ public class SinkModule implements Module, TickingModule, RoutingModule, ItemAcc
         ILogisticsNetwork network = NetworkRegistry.getNetwork(ctx.world(), ctx.pos());
         if (network != null) {
             network.unregisterSink(ctx.pos()); // also clears both interest maps
-            network.unregisterDefaultRouteSink(ctx.pos());
         }
     }
 
@@ -252,11 +250,11 @@ public class SinkModule implements Module, TickingModule, RoutingModule, ItemAcc
             ILogisticsNetwork network = NetworkRegistry.getNetwork(ctx.world(), ctx.pos());
             if (network != null) {
                 if (enabled) {
-                    network.registerDefaultRouteSink(ctx.pos());
+                    network.registerSink(ctx.pos(), 0);
                     network.registerGenericSinkInterest(ctx.pos());
                     NetDbg.out("[Sink @ {}] Default route enabled and registered with network", ctx.pos());
                 } else {
-                    network.unregisterDefaultRouteSink(ctx.pos());
+                    network.unregisterSink(ctx.pos());
                     network.unregisterGenericSinkInterest(ctx.pos());
                     NetDbg.out("[Sink @ {}] Default route disabled and unregistered from network", ctx.pos());
                 }
