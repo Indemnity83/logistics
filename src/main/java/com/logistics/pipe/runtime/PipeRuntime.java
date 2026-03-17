@@ -1,6 +1,8 @@
 package com.logistics.pipe.runtime;
 
 import com.logistics.LogisticsPipe;
+import com.logistics.core.lib.pipe.RoutePlan;
+import com.logistics.core.lib.pipe.TravelingItem;
 import com.logistics.pipe.network.NetDbg;
 import com.logistics.core.lib.block.capability.PipeConnection;
 import com.logistics.pipe.Pipe;

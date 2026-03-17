@@ -10,7 +10,7 @@ import com.logistics.pipe.Pipe;
 import com.logistics.core.lib.pipe.PipeContext;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.LogisticsPipe;
-import com.logistics.pipe.runtime.TravelingItem;
+import com.logistics.core.lib.pipe.TravelingItem;
 import com.mojang.serialization.MapCodec;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
 import net.minecraft.ChatFormatting;
@@ -121,7 +121,7 @@ public class PipeBlock extends BaseEntityBlock implements ProbeBehavior.Probeabl
         if (!level.isClientSide()) {
             BlockEntity blockEntity = level.getBlockEntity(pos);
             if (blockEntity instanceof PipeBlockEntity pipeEntity) {
-                for (com.logistics.pipe.runtime.TravelingItem item : pipeEntity.getTravelingItems()) {
+                for (TravelingItem item : pipeEntity.getTravelingItems()) {
                     PipeBlockEntity.dropItem(level, pos, item);
                 }
             }

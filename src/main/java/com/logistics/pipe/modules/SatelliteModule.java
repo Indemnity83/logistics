@@ -1,12 +1,13 @@
 package com.logistics.pipe.modules;
 
+import com.logistics.core.lib.pipe.RoutingModule;
+
 import com.logistics.core.lib.pipe.Module;
 import com.logistics.core.lib.pipe.PipeContext;
 import com.logistics.core.lib.pipe.TickingModule;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
-import com.logistics.pipe.network.NetworkRegistry;
-import com.logistics.pipe.runtime.RoutePlan;
-import com.logistics.pipe.runtime.TravelingItem;
+import com.logistics.core.lib.pipe.RoutePlan;
+import com.logistics.core.lib.pipe.TravelingItem;
 import com.logistics.pipe.ui.SatelliteScreenHandler;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -44,7 +45,7 @@ public class SatelliteModule implements Module, TickingModule, RoutingModule {
         ctx.saveInt(this, TICKS_KEY, 0);
         String id = ctx.getString(this, KEY_ID, "");
         if (!id.isEmpty()) {
-            var network = NetworkRegistry.getNetwork(ctx.world(), ctx.pos());
+            var network = ctx.network();
             if (network != null) {
                 network.registerSatellite(id, ctx.pos());
             }
@@ -91,7 +92,7 @@ public class SatelliteModule implements Module, TickingModule, RoutingModule {
     public void onDetach(PipeContext ctx) {
         String id = ctx.getString(this, KEY_ID, "");
         if (!id.isEmpty()) {
-            var network = NetworkRegistry.getNetwork(ctx.world(), ctx.pos());
+            var network = ctx.network();
             if (network != null) {
                 network.unregisterSatellite(id, ctx.pos());
             }
@@ -132,14 +133,14 @@ public class SatelliteModule implements Module, TickingModule, RoutingModule {
         // Unregister old ID first
         String oldId = ctx.getString(this, KEY_ID, "");
         if (!oldId.isEmpty()) {
-            var network = NetworkRegistry.getNetwork(ctx.world(), ctx.pos());
+            var network = ctx.network();
             if (network != null) {
                 network.unregisterSatellite(oldId, ctx.pos());
             }
         }
         ctx.saveString(this, KEY_ID, trimmed);
         if (!trimmed.isEmpty()) {
-            var network = NetworkRegistry.getNetwork(ctx.world(), ctx.pos());
+            var network = ctx.network();
             if (network != null) {
                 network.registerSatellite(trimmed, ctx.pos());
             }

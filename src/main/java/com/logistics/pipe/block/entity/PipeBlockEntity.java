@@ -8,13 +8,15 @@ import com.logistics.core.lib.block.capability.HasEnergyStorage;
 import com.logistics.core.lib.block.capability.HasItemStorage;
 import com.logistics.core.lib.storage.NbtCompat;
 import com.logistics.core.lib.block.capability.PipeConnection;
+import com.logistics.core.lib.network.ILogisticsNetwork;
 import com.logistics.core.lib.pipe.IPipeAccess;
 import com.logistics.core.lib.power.AcceptsLowTierEnergy;
 import com.logistics.pipe.Pipe;
 import com.logistics.core.lib.pipe.PipeContext;
 import com.logistics.pipe.block.PipeBlock;
+import com.logistics.pipe.network.NetworkRegistry;
 import com.logistics.pipe.runtime.PipeRuntime;
-import com.logistics.pipe.runtime.TravelingItem;
+import com.logistics.core.lib.pipe.TravelingItem;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -396,6 +398,11 @@ public class PipeBlockEntity extends BaseBlockEntity
     public boolean isPowered() {
         BlockState blockState = getBlockState();
         return blockState.hasProperty(PipeBlock.POWERED) && blockState.getValue(PipeBlock.POWERED);
+    }
+
+    @Override
+    public @Nullable ILogisticsNetwork getNetwork() {
+        return NetworkRegistry.getNetwork(getLevel(), getBlockPos());
     }
 
     public PipeContext createContext() {

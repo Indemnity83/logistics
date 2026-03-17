@@ -4,9 +4,8 @@ import com.logistics.core.lib.pipe.ItemAcceptingModule;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.core.lib.pipe.PipeContext;
 import com.logistics.core.lib.network.ILogisticsNetwork;
-import com.logistics.pipe.network.NetworkRegistry;
-import com.logistics.pipe.runtime.RoutePlan;
-import com.logistics.pipe.runtime.TravelingItem;
+import com.logistics.core.lib.pipe.RoutePlan;
+import com.logistics.core.lib.pipe.TravelingItem;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
@@ -56,13 +55,13 @@ public class PassiveSupplierModule extends SupplierModule implements ItemAccepti
     public void onDetach(PipeContext ctx) {
         super.onDetach(ctx);
         if (!ctx.world().isClientSide()) {
-            ILogisticsNetwork network = NetworkRegistry.getNetwork(ctx.world(), ctx.pos());
+            ILogisticsNetwork network = ctx.network();
             if (network != null) network.unregisterSink(ctx.pos()); // also clears interests
         }
     }
 
     private void syncInterests(PipeContext ctx) {
-        ILogisticsNetwork network = NetworkRegistry.getNetwork(ctx.world(), ctx.pos());
+        ILogisticsNetwork network = ctx.network();
         if (network == null) return;
         network.registerSink(ctx.pos(), priority);
         network.unregisterSinkInterests(ctx.pos());

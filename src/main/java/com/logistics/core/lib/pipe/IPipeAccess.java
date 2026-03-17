@@ -2,6 +2,7 @@ package com.logistics.core.lib.pipe;
 
 import com.logistics.core.lib.block.capability.PipeConnection;
 import com.logistics.core.lib.energy.EnergyComponent;
+import com.logistics.core.lib.network.ILogisticsNetwork;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -48,4 +49,9 @@ public interface IPipeAccess {
      * Return {@code true} if this pipe is currently receiving redstone power.
      */
     boolean isPowered();
+
+    /**
+     * Return the logistics network this pipe belongs to, or {@code null} if not yet formed.
+     */
+    @Nullable ILogisticsNetwork getNetwork();
 }

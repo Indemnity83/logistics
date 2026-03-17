@@ -8,7 +8,7 @@ import com.logistics.core.lib.storage.DirectionSerializer;
 import com.logistics.core.lib.storage.FilterSlots;
 import com.logistics.core.lib.pipe.PipeContext;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
-import com.logistics.pipe.runtime.TravelingItem;
+import com.logistics.core.lib.pipe.TravelingItem;
 import com.logistics.pipe.ui.AdvancedExtractorScreenHandler;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;

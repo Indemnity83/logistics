@@ -1,5 +1,7 @@
 package com.logistics.pipe.modules;
 
+import com.logistics.core.lib.pipe.RoutingModule;
+
 import com.logistics.LogisticsPipe;
 import com.logistics.core.lib.pipe.*;
 import com.logistics.core.lib.pipe.Module;
@@ -8,8 +10,8 @@ import com.logistics.core.lib.storage.NbtCompat;
 import com.logistics.core.lib.network.ILogisticsNetwork;
 import com.logistics.pipe.network.NetworkRegistry;
 import com.logistics.core.lib.network.ProviderCanFulfill;
-import com.logistics.pipe.runtime.RoutePlan;
-import com.logistics.pipe.runtime.TravelingItem;
+import com.logistics.core.lib.pipe.RoutePlan;
+import com.logistics.core.lib.pipe.TravelingItem;
 import com.logistics.pipe.ui.ProcessScreenHandler;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
@@ -295,7 +297,7 @@ public class ProcessModule implements Module, TickingModule, RoutingModule, Disp
     @Override
     public void onDetach(PipeContext ctx) {
         cancelActiveJob(ctx);
-        ILogisticsNetwork network = NetworkRegistry.getNetwork(ctx.world(), ctx.pos());
+        ILogisticsNetwork network = ctx.network();
         if (network != null) {
             network.registerSupply(ctx.pos(), Map.of(), PROCESS_PRIORITY);
             network.unregisterProviderCheck(ctx.pos());
@@ -513,7 +515,7 @@ public class ProcessModule implements Module, TickingModule, RoutingModule, Disp
     private void cancelActiveJob(PipeContext ctx) {
         if (!isActive(ctx)) return;
         CompoundTag job = NbtCompat.getCompoundOrEmpty(ctx.moduleState(getStateKey()), KEY_JOB);
-        ILogisticsNetwork network = NetworkRegistry.getNetwork(ctx.world(), ctx.pos());
+        ILogisticsNetwork network = ctx.network();
         if (network != null) {
             ListTag orders = NbtCompat.getListOrEmpty(job, JOB_ORDERS);
             for (int i = 0; i < orders.size(); i++) {

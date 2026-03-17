@@ -1,5 +1,7 @@
 package com.logistics.pipe.modules;
 
+import com.logistics.core.lib.pipe.RoutingModule;
+
 import com.logistics.LogisticsPipe;
 import com.logistics.core.lib.pipe.ItemAcceptingModule;
 import com.logistics.core.lib.pipe.Module;
@@ -7,9 +9,8 @@ import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.core.lib.storage.DirectionSerializer;
 import com.logistics.core.lib.pipe.PipeContext;
 import com.logistics.core.lib.network.ILogisticsNetwork;
-import com.logistics.pipe.network.NetworkRegistry;
-import com.logistics.pipe.runtime.RoutePlan;
-import com.logistics.pipe.runtime.TravelingItem;
+import com.logistics.core.lib.pipe.RoutePlan;
+import com.logistics.core.lib.pipe.TravelingItem;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.ItemStack;
@@ -36,7 +37,7 @@ public class EnchantmentSinkModule implements Module, RoutingModule, ItemAccepti
         if (inventoryFaces.isEmpty()) {
             setSinkDirection(ctx, null);
             if (!ctx.world().isClientSide()) {
-                ILogisticsNetwork network = NetworkRegistry.getNetwork(ctx.world(), ctx.pos());
+                ILogisticsNetwork network = ctx.network();
                 if (network != null) network.unregisterSink(ctx.pos());
             }
             return;
@@ -47,7 +48,7 @@ public class EnchantmentSinkModule implements Module, RoutingModule, ItemAccepti
         }
 
         if (!ctx.world().isClientSide()) {
-            ILogisticsNetwork network = NetworkRegistry.getNetwork(ctx.world(), ctx.pos());
+            ILogisticsNetwork network = ctx.network();
             if (network != null) {
                 network.registerSink(ctx.pos(), priority);
                 network.registerGenericSinkInterest(ctx.pos()); // enchantment check is dynamic
@@ -58,7 +59,7 @@ public class EnchantmentSinkModule implements Module, RoutingModule, ItemAccepti
     @Override
     public void onDetach(PipeContext ctx) {
         if (!ctx.world().isClientSide()) {
-            ILogisticsNetwork network = NetworkRegistry.getNetwork(ctx.world(), ctx.pos());
+            ILogisticsNetwork network = ctx.network();
             if (network != null) network.unregisterSink(ctx.pos()); // also clears interests
         }
     }

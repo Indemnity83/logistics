@@ -1,5 +1,8 @@
 package com.logistics.pipe.modules;
 
+import com.logistics.core.lib.pipe.RoutingModule;
+import com.logistics.core.lib.pipe.TransferHandlerModule;
+
 import com.logistics.LogisticsPipe;
 import com.logistics.core.lib.pipe.*;
 import com.logistics.core.lib.pipe.Module;
@@ -13,8 +16,8 @@ import com.logistics.core.lib.storage.NbtCompat;
 import com.logistics.pipe.block.PipeBlock;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.pipe.network.NetworkRegistry;
-import com.logistics.pipe.runtime.RoutePlan;
-import com.logistics.pipe.runtime.TravelingItem;
+import com.logistics.core.lib.pipe.RoutePlan;
+import com.logistics.core.lib.pipe.TravelingItem;
 import com.logistics.pipe.ui.CraftingScreenHandler;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.minecraft.core.BlockPos;
@@ -737,7 +740,7 @@ public class CraftingModule implements Module, TickingModule, RoutingModule, Dis
 
     /** Cancel all ingredient orders recorded in a single queue {@code entry}. */
     private void cancelEntryOrders(PipeContext ctx, CompoundTag entry) {
-        ILogisticsNetwork network = NetworkRegistry.getNetwork(ctx.world(), ctx.pos());
+        ILogisticsNetwork network = ctx.network();
         if (network == null) return;
         CompoundTag ingredientIds = NbtCompat.getCompoundOrEmpty(entry, ENTRY_IDS);
         for (String key : ingredientIds.keySet()) {
@@ -838,7 +841,7 @@ public class CraftingModule implements Module, TickingModule, RoutingModule, Dis
 
         // Accounting
         if (item.getDeliveryId() != null) {
-            ILogisticsNetwork network = NetworkRegistry.getNetwork(ctx.world(), ctx.pos());
+            ILogisticsNetwork network = ctx.network();
             if (network != null) {
                 network.notifyDelivery(ctx.pos(), ItemVariant.of(item.getStack()), placed);
             }
@@ -1054,7 +1057,7 @@ public class CraftingModule implements Module, TickingModule, RoutingModule, Dis
         // Unconditional network teardown — do NOT delegate to updateCrafterSupply because
         // that method may re-register supply when a recipe and autocrafter are still present
         // (e.g. chassis slot removal while the autocrafter is still adjacent).
-        ILogisticsNetwork network = NetworkRegistry.getNetwork(ctx.world(), ctx.pos());
+        ILogisticsNetwork network = ctx.network();
         if (network != null) {
             network.registerSupply(ctx.pos(), new HashMap<>(), CRAFTER_PRIORITY);
             network.unregisterProviderCheck(ctx.pos());

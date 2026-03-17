@@ -1,9 +1,5 @@
-package com.logistics.pipe.modules;
+package com.logistics.core.lib.pipe;
 
-import com.logistics.core.lib.pipe.Module;
-import com.logistics.core.lib.pipe.PipeContext;
-import com.logistics.pipe.runtime.RoutePlan;
-import com.logistics.pipe.runtime.TravelingItem;
 import java.util.List;
 import net.minecraft.core.Direction;
 

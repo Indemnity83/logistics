@@ -2,10 +2,12 @@ package com.logistics.core.lib.pipe;
 
 import com.logistics.core.lib.block.capability.PipeConnection;
 import com.logistics.core.lib.energy.EnergyComponent;
+import com.logistics.core.lib.network.ILogisticsNetwork;
 import com.logistics.core.lib.storage.NbtCompat;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.jetbrains.annotations.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -94,6 +96,13 @@ public record PipeContext(Level world, BlockPos pos, BlockState state, IPipeAcce
      */
     public boolean isPowered() {
         return blockEntity.isPowered();
+    }
+
+    /**
+     * Return the logistics network this pipe belongs to, or {@code null} if not yet formed.
+     */
+    public @Nullable ILogisticsNetwork network() {
+        return blockEntity.getNetwork();
     }
 
     /**
