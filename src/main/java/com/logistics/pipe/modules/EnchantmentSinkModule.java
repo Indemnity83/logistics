@@ -2,7 +2,6 @@ package com.logistics.pipe.modules;
 
 import com.logistics.LogisticsPipe;
 import com.logistics.core.lib.resource.ResourceId;
-import com.logistics.core.lib.storage.DirectionSerializer;
 import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.network.ILogisticsNetwork;
 import com.logistics.pipe.network.NetworkRegistry;

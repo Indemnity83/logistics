@@ -6,6 +6,7 @@ import com.logistics.core.bootstrap.DomainBootstrap;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.pipe.modules.*;
 import com.logistics.pipe.network.NetDbg;
+import com.logistics.pipe.network.NetworkTickHandler;
 import com.logistics.pipe.Pipe;
 import com.logistics.pipe.PipeApi;
 import com.logistics.pipe.PipeTypes;
@@ -67,6 +68,7 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
         SCREEN.register();
         registerMarkingFluidItems();
         registerNetworkPackets();
+        NetworkTickHandler.register();
 
         registerLegacyAliases();
         addCreativeTabEntries();

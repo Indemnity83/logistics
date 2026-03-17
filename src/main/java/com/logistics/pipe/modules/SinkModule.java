@@ -4,7 +4,6 @@ import com.logistics.LogisticsPipe;
 import com.logistics.pipe.network.NetDbg;
 import com.logistics.pipe.network.ILogisticsNetwork;
 import com.logistics.core.lib.resource.ResourceId;
-import com.logistics.core.lib.storage.DirectionSerializer;
 import com.logistics.core.lib.storage.FilterSlots;
 import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.block.entity.PipeBlockEntity;

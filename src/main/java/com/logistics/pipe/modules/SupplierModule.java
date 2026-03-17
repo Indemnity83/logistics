@@ -381,11 +381,11 @@ public class SupplierModule implements Module, TickingModule, RoutingModule {
 
     @Nullable
     protected Direction getSupplierDirection(PipeContext ctx) {
-        return com.logistics.core.lib.storage.DirectionSerializer.load(ctx, this, SUPPLIER_DIRECTION);
+        return DirectionSerializer.load(ctx, this, SUPPLIER_DIRECTION);
     }
 
     private void setSupplierDirection(PipeContext ctx, @Nullable Direction direction) {
-        com.logistics.core.lib.storage.DirectionSerializer.save(ctx, this, SUPPLIER_DIRECTION, direction);
+        DirectionSerializer.save(ctx, this, SUPPLIER_DIRECTION, direction);
     }
 
     private boolean isSupplierFace(PipeContext ctx, Direction direction) {

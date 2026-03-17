@@ -1,6 +1,5 @@
-package com.logistics.core.network;
+package com.logistics.pipe.network;
 
-import com.logistics.pipe.network.NetworkRegistry;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
 

@@ -1,10 +1,11 @@
-package com.logistics.core.lib.storage;
+package com.logistics.pipe.modules;
 
-import com.logistics.pipe.PipeContext;
-import com.logistics.pipe.modules.Module;
+import com.logistics.core.lib.storage.NbtCompat;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import org.jetbrains.annotations.Nullable;
+
+import com.logistics.pipe.PipeContext;
 
 /**
  * Utility for serializing/deserializing Direction values in module storage.
