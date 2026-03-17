@@ -13,7 +13,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
-public class MergerModule implements Module {
+public class MergerModule implements Module, RoutingModule {
     private static final String OUTPUT_DIRECTION = "output_direction";
 
     @Override

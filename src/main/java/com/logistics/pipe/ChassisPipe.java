@@ -4,8 +4,10 @@ import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.pipe.item.ModuleItem;
 import com.logistics.pipe.modules.Module;
+import com.logistics.pipe.modules.RandomTickModule;
 import com.logistics.pipe.runtime.RoutePlan;
 import com.logistics.pipe.runtime.TravelingItem;
+import net.minecraft.util.RandomSource;
 import com.logistics.pipe.ui.ChassisScreenHandler;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.minecraft.core.BlockPos;
@@ -62,6 +64,14 @@ public class ChassisPipe extends Pipe {
         return super.getModule(moduleClass);
     }
 
+    @Override
+    public List<Module> getModules(PipeBlockEntity entity) {
+        PipeContext ctx = entity.createContext();
+        List<Module> all = new ArrayList<>(getDynamicModules(ctx));
+        all.addAll(super.getModules(entity));
+        return all;
+    }
+
     /**
      * Returns the dynamically-installed modules for this chassis pipe.
      * Reads each slot's ItemStack from NBT; slots holding a {@link ModuleItem}
@@ -90,27 +100,55 @@ public class ChassisPipe extends Pipe {
     @Override
     public RoutePlan route(PipeContext ctx, TravelingItem item, List<Direction> options) {
         for (Module m : getDynamicModules(ctx)) {
-            RoutePlan plan = m.route(ctx, item, options);
-            if (plan.getType() != RoutePlan.Type.PASS) return plan;
+            if (m instanceof com.logistics.pipe.modules.RoutingModule router) {
+                RoutePlan plan = router.route(ctx, item, options);
+                if (plan.getType() != RoutePlan.Type.PASS) return plan;
+            }
         }
         return super.route(ctx, item, options);
     }
 
     @Override
     public void onTick(PipeContext ctx) {
+        if (ctx.world().isClientSide()) return;
         for (Module m : getDynamicModules(ctx)) {
-            m.onTick(ctx);
+            if (m instanceof com.logistics.pipe.modules.TickingModule ticking) {
+                ticking.onTick(ctx);
+            }
         }
         super.onTick(ctx);
     }
 
     @Override
     public long dispatch(PipeContext ctx, BlockPos requester, ItemVariant item, long amount, UUID deliveryId) {
+        if (ctx.world().isClientSide()) return 0;
         for (Module m : getDynamicModules(ctx)) {
-            long d = m.onDispatch(ctx, requester, item, amount, deliveryId);
-            if (d != 0) return d;
+            if (m instanceof com.logistics.pipe.modules.DispatchableModule dispatchable) {
+                long d = dispatchable.onDispatch(ctx, requester, item, amount, deliveryId);
+                if (d != 0) return d;
+            }
         }
         return super.dispatch(ctx, requester, item, amount, deliveryId);
+    }
+
+    /**
+     * Returns {@code true} whenever this chassis has slots, because any slot could hold a
+     * {@link RandomTickModule}. The overhead of scheduling random ticks on empty chassis pipes is
+     * negligible; the alternative would require reading NBT here without a PipeBlockEntity param.
+     */
+    @Override
+    public boolean hasRandomTicks() {
+        return maxSlots > 0 || super.hasRandomTicks();
+    }
+
+    @Override
+    public void randomTick(PipeContext ctx, RandomSource random) {
+        for (Module m : getDynamicModules(ctx)) {
+            if (m instanceof RandomTickModule rt) {
+                rt.randomTick(ctx, random);
+            }
+        }
+        super.randomTick(ctx, random);
     }
 
     @Override

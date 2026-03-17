@@ -44,7 +44,7 @@ import java.util.UUID;
  * <p>V1 scope: up to 9 inputs (MAX_INPUTS), up to 1 output (MAX_OUTPUTS), fixed items only (no tags),
  * one active job at a time.
  */
-public class ProcessModule implements Module {
+public class ProcessModule implements Module, TickingModule, RoutingModule, DispatchableModule {
     // NBT keys — process config (public for screen handler access)
     public static final String KEY_INPUTS = "inputs";
     public static final String KEY_OUTPUTS = "outputs";
@@ -173,8 +173,6 @@ public class ProcessModule implements Module {
 
     @Override
     public void onTick(PipeContext ctx) {
-        if (ctx.world().isClientSide()) return;
-
         int ticks = ctx.getInt(this, TICKS_SCAN, 0) + 1;
         ctx.saveInt(this, TICKS_SCAN, ticks);
         if (ticks >= SCAN_INTERVAL) {
@@ -221,7 +219,6 @@ public class ProcessModule implements Module {
 
     @Override
     public long onDispatch(PipeContext ctx, BlockPos requester, ItemVariant item, long amount, UUID deliveryId) {
-        if (ctx.world().isClientSide()) return 0;
         if (isActive(ctx)) return 0; // Only one job at a time
 
         // Find which output matches the requested item

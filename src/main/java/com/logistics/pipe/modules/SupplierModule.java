@@ -43,7 +43,7 @@ import java.util.Map;
  *
  * <p>Energy: TODO (Phase 11): 1 RF per item requested
  */
-public class SupplierModule implements Module {
+public class SupplierModule implements Module, TickingModule, RoutingModule {
     /**
      * Supply modes for the Supplier Pipe.
      * Based on LogisticsPipes supply modes.
@@ -68,10 +68,6 @@ public class SupplierModule implements Module {
 
     @Override
     public void onTick(PipeContext ctx) {
-        if (ctx.world().isClientSide()) {
-            return;
-        }
-
         // Increment tick counter
         int ticks = ctx.getInt(this, TICKS_SINCE_CHECK, 0);
         ticks++;

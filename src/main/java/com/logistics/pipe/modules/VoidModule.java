@@ -6,7 +6,7 @@ import java.util.List;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.util.RandomSource;
 
-public class VoidModule implements Module {
+public class VoidModule implements Module, RoutingModule {
     @Override
     public RoutePlan route(
             PipeContext ctx,

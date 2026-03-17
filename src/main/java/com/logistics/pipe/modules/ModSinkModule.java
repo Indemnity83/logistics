@@ -35,7 +35,7 @@ import java.util.List;
  * <p>GUI: Accessible with wrench. Each filter entry stores the representative item ID;
  * the mod namespace is derived from it for matching.
  */
-public class ModSinkModule implements Module {
+public class ModSinkModule implements Module, TickingModule, RoutingModule, ItemAcceptingModule {
     public static final String MOD_IDS = "mod_ids";
     public static final int MAX_FILTERS = 10;
     private static final String SINK_DIRECTION = "sink_direction";
@@ -50,7 +50,6 @@ public class ModSinkModule implements Module {
 
     @Override
     public void onTick(PipeContext ctx) {
-        if (ctx.world().isClientSide()) return;
         int ticks = ctx.getInt(this, TICKS_SINCE_SYNC, 0) + 1;
         if (ticks < SYNC_INTERVAL) {
             ctx.saveInt(this, TICKS_SINCE_SYNC, ticks);
@@ -131,6 +130,11 @@ public class ModSinkModule implements Module {
         if (getSinkDirection(ctx) != direction) return null;
         String suffix = ctx.isInventoryConnection(direction) ? "_arm_extended" : "_arm";
         return LogisticsPipe.model("basic_logistics_pipe" + suffix);
+    }
+
+    @Override
+    public boolean acceptsItem(PipeContext ctx, ItemStack stack) {
+        return matchesFilter(ctx, stack);
     }
 
     /**

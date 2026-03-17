@@ -27,7 +27,7 @@ import java.util.List;
  * <p>When items destined for this pipe arrive, the module redirects them into the
  * adjacent machine inventory.
  */
-public class SatelliteModule implements Module {
+public class SatelliteModule implements Module, TickingModule, RoutingModule {
     public static final String KEY_ID = "satellite_id";
     private static final String TICKS_KEY = "sync_ticks";
     private static final String SINK_DIR_KEY = "sink_dir";
@@ -35,8 +35,6 @@ public class SatelliteModule implements Module {
 
     @Override
     public void onTick(PipeContext ctx) {
-        if (ctx.world().isClientSide()) return;
-
         int ticks = ctx.getInt(this, TICKS_KEY, 0) + 1;
         ctx.saveInt(this, TICKS_KEY, ticks);
         if (ticks < SYNC_INTERVAL) return;
