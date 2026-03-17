@@ -112,7 +112,7 @@ public class ProviderFilterInventory implements Container {
         PipeContext ctx = pipeEntity.createContext();
         FilterSlots filterItems = module.getFilterItems(ctx);
 
-        for (int i = 0; i < filterItems.size(); i++) {
+        for (int i = 0; i < Math.min(filterItems.size(), stacks.size()); i++) {
             String itemId = filterItems.get(i);
             if (itemId.isEmpty()) continue;
             ResourceId resourceId = ResourceId.tryParse(itemId);
@@ -129,7 +129,7 @@ public class ProviderFilterInventory implements Container {
         if (customData == null) return;
         CompoundTag tag = customData.copyTag();
         FilterSlots filterItems = FilterSlots.load(NbtCompat.getCompoundOrEmpty(tag, ProviderModule.FILTER_ITEMS), FILTER_SLOT_COUNT);
-        for (int i = 0; i < filterItems.size(); i++) {
+        for (int i = 0; i < Math.min(filterItems.size(), stacks.size()); i++) {
             String itemId = filterItems.get(i);
             if (itemId.isEmpty()) continue;
             ResourceId rid = ResourceId.tryParse(itemId);

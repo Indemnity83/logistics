@@ -25,7 +25,9 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Advanced extractor module — same extraction behavior as {@link BasicExtractorModule} but with
@@ -87,10 +89,16 @@ public class AdvancedExtractorModule implements Module, TickingModule {
      * Exclude mode (inverted): items IN the filter are skipped.
      */
     private boolean isFilteredOut(PipeContext ctx, ItemStack stack) {
-        List<String> nonEmpty = getFilterItems(ctx).nonEmpty();
-        if (nonEmpty.isEmpty()) return false;
+        Set<String> resolvable = new HashSet<>();
+        for (String id : getFilterItems(ctx).nonEmpty()) {
+            ResourceId rid = ResourceId.tryParse(id);
+            if (rid != null && BuiltInRegistries.ITEM.get(rid.toIdentifier()).isPresent()) {
+                resolvable.add(id);
+            }
+        }
+        if (resolvable.isEmpty()) return false;
         String itemId = BuiltInRegistries.ITEM.getKey(stack.getItem()).toString();
-        boolean itemInFilter = nonEmpty.contains(itemId);
+        boolean itemInFilter = resolvable.contains(itemId);
         return isFilterInverted(ctx) == itemInFilter;
     }
 

@@ -30,9 +30,11 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -168,10 +170,16 @@ public class ProviderModule implements Module, TickingModule, DispatchableModule
     }
 
     private boolean isFilteredOut(PipeContext ctx, ItemStack stack) {
-        List<String> nonEmpty = getFilterItems(ctx).nonEmpty();
-        if (nonEmpty.isEmpty()) return false;
+        Set<String> resolvable = new HashSet<>();
+        for (String id : getFilterItems(ctx).nonEmpty()) {
+            ResourceId rid = ResourceId.tryParse(id);
+            if (rid != null && BuiltInRegistries.ITEM.get(rid.toIdentifier()).isPresent()) {
+                resolvable.add(id);
+            }
+        }
+        if (resolvable.isEmpty()) return false;
         String itemId = BuiltInRegistries.ITEM.getKey(stack.getItem()).toString();
-        boolean itemInFilter = nonEmpty.contains(itemId);
+        boolean itemInFilter = resolvable.contains(itemId);
         return isFilterInverted(ctx) == itemInFilter;
     }
 
