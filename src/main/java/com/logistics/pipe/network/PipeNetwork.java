@@ -11,12 +11,9 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
-import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -32,14 +29,10 @@ public class PipeNetwork implements ILogisticsNetwork {
     private final IWorldView worldView;
     private final NetworkController controller;
     private final JobCoordinator jobCoordinator;
+    private final SinkResolver sinkResolver;
 
-    // Unified sink registry: all sink-capable pipes → priority (0 = default/catch-all, higher = preferred)
-    private final Map<BlockPos, Integer> sinkRegistry = new HashMap<>();
     // Satellite registry: logical ID → pipe position
     private final Map<String, BlockPos> satellites = new HashMap<>();
-    // Interest index: only pipes that declared interest are checked during findSink
-    private final Map<Item, Set<BlockPos>> specificInterests = new HashMap<>(); // item → sinks that want it
-    private final Set<BlockPos> genericInterests = new HashSet<>(); // sinks that want any item
 
     /**
      * Constructor with dependency injection.
@@ -53,6 +46,7 @@ public class PipeNetwork implements ILogisticsNetwork {
         this.worldView = worldView;
         this.controller = new NetworkController();
         this.jobCoordinator = new JobCoordinator(controller);
+        this.sinkResolver = new SinkResolver(graph, worldView);
         controller.setOrderFailureListener((orderId, requester, item, amount, missing) -> {
             // Notify job coordinator first so job state is updated before the alert fires
             jobCoordinator.onOrderFailed(orderId, requester, item, amount, missing);
@@ -80,6 +74,7 @@ public class PipeNetwork implements ILogisticsNetwork {
         this.worldView = null;
         this.controller = new NetworkController();
         this.jobCoordinator = new JobCoordinator(controller);
+        this.sinkResolver = new SinkResolver(graph, null);
     }
 
     public UUID getId() {
@@ -103,9 +98,7 @@ public class PipeNetwork implements ILogisticsNetwork {
         controller.cancelOrdersFor(pos);
         controller.unregisterProviderCheck(pos);
         controller.unregisterCrafterSnapshot(pos);
-        sinkRegistry.remove(pos);
-        specificInterests.values().forEach(set -> set.remove(pos));
-        genericInterests.remove(pos);
+        sinkResolver.remove(pos);
         satellites.entrySet().removeIf(e -> pos.equals(e.getValue()));
     }
 
@@ -113,7 +106,7 @@ public class PipeNetwork implements ILogisticsNetwork {
         return graph.contains(pos);
     }
 
-    public Set<BlockPos> getMembers() {
+    public java.util.Set<BlockPos> getMembers() {
         return graph.getNodes();
     }
 
@@ -237,34 +230,32 @@ public class PipeNetwork implements ILogisticsNetwork {
 
     @Override
     public void registerSink(BlockPos pos, int priority) {
-        sinkRegistry.put(pos, priority);
+        sinkResolver.registerSink(pos, priority);
     }
 
     @Override
     public void unregisterSink(BlockPos pos) {
-        sinkRegistry.remove(pos);
-        specificInterests.values().forEach(set -> set.remove(pos));
-        genericInterests.remove(pos);
+        sinkResolver.unregisterSink(pos);
     }
 
     @Override
     public void registerSinkInterest(BlockPos pos, Item item) {
-        specificInterests.computeIfAbsent(item, k -> new HashSet<>()).add(pos);
+        sinkResolver.registerSinkInterest(pos, item);
     }
 
     @Override
     public void unregisterSinkInterests(BlockPos pos) {
-        specificInterests.values().forEach(set -> set.remove(pos));
+        sinkResolver.unregisterSinkInterests(pos);
     }
 
     @Override
     public void registerGenericSinkInterest(BlockPos pos) {
-        genericInterests.add(pos);
+        sinkResolver.registerGenericSinkInterest(pos);
     }
 
     @Override
     public void unregisterGenericSinkInterest(BlockPos pos) {
-        genericInterests.remove(pos);
+        sinkResolver.unregisterGenericSinkInterest(pos);
     }
 
     /**
@@ -280,12 +271,14 @@ public class PipeNetwork implements ILogisticsNetwork {
         }
 
         NetDbg.out("[Network {}] Finding sink for {} (members: {}, registered sinks: {})",
-                getNetworkIdShort(id), stack.getItem(), graph.size(), sinkRegistry.size());
+                getNetworkIdShort(id), stack.getItem(), graph.size(), sinkResolver.registeredSinkCount());
 
-        BlockPos bestSink = findSink(stack, false);
+        BlockPos bestSink = sinkResolver.findSinkFor(stack);
 
         if (bestSink == null) {
             NetDbg.out("[Network {}] No sink found for {}", getNetworkIdShort(id), stack.getItem());
+        } else {
+            NetDbg.out("[Network {}] Found sink at {}", getNetworkIdShort(id), bestSink);
         }
 
         return bestSink;
@@ -296,31 +289,7 @@ public class PipeNetwork implements ILogisticsNetwork {
         if (worldView == null) {
             throw new IllegalStateException("Cannot use findFilteredSinkFor without IWorldView - update tests to use proper constructor");
         }
-        return findSink(stack, true);
-    }
-
-    /**
-     * Find the highest-priority registered sink that accepts the given item.
-     * Uses an interest index (OG LogisticsPipes strategy) to skip pipes that
-     * declared no interest in this item type, avoiding expensive inventory scans.
-     *
-     * @param stack        item to route
-     * @param filteredOnly if true, skip priority-0 (default-route/catch-all) sinks
-     */
-    private BlockPos findSink(ItemStack stack, boolean filteredOnly) {
-        // Build candidate set: generic-interest pipes ∪ pipes interested in this item
-        Set<BlockPos> candidates = new HashSet<>(genericInterests);
-        Set<BlockPos> specific = specificInterests.get(stack.getItem());
-        if (specific != null) candidates.addAll(specific);
-
-        return candidates.stream()
-                .filter(pos -> sinkRegistry.containsKey(pos) && graph.contains(pos))
-                .filter(pos -> !filteredOnly || sinkRegistry.get(pos) > 0)
-                .sorted(Comparator.comparingInt(pos -> -sinkRegistry.getOrDefault(pos, 0)))
-                .filter(pos -> worldView.matchesSinkFilter(pos, stack))
-                .peek(pos -> NetDbg.out("[Network {}] Found sink at {}", getNetworkIdShort(id), pos))
-                .findFirst()
-                .orElse(null);
+        return sinkResolver.findFilteredSinkFor(stack);
     }
 
     @Override
@@ -363,11 +332,7 @@ public class PipeNetwork implements ILogisticsNetwork {
         graph.merge(other.graph);
         controller.merge(other.controller);
         jobCoordinator.merge(other.jobCoordinator);
-        other.sinkRegistry.forEach((pos, priority) ->
-                sinkRegistry.merge(pos, priority, Math::max));
-        genericInterests.addAll(other.genericInterests);
-        other.specificInterests.forEach((item, positions) ->
-                specificInterests.computeIfAbsent(item, k -> new HashSet<>()).addAll(positions));
+        sinkResolver.merge(other.sinkResolver);
         other.satellites.forEach((satId, pos) -> {
             BlockPos existing = satellites.get(satId);
             if (existing != null && !existing.equals(pos)) {
