@@ -21,9 +21,8 @@ import net.minecraft.world.item.component.CustomData;
  * Shows configured filter items (ghost items for whitelist/blacklist).
  */
 public class ProviderFilterInventory implements Container {
-    private static final int FILTER_SLOT_COUNT = 9;
     private final NonNullList<ItemStack> stacks =
-            NonNullList.withSize(FILTER_SLOT_COUNT, ItemStack.EMPTY);
+            NonNullList.withSize(ProviderModule.MAX_FILTER_SLOTS, ItemStack.EMPTY);
     private final PipeBlockEntity pipeEntity;
 
     public ProviderFilterInventory(PipeBlockEntity pipeEntity) {
@@ -93,7 +92,7 @@ public class ProviderFilterInventory implements Container {
      */
     private void loadFromModule() {
         // Clear slots
-        for (int i = 0; i < FILTER_SLOT_COUNT; i++) {
+        for (int i = 0; i < ProviderModule.MAX_FILTER_SLOTS; i++) {
             stacks.set(i, ItemStack.EMPTY);
         }
 
@@ -124,11 +123,11 @@ public class ProviderFilterInventory implements Container {
     }
 
     public void loadFromItem(ItemStack stack) {
-        for (int i = 0; i < FILTER_SLOT_COUNT; i++) stacks.set(i, ItemStack.EMPTY);
+        for (int i = 0; i < ProviderModule.MAX_FILTER_SLOTS; i++) stacks.set(i, ItemStack.EMPTY);
         CustomData customData = stack.get(DataComponents.CUSTOM_DATA);
         if (customData == null) return;
         CompoundTag tag = customData.copyTag();
-        FilterSlots filterItems = FilterSlots.load(NbtCompat.getCompoundOrEmpty(tag, ProviderModule.FILTER_ITEMS), FILTER_SLOT_COUNT);
+        FilterSlots filterItems = FilterSlots.load(NbtCompat.getCompoundOrEmpty(tag, ProviderModule.FILTER_ITEMS), ProviderModule.MAX_FILTER_SLOTS);
         for (int i = 0; i < Math.min(filterItems.size(), stacks.size()); i++) {
             String itemId = filterItems.get(i);
             if (itemId.isEmpty()) continue;

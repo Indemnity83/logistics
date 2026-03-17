@@ -30,7 +30,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -72,7 +71,7 @@ public class ProviderModule implements Module, TickingModule, DispatchableModule
     private static final String DQ_DELIVERY_ID = "delivery_id";
 
     private static final int SCAN_INTERVAL = 6;        // Scan every 6 ticks (~3x/second)
-    private static final int MAX_FILTER_SLOTS = 9;
+    public static final int MAX_FILTER_SLOTS = 9;
     private static final int SUPPLY_PRIORITY = 1;      // Real stock; lower = preferred
 
     private final int itemLimit;
@@ -170,13 +169,7 @@ public class ProviderModule implements Module, TickingModule, DispatchableModule
     }
 
     private boolean isFilteredOut(PipeContext ctx, ItemStack stack) {
-        Set<String> resolvable = new HashSet<>();
-        for (String id : getFilterItems(ctx).nonEmpty()) {
-            ResourceId rid = ResourceId.tryParse(id);
-            if (rid != null && BuiltInRegistries.ITEM.get(rid.toIdentifier()).isPresent()) {
-                resolvable.add(id);
-            }
-        }
+        Set<String> resolvable = getFilterItems(ctx).resolveItemIds();
         if (resolvable.isEmpty()) return false;
         String itemId = BuiltInRegistries.ITEM.getKey(stack.getItem()).toString();
         boolean itemInFilter = resolvable.contains(itemId);

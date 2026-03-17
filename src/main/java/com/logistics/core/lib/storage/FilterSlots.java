@@ -1,9 +1,13 @@
 package com.logistics.core.lib.storage;
 
+import com.logistics.core.lib.resource.ResourceId;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Immutable, fixed-size list of item-ID strings representing a filter configuration.
@@ -88,5 +92,20 @@ public final class FilterSlots {
     /** Only the non-empty slot values (order preserved, indices lost). */
     public List<String> nonEmpty() {
         return slots.stream().filter(s -> !s.isEmpty()).toList();
+    }
+
+    /**
+     * Returns the subset of non-empty slot values that successfully resolve to a registered item.
+     * Stale IDs (e.g. from an unloaded mod) are silently excluded.
+     */
+    public Set<String> resolveItemIds() {
+        Set<String> result = new HashSet<>();
+        for (String id : nonEmpty()) {
+            ResourceId rid = ResourceId.tryParse(id);
+            if (rid != null && BuiltInRegistries.ITEM.get(rid.toIdentifier()).isPresent()) {
+                result.add(id);
+            }
+        }
+        return result;
     }
 }
