@@ -1,5 +1,7 @@
 package com.logistics.pipe.network;
 
+import com.logistics.core.lib.network.CrafterBufferState;
+
 /**
  * Computes the safe number of crafting batches to submit given a crafter's current buffer state.
  *

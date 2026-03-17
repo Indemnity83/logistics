@@ -1,6 +1,6 @@
 package com.logistics.pipe.modules;
 
-import com.logistics.pipe.PipeContext;
+import com.logistics.core.lib.pipe.PipeContext;
 
 /**
  * Terminus module — a filter-only sink with no default-route capability.

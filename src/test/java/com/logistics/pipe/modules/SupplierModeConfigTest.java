@@ -1,6 +1,6 @@
 package com.logistics.pipe.modules;
 
-import com.logistics.pipe.network.FulfillmentMode;
+import com.logistics.core.lib.network.FulfillmentMode;
 import com.logistics.pipe.network.SupplierModeConfig;
 import com.logistics.pipe.modules.SupplierModule.SupplyMode;
 import org.junit.jupiter.api.Test;

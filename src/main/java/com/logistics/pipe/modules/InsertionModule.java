@@ -1,6 +1,8 @@
 package com.logistics.pipe.modules;
 
-import com.logistics.pipe.PipeContext;
+import com.logistics.pipe.block.entity.PipeBlockEntity;
+import com.logistics.core.lib.pipe.Module;
+import com.logistics.core.lib.pipe.PipeContext;
 import com.logistics.pipe.runtime.RoutePlan;
 import com.logistics.pipe.runtime.TravelingItem;
 import java.util.ArrayList;
@@ -91,7 +93,7 @@ public class InsertionModule implements Module, RoutingModule {
 
     private long getRoutedAmount(PipeContext ctx, Direction direction, ItemVariant variant) {
         long total = 0;
-        for (TravelingItem other : ctx.blockEntity().getTravelingItems()) {
+        for (TravelingItem other : ((PipeBlockEntity) ctx.blockEntity()).getTravelingItems()) {
             if (!other.isRouted()) {
                 continue;
             }

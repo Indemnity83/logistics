@@ -1,5 +1,6 @@
 package com.logistics.pipe.network;
 
+import com.logistics.core.lib.network.PlanningView;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 
 import java.util.HashMap;

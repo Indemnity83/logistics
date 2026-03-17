@@ -8,9 +8,10 @@ import com.logistics.core.lib.block.capability.HasEnergyStorage;
 import com.logistics.core.lib.block.capability.HasItemStorage;
 import com.logistics.core.lib.storage.NbtCompat;
 import com.logistics.core.lib.block.capability.PipeConnection;
+import com.logistics.core.lib.pipe.IPipeAccess;
 import com.logistics.core.lib.power.AcceptsLowTierEnergy;
 import com.logistics.pipe.Pipe;
-import com.logistics.pipe.PipeContext;
+import com.logistics.core.lib.pipe.PipeContext;
 import com.logistics.pipe.block.PipeBlock;
 import com.logistics.pipe.runtime.PipeRuntime;
 import com.logistics.pipe.runtime.TravelingItem;
@@ -36,7 +37,7 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
 public class PipeBlockEntity extends BaseBlockEntity
-        implements PipeConnection, AcceptsLowTierEnergy, HasItemStorage, HasEnergyStorage {
+        implements PipeConnection, AcceptsLowTierEnergy, HasItemStorage, HasEnergyStorage, IPipeAccess {
     public static final int VIRTUAL_CAPACITY = 5 * 64;
     private final List<TravelingItem> travelingItems = new ArrayList<>();
     private final CompoundTag moduleState = new CompoundTag();
@@ -368,6 +369,33 @@ public class PipeBlockEntity extends BaseBlockEntity
 
     public void clearModuleState(String key) {
         moduleState.remove(key);
+    }
+
+    // ==================== IPipeAccess ====================
+
+    @Override
+    public CompoundTag moduleState(String key) {
+        return getOrCreateModuleState(key);
+    }
+
+    @Override
+    public PipeConnection.Type getConnectionType(Level world, BlockPos pos, Direction direction) {
+        BlockState blockState = getBlockState();
+        if (blockState.getBlock() instanceof PipeBlock pipeBlock) {
+            return pipeBlock.getConnectionType(world, pos, direction);
+        }
+        return PipeConnection.Type.NONE;
+    }
+
+    @Override
+    public boolean isNeighborPipe(Level world, BlockPos pos, Direction direction) {
+        return world.getBlockState(pos.relative(direction)).getBlock() instanceof PipeBlock;
+    }
+
+    @Override
+    public boolean isPowered() {
+        BlockState blockState = getBlockState();
+        return blockState.hasProperty(PipeBlock.POWERED) && blockState.getValue(PipeBlock.POWERED);
     }
 
     public PipeContext createContext() {

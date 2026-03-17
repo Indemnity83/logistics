@@ -1,9 +1,10 @@
 package com.logistics.pipe.modules;
 
 import com.logistics.LogisticsPipe;
+import com.logistics.core.lib.pipe.Module;
 import com.logistics.pipe.network.NetworkRegistry;
-import com.logistics.pipe.network.ILogisticsNetwork;
-import com.logistics.pipe.PipeContext;
+import com.logistics.core.lib.network.ILogisticsNetwork;
+import com.logistics.core.lib.pipe.PipeContext;
 import com.logistics.pipe.runtime.RoutePlan;
 import com.logistics.pipe.runtime.TravelingItem;
 import net.minecraft.core.BlockPos;

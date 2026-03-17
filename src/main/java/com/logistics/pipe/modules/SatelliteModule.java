@@ -1,6 +1,8 @@
 package com.logistics.pipe.modules;
 
-import com.logistics.pipe.PipeContext;
+import com.logistics.core.lib.pipe.Module;
+import com.logistics.core.lib.pipe.PipeContext;
+import com.logistics.core.lib.pipe.TickingModule;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.pipe.network.NetworkRegistry;
 import com.logistics.pipe.runtime.RoutePlan;

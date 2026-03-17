@@ -1,6 +1,6 @@
 package com.logistics.pipe.item;
 
-import com.logistics.pipe.modules.Module;
+import com.logistics.core.lib.pipe.Module;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;

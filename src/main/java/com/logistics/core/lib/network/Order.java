@@ -1,4 +1,4 @@
-package com.logistics.pipe.network;
+package com.logistics.core.lib.network;
 
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.minecraft.core.BlockPos;

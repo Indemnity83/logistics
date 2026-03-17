@@ -1,8 +1,9 @@
 package com.logistics.pipe.modules;
 
+import com.logistics.core.lib.pipe.ItemAcceptingModule;
 import com.logistics.core.lib.resource.ResourceId;
-import com.logistics.pipe.PipeContext;
-import com.logistics.pipe.network.ILogisticsNetwork;
+import com.logistics.core.lib.pipe.PipeContext;
+import com.logistics.core.lib.network.ILogisticsNetwork;
 import com.logistics.pipe.network.NetworkRegistry;
 import com.logistics.pipe.runtime.RoutePlan;
 import com.logistics.pipe.runtime.TravelingItem;

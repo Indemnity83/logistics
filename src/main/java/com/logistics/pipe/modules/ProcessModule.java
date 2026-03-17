@@ -1,12 +1,13 @@
 package com.logistics.pipe.modules;
 
 import com.logistics.LogisticsPipe;
+import com.logistics.core.lib.pipe.*;
+import com.logistics.core.lib.pipe.Module;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.core.lib.storage.NbtCompat;
-import com.logistics.pipe.PipeContext;
-import com.logistics.pipe.network.ILogisticsNetwork;
+import com.logistics.core.lib.network.ILogisticsNetwork;
 import com.logistics.pipe.network.NetworkRegistry;
-import com.logistics.pipe.network.ProviderCanFulfill;
+import com.logistics.core.lib.network.ProviderCanFulfill;
 import com.logistics.pipe.runtime.RoutePlan;
 import com.logistics.pipe.runtime.TravelingItem;
 import com.logistics.pipe.ui.ProcessScreenHandler;
@@ -476,7 +477,7 @@ public class ProcessModule implements Module, TickingModule, RoutingModule, Disp
                                 variant.toStack(chunk), dir.getOpposite(),
                                 LogisticsPipe.CONFIG.ITEM_NETWORK_SPEED, requester);
                         t.setDeliveryId(getJobDeliveryId(ctx));
-                        ctx.blockEntity().forceAddItem(t, dir);
+                        ((PipeBlockEntity) ctx.blockEntity()).forceAddItem(t, dir);
                         rem -= chunk;
                     }
                     rem = forSink;
@@ -486,7 +487,7 @@ public class ProcessModule implements Module, TickingModule, RoutingModule, Disp
                         TravelingItem t = new TravelingItem(
                                 variant.toStack(chunk), dir.getOpposite(),
                                 LogisticsPipe.CONFIG.ITEM_NETWORK_SPEED, null);
-                        ctx.blockEntity().forceAddItem(t, dir);
+                        ((PipeBlockEntity) ctx.blockEntity()).forceAddItem(t, dir);
                         rem -= chunk;
                     }
                     if (extracted >= needed) break;

@@ -2,7 +2,7 @@ package com.logistics.gametest.pipe;
 
 import com.logistics.LogisticsPipe;
 import com.logistics.pipe.Pipe;
-import com.logistics.pipe.PipeContext;
+import com.logistics.core.lib.pipe.PipeContext;
 import com.logistics.pipe.block.PipeBlock;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.pipe.modules.ItemFilterModule;
@@ -168,7 +168,7 @@ public class ModuleGameTest {
             pipeEntity
         );
 
-        Pipe pipe = ctx.pipe();
+        Pipe pipe = context.getBlockState(pos).getBlock() instanceof PipeBlock pb ? pb.getPipe() : null;
         if (pipe == null) {
             context.fail("PipeContext should have pipe");
         }

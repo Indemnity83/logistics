@@ -1,15 +1,17 @@
 package com.logistics.pipe.modules;
 
 import com.logistics.LogisticsPipe;
+import com.logistics.core.lib.pipe.*;
+import com.logistics.core.lib.pipe.Module;
 import com.logistics.pipe.network.CraftBatchingService;
-import com.logistics.pipe.network.CrafterBufferState;
-import com.logistics.pipe.network.CrafterSnapshot;
-import com.logistics.pipe.network.ILogisticsNetwork;
-import com.logistics.pipe.network.RecipeIngredient;
+import com.logistics.core.lib.network.CrafterBufferState;
+import com.logistics.core.lib.network.CrafterSnapshot;
+import com.logistics.core.lib.network.ILogisticsNetwork;
+import com.logistics.core.lib.network.RecipeIngredient;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.core.lib.storage.NbtCompat;
-import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.block.PipeBlock;
+import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.pipe.network.NetworkRegistry;
 import com.logistics.pipe.runtime.RoutePlan;
 import com.logistics.pipe.runtime.TravelingItem;
@@ -59,7 +61,7 @@ import java.util.UUID;
  * ingredient orders for all queued entries are placed immediately so materials arrive in
  * parallel rather than serially.
  */
-public class CraftingModule implements Module, TickingModule, RoutingModule, DispatchableModule {
+public class CraftingModule implements Module, TickingModule, RoutingModule, DispatchableModule, TransferHandlerModule {
     /** Max items to craft per 6-tick cycle (one tier step above = larger batches). */
     private final int itemLimit;
     /** Max output stacks to dispatch per cycle (future use; stored for tier identity). */
@@ -387,7 +389,7 @@ public class CraftingModule implements Module, TickingModule, RoutingModule, Dis
                             remaining.copy(),
                             autocrafterDir.getOpposite(),
                             LogisticsPipe.CONFIG.ITEM_MIN_SPEED);
-                    ctx.blockEntity().forceAddItem(surplus, autocrafterDir);
+                    ((PipeBlockEntity) ctx.blockEntity()).forceAddItem(surplus, autocrafterDir);
                 }
             }
 
@@ -979,7 +981,7 @@ public class CraftingModule implements Module, TickingModule, RoutingModule, Dis
                     stack.copyWithCount((int) toSend),
                     fromDirection.getOpposite(), LogisticsPipe.CONFIG.ITEM_MIN_SPEED, entryRequester);
             if (entryDeliveryId != null) routed.setDeliveryId(entryDeliveryId);
-            ctx.blockEntity().forceAddItem(routed, fromDirection);
+            ((PipeBlockEntity) ctx.blockEntity()).forceAddItem(routed, fromDirection);
 
             available -= (int) toSend;
             if (toSend >= entryOrdered) {
@@ -1013,7 +1015,7 @@ public class CraftingModule implements Module, TickingModule, RoutingModule, Dis
                     stack.copyWithCount(available),
                     fromDirection.getOpposite(),
                     LogisticsPipe.CONFIG.ITEM_MIN_SPEED);
-            ctx.blockEntity().forceAddItem(surplusItem, fromDirection);
+            ((PipeBlockEntity) ctx.blockEntity()).forceAddItem(surplusItem, fromDirection);
         }
 
         return true;
@@ -1077,7 +1079,7 @@ public class CraftingModule implements Module, TickingModule, RoutingModule, Dis
 
         serverPlayer.openMenu(new SimpleMenuProvider(
                 (syncId, playerInventory, p) ->
-                        new CraftingScreenHandler(syncId, playerInventory, ctx.blockEntity()),
+                        new CraftingScreenHandler(syncId, playerInventory, ((PipeBlockEntity) ctx.blockEntity())),
                 Component.translatable("screen.logistics.crafting")));
 
         return InteractionResult.SUCCESS;

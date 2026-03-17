@@ -1,4 +1,4 @@
-package com.logistics.pipe.network;
+package com.logistics.core.lib.network;
 
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.minecraft.core.BlockPos;
@@ -17,7 +17,7 @@ import java.util.UUID;
  * </ul>
  *
  * <p>Commands are value objects produced by the network domain layer and consumed by
- * {@link NetworkCommandExecutor}, which bridges them to the Minecraft world.
+ * {@code NetworkCommandExecutor}, which bridges them to the Minecraft world.
  * The domain layer remains Minecraft-free; all world interaction is in the executor.
  */
 public sealed interface NetworkCommand

@@ -1,9 +1,11 @@
 package com.logistics.pipe.modules;
 
 import com.logistics.LogisticsPipe;
+import com.logistics.core.lib.pipe.Module;
+import com.logistics.core.lib.pipe.TickingModule;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.core.lib.storage.NbtCompat;
-import com.logistics.pipe.PipeContext;
+import com.logistics.core.lib.pipe.PipeContext;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.pipe.runtime.TravelingItem;
 import java.util.List;
@@ -183,7 +185,7 @@ public class ExtractionModule implements Module, TickingModule {
         }
 
         // Check if pipe has space for the full extraction
-        int totalItems = ctx.blockEntity().getTravelingItems().stream()
+        int totalItems = ((PipeBlockEntity) ctx.blockEntity()).getTravelingItems().stream()
                 .mapToInt(item -> item.getStack().getCount())
                 .sum();
         int remaining = PipeBlockEntity.VIRTUAL_CAPACITY - totalItems;
@@ -209,7 +211,7 @@ public class ExtractionModule implements Module, TickingModule {
                 if (extracted > 0) {
                     ItemStack stack = variant.toStack((int) extracted);
                     TravelingItem item = new TravelingItem(stack, direction.getOpposite(), LogisticsPipe.CONFIG.ITEM_MIN_SPEED);
-                    ctx.blockEntity().forceAddItem(item, direction);
+                    ((PipeBlockEntity) ctx.blockEntity()).forceAddItem(item, direction);
                     transaction.commit();
                     return true;
                 }

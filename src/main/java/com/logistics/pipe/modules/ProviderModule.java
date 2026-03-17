@@ -1,12 +1,16 @@
 package com.logistics.pipe.modules;
 
+import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.LogisticsPipe;
-import com.logistics.pipe.network.ILogisticsNetwork;
+import com.logistics.core.lib.network.ILogisticsNetwork;
+import com.logistics.core.lib.pipe.DispatchableModule;
+import com.logistics.core.lib.pipe.Module;
+import com.logistics.core.lib.pipe.TickingModule;
 import com.logistics.pipe.network.NetDbg;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.core.lib.storage.FilterSlots;
 import com.logistics.core.lib.storage.NbtCompat;
-import com.logistics.pipe.PipeContext;
+import com.logistics.core.lib.pipe.PipeContext;
 import com.logistics.pipe.network.NetworkRegistry;
 import com.logistics.pipe.runtime.TravelingItem;
 import com.logistics.pipe.ui.ProviderScreenHandler;
@@ -273,7 +277,7 @@ public class ProviderModule implements Module, TickingModule, DispatchableModule
                 TravelingItem traveling = new TravelingItem(
                         stack, extractDir.getOpposite(), LogisticsPipe.CONFIG.ITEM_MIN_SPEED, head.requester());
                 traveling.setDeliveryId(head.deliveryId());
-                ctx.blockEntity().forceAddItem(traveling, extractDir);
+                ((PipeBlockEntity) ctx.blockEntity()).forceAddItem(traveling, extractDir);
                 queue.consumeFromHead(extracted);
                 itemsLeft -= extracted;
                 stacksLeft -= 1;
@@ -365,7 +369,7 @@ public class ProviderModule implements Module, TickingModule, DispatchableModule
 
         serverPlayer.openMenu(new SimpleMenuProvider(
                 (syncId, playerInventory, p) -> new ProviderScreenHandler(
-                        syncId, playerInventory, ctx.blockEntity()),
+                        syncId, playerInventory, ((PipeBlockEntity) ctx.blockEntity())),
                 Component.translatable("screen.logistics.provider")));
 
         return InteractionResult.SUCCESS;

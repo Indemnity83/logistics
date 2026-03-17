@@ -1,9 +1,11 @@
 package com.logistics.pipe.modules;
 
 import com.logistics.LogisticsPipe;
-import com.logistics.pipe.PipeContext;
+import com.logistics.core.lib.pipe.Module;
+import com.logistics.core.lib.pipe.PipeContext;
+import com.logistics.core.lib.pipe.TickingModule;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
-import com.logistics.pipe.network.ILogisticsNetwork;
+import com.logistics.core.lib.network.ILogisticsNetwork;
 import com.logistics.pipe.network.NetworkRegistry;
 import com.logistics.pipe.runtime.TravelingItem;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
@@ -119,7 +121,7 @@ public class QuickSortModule implements Module, TickingModule {
         }
 
         // Check pipe has room for the extracted items
-        int occupied = ctx.blockEntity().getTravelingItems().stream()
+        int occupied = ((PipeBlockEntity) ctx.blockEntity()).getTravelingItems().stream()
                 .mapToInt(ti -> ti.getStack().getCount())
                 .sum();
         if (PipeBlockEntity.VIRTUAL_CAPACITY - occupied < stackSize) return;
@@ -132,7 +134,7 @@ public class QuickSortModule implements Module, TickingModule {
                 TravelingItem travelingItem = new TravelingItem(
                         extractedStack, inventoryDir.getOpposite(),
                         LogisticsPipe.CONFIG.ITEM_MIN_SPEED, destination);
-                ctx.blockEntity().forceAddItem(travelingItem, inventoryDir);
+                ((PipeBlockEntity) ctx.blockEntity()).forceAddItem(travelingItem, inventoryDir);
                 tx.commit();
                 // Success: clear stall, record last successful slot
                 ctx.saveInt(this, STALLED, 0);

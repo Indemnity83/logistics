@@ -1,6 +1,7 @@
 package com.logistics.pipe.network.packet;
 
 import com.logistics.LogisticsPipe;
+import com.logistics.core.lib.pipe.Module;
 import com.logistics.pipe.ChassisPipe;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.pipe.item.ModuleItem;
@@ -20,7 +21,7 @@ import net.minecraft.world.item.ItemStack;
  * Sent client→server when the player clicks a chassis slot's "!" button.
  * The server looks up the player's currently-open {@link ChassisScreenHandler},
  * reads the module item from the requested slot, and calls its
- * {@link com.logistics.pipe.modules.Module#onWrench} to open its config screen.
+ * {@link Module#onWrench} to open its config screen.
  */
 public record OpenChassisSlotPacket(int slotIndex) implements CustomPacketPayload {
     public static final Type<OpenChassisSlotPacket> TYPE =

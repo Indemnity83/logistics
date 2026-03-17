@@ -1,9 +1,10 @@
 package com.logistics.pipe.modules;
 
 import com.logistics.LogisticsPipe;
+import com.logistics.core.lib.pipe.Module;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.core.lib.storage.NbtCompat;
-import com.logistics.pipe.PipeContext;
+import com.logistics.core.lib.pipe.PipeContext;
 import com.logistics.pipe.runtime.RoutePlan;
 import java.util.List;
 import net.minecraft.core.Direction;

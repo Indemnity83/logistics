@@ -1,11 +1,11 @@
 package com.logistics.pipe.modules;
 
-import com.logistics.pipe.PipeContext;
+import com.logistics.core.lib.pipe.Module;
+import com.logistics.core.lib.pipe.PipeContext;
 import com.logistics.pipe.runtime.RoutePlan;
 import com.logistics.pipe.runtime.TravelingItem;
-import net.minecraft.core.Direction;
-
 import java.util.List;
+import net.minecraft.core.Direction;
 
 /**
  * Role interface for modules that participate in routing decisions.

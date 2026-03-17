@@ -7,7 +7,7 @@ import com.logistics.pipe.network.NetworkRegistry;
 import com.logistics.core.lib.pipe.PipeConnectionRegistry;
 import com.logistics.core.lib.support.ProbeResult;
 import com.logistics.pipe.Pipe;
-import com.logistics.pipe.PipeContext;
+import com.logistics.core.lib.pipe.PipeContext;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.LogisticsPipe;
 import com.logistics.pipe.runtime.TravelingItem;
