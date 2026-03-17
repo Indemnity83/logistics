@@ -5,18 +5,16 @@ import com.logistics.pipe.network.NetDbg;
 import com.logistics.pipe.network.ILogisticsNetwork;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.core.lib.storage.DirectionSerializer;
-import com.logistics.core.lib.storage.NbtCompat;
+import com.logistics.core.lib.storage.FilterSlots;
 import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.pipe.network.NetworkRegistry;
-import net.minecraft.world.item.Item;
 import com.logistics.pipe.runtime.RoutePlan;
 import com.logistics.pipe.runtime.TravelingItem;
 import com.logistics.pipe.ui.SinkScreenHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -68,7 +66,7 @@ public class SinkModule implements Module, TickingModule, RoutingModule, ItemAcc
             network.registerSink(ctx.pos(), priority);
             // Rebuild specific-item interests from current filter slots
             network.unregisterSinkInterests(ctx.pos());
-            for (String itemId : getFilters(ctx)) {
+            for (String itemId : getFilters(ctx).asList()) {
                 if (itemId.isEmpty()) continue;
                 ResourceId rid = ResourceId.tryParse(itemId);
                 if (rid == null) continue;
@@ -188,53 +186,24 @@ public class SinkModule implements Module, TickingModule, RoutingModule, ItemAcc
      * @return true if the item matches any filter slot
      */
     public boolean matchesFilter(PipeContext ctx, ItemStack stack) {
-        CompoundTag filters = ctx.getCompoundTag(this, FILTERS);
-
-        for (int i = 0; i < MAX_FILTER_SLOTS; i++) {
-            String key = String.valueOf(i);
-            if (!filters.contains(key)) {
-                continue;
-            }
-
-            String itemId = NbtCompat.getString(filters, key, "");
-            if (itemId.isEmpty()) {
-                continue;
-            }
-
+        for (String itemId : getFilters(ctx).asList()) {
+            if (itemId.isEmpty()) continue;
             ResourceId resourceId = ResourceId.tryParse(itemId);
-            if (resourceId == null) {
-                continue;
-            }
-
+            if (resourceId == null) continue;
             var itemHolder = BuiltInRegistries.ITEM.get(resourceId.toIdentifier());
-            if (itemHolder.isEmpty()) {
-                continue;
-            }
-
-            Item filterItem = itemHolder.get().value();
-            if (stack.getItem() == filterItem) {
-                return true;
-            }
+            if (itemHolder.isEmpty()) continue;
+            if (stack.getItem() == itemHolder.get().value()) return true;
         }
-
         return false;
     }
 
     /**
-     * Get all configured filter items.
+     * Get all configured filter slots (including empty slots).
      * @param ctx Pipe context
-     * @return Array of filter item IDs (empty strings for unused slots)
+     * @return FilterSlots with one entry per slot; empty slots hold {@code ""}
      */
-    public String[] getFilters(PipeContext ctx) {
-        CompoundTag filters = ctx.getCompoundTag(this, FILTERS);
-        String[] result = new String[MAX_FILTER_SLOTS];
-
-        for (int i = 0; i < MAX_FILTER_SLOTS; i++) {
-            String key = String.valueOf(i);
-            result[i] = NbtCompat.getString(filters, key, "");
-        }
-
-        return result;
+    public FilterSlots getFilters(PipeContext ctx) {
+        return FilterSlots.load(ctx.getCompoundTag(this, FILTERS), MAX_FILTER_SLOTS);
     }
 
     /**
@@ -247,21 +216,12 @@ public class SinkModule implements Module, TickingModule, RoutingModule, ItemAcc
         if (slotIndex < 0 || slotIndex >= MAX_FILTER_SLOTS) {
             throw new IllegalArgumentException("Slot must be 0-" + (MAX_FILTER_SLOTS - 1));
         }
-
-        CompoundTag filters = ctx.getCompoundTag(this, FILTERS);
-
-        if (itemId.isEmpty()) {
-            filters.remove(String.valueOf(slotIndex));
-        } else {
-            filters.putString(String.valueOf(slotIndex), itemId);
-        }
-
-        if (!filters.isEmpty()) {
-            ctx.putCompoundTag(this, FILTERS, filters);
-        } else {
+        FilterSlots updated = getFilters(ctx).with(slotIndex, itemId);
+        if (updated.isEmpty()) {
             ctx.remove(this, FILTERS);
+        } else {
+            ctx.putCompoundTag(this, FILTERS, updated.toTag());
         }
-
         ctx.markDirtyAndSync();
     }
 
