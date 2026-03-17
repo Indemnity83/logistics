@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
  *
  * <p>Energy: TODO (Phase 11): 5 RF per request cycle
  */
-public class RequesterModule implements Module {
+public class RequesterModule implements Module, TickingModule {
     private static final String REQUESTS = "requests";
     private static final String REQUESTER_DIRECTION = "requester_direction";
     private static final String TICKS_SINCE_REQUEST = "ticks_since_request";
@@ -52,10 +52,6 @@ public class RequesterModule implements Module {
 
     @Override
     public void onTick(PipeContext ctx) {
-        if (ctx.world().isClientSide()) {
-            return;
-        }
-
         int ticks = ctx.getInt(this, TICKS_SINCE_REQUEST, 0);
         ticks++;
         ctx.saveInt(this, TICKS_SINCE_REQUEST, ticks);

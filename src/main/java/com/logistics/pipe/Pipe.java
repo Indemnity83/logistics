@@ -6,7 +6,11 @@ import com.logistics.core.lib.block.capability.PipeConnection;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.pipe.block.PipeBlock;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
+import com.logistics.pipe.modules.DispatchableModule;
 import com.logistics.pipe.modules.Module;
+import com.logistics.pipe.modules.RandomTickModule;
+import com.logistics.pipe.modules.RoutingModule;
+import com.logistics.pipe.modules.TickingModule;
 import com.logistics.pipe.runtime.RoutePlan;
 import com.logistics.pipe.runtime.TravelingItem;
 import java.util.ArrayList;
@@ -14,11 +18,11 @@ import java.util.List;
 import java.util.UUID;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
@@ -72,7 +76,7 @@ public class Pipe {
      * Delegates to modules first to allow state-dependent overrides (e.g., powered gold pipe).
      */
     public ResourceId getCoreModelId(PipeContext ctx) {
-        for (Module module : modules) {
+        for (Module module : getModules(ctx)) {
             ResourceId override = module.getCoreModel(ctx);
             if (override != null) {
                 return override;
@@ -86,7 +90,7 @@ public class Pipe {
      */
     public List<CoreDecoration> getCoreDecorations(PipeContext ctx) {
         List<CoreDecoration> models = new ArrayList<>();
-        for (Module module : modules) {
+        for (Module module : getModules(ctx)) {
             models.addAll(module.getCoreDecorations(ctx));
         }
         return models;
@@ -103,7 +107,7 @@ public class Pipe {
      * @return the arm model identifier
      */
     public ResourceId getPipeArm(PipeContext ctx, Direction direction) {
-        for (Module module : modules) {
+        for (Module module : getModules(ctx)) {
             ResourceId override = module.getPipeArm(ctx, direction);
             if (override != null) {
                 return override;
@@ -125,7 +129,7 @@ public class Pipe {
      */
     public List<ResourceId> getPipeDecorations(PipeContext ctx, Direction direction) {
         List<ResourceId> models = new ArrayList<>();
-        for (Module module : modules) {
+        for (Module module : getModules(ctx)) {
             models.addAll(module.getPipeDecorations(ctx, direction));
         }
         return models;
@@ -140,7 +144,7 @@ public class Pipe {
      * @return the tint color (0xRRGGBB), or null for no tint (white)
      */
     @Nullable public Integer getArmTint(PipeContext ctx, Direction direction) {
-        for (Module module : modules) {
+        for (Module module : getModules(ctx)) {
             Integer tint = module.getArmTint(ctx, direction);
             if (tint != null) {
                 return tint;
@@ -151,7 +155,7 @@ public class Pipe {
 
     public boolean hasRandomTicks() {
         for (Module module : modules) {
-            if (module.hasRandomTicks()) {
+            if (module instanceof RandomTickModule) {
                 return true;
             }
         }
@@ -159,8 +163,10 @@ public class Pipe {
     }
 
     public void randomTick(PipeContext ctx, RandomSource random) {
-        for (Module module : modules) {
-            module.randomTick(ctx, random);
+        for (Module module : getModules(ctx)) {
+            if (module instanceof RandomTickModule randomTick) {
+                randomTick.randomTick(ctx, random);
+            }
         }
     }
 
@@ -171,13 +177,13 @@ public class Pipe {
      * Also adds custom model data component if any module provides model data strings.
      */
     public void addItemComponents(DataComponentMap.Builder builder, PipeContext ctx) {
-        for (Module module : modules) {
+        for (Module module : getModules(ctx)) {
             module.addItemComponents(builder, ctx);
         }
 
         // Aggregate custom model data integer from all modules (MC 1.21.1 uses int-based CMD)
         int modelValue = 0;
-        for (Module module : modules) {
+        for (Module module : getModules(ctx)) {
             int v = module.getCustomModelDataValue(ctx);
             if (v != 0) {
                 modelValue = v;
@@ -197,7 +203,7 @@ public class Pipe {
      * In MC 1.21.1 it is {@code BlockEntity.DataComponentInput}.
      */
     public void readItemComponents(Object components, PipeContext ctx) {
-        for (Module module : modules) {
+        for (Module module : getModules(ctx)) {
             module.readItemComponents(components, ctx);
         }
     }
@@ -206,7 +212,7 @@ public class Pipe {
      * Get the item name suffix from the first module that provides one.
      */
     public String getItemNameSuffix(PipeContext ctx) {
-        for (Module module : modules) {
+        for (Module module : getModules(ctx)) {
             String suffix = module.getItemNameSuffix(ctx);
             if (!suffix.isEmpty()) {
                 return suffix;
@@ -269,8 +275,24 @@ public class Pipe {
         return getModule(moduleClass);
     }
 
+    /**
+     * Returns all modules for this pipe. For chassis pipes, includes dynamically-installed modules.
+     * Used when iterating all modules (e.g., to find all ItemAcceptingModules).
+     */
+    public List<Module> getModules(PipeBlockEntity entity) {
+        return modules;
+    }
+
+    /**
+     * Returns all modules for this pipe using the context's block entity.
+     * Dispatches polymorphically so chassis pipe overrides are respected in all base-class methods.
+     */
+    private List<Module> getModules(PipeContext ctx) {
+        return getModules(ctx.blockEntity());
+    }
+
     public float getAccelerationRate(PipeContext ctx) {
-        for (Module module : modules) {
+        for (Module module : getModules(ctx)) {
             float accel = module.getAcceleration(ctx);
             if (accel > 0f) {
                 return accel;
@@ -280,7 +302,7 @@ public class Pipe {
     }
 
     public float getDrag(PipeContext ctx) {
-        for (Module module : modules) {
+        for (Module module : getModules(ctx)) {
             float drag = module.getDrag(ctx);
             if (drag > 0f) {
                 return drag;
@@ -290,7 +312,7 @@ public class Pipe {
     }
 
     public float getMaxSpeed(PipeContext ctx) {
-        for (Module module : modules) {
+        for (Module module : getModules(ctx)) {
             float max = module.getMaxSpeed(ctx);
             if (max > 0f) {
                 return max;
@@ -300,10 +322,12 @@ public class Pipe {
     }
 
     public RoutePlan route(PipeContext ctx, TravelingItem item, List<Direction> options) {
-        for (Module module : modules) {
-            RoutePlan plan = module.route(ctx, item, options);
-            if (plan.getType() != RoutePlan.Type.PASS) {
-                return plan;
+        for (Module module : getModules(ctx)) {
+            if (module instanceof RoutingModule router) {
+                RoutePlan plan = router.route(ctx, item, options);
+                if (plan.getType() != RoutePlan.Type.PASS) {
+                    return plan;
+                }
             }
         }
 
@@ -318,7 +342,7 @@ public class Pipe {
     @Nullable
     public TravelingItem handleTransfer(PipeContext ctx, TravelingItem item, Direction direction) {
         TravelingItem current = item;
-        for (Module module : modules) {
+        for (Module module : getModules(ctx)) {
             current = module.onTransferToStorage(ctx, current, direction);
             if (current == null) return null;
         }
@@ -331,7 +355,7 @@ public class Pipe {
      * returns true (handled).
      */
     public boolean onExternalInsert(PipeContext ctx, net.minecraft.world.item.ItemStack stack, Direction from) {
-        for (Module module : modules) {
+        for (Module module : getModules(ctx)) {
             if (module.onExternalInsert(ctx, stack, from)) return true;
         }
         return false;
@@ -343,7 +367,7 @@ public class Pipe {
         if (!ctx.isNeighborPipe(from)) {
             // Allow non-pipe insertion if any module explicitly permits it
             boolean allowed = false;
-            for (Module module : modules) {
+            for (Module module : getModules(ctx)) {
                 if (module.canAcceptFromNonPipe(ctx, from)) {
                     allowed = true;
                     break;
@@ -353,7 +377,7 @@ public class Pipe {
         }
 
         // Check all modules for additional acceptance criteria
-        for (Module module : modules) {
+        for (Module module : getModules(ctx)) {
             if (!module.canAcceptFrom(ctx, from, stack)) {
                 return false;
             }
@@ -362,7 +386,7 @@ public class Pipe {
     }
 
     public InteractionResult onUseWithItem(PipeContext ctx, net.minecraft.world.item.context.UseOnContext usage) {
-        for (Module module : modules) {
+        for (Module module : getModules(ctx)) {
             InteractionResult result = module.onUseWithItem(ctx, usage);
             if (result != InteractionResult.PASS) {
                 return result;
@@ -372,7 +396,7 @@ public class Pipe {
     }
 
     public InteractionResult onUseWithoutItem(PipeContext ctx, net.minecraft.world.item.context.UseOnContext usage) {
-        for (Module module : modules) {
+        for (Module module : getModules(ctx)) {
             InteractionResult result = module.onUseWithoutItem(ctx, usage);
             if (result != InteractionResult.PASS) {
                 return result;
@@ -382,7 +406,7 @@ public class Pipe {
     }
 
     public InteractionResult onWrench(PipeContext ctx, Player player) {
-        for (Module module : modules) {
+        for (Module module : getModules(ctx)) {
             InteractionResult result = module.onWrench(ctx, player);
             if (result != InteractionResult.PASS) {
                 return result;
@@ -392,14 +416,17 @@ public class Pipe {
     }
 
     public void onConnectionsChanged(PipeContext ctx, List<Direction> connected) {
-        for (Module module : modules) {
+        for (Module module : getModules(ctx)) {
             module.onConnectionsChanged(ctx, connected);
         }
     }
 
     public void onTick(PipeContext ctx) {
-        for (Module module : modules) {
-            module.onTick(ctx);
+        if (ctx.world().isClientSide()) return;
+        for (Module module : getModules(ctx)) {
+            if (module instanceof TickingModule ticking) {
+                ticking.onTick(ctx);
+            }
         }
     }
 
@@ -414,14 +441,14 @@ public class Pipe {
 
     public int getComparatorOutput(PipeContext ctx) {
         int output = 0;
-        for (Module module : modules) {
+        for (Module module : getModules(ctx)) {
             output = Math.max(output, module.comparatorOutput(ctx));
         }
         return output;
     }
 
     public void randomDisplayTick(PipeContext ctx, RandomSource random) {
-        for (Module module : modules) {
+        for (Module module : getModules(ctx)) {
             module.randomDisplayTick(ctx, random);
         }
     }
@@ -431,7 +458,7 @@ public class Pipe {
         if (candidate == PipeConnection.Type.NONE) {
             return PipeConnection.Type.NONE;
         }
-        for (Module module : modules) {
+        for (Module module : (ctx != null ? getModules(ctx) : modules)) {
             if (!module.allowsConnection(ctx, direction, this, neighborBlock)) {
                 return PipeConnection.Type.NONE;
             }
@@ -447,9 +474,12 @@ public class Pipe {
      *         or 0 if no module could fulfill
      */
     public long dispatch(PipeContext ctx, BlockPos requester, ItemVariant item, long amount, UUID deliveryId) {
-        for (Module module : modules) {
-            long dispatched = module.onDispatch(ctx, requester, item, amount, deliveryId);
-            if (dispatched != 0) return dispatched; // propagate both success (>0) and deferred (<0)
+        if (ctx.world().isClientSide()) return 0;
+        for (Module module : getModules(ctx)) {
+            if (module instanceof DispatchableModule dispatchable) {
+                long dispatched = dispatchable.onDispatch(ctx, requester, item, amount, deliveryId);
+                if (dispatched != 0) return dispatched; // propagate both success (>0) and deferred (<0)
+            }
         }
         return 0;
     }
@@ -461,7 +491,7 @@ public class Pipe {
             return false;
         }
         // Delegate to modules for additional logic
-        for (Module module : modules) {
+        for (Module module : getModules(ctx)) {
             if (module.acceptsLowTierEnergyFrom(ctx, from)) {
                 return true;
             }

@@ -56,7 +56,7 @@ import java.util.UUID;
  *   <li>SAMPLE - Leave 1 item of each type</li>
  * </ul>
  */
-public class ProviderModule implements Module {
+public class ProviderModule implements Module, TickingModule, DispatchableModule {
     private static final String TICKS_SINCE_SCAN = "ticks_since_scan";
     public static final String MODE = "mode";
     public static final String FILTER_ITEMS = "filter_items";
@@ -185,8 +185,6 @@ public class ProviderModule implements Module {
 
     @Override
     public void onTick(PipeContext ctx) {
-        if (ctx.world().isClientSide()) return;
-
         int ticks = ctx.getInt(this, TICKS_SINCE_SCAN, 0) + 1;
         ctx.saveInt(this, TICKS_SINCE_SCAN, ticks);
 
@@ -206,7 +204,6 @@ public class ProviderModule implements Module {
      */
     @Override
     public long onDispatch(PipeContext ctx, BlockPos requester, ItemVariant item, long amount, UUID deliveryId) {
-        if (ctx.world().isClientSide()) return 0;
         if (isFilteredOut(ctx, item.toStack())) return 0;
         if (ctx.getInventoryConnections().isEmpty()) return 0;
 

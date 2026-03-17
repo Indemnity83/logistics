@@ -14,7 +14,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 
-public class InsertionModule implements Module {
+public class InsertionModule implements Module, RoutingModule {
     @Override
     public RoutePlan route(PipeContext ctx, TravelingItem item, List<Direction> options) {
         if (options == null || options.isEmpty()) {

@@ -20,7 +20,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
-public class ExtractionModule implements Module {
+public class ExtractionModule implements Module, TickingModule {
     private static final String EXTRACT_FROM = "extract_direction"; // NBT key for save compatibility
     private static final String TICKS_SINCE_PULL = "ticks_since_pull";
     private static final int RF_PER_ITEM = 10;
@@ -28,11 +28,6 @@ public class ExtractionModule implements Module {
 
     @Override
     public void onTick(PipeContext ctx) {
-        Module.super.onTick(ctx);
-        if (ctx.world().isClientSide()) {
-            return;
-        }
-
         // Increment tick counter
         int ticks = ctx.getInt(this, TICKS_SINCE_PULL, 0);
         ticks++;

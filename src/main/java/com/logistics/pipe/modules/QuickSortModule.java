@@ -29,7 +29,7 @@ import java.util.List;
  * <p>Timing: 6-tick normal cycle, 24-tick stall cycle.
  * Stalls when no routable item is found after a full scan.
  */
-public class QuickSortModule implements Module {
+public class QuickSortModule implements Module, TickingModule {
     private static final String TICKS_SINCE_ACTION = "ticks_since_action";
     private static final String LAST_SLOT_SCANNED = "last_slot_scanned";
     private static final String LAST_SUCCESS_SLOT = "last_success_slot";
@@ -40,8 +40,6 @@ public class QuickSortModule implements Module {
 
     @Override
     public void onTick(PipeContext ctx) {
-        if (ctx.world().isClientSide()) return;
-
         boolean stalled = ctx.getInt(this, STALLED, 0) == 1;
         int delay = stalled ? STALL_DELAY : NORMAL_DELAY;
 

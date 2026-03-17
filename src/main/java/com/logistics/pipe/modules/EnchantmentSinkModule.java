@@ -20,7 +20,7 @@ import java.util.List;
  * Accepts items with applied enchantments ({@link DataComponents#ENCHANTMENTS}) as well as
  * enchanted books ({@link DataComponents#STORED_ENCHANTMENTS}). No configuration needed.
  */
-public class EnchantmentSinkModule implements Module {
+public class EnchantmentSinkModule implements Module, RoutingModule, ItemAcceptingModule {
     private static final String SINK_DIRECTION = "sink_direction";
     private final int priority;
 
@@ -78,6 +78,11 @@ public class EnchantmentSinkModule implements Module {
         if (getSinkDirection(ctx) != direction) return null;
         String suffix = ctx.isInventoryConnection(direction) ? "_arm_extended" : "_arm";
         return LogisticsPipe.model("basic_logistics_pipe" + suffix);
+    }
+
+    @Override
+    public boolean acceptsItem(PipeContext ctx, ItemStack stack) {
+        return matchesItem(stack); // ctx unused — accept decision is purely item-based, no per-instance config
     }
 
     public boolean matchesItem(ItemStack stack) {

@@ -38,7 +38,7 @@ import java.util.List;
  *
  * <p>This is the Basic Logistics Pipe from LogisticsPipes - pulls items out of the network.
  */
-public class SinkModule implements Module {
+public class SinkModule implements Module, TickingModule, RoutingModule, ItemAcceptingModule {
     public static final String FILTERS = "filters";
     public static final String DEFAULT_ROUTE = "default_route";
     private static final String SINK_DIRECTION = "sink_direction";
@@ -54,10 +54,6 @@ public class SinkModule implements Module {
 
     @Override
     public void onTick(PipeContext ctx) {
-        if (ctx.world().isClientSide()) {
-            return;
-        }
-
         int ticks = ctx.getInt(this, TICKS_SINCE_SYNC, 0) + 1;
         if (ticks < SYNC_INTERVAL) {
             ctx.saveInt(this, TICKS_SINCE_SYNC, ticks);
@@ -275,6 +271,11 @@ public class SinkModule implements Module {
      */
     public boolean isDefaultRoute(PipeContext ctx) {
         return ctx.getInt(this, DEFAULT_ROUTE, 0) == 1;
+    }
+
+    @Override
+    public boolean acceptsItem(PipeContext ctx, ItemStack stack) {
+        return matchesFilter(ctx, stack) || isDefaultRoute(ctx);
     }
 
     /**

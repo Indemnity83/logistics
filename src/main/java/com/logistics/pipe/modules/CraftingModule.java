@@ -59,7 +59,7 @@ import java.util.UUID;
  * ingredient orders for all queued entries are placed immediately so materials arrive in
  * parallel rather than serially.
  */
-public class CraftingModule implements Module {
+public class CraftingModule implements Module, TickingModule, RoutingModule, DispatchableModule {
     /** Max items to craft per 6-tick cycle (one tier step above = larger batches). */
     private final int itemLimit;
     /** Max output stacks to dispatch per cycle (future use; stored for tier identity). */
@@ -282,8 +282,6 @@ public class CraftingModule implements Module {
 
     @Override
     public void onTick(PipeContext ctx) {
-        if (ctx.world().isClientSide()) return;
-
         // Periodic: update crafter supply table
         int scanTicks = ctx.getInt(this, TICKS_SCAN, 0) + 1;
         ctx.saveInt(this, TICKS_SCAN, scanTicks);
@@ -435,8 +433,6 @@ public class CraftingModule implements Module {
     @Override
     public long onDispatch(
             PipeContext ctx, BlockPos requester, ItemVariant item, long amount, UUID deliveryId) {
-        if (ctx.world().isClientSide()) return 0;
-
         String resultId = getResultItem(ctx);
         if (resultId.isEmpty()) return 0;
         Direction autocrafterDir = findAutocrafterDirection(ctx);

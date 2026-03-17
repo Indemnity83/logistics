@@ -23,6 +23,11 @@ import net.minecraft.world.level.block.Block;
 import org.jetbrains.annotations.Nullable;
 
 public interface Module {
+    /**
+     * @deprecated Implement {@link TickingModule} instead. The pipe dispatcher only calls
+     *     {@code onTick} on modules that implement {@link TickingModule}.
+     */
+    @Deprecated
     default void onTick(PipeContext ctx) {}
 
     default float getAcceleration(PipeContext ctx) {
@@ -37,6 +42,11 @@ public interface Module {
         return LogisticsPipe.CONFIG.PIPE_MAX_SPEED;
     }
 
+    /**
+     * @deprecated Implement {@link RoutingModule} instead. The pipe dispatcher only calls
+     *     {@code route} on modules that implement {@link RoutingModule}.
+     */
+    @Deprecated
     default RoutePlan route(PipeContext ctx, TravelingItem item, List<Direction> options) {
         return RoutePlan.pass();
     }
@@ -216,13 +226,19 @@ public interface Module {
     }
 
     /**
-     * Return true if this module needs random ticks.
-     * Modules that override randomTick() should also override this to return true.
+     * @deprecated Implement {@link RandomTickModule} instead. {@code hasRandomTicks()} is no
+     *     longer consulted by the pipe dispatcher — implement {@link RandomTickModule} to opt in.
      */
+    @Deprecated
     default boolean hasRandomTicks() {
         return false;
     }
 
+    /**
+     * @deprecated Implement {@link RandomTickModule} instead. The pipe dispatcher only calls
+     *     {@code randomTick} on modules that implement {@link RandomTickModule}.
+     */
+    @Deprecated
     default void randomTick(PipeContext ctx, RandomSource random) {}
 
     /**
@@ -307,20 +323,10 @@ public interface Module {
     default void appendCreativeMenuVariants(List<ItemStack> stacks, ItemStack baseStack) {}
 
     /**
-     * Called by the network when it wants this module to dispatch items to a requester.
-     * The module must extract items, update the network supply, create a TravelingItem,
-     * and return the actual amount dispatched (0 if nothing could be sent).
-     *
-     * <p>This is called synchronously from the network tick. The module should commit
-     * the extraction transaction and inject the TravelingItem into the pipe before returning.
-     *
-     * @param ctx        the pipe context
-     * @param requester  position the items should be routed to
-     * @param item       item variant to extract
-     * @param amount     requested amount
-     * @param deliveryId UUID to attach to the TravelingItem for delivery accounting
-     * @return actual amount dispatched (0 if module could not fulfill)
+     * @deprecated Implement {@link DispatchableModule} instead. The pipe dispatcher only calls
+     *     {@code onDispatch} on modules that implement {@link DispatchableModule}.
      */
+    @Deprecated
     default long onDispatch(PipeContext ctx, BlockPos requester, ItemVariant item, long amount, UUID deliveryId) {
         return 0;
     }

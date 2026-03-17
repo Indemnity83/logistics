@@ -24,7 +24,7 @@ import java.util.List;
  * <p>Unlike {@link SupplierModule}, this module never places orders; it only intercepts
  * in-transit items passively. Configuration and GUI are identical to the Supplier module.
  */
-public class PassiveSupplierModule extends SupplierModule {
+public class PassiveSupplierModule extends SupplierModule implements ItemAcceptingModule {
     private final int priority;
     private static final String TICKS_SINCE_SYNC = "ticks_since_sync";
 
@@ -36,7 +36,6 @@ public class PassiveSupplierModule extends SupplierModule {
     /** No active requesting — passive only, but periodically re-syncs sink interests. */
     @Override
     public void onTick(PipeContext ctx) {
-        if (ctx.world().isClientSide()) return;
         int ticks = ctx.getInt(this, TICKS_SINCE_SYNC, 0) + 1;
         if (ticks < SYNC_INTERVAL) {
             ctx.saveInt(this, TICKS_SINCE_SYNC, ticks);
@@ -116,6 +115,11 @@ public class PassiveSupplierModule extends SupplierModule {
 
         // Items already addressed to this pipe still get delivered
         return super.route(ctx, item, options);
+    }
+
+    @Override
+    public boolean acceptsItem(PipeContext ctx, ItemStack stack) {
+        return matchesItem(ctx, stack);
     }
 
     private long scanInventory(PipeContext ctx, Direction direction, ItemStack target) {

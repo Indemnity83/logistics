@@ -30,7 +30,7 @@ import org.jetbrains.annotations.Nullable;
  * Waxing with honeycomb prevents further oxidation.
  * Scraping with an axe removes wax or reverses oxidation by one stage.
  */
-public class WeatheringModule implements Module {
+public class WeatheringModule implements Module, RandomTickModule {
     private static final String OXIDATION_KEY = "oxidation_stage";
     private static final String WAXED_KEY = "waxed";
 
@@ -56,11 +56,6 @@ public class WeatheringModule implements Module {
 
     public boolean isWaxed(PipeContext ctx) {
         return ctx.getInt(this, WAXED_KEY, 0) == 1;
-    }
-
-    @Override
-    public boolean hasRandomTicks() {
-        return true;
     }
 
     @Override
