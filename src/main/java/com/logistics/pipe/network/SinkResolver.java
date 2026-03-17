@@ -2,7 +2,6 @@ package com.logistics.pipe.network;
 
 import com.logistics.core.lib.network.INetworkGraph;
 import com.logistics.core.lib.network.IWorldView;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -48,9 +47,7 @@ class SinkResolver {
     }
 
     void unregisterSink(BlockPos pos) {
-        sinkRegistry.remove(pos);
-        specificInterests.values().forEach(set -> set.remove(pos));
-        genericInterests.remove(pos);
+        clearSinkState(pos);
     }
 
     void registerSinkInterest(BlockPos pos, Item item) {
@@ -58,7 +55,10 @@ class SinkResolver {
     }
 
     void unregisterSinkInterests(BlockPos pos) {
-        specificInterests.values().forEach(set -> set.remove(pos));
+        specificInterests.values().removeIf(set -> {
+            set.remove(pos);
+            return set.isEmpty();
+        });
     }
 
     void registerGenericSinkInterest(BlockPos pos) {
@@ -74,8 +74,19 @@ class SinkResolver {
      * (equivalent to unregisterSink + clearing interest indices in one call).
      */
     void remove(BlockPos pos) {
+        clearSinkState(pos);
+    }
+
+    /**
+     * Full cleanup: removes {@code pos} from the sink registry, all specific-interest
+     * buckets (pruning now-empty sets), and the generic-interest set.
+     */
+    private void clearSinkState(BlockPos pos) {
         sinkRegistry.remove(pos);
-        specificInterests.values().forEach(set -> set.remove(pos));
+        specificInterests.values().removeIf(set -> {
+            set.remove(pos);
+            return set.isEmpty();
+        });
         genericInterests.remove(pos);
     }
 
@@ -111,11 +122,12 @@ class SinkResolver {
     }
 
     /**
-     * Core resolution: build candidate set from interest indices, filter to registered/reachable
-     * sinks, sort by priority, then ask the world view which first accepts the item.
+     * Core resolution: build candidate set from interest indices, then single-pass
+     * select the highest-priority registered, reachable sink that the world view accepts.
      *
      * <p>Uses the interest-index strategy (OG LogisticsPipes) to skip pipes that declared no
      * interest in this item type, avoiding expensive inventory scans for every network member.
+     * Priority lookup reads the registry once per candidate; no sort is performed.
      *
      * @param stack        item to route
      * @param filteredOnly if true, skip priority-0 (catch-all) sinks
@@ -127,13 +139,19 @@ class SinkResolver {
         Set<BlockPos> specific = specificInterests.get(stack.getItem());
         if (specific != null) candidates.addAll(specific);
 
-        return candidates.stream()
-                .filter(pos -> sinkRegistry.containsKey(pos) && graph.contains(pos))
-                .filter(pos -> !filteredOnly || sinkRegistry.get(pos) > 0)
-                .sorted(Comparator.comparingInt(pos -> -sinkRegistry.getOrDefault(pos, 0)))
-                .filter(pos -> worldView.matchesSinkFilter(pos, stack))
-                .findFirst()
-                .orElse(null);
+        BlockPos best = null;
+        int bestPriority = Integer.MIN_VALUE;
+        for (BlockPos pos : candidates) {
+            Integer priority = sinkRegistry.get(pos);
+            if (priority == null || !graph.contains(pos)) continue;
+            if (filteredOnly && priority <= 0) continue;
+            if (priority <= bestPriority) continue;
+            if (worldView.matchesSinkFilter(pos, stack)) {
+                best = pos;
+                bestPriority = priority;
+            }
+        }
+        return best;
     }
 
     // -------------------------------------------------------------------------
