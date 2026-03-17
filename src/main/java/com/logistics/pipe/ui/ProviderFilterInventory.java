@@ -1,6 +1,7 @@
 package com.logistics.pipe.ui;
 
 import com.logistics.core.lib.resource.ResourceId;
+import com.logistics.core.lib.storage.FilterSlots;
 import com.logistics.core.lib.storage.NbtCompat;
 import com.logistics.pipe.Pipe;
 import com.logistics.pipe.PipeContext;
@@ -12,20 +13,16 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.Container;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
-
-import java.util.List;
 
 /**
  * Inventory for the Provider filter GUI.
  * Shows configured filter items (ghost items for whitelist/blacklist).
  */
 public class ProviderFilterInventory implements Container {
-    private static final int FILTER_SLOT_COUNT = 9;
     private final NonNullList<ItemStack> stacks =
-            NonNullList.withSize(FILTER_SLOT_COUNT, ItemStack.EMPTY);
+            NonNullList.withSize(ProviderModule.MAX_FILTER_SLOTS, ItemStack.EMPTY);
     private final PipeBlockEntity pipeEntity;
 
     public ProviderFilterInventory(PipeBlockEntity pipeEntity) {
@@ -95,7 +92,7 @@ public class ProviderFilterInventory implements Container {
      */
     private void loadFromModule() {
         // Clear slots
-        for (int i = 0; i < FILTER_SLOT_COUNT; i++) {
+        for (int i = 0; i < ProviderModule.MAX_FILTER_SLOTS; i++) {
             stacks.set(i, ItemStack.EMPTY);
         }
 
@@ -112,47 +109,34 @@ public class ProviderFilterInventory implements Container {
         }
 
         PipeContext ctx = pipeEntity.createContext();
-        List<String> filterItems = module.getFilterItems(ctx);
+        FilterSlots filterItems = module.getFilterItems(ctx);
 
-        int slotIndex = 0;
-        for (String itemId : filterItems) {
-            if (slotIndex >= FILTER_SLOT_COUNT) {
-                break;
-            }
-
-            com.logistics.core.lib.resource.ResourceId resourceId =
-                    com.logistics.core.lib.resource.ResourceId.tryParse(itemId);
-            if (resourceId == null) {
-                continue;
-            }
-
+        for (int i = 0; i < Math.min(filterItems.size(), stacks.size()); i++) {
+            String itemId = filterItems.get(i);
+            if (itemId.isEmpty()) continue;
+            ResourceId resourceId = ResourceId.tryParse(itemId);
+            if (resourceId == null) continue;
             // MC 1.21.1: get() returns Item directly, not Optional<Holder<Item>>
             Item item = BuiltInRegistries.ITEM.get(resourceId.toIdentifier());
-            if (item == null) {
-                continue;
-            }
-            ItemStack displayStack = new ItemStack(item);
-            displayStack.setCount(1);
-            stacks.set(slotIndex++, displayStack);
+            if (item == null) continue;
+            stacks.set(i, new ItemStack(item));
         }
     }
 
     public void loadFromItem(ItemStack stack) {
-        for (int i = 0; i < FILTER_SLOT_COUNT; i++) stacks.set(i, ItemStack.EMPTY);
+        for (int i = 0; i < ProviderModule.MAX_FILTER_SLOTS; i++) stacks.set(i, ItemStack.EMPTY);
         CustomData customData = stack.get(DataComponents.CUSTOM_DATA);
         if (customData == null) return;
         CompoundTag tag = customData.copyTag();
-        CompoundTag filterItems = NbtCompat.getCompoundOrEmpty(tag, ProviderModule.FILTER_ITEMS);
-        int displaySlot = 0;
-        for (int i = 0; i < FILTER_SLOT_COUNT && displaySlot < FILTER_SLOT_COUNT; i++) {
-            String itemId = NbtCompat.getString(filterItems, String.valueOf(i), "");
+        FilterSlots filterItems = FilterSlots.load(NbtCompat.getCompoundOrEmpty(tag, ProviderModule.FILTER_ITEMS), ProviderModule.MAX_FILTER_SLOTS);
+        for (int i = 0; i < Math.min(filterItems.size(), stacks.size()); i++) {
+            String itemId = filterItems.get(i);
             if (itemId.isEmpty()) continue;
             ResourceId rid = ResourceId.tryParse(itemId);
             if (rid == null) continue;
             var holder = BuiltInRegistries.ITEM.get(rid.toIdentifier());
             if (holder.isEmpty()) continue;
-            Item item = holder.get().value();
-            stacks.set(displaySlot++, new ItemStack(item));
+            stacks.set(i, new ItemStack(holder.get().value()));
         }
     }
 

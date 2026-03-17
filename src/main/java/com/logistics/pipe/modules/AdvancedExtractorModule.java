@@ -3,7 +3,7 @@ package com.logistics.pipe.modules;
 import com.logistics.LogisticsPipe;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.core.lib.storage.DirectionSerializer;
-import com.logistics.core.lib.storage.NbtCompat;
+import com.logistics.core.lib.storage.FilterSlots;
 import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.pipe.runtime.TravelingItem;
@@ -16,7 +16,6 @@ import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -26,8 +25,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Advanced extractor module — same extraction behavior as {@link BasicExtractorModule} but with
@@ -57,25 +56,19 @@ public class AdvancedExtractorModule implements Module, TickingModule {
 
     // ==================== Filter Configuration ====================
 
-    /** Returns filter item IDs in slot order; empty string means the slot is empty. */
-    public List<String> getFilterItems(PipeContext ctx) {
-        CompoundTag tag = ctx.getCompoundTag(this, FILTER_ITEMS);
-        List<String> items = new ArrayList<>(MAX_FILTER_SLOTS);
-        for (int i = 0; i < MAX_FILTER_SLOTS; i++) {
-            items.add(NbtCompat.getString(tag, String.valueOf(i), ""));
-        }
-        return items;
+    /** Returns filter slots in slot order; empty string means the slot is empty. */
+    public FilterSlots getFilterItems(PipeContext ctx) {
+        return FilterSlots.load(ctx.getCompoundTag(this, FILTER_ITEMS), MAX_FILTER_SLOTS);
     }
 
     public void setFilterItem(PipeContext ctx, int slot, String itemId) {
         if (slot < 0 || slot >= MAX_FILTER_SLOTS) return;
-        CompoundTag tag = ctx.getCompoundTag(this, FILTER_ITEMS);
-        if (itemId == null || itemId.isEmpty()) {
-            tag.remove(String.valueOf(slot));
+        FilterSlots updated = getFilterItems(ctx).with(slot, itemId);
+        if (updated.isEmpty()) {
+            ctx.remove(this, FILTER_ITEMS);
         } else {
-            tag.putString(String.valueOf(slot), itemId);
+            ctx.putCompoundTag(this, FILTER_ITEMS, updated.toTag());
         }
-        ctx.putCompoundTag(this, FILTER_ITEMS, tag);
         ctx.markDirtyAndSync();
     }
 
@@ -95,11 +88,10 @@ public class AdvancedExtractorModule implements Module, TickingModule {
      * Exclude mode (inverted): items IN the filter are skipped.
      */
     private boolean isFilteredOut(PipeContext ctx, ItemStack stack) {
-        List<String> filterItems = getFilterItems(ctx);
-        boolean hasFilter = filterItems.stream().anyMatch(s -> !s.isEmpty());
-        if (!hasFilter) return false;
+        Set<String> resolvable = getFilterItems(ctx).resolveItemIds();
+        if (resolvable.isEmpty()) return false;
         String itemId = BuiltInRegistries.ITEM.getKey(stack.getItem()).toString();
-        boolean itemInFilter = filterItems.contains(itemId);
+        boolean itemInFilter = resolvable.contains(itemId);
         return isFilterInverted(ctx) == itemInFilter;
     }
 

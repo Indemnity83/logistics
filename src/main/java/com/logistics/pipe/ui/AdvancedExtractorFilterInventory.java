@@ -1,6 +1,7 @@
 package com.logistics.pipe.ui;
 
 import com.logistics.core.lib.resource.ResourceId;
+import com.logistics.core.lib.storage.FilterSlots;
 import com.logistics.core.lib.storage.NbtCompat;
 import com.logistics.pipe.Pipe;
 import com.logistics.pipe.PipeContext;
@@ -14,8 +15,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
-
-import java.util.List;
 
 /**
  * Inventory for the Advanced Extractor filter GUI.
@@ -88,9 +87,9 @@ public class AdvancedExtractorFilterInventory implements Container {
         if (module == null) return;
 
         PipeContext ctx = pipeEntity.createContext();
-        List<String> filterItems = module.getFilterItems(ctx);
+        FilterSlots filterItems = module.getFilterItems(ctx);
 
-        for (int i = 0; i < filterItems.size() && i < FILTER_SLOT_COUNT; i++) {
+        for (int i = 0; i < filterItems.size(); i++) {
             String itemId = filterItems.get(i);
             if (itemId.isEmpty()) continue;
             ResourceId resourceId = ResourceId.tryParse(itemId);
@@ -106,9 +105,9 @@ public class AdvancedExtractorFilterInventory implements Container {
         CustomData customData = stack.get(DataComponents.CUSTOM_DATA);
         if (customData == null) return;
         CompoundTag tag = customData.copyTag();
-        CompoundTag filterItems = NbtCompat.getCompoundOrEmpty(tag, AdvancedExtractorModule.FILTER_ITEMS);
-        for (int i = 0; i < FILTER_SLOT_COUNT; i++) {
-            String itemId = NbtCompat.getString(filterItems, String.valueOf(i), "");
+        FilterSlots filterItems = FilterSlots.load(NbtCompat.getCompoundOrEmpty(tag, AdvancedExtractorModule.FILTER_ITEMS), FILTER_SLOT_COUNT);
+        for (int i = 0; i < filterItems.size(); i++) {
+            String itemId = filterItems.get(i);
             if (itemId.isEmpty()) continue;
             ResourceId rid = ResourceId.tryParse(itemId);
             if (rid == null) continue;

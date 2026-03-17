@@ -1,6 +1,7 @@
 package com.logistics.pipe.ui;
 
 import com.logistics.core.lib.resource.ResourceId;
+import com.logistics.core.lib.storage.FilterSlots;
 import com.logistics.core.lib.storage.NbtCompat;
 import com.logistics.pipe.Pipe;
 import com.logistics.pipe.block.PipeBlock;
@@ -37,23 +38,15 @@ public class SinkInventory implements Container {
             return;
         }
 
-        String[] filters = module.getFilters(pipeEntity.createContext());
-        for (int i = 0; i < filters.length; i++) {
-            if (filters[i].isEmpty()) {
-                continue;
-            }
-
-            ResourceId itemId = ResourceId.tryParse(filters[i]);
-            if (itemId == null) {
-                continue;
-            }
-
+        FilterSlots filters = module.getFilters(pipeEntity.createContext());
+        for (int i = 0; i < filters.size(); i++) {
+            String id = filters.get(i);
+            if (id.isEmpty()) continue;
+            ResourceId itemId = ResourceId.tryParse(id);
+            if (itemId == null) continue;
             // MC 1.21.1: get() returns Item directly, not Optional<Holder<Item>>
             net.minecraft.world.item.Item item = BuiltInRegistries.ITEM.get(itemId.toIdentifier());
-            if (item == null) {
-                continue;
-            }
-
+            if (item == null) continue;
             items.set(i, new ItemStack(item));
         }
     }
@@ -107,9 +100,9 @@ public class SinkInventory implements Container {
         CustomData customData = stack.get(DataComponents.CUSTOM_DATA);
         if (customData == null) return;
         CompoundTag tag = customData.copyTag();
-        CompoundTag filters = NbtCompat.getCompoundOrEmpty(tag, SinkModule.FILTERS);
-        for (int i = 0; i < SinkModule.MAX_FILTER_SLOTS; i++) {
-            String itemId = NbtCompat.getString(filters, String.valueOf(i), "");
+        FilterSlots filters = FilterSlots.load(NbtCompat.getCompoundOrEmpty(tag, SinkModule.FILTERS), SinkModule.MAX_FILTER_SLOTS);
+        for (int i = 0; i < filters.size(); i++) {
+            String itemId = filters.get(i);
             if (itemId.isEmpty()) continue;
             ResourceId rid = ResourceId.tryParse(itemId);
             if (rid == null) continue;
