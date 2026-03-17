@@ -27,7 +27,7 @@ import net.minecraft.world.level.Level;
  * If the item matches any filtered sides, choose among those.
  * Otherwise, route to any side with no filters.
  */
-public class ItemFilterModule implements Module {
+public class ItemFilterModule implements Module, RoutingModule {
     public static final String FILTERS = "filters"; // NBT key for save compatibility
     public static final int FILTER_SLOTS_PER_SIDE = 8;
     public static final Direction[] FILTER_ORDER = {
