@@ -4,8 +4,12 @@
     "GBG"
   ],
   "key": {
-    "G": "minecraft:glowstone_dust",
-    "B": "logistics:pipe/basic_logistics_pipe"
+    "G": {
+      "item": "minecraft:glowstone_dust"
+    },
+    "B": {
+      "item": "logistics:pipe/basic_logistics_pipe"
+    }
   },
   "result": {
     "id": "logistics:pipe/satellite_logistics_pipe"

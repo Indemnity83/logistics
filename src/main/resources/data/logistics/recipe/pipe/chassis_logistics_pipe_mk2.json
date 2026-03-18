@@ -6,8 +6,12 @@
     "BBB"
   ],
   "key": {
-    "B": "#c:ingots/bronze",
-    "C": "logistics:pipe/basic_logistics_pipe"
+    "B": {
+      "tag": "c:ingots/bronze"
+    },
+    "C": {
+      "item": "logistics:pipe/basic_logistics_pipe"
+    }
   },
   "result": {
     "count": 1,

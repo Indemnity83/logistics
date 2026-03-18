@@ -6,8 +6,12 @@
     "III"
   ],
   "key": {
-    "I": "#c:ingots/iron",
-    "B": "logistics:pipe/basic_logistics_pipe"
+    "I": {
+      "tag": "c:ingots/iron"
+    },
+    "B": {
+      "item": "logistics:pipe/basic_logistics_pipe"
+    }
   },
   "result": {
     "count": 1,

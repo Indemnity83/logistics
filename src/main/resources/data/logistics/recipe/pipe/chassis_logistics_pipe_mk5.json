@@ -6,8 +6,12 @@
     "N N"
   ],
   "key": {
-    "N": "#c:ingots/netherite",
-    "B": "logistics:pipe/basic_logistics_pipe"
+    "N": {
+      "tag": "c:ingots/netherite"
+    },
+    "B": {
+      "item": "logistics:pipe/basic_logistics_pipe"
+    }
   },
   "result": {
     "count": 1,

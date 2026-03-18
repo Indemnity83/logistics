@@ -6,8 +6,12 @@
     "DDD"
   ],
   "key": {
-    "D": "minecraft:diamond",
-    "B": "logistics:pipe/basic_logistics_pipe"
+    "D": {
+      "item": "minecraft:diamond"
+    },
+    "B": {
+      "item": "logistics:pipe/basic_logistics_pipe"
+    }
   },
   "result": {
     "count": 1,

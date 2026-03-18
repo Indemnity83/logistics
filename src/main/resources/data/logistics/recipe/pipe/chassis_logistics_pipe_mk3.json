@@ -6,8 +6,12 @@
     "GGG"
   ],
   "key": {
-    "G": "#c:ingots/gold",
-    "B": "logistics:pipe/basic_logistics_pipe"
+    "G": {
+      "tag": "c:ingots/gold"
+    },
+    "B": {
+      "item": "logistics:pipe/basic_logistics_pipe"
+    }
   },
   "result": {
     "count": 1,
