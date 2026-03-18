@@ -2,7 +2,7 @@ package com.logistics.pipe.ui;
 
 import com.logistics.LogisticsPipe;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
-import com.logistics.pipe.network.SyncRequesterInventoryPacket;
+import com.logistics.pipe.network.packet.SyncRequesterInventoryPacket;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;

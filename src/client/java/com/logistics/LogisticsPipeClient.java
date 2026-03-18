@@ -1,7 +1,7 @@
 package com.logistics;
 
 import com.logistics.core.bootstrap.DomainBootstrap;
-import com.logistics.pipe.network.SyncRequesterInventoryPacket;
+import com.logistics.pipe.network.packet.SyncRequesterInventoryPacket;
 import com.logistics.pipe.render.PipeBlockEntityRenderer;
 import com.logistics.pipe.screen.ItemFilterScreen;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
