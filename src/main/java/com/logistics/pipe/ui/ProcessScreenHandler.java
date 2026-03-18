@@ -3,7 +3,7 @@ package com.logistics.pipe.ui;
 import com.logistics.LogisticsPipe;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.pipe.modules.ProcessModule;
-import com.logistics.pipe.network.ILogisticsNetwork;
+import com.logistics.core.lib.network.ILogisticsNetwork;
 import com.logistics.pipe.network.NetworkRegistry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.Container;

@@ -1,5 +1,7 @@
 package com.logistics.pipe.runtime;
 
+import com.logistics.core.lib.pipe.RoutePlan;
+import com.logistics.core.lib.pipe.TravelingItem;
 import com.logistics.test.MinecraftTestEnvironment;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;

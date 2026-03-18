@@ -1,5 +1,6 @@
 package com.logistics.pipe.network;
 
+import com.logistics.core.lib.network.FulfillmentMode;
 import com.logistics.pipe.modules.SupplierModule.SupplyMode;
 
 /**

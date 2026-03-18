@@ -1,9 +1,10 @@
-package com.logistics.pipe.network;
+package com.logistics.core.lib.network;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+
 import net.minecraft.world.item.Item;
 
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;

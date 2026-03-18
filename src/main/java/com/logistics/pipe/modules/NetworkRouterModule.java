@@ -1,11 +1,13 @@
 package com.logistics.pipe.modules;
 
+import com.logistics.core.lib.pipe.RoutingModule;
+
 import com.logistics.LogisticsPipe;
-import com.logistics.pipe.network.NetworkRegistry;
-import com.logistics.pipe.network.ILogisticsNetwork;
-import com.logistics.pipe.PipeContext;
-import com.logistics.pipe.runtime.RoutePlan;
-import com.logistics.pipe.runtime.TravelingItem;
+import com.logistics.core.lib.pipe.Module;
+import com.logistics.core.lib.network.ILogisticsNetwork;
+import com.logistics.core.lib.pipe.PipeContext;
+import com.logistics.core.lib.pipe.RoutePlan;
+import com.logistics.core.lib.pipe.TravelingItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 
@@ -39,7 +41,7 @@ public class NetworkRouterModule implements Module, RoutingModule {
     public RoutePlan route(PipeContext ctx, TravelingItem item, List<Direction> options) {
         if (ctx.world().isClientSide()) return RoutePlan.pass();
 
-        ILogisticsNetwork network = NetworkRegistry.getNetwork(ctx.world(), ctx.pos());
+        ILogisticsNetwork network = ctx.network();
         if (network == null) return RoutePlan.pass();
 
         if (item.getDestination() == null) {

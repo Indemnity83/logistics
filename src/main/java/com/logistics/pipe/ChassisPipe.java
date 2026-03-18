@@ -1,12 +1,15 @@
 package com.logistics.pipe;
 
+import com.logistics.core.lib.pipe.*;
+import com.logistics.core.lib.pipe.Module;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.pipe.item.ModuleItem;
-import com.logistics.pipe.modules.Module;
-import com.logistics.pipe.modules.RandomTickModule;
-import com.logistics.pipe.runtime.RoutePlan;
-import com.logistics.pipe.runtime.TravelingItem;
+import com.logistics.core.lib.pipe.RandomTickModule;
+import com.logistics.core.lib.pipe.RoutePlan;
+import com.logistics.core.lib.pipe.RoutingModule;
+import com.logistics.core.lib.pipe.TransferHandlerModule;
+import com.logistics.core.lib.pipe.TravelingItem;
 import net.minecraft.util.RandomSource;
 import com.logistics.pipe.ui.ChassisScreenHandler;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
@@ -100,7 +103,7 @@ public class ChassisPipe extends Pipe {
     @Override
     public RoutePlan route(PipeContext ctx, TravelingItem item, List<Direction> options) {
         for (Module m : getDynamicModules(ctx)) {
-            if (m instanceof com.logistics.pipe.modules.RoutingModule router) {
+            if (m instanceof RoutingModule router) {
                 RoutePlan plan = router.route(ctx, item, options);
                 if (plan.getType() != RoutePlan.Type.PASS) return plan;
             }
@@ -112,7 +115,7 @@ public class ChassisPipe extends Pipe {
     public void onTick(PipeContext ctx) {
         if (ctx.world().isClientSide()) return;
         for (Module m : getDynamicModules(ctx)) {
-            if (m instanceof com.logistics.pipe.modules.TickingModule ticking) {
+            if (m instanceof TickingModule ticking) {
                 ticking.onTick(ctx);
             }
         }
@@ -123,7 +126,7 @@ public class ChassisPipe extends Pipe {
     public long dispatch(PipeContext ctx, BlockPos requester, ItemVariant item, long amount, UUID deliveryId) {
         if (ctx.world().isClientSide()) return 0;
         for (Module m : getDynamicModules(ctx)) {
-            if (m instanceof com.logistics.pipe.modules.DispatchableModule dispatchable) {
+            if (m instanceof DispatchableModule dispatchable) {
                 long d = dispatchable.onDispatch(ctx, requester, item, amount, deliveryId);
                 if (d != 0) return d;
             }
@@ -155,8 +158,10 @@ public class ChassisPipe extends Pipe {
     public TravelingItem handleTransfer(PipeContext ctx, TravelingItem item, Direction direction) {
         TravelingItem current = item;
         for (Module m : getDynamicModules(ctx)) {
-            current = m.onTransferToStorage(ctx, current, direction);
-            if (current == null) return null;
+            if (m instanceof TransferHandlerModule handler) {
+                current = handler.onTransferToStorage(ctx, current, direction);
+                if (current == null) return null;
+            }
         }
         return super.handleTransfer(ctx, current, direction);
     }

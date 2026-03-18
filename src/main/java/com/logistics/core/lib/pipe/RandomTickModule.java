@@ -1,13 +1,12 @@
-package com.logistics.pipe.modules;
+package com.logistics.core.lib.pipe;
 
-import com.logistics.pipe.PipeContext;
 import net.minecraft.util.RandomSource;
 
 /**
  * Role interface for modules that need random block ticks.
  *
  * <p>Eliminates the fragile {@code hasRandomTicks()} / {@code randomTick()} pair on
- * {@link Module} — implementing this interface is the sole opt-in mechanism.
+ * {@link com.logistics.core.lib.pipe.Module} — implementing this interface is the sole opt-in mechanism.
  * {@link com.logistics.pipe.Pipe#hasRandomTicks()} returns true if any module implements
  * this interface.
  */

@@ -1,4 +1,4 @@
-package com.logistics.pipe.network;
+package com.logistics.core.lib.network;
 
 /**
  * Controls whether an order must be fully satisfied before dispatching.

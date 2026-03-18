@@ -1,6 +1,7 @@
 package com.logistics.pipe.modules;
 
-import com.logistics.pipe.PipeContext;
+import com.logistics.core.lib.pipe.Module;
+import com.logistics.core.lib.pipe.PipeContext;
 
 public class TransportModule implements Module {
     private final float maxSpeed;

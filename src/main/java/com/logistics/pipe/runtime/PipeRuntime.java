@@ -1,10 +1,12 @@
 package com.logistics.pipe.runtime;
 
 import com.logistics.LogisticsPipe;
+import com.logistics.core.lib.pipe.RoutePlan;
+import com.logistics.core.lib.pipe.TravelingItem;
 import com.logistics.pipe.network.NetDbg;
 import com.logistics.core.lib.block.capability.PipeConnection;
 import com.logistics.pipe.Pipe;
-import com.logistics.pipe.PipeContext;
+import com.logistics.core.lib.pipe.PipeContext;
 import com.logistics.pipe.block.PipeBlock;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.pipe.block.entity.PipeItemStorage;

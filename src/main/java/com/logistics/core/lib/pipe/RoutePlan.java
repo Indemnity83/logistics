@@ -1,4 +1,4 @@
-package com.logistics.pipe.runtime;
+package com.logistics.core.lib.pipe;
 
 import java.util.List;
 import net.minecraft.core.Direction;

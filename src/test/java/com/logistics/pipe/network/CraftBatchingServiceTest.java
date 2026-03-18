@@ -1,5 +1,6 @@
 package com.logistics.pipe.network;
 
+import com.logistics.core.lib.network.CrafterBufferState;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;

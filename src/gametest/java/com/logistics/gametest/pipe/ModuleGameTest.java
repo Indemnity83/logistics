@@ -2,13 +2,13 @@ package com.logistics.gametest.pipe;
 
 import com.logistics.LogisticsPipe;
 import com.logistics.pipe.Pipe;
-import com.logistics.pipe.PipeContext;
+import com.logistics.core.lib.pipe.PipeContext;
 import com.logistics.pipe.block.PipeBlock;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.pipe.modules.ItemFilterModule;
 import com.logistics.pipe.modules.MergerModule;
-import com.logistics.pipe.runtime.RoutePlan;
-import com.logistics.pipe.runtime.TravelingItem;
+import com.logistics.core.lib.pipe.RoutePlan;
+import com.logistics.core.lib.pipe.TravelingItem;
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -168,7 +168,7 @@ public class ModuleGameTest {
             pipeEntity
         );
 
-        Pipe pipe = ctx.pipe();
+        Pipe pipe = context.getBlockState(pos).getBlock() instanceof PipeBlock pb ? pb.getPipe() : null;
         if (pipe == null) {
             context.fail("PipeContext should have pipe");
         }

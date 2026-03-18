@@ -1,5 +1,7 @@
 package com.logistics.pipe.network;
 
+import com.logistics.core.lib.network.FulfillmentMode;
+import com.logistics.core.lib.network.ItemRequest;
 import com.logistics.test.MinecraftTestEnvironment;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.minecraft.core.BlockPos;

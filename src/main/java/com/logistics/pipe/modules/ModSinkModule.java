@@ -1,15 +1,17 @@
 package com.logistics.pipe.modules;
 
+import com.logistics.core.lib.pipe.RoutingModule;
+
 import com.logistics.LogisticsPipe;
+import com.logistics.core.lib.pipe.*;
+import com.logistics.core.lib.pipe.Module;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.core.lib.storage.DirectionSerializer;
-import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
-import com.logistics.pipe.network.ILogisticsNetwork;
+import com.logistics.core.lib.network.ILogisticsNetwork;
 import com.logistics.pipe.network.NetDbg;
-import com.logistics.pipe.network.NetworkRegistry;
-import com.logistics.pipe.runtime.RoutePlan;
-import com.logistics.pipe.runtime.TravelingItem;
+import com.logistics.core.lib.pipe.RoutePlan;
+import com.logistics.core.lib.pipe.TravelingItem;
 import com.logistics.pipe.ui.ModSinkScreenHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -62,7 +64,7 @@ public class ModSinkModule implements Module, TickingModule, RoutingModule, Item
     @Override
     public void onDetach(PipeContext ctx) {
         if (!ctx.world().isClientSide()) {
-            ILogisticsNetwork network = NetworkRegistry.getNetwork(ctx.world(), ctx.pos());
+            ILogisticsNetwork network = ctx.network();
             if (network != null) network.unregisterSink(ctx.pos());
         }
     }
@@ -221,7 +223,7 @@ public class ModSinkModule implements Module, TickingModule, RoutingModule, Item
     }
 
     private void registerWithNetwork(PipeContext ctx) {
-        ILogisticsNetwork network = NetworkRegistry.getNetwork(ctx.world(), ctx.pos());
+        ILogisticsNetwork network = ctx.network();
         if (network != null) {
             network.registerSink(ctx.pos(), priority);
             network.registerGenericSinkInterest(ctx.pos());

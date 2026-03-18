@@ -1,7 +1,7 @@
 package com.logistics.pipe.ui;
 
 import com.logistics.pipe.ChassisPipe;
-import com.logistics.pipe.PipeContext;
+import com.logistics.core.lib.pipe.PipeContext;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.pipe.item.ModuleItem;
 import net.minecraft.core.NonNullList;
@@ -16,7 +16,6 @@ import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.Level;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.NonNullList;
 
 /**
  * Real inventory for the Chassis Logistics Pipe GUI.

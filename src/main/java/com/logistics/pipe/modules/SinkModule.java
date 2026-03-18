@@ -1,16 +1,18 @@
 package com.logistics.pipe.modules;
 
+import com.logistics.core.lib.pipe.RoutingModule;
+
 import com.logistics.LogisticsPipe;
+import com.logistics.core.lib.pipe.*;
+import com.logistics.core.lib.pipe.Module;
 import com.logistics.pipe.network.NetDbg;
-import com.logistics.pipe.network.ILogisticsNetwork;
+import com.logistics.core.lib.network.ILogisticsNetwork;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.core.lib.storage.DirectionSerializer;
 import com.logistics.core.lib.storage.FilterSlots;
-import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
-import com.logistics.pipe.network.NetworkRegistry;
-import com.logistics.pipe.runtime.RoutePlan;
-import com.logistics.pipe.runtime.TravelingItem;
+import com.logistics.core.lib.pipe.RoutePlan;
+import com.logistics.core.lib.pipe.TravelingItem;
 import com.logistics.pipe.ui.SinkScreenHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -61,9 +63,11 @@ public class SinkModule implements Module, TickingModule, RoutingModule, ItemAcc
 
         // Re-register with the network periodically to recover after network splits/merges.
         // setDefaultRoute() handles immediate registration on change; this is just the recovery path.
-        ILogisticsNetwork network = NetworkRegistry.getNetwork(ctx.world(), ctx.pos());
+        ILogisticsNetwork network = ctx.network();
         if (network != null) {
-            network.registerSink(ctx.pos(), priority);
+            // Default-route sinks use priority 0 so filtered sinks (ModSink, etc.) can outbid them.
+            int effectivePriority = isDefaultRoute(ctx) ? 0 : priority;
+            network.registerSink(ctx.pos(), effectivePriority);
             // Rebuild specific-item interests from current filter slots
             network.unregisterSinkInterests(ctx.pos());
             for (String itemId : getFilters(ctx).asList()) {
@@ -81,7 +85,7 @@ public class SinkModule implements Module, TickingModule, RoutingModule, ItemAcc
 
     @Override
     public void onDetach(PipeContext ctx) {
-        ILogisticsNetwork network = NetworkRegistry.getNetwork(ctx.world(), ctx.pos());
+        ILogisticsNetwork network = ctx.network();
         if (network != null) {
             network.unregisterSink(ctx.pos()); // also clears both interest maps
         }
@@ -247,7 +251,7 @@ public class SinkModule implements Module, TickingModule, RoutingModule, ItemAcc
         ctx.markDirtyAndSync();
 
         if (!ctx.world().isClientSide()) {
-            ILogisticsNetwork network = NetworkRegistry.getNetwork(ctx.world(), ctx.pos());
+            ILogisticsNetwork network = ctx.network();
             if (network != null) {
                 if (enabled) {
                     network.registerSink(ctx.pos(), 0);
