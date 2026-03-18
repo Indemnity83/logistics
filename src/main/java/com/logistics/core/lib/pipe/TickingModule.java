@@ -1,6 +1,4 @@
-package com.logistics.pipe.modules;
-
-import com.logistics.pipe.PipeContext;
+package com.logistics.core.lib.pipe;
 
 /**
  * Role interface for modules that perform server-side tick logic.

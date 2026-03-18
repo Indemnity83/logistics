@@ -1,9 +1,11 @@
 package com.logistics.pipe.modules;
 
 import com.logistics.LogisticsPipe;
+import com.logistics.core.lib.pipe.CoreDecoration;
+import com.logistics.core.lib.pipe.Module;
 import com.logistics.core.lib.resource.ResourceId;
+import com.logistics.core.lib.pipe.PipeContext;
 import com.logistics.pipe.Pipe;
-import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.block.PipeBlock;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import net.minecraft.world.level.block.Block;
@@ -93,20 +95,20 @@ public class PipeMarkingModule implements Module {
     /**
      * Provide the marking overlay for the pipe core when marked.
      */
-    public java.util.List<Pipe.CoreDecoration> getCoreDecorations(PipeContext ctx) {
+    public java.util.List<CoreDecoration> getCoreDecorations(PipeContext ctx) {
         DyeColor color = getStoredColor(ctx);
-        if (color == null || ctx.pipe() == null) {
+        if (color == null || !(ctx.state().getBlock() instanceof PipeBlock)) {
             return java.util.List.of();
         }
         ResourceId pipeMarkings = LogisticsPipe.model("pipe_markings");
-        return java.util.List.of(new Pipe.CoreDecoration(pipeMarkings, color.getFireworkColor()));
+        return java.util.List.of(new CoreDecoration(pipeMarkings, color.getFireworkColor()));
     }
 
     /**
      * Prevent pipe connections between different markings.
      */
     public boolean allowsConnection(
-            @Nullable PipeContext ctx, Direction direction, Pipe selfPipe, Block neighborBlock) {
+            @Nullable PipeContext ctx, Direction direction, Block neighborBlock) {
         if (ctx == null || !(neighborBlock instanceof PipeBlock neighborPipeBlock)) {
             return true;
         }

@@ -1,10 +1,13 @@
 package com.logistics.pipe.modules;
 
 import com.logistics.LogisticsPipe;
+import com.logistics.core.lib.pipe.Module;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.core.lib.storage.NbtCompat;
-import com.logistics.pipe.PipeContext;
-import com.logistics.pipe.runtime.RoutePlan;
+import com.logistics.core.lib.pipe.PipeContext;
+import com.logistics.core.lib.pipe.RoutePlan;
+import com.logistics.core.lib.pipe.RoutingModule;
+import com.logistics.core.lib.pipe.TravelingItem;
 import java.util.List;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -31,7 +34,7 @@ public class MergerModule implements Module, RoutingModule {
     }
 
     @Override
-    public RoutePlan route(PipeContext ctx, com.logistics.pipe.runtime.TravelingItem item, List<Direction> options) {
+    public RoutePlan route(PipeContext ctx, TravelingItem item, List<Direction> options) {
         Direction out = getOutputDirection(ctx);
 
         // If the output direction is not configured or no longer valid, drop the stack on the ground at the pipe.

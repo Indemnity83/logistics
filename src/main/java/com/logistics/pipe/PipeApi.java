@@ -4,7 +4,7 @@ import com.logistics.LogisticsPipe;
 import com.logistics.api.TransportApi;
 import com.logistics.pipe.block.PipeBlock;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
-import com.logistics.pipe.runtime.TravelingItem;
+import com.logistics.core.lib.pipe.TravelingItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;

@@ -1,6 +1,5 @@
-package com.logistics.pipe.modules;
+package com.logistics.core.lib.pipe;
 
-import com.logistics.pipe.PipeContext;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.minecraft.core.BlockPos;
 

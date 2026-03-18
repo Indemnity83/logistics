@@ -1,4 +1,4 @@
-package com.logistics.pipe.network;
+package com.logistics.core.lib.network;
 
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.minecraft.core.BlockPos;
@@ -7,9 +7,9 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 /**
- * Read-only view of network supply state for use by {@link RequestPlanner}.
+ * Read-only view of network supply state consumed by the request planner.
  *
- * <p>Implemented by {@link NetworkController}. Exposes only the data the planner needs
+ * <p>Implemented by {@code NetworkController}. Exposes only the data the planner needs
  * without leaking mutable internal structures.
  */
 public interface PlanningView {

@@ -1,6 +1,7 @@
 package com.logistics.pipe.network;
 
 import com.logistics.core.lib.network.IWorldView;
+import com.logistics.core.lib.network.NetworkCommand;
 
 /**
  * Executes {@link NetworkCommand} objects against the Minecraft world via {@link IWorldView}.

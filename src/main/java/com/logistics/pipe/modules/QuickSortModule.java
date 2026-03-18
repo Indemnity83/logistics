@@ -1,11 +1,12 @@
 package com.logistics.pipe.modules;
 
 import com.logistics.LogisticsPipe;
-import com.logistics.pipe.PipeContext;
+import com.logistics.core.lib.pipe.Module;
+import com.logistics.core.lib.pipe.PipeContext;
+import com.logistics.core.lib.pipe.TickingModule;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
-import com.logistics.pipe.network.ILogisticsNetwork;
-import com.logistics.pipe.network.NetworkRegistry;
-import com.logistics.pipe.runtime.TravelingItem;
+import com.logistics.core.lib.network.ILogisticsNetwork;
+import com.logistics.core.lib.pipe.TravelingItem;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
@@ -106,7 +107,7 @@ public class QuickSortModule implements Module, TickingModule {
         int stackSize = (int) Math.min(candidateView.getAmount(), variant.getItem().getDefaultMaxStackSize());
         ItemStack queryStack = variant.toStack(stackSize);
 
-        ILogisticsNetwork network = NetworkRegistry.getNetwork(ctx.world(), ctx.pos());
+        ILogisticsNetwork network = ctx.network();
         if (network == null) return;
 
         BlockPos destination = network.findFilteredSinkFor(queryStack);

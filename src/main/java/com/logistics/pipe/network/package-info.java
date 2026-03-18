@@ -6,7 +6,7 @@
  *  Player / RequesterModule
  *         │
  *         ▼
- *  {@link com.logistics.pipe.network.ItemRequest}
+ *  {@link com.logistics.core.lib.network.ItemRequest}
  *    A player-facing request for one item type and quantity.
  *    Submitted to {@link com.logistics.pipe.network.JobCoordinator}.
  *         │

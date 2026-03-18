@@ -3,16 +3,19 @@ package com.logistics.pipe;
 import com.logistics.LogisticsMod;
 import com.logistics.LogisticsPipe;
 import com.logistics.core.lib.block.capability.PipeConnection;
+import com.logistics.core.lib.pipe.PipeContext;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.pipe.block.PipeBlock;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
-import com.logistics.pipe.modules.DispatchableModule;
-import com.logistics.pipe.modules.Module;
-import com.logistics.pipe.modules.RandomTickModule;
-import com.logistics.pipe.modules.RoutingModule;
-import com.logistics.pipe.modules.TickingModule;
-import com.logistics.pipe.runtime.RoutePlan;
-import com.logistics.pipe.runtime.TravelingItem;
+import com.logistics.core.lib.pipe.CoreDecoration;
+import com.logistics.core.lib.pipe.DispatchableModule;
+import com.logistics.core.lib.pipe.Module;
+import com.logistics.core.lib.pipe.RandomTickModule;
+import com.logistics.core.lib.pipe.TickingModule;
+import com.logistics.core.lib.pipe.RoutePlan;
+import com.logistics.core.lib.pipe.RoutingModule;
+import com.logistics.core.lib.pipe.TransferHandlerModule;
+import com.logistics.core.lib.pipe.TravelingItem;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -244,8 +247,6 @@ public class Pipe {
     /**
      * Core overlay model with an optional tint color.
      */
-    public record CoreDecoration(ResourceId modelId, int color) {}
-
     public String getModelBasePath(Direction direction) {
         return "block/" + getPipeName() + "_" + direction.name().toLowerCase();
     }
@@ -281,7 +282,10 @@ public class Pipe {
      * Dispatches polymorphically so chassis pipe overrides are respected in all base-class methods.
      */
     private List<Module> getModules(PipeContext ctx) {
-        return getModules(ctx.blockEntity());
+        if (ctx.blockEntity() instanceof PipeBlockEntity pbe) {
+            return getModules(pbe);
+        }
+        return modules;
     }
 
     public float getAccelerationRate(PipeContext ctx) {
@@ -336,8 +340,10 @@ public class Pipe {
     public TravelingItem handleTransfer(PipeContext ctx, TravelingItem item, Direction direction) {
         TravelingItem current = item;
         for (Module module : getModules(ctx)) {
-            current = module.onTransferToStorage(ctx, current, direction);
-            if (current == null) return null;
+            if (module instanceof TransferHandlerModule handler) {
+                current = handler.onTransferToStorage(ctx, current, direction);
+                if (current == null) return null;
+            }
         }
         return current;
     }
@@ -452,7 +458,7 @@ public class Pipe {
             return PipeConnection.Type.NONE;
         }
         for (Module module : (ctx != null ? getModules(ctx) : modules)) {
-            if (!module.allowsConnection(ctx, direction, this, neighborBlock)) {
+            if (!module.allowsConnection(ctx, direction, neighborBlock)) {
                 return PipeConnection.Type.NONE;
             }
         }

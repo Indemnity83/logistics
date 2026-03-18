@@ -3,12 +3,13 @@ package com.logistics.pipe.render;
 import com.logistics.LogisticsPipe;
 import com.logistics.LogisticsPipeClient;
 import com.logistics.core.lib.block.capability.PipeConnection;
+import com.logistics.core.lib.pipe.CoreDecoration;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.pipe.Pipe;
-import com.logistics.pipe.PipeContext;
+import com.logistics.core.lib.pipe.PipeContext;
 import com.logistics.pipe.block.PipeBlock;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
-import com.logistics.pipe.runtime.TravelingItem;
+import com.logistics.core.lib.pipe.TravelingItem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import net.fabricmc.fabric.api.client.model.loading.v1.ExtraModelKey;
@@ -97,7 +98,7 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
 
                 Pipe pipe = pipeBlock.getPipe();
                 state.models.add(new PipeRenderState.ModelRenderInfo(pipe.getCoreModelId(context), 0xFFFFFF));
-                for (Pipe.CoreDecoration decoration : pipe.getCoreDecorations(context)) {
+                for (CoreDecoration decoration : pipe.getCoreDecorations(context)) {
                     state.models.add(new PipeRenderState.ModelRenderInfo(decoration.modelId(), decoration.color()));
                 }
 

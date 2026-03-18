@@ -1,12 +1,14 @@
 package com.logistics.pipe.modules;
 
 import com.logistics.LogisticsPipe;
+import com.logistics.core.lib.pipe.Module;
+import com.logistics.core.lib.pipe.TickingModule;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.core.lib.storage.DirectionSerializer;
 import com.logistics.core.lib.storage.FilterSlots;
-import com.logistics.pipe.PipeContext;
+import com.logistics.core.lib.pipe.PipeContext;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
-import com.logistics.pipe.runtime.TravelingItem;
+import com.logistics.core.lib.pipe.TravelingItem;
 import com.logistics.pipe.ui.AdvancedExtractorScreenHandler;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
@@ -133,7 +135,7 @@ public class AdvancedExtractorModule implements Module, TickingModule {
 
         serverPlayer.openMenu(new SimpleMenuProvider(
                 (syncId, playerInventory, p) -> new AdvancedExtractorScreenHandler(
-                        syncId, playerInventory, ctx.blockEntity()),
+                        syncId, playerInventory, ((PipeBlockEntity) ctx.blockEntity())),
                 Component.translatable("screen.logistics.advanced_extractor")));
         return InteractionResult.SUCCESS;
     }
