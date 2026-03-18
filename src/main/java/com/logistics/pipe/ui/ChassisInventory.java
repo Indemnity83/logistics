@@ -140,6 +140,9 @@ public class ChassisInventory implements Container {
         if (existing.isEmpty()) items.set(slot, ItemStack.EMPTY);
         if (existing.isEmpty()) {
             detachModule(result);
+            if (pipeEntity != null && result.getItem() instanceof ModuleItem moduleItem) {
+                pipeEntity.clearModuleState(moduleItem.createModule().getStateKey());
+            }
             items.set(slot, ItemStack.EMPTY);
         }
         saveToEntity();
@@ -160,6 +163,12 @@ public class ChassisInventory implements Container {
         if (slot < 0 || slot >= items.size()) return;
         ItemStack previous = items.get(slot);
         if (!previous.isEmpty() && (stack.isEmpty() || !ItemStack.isSameItem(previous, stack))) {
+            if (pipeEntity != null) {
+                syncStateToItem(previous);
+                if (previous.getItem() instanceof ModuleItem moduleItem) {
+                    pipeEntity.clearModuleState(moduleItem.createModule().getStateKey());
+                }
+            }
             detachModule(previous);
         }
         items.set(slot, stack);

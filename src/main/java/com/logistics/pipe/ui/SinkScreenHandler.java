@@ -1,8 +1,15 @@
 package com.logistics.pipe.ui;
 
 import com.logistics.LogisticsPipe;
+import com.logistics.core.lib.storage.NbtCompat;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
+import com.logistics.pipe.item.ModuleItem;
 import com.logistics.pipe.modules.SinkModule;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.Container;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
@@ -12,6 +19,8 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.CustomData;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Screen handler for the Sink GUI (Basic Logistics Pipe).
@@ -28,6 +37,9 @@ public class SinkScreenHandler extends AbstractContainerMenu {
     private final SinkInventory sinkInventory;
     private final ContainerLevelAccess context;
     private final ContainerData data;
+    @Nullable private final ServerPlayer itemConfigPlayer;
+    @Nullable private final InteractionHand itemConfigHand;
+    @Nullable private final ItemStack originalModuleStack;
 
     public SinkScreenHandler(int syncId, Container playerInventory) {
         this(syncId, playerInventory, null, new SimpleContainerData(1));
@@ -37,9 +49,34 @@ public class SinkScreenHandler extends AbstractContainerMenu {
         this(syncId, playerInventory, pipeEntity, new SimpleContainerData(1));
     }
 
+    public SinkScreenHandler(int syncId, Container playerInventory, ServerPlayer player, InteractionHand hand) {
+        super(LogisticsPipe.SCREEN.SINK, syncId);
+        ItemStack stack = player.getItemInHand(hand);
+        if (stack.isEmpty() || !(stack.getItem() instanceof ModuleItem)) {
+            throw new IllegalArgumentException("Expected a ModuleItem in " + hand + " hand");
+        }
+        this.data = new SimpleContainerData(1);
+        this.itemConfigPlayer = player;
+        this.itemConfigHand = hand;
+        this.context = ContainerLevelAccess.NULL;
+        this.originalModuleStack = stack;
+        this.sinkInventory = new SinkInventory(null);
+        this.sinkInventory.loadFromItem(stack);
+        CustomData customData = stack.get(DataComponents.CUSTOM_DATA);
+        if (customData != null) {
+            data.set(0, NbtCompat.getInt(customData.copyTag(), SinkModule.DEFAULT_ROUTE, 0));
+        }
+        addFilterSlots(sinkInventory);
+        addPlayerInventorySlots(playerInventory);
+        addDataSlots(data);
+    }
+
     private SinkScreenHandler(int syncId, Container playerInventory, PipeBlockEntity pipeEntity, ContainerData data) {
         super(LogisticsPipe.SCREEN.SINK, syncId);
         this.data = data;
+        this.itemConfigPlayer = null;
+        this.itemConfigHand = null;
+        this.originalModuleStack = null;
 
         if (pipeEntity != null) {
             this.context = ContainerLevelAccess.create(pipeEntity.getLevel(), pipeEntity.getBlockPos());
@@ -60,12 +97,24 @@ public class SinkScreenHandler extends AbstractContainerMenu {
 
     @Override
     public void broadcastChanges() {
-        super.broadcastChanges();
-
+        if (itemConfigPlayer != null) {
+            if (isPinnedItemStillHeld()) {
+                ItemStack stack = itemConfigPlayer.getItemInHand(itemConfigHand);
+                CustomData customData = stack.get(DataComponents.CUSTOM_DATA);
+                if (customData != null) {
+                    data.set(0, NbtCompat.getInt(customData.copyTag(), SinkModule.DEFAULT_ROUTE, 0));
+                } else {
+                    data.set(0, 0);
+                }
+            }
+            super.broadcastChanges();
+            return;
+        }
         // Sync default route value from module to data slot
         PipeModuleHelper.withModule(context, SinkModule.class, (ctx, module) -> {
             data.set(0, module.isDefaultRoute(ctx) ? 1 : 0);
         });
+        super.broadcastChanges();
     }
 
     private void addFilterSlots(Container inventory) {
@@ -93,8 +142,16 @@ public class SinkScreenHandler extends AbstractContainerMenu {
         }
     }
 
+    private boolean isPinnedItemStillHeld() {
+        return originalModuleStack != null && itemConfigPlayer != null
+                && itemConfigPlayer.getItemInHand(itemConfigHand) == originalModuleStack;
+    }
+
     @Override
     public boolean stillValid(Player player) {
+        if (itemConfigPlayer != null) {
+            return isPinnedItemStillHeld();
+        }
         return true;
     }
 
@@ -110,10 +167,25 @@ public class SinkScreenHandler extends AbstractContainerMenu {
 
             // Right-click: Clear slot
             if (button == 1) {
-                sinkInventory.setItem(slotIndex, ItemStack.EMPTY);
-                PipeModuleHelper.withModule(context, SinkModule.class, (ctx, module) -> {
-                    module.setFilter(ctx, slotIndex, "");
-                });
+                if (itemConfigPlayer != null) {
+                    if (!isPinnedItemStillHeld()) return;
+                    sinkInventory.setItem(slotIndex, ItemStack.EMPTY);
+                    final int s = slotIndex;
+                    ItemTagUtils.writeToItemTag(itemConfigPlayer, itemConfigHand, tag -> {
+                        CompoundTag filters = NbtCompat.getCompoundOrEmpty(tag, SinkModule.FILTERS);
+                        filters.remove(String.valueOf(s));
+                        if (filters.isEmpty()) {
+                            tag.remove(SinkModule.FILTERS);
+                        } else {
+                            tag.put(SinkModule.FILTERS, filters);
+                        }
+                    });
+                } else {
+                    sinkInventory.setItem(slotIndex, ItemStack.EMPTY);
+                    PipeModuleHelper.withModule(context, SinkModule.class, (ctx, module) -> {
+                        module.setFilter(ctx, slotIndex, "");
+                    });
+                }
                 broadcastChanges();
                 return;
             }
@@ -125,12 +197,23 @@ public class SinkScreenHandler extends AbstractContainerMenu {
 
             String itemId = net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(cursor.getItem()).toString();
             ItemStack ghostItem = cursor.copyWithCount(1); // Filters don't need count
-            sinkInventory.setItem(slotIndex, ghostItem);
 
             // Save to module configuration
-            PipeModuleHelper.withModule(context, SinkModule.class, (ctx, module) -> {
-                module.setFilter(ctx, slotIndex, itemId);
-            });
+            if (itemConfigPlayer != null) {
+                if (!isPinnedItemStillHeld()) return;
+                sinkInventory.setItem(slotIndex, ghostItem);
+                final int s = slotIndex;
+                ItemTagUtils.writeToItemTag(itemConfigPlayer, itemConfigHand, tag -> {
+                    CompoundTag filters = NbtCompat.getCompoundOrEmpty(tag, SinkModule.FILTERS);
+                    filters.putString(String.valueOf(s), itemId);
+                    tag.put(SinkModule.FILTERS, filters);
+                });
+            } else {
+                sinkInventory.setItem(slotIndex, ghostItem);
+                PipeModuleHelper.withModule(context, SinkModule.class, (ctx, module) -> {
+                    module.setFilter(ctx, slotIndex, itemId);
+                });
+            }
 
             broadcastChanges();
             return;
@@ -151,9 +234,14 @@ public class SinkScreenHandler extends AbstractContainerMenu {
             boolean newValue = data.get(0) == 0;
             data.set(0, newValue ? 1 : 0);
 
-            PipeModuleHelper.withModule(context, SinkModule.class, (ctx, module) -> {
-                module.setDefaultRoute(ctx, newValue);
-            });
+            if (itemConfigPlayer != null) {
+                if (!isPinnedItemStillHeld()) return true;
+                ItemTagUtils.writeToItemTag(itemConfigPlayer, itemConfigHand, tag -> tag.putInt(SinkModule.DEFAULT_ROUTE, newValue ? 1 : 0));
+            } else {
+                PipeModuleHelper.withModule(context, SinkModule.class, (ctx, module) -> {
+                    module.setDefaultRoute(ctx, newValue);
+                });
+            }
             return true;
         }
         return false;

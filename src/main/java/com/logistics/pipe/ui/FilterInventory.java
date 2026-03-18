@@ -1,6 +1,7 @@
 package com.logistics.pipe.ui;
 
 import com.logistics.core.lib.resource.ResourceId;
+import com.logistics.core.lib.storage.NbtCompat;
 import com.logistics.pipe.PipeContext;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.pipe.modules.ItemFilterModule;
@@ -8,11 +9,15 @@ import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.Level;
 
 public class FilterInventory implements Container {
@@ -137,6 +142,32 @@ public class FilterInventory implements Container {
                     }
                 }
                 stacks.set(slotIndex++, stack);
+            }
+        }
+    }
+
+    public void loadFromItem(ItemStack stack) {
+        for (int i = 0; i < stacks.size(); i++) stacks.set(i, ItemStack.EMPTY);
+        CustomData customData = stack.get(DataComponents.CUSTOM_DATA);
+        if (customData == null) return;
+        CompoundTag tag = customData.copyTag();
+        CompoundTag filters = NbtCompat.getCompoundOrEmpty(tag, ItemFilterModule.FILTERS);
+        int slotIndex = 0;
+        for (Direction direction : ItemFilterModule.FILTER_ORDER) {
+            ListTag list = NbtCompat.getListOrEmpty(filters, direction.getName());
+            for (int i = 0; i < ItemFilterModule.FILTER_SLOTS_PER_SIDE; i++) {
+                String itemId = NbtCompat.getStringAt(list, i, "");
+                ItemStack resolved = ItemStack.EMPTY;
+                if (!itemId.isEmpty()) {
+                    ResourceId rid = ResourceId.tryParse(itemId);
+                    if (rid != null) {
+                        var itemOpt = BuiltInRegistries.ITEM.get(rid.toIdentifier());
+                        if (itemOpt.isPresent() && itemOpt.get().value() != Items.AIR) {
+                            resolved = new ItemStack(itemOpt.get().value());
+                        }
+                    }
+                }
+                stacks.set(slotIndex++, resolved);
             }
         }
     }

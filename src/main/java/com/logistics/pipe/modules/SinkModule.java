@@ -19,6 +19,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Player;
@@ -38,8 +39,8 @@ import java.util.List;
  * <p>This is the Basic Logistics Pipe from LogisticsPipes - pulls items out of the network.
  */
 public class SinkModule implements Module {
-    private static final String FILTERS = "filters";
-    private static final String DEFAULT_ROUTE = "default_route";
+    public static final String FILTERS = "filters";
+    public static final String DEFAULT_ROUTE = "default_route";
     private static final String SINK_DIRECTION = "sink_direction";
     private static final String TICKS_SINCE_SYNC = "ticks_since_sync";
     private static final int SYNC_INTERVAL = 20; // Re-register with network every second to recover from splits
@@ -128,6 +129,14 @@ public class SinkModule implements Module {
                 ),
                 Component.translatable("screen.logistics.sink.requested_items")
         ));
+        return InteractionResult.SUCCESS;
+    }
+
+    @Override
+    public InteractionResult openItemConfig(ServerPlayer player, InteractionHand hand, ItemStack stack) {
+        player.openMenu(new SimpleMenuProvider(
+                (syncId, inv, p) -> new SinkScreenHandler(syncId, inv, player, hand),
+                Component.translatable("screen.logistics.sink.requested_items")));
         return InteractionResult.SUCCESS;
     }
 

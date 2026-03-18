@@ -21,6 +21,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.item.ItemStack;
@@ -56,9 +57,9 @@ import java.util.UUID;
  */
 public class ProviderModule implements Module {
     private static final String TICKS_SINCE_SCAN = "ticks_since_scan";
-    private static final String MODE = "mode";
-    private static final String FILTER_ITEMS = "filter_items";
-    private static final String FILTER_INVERTED = "filter_inverted";
+    public static final String MODE = "mode";
+    public static final String FILTER_ITEMS = "filter_items";
+    public static final String FILTER_INVERTED = "filter_inverted";
     // Dispatch queue NBT keys (values kept short to minimise NBT size)
     private static final String DISPATCH_QUEUE = "dispatch_queue";
     private static final String DQ_ITEM = "i";  // item registry key string
@@ -253,7 +254,7 @@ public class ProviderModule implements Module {
             head = queue.peekHead();
             if (head == null) break;
 
-            long toExtract = Math.min(head.remaining(), itemsLeft);
+            long toExtract = Math.min(head.remaining(), Math.min(itemsLeft, item.toStack(1).getMaxStackSize()));
             long extracted = 0;
             Direction extractDir = null;
 
@@ -386,6 +387,14 @@ public class ProviderModule implements Module {
                         syncId, playerInventory, ctx.blockEntity()),
                 Component.translatable("screen.logistics.provider")));
 
+        return InteractionResult.SUCCESS;
+    }
+
+    @Override
+    public InteractionResult openItemConfig(ServerPlayer player, InteractionHand hand, ItemStack stack) {
+        player.openMenu(new SimpleMenuProvider(
+                (syncId, inv, p) -> new ProviderScreenHandler(syncId, inv, player, hand),
+                Component.translatable("screen.logistics.provider")));
         return InteractionResult.SUCCESS;
     }
 

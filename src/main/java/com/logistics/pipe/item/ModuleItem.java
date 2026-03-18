@@ -1,7 +1,12 @@
 package com.logistics.pipe.item;
 
 import com.logistics.pipe.modules.Module;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.level.Level;
 
 import java.util.function.Supplier;
 
@@ -20,5 +25,12 @@ public class ModuleItem extends Item {
 
     public Module createModule() {
         return factory.get();
+    }
+
+    @Override
+    public InteractionResult use(Level level, Player player, InteractionHand hand) {
+        if (level.isClientSide()) return InteractionResult.PASS;
+        if (!(player instanceof ServerPlayer serverPlayer)) return InteractionResult.PASS;
+        return createModule().openItemConfig(serverPlayer, hand, player.getItemInHand(hand));
     }
 }
