@@ -39,7 +39,7 @@ public record OpenChassisSlotPacket(int slotIndex) implements CustomPacketPayloa
     }
 
     public static void register() {
-        PayloadTypeRegistry.playC2S().register(TYPE, CODEC);
+        PayloadTypeRegistry.serverboundPlay().register(TYPE, CODEC);
 
         ServerPlayNetworking.registerGlobalReceiver(TYPE, (packet, context) -> {
             context.server().execute(() -> {

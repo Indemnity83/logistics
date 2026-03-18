@@ -28,9 +28,7 @@ public class SatelliteScreen extends AbstractContainerScreen<SatelliteScreenHand
     private static final int PLUS_X = CENTER_X + 14;  // 101
 
     public SatelliteScreen(SatelliteScreenHandler handler, Inventory inventory, Component title) {
-        super(handler, inventory, title);
-        this.imageWidth = 176;
-        this.imageHeight = 122;
+        super(handler, inventory, title, 176, 122);
     }
 
     @Override

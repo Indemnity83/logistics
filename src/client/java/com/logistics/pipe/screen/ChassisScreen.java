@@ -30,9 +30,7 @@ public class ChassisScreen extends AbstractContainerScreen<ChassisScreenHandler>
             ResourceId.in("logistics", "textures/gui/pipe/chassis_mk1.png");
 
     public ChassisScreen(ChassisScreenHandler handler, Inventory inventory, Component title) {
-        super(handler, inventory, title);
-        this.imageWidth = 176;
-        this.imageHeight = 183;
+        super(handler, inventory, title, 176, 183);
         this.titleLabelY = 6;
         this.inventoryLabelY = 90;
     }

@@ -44,9 +44,7 @@ public class ModSinkScreen extends AbstractContainerScreen<ModSinkScreenHandler>
     private int scrollOffset = 0;
 
     public ModSinkScreen(ModSinkScreenHandler handler, Inventory inventory, Component title) {
-        super(handler, inventory, title);
-        this.imageWidth = 176;
-        this.imageHeight = 184;
+        super(handler, inventory, title, 176, 184);
         this.titleLabelY = 6;
         this.inventoryLabelY = 91;
     }

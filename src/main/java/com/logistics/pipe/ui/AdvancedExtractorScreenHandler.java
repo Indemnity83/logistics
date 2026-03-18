@@ -11,7 +11,7 @@ import net.minecraft.world.Container;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.SimpleContainerData;
@@ -130,9 +130,9 @@ public class AdvancedExtractorScreenHandler extends AbstractContainerMenu {
     public ItemStack quickMoveStack(Player player, int slot) { return ItemStack.EMPTY; }
 
     @Override
-    public void clicked(int slotIndex, int button, ClickType actionType, Player player) {
+    public void clicked(int slotIndex, int button, ContainerInput actionType, Player player) {
         if (slotIndex >= 0 && slotIndex < FILTER_SLOT_COUNT) {
-            if (actionType == ClickType.QUICK_MOVE) return;
+            if (actionType == ContainerInput.QUICK_MOVE) return;
 
             ItemStack cursor = getCarried();
 

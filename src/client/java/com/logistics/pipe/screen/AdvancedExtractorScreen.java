@@ -21,8 +21,6 @@ public class AdvancedExtractorScreen extends AbstractContainerScreen<AdvancedExt
 
     public AdvancedExtractorScreen(AdvancedExtractorScreenHandler handler, Inventory inventory, Component title) {
         super(handler, inventory, title);
-        this.imageWidth = 176;
-        this.imageHeight = 166;
         this.titleLabelY = 6;
         this.inventoryLabelY = 48;
     }

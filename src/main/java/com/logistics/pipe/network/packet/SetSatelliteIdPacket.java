@@ -37,7 +37,7 @@ public record SetSatelliteIdPacket(BlockPos pipePos, String satelliteId)
     }
 
     public static void register() {
-        PayloadTypeRegistry.playC2S().register(TYPE, CODEC);
+        PayloadTypeRegistry.serverboundPlay().register(TYPE, CODEC);
 
         ServerPlayNetworking.registerGlobalReceiver(TYPE, (packet, context) -> {
             context.server().execute(() -> {

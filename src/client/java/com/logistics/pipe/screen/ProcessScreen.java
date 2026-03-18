@@ -28,9 +28,7 @@ public class ProcessScreen extends AbstractContainerScreen<ProcessScreenHandler>
     private static final int SAT_BTN_Y = SAT_CENTER_Y - BTN_HEIGHT / 2; // 43
 
     public ProcessScreen(ProcessScreenHandler handler, Inventory inventory, Component title) {
-        super(handler, inventory, title);
-        this.imageWidth = 176;
-        this.imageHeight = 176;
+        super(handler, inventory, title, 176, 176);
     }
 
     @Override
