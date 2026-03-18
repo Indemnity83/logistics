@@ -73,6 +73,7 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         ITEM.register();
         ENTITY.register();
         FLUID.register();
+        MENU.register();
         CREATIVE_TAB.register();
         RECIPE.register();
 
@@ -207,10 +208,13 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
     }
 
     public static final class MENU {
-        public static final MenuType<KilnScreenHandler> KILN =
-            INSTANCE.registerMenuType("kiln", KilnScreenHandler::new);
+        public static MenuType<KilnScreenHandler> KILN;
 
         private MENU() {}
+
+        static void register() {
+            KILN = INSTANCE.registerMenuType("kiln", KilnScreenHandler::new);
+        }
     }
 
     public static final class RECIPE {
