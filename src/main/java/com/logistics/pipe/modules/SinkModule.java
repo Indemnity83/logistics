@@ -65,7 +65,9 @@ public class SinkModule implements Module, TickingModule, RoutingModule, ItemAcc
         // setDefaultRoute() handles immediate registration on change; this is just the recovery path.
         ILogisticsNetwork network = ctx.network();
         if (network != null) {
-            network.registerSink(ctx.pos(), priority);
+            // Default-route sinks use priority 0 so filtered sinks (ModSink, etc.) can outbid them.
+            int effectivePriority = isDefaultRoute(ctx) ? 0 : priority;
+            network.registerSink(ctx.pos(), effectivePriority);
             // Rebuild specific-item interests from current filter slots
             network.unregisterSinkInterests(ctx.pos());
             for (String itemId : getFilters(ctx).asList()) {
