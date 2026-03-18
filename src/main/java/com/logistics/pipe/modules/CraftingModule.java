@@ -392,7 +392,7 @@ public class CraftingModule implements Module, TickingModule, RoutingModule, Dis
                             remaining.copy(),
                             autocrafterDir.getOpposite(),
                             LogisticsPipe.CONFIG.ITEM_MIN_SPEED);
-                    ((PipeBlockEntity) ctx.blockEntity()).forceAddItem(surplus, autocrafterDir);
+                    ctx.blockEntity().forceAddItem(surplus, autocrafterDir);
                 }
             }
 
@@ -984,7 +984,7 @@ public class CraftingModule implements Module, TickingModule, RoutingModule, Dis
                     stack.copyWithCount((int) toSend),
                     fromDirection.getOpposite(), LogisticsPipe.CONFIG.ITEM_MIN_SPEED, entryRequester);
             if (entryDeliveryId != null) routed.setDeliveryId(entryDeliveryId);
-            ((PipeBlockEntity) ctx.blockEntity()).forceAddItem(routed, fromDirection);
+            ctx.blockEntity().forceAddItem(routed, fromDirection);
 
             available -= (int) toSend;
             if (toSend >= entryOrdered) {
@@ -1018,7 +1018,7 @@ public class CraftingModule implements Module, TickingModule, RoutingModule, Dis
                     stack.copyWithCount(available),
                     fromDirection.getOpposite(),
                     LogisticsPipe.CONFIG.ITEM_MIN_SPEED);
-            ((PipeBlockEntity) ctx.blockEntity()).forceAddItem(surplusItem, fromDirection);
+            ctx.blockEntity().forceAddItem(surplusItem, fromDirection);
         }
 
         return true;

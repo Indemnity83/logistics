@@ -184,6 +184,7 @@ public class PipeBlockEntity extends BaseBlockEntity
         return addItem(item, from, false);
     }
 
+    @Override
     public boolean forceAddItem(TravelingItem item, Direction fromDirection) {
         return addItem(item, fromDirection, true);
     }
@@ -191,6 +192,7 @@ public class PipeBlockEntity extends BaseBlockEntity
     /**
      * Get all traveling items (for rendering)
      */
+    @Override
     public List<TravelingItem> getTravelingItems() {
         return travelingItems;
     }

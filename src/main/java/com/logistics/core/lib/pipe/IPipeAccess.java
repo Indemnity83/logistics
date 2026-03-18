@@ -9,6 +9,8 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
+
 /**
  * Abstraction over {@code PipeBlockEntity} exposed to {@link PipeContext}.
  *
@@ -54,4 +56,13 @@ public interface IPipeAccess {
      * Return the logistics network this pipe belongs to, or {@code null} if not yet formed.
      */
     @Nullable ILogisticsNetwork getNetwork();
+
+    /** Return all items currently traveling through this pipe segment. */
+    List<TravelingItem> getTravelingItems();
+
+    /**
+     * Inject a new {@link TravelingItem} into this pipe, bypassing capacity checks.
+     * Returns {@code true} if the item was accepted.
+     */
+    boolean forceAddItem(TravelingItem item, Direction fromDirection);
 }

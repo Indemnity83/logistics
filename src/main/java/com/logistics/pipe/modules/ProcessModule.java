@@ -479,7 +479,7 @@ public class ProcessModule implements Module, TickingModule, RoutingModule, Disp
                                 variant.toStack(chunk), dir.getOpposite(),
                                 LogisticsPipe.CONFIG.ITEM_NETWORK_SPEED, requester);
                         t.setDeliveryId(getJobDeliveryId(ctx));
-                        ((PipeBlockEntity) ctx.blockEntity()).forceAddItem(t, dir);
+                        ctx.blockEntity().forceAddItem(t, dir);
                         rem -= chunk;
                     }
                     rem = forSink;
@@ -489,7 +489,7 @@ public class ProcessModule implements Module, TickingModule, RoutingModule, Disp
                         TravelingItem t = new TravelingItem(
                                 variant.toStack(chunk), dir.getOpposite(),
                                 LogisticsPipe.CONFIG.ITEM_NETWORK_SPEED, null);
-                        ((PipeBlockEntity) ctx.blockEntity()).forceAddItem(t, dir);
+                        ctx.blockEntity().forceAddItem(t, dir);
                         rem -= chunk;
                     }
                     if (extracted >= needed) break;
