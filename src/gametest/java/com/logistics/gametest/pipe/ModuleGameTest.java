@@ -9,7 +9,7 @@ import com.logistics.pipe.modules.ItemFilterModule;
 import com.logistics.pipe.modules.MergerModule;
 import com.logistics.core.lib.pipe.RoutePlan;
 import com.logistics.core.lib.pipe.TravelingItem;
-import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
+import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -31,12 +31,12 @@ public class ModuleGameTest {
     /**
      * Test that filter pipes can be placed and have block entities.
      */
-    @FabricGameTest
+    @GameTest
     public void testFilterPipePlacement(GameTestHelper context) {
         BlockPos pos = new BlockPos(0, 1, 0);
         context.setBlock(pos, LogisticsPipe.BLOCK.ITEM_FILTER_PIPE);
 
-        PipeBlockEntity pipeEntity = context.getBlockEntity(pos, PipeBlockEntity.class);
+        PipeBlockEntity pipeEntity = (PipeBlockEntity) context.getBlockEntity(pos);
         if (pipeEntity == null) {
             context.fail("Filter pipe should have block entity");
         }
@@ -52,12 +52,12 @@ public class ModuleGameTest {
     /**
      * Test that extractor pipes can be placed and have block entities.
      */
-    @FabricGameTest
+    @GameTest
     public void testExtractorPipePlacement(GameTestHelper context) {
         BlockPos pos = new BlockPos(0, 1, 0);
         context.setBlock(pos, LogisticsPipe.BLOCK.ITEM_EXTRACTOR_PIPE);
 
-        PipeBlockEntity pipeEntity = context.getBlockEntity(pos, PipeBlockEntity.class);
+        PipeBlockEntity pipeEntity = (PipeBlockEntity) context.getBlockEntity(pos);
         if (pipeEntity == null) {
             context.fail("Extractor pipe should have block entity");
         }
@@ -68,12 +68,12 @@ public class ModuleGameTest {
     /**
      * Test that merger pipes can be placed and have block entities.
      */
-    @FabricGameTest
+    @GameTest
     public void testMergerPipePlacement(GameTestHelper context) {
         BlockPos pos = new BlockPos(0, 1, 0);
         context.setBlock(pos, LogisticsPipe.BLOCK.ITEM_MERGER_PIPE);
 
-        PipeBlockEntity pipeEntity = context.getBlockEntity(pos, PipeBlockEntity.class);
+        PipeBlockEntity pipeEntity = (PipeBlockEntity) context.getBlockEntity(pos);
         if (pipeEntity == null) {
             context.fail("Merger pipe should have block entity");
         }
@@ -84,12 +84,12 @@ public class ModuleGameTest {
     /**
      * Test that insertion pipes can be placed and have block entities.
      */
-    @FabricGameTest
+    @GameTest
     public void testInsertionPipePlacement(GameTestHelper context) {
         BlockPos pos = new BlockPos(0, 1, 0);
         context.setBlock(pos, LogisticsPipe.BLOCK.ITEM_INSERTION_PIPE);
 
-        PipeBlockEntity pipeEntity = context.getBlockEntity(pos, PipeBlockEntity.class);
+        PipeBlockEntity pipeEntity = (PipeBlockEntity) context.getBlockEntity(pos);
         if (pipeEntity == null) {
             context.fail("Insertion pipe should have block entity");
         }
@@ -100,12 +100,12 @@ public class ModuleGameTest {
     /**
      * Test that void pipes can be placed and have block entities.
      */
-    @FabricGameTest
+    @GameTest
     public void testVoidPipePlacement(GameTestHelper context) {
         BlockPos pos = new BlockPos(0, 1, 0);
         context.setBlock(pos, LogisticsPipe.BLOCK.ITEM_VOID_PIPE);
 
-        PipeBlockEntity pipeEntity = context.getBlockEntity(pos, PipeBlockEntity.class);
+        PipeBlockEntity pipeEntity = (PipeBlockEntity) context.getBlockEntity(pos);
         if (pipeEntity == null) {
             context.fail("Void pipe should have block entity");
         }
@@ -116,12 +116,12 @@ public class ModuleGameTest {
     /**
      * Test that passthrough pipes can be placed and have block entities.
      */
-    @FabricGameTest
+    @GameTest
     public void testPassthroughPipePlacement(GameTestHelper context) {
         BlockPos pos = new BlockPos(0, 1, 0);
         context.setBlock(pos, LogisticsPipe.BLOCK.ITEM_PASSTHROUGH_PIPE);
 
-        PipeBlockEntity pipeEntity = context.getBlockEntity(pos, PipeBlockEntity.class);
+        PipeBlockEntity pipeEntity = (PipeBlockEntity) context.getBlockEntity(pos);
         if (pipeEntity == null) {
             context.fail("Passthrough pipe should have block entity");
         }
@@ -132,12 +132,12 @@ public class ModuleGameTest {
     /**
      * Test that gold transport pipes can be placed and have block entities.
      */
-    @FabricGameTest
+    @GameTest
     public void testGoldTransportPipePlacement(GameTestHelper context) {
         BlockPos pos = new BlockPos(0, 1, 0);
         context.setBlock(pos, LogisticsPipe.BLOCK.GOLD_TRANSPORT_PIPE);
 
-        PipeBlockEntity pipeEntity = context.getBlockEntity(pos, PipeBlockEntity.class);
+        PipeBlockEntity pipeEntity = (PipeBlockEntity) context.getBlockEntity(pos);
         if (pipeEntity == null) {
             context.fail("Gold transport pipe should have block entity");
         }
@@ -150,12 +150,12 @@ public class ModuleGameTest {
     /**
      * Test that filter module routes items based on configured filters.
      */
-    @FabricGameTest
+    @GameTest
     public void testFilterModuleRoutesMatchingItems(GameTestHelper context) {
         BlockPos pos = new BlockPos(0, 1, 0);
         context.setBlock(pos, LogisticsPipe.BLOCK.ITEM_FILTER_PIPE);
 
-        PipeBlockEntity pipeEntity = context.getBlockEntity(pos, PipeBlockEntity.class);
+        PipeBlockEntity pipeEntity = (PipeBlockEntity) context.getBlockEntity(pos);
         if (pipeEntity == null) {
             context.fail("Filter pipe should have block entity");
         }
@@ -208,12 +208,12 @@ public class ModuleGameTest {
     /**
      * Test that filter module passes through non-matching items.
      */
-    @FabricGameTest
+    @GameTest
     public void testFilterModulePassesThroughNonMatching(GameTestHelper context) {
         BlockPos pos = new BlockPos(0, 1, 0);
         context.setBlock(pos, LogisticsPipe.BLOCK.ITEM_FILTER_PIPE);
 
-        PipeBlockEntity pipeEntity = context.getBlockEntity(pos, PipeBlockEntity.class);
+        PipeBlockEntity pipeEntity = (PipeBlockEntity) context.getBlockEntity(pos);
         if (pipeEntity == null) {
             context.fail("Filter pipe should have block entity");
         }
@@ -260,12 +260,12 @@ public class ModuleGameTest {
     /**
      * Test that merger module routes items to configured output direction.
      */
-    @FabricGameTest
+    @GameTest
     public void testMergerModuleRoutesToOutput(GameTestHelper context) {
         BlockPos pos = new BlockPos(0, 1, 0);
         context.setBlock(pos, LogisticsPipe.BLOCK.ITEM_MERGER_PIPE);
 
-        PipeBlockEntity pipeEntity = context.getBlockEntity(pos, PipeBlockEntity.class);
+        PipeBlockEntity pipeEntity = (PipeBlockEntity) context.getBlockEntity(pos);
         if (pipeEntity == null) {
             context.fail("Merger pipe should have block entity");
         }
@@ -312,12 +312,12 @@ public class ModuleGameTest {
     /**
      * Test that filter module handles multiple filters on different sides.
      */
-    @FabricGameTest
+    @GameTest
     public void testFilterModuleMultipleSideFilters(GameTestHelper context) {
         BlockPos pos = new BlockPos(0, 1, 0);
         context.setBlock(pos, LogisticsPipe.BLOCK.ITEM_FILTER_PIPE);
 
-        PipeBlockEntity pipeEntity = context.getBlockEntity(pos, PipeBlockEntity.class);
+        PipeBlockEntity pipeEntity = (PipeBlockEntity) context.getBlockEntity(pos);
         if (pipeEntity == null) {
             context.fail("Filter pipe should have block entity");
         }

@@ -3,7 +3,7 @@ package com.logistics.gametest.automation;
 import com.logistics.LogisticsCore;
 import com.logistics.core.fabricator.KilnBlock;
 import com.logistics.core.fabricator.KilnBlockEntity;
-import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
+import net.minecraft.gametest.framework.GameTest;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.minecraft.core.BlockPos;
@@ -24,7 +24,7 @@ public class KilnGameTest {
     /**
      * Test that kiln can be placed and creates block entity.
      */
-    @FabricGameTest
+    @GameTest
     public void testKilnPlacement(GameTestHelper context) {
         BlockPos pos = new BlockPos(1, 1, 1);
 
@@ -32,7 +32,7 @@ public class KilnGameTest {
         context.setBlock(pos, LogisticsCore.BLOCK.KILN);
 
         // Verify block entity exists
-        KilnBlockEntity blockEntity = context.getBlockEntity(pos, KilnBlockEntity.class);
+        KilnBlockEntity blockEntity = (KilnBlockEntity) context.getBlockEntity(pos);
         if (blockEntity == null) {
             context.fail("Kiln should create KilnBlockEntity");
             return;
@@ -45,12 +45,12 @@ public class KilnGameTest {
      * Test that kiln inventory is accessible from correct sides.
      * Top: glass input, Sides: fuel, Bottom: output extraction.
      */
-    @FabricGameTest
+    @GameTest
     public void testKilnInventoryAccess(GameTestHelper context) {
         BlockPos pos = new BlockPos(1, 1, 1);
 
         context.setBlock(pos, LogisticsCore.BLOCK.KILN);
-        KilnBlockEntity kiln = context.getBlockEntity(pos, KilnBlockEntity.class);
+        KilnBlockEntity kiln = (KilnBlockEntity) context.getBlockEntity(pos);
 
         if (kiln == null) {
             context.fail("Expected KilnBlockEntity");
@@ -95,12 +95,12 @@ public class KilnGameTest {
     /**
      * Test that kiln only accepts glass items from top.
      */
-    @FabricGameTest
+    @GameTest
     public void testKilnGlassInputFromTop(GameTestHelper context) {
         BlockPos pos = new BlockPos(1, 1, 1);
 
         context.setBlock(pos, LogisticsCore.BLOCK.KILN);
-        KilnBlockEntity kiln = context.getBlockEntity(pos, KilnBlockEntity.class);
+        KilnBlockEntity kiln = (KilnBlockEntity) context.getBlockEntity(pos);
 
         if (!(kiln instanceof WorldlyContainer sidedInv)) {
             context.fail("Expected WorldlyContainer");
@@ -141,12 +141,12 @@ public class KilnGameTest {
     /**
      * Test that kiln only accepts fuel from sides.
      */
-    @FabricGameTest
+    @GameTest
     public void testKilnFuelInputFromSides(GameTestHelper context) {
         BlockPos pos = new BlockPos(1, 1, 1);
 
         context.setBlock(pos, LogisticsCore.BLOCK.KILN);
-        KilnBlockEntity kiln = context.getBlockEntity(pos, KilnBlockEntity.class);
+        KilnBlockEntity kiln = (KilnBlockEntity) context.getBlockEntity(pos);
 
         if (!(kiln instanceof WorldlyContainer sidedInv)) {
             context.fail("Expected WorldlyContainer");
@@ -174,12 +174,12 @@ public class KilnGameTest {
     /**
      * Test that kiln only allows output extraction from bottom.
      */
-    @FabricGameTest
+    @GameTest
     public void testKilnOutputExtractionFromBottom(GameTestHelper context) {
         BlockPos pos = new BlockPos(1, 1, 1);
 
         context.setBlock(pos, LogisticsCore.BLOCK.KILN);
-        KilnBlockEntity kiln = context.getBlockEntity(pos, KilnBlockEntity.class);
+        KilnBlockEntity kiln = (KilnBlockEntity) context.getBlockEntity(pos);
 
         if (!(kiln instanceof WorldlyContainer sidedInv)) {
             context.fail("Expected WorldlyContainer");
@@ -213,12 +213,12 @@ public class KilnGameTest {
      * Test that kiln crafting grid is NOT accessible from outside.
      * Slots 2-10 (crafting grid) should not be exposed via sided inventory.
      */
-    @FabricGameTest
+    @GameTest
     public void testKilnCraftingGridNotAccessible(GameTestHelper context) {
         BlockPos pos = new BlockPos(1, 1, 1);
 
         context.setBlock(pos, LogisticsCore.BLOCK.KILN);
-        KilnBlockEntity kiln = context.getBlockEntity(pos, KilnBlockEntity.class);
+        KilnBlockEntity kiln = (KilnBlockEntity) context.getBlockEntity(pos);
 
         if (!(kiln instanceof WorldlyContainer sidedInv)) {
             context.fail("Expected WorldlyContainer");
@@ -243,12 +243,12 @@ public class KilnGameTest {
      * Test that kiln has correct initial state.
      * Should start not burning and at zero temperature.
      */
-    @FabricGameTest
+    @GameTest
     public void testKilnInitialState(GameTestHelper context) {
         BlockPos pos = new BlockPos(1, 1, 1);
 
         context.setBlock(pos, LogisticsCore.BLOCK.KILN);
-        KilnBlockEntity kiln = context.getBlockEntity(pos, KilnBlockEntity.class);
+        KilnBlockEntity kiln = (KilnBlockEntity) context.getBlockEntity(pos);
 
         if (kiln == null) {
             context.fail("Expected KilnBlockEntity");
@@ -280,12 +280,12 @@ public class KilnGameTest {
     /**
      * Test that kiln provides item storage capability.
      */
-    @FabricGameTest
+    @GameTest
     public void testKilnItemStorage(GameTestHelper context) {
         BlockPos pos = new BlockPos(1, 1, 1);
 
         context.setBlock(pos, LogisticsCore.BLOCK.KILN);
-        KilnBlockEntity kiln = context.getBlockEntity(pos, KilnBlockEntity.class);
+        KilnBlockEntity kiln = (KilnBlockEntity) context.getBlockEntity(pos);
 
         if (kiln == null) {
             context.fail("Expected KilnBlockEntity");
@@ -307,7 +307,7 @@ public class KilnGameTest {
     /**
      * Test that kiln block state has correct FACING property.
      */
-    @FabricGameTest
+    @GameTest
     public void testKilnFacing(GameTestHelper context) {
         BlockPos pos = new BlockPos(1, 1, 1);
 

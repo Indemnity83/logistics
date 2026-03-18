@@ -4,7 +4,7 @@ import com.logistics.LogisticsAutomation;
 import com.logistics.automation.laserquarry.LaserQuarryBlock;
 import com.logistics.automation.laserquarry.entity.LaserQuarryBlockEntity;
 import com.logistics.core.lib.block.capability.PipeConnection;
-import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
+import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTestHelper;
@@ -18,7 +18,7 @@ public class QuarryGameTest {
     /**
      * Test that laser quarry can be placed and creates block entity.
      */
-    @FabricGameTest
+    @GameTest
     public void testQuarryPlacement(GameTestHelper context) {
         BlockPos pos = new BlockPos(1, 1, 1);
 
@@ -26,7 +26,7 @@ public class QuarryGameTest {
         context.setBlock(pos, LogisticsAutomation.BLOCK.LASER_QUARRY);
 
         // Verify block entity exists
-        LaserQuarryBlockEntity blockEntity = context.getBlockEntity(pos, LaserQuarryBlockEntity.class);
+        LaserQuarryBlockEntity blockEntity = (LaserQuarryBlockEntity) context.getBlockEntity(pos);
         if (blockEntity == null) {
             context.fail("Laser quarry should create LaserQuarryBlockEntity");
             return;
@@ -38,12 +38,12 @@ public class QuarryGameTest {
     /**
      * Test that laser quarry accepts energy from all sides.
      */
-    @FabricGameTest
+    @GameTest
     public void testQuarryAcceptsEnergy(GameTestHelper context) {
         BlockPos pos = new BlockPos(1, 1, 1);
 
         context.setBlock(pos, LogisticsAutomation.BLOCK.LASER_QUARRY);
-        LaserQuarryBlockEntity quarry = context.getBlockEntity(pos, LaserQuarryBlockEntity.class);
+        LaserQuarryBlockEntity quarry = (LaserQuarryBlockEntity) context.getBlockEntity(pos);
 
         if (quarry == null) {
             context.fail("Expected LaserQuarryBlockEntity");
@@ -71,12 +71,12 @@ public class QuarryGameTest {
      * Test that laser quarry does NOT accept items from pipes.
      * Quarry only outputs items, never accepts them.
      */
-    @FabricGameTest
+    @GameTest
     public void testQuarryDoesNotAcceptItems(GameTestHelper context) {
         BlockPos pos = new BlockPos(1, 1, 1);
 
         context.setBlock(pos, LogisticsAutomation.BLOCK.LASER_QUARRY);
-        LaserQuarryBlockEntity quarry = context.getBlockEntity(pos, LaserQuarryBlockEntity.class);
+        LaserQuarryBlockEntity quarry = (LaserQuarryBlockEntity) context.getBlockEntity(pos);
 
         if (quarry == null) {
             context.fail("Expected LaserQuarryBlockEntity");
@@ -105,12 +105,12 @@ public class QuarryGameTest {
     /**
      * Test that laser quarry starts in CLEARING phase.
      */
-    @FabricGameTest
+    @GameTest
     public void testQuarryInitialPhase(GameTestHelper context) {
         BlockPos pos = new BlockPos(1, 1, 1);
 
         context.setBlock(pos, LogisticsAutomation.BLOCK.LASER_QUARRY);
-        LaserQuarryBlockEntity quarry = context.getBlockEntity(pos, LaserQuarryBlockEntity.class);
+        LaserQuarryBlockEntity quarry = (LaserQuarryBlockEntity) context.getBlockEntity(pos);
 
         if (quarry == null) {
             context.fail("Expected LaserQuarryBlockEntity");
@@ -136,12 +136,12 @@ public class QuarryGameTest {
      * Test that laser quarry reports correct pipe connection type.
      * Should only connect to pipes from above (Direction.UP).
      */
-    @FabricGameTest
+    @GameTest
     public void testQuarryPipeConnection(GameTestHelper context) {
         BlockPos pos = new BlockPos(1, 1, 1);
 
         context.setBlock(pos, LogisticsAutomation.BLOCK.LASER_QUARRY);
-        LaserQuarryBlockEntity quarry = context.getBlockEntity(pos, LaserQuarryBlockEntity.class);
+        LaserQuarryBlockEntity quarry = (LaserQuarryBlockEntity) context.getBlockEntity(pos);
 
         if (quarry == null) {
             context.fail("Expected LaserQuarryBlockEntity");
@@ -173,7 +173,7 @@ public class QuarryGameTest {
     /**
      * Test that laser quarry block state has correct FACING property.
      */
-    @FabricGameTest
+    @GameTest
     public void testQuarryFacing(GameTestHelper context) {
         BlockPos pos = new BlockPos(1, 1, 1);
 

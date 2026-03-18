@@ -5,7 +5,7 @@ import com.logistics.power.block.entity.CreativeSinkBlockEntity;
 import com.logistics.power.engine.block.entity.CreativeEngineBlockEntity;
 import com.logistics.power.engine.block.entity.RedstoneEngineBlockEntity;
 import com.logistics.power.engine.block.entity.StirlingEngineBlockEntity;
-import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
+import net.minecraft.gametest.framework.GameTest;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
@@ -25,12 +25,12 @@ public class EngineGameTest {
     /**
      * Test that redstone engine can be placed and has block entity.
      */
-    @FabricGameTest
+    @GameTest
     public void testRedstoneEnginePlacement(GameTestHelper context) {
         BlockPos pos = new BlockPos(0, 1, 0);
         context.setBlock(pos, LogisticsPower.BLOCK.REDSTONE_ENGINE);
 
-        RedstoneEngineBlockEntity engine = context.getBlockEntity(pos, RedstoneEngineBlockEntity.class);
+        RedstoneEngineBlockEntity engine = (RedstoneEngineBlockEntity) context.getBlockEntity(pos);
         if (engine == null) {
             context.fail("Redstone engine should have block entity");
         }
@@ -41,12 +41,12 @@ public class EngineGameTest {
     /**
      * Test that stirling engine can be placed and has block entity.
      */
-    @FabricGameTest
+    @GameTest
     public void testStirlingEnginePlacement(GameTestHelper context) {
         BlockPos pos = new BlockPos(0, 1, 0);
         context.setBlock(pos, LogisticsPower.BLOCK.STIRLING_ENGINE);
 
-        StirlingEngineBlockEntity engine = context.getBlockEntity(pos, StirlingEngineBlockEntity.class);
+        StirlingEngineBlockEntity engine = (StirlingEngineBlockEntity) context.getBlockEntity(pos);
         if (engine == null) {
             context.fail("Stirling engine should have block entity");
         }
@@ -57,12 +57,12 @@ public class EngineGameTest {
     /**
      * Test that creative engine can be placed and has block entity.
      */
-    @FabricGameTest
+    @GameTest
     public void testCreativeEnginePlacement(GameTestHelper context) {
         BlockPos pos = new BlockPos(0, 1, 0);
         context.setBlock(pos, LogisticsPower.BLOCK.CREATIVE_ENGINE);
 
-        CreativeEngineBlockEntity engine = context.getBlockEntity(pos, CreativeEngineBlockEntity.class);
+        CreativeEngineBlockEntity engine = (CreativeEngineBlockEntity) context.getBlockEntity(pos);
         if (engine == null) {
             context.fail("Creative engine should have block entity");
         }
@@ -73,14 +73,14 @@ public class EngineGameTest {
     /**
      * Test that redstone engine has correct overheat behavior.
      */
-    @FabricGameTest
+    @GameTest
     public void testRedstoneEngineCannotOverheat(GameTestHelper context) {
         BlockPos enginePos = new BlockPos(0, 1, 0);
 
         // Place engine
         context.setBlock(enginePos, LogisticsPower.BLOCK.REDSTONE_ENGINE);
 
-        RedstoneEngineBlockEntity engine = context.getBlockEntity(enginePos, RedstoneEngineBlockEntity.class);
+        RedstoneEngineBlockEntity engine = (RedstoneEngineBlockEntity) context.getBlockEntity(enginePos);
         if (engine == null) {
             context.fail("Redstone engine should have block entity");
         }
@@ -96,7 +96,7 @@ public class EngineGameTest {
     /**
      * Test that stirling engine's inventory is NOT accessible from the front face.
      */
-    @FabricGameTest
+    @GameTest
     public void testStirlingEngineInventoryNotAccessibleFromFront(GameTestHelper context) {
         BlockPos pos = new BlockPos(0, 1, 0);
 
@@ -105,7 +105,7 @@ public class EngineGameTest {
             .defaultBlockState()
             .setValue(BlockStateProperties.FACING, Direction.NORTH));
 
-        StirlingEngineBlockEntity engine = context.getBlockEntity(pos, StirlingEngineBlockEntity.class);
+        StirlingEngineBlockEntity engine = (StirlingEngineBlockEntity) context.getBlockEntity(pos);
         if (engine == null) {
             context.fail("Stirling engine should have block entity");
         }
@@ -122,7 +122,7 @@ public class EngineGameTest {
     /**
      * Test that stirling engine's inventory IS accessible from other sides.
      */
-    @FabricGameTest
+    @GameTest
     public void testStirlingEngineInventoryAccessibleFromOtherSides(GameTestHelper context) {
         BlockPos pos = new BlockPos(0, 1, 0);
 
@@ -131,7 +131,7 @@ public class EngineGameTest {
             .defaultBlockState()
             .setValue(BlockStateProperties.FACING, Direction.NORTH));
 
-        StirlingEngineBlockEntity engine = context.getBlockEntity(pos, StirlingEngineBlockEntity.class);
+        StirlingEngineBlockEntity engine = (StirlingEngineBlockEntity) context.getBlockEntity(pos);
         if (engine == null) {
             context.fail("Stirling engine should have block entity");
         }
@@ -159,7 +159,7 @@ public class EngineGameTest {
     /**
      * Test that stirling engine can accept fuel in its inventory.
      */
-    @FabricGameTest
+    @GameTest
     public void testStirlingEngineAcceptsFuel(GameTestHelper context) {
         BlockPos pos = new BlockPos(0, 1, 0);
 
@@ -168,7 +168,7 @@ public class EngineGameTest {
             .defaultBlockState()
             .setValue(BlockStateProperties.FACING, Direction.NORTH));
 
-        StirlingEngineBlockEntity engine = context.getBlockEntity(pos, StirlingEngineBlockEntity.class);
+        StirlingEngineBlockEntity engine = (StirlingEngineBlockEntity) context.getBlockEntity(pos);
         if (engine == null) {
             context.fail("Stirling engine should have block entity");
         }
@@ -199,7 +199,7 @@ public class EngineGameTest {
     /**
      * Test that stirling engine rejects non-fuel items.
      */
-    @FabricGameTest
+    @GameTest
     public void testStirlingEngineRejectsNonFuel(GameTestHelper context) {
         BlockPos pos = new BlockPos(0, 1, 0);
 
@@ -208,7 +208,7 @@ public class EngineGameTest {
             .defaultBlockState()
             .setValue(BlockStateProperties.FACING, Direction.NORTH));
 
-        StirlingEngineBlockEntity engine = context.getBlockEntity(pos, StirlingEngineBlockEntity.class);
+        StirlingEngineBlockEntity engine = (StirlingEngineBlockEntity) context.getBlockEntity(pos);
         if (engine == null) {
             context.fail("Stirling engine should have block entity");
         }
@@ -239,12 +239,12 @@ public class EngineGameTest {
     /**
      * Test that creative engine cannot overheat.
      */
-    @FabricGameTest
+    @GameTest
     public void testCreativeEngineCannotOverheat(GameTestHelper context) {
         BlockPos pos = new BlockPos(0, 1, 0);
         context.setBlock(pos, LogisticsPower.BLOCK.CREATIVE_ENGINE);
 
-        CreativeEngineBlockEntity engine = context.getBlockEntity(pos, CreativeEngineBlockEntity.class);
+        CreativeEngineBlockEntity engine = (CreativeEngineBlockEntity) context.getBlockEntity(pos);
         if (engine == null) {
             context.fail("Creative engine should have block entity");
         }
@@ -260,12 +260,12 @@ public class EngineGameTest {
     /**
      * Test that creative engine has configurable output levels.
      */
-    @FabricGameTest
+    @GameTest
     public void testCreativeEngineOutputLevels(GameTestHelper context) {
         BlockPos pos = new BlockPos(0, 1, 0);
         context.setBlock(pos, LogisticsPower.BLOCK.CREATIVE_ENGINE);
 
-        CreativeEngineBlockEntity engine = context.getBlockEntity(pos, CreativeEngineBlockEntity.class);
+        CreativeEngineBlockEntity engine = (CreativeEngineBlockEntity) context.getBlockEntity(pos);
         if (engine == null) {
             context.fail("Creative engine should have block entity");
         }
@@ -292,12 +292,12 @@ public class EngineGameTest {
     /**
      * Test that creative sink can be configured with unlimited drain rate.
      */
-    @FabricGameTest
+    @GameTest
     public void testCreativeSinkUnlimitedDrain(GameTestHelper context) {
         BlockPos pos = new BlockPos(0, 1, 0);
         context.setBlock(pos, LogisticsPower.BLOCK.CREATIVE_SINK);
 
-        CreativeSinkBlockEntity sink = context.getBlockEntity(pos, CreativeSinkBlockEntity.class);
+        CreativeSinkBlockEntity sink = (CreativeSinkBlockEntity) context.getBlockEntity(pos);
         if (sink == null) {
             context.fail("Creative sink should have block entity");
         }

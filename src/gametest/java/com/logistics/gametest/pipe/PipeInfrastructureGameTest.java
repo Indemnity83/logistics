@@ -2,7 +2,7 @@ package com.logistics.gametest.pipe;
 
 import com.logistics.LogisticsPipe;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
-import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
+import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.world.level.block.Blocks;
@@ -16,7 +16,7 @@ public class PipeInfrastructureGameTest {
     /**
      * Simple test to verify game test infrastructure works.
      */
-    @FabricGameTest
+    @GameTest
     public void verifyGameTestWorks(GameTestHelper context) {
         // Just verify we can access blocks
         BlockPos pos = new BlockPos(0, 1, 0);
@@ -33,7 +33,7 @@ public class PipeInfrastructureGameTest {
     /**
      * Test that a pipe block can be placed and creates a block entity.
      */
-    @FabricGameTest
+    @GameTest
     public void testPipePlacement(GameTestHelper context) {
         BlockPos pos = new BlockPos(0, 1, 0);
 
@@ -41,7 +41,7 @@ public class PipeInfrastructureGameTest {
         context.setBlock(pos, LogisticsPipe.BLOCK.COPPER_TRANSPORT_PIPE);
 
         // Verify block entity exists
-        PipeBlockEntity blockEntity = context.getBlockEntity(pos, PipeBlockEntity.class);
+        PipeBlockEntity blockEntity = (PipeBlockEntity) context.getBlockEntity(pos);
         if (blockEntity == null) {
             context.fail("Pipe block entity should exist at " + pos);
         }
@@ -52,7 +52,7 @@ public class PipeInfrastructureGameTest {
     /**
      * Test that different pipe types can be placed.
      */
-    @FabricGameTest
+    @GameTest
     public void testMultiplePipeTypes(GameTestHelper context) {
         // Place various pipe types
         context.setBlock(new BlockPos(0, 1, 0), LogisticsPipe.BLOCK.STONE_TRANSPORT_PIPE);
@@ -61,19 +61,19 @@ public class PipeInfrastructureGameTest {
         context.setBlock(new BlockPos(3, 1, 0), LogisticsPipe.BLOCK.ITEM_EXTRACTOR_PIPE);
 
         // Verify all have block entities
-        if (context.getBlockEntity(new BlockPos(0, 1, 0), PipeBlockEntity.class) == null) {
+        if (!(context.getBlockEntity(new BlockPos(0, 1, 0)) instanceof PipeBlockEntity)) {
             context.fail("Stone pipe should have block entity");
             return;
         }
-        if (context.getBlockEntity(new BlockPos(1, 1, 0), PipeBlockEntity.class) == null) {
+        if (!(context.getBlockEntity(new BlockPos(1, 1, 0)) instanceof PipeBlockEntity)) {
             context.fail("Copper pipe should have block entity");
             return;
         }
-        if (context.getBlockEntity(new BlockPos(2, 1, 0), PipeBlockEntity.class) == null) {
+        if (!(context.getBlockEntity(new BlockPos(2, 1, 0)) instanceof PipeBlockEntity)) {
             context.fail("Filter pipe should have block entity");
             return;
         }
-        if (context.getBlockEntity(new BlockPos(3, 1, 0), PipeBlockEntity.class) == null) {
+        if (!(context.getBlockEntity(new BlockPos(3, 1, 0)) instanceof PipeBlockEntity)) {
             context.fail("Extractor pipe should have block entity");
             return;
         }
@@ -84,7 +84,7 @@ public class PipeInfrastructureGameTest {
     /**
      * Test that pipes can connect to each other.
      */
-    @FabricGameTest
+    @GameTest
     public void testPipeConnections(GameTestHelper context) {
         BlockPos center = new BlockPos(1, 1, 1);
 
@@ -96,7 +96,7 @@ public class PipeInfrastructureGameTest {
         context.setBlock(center.west(), LogisticsPipe.BLOCK.COPPER_TRANSPORT_PIPE);
 
         // Verify center pipe has block entity
-        PipeBlockEntity centerEntity = context.getBlockEntity(center, PipeBlockEntity.class);
+        PipeBlockEntity centerEntity = (PipeBlockEntity) context.getBlockEntity(center);
         if (centerEntity == null) {
             context.fail("Center pipe should have block entity");
         }
@@ -114,7 +114,7 @@ public class PipeInfrastructureGameTest {
 
         // Place a pipe
         context.setBlock(pipePos, LogisticsPipe.BLOCK.COPPER_TRANSPORT_PIPE);
-        PipeBlockEntity pipeEntity = context.getBlockEntity(pipePos, PipeBlockEntity.class);
+        PipeBlockEntity pipeEntity = (PipeBlockEntity) context.getBlockEntity(pipePos);
         if (pipeEntity == null) {
             context.fail("Pipe block entity should exist");
             return;

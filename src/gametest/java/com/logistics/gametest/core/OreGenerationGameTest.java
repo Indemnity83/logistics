@@ -2,7 +2,7 @@ package com.logistics.gametest.core;
 
 import com.logistics.LogisticsCore;
 import com.logistics.LogisticsMod;
-import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
+import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.gametest.framework.GameTestHelper;
@@ -21,7 +21,7 @@ public class OreGenerationGameTest {
     /**
      * Test that tin ore (stone variant) placed feature is registered.
      */
-    @FabricGameTest
+    @GameTest
     public void testTinOreStoneFeatureRegistered(GameTestHelper context) {
         // Verify the placed feature is registered in the registry
         ResourceKey<PlacedFeature> featureKey = ResourceKey.create(
@@ -47,7 +47,7 @@ public class OreGenerationGameTest {
     /**
      * Test that tin ore (deepslate variant) placed feature is registered.
      */
-    @FabricGameTest
+    @GameTest
     public void testTinOreDeepslateFeatureRegistered(GameTestHelper context) {
         ResourceKey<PlacedFeature> featureKey = ResourceKey.create(
             Registries.PLACED_FEATURE,
@@ -72,7 +72,7 @@ public class OreGenerationGameTest {
     /**
      * Test that apatite ore placed feature is registered.
      */
-    @FabricGameTest
+    @GameTest
     public void testApatiteOreFeatureRegistered(GameTestHelper context) {
         ResourceKey<PlacedFeature> featureKey = ResourceKey.create(
             Registries.PLACED_FEATURE,
@@ -97,7 +97,7 @@ public class OreGenerationGameTest {
     /**
      * Test that tin ore configured feature is registered.
      */
-    @FabricGameTest
+    @GameTest
     public void testTinOreConfiguredFeatureRegistered(GameTestHelper context) {
         ResourceKey<ConfiguredFeature<?, ?>> featureKey = ResourceKey.create(
             Registries.CONFIGURED_FEATURE,
@@ -122,7 +122,7 @@ public class OreGenerationGameTest {
     /**
      * Test that apatite ore configured feature is registered.
      */
-    @FabricGameTest
+    @GameTest
     public void testApatiteOreConfiguredFeatureRegistered(GameTestHelper context) {
         ResourceKey<ConfiguredFeature<?, ?>> featureKey = ResourceKey.create(
             Registries.CONFIGURED_FEATURE,
@@ -147,7 +147,7 @@ public class OreGenerationGameTest {
     /**
      * Test that tin ore blocks can be placed and are recognized.
      */
-    @FabricGameTest
+    @GameTest
     public void testTinOreBlocksPlaceable(GameTestHelper context) {
         BlockPos stoneOrePos = new BlockPos(1, 1, 1);
         BlockPos deepslateOrePos = new BlockPos(2, 1, 1);
@@ -173,7 +173,7 @@ public class OreGenerationGameTest {
     /**
      * Test that apatite ore block can be placed and is recognized.
      */
-    @FabricGameTest
+    @GameTest
     public void testApatiteOreBlockPlaceable(GameTestHelper context) {
         BlockPos orePos = new BlockPos(1, 1, 1);
 
@@ -193,7 +193,7 @@ public class OreGenerationGameTest {
      * Test that tin ore (stone variant) target predicate accepts stone blocks.
      * Verifies the ore generation target configuration is correct.
      */
-    @FabricGameTest
+    @GameTest
     public void testTinOreCanReplaceStone(GameTestHelper context) {
         // Get the configured feature from registry
         ResourceKey<ConfiguredFeature<?, ?>> featureKey = ResourceKey.create(
@@ -246,7 +246,7 @@ public class OreGenerationGameTest {
      * Test that deepslate tin ore target predicate accepts deepslate blocks.
      * Verifies the deepslate variant ore generation target configuration is correct.
      */
-    @FabricGameTest
+    @GameTest
     public void testTinOreCanReplaceDeepslate(GameTestHelper context) {
         // Get the configured feature from registry
         ResourceKey<ConfiguredFeature<?, ?>> featureKey = ResourceKey.create(
@@ -299,7 +299,7 @@ public class OreGenerationGameTest {
      * Test that apatite ore target predicate accepts stone blocks.
      * Verifies the ore generation target configuration is correct.
      */
-    @FabricGameTest
+    @GameTest
     public void testApatiteOreCanReplaceStone(GameTestHelper context) {
         // Get the configured feature from registry
         ResourceKey<ConfiguredFeature<?, ?>> featureKey = ResourceKey.create(
