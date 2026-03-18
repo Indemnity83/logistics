@@ -1,6 +1,5 @@
-package com.logistics.pipe.runtime;
+package com.logistics.core.lib.pipe;
 
-import com.logistics.LogisticsPipe;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
@@ -15,7 +14,13 @@ import java.util.UUID;
  * Items move along pipe edges from one connection point to another.
  */
 public class TravelingItem {
-    private static final TravelingItemPhysics PHYSICS = new TravelingItemPhysics(LogisticsPipe.CONFIG.ITEM_MIN_SPEED);
+    /**
+     * Default minimum speed for items in pipes.
+     * Used as the CODEC default when no speed is stored (e.g. legacy saves).
+     */
+    public static final float DEFAULT_MIN_SPEED = 0.02f;
+
+    private static final TravelingItemPhysics PHYSICS = new TravelingItemPhysics(DEFAULT_MIN_SPEED);
 
     /**
      * Default TTL for items with a destination (6000 ticks = 5 minutes at 20 TPS).
@@ -47,7 +52,7 @@ public class TravelingItem {
                             .xmap(Direction::from3DDataValue, Direction::get3DDataValue)
                             .forGetter(t -> t.direction),
                     Codec.FLOAT
-                            .optionalFieldOf("speed", LogisticsPipe.CONFIG.ITEM_MIN_SPEED)
+                            .optionalFieldOf("speed", DEFAULT_MIN_SPEED)
                             .forGetter(t -> t.speed),
                     Codec.FLOAT.optionalFieldOf("progress", 0.0f).forGetter(t -> t.progress),
                     Codec.BOOL.optionalFieldOf("routed", false).forGetter(t -> t.routed),

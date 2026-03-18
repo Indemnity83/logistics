@@ -1,5 +1,6 @@
 package com.logistics.pipe.network;
 
+import com.logistics.core.lib.network.CrafterSnapshot;
 import net.minecraft.core.BlockPos;
 
 import java.util.Map;

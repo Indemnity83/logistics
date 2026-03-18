@@ -1,6 +1,6 @@
 package com.logistics.pipe.block.entity;
 
-import com.logistics.pipe.runtime.TravelingItem;
+import com.logistics.core.lib.pipe.TravelingItem;
 import java.util.Collections;
 import java.util.Iterator;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;

@@ -1,35 +1,23 @@
-package com.logistics.pipe;
+package com.logistics.core.lib.pipe;
 
 import com.logistics.core.lib.block.capability.PipeConnection;
 import com.logistics.core.lib.energy.EnergyComponent;
+import com.logistics.core.lib.network.ILogisticsNetwork;
 import com.logistics.core.lib.storage.NbtCompat;
-import com.logistics.pipe.block.PipeBlock;
-import com.logistics.pipe.block.entity.PipeBlockEntity;
-import com.logistics.pipe.modules.Module;
+
 import java.util.ArrayList;
 import java.util.List;
+import org.jetbrains.annotations.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.Nullable;
 
-public record PipeContext(Level world, BlockPos pos, BlockState state, PipeBlockEntity blockEntity) {
-
-    /**
-     * Get the Pipe instance for this pipe block.
-     * @return the Pipe, or null if the block is not a PipeBlock or has no pipe
-     */
-    @Nullable public Pipe pipe() {
-        if (state.getBlock() instanceof PipeBlock pipeBlock) {
-            return pipeBlock.getPipe();
-        }
-        return null;
-    }
+public record PipeContext(Level world, BlockPos pos, BlockState state, IPipeAccess blockEntity) {
 
     public CompoundTag moduleState(String key) {
-        return blockEntity.getOrCreateModuleState(key);
+        return blockEntity.moduleState(key);
     }
 
     // Convenience methods for module state access (with Module instance)
@@ -68,12 +56,12 @@ public record PipeContext(Level world, BlockPos pos, BlockState state, PipeBlock
 
     // Convenience methods for energy access
     public long getEnergy() {
-        EnergyComponent energy = blockEntity().getEnergy();
+        EnergyComponent energy = blockEntity.getEnergy();
         return energy != null ? energy.amount : 0;
     }
 
     public void setEnergy(long amount) {
-        EnergyComponent energy = blockEntity().getEnergy();
+        EnergyComponent energy = blockEntity.getEnergy();
         if (energy != null) {
             energy.amount = amount;
             markDirtyAndSync();
@@ -107,7 +95,14 @@ public record PipeContext(Level world, BlockPos pos, BlockState state, PipeBlock
      * @return true if the pipe is powered by redstone
      */
     public boolean isPowered() {
-        return state.hasProperty(PipeBlock.POWERED) && state.getValue(PipeBlock.POWERED);
+        return blockEntity.isPowered();
+    }
+
+    /**
+     * Return the logistics network this pipe belongs to, or {@code null} if not yet formed.
+     */
+    public @Nullable ILogisticsNetwork network() {
+        return blockEntity.getNetwork();
     }
 
     /**
@@ -129,7 +124,7 @@ public record PipeContext(Level world, BlockPos pos, BlockState state, PipeBlock
      * @return true if the neighbor is a PipeBlock
      */
     public boolean isNeighborPipe(Direction direction) {
-        return getNeighborState(direction).getBlock() instanceof PipeBlock;
+        return blockEntity.isNeighborPipe(world, pos, direction);
     }
 
     /**
@@ -140,12 +135,8 @@ public record PipeContext(Level world, BlockPos pos, BlockState state, PipeBlock
      */
     public List<Direction> getConnectedDirections() {
         List<Direction> connected = new ArrayList<>();
-        if (!(state.getBlock() instanceof PipeBlock pipeBlock)) {
-            return connected;
-        }
-
         for (Direction direction : Direction.values()) {
-            PipeConnection.Type type = pipeBlock.getConnectionType(world, pos, direction);
+            PipeConnection.Type type = blockEntity.getConnectionType(world, pos, direction);
             if (type != PipeConnection.Type.NONE) {
                 connected.add(direction);
             }
@@ -161,10 +152,7 @@ public record PipeContext(Level world, BlockPos pos, BlockState state, PipeBlock
      * @return true if there is a connection in that direction
      */
     public boolean hasConnection(Direction direction) {
-        if (!(state.getBlock() instanceof PipeBlock pipeBlock)) {
-            return false;
-        }
-        PipeConnection.Type type = pipeBlock.getConnectionType(world, pos, direction);
+        PipeConnection.Type type = blockEntity.getConnectionType(world, pos, direction);
         return type != PipeConnection.Type.NONE;
     }
 
@@ -175,10 +163,7 @@ public record PipeContext(Level world, BlockPos pos, BlockState state, PipeBlock
      * @return The connection type (NONE, PIPE, or INVENTORY)
      */
     public PipeConnection.Type getConnectionType(Direction direction) {
-        if (!(state.getBlock() instanceof PipeBlock pipeBlock)) {
-            return PipeConnection.Type.NONE;
-        }
-        return pipeBlock.getConnectionType(world, pos, direction);
+        return blockEntity.getConnectionType(world, pos, direction);
     }
 
     /**

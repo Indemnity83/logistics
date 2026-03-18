@@ -1,4 +1,4 @@
-package com.logistics.pipe.network;
+package com.logistics.core.lib.network;
 
 /**
  * Current buffer capacity of an autocrafter adjacent to a crafting pipe.

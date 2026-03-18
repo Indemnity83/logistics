@@ -1,11 +1,6 @@
-package com.logistics.pipe.modules;
+package com.logistics.core.lib.pipe;
 
-import com.logistics.LogisticsPipe;
 import com.logistics.core.lib.resource.ResourceId;
-import com.logistics.pipe.Pipe;
-import com.logistics.pipe.PipeContext;
-import com.logistics.pipe.runtime.RoutePlan;
-import com.logistics.pipe.runtime.TravelingItem;
 import java.util.List;
 import java.util.UUID;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
@@ -35,41 +30,11 @@ public interface Module {
     }
 
     default float getDrag(PipeContext ctx) {
-        return LogisticsPipe.CONFIG.DRAG_COEFFICIENT;
+        return 0f;
     }
 
     default float getMaxSpeed(PipeContext ctx) {
-        return LogisticsPipe.CONFIG.PIPE_MAX_SPEED;
-    }
-
-    /**
-     * @deprecated Implement {@link RoutingModule} instead. The pipe dispatcher only calls
-     *     {@code route} on modules that implement {@link RoutingModule}.
-     */
-    @Deprecated
-    default RoutePlan route(PipeContext ctx, TravelingItem item, List<Direction> options) {
-        return RoutePlan.pass();
-    }
-
-    /**
-     * Called when a TravelingItem is about to exit this pipe into an adjacent non-pipe storage
-     * (at SERVER_EXIT_THRESHOLD), before the default generic {@code storage.insert()} runs.
-     *
-     * <p>Return {@code null} if the module fully handled the transfer (item consumed). PipeRuntime
-     * will not perform any further insertion. The module is responsible for calling
-     * {@code network.confirmDelivery()} if needed.
-     *
-     * <p>Return the item (or a modified copy with a reduced count) if the module did not handle
-     * it — PipeRuntime will perform the default generic insertion on whatever is returned.
-     *
-     * @param ctx       the pipe context
-     * @param item      the traveling item being transferred
-     * @param direction the direction the item is exiting (toward the storage)
-     * @return null if fully handled, or the item (possibly with reduced count) to fall through
-     */
-    @Nullable
-    default TravelingItem onTransferToStorage(PipeContext ctx, TravelingItem item, Direction direction) {
-        return item;
+        return 0f;
     }
 
     default boolean canAcceptFrom(PipeContext ctx, Direction from, ItemStack stack) {
@@ -141,7 +106,7 @@ public interface Module {
      * Return false to prevent this pipe from connecting in the given direction.
      */
     default boolean allowsConnection(
-            @Nullable PipeContext ctx, Direction direction, Pipe selfPipe, Block neighborBlock) {
+            @Nullable PipeContext ctx, Direction direction, Block neighborBlock) {
         return true;
     }
 
@@ -210,7 +175,7 @@ public interface Module {
      * @param ctx the pipe context
      * @return decoration model infos to render for the pipe core
      */
-    default List<Pipe.CoreDecoration> getCoreDecorations(PipeContext ctx) {
+    default List<CoreDecoration> getCoreDecorations(PipeContext ctx) {
         return List.of();
     }
 
@@ -334,7 +299,7 @@ public interface Module {
     /**
      * Whether this module accepts low-tier energy from the given direction.
      * Only relevant for pipes with energy storage (created via .withEnergy()).
-     * Modules can access energy storage directly via ctx.blockEntity().energyStorage.
+     * Modules can access energy storage directly via ctx.getEnergy().
      *
      * @param ctx the pipe context
      * @param from direction energy is coming from

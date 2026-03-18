@@ -1,5 +1,7 @@
 package com.logistics.pipe.network;
 
+import com.logistics.core.lib.network.NetworkCommand;
+
 /**
  * Result of executing a {@link NetworkCommand} via {@link NetworkCommandExecutor}.
  *

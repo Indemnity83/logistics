@@ -1,5 +1,8 @@
 package com.logistics.pipe.network;
 
+import com.logistics.core.lib.network.FulfillmentMode;
+import com.logistics.core.lib.network.PlanningView;
+
 import java.util.Optional;
 
 /**

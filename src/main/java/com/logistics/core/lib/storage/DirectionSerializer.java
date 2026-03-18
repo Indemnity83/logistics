@@ -1,7 +1,7 @@
 package com.logistics.core.lib.storage;
 
-import com.logistics.pipe.PipeContext;
-import com.logistics.pipe.modules.Module;
+import com.logistics.core.lib.pipe.PipeContext;
+import com.logistics.core.lib.pipe.Module;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import org.jetbrains.annotations.Nullable;

@@ -1,17 +1,21 @@
 package com.logistics.pipe.modules;
 
+import com.logistics.core.lib.pipe.RoutingModule;
+
 import com.logistics.LogisticsPipe;
+import com.logistics.core.lib.pipe.Module;
+import com.logistics.core.lib.pipe.TickingModule;
 import com.logistics.pipe.network.NetDbg;
 import com.logistics.pipe.network.NetworkRegistry;
-import com.logistics.pipe.network.FulfillmentMode;
-import com.logistics.pipe.network.ILogisticsNetwork;
+import com.logistics.core.lib.network.FulfillmentMode;
+import com.logistics.core.lib.network.ILogisticsNetwork;
 import com.logistics.pipe.network.SupplierModeConfig;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.core.lib.storage.NbtCompat;
-import com.logistics.pipe.PipeContext;
+import com.logistics.core.lib.pipe.PipeContext;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
-import com.logistics.pipe.runtime.RoutePlan;
-import com.logistics.pipe.runtime.TravelingItem;
+import com.logistics.core.lib.pipe.RoutePlan;
+import com.logistics.core.lib.pipe.TravelingItem;
 import com.logistics.pipe.ui.SupplierScreenHandler;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;

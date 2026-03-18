@@ -1,5 +1,7 @@
 package com.logistics.pipe.runtime;
 
+import com.logistics.core.lib.pipe.TravelingItemPhysics;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

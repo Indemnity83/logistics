@@ -1,4 +1,4 @@
-package com.logistics.pipe.runtime;
+package com.logistics.core.lib.pipe;
 
 /**
  * Encapsulates physics calculations for traveling items in pipes.

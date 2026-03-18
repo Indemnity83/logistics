@@ -1,11 +1,11 @@
-package com.logistics.pipe.network;
+package com.logistics.core.lib.network;
 
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.minecraft.core.BlockPos;
 
 /**
  * A request to the logistics network to source and deliver items to a destination.
- * Submitted to {@link JobCoordinator} to create a {@link NetworkJob}.
+ * Submitted to the job coordinator to create a network job.
  * Pure value object — no Minecraft world coupling beyond BlockPos/ItemVariant.
  */
 public record ItemRequest(
