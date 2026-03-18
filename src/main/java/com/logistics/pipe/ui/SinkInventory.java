@@ -106,9 +106,10 @@ public class SinkInventory implements Container {
             if (itemId.isEmpty()) continue;
             ResourceId rid = ResourceId.tryParse(itemId);
             if (rid == null) continue;
+            // MC 1.21.1: get() returns Item directly, not Optional<Holder<Item>>
             var holder = BuiltInRegistries.ITEM.get(rid.toIdentifier());
-            if (holder.isEmpty()) continue;
-            items.set(i, new ItemStack(holder.get()));
+            if (holder == null || holder == net.minecraft.world.item.Items.AIR) continue;
+            items.set(i, new ItemStack(holder));
         }
     }
 }

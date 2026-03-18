@@ -5,7 +5,6 @@ import com.logistics.pipe.ui.AdvancedExtractorScreenHandler;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 
@@ -38,8 +37,7 @@ public class AdvancedExtractorScreen extends AbstractContainerScreen<AdvancedExt
 
         this.filterButton = CycleButton.booleanBuilder(
                 Component.translatable("gui.logistics.filter.exclude"),
-                Component.translatable("gui.logistics.filter.include"),
-                menu.isFilterInverted()
+                Component.translatable("gui.logistics.filter.include")
         ).displayOnlyValue()
         .create(
                 filterButtonX,
@@ -59,7 +57,6 @@ public class AdvancedExtractorScreen extends AbstractContainerScreen<AdvancedExt
     @Override
     protected void renderBg(GuiGraphics graphics, float delta, int mouseX, int mouseY) {
         graphics.blit(
-                RenderPipelines.GUI_TEXTURED,
                 BACKGROUND_TEXTURE.toIdentifier(),
                 leftPos, topPos,
                 0, 0,

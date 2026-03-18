@@ -6,8 +6,6 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.client.input.MouseButtonEvent;
-import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
@@ -67,7 +65,6 @@ public class ModSinkScreen extends AbstractContainerScreen<ModSinkScreenHandler>
     @Override
     protected void renderBg(GuiGraphics graphics, float delta, int mouseX, int mouseY) {
         graphics.blit(
-                RenderPipelines.GUI_TEXTURED,
                 BACKGROUND_TEXTURE.toIdentifier(),
                 leftPos, topPos, 0, 0,
                 imageWidth, imageHeight, 256, 256);
@@ -159,13 +156,13 @@ public class ModSinkScreen extends AbstractContainerScreen<ModSinkScreenHandler>
     }
 
     @Override
-    public boolean mouseClicked(MouseButtonEvent event, boolean consumed) {
-        if (event.button() == 0) {
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if (button == 0) {
             int filterCount = menu.getFilterCount();
             for (int i = 0; i < ENTRIES_VISIBLE; i++) {
                 int entryIndex = i + scrollOffset;
                 if (entryIndex >= filterCount) break;
-                if (isOverRemoveButton(i, event.x(), event.y())) {
+                if (isOverRemoveButton(i, mouseX, mouseY)) {
                     if (minecraft != null && minecraft.gameMode != null) {
                         minecraft.gameMode.handleInventoryButtonClick(menu.containerId, entryIndex + 1);
                     }
@@ -173,7 +170,7 @@ public class ModSinkScreen extends AbstractContainerScreen<ModSinkScreenHandler>
                 }
             }
         }
-        return super.mouseClicked(event, consumed);
+        return super.mouseClicked(mouseX, mouseY, button);
     }
 
     private boolean isInListArea(double mouseX, double mouseY) {

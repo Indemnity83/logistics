@@ -3,6 +3,8 @@ package com.logistics.core.lib.storage;
 import com.logistics.core.lib.resource.ResourceId;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -102,8 +104,9 @@ public final class FilterSlots {
         Set<String> result = new HashSet<>();
         for (String id : nonEmpty()) {
             ResourceId rid = ResourceId.tryParse(id);
-            if (rid != null && BuiltInRegistries.ITEM.get(rid.toIdentifier()).isPresent()) {
-                result.add(id);
+            if (rid != null) {
+                Item resolved = BuiltInRegistries.ITEM.get(rid.toIdentifier());
+                if (resolved != null && resolved != Items.AIR) result.add(id);
             }
         }
         return result;

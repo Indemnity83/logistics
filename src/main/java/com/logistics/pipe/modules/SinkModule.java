@@ -18,6 +18,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -74,8 +76,10 @@ public class SinkModule implements Module, TickingModule, RoutingModule, ItemAcc
                 if (itemId.isEmpty()) continue;
                 ResourceId rid = ResourceId.tryParse(itemId);
                 if (rid == null) continue;
-                BuiltInRegistries.ITEM.get(rid.toIdentifier()).ifPresent(holder ->
-                        network.registerSinkInterest(ctx.pos(), holder.value()));
+                Item sinkItem = BuiltInRegistries.ITEM.get(rid.toIdentifier());
+                if (sinkItem != null && sinkItem != Items.AIR) {
+                    network.registerSinkInterest(ctx.pos(), sinkItem);
+                }
             }
             if (isDefaultRoute(ctx)) {
                 network.registerGenericSinkInterest(ctx.pos());

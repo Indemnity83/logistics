@@ -158,9 +158,10 @@ public class FilterInventory implements Container {
                 if (!itemId.isEmpty()) {
                     ResourceId rid = ResourceId.tryParse(itemId);
                     if (rid != null) {
+                        // MC 1.21.1: get() returns Item directly, not Optional<Holder<Item>>
                         var itemOpt = BuiltInRegistries.ITEM.get(rid.toIdentifier());
-                        if (itemOpt.isPresent() && itemOpt.get().value() != Items.AIR) {
-                            resolved = new ItemStack(itemOpt.get().value());
+                        if (itemOpt != null && itemOpt != Items.AIR) {
+                            resolved = new ItemStack(itemOpt);
                         }
                     }
                 }

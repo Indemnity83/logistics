@@ -7,7 +7,6 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 
@@ -61,7 +60,6 @@ public class ChassisScreen extends AbstractContainerScreen<ChassisScreenHandler>
     protected void renderBg(GuiGraphics graphics, float delta, int mouseX, int mouseY) {
         ResourceId texture = BACKGROUNDS.getOrDefault(menu.getSlotCount(), FALLBACK_BACKGROUND);
         graphics.blit(
-                RenderPipelines.GUI_TEXTURED,
                 texture.toIdentifier(),
                 leftPos,
                 topPos,

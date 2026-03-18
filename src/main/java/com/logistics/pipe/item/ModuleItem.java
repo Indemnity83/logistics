@@ -4,8 +4,10 @@ import com.logistics.core.lib.pipe.Module;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
 import java.util.function.Supplier;
@@ -28,9 +30,11 @@ public class ModuleItem extends Item {
     }
 
     @Override
-    public InteractionResult use(Level level, Player player, InteractionHand hand) {
-        if (level.isClientSide()) return InteractionResult.PASS;
-        if (!(player instanceof ServerPlayer serverPlayer)) return InteractionResult.PASS;
-        return createModule().openItemConfig(serverPlayer, hand, player.getItemInHand(hand));
+    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
+        ItemStack stack = player.getItemInHand(hand);
+        if (level.isClientSide()) return InteractionResultHolder.pass(stack);
+        if (!(player instanceof ServerPlayer serverPlayer)) return InteractionResultHolder.pass(stack);
+        InteractionResult result = createModule().openItemConfig(serverPlayer, hand, stack);
+        return new InteractionResultHolder<>(result, stack);
     }
 }

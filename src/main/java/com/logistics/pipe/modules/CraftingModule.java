@@ -1045,8 +1045,8 @@ public class CraftingModule implements Module, TickingModule, RoutingModule, Dis
         // Cancel all outstanding ingredient orders
         ListTag queue = getQueue(ctx);
         for (int i = 0; i < queue.size(); i++) {
-            CompoundTag entry = queue.getCompound(i).orElse(null);
-            if (entry != null) cancelEntryOrders(ctx, entry);
+            CompoundTag entry = queue.getCompound(i);
+            cancelEntryOrders(ctx, entry);
         }
 
         // Clear queue and tick counters so stale state doesn't survive a re-attach

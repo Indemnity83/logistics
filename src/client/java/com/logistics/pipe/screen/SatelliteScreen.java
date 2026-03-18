@@ -5,7 +5,6 @@ import com.logistics.pipe.ui.SatelliteScreenHandler;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 
@@ -59,7 +58,6 @@ public class SatelliteScreen extends AbstractContainerScreen<SatelliteScreenHand
     @Override
     protected void renderBg(GuiGraphics graphics, float delta, int mouseX, int mouseY) {
         graphics.blit(
-                RenderPipelines.GUI_TEXTURED,
                 BACKGROUND_TEXTURE.toIdentifier(),
                 leftPos, topPos, 0, 0,
                 imageWidth, imageHeight, 256, 256);

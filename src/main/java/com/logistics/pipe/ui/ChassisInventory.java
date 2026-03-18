@@ -43,7 +43,7 @@ public class ChassisInventory implements Container {
         String stateKey = moduleItem.createModule().getStateKey();
         CompoundTag state = ctx.moduleState(stateKey);
         CompoundTag itemState = customData.copyTag();
-        for (String key : itemState.keySet()) {
+        for (String key : itemState.getAllKeys()) {
             Tag value = itemState.get(key);
             if (value != null) state.put(key, value);
         }

@@ -442,7 +442,7 @@ public class PipeBlockEntity extends BaseBlockEntity
         // so we handle it here in the BlockEntity subclass rather than in module code.
         WeatheringState ws = components.get(LogisticsPipe.DATA.WEATHERING_STATE);
         if (ws != null && !ws.isDefault()) {
-            WeatheringModule wm = pipe.getModule(WeatheringModule.class);
+            WeatheringModule wm = pipe.getModule(WeatheringModule.class, this);
             if (wm != null) {
                 wm.applyWeatheringState(ws, createContext());
             }

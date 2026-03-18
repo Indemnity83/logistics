@@ -5,6 +5,7 @@ import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.pipe.modules.ProcessModule;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
@@ -45,8 +46,8 @@ public class ProcessInventory extends SimpleContainer {
         if (itemId == null || itemId.isEmpty()) return ItemStack.EMPTY;
         ResourceId rid = ResourceId.tryParse(itemId);
         if (rid == null) return ItemStack.EMPTY;
-        return BuiltInRegistries.ITEM.get(rid.toIdentifier())
-                .map(h -> new ItemStack(h.value(), Math.max(1, count)))
-                .orElse(ItemStack.EMPTY);
+        Item item = BuiltInRegistries.ITEM.get(rid.toIdentifier());
+        if (item == null || item == net.minecraft.world.item.Items.AIR) return ItemStack.EMPTY;
+        return new ItemStack(item, Math.max(1, count));
     }
 }

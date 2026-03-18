@@ -36,7 +36,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -315,10 +314,11 @@ public class ProviderModule implements Module, TickingModule, DispatchableModule
             if (entry == null) continue;
             String itemId = NbtCompat.getString(entry, DQ_ITEM, "");
             long amount = NbtCompat.getLong(entry, DQ_AMOUNT, 0L);
-            Optional<int[]> reqArr = entry.getIntArray(DQ_REQUESTER);
+            // MC 1.21.1: getIntArray() returns int[] directly, not Optional
+            int[] reqArr = entry.getIntArray(DQ_REQUESTER);
             String dlvStr = NbtCompat.getString(entry, DQ_DELIVERY_ID, "");
-            if (itemId.isEmpty() || amount <= 0 || reqArr.isEmpty() || reqArr.get().length < 3) continue;
-            int[] arr = reqArr.get();
+            if (itemId.isEmpty() || amount <= 0 || reqArr.length < 3) continue;
+            int[] arr = reqArr;
             BlockPos requester = new BlockPos(arr[0], arr[1], arr[2]);
             UUID deliveryId = null;
             if (!dlvStr.isEmpty()) {

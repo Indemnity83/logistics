@@ -3,6 +3,7 @@ package com.logistics.pipe.render;
 import com.logistics.LogisticsPipe;
 import com.logistics.LogisticsPipeClient;
 import com.logistics.core.lib.block.capability.PipeConnection;
+import com.logistics.core.lib.pipe.CoreDecoration;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.pipe.Pipe;
 import com.logistics.core.lib.pipe.PipeContext;
@@ -76,7 +77,7 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
         renderModel(getModel(pipe.getCoreModelId(ctx)), null, 0xFFFFFF, state, poseStack, buffer, packedLight, packedOverlay);
 
         // Render core decorations (e.g., pipe markings color overlay)
-        for (Pipe.CoreDecoration decoration : pipe.getCoreDecorations(ctx)) {
+        for (CoreDecoration decoration : pipe.getCoreDecorations(ctx)) {
             renderModel(getModel(decoration.modelId()), null, decoration.color(), state, poseStack, buffer, packedLight, packedOverlay);
         }
 

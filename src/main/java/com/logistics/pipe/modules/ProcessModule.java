@@ -121,17 +121,15 @@ public class ProcessModule implements Module, TickingModule, RoutingModule, Disp
     private String getEntryString(PipeContext ctx, String listKey, int slot, String field) {
         ListTag list = NbtCompat.getListOrEmpty(ctx.moduleState(getStateKey()), listKey);
         if (slot < 0 || slot >= list.size()) return "";
-        return list.getCompound(slot)
-                .map(e -> NbtCompat.getString(e, field, ""))
-                .orElse("");
+        CompoundTag entry = list.getCompound(slot);
+        return NbtCompat.getString(entry, field, "");
     }
 
     private int getEntryInt(PipeContext ctx, String listKey, int slot, String field, int def) {
         ListTag list = NbtCompat.getListOrEmpty(ctx.moduleState(getStateKey()), listKey);
         if (slot < 0 || slot >= list.size()) return def;
-        return list.getCompound(slot)
-                .map(e -> NbtCompat.getInt(e, field, def))
-                .orElse(def);
+        CompoundTag entryInt = list.getCompound(slot);
+        return NbtCompat.getInt(entryInt, field, def);
     }
 
     private void setEntry(PipeContext ctx, String listKey, int slot, String itemId, int count,
@@ -160,7 +158,7 @@ public class ProcessModule implements Module, TickingModule, RoutingModule, Disp
 
         // Remove trailing empty entries
         while (!list.isEmpty()) {
-            CompoundTag last = list.getCompound(list.size() - 1).orElse(new CompoundTag());
+            CompoundTag last = list.getCompound(list.size() - 1);
             if (!last.contains(ENTRY_ITEM) || NbtCompat.getString(last, ENTRY_ITEM, "").isEmpty()) {
                 list.remove(list.size() - 1);
             } else {
@@ -544,10 +542,8 @@ public class ProcessModule implements Module, TickingModule, RoutingModule, Disp
         try {
             ResourceId rid = ResourceId.tryParse(itemId);
             if (rid == null) return ItemStack.EMPTY;
-            var holder = BuiltInRegistries.ITEM.get(rid.toIdentifier());
-            if (holder.isEmpty()) return ItemStack.EMPTY;
-            var item = holder.get().value();
-            if (item == net.minecraft.world.item.Items.AIR) return ItemStack.EMPTY;
+            var item = BuiltInRegistries.ITEM.get(rid.toIdentifier());
+            if (item == null || item == net.minecraft.world.item.Items.AIR) return ItemStack.EMPTY;
             return new ItemStack(item);
         } catch (Exception e) { return ItemStack.EMPTY; }
     }

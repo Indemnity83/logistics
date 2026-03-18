@@ -13,7 +13,9 @@ import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 import java.util.List;
 
@@ -69,8 +71,10 @@ public class PassiveSupplierModule extends SupplierModule implements ItemAccepti
             if (config.itemId().isEmpty() || config.amount() <= 0) continue;
             ResourceId rid = ResourceId.tryParse(config.itemId());
             if (rid == null) continue;
-            BuiltInRegistries.ITEM.get(rid.toIdentifier()).ifPresent(holder ->
-                    network.registerSinkInterest(ctx.pos(), holder.value()));
+            Item syncItem = BuiltInRegistries.ITEM.get(rid.toIdentifier());
+            if (syncItem != null && syncItem != Items.AIR) {
+                network.registerSinkInterest(ctx.pos(), syncItem);
+            }
         }
     }
 
@@ -85,9 +89,9 @@ public class PassiveSupplierModule extends SupplierModule implements ItemAccepti
             if (config.itemId().isEmpty() || config.amount() <= 0) continue;
             ResourceId rid = ResourceId.tryParse(config.itemId());
             if (rid == null) continue;
-            var holder = BuiltInRegistries.ITEM.get(rid.toIdentifier());
-            if (holder.isEmpty()) continue;
-            if (stack.getItem() != holder.get().value()) continue;
+            Item matchItem = BuiltInRegistries.ITEM.get(rid.toIdentifier());
+            if (matchItem == null || matchItem == Items.AIR) continue;
+            if (stack.getItem() != matchItem) continue;
             if (scanInventory(ctx, sinkDir, stack) < config.amount()) return true;
         }
         return false;
@@ -102,9 +106,9 @@ public class PassiveSupplierModule extends SupplierModule implements ItemAccepti
                 if (config.itemId().isEmpty() || config.amount() <= 0) continue;
                 var rid = com.logistics.core.lib.resource.ResourceId.tryParse(config.itemId());
                 if (rid == null) continue;
-                var holder = BuiltInRegistries.ITEM.get(rid.toIdentifier());
-                if (holder.isEmpty()) continue;
-                if (stack.getItem() != holder.get().value()) continue;
+                Item routeItem = BuiltInRegistries.ITEM.get(rid.toIdentifier());
+                if (routeItem == null || routeItem == Items.AIR) continue;
+                if (stack.getItem() != routeItem) continue;
 
                 long currentStock = scanInventory(ctx, sinkDir, stack);
                 if (currentStock < config.amount()) {

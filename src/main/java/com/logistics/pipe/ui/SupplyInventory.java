@@ -155,9 +155,8 @@ public class SupplyInventory implements Container {
             if (itemId.isEmpty() || amount <= 0) continue;
             ResourceId rid = ResourceId.tryParse(itemId);
             if (rid == null) continue;
-            var holder = BuiltInRegistries.ITEM.get(rid.toIdentifier());
-            if (holder.isEmpty()) continue;
-            Item item = holder.get().value();
+            Item item = BuiltInRegistries.ITEM.get(rid.toIdentifier());
+            if (item == null || item == net.minecraft.world.item.Items.AIR) continue;
             ItemStack display = new ItemStack(item);
             display.setCount((int) Math.min(amount, 64));
             stacks.set(i, display);

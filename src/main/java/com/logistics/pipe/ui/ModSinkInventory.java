@@ -12,7 +12,9 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.CustomData;
 
 /**
@@ -43,9 +45,9 @@ public class ModSinkInventory implements Container {
             if (filterIds[i].isEmpty()) continue;
             ResourceId rid = ResourceId.tryParse(filterIds[i]);
             if (rid == null) continue;
-            var holder = BuiltInRegistries.ITEM.get(rid.toIdentifier());
-            if (holder.isEmpty()) continue;
-            items.set(i, new ItemStack(holder.get()));
+            Item holder = BuiltInRegistries.ITEM.get(rid.toIdentifier());
+            if (holder == null || holder == Items.AIR) continue;
+            items.set(i, new ItemStack(holder));
         }
     }
 
@@ -59,9 +61,9 @@ public class ModSinkInventory implements Container {
             if (itemId.isEmpty()) continue;
             ResourceId rid = ResourceId.tryParse(itemId);
             if (rid == null) continue;
-            var holder = BuiltInRegistries.ITEM.get(rid.toIdentifier());
-            if (holder.isEmpty()) continue;
-            items.set(i, new ItemStack(holder.get()));
+            Item holder = BuiltInRegistries.ITEM.get(rid.toIdentifier());
+            if (holder == null || holder == Items.AIR) continue;
+            items.set(i, new ItemStack(holder));
         }
     }
 

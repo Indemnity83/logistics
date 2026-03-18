@@ -13,7 +13,9 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.Container;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.CustomData;
 
 /**
@@ -134,9 +136,9 @@ public class ProviderFilterInventory implements Container {
             if (itemId.isEmpty()) continue;
             ResourceId rid = ResourceId.tryParse(itemId);
             if (rid == null) continue;
-            var holder = BuiltInRegistries.ITEM.get(rid.toIdentifier());
-            if (holder.isEmpty()) continue;
-            stacks.set(i, new ItemStack(holder.get().value()));
+            Item holder = BuiltInRegistries.ITEM.get(rid.toIdentifier());
+            if (holder == null || holder == Items.AIR) continue;
+            stacks.set(i, new ItemStack(holder));
         }
     }
 
