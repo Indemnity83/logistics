@@ -380,8 +380,9 @@ public class EngineGameTest {
                 context.fail("Creative engine block entity not found after 5 ticks");
                 return;
             }
-            if (engine.getEnergy() <= 0) {
-                context.fail("Creative engine should have energy in buffer, got: " + engine.getEnergy());
+            if (engine.getEnergy() != engine.getMaxEnergy()) {
+                context.fail("Creative engine buffer should be full after 5 ticks, got: "
+                        + engine.getEnergy() + " / " + engine.getMaxEnergy());
                 return;
             }
             context.succeed();
@@ -395,7 +396,7 @@ public class EngineGameTest {
      * on the first tick, and after 100 ticks the buffer should be non-zero and the
      * engine should still be burning (coal burns for 1600 ticks).
      *
-     * <p>Run in-game: /test run logistics-gametest.enginegametest.teststirlingengineproducesenergyformfuel
+     * <p>Run in-game: /test run logistics-gametest.enginegametest.testStirlingEngineProducesEnergyFromFuel
      */
     @GameTest(maxTicks = 120)
     public void testStirlingEngineProducesEnergyFromFuel(GameTestHelper context) {

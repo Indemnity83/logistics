@@ -428,6 +428,10 @@ public abstract class AbstractEngineBlockEntity extends BaseBlockEntity implemen
         return energyStorage.amount;
     }
 
+    public long getMaxEnergy() {
+        return getEnergyBufferCapacity();
+    }
+
     public float getProgress() {
         return progress;
     }

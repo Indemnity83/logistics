@@ -137,7 +137,7 @@ public class PipeFlowGameTest {
         }
 
         // After 15 ticks the void pipe should have consumed the item; the chest must be empty
-        // and no items should remain in transit in the transport pipe.
+        // and no items should remain in transit in either the transport or void pipe.
         context.runAfterDelay(15, () -> {
             // Chest must remain empty
             context.assertContainerEmpty(chestPos);
@@ -146,6 +146,13 @@ public class PipeFlowGameTest {
             if (transportPipe != null && !transportPipe.getTravelingItems().isEmpty()) {
                 context.fail("Transport pipe should have no items in transit after void consumed them, found: "
                         + transportPipe.getTravelingItems().size());
+                return;
+            }
+
+            PipeBlockEntity voidPipe = context.getBlockEntity(voidPos, PipeBlockEntity.class);
+            if (voidPipe != null && !voidPipe.getTravelingItems().isEmpty()) {
+                context.fail("Void pipe should have no items in transit after voiding, found: "
+                        + voidPipe.getTravelingItems().size());
                 return;
             }
 

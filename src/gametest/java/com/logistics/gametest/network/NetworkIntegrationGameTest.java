@@ -140,14 +140,18 @@ public class NetworkIntegrationGameTest {
         // Enable default route (off by default — must be toggled like a player would via wrench GUI).
         // This registers the pipe as a generic-interest sink so the NetworkRouterModule can route
         // items to it without a specific filter match.
-        if (pipeEntity.getBlockState().getBlock() instanceof PipeBlock pipeBlock
-                && pipeBlock.getPipe() != null) {
-            SinkModule sink = pipeBlock.getPipe().getModule(SinkModule.class, pipeEntity);
-            if (sink != null) {
-                PipeContext pipeCtx = pipeEntity.createContext();
-                sink.setDefaultRoute(pipeCtx, true);
-            }
+        if (!(pipeEntity.getBlockState().getBlock() instanceof PipeBlock pipeBlock)) {
+            throw new IllegalStateException("Block at sinkPos is not a PipeBlock");
         }
+        if (pipeBlock.getPipe() == null) {
+            throw new IllegalStateException("Pipe missing for block entity at sinkPos");
+        }
+        SinkModule sink = pipeBlock.getPipe().getModule(SinkModule.class, pipeEntity);
+        if (sink == null) {
+            throw new IllegalStateException("SinkModule missing from pipe at sinkPos");
+        }
+        PipeContext pipeCtx = pipeEntity.createContext();
+        sink.setDefaultRoute(pipeCtx, true);
 
         // Wait 2 ticks for the connection cache to update so the SinkModule sets sinkDirection=EAST.
         context.runAfterDelay(2, () -> {
@@ -278,16 +282,34 @@ public class NetworkIntegrationGameTest {
             context.fail("Requester pipe should have a block entity");
             return;
         }
-        if (requesterEntity.getBlockState().getBlock() instanceof PipeBlock requesterBlock
-                && requesterBlock.getPipe() != null) {
-            RequesterModule requester = requesterBlock.getPipe().getModule(RequesterModule.class, requesterEntity);
-            if (requester != null) {
-                PipeContext ctx = requesterEntity.createContext();
-                requester.setRequestConfig(ctx, 0, "minecraft:diamond", 4);
-            }
+        if (!(requesterEntity.getBlockState().getBlock() instanceof PipeBlock requesterBlock)) {
+            throw new IllegalStateException("Block at requesterPos is not a PipeBlock");
         }
+        if (requesterBlock.getPipe() == null) {
+            throw new IllegalStateException("Pipe missing for block entity at requesterPos");
+        }
+        RequesterModule requester = requesterBlock.getPipe().getModule(RequesterModule.class, requesterEntity);
+        if (requester == null) {
+            throw new IllegalStateException("RequesterModule missing from pipe at requesterPos");
+        }
+        PipeContext ctx = requesterEntity.createContext();
+        requester.setRequestConfig(ctx, 0, "minecraft:diamond", 4);
 
-        context.succeedWhen(() -> context.assertContainerContains(destChestPos, Items.DIAMOND));
+        context.succeedWhen(() -> {
+            Storage<ItemVariant> storage = ItemStorage.SIDED.find(
+                    context.getLevel(), context.absolutePos(destChestPos), Direction.WEST);
+            long count = 0;
+            if (storage != null) {
+                for (var view : storage) {
+                    if (view.getResource().isOf(Items.DIAMOND)) {
+                        count += view.getAmount();
+                    }
+                }
+            }
+            if (count < 4) {
+                throw context.assertionException("Expected >= 4 diamonds in dest chest, found: " + count);
+            }
+        });
     }
 
     // testSinkPriorityRoutesItemToHigherPrioritySink:
