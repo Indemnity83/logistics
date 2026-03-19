@@ -87,7 +87,7 @@ public class NetworkIntegrationGameTest {
      * <p>Run in-game: /test run logistics-gametest.networkintegrationgametest.testinsertionpipedeliverstochest
      */
     @GameTest(maxTicks = 40)
-    public void testInsertionPipeDeliverstToChest(GameTestHelper context) {
+    public void testInsertionPipeDeliversToChest(GameTestHelper context) {
         BlockPos pipePos = new BlockPos(0, 1, 0);
         BlockPos chestPos = new BlockPos(1, 1, 0);
 
