@@ -153,6 +153,11 @@ src/main/java/com/logistics/
 ├── api/                     # Public API surface (LogisticsApi, TransportApi)
 ├── core/                    # Shared interfaces and utilities
 │   ├── bootstrap/           # Domain initialization system
+│   ├── fabricator/          # Kiln machine (crafting intermediates)
+│   ├── fluids/              # Molten Glass fluid
+│   ├── item/                # Wrench, Probe tools
+│   ├── loot/                # Chest loot modifier
+│   ├── marker/              # Marker block and manager
 │   └── lib/                 # Interfaces that other domains may import
 │       └── network/         # ILogisticsNetwork, IWorldView, Order, etc.
 ├── pipe/                    # Item transport pipes
@@ -163,7 +168,8 @@ src/client/java/com/logistics/
 ├── LogisticsModClient.java  # Client entry point
 ├── core/                    # Client-side core utilities
 ├── pipe/                    # Pipe rendering
-└── power/                   # Engine rendering
+├── power/                   # Engine rendering
+└── automation/              # Quarry rendering
 ```
 
 ### Domain Isolation Rules (Dependency Inversion Principle)
@@ -223,32 +229,47 @@ Domains are initialized using a two-phase pattern (server/common + client):
 **Core Domain** (`com.logistics.core`):
 - **Foundation for all domains** - provides shared abstractions via `core.lib`
 - **Dependency Inversion**: All domains depend on `core.lib` interfaces/abstracts, not on each other
-- Contains core game elements: tools (wrenches), crafting intermediates, shared utilities
+- Contains core game elements:
+  - **Tools**: Wrench, Probe
+  - **Materials**: Tin (ore, raw, ingot, nugget, block), Bronze (ingot, nugget, block), Apatite (ore, gem, block), 9 gear types (Wooden through Netherite), 13 valve types
+  - **Fluids**: Molten Glass (still + flowing)
+  - **Kiln** (`fabricator/`): Furnace-like crafting machine for producing mod materials; has its own recipe type
+  - **Marker** (`marker/`): Placeable marker block used to define quarry regions and other spatial references
+  - **Worldgen**: Tin ore and Apatite ore feature generation
+  - **Utilities**: Loot modifier (chest loot injection), debug commands, network tick handler
 - **Key abstractions in `core.lib`**:
   - `AbstractEngineBlockEntity` - base for all engines
   - `DomainBootstrap` - interface for domain initialization
   - `BaseBlockEntity` - base class for block entities with common NBT/tick patterns
   - `HasItemStorage`, `HasEnergyStorage`, `HasFluidStorage` - capability interfaces block entities implement
-  - `core.lib.network` - logistics network contracts (`ILogisticsNetwork`, `IWorldView`, `INetworkGraph`, `Order`, `IngredientChecker`, `ProviderCanFulfill`)
+  - `PipeConnection` - interface for pipe connection capability
+  - `FilterSlots` - manages filter item slots in inventories
+  - `Module` - core pipe module interface (30+ methods for behavior customization)
+  - `TickingModule`, `RandomTickModule`, `RoutingModule`, `DispatchableModule`, `TransferHandlerModule`, `ItemAcceptingModule` - module sub-interfaces
+  - `TravelingItem`, `TravelingItemPhysics`, `RoutePlan` - pipe item transit abstractions
+  - `core.lib.network` - logistics network contracts (`ILogisticsNetwork`, `IWorldView`, `INetworkGraph`, `Order`, `FulfillmentMode`, `IngredientChecker`, `ProviderCanFulfill`)
   - Shared interfaces that enable cross-domain functionality without coupling
 - Think of `core.lib` as the "contract layer" that keeps domains decoupled
 
 **Pipe Domain** (`com.logistics.pipe`):
-- Module composition: `Pipe` composes `Module` instances for behavior
-- Module types: `ProviderModule`, `SupplierModule`, `RequesterModule`, `SinkModule`, `NetworkRouterModule`, `CraftingModule`
-- Module ordering: CraftingModule runs first, NetworkRouterModule runs last
-- Network layer: `NetworkRegistry`, `PipeNetwork` (implements `ILogisticsNetwork`), `NetworkController`, `NetworkGraph`
+- Module composition: `Pipe` composes `Module` instances for behavior; `ChassisPipe` supports runtime-swappable modules (MkI–MkV with 1/2/3/4/8 slots)
+- Module ordering: `CraftingModule` runs first, `NetworkRouterModule` runs last
+- **Transport modules**: `TransportModule`, `BoostModule`, `WeatheringModule`, `PipeMarkingModule`, `PipeOnlyModule`, `MergerModule`, `BlockConnectionModule`
+- **Extraction/insertion modules**: `ExtractionModule`, `InsertionModule`, `BasicExtractorModule`, `AdvancedExtractorModule`, `ItemFilterModule`
+- **Logistics network modules**: `NetworkRouterModule`, `SinkModule`, `PolymorphicSinkModule`, `EnchantmentSinkModule`, `ModSinkModule`, `ProviderModule`, `PassiveSupplierModule`, `SupplierModule`, `RequesterModule`, `TerminusModule`, `SatelliteModule`, `QuickSortModule`, `CraftingModule`, `ProcessModule`, `VoidModule`
+- Network layer: `NetworkRegistry`, `PipeNetwork` (implements `ILogisticsNetwork`), `NetworkController`, `NetworkSnapshot`
 - `TravelingItem` represents items in transit with progress-based movement
-- See DESIGN.md for comprehensive pipe architecture
 
 **Power Domain** (`com.logistics.power`):
-- Engine hierarchy: `AbstractEngineBlockEntity` base class
+- Engine hierarchy: `AbstractEngineBlockEntity` base class (in `core.lib`)
 - Heat management: COLD → COOL → WARM → HOT → OVERHEAT stages
 - Integrates with Team Reborn Energy API
-- Types: Redstone Engine, Stirling Engine (with fuel), Creative Engine
+- Engine types: Redstone Engine, Stirling Engine (with fuel), Creative Engine
+- Also registers: Creative Sink (absorbs energy, useful for testing)
 
 **Automation Domain** (`com.logistics.automation`):
-- Laser Quarry: Mining machine with frame and laser rendering
+- Laser Quarry: Mining machine with configurable volume; accepts pipe connections from above only
+- Laser Quarry Frame: Decorative frame blocks that define the quarry boundary
 - Expandable for future machines
 
 ## Code Style

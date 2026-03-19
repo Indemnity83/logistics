@@ -36,7 +36,7 @@ Logistics is a Fabric mod inspired by BuildCraft and Logistics Pipes, bringing a
 
 ## How It Works
 
-Logistics is built on a **three-tier system** that grows with your world progression. Implemented tiers are listed first, followed by future plans.
+Logistics is built on a **three-tier system** that grows with your world progression. All three tiers are implemented.
 
 ### Tier 1: Mechanical Pipes (Implemented)
 **Basic routing without item awareness**
@@ -59,15 +59,16 @@ These pipes are intelligent. They inspect items and change behavior based on wha
 - **Item Filter Pipe (Diamond)** - Route specific items to specific destinations (item-aware)
 - **Item Insertion Pipe (Quartz)** - Prefer inventories with space; otherwise route to pipes
 
-### Tier 3: Network Logistics (Future)
+### Tier 3: Network Logistics (Implemented)
 **System-aware automation and requests**
 
-The ultimate goal. Your inventories become abstract resources, and you request what you need—the network figures out the rest.
+Your inventories become abstract resources, and you request what you need—the network figures out the rest. Dedicated logistics pipes advertise contents, fulfill requests, maintain stock, and automate crafting. Chassis pipes hold swappable modules to customize behavior further.
 
-- **Request Tables** - Ask for items; the network delivers them
-- **Provider Modules** - Advertise what inventories contain
-- **Crafting Logistics** - Automated crafting on demand
-- **Global Routing** - Smart pathfinding across your entire network
+- **Provider Logistics Pipe** - Advertises inventory contents to the network
+- **Requester Logistics Pipe** - Requests items from the network on demand
+- **Supplier Logistics Pipe** - Maintains target stock levels automatically
+- **Crafting Logistics Pipe** - Automates crafting recipes on demand
+- **Chassis Logistics Pipes (MK1–MK5)** - Hold 1–8 swappable modules each
 
 Each tier builds on the previous one—you'll use all three together as your base grows.
 
@@ -82,6 +83,7 @@ Transport items through networks with different behaviors:
 - **Basic Transport** - Stone and Copper pipes for backbone connectivity
 - **Extraction & Routing** - Wood (extractor), Iron (merger), Diamond (filter), Quartz (insertion) pipes
 - **Special Pipes** - Gold (speed boost), Sandstone (passthrough), Obsidian (void)
+- **Network Logistics** - Dedicated logistics pipes (provider, requester, supplier, crafter, and more) plus chassis pipes with swappable modules
 
 [View all pipes →](https://indemnity83.github.io/logistics/pipes/)
 
@@ -89,6 +91,7 @@ Transport items through networks with different behaviors:
 RF energy generation with engines:
 - **Redstone Engine** - Simple, safe, steady power
 - **Stirling Engine** - Fuel-powered with heat management
+- **Creative Engine** - Infinite power for testing and creative mode
 
 [Learn about power systems →](https://indemnity83.github.io/logistics/power/)
 
@@ -99,6 +102,7 @@ RF energy generation with engines:
 ### Tools
 - **[Wrench](https://indemnity83.github.io/logistics/tools/wrench/)** - Configuration tool for pipes and machines
 - **[Marking Fluid](https://indemnity83.github.io/logistics/tools/marking-fluid/)** - Color-code your pipe networks
+- **Probe** - Inspect network state (creative/debug tool)
 
 ---
 
@@ -134,16 +138,13 @@ RF energy generation with engines:
 - Client-side smooth visual rendering
 - Extraction from and insertion into adjacent inventories
 - Mechanical and Smart pipe behaviors
-- Redstone and Stirling engines with heat management
+- Network logistics pipes: provider, requester, supplier, crafter, process, satellite, and chassis pipes with swappable modules
+- Tin and Apatite worldgen, Bronze crafting, and tiered gear progression
+- Redstone, Stirling, and Creative engines with heat management
 - Kiln for temperature-controlled crafting
 - Laser Quarry with automatic frame construction and energy-scaled mining speed
 
 ### 🚧 Future
-- Request Table block with GUI
-- Provider pipes that expose inventory contents
-- Global pathfinding and request fulfillment
-- Autocrafting support via vanilla Crafter integration
-- Network logistics components
 - Fluid pipes with Transfer API integration
 - Power/cost system for logistics operations
 - Additional pipe upgrades and advanced logistics features
