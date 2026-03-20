@@ -77,7 +77,7 @@ public record PipeContext(Level world, BlockPos pos, BlockState state, IPipeAcce
     }
 
     public void markDirty() {
-        blockEntity.setChanged();
+        blockEntity.markDirty();
     }
 
     public void markDirtyAndSync() {

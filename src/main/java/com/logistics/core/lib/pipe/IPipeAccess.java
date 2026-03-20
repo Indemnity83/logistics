@@ -28,7 +28,7 @@ public interface IPipeAccess {
     @Nullable EnergyComponent getEnergy();
 
     /** Mark the block entity as changed so it is saved on the next world save. */
-    void setChanged();
+    void markDirty();
 
     /**
      * Return the cached connection type for the given direction.
