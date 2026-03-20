@@ -378,6 +378,11 @@ public class PipeBlockEntity extends BaseBlockEntity
     // ==================== IPipeAccess ====================
 
     @Override
+    public void markDirty() {
+        setChanged();
+    }
+
+    @Override
     public CompoundTag moduleState(String key) {
         return getOrCreateModuleState(key);
     }
