@@ -149,7 +149,7 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
             @Override
             public long insert(ItemVariant resource, long maxAmount, TransactionContext transaction) {
                 // Reject non-fuel items (same validation as isValid() for GUI)
-                if (level == null || FuelRegistry.INSTANCE.get(resource.getItem()) != null) {
+                if (level == null || FuelRegistry.INSTANCE.get(resource.getItem()) == null) {
                     return 0;
                 }
                 return baseStorage.insert(resource, maxAmount, transaction);
