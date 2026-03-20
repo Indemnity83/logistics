@@ -16,7 +16,7 @@ public class PipeInfrastructureGameTest {
     /**
      * Simple test to verify game test infrastructure works.
      */
-    @GameTest
+    @GameTest(template = "fabric-gametest-api-v1:empty")
     public void verifyGameTestWorks(GameTestHelper context) {
         // Just verify we can access blocks
         BlockPos pos = new BlockPos(0, 1, 0);
@@ -33,7 +33,7 @@ public class PipeInfrastructureGameTest {
     /**
      * Test that a pipe block can be placed and creates a block entity.
      */
-    @GameTest
+    @GameTest(template = "fabric-gametest-api-v1:empty")
     public void testPipePlacement(GameTestHelper context) {
         BlockPos pos = new BlockPos(0, 1, 0);
 
@@ -52,7 +52,7 @@ public class PipeInfrastructureGameTest {
     /**
      * Test that different pipe types can be placed.
      */
-    @GameTest
+    @GameTest(template = "fabric-gametest-api-v1:empty")
     public void testMultiplePipeTypes(GameTestHelper context) {
         // Place various pipe types
         context.setBlock(new BlockPos(0, 1, 0), LogisticsPipe.BLOCK.STONE_TRANSPORT_PIPE);
@@ -84,7 +84,7 @@ public class PipeInfrastructureGameTest {
     /**
      * Test that pipes can connect to each other.
      */
-    @GameTest
+    @GameTest(template = "fabric-gametest-api-v1:empty")
     public void testPipeConnections(GameTestHelper context) {
         BlockPos center = new BlockPos(1, 1, 1);
 
@@ -108,7 +108,7 @@ public class PipeInfrastructureGameTest {
      * Test that connection cache is only recalculated when neighbors change.
      * This verifies the performance optimization that avoids per-tick recalculation.
      */
-    @GameTest
+    @GameTest(template = "fabric-gametest-api-v1:empty")
     public void testConnectionCacheOptimization(GameTestHelper context) {
         BlockPos pipePos = new BlockPos(1, 1, 1);
 

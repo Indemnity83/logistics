@@ -18,7 +18,7 @@ public class QuarryGameTest {
     /**
      * Test that laser quarry can be placed and creates block entity.
      */
-    @GameTest
+    @GameTest(template = "fabric-gametest-api-v1:empty")
     public void testQuarryPlacement(GameTestHelper context) {
         BlockPos pos = new BlockPos(1, 1, 1);
 
@@ -38,7 +38,7 @@ public class QuarryGameTest {
     /**
      * Test that laser quarry accepts energy from all sides.
      */
-    @GameTest
+    @GameTest(template = "fabric-gametest-api-v1:empty")
     public void testQuarryAcceptsEnergy(GameTestHelper context) {
         BlockPos pos = new BlockPos(1, 1, 1);
 
@@ -71,7 +71,7 @@ public class QuarryGameTest {
      * Test that laser quarry does NOT accept items from pipes.
      * Quarry only outputs items, never accepts them.
      */
-    @GameTest
+    @GameTest(template = "fabric-gametest-api-v1:empty")
     public void testQuarryDoesNotAcceptItems(GameTestHelper context) {
         BlockPos pos = new BlockPos(1, 1, 1);
 
@@ -105,7 +105,7 @@ public class QuarryGameTest {
     /**
      * Test that laser quarry starts in CLEARING phase.
      */
-    @GameTest
+    @GameTest(template = "fabric-gametest-api-v1:empty")
     public void testQuarryInitialPhase(GameTestHelper context) {
         BlockPos pos = new BlockPos(1, 1, 1);
 
@@ -136,7 +136,7 @@ public class QuarryGameTest {
      * Test that laser quarry reports correct pipe connection type.
      * Should only connect to pipes from above (Direction.UP).
      */
-    @GameTest
+    @GameTest(template = "fabric-gametest-api-v1:empty")
     public void testQuarryPipeConnection(GameTestHelper context) {
         BlockPos pos = new BlockPos(1, 1, 1);
 
@@ -173,7 +173,7 @@ public class QuarryGameTest {
     /**
      * Test that laser quarry block state has correct FACING property.
      */
-    @GameTest
+    @GameTest(template = "fabric-gametest-api-v1:empty")
     public void testQuarryFacing(GameTestHelper context) {
         BlockPos pos = new BlockPos(1, 1, 1);
 

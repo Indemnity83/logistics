@@ -31,7 +31,7 @@ public class ModuleGameTest {
     /**
      * Test that filter pipes can be placed and have block entities.
      */
-    @GameTest
+    @GameTest(template = "fabric-gametest-api-v1:empty")
     public void testFilterPipePlacement(GameTestHelper context) {
         BlockPos pos = new BlockPos(0, 1, 0);
         context.setBlock(pos, LogisticsPipe.BLOCK.ITEM_FILTER_PIPE);
@@ -52,7 +52,7 @@ public class ModuleGameTest {
     /**
      * Test that extractor pipes can be placed and have block entities.
      */
-    @GameTest
+    @GameTest(template = "fabric-gametest-api-v1:empty")
     public void testExtractorPipePlacement(GameTestHelper context) {
         BlockPos pos = new BlockPos(0, 1, 0);
         context.setBlock(pos, LogisticsPipe.BLOCK.ITEM_EXTRACTOR_PIPE);
@@ -68,7 +68,7 @@ public class ModuleGameTest {
     /**
      * Test that merger pipes can be placed and have block entities.
      */
-    @GameTest
+    @GameTest(template = "fabric-gametest-api-v1:empty")
     public void testMergerPipePlacement(GameTestHelper context) {
         BlockPos pos = new BlockPos(0, 1, 0);
         context.setBlock(pos, LogisticsPipe.BLOCK.ITEM_MERGER_PIPE);
@@ -84,7 +84,7 @@ public class ModuleGameTest {
     /**
      * Test that insertion pipes can be placed and have block entities.
      */
-    @GameTest
+    @GameTest(template = "fabric-gametest-api-v1:empty")
     public void testInsertionPipePlacement(GameTestHelper context) {
         BlockPos pos = new BlockPos(0, 1, 0);
         context.setBlock(pos, LogisticsPipe.BLOCK.ITEM_INSERTION_PIPE);
@@ -100,7 +100,7 @@ public class ModuleGameTest {
     /**
      * Test that void pipes can be placed and have block entities.
      */
-    @GameTest
+    @GameTest(template = "fabric-gametest-api-v1:empty")
     public void testVoidPipePlacement(GameTestHelper context) {
         BlockPos pos = new BlockPos(0, 1, 0);
         context.setBlock(pos, LogisticsPipe.BLOCK.ITEM_VOID_PIPE);
@@ -116,7 +116,7 @@ public class ModuleGameTest {
     /**
      * Test that passthrough pipes can be placed and have block entities.
      */
-    @GameTest
+    @GameTest(template = "fabric-gametest-api-v1:empty")
     public void testPassthroughPipePlacement(GameTestHelper context) {
         BlockPos pos = new BlockPos(0, 1, 0);
         context.setBlock(pos, LogisticsPipe.BLOCK.ITEM_PASSTHROUGH_PIPE);
@@ -132,7 +132,7 @@ public class ModuleGameTest {
     /**
      * Test that gold transport pipes can be placed and have block entities.
      */
-    @GameTest
+    @GameTest(template = "fabric-gametest-api-v1:empty")
     public void testGoldTransportPipePlacement(GameTestHelper context) {
         BlockPos pos = new BlockPos(0, 1, 0);
         context.setBlock(pos, LogisticsPipe.BLOCK.GOLD_TRANSPORT_PIPE);
@@ -150,7 +150,7 @@ public class ModuleGameTest {
     /**
      * Test that filter module routes items based on configured filters.
      */
-    @GameTest
+    @GameTest(template = "fabric-gametest-api-v1:empty")
     public void testFilterModuleRoutesMatchingItems(GameTestHelper context) {
         BlockPos pos = new BlockPos(0, 1, 0);
         context.setBlock(pos, LogisticsPipe.BLOCK.ITEM_FILTER_PIPE);
@@ -208,7 +208,7 @@ public class ModuleGameTest {
     /**
      * Test that filter module passes through non-matching items.
      */
-    @GameTest
+    @GameTest(template = "fabric-gametest-api-v1:empty")
     public void testFilterModulePassesThroughNonMatching(GameTestHelper context) {
         BlockPos pos = new BlockPos(0, 1, 0);
         context.setBlock(pos, LogisticsPipe.BLOCK.ITEM_FILTER_PIPE);
@@ -260,7 +260,7 @@ public class ModuleGameTest {
     /**
      * Test that merger module routes items to configured output direction.
      */
-    @GameTest
+    @GameTest(template = "fabric-gametest-api-v1:empty")
     public void testMergerModuleRoutesToOutput(GameTestHelper context) {
         BlockPos pos = new BlockPos(0, 1, 0);
         context.setBlock(pos, LogisticsPipe.BLOCK.ITEM_MERGER_PIPE);
@@ -312,7 +312,7 @@ public class ModuleGameTest {
     /**
      * Test that filter module handles multiple filters on different sides.
      */
-    @GameTest
+    @GameTest(template = "fabric-gametest-api-v1:empty")
     public void testFilterModuleMultipleSideFilters(GameTestHelper context) {
         BlockPos pos = new BlockPos(0, 1, 0);
         context.setBlock(pos, LogisticsPipe.BLOCK.ITEM_FILTER_PIPE);

@@ -24,7 +24,7 @@ public class KilnGameTest {
     /**
      * Test that kiln can be placed and creates block entity.
      */
-    @GameTest
+    @GameTest(template = "fabric-gametest-api-v1:empty")
     public void testKilnPlacement(GameTestHelper context) {
         BlockPos pos = new BlockPos(1, 1, 1);
 
@@ -45,7 +45,7 @@ public class KilnGameTest {
      * Test that kiln inventory is accessible from correct sides.
      * Top: glass input, Sides: fuel, Bottom: output extraction.
      */
-    @GameTest
+    @GameTest(template = "fabric-gametest-api-v1:empty")
     public void testKilnInventoryAccess(GameTestHelper context) {
         BlockPos pos = new BlockPos(1, 1, 1);
 
@@ -95,7 +95,7 @@ public class KilnGameTest {
     /**
      * Test that kiln only accepts glass items from top.
      */
-    @GameTest
+    @GameTest(template = "fabric-gametest-api-v1:empty")
     public void testKilnGlassInputFromTop(GameTestHelper context) {
         BlockPos pos = new BlockPos(1, 1, 1);
 
@@ -141,7 +141,7 @@ public class KilnGameTest {
     /**
      * Test that kiln only accepts fuel from sides.
      */
-    @GameTest
+    @GameTest(template = "fabric-gametest-api-v1:empty")
     public void testKilnFuelInputFromSides(GameTestHelper context) {
         BlockPos pos = new BlockPos(1, 1, 1);
 
@@ -174,7 +174,7 @@ public class KilnGameTest {
     /**
      * Test that kiln only allows output extraction from bottom.
      */
-    @GameTest
+    @GameTest(template = "fabric-gametest-api-v1:empty")
     public void testKilnOutputExtractionFromBottom(GameTestHelper context) {
         BlockPos pos = new BlockPos(1, 1, 1);
 
@@ -213,7 +213,7 @@ public class KilnGameTest {
      * Test that kiln crafting grid is NOT accessible from outside.
      * Slots 2-10 (crafting grid) should not be exposed via sided inventory.
      */
-    @GameTest
+    @GameTest(template = "fabric-gametest-api-v1:empty")
     public void testKilnCraftingGridNotAccessible(GameTestHelper context) {
         BlockPos pos = new BlockPos(1, 1, 1);
 
@@ -243,7 +243,7 @@ public class KilnGameTest {
      * Test that kiln has correct initial state.
      * Should start not burning and at zero temperature.
      */
-    @GameTest
+    @GameTest(template = "fabric-gametest-api-v1:empty")
     public void testKilnInitialState(GameTestHelper context) {
         BlockPos pos = new BlockPos(1, 1, 1);
 
@@ -280,7 +280,7 @@ public class KilnGameTest {
     /**
      * Test that kiln provides item storage capability.
      */
-    @GameTest
+    @GameTest(template = "fabric-gametest-api-v1:empty")
     public void testKilnItemStorage(GameTestHelper context) {
         BlockPos pos = new BlockPos(1, 1, 1);
 
@@ -307,7 +307,7 @@ public class KilnGameTest {
     /**
      * Test that kiln block state has correct FACING property.
      */
-    @GameTest
+    @GameTest(template = "fabric-gametest-api-v1:empty")
     public void testKilnFacing(GameTestHelper context) {
         BlockPos pos = new BlockPos(1, 1, 1);
 

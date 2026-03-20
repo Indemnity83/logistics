@@ -25,7 +25,7 @@ public class EngineGameTest {
     /**
      * Test that redstone engine can be placed and has block entity.
      */
-    @GameTest
+    @GameTest(template = "fabric-gametest-api-v1:empty")
     public void testRedstoneEnginePlacement(GameTestHelper context) {
         BlockPos pos = new BlockPos(0, 1, 0);
         context.setBlock(pos, LogisticsPower.BLOCK.REDSTONE_ENGINE);
@@ -41,7 +41,7 @@ public class EngineGameTest {
     /**
      * Test that stirling engine can be placed and has block entity.
      */
-    @GameTest
+    @GameTest(template = "fabric-gametest-api-v1:empty")
     public void testStirlingEnginePlacement(GameTestHelper context) {
         BlockPos pos = new BlockPos(0, 1, 0);
         context.setBlock(pos, LogisticsPower.BLOCK.STIRLING_ENGINE);
@@ -57,7 +57,7 @@ public class EngineGameTest {
     /**
      * Test that creative engine can be placed and has block entity.
      */
-    @GameTest
+    @GameTest(template = "fabric-gametest-api-v1:empty")
     public void testCreativeEnginePlacement(GameTestHelper context) {
         BlockPos pos = new BlockPos(0, 1, 0);
         context.setBlock(pos, LogisticsPower.BLOCK.CREATIVE_ENGINE);
@@ -73,7 +73,7 @@ public class EngineGameTest {
     /**
      * Test that redstone engine has correct overheat behavior.
      */
-    @GameTest
+    @GameTest(template = "fabric-gametest-api-v1:empty")
     public void testRedstoneEngineCannotOverheat(GameTestHelper context) {
         BlockPos enginePos = new BlockPos(0, 1, 0);
 
@@ -96,7 +96,7 @@ public class EngineGameTest {
     /**
      * Test that stirling engine's inventory is NOT accessible from the front face.
      */
-    @GameTest
+    @GameTest(template = "fabric-gametest-api-v1:empty")
     public void testStirlingEngineInventoryNotAccessibleFromFront(GameTestHelper context) {
         BlockPos pos = new BlockPos(0, 1, 0);
 
@@ -122,7 +122,7 @@ public class EngineGameTest {
     /**
      * Test that stirling engine's inventory IS accessible from other sides.
      */
-    @GameTest
+    @GameTest(template = "fabric-gametest-api-v1:empty")
     public void testStirlingEngineInventoryAccessibleFromOtherSides(GameTestHelper context) {
         BlockPos pos = new BlockPos(0, 1, 0);
 
@@ -159,7 +159,7 @@ public class EngineGameTest {
     /**
      * Test that stirling engine can accept fuel in its inventory.
      */
-    @GameTest
+    @GameTest(template = "fabric-gametest-api-v1:empty")
     public void testStirlingEngineAcceptsFuel(GameTestHelper context) {
         BlockPos pos = new BlockPos(0, 1, 0);
 
@@ -199,7 +199,7 @@ public class EngineGameTest {
     /**
      * Test that stirling engine rejects non-fuel items.
      */
-    @GameTest
+    @GameTest(template = "fabric-gametest-api-v1:empty")
     public void testStirlingEngineRejectsNonFuel(GameTestHelper context) {
         BlockPos pos = new BlockPos(0, 1, 0);
 
@@ -239,7 +239,7 @@ public class EngineGameTest {
     /**
      * Test that creative engine cannot overheat.
      */
-    @GameTest
+    @GameTest(template = "fabric-gametest-api-v1:empty")
     public void testCreativeEngineCannotOverheat(GameTestHelper context) {
         BlockPos pos = new BlockPos(0, 1, 0);
         context.setBlock(pos, LogisticsPower.BLOCK.CREATIVE_ENGINE);
@@ -260,7 +260,7 @@ public class EngineGameTest {
     /**
      * Test that creative engine has configurable output levels.
      */
-    @GameTest
+    @GameTest(template = "fabric-gametest-api-v1:empty")
     public void testCreativeEngineOutputLevels(GameTestHelper context) {
         BlockPos pos = new BlockPos(0, 1, 0);
         context.setBlock(pos, LogisticsPower.BLOCK.CREATIVE_ENGINE);
@@ -292,7 +292,7 @@ public class EngineGameTest {
     /**
      * Test that creative sink can be configured with unlimited drain rate.
      */
-    @GameTest
+    @GameTest(template = "fabric-gametest-api-v1:empty")
     public void testCreativeSinkUnlimitedDrain(GameTestHelper context) {
         BlockPos pos = new BlockPos(0, 1, 0);
         context.setBlock(pos, LogisticsPower.BLOCK.CREATIVE_SINK);
