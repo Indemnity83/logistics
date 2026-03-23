@@ -132,6 +132,7 @@ class CraftingModuleTest {
         module.setIngredient(ctx, 2, null, 1);
 
         assertThat(module.getIngredientItem(ctx, 2)).isEmpty();
+        assertThat(module.getIngredientCount(ctx, 2)).isEqualTo(1); // count key removed → default 1
     }
 
     @Test
@@ -141,6 +142,7 @@ class CraftingModuleTest {
         module.setIngredient(ctx, 2, "", 1);
 
         assertThat(module.getIngredientItem(ctx, 2)).isEmpty();
+        assertThat(module.getIngredientCount(ctx, 2)).isEqualTo(1); // count key removed → default 1
     }
 
     @Test
@@ -208,21 +210,23 @@ class CraftingModuleTest {
     }
 
     @Test
-    @DisplayName("setResult with null itemId clears both result item and count")
+    @DisplayName("setResult with null itemId clears result item and resets count to default")
     void setResult_clearWithNull() {
         module.setResult(ctx, "minecraft:diamond", 4);
         module.setResult(ctx, null, 1);
 
         assertThat(module.getResultItem(ctx)).isEmpty();
+        assertThat(module.getResultCount(ctx)).isEqualTo(1); // count key removed → default 1
     }
 
     @Test
-    @DisplayName("setResult with empty itemId clears both result item and count")
+    @DisplayName("setResult with empty itemId clears result item and resets count to default")
     void setResult_clearWithEmpty() {
         module.setResult(ctx, "minecraft:diamond", 4);
         module.setResult(ctx, "", 1);
 
         assertThat(module.getResultItem(ctx)).isEmpty();
+        assertThat(module.getResultCount(ctx)).isEqualTo(1); // count key removed → default 1
     }
 
     // ==================== Blocking flag ====================

@@ -7,7 +7,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.enchantment.ItemEnchantments;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -52,26 +51,20 @@ class EnchantmentSinkModuleTest extends MinecraftTestEnvironment {
     }
 
     @Test
-    @DisplayName("matchesItem returns true for an item with ENCHANTMENTS component")
-    void matchesItem_itemWithEnchantments_returnsTrue() {
+    @DisplayName("matchesItem returns false for a sword with no enchantments applied")
+    void matchesItem_swordWithNoEnchantments_returnsFalse() {
         ItemStack enchanted = new ItemStack(Items.DIAMOND_SWORD);
-        // Set a non-empty enchantment map by creating a custom builder
-        // We use the non-empty ItemEnchantments to signal "has enchantments"
-        // The simplest approach: set ENCHANTMENTS to a non-empty map via component
-        ItemEnchantments.Mutable mutable = new ItemEnchantments.Mutable(ItemEnchantments.EMPTY);
-        // We can't easily add real enchantments in unit tests without the full registry.
-        // Instead verify the false case and trust the true case through integration/game tests.
-        // This test verifies the contract when no enchantments are present.
+        // We can't add real enchantments in unit tests without full registry lookup.
+        // The positive case (has enchantments → true) is covered in integration/game tests.
         assertThat(module.matchesItem(enchanted)).isFalse(); // no enchantments yet
     }
 
     @Test
-    @DisplayName("matchesItem returns true for an item whose ENCHANTMENTS component is non-empty")
-    void matchesItem_itemWithNonEmptyEnchantmentsComponent_returnsTrue() {
-        // Directly set the component to a non-null non-empty value via the raw component API
+    @DisplayName("sword with no enchantments has null or empty ENCHANTMENTS component (precondition)")
+    void swordWithNoEnchantments_hasEmptyOrNullComponent() {
+        // Confirms the precondition: a freshly-constructed sword has no enchantments,
+        // so the matchesItem_swordWithNoEnchantments_returnsFalse test is meaningful.
         ItemStack sword = new ItemStack(Items.DIAMOND_SWORD);
-        // Building an ItemEnchantments with real enchantment requires full registry lookup.
-        // We verify the negative case here; the positive case is covered in integration tests.
         var noEnchants = sword.get(DataComponents.ENCHANTMENTS);
         assertThat(noEnchants == null || noEnchants.isEmpty()).isTrue();
     }

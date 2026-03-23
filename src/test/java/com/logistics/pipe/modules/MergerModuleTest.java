@@ -81,6 +81,7 @@ class MergerModuleTest extends MinecraftTestEnvironment {
         RoutePlan plan = module.route(ctx, item, List.of(Direction.NORTH, Direction.SOUTH));
 
         assertThat(plan.getType()).isEqualTo(RoutePlan.Type.REROUTE);
+        assertThat(plan.getDirections()).containsExactly(Direction.SOUTH);
     }
 
     // ==================== canAcceptFrom ====================

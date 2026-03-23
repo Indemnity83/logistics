@@ -63,8 +63,9 @@ class PolymorphicSinkModuleTest extends MinecraftTestEnvironment {
     @Test
     @DisplayName("route returns PASS when options list does not contain sink direction")
     void route_sinkDirectionNotInOptions_returnsPass() {
-        // Manually save the sink direction so we can test the options check without full world
-        // DirectionSerializer stores as string value of 3DDataValue
+        // onConnectionsChanged calls ctx.world().isClientSide(), so it is unsafe with null world.
+        // Seed the sink direction via its NBT key directly (DirectionSerializer stores 3DDataValue).
+        // If the serialization format changes this test will break — that is intentional coupling.
         ctx.saveString(module, "sink_direction", String.valueOf(Direction.SOUTH.get3DDataValue()));
 
         TravelingItem item = new TravelingItem(new ItemStack(Items.DIAMOND), Direction.NORTH, 0.1f, null);

@@ -108,7 +108,7 @@ public class QuarryMiningGameTest {
      * </pre>
      *
      * <p>Dirt has hardness 0.5 → break energy = 120 × 1.5 = 180 RF, well within the
-     * ~953 RF remaining after frame construction. Dirt drops dirt regardless of tool,
+     * ~960 RF remaining after frame construction. Dirt drops dirt regardless of tool,
      * so {@code Block.getDrops} with an empty tool stack returns 1× dirt.
      *
      * <p>Custom 3×3 outer bounds ensure the 1×1 inner mining column sits exactly at

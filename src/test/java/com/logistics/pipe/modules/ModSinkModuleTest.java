@@ -72,17 +72,14 @@ class ModSinkModuleTest {
     // ==================== removeModId ====================
 
     @Test
-    @DisplayName("removeModId removes the entry at the given index and compacts remaining")
-    void removeModId_removesAndCompacts() {
-        // Manually populate two filter slots to avoid addModId's world access
+    @DisplayName("getFilterItemIds reads back manually-written mod IDs")
+    void getFilterItemIds_readsBackManuallyWrittenIds() {
+        // addModId/removeModId call ctx.world().isClientSide() and are unsafe with null world.
+        // Populate via direct NBT ops and verify the read API only; full removeModId behavior
+        // is covered in integration tests.
         ctx.saveString(module, ModSinkModule.MOD_IDS + "_0", "minecraft:diamond");
         ctx.saveString(module, ModSinkModule.MOD_IDS + "_1", "create:iron_sheet");
 
-        // We can call removeModId since it calls ctx.world().isClientSide() but only after
-        // the removal is done. With null world this would NPE. Use direct NBT ops instead
-        // by testing getFilterItemIds after manual removal.
-        // NB: removeModId itself is unsafe with null world (calls ctx.world().isClientSide())
-        // so we only verify the read API here and leave removeModId to integration tests.
         String[] ids = module.getFilterItemIds(ctx);
         assertThat(ids[0]).isEqualTo("minecraft:diamond");
         assertThat(ids[1]).isEqualTo("create:iron_sheet");

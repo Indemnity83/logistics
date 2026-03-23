@@ -91,6 +91,10 @@ public class FakePipeAccess implements IPipeAccess {
         return travelingItems;
     }
 
+    /**
+     * Always accepts the item unconditionally (no space check). Returns {@code true} always,
+     * unlike real pipe block entities which may reject items when at capacity.
+     */
     @Override
     public boolean forceAddItem(TravelingItem item, Direction fromDirection) {
         travelingItems.add(item);
@@ -136,6 +140,6 @@ public class FakePipeAccess implements IPipeAccess {
 
     /** Return the raw module state tag for direct inspection in tests. */
     public CompoundTag getRawState(String key) {
-        return states.getOrDefault(key, new CompoundTag());
+        return states.computeIfAbsent(key, k -> new CompoundTag());
     }
 }

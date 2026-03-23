@@ -1,5 +1,8 @@
 package com.logistics.pipe.modules;
 
+import com.logistics.core.lib.pipe.PipeContext;
+import com.logistics.test.FakePipeAccess;
+import net.minecraft.core.BlockPos;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -123,7 +126,8 @@ class ProviderModeTest {
     @DisplayName("setModeFromOrdinal rejects negative ordinal")
     void setModeFromOrdinal_rejectsNegative() {
         ProviderModule module = new ProviderModule(64, 4);
-        assertThatThrownBy(() -> module.setModeFromOrdinal(null, -1))
+        PipeContext ctx = new PipeContext(null, BlockPos.ZERO, null, new FakePipeAccess());
+        assertThatThrownBy(() -> module.setModeFromOrdinal(ctx, -1))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("-1");
     }
@@ -132,8 +136,9 @@ class ProviderModeTest {
     @DisplayName("setModeFromOrdinal rejects ordinal beyond enum length")
     void setModeFromOrdinal_rejectsTooLarge() {
         ProviderModule module = new ProviderModule(64, 4);
+        PipeContext ctx = new PipeContext(null, BlockPos.ZERO, null, new FakePipeAccess());
         int outOfBounds = ProviderModule.ProviderMode.values().length;
-        assertThatThrownBy(() -> module.setModeFromOrdinal(null, outOfBounds))
+        assertThatThrownBy(() -> module.setModeFromOrdinal(ctx, outOfBounds))
                 .isInstanceOf(IllegalArgumentException.class);
     }
 }
