@@ -1,4 +1,5 @@
 plugins {
+	id 'jacoco'
 	id 'net.fabricmc.fabric-loom-remap' version "${loom_version}"
 	id 'maven-publish'
 	id 'com.diffplug.spotless' version '8.3.0'
@@ -101,6 +102,20 @@ test {
 
 	failFast = false
 	maxParallelForks = Runtime.runtime.availableProcessors().intdiv(2) ?: 1
+
+	finalizedBy jacocoTestReport
+}
+
+jacocoTestReport {
+	dependsOn test
+	reports {
+		html.required = true
+		xml.required = true
+	}
+	// Restrict to mod classes only — exclude Minecraft/Fabric bytecode
+	classDirectories.setFrom(files(classDirectories.files.collect {
+		fileTree(dir: it, include: ['com/logistics/**'])
+	}))
 }
 
 tasks.named('check') {

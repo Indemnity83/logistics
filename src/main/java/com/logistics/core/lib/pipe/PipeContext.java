@@ -83,7 +83,7 @@ public record PipeContext(Level world, BlockPos pos, BlockState state, IPipeAcce
     public void markDirtyAndSync() {
         markDirty();
 
-        if (!world.isClientSide()) {
+        if (world != null && !world.isClientSide()) {
             world.sendBlockUpdated(pos, state, state, 3);
         }
     }
