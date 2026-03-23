@@ -37,7 +37,32 @@ The core of Logistics - transporting items through your network.
 - **[Item Filter Pipe](pipes/item-filter-pipe.md)** - Route by item type
 - **[Item Insertion Pipe](pipes/item-insertion-pipe.md)** - Prefer inventories with space
 
+### Tier 3: Network Logistics
+- **[Basic Logistics Pipe](pipes/basic-logistics-pipe.md)** - Network backbone
+- **[Provider Logistics Pipe](pipes/provider-logistics-pipe.md)** - Expose inventory to network
+- **[Supplier Logistics Pipe](pipes/supplier-logistics-pipe.md)** - Auto-maintain stock levels
+- **[Requester Logistics Pipe](pipes/requester-logistics-pipe.md)** - Request items on demand
+- **[Crafting Logistics Pipe](pipes/crafting-logistics-pipe.md)** - Craft items on demand
+- **[Process Logistics Pipe](pipes/process-logistics-pipe.md)** - Automate processing machines
+- **[Satellite Logistics Pipe](pipes/satellite-logistics-pipe.md)** - Named remote destinations
+- **[Chassis Logistics Pipe](pipes/chassis-logistics-pipe.md)** (MK1–MK5) - Modular, module-driven behavior
+
 [Browse all pipes →](pipes/index.md)
+
+## Modules
+
+Modules are installed into [Chassis Logistics Pipes](pipes/chassis-logistics-pipe.md) to define their behavior. Mix and match modules to create custom logistics nodes.
+
+- **[Blank Module](modules/blank-module.md)** - Base crafting component for all modules
+- **[Extractor Module](modules/extractor-module.md)** / **[Advanced Extractor Module](modules/advanced-extractor-module.md)** - Pull items from inventories
+- **[Provider Module](modules/provider-module.md)** - Advertise inventory contents to the network
+- **[Supplier Module](modules/supplier-module.md)** - Maintain inventory stock levels (Passive/Active)
+- **[Crafter Module](modules/crafter-module.md)** - Craft items on demand within the chassis
+- **[Quicksort Module](modules/quicksort-module.md)** - Sort items into designated storage
+- **[Terminus Module](modules/terminus-module.md)** - Mark a network dead-end
+- **[Item Sink Module](modules/item-sink-module.md)** / **[Polymorphic Sink](modules/polymorphic-sink-module.md)** / **[Enchantment Sink](modules/enchantment-sink-module.md)** / **[Mod Item Sink](modules/mod-item-sink-module.md)** - Accept items by type, content, or mod namespace
+
+[Browse all modules →](modules/index.md)
 
 ## Power
 

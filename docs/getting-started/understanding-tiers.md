@@ -51,18 +51,18 @@ Tier 2 pipes inspect items and make decisions - they filter, sort, and route bas
 - Multi-destination networks
 
 ### Tier 3: Network Logistics
-**"Abstract resources and requests"** *(Future - Not Yet Implemented)*
+**"Abstract resources and requests"**
 
-Tier 3 will treat inventories as abstract resources. Instead of building physical routes, you'll request items and the network figures out how to deliver them.
+Tier 3 treats inventories as abstract resources. Instead of building physical routes, you request items and the network figures out how to deliver them.
 
-**Planned features:**
-- Request Tables (ask for items)
-- Provider modules (advertise inventory contents)
-- Global pathfinding
-- Autocrafting via vanilla Crafter
-- Abstract logistics services
+**Available features:**
+- [Provider Logistics Pipe](../pipes/provider-logistics-pipe.md) - Advertises inventory contents to the network
+- [Requester Logistics Pipe](../pipes/requester-logistics-pipe.md) - Requests items from the network on demand
+- [Supplier Logistics Pipe](../pipes/supplier-logistics-pipe.md) - Maintains target stock levels automatically
+- [Crafting Logistics Pipe](../pipes/crafting-logistics-pipe.md) - Automates crafting recipes on demand
+- [Chassis Logistics Pipes](../pipes/chassis-logistics-pipe.md) (MK1–MK5) - Hold swappable modules for custom behavior
 
-**When available:**
+**When to use:**
 - End-game automation
 - Request-based item retrieval
 - Automated crafting systems
@@ -106,12 +106,12 @@ All tiers work together - you'll use pipes from every tier in complex systems.
 **Progressive complexity:**
 - Start simple (Tier 1)
 - Add intelligence when needed (Tier 2)
-- Abstract complexity when ready (Tier 3, future)
+- Abstract complexity when ready (Tier 3)
 
 **Material-based progression:**
 - Tier 1: Common materials (stone, copper, iron, wood)
 - Tier 2: Valuable materials (diamond, quartz)
-- Tier 3: End-game materials (planned)
+- Tier 3: End-game materials
 
 ## Common Questions
 
@@ -132,7 +132,7 @@ When you need:
 - Multi-output distribution
 
 **What about Tier 3?**
-Not implemented yet. Focus on mastering Tier 1 and Tier 2 for now.
+Tier 3 provides request-based logistics: advertise your inventory contents with Provider pipes, request items on demand with Requester pipes, maintain stock with Supplier pipes, and automate crafting with Crafting pipes. Use it when Tier 1 and Tier 2 routing becomes too complex to manage manually.
 
 ## See Also
 - [Tier System](../core/tier-system.md) - Technical tier architecture

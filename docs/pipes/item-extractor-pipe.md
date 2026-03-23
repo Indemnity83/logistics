@@ -63,7 +63,7 @@ The Item Extractor Pipe pulls one item at a time from a connected inventory and 
 - Pulls one item per extraction cycle
 - Requires adjacent inventory to extract from
 - Connects to other pipes on remaining faces
-- No power required - extraction is automatic
+- Requires power from an adjacent [engine](../power/redstone-engine.md); a [Redstone Engine](../power/redstone-engine.md) extracts 1 item per cycle, while higher-powered engines can extract up to a stack per cycle
 - Works with any block implementing Fabric Transfer API
 
 ## Configuration
@@ -82,9 +82,8 @@ The opaque connector shows which face is pulling from the inventory.
 - Place extraction face directly against the inventory (chest, furnace, etc.)
 - Connect other faces to [Copper Transport Pipes](copper-transport-pipe.md) for network
 - Use [Item Merger Pipes](item-merger-pipe.md) to collect from multiple extractors
-- Extraction is automatic - no redstone required
 - Cannot extract through [Item Passthrough Pipes](item-passthrough-pipe.md)
-- One item per cycle - not a high-speed extractor
+- Use a higher-powered engine (e.g. [Stirling Engine](../power/stirling-engine.md)) to extract more items per cycle, up to a full stack
 
 ## Common Patterns
 

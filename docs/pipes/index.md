@@ -20,12 +20,16 @@ Item-aware pipes that make routing decisions based on what they're transporting.
 - **[Item Insertion Pipe](item-insertion-pipe.md)** - Prefer inventories with space, otherwise route to pipes
 
 ## Tier 3: Network Logistics
-System-aware pipes that participate in a logistics network. These pipes communicate with each other to advertise available items, fulfill requests, and maintain stock levels automatically.
+System-aware pipes that participate in a logistics network. These pipes communicate with each other to advertise available items, fulfill requests, automate crafting, and maintain stock levels automatically.
 
 - **[Basic Logistics Pipe](basic-logistics-pipe.md)** - Accept and deposit network items; the foundation for all Tier 3 pipes
 - **[Provider Logistics Pipe](provider-logistics-pipe.md)** - Advertise adjacent inventory contents and fulfill network requests
 - **[Supplier Logistics Pipe](supplier-logistics-pipe.md)** - Automatically maintain configured stock levels by requesting from the network
 - **[Requester Logistics Pipe](requester-logistics-pipe.md)** - Manually request items from the network via a browsable GUI
+- **[Crafting Logistics Pipe](crafting-logistics-pipe.md)** - Fulfill network requests by crafting items from available ingredients
+- **[Process Logistics Pipe](process-logistics-pipe.md)** - Automate processing machines (furnaces, kilns) within the network
+- **[Satellite Logistics Pipe](satellite-logistics-pipe.md)** - Named remote destination for network-addressed item delivery
+- **[Chassis Logistics Pipe](chassis-logistics-pipe.md)** (MK1–MK5) - Modular pipe that holds swappable [modules](../modules/index.md) for customizable behavior
 
 ## See Also
 - [Pipe Networks](../core/pipe-networks.md) - Understanding how pipes connect
