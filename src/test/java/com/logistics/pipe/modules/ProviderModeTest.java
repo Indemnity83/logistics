@@ -105,19 +105,9 @@ class ProviderModeTest {
     })
     void availableAmount(String modeName, long raw, boolean firstSlot, long expected) {
         ProviderModule.ProviderMode mode = ProviderModule.ProviderMode.valueOf(modeName);
-        long result = computeAvailable(mode, raw, firstSlot);
+        ProviderModule module = new ProviderModule(64, 4);
+        long result = module.calculateAvailableAmount(mode, raw, firstSlot);
         assertThat(result).isEqualTo(expected);
-    }
-
-    /**
-     * Mirrors the private ProviderModule.calculateAvailableAmount logic so we can
-     * test the algorithm directly without reflection. If that method changes, this
-     * mirror must be updated to stay in sync.
-     */
-    private static long computeAvailable(ProviderModule.ProviderMode mode, long rawAmount, boolean isFirstSlotOfType) {
-        if (mode.isHideOnePerSlot()) rawAmount = Math.max(0, rawAmount - 1);
-        if (mode.isHideOnePerType() && isFirstSlotOfType) rawAmount = Math.max(0, rawAmount - 1);
-        return rawAmount;
     }
 
     // ==================== setModeFromOrdinal validation ====================

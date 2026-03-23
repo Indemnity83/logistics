@@ -117,11 +117,15 @@ class MergerModuleTest extends MinecraftTestEnvironment {
     @Test
     @DisplayName("onConnectionsChanged selects the first connected direction as output")
     void onConnectionsChanged_setsFirstDirection() {
-        access.setConnection(Direction.EAST, PipeConnection.Type.PIPE);
-        module.onConnectionsChanged(ctx, List.of(Direction.EAST));
+        // NORTH (ordinal 2) precedes SOUTH (ordinal 3) in Direction.values(), so NORTH is chosen first.
+        access.setConnection(Direction.NORTH, PipeConnection.Type.PIPE);
+        access.setConnection(Direction.SOUTH, PipeConnection.Type.PIPE);
+        module.onConnectionsChanged(ctx, List.of(Direction.NORTH, Direction.SOUTH));
 
-        // After connections change, EAST should be the output — canAcceptFrom EAST is false
-        assertThat(module.canAcceptFrom(ctx, Direction.EAST, ItemStack.EMPTY)).isFalse();
+        // NORTH was first in Direction.values() — it becomes the output
+        assertThat(module.canAcceptFrom(ctx, Direction.NORTH, ItemStack.EMPTY)).isFalse();
+        // SOUTH is not the output — incoming items from SOUTH are accepted
+        assertThat(module.canAcceptFrom(ctx, Direction.SOUTH, ItemStack.EMPTY)).isTrue();
     }
 
     @Test

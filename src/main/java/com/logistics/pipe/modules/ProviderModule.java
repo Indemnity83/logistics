@@ -119,7 +119,7 @@ public class ProviderModule implements Module, TickingModule, DispatchableModule
 
     // ==================== Mode Configuration ====================
 
-    private long calculateAvailableAmount(ProviderMode mode, long rawAmount, boolean isFirstSlotOfType) {
+    long calculateAvailableAmount(ProviderMode mode, long rawAmount, boolean isFirstSlotOfType) {
         if (mode.isHideOnePerSlot()) rawAmount = Math.max(0, rawAmount - 1);
         if (mode.isHideOnePerType() && isFirstSlotOfType) rawAmount = Math.max(0, rawAmount - 1);
         return rawAmount;
