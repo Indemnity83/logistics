@@ -7,6 +7,7 @@ import com.logistics.pipe.block.PipeBlock;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.pipe.modules.ItemFilterModule;
 import com.logistics.pipe.modules.MergerModule;
+import com.logistics.pipe.modules.SinkModule;
 import com.logistics.core.lib.pipe.RoutePlan;
 import com.logistics.core.lib.pipe.TravelingItem;
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
@@ -19,6 +20,7 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Blocks;
 
 import java.util.List;
 
@@ -373,5 +375,121 @@ public class ModuleGameTest {
         }
 
         context.succeed();
+    }
+
+    // ==================== InsertionModule ====================
+
+    /**
+     * Verifies that InsertionModule routes an item into an adjacent chest when space is available.
+     *
+     * <p>InsertionModule.route() uses ItemStorage.SIDED.find() to probe real inventory capacity —
+     * this path requires a live world and cannot be exercised in unit tests.
+     *
+     * <p>Layout (y=1): [chest at (0,1,0)] ← [insertion_pipe at (1,1,0)]
+     * Diamond is injected from EAST (travels WEST toward the chest).
+     */
+    @GameTest(maxTicks = 40)
+    public void testInsertionModuleDeliversToAdjacentChest(GameTestHelper context) {
+        BlockPos pipePos = new BlockPos(1, 1, 0);
+        BlockPos chestPos = new BlockPos(0, 1, 0); // WEST of pipe
+
+        context.setBlock(chestPos, Blocks.CHEST);
+        context.setBlock(pipePos, LogisticsPipe.BLOCK.ITEM_INSERTION_PIPE);
+
+        PipeBlockEntity pipe = context.getBlockEntity(pipePos, PipeBlockEntity.class);
+        if (pipe == null) {
+            context.fail("Item insertion pipe should have a block entity");
+            return;
+        }
+
+        // Diamond comes from EAST, travels WEST toward the chest
+        TravelingItem diamond = new TravelingItem(new ItemStack(Items.DIAMOND), Direction.EAST, 0.1f);
+        if (!pipe.forceAddItem(diamond, Direction.EAST)) {
+            context.fail("Pipe should accept the force-injected diamond");
+            return;
+        }
+
+        context.succeedWhen(() -> context.assertContainerContains(chestPos, Items.DIAMOND));
+    }
+
+    // ==================== SinkModule ====================
+
+    /**
+     * Verifies that SinkModule routes a filter-matched item into the adjacent inventory.
+     *
+     * <p>SinkModule.matchesFilter() calls BuiltInRegistries.ITEM.get() and then route() uses
+     * the live connection cache (set by onConnectionsChanged) — both require a running game.
+     *
+     * <p>Layout (y=1): [chest at (0,1,0)] ← [basic_logistics_pipe at (1,1,0)]
+     * Diamond filter on SinkModule; diamond injected from EAST routes WEST into the chest.
+     */
+    @GameTest(maxTicks = 40)
+    public void testSinkModuleFilterMatchRoutesToInventory(GameTestHelper context) {
+        BlockPos pipePos = new BlockPos(1, 1, 0);
+        BlockPos chestPos = new BlockPos(0, 1, 0); // WEST of pipe
+
+        context.setBlock(chestPos, Blocks.CHEST);
+        context.setBlock(pipePos, LogisticsPipe.BLOCK.BASIC_LOGISTICS_PIPE);
+
+        PipeBlockEntity pipe = context.getBlockEntity(pipePos, PipeBlockEntity.class);
+        if (pipe == null) {
+            context.fail("Basic logistics pipe should have a block entity");
+            return;
+        }
+
+        // Write diamond filter into SinkModule NBT state (slot 0 = "0" key per FilterSlots)
+        PipeContext ctx = new PipeContext(
+                context.getLevel(), pipePos, context.getBlockState(pipePos), pipe);
+        String diamondId = BuiltInRegistries.ITEM.getKey(Items.DIAMOND).toString();
+        CompoundTag filterTag = new CompoundTag();
+        filterTag.putString("0", diamondId);
+        ctx.putCompoundTag(new SinkModule(5), SinkModule.FILTERS, filterTag);
+
+        // Inject diamond from EAST; filter match routes it WEST into the chest
+        TravelingItem diamond = new TravelingItem(new ItemStack(Items.DIAMOND), Direction.EAST, 0.1f);
+        if (!pipe.forceAddItem(diamond, Direction.EAST)) {
+            context.fail("Pipe should accept the force-injected diamond");
+            return;
+        }
+
+        context.succeedWhen(() -> context.assertContainerContains(chestPos, Items.DIAMOND));
+    }
+
+    /**
+     * Verifies that SinkModule with default route accepts any item that has no network destination.
+     *
+     * <p>With only the chest at WEST connected, validDirections = [WEST]. Since the sink direction
+     * is the only option, hasOtherOptions = false and the default route fires.
+     *
+     * <p>Layout (y=1): [chest at (0,1,0)] ← [basic_logistics_pipe at (1,1,0)]
+     * Default route enabled; dirt (no destination) injected from EAST routes WEST to chest.
+     */
+    @GameTest(maxTicks = 40)
+    public void testSinkModuleDefaultRouteAcceptsItems(GameTestHelper context) {
+        BlockPos pipePos = new BlockPos(1, 1, 0);
+        BlockPos chestPos = new BlockPos(0, 1, 0); // WEST of pipe — only connection
+
+        context.setBlock(chestPos, Blocks.CHEST);
+        context.setBlock(pipePos, LogisticsPipe.BLOCK.BASIC_LOGISTICS_PIPE);
+
+        PipeBlockEntity pipe = context.getBlockEntity(pipePos, PipeBlockEntity.class);
+        if (pipe == null) {
+            context.fail("Basic logistics pipe should have a block entity");
+            return;
+        }
+
+        // Enable default route directly via NBT (avoids markDirtyAndSync with relative pos)
+        PipeContext ctx = new PipeContext(
+                context.getLevel(), pipePos, context.getBlockState(pipePos), pipe);
+        ctx.saveInt(new SinkModule(5), SinkModule.DEFAULT_ROUTE, 1);
+
+        // Inject dirt without a destination; chest at WEST is the only exit → default route fires
+        TravelingItem dirt = new TravelingItem(new ItemStack(Items.DIRT), Direction.EAST, 0.1f);
+        if (!pipe.forceAddItem(dirt, Direction.EAST)) {
+            context.fail("Pipe should accept the force-injected dirt");
+            return;
+        }
+
+        context.succeedWhen(() -> context.assertContainerContains(chestPos, Items.DIRT));
     }
 }
