@@ -22,7 +22,8 @@
 			"com.logistics.gametest.pipe.ModuleGameTest",
 			"com.logistics.gametest.power.EngineGameTest",
 			"com.logistics.gametest.automation.QuarryGameTest",
-			"com.logistics.gametest.automation.KilnGameTest"
+			"com.logistics.gametest.automation.QuarryMiningGameTest",
+			"com.logistics.gametest.automation.KilnGameTest",
 		]
 	}
 }
