@@ -44,8 +44,8 @@ import java.util.UUID;
  * sources inputs from the network (routing them to satellite pipes or self),
  * and extracts outputs from the adjacent machine once they appear.
  *
- * <p>V1 scope: up to 9 inputs (MAX_INPUTS), up to 1 output (MAX_OUTPUTS), fixed items only (no tags),
- * one active job at a time.
+ * <p>V1 scope: up to 9 inputs (MAX_INPUTS), up to 1 output (MAX_OUTPUTS), fixed items only (no tags).
+ * Multiple concurrent orders are queued and processed in FIFO order.
  */
 public class ProcessModule implements Module, TickingModule, RoutingModule, DispatchableModule {
     // NBT keys — process config (public for screen handler access)
@@ -55,14 +55,14 @@ public class ProcessModule implements Module, TickingModule, RoutingModule, Disp
     public static final String ENTRY_ITEM = "item";
     public static final String ENTRY_COUNT = "count";
     public static final String ENTRY_DEST = "dest"; // inputs only: "" = local, else satellite ID
-    // NBT key — active job
-    private static final String KEY_JOB = "active_job";
-    private static final String JOB_REQ = "req";       // requester "x,y,z"
-    private static final String JOB_DLV = "dlv";       // delivery UUID string
-    private static final String JOB_EXEC = "exec";     // executions promised (long)
-    private static final String JOB_EXTR = "extr";     // outputs extracted so far (long)
-    private static final String JOB_ORDERS = "orders"; // ListTag<StringTag> of pending input order UUIDs
-    private static final String JOB_REQUESTED = "req_amount"; // original requested amount (may be less than executions * outCount)
+    // NBT key — order queue (ListTag of CompoundTag entries)
+    private static final String QUEUE = "queue";
+    private static final String ENTRY_REQ = "req";         // requester "x,y,z"
+    private static final String ENTRY_DLV = "dlv";         // delivery UUID string
+    private static final String ENTRY_EXEC = "exec";       // executions promised (long)
+    private static final String ENTRY_EXTR = "extr";       // outputs extracted so far (long)
+    private static final String ENTRY_ORDERS = "orders";   // ListTag<StringTag> of pending input order UUIDs
+    private static final String ENTRY_REQUESTED = "req_amount"; // original requested amount
     // Global satellite destination for all inputs (0 = local/self)
     private static final String KEY_INPUT_SATELLITE = "input_satellite";
     // Timing
@@ -113,7 +113,18 @@ public class ProcessModule implements Module, TickingModule, RoutingModule, Disp
     }
 
     public boolean isActive(PipeContext ctx) {
-        return ctx.moduleState(getStateKey()).contains(KEY_JOB);
+        return !getQueue(ctx).isEmpty();
+    }
+
+    // ==================== Queue Helpers ====================
+
+    private ListTag getQueue(PipeContext ctx) {
+        return NbtCompat.getListOrEmpty(ctx.moduleState(getStateKey()), QUEUE);
+    }
+
+    private void saveQueue(PipeContext ctx, ListTag queue) {
+        ctx.moduleState(getStateKey()).put(QUEUE, queue);
+        ctx.markDirtyAndSync();
     }
 
     // ==================== Private NBT Helpers ====================
@@ -222,8 +233,6 @@ public class ProcessModule implements Module, TickingModule, RoutingModule, Disp
 
     @Override
     public long onDispatch(PipeContext ctx, BlockPos requester, ItemVariant item, long amount, UUID deliveryId) {
-        if (isActive(ctx)) return 0; // Only one job at a time
-
         // Find which output matches the requested item
         int matchedOutput = -1;
         for (int i = 0; i < MAX_OUTPUTS; i++) {
@@ -241,7 +250,9 @@ public class ProcessModule implements Module, TickingModule, RoutingModule, Disp
         if (outCount <= 0) return 0;
 
         long executions = (amount + outCount - 1) / outCount; // ceil division
-        long actualAmount = executions * outCount; // may exceed amount; excess is routed to a sink
+        // Cap to the originally-requested amount: the machine may produce more per batch than
+        // was ordered. Excess is routed to a sink rather than force-routed to the requester.
+        long actualAmount = Math.min(amount, executions * outCount);
 
         ILogisticsNetwork network = NetworkRegistry.getOrCreateNetwork(ctx.world(), ctx.pos());
         if (network == null) return 0;
@@ -280,23 +291,25 @@ public class ProcessModule implements Module, TickingModule, RoutingModule, Disp
             orderIds.add(StringTag.valueOf(orderId.toString()));
         }
 
-        // Record active job
-        CompoundTag job = new CompoundTag();
-        job.putString(JOB_REQ, requester.getX() + "," + requester.getY() + "," + requester.getZ());
-        if (deliveryId != null) job.putString(JOB_DLV, deliveryId.toString());
-        job.putLong(JOB_EXEC, executions);
-        job.putLong(JOB_EXTR, 0L);
-        job.putLong(JOB_REQUESTED, amount); // cap: only route this many to requester, extras go to sink
-        job.put(JOB_ORDERS, orderIds);
-        ctx.moduleState(getStateKey()).put(KEY_JOB, job);
-        ctx.markDirtyAndSync();
+        // Append entry to queue
+        CompoundTag entry = new CompoundTag();
+        entry.putString(ENTRY_REQ, requester.getX() + "," + requester.getY() + "," + requester.getZ());
+        if (deliveryId != null) entry.putString(ENTRY_DLV, deliveryId.toString());
+        entry.putLong(ENTRY_EXEC, executions);
+        entry.putLong(ENTRY_EXTR, 0L);
+        entry.putLong(ENTRY_REQUESTED, amount);
+        entry.put(ENTRY_ORDERS, orderIds);
+
+        ListTag queue = getQueue(ctx);
+        queue.add(entry);
+        saveQueue(ctx, queue);
 
         return actualAmount;
     }
 
     @Override
     public void onDetach(PipeContext ctx) {
-        cancelActiveJob(ctx);
+        cancelAllJobs(ctx);
         ILogisticsNetwork network = ctx.network();
         if (network != null) {
             network.registerSupply(ctx.pos(), Map.of(), PROCESS_PRIORITY);
@@ -330,14 +343,9 @@ public class ProcessModule implements Module, TickingModule, RoutingModule, Disp
             return;
         }
 
-        // Don't offer supply while a job is active (one job at a time)
-        if (isActive(ctx)) {
-            network.registerSupply(ctx.pos(), Map.of(), PROCESS_PRIORITY);
-            return;
-        }
-
         // Advertise 0 — signals "produceable on demand" (like CraftingModule)
         // The network will validate ingredients via buildProviderCheck before dispatching.
+        // Supply is always advertised even while jobs are queued, so additional orders can arrive.
         Map<ItemVariant, Long> supply = new HashMap<>();
         for (int i = 0; i < MAX_OUTPUTS; i++) {
             String outId = getOutputItem(ctx, i);
@@ -385,14 +393,25 @@ public class ProcessModule implements Module, TickingModule, RoutingModule, Disp
     // ==================== Output Collection ====================
 
     private void collectOutputs(PipeContext ctx) {
-        CompoundTag state = ctx.moduleState(getStateKey());
-        CompoundTag job = NbtCompat.getCompoundOrEmpty(state, KEY_JOB);
+        ListTag queue = getQueue(ctx);
+        if (queue.isEmpty()) return;
 
-        BlockPos requester = parseBlockPos(NbtCompat.getString(job, JOB_REQ, ""));
-        if (requester == null) { clearJob(ctx); return; }
+        CompoundTag entry = queue.getCompound(0).orElse(null);
+        if (entry == null) {
+            queue.remove(0);
+            saveQueue(ctx, queue);
+            return;
+        }
 
-        long executions = NbtCompat.getLong(job, JOB_EXEC, 0);
-        long extracted = NbtCompat.getLong(job, JOB_EXTR, 0);
+        BlockPos requester = parseBlockPos(NbtCompat.getString(entry, ENTRY_REQ, ""));
+        if (requester == null) {
+            queue.remove(0);
+            saveQueue(ctx, queue);
+            return;
+        }
+
+        long executions = NbtCompat.getLong(entry, ENTRY_EXEC, 0);
+        long extracted = NbtCompat.getLong(entry, ENTRY_EXTR, 0);
 
         // Compute total outputs expected across all output slots
         long totalOutputsExpected = 0;
@@ -402,10 +421,14 @@ public class ProcessModule implements Module, TickingModule, RoutingModule, Disp
             totalOutputsExpected += executions * getOutputCount(ctx, i);
         }
 
-        if (totalOutputsExpected <= 0) { clearJob(ctx); return; }
+        if (totalOutputsExpected <= 0) {
+            queue.remove(0);
+            saveQueue(ctx, queue);
+            return;
+        }
 
-        long requested = NbtCompat.getLong(job, JOB_REQUESTED, totalOutputsExpected);
-        long totalSentToRequester = NbtCompat.getLong(job, "extr_req", 0);
+        long requested = NbtCompat.getLong(entry, ENTRY_REQUESTED, totalOutputsExpected);
+        long totalSentToRequester = NbtCompat.getLong(entry, "extr_req", 0);
         long totalExtracted = extracted;
         boolean changed = false;
 
@@ -416,7 +439,7 @@ public class ProcessModule implements Module, TickingModule, RoutingModule, Disp
             if (outStack.isEmpty()) continue;
 
             int outCount = getOutputCount(ctx, i);
-            long alreadyExtracted = NbtCompat.getLong(job, "extr_" + i, 0);
+            long alreadyExtracted = NbtCompat.getLong(entry, "extr_" + i, 0);
             long stillNeeded = executions * outCount - alreadyExtracted;
             if (stillNeeded <= 0) continue;
 
@@ -429,23 +452,22 @@ public class ProcessModule implements Module, TickingModule, RoutingModule, Disp
 
             if (extractedNow > 0) {
                 long sentNow = Math.min(extractedNow, toRequester);
-                job.putLong("extr_" + i, alreadyExtracted + extractedNow);
-                job.putLong("extr_req", totalSentToRequester + sentNow);
+                entry.putLong("extr_" + i, alreadyExtracted + extractedNow);
+                entry.putLong("extr_req", totalSentToRequester + sentNow);
                 totalSentToRequester += sentNow;
                 totalExtracted += extractedNow;
                 changed = true;
             }
         }
 
-        if (changed) {
-            job.putLong(JOB_EXTR, totalExtracted);
-            state.put(KEY_JOB, job);
-            ctx.markDirtyAndSync();
-        }
-
-        // Check if job is complete
+        // Check if this entry is complete
         if (totalExtracted >= totalOutputsExpected) {
-            clearJob(ctx);
+            queue.remove(0);
+            saveQueue(ctx, queue);
+        } else if (changed) {
+            entry.putLong(ENTRY_EXTR, totalExtracted);
+            queue.set(0, entry);
+            saveQueue(ctx, queue);
         }
     }
 
@@ -478,7 +500,7 @@ public class ProcessModule implements Module, TickingModule, RoutingModule, Disp
                         TravelingItem t = new TravelingItem(
                                 variant.toStack(chunk), dir.getOpposite(),
                                 LogisticsPipe.CONFIG.ITEM_NETWORK_SPEED, requester);
-                        t.setDeliveryId(getJobDeliveryId(ctx));
+                        t.setDeliveryId(getFirstEntryDeliveryId(ctx));
                         ctx.blockEntity().forceAddItem(t, dir);
                         rem -= chunk;
                     }
@@ -500,24 +522,23 @@ public class ProcessModule implements Module, TickingModule, RoutingModule, Disp
     }
 
     @Nullable
-    private UUID getJobDeliveryId(PipeContext ctx) {
-        CompoundTag job = NbtCompat.getCompoundOrEmpty(ctx.moduleState(getStateKey()), KEY_JOB);
-        String dlv = NbtCompat.getString(job, JOB_DLV, "");
+    private UUID getFirstEntryDeliveryId(PipeContext ctx) {
+        ListTag queue = getQueue(ctx);
+        if (queue.isEmpty()) return null;
+        CompoundTag entry = queue.getCompound(0).orElse(null);
+        if (entry == null) return null;
+        String dlv = NbtCompat.getString(entry, ENTRY_DLV, "");
         if (dlv.isEmpty()) return null;
         try { return UUID.fromString(dlv); } catch (Exception e) { return null; }
     }
 
-    private void clearJob(PipeContext ctx) {
-        ctx.moduleState(getStateKey()).remove(KEY_JOB);
-        ctx.markDirtyAndSync();
-    }
-
-    private void cancelActiveJob(PipeContext ctx) {
-        if (!isActive(ctx)) return;
-        CompoundTag job = NbtCompat.getCompoundOrEmpty(ctx.moduleState(getStateKey()), KEY_JOB);
+    private void cancelAllJobs(PipeContext ctx) {
+        ListTag queue = getQueue(ctx);
         ILogisticsNetwork network = ctx.network();
-        if (network != null) {
-            ListTag orders = NbtCompat.getListOrEmpty(job, JOB_ORDERS);
+        for (int qi = 0; qi < queue.size(); qi++) {
+            CompoundTag entry = queue.getCompound(qi).orElse(null);
+            if (entry == null || network == null) continue;
+            ListTag orders = NbtCompat.getListOrEmpty(entry, ENTRY_ORDERS);
             for (int i = 0; i < orders.size(); i++) {
                 String uuidStr = NbtCompat.getStringAt(orders, i, "");
                 if (!uuidStr.isEmpty()) {
@@ -525,7 +546,8 @@ public class ProcessModule implements Module, TickingModule, RoutingModule, Disp
                 }
             }
         }
-        clearJob(ctx);
+        ctx.moduleState(getStateKey()).remove(QUEUE);
+        ctx.markDirtyAndSync();
     }
 
     // ==================== Helpers ====================
