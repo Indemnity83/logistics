@@ -63,6 +63,9 @@ public class ProcessModule implements Module, TickingModule, RoutingModule, Disp
     private static final String ENTRY_EXTR = "extr";       // outputs extracted so far (long)
     private static final String ENTRY_ORDERS = "orders";   // ListTag<StringTag> of pending input order UUIDs
     private static final String ENTRY_REQUESTED = "req_amount"; // original requested amount
+    // Per-entry snapshot of output config (persisted at dispatch time to avoid config-change issues)
+    private static final String ENTRY_OUTPUT_ITEM = "output_item"; // item ID of the output
+    private static final String ENTRY_OUTPUT_COUNT = "output_count"; // count per execution
     // Global satellite destination for all inputs (0 = local/self)
     private static final String KEY_INPUT_SATELLITE = "input_satellite";
     // Timing
@@ -291,7 +294,7 @@ public class ProcessModule implements Module, TickingModule, RoutingModule, Disp
             orderIds.add(StringTag.valueOf(orderId.toString()));
         }
 
-        // Append entry to queue
+        // Append entry to queue with snapshot of output config
         CompoundTag entry = new CompoundTag();
         entry.putString(ENTRY_REQ, requester.getX() + "," + requester.getY() + "," + requester.getZ());
         if (deliveryId != null) entry.putString(ENTRY_DLV, deliveryId.toString());
@@ -299,6 +302,9 @@ public class ProcessModule implements Module, TickingModule, RoutingModule, Disp
         entry.putLong(ENTRY_EXTR, 0L);
         entry.putLong(ENTRY_REQUESTED, amount);
         entry.put(ENTRY_ORDERS, orderIds);
+        // Persist output config snapshot to avoid config-change issues
+        entry.putString(ENTRY_OUTPUT_ITEM, getOutputItem(ctx, matchedOutput));
+        entry.putInt(ENTRY_OUTPUT_COUNT, outCount);
 
         ListTag queue = getQueue(ctx);
         queue.add(entry);
@@ -405,6 +411,9 @@ public class ProcessModule implements Module, TickingModule, RoutingModule, Disp
 
         BlockPos requester = parseBlockPos(NbtCompat.getString(entry, ENTRY_REQ, ""));
         if (requester == null) {
+            // Cancel reserved orders before removing entry
+            ILogisticsNetwork network = ctx.network();
+            if (network != null) cancelEntryOrders(network, entry);
             queue.remove(0);
             saveQueue(ctx, queue);
             return;
@@ -413,50 +422,48 @@ public class ProcessModule implements Module, TickingModule, RoutingModule, Disp
         long executions = NbtCompat.getLong(entry, ENTRY_EXEC, 0);
         long extracted = NbtCompat.getLong(entry, ENTRY_EXTR, 0);
 
-        // Compute total outputs expected across all output slots
-        long totalOutputsExpected = 0;
-        for (int i = 0; i < MAX_OUTPUTS; i++) {
-            String outId = getOutputItem(ctx, i);
-            if (outId.isEmpty()) continue;
-            totalOutputsExpected += executions * getOutputCount(ctx, i);
-        }
+        // Use snapshot of output config from when entry was created
+        String outputItem = NbtCompat.getString(entry, ENTRY_OUTPUT_ITEM, "");
+        int outputCount = NbtCompat.getInt(entry, ENTRY_OUTPUT_COUNT, 0);
 
-        if (totalOutputsExpected <= 0) {
+        if (outputItem.isEmpty() || outputCount <= 0) {
+            // Cancel reserved orders before removing entry
+            ILogisticsNetwork network = ctx.network();
+            if (network != null) cancelEntryOrders(network, entry);
             queue.remove(0);
             saveQueue(ctx, queue);
             return;
         }
+
+        long totalOutputsExpected = executions * outputCount;
 
         long requested = NbtCompat.getLong(entry, ENTRY_REQUESTED, totalOutputsExpected);
         long totalSentToRequester = NbtCompat.getLong(entry, "extr_req", 0);
         long totalExtracted = extracted;
         boolean changed = false;
 
-        for (int i = 0; i < MAX_OUTPUTS; i++) {
-            String outId = getOutputItem(ctx, i);
-            if (outId.isEmpty()) continue;
-            ItemStack outStack = resolveItem(outId);
-            if (outStack.isEmpty()) continue;
+        // Extract using the snapshot config
+        ItemStack outStack = resolveItem(outputItem);
+        if (!outStack.isEmpty()) {
+            long alreadyExtracted = NbtCompat.getLong(entry, "extr_0", 0);
+            long stillNeeded = totalOutputsExpected - alreadyExtracted;
 
-            int outCount = getOutputCount(ctx, i);
-            long alreadyExtracted = NbtCompat.getLong(entry, "extr_" + i, 0);
-            long stillNeeded = executions * outCount - alreadyExtracted;
-            if (stillNeeded <= 0) continue;
+            if (stillNeeded > 0) {
+                // Only route up to the originally requested amount to the requester; extras go to a sink
+                long requestedRemaining = Math.max(0, requested - totalSentToRequester);
+                long toRequester = Math.min(stillNeeded, requestedRemaining);
 
-            // Only route up to the originally requested amount to the requester; extras go to a sink
-            long requestedRemaining = Math.max(0, requested - totalSentToRequester);
-            long toRequester = Math.min(stillNeeded, requestedRemaining);
+                ItemVariant variant = ItemVariant.of(outStack);
+                long extractedNow = extractAndRoute(ctx, variant, stillNeeded, requester, toRequester);
 
-            ItemVariant variant = ItemVariant.of(outStack);
-            long extractedNow = extractAndRoute(ctx, variant, stillNeeded, requester, toRequester);
-
-            if (extractedNow > 0) {
-                long sentNow = Math.min(extractedNow, toRequester);
-                entry.putLong("extr_" + i, alreadyExtracted + extractedNow);
-                entry.putLong("extr_req", totalSentToRequester + sentNow);
-                totalSentToRequester += sentNow;
-                totalExtracted += extractedNow;
-                changed = true;
+                if (extractedNow > 0) {
+                    long sentNow = Math.min(extractedNow, toRequester);
+                    entry.putLong("extr_0", alreadyExtracted + extractedNow);
+                    entry.putLong("extr_req", totalSentToRequester + sentNow);
+                    totalSentToRequester += sentNow;
+                    totalExtracted += extractedNow;
+                    changed = true;
+                }
             }
         }
 
@@ -538,16 +545,21 @@ public class ProcessModule implements Module, TickingModule, RoutingModule, Disp
         for (int qi = 0; qi < queue.size(); qi++) {
             CompoundTag entry = queue.getCompound(qi).orElse(null);
             if (entry == null || network == null) continue;
-            ListTag orders = NbtCompat.getListOrEmpty(entry, ENTRY_ORDERS);
-            for (int i = 0; i < orders.size(); i++) {
-                String uuidStr = NbtCompat.getStringAt(orders, i, "");
-                if (!uuidStr.isEmpty()) {
-                    try { network.cancelOrder(UUID.fromString(uuidStr)); } catch (Exception ignored) {}
-                }
-            }
+            cancelEntryOrders(network, entry);
         }
         ctx.moduleState(getStateKey()).remove(QUEUE);
         ctx.markDirtyAndSync();
+    }
+
+    private void cancelEntryOrders(ILogisticsNetwork network, CompoundTag entry) {
+        if (network == null || entry == null) return;
+        ListTag orders = NbtCompat.getListOrEmpty(entry, ENTRY_ORDERS);
+        for (int i = 0; i < orders.size(); i++) {
+            String uuidStr = NbtCompat.getStringAt(orders, i, "");
+            if (!uuidStr.isEmpty()) {
+                try { network.cancelOrder(UUID.fromString(uuidStr)); } catch (Exception ignored) {}
+            }
+        }
     }
 
     // ==================== Helpers ====================
