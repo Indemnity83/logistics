@@ -473,6 +473,10 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity implements PipeConne
     }
 
     private boolean shouldSkipBlock(Level world, BlockPos pos, BlockState state) {
+        // Never mine the quarry's own block
+        if (pos.equals(getBlockPos())) {
+            return true;
+        }
         // Skip air
         if (state.isAir()) {
             return true;
