@@ -20,10 +20,12 @@
 			"com.logistics.gametest.core.OreGenerationGameTest",
 			"com.logistics.gametest.pipe.PipeInfrastructureGameTest",
 			"com.logistics.gametest.pipe.ModuleGameTest",
+			"com.logistics.gametest.pipe.PipeFlowGameTest",
 			"com.logistics.gametest.power.EngineGameTest",
 			"com.logistics.gametest.automation.QuarryGameTest",
 			"com.logistics.gametest.automation.QuarryMiningGameTest",
-			"com.logistics.gametest.automation.KilnGameTest"
+			"com.logistics.gametest.automation.KilnGameTest",
+			"com.logistics.gametest.network.NetworkIntegrationGameTest"
 		]
 	}
 }

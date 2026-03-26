@@ -6,6 +6,7 @@ import com.logistics.power.engine.block.entity.CreativeEngineBlockEntity;
 import com.logistics.power.engine.block.entity.RedstoneEngineBlockEntity;
 import com.logistics.power.engine.block.entity.StirlingEngineBlockEntity;
 import net.minecraft.gametest.framework.GameTest;
+import com.logistics.core.lib.power.AbstractEngineBlock;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
@@ -318,20 +319,151 @@ public class EngineGameTest {
         context.succeed();
     }
 
-    // TODO: Energy production tests
-    // Block entities don't tick properly in the current game test setup.
-    // Energy production should be manually tested in-game or requires a different test approach.
-    //
-    // What we verified:
-    // - Engines can be placed and have correct block entities ✓
-    // - Stirling engine inventory access restrictions ✓
-    // - Stirling engine fuel acceptance/rejection ✓
-    // - Engine overheat behavior ✓
-    // - Creative engine output level configuration ✓
-    // - Creative sink enhanced with unlimited drain rate and energy counters ✓
-    //
-    // What needs manual testing:
-    // - Redstone engine produces 10 RF every 16 ticks when powered
-    // - Stirling engine produces 3-10 RF/t based on PID control
-    // - Energy transfer to adjacent blocks works correctly
+    /**
+     * Test that a powered redstone engine produces energy over time.
+     *
+     * <p>The redstone engine produces 10 RF every 16 game ticks when powered AND facing an
+     * AcceptsLowTierEnergy block. After 20 ticks, at least one production interval should have
+     * fired and the energy buffer should be non-zero.
+     *
+     * <p>Layout: [engine FACING=EAST POWERED=true] [creative sink]
+     *
+     * <p>Run in-game: /test run logistics-gametest.enginegametest.testredstoneengineproducesenergywhenpowered
+     */
+    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 30)
+    public void testRedstoneEngineProducesEnergyWhenPowered(GameTestHelper context) {
+        BlockPos enginePos = new BlockPos(0, 1, 0);
+        BlockPos sinkPos = new BlockPos(1, 1, 0); // Engine output faces EAST toward the sink
+
+        // Place sink first so isRunning() can detect it when the engine first ticks
+        context.setBlock(sinkPos, LogisticsPower.BLOCK.CREATIVE_SINK);
+        context.setBlock(enginePos, LogisticsPower.BLOCK.REDSTONE_ENGINE
+                .defaultBlockState()
+                .setValue(AbstractEngineBlock.FACING, Direction.EAST)
+                .setValue(AbstractEngineBlock.POWERED, true));
+
+        // Redstone engine adds 10 RF every 16 game ticks.
+        // After 20 ticks, at least one generation cycle should have fired.
+        context.runAfterDelay(20, () -> {
+            RedstoneEngineBlockEntity engine = (RedstoneEngineBlockEntity) context.getBlockEntity(enginePos);
+            if (engine == null) {
+                context.fail("Redstone engine block entity not found after 20 ticks");
+                return;
+            }
+            if (engine.getEnergy() <= 0) {
+                context.fail("Redstone engine should have energy after 20 ticks, stored: " + engine.getEnergy());
+                return;
+            }
+            context.succeed();
+        });
+    }
+
+    /**
+     * Test that a powered creative engine fills its energy buffer.
+     *
+     * <p>The creative engine sets its buffer to maximum capacity on every tick it is powered.
+     * After just 5 ticks the buffer should be full.
+     *
+     * <p>Run in-game: /test run logistics-gametest.enginegametest.testcreativeengineaccumulatesenergywhenpowered
+     */
+    @GameTest(template = "fabric-gametest-api-v1:empty")
+    public void testCreativeEngineAccumulatesEnergyWhenPowered(GameTestHelper context) {
+        BlockPos enginePos = new BlockPos(0, 1, 0);
+
+        context.setBlock(enginePos, LogisticsPower.BLOCK.CREATIVE_ENGINE
+                .defaultBlockState()
+                .setValue(AbstractEngineBlock.POWERED, true));
+
+        context.runAfterDelay(5, () -> {
+            CreativeEngineBlockEntity engine = (CreativeEngineBlockEntity) context.getBlockEntity(enginePos);
+            if (engine == null) {
+                context.fail("Creative engine block entity not found after 5 ticks");
+                return;
+            }
+            if (engine.getEnergy() != engine.getMaxEnergy()) {
+                context.fail("Creative engine buffer should be full after 5 ticks, got: "
+                        + engine.getEnergy() + " / " + engine.getMaxEnergy());
+                return;
+            }
+            context.succeed();
+        });
+    }
+
+    /**
+     * Test that a stirling engine burns fuel and accumulates energy in its buffer.
+     *
+     * <p>With coal in the fuel slot and POWERED=true, the engine should start burning
+     * on the first tick, and after 100 ticks the buffer should be non-zero and the
+     * engine should still be burning (coal burns for 1600 ticks).
+     *
+     * <p>Run in-game: /test run logistics-gametest.enginegametest.testStirlingEngineProducesEnergyFromFuel
+     */
+    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 120)
+    public void testStirlingEngineProducesEnergyFromFuel(GameTestHelper context) {
+        BlockPos pos = new BlockPos(0, 1, 0);
+
+        context.setBlock(pos, LogisticsPower.BLOCK.STIRLING_ENGINE
+                .defaultBlockState()
+                .setValue(AbstractEngineBlock.POWERED, true));
+
+        StirlingEngineBlockEntity engine = (StirlingEngineBlockEntity) context.getBlockEntity(pos);
+        if (engine == null) {
+            context.fail("Stirling engine should have block entity");
+            return;
+        }
+
+        engine.setTheItem(new ItemStack(Items.COAL));
+
+        context.runAfterDelay(100, () -> {
+            StirlingEngineBlockEntity eng = (StirlingEngineBlockEntity) context.getBlockEntity(pos);
+            if (eng == null) {
+                context.fail("Stirling engine block entity not found after 100 ticks");
+                return;
+            }
+            if (eng.getEnergy() <= 0) {
+                context.fail("Stirling engine should have energy after 100 ticks, got: " + eng.getEnergy());
+                return;
+            }
+            if (eng.getBurnTime() <= 0) {
+                context.fail("Stirling engine should still be burning (coal burns for 1600 ticks), got burnTime: "
+                        + eng.getBurnTime());
+                return;
+            }
+            context.succeed();
+        });
+    }
+
+    /**
+     * Test that a redstone engine does NOT produce energy when unpowered.
+     *
+     * <p>An unpowered redstone engine decays existing energy and produces nothing new.
+     * After 20 ticks with no redstone signal, the buffer should remain at zero.
+     *
+     * <p>Run in-game: /test run logistics-gametest.enginegametest.testredstoneengineproducesnoenergywhenunpowered
+     */
+    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 30)
+    public void testRedstoneEngineProducesNoEnergyWhenUnpowered(GameTestHelper context) {
+        BlockPos enginePos = new BlockPos(0, 1, 0);
+        BlockPos sinkPos = new BlockPos(1, 1, 0);
+
+        context.setBlock(sinkPos, LogisticsPower.BLOCK.CREATIVE_SINK);
+        // Place engine with POWERED=false (default)
+        context.setBlock(enginePos, LogisticsPower.BLOCK.REDSTONE_ENGINE
+                .defaultBlockState()
+                .setValue(AbstractEngineBlock.FACING, Direction.EAST)
+                .setValue(AbstractEngineBlock.POWERED, false));
+
+        context.runAfterDelay(20, () -> {
+            RedstoneEngineBlockEntity engine = (RedstoneEngineBlockEntity) context.getBlockEntity(enginePos);
+            if (engine == null) {
+                context.fail("Redstone engine block entity not found");
+                return;
+            }
+            if (engine.getEnergy() != 0) {
+                context.fail("Unpowered redstone engine should have zero energy, got: " + engine.getEnergy());
+                return;
+            }
+            context.succeed();
+        });
+    }
 }
