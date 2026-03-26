@@ -422,8 +422,12 @@ public class ModuleGameTest {
      *
      * <p>Layout (y=1): [chest at (0,1,0)] ← [basic_logistics_pipe at (1,1,0)]
      * Diamond filter on SinkModule; diamond injected from EAST routes WEST into the chest.
+     *
+     * <p>BASIC_LOGISTICS_PIPE includes NetworkRouterModule, which drops items when no sink is
+     * registered in the network. SinkModule.onTick registers after SYNC_INTERVAL = 20 ticks,
+     * so we inject the diamond at tick 22 to ensure the sink is already registered.
      */
-    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 40)
+    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 60)
     public void testSinkModuleFilterMatchRoutesToInventory(GameTestHelper context) {
         BlockPos pipePos = new BlockPos(1, 1, 0);
         BlockPos chestPos = new BlockPos(0, 1, 0); // WEST of pipe
@@ -445,12 +449,15 @@ public class ModuleGameTest {
         filterTag.putString("0", diamondId);
         ctx.putCompoundTag(new SinkModule(5), SinkModule.FILTERS, filterTag);
 
-        // Inject diamond from EAST; filter match routes it WEST into the chest
-        TravelingItem diamond = new TravelingItem(new ItemStack(Items.DIAMOND), Direction.EAST, 0.1f);
-        if (!pipe.forceAddItem(diamond, Direction.EAST)) {
-            context.fail("Pipe should accept the force-injected diamond");
-            return;
-        }
+        // Wait for SinkModule.onTick to register the diamond sink interest with the network.
+        // NetworkRouterModule (which runs before SinkModule) calls network.findSinkFor() and
+        // drops the item if the sink is not yet registered. Registration happens after 20 ticks.
+        context.runAfterDelay(22, () -> {
+            TravelingItem diamond = new TravelingItem(new ItemStack(Items.DIAMOND), Direction.EAST, 0.1f);
+            if (!pipe.forceAddItem(diamond, Direction.EAST)) {
+                context.fail("Pipe should accept the force-injected diamond");
+            }
+        });
 
         context.succeedWhen(() -> context.assertContainerContains(chestPos, Items.DIAMOND));
     }
@@ -463,8 +470,12 @@ public class ModuleGameTest {
      *
      * <p>Layout (y=1): [chest at (0,1,0)] ← [basic_logistics_pipe at (1,1,0)]
      * Default route enabled; dirt (no destination) injected from EAST routes WEST to chest.
+     *
+     * <p>BASIC_LOGISTICS_PIPE includes NetworkRouterModule, which drops items when no sink is
+     * registered in the network. SinkModule.onTick registers the generic sink interest after
+     * SYNC_INTERVAL = 20 ticks, so we inject the dirt at tick 22.
      */
-    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 40)
+    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 60)
     public void testSinkModuleDefaultRouteAcceptsItems(GameTestHelper context) {
         BlockPos pipePos = new BlockPos(1, 1, 0);
         BlockPos chestPos = new BlockPos(0, 1, 0); // WEST of pipe — only connection
@@ -483,12 +494,15 @@ public class ModuleGameTest {
                 context.getLevel(), pipePos, context.getBlockState(pipePos), pipe);
         ctx.saveInt(new SinkModule(5), SinkModule.DEFAULT_ROUTE, 1);
 
-        // Inject dirt without a destination; chest at WEST is the only exit → default route fires
-        TravelingItem dirt = new TravelingItem(new ItemStack(Items.DIRT), Direction.EAST, 0.1f);
-        if (!pipe.forceAddItem(dirt, Direction.EAST)) {
-            context.fail("Pipe should accept the force-injected dirt");
-            return;
-        }
+        // Wait for SinkModule.onTick to register the generic sink interest with the network.
+        // NetworkRouterModule (which runs before SinkModule) calls network.findSinkFor() and
+        // drops the item if the sink is not yet registered. Registration happens after 20 ticks.
+        context.runAfterDelay(22, () -> {
+            TravelingItem dirt = new TravelingItem(new ItemStack(Items.DIRT), Direction.EAST, 0.1f);
+            if (!pipe.forceAddItem(dirt, Direction.EAST)) {
+                context.fail("Pipe should accept the force-injected dirt");
+            }
+        });
 
         context.succeedWhen(() -> context.assertContainerContains(chestPos, Items.DIRT));
     }

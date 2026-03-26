@@ -10,6 +10,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
+import team.reborn.energy.api.EnergyStorage;
 
 /**
  * Tick-based game tests for LaserQuarry mining behavior.
@@ -18,7 +19,10 @@ import net.minecraft.world.level.block.Blocks;
  * its response to absent energy, and actual block mining with item output.
  *
  * <p>All tests that require frame building use a 3×3 outer / 1×1 inner custom bounds
- * to keep the frame cost to 28 × 240 = 6 720 RF — within the 7 680 RF buffer.
+ * placed directly in front of the quarry (+Z direction) to keep the frame cost to
+ * 28 × 240 = 6 720 RF — within the 7 680 RF buffer. The quarry itself sits outside
+ * the bounds (at the −Z edge), matching the real-gameplay placement where markers
+ * define the region to mine and the quarry is placed adjacent to it.
  *
  * <p>Run all in-game: /test runall
  * Run one test:       /test run logistics-gametest.quarrymininggametest.&lt;methodname&gt;
@@ -57,15 +61,31 @@ public class QuarryMiningGameTest {
      *
      * <p>With full energy (7 680 RF) and a 3×3 outer frame:
      * <ul>
-     *   <li>CLEARING: ~1 tick (45 air blocks, all skipped in a single scan)
+     *   <li>CLEARING: 1 tick (45 pre-cleared air blocks, all skipped in a single scan)
      *   <li>BUILDING_FRAME: 28 ticks (one frame block per tick × 240 RF each = 6 720 RF total)
      *   <li>MINING: entered on tick ~30
      * </ul>
      * The test asserts MINING phase at tick 80 — well past the expected transition.
+     *
+     * <p>The clearing volume (3×3 × 5 Y levels, in front of the quarry) is pre-filled
+     * with air to avoid underground terrain blocks, which would stall a quarry that has
+     * only a few hundred RF to spare for stone-breaking.
      */
     @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 200)
     public void testQuarryTransitionsThroughPhases(GameTestHelper context) {
         BlockPos quarryPos = new BlockPos(1, 2, 1);
+
+        // Pre-clear the bounds column (dz = +1..+3 relative to the quarry) from quarryY
+        // to quarryY+Y_OFFSET_ABOVE so the clearing phase encounters only air and
+        // completes in a single tick regardless of what terrain the game-test world has.
+        for (int dy = 0; dy <= LaserQuarryConfig.Y_OFFSET_ABOVE; dy++) {
+            for (int dx = -1; dx <= 1; dx++) {
+                for (int dz = 1; dz <= 3; dz++) {
+                    context.setBlock(quarryPos.offset(dx, dy, dz), Blocks.AIR);
+                }
+            }
+        }
+
         context.setBlock(quarryPos, LogisticsAutomation.BLOCK.LASER_QUARRY);
 
         LaserQuarryBlockEntity quarry = (LaserQuarryBlockEntity) context.getBlockEntity(quarryPos);
@@ -74,19 +94,28 @@ public class QuarryMiningGameTest {
             return;
         }
 
-        // 3×3 outer frame (1×1 inner mining area) centred on the quarry's absolute position
+        // 3×3 outer frame (1×1 inner mining area) placed in front of the quarry (+Z).
+        // The quarry sits at absZ, which is outside the bounds [absZ+1, absZ+3], matching
+        // real gameplay where the quarry is placed adjacent to the marked region.
         BlockPos absPos = context.absolutePos(quarryPos);
         quarry.setCustomBounds(
-                absPos.getX() - 1, absPos.getZ() - 1,
-                absPos.getX() + 1, absPos.getZ() + 1);
+                absPos.getX() - 1, absPos.getZ() + 1,
+                absPos.getX() + 1, absPos.getZ() + 3);
 
-        // Fill energy to full capacity so every frame-build tick can proceed
+        // SimpleEnergyStorage.insert() is rate-limited by MAX_ENERGY_INPUT (1 000 RF/call),
+        // so loop until the battery is full.
         try (Transaction tx = Transaction.openOuter()) {
-            quarry.energyStorage(Direction.DOWN).insert(LaserQuarryConfig.ENERGY_CAPACITY, tx);
+            EnergyStorage es = quarry.energyStorage(Direction.DOWN);
+            long remaining = LaserQuarryConfig.ENERGY_CAPACITY;
+            while (remaining > 0) {
+                long inserted = es.insert(remaining, tx);
+                if (inserted == 0) break;
+                remaining -= inserted;
+            }
             tx.commit();
         }
 
-        // Check at tick 80 — CLEARING finishes in ~1 tick, BUILDING_FRAME in ~28 ticks
+        // Check at tick 80 — CLEARING finishes in 1 tick, BUILDING_FRAME in ~28 ticks
         context.runAfterDelay(80, () -> {
             if (quarry.getCurrentPhase() != LaserQuarryBlockEntity.Phase.MINING) {
                 context.fail("Expected MINING phase after 80 ticks with full energy, got: "
@@ -102,28 +131,40 @@ public class QuarryMiningGameTest {
      *
      * <p>Layout (relative coordinates):
      * <pre>
-     *   (0,3,0)  [chest]   ← quarry output target (directly above quarry)
-     *   (0,2,0)  [quarry]
-     *   (2,1,1)  [dirt]    ← inner mining column (absX+2, quarryY−1, absZ+1)
+     *   z=1, y=3  [chest]   ← quarry output target ({@code quarryPos.above()})
+     *   z=1, y=2  [quarry]  ← outside the custom bounds (bounds start at z=2)
+     *   z=3, y=1  [dirt]    ← first mining target, inside the 1×1 inner area
      * </pre>
      *
-     * <p>The 3×3 frame bounds extend to the +X/+Z side of the quarry so the quarry column
-     * and the chest above it are outside the clearing zone. The inner 1×1 mining column
-     * sits at (absX+2, *, absZ+1) = relative (2, *, 1), hitting the dirt at (2, 1, 1).
-     *
      * <p>Dirt has hardness 0.5 → break energy = 120 × 1.5 = 180 RF, well within the
-     * ~960 RF remaining after frame construction (28 × 240 = 6 720 RF).
+     * ~960 RF remaining after frame construction. Dirt drops dirt regardless of tool,
+     * so {@code Block.getDrops} with an empty tool stack returns 1× dirt.
+     *
+     * <p>The chest is placed upfront because the clearing scan only covers the bounds
+     * X/Z range (dz = +1..+3 relative to the quarry). The chest at dz = 0 (directly
+     * above the quarry) is outside the clearing zone and will not be removed.
      */
     @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 200)
     public void testQuarryOutputsMinedBlockToChest(GameTestHelper context) {
-        BlockPos quarryPos = new BlockPos(0, 2, 0);
-        BlockPos chestPos = new BlockPos(0, 3, 0); // directly above quarry, outside clearing zone
-        BlockPos dirtPos = new BlockPos(2, 1, 1);  // inner mining column below frame centre
+        BlockPos quarryPos = new BlockPos(1, 2, 1);
+        BlockPos chestPos = new BlockPos(1, 3, 1); // quarryPos.above() — quarry output target
+        BlockPos dirtPos = new BlockPos(1, 1, 3);  // inside the 1×1 inner mining area
 
-        // Place dirt first so it is present when mining starts
+        // Pre-clear the bounds column (dz = +1..+3) from quarryY to quarryY+Y_OFFSET_ABOVE
+        // so the clearing phase encounters only air and completes in a single tick.
+        for (int dy = 0; dy <= LaserQuarryConfig.Y_OFFSET_ABOVE; dy++) {
+            for (int dx = -1; dx <= 1; dx++) {
+                for (int dz = 1; dz <= 3; dz++) {
+                    context.setBlock(quarryPos.offset(dx, dy, dz), Blocks.AIR);
+                }
+            }
+        }
+
+        // Dirt is below the inner mining area (not in the clearing range) — place it now.
+        // Chest is above the quarry (outside the clearing X/Z range) — also safe upfront.
         context.setBlock(dirtPos, Blocks.DIRT);
-        context.setBlock(quarryPos, LogisticsAutomation.BLOCK.LASER_QUARRY);
         context.setBlock(chestPos, Blocks.CHEST);
+        context.setBlock(quarryPos, LogisticsAutomation.BLOCK.LASER_QUARRY);
 
         LaserQuarryBlockEntity quarry = (LaserQuarryBlockEntity) context.getBlockEntity(quarryPos);
         if (quarry == null) {
@@ -131,22 +172,27 @@ public class QuarryMiningGameTest {
             return;
         }
 
-        // 3×3 outer frame to the +X/+Z side of the quarry; inner 1×1 column at (absX+2, *, absZ+1).
-        // The quarry column (absX, absZ) and the chest above it are outside the clearing bounds.
+        // 3×3 outer frame (1×1 inner) placed in front of the quarry (+Z).
+        // Inner mining column: (absX, Y, absZ+2) → relative (1, Y, 3) — exactly dirtPos X/Z.
         BlockPos absPos = context.absolutePos(quarryPos);
         quarry.setCustomBounds(
-                absPos.getX() + 1, absPos.getZ(),
-                absPos.getX() + 3, absPos.getZ() + 2);
+                absPos.getX() - 1, absPos.getZ() + 1,
+                absPos.getX() + 1, absPos.getZ() + 3);
 
-        // 7 680 RF covers 28 frame blocks (6 720 RF) + dirt break (180 RF) with ~780 RF to spare.
-        // insert() is capped at maxInsert per call, so loop until storage is full.
+        // SimpleEnergyStorage.insert() is rate-limited by MAX_ENERGY_INPUT (1 000 RF/call);
+        // loop to fill the full 7 680 RF capacity.
         try (Transaction tx = Transaction.openOuter()) {
-            var storage = quarry.energyStorage(Direction.DOWN);
-            while (storage.insert(LaserQuarryConfig.ENERGY_CAPACITY, tx) > 0) {}
+            EnergyStorage es = quarry.energyStorage(Direction.DOWN);
+            long remaining = LaserQuarryConfig.ENERGY_CAPACITY;
+            while (remaining > 0) {
+                long inserted = es.insert(remaining, tx);
+                if (inserted == 0) break;
+                remaining -= inserted;
+            }
             tx.commit();
         }
 
-        // Succeed as soon as the chest contains dirt (quarry typically mines it around tick 33)
+        // Succeed as soon as the chest contains dirt (quarry mines dirt around tick ~33)
         context.succeedWhen(() -> context.assertContainerContains(chestPos, Items.DIRT));
     }
 }
