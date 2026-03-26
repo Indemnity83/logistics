@@ -122,7 +122,33 @@ public class ProcessModule implements Module, TickingModule, RoutingModule, Disp
     // ==================== Queue Helpers ====================
 
     private ListTag getQueue(PipeContext ctx) {
-        return NbtCompat.getListOrEmpty(ctx.moduleState(getStateKey()), QUEUE);
+        CompoundTag state = ctx.moduleState(getStateKey());
+        ListTag queue = NbtCompat.getListOrEmpty(state, QUEUE);
+        if (!queue.isEmpty()) return queue;
+
+        // One-shot migration: convert a legacy "active_job" CompoundTag into a queue entry
+        if (!state.contains("active_job")) return queue;
+        CompoundTag legacy = NbtCompat.getCompoundOrEmpty(state, "active_job");
+
+        CompoundTag migrated = new CompoundTag();
+        migrated.putString(ENTRY_REQ, NbtCompat.getString(legacy, "req", ""));
+        String legacyDlv = NbtCompat.getString(legacy, "dlv", "");
+        if (!legacyDlv.isEmpty()) migrated.putString(ENTRY_DLV, legacyDlv);
+        migrated.putLong(ENTRY_EXEC, NbtCompat.getLong(legacy, "exec", 0));
+        migrated.putLong(ENTRY_EXTR, NbtCompat.getLong(legacy, "extr", 0));
+        migrated.putLong(ENTRY_REQUESTED, NbtCompat.getLong(legacy, "req_amount", 0));
+        migrated.put(ENTRY_ORDERS, NbtCompat.getListOrEmpty(legacy, "orders"));
+        // Populate output snapshot from current config (best-effort; may be empty if config changed)
+        String outputItem = getOutputItem(ctx, 0);
+        migrated.putString(ENTRY_OUTPUT_ITEM, outputItem);
+        migrated.putInt(ENTRY_OUTPUT_COUNT, outputItem.isEmpty() ? 0 : getOutputCount(ctx, 0));
+
+        queue = new ListTag();
+        queue.add(migrated);
+        state.put(QUEUE, queue);
+        state.remove("active_job");
+        ctx.markDirtyAndSync();
+        return queue;
     }
 
     private void saveQueue(PipeContext ctx, ListTag queue) {
@@ -444,26 +470,32 @@ public class ProcessModule implements Module, TickingModule, RoutingModule, Disp
 
         // Extract using the snapshot config
         ItemStack outStack = resolveItem(outputItem);
-        if (!outStack.isEmpty()) {
-            long alreadyExtracted = NbtCompat.getLong(entry, "extr_0", 0);
-            long stillNeeded = totalOutputsExpected - alreadyExtracted;
+        if (outStack.isEmpty()) {
+            // Item ID in snapshot can no longer be resolved (e.g. mod removed); cancel and drop entry
+            ILogisticsNetwork network = ctx.network();
+            if (network != null) cancelEntryOrders(network, entry);
+            queue.remove(0);
+            saveQueue(ctx, queue);
+            return;
+        }
+        long alreadyExtracted = NbtCompat.getLong(entry, "extr_0", 0);
+        long stillNeeded = totalOutputsExpected - alreadyExtracted;
 
-            if (stillNeeded > 0) {
-                // Only route up to the originally requested amount to the requester; extras go to a sink
-                long requestedRemaining = Math.max(0, requested - totalSentToRequester);
-                long toRequester = Math.min(stillNeeded, requestedRemaining);
+        if (stillNeeded > 0) {
+            // Only route up to the originally requested amount to the requester; extras go to a sink
+            long requestedRemaining = Math.max(0, requested - totalSentToRequester);
+            long toRequester = Math.min(stillNeeded, requestedRemaining);
 
-                ItemVariant variant = ItemVariant.of(outStack);
-                long extractedNow = extractAndRoute(ctx, variant, stillNeeded, requester, toRequester);
+            ItemVariant variant = ItemVariant.of(outStack);
+            long extractedNow = extractAndRoute(ctx, variant, stillNeeded, requester, toRequester);
 
-                if (extractedNow > 0) {
-                    long sentNow = Math.min(extractedNow, toRequester);
-                    entry.putLong("extr_0", alreadyExtracted + extractedNow);
-                    entry.putLong("extr_req", totalSentToRequester + sentNow);
-                    totalSentToRequester += sentNow;
-                    totalExtracted += extractedNow;
-                    changed = true;
-                }
+            if (extractedNow > 0) {
+                long sentNow = Math.min(extractedNow, toRequester);
+                entry.putLong("extr_0", alreadyExtracted + extractedNow);
+                entry.putLong("extr_req", totalSentToRequester + sentNow);
+                totalSentToRequester += sentNow;
+                totalExtracted += extractedNow;
+                changed = true;
             }
         }
 
