@@ -149,7 +149,9 @@ When a critical bug needs a patch release *after* feature development has alread
    ```
 4. Push the branch and tag:
    ```bash
-   git push origin hotfix/X.Y.Z --tags
+   git push origin hotfix/X.Y.Z
+   git push origin mc{version}-vX.Y.Z
+   # e.g. git push origin mc1.21.11-v0.4.1
    ```
 5. Trigger the build workflow manually on GitHub:
    - Go to **Actions → Build and Publish Release**
