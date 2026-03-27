@@ -291,6 +291,12 @@ public class ProcessModule implements Module, TickingModule, RoutingModule, Disp
         ILogisticsNetwork network = NetworkRegistry.getOrCreateNetwork(ctx.world(), ctx.pos());
         if (network == null) return 0;
 
+        ListTag queue = getQueue(ctx);
+        if (queue.size() >= MAX_QUEUE_SIZE) {
+            LogisticsPipe.LOGGER.warn("[Process @ {}] Queue full ({} entries); rejecting dispatch for '{}'", ctx.pos(), queue.size(), getOutputItem(ctx, matchedOutput));
+            return 0;
+        }
+
         int satId = getInputSatelliteId(ctx);
         String globalDest = satId > 0 ? String.valueOf(satId) : "";
 
@@ -337,11 +343,6 @@ public class ProcessModule implements Module, TickingModule, RoutingModule, Disp
         entry.putString(ENTRY_OUTPUT_ITEM, getOutputItem(ctx, matchedOutput));
         entry.putInt(ENTRY_OUTPUT_COUNT, outCount);
 
-        ListTag queue = getQueue(ctx);
-        if (queue.size() >= MAX_QUEUE_SIZE) {
-            LogisticsPipe.LOGGER.warn("[Process @ {}] Queue full ({} entries); rejecting dispatch for '{}'", ctx.pos(), queue.size(), getOutputItem(ctx, matchedOutput));
-            return 0;
-        }
         queue.add(entry);
         saveQueue(ctx, queue);
 
