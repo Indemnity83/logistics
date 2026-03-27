@@ -3,94 +3,40 @@
 ## [0.4.0](https://github.com/Indemnity83/logistics/compare/mc1.21.11-v0.3.5...mc1.21.11-v0.4.0) (2026-03-27)
 
 
-### chore
-
-* bump to v0.4.0 ([da73651](https://github.com/Indemnity83/logistics/commit/da736514f1ab8162f50b5610a59f9a02ecc0edbb))
-
-
 ### Features
 
-* add beta build workflow for release branches ([#155](https://github.com/Indemnity83/logistics/issues/155)) ([a86d1ae](https://github.com/Indemnity83/logistics/commit/a86d1aeb6f60fe74783404fec8e268b1b4873763))
-* add BULK50, BULK100, INFINITE, and FULL supply modes to supplier pipe ([3281871](https://github.com/Indemnity83/logistics/commit/3281871ee6afd33316b5a01b0a9be83f98fea6b8))
-* add crafting logistics pipe with autocrafter integration ([381c99d](https://github.com/Indemnity83/logistics/commit/381c99d888f125909ccbbeda18533f068b58836d))
-* add dynamic chassis module system for logistics pipes ([#195](https://github.com/Indemnity83/logistics/issues/195)) ([4bc9518](https://github.com/Indemnity83/logistics/commit/4bc951835e5319df7443b390f9533b1650f909c0))
-* add import button for autocrafter recipes in crafting screen ([#204](https://github.com/Indemnity83/logistics/issues/204)) ([ea92a3c](https://github.com/Indemnity83/logistics/commit/ea92a3c8ede48b53396778904be6bd754318de9a))
-* add modular logistics pipe network with provider/supplier/requester/sink modules ([#161](https://github.com/Indemnity83/logistics/issues/161)) ([4a5feb6](https://github.com/Indemnity83/logistics/commit/4a5feb6cf6647eec35cbf28eef6e25816f4aa415))
-* add processing and satellite pipe modules with GUIs ([#206](https://github.com/Indemnity83/logistics/issues/206)) ([af7d1b9](https://github.com/Indemnity83/logistics/commit/af7d1b91038f4984fd8bcffc610b59e6e0a6bc15))
-* add runtime-toggleable network debug logging and /logistics debug command ([#174](https://github.com/Indemnity83/logistics/issues/174)) ([5380e33](https://github.com/Indemnity83/logistics/commit/5380e339f35750061c5963bc828688480a1c24ab))
-* add supplier mode configuration and fulfillment normalization ([#183](https://github.com/Indemnity83/logistics/issues/183)) ([5d8409d](https://github.com/Indemnity83/logistics/commit/5d8409d8204b9291aa1433bb9ee30eb4958781a8))
-* add support for chassis logistics pipes with modular slots ([#194](https://github.com/Indemnity83/logistics/issues/194)) ([6e48187](https://github.com/Indemnity83/logistics/commit/6e4818780e3de365ec9dcca4e06d2fedbc4ab56e))
-* clear module state when modules are removed from pipes ([#203](https://github.com/Indemnity83/logistics/issues/203)) ([6fcbc6d](https://github.com/Indemnity83/logistics/commit/6fcbc6dcac9cfb142a55d99db5cc6f8bed5ff422))
-* enable processing of multiple concurrent orders in pipeline ([#228](https://github.com/Indemnity83/logistics/issues/228)) ([e978fa1](https://github.com/Indemnity83/logistics/commit/e978fa195ce8c94b732baff0069f737d37195835))
-* implement capacity limits for crafting module batches ([#189](https://github.com/Indemnity83/logistics/issues/189)) ([73ed6f6](https://github.com/Indemnity83/logistics/commit/73ed6f6446cfaf705cd871f230b1dc3405b6c5bb))
-* implement fulfillment checks for dynamic providers in logistics network ([#178](https://github.com/Indemnity83/logistics/issues/178)) ([bf73172](https://github.com/Indemnity83/logistics/commit/bf731720913ecbf9d2dcc5af0012745487157a0d))
-* implement Mod Sink module with GUI for mod filtering ([#207](https://github.com/Indemnity83/logistics/issues/207)) ([4dd4a66](https://github.com/Indemnity83/logistics/commit/4dd4a66725903609ba86e103ece0ce08a9c0aa29))
-* implement supply reconciliation for order fulfillment failures ([#188](https://github.com/Indemnity83/logistics/issues/188)) ([2dea60d](https://github.com/Indemnity83/logistics/commit/2dea60d7c479295a7ebf16f11ee10076d406c8f9))
-* implement tiered crafting modules with ingredient buffers ([#200](https://github.com/Indemnity83/logistics/issues/200)) ([0d32d1b](https://github.com/Indemnity83/logistics/commit/0d32d1b6c97539bd30f08eb792be16374c8e672a))
-* introduce network job orchestration for item delivery ([#186](https://github.com/Indemnity83/logistics/issues/186)) ([214d648](https://github.com/Indemnity83/logistics/commit/214d64840443beb36625cef6b9e0b27a21407046))
-* introduce pure Java value objects for network states ([#184](https://github.com/Indemnity83/logistics/issues/184)) ([1903d47](https://github.com/Indemnity83/logistics/commit/1903d479c7f08f302209a61df94d05f1efe859a2))
-* introduce ReservationManager for item reservation tracking ([#185](https://github.com/Indemnity83/logistics/issues/185)) ([f81b23c](https://github.com/Indemnity83/logistics/commit/f81b23c9583c9ff35721be82c68b6f497f4a37ee))
-* optimize auto crafter pulse duration and cooldown settings ([#193](https://github.com/Indemnity83/logistics/issues/193)) ([83b7dd3](https://github.com/Indemnity83/logistics/commit/83b7dd3f58f2e1bfcbc9aae177a69ab578b91c29))
-* register kiln recipe type and serializer for JSON parsing ([#154](https://github.com/Indemnity83/logistics/issues/154)) ([62a1111](https://github.com/Indemnity83/logistics/commit/62a1111a7013634d55c60f711243dd93a9c1f818))
-* support multiple concurrent crafting orders ([#175](https://github.com/Indemnity83/logistics/issues/175)) ([eb4594d](https://github.com/Indemnity83/logistics/commit/eb4594d04ecbc3bee5bb496aba9d2848325417a7))
-* track in-transit orders from provider extraction through pipe delivery ([#165](https://github.com/Indemnity83/logistics/issues/165)) ([3281871](https://github.com/Indemnity83/logistics/commit/3281871ee6afd33316b5a01b0a9be83f98fea6b8))
+* add logistics network with provider, supplier, requester, and sink modules; supports multiple supply modes (BULK50, BULK100, INFINITE, FULL), concurrent crafting orders, supply reconciliation, and in-transit item tracking ([#161](https://github.com/Indemnity83/logistics/issues/161), [#165](https://github.com/Indemnity83/logistics/issues/165), [#174](https://github.com/Indemnity83/logistics/issues/174), [#175](https://github.com/Indemnity83/logistics/issues/175), [#178](https://github.com/Indemnity83/logistics/issues/178), [#183](https://github.com/Indemnity83/logistics/issues/183), [#184](https://github.com/Indemnity83/logistics/issues/184), [#185](https://github.com/Indemnity83/logistics/issues/185), [#186](https://github.com/Indemnity83/logistics/issues/186), [#188](https://github.com/Indemnity83/logistics/issues/188), [#228](https://github.com/Indemnity83/logistics/issues/228), [3281871](https://github.com/Indemnity83/logistics/commit/3281871ee6afd33316b5a01b0a9be83f98fea6b8))
+* add chassis pipes with modular, swappable module slots (MkI–MkV) ([#194](https://github.com/Indemnity83/logistics/issues/194), [#195](https://github.com/Indemnity83/logistics/issues/195), [#203](https://github.com/Indemnity83/logistics/issues/203))
+* add crafting pipe with autocrafter integration, tiered ingredient buffers, capacity limits, and recipe import ([#189](https://github.com/Indemnity83/logistics/issues/189), [#193](https://github.com/Indemnity83/logistics/issues/193), [#200](https://github.com/Indemnity83/logistics/issues/200), [#204](https://github.com/Indemnity83/logistics/issues/204), [381c99d](https://github.com/Indemnity83/logistics/commit/381c99d888f125909ccbbeda18533f068b58836d))
+* add processing, satellite, and mod sink pipe modules with GUIs ([#206](https://github.com/Indemnity83/logistics/issues/206), [#207](https://github.com/Indemnity83/logistics/issues/207))
+* add beta build workflow for release branches and register kiln recipe type and serializer ([#154](https://github.com/Indemnity83/logistics/issues/154), [#155](https://github.com/Indemnity83/logistics/issues/155))
 
 
 ### Bug Fixes
 
-* add loot tables for pipes to drop on block break ([#181](https://github.com/Indemnity83/logistics/issues/181)) ([5edbe0e](https://github.com/Indemnity83/logistics/commit/5edbe0e453fac9339e40b25f2d97d70bbbecace5))
-* add missing English names for tin and bronze item tags ([#169](https://github.com/Indemnity83/logistics/issues/169)) ([9fbea97](https://github.com/Indemnity83/logistics/commit/9fbea97f9a46cbb712b4f7e16c983bd65f233cea))
-* add missing particle textures to laser quarry, pipes, and engines ([#167](https://github.com/Indemnity83/logistics/issues/167)) ([2d16bcf](https://github.com/Indemnity83/logistics/commit/2d16bcfc101099bd6d67bd5fc0eccd19bda5d3ca))
-* address edge case handling in dispatch and availability logic ([#192](https://github.com/Indemnity83/logistics/issues/192)) ([159636a](https://github.com/Indemnity83/logistics/commit/159636a52c525e55186b354071590c2086bfa094))
-* cancel entry orders when removing completed crafting queue entry ([2f51bc8](https://github.com/Indemnity83/logistics/commit/2f51bc8a316dbd87d61c6f0eff675f78bba12707))
-* cap crafted amounts to requested quantity in crafting module ([#201](https://github.com/Indemnity83/logistics/issues/201)) ([73eb4b7](https://github.com/Indemnity83/logistics/commit/73eb4b71d18e1843162ef8e32f604fdca6482a8e))
-* crash caused by jar remapping collision in IPipeAccess ([#222](https://github.com/Indemnity83/logistics/issues/222)) ([027a2b1](https://github.com/Indemnity83/logistics/commit/027a2b1bc04b7038b5b99e423afbc50e85579367))
-* move schemaVersion to top of fabric.mod.json ([#166](https://github.com/Indemnity83/logistics/issues/166)) ([a7aafb1](https://github.com/Indemnity83/logistics/commit/a7aafb19bd87a945d32d3fa07a63fcdcf9f42287))
-* notify delivery tracking before dropping undeliverable pipe items ([#173](https://github.com/Indemnity83/logistics/issues/173)) ([72955b0](https://github.com/Indemnity83/logistics/commit/72955b02a1768885b41774ae506edbc0e947797b))
-* prevent kiln recipes from showing up empty ([#168](https://github.com/Indemnity83/logistics/issues/168)) ([6956dd8](https://github.com/Indemnity83/logistics/commit/6956dd8b7161b0137125e797cbf5819abe72a6e3))
-* purge terminal to resolve memory leak in job coordination ([#208](https://github.com/Indemnity83/logistics/issues/208)) ([750f0da](https://github.com/Indemnity83/logistics/commit/750f0da771cf5cb17ea6d0fc35b6fbc9c39aa799))
-* register menu type for kiln screen handler ([#219](https://github.com/Indemnity83/logistics/issues/219)) ([7425c6c](https://github.com/Indemnity83/logistics/commit/7425c6c82d944c3f2213160c07a8968ce65b8032))
-* remove unused imports from IWorldView and PipeContext classes ([#210](https://github.com/Indemnity83/logistics/issues/210)) ([6e864c0](https://github.com/Indemnity83/logistics/commit/6e864c0531afbc0257cc3aff497ccad8706f7f17))
-* replace inventory-delta pending tracking with network order accounting ([3281871](https://github.com/Indemnity83/logistics/commit/3281871ee6afd33316b5a01b0a9be83f98fea6b8))
-* resolve crafting logic triggering for supplier pipes ([#180](https://github.com/Indemnity83/logistics/issues/180)) ([1f30b66](https://github.com/Indemnity83/logistics/commit/1f30b669a6ede52f7e3cb40739c4fa638f4d7b5d))
-* resolve crafting order placement logic for missing items ([#205](https://github.com/Indemnity83/logistics/issues/205)) ([73b9dea](https://github.com/Indemnity83/logistics/commit/73b9dea99ebc0b400034f9c7e7427377a80ca58e))
-* resolve GUI mode mismatch in ProviderScreenHandler class ([#179](https://github.com/Indemnity83/logistics/issues/179)) ([8780be5](https://github.com/Indemnity83/logistics/commit/8780be5dfe9c295f9b8439465a0df0169e9fe0c8))
-* resolve quarry test failures by improving terrain handling ([#227](https://github.com/Indemnity83/logistics/issues/227)) ([216a055](https://github.com/Indemnity83/logistics/commit/216a055ae0165ee9ebc4754303e38d729589a7fe))
-* show craftable items as 0 stock and stabilize requester search sorting ([#176](https://github.com/Indemnity83/logistics/issues/176)) ([976eb94](https://github.com/Indemnity83/logistics/commit/976eb9485d7ecd6b0264347dba1f703737eb9ee8))
-* update beta build workflow for new release-please branch naming ([#157](https://github.com/Indemnity83/logistics/issues/157)) ([2d75513](https://github.com/Indemnity83/logistics/commit/2d75513de214e529981a95938328f4d692733aa6))
-* update filter item retrieval logic in extractor modules ([#198](https://github.com/Indemnity83/logistics/issues/198)) ([8e742ff](https://github.com/Indemnity83/logistics/commit/8e742fffa433c82cf94920881f3bda55d058547d))
+* fix asset and presentation issues: missing particle textures, item tag names, and pipe loot tables ([#167](https://github.com/Indemnity83/logistics/issues/167), [#169](https://github.com/Indemnity83/logistics/issues/169), [#181](https://github.com/Indemnity83/logistics/issues/181))
+* fix kiln screen issues: empty recipe display and missing menu registration ([#168](https://github.com/Indemnity83/logistics/issues/168), [#219](https://github.com/Indemnity83/logistics/issues/219))
+* fix logistics network bugs: crafting order logic, dispatch edge cases, craftable item display, requester search sorting, provider screen GUI, extractor filter, and memory leak ([#173](https://github.com/Indemnity83/logistics/issues/173), [#176](https://github.com/Indemnity83/logistics/issues/176), [#179](https://github.com/Indemnity83/logistics/issues/179), [#180](https://github.com/Indemnity83/logistics/issues/180), [#192](https://github.com/Indemnity83/logistics/issues/192), [#198](https://github.com/Indemnity83/logistics/issues/198), [#201](https://github.com/Indemnity83/logistics/issues/201), [#205](https://github.com/Indemnity83/logistics/issues/205), [#208](https://github.com/Indemnity83/logistics/issues/208), [2f51bc8](https://github.com/Indemnity83/logistics/commit/2f51bc8a316dbd87d61c6f0eff675f78bba12707), [3281871](https://github.com/Indemnity83/logistics/commit/3281871ee6afd33316b5a01b0a9be83f98fea6b8))
+* fix build and configuration issues: schemaVersion placement and beta workflow branch naming ([#157](https://github.com/Indemnity83/logistics/issues/157), [#166](https://github.com/Indemnity83/logistics/issues/166))
+* fix crash caused by jar remapping collision in IPipeAccess ([#222](https://github.com/Indemnity83/logistics/issues/222))
+* resolve quarry test failures by improving terrain handling ([#227](https://github.com/Indemnity83/logistics/issues/227))
 
 
 ### Performance
 
-* throttle provider pipe extraction to 8 items per cycle at 6-tick intervals   ([3281871](https://github.com/Indemnity83/logistics/commit/3281871ee6afd33316b5a01b0a9be83f98fea6b8))
+* throttle provider pipe extraction to 8 items per cycle at 6-tick intervals ([3281871](https://github.com/Indemnity83/logistics/commit/3281871ee6afd33316b5a01b0a9be83f98fea6b8))
 
 
 ### Refactorings
 
-* clarify and standardize supplier mode names and logic ([#199](https://github.com/Indemnity83/logistics/issues/199)) ([95b3ad5](https://github.com/Indemnity83/logistics/commit/95b3ad59f14f41b79b617a3701fd6c4627bcfcf3))
-* consolidate filter item management with FilterSlots class ([#215](https://github.com/Indemnity83/logistics/issues/215)) ([25d6bc0](https://github.com/Indemnity83/logistics/commit/25d6bc08b2cae4cf243d5d971c21490230bff28f))
-* dispatch partial inventory supply before falling back to crafting ([#177](https://github.com/Indemnity83/logistics/issues/177)) ([4f6e243](https://github.com/Indemnity83/logistics/commit/4f6e243052d3356c1de3be1d8d5c5ce44810e45c))
-* extract dispatch planning logic into RequestPlanner ([#187](https://github.com/Indemnity83/logistics/issues/187)) ([75ad798](https://github.com/Indemnity83/logistics/commit/75ad7984cb11362db286081662847063f793d191))
-* implement focused role interfaces for pipe modules ([#213](https://github.com/Indemnity83/logistics/issues/213)) ([4640905](https://github.com/Indemnity83/logistics/commit/4640905bb9740f050ec7c789f95ff156ce40c13d))
-* introduce explicit dispatch commands for network actions ([#190](https://github.com/Indemnity83/logistics/issues/190)) ([172757f](https://github.com/Indemnity83/logistics/commit/172757fcbd6c884a86db8cf5c38f35765bb48b6e))
-* move ItemRequest and LogisticsOrder to core.lib.network ([3281871](https://github.com/Indemnity83/logistics/commit/3281871ee6afd33316b5a01b0a9be83f98fea6b8))
-* move pipe components into core library package ([#218](https://github.com/Indemnity83/logistics/issues/218)) ([312d647](https://github.com/Indemnity83/logistics/commit/312d64753cb678e6aa03a423c0ba53907caef7d9))
-* move sink management logic to SinkResolver class ([#214](https://github.com/Indemnity83/logistics/issues/214)) ([f906673](https://github.com/Indemnity83/logistics/commit/f906673ba9427b6056ea423ca594b65f3662be7f))
-* optimize ArrayList imports in PipeContext class ([#209](https://github.com/Indemnity83/logistics/issues/209)) ([54ec4cd](https://github.com/Indemnity83/logistics/commit/54ec4cdc2826354da11b1a61b6f2ff7f85c858b5))
-* remove default route sink registration and methods ([#216](https://github.com/Indemnity83/logistics/issues/216)) ([9f0838b](https://github.com/Indemnity83/logistics/commit/9f0838b460fce63a3a147435e9194bc2cfc309ad))
-* remove unnecessary buffer handling from crafting module ([#202](https://github.com/Indemnity83/logistics/issues/202)) ([eeab5fc](https://github.com/Indemnity83/logistics/commit/eeab5fcf30beababdbaf8ade30991e930514c499))
-* reorganize network packet classes and update imports ([#212](https://github.com/Indemnity83/logistics/issues/212)) ([35ac0e5](https://github.com/Indemnity83/logistics/commit/35ac0e540ffa00f721b9367de74a5051e43f73c6))
-* replace NBT abbreviations in ProviderModule class ([#211](https://github.com/Indemnity83/logistics/issues/211)) ([cd38fdb](https://github.com/Indemnity83/logistics/commit/cd38fdb722f65409aa396113d0caadc2f4b1d15e))
-* replace network request system with standing-order dispatch controller ([381c99d](https://github.com/Indemnity83/logistics/commit/381c99d888f125909ccbbeda18533f068b58836d))
-* restructure network package and update related imports ([#182](https://github.com/Indemnity83/logistics/issues/182)) ([98334d6](https://github.com/Indemnity83/logistics/commit/98334d64f8821022eb5db839683aac0bdab4445d))
+* redesign network architecture: replace request system with standing-order dispatch controller, restructure network package, and introduce dispatch planning with partial supply and explicit commands ([#177](https://github.com/Indemnity83/logistics/issues/177), [#182](https://github.com/Indemnity83/logistics/issues/182), [#187](https://github.com/Indemnity83/logistics/issues/187), [#190](https://github.com/Indemnity83/logistics/issues/190), [381c99d](https://github.com/Indemnity83/logistics/commit/381c99d888f125909ccbbeda18533f068b58836d))
+* reorganize pipe module interfaces, sink management, filter slots, and components into core library; clarify supplier mode names and remove unnecessary buffer handling ([#199](https://github.com/Indemnity83/logistics/issues/199), [#202](https://github.com/Indemnity83/logistics/issues/202), [#213](https://github.com/Indemnity83/logistics/issues/213), [#214](https://github.com/Indemnity83/logistics/issues/214), [#215](https://github.com/Indemnity83/logistics/issues/215), [#216](https://github.com/Indemnity83/logistics/issues/216), [#218](https://github.com/Indemnity83/logistics/issues/218), [3281871](https://github.com/Indemnity83/logistics/commit/3281871ee6afd33316b5a01b0a9be83f98fea6b8))
+* clean up imports, NBT abbreviations, and packet organization ([#209](https://github.com/Indemnity83/logistics/issues/209), [#210](https://github.com/Indemnity83/logistics/issues/210), [#211](https://github.com/Indemnity83/logistics/issues/211), [#212](https://github.com/Indemnity83/logistics/issues/212))
 
 
 ### Testing
 
-* add integration and flow tests for logistics network ([#221](https://github.com/Indemnity83/logistics/issues/221)) ([e35d66a](https://github.com/Indemnity83/logistics/commit/e35d66a61454d5bd14fef549c65524a18c27d828))
-* add unit tests for core logistics components and services ([#191](https://github.com/Indemnity83/logistics/issues/191)) ([a68b905](https://github.com/Indemnity83/logistics/commit/a68b905ba2c7c7b51d9b730e9eb7ea2dc4d799e0))
-* enhance test suite with new module and game tests ([#223](https://github.com/Indemnity83/logistics/issues/223)) ([4397e35](https://github.com/Indemnity83/logistics/commit/4397e350f1a8f4f4e6a8d8930a91dcd34b7a2b2e))
+* add unit, integration, and flow tests for logistics network and modules ([#191](https://github.com/Indemnity83/logistics/issues/191), [#221](https://github.com/Indemnity83/logistics/issues/221), [#223](https://github.com/Indemnity83/logistics/issues/223))
 
 ## [0.3.5](https://github.com/Indemnity83/logistics/compare/mc1.21.11-v0.3.4...mc1.21.11-v0.3.5) (2026-02-27)
 
