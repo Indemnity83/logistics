@@ -66,6 +66,9 @@ public class ProcessModule implements Module, TickingModule, RoutingModule, Disp
     // Per-entry snapshot of output config (persisted at dispatch time to avoid config-change issues)
     private static final String ENTRY_OUTPUT_ITEM = "output_item"; // item ID of the output
     private static final String ENTRY_OUTPUT_COUNT = "output_count"; // count per execution
+    // Per-entry extraction tracking
+    private static final String ENTRY_EXTR_SLOT = "extr_0"; // items extracted from output slot 0
+    private static final String ENTRY_EXTR_REQ = "extr_req"; // total items sent to requester
     // Global satellite destination for all inputs (0 = local/self)
     private static final String KEY_INPUT_SATELLITE = "input_satellite";
     // Timing
@@ -75,6 +78,8 @@ public class ProcessModule implements Module, TickingModule, RoutingModule, Disp
     private static final int EXTRACT_INTERVAL = 6;
     // Priority: between Provider (1) and Crafter (5)
     static final int PROCESS_PRIORITY = 3;
+    // Maximum number of queued orders (soft cap to prevent unbounded growth)
+    private static final int MAX_QUEUE_SIZE = 64;
 
     // ==================== Config NBT Accessors ====================
 
@@ -333,6 +338,10 @@ public class ProcessModule implements Module, TickingModule, RoutingModule, Disp
         entry.putInt(ENTRY_OUTPUT_COUNT, outCount);
 
         ListTag queue = getQueue(ctx);
+        if (queue.size() >= MAX_QUEUE_SIZE) {
+            LogisticsPipe.LOGGER.warn("[Process @ {}] Queue full ({} entries); rejecting dispatch for '{}'", ctx.pos(), queue.size(), getOutputItem(ctx, matchedOutput));
+            return 0;
+        }
         queue.add(entry);
         saveQueue(ctx, queue);
 
@@ -464,7 +473,7 @@ public class ProcessModule implements Module, TickingModule, RoutingModule, Disp
         long totalOutputsExpected = executions * outputCount;
 
         long requested = NbtCompat.getLong(entry, ENTRY_REQUESTED, totalOutputsExpected);
-        long totalSentToRequester = NbtCompat.getLong(entry, "extr_req", 0);
+        long totalSentToRequester = NbtCompat.getLong(entry, ENTRY_EXTR_REQ, 0);
         long totalExtracted = extracted;
         boolean changed = false;
 
@@ -478,7 +487,7 @@ public class ProcessModule implements Module, TickingModule, RoutingModule, Disp
             saveQueue(ctx, queue);
             return;
         }
-        long alreadyExtracted = NbtCompat.getLong(entry, "extr_0", 0);
+        long alreadyExtracted = NbtCompat.getLong(entry, ENTRY_EXTR_SLOT, 0);
         long stillNeeded = totalOutputsExpected - alreadyExtracted;
 
         if (stillNeeded > 0) {
@@ -491,8 +500,8 @@ public class ProcessModule implements Module, TickingModule, RoutingModule, Disp
 
             if (extractedNow > 0) {
                 long sentNow = Math.min(extractedNow, toRequester);
-                entry.putLong("extr_0", alreadyExtracted + extractedNow);
-                entry.putLong("extr_req", totalSentToRequester + sentNow);
+                entry.putLong(ENTRY_EXTR_SLOT, alreadyExtracted + extractedNow);
+                entry.putLong(ENTRY_EXTR_REQ, totalSentToRequester + sentNow);
                 totalSentToRequester += sentNow;
                 totalExtracted += extractedNow;
                 changed = true;
@@ -574,10 +583,12 @@ public class ProcessModule implements Module, TickingModule, RoutingModule, Disp
     private void cancelAllJobs(PipeContext ctx) {
         ListTag queue = getQueue(ctx);
         ILogisticsNetwork network = ctx.network();
-        for (int qi = 0; qi < queue.size(); qi++) {
-            CompoundTag entry = queue.getCompound(qi).orElse(null);
-            if (entry == null || network == null) continue;
-            cancelEntryOrders(network, entry);
+        if (network != null) {
+            for (int qi = 0; qi < queue.size(); qi++) {
+                CompoundTag entry = queue.getCompound(qi).orElse(null);
+                if (entry == null) continue;
+                cancelEntryOrders(network, entry);
+            }
         }
         ctx.moduleState(getStateKey()).remove(QUEUE);
         ctx.markDirtyAndSync();
