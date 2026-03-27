@@ -116,10 +116,12 @@ All branches use **release-please** for automated versioning with **SemVer build
 7. Merge the release PR to create a GitHub release
 8. Release workflow builds and publishes to Modrinth/CurseForge
 
-**When versions bump:**
-- `fix:` commits → patch version (0.3.0 → 0.3.1)
-- `feat:` commits → minor version (0.3.0 → 0.4.0)
-- `feat!:` or `BREAKING CHANGE:` → major version (0.3.0 → 1.0.0)
+**When versions bump (pre-1.0.0 behavior):**
+- `fix:` commits → patch version (0.4.0 → 0.4.1)
+- `feat:` commits → patch version (0.4.0 → 0.4.1) ← `bump-patch-for-minor-pre-major` is enabled
+- `feat!:` or `BREAKING CHANGE:` → minor version (0.4.0 → 0.5.0) ← `bump-minor-pre-major` is enabled
+
+After 1.0.0, `feat:` → minor and `feat!:` → major (standard SemVer).
 
 **Naming conventions:**
 - Git tags: `mc{version}-v{semver}` (e.g., `mc1.21.11-v0.4.0`)
@@ -128,6 +130,47 @@ All branches use **release-please** for automated versioning with **SemVer build
 - Display name: `Logistics v{semver} for {loader} {version}` (e.g., `Logistics v0.4.0 for fabric 1.21.11`)
 
 **Do NOT manually edit version numbers.** Let release-please manage it. If you need to manually set a version, edit `.release-please-manifest.json` and commit the change.
+
+### Hotfix Workflow
+
+When a critical bug needs a patch release *after* feature development has already started on `mc/1.21.11`, use this process to bypass release-please and publish a clean hotfix.
+
+**Steps:**
+1. Branch from the last release tag:
+   ```bash
+   git checkout -b hotfix/X.Y.Z mc{version}-vX.Y.Z
+   # e.g. git checkout -b hotfix/0.4.1 mc1.21.11-v0.4.0
+   ```
+2. Apply the fix and commit (imperative commit message, no prefix)
+3. Tag the hotfix:
+   ```bash
+   git tag mc{version}-vX.Y.Z
+   # e.g. git tag mc1.21.11-v0.4.1
+   ```
+4. Push the branch and tag:
+   ```bash
+   git push origin hotfix/X.Y.Z
+   git push origin mc{version}-vX.Y.Z
+   # e.g. git push origin mc1.21.11-v0.4.1
+   ```
+5. Trigger the build workflow manually on GitHub:
+   - Go to **Actions → Build and Publish Release**
+   - Set `tag` = `mc1.21.11-v0.4.1`, `publish` = `true`
+6. Cherry-pick the fix back to `mc/1.21.11`:
+   ```bash
+   git checkout mc/1.21.11
+   git cherry-pick <fix-commit-sha>
+   ```
+7. **Bump the manifest** so release-please starts from the correct base:
+   - Edit `.release-please-manifest.json`: update version from `X.Y.Z-1` → `X.Y.Z`
+   - Commit: `Bump release-please manifest to X.Y.Z after hotfix`
+8. Delete the hotfix branch:
+   ```bash
+   git push origin --delete hotfix/X.Y.Z
+   git branch -d hotfix/X.Y.Z
+   ```
+
+**Why step 7 matters:** release-please reads `.release-please-manifest.json` to determine the current version. If you skip this, it will try to create a release PR for the hotfix version on the next `fix:` or `feat:` commit — producing a duplicate tag conflict.
 
 ## Architecture
 
