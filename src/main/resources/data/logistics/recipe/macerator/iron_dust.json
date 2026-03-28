@@ -1,0 +1,7 @@
+{
+  "type": "logistics:macerator",
+  "ingredient": "minecraft:raw_iron",
+  "result": { "id": "logistics:automation/iron_dust", "count": 2 },
+  "processTimeTicks": 100,
+  "energyPerTick": 20
+}

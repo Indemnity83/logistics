@@ -1,0 +1,118 @@
+package com.logistics.automation.macerator;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
+import com.logistics.LogisticsMod;
+import com.logistics.core.lib.resource.ResourceId;
+import net.fabricmc.fabric.api.resource.v1.ResourceLoader;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.server.packs.PackType;
+import net.minecraft.server.packs.resources.PreparableReloadListener;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.world.item.crafting.Ingredient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
+
+/**
+ * Custom recipe manager for macerator recipes.
+ * Loads recipes from data/<namespace>/recipe/macerator/*.json
+ *
+ * <p>Recipe JSON format:
+ * <pre>{@code
+ * {
+ *   "ingredient": "minecraft:raw_iron",
+ *   "result": { "id": "logistics:core/iron_dust", "count": 2 },
+ *   "processTimeTicks": 100,
+ *   "energyPerTick": 20
+ * }
+ * }</pre>
+ */
+public class MaceratorRecipeManager {
+    private static final Logger LOGGER = LoggerFactory.getLogger("Logistics/MaceratorRecipes");
+    private static final Gson GSON = new GsonBuilder().create();
+    private static final Map<ResourceId, MaceratorRecipe> RECIPES = new HashMap<>();
+
+    public static void register() {
+        LOGGER.info("Registering macerator recipe reload listener");
+        ResourceLoader.get(PackType.SERVER_DATA).registerReloader(
+            LogisticsMod.modId("macerator_recipes").toIdentifier(),
+            new PreparableReloadListener() {
+                @Override
+                public CompletableFuture<Void> reload(
+                    SharedState sharedState,
+                    Executor backgroundExecutor,
+                    PreparationBarrier barrier,
+                    Executor gameExecutor
+                ) {
+                    return CompletableFuture.supplyAsync(() -> {
+                        LOGGER.info("Macerator recipe reload triggered");
+                        Map<ResourceId, MaceratorRecipe> loaded = new HashMap<>();
+                        loadRecipesInto(sharedState.resourceManager(), loaded);
+                        return loaded;
+                    }, backgroundExecutor)
+                    .thenCompose(barrier::wait)
+                    .thenAcceptAsync(loaded -> {
+                        RECIPES.clear();
+                        RECIPES.putAll(loaded);
+                        LOGGER.info("Applied {} macerator recipes", RECIPES.size());
+                    }, gameExecutor);
+                }
+            }
+        );
+    }
+
+    private static void loadRecipesInto(ResourceManager manager, Map<ResourceId, MaceratorRecipe> target) {
+        LOGGER.info("Loading macerator recipes from resources...");
+        var resources = manager.listResources("recipe/macerator", path -> path.getPath().endsWith(".json"));
+        LOGGER.info("Found {} macerator recipe files", resources.size());
+        resources.forEach((location, resource) -> {
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(resource.open()))) {
+                JsonObject json = GSON.fromJson(reader, JsonObject.class);
+                String path = location.getPath();
+                String recipeIdPath = path.substring("recipe/macerator/".length(), path.length() - ".json".length());
+                ResourceId recipeId = ResourceId.in(location.getNamespace(), recipeIdPath);
+                MaceratorRecipe recipe = parseRecipe(recipeId, json);
+                target.put(recipeId, recipe);
+            } catch (Exception e) {
+                LOGGER.error("Failed to load macerator recipe {}", location, e);
+            }
+        });
+        LOGGER.info("Loaded {} macerator recipes", target.size());
+    }
+
+    private static MaceratorRecipe parseRecipe(ResourceId recipeId, JsonObject json) {
+        String ingredientId = json.get("ingredient").getAsString();
+        var itemHolder = BuiltInRegistries.ITEM.get(ResourceId.parse(ingredientId).toIdentifier())
+            .orElseThrow(() -> new IllegalArgumentException("Unknown ingredient item: " + ingredientId));
+        Ingredient ingredient = Ingredient.of(itemHolder.value());
+
+        JsonObject resultObj = json.getAsJsonObject("result");
+        ResourceId resultItemId = ResourceId.parse(resultObj.get("id").getAsString());
+        int resultCount = resultObj.get("count").getAsInt();
+
+        if (BuiltInRegistries.ITEM.get(resultItemId.toIdentifier()).isEmpty()) {
+            throw new IllegalArgumentException("Unknown result item: " + resultItemId);
+        }
+
+        int processTimeTicks = json.get("processTimeTicks").getAsInt();
+        int energyPerTick = json.get("energyPerTick").getAsInt();
+
+        return new MaceratorRecipe(recipeId, ingredient, processTimeTicks, energyPerTick, resultItemId, resultCount);
+    }
+
+    public static Map<ResourceId, MaceratorRecipe> getAllRecipes() {
+        return RECIPES;
+    }
+
+    public static MaceratorRecipe getRecipe(ResourceId id) {
+        return RECIPES.get(id);
+    }
+}

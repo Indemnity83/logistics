@@ -1,0 +1,7 @@
+{
+  "type": "logistics:macerator",
+  "ingredient": "minecraft:coal",
+  "result": { "id": "logistics:automation/coal_dust", "count": 2 },
+  "processTimeTicks": 80,
+  "energyPerTick": 20
+}
