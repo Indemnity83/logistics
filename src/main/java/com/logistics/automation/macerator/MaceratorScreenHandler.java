@@ -143,10 +143,10 @@ public class MaceratorScreenHandler extends AbstractContainerMenu {
         return 24 * getProcessProgress() / total;
     }
 
-    /** Energy bar height in pixels (0–52). */
+    /** Energy bar height in pixels (0–12). */
     public int getEnergyBarHeight() {
         int capacity = getEnergyCapacity();
         if (capacity <= 0) return 0;
-        return 52 * getEnergyStored() / capacity;
+        return 12 * getEnergyStored() / capacity;
     }
 }

@@ -25,6 +25,11 @@ public class MaceratorRecipe {
         ResourceId resultItemId,
         int resultCount
     ) {
+        if (ingredient == null) throw new IllegalArgumentException("ingredient must not be null");
+        if (resultItemId == null) throw new IllegalArgumentException("resultItemId must not be null");
+        if (processTimeTicks <= 0) throw new IllegalArgumentException("processTimeTicks must be > 0");
+        if (energyPerTick <= 0) throw new IllegalArgumentException("energyPerTick must be > 0");
+        if (resultCount <= 0) throw new IllegalArgumentException("resultCount must be > 0");
         this.id = id;
         this.ingredient = ingredient;
         this.processTimeTicks = processTimeTicks;

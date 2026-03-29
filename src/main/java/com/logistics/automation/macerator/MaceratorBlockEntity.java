@@ -9,6 +9,7 @@ import com.logistics.core.lib.energy.EnergyComponent;
 import com.logistics.core.lib.items.ItemInventoryComponent;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.core.lib.storage.NbtCompat;
+import net.fabricmc.fabric.api.transfer.v1.item.InventoryStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.minecraft.core.BlockPos;
@@ -102,17 +103,18 @@ public class MaceratorBlockEntity extends BaseBlockEntity
 
     public static void tick(Level level, BlockPos pos, BlockState state, MaceratorBlockEntity entity) {
         if (level.isClientSide()) return;
-        entity.tickProcessing(level, state);
-        entity.setChanged();
+        if (entity.tickProcessing(level, state)) {
+            entity.setChanged();
+        }
     }
 
-    private void tickProcessing(Level level, BlockState state) {
+    private boolean tickProcessing(Level level, BlockState state) {
         // If no active recipe, try to find one
         if (activeRecipeId == null) {
             MaceratorRecipe recipe = findMatchingRecipe();
             if (recipe == null || !canStartProcessing(recipe)) {
                 setLit(level, state, false);
-                return;
+                return false;
             }
             activeRecipeId = recipe.getId();
         }
@@ -122,7 +124,7 @@ public class MaceratorBlockEntity extends BaseBlockEntity
             activeRecipeId = null;
             processProgress = 0;
             setLit(level, state, false);
-            return;
+            return true;
         }
 
         // Cancel if input no longer matches
@@ -130,13 +132,13 @@ public class MaceratorBlockEntity extends BaseBlockEntity
             activeRecipeId = null;
             processProgress = 0;
             setLit(level, state, false);
-            return;
+            return true;
         }
 
         // Pause if not enough energy or output is full
         if (energy.amount < recipe.getEnergyPerTick() || !canAcceptOutput(recipe.getResultItem())) {
             setLit(level, state, false);
-            return;
+            return false;
         }
 
         energy.amount -= recipe.getEnergyPerTick();
@@ -146,6 +148,8 @@ public class MaceratorBlockEntity extends BaseBlockEntity
         if (processProgress >= recipe.getProcessTimeTicks()) {
             completeProcessing(recipe);
         }
+
+        return true;
     }
 
     private MaceratorRecipe findMatchingRecipe() {
@@ -195,7 +199,7 @@ public class MaceratorBlockEntity extends BaseBlockEntity
 
     @Override
     public Storage<ItemVariant> itemStorage(@Nullable Direction side) {
-        return inventory.storage();
+        return InventoryStorage.of(this, side);
     }
 
     @Override

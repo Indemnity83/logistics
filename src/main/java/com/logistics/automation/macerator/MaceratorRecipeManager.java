@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -109,7 +110,7 @@ public class MaceratorRecipeManager {
     }
 
     public static Map<ResourceId, MaceratorRecipe> getAllRecipes() {
-        return RECIPES;
+        return Collections.unmodifiableMap(RECIPES);
     }
 
     public static MaceratorRecipe getRecipe(ResourceId id) {

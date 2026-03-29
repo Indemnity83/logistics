@@ -52,6 +52,19 @@ public class MaceratorScreen extends AbstractContainerScreen<MaceratorScreenHand
                 arrowWidth, 13,
                 TEXTURE_WIDTH, TEXTURE_HEIGHT);
         }
+
+        // Energy bar overlay — fills bottom to top at (leftPos+60, topPos+55), up to 12px tall
+        // Source in texture: UV (180, 55), size 6x12
+        int energyHeight = menu.getEnergyBarHeight();
+        if (energyHeight > 0) {
+            graphics.blit(
+                RenderPipelines.GUI_TEXTURED,
+                TEXTURE.toIdentifier(),
+                leftPos + 60, topPos + 55 + (12 - energyHeight),
+                180, 55 + (12 - energyHeight),
+                6, energyHeight,
+                TEXTURE_WIDTH, TEXTURE_HEIGHT);
+        }
     }
 
     @Override
