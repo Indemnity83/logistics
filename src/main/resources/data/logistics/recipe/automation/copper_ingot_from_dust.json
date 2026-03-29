@@ -1,7 +1,8 @@
 {
   "type": "minecraft:smelting",
   "ingredient": "logistics:automation/copper_dust",
-  "result": { "id": "minecraft:copper_ingot" },
-  "experience": 0.7,
+  "result": {
+    "id": "minecraft:copper_ingot"
+  },
   "cookingtime": 200
 }

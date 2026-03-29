@@ -1,7 +1,8 @@
 {
   "type": "logistics:macerator",
   "ingredient": "minecraft:quartz",
-  "result": { "id": "logistics:automation/quartz_dust", "count": 2 },
-  "processTimeTicks": 80,
-  "energyPerTick": 20
+  "result": {
+    "id": "logistics:automation/quartz_dust",
+    "count": 2
+  }
 }

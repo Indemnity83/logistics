@@ -80,6 +80,7 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
         public static Item TIN_DUST;
         public static Item BRONZE_DUST;
         public static Item QUARTZ_DUST;
+        public static Item GOLD_DUST;
         public static Item COAL_DUST;
         public static Item SILICON_MIX;
 
@@ -88,6 +89,7 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
             COPPER_DUST = INSTANCE.registerItem("copper_dust", Item::new);
             TIN_DUST = INSTANCE.registerItem("tin_dust", Item::new);
             BRONZE_DUST = INSTANCE.registerItem("bronze_dust", Item::new);
+            GOLD_DUST = INSTANCE.registerItem("gold_dust", Item::new);
             QUARTZ_DUST = INSTANCE.registerItem("quartz_dust", Item::new);
             COAL_DUST = INSTANCE.registerItem("coal_dust", Item::new);
             SILICON_MIX = INSTANCE.registerItem("silicon_mix", Item::new);
@@ -174,7 +176,8 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
             entries.addAfter(ITEM.IRON_DUST, ITEM.COPPER_DUST);
             entries.addAfter(ITEM.COPPER_DUST, ITEM.TIN_DUST);
             entries.addAfter(ITEM.TIN_DUST, ITEM.BRONZE_DUST);
-            entries.addAfter(ITEM.BRONZE_DUST, ITEM.QUARTZ_DUST);
+            entries.addAfter(ITEM.BRONZE_DUST, ITEM.GOLD_DUST);
+            entries.addAfter(ITEM.GOLD_DUST, ITEM.QUARTZ_DUST);
             entries.addAfter(ITEM.QUARTZ_DUST, ITEM.COAL_DUST);
             entries.addAfter(ITEM.COAL_DUST, ITEM.SILICON_MIX);
         });

@@ -56,6 +56,11 @@ public class MaceratorBlockEntity extends BaseBlockEntity
     static final long ENERGY_CAPACITY = 10_000L;
     static final long MAX_ENERGY_INPUT = 128L;
 
+    // Processing constants — tuned so 1 coal in a Stirling Engine (10 RF/t at full temp, 1600 ticks)
+    // produces exactly 16,000 RF, enough to macerate 8 items (8 × 2,000 RF each).
+    static final int ENERGY_PER_TICK = 10;
+    static final int PROCESS_TIME_TICKS = 200;
+
     private final ItemInventoryComponent inventory = new ItemInventoryComponent(TOTAL_SLOTS, this::setChanged);
     final EnergyComponent energy = new EnergyComponent(ENERGY_CAPACITY, MAX_ENERGY_INPUT, 0, this::setChanged);
 
@@ -73,11 +78,7 @@ public class MaceratorBlockEntity extends BaseBlockEntity
         public int get(int index) {
             return switch (index) {
                 case DATA_PROGRESS -> processProgress;
-                case DATA_TOTAL_TICKS -> {
-                    MaceratorRecipe recipe = activeRecipeId != null
-                        ? MaceratorRecipeManager.getRecipe(activeRecipeId) : null;
-                    yield recipe != null ? recipe.getProcessTimeTicks() : 0;
-                }
+                case DATA_TOTAL_TICKS -> activeRecipeId != null ? PROCESS_TIME_TICKS : 0;
                 case DATA_ENERGY -> (int) Math.min(energy.amount, Integer.MAX_VALUE);
                 default -> 0;
             };
@@ -136,16 +137,16 @@ public class MaceratorBlockEntity extends BaseBlockEntity
         }
 
         // Pause if not enough energy or output is full
-        if (energy.amount < recipe.getEnergyPerTick() || !canAcceptOutput(recipe.getResultItem())) {
+        if (energy.amount < ENERGY_PER_TICK || !canAcceptOutput(recipe.getResultItem())) {
             setLit(level, state, false);
             return false;
         }
 
-        energy.amount -= recipe.getEnergyPerTick();
+        energy.amount -= ENERGY_PER_TICK;
         setLit(level, state, true);
         processProgress++;
 
-        if (processProgress >= recipe.getProcessTimeTicks()) {
+        if (processProgress >= PROCESS_TIME_TICKS) {
             completeProcessing(recipe);
         }
 
@@ -162,7 +163,7 @@ public class MaceratorBlockEntity extends BaseBlockEntity
     }
 
     private boolean canStartProcessing(MaceratorRecipe recipe) {
-        return energy.amount >= recipe.getEnergyPerTick()
+        return energy.amount >= ENERGY_PER_TICK
             && canAcceptOutput(recipe.getResultItem());
     }
 

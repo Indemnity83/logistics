@@ -17,8 +17,6 @@ class MaceratorRecipeTest extends MinecraftTestEnvironment {
         return new MaceratorRecipe(
             ResourceId.in("test", "iron_dust"),
             Ingredient.of(Items.RAW_IRON),
-            100,
-            20,
             ResourceId.in("minecraft", "iron_ingot"), // using iron_ingot as a valid item for result
             2
         );
@@ -56,20 +54,6 @@ class MaceratorRecipeTest extends MinecraftTestEnvironment {
     }
 
     // ==================== getters ====================
-
-    @Test
-    @DisplayName("should return correct processTimeTicks")
-    void processTimeTicks() {
-        MaceratorRecipe recipe = rawIronRecipe();
-        assertThat(recipe.getProcessTimeTicks()).isEqualTo(100);
-    }
-
-    @Test
-    @DisplayName("should return correct energyPerTick")
-    void energyPerTick() {
-        MaceratorRecipe recipe = rawIronRecipe();
-        assertThat(recipe.getEnergyPerTick()).isEqualTo(20);
-    }
 
     @Test
     @DisplayName("should return correct result item count")

@@ -103,10 +103,7 @@ public class MaceratorRecipeManager {
             throw new IllegalArgumentException("Unknown result item: " + resultItemId);
         }
 
-        int processTimeTicks = json.get("processTimeTicks").getAsInt();
-        int energyPerTick = json.get("energyPerTick").getAsInt();
-
-        return new MaceratorRecipe(recipeId, ingredient, processTimeTicks, energyPerTick, resultItemId, resultCount);
+        return new MaceratorRecipe(recipeId, ingredient, resultItemId, resultCount);
     }
 
     public static Map<ResourceId, MaceratorRecipe> getAllRecipes() {

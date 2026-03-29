@@ -6,34 +6,27 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 
 /**
- * Recipe for the Iron Macerator.
- * Accepts a single input item and produces a result after consuming energy over time.
+ * Recipe for the Macerator.
+ * Accepts a single input item and produces a result.
+ * Processing time and energy cost are global constants on {@link MaceratorBlockEntity}.
  */
 public class MaceratorRecipe {
     private final ResourceId id;
     private final Ingredient ingredient;
-    private final int processTimeTicks;
-    private final int energyPerTick;
     private final ResourceId resultItemId;
     private final int resultCount;
 
     public MaceratorRecipe(
         ResourceId id,
         Ingredient ingredient,
-        int processTimeTicks,
-        int energyPerTick,
         ResourceId resultItemId,
         int resultCount
     ) {
         if (ingredient == null) throw new IllegalArgumentException("ingredient must not be null");
         if (resultItemId == null) throw new IllegalArgumentException("resultItemId must not be null");
-        if (processTimeTicks <= 0) throw new IllegalArgumentException("processTimeTicks must be > 0");
-        if (energyPerTick <= 0) throw new IllegalArgumentException("energyPerTick must be > 0");
         if (resultCount <= 0) throw new IllegalArgumentException("resultCount must be > 0");
         this.id = id;
         this.ingredient = ingredient;
-        this.processTimeTicks = processTimeTicks;
-        this.energyPerTick = energyPerTick;
         this.resultItemId = resultItemId;
         this.resultCount = resultCount;
     }
@@ -50,14 +43,6 @@ public class MaceratorRecipe {
         var itemHolder = BuiltInRegistries.ITEM.get(resultItemId.toIdentifier())
             .orElseThrow(() -> new IllegalStateException("Result item not found: " + resultItemId));
         return new ItemStack(itemHolder.value(), resultCount);
-    }
-
-    public int getProcessTimeTicks() {
-        return processTimeTicks;
-    }
-
-    public int getEnergyPerTick() {
-        return energyPerTick;
     }
 
     public Ingredient getIngredient() {

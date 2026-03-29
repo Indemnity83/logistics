@@ -136,17 +136,17 @@ public class MaceratorScreenHandler extends AbstractContainerMenu {
         return (int) MaceratorBlockEntity.ENERGY_CAPACITY;
     }
 
-    /** Progress as a 0–24 pixel width for the arrow, or 0 if idle. */
+    /** Progress as a 0–25 pixel width for the arrow, or 0 if idle. */
     public int getProgressArrowWidth() {
         int total = getProcessTotalTicks();
         if (total <= 0) return 0;
-        return 24 * getProcessProgress() / total;
+        return 25 * getProcessProgress() / total;
     }
 
-    /** Energy bar height in pixels (0–12). */
+    /** Energy bar height in pixels (0–13). */
     public int getEnergyBarHeight() {
         int capacity = getEnergyCapacity();
         if (capacity <= 0) return 0;
-        return 12 * getEnergyStored() / capacity;
+        return 13 * getEnergyStored() / capacity;
     }
 }
