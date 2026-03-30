@@ -14,7 +14,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.SimpleMenuProvider;
-import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 
 import java.util.List;
@@ -100,9 +100,9 @@ public class SatelliteModule implements Module, TickingModule, RoutingModule {
     }
 
     @Override
-    public InteractionResult onUseWithoutItem(PipeContext ctx, UseOnContext usage) {
+    public InteractionResult onWrench(PipeContext ctx, Player player) {
         if (ctx.world().isClientSide()) return InteractionResult.SUCCESS;
-        if (!(usage.getPlayer() instanceof ServerPlayer serverPlayer)) return InteractionResult.PASS;
+        if (!(player instanceof ServerPlayer serverPlayer)) return InteractionResult.PASS;
 
         Level world = ctx.world();
         var pos = ctx.pos();
