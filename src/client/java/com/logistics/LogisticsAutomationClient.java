@@ -40,6 +40,7 @@ public final class LogisticsAutomationClient implements DomainBootstrap {
     @Override
     public void initClient() {
         LOGGER.info("Registering automation (client)");
+        BlockRenderLayerMap.putBlock(LogisticsAutomation.BLOCK.MARKER, ChunkSectionLayer.CUTOUT);
         // Register quarry frame for cutout rendering (transparency support)
         BlockRenderLayerMap.putBlock(LogisticsAutomation.BLOCK.LASER_QUARRY_FRAME, ChunkSectionLayer.CUTOUT);
 

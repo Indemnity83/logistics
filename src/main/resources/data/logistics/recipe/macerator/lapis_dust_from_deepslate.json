@@ -3,6 +3,6 @@
   "ingredient": "minecraft:deepslate_lapis_ore",
   "result": {
     "id": "logistics:automation/lapis_dust",
-    "count": 12
+    "count": 8
   }
 }

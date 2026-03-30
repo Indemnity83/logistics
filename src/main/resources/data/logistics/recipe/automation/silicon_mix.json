@@ -2,6 +2,8 @@
   "type": "minecraft:crafting_shapeless",
   "ingredients": [
     "logistics:automation/quartz_dust",
+    "logistics:automation/quartz_dust",
+    "logistics:automation/quartz_dust",
     "logistics:automation/coal_dust"
   ],
   "result": {
