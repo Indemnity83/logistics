@@ -1,0 +1,8 @@
+{
+  "type": "logistics:macerator",
+  "ingredient": "minecraft:peony",
+  "result": {
+    "id": "minecraft:pink_dye",
+    "count": 2
+  }
+}

@@ -4,7 +4,7 @@ import com.logistics.automation.laserquarry.entity.LaserQuarryBlockEntity;
 import com.logistics.LogisticsAutomation;
 import com.logistics.core.lib.block.behavior.ProbeBehavior;
 import com.logistics.core.lib.support.ProbeResult;
-import com.logistics.core.marker.MarkerManager;
+import com.logistics.automation.marker.MarkerManager;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RenderShape;

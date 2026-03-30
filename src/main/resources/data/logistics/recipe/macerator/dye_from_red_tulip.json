@@ -1,0 +1,8 @@
+{
+  "type": "logistics:macerator",
+  "ingredient": "minecraft:red_tulip",
+  "result": {
+    "id": "minecraft:red_dye",
+    "count": 2
+  }
+}

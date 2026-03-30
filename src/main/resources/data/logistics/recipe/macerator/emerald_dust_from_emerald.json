@@ -1,0 +1,8 @@
+{
+  "type": "logistics:macerator",
+  "ingredient": "minecraft:emerald",
+  "result": {
+    "id": "logistics:automation/emerald_dust",
+    "count": 1
+  }
+}
