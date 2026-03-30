@@ -87,6 +87,8 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
         public static Item AMETHYST_DUST;
         public static Item DIAMOND_DUST;
         public static Item EMERALD_DUST;
+        public static Item ECHO_DUST;
+        public static Item PRISMARINE_DUST;
         public static Item SILICON_MIX;
         public static Item SILICON_WAFER;
         public static Item FLOUR;
@@ -103,6 +105,8 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
             AMETHYST_DUST = INSTANCE.registerItem("amethyst_dust", Item::new);
             DIAMOND_DUST = INSTANCE.registerItem("diamond_dust", Item::new);
             EMERALD_DUST = INSTANCE.registerItem("emerald_dust", Item::new);
+            ECHO_DUST = INSTANCE.registerItem("echo_dust", Item::new);
+            PRISMARINE_DUST = INSTANCE.registerItem("prismarine_dust", Item::new);
             SILICON_MIX = INSTANCE.registerItem("silicon_mix", Item::new);
             SILICON_WAFER = INSTANCE.registerItem("silicon_wafer", Item::new);
             FLOUR = INSTANCE.registerItem("flour", Item::new);
@@ -195,6 +199,7 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
                 ITEM.IRON_DUST, ITEM.COPPER_DUST, ITEM.TIN_DUST, ITEM.BRONZE_DUST,
                 ITEM.GOLD_DUST, ITEM.LAPIS_DUST, ITEM.QUARTZ_DUST, ITEM.COAL_DUST,
                 ITEM.AMETHYST_DUST, ITEM.DIAMOND_DUST, ITEM.EMERALD_DUST,
+                ITEM.ECHO_DUST, ITEM.PRISMARINE_DUST,
                 ITEM.SILICON_MIX, ITEM.SILICON_WAFER, ITEM.FLOUR);
             Item prev = LogisticsCore.ITEM.BRONZE_INGOT;
             for (Item item : dusts) {
