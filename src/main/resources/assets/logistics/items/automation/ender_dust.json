@@ -1,0 +1,6 @@
+{
+  "model": {
+    "model": "logistics:item/automation/ender_dust",
+    "type": "minecraft:model"
+  }
+}

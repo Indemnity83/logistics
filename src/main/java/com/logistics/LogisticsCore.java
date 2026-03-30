@@ -261,21 +261,6 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         public static Item DIAMOND_GEAR;
         public static Item NETHERITE_GEAR;
 
-        // Valves (Kiln outputs)
-        public static Item VALVE_COPPER;
-        public static Item VALVE_TIN;
-        public static Item VALVE_BRONZE;
-        public static Item VALVE_IRON;
-        public static Item VALVE_GOLD;
-        public static Item VALVE_DIAMOND;
-        public static Item VALVE_OBSIDIAN;
-        public static Item VALVE_BLAZING;
-        public static Item VALVE_EMERALD;
-        public static Item VALVE_APATITE;
-        public static Item VALVE_LAPIS;
-        public static Item VALVE_ENDER;
-        public static Item VALVE_NETHERITE;
-
         private ITEM() {}
 
         static void register() {
@@ -311,20 +296,6 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
             DIAMOND_GEAR = INSTANCE.registerItem("diamond_gear", Item::new);
             NETHERITE_GEAR = INSTANCE.registerItem("netherite_gear", Item::new);
 
-            // Valves (Kiln outputs)
-            VALVE_COPPER = INSTANCE.registerItem("valve_copper", Item::new);
-            VALVE_TIN = INSTANCE.registerItem("valve_tin", Item::new);
-            VALVE_BRONZE = INSTANCE.registerItem("valve_bronze", Item::new);
-            VALVE_IRON = INSTANCE.registerItem("valve_iron", Item::new);
-            VALVE_GOLD = INSTANCE.registerItem("valve_gold", Item::new);
-            VALVE_DIAMOND = INSTANCE.registerItem("valve_diamond", Item::new);
-            VALVE_OBSIDIAN = INSTANCE.registerItem("valve_obsidian", Item::new);
-            VALVE_BLAZING = INSTANCE.registerItem("valve_blazing", Item::new);
-            VALVE_EMERALD = INSTANCE.registerItem("valve_emerald", Item::new);
-            VALVE_APATITE = INSTANCE.registerItem("valve_apatite", Item::new);
-            VALVE_LAPIS = INSTANCE.registerItem("valve_lapis", Item::new);
-            VALVE_ENDER = INSTANCE.registerItem("valve_ender", Item::new);
-            VALVE_NETHERITE = INSTANCE.registerItem("valve_netherite", Item::new);
         }
     }
 
@@ -411,20 +382,6 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
             entries.addAfter(ITEM.GOLD_GEAR, ITEM.DIAMOND_GEAR);
             entries.addAfter(ITEM.DIAMOND_GEAR, ITEM.NETHERITE_GEAR);
 
-            // Valves (Kiln outputs)
-            entries.addAfter(ITEM.NETHERITE_GEAR, ITEM.VALVE_COPPER);
-            entries.addAfter(ITEM.VALVE_COPPER, ITEM.VALVE_TIN);
-            entries.addAfter(ITEM.VALVE_TIN, ITEM.VALVE_BRONZE);
-            entries.addAfter(ITEM.VALVE_BRONZE, ITEM.VALVE_IRON);
-            entries.addAfter(ITEM.VALVE_IRON, ITEM.VALVE_GOLD);
-            entries.addAfter(ITEM.VALVE_GOLD, ITEM.VALVE_DIAMOND);
-            entries.addAfter(ITEM.VALVE_DIAMOND, ITEM.VALVE_OBSIDIAN);
-            entries.addAfter(ITEM.VALVE_OBSIDIAN, ITEM.VALVE_BLAZING);
-            entries.addAfter(ITEM.VALVE_BLAZING, ITEM.VALVE_EMERALD);
-            entries.addAfter(ITEM.VALVE_EMERALD, ITEM.VALVE_APATITE);
-            entries.addAfter(ITEM.VALVE_APATITE, ITEM.VALVE_LAPIS);
-            entries.addAfter(ITEM.VALVE_LAPIS, ITEM.VALVE_ENDER);
-            entries.addAfter(ITEM.VALVE_ENDER, ITEM.VALVE_NETHERITE);
         });
 
         // Add ore blocks to Natural Blocks tab

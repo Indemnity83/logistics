@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": ["D", "A", "D"],
+  "key": {
+    "D": "logistics:core/apatite",
+    "A": "minecraft:amethyst_shard"
+  },
+  "result": {
+    "count": 4,
+    "id": "logistics:automation/filament_apatite"
+  }
+}

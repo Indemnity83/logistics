@@ -1,0 +1,6 @@
+{
+  "model": {
+    "model": "logistics:item/automation/valve_ender",
+    "type": "minecraft:model"
+  }
+}

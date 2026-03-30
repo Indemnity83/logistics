@@ -1,8 +1,0 @@
-{
-  "type": "logistics:macerator",
-  "ingredient": "minecraft:deepslate_gold_ore",
-  "result": {
-    "id": "logistics:automation/gold_dust",
-    "count": 2
-  }
-}

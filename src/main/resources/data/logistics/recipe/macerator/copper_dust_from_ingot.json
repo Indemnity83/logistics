@@ -1,8 +1,0 @@
-{
-  "type": "logistics:macerator",
-  "ingredient": "minecraft:copper_ingot",
-  "result": {
-    "id": "logistics:automation/copper_dust",
-    "count": 1
-  }
-}
