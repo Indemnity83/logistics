@@ -370,7 +370,6 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         CREATIVE_TAB.addItems(
                 ITEM.WRENCH,
                 ITEM.PROBE,
-                LogisticsAutomation.BLOCK.MARKER,
                 BLOCK.KILN
         );
     }

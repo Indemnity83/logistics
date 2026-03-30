@@ -174,6 +174,7 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
     }
 
     private static void addCreativeTabEntries() {
+        LogisticsCore.CREATIVE_TAB.addItem(BLOCK.MARKER);
         LogisticsCore.CREATIVE_TAB.addItem(BLOCK.LASER_QUARRY);
         LogisticsCore.CREATIVE_TAB.addItem(BLOCK.MACERATOR);
 
@@ -195,6 +196,10 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
         registerBlockAlias("marker", BLOCK.MARKER);
         registerBlockEntityAlias("marker", ENTITY.MARKER_BLOCK_ENTITY);
         registerItemAlias("marker", BLOCK.MARKER.asItem());
+        // core domain => automation domain (marker moved)
+        registerBlockAlias("core/marker", BLOCK.MARKER);
+        registerBlockEntityAlias("core/marker", ENTITY.MARKER_BLOCK_ENTITY);
+        registerItemAlias("core/marker", BLOCK.MARKER.asItem());
         registerBlockAlias("quarry", BLOCK.LASER_QUARRY);
         registerItemAlias("quarry", BLOCK.LASER_QUARRY.asItem());
         registerBlockAlias("quarry_frame", BLOCK.LASER_QUARRY_FRAME);
