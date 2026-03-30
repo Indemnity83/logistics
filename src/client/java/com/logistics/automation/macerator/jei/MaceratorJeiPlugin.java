@@ -16,7 +16,7 @@ import java.util.List;
 
 /**
  * JEI plugin that registers the Macerator recipe category and all macerator recipes.
- * Discovered by JEI via the "jei_plugins" Fabric entrypoint in fabric.mod.json.
+ * Discovered by JEI via the "jei_mod_plugin" Fabric entrypoint in fabric.mod.json.
  */
 @JeiPlugin
 public class MaceratorJeiPlugin implements IModPlugin {
