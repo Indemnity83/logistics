@@ -29,8 +29,8 @@ import com.logistics.pipe.block.entity.PipeBlockEntity;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.SimpleMenuProvider;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
@@ -238,9 +238,9 @@ public class ProcessModule implements Module, TickingModule, RoutingModule, Disp
     }
 
     @Override
-    public InteractionResult onUseWithoutItem(PipeContext ctx, UseOnContext usage) {
+    public InteractionResult onWrench(PipeContext ctx, Player player) {
         if (ctx.world().isClientSide()) return InteractionResult.SUCCESS;
-        if (!(usage.getPlayer() instanceof ServerPlayer serverPlayer)) return InteractionResult.PASS;
+        if (!(player instanceof ServerPlayer serverPlayer)) return InteractionResult.PASS;
 
         Level world = ctx.world();
         BlockPos pos = ctx.pos();
