@@ -1,0 +1,8 @@
+{
+  "type": "logistics:macerator",
+  "ingredient": "minecraft:iron_ore",
+  "result": {
+    "id": "logistics:automation/iron_powder",
+    "count": 2
+  }
+}

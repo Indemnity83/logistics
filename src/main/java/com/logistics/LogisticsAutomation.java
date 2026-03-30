@@ -76,40 +76,98 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
     public static final class ITEM {
         private ITEM() {}
 
-        public static Item IRON_DUST;
-        public static Item COPPER_DUST;
-        public static Item TIN_DUST;
-        public static Item BRONZE_DUST;
-        public static Item GOLD_DUST;
+        public static Item IRON_POWDER;
+        public static Item COPPER_POWDER;
+        public static Item TIN_POWDER;
+        public static Item BRONZE_POWDER;
+        public static Item GOLD_POWDER;
         public static Item LAPIS_DUST;
         public static Item QUARTZ_DUST;
         public static Item COAL_DUST;
         public static Item AMETHYST_DUST;
         public static Item DIAMOND_DUST;
         public static Item EMERALD_DUST;
+        public static Item NETHERITE_DUST;
+        public static Item OBSIDIAN_DUST;
+        public static Item ENDER_DUST;
         public static Item ECHO_DUST;
         public static Item PRISMARINE_DUST;
         public static Item SILICON_MIX;
         public static Item SILICON_WAFER;
         public static Item FLOUR;
 
+        public static Item VALVE_COPPER;
+        public static Item VALVE_BRONZE;
+        public static Item VALVE_IRON;
+        public static Item VALVE_GOLD;
+        public static Item VALVE_DIAMOND;
+        public static Item VALVE_OBSIDIAN;
+        public static Item VALVE_BLAZING;
+        public static Item VALVE_EMERALD;
+        public static Item VALVE_APATITE;
+        public static Item VALVE_LAPIS;
+        public static Item VALVE_ENDER;
+        public static Item VALVE_NETHERITE;
+
+        public static Item FILAMENT_COPPER;
+        public static Item FILAMENT_BRONZE;
+        public static Item FILAMENT_IRON;
+        public static Item FILAMENT_GOLD;
+        public static Item FILAMENT_LAPIS;
+        public static Item FILAMENT_APATITE;
+        public static Item FILAMENT_DIAMOND;
+        public static Item FILAMENT_EMERALD;
+        public static Item FILAMENT_BLAZING;
+        public static Item FILAMENT_NETHERITE;
+        public static Item FILAMENT_OBSIDIAN;
+        public static Item FILAMENT_ENDER;
+
         static void register() {
-            IRON_DUST = INSTANCE.registerItem("iron_dust", Item::new);
-            COPPER_DUST = INSTANCE.registerItem("copper_dust", Item::new);
-            TIN_DUST = INSTANCE.registerItem("tin_dust", Item::new);
-            BRONZE_DUST = INSTANCE.registerItem("bronze_dust", Item::new);
-            GOLD_DUST = INSTANCE.registerItem("gold_dust", Item::new);
+            IRON_POWDER = INSTANCE.registerItem("iron_powder", Item::new);
+            COPPER_POWDER = INSTANCE.registerItem("copper_powder", Item::new);
+            TIN_POWDER = INSTANCE.registerItem("tin_powder", Item::new);
+            BRONZE_POWDER = INSTANCE.registerItem("bronze_powder", Item::new);
+            GOLD_POWDER = INSTANCE.registerItem("gold_powder", Item::new);
             LAPIS_DUST = INSTANCE.registerItem("lapis_dust", Item::new);
             QUARTZ_DUST = INSTANCE.registerItem("quartz_dust", Item::new);
             COAL_DUST = INSTANCE.registerItem("coal_dust", Item::new);
             AMETHYST_DUST = INSTANCE.registerItem("amethyst_dust", Item::new);
             DIAMOND_DUST = INSTANCE.registerItem("diamond_dust", Item::new);
             EMERALD_DUST = INSTANCE.registerItem("emerald_dust", Item::new);
+            NETHERITE_DUST = INSTANCE.registerItem("netherite_dust", Item::new);
+            OBSIDIAN_DUST = INSTANCE.registerItem("obsidian_dust", Item::new);
+            ENDER_DUST = INSTANCE.registerItem("ender_dust", Item::new);
             ECHO_DUST = INSTANCE.registerItem("echo_dust", Item::new);
             PRISMARINE_DUST = INSTANCE.registerItem("prismarine_dust", Item::new);
             SILICON_MIX = INSTANCE.registerItem("silicon_mix", Item::new);
             SILICON_WAFER = INSTANCE.registerItem("silicon_wafer", Item::new);
             FLOUR = INSTANCE.registerItem("flour", Item::new);
+
+            VALVE_COPPER = INSTANCE.registerItem("valve_copper", Item::new);
+            VALVE_BRONZE = INSTANCE.registerItem("valve_bronze", Item::new);
+            VALVE_IRON = INSTANCE.registerItem("valve_iron", Item::new);
+            VALVE_GOLD = INSTANCE.registerItem("valve_gold", Item::new);
+            VALVE_DIAMOND = INSTANCE.registerItem("valve_diamond", Item::new);
+            VALVE_OBSIDIAN = INSTANCE.registerItem("valve_obsidian", Item::new);
+            VALVE_BLAZING = INSTANCE.registerItem("valve_blazing", Item::new);
+            VALVE_EMERALD = INSTANCE.registerItem("valve_emerald", Item::new);
+            VALVE_APATITE = INSTANCE.registerItem("valve_apatite", Item::new);
+            VALVE_LAPIS = INSTANCE.registerItem("valve_lapis", Item::new);
+            VALVE_ENDER = INSTANCE.registerItem("valve_ender", Item::new);
+            VALVE_NETHERITE = INSTANCE.registerItem("valve_netherite", Item::new);
+
+            FILAMENT_COPPER = INSTANCE.registerItem("filament_copper", Item::new);
+            FILAMENT_BRONZE = INSTANCE.registerItem("filament_bronze", Item::new);
+            FILAMENT_IRON = INSTANCE.registerItem("filament_iron", Item::new);
+            FILAMENT_GOLD = INSTANCE.registerItem("filament_gold", Item::new);
+            FILAMENT_LAPIS = INSTANCE.registerItem("filament_lapis", Item::new);
+            FILAMENT_APATITE = INSTANCE.registerItem("filament_apatite", Item::new);
+            FILAMENT_DIAMOND = INSTANCE.registerItem("filament_diamond", Item::new);
+            FILAMENT_EMERALD = INSTANCE.registerItem("filament_emerald", Item::new);
+            FILAMENT_BLAZING = INSTANCE.registerItem("filament_blazing", Item::new);
+            FILAMENT_NETHERITE = INSTANCE.registerItem("filament_netherite", Item::new);
+            FILAMENT_OBSIDIAN = INSTANCE.registerItem("filament_obsidian", Item::new);
+            FILAMENT_ENDER = INSTANCE.registerItem("filament_ender", Item::new);
         }
     }
 
@@ -195,12 +253,32 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
         LogisticsCore.CREATIVE_TAB.addItem(BLOCK.QUARTZ_CRYSTAL);
 
         ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.INGREDIENTS).register(entries -> {
+            List<Item> valves = List.of(
+                ITEM.VALVE_COPPER, ITEM.VALVE_BRONZE,
+                ITEM.VALVE_IRON, ITEM.VALVE_GOLD, ITEM.VALVE_DIAMOND,
+                ITEM.VALVE_OBSIDIAN, ITEM.VALVE_BLAZING, ITEM.VALVE_EMERALD,
+                ITEM.VALVE_APATITE, ITEM.VALVE_LAPIS, ITEM.VALVE_ENDER,
+                ITEM.VALVE_NETHERITE);
+            Item prev = LogisticsCore.ITEM.NETHERITE_GEAR;
+            for (Item item : valves) {
+                entries.addAfter(prev, item);
+                prev = item;
+            }
+        });
+
+        ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.INGREDIENTS).register(entries -> {
             List<Item> dusts = List.of(
-                ITEM.IRON_DUST, ITEM.COPPER_DUST, ITEM.TIN_DUST, ITEM.BRONZE_DUST,
-                ITEM.GOLD_DUST, ITEM.LAPIS_DUST, ITEM.QUARTZ_DUST, ITEM.COAL_DUST,
+                ITEM.IRON_POWDER, ITEM.COPPER_POWDER, ITEM.TIN_POWDER, ITEM.BRONZE_POWDER,
+                ITEM.GOLD_POWDER, ITEM.LAPIS_DUST, ITEM.QUARTZ_DUST, ITEM.COAL_DUST,
                 ITEM.AMETHYST_DUST, ITEM.DIAMOND_DUST, ITEM.EMERALD_DUST,
+                ITEM.NETHERITE_DUST, ITEM.OBSIDIAN_DUST, ITEM.ENDER_DUST,
                 ITEM.ECHO_DUST, ITEM.PRISMARINE_DUST,
-                ITEM.SILICON_MIX, ITEM.SILICON_WAFER, ITEM.FLOUR);
+                ITEM.SILICON_MIX, ITEM.SILICON_WAFER, ITEM.FLOUR,
+                ITEM.FILAMENT_COPPER, ITEM.FILAMENT_BRONZE,
+                ITEM.FILAMENT_IRON, ITEM.FILAMENT_GOLD, ITEM.FILAMENT_LAPIS,
+                ITEM.FILAMENT_APATITE, ITEM.FILAMENT_DIAMOND, ITEM.FILAMENT_EMERALD,
+                ITEM.FILAMENT_BLAZING, ITEM.FILAMENT_NETHERITE,
+                ITEM.FILAMENT_OBSIDIAN, ITEM.FILAMENT_ENDER);
             Item prev = LogisticsCore.ITEM.BRONZE_INGOT;
             for (Item item : dusts) {
                 entries.addAfter(prev, item);
@@ -210,6 +288,20 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
     }
 
     private void registerLegacyAliases() {
+        // core domain => automation domain (valves moved)
+        registerItemAlias("core/valve_copper", ITEM.VALVE_COPPER);
+        registerItemAlias("core/valve_bronze", ITEM.VALVE_BRONZE);
+        registerItemAlias("core/valve_iron", ITEM.VALVE_IRON);
+        registerItemAlias("core/valve_gold", ITEM.VALVE_GOLD);
+        registerItemAlias("core/valve_diamond", ITEM.VALVE_DIAMOND);
+        registerItemAlias("core/valve_obsidian", ITEM.VALVE_OBSIDIAN);
+        registerItemAlias("core/valve_blazing", ITEM.VALVE_BLAZING);
+        registerItemAlias("core/valve_emerald", ITEM.VALVE_EMERALD);
+        registerItemAlias("core/valve_apatite", ITEM.VALVE_APATITE);
+        registerItemAlias("core/valve_lapis", ITEM.VALVE_LAPIS);
+        registerItemAlias("core/valve_ender", ITEM.VALVE_ENDER);
+        registerItemAlias("core/valve_netherite", ITEM.VALVE_NETHERITE);
+
         // v0.2 => v0.3
         registerBlockAlias("marker", BLOCK.MARKER);
         registerBlockEntityAlias("marker", ENTITY.MARKER_BLOCK_ENTITY);

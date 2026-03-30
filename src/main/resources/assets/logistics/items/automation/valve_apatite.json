@@ -1,0 +1,6 @@
+{
+  "model": {
+    "model": "logistics:item/automation/valve_apatite",
+    "type": "minecraft:model"
+  }
+}
