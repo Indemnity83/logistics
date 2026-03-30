@@ -52,8 +52,6 @@ public final class LogisticsCoreClient implements DomainBootstrap {
     public static final class MODEL {
         private static final ModelKeyRegistry REGISTRY = new ModelKeyRegistry(LogisticsCore::model);
 
-        public static final ExtraModelKey<BlockStateModel> BEAM = REGISTRY.registerModel("marker_beam");
-
         static Iterable<Map.Entry<ExtraModelKey<BlockStateModel>, ResourceId>> getAllModels() {
             return REGISTRY.getAllModels();
         }

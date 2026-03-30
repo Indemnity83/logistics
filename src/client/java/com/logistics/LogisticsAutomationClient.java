@@ -4,6 +4,7 @@ import com.logistics.automation.macerator.MaceratorScreen;
 import com.logistics.automation.render.ClientRenderCacheHooks;
 import com.logistics.automation.render.LaserQuarryBlockEntityRenderer;
 import com.logistics.automation.render.LaserQuarryRenderState;
+import com.logistics.automation.render.MarkerBlockEntityRenderer;
 import com.logistics.core.bootstrap.DomainBootstrap;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.core.render.ModelKeyRegistry;
@@ -41,6 +42,8 @@ public final class LogisticsAutomationClient implements DomainBootstrap {
     public void initClient() {
         LOGGER.info("Registering automation (client)");
         BlockRenderLayerMap.putBlock(LogisticsAutomation.BLOCK.MARKER, ChunkSectionLayer.CUTOUT);
+        BlockEntityRendererRegistry.register(
+                LogisticsAutomation.ENTITY.MARKER_BLOCK_ENTITY, MarkerBlockEntityRenderer::new);
         // Register quarry frame for cutout rendering (transparency support)
         BlockRenderLayerMap.putBlock(LogisticsAutomation.BLOCK.LASER_QUARRY_FRAME, ChunkSectionLayer.CUTOUT);
         BlockRenderLayerMap.putBlock(LogisticsAutomation.BLOCK.QUARTZ_CRYSTAL, ChunkSectionLayer.TRANSLUCENT);
@@ -66,6 +69,7 @@ public final class LogisticsAutomationClient implements DomainBootstrap {
     public static final class MODEL {
         private static final ModelKeyRegistry REGISTRY = new ModelKeyRegistry(LogisticsAutomation::model);
 
+        public static final ExtraModelKey<BlockStateModel> BEAM = REGISTRY.registerModel("marker_beam");
         public static final ExtraModelKey<BlockStateModel> ARM = REGISTRY.registerModel("laser_quarry_gantry_arm");
         public static final ExtraModelKey<BlockStateModel> DRILL = REGISTRY.registerModel("laser_quarry_drill");
         public static final ExtraModelKey<BlockStateModel> LED_GREEN = REGISTRY.registerModel("laser_quarry_led_green");

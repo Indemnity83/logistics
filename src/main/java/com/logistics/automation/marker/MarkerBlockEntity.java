@@ -1,4 +1,4 @@
-package com.logistics.core.marker;
+package com.logistics.automation.marker;
 
 import com.logistics.LogisticsAutomation;
 import com.logistics.core.lib.BaseBlockEntity;

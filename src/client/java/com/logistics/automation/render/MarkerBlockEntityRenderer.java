@@ -1,8 +1,8 @@
-package com.logistics.core.render;
+package com.logistics.automation.render;
 
-import com.logistics.LogisticsCoreClient;
-import com.logistics.core.marker.MarkerBlockEntity;
-import com.logistics.core.marker.MarkerManager;
+import com.logistics.LogisticsAutomationClient;
+import com.logistics.automation.marker.MarkerBlockEntity;
+import com.logistics.automation.marker.MarkerManager;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import net.fabricmc.fabric.api.client.model.loading.v1.FabricBakedModelManager;
@@ -62,7 +62,6 @@ public class MarkerBlockEntityRenderer implements BlockEntityRenderer<MarkerBloc
         int north = 0, south = 0, east = 0, west = 0;
 
         if (!state.connectedMarkers.isEmpty()) {
-            // Connected mode - draw beams to form rectangle outline
             int posX = pos.getX();
             int posZ = pos.getZ();
 
@@ -76,12 +75,10 @@ public class MarkerBlockEntityRenderer implements BlockEntityRenderer<MarkerBloc
                 maxZ = Math.max(maxZ, connected.getZ());
             }
 
-            // Check which corners have markers
             boolean hasMarkerAtNW = hasMarkerAt(state, pos, minX, minZ);
             boolean hasMarkerAtNE = hasMarkerAt(state, pos, maxX, minZ);
             boolean hasMarkerAtSW = hasMarkerAt(state, pos, minX, maxZ);
 
-            // North edge (z = minZ): from (minX, minZ) to (maxX, minZ)
             if (posZ == minZ) {
                 if (posX == minX) {
                     east = maxX - minX;
@@ -90,7 +87,6 @@ public class MarkerBlockEntityRenderer implements BlockEntityRenderer<MarkerBloc
                 }
             }
 
-            // South edge (z = maxZ): from (minX, maxZ) to (maxX, maxZ)
             if (posZ == maxZ) {
                 if (posX == minX) {
                     east = maxX - minX;
@@ -99,7 +95,6 @@ public class MarkerBlockEntityRenderer implements BlockEntityRenderer<MarkerBloc
                 }
             }
 
-            // West edge (x = minX): from (minX, minZ) to (minX, maxZ)
             if (posX == minX) {
                 if (posZ == minZ) {
                     south = maxZ - minZ;
@@ -108,7 +103,6 @@ public class MarkerBlockEntityRenderer implements BlockEntityRenderer<MarkerBloc
                 }
             }
 
-            // East edge (x = maxX): from (maxX, minZ) to (maxX, maxZ)
             if (posX == maxX) {
                 if (posZ == minZ) {
                     south = maxZ - minZ;
@@ -117,7 +111,6 @@ public class MarkerBlockEntityRenderer implements BlockEntityRenderer<MarkerBloc
                 }
             }
         } else {
-            // Solo mode - project beams in all directions
             int distance = MarkerManager.MAX_MARKER_DISTANCE;
             north = distance;
             south = distance;
@@ -173,7 +166,7 @@ public class MarkerBlockEntityRenderer implements BlockEntityRenderer<MarkerBloc
 
     private BlockStateModel getBeamModel() {
         FabricBakedModelManager modelManager = (FabricBakedModelManager) Minecraft.getInstance().getModelManager();
-        BlockStateModel model = modelManager.getModel(LogisticsCoreClient.MODEL.BEAM);
+        BlockStateModel model = modelManager.getModel(LogisticsAutomationClient.MODEL.BEAM);
         if (model == null || model == Minecraft.getInstance().getModelManager().getMissingBlockStateModel()) {
             return null;
         }
@@ -190,19 +183,10 @@ public class MarkerBlockEntityRenderer implements BlockEntityRenderer<MarkerBloc
             int length) {
         for (int i = 0; i < length; i++) {
             matrices.pushPose();
-
-            // Move to center of marker block (Y is at base of beam model)
             matrices.translate(0.5, -0.0625, 0.5);
-
-            // Rotate to face the correct direction (model extends in +Z)
             matrices.mulPose(Axis.YP.rotationDegrees(yRotation));
-
-            // Move to segment position
             matrices.translate(0, 0, i);
-
-            // Shift back to align model center with block center
             matrices.translate(-0.5, 0.0, 0.0);
-
             queue.submitBlockModel(
                     matrices,
                     renderLayer,
@@ -213,13 +197,12 @@ public class MarkerBlockEntityRenderer implements BlockEntityRenderer<MarkerBloc
                     lightmap,
                     OverlayTexture.NO_OVERLAY,
                     0);
-
             matrices.popPose();
         }
     }
 
     @Override
     public int getViewDistance() {
-        return 256; // Visible from far away
+        return 256;
     }
 }
