@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": ["QQQ", "QFQ", "IGI"],
+  "key": {
+    "Q": "logistics:automation/quartz_crystal",
+    "F": "logistics:automation/filament_gold",
+    "I": "minecraft:iron_nugget",
+    "G": "minecraft:gold_nugget"
+  },
+  "result": {
+    "count": 1,
+    "id": "logistics:automation/valve_gold"
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "type": "logistics:macerator",
+  "ingredient": "logistics:core/tin_ore",
+  "result": {
+    "id": "logistics:automation/tin_powder",
+    "count": 2
+  }
+}

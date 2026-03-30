@@ -1,8 +1,0 @@
-{
-  "type": "logistics:macerator",
-  "ingredient": "minecraft:iron_ingot",
-  "result": {
-    "id": "logistics:automation/iron_dust",
-    "count": 1
-  }
-}
