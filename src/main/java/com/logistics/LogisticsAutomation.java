@@ -84,7 +84,11 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
         public static Item LAPIS_DUST;
         public static Item QUARTZ_DUST;
         public static Item COAL_DUST;
+        public static Item AMETHYST_DUST;
+        public static Item DIAMOND_DUST;
+        public static Item EMERALD_DUST;
         public static Item SILICON_MIX;
+        public static Item SILICON_WAFER;
         public static Item FLOUR;
 
         static void register() {
@@ -96,7 +100,11 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
             LAPIS_DUST = INSTANCE.registerItem("lapis_dust", Item::new);
             QUARTZ_DUST = INSTANCE.registerItem("quartz_dust", Item::new);
             COAL_DUST = INSTANCE.registerItem("coal_dust", Item::new);
+            AMETHYST_DUST = INSTANCE.registerItem("amethyst_dust", Item::new);
+            DIAMOND_DUST = INSTANCE.registerItem("diamond_dust", Item::new);
+            EMERALD_DUST = INSTANCE.registerItem("emerald_dust", Item::new);
             SILICON_MIX = INSTANCE.registerItem("silicon_mix", Item::new);
+            SILICON_WAFER = INSTANCE.registerItem("silicon_wafer", Item::new);
             FLOUR = INSTANCE.registerItem("flour", Item::new);
         }
     }
@@ -108,6 +116,7 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
         public static Block LASER_QUARRY;
         public static Block LASER_QUARRY_FRAME;
         public static Block MACERATOR;
+        public static Block QUARTZ_CRYSTAL;
 
         static void register() {
             MARKER = INSTANCE.registerBlockWithItem("marker",
@@ -119,6 +128,8 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
             MACERATOR = INSTANCE.registerBlockWithItem("macerator",
                 props -> new MaceratorBlock(props.strength(3.5f).sound(SoundType.METAL).requiresCorrectToolForDrops()
                     .lightLevel(state -> state.getValue(MaceratorBlock.LIT) ? 13 : 0)));
+            QUARTZ_CRYSTAL = INSTANCE.registerBlockWithItem("quartz_crystal",
+                props -> new Block(props.strength(0.8f).sound(SoundType.GLASS).noOcclusion()));
         }
     }
 
@@ -177,12 +188,14 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
         LogisticsCore.CREATIVE_TAB.addItem(BLOCK.MARKER);
         LogisticsCore.CREATIVE_TAB.addItem(BLOCK.LASER_QUARRY);
         LogisticsCore.CREATIVE_TAB.addItem(BLOCK.MACERATOR);
+        LogisticsCore.CREATIVE_TAB.addItem(BLOCK.QUARTZ_CRYSTAL);
 
         ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.INGREDIENTS).register(entries -> {
             List<Item> dusts = List.of(
                 ITEM.IRON_DUST, ITEM.COPPER_DUST, ITEM.TIN_DUST, ITEM.BRONZE_DUST,
                 ITEM.GOLD_DUST, ITEM.LAPIS_DUST, ITEM.QUARTZ_DUST, ITEM.COAL_DUST,
-                ITEM.SILICON_MIX, ITEM.FLOUR);
+                ITEM.AMETHYST_DUST, ITEM.DIAMOND_DUST, ITEM.EMERALD_DUST,
+                ITEM.SILICON_MIX, ITEM.SILICON_WAFER, ITEM.FLOUR);
             Item prev = LogisticsCore.ITEM.BRONZE_INGOT;
             for (Item item : dusts) {
                 entries.addAfter(prev, item);
