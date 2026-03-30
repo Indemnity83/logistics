@@ -31,12 +31,12 @@ public class MaceratorRecipeWrapper implements Recipe<RecipeInput> {
 
     @Override
     public @NotNull RecipeSerializer<MaceratorRecipeWrapper> getSerializer() {
-        return LogisticsAutomation.MACERATOR_RECIPE_SERIALIZER;
+        return LogisticsAutomation.RECIPE.MACERATOR_RECIPE_SERIALIZER;
     }
 
     @Override
     public @NotNull RecipeType<MaceratorRecipeWrapper> getType() {
-        return LogisticsAutomation.MACERATOR_RECIPE_TYPE;
+        return LogisticsAutomation.RECIPE.MACERATOR_RECIPE_TYPE;
     }
 
     @Override

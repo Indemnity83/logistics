@@ -14,6 +14,7 @@ import com.logistics.core.lib.pipe.PipeConnectionRegistry;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.core.marker.MarkerBlock;
 import com.logistics.core.marker.MarkerBlockEntity;
+import java.util.List;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.minecraft.core.Direction;
@@ -58,8 +59,6 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
         ENTITY.register();
         MENU.register();
         RECIPE.register();
-        MACERATOR_RECIPE_TYPE = RECIPE.MACERATOR_RECIPE_TYPE;
-        MACERATOR_RECIPE_SERIALIZER = RECIPE.MACERATOR_RECIPE_SERIALIZER;
 
         MaceratorRecipeManager.register();
 
@@ -81,9 +80,9 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
         public static Item COPPER_DUST;
         public static Item TIN_DUST;
         public static Item BRONZE_DUST;
-        public static Item QUARTZ_DUST;
         public static Item GOLD_DUST;
         public static Item LAPIS_DUST;
+        public static Item QUARTZ_DUST;
         public static Item COAL_DUST;
         public static Item SILICON_MIX;
         public static Item FLOUR;
@@ -174,25 +173,20 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
         }
     }
 
-    // Public references for MaceratorRecipeWrapper
-    public static RecipeType<MaceratorRecipeWrapper> MACERATOR_RECIPE_TYPE;
-    public static RecipeSerializer<MaceratorRecipeWrapper> MACERATOR_RECIPE_SERIALIZER;
-
     private static void addCreativeTabEntries() {
         LogisticsCore.CREATIVE_TAB.addItem(BLOCK.LASER_QUARRY);
         LogisticsCore.CREATIVE_TAB.addItem(BLOCK.MACERATOR);
 
         ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.INGREDIENTS).register(entries -> {
-            entries.addAfter(LogisticsCore.ITEM.BRONZE_INGOT, ITEM.IRON_DUST);
-            entries.addAfter(ITEM.IRON_DUST, ITEM.COPPER_DUST);
-            entries.addAfter(ITEM.COPPER_DUST, ITEM.TIN_DUST);
-            entries.addAfter(ITEM.TIN_DUST, ITEM.BRONZE_DUST);
-            entries.addAfter(ITEM.BRONZE_DUST, ITEM.GOLD_DUST);
-            entries.addAfter(ITEM.GOLD_DUST, ITEM.LAPIS_DUST);
-            entries.addAfter(ITEM.LAPIS_DUST, ITEM.QUARTZ_DUST);
-            entries.addAfter(ITEM.QUARTZ_DUST, ITEM.COAL_DUST);
-            entries.addAfter(ITEM.COAL_DUST, ITEM.SILICON_MIX);
-            entries.addAfter(ITEM.SILICON_MIX, ITEM.FLOUR);
+            List<Item> dusts = List.of(
+                ITEM.IRON_DUST, ITEM.COPPER_DUST, ITEM.TIN_DUST, ITEM.BRONZE_DUST,
+                ITEM.GOLD_DUST, ITEM.LAPIS_DUST, ITEM.QUARTZ_DUST, ITEM.COAL_DUST,
+                ITEM.SILICON_MIX, ITEM.FLOUR);
+            Item prev = LogisticsCore.ITEM.BRONZE_INGOT;
+            for (Item item : dusts) {
+                entries.addAfter(prev, item);
+                prev = item;
+            }
         });
     }
 
