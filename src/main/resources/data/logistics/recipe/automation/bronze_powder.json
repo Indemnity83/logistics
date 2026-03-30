@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    "logistics:automation/copper_powder",
+    "logistics:automation/copper_powder",
+    "logistics:automation/copper_powder",
+    "logistics:automation/tin_powder"
+  ],
+  "result": {
+    "count": 4,
+    "id": "logistics:automation/bronze_powder"
+  }
+}

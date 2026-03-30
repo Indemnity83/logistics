@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": ["M", "R", "M"],
+  "key": {
+    "M": "minecraft:copper_ingot",
+    "R": "minecraft:redstone"
+  },
+  "result": {
+    "count": 4,
+    "id": "logistics:automation/filament_copper"
+  }
+}
