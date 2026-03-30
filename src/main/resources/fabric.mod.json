@@ -16,7 +16,8 @@
   "description": "A modern logistics and pipe mod with authentic in-pipe item motion, mod interoperability, and request/autocrafting systems.",
   "entrypoints": {
     "client": ["com.logistics.LogisticsModClient"],
-    "main": ["com.logistics.LogisticsMod"]
+    "main": ["com.logistics.LogisticsMod"],
+    "jei_mod_plugin": ["com.logistics.automation.macerator.jei.MaceratorJeiPlugin"]
   },
   "environment": "*",
   "icon": "assets/logistics/icon.png",
@@ -24,6 +25,8 @@
   "license": "MIT",
   "mixins": ["logistics.mixins.json"],
   "name": "Logistics",
-  "suggests": {},
+  "suggests": {
+    "jei": "*"
+  },
   "version": "${version}"
 }
