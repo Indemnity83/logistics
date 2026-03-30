@@ -2,11 +2,11 @@
   "type": "minecraft:crafting_shaped",
   "pattern": ["D", "A", "D"],
   "key": {
-    "D": "logistics:automation/emerald_dust",
+    "D": "logistics:core/apatite",
     "A": "minecraft:amethyst_shard"
   },
   "result": {
     "count": 4,
-    "id": "logistics:automation/filament_emerald"
+    "id": "logistics:automation/apatite_core"
   }
 }

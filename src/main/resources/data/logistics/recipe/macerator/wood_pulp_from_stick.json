@@ -1,0 +1,8 @@
+{
+  "type": "logistics:macerator",
+  "ingredient": "minecraft:stick",
+  "result": {
+    "id": "logistics:automation/wood_pulp",
+    "count": 1
+  }
+}

@@ -2,6 +2,8 @@ package com.logistics.automation.macerator;
 
 import com.logistics.core.lib.resource.ResourceId;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 
@@ -13,6 +15,7 @@ import net.minecraft.world.item.crafting.Ingredient;
 public class MaceratorRecipe {
     private final ResourceId id;
     private final Ingredient ingredient;
+    private final TagKey<Item> tagIngredient;
     private final ResourceId resultItemId;
     private final int resultCount;
 
@@ -27,6 +30,23 @@ public class MaceratorRecipe {
         if (resultCount <= 0) throw new IllegalArgumentException("resultCount must be > 0");
         this.id = id;
         this.ingredient = ingredient;
+        this.tagIngredient = null;
+        this.resultItemId = resultItemId;
+        this.resultCount = resultCount;
+    }
+
+    public MaceratorRecipe(
+        ResourceId id,
+        TagKey<Item> tagIngredient,
+        ResourceId resultItemId,
+        int resultCount
+    ) {
+        if (tagIngredient == null) throw new IllegalArgumentException("tagIngredient must not be null");
+        if (resultItemId == null) throw new IllegalArgumentException("resultItemId must not be null");
+        if (resultCount <= 0) throw new IllegalArgumentException("resultCount must be > 0");
+        this.id = id;
+        this.ingredient = null;
+        this.tagIngredient = tagIngredient;
         this.resultItemId = resultItemId;
         this.resultCount = resultCount;
     }
@@ -36,7 +56,9 @@ public class MaceratorRecipe {
     }
 
     public boolean matches(ItemStack stack) {
-        return !stack.isEmpty() && ingredient.test(stack);
+        if (stack.isEmpty()) return false;
+        if (tagIngredient != null) return stack.is(tagIngredient);
+        return ingredient.test(stack);
     }
 
     public ItemStack getResultItem() {

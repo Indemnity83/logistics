@@ -3,7 +3,7 @@
   "pattern": ["QQQ", "QFQ", "IGI"],
   "key": {
     "Q": "logistics:automation/quartz_crystal",
-    "F": "logistics:automation/filament_blazing",
+    "F": "logistics:automation/blazing_core",
     "I": "minecraft:iron_nugget",
     "G": "minecraft:gold_nugget"
   },
