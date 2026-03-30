@@ -1,6 +1,6 @@
 {
   "type": "logistics:macerator",
-  "ingredient": "minecraft:copper_ore",
+  "ingredient": "minecraft:deepslate_copper_ore",
   "result": {
     "id": "logistics:automation/copper_dust",
     "count": 2

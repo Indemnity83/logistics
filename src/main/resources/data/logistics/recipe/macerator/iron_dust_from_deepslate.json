@@ -1,6 +1,6 @@
 {
   "type": "logistics:macerator",
-  "ingredient": "minecraft:iron_ore",
+  "ingredient": "minecraft:deepslate_iron_ore",
   "result": {
     "id": "logistics:automation/iron_dust",
     "count": 2
