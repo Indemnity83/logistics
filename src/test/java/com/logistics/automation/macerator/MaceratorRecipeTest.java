@@ -18,7 +18,8 @@ class MaceratorRecipeTest extends MinecraftTestEnvironment {
             ResourceId.in("test", "iron_dust"),
             Ingredient.of(Items.RAW_IRON),
             ResourceId.in("minecraft", "iron_ingot"), // using iron_ingot as a valid item for result
-            2
+            2,
+            MaceratorRecipe.DEFAULT_GRINDING_TIME
         );
     }
 
@@ -62,6 +63,19 @@ class MaceratorRecipeTest extends MinecraftTestEnvironment {
         ItemStack result = recipe.getResultItem();
         assertThat(result.getCount()).isEqualTo(2);
         assertThat(result.is(Items.IRON_INGOT)).isTrue();
+    }
+
+    @Test
+    @DisplayName("should preserve non-default grinding time")
+    void grindingTime() {
+        MaceratorRecipe recipe = new MaceratorRecipe(
+            ResourceId.in("test", "iron_dust"),
+            Ingredient.of(Items.RAW_IRON),
+            ResourceId.in("minecraft", "iron_ingot"),
+            2,
+            5
+        );
+        assertThat(recipe.getGrindingTime()).isEqualTo(5);
     }
 
     @Test

@@ -4,5 +4,6 @@
   "result": {
     "id": "minecraft:quartz",
     "count": 4
-  }
+  },
+  "grindingtime": 200
 }

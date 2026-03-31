@@ -4,5 +4,6 @@
   "result": {
     "id": "logistics:automation/emerald_dust",
     "count": 2
-  }
+  },
+  "grindingtime": 200
 }

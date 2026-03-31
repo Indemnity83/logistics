@@ -59,7 +59,6 @@ public class MaceratorBlockEntity extends BaseBlockEntity
     // Processing constants — tuned so 1 coal in a Stirling Engine (10 RF/t at full temp, 1600 ticks)
     // produces exactly 16,000 RF, enough to macerate 8 items (8 × 2,000 RF each).
     static final int ENERGY_PER_TICK = 10;
-    static final int PROCESS_TIME_TICKS = 200;
 
     private final ItemInventoryComponent inventory = new ItemInventoryComponent(TOTAL_SLOTS, this::setChanged);
     final EnergyComponent energy = new EnergyComponent(ENERGY_CAPACITY, MAX_ENERGY_INPUT, 0, this::setChanged);
@@ -78,7 +77,11 @@ public class MaceratorBlockEntity extends BaseBlockEntity
         public int get(int index) {
             return switch (index) {
                 case DATA_PROGRESS -> processProgress;
-                case DATA_TOTAL_TICKS -> activeRecipeId != null ? PROCESS_TIME_TICKS : 0;
+                case DATA_TOTAL_TICKS -> {
+                    if (activeRecipeId == null) yield 0;
+                    MaceratorRecipe r = MaceratorRecipeManager.getRecipe(activeRecipeId);
+                    yield r != null ? r.getGrindingTime() : 0;
+                }
                 case DATA_ENERGY -> (int) Math.min(energy.amount, Integer.MAX_VALUE);
                 default -> 0;
             };
@@ -146,7 +149,7 @@ public class MaceratorBlockEntity extends BaseBlockEntity
         setLit(level, state, true);
         processProgress++;
 
-        if (processProgress >= PROCESS_TIME_TICKS) {
+        if (processProgress >= recipe.getGrindingTime()) {
             completeProcessing(recipe);
         }
 

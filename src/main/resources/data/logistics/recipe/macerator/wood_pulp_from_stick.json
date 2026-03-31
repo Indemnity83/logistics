@@ -4,5 +4,6 @@
   "result": {
     "id": "logistics:automation/wood_pulp",
     "count": 1
-  }
+  },
+  "grindingtime": 200
 }
