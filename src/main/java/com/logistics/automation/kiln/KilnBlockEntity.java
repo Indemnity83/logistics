@@ -61,7 +61,6 @@ public class KilnBlockEntity extends BaseBlockEntity
     static final long MAX_ENERGY_INPUT = 128L;
 
     static final int ENERGY_PER_TICK = 1;
-    static final int PROCESS_TIME_TICKS = 200;
 
     private final ItemInventoryComponent inventory = new ItemInventoryComponent(TOTAL_SLOTS, this::setChanged);
     final EnergyComponent energy = new EnergyComponent(ENERGY_CAPACITY, MAX_ENERGY_INPUT, 0, this::setChanged);
@@ -79,8 +78,8 @@ public class KilnBlockEntity extends BaseBlockEntity
         public int get(int index) {
             return switch (index) {
                 case DATA_PROGRESS -> processProgress;
-                case DATA_TOTAL_TICKS -> activeRecipe != null ? PROCESS_TIME_TICKS : 0;
-                case DATA_ENERGY -> (int) Math.min(energy.amount, Integer.MAX_VALUE);
+                case DATA_TOTAL_TICKS -> activeRecipe != null ? activeRecipe.value().cookingTime() : 0;
+                case DATA_ENERGY -> (int) Math.min(energy.getAmount(), Integer.MAX_VALUE);
                 default -> 0;
             };
         }
@@ -89,7 +88,7 @@ public class KilnBlockEntity extends BaseBlockEntity
         public void set(int index, int value) {
             switch (index) {
                 case DATA_PROGRESS -> processProgress = value;
-                case DATA_ENERGY -> energy.amount = Math.min(value, ENERGY_CAPACITY);
+                case DATA_ENERGY -> energy.setAmount(Math.min(value, ENERGY_CAPACITY));
             }
         }
 
@@ -132,16 +131,16 @@ public class KilnBlockEntity extends BaseBlockEntity
         ItemStack result = activeRecipe.value().assemble(new SingleRecipeInput(input), level.registryAccess());
 
         // Pause if not enough energy or output is full
-        if (energy.amount < ENERGY_PER_TICK || !canAcceptOutput(result)) {
+        if (energy.getAmount() < ENERGY_PER_TICK || !canAcceptOutput(result)) {
             setLit(level, state, false);
             return false;
         }
 
-        energy.amount -= ENERGY_PER_TICK;
+        energy.consume(ENERGY_PER_TICK);
         setLit(level, state, true);
         processProgress++;
 
-        if (processProgress >= PROCESS_TIME_TICKS) {
+        if (processProgress >= activeRecipe.value().cookingTime()) {
             completeProcessing(result);
         }
 
@@ -161,7 +160,7 @@ public class KilnBlockEntity extends BaseBlockEntity
     private boolean canStartProcessing(RecipeHolder<SmeltingRecipe> recipe, Level level) {
         ItemStack input = inventory.getItem(INPUT_SLOT);
         ItemStack result = recipe.value().assemble(new SingleRecipeInput(input), level.registryAccess());
-        return energy.amount >= ENERGY_PER_TICK && canAcceptOutput(result);
+        return energy.getAmount() >= ENERGY_PER_TICK && canAcceptOutput(result);
     }
 
     private boolean canAcceptOutput(ItemStack result) {
@@ -208,15 +207,26 @@ public class KilnBlockEntity extends BaseBlockEntity
 
     private static final int[] SLOTS_INPUT = new int[]{INPUT_SLOT};
     private static final int[] SLOTS_OUTPUT = new int[]{OUTPUT_SLOT};
+    private static final int[] SLOTS_EMPTY = new int[]{};
 
     @Override
     public int[] getSlotsForFace(Direction side) {
-        return side == Direction.DOWN ? SLOTS_OUTPUT : SLOTS_INPUT;
+        if (side == Direction.UP) return SLOTS_INPUT;
+        if (side == Direction.DOWN) return SLOTS_OUTPUT;
+        return SLOTS_EMPTY;
     }
 
     @Override
     public boolean canPlaceItemThroughFace(int slot, ItemStack stack, Direction direction) {
-        return direction != Direction.DOWN && slot == INPUT_SLOT;
+        return direction == Direction.UP && slot == INPUT_SLOT && canSmelt(stack);
+    }
+
+    private boolean canSmelt(ItemStack stack) {
+        if (stack.isEmpty()) return false;
+        if (!(level instanceof ServerLevel serverLevel)) return true; // Allow during world load or client-side
+        return serverLevel.getServer().getRecipeManager()
+            .getRecipeFor(RecipeType.SMELTING, new SingleRecipeInput(stack), level)
+            .isPresent();
     }
 
     @Override

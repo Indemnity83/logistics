@@ -75,12 +75,11 @@ public class KilnGameTest {
             return;
         }
 
-        // Sides: should expose input slot
-        for (Direction side : new Direction[]{Direction.NORTH, Direction.SOUTH, Direction.EAST, Direction.WEST}) {
+        // Sides: should expose no slots
+        for (Direction side : Direction.Plane.HORIZONTAL) {
             int[] sideSlots = sidedInv.getSlotsForFace(side);
-            if (sideSlots.length != 1 || sideSlots[0] != inputSlot) {
-                context.fail(side + " should expose input slot (" + inputSlot + "), got: "
-                    + java.util.Arrays.toString(sideSlots));
+            if (sideSlots.length != 0) {
+                context.fail(side + " should expose no slots, got: " + java.util.Arrays.toString(sideSlots));
                 return;
             }
         }
@@ -89,7 +88,7 @@ public class KilnGameTest {
     }
 
     /**
-     * Test that kiln allows input insertion from top and sides, not from bottom.
+     * Test that kiln allows input insertion from top only, not from sides or bottom.
      */
     @GameTest
     public void testKilnInputAccess(GameTestHelper context) {
@@ -110,6 +109,14 @@ public class KilnGameTest {
         if (!sidedInv.canPlaceItemThroughFace(inputSlot, ironOre, Direction.UP)) {
             context.fail("Kiln should accept items from top into input slot");
             return;
+        }
+
+        // Horizontal sides: should NOT allow insertion
+        for (Direction side : Direction.Plane.HORIZONTAL) {
+            if (sidedInv.canPlaceItemThroughFace(inputSlot, ironOre, side)) {
+                context.fail("Kiln should NOT accept items from " + side);
+                return;
+            }
         }
 
         // Bottom: should NOT allow insertion
