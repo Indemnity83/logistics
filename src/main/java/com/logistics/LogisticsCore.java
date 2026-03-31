@@ -2,12 +2,6 @@ package com.logistics;
 
 import com.logistics.core.LogisticsCommands;
 import com.logistics.core.bootstrap.DomainBootstrap;
-import com.logistics.core.fabricator.KilnBlock;
-import com.logistics.core.fabricator.KilnBlockEntity;
-import com.logistics.core.fabricator.KilnRecipeManager;
-import com.logistics.core.fabricator.KilnRecipeSerializer;
-import com.logistics.core.fabricator.KilnRecipeWrapper;
-import com.logistics.core.fabricator.KilnScreenHandler;
 import com.logistics.core.item.ProbeItem;
 import com.logistics.core.item.WrenchItem;
 import com.logistics.core.lib.block.lookup.EnergyStorageAccess;
@@ -38,10 +32,6 @@ import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.DropExperienceBlock;
 import net.minecraft.world.level.block.SoundType;
-import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.inventory.MenuType;
-import net.minecraft.world.item.crafting.RecipeSerializer;
-import net.minecraft.world.item.crafting.RecipeType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -69,17 +59,9 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
 
         BLOCK.register();
         ITEM.register();
-        ENTITY.register();
         FLUID.register();
-        MENU.register();
         CREATIVE_TAB.register();
-        RECIPE.register();
 
-        // Initialize public references
-        KILN_RECIPE_TYPE = RECIPE.KILN_RECIPE_TYPE;
-        KILN_RECIPE_SERIALIZER = RECIPE.KILN_RECIPE_SERIALIZER;
-
-        KilnRecipeManager.register();
         registerStorageAccess();
         registerLegacyAliases();
         addCreativeTabEntries();
@@ -135,7 +117,6 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         public static Block BRONZE_BLOCK;
         public static Block APATITE_ORE;
         public static Block APATITE_BLOCK;
-        public static Block KILN;
 
         private BLOCK() {}
 
@@ -159,20 +140,6 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
                 props -> new DropExperienceBlock(UniformInt.of(0, 2), props.strength(3.0f, 3.0f).sound(SoundType.STONE).requiresCorrectToolForDrops()));
             APATITE_BLOCK = INSTANCE.registerBlockWithItem("apatite_block",
                 props -> new Block(props.strength(5.0f, 6.0f).sound(SoundType.STONE).requiresCorrectToolForDrops()));
-
-            // Machines
-            KILN = INSTANCE.registerBlockWithItem("kiln",
-                props -> new KilnBlock(props.strength(3.5f).sound(SoundType.METAL).requiresCorrectToolForDrops()));
-        }
-    }
-
-    public static final class ENTITY {
-        public static BlockEntityType<KilnBlockEntity> KILN;
-
-        private ENTITY() {}
-
-        static void register() {
-            KILN = INSTANCE.registerBlockEntity("kiln", KilnBlockEntity::new, BLOCK.KILN);
         }
     }
 
@@ -198,46 +165,6 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
             );
         }
     }
-
-    public static final class MENU {
-        public static MenuType<KilnScreenHandler> KILN;
-
-        private MENU() {}
-
-        static void register() {
-            KILN = INSTANCE.registerMenuType("kiln", KilnScreenHandler::new);
-        }
-    }
-
-    public static final class RECIPE {
-        public static RecipeType<KilnRecipeWrapper> KILN_RECIPE_TYPE;
-        public static RecipeSerializer<KilnRecipeWrapper> KILN_RECIPE_SERIALIZER;
-
-        private RECIPE() {}
-
-        static void register() {
-            KILN_RECIPE_TYPE = Registry.register(
-                BuiltInRegistries.RECIPE_TYPE,
-                LogisticsMod.modId("kiln").toIdentifier(),
-                new RecipeType<KilnRecipeWrapper>() {
-                    @Override
-                    public String toString() {
-                        return "logistics:kiln";
-                    }
-                }
-            );
-
-            KILN_RECIPE_SERIALIZER = Registry.register(
-                BuiltInRegistries.RECIPE_SERIALIZER,
-                LogisticsMod.modId("kiln").toIdentifier(),
-                new KilnRecipeSerializer()
-            );
-        }
-    }
-
-    // Keep these public for reference in KilnRecipeWrapper
-    public static RecipeType<KilnRecipeWrapper> KILN_RECIPE_TYPE;
-    public static RecipeSerializer<KilnRecipeWrapper> KILN_RECIPE_SERIALIZER;
 
     public static final class ITEM {
         public static Item WRENCH;
@@ -340,8 +267,7 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
     private static void addCreativeTabEntries() {
         CREATIVE_TAB.addItems(
                 ITEM.WRENCH,
-                ITEM.PROBE,
-                BLOCK.KILN
+                ITEM.PROBE
         );
     }
 

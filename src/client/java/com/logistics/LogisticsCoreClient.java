@@ -1,7 +1,6 @@
 package com.logistics;
 
 import com.logistics.core.bootstrap.DomainBootstrap;
-import com.logistics.core.fabricator.KilnScreen;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.core.render.ModelKeyRegistry;
 import net.fabricmc.fabric.api.client.model.loading.v1.ExtraModelKey;
@@ -9,7 +8,6 @@ import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
 import net.fabricmc.fabric.api.client.model.loading.v1.SimpleUnbakedExtraModel;
 import net.fabricmc.fabric.api.client.render.fluid.v1.FluidRenderHandlerRegistry;
 import net.fabricmc.fabric.api.client.render.fluid.v1.SimpleFluidRenderHandler;
-import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.renderer.block.model.BlockStateModel;
 
 import java.util.Map;
@@ -33,7 +31,6 @@ public final class LogisticsCoreClient implements DomainBootstrap {
     @Override
     public void initClient() {
         LOGGER.info("Registering core (client)");
-        MenuScreens.register(LogisticsCore.MENU.KILN, KilnScreen::new);
 
         // Register molten glass fluid rendering
         var liquidGlassTexture = LogisticsMod.modId("block/core/liquid_glass").toIdentifier();

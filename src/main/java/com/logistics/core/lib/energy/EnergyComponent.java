@@ -27,6 +27,16 @@ public final class EnergyComponent extends SimpleEnergyStorage {
         return this;
     }
 
+    /** Consumes energy internally (e.g., machine processing). Does not fire change notification. */
+    public void consume(long amount) {
+        this.amount -= amount;
+    }
+
+    /** Sets the stored amount directly (e.g., client-side sync). Does not fire change notification. */
+    public void setAmount(long amount) {
+        this.amount = amount;
+    }
+
     public void readNbt(CompoundTag nbt, String key) {
         this.amount = Math.min(NbtCompat.getLong(nbt, key, 0L), this.capacity);
     }
