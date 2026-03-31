@@ -66,7 +66,7 @@
   "item.logistics.core.wrench": "Wrench",
   "item.logistics.core.probe": "Creative Probe",
   "block.logistics.core.marker": "Marker",
-  "block.logistics.core.kiln": "Kiln",
+  "block.logistics.automation.kiln": "Kiln",
   "container.logistics.kiln": "Kiln",
   "block.logistics.core.tin_ore": "Tin Ore",
   "block.logistics.core.deepslate_tin_ore": "Deepslate Tin Ore",
