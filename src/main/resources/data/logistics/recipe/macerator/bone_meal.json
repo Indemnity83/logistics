@@ -4,5 +4,6 @@
   "result": {
     "id": "minecraft:bone_meal",
     "count": 6
-  }
+  },
+  "grindingtime": 200
 }

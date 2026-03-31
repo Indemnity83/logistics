@@ -109,6 +109,10 @@ public class MaceratorRecipeManager {
             throw new IllegalArgumentException("Missing ingredient in recipe: " + recipeId);
         }
 
+        int grindingTime = json.has("grindingtime")
+            ? json.get("grindingtime").getAsInt()
+            : MaceratorRecipe.DEFAULT_GRINDING_TIME;
+
         if (ingredientElement.isJsonObject()) {
             JsonObject ingredientObj = ingredientElement.getAsJsonObject();
             if (!ingredientObj.has("tag") || ingredientObj.get("tag").isJsonNull()) {
@@ -116,13 +120,13 @@ public class MaceratorRecipeManager {
             }
             String tagId = ingredientObj.get("tag").getAsString();
             TagKey<Item> tagKey = TagKey.create(Registries.ITEM, Identifier.parse(tagId));
-            return new MaceratorRecipe(recipeId, tagKey, resultItemId, resultCount);
+            return new MaceratorRecipe(recipeId, tagKey, resultItemId, resultCount, grindingTime);
         } else {
             String ingredientId = ingredientElement.getAsString();
             var itemHolder = BuiltInRegistries.ITEM.get(ResourceId.parse(ingredientId).toIdentifier())
                 .orElseThrow(() -> new IllegalArgumentException("Unknown ingredient item: " + ingredientId));
             Ingredient ingredient = Ingredient.of(itemHolder.value());
-            return new MaceratorRecipe(recipeId, ingredient, resultItemId, resultCount);
+            return new MaceratorRecipe(recipeId, ingredient, resultItemId, resultCount, grindingTime);
         }
     }
 

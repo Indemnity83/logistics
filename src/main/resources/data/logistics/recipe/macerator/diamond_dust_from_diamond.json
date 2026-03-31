@@ -4,5 +4,6 @@
   "result": {
     "id": "logistics:automation/diamond_dust",
     "count": 1
-  }
+  },
+  "grindingtime": 200
 }

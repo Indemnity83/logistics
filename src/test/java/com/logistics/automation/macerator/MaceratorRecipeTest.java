@@ -18,7 +18,8 @@ class MaceratorRecipeTest extends MinecraftTestEnvironment {
             ResourceId.in("test", "iron_dust"),
             Ingredient.of(Items.RAW_IRON),
             ResourceId.in("minecraft", "iron_ingot"), // using iron_ingot as a valid item for result
-            2
+            2,
+            MaceratorRecipe.DEFAULT_GRINDING_TIME
         );
     }
 

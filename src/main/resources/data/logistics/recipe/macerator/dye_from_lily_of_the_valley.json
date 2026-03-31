@@ -4,5 +4,6 @@
   "result": {
     "id": "minecraft:white_dye",
     "count": 2
-  }
+  },
+  "grindingtime": 200
 }
