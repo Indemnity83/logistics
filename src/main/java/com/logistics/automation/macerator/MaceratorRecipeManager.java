@@ -2,14 +2,19 @@ package com.logistics.automation.macerator;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.logistics.LogisticsMod;
 import com.logistics.core.lib.resource.ResourceId;
 import net.fabricmc.fabric.api.resource.v1.ResourceLoader;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.crafting.Ingredient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -90,10 +95,7 @@ public class MaceratorRecipeManager {
     }
 
     private static MaceratorRecipe parseRecipe(ResourceId recipeId, JsonObject json) {
-        String ingredientId = json.get("ingredient").getAsString();
-        var itemHolder = BuiltInRegistries.ITEM.get(ResourceId.parse(ingredientId).toIdentifier())
-            .orElseThrow(() -> new IllegalArgumentException("Unknown ingredient item: " + ingredientId));
-        Ingredient ingredient = Ingredient.of(itemHolder.value());
+        JsonElement ingredientElement = json.get("ingredient");
 
         JsonObject resultObj = json.getAsJsonObject("result");
         ResourceId resultItemId = ResourceId.parse(resultObj.get("id").getAsString());
@@ -103,7 +105,25 @@ public class MaceratorRecipeManager {
             throw new IllegalArgumentException("Unknown result item: " + resultItemId);
         }
 
-        return new MaceratorRecipe(recipeId, ingredient, resultItemId, resultCount);
+        if (ingredientElement == null || ingredientElement.isJsonNull()) {
+            throw new IllegalArgumentException("Missing ingredient in recipe: " + recipeId);
+        }
+
+        if (ingredientElement.isJsonObject()) {
+            JsonObject ingredientObj = ingredientElement.getAsJsonObject();
+            if (!ingredientObj.has("tag") || ingredientObj.get("tag").isJsonNull()) {
+                throw new IllegalArgumentException("Tag ingredient is missing 'tag' field in recipe: " + recipeId);
+            }
+            String tagId = ingredientObj.get("tag").getAsString();
+            TagKey<Item> tagKey = TagKey.create(Registries.ITEM, Identifier.parse(tagId));
+            return new MaceratorRecipe(recipeId, tagKey, resultItemId, resultCount);
+        } else {
+            String ingredientId = ingredientElement.getAsString();
+            var itemHolder = BuiltInRegistries.ITEM.get(ResourceId.parse(ingredientId).toIdentifier())
+                .orElseThrow(() -> new IllegalArgumentException("Unknown ingredient item: " + ingredientId));
+            Ingredient ingredient = Ingredient.of(itemHolder.value());
+            return new MaceratorRecipe(recipeId, ingredient, resultItemId, resultCount);
+        }
     }
 
     public static Map<ResourceId, MaceratorRecipe> getAllRecipes() {

@@ -3,12 +3,12 @@
   "pattern": ["QQQ", "QFQ", "IGI"],
   "key": {
     "Q": "logistics:automation/quartz_crystal",
-    "F": "logistics:automation/netherite_core",
+    "F": "logistics:automation/wooden_core",
     "I": "minecraft:iron_nugget",
     "G": "minecraft:gold_nugget"
   },
   "result": {
     "count": 1,
-    "id": "logistics:automation/valve_netherite"
+    "id": "logistics:automation/valve_wooden"
   }
 }
