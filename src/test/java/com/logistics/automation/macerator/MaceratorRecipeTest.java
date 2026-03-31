@@ -19,7 +19,8 @@ class MaceratorRecipeTest extends MinecraftTestEnvironment {
             Ingredient.of(Items.RAW_IRON),
             ResourceId.in("minecraft", "iron_ingot"), // using iron_ingot as a valid item for result
             2,
-            MaceratorRecipe.DEFAULT_GRINDING_TIME
+            MaceratorRecipe.DEFAULT_GRINDING_TIME,
+            MaceratorRecipe.DEFAULT_EXPERIENCE
         );
     }
 
@@ -73,9 +74,24 @@ class MaceratorRecipeTest extends MinecraftTestEnvironment {
             Ingredient.of(Items.RAW_IRON),
             ResourceId.in("minecraft", "iron_ingot"),
             2,
-            5
+            5,
+            MaceratorRecipe.DEFAULT_EXPERIENCE
         );
         assertThat(recipe.getGrindingTime()).isEqualTo(5);
+    }
+
+    @Test
+    @DisplayName("should preserve non-default experience")
+    void experience() {
+        MaceratorRecipe recipe = new MaceratorRecipe(
+            ResourceId.in("test", "iron_dust"),
+            Ingredient.of(Items.RAW_IRON),
+            ResourceId.in("minecraft", "iron_ingot"),
+            2,
+            MaceratorRecipe.DEFAULT_GRINDING_TIME,
+            0.7f
+        );
+        assertThat(recipe.getExperience()).isEqualTo(0.7f);
     }
 
     @Test

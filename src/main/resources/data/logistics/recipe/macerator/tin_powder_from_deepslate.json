@@ -1,0 +1,9 @@
+{
+  "type": "logistics:macerator",
+  "ingredient": "logistics:core/deepslate_tin_ore",
+  "result": {
+    "id": "logistics:automation/tin_powder",
+    "count": 2
+  },
+  "grindingtime": 200
+}
