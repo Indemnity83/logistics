@@ -4,5 +4,6 @@
   "result": {
     "id": "minecraft:blaze_powder",
     "count": 4
-  }
+  },
+  "grindingtime": 200
 }

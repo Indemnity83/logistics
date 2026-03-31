@@ -4,5 +4,6 @@
   "result": {
     "id": "logistics:automation/copper_powder",
     "count": 1
-  }
+  },
+  "grindingtime": 200
 }

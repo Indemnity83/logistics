@@ -4,5 +4,6 @@
   "result": {
     "id": "logistics:automation/bronze_powder",
     "count": 1
-  }
+  },
+  "grindingtime": 200
 }
