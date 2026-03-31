@@ -2,11 +2,11 @@
   "type": "minecraft:crafting_shaped",
   "pattern": ["D", "B", "D"],
   "key": {
-    "D": "logistics:automation/netherite_dust",
+    "D": "minecraft:blaze_powder",
     "B": "minecraft:blaze_rod"
   },
   "result": {
     "count": 4,
-    "id": "logistics:automation/filament_netherite"
+    "id": "logistics:automation/blazing_core"
   }
 }

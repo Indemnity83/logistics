@@ -1,0 +1,6 @@
+{
+  "model": {
+    "model": "logistics:item/automation/netherite_core",
+    "type": "minecraft:model"
+  }
+}

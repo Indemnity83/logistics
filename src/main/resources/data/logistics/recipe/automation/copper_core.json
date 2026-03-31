@@ -2,11 +2,11 @@
   "type": "minecraft:crafting_shaped",
   "pattern": ["M", "R", "M"],
   "key": {
-    "M": "minecraft:gold_ingot",
+    "M": "minecraft:copper_ingot",
     "R": "minecraft:redstone"
   },
   "result": {
     "count": 4,
-    "id": "logistics:automation/filament_gold"
+    "id": "logistics:automation/copper_core"
   }
 }
