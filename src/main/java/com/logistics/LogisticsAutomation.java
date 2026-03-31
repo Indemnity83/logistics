@@ -1,5 +1,8 @@
 package com.logistics;
 
+import com.logistics.automation.kiln.KilnBlock;
+import com.logistics.automation.kiln.KilnBlockEntity;
+import com.logistics.automation.kiln.KilnScreenHandler;
 import com.logistics.automation.laserquarry.LaserQuarryBlock;
 import com.logistics.automation.laserquarry.LaserQuarryFrameBlock;
 import com.logistics.automation.laserquarry.entity.LaserQuarryBlockEntity;
@@ -184,6 +187,7 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
         public static Block LASER_QUARRY;
         public static Block LASER_QUARRY_FRAME;
         public static Block MACERATOR;
+        public static Block KILN;
         public static Block QUARTZ_CRYSTAL;
 
         static void register() {
@@ -196,6 +200,9 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
             MACERATOR = INSTANCE.registerBlockWithItem("macerator",
                 props -> new MaceratorBlock(props.strength(3.5f).sound(SoundType.METAL).requiresCorrectToolForDrops()
                     .lightLevel(state -> state.getValue(MaceratorBlock.LIT) ? 13 : 0)));
+            KILN = INSTANCE.registerBlockWithItem("kiln",
+                props -> new KilnBlock(props.strength(3.5f).sound(SoundType.METAL).requiresCorrectToolForDrops()
+                    .lightLevel(state -> state.getValue(KilnBlock.LIT) ? 13 : 0)));
             QUARTZ_CRYSTAL = INSTANCE.registerBlockWithItem("quartz_crystal",
                 props -> new Block(props.strength(0.8f).sound(SoundType.GLASS).noOcclusion()));
         }
@@ -207,6 +214,7 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
         public static BlockEntityType<MarkerBlockEntity> MARKER_BLOCK_ENTITY;
         public static BlockEntityType<LaserQuarryBlockEntity> LASER_QUARRY_BLOCK_ENTITY;
         public static BlockEntityType<MaceratorBlockEntity> MACERATOR_BLOCK_ENTITY;
+        public static BlockEntityType<KilnBlockEntity> KILN_BLOCK_ENTITY;
 
         static void register() {
             MARKER_BLOCK_ENTITY = INSTANCE.registerBlockEntity("marker", MarkerBlockEntity::new, LogisticsAutomation.BLOCK.MARKER);
@@ -214,6 +222,8 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
                 INSTANCE.registerBlockEntity("laser_quarry", LaserQuarryBlockEntity::new, BLOCK.LASER_QUARRY);
             MACERATOR_BLOCK_ENTITY =
                 INSTANCE.registerBlockEntity("macerator", MaceratorBlockEntity::new, BLOCK.MACERATOR);
+            KILN_BLOCK_ENTITY =
+                INSTANCE.registerBlockEntity("kiln", KilnBlockEntity::new, BLOCK.KILN);
         }
     }
 
@@ -221,9 +231,11 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
         private MENU() {}
 
         public static MenuType<MaceratorScreenHandler> MACERATOR;
+        public static MenuType<KilnScreenHandler> KILN;
 
         static void register() {
             MACERATOR = INSTANCE.registerMenuType("macerator", MaceratorScreenHandler::new);
+            KILN = INSTANCE.registerMenuType("kiln", KilnScreenHandler::new);
         }
     }
 
@@ -256,6 +268,7 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
         LogisticsCore.CREATIVE_TAB.addItem(BLOCK.MARKER);
         LogisticsCore.CREATIVE_TAB.addItem(BLOCK.LASER_QUARRY);
         LogisticsCore.CREATIVE_TAB.addItem(BLOCK.MACERATOR);
+        LogisticsCore.CREATIVE_TAB.addItem(BLOCK.KILN);
         LogisticsCore.CREATIVE_TAB.addItem(BLOCK.QUARTZ_CRYSTAL);
 
         ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.INGREDIENTS).register(entries -> {
@@ -328,5 +341,10 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
         registerItemAlias("automation/quarry", BLOCK.LASER_QUARRY.asItem());
         registerBlockAlias("automation/quarry_frame", BLOCK.LASER_QUARRY_FRAME);
         registerBlockEntityAlias("automation/quarry", ENTITY.LASER_QUARRY_BLOCK_ENTITY);
+
+        // core domain => automation domain (kiln moved)
+        registerBlockAlias("core/kiln", BLOCK.KILN);
+        registerBlockEntityAlias("core/kiln", ENTITY.KILN_BLOCK_ENTITY);
+        registerItemAlias("core/kiln", BLOCK.KILN.asItem());
     }
 }

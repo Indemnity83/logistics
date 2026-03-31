@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "logistics:item/core/kiln"
+    "model": "logistics:block/automation/kiln"
   }
 }
