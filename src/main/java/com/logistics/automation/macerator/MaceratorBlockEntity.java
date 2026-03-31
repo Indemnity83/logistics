@@ -16,8 +16,10 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.WorldlyContainer;
+import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -26,6 +28,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import team.reborn.energy.api.EnergyStorage;
 
@@ -190,8 +193,17 @@ public class MaceratorBlockEntity extends BaseBlockEntity
             output.grow(result.getCount());
         }
 
+        awardExperience(recipe.getExperience());
+
         activeRecipeId = null;
         processProgress = 0;
+    }
+
+    private void awardExperience(float experience) {
+        if (experience <= 0 || !(level instanceof ServerLevel serverLevel)) return;
+        int xp = (int) experience;
+        if (level.random.nextFloat() < (experience - xp)) xp++;
+        if (xp > 0) ExperienceOrb.award(serverLevel, Vec3.atCenterOf(getBlockPos()), xp);
     }
 
     private void setLit(Level level, BlockState state, boolean lit) {
