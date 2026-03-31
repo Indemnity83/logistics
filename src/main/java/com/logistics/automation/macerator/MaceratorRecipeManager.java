@@ -36,7 +36,8 @@ import java.util.concurrent.Executor;
  * {
  *   "ingredient": "minecraft:raw_iron",
  *   "result": { "id": "logistics:automation/iron_powder", "count": 2 },
- *   "grindingtime": 200
+ *   "grindingtime": 200,
+ *   "experience": 0.7
  * }
  * }</pre>
  */
@@ -111,6 +112,9 @@ public class MaceratorRecipeManager {
         int grindingTime = json.has("grindingtime")
             ? json.get("grindingtime").getAsInt()
             : MaceratorRecipe.DEFAULT_GRINDING_TIME;
+        float experience = json.has("experience")
+            ? json.get("experience").getAsFloat()
+            : MaceratorRecipe.DEFAULT_EXPERIENCE;
 
         if (ingredientElement.isJsonObject()) {
             JsonObject ingredientObj = ingredientElement.getAsJsonObject();
@@ -119,13 +123,13 @@ public class MaceratorRecipeManager {
             }
             String tagId = ingredientObj.get("tag").getAsString();
             TagKey<Item> tagKey = TagKey.create(Registries.ITEM, Identifier.parse(tagId));
-            return new MaceratorRecipe(recipeId, tagKey, resultItemId, resultCount, grindingTime);
+            return new MaceratorRecipe(recipeId, tagKey, resultItemId, resultCount, grindingTime, experience);
         } else {
             String ingredientId = ingredientElement.getAsString();
             var itemHolder = BuiltInRegistries.ITEM.get(ResourceId.parse(ingredientId).toIdentifier())
                 .orElseThrow(() -> new IllegalArgumentException("Unknown ingredient item: " + ingredientId));
             Ingredient ingredient = Ingredient.of(itemHolder.value());
-            return new MaceratorRecipe(recipeId, ingredient, resultItemId, resultCount, grindingTime);
+            return new MaceratorRecipe(recipeId, ingredient, resultItemId, resultCount, grindingTime, experience);
         }
     }
 

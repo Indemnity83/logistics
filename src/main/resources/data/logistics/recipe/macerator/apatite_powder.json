@@ -1,0 +1,9 @@
+{
+  "type": "logistics:macerator",
+  "ingredient": "logistics:core/apatite_ore",
+  "result": {
+    "id": "logistics:automation/apatite_powder",
+    "count": 6
+  },
+  "grindingtime": 200
+}
