@@ -4,5 +4,6 @@
   "result": {
     "id": "minecraft:glowstone_dust",
     "count": 4
-  }
+  },
+  "grindingtime": 200
 }

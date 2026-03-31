@@ -11,49 +11,61 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Recipe for the Macerator.
  * Accepts a single input item and produces a result.
- * Processing time and energy cost are global constants on {@link MaceratorBlockEntity}.
  */
 public class MaceratorRecipe {
+    static final int DEFAULT_GRINDING_TIME = 200;
+
     private final ResourceId id;
     @Nullable private final Ingredient ingredient;
     @Nullable private final TagKey<Item> tagIngredient;
     private final ResourceId resultItemId;
     private final int resultCount;
+    private final int grindingTime;
 
     public MaceratorRecipe(
         ResourceId id,
         Ingredient ingredient,
         ResourceId resultItemId,
-        int resultCount
+        int resultCount,
+        int grindingTime
     ) {
         if (ingredient == null) throw new IllegalArgumentException("ingredient must not be null");
         if (resultItemId == null) throw new IllegalArgumentException("resultItemId must not be null");
         if (resultCount <= 0) throw new IllegalArgumentException("resultCount must be > 0");
+        if (grindingTime <= 0) throw new IllegalArgumentException("grindingTime must be > 0");
         this.id = id;
         this.ingredient = ingredient;
         this.tagIngredient = null;
         this.resultItemId = resultItemId;
         this.resultCount = resultCount;
+        this.grindingTime = grindingTime;
     }
 
     public MaceratorRecipe(
         ResourceId id,
         TagKey<Item> tagIngredient,
         ResourceId resultItemId,
-        int resultCount
+        int resultCount,
+        int grindingTime
     ) {
         if (tagIngredient == null) throw new IllegalArgumentException("tagIngredient must not be null");
         if (resultItemId == null) throw new IllegalArgumentException("resultItemId must not be null");
         if (resultCount <= 0) throw new IllegalArgumentException("resultCount must be > 0");
+        if (grindingTime <= 0) throw new IllegalArgumentException("grindingTime must be > 0");
         this.id = id;
         this.ingredient = null;
         this.tagIngredient = tagIngredient;
         this.resultItemId = resultItemId;
         this.resultCount = resultCount;
+        this.grindingTime = grindingTime;
     }
 
     public ResourceId getId() {
         return id;
+    }
+
+    public int getGrindingTime() {
+        return grindingTime;
     }
 
     public boolean matches(ItemStack stack) {

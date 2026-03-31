@@ -4,5 +4,6 @@
   "result": {
     "id": "logistics:automation/lapis_dust",
     "count": 8
-  }
+  },
+  "grindingtime": 200
 }
