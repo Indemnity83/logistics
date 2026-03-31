@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "logistics:item/automation/filament_wooden"
+    "layer0": "logistics:item/automation/wooden_core"
   }
 }

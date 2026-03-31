@@ -1,6 +1,6 @@
 {
   "model": {
-    "type": "minecraft:model",
-    "model": "logistics:item/automation/valve_wooden"
+    "model": "logistics:item/automation/valve_wooden",
+    "type": "minecraft:model"
   }
 }

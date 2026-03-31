@@ -67,6 +67,10 @@ public class MaceratorRecipe {
         return new ItemStack(itemHolder.value(), resultCount);
     }
 
+    public boolean isTagBased() {
+        return tagIngredient != null;
+    }
+
     public Ingredient getIngredient() {
         return ingredient;
     }

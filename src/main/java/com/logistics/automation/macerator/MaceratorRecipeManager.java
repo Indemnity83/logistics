@@ -107,6 +107,9 @@ public class MaceratorRecipeManager {
 
         if (ingredientElement.isJsonObject()) {
             JsonObject ingredientObj = ingredientElement.getAsJsonObject();
+            if (!ingredientObj.has("tag") || ingredientObj.get("tag").isJsonNull()) {
+                throw new IllegalArgumentException("Tag ingredient is missing 'tag' field in recipe: " + recipeId);
+            }
             String tagId = ingredientObj.get("tag").getAsString();
             TagKey<Item> tagKey = TagKey.create(Registries.ITEM, Identifier.parse(tagId));
             return new MaceratorRecipe(recipeId, tagKey, resultItemId, resultCount);
