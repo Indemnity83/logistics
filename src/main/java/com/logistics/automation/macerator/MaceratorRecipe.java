@@ -2,8 +2,11 @@ package com.logistics.automation.macerator;
 
 import com.logistics.core.lib.resource.ResourceId;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Recipe for the Macerator.
@@ -12,7 +15,8 @@ import net.minecraft.world.item.crafting.Ingredient;
  */
 public class MaceratorRecipe {
     private final ResourceId id;
-    private final Ingredient ingredient;
+    @Nullable private final Ingredient ingredient;
+    @Nullable private final TagKey<Item> tagIngredient;
     private final ResourceId resultItemId;
     private final int resultCount;
 
@@ -27,6 +31,23 @@ public class MaceratorRecipe {
         if (resultCount <= 0) throw new IllegalArgumentException("resultCount must be > 0");
         this.id = id;
         this.ingredient = ingredient;
+        this.tagIngredient = null;
+        this.resultItemId = resultItemId;
+        this.resultCount = resultCount;
+    }
+
+    public MaceratorRecipe(
+        ResourceId id,
+        TagKey<Item> tagIngredient,
+        ResourceId resultItemId,
+        int resultCount
+    ) {
+        if (tagIngredient == null) throw new IllegalArgumentException("tagIngredient must not be null");
+        if (resultItemId == null) throw new IllegalArgumentException("resultItemId must not be null");
+        if (resultCount <= 0) throw new IllegalArgumentException("resultCount must be > 0");
+        this.id = id;
+        this.ingredient = null;
+        this.tagIngredient = tagIngredient;
         this.resultItemId = resultItemId;
         this.resultCount = resultCount;
     }
@@ -36,7 +57,9 @@ public class MaceratorRecipe {
     }
 
     public boolean matches(ItemStack stack) {
-        return !stack.isEmpty() && ingredient.test(stack);
+        if (stack.isEmpty()) return false;
+        if (tagIngredient != null) return stack.is(tagIngredient);
+        return ingredient.test(stack);
     }
 
     public ItemStack getResultItem() {
@@ -45,6 +68,16 @@ public class MaceratorRecipe {
         return new ItemStack(itemHolder.value(), resultCount);
     }
 
+    public boolean isTagBased() {
+        return tagIngredient != null;
+    }
+
+    @Nullable
+    public TagKey<Item> getTagIngredient() {
+        return tagIngredient;
+    }
+
+    @Nullable
     public Ingredient getIngredient() {
         return ingredient;
     }

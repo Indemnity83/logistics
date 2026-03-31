@@ -95,7 +95,9 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
         public static Item SILICON_MIX;
         public static Item SILICON_WAFER;
         public static Item FLOUR;
+        public static Item WOOD_PULP;
 
+        public static Item VALVE_WOODEN;
         public static Item VALVE_COPPER;
         public static Item VALVE_BRONZE;
         public static Item VALVE_IRON;
@@ -109,18 +111,19 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
         public static Item VALVE_ENDER;
         public static Item VALVE_NETHERITE;
 
-        public static Item FILAMENT_COPPER;
-        public static Item FILAMENT_BRONZE;
-        public static Item FILAMENT_IRON;
-        public static Item FILAMENT_GOLD;
-        public static Item FILAMENT_LAPIS;
-        public static Item FILAMENT_APATITE;
-        public static Item FILAMENT_DIAMOND;
-        public static Item FILAMENT_EMERALD;
-        public static Item FILAMENT_BLAZING;
-        public static Item FILAMENT_NETHERITE;
-        public static Item FILAMENT_OBSIDIAN;
-        public static Item FILAMENT_ENDER;
+        public static Item WOODEN_CORE;
+        public static Item COPPER_CORE;
+        public static Item BRONZE_CORE;
+        public static Item IRON_CORE;
+        public static Item GOLD_CORE;
+        public static Item LAPIS_CORE;
+        public static Item APATITE_CORE;
+        public static Item DIAMOND_CORE;
+        public static Item EMERALD_CORE;
+        public static Item BLAZING_CORE;
+        public static Item NETHERITE_CORE;
+        public static Item OBSIDIAN_CORE;
+        public static Item ENDER_CORE;
 
         static void register() {
             IRON_POWDER = INSTANCE.registerItem("iron_powder", Item::new);
@@ -142,7 +145,9 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
             SILICON_MIX = INSTANCE.registerItem("silicon_mix", Item::new);
             SILICON_WAFER = INSTANCE.registerItem("silicon_wafer", Item::new);
             FLOUR = INSTANCE.registerItem("flour", Item::new);
+            WOOD_PULP = INSTANCE.registerItem("wood_pulp", Item::new);
 
+            VALVE_WOODEN = INSTANCE.registerItem("valve_wooden", Item::new);
             VALVE_COPPER = INSTANCE.registerItem("valve_copper", Item::new);
             VALVE_BRONZE = INSTANCE.registerItem("valve_bronze", Item::new);
             VALVE_IRON = INSTANCE.registerItem("valve_iron", Item::new);
@@ -156,18 +161,19 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
             VALVE_ENDER = INSTANCE.registerItem("valve_ender", Item::new);
             VALVE_NETHERITE = INSTANCE.registerItem("valve_netherite", Item::new);
 
-            FILAMENT_COPPER = INSTANCE.registerItem("filament_copper", Item::new);
-            FILAMENT_BRONZE = INSTANCE.registerItem("filament_bronze", Item::new);
-            FILAMENT_IRON = INSTANCE.registerItem("filament_iron", Item::new);
-            FILAMENT_GOLD = INSTANCE.registerItem("filament_gold", Item::new);
-            FILAMENT_LAPIS = INSTANCE.registerItem("filament_lapis", Item::new);
-            FILAMENT_APATITE = INSTANCE.registerItem("filament_apatite", Item::new);
-            FILAMENT_DIAMOND = INSTANCE.registerItem("filament_diamond", Item::new);
-            FILAMENT_EMERALD = INSTANCE.registerItem("filament_emerald", Item::new);
-            FILAMENT_BLAZING = INSTANCE.registerItem("filament_blazing", Item::new);
-            FILAMENT_NETHERITE = INSTANCE.registerItem("filament_netherite", Item::new);
-            FILAMENT_OBSIDIAN = INSTANCE.registerItem("filament_obsidian", Item::new);
-            FILAMENT_ENDER = INSTANCE.registerItem("filament_ender", Item::new);
+            WOODEN_CORE = INSTANCE.registerItem("wooden_core", Item::new);
+            COPPER_CORE = INSTANCE.registerItem("copper_core", Item::new);
+            BRONZE_CORE = INSTANCE.registerItem("bronze_core", Item::new);
+            IRON_CORE = INSTANCE.registerItem("iron_core", Item::new);
+            GOLD_CORE = INSTANCE.registerItem("gold_core", Item::new);
+            LAPIS_CORE = INSTANCE.registerItem("lapis_core", Item::new);
+            APATITE_CORE = INSTANCE.registerItem("apatite_core", Item::new);
+            DIAMOND_CORE = INSTANCE.registerItem("diamond_core", Item::new);
+            EMERALD_CORE = INSTANCE.registerItem("emerald_core", Item::new);
+            BLAZING_CORE = INSTANCE.registerItem("blazing_core", Item::new);
+            NETHERITE_CORE = INSTANCE.registerItem("netherite_core", Item::new);
+            OBSIDIAN_CORE = INSTANCE.registerItem("obsidian_core", Item::new);
+            ENDER_CORE = INSTANCE.registerItem("ender_core", Item::new);
         }
     }
 
@@ -254,6 +260,7 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
 
         ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.INGREDIENTS).register(entries -> {
             List<Item> valves = List.of(
+                ITEM.VALVE_WOODEN,
                 ITEM.VALVE_COPPER, ITEM.VALVE_BRONZE,
                 ITEM.VALVE_IRON, ITEM.VALVE_GOLD, ITEM.VALVE_DIAMOND,
                 ITEM.VALVE_OBSIDIAN, ITEM.VALVE_BLAZING, ITEM.VALVE_EMERALD,
@@ -273,12 +280,13 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
                 ITEM.AMETHYST_DUST, ITEM.DIAMOND_DUST, ITEM.EMERALD_DUST,
                 ITEM.NETHERITE_DUST, ITEM.OBSIDIAN_DUST, ITEM.ENDER_DUST,
                 ITEM.ECHO_DUST, ITEM.PRISMARINE_DUST,
-                ITEM.SILICON_MIX, ITEM.SILICON_WAFER, ITEM.FLOUR,
-                ITEM.FILAMENT_COPPER, ITEM.FILAMENT_BRONZE,
-                ITEM.FILAMENT_IRON, ITEM.FILAMENT_GOLD, ITEM.FILAMENT_LAPIS,
-                ITEM.FILAMENT_APATITE, ITEM.FILAMENT_DIAMOND, ITEM.FILAMENT_EMERALD,
-                ITEM.FILAMENT_BLAZING, ITEM.FILAMENT_NETHERITE,
-                ITEM.FILAMENT_OBSIDIAN, ITEM.FILAMENT_ENDER);
+                ITEM.SILICON_MIX, ITEM.SILICON_WAFER, ITEM.FLOUR, ITEM.WOOD_PULP,
+                ITEM.WOODEN_CORE,
+                ITEM.COPPER_CORE, ITEM.BRONZE_CORE,
+                ITEM.IRON_CORE, ITEM.GOLD_CORE, ITEM.LAPIS_CORE,
+                ITEM.APATITE_CORE, ITEM.DIAMOND_CORE, ITEM.EMERALD_CORE,
+                ITEM.BLAZING_CORE, ITEM.NETHERITE_CORE,
+                ITEM.OBSIDIAN_CORE, ITEM.ENDER_CORE);
             Item prev = LogisticsCore.ITEM.BRONZE_INGOT;
             for (Item item : dusts) {
                 entries.addAfter(prev, item);

@@ -1,0 +1,6 @@
+{
+  "model": {
+    "model": "logistics:item/automation/ender_core",
+    "type": "minecraft:model"
+  }
+}

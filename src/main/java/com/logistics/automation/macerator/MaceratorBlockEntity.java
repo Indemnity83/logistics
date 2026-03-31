@@ -156,9 +156,11 @@ public class MaceratorBlockEntity extends BaseBlockEntity
     private MaceratorRecipe findMatchingRecipe() {
         ItemStack input = inventory.getItem(INPUT_SLOT);
         if (input.isEmpty()) return null;
+        // Item-specific recipes take priority over tag-based recipes to ensure
+        // deterministic results when a tag and a specific item both match.
         return MaceratorRecipeManager.getAllRecipes().values().stream()
             .filter(r -> r.matches(input))
-            .findFirst()
+            .min(java.util.Comparator.comparingInt(r -> r.isTagBased() ? 1 : 0))
             .orElse(null);
     }
 
