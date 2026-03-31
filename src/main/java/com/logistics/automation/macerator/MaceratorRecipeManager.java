@@ -35,9 +35,8 @@ import java.util.concurrent.Executor;
  * <pre>{@code
  * {
  *   "ingredient": "minecraft:raw_iron",
- *   "result": { "id": "logistics:core/iron_dust", "count": 2 },
- *   "processTimeTicks": 100,
- *   "energyPerTick": 20
+ *   "result": { "id": "logistics:automation/iron_powder", "count": 2 },
+ *   "grindingtime": 200
  * }
  * }</pre>
  */

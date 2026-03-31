@@ -77,7 +77,11 @@ public class MaceratorBlockEntity extends BaseBlockEntity
         public int get(int index) {
             return switch (index) {
                 case DATA_PROGRESS -> processProgress;
-                case DATA_TOTAL_TICKS -> activeRecipeId != null ? MaceratorRecipeManager.getRecipe(activeRecipeId).getGrindingTime() : 0;
+                case DATA_TOTAL_TICKS -> {
+                    if (activeRecipeId == null) yield 0;
+                    MaceratorRecipe r = MaceratorRecipeManager.getRecipe(activeRecipeId);
+                    yield r != null ? r.getGrindingTime() : 0;
+                }
                 case DATA_ENERGY -> (int) Math.min(energy.amount, Integer.MAX_VALUE);
                 default -> 0;
             };

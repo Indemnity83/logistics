@@ -32,6 +32,7 @@ public class MaceratorRecipe {
         if (ingredient == null) throw new IllegalArgumentException("ingredient must not be null");
         if (resultItemId == null) throw new IllegalArgumentException("resultItemId must not be null");
         if (resultCount <= 0) throw new IllegalArgumentException("resultCount must be > 0");
+        if (grindingTime <= 0) throw new IllegalArgumentException("grindingTime must be > 0");
         this.id = id;
         this.ingredient = ingredient;
         this.tagIngredient = null;
@@ -50,6 +51,7 @@ public class MaceratorRecipe {
         if (tagIngredient == null) throw new IllegalArgumentException("tagIngredient must not be null");
         if (resultItemId == null) throw new IllegalArgumentException("resultItemId must not be null");
         if (resultCount <= 0) throw new IllegalArgumentException("resultCount must be > 0");
+        if (grindingTime <= 0) throw new IllegalArgumentException("grindingTime must be > 0");
         this.id = id;
         this.ingredient = null;
         this.tagIngredient = tagIngredient;

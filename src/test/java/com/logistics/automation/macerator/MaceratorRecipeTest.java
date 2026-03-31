@@ -66,6 +66,19 @@ class MaceratorRecipeTest extends MinecraftTestEnvironment {
     }
 
     @Test
+    @DisplayName("should preserve non-default grinding time")
+    void grindingTime() {
+        MaceratorRecipe recipe = new MaceratorRecipe(
+            ResourceId.in("test", "iron_dust"),
+            Ingredient.of(Items.RAW_IRON),
+            ResourceId.in("minecraft", "iron_ingot"),
+            2,
+            5
+        );
+        assertThat(recipe.getGrindingTime()).isEqualTo(5);
+    }
+
+    @Test
     @DisplayName("should return correct recipe id")
     void recipeId() {
         MaceratorRecipe recipe = rawIronRecipe();
