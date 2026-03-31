@@ -79,6 +79,7 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
     public static final class ITEM {
         private ITEM() {}
 
+        public static Item APATITE_POWDER;
         public static Item IRON_POWDER;
         public static Item COPPER_POWDER;
         public static Item TIN_POWDER;
@@ -129,6 +130,7 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
         public static Item ENDER_CORE;
 
         static void register() {
+            APATITE_POWDER = INSTANCE.registerItem("apatite_powder", Item::new);
             IRON_POWDER = INSTANCE.registerItem("iron_powder", Item::new);
             COPPER_POWDER = INSTANCE.registerItem("copper_powder", Item::new);
             TIN_POWDER = INSTANCE.registerItem("tin_powder", Item::new);
@@ -288,6 +290,7 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
 
         ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.INGREDIENTS).register(entries -> {
             List<Item> dusts = List.of(
+                ITEM.APATITE_POWDER,
                 ITEM.IRON_POWDER, ITEM.COPPER_POWDER, ITEM.TIN_POWDER, ITEM.BRONZE_POWDER,
                 ITEM.GOLD_POWDER, ITEM.LAPIS_DUST, ITEM.QUARTZ_DUST, ITEM.COAL_DUST,
                 ITEM.AMETHYST_DUST, ITEM.DIAMOND_DUST, ITEM.EMERALD_DUST,

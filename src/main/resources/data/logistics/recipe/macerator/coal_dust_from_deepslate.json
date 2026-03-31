@@ -1,0 +1,10 @@
+{
+  "type": "logistics:macerator",
+  "ingredient": "minecraft:deepslate_coal_ore",
+  "result": {
+    "id": "logistics:automation/coal_dust",
+    "count": 2
+  },
+  "grindingtime": 200,
+  "experience": 0.1
+}
