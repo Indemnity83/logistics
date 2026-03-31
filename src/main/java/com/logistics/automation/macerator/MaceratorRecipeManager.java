@@ -105,6 +105,10 @@ public class MaceratorRecipeManager {
             throw new IllegalArgumentException("Unknown result item: " + resultItemId);
         }
 
+        if (ingredientElement == null || ingredientElement.isJsonNull()) {
+            throw new IllegalArgumentException("Missing ingredient in recipe: " + recipeId);
+        }
+
         if (ingredientElement.isJsonObject()) {
             JsonObject ingredientObj = ingredientElement.getAsJsonObject();
             if (!ingredientObj.has("tag") || ingredientObj.get("tag").isJsonNull()) {

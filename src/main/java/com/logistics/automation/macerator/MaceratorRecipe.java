@@ -6,6 +6,7 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Recipe for the Macerator.
@@ -14,8 +15,8 @@ import net.minecraft.world.item.crafting.Ingredient;
  */
 public class MaceratorRecipe {
     private final ResourceId id;
-    private final Ingredient ingredient;
-    private final TagKey<Item> tagIngredient;
+    @Nullable private final Ingredient ingredient;
+    @Nullable private final TagKey<Item> tagIngredient;
     private final ResourceId resultItemId;
     private final int resultCount;
 
@@ -71,6 +72,12 @@ public class MaceratorRecipe {
         return tagIngredient != null;
     }
 
+    @Nullable
+    public TagKey<Item> getTagIngredient() {
+        return tagIngredient;
+    }
+
+    @Nullable
     public Ingredient getIngredient() {
         return ingredient;
     }
