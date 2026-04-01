@@ -1,13 +1,13 @@
 {
   "type": "minecraft:crafting_shaped",
   "pattern": [
-    "BBB",
-    "BCB",
-    "BBB"
+    " V ",
+    "VBV",
+    " V "
   ],
   "key": {
-    "B": "#c:ingots/bronze",
-    "C": "logistics:pipe/basic_logistics_pipe"
+    "V": "logistics:automation/valve_iron",
+    "B": "logistics:pipe/basic_logistics_pipe"
   },
   "result": {
     "count": 1,

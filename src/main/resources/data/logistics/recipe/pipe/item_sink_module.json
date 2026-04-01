@@ -1,18 +1,16 @@
 {
   "type": "minecraft:crafting_shaped",
   "pattern": [
-    "DGD",
-    "RBR",
-    "DRD"
+    "DCD",
+    "RBR"
   ],
   "key": {
-    "D": "minecraft:green_dye",
-    "G": "logistics:core/iron_gear",
+    "D": "logistics:automation/copper_powder",
+    "C": "logistics:automation/chip_coal",
     "R": "minecraft:redstone",
     "B": "logistics:pipe/blank_module"
   },
   "result": {
-    "count": 1,
     "id": "logistics:pipe/item_sink_module"
   }
 }
