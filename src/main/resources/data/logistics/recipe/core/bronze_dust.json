@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    "logistics:core/copper_dust",
+    "logistics:core/copper_dust",
+    "logistics:core/copper_dust",
+    "logistics:core/tin_dust"
+  ],
+  "result": {
+    "count": 4,
+    "id": "logistics:core/bronze_dust"
+  }
+}

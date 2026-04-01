@@ -2,7 +2,7 @@
   "type": "logistics:macerator",
   "ingredient": "minecraft:wheat",
   "result": {
-    "id": "logistics:automation/flour",
+    "id": "logistics:core/flour",
     "count": 2
   },
   "grindingtime": 200

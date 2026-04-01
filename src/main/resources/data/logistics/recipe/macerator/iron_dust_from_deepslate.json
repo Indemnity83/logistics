@@ -1,0 +1,9 @@
+{
+  "type": "logistics:macerator",
+  "ingredient": "minecraft:deepslate_iron_ore",
+  "result": {
+    "id": "logistics:core/iron_dust",
+    "count": 2
+  },
+  "grindingtime": 200
+}

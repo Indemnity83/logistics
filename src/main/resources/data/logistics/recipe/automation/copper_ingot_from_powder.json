@@ -1,8 +1,0 @@
-{
-  "type": "minecraft:smelting",
-  "ingredient": "logistics:automation/copper_powder",
-  "result": {
-    "id": "minecraft:copper_ingot"
-  },
-  "cookingtime": 200
-}

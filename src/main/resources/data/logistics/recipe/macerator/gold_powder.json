@@ -1,9 +1,0 @@
-{
-  "type": "logistics:macerator",
-  "ingredient": "minecraft:gold_ore",
-  "result": {
-    "id": "logistics:automation/gold_powder",
-    "count": 2
-  },
-  "grindingtime": 200
-}

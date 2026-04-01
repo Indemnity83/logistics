@@ -1,0 +1,9 @@
+{
+  "type": "logistics:macerator",
+  "ingredient": "minecraft:deepslate_gold_ore",
+  "result": {
+    "id": "logistics:core/gold_dust",
+    "count": 2
+  },
+  "grindingtime": 200
+}

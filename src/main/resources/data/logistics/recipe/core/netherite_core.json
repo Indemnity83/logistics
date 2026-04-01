@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": ["D", "B", "D"],
+  "key": {
+    "D": "logistics:core/netherite_dust",
+    "B": "minecraft:blaze_rod"
+  },
+  "result": {
+    "count": 4,
+    "id": "logistics:core/netherite_core"
+  }
+}

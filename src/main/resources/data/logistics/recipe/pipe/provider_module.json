@@ -5,8 +5,8 @@
     "RBR"
   ],
   "key": {
-    "D": "logistics:automation/iron_powder",
-    "C": "logistics:automation/chip_redstone",
+    "D": "logistics:core/iron_dust",
+    "C": "logistics:core/redstone_chip",
     "R": "minecraft:redstone",
     "B": "logistics:pipe/blank_module"
   },

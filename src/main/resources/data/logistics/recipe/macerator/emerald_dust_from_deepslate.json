@@ -2,7 +2,7 @@
   "type": "logistics:macerator",
   "ingredient": "minecraft:deepslate_emerald_ore",
   "result": {
-    "id": "logistics:automation/emerald_dust",
+    "id": "logistics:core/emerald_dust",
     "count": 2
   },
   "grindingtime": 200,
