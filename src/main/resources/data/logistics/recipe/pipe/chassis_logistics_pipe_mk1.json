@@ -1,12 +1,12 @@
 {
   "type": "minecraft:crafting_shaped",
   "pattern": [
-    "III",
-    "IBI",
-    "III"
+    " V ",
+    "VBV",
+    " V "
   ],
   "key": {
-    "I": "#c:ingots/iron",
+    "V": "logistics:automation/valve_iron",
     "B": "logistics:pipe/basic_logistics_pipe"
   },
   "result": {

@@ -1,12 +1,10 @@
 {
   "type": "minecraft:crafting_shaped",
   "pattern": [
-    " E ",
-    "RBR"
+    "VBV"
   ],
   "key": {
-    "E": "logistics:core/gold_gear",
-    "R": "minecraft:redstone",
+    "V": "logistics:automation/valve_emerald",
     "B": "logistics:pipe/basic_logistics_pipe"
   },
   "result": {

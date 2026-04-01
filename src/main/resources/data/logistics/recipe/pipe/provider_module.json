@@ -1,18 +1,16 @@
 {
   "type": "minecraft:crafting_shaped",
   "pattern": [
-    "DGD",
-    "RBR",
-    "DRD"
+    "DCD",
+    "RBR"
   ],
   "key": {
-    "D": "minecraft:red_dye",
-    "G": "logistics:core/iron_gear",
+    "D": "logistics:automation/iron_powder",
+    "C": "logistics:automation/chip_redstone",
     "R": "minecraft:redstone",
     "B": "logistics:pipe/blank_module"
   },
   "result": {
-    "count": 1,
     "id": "logistics:pipe/provider_module"
   }
 }

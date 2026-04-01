@@ -1,12 +1,12 @@
 {
   "type": "minecraft:crafting_shaped",
   "pattern": [
-    "GGG",
-    "GBG",
-    "GGG"
+    " V ",
+    "VBV",
+    " V "
   ],
   "key": {
-    "G": "#c:ingots/gold",
+    "V": "logistics:automation/valve_gold",
     "B": "logistics:pipe/basic_logistics_pipe"
   },
   "result": {
