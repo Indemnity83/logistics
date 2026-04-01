@@ -4,7 +4,7 @@
     "VBV"
   ],
   "key": {
-    "V": "logistics:core/valve_bronze",
+    "V": "logistics:core/bronze_valve",
     "B": "logistics:pipe/basic_logistics_pipe"
   },
   "result": {

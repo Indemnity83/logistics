@@ -1,9 +1,0 @@
-{
-  "type": "logistics:macerator",
-  "ingredient": "minecraft:nether_gold_ore",
-  "result": {
-    "id": "logistics:core/gold_powder",
-    "count": 1
-  },
-  "grindingtime": 200
-}

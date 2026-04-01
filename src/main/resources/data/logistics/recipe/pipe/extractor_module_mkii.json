@@ -6,7 +6,7 @@
   ],
   "key": {
     "D": "logistics:core/wood_pulp",
-    "C": "logistics:core/chip_amethyst",
+    "C": "logistics:core/amethyst_chip",
     "R": "minecraft:redstone",
     "B": "logistics:pipe/blank_module"
   },

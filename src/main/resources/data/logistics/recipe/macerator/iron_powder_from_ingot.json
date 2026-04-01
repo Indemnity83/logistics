@@ -1,9 +1,0 @@
-{
-  "type": "logistics:macerator",
-  "ingredient": "minecraft:iron_ingot",
-  "result": {
-    "id": "logistics:core/iron_powder",
-    "count": 1
-  },
-  "grindingtime": 200
-}

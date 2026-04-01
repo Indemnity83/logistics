@@ -6,7 +6,7 @@
   ],
   "key": {
     "D": "logistics:core/emerald_dust",
-    "C": "logistics:core/chip_redstone",
+    "C": "logistics:core/redstone_chip",
     "R": "minecraft:redstone",
     "B": "logistics:pipe/blank_module"
   },

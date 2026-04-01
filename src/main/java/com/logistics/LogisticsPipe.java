@@ -472,7 +472,7 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
     private static void registerMarkingFluidItems() {
         Map<DyeColor, Item> items = new EnumMap<>(DyeColor.class);
         for (DyeColor color : DyeColor.values()) {
-            String name = "marking_fluid_" + color.getName();
+            String name = color.getName() + "_marking_fluid";
             Item item = INSTANCE.registerItem(name, props ->
                 new Item(props.stacksTo(1).durability(CONFIG.MARKING_FLUID_USES)));
             items.put(color, item);
@@ -494,8 +494,12 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
         registerBlockEntityAlias("pipe", ENTITY.PIPE_BLOCK_ENTITY);
 
         for (DyeColor color : DyeColor.values()) {
-            String name = "marking_fluid_" + color.getName();
-            registerItemAlias(name, MARKING_FLUID_ITEMS.get(color));
+            registerItemAlias("marking_fluid_" + color.getName(), MARKING_FLUID_ITEMS.get(color));
+        }
+
+        // v0.4.0 => v0.4.1 (marking_fluid_<color> => <color>_marking_fluid)
+        for (DyeColor color : DyeColor.values()) {
+            registerItemAlias("pipe/marking_fluid_" + color.getName(), MARKING_FLUID_ITEMS.get(color));
         }
 
         var newMenuId = BuiltInRegistries.MENU.getKey(SCREEN.ITEM_FILTER);

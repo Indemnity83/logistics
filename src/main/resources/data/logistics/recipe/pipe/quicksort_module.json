@@ -6,7 +6,7 @@
   ],
   "key": {
     "D": "logistics:core/diamond_dust",
-    "C": "logistics:core/chip_echo",
+    "C": "logistics:core/echo_chip",
     "R": "minecraft:redstone",
     "B": "logistics:pipe/blank_module"
   },

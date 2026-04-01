@@ -1,0 +1,8 @@
+{
+  "type": "minecraft:smelting",
+  "ingredient": "logistics:core/iron_dust",
+  "result": {
+    "id": "minecraft:iron_ingot"
+  },
+  "cookingtime": 200
+}

@@ -1,8 +1,0 @@
-{
-  "type": "minecraft:smelting",
-  "ingredient": "logistics:core/tin_powder",
-  "result": {
-    "id": "logistics:core/tin_ingot"
-  },
-  "cookingtime": 200
-}

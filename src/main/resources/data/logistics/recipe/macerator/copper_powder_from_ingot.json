@@ -1,9 +1,0 @@
-{
-  "type": "logistics:macerator",
-  "ingredient": "minecraft:copper_ingot",
-  "result": {
-    "id": "logistics:core/copper_powder",
-    "count": 1
-  },
-  "grindingtime": 200
-}
