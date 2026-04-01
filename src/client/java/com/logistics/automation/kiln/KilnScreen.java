@@ -3,7 +3,8 @@ package com.logistics.automation.kiln;
 import com.logistics.LogisticsMod;
 import com.logistics.core.lib.resource.ResourceId;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.gui.navigation.ScreenPosition;
+import net.minecraft.client.gui.screens.inventory.AbstractRecipeBookScreen;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
@@ -11,14 +12,14 @@ import net.minecraft.world.entity.player.Inventory;
 /**
  * Client-side GUI screen for the Electric Kiln.
  */
-public class KilnScreen extends AbstractContainerScreen<KilnScreenHandler> {
+public class KilnScreen extends AbstractRecipeBookScreen<KilnScreenHandler> {
 
     private static final ResourceId TEXTURE = LogisticsMod.modId("textures/gui/automation/kiln.png");
     private static final int TEXTURE_WIDTH = 256;
     private static final int TEXTURE_HEIGHT = 256;
 
     public KilnScreen(KilnScreenHandler handler, Inventory inventory, Component title) {
-        super(handler, inventory, title);
+        super(handler, new KilnRecipeBookComponent(handler), inventory, title);
         this.imageWidth = 176;
         this.imageHeight = 166;
     }
@@ -27,6 +28,11 @@ public class KilnScreen extends AbstractContainerScreen<KilnScreenHandler> {
     protected void init() {
         super.init();
         this.titleLabelX = (this.imageWidth - this.font.width(this.title)) / 2;
+    }
+
+    @Override
+    protected ScreenPosition getRecipeBookButtonPosition() {
+        return new ScreenPosition(this.leftPos + 20, this.height / 2 - 49);
     }
 
     @Override
@@ -60,11 +66,5 @@ public class KilnScreen extends AbstractContainerScreen<KilnScreenHandler> {
                 7, energyHeight,
                 TEXTURE_WIDTH, TEXTURE_HEIGHT);
         }
-    }
-
-    @Override
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
-        super.render(graphics, mouseX, mouseY, delta);
-        renderTooltip(graphics, mouseX, mouseY);
     }
 }

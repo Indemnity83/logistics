@@ -23,6 +23,7 @@
   "icon": "assets/logistics/icon.png",
   "id": "logistics",
   "license": "MIT",
+  "accessWidener": "logistics.accesswidener",
   "mixins": ["logistics.mixins.json"],
   "name": "Logistics",
   "suggests": {
