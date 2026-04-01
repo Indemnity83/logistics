@@ -6,6 +6,7 @@ import com.logistics.core.item.ProbeItem;
 import com.logistics.core.item.WrenchItem;
 import com.logistics.core.macerator.MaceratorBlock;
 import com.logistics.core.macerator.MaceratorBlockEntity;
+import com.logistics.core.macerator.MaceratorRecipeDisplay;
 import com.logistics.core.macerator.MaceratorRecipeManager;
 import com.logistics.core.macerator.MaceratorRecipeSerializer;
 import com.logistics.core.macerator.MaceratorRecipeWrapper;
@@ -23,8 +24,10 @@ import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.RecipeBookCategory;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.item.crafting.display.RecipeDisplay;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.core.Registry;
@@ -184,6 +187,8 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
 
         public static RecipeType<MaceratorRecipeWrapper> MACERATOR_RECIPE_TYPE;
         public static RecipeSerializer<MaceratorRecipeWrapper> MACERATOR_RECIPE_SERIALIZER;
+        public static RecipeBookCategory MACERATOR_CATEGORY;
+        public static RecipeDisplay.Type<MaceratorRecipeDisplay> MACERATOR_DISPLAY_TYPE;
 
         static void register() {
             MACERATOR_RECIPE_TYPE = Registry.register(
@@ -200,6 +205,16 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
                 BuiltInRegistries.RECIPE_SERIALIZER,
                 LogisticsMod.modId("macerator").toIdentifier(),
                 new MaceratorRecipeSerializer()
+            );
+            MACERATOR_CATEGORY = Registry.register(
+                BuiltInRegistries.RECIPE_BOOK_CATEGORY,
+                LogisticsMod.modId("macerator").toIdentifier(),
+                new RecipeBookCategory()
+            );
+            MACERATOR_DISPLAY_TYPE = Registry.register(
+                BuiltInRegistries.RECIPE_DISPLAY,
+                LogisticsMod.modId("macerator").toIdentifier(),
+                MaceratorRecipeDisplay.TYPE
             );
         }
     }
