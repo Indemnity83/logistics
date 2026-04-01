@@ -90,7 +90,7 @@ public class MaceratorScreenHandler extends RecipeBookMenu {
     @Override
     @SuppressWarnings("unchecked")
     public PostPlaceAction handlePlacement(boolean placeAll, boolean isCreative, RecipeHolder<?> recipe, ServerLevel level, Inventory playerInventory) {
-        List<Slot> relevant = List.of(this.getSlot(0), this.getSlot(1));
+        List<Slot> relevant = List.of(this.getSlot(0));
         return ServerPlaceRecipe.placeRecipe(
             new ServerPlaceRecipe.CraftingMenuAccess<MaceratorRecipeWrapper>() {
                 @Override
