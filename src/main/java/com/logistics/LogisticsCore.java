@@ -15,7 +15,6 @@ import com.logistics.core.lib.block.lookup.FluidStorageAccess;
 import com.logistics.core.lib.block.lookup.ItemStorageAccess;
 import com.logistics.core.lib.block.lookup.PipeConnectionAccess;
 import com.logistics.core.lib.resource.ResourceId;
-import com.logistics.core.fluids.MoltenGlassFluid;
 import com.logistics.core.loot.ChestLootModifier;
 import com.logistics.core.network.NetworkTickHandler;
 import net.fabricmc.fabric.api.biome.v1.BiomeModifications;
@@ -69,7 +68,6 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
 
         BLOCK.register();
         ITEM.register();
-        FLUID.register();
         ENTITY.register();
         MENU.register();
         RECIPE.register();
@@ -202,29 +200,6 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
                 BuiltInRegistries.RECIPE_SERIALIZER,
                 LogisticsMod.modId("macerator").toIdentifier(),
                 new MaceratorRecipeSerializer()
-            );
-        }
-    }
-
-    public static final class FLUID {
-        public static net.minecraft.world.level.material.FlowingFluid MOLTEN_GLASS_FLOWING;
-        public static net.minecraft.world.level.material.Fluid MOLTEN_GLASS_STILL;
-
-        private FLUID() {}
-
-        static void register() {
-            // Register flowing variant first (required by still variant)
-            MOLTEN_GLASS_FLOWING = Registry.register(
-                BuiltInRegistries.FLUID,
-                LogisticsMod.modId("molten_glass_flowing").toIdentifier(),
-                new MoltenGlassFluid.Flowing()
-            );
-
-            // Register still variant
-            MOLTEN_GLASS_STILL = Registry.register(
-                BuiltInRegistries.FLUID,
-                LogisticsMod.modId("molten_glass").toIdentifier(),
-                new MoltenGlassFluid.Still()
             );
         }
     }
