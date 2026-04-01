@@ -3,7 +3,8 @@ package com.logistics.core.macerator;
 import com.logistics.LogisticsMod;
 import com.logistics.core.lib.resource.ResourceId;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.gui.navigation.ScreenPosition;
+import net.minecraft.client.gui.screens.inventory.AbstractRecipeBookScreen;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
@@ -11,14 +12,14 @@ import net.minecraft.world.entity.player.Inventory;
 /**
  * Client-side GUI screen for the Iron Macerator.
  */
-public class MaceratorScreen extends AbstractContainerScreen<MaceratorScreenHandler> {
+public class MaceratorScreen extends AbstractRecipeBookScreen<MaceratorScreenHandler> {
 
     private static final ResourceId TEXTURE = LogisticsMod.modId("textures/gui/core/macerator.png");
     private static final int TEXTURE_WIDTH = 256;
     private static final int TEXTURE_HEIGHT = 256;
 
     public MaceratorScreen(MaceratorScreenHandler handler, Inventory inventory, Component title) {
-        super(handler, inventory, title);
+        super(handler, new MaceratorRecipeBookComponent(handler), inventory, title);
         this.imageWidth = 176;
         this.imageHeight = 166;
     }
@@ -27,6 +28,11 @@ public class MaceratorScreen extends AbstractContainerScreen<MaceratorScreenHand
     protected void init() {
         super.init();
         this.titleLabelX = (this.imageWidth - this.font.width(this.title)) / 2;
+    }
+
+    @Override
+    protected ScreenPosition getRecipeBookButtonPosition() {
+        return new ScreenPosition(this.leftPos + 20, this.height / 2 - 49);
     }
 
     @Override
@@ -65,11 +71,5 @@ public class MaceratorScreen extends AbstractContainerScreen<MaceratorScreenHand
                 7, energyHeight,
                 TEXTURE_WIDTH, TEXTURE_HEIGHT);
         }
-    }
-
-    @Override
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
-        super.render(graphics, mouseX, mouseY, delta);
-        renderTooltip(graphics, mouseX, mouseY);
     }
 }

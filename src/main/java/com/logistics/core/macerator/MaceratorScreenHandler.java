@@ -1,21 +1,29 @@
 package com.logistics.core.macerator;
 
 import com.logistics.LogisticsCore;
+import net.minecraft.recipebook.ServerPlaceRecipe;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.entity.player.StackedItemContents;
 import net.minecraft.world.inventory.ContainerData;
+import net.minecraft.world.inventory.RecipeBookMenu;
+import net.minecraft.world.inventory.RecipeBookType;
 import net.minecraft.world.inventory.SimpleContainerData;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.item.crafting.SingleRecipeInput;
+
+import java.util.List;
 
 /**
  * Screen handler for the Iron Macerator GUI.
  * Manages input/output slots and syncs progress/energy data to the client.
  */
-public class MaceratorScreenHandler extends AbstractContainerMenu {
+public class MaceratorScreenHandler extends RecipeBookMenu {
 
     private static final int MACHINE_SLOT_COUNT = 2;
     private static final int PLAYER_INVENTORY_START = MACHINE_SLOT_COUNT;
@@ -64,6 +72,50 @@ public class MaceratorScreenHandler extends AbstractContainerMenu {
         }
 
         this.addDataSlots(data);
+    }
+
+    @Override
+    public RecipeBookType getRecipeBookType() {
+        return RecipeBookType.FURNACE;
+    }
+
+    @Override
+    public void fillCraftSlotsStackedContents(StackedItemContents contents) {
+        ItemStack input = inventory.getItem(MaceratorBlockEntity.INPUT_SLOT);
+        if (!input.isEmpty()) {
+            contents.accountSimpleStack(input);
+        }
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public PostPlaceAction handlePlacement(boolean placeAll, boolean isCreative, RecipeHolder<?> recipe, ServerLevel level, Inventory playerInventory) {
+        List<Slot> relevant = List.of(this.getSlot(0), this.getSlot(1));
+        return ServerPlaceRecipe.placeRecipe(
+            new ServerPlaceRecipe.CraftingMenuAccess<MaceratorRecipeWrapper>() {
+                @Override
+                public void fillCraftSlotsStackedContents(StackedItemContents contents) {
+                    MaceratorScreenHandler.this.fillCraftSlotsStackedContents(contents);
+                }
+
+                @Override
+                public void clearCraftingContent() {
+                    relevant.forEach(s -> s.set(ItemStack.EMPTY));
+                }
+
+                @Override
+                public boolean recipeMatches(RecipeHolder<MaceratorRecipeWrapper> r) {
+                    return r.value().matches(new SingleRecipeInput(inventory.getItem(MaceratorBlockEntity.INPUT_SLOT)), level);
+                }
+            },
+            1, 1,
+            List.of(this.getSlot(0)),
+            relevant,
+            playerInventory,
+            (RecipeHolder<MaceratorRecipeWrapper>) recipe,
+            placeAll,
+            isCreative
+        );
     }
 
     @Override
