@@ -1,0 +1,6 @@
+{
+  "model": {
+    "model": "logistics:item/core/apatite_core",
+    "type": "minecraft:model"
+  }
+}

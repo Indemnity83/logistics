@@ -1,0 +1,6 @@
+{
+  "model": {
+    "model": "logistics:item/core/emerald_core",
+    "type": "minecraft:model"
+  }
+}

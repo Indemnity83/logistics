@@ -2,7 +2,7 @@
   "type": "logistics:macerator",
   "ingredient": "minecraft:prismarine_bricks",
   "result": {
-    "id": "logistics:automation/prismarine_dust",
+    "id": "logistics:core/prismarine_dust",
     "count": 9
   },
   "grindingtime": 200

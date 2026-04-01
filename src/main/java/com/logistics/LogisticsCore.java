@@ -4,12 +4,17 @@ import com.logistics.core.LogisticsCommands;
 import com.logistics.core.bootstrap.DomainBootstrap;
 import com.logistics.core.item.ProbeItem;
 import com.logistics.core.item.WrenchItem;
+import com.logistics.core.macerator.MaceratorBlock;
+import com.logistics.core.macerator.MaceratorBlockEntity;
+import com.logistics.core.macerator.MaceratorRecipeManager;
+import com.logistics.core.macerator.MaceratorRecipeSerializer;
+import com.logistics.core.macerator.MaceratorRecipeWrapper;
+import com.logistics.core.macerator.MaceratorScreenHandler;
 import com.logistics.core.lib.block.lookup.EnergyStorageAccess;
 import com.logistics.core.lib.block.lookup.FluidStorageAccess;
 import com.logistics.core.lib.block.lookup.ItemStorageAccess;
 import com.logistics.core.lib.block.lookup.PipeConnectionAccess;
 import com.logistics.core.lib.resource.ResourceId;
-import com.logistics.core.fluids.MoltenGlassFluid;
 import com.logistics.core.loot.ChestLootModifier;
 import com.logistics.core.network.NetworkTickHandler;
 import net.fabricmc.fabric.api.biome.v1.BiomeModifications;
@@ -18,6 +23,10 @@ import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -59,7 +68,9 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
 
         BLOCK.register();
         ITEM.register();
-        FLUID.register();
+        ENTITY.register();
+        MENU.register();
+        RECIPE.register();
         CREATIVE_TAB.register();
 
         registerStorageAccess();
@@ -70,6 +81,7 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         ChestLootModifier.register();
         NetworkTickHandler.register();
         LogisticsCommands.register();
+        MaceratorRecipeManager.register();
     }
 
     private void registerStorageAccess() {
@@ -117,6 +129,7 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         public static Block BRONZE_BLOCK;
         public static Block APATITE_ORE;
         public static Block APATITE_BLOCK;
+        public static Block MACERATOR;
 
         private BLOCK() {}
 
@@ -140,28 +153,53 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
                 props -> new DropExperienceBlock(UniformInt.of(0, 2), props.strength(3.0f, 3.0f).sound(SoundType.STONE).requiresCorrectToolForDrops()));
             APATITE_BLOCK = INSTANCE.registerBlockWithItem("apatite_block",
                 props -> new Block(props.strength(5.0f, 6.0f).sound(SoundType.STONE).requiresCorrectToolForDrops()));
+            MACERATOR = INSTANCE.registerBlockWithItem("macerator",
+                props -> new MaceratorBlock(props.strength(3.5f).sound(SoundType.METAL).requiresCorrectToolForDrops()
+                    .lightLevel(state -> state.getValue(MaceratorBlock.LIT) ? 13 : 0)));
         }
     }
 
-    public static final class FLUID {
-        public static net.minecraft.world.level.material.FlowingFluid MOLTEN_GLASS_FLOWING;
-        public static net.minecraft.world.level.material.Fluid MOLTEN_GLASS_STILL;
+    public static final class ENTITY {
+        private ENTITY() {}
 
-        private FLUID() {}
+        public static BlockEntityType<MaceratorBlockEntity> MACERATOR_BLOCK_ENTITY;
 
         static void register() {
-            // Register flowing variant first (required by still variant)
-            MOLTEN_GLASS_FLOWING = Registry.register(
-                BuiltInRegistries.FLUID,
-                LogisticsMod.modId("molten_glass_flowing").toIdentifier(),
-                new MoltenGlassFluid.Flowing()
-            );
+            MACERATOR_BLOCK_ENTITY = INSTANCE.registerBlockEntity("macerator", MaceratorBlockEntity::new, BLOCK.MACERATOR);
+        }
+    }
 
-            // Register still variant
-            MOLTEN_GLASS_STILL = Registry.register(
-                BuiltInRegistries.FLUID,
-                LogisticsMod.modId("molten_glass").toIdentifier(),
-                new MoltenGlassFluid.Still()
+    public static final class MENU {
+        private MENU() {}
+
+        public static MenuType<MaceratorScreenHandler> MACERATOR;
+
+        static void register() {
+            MACERATOR = INSTANCE.registerMenuType("macerator", MaceratorScreenHandler::new);
+        }
+    }
+
+    public static final class RECIPE {
+        private RECIPE() {}
+
+        public static RecipeType<MaceratorRecipeWrapper> MACERATOR_RECIPE_TYPE;
+        public static RecipeSerializer<MaceratorRecipeWrapper> MACERATOR_RECIPE_SERIALIZER;
+
+        static void register() {
+            MACERATOR_RECIPE_TYPE = Registry.register(
+                BuiltInRegistries.RECIPE_TYPE,
+                LogisticsMod.modId("macerator").toIdentifier(),
+                new RecipeType<MaceratorRecipeWrapper>() {
+                    @Override
+                    public String toString() {
+                        return "logistics:macerator";
+                    }
+                }
+            );
+            MACERATOR_RECIPE_SERIALIZER = Registry.register(
+                BuiltInRegistries.RECIPE_SERIALIZER,
+                LogisticsMod.modId("macerator").toIdentifier(),
+                new MaceratorRecipeSerializer()
             );
         }
     }
@@ -187,6 +225,65 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         public static Item BRONZE_GEAR;
         public static Item DIAMOND_GEAR;
         public static Item NETHERITE_GEAR;
+
+        // Macerator outputs — dusts
+        public static Item APATITE_DUST;
+        public static Item IRON_DUST;
+        public static Item COPPER_DUST;
+        public static Item TIN_DUST;
+        public static Item BRONZE_DUST;
+        public static Item GOLD_DUST;
+        public static Item LAPIS_DUST;
+        public static Item QUARTZ_DUST;
+        public static Item COAL_DUST;
+        public static Item AMETHYST_DUST;
+        public static Item DIAMOND_DUST;
+        public static Item EMERALD_DUST;
+        public static Item NETHERITE_DUST;
+        public static Item OBSIDIAN_DUST;
+        public static Item ENDER_DUST;
+        public static Item ECHO_DUST;
+        public static Item PRISMARINE_DUST;
+        public static Item SILICON_MIX;
+        public static Item SILICON_WAFER;
+        public static Item FLOUR;
+        public static Item WOOD_PULP;
+
+        // Chips — logic components for pipe modules
+        public static Item CARBON_CHIP;
+        public static Item REDSTONE_CHIP;
+        public static Item AMETHYST_CHIP;
+        public static Item ECHO_CHIP;
+
+        // Valves — pipe chassis components
+        public static Item WOODEN_VALVE;
+        public static Item COPPER_VALVE;
+        public static Item BRONZE_VALVE;
+        public static Item IRON_VALVE;
+        public static Item GOLD_VALVE;
+        public static Item DIAMOND_VALVE;
+        public static Item OBSIDIAN_VALVE;
+        public static Item BLAZING_VALVE;
+        public static Item EMERALD_VALVE;
+        public static Item APATITE_VALVE;
+        public static Item LAPIS_VALVE;
+        public static Item ENDER_VALVE;
+        public static Item NETHERITE_VALVE;
+
+        // Cores — intermediate components for valves and pipe logic
+        public static Item WOODEN_CORE;
+        public static Item COPPER_CORE;
+        public static Item BRONZE_CORE;
+        public static Item IRON_CORE;
+        public static Item GOLD_CORE;
+        public static Item LAPIS_CORE;
+        public static Item APATITE_CORE;
+        public static Item DIAMOND_CORE;
+        public static Item EMERALD_CORE;
+        public static Item BLAZING_CORE;
+        public static Item NETHERITE_CORE;
+        public static Item OBSIDIAN_CORE;
+        public static Item ENDER_CORE;
 
         private ITEM() {}
 
@@ -223,6 +320,64 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
             DIAMOND_GEAR = INSTANCE.registerItem("diamond_gear", Item::new);
             NETHERITE_GEAR = INSTANCE.registerItem("netherite_gear", Item::new);
 
+            // Powders and dusts
+            APATITE_DUST = INSTANCE.registerItem("apatite_dust", Item::new);
+            IRON_DUST = INSTANCE.registerItem("iron_dust", Item::new);
+            COPPER_DUST = INSTANCE.registerItem("copper_dust", Item::new);
+            TIN_DUST = INSTANCE.registerItem("tin_dust", Item::new);
+            BRONZE_DUST = INSTANCE.registerItem("bronze_dust", Item::new);
+            GOLD_DUST = INSTANCE.registerItem("gold_dust", Item::new);
+            LAPIS_DUST = INSTANCE.registerItem("lapis_dust", Item::new);
+            QUARTZ_DUST = INSTANCE.registerItem("quartz_dust", Item::new);
+            COAL_DUST = INSTANCE.registerItem("coal_dust", Item::new);
+            AMETHYST_DUST = INSTANCE.registerItem("amethyst_dust", Item::new);
+            DIAMOND_DUST = INSTANCE.registerItem("diamond_dust", Item::new);
+            EMERALD_DUST = INSTANCE.registerItem("emerald_dust", Item::new);
+            NETHERITE_DUST = INSTANCE.registerItem("netherite_dust", Item::new);
+            OBSIDIAN_DUST = INSTANCE.registerItem("obsidian_dust", Item::new);
+            ENDER_DUST = INSTANCE.registerItem("ender_dust", Item::new);
+            ECHO_DUST = INSTANCE.registerItem("echo_dust", Item::new);
+            PRISMARINE_DUST = INSTANCE.registerItem("prismarine_dust", Item::new);
+            SILICON_MIX = INSTANCE.registerItem("silicon_mix", Item::new);
+            SILICON_WAFER = INSTANCE.registerItem("silicon_wafer", Item::new);
+            FLOUR = INSTANCE.registerItem("flour", Item::new);
+            WOOD_PULP = INSTANCE.registerItem("wood_pulp", Item::new);
+
+            // Chips
+            CARBON_CHIP = INSTANCE.registerItem("carbon_chip", Item::new);
+            REDSTONE_CHIP = INSTANCE.registerItem("redstone_chip", Item::new);
+            AMETHYST_CHIP = INSTANCE.registerItem("amethyst_chip", Item::new);
+            ECHO_CHIP = INSTANCE.registerItem("echo_chip", Item::new);
+
+            // Valves
+            WOODEN_VALVE = INSTANCE.registerItem("wooden_valve", Item::new);
+            COPPER_VALVE = INSTANCE.registerItem("copper_valve", Item::new);
+            BRONZE_VALVE = INSTANCE.registerItem("bronze_valve", Item::new);
+            IRON_VALVE = INSTANCE.registerItem("iron_valve", Item::new);
+            GOLD_VALVE = INSTANCE.registerItem("gold_valve", Item::new);
+            DIAMOND_VALVE = INSTANCE.registerItem("diamond_valve", Item::new);
+            OBSIDIAN_VALVE = INSTANCE.registerItem("obsidian_valve", Item::new);
+            BLAZING_VALVE = INSTANCE.registerItem("blazing_valve", Item::new);
+            EMERALD_VALVE = INSTANCE.registerItem("emerald_valve", Item::new);
+            APATITE_VALVE = INSTANCE.registerItem("apatite_valve", Item::new);
+            LAPIS_VALVE = INSTANCE.registerItem("lapis_valve", Item::new);
+            ENDER_VALVE = INSTANCE.registerItem("ender_valve", Item::new);
+            NETHERITE_VALVE = INSTANCE.registerItem("netherite_valve", Item::new);
+
+            // Cores
+            WOODEN_CORE = INSTANCE.registerItem("wooden_core", Item::new);
+            COPPER_CORE = INSTANCE.registerItem("copper_core", Item::new);
+            BRONZE_CORE = INSTANCE.registerItem("bronze_core", Item::new);
+            IRON_CORE = INSTANCE.registerItem("iron_core", Item::new);
+            GOLD_CORE = INSTANCE.registerItem("gold_core", Item::new);
+            LAPIS_CORE = INSTANCE.registerItem("lapis_core", Item::new);
+            APATITE_CORE = INSTANCE.registerItem("apatite_core", Item::new);
+            DIAMOND_CORE = INSTANCE.registerItem("diamond_core", Item::new);
+            EMERALD_CORE = INSTANCE.registerItem("emerald_core", Item::new);
+            BLAZING_CORE = INSTANCE.registerItem("blazing_core", Item::new);
+            NETHERITE_CORE = INSTANCE.registerItem("netherite_core", Item::new);
+            OBSIDIAN_CORE = INSTANCE.registerItem("obsidian_core", Item::new);
+            ENDER_CORE = INSTANCE.registerItem("ender_core", Item::new);
         }
     }
 
@@ -269,6 +424,7 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
                 ITEM.WRENCH,
                 ITEM.PROBE
         );
+        CREATIVE_TAB.addItem(BLOCK.MACERATOR);
     }
 
     private static void addVanillaCreativeTabEntries() {
@@ -308,6 +464,45 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
             entries.addAfter(ITEM.GOLD_GEAR, ITEM.DIAMOND_GEAR);
             entries.addAfter(ITEM.DIAMOND_GEAR, ITEM.NETHERITE_GEAR);
 
+            // Valves — after netherite gear
+            Item[] valves = {
+                ITEM.WOODEN_VALVE,
+                ITEM.COPPER_VALVE, ITEM.BRONZE_VALVE,
+                ITEM.IRON_VALVE, ITEM.GOLD_VALVE, ITEM.DIAMOND_VALVE,
+                ITEM.OBSIDIAN_VALVE, ITEM.BLAZING_VALVE, ITEM.EMERALD_VALVE,
+                ITEM.APATITE_VALVE, ITEM.LAPIS_VALVE, ITEM.ENDER_VALVE,
+                ITEM.NETHERITE_VALVE
+            };
+            Item prev = ITEM.NETHERITE_GEAR;
+            for (Item item : valves) {
+                entries.addAfter(prev, item);
+                prev = item;
+            }
+        });
+
+        // Add dusts, chips, cores to Ingredients tab — after bronze_ingot
+        ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.INGREDIENTS).register(entries -> {
+            Item[] intermediates = {
+                ITEM.APATITE_DUST,
+                ITEM.IRON_DUST, ITEM.COPPER_DUST, ITEM.TIN_DUST, ITEM.BRONZE_DUST,
+                ITEM.GOLD_DUST, ITEM.LAPIS_DUST, ITEM.QUARTZ_DUST, ITEM.COAL_DUST,
+                ITEM.AMETHYST_DUST, ITEM.DIAMOND_DUST, ITEM.EMERALD_DUST,
+                ITEM.NETHERITE_DUST, ITEM.OBSIDIAN_DUST, ITEM.ENDER_DUST,
+                ITEM.ECHO_DUST, ITEM.PRISMARINE_DUST,
+                ITEM.SILICON_MIX, ITEM.SILICON_WAFER, ITEM.FLOUR, ITEM.WOOD_PULP,
+                ITEM.CARBON_CHIP, ITEM.REDSTONE_CHIP, ITEM.AMETHYST_CHIP, ITEM.ECHO_CHIP,
+                ITEM.WOODEN_CORE,
+                ITEM.COPPER_CORE, ITEM.BRONZE_CORE,
+                ITEM.IRON_CORE, ITEM.GOLD_CORE, ITEM.LAPIS_CORE,
+                ITEM.APATITE_CORE, ITEM.DIAMOND_CORE, ITEM.EMERALD_CORE,
+                ITEM.BLAZING_CORE, ITEM.NETHERITE_CORE,
+                ITEM.OBSIDIAN_CORE, ITEM.ENDER_CORE
+            };
+            Item anchor = ITEM.BRONZE_INGOT;
+            for (Item item : intermediates) {
+                entries.addAfter(anchor, item);
+                anchor = item;
+            }
         });
 
         // Add ore blocks to Natural Blocks tab
@@ -334,5 +529,6 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         registerItemAlias("gold_gear", ITEM.GOLD_GEAR);
         registerItemAlias("diamond_gear", ITEM.DIAMOND_GEAR);
         registerItemAlias("netherite_gear", ITEM.NETHERITE_GEAR);
+
     }
 }

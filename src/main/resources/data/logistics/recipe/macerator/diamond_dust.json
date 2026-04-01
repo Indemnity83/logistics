@@ -2,7 +2,7 @@
   "type": "logistics:macerator",
   "ingredient": "minecraft:diamond_ore",
   "result": {
-    "id": "logistics:automation/diamond_dust",
+    "id": "logistics:core/diamond_dust",
     "count": 2
   },
   "grindingtime": 200,
