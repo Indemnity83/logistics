@@ -1,0 +1,6 @@
+{
+  "model": {
+    "model": "logistics:item/core/netherite_powder",
+    "type": "minecraft:model"
+  }
+}

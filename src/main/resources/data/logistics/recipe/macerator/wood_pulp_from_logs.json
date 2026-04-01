@@ -4,7 +4,7 @@
     "tag": "minecraft:logs"
   },
   "result": {
-    "id": "logistics:automation/wood_pulp",
+    "id": "logistics:core/wood_pulp",
     "count": 8
   },
   "grindingtime": 200

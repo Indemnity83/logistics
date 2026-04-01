@@ -2,7 +2,7 @@
   "type": "logistics:macerator",
   "ingredient": "minecraft:copper_ore",
   "result": {
-    "id": "logistics:automation/copper_powder",
+    "id": "logistics:core/copper_powder",
     "count": 2
   },
   "grindingtime": 200

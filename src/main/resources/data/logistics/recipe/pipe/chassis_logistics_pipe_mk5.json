@@ -6,7 +6,7 @@
     " V "
   ],
   "key": {
-    "V": "logistics:automation/valve_netherite",
+    "V": "logistics:core/valve_netherite",
     "B": "logistics:pipe/basic_logistics_pipe"
   },
   "result": {

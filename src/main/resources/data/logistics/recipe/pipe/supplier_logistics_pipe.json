@@ -4,7 +4,7 @@
     "VBV"
   ],
   "key": {
-    "V": "logistics:automation/valve_emerald",
+    "V": "logistics:core/valve_emerald",
     "B": "logistics:pipe/basic_logistics_pipe"
   },
   "result": {

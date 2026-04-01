@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "logistics:item/core/filament_apatite",
+    "layer1": "logistics:item/core/valve"
+  }
+}

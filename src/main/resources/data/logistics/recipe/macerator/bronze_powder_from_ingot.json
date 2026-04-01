@@ -2,7 +2,7 @@
   "type": "logistics:macerator",
   "ingredient": "logistics:core/bronze_ingot",
   "result": {
-    "id": "logistics:automation/bronze_powder",
+    "id": "logistics:core/bronze_powder",
     "count": 1
   },
   "grindingtime": 200

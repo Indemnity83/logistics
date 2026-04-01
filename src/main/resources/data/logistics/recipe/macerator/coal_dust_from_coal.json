@@ -2,7 +2,7 @@
   "type": "logistics:macerator",
   "ingredient": "minecraft:coal",
   "result": {
-    "id": "logistics:automation/coal_dust",
+    "id": "logistics:core/coal_dust",
     "count": 2
   },
   "grindingtime": 200

@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:smelting",
+  "ingredient": "logistics:core/quartz_dust",
+  "result": {
+    "id": "logistics:automation/quartz_crystal"
+  },
+  "cookingtime": 200,
+  "experience": 0.1
+}

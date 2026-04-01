@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": ["MMM", "SES", "FFF"],
+  "key": {
+    "M": "minecraft:milk_bucket",
+    "S": "minecraft:sugar",
+    "E": "minecraft:egg",
+    "F": "logistics:core/flour"
+  },
+  "result": { "id": "minecraft:cake", "count": 1 }
+}

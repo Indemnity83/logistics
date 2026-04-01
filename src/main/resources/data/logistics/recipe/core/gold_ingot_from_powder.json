@@ -1,0 +1,8 @@
+{
+  "type": "minecraft:smelting",
+  "ingredient": "logistics:core/gold_powder",
+  "result": {
+    "id": "minecraft:gold_ingot"
+  },
+  "cookingtime": 200
+}

@@ -1,9 +1,0 @@
-{
-  "type": "minecraft:smelting",
-  "ingredient": "logistics:automation/silicon_mix",
-  "result": {
-    "id": "logistics:automation/silicon_wafer"
-  },
-  "cookingtime": 200,
-  "experience": 0.7
-}

@@ -1,8 +1,0 @@
-{
-  "type": "minecraft:smelting",
-  "ingredient": "logistics:automation/bronze_powder",
-  "result": {
-    "id": "logistics:core/bronze_ingot"
-  },
-  "cookingtime": 200
-}

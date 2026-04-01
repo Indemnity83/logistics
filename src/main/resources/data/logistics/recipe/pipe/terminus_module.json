@@ -5,8 +5,8 @@
     "RBR"
   ],
   "key": {
-    "D": "logistics:automation/ender_dust",
-    "C": "logistics:automation/chip_redstone",
+    "D": "logistics:core/ender_dust",
+    "C": "logistics:core/chip_redstone",
     "R": "minecraft:redstone",
     "B": "logistics:pipe/blank_module"
   },
