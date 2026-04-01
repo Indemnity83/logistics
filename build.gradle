@@ -37,6 +37,8 @@ spotless {
 loom {
 	splitEnvironmentSourceSets()
 
+	accessWidenerPath = file("src/main/resources/logistics.accesswidener")
+
 	mods {
 		"logistics" {
 			sourceSet sourceSets.main

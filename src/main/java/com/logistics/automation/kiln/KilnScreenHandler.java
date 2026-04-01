@@ -1,21 +1,30 @@
 package com.logistics.automation.kiln;
 
 import com.logistics.LogisticsAutomation;
+import net.minecraft.recipebook.ServerPlaceRecipe;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.entity.player.StackedItemContents;
 import net.minecraft.world.inventory.ContainerData;
+import net.minecraft.world.inventory.RecipeBookMenu;
+import net.minecraft.world.inventory.RecipeBookType;
 import net.minecraft.world.inventory.SimpleContainerData;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.AbstractCookingRecipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.item.crafting.SingleRecipeInput;
+
+import java.util.List;
 
 /**
  * Screen handler for the Electric Kiln GUI.
  * Manages input/output slots and syncs progress/energy data to the client.
  */
-public class KilnScreenHandler extends AbstractContainerMenu {
+public class KilnScreenHandler extends RecipeBookMenu {
 
     private static final int MACHINE_SLOT_COUNT = 2;
     private static final int PLAYER_INVENTORY_START = MACHINE_SLOT_COUNT;
@@ -65,6 +74,54 @@ public class KilnScreenHandler extends AbstractContainerMenu {
 
         this.addDataSlots(data);
     }
+
+    // ==================== RecipeBookMenu ====================
+
+    @Override
+    public RecipeBookType getRecipeBookType() {
+        return RecipeBookType.FURNACE;
+    }
+
+    @Override
+    public void fillCraftSlotsStackedContents(StackedItemContents contents) {
+        ItemStack input = inventory.getItem(KilnBlockEntity.INPUT_SLOT);
+        if (!input.isEmpty()) {
+            contents.accountSimpleStack(input);
+        }
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public PostPlaceAction handlePlacement(boolean placeAll, boolean isCreative, RecipeHolder<?> recipe, ServerLevel level, Inventory playerInventory) {
+        List<Slot> relevant = List.of(this.getSlot(0), this.getSlot(1));
+        return ServerPlaceRecipe.placeRecipe(
+            new ServerPlaceRecipe.CraftingMenuAccess<AbstractCookingRecipe>() {
+                @Override
+                public void fillCraftSlotsStackedContents(StackedItemContents contents) {
+                    KilnScreenHandler.this.fillCraftSlotsStackedContents(contents);
+                }
+
+                @Override
+                public void clearCraftingContent() {
+                    relevant.forEach(s -> s.set(ItemStack.EMPTY));
+                }
+
+                @Override
+                public boolean recipeMatches(RecipeHolder<AbstractCookingRecipe> r) {
+                    return r.value().matches(new SingleRecipeInput(inventory.getItem(KilnBlockEntity.INPUT_SLOT)), level);
+                }
+            },
+            1, 1,
+            List.of(this.getSlot(0)),
+            relevant,
+            playerInventory,
+            (RecipeHolder<AbstractCookingRecipe>) recipe,
+            placeAll,
+            isCreative
+        );
+    }
+
+    // ==================== Shift-click ====================
 
     @Override
     public ItemStack quickMoveStack(Player player, int index) {
