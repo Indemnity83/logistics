@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "logistics:item/core/filament_copper"
+    "layer0": "logistics:item/core/copper_core"
   }
 }

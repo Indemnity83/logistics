@@ -1,7 +1,7 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "logistics:item/core/filament_diamond",
+    "layer0": "logistics:item/core/diamond_core",
     "layer1": "logistics:item/core/valve"
   }
 }
