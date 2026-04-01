@@ -101,6 +101,11 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
         public static Item FLOUR;
         public static Item WOOD_PULP;
 
+        public static Item CHIP_COAL;
+        public static Item CHIP_REDSTONE;
+        public static Item CHIP_AMETHYST;
+        public static Item CHIP_ECHO;
+
         public static Item VALVE_WOODEN;
         public static Item VALVE_COPPER;
         public static Item VALVE_BRONZE;
@@ -151,6 +156,11 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
             SILICON_WAFER = INSTANCE.registerItem("silicon_wafer", Item::new);
             FLOUR = INSTANCE.registerItem("flour", Item::new);
             WOOD_PULP = INSTANCE.registerItem("wood_pulp", Item::new);
+
+            CHIP_COAL = INSTANCE.registerItem("chip_coal", Item::new);
+            CHIP_REDSTONE = INSTANCE.registerItem("chip_redstone", Item::new);
+            CHIP_AMETHYST = INSTANCE.registerItem("chip_amethyst", Item::new);
+            CHIP_ECHO = INSTANCE.registerItem("chip_echo", Item::new);
 
             VALVE_WOODEN = INSTANCE.registerItem("valve_wooden", Item::new);
             VALVE_COPPER = INSTANCE.registerItem("valve_copper", Item::new);
@@ -297,6 +307,7 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
                 ITEM.NETHERITE_DUST, ITEM.OBSIDIAN_DUST, ITEM.ENDER_DUST,
                 ITEM.ECHO_DUST, ITEM.PRISMARINE_DUST,
                 ITEM.SILICON_MIX, ITEM.SILICON_WAFER, ITEM.FLOUR, ITEM.WOOD_PULP,
+                ITEM.CHIP_COAL, ITEM.CHIP_REDSTONE, ITEM.CHIP_AMETHYST, ITEM.CHIP_ECHO,
                 ITEM.WOODEN_CORE,
                 ITEM.COPPER_CORE, ITEM.BRONZE_CORE,
                 ITEM.IRON_CORE, ITEM.GOLD_CORE, ITEM.LAPIS_CORE,
