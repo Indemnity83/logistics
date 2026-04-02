@@ -1,0 +1,9 @@
+{
+  "type": "logistics:macerator",
+  "ingredient": "minecraft:raw_iron_block",
+  "result": {
+    "id": "logistics:core/iron_dust",
+    "count": 9
+  },
+  "grindingtime": 200
+}
