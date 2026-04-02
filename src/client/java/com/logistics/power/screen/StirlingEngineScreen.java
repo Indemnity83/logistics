@@ -3,7 +3,7 @@ package com.logistics.power.screen;
 import com.logistics.LogisticsMod;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.power.engine.ui.StirlingEngineScreenHandler;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
@@ -25,11 +25,11 @@ public class StirlingEngineScreen extends AbstractContainerScreen<StirlingEngine
     private static final int FLAME_Y = 22;
 
     public StirlingEngineScreen(StirlingEngineScreenHandler handler, Inventory inventory, Component title) {
-        super(handler, inventory, title, 176, 166);
+        super(handler, inventory, title);
     }
 
     @Override
-    protected void renderBg(GuiGraphics context, float delta, int mouseX, int mouseY) {
+    public void extractBackground(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
         // Draw main background
         context.blit(
                 RenderPipelines.GUI_TEXTURED,

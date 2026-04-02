@@ -2,7 +2,7 @@ package com.logistics.pipe.screen;
 
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.pipe.ui.AdvancedExtractorScreenHandler;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.RenderPipelines;
@@ -55,7 +55,7 @@ public class AdvancedExtractorScreen extends AbstractContainerScreen<AdvancedExt
     }
 
     @Override
-    protected void renderBg(GuiGraphics graphics, float delta, int mouseX, int mouseY) {
+    public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
         graphics.blit(
                 RenderPipelines.GUI_TEXTURED,
                 BACKGROUND_TEXTURE.toIdentifier(),
@@ -66,9 +66,9 @@ public class AdvancedExtractorScreen extends AbstractContainerScreen<AdvancedExt
     }
 
     @Override
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        super.render(graphics, mouseX, mouseY, partialTick);
+    public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+        super.extractRenderState(graphics, mouseX, mouseY, partialTick);
         filterButton.setValue(menu.isFilterInverted());
-        renderTooltip(graphics, mouseX, mouseY);
+        extractTooltip(graphics, mouseX, mouseY);
     }
 }

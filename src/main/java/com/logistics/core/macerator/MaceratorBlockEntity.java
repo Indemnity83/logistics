@@ -9,7 +9,7 @@ import com.logistics.core.lib.energy.EnergyComponent;
 import com.logistics.core.lib.items.ItemInventoryComponent;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.core.lib.storage.NbtCompat;
-import net.fabricmc.fabric.api.transfer.v1.item.InventoryStorage;
+import net.fabricmc.fabric.api.transfer.v1.item.ContainerStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.minecraft.core.BlockPos;
@@ -202,7 +202,7 @@ public class MaceratorBlockEntity extends BaseBlockEntity
     private void awardExperience(float experience) {
         if (experience <= 0 || !(level instanceof ServerLevel serverLevel)) return;
         int xp = (int) experience;
-        if (level.random.nextFloat() < (experience - xp)) xp++;
+        if (level.getRandom().nextFloat() < (experience - xp)) xp++;
         if (xp > 0) ExperienceOrb.award(serverLevel, Vec3.atCenterOf(getBlockPos()), xp);
     }
 
@@ -217,7 +217,7 @@ public class MaceratorBlockEntity extends BaseBlockEntity
 
     @Override
     public Storage<ItemVariant> itemStorage(@Nullable Direction side) {
-        return InventoryStorage.of(this, side);
+        return ContainerStorage.of(this, side);
     }
 
     @Override

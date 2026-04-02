@@ -20,8 +20,8 @@ import com.logistics.core.loot.ChestLootModifier;
 import com.logistics.core.network.NetworkTickHandler;
 import net.fabricmc.fabric.api.biome.v1.BiomeModifications;
 import net.fabricmc.fabric.api.biome.v1.BiomeSelectors;
-import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
-import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
+import net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents;
+import net.fabricmc.fabric.api.creativetab.v1.FabricCreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.RecipeBookCategory;
@@ -204,7 +204,7 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
             MACERATOR_RECIPE_SERIALIZER = Registry.register(
                 BuiltInRegistries.RECIPE_SERIALIZER,
                 LogisticsMod.modId("macerator").toIdentifier(),
-                new MaceratorRecipeSerializer()
+                MaceratorRecipeSerializer.INSTANCE
             );
             MACERATOR_CATEGORY = Registry.register(
                 BuiltInRegistries.RECIPE_BOOK_CATEGORY,
@@ -406,7 +406,7 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
             LOGISTICS_TRANSPORT = Registry.register(
                     BuiltInRegistries.CREATIVE_MODE_TAB,
                     LogisticsMod.modId("logistics_transport").toIdentifier(),
-                    FabricItemGroup.builder()
+                    FabricCreativeModeTab.builder()
                             .title(Component.literal("Logistics"))
                             .icon(() -> new ItemStack(ITEM.IRON_GEAR))
                             .displayItems((params, entries) -> {
@@ -444,40 +444,40 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
 
     private static void addVanillaCreativeTabEntries() {
         // Add storage blocks to Building Blocks tab
-        ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.BUILDING_BLOCKS).register(entries -> {
-            entries.addAfter(Items.COAL_BLOCK, BLOCK.APATITE_BLOCK);
-            entries.addBefore(Items.IRON_BLOCK, BLOCK.TIN_BLOCK);
-            entries.addAfter(Items.IRON_BLOCK, BLOCK.BRONZE_BLOCK);
+        CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.BUILDING_BLOCKS).register(entries -> {
+            entries.insertAfter(Items.COAL_BLOCK, BLOCK.APATITE_BLOCK);
+            entries.insertBefore(Items.IRON_BLOCK, BLOCK.TIN_BLOCK);
+            entries.insertAfter(Items.IRON_BLOCK, BLOCK.BRONZE_BLOCK);
         });
 
         // Add materials to Ingredients tab
-        ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.INGREDIENTS).register(entries -> {
+        CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.INGREDIENTS).register(entries -> {
             // Raw materials
-            entries.addBefore(Items.RAW_IRON, ITEM.RAW_TIN);
+            entries.insertBefore(Items.RAW_IRON, ITEM.RAW_TIN);
 
             // Ingots
-            entries.addBefore(Items.IRON_INGOT, ITEM.TIN_INGOT);
-            entries.addAfter(ITEM.TIN_INGOT, ITEM.BRONZE_INGOT);
+            entries.insertBefore(Items.IRON_INGOT, ITEM.TIN_INGOT);
+            entries.insertAfter(ITEM.TIN_INGOT, ITEM.BRONZE_INGOT);
 
             // Nuggets
-            entries.addBefore(Items.IRON_NUGGET, ITEM.TIN_NUGGET);
-            entries.addAfter(ITEM.TIN_NUGGET, ITEM.BRONZE_NUGGET);
+            entries.insertBefore(Items.IRON_NUGGET, ITEM.TIN_NUGGET);
+            entries.insertAfter(ITEM.TIN_NUGGET, ITEM.BRONZE_NUGGET);
 
             // Apatite
-            entries.addBefore(Items.AMETHYST_SHARD, ITEM.APATITE);
+            entries.insertBefore(Items.AMETHYST_SHARD, ITEM.APATITE);
 
             // Intermediate Crafting Items
-            entries.addBefore(Items.HEAVY_CORE, ITEM.STURDY_CASING);
-            entries.addAfter(ITEM.STURDY_CASING, ITEM.MACHINE_FRAME);
-            entries.addAfter(ITEM.MACHINE_FRAME, ITEM.WOODEN_GEAR);
-            entries.addAfter(ITEM.WOODEN_GEAR, ITEM.STONE_GEAR);
-            entries.addAfter(ITEM.STONE_GEAR, ITEM.COPPER_GEAR);
-            entries.addAfter(ITEM.COPPER_GEAR, ITEM.TIN_GEAR);
-            entries.addAfter(ITEM.TIN_GEAR, ITEM.IRON_GEAR);
-            entries.addAfter(ITEM.IRON_GEAR, ITEM.BRONZE_GEAR);
-            entries.addAfter(ITEM.BRONZE_GEAR, ITEM.GOLD_GEAR);
-            entries.addAfter(ITEM.GOLD_GEAR, ITEM.DIAMOND_GEAR);
-            entries.addAfter(ITEM.DIAMOND_GEAR, ITEM.NETHERITE_GEAR);
+            entries.insertBefore(Items.HEAVY_CORE, ITEM.STURDY_CASING);
+            entries.insertAfter(ITEM.STURDY_CASING, ITEM.MACHINE_FRAME);
+            entries.insertAfter(ITEM.MACHINE_FRAME, ITEM.WOODEN_GEAR);
+            entries.insertAfter(ITEM.WOODEN_GEAR, ITEM.STONE_GEAR);
+            entries.insertAfter(ITEM.STONE_GEAR, ITEM.COPPER_GEAR);
+            entries.insertAfter(ITEM.COPPER_GEAR, ITEM.TIN_GEAR);
+            entries.insertAfter(ITEM.TIN_GEAR, ITEM.IRON_GEAR);
+            entries.insertAfter(ITEM.IRON_GEAR, ITEM.BRONZE_GEAR);
+            entries.insertAfter(ITEM.BRONZE_GEAR, ITEM.GOLD_GEAR);
+            entries.insertAfter(ITEM.GOLD_GEAR, ITEM.DIAMOND_GEAR);
+            entries.insertAfter(ITEM.DIAMOND_GEAR, ITEM.NETHERITE_GEAR);
 
             // Valves — after netherite gear
             Item[] valves = {
@@ -490,13 +490,13 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
             };
             Item prev = ITEM.NETHERITE_GEAR;
             for (Item item : valves) {
-                entries.addAfter(prev, item);
+                entries.insertAfter(prev, item);
                 prev = item;
             }
         });
 
         // Add dusts, chips, cores to Ingredients tab — after bronze_ingot
-        ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.INGREDIENTS).register(entries -> {
+        CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.INGREDIENTS).register(entries -> {
             Item[] intermediates = {
                 ITEM.APATITE_DUST,
                 ITEM.IRON_DUST, ITEM.COPPER_DUST, ITEM.TIN_DUST, ITEM.BRONZE_DUST,
@@ -515,22 +515,22 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
             };
             Item anchor = ITEM.BRONZE_INGOT;
             for (Item item : intermediates) {
-                entries.addAfter(anchor, item);
+                entries.insertAfter(anchor, item);
                 anchor = item;
             }
         });
 
         // Add ore blocks to Natural Blocks tab
-        ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.NATURAL_BLOCKS).register(entries -> {
+        CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.NATURAL_BLOCKS).register(entries -> {
             // Tin ores
-            entries.addAfter(Items.DEEPSLATE_COAL_ORE, BLOCK.TIN_ORE);
-            entries.addAfter(BLOCK.TIN_ORE, BLOCK.DEEPSLATE_TIN_ORE);
+            entries.insertAfter(Items.DEEPSLATE_COAL_ORE, BLOCK.TIN_ORE);
+            entries.insertAfter(BLOCK.TIN_ORE, BLOCK.DEEPSLATE_TIN_ORE);
 
             // Apatite ore
-            entries.addBefore(Items.AMETHYST_BLOCK, BLOCK.APATITE_ORE);
+            entries.insertBefore(Items.AMETHYST_BLOCK, BLOCK.APATITE_ORE);
 
             // Raw tin block
-            entries.addBefore(Items.RAW_IRON_BLOCK, BLOCK.RAW_TIN_BLOCK);
+            entries.insertBefore(Items.RAW_IRON_BLOCK, BLOCK.RAW_TIN_BLOCK);
         });
     }
 

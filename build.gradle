@@ -1,6 +1,6 @@
 plugins {
-    id 'jacoco'
-    id 'net.fabricmc.fabric-loom' version "${loom_version}"
+	id 'jacoco'
+	id 'net.fabricmc.fabric-loom' version "${loom_version}"
 	id 'maven-publish'
 	id 'com.diffplug.spotless' version '8.4.0'
 }
@@ -61,18 +61,18 @@ fabricApi {
 dependencies {
 	// To change the versions see the gradle.properties file
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
-
 	implementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
 	// Fabric API.
 	implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
 	// Team Reborn Energy API (Fabric standard energy system)
-	api include("teamreborn:energy:${project.energy_version}")
+	include("teamreborn:energy:${project.energy_version}")
+	implementation("teamreborn:energy:${project.energy_version}")
 
 	// JEI - compile against API only; players install JEI separately at runtime
-	modCompileOnly("mezz.jei:jei-${minecraft_version}-fabric-api:${jei_version}")
-	modRuntimeOnly("mezz.jei:jei-${minecraft_version}-fabric:${jei_version}")
+	compileOnly("mezz.jei:jei-${minecraft_version}-fabric:${jei_version}")
+	runtimeOnly("mezz.jei:jei-${minecraft_version}-fabric:${jei_version}")
 
 	// Test infrastructure
 	testImplementation "org.junit.jupiter:junit-jupiter:${project.junit_version}"

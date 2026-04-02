@@ -41,7 +41,7 @@ public class MarkerBlockEntity extends BaseBlockEntity {
             // Deactivate all connected markers first, then this one
             deactivateConnectedMarkers();
             deactivate();
-            player.displayClientMessage(Component.translatable("marker.deactivated"), true);
+            player.sendSystemMessage(Component.translatable("marker.deactivated"));
         } else {
             // Always activate the marker
             MarkerManager.ActivationResult result = MarkerManager.tryActivateMarker(level, worldPosition);
@@ -49,22 +49,22 @@ public class MarkerBlockEntity extends BaseBlockEntity {
                 case SUCCESS -> {
                     if (result.detailKey() != null) {
                         Object[] args = result.detailArgs() == null ? new Object[0] : result.detailArgs();
-                        player.displayClientMessage(Component.translatable(result.detailKey(), args), true);
+                        player.sendSystemMessage(Component.translatable(result.detailKey(), args));
                     } else {
-                        player.displayClientMessage(Component.translatable("marker.activated"), true);
+                        player.sendSystemMessage(Component.translatable("marker.activated"));
                     }
                 }
                 case NO_CONNECTIONS -> {
                     // Activate solo (no connections, just project beams)
                     activateSolo();
-                    player.displayClientMessage(Component.translatable("marker.activated.solo"), true);
+                    player.sendSystemMessage(Component.translatable("marker.activated.solo"));
                 }
                 case FAILURE -> {
                     if (result.detailKey() != null) {
                         Object[] args = result.detailArgs() == null ? new Object[0] : result.detailArgs();
-                        player.displayClientMessage(Component.translatable(result.detailKey(), args), true);
+                        player.sendSystemMessage(Component.translatable(result.detailKey(), args));
                     } else {
-                        player.displayClientMessage(Component.translatable("marker.activation.failed"), true);
+                        player.sendSystemMessage(Component.translatable("marker.activation.failed"));
                     }
                 }
                 default -> {}

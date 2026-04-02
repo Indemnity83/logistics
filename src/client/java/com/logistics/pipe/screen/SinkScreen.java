@@ -2,7 +2,7 @@ package com.logistics.pipe.screen;
 
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.pipe.ui.SinkScreenHandler;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.RenderPipelines;
@@ -57,7 +57,7 @@ public class SinkScreen extends AbstractContainerScreen<SinkScreenHandler> {
     }
 
     @Override
-    protected void renderBg(GuiGraphics context, float delta, int mouseX, int mouseY) {
+    public void extractBackground(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
         // Draw background texture
         context.blit(
                 RenderPipelines.GUI_TEXTURED,
@@ -73,12 +73,12 @@ public class SinkScreen extends AbstractContainerScreen<SinkScreenHandler> {
     }
 
     @Override
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        super.render(graphics, mouseX, mouseY, partialTick);
+    public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+        super.extractRenderState(graphics, mouseX, mouseY, partialTick);
 
         // Update button text in case it changed
         defaultRouteButton.setMessage(getDefaultRouteButtonText());
 
-        renderTooltip(graphics, mouseX, mouseY);
+        extractTooltip(graphics, mouseX, mouseY);
     }
 }

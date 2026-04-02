@@ -2,7 +2,7 @@ package com.logistics.core.render;
 
 import com.logistics.core.lib.resource.ResourceId;
 import net.fabricmc.fabric.api.client.model.loading.v1.ExtraModelKey;
-import net.minecraft.client.renderer.block.model.BlockStateModel;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 
 import java.util.HashMap;
 import java.util.List;

@@ -1,8 +1,8 @@
 package com.logistics.core.macerator;
 
 import com.logistics.LogisticsCore;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.PlacementInfo;
 import net.minecraft.world.item.crafting.Recipe;
@@ -26,12 +26,12 @@ import java.util.List;
 public class MaceratorRecipeWrapper implements Recipe<SingleRecipeInput> {
 
     private final Ingredient ingredient;
-    private final ItemStack result;
+    private final ItemStackTemplate result;
     private final int grindingTime;
     private final float experience;
     @Nullable private PlacementInfo placementInfo;
 
-    public MaceratorRecipeWrapper(Ingredient ingredient, ItemStack result, int grindingTime, float experience) {
+    public MaceratorRecipeWrapper(Ingredient ingredient, ItemStackTemplate result, int grindingTime, float experience) {
         this.ingredient = ingredient;
         this.result = result;
         this.grindingTime = grindingTime;
@@ -42,7 +42,7 @@ public class MaceratorRecipeWrapper implements Recipe<SingleRecipeInput> {
         return ingredient;
     }
 
-    public ItemStack result() {
+    public ItemStackTemplate result() {
         return result;
     }
 
@@ -60,13 +60,18 @@ public class MaceratorRecipeWrapper implements Recipe<SingleRecipeInput> {
     }
 
     @Override
-    public @NotNull ItemStack assemble(@NotNull SingleRecipeInput input, HolderLookup.@NotNull Provider provider) {
-        return result.copy();
+    public @NotNull String group() {
+        return "";
+    }
+
+    @Override
+    public @NotNull ItemStack assemble(@NotNull SingleRecipeInput input) {
+        return result.create();
     }
 
     @Override
     public @NotNull RecipeSerializer<MaceratorRecipeWrapper> getSerializer() {
-        return LogisticsCore.RECIPE.MACERATOR_RECIPE_SERIALIZER;
+        return MaceratorRecipeSerializer.INSTANCE;
     }
 
     @Override
@@ -77,6 +82,11 @@ public class MaceratorRecipeWrapper implements Recipe<SingleRecipeInput> {
     @Override
     public boolean isSpecial() {
         return false;
+    }
+
+    @Override
+    public boolean showNotification() {
+        return true;
     }
 
     @Override

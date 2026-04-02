@@ -11,11 +11,11 @@ import net.fabricmc.fabric.api.client.model.loading.v1.ExtraModelKey;
 import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
 import net.fabricmc.fabric.api.client.model.loading.v1.SimpleUnbakedExtraModel;
 import net.fabricmc.fabric.api.client.rendering.v1.BlockColorRegistry;
-import net.fabricmc.fabric.api.client.rendering.v1.ChunkSectionLayerMap;
 import net.minecraft.client.gui.screens.MenuScreens;
-import net.minecraft.client.renderer.block.model.BlockStateModel;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
-import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
+
+import java.util.List;
 
 import java.util.Map;
 
@@ -38,11 +38,6 @@ public final class LogisticsPowerClient implements DomainBootstrap {
     @Override
     public void initClient() {
         LOGGER.info("Registering power (client)");
-
-        // Register engine blocks for cutout rendering (transparent textures)
-        ChunkSectionLayerMap.putBlock(LogisticsPower.BLOCK.REDSTONE_ENGINE, ChunkSectionLayer.CUTOUT);
-        ChunkSectionLayerMap.putBlock(LogisticsPower.BLOCK.STIRLING_ENGINE, ChunkSectionLayer.CUTOUT);
-        ChunkSectionLayerMap.putBlock(LogisticsPower.BLOCK.CREATIVE_ENGINE, ChunkSectionLayer.CUTOUT);
 
         // Register engine block entity renderers (static rendering for now)
         BlockEntityRenderers.register(LogisticsPower.ENTITY.REDSTONE_ENGINE_BLOCK_ENTITY, EngineBlockEntityRenderer::new);
@@ -89,21 +84,16 @@ public final class LogisticsPowerClient implements DomainBootstrap {
      * renderer, where per-frame animation progress is available for smooth, rebuild-free coloring.
      */
     private void registerEngineBlockColors() {
-        BlockColorRegistry.register((state, level, pos, tintIndex) -> {
-            if (tintIndex != 0) {
-                return 0xFFFFFF;
-            }
-
-            return switch (state.getValue(AbstractEngineBlockEntity.STAGE)) {
+        BlockColorRegistry.register(
+            List.of(state -> switch (state.getValue(AbstractEngineBlockEntity.STAGE)) {
                 case COLD -> 0x3366CC;
                 case COOL -> 0x33CC33;
                 case WARM -> 0xCCCC33;
                 case HOT -> 0xCC3333;
                 case OVERHEAT -> 0x191919;
-            };
-        },
-        LogisticsPower.BLOCK.REDSTONE_ENGINE,
-        LogisticsPower.BLOCK.STIRLING_ENGINE,
-        LogisticsPower.BLOCK.CREATIVE_ENGINE);
+            }),
+            LogisticsPower.BLOCK.REDSTONE_ENGINE,
+            LogisticsPower.BLOCK.STIRLING_ENGINE,
+            LogisticsPower.BLOCK.CREATIVE_ENGINE);
     }
 }

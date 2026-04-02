@@ -2,7 +2,7 @@ package com.logistics.pipe.screen;
 
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.pipe.ui.CraftingScreenHandler;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.RenderPipelines;
@@ -25,7 +25,7 @@ public class CraftingScreen extends AbstractContainerScreen<CraftingScreenHandle
     private Button blockingButton;
 
     public CraftingScreen(CraftingScreenHandler handler, Inventory inventory, Component title) {
-        super(handler, inventory, title, 176, 166);
+        super(handler, inventory, title);
         this.titleLabelY = 6;
         this.inventoryLabelY = 72;
     }
@@ -75,7 +75,7 @@ public class CraftingScreen extends AbstractContainerScreen<CraftingScreenHandle
     }
 
     @Override
-    protected void renderBg(GuiGraphics graphics, float delta, int mouseX, int mouseY) {
+    public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
         graphics.blit(
                 RenderPipelines.GUI_TEXTURED,
                 BACKGROUND_TEXTURE.toIdentifier(),
@@ -90,15 +90,15 @@ public class CraftingScreen extends AbstractContainerScreen<CraftingScreenHandle
     }
 
     @Override
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+    public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
         // Update blocking button text before rendering so the label is current this frame
         blockingButton.setMessage(getBlockingText());
-        super.render(graphics, mouseX, mouseY, partialTick);
+        super.extractRenderState(graphics, mouseX, mouseY, partialTick);
 
         // Draw craft state label
         Component stateText = getCraftStateText();
-        graphics.drawString(font, stateText, leftPos + 8, topPos + 58, 0x404040, false);
+        graphics.text(font, stateText, leftPos + 8, topPos + 58, 0x404040, false);
 
-        renderTooltip(graphics, mouseX, mouseY);
+        extractTooltip(graphics, mouseX, mouseY);
     }
 }

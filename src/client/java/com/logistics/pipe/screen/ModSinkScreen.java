@@ -3,7 +3,7 @@ package com.logistics.pipe.screen;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.pipe.ui.ModSinkScreenHandler;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.input.MouseButtonEvent;
@@ -63,7 +63,7 @@ public class ModSinkScreen extends AbstractContainerScreen<ModSinkScreenHandler>
     }
 
     @Override
-    protected void renderBg(GuiGraphics graphics, float delta, int mouseX, int mouseY) {
+    public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
         graphics.blit(
                 RenderPipelines.GUI_TEXTURED,
                 BACKGROUND_TEXTURE.toIdentifier(),
@@ -72,9 +72,9 @@ public class ModSinkScreen extends AbstractContainerScreen<ModSinkScreenHandler>
     }
 
     @Override
-    protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
-        graphics.drawString(font, title, titleLabelX, titleLabelY, TEXT_COLOR, false);
-        graphics.drawString(font, playerInventoryTitle, inventoryLabelX, inventoryLabelY, TEXT_COLOR, false);
+    protected void extractLabels(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
+        graphics.text(font, title, titleLabelX, titleLabelY, TEXT_COLOR, false);
+        graphics.text(font, playerInventoryTitle, inventoryLabelX, inventoryLabelY, TEXT_COLOR, false);
 
         // Mod name for preview slot
         ItemStack preview = menu.getSlot(ModSinkScreenHandler.PREVIEW_SLOT).getItem();
@@ -83,13 +83,13 @@ public class ModSinkScreen extends AbstractContainerScreen<ModSinkScreenHandler>
             String modName = getModName(namespace);
             int maxWidth = imageWidth - 28 - 22 - 6; // space before "Add" button
             String truncated = font.plainSubstrByWidth(modName, maxWidth);
-            graphics.drawString(font, truncated, 28, 24, TEXT_COLOR, false);
+            graphics.text(font, truncated, 28, 24, TEXT_COLOR, false);
         }
 
         renderFilterList(graphics, mouseX, mouseY);
     }
 
-    private void renderFilterList(GuiGraphics graphics, int mouseX, int mouseY) {
+    private void renderFilterList(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
         int filterCount = menu.getFilterCount();
         int maxScroll = Math.max(0, filterCount - ENTRIES_VISIBLE);
         scrollOffset = Math.min(scrollOffset, maxScroll);
@@ -108,24 +108,24 @@ public class ModSinkScreen extends AbstractContainerScreen<ModSinkScreenHandler>
             // Mod name text (leave room for the item icon and remove button)
             int maxTextWidth = LIST_WIDTH - 20 - REMOVE_BTN_WIDTH - 6;
             String truncated = font.plainSubstrByWidth(modName, maxTextWidth);
-            graphics.drawString(font, truncated, LIST_X + 20, entryY + 3, 0xFF8B8B8B, false);
+            graphics.text(font, truncated, LIST_X + 20, entryY + 3, 0xFF8B8B8B, false);
 
             // Remove button "×"
             boolean hoveringRemove = isOverRemoveButton(i, mouseX + leftPos, mouseY + topPos);
             int removeColor = hoveringRemove ? 0xFFFFFFFF : 0xFF888888;
-            graphics.drawString(font, "X", LIST_X + REMOVE_BTN_X_OFFSET + 1, entryY + 3, removeColor, false);
+            graphics.text(font, "X", LIST_X + REMOVE_BTN_X_OFFSET + 1, entryY + 3, removeColor, false);
         }
     }
 
     @Override
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        super.render(graphics, mouseX, mouseY, partialTick);
+    public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+        super.extractRenderState(graphics, mouseX, mouseY, partialTick);
         renderFilterItems(graphics);
-        renderTooltip(graphics, mouseX, mouseY);
+        extractTooltip(graphics, mouseX, mouseY);
     }
 
     /** Render item icons for visible filter list entries (needs absolute coords). */
-    private void renderFilterItems(GuiGraphics graphics) {
+    private void renderFilterItems(GuiGraphicsExtractor graphics) {
         int filterCount = menu.getFilterCount();
         for (int i = 0; i < ENTRIES_VISIBLE; i++) {
             int entryIndex = i + scrollOffset;
@@ -137,7 +137,7 @@ public class ModSinkScreen extends AbstractContainerScreen<ModSinkScreenHandler>
             int entryY = topPos + LIST_Y + i * ENTRY_HEIGHT;
             // Render at 12×12 by using a scaled blit, but renderItem is always 16×16.
             // Use renderItem with a scissor so it fits neatly within the 14px row.
-            graphics.renderItem(stack, leftPos + LIST_X + 2, entryY);
+            graphics.item(stack, leftPos + LIST_X + 2, entryY);
         }
     }
 

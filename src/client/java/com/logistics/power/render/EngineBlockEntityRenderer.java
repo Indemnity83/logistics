@@ -11,13 +11,18 @@ import net.fabricmc.fabric.api.client.model.loading.v1.ExtraModelKey;
 import net.fabricmc.fabric.api.client.model.loading.v1.FabricModelManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.SubmitNodeCollector;
-import net.minecraft.client.renderer.block.model.BlockStateModel;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
-import net.minecraft.client.renderer.ItemBlockRenderTypes;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.rendertype.RenderType;
-import net.minecraft.client.renderer.state.CameraRenderState;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.util.RandomSource;
+
+import java.util.ArrayList;
+import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -108,7 +113,7 @@ public class EngineBlockEntityRenderer implements BlockEntityRenderer<AbstractEn
             return; // Models not loaded yet
         }
 
-        RenderType renderLayer = ItemBlockRenderTypes.getRenderType(state.blockState);
+        RenderType renderLayer = RenderTypes.cutoutMovingBlock();
         int light = state.lightCoords;
         float pistonOffset = state.getPistonOffset();
 
@@ -120,27 +125,17 @@ public class EngineBlockEntityRenderer implements BlockEntityRenderer<AbstractEn
         matrices.translate(0, 4 / 16f, 0);
         float bellowScale = Math.max(pistonOffset / 0.5f, 0.01f);
         matrices.scale(1.0f, bellowScale, 1.0f);
-        queue.submitBlockModel(
-                matrices,
-                renderLayer,
-                bellowModel,
-                1.0f, 1.0f, 1.0f,
-                light,
-                OverlayTexture.NO_OVERLAY,
-                0);
+        List<BlockStateModelPart> bellowParts = new ArrayList<>();
+        bellowModel.collectParts(RandomSource.create(0), bellowParts);
+        queue.submitBlockModel(matrices, renderLayer, bellowParts, new int[]{0xFFFFFF}, light, OverlayTexture.NO_OVERLAY, 0);
         matrices.popPose();
 
         // Render piston (translates with animation)
         matrices.pushPose();
         matrices.translate(0, 4 / 16f + pistonOffset, 0);
-        queue.submitBlockModel(
-                matrices,
-                renderLayer,
-                pistonModel,
-                1.0f, 1.0f, 1.0f,
-                light,
-                OverlayTexture.NO_OVERLAY,
-                0);
+        List<BlockStateModelPart> pistonParts = new ArrayList<>();
+        pistonModel.collectParts(RandomSource.create(0), pistonParts);
+        queue.submitBlockModel(matrices, renderLayer, pistonParts, new int[]{0xFFFFFF}, light, OverlayTexture.NO_OVERLAY, 0);
         matrices.popPose();
 
         matrices.popPose();
@@ -212,7 +207,7 @@ public class EngineBlockEntityRenderer implements BlockEntityRenderer<AbstractEn
         FabricModelManager modelManager = (FabricModelManager) Minecraft.getInstance().getModelManager();
         BlockStateModel model = modelManager.getModel(key);
 
-        if (model == null || model == Minecraft.getInstance().getModelManager().getMissingBlockStateModel()) {
+        if (model == null) {
             return null;
         }
 

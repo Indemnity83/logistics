@@ -3,7 +3,7 @@ package com.logistics.pipe.screen.widget;
 import com.logistics.LogisticsMod;
 import com.logistics.core.lib.resource.ResourceId;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.input.MouseButtonEvent;
@@ -44,7 +44,7 @@ public class NetworkItemButton extends AbstractWidget {
     }
 
     @Override
-    protected void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+    protected void extractWidgetRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
         // Render slot background (25x25)
         ResourceId texture = selected ? SLOT_SELECTED_TEXTURE : SLOT_TEXTURE;
         graphics.blit(
@@ -63,8 +63,8 @@ public class NetworkItemButton extends AbstractWidget {
         // Render item if present
         if (!item.isEmpty()) {
             // Center item in 25x25 slot (item is 16x16, so offset by 4.5 ≈ 4-5 pixels)
-            graphics.renderItem(item, getX() + 4, getY() + 4);
-            graphics.renderItemDecorations(
+            graphics.item(item, getX() + 4, getY() + 4);
+            graphics.itemDecorations(
                     Minecraft.getInstance().font,
                     item,
                     getX() + 4,

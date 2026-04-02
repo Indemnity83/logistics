@@ -10,7 +10,7 @@ import com.logistics.core.bootstrap.DomainBootstrap;
 import com.logistics.core.lib.pipe.PipeConnectionRegistry;
 import com.logistics.automation.marker.MarkerBlock;
 import com.logistics.automation.marker.MarkerBlockEntity;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLevelEvents;
 import net.minecraft.core.Direction;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.level.block.Block;
@@ -54,7 +54,7 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
                 (quarry, direction) -> direction == Direction.UP ? quarry : null,
                 ENTITY.LASER_QUARRY_BLOCK_ENTITY);
 
-        ServerWorldEvents.UNLOAD.register((server, world) -> LaserQuarryBlockEntity.clearActiveQuarries(world));
+        ServerLevelEvents.UNLOAD.register((server, world) -> LaserQuarryBlockEntity.clearActiveQuarries(world));
     }
 
     public static final class BLOCK {

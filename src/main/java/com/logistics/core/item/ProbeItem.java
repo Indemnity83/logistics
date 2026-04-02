@@ -52,26 +52,24 @@ public class ProbeItem extends Item {
 
     private void displayResult(Player player, ProbeResult result) {
         // Display title
-        player.displayClientMessage(Component.literal("=== " + result.title() + " ===").withStyle(TITLE_COLOR), false);
+        player.sendSystemMessage(Component.literal("=== " + result.title() + " ===").withStyle(TITLE_COLOR));
 
         // Display entries
         for (ProbeResult.Entry entry : result.entries()) {
             switch (entry) {
                 case ProbeResult.Entry.KeyValue kv -> {
                     ChatFormatting valueColor = kv.color() != null ? kv.color() : DEFAULT_VALUE_COLOR;
-                    player.displayClientMessage(
+                    player.sendSystemMessage(
                             Component.literal(kv.key() + ": ")
                                     .withStyle(KEY_COLOR)
-                                    .append(Component.literal(kv.value()).withStyle(valueColor)),
-                            false);
+                                    .append(Component.literal(kv.value()).withStyle(valueColor)));
                 }
                 case ProbeResult.Entry.Warning warning -> {
-                    player.displayClientMessage(
-                            Component.literal("WARNING: " + warning.message()).withStyle(WARNING_COLOR, ChatFormatting.BOLD),
-                            false);
+                    player.sendSystemMessage(
+                            Component.literal("WARNING: " + warning.message()).withStyle(WARNING_COLOR, ChatFormatting.BOLD));
                 }
                 case ProbeResult.Entry.Separator ignored -> {
-                    player.displayClientMessage(Component.literal("---").withStyle(ChatFormatting.DARK_GRAY), false);
+                    player.sendSystemMessage(Component.literal("---").withStyle(ChatFormatting.DARK_GRAY));
                 }
             }
         }

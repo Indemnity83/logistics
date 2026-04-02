@@ -51,7 +51,7 @@ public class CreativeEngineBlock extends AbstractEngineBlock<CreativeEngineBlock
         if (player.isShiftKeyDown() && world.getBlockEntity(pos) instanceof CreativeEngineBlockEntity engine) {
             if (!world.isClientSide()) {
                 long newRate = engine.cycleOutputLevel();
-                player.displayClientMessage(Component.translatable("message.logistics.power.creative_engine.output", newRate), true);
+                player.sendSystemMessage(Component.translatable("message.logistics.power.creative_engine.output", newRate));
             }
             return InteractionResult.SUCCESS;
         }
