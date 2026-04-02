@@ -26,12 +26,12 @@ import java.util.List;
 public class MaceratorRecipeWrapper implements Recipe<SingleRecipeInput> {
 
     private final Ingredient ingredient;
-    private final ItemStack result;
+    private final ItemStackTemplate result;
     private final int grindingTime;
     private final float experience;
     @Nullable private PlacementInfo placementInfo;
 
-    public MaceratorRecipeWrapper(Ingredient ingredient, ItemStack result, int grindingTime, float experience) {
+    public MaceratorRecipeWrapper(Ingredient ingredient, ItemStackTemplate result, int grindingTime, float experience) {
         this.ingredient = ingredient;
         this.result = result;
         this.grindingTime = grindingTime;
@@ -42,7 +42,7 @@ public class MaceratorRecipeWrapper implements Recipe<SingleRecipeInput> {
         return ingredient;
     }
 
-    public ItemStack result() {
+    public ItemStackTemplate result() {
         return result;
     }
 
@@ -66,7 +66,7 @@ public class MaceratorRecipeWrapper implements Recipe<SingleRecipeInput> {
 
     @Override
     public @NotNull ItemStack assemble(@NotNull SingleRecipeInput input) {
-        return result.copy();
+        return result.create();
     }
 
     @Override
@@ -106,7 +106,7 @@ public class MaceratorRecipeWrapper implements Recipe<SingleRecipeInput> {
     public @NotNull List<RecipeDisplay> display() {
         return List.of(new MaceratorRecipeDisplay(
             ingredient.display(),
-            new SlotDisplay.ItemStackSlotDisplay(ItemStackTemplate.fromNonEmptyStack(result)),
+            new SlotDisplay.ItemStackSlotDisplay(result),
             new SlotDisplay.ItemSlotDisplay(LogisticsCore.BLOCK.MACERATOR.asItem()),
             grindingTime,
             experience
