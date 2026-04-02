@@ -1,7 +1,7 @@
 package com.logistics.core.lib.items;
 
 import com.logistics.core.lib.storage.NbtCompat;
-import net.fabricmc.fabric.api.transfer.v1.item.InventoryStorage;
+import net.fabricmc.fabric.api.transfer.v1.item.ContainerStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.minecraft.core.NonNullList;
@@ -31,7 +31,7 @@ public final class ItemInventoryComponent implements Container {
         this.onChanged = onChanged;
 
         // Transfer API wrapper over vanilla Inventory
-        this.storage = InventoryStorage.of(this, null);
+        this.storage = ContainerStorage.of(this, null);
     }
 
     public Storage<ItemVariant> storage() {

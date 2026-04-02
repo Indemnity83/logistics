@@ -9,7 +9,7 @@ import com.logistics.pipe.screen.widget.PageButton;
 import com.logistics.pipe.ui.RequesterScreenHandler;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import com.mojang.blaze3d.platform.InputConstants;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import org.jetbrains.annotations.NotNull;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.gui.components.Button;
@@ -43,9 +43,7 @@ public class RequesterScreen extends AbstractContainerScreen<RequesterScreenHand
     private NetworkItemButton selectedButton = null;
 
     public RequesterScreen(RequesterScreenHandler handler, Inventory inventory, Component title) {
-        super(handler, inventory, title);
-        this.imageWidth = 222;
-        this.imageHeight = 183;
+        super(handler, inventory, title, 222, 183);
     }
 
     @Override
@@ -114,7 +112,6 @@ public class RequesterScreen extends AbstractContainerScreen<RequesterScreenHand
         amountField.setValue("1");
         amountField.setMaxLength(4);
         amountField.setCentered(true);
-        amountField.setFilter(s -> s.isEmpty() || s.matches("\\d+"));
         addRenderableWidget(amountField);
 
         Button incrementButton = Button.builder(
@@ -283,7 +280,7 @@ public class RequesterScreen extends AbstractContainerScreen<RequesterScreenHand
     }
 
     @Override
-    protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
+    public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
         // Draw requester-alt.png background
         graphics.blit(
                 RenderPipelines.GUI_TEXTURED,
@@ -302,7 +299,7 @@ public class RequesterScreen extends AbstractContainerScreen<RequesterScreenHand
         if (getMenu().getTotalPages() > 0) {
             String pageText = (getMenu().getCurrentPage() + 1) + "/" + getMenu().getTotalPages();
             int textWidth = font.width(pageText);
-            graphics.drawString(
+            graphics.text(
                     font,
                     pageText,
                     leftPos + (imageWidth - textWidth) / 2,
@@ -314,21 +311,21 @@ public class RequesterScreen extends AbstractContainerScreen<RequesterScreenHand
     }
 
     @Override
-    protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
+    protected void extractLabels(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
         // Title is rendered by texture, no need for text overlay
         // Amount label
         Component amountLabel = Component.translatable("gui.logistics.requester.amount");
-        graphics.drawString(font, amountLabel, 8, imageHeight - 52, 0x404040, false);
+        graphics.text(font, amountLabel, 8, imageHeight - 52, 0x404040, false);
     }
 
     @Override
-    public void render(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        super.render(graphics, mouseX, mouseY, partialTick);
+    public void extractRenderState(@NotNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+        super.extractRenderState(graphics, mouseX, mouseY, partialTick);
 
         // Render item tooltips
         for (NetworkItemButton button : itemButtons) {
             if (button.isHoveredOrFocused() && !button.getItem().isEmpty()) {
-                renderTooltip(graphics, mouseX, mouseY);
+                extractTooltip(graphics, mouseX, mouseY);
                 break;
             }
         }

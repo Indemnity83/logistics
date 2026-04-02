@@ -2,7 +2,7 @@ package com.logistics.automation.kiln;
 
 import com.logistics.LogisticsMod;
 import com.logistics.core.lib.resource.ResourceId;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.navigation.ScreenPosition;
 import net.minecraft.client.gui.screens.inventory.AbstractRecipeBookScreen;
 import net.minecraft.client.renderer.RenderPipelines;
@@ -20,8 +20,6 @@ public class KilnScreen extends AbstractRecipeBookScreen<KilnScreenHandler> {
 
     public KilnScreen(KilnScreenHandler handler, Inventory inventory, Component title) {
         super(handler, new KilnRecipeBookComponent(handler), inventory, title);
-        this.imageWidth = 176;
-        this.imageHeight = 166;
     }
 
     @Override
@@ -36,7 +34,7 @@ public class KilnScreen extends AbstractRecipeBookScreen<KilnScreenHandler> {
     }
 
     @Override
-    protected void renderBg(GuiGraphics graphics, float delta, int mouseX, int mouseY) {
+    public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
         graphics.blit(
             RenderPipelines.GUI_TEXTURED,
             TEXTURE.toIdentifier(),

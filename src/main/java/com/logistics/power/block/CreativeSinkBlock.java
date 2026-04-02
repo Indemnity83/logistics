@@ -76,8 +76,8 @@ public class CreativeSinkBlock extends BaseEntityBlock implements ProbeBehavior.
         if (world.getBlockEntity(pos) instanceof CreativeSinkBlockEntity sink) {
             if (!world.isClientSide()) {
                 long newRate = sink.cycleDrainRate();
-                player.displayClientMessage(
-                        Component.translatable("message.logistics.power.creative_sink.drain_rate", newRate), true);
+                player.sendSystemMessage(
+                        Component.translatable("message.logistics.power.creative_sink.drain_rate", newRate));
             }
             return InteractionResult.SUCCESS;
         }

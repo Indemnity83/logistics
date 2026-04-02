@@ -11,7 +11,7 @@ import com.logistics.power.engine.block.entity.CreativeEngineBlockEntity;
 import com.logistics.power.engine.block.entity.RedstoneEngineBlockEntity;
 import com.logistics.power.engine.block.entity.StirlingEngineBlockEntity;
 import com.logistics.power.engine.ui.StirlingEngineScreenHandler;
-import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerType;
+import net.fabricmc.fabric.api.menu.v1.ExtendedMenuType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -101,7 +101,7 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
             STIRLING_ENGINE = Registry.register(
                     BuiltInRegistries.MENU,
                     LogisticsPower.resource("stirling_engine").toIdentifier(),
-                    new ExtendedScreenHandlerType<>(StirlingEngineScreenHandler::new, BlockPos.STREAM_CODEC));
+                    new ExtendedMenuType<>(StirlingEngineScreenHandler::new, BlockPos.STREAM_CODEC));
         }
     }
 

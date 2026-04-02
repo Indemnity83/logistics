@@ -1,8 +1,8 @@
 package com.logistics.core.macerator;
 
 import com.logistics.LogisticsCore;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.PlacementInfo;
 import net.minecraft.world.item.crafting.Recipe;
@@ -60,13 +60,18 @@ public class MaceratorRecipeWrapper implements Recipe<SingleRecipeInput> {
     }
 
     @Override
-    public @NotNull ItemStack assemble(@NotNull SingleRecipeInput input, HolderLookup.@NotNull Provider provider) {
+    public @NotNull String group() {
+        return "";
+    }
+
+    @Override
+    public @NotNull ItemStack assemble(@NotNull SingleRecipeInput input) {
         return result.copy();
     }
 
     @Override
     public @NotNull RecipeSerializer<MaceratorRecipeWrapper> getSerializer() {
-        return LogisticsCore.RECIPE.MACERATOR_RECIPE_SERIALIZER;
+        return MaceratorRecipeSerializer.INSTANCE;
     }
 
     @Override
@@ -77,6 +82,11 @@ public class MaceratorRecipeWrapper implements Recipe<SingleRecipeInput> {
     @Override
     public boolean isSpecial() {
         return false;
+    }
+
+    @Override
+    public boolean showNotification() {
+        return true;
     }
 
     @Override
@@ -96,7 +106,7 @@ public class MaceratorRecipeWrapper implements Recipe<SingleRecipeInput> {
     public @NotNull List<RecipeDisplay> display() {
         return List.of(new MaceratorRecipeDisplay(
             ingredient.display(),
-            new SlotDisplay.ItemStackSlotDisplay(result),
+            new SlotDisplay.ItemStackSlotDisplay(ItemStackTemplate.fromNonEmptyStack(result)),
             new SlotDisplay.ItemSlotDisplay(LogisticsCore.BLOCK.MACERATOR.asItem()),
             grindingTime,
             experience

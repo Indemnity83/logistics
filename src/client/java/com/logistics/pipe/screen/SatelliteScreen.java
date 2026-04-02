@@ -2,7 +2,7 @@ package com.logistics.pipe.screen;
 
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.pipe.ui.SatelliteScreenHandler;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.RenderPipelines;
@@ -28,9 +28,7 @@ public class SatelliteScreen extends AbstractContainerScreen<SatelliteScreenHand
     private static final int PLUS_X = CENTER_X + 14;  // 101
 
     public SatelliteScreen(SatelliteScreenHandler handler, Inventory inventory, Component title) {
-        super(handler, inventory, title);
-        this.imageWidth = 176;
-        this.imageHeight = 122;
+        super(handler, inventory, title, 176, 122);
     }
 
     @Override
@@ -57,7 +55,7 @@ public class SatelliteScreen extends AbstractContainerScreen<SatelliteScreenHand
     }
 
     @Override
-    protected void renderBg(GuiGraphics graphics, float delta, int mouseX, int mouseY) {
+    public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
         graphics.blit(
                 RenderPipelines.GUI_TEXTURED,
                 BACKGROUND_TEXTURE.toIdentifier(),
@@ -66,17 +64,17 @@ public class SatelliteScreen extends AbstractContainerScreen<SatelliteScreenHand
     }
 
     @Override
-    protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
+    protected void extractLabels(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
         // Draw satellite ID number centered in the top strip
         int currentId = menu.getCurrentId();
         String label = currentId > 0 ? String.valueOf(currentId) : "-";
         int color = menu.isCurrentIdTaken() ? 0xFFFF5555 : 0xFFFFFFFF;
-        graphics.drawCenteredString(font, label, CENTER_X, CENTER_Y - font.lineHeight / 2, color);
+        graphics.centeredText(font, label, CENTER_X, CENTER_Y - font.lineHeight / 2, color);
     }
 
     @Override
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        super.render(graphics, mouseX, mouseY, partialTick);
-        renderTooltip(graphics, mouseX, mouseY);
+    public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+        super.extractRenderState(graphics, mouseX, mouseY, partialTick);
+        extractTooltip(graphics, mouseX, mouseY);
     }
 }

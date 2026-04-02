@@ -3,7 +3,7 @@ package com.logistics.pipe.screen;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.pipe.modules.ItemFilterModule;
 import com.logistics.pipe.ui.ItemFilterScreenHandler;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
@@ -18,13 +18,11 @@ public class ItemFilterScreen extends AbstractContainerScreen<ItemFilterScreenHa
     private static final int SLOT_INNER_SIZE = 16;
 
     public ItemFilterScreen(ItemFilterScreenHandler handler, Inventory inventory, Component title) {
-        super(handler, inventory, title);
-        this.imageWidth = 176;
-        this.imageHeight = 222;
+        super(handler, inventory, title, 176, 222);
     }
 
     @Override
-    protected void renderBg(GuiGraphics context, float delta, int mouseX, int mouseY) {
+    public void extractBackground(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
         context.blit(
                 RenderPipelines.GUI_TEXTURED,
                 BACKGROUND_TEXTURE.toIdentifier(),
@@ -49,7 +47,7 @@ public class ItemFilterScreen extends AbstractContainerScreen<ItemFilterScreenHa
     }
 
     private void drawSwatchLabel(
-            GuiGraphics context, net.minecraft.core.Direction direction, int swatchX, int swatchY) {
+            GuiGraphicsExtractor context, net.minecraft.core.Direction direction, int swatchX, int swatchY) {
         String label =
                 switch (direction) {
                     case NORTH -> "N";
@@ -62,11 +60,11 @@ public class ItemFilterScreen extends AbstractContainerScreen<ItemFilterScreenHa
         int textWidth = font.width(label);
         int textX = swatchX + (SLOT_INNER_SIZE - textWidth) / 2;
         int textY = swatchY + (SLOT_INNER_SIZE - font.lineHeight) / 2;
-        context.drawString(font, label, textX, textY, 0xF0FFFFFF, true);
+        context.text(font, label, textX, textY, 0xF0FFFFFF, true);
     }
 
     @Override
-    protected void renderLabels(GuiGraphics context, int mouseX, int mouseY) {
-        context.drawString(font, title, titleLabelX, titleLabelY, 0x404040, false);
+    protected void extractLabels(GuiGraphicsExtractor context, int mouseX, int mouseY) {
+        context.text(font, title, titleLabelX, titleLabelY, 0x404040, false);
     }
 }

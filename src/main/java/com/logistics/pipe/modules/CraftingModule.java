@@ -267,7 +267,7 @@ public class CraftingModule implements Module, TickingModule, RoutingModule, Dis
         CompoundTag state = ctx.moduleState(getStateKey());
         if (recipeOpt.isPresent()) {
             CraftingRecipe recipe = recipeOpt.get().value();
-            ItemStack result = recipe.assemble(craftInput, serverLevel.registryAccess());
+            ItemStack result = recipe.assemble(craftInput);
             if (!result.isEmpty()) {
                 state.putString(RESULT_ITEM, BuiltInRegistries.ITEM.getKey(result.getItem()).toString());
                 state.putInt(RESULT_COUNT, Math.max(1, result.getCount()));
@@ -354,7 +354,7 @@ public class CraftingModule implements Module, TickingModule, RoutingModule, Dis
             if (recipeOpt.isEmpty()) break; // Incomplete recipe set — stop
 
             CraftingRecipe recipe = recipeOpt.get().value();
-            ItemStack result = recipe.assemble(craftInput, serverLevel.registryAccess());
+            ItemStack result = recipe.assemble(craftInput);
             if (result.isEmpty()) break;
 
             if (!ItemStack.isSameItemSameComponents(result, configuredResult)) {

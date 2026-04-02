@@ -5,17 +5,22 @@ import com.logistics.automation.marker.MarkerBlockEntity;
 import com.logistics.automation.marker.MarkerManager;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import net.fabricmc.fabric.api.client.model.loading.v1.FabricBakedModelManager;
+import net.fabricmc.fabric.api.client.model.loading.v1.FabricModelManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.SubmitNodeCollector;
-import net.minecraft.client.renderer.block.model.BlockStateModel;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
-import net.minecraft.client.renderer.state.CameraRenderState;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.util.RandomSource;
+
+import java.util.ArrayList;
+import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.Vec3;
 
@@ -165,9 +170,9 @@ public class MarkerBlockEntityRenderer implements BlockEntityRenderer<MarkerBloc
     }
 
     private BlockStateModel getBeamModel() {
-        FabricBakedModelManager modelManager = (FabricBakedModelManager) Minecraft.getInstance().getModelManager();
+        FabricModelManager modelManager = (FabricModelManager) Minecraft.getInstance().getModelManager();
         BlockStateModel model = modelManager.getModel(LogisticsAutomationClient.MODEL.BEAM);
-        if (model == null || model == Minecraft.getInstance().getModelManager().getMissingBlockStateModel()) {
+        if (model == null) {
             return null;
         }
         return model;
@@ -181,6 +186,8 @@ public class MarkerBlockEntityRenderer implements BlockEntityRenderer<MarkerBloc
             int lightmap,
             float yRotation,
             int length) {
+        List<BlockStateModelPart> parts = new ArrayList<>();
+        beamModel.collectParts(RandomSource.create(0), parts);
         for (int i = 0; i < length; i++) {
             matrices.pushPose();
             matrices.translate(0.5, -0.0625, 0.5);
@@ -190,12 +197,10 @@ public class MarkerBlockEntityRenderer implements BlockEntityRenderer<MarkerBloc
             queue.submitBlockModel(
                     matrices,
                     renderLayer,
-                    beamModel,
-                    1f,
-                    1f,
-                    1f,
-                    lightmap,
+                    parts,
+                    new int[]{lightmap},
                     OverlayTexture.NO_OVERLAY,
+                    0,
                     0);
             matrices.popPose();
         }

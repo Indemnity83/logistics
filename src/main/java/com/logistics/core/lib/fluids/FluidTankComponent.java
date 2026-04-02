@@ -80,8 +80,8 @@ public abstract class FluidTankComponent extends SingleVariantStorage<FluidVaria
         CompoundTag data = new CompoundTag();
         if (variant.getFluid() != Fluids.EMPTY) {
             data.putString("fluid", BuiltInRegistries.FLUID.getKey(variant.getFluid()).toString());
-            if (!variant.getComponents().isEmpty()) {
-                DataComponentPatch.CODEC.encodeStart(NbtOps.INSTANCE, variant.getComponents())
+            if (!variant.getComponentsPatch().isEmpty()) {
+                DataComponentPatch.CODEC.encodeStart(NbtOps.INSTANCE, variant.getComponentsPatch())
                         .result().ifPresent(tag -> data.put("components", tag));
             }
             data.putLong("amount", amount);

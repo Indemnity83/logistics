@@ -42,7 +42,7 @@ public record RequestItemPacket(BlockPos pipePos, ItemStack stack, int amount)
      * Register this packet type with Fabric networking.
      */
     public static void register() {
-        PayloadTypeRegistry.playC2S().register(TYPE, CODEC);
+        PayloadTypeRegistry.serverboundPlay().register(TYPE, CODEC);
 
         ServerPlayNetworking.registerGlobalReceiver(TYPE, (packet, context) -> {
             context.server().execute(() -> {

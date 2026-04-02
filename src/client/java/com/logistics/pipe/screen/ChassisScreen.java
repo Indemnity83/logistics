@@ -4,7 +4,7 @@ import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.pipe.network.packet.OpenChassisSlotPacket;
 import com.logistics.pipe.ui.ChassisScreenHandler;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.RenderPipelines;
@@ -30,9 +30,7 @@ public class ChassisScreen extends AbstractContainerScreen<ChassisScreenHandler>
             ResourceId.in("logistics", "textures/gui/pipe/chassis_mk1.png");
 
     public ChassisScreen(ChassisScreenHandler handler, Inventory inventory, Component title) {
-        super(handler, inventory, title);
-        this.imageWidth = 176;
-        this.imageHeight = 183;
+        super(handler, inventory, title, 176, 183);
         this.titleLabelY = 6;
         this.inventoryLabelY = 90;
     }
@@ -58,7 +56,7 @@ public class ChassisScreen extends AbstractContainerScreen<ChassisScreenHandler>
     }
 
     @Override
-    protected void renderBg(GuiGraphics graphics, float delta, int mouseX, int mouseY) {
+    public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
         ResourceId texture = BACKGROUNDS.getOrDefault(menu.getSlotCount(), FALLBACK_BACKGROUND);
         graphics.blit(
                 RenderPipelines.GUI_TEXTURED,
@@ -74,8 +72,8 @@ public class ChassisScreen extends AbstractContainerScreen<ChassisScreenHandler>
     }
 
     @Override
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        super.render(graphics, mouseX, mouseY, partialTick);
-        renderTooltip(graphics, mouseX, mouseY);
+    public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+        super.extractRenderState(graphics, mouseX, mouseY, partialTick);
+        extractTooltip(graphics, mouseX, mouseY);
     }
 }

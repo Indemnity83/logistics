@@ -13,19 +13,23 @@ import com.logistics.core.lib.pipe.TravelingItem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import net.fabricmc.fabric.api.client.model.loading.v1.ExtraModelKey;
-import net.fabricmc.fabric.api.client.model.loading.v1.FabricBakedModelManager;
+import net.fabricmc.fabric.api.client.model.loading.v1.FabricModelManager;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.SubmitNodeCollector;
-import net.minecraft.client.renderer.block.model.BlockStateModel;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
 import net.minecraft.client.renderer.item.ItemModelResolver;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
-import net.minecraft.client.renderer.state.CameraRenderState;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.util.RandomSource;
+
+import java.util.ArrayList;
+import java.util.List;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemDisplayContext;
@@ -40,11 +44,11 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
     private static final float ITEM_OFFSET = 0.375f;
 
     private final ItemModelResolver itemModelManager;
-    private final FabricBakedModelManager modelManager;
+    private final FabricModelManager modelManager;
 
     public PipeBlockEntityRenderer(BlockEntityRendererProvider.Context ctx) {
         this.itemModelManager = ctx.itemModelResolver();
-        this.modelManager = (FabricBakedModelManager) Minecraft.getInstance().getModelManager();
+        this.modelManager = (FabricModelManager) Minecraft.getInstance().getModelManager();
     }
 
     private BlockStateModel getModel(ResourceId modelId) {
@@ -53,7 +57,7 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
             return null;
         }
         BlockStateModel model = modelManager.getModel(key);
-        if (model == null || model == Minecraft.getInstance().getModelManager().getMissingBlockStateModel()) {
+        if (model == null) {
             return null;
         }
         return model;
@@ -153,9 +157,7 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
     public void submit(
             PipeRenderState state, PoseStack matrices, SubmitNodeCollector queue, CameraRenderState cameraState) {
         if (!state.models.isEmpty()) {
-            RenderType renderLayer = state.blockState == null
-                    ? RenderTypes.cutoutMovingBlock()
-                    : ItemBlockRenderTypes.getRenderType(state.blockState);
+            RenderType renderLayer = RenderTypes.cutoutMovingBlock();
             for (PipeRenderState.ModelRenderInfo modelInfo : state.models) {
                 BlockStateModel model = getModel(modelInfo.modelId);
                 if (model == null) {
@@ -171,19 +173,9 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
                 }
 
                 int color = modelInfo.color;
-                float red = ((color >> 16) & 0xFF) / 255.0f;
-                float green = ((color >> 8) & 0xFF) / 255.0f;
-                float blue = (color & 0xFF) / 255.0f;
-                queue.submitBlockModel(
-                        matrices,
-                        renderLayer,
-                        model,
-                        red,
-                        green,
-                        blue,
-                        state.lightCoords,
-                        OverlayTexture.NO_OVERLAY,
-                        0);
+                List<BlockStateModelPart> parts = new ArrayList<>();
+                model.collectParts(RandomSource.create(0), parts);
+                queue.submitBlockModel(matrices, renderLayer, parts, new int[]{color}, state.lightCoords, OverlayTexture.NO_OVERLAY, 0);
 
                 if (modelInfo.armDirection != null) {
                     matrices.popPose();

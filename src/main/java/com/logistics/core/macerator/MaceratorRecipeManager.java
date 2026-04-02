@@ -48,7 +48,7 @@ public class MaceratorRecipeManager {
 
     public static void register() {
         LOGGER.info("Registering macerator recipe reload listener");
-        ResourceLoader.get(PackType.SERVER_DATA).registerReloader(
+        ResourceLoader.get(PackType.SERVER_DATA).registerReloadListener(
             LogisticsMod.modId("macerator_recipes").toIdentifier(),
             new PreparableReloadListener() {
                 @Override

@@ -39,6 +39,6 @@ public record SyncRequesterInventoryPacket(BlockPos pipePos, List<ItemStack> ite
      * Client-side receiver is registered in LogisticsPipeClient.
      */
     public static void register() {
-        PayloadTypeRegistry.playS2C().register(TYPE, CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(TYPE, CODEC);
     }
 }

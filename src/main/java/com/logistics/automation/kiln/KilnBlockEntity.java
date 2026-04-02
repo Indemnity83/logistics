@@ -8,7 +8,7 @@ import com.logistics.core.lib.block.capability.HasItemStorage;
 import com.logistics.core.lib.energy.EnergyComponent;
 import com.logistics.core.lib.items.ItemInventoryComponent;
 import com.logistics.core.lib.storage.NbtCompat;
-import net.fabricmc.fabric.api.transfer.v1.item.InventoryStorage;
+import net.fabricmc.fabric.api.transfer.v1.item.ContainerStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.minecraft.core.BlockPos;
@@ -128,7 +128,7 @@ public class KilnBlockEntity extends BaseBlockEntity
             return true;
         }
 
-        ItemStack result = activeRecipe.value().assemble(new SingleRecipeInput(input), level.registryAccess());
+        ItemStack result = activeRecipe.value().assemble(new SingleRecipeInput(input));
 
         // Pause if not enough energy or output is full
         if (energy.getAmount() < ENERGY_PER_TICK || !canAcceptOutput(result)) {
@@ -159,7 +159,7 @@ public class KilnBlockEntity extends BaseBlockEntity
 
     private boolean canStartProcessing(RecipeHolder<SmeltingRecipe> recipe, Level level) {
         ItemStack input = inventory.getItem(INPUT_SLOT);
-        ItemStack result = recipe.value().assemble(new SingleRecipeInput(input), level.registryAccess());
+        ItemStack result = recipe.value().assemble(new SingleRecipeInput(input));
         return energy.getAmount() >= ENERGY_PER_TICK && canAcceptOutput(result);
     }
 
@@ -195,7 +195,7 @@ public class KilnBlockEntity extends BaseBlockEntity
 
     @Override
     public Storage<ItemVariant> itemStorage(@Nullable Direction side) {
-        return InventoryStorage.of(this, side);
+        return ContainerStorage.of(this, side);
     }
 
     @Override

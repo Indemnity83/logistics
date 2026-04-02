@@ -2,7 +2,7 @@ package com.logistics.pipe.screen;
 
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.pipe.ui.ProcessScreenHandler;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.RenderPipelines;
@@ -28,9 +28,7 @@ public class ProcessScreen extends AbstractContainerScreen<ProcessScreenHandler>
     private static final int SAT_BTN_Y = SAT_CENTER_Y - BTN_HEIGHT / 2; // 43
 
     public ProcessScreen(ProcessScreenHandler handler, Inventory inventory, Component title) {
-        super(handler, inventory, title);
-        this.imageWidth = 176;
-        this.imageHeight = 176;
+        super(handler, inventory, title, 176, 176);
     }
 
     @Override
@@ -57,7 +55,7 @@ public class ProcessScreen extends AbstractContainerScreen<ProcessScreenHandler>
     }
 
     @Override
-    protected void renderBg(GuiGraphics graphics, float delta, int mouseX, int mouseY) {
+    public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
         graphics.blit(
                 RenderPipelines.GUI_TEXTURED,
                 BACKGROUND_TEXTURE.toIdentifier(),
@@ -66,23 +64,23 @@ public class ProcessScreen extends AbstractContainerScreen<ProcessScreenHandler>
     }
 
     @Override
-    protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
-        super.renderLabels(graphics, mouseX, mouseY);
+    protected void extractLabels(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
+        super.extractLabels(graphics, mouseX, mouseY);
         int satId = menu.getCurrentSatelliteId();
         String label = satId > 0 ? String.valueOf(satId) : "Off";
         int color = (satId <= 0 || menu.isSatelliteRegistered()) ? 0xFFFFFFFF : 0xFF484848;
-        graphics.drawCenteredString(font, label, SAT_CENTER_X, SAT_CENTER_Y - font.lineHeight / 2, color);
+        graphics.centeredText(font, label, SAT_CENTER_X, SAT_CENTER_Y - font.lineHeight / 2, color);
 
         Component satelliteLabel = Component.literal("Satellite");
         FormattedCharSequence formattedCharSequence = satelliteLabel.getVisualOrderText();
-        graphics.drawString(font, satelliteLabel, SAT_CENTER_X - font.width(formattedCharSequence) / 2, 6, 0xFF484848, false);
+        graphics.text(font, satelliteLabel, SAT_CENTER_X - font.width(formattedCharSequence) / 2, 6, 0xFF484848, false);
 
-        graphics.drawString(font, Component.literal("Output"), 45, 50, 0xFF484848, false);
+        graphics.text(font, Component.literal("Output"), 45, 50, 0xFF484848, false);
     }
 
     @Override
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        super.render(graphics, mouseX, mouseY, partialTick);
-        renderTooltip(graphics, mouseX, mouseY);
+    public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+        super.extractRenderState(graphics, mouseX, mouseY, partialTick);
+        extractTooltip(graphics, mouseX, mouseY);
     }
 }

@@ -16,16 +16,16 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
  * Note: {"tag":"..."} object format is not supported by vanilla's Ingredient.CODEC;
  * those recipes are handled exclusively by MaceratorRecipeManager.
  */
-public class MaceratorRecipeSerializer implements RecipeSerializer<MaceratorRecipeWrapper> {
+public class MaceratorRecipeSerializer {
 
-    private static final MapCodec<MaceratorRecipeWrapper> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+    public static final MapCodec<MaceratorRecipeWrapper> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
         Ingredient.CODEC.fieldOf("ingredient").forGetter(MaceratorRecipeWrapper::ingredient),
-        ItemStack.STRICT_CODEC.fieldOf("result").forGetter(MaceratorRecipeWrapper::result),
+        ItemStack.CODEC.fieldOf("result").forGetter(MaceratorRecipeWrapper::result),
         Codec.INT.fieldOf("grindingtime").forGetter(MaceratorRecipeWrapper::grindingTime),
         Codec.FLOAT.optionalFieldOf("experience", MaceratorRecipe.DEFAULT_EXPERIENCE).forGetter(MaceratorRecipeWrapper::experience)
     ).apply(i, MaceratorRecipeWrapper::new));
 
-    private static final StreamCodec<RegistryFriendlyByteBuf, MaceratorRecipeWrapper> STREAM_CODEC =
+    public static final StreamCodec<RegistryFriendlyByteBuf, MaceratorRecipeWrapper> STREAM_CODEC =
         StreamCodec.composite(
             Ingredient.CONTENTS_STREAM_CODEC, MaceratorRecipeWrapper::ingredient,
             ItemStack.STREAM_CODEC, MaceratorRecipeWrapper::result,
@@ -34,13 +34,8 @@ public class MaceratorRecipeSerializer implements RecipeSerializer<MaceratorReci
             MaceratorRecipeWrapper::new
         );
 
-    @Override
-    public MapCodec<MaceratorRecipeWrapper> codec() {
-        return CODEC;
-    }
+    public static final RecipeSerializer<MaceratorRecipeWrapper> INSTANCE =
+        new RecipeSerializer<>(CODEC, STREAM_CODEC);
 
-    @Override
-    public StreamCodec<RegistryFriendlyByteBuf, MaceratorRecipeWrapper> streamCodec() {
-        return STREAM_CODEC;
-    }
+    private MaceratorRecipeSerializer() {}
 }
