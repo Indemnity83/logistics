@@ -1,0 +1,9 @@
+{
+  "type": "logistics:macerator",
+  "ingredient": "minecraft:raw_copper_block",
+  "result": {
+    "id": "logistics:core/copper_dust",
+    "count": 9
+  },
+  "grindingtime": 200
+}
