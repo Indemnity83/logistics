@@ -86,11 +86,11 @@ public final class LogisticsPowerClient implements DomainBootstrap {
     private void registerEngineBlockColors() {
         BlockColorRegistry.register(
             List.of(state -> switch (state.getValue(AbstractEngineBlockEntity.STAGE)) {
-                case COLD -> 0x3366CC;
-                case COOL -> 0x33CC33;
-                case WARM -> 0xCCCC33;
-                case HOT -> 0xCC3333;
-                case OVERHEAT -> 0x191919;
+                case COLD -> 0xFF3366CC;
+                case COOL -> 0xFF33CC33;
+                case WARM -> 0xFFCCCC33;
+                case HOT -> 0xFFCC3333;
+                case OVERHEAT -> 0xFF191919;
             }),
             LogisticsPower.BLOCK.REDSTONE_ENGINE,
             LogisticsPower.BLOCK.STIRLING_ENGINE,
