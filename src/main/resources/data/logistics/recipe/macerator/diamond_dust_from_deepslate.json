@@ -1,0 +1,8 @@
+{
+  "type": "logistics:macerator",
+  "ingredient": "minecraft:deepslate_diamond_ore",
+  "result": {
+    "id": "logistics:automation/diamond_dust",
+    "count": 2
+  }
+}

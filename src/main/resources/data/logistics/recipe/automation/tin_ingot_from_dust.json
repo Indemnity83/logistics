@@ -1,0 +1,8 @@
+{
+  "type": "minecraft:smelting",
+  "ingredient": "logistics:automation/tin_dust",
+  "result": {
+    "id": "logistics:core/tin_ingot"
+  },
+  "cookingtime": 200
+}

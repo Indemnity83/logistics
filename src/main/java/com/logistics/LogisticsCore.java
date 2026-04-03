@@ -17,8 +17,6 @@ import com.logistics.core.lib.block.lookup.PipeConnectionAccess;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.core.fluids.MoltenGlassFluid;
 import com.logistics.core.loot.ChestLootModifier;
-import com.logistics.core.marker.MarkerBlock;
-import com.logistics.core.marker.MarkerBlockEntity;
 import com.logistics.core.network.NetworkTickHandler;
 import net.fabricmc.fabric.api.biome.v1.BiomeModifications;
 import net.fabricmc.fabric.api.biome.v1.BiomeSelectors;
@@ -130,7 +128,6 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
     }
 
     public static final class BLOCK {
-        public static Block MARKER;
         public static Block TIN_ORE;
         public static Block DEEPSLATE_TIN_ORE;
         public static Block TIN_BLOCK;
@@ -143,9 +140,6 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         private BLOCK() {}
 
         static void register() {
-            MARKER = INSTANCE.registerBlockWithItem("marker",
-                props -> new MarkerBlock(props.strength(0.0f).sound(SoundType.WOOD).noOcclusion()));
-
             // Tin Ore and Storage Blocks
             TIN_ORE = INSTANCE.registerBlockWithItem("tin_ore",
                 props -> new Block(props.strength(3.0f, 3.0f).sound(SoundType.STONE).requiresCorrectToolForDrops()));
@@ -173,13 +167,11 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
     }
 
     public static final class ENTITY {
-        public static BlockEntityType<MarkerBlockEntity> MARKER_BLOCK_ENTITY;
         public static BlockEntityType<KilnBlockEntity> KILN;
 
         private ENTITY() {}
 
         static void register() {
-            MARKER_BLOCK_ENTITY = INSTANCE.registerBlockEntity("marker", MarkerBlockEntity::new, BLOCK.MARKER);
             KILN = INSTANCE.registerBlockEntity("kiln", KilnBlockEntity::new, BLOCK.KILN);
         }
     }
@@ -257,6 +249,8 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         public static Item BRONZE_NUGGET;
         public static Item APATITE;
         public static Item STURDY_CASING;
+        public static Item MACHINE_FRAME;
+
         public static Item WOODEN_GEAR;
         public static Item STONE_GEAR;
         public static Item COPPER_GEAR;
@@ -304,6 +298,7 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
 
             // Components
             STURDY_CASING = INSTANCE.registerItem("sturdy_casing", Item::new);
+            MACHINE_FRAME = INSTANCE.registerItem("machine_frame", Item::new);
 
             // Gears
             WOODEN_GEAR = INSTANCE.registerItem("wooden_gear", Item::new);
@@ -375,7 +370,6 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         CREATIVE_TAB.addItems(
                 ITEM.WRENCH,
                 ITEM.PROBE,
-                BLOCK.MARKER,
                 BLOCK.KILN
         );
     }
@@ -406,7 +400,8 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
 
             // Intermediate Crafting Items
             entries.addBefore(Items.HEAVY_CORE, ITEM.STURDY_CASING);
-            entries.addAfter(ITEM.STURDY_CASING, ITEM.WOODEN_GEAR);
+            entries.addAfter(ITEM.STURDY_CASING, ITEM.MACHINE_FRAME);
+            entries.addAfter(ITEM.MACHINE_FRAME, ITEM.WOODEN_GEAR);
             entries.addAfter(ITEM.WOODEN_GEAR, ITEM.STONE_GEAR);
             entries.addAfter(ITEM.STONE_GEAR, ITEM.COPPER_GEAR);
             entries.addAfter(ITEM.COPPER_GEAR, ITEM.TIN_GEAR);
@@ -448,9 +443,6 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
 
     private void registerLegacyAliases() {
         // v0.2 => v0.3
-        registerBlockAlias("marker", BLOCK.MARKER);
-        registerBlockEntityAlias("marker", ENTITY.MARKER_BLOCK_ENTITY);
-        registerItemAlias("marker", BLOCK.MARKER.asItem());
         registerItemAlias("wrench", ITEM.WRENCH);
         registerItemAlias("wooden_gear", ITEM.WOODEN_GEAR);
         registerItemAlias("stone_gear", ITEM.STONE_GEAR);

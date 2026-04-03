@@ -1,0 +1,8 @@
+{
+  "type": "logistics:macerator",
+  "ingredient": "minecraft:quartz",
+  "result": {
+    "id": "logistics:automation/quartz_dust",
+    "count": 1
+  }
+}
