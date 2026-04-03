@@ -17,13 +17,11 @@ import com.logistics.core.lib.block.lookup.PipeConnectionAccess;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.core.fluids.MoltenGlassFluid;
 import com.logistics.core.loot.ChestLootModifier;
-import com.logistics.core.marker.MarkerBlock;
-import com.logistics.core.marker.MarkerBlockEntity;
 import com.logistics.core.network.NetworkTickHandler;
 import net.fabricmc.fabric.api.biome.v1.BiomeModifications;
 import net.fabricmc.fabric.api.biome.v1.BiomeSelectors;
-import net.fabricmc.fabric.api.creativetab.v1.FabricCreativeModeTab;
-import net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents;
+import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
+import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Items;
 import net.minecraft.core.Registry;
@@ -130,7 +128,6 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
     }
 
     public static final class BLOCK {
-        public static Block MARKER;
         public static Block TIN_ORE;
         public static Block DEEPSLATE_TIN_ORE;
         public static Block TIN_BLOCK;
@@ -143,9 +140,6 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         private BLOCK() {}
 
         static void register() {
-            MARKER = INSTANCE.registerBlockWithItem("marker",
-                props -> new MarkerBlock(props.strength(0.0f).sound(SoundType.WOOD).noCollision()));
-
             // Tin Ore and Storage Blocks
             TIN_ORE = INSTANCE.registerBlockWithItem("tin_ore",
                 props -> new Block(props.strength(3.0f, 3.0f).sound(SoundType.STONE).requiresCorrectToolForDrops()));
@@ -173,13 +167,11 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
     }
 
     public static final class ENTITY {
-        public static BlockEntityType<MarkerBlockEntity> MARKER_BLOCK_ENTITY;
         public static BlockEntityType<KilnBlockEntity> KILN;
 
         private ENTITY() {}
 
         static void register() {
-            MARKER_BLOCK_ENTITY = INSTANCE.registerBlockEntity("marker", MarkerBlockEntity::new, BLOCK.MARKER);
             KILN = INSTANCE.registerBlockEntity("kiln", KilnBlockEntity::new, BLOCK.KILN);
         }
     }
@@ -238,7 +230,7 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
             KILN_RECIPE_SERIALIZER = Registry.register(
                 BuiltInRegistries.RECIPE_SERIALIZER,
                 LogisticsMod.modId("kiln").toIdentifier(),
-                KilnRecipeSerializer.create()
+                new KilnRecipeSerializer()
             );
         }
     }
@@ -257,6 +249,8 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         public static Item BRONZE_NUGGET;
         public static Item APATITE;
         public static Item STURDY_CASING;
+        public static Item MACHINE_FRAME;
+
         public static Item WOODEN_GEAR;
         public static Item STONE_GEAR;
         public static Item COPPER_GEAR;
@@ -304,6 +298,7 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
 
             // Components
             STURDY_CASING = INSTANCE.registerItem("sturdy_casing", Item::new);
+            MACHINE_FRAME = INSTANCE.registerItem("machine_frame", Item::new);
 
             // Gears
             WOODEN_GEAR = INSTANCE.registerItem("wooden_gear", Item::new);
@@ -343,7 +338,7 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
             LOGISTICS_TRANSPORT = Registry.register(
                     BuiltInRegistries.CREATIVE_MODE_TAB,
                     LogisticsMod.modId("logistics_transport").toIdentifier(),
-                    FabricCreativeModeTab.builder()
+                    FabricItemGroup.builder()
                             .title(Component.literal("Logistics"))
                             .icon(() -> new ItemStack(ITEM.IRON_GEAR))
                             .displayItems((params, entries) -> {
@@ -375,82 +370,79 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         CREATIVE_TAB.addItems(
                 ITEM.WRENCH,
                 ITEM.PROBE,
-                BLOCK.MARKER,
                 BLOCK.KILN
         );
     }
 
     private static void addVanillaCreativeTabEntries() {
         // Add storage blocks to Building Blocks tab
-        CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.BUILDING_BLOCKS).register(entries -> {
-            entries.insertAfter(Items.COAL_BLOCK, BLOCK.APATITE_BLOCK);
-            entries.insertBefore(Items.IRON_BLOCK, BLOCK.TIN_BLOCK);
-            entries.insertAfter(Items.IRON_BLOCK, BLOCK.BRONZE_BLOCK);
+        ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.BUILDING_BLOCKS).register(entries -> {
+            entries.addAfter(Items.COAL_BLOCK, BLOCK.APATITE_BLOCK);
+            entries.addBefore(Items.IRON_BLOCK, BLOCK.TIN_BLOCK);
+            entries.addAfter(Items.IRON_BLOCK, BLOCK.BRONZE_BLOCK);
         });
 
         // Add materials to Ingredients tab
-        CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.INGREDIENTS).register(entries -> {
+        ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.INGREDIENTS).register(entries -> {
             // Raw materials
-            entries.insertBefore(Items.RAW_IRON, ITEM.RAW_TIN);
+            entries.addBefore(Items.RAW_IRON, ITEM.RAW_TIN);
 
             // Ingots
-            entries.insertBefore(Items.IRON_INGOT, ITEM.TIN_INGOT);
-            entries.insertAfter(ITEM.TIN_INGOT, ITEM.BRONZE_INGOT);
+            entries.addBefore(Items.IRON_INGOT, ITEM.TIN_INGOT);
+            entries.addAfter(ITEM.TIN_INGOT, ITEM.BRONZE_INGOT);
 
             // Nuggets
-            entries.insertBefore(Items.IRON_NUGGET, ITEM.TIN_NUGGET);
-            entries.insertAfter(ITEM.TIN_NUGGET, ITEM.BRONZE_NUGGET);
+            entries.addBefore(Items.IRON_NUGGET, ITEM.TIN_NUGGET);
+            entries.addAfter(ITEM.TIN_NUGGET, ITEM.BRONZE_NUGGET);
 
             // Apatite
-            entries.insertBefore(Items.AMETHYST_SHARD, ITEM.APATITE);
+            entries.addBefore(Items.AMETHYST_SHARD, ITEM.APATITE);
 
             // Intermediate Crafting Items
-            entries.insertBefore(Items.HEAVY_CORE, ITEM.STURDY_CASING);
-            entries.insertAfter(ITEM.STURDY_CASING, ITEM.WOODEN_GEAR);
-            entries.insertAfter(ITEM.WOODEN_GEAR, ITEM.STONE_GEAR);
-            entries.insertAfter(ITEM.STONE_GEAR, ITEM.COPPER_GEAR);
-            entries.insertAfter(ITEM.COPPER_GEAR, ITEM.TIN_GEAR);
-            entries.insertAfter(ITEM.TIN_GEAR, ITEM.IRON_GEAR);
-            entries.insertAfter(ITEM.IRON_GEAR, ITEM.BRONZE_GEAR);
-            entries.insertAfter(ITEM.BRONZE_GEAR, ITEM.GOLD_GEAR);
-            entries.insertAfter(ITEM.GOLD_GEAR, ITEM.DIAMOND_GEAR);
-            entries.insertAfter(ITEM.DIAMOND_GEAR, ITEM.NETHERITE_GEAR);
+            entries.addBefore(Items.HEAVY_CORE, ITEM.STURDY_CASING);
+            entries.addAfter(ITEM.STURDY_CASING, ITEM.MACHINE_FRAME);
+            entries.addAfter(ITEM.MACHINE_FRAME, ITEM.WOODEN_GEAR);
+            entries.addAfter(ITEM.WOODEN_GEAR, ITEM.STONE_GEAR);
+            entries.addAfter(ITEM.STONE_GEAR, ITEM.COPPER_GEAR);
+            entries.addAfter(ITEM.COPPER_GEAR, ITEM.TIN_GEAR);
+            entries.addAfter(ITEM.TIN_GEAR, ITEM.IRON_GEAR);
+            entries.addAfter(ITEM.IRON_GEAR, ITEM.BRONZE_GEAR);
+            entries.addAfter(ITEM.BRONZE_GEAR, ITEM.GOLD_GEAR);
+            entries.addAfter(ITEM.GOLD_GEAR, ITEM.DIAMOND_GEAR);
+            entries.addAfter(ITEM.DIAMOND_GEAR, ITEM.NETHERITE_GEAR);
 
             // Valves (Kiln outputs)
-            entries.insertAfter(ITEM.NETHERITE_GEAR, ITEM.VALVE_COPPER);
-            entries.insertAfter(ITEM.VALVE_COPPER, ITEM.VALVE_TIN);
-            entries.insertAfter(ITEM.VALVE_TIN, ITEM.VALVE_BRONZE);
-            entries.insertAfter(ITEM.VALVE_BRONZE, ITEM.VALVE_IRON);
-            entries.insertAfter(ITEM.VALVE_IRON, ITEM.VALVE_GOLD);
-            entries.insertAfter(ITEM.VALVE_GOLD, ITEM.VALVE_DIAMOND);
-            entries.insertAfter(ITEM.VALVE_DIAMOND, ITEM.VALVE_OBSIDIAN);
-            entries.insertAfter(ITEM.VALVE_OBSIDIAN, ITEM.VALVE_BLAZING);
-            entries.insertAfter(ITEM.VALVE_BLAZING, ITEM.VALVE_EMERALD);
-            entries.insertAfter(ITEM.VALVE_EMERALD, ITEM.VALVE_APATITE);
-            entries.insertAfter(ITEM.VALVE_APATITE, ITEM.VALVE_LAPIS);
-            entries.insertAfter(ITEM.VALVE_LAPIS, ITEM.VALVE_ENDER);
-            entries.insertAfter(ITEM.VALVE_ENDER, ITEM.VALVE_NETHERITE);
+            entries.addAfter(ITEM.NETHERITE_GEAR, ITEM.VALVE_COPPER);
+            entries.addAfter(ITEM.VALVE_COPPER, ITEM.VALVE_TIN);
+            entries.addAfter(ITEM.VALVE_TIN, ITEM.VALVE_BRONZE);
+            entries.addAfter(ITEM.VALVE_BRONZE, ITEM.VALVE_IRON);
+            entries.addAfter(ITEM.VALVE_IRON, ITEM.VALVE_GOLD);
+            entries.addAfter(ITEM.VALVE_GOLD, ITEM.VALVE_DIAMOND);
+            entries.addAfter(ITEM.VALVE_DIAMOND, ITEM.VALVE_OBSIDIAN);
+            entries.addAfter(ITEM.VALVE_OBSIDIAN, ITEM.VALVE_BLAZING);
+            entries.addAfter(ITEM.VALVE_BLAZING, ITEM.VALVE_EMERALD);
+            entries.addAfter(ITEM.VALVE_EMERALD, ITEM.VALVE_APATITE);
+            entries.addAfter(ITEM.VALVE_APATITE, ITEM.VALVE_LAPIS);
+            entries.addAfter(ITEM.VALVE_LAPIS, ITEM.VALVE_ENDER);
+            entries.addAfter(ITEM.VALVE_ENDER, ITEM.VALVE_NETHERITE);
         });
 
         // Add ore blocks to Natural Blocks tab
-        CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.NATURAL_BLOCKS).register(entries -> {
+        ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.NATURAL_BLOCKS).register(entries -> {
             // Tin ores
-            entries.insertAfter(Items.DEEPSLATE_COAL_ORE, BLOCK.TIN_ORE);
-            entries.insertAfter(BLOCK.TIN_ORE, BLOCK.DEEPSLATE_TIN_ORE);
+            entries.addAfter(Items.DEEPSLATE_COAL_ORE, BLOCK.TIN_ORE);
+            entries.addAfter(BLOCK.TIN_ORE, BLOCK.DEEPSLATE_TIN_ORE);
 
             // Apatite ore
-            entries.insertBefore(Items.AMETHYST_BLOCK, BLOCK.APATITE_ORE);
+            entries.addBefore(Items.AMETHYST_BLOCK, BLOCK.APATITE_ORE);
 
             // Raw tin block
-            entries.insertBefore(Items.RAW_IRON_BLOCK, BLOCK.RAW_TIN_BLOCK);
+            entries.addBefore(Items.RAW_IRON_BLOCK, BLOCK.RAW_TIN_BLOCK);
         });
     }
 
     private void registerLegacyAliases() {
         // v0.2 => v0.3
-        registerBlockAlias("marker", BLOCK.MARKER);
-        registerBlockEntityAlias("marker", ENTITY.MARKER_BLOCK_ENTITY);
-        registerItemAlias("marker", BLOCK.MARKER.asItem());
         registerItemAlias("wrench", ITEM.WRENCH);
         registerItemAlias("wooden_gear", ITEM.WOODEN_GEAR);
         registerItemAlias("stone_gear", ITEM.STONE_GEAR);

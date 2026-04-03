@@ -1,0 +1,8 @@
+{
+  "type": "logistics:macerator",
+  "ingredient": "minecraft:pitcher_plant",
+  "result": {
+    "id": "minecraft:cyan_dye",
+    "count": 2
+  }
+}

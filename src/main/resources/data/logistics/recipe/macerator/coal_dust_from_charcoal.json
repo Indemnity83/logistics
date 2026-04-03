@@ -1,0 +1,8 @@
+{
+  "type": "logistics:macerator",
+  "ingredient": "minecraft:charcoal",
+  "result": {
+    "id": "logistics:automation/coal_dust",
+    "count": 2
+  }
+}

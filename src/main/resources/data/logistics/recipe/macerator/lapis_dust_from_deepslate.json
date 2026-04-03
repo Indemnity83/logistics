@@ -1,0 +1,8 @@
+{
+  "type": "logistics:macerator",
+  "ingredient": "minecraft:deepslate_lapis_ore",
+  "result": {
+    "id": "logistics:automation/lapis_dust",
+    "count": 8
+  }
+}

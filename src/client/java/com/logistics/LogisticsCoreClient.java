@@ -3,18 +3,14 @@ package com.logistics;
 import com.logistics.core.bootstrap.DomainBootstrap;
 import com.logistics.core.fabricator.KilnScreen;
 import com.logistics.core.lib.resource.ResourceId;
-import com.logistics.core.render.MarkerBlockEntityRenderer;
 import com.logistics.core.render.ModelKeyRegistry;
 import net.fabricmc.fabric.api.client.model.loading.v1.ExtraModelKey;
 import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
 import net.fabricmc.fabric.api.client.model.loading.v1.SimpleUnbakedExtraModel;
 import net.fabricmc.fabric.api.client.render.fluid.v1.FluidRenderHandlerRegistry;
 import net.fabricmc.fabric.api.client.render.fluid.v1.SimpleFluidRenderHandler;
-import net.fabricmc.fabric.api.client.rendering.v1.BlockEntityRendererRegistry;
-import net.fabricmc.fabric.api.client.rendering.v1.ChunkSectionLayerMap;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.renderer.block.model.BlockStateModel;
-import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 
 import java.util.Map;
 
@@ -37,8 +33,6 @@ public final class LogisticsCoreClient implements DomainBootstrap {
     @Override
     public void initClient() {
         LOGGER.info("Registering core (client)");
-        ChunkSectionLayerMap.putBlock(LogisticsCore.BLOCK.MARKER, ChunkSectionLayer.CUTOUT);
-        BlockEntityRendererRegistry.register(LogisticsCore.ENTITY.MARKER_BLOCK_ENTITY, MarkerBlockEntityRenderer::new);
         MenuScreens.register(LogisticsCore.MENU.KILN, KilnScreen::new);
 
         // Register molten glass fluid rendering
@@ -57,8 +51,6 @@ public final class LogisticsCoreClient implements DomainBootstrap {
 
     public static final class MODEL {
         private static final ModelKeyRegistry REGISTRY = new ModelKeyRegistry(LogisticsCore::model);
-
-        public static final ExtraModelKey<BlockStateModel> BEAM = REGISTRY.registerModel("marker_beam");
 
         static Iterable<Map.Entry<ExtraModelKey<BlockStateModel>, ResourceId>> getAllModels() {
             return REGISTRY.getAllModels();

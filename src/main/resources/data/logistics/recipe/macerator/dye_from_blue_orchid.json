@@ -1,0 +1,8 @@
+{
+  "type": "logistics:macerator",
+  "ingredient": "minecraft:blue_orchid",
+  "result": {
+    "id": "minecraft:light_blue_dye",
+    "count": 2
+  }
+}
