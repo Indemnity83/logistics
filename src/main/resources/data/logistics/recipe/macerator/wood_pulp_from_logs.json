@@ -1,8 +1,6 @@
 {
   "type": "logistics:macerator",
-  "ingredient": {
-    "tag": "minecraft:logs"
-  },
+  "ingredient": "#minecraft:logs",
   "result": {
     "id": "logistics:core/wood_pulp",
     "count": 8

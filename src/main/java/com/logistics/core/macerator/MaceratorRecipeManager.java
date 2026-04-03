@@ -126,6 +126,10 @@ public class MaceratorRecipeManager {
             return new MaceratorRecipe(recipeId, tagKey, resultItemId, resultCount, grindingTime, experience);
         } else {
             String ingredientId = ingredientElement.getAsString();
+            if (ingredientId.startsWith("#")) {
+                TagKey<Item> tagKey = TagKey.create(Registries.ITEM, Identifier.parse(ingredientId.substring(1)));
+                return new MaceratorRecipe(recipeId, tagKey, resultItemId, resultCount, grindingTime, experience);
+            }
             var itemHolder = BuiltInRegistries.ITEM.get(ResourceId.parse(ingredientId).toIdentifier())
                 .orElseThrow(() -> new IllegalArgumentException("Unknown ingredient item: " + ingredientId));
             Ingredient ingredient = Ingredient.of(itemHolder.value());
