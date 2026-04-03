@@ -175,7 +175,7 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
                 int color = modelInfo.color;
                 List<BlockStateModelPart> parts = new ArrayList<>();
                 model.collectParts(RandomSource.create(0), parts);
-                queue.submitBlockModel(matrices, renderLayer, parts, new int[]{color}, state.lightCoords, OverlayTexture.NO_OVERLAY, 0);
+                queue.submitBlockModel(matrices, renderLayer, parts, new int[]{color | 0xFF000000}, state.lightCoords, OverlayTexture.NO_OVERLAY, 0);
 
                 if (modelInfo.armDirection != null) {
                     matrices.popPose();

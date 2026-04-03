@@ -127,7 +127,7 @@ public class EngineBlockEntityRenderer implements BlockEntityRenderer<AbstractEn
         matrices.scale(1.0f, bellowScale, 1.0f);
         List<BlockStateModelPart> bellowParts = new ArrayList<>();
         bellowModel.collectParts(RandomSource.create(0), bellowParts);
-        queue.submitBlockModel(matrices, renderLayer, bellowParts, new int[]{0xFFFFFF}, light, OverlayTexture.NO_OVERLAY, 0);
+        queue.submitBlockModel(matrices, renderLayer, bellowParts, new int[]{-1}, light, OverlayTexture.NO_OVERLAY, 0);
         matrices.popPose();
 
         // Render piston (translates with animation)
@@ -135,7 +135,7 @@ public class EngineBlockEntityRenderer implements BlockEntityRenderer<AbstractEn
         matrices.translate(0, 4 / 16f + pistonOffset, 0);
         List<BlockStateModelPart> pistonParts = new ArrayList<>();
         pistonModel.collectParts(RandomSource.create(0), pistonParts);
-        queue.submitBlockModel(matrices, renderLayer, pistonParts, new int[]{0xFFFFFF}, light, OverlayTexture.NO_OVERLAY, 0);
+        queue.submitBlockModel(matrices, renderLayer, pistonParts, new int[]{-1}, light, OverlayTexture.NO_OVERLAY, 0);
         matrices.popPose();
 
         matrices.popPose();
