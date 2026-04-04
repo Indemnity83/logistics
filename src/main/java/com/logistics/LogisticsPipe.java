@@ -137,9 +137,6 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
                 ITEM.EXTRACTOR_MODULE,
                 ITEM.EXTRACTOR_MODULE_MKII,
                 ITEM.EXTRACTOR_MODULE_MKIII,
-                ITEM.ADVANCED_EXTRACTOR_MODULE,
-                ITEM.ADVANCED_EXTRACTOR_MODULE_MKII,
-                ITEM.ADVANCED_EXTRACTOR_MODULE_MKIII,
                 ITEM.CRAFTER_MODULE,
                 ITEM.CRAFTER_MODULE_MKII,
                 ITEM.CRAFTER_MODULE_MKIII,
@@ -267,9 +264,6 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
         public static Item EXTRACTOR_MODULE;
         public static Item EXTRACTOR_MODULE_MKII;
         public static Item EXTRACTOR_MODULE_MKIII;
-        public static Item ADVANCED_EXTRACTOR_MODULE;
-        public static Item ADVANCED_EXTRACTOR_MODULE_MKII;
-        public static Item ADVANCED_EXTRACTOR_MODULE_MKIII;
         public static Item CRAFTER_MODULE;
         public static Item CRAFTER_MODULE_MKII;
         public static Item CRAFTER_MODULE_MKIII;
@@ -295,17 +289,11 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
             PROVIDER_MODULE_MKII = INSTANCE.registerItem("provider_mkii_module",
                     props -> new ModuleItem(props, () -> new ProviderModule(64, 4)));
             EXTRACTOR_MODULE = INSTANCE.registerItem("extractor_module",
-                    props -> new ModuleItem(props, () -> new BasicExtractorModule(1, 100)));
+                    props -> new ModuleItem(props, () -> new BasicExtractorModule(8, 80)));
             EXTRACTOR_MODULE_MKII = INSTANCE.registerItem("extractor_module_mkii",
-                    props -> new ModuleItem(props, () -> new BasicExtractorModule(1, 20)));
+                    props -> new ModuleItem(props, () -> new BasicExtractorModule(8, 20)));
             EXTRACTOR_MODULE_MKIII = INSTANCE.registerItem("extractor_module_mkiii",
-                    props -> new ModuleItem(props, () -> new BasicExtractorModule(64, 1)));
-            ADVANCED_EXTRACTOR_MODULE = INSTANCE.registerItem("advanced_extractor_module",
-                    props -> new ModuleItem(props, () -> new AdvancedExtractorModule(1, 100)));
-            ADVANCED_EXTRACTOR_MODULE_MKII = INSTANCE.registerItem("advanced_extractor_mkii_module",
-                    props -> new ModuleItem(props, () -> new AdvancedExtractorModule(1, 20)));
-            ADVANCED_EXTRACTOR_MODULE_MKIII = INSTANCE.registerItem("advanced_extractor_mkiii_module",
-                    props -> new ModuleItem(props, () -> new AdvancedExtractorModule(64, 1)));
+                    props -> new ModuleItem(props, () -> new AdvancedExtractorModule(8, 20)));
             CRAFTER_MODULE = INSTANCE.registerItem("crafter_module",
                     props -> new ModuleItem(props, () -> new CraftingModule(1, 1)));
             CRAFTER_MODULE_MKII = INSTANCE.registerItem("crafter_mkii_module",
