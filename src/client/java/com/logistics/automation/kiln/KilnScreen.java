@@ -1,25 +1,22 @@
 package com.logistics.automation.kiln;
 
 import com.logistics.LogisticsMod;
-import com.logistics.core.lib.resource.ResourceId;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.navigation.ScreenPosition;
-import net.minecraft.client.gui.screens.inventory.AbstractRecipeBookScreen;
-import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 
 /**
  * Client-side GUI screen for the Electric Kiln.
  */
-public class KilnScreen extends AbstractRecipeBookScreen<KilnScreenHandler> {
+public class KilnScreen extends AbstractContainerScreen<KilnScreenHandler> {
 
-    private static final ResourceId TEXTURE = LogisticsMod.modId("textures/gui/automation/kiln.png");
-    private static final int TEXTURE_WIDTH = 256;
-    private static final int TEXTURE_HEIGHT = 256;
+    private static final ResourceLocation TEXTURE =
+        LogisticsMod.modId("textures/gui/automation/kiln.png").toIdentifier();
 
     public KilnScreen(KilnScreenHandler handler, Inventory inventory, Component title) {
-        super(handler, new KilnRecipeBookComponent(handler), inventory, title);
+        super(handler, inventory, title);
         this.imageWidth = 176;
         this.imageHeight = 166;
     }
@@ -31,40 +28,18 @@ public class KilnScreen extends AbstractRecipeBookScreen<KilnScreenHandler> {
     }
 
     @Override
-    protected ScreenPosition getRecipeBookButtonPosition() {
-        return new ScreenPosition(this.leftPos + 20, this.height / 2 - 49);
-    }
-
-    @Override
     protected void renderBg(GuiGraphics graphics, float delta, int mouseX, int mouseY) {
-        graphics.blit(
-            RenderPipelines.GUI_TEXTURED,
-            TEXTURE.toIdentifier(),
-            leftPos, topPos,
-            0, 0,
-            imageWidth, imageHeight,
-            TEXTURE_WIDTH, TEXTURE_HEIGHT);
+        graphics.blit(TEXTURE, leftPos, topPos, 0, 0, imageWidth, imageHeight);
 
         int arrowWidth = menu.getProgressArrowWidth();
         if (arrowWidth > 0) {
-            graphics.blit(
-                RenderPipelines.GUI_TEXTURED,
-                TEXTURE.toIdentifier(),
-                leftPos + 80, topPos + 36,
-                180, 36,
-                arrowWidth, 14,
-                TEXTURE_WIDTH, TEXTURE_HEIGHT);
+            graphics.blit(TEXTURE, leftPos + 80, topPos + 36, 180, 36, arrowWidth, 14);
         }
 
         int energyHeight = menu.getEnergyBarHeight();
         if (energyHeight > 0) {
-            graphics.blit(
-                RenderPipelines.GUI_TEXTURED,
-                TEXTURE.toIdentifier(),
-                leftPos + 60, topPos + 55 + (13 - energyHeight),
-                180, 55 + (13 - energyHeight),
-                7, energyHeight,
-                TEXTURE_WIDTH, TEXTURE_HEIGHT);
+            graphics.blit(TEXTURE, leftPos + 60, topPos + 55 + (13 - energyHeight),
+                180, 55 + (13 - energyHeight), 7, energyHeight);
         }
     }
 }
