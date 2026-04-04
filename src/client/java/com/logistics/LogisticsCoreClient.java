@@ -1,12 +1,10 @@
 package com.logistics;
 
 import com.logistics.core.bootstrap.DomainBootstrap;
-import com.logistics.core.fabricator.KilnScreen;
 import com.logistics.core.render.ModelKeyRegistry;
 import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
 import net.fabricmc.fabric.api.client.render.fluid.v1.FluidRenderHandlerRegistry;
 import net.fabricmc.fabric.api.client.render.fluid.v1.SimpleFluidRenderHandler;
-import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.resources.ResourceLocation;
 
 import static com.logistics.LogisticsMod.LOGGER;
@@ -26,7 +24,6 @@ public final class LogisticsCoreClient implements DomainBootstrap {
     @Override
     public void initClient() {
         LOGGER.info("Registering core (client)");
-        MenuScreens.register(LogisticsCore.MENU.KILN, KilnScreen::new);
 
         // Register molten glass fluid rendering
         FluidRenderHandlerRegistry.INSTANCE.register(

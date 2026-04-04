@@ -1,0 +1,6 @@
+{
+  "parent": "logistics:block/automation/kiln",
+  "textures": {
+    "front": "logistics:block/automation/kiln_front_on"
+  }
+}

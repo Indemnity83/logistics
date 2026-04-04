@@ -1,6 +1,6 @@
-package com.logistics.core.fabricator;
+package com.logistics.automation.kiln;
 
-import com.logistics.LogisticsCore;
+import com.logistics.LogisticsAutomation;
 import com.logistics.core.lib.block.MachineBlock;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
@@ -20,12 +20,10 @@ import net.minecraft.world.level.block.state.properties.EnumProperty;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Block for the Kiln machine.
- * Crafts valves using molten glass and pattern-based recipes.
- * Burns fuel (coal, wood, etc.) to generate heat.
+ * Block for the Electric Kiln machine.
+ * Smelts items using RF energy, processing any vanilla smelting recipe.
  */
 public class KilnBlock extends MachineBlock {
-
     public static final MapCodec<KilnBlock> CODEC = simpleCodec(KilnBlock::new);
     public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
     public static final BooleanProperty LIT = BlockStateProperties.LIT;
@@ -33,8 +31,8 @@ public class KilnBlock extends MachineBlock {
     public KilnBlock(Properties settings) {
         super(settings);
         registerDefaultState(defaultBlockState()
-                .setValue(FACING, Direction.NORTH)
-                .setValue(LIT, false));
+            .setValue(FACING, Direction.NORTH)
+            .setValue(LIT, false));
     }
 
     @Override
@@ -51,7 +49,7 @@ public class KilnBlock extends MachineBlock {
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext ctx) {
         return defaultBlockState()
-                .setValue(FACING, ctx.getHorizontalDirection());
+            .setValue(FACING, ctx.getHorizontalDirection().getOpposite());
     }
 
     @Nullable
@@ -63,6 +61,7 @@ public class KilnBlock extends MachineBlock {
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
-        return level.isClientSide() ? null : createTickerHelper(type, LogisticsCore.ENTITY.KILN, KilnBlockEntity::tick);
+        return level.isClientSide() ? null
+            : createTickerHelper(type, LogisticsAutomation.ENTITY.KILN_BLOCK_ENTITY, KilnBlockEntity::tick);
     }
 }
