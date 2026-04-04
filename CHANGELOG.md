@@ -9,15 +9,10 @@
 
 ### Features
 
-* add experience handling to macerator for new recipes ([#239](https://github.com/Indemnity83/logistics/issues/239)) ([403b672](https://github.com/Indemnity83/logistics/commit/403b67273351b1d24b05cb7d6c782bb0a6178fb9))
-* add grinding time to macerator recipes ([#238](https://github.com/Indemnity83/logistics/issues/238)) ([89439e6](https://github.com/Indemnity83/logistics/commit/89439e63704de06ad624892fbbc60beafdcbe8b1))
+* add macerator machine with grinding time, XP drops, dust and flour outputs, and ingredient tag support ([#230](https://github.com/Indemnity83/logistics/issues/230), [#238](https://github.com/Indemnity83/logistics/issues/238), [#239](https://github.com/Indemnity83/logistics/issues/239), [#244](https://github.com/Indemnity83/logistics/issues/244), [#251](https://github.com/Indemnity83/logistics/issues/251)) ([a33a1f0](https://github.com/Indemnity83/logistics/commit/a33a1f0fda542a19878471e67ff3a695956afaba), [89439e6](https://github.com/Indemnity83/logistics/commit/89439e63704de06ad624892fbbc60beafdcbe8b1), [403b672](https://github.com/Indemnity83/logistics/commit/403b67273351b1d24b05cb7d6c782bb0a6178fb9), [25b76a5](https://github.com/Indemnity83/logistics/commit/25b76a5b730f4ac5d6848c9508ff8dd171382739), [3c304d4](https://github.com/Indemnity83/logistics/commit/3c304d4068cc20769bcac0299d4c2189373dbd1f))
 * add JEI support for custom machines ([#234](https://github.com/Indemnity83/logistics/issues/234)) ([8b8f2cd](https://github.com/Indemnity83/logistics/commit/8b8f2cd1e95b4b7025c0748c7bcf950688402a6f))
-* add macerator recipes for copper, gold, and iron dusts ([#244](https://github.com/Indemnity83/logistics/issues/244)) ([25b76a5](https://github.com/Indemnity83/logistics/commit/25b76a5b730f4ac5d6848c9508ff8dd171382739))
-* add macerator with full recipe set, new dust items, and flour ([#230](https://github.com/Indemnity83/logistics/issues/230)) ([a33a1f0](https://github.com/Indemnity83/logistics/commit/a33a1f0fda542a19878471e67ff3a695956afaba))
-* add support for ingredient tags in macerator recipes ([#251](https://github.com/Indemnity83/logistics/issues/251)) ([3c304d4](https://github.com/Indemnity83/logistics/commit/3c304d4068cc20769bcac0299d4c2189373dbd1f))
-* add wooden valve and new automation cores to system ([#235](https://github.com/Indemnity83/logistics/issues/235)) ([79e6044](https://github.com/Indemnity83/logistics/commit/79e6044c0a7167121865b7e6324fa6287c5e9765))
-* implement recipe book for Kiln with access widener support ([#242](https://github.com/Indemnity83/logistics/issues/242)) ([d1ae352](https://github.com/Indemnity83/logistics/commit/d1ae352e07205e8876d6a0c010fe50a497500fc6))
-* replace kiln valve recipes with crafting table recipes ([#233](https://github.com/Indemnity83/logistics/issues/233)) ([ade8f4e](https://github.com/Indemnity83/logistics/commit/ade8f4ed0084e145bf482eb89b42fef13b22797c))
+* add wooden valve and new automation cores ([#235](https://github.com/Indemnity83/logistics/issues/235)) ([79e6044](https://github.com/Indemnity83/logistics/commit/79e6044c0a7167121865b7e6324fa6287c5e9765))
+* improve Kiln with crafting table valve recipes and in-game recipe book ([#233](https://github.com/Indemnity83/logistics/issues/233), [#242](https://github.com/Indemnity83/logistics/issues/242)) ([ade8f4e](https://github.com/Indemnity83/logistics/commit/ade8f4ed0084e145bf482eb89b42fef13b22797c), [d1ae352](https://github.com/Indemnity83/logistics/commit/d1ae352e07205e8876d6a0c010fe50a497500fc6))
 * rework pipe and module recipes ([19c9cd3](https://github.com/Indemnity83/logistics/commit/19c9cd32e26df7a6ec69637c0ca480ab9bed825f))
 
 
