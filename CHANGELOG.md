@@ -1,5 +1,33 @@
 # Changelog
 
+## [0.5.0](https://github.com/Indemnity83/logistics/compare/mc1.21.1-v0.4.0...mc1.21.1-v0.5.0) (2026-04-04)
+
+
+### ⚠ BREAKING CHANGES
+
+* logistics pipe and module crafting recipes have changed; enable the "Classic Logistics Pipes crafting recipes" built-in datapack to restore the original gear-based recipes as alternates
+
+### Features
+
+* add experience handling to macerator for new recipes ([#239](https://github.com/Indemnity83/logistics/issues/239)) ([403b672](https://github.com/Indemnity83/logistics/commit/403b67273351b1d24b05cb7d6c782bb0a6178fb9))
+* add grinding time to macerator recipes ([#238](https://github.com/Indemnity83/logistics/issues/238)) ([89439e6](https://github.com/Indemnity83/logistics/commit/89439e63704de06ad624892fbbc60beafdcbe8b1))
+* add JEI support for custom machines ([#234](https://github.com/Indemnity83/logistics/issues/234)) ([8b8f2cd](https://github.com/Indemnity83/logistics/commit/8b8f2cd1e95b4b7025c0748c7bcf950688402a6f))
+* add macerator recipes for copper, gold, and iron dusts ([#244](https://github.com/Indemnity83/logistics/issues/244)) ([25b76a5](https://github.com/Indemnity83/logistics/commit/25b76a5b730f4ac5d6848c9508ff8dd171382739))
+* add macerator with full recipe set, new dust items, and flour ([#230](https://github.com/Indemnity83/logistics/issues/230)) ([a33a1f0](https://github.com/Indemnity83/logistics/commit/a33a1f0fda542a19878471e67ff3a695956afaba))
+* add support for ingredient tags in macerator recipes ([#251](https://github.com/Indemnity83/logistics/issues/251)) ([3c304d4](https://github.com/Indemnity83/logistics/commit/3c304d4068cc20769bcac0299d4c2189373dbd1f))
+* add wooden valve and new automation cores to system ([#235](https://github.com/Indemnity83/logistics/issues/235)) ([79e6044](https://github.com/Indemnity83/logistics/commit/79e6044c0a7167121865b7e6324fa6287c5e9765))
+* implement recipe book for Kiln with access widener support ([#242](https://github.com/Indemnity83/logistics/issues/242)) ([d1ae352](https://github.com/Indemnity83/logistics/commit/d1ae352e07205e8876d6a0c010fe50a497500fc6))
+* replace kiln valve recipes with crafting table recipes ([#233](https://github.com/Indemnity83/logistics/issues/233)) ([ade8f4e](https://github.com/Indemnity83/logistics/commit/ade8f4ed0084e145bf482eb89b42fef13b22797c))
+* rework pipe and module recipes ([19c9cd3](https://github.com/Indemnity83/logistics/commit/19c9cd32e26df7a6ec69637c0ca480ab9bed825f))
+
+
+### Bug Fixes
+
+* add min_format and max_format to pack.mcmeta for recipes ([#250](https://github.com/Indemnity83/logistics/issues/250)) ([6783b99](https://github.com/Indemnity83/logistics/commit/6783b99b8b2ab19653be06043197e67efec7a83b))
+* compatability with minecraft 1.21.1 ([88c2bc7](https://github.com/Indemnity83/logistics/commit/88c2bc755ea7863c38e1493e66b7ae614c122471))
+* resolve pipe access bug for satellite and process pipes ([#231](https://github.com/Indemnity83/logistics/issues/231)) ([2657e4b](https://github.com/Indemnity83/logistics/commit/2657e4b41b867a3e4ac7186f1811f241bedb31c1))
+* update build script to check Gradle task by MC version ([#249](https://github.com/Indemnity83/logistics/issues/249)) ([05ff265](https://github.com/Indemnity83/logistics/commit/05ff265e2bdc8ed1c8381604be7ac66039993cbe))
+
 ## [0.4.0](https://github.com/Indemnity83/logistics/compare/mc1.21.1-v0.3.5...mc1.21.1-v0.4.0) (2026-03-27)
 
 
