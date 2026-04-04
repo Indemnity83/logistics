@@ -1,11 +1,11 @@
 {
   "type": "minecraft:crafting_shaped",
   "pattern": [
-    "GBG"
+    "VBV"
   ],
   "key": {
-    "G": {
-      "item": "minecraft:glowstone_dust"
+    "V": {
+      "item": "logistics:automation/valve_lapis"
     },
     "B": {
       "item": "logistics:pipe/basic_logistics_pipe"

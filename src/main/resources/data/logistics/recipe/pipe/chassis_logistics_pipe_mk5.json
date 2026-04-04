@@ -1,13 +1,13 @@
 {
   "type": "minecraft:crafting_shaped",
   "pattern": [
-    "N N",
-    " B ",
-    "N N"
+    " V ",
+    "VBV",
+    " V "
   ],
   "key": {
-    "N": {
-      "tag": "c:ingots/netherite"
+    "V": {
+      "item": "logistics:automation/valve_netherite"
     },
     "B": {
       "item": "logistics:pipe/basic_logistics_pipe"

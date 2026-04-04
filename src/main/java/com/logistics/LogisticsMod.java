@@ -5,6 +5,9 @@ import com.logistics.core.bootstrap.DomainBootstraps;
 import com.logistics.core.lib.resource.ResourceId;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
+import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
+import net.fabricmc.fabric.api.resource.ResourcePackActivationType;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -39,6 +42,14 @@ public class LogisticsMod implements ModInitializer {
         for (DomainBootstrap bootstrap : DomainBootstraps.all()) {
             bootstrap.initCommon();
         }
+
+        FabricLoader.getInstance().getModContainer(MOD_ID).ifPresent(container ->
+            ResourceManagerHelper.registerBuiltinResourcePack(
+                modId("classic_crafting").toIdentifier(),
+                container,
+                ResourcePackActivationType.NORMAL
+            )
+        );
     }
 
     /**

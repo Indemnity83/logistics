@@ -1,13 +1,13 @@
 {
   "type": "minecraft:crafting_shaped",
   "pattern": [
-    "DDD",
-    "DBD",
-    "DDD"
+    " V ",
+    "VBV",
+    " V "
   ],
   "key": {
-    "D": {
-      "item": "minecraft:diamond"
+    "V": {
+      "item": "logistics:automation/valve_diamond"
     },
     "B": {
       "item": "logistics:pipe/basic_logistics_pipe"

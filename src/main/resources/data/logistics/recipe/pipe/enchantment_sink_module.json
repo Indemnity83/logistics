@@ -1,16 +1,15 @@
 {
   "type": "minecraft:crafting_shaped",
   "pattern": [
-    "DGD",
-    "RBR",
-    "DRD"
+    "DCD",
+    "RBR"
   ],
   "key": {
     "D": {
-      "item": "minecraft:black_dye"
+      "item": "logistics:automation/copper_powder"
     },
-    "G": {
-      "item": "minecraft:book"
+    "C": {
+      "item": "logistics:automation/chip_amethyst"
     },
     "R": {
       "item": "minecraft:redstone"
@@ -20,7 +19,6 @@
     }
   },
   "result": {
-    "count": 1,
     "id": "logistics:pipe/enchantment_sink_module"
   }
 }

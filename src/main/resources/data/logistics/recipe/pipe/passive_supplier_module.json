@@ -1,19 +1,15 @@
 {
   "type": "minecraft:crafting_shaped",
   "pattern": [
-    "EGD",
-    "RBR",
-    "DRE"
+    "DCD",
+    "RBR"
   ],
   "key": {
-    "E": {
-      "item": "minecraft:red_dye"
-    },
     "D": {
-      "item": "minecraft:black_dye"
+      "item": "logistics:automation/emerald_dust"
     },
-    "G": {
-      "item": "logistics:core/iron_gear"
+    "C": {
+      "item": "logistics:automation/chip_redstone"
     },
     "R": {
       "item": "minecraft:redstone"
@@ -23,7 +19,6 @@
     }
   },
   "result": {
-    "count": 1,
     "id": "logistics:pipe/passive_supplier_module"
   }
 }

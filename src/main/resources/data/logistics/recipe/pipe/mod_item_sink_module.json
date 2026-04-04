@@ -1,16 +1,15 @@
 {
   "type": "minecraft:crafting_shaped",
   "pattern": [
-    "DGD",
-    "RBR",
-    "DRD"
+    "DCD",
+    "RBR"
   ],
   "key": {
     "D": {
-      "item": "minecraft:green_dye"
+      "item": "logistics:automation/copper_powder"
     },
-    "G": {
-      "item": "logistics:core/bronze_gear"
+    "C": {
+      "item": "logistics:automation/chip_redstone"
     },
     "R": {
       "item": "minecraft:redstone"
@@ -20,7 +19,6 @@
     }
   },
   "result": {
-    "count": 1,
     "id": "logistics:pipe/mod_item_sink_module"
   }
 }

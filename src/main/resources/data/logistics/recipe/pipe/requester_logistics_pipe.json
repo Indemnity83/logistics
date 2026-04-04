@@ -1,13 +1,11 @@
 {
   "type": "minecraft:crafting_shaped",
   "pattern": [
-    " E ",
-    "EBE",
-    " E "
+    "VBV"
   ],
   "key": {
-    "E": {
-      "item": "logistics:core/gold_gear"
+    "V": {
+      "item": "logistics:automation/valve_diamond"
     },
     "B": {
       "item": "logistics:pipe/basic_logistics_pipe"

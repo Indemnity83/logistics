@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "ERE",
+    "ECE",
+    "EWE"
+  ],
+  "key": {
+    "E": "logistics:automation/ender_dust",
+    "R": "minecraft:resin_clump",
+    "C": "logistics:automation/amethyst_dust",
+    "W": "logistics:automation/silicon_wafer"
+  },
+  "result": {
+    "id": "logistics:automation/chip_amethyst",
+    "count": 4
+  }
+}

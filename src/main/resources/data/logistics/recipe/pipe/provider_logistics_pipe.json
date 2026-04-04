@@ -1,15 +1,11 @@
 {
   "type": "minecraft:crafting_shaped",
   "pattern": [
-    " E ",
-    "RBR"
+    "VBV"
   ],
   "key": {
-    "E": {
-      "item": "logistics:core/bronze_gear"
-    },
-    "R": {
-      "item": "minecraft:redstone"
+    "V": {
+      "item": "logistics:automation/valve_iron"
     },
     "B": {
       "item": "logistics:pipe/basic_logistics_pipe"
