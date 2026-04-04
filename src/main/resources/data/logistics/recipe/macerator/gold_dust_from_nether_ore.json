@@ -1,6 +1,8 @@
 {
   "type": "logistics:macerator",
-  "ingredient": "minecraft:nether_gold_ore",
+  "ingredient": {
+    "item": "minecraft:nether_gold_ore"
+  },
   "result": {
     "id": "logistics:core/gold_dust",
     "count": 1

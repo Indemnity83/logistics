@@ -1,10 +1,23 @@
 {
   "type": "minecraft:crafting_shaped",
-  "pattern": ["FFF", "IMI", "III"],
+  "pattern": [
+    "FFF",
+    "IMI",
+    "III"
+  ],
   "key": {
-    "F": "minecraft:flint",
-    "I": "minecraft:iron_ingot",
-    "M": "logistics:core/machine_frame"
+    "F": {
+      "item": "minecraft:flint"
+    },
+    "I": {
+      "item": "minecraft:iron_ingot"
+    },
+    "M": {
+      "item": "logistics:core/machine_frame"
+    }
   },
-  "result": { "id": "logistics:core/macerator", "count": 1 }
+  "result": {
+    "id": "logistics:core/macerator",
+    "count": 1
+  }
 }

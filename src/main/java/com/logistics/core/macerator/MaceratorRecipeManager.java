@@ -6,14 +6,16 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.logistics.LogisticsMod;
 import com.logistics.core.lib.resource.ResourceId;
-import net.fabricmc.fabric.api.resource.v1.ResourceLoader;
+import net.fabricmc.fabric.api.resource.IdentifiableResourceReloadListener;
+import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.tags.TagKey;
+import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.crafting.Ingredient;
 import org.slf4j.Logger;
@@ -48,20 +50,27 @@ public class MaceratorRecipeManager {
 
     public static void register() {
         LOGGER.info("Registering macerator recipe reload listener");
-        ResourceLoader.get(PackType.SERVER_DATA).registerReloader(
-            LogisticsMod.modId("macerator_recipes").toIdentifier(),
-            new PreparableReloadListener() {
+        ResourceLocation listenerId = LogisticsMod.modId("macerator_recipes").toIdentifier();
+        ResourceManagerHelper.get(PackType.SERVER_DATA).registerReloadListener(
+            new IdentifiableResourceReloadListener() {
+                @Override
+                public ResourceLocation getFabricId() {
+                    return listenerId;
+                }
+
                 @Override
                 public CompletableFuture<Void> reload(
-                    SharedState sharedState,
+                    PreparableReloadListener.PreparationBarrier barrier,
+                    ResourceManager resourceManager,
+                    ProfilerFiller preparationsProfiler,
+                    ProfilerFiller reloadProfiler,
                     Executor backgroundExecutor,
-                    PreparationBarrier barrier,
                     Executor gameExecutor
                 ) {
                     return CompletableFuture.supplyAsync(() -> {
                         LOGGER.info("Macerator recipe reload triggered");
                         Map<ResourceId, MaceratorRecipe> loaded = new HashMap<>();
-                        loadRecipesInto(sharedState.resourceManager(), loaded);
+                        loadRecipesInto(resourceManager, loaded);
                         return loaded;
                     }, backgroundExecutor)
                     .thenCompose(barrier::wait)
@@ -101,7 +110,7 @@ public class MaceratorRecipeManager {
         ResourceId resultItemId = ResourceId.parse(resultObj.get("id").getAsString());
         int resultCount = resultObj.get("count").getAsInt();
 
-        if (BuiltInRegistries.ITEM.get(resultItemId.toIdentifier()).isEmpty()) {
+        if (BuiltInRegistries.ITEM.get(resultItemId.toIdentifier()) == null) {
             throw new IllegalArgumentException("Unknown result item: " + resultItemId);
         }
 
@@ -118,21 +127,32 @@ public class MaceratorRecipeManager {
 
         if (ingredientElement.isJsonObject()) {
             JsonObject ingredientObj = ingredientElement.getAsJsonObject();
-            if (!ingredientObj.has("tag") || ingredientObj.get("tag").isJsonNull()) {
-                throw new IllegalArgumentException("Tag ingredient is missing 'tag' field in recipe: " + recipeId);
+            if (ingredientObj.has("tag")) {
+                String tagId = ingredientObj.get("tag").getAsString();
+                TagKey<Item> tagKey = TagKey.create(Registries.ITEM, ResourceLocation.parse(tagId));
+                return new MaceratorRecipe(recipeId, tagKey, resultItemId, resultCount, grindingTime, experience);
+            } else if (ingredientObj.has("item")) {
+                String itemId = ingredientObj.get("item").getAsString();
+                var ingredientItem = BuiltInRegistries.ITEM.get(ResourceId.parse(itemId).toIdentifier());
+                if (ingredientItem == null) {
+                    throw new IllegalArgumentException("Unknown ingredient item: " + itemId);
+                }
+                Ingredient ingredient = Ingredient.of(ingredientItem);
+                return new MaceratorRecipe(recipeId, ingredient, resultItemId, resultCount, grindingTime, experience);
+            } else {
+                throw new IllegalArgumentException("Ingredient object must have 'item' or 'tag' field in recipe: " + recipeId);
             }
-            String tagId = ingredientObj.get("tag").getAsString();
-            TagKey<Item> tagKey = TagKey.create(Registries.ITEM, Identifier.parse(tagId));
-            return new MaceratorRecipe(recipeId, tagKey, resultItemId, resultCount, grindingTime, experience);
         } else {
             String ingredientId = ingredientElement.getAsString();
             if (ingredientId.startsWith("#")) {
-                TagKey<Item> tagKey = TagKey.create(Registries.ITEM, Identifier.parse(ingredientId.substring(1)));
+                TagKey<Item> tagKey = TagKey.create(Registries.ITEM, ResourceLocation.parse(ingredientId.substring(1)));
                 return new MaceratorRecipe(recipeId, tagKey, resultItemId, resultCount, grindingTime, experience);
             }
-            var itemHolder = BuiltInRegistries.ITEM.get(ResourceId.parse(ingredientId).toIdentifier())
-                .orElseThrow(() -> new IllegalArgumentException("Unknown ingredient item: " + ingredientId));
-            Ingredient ingredient = Ingredient.of(itemHolder.value());
+            var ingredientItem = BuiltInRegistries.ITEM.get(ResourceId.parse(ingredientId).toIdentifier());
+            if (ingredientItem == null) {
+                throw new IllegalArgumentException("Unknown ingredient item: " + ingredientId);
+            }
+            Ingredient ingredient = Ingredient.of(ingredientItem);
             return new MaceratorRecipe(recipeId, ingredient, resultItemId, resultCount, grindingTime, experience);
         }
     }

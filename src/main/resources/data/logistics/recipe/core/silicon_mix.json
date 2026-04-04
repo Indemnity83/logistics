@@ -1,10 +1,18 @@
 {
   "type": "minecraft:crafting_shapeless",
   "ingredients": [
-    "logistics:core/quartz_dust",
-    "logistics:core/quartz_dust",
-    "logistics:core/quartz_dust",
-    "logistics:core/coal_dust"
+    {
+      "item": "logistics:core/quartz_dust"
+    },
+    {
+      "item": "logistics:core/quartz_dust"
+    },
+    {
+      "item": "logistics:core/quartz_dust"
+    },
+    {
+      "item": "logistics:core/coal_dust"
+    }
   ],
   "result": {
     "id": "logistics:core/silicon_mix",

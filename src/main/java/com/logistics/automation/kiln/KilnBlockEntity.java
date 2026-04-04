@@ -78,7 +78,7 @@ public class KilnBlockEntity extends BaseBlockEntity
         public int get(int index) {
             return switch (index) {
                 case DATA_PROGRESS -> processProgress;
-                case DATA_TOTAL_TICKS -> activeRecipe != null ? activeRecipe.value().cookingTime() : 0;
+                case DATA_TOTAL_TICKS -> activeRecipe != null ? activeRecipe.value().getCookingTime() : 0;
                 case DATA_ENERGY -> (int) Math.min(energy.getAmount(), Integer.MAX_VALUE);
                 default -> 0;
             };
@@ -140,7 +140,7 @@ public class KilnBlockEntity extends BaseBlockEntity
         setLit(level, state, true);
         processProgress++;
 
-        if (processProgress >= activeRecipe.value().cookingTime()) {
+        if (processProgress >= activeRecipe.value().getCookingTime()) {
             completeProcessing(result);
         }
 

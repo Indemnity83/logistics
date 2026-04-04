@@ -5,9 +5,15 @@
     "rBr"
   ],
   "key": {
-    "G": "logistics:core/iron_gear",
-    "r": "minecraft:redstone",
-    "B": "logistics:pipe/passive_supplier_module"
+    "G": {
+      "item": "logistics:core/iron_gear"
+    },
+    "r": {
+      "item": "minecraft:redstone"
+    },
+    "B": {
+      "item": "logistics:pipe/passive_supplier_module"
+    }
   },
   "result": {
     "id": "logistics:pipe/active_supplier_module"

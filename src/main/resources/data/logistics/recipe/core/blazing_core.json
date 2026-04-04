@@ -1,9 +1,17 @@
 {
   "type": "minecraft:crafting_shaped",
-  "pattern": ["D", "B", "D"],
+  "pattern": [
+    "D",
+    "B",
+    "D"
+  ],
   "key": {
-    "D": "minecraft:blaze_powder",
-    "B": "minecraft:blaze_rod"
+    "D": {
+      "item": "minecraft:blaze_powder"
+    },
+    "B": {
+      "item": "minecraft:blaze_rod"
+    }
   },
   "result": {
     "count": 4,

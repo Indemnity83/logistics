@@ -1,6 +1,8 @@
 {
   "type": "logistics:macerator",
-  "ingredient": "minecraft:blaze_rod",
+  "ingredient": {
+    "item": "minecraft:blaze_rod"
+  },
   "result": {
     "id": "minecraft:blaze_powder",
     "count": 4

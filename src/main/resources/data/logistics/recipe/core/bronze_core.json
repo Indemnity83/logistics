@@ -1,9 +1,17 @@
 {
   "type": "minecraft:crafting_shaped",
-  "pattern": ["M", "R", "M"],
+  "pattern": [
+    "M",
+    "R",
+    "M"
+  ],
   "key": {
-    "M": "logistics:core/bronze_ingot",
-    "R": "minecraft:redstone"
+    "M": {
+      "item": "logistics:core/bronze_ingot"
+    },
+    "R": {
+      "item": "minecraft:redstone"
+    }
   },
   "result": {
     "count": 4,

@@ -6,9 +6,15 @@
     "S"
   ],
   "key": {
-    "r": "minecraft:redstone",
-    "P": "logistics:pipe/basic_logistics_pipe",
-    "S": "logistics:core/stone_gear"
+    "r": {
+      "item": "minecraft:redstone"
+    },
+    "P": {
+      "item": "logistics:pipe/basic_logistics_pipe"
+    },
+    "S": {
+      "item": "logistics:core/stone_gear"
+    }
   },
   "result": {
     "id": "logistics:pipe/crafting_logistics_pipe"

@@ -1,8 +1,12 @@
 {
   "type": "minecraft:crafting_shapeless",
   "ingredients": [
-    "logistics:pipe/extractor_module",
-    "logistics:core/iron_gear"
+    {
+      "item": "logistics:pipe/extractor_module"
+    },
+    {
+      "item": "logistics:core/iron_gear"
+    }
   ],
   "result": {
     "id": "logistics:pipe/extractor_module_mkii"

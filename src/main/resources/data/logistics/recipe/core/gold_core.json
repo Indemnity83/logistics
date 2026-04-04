@@ -1,9 +1,17 @@
 {
   "type": "minecraft:crafting_shaped",
-  "pattern": ["M", "R", "M"],
+  "pattern": [
+    "M",
+    "R",
+    "M"
+  ],
   "key": {
-    "M": "minecraft:gold_ingot",
-    "R": "minecraft:redstone"
+    "M": {
+      "item": "minecraft:gold_ingot"
+    },
+    "R": {
+      "item": "minecraft:redstone"
+    }
   },
   "result": {
     "count": 4,

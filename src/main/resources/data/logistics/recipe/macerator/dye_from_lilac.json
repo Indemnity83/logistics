@@ -1,6 +1,8 @@
 {
   "type": "logistics:macerator",
-  "ingredient": "minecraft:lilac",
+  "ingredient": {
+    "item": "minecraft:lilac"
+  },
   "result": {
     "id": "minecraft:magenta_dye",
     "count": 2

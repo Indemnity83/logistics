@@ -1,9 +1,17 @@
 {
   "type": "minecraft:crafting_shaped",
-  "pattern": ["D", "E", "D"],
+  "pattern": [
+    "D",
+    "E",
+    "D"
+  ],
   "key": {
-    "D": "logistics:core/obsidian_dust",
-    "E": "minecraft:end_rod"
+    "D": {
+      "item": "logistics:core/obsidian_dust"
+    },
+    "E": {
+      "item": "minecraft:end_rod"
+    }
   },
   "result": {
     "count": 4,

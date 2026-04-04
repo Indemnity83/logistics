@@ -1,6 +1,8 @@
 {
   "type": "logistics:macerator",
-  "ingredient": "minecraft:diamond_ore",
+  "ingredient": {
+    "item": "minecraft:diamond_ore"
+  },
   "result": {
     "id": "logistics:core/diamond_dust",
     "count": 2

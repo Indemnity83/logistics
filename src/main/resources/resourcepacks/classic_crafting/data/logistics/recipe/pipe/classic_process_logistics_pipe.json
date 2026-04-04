@@ -4,8 +4,12 @@
     "GPG"
   ],
   "key": {
-    "G": "logistics:core/gold_gear",
-    "P": "logistics:pipe/basic_logistics_pipe"
+    "G": {
+      "item": "logistics:core/gold_gear"
+    },
+    "P": {
+      "item": "logistics:pipe/basic_logistics_pipe"
+    }
   },
   "result": {
     "id": "logistics:pipe/process_logistics_pipe"

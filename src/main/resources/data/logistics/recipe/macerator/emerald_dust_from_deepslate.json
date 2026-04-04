@@ -1,6 +1,8 @@
 {
   "type": "logistics:macerator",
-  "ingredient": "minecraft:deepslate_emerald_ore",
+  "ingredient": {
+    "item": "minecraft:deepslate_emerald_ore"
+  },
   "result": {
     "id": "logistics:core/emerald_dust",
     "count": 2

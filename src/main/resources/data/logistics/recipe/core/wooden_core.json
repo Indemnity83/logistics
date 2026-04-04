@@ -1,9 +1,17 @@
 {
   "type": "minecraft:crafting_shaped",
-  "pattern": ["M", "S", "M"],
+  "pattern": [
+    "M",
+    "S",
+    "M"
+  ],
   "key": {
-    "M": "logistics:core/wood_pulp",
-    "S": "minecraft:slime_ball"
+    "M": {
+      "item": "logistics:core/wood_pulp"
+    },
+    "S": {
+      "item": "minecraft:slime_ball"
+    }
   },
   "result": {
     "count": 4,

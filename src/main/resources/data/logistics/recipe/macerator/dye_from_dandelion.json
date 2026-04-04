@@ -1,6 +1,8 @@
 {
   "type": "logistics:macerator",
-  "ingredient": "minecraft:dandelion",
+  "ingredient": {
+    "item": "minecraft:dandelion"
+  },
   "result": {
     "id": "minecraft:yellow_dye",
     "count": 2

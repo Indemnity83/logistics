@@ -1,6 +1,8 @@
 {
   "type": "minecraft:smelting",
-  "ingredient": "logistics:core/silicon_mix",
+  "ingredient": {
+    "item": "logistics:core/silicon_mix"
+  },
   "result": {
     "id": "logistics:core/silicon_wafer"
   },

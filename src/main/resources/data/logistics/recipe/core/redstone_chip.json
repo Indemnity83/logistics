@@ -6,10 +6,18 @@
     "EWE"
   ],
   "key": {
-    "E": "logistics:core/ender_dust",
-    "R": "minecraft:resin_clump",
-    "C": "minecraft:redstone",
-    "W": "logistics:core/silicon_wafer"
+    "E": {
+      "item": "logistics:core/ender_dust"
+    },
+    "R": {
+      "item": "minecraft:slime_ball"
+    },
+    "C": {
+      "item": "minecraft:redstone"
+    },
+    "W": {
+      "item": "logistics:core/silicon_wafer"
+    }
   },
   "result": {
     "id": "logistics:core/redstone_chip",

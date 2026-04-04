@@ -1,6 +1,8 @@
 {
   "type": "logistics:macerator",
-  "ingredient": "minecraft:lapis_ore",
+  "ingredient": {
+    "item": "minecraft:lapis_ore"
+  },
   "result": {
     "id": "logistics:core/lapis_dust",
     "count": 8

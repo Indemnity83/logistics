@@ -1,6 +1,8 @@
 {
   "type": "logistics:macerator",
-  "ingredient": "minecraft:prismarine_bricks",
+  "ingredient": {
+    "item": "minecraft:prismarine_bricks"
+  },
   "result": {
     "id": "logistics:core/prismarine_dust",
     "count": 9

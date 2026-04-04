@@ -46,7 +46,7 @@ public class MaceratorJeiPlugin implements IModPlugin {
 
     @Override
     public void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
-        registration.addCraftingStation(
-            MaceratorRecipeCategory.RECIPE_TYPE, LogisticsCore.BLOCK.MACERATOR);
+        registration.addRecipeCatalyst(
+            LogisticsCore.BLOCK.MACERATOR, MaceratorRecipeCategory.RECIPE_TYPE);
     }
 }

@@ -1,6 +1,8 @@
 {
   "type": "logistics:macerator",
-  "ingredient": "minecraft:copper_ingot",
+  "ingredient": {
+    "item": "minecraft:copper_ingot"
+  },
   "result": {
     "id": "logistics:core/copper_dust",
     "count": 1

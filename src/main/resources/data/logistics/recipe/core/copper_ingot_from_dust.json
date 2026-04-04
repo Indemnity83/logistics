@@ -1,6 +1,8 @@
 {
   "type": "minecraft:smelting",
-  "ingredient": "logistics:core/copper_dust",
+  "ingredient": {
+    "item": "logistics:core/copper_dust"
+  },
   "result": {
     "id": "minecraft:copper_ingot"
   },

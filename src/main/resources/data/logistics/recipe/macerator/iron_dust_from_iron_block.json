@@ -1,6 +1,8 @@
 {
   "type": "logistics:macerator",
-  "ingredient": "minecraft:iron_block",
+  "ingredient": {
+    "item": "minecraft:iron_block"
+  },
   "result": {
     "id": "logistics:core/iron_dust",
     "count": 9

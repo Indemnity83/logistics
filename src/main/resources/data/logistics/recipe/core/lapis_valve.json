@@ -1,11 +1,23 @@
 {
   "type": "minecraft:crafting_shaped",
-  "pattern": ["QQQ", "QFQ", "IGI"],
+  "pattern": [
+    "QQQ",
+    "QFQ",
+    "IGI"
+  ],
   "key": {
-    "Q": "logistics:automation/quartz_crystal",
-    "F": "logistics:core/lapis_core",
-    "I": "minecraft:iron_nugget",
-    "G": "minecraft:gold_nugget"
+    "Q": {
+      "item": "logistics:automation/quartz_crystal"
+    },
+    "F": {
+      "item": "logistics:core/lapis_core"
+    },
+    "I": {
+      "item": "minecraft:iron_nugget"
+    },
+    "G": {
+      "item": "minecraft:gold_nugget"
+    }
   },
   "result": {
     "count": 1,

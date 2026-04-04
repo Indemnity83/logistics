@@ -1,8 +1,15 @@
 {
   "type": "minecraft:crafting_shaped",
-  "pattern": ["FFF"],
+  "pattern": [
+    "FFF"
+  ],
   "key": {
-    "F": "logistics:core/flour"
+    "F": {
+      "item": "logistics:core/flour"
+    }
   },
-  "result": { "id": "minecraft:bread", "count": 1 }
+  "result": {
+    "id": "minecraft:bread",
+    "count": 1
+  }
 }

@@ -87,9 +87,11 @@ public class MaceratorRecipe {
     }
 
     public ItemStack getResultItem() {
-        var itemHolder = BuiltInRegistries.ITEM.get(resultItemId.toIdentifier())
-            .orElseThrow(() -> new IllegalStateException("Result item not found: " + resultItemId));
-        return new ItemStack(itemHolder.value(), resultCount);
+        var item = BuiltInRegistries.ITEM.get(resultItemId.toIdentifier());
+        if (item == null) {
+            throw new IllegalStateException("Result item not found: " + resultItemId);
+        }
+        return new ItemStack(item, resultCount);
     }
 
     public boolean isTagBased() {

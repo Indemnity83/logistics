@@ -1,6 +1,8 @@
 {
   "type": "minecraft:smelting",
-  "ingredient": "logistics:core/bronze_dust",
+  "ingredient": {
+    "item": "logistics:core/bronze_dust"
+  },
   "result": {
     "id": "logistics:core/bronze_ingot"
   },

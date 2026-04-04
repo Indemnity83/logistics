@@ -1,6 +1,8 @@
 {
   "type": "logistics:macerator",
-  "ingredient": "minecraft:cornflower",
+  "ingredient": {
+    "item": "minecraft:cornflower"
+  },
   "result": {
     "id": "minecraft:blue_dye",
     "count": 2

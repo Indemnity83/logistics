@@ -1,9 +1,18 @@
 {
   "type": "minecraft:crafting_shaped",
-  "pattern": ["F#F"],
+  "pattern": [
+    "F#F"
+  ],
   "key": {
-    "F": "logistics:core/flour",
-    "#": "minecraft:cocoa_beans"
+    "F": {
+      "item": "logistics:core/flour"
+    },
+    "#": {
+      "item": "minecraft:cocoa_beans"
+    }
   },
-  "result": { "id": "minecraft:cookie", "count": 8 }
+  "result": {
+    "id": "minecraft:cookie",
+    "count": 8
+  }
 }

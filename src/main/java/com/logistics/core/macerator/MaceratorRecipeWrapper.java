@@ -3,10 +3,7 @@ package com.logistics.core.macerator;
 import com.logistics.LogisticsCore;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.PlacementInfo;
 import net.minecraft.world.item.crafting.Recipe;
-import net.minecraft.world.item.crafting.RecipeBookCategories;
-import net.minecraft.world.item.crafting.RecipeBookCategory;
 import net.minecraft.world.item.crafting.RecipeInput;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
@@ -30,6 +27,16 @@ public class MaceratorRecipeWrapper implements Recipe<RecipeInput> {
     }
 
     @Override
+    public boolean canCraftInDimensions(int width, int height) {
+        return true;
+    }
+
+    @Override
+    public @NotNull ItemStack getResultItem(HolderLookup.@NotNull Provider provider) {
+        return ItemStack.EMPTY;
+    }
+
+    @Override
     public @NotNull RecipeSerializer<MaceratorRecipeWrapper> getSerializer() {
         return LogisticsCore.RECIPE.MACERATOR_RECIPE_SERIALIZER;
     }
@@ -42,15 +49,5 @@ public class MaceratorRecipeWrapper implements Recipe<RecipeInput> {
     @Override
     public boolean isSpecial() {
         return true;
-    }
-
-    @Override
-    public @NotNull PlacementInfo placementInfo() {
-        return PlacementInfo.NOT_PLACEABLE;
-    }
-
-    @Override
-    public @NotNull RecipeBookCategory recipeBookCategory() {
-        return RecipeBookCategories.FURNACE_MISC;
     }
 }

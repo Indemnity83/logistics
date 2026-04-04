@@ -1,10 +1,23 @@
 {
   "type": "minecraft:crafting_shaped",
-  "pattern": ["RRR", "IMI", "III"],
+  "pattern": [
+    "RRR",
+    "IMI",
+    "III"
+  ],
   "key": {
-    "R": "minecraft:redstone",
-    "I": "minecraft:iron_ingot",
-    "M": "logistics:core/machine_frame"
+    "R": {
+      "item": "minecraft:redstone"
+    },
+    "I": {
+      "item": "minecraft:iron_ingot"
+    },
+    "M": {
+      "item": "logistics:core/machine_frame"
+    }
   },
-  "result": { "id": "logistics:automation/kiln", "count": 1 }
+  "result": {
+    "id": "logistics:automation/kiln",
+    "count": 1
+  }
 }

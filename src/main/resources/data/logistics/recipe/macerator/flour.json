@@ -1,6 +1,8 @@
 {
   "type": "logistics:macerator",
-  "ingredient": "minecraft:wheat",
+  "ingredient": {
+    "item": "minecraft:wheat"
+  },
   "result": {
     "id": "logistics:core/flour",
     "count": 2

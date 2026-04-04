@@ -1,6 +1,8 @@
 {
   "type": "logistics:macerator",
-  "ingredient": "minecraft:gold_ingot",
+  "ingredient": {
+    "item": "minecraft:gold_ingot"
+  },
   "result": {
     "id": "logistics:core/gold_dust",
     "count": 1

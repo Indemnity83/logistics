@@ -1,6 +1,8 @@
 {
   "type": "logistics:macerator",
-  "ingredient": "minecraft:redstone_ore",
+  "ingredient": {
+    "item": "minecraft:redstone_ore"
+  },
   "result": {
     "id": "minecraft:redstone",
     "count": 2

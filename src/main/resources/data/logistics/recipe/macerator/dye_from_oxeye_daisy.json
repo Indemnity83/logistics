@@ -1,6 +1,8 @@
 {
   "type": "logistics:macerator",
-  "ingredient": "minecraft:oxeye_daisy",
+  "ingredient": {
+    "item": "minecraft:oxeye_daisy"
+  },
   "result": {
     "id": "minecraft:light_gray_dye",
     "count": 2

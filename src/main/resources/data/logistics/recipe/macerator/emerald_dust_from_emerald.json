@@ -1,6 +1,8 @@
 {
   "type": "logistics:macerator",
-  "ingredient": "minecraft:emerald",
+  "ingredient": {
+    "item": "minecraft:emerald"
+  },
   "result": {
     "id": "logistics:core/emerald_dust",
     "count": 1

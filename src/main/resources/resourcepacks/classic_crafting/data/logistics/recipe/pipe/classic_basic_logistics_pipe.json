@@ -6,11 +6,21 @@
     " E "
   ],
   "key": {
-    "G": "minecraft:glass",
-    "T": "minecraft:redstone_torch",
-    "C": "logistics:pipe/copper_transport_pipe",
-    "F": "logistics:pipe/item_filter_pipe",
-    "E": "logistics:core/iron_gear"
+    "G": {
+      "item": "minecraft:glass"
+    },
+    "T": {
+      "item": "minecraft:redstone_torch"
+    },
+    "C": {
+      "item": "logistics:pipe/copper_transport_pipe"
+    },
+    "F": {
+      "item": "logistics:pipe/item_filter_pipe"
+    },
+    "E": {
+      "item": "logistics:core/iron_gear"
+    }
   },
   "result": {
     "count": 8,
