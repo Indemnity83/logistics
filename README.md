@@ -97,6 +97,7 @@ RF energy generation with engines:
 
 ### Automation
 - **[Kiln](https://indemnity83.github.io/logistics/automation/kiln/)** - Temperature-controlled crafting for molten glass and advanced materials
+- **[Macerator](https://indemnity83.github.io/logistics/automation/macerator/)** - Grind ores and materials into dusts and flour; supports XP drops and tag-based recipes
 - **[Laser Quarry](https://indemnity83.github.io/logistics/automation/laser-quarry/)** - Automated 16×16 mining with energy-scaled speed
 
 ### Tools
@@ -142,7 +143,9 @@ RF energy generation with engines:
 - Tin and Apatite worldgen, Bronze crafting, and tiered gear progression
 - Redstone, Stirling, and Creative engines with heat management
 - Kiln for temperature-controlled crafting
+- Macerator with ore processing, grinding time, XP drops, and tag support
 - Laser Quarry with automatic frame construction and energy-scaled mining speed
+- JEI integration for custom machines
 
 ### 🚧 Future
 - Fluid pipes with Transfer API integration
