@@ -1,5 +1,42 @@
 # Changelog
 
+## [0.5.0](https://github.com/Indemnity83/logistics/compare/mc26.1-v0.4.0...mc26.1-v0.5.0) (2026-04-04)
+
+
+### ⚠ BREAKING CHANGES
+
+* logistics pipe and module crafting recipes have changed; enable the "Classic Logistics Pipes crafting recipes" built-in datapack to restore the original gear-based recipes as alternates
+
+### Features
+
+* add crafting recipes for new chip items to automation ([#240](https://github.com/Indemnity83/logistics/issues/240)) ([598aec6](https://github.com/Indemnity83/logistics/commit/598aec638416b31887e798cb10be091ad86f566a))
+* add experience handling to macerator for new recipes ([#239](https://github.com/Indemnity83/logistics/issues/239)) ([3cf3dd2](https://github.com/Indemnity83/logistics/commit/3cf3dd234a9d5968f849cefcfd39d8008de6247e))
+* add grinding time to macerator recipes ([#238](https://github.com/Indemnity83/logistics/issues/238)) ([67dfcf4](https://github.com/Indemnity83/logistics/commit/67dfcf4cbddb358335eb1899ccd537d51238274d))
+* add JEI support for custom machines ([#234](https://github.com/Indemnity83/logistics/issues/234)) ([f20f57c](https://github.com/Indemnity83/logistics/commit/f20f57cebab68d9b3776fe454e04068e22e6f1db))
+* add macerator recipes for copper, gold, and iron dusts ([#244](https://github.com/Indemnity83/logistics/issues/244)) ([0ebb885](https://github.com/Indemnity83/logistics/commit/0ebb88514c302e8bd8e6a382589043df29ae35ef))
+* add macerator with full recipe set, new dust items, and flour ([#230](https://github.com/Indemnity83/logistics/issues/230)) ([6a2c27c](https://github.com/Indemnity83/logistics/commit/6a2c27c14a7da60e035eaeff10c8169373a6366f))
+* add Minecraft 26.1 support updates ([b49938c](https://github.com/Indemnity83/logistics/commit/b49938c1415f3f3f8190c3c21a7f57a21272b24c))
+* add wooden valve and new automation cores to system ([#235](https://github.com/Indemnity83/logistics/issues/235)) ([10c8808](https://github.com/Indemnity83/logistics/commit/10c880848b5845764c2c3c6bddd4449de6949bd0))
+* implement recipe book for Kiln with access widener support ([#242](https://github.com/Indemnity83/logistics/issues/242)) ([e36899b](https://github.com/Indemnity83/logistics/commit/e36899b708a12f6d6ff0f31dc67de80a331d81dc))
+* implement recipe book for macerator crafting interface ([#243](https://github.com/Indemnity83/logistics/issues/243)) ([0d0a142](https://github.com/Indemnity83/logistics/commit/0d0a1421e3fc80e9a3cd232f709986d9ccfe15a5))
+* replace kiln valve recipes with crafting table recipes ([#233](https://github.com/Indemnity83/logistics/issues/233)) ([a52e897](https://github.com/Indemnity83/logistics/commit/a52e897bc292648dd2f472f9db919a799f273638))
+* rework pipe and module recipes ([08bda95](https://github.com/Indemnity83/logistics/commit/08bda9578569df5e2d603fb0e18b01878b09b5b0))
+
+
+### Bug Fixes
+
+* add min_format and max_format to pack.mcmeta for recipes ([#250](https://github.com/Indemnity83/logistics/issues/250)) ([0f0ea05](https://github.com/Indemnity83/logistics/commit/0f0ea0587becc2e871e4c0c9896c65604e993d35))
+* add supported_formats to pack.mcmeta for compatibility ([#252](https://github.com/Indemnity83/logistics/issues/252)) ([08521b0](https://github.com/Indemnity83/logistics/commit/08521b0dd1ecc3b2fca721960df35c69f50a01c3))
+* correct engine block colors and transparency rendering ([#248](https://github.com/Indemnity83/logistics/issues/248)) ([9d1d08a](https://github.com/Indemnity83/logistics/commit/9d1d08adebf673495572d3f17d4921e9a81058fe))
+* resolve pipe access bug for satellite and process pipes ([#231](https://github.com/Indemnity83/logistics/issues/231)) ([3603a8f](https://github.com/Indemnity83/logistics/commit/3603a8fbe831699f3dc7c8d6f7c83d3083bc5d45))
+* update build script to check Gradle task by MC version ([#249](https://github.com/Indemnity83/logistics/issues/249)) ([fe5d9db](https://github.com/Indemnity83/logistics/commit/fe5d9dbdbcca1e62ec14433f5504aee3888bf2d5))
+
+
+### Refactorings
+
+* change kiln to act as an electric furnace ([#236](https://github.com/Indemnity83/logistics/issues/236)) ([f208e48](https://github.com/Indemnity83/logistics/commit/f208e484b55f758e30bdf5322aed0a8f7c037f89))
+* relocate intermediates functionality to core package ([#241](https://github.com/Indemnity83/logistics/issues/241)) ([21138dc](https://github.com/Indemnity83/logistics/commit/21138dcc16c4729af14e7743c28ca090014caff0))
+
 ## [0.4.0](https://github.com/Indemnity83/logistics/compare/mc26.1-v0.3.5...mc26.1-v0.4.0) (2026-03-27)
 
 
