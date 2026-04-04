@@ -4,7 +4,8 @@ import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.core.Direction;
 
 public class TravelingItemRenderState {
-    public final ItemStackRenderState itemRenderState = new ItemStackRenderState();
+    // Not final — set to a cached instance shared across items of the same ItemVariant (Fix 3)
+    public ItemStackRenderState itemRenderState = new ItemStackRenderState();
     public Direction direction;
     public float progress;
     public float currentSpeed;
