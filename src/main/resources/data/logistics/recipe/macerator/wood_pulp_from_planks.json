@@ -4,7 +4,7 @@
     "tag": "minecraft:planks"
   },
   "result": {
-    "id": "logistics:automation/wood_pulp",
+    "id": "logistics:core/wood_pulp",
     "count": 2
   },
   "grindingtime": 200

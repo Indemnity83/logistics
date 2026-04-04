@@ -1,0 +1,6 @@
+{
+  "parent": "logistics:block/core/macerator",
+  "textures": {
+    "front": "logistics:block/core/macerator_front_on"
+  }
+}

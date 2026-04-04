@@ -1,10 +1,10 @@
 package com.logistics;
 
 import com.logistics.core.bootstrap.DomainBootstrap;
+import com.logistics.core.macerator.MaceratorScreen;
 import com.logistics.core.render.ModelKeyRegistry;
 import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
-import net.fabricmc.fabric.api.client.render.fluid.v1.FluidRenderHandlerRegistry;
-import net.fabricmc.fabric.api.client.render.fluid.v1.SimpleFluidRenderHandler;
+import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.resources.ResourceLocation;
 
 import static com.logistics.LogisticsMod.LOGGER;
@@ -25,16 +25,7 @@ public final class LogisticsCoreClient implements DomainBootstrap {
     public void initClient() {
         LOGGER.info("Registering core (client)");
 
-        // Register molten glass fluid rendering
-        FluidRenderHandlerRegistry.INSTANCE.register(
-            LogisticsCore.FLUID.MOLTEN_GLASS_STILL,
-            LogisticsCore.FLUID.MOLTEN_GLASS_FLOWING,
-            new SimpleFluidRenderHandler(
-                LogisticsMod.modId("block/core/liquid_glass").toIdentifier(),
-                LogisticsMod.modId("block/core/liquid_glass").toIdentifier(),
-                0xFF8800 // Orange color tint
-            )
-        );
+        MenuScreens.register(LogisticsCore.MENU.MACERATOR, MaceratorScreen::new);
     }
 
     @Override

@@ -7,7 +7,7 @@
   ],
   "key": {
     "V": {
-      "item": "logistics:automation/valve_diamond"
+      "item": "logistics:core/diamond_valve"
     },
     "B": {
       "item": "logistics:pipe/basic_logistics_pipe"

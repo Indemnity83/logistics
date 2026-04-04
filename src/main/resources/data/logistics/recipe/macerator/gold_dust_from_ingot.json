@@ -1,0 +1,9 @@
+{
+  "type": "logistics:macerator",
+  "ingredient": "minecraft:gold_ingot",
+  "result": {
+    "id": "logistics:core/gold_dust",
+    "count": 1
+  },
+  "grindingtime": 200
+}

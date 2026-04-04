@@ -2,7 +2,7 @@
   "type": "logistics:macerator",
   "ingredient": "minecraft:amethyst_shard",
   "result": {
-    "id": "logistics:automation/amethyst_dust",
+    "id": "logistics:core/amethyst_dust",
     "count": 1
   },
   "grindingtime": 200

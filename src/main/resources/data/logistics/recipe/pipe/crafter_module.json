@@ -6,10 +6,10 @@
   ],
   "key": {
     "D": {
-      "item": "logistics:automation/bronze_powder"
+      "item": "logistics:core/bronze_dust"
     },
     "C": {
-      "item": "logistics:automation/chip_redstone"
+      "item": "logistics:core/redstone_chip"
     },
     "R": {
       "item": "minecraft:redstone"

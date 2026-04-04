@@ -1,0 +1,6 @@
+{
+  "model": {
+    "model": "logistics:item/core/netherite_dust",
+    "type": "minecraft:model"
+  }
+}

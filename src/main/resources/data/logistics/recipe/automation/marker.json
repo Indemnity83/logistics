@@ -6,14 +6,14 @@
   ],
   "key": {
     "L": {
-      "item": "logistics:automation/lapis_dust"
+      "item": "logistics:core/lapis_dust"
     },
     "S": {
       "item": "minecraft:stick"
     }
   },
   "result": {
-    "count": 2,
-    "id": "logistics:automation/marker"
+    "id": "logistics:automation/marker",
+    "count": 2
   }
 }

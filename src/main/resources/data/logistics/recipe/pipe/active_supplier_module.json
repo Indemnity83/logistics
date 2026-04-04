@@ -6,10 +6,10 @@
   ],
   "key": {
     "D": {
-      "item": "logistics:automation/emerald_dust"
+      "item": "logistics:core/emerald_dust"
     },
     "C": {
-      "item": "logistics:automation/chip_amethyst"
+      "item": "logistics:core/amethyst_chip"
     },
     "R": {
       "item": "minecraft:redstone"
