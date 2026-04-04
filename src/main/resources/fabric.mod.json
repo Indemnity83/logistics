@@ -17,7 +17,7 @@
   "entrypoints": {
     "client": ["com.logistics.LogisticsModClient"],
     "main": ["com.logistics.LogisticsMod"],
-    "jei_mod_plugin": ["com.logistics.automation.macerator.jei.MaceratorJeiPlugin"]
+    "jei_mod_plugin": ["com.logistics.core.macerator.jei.MaceratorJeiPlugin"]
   },
   "environment": "*",
   "icon": "assets/logistics/icon.png",
