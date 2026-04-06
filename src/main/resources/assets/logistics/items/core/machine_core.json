@@ -1,0 +1,6 @@
+{
+  "model": {
+    "model": "logistics:item/core/machine_core",
+    "type": "minecraft:model"
+  }
+}
