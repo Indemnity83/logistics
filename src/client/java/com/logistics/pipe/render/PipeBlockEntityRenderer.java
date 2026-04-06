@@ -52,6 +52,8 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
     private static final float BLOCK_OFFSET = 0.3125f;
     private static final float ITEM_OFFSET = 0.375f;
 
+    private final RenderProfiler profiler = new RenderProfiler();
+
     public PipeBlockEntityRenderer(BlockEntityRendererProvider.Context ctx) {
     }
 
@@ -69,6 +71,8 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
 
         Pipe pipe = pipeBlock.getPipe();
         if (pipe == null || entity.getLevel() == null) return;
+
+        long t0 = RenderProfiler.ENABLED ? profiler.startSubmit() : 0;
 
         PipeContext ctx = new PipeContext(entity.getLevel(), entity.getBlockPos(), state, entity);
         VertexConsumer buffer = bufferSource.getBuffer(RenderType.cutout());
@@ -107,6 +111,8 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
             renderTravelingItem(item, partialTick, maxSpeed, accelerationRate, dragCoefficient,
                     poseStack, bufferSource, packedLight, packedOverlay, entity);
         }
+
+        if (RenderProfiler.ENABLED) profiler.endSubmit(t0);
     }
 
     private void renderModel(
