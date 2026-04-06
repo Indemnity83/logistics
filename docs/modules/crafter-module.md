@@ -31,11 +31,11 @@ Three mark variants exist (MK1/II/III), with higher marks supporting more comple
 
 ## Variants
 
-| Variant | Gear | Notes |
+| Variant | Chip | Notes |
 |---------|------|-------|
-| Crafter Module (MK1) | Iron Gear | Single recipe, standard speed |
-| Crafter Module MK2 | Gold Gear | Enhanced throughput or priority handling |
-| Crafter Module MK3 | Diamond Gear | Maximum crafting speed, advanced recipe support |
+| Crafter Module (MK1) | Redstone Chip | Single recipe, standard speed |
+| Crafter Module MK2 | Amethyst Chip | Enhanced throughput or priority handling |
+| Crafter Module MK3 | Echo Chip | Maximum crafting speed, advanced recipe support |
 
 ## Recipes
 
@@ -43,15 +43,15 @@ Three mark variants exist (MK1/II/III), with higher marks supporting more comple
 
 <div class="crafting-recipe">
     <div class="crafting-grid">
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__brown_dye.png" class="crafting-item" alt="Brown Dye" title="Brown Dye"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___iron_gear.png" class="crafting-item" alt="Iron Gear" title="Iron Gear"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__brown_dye.png" class="crafting-item" alt="Brown Dye" title="Brown Dye"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___bronze_dust.png" class="crafting-item" alt="Bronze Dust" title="Bronze Dust"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___redstone_chip.png" class="crafting-item" alt="Redstone Chip" title="Redstone Chip"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___bronze_dust.png" class="crafting-item" alt="Bronze Dust" title="Bronze Dust"></div>
         <div class="crafting-slot"><img src="../../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone" title="Redstone"></div>
         <div class="crafting-slot"><img src="../../assets/icons/logistics__pipe___blank_module.png" class="crafting-item" alt="Blank Module" title="Blank Module"></div>
         <div class="crafting-slot"><img src="../../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone" title="Redstone"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__brown_dye.png" class="crafting-item" alt="Brown Dye" title="Brown Dye"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone" title="Redstone"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__brown_dye.png" class="crafting-item" alt="Brown Dye" title="Brown Dye"></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"></div>
     </div>
     <div class="crafting-arrow">→</div>
     <div class="crafting-output">
@@ -60,21 +60,21 @@ Three mark variants exist (MK1/II/III), with higher marks supporting more comple
     </div>
 </div>
 
-**Yields:** 1× Crafter Module (MK1)
+**Yields:** 1× Crafter Module (MK1) — 2× [Bronze Dust](../materials/dusts.md) + [Redstone Chip](../materials/chips.md) + 2× Redstone + [Blank Module](blank-module.md)
 
 ### Crafter Module MK2
 
 <div class="crafting-recipe">
     <div class="crafting-grid">
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__brown_dye.png" class="crafting-item" alt="Brown Dye" title="Brown Dye"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___gold_gear.png" class="crafting-item" alt="Gold Gear" title="Gold Gear"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__brown_dye.png" class="crafting-item" alt="Brown Dye" title="Brown Dye"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___bronze_dust.png" class="crafting-item" alt="Bronze Dust" title="Bronze Dust"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___amethyst_chip.png" class="crafting-item" alt="Amethyst Chip" title="Amethyst Chip"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___bronze_dust.png" class="crafting-item" alt="Bronze Dust" title="Bronze Dust"></div>
         <div class="crafting-slot"><img src="../../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone" title="Redstone"></div>
         <div class="crafting-slot"><img src="../../assets/icons/logistics__pipe___blank_module.png" class="crafting-item" alt="Blank Module" title="Blank Module"></div>
         <div class="crafting-slot"><img src="../../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone" title="Redstone"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__brown_dye.png" class="crafting-item" alt="Brown Dye" title="Brown Dye"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone" title="Redstone"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__brown_dye.png" class="crafting-item" alt="Brown Dye" title="Brown Dye"></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"></div>
     </div>
     <div class="crafting-arrow">→</div>
     <div class="crafting-output">
@@ -83,21 +83,21 @@ Three mark variants exist (MK1/II/III), with higher marks supporting more comple
     </div>
 </div>
 
-**Yields:** 1× Crafter Module MK2
+**Yields:** 1× Crafter Module MK2 — 2× [Bronze Dust](../materials/dusts.md) + [Amethyst Chip](../materials/chips.md) + 2× Redstone + [Blank Module](blank-module.md)
 
 ### Crafter Module MK3
 
 <div class="crafting-recipe">
     <div class="crafting-grid">
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__brown_dye.png" class="crafting-item" alt="Brown Dye" title="Brown Dye"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___diamond_gear.png" class="crafting-item" alt="Diamond Gear" title="Diamond Gear"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__brown_dye.png" class="crafting-item" alt="Brown Dye" title="Brown Dye"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___bronze_dust.png" class="crafting-item" alt="Bronze Dust" title="Bronze Dust"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___echo_chip.png" class="crafting-item" alt="Echo Chip" title="Echo Chip"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___bronze_dust.png" class="crafting-item" alt="Bronze Dust" title="Bronze Dust"></div>
         <div class="crafting-slot"><img src="../../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone" title="Redstone"></div>
         <div class="crafting-slot"><img src="../../assets/icons/logistics__pipe___blank_module.png" class="crafting-item" alt="Blank Module" title="Blank Module"></div>
         <div class="crafting-slot"><img src="../../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone" title="Redstone"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__brown_dye.png" class="crafting-item" alt="Brown Dye" title="Brown Dye"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone" title="Redstone"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__brown_dye.png" class="crafting-item" alt="Brown Dye" title="Brown Dye"></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"></div>
     </div>
     <div class="crafting-arrow">→</div>
     <div class="crafting-output">
@@ -106,7 +106,7 @@ Three mark variants exist (MK1/II/III), with higher marks supporting more comple
     </div>
 </div>
 
-**Yields:** 1× Crafter Module MK3
+**Yields:** 1× Crafter Module MK3 — 2× [Bronze Dust](../materials/dusts.md) + [Echo Chip](../materials/chips.md) + 2× Redstone + [Blank Module](blank-module.md)
 
 ## Behavior
 

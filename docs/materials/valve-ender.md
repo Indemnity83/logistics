@@ -1,24 +1,20 @@
 <div class="infobox">
     <div class="infobox-header">Ender Valve</div>
     <div class="infobox-image">
-        <img src="../../assets/icons/logistics__core___valve_ender.png" alt="Ender Valve" title="Ender Valve">
+        <img src="../../assets/icons/logistics__core___ender_valve.png" alt="Ender Valve" title="Ender Valve">
     </div>
     <table class="infobox-table">
         <tr>
             <td class="infobox-label">ID</td>
-            <td class="infobox-value"><code>logistics:core/valve_ender</code></td>
+            <td class="infobox-value"><code>logistics:core/ender_valve</code></td>
         </tr>
         <tr>
             <td class="infobox-label">Type</td>
-            <td class="infobox-value">Item</td>
+            <td class="infobox-value">Item (Component)</td>
         </tr>
         <tr>
             <td class="infobox-label">Stackable</td>
             <td class="infobox-value"><span class="stackable-yes">Yes (64)</span></td>
-        </tr>
-        <tr>
-            <td class="infobox-label">Kiln Tier</td>
-            <td class="infobox-value"><span class="infobox-tier infobox-tier-4">Tier 4</span></td>
         </tr>
         <tr>
             <td class="infobox-label">Added</td>
@@ -29,57 +25,32 @@
 
 # Ender Valve
 
-The **Ender Valve** is a Tier 4 valve crafted in the [Kiln](../automation/kiln.md). It requires ender pearls and lava bucket fuel.
+The **Ender Valve** is a crafting component used in future network pipe variants.
 
 ## Recipe
 
 <div class="crafting-recipe">
     <div class="crafting-grid">
-        <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__ender_pearl.png" class="crafting-item" alt="Ender Pearl" title="Ender Pearl"></div>
-        <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__ender_eye.png" class="crafting-item" alt="Eye of Ender" title="Eye of Ender"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__ender_pearl.png" class="crafting-item" alt="Ender Pearl" title="Ender Pearl"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__ender_eye.png" class="crafting-item" alt="Eye of Ender" title="Eye of Ender"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__ender_pearl.png" class="crafting-item" alt="Ender Pearl" title="Ender Pearl"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__ender_pearl.png" class="crafting-item" alt="Ender Pearl" title="Ender Pearl"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__ender_pearl.png" class="crafting-item" alt="Ender Pearl" title="Ender Pearl"></div>
+        <div class="crafting-slot"><a href="cores/#quartz-crystal"><img src="../../assets/icons/logistics__automation___quartz_crystal.png" class="crafting-item" alt="Quartz Crystal" title="Quartz Crystal"></a></div>
+        <div class="crafting-slot"><a href="cores/#quartz-crystal"><img src="../../assets/icons/logistics__automation___quartz_crystal.png" class="crafting-item" alt="Quartz Crystal" title="Quartz Crystal"></a></div>
+        <div class="crafting-slot"><a href="cores/#quartz-crystal"><img src="../../assets/icons/logistics__automation___quartz_crystal.png" class="crafting-item" alt="Quartz Crystal" title="Quartz Crystal"></a></div>
+        <div class="crafting-slot"><a href="cores/#quartz-crystal"><img src="../../assets/icons/logistics__automation___quartz_crystal.png" class="crafting-item" alt="Quartz Crystal" title="Quartz Crystal"></a></div>
+        <div class="crafting-slot"><a href="cores/"><img src="../../assets/icons/logistics__core___ender_core.png" class="crafting-item" alt="Ender Core" title="Ender Core"></a></div>
+        <div class="crafting-slot"><a href="cores/#quartz-crystal"><img src="../../assets/icons/logistics__automation___quartz_crystal.png" class="crafting-item" alt="Quartz Crystal" title="Quartz Crystal"></a></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__iron_nugget.png" class="crafting-item" alt="Iron Nugget" title="Iron Nugget"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__gold_nugget.png" class="crafting-item" alt="Gold Nugget" title="Gold Nugget"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__iron_nugget.png" class="crafting-item" alt="Iron Nugget" title="Iron Nugget"></div>
     </div>
     <div class="crafting-arrow">→</div>
     <div class="crafting-output">
-        <a href="../valve-ender/"><img src="../../assets/icons/logistics__core___valve_ender.png" class="crafting-item" alt="Ender Valve" title="Ender Valve"></a>
-        <span class="crafting-count">4</span>
+        <img src="../../assets/icons/logistics__core___ender_valve.png" class="crafting-item" alt="Ender Valve" title="Ender Valve">
+        <span class="crafting-count">1</span>
     </div>
 </div>
 
-**[Kiln](../automation/kiln.md) crafting:**
-- 5× Ender Pearl + 2× Eye of Ender + 250mb Molten Glass
-- **Process time:** 260 ticks
-- **Energy demand:** 260 energy/tick
-- **Yields:** 4× Ender Valve
-
-## Fuel Requirements
-
-**Tier 4 - Lava recommended**
-
-Energy demand: 260 energy/tick
-- **Blaze Rod:** **Fails**
-- **Lava Bucket:** Recommended
-
-Lava buckets required.
-
-## Usage
-
-Valves are crafting components for future features. Ender valves require ender pearl farming.
-
-## Tips
-
-- Requires 5 ender pearls per craft
-- Lava buckets necessary
-- Longest process time in Tier 4 (260 ticks)
-- Stock up on ender pearls first
+**Yields:** 1× Ender Valve — 5× [Quartz Crystal](cores.md#quartz-crystal) + 1× [Ender Core](cores.md) + 2× Iron Nugget + 1× Gold Nugget
 
 ## See Also
-- [Kiln](../automation/kiln.md) - Crafting machine
-- [Diamond Valve](valve-diamond.md) - Same tier (240 energy/tick)
-- [Emerald Valve](valve-emerald.md) - Next tier (280 energy/tick)
+- [Cores](cores.md) - Ender Core crafting
+- [Quartz Crystal](cores.md#quartz-crystal) - Required ingredient
+- [Valves](index.md#valves) - All valve types

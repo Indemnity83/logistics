@@ -35,15 +35,15 @@ The **Terminus Module** is a [Chassis Logistics Pipe](../pipes/chassis-logistics
 
 <div class="crafting-recipe">
     <div class="crafting-grid">
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__purple_dye.png" class="crafting-item" alt="Purple Dye" title="Purple Dye"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__ender_pearl.png" class="crafting-item" alt="Ender Pearl" title="Ender Pearl"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__purple_dye.png" class="crafting-item" alt="Purple Dye" title="Purple Dye"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___ender_dust.png" class="crafting-item" alt="Ender Dust" title="Ender Dust"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___redstone_chip.png" class="crafting-item" alt="Redstone Chip" title="Redstone Chip"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___ender_dust.png" class="crafting-item" alt="Ender Dust" title="Ender Dust"></div>
         <div class="crafting-slot"><img src="../../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone" title="Redstone"></div>
         <div class="crafting-slot"><img src="../../assets/icons/logistics__pipe___blank_module.png" class="crafting-item" alt="Blank Module" title="Blank Module"></div>
         <div class="crafting-slot"><img src="../../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone" title="Redstone"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__purple_dye.png" class="crafting-item" alt="Purple Dye" title="Purple Dye"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone" title="Redstone"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__purple_dye.png" class="crafting-item" alt="Purple Dye" title="Purple Dye"></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"></div>
     </div>
     <div class="crafting-arrow">→</div>
     <div class="crafting-output">
@@ -52,7 +52,7 @@ The **Terminus Module** is a [Chassis Logistics Pipe](../pipes/chassis-logistics
     </div>
 </div>
 
-**Yields:** 1× Terminus Module
+**Yields:** 1× Terminus Module — 2× [Ender Dust](../materials/dusts.md) + [Redstone Chip](../materials/chips.md) + 2× Redstone + [Blank Module](blank-module.md)
 
 ## Behavior
 

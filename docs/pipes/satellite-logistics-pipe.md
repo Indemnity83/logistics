@@ -32,12 +32,12 @@ The **Satellite Logistics Pipe** is a [Tier 3](../core/tier-system.md) network l
 
 <div class="crafting-recipe">
     <div class="crafting-grid">
-        <div class="crafting-slot"></div>
-        <div class="crafting-slot"></div>
-        <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__glowstone_dust.png" class="crafting-item" alt="Glowstone Dust" title="Glowstone Dust"></div>
+        <div class="crafting-slot"><a href="../../materials/valve-lapis/"><img src="../../assets/icons/logistics__core___lapis_valve.png" class="crafting-item" alt="Lapis Valve" title="Lapis Valve"></a></div>
         <div class="crafting-slot"><img src="../../assets/icons/logistics__pipe___basic_logistics_pipe.png" class="crafting-item" alt="Basic Logistics Pipe" title="Basic Logistics Pipe"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__glowstone_dust.png" class="crafting-item" alt="Glowstone Dust" title="Glowstone Dust"></div>
+        <div class="crafting-slot"><a href="../../materials/valve-lapis/"><img src="../../assets/icons/logistics__core___lapis_valve.png" class="crafting-item" alt="Lapis Valve" title="Lapis Valve"></a></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"></div>
         <div class="crafting-slot"></div>
         <div class="crafting-slot"></div>
         <div class="crafting-slot"></div>
@@ -48,7 +48,7 @@ The **Satellite Logistics Pipe** is a [Tier 3](../core/tier-system.md) network l
     </div>
 </div>
 
-**Yields:** 1× Satellite Logistics Pipe
+**Yields:** 1× Satellite Logistics Pipe (2× [Lapis Valve](../materials/valve-lapis.md) + 1× Basic Logistics Pipe)
 
 ## Behavior
 

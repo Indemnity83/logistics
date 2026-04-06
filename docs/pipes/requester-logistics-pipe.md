@@ -35,14 +35,14 @@ The **Requester Logistics Pipe** is a [Tier 3](../core/tier-system.md) network l
 
 <div class="crafting-recipe">
     <div class="crafting-grid">
-        <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___gold_gear.png" class="crafting-item" alt="Gold Gear" title="Gold Gear"></div>
-        <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___gold_gear.png" class="crafting-item" alt="Gold Gear" title="Gold Gear"></div>
+        <div class="crafting-slot"><a href="../../materials/valve-diamond/"><img src="../../assets/icons/logistics__core___diamond_valve.png" class="crafting-item" alt="Diamond Valve" title="Diamond Valve"></a></div>
         <div class="crafting-slot"><img src="../../assets/icons/logistics__pipe___basic_logistics_pipe.png" class="crafting-item" alt="Basic Logistics Pipe" title="Basic Logistics Pipe"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___gold_gear.png" class="crafting-item" alt="Gold Gear" title="Gold Gear"></div>
+        <div class="crafting-slot"><a href="../../materials/valve-diamond/"><img src="../../assets/icons/logistics__core___diamond_valve.png" class="crafting-item" alt="Diamond Valve" title="Diamond Valve"></a></div>
         <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___gold_gear.png" class="crafting-item" alt="Gold Gear" title="Gold Gear"></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"></div>
         <div class="crafting-slot"></div>
     </div>
     <div class="crafting-arrow">→</div>
@@ -52,7 +52,7 @@ The **Requester Logistics Pipe** is a [Tier 3](../core/tier-system.md) network l
     </div>
 </div>
 
-**Yields:** 1× Requester Logistics Pipe
+**Yields:** 1× Requester Logistics Pipe (2× [Diamond Valve](../materials/valve-diamond.md) + 1× Basic Logistics Pipe)
 
 ## Behavior
 

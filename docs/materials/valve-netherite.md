@@ -1,24 +1,20 @@
 <div class="infobox">
     <div class="infobox-header">Netherite Valve</div>
     <div class="infobox-image">
-        <img src="../../assets/icons/logistics__core___valve_netherite.png" alt="Netherite Valve" title="Netherite Valve">
+        <img src="../../assets/icons/logistics__core___netherite_valve.png" alt="Netherite Valve" title="Netherite Valve">
     </div>
     <table class="infobox-table">
         <tr>
             <td class="infobox-label">ID</td>
-            <td class="infobox-value"><code>logistics:core/valve_netherite</code></td>
+            <td class="infobox-value"><code>logistics:core/netherite_valve</code></td>
         </tr>
         <tr>
             <td class="infobox-label">Type</td>
-            <td class="infobox-value">Item</td>
+            <td class="infobox-value">Item (Component)</td>
         </tr>
         <tr>
             <td class="infobox-label">Stackable</td>
             <td class="infobox-value"><span class="stackable-yes">Yes (64)</span></td>
-        </tr>
-        <tr>
-            <td class="infobox-label">Kiln Tier</td>
-            <td class="infobox-value"><span class="infobox-tier infobox-tier-6">Tier 6</span></td>
         </tr>
         <tr>
             <td class="infobox-label">Added</td>
@@ -29,57 +25,38 @@
 
 # Netherite Valve
 
-The **Netherite Valve** is a Tier 6 valve crafted in the [Kiln](../automation/kiln.md). It has near-maximum energy demand far exceeding lava capacity.
+The **Netherite Valve** is a crafting component used to make the [Chassis Logistics Pipe MK5](../pipes/chassis-logistics-pipe.md#mk5-recipe).
 
 ## Recipe
 
 <div class="crafting-recipe">
     <div class="crafting-grid">
-        <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__netherite_ingot.png" class="crafting-item" alt="Netherite Ingot" title="Netherite Ingot"></div>
-        <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone" title="Redstone"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__netherite_ingot.png" class="crafting-item" alt="Netherite Ingot" title="Netherite Ingot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone" title="Redstone"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__netherite_ingot.png" class="crafting-item" alt="Netherite Ingot" title="Netherite Ingot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__netherite_ingot.png" class="crafting-item" alt="Netherite Ingot" title="Netherite Ingot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__netherite_ingot.png" class="crafting-item" alt="Netherite Ingot" title="Netherite Ingot"></div>
+        <div class="crafting-slot"><a href="cores/#quartz-crystal"><img src="../../assets/icons/logistics__automation___quartz_crystal.png" class="crafting-item" alt="Quartz Crystal" title="Quartz Crystal"></a></div>
+        <div class="crafting-slot"><a href="cores/#quartz-crystal"><img src="../../assets/icons/logistics__automation___quartz_crystal.png" class="crafting-item" alt="Quartz Crystal" title="Quartz Crystal"></a></div>
+        <div class="crafting-slot"><a href="cores/#quartz-crystal"><img src="../../assets/icons/logistics__automation___quartz_crystal.png" class="crafting-item" alt="Quartz Crystal" title="Quartz Crystal"></a></div>
+        <div class="crafting-slot"><a href="cores/#quartz-crystal"><img src="../../assets/icons/logistics__automation___quartz_crystal.png" class="crafting-item" alt="Quartz Crystal" title="Quartz Crystal"></a></div>
+        <div class="crafting-slot"><a href="cores/"><img src="../../assets/icons/logistics__core___netherite_core.png" class="crafting-item" alt="Netherite Core" title="Netherite Core"></a></div>
+        <div class="crafting-slot"><a href="cores/#quartz-crystal"><img src="../../assets/icons/logistics__automation___quartz_crystal.png" class="crafting-item" alt="Quartz Crystal" title="Quartz Crystal"></a></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__iron_nugget.png" class="crafting-item" alt="Iron Nugget" title="Iron Nugget"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__gold_nugget.png" class="crafting-item" alt="Gold Nugget" title="Gold Nugget"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__iron_nugget.png" class="crafting-item" alt="Iron Nugget" title="Iron Nugget"></div>
     </div>
     <div class="crafting-arrow">→</div>
     <div class="crafting-output">
-        <a href="../valve-netherite/"><img src="../../assets/icons/logistics__core___valve_netherite.png" class="crafting-item" alt="Netherite Valve" title="Netherite Valve"></a>
-        <span class="crafting-count">4</span>
+        <img src="../../assets/icons/logistics__core___netherite_valve.png" class="crafting-item" alt="Netherite Valve" title="Netherite Valve">
+        <span class="crafting-count">1</span>
     </div>
 </div>
 
-**[Kiln](../automation/kiln.md) crafting:**
-- 5× Netherite Ingot + 2× Redstone + 250mb Molten Glass
-- **Process time:** 280 ticks
-- **Energy demand:** 400 energy/tick
-- **Yields:** 4× Netherite Valve
-
-## Fuel Requirements
-
-**Tier 6 - Lava insufficient**
-
-Energy demand: 400 energy/tick
-- **Lava Bucket:** **Cannot sustain** (~315 capacity vs 400 demand)
-
-Lava buckets fail significantly. Temperature drops repeatedly.
+**Yields:** 1× Netherite Valve — 5× [Quartz Crystal](cores.md#quartz-crystal) + 1× [Netherite Core](cores.md) + 2× Iron Nugget + 1× Gold Nugget
 
 ## Usage
 
-Valves are crafting components for future features. Netherite valves require extreme patience with current fuels.
-
-## Tips
-
-- Requires 5 netherite ingots - extremely expensive
-- Lava insufficient - heavy temperature drops
-- Will complete eventually through pause/resume cycles
-- Most expensive valve (netherite cost)
-- Second-highest energy demand (400)
+| Used In | Role |
+|---------|------|
+| [Chassis Logistics Pipe MK5](../pipes/chassis-logistics-pipe.md#mk5-recipe) | 4× required |
 
 ## See Also
-- [Kiln](../automation/kiln.md) - Crafting machine
-- [Obsidian Valve](valve-obsidian.md) - Previous tier (360 energy/tick)
-- [Blazing Valve](valve-blazing.md) - Maximum tier (440 energy/tick)
+- [Cores](cores.md) - Netherite Core crafting
+- [Quartz Crystal](cores.md#quartz-crystal) - Required ingredient
+- [Valves](index.md#valves) - All valve types

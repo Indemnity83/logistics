@@ -1,24 +1,20 @@
 <div class="infobox">
     <div class="infobox-header">Lapis Valve</div>
     <div class="infobox-image">
-        <img src="../../assets/icons/logistics__core___valve_lapis.png" alt="Lapis Valve" title="Lapis Valve">
+        <img src="../../assets/icons/logistics__core___lapis_valve.png" alt="Lapis Valve" title="Lapis Valve">
     </div>
     <table class="infobox-table">
         <tr>
             <td class="infobox-label">ID</td>
-            <td class="infobox-value"><code>logistics:core/valve_lapis</code></td>
+            <td class="infobox-value"><code>logistics:core/lapis_valve</code></td>
         </tr>
         <tr>
             <td class="infobox-label">Type</td>
-            <td class="infobox-value">Item</td>
+            <td class="infobox-value">Item (Component)</td>
         </tr>
         <tr>
             <td class="infobox-label">Stackable</td>
             <td class="infobox-value"><span class="stackable-yes">Yes (64)</span></td>
-        </tr>
-        <tr>
-            <td class="infobox-label">Kiln Tier</td>
-            <td class="infobox-value"><span class="infobox-tier infobox-tier-5">Tier 5</span></td>
         </tr>
         <tr>
             <td class="infobox-label">Added</td>
@@ -29,56 +25,38 @@
 
 # Lapis Valve
 
-The **Lapis Valve** is a Tier 5 valve crafted in the [Kiln](../automation/kiln.md). It pushes lava bucket fuel to near capacity.
+The **Lapis Valve** is a crafting component used to make the [Satellite Logistics Pipe](../pipes/satellite-logistics-pipe.md).
 
 ## Recipe
 
 <div class="crafting-recipe">
     <div class="crafting-grid">
-        <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__lapis_lazuli.png" class="crafting-item" alt="Lapis Lazuli" title="Lapis Lazuli"></div>
-        <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone" title="Redstone"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__lapis_lazuli.png" class="crafting-item" alt="Lapis Lazuli" title="Lapis Lazuli"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone" title="Redstone"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__lapis_lazuli.png" class="crafting-item" alt="Lapis Lazuli" title="Lapis Lazuli"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__lapis_lazuli.png" class="crafting-item" alt="Lapis Lazuli" title="Lapis Lazuli"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__lapis_lazuli.png" class="crafting-item" alt="Lapis Lazuli" title="Lapis Lazuli"></div>
+        <div class="crafting-slot"><a href="cores/#quartz-crystal"><img src="../../assets/icons/logistics__automation___quartz_crystal.png" class="crafting-item" alt="Quartz Crystal" title="Quartz Crystal"></a></div>
+        <div class="crafting-slot"><a href="cores/#quartz-crystal"><img src="../../assets/icons/logistics__automation___quartz_crystal.png" class="crafting-item" alt="Quartz Crystal" title="Quartz Crystal"></a></div>
+        <div class="crafting-slot"><a href="cores/#quartz-crystal"><img src="../../assets/icons/logistics__automation___quartz_crystal.png" class="crafting-item" alt="Quartz Crystal" title="Quartz Crystal"></a></div>
+        <div class="crafting-slot"><a href="cores/#quartz-crystal"><img src="../../assets/icons/logistics__automation___quartz_crystal.png" class="crafting-item" alt="Quartz Crystal" title="Quartz Crystal"></a></div>
+        <div class="crafting-slot"><a href="cores/"><img src="../../assets/icons/logistics__core___lapis_core.png" class="crafting-item" alt="Lapis Core" title="Lapis Core"></a></div>
+        <div class="crafting-slot"><a href="cores/#quartz-crystal"><img src="../../assets/icons/logistics__automation___quartz_crystal.png" class="crafting-item" alt="Quartz Crystal" title="Quartz Crystal"></a></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__iron_nugget.png" class="crafting-item" alt="Iron Nugget" title="Iron Nugget"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__gold_nugget.png" class="crafting-item" alt="Gold Nugget" title="Gold Nugget"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__iron_nugget.png" class="crafting-item" alt="Iron Nugget" title="Iron Nugget"></div>
     </div>
     <div class="crafting-arrow">→</div>
     <div class="crafting-output">
-        <a href="../valve-lapis/"><img src="../../assets/icons/logistics__core___valve_lapis.png" class="crafting-item" alt="Lapis Valve" title="Lapis Valve"></a>
-        <span class="crafting-count">4</span>
+        <img src="../../assets/icons/logistics__core___lapis_valve.png" class="crafting-item" alt="Lapis Valve" title="Lapis Valve">
+        <span class="crafting-count">1</span>
     </div>
 </div>
 
-**[Kiln](../automation/kiln.md) crafting:**
-- 5× Lapis Lazuli + 2× Redstone + 250mb Molten Glass
-- **Process time:** 240 ticks
-- **Energy demand:** 320 energy/tick
-- **Yields:** 4× Lapis Valve
-
-## Fuel Requirements
-
-**Tier 5 - Lava at near capacity**
-
-Energy demand: 320 energy/tick
-- **Lava Bucket:** Barely sufficient (~315 net capacity)
-
-Lava buckets work but run at maximum capacity.
+**Yields:** 1× Lapis Valve — 5× [Quartz Crystal](cores.md#quartz-crystal) + 1× [Lapis Core](cores.md) + 2× Iron Nugget + 1× Gold Nugget
 
 ## Usage
 
-Valves are crafting components for future features. Lapis valves represent the limit of what lava can sustain.
-
-## Tips
-
-- Lava buckets at near capacity - expect temperature variation
-- May see crafting pauses as temperature fluctuates
-- Yields 4 valves per craft
-- Near the upper limit of current fuel capabilities
+| Used In | Role |
+|---------|------|
+| [Satellite Logistics Pipe](../pipes/satellite-logistics-pipe.md) | 2× required |
 
 ## See Also
-- [Kiln](../automation/kiln.md) - Crafting machine
-- [Emerald Valve](valve-emerald.md) - Previous tier (280 energy/tick)
-- [Obsidian Valve](valve-obsidian.md) - Next tier (360 energy/tick, lava struggles)
+- [Cores](cores.md) - Lapis Core crafting
+- [Quartz Crystal](cores.md#quartz-crystal) - Required ingredient
+- [Valves](index.md#valves) - All valve types

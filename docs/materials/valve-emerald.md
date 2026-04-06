@@ -1,24 +1,20 @@
 <div class="infobox">
     <div class="infobox-header">Emerald Valve</div>
     <div class="infobox-image">
-        <img src="../../assets/icons/logistics__core___valve_emerald.png" alt="Emerald Valve" title="Emerald Valve">
+        <img src="../../assets/icons/logistics__core___emerald_valve.png" alt="Emerald Valve" title="Emerald Valve">
     </div>
     <table class="infobox-table">
         <tr>
             <td class="infobox-label">ID</td>
-            <td class="infobox-value"><code>logistics:core/valve_emerald</code></td>
+            <td class="infobox-value"><code>logistics:core/emerald_valve</code></td>
         </tr>
         <tr>
             <td class="infobox-label">Type</td>
-            <td class="infobox-value">Item</td>
+            <td class="infobox-value">Item (Component)</td>
         </tr>
         <tr>
             <td class="infobox-label">Stackable</td>
             <td class="infobox-value"><span class="stackable-yes">Yes (64)</span></td>
-        </tr>
-        <tr>
-            <td class="infobox-label">Kiln Tier</td>
-            <td class="infobox-value"><span class="infobox-tier infobox-tier-5">Tier 5</span></td>
         </tr>
         <tr>
             <td class="infobox-label">Added</td>
@@ -29,56 +25,38 @@
 
 # Emerald Valve
 
-The **Emerald Valve** is a Tier 5 valve crafted in the [Kiln](../automation/kiln.md). It has very high energy demand requiring lava buckets.
+The **Emerald Valve** is a crafting component used to make the [Supplier Logistics Pipe](../pipes/supplier-logistics-pipe.md).
 
 ## Recipe
 
 <div class="crafting-recipe">
     <div class="crafting-grid">
-        <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__emerald.png" class="crafting-item" alt="Emerald" title="Emerald"></div>
-        <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone" title="Redstone"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__emerald.png" class="crafting-item" alt="Emerald" title="Emerald"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone" title="Redstone"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__emerald.png" class="crafting-item" alt="Emerald" title="Emerald"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__emerald.png" class="crafting-item" alt="Emerald" title="Emerald"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__emerald.png" class="crafting-item" alt="Emerald" title="Emerald"></div>
+        <div class="crafting-slot"><a href="cores/#quartz-crystal"><img src="../../assets/icons/logistics__automation___quartz_crystal.png" class="crafting-item" alt="Quartz Crystal" title="Quartz Crystal"></a></div>
+        <div class="crafting-slot"><a href="cores/#quartz-crystal"><img src="../../assets/icons/logistics__automation___quartz_crystal.png" class="crafting-item" alt="Quartz Crystal" title="Quartz Crystal"></a></div>
+        <div class="crafting-slot"><a href="cores/#quartz-crystal"><img src="../../assets/icons/logistics__automation___quartz_crystal.png" class="crafting-item" alt="Quartz Crystal" title="Quartz Crystal"></a></div>
+        <div class="crafting-slot"><a href="cores/#quartz-crystal"><img src="../../assets/icons/logistics__automation___quartz_crystal.png" class="crafting-item" alt="Quartz Crystal" title="Quartz Crystal"></a></div>
+        <div class="crafting-slot"><a href="cores/"><img src="../../assets/icons/logistics__core___emerald_core.png" class="crafting-item" alt="Emerald Core" title="Emerald Core"></a></div>
+        <div class="crafting-slot"><a href="cores/#quartz-crystal"><img src="../../assets/icons/logistics__automation___quartz_crystal.png" class="crafting-item" alt="Quartz Crystal" title="Quartz Crystal"></a></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__iron_nugget.png" class="crafting-item" alt="Iron Nugget" title="Iron Nugget"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__gold_nugget.png" class="crafting-item" alt="Gold Nugget" title="Gold Nugget"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__iron_nugget.png" class="crafting-item" alt="Iron Nugget" title="Iron Nugget"></div>
     </div>
     <div class="crafting-arrow">→</div>
     <div class="crafting-output">
-        <a href="../valve-emerald/"><img src="../../assets/icons/logistics__core___valve_emerald.png" class="crafting-item" alt="Emerald Valve" title="Emerald Valve"></a>
-        <span class="crafting-count">4</span>
+        <img src="../../assets/icons/logistics__core___emerald_valve.png" class="crafting-item" alt="Emerald Valve" title="Emerald Valve">
+        <span class="crafting-count">1</span>
     </div>
 </div>
 
-**[Kiln](../automation/kiln.md) crafting:**
-- 5× Emerald + 2× Redstone + 250mb Molten Glass
-- **Process time:** 220 ticks
-- **Energy demand:** 280 energy/tick
-- **Yields:** 4× Emerald Valve
-
-## Fuel Requirements
-
-**Tier 5 - Lava required**
-
-Energy demand: 280 energy/tick
-- **Lava Bucket:** Required (~75 capacity, tight margin)
-
-Lava buckets required. Temperature may fluctuate.
+**Yields:** 1× Emerald Valve — 5× [Quartz Crystal](cores.md#quartz-crystal) + 1× [Emerald Core](cores.md) + 2× Iron Nugget + 1× Gold Nugget
 
 ## Usage
 
-Valves are crafting components for future features. Emerald valves are expensive and energy-intensive.
-
-## Tips
-
-- Requires 5 emeralds per craft
-- Lava buckets mandatory
-- High energy demand (280)
-- Expect some temperature fluctuation
+| Used In | Role |
+|---------|------|
+| [Supplier Logistics Pipe](../pipes/supplier-logistics-pipe.md) | 2× required |
 
 ## See Also
-- [Kiln](../automation/kiln.md) - Crafting machine
-- [Ender Valve](valve-ender.md) - Previous tier (260 energy/tick)
-- [Lapis Valve](valve-lapis.md) - Next tier (320 energy/tick)
+- [Cores](cores.md) - Emerald Core crafting
+- [Quartz Crystal](cores.md#quartz-crystal) - Required ingredient
+- [Valves](index.md#valves) - All valve types

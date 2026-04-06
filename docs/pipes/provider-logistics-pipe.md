@@ -35,12 +35,12 @@ The **Provider Logistics Pipe** is a [Tier 3](../core/tier-system.md) network lo
 
 <div class="crafting-recipe">
     <div class="crafting-grid">
-        <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___bronze_gear.png" class="crafting-item" alt="Bronze Gear" title="Bronze Gear"></div>
-        <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone" title="Redstone"></div>
+        <div class="crafting-slot"><a href="../../materials/valve-iron/"><img src="../../assets/icons/logistics__core___iron_valve.png" class="crafting-item" alt="Iron Valve" title="Iron Valve"></a></div>
         <div class="crafting-slot"><img src="../../assets/icons/logistics__pipe___basic_logistics_pipe.png" class="crafting-item" alt="Basic Logistics Pipe" title="Basic Logistics Pipe"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone" title="Redstone"></div>
+        <div class="crafting-slot"><a href="../../materials/valve-iron/"><img src="../../assets/icons/logistics__core___iron_valve.png" class="crafting-item" alt="Iron Valve" title="Iron Valve"></a></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"></div>
         <div class="crafting-slot"></div>
         <div class="crafting-slot"></div>
         <div class="crafting-slot"></div>
@@ -52,7 +52,7 @@ The **Provider Logistics Pipe** is a [Tier 3](../core/tier-system.md) network lo
     </div>
 </div>
 
-**Yields:** 1× Provider Logistics Pipe
+**Yields:** 1× Provider Logistics Pipe (2× [Iron Valve](../materials/valve-iron.md) + 1× Basic Logistics Pipe)
 
 ## Behavior
 
@@ -105,4 +105,4 @@ Configure via the [Wrench](../tools/wrench.md) GUI.
 - [Pipe Networks](../core/pipe-networks.md) - How the logistics network works
 - [Tier System](../core/tier-system.md) - Tier 3 network logistics
 - [Wrench](../tools/wrench.md) - Open provider GUI to set mode and filter
-- [Bronze Gear](../materials/bronze-gear.md) - Crafting component
+- [Iron Valve](../materials/valve-iron.md) - Crafting component

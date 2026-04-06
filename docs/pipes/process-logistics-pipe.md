@@ -32,12 +32,12 @@ The **Process Logistics Pipe** is a [Tier 3](../core/tier-system.md) network log
 
 <div class="crafting-recipe">
     <div class="crafting-grid">
-        <div class="crafting-slot"></div>
-        <div class="crafting-slot"></div>
-        <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__iron_ingot.png" class="crafting-item" alt="Iron Ingot" title="Iron Ingot"></div>
+        <div class="crafting-slot"><a href="../../materials/valve-gold/"><img src="../../assets/icons/logistics__core___gold_valve.png" class="crafting-item" alt="Gold Valve" title="Gold Valve"></a></div>
         <div class="crafting-slot"><img src="../../assets/icons/logistics__pipe___basic_logistics_pipe.png" class="crafting-item" alt="Basic Logistics Pipe" title="Basic Logistics Pipe"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__iron_ingot.png" class="crafting-item" alt="Iron Ingot" title="Iron Ingot"></div>
+        <div class="crafting-slot"><a href="../../materials/valve-gold/"><img src="../../assets/icons/logistics__core___gold_valve.png" class="crafting-item" alt="Gold Valve" title="Gold Valve"></a></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"></div>
         <div class="crafting-slot"></div>
         <div class="crafting-slot"></div>
         <div class="crafting-slot"></div>
@@ -48,7 +48,7 @@ The **Process Logistics Pipe** is a [Tier 3](../core/tier-system.md) network log
     </div>
 </div>
 
-**Yields:** 1× Process Logistics Pipe
+**Yields:** 1× Process Logistics Pipe (2× [Gold Valve](../materials/valve-gold.md) + 1× Basic Logistics Pipe)
 
 ## Behavior
 

@@ -43,15 +43,15 @@ The **Laser Quarry** is a powered mining machine that automatically excavates an
 
 <div class="crafting-recipe">
     <div class="crafting-grid">
-        <div class="crafting-slot"><a href="../../materials/iron-gear/"><img src="../../assets/icons/logistics__core___iron_gear.png" class="crafting-item" alt="Iron Gear" title="Iron Gear"></a></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone" title="Redstone"></div>
-        <div class="crafting-slot"><a href="../../materials/iron-gear/"><img src="../../assets/icons/logistics__core___iron_gear.png" class="crafting-item" alt="Iron Gear" title="Iron Gear"></a></div>
-        <div class="crafting-slot"><a href="../../materials/gold-gear/"><img src="../../assets/icons/logistics__core___gold_gear.png" class="crafting-item" alt="Gold Gear" title="Gold Gear"></a></div>
-        <div class="crafting-slot"><a href="../../materials/copper-gear/"><img src="../../assets/icons/logistics__core___copper_gear.png" class="crafting-item" alt="Copper Gear" title="Copper Gear"></a></div>
-        <div class="crafting-slot"><a href="../../materials/gold-gear/"><img src="../../assets/icons/logistics__core___gold_gear.png" class="crafting-item" alt="Gold Gear" title="Gold Gear"></a></div>
         <div class="crafting-slot"><a href="../../materials/diamond-gear/"><img src="../../assets/icons/logistics__core___diamond_gear.png" class="crafting-item" alt="Diamond Gear" title="Diamond Gear"></a></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__diamond_pickaxe.png" class="crafting-item" alt="Diamond Pickaxe" title="Diamond Pickaxe"></div>
         <div class="crafting-slot"><a href="../../materials/diamond-gear/"><img src="../../assets/icons/logistics__core___diamond_gear.png" class="crafting-item" alt="Diamond Gear" title="Diamond Gear"></a></div>
+        <div class="crafting-slot"><a href="../../materials/diamond-gear/"><img src="../../assets/icons/logistics__core___diamond_gear.png" class="crafting-item" alt="Diamond Gear" title="Diamond Gear"></a></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__iron_ingot.png" class="crafting-item" alt="Iron Ingot" title="Iron Ingot"></div>
+        <div class="crafting-slot"><a href="../../materials/machine-core/"><img src="../../assets/icons/logistics__core___machine_core.png" class="crafting-item" alt="Machine Core" title="Machine Core"></a></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__iron_ingot.png" class="crafting-item" alt="Iron Ingot" title="Iron Ingot"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__iron_ingot.png" class="crafting-item" alt="Iron Ingot" title="Iron Ingot"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__iron_ingot.png" class="crafting-item" alt="Iron Ingot" title="Iron Ingot"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__iron_ingot.png" class="crafting-item" alt="Iron Ingot" title="Iron Ingot"></div>
     </div>
     <div class="crafting-arrow">→</div>
     <div class="crafting-output">
@@ -59,7 +59,7 @@ The **Laser Quarry** is a powered mining machine that automatically excavates an
     </div>
 </div>
 
-**Yields:** 1× Laser Quarry (requires [Iron Gear](../materials/iron-gear.md), [Copper Gear](../materials/copper-gear.md), [Gold Gear](../materials/gold-gear.md), [Diamond Gear](../materials/diamond-gear.md))
+**Yields:** 1× Laser Quarry (requires [Machine Core](../materials/machine-core.md), 5× Iron Ingot, 3× [Diamond Gear](../materials/diamond-gear.md))
 
 ## Behavior
 
@@ -175,9 +175,9 @@ Mined items are **output from the top of the quarry**:
 ## See Also
 - [Stirling Engine](../power/stirling-engine.md) - Recommended power source
 - [RF Energy](../power/rf-energy.md) - Power system
+- [Machine Core](../materials/machine-core.md) - Crafting component
+- [Diamond Gear](../materials/diamond-gear.md) - Crafting component
 - [Copper Transport Pipe](../pipes/copper-transport-pipe.md) - Collect mined items
 - [Item Filter Pipe](../pipes/item-filter-pipe.md) - Sort ores from waste
 - [Item Void Pipe](../pipes/item-void-pipe.md) - Delete cobblestone overflow
-- [Iron Gear](../materials/iron-gear.md) - Crafting component
-- [Copper Gear](../materials/copper-gear.md) - Crafting component
-- [Diamond Gear](../materials/diamond-gear.md) - Crafting component
+- [Macerator](macerator.md) - Process mined ores into dust for doubling

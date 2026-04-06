@@ -29,13 +29,13 @@ The **Chassis Logistics Pipe** is a [Tier 3](../core/tier-system.md) modular net
 
 ## Variants
 
-| Variant | Module Slots | Center Material |
-|---------|-------------|-----------------|
-| [MK1](#mk1-recipe) | 1 | Basic Logistics Pipe in Iron |
-| [MK2](#mk2-recipe) | 2 | Basic Logistics Pipe in Bronze |
-| [MK3](#mk3-recipe) | 3 | Basic Logistics Pipe in Gold |
-| [MK4](#mk4-recipe) | 4 | Basic Logistics Pipe in Diamond |
-| [MK5](#mk5-recipe) | 5 | Basic Logistics Pipe in Netherite (corners) |
+| Variant | Module Slots | Valve Type |
+|---------|-------------|------------|
+| [MK1](#mk1-recipe) | 1 | Iron Valve |
+| [MK2](#mk2-recipe) | 2 | Bronze Valve |
+| [MK3](#mk3-recipe) | 3 | Gold Valve |
+| [MK4](#mk4-recipe) | 4 | Diamond Valve |
+| [MK5](#mk5-recipe) | 5 | Netherite Valve |
 
 Higher-mark chassis pipes hold more modules and are crafted from more valuable materials, but otherwise behave identically — behavior is entirely determined by installed modules.
 
@@ -45,15 +45,15 @@ Higher-mark chassis pipes hold more modules and are crafted from more valuable m
 
 <div class="crafting-recipe">
     <div class="crafting-grid">
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__iron_ingot.png" class="crafting-item" alt="Iron Ingot" title="Iron Ingot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__iron_ingot.png" class="crafting-item" alt="Iron Ingot" title="Iron Ingot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__iron_ingot.png" class="crafting-item" alt="Iron Ingot" title="Iron Ingot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__iron_ingot.png" class="crafting-item" alt="Iron Ingot" title="Iron Ingot"></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"><a href="../../materials/valve-iron/"><img src="../../assets/icons/logistics__core___iron_valve.png" class="crafting-item" alt="Iron Valve" title="Iron Valve"></a></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"><a href="../../materials/valve-iron/"><img src="../../assets/icons/logistics__core___iron_valve.png" class="crafting-item" alt="Iron Valve" title="Iron Valve"></a></div>
         <div class="crafting-slot"><img src="../../assets/icons/logistics__pipe___basic_logistics_pipe.png" class="crafting-item" alt="Basic Logistics Pipe" title="Basic Logistics Pipe"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__iron_ingot.png" class="crafting-item" alt="Iron Ingot" title="Iron Ingot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__iron_ingot.png" class="crafting-item" alt="Iron Ingot" title="Iron Ingot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__iron_ingot.png" class="crafting-item" alt="Iron Ingot" title="Iron Ingot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__iron_ingot.png" class="crafting-item" alt="Iron Ingot" title="Iron Ingot"></div>
+        <div class="crafting-slot"><a href="../../materials/valve-iron/"><img src="../../assets/icons/logistics__core___iron_valve.png" class="crafting-item" alt="Iron Valve" title="Iron Valve"></a></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"><a href="../../materials/valve-iron/"><img src="../../assets/icons/logistics__core___iron_valve.png" class="crafting-item" alt="Iron Valve" title="Iron Valve"></a></div>
+        <div class="crafting-slot"></div>
     </div>
     <div class="crafting-arrow">→</div>
     <div class="crafting-output">
@@ -62,21 +62,21 @@ Higher-mark chassis pipes hold more modules and are crafted from more valuable m
     </div>
 </div>
 
-**MK1:** 8× Iron Ingot + 1× Basic Logistics Pipe → 1× Chassis Logistics Pipe MK1
+**MK1:** 4× [Iron Valve](../materials/valve-iron.md) (cross) + 1× Basic Logistics Pipe → 1× Chassis Logistics Pipe MK1
 
 ### MK2 Recipe {#mk2-recipe}
 
 <div class="crafting-recipe">
     <div class="crafting-grid">
-        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___bronze_ingot.png" class="crafting-item" alt="Bronze Ingot" title="Bronze Ingot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___bronze_ingot.png" class="crafting-item" alt="Bronze Ingot" title="Bronze Ingot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___bronze_ingot.png" class="crafting-item" alt="Bronze Ingot" title="Bronze Ingot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___bronze_ingot.png" class="crafting-item" alt="Bronze Ingot" title="Bronze Ingot"></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"><a href="../../materials/valve-bronze/"><img src="../../assets/icons/logistics__core___bronze_valve.png" class="crafting-item" alt="Bronze Valve" title="Bronze Valve"></a></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"><a href="../../materials/valve-bronze/"><img src="../../assets/icons/logistics__core___bronze_valve.png" class="crafting-item" alt="Bronze Valve" title="Bronze Valve"></a></div>
         <div class="crafting-slot"><img src="../../assets/icons/logistics__pipe___basic_logistics_pipe.png" class="crafting-item" alt="Basic Logistics Pipe" title="Basic Logistics Pipe"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___bronze_ingot.png" class="crafting-item" alt="Bronze Ingot" title="Bronze Ingot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___bronze_ingot.png" class="crafting-item" alt="Bronze Ingot" title="Bronze Ingot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___bronze_ingot.png" class="crafting-item" alt="Bronze Ingot" title="Bronze Ingot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___bronze_ingot.png" class="crafting-item" alt="Bronze Ingot" title="Bronze Ingot"></div>
+        <div class="crafting-slot"><a href="../../materials/valve-bronze/"><img src="../../assets/icons/logistics__core___bronze_valve.png" class="crafting-item" alt="Bronze Valve" title="Bronze Valve"></a></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"><a href="../../materials/valve-bronze/"><img src="../../assets/icons/logistics__core___bronze_valve.png" class="crafting-item" alt="Bronze Valve" title="Bronze Valve"></a></div>
+        <div class="crafting-slot"></div>
     </div>
     <div class="crafting-arrow">→</div>
     <div class="crafting-output">
@@ -85,21 +85,21 @@ Higher-mark chassis pipes hold more modules and are crafted from more valuable m
     </div>
 </div>
 
-**MK2:** 8× Bronze Ingot + 1× Basic Logistics Pipe → 1× Chassis Logistics Pipe MK2
+**MK2:** 4× [Bronze Valve](../materials/valve-bronze.md) (cross) + 1× Basic Logistics Pipe → 1× Chassis Logistics Pipe MK2
 
 ### MK3 Recipe {#mk3-recipe}
 
 <div class="crafting-recipe">
     <div class="crafting-grid">
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__gold_ingot.png" class="crafting-item" alt="Gold Ingot" title="Gold Ingot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__gold_ingot.png" class="crafting-item" alt="Gold Ingot" title="Gold Ingot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__gold_ingot.png" class="crafting-item" alt="Gold Ingot" title="Gold Ingot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__gold_ingot.png" class="crafting-item" alt="Gold Ingot" title="Gold Ingot"></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"><a href="../../materials/valve-gold/"><img src="../../assets/icons/logistics__core___gold_valve.png" class="crafting-item" alt="Gold Valve" title="Gold Valve"></a></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"><a href="../../materials/valve-gold/"><img src="../../assets/icons/logistics__core___gold_valve.png" class="crafting-item" alt="Gold Valve" title="Gold Valve"></a></div>
         <div class="crafting-slot"><img src="../../assets/icons/logistics__pipe___basic_logistics_pipe.png" class="crafting-item" alt="Basic Logistics Pipe" title="Basic Logistics Pipe"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__gold_ingot.png" class="crafting-item" alt="Gold Ingot" title="Gold Ingot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__gold_ingot.png" class="crafting-item" alt="Gold Ingot" title="Gold Ingot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__gold_ingot.png" class="crafting-item" alt="Gold Ingot" title="Gold Ingot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__gold_ingot.png" class="crafting-item" alt="Gold Ingot" title="Gold Ingot"></div>
+        <div class="crafting-slot"><a href="../../materials/valve-gold/"><img src="../../assets/icons/logistics__core___gold_valve.png" class="crafting-item" alt="Gold Valve" title="Gold Valve"></a></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"><a href="../../materials/valve-gold/"><img src="../../assets/icons/logistics__core___gold_valve.png" class="crafting-item" alt="Gold Valve" title="Gold Valve"></a></div>
+        <div class="crafting-slot"></div>
     </div>
     <div class="crafting-arrow">→</div>
     <div class="crafting-output">
@@ -108,21 +108,21 @@ Higher-mark chassis pipes hold more modules and are crafted from more valuable m
     </div>
 </div>
 
-**MK3:** 8× Gold Ingot + 1× Basic Logistics Pipe → 1× Chassis Logistics Pipe MK3
+**MK3:** 4× [Gold Valve](../materials/valve-gold.md) (cross) + 1× Basic Logistics Pipe → 1× Chassis Logistics Pipe MK3
 
 ### MK4 Recipe {#mk4-recipe}
 
 <div class="crafting-recipe">
     <div class="crafting-grid">
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__diamond.png" class="crafting-item" alt="Diamond" title="Diamond"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__diamond.png" class="crafting-item" alt="Diamond" title="Diamond"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__diamond.png" class="crafting-item" alt="Diamond" title="Diamond"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__diamond.png" class="crafting-item" alt="Diamond" title="Diamond"></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"><a href="../../materials/valve-diamond/"><img src="../../assets/icons/logistics__core___diamond_valve.png" class="crafting-item" alt="Diamond Valve" title="Diamond Valve"></a></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"><a href="../../materials/valve-diamond/"><img src="../../assets/icons/logistics__core___diamond_valve.png" class="crafting-item" alt="Diamond Valve" title="Diamond Valve"></a></div>
         <div class="crafting-slot"><img src="../../assets/icons/logistics__pipe___basic_logistics_pipe.png" class="crafting-item" alt="Basic Logistics Pipe" title="Basic Logistics Pipe"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__diamond.png" class="crafting-item" alt="Diamond" title="Diamond"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__diamond.png" class="crafting-item" alt="Diamond" title="Diamond"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__diamond.png" class="crafting-item" alt="Diamond" title="Diamond"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__diamond.png" class="crafting-item" alt="Diamond" title="Diamond"></div>
+        <div class="crafting-slot"><a href="../../materials/valve-diamond/"><img src="../../assets/icons/logistics__core___diamond_valve.png" class="crafting-item" alt="Diamond Valve" title="Diamond Valve"></a></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"><a href="../../materials/valve-diamond/"><img src="../../assets/icons/logistics__core___diamond_valve.png" class="crafting-item" alt="Diamond Valve" title="Diamond Valve"></a></div>
+        <div class="crafting-slot"></div>
     </div>
     <div class="crafting-arrow">→</div>
     <div class="crafting-output">
@@ -131,21 +131,21 @@ Higher-mark chassis pipes hold more modules and are crafted from more valuable m
     </div>
 </div>
 
-**MK4:** 8× Diamond + 1× Basic Logistics Pipe → 1× Chassis Logistics Pipe MK4
+**MK4:** 4× [Diamond Valve](../materials/valve-diamond.md) (cross) + 1× Basic Logistics Pipe → 1× Chassis Logistics Pipe MK4
 
 ### MK5 Recipe {#mk5-recipe}
 
 <div class="crafting-recipe">
     <div class="crafting-grid">
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__netherite_ingot.png" class="crafting-item" alt="Netherite Ingot" title="Netherite Ingot"></div>
         <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__netherite_ingot.png" class="crafting-item" alt="Netherite Ingot" title="Netherite Ingot"></div>
+        <div class="crafting-slot"><a href="../../materials/valve-netherite/"><img src="../../assets/icons/logistics__core___netherite_valve.png" class="crafting-item" alt="Netherite Valve" title="Netherite Valve"></a></div>
         <div class="crafting-slot"></div>
+        <div class="crafting-slot"><a href="../../materials/valve-netherite/"><img src="../../assets/icons/logistics__core___netherite_valve.png" class="crafting-item" alt="Netherite Valve" title="Netherite Valve"></a></div>
         <div class="crafting-slot"><img src="../../assets/icons/logistics__pipe___basic_logistics_pipe.png" class="crafting-item" alt="Basic Logistics Pipe" title="Basic Logistics Pipe"></div>
+        <div class="crafting-slot"><a href="../../materials/valve-netherite/"><img src="../../assets/icons/logistics__core___netherite_valve.png" class="crafting-item" alt="Netherite Valve" title="Netherite Valve"></a></div>
         <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__netherite_ingot.png" class="crafting-item" alt="Netherite Ingot" title="Netherite Ingot"></div>
+        <div class="crafting-slot"><a href="../../materials/valve-netherite/"><img src="../../assets/icons/logistics__core___netherite_valve.png" class="crafting-item" alt="Netherite Valve" title="Netherite Valve"></a></div>
         <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__netherite_ingot.png" class="crafting-item" alt="Netherite Ingot" title="Netherite Ingot"></div>
     </div>
     <div class="crafting-arrow">→</div>
     <div class="crafting-output">
@@ -154,7 +154,7 @@ Higher-mark chassis pipes hold more modules and are crafted from more valuable m
     </div>
 </div>
 
-**MK5:** 4× Netherite Ingot (corners) + 1× Basic Logistics Pipe → 1× Chassis Logistics Pipe MK5
+**MK5:** 4× [Netherite Valve](../materials/valve-netherite.md) (cross) + 1× Basic Logistics Pipe → 1× Chassis Logistics Pipe MK5
 
 ## Behavior
 
@@ -189,4 +189,4 @@ Use a [Wrench](../tools/wrench.md) to open the GUI:
 - [Pipe Networks](../core/pipe-networks.md) - How the logistics network works
 - [Tier System](../core/tier-system.md) - Tier 3 network logistics
 - [Wrench](../tools/wrench.md) - Insert/remove modules and configure
-- [Bronze Ingot](../materials/bronze-ingot.md) - MK2 crafting component
+- [Valves](../materials/index.md#valves) - Crafting components for all chassis marks

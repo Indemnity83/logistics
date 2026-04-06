@@ -35,12 +35,12 @@ The **Supplier Logistics Pipe** is a [Tier 3](../core/tier-system.md) network lo
 
 <div class="crafting-recipe">
     <div class="crafting-grid">
-        <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___gold_gear.png" class="crafting-item" alt="Gold Gear" title="Gold Gear"></div>
-        <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone" title="Redstone"></div>
+        <div class="crafting-slot"><a href="../../materials/valve-emerald/"><img src="../../assets/icons/logistics__core___emerald_valve.png" class="crafting-item" alt="Emerald Valve" title="Emerald Valve"></a></div>
         <div class="crafting-slot"><img src="../../assets/icons/logistics__pipe___basic_logistics_pipe.png" class="crafting-item" alt="Basic Logistics Pipe" title="Basic Logistics Pipe"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone" title="Redstone"></div>
+        <div class="crafting-slot"><a href="../../materials/valve-emerald/"><img src="../../assets/icons/logistics__core___emerald_valve.png" class="crafting-item" alt="Emerald Valve" title="Emerald Valve"></a></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"></div>
         <div class="crafting-slot"></div>
         <div class="crafting-slot"></div>
         <div class="crafting-slot"></div>
@@ -52,7 +52,7 @@ The **Supplier Logistics Pipe** is a [Tier 3](../core/tier-system.md) network lo
     </div>
 </div>
 
-**Yields:** 1× Supplier Logistics Pipe
+**Yields:** 1× Supplier Logistics Pipe (2× [Emerald Valve](../materials/valve-emerald.md) + 1× Basic Logistics Pipe)
 
 ## Behavior
 

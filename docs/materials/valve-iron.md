@@ -1,24 +1,20 @@
 <div class="infobox">
     <div class="infobox-header">Iron Valve</div>
     <div class="infobox-image">
-        <img src="../../assets/icons/logistics__core___valve_iron.png" alt="Iron Valve" title="Iron Valve">
+        <img src="../../assets/icons/logistics__core___iron_valve.png" alt="Iron Valve" title="Iron Valve">
     </div>
     <table class="infobox-table">
         <tr>
             <td class="infobox-label">ID</td>
-            <td class="infobox-value"><code>logistics:core/valve_iron</code></td>
+            <td class="infobox-value"><code>logistics:core/iron_valve</code></td>
         </tr>
         <tr>
             <td class="infobox-label">Type</td>
-            <td class="infobox-value">Item</td>
+            <td class="infobox-value">Item (Component)</td>
         </tr>
         <tr>
             <td class="infobox-label">Stackable</td>
             <td class="infobox-value"><span class="stackable-yes">Yes (64)</span></td>
-        </tr>
-        <tr>
-            <td class="infobox-label">Kiln Tier</td>
-            <td class="infobox-value"><span class="infobox-tier infobox-tier-2">Tier 2</span></td>
         </tr>
         <tr>
             <td class="infobox-label">Added</td>
@@ -29,58 +25,40 @@
 
 # Iron Valve
 
-The **Iron Valve** is a Tier 2 valve crafted in the [Kiln](../automation/kiln.md). It pushes coal to its capacity limit at 100 energy/tick.
+The **Iron Valve** is a crafting component used to make the [Provider Logistics Pipe](../pipes/provider-logistics-pipe.md) and [Chassis Logistics Pipe MK1](../pipes/chassis-logistics-pipe.md#mk1-recipe).
 
 ## Recipe
 
 <div class="crafting-recipe">
     <div class="crafting-grid">
-        <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__iron_ingot.png" class="crafting-item" alt="Iron Ingot" title="Iron Ingot"></div>
-        <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone" title="Redstone"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__iron_ingot.png" class="crafting-item" alt="Iron Ingot" title="Iron Ingot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone" title="Redstone"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__iron_ingot.png" class="crafting-item" alt="Iron Ingot" title="Iron Ingot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__iron_ingot.png" class="crafting-item" alt="Iron Ingot" title="Iron Ingot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__iron_ingot.png" class="crafting-item" alt="Iron Ingot" title="Iron Ingot"></div>
+        <div class="crafting-slot"><a href="cores/#quartz-crystal"><img src="../../assets/icons/logistics__automation___quartz_crystal.png" class="crafting-item" alt="Quartz Crystal" title="Quartz Crystal"></a></div>
+        <div class="crafting-slot"><a href="cores/#quartz-crystal"><img src="../../assets/icons/logistics__automation___quartz_crystal.png" class="crafting-item" alt="Quartz Crystal" title="Quartz Crystal"></a></div>
+        <div class="crafting-slot"><a href="cores/#quartz-crystal"><img src="../../assets/icons/logistics__automation___quartz_crystal.png" class="crafting-item" alt="Quartz Crystal" title="Quartz Crystal"></a></div>
+        <div class="crafting-slot"><a href="cores/#quartz-crystal"><img src="../../assets/icons/logistics__automation___quartz_crystal.png" class="crafting-item" alt="Quartz Crystal" title="Quartz Crystal"></a></div>
+        <div class="crafting-slot"><a href="cores/"><img src="../../assets/icons/logistics__core___iron_core.png" class="crafting-item" alt="Iron Core" title="Iron Core"></a></div>
+        <div class="crafting-slot"><a href="cores/#quartz-crystal"><img src="../../assets/icons/logistics__automation___quartz_crystal.png" class="crafting-item" alt="Quartz Crystal" title="Quartz Crystal"></a></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__iron_nugget.png" class="crafting-item" alt="Iron Nugget" title="Iron Nugget"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__gold_nugget.png" class="crafting-item" alt="Gold Nugget" title="Gold Nugget"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__iron_nugget.png" class="crafting-item" alt="Iron Nugget" title="Iron Nugget"></div>
     </div>
     <div class="crafting-arrow">→</div>
     <div class="crafting-output">
-        <a href="../valve-iron/"><img src="../../assets/icons/logistics__core___valve_iron.png" class="crafting-item" alt="Iron Valve" title="Iron Valve"></a>
-        <span class="crafting-count">4</span>
+        <img src="../../assets/icons/logistics__core___iron_valve.png" class="crafting-item" alt="Iron Valve" title="Iron Valve">
+        <span class="crafting-count">1</span>
     </div>
 </div>
 
-**[Kiln](../automation/kiln.md) crafting:**
-- 5× Iron Ingot + 2× Redstone + 250mb Molten Glass
-- **Process time:** 140 ticks
-- **Energy demand:** 100 energy/tick
-- **Yields:** 4× Iron Valve
-
-## Fuel Requirements
-
-**Tier 2 - Coal at limit**
-
-Energy demand: 100 energy/tick
-- **Coal:** Works but at near capacity (~110 observed)
-- **Blaze Rod:** Comfortable margin
-- **Lava Bucket:** Overkill but works
-
-Coal barely sustains this recipe. Consider upgrading fuel for smoother operation.
+**Yields:** 1× Iron Valve — 5× [Quartz Crystal](cores.md#quartz-crystal) + 1× [Iron Core](cores.md) + 2× Iron Nugget + 1× Gold Nugget
 
 ## Usage
 
-Valves are crafting components for future features. Iron valves mark the transition point where coal begins to struggle.
-
-## Tips
-
-- Coal works but runs near capacity - may see temperature fluctuations
-- Blaze rods or lava give smoother operation
-- Yields 4 valves per craft
-- First valve where fuel choice really matters
+| Used In | Role |
+|---------|------|
+| [Provider Logistics Pipe](../pipes/provider-logistics-pipe.md) | 2× required |
+| [Chassis Logistics Pipe MK1](../pipes/chassis-logistics-pipe.md#mk1-recipe) | 4× required |
 
 ## See Also
-- [Kiln](../automation/kiln.md) - Crafting machine
-- [Tin Valve](valve-tin.md) - Lower energy alternative (60 energy/tick)
-- [Bronze Valve](valve-bronze.md) - Next tier up (140 energy/tick, coal fails)
+- [Cores](cores.md) - Iron Core crafting
+- [Quartz Crystal](cores.md#quartz-crystal) - Required ingredient; smelted from Quartz Dust
+- [Macerator](../automation/macerator.md) - Produces Quartz Dust for Quartz Crystal
+- [Valves](index.md#valves) - All valve types

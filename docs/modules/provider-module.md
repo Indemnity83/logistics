@@ -31,30 +31,32 @@
 
 The **Provider Module** is a [Chassis Logistics Pipe](../pipes/chassis-logistics-pipe.md) module that advertises adjacent inventory contents to the [logistics network](../core/pipe-networks.md) and fulfills item requests — the same function as a standalone [Provider Logistics Pipe](../pipes/provider-logistics-pipe.md), in module form.
 
-Two mark variants exist: MK1 (Iron Gear) and MK2 (Gold Gear).
+Two mark variants exist: MK1 (Redstone Chip) and MK2 (Amethyst Chip).
 
 ## Variants
 
-| Variant | Gear | Notes |
+| Variant | Chip | Notes |
 |---------|------|-------|
-| Provider Module (MK1) | Iron Gear | Standard provider behavior |
-| Provider Module MK2 | Gold Gear | Enhanced — provides larger quantities per request cycle |
+| Provider Module (MK1) | Redstone Chip | Standard provider behavior |
+| Provider Module MK2 | Amethyst Chip | Enhanced — provides larger quantities per request cycle |
 
 ## Recipes
+
+All module recipes use the `DCD / RBR` pattern: Dust (corners), Chip (top center), Redstone (sides + bottom center), Blank Module (center).
 
 ### Provider Module (MK1)
 
 <div class="crafting-recipe">
     <div class="crafting-grid">
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__red_dye.png" class="crafting-item" alt="Red Dye" title="Red Dye"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___iron_gear.png" class="crafting-item" alt="Iron Gear" title="Iron Gear"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__red_dye.png" class="crafting-item" alt="Red Dye" title="Red Dye"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___iron_dust.png" class="crafting-item" alt="Iron Dust" title="Iron Dust"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___redstone_chip.png" class="crafting-item" alt="Redstone Chip" title="Redstone Chip"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___iron_dust.png" class="crafting-item" alt="Iron Dust" title="Iron Dust"></div>
         <div class="crafting-slot"><img src="../../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone" title="Redstone"></div>
         <div class="crafting-slot"><img src="../../assets/icons/logistics__pipe___blank_module.png" class="crafting-item" alt="Blank Module" title="Blank Module"></div>
         <div class="crafting-slot"><img src="../../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone" title="Redstone"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__red_dye.png" class="crafting-item" alt="Red Dye" title="Red Dye"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone" title="Redstone"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__red_dye.png" class="crafting-item" alt="Red Dye" title="Red Dye"></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"></div>
     </div>
     <div class="crafting-arrow">→</div>
     <div class="crafting-output">
@@ -63,21 +65,21 @@ Two mark variants exist: MK1 (Iron Gear) and MK2 (Gold Gear).
     </div>
 </div>
 
-**Yields:** 1× Provider Module (MK1)
+**Yields:** 1× Provider Module (MK1) — 2× [Iron Dust](../materials/dusts.md) + [Redstone Chip](../materials/chips.md) + 2× Redstone + [Blank Module](blank-module.md)
 
 ### Provider Module MK2
 
 <div class="crafting-recipe">
     <div class="crafting-grid">
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__red_dye.png" class="crafting-item" alt="Red Dye" title="Red Dye"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___gold_gear.png" class="crafting-item" alt="Gold Gear" title="Gold Gear"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__red_dye.png" class="crafting-item" alt="Red Dye" title="Red Dye"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___iron_dust.png" class="crafting-item" alt="Iron Dust" title="Iron Dust"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___amethyst_chip.png" class="crafting-item" alt="Amethyst Chip" title="Amethyst Chip"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___iron_dust.png" class="crafting-item" alt="Iron Dust" title="Iron Dust"></div>
         <div class="crafting-slot"><img src="../../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone" title="Redstone"></div>
         <div class="crafting-slot"><img src="../../assets/icons/logistics__pipe___blank_module.png" class="crafting-item" alt="Blank Module" title="Blank Module"></div>
         <div class="crafting-slot"><img src="../../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone" title="Redstone"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__red_dye.png" class="crafting-item" alt="Red Dye" title="Red Dye"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone" title="Redstone"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__red_dye.png" class="crafting-item" alt="Red Dye" title="Red Dye"></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"></div>
     </div>
     <div class="crafting-arrow">→</div>
     <div class="crafting-output">
@@ -86,7 +88,7 @@ Two mark variants exist: MK1 (Iron Gear) and MK2 (Gold Gear).
     </div>
 </div>
 
-**Yields:** 1× Provider Module MK2
+**Yields:** 1× Provider Module MK2 — 2× [Iron Dust](../materials/dusts.md) + [Amethyst Chip](../materials/chips.md) + 2× Redstone + [Blank Module](blank-module.md)
 
 ## Behavior
 
@@ -105,5 +107,6 @@ Use this module when you want provider behavior combined with other module funct
 - [Chassis Logistics Pipe](../pipes/chassis-logistics-pipe.md) - Required container
 - [Blank Module](blank-module.md) - Crafting base
 - [Extractor Module](extractor-module.md) - Pairs well in an MK2+ chassis
-- [Iron Gear](../materials/iron-gear.md) - MK1 crafting component
-- [Gold Gear](../materials/gold-gear.md) - MK2 crafting component
+- [Iron Dust](../materials/dusts.md) - Crafting component
+- [Redstone Chip](../materials/chips.md) - MK1 chip
+- [Amethyst Chip](../materials/chips.md) - MK2 chip

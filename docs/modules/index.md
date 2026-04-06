@@ -23,7 +23,6 @@ All modules are crafted from a [Blank Module](blank-module.md) base component.
 Pull items from adjacent inventories into the logistics network.
 
 - **[Extractor Module](extractor-module.md)** (MK1/II/III) - Extract items from an adjacent inventory; higher marks extract faster or in greater quantities
-- **[Advanced Extractor Module](advanced-extractor-module.md)** (MK1/II/III) - Extract with advanced filter control and scheduling options
 
 ## Provider & Supplier Modules
 

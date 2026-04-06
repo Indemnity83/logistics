@@ -1,24 +1,20 @@
 <div class="infobox">
     <div class="infobox-header">Apatite Valve</div>
     <div class="infobox-image">
-        <img src="../../assets/icons/logistics__core___valve_apatite.png" alt="Apatite Valve" title="Apatite Valve">
+        <img src="../../assets/icons/logistics__core___apatite_valve.png" alt="Apatite Valve" title="Apatite Valve">
     </div>
     <table class="infobox-table">
         <tr>
             <td class="infobox-label">ID</td>
-            <td class="infobox-value"><code>logistics:core/valve_apatite</code></td>
+            <td class="infobox-value"><code>logistics:core/apatite_valve</code></td>
         </tr>
         <tr>
             <td class="infobox-label">Type</td>
-            <td class="infobox-value">Item</td>
+            <td class="infobox-value">Item (Component)</td>
         </tr>
         <tr>
             <td class="infobox-label">Stackable</td>
             <td class="infobox-value"><span class="stackable-yes">Yes (64)</span></td>
-        </tr>
-        <tr>
-            <td class="infobox-label">Kiln Tier</td>
-            <td class="infobox-value"><span class="infobox-tier infobox-tier-3">Tier 3</span></td>
         </tr>
         <tr>
             <td class="infobox-label">Added</td>
@@ -29,60 +25,32 @@
 
 # Apatite Valve
 
-The **Apatite Valve** is a Tier 3 valve crafted in the [Kiln](../automation/kiln.md). It requires [apatite](apatite.md) gems and premium fuel.
+The **Apatite Valve** is a crafting component used in future network pipe variants.
 
 ## Recipe
 
 <div class="crafting-recipe">
     <div class="crafting-grid">
-        <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___apatite.png" class="crafting-item" alt="Apatite" title="Apatite"></div>
-        <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone" title="Redstone"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___apatite.png" class="crafting-item" alt="Apatite" title="Apatite"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone" title="Redstone"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___apatite.png" class="crafting-item" alt="Apatite" title="Apatite"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___apatite.png" class="crafting-item" alt="Apatite" title="Apatite"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___apatite.png" class="crafting-item" alt="Apatite" title="Apatite"></div>
+        <div class="crafting-slot"><a href="cores/#quartz-crystal"><img src="../../assets/icons/logistics__automation___quartz_crystal.png" class="crafting-item" alt="Quartz Crystal" title="Quartz Crystal"></a></div>
+        <div class="crafting-slot"><a href="cores/#quartz-crystal"><img src="../../assets/icons/logistics__automation___quartz_crystal.png" class="crafting-item" alt="Quartz Crystal" title="Quartz Crystal"></a></div>
+        <div class="crafting-slot"><a href="cores/#quartz-crystal"><img src="../../assets/icons/logistics__automation___quartz_crystal.png" class="crafting-item" alt="Quartz Crystal" title="Quartz Crystal"></a></div>
+        <div class="crafting-slot"><a href="cores/#quartz-crystal"><img src="../../assets/icons/logistics__automation___quartz_crystal.png" class="crafting-item" alt="Quartz Crystal" title="Quartz Crystal"></a></div>
+        <div class="crafting-slot"><a href="cores/"><img src="../../assets/icons/logistics__core___apatite_core.png" class="crafting-item" alt="Apatite Core" title="Apatite Core"></a></div>
+        <div class="crafting-slot"><a href="cores/#quartz-crystal"><img src="../../assets/icons/logistics__automation___quartz_crystal.png" class="crafting-item" alt="Quartz Crystal" title="Quartz Crystal"></a></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__iron_nugget.png" class="crafting-item" alt="Iron Nugget" title="Iron Nugget"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__gold_nugget.png" class="crafting-item" alt="Gold Nugget" title="Gold Nugget"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__iron_nugget.png" class="crafting-item" alt="Iron Nugget" title="Iron Nugget"></div>
     </div>
     <div class="crafting-arrow">→</div>
     <div class="crafting-output">
-        <a href="../valve-apatite/"><img src="../../assets/icons/logistics__core___valve_apatite.png" class="crafting-item" alt="Apatite Valve" title="Apatite Valve"></a>
-        <span class="crafting-count">4</span>
+        <img src="../../assets/icons/logistics__core___apatite_valve.png" class="crafting-item" alt="Apatite Valve" title="Apatite Valve">
+        <span class="crafting-count">1</span>
     </div>
 </div>
 
-**[Kiln](../automation/kiln.md) crafting:**
-- 5× [Apatite](apatite.md) + 2× Redstone + 250mb Molten Glass
-- **Process time:** 240 ticks
-- **Energy demand:** 200 energy/tick
-- **Yields:** 4× Apatite Valve
-
-## Fuel Requirements
-
-**Tier 3 - Blaze rod/lava recommended**
-
-Energy demand: 200 energy/tick
-- **Coal:** **Fails**
-- **Blaze Rod:** Works but tight margin
-- **Lava Bucket:** Recommended (~75 capacity)
-
-Lava buckets recommended for reliable operation.
-
-## Usage
-
-Valves are crafting components for future features. Apatite valves require mining [apatite ore](apatite-ore.md).
-
-## Tips
-
-- Requires apatite gems from ore
-- Blaze rods work but lava is smoother
-- Longest process time in Tier 3 (240 ticks)
-- Yields 4 valves per craft
+**Yields:** 1× Apatite Valve — 5× [Quartz Crystal](cores.md#quartz-crystal) + 1× [Apatite Core](cores.md) + 2× Iron Nugget + 1× Gold Nugget
 
 ## See Also
-- [Kiln](../automation/kiln.md) - Crafting machine
-- [Apatite](apatite.md) - Required gem material
-- [Apatite Ore](apatite-ore.md) - Source of apatite
-- [Gold Valve](valve-gold.md) - Same tier (180 energy/tick)
-- [Diamond Valve](valve-diamond.md) - Next tier (240 energy/tick)
+- [Cores](cores.md) - Apatite Core crafting
+- [Quartz Crystal](cores.md#quartz-crystal) - Required ingredient
+- [Valves](index.md#valves) - All valve types

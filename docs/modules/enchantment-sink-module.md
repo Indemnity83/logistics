@@ -35,15 +35,15 @@ The **Enchantment Sink Module** is a [Chassis Logistics Pipe](../pipes/chassis-l
 
 <div class="crafting-recipe">
     <div class="crafting-grid">
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__black_dye.png" class="crafting-item" alt="Black Dye" title="Black Dye"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__book.png" class="crafting-item" alt="Book" title="Book"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__black_dye.png" class="crafting-item" alt="Black Dye" title="Black Dye"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___copper_dust.png" class="crafting-item" alt="Copper Dust" title="Copper Dust"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___amethyst_chip.png" class="crafting-item" alt="Amethyst Chip" title="Amethyst Chip"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___copper_dust.png" class="crafting-item" alt="Copper Dust" title="Copper Dust"></div>
         <div class="crafting-slot"><img src="../../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone" title="Redstone"></div>
         <div class="crafting-slot"><img src="../../assets/icons/logistics__pipe___blank_module.png" class="crafting-item" alt="Blank Module" title="Blank Module"></div>
         <div class="crafting-slot"><img src="../../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone" title="Redstone"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__black_dye.png" class="crafting-item" alt="Black Dye" title="Black Dye"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone" title="Redstone"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__black_dye.png" class="crafting-item" alt="Black Dye" title="Black Dye"></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"></div>
     </div>
     <div class="crafting-arrow">→</div>
     <div class="crafting-output">
@@ -52,7 +52,7 @@ The **Enchantment Sink Module** is a [Chassis Logistics Pipe](../pipes/chassis-l
     </div>
 </div>
 
-**Yields:** 1× Enchantment Sink Module
+**Yields:** 1× Enchantment Sink Module — 2× [Copper Dust](../materials/dusts.md) + [Amethyst Chip](../materials/chips.md) + 2× Redstone + [Blank Module](blank-module.md)
 
 ## Behavior
 

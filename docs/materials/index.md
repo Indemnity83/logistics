@@ -1,6 +1,13 @@
 # Materials
 
-Crafting components, ores, metals, and gems used throughout Logistics. Gears are used for engines and machines. Valves are crafted in the [Kiln](../automation/kiln.md).
+Crafting components, ores, metals, and gems used throughout Logistics.
+
+## Machine Components
+
+- **[Machine Core](machine-core.md)** - Required component for all RF-powered machines (Macerator, Kiln, Laser Quarry)
+- **[Cores](cores.md)** - Intermediate components used in valve crafting (Wooden Core, Iron Core, Bronze Core, etc.)
+- **[Dusts](dusts.md)** - Ground materials produced by the Macerator; used in module crafting and ore doubling
+- **[Chips & Silicon](chips.md)** - Electronic components for module crafting (Redstone Chip, Amethyst Chip, Echo Chip, Carbon Chip)
 
 ## Gears
 
@@ -23,34 +30,71 @@ Crafting components, ores, metals, and gems used throughout Logistics. Gears are
 **End Tier:**
 - **[Netherite Gear](netherite-gear.md)** - Highest tier gear
 
-## Valves
+## Valves {#valves}
 
-Crafted in the [Kiln](../automation/kiln.md) using molten glass and metals. Organized by fuel tier:
+Valves are crafted at the crafting table using [Quartz Crystal](cores.md#quartz-crystal) and a matching [Core](cores.md). All valves share the same recipe pattern:
 
-**Tier 1 (Coal Sufficient):**
-- **[Copper Valve](valve-copper.md)** - 40 energy/tick, easiest
-- **[Tin Valve](valve-tin.md)** - 60 energy/tick
+```
+[Q] [Q] [Q]
+[Q] [Core] [Q]
+[I] [G] [I]
+```
 
-**Tier 2 (Coal At Limit):**
-- **[Iron Valve](valve-iron.md)** - 100 energy/tick, coal barely works
-- **[Bronze Valve](valve-bronze.md)** - 140 energy/tick, coal fails
+Where Q = Quartz Crystal, I = Iron Nugget, G = Gold Nugget. The Core in the center determines the valve type.
 
-**Tier 3 (Blaze Rod/Lava):**
-- **[Gold Valve](valve-gold.md)** - 180 energy/tick
-- **[Apatite Valve](valve-apatite.md)** - 200 energy/tick
+**Quartz Crystal** is obtained by smelting [Quartz Dust](dusts.md) (ground from Nether Quartz in the [Macerator](../automation/macerator.md)) in the [Kiln](../automation/kiln.md) or furnace.
 
-**Tier 4 (Lava Recommended):**
-- **[Diamond Valve](valve-diamond.md)** - 240 energy/tick
-- **[Ender Valve](valve-ender.md)** - 260 energy/tick
+### Wooden Valve
+- **Core:** [Wooden Core](cores.md) (Wood Pulp + Slime Ball)
+- **Used in:** Future features
 
-**Tier 5 (Lava Required):**
-- **[Emerald Valve](valve-emerald.md)** - 280 energy/tick
-- **[Lapis Valve](valve-lapis.md)** - 320 energy/tick, lava at limit
+### Copper Valve
+- **Core:** [Copper Core](cores.md) (Copper Ingot + Redstone)
+- **Used in:** Future features
 
-**Tier 6 (Maximum Demand):**
-- **[Obsidian Valve](valve-obsidian.md)** - 360 energy/tick, exceeds lava
-- **[Netherite Valve](valve-netherite.md)** - 400 energy/tick
-- **[Blazing Valve](valve-blazing.md)** - 440 energy/tick, maximum
+### Iron Valve
+- **Core:** [Iron Core](cores.md) (Iron Ingot + Redstone)
+- **Used in:** [Provider Logistics Pipe](../pipes/provider-logistics-pipe.md), [Chassis MK1](../pipes/chassis-logistics-pipe.md#mk1-recipe)
+
+### Bronze Valve
+- **Core:** [Bronze Core](cores.md) (Bronze Ingot + Redstone)
+- **Used in:** [Crafting Logistics Pipe](../pipes/crafting-logistics-pipe.md), [Chassis MK2](../pipes/chassis-logistics-pipe.md#mk2-recipe)
+
+### Gold Valve
+- **Core:** [Gold Core](cores.md) (Gold Ingot + Redstone)
+- **Used in:** [Process Logistics Pipe](../pipes/process-logistics-pipe.md), [Chassis MK3](../pipes/chassis-logistics-pipe.md#mk3-recipe)
+
+### Lapis Valve
+- **Core:** [Lapis Core](cores.md) (Lapis Lazuli + Redstone)
+- **Used in:** [Satellite Logistics Pipe](../pipes/satellite-logistics-pipe.md)
+
+### Diamond Valve
+- **Core:** [Diamond Core](cores.md) (Diamond Dust + Amethyst Shard)
+- **Used in:** [Requester Logistics Pipe](../pipes/requester-logistics-pipe.md), [Chassis MK4](../pipes/chassis-logistics-pipe.md#mk4-recipe)
+
+### Emerald Valve
+- **Core:** [Emerald Core](cores.md) (Emerald Dust + Amethyst Shard)
+- **Used in:** [Supplier Logistics Pipe](../pipes/supplier-logistics-pipe.md)
+
+### Apatite Valve
+- **Core:** [Apatite Core](cores.md) (Apatite + Redstone)
+- **Used in:** Future features
+
+### Obsidian Valve
+- **Core:** [Obsidian Core](cores.md) (Obsidian Dust + Redstone)
+- **Used in:** Future features
+
+### Netherite Valve
+- **Core:** [Netherite Core](cores.md) (Netherite Ingot + Redstone)
+- **Used in:** [Chassis MK5](../pipes/chassis-logistics-pipe.md#mk5-recipe)
+
+### Blazing Valve
+- **Core:** [Blazing Core](cores.md) (Blaze Powder + Blaze Rod)
+- **Used in:** Future features
+
+### Ender Valve
+- **Core:** [Ender Core](cores.md) (Ender Dust + Eye of Ender)
+- **Used in:** Future features
 
 ## Ores & Metals
 
@@ -66,7 +110,10 @@ Crafted in the [Kiln](../automation/kiln.md) using molten glass and metals. Orga
 - **[Apatite](apatite.md)** - Gem material
 
 ## See Also
-- [Kiln](../automation/kiln.md) - Crafts valves with temperature/fuel system
+- [Macerator](../automation/macerator.md) - Produces dusts from ores and other materials
+- [Kiln](../automation/kiln.md) - Smelts Quartz Dust into Quartz Crystal; processes ores
+- [Machine Core](machine-core.md) - Crafts all RF machines
+- [Cores](cores.md) - Valve crafting components
 - [Redstone Engine](../power/redstone-engine.md) - Uses wooden gears
 - [Stirling Engine](../power/stirling-engine.md) - Uses stone gears
-- [Laser Quarry](../automation/laser-quarry.md) - Uses multiple gear types
+- [Laser Quarry](../automation/laser-quarry.md) - Uses diamond gears and Machine Core

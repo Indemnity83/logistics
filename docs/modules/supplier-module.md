@@ -29,10 +29,10 @@ The **Supplier Module** is a [Chassis Logistics Pipe](../pipes/chassis-logistics
 
 ## Variants
 
-| Variant | Gear | Behavior |
+| Variant | Chip | Behavior |
 |---------|------|----------|
-| Passive Supplier Module | Iron Gear | Requests items only when the inventory falls below configured minimum — waits for a network trigger |
-| Active Supplier Module | Bronze Gear | Proactively checks stock levels on a schedule and requests replenishment before the inventory empties |
+| Passive Supplier Module | Redstone Chip | Requests items only when the inventory falls below configured minimum — waits for a network trigger |
+| Active Supplier Module | Amethyst Chip | Proactively checks stock levels on a schedule and requests replenishment before the inventory empties |
 
 ## Recipes
 
@@ -40,15 +40,15 @@ The **Supplier Module** is a [Chassis Logistics Pipe](../pipes/chassis-logistics
 
 <div class="crafting-recipe">
     <div class="crafting-grid">
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__red_dye.png" class="crafting-item" alt="Red Dye" title="Red Dye"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___iron_gear.png" class="crafting-item" alt="Iron Gear" title="Iron Gear"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__black_dye.png" class="crafting-item" alt="Black Dye" title="Black Dye"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___emerald_dust.png" class="crafting-item" alt="Emerald Dust" title="Emerald Dust"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___redstone_chip.png" class="crafting-item" alt="Redstone Chip" title="Redstone Chip"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___emerald_dust.png" class="crafting-item" alt="Emerald Dust" title="Emerald Dust"></div>
         <div class="crafting-slot"><img src="../../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone" title="Redstone"></div>
         <div class="crafting-slot"><img src="../../assets/icons/logistics__pipe___blank_module.png" class="crafting-item" alt="Blank Module" title="Blank Module"></div>
         <div class="crafting-slot"><img src="../../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone" title="Redstone"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__black_dye.png" class="crafting-item" alt="Black Dye" title="Black Dye"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone" title="Redstone"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__red_dye.png" class="crafting-item" alt="Red Dye" title="Red Dye"></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"></div>
     </div>
     <div class="crafting-arrow">→</div>
     <div class="crafting-output">
@@ -57,21 +57,21 @@ The **Supplier Module** is a [Chassis Logistics Pipe](../pipes/chassis-logistics
     </div>
 </div>
 
-**Yields:** 1× Passive Supplier Module
+**Yields:** 1× Passive Supplier Module — 2× [Emerald Dust](../materials/dusts.md) + [Redstone Chip](../materials/chips.md) + 2× Redstone + [Blank Module](blank-module.md)
 
 ### Active Supplier Module
 
 <div class="crafting-recipe">
     <div class="crafting-grid">
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__red_dye.png" class="crafting-item" alt="Red Dye" title="Red Dye"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___bronze_gear.png" class="crafting-item" alt="Bronze Gear" title="Bronze Gear"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__black_dye.png" class="crafting-item" alt="Black Dye" title="Black Dye"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___emerald_dust.png" class="crafting-item" alt="Emerald Dust" title="Emerald Dust"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___amethyst_chip.png" class="crafting-item" alt="Amethyst Chip" title="Amethyst Chip"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___emerald_dust.png" class="crafting-item" alt="Emerald Dust" title="Emerald Dust"></div>
         <div class="crafting-slot"><img src="../../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone" title="Redstone"></div>
         <div class="crafting-slot"><img src="../../assets/icons/logistics__pipe___blank_module.png" class="crafting-item" alt="Blank Module" title="Blank Module"></div>
         <div class="crafting-slot"><img src="../../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone" title="Redstone"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__black_dye.png" class="crafting-item" alt="Black Dye" title="Black Dye"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone" title="Redstone"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__red_dye.png" class="crafting-item" alt="Red Dye" title="Red Dye"></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"></div>
     </div>
     <div class="crafting-arrow">→</div>
     <div class="crafting-output">
@@ -80,7 +80,7 @@ The **Supplier Module** is a [Chassis Logistics Pipe](../pipes/chassis-logistics
     </div>
 </div>
 
-**Yields:** 1× Active Supplier Module
+**Yields:** 1× Active Supplier Module — 2× [Emerald Dust](../materials/dusts.md) + [Amethyst Chip](../materials/chips.md) + 2× Redstone + [Blank Module](blank-module.md)
 
 ## Behavior
 
@@ -102,5 +102,6 @@ When installed in a [Chassis Logistics Pipe](../pipes/chassis-logistics-pipe.md)
 - [Chassis Logistics Pipe](../pipes/chassis-logistics-pipe.md) - Required container
 - [Blank Module](blank-module.md) - Crafting base
 - [Provider Module](provider-module.md) - Supplies items that this module requests
-- [Iron Gear](../materials/iron-gear.md) - Passive variant crafting component
-- [Bronze Gear](../materials/bronze-gear.md) - Active variant crafting component
+- [Emerald Dust](../materials/dusts.md) - Crafting component
+- [Redstone Chip](../materials/chips.md) - Passive variant chip
+- [Amethyst Chip](../materials/chips.md) - Active variant chip

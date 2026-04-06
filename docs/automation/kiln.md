@@ -18,11 +18,11 @@
         </tr>
         <tr>
             <td class="infobox-label">Function</td>
-            <td class="infobox-value">Valve crafting</td>
+            <td class="infobox-value">RF-powered smelting</td>
         </tr>
         <tr>
-            <td class="infobox-label">Fuel</td>
-            <td class="infobox-value">Coal/Blaze Rod/Lava</td>
+            <td class="infobox-label">Power</td>
+            <td class="infobox-value">RF Energy</td>
         </tr>
         <tr>
             <td class="infobox-label">Added</td>
@@ -33,177 +33,71 @@
 
 # Kiln
 
-The **Kiln** is a temperature-controlled crafting machine that produces [valves](../materials/index.md#valves) using glass and metal. It uses an energy-based heating system with fuel progression - more advanced valves require hotter temperatures and better fuels.
+The **Kiln** is an RF-powered electric furnace that processes any vanilla smelting recipe. It works like a furnace but uses RF energy instead of fuel, and is faster and more efficient for automated setups.
 
 ## Recipe
 
 <div class="crafting-recipe">
     <div class="crafting-grid">
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__bricks.png" class="crafting-item" alt="Bricks" title="Bricks"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__bricks.png" class="crafting-item" alt="Bricks" title="Bricks"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__bricks.png" class="crafting-item" alt="Bricks" title="Bricks"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__bricks.png" class="crafting-item" alt="Bricks" title="Bricks"></div>
-        <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__bricks.png" class="crafting-item" alt="Bricks" title="Bricks"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__bricks.png" class="crafting-item" alt="Bricks" title="Bricks"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__bricks.png" class="crafting-item" alt="Bricks" title="Bricks"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__bricks.png" class="crafting-item" alt="Bricks" title="Bricks"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone" title="Redstone"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone" title="Redstone"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone" title="Redstone"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__iron_ingot.png" class="crafting-item" alt="Iron Ingot" title="Iron Ingot"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___machine_core.png" class="crafting-item" alt="Machine Core" title="Machine Core"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__iron_ingot.png" class="crafting-item" alt="Iron Ingot" title="Iron Ingot"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__iron_ingot.png" class="crafting-item" alt="Iron Ingot" title="Iron Ingot"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__iron_ingot.png" class="crafting-item" alt="Iron Ingot" title="Iron Ingot"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__iron_ingot.png" class="crafting-item" alt="Iron Ingot" title="Iron Ingot"></div>
     </div>
     <div class="crafting-arrow">→</div>
     <div class="crafting-output">
-        <a href="../kiln/"><img src="../../assets/icons/logistics__core___kiln.png" class="crafting-item" alt="Kiln" title="Kiln"></a>
+        <img src="../../assets/icons/logistics__core___kiln.png" class="crafting-item" alt="Kiln" title="Kiln">
+        <span class="crafting-count">1</span>
     </div>
 </div>
 
-**Yields:** 1× Kiln
+**Yields:** 1× Kiln (requires [Machine Core](../materials/machine-core.md), 5× Iron Ingot, 3× Redstone)
 
-## How It Works
+## Behavior
 
-The Kiln operates on a **temperature and energy system**:
+The Kiln is a direct replacement for a vanilla furnace in automated setups. Place an item in the input slot and the Kiln will smelt it using RF energy, depositing the result in the output slot.
 
-1. **Add fuel** - Coal, lava buckets, blaze rods, etc.
-2. **Temperature rises** - Fuel burns and heats the kiln
-3. **Craft valves** - Place materials and glass/sand in crafting pattern
-4. **Glass melts** - Kiln melts glass internally during crafting
-5. **Energy consumption** - Recipes consume energy over time
-6. **Maintain temperature** - Better fuels sustain higher energy recipes
+**Key features:**
+- Processes any vanilla smelting recipe (ores, raw metals, food, etc.)
+- Input from top and sides; output from bottom (same as a vanilla furnace)
+- Uses RF energy — no fuel slot
+- Recipe book integration — browse all valid recipes in the GUI
+- Energy capacity: 10,000 RF; max input: 128 RF/tick; consumption: 1 RF/tick while active
 
-**Key mechanics:**
-- Temperature derived from internal energy
-- Recipes require minimum temperature (1200°C)
-- Different fuels burn at different rates
-- Advanced recipes need premium fuels to maintain temperature
+## Setup
 
-## Using the Kiln
+1. **Place the Kiln** in your automation area
+2. **Connect power** — attach a [Stirling Engine](../power/stirling-engine.md) or any RF source to a side or top face
+3. **Feed input** — pipe items in from the top or sides (e.g., use an [Item Extractor Pipe](../pipes/item-extractor-pipe.md) on a chest)
+4. **Collect output** — pipe from the bottom into storage
 
-### Basic Operation
+The Kiln will smelt continuously as long as it has power and input items.
 
-1. **Place kiln** in your workshop
-2. **Right-click** to open GUI
-3. **Add fuel** to fuel slot (bottom left)
-4. **Wait for heating** - temperature rises to operating point (1500°C)
-5. **Place pattern** - Arrange metal + redstone in crafting grid
-6. **Add glass/sand** - Kiln melts it internally (1 block → 1000mb → 4 recipes)
-7. **Crafting begins** - Progress bar shows completion (uses 250mb molten glass)
-8. **Collect output** - Valves appear in output slot
+## Uses
 
-### Fuel Requirements
-
-Different valve tiers require different fuel quality:
-
-**Tier 1 (Coal sufficient):**
-- [Copper Valve](../materials/valve-copper.md) - 40 energy/tick
-- [Tin Valve](../materials/valve-tin.md) - 60 energy/tick
-
-**Tier 2 (Coal at limit):**
-- [Iron Valve](../materials/valve-iron.md) - 100 energy/tick
-- [Bronze Valve](../materials/valve-bronze.md) - 140 energy/tick
-
-**Tier 3 (Blaze rod/lava needed):**
-- [Gold Valve](../materials/valve-gold.md) - 180 energy/tick
-- [Apatite Valve](../materials/valve-apatite.md) - 200 energy/tick
-
-**Tier 4+ (Lava recommended):**
-- [Diamond Valve](../materials/valve-diamond.md) - 240 energy/tick
-- [Emerald Valve](../materials/valve-emerald.md) - 280 energy/tick
-- [Netherite Valve](../materials/valve-netherite.md) - 400 energy/tick
-- [Blazing Valve](../materials/valve-blazing.md) - 440 energy/tick (maximum)
-
-### Fuel Types
-
-**Wood/Planks:**
-- Burns fast, low energy output
-- **Cannot sustain** valve recipes (too weak)
-
-**Coal:**
-- Standard fuel for early valves
-- Works for copper, tin, iron
-- **Struggles** with bronze (140 energy/tick)
-- **Fails** at higher tiers
-
-**Blaze Rods:**
-- Mid-tier fuel
-- Sustains gold, apatite valves
-- Still insufficient for highest tiers
-
-**Lava Buckets:**
-- Premium fuel source
-- Required for diamond, emerald, netherite valves
-- Maximum burn rate ~75 energy/tick net capacity
-- **Barely sustains** blazing valve (440 demand vs ~315 capacity)
-
-## Temperature Behavior
-
-**Operating setpoint:** 1500°C
-**Crafting minimum:** 1200°C
-**Maximum theoretical:** 2000°C
-
-**What happens:**
-- Fuel burns → energy increases → temperature rises
-- Recipe active → energy drains → temperature may drop
-- If temperature falls below 1200°C → crafting pauses
-- Add better fuel → temperature recovers → crafting resumes
-
-**Natural progression:**
-- Low-tier recipes work with any fuel (just slower)
-- High-tier recipes **require** premium fuels or they stall
-
-## Glass Requirements
-
-All valve recipes require **250mb of molten glass**.
-
-**Using glass:**
-- Add glass blocks or sand directly to the kiln
-- Each block produces 1 bucket (1000mb) of molten glass when melted
-- One glass block = enough for 4 valve recipes
-- Kiln melts it internally during crafting
-- No external smelting or fluid infrastructure needed
+The Kiln is particularly useful for:
+- Smelting ore → ingot in automated pipelines
+- Processing raw metals extracted by the [Laser Quarry](laser-quarry.md)
+- Smelting [Quartz Dust](../materials/dusts.md) into [Quartz Crystal](../materials/cores.md#quartz-crystal) (required for [Valve](../materials/index.md#valves) crafting)
+- Smelting [Silicon Mix](../materials/chips.md#silicon-wafer) into [Silicon Wafer](../materials/chips.md#silicon-wafer) (required for [Chips](../materials/chips.md))
 
 ## Tips
 
-- Start with coal for copper/tin valves
-- Upgrade to lava buckets for advanced valves
-- Watch temperature gauge - if it drops, crafting pauses
-- Better fuels = faster, uninterrupted crafting
-- Keep spare fuel on hand for continuous operation
-- Stock glass blocks or sand for valve crafting
-
-## Common Patterns
-
-**Early kiln setup:**
-```
-[Kiln] + Coal → [Copper/Tin Valves]
-```
-
-**Advanced setup:**
-```
-[Kiln] + Lava Bucket → [Diamond/Emerald/Netherite Valves]
-```
-
-**With glass storage:**
-```
-[Sand/Glass blocks] → [Kiln] → [Valves]
-```
-
-## Troubleshooting
-
-**Crafting paused/temperature dropping:**
-- Fuel is insufficient for recipe energy demand
-- Upgrade to better fuel (coal → blaze rod → lava)
-- Low-tier recipes will complete eventually, just slowly
-
-**No glass available:**
-- Need glass blocks or sand to start crafting
-- Add glass/sand directly to the kiln GUI
-- No pre-smelting required
-
-**Pattern not accepted:**
-- Check recipe pattern (materials + redstone configuration)
-- Ensure glass/sand is available
-- Verify minimum temperature reached (1200°C)
+- At only 1 RF/tick, the Kiln is very energy-efficient — a single Stirling Engine can power many kilns simultaneously
+- Connect with pipes to fully automate: extract raw materials → kiln → output storage
+- Use the recipe book in the GUI to verify which items the Kiln can process
+- The [Macerator](macerator.md) pairs well with the Kiln: grind ores into dust in the Macerator, then smelt dust into ingots in the Kiln for higher yields
 
 ## See Also
-- [Valves](../materials/index.md#valves) - All 13 valve types
-- [Copper Valve](../materials/valve-copper.md) - Easiest starter valve
-- [Blazing Valve](../materials/valve-blazing.md) - Highest energy demand
-- [Materials](../materials/index.md) - Crafting components
+- [Machine Core](../materials/machine-core.md) - Crafting component
+- [Macerator](macerator.md) - Companion grinding machine
+- [Stirling Engine](../power/stirling-engine.md) - Recommended power source
+- [RF Energy](../power/rf-energy.md) - Power system overview
+- [Quartz Crystal](../materials/cores.md#quartz-crystal) - Key product; smelted from Quartz Dust in the Kiln
+- [Silicon Wafer](../materials/chips.md#silicon-wafer) - Key product; smelted from Silicon Mix in the Kiln
+- [Valves](../materials/index.md#valves) - Require Quartz Crystal from the Kiln

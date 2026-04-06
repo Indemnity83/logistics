@@ -29,11 +29,11 @@ The **Extractor Module** is a [Chassis Logistics Pipe](../pipes/chassis-logistic
 
 ## Variants
 
-| Variant | Gear | Notes |
+| Variant | Chip | Notes |
 |---------|------|-------|
-| Extractor Module (MK1) | Iron Gear | Standard extraction speed |
-| Extractor Module MK2 | Gold Gear | Faster extraction or larger stack sizes |
-| Extractor Module MK3 | Diamond Gear | Highest extraction throughput |
+| Extractor Module (MK1) | Redstone Chip | Standard extraction speed |
+| Extractor Module MK2 | Amethyst Chip | Faster extraction or larger stack sizes |
+| Extractor Module MK3 | Echo Chip | Highest extraction throughput |
 
 ## Recipes
 
@@ -41,14 +41,14 @@ The **Extractor Module** is a [Chassis Logistics Pipe](../pipes/chassis-logistic
 
 <div class="crafting-recipe">
     <div class="crafting-grid">
-        <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___iron_gear.png" class="crafting-item" alt="Iron Gear" title="Iron Gear"></div>
-        <div class="crafting-slot"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___wood_pulp.png" class="crafting-item" alt="Wood Pulp" title="Wood Pulp"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___redstone_chip.png" class="crafting-item" alt="Redstone Chip" title="Redstone Chip"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___wood_pulp.png" class="crafting-item" alt="Wood Pulp" title="Wood Pulp"></div>
         <div class="crafting-slot"><img src="../../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone" title="Redstone"></div>
         <div class="crafting-slot"><img src="../../assets/icons/logistics__pipe___blank_module.png" class="crafting-item" alt="Blank Module" title="Blank Module"></div>
         <div class="crafting-slot"><img src="../../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone" title="Redstone"></div>
         <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone" title="Redstone"></div>
+        <div class="crafting-slot"></div>
         <div class="crafting-slot"></div>
     </div>
     <div class="crafting-arrow">→</div>
@@ -58,20 +58,20 @@ The **Extractor Module** is a [Chassis Logistics Pipe](../pipes/chassis-logistic
     </div>
 </div>
 
-**Yields:** 1× Extractor Module (MK1)
+**Yields:** 1× Extractor Module (MK1) — 2× [Wood Pulp](../materials/dusts.md#wood-pulp) + [Redstone Chip](../materials/chips.md) + 2× Redstone + [Blank Module](blank-module.md)
 
 ### Extractor Module MK2
 
 <div class="crafting-recipe">
     <div class="crafting-grid">
-        <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___gold_gear.png" class="crafting-item" alt="Gold Gear" title="Gold Gear"></div>
-        <div class="crafting-slot"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___wood_pulp.png" class="crafting-item" alt="Wood Pulp" title="Wood Pulp"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___amethyst_chip.png" class="crafting-item" alt="Amethyst Chip" title="Amethyst Chip"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___wood_pulp.png" class="crafting-item" alt="Wood Pulp" title="Wood Pulp"></div>
         <div class="crafting-slot"><img src="../../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone" title="Redstone"></div>
         <div class="crafting-slot"><img src="../../assets/icons/logistics__pipe___blank_module.png" class="crafting-item" alt="Blank Module" title="Blank Module"></div>
         <div class="crafting-slot"><img src="../../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone" title="Redstone"></div>
         <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone" title="Redstone"></div>
+        <div class="crafting-slot"></div>
         <div class="crafting-slot"></div>
     </div>
     <div class="crafting-arrow">→</div>
@@ -81,20 +81,20 @@ The **Extractor Module** is a [Chassis Logistics Pipe](../pipes/chassis-logistic
     </div>
 </div>
 
-**Yields:** 1× Extractor Module MK2
+**Yields:** 1× Extractor Module MK2 — 2× [Wood Pulp](../materials/dusts.md#wood-pulp) + [Amethyst Chip](../materials/chips.md) + 2× Redstone + [Blank Module](blank-module.md)
 
 ### Extractor Module MK3
 
 <div class="crafting-recipe">
     <div class="crafting-grid">
-        <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___diamond_gear.png" class="crafting-item" alt="Diamond Gear" title="Diamond Gear"></div>
-        <div class="crafting-slot"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___wood_pulp.png" class="crafting-item" alt="Wood Pulp" title="Wood Pulp"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___echo_chip.png" class="crafting-item" alt="Echo Chip" title="Echo Chip"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___wood_pulp.png" class="crafting-item" alt="Wood Pulp" title="Wood Pulp"></div>
         <div class="crafting-slot"><img src="../../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone" title="Redstone"></div>
         <div class="crafting-slot"><img src="../../assets/icons/logistics__pipe___blank_module.png" class="crafting-item" alt="Blank Module" title="Blank Module"></div>
         <div class="crafting-slot"><img src="../../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone" title="Redstone"></div>
         <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone" title="Redstone"></div>
+        <div class="crafting-slot"></div>
         <div class="crafting-slot"></div>
     </div>
     <div class="crafting-arrow">→</div>
@@ -104,7 +104,7 @@ The **Extractor Module** is a [Chassis Logistics Pipe](../pipes/chassis-logistic
     </div>
 </div>
 
-**Yields:** 1× Extractor Module MK3
+**Yields:** 1× Extractor Module MK3 — 2× [Wood Pulp](../materials/dusts.md#wood-pulp) + [Echo Chip](../materials/chips.md) + 2× Redstone + [Blank Module](blank-module.md)
 
 ## Behavior
 
@@ -127,6 +127,7 @@ When installed in a [Chassis Logistics Pipe](../pipes/chassis-logistics-pipe.md)
 - [Advanced Extractor Module](advanced-extractor-module.md) - Extractor with more filter/scheduling options
 - [Chassis Logistics Pipe](../pipes/chassis-logistics-pipe.md) - Required container
 - [Blank Module](blank-module.md) - Crafting base
-- [Iron Gear](../materials/iron-gear.md) - MK1 crafting component
-- [Gold Gear](../materials/gold-gear.md) - MK2 crafting component
-- [Diamond Gear](../materials/diamond-gear.md) - MK3 crafting component
+- [Wood Pulp](../materials/dusts.md#wood-pulp) - Crafting component
+- [Redstone Chip](../materials/chips.md) - MK1 chip
+- [Amethyst Chip](../materials/chips.md) - MK2 chip
+- [Echo Chip](../materials/chips.md) - MK3 chip

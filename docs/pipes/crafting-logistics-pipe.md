@@ -32,14 +32,14 @@ The **Crafting Logistics Pipe** is a [Tier 3](../core/tier-system.md) network lo
 
 <div class="crafting-recipe">
     <div class="crafting-grid">
-        <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone" title="Redstone"></div>
-        <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone" title="Redstone"></div>
+        <div class="crafting-slot"><a href="../../materials/valve-bronze/"><img src="../../assets/icons/logistics__core___bronze_valve.png" class="crafting-item" alt="Bronze Valve" title="Bronze Valve"></a></div>
         <div class="crafting-slot"><img src="../../assets/icons/logistics__pipe___basic_logistics_pipe.png" class="crafting-item" alt="Basic Logistics Pipe" title="Basic Logistics Pipe"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone" title="Redstone"></div>
+        <div class="crafting-slot"><a href="../../materials/valve-bronze/"><img src="../../assets/icons/logistics__core___bronze_valve.png" class="crafting-item" alt="Bronze Valve" title="Bronze Valve"></a></div>
         <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___stone_gear.png" class="crafting-item" alt="Stone Gear" title="Stone Gear"></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"></div>
         <div class="crafting-slot"></div>
     </div>
     <div class="crafting-arrow">→</div>
@@ -48,7 +48,7 @@ The **Crafting Logistics Pipe** is a [Tier 3](../core/tier-system.md) network lo
     </div>
 </div>
 
-**Yields:** 1× Crafting Logistics Pipe
+**Yields:** 1× Crafting Logistics Pipe (2× [Bronze Valve](../materials/valve-bronze.md) + 1× Basic Logistics Pipe)
 
 ## Behavior
 

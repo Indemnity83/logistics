@@ -1,24 +1,20 @@
 <div class="infobox">
     <div class="infobox-header">Gold Valve</div>
     <div class="infobox-image">
-        <img src="../../assets/icons/logistics__core___valve_gold.png" alt="Gold Valve" title="Gold Valve">
+        <img src="../../assets/icons/logistics__core___gold_valve.png" alt="Gold Valve" title="Gold Valve">
     </div>
     <table class="infobox-table">
         <tr>
             <td class="infobox-label">ID</td>
-            <td class="infobox-value"><code>logistics:core/valve_gold</code></td>
+            <td class="infobox-value"><code>logistics:core/gold_valve</code></td>
         </tr>
         <tr>
             <td class="infobox-label">Type</td>
-            <td class="infobox-value">Item</td>
+            <td class="infobox-value">Item (Component)</td>
         </tr>
         <tr>
             <td class="infobox-label">Stackable</td>
             <td class="infobox-value"><span class="stackable-yes">Yes (64)</span></td>
-        </tr>
-        <tr>
-            <td class="infobox-label">Kiln Tier</td>
-            <td class="infobox-value"><span class="infobox-tier infobox-tier-3">Tier 3</span></td>
         </tr>
         <tr>
             <td class="infobox-label">Added</td>
@@ -29,59 +25,39 @@
 
 # Gold Valve
 
-The **Gold Valve** is a Tier 3 valve crafted in the [Kiln](../automation/kiln.md). It requires blaze rods or lava buckets as fuel.
+The **Gold Valve** is a crafting component used to make the [Process Logistics Pipe](../pipes/process-logistics-pipe.md) and [Chassis Logistics Pipe MK3](../pipes/chassis-logistics-pipe.md#mk3-recipe).
 
 ## Recipe
 
 <div class="crafting-recipe">
     <div class="crafting-grid">
-        <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__gold_ingot.png" class="crafting-item" alt="Gold Ingot" title="Gold Ingot"></div>
-        <div class="crafting-slot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone" title="Redstone"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__gold_ingot.png" class="crafting-item" alt="Gold Ingot" title="Gold Ingot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone" title="Redstone"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__gold_ingot.png" class="crafting-item" alt="Gold Ingot" title="Gold Ingot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__gold_ingot.png" class="crafting-item" alt="Gold Ingot" title="Gold Ingot"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__gold_ingot.png" class="crafting-item" alt="Gold Ingot" title="Gold Ingot"></div>
+        <div class="crafting-slot"><a href="cores/#quartz-crystal"><img src="../../assets/icons/logistics__automation___quartz_crystal.png" class="crafting-item" alt="Quartz Crystal" title="Quartz Crystal"></a></div>
+        <div class="crafting-slot"><a href="cores/#quartz-crystal"><img src="../../assets/icons/logistics__automation___quartz_crystal.png" class="crafting-item" alt="Quartz Crystal" title="Quartz Crystal"></a></div>
+        <div class="crafting-slot"><a href="cores/#quartz-crystal"><img src="../../assets/icons/logistics__automation___quartz_crystal.png" class="crafting-item" alt="Quartz Crystal" title="Quartz Crystal"></a></div>
+        <div class="crafting-slot"><a href="cores/#quartz-crystal"><img src="../../assets/icons/logistics__automation___quartz_crystal.png" class="crafting-item" alt="Quartz Crystal" title="Quartz Crystal"></a></div>
+        <div class="crafting-slot"><a href="cores/"><img src="../../assets/icons/logistics__core___gold_core.png" class="crafting-item" alt="Gold Core" title="Gold Core"></a></div>
+        <div class="crafting-slot"><a href="cores/#quartz-crystal"><img src="../../assets/icons/logistics__automation___quartz_crystal.png" class="crafting-item" alt="Quartz Crystal" title="Quartz Crystal"></a></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__iron_nugget.png" class="crafting-item" alt="Iron Nugget" title="Iron Nugget"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__gold_nugget.png" class="crafting-item" alt="Gold Nugget" title="Gold Nugget"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/minecraft__iron_nugget.png" class="crafting-item" alt="Iron Nugget" title="Iron Nugget"></div>
     </div>
     <div class="crafting-arrow">→</div>
     <div class="crafting-output">
-        <a href="../valve-gold/"><img src="../../assets/icons/logistics__core___valve_gold.png" class="crafting-item" alt="Gold Valve" title="Gold Valve"></a>
-        <span class="crafting-count">4</span>
+        <img src="../../assets/icons/logistics__core___gold_valve.png" class="crafting-item" alt="Gold Valve" title="Gold Valve">
+        <span class="crafting-count">1</span>
     </div>
 </div>
 
-**[Kiln](../automation/kiln.md) crafting:**
-- 5× Gold Ingot + 2× Redstone + 250mb Molten Glass
-- **Process time:** 160 ticks
-- **Energy demand:** 180 energy/tick
-- **Yields:** 4× Gold Valve
-
-## Fuel Requirements
-
-**Tier 3 - Blaze rod/lava minimum**
-
-Energy demand: 180 energy/tick
-- **Coal:** **Fails** (insufficient capacity)
-- **Blaze Rod:** Works (~20-25 capacity, barely enough)
-- **Lava Bucket:** Comfortable (~75 capacity)
-
-Blaze rods or lava buckets required.
+**Yields:** 1× Gold Valve — 5× [Quartz Crystal](cores.md#quartz-crystal) + 1× [Gold Core](cores.md) + 2× Iron Nugget + 1× Gold Nugget
 
 ## Usage
 
-Valves are crafting components for future features. Gold valves mark the entry into premium fuel territory.
-
-## Tips
-
-- Coal completely insufficient
-- Blaze rods minimum requirement
-- Lava buckets give smoother operation
-- Yields 4 valves per craft
+| Used In | Role |
+|---------|------|
+| [Process Logistics Pipe](../pipes/process-logistics-pipe.md) | 2× required |
+| [Chassis Logistics Pipe MK3](../pipes/chassis-logistics-pipe.md#mk3-recipe) | 4× required |
 
 ## See Also
-- [Kiln](../automation/kiln.md) - Crafting machine
-- [Bronze Valve](valve-bronze.md) - Previous tier (140 energy/tick)
-- [Apatite Valve](valve-apatite.md) - Same tier (200 energy/tick)
-- [Diamond Valve](valve-diamond.md) - Next tier (240 energy/tick)
+- [Cores](cores.md) - Gold Core crafting
+- [Quartz Crystal](cores.md#quartz-crystal) - Required ingredient
+- [Valves](index.md#valves) - All valve types

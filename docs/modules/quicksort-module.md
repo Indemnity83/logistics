@@ -35,15 +35,15 @@ The **Quicksort Module** is a [Chassis Logistics Pipe](../pipes/chassis-logistic
 
 <div class="crafting-recipe">
     <div class="crafting-grid">
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__cyan_dye.png" class="crafting-item" alt="Cyan Dye" title="Cyan Dye"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___diamond_gear.png" class="crafting-item" alt="Diamond Gear" title="Diamond Gear"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__cyan_dye.png" class="crafting-item" alt="Cyan Dye" title="Cyan Dye"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___diamond_dust.png" class="crafting-item" alt="Diamond Dust" title="Diamond Dust"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___echo_chip.png" class="crafting-item" alt="Echo Chip" title="Echo Chip"></div>
+        <div class="crafting-slot"><img src="../../assets/icons/logistics__core___diamond_dust.png" class="crafting-item" alt="Diamond Dust" title="Diamond Dust"></div>
         <div class="crafting-slot"><img src="../../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone" title="Redstone"></div>
         <div class="crafting-slot"><img src="../../assets/icons/logistics__pipe___blank_module.png" class="crafting-item" alt="Blank Module" title="Blank Module"></div>
         <div class="crafting-slot"><img src="../../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone" title="Redstone"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__cyan_dye.png" class="crafting-item" alt="Cyan Dye" title="Cyan Dye"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__redstone.png" class="crafting-item" alt="Redstone" title="Redstone"></div>
-        <div class="crafting-slot"><img src="../../assets/icons/minecraft__cyan_dye.png" class="crafting-item" alt="Cyan Dye" title="Cyan Dye"></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"></div>
+        <div class="crafting-slot"></div>
     </div>
     <div class="crafting-arrow">→</div>
     <div class="crafting-output">
@@ -52,7 +52,7 @@ The **Quicksort Module** is a [Chassis Logistics Pipe](../pipes/chassis-logistic
     </div>
 </div>
 
-**Yields:** 1× Quicksort Module
+**Yields:** 1× Quicksort Module — 2× [Diamond Dust](../materials/dusts.md) + [Echo Chip](../materials/chips.md) + 2× Redstone + [Blank Module](blank-module.md)
 
 ## Behavior
 
