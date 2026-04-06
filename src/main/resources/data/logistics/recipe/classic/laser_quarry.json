@@ -1,10 +1,12 @@
 {
   "key": {
     "D": "logistics:core/diamond_gear",
-    "M": "logistics:core/machine_core",
-    "I": "minecraft:iron_ingot"
+    "G": "logistics:core/gold_gear",
+    "I": "logistics:core/iron_gear",
+    "P": "minecraft:diamond_pickaxe",
+    "R": "minecraft:redstone"
   },
-  "pattern": ["DDD", "IMI", "III"],
+  "pattern": ["IRI", "GIG", "DPD"],
   "result": {
     "count": 1,
     "id": "logistics:automation/laser_quarry"
