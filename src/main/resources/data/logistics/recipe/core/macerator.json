@@ -4,7 +4,7 @@
   "key": {
     "F": "minecraft:flint",
     "I": "minecraft:iron_ingot",
-    "M": "logistics:core/machine_frame"
+    "M": "logistics:core/machine_core"
   },
   "result": { "id": "logistics:core/macerator", "count": 1 }
 }
