@@ -13,7 +13,7 @@
       "item": "minecraft:iron_ingot"
     },
     "M": {
-      "item": "logistics:core/machine_frame"
+      "item": "logistics:core/machine_core"
     }
   },
   "result": {

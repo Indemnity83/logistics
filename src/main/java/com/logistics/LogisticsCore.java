@@ -214,7 +214,7 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         public static Item BRONZE_NUGGET;
         public static Item APATITE;
         public static Item STURDY_CASING;
-        public static Item MACHINE_FRAME;
+        public static Item MACHINE_CORE;
 
         public static Item WOODEN_GEAR;
         public static Item STONE_GEAR;
@@ -307,7 +307,7 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
 
             // Components
             STURDY_CASING = INSTANCE.registerItem("sturdy_casing", Item::new);
-            MACHINE_FRAME = INSTANCE.registerItem("machine_frame", Item::new);
+            MACHINE_CORE = INSTANCE.registerItem("machine_core", Item::new);
 
             // Gears
             WOODEN_GEAR = INSTANCE.registerItem("wooden_gear", Item::new);
@@ -453,8 +453,8 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
 
             // Intermediate Crafting Items
             entries.addBefore(Items.HEAVY_CORE, ITEM.STURDY_CASING);
-            entries.addAfter(ITEM.STURDY_CASING, ITEM.MACHINE_FRAME);
-            entries.addAfter(ITEM.MACHINE_FRAME, ITEM.WOODEN_GEAR);
+            entries.addAfter(ITEM.STURDY_CASING, ITEM.MACHINE_CORE);
+            entries.addAfter(ITEM.MACHINE_CORE, ITEM.WOODEN_GEAR);
             entries.addAfter(ITEM.WOODEN_GEAR, ITEM.STONE_GEAR);
             entries.addAfter(ITEM.STONE_GEAR, ITEM.COPPER_GEAR);
             entries.addAfter(ITEM.COPPER_GEAR, ITEM.TIN_GEAR);
