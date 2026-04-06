@@ -7,7 +7,7 @@ import org.apache.logging.log4j.Logger;
  * Lightweight render profiler for measuring PipeBlockEntityRenderer performance.
  *
  * <p>Enable by setting {@link #ENABLED} to {@code true}. Stats are logged every
- * {@link #REPORT_INTERVAL} frames to the DEBUG log channel.
+ * {@link #REPORT_INTERVAL_SUBMITS} submit calls to the DEBUG log channel.
  *
  * <p>To see output, ensure your log config includes DEBUG for com.logistics, or
  * temporarily change the logger call to {@code .info()} during investigation.
@@ -17,7 +17,7 @@ public final class RenderProfiler {
     /** Toggle via {@code /logistics profile} in-game, or set directly for compile-time control. */
     public static volatile boolean ENABLED = false;
 
-    private static final int REPORT_INTERVAL = 200;
+    private static final int REPORT_INTERVAL_SUBMITS = 200;
     private static final Logger LOGGER = LogManager.getLogger("Logistics/PipeRenderer");
 
     private long extractTotalNs = 0;
@@ -27,7 +27,7 @@ public final class RenderProfiler {
     private int extractCount = 0;
     private int collectPartsCount = 0;
     private int appendItemLayersCount = 0;
-    private int frameCount = 0;
+    private int submitCount = 0;
 
     /** Call at the start of {@code extractRenderState()}. Returns a start timestamp. */
     public long startExtract() {
@@ -47,12 +47,12 @@ public final class RenderProfiler {
 
     /**
      * Call at the end of {@code submit()} with the value returned by {@link #startSubmit()}.
-     * Also drives the periodic report — call this once per frame (once per submit call).
+     * Also drives the periodic report — triggered every {@link #REPORT_INTERVAL_SUBMITS} submissions.
      */
     public void endSubmit(long startNs) {
         submitTotalNs += System.nanoTime() - startNs;
-        frameCount++;
-        if (frameCount >= REPORT_INTERVAL) {
+        submitCount++;
+        if (submitCount >= REPORT_INTERVAL_SUBMITS) {
             report();
             reset();
         }
@@ -72,7 +72,7 @@ public final class RenderProfiler {
 
     private void report() {
         double avgExtractMs = extractCount > 0 ? (extractTotalNs / 1_000_000.0) / extractCount : 0;
-        double avgSubmitMs = frameCount > 0 ? (submitTotalNs / 1_000_000.0) / frameCount : 0;
+        double avgSubmitMs = submitCount > 0 ? (submitTotalNs / 1_000_000.0) / submitCount : 0;
         double collectPartsTotalMs = collectPartsTotalNs / 1_000_000.0;
         double appendTotalMs = appendItemLayersTotalNs / 1_000_000.0;
 
@@ -83,7 +83,7 @@ public final class RenderProfiler {
                 avgExtractMs, extractCount, avgSubmitMs,
                 collectPartsCount, collectPartsTotalMs,
                 appendItemLayersCount, appendTotalMs,
-                frameCount));
+                submitCount));
     }
 
     private void reset() {
@@ -94,6 +94,6 @@ public final class RenderProfiler {
         extractCount = 0;
         collectPartsCount = 0;
         appendItemLayersCount = 0;
-        frameCount = 0;
+        submitCount = 0;
     }
 }

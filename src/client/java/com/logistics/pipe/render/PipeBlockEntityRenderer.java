@@ -162,14 +162,13 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
         }
 
         // --- Fix 3: Extract traveling items, reusing cached ItemStackRenderState by ItemVariant ---
+        state.itemRenderCache.clear();
         state.travelingItems.clear();
         for (TravelingItem travelingItem : entity.getTravelingItems()) {
-            TravelingItemRenderState itemState = new TravelingItemRenderState();
-
             ItemVariant variant = ItemVariant.of(travelingItem.getStack());
             ItemStackRenderState cached = state.itemRenderCache.get(variant);
             if (cached == null) {
-                // First time seeing this item type — resolve its model and cache
+                // First time seeing this item type this frame — resolve its model and cache
                 cached = new ItemStackRenderState();
                 long ta = RenderProfiler.ENABLED ? System.nanoTime() : 0;
                 this.itemModelManager.appendItemLayers(
@@ -182,7 +181,7 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
                 if (RenderProfiler.ENABLED) profiler.recordAppendItemLayers(ta);
                 state.itemRenderCache.put(variant, cached);
             }
-            itemState.itemRenderState = cached;
+            TravelingItemRenderState itemState = new TravelingItemRenderState(cached);
 
             // Position data must be updated every frame for smooth animation
             itemState.direction = travelingItem.getDirection();
