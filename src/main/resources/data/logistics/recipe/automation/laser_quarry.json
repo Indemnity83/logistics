@@ -1,29 +1,10 @@
 {
   "key": {
-    "D": {
-      "item": "logistics:core/diamond_gear"
-    },
-    "c": {
-      "item": "logistics:core/copper_gear"
-    },
-    "g": {
-      "item": "logistics:core/gold_gear"
-    },
-    "i": {
-      "item": "logistics:core/iron_gear"
-    },
-    "p": {
-      "item": "minecraft:diamond_pickaxe"
-    },
-    "r": {
-      "item": "minecraft:redstone"
-    }
+    "D": {"item": "logistics:core/diamond_gear"},
+    "M": {"item": "logistics:core/machine_core"},
+    "I": {"item": "minecraft:iron_ingot"}
   },
-  "pattern": [
-    "iri",
-    "gcg",
-    "DpD"
-  ],
+  "pattern": ["DDD", "IMI", "III"],
   "result": {
     "count": 1,
     "id": "logistics:automation/laser_quarry"
