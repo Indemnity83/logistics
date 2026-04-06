@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.5.1](https://github.com/Indemnity83/logistics/compare/mc1.21.1-v0.5.0...mc1.21.1-v0.5.1) (2026-04-06)
+
+
+### Bug Fixes
+
+* add translations for tin and bronze item tags ([#257](https://github.com/Indemnity83/logistics/issues/257)) ([f5fecb4](https://github.com/Indemnity83/logistics/commit/f5fecb4452d7f31438e0b828ac829927560113ae))
+* normalize laser quarry recipe to use machine core ([#267](https://github.com/Indemnity83/logistics/issues/267)) ([67485e0](https://github.com/Indemnity83/logistics/commit/67485e00d8518dfad1ec2cfa1daf3895f2d737e3))
+* remove orphaned advanced extractor module assets and update JEI entrypoint ([#256](https://github.com/Indemnity83/logistics/issues/256)) ([86d257e](https://github.com/Indemnity83/logistics/commit/86d257e4ef30a796ea9ecca51a011653937e2e23))
+* rename MACHINE_FRAME to MACHINE_CORE and update assets ([#265](https://github.com/Indemnity83/logistics/issues/265)) ([50b96ca](https://github.com/Indemnity83/logistics/commit/50b96cac1808c12bbafd0be793543ad931948e70))
+* update item references in machine_core recipe JSON ([f72fae2](https://github.com/Indemnity83/logistics/commit/f72fae2304d5b1ae5bd8fa78fcd3f03b066f3356))
+* update macerator tags for mining and loot table renaming ([#266](https://github.com/Indemnity83/logistics/issues/266)) ([ae7c592](https://github.com/Indemnity83/logistics/commit/ae7c59222c95075941aae5acf19d8c882cf66bfa))
+
 ## [0.5.0](https://github.com/Indemnity83/logistics/compare/mc1.21.1-v0.4.0...mc1.21.1-v0.5.0) (2026-04-04)
 
 
