@@ -2,8 +2,8 @@
   "type": "minecraft:crafting_shaped",
   "pattern": ["BBB", "BPB", "BBB"],
   "key": {
-    "B": "logistics:core/bronze_ingot",
-    "P": "minecraft:blaze_powder"
+    "B": { "item": "logistics:core/bronze_ingot" },
+    "P": { "item": "minecraft:blaze_powder" }
   },
   "result": { "id": "logistics:core/machine_core", "count": 1 }
 }
