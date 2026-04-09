@@ -3,6 +3,7 @@ package com.logistics.pipe.modules;
 import com.logistics.core.lib.pipe.RoutingModule;
 
 import com.logistics.LogisticsPipe;
+import com.logistics.pipe.network.NetDbg;
 import com.logistics.core.lib.pipe.*;
 import com.logistics.core.lib.pipe.Module;
 import com.logistics.core.lib.resource.ResourceId;
@@ -276,7 +277,10 @@ public class ProcessModule implements Module, TickingModule, RoutingModule, Disp
                 break;
             }
         }
-        if (matchedOutput < 0) return 0;
+        if (matchedOutput < 0) {
+            NetDbg.out("[Process @ {}] Dispatch rejected: no output matches {}", ctx.pos(), item);
+            return 0;
+        }
 
         int outCount = getOutputCount(ctx, matchedOutput);
         if (outCount <= 0) return 0;
@@ -291,6 +295,7 @@ public class ProcessModule implements Module, TickingModule, RoutingModule, Disp
 
         ListTag queue = getQueue(ctx);
         if (queue.size() >= MAX_QUEUE_SIZE) {
+            NetDbg.out("[Process @ {}] Dispatch rejected: queue full ({} entries)", ctx.pos(), queue.size());
             LogisticsPipe.LOGGER.warn("[Process @ {}] Queue full ({} entries); rejecting dispatch for '{}'", ctx.pos(), queue.size(), getOutputItem(ctx, matchedOutput));
             return 0;
         }
@@ -320,6 +325,7 @@ public class ProcessModule implements Module, TickingModule, RoutingModule, Disp
             } else {
                 orderDest = network.findSatellite(effectiveDest);
                 if (orderDest == null) {
+                    NetDbg.out("[Process @ {}] Dispatch rejected: satellite '{}' not found for input {}", ctx.pos(), effectiveDest, i);
                     LogisticsPipe.LOGGER.warn("[Process @ {}] Satellite '{}' not found for input {}; aborting dispatch", ctx.pos(), effectiveDest, i);
                     return 0;
                 }
@@ -343,6 +349,7 @@ public class ProcessModule implements Module, TickingModule, RoutingModule, Disp
 
         queue.add(entry);
         saveQueue(ctx, queue);
+        NetDbg.out("[Process @ {}] Queue entry: {}x{} executions for requester {}", ctx.pos(), executions, getOutputItem(ctx, matchedOutput), requester);
 
         return actualAmount;
     }
@@ -499,6 +506,7 @@ public class ProcessModule implements Module, TickingModule, RoutingModule, Disp
 
             if (extractedNow > 0) {
                 long sentNow = Math.min(extractedNow, toRequester);
+                NetDbg.out("[Process @ {}] Collected {}x{} (total extracted: {}/{})", ctx.pos(), extractedNow, outStack.getItem(), alreadyExtracted + extractedNow, totalOutputsExpected);
                 entry.putLong(ENTRY_EXTR_SLOT, alreadyExtracted + extractedNow);
                 entry.putLong(ENTRY_EXTR_REQ, totalSentToRequester + sentNow);
                 totalSentToRequester += sentNow;
@@ -509,6 +517,7 @@ public class ProcessModule implements Module, TickingModule, RoutingModule, Disp
 
         // Check if this entry is complete
         if (totalExtracted >= totalOutputsExpected) {
+            NetDbg.out("[Process @ {}] Job complete: delivered {} of {} requested", ctx.pos(), totalSentToRequester, requested);
             queue.remove(0);
             saveQueue(ctx, queue);
         } else if (changed) {

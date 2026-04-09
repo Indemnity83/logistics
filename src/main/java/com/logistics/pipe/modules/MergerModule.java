@@ -1,6 +1,7 @@
 package com.logistics.pipe.modules;
 
 import com.logistics.LogisticsPipe;
+import com.logistics.pipe.network.NetDbg;
 import com.logistics.core.lib.pipe.Module;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.core.lib.storage.NbtCompat;
@@ -39,9 +40,11 @@ public class MergerModule implements Module, RoutingModule {
 
         // If the output direction is not configured or no longer valid, drop the stack on the ground at the pipe.
         if (out == null || options == null || options.isEmpty() || !options.contains(out)) {
+            NetDbg.out("[Merger @ {}] No output direction, dropping {}", ctx.pos(), item.getStack().getItem());
             return RoutePlan.drop();
         }
 
+        NetDbg.out("[Merger @ {}] Routing {} → {}", ctx.pos(), item.getStack().getItem(), out);
         return RoutePlan.reroute(out);
     }
 
@@ -91,6 +94,7 @@ public class MergerModule implements Module, RoutingModule {
             return;
         }
 
+        NetDbg.out("[Merger @ {}] Output direction set to {}", ctx.pos(), direction);
         if (direction == null) {
             ctx.remove(this, OUTPUT_DIRECTION);
         } else {

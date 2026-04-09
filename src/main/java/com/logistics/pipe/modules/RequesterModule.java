@@ -1,6 +1,7 @@
 package com.logistics.pipe.modules;
 
 import com.logistics.LogisticsPipe;
+import com.logistics.pipe.network.NetDbg;
 import com.logistics.core.lib.network.FulfillmentMode;
 import com.logistics.core.lib.network.ILogisticsNetwork;
 import com.logistics.core.lib.pipe.Module;
@@ -128,7 +129,8 @@ public class RequesterModule implements Module, TickingModule {
             return;
         }
 
-        for (RequestConfig config : configs) {
+        for (int i = 0; i < configs.size(); i++) {
+            RequestConfig config = configs.get(i);
             if (config.itemId().isEmpty() || config.amount() <= 0) {
                 continue;
             }
@@ -149,12 +151,15 @@ public class RequesterModule implements Module, TickingModule {
 
             long clamped = Math.min(needed, MAX_REQUEST_AMOUNT);
             if (clamped > 0) {
+                NetDbg.out("[Requester @ {}] Placed order for {}x{}", ctx.pos(), clamped, item);
                 network.placeOrder(ItemVariant.of(stack), clamped, ctx.pos());
 
                 // TODO(Phase 11): Consume energy
                 // ctx.setEnergy(ctx.getEnergy() - RF_PER_REQUEST_CYCLE);
 
                 break; // Only process one request per cycle
+            } else {
+                NetDbg.out("[Requester @ {}] Slot {} skipped: need={}, pending={}", ctx.pos(), i, needed, alreadyOrdered);
             }
         }
     }
@@ -274,6 +279,7 @@ public class RequesterModule implements Module, TickingModule {
         String itemName = stack.getHoverName().getString();
         if (available == 0) {
             // Nothing can produce this item
+            NetDbg.out("[Requester @ {}] No supply found for {} (need={})", ctx.pos(), stack.getItem(), amount);
             sendAlert(ctx, Component.literal(
                     "[Logistics] Cannot fill order for " + itemName + " \u2014 not available in network"));
             return;

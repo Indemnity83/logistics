@@ -2,6 +2,7 @@ package com.logistics.pipe.render;
 
 import com.logistics.LogisticsPipe;
 import com.logistics.LogisticsPipeClient;
+import com.logistics.core.DebugLog;
 import com.logistics.core.lib.block.capability.PipeConnection;
 import com.logistics.core.lib.pipe.CoreDecoration;
 import com.logistics.core.lib.resource.ResourceId;
@@ -72,7 +73,8 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
         Pipe pipe = pipeBlock.getPipe();
         if (pipe == null || entity.getLevel() == null) return;
 
-        long t0 = RenderProfiler.ENABLED ? profiler.startSubmit() : 0;
+        boolean debugRender = DebugLog.isEnabled("render");
+        long t0 = debugRender ? profiler.startSubmit() : 0;
 
         PipeContext ctx = new PipeContext(entity.getLevel(), entity.getBlockPos(), state, entity);
         VertexConsumer buffer = bufferSource.getBuffer(RenderType.cutout());
@@ -112,7 +114,7 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
                     poseStack, bufferSource, packedLight, packedOverlay, entity);
         }
 
-        if (RenderProfiler.ENABLED) profiler.endSubmit(t0);
+        if (debugRender) profiler.endSubmit(t0);
     }
 
     private void renderModel(

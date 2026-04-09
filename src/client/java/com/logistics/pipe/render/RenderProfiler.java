@@ -6,16 +6,13 @@ import org.apache.logging.log4j.Logger;
 /**
  * Lightweight render profiler for measuring PipeBlockEntityRenderer performance.
  *
- * <p>Enable by setting {@link #ENABLED} to {@code true}. Stats are logged every
+ * <p>Enable via {@code /logistics debug render true}. Stats are logged every
  * {@link #REPORT_INTERVAL_SUBMITS} submit calls to the DEBUG log channel.
  *
  * <p>To see output, ensure your log config includes DEBUG for com.logistics, or
  * temporarily change the logger call to {@code .info()} during investigation.
  */
 public final class RenderProfiler {
-
-    /** Toggle via {@code /logistics profile} in-game, or set directly for compile-time control. */
-    public static volatile boolean ENABLED = false;
 
     private static final int REPORT_INTERVAL_SUBMITS = 200;
     private static final Logger LOGGER = LogManager.getLogger("Logistics/PipeRenderer");

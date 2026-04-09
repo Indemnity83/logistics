@@ -3,6 +3,7 @@ package com.logistics.pipe.modules;
 import com.logistics.core.lib.pipe.RoutingModule;
 
 import com.logistics.LogisticsPipe;
+import com.logistics.pipe.network.NetDbg;
 import com.logistics.core.lib.pipe.Module;
 import com.logistics.core.lib.network.ILogisticsNetwork;
 import com.logistics.core.lib.pipe.PipeContext;
@@ -46,17 +47,23 @@ public class NetworkRouterModule implements Module, RoutingModule {
 
         if (item.getDestination() == null) {
             BlockPos destination = network.findSinkFor(item.getStack());
-            if (destination == null) return RoutePlan.drop();
+            if (destination == null) {
+                NetDbg.out("[NetworkRouter @ {}] No sink found for {}, dropping", ctx.pos(), item.getStack().getItem());
+                return RoutePlan.drop();
+            }
             item.setDestination(destination);
+            NetDbg.out("[NetworkRouter @ {}] Assigned destination {} for {}", ctx.pos(), destination, item.getStack().getItem());
         }
 
         if (item.getDestination().equals(ctx.pos())) return RoutePlan.pass();
 
         Direction nextHop = network.getNextHop(ctx.pos(), item.getDestination());
         if (nextHop != null && options.contains(nextHop)) {
+            NetDbg.out("[NetworkRouter @ {}] Routing {} → {} via {}", ctx.pos(), item.getStack().getItem(), item.getDestination(), nextHop);
             return RoutePlan.reroute(nextHop);
         }
 
+        NetDbg.out("[NetworkRouter @ {}] No valid hop for {} → {} (nextHop={}, options={}), dropping", ctx.pos(), item.getStack().getItem(), item.getDestination(), nextHop, options);
         return RoutePlan.drop();
     }
 

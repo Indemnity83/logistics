@@ -3,13 +3,10 @@ package com.logistics;
 import com.logistics.core.bootstrap.DomainBootstrap;
 import com.logistics.pipe.network.packet.SyncRequesterInventoryPacket;
 import com.logistics.pipe.render.PipeBlockEntityRenderer;
-import com.logistics.pipe.render.RenderProfiler;
 import com.logistics.pipe.screen.ItemFilterScreen;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import com.logistics.pipe.screen.RequesterScreen;
-import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
-import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
-import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
+import com.logistics.core.DebugLog;
 import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
 import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -17,7 +14,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
@@ -76,21 +72,8 @@ public final class LogisticsPipeClient implements DomainBootstrap {
         MenuScreens.register(LogisticsPipe.SCREEN.ADVANCED_EXTRACTOR, com.logistics.pipe.screen.AdvancedExtractorScreen::new);
         MenuScreens.register(LogisticsPipe.SCREEN.MOD_SINK, com.logistics.pipe.screen.ModSinkScreen::new);
 
+        DebugLog.register("render");
         registerPacketReceivers();
-        registerCommands();
-    }
-
-    private void registerCommands() {
-        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) ->
-            dispatcher.register(ClientCommandManager.literal("logistics")
-                .then(ClientCommandManager.literal("profile")
-                    .executes(ctx -> {
-                        RenderProfiler.ENABLED = !RenderProfiler.ENABLED;
-                        ctx.getSource().sendFeedback(Component.literal(
-                            "[Logistics] Pipe renderer profiling " + (RenderProfiler.ENABLED ? "ON" : "OFF")));
-                        return 1;
-                    })
-                    .requires(source -> source instanceof FabricClientCommandSource))));
     }
 
     private void registerPacketReceivers() {
