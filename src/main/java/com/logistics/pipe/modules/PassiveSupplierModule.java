@@ -71,12 +71,11 @@ public class PassiveSupplierModule extends SupplierModule implements ItemAccepti
             if (config.itemId().isEmpty() || config.amount() <= 0) continue;
             ResourceId rid = ResourceId.tryParse(config.itemId());
             if (rid == null) continue;
-            int[] added = {0};
-            BuiltInRegistries.ITEM.get(rid.toIdentifier()).ifPresent(holder -> {
-                network.registerSinkInterest(ctx.pos(), holder.value());
-                added[0]++;
-            });
-            interestCount += added[0];
+            var itemHolder = BuiltInRegistries.ITEM.get(rid.toIdentifier());
+            if (itemHolder.isPresent()) {
+                network.registerSinkInterest(ctx.pos(), itemHolder.get().value());
+                interestCount++;
+            }
         }
         NetDbg.out("[PassiveSupplier @ {}] Synced interests: {} items", ctx.pos(), interestCount);
     }

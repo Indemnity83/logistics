@@ -129,7 +129,8 @@ public class RequesterModule implements Module, TickingModule {
             return;
         }
 
-        for (RequestConfig config : configs) {
+        for (int i = 0; i < configs.size(); i++) {
+            RequestConfig config = configs.get(i);
             if (config.itemId().isEmpty() || config.amount() <= 0) {
                 continue;
             }
@@ -158,7 +159,7 @@ public class RequesterModule implements Module, TickingModule {
 
                 break; // Only process one request per cycle
             } else {
-                NetDbg.out("[Requester @ {}] Slot {} skipped: need={}, pending={}", ctx.pos(), configs.indexOf(config), needed, alreadyOrdered);
+                NetDbg.out("[Requester @ {}] Slot {} skipped: need={}, pending={}", ctx.pos(), i, needed, alreadyOrdered);
             }
         }
     }
