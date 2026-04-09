@@ -19,6 +19,10 @@ Craft these items first:
 - 8× [Copper Transport Pipe](../pipes/copper-transport-pipe.md) (copper ingot + glass)
 - 8× [Item Extractor Pipe](../pipes/item-extractor-pipe.md) (planks + glass)
 
+**Power:**
+- 1× [Redstone Engine](../power/redstone-engine.md)
+- 1× Redstone dust (to activate the engine)
+
 **Tool:**
 - 1× [Wrench](../tools/wrench.md) (4× iron ingot)
 
@@ -34,27 +38,33 @@ Place a chest and fill it with some items (cobblestone, dirt, anything).
 ### 2. Place Extractor Pipe
 Place an [Item Extractor Pipe](../pipes/item-extractor-pipe.md) directly next to the chest. You should see it connect automatically (opaque connector appears).
 
-### 3. Configure Extraction Face
+### 3. Power the Extractor
+
+The Item Extractor Pipe requires energy to run. Place a [Redstone Engine](../power/redstone-engine.md) directly adjacent to the extractor pipe, then place a redstone dust on top of (or next to) the engine to activate it. The engine's output face must touch the extractor pipe — use a [Wrench](../tools/wrench.md) to rotate it if needed.
+
+### 4. Configure Extraction Face
 1. Take out your [Wrench](../tools/wrench.md)
 2. Right-click the extractor pipe
 3. Watch the opaque connector - it shows which face extracts
 4. Keep right-clicking until the connector points toward the chest
 5. Now the extractor will pull from that chest
 
-### 4. Build Transport Line
+### 5. Build Transport Line
 Place [Copper Transport Pipes](../pipes/copper-transport-pipe.md) extending from the extractor:
 - Connect to any free face of the extractor
 - Extend as far as you want (3-5 blocks for this example)
 - Pipes connect automatically to each other
 
-### 5. Place Destination Chest
+### 6. Place Destination Chest
 Place a second chest at the end of your copper pipe line. The pipe should automatically connect to it (you'll see a connector appear).
 
-### 6. Watch It Work
+### 7. Watch It Work
 Items automatically extract from the source chest, travel through the pipes (you can see them moving!), and enter the destination chest.
 
 **If items aren't moving:**
-- Check extraction face points at source chest (use wrench)
+- Check that a [Redstone Engine](../power/redstone-engine.md) is adjacent to the extractor with its output face touching it (use wrench to rotate)
+- Check the engine is powered (redstone signal on it)
+- Check extraction face points at source chest (use wrench on extractor)
 - Verify pipes connect to both chests (connectors visible)
 - Ensure source chest has items
 
