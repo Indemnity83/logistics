@@ -2,6 +2,7 @@ package com.logistics.pipe.render;
 
 import com.logistics.LogisticsPipe;
 import com.logistics.LogisticsPipeClient;
+import com.logistics.core.DebugLog;
 import com.logistics.core.lib.block.capability.PipeConnection;
 import com.logistics.core.lib.pipe.CoreDecoration;
 import com.logistics.core.lib.resource.ResourceId;
@@ -86,7 +87,8 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
             Vec3 cameraPos,
             net.minecraft.client.renderer.feature.ModelFeatureRenderer.CrumblingOverlay crumblingOverlay) {
 
-        long t0 = RenderProfiler.ENABLED ? profiler.startExtract() : 0;
+        boolean debugRender = DebugLog.isEnabled("render");
+        long t0 = debugRender ? profiler.startExtract() : 0;
 
         // Update base block entity render state
         BlockEntityRenderState.extractBase(entity, state, crumblingOverlay);
@@ -151,11 +153,11 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
                         modelInfo.parts = null;
                         continue;
                     }
-                    long tp = RenderProfiler.ENABLED ? System.nanoTime() : 0;
+                    long tp = debugRender ? System.nanoTime() : 0;
                     cached = new ArrayList<>();
                     model.collectParts(RandomSource.create(0), cached);
                     partsCache.put(modelInfo.modelId, cached);
-                    if (RenderProfiler.ENABLED) profiler.recordCollectParts(tp);
+                    if (debugRender) profiler.recordCollectParts(tp);
                 }
                 modelInfo.parts = cached;
             }
@@ -170,7 +172,7 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
             if (cached == null) {
                 // First time seeing this item type this frame — resolve its model and cache
                 cached = new ItemStackRenderState();
-                long ta = RenderProfiler.ENABLED ? System.nanoTime() : 0;
+                long ta = debugRender ? System.nanoTime() : 0;
                 this.itemModelManager.appendItemLayers(
                         cached,
                         travelingItem.getStack(),
@@ -178,7 +180,7 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
                         entity.getLevel(),
                         null,
                         0);
-                if (RenderProfiler.ENABLED) profiler.recordAppendItemLayers(ta);
+                if (debugRender) profiler.recordAppendItemLayers(ta);
                 state.itemRenderCache.put(variant, cached);
             }
             TravelingItemRenderState itemState = new TravelingItemRenderState(cached);
@@ -192,7 +194,7 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
             state.travelingItems.add(itemState);
         }
 
-        if (RenderProfiler.ENABLED) profiler.endExtract(t0);
+        if (debugRender) profiler.endExtract(t0);
     }
 
     /** Build a ModelRenderInfo for cores/decorations. Parts are populated in extractRenderState(). */
@@ -209,7 +211,8 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
     public void submit(
             PipeRenderState state, PoseStack matrices, SubmitNodeCollector queue, CameraRenderState cameraState) {
 
-        long t0 = RenderProfiler.ENABLED ? profiler.startSubmit() : 0;
+        boolean debugRender = DebugLog.isEnabled("render");
+        long t0 = debugRender ? profiler.startSubmit() : 0;
 
         if (!state.models.isEmpty()) {
             RenderType renderLayer = RenderTypes.cutoutMovingBlock();
@@ -298,7 +301,7 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
             matrices.popPose();
         }
 
-        if (RenderProfiler.ENABLED) profiler.endSubmit(t0);
+        if (debugRender) profiler.endSubmit(t0);
     }
 
     /**

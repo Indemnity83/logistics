@@ -1,6 +1,7 @@
 package com.logistics.pipe.modules;
 
 import com.logistics.LogisticsPipe;
+import com.logistics.pipe.network.NetDbg;
 import com.logistics.core.lib.pipe.Module;
 import com.logistics.core.lib.pipe.PipeContext;
 import com.logistics.core.lib.pipe.TickingModule;
@@ -67,6 +68,7 @@ public class QuickSortModule implements Module, TickingModule {
         }
         int size = slots.size();
         if (size == 0) {
+            if (ctx.getInt(this, STALLED, 0) == 0) NetDbg.out("[QuickSort @ {}] Entering stall (inventory has no slots)", ctx.pos());
             ctx.saveInt(this, STALLED, 1);
             return;
         }
@@ -89,11 +91,13 @@ public class QuickSortModule implements Module, TickingModule {
             }
             if (idx == lastSuccess) {
                 // Scanned back to last-success position with nothing found — stall
+                if (ctx.getInt(this, STALLED, 0) == 0) NetDbg.out("[QuickSort @ {}] Entering stall (all slots empty)", ctx.pos());
                 ctx.saveInt(this, STALLED, 1);
                 return;
             }
         }
         if (candidate == -1) {
+            if (ctx.getInt(this, STALLED, 0) == 0) NetDbg.out("[QuickSort @ {}] Entering stall (all slots empty)", ctx.pos());
             ctx.saveInt(this, STALLED, 1);
             return;
         }
@@ -112,8 +116,10 @@ public class QuickSortModule implements Module, TickingModule {
 
         BlockPos destination = network.findFilteredSinkFor(queryStack);
         if (destination == null) {
+            NetDbg.out("[QuickSort @ {}] No network destination for {} in slot {}", ctx.pos(), variant.getItem(), candidate);
             // No destination — stall if full circle, otherwise just wait for next cycle
             if (candidate == lastSuccess) {
+                if (ctx.getInt(this, STALLED, 0) == 0) NetDbg.out("[QuickSort @ {}] Entering stall (no network destination for {})", ctx.pos(), variant.getItem());
                 ctx.saveInt(this, STALLED, 1);
             }
             return;
@@ -130,18 +136,21 @@ public class QuickSortModule implements Module, TickingModule {
             long extracted = candidateView.extract(variant, stackSize, tx);
             if (extracted > 0) {
                 ItemStack extractedStack = variant.toStack((int) extracted);
+                NetDbg.out("[QuickSort @ {}] Extracted {}x{} from slot {}", ctx.pos(), extracted, variant.getItem(), candidate);
                 TravelingItem travelingItem = new TravelingItem(
                         extractedStack, inventoryDir.getOpposite(),
                         LogisticsPipe.CONFIG.ITEM_MIN_SPEED, destination);
                 ctx.blockEntity().forceAddItem(travelingItem, inventoryDir);
                 tx.commit();
                 // Success: clear stall, record last successful slot
+                if (ctx.getInt(this, STALLED, 0) == 1) NetDbg.out("[QuickSort @ {}] Exiting stall", ctx.pos());
                 ctx.saveInt(this, STALLED, 0);
                 ctx.saveInt(this, LAST_SUCCESS_SLOT, candidate);
             } else {
                 // Slot appeared non-empty but extraction failed (temporarily locked) —
                 // advance past it and back off to the stall delay
                 ctx.saveInt(this, LAST_SLOT_SCANNED, (candidate + 1) % size);
+                if (ctx.getInt(this, STALLED, 0) == 0) NetDbg.out("[QuickSort @ {}] Entering stall (extraction locked for {} in slot {})", ctx.pos(), variant.getItem(), candidate);
                 ctx.saveInt(this, STALLED, 1);
             }
         }

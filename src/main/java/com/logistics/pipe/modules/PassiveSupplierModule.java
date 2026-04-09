@@ -1,6 +1,7 @@
 package com.logistics.pipe.modules;
 
 import com.logistics.core.lib.pipe.ItemAcceptingModule;
+import com.logistics.pipe.network.NetDbg;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.core.lib.pipe.PipeContext;
 import com.logistics.core.lib.network.ILogisticsNetwork;
@@ -65,13 +66,18 @@ public class PassiveSupplierModule extends SupplierModule implements ItemAccepti
         if (network == null) return;
         network.registerSink(ctx.pos(), priority);
         network.unregisterSinkInterests(ctx.pos());
+        int interestCount = 0;
         for (SupplyConfig config : getSupplyConfigs(ctx)) {
             if (config.itemId().isEmpty() || config.amount() <= 0) continue;
             ResourceId rid = ResourceId.tryParse(config.itemId());
             if (rid == null) continue;
-            BuiltInRegistries.ITEM.get(rid.toIdentifier()).ifPresent(holder ->
-                    network.registerSinkInterest(ctx.pos(), holder.value()));
+            var itemHolder = BuiltInRegistries.ITEM.get(rid.toIdentifier());
+            if (itemHolder.isPresent()) {
+                network.registerSinkInterest(ctx.pos(), itemHolder.get().value());
+                interestCount++;
+            }
         }
+        NetDbg.out("[PassiveSupplier @ {}] Synced interests: {} items", ctx.pos(), interestCount);
     }
 
     /**
@@ -108,8 +114,10 @@ public class PassiveSupplierModule extends SupplierModule implements ItemAccepti
 
                 long currentStock = scanInventory(ctx, sinkDir, stack);
                 if (currentStock < config.amount()) {
+                    NetDbg.out("[PassiveSupplier @ {}] Intercepting {} (current={}, target={})", ctx.pos(), stack.getItem(), currentStock, config.amount());
                     return RoutePlan.reroute(sinkDir);
                 }
+                NetDbg.out("[PassiveSupplier @ {}] Passing on {} (current={} >= target={})", ctx.pos(), stack.getItem(), currentStock, config.amount());
             }
         }
 

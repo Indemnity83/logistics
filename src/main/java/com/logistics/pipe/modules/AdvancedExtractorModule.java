@@ -1,6 +1,7 @@
 package com.logistics.pipe.modules;
 
 import com.logistics.LogisticsPipe;
+import com.logistics.pipe.network.NetDbg;
 import com.logistics.core.lib.pipe.Module;
 import com.logistics.core.lib.pipe.TickingModule;
 import com.logistics.core.lib.resource.ResourceId;
@@ -169,10 +170,14 @@ public class AdvancedExtractorModule implements Module, TickingModule {
             for (StorageView<ItemVariant> view : storage) {
                 ItemVariant variant = view.getResource();
                 if (variant.isBlank()) continue;
-                if (isFilteredOut(ctx, variant.toStack())) continue;
+                if (isFilteredOut(ctx, variant.toStack())) {
+                    NetDbg.out("[AdvancedExtractor @ {}] Filtered out {} (mode={})", ctx.pos(), variant.getItem(), isFilterInverted(ctx) ? "exclude" : "include");
+                    continue;
+                }
 
                 long extracted = view.extract(variant, itemsPerPull, tx);
                 if (extracted > 0) {
+                    NetDbg.out("[AdvancedExtractor @ {}] Extracted {}x{} via {}", ctx.pos(), extracted, variant.getItem(), dir);
                     ItemStack stack = variant.toStack((int) extracted);
                     TravelingItem item = new TravelingItem(
                             stack, dir.getOpposite(), LogisticsPipe.CONFIG.ITEM_MIN_SPEED);
