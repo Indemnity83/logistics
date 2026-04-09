@@ -409,7 +409,10 @@ public class PipeBlockEntity extends BaseBlockEntity
 
     @Override
     public @Nullable ILogisticsNetwork getNetwork() {
-        return NetworkRegistry.getNetwork(getLevel(), getBlockPos());
+        // Use getOrCreateNetwork so that pipes loaded from disk (world load) self-register
+        // on their first tick rather than requiring a neighborChanged event.
+        // getOrCreateNetwork returns immediately if the pipe is already mapped (O(1) fast path).
+        return NetworkRegistry.getOrCreateNetwork(getLevel(), getBlockPos());
     }
 
     public PipeContext createContext() {

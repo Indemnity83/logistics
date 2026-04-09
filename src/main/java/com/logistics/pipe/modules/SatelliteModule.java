@@ -2,6 +2,7 @@ package com.logistics.pipe.modules;
 
 import com.logistics.core.lib.pipe.RoutingModule;
 
+import com.logistics.pipe.network.NetDbg;
 import com.logistics.core.lib.pipe.Module;
 import com.logistics.core.lib.pipe.PipeContext;
 import com.logistics.core.lib.pipe.TickingModule;
@@ -47,6 +48,7 @@ public class SatelliteModule implements Module, TickingModule, RoutingModule {
         if (!id.isEmpty()) {
             var network = ctx.network();
             if (network != null) {
+                NetDbg.out("[Satellite @ {}] Registered as satellite '{}' with network", ctx.pos(), id);
                 network.registerSatellite(id, ctx.pos());
             }
         }
@@ -76,14 +78,19 @@ public class SatelliteModule implements Module, TickingModule, RoutingModule {
             if (dirVal >= 0) {
                 Direction sinkDir = Direction.from3DDataValue(dirVal);
                 if (options.contains(sinkDir)) {
+                    NetDbg.out("[Satellite @ {}] Routing {} → {}", ctx.pos(), item.getStack().getItem(), sinkDir);
                     return RoutePlan.reroute(sinkDir);
                 }
             }
             // Fallback: try any inventory connection
             List<Direction> inventoryFaces = ctx.getInventoryConnections();
             for (Direction d : inventoryFaces) {
-                if (options.contains(d)) return RoutePlan.reroute(d);
+                if (options.contains(d)) {
+                    NetDbg.out("[Satellite @ {}] Routing {} → {} (fallback)", ctx.pos(), item.getStack().getItem(), d);
+                    return RoutePlan.reroute(d);
+                }
             }
+            NetDbg.out("[Satellite @ {}] No sink direction, dropping {}", ctx.pos(), item.getStack().getItem());
         }
         return RoutePlan.pass();
     }
@@ -94,6 +101,7 @@ public class SatelliteModule implements Module, TickingModule, RoutingModule {
         if (!id.isEmpty()) {
             var network = ctx.network();
             if (network != null) {
+                NetDbg.out("[Satellite @ {}] Unregistered satellite '{}' from network", ctx.pos(), id);
                 network.unregisterSatellite(id, ctx.pos());
             }
         }
@@ -135,6 +143,7 @@ public class SatelliteModule implements Module, TickingModule, RoutingModule {
         if (!oldId.isEmpty()) {
             var network = ctx.network();
             if (network != null) {
+                NetDbg.out("[Satellite @ {}] Unregistered satellite '{}' from network", ctx.pos(), oldId);
                 network.unregisterSatellite(oldId, ctx.pos());
             }
         }
@@ -142,6 +151,7 @@ public class SatelliteModule implements Module, TickingModule, RoutingModule {
         if (!trimmed.isEmpty()) {
             var network = ctx.network();
             if (network != null) {
+                NetDbg.out("[Satellite @ {}] Registered as satellite '{}' with network", ctx.pos(), trimmed);
                 network.registerSatellite(trimmed, ctx.pos());
             }
         }

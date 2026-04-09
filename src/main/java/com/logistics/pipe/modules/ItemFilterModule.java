@@ -2,6 +2,7 @@ package com.logistics.pipe.modules;
 
 import com.logistics.core.lib.pipe.RoutingModule;
 
+import com.logistics.pipe.network.NetDbg;
 import com.logistics.core.lib.pipe.Module;
 import com.logistics.core.lib.storage.NbtCompat;
 import com.logistics.core.lib.pipe.PipeContext;
@@ -59,8 +60,16 @@ public class ItemFilterModule implements Module, RoutingModule {
             }
         }
 
-        List<Direction> candidates = !matches.isEmpty() ? matches : fallbacks;
-        return RoutePlan.reroute(candidates);
+        if (!matches.isEmpty()) {
+            NetDbg.out("[ItemFilter @ {}] {} matches filter, routing to {}", ctx.pos(), item.getStack().getItem(), matches);
+            return RoutePlan.reroute(matches);
+        }
+        if (!fallbacks.isEmpty()) {
+            NetDbg.out("[ItemFilter @ {}] No filter match for {}, using fallback(s): {}", ctx.pos(), item.getStack().getItem(), fallbacks);
+            return RoutePlan.reroute(fallbacks);
+        }
+        NetDbg.out("[ItemFilter @ {}] No route for {}, dropping", ctx.pos(), item.getStack().getItem());
+        return RoutePlan.reroute(List.of());
     }
 
     @Override

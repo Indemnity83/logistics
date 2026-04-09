@@ -1,6 +1,7 @@
 package com.logistics.pipe.modules;
 
 import com.logistics.LogisticsPipe;
+import com.logistics.pipe.network.NetDbg;
 import com.logistics.core.lib.pipe.Module;
 import com.logistics.core.lib.pipe.TickingModule;
 import com.logistics.core.lib.resource.ResourceId;
@@ -82,7 +83,10 @@ public class BasicExtractorModule implements Module, TickingModule {
 
         BlockPos targetPos = ctx.pos().relative(dir);
         Storage<ItemVariant> storage = ItemStorage.SIDED.find(ctx.world(), targetPos, dir.getOpposite());
-        if (storage == null) return;
+        if (storage == null) {
+            NetDbg.out("[BasicExtractor @ {}] No storage on {}, skipping", ctx.pos(), dir);
+            return;
+        }
 
         boolean anyExtracted = false;
         try (Transaction tx = Transaction.openOuter()) {
@@ -95,6 +99,7 @@ public class BasicExtractorModule implements Module, TickingModule {
                 long extracted = view.extract(variant, toExtract, tx);
                 if (extracted > 0) {
                     ItemStack stack = variant.toStack((int) extracted);
+                    NetDbg.out("[BasicExtractor @ {}] Extracted {}x{} via {}", ctx.pos(), extracted, variant.getItem(), dir);
                     TravelingItem item = new TravelingItem(stack, dir.getOpposite(), LogisticsPipe.CONFIG.ITEM_MIN_SPEED);
                     ctx.blockEntity().forceAddItem(item, dir);
                     remaining -= (int) extracted;
