@@ -3,6 +3,7 @@ package com.logistics.pipe.modules;
 import com.logistics.core.lib.pipe.RoutingModule;
 
 import com.logistics.LogisticsPipe;
+import com.logistics.pipe.network.NetDbg;
 import com.logistics.core.lib.pipe.ItemAcceptingModule;
 import com.logistics.core.lib.pipe.Module;
 import com.logistics.core.lib.resource.ResourceId;
@@ -38,7 +39,10 @@ public class EnchantmentSinkModule implements Module, RoutingModule, ItemAccepti
             setSinkDirection(ctx, null);
             if (!ctx.world().isClientSide()) {
                 ILogisticsNetwork network = ctx.network();
-                if (network != null) network.unregisterSink(ctx.pos());
+                if (network != null) {
+                    NetDbg.out("[EnchantmentSink @ {}] Unregistered from network (no inventory)", ctx.pos());
+                    network.unregisterSink(ctx.pos());
+                }
             }
             return;
         }
@@ -50,6 +54,7 @@ public class EnchantmentSinkModule implements Module, RoutingModule, ItemAccepti
         if (!ctx.world().isClientSide()) {
             ILogisticsNetwork network = ctx.network();
             if (network != null) {
+                NetDbg.out("[EnchantmentSink @ {}] Registered with network (priority={})", ctx.pos(), priority);
                 network.registerSink(ctx.pos(), priority);
                 network.registerGenericSinkInterest(ctx.pos()); // enchantment check is dynamic
             }
@@ -60,7 +65,10 @@ public class EnchantmentSinkModule implements Module, RoutingModule, ItemAccepti
     public void onDetach(PipeContext ctx) {
         if (!ctx.world().isClientSide()) {
             ILogisticsNetwork network = ctx.network();
-            if (network != null) network.unregisterSink(ctx.pos()); // also clears interests
+            if (network != null) {
+                NetDbg.out("[EnchantmentSink @ {}] Unregistered from network (detach)", ctx.pos());
+                network.unregisterSink(ctx.pos()); // also clears interests
+            }
         }
     }
 
@@ -70,9 +78,12 @@ public class EnchantmentSinkModule implements Module, RoutingModule, ItemAccepti
         if (sinkDir == null || !options.contains(sinkDir)) {
             return RoutePlan.pass();
         }
-        if (matchesItem(item.getStack())) {
+        boolean isEnchanted = matchesItem(item.getStack());
+        if (isEnchanted) {
+            NetDbg.out("[EnchantmentSink @ {}] Accepting enchanted {} → {}", ctx.pos(), item.getStack().getItem(), sinkDir);
             return RoutePlan.reroute(sinkDir);
         }
+        NetDbg.out("[EnchantmentSink @ {}] Rejecting {} (enchanted={})", ctx.pos(), item.getStack().getItem(), false);
         return RoutePlan.pass();
     }
 

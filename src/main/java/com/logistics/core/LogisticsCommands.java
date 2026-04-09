@@ -39,8 +39,8 @@ public final class LogisticsCommands {
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) ->
             dispatcher.register(
                 Commands.literal("logistics")
+                    .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
                     .then(Commands.literal("debug")
-                        .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
                         .executes(ctx -> {
                             List<String> registered = sortedDomains();
                             Set<String> enabled = DebugLog.getEnabledDomains();

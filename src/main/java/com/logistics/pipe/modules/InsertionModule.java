@@ -2,6 +2,7 @@ package com.logistics.pipe.modules;
 
 import com.logistics.core.lib.pipe.RoutingModule;
 
+import com.logistics.pipe.network.NetDbg;
 import com.logistics.core.lib.pipe.Module;
 import com.logistics.core.lib.pipe.PipeContext;
 import com.logistics.core.lib.pipe.RoutePlan;
@@ -48,21 +49,26 @@ public class InsertionModule implements Module, RoutingModule {
         }
 
         if (!inventoryWithSpace.isEmpty()) {
+            NetDbg.out("[Insertion @ {}] Routing {} → full-capacity inventory {}", ctx.pos(), item.getStack().getItem(), inventoryWithSpace);
             return RoutePlan.reroute(inventoryWithSpace);
         }
 
         if (!inventoryWithPartialSpace.isEmpty() && !pipeDirections.isEmpty()) {
+            NetDbg.out("[Insertion @ {}] Routing {} → split (partial inventory + pipes)", ctx.pos(), item.getStack().getItem());
             return splitToInventoryAndPipes(ctx, item, inventoryWithPartialSpace, partialAmounts, pipeDirections);
         }
 
         if (!inventoryWithPartialSpace.isEmpty()) {
+            NetDbg.out("[Insertion @ {}] Routing {} → partial-capacity inventory {}", ctx.pos(), item.getStack().getItem(), inventoryWithPartialSpace);
             return RoutePlan.reroute(inventoryWithPartialSpace);
         }
 
         if (!pipeDirections.isEmpty()) {
+            NetDbg.out("[Insertion @ {}] Routing {} → pipes {}", ctx.pos(), item.getStack().getItem(), pipeDirections);
             return RoutePlan.reroute(pipeDirections);
         }
 
+        NetDbg.out("[Insertion @ {}] No route for {}, dropping", ctx.pos(), item.getStack().getItem());
         return RoutePlan.drop();
     }
 

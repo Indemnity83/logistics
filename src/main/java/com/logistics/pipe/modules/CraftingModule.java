@@ -4,6 +4,7 @@ import com.logistics.core.lib.pipe.RoutingModule;
 import com.logistics.core.lib.pipe.TransferHandlerModule;
 
 import com.logistics.LogisticsPipe;
+import com.logistics.pipe.network.NetDbg;
 import com.logistics.core.lib.pipe.*;
 import com.logistics.core.lib.pipe.Module;
 import com.logistics.pipe.network.CraftBatchingService;
@@ -400,7 +401,10 @@ public class CraftingModule implements Module, TickingModule, RoutingModule, Dis
         }
 
         if (!collectedResult.isEmpty()) {
+            NetDbg.out("[Crafter @ {}] Performed {} craft batch(es) → {}x{}", ctx.pos(), batchesDone, collectedResult.getCount(), collectedResult.getItem());
             onExternalInsert(ctx, collectedResult, autocrafterDir);
+        } else if (batchesDone == 0) {
+            NetDbg.out("[Crafter @ {}] Recipe incomplete after {} batches", ctx.pos(), batchesDone);
         }
 
         if (batchesDone > 0) {
@@ -439,12 +443,21 @@ public class CraftingModule implements Module, TickingModule, RoutingModule, Dis
     public long onDispatch(
             PipeContext ctx, BlockPos requester, ItemVariant item, long amount, UUID deliveryId) {
         String resultId = getResultItem(ctx);
-        if (resultId.isEmpty()) return 0;
+        if (resultId.isEmpty()) {
+            NetDbg.out("[Crafter @ {}] Dispatch rejected: no result configured", ctx.pos());
+            return 0;
+        }
         Direction autocrafterDir = findAutocrafterDirection(ctx);
-        if (autocrafterDir == null) return 0;
+        if (autocrafterDir == null) {
+            NetDbg.out("[Crafter @ {}] Dispatch rejected: no autocrafter found", ctx.pos());
+            return 0;
+        }
 
         ItemStack resultStack = resolveItem(resultId);
-        if (resultStack.isEmpty() || !item.matches(resultStack)) return 0;
+        if (resultStack.isEmpty() || !item.matches(resultStack)) {
+            NetDbg.out("[Crafter @ {}] Dispatch rejected: item mismatch (requested={}, result={})", ctx.pos(), item, resultId);
+            return 0;
+        }
 
         if (amount <= 0) return 0;
 
@@ -452,12 +465,18 @@ public class CraftingModule implements Module, TickingModule, RoutingModule, Dis
         if (network == null) return 0;
 
         int resultCount = getResultCount(ctx);
-        if (resultCount <= 0) return 0;
+        if (resultCount <= 0) {
+            NetDbg.out("[Crafter @ {}] Dispatch rejected: resultCount={}", ctx.pos(), resultCount);
+            return 0;
+        }
 
         // Cap batches to what the autocrafter's input buffer can currently absorb
         CrafterBufferState bufferState = computeBufferState(ctx, autocrafterDir);
         long batchCount = new CraftBatchingService().safeBatchCount(amount, resultCount, bufferState);
-        if (batchCount <= 0) return -1; // buffer full: defer, don't remove from supply table
+        if (batchCount <= 0) {
+            NetDbg.out("[Crafter @ {}] Dispatch rejected: buffer full", ctx.pos());
+            return -1; // buffer full: defer, don't remove from supply table
+        }
 
         // Cap to the originally-requested amount: the recipe may produce more per batch than was
         // ordered (e.g. 4 planks/craft for a 2-plank order). Committing only what was requested
@@ -474,7 +493,10 @@ public class CraftingModule implements Module, TickingModule, RoutingModule, Dis
         }
 
         // No ingredients configured — reject the dispatch
-        if (totalNeededByItem.isEmpty()) return 0;
+        if (totalNeededByItem.isEmpty()) {
+            NetDbg.out("[Crafter @ {}] Dispatch rejected: no ingredients configured", ctx.pos());
+            return 0;
+        }
 
         // Pre-validate all ingredients before placing any orders — fail fast so we never
         // queue a craft with a missing ingredient order that will never arrive.
@@ -576,6 +598,7 @@ public class CraftingModule implements Module, TickingModule, RoutingModule, Dis
         queue.add(queueEntry);
         saveQueue(ctx, queue);
         ctx.saveInt(this, TICKS_PULSE, 0);
+        NetDbg.out("[Crafter @ {}] Queue entry created: {}x{} for requester {} ({} batches)", ctx.pos(), actualAmount, resultId, requester, batchCount);
 
         // Blocking mode: immediately suppress supply so no further orders arrive
         if (isBlocking(ctx)) {
