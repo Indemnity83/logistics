@@ -2,6 +2,7 @@ package com.logistics.pipe.render;
 
 import com.logistics.LogisticsPipe;
 import com.logistics.LogisticsPipeClient;
+import com.logistics.core.DebugLog;
 import com.logistics.core.lib.block.capability.PipeConnection;
 import com.logistics.core.lib.pipe.CoreDecoration;
 import com.logistics.core.lib.resource.ResourceId;
@@ -86,7 +87,7 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
             Vec3 cameraPos,
             net.minecraft.client.renderer.feature.ModelFeatureRenderer.CrumblingOverlay crumblingOverlay) {
 
-        boolean debugRender = debugRender;
+        boolean debugRender = DebugLog.isEnabled("render");
         long t0 = debugRender ? profiler.startExtract() : 0;
 
         // Update base block entity render state
@@ -210,6 +211,7 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
     public void submit(
             PipeRenderState state, PoseStack matrices, SubmitNodeCollector queue, CameraRenderState cameraState) {
 
+        boolean debugRender = DebugLog.isEnabled("render");
         long t0 = debugRender ? profiler.startSubmit() : 0;
 
         if (!state.models.isEmpty()) {
