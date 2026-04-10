@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.2](https://github.com/Indemnity83/logistics/compare/mc1.21.1-v0.5.1...mc1.21.1-v0.5.2) (2026-04-10)
+
+
+### Bug Fixes
+
+* resolve pipe network registration issues on load ([#269](https://github.com/Indemnity83/logistics/issues/269)) ([4b32de3](https://github.com/Indemnity83/logistics/commit/4b32de3e24b69ca7b1b7524a02b95c7f88b2b02e))
+
 ## [0.5.1](https://github.com/Indemnity83/logistics/compare/mc1.21.1-v0.5.0...mc1.21.1-v0.5.1) (2026-04-06)
 
 
