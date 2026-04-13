@@ -1377,6 +1377,12 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity implements PipeConne
         return customMaxZ;
     }
 
+    /** True if the quarry has been placed but hasn't started any clearing yet. */
+    public boolean isFreshlyPlaced() {
+        return currentPhase == Phase.CLEARING
+                && miningX == 0 && miningY == 0 && miningZ == 0 && breakProgress == 0;
+    }
+
     public static List<BlockPos> getActiveQuarries(ServerLevel world) {
         ResourceKey<Level> key = world.dimension();
         Map<Long, Long> entries = ACTIVE_QUARRIES.get(key);

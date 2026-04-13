@@ -62,6 +62,7 @@ public final class LogisticsAutomationClient implements DomainBootstrap {
         private static final ModelKeyRegistry REGISTRY = new ModelKeyRegistry(name -> LogisticsAutomation.model(name).toIdentifier());
 
         public static final ResourceLocation BEAM = REGISTRY.registerModel("marker_beam");
+        public static final ResourceLocation CONSTRUCTION_BEAM = REGISTRY.registerModel("construction_beam");
         public static final ResourceLocation ARM = REGISTRY.registerModel("laser_quarry_gantry_arm");
         public static final ResourceLocation DRILL = REGISTRY.registerModel("laser_quarry_drill");
         public static final ResourceLocation LED_GREEN = REGISTRY.registerModel("laser_quarry_led_green");

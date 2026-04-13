@@ -107,8 +107,9 @@ public class LaserQuarryBlockEntityRenderer implements BlockEntityRenderer<Laser
 
         // Only render arm during mining phase when arm is initialized
         boolean shouldRenderArm = (entity.getCurrentPhase() == LaserQuarryBlockEntity.Phase.MINING) && entity.isArmInitialized();
+        boolean shouldRenderPreviewOutline = entity.isFreshlyPlaced();
 
-        if (!shouldRenderArm) {
+        if (!shouldRenderArm && !shouldRenderPreviewOutline) {
             return;
         }
 
@@ -126,7 +127,7 @@ public class LaserQuarryBlockEntityRenderer implements BlockEntityRenderer<Laser
 
         Direction facing = LaserQuarryBlock.getMiningDirection(blockState);
 
-        // Calculate frame bounds
+        // Calculate frame bounds - needed for both arm rendering and preview outline
         int frameStartX;
         int frameStartZ;
         int frameEndX;
@@ -162,6 +163,16 @@ public class LaserQuarryBlockEntityRenderer implements BlockEntityRenderer<Laser
             frameEndZ = frameStartZ + LaserQuarryConfig.CHUNK_SIZE - 1;
         }
         int frameTopY = quarryPos.getY() + LaserQuarryConfig.Y_OFFSET_ABOVE;
+
+        if (shouldRenderPreviewOutline) {
+            renderFramePreviewOutline(
+                    entity, quarryPos, frameStartX, frameStartZ, frameEndX, frameEndZ,
+                    matrices, bufferSource, packedOverlay);
+        }
+
+        if (!shouldRenderArm) {
+            return;
+        }
 
         BakedModel armModel = getModel(LogisticsAutomationClient.MODEL.ARM);
         if (armModel == null) {
@@ -515,6 +526,105 @@ public class LaserQuarryBlockEntityRenderer implements BlockEntityRenderer<Laser
         int aboveLight = LightTexture.pack(blockLightAbove, skyLightAbove);
         renderModelTranslucent(entity, hatch, matrices, bufferSource, aboveLight, packedOverlay);
         matrices.popPose();
+    }
+
+    private void renderFramePreviewOutline(
+            LaserQuarryBlockEntity entity,
+            BlockPos quarryPos,
+            int frameStartX,
+            int frameStartZ,
+            int frameEndX,
+            int frameEndZ,
+            PoseStack matrices,
+            MultiBufferSource bufferSource,
+            int packedOverlay) {
+        BakedModel beamModel = getModel(LogisticsAutomationClient.MODEL.CONSTRUCTION_BEAM);
+        if (beamModel == null) {
+            return;
+        }
+
+        int lightmap = LightTexture.FULL_BRIGHT;
+
+        float qx = quarryPos.getX();
+        float qz = quarryPos.getZ();
+
+        float relStartX = frameStartX - qx;
+        float relEndX = frameEndX - qx;
+        float relStartZ = frameStartZ - qz;
+        float relEndZ = frameEndZ - qz;
+
+        int width = frameEndX - frameStartX;
+        int depth = frameEndZ - frameStartZ;
+        int height = LaserQuarryConfig.Y_OFFSET_ABOVE;
+
+        // Bottom ring (at quarry Y level, relY = 0)
+        renderOutlineHorizontalEdge(entity, beamModel, matrices, bufferSource, lightmap, packedOverlay, relStartX, 0, relStartZ, width, 90);
+        renderOutlineHorizontalEdge(entity, beamModel, matrices, bufferSource, lightmap, packedOverlay, relStartX, 0, relEndZ, width, 90);
+        renderOutlineHorizontalEdge(entity, beamModel, matrices, bufferSource, lightmap, packedOverlay, relStartX, 0, relStartZ, depth, 0);
+        renderOutlineHorizontalEdge(entity, beamModel, matrices, bufferSource, lightmap, packedOverlay, relEndX, 0, relStartZ, depth, 0);
+
+        // Top ring (at quarry Y + Y_OFFSET_ABOVE)
+        float topY = LaserQuarryConfig.Y_OFFSET_ABOVE;
+        renderOutlineHorizontalEdge(entity, beamModel, matrices, bufferSource, lightmap, packedOverlay, relStartX, topY, relStartZ, width, 90);
+        renderOutlineHorizontalEdge(entity, beamModel, matrices, bufferSource, lightmap, packedOverlay, relStartX, topY, relEndZ, width, 90);
+        renderOutlineHorizontalEdge(entity, beamModel, matrices, bufferSource, lightmap, packedOverlay, relStartX, topY, relStartZ, depth, 0);
+        renderOutlineHorizontalEdge(entity, beamModel, matrices, bufferSource, lightmap, packedOverlay, relEndX, topY, relStartZ, depth, 0);
+
+        // Vertical corner edges
+        renderOutlineVerticalEdge(entity, beamModel, matrices, bufferSource, lightmap, packedOverlay, relStartX, 0, relStartZ, height);
+        renderOutlineVerticalEdge(entity, beamModel, matrices, bufferSource, lightmap, packedOverlay, relEndX, 0, relStartZ, height);
+        renderOutlineVerticalEdge(entity, beamModel, matrices, bufferSource, lightmap, packedOverlay, relStartX, 0, relEndZ, height);
+        renderOutlineVerticalEdge(entity, beamModel, matrices, bufferSource, lightmap, packedOverlay, relEndX, 0, relEndZ, height);
+    }
+
+    private void renderOutlineHorizontalEdge(
+            LaserQuarryBlockEntity entity,
+            BakedModel beamModel,
+            PoseStack matrices,
+            MultiBufferSource bufferSource,
+            int lightmap,
+            int packedOverlay,
+            float relX,
+            float relY,
+            float relZ,
+            int length,
+            float yRotation) {
+        for (int i = 0; i < length; i++) {
+            matrices.pushPose();
+            matrices.translate(relX + 0.5, relY - 0.0625, relZ + 0.5);
+            matrices.mulPose(Axis.YP.rotationDegrees(yRotation));
+            matrices.translate(0, 0, i);
+            matrices.translate(-0.5, 0, 0);
+            renderModel(entity, beamModel, matrices, bufferSource, lightmap, packedOverlay);
+            matrices.popPose();
+        }
+    }
+
+    private void renderOutlineVerticalEdge(
+            LaserQuarryBlockEntity entity,
+            BakedModel beamModel,
+            PoseStack matrices,
+            MultiBufferSource bufferSource,
+            int lightmap,
+            int packedOverlay,
+            float relX,
+            float relStartY,
+            float relZ,
+            int height) {
+        // After Axis.XP.rotationDegrees(-90): local X→world X, local Z→world +Y, local Y→world -Z.
+        // translate(-0.5, 0, 0) centers in world X.
+        // Model Y center is 9.0/16 = 0.5625 (not 0.5), so Z translation uses relZ+1.0625 to center
+        // the beam cross-section at relZ+0.5 (world Z = translationZ - modelYCenter = relZ+1.0625 - 0.5625).
+        // Renders height segments offset by +0.5 so the column spans Y=relStartY+0.5 to relStartY+height+0.5,
+        // matching the horizontal ring beam centers (bottom ring centered at +0.5, top ring at +height+0.5).
+        for (int i = 0; i < height; i++) {
+            matrices.pushPose();
+            matrices.translate(relX + 0.5, relStartY + 0.5 + i, relZ + 1.0625);
+            matrices.mulPose(Axis.XP.rotationDegrees(-90));
+            matrices.translate(-0.5, 0, 0);
+            renderModel(entity, beamModel, matrices, bufferSource, lightmap, packedOverlay);
+            matrices.popPose();
+        }
     }
 
     /**
