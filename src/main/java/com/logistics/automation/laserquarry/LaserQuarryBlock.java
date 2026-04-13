@@ -91,11 +91,11 @@ public class LaserQuarryBlock extends BaseEntityBlock implements ProbeBehavior.P
             if (placer instanceof ServerPlayer serverPlayer) {
                 int width, depth;
                 if (bounds != null) {
-                    width = bounds.max().getX() - bounds.min().getX() + 1;
-                    depth = bounds.max().getZ() - bounds.min().getZ() + 1;
+                    width = Math.max(0, bounds.max().getX() - bounds.min().getX() - 1);
+                    depth = Math.max(0, bounds.max().getZ() - bounds.min().getZ() - 1);
                 } else {
-                    width = LaserQuarryConfig.CHUNK_SIZE;
-                    depth = LaserQuarryConfig.CHUNK_SIZE;
+                    width = LaserQuarryConfig.INNER_SIZE;
+                    depth = LaserQuarryConfig.INNER_SIZE;
                 }
                 serverPlayer.sendSystemMessage(
                         Component.translatable("laser_quarry.area_preview", width, depth), true);

@@ -76,6 +76,7 @@ public class LaserQuarryBlockEntityRenderer implements BlockEntityRenderer<Laser
         Level level = entity.getLevel();
         if (level == null) {
             state.shouldRenderArm = false;
+            state.shouldRenderPreviewOutline = false;
             return;
         }
 
@@ -83,6 +84,7 @@ public class LaserQuarryBlockEntityRenderer implements BlockEntityRenderer<Laser
         BlockState blockState = level.getBlockState(state.quarryPos);
         if (!(blockState.getBlock() instanceof LaserQuarryBlock)) {
             state.shouldRenderArm = false;
+            state.shouldRenderPreviewOutline = false;
             return;
         }
 
