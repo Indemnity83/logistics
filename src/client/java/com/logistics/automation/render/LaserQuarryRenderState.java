@@ -14,6 +14,7 @@ import net.minecraft.world.level.Level;
  */
 public class LaserQuarryRenderState extends BlockEntityRenderState {
     public boolean shouldRenderArm = false;
+    public boolean shouldRenderPreviewOutline = false;
     public BlockPos quarryPos = BlockPos.ZERO;
     public Direction facing = Direction.NORTH;
 
