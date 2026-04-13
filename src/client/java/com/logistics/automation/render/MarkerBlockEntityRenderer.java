@@ -198,9 +198,9 @@ public class MarkerBlockEntityRenderer implements BlockEntityRenderer<MarkerBloc
                     matrices,
                     renderLayer,
                     parts,
-                    new int[]{lightmap},
+                    new int[]{0xFFFFFF},
+                    lightmap,
                     OverlayTexture.NO_OVERLAY,
-                    0,
                     0);
             matrices.popPose();
         }

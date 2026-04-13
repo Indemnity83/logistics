@@ -76,6 +76,7 @@ public class LaserQuarryBlockEntityRenderer implements BlockEntityRenderer<Laser
         Level level = entity.getLevel();
         if (level == null) {
             state.shouldRenderArm = false;
+            state.shouldRenderPreviewOutline = false;
             return;
         }
 
@@ -83,6 +84,7 @@ public class LaserQuarryBlockEntityRenderer implements BlockEntityRenderer<Laser
         BlockState blockState = level.getBlockState(state.quarryPos);
         if (!(blockState.getBlock() instanceof LaserQuarryBlock)) {
             state.shouldRenderArm = false;
+            state.shouldRenderPreviewOutline = false;
             return;
         }
 
@@ -104,11 +106,8 @@ public class LaserQuarryBlockEntityRenderer implements BlockEntityRenderer<Laser
         // Only render arm during mining phase when arm is initialized
         state.shouldRenderArm = (state.phase == LaserQuarryBlockEntity.Phase.MINING) && entity.isArmInitialized();
 
-        if (!state.shouldRenderArm) {
-            return;
-        }
-
-        // Calculate frame bounds - use custom bounds if available, otherwise calculate from facing
+        // Calculate frame bounds - used for arm rendering and preview outline
+        // Must be computed before the early return so the preview outline has access to bounds
         BlockPos quarryPos = state.quarryPos;
         if (entity.hasCustomBounds()) {
             state.frameStartX = entity.getCustomMinX();
@@ -135,12 +134,19 @@ public class LaserQuarryBlockEntityRenderer implements BlockEntityRenderer<Laser
                     break;
                 default:
                     state.shouldRenderArm = false;
+                    state.shouldRenderPreviewOutline = false;
                     return;
             }
             state.frameEndX = state.frameStartX + LaserQuarryConfig.CHUNK_SIZE - 1;
             state.frameEndZ = state.frameStartZ + LaserQuarryConfig.CHUNK_SIZE - 1;
         }
         state.frameTopY = quarryPos.getY() + LaserQuarryConfig.Y_OFFSET_ABOVE;
+
+        state.shouldRenderPreviewOutline = entity.isFreshlyPlaced();
+
+        if (!state.shouldRenderArm) {
+            return;
+        }
 
         // Sample light at the center of the frame top for more accurate lighting
         int centerX = (state.frameStartX + state.frameEndX) / 2;
@@ -162,6 +168,10 @@ public class LaserQuarryBlockEntityRenderer implements BlockEntityRenderer<Laser
         // Always render LEDs and overlays
         renderLEDs(state, matrices, queue);
         renderTopHatch(state, matrices, queue);
+
+        if (state.shouldRenderPreviewOutline) {
+            renderFramePreviewOutline(state, matrices, queue);
+        }
 
         if (!state.shouldRenderArm) {
             return;
@@ -435,6 +445,101 @@ public class LaserQuarryBlockEntityRenderer implements BlockEntityRenderer<Laser
         hatch.collectParts(RandomSource.create(0), hatchParts);
         queue.submitBlockModel(matrices, renderLayer, hatchParts, new int[]{0xFFFFFF}, state.aboveLight, OverlayTexture.NO_OVERLAY, 0);
         matrices.popPose();
+    }
+
+    private void renderFramePreviewOutline(
+            LaserQuarryRenderState state, PoseStack matrices, SubmitNodeCollector queue) {
+        BlockStateModel beamModel = getModel(LogisticsAutomationClient.MODEL.CONSTRUCTION_BEAM);
+        if (beamModel == null) {
+            return;
+        }
+
+        RenderType renderLayer = RenderTypes.cutoutMovingBlock();
+        int lightmap = LightCoordsUtil.FULL_BRIGHT;
+
+        List<BlockStateModelPart> parts = new ArrayList<>();
+        beamModel.collectParts(RandomSource.create(0), parts);
+
+        float qx = state.quarryPos.getX();
+        float qz = state.quarryPos.getZ();
+
+        float relStartX = state.frameStartX - qx;
+        float relEndX = state.frameEndX - qx;
+        float relStartZ = state.frameStartZ - qz;
+        float relEndZ = state.frameEndZ - qz;
+
+        int width = state.frameEndX - state.frameStartX;
+        int depth = state.frameEndZ - state.frameStartZ;
+        int height = LaserQuarryConfig.Y_OFFSET_ABOVE;
+
+        // Bottom ring (at quarry Y level, relY = 0)
+        renderOutlineHorizontalEdge(matrices, queue, parts, renderLayer, lightmap, relStartX, 0, relStartZ, width, 90);
+        renderOutlineHorizontalEdge(matrices, queue, parts, renderLayer, lightmap, relStartX, 0, relEndZ, width, 90);
+        renderOutlineHorizontalEdge(matrices, queue, parts, renderLayer, lightmap, relStartX, 0, relStartZ, depth, 0);
+        renderOutlineHorizontalEdge(matrices, queue, parts, renderLayer, lightmap, relEndX, 0, relStartZ, depth, 0);
+
+        // Top ring (at quarry Y + Y_OFFSET_ABOVE)
+        float topY = LaserQuarryConfig.Y_OFFSET_ABOVE;
+        renderOutlineHorizontalEdge(matrices, queue, parts, renderLayer, lightmap, relStartX, topY, relStartZ, width, 90);
+        renderOutlineHorizontalEdge(matrices, queue, parts, renderLayer, lightmap, relStartX, topY, relEndZ, width, 90);
+        renderOutlineHorizontalEdge(matrices, queue, parts, renderLayer, lightmap, relStartX, topY, relStartZ, depth, 0);
+        renderOutlineHorizontalEdge(matrices, queue, parts, renderLayer, lightmap, relEndX, topY, relStartZ, depth, 0);
+
+        // Vertical corner edges
+        renderOutlineVerticalEdge(matrices, queue, parts, renderLayer, lightmap, relStartX, 0, relStartZ, height);
+        renderOutlineVerticalEdge(matrices, queue, parts, renderLayer, lightmap, relEndX, 0, relStartZ, height);
+        renderOutlineVerticalEdge(matrices, queue, parts, renderLayer, lightmap, relStartX, 0, relEndZ, height);
+        renderOutlineVerticalEdge(matrices, queue, parts, renderLayer, lightmap, relEndX, 0, relEndZ, height);
+    }
+
+    private void renderOutlineHorizontalEdge(
+            PoseStack matrices,
+            SubmitNodeCollector queue,
+            List<BlockStateModelPart> parts,
+            RenderType renderLayer,
+            int lightmap,
+            float relX,
+            float relY,
+            float relZ,
+            int length,
+            float yRotation) {
+        for (int i = 0; i < length; i++) {
+            matrices.pushPose();
+            matrices.translate(relX + 0.5, relY - 0.0625, relZ + 0.5);
+            matrices.mulPose(Axis.YP.rotationDegrees(yRotation));
+            matrices.translate(0, 0, i);
+            matrices.translate(-0.5, 0, 0);
+            queue.submitBlockModel(
+                    matrices, renderLayer, parts, new int[]{0xFFFFFF}, lightmap, OverlayTexture.NO_OVERLAY, 0);
+            matrices.popPose();
+        }
+    }
+
+    private void renderOutlineVerticalEdge(
+            PoseStack matrices,
+            SubmitNodeCollector queue,
+            List<BlockStateModelPart> parts,
+            RenderType renderLayer,
+            int lightmap,
+            float relX,
+            float relStartY,
+            float relZ,
+            int height) {
+        // After Axis.XP.rotationDegrees(-90): local X→world X, local Z→world +Y, local Y→world -Z.
+        // translate(-0.5, 0, 0) centers in world X.
+        // Model Y center is 9.0/16 = 0.5625 (not 0.5), so Z translation uses relZ+1.0625 to center
+        // the beam cross-section at relZ+0.5 (world Z = translationZ - modelYCenter = relZ+1.0625 - 0.5625).
+        // Renders height segments offset by +0.5 so the column spans Y=relStartY+0.5 to relStartY+height+0.5,
+        // matching the horizontal ring beam centers (bottom ring centered at +0.5, top ring at +height+0.5).
+        for (int i = 0; i < height; i++) {
+            matrices.pushPose();
+            matrices.translate(relX + 0.5, relStartY + 0.5 + i, relZ + 1.0625);
+            matrices.mulPose(Axis.XP.rotationDegrees(-90));
+            matrices.translate(-0.5, 0, 0);
+            queue.submitBlockModel(
+                    matrices, renderLayer, parts, new int[]{0xFFFFFF}, lightmap, OverlayTexture.NO_OVERLAY, 0);
+            matrices.popPose();
+        }
     }
 
     @Override
