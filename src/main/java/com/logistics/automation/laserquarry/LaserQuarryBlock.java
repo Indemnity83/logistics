@@ -6,6 +6,7 @@ import com.logistics.core.lib.block.behavior.ProbeBehavior;
 import com.logistics.core.lib.support.ProbeResult;
 import com.logistics.automation.marker.MarkerManager;
 import com.mojang.serialization.MapCodec;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.state.BlockState;
@@ -13,6 +14,7 @@ import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -83,6 +85,20 @@ public class LaserQuarryBlock extends BaseEntityBlock implements ProbeBehavior.P
                     // Break all markers in the configuration
                     MarkerManager.breakMarkers(world, bounds.allMarkers());
                 }
+            }
+
+            // Show action bar message with mining area dimensions
+            if (placer instanceof ServerPlayer serverPlayer) {
+                int width, depth;
+                if (bounds != null) {
+                    width = bounds.max().getX() - bounds.min().getX() + 1;
+                    depth = bounds.max().getZ() - bounds.min().getZ() + 1;
+                } else {
+                    width = LaserQuarryConfig.CHUNK_SIZE;
+                    depth = LaserQuarryConfig.CHUNK_SIZE;
+                }
+                serverPlayer.sendSystemMessage(
+                        Component.translatable("laser_quarry.area_preview", width, depth), true);
             }
         }
     }

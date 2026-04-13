@@ -64,6 +64,7 @@ public final class LogisticsAutomationClient implements DomainBootstrap {
         private static final ModelKeyRegistry REGISTRY = new ModelKeyRegistry(LogisticsAutomation::model);
 
         public static final ExtraModelKey<BlockStateModel> BEAM = REGISTRY.registerModel("marker_beam");
+        public static final ExtraModelKey<BlockStateModel> CONSTRUCTION_BEAM = REGISTRY.registerModel("construction_beam");
         public static final ExtraModelKey<BlockStateModel> ARM = REGISTRY.registerModel("laser_quarry_gantry_arm");
         public static final ExtraModelKey<BlockStateModel> DRILL = REGISTRY.registerModel("laser_quarry_drill");
         public static final ExtraModelKey<BlockStateModel> LED_GREEN = REGISTRY.registerModel("laser_quarry_led_green");
