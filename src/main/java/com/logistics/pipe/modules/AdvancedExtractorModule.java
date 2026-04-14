@@ -1,6 +1,7 @@
 package com.logistics.pipe.modules;
 
 import com.logistics.LogisticsPipe;
+import com.logistics.core.LogisticsConfig;
 import com.logistics.pipe.network.NetDbg;
 import com.logistics.core.lib.pipe.Module;
 import com.logistics.core.lib.pipe.TickingModule;
@@ -180,7 +181,7 @@ public class AdvancedExtractorModule implements Module, TickingModule {
                     NetDbg.out("[AdvancedExtractor @ {}] Extracted {}x{} via {}", ctx.pos(), extracted, variant.getItem(), dir);
                     ItemStack stack = variant.toStack((int) extracted);
                     TravelingItem item = new TravelingItem(
-                            stack, dir.getOpposite(), LogisticsPipe.CONFIG.ITEM_MIN_SPEED);
+                            stack, dir.getOpposite(), LogisticsConfig.get().pipe.minSpeed);
                     ctx.blockEntity().forceAddItem(item, dir);
                     tx.commit();
                     return;

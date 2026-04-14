@@ -4,9 +4,10 @@ import com.logistics.LogisticsAutomation;
 import com.logistics.api.LogisticsApi;
 import com.logistics.api.TransportApi;
 import com.logistics.automation.laserquarry.LaserQuarryBlock;
-import com.logistics.automation.laserquarry.LaserQuarryConfig;
+import com.logistics.automation.laserquarry.LaserQuarryGeometry;
 import com.logistics.automation.laserquarry.LaserQuarryFrameBlock;
 import com.logistics.automation.render.ClientRenderCacheHooks;
+import com.logistics.core.LogisticsConfig;
 import com.logistics.core.lib.BaseBlockEntity;
 import com.logistics.core.lib.energy.EnergyComponent;
 import com.logistics.core.lib.block.capability.HasEnergyStorage;
@@ -37,6 +38,8 @@ import team.reborn.energy.api.EnergyStorage;
 public class LaserQuarryBlockEntity extends BaseBlockEntity implements PipeConnection, HasEnergyStorage {
     private static final long REGISTRY_TTL_TICKS = 200L;
     private static final Map<ResourceKey<Level>, Map<Long, Long>> ACTIVE_QUARRIES = new HashMap<>();
+    private static final long FRAME_BUILD_COST = 240L;
+    private static final long MOVE_COST_BUFFER_DIVISOR = 10L;
 
     /**
      * Quarry operation phases.
@@ -58,8 +61,8 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity implements PipeConne
 
     // Energy storage
     private final EnergyComponent energy = new EnergyComponent(
-            LaserQuarryConfig.ENERGY_CAPACITY,
-            LaserQuarryConfig.MAX_ENERGY_INPUT,
+            LogisticsConfig.get().quarry.energyCapacity(),
+            LogisticsConfig.get().quarry.maxEnergyInput(),
             0,
             this::setChanged
     );
@@ -99,7 +102,7 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity implements PipeConne
     private boolean armInitialized = false; // Whether arm position has been set
     private int settlingTicksRemaining = 0; // Countdown for SETTLING state
     private int expectedTravelTicks = 0; // Expected ticks to reach target (for settling calculation)
-    private float syncedArmSpeed = LaserQuarryConfig.ARM_SPEED; // Speed synced to clients for interpolation
+    private float syncedArmSpeed = 0.0f; // Pre-sync default; overwritten each tick by getEffectiveArmSpeed()
 
     public LaserQuarryBlockEntity(BlockPos pos, BlockState state) {
         super(LogisticsAutomation.ENTITY.LASER_QUARRY_BLOCK_ENTITY, pos, state);
@@ -182,7 +185,7 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity implements PipeConne
         // Skip quickly through blocks at or above quarry level
         BlockPos target = null;
         BlockState targetState = null;
-        for (int skipped = 0; skipped < LaserQuarryConfig.MAX_SKIP_PER_TICK; skipped++) {
+        for (int skipped = 0; skipped < LogisticsConfig.get().quarry.scanRate; skipped++) {
             target = entity.calculateClearingTargetPos(state);
             if (target == null) {
                 // Finished clearing, move to building phase
@@ -210,7 +213,7 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity implements PipeConne
         if (!target.equals(entity.currentTarget) || entity.currentBreakTime < 0) {
             entity.currentTarget = target;
             float hardness = targetState.getDestroySpeed(world, target);
-            entity.currentBreakTime = (float) (LaserQuarryConfig.BREAK_ENERGY_MULTIPLIER * (hardness + 1));
+            entity.currentBreakTime = (float) (LogisticsConfig.get().quarry.energyPerBlockMultiplier() * (hardness + 1));
             entity.breakProgress = 0;
         }
 
@@ -232,7 +235,7 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity implements PipeConne
     private static void tickBuildingFrame(
             ServerLevel world, BlockPos pos, BlockState state, LaserQuarryBlockEntity entity) {
         // Check for energy before building
-        if (!entity.hasEnergy(LaserQuarryConfig.FRAME_BUILD_COST)) {
+        if (!entity.hasEnergy(FRAME_BUILD_COST)) {
             return;
         }
 
@@ -252,7 +255,7 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity implements PipeConne
         }
 
         // Consume energy for frame building
-        entity.consumeEnergy(LaserQuarryConfig.FRAME_BUILD_COST);
+        entity.consumeEnergy(FRAME_BUILD_COST);
 
         // Only place frame if the position is air or replaceable
         BlockState existingState = world.getBlockState(framePos);
@@ -274,7 +277,7 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity implements PipeConne
         // Skip air/fluid/bedrock blocks without moving the arm there
         BlockPos target = null;
         boolean skippedAny = false;
-        for (int skipped = 0; skipped < LaserQuarryConfig.MAX_SKIP_PER_TICK; skipped++) {
+        for (int skipped = 0; skipped < LogisticsConfig.get().quarry.scanRate; skipped++) {
             target = entity.calculateMiningTargetPos(state);
             if (target == null) {
                 entity.clearBreakingAnimation(world);
@@ -360,7 +363,7 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity implements PipeConne
                 entity.currentTarget = target;
                 float hardness = targetState.getDestroySpeed(world, target);
                 // BC formula: BREAK_ENERGY * miningMultiplier * ((hardness + 1) * 2)
-                entity.currentBreakTime = (float) (LaserQuarryConfig.BREAK_ENERGY_MULTIPLIER * (hardness + 1));
+                entity.currentBreakTime = (float) (LogisticsConfig.get().quarry.energyPerBlockMultiplier() * (hardness + 1));
                 entity.breakProgress = 0;
             }
 
@@ -597,8 +600,8 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity implements PipeConne
 
     private void advanceToNextBlock() {
         miningX++;
-        int maxX = useCustomBounds ? (customMaxX - customMinX + 1) : LaserQuarryConfig.CHUNK_SIZE;
-        int maxZ = useCustomBounds ? (customMaxZ - customMinZ + 1) : LaserQuarryConfig.CHUNK_SIZE;
+        int maxX = useCustomBounds ? (customMaxX - customMinX + 1) : LogisticsConfig.get().quarry.area;
+        int maxZ = useCustomBounds ? (customMaxZ - customMinZ + 1) : LogisticsConfig.get().quarry.area;
 
         if (miningX >= maxX) {
             miningX = 0;
@@ -627,7 +630,7 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity implements PipeConne
             switch (facing) {
                 case NORTH:
                     startX = quarryPos.getX() - 8;
-                    startZ = quarryPos.getZ() - LaserQuarryConfig.CHUNK_SIZE;
+                    startZ = quarryPos.getZ() - LogisticsConfig.get().quarry.area;
                     break;
                 case SOUTH:
                     startX = quarryPos.getX() - 8;
@@ -638,7 +641,7 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity implements PipeConne
                     startZ = quarryPos.getZ() - 8;
                     break;
                 case WEST:
-                    startX = quarryPos.getX() - LaserQuarryConfig.CHUNK_SIZE;
+                    startX = quarryPos.getX() - LogisticsConfig.get().quarry.area;
                     startZ = quarryPos.getZ() - 8;
                     break;
                 default:
@@ -647,7 +650,7 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity implements PipeConne
         }
 
         // Clearing phase only works above and at quarry level
-        int startY = quarryPos.getY() + LaserQuarryConfig.Y_OFFSET_ABOVE;
+        int startY = quarryPos.getY() + LaserQuarryGeometry.Y_OFFSET_ABOVE;
         int currentY = startY - miningY;
 
         // Stop when we go below quarry level
@@ -683,7 +686,7 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity implements PipeConne
             switch (facing) {
                 case NORTH:
                     startX = quarryPos.getX() - 8 + 1; // Inset 1 from frame
-                    startZ = quarryPos.getZ() - LaserQuarryConfig.CHUNK_SIZE + 1;
+                    startZ = quarryPos.getZ() - LogisticsConfig.get().quarry.area + 1;
                     break;
                 case SOUTH:
                     startX = quarryPos.getX() - 8 + 1;
@@ -694,14 +697,14 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity implements PipeConne
                     startZ = quarryPos.getZ() - 8 + 1;
                     break;
                 case WEST:
-                    startX = quarryPos.getX() - LaserQuarryConfig.CHUNK_SIZE + 1;
+                    startX = quarryPos.getX() - LogisticsConfig.get().quarry.area + 1;
                     startZ = quarryPos.getZ() - 8 + 1;
                     break;
                 default:
                     return null;
             }
-            innerSizeX = LaserQuarryConfig.INNER_SIZE;
-            innerSizeZ = LaserQuarryConfig.INNER_SIZE;
+            innerSizeX = LogisticsConfig.get().quarry.area - 2;
+            innerSizeZ = LogisticsConfig.get().quarry.area - 2;
         }
         if (innerSizeX <= 0 || innerSizeZ <= 0) {
             return null;
@@ -747,8 +750,8 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity implements PipeConne
             innerSizeX = customMaxX - customMinX - 1;
             innerSizeZ = customMaxZ - customMinZ - 1;
         } else {
-            innerSizeX = LaserQuarryConfig.INNER_SIZE;
-            innerSizeZ = LaserQuarryConfig.INNER_SIZE;
+            innerSizeX = LogisticsConfig.get().quarry.area - 2;
+            innerSizeZ = LogisticsConfig.get().quarry.area - 2;
         }
         if (innerSizeX <= 0 || innerSizeZ <= 0) {
             return;
@@ -772,7 +775,7 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity implements PipeConne
      * before syncing to clients (prevents arm hiccup).
      */
     private void skipToNextSolidBlock(ServerLevel world, BlockState quarryState) {
-        for (int skipped = 0; skipped < LaserQuarryConfig.MAX_SKIP_PER_TICK; skipped++) {
+        for (int skipped = 0; skipped < LogisticsConfig.get().quarry.scanRate; skipped++) {
             BlockPos target = calculateMiningTargetPos(quarryState);
             if (target == null) {
                 // Reached end of mining area
@@ -825,7 +828,7 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity implements PipeConne
             switch (facing) {
                 case NORTH:
                     startX = quarryPos.getX() - 8;
-                    startZ = quarryPos.getZ() - LaserQuarryConfig.CHUNK_SIZE;
+                    startZ = quarryPos.getZ() - LogisticsConfig.get().quarry.area;
                     break;
                 case SOUTH:
                     startX = quarryPos.getX() - 8;
@@ -836,18 +839,18 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity implements PipeConne
                     startZ = quarryPos.getZ() - 8;
                     break;
                 case WEST:
-                    startX = quarryPos.getX() - LaserQuarryConfig.CHUNK_SIZE;
+                    startX = quarryPos.getX() - LogisticsConfig.get().quarry.area;
                     startZ = quarryPos.getZ() - 8;
                     break;
                 default:
                     return null;
             }
-            endX = startX + LaserQuarryConfig.CHUNK_SIZE - 1;
-            endZ = startZ + LaserQuarryConfig.CHUNK_SIZE - 1;
+            endX = startX + LogisticsConfig.get().quarry.area - 1;
+            endZ = startZ + LogisticsConfig.get().quarry.area - 1;
         }
 
         int bottomY = quarryPos.getY();
-        int topY = quarryPos.getY() + LaserQuarryConfig.Y_OFFSET_ABOVE;
+        int topY = quarryPos.getY() + LaserQuarryGeometry.Y_OFFSET_ABOVE;
 
         // Calculate ring size: perimeter of rectangle = 2*width + 2*depth - 4 corners
         int width = endX - startX + 1;
@@ -943,7 +946,7 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity implements PipeConne
             switch (facing) {
                 case NORTH:
                     startX = quarryPos.getX() - 8;
-                    startZ = quarryPos.getZ() - LaserQuarryConfig.CHUNK_SIZE;
+                    startZ = quarryPos.getZ() - LogisticsConfig.get().quarry.area;
                     break;
                 case SOUTH:
                     startX = quarryPos.getX() - 8;
@@ -954,17 +957,17 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity implements PipeConne
                     startZ = quarryPos.getZ() - 8;
                     break;
                 case WEST:
-                    startX = quarryPos.getX() - LaserQuarryConfig.CHUNK_SIZE;
+                    startX = quarryPos.getX() - LogisticsConfig.get().quarry.area;
                     startZ = quarryPos.getZ() - 8;
                     break;
                 default:
                     return LogisticsAutomation.BLOCK.LASER_QUARRY_FRAME.defaultBlockState();
             }
-            endX = startX + LaserQuarryConfig.CHUNK_SIZE - 1;
-            endZ = startZ + LaserQuarryConfig.CHUNK_SIZE - 1;
+            endX = startX + LogisticsConfig.get().quarry.area - 1;
+            endZ = startZ + LogisticsConfig.get().quarry.area - 1;
         }
         int bottomY = quarryPos.getY();
-        int topY = quarryPos.getY() + LaserQuarryConfig.Y_OFFSET_ABOVE;
+        int topY = quarryPos.getY() + LaserQuarryGeometry.Y_OFFSET_ABOVE;
 
         int x = framePos.getX();
         int y = framePos.getY();
@@ -1065,7 +1068,7 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity implements PipeConne
      * Gets the energy level as a ratio from 0.0 to 1.0.
      */
     public double getEnergyLevel() {
-        return (double) energy.amount / LaserQuarryConfig.ENERGY_CAPACITY;
+        return (double) energy.amount / LogisticsConfig.get().quarry.energyCapacity();
     }
 
     /**
@@ -1074,7 +1077,7 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity implements PipeConne
      */
     private long getMoveCost() {
         return (long) Math.ceil(
-                LaserQuarryConfig.BASE_MOVE_COST + (double) energy.amount / LaserQuarryConfig.MOVE_COST_BUFFER_DIVISOR);
+                LogisticsConfig.get().quarry.armEnergy + (double) energy.amount / MOVE_COST_BUFFER_DIVISOR);
     }
 
     /**
@@ -1084,11 +1087,11 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity implements PipeConne
      */
     private float getEffectiveArmSpeed() {
         long moveCost = getMoveCost();
-        float speed = LaserQuarryConfig.BASE_MOVE_SPEED + (moveCost / LaserQuarryConfig.SPEED_ENERGY_DIVISOR);
+        float speed = LogisticsConfig.get().quarry.armSpeed + (moveCost / LogisticsConfig.get().quarry.armSpeedScaling);
 
         // Apply rain penalty if quarry is exposed to rain
         if (level != null && level.isRainingAt(worldPosition.above())) {
-            speed *= LaserQuarryConfig.RAIN_SPEED_MULTIPLIER;
+            speed *= LogisticsConfig.get().quarry.rainPenalty;
         }
 
         return speed;
@@ -1123,7 +1126,7 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity implements PipeConne
                 energyPercent > 50 ? ChatFormatting.GREEN : energyPercent > 20 ? ChatFormatting.YELLOW : ChatFormatting.RED;
         builder.entry(
                 "Energy",
-                String.format("%,d / %,d RF (%.1f%%)", energy.amount, LaserQuarryConfig.ENERGY_CAPACITY, energyPercent),
+                String.format("%,d / %,d RF (%.1f%%)", energy.amount, LogisticsConfig.get().quarry.energyCapacity(), energyPercent),
                 energyColor);
 
         // Power consumption and speed (only during active phases)
@@ -1225,7 +1228,7 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity implements PipeConne
         armInitialized = NbtCompat.getBoolean(nbt, "ArmInitialized", false);
         settlingTicksRemaining = NbtCompat.getInt(nbt, "ArmSettlingTicks", 0);
         expectedTravelTicks = NbtCompat.getInt(nbt, "ArmExpectedTravelTicks", 0);
-        syncedArmSpeed = NbtCompat.getFloat(nbt, "ArmSyncedSpeed", LaserQuarryConfig.ARM_SPEED);
+        syncedArmSpeed = NbtCompat.getFloat(nbt, "ArmSyncedSpeed", 0.0f);
 
         // Load custom bounds
         useCustomBounds = NbtCompat.getBoolean(nbt, "UseCustomBounds", false);
@@ -1286,7 +1289,7 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity implements PipeConne
             armInitialized = NbtCompat.getBoolean(miningState, "ArmInitialized", false);
             settlingTicksRemaining = NbtCompat.getInt(miningState, "SettlingTicks", 0);
             expectedTravelTicks = NbtCompat.getInt(miningState, "ExpectedTravelTicks", 0);
-            syncedArmSpeed = NbtCompat.getFloat(miningState, "SyncedArmSpeed", LaserQuarryConfig.ARM_SPEED);
+            syncedArmSpeed = NbtCompat.getFloat(miningState, "SyncedArmSpeed", 0.0f);
         });
 
         // Load custom bounds from old "CustomBounds" tag

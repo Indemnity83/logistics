@@ -1,6 +1,7 @@
 package com.logistics.automation.laserquarry;
 
 import com.logistics.automation.laserquarry.entity.LaserQuarryBlockEntity;
+import com.logistics.core.LogisticsConfig;
 import com.logistics.LogisticsAutomation;
 import com.logistics.core.lib.block.behavior.ProbeBehavior;
 import com.logistics.core.lib.support.ProbeResult;
@@ -94,8 +95,8 @@ public class LaserQuarryBlock extends BaseEntityBlock implements ProbeBehavior.P
                     width = Math.max(0, bounds.max().getX() - bounds.min().getX() - 1);
                     depth = Math.max(0, bounds.max().getZ() - bounds.min().getZ() - 1);
                 } else {
-                    width = LaserQuarryConfig.INNER_SIZE;
-                    depth = LaserQuarryConfig.INNER_SIZE;
+                    width = LogisticsConfig.get().quarry.area - 2;
+                    depth = LogisticsConfig.get().quarry.area - 2;
                 }
                 serverPlayer.sendSystemMessage(
                         Component.translatable("laser_quarry.area_preview", width, depth), true);

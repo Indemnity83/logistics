@@ -1,6 +1,7 @@
 package com.logistics.pipe.modules;
 
 import com.logistics.core.lib.pipe.RoutingModule;
+import com.logistics.core.LogisticsConfig;
 
 import com.logistics.LogisticsPipe;
 import com.logistics.pipe.network.NetDbg;
@@ -557,7 +558,7 @@ public class ProcessModule implements Module, TickingModule, RoutingModule, Disp
                         int chunk = (int) Math.min(rem, Integer.MAX_VALUE);
                         TravelingItem t = new TravelingItem(
                                 variant.toStack(chunk), dir.getOpposite(),
-                                LogisticsPipe.CONFIG.ITEM_NETWORK_SPEED, requester);
+                                LogisticsConfig.get().pipe.injectSpeed, requester);
                         t.setDeliveryId(getFirstEntryDeliveryId(ctx));
                         ctx.blockEntity().forceAddItem(t, dir);
                         rem -= chunk;
@@ -568,7 +569,7 @@ public class ProcessModule implements Module, TickingModule, RoutingModule, Disp
                         int chunk = (int) Math.min(rem, Integer.MAX_VALUE);
                         TravelingItem t = new TravelingItem(
                                 variant.toStack(chunk), dir.getOpposite(),
-                                LogisticsPipe.CONFIG.ITEM_NETWORK_SPEED, null);
+                                LogisticsConfig.get().pipe.injectSpeed, null);
                         ctx.blockEntity().forceAddItem(t, dir);
                         rem -= chunk;
                     }

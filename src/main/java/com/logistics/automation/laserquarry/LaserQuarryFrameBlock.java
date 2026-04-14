@@ -1,6 +1,7 @@
 package com.logistics.automation.laserquarry;
 
 import com.logistics.automation.laserquarry.entity.LaserQuarryBlockEntity;
+import com.logistics.core.LogisticsConfig;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -139,7 +140,7 @@ public class LaserQuarryFrameBlock extends Block {
             if (Math.abs(quarryPos.getZ() - framePos.getZ()) > searchRadius) continue;
 
             int dy = framePos.getY() - quarryPos.getY();
-            if (dy < 0 || dy > LaserQuarryConfig.Y_OFFSET_ABOVE) continue;
+            if (dy < 0 || dy > LaserQuarryGeometry.Y_OFFSET_ABOVE) continue;
 
             BlockState checkState = world.getBlockState(quarryPos);
             if (!(checkState.getBlock() instanceof LaserQuarryBlock)) continue;
@@ -176,7 +177,7 @@ public class LaserQuarryFrameBlock extends Block {
             switch (facing) {
                 case NORTH:
                     startX = quarryPos.getX() - 8;
-                    startZ = quarryPos.getZ() - LaserQuarryConfig.CHUNK_SIZE;
+                    startZ = quarryPos.getZ() - LogisticsConfig.get().quarry.area;
                     break;
                 case SOUTH:
                     startX = quarryPos.getX() - 8;
@@ -187,18 +188,18 @@ public class LaserQuarryFrameBlock extends Block {
                     startZ = quarryPos.getZ() - 8;
                     break;
                 case WEST:
-                    startX = quarryPos.getX() - LaserQuarryConfig.CHUNK_SIZE;
+                    startX = quarryPos.getX() - LogisticsConfig.get().quarry.area;
                     startZ = quarryPos.getZ() - 8;
                     break;
                 default:
                     return false;
             }
-            endX = startX + LaserQuarryConfig.CHUNK_SIZE - 1;
-            endZ = startZ + LaserQuarryConfig.CHUNK_SIZE - 1;
+            endX = startX + LogisticsConfig.get().quarry.area - 1;
+            endZ = startZ + LogisticsConfig.get().quarry.area - 1;
         }
 
         int bottomY = quarryPos.getY();
-        int topY = quarryPos.getY() + LaserQuarryConfig.Y_OFFSET_ABOVE;
+        int topY = quarryPos.getY() + LaserQuarryGeometry.Y_OFFSET_ABOVE;
 
         int fx = framePos.getX();
         int fy = framePos.getY();

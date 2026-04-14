@@ -1,6 +1,7 @@
 package com.logistics;
 
 import com.logistics.core.LogisticsCommands;
+import com.logistics.core.LogisticsConfig;
 import com.logistics.core.bootstrap.DomainBootstrap;
 import com.logistics.core.item.ProbeItem;
 import com.logistics.core.item.WrenchItem;
@@ -68,6 +69,8 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
     @Override
     public void initCommon() {
         LOGGER.info("Registering {}", domain());
+
+        LogisticsConfig.load();
 
         BLOCK.register();
         ITEM.register();

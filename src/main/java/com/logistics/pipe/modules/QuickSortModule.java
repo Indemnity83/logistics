@@ -1,6 +1,6 @@
 package com.logistics.pipe.modules;
 
-import com.logistics.LogisticsPipe;
+import com.logistics.core.LogisticsConfig;
 import com.logistics.pipe.network.NetDbg;
 import com.logistics.core.lib.pipe.Module;
 import com.logistics.core.lib.pipe.PipeContext;
@@ -139,7 +139,7 @@ public class QuickSortModule implements Module, TickingModule {
                 NetDbg.out("[QuickSort @ {}] Extracted {}x{} from slot {}", ctx.pos(), extracted, variant.getItem(), candidate);
                 TravelingItem travelingItem = new TravelingItem(
                         extractedStack, inventoryDir.getOpposite(),
-                        LogisticsPipe.CONFIG.ITEM_MIN_SPEED, destination);
+                        LogisticsConfig.get().pipe.minSpeed, destination);
                 ctx.blockEntity().forceAddItem(travelingItem, inventoryDir);
                 tx.commit();
                 // Success: clear stall, record last successful slot
