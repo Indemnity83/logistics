@@ -104,7 +104,7 @@ RF energy generation with engines:
 
 ## Installation
 
-**Requirements:** Minecraft 1.21.11 • Fabric Loader 0.18.4+ • Fabric API • Java 21+
+**Requirements:** Minecraft 26.1+ • Fabric Loader 0.18.4+ • Fabric API • Java 25+
 
 **Download from:**
 - [GitHub Releases](https://github.com/indemnity83/logistics/releases) (includes dev builds)

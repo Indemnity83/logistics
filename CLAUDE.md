@@ -92,8 +92,8 @@ Since commits will be cherry-picked across branches, write code that minimizes c
 ```
 
 **Requirements:**
-- **Java 21** (MC 1.21.11 requirement)
-- Minecraft 1.21.11
+- **Java 25** (MC 26.1+ requirement)
+- Minecraft 26.1+
 - Fabric API
 
 **Build output:** `build/libs/logistics-{version}.jar`
