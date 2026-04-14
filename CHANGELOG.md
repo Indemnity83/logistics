@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.5.3](https://github.com/Indemnity83/logistics/compare/mc1.21.11-v0.5.2...mc1.21.11-v0.5.3) (2026-04-14)
+
+
+### Bug Fixes
+
+* add newline at end of fabric.mod.json file ([f59c4ba](https://github.com/Indemnity83/logistics/commit/f59c4bac3f6fd2ba318c1a8a2c6b4906ccc3e589))
+* add outline rendering for quarry area placement ([#274](https://github.com/Indemnity83/logistics/issues/274)) ([1f10443](https://github.com/Indemnity83/logistics/commit/1f10443273e4b9747377d7360bd10f64a11d5d08))
+* expose laser quarry configuration settings to user ([#277](https://github.com/Indemnity83/logistics/issues/277)) ([4769c3e](https://github.com/Indemnity83/logistics/commit/4769c3ed49ae23f9de8edbb6cc371b8ad266ba34))
+
 ## [0.5.2](https://github.com/Indemnity83/logistics/compare/mc1.21.11-v0.5.1...mc1.21.11-v0.5.2) (2026-04-10)
 
 
