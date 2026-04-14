@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.5.3](https://github.com/Indemnity83/logistics/compare/mc1.21.1-v0.5.2...mc1.21.1-v0.5.3) (2026-04-14)
+
+
+### Bug Fixes
+
+* add outline rendering for quarry area placement ([#274](https://github.com/Indemnity83/logistics/issues/274)) ([6601a74](https://github.com/Indemnity83/logistics/commit/6601a741d9ea6ac492cddb672a058ffc1ae000ed))
+* expose laser quarry configuration settings to user ([#277](https://github.com/Indemnity83/logistics/issues/277)) ([4b8aad8](https://github.com/Indemnity83/logistics/commit/4b8aad8b8b8ca60668fffbf5d11d44350b018f19))
+
 ## [0.5.2](https://github.com/Indemnity83/logistics/compare/mc1.21.1-v0.5.1...mc1.21.1-v0.5.2) (2026-04-10)
 
 
