@@ -115,7 +115,7 @@ class SimpleModulesTest extends MinecraftTestEnvironment {
     }
 
     @Test
-    @DisplayName("NetworkRouterModule.getMaxSpeed returns ITEM_NETWORK_SPEED from config")
+    @DisplayName("NetworkRouterModule.getMaxSpeed returns pipe.injectSpeed from config")
     void networkRouterModule_getMaxSpeed_returnsNetworkSpeed() {
         NetworkRouterModule module = new NetworkRouterModule();
         assertThat(module.getMaxSpeed(ctx)).isEqualTo(LogisticsConfig.get().pipe.injectSpeed);

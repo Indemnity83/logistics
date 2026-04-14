@@ -265,9 +265,10 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
             }
 
             // Speed at the end of this partial tick
+            float minSpeed = LogisticsConfig.get().pipe.minSpeed;
             float interpolatedSpeed = itemState.currentSpeed + speedChange;
-            if (interpolatedSpeed < LogisticsConfig.get().pipe.minSpeed) {
-                interpolatedSpeed = LogisticsConfig.get().pipe.minSpeed;
+            if (interpolatedSpeed < minSpeed) {
+                interpolatedSpeed = minSpeed;
             } else if (!deceleratingToMax && interpolatedSpeed > state.maxSpeed) {
                 interpolatedSpeed = state.maxSpeed;
             }

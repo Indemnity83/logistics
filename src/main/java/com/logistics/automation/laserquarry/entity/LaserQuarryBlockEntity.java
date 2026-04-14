@@ -626,23 +626,24 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity implements PipeConne
             startX = customMinX;
             startZ = customMinZ;
         } else {
+            int half = LogisticsConfig.get().quarry.area / 2;
             Direction facing = LaserQuarryBlock.getMiningDirection(quarryState);
             switch (facing) {
                 case NORTH:
-                    startX = quarryPos.getX() - 8;
+                    startX = quarryPos.getX() - half;
                     startZ = quarryPos.getZ() - LogisticsConfig.get().quarry.area;
                     break;
                 case SOUTH:
-                    startX = quarryPos.getX() - 8;
+                    startX = quarryPos.getX() - half;
                     startZ = quarryPos.getZ() + 1;
                     break;
                 case EAST:
                     startX = quarryPos.getX() + 1;
-                    startZ = quarryPos.getZ() - 8;
+                    startZ = quarryPos.getZ() - half;
                     break;
                 case WEST:
                     startX = quarryPos.getX() - LogisticsConfig.get().quarry.area;
-                    startZ = quarryPos.getZ() - 8;
+                    startZ = quarryPos.getZ() - half;
                     break;
                 default:
                     return null;
@@ -682,23 +683,24 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity implements PipeConne
             innerSizeX = customMaxX - customMinX - 1; // frame size - 2 for inset
             innerSizeZ = customMaxZ - customMinZ - 1;
         } else {
+            int half = LogisticsConfig.get().quarry.area / 2;
             Direction facing = LaserQuarryBlock.getMiningDirection(quarryState);
             switch (facing) {
                 case NORTH:
-                    startX = quarryPos.getX() - 8 + 1; // Inset 1 from frame
+                    startX = quarryPos.getX() - half + 1; // Inset 1 from frame
                     startZ = quarryPos.getZ() - LogisticsConfig.get().quarry.area + 1;
                     break;
                 case SOUTH:
-                    startX = quarryPos.getX() - 8 + 1;
+                    startX = quarryPos.getX() - half + 1;
                     startZ = quarryPos.getZ() + 1 + 1;
                     break;
                 case EAST:
                     startX = quarryPos.getX() + 1 + 1;
-                    startZ = quarryPos.getZ() - 8 + 1;
+                    startZ = quarryPos.getZ() - half + 1;
                     break;
                 case WEST:
                     startX = quarryPos.getX() - LogisticsConfig.get().quarry.area + 1;
-                    startZ = quarryPos.getZ() - 8 + 1;
+                    startZ = quarryPos.getZ() - half + 1;
                     break;
                 default:
                     return null;
@@ -824,23 +826,24 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity implements PipeConne
             endX = customMaxX;
             endZ = customMaxZ;
         } else {
+            int half = LogisticsConfig.get().quarry.area / 2;
             Direction facing = LaserQuarryBlock.getMiningDirection(quarryState);
             switch (facing) {
                 case NORTH:
-                    startX = quarryPos.getX() - 8;
+                    startX = quarryPos.getX() - half;
                     startZ = quarryPos.getZ() - LogisticsConfig.get().quarry.area;
                     break;
                 case SOUTH:
-                    startX = quarryPos.getX() - 8;
+                    startX = quarryPos.getX() - half;
                     startZ = quarryPos.getZ() + 1;
                     break;
                 case EAST:
                     startX = quarryPos.getX() + 1;
-                    startZ = quarryPos.getZ() - 8;
+                    startZ = quarryPos.getZ() - half;
                     break;
                 case WEST:
                     startX = quarryPos.getX() - LogisticsConfig.get().quarry.area;
-                    startZ = quarryPos.getZ() - 8;
+                    startZ = quarryPos.getZ() - half;
                     break;
                 default:
                     return null;
@@ -942,23 +945,24 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity implements PipeConne
             endX = customMaxX;
             endZ = customMaxZ;
         } else {
+            int half = LogisticsConfig.get().quarry.area / 2;
             Direction facing = LaserQuarryBlock.getMiningDirection(quarryState);
             switch (facing) {
                 case NORTH:
-                    startX = quarryPos.getX() - 8;
+                    startX = quarryPos.getX() - half;
                     startZ = quarryPos.getZ() - LogisticsConfig.get().quarry.area;
                     break;
                 case SOUTH:
-                    startX = quarryPos.getX() - 8;
+                    startX = quarryPos.getX() - half;
                     startZ = quarryPos.getZ() + 1;
                     break;
                 case EAST:
                     startX = quarryPos.getX() + 1;
-                    startZ = quarryPos.getZ() - 8;
+                    startZ = quarryPos.getZ() - half;
                     break;
                 case WEST:
                     startX = quarryPos.getX() - LogisticsConfig.get().quarry.area;
-                    startZ = quarryPos.getZ() - 8;
+                    startZ = quarryPos.getZ() - half;
                     break;
                 default:
                     return LogisticsAutomation.BLOCK.LASER_QUARRY_FRAME.defaultBlockState();

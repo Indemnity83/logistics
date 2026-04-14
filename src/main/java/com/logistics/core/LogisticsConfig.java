@@ -30,7 +30,7 @@ public final class LogisticsConfig {
     private static final Logger LOGGER = LoggerFactory.getLogger("logistics/config");
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
-    private static LogisticsConfig INSTANCE = new LogisticsConfig();
+    private static volatile LogisticsConfig INSTANCE = new LogisticsConfig();
     private static Path configPath;
 
     // ==================== Config Groups ====================
@@ -173,11 +173,13 @@ public final class LogisticsConfig {
      */
     public static void load() {
         configPath = FabricLoader.getInstance().getConfigDir().resolve("logistics.json");
+        boolean loaded = false;
         if (Files.exists(configPath)) {
             try (Reader reader = Files.newBufferedReader(configPath)) {
-                LogisticsConfig loaded = GSON.fromJson(reader, LogisticsConfig.class);
-                if (loaded != null) {
-                    INSTANCE = loaded;
+                LogisticsConfig parsed = GSON.fromJson(reader, LogisticsConfig.class);
+                if (parsed != null) {
+                    INSTANCE = parsed;
+                    loaded = true;
                 }
             } catch (Exception e) {
                 LOGGER.error("Failed to load logistics.json, using defaults: {}", e.getMessage());
@@ -185,7 +187,11 @@ public final class LogisticsConfig {
         }
         // Always write back so new fields added in future versions are persisted
         save();
-        LOGGER.info("Loaded logistics config from {}", configPath);
+        if (loaded) {
+            LOGGER.info("Loaded logistics config from {}", configPath);
+        } else {
+            LOGGER.info("Created default logistics config at {}", configPath);
+        }
     }
 
     /** Persist the current config to disk. */
@@ -199,7 +205,7 @@ public final class LogisticsConfig {
     }
 
     /**
-     * Reload config from disk and notify all registered listeners.
+     * Reload config from disk and update in-memory settings.
      * Used by the {@code /logistics config reload} command.
      */
     public static void reload() {

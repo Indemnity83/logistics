@@ -116,22 +116,23 @@ public class LaserQuarryBlockEntityRenderer implements BlockEntityRenderer<Laser
             state.frameEndX = entity.getCustomMaxX();
             state.frameEndZ = entity.getCustomMaxZ();
         } else {
+            int half = LogisticsConfig.get().quarry.area / 2;
             switch (state.facing) {
                 case NORTH:
-                    state.frameStartX = quarryPos.getX() - 8;
+                    state.frameStartX = quarryPos.getX() - half;
                     state.frameStartZ = quarryPos.getZ() - LogisticsConfig.get().quarry.area;
                     break;
                 case SOUTH:
-                    state.frameStartX = quarryPos.getX() - 8;
+                    state.frameStartX = quarryPos.getX() - half;
                     state.frameStartZ = quarryPos.getZ() + 1;
                     break;
                 case EAST:
                     state.frameStartX = quarryPos.getX() + 1;
-                    state.frameStartZ = quarryPos.getZ() - 8;
+                    state.frameStartZ = quarryPos.getZ() - half;
                     break;
                 case WEST:
                     state.frameStartX = quarryPos.getX() - LogisticsConfig.get().quarry.area;
-                    state.frameStartZ = quarryPos.getZ() - 8;
+                    state.frameStartZ = quarryPos.getZ() - half;
                     break;
                 default:
                     state.shouldRenderArm = false;

@@ -173,23 +173,24 @@ public class LaserQuarryFrameBlock extends Block {
             endZ = quarry.getCustomMaxZ();
         } else {
             // Calculate default bounds from facing direction
+            int half = LogisticsConfig.get().quarry.area / 2;
             Direction facing = LaserQuarryBlock.getMiningDirection(quarryState);
             switch (facing) {
                 case NORTH:
-                    startX = quarryPos.getX() - 8;
+                    startX = quarryPos.getX() - half;
                     startZ = quarryPos.getZ() - LogisticsConfig.get().quarry.area;
                     break;
                 case SOUTH:
-                    startX = quarryPos.getX() - 8;
+                    startX = quarryPos.getX() - half;
                     startZ = quarryPos.getZ() + 1;
                     break;
                 case EAST:
                     startX = quarryPos.getX() + 1;
-                    startZ = quarryPos.getZ() - 8;
+                    startZ = quarryPos.getZ() - half;
                     break;
                 case WEST:
                     startX = quarryPos.getX() - LogisticsConfig.get().quarry.area;
-                    startZ = quarryPos.getZ() - 8;
+                    startZ = quarryPos.getZ() - half;
                     break;
                 default:
                     return false;
