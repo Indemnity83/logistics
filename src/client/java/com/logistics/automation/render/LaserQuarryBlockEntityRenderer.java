@@ -1,8 +1,9 @@
 package com.logistics.automation.render;
 
 import com.logistics.LogisticsAutomationClient;
+import com.logistics.core.LogisticsConfig;
 import com.logistics.automation.laserquarry.LaserQuarryBlock;
-import com.logistics.automation.laserquarry.LaserQuarryConfig;
+import com.logistics.automation.laserquarry.LaserQuarryGeometry;
 import com.logistics.automation.laserquarry.entity.LaserQuarryBlockEntity;
 import com.logistics.pipe.block.PipeBlock;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -110,32 +111,33 @@ public class LaserQuarryBlockEntityRenderer implements BlockEntityRenderer<Laser
             state.frameEndX = entity.getCustomMaxX();
             state.frameEndZ = entity.getCustomMaxZ();
         } else {
+            int half = LogisticsConfig.get().quarry.area / 2;
             switch (state.facing) {
                 case NORTH:
-                    state.frameStartX = quarryPos.getX() - 8;
-                    state.frameStartZ = quarryPos.getZ() - LaserQuarryConfig.CHUNK_SIZE;
+                    state.frameStartX = quarryPos.getX() - half;
+                    state.frameStartZ = quarryPos.getZ() - LogisticsConfig.get().quarry.area;
                     break;
                 case SOUTH:
-                    state.frameStartX = quarryPos.getX() - 8;
+                    state.frameStartX = quarryPos.getX() - half;
                     state.frameStartZ = quarryPos.getZ() + 1;
                     break;
                 case EAST:
                     state.frameStartX = quarryPos.getX() + 1;
-                    state.frameStartZ = quarryPos.getZ() - 8;
+                    state.frameStartZ = quarryPos.getZ() - half;
                     break;
                 case WEST:
-                    state.frameStartX = quarryPos.getX() - LaserQuarryConfig.CHUNK_SIZE;
-                    state.frameStartZ = quarryPos.getZ() - 8;
+                    state.frameStartX = quarryPos.getX() - LogisticsConfig.get().quarry.area;
+                    state.frameStartZ = quarryPos.getZ() - half;
                     break;
                 default:
                     state.shouldRenderArm = false;
                     state.shouldRenderPreviewOutline = false;
                     return;
             }
-            state.frameEndX = state.frameStartX + LaserQuarryConfig.CHUNK_SIZE - 1;
-            state.frameEndZ = state.frameStartZ + LaserQuarryConfig.CHUNK_SIZE - 1;
+            state.frameEndX = state.frameStartX + LogisticsConfig.get().quarry.area - 1;
+            state.frameEndZ = state.frameStartZ + LogisticsConfig.get().quarry.area - 1;
         }
-        state.frameTopY = quarryPos.getY() + LaserQuarryConfig.Y_OFFSET_ABOVE;
+        state.frameTopY = quarryPos.getY() + LaserQuarryGeometry.Y_OFFSET_ABOVE;
 
         state.shouldRenderPreviewOutline = entity.isFreshlyPlaced();
 
@@ -455,7 +457,7 @@ public class LaserQuarryBlockEntityRenderer implements BlockEntityRenderer<Laser
 
         int width = state.frameEndX - state.frameStartX;
         int depth = state.frameEndZ - state.frameStartZ;
-        int height = LaserQuarryConfig.Y_OFFSET_ABOVE;
+        int height = LaserQuarryGeometry.Y_OFFSET_ABOVE;
 
         // Bottom ring (at quarry Y level, relY = 0)
         renderOutlineHorizontalEdge(matrices, queue, beamModel, renderLayer, lightmap, relStartX, 0, relStartZ, width, 90);
@@ -464,7 +466,7 @@ public class LaserQuarryBlockEntityRenderer implements BlockEntityRenderer<Laser
         renderOutlineHorizontalEdge(matrices, queue, beamModel, renderLayer, lightmap, relEndX, 0, relStartZ, depth, 0);
 
         // Top ring (at quarry Y + Y_OFFSET_ABOVE)
-        float topY = LaserQuarryConfig.Y_OFFSET_ABOVE;
+        float topY = LaserQuarryGeometry.Y_OFFSET_ABOVE;
         renderOutlineHorizontalEdge(matrices, queue, beamModel, renderLayer, lightmap, relStartX, topY, relStartZ, width, 90);
         renderOutlineHorizontalEdge(matrices, queue, beamModel, renderLayer, lightmap, relStartX, topY, relEndZ, width, 90);
         renderOutlineHorizontalEdge(matrices, queue, beamModel, renderLayer, lightmap, relStartX, topY, relStartZ, depth, 0);

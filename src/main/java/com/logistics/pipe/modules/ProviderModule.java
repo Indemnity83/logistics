@@ -1,6 +1,7 @@
 package com.logistics.pipe.modules;
 
 import com.logistics.pipe.block.entity.PipeBlockEntity;
+import com.logistics.core.LogisticsConfig;
 import com.logistics.LogisticsPipe;
 import com.logistics.core.lib.network.ILogisticsNetwork;
 import com.logistics.core.lib.pipe.DispatchableModule;
@@ -275,7 +276,7 @@ public class ProviderModule implements Module, TickingModule, DispatchableModule
             if (extracted > 0) {
                 ItemStack stack = item.toStack((int) extracted);
                 TravelingItem traveling = new TravelingItem(
-                        stack, extractDir.getOpposite(), LogisticsPipe.CONFIG.ITEM_MIN_SPEED, head.requester());
+                        stack, extractDir.getOpposite(), LogisticsConfig.get().pipe.minSpeed, head.requester());
                 traveling.setDeliveryId(head.deliveryId());
                 ctx.blockEntity().forceAddItem(traveling, extractDir);
                 queue.consumeFromHead(extracted);

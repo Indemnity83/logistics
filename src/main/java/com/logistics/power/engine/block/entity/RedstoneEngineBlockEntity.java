@@ -1,5 +1,6 @@
 package com.logistics.power.engine.block.entity;
 
+import com.logistics.core.LogisticsConfig;
 import com.logistics.core.lib.power.AbstractEngineBlockEntity;
 import com.logistics.core.lib.power.AcceptsLowTierEnergy;
 import com.logistics.core.lib.power.LowTierEnergySource;
@@ -18,9 +19,8 @@ import net.minecraft.world.level.block.state.BlockState;
 public class RedstoneEngineBlockEntity extends AbstractEngineBlockEntity implements LowTierEnergySource {
     private static final long MAX_ENERGY = 1000L;
 
-    // Energy generation: +10 RF every 16 ticks when powered
+    // Energy generation: configurable RF every 16 ticks when powered
     private static final int ENERGY_TICK_INTERVAL = 16;
-    private static final long ENERGY_PER_INTERVAL = 10L;
 
     public RedstoneEngineBlockEntity(BlockPos pos, BlockState state) {
         super(LogisticsPower.ENTITY.REDSTONE_ENGINE_BLOCK_ENTITY, pos, state);
@@ -37,7 +37,7 @@ public class RedstoneEngineBlockEntity extends AbstractEngineBlockEntity impleme
 
     @Override
     protected long getOutputPower() {
-        return 10L;
+        return LogisticsConfig.get().engine.redstoneOutput;
     }
 
     @Override
@@ -84,7 +84,7 @@ public class RedstoneEngineBlockEntity extends AbstractEngineBlockEntity impleme
         }
 
         if (level.getGameTime() % ENERGY_TICK_INTERVAL == 0) {
-            addEnergy(ENERGY_PER_INTERVAL);
+            addEnergy(LogisticsConfig.get().engine.redstoneOutput);
         }
     }
 }

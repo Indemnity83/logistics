@@ -1,6 +1,5 @@
 package com.logistics.automation.render;
 
-import com.logistics.automation.laserquarry.LaserQuarryConfig;
 import com.logistics.automation.laserquarry.entity.LaserQuarryBlockEntity;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -54,7 +53,7 @@ public class LaserQuarryRenderState extends BlockEntityRenderState {
     public int aboveLight = 0; // Light level above quarry for top hatch
 
     // Synced arm speed from server (blocks per tick, scales with energy)
-    public float syncedArmSpeed = LaserQuarryConfig.ARM_SPEED;
+    public float syncedArmSpeed = 0.0f;
 
     // Persistent interpolation state stored per quarry position (survives render state recreation)
     private static final Map<BlockPos, InterpolationState> INTERPOLATION_CACHE = new ConcurrentHashMap<>();
