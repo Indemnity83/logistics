@@ -1,6 +1,7 @@
 package com.logistics.pipe.modules;
 
 import com.logistics.LogisticsPipe;
+import com.logistics.core.LogisticsConfig;
 import com.logistics.pipe.network.NetDbg;
 import com.logistics.core.lib.pipe.Module;
 import com.logistics.core.lib.pipe.TickingModule;
@@ -100,7 +101,7 @@ public class BasicExtractorModule implements Module, TickingModule {
                 if (extracted > 0) {
                     ItemStack stack = variant.toStack((int) extracted);
                     NetDbg.out("[BasicExtractor @ {}] Extracted {}x{} via {}", ctx.pos(), extracted, variant.getItem(), dir);
-                    TravelingItem item = new TravelingItem(stack, dir.getOpposite(), LogisticsPipe.CONFIG.ITEM_MIN_SPEED);
+                    TravelingItem item = new TravelingItem(stack, dir.getOpposite(), LogisticsConfig.get().pipe.minSpeed);
                     ctx.blockEntity().forceAddItem(item, dir);
                     remaining -= (int) extracted;
                     anyExtracted = true;

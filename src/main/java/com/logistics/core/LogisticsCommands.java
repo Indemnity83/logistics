@@ -16,18 +16,24 @@ import java.util.Set;
 
 /**
  * Registers /logistics commands.
- * /logistics debug                  — show registered domains and enabled state
- * /logistics debug <domain> true    — enable debug logging for a named domain
- * /logistics debug <domain> false   — disable debug logging for a named domain
  *
- * Registered domains come from DebugLog.register() calls in bootstrap.
- * Example: /logistics debug network true
+ * <p>/logistics debug                  — show registered domains and enabled state
+ * /logistics debug &lt;domain&gt; true    — enable debug logging for a named domain
+ * /logistics debug &lt;domain&gt; false   — disable debug logging for a named domain
+ *
+ * <p>/logistics config list            — list all config keys, values, and descriptions
+ * /logistics config get &lt;key&gt;        — show current value for a config key
+ * /logistics config set &lt;key&gt; &lt;val&gt; — set a config value and save to disk
+ * /logistics config reload            — reload config from disk
  */
 public final class LogisticsCommands {
     private LogisticsCommands() {}
 
     private static final SuggestionProvider<CommandSourceStack> DOMAIN_SUGGESTIONS =
         (ctx, builder) -> SharedSuggestionProvider.suggest(sortedDomains(), builder);
+
+    private static final SuggestionProvider<CommandSourceStack> CONFIG_KEY_SUGGESTIONS =
+        (ctx, builder) -> SharedSuggestionProvider.suggest(LogisticsConfig.ENTRIES.keySet(), builder);
 
     private static List<String> sortedDomains() {
         List<String> domains = new ArrayList<>(DebugLog.getRegisteredDomains());
@@ -80,6 +86,67 @@ public final class LogisticsCommands {
                             )
                         )
                     )
+                    .then(Commands.literal("config")
+                        .then(Commands.literal("list")
+                            .executes(ctx -> {
+                                StringBuilder sb = new StringBuilder("Logistics config:");
+                                for (LogisticsConfig.ConfigEntry<?> entry : LogisticsConfig.ENTRIES.values()) {
+                                    sb.append("\n  ").append(entry.key())
+                                      .append(" = ").append(entry.getAsString())
+                                      .append("  \u00a77(").append(entry.description()).append(")\u00a7r");
+                                }
+                                String msg = sb.toString();
+                                ctx.getSource().sendSuccess(() -> Component.literal(msg), false);
+                                return 1;
+                            }))
+                        .then(Commands.literal("get")
+                            .then(Commands.argument("key", StringArgumentType.word())
+                                .suggests(CONFIG_KEY_SUGGESTIONS)
+                                .executes(ctx -> {
+                                    String key = StringArgumentType.getString(ctx, "key");
+                                    LogisticsConfig.ConfigEntry<?> entry = LogisticsConfig.ENTRIES.get(key);
+                                    if (entry == null) {
+                                        ctx.getSource().sendFailure(Component.literal(
+                                            "Unknown config key: " + key));
+                                        return 0;
+                                    }
+                                    ctx.getSource().sendSuccess(
+                                        () -> Component.literal(key + " = " + entry.getAsString()), false);
+                                    return 1;
+                                })))
+                        .then(Commands.literal("set")
+                            .then(Commands.argument("key", StringArgumentType.word())
+                                .suggests(CONFIG_KEY_SUGGESTIONS)
+                                .then(Commands.argument("value", StringArgumentType.greedyString())
+                                    .executes(ctx -> {
+                                        String key = StringArgumentType.getString(ctx, "key");
+                                        String value = StringArgumentType.getString(ctx, "value");
+                                        LogisticsConfig.ConfigEntry<?> entry = LogisticsConfig.ENTRIES.get(key);
+                                        if (entry == null) {
+                                            ctx.getSource().sendFailure(Component.literal(
+                                                "Unknown config key: " + key));
+                                            return 0;
+                                        }
+                                        try {
+                                            entry.setFromString(value);
+                                        } catch (Exception e) {
+                                            ctx.getSource().sendFailure(Component.literal(
+                                                "Invalid value for " + key + ": " + e.getMessage()));
+                                            return 0;
+                                        }
+                                        LogisticsConfig.save();
+                                        ctx.getSource().sendSuccess(
+                                            () -> Component.literal("Set " + key + " = " + entry.getAsString()),
+                                            true);
+                                        return 1;
+                                    }))))
+                        .then(Commands.literal("reload")
+                            .executes(ctx -> {
+                                LogisticsConfig.reload();
+                                ctx.getSource().sendSuccess(
+                                    () -> Component.literal("Reloaded logistics config from disk"), true);
+                                return 1;
+                            })))
             )
         );
     }

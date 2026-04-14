@@ -1,6 +1,6 @@
 package com.logistics.pipe.modules;
 
-import com.logistics.LogisticsPipe;
+import com.logistics.core.LogisticsConfig;
 import com.logistics.core.lib.pipe.PipeContext;
 import com.logistics.test.FakePipeAccess;
 import net.minecraft.core.BlockPos;
@@ -60,7 +60,7 @@ class BoostModuleTest {
     @Test
     @DisplayName("getMaxSpeed returns PIPE_MAX_SPEED * 4")
     void getMaxSpeed_returnsFourTimesBaseSpeed() {
-        float expected = LogisticsPipe.CONFIG.PIPE_MAX_SPEED * 4.0f;
+        float expected = LogisticsConfig.get().pipe.maxSpeed * 4.0f;
         assertThat(module.getMaxSpeed(ctx)).isEqualTo(expected);
     }
 

@@ -1,6 +1,7 @@
 package com.logistics.pipe.modules;
 
 import com.logistics.LogisticsPipe;
+import com.logistics.core.LogisticsConfig;
 import com.logistics.core.lib.pipe.Module;
 import com.logistics.core.lib.pipe.TickingModule;
 import com.logistics.core.lib.resource.ResourceId;
@@ -210,7 +211,7 @@ public class ExtractionModule implements Module, TickingModule {
                 long extracted = view.extract(variant, maxItems, transaction);
                 if (extracted > 0) {
                     ItemStack stack = variant.toStack((int) extracted);
-                    TravelingItem item = new TravelingItem(stack, direction.getOpposite(), LogisticsPipe.CONFIG.ITEM_MIN_SPEED);
+                    TravelingItem item = new TravelingItem(stack, direction.getOpposite(), LogisticsConfig.get().pipe.minSpeed);
                     ctx.blockEntity().forceAddItem(item, direction);
                     transaction.commit();
                     return true;
