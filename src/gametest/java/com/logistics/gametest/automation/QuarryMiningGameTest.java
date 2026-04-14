@@ -1,7 +1,8 @@
 package com.logistics.gametest.automation;
 
 import com.logistics.LogisticsAutomation;
-import com.logistics.automation.laserquarry.LaserQuarryConfig;
+import com.logistics.core.LogisticsConfig;
+import com.logistics.automation.laserquarry.LaserQuarryGeometry;
 import com.logistics.automation.laserquarry.entity.LaserQuarryBlockEntity;
 import net.minecraft.gametest.framework.GameTest;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
@@ -78,7 +79,7 @@ public class QuarryMiningGameTest {
         // Pre-clear the bounds column (dz = +1..+3 relative to the quarry) from quarryY
         // to quarryY+Y_OFFSET_ABOVE so the clearing phase encounters only air and
         // completes in a single tick regardless of what terrain the game-test world has.
-        for (int dy = 0; dy <= LaserQuarryConfig.Y_OFFSET_ABOVE; dy++) {
+        for (int dy = 0; dy <= LaserQuarryGeometry.Y_OFFSET_ABOVE; dy++) {
             for (int dx = -1; dx <= 1; dx++) {
                 for (int dz = 1; dz <= 3; dz++) {
                     context.setBlock(quarryPos.offset(dx, dy, dz), Blocks.AIR);
@@ -106,7 +107,7 @@ public class QuarryMiningGameTest {
         // so loop until the battery is full.
         try (Transaction tx = Transaction.openOuter()) {
             EnergyStorage es = quarry.energyStorage(Direction.DOWN);
-            long remaining = LaserQuarryConfig.ENERGY_CAPACITY;
+            long remaining = LogisticsConfig.get().quarry.energyCapacity();
             while (remaining > 0) {
                 long inserted = es.insert(remaining, tx);
                 if (inserted == 0) break;
@@ -152,7 +153,7 @@ public class QuarryMiningGameTest {
 
         // Pre-clear the bounds column (dz = +1..+3) from quarryY to quarryY+Y_OFFSET_ABOVE
         // so the clearing phase encounters only air and completes in a single tick.
-        for (int dy = 0; dy <= LaserQuarryConfig.Y_OFFSET_ABOVE; dy++) {
+        for (int dy = 0; dy <= LaserQuarryGeometry.Y_OFFSET_ABOVE; dy++) {
             for (int dx = -1; dx <= 1; dx++) {
                 for (int dz = 1; dz <= 3; dz++) {
                     context.setBlock(quarryPos.offset(dx, dy, dz), Blocks.AIR);
@@ -183,7 +184,7 @@ public class QuarryMiningGameTest {
         // loop to fill the full 7 680 RF capacity.
         try (Transaction tx = Transaction.openOuter()) {
             EnergyStorage es = quarry.energyStorage(Direction.DOWN);
-            long remaining = LaserQuarryConfig.ENERGY_CAPACITY;
+            long remaining = LogisticsConfig.get().quarry.energyCapacity();
             while (remaining > 0) {
                 long inserted = es.insert(remaining, tx);
                 if (inserted == 0) break;

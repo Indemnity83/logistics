@@ -1,6 +1,7 @@
 package com.logistics.pipe.block.entity;
 
 import com.logistics.LogisticsMod;
+import com.logistics.core.LogisticsConfig;
 import com.logistics.LogisticsPipe;
 import com.logistics.core.lib.BaseBlockEntity;
 import com.logistics.core.lib.energy.EnergyComponent;
@@ -181,7 +182,7 @@ public class PipeBlockEntity extends BaseBlockEntity
      */
     @Override
     public boolean addItem(Direction from, ItemStack stack) {
-        TravelingItem item = new TravelingItem(stack, from.getOpposite(), LogisticsPipe.CONFIG.ITEM_MIN_SPEED);
+        TravelingItem item = new TravelingItem(stack, from.getOpposite(), LogisticsConfig.get().pipe.minSpeed);
         return addItem(item, from, false);
     }
 
@@ -557,7 +558,7 @@ public class PipeBlockEntity extends BaseBlockEntity
     }
 
     private float getInitialSpeed() {
-        return LogisticsPipe.CONFIG.ITEM_MIN_SPEED;
+        return LogisticsConfig.get().pipe.minSpeed;
     }
 
     private boolean isNeighborPipe(Direction fromDirection) {

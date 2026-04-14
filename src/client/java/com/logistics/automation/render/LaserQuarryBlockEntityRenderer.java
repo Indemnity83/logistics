@@ -1,8 +1,9 @@
 package com.logistics.automation.render;
 
 import com.logistics.LogisticsAutomationClient;
+import com.logistics.core.LogisticsConfig;
 import com.logistics.automation.laserquarry.LaserQuarryBlock;
-import com.logistics.automation.laserquarry.LaserQuarryConfig;
+import com.logistics.automation.laserquarry.LaserQuarryGeometry;
 import com.logistics.automation.laserquarry.entity.LaserQuarryBlockEntity;
 import com.logistics.pipe.block.PipeBlock;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -139,30 +140,31 @@ public class LaserQuarryBlockEntityRenderer implements BlockEntityRenderer<Laser
             frameEndX = entity.getCustomMaxX();
             frameEndZ = entity.getCustomMaxZ();
         } else {
+            int half = LogisticsConfig.get().quarry.area / 2;
             switch (facing) {
                 case NORTH:
-                    frameStartX = quarryPos.getX() - 8;
-                    frameStartZ = quarryPos.getZ() - LaserQuarryConfig.CHUNK_SIZE;
+                    frameStartX = quarryPos.getX() - half;
+                    frameStartZ = quarryPos.getZ() - LogisticsConfig.get().quarry.area;
                     break;
                 case SOUTH:
-                    frameStartX = quarryPos.getX() - 8;
+                    frameStartX = quarryPos.getX() - half;
                     frameStartZ = quarryPos.getZ() + 1;
                     break;
                 case EAST:
                     frameStartX = quarryPos.getX() + 1;
-                    frameStartZ = quarryPos.getZ() - 8;
+                    frameStartZ = quarryPos.getZ() - half;
                     break;
                 case WEST:
-                    frameStartX = quarryPos.getX() - LaserQuarryConfig.CHUNK_SIZE;
-                    frameStartZ = quarryPos.getZ() - 8;
+                    frameStartX = quarryPos.getX() - LogisticsConfig.get().quarry.area;
+                    frameStartZ = quarryPos.getZ() - half;
                     break;
                 default:
                     return;
             }
-            frameEndX = frameStartX + LaserQuarryConfig.CHUNK_SIZE - 1;
-            frameEndZ = frameStartZ + LaserQuarryConfig.CHUNK_SIZE - 1;
+            frameEndX = frameStartX + LogisticsConfig.get().quarry.area - 1;
+            frameEndZ = frameStartZ + LogisticsConfig.get().quarry.area - 1;
         }
-        int frameTopY = quarryPos.getY() + LaserQuarryConfig.Y_OFFSET_ABOVE;
+        int frameTopY = quarryPos.getY() + LaserQuarryGeometry.Y_OFFSET_ABOVE;
 
         if (shouldRenderPreviewOutline) {
             renderFramePreviewOutline(
@@ -555,7 +557,7 @@ public class LaserQuarryBlockEntityRenderer implements BlockEntityRenderer<Laser
 
         int width = frameEndX - frameStartX;
         int depth = frameEndZ - frameStartZ;
-        int height = LaserQuarryConfig.Y_OFFSET_ABOVE;
+        int height = LaserQuarryGeometry.Y_OFFSET_ABOVE;
 
         // Bottom ring (at quarry Y level, relY = 0)
         renderOutlineHorizontalEdge(entity, beamModel, matrices, bufferSource, lightmap, packedOverlay, relStartX, 0, relStartZ, width, 90);
@@ -564,7 +566,7 @@ public class LaserQuarryBlockEntityRenderer implements BlockEntityRenderer<Laser
         renderOutlineHorizontalEdge(entity, beamModel, matrices, bufferSource, lightmap, packedOverlay, relEndX, 0, relStartZ, depth, 0);
 
         // Top ring (at quarry Y + Y_OFFSET_ABOVE)
-        float topY = LaserQuarryConfig.Y_OFFSET_ABOVE;
+        float topY = LaserQuarryGeometry.Y_OFFSET_ABOVE;
         renderOutlineHorizontalEdge(entity, beamModel, matrices, bufferSource, lightmap, packedOverlay, relStartX, topY, relStartZ, width, 90);
         renderOutlineHorizontalEdge(entity, beamModel, matrices, bufferSource, lightmap, packedOverlay, relStartX, topY, relEndZ, width, 90);
         renderOutlineHorizontalEdge(entity, beamModel, matrices, bufferSource, lightmap, packedOverlay, relStartX, topY, relStartZ, depth, 0);

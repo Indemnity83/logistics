@@ -1,6 +1,7 @@
 package com.logistics.pipe.modules;
 
 import com.logistics.LogisticsPipe;
+import com.logistics.core.LogisticsConfig;
 import com.logistics.core.lib.pipe.Module;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.core.lib.pipe.PipeContext;
@@ -9,11 +10,9 @@ import org.jetbrains.annotations.Nullable;
 
 public class BoostModule implements Module {
     private final float accelerationRate;
-    private final float maxSpeed;
 
     public BoostModule(float accelerationRate) {
         this.accelerationRate = accelerationRate;
-        this.maxSpeed = LogisticsPipe.CONFIG.PIPE_MAX_SPEED * 4.0f;
     }
 
     @Override
@@ -23,7 +22,7 @@ public class BoostModule implements Module {
 
     @Override
     public float getMaxSpeed(PipeContext ctx) {
-        return maxSpeed;
+        return LogisticsConfig.get().pipe.maxSpeed * 4.0f;
     }
 
     @Override

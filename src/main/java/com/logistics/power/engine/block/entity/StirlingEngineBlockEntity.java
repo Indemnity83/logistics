@@ -1,5 +1,6 @@
 package com.logistics.power.engine.block.entity;
 
+import com.logistics.core.LogisticsConfig;
 import com.logistics.core.lib.block.behavior.MenuBehavior;
 import com.logistics.core.lib.block.capability.HasItemStorage;
 import com.logistics.core.lib.items.ItemInventoryComponent;
@@ -69,9 +70,8 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
     private static final double PID_KD = 0.3;
     private static final double TARGET_TEMPERATURE = 150;
 
-    // Output range in RF per tick
-    private static final double MIN_GENERATION = 3.0;
-    private static final double MAX_GENERATION = 10.0;
+    // Output range defaults — actual range read from LogisticsConfig at runtime
+    private static final double DEFAULT_MIN_GENERATION = 3.0;
 
     // Property delegate indices for GUI
     public static final int PROPERTY_BURN_TIME = 0;
@@ -89,7 +89,7 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
 
     // PID controller for output regulation
     private final PIDController pidController = new PIDController(PID_KP, PID_KI, PID_KD);
-    private double currentGeneration = MIN_GENERATION;
+    private double currentGeneration = DEFAULT_MIN_GENERATION;
     private double generationCarry = 0.0;
 
     // Inventory (single fuel slot)
@@ -193,9 +193,11 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
     @Override
     protected long getOutputPower() {
         double temp = getTemperature();
+        double minGen = LogisticsConfig.get().engine.stirlingMinOutput;
+        double maxGen = LogisticsConfig.get().engine.stirlingMaxOutput;
         double tempRatio =
                 Math.min(1.0, (temp - getTemperatureFloor()) / (TARGET_TEMPERATURE - getTemperatureFloor()));
-        double output = MIN_GENERATION + tempRatio * (MAX_GENERATION - MIN_GENERATION);
+        double output = minGen + tempRatio * (maxGen - minGen);
         return Math.round(output);
     }
 
@@ -237,7 +239,7 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
     @Override
     protected void onShutdown() {
         pidController.reset();
-        currentGeneration = MIN_GENERATION;
+        currentGeneration = DEFAULT_MIN_GENERATION;
         generationCarry = 0.0;
     }
 
@@ -280,7 +282,9 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
 
     private void generateWithCarry() {
         double temp = getTemperature();
-        currentGeneration = pidController.compute(TARGET_TEMPERATURE, temp, MIN_GENERATION, MAX_GENERATION);
+        currentGeneration = pidController.compute(TARGET_TEMPERATURE, temp,
+                LogisticsConfig.get().engine.stirlingMinOutput,
+                LogisticsConfig.get().engine.stirlingMaxOutput);
         generationCarry += currentGeneration;
 
         long whole = (long) Math.floor(generationCarry);
@@ -445,7 +449,7 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
         // Load Stirling-specific data
         burnTime = NbtCompat.getInt(nbt, "BurnTimeRemaining", 0);
         fuelTime = NbtCompat.getInt(nbt, "TotalFuelTime", 0);
-        currentGeneration = NbtCompat.getDouble(nbt, "CurrentGeneration", MIN_GENERATION);
+        currentGeneration = NbtCompat.getDouble(nbt, "CurrentGeneration", DEFAULT_MIN_GENERATION);
         generationCarry = NbtCompat.getDouble(nbt, "GenerationCarryover", 0.0);
         double pidIntegral = NbtCompat.getDouble(nbt, "PIDIntegral", 0.0);
         pidController.setIntegral(pidIntegral);
@@ -471,7 +475,7 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
             CompoundTag stirlingData = nbt.getCompound("StirlingData");
             burnTime = NbtCompat.getInt(stirlingData, "burnTime", 0);
             fuelTime = NbtCompat.getInt(stirlingData, "fuelTime", 0);
-            currentGeneration = NbtCompat.getDouble(stirlingData, "currentGeneration", MIN_GENERATION);
+            currentGeneration = NbtCompat.getDouble(stirlingData, "currentGeneration", DEFAULT_MIN_GENERATION);
             generationCarry = NbtCompat.getDouble(stirlingData, "generationCarry", 0.0);
             double pidIntegral = NbtCompat.getDouble(stirlingData, "pidIntegral", 0.0);
             pidController.setIntegral(pidIntegral);

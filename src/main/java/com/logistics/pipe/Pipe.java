@@ -1,7 +1,7 @@
 package com.logistics.pipe;
 
 import com.logistics.LogisticsMod;
-import com.logistics.LogisticsPipe;
+import com.logistics.core.LogisticsConfig;
 import com.logistics.core.lib.block.capability.PipeConnection;
 import com.logistics.core.lib.pipe.PipeContext;
 import com.logistics.core.lib.resource.ResourceId;
@@ -312,7 +312,7 @@ public class Pipe {
                 return drag;
             }
         }
-        return LogisticsPipe.CONFIG.DRAG_COEFFICIENT;
+        return LogisticsConfig.get().pipe.drag;
     }
 
     public float getMaxSpeed(PipeContext ctx) {
@@ -322,7 +322,7 @@ public class Pipe {
                 return max;
             }
         }
-        return LogisticsPipe.CONFIG.PIPE_MAX_SPEED;
+        return LogisticsConfig.get().pipe.maxSpeed;
     }
 
     public RoutePlan route(PipeContext ctx, TravelingItem item, List<Direction> options) {
