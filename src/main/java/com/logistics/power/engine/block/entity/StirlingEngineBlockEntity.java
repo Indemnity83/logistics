@@ -21,6 +21,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -459,7 +460,7 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
         } else if (nbt.contains("FuelStack")) {
             // Legacy: single item stored with CODEC
             inventory.setItem(0, ItemStack.EMPTY);
-            var ops = level.registryAccess().createSerializationContext(net.minecraft.nbt.NbtOps.INSTANCE);
+            var ops = level.registryAccess().createSerializationContext(NbtOps.INSTANCE);
             ItemStack.CODEC.parse(ops, nbt.get("FuelStack"))
                     .result()
                     .ifPresent(stack -> inventory.setItem(0, stack));

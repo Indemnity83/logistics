@@ -149,6 +149,7 @@ public class PipeBlock extends BaseEntityBlock implements ProbeBehavior.Probeabl
         CompoundTag chassisState = pipeEntity.getOrCreateModuleState(ChassisPipe.STATE_KEY);
         if (chassisState.isEmpty()) return;
 
+        // ItemStack.CODEC needs registry-aware ops for registry-backed components such as enchantments.
         RegistryOps<Tag> ops = level.registryAccess().createSerializationContext(NbtOps.INSTANCE);
         PipeContext ctx = pipeEntity.createContext();
 
@@ -157,19 +158,22 @@ public class PipeBlock extends BaseEntityBlock implements ProbeBehavior.Probeabl
             if (tag == null) continue;
 
             ItemStack.CODEC.parse(ops, tag).result().ifPresent(stack -> {
-                // Sync module config (filters, etc.) into the dropped item
-                if (stack.getItem() instanceof ModuleItem moduleItem) {
-                    String stateKey = moduleItem.createModule().getStateKey();
-                    CompoundTag moduleData = ctx.moduleState(stateKey);
-                    if (!moduleData.isEmpty()) {
-                        stack.set(DataComponents.CUSTOM_DATA, CustomData.of(moduleData.copy()));
-                    }
-                }
+                syncModuleConfigToDroppedItem(ctx, stack);
                 net.minecraft.world.entity.item.ItemEntity entity = new net.minecraft.world.entity.item.ItemEntity(
                         level, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, stack);
                 entity.setDefaultPickUpDelay();
                 level.addFreshEntity(entity);
             });
+        }
+    }
+
+    private void syncModuleConfigToDroppedItem(PipeContext ctx, ItemStack stack) {
+        if (!(stack.getItem() instanceof ModuleItem moduleItem)) return;
+
+        String stateKey = moduleItem.createModule().getStateKey();
+        CompoundTag moduleData = ctx.moduleState(stateKey);
+        if (!moduleData.isEmpty()) {
+            stack.set(DataComponents.CUSTOM_DATA, CustomData.of(moduleData.copy()));
         }
     }
 
