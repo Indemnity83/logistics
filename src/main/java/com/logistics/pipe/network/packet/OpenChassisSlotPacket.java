@@ -53,7 +53,8 @@ public record OpenChassisSlotPacket(int slotIndex) implements CustomPacketPayloa
                 Tag tag = ctx.moduleState(ChassisPipe.STATE_KEY).get(String.valueOf(packet.slotIndex));
                 if (tag == null) return;
 
-                ItemStack.CODEC.parse(NbtOps.INSTANCE, tag).result()
+                var ops = context.server().registryAccess().createSerializationContext(NbtOps.INSTANCE);
+                ItemStack.CODEC.parse(ops, tag).result()
                         .map(ItemStack::getItem)
                         .filter(item -> item instanceof ModuleItem)
                         .map(item -> ((ModuleItem) item).createModule())

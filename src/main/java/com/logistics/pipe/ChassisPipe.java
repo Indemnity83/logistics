@@ -17,6 +17,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
+import net.minecraft.resources.RegistryOps;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.SimpleMenuProvider;
@@ -83,10 +84,11 @@ public class ChassisPipe extends Pipe {
     protected List<Module> getDynamicModules(PipeContext ctx) {
         List<Module> modules = new ArrayList<>();
         var state = ctx.moduleState(STATE_KEY);
+        RegistryOps<net.minecraft.nbt.Tag> ops = ctx.world().registryAccess().createSerializationContext(NbtOps.INSTANCE);
         for (int slot = 0; slot < maxSlots; slot++) {
             Tag tag = state.get(String.valueOf(slot));
             if (tag == null) continue;
-            ItemStack.CODEC.parse(NbtOps.INSTANCE, tag).result()
+            ItemStack.CODEC.parse(ops, tag).result()
                     .map(ItemStack::getItem)
                     .filter(item -> item instanceof ModuleItem)
                     .map(item -> ((ModuleItem) item).createModule())

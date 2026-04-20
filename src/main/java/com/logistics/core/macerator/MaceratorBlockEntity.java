@@ -292,7 +292,7 @@ public class MaceratorBlockEntity extends BaseBlockEntity
 
     @Override
     protected void saveLogisticsData(CompoundTag tag) {
-        inventory.writeNbt(tag, "Inventory");
+        inventory.writeNbt(tag, "Inventory", level.registryAccess());
         energy.writeNbt(tag, "Energy");
         tag.putInt("ProcessProgress", processProgress);
         if (activeRecipeId != null) {
@@ -302,7 +302,7 @@ public class MaceratorBlockEntity extends BaseBlockEntity
 
     @Override
     protected void loadLogisticsData(CompoundTag tag) {
-        inventory.readNbt(tag, "Inventory");
+        inventory.readNbt(tag, "Inventory", level.registryAccess());
         energy.readNbt(tag, "Energy");
         processProgress = NbtCompat.getInt(tag, "ProcessProgress", 0);
         String recipeStr = NbtCompat.getString(tag, "ActiveRecipe", "");
