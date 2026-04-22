@@ -1,0 +1,9 @@
+{
+  "type": "logistics:macerator",
+  "ingredient": "minecraft:ender_pearl",
+  "result": {
+    "id": "logistics:core/ender_dust",
+    "count": 1
+  },
+  "grindingtime": 200
+}
