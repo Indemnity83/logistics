@@ -223,20 +223,18 @@ public class PipeFlowGameTest {
     }
 
     /**
-     * Verifies that enchanted items travel through a pipe without crashing and arrive with
-     * their enchantments intact.
+     * Verifies that {@link TravelingItem#CODEC} can serialize and deserialize an enchanted
+     * {@link ItemStack} without throwing {@code IllegalStateException: Can't access registry}.
      *
-     * <p>Regression test for: {@code IllegalStateException: Can't access registry} thrown when
-     * serializing an {@link ItemStack} with registry-backed components (e.g. enchantments) using
-     * {@code NbtOps.INSTANCE}. The fix is to use {@code RegistryOps} at every {@code ItemStack.CODEC}
-     * call site in the pipe layer.
+     * <p>Regression test for: the crash described above, caused by using {@code NbtOps.INSTANCE}
+     * instead of {@code RegistryOps} when encoding registry-backed components (e.g. enchantments).
+     * The fix ensures every {@code ItemStack.CODEC} call site in the pipe layer uses a
+     * registry-aware {@code RegistryOps} context.
      *
-     * <p>Layout (y=1): [copper_transport_pipe] → [chest]
-     *
-     * <p>Run in-game: /test run logistics-gametest.pipeflowgametest.testenchanteditemtravelsthroughpipe
+     * <p>Run in-game: /test run logistics-gametest.pipeflowgametest.testenchantedtravelingitemserialization
      */
     @GameTest(maxTicks = 1)
-    public void testEnchantedItemTravelsThroughPipe(GameTestHelper context) {
+    public void testEnchantedTravelingItemSerialization(GameTestHelper context) {
         ServerLevel level = context.getLevel();
 
         // Enchantments are data-driven and require a live registry — not available in unit tests.
