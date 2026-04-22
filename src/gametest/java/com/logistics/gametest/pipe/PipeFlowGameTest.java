@@ -11,9 +11,20 @@ import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Holder;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.Tag;
+import net.minecraft.resources.RegistryOps;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraft.world.item.enchantment.ItemEnchantments;
 import net.minecraft.world.level.block.Blocks;
 
 /**
@@ -209,6 +220,63 @@ public class PipeFlowGameTest {
         energy.amount = 640L;
 
         context.succeedWhen(() -> context.assertContainerContains(destChestPos, Items.DIAMOND));
+    }
+
+    /**
+     * Verifies that {@link TravelingItem#CODEC} can serialize and deserialize an enchanted
+     * {@link ItemStack} without throwing {@code IllegalStateException: Can't access registry}.
+     *
+     * <p>Regression test for: the crash described above, caused by using {@code NbtOps.INSTANCE}
+     * instead of {@code RegistryOps} when encoding registry-backed components (e.g. enchantments).
+     * The fix ensures every {@code ItemStack.CODEC} call site in the pipe layer uses a
+     * registry-aware {@code RegistryOps} context.
+     *
+     * <p>Run in-game: /test run logistics-gametest.pipeflowgametest.testenchantedtravelingitemserialization
+     */
+    @GameTest(maxTicks = 1)
+    public void testEnchantedTravelingItemSerialization(GameTestHelper context) {
+        ServerLevel level = context.getLevel();
+
+        // Enchantments are data-driven and require a live registry — not available in unit tests.
+        HolderLookup.RegistryLookup<Enchantment> enchLookup =
+                level.registryAccess().lookupOrThrow(Registries.ENCHANTMENT);
+        Holder<Enchantment> sharpness = enchLookup.getOrThrow(Enchantments.SHARPNESS);
+        ItemStack enchantedSword = new ItemStack(Items.DIAMOND_SWORD);
+        enchantedSword.enchant(sharpness, 5);
+
+        TravelingItem original = new TravelingItem(enchantedSword, Direction.EAST, 0.05f);
+
+        // Regression test: before the RegistryOps fix, this threw
+        // IllegalStateException: Can't access registry (enchantments require registry-aware ops).
+        RegistryOps<Tag> ops = level.registryAccess().createSerializationContext(NbtOps.INSTANCE);
+        Tag encoded;
+        try {
+            encoded = TravelingItem.CODEC.encodeStart(ops, original).getOrThrow();
+        } catch (Exception e) {
+            context.fail("TravelingItem serialization threw with registry-backed enchantment: " + e.getMessage());
+            return;
+        }
+
+        TravelingItem decoded;
+        try {
+            decoded = TravelingItem.CODEC.parse(ops, encoded).getOrThrow();
+        } catch (Exception e) {
+            context.fail("TravelingItem deserialization threw: " + e.getMessage());
+            return;
+        }
+
+        ItemEnchantments enchants = decoded.getStack().get(DataComponents.ENCHANTMENTS);
+        if (enchants == null || enchants.isEmpty()) {
+            context.fail("Enchantments lost after TravelingItem serialize+deserialize");
+            return;
+        }
+        for (Holder<Enchantment> h : enchants.keySet()) {
+            if (h.is(Enchantments.SHARPNESS) && enchants.getLevel(h) == 5) {
+                context.succeed();
+                return;
+            }
+        }
+        context.fail("Sharpness V not intact after TravelingItem serialize+deserialize");
     }
 
     /**

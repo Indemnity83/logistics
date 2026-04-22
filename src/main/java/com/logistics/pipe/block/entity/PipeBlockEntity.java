@@ -31,6 +31,7 @@ import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtOps;
+import net.minecraft.resources.RegistryOps;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -204,10 +205,11 @@ public class PipeBlockEntity extends BaseBlockEntity
 
         // Save traveling items
         if (!travelingItems.isEmpty()) {
+            RegistryOps<net.minecraft.nbt.Tag> ops = level.registryAccess().createSerializationContext(NbtOps.INSTANCE);
             ListTag itemsList = new ListTag();
             for (TravelingItem item : travelingItems) {
                 CompoundTag itemTag = (CompoundTag) TravelingItem.CODEC
-                        .encodeStart(NbtOps.INSTANCE, item)
+                        .encodeStart(ops, item)
                         .getOrThrow();
                 itemsList.add(itemTag);
             }
@@ -246,9 +248,10 @@ public class PipeBlockEntity extends BaseBlockEntity
         // Load traveling items
         travelingItems.clear();
         NbtCompat.ifHasList(pipeData, "ItemsInTransit", itemsList -> {
+            RegistryOps<net.minecraft.nbt.Tag> ops = level.registryAccess().createSerializationContext(NbtOps.INSTANCE);
             for (int i = 0; i < itemsList.size(); i++) {
                 NbtCompat.ifHasCompoundAt(itemsList, i, itemTag ->
-                    TravelingItem.CODEC.parse(NbtOps.INSTANCE, itemTag).result()
+                    TravelingItem.CODEC.parse(ops, itemTag).result()
                             .ifPresent(travelingItems::add));
             }
         });
@@ -362,7 +365,7 @@ public class PipeBlockEntity extends BaseBlockEntity
     @Override
     public void setRemoved() {
         super.setRemoved();
-        // Item dropping is handled in PipeBlock.onRemove() instead
+        // Item dropping is handled in PipeBlock.playerWillDestroy() instead
     }
 
     public CompoundTag getOrCreateModuleState(String key) {
