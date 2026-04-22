@@ -9,6 +9,7 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
+import net.minecraft.resources.RegistryOps;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -72,11 +73,15 @@ public class ChassisInventory implements Container {
     private void loadFromEntity() {
         PipeContext ctx = pipeEntity.createContext();
         var state = ctx.moduleState(ChassisPipe.STATE_KEY);
+        Level level = pipeEntity.getLevel();
+        RegistryOps<Tag> ops = level != null
+                ? level.registryAccess().createSerializationContext(NbtOps.INSTANCE)
+                : null;
         for (int slot = 0; slot < ChassisPipe.MAX_SLOTS; slot++) {
             final int s = slot;
             Tag tag = state.get(String.valueOf(slot));
-            if (tag != null) {
-                ItemStack.CODEC.parse(NbtOps.INSTANCE, tag).result()
+            if (tag != null && ops != null) {
+                ItemStack.CODEC.parse(ops, tag).result()
                         .ifPresent(stack -> items.set(s, stack));
             }
         }
@@ -96,6 +101,7 @@ public class ChassisInventory implements Container {
 
         PipeContext ctx = pipeEntity.createContext();
         var state = ctx.moduleState(ChassisPipe.STATE_KEY);
+        RegistryOps<Tag> ops = level.registryAccess().createSerializationContext(NbtOps.INSTANCE);
         for (int slot = 0; slot < ChassisPipe.MAX_SLOTS; slot++) {
             String key = String.valueOf(slot);
             ItemStack stack = items.get(slot);
@@ -103,7 +109,7 @@ public class ChassisInventory implements Container {
                 state.remove(key);
             } else {
                 final String k = key;
-                ItemStack.CODEC.encodeStart(NbtOps.INSTANCE, stack).result()
+                ItemStack.CODEC.encodeStart(ops, stack).result()
                         .ifPresent(tag -> state.put(k, tag));
             }
         }

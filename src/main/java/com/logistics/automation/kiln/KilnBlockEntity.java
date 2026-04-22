@@ -281,14 +281,14 @@ public class KilnBlockEntity extends BaseBlockEntity
 
     @Override
     protected void saveLogisticsData(CompoundTag tag) {
-        inventory.writeNbt(tag, "Inventory");
+        inventory.writeNbt(tag, "Inventory", level.registryAccess());
         energy.writeNbt(tag, "Energy");
         tag.putInt("ProcessProgress", processProgress);
     }
 
     @Override
     protected void loadLogisticsData(CompoundTag tag) {
-        inventory.readNbt(tag, "Inventory");
+        inventory.readNbt(tag, "Inventory", level.registryAccess());
         energy.readNbt(tag, "Energy");
         processProgress = NbtCompat.getInt(tag, "ProcessProgress", 0);
         // activeRecipe is re-resolved on the next tick

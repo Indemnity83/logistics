@@ -4,10 +4,13 @@ import com.logistics.core.lib.storage.NbtCompat;
 import net.fabricmc.fabric.api.transfer.v1.item.InventoryStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.Tag;
+import net.minecraft.resources.RegistryOps;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -38,7 +41,8 @@ public final class ItemInventoryComponent implements Container {
         return storage;
     }
 
-    public void readNbt(CompoundTag nbt, String key) {
+    public void readNbt(CompoundTag nbt, String key, HolderLookup.Provider registries) {
+        RegistryOps<Tag> ops = registries.createSerializationContext(NbtOps.INSTANCE);
         ListTag list = NbtCompat.getListOrEmpty(nbt, key);
 
         // Clear existing stacks
@@ -46,38 +50,39 @@ public final class ItemInventoryComponent implements Container {
 
         // Load items from list
         for (int i = 0; i < list.size(); i++) {
-            loadItemAt(list, i);
+            loadItemAt(ops, list, i);
         }
     }
 
-    public void writeNbt(CompoundTag nbt, String key) {
+    public void writeNbt(CompoundTag nbt, String key, HolderLookup.Provider registries) {
+        RegistryOps<Tag> ops = registries.createSerializationContext(NbtOps.INSTANCE);
         ListTag listTag = new ListTag();
         for (int i = 0; i < stacks.size(); i++) {
-            saveItemAt(listTag, i);
+            saveItemAt(ops, listTag, i);
         }
         if (!listTag.isEmpty()) {
             nbt.put(key, listTag);
         }
     }
 
-    private void loadItemAt(ListTag list, int index) {
+    private void loadItemAt(RegistryOps<Tag> ops, ListTag list, int index) {
         NbtCompat.ifHasCompoundAt(list, index, itemTag -> {
             int slot = NbtCompat.getInt(itemTag, "Slot", 0) & 255;
             if (slot < stacks.size()) {
-                ItemStack.CODEC.parse(NbtOps.INSTANCE, itemTag)
+                ItemStack.CODEC.parse(ops, itemTag)
                         .result()
                         .ifPresent(stack -> stacks.set(slot, stack));
             }
         });
     }
 
-    private void saveItemAt(ListTag list, int slot) {
+    private void saveItemAt(RegistryOps<Tag> ops, ListTag list, int slot) {
         ItemStack stack = stacks.get(slot);
         if (stack.isEmpty()) {
             return;
         }
 
-        ItemStack.CODEC.encodeStart(NbtOps.INSTANCE, stack)
+        ItemStack.CODEC.encodeStart(ops, stack)
                 .result()
                 .ifPresent(tag -> {
                     if (tag instanceof CompoundTag itemTag) {
