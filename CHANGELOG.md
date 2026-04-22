@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.5.4](https://github.com/Indemnity83/logistics/compare/mc1.21.1-v0.5.3...mc1.21.1-v0.5.4) (2026-04-22)
+
+
+### Bug Fixes
+
+* add ender dust macerator recipe ([#282](https://github.com/Indemnity83/logistics/issues/282)) ([a82b1c2](https://github.com/Indemnity83/logistics/commit/a82b1c2a76d786bb5e4fbe3658a4a94a862a0e65))
+* use RegistryOps to fix enchanted item crash ([#283](https://github.com/Indemnity83/logistics/issues/283)) ([b9b12be](https://github.com/Indemnity83/logistics/commit/b9b12bed1a1f492832025b437de1eff8cc4d8269))
+
 ## [0.5.3](https://github.com/Indemnity83/logistics/compare/mc1.21.1-v0.5.2...mc1.21.1-v0.5.3) (2026-04-14)
 
 
