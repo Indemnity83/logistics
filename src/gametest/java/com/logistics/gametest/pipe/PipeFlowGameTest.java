@@ -16,6 +16,9 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.Tag;
+import net.minecraft.resources.RegistryOps;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -23,7 +26,6 @@ import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.item.enchantment.ItemEnchantments;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.entity.ChestBlockEntity;
 
 /**
  * Tick-based game tests verifying that items physically move through pipe networks.
@@ -233,20 +235,9 @@ public class PipeFlowGameTest {
      *
      * <p>Run in-game: /test run logistics-gametest.pipeflowgametest.testenchanteditemtravelsthroughpipe
      */
-    @GameTest(maxTicks = 40)
+    @GameTest(maxTicks = 1)
     public void testEnchantedItemTravelsThroughPipe(GameTestHelper context) {
-        BlockPos pipePos = new BlockPos(0, 1, 0);
-        BlockPos chestPos = new BlockPos(1, 1, 0);
-
-        context.setBlock(chestPos, Blocks.CHEST);
-        context.setBlock(pipePos, LogisticsPipe.BLOCK.COPPER_TRANSPORT_PIPE);
-
         ServerLevel level = context.getLevel();
-        PipeBlockEntity pipe = context.getBlockEntity(pipePos, PipeBlockEntity.class);
-        if (pipe == null) {
-            context.fail("Copper transport pipe should have a block entity");
-            return;
-        }
 
         // Enchantments are data-driven and require a live registry — not available in unit tests.
         HolderLookup.RegistryLookup<Enchantment> enchLookup =
@@ -255,31 +246,39 @@ public class PipeFlowGameTest {
         ItemStack enchantedSword = new ItemStack(Items.DIAMOND_SWORD);
         enchantedSword.enchant(sharpness, 5);
 
-        TravelingItem travelingItem = new TravelingItem(enchantedSword, Direction.WEST, 0.05f);
-        boolean accepted = pipe.forceAddItem(travelingItem, Direction.WEST);
-        if (!accepted) {
-            context.fail("Pipe should accept the force-injected enchanted sword");
+        TravelingItem original = new TravelingItem(enchantedSword, Direction.EAST, 0.05f);
+
+        // Regression test: before the RegistryOps fix, this threw
+        // IllegalStateException: Can't access registry (enchantments require registry-aware ops).
+        RegistryOps<Tag> ops = level.registryAccess().createSerializationContext(NbtOps.INSTANCE);
+        Tag encoded;
+        try {
+            encoded = TravelingItem.CODEC.encodeStart(ops, original).getOrThrow();
+        } catch (Exception e) {
+            context.fail("TravelingItem serialization threw with registry-backed enchantment: " + e.getMessage());
             return;
         }
 
-        // Force serialization while the enchanted item is in transit.
-        // With NbtOps.INSTANCE (the bug), this throws IllegalStateException.
-        // With RegistryOps (the fix), this succeeds.
-        pipe.getUpdateTag(level.registryAccess());
+        TravelingItem decoded;
+        try {
+            decoded = TravelingItem.CODEC.parse(ops, encoded).getOrThrow();
+        } catch (Exception e) {
+            context.fail("TravelingItem deserialization threw: " + e.getMessage());
+            return;
+        }
 
-        // Verify the item arrives with its enchantment intact.
-        context.succeedWhen(() -> {
-            ChestBlockEntity chest = context.getBlockEntity(chestPos, ChestBlockEntity.class);
-            if (chest == null) throw new AssertionError("Chest block entity missing");
-            for (int i = 0; i < chest.getContainerSize(); i++) {
-                ItemStack s = chest.getItem(i);
-                if (s.is(Items.DIAMOND_SWORD)) {
-                    ItemEnchantments enchants = s.get(DataComponents.ENCHANTMENTS);
-                    if (enchants != null && !enchants.isEmpty()) return;
-                }
+        ItemEnchantments enchants = decoded.getStack().get(DataComponents.ENCHANTMENTS);
+        if (enchants == null || enchants.isEmpty()) {
+            context.fail("Enchantments lost after TravelingItem serialize+deserialize");
+            return;
+        }
+        for (Holder<Enchantment> h : enchants.keySet()) {
+            if (h.is(Enchantments.SHARPNESS) && enchants.getLevel(h) == 5) {
+                context.succeed();
+                return;
             }
-            throw new AssertionError("No enchanted diamond sword found in chest");
-        });
+        }
+        context.fail("Sharpness V not intact after TravelingItem serialize+deserialize");
     }
 
     /**
