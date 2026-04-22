@@ -11,10 +11,19 @@ import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Holder;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraft.world.item.enchantment.ItemEnchantments;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.ChestBlockEntity;
 
 /**
  * Tick-based game tests verifying that items physically move through pipe networks.
@@ -209,6 +218,68 @@ public class PipeFlowGameTest {
         energy.amount = 640L;
 
         context.succeedWhen(() -> context.assertContainerContains(destChestPos, Items.DIAMOND));
+    }
+
+    /**
+     * Verifies that enchanted items travel through a pipe without crashing and arrive with
+     * their enchantments intact.
+     *
+     * <p>Regression test for: {@code IllegalStateException: Can't access registry} thrown when
+     * serializing an {@link ItemStack} with registry-backed components (e.g. enchantments) using
+     * {@code NbtOps.INSTANCE}. The fix is to use {@code RegistryOps} at every {@code ItemStack.CODEC}
+     * call site in the pipe layer.
+     *
+     * <p>Layout (y=1): [copper_transport_pipe] → [chest]
+     *
+     * <p>Run in-game: /test run logistics-gametest.pipeflowgametest.testenchanteditemtravelsthroughpipe
+     */
+    @GameTest(maxTicks = 40)
+    public void testEnchantedItemTravelsThroughPipe(GameTestHelper context) {
+        BlockPos pipePos = new BlockPos(0, 1, 0);
+        BlockPos chestPos = new BlockPos(1, 1, 0);
+
+        context.setBlock(chestPos, Blocks.CHEST);
+        context.setBlock(pipePos, LogisticsPipe.BLOCK.COPPER_TRANSPORT_PIPE);
+
+        ServerLevel level = context.getLevel();
+        PipeBlockEntity pipe = context.getBlockEntity(pipePos, PipeBlockEntity.class);
+        if (pipe == null) {
+            context.fail("Copper transport pipe should have a block entity");
+            return;
+        }
+
+        // Enchantments are data-driven and require a live registry — not available in unit tests.
+        HolderLookup.RegistryLookup<Enchantment> enchLookup =
+                level.registryAccess().lookupOrThrow(Registries.ENCHANTMENT);
+        Holder<Enchantment> sharpness = enchLookup.getOrThrow(Enchantments.SHARPNESS);
+        ItemStack enchantedSword = new ItemStack(Items.DIAMOND_SWORD);
+        enchantedSword.enchant(sharpness, 5);
+
+        TravelingItem travelingItem = new TravelingItem(enchantedSword, Direction.WEST, 0.05f);
+        boolean accepted = pipe.forceAddItem(travelingItem, Direction.WEST);
+        if (!accepted) {
+            context.fail("Pipe should accept the force-injected enchanted sword");
+            return;
+        }
+
+        // Force serialization while the enchanted item is in transit.
+        // With NbtOps.INSTANCE (the bug), this throws IllegalStateException.
+        // With RegistryOps (the fix), this succeeds.
+        pipe.getUpdateTag(level.registryAccess());
+
+        // Verify the item arrives with its enchantment intact.
+        context.succeedWhen(() -> {
+            ChestBlockEntity chest = context.getBlockEntity(chestPos, ChestBlockEntity.class);
+            if (chest == null) throw new AssertionError("Chest block entity missing");
+            for (int i = 0; i < chest.getContainerSize(); i++) {
+                ItemStack s = chest.getItem(i);
+                if (s.is(Items.DIAMOND_SWORD)) {
+                    ItemEnchantments enchants = s.get(DataComponents.ENCHANTMENTS);
+                    if (enchants != null && !enchants.isEmpty()) return;
+                }
+            }
+            throw new AssertionError("No enchanted diamond sword found in chest");
+        });
     }
 
     /**
