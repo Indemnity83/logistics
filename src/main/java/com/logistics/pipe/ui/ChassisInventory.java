@@ -74,7 +74,7 @@ public class ChassisInventory implements Container {
         PipeContext ctx = pipeEntity.createContext();
         var state = ctx.moduleState(ChassisPipe.STATE_KEY);
         Level level = pipeEntity.getLevel();
-        RegistryOps<net.minecraft.nbt.Tag> ops = level != null
+        RegistryOps<Tag> ops = level != null
                 ? level.registryAccess().createSerializationContext(NbtOps.INSTANCE)
                 : null;
         for (int slot = 0; slot < ChassisPipe.MAX_SLOTS; slot++) {
@@ -101,7 +101,7 @@ public class ChassisInventory implements Container {
 
         PipeContext ctx = pipeEntity.createContext();
         var state = ctx.moduleState(ChassisPipe.STATE_KEY);
-        RegistryOps<net.minecraft.nbt.Tag> ops = level.registryAccess().createSerializationContext(NbtOps.INSTANCE);
+        RegistryOps<Tag> ops = level.registryAccess().createSerializationContext(NbtOps.INSTANCE);
         for (int slot = 0; slot < ChassisPipe.MAX_SLOTS; slot++) {
             String key = String.valueOf(slot);
             ItemStack stack = items.get(slot);

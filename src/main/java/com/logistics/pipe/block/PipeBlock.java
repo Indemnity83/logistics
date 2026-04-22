@@ -54,6 +54,7 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraft.world.level.ScheduledTickAccess;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
 
@@ -140,11 +141,7 @@ public class PipeBlock extends BaseEntityBlock implements ProbeBehavior.Probeabl
         return super.playerWillDestroy(level, pos, state, player);
     }
 
-    /**
-     * Drop installed chassis module items at the pipe position.
-     * Reads module ItemStacks from the chassis NBT state, syncs each module's
-     * configuration into the item's CustomData, and spawns them as item entities.
-     */
+    /** Drop installed chassis module items at the pipe position. */
     private void dropChassisModules(Level level, BlockPos pos, PipeBlockEntity pipeEntity) {
         CompoundTag chassisState = pipeEntity.getOrCreateModuleState(ChassisPipe.STATE_KEY);
         if (chassisState.isEmpty()) return;
@@ -158,8 +155,8 @@ public class PipeBlock extends BaseEntityBlock implements ProbeBehavior.Probeabl
             if (tag == null) continue;
 
             ItemStack.CODEC.parse(ops, tag).result().ifPresent(stack -> {
-                syncModuleConfigToDroppedItem(ctx, stack);
-                net.minecraft.world.entity.item.ItemEntity entity = new net.minecraft.world.entity.item.ItemEntity(
+                applyModuleStateToStack(ctx, stack);
+                ItemEntity entity = new ItemEntity(
                         level, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, stack);
                 entity.setDefaultPickUpDelay();
                 level.addFreshEntity(entity);
@@ -167,7 +164,7 @@ public class PipeBlock extends BaseEntityBlock implements ProbeBehavior.Probeabl
         }
     }
 
-    private void syncModuleConfigToDroppedItem(PipeContext ctx, ItemStack stack) {
+    private void applyModuleStateToStack(PipeContext ctx, ItemStack stack) {
         if (!(stack.getItem() instanceof ModuleItem moduleItem)) return;
 
         String stateKey = moduleItem.createModule().getStateKey();

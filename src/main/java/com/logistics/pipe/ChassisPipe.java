@@ -84,7 +84,7 @@ public class ChassisPipe extends Pipe {
     protected List<Module> getDynamicModules(PipeContext ctx) {
         List<Module> modules = new ArrayList<>();
         var state = ctx.moduleState(STATE_KEY);
-        RegistryOps<net.minecraft.nbt.Tag> ops = ctx.world().registryAccess().createSerializationContext(NbtOps.INSTANCE);
+        RegistryOps<Tag> ops = ctx.world().registryAccess().createSerializationContext(NbtOps.INSTANCE);
         for (int slot = 0; slot < maxSlots; slot++) {
             Tag tag = state.get(String.valueOf(slot));
             if (tag == null) continue;

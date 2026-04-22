@@ -9,6 +9,7 @@ import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.Tag;
 import net.minecraft.resources.RegistryOps;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
@@ -41,7 +42,7 @@ public final class ItemInventoryComponent implements Container {
     }
 
     public void readNbt(CompoundTag nbt, String key, HolderLookup.Provider registries) {
-        RegistryOps<net.minecraft.nbt.Tag> ops = registries.createSerializationContext(NbtOps.INSTANCE);
+        RegistryOps<Tag> ops = registries.createSerializationContext(NbtOps.INSTANCE);
         ListTag list = NbtCompat.getListOrEmpty(nbt, key);
 
         // Clear existing stacks
@@ -54,7 +55,7 @@ public final class ItemInventoryComponent implements Container {
     }
 
     public void writeNbt(CompoundTag nbt, String key, HolderLookup.Provider registries) {
-        RegistryOps<net.minecraft.nbt.Tag> ops = registries.createSerializationContext(NbtOps.INSTANCE);
+        RegistryOps<Tag> ops = registries.createSerializationContext(NbtOps.INSTANCE);
         ListTag listTag = new ListTag();
         for (int i = 0; i < stacks.size(); i++) {
             saveItemAt(ops, listTag, i);
@@ -64,7 +65,7 @@ public final class ItemInventoryComponent implements Container {
         }
     }
 
-    private void loadItemAt(RegistryOps<net.minecraft.nbt.Tag> ops, ListTag list, int index) {
+    private void loadItemAt(RegistryOps<Tag> ops, ListTag list, int index) {
         NbtCompat.ifHasCompoundAt(list, index, itemTag -> {
             int slot = NbtCompat.getInt(itemTag, "Slot", 0) & 255;
             if (slot < stacks.size()) {
@@ -75,7 +76,7 @@ public final class ItemInventoryComponent implements Container {
         });
     }
 
-    private void saveItemAt(RegistryOps<net.minecraft.nbt.Tag> ops, ListTag list, int slot) {
+    private void saveItemAt(RegistryOps<Tag> ops, ListTag list, int slot) {
         ItemStack stack = stacks.get(slot);
         if (stack.isEmpty()) {
             return;
