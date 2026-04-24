@@ -8,6 +8,7 @@ import java.util.Locale;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
@@ -530,7 +531,7 @@ public abstract class AbstractEngineBlockEntity extends BaseBlockEntity implemen
     // ==================== NBT Serialization ====================
 
     @Override
-    protected void saveLogisticsData(CompoundTag engineData) {
+    protected void saveLogisticsData(CompoundTag engineData, HolderLookup.Provider registries) {
         engineData.putLong("StoredEnergy", energyStorage.amount);
         engineData.putDouble("Temperature", temperature);
         engineData.putFloat("CycleProgress", progress);
@@ -539,7 +540,7 @@ public abstract class AbstractEngineBlockEntity extends BaseBlockEntity implemen
     }
 
     @Override
-    protected void loadLogisticsData(CompoundTag engineData) {
+    protected void loadLogisticsData(CompoundTag engineData, HolderLookup.Provider registries) {
         energyStorage.amount = NbtCompat.getLong(engineData, "StoredEnergy", 0L);
         temperature = NbtCompat.getDouble(engineData, "Temperature", 0.0);
         progress = NbtCompat.getFloat(engineData, "CycleProgress", 0f);
@@ -548,7 +549,7 @@ public abstract class AbstractEngineBlockEntity extends BaseBlockEntity implemen
     }
 
     @Override
-    protected void loadLegacyData(CompoundTag nbt) {
+    protected void loadLegacyData(CompoundTag nbt, HolderLookup.Provider registries) {
         if (nbt.contains("Engine")) {
             CompoundTag engineData = nbt.getCompound("Engine");
             // Load old key names (before BaseBlockEntity refactoring)

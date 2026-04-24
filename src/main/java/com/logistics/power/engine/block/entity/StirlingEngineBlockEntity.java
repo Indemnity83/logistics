@@ -22,6 +22,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -429,8 +430,8 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
     // ==================== NBT Serialization ====================
 
     @Override
-    protected void saveLogisticsData(CompoundTag nbt) {
-        super.saveLogisticsData(nbt);
+    protected void saveLogisticsData(CompoundTag nbt, HolderLookup.Provider registries) {
+        super.saveLogisticsData(nbt, registries);
 
         // Save Stirling-specific data
         nbt.putInt("BurnTimeRemaining", burnTime);
@@ -440,12 +441,12 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
         nbt.putDouble("PIDIntegral", pidController.getIntegral());
 
         // Save fuel inventory
-        inventory.writeNbt(nbt, "Inventory", level.registryAccess());
+        inventory.writeNbt(nbt, "Inventory", registries);
     }
 
     @Override
-    protected void loadLogisticsData(CompoundTag nbt) {
-        super.loadLogisticsData(nbt);
+    protected void loadLogisticsData(CompoundTag nbt, HolderLookup.Provider registries) {
+        super.loadLogisticsData(nbt, registries);
 
         // Load Stirling-specific data
         burnTime = NbtCompat.getInt(nbt, "BurnTimeRemaining", 0);
@@ -457,11 +458,11 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
 
         // Load fuel inventory (try new key first, fall back to legacy)
         if (nbt.contains("Inventory")) {
-            inventory.readNbt(nbt, "Inventory", level.registryAccess());
+            inventory.readNbt(nbt, "Inventory", registries);
         } else if (nbt.contains("FuelStack")) {
             // Legacy: single item stored with CODEC
             inventory.setItem(0, ItemStack.EMPTY);
-            var ops = level.registryAccess().createSerializationContext(NbtOps.INSTANCE);
+            var ops = registries.createSerializationContext(NbtOps.INSTANCE);
             ItemStack.CODEC.parse(ops, nbt.get("FuelStack"))
                     .result()
                     .ifPresent(stack -> inventory.setItem(0, stack));
@@ -469,8 +470,8 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
     }
 
     @Override
-    protected void loadLegacyData(CompoundTag nbt) {
-        super.loadLegacyData(nbt); // Loads engine data from "Engine" tag
+    protected void loadLegacyData(CompoundTag nbt, HolderLookup.Provider registries) {
+        super.loadLegacyData(nbt, registries); // Loads engine data from "Engine" tag
 
         // Load Stirling-specific data from old "StirlingData" tag
         if (nbt.contains("StirlingData")) {
