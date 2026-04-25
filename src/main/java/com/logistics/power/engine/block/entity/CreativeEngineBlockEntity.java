@@ -6,6 +6,7 @@ import com.logistics.power.engine.block.CreativeEngineBlock;
 import com.logistics.LogisticsPower;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
@@ -125,14 +126,14 @@ public class CreativeEngineBlockEntity extends AbstractEngineBlockEntity {
     // ==================== NBT Serialization ====================
 
     @Override
-    protected void saveLogisticsData(CompoundTag nbt) {
-        super.saveLogisticsData(nbt);
+    protected void saveLogisticsData(CompoundTag nbt, HolderLookup.Provider registries) {
+        super.saveLogisticsData(nbt, registries);
         nbt.putInt("OutputLevelIndex", outputLevelIndex);
     }
 
     @Override
-    protected void loadLogisticsData(CompoundTag nbt) {
-        super.loadLogisticsData(nbt);
+    protected void loadLogisticsData(CompoundTag nbt, HolderLookup.Provider registries) {
+        super.loadLogisticsData(nbt, registries);
         outputLevelIndex = NbtCompat.getInt(nbt, "OutputLevelIndex", 0);
         // Clamp to valid range
         if (outputLevelIndex < 0 || outputLevelIndex >= OUTPUT_LEVELS.length) {

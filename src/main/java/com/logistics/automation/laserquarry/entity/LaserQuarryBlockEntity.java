@@ -21,6 +21,7 @@ import java.util.Map;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
@@ -1158,8 +1159,8 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity implements PipeConne
 
     // NBT serialization
     @Override
-    protected void saveLogisticsData(CompoundTag nbt) {
-        super.saveLogisticsData(nbt);
+    protected void saveLogisticsData(CompoundTag nbt, HolderLookup.Provider registries) {
+        super.saveLogisticsData(nbt, registries);
 
         // Save energy
         energy.writeNbt(nbt, "Energy");
@@ -1194,8 +1195,8 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity implements PipeConne
     }
 
     @Override
-    protected void loadLogisticsData(CompoundTag nbt) {
-        super.loadLogisticsData(nbt);
+    protected void loadLogisticsData(CompoundTag nbt, HolderLookup.Provider registries) {
+        super.loadLogisticsData(nbt, registries);
 
         // Load energy (try new key first, fall back to legacy)
         if (nbt.contains("Energy")) {

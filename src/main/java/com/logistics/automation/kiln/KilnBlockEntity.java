@@ -13,6 +13,7 @@ import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -280,15 +281,15 @@ public class KilnBlockEntity extends BaseBlockEntity
     // ==================== NBT ====================
 
     @Override
-    protected void saveLogisticsData(CompoundTag tag) {
-        inventory.writeNbt(tag, "Inventory", level.registryAccess());
+    protected void saveLogisticsData(CompoundTag tag, HolderLookup.Provider registries) {
+        inventory.writeNbt(tag, "Inventory", registries);
         energy.writeNbt(tag, "Energy");
         tag.putInt("ProcessProgress", processProgress);
     }
 
     @Override
-    protected void loadLogisticsData(CompoundTag tag) {
-        inventory.readNbt(tag, "Inventory", level.registryAccess());
+    protected void loadLogisticsData(CompoundTag tag, HolderLookup.Provider registries) {
+        inventory.readNbt(tag, "Inventory", registries);
         energy.readNbt(tag, "Energy");
         processProgress = NbtCompat.getInt(tag, "ProcessProgress", 0);
         // activeRecipe is re-resolved on the next tick
