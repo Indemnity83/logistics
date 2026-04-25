@@ -1,6 +1,7 @@
 package com.logistics.pipe.modules;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -267,5 +268,84 @@ class ProviderDispatchQueueTest {
         snapshot.clear(); // modifying the list must not affect the queue
 
         assertEquals(1, queue.size());
+    }
+
+    // ===== itemTag (component-aware dispatch) =====
+
+    @Test
+    void enqueue_withItemTag_preservesTagInEntry() {
+        CompoundTag tag = new CompoundTag();
+        tag.putString("id", DIAMOND);
+        tag.putInt("count", 1);
+
+        queue.enqueue(DIAMOND, tag, 5, REQUESTER_A, null);
+
+        ProviderDispatchQueue.Entry head = queue.peekHead();
+        assertNotNull(head);
+        assertEquals(tag, head.itemTag());
+    }
+
+    @Test
+    void enqueue_withNullItemTag_storesNull() {
+        queue.enqueue(DIAMOND, (CompoundTag) null, 5, REQUESTER_A, null);
+
+        assertNull(queue.peekHead().itemTag());
+    }
+
+    @Test
+    void enqueue_bareOverload_storesNullTag() {
+        queue.enqueue(DIAMOND, 5, REQUESTER_A, null);
+
+        assertNull(queue.peekHead().itemTag(), "bare enqueue overload must store null itemTag");
+    }
+
+    @Test
+    void consumeFromHead_partial_preservesItemTag() {
+        CompoundTag tag = new CompoundTag();
+        tag.putString("id", DIAMOND);
+
+        queue.enqueue(DIAMOND, tag, 10, REQUESTER_A, DELIVERY_1);
+        queue.consumeFromHead(3);
+
+        ProviderDispatchQueue.Entry head = queue.peekHead();
+        assertNotNull(head);
+        assertEquals(7, head.remaining());
+        assertEquals(tag, head.itemTag(), "itemTag must survive partial consumption");
+    }
+
+    @Test
+    void consumeFromHead_full_removesEntry_tagGone() {
+        CompoundTag tag = new CompoundTag();
+        tag.putString("id", DIAMOND);
+
+        queue.enqueue(DIAMOND, tag, 5, REQUESTER_A, null);
+        queue.consumeFromHead(5);
+
+        assertTrue(queue.isEmpty());
+    }
+
+    @Test
+    void entries_snapshot_preservesItemTag() {
+        CompoundTag tag = new CompoundTag();
+        tag.putString("id", DIAMOND);
+
+        queue.enqueue(DIAMOND, tag, 8, REQUESTER_A, null);
+
+        var snapshot = queue.entries();
+        assertEquals(1, snapshot.size());
+        assertEquals(tag, snapshot.get(0).itemTag());
+    }
+
+    @Test
+    void getReservations_itemTagDoesNotAffectReservationKey() {
+        CompoundTag tag = new CompoundTag();
+        tag.putString("enchantment", "sharpness");
+
+        queue.enqueue(DIAMOND, tag, 3, REQUESTER_A, null);
+        queue.enqueue(DIAMOND, 5, REQUESTER_B, null); // bare, same item type
+
+        // Reservations are keyed by itemId only — components are not factored in
+        Map<String, Long> res = queue.getReservations();
+        assertEquals(8L, res.get(DIAMOND), "enchanted and bare counts should both contribute to item-type reservation");
     }
 }
