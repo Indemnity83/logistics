@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.5](https://github.com/Indemnity83/logistics/compare/mc1.21.1-v0.5.4...mc1.21.1-v0.5.5) (2026-04-25)
+
+
+### Bug Fixes
+
+* resolve vanishing filters in diamond pipes serialization ([#288](https://github.com/Indemnity83/logistics/issues/288)) ([9bc893e](https://github.com/Indemnity83/logistics/commit/9bc893e30c1791b6f5f2ed06c2dc6bc6d0211808))
+
 ## [0.5.4](https://github.com/Indemnity83/logistics/compare/mc1.21.1-v0.5.3...mc1.21.1-v0.5.4) (2026-04-22)
 
 
