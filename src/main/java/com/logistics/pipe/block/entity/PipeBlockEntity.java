@@ -26,11 +26,13 @@ import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentGetter;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.Tag;
 import net.minecraft.resources.RegistryOps;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
@@ -200,12 +202,12 @@ public class PipeBlockEntity extends BaseBlockEntity
     }
 
     @Override
-    protected void saveLogisticsData(CompoundTag pipeData) {
-        super.saveLogisticsData(pipeData);
+    protected void saveLogisticsData(CompoundTag pipeData, HolderLookup.Provider registries) {
+        super.saveLogisticsData(pipeData, registries);
 
         // Save traveling items
         if (!travelingItems.isEmpty()) {
-            RegistryOps<net.minecraft.nbt.Tag> ops = level.registryAccess().createSerializationContext(NbtOps.INSTANCE);
+            RegistryOps<Tag> ops = registries.createSerializationContext(NbtOps.INSTANCE);
             ListTag itemsList = new ListTag();
             for (TravelingItem item : travelingItems) {
                 CompoundTag itemTag = (CompoundTag) TravelingItem.CODEC
@@ -240,15 +242,15 @@ public class PipeBlockEntity extends BaseBlockEntity
     }
 
     @Override
-    protected void loadLogisticsData(CompoundTag pipeData) {
-        super.loadLogisticsData(pipeData);
+    protected void loadLogisticsData(CompoundTag pipeData, HolderLookup.Provider registries) {
+        super.loadLogisticsData(pipeData, registries);
 
         long readStart = System.nanoTime();
 
         // Load traveling items
         travelingItems.clear();
         NbtCompat.ifHasList(pipeData, "ItemsInTransit", itemsList -> {
-            RegistryOps<net.minecraft.nbt.Tag> ops = level.registryAccess().createSerializationContext(NbtOps.INSTANCE);
+            RegistryOps<Tag> ops = registries.createSerializationContext(NbtOps.INSTANCE);
             for (int i = 0; i < itemsList.size(); i++) {
                 NbtCompat.ifHasCompoundAt(itemsList, i, itemTag ->
                     TravelingItem.CODEC.parse(ops, itemTag).result()
@@ -296,6 +298,7 @@ public class PipeBlockEntity extends BaseBlockEntity
     @Override
     protected void loadLegacyData(ValueInput view) {
         super.loadLegacyData(view);
+        HolderLookup.Provider registries = view.lookup();
 
         view.read("PipeData", CompoundTag.CODEC).ifPresent(oldData -> {
             long readStart = System.nanoTime();
@@ -319,7 +322,7 @@ public class PipeBlockEntity extends BaseBlockEntity
             }
 
             // Now load using the standard loader which expects new keys
-            loadLogisticsData(massaged);
+            loadLogisticsData(massaged, registries);
 
             long durationMs = (System.nanoTime() - readStart) / 1_000_000L;
             if (durationMs >= 2L && Boolean.getBoolean("logistics.timing")) {
