@@ -1,10 +1,8 @@
 package com.logistics.pipe.ui;
 
 import com.logistics.core.lib.resource.ResourceId;
-import com.logistics.core.lib.storage.NbtCompat;
-import com.logistics.pipe.Pipe;
 import com.logistics.core.lib.pipe.PipeContext;
-import com.logistics.pipe.block.PipeBlock;
+import com.logistics.core.lib.storage.NbtCompat;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.pipe.modules.SupplierModule;
 import net.minecraft.core.NonNullList;
@@ -15,6 +13,7 @@ import net.minecraft.world.Container;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -26,9 +25,15 @@ public class SupplyInventory implements Container {
     private final NonNullList<ItemStack> stacks =
             NonNullList.withSize(SupplierModule.MAX_SUPPLY_SLOTS, ItemStack.EMPTY);
     private final PipeBlockEntity pipeEntity;
+    @Nullable private final String targetModuleStateKey;
 
     public SupplyInventory(PipeBlockEntity pipeEntity) {
+        this(pipeEntity, null);
+    }
+
+    public SupplyInventory(PipeBlockEntity pipeEntity, @Nullable String targetModuleStateKey) {
         this.pipeEntity = pipeEntity;
+        this.targetModuleStateKey = targetModuleStateKey;
 
         if (pipeEntity != null) {
             loadFromModule();
@@ -104,10 +109,7 @@ public class SupplyInventory implements Container {
             return;
         }
 
-        // Get the supplier module
-        PipeBlock block = (PipeBlock) pipeEntity.getBlockState().getBlock();
-        Pipe pipe = block.getPipe();
-        SupplierModule module = pipe.getModule(SupplierModule.class, pipeEntity);
+        SupplierModule module = PipeModuleHelper.getModule(pipeEntity, SupplierModule.class, targetModuleStateKey);
 
         if (module == null) {
             return;
