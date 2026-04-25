@@ -6,6 +6,7 @@ import com.logistics.core.lib.storage.NbtCompat;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
@@ -157,8 +158,8 @@ public class MarkerBlockEntity extends BaseBlockEntity {
     }
 
     @Override
-    protected void saveLogisticsData(CompoundTag data) {
-        super.saveLogisticsData(data);
+    protected void saveLogisticsData(CompoundTag data, HolderLookup.Provider registries) {
+        super.saveLogisticsData(data, registries);
 
         // Save connected markers
         if (!connectedMarkers.isEmpty()) {
@@ -188,8 +189,8 @@ public class MarkerBlockEntity extends BaseBlockEntity {
     }
 
     @Override
-    protected void loadLogisticsData(CompoundTag data) {
-        super.loadLogisticsData(data);
+    protected void loadLogisticsData(CompoundTag data, HolderLookup.Provider registries) {
+        super.loadLogisticsData(data, registries);
 
         connectedMarkers.clear();
         boundMin = null;
@@ -204,8 +205,8 @@ public class MarkerBlockEntity extends BaseBlockEntity {
     }
 
     @Override
-    protected void loadLegacyData(CompoundTag nbt) {
-        super.loadLegacyData(nbt);
+    protected void loadLegacyData(CompoundTag nbt, HolderLookup.Provider registries) {
+        super.loadLegacyData(nbt, registries);
 
         if (nbt.contains("MarkerData")) {
             CompoundTag data = nbt.getCompound("MarkerData");

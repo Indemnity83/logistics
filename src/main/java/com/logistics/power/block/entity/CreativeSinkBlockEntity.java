@@ -10,6 +10,7 @@ import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
@@ -140,15 +141,15 @@ public class CreativeSinkBlockEntity extends BaseBlockEntity
     // ==================== NBT Serialization ====================
 
     @Override
-    protected void saveLogisticsData(CompoundTag nbt) {
-        super.saveLogisticsData(nbt);
+    protected void saveLogisticsData(CompoundTag nbt, HolderLookup.Provider registries) {
+        super.saveLogisticsData(nbt, registries);
         nbt.putInt("DrainRateIndex", drainRateIndex);
         // Note: totalEnergyReceived not persisted - testing-only counter, resets on reload
     }
 
     @Override
-    protected void loadLogisticsData(CompoundTag nbt) {
-        super.loadLogisticsData(nbt);
+    protected void loadLogisticsData(CompoundTag nbt, HolderLookup.Provider registries) {
+        super.loadLogisticsData(nbt, registries);
         drainRateIndex = NbtCompat.getInt(nbt, "DrainRateIndex", 4);
         // Clamp to valid range
         if (drainRateIndex < 0 || drainRateIndex >= DRAIN_RATES.length) {
@@ -158,8 +159,8 @@ public class CreativeSinkBlockEntity extends BaseBlockEntity
     }
 
     @Override
-    protected void loadLegacyData(CompoundTag nbt) {
-        super.loadLegacyData(nbt);
+    protected void loadLegacyData(CompoundTag nbt, HolderLookup.Provider registries) {
+        super.loadLegacyData(nbt, registries);
         if (nbt.contains("CreativeSink")) {
             CompoundTag data = nbt.getCompound("CreativeSink");
             // Load old key name (before BaseBlockEntity refactoring)

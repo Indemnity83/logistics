@@ -20,8 +20,9 @@ import org.jetbrains.annotations.Nullable;
  *   <li>Proper client chunk sync and update packets</li>
  * </ul>
  *
- * <p>Subclasses override {@link #saveLogisticsData(CompoundTag)} and {@link #loadLogisticsData(CompoundTag)}
- * for normal persistence, using the simple NBT tag-based API.
+ * <p>Subclasses override {@link #saveLogisticsData(CompoundTag, HolderLookup.Provider)} and
+ * {@link #loadLogisticsData(CompoundTag, HolderLookup.Provider)} for normal persistence,
+ * using the simple NBT tag-based API.
  */
 public abstract class BaseBlockEntity extends BlockEntity {
 
@@ -37,11 +38,10 @@ public abstract class BaseBlockEntity extends BlockEntity {
      * Save logistics block entity data to NBT.
      * Override this instead of {@link #saveAdditional(CompoundTag, net.minecraft.core.HolderLookup.Provider)}.
      *
-     * <p>Note: Use {@code level.registryAccess()} to serialize ItemStacks and other registry objects.
-     *
      * @param tag the compound tag to write logistics data into
+     * @param registries registry access for serializing ItemStacks and other registry objects
      */
-    protected void saveLogisticsData(CompoundTag tag) {
+    protected void saveLogisticsData(CompoundTag tag, HolderLookup.Provider registries) {
         // Default: no logistics data
     }
 
@@ -49,11 +49,13 @@ public abstract class BaseBlockEntity extends BlockEntity {
      * Load logistics block entity data from NBT.
      * Override this instead of {@link #loadAdditional(CompoundTag, net.minecraft.core.HolderLookup.Provider)}.
      *
-     * <p>Note: Use {@code level.registryAccess()} to deserialize ItemStacks and other registry objects.
+     * <p>Use {@code registries} (not {@code level.registryAccess()}) to deserialize ItemStacks —
+     * {@code level} is null at load time because {@code setLevel} is called after deserialization.
      *
      * @param tag the compound tag to read logistics data from
+     * @param registries registry access for deserializing ItemStacks and other registry objects
      */
-    protected void loadLogisticsData(CompoundTag tag) {
+    protected void loadLogisticsData(CompoundTag tag, HolderLookup.Provider registries) {
         // Default: no logistics data
     }
 
@@ -67,8 +69,9 @@ public abstract class BaseBlockEntity extends BlockEntity {
      * <p>TODO: This method should be removed prior to v1.0 release
      *
      * @param nbt the compound tag to read legacy data from
+     * @param registries registry access for deserializing ItemStacks and other registry objects
      */
-    protected void loadLegacyData(CompoundTag nbt) {
+    protected void loadLegacyData(CompoundTag nbt, HolderLookup.Provider registries) {
         // Default: no legacy data migration needed
     }
 
@@ -76,7 +79,7 @@ public abstract class BaseBlockEntity extends BlockEntity {
     protected final void saveAdditional(CompoundTag nbt, HolderLookup.Provider registries) {
         super.saveAdditional(nbt, registries);
         CompoundTag logisticsData = new CompoundTag();
-        saveLogisticsData(logisticsData);
+        saveLogisticsData(logisticsData, registries);
         if (!logisticsData.isEmpty()) {
             nbt.put(DATA_KEY, logisticsData);
         }
@@ -86,9 +89,9 @@ public abstract class BaseBlockEntity extends BlockEntity {
     protected final void loadAdditional(CompoundTag nbt, HolderLookup.Provider registries) {
         super.loadAdditional(nbt, registries);
         if (nbt.contains(DATA_KEY)) {
-            loadLogisticsData(nbt.getCompound(DATA_KEY));
+            loadLogisticsData(nbt.getCompound(DATA_KEY), registries);
         } else {
-            loadLegacyData(nbt);  // Changed signature: CompoundTag instead of ValueInput
+            loadLegacyData(nbt, registries);
         }
     }
 
