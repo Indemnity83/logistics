@@ -394,6 +394,14 @@ public class PipeBlockEntity extends BaseBlockEntity
     }
 
     @Override
+    public @Nullable CompoundTag existingModuleState(String key) {
+        if (!moduleState.contains(key)) {
+            return null;
+        }
+        return NbtCompat.getCompoundOrEmpty(moduleState, key);
+    }
+
+    @Override
     public PipeConnection.Type getConnectionType(Level world, BlockPos pos, Direction direction) {
         BlockState blockState = getBlockState();
         if (blockState.getBlock() instanceof PipeBlock pipeBlock) {

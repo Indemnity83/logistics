@@ -152,8 +152,8 @@ public class CraftingModule implements Module, TickingModule, RoutingModule, Dis
 
     public void setResult(PipeContext ctx, String itemId, int count) {
         if (itemId == null || itemId.isEmpty()) {
-            ctx.moduleState(getStateKey()).remove(RESULT_ITEM);
-            ctx.moduleState(getStateKey()).remove(RESULT_COUNT);
+            ctx.moduleState(this).remove(RESULT_ITEM);
+            ctx.moduleState(this).remove(RESULT_COUNT);
         } else {
             ctx.saveString(this, RESULT_ITEM, itemId);
             ctx.saveInt(this, RESULT_COUNT, Math.max(1, count));
@@ -195,11 +195,11 @@ public class CraftingModule implements Module, TickingModule, RoutingModule, Dis
     // ==================== Queue Accessors ====================
 
     private ListTag getQueue(PipeContext ctx) {
-        return NbtCompat.getListOrEmpty(ctx.moduleState(getStateKey()), QUEUE);
+        return NbtCompat.getListOrEmpty(ctx.moduleState(this), QUEUE);
     }
 
     private void saveQueue(PipeContext ctx, ListTag queue) {
-        ctx.moduleState(getStateKey()).put(QUEUE, queue);
+        ctx.moduleState(this).put(QUEUE, queue);
         ctx.markDirtyAndSync();
     }
 
@@ -266,7 +266,7 @@ public class CraftingModule implements Module, TickingModule, RoutingModule, Dis
         // Compute and store recipe result
         CraftingInput craftInput = crafter.asCraftInput();
         Optional<RecipeHolder<CraftingRecipe>> recipeOpt = CrafterBlock.getPotentialResults(serverLevel, craftInput);
-        CompoundTag state = ctx.moduleState(getStateKey());
+        CompoundTag state = ctx.moduleState(this);
         if (recipeOpt.isPresent()) {
             CraftingRecipe recipe = recipeOpt.get().value();
             ItemStack result = recipe.assemble(craftInput, serverLevel.registryAccess());
@@ -791,7 +791,7 @@ public class CraftingModule implements Module, TickingModule, RoutingModule, Dis
             if (entry != null) cancelEntryOrders(ctx, entry);
         }
 
-        ctx.moduleState(getStateKey()).remove(QUEUE);
+        ctx.moduleState(this).remove(QUEUE);
         ctx.saveInt(this, TICKS_PULSE, 0);
         ctx.markDirtyAndSync();
 
@@ -1074,7 +1074,7 @@ public class CraftingModule implements Module, TickingModule, RoutingModule, Dis
         }
 
         // Clear queue and tick counters so stale state doesn't survive a re-attach
-        ctx.moduleState(getStateKey()).remove(QUEUE);
+        ctx.moduleState(this).remove(QUEUE);
         ctx.saveInt(this, TICKS_PULSE, 0);
         ctx.saveInt(this, TICKS_SCAN, 0);
 

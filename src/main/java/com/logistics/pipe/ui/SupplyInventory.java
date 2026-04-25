@@ -117,6 +117,9 @@ public class SupplyInventory implements Container {
 
         // Load configured supplies
         PipeContext ctx = pipeEntity.createContext();
+        if (targetModuleStateKey != null) {
+            ctx = ctx.withModuleStateKey(module, targetModuleStateKey);
+        }
         List<SupplierModule.SupplyConfig> configs = module.getSupplyConfigs(ctx);
 
         int slotIndex = 0;

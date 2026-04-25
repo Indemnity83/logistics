@@ -6,7 +6,6 @@ import com.logistics.pipe.Pipe;
 import com.logistics.core.lib.pipe.PipeContext;
 import com.logistics.pipe.block.PipeBlock;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
-import com.logistics.core.lib.pipe.ItemAcceptingModule;
 import com.logistics.core.lib.pipe.Module;
 import java.util.ArrayList;
 import java.util.List;
@@ -78,12 +77,7 @@ public class MinecraftWorldView implements IWorldView {
         Pipe pipe = block.getPipe();
         PipeContext ctx = pipeEntity.createContext();
 
-        for (Module module : pipe.getModules(pipeEntity)) {
-            if (module instanceof ItemAcceptingModule sink && sink.acceptsItem(ctx, stack)) {
-                return true;
-            }
-        }
-        return false;
+        return pipe.matchesSinkFilter(ctx, stack);
     }
 
     @Override

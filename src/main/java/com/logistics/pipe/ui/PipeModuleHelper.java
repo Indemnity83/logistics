@@ -8,7 +8,6 @@ import com.logistics.core.lib.pipe.Module;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
 import java.util.function.BiConsumer;
 
 /**
@@ -46,6 +45,9 @@ public class PipeModuleHelper {
 
                 if (module != null) {
                     PipeContext ctx = pipeEntity.createContext();
+                    if (stateKey != null) {
+                        ctx = ctx.withModuleStateKey(module, stateKey);
+                    }
                     action.accept(ctx, module);
                 }
             }
@@ -80,6 +82,9 @@ public class PipeModuleHelper {
 
             if (module != null) {
                 PipeContext ctx = pipeEntity.createContext();
+                if (stateKey != null) {
+                    ctx = ctx.withModuleStateKey(module, stateKey);
+                }
                 action.accept(ctx, module);
             }
         }
@@ -92,25 +97,6 @@ public class PipeModuleHelper {
     ) {
         PipeBlock block = (PipeBlock) pipeEntity.getBlockState().getBlock();
         Pipe pipe = block.getPipe();
-
-        if (stateKey == null) {
-            return pipe.getModule(moduleClass, pipeEntity);
-        }
-
-        return findModule(pipe.getModules(pipeEntity), moduleClass, stateKey);
-    }
-
-    static <T extends Module> T findModule(
-        List<Module> modules,
-        Class<T> moduleClass,
-        String stateKey
-    ) {
-        for (Module module : modules) {
-            if (moduleClass.isInstance(module) && stateKey.equals(module.getStateKey())) {
-                return moduleClass.cast(module);
-            }
-        }
-
-        return null;
+        return pipe.getModule(moduleClass, pipeEntity, stateKey);
     }
 }

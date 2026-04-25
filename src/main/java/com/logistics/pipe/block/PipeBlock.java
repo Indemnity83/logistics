@@ -29,7 +29,6 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.BlockGetter;
@@ -167,11 +166,9 @@ public class PipeBlock extends BaseEntityBlock implements ProbeBehavior.Probeabl
     private void applyModuleStateToStack(PipeContext ctx, ItemStack stack) {
         if (!(stack.getItem() instanceof ModuleItem moduleItem)) return;
 
-        String stateKey = moduleItem.createModule().getStateKey();
+        String stateKey = ChassisPipe.moduleStateKey(stack, moduleItem.createModule());
         CompoundTag moduleData = ctx.moduleState(stateKey);
-        if (!moduleData.isEmpty()) {
-            stack.set(DataComponents.CUSTOM_DATA, CustomData.of(moduleData.copy()));
-        }
+        stack.set(DataComponents.CUSTOM_DATA, ModuleItem.customDataWithModuleState(stack, moduleData));
     }
 
     /**

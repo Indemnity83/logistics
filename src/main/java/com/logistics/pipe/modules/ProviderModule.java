@@ -310,7 +310,7 @@ public class ProviderModule implements Module, TickingModule, DispatchableModule
     /** Load the dispatch queue from NBT state. Returns an empty queue if nothing is stored. */
     private ProviderDispatchQueue loadQueue(PipeContext ctx) {
         ProviderDispatchQueue queue = new ProviderDispatchQueue();
-        ListTag tag = NbtCompat.getListOrEmpty(ctx.moduleState(getStateKey()), DISPATCH_QUEUE);
+        ListTag tag = NbtCompat.getListOrEmpty(ctx.moduleState(this), DISPATCH_QUEUE);
         for (int i = 0; i < tag.size(); i++) {
             CompoundTag entry = tag.getCompound(i).orElse(null);
             if (entry == null) continue;
@@ -333,7 +333,7 @@ public class ProviderModule implements Module, TickingModule, DispatchableModule
     /** Persist the dispatch queue to NBT state. */
     private void saveQueue(PipeContext ctx, ProviderDispatchQueue queue) {
         if (queue.isEmpty()) {
-            ctx.moduleState(getStateKey()).remove(DISPATCH_QUEUE);
+            ctx.moduleState(this).remove(DISPATCH_QUEUE);
         } else {
             ListTag tag = new ListTag();
             for (ProviderDispatchQueue.Entry e : queue.entries()) {
@@ -344,7 +344,7 @@ public class ProviderModule implements Module, TickingModule, DispatchableModule
                 if (e.deliveryId() != null) entry.putString(DQ_DELIVERY_ID, e.deliveryId().toString());
                 tag.add(entry);
             }
-            ctx.moduleState(getStateKey()).put(DISPATCH_QUEUE, tag);
+            ctx.moduleState(this).put(DISPATCH_QUEUE, tag);
         }
         ctx.markDirtyAndSync();
     }

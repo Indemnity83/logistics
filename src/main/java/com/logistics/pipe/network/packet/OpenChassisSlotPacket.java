@@ -54,11 +54,19 @@ public record OpenChassisSlotPacket(int slotIndex) implements CustomPacketPayloa
                 if (tag == null) return;
 
                 var ops = context.server().registryAccess().createSerializationContext(NbtOps.INSTANCE);
-                ItemStack.CODEC.parse(ops, tag).result()
-                        .map(ItemStack::getItem)
-                        .filter(item -> item instanceof ModuleItem)
-                        .map(item -> ((ModuleItem) item).createModule())
-                        .ifPresent(module -> module.onWrench(ctx, player));
+                ItemStack.CODEC.parse(ops, tag).result().ifPresent(stack -> {
+                    if (!(stack.getItem() instanceof ModuleItem moduleItem)) return;
+                    boolean missingModuleId = ModuleItem.getModuleId(stack).isBlank();
+                    Module module = moduleItem.createModule();
+                    String stateKey = ChassisPipe.moduleStateKey(stack, module);
+                    if (missingModuleId) {
+                        ItemStack.CODEC.encodeStart(ops, stack).result()
+                                .ifPresent(encoded -> ctx.moduleState(ChassisPipe.STATE_KEY)
+                                        .put(String.valueOf(packet.slotIndex), encoded));
+                        ctx.markDirtyAndSync();
+                    }
+                    module.onWrench(ctx.withModuleStateKey(module, stateKey), player);
+                });
             });
         });
     }
