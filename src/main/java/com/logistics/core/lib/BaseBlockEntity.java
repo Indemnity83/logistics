@@ -20,8 +20,9 @@ import org.jetbrains.annotations.Nullable;
  *   <li>Proper client chunk sync and update packets</li>
  * </ul>
  *
- * <p>Subclasses override {@link #saveLogisticsData(CompoundTag)} and {@link #loadLogisticsData(CompoundTag)}
- * for normal persistence, using the simple NBT tag-based API.
+ * <p>Subclasses override {@link #saveLogisticsData(CompoundTag, HolderLookup.Provider)} and
+ * {@link #loadLogisticsData(CompoundTag, HolderLookup.Provider)} for normal persistence,
+ * using the simple NBT tag-based API.
  */
 public abstract class BaseBlockEntity extends BlockEntity {
 

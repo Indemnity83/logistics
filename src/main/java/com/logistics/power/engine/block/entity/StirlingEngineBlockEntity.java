@@ -487,7 +487,8 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
         // Load fuel from old "Fuel" tag at root level
         inventory.setItem(0, ItemStack.EMPTY);
         if (nbt.contains("Fuel")) {
-            ItemStack.CODEC.parse(net.minecraft.nbt.NbtOps.INSTANCE, nbt.get("Fuel"))
+            var ops = registries.createSerializationContext(NbtOps.INSTANCE);
+            ItemStack.CODEC.parse(ops, nbt.get("Fuel"))
                     .result()
                     .ifPresent(stack -> inventory.setItem(0, stack));
         }

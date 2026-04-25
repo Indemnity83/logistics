@@ -208,7 +208,7 @@ public class PipeBlockEntity extends BaseBlockEntity
 
         // Save traveling items
         if (!travelingItems.isEmpty()) {
-            RegistryOps<net.minecraft.nbt.Tag> ops = registries.createSerializationContext(NbtOps.INSTANCE);
+            RegistryOps<Tag> ops = registries.createSerializationContext(NbtOps.INSTANCE);
             ListTag itemsList = new ListTag();
             for (TravelingItem item : travelingItems) {
                 CompoundTag itemTag = (CompoundTag) TravelingItem.CODEC
