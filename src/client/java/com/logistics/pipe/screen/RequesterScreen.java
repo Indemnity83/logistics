@@ -17,6 +17,7 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
@@ -328,7 +329,15 @@ public class RequesterScreen extends AbstractContainerScreen<RequesterScreenHand
         // Render item tooltips
         for (NetworkItemButton button : itemButtons) {
             if (button.isHoveredOrFocused() && !button.getItem().isEmpty()) {
-                renderTooltip(graphics, mouseX, mouseY);
+                ItemStack item = button.getItem();
+                graphics.setTooltipForNextFrame(
+                        this.font,
+                        this.getTooltipFromContainerItem(item),
+                        item.getTooltipImage(),
+                        mouseX,
+                        mouseY,
+                        item.get(DataComponents.TOOLTIP_STYLE)
+                );
                 break;
             }
         }
