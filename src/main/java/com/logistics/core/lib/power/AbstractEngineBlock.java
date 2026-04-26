@@ -13,11 +13,13 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -161,6 +163,24 @@ public abstract class AbstractEngineBlock<E extends AbstractEngineBlockEntity> e
     @Override
     protected BlockState mirror(BlockState state, Mirror mirror) {
         return state.rotate(mirror.getRotation(state.getValue(FACING)));
+    }
+
+    /**
+     * Only the base face (opposite of FACING) supports attachments like levers, buttons, and
+     * redstone dust. All SupportType checks go through getBlockSupportShape, so we return a
+     * thin slab on the base face side — giving that face full coverage while leaving all other
+     * faces empty.
+     */
+    @Override
+    public VoxelShape getBlockSupportShape(BlockState state, BlockGetter level, BlockPos pos) {
+        return switch (state.getValue(FACING).getOpposite()) {
+            case UP -> Block.box(0, 15, 0, 16, 16, 16);
+            case DOWN -> Block.box(0, 0, 0, 16, 1, 16);
+            case NORTH -> Block.box(0, 0, 0, 16, 16, 1);
+            case SOUTH -> Block.box(0, 0, 15, 16, 16, 16);
+            case WEST -> Block.box(0, 0, 0, 1, 16, 16);
+            case EAST -> Block.box(15, 0, 0, 16, 16, 16);
+        };
     }
 
     /**
