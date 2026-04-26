@@ -25,7 +25,10 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.RegistryOps;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -70,6 +73,7 @@ public class ProviderModule implements Module, TickingModule, DispatchableModule
     // Dispatch queue NBT keys
     private static final String DISPATCH_QUEUE = "dispatch_queue";
     private static final String DQ_ITEM = "item";
+    private static final String DQ_ITEM_TAG = "item_tag";
     private static final String DQ_AMOUNT = "amount";
     private static final String DQ_REQUESTER = "requester";
     private static final String DQ_DELIVERY_ID = "delivery_id";
@@ -216,7 +220,14 @@ public class ProviderModule implements Module, TickingModule, DispatchableModule
     private void enqueueDispatch(PipeContext ctx, ItemVariant item, long amount,
             BlockPos requester, @Nullable UUID deliveryId) {
         ProviderDispatchQueue queue = loadQueue(ctx);
-        queue.enqueue(BuiltInRegistries.ITEM.getKey(item.getItem()).toString(), amount, requester, deliveryId);
+        String itemId = BuiltInRegistries.ITEM.getKey(item.getItem()).toString();
+        RegistryOps<Tag> ops = ctx.world().registryAccess().createSerializationContext(NbtOps.INSTANCE);
+        CompoundTag itemTag = ItemStack.CODEC.encodeStart(ops, item.toStack(1))
+                .result()
+                .filter(t -> t instanceof CompoundTag)
+                .map(t -> (CompoundTag) t)
+                .orElse(null);
+        queue.enqueue(itemId, itemTag, amount, requester, deliveryId);
         saveQueue(ctx, queue);
     }
 
@@ -241,7 +252,15 @@ public class ProviderModule implements Module, TickingModule, DispatchableModule
         if (rid == null) { queue.removeHead(); saveQueue(ctx, queue); return; }
         var holder = BuiltInRegistries.ITEM.get(rid.toIdentifier());
         if (holder == null) { queue.removeHead(); saveQueue(ctx, queue); return; }
-        ItemVariant item = ItemVariant.of(new ItemStack(holder.asItem()));
+        ItemVariant item;
+        if (head.itemTag() != null) {
+            RegistryOps<Tag> ops = ctx.world().registryAccess().createSerializationContext(NbtOps.INSTANCE);
+            ItemStack stack = ItemStack.CODEC.parse(ops, head.itemTag()).result()
+                    .orElse(new ItemStack(holder.asItem()));
+            item = ItemVariant.of(stack);
+        } else {
+            item = ItemVariant.of(new ItemStack(holder.asItem()));
+        }
 
         ProviderMode mode = getMode(ctx);
         long itemsLeft = itemLimit;
@@ -325,7 +344,8 @@ public class ProviderModule implements Module, TickingModule, DispatchableModule
             if (!dlvStr.isEmpty()) {
                 try { deliveryId = UUID.fromString(dlvStr); } catch (Exception ignored) {}
             }
-            queue.enqueue(itemId, amount, requester, deliveryId);
+            CompoundTag itemTag = entry.contains(DQ_ITEM_TAG) ? entry.getCompound(DQ_ITEM_TAG) : null;
+            queue.enqueue(itemId, itemTag, amount, requester, deliveryId);
         }
         return queue;
     }
@@ -339,6 +359,7 @@ public class ProviderModule implements Module, TickingModule, DispatchableModule
             for (ProviderDispatchQueue.Entry e : queue.entries()) {
                 CompoundTag entry = new CompoundTag();
                 entry.putString(DQ_ITEM, e.itemId());
+                if (e.itemTag() != null) entry.put(DQ_ITEM_TAG, e.itemTag());
                 entry.putLong(DQ_AMOUNT, e.remaining());
                 entry.putIntArray(DQ_REQUESTER, new int[]{e.requester().getX(), e.requester().getY(), e.requester().getZ()});
                 if (e.deliveryId() != null) entry.putString(DQ_DELIVERY_ID, e.deliveryId().toString());

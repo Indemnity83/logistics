@@ -1,6 +1,7 @@
 package com.logistics.pipe.modules;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayDeque;
@@ -29,12 +30,14 @@ public class ProviderDispatchQueue {
      * A single pending dispatch request.
      *
      * @param itemId     registry key of the item (e.g. "minecraft:iron_ingot")
+     * @param itemTag    full serialized ItemStack tag preserving data components (null = bare item)
      * @param remaining  items still to be extracted and injected into the pipe
      * @param requester  destination pipe position
      * @param deliveryId delivery correlation UUID (may be null)
      */
     public record Entry(
             String itemId,
+            @Nullable CompoundTag itemTag,
             long remaining,
             BlockPos requester,
             @Nullable UUID deliveryId) {}
@@ -45,10 +48,17 @@ public class ProviderDispatchQueue {
 
     /**
      * Add a new dispatch request to the tail of the queue.
+     *
+     * @param itemTag serialized ItemStack tag preserving data components; null for bare items
      */
-    public void enqueue(String itemId, long amount, BlockPos requester, @Nullable UUID deliveryId) {
+    public void enqueue(String itemId, @Nullable CompoundTag itemTag, long amount, BlockPos requester, @Nullable UUID deliveryId) {
         if (amount <= 0) return;
-        entries.addLast(new Entry(itemId, amount, requester, deliveryId));
+        entries.addLast(new Entry(itemId, itemTag, amount, requester, deliveryId));
+    }
+
+    /** Add a bare-item dispatch request (no data components). */
+    public void enqueue(String itemId, long amount, BlockPos requester, @Nullable UUID deliveryId) {
+        enqueue(itemId, null, amount, requester, deliveryId);
     }
 
     /**
@@ -61,7 +71,7 @@ public class ProviderDispatchQueue {
         entries.pollFirst();
         long newRemaining = head.remaining() - consumed;
         if (newRemaining > 0) {
-            entries.addFirst(new Entry(head.itemId(), newRemaining, head.requester(), head.deliveryId()));
+            entries.addFirst(new Entry(head.itemId(), head.itemTag(), newRemaining, head.requester(), head.deliveryId()));
         }
     }
 
