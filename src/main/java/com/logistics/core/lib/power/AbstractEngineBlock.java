@@ -41,6 +41,13 @@ public abstract class AbstractEngineBlock<E extends AbstractEngineBlockEntity> e
     public static final EnumProperty<Direction> FACING = BlockStateProperties.FACING;
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
 
+    private static final VoxelShape SUPPORT_UP = Block.box(0, 15, 0, 16, 16, 16);
+    private static final VoxelShape SUPPORT_DOWN = Block.box(0, 0, 0, 16, 1, 16);
+    private static final VoxelShape SUPPORT_NORTH = Block.box(0, 0, 0, 16, 16, 1);
+    private static final VoxelShape SUPPORT_SOUTH = Block.box(0, 0, 15, 16, 16, 16);
+    private static final VoxelShape SUPPORT_WEST = Block.box(0, 0, 0, 1, 16, 16);
+    private static final VoxelShape SUPPORT_EAST = Block.box(15, 0, 0, 16, 16, 16);
+
     protected AbstractEngineBlock(Properties settings) {
         super(settings);
         registerDefaultState(defaultBlockState()
@@ -174,12 +181,12 @@ public abstract class AbstractEngineBlock<E extends AbstractEngineBlockEntity> e
     @Override
     public VoxelShape getBlockSupportShape(BlockState state, BlockGetter level, BlockPos pos) {
         return switch (state.getValue(FACING).getOpposite()) {
-            case UP -> Block.box(0, 15, 0, 16, 16, 16);
-            case DOWN -> Block.box(0, 0, 0, 16, 1, 16);
-            case NORTH -> Block.box(0, 0, 0, 16, 16, 1);
-            case SOUTH -> Block.box(0, 0, 15, 16, 16, 16);
-            case WEST -> Block.box(0, 0, 0, 1, 16, 16);
-            case EAST -> Block.box(15, 0, 0, 16, 16, 16);
+            case UP -> SUPPORT_UP;
+            case DOWN -> SUPPORT_DOWN;
+            case NORTH -> SUPPORT_NORTH;
+            case SOUTH -> SUPPORT_SOUTH;
+            case WEST -> SUPPORT_WEST;
+            case EAST -> SUPPORT_EAST;
         };
     }
 
