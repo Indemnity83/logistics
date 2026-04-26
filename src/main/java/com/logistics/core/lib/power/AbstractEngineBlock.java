@@ -13,11 +13,13 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -38,6 +40,13 @@ public abstract class AbstractEngineBlock<E extends AbstractEngineBlockEntity> e
         implements ProbeBehavior.Probeable, WrenchBehavior.Wrenchable {
     public static final EnumProperty<Direction> FACING = BlockStateProperties.FACING;
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
+
+    private static final VoxelShape SUPPORT_UP = Block.box(0, 15, 0, 16, 16, 16);
+    private static final VoxelShape SUPPORT_DOWN = Block.box(0, 0, 0, 16, 1, 16);
+    private static final VoxelShape SUPPORT_NORTH = Block.box(0, 0, 0, 16, 16, 1);
+    private static final VoxelShape SUPPORT_SOUTH = Block.box(0, 0, 15, 16, 16, 16);
+    private static final VoxelShape SUPPORT_WEST = Block.box(0, 0, 0, 1, 16, 16);
+    private static final VoxelShape SUPPORT_EAST = Block.box(15, 0, 0, 16, 16, 16);
 
     protected AbstractEngineBlock(Properties settings) {
         super(settings);
@@ -161,6 +170,24 @@ public abstract class AbstractEngineBlock<E extends AbstractEngineBlockEntity> e
     @Override
     protected BlockState mirror(BlockState state, Mirror mirror) {
         return state.rotate(mirror.getRotation(state.getValue(FACING)));
+    }
+
+    /**
+     * Only the base face (opposite of FACING) supports attachments like levers, buttons, and
+     * redstone dust. All SupportType checks go through getBlockSupportShape, so we return a
+     * thin slab on the base face side — giving that face full coverage while leaving all other
+     * faces empty.
+     */
+    @Override
+    public VoxelShape getBlockSupportShape(BlockState state, BlockGetter level, BlockPos pos) {
+        return switch (state.getValue(FACING).getOpposite()) {
+            case UP -> SUPPORT_UP;
+            case DOWN -> SUPPORT_DOWN;
+            case NORTH -> SUPPORT_NORTH;
+            case SOUTH -> SUPPORT_SOUTH;
+            case WEST -> SUPPORT_WEST;
+            case EAST -> SUPPORT_EAST;
+        };
     }
 
     /**
