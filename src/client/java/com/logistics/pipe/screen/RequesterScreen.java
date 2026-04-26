@@ -327,7 +327,7 @@ public class RequesterScreen extends AbstractContainerScreen<RequesterScreenHand
         // Render item tooltips
         for (NetworkItemButton button : itemButtons) {
             if (button.isHoveredOrFocused() && !button.getItem().isEmpty()) {
-                renderTooltip(graphics, mouseX, mouseY);
+                graphics.renderTooltip(this.font, button.getItem(), mouseX, mouseY);
                 break;
             }
         }
