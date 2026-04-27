@@ -1,6 +1,7 @@
 package com.logistics.pipe.ui;
 
 import com.logistics.LogisticsPipe;
+import com.logistics.core.lib.pipe.PipeContext;
 import com.logistics.core.lib.storage.NbtCompat;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.pipe.modules.SupplierModule;
@@ -20,6 +21,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.function.BiConsumer;
+
 /**
  * Screen handler for the Supplier GUI.
  * Displays 9 supply slots where players can configure items and target amounts to maintain in the connected inventory.
@@ -35,16 +38,22 @@ public class SupplierScreenHandler extends AbstractContainerMenu {
     private final SupplyInventory supplyInventory;
     private final ContainerLevelAccess context;
     private final ContainerData data;
+    @Nullable private final String targetModuleStateKey;
     @Nullable private final ServerPlayer itemConfigPlayer;
     @Nullable private final InteractionHand itemConfigHand;
     @Nullable private final ItemStack originalStack;
 
     public SupplierScreenHandler(int syncId, Container playerInventory) {
-        this(syncId, playerInventory, null, new SimpleContainerData(1));
+        this(syncId, playerInventory, null, null, new SimpleContainerData(1));
     }
 
     public SupplierScreenHandler(int syncId, Container playerInventory, PipeBlockEntity pipeEntity) {
-        this(syncId, playerInventory, pipeEntity, new SimpleContainerData(1));
+        this(syncId, playerInventory, pipeEntity, null, new SimpleContainerData(1));
+    }
+
+    public SupplierScreenHandler(
+            int syncId, Container playerInventory, PipeBlockEntity pipeEntity, @Nullable String targetModuleStateKey) {
+        this(syncId, playerInventory, pipeEntity, targetModuleStateKey, new SimpleContainerData(1));
     }
 
     public SupplierScreenHandler(int syncId, Container playerInventory, ServerPlayer player, InteractionHand hand) {
@@ -52,6 +61,7 @@ public class SupplierScreenHandler extends AbstractContainerMenu {
         this.data = new SimpleContainerData(1);
         this.itemConfigPlayer = player;
         this.itemConfigHand = hand;
+        this.targetModuleStateKey = null;
         this.context = ContainerLevelAccess.NULL;
         ItemStack stack = player.getItemInHand(hand);
         this.originalStack = stack;
@@ -66,9 +76,15 @@ public class SupplierScreenHandler extends AbstractContainerMenu {
         addDataSlots(data);
     }
 
-    private SupplierScreenHandler(int syncId, Container playerInventory, PipeBlockEntity pipeEntity, ContainerData data) {
+    private SupplierScreenHandler(
+            int syncId,
+            Container playerInventory,
+            PipeBlockEntity pipeEntity,
+            @Nullable String targetModuleStateKey,
+            ContainerData data) {
         super(LogisticsPipe.SCREEN.SUPPLIER, syncId);
         this.data = data;
+        this.targetModuleStateKey = targetModuleStateKey;
         this.itemConfigPlayer = null;
         this.itemConfigHand = null;
         this.originalStack = null;
@@ -76,17 +92,21 @@ public class SupplierScreenHandler extends AbstractContainerMenu {
         if (pipeEntity != null) {
             this.context = ContainerLevelAccess.create(pipeEntity.getLevel(), pipeEntity.getBlockPos());
             data.set(0, SupplierModule.SupplyMode.PARTIAL.ordinal());
-            PipeModuleHelper.withModule(this.context, SupplierModule.class, (ctx, module) -> {
+            withSupplierModule((ctx, module) -> {
                 data.set(0, module.getModeOrdinal(ctx));
             });
         } else {
             this.context = ContainerLevelAccess.NULL;
         }
-        this.supplyInventory = new SupplyInventory(pipeEntity);
+        this.supplyInventory = new SupplyInventory(pipeEntity, targetModuleStateKey);
 
         addSupplySlots(supplyInventory);
         addPlayerInventorySlots(playerInventory);
         addDataSlots(data);
+    }
+
+    private void withSupplierModule(BiConsumer<PipeContext, SupplierModule> action) {
+        PipeModuleHelper.withModule(context, SupplierModule.class, targetModuleStateKey, action);
     }
 
     private void addSupplySlots(Container inventory) {
@@ -175,7 +195,7 @@ public class SupplierScreenHandler extends AbstractContainerMenu {
             });
         } else {
             supplyInventory.setItem(slotIndex, ItemStack.EMPTY);
-            PipeModuleHelper.withModule(context, SupplierModule.class, (ctx, module) ->
+            withSupplierModule((ctx, module) ->
                     module.setSupplyConfig(ctx, slotIndex, "", 0));
         }
     }
@@ -192,7 +212,7 @@ public class SupplierScreenHandler extends AbstractContainerMenu {
                 tag.put(SupplierModule.SUPPLIES, supplies);
             });
         } else {
-            PipeModuleHelper.withModule(context, SupplierModule.class, (ctx, module) ->
+            withSupplierModule((ctx, module) ->
                     module.setSupplyConfig(ctx, slotIndex, itemId, amount));
         }
     }
@@ -212,7 +232,7 @@ public class SupplierScreenHandler extends AbstractContainerMenu {
                 ItemTagUtils.writeToItemTag(itemConfigPlayer, itemConfigHand, tag -> tag.putInt(SupplierModule.MODE, nextMode));
             } else {
                 data.set(0, nextMode);
-                PipeModuleHelper.withModule(context, SupplierModule.class, (ctx, module) -> {
+                withSupplierModule((ctx, module) -> {
                     module.setModeFromOrdinal(ctx, nextMode);
                 });
             }
@@ -240,7 +260,7 @@ public class SupplierScreenHandler extends AbstractContainerMenu {
             super.broadcastChanges();
             return;
         }
-        PipeModuleHelper.withModule(context, SupplierModule.class, (ctx, module) -> {
+        withSupplierModule((ctx, module) -> {
             data.set(0, module.getModeOrdinal(ctx));
         });
         super.broadcastChanges();

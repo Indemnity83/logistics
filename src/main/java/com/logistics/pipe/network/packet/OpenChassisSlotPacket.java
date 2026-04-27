@@ -1,27 +1,23 @@
 package com.logistics.pipe.network.packet;
 
 import com.logistics.LogisticsPipe;
-import com.logistics.core.lib.pipe.Module;
 import com.logistics.pipe.ChassisPipe;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
-import com.logistics.pipe.item.ModuleItem;
 import com.logistics.pipe.ui.ChassisScreenHandler;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.nbt.NbtOps;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.item.ItemStack;
 
 /**
  * Sent client→server when the player clicks a chassis slot's "!" button.
  * The server looks up the player's currently-open {@link ChassisScreenHandler},
  * reads the module item from the requested slot, and calls its
- * {@link Module#onWrench} to open its config screen.
+ * {@code onWrench} handler to open its config screen.
  */
 public record OpenChassisSlotPacket(int slotIndex) implements CustomPacketPayload {
     public static final Type<OpenChassisSlotPacket> TYPE =
@@ -50,15 +46,9 @@ public record OpenChassisSlotPacket(int slotIndex) implements CustomPacketPayloa
                 if (pe == null) return;
 
                 var ctx = pe.createContext();
-                Tag tag = ctx.moduleState(ChassisPipe.STATE_KEY).get(String.valueOf(packet.slotIndex));
-                if (tag == null) return;
-
                 var ops = context.server().registryAccess().createSerializationContext(NbtOps.INSTANCE);
-                ItemStack.CODEC.parse(ops, tag).result()
-                        .map(ItemStack::getItem)
-                        .filter(item -> item instanceof ModuleItem)
-                        .map(item -> ((ModuleItem) item).createModule())
-                        .ifPresent(module -> module.onWrench(ctx, player));
+                ChassisPipe.loadSlot(ctx, packet.slotIndex, ops)
+                        .ifPresent(entry -> entry.module().onWrench(entry.scopedContext(ctx), player));
             });
         });
     }

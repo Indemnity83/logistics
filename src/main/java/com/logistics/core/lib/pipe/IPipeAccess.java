@@ -21,6 +21,11 @@ public interface IPipeAccess {
     /** Return (or lazily create) the mutable NBT tag for the given module-state key. */
     CompoundTag moduleState(String key);
 
+    /** Return the mutable NBT tag for the given module-state key, if it already exists. */
+    @Nullable default CompoundTag existingModuleState(String key) {
+        return null;
+    }
+
     /** Remove all stored state for the given module-state key. */
     void clearModuleState(String key);
 

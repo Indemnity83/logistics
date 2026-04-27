@@ -6,6 +6,7 @@ import com.logistics.pipe.block.PipeBlock;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.core.lib.pipe.Module;
 import net.minecraft.world.inventory.ContainerLevelAccess;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.function.BiConsumer;
 
@@ -29,14 +30,24 @@ public class PipeModuleHelper {
         Class<T> moduleClass,
         BiConsumer<PipeContext, T> action
     ) {
+        withModule(context, moduleClass, null, action);
+    }
+
+    public static <T extends Module> void withModule(
+        ContainerLevelAccess context,
+        Class<T> moduleClass,
+        @Nullable String stateKey,
+        BiConsumer<PipeContext, T> action
+    ) {
         context.execute((world, pos) -> {
             if (world.getBlockEntity(pos) instanceof PipeBlockEntity pipeEntity) {
-                PipeBlock block = (PipeBlock) pipeEntity.getBlockState().getBlock();
-                Pipe pipe = block.getPipe();
-                T module = pipe.getModule(moduleClass, pipeEntity);
+                T module = getModule(pipeEntity, moduleClass, stateKey);
 
                 if (module != null) {
                     PipeContext ctx = pipeEntity.createContext();
+                    if (stateKey != null) {
+                        ctx = ctx.withModuleStateKey(module, stateKey);
+                    }
                     action.accept(ctx, module);
                 }
             }
@@ -57,15 +68,36 @@ public class PipeModuleHelper {
         Class<T> moduleClass,
         BiConsumer<PipeContext, T> action
     ) {
+        withModule(pipeEntity, moduleClass, null, action);
+    }
+
+    public static <T extends Module> void withModule(
+        PipeBlockEntity pipeEntity,
+        Class<T> moduleClass,
+        @Nullable String stateKey,
+        BiConsumer<PipeContext, T> action
+    ) {
         if (pipeEntity != null) {
-            PipeBlock block = (PipeBlock) pipeEntity.getBlockState().getBlock();
-            Pipe pipe = block.getPipe();
-            T module = pipe.getModule(moduleClass, pipeEntity);
+            T module = getModule(pipeEntity, moduleClass, stateKey);
 
             if (module != null) {
                 PipeContext ctx = pipeEntity.createContext();
+                if (stateKey != null) {
+                    ctx = ctx.withModuleStateKey(module, stateKey);
+                }
                 action.accept(ctx, module);
             }
         }
+    }
+
+    @Nullable
+    public static <T extends Module> T getModule(
+        PipeBlockEntity pipeEntity,
+        Class<T> moduleClass,
+        @Nullable String stateKey
+    ) {
+        PipeBlock block = (PipeBlock) pipeEntity.getBlockState().getBlock();
+        Pipe pipe = block.getPipe();
+        return pipe.getModule(moduleClass, pipeEntity, stateKey);
     }
 }
