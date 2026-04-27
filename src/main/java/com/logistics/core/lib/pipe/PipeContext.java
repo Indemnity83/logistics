@@ -6,7 +6,9 @@ import com.logistics.core.lib.network.ILogisticsNetwork;
 import com.logistics.core.lib.storage.NbtCompat;
 
 import java.util.ArrayList;
+import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Map;
 import org.jetbrains.annotations.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -14,43 +16,88 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 
-public record PipeContext(Level world, BlockPos pos, BlockState state, IPipeAccess blockEntity) {
+public record PipeContext(
+        Level world,
+        BlockPos pos,
+        BlockState state,
+        IPipeAccess blockEntity,
+        Map<Module, String> moduleStateKeys) {
+
+    public PipeContext(Level world, BlockPos pos, BlockState state, IPipeAccess blockEntity) {
+        this(world, pos, state, blockEntity, Map.of());
+    }
+
+    /**
+     * Returns a new context that routes {@code module}'s state through {@code stateKey} instead
+     * of the class-level default. Uses {@link IdentityHashMap} intentionally: the lookup relies on
+     * object identity, not equality. The exact instance passed here must be the same instance that
+     * later calls {@code ctx.moduleState(this)} — if {@link com.logistics.pipe.ChassisPipe#getDynamicModuleEntries}
+     * is ever called twice for the same slot it would produce a different instance and the scoped
+     * key would silently fall back to the class-level default.
+     */
+    public PipeContext withModuleStateKey(Module module, String stateKey) {
+        IdentityHashMap<Module, String> keys = new IdentityHashMap<>(moduleStateKeys);
+        keys.put(module, stateKey);
+        return new PipeContext(world, pos, state, blockEntity, keys);
+    }
+
+    public String moduleStateKey(Module module) {
+        return moduleStateKeys.getOrDefault(module, module.getStateKey());
+    }
 
     public CompoundTag moduleState(String key) {
         return blockEntity.moduleState(key);
     }
 
+    public CompoundTag moduleState(Module module) {
+        String stateKey = moduleStateKey(module);
+        CompoundTag existingScopedState = blockEntity.existingModuleState(stateKey);
+        CompoundTag state = moduleState(stateKey);
+
+        String defaultStateKey = module.getStateKey();
+        if (!stateKey.equals(defaultStateKey) && existingScopedState == null) {
+            CompoundTag legacyState = blockEntity.existingModuleState(defaultStateKey);
+            if (legacyState != null && !legacyState.isEmpty()) {
+                for (String key : legacyState.getAllKeys()) {
+                    state.put(key, legacyState.get(key).copy());
+                }
+            }
+        }
+
+        return state;
+    }
+
     // Convenience methods for module state access (with Module instance)
     public String getString(Module module, String key, String defaultValue) {
-        return NbtCompat.getString(moduleState(module.getStateKey()), key, defaultValue);
+        return NbtCompat.getString(moduleState(module), key, defaultValue);
     }
 
     public void saveString(Module module, String key, String value) {
-        moduleState(module.getStateKey()).putString(key, value);
+        moduleState(module).putString(key, value);
     }
 
     public int getInt(Module module, String key, int defaultValue) {
-        return NbtCompat.getInt(moduleState(module.getStateKey()), key, defaultValue);
+        return NbtCompat.getInt(moduleState(module), key, defaultValue);
     }
 
     public void saveInt(Module module, String key, int value) {
-        moduleState(module.getStateKey()).putInt(key, value);
+        moduleState(module).putInt(key, value);
     }
 
     public long getLong(Module module, String key, long defaultValue) {
-        return NbtCompat.getLong(moduleState(module.getStateKey()), key, defaultValue);
+        return NbtCompat.getLong(moduleState(module), key, defaultValue);
     }
 
     public void saveLong(Module module, String key, long value) {
-        moduleState(module.getStateKey()).putLong(key, value);
+        moduleState(module).putLong(key, value);
     }
 
     public void remove(Module module, String key) {
-        moduleState(module.getStateKey()).remove(key);
+        moduleState(module).remove(key);
     }
 
     public void clearModuleState(Module module) {
-        blockEntity.clearModuleState(module.getStateKey());
+        blockEntity.clearModuleState(moduleStateKey(module));
         markDirtyAndSync();
     }
 
@@ -69,11 +116,11 @@ public record PipeContext(Level world, BlockPos pos, BlockState state, IPipeAcce
     }
 
     public CompoundTag getCompoundTag(Module module, String key) {
-        return NbtCompat.getCompoundOrEmpty(moduleState(module.getStateKey()), key);
+        return NbtCompat.getCompoundOrEmpty(moduleState(module), key);
     }
 
     public void putCompoundTag(Module module, String key, CompoundTag value) {
-        moduleState(module.getStateKey()).put(key, value);
+        moduleState(module).put(key, value);
     }
 
     public void markDirty() {

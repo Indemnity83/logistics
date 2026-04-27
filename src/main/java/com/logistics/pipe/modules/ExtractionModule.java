@@ -95,7 +95,7 @@ public class ExtractionModule implements Module, TickingModule {
     }
 
     private @Nullable Direction getExtractionDirection(PipeContext ctx) {
-        CompoundTag state = ctx.moduleState(getStateKey());
+        CompoundTag state = ctx.moduleState(this);
         String directionStr = NbtCompat.getString(state, EXTRACT_FROM, "");
         if (directionStr.isEmpty()) {
             return null;

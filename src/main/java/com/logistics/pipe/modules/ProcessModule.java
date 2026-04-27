@@ -129,7 +129,7 @@ public class ProcessModule implements Module, TickingModule, RoutingModule, Disp
     // ==================== Queue Helpers ====================
 
     private ListTag getQueue(PipeContext ctx) {
-        CompoundTag state = ctx.moduleState(getStateKey());
+        CompoundTag state = ctx.moduleState(this);
         ListTag queue = NbtCompat.getListOrEmpty(state, QUEUE);
         if (!queue.isEmpty()) return queue;
 
@@ -159,21 +159,21 @@ public class ProcessModule implements Module, TickingModule, RoutingModule, Disp
     }
 
     private void saveQueue(PipeContext ctx, ListTag queue) {
-        ctx.moduleState(getStateKey()).put(QUEUE, queue);
+        ctx.moduleState(this).put(QUEUE, queue);
         ctx.markDirtyAndSync();
     }
 
     // ==================== Private NBT Helpers ====================
 
     private String getEntryString(PipeContext ctx, String listKey, int slot, String field) {
-        ListTag list = NbtCompat.getListOrEmpty(ctx.moduleState(getStateKey()), listKey);
+        ListTag list = NbtCompat.getListOrEmpty(ctx.moduleState(this), listKey);
         if (slot < 0 || slot >= list.size()) return "";
         CompoundTag entry = list.getCompound(slot);
         return NbtCompat.getString(entry, field, "");
     }
 
     private int getEntryInt(PipeContext ctx, String listKey, int slot, String field, int def) {
-        ListTag list = NbtCompat.getListOrEmpty(ctx.moduleState(getStateKey()), listKey);
+        ListTag list = NbtCompat.getListOrEmpty(ctx.moduleState(this), listKey);
         if (slot < 0 || slot >= list.size()) return def;
         CompoundTag entryInt = list.getCompound(slot);
         return NbtCompat.getInt(entryInt, field, def);
@@ -183,7 +183,7 @@ public class ProcessModule implements Module, TickingModule, RoutingModule, Disp
             @Nullable String dest) {
         int maxSlot = KEY_INPUTS.equals(listKey) ? MAX_INPUTS : MAX_OUTPUTS;
         if (slot < 0 || slot >= maxSlot) return;
-        ListTag list = NbtCompat.getListOrEmpty(ctx.moduleState(getStateKey()), listKey);
+        ListTag list = NbtCompat.getListOrEmpty(ctx.moduleState(this), listKey);
 
         // Expand list to required size
         while (list.size() <= slot) {
@@ -213,7 +213,7 @@ public class ProcessModule implements Module, TickingModule, RoutingModule, Disp
             }
         }
 
-        ctx.moduleState(getStateKey()).put(listKey, list);
+        ctx.moduleState(this).put(listKey, list);
         ctx.markDirtyAndSync();
     }
 
@@ -599,7 +599,7 @@ public class ProcessModule implements Module, TickingModule, RoutingModule, Disp
                 cancelEntryOrders(network, entry);
             }
         }
-        ctx.moduleState(getStateKey()).remove(QUEUE);
+        ctx.moduleState(this).remove(QUEUE);
         ctx.markDirtyAndSync();
     }
 

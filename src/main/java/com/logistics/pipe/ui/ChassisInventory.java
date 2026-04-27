@@ -39,12 +39,13 @@ public class ChassisInventory implements Container {
     private void syncStateFromItem(ItemStack stack) {
         if (!(stack.getItem() instanceof ModuleItem moduleItem)) return;
         CustomData customData = stack.get(DataComponents.CUSTOM_DATA);
-        if (customData == null) return;
         PipeContext ctx = pipeEntity.createContext();
-        String stateKey = moduleItem.createModule().getStateKey();
+        String stateKey = ChassisPipe.moduleStateKey(stack, moduleItem.createModule());
         CompoundTag state = ctx.moduleState(stateKey);
+        if (customData == null) return;
         CompoundTag itemState = customData.copyTag();
         for (String key : itemState.getAllKeys()) {
+            if (ModuleItem.isModuleIdentityKey(key)) continue;
             Tag value = itemState.get(key);
             if (value != null) state.put(key, value);
         }
@@ -56,18 +57,17 @@ public class ChassisInventory implements Container {
         Level level = pipeEntity.getLevel();
         if (level == null || level.isClientSide()) return;
         if (!(stack.getItem() instanceof ModuleItem moduleItem)) return;
-        moduleItem.createModule().onDetach(pipeEntity.createContext());
+        var module = moduleItem.createModule();
+        module.onDetach(pipeEntity.createContext().withModuleStateKey(module, ChassisPipe.moduleStateKey(stack, module)));
     }
 
     /** Before returning a module item, copy the block entity module state → item's CustomData. */
     private void syncStateToItem(ItemStack stack) {
         if (!(stack.getItem() instanceof ModuleItem moduleItem)) return;
         PipeContext ctx = pipeEntity.createContext();
-        String stateKey = moduleItem.createModule().getStateKey();
+        String stateKey = ChassisPipe.moduleStateKey(stack, moduleItem.createModule());
         CompoundTag state = ctx.moduleState(stateKey);
-        if (!state.isEmpty()) {
-            stack.set(DataComponents.CUSTOM_DATA, CustomData.of(state.copy()));
-        }
+        stack.set(DataComponents.CUSTOM_DATA, ModuleItem.customDataWithModuleState(stack, state));
     }
 
     private void loadFromEntity() {
@@ -93,7 +93,8 @@ public class ChassisInventory implements Container {
         if (level == null || level.isClientSide()) return;
 
         // Sync current module state back into each item before persisting
-        for (ItemStack stack : items) {
+        for (int slot = 0; slot < items.size(); slot++) {
+            ItemStack stack = items.get(slot);
             if (!stack.isEmpty()) {
                 syncStateToItem(stack);
             }
@@ -146,7 +147,7 @@ public class ChassisInventory implements Container {
         if (existing.isEmpty()) {
             detachModule(result);
             if (pipeEntity != null && result.getItem() instanceof ModuleItem moduleItem) {
-                pipeEntity.clearModuleState(moduleItem.createModule().getStateKey());
+                pipeEntity.clearModuleState(ChassisPipe.moduleStateKey(result, moduleItem.createModule()));
             }
             items.set(slot, ItemStack.EMPTY);
         }
@@ -167,11 +168,11 @@ public class ChassisInventory implements Container {
     public void setItem(int slot, ItemStack stack) {
         if (slot < 0 || slot >= items.size()) return;
         ItemStack previous = items.get(slot);
-        if (!previous.isEmpty() && (stack.isEmpty() || !ItemStack.isSameItem(previous, stack))) {
+        if (!previous.isEmpty() && (stack.isEmpty() || !ItemStack.isSameItemSameComponents(previous, stack))) {
             if (pipeEntity != null) {
                 syncStateToItem(previous);
                 if (previous.getItem() instanceof ModuleItem moduleItem) {
-                    pipeEntity.clearModuleState(moduleItem.createModule().getStateKey());
+                    pipeEntity.clearModuleState(ChassisPipe.moduleStateKey(previous, moduleItem.createModule()));
                 }
             }
             detachModule(previous);
@@ -208,8 +209,8 @@ public class ChassisInventory implements Container {
 
     @Override
     public void clearContent() {
-        for (ItemStack stack : items) {
-            detachModule(stack);
+        for (int slot = 0; slot < items.size(); slot++) {
+            detachModule(items.get(slot));
         }
         for (int i = 0; i < items.size(); i++) {
             items.set(i, ItemStack.EMPTY);

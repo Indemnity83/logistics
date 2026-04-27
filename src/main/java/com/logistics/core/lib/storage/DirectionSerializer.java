@@ -22,7 +22,7 @@ public class DirectionSerializer {
      */
     @Nullable
     public static Direction load(PipeContext ctx, Module module, String key) {
-        CompoundTag state = ctx.moduleState(module.getStateKey());
+        CompoundTag state = ctx.moduleState(module);
         String directionStr = NbtCompat.getString(state, key, "");
         if (directionStr.isEmpty()) {
             return null;

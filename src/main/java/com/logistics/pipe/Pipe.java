@@ -9,6 +9,7 @@ import com.logistics.pipe.block.PipeBlock;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.core.lib.pipe.CoreDecoration;
 import com.logistics.core.lib.pipe.DispatchableModule;
+import com.logistics.core.lib.pipe.ItemAcceptingModule;
 import com.logistics.core.lib.pipe.Module;
 import com.logistics.core.lib.pipe.RandomTickModule;
 import com.logistics.core.lib.pipe.TickingModule;
@@ -27,6 +28,7 @@ import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
 import org.jetbrains.annotations.Nullable;
@@ -38,6 +40,10 @@ public class Pipe {
 
     protected Pipe(Module... modules) {
         this.modules = List.of(modules);
+    }
+
+    protected List<Module> getStaticModules() {
+        return modules;
     }
 
     /**
@@ -274,6 +280,29 @@ public class Pipe {
      */
     public <T extends Module> T getModule(Class<T> moduleClass, PipeBlockEntity entity) {
         return getModule(moduleClass);
+    }
+
+    public <T extends Module> T getModule(
+            Class<T> moduleClass, PipeBlockEntity entity, @Nullable String stateKey) {
+        if (stateKey == null) {
+            return getModule(moduleClass, entity);
+        }
+
+        for (Module module : getModules(entity)) {
+            if (moduleClass.isInstance(module) && stateKey.equals(module.getStateKey())) {
+                return moduleClass.cast(module);
+            }
+        }
+        return null;
+    }
+
+    public boolean matchesSinkFilter(PipeContext ctx, ItemStack stack) {
+        for (Module module : getModules(ctx)) {
+            if (module instanceof ItemAcceptingModule sink && sink.acceptsItem(ctx, stack)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
