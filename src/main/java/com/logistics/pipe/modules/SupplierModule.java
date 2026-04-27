@@ -110,11 +110,12 @@ public class SupplierModule implements Module, TickingModule, RoutingModule {
 
         net.minecraft.world.level.Level world = ctx.world();
         net.minecraft.core.BlockPos pos = ctx.pos();
+        String moduleStateKey = ctx.moduleStateKey(this);
         serverPlayer.openMenu(new net.minecraft.world.SimpleMenuProvider(
                 (syncId, inventory, playerEntity) -> {
                     PipeBlockEntity pipeEntity =
                             world.getBlockEntity(pos) instanceof PipeBlockEntity entity ? entity : null;
-                    return new SupplierScreenHandler(syncId, inventory, pipeEntity);
+                    return new SupplierScreenHandler(syncId, inventory, pipeEntity, moduleStateKey);
                 },
                 net.minecraft.network.chat.Component.translatable("screen.logistics.supplier.items_to_keep_stocked")));
         return InteractionResult.SUCCESS;

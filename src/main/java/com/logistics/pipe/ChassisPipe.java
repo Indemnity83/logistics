@@ -1,5 +1,8 @@
 package com.logistics.pipe;
 
+import com.logistics.LogisticsMod;
+import com.logistics.core.LogisticsConfig;
+import com.logistics.core.lib.block.capability.PipeConnection;
 import com.logistics.core.lib.pipe.*;
 import com.logistics.core.lib.pipe.Module;
 import com.logistics.core.lib.resource.ResourceId;
@@ -23,9 +26,13 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.level.block.Block;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -49,6 +56,16 @@ public class ChassisPipe extends Pipe {
 
     private final int maxSlots;
 
+    public static String moduleStateKey(ItemStack stack, Module module) {
+        return ModuleItem.moduleStateKey(stack, module);
+    }
+
+    public record DynamicModule(Module module, String stateKey) {
+        public PipeContext scopedContext(PipeContext ctx) {
+            return ctx.withModuleStateKey(module, stateKey());
+        }
+    }
+
     public ChassisPipe(int maxSlots, Module... fixedModules) {
         super(fixedModules);
         this.maxSlots = maxSlots;
@@ -62,10 +79,28 @@ public class ChassisPipe extends Pipe {
     @Override
     public <T extends Module> T getModule(Class<T> moduleClass, PipeBlockEntity entity) {
         PipeContext ctx = entity.createContext();
-        for (Module m : getDynamicModules(ctx)) {
-            if (moduleClass.isInstance(m)) return moduleClass.cast(m);
+        for (DynamicModule entry : getDynamicModuleEntries(ctx)) {
+            Module module = entry.module();
+            if (moduleClass.isInstance(module)) return moduleClass.cast(module);
         }
         return super.getModule(moduleClass);
+    }
+
+    @Override
+    public <T extends Module> T getModule(
+            Class<T> moduleClass, PipeBlockEntity entity, @Nullable String stateKey) {
+        if (stateKey == null) {
+            return getModule(moduleClass, entity);
+        }
+
+        PipeContext ctx = entity.createContext();
+        for (DynamicModule entry : getDynamicModuleEntries(ctx)) {
+            Module module = entry.module();
+            if (moduleClass.isInstance(module) && stateKey.equals(entry.stateKey())) {
+                return moduleClass.cast(module);
+            }
+        }
+        return super.getModule(moduleClass, entity, stateKey);
     }
 
     @Override
@@ -83,16 +118,41 @@ public class ChassisPipe extends Pipe {
      */
     protected List<Module> getDynamicModules(PipeContext ctx) {
         List<Module> modules = new ArrayList<>();
+        for (DynamicModule entry : getDynamicModuleEntries(ctx)) {
+            modules.add(entry.module());
+        }
+        return modules;
+    }
+
+    /**
+     * Loads the module from a chassis slot, assigning a persistent module ID if one is missing.
+     * Returns empty if the slot is unoccupied or does not hold a {@link ModuleItem}.
+     */
+    public static Optional<DynamicModule> loadSlot(PipeContext ctx, int slotIndex, RegistryOps<Tag> ops) {
         var state = ctx.moduleState(STATE_KEY);
+        String slotKey = String.valueOf(slotIndex);
+        Tag tag = state.get(slotKey);
+        if (tag == null) return Optional.empty();
+
+        return ItemStack.CODEC.parse(ops, tag).result().flatMap(stack -> {
+            if (!(stack.getItem() instanceof ModuleItem moduleItem)) return Optional.empty();
+            boolean missingModuleId = ModuleItem.getModuleId(stack).isBlank();
+            Module module = moduleItem.createModule();
+            String stateKey = moduleStateKey(stack, module);
+            if (missingModuleId) {
+                ItemStack.CODEC.encodeStart(ops, stack).result()
+                        .ifPresent(encoded -> state.put(slotKey, encoded));
+                ctx.markDirtyAndSync();
+            }
+            return Optional.of(new DynamicModule(module, stateKey));
+        });
+    }
+
+    private List<DynamicModule> getDynamicModuleEntries(PipeContext ctx) {
+        List<DynamicModule> modules = new ArrayList<>();
         RegistryOps<Tag> ops = ctx.world().registryAccess().createSerializationContext(NbtOps.INSTANCE);
         for (int slot = 0; slot < maxSlots; slot++) {
-            Tag tag = state.get(String.valueOf(slot));
-            if (tag == null) continue;
-            ItemStack.CODEC.parse(ops, tag).result()
-                    .map(ItemStack::getItem)
-                    .filter(item -> item instanceof ModuleItem)
-                    .map(item -> ((ModuleItem) item).createModule())
-                    .ifPresent(modules::add);
+            loadSlot(ctx, slot, ops).ifPresent(modules::add);
         }
         return modules;
     }
@@ -104,36 +164,55 @@ public class ChassisPipe extends Pipe {
 
     @Override
     public RoutePlan route(PipeContext ctx, TravelingItem item, List<Direction> options) {
-        for (Module m : getDynamicModules(ctx)) {
-            if (m instanceof RoutingModule router) {
+        for (DynamicModule entry : getDynamicModuleEntries(ctx)) {
+            Module module = entry.module();
+            if (module instanceof RoutingModule router) {
+                RoutePlan plan = router.route(entry.scopedContext(ctx), item, options);
+                if (plan.getType() != RoutePlan.Type.PASS) return plan;
+            }
+        }
+        for (Module module : getStaticModules()) {
+            if (module instanceof RoutingModule router) {
                 RoutePlan plan = router.route(ctx, item, options);
                 if (plan.getType() != RoutePlan.Type.PASS) return plan;
             }
         }
-        return super.route(ctx, item, options);
+        return RoutePlan.pass();
     }
 
     @Override
     public void onTick(PipeContext ctx) {
         if (ctx.world().isClientSide()) return;
-        for (Module m : getDynamicModules(ctx)) {
-            if (m instanceof TickingModule ticking) {
+        for (DynamicModule entry : getDynamicModuleEntries(ctx)) {
+            Module module = entry.module();
+            if (module instanceof TickingModule ticking) {
+                ticking.onTick(entry.scopedContext(ctx));
+            }
+        }
+        for (Module module : getStaticModules()) {
+            if (module instanceof TickingModule ticking) {
                 ticking.onTick(ctx);
             }
         }
-        super.onTick(ctx);
     }
 
     @Override
     public long dispatch(PipeContext ctx, BlockPos requester, ItemVariant item, long amount, UUID deliveryId) {
         if (ctx.world().isClientSide()) return 0;
-        for (Module m : getDynamicModules(ctx)) {
-            if (m instanceof DispatchableModule dispatchable) {
-                long d = dispatchable.onDispatch(ctx, requester, item, amount, deliveryId);
+        for (DynamicModule entry : getDynamicModuleEntries(ctx)) {
+            Module module = entry.module();
+            if (module instanceof DispatchableModule dispatchable) {
+                long d = dispatchable.onDispatch(entry.scopedContext(ctx), requester, item, amount, deliveryId);
                 if (d != 0) return d;
             }
         }
-        return super.dispatch(ctx, requester, item, amount, deliveryId);
+        for (Module module : getStaticModules()) {
+            if (module instanceof DispatchableModule dispatchable) {
+                long dispatched = dispatchable.onDispatch(ctx, requester, item, amount, deliveryId);
+                if (dispatched != 0) return dispatched;
+            }
+        }
+        return 0;
     }
 
     /**
@@ -148,48 +227,103 @@ public class ChassisPipe extends Pipe {
 
     @Override
     public void randomTick(PipeContext ctx, RandomSource random) {
-        for (Module m : getDynamicModules(ctx)) {
-            if (m instanceof RandomTickModule rt) {
-                rt.randomTick(ctx, random);
+        for (DynamicModule entry : getDynamicModuleEntries(ctx)) {
+            Module module = entry.module();
+            if (module instanceof RandomTickModule rt) {
+                rt.randomTick(entry.scopedContext(ctx), random);
             }
         }
-        super.randomTick(ctx, random);
+        for (Module module : getStaticModules()) {
+            if (module instanceof RandomTickModule randomTick) {
+                randomTick.randomTick(ctx, random);
+            }
+        }
     }
 
     @Override
     public TravelingItem handleTransfer(PipeContext ctx, TravelingItem item, Direction direction) {
         TravelingItem current = item;
-        for (Module m : getDynamicModules(ctx)) {
-            if (m instanceof TransferHandlerModule handler) {
+        for (DynamicModule entry : getDynamicModuleEntries(ctx)) {
+            Module module = entry.module();
+            if (module instanceof TransferHandlerModule handler) {
+                current = handler.onTransferToStorage(entry.scopedContext(ctx), current, direction);
+                if (current == null) return null;
+            }
+        }
+        for (Module module : getStaticModules()) {
+            if (module instanceof TransferHandlerModule handler) {
                 current = handler.onTransferToStorage(ctx, current, direction);
                 if (current == null) return null;
             }
         }
-        return super.handleTransfer(ctx, current, direction);
+        return current;
+    }
+
+    @Override
+    public boolean matchesSinkFilter(PipeContext ctx, ItemStack stack) {
+        for (DynamicModule entry : getDynamicModuleEntries(ctx)) {
+            Module module = entry.module();
+            if (module instanceof ItemAcceptingModule sink && sink.acceptsItem(entry.scopedContext(ctx), stack)) {
+                return true;
+            }
+        }
+        for (Module module : getStaticModules()) {
+            if (module instanceof ItemAcceptingModule sink && sink.acceptsItem(ctx, stack)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
     public boolean onExternalInsert(PipeContext ctx, ItemStack stack, Direction from) {
-        for (Module m : getDynamicModules(ctx)) {
-            if (m.onExternalInsert(ctx, stack, from)) return true;
+        for (DynamicModule entry : getDynamicModuleEntries(ctx)) {
+            if (entry.module().onExternalInsert(entry.scopedContext(ctx), stack, from)) return true;
         }
-        return super.onExternalInsert(ctx, stack, from);
+        for (Module module : getStaticModules()) {
+            if (module.onExternalInsert(ctx, stack, from)) return true;
+        }
+        return false;
     }
 
     @Override
     public boolean canAcceptFrom(PipeContext ctx, Direction from, ItemStack stack) {
-        for (Module m : getDynamicModules(ctx)) {
-            if (!m.canAcceptFrom(ctx, from, stack)) return false;
+        if (!ctx.isNeighborPipe(from)) {
+            boolean allowed = false;
+            for (DynamicModule entry : getDynamicModuleEntries(ctx)) {
+                if (entry.module().canAcceptFromNonPipe(entry.scopedContext(ctx), from)) {
+                    allowed = true;
+                    break;
+                }
+            }
+            if (!allowed) {
+                for (Module module : getStaticModules()) {
+                    if (module.canAcceptFromNonPipe(ctx, from)) {
+                        allowed = true;
+                        break;
+                    }
+                }
+            }
+            if (!allowed) return false;
         }
-        return super.canAcceptFrom(ctx, from, stack);
+
+        for (DynamicModule entry : getDynamicModuleEntries(ctx)) {
+            if (!entry.module().canAcceptFrom(entry.scopedContext(ctx), from, stack)) return false;
+        }
+        for (Module module : getStaticModules()) {
+            if (!module.canAcceptFrom(ctx, from, stack)) return false;
+        }
+        return true;
     }
 
     @Override
     public void onConnectionsChanged(PipeContext ctx, List<Direction> connected) {
-        for (Module m : getDynamicModules(ctx)) {
-            m.onConnectionsChanged(ctx, connected);
+        for (DynamicModule entry : getDynamicModuleEntries(ctx)) {
+            entry.module().onConnectionsChanged(entry.scopedContext(ctx), connected);
         }
-        super.onConnectionsChanged(ctx, connected);
+        for (Module module : getStaticModules()) {
+            module.onConnectionsChanged(ctx, connected);
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -198,29 +332,183 @@ public class ChassisPipe extends Pipe {
 
     @Override
     public List<CoreDecoration> getCoreDecorations(PipeContext ctx) {
-        List<CoreDecoration> result = new ArrayList<>(super.getCoreDecorations(ctx));
-        for (Module m : getDynamicModules(ctx)) {
-            result.addAll(m.getCoreDecorations(ctx));
+        List<CoreDecoration> result = new ArrayList<>();
+        for (DynamicModule entry : getDynamicModuleEntries(ctx)) {
+            result.addAll(entry.module().getCoreDecorations(entry.scopedContext(ctx)));
+        }
+        for (Module module : getStaticModules()) {
+            result.addAll(module.getCoreDecorations(ctx));
         }
         return result;
     }
 
     @Override
     public List<ResourceId> getPipeDecorations(PipeContext ctx, Direction direction) {
-        List<ResourceId> result = new ArrayList<>(super.getPipeDecorations(ctx, direction));
-        for (Module m : getDynamicModules(ctx)) {
-            result.addAll(m.getPipeDecorations(ctx, direction));
+        List<ResourceId> result = new ArrayList<>();
+        for (DynamicModule entry : getDynamicModuleEntries(ctx)) {
+            result.addAll(entry.module().getPipeDecorations(entry.scopedContext(ctx), direction));
+        }
+        for (Module module : getStaticModules()) {
+            result.addAll(module.getPipeDecorations(ctx, direction));
         }
         return result;
     }
 
     @Override
     public Integer getArmTint(PipeContext ctx, Direction direction) {
-        for (Module m : getDynamicModules(ctx)) {
-            Integer tint = m.getArmTint(ctx, direction);
+        for (DynamicModule entry : getDynamicModuleEntries(ctx)) {
+            Integer tint = entry.module().getArmTint(entry.scopedContext(ctx), direction);
             if (tint != null) return tint;
         }
-        return super.getArmTint(ctx, direction);
+        for (Module module : getStaticModules()) {
+            Integer tint = module.getArmTint(ctx, direction);
+            if (tint != null) return tint;
+        }
+        return null;
+    }
+
+    @Override
+    public ResourceId getCoreModelId(PipeContext ctx) {
+        for (DynamicModule entry : getDynamicModuleEntries(ctx)) {
+            ResourceId override = entry.module().getCoreModel(entry.scopedContext(ctx));
+            if (override != null) return override;
+        }
+        for (Module module : getStaticModules()) {
+            ResourceId override = module.getCoreModel(ctx);
+            if (override != null) return override;
+        }
+        return LogisticsMod.modId("block/" + getPipeName() + "_core");
+    }
+
+    @Override
+    public ResourceId getPipeArm(PipeContext ctx, Direction direction) {
+        for (DynamicModule entry : getDynamicModuleEntries(ctx)) {
+            ResourceId override = entry.module().getPipeArm(entry.scopedContext(ctx), direction);
+            if (override != null) return override;
+        }
+        for (Module module : getStaticModules()) {
+            ResourceId override = module.getPipeArm(ctx, direction);
+            if (override != null) return override;
+        }
+
+        String suffix = ctx.isInventoryConnection(direction) ? "_arm_extended" : "_arm";
+        return LogisticsMod.modId("block/" + getPipeName() + suffix);
+    }
+
+    @Override
+    public float getAccelerationRate(PipeContext ctx) {
+        for (DynamicModule entry : getDynamicModuleEntries(ctx)) {
+            float accel = entry.module().getAcceleration(entry.scopedContext(ctx));
+            if (accel > 0f) return accel;
+        }
+        for (Module module : getStaticModules()) {
+            float accel = module.getAcceleration(ctx);
+            if (accel > 0f) return accel;
+        }
+        return 0f;
+    }
+
+    @Override
+    public float getDrag(PipeContext ctx) {
+        for (DynamicModule entry : getDynamicModuleEntries(ctx)) {
+            float drag = entry.module().getDrag(entry.scopedContext(ctx));
+            if (drag > 0f) return drag;
+        }
+        for (Module module : getStaticModules()) {
+            float drag = module.getDrag(ctx);
+            if (drag > 0f) return drag;
+        }
+        return LogisticsConfig.get().pipe.drag;
+    }
+
+    @Override
+    public float getMaxSpeed(PipeContext ctx) {
+        for (DynamicModule entry : getDynamicModuleEntries(ctx)) {
+            float max = entry.module().getMaxSpeed(entry.scopedContext(ctx));
+            if (max > 0f) return max;
+        }
+        for (Module module : getStaticModules()) {
+            float max = module.getMaxSpeed(ctx);
+            if (max > 0f) return max;
+        }
+        return LogisticsConfig.get().pipe.maxSpeed;
+    }
+
+    @Override
+    public InteractionResult onUseWithItem(PipeContext ctx, UseOnContext usage) {
+        for (DynamicModule entry : getDynamicModuleEntries(ctx)) {
+            InteractionResult result = entry.module().onUseWithItem(entry.scopedContext(ctx), usage);
+            if (result != InteractionResult.PASS) return result;
+        }
+        for (Module module : getStaticModules()) {
+            InteractionResult result = module.onUseWithItem(ctx, usage);
+            if (result != InteractionResult.PASS) return result;
+        }
+        return InteractionResult.PASS;
+    }
+
+    @Override
+    public InteractionResult onUseWithoutItem(PipeContext ctx, UseOnContext usage) {
+        for (DynamicModule entry : getDynamicModuleEntries(ctx)) {
+            InteractionResult result = entry.module().onUseWithoutItem(entry.scopedContext(ctx), usage);
+            if (result != InteractionResult.PASS) return result;
+        }
+        for (Module module : getStaticModules()) {
+            InteractionResult result = module.onUseWithoutItem(ctx, usage);
+            if (result != InteractionResult.PASS) return result;
+        }
+        return InteractionResult.PASS;
+    }
+
+    @Override
+    public int getComparatorOutput(PipeContext ctx) {
+        int output = 0;
+        for (DynamicModule entry : getDynamicModuleEntries(ctx)) {
+            output = Math.max(output, entry.module().comparatorOutput(entry.scopedContext(ctx)));
+        }
+        for (Module module : getStaticModules()) {
+            output = Math.max(output, module.comparatorOutput(ctx));
+        }
+        return output;
+    }
+
+    @Override
+    public void randomDisplayTick(PipeContext ctx, RandomSource random) {
+        for (DynamicModule entry : getDynamicModuleEntries(ctx)) {
+            entry.module().randomDisplayTick(entry.scopedContext(ctx), random);
+        }
+        for (Module module : getStaticModules()) {
+            module.randomDisplayTick(ctx, random);
+        }
+    }
+
+    @Override
+    public PipeConnection.Type filterConnection(
+            @Nullable PipeContext ctx, Direction direction, Block neighborBlock, PipeConnection.Type candidate) {
+        if (candidate == PipeConnection.Type.NONE) return PipeConnection.Type.NONE;
+        if (ctx != null) {
+            for (DynamicModule entry : getDynamicModuleEntries(ctx)) {
+                if (!entry.module().allowsConnection(entry.scopedContext(ctx), direction, neighborBlock)) {
+                    return PipeConnection.Type.NONE;
+                }
+            }
+        }
+        for (Module module : getStaticModules()) {
+            if (!module.allowsConnection(ctx, direction, neighborBlock)) return PipeConnection.Type.NONE;
+        }
+        return candidate;
+    }
+
+    @Override
+    public boolean acceptsLowTierEnergyFrom(PipeContext ctx, Direction from) {
+        if (!hasEnergy()) return false;
+        for (DynamicModule entry : getDynamicModuleEntries(ctx)) {
+            if (entry.module().acceptsLowTierEnergyFrom(entry.scopedContext(ctx), from)) return true;
+        }
+        for (Module module : getStaticModules()) {
+            if (module.acceptsLowTierEnergyFrom(ctx, from)) return true;
+        }
+        return false;
     }
 
     // -------------------------------------------------------------------------

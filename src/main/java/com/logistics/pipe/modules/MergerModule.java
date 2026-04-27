@@ -76,7 +76,7 @@ public class MergerModule implements Module, RoutingModule {
     }
 
     private @Nullable Direction getOutputDirection(PipeContext ctx) {
-        CompoundTag state = ctx.moduleState(getStateKey());
+        CompoundTag state = ctx.moduleState(this);
         String directionStr = NbtCompat.getString(state, OUTPUT_DIRECTION, "");
         if (directionStr.isEmpty()) {
             return null;
