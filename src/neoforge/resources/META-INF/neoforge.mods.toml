@@ -10,3 +10,17 @@ description='''
 NeoForge groundwork metadata placeholder for Logistics.
 '''
 authors="Kyle Klaus (@indemnity83)"
+
+[[dependencies.logistics]]
+modId="neoforge"
+type="required"
+versionRange="[21.0,)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.logistics]]
+modId="minecraft"
+type="required"
+versionRange="[1.21,)"
+ordering="NONE"
+side="BOTH"
