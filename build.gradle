@@ -7,6 +7,7 @@ plugins {
 
 version = System.getenv("MOD_VERSION") ?: project.mod_version
 group = project.maven_group
+def activeLoader = providers.gradleProperty("active_loader").getOrElse("fabric")
 
 base {
 	archivesName = project.archives_base_name
@@ -87,6 +88,7 @@ dependencies {
 
 processResources {
 	inputs.property "version", project.version
+	inputs.property "active_loader", activeLoader
 
 	filesMatching("fabric.mod.json") {
 		expand "version": inputs.properties.version
@@ -134,6 +136,15 @@ sourceSets {
 	test {
 		java {
 			srcDir 'src/test/java'
+		}
+	}
+	// Groundwork source set for future NeoForge wiring.
+	neoforge {
+		java {
+			srcDir 'src/neoforge/java'
+		}
+		resources {
+			srcDir 'src/neoforge/resources'
 		}
 	}
 }
