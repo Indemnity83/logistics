@@ -890,12 +890,16 @@ public class CraftingModule implements Module, TickingModule, RoutingModule, Dis
 
         String itemId = BuiltInRegistries.ITEM.getKey(item.getStack().getItem()).toString();
 
-        // Collect matching recipe slots that are empty or already hold the same item type
+        // Collect matching recipe slots that are empty or already hold the same item.
+        // Use component-aware comparison for the occupancy check so that items with
+        // different data (e.g. two different enchanted books) are never mixed in one slot.
+        // Note: ingredient config stores item ID only, so the recipe-slot match (line above)
+        // is still type-only; only the in-slot occupancy guard is component-aware.
         List<Integer> matchingSlots = new ArrayList<>();
         for (int slot = 0; slot < 9; slot++) {
             if (!itemId.equals(getIngredientItem(ctx, slot))) continue;
             ItemStack inSlot = crafter.getItem(slot);
-            if (!inSlot.isEmpty() && !itemId.equals(BuiltInRegistries.ITEM.getKey(inSlot.getItem()).toString())) continue;
+            if (!inSlot.isEmpty() && !ItemStack.isSameItemSameComponents(inSlot, item.getStack())) continue;
             matchingSlots.add(slot);
         }
         if (matchingSlots.isEmpty()) return 0;
