@@ -7,8 +7,10 @@ import com.logistics.core.render.ModelKeyRegistry;
 import net.fabricmc.fabric.api.client.model.loading.v1.ExtraModelKey;
 import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
 import net.fabricmc.fabric.api.client.model.loading.v1.SimpleUnbakedExtraModel;
+import net.fabricmc.fabric.api.client.rendering.v1.BlockRenderLayerMap;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.renderer.block.model.BlockStateModel;
+import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 
 import java.util.Map;
 
@@ -33,6 +35,7 @@ public final class LogisticsCoreClient implements DomainBootstrap {
         LOGGER.info("Registering core (client)");
 
         MenuScreens.register(LogisticsCore.MENU.MACERATOR, MaceratorScreen::new);
+        BlockRenderLayerMap.putBlock(LogisticsCore.BLOCK.QUARTZ_CRYSTAL, ChunkSectionLayer.TRANSLUCENT);
     }
 
     @Override
