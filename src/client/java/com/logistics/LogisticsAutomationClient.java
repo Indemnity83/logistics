@@ -38,7 +38,6 @@ public final class LogisticsAutomationClient implements DomainBootstrap {
                 LogisticsAutomation.ENTITY.MARKER_BLOCK_ENTITY, MarkerBlockEntityRenderer::new);
         // Register quarry frame for cutout rendering (transparency support)
         BlockRenderLayerMap.INSTANCE.putBlock(LogisticsAutomation.BLOCK.LASER_QUARRY_FRAME, RenderType.cutout());
-        BlockRenderLayerMap.INSTANCE.putBlock(LogisticsAutomation.BLOCK.QUARTZ_CRYSTAL, RenderType.translucent());
 
         BlockEntityRendererRegistry.register(
                 LogisticsAutomation.ENTITY.LASER_QUARRY_BLOCK_ENTITY, LaserQuarryBlockEntityRenderer::new);

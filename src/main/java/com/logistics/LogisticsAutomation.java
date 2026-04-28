@@ -64,7 +64,6 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
         public static Block LASER_QUARRY;
         public static Block LASER_QUARRY_FRAME;
         public static Block KILN;
-        public static Block QUARTZ_CRYSTAL;
 
         static void register() {
             MARKER = INSTANCE.registerBlockWithItem("marker",
@@ -76,8 +75,6 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
             KILN = INSTANCE.registerBlockWithItem("kiln",
                 props -> new KilnBlock(props.strength(3.5f).sound(SoundType.METAL).requiresCorrectToolForDrops()
                     .lightLevel(state -> state.getValue(KilnBlock.LIT) ? 13 : 0)));
-            QUARTZ_CRYSTAL = INSTANCE.registerBlockWithItem("quartz_crystal",
-                props -> new Block(props.strength(0.8f).sound(SoundType.GLASS).noOcclusion()));
         }
     }
 
@@ -111,7 +108,6 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
         LogisticsCore.CREATIVE_TAB.addItem(BLOCK.MARKER);
         LogisticsCore.CREATIVE_TAB.addItem(BLOCK.LASER_QUARRY);
         LogisticsCore.CREATIVE_TAB.addItem(BLOCK.KILN);
-        LogisticsCore.CREATIVE_TAB.addItem(BLOCK.QUARTZ_CRYSTAL);
     }
 
     private void registerLegacyAliases() {
@@ -138,5 +134,9 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
         registerBlockAlias("core/kiln", BLOCK.KILN);
         registerBlockEntityAlias("core/kiln", ENTITY.KILN_BLOCK_ENTITY);
         registerItemAlias("core/kiln", BLOCK.KILN.asItem());
+
+        // automation domain => core domain (quartz_crystal moved)
+        registerBlockAlias("automation/quartz_crystal", LogisticsCore.BLOCK.QUARTZ_CRYSTAL);
+        registerItemAlias("automation/quartz_crystal", LogisticsCore.BLOCK.QUARTZ_CRYSTAL.asItem());
     }
 }

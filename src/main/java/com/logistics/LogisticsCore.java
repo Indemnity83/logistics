@@ -133,6 +133,7 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         public static Block APATITE_ORE;
         public static Block APATITE_BLOCK;
         public static Block MACERATOR;
+        public static Block QUARTZ_CRYSTAL;
 
         private BLOCK() {}
 
@@ -159,6 +160,8 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
             MACERATOR = INSTANCE.registerBlockWithItem("macerator",
                 props -> new MaceratorBlock(props.strength(3.5f).sound(SoundType.METAL).requiresCorrectToolForDrops()
                     .lightLevel(state -> state.getValue(MaceratorBlock.LIT) ? 13 : 0)));
+            QUARTZ_CRYSTAL = INSTANCE.registerBlockWithItem("quartz_crystal",
+                props -> new Block(props.strength(0.8f).sound(SoundType.GLASS).noOcclusion()));
         }
     }
 
@@ -428,6 +431,7 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
                 ITEM.PROBE
         );
         CREATIVE_TAB.addItem(BLOCK.MACERATOR);
+        CREATIVE_TAB.addItem(BLOCK.QUARTZ_CRYSTAL);
     }
 
     private static void addVanillaCreativeTabEntries() {
