@@ -136,10 +136,12 @@ public class PassiveSupplierModule extends SupplierModule implements ItemAccepti
                 ItemStorage.SIDED.find(ctx.world(), targetPos, direction.getOpposite());
         if (storage == null) return 0;
 
-        ItemVariant targetVariant = ItemVariant.of(target);
+        // Config stores item ID only (no component data), so count all variants of the
+        // same item type. This prevents overfilling when enchanted/damaged items arrive
+        // for a stock target configured by item type alone.
         long count = 0;
         for (StorageView<ItemVariant> view : storage) {
-            if (view.getResource().equals(targetVariant)) {
+            if (view.getResource().getItem() == target.getItem()) {
                 count += view.getAmount();
             }
         }
