@@ -6,7 +6,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "logistics:automation/quartz_crystal"
+          "name": "logistics:core/quartz_crystal"
         }
       ],
       "rolls": 1.0,
@@ -17,5 +17,5 @@
       ]
     }
   ],
-  "random_sequence": "logistics:blocks/automation/quartz_crystal"
+  "random_sequence": "logistics:blocks/core/quartz_crystal"
 }
