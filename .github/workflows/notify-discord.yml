@@ -24,9 +24,7 @@ jobs:
         shell: bash
         run: |
           TAG="${{ github.event.release.tag_name }}"
-          NAME="${{ github.event.release.name }}"
           URL="${{ github.event.release.html_url }}"
-          BODY="${{ github.event.release.body }}"
 
           # Extract MC version and semver from tag (e.g. mc1.21.11-v0.5.6)
           if [[ "$TAG" =~ mc([0-9.]+)-v([0-9]+\.[0-9]+\.[0-9]+) ]]; then
@@ -40,18 +38,23 @@ jobs:
           echo "mc_version=$MC_VERSION" >> "$GITHUB_OUTPUT"
           echo "semver=$SEMVER" >> "$GITHUB_OUTPUT"
           echo "url=$URL" >> "$GITHUB_OUTPUT"
-          echo "name=$NAME" >> "$GITHUB_OUTPUT"
 
       - name: Send Discord notification
         shell: bash
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          RELEASE_BODY: ${{ github.event.release.body }}
           RELEASE_URL: ${{ steps.meta.outputs.url }}
           SEMVER: ${{ steps.meta.outputs.semver }}
           MC_VERSION: ${{ steps.meta.outputs.mc_version }}
         run: |
-          # Truncate body to Discord embed limit (4096 chars)
-          BODY="${{ github.event.release.body }}"
+          if [[ -z "$DISCORD_WEBHOOK_URL" ]]; then
+            echo "DISCORD_WEBHOOK_URL not set, skipping notification"
+            exit 0
+          fi
+
+          # Truncate body to keep embed readable
+          BODY="$RELEASE_BODY"
           if [ ${#BODY} -gt 1800 ]; then
             BODY="${BODY:0:1800}...\n\n[Read full release notes]($RELEASE_URL)"
           fi
@@ -77,8 +80,8 @@ jobs:
             -d "$PAYLOAD" \
             "$DISCORD_WEBHOOK_URL")
 
-          if [ "$HTTP_STATUS" -ge 400 ]; then
-            echo "Discord webhook returned HTTP $HTTP_STATUS"
-            exit 1
+          if [[ "$HTTP_STATUS" -ge 400 ]]; then
+            echo "Discord webhook returned HTTP $HTTP_STATUS — notification failed but not failing the build"
+          else
+            echo "Discord notification sent (HTTP $HTTP_STATUS)"
           fi
-          echo "Discord notification sent (HTTP $HTTP_STATUS)"

@@ -26,12 +26,12 @@ SETUP (do this once before running the script)
    b. Right-click your server name in the sidebar → "Copy Server ID"
 
 4. Run the script:
-   DISCORD_BOT_TOKEN=your_token_here DISCORD_GUILD_ID=your_server_id python3 scripts/setup_discord.py
+   DISCORD_BOT_TOKEN=your_token_here DISCORD_GUILD_ID=your_server_id python3 tools/setup_discord.py
 
    Or set them as environment variables first:
    export DISCORD_BOT_TOKEN=...
    export DISCORD_GUILD_ID=...
-   python3 scripts/setup_discord.py
+   python3 tools/setup_discord.py
 
 =============================================================================
 WHAT IT CREATES
@@ -88,6 +88,7 @@ from typing import Optional
 # ---------------------------------------------------------------------------
 
 BASE = "https://discord.com/api/v10"
+REQUEST_TIMEOUT = 10  # seconds
 
 
 def _headers(token: str) -> dict:
@@ -106,7 +107,7 @@ def api(method: str, path: str, token: str, body: Optional[dict] = None) -> dict
 
     for attempt in range(5):
         try:
-            with urllib.request.urlopen(req) as resp:
+            with urllib.request.urlopen(req, timeout=REQUEST_TIMEOUT) as resp:
                 raw = resp.read()
                 # 204 No Content
                 return json.loads(raw) if raw else {}
@@ -385,7 +386,7 @@ def main() -> int:
     guild_id = os.environ.get("DISCORD_GUILD_ID", "").strip()
 
     if not token or not guild_id:
-        print("Usage: DISCORD_BOT_TOKEN=... DISCORD_GUILD_ID=... python3 scripts/setup_discord.py")
+        print("Usage: DISCORD_BOT_TOKEN=... DISCORD_GUILD_ID=... python3 tools/setup_discord.py")
         print()
         print("See the top of this file for full setup instructions.")
         return 1

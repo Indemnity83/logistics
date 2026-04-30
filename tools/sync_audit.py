@@ -16,9 +16,15 @@ this repository:
 """
 
 import re
+import shutil
 import subprocess
 import sys
 from pathlib import Path
+
+GIT_BIN = shutil.which("git")
+if not GIT_BIN:
+    print("ERROR: git not found on PATH — cannot run sync audit.", file=sys.stderr)
+    raise SystemExit(1)
 
 # ---------------------------------------------------------------------------
 # Configuration
@@ -63,10 +69,21 @@ PR_REF_RE = re.compile(r" \(#\d+\)$")
 # Helpers
 # ---------------------------------------------------------------------------
 
+def git_current_branch(worktree: Path) -> str:
+    """Return the name of the currently checked-out branch in worktree."""
+    result = subprocess.run(
+        [GIT_BIN, "rev-parse", "--abbrev-ref", "HEAD"],
+        capture_output=True,
+        text=True,
+        cwd=worktree,
+    )
+    return result.stdout.strip() if result.returncode == 0 else ""
+
+
 def git_log_subjects(worktree: Path) -> list[str]:
     """Return all commit subjects (no PR refs) for the worktree's current branch."""
     result = subprocess.run(
-        ["git", "log", "--oneline", "--no-merges"],
+        [GIT_BIN, "log", "--oneline", "--no-merges"],
         capture_output=True,
         text=True,
         cwd=worktree,
@@ -116,6 +133,11 @@ def main() -> int:
     for branch, path in WORKTREES.items():
         if not path.exists():
             print(f"  ✗ {branch}: worktree not found at {path}")
+            missing_trees.append(branch)
+            continue
+        actual_branch = git_current_branch(path)
+        if actual_branch != branch:
+            print(f"  ✗ {branch}: wrong branch checked out (expected '{branch}', got '{actual_branch}') — skipping")
             missing_trees.append(branch)
             continue
         subjects = git_log_subjects(path)
