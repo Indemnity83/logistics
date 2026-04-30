@@ -89,8 +89,8 @@ def git_log_subjects(worktree: Path) -> list[str]:
         cwd=worktree,
     )
     if result.returncode != 0:
-        print(f"  WARNING: git log failed in {worktree}: {result.stderr.strip()}", file=sys.stderr)
-        return []
+        print(f"  ERROR: git log failed in {worktree}: {result.stderr.strip()}", file=sys.stderr)
+        sys.exit(1)
 
     subjects = []
     for line in result.stdout.splitlines():
@@ -145,7 +145,8 @@ def main() -> int:
         print(f"  ✓ {branch}: {len(subjects)} commits  ({path})")
 
     if missing_trees:
-        print(f"\nWARNING: {len(missing_trees)} worktree(s) not found — results may be incomplete.\n")
+        print(f"\nERROR: {len(missing_trees)} worktree(s) not found or on wrong branch: {', '.join(missing_trees)}")
+        return 1
 
     if len(subjects_by_branch) < 2:
         print("ERROR: Need at least two branches to compare.")

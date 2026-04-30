@@ -56,7 +56,7 @@ jobs:
           # Truncate body to keep embed readable
           BODY="$RELEASE_BODY"
           if [ ${#BODY} -gt 1800 ]; then
-            BODY="${BODY:0:1800}...\n\n[Read full release notes]($RELEASE_URL)"
+            BODY="${BODY:0:1800}..."$'\n\n'"[Read full release notes]($RELEASE_URL)"
           fi
 
           PAYLOAD=$(jq -n \
