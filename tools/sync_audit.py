@@ -73,7 +73,7 @@ PR_REF_RE = re.compile(r" \(#\d+\)$")
 
 def git_current_branch(worktree: Path) -> str:
     """Return the name of the currently checked-out branch in worktree."""
-    result = subprocess.run(
+    result = subprocess.run(  # noqa: S603
         [GIT_BIN, "rev-parse", "--abbrev-ref", "HEAD"],
         capture_output=True,
         text=True,
@@ -84,8 +84,8 @@ def git_current_branch(worktree: Path) -> str:
 
 def git_log_subjects(worktree: Path) -> list[str]:
     """Return all commit subjects (no PR refs) for the worktree's current branch."""
-    result = subprocess.run(
-        [GIT_BIN, "log", "--oneline", "--no-merges"],
+    result = subprocess.run(  # noqa: S603
+        [GIT_BIN, "log", "--format=%s", "--no-merges"],
         capture_output=True,
         text=True,
         cwd=worktree,
@@ -96,11 +96,9 @@ def git_log_subjects(worktree: Path) -> list[str]:
 
     subjects = []
     for line in result.stdout.splitlines():
-        parts = line.split(" ", 1)
-        if len(parts) < 2:
-            continue
-        subject = PR_REF_RE.sub("", parts[1]).strip()
-        subjects.append(subject)
+        subject = PR_REF_RE.sub("", line).strip()
+        if subject:
+            subjects.append(subject)
     return subjects
 
 
