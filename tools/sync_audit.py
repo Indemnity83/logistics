@@ -33,10 +33,12 @@ if not GIT_BIN:
 SCRIPT_DIR = Path(__file__).parent.resolve()
 REPO_ROOT = SCRIPT_DIR.parent
 
+PARENT = REPO_ROOT.parent
+
 WORKTREES = {
-    "mc/1.21.11": REPO_ROOT,
-    "mc/1.21.1": REPO_ROOT.parent / "logistics-mc-1.21.1",
-    "mc/26.1": REPO_ROOT.parent / "logistics-mc-26.1",
+    "mc/1.21.11": PARENT / "logistics-mc-1.21.11",
+    "mc/1.21.1":  PARENT / "logistics-mc-1.21.1",
+    "mc/26.1":    PARENT / "logistics-mc-26.1",
 }
 
 # Path to the file that documents intentionally-diverged commit subjects.
