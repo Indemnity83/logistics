@@ -254,8 +254,10 @@ public class PipeBlockEntity extends BaseBlockEntity
             RegistryOps<Tag> ops = registries.createSerializationContext(NbtOps.INSTANCE);
             for (int i = 0; i < itemsList.size(); i++) {
                 NbtCompat.ifHasCompoundAt(itemsList, i, itemTag ->
-                    TravelingItem.CODEC.parse(ops, itemTag).result()
-                            .ifPresent(travelingItems::add));
+                    TravelingItem.CODEC.parse(ops, itemTag).result().ifPresentOrElse(
+                        travelingItems::add,
+                        () -> LogisticsMod.LOGGER.warn(
+                                "[Logistics] Skipping unreadable TravelingItem at {}", getBlockPos())));
             }
         });
 

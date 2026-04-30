@@ -1,0 +1,68 @@
+# Known / intentional branch divergences
+#
+# Add a commit subject here (without the PR reference) when a gap is confirmed intentional.
+# Lines starting with # are comments. Blank lines are ignored.
+#
+# Format: exact commit subject (after stripping PR reference)
+# Example:
+#   fix: some fix that only applies to mc/1.21.1
+
+# ---------------------------------------------------------------------------
+# CI / tooling divergence (each branch manages its own workflow versions)
+# ---------------------------------------------------------------------------
+ci: bump googleapis/release-please-action from 4 to 5
+chore: bump gradle-wrapper from 9.4.1 to 9.5.0
+build: adjust beta workflow to set game version filter for snapshot builds
+build: transition to stable release numbering
+chore: add bootstrap SHA to release-please config
+ci: remove beta build GitHub Actions workflow
+ci: remove mc-publish metadata from fabric.mod.json
+
+# ---------------------------------------------------------------------------
+# mc/1.21.1-only changes (feature or backport not applicable to other branches)
+# ---------------------------------------------------------------------------
+Add crafting recipes for new chip items, update pipe recipes
+Add missing item models for chassis, process, and satellite pipes
+Refactor kiln to electric furnace, move to automation package
+Relocate intermediates and macerator to core package, remove molten glass fluid
+chore: widen Minecraft version support in fabric.mod.json
+feat: add game tests for logistics pipe network functionality
+fix: back-port basic rendering functions
+fix: correct engine piston back-face lighting in renderer
+fix: correct inverted fuel validation in StirlingEngine item storage
+fix: engine renderer tick handling and texture scaling
+fix: handle potential null value from existing queue retrieval
+fix: improve permission checking logic in LogisticsCommands and ProviderModule
+fix: item tinting on marking fluid items
+fix: pipe rendering with cutout layers, model loading, and BE renderer
+fix: preserve copper pipe weathering in item state and models
+fix: preserve item filter pipe GUI entries when closing
+fix: quarry mining game test by clarifying frame placement and bounds
+fix: render marker beams using baked model segments
+fix: restore laser quarry block entity renderer and client render cache cleanup
+fix: update item references in machine_core recipe JSON
+fix: use Fabric FuelRegistry to detect kiln fuel items
+fix: wrap pipe recipe key entries in item objects
+test: update ResourceId tests to use ResourceLocation wrapping and naming
+
+# ---------------------------------------------------------------------------
+# mc/1.21.11-only changes
+# ---------------------------------------------------------------------------
+docs: update domain descriptions and implementation status in README
+fix: add missing English names for tin and bronze item tags
+fix: add missing particle textures to laser quarry, pipes, and engines
+fix: add newline at end of fabric.mod.json file
+fix: move schemaVersion to top of fabric.mod.json
+fix: prevent kiln recipes from showing up empty
+
+# ---------------------------------------------------------------------------
+# mc/26.1-only changes (API-specific or UI refactors for 26.1)
+# ---------------------------------------------------------------------------
+fix: correct engine block colors and transparency rendering
+fix: relocate quartz crystal asset files to core directory
+refactor: simplify screen constructor parameters for several screens
+
+# ---------------------------------------------------------------------------
+# NEEDS DECISION — remove from this file once the port is done or confirmed unnecessary
+# ---------------------------------------------------------------------------
+# fix: correct supplier module UI targeting  ← needs porting to mc/26.1 (remove this line to surface it)
