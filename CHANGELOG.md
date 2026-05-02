@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.5.6](https://github.com/Indemnity83/logistics/compare/mc26.1-v0.5.5...mc26.1-v0.5.6) (2026-05-02)
+
+
+### Bug Fixes
+
+* correct lever and dust placement on engine blocks ([#300](https://github.com/Indemnity83/logistics/issues/300)) ([6f912ca](https://github.com/Indemnity83/logistics/commit/6f912ca94b19b8db514504c9d8e119aff371bbe4))
+* correct supplier module UI targeting ([#295](https://github.com/Indemnity83/logistics/issues/295)) ([128358a](https://github.com/Indemnity83/logistics/commit/128358af0cd2b00446926c12ab76e95f9d764edd))
+* enchanted items being provided on the network ([#292](https://github.com/Indemnity83/logistics/issues/292)) ([1d24b3a](https://github.com/Indemnity83/logistics/commit/1d24b3ab7c0be50504085f468104a05fae85b8fa))
+* prevent component-bearing items from sharing crafter slot ([#302](https://github.com/Indemnity83/logistics/issues/302)) ([ab6b03c](https://github.com/Indemnity83/logistics/commit/ab6b03c5dbb799dd6600b8911499ec6cbd935418))
+* prevent passive supplier from overfilling inventory items ([#303](https://github.com/Indemnity83/logistics/issues/303)) ([33792f0](https://github.com/Indemnity83/logistics/commit/33792f07093086eebe98f0e3c3d0dd72418b8b53))
+* relocate quartz crystal asset files to core directory ([#305](https://github.com/Indemnity83/logistics/issues/305)) ([e075108](https://github.com/Indemnity83/logistics/commit/e075108e8f124c74c82405825ffcb69cebd19219))
+* tooltips for items in requester screen ([#294](https://github.com/Indemnity83/logistics/issues/294)) ([720b699](https://github.com/Indemnity83/logistics/commit/720b699b901685fa01d9586c327ba473a9a171fc))
+
+
+### Refactorings
+
+* move quartz crystal registration to core domain ([#304](https://github.com/Indemnity83/logistics/issues/304)) ([6de65f3](https://github.com/Indemnity83/logistics/commit/6de65f3dcaa791d47a4792e76cb365928e41e672))
+
 ## [0.5.5](https://github.com/Indemnity83/logistics/compare/mc26.1-v0.5.4...mc26.1-v0.5.5) (2026-04-25)
 
 
