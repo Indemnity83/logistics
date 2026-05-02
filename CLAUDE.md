@@ -86,7 +86,7 @@ Since commits will be cherry-picked across branches, write code that minimizes c
 
 ```bash
 ./gradlew build              # Build the mod JAR
-./gradlew remapJar           # Build with obfuscation remapping (MC 1.21.11 is obfuscated)
+./gradlew remapJar           # Build with obfuscation remapping (use for mc/1.21.1 and mc/1.21.11; mc/26.1+ uses build)
 ./gradlew runClient          # Launch Minecraft client for testing
 ./gradlew runServer          # Launch Minecraft server
 ```
