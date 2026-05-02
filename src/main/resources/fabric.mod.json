@@ -7,8 +7,8 @@
     "sources": "https://github.com/indemnity83/logistics"
   },
   "depends": {
-    "fabric-api": "*",
-    "fabricloader": ">=0.18.4",
+    "fabric-api": ">=0.116.8+1.21.1",
+    "fabricloader": ">=0.18.6",
     "java": ">=21",
     "minecraft": ">=1.21 <=1.21.1"
   },
