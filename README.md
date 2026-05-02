@@ -10,6 +10,7 @@
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Minecraft](https://img.shields.io/badge/Minecraft-1.21.11-brightgreen.svg)](https://www.minecraft.net/)
 [![Fabric](https://img.shields.io/badge/Fabric-0.18.4-orange.svg)](https://fabricmc.net/)
+[![Discord](https://img.shields.io/badge/Discord-Join-5865F2?logo=discord&logoColor=white)](https://discord.gg/94DP3CVNVt)
 
 </div>
 
@@ -36,7 +37,7 @@ Logistics is a Fabric mod inspired by BuildCraft and Logistics Pipes, bringing a
 
 ## How It Works
 
-Logistics is built on a **three-tier system** that grows with your world progression. All three tiers are implemented.
+Logistics is built on a **three-tier system** that grows with your world progression. Implemented tiers are listed first, followed by future plans.
 
 ### Tier 1: Mechanical Pipes (Implemented)
 **Basic routing without item awareness**
@@ -59,16 +60,15 @@ These pipes are intelligent. They inspect items and change behavior based on wha
 - **Item Filter Pipe (Diamond)** - Route specific items to specific destinations (item-aware)
 - **Item Insertion Pipe (Quartz)** - Prefer inventories with space; otherwise route to pipes
 
-### Tier 3: Network Logistics (Implemented)
+### Tier 3: Network Logistics (Future)
 **System-aware automation and requests**
 
-Your inventories become abstract resources, and you request what you need—the network figures out the rest. Dedicated logistics pipes advertise contents, fulfill requests, maintain stock, and automate crafting. Chassis pipes hold swappable modules to customize behavior further.
+The ultimate goal. Your inventories become abstract resources, and you request what you need—the network figures out the rest.
 
-- **Provider Logistics Pipe** - Advertises inventory contents to the network
-- **Requester Logistics Pipe** - Requests items from the network on demand
-- **Supplier Logistics Pipe** - Maintains target stock levels automatically
-- **Crafting Logistics Pipe** - Automates crafting recipes on demand
-- **Chassis Logistics Pipes (MK1–MK5)** - Hold 1–8 swappable modules each
+- **Request Tables** - Ask for items; the network delivers them
+- **Provider Modules** - Advertise what inventories contain
+- **Crafting Logistics** - Automated crafting on demand
+- **Global Routing** - Smart pathfinding across your entire network
 
 Each tier builds on the previous one—you'll use all three together as your base grows.
 
@@ -83,7 +83,6 @@ Transport items through networks with different behaviors:
 - **Basic Transport** - Stone and Copper pipes for backbone connectivity
 - **Extraction & Routing** - Wood (extractor), Iron (merger), Diamond (filter), Quartz (insertion) pipes
 - **Special Pipes** - Gold (speed boost), Sandstone (passthrough), Obsidian (void)
-- **Network Logistics** - Dedicated logistics pipes (provider, requester, supplier, crafter, and more) plus chassis pipes with swappable modules
 
 [View all pipes →](https://indemnity83.github.io/logistics/pipes/)
 
@@ -91,25 +90,23 @@ Transport items through networks with different behaviors:
 RF energy generation with engines:
 - **Redstone Engine** - Simple, safe, steady power
 - **Stirling Engine** - Fuel-powered with heat management
-- **Creative Engine** - Infinite power for testing and creative mode
 
 [Learn about power systems →](https://indemnity83.github.io/logistics/power/)
 
 ### Automation
-- **[Kiln](https://indemnity83.github.io/logistics/automation/kiln/)** - Temperature-controlled crafting for molten glass and advanced materials
-- **[Macerator](https://indemnity83.github.io/logistics/automation/macerator/)** - Grind ores and materials into dusts and flour; supports XP drops and tag-based recipes
+- **[Macerator](https://indemnity83.github.io/logistics/automation/macerator/)** - Grind ores, gems, and materials into fine dusts for smelting and crafting
+- **[Kiln](https://indemnity83.github.io/logistics/automation/kiln/)** - Electric furnace; smelts any vanilla smelting recipe using RF energy
 - **[Laser Quarry](https://indemnity83.github.io/logistics/automation/laser-quarry/)** - Automated 16×16 mining with energy-scaled speed
 
 ### Tools
 - **[Wrench](https://indemnity83.github.io/logistics/tools/wrench/)** - Configuration tool for pipes and machines
 - **[Marking Fluid](https://indemnity83.github.io/logistics/tools/marking-fluid/)** - Color-code your pipe networks
-- **Probe** - Inspect network state (creative/debug tool)
 
 ---
 
 ## Installation
 
-**Requirements:** Minecraft 1.21.11 • Fabric Loader 0.18.4+ • Fabric API • Java 21+
+**Requirements:** Minecraft 1.21.11+ • Fabric Loader 0.18.4+ • Fabric API • Java 21+
 
 **Download from:**
 - [GitHub Releases](https://github.com/indemnity83/logistics/releases) (includes dev builds)
@@ -139,15 +136,17 @@ RF energy generation with engines:
 - Client-side smooth visual rendering
 - Extraction from and insertion into adjacent inventories
 - Mechanical and Smart pipe behaviors
-- Network logistics pipes: provider, requester, supplier, crafter, process, satellite, and chassis pipes with swappable modules
-- Tin and Apatite worldgen, Bronze crafting, and tiered gear progression
-- Redstone, Stirling, and Creative engines with heat management
-- Kiln for temperature-controlled crafting
-- Macerator with ore processing, grinding time, XP drops, and tag support
+- Redstone and Stirling engines with heat management
+- Macerator for grinding ores, gems, and materials into dusts
+- Kiln as an RF-powered electric furnace for any vanilla smelting recipe
 - Laser Quarry with automatic frame construction and energy-scaled mining speed
-- JEI integration for custom machines
 
 ### 🚧 Future
+- Request Table block with GUI
+- Provider pipes that expose inventory contents
+- Global pathfinding and request fulfillment
+- Autocrafting support via vanilla Crafter integration
+- Network logistics components
 - Fluid pipes with Transfer API integration
 - Power/cost system for logistics operations
 - Additional pipe upgrades and advanced logistics features
@@ -186,6 +185,6 @@ Inspired by:
 
 <div align="center">
 
-[Report an Issue](https://github.com/indemnity83/logistics/issues) • [Documentation](https://indemnity83.github.io/logistics/)
+[Report an Issue](https://github.com/indemnity83/logistics/issues) • [Documentation](https://indemnity83.github.io/logistics/) • [Discord](https://discord.gg/94DP3CVNVt)
 
 </div>

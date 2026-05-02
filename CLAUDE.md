@@ -92,13 +92,13 @@ Since commits will be cherry-picked across branches, write code that minimizes c
 ```
 
 **Requirements:**
-- **Java 21** (MC 1.21.11 requirement)
-- Minecraft 1.21.11
+- **Java 21**
+- Minecraft 1.21.11+
 - Fabric API
 
 **Build output:** `build/libs/logistics-{version}.jar`
 - Local: `logistics-dev-local.jar`
-- CI: `logistics-0.4.0+mc1.21.11.fabric.jar` (SemVer build metadata format)
+- CI: `logistics-0.5.5+mc1.21.11.fabric.jar` (SemVer build metadata format)
 
 ### Version Management
 
@@ -172,6 +172,35 @@ When a critical bug needs a patch release *after* feature development has alread
 
 **Why step 7 matters:** release-please reads `.release-please-manifest.json` to determine the current version. If you skip this, it will try to create a release PR for the hotfix version on the next `fix:` or `feat:` commit — producing a duplicate tag conflict.
 
+### Release Cycle Playbook
+
+**The version boundary problem:** Once any `feat:` PR merges, the next release-please bump is a minor version. This makes "quick patch after features land" impossible without the hotfix workflow above.
+
+**Three tools to manage this:**
+
+**1. "Up Next" label** — Applied to PRs that are approved but intentionally held past the current patch release.
+- Rule: If a release-please PR for the current version is still open, apply `up next` to any `feat:` PR instead of merging it.
+- Transition: When the patch release ships, strip `up next` — those PRs are now in scope for the next minor.
+
+**2. Snapshot testing** (`build-snapshot.yml`) — After feature PRs merge, leave the release-please PR open and publish snapshot builds for community testing. Bugs found here accumulate as `fix:` commits in the upcoming release.
+
+**3. Pre-release gate** (`build-prerelease.yml`) — When ready to commit to the release, publish `v0.6.0-pre.1`. This signals "final testing phase." When satisfied, merge the release-please PR.
+
+**Full cycle:**
+```
+fix: PRs merge → release-please opens vX.Y.Z patch PR
+Apply "up next" label to any feat: PRs that should wait
+Merge patch release-please PR → vX.Y.Z ships → cherry-pick to other branches
+Strip "up next" from held PRs
+Merge feat: PRs → release-please opens vX.Y+1.0 PR (leave it open)
+Publish snapshots via build-snapshot.yml → community testing
+Fix bugs (accumulate in vX.Y+1.0 release notes)
+Publish vX.Y+1.0-pre.1 via build-prerelease.yml → final gate
+Merge vX.Y+1.0 release-please PR → ships → cherry-pick
+```
+
+**Use the Hotfix Workflow (above) only when:** v0.6.0 is already out AND new features have already merged, making a v0.5.x backport necessary.
+
 ## Architecture
 
 This is a Fabric mod organized into **independent domains** following **SOLID principles** to maximize maintainability.
@@ -196,11 +225,6 @@ src/main/java/com/logistics/
 ├── api/                     # Public API surface (LogisticsApi, TransportApi)
 ├── core/                    # Shared interfaces and utilities
 │   ├── bootstrap/           # Domain initialization system
-│   ├── fabricator/          # Kiln machine (crafting intermediates)
-│   ├── fluids/              # Molten Glass fluid
-│   ├── item/                # Wrench, Probe tools
-│   ├── loot/                # Chest loot modifier
-│   ├── marker/              # Marker block and manager
 │   └── lib/                 # Interfaces that other domains may import
 │       └── network/         # ILogisticsNetwork, IWorldView, Order, etc.
 ├── pipe/                    # Item transport pipes
@@ -212,7 +236,7 @@ src/client/java/com/logistics/
 ├── core/                    # Client-side core utilities
 ├── pipe/                    # Pipe rendering
 ├── power/                   # Engine rendering
-└── automation/              # Quarry rendering
+└── automation/              # Machine rendering (quarry laser, etc.)
 ```
 
 ### Domain Isolation Rules (Dependency Inversion Principle)
@@ -272,47 +296,33 @@ Domains are initialized using a two-phase pattern (server/common + client):
 **Core Domain** (`com.logistics.core`):
 - **Foundation for all domains** - provides shared abstractions via `core.lib`
 - **Dependency Inversion**: All domains depend on `core.lib` interfaces/abstracts, not on each other
-- Contains core game elements:
-  - **Tools**: Wrench, Probe
-  - **Materials**: Tin (ore, raw, ingot, nugget, block), Bronze (ingot, nugget, block), Apatite (ore, gem, block), 9 gear types (Wooden through Netherite), 13 valve types
-  - **Fluids**: Molten Glass (still + flowing)
-  - **Kiln** (`fabricator/`): Furnace-like crafting machine for producing mod materials; has its own recipe type
-  - **Marker** (`marker/`): Placeable marker block used to define quarry regions and other spatial references
-  - **Worldgen**: Tin ore and Apatite ore feature generation
-  - **Utilities**: Loot modifier (chest loot injection), debug commands, network tick handler
+- Contains core game elements: tools (wrenches), crafting intermediates, shared utilities, and machines that don't belong to a single domain (e.g. Macerator)
 - **Key abstractions in `core.lib`**:
   - `AbstractEngineBlockEntity` - base for all engines
   - `DomainBootstrap` - interface for domain initialization
   - `BaseBlockEntity` - base class for block entities with common NBT/tick patterns
   - `HasItemStorage`, `HasEnergyStorage`, `HasFluidStorage` - capability interfaces block entities implement
-  - `PipeConnection` - interface for pipe connection capability
-  - `FilterSlots` - manages filter item slots in inventories
-  - `Module` - core pipe module interface (30+ methods for behavior customization)
-  - `TickingModule`, `RandomTickModule`, `RoutingModule`, `DispatchableModule`, `TransferHandlerModule`, `ItemAcceptingModule` - module sub-interfaces
-  - `TravelingItem`, `TravelingItemPhysics`, `RoutePlan` - pipe item transit abstractions
-  - `core.lib.network` - logistics network contracts (`ILogisticsNetwork`, `IWorldView`, `INetworkGraph`, `Order`, `FulfillmentMode`, `IngredientChecker`, `ProviderCanFulfill`)
+  - `core.lib.network` - logistics network contracts (`ILogisticsNetwork`, `IWorldView`, `INetworkGraph`, `Order`, `IngredientChecker`, `ProviderCanFulfill`)
   - Shared interfaces that enable cross-domain functionality without coupling
 - Think of `core.lib` as the "contract layer" that keeps domains decoupled
 
 **Pipe Domain** (`com.logistics.pipe`):
-- Module composition: `Pipe` composes `Module` instances for behavior; `ChassisPipe` supports runtime-swappable modules (MkI–MkV with 1/2/3/4/8 slots)
-- Module ordering: `CraftingModule` runs first, `NetworkRouterModule` runs last
-- **Transport modules**: `TransportModule`, `BoostModule`, `WeatheringModule`, `PipeMarkingModule`, `PipeOnlyModule`, `MergerModule`, `BlockConnectionModule`
-- **Extraction/insertion modules**: `ExtractionModule`, `InsertionModule`, `BasicExtractorModule`, `AdvancedExtractorModule`, `ItemFilterModule`
-- **Logistics network modules**: `NetworkRouterModule`, `SinkModule`, `PolymorphicSinkModule`, `EnchantmentSinkModule`, `ModSinkModule`, `ProviderModule`, `PassiveSupplierModule`, `SupplierModule`, `RequesterModule`, `TerminusModule`, `SatelliteModule`, `QuickSortModule`, `CraftingModule`, `ProcessModule`, `VoidModule`
-- Network layer: `NetworkRegistry`, `PipeNetwork` (implements `ILogisticsNetwork`), `NetworkController`, `NetworkSnapshot`
+- Module composition: `Pipe` composes `Module` instances for behavior
+- Module types: `ProviderModule`, `SupplierModule`, `RequesterModule`, `SinkModule`, `NetworkRouterModule`, `CraftingModule`
+- Module ordering: CraftingModule runs first, NetworkRouterModule runs last
+- Network layer: `NetworkRegistry`, `PipeNetwork` (implements `ILogisticsNetwork`), `NetworkController`, `NetworkGraph`
 - `TravelingItem` represents items in transit with progress-based movement
+- See [documentation](https://indemnity83.github.io/logistics/) for comprehensive pipe architecture
 
 **Power Domain** (`com.logistics.power`):
-- Engine hierarchy: `AbstractEngineBlockEntity` base class (in `core.lib`)
+- Engine hierarchy: `AbstractEngineBlockEntity` base class
 - Heat management: COLD → COOL → WARM → HOT → OVERHEAT stages
 - Integrates with Team Reborn Energy API
-- Engine types: Redstone Engine, Stirling Engine (with fuel), Creative Engine
-- Also registers: Creative Sink (absorbs energy, useful for testing)
+- Types: Redstone Engine, Stirling Engine (with fuel), Creative Engine
 
 **Automation Domain** (`com.logistics.automation`):
-- Laser Quarry: Mining machine with configurable volume; accepts pipe connections from above only
-- Laser Quarry Frame: Decorative frame blocks that define the quarry boundary
+- Kiln: RF-powered electric furnace (smelts any vanilla smelting recipe)
+- Laser Quarry: Mining machine with frame and laser rendering
 - Expandable for future machines
 
 ## Code Style
