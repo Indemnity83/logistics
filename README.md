@@ -93,7 +93,8 @@ RF energy generation with engines:
 [Learn about power systems →](https://indemnity83.github.io/logistics/power/)
 
 ### Automation
-- **[Kiln](https://indemnity83.github.io/logistics/automation/kiln/)** - Temperature-controlled crafting for molten glass and advanced materials
+- **[Macerator](https://indemnity83.github.io/logistics/automation/macerator/)** - Grind ores, gems, and materials into fine dusts for smelting and crafting
+- **[Kiln](https://indemnity83.github.io/logistics/automation/kiln/)** - Electric furnace; smelts any vanilla smelting recipe using RF energy
 - **[Laser Quarry](https://indemnity83.github.io/logistics/automation/laser-quarry/)** - Automated 16×16 mining with energy-scaled speed
 
 ### Tools
@@ -135,7 +136,8 @@ RF energy generation with engines:
 - Extraction from and insertion into adjacent inventories
 - Mechanical and Smart pipe behaviors
 - Redstone and Stirling engines with heat management
-- Kiln for temperature-controlled crafting
+- Macerator for grinding ores, gems, and materials into dusts
+- Kiln as an RF-powered electric furnace for any vanilla smelting recipe
 - Laser Quarry with automatic frame construction and energy-scaled mining speed
 
 ### 🚧 Future
@@ -182,6 +184,6 @@ Inspired by:
 
 <div align="center">
 
-[Report an Issue](https://github.com/indemnity83/logistics/issues) • [Documentation](https://indemnity83.github.io/logistics/)
+[Report an Issue](https://github.com/indemnity83/logistics/issues) • [Documentation](https://indemnity83.github.io/logistics/) • [Discord](https://discord.gg/94DP3CVNVt)
 
 </div>
