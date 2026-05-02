@@ -59,18 +59,15 @@ These pipes are intelligent. They inspect items and change behavior based on wha
 - **Item Filter Pipe (Diamond)** - Route specific items to specific destinations (item-aware)
 - **Item Insertion Pipe (Quartz)** - Prefer inventories with space; otherwise route to pipes
 
-### Tier 3: Network Logistics (Implemented)
+### Tier 3: Network Logistics (Future)
 **System-aware automation and requests**
 
-Your inventories become abstract resources. Provider modules advertise what's available; supplier modules push stock; requester modules pull what's needed; crafting pipes handle on-demand autocrafting.
+The ultimate goal. Your inventories become abstract resources, and you request what you need—the network figures out the rest.
 
-- **Chassis Pipes (MkI–MkV)** - Modular pipes with swappable logistics module slots
-- **Provider Module** - Advertise inventory contents to the network
-- **Supplier Module** - Push items to requesters automatically
-- **Requester Module** - Pull requested items from the network
-- **Sink Module / Mod Sink Module** - Accept overflow; filter by mod
-- **Crafting Pipe** - Autocraft items on demand via vanilla Crafter
-- **Processing & Satellite Pipes** - Route in-progress crafting jobs
+- **Request Tables** - Ask for items; the network delivers them
+- **Provider Modules** - Advertise what inventories contain
+- **Crafting Logistics** - Automated crafting on demand
+- **Global Routing** - Smart pathfinding across your entire network
 
 Each tier builds on the previous one—you'll use all three together as your base grows.
 
@@ -88,13 +85,6 @@ Transport items through networks with different behaviors:
 
 [View all pipes →](https://indemnity83.github.io/logistics/pipes/)
 
-### Logistics Network
-Intelligent item dispatch with standing-order fulfillment:
-- **Chassis Pipes (MkI–MkV)** - Modular pipes with swappable module slots
-- **Provider, Supplier, Requester & Sink modules** - Full network logistics
-- **Crafting Pipe** - On-demand autocrafting via vanilla Crafter
-- **Processing & Satellite Pipes** - Route in-flight crafting jobs
-
 ### Power
 RF energy generation with engines:
 - **Redstone Engine** - Simple, safe, steady power
@@ -103,8 +93,8 @@ RF energy generation with engines:
 [Learn about power systems →](https://indemnity83.github.io/logistics/power/)
 
 ### Automation
-- **[Kiln](https://indemnity83.github.io/logistics/automation/kiln/)** - Temperature-controlled crafting for molten glass and advanced materials
-- **[Macerator](https://indemnity83.github.io/logistics/automation/macerator/)** - Grind ores and materials into dusts and flour; supports XP drops and tag-based recipes
+- **[Macerator](https://indemnity83.github.io/logistics/automation/macerator/)** - Grind ores, gems, and materials into fine dusts for smelting and crafting
+- **[Kiln](https://indemnity83.github.io/logistics/automation/kiln/)** - Electric furnace; smelts any vanilla smelting recipe using RF energy
 - **[Laser Quarry](https://indemnity83.github.io/logistics/automation/laser-quarry/)** - Automated 16×16 mining with energy-scaled speed
 
 ### Tools
@@ -115,7 +105,7 @@ RF energy generation with engines:
 
 ## Installation
 
-**Requirements:** Minecraft 1.21.11 • Fabric Loader 0.18.4+ • Fabric API • Java 21+
+**Requirements:** Minecraft 26.1+ • Fabric Loader 0.18.4+ • Fabric API • Java 25+
 
 **Download from:**
 - [GitHub Releases](https://github.com/indemnity83/logistics/releases) (includes dev builds)
@@ -146,17 +136,16 @@ RF energy generation with engines:
 - Extraction from and insertion into adjacent inventories
 - Mechanical and Smart pipe behaviors
 - Redstone and Stirling engines with heat management
-- Kiln for temperature-controlled crafting
-- Macerator with ore processing, grinding time, XP drops, and tag support
+- Macerator for grinding ores, gems, and materials into dusts
+- Kiln as an RF-powered electric furnace for any vanilla smelting recipe
 - Laser Quarry with automatic frame construction and energy-scaled mining speed
-- Logistics network with provider, supplier, requester, and sink modules
-- Chassis pipes with modular swappable slots (MkI–MkV)
-- Crafting pipe with on-demand autocrafter integration
-- JEI integration for custom machines
 
 ### 🚧 Future
 - Request Table block with GUI
+- Provider pipes that expose inventory contents
 - Global pathfinding and request fulfillment
+- Autocrafting support via vanilla Crafter integration
+- Network logistics components
 - Fluid pipes with Transfer API integration
 - Power/cost system for logistics operations
 - Additional pipe upgrades and advanced logistics features
@@ -195,6 +184,6 @@ Inspired by:
 
 <div align="center">
 
-[Report an Issue](https://github.com/indemnity83/logistics/issues) • [Documentation](https://indemnity83.github.io/logistics/)
+[Report an Issue](https://github.com/indemnity83/logistics/issues) • [Documentation](https://indemnity83.github.io/logistics/) • [Discord](https://discord.gg/94DP3CVNVt)
 
 </div>
