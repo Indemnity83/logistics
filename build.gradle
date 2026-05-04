@@ -49,7 +49,7 @@ tasks.register('installGitHooks') {
                 def commonPath = commonDir.text.trim()
                 gitHooksDir = file("${worktreeGitDir}/${commonPath}/hooks")
             } else {
-                gitHooksDir = new File(worktreeGitDir, commonPath).canonicalFile.toPath().resolve("hooks").toFile()
+                gitHooksDir = new File(worktreeGitDir, "hooks")
             }
         } else {
             // Regular git repository
@@ -78,7 +78,7 @@ tasks.register('installGitHooks') {
 //   net.neoforged.moddev and MDG has support for MC 26.1 calendar versioning.
 tasks.named('build') {
     dependsOn ':fabric:build'
-    dependsOn 'installGitHooks'
+    dependsOn ':common:test'
 }
 
 tasks.named('check') {

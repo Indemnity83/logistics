@@ -39,7 +39,7 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: test-reports-${{ github.run_id }}
-          path: build/reports/tests/test/
+          path: common/build/reports/tests/test/
 
       - name: Compute version
         id: version
