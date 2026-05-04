@@ -11,7 +11,7 @@
     "fabric-api": ">=${fabric_version}",
     "fabricloader": ">=${loader_version}",
     "java": ">=${java_version}",
-    "minecraft": ">=26.1"
+    "minecraft": ">=${minecraft_version}"
   },
   "description": "A modern logistics and pipe mod with authentic in-pipe item motion, mod interoperability, and request/autocrafting systems.",
   "entrypoints": {
