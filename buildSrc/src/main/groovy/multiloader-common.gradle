@@ -3,6 +3,9 @@ plugins {
     id 'maven-publish'
 }
 
+// Inherit version from root so MOD_VERSION env var propagates to all subproject jars.
+version = rootProject.version
+
 base {
     archivesName = "${archives_base_name}-${project.name}-${minecraft_version}"
 }

@@ -1,7 +1,14 @@
 // Fabric loader subproject.
+// archivesName is overridden below to restore the original "logistics-${version}.jar" output,
+// matching what CI workflows expect. The convention plugin default includes project.name and
+// minecraft_version, which would produce "logistics-fabric-26.1-${version}.jar" instead.
 plugins {
     id 'multiloader-loader'
     id 'net.fabricmc.fabric-loom'
+}
+
+base {
+    archivesName = rootProject.archives_base_name
 }
 
 repositories {

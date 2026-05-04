@@ -54,7 +54,7 @@ jobs:
 
           # Gradle task
           if [[ "$MC_VERSION" =~ ^([0-9]+)\. ]]; then
-            (( ${BASH_REMATCH[1]} >= 26 )) && GRADLE_TASK="jar" || GRADLE_TASK="remapJar"
+            (( ${BASH_REMATCH[1]} >= 26 )) && GRADLE_TASK=":fabric:jar" || GRADLE_TASK="remapJar"
           else
             GRADLE_TASK="remapJar"
           fi
@@ -83,7 +83,7 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: logistics-${{ steps.version.outputs.full_version }}
-          path: build/libs/logistics-${{ steps.version.outputs.full_version }}.jar
+          path: fabric/build/libs/logistics-${{ steps.version.outputs.full_version }}.jar
 
       - name: Publish
         uses: Kir-Antipov/mc-publish@v3.3
@@ -100,7 +100,7 @@ jobs:
           version: ${{ steps.version.outputs.full_version }}
           name: "Logistics v${{ steps.version.outputs.pre_version }} for ${{ steps.version.outputs.loader }} ${{ steps.version.outputs.minecraft_version }}"
 
-          files: build/libs/logistics-${{ steps.version.outputs.full_version }}.jar
+          files: fabric/build/libs/logistics-${{ steps.version.outputs.full_version }}.jar
 
       - name: Notify Discord beta-testing
         if: success()
