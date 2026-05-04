@@ -1,6 +1,6 @@
 package com.logistics;
 
-import com.logistics.core.bootstrap.DomainBootstrap;
+import com.logistics.core.bootstrap.ClientDomainBootstrap;
 import com.logistics.core.lib.power.AbstractEngineBlockEntity;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.core.render.ModelKeyRegistry;
@@ -21,18 +21,13 @@ import java.util.Map;
 
 import static com.logistics.LogisticsMod.LOGGER;
 
-public final class LogisticsPowerClient implements DomainBootstrap {
+public final class LogisticsPowerClient implements ClientDomainBootstrap {
     public LogisticsPowerClient() {
         ModelLoadingPlugin.register(pluginContext -> {
             for (var entry : MODEL.getAllModels()) {
                 pluginContext.addModel(entry.getKey(), SimpleUnbakedExtraModel.blockStateModel(entry.getValue().toIdentifier()));
             }
         });
-    }
-
-    @Override
-    public void initCommon() {
-        // Client-only bootstrap; common init handled in LogisticsPower
     }
 
     @Override
