@@ -1,0 +1,129 @@
+# Known / intentional branch divergences
+#
+# Add a commit subject here (without the PR reference) when a gap is confirmed intentional.
+# Lines starting with # are comments. Blank lines are ignored.
+#
+# Format: exact commit subject (after stripping PR reference)
+# Example:
+#   fix: some fix that only applies to mc/1.21.1
+
+# ---------------------------------------------------------------------------
+# CI / tooling divergence (each branch manages its own workflow versions)
+# ---------------------------------------------------------------------------
+ci: bump googleapis/release-please-action from 4 to 5
+chore: bump gradle-wrapper from 9.4.1 to 9.5.0
+build: adjust beta workflow to set game version filter for snapshot builds
+build: transition to stable release numbering
+chore: add bootstrap SHA to release-please config
+ci: remove beta build GitHub Actions workflow
+ci: remove mc-publish metadata from fabric.mod.json
+
+# ---------------------------------------------------------------------------
+# mc/1.21.1-only changes (feature or backport not applicable to other branches)
+# ---------------------------------------------------------------------------
+Add crafting recipes for new chip items, update pipe recipes
+Add missing item models for chassis, process, and satellite pipes
+Refactor kiln to electric furnace, move to automation package
+Relocate intermediates and macerator to core package, remove molten glass fluid
+chore: widen Minecraft version support in fabric.mod.json
+feat: add game tests for logistics pipe network functionality
+fix: back-port basic rendering functions
+fix: correct engine piston back-face lighting in renderer
+fix: correct inverted fuel validation in StirlingEngine item storage
+fix: engine renderer tick handling and texture scaling
+fix: handle potential null value from existing queue retrieval
+fix: improve permission checking logic in LogisticsCommands and ProviderModule
+fix: item tinting on marking fluid items
+fix: pipe rendering with cutout layers, model loading, and BE renderer
+fix: preserve copper pipe weathering in item state and models
+fix: preserve item filter pipe GUI entries when closing
+fix: quarry mining game test by clarifying frame placement and bounds
+fix: render marker beams using baked model segments
+fix: restore laser quarry block entity renderer and client render cache cleanup
+fix: update item references in machine_core recipe JSON
+fix: use Fabric FuelRegistry to detect kiln fuel items
+fix: wrap pipe recipe key entries in item objects
+test: update ResourceId tests to use ResourceLocation wrapping and naming
+
+# ---------------------------------------------------------------------------
+# mc/1.21.11-only changes
+# ---------------------------------------------------------------------------
+docs: update domain descriptions and implementation status in README
+fix: add missing English names for tin and bronze item tags
+fix: add missing particle textures to laser quarry, pipes, and engines
+fix: add newline at end of fabric.mod.json file
+fix: move schemaVersion to top of fabric.mod.json
+fix: prevent kiln recipes from showing up empty
+
+# ---------------------------------------------------------------------------
+# mc/26.1-only changes (API-specific or UI refactors for 26.1)
+# ---------------------------------------------------------------------------
+fix: correct engine block colors and transparency rendering
+fix: relocate quartz crystal asset files to core directory
+refactor: simplify screen constructor parameters for several screens
+
+# ---------------------------------------------------------------------------
+# mc/1.21.11+mc/1.21.1 commits whose code is already present in mc/26.1
+# via equivalent mc/26.1-specific commits or earlier implementations
+# ---------------------------------------------------------------------------
+
+# Ingredient tags: mc/26.1 MaceratorRecipeManager already supports {"tag":"..."} ingredient
+# objects natively — implemented independently before this PR landed on mc/1.21.11.
+feat: add support for ingredient tags in macerator recipes
+
+# Quartz crystal assets: mc/26.1 already relocated these via its own commit
+# "fix: relocate quartz crystal asset files to core directory" (different subject, same change).
+fix: relocate quartz crystal assets to core directory
+
+# ---------------------------------------------------------------------------
+# mc/1.21.11+mc/26.1 commits whose code is already present in mc/1.21.1
+# via equivalent mc/1.21.1-specific commits or API-equivalent implementations
+# ---------------------------------------------------------------------------
+
+# Chip items: mc/1.21.11 PR #240 added chips to automation/; mc/1.21.1 has them in core/
+# via its own "Add crafting recipes for new chip items, update pipe recipes" commit.
+feat: add crafting recipes for new chip items to automation
+
+# pack.mcmeta: supported_formats field already present in mc/1.21.1's classic_crafting/pack.mcmeta.
+fix: add supported_formats to pack.mcmeta for compatibility
+
+# Laser quarry LED: consumedEnergyThisTick + corrected EAST/WEST rotation already in mc/1.21.1
+# via the mc/1.21.1-specific "fix: restore laser quarry block entity renderer" commit.
+fix: correct laser quarry LED working state and screen rotation
+
+# Engine rendering: cutout layer + extra models adapted for 1.21.1 API via mc/1.21.1-specific
+# rendering backport commits ("fix: back-port basic rendering functions", etc.).
+fix: normalize engine rendering with extra models, cutout layer, and heat tints
+
+# Quarry terrain handling: pre-clear logic and corrected setCustomBounds already in mc/1.21.1's
+# QuarryMiningGameTest.java (cherry-picked or independently applied).
+fix: resolve quarry test failures by improving terrain handling
+
+# Kiln refactor: mc/1.21.11 PR #236; mc/1.21.1 has equivalent via its own
+# "Refactor kiln to electric furnace, move to automation package" commit.
+refactor: change kiln to act as an electric furnace
+
+# Marker beam renderer: mc/1.21.11 uses ExtraModelKey API; mc/1.21.1 uses ModelKeyRegistry
+# (1.21.1 API equivalent), covered by "fix: render marker beams using baked model segments".
+refactor: load marker beam renderer model via Fabric extra model API
+
+# Intermediates relocation: mc/1.21.11 PR #241; mc/1.21.1 has equivalent via its own
+# "Relocate intermediates and macerator to core package, remove molten glass fluid" commit.
+refactor: relocate intermediates functionality to core package
+
+# Integration/flow tests: NetworkIntegrationGameTest, PipeFlowGameTest, and EngineGameTest
+# all present in mc/1.21.1 (applied via mc/1.21.1-specific test commits).
+test: add integration and flow tests for logistics network
+
+# ---------------------------------------------------------------------------
+# mc/1.21.1 API incompatibilities — features intentionally absent
+# ---------------------------------------------------------------------------
+
+# Recipe book for macerator: mc/1.21.11 uses RecipeBookComponent API not available in 1.21.1.
+# The 1.21.1 macerator screen intentionally omits the recipe book sidebar.
+feat: implement recipe book for macerator crafting interface
+
+# ---------------------------------------------------------------------------
+# NEEDS DECISION — remove from this file once the port is done or confirmed unnecessary
+# ---------------------------------------------------------------------------
+# fix: correct supplier module UI targeting  ← needs porting to mc/26.1 (remove this line to surface it)

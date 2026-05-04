@@ -253,8 +253,10 @@ public class PipeBlockEntity extends BaseBlockEntity
             RegistryOps<Tag> ops = registries.createSerializationContext(NbtOps.INSTANCE);
             for (int i = 0; i < itemsList.size(); i++) {
                 NbtCompat.ifHasCompoundAt(itemsList, i, itemTag ->
-                    TravelingItem.CODEC.parse(ops, itemTag).result()
-                            .ifPresent(travelingItems::add));
+                    TravelingItem.CODEC.parse(ops, itemTag).result().ifPresentOrElse(
+                        travelingItems::add,
+                        () -> LogisticsMod.LOGGER.warn(
+                                "[Logistics] Skipping unreadable TravelingItem at {}", getBlockPos())));
             }
         });
 
@@ -392,6 +394,14 @@ public class PipeBlockEntity extends BaseBlockEntity
     @Override
     public CompoundTag moduleState(String key) {
         return getOrCreateModuleState(key);
+    }
+
+    @Override
+    public @Nullable CompoundTag existingModuleState(String key) {
+        if (!moduleState.contains(key)) {
+            return null;
+        }
+        return NbtCompat.getCompoundOrEmpty(moduleState, key);
     }
 
     @Override

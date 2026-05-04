@@ -86,19 +86,16 @@ Since commits will be cherry-picked across branches, write code that minimizes c
 
 ```bash
 ./gradlew build              # Build the mod JAR
-./gradlew remapJar           # Build with obfuscation remapping (MC 1.21.11 is obfuscated)
+./gradlew remapJar           # Build with obfuscation remapping (use for mc/1.21.1 and mc/1.21.11; mc/26.1+ uses build)
 ./gradlew runClient          # Launch Minecraft client for testing
 ./gradlew runServer          # Launch Minecraft server
 ```
 
-**Requirements:**
-- **Java 25** (MC 26.1+ requirement)
-- Minecraft 26.1+
-- Fabric API
+**Requirements:** See `gradle.properties` for current versions (`java_version`, `minecraft_version`, `loader_version`, `fabric_version`).
 
 **Build output:** `build/libs/logistics-{version}.jar`
 - Local: `logistics-dev-local.jar`
-- CI: `logistics-0.4.0+mc1.21.11.fabric.jar` (SemVer build metadata format)
+- CI: `logistics-0.5.5+mc1.21.11.fabric.jar` (SemVer build metadata format)
 
 ### Version Management
 
@@ -172,6 +169,35 @@ When a critical bug needs a patch release *after* feature development has alread
 
 **Why step 7 matters:** release-please reads `.release-please-manifest.json` to determine the current version. If you skip this, it will try to create a release PR for the hotfix version on the next `fix:` or `feat:` commit — producing a duplicate tag conflict.
 
+### Release Cycle Playbook
+
+**The version boundary problem:** Once any `feat:` PR merges, the next release-please bump is a minor version. This makes "quick patch after features land" impossible without the hotfix workflow above.
+
+**Three tools to manage this:**
+
+**1. "Up Next" label** — Applied to PRs that are approved but intentionally held past the current patch release.
+- Rule: If a release-please PR for the current version is still open, apply `up next` to any `feat:` PR instead of merging it.
+- Transition: When the patch release ships, strip `up next` — those PRs are now in scope for the next minor.
+
+**2. Snapshot testing** (`build-snapshot.yml`) — After feature PRs merge, leave the release-please PR open and publish snapshot builds for community testing. Bugs found here accumulate as `fix:` commits in the upcoming release.
+
+**3. Pre-release gate** (`build-prerelease.yml`) — When ready to commit to the release, publish `v0.6.0-pre.1`. This signals "final testing phase." When satisfied, merge the release-please PR.
+
+**Full cycle:**
+```
+fix: PRs merge → release-please opens vX.Y.Z patch PR
+Apply "up next" label to any feat: PRs that should wait
+Merge patch release-please PR → vX.Y.Z ships → cherry-pick to other branches
+Strip "up next" from held PRs
+Merge feat: PRs → release-please opens vX.Y+1.0 PR (leave it open)
+Publish snapshots via build-snapshot.yml → community testing
+Fix bugs (accumulate in vX.Y+1.0 release notes)
+Publish vX.Y+1.0-pre.1 via build-prerelease.yml → final gate
+Merge vX.Y+1.0 release-please PR → ships → cherry-pick
+```
+
+**Use the Hotfix Workflow (above) only when:** v0.6.0 is already out AND new features have already merged, making a v0.5.x backport necessary.
+
 ## Architecture
 
 This is a Fabric mod organized into **independent domains** following **SOLID principles** to maximize maintainability.
@@ -206,7 +232,8 @@ src/client/java/com/logistics/
 ├── LogisticsModClient.java  # Client entry point
 ├── core/                    # Client-side core utilities
 ├── pipe/                    # Pipe rendering
-└── power/                   # Engine rendering
+├── power/                   # Engine rendering
+└── automation/              # Machine rendering (quarry laser, etc.)
 ```
 
 ### Domain Isolation Rules (Dependency Inversion Principle)
@@ -266,7 +293,7 @@ Domains are initialized using a two-phase pattern (server/common + client):
 **Core Domain** (`com.logistics.core`):
 - **Foundation for all domains** - provides shared abstractions via `core.lib`
 - **Dependency Inversion**: All domains depend on `core.lib` interfaces/abstracts, not on each other
-- Contains core game elements: tools (wrenches), crafting intermediates, shared utilities
+- Contains core game elements: tools (wrenches), crafting intermediates, shared utilities, and machines that don't belong to a single domain (e.g. Macerator)
 - **Key abstractions in `core.lib`**:
   - `AbstractEngineBlockEntity` - base for all engines
   - `DomainBootstrap` - interface for domain initialization
@@ -282,7 +309,7 @@ Domains are initialized using a two-phase pattern (server/common + client):
 - Module ordering: CraftingModule runs first, NetworkRouterModule runs last
 - Network layer: `NetworkRegistry`, `PipeNetwork` (implements `ILogisticsNetwork`), `NetworkController`, `NetworkGraph`
 - `TravelingItem` represents items in transit with progress-based movement
-- See DESIGN.md for comprehensive pipe architecture
+- See [documentation](https://indemnity83.github.io/logistics/) for comprehensive pipe architecture
 
 **Power Domain** (`com.logistics.power`):
 - Engine hierarchy: `AbstractEngineBlockEntity` base class
@@ -291,6 +318,7 @@ Domains are initialized using a two-phase pattern (server/common + client):
 - Types: Redstone Engine, Stirling Engine (with fuel), Creative Engine
 
 **Automation Domain** (`com.logistics.automation`):
+- Kiln: RF-powered electric furnace (smelts any vanilla smelting recipe)
 - Laser Quarry: Mining machine with frame and laser rendering
 - Expandable for future machines
 

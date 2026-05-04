@@ -101,3 +101,46 @@ jobs:
           name: "Logistics v${{ steps.version.outputs.pre_version }} for ${{ steps.version.outputs.loader }} ${{ steps.version.outputs.minecraft_version }}"
 
           files: build/libs/logistics-${{ steps.version.outputs.full_version }}.jar
+
+      - name: Notify Discord beta-testing
+        if: success()
+        shell: bash
+        env:
+          DISCORD_BETA_WEBHOOK_URL: ${{ secrets.DISCORD_BETA_WEBHOOK_URL }}
+          PRE_VERSION: ${{ steps.version.outputs.pre_version }}
+          MC_VERSION: ${{ steps.version.outputs.minecraft_version }}
+          LOADER: ${{ steps.version.outputs.loader }}
+          MODRINTH_PROJECT_ID: ${{ vars.MODRINTH_PROJECT_ID }}
+        run: |
+          if [[ -z "$DISCORD_BETA_WEBHOOK_URL" ]]; then
+            echo "DISCORD_BETA_WEBHOOK_URL not set, skipping notification"
+            exit 0
+          fi
+
+          MODRINTH_URL="https://modrinth.com/mod/${MODRINTH_PROJECT_ID}/versions?c=beta"
+
+          PAYLOAD=$(jq -n \
+            --arg title "🧪 Beta build ready: Logistics v${PRE_VERSION} for MC ${MC_VERSION} (${LOADER})" \
+            --arg url "$MODRINTH_URL" \
+            '{
+              "content": "@everyone",
+              "allowed_mentions": {"parse": ["everyone"]},
+              "embeds": [{
+                "title": $title,
+                "url": $url,
+                "description": "A new pre-release build is available on Modrinth.\n\n**Please test:**\n• Load a world from the previous stable release — verify pipes, filters, and engines are intact\n• Run through the smoke test steps in `docs/RELEASE_CHECKLIST.md §C`\n• Report findings in this channel or on GitHub Issues\n\n[Download beta on Modrinth](\($url))",
+                "color": 16753920,
+                "footer": {"text": "Pre-release — not for production worlds"}
+              }]
+            }')
+
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            -H "Content-Type: application/json" \
+            -d "$PAYLOAD" \
+            "$DISCORD_BETA_WEBHOOK_URL")
+
+          if [[ "$STATUS" -ge 400 ]]; then
+            echo "Discord notification failed (HTTP $STATUS) — not failing the build"
+          else
+            echo "Discord beta notification sent (HTTP $STATUS)"
+          fi

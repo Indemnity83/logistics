@@ -10,16 +10,18 @@
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Minecraft](https://img.shields.io/badge/Minecraft-26.1-brightgreen.svg)](https://www.minecraft.net/)
 [![Fabric](https://img.shields.io/badge/Fabric-0.18.6-orange.svg)](https://fabricmc.net/)
+<<<<<<< feat/neoforge-groundwork
+=======
+[![Discord](https://img.shields.io/badge/Discord-Join-5865F2?logo=discord&logoColor=white)](https://discord.gg/94DP3CVNVt)
+>>>>>>> mc/26.1
 
 </div>
 
----
 
 ## ⚠️ Early Development
 
-**Logistics is in active development.** Core pipe transport works, but expect rough edges, missing features, and the occasional bug. Report issues on [GitHub](https://github.com/indemnity83/logistics/issues) if something breaks.
+**Logistics is in active development.** Core pipe transport works, but expect rough edges, missing features, and the occasional bug. Report issues on [GitHub](https://github.com/indemnity83/logistics/issues) if something breaks, or [join the Discord](https://discord.gg/94DP3CVNVt) for help and discussion.
 
----
 
 ## About
 
@@ -32,11 +34,10 @@ Logistics is a Fabric mod inspired by BuildCraft and Logistics Pipes, bringing a
 - **Mod Interoperability** - Works with any mod using Fabric Transfer API (ItemStorage)
 - **Classic Ergonomics** - Simple placement, visible connections, easy to understand
 
----
 
 ## How It Works
 
-Logistics is built on a **three-tier system** that grows with your world progression. Implemented tiers are listed first, followed by future plans.
+Logistics is built on a **three-tier system** that grows with your world progression.
 
 ### Tier 1: Mechanical Pipes (Implemented)
 **Basic routing without item awareness**
@@ -59,19 +60,35 @@ These pipes are intelligent. They inspect items and change behavior based on wha
 - **Item Filter Pipe (Diamond)** - Route specific items to specific destinations (item-aware)
 - **Item Insertion Pipe (Quartz)** - Prefer inventories with space; otherwise route to pipes
 
-### Tier 3: Network Logistics (Future)
+### Tier 3: Network Logistics (Implemented)
 **System-aware automation and requests**
 
-The ultimate goal. Your inventories become abstract resources, and you request what you need—the network figures out the rest.
+Your inventories become abstract resources. Provider modules advertise what's available; supplier modules push stock; requester modules pull what's needed; crafting pipes handle on-demand autocrafting.
 
-- **Request Tables** - Ask for items; the network delivers them
-- **Provider Modules** - Advertise what inventories contain
-- **Crafting Logistics** - Automated crafting on demand
-- **Global Routing** - Smart pathfinding across your entire network
+**Pipes:**
+- **Basic Logistics Pipe** - Network backbone; accepts and deposits addressed items with optional filtering
+- **Provider Logistics Pipe** - Advertises adjacent inventory contents to the network
+- **Requester Logistics Pipe** - Requests specific items from the network on demand
+- **Supplier Logistics Pipe** - Keeps a target inventory stocked with configured items
+- **Crafting Logistics Pipe** - Automates crafting recipes fulfilled by the network
+- **Process Logistics Pipe** - Routes in-progress crafting jobs to dedicated machines
+- **Satellite Logistics Pipe** - Remote output point for routing items to distant destinations
+- **Chassis Pipes (MkI–MkV)** - Modular pipes with swappable logistics module slots
+
+**Modules (for Chassis Pipes):**
+- **Provider Module (I–II)** - Advertise inventory contents at different range/speed tiers
+- **Extractor Module (I–III)** - Pull items from adjacent inventories at increasing speeds
+- **Passive / Active Supplier Module** - Push stock to requesters (passive waits; active seeks)
+- **Crafter Module (I–III)** - Fulfill crafting requests at increasing speeds
+- **Quicksort Module** - Route items by type to sorted destinations
+- **Terminus Module** - Mark a pipe as a terminal endpoint; prevents routing past it
+- **Sink Module** - Accept any overflow items
+- **Polymorphic Sink Module** - Accept overflow, treating NBT-equal items as equivalent
+- **Enchantment Sink Module** - Accept overflow, ignoring enchantment differences
+- **Mod Sink Module** - Accept overflow filtered by mod origin
 
 Each tier builds on the previous one—you'll use all three together as your base grows.
 
----
 
 ## Features
 
@@ -86,25 +103,26 @@ Transport items through networks with different behaviors:
 [View all pipes →](https://indemnity83.github.io/logistics/pipes/)
 
 ### Power
-RF energy generation with engines:
-- **Redstone Engine** - Simple, safe, steady power
-- **Stirling Engine** - Fuel-powered with heat management
+RF energy generation and distribution:
+- **Redstone Engine** - Simple, safe, steady power; never overheats
+- **Stirling Engine** - Fuel-powered with heat management; shuts down safely on overheat
+- **Creative Engine** - Infinite power for testing and creative mode
 
 [Learn about power systems →](https://indemnity83.github.io/logistics/power/)
 
 ### Automation
-- **[Kiln](https://indemnity83.github.io/logistics/automation/kiln/)** - Temperature-controlled crafting for molten glass and advanced materials
+- **[Macerator](https://indemnity83.github.io/logistics/automation/macerator/)** - Grind ores, gems, and materials into fine dusts for smelting and crafting
+- **[Kiln](https://indemnity83.github.io/logistics/automation/kiln/)** - Electric furnace; smelts any vanilla smelting recipe using RF energy
 - **[Laser Quarry](https://indemnity83.github.io/logistics/automation/laser-quarry/)** - Automated 16×16 mining with energy-scaled speed
 
 ### Tools
 - **[Wrench](https://indemnity83.github.io/logistics/tools/wrench/)** - Configuration tool for pipes and machines
 - **[Marking Fluid](https://indemnity83.github.io/logistics/tools/marking-fluid/)** - Color-code your pipe networks
 
----
 
 ## Installation
 
-**Requirements:** Minecraft 26.1+ • Fabric Loader 0.18.4+ • Fabric API • Java 25+
+**Requirements:** Minecraft 26.1+ • Fabric Loader 0.18.6+ • Fabric API • Java 25+
 
 **Download from:**
 - [GitHub Releases](https://github.com/indemnity83/logistics/releases) (includes dev builds)
@@ -113,7 +131,6 @@ RF energy generation with engines:
 
 [Full installation guide →](https://indemnity83.github.io/logistics/getting-started/install/)
 
----
 
 ## Quick Start
 
@@ -124,7 +141,6 @@ RF energy generation with engines:
 
 [Build your first pipe network →](https://indemnity83.github.io/logistics/getting-started/first-network/)
 
----
 
 ## Status
 
@@ -134,29 +150,25 @@ RF energy generation with engines:
 - Client-side smooth visual rendering
 - Extraction from and insertion into adjacent inventories
 - Mechanical and Smart pipe behaviors
-- Redstone and Stirling engines with heat management
-- Kiln for temperature-controlled crafting
+- Network logistics: provider, requester, supplier, crafting, satellite, and chassis pipes
+- Autocrafting via vanilla Crafter integration
+- Redstone, Stirling, and Creative engines with heat management
+- Macerator for grinding ores, gems, and materials into dusts
+- Kiln as an RF-powered electric furnace for any vanilla smelting recipe
 - Laser Quarry with automatic frame construction and energy-scaled mining speed
 
 ### 🚧 Future
-- Request Table block with GUI
-- Provider pipes that expose inventory contents
-- Global pathfinding and request fulfillment
-- Autocrafting support via vanilla Crafter integration
-- Network logistics components
 - Fluid pipes with Transfer API integration
 - Power/cost system for logistics operations
 - Additional pipe upgrades and advanced logistics features
 
 See the [documentation](https://indemnity83.github.io/logistics/) for detailed information on pipes, power, automation, and more.
 
----
 
 ## Contributing
 
 Contributions welcome! Report issues on [GitHub Issues](https://github.com/indemnity83/logistics/issues). For code contributions, see `CLAUDE.md` for development guidance.
 
----
 
 ## License
 
@@ -164,7 +176,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 Some textures are licensed under CC BY 4.0 or CC BY-NC-SA 4.0 - see [CREDITS.md](CREDITS.md) for attribution details.
 
----
 
 ## Acknowledgments
 
@@ -178,10 +189,9 @@ Inspired by:
 - Some textures used, adapted, or inspired from [Unused Textures](https://github.com/malcolmriley/unused-textures) by Malcolm Riley, licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)
 - Some textures used, adapted, or inspired from [TextureRepository](https://github.com/Futureazoo/TextureRepository) by Futureazoo, licensed under [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 
----
 
 <div align="center">
 
-[Report an Issue](https://github.com/indemnity83/logistics/issues) • [Documentation](https://indemnity83.github.io/logistics/)
+[Report an Issue](https://github.com/indemnity83/logistics/issues) • [Documentation](https://indemnity83.github.io/logistics/) • [Discord](https://discord.gg/94DP3CVNVt)
 
 </div>

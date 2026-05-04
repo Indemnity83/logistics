@@ -1,0 +1,87 @@
+name: Notify Discord
+
+# Posts a formatted release announcement to the Discord #announcements channel
+# whenever a new GitHub release is published (stable releases only).
+#
+# Setup required:
+#   1. Discord: Server Settings → Integrations → Webhooks → New Webhook
+#              Assign to #announcements channel, copy the URL
+#   2. GitHub:  repo Settings → Secrets → Actions → New secret
+#              Name: DISCORD_WEBHOOK_URL   Value: the URL from step 1
+on:
+  release:
+    types: [published]
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    # Skip draft releases and pre-releases (betas post their own message manually)
+    if: ${{ !github.event.release.draft && !github.event.release.prerelease }}
+
+    steps:
+      - name: Extract release metadata
+        id: meta
+        shell: bash
+        run: |
+          TAG="${{ github.event.release.tag_name }}"
+          URL="${{ github.event.release.html_url }}"
+
+          # Extract MC version and semver from tag (e.g. mc1.21.11-v0.5.6)
+          if [[ "$TAG" =~ mc([0-9.]+)-v([0-9]+\.[0-9]+\.[0-9]+) ]]; then
+            MC_VERSION="${BASH_REMATCH[1]}"
+            SEMVER="${BASH_REMATCH[2]}"
+          else
+            MC_VERSION="unknown"
+            SEMVER="$TAG"
+          fi
+
+          echo "mc_version=$MC_VERSION" >> "$GITHUB_OUTPUT"
+          echo "semver=$SEMVER" >> "$GITHUB_OUTPUT"
+          echo "url=$URL" >> "$GITHUB_OUTPUT"
+
+      - name: Send Discord notification
+        shell: bash
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          RELEASE_BODY: ${{ github.event.release.body }}
+          RELEASE_URL: ${{ steps.meta.outputs.url }}
+          SEMVER: ${{ steps.meta.outputs.semver }}
+          MC_VERSION: ${{ steps.meta.outputs.mc_version }}
+        run: |
+          if [[ -z "$DISCORD_WEBHOOK_URL" ]]; then
+            echo "DISCORD_WEBHOOK_URL not set, skipping notification"
+            exit 0
+          fi
+
+          # Truncate body to keep embed readable
+          BODY="$RELEASE_BODY"
+          if [ ${#BODY} -gt 1800 ]; then
+            BODY="${BODY:0:1800}..."$'\n\n'"[Read full release notes]($RELEASE_URL)"
+          fi
+
+          PAYLOAD=$(jq -n \
+            --arg title "Logistics v${SEMVER} for MC ${MC_VERSION}" \
+            --arg url "$RELEASE_URL" \
+            --arg description "$BODY" \
+            '{
+              "embeds": [{
+                "title": $title,
+                "url": $url,
+                "description": $description,
+                "color": 5814783,
+                "footer": {
+                  "text": "Download on Modrinth and CurseForge"
+                }
+              }]
+            }')
+
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            -H "Content-Type: application/json" \
+            -d "$PAYLOAD" \
+            "$DISCORD_WEBHOOK_URL")
+
+          if [[ "$HTTP_STATUS" -ge 400 ]]; then
+            echo "Discord webhook returned HTTP $HTTP_STATUS — notification failed but not failing the build"
+          else
+            echo "Discord notification sent (HTTP $HTTP_STATUS)"
+          fi
