@@ -134,6 +134,12 @@ jobs:
           echo "📦 Build artifacts created:"
           ls -lh ${{ matrix.loader }}/build/libs/
 
+      - name: Upload JAR
+        uses: actions/upload-artifact@v7
+        with:
+          name: logistics-${{ matrix.loader }}-${{ steps.version.outputs.full_version }}
+          path: ${{ matrix.loader }}/build/libs/logistics-*.jar
+
       - name: Publish to Modrinth and CurseForge
         # NeoForge publishing deferred until multiloader-loader integration is complete
         if: (github.event_name != 'workflow_dispatch' || inputs.publish) && matrix.loader == 'fabric'
