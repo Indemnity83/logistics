@@ -15,7 +15,7 @@ base {
 }
 
 java {
-    toolchain.languageVersion = JavaLanguageVersion.of(java_version.toInteger())
+    toolchain.languageVersion = JavaLanguageVersion.of(rootProject.java_version.toInteger())
     withSourcesJar()
 }
 

@@ -100,7 +100,7 @@ jobs:
           files: ${{ matrix.loader }}/build/libs/logistics-${{ steps.version.outputs.full_version }}.jar
 
       - name: Notify Discord beta-testing
-        if: success()
+        if: success() && matrix.loader == 'fabric'
         shell: bash
         env:
           DISCORD_BETA_WEBHOOK_URL: ${{ secrets.DISCORD_BETA_WEBHOOK_URL }}
