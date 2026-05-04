@@ -1,13 +1,16 @@
 // Common subproject — shared domain code, compiles against vanilla MC via Loom.
 // No splitEnvironmentSourceSets(): client code lives in fabric/.
 //
-// TODO(multiloader): swap net.fabricmc.fabric-loom here for net.neoforged.moddev once MDG
-//   gains support for MC 26.1 calendar versioning. When that happens:
-//   - Replace the loom {} block with neoForge { neoFormVersion = neoform_version }
+// TODO(multiloader): swap net.fabricmc.fabric-loom here for net.neoforged.moddev.
+//   MDG supports MC 26.1 (confirmed via MultiLoader-Template/tree/26.1). The blocker is
+//   that common/ currently imports Fabric API directly (~25 classes across the codebase).
+//   When ready:
+//   - Replace the loom {} block with neoForge { neoFormVersion = neo_form_version }
 //   - Remove Fabric API / fabric-loader dependencies (common should depend only on vanilla MC)
 //   - Move FabricBlockEntityTypeBuilder usage out of LogisticsMod.java behind an abstraction
 //     (vanilla BlockEntityType has a private constructor in MC 26.1; needs a loader helper)
-//   - Add neoform_version to gradle.properties
+//   - Apply multiloader-loader in neoforge/build.gradle to compile common sources there
+//   See: https://github.com/jaredlll08/MultiLoader-Template/tree/26.1
 plugins {
     id 'multiloader-common'
     id 'net.fabricmc.fabric-loom'

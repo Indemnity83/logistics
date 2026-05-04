@@ -6,7 +6,7 @@ on:
     types: [opened, synchronize, reopened, ready_for_review]
 
 jobs:
-  build:
+  check:
     # Skip: draft PRs, release-please PRs
     if: |
       github.event.pull_request.draft == false &&
@@ -41,36 +41,43 @@ jobs:
           name: test-reports-${{ github.run_id }}
           path: common/build/reports/tests/test/
 
+  build:
+    needs: check
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        loader: [fabric, neoforge]
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '25'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v5
+        with:
+          cache-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
+
       - name: Compute version
         id: version
         run: |
           MC_VERSION="$(grep '^minecraft_version=' gradle.properties | cut -d'=' -f2)"
-          MC_VERSION_CLEAN="$(echo "$MC_VERSION" | sed 's/-snapshot-[0-9]\+$//')"
           SHA7="$(git rev-parse --short=7 HEAD)"
           PR_NUM="${{ github.event.pull_request.number }}"
-          TARGET_BRANCH="${{ github.base_ref }}"
+          LOADER="${{ matrix.loader }}"
 
           # Example: dev-pr.123+mc26.1.sha.a1b2c3d
           BUILD_VERSION="dev-pr.${PR_NUM}+mc${MC_VERSION}.sha.${SHA7}"
-
-          # Determine Gradle task based on MC version (MC 26.1+ is not obfuscated)
-          if [[ "$MC_VERSION" =~ ^([0-9]+)\. ]]; then
-            MC_MAJOR="${BASH_REMATCH[1]}"
-            if (( MC_MAJOR >= 26 )); then
-              GRADLE_TASK=":fabric:jar"
-            else
-              GRADLE_TASK="remapJar"
-            fi
-          else
-            # Fallback for unexpected version format
-            GRADLE_TASK="remapJar"
-          fi
+          GRADLE_TASK=":${LOADER}:jar"
 
           echo "mod_version=$BUILD_VERSION" >> "$GITHUB_OUTPUT"
-          echo "minecraft_version_clean=$MC_VERSION_CLEAN" >> "$GITHUB_OUTPUT"
           echo "gradle_task=$GRADLE_TASK" >> "$GITHUB_OUTPUT"
           echo "📦 Version: $BUILD_VERSION"
-          echo "🔨 Gradle task: $GRADLE_TASK (target: $TARGET_BRANCH)"
+          echo "🔨 Gradle task: $GRADLE_TASK"
 
       - name: Build
         run: ./gradlew ${{ steps.version.outputs.gradle_task }} --console=plain
@@ -80,5 +87,5 @@ jobs:
       - name: Upload JAR
         uses: actions/upload-artifact@v7
         with:
-          name: logistics-pr-${{ github.event.pull_request.number }}-${{ github.run_id }}
-          path: fabric/build/libs/logistics-*.jar
+          name: logistics-${{ matrix.loader }}-pr-${{ github.event.pull_request.number }}-${{ github.run_id }}
+          path: ${{ matrix.loader }}/build/libs/logistics-*.jar
