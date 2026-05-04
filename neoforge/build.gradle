@@ -1,0 +1,6 @@
+// NeoForge loader subproject — stub only, no runnable mod yet.
+// TODO: replace java-library with net.neoforged.moddev when MDG supports MC 26.1.
+plugins {
+    id 'multiloader-loader'
+    id 'java-library'
+}

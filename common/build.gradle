@@ -1,0 +1,11 @@
+// Common subproject — shared domain code, compiles against vanilla MC via Loom.
+// No splitEnvironmentSourceSets(): client code lives in fabric/.
+plugins {
+    id 'multiloader-common'
+    id 'net.fabricmc.fabric-loom'
+}
+
+dependencies {
+    minecraft "com.mojang:minecraft:${rootProject.minecraft_version}"
+    mappings loom.officialMojangMappings()
+}

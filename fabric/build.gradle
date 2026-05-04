@@ -1,0 +1,5 @@
+// Fabric loader subproject.
+plugins {
+    id 'multiloader-loader'
+    id 'net.fabricmc.fabric-loom'
+}

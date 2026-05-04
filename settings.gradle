@@ -4,8 +4,19 @@ pluginManagement {
             name = 'Fabric'
             url = 'https://maven.fabricmc.net/'
         }
+        maven {
+            name = 'NeoForge'
+            url = 'https://maven.neoforged.net/releases/'
+        }
         gradlePluginPortal()
+    }
+    plugins {
+        // Declare version centrally so subproject plugins {} blocks omit the version.
+        // Version comes from gradle.properties.
+        id 'net.fabricmc.fabric-loom' version "${loom_version}"
+        id 'com.diffplug.spotless' version '8.4.0'
     }
 }
 
 rootProject.name = 'logistics'
+include 'common', 'fabric', 'neoforge'
