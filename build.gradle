@@ -1,274 +1,86 @@
 plugins {
-	id 'jacoco'
-	id 'net.fabricmc.fabric-loom' version "${loom_version}"
-	id 'maven-publish'
-	id 'com.diffplug.spotless' version '8.4.0'
+    id 'com.diffplug.spotless'
 }
 
 version = System.getenv("MOD_VERSION") ?: project.mod_version
 group = project.maven_group
 
-base {
-	archivesName = project.archives_base_name
-}
-
 repositories {
-	maven { url = "https://maven.terraformersmc.com/releases/" }
-	maven { name = "Jared's maven"; url = "https://maven.blamejared.com/" }
+    mavenCentral()
 }
 
 spotless {
-	// Keep this intentionally minimal to avoid churny formatting diffs.
-	java {
-		target 'src/**/*.java'
-		removeUnusedImports()
-		trimTrailingWhitespace()
-		endWithNewline()
-	}
+    // Keep this intentionally minimal to avoid churny formatting diffs.
+    java {
+        target 'common/src/**/*.java', 'fabric/src/**/*.java', 'neoforge/src/**/*.java'
+        removeUnusedImports()
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
 
-	// Whitespace hygiene for common text files.
-	format('misc') {
-		target '*.gradle', '*.md', '*.yml', '*.yaml', '*.json', '*.properties', '.gitignore'
-		trimTrailingWhitespace()
-		endWithNewline()
-	}
-}
-
-loom {
-	splitEnvironmentSourceSets()
-
-	accessWidenerPath = file("src/main/resources/logistics.accesswidener")
-
-	mods {
-		"logistics" {
-			sourceSet sourceSets.main
-			sourceSet sourceSets.client
-		}
-	}
-
-}
-
-// Configure Fabric API game tests
-fabricApi {
-	configureTests {
-		createSourceSet = true
-		modId = "logistics-gametest"
-		enableGameTests = true
-		eula = true
-	}
-}
-
-dependencies {
-	// To change the versions see the gradle.properties file
-	minecraft "com.mojang:minecraft:${project.minecraft_version}"
-	implementation "net.fabricmc:fabric-loader:${project.fabric_loader_version}"
-
-	// Fabric API.
-	implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
-
-	// Team Reborn Energy API (Fabric standard energy system)
-	include("teamreborn:energy:${project.fabric_energy_version}")
-	implementation("teamreborn:energy:${project.fabric_energy_version}")
-
-	// JEI - compile against API only; players install JEI separately at runtime
-	compileOnly("mezz.jei:jei-${minecraft_version}-fabric:${jei_version}")
-	runtimeOnly("mezz.jei:jei-${minecraft_version}-fabric:${jei_version}")
-
-	// Test infrastructure
-	testImplementation "org.junit.jupiter:junit-jupiter:${project.junit_version}"
-	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-
-	// Fabric test utilities (for Minecraft registry access if needed)
-	testImplementation "net.fabricmc:fabric-loader-junit:${project.fabric_loader_version}"
-
-	// Assertions library for readable test failures
-	testImplementation "org.assertj:assertj-core:${project.assertj_version}"
-}
-
-processResources {
-	inputs.property "version", project.version
-	inputs.property "minecraft_version", project.minecraft_version
-	inputs.property "fabric_version", project.fabric_version
-	inputs.property "fabric_loader_version", project.fabric_loader_version
-	inputs.property "java_version", project.java_version
-	filesMatching("fabric.mod.json") {
-		expand inputs.properties
-	}
-
-}
-
-
-tasks.withType(JavaCompile).configureEach {
-	it.options.release = project.java_version.toInteger()
-}
-
-// Configure test task
-test {
-	useJUnitPlatform()
-
-	testLogging {
-		events "passed", "skipped", "failed"
-		exceptionFormat = "full"
-		showStandardStreams = false
-	}
-
-	failFast = false
-	maxParallelForks = Runtime.runtime.availableProcessors().intdiv(2) ?: 1
-
-	finalizedBy jacocoTestReport
-}
-
-jacocoTestReport {
-	dependsOn test
-	reports {
-		html.required = true
-		xml.required = true
-	}
-	// Restrict to mod classes only — exclude Minecraft/Fabric bytecode
-	classDirectories.setFrom(files(classDirectories.files.collect {
-		fileTree(dir: it, include: ['com/logistics/**'])
-	}))
-}
-
-tasks.named('check') {
-	dependsOn 'spotlessCheck'
-	dependsOn 'test'
-}
-
-sourceSets {
-	test {
-		java {
-			srcDir 'src/test/java'
-		}
-	}
-	// Groundwork source set for future NeoForge wiring.
-	neoforge {
-		java {
-			setSrcDirs(['src/neoforge/java'])
-		}
-		resources {
-			setSrcDirs(['src/neoforge/resources'])
-		}
-	}
-}
-
-
-tasks.named('processNeoforgeResources') {
-	inputs.property "version", project.version
-	inputs.property "minecraft_version", project.minecraft_version
-	inputs.property "neoforge_loader_version", project.neoforge_loader_version
-	inputs.property "neoforge_version", project.neoforge_version
-
-	filesMatching("META-INF/neoforge.mods.toml") {
-		expand(inputs.properties)
-	}
-}
-
-// buildFabric: produce the Fabric loader jar
-tasks.register('buildFabric') {
-	description = 'Build the Fabric loader jar.'
-	group = 'build'
-	dependsOn 'jar'
-}
-
-// buildNeoForge: compile the NeoForge source set.
-// NOTE: This task is expected to fail until NeoForge dependencies are added to the
-// dependencies block. It exists to provide a named task for future CI wiring.
-tasks.register('buildNeoForge') {
-	description = 'Compile NeoForge source set. Expected to fail until deps are configured.'
-	group = 'build'
-	dependsOn 'compileNeoforgeJava'
-}
-
-// build aggregates both loaders
-tasks.named('build') {
-	dependsOn 'buildFabric', 'buildNeoForge'
+    // Whitespace hygiene for common text files.
+    format('misc') {
+        target '*.gradle', '**/*.gradle', '*.md', '*.yml', '*.yaml', '*.json', '*.properties', '.gitignore'
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
 }
 
 // Task to install Git hooks for developers
 tasks.register('installGitHooks') {
-	description = 'Install Git hooks for code formatting'
-	group = 'build setup'
+    description = 'Install Git hooks for code formatting'
+    group = 'build setup'
 
-	doLast {
-		def hooksDir = file('.githooks')
+    doLast {
+        def hooksDir = file('.githooks')
 
-		// Find the git hooks directory (handles worktrees)
-		def gitDir = file('.git')
-		def gitHooksDir
+        // Find the git hooks directory (handles worktrees)
+        def gitDir = file('.git')
+        def gitHooksDir
 
-		if (gitDir.isFile()) {
-			// This is a worktree - read the gitdir path
-			def gitDirPath = gitDir.text.trim().replace('gitdir: ', '')
-			// For worktrees, hooks are in the main repo's .git/hooks
-			def worktreeGitDir = file(gitDirPath)
-			// Navigate up to find the main .git directory
-			def commonDir = new File(worktreeGitDir, 'commondir')
-			if (commonDir.exists()) {
-				def commonPath = commonDir.text.trim()
-				gitHooksDir = file("${worktreeGitDir}/${commonPath}/hooks")
-			} else {
-				gitHooksDir = new File(worktreeGitDir, commonPath).canonicalFile.toPath().resolve("hooks").toFile()
-			}
-		} else {
-			// Regular git repository
-			gitHooksDir = file('.git/hooks')
-		}
+        if (gitDir.isFile()) {
+            // This is a worktree - read the gitdir path
+            def gitDirPath = gitDir.text.trim().replace('gitdir: ', '')
+            // For worktrees, hooks are in the main repo's .git/hooks
+            def worktreeGitDir = file(gitDirPath)
+            // Navigate up to find the main .git directory
+            def commonDir = new File(worktreeGitDir, 'commondir')
+            if (commonDir.exists()) {
+                def commonPath = commonDir.text.trim()
+                gitHooksDir = file("${worktreeGitDir}/${commonPath}/hooks")
+            } else {
+                gitHooksDir = new File(worktreeGitDir, "hooks")
+            }
+        } else {
+            // Regular git repository
+            gitHooksDir = file('.git/hooks')
+        }
 
-		if (!gitHooksDir.exists()) {
-			gitHooksDir.mkdirs()
-		}
+        if (!gitHooksDir.exists()) {
+            gitHooksDir.mkdirs()
+        }
 
-		println "Installing hooks to: ${gitHooksDir}"
+        println "Installing hooks to: ${gitHooksDir}"
 
-		hooksDir.listFiles()?.each { hookFile ->
-			if (hookFile.isFile()) {
-				def targetFile = new File(gitHooksDir, hookFile.name)
-				targetFile.text = hookFile.text
-				targetFile.setExecutable(true)
-				println "  ✓ Installed: ${hookFile.name}"
-			}
-		}
-	}
+        hooksDir.listFiles()?.each { hookFile ->
+            if (hookFile.isFile()) {
+                def targetFile = new File(gitHooksDir, hookFile.name)
+                targetFile.text = hookFile.text
+                targetFile.setExecutable(true)
+                println "  ✓ Installed: ${hookFile.name}"
+            }
+        }
+    }
 }
 
-// Automatically install hooks on build
+// Aggregate build: delegates to loader subprojects.
+// TODO(multiloader): add ':neoforge:build' here once neoforge/build.gradle is wired with
+//   net.neoforged.moddev and MDG has support for MC 26.1 calendar versioning.
 tasks.named('build') {
-	dependsOn 'installGitHooks'
+    dependsOn ':fabric:build'
+    dependsOn ':common:test'
 }
 
-java {
-	// Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
-	// if it is present.
-	// If you remove this line, sources will not be generated.
-	withSourcesJar()
-
-	sourceCompatibility = JavaVersion.VERSION_25
-	targetCompatibility = JavaVersion.VERSION_25
-}
-
-jar {
-	inputs.property "archivesName", project.base.archivesName
-
-	from("LICENSE") {
-		rename { "${it}_${inputs.properties.archivesName}"}
-	}
-}
-
-// configure the maven publication
-publishing {
-	publications {
-		create("mavenJava", MavenPublication) {
-			artifactId = project.archives_base_name
-			from components.java
-		}
-	}
-
-	// See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
-	repositories {
-		// Add repositories to publish to here.
-		// Notice: This block does NOT have the same function as the block in the top level.
-		// The repositories here will be used for publishing your artifact, not for
-		// retrieving dependencies.
-	}
+tasks.named('check') {
+    dependsOn 'spotlessCheck'
 }

@@ -30,16 +30,16 @@ jobs:
         run: ./gradlew spotlessCheck --console=plain
 
       - name: Run tests
-        run: ./gradlew test --console=plain
-        # Note: Game tests (./gradlew runGameTest) are not run in CI due to resource constraints
-        # and long execution time. Run locally before merging if testing game mechanics.
+        run: ./gradlew :common:test --console=plain
+        # Note: Game tests (./gradlew :fabric:runGameTest) are not run in CI due to resource
+        # constraints and long execution time. Run locally before merging if testing game mechanics.
 
       - name: Upload test reports
         if: failure()
         uses: actions/upload-artifact@v7
         with:
           name: test-reports-${{ github.run_id }}
-          path: build/reports/tests/test/
+          path: common/build/reports/tests/test/
 
       - name: Compute version
         id: version
@@ -57,7 +57,7 @@ jobs:
           if [[ "$MC_VERSION" =~ ^([0-9]+)\. ]]; then
             MC_MAJOR="${BASH_REMATCH[1]}"
             if (( MC_MAJOR >= 26 )); then
-              GRADLE_TASK="jar"
+              GRADLE_TASK=":fabric:jar"
             else
               GRADLE_TASK="remapJar"
             fi
@@ -81,4 +81,4 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: logistics-pr-${{ github.event.pull_request.number }}-${{ github.run_id }}
-          path: build/libs/logistics-*.jar
+          path: fabric/build/libs/logistics-*.jar
