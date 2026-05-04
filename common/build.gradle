@@ -20,13 +20,11 @@ loom {
 
 dependencies {
     minecraft "com.mojang:minecraft:${rootProject.minecraft_version}"
-    mappings loom.officialMojangMappings()
 
     implementation "net.fabricmc:fabric-loader:${rootProject.fabric_loader_version}"
     implementation "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_version}"
 
-    // Team Reborn Energy API
-    include("teamreborn:energy:${rootProject.fabric_energy_version}")
+    // Team Reborn Energy API (bundled into the Fabric jar via include in fabric/build.gradle)
     implementation("teamreborn:energy:${rootProject.fabric_energy_version}")
 
     // JEI — compile only; players install separately at runtime

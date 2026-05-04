@@ -5,6 +5,10 @@ plugins {
 version = System.getenv("MOD_VERSION") ?: project.mod_version
 group = project.maven_group
 
+repositories {
+    mavenCentral()
+}
+
 spotless {
     // Keep this intentionally minimal to avoid churny formatting diffs.
     java {
@@ -69,21 +73,13 @@ tasks.register('installGitHooks') {
     }
 }
 
-// Aggregate build: delegates to all loader subprojects.
+// Aggregate build: delegates to loader subprojects.
+// :neoforge:build will be added once MDG is wired for MC 26.1 calendar versioning.
 tasks.named('build') {
-    dependsOn ':fabric:build', ':neoforge:build'
+    dependsOn ':fabric:build'
     dependsOn 'installGitHooks'
 }
 
 tasks.named('check') {
     dependsOn 'spotlessCheck'
-}
-
-// configure the maven publication
-publishing {
-    publications {
-        create("mavenJava", MavenPublication) {
-            artifactId = project.archives_base_name
-        }
-    }
 }
