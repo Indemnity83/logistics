@@ -3,3 +3,74 @@ plugins {
     id 'multiloader-loader'
     id 'net.fabricmc.fabric-loom'
 }
+
+repositories {
+    maven { url = "https://maven.terraformersmc.com/releases/" }
+    maven { name = "Jared's maven"; url = "https://maven.blamejared.com/" }
+}
+
+loom {
+    splitEnvironmentSourceSets()
+
+    accessWidenerPath = project(':common').file("src/main/resources/logistics.accesswidener")
+
+    mods {
+        "logistics" {
+            sourceSet sourceSets.main
+            sourceSet sourceSets.client
+        }
+    }
+}
+
+fabricApi {
+    configureTests {
+        createSourceSet = true
+        modId = "logistics-gametest"
+        enableGameTests = true
+        eula = true
+    }
+}
+
+dependencies {
+    minecraft "com.mojang:minecraft:${rootProject.minecraft_version}"
+    mappings loom.officialMojangMappings()
+
+    implementation "net.fabricmc:fabric-loader:${rootProject.fabric_loader_version}"
+    implementation "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_version}"
+
+    // Team Reborn Energy API
+    include("teamreborn:energy:${rootProject.fabric_energy_version}")
+    implementation("teamreborn:energy:${rootProject.fabric_energy_version}")
+
+    // JEI — compile against API only; players install separately at runtime
+    compileOnly("mezz.jei:jei-${rootProject.minecraft_version}-fabric:${rootProject.jei_version}")
+    runtimeOnly("mezz.jei:jei-${rootProject.minecraft_version}-fabric:${rootProject.jei_version}")
+}
+
+processResources {
+    inputs.property "version", project.version
+    inputs.property "minecraft_version", rootProject.minecraft_version
+    inputs.property "fabric_version", rootProject.fabric_version
+    inputs.property "fabric_loader_version", rootProject.fabric_loader_version
+    inputs.property "java_version", rootProject.java_version
+    filesMatching("fabric.mod.json") {
+        expand inputs.properties
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    it.options.release = rootProject.java_version.toInteger()
+}
+
+java {
+    withSourcesJar()
+    sourceCompatibility = JavaVersion.VERSION_25
+    targetCompatibility = JavaVersion.VERSION_25
+}
+
+jar {
+    inputs.property "archivesName", project.base.archivesName
+    from("../LICENSE") {
+        rename { "${it}_${inputs.properties.archivesName}" }
+    }
+}
