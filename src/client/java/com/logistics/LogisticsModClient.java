@@ -4,7 +4,7 @@ import com.logistics.core.bootstrap.LogisticsClientBootstrap;
 import net.fabricmc.api.ClientModInitializer;
 
 public class LogisticsModClient implements ClientModInitializer {
-    private static final LogisticsClientBootstrap CLIENT_BOOTSTRAP = LogisticsClientBootstrap.createDefault();
+    private static final LogisticsClientBootstrap CLIENT_BOOTSTRAP = new LogisticsClientBootstrap();
 
     @Override
     public void onInitializeClient() {

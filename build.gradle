@@ -7,7 +7,6 @@ plugins {
 
 version = System.getenv("MOD_VERSION") ?: project.mod_version
 group = project.maven_group
-def activeLoader = providers.gradleProperty("active_loader").getOrElse("fabric")
 
 base {
 	archivesName = project.archives_base_name
@@ -62,14 +61,14 @@ fabricApi {
 dependencies {
 	// To change the versions see the gradle.properties file
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
-	implementation "net.fabricmc:fabric-loader:${project.loader_version}"
+	implementation "net.fabricmc:fabric-loader:${project.fabric_loader_version}"
 
 	// Fabric API.
 	implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
 	// Team Reborn Energy API (Fabric standard energy system)
-	include("teamreborn:energy:${project.energy_version}")
-	implementation("teamreborn:energy:${project.energy_version}")
+	include("teamreborn:energy:${project.fabric_energy_version}")
+	implementation("teamreborn:energy:${project.fabric_energy_version}")
 
 	// JEI - compile against API only; players install JEI separately at runtime
 	compileOnly("mezz.jei:jei-${minecraft_version}-fabric:${jei_version}")
@@ -80,7 +79,7 @@ dependencies {
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
 	// Fabric test utilities (for Minecraft registry access if needed)
-	testImplementation "net.fabricmc:fabric-loader-junit:${project.loader_version}"
+	testImplementation "net.fabricmc:fabric-loader-junit:${project.fabric_loader_version}"
 
 	// Assertions library for readable test failures
 	testImplementation "org.assertj:assertj-core:${project.assertj_version}"
@@ -88,14 +87,24 @@ dependencies {
 
 processResources {
 	inputs.property "version", project.version
-	inputs.property "active_loader", activeLoader
 	inputs.property "minecraft_version", project.minecraft_version
 	inputs.property "fabric_version", project.fabric_version
-	inputs.property "loader_version", project.loader_version
+	inputs.property "fabric_loader_version", project.fabric_loader_version
 	inputs.property "java_version", project.java_version
+	inputs.property "neoforge_loader_version", project.neoforge_loader_version
+	inputs.property "neoforge_version", project.neoforge_version
 
 	filesMatching("fabric.mod.json") {
 		expand inputs.properties
+	}
+
+	filesMatching("META-INF/neoforge.mods.toml") {
+		expand(
+			"version": inputs.properties.version,
+			"minecraft_version": inputs.properties.minecraft_version,
+			"neoforge_loader_version": inputs.properties.neoforge_loader_version,
+			"neoforge_version": inputs.properties.neoforge_version
+		)
 	}
 }
 
@@ -151,6 +160,27 @@ sourceSets {
 			srcDir 'src/neoforge/resources'
 		}
 	}
+}
+
+// buildFabric: produce the Fabric loader jar
+tasks.register('buildFabric') {
+	description = 'Build the Fabric loader jar.'
+	group = 'build'
+	dependsOn 'jar'
+}
+
+// buildNeoForge: compile the NeoForge source set.
+// NOTE: This task is expected to fail until NeoForge dependencies are added to the
+// dependencies block. It exists to provide a named task for future CI wiring.
+tasks.register('buildNeoForge') {
+	description = 'Compile NeoForge source set. Expected to fail until deps are configured.'
+	group = 'build'
+	dependsOn 'compileNeoforgeJava'
+}
+
+// build aggregates both loaders
+tasks.named('build') {
+	dependsOn 'buildFabric', 'buildNeoForge'
 }
 
 // Task to install Git hooks for developers
