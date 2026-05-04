@@ -91,22 +91,12 @@ processResources {
 	inputs.property "fabric_version", project.fabric_version
 	inputs.property "fabric_loader_version", project.fabric_loader_version
 	inputs.property "java_version", project.java_version
-	inputs.property "neoforge_loader_version", project.neoforge_loader_version
-	inputs.property "neoforge_version", project.neoforge_version
-
 	filesMatching("fabric.mod.json") {
 		expand inputs.properties
 	}
 
-	filesMatching("META-INF/neoforge.mods.toml") {
-		expand(
-			"version": inputs.properties.version,
-			"minecraft_version": inputs.properties.minecraft_version,
-			"neoforge_loader_version": inputs.properties.neoforge_loader_version,
-			"neoforge_version": inputs.properties.neoforge_version
-		)
-	}
 }
+
 
 tasks.withType(JavaCompile).configureEach {
 	it.options.release = project.java_version.toInteger()
@@ -154,11 +144,23 @@ sourceSets {
 	// Groundwork source set for future NeoForge wiring.
 	neoforge {
 		java {
-			srcDir 'src/neoforge/java'
+			setSrcDirs(['src/neoforge/java'])
 		}
 		resources {
-			srcDir 'src/neoforge/resources'
+			setSrcDirs(['src/neoforge/resources'])
 		}
+	}
+}
+
+
+tasks.named('processNeoforgeResources') {
+	inputs.property "version", project.version
+	inputs.property "minecraft_version", project.minecraft_version
+	inputs.property "neoforge_loader_version", project.neoforge_loader_version
+	inputs.property "neoforge_version", project.neoforge_version
+
+	filesMatching("META-INF/neoforge.mods.toml") {
+		expand(inputs.properties)
 	}
 }
 
