@@ -1,0 +1,5 @@
+// NeoForge loader subproject — stub only, no runnable mod yet.
+// TODO: apply multiloader-loader + net.neoforged.moddev when NeoForge support is wired up.
+plugins {
+    id 'java-library'
+}

@@ -1,0 +1,31 @@
+plugins {
+    id 'java-library'
+    id 'maven-publish'
+}
+
+// Inherit version from root so MOD_VERSION env var propagates to all subproject jars.
+version = rootProject.version
+
+base {
+    archivesName = "${archives_base_name}-${project.name}-${minecraft_version}"
+}
+
+java {
+    withSourcesJar()
+}
+
+configurations {
+    commonJava {
+        canBeResolved = false
+        canBeConsumed = true
+    }
+    commonResources {
+        canBeResolved = false
+        canBeConsumed = true
+    }
+}
+
+artifacts {
+    commonJava(sourceSets.main.java.sourceDirectories.singleFile)
+    commonResources(sourceSets.main.resources.sourceDirectories.singleFile)
+}
