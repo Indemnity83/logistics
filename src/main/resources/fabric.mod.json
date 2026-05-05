@@ -7,10 +7,10 @@
     "sources": "https://github.com/indemnity83/logistics"
   },
   "depends": {
-    "fabric-api": ">=0.116.8+1.21.1",
-    "fabricloader": ">=0.18.4",
-    "java": ">=21",
-    "minecraft": ">=1.21 <=1.21.1"
+    "fabric-api": ">=${fabric_version}",
+    "fabricloader": ">=${loader_version}",
+    "java": ">=${java_version}",
+    "minecraft": ">=${minecraft_version}"
   },
   "description": "A modern logistics and pipe mod with authentic in-pipe item motion, mod interoperability, and request/autocrafting systems.",
   "entrypoints": {
@@ -31,4 +31,3 @@
   },
   "version": "${version}"
 }
-

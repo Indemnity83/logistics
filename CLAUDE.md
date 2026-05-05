@@ -91,10 +91,7 @@ Since commits will be cherry-picked across branches, write code that minimizes c
 ./gradlew runServer          # Launch Minecraft server
 ```
 
-**Requirements:**
-- **Java 21** (MC 1.21.11 requirement)
-- Minecraft 1.21.11
-- Fabric API
+**Requirements:** See `gradle.properties` for current versions (`java_version`, `minecraft_version`, `loader_version`, `fabric_version`).
 
 **Build output:** `build/libs/logistics-{version}.jar`
 - Local: `logistics-dev-local.jar`
