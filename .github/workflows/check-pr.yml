@@ -22,13 +22,13 @@ jobs:
           FAIL=0
 
           echo "Checking fabric/ for neoforged imports..."
-          if grep -rEn "^import net\.neoforged\." fabric/src/ --include="*.java"; then
+          if grep -rEn "^import (static )?net\.neoforged\." fabric/src/ --include="*.java"; then
             echo "::error::neoforge imports found in fabric/"
             FAIL=1
           fi
 
           echo "Checking neoforge/ for fabricmc imports..."
-          if grep -rEn "^import net\.fabricmc\." neoforge/src/ --include="*.java"; then
+          if grep -rEn "^import (static )?net\.fabricmc\." neoforge/src/ --include="*.java"; then
             echo "::error::fabric imports found in neoforge/"
             FAIL=1
           fi
