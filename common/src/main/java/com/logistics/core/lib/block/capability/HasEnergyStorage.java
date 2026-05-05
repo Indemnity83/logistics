@@ -1,14 +1,17 @@
 package com.logistics.core.lib.block.capability;
 
 import com.logistics.core.lib.energy.EnergyComponent;
+import com.logistics.core.lib.energy.IEnergyStorage;
 import net.minecraft.core.Direction;
 import org.jetbrains.annotations.Nullable;
-import team.reborn.energy.api.EnergyStorage;
 
 /**
- * Marker interface for block entities that expose energy storage via Team Reborn Energy API.
- * <p>
- * Use {@link EnergyComponent} to implement this easily.
+ * Marker interface for block entities that expose energy storage.
+ *
+ * <p>Returns the loader-agnostic {@link IEnergyStorage} contract. Loader-specific
+ * adapters (Fabric, NeoForge) bridge this to their native energy lookup APIs.
+ *
+ * <p>Use {@link EnergyComponent} to implement this easily.
  */
 public interface HasEnergyStorage {
     /**
@@ -18,5 +21,5 @@ public interface HasEnergyStorage {
      * @param side The side to access, or null for non-sided access
      * @return The energy storage, or null if not accessible from this side
      */
-    @Nullable EnergyStorage energyStorage(@Nullable Direction side);
+    @Nullable IEnergyStorage energyStorage(@Nullable Direction side);
 }

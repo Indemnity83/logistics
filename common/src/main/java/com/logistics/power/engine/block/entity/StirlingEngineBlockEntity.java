@@ -116,7 +116,7 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
                 case PROPERTY_BURN_TIME -> burnTime = value;
                 case PROPERTY_FUEL_TIME -> fuelTime = value;
                 case PROPERTY_HEAT -> {} // Read-only on client, computed from energy level
-                case PROPERTY_ENERGY -> energyStorage.amount = value * 100L;
+                case PROPERTY_ENERGY -> energyBuffer.setAmount(value * 100L);
                 case PROPERTY_GENERATION -> currentGeneration = value / 100.0;
                 default -> {}
             }

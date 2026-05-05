@@ -2,6 +2,8 @@ package com.logistics.core.lib.power;
 
 import com.logistics.core.lib.BaseBlockEntity;
 import com.logistics.core.lib.block.capability.HasEnergyStorage;
+import com.logistics.core.lib.energy.EnergyComponent;
+import com.logistics.core.lib.energy.IEnergyStorage;
 import com.logistics.core.lib.storage.NbtCompat;
 import com.logistics.core.lib.support.ProbeResult;
 import java.util.Locale;
@@ -19,9 +21,6 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import org.jetbrains.annotations.Nullable;
-import team.reborn.energy.api.EnergyStorage;
-import team.reborn.energy.api.EnergyStorageUtil;
-import team.reborn.energy.api.base.SimpleSidedEnergyContainer;
 
 /**
  * Abstract base class for all engine block entities.
@@ -94,28 +93,33 @@ public abstract class AbstractEngineBlockEntity extends BaseBlockEntity implemen
     protected HeatStage heatStage = HeatStage.COLD;
     private boolean wasRunning = false;
 
-    // Energy storage
-    public final SimpleSidedEnergyContainer energyStorage = new SimpleSidedEnergyContainer() {
-        @Override
-        public long getCapacity() {
-            return getEnergyBufferCapacity();
-        }
+    /**
+     * Platform service for pushing energy from this engine to an adjacent block.
+     * Set once during loader-specific initialization (Fabric or NeoForge bootstrap).
+     */
+    @FunctionalInterface
+    public interface EnergyPushService {
+        /**
+         * Push up to {@code maxAmount} energy to the block at {@code targetPos},
+         * approached from {@code fromDirection}.
+         *
+         * @return the amount actually transferred
+         */
+        long push(Level level, BlockPos targetPos, Direction fromDirection, IEnergyStorage source, long maxAmount);
+    }
 
-        @Override
-        public long getMaxInsert(@Nullable Direction side) {
-            return 0;
-        }
+    private static EnergyPushService energyPushService;
 
-        @Override
-        public long getMaxExtract(@Nullable Direction side) {
-            return (side != null && isOutputDirection(side)) ? getOutputPower() : 0;
-        }
+    public static void setEnergyPushService(EnergyPushService service) {
+        energyPushService = service;
+    }
 
-        @Override
-        protected void onFinalCommit() {
-            setChanged();
-        }
-    };
+    // Energy buffer — engines never accept energy (maxInsert=0); extraction is managed via sendEnergy()
+    protected final EnergyComponent energyBuffer = new EnergyComponent(
+            /* capacity    */ this::getEnergyBufferCapacity,
+            /* maxInsert   */ 0L,
+            /* maxExtract  */ Long.MAX_VALUE,
+            /* onChanged   */ this::setChanged);
 
     protected AbstractEngineBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
@@ -124,12 +128,12 @@ public abstract class AbstractEngineBlockEntity extends BaseBlockEntity implemen
     // ==================== HasEnergyStorage ====================
 
     @Override
-    public EnergyStorage energyStorage(@Nullable Direction side) {
+    public IEnergyStorage energyStorage(@Nullable Direction side) {
         // Engines only expose energy storage on their output face
         if (side != null && !isOutputDirection(side)) {
             return null;
         }
-        return energyStorage.getSideStorage(side);
+        return energyBuffer;
     }
 
     // ==================== Subclass Configuration ====================
@@ -244,17 +248,13 @@ public abstract class AbstractEngineBlockEntity extends BaseBlockEntity implemen
     /** Applies energy decay when engine is idle. */
     private void applyDecay() {
         long decay = getEnergyDecayRate();
-        if (energyStorage.amount >= decay) {
-            energyStorage.amount -= decay;
-        } else {
-            energyStorage.amount = 0;
-        }
+        energyBuffer.setAmount(Math.max(energyBuffer.getAmount() - decay, 0));
         setChanged();
     }
 
     /** Handles overheat state: drains energy and emits smoke particles. */
     private void tickOverheat() {
-        energyStorage.amount = Math.max(energyStorage.amount - 50, 0);
+        energyBuffer.setAmount(Math.max(energyBuffer.getAmount() - 50, 0));
         setChanged();
 
         if (level instanceof ServerLevel serverLevel && level.getRandom().nextInt(4) == 0) {
@@ -361,28 +361,25 @@ public abstract class AbstractEngineBlockEntity extends BaseBlockEntity implemen
         }
     }
 
-    /** Sends energy to the block this engine is facing via Team Reborn Energy API. */
+    /** Sends energy to the block this engine is facing via the loader-specific energy push service. */
     protected void sendEnergy() {
-        if (level == null || !isRedstonePowered()) return;
+        if (level == null || !isRedstonePowered() || energyPushService == null) return;
 
         Direction outputDir = getOutputDirection();
         BlockPos targetPos = getBlockPos().relative(outputDir);
+        long maxSend = Math.min(getOutputPower(), energyBuffer.getAmount());
+        if (maxSend <= 0) return;
 
-        EnergyStorage target = EnergyStorage.SIDED.find(level, targetPos, outputDir.getOpposite());
-
-        if (target != null) {
-            long maxSend = Math.min(getOutputPower(), energyStorage.amount);
-            EnergyStorage source = energyStorage.getSideStorage(outputDir);
-            EnergyStorageUtil.move(source, target, maxSend, null);
+        long sent = energyPushService.push(level, targetPos, outputDir.getOpposite(), energyBuffer, maxSend);
+        if (sent > 0) {
+            energyBuffer.consume(sent);
+            setChanged();
         }
     }
 
     /** Adds energy to the buffer, capped at max capacity. */
     protected void addEnergy(long amount) {
-        energyStorage.amount += amount;
-        if (energyStorage.amount > getEnergyBufferCapacity()) {
-            energyStorage.amount = getEnergyBufferCapacity();
-        }
+        energyBuffer.setAmount(Math.min(energyBuffer.getAmount() + amount, getEnergyBufferCapacity()));
         setChanged();
     }
 
@@ -403,7 +400,7 @@ public abstract class AbstractEngineBlockEntity extends BaseBlockEntity implemen
         if (!isOverheated()) {
             return false;
         }
-        energyStorage.amount = 0;
+        energyBuffer.setAmount(0);
         temperature = getTemperatureFloor();
         heatStage = HeatStage.COLD;
         syncStageToBlock();
@@ -426,7 +423,7 @@ public abstract class AbstractEngineBlockEntity extends BaseBlockEntity implemen
     }
 
     public long getEnergy() {
-        return energyStorage.amount;
+        return energyBuffer.getAmount();
     }
 
     public long getMaxEnergy() {
@@ -458,7 +455,7 @@ public abstract class AbstractEngineBlockEntity extends BaseBlockEntity implemen
         if (capacity <= 0) {
             return 0.0;
         }
-        return energyStorage.amount / (double) capacity;
+        return energyBuffer.getAmount() / (double) capacity;
     }
 
     public long getCurrentOutputPower() {
@@ -532,7 +529,7 @@ public abstract class AbstractEngineBlockEntity extends BaseBlockEntity implemen
 
     @Override
     protected void saveLogisticsData(CompoundTag engineData, HolderLookup.Provider registries) {
-        engineData.putLong("StoredEnergy", energyStorage.amount);
+        engineData.putLong("StoredEnergy", energyBuffer.getAmount());
         engineData.putDouble("Temperature", temperature);
         engineData.putFloat("CycleProgress", progress);
         engineData.putInt("CyclePhase", cyclePhase.ordinal());
@@ -541,7 +538,7 @@ public abstract class AbstractEngineBlockEntity extends BaseBlockEntity implemen
 
     @Override
     protected void loadLogisticsData(CompoundTag engineData, HolderLookup.Provider registries) {
-        energyStorage.amount = NbtCompat.getLong(engineData, "StoredEnergy", 0L);
+        energyBuffer.setAmount(NbtCompat.getLong(engineData, "StoredEnergy", 0L));
         temperature = NbtCompat.getDouble(engineData, "Temperature", 0.0);
         progress = NbtCompat.getFloat(engineData, "CycleProgress", 0f);
         cyclePhase = CyclePhase.fromOrdinal(NbtCompat.getInt(engineData, "CyclePhase", 0));
@@ -552,7 +549,7 @@ public abstract class AbstractEngineBlockEntity extends BaseBlockEntity implemen
     protected void loadLegacyData(net.minecraft.world.level.storage.ValueInput view) {
         view.read("Engine", CompoundTag.CODEC).ifPresent(engineData -> {
             // Load old key names (before BaseBlockEntity refactoring)
-            energyStorage.amount = NbtCompat.getLong(engineData, "energy", 0L);
+            energyBuffer.setAmount(NbtCompat.getLong(engineData, "energy", 0L));
             temperature = NbtCompat.getDouble(engineData, "heat", 0.0);
             progress = NbtCompat.getFloat(engineData, "progress", 0f);
             cyclePhase = CyclePhase.fromOrdinal(NbtCompat.getInt(engineData, "cyclePhase", 0));

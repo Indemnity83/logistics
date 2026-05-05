@@ -12,7 +12,6 @@ import com.logistics.core.macerator.MaceratorRecipeManager;
 import com.logistics.core.macerator.MaceratorRecipeSerializer;
 import com.logistics.core.macerator.MaceratorRecipeWrapper;
 import com.logistics.core.macerator.MaceratorScreenHandler;
-import com.logistics.core.lib.block.lookup.EnergyStorageAccess;
 import com.logistics.core.lib.block.lookup.FluidStorageAccess;
 import com.logistics.core.lib.block.lookup.ItemStorageAccess;
 import com.logistics.core.lib.block.lookup.PipeConnectionAccess;
@@ -93,7 +92,7 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
     private void registerStorageAccess() {
         ItemStorageAccess.register();
         FluidStorageAccess.register();
-        EnergyStorageAccess.register();
+        // EnergyStorageAccess is loader-specific — registered by each loader's bootstrap
         PipeConnectionAccess.register();
     }
 

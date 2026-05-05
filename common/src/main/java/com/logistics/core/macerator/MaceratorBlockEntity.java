@@ -31,7 +31,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
-import team.reborn.energy.api.EnergyStorage;
+import com.logistics.core.lib.energy.IEnergyStorage;
 
 /**
  * Block entity for the Iron Macerator.
@@ -86,7 +86,7 @@ public class MaceratorBlockEntity extends BaseBlockEntity
                     MaceratorRecipe r = MaceratorRecipeManager.getRecipe(activeRecipeId);
                     yield r != null ? r.getGrindingTime() : 0;
                 }
-                case DATA_ENERGY -> (int) Math.min(energy.amount, Integer.MAX_VALUE);
+                case DATA_ENERGY -> (int) Math.min(energy.getAmount(), Integer.MAX_VALUE);
                 default -> 0;
             };
         }
@@ -95,7 +95,7 @@ public class MaceratorBlockEntity extends BaseBlockEntity
         public void set(int index, int value) {
             switch (index) {
                 case DATA_PROGRESS -> processProgress = value;
-                case DATA_ENERGY -> energy.amount = Math.min(value, ENERGY_CAPACITY);
+                case DATA_ENERGY -> energy.setAmount(Math.min(value, ENERGY_CAPACITY));
             }
         }
 
@@ -144,12 +144,12 @@ public class MaceratorBlockEntity extends BaseBlockEntity
         }
 
         // Pause if not enough energy or output is full
-        if (energy.amount < ENERGY_PER_TICK || !canAcceptOutput(recipe.getResultItem())) {
+        if (energy.getAmount() < ENERGY_PER_TICK || !canAcceptOutput(recipe.getResultItem())) {
             setLit(level, state, false);
             return false;
         }
 
-        energy.amount -= ENERGY_PER_TICK;
+        energy.consume(ENERGY_PER_TICK);
         setLit(level, state, true);
         processProgress++;
 
@@ -172,7 +172,7 @@ public class MaceratorBlockEntity extends BaseBlockEntity
     }
 
     private boolean canStartProcessing(MaceratorRecipe recipe) {
-        return energy.amount >= ENERGY_PER_TICK
+        return energy.getAmount() >= ENERGY_PER_TICK
             && canAcceptOutput(recipe.getResultItem());
     }
 
@@ -222,7 +222,7 @@ public class MaceratorBlockEntity extends BaseBlockEntity
     }
 
     @Override
-    public EnergyStorage energyStorage(@Nullable Direction side) {
+    public IEnergyStorage energyStorage(@Nullable Direction side) {
         return energy;
     }
 
