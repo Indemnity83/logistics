@@ -1,5 +1,13 @@
 // Common subproject — shared domain code, compiles against vanilla MC via Loom.
 // No splitEnvironmentSourceSets(): client code lives in fabric/.
+//
+// TODO(multiloader): swap net.fabricmc.fabric-loom-remap here for net.neoforged.moddev.
+//   The blocker is that common/ currently imports Fabric API directly (~25 classes across the codebase).
+//   When ready:
+//   - Replace the loom {} block with neoForge { neoFormVersion = neo_form_version }
+//   - Remove Fabric API / fabric-loader dependencies (common should depend only on vanilla MC)
+//   - Move FabricBlockEntityTypeBuilder usage out of LogisticsMod.java behind an abstraction
+//   - Apply multiloader-loader in neoforge/build.gradle to compile common sources there
 plugins {
     id 'multiloader-common'
     id 'net.fabricmc.fabric-loom-remap'

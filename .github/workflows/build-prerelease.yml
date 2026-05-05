@@ -12,8 +12,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
-        loader: [fabric]
+        loader: [fabric, neoforge]
 
     steps:
       - uses: actions/checkout@v6
@@ -23,7 +24,7 @@ jobs:
       - uses: actions/setup-java@v5
         with:
           distribution: temurin
-          java-version: '25'
+          java-version: '21'
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v5
@@ -52,15 +53,14 @@ jobs:
 
           FULL_VERSION="${PRE_VERSION}+mc${MC_VERSION}.${LOADER}"
 
-          # Gradle task
-          if [[ "$MC_VERSION" =~ ^([0-9]+)\. ]]; then
-            (( ${BASH_REMATCH[1]} >= 26 )) && GRADLE_TASK="jar" || GRADLE_TASK="remapJar"
+          # Fabric uses remapJar (obfuscated); NeoForge uses jar
+          if [[ "$LOADER" == "fabric" ]]; then
+            GRADLE_TASK=":${LOADER}:remapJar"
           else
-            GRADLE_TASK="remapJar"
+            GRADLE_TASK=":${LOADER}:jar"
           fi
 
-          # CI is fabric-only for now. Keep token explicit.
-          LOADER_SHORT="f"
+          [[ "$LOADER" == "neoforge" ]] && LOADER_SHORT="n" || LOADER_SHORT="f"
 
           MODRINTH_VERSION="${PRE_VERSION}+mc${MC_VERSION}.${LOADER_SHORT}"
           (( ${#MODRINTH_VERSION} > 32 )) && MODRINTH_VERSION="${MODRINTH_VERSION:0:32}"
@@ -83,9 +83,11 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: logistics-${{ steps.version.outputs.full_version }}
-          path: build/libs/logistics-${{ steps.version.outputs.full_version }}.jar
+          path: ${{ matrix.loader }}/build/libs/logistics-${{ steps.version.outputs.full_version }}.jar
 
       - name: Publish
+        # NeoForge publishing deferred until multiloader-loader integration is complete
+        if: matrix.loader == 'fabric'
         uses: Kir-Antipov/mc-publish@v3.3
         with:
           modrinth-id: ${{ vars.MODRINTH_PROJECT_ID }}
@@ -100,10 +102,10 @@ jobs:
           version: ${{ steps.version.outputs.full_version }}
           name: "Logistics v${{ steps.version.outputs.pre_version }} for ${{ steps.version.outputs.loader }} ${{ steps.version.outputs.minecraft_version }}"
 
-          files: build/libs/logistics-${{ steps.version.outputs.full_version }}.jar
+          files: ${{ matrix.loader }}/build/libs/logistics-${{ steps.version.outputs.full_version }}.jar
 
       - name: Notify Discord beta-testing
-        if: success()
+        if: success() && matrix.loader == 'fabric'
         shell: bash
         env:
           DISCORD_BETA_WEBHOOK_URL: ${{ secrets.DISCORD_BETA_WEBHOOK_URL }}
@@ -128,7 +130,7 @@ jobs:
               "embeds": [{
                 "title": $title,
                 "url": $url,
-                "description": "A new pre-release build is available on Modrinth.\n\n**Please test:**\n• Load a world from the previous stable release — verify pipes, filters, and engines are intact\n• Run through the smoke test steps in `docs/RELEASE_CHECKLIST.md §C`\n• Report findings in this channel or on GitHub Issues\n\n[Download beta on Modrinth](\($url))",
+                "description": "A new pre-release build is available on Modrinth.\n\n**Please test:**\n• Load a world from the previous stable release — verify pipes, filters, and engines are intact\n• Report findings in this channel or on GitHub Issues\n\n[Download beta on Modrinth](\($url))",
                 "color": 16753920,
                 "footer": {"text": "Pre-release — not for production worlds"}
               }]

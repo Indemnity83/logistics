@@ -1,8 +1,10 @@
-// NeoForge loader subproject placeholder.
-// NOTE(multiloader): NeoForge support for MC 1.21.11 is groundwork only.
-//   Full integration requires a stable NeoForge release for MC 1.21.11.
+// NeoForge loader subproject.
+// NOTE(multiloader): This subproject compiles only its own entry-point code for now.
+//   Integrating multiloader-loader (to share common/ sources) requires first removing all
+//   Fabric API references from common/ — see common/build.gradle for the full TODO list.
 plugins {
     id 'java-library'
+    id 'net.neoforged.moddev'
 }
 
 version = System.getenv("MOD_VERSION") ?: "dev-neoforge"
@@ -17,6 +19,45 @@ java {
     withSourcesJar()
 }
 
+neoForge {
+    version = neoforge_version
+    runs {
+        client {
+            client()
+            gameDirectory = project.file('runs/client')
+        }
+        server {
+            server()
+            gameDirectory = project.file('runs/server')
+        }
+    }
+    mods {
+        logistics {
+            sourceSet sourceSets.main
+        }
+    }
+}
+
+processResources {
+    var expandProps = [
+        'version'                      : version,
+        'minecraft_version'            : minecraft_version,
+        'minecraft_version_range'      : minecraft_version_range,
+        'neoforge_version'             : neoforge_version,
+        'neoforge_loader_version_range': neoforge_loader_version_range,
+    ]
+    filesMatching('META-INF/neoforge.mods.toml') {
+        expand expandProps
+    }
+    inputs.properties(expandProps)
+}
+
 tasks.withType(JavaCompile).configureEach {
     it.options.release = rootProject.java_version.toInteger()
+}
+
+jar {
+    from('../LICENSE') {
+        rename { "${it}_logistics" }
+    }
 }

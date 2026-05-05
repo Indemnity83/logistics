@@ -22,8 +22,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
-        loader: [fabric]
+        loader: [fabric, neoforge]
 
     steps:
       - uses: actions/checkout@v6
@@ -33,7 +34,7 @@ jobs:
       - uses: actions/setup-java@v5
         with:
           distribution: temurin
-          java-version: '25'
+          java-version: '21'
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v5
@@ -77,19 +78,11 @@ jobs:
           # The +mc1.21.11.fabric is SemVer build metadata - platform and loader identifiers
           FULL_VERSION="${VERSION}+mc${MC_VERSION}.${LOADER}"
 
-          # Determine Gradle task based on MC version
-          # MC 26.1+ is not obfuscated (use jar)
-          # MC 1.21.11 and earlier are obfuscated (use remapJar)
-          if [[ "$MC_VERSION" =~ ^([0-9]+)\. ]]; then
-            MC_MAJOR="${BASH_REMATCH[1]}"
-            if (( MC_MAJOR >= 26 )); then
-              GRADLE_TASK="jar"
-            else
-              GRADLE_TASK="remapJar"
-            fi
+          # Fabric uses remapJar (obfuscated); NeoForge uses jar
+          if [[ "$LOADER" == "fabric" ]]; then
+            GRADLE_TASK=":${LOADER}:remapJar"
           else
-            # Fallback for unexpected version format
-            GRADLE_TASK="remapJar"
+            GRADLE_TASK=":${LOADER}:jar"
           fi
 
           # Detect snapshot/alpha/beta versions for publishing configuration
@@ -144,12 +137,17 @@ jobs:
       - name: List build artifacts
         run: |
           echo "📦 Build artifacts created:"
-          ls -lh build/libs/
-          echo ""
-          echo "🔍 Looking for: logistics-${{ steps.version.outputs.full_version }}.jar"
+          ls -lh ${{ matrix.loader }}/build/libs/
+
+      - name: Upload JAR
+        uses: actions/upload-artifact@v7
+        with:
+          name: logistics-${{ matrix.loader }}-${{ steps.version.outputs.full_version }}
+          path: ${{ matrix.loader }}/build/libs/logistics-*.jar
 
       - name: Publish to Modrinth and CurseForge
-        if: github.event_name != 'workflow_dispatch' || inputs.publish
+        # NeoForge publishing deferred until multiloader-loader integration is complete
+        if: (github.event_name != 'workflow_dispatch' || inputs.publish) && matrix.loader == 'fabric'
         uses: Kir-Antipov/mc-publish@v3.3
         with:
           modrinth-id: ${{ vars.MODRINTH_PROJECT_ID }}
@@ -168,6 +166,6 @@ jobs:
           name: "Logistics v${{ steps.version.outputs.version }} for ${{ steps.version.outputs.loader }} ${{ steps.version.outputs.minecraft_version }}"
           version: "${{ steps.version.outputs.full_version }}"
 
-          files: build/libs/logistics-${{ steps.version.outputs.full_version }}.jar
+          files: ${{ matrix.loader }}/build/libs/logistics-${{ steps.version.outputs.full_version }}.jar
 
           changelog: ${{ github.event.release.body || format('Release {0}', steps.version.outputs.full_version) }}

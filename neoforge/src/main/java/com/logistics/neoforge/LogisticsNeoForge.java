@@ -1,9 +1,13 @@
 package com.logistics.neoforge;
 
-/**
- * Placeholder for NeoForge bootstrap wiring.
- * Groundwork only: no runtime registration yet.
- */
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.common.Mod;
+
+@Mod("logistics")
 public final class LogisticsNeoForge {
-    private LogisticsNeoForge() {}
+
+    public LogisticsNeoForge(IEventBus eventBus) {
+        // NeoForge entry point.
+        // TODO(multiloader): call common domain init here once multiloader-loader is wired.
+    }
 }

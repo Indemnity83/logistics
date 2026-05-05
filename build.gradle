@@ -76,6 +76,7 @@ tasks.register('installGitHooks') {
 // Aggregate build: delegates to loader subprojects.
 tasks.named('build') {
     dependsOn ':fabric:build'
+    dependsOn ':neoforge:build'
     dependsOn ':common:test'
 }
 
