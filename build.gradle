@@ -87,14 +87,18 @@ dependencies {
 
 processResources {
 	inputs.property "version", project.version
+	inputs.property "minecraft_version", project.minecraft_version
+	inputs.property "fabric_version", project.fabric_version
+	inputs.property "loader_version", project.loader_version
+	inputs.property "java_version", project.java_version
 
 	filesMatching("fabric.mod.json") {
-		expand "version": inputs.properties.version
+		expand inputs.properties
 	}
 }
 
 tasks.withType(JavaCompile).configureEach {
-	it.options.release = 21
+	it.options.release = project.java_version.toInteger()
 }
 
 // Configure test task
