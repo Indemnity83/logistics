@@ -1,6 +1,6 @@
 package com.logistics;
 
-import com.logistics.core.bootstrap.DomainBootstrap;
+import com.logistics.core.bootstrap.ClientDomainBootstrap;
 import com.logistics.pipe.network.packet.SyncRequesterInventoryPacket;
 import com.logistics.pipe.render.PipeBlockEntityRenderer;
 import com.logistics.pipe.screen.ItemFilterScreen;
@@ -24,16 +24,11 @@ import java.util.Map;
 
 import static com.logistics.LogisticsMod.LOGGER;
 
-public final class LogisticsPipeClient implements DomainBootstrap {
+public final class LogisticsPipeClient implements ClientDomainBootstrap {
     public LogisticsPipeClient() {
         ModelLoadingPlugin.register(pluginContext -> {
             pluginContext.addModels(MODEL.getAllModels());
         });
-    }
-
-    @Override
-    public void initCommon() {
-        // Client-only bootstrap; common init handled in LogisticsPipe
     }
 
     @Override

@@ -1,13 +1,7 @@
 package com.logistics;
 
-import com.logistics.core.bootstrap.DomainBootstrap;
-import com.logistics.core.bootstrap.DomainBootstraps;
 import com.logistics.core.lib.resource.ResourceId;
-import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
-import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
-import net.fabricmc.fabric.api.resource.ResourcePackActivationType;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -27,29 +21,12 @@ import org.slf4j.LoggerFactory;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-public class LogisticsMod implements ModInitializer {
+public class LogisticsMod {
     public static final String MOD_ID = "logistics";
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
     protected String domain() {
         return "";
-    }
-
-    @Override
-    public void onInitialize() {
-        LOGGER.info("Initializing {}", MOD_ID);
-
-        for (DomainBootstrap bootstrap : DomainBootstraps.all()) {
-            bootstrap.initCommon();
-        }
-
-        FabricLoader.getInstance().getModContainer(MOD_ID).ifPresent(container ->
-            ResourceManagerHelper.registerBuiltinResourcePack(
-                modId("classic_crafting").toIdentifier(),
-                container,
-                ResourcePackActivationType.NORMAL
-            )
-        );
     }
 
     /**

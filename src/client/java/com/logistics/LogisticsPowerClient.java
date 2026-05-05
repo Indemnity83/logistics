@@ -1,6 +1,6 @@
 package com.logistics;
 
-import com.logistics.core.bootstrap.DomainBootstrap;
+import com.logistics.core.bootstrap.ClientDomainBootstrap;
 import com.logistics.core.lib.power.AbstractEngineBlockEntity;
 import com.logistics.core.render.ModelKeyRegistry;
 import com.logistics.power.render.EngineBlockEntityRenderer;
@@ -16,16 +16,11 @@ import net.minecraft.resources.ResourceLocation;
 
 import static com.logistics.LogisticsMod.LOGGER;
 
-public final class LogisticsPowerClient implements DomainBootstrap {
+public final class LogisticsPowerClient implements ClientDomainBootstrap {
     public LogisticsPowerClient() {
         ModelLoadingPlugin.register(pluginContext -> {
             pluginContext.addModels(MODEL.getAllModels());
         });
-    }
-
-    @Override
-    public void initCommon() {
-        // Client-only bootstrap; common init handled in LogisticsPower
     }
 
     @Override

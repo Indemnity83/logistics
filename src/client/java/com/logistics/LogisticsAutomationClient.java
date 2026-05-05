@@ -4,7 +4,7 @@ import com.logistics.automation.kiln.KilnScreen;
 import com.logistics.automation.render.ClientRenderCacheHooks;
 import com.logistics.automation.render.LaserQuarryBlockEntityRenderer;
 import com.logistics.automation.render.MarkerBlockEntityRenderer;
-import com.logistics.core.bootstrap.DomainBootstrap;
+import com.logistics.core.bootstrap.ClientDomainBootstrap;
 import com.logistics.core.render.ModelKeyRegistry;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
@@ -18,16 +18,11 @@ import net.minecraft.resources.ResourceLocation;
 
 import static com.logistics.LogisticsMod.LOGGER;
 
-public final class LogisticsAutomationClient implements DomainBootstrap {
+public final class LogisticsAutomationClient implements ClientDomainBootstrap {
     public LogisticsAutomationClient() {
         ModelLoadingPlugin.register(pluginContext -> {
             pluginContext.addModels(MODEL.getAllModels());
         });
-    }
-
-    @Override
-    public void initCommon() {
-        // Client-only bootstrap; common init handled in LogisticsAutomation
     }
 
     @Override
