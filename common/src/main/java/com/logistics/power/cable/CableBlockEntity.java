@@ -136,11 +136,13 @@ public class CableBlockEntity extends BaseBlockEntity
 
     @Override
     protected void saveLogisticsData(CompoundTag tag, HolderLookup.Provider registries) {
+        super.saveLogisticsData(tag, registries);
         tag.putInt(KEY_CONNECTIONS, renderConnectionMask);
     }
 
     @Override
     protected void loadLogisticsData(CompoundTag tag, HolderLookup.Provider registries) {
+        super.loadLogisticsData(tag, registries);
         applyConnectionMask(NbtCompat.getInt(tag, KEY_CONNECTIONS, 0));
         if (level != null && level.isClientSide()) {
             BlockState state = getBlockState();

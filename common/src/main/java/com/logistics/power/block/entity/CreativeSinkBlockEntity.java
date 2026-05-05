@@ -58,11 +58,11 @@ public class CreativeSinkBlockEntity extends BaseBlockEntity
                     energyThisTick += toAccept;
                 } else {
                     pendingInserts.merge(transaction, toAccept, CreativeSinkBlockEntity.this::saturatedAdd);
-                    transaction.addCloseCallback((context, result) -> {
+                    transaction.addCloseCallback((context, result) -> removePendingInsert(context, toAccept));
+                    transaction.addOuterCloseCallback(result -> {
                         if (result == Result.COMMITTED) {
                             energyThisTick = saturatedAdd(energyThisTick, toAccept);
                         }
-                        removePendingInsert(context, toAccept);
                     });
                 }
             }

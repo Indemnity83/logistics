@@ -91,7 +91,7 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity implements PipeConne
             if (transaction == null) {
                 energyReceivedThisTick += inserted;
             } else {
-                transaction.addCloseCallback((context, result) -> {
+                transaction.addOuterCloseCallback(result -> {
                     if (result == Result.COMMITTED) {
                         energyReceivedThisTick += inserted;
                     }
