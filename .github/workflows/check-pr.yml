@@ -11,6 +11,30 @@ permissions:
   pull-requests: read
 
 jobs:
+  loader-isolation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Check for cross-loader import leakage
+        run: |
+          FAIL=0
+
+          echo "Checking fabric/ for neoforged imports..."
+          if grep -rEn "^import net\.neoforged\." fabric/src/ --include="*.java"; then
+            echo "::error::neoforge imports found in fabric/"
+            FAIL=1
+          fi
+
+          echo "Checking neoforge/ for fabricmc imports..."
+          if grep -rEn "^import net\.fabricmc\." neoforge/src/ --include="*.java"; then
+            echo "::error::fabric imports found in neoforge/"
+            FAIL=1
+          fi
+
+          exit $FAIL
+
   validate:
     runs-on: ubuntu-latest
     steps:
