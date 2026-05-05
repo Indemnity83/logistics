@@ -7,11 +7,11 @@ plugins {
     id 'net.neoforged.moddev'
 }
 
-version = rootProject.version
+version = System.getenv("MOD_VERSION") ?: "dev-neoforge"
 group = rootProject.group
 
 base {
-    archivesName = "${archives_base_name}-neoforge-${minecraft_version}"
+    archivesName = rootProject.archives_base_name
 }
 
 java {

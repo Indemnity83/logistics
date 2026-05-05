@@ -2,7 +2,7 @@ plugins {
     id 'com.diffplug.spotless'
 }
 
-version = System.getenv("MOD_VERSION") ?: project.mod_version
+version = System.getenv("MOD_VERSION") ?: "dev"
 group = project.maven_group
 
 repositories {
