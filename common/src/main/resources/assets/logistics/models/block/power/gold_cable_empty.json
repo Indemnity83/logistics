@@ -1,0 +1,8 @@
+{
+  "parent": "block/block",
+  "textures": {
+    "particle": "logistics:block/power/gold_cable",
+    "1": "logistics:block/power/gold_cable"
+  },
+  "elements": []
+}

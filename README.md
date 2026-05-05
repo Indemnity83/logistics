@@ -107,6 +107,7 @@ RF energy generation and distribution:
 - **Redstone Engine** - Simple, safe, steady power; never overheats
 - **Stirling Engine** - Fuel-powered with heat management; shuts down safely on overheat
 - **Creative Engine** - Infinite power for testing and creative mode
+- **Power Cable** - Distributes energy from engines to connected machines
 
 [Learn about power systems →](https://indemnity83.github.io/logistics/power/)
 

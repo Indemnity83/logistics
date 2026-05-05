@@ -4,7 +4,9 @@ import com.logistics.core.bootstrap.ClientDomainBootstrap;
 import com.logistics.core.lib.power.AbstractEngineBlockEntity;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.core.render.ModelKeyRegistry;
+import com.logistics.power.cable.CableTier;
 import com.logistics.power.render.EngineBlockEntityRenderer;
+import com.logistics.power.render.model.CableUnbakedRoot;
 import com.logistics.power.screen.StirlingEngineScreen;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.model.loading.v1.ExtraModelKey;
@@ -27,6 +29,24 @@ public final class LogisticsPowerClient implements ClientDomainBootstrap {
             for (var entry : MODEL.getAllModels()) {
                 pluginContext.addModel(entry.getKey(), SimpleUnbakedExtraModel.blockStateModel(entry.getValue().toIdentifier()));
             }
+            pluginContext.registerBlockStateResolver(LogisticsPower.BLOCK.COPPER_CABLE, ctx -> {
+                CableUnbakedRoot root = new CableUnbakedRoot(CableTier.COPPER);
+                for (var state : ctx.block().getStateDefinition().getPossibleStates()) {
+                    ctx.setModel(state, root);
+                }
+            });
+            pluginContext.registerBlockStateResolver(LogisticsPower.BLOCK.GOLD_CABLE, ctx -> {
+                CableUnbakedRoot root = new CableUnbakedRoot(CableTier.GOLD);
+                for (var state : ctx.block().getStateDefinition().getPossibleStates()) {
+                    ctx.setModel(state, root);
+                }
+            });
+            pluginContext.registerBlockStateResolver(LogisticsPower.BLOCK.ENDER_CABLE, ctx -> {
+                CableUnbakedRoot root = new CableUnbakedRoot(CableTier.ENDER);
+                for (var state : ctx.block().getStateDefinition().getPossibleStates()) {
+                    ctx.setModel(state, root);
+                }
+            });
         });
     }
 
@@ -43,6 +63,11 @@ public final class LogisticsPowerClient implements ClientDomainBootstrap {
         BlockEntityRenderers.register(LogisticsPower.ENTITY.REDSTONE_ENGINE_BLOCK_ENTITY, EngineBlockEntityRenderer::new);
         BlockEntityRenderers.register(LogisticsPower.ENTITY.STIRLING_ENGINE_BLOCK_ENTITY, EngineBlockEntityRenderer::new);
         BlockEntityRenderers.register(LogisticsPower.ENTITY.CREATIVE_ENGINE_BLOCK_ENTITY, EngineBlockEntityRenderer::new);
+
+        // Register cable blocks for chunk-baked cutout rendering
+        BlockRenderLayerMap.putBlock(LogisticsPower.BLOCK.COPPER_CABLE, ChunkSectionLayer.CUTOUT);
+        BlockRenderLayerMap.putBlock(LogisticsPower.BLOCK.GOLD_CABLE, ChunkSectionLayer.CUTOUT);
+        BlockRenderLayerMap.putBlock(LogisticsPower.BLOCK.ENDER_CABLE, ChunkSectionLayer.CUTOUT);
 
         // Register screens
         MenuScreens.register(LogisticsPower.SCREEN.STIRLING_ENGINE, StirlingEngineScreen::new);

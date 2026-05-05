@@ -1,0 +1,90 @@
+{
+	"format_version": "1.21.11",
+	"parent": "minecraft:block/block",
+	"credit": "Made with Blockbench",
+	"textures": {
+		"1": "logistics:block/power/copper_cable",
+		"particle": "logistics:block/power/copper_cable"
+	},
+	"display": {
+		"gui": {
+			"rotation": [30, 225, 0],
+			"translation": [0, 0, 0],
+			"scale": [1.875, 1.875, 1.875]
+		},
+		"ground": {
+			"rotation": [0, 0, 0],
+			"translation": [0, 3, 0],
+			"scale": [0.75, 0.75, 0.75]
+		},
+		"fixed": {
+			"rotation": [0, 0, 0],
+			"translation": [0, 0, 0],
+			"scale": [1.5, 1.5, 1.5]
+		},
+		"thirdperson_righthand": {
+			"rotation": [75, 45, 0],
+			"translation": [0, 2.5, 0],
+			"scale": [1.125, 1.125, 1.125]
+		},
+		"thirdperson_lefthand": {
+			"rotation": [75, 45, 0],
+			"translation": [0, 2.5, 0],
+			"scale": [1.125, 1.125, 1.125]
+		},
+		"firstperson_righthand": {
+			"rotation": [0, 45, 0],
+			"translation": [0, 0, 0],
+			"scale": [1.2, 1.2, 1.2]
+		},
+		"firstperson_lefthand": {
+			"rotation": [0, 225, 0],
+			"translation": [0, 0, 0],
+			"scale": [1.2, 1.2, 1.2]
+		}
+	},
+	"elements": [
+		{
+			"name": "generic_core",
+			"from": [6, 6, 6],
+			"to": [10, 10, 10],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 8, 8]},
+			"faces": {
+				"north": {"uv": [12, 0, 16, 4], "texture": "#1"},
+				"east": {"uv": [2, 12, 6, 16], "texture": "#1"},
+				"south": {"uv": [12, 0, 16, 4], "texture": "#1"},
+				"west": {"uv": [2, 12, 6, 16], "texture": "#1"},
+				"up": {"uv": [12, 4, 16, 8], "texture": "#1"},
+				"down": {"uv": [12, 4, 16, 8], "texture": "#1"}
+			}
+		},
+		{
+			"name": "north_nub",
+			"from": [7, 7, 4],
+			"to": [9, 9, 6],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 8, 5]},
+			"faces": {
+				"north": {"uv": [13, 1, 15, 3], "texture": "#1"},
+				"east": {"uv": [13, 1, 15, 3], "texture": "#1"},
+				"south": {"uv": [13, 1, 15, 3], "texture": "#1"},
+				"west": {"uv": [13, 1, 15, 3], "texture": "#1"},
+				"up": {"uv": [13, 1, 15, 3], "texture": "#1"},
+				"down": {"uv": [13, 1, 15, 3], "texture": "#1"}
+			}
+		},
+		{
+			"name": "north_nub",
+			"from": [7, 7, 10],
+			"to": [9, 9, 12],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 8, 11]},
+			"faces": {
+				"north": {"uv": [13, 1, 15, 3], "texture": "#1"},
+				"east": {"uv": [13, 1, 15, 3], "texture": "#1"},
+				"south": {"uv": [13, 1, 15, 3], "texture": "#1"},
+				"west": {"uv": [13, 1, 15, 3], "texture": "#1"},
+				"up": {"uv": [13, 1, 15, 3], "texture": "#1"},
+				"down": {"uv": [13, 1, 15, 3], "texture": "#1"}
+			}
+		}
+	]
+}

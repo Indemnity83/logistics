@@ -4,9 +4,11 @@ import com.logistics.LogisticsPower;
 import com.logistics.core.lib.BaseBlockEntity;
 import com.logistics.core.lib.block.capability.HasEnergyStorage;
 import com.logistics.core.lib.power.AcceptsLowTierEnergy;
+import com.logistics.core.lib.power.EnergyDemandProvider;
 import com.logistics.core.lib.storage.NbtCompat;
 import com.logistics.core.lib.support.ProbeResult;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
+import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext.Result;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -16,6 +18,9 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 import team.reborn.energy.api.EnergyStorage;
+
+import java.util.IdentityHashMap;
+import java.util.Map;
 
 /**
  * Block entity for the Creative Sink.
@@ -27,11 +32,12 @@ import team.reborn.energy.api.EnergyStorage;
  * custom logic instead of using {@link com.logistics.core.lib.energy.EnergyComponent}.
  */
 public class CreativeSinkBlockEntity extends BaseBlockEntity
-        implements AcceptsLowTierEnergy, HasEnergyStorage {
+    implements AcceptsLowTierEnergy, HasEnergyStorage, EnergyDemandProvider {
     private static final long[] DRAIN_RATES = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 50, 100, Long.MAX_VALUE};
     private int drainRateIndex = 4; // Default 5 RF/t
     private long energyLastTick = 0;
     private long energyThisTick = 0;
+    private final Map<TransactionContext, Long> pendingInserts = new IdentityHashMap<>();
 
     // Test-only counter - not persisted, resets on reload
     // Used only for validating energy consumption in tests
@@ -45,12 +51,20 @@ public class CreativeSinkBlockEntity extends BaseBlockEntity
 
         @Override
         public long insert(long maxAmount, TransactionContext transaction) {
-            long canAccept = Math.max(0, getDrainRate() - energyThisTick);
+            long canAccept = remainingDrainThisTick();
             long toAccept = Math.min(maxAmount, canAccept);
             if (toAccept > 0) {
-                // Note: energyThisTick mutated outside transaction lifecycle is intentional.
-                // Counter resets every tick (Line ~65) and energy is discarded anyway.
-                energyThisTick += toAccept;
+                if (transaction == null) {
+                    energyThisTick += toAccept;
+                } else {
+                    pendingInserts.merge(transaction, toAccept, CreativeSinkBlockEntity.this::saturatedAdd);
+                    transaction.addCloseCallback((context, result) -> {
+                        if (result == Result.COMMITTED) {
+                            energyThisTick = saturatedAdd(energyThisTick, toAccept);
+                        }
+                        removePendingInsert(context, toAccept);
+                    });
+                }
             }
             return toAccept;
         }
@@ -102,6 +116,42 @@ public class CreativeSinkBlockEntity extends BaseBlockEntity
 
     public long getDrainRate() {
         return DRAIN_RATES[drainRateIndex];
+    }
+
+    @Override
+    public long networkDemandPerTick() {
+        return remainingDrainThisTick();
+    }
+
+    private long remainingDrainThisTick() {
+        long drainRate = getDrainRate();
+        if (drainRate == Long.MAX_VALUE) return Long.MAX_VALUE;
+
+        long reserved = saturatedAdd(energyThisTick, pendingInsertTotal());
+        return Math.max(0, drainRate - reserved);
+    }
+
+    private long pendingInsertTotal() {
+        long total = 0;
+        for (long amount : pendingInserts.values()) {
+            total = saturatedAdd(total, amount);
+        }
+        return total;
+    }
+
+    private void removePendingInsert(TransactionContext transaction, long amount) {
+        long remaining = pendingInserts.getOrDefault(transaction, 0L) - amount;
+        if (remaining > 0) {
+            pendingInserts.put(transaction, remaining);
+        } else {
+            pendingInserts.remove(transaction);
+        }
+    }
+
+    private long saturatedAdd(long a, long b) {
+        if (a == Long.MAX_VALUE || b == Long.MAX_VALUE) return Long.MAX_VALUE;
+        if (b > 0 && a > Long.MAX_VALUE - b) return Long.MAX_VALUE;
+        return a + b;
     }
 
     /**
