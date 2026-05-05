@@ -1,0 +1,22 @@
+// NeoForge loader subproject placeholder.
+// NOTE(multiloader): NeoForge support for MC 1.21.11 is groundwork only.
+//   Full integration requires a stable NeoForge release for MC 1.21.11.
+plugins {
+    id 'java-library'
+}
+
+version = System.getenv("MOD_VERSION") ?: "dev-neoforge"
+group = rootProject.group
+
+base {
+    archivesName = rootProject.archives_base_name
+}
+
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of(rootProject.java_version.toInteger())
+    withSourcesJar()
+}
+
+tasks.withType(JavaCompile).configureEach {
+    it.options.release = rootProject.java_version.toInteger()
+}
