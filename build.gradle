@@ -2,7 +2,7 @@ plugins {
     id 'com.diffplug.spotless'
 }
 
-version = System.getenv("MOD_VERSION") ?: project.mod_version
+version = System.getenv("MOD_VERSION") ?: "dev"
 group = project.maven_group
 
 repositories {
@@ -74,9 +74,9 @@ tasks.register('installGitHooks') {
 }
 
 // Aggregate build: delegates to loader subprojects.
-// TODO(multiloader): add ':neoforge:build' here once neoforge/build.gradle is wired up.
 tasks.named('build') {
     dependsOn ':fabric:build'
+    dependsOn ':neoforge:build'
     dependsOn ':common:test'
 }
 
