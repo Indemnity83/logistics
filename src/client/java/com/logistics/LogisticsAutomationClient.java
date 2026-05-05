@@ -5,7 +5,7 @@ import com.logistics.automation.render.ClientRenderCacheHooks;
 import com.logistics.automation.render.LaserQuarryBlockEntityRenderer;
 import com.logistics.automation.render.LaserQuarryRenderState;
 import com.logistics.automation.render.MarkerBlockEntityRenderer;
-import com.logistics.core.bootstrap.DomainBootstrap;
+import com.logistics.core.bootstrap.ClientDomainBootstrap;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.core.render.ModelKeyRegistry;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
@@ -24,18 +24,13 @@ import java.util.Map;
 
 import static com.logistics.LogisticsMod.LOGGER;
 
-public final class LogisticsAutomationClient implements DomainBootstrap {
+public final class LogisticsAutomationClient implements ClientDomainBootstrap {
     public LogisticsAutomationClient() {
         ModelLoadingPlugin.register(pluginContext -> {
             for (var entry : MODEL.getAllModels()) {
                 pluginContext.addModel(entry.getKey(), SimpleUnbakedExtraModel.blockStateModel(entry.getValue().toIdentifier()));
             }
         });
-    }
-
-    @Override
-    public void initCommon() {
-        // Client-only bootstrap; common init handled in LogisticsAutomation
     }
 
     @Override

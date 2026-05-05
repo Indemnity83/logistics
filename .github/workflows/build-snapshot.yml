@@ -39,7 +39,7 @@ jobs:
           BASE_VERSION="$(jq -r '."."' .release-please-manifest.json)"
           if [[ -z "$BASE_VERSION" || "$BASE_VERSION" == "null" ]]; then
             echo "Failed to resolve BASE_VERSION from .release-please-manifest.json" >&2
-            exit1
+            exit 1
           fi
 
           # If run from release-please branch derive real base branch
@@ -72,14 +72,8 @@ jobs:
             GRADLE_TASK="remapJar"
           fi
 
-          # Short loader token for Modrinth
-          case "$LOADER" in
-            fabric) LOADER_SHORT="f" ;;
-            quilt) LOADER_SHORT="q" ;;
-            forge) LOADER_SHORT="fg" ;;
-            neoforge) LOADER_SHORT="nf" ;;
-            *) LOADER_SHORT="$LOADER" ;;
-          esac
+          # CI is fabric-only for now. Keep token explicit.
+          LOADER_SHORT="f"
 
           MODRINTH_VERSION="${PRE_ID}+mc${MC_VERSION}.${LOADER_SHORT}"
           (( ${#MODRINTH_VERSION} > 32 )) && MODRINTH_VERSION="${MODRINTH_VERSION:0:32}"
