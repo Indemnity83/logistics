@@ -11,13 +11,10 @@ import com.logistics.core.macerator.MaceratorRecipeManager;
 import com.logistics.core.macerator.MaceratorRecipeSerializer;
 import com.logistics.core.macerator.MaceratorRecipeWrapper;
 import com.logistics.core.macerator.MaceratorScreenHandler;
+import com.logistics.core.lib.LogisticsCreativeTab;
 import com.logistics.core.lib.resource.ResourceId;
-import net.fabricmc.fabric.api.biome.v1.BiomeModifications;
-import net.fabricmc.fabric.api.biome.v1.BiomeSelectors;
-import net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents;
-import net.fabricmc.fabric.api.creativetab.v1.FabricCreativeModeTab;
-import net.minecraft.world.item.CreativeModeTabs;
-import net.minecraft.world.item.Items;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeBookCategory;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
@@ -26,21 +23,17 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.DropExperienceBlock;
 import net.minecraft.world.level.block.SoundType;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.function.Consumer;
 
 public final class LogisticsCore extends LogisticsMod implements DomainBootstrap {
@@ -70,38 +63,10 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         ENTITY.register();
         MENU.register();
         RECIPE.register();
-        CREATIVE_TAB.register();
 
         registerLegacyAliases();
         addCreativeTabEntries();
-        addVanillaCreativeTabEntries();
-        registerWorldgen();
         MaceratorRecipeManager.register();
-    }
-
-    private void registerWorldgen() {
-        // Tin ore worldgen: separate features for stone (rare) and deepslate (abundant)
-        // Stone: ~7% of copper's effective rate (1 vein/chunk vs copper's 16)
-        // Deepslate: ~80% of copper's rate (13 veins/chunk)
-        // Use LogisticsMod.modId() to avoid core/ prefix
-        BiomeModifications.addFeature(
-            BiomeSelectors.foundInOverworld(),
-            GenerationStep.Decoration.UNDERGROUND_ORES,
-            ResourceKey.create(Registries.PLACED_FEATURE, LogisticsMod.modId("tin_ore_stone").toIdentifier())
-        );
-        BiomeModifications.addFeature(
-            BiomeSelectors.foundInOverworld(),
-            GenerationStep.Decoration.UNDERGROUND_ORES,
-            ResourceKey.create(Registries.PLACED_FEATURE, LogisticsMod.modId("tin_ore_deepslate").toIdentifier())
-        );
-
-        // Apatite ore worldgen: large veins (up to 48 blocks) spawning above Y 60
-        // 2 veins per chunk, Y 60-256 (uniform distribution)
-        BiomeModifications.addFeature(
-            BiomeSelectors.foundInOverworld(),
-            GenerationStep.Decoration.UNDERGROUND_ORES,
-            ResourceKey.create(Registries.PLACED_FEATURE, LogisticsMod.modId("apatite_ore_stone").toIdentifier())
-        );
     }
 
     @Override
@@ -384,63 +349,52 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         }
     }
 
-    public static final class CREATIVE_TAB {
-        private CREATIVE_TAB() {}
-        private static final List<Consumer<CreativeModeTab.Output>> ENTRIES = new ArrayList<>();
-
-        public static CreativeModeTab LOGISTICS_TRANSPORT;
-
-        static void register() {
-            LOGISTICS_TRANSPORT = Registry.register(
-                    BuiltInRegistries.CREATIVE_MODE_TAB,
-                    LogisticsMod.modId("logistics_transport").toIdentifier(),
-                    FabricCreativeModeTab.builder()
-                            .title(Component.literal("Logistics"))
-                            .icon(() -> new ItemStack(ITEM.IRON_GEAR))
-                            .displayItems((params, entries) -> {
-                                for (Consumer<CreativeModeTab.Output> entry : ENTRIES) {
-                                    entry.accept(entries);
-                                }
-                            })
-                            .build());
-        }
-
-        public static void add(Consumer<CreativeModeTab.Output> entryBuilder) {
-            ENTRIES.add(entryBuilder);
-        }
-
-        public static void addItem(ItemLike item) {
-            add(entries -> entries.accept(item));
-        }
-
-        public static void addItems(ItemLike... items) {
-            add(entries -> {
-                for (ItemLike item : items) {
-                    entries.accept(item);
-                }
-            });
-        }
-    }
+    public static final LogisticsCreativeTab LOGISTICS_TAB = LogisticsCreativeTab.create(
+        LogisticsMod.modId("logistics_transport"),
+        Component.translatable("itemGroup.logistics.logistics_transport"),
+        () -> new ItemStack(ITEM.IRON_GEAR)
+    );
 
     private static void addCreativeTabEntries() {
-        CREATIVE_TAB.addItems(
-                ITEM.WRENCH,
-                ITEM.PROBE
-        );
-        CREATIVE_TAB.addItem(BLOCK.MACERATOR);
-        CREATIVE_TAB.addItem(BLOCK.QUARTZ_CRYSTAL);
+        LOGISTICS_TAB.add(ITEM.WRENCH, ITEM.PROBE);
+        LOGISTICS_TAB.add(BLOCK.MACERATOR);
+        LOGISTICS_TAB.add(BLOCK.QUARTZ_CRYSTAL);
     }
 
-    private static void addVanillaCreativeTabEntries() {
+    /**
+     * Loader-provided adapter for inserting items into vanilla creative tabs.
+     *
+     * <p>Called once during mod initialization with all tab modifications declared in common.
+     * Each {@link #modify} call represents one group of insertions into a specific tab.
+     *
+     * <p>Fabric: each call maps directly to {@code CreativeModeTabEvents.modifyOutputEvent(tab).register(...)}.
+     * NeoForge: collect calls into a map, then dispatch from {@code BuildCreativeModeTabContentsEvent}.
+     */
+    public interface VanillaTabRegistrar {
+        void modify(ResourceKey<CreativeModeTab> tab, Consumer<TabEntries> entries);
+
+        interface TabEntries {
+            void insertAfter(ItemLike anchor, ItemLike item);
+            void insertBefore(ItemLike anchor, ItemLike item);
+        }
+    }
+
+    /**
+     * Declares all vanilla creative tab insertions for the core domain.
+     * Called by the loader-specific setup (e.g. {@code FabricCreativeTabSetup}) via a
+     * loader-specific {@link VanillaTabRegistrar} adapter.
+     */
+    public static void addVanillaCreativeTabEntries(VanillaTabRegistrar registrar) {
         // Add storage blocks to Building Blocks tab
-        CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.BUILDING_BLOCKS).register(entries -> {
+        registrar.modify(CreativeModeTabs.BUILDING_BLOCKS, entries -> {
             entries.insertAfter(Items.COAL_BLOCK, BLOCK.APATITE_BLOCK);
             entries.insertBefore(Items.IRON_BLOCK, BLOCK.TIN_BLOCK);
             entries.insertAfter(Items.IRON_BLOCK, BLOCK.BRONZE_BLOCK);
         });
 
-        // Add materials to Ingredients tab
-        CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.INGREDIENTS).register(entries -> {
+        // Add materials to Ingredients tab — all in one callback so each insertAfter/insertBefore
+        // sees the items placed by earlier calls in the same invocation
+        registrar.modify(CreativeModeTabs.INGREDIENTS, entries -> {
             // Raw materials
             entries.insertBefore(Items.RAW_IRON, ITEM.RAW_TIN);
 
@@ -478,14 +432,12 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
                 ITEM.NETHERITE_VALVE
             };
             Item prev = ITEM.NETHERITE_GEAR;
-            for (Item item : valves) {
-                entries.insertAfter(prev, item);
-                prev = item;
+            for (Item valve : valves) {
+                entries.insertAfter(prev, valve);
+                prev = valve;
             }
-        });
 
-        // Add dusts, chips, cores to Ingredients tab — after bronze_ingot
-        CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.INGREDIENTS).register(entries -> {
+            // Dusts, chips, cores — after bronze_ingot (inserted above)
             Item[] intermediates = {
                 ITEM.APATITE_DUST,
                 ITEM.IRON_DUST, ITEM.COPPER_DUST, ITEM.TIN_DUST, ITEM.BRONZE_DUST,
@@ -510,7 +462,7 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         });
 
         // Add ore blocks to Natural Blocks tab
-        CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.NATURAL_BLOCKS).register(entries -> {
+        registrar.modify(CreativeModeTabs.NATURAL_BLOCKS, entries -> {
             // Tin ores
             entries.insertAfter(Items.DEEPSLATE_COAL_ORE, BLOCK.TIN_ORE);
             entries.insertAfter(BLOCK.TIN_ORE, BLOCK.DEEPSLATE_TIN_ORE);

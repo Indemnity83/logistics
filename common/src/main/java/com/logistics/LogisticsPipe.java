@@ -88,14 +88,14 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
 
     private static void addCreativeTabEntries() {
         // Marking fluids
-        LogisticsCore.CREATIVE_TAB.add(entries -> {
+        LogisticsCore.LOGISTICS_TAB.add(entries -> {
             for (DyeColor color : DyeColor.values()) {
                 entries.accept(getMarkingFluidItem(color));
             }
         });
 
         // Copper pipe variants (modular)
-        LogisticsCore.CREATIVE_TAB.add(entries -> {
+        LogisticsCore.LOGISTICS_TAB.add(entries -> {
             if (BLOCK.COPPER_TRANSPORT_PIPE instanceof PipeBlock pipeBlock) {
                 Pipe pipe = pipeBlock.getPipe();
                 if (pipe != null) {
@@ -108,7 +108,7 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
         });
 
         // Pipes
-        LogisticsCore.CREATIVE_TAB.addItems(
+        LogisticsCore.LOGISTICS_TAB.add(
                 BLOCK.STONE_TRANSPORT_PIPE,
                 BLOCK.ITEM_PASSTHROUGH_PIPE,
                 BLOCK.COPPER_TRANSPORT_PIPE,
