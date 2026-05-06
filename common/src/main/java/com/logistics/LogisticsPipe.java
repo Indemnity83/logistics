@@ -69,7 +69,6 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
         DATA.register();
         SCREEN.register();
         registerMarkingFluidItems();
-        registerNetworkPackets();
 
         registerLegacyAliases();
         addCreativeTabEntries();
@@ -85,13 +84,6 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
 
     public static void onLevelUnload(ServerLevel level) {
         NetworkRegistry.clearLevel(level);
-    }
-
-    private static void registerNetworkPackets() {
-        com.logistics.pipe.network.packet.RequestItemPacket.register();
-        com.logistics.pipe.network.packet.SyncRequesterInventoryPacket.register();
-        com.logistics.pipe.network.packet.OpenChassisSlotPacket.register();
-        com.logistics.pipe.network.packet.SetSatelliteIdPacket.register();
     }
 
     private static void addCreativeTabEntries() {
