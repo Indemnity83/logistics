@@ -1,4 +1,5 @@
 {
+  "itemGroup.logistics.logistics_transport": "Logistics",
   "block.logistics.pipe.copper_transport_pipe": "Copper Transport Pipe",
   "block.logistics.pipe.copper_transport_pipe.exposed": "Exposed Copper Transport Pipe",
   "block.logistics.pipe.copper_transport_pipe.weathered": "Weathered Copper Transport Pipe",

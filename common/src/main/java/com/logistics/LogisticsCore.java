@@ -351,7 +351,7 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
 
     public static final LogisticsCreativeTab LOGISTICS_TAB = LogisticsCreativeTab.create(
         LogisticsMod.modId("logistics_transport"),
-        Component.literal("Logistics"),
+        Component.translatable("itemGroup.logistics.logistics_transport"),
         () -> new ItemStack(ITEM.IRON_GEAR)
     );
 
@@ -392,7 +392,8 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
             entries.insertAfter(Items.IRON_BLOCK, BLOCK.BRONZE_BLOCK);
         });
 
-        // Add materials to Ingredients tab
+        // Add materials to Ingredients tab — all in one callback so each insertAfter/insertBefore
+        // sees the items placed by earlier calls in the same invocation
         registrar.modify(CreativeModeTabs.INGREDIENTS, entries -> {
             // Raw materials
             entries.insertBefore(Items.RAW_IRON, ITEM.RAW_TIN);
@@ -431,14 +432,12 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
                 ITEM.NETHERITE_VALVE
             };
             Item prev = ITEM.NETHERITE_GEAR;
-            for (Item item : valves) {
-                entries.insertAfter(prev, item);
-                prev = item;
+            for (Item valve : valves) {
+                entries.insertAfter(prev, valve);
+                prev = valve;
             }
-        });
 
-        // Add dusts, chips, cores to Ingredients tab — after bronze_ingot
-        registrar.modify(CreativeModeTabs.INGREDIENTS, entries -> {
+            // Dusts, chips, cores — after bronze_ingot (inserted above)
             Item[] intermediates = {
                 ITEM.APATITE_DUST,
                 ITEM.IRON_DUST, ITEM.COPPER_DUST, ITEM.TIN_DUST, ITEM.BRONZE_DUST,

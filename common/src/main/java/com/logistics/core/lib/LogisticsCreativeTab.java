@@ -8,7 +8,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -65,9 +64,11 @@ public final class LogisticsCreativeTab {
         return this;
     }
 
-    /** Appends all {@code items} as a group to the end of this tab. */
+    /** Appends each item individually so each can serve as an anchor for {@link #addAfter}/{@link #addBefore}. */
     public LogisticsCreativeTab add(ItemLike... items) {
-        entries.add(new Entry.Add(Arrays.asList(items)));
+        for (ItemLike item : items) {
+            entries.add(new Entry.Add(List.of(item)));
+        }
         return this;
     }
 
