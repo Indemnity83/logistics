@@ -1,5 +1,7 @@
-package com.logistics.core;
+package com.logistics.fabric;
 
+import com.logistics.core.DebugLog;
+import com.logistics.core.LogisticsConfig;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
@@ -26,8 +28,8 @@ import java.util.Set;
  * /logistics config set &lt;key&gt; &lt;val&gt; — set a config value and save to disk
  * /logistics config reload            — reload config from disk
  */
-public final class LogisticsCommands {
-    private LogisticsCommands() {}
+public final class FabricCommandRegistration {
+    private FabricCommandRegistration() {}
 
     private static final SuggestionProvider<CommandSourceStack> DOMAIN_SUGGESTIONS =
         (ctx, builder) -> SharedSuggestionProvider.suggest(sortedDomains(), builder);

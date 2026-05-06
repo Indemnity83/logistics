@@ -1,14 +1,16 @@
-package com.logistics.core.network;
+package com.logistics.fabric;
 
 import com.logistics.pipe.network.NetworkRegistry;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLevelEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 
 /**
  * Handles ticking of pipe networks.
- * Registered during domain initialization.
+ * Registered during Fabric mod initialization.
  */
-public class NetworkTickHandler {
+public final class FabricNetworkTickHandler {
+    private FabricNetworkTickHandler() {}
+
     public static void register() {
         ServerTickEvents.END_SERVER_TICK.register(server -> {
             for (var level : server.getAllLevels()) {
