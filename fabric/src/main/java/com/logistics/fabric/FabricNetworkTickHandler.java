@@ -1,6 +1,6 @@
 package com.logistics.fabric;
 
-import com.logistics.LogisticsPipe;
+import com.logistics.pipe.network.NetworkRegistry;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLevelEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 
@@ -12,7 +12,7 @@ public final class FabricNetworkTickHandler {
     private FabricNetworkTickHandler() {}
 
     public static void register() {
-        ServerTickEvents.END_SERVER_TICK.register(LogisticsPipe::onServerTick);
-        ServerLevelEvents.UNLOAD.register((server, level) -> LogisticsPipe.onLevelUnload(level));
+        ServerTickEvents.END_SERVER_TICK.register(NetworkRegistry::tickNetworks);
+        ServerLevelEvents.UNLOAD.register((server, level) -> NetworkRegistry.clearLevel(level));
     }
 }

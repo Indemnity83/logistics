@@ -7,6 +7,7 @@ import com.logistics.automation.laserquarry.LaserQuarryBlock;
 import com.logistics.automation.laserquarry.LaserQuarryFrameBlock;
 import com.logistics.automation.laserquarry.entity.LaserQuarryBlockEntity;
 import com.logistics.core.bootstrap.DomainBootstrap;
+import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.automation.marker.MarkerBlock;
 import com.logistics.automation.marker.MarkerBlockEntity;
 import net.minecraft.world.inventory.MenuType;
@@ -22,11 +23,11 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
         return "automation";
     }
 
-    public static com.logistics.core.lib.resource.ResourceId resource(String name) {
+    public static ResourceId resource(String name) {
         return INSTANCE.domainResource(name);
     }
 
-    public static com.logistics.core.lib.resource.ResourceId model(String name) {
+    public static ResourceId model(String name) {
         return INSTANCE.domainModelResource(name);
     }
 
@@ -42,9 +43,8 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
         BLOCK.register();
         ENTITY.register();
         MENU.register();
-
-        registerLegacyAliases();
-        addCreativeTabEntries();
+        CREATIVE.register();
+        ALIAS.register();
     }
 
     public static final class BLOCK {
@@ -94,37 +94,47 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
         }
     }
 
-    private static void addCreativeTabEntries() {
-        LogisticsCore.LOGISTICS_TAB.add(BLOCK.MARKER, BLOCK.LASER_QUARRY, BLOCK.KILN);
+    public static final class CREATIVE {
+        private CREATIVE() {}
+
+        static void register() {
+            LogisticsCore.CREATIVE.TAB.add(BLOCK.MARKER);
+            LogisticsCore.CREATIVE.TAB.add(BLOCK.LASER_QUARRY);
+            LogisticsCore.CREATIVE.TAB.add(BLOCK.KILN);
+        }
     }
 
-    private void registerLegacyAliases() {
-        // v0.2 => v0.3
-        registerBlockAlias("marker", BLOCK.MARKER);
-        registerBlockEntityAlias("marker", ENTITY.MARKER_BLOCK_ENTITY);
-        registerItemAlias("marker", BLOCK.MARKER.asItem());
-        // core domain => automation domain (marker moved)
-        registerBlockAlias("core/marker", BLOCK.MARKER);
-        registerBlockEntityAlias("core/marker", ENTITY.MARKER_BLOCK_ENTITY);
-        registerItemAlias("core/marker", BLOCK.MARKER.asItem());
-        registerBlockAlias("quarry", BLOCK.LASER_QUARRY);
-        registerItemAlias("quarry", BLOCK.LASER_QUARRY.asItem());
-        registerBlockAlias("quarry_frame", BLOCK.LASER_QUARRY_FRAME);
-        registerBlockEntityAlias("quarry", ENTITY.LASER_QUARRY_BLOCK_ENTITY);
+    public static final class ALIAS {
+        private ALIAS() {}
 
-        // v0.2 => v0.3 (quarry renamed to laser_quarry)
-        registerBlockAlias("automation/quarry", BLOCK.LASER_QUARRY);
-        registerItemAlias("automation/quarry", BLOCK.LASER_QUARRY.asItem());
-        registerBlockAlias("automation/quarry_frame", BLOCK.LASER_QUARRY_FRAME);
-        registerBlockEntityAlias("automation/quarry", ENTITY.LASER_QUARRY_BLOCK_ENTITY);
+        static void register() {
+            // v0.2 => v0.3
+            INSTANCE.registerBlockAlias("marker", BLOCK.MARKER);
+            INSTANCE.registerBlockEntityAlias("marker", ENTITY.MARKER_BLOCK_ENTITY);
+            INSTANCE.registerItemAlias("marker", BLOCK.MARKER.asItem());
+            // core domain => automation domain (marker moved)
+            INSTANCE.registerBlockAlias("core/marker", BLOCK.MARKER);
+            INSTANCE.registerBlockEntityAlias("core/marker", ENTITY.MARKER_BLOCK_ENTITY);
+            INSTANCE.registerItemAlias("core/marker", BLOCK.MARKER.asItem());
+            INSTANCE.registerBlockAlias("quarry", BLOCK.LASER_QUARRY);
+            INSTANCE.registerItemAlias("quarry", BLOCK.LASER_QUARRY.asItem());
+            INSTANCE.registerBlockAlias("quarry_frame", BLOCK.LASER_QUARRY_FRAME);
+            INSTANCE.registerBlockEntityAlias("quarry", ENTITY.LASER_QUARRY_BLOCK_ENTITY);
 
-        // core domain => automation domain (kiln moved)
-        registerBlockAlias("core/kiln", BLOCK.KILN);
-        registerBlockEntityAlias("core/kiln", ENTITY.KILN_BLOCK_ENTITY);
-        registerItemAlias("core/kiln", BLOCK.KILN.asItem());
+            // v0.2 => v0.3 (quarry renamed to laser_quarry)
+            INSTANCE.registerBlockAlias("automation/quarry", BLOCK.LASER_QUARRY);
+            INSTANCE.registerItemAlias("automation/quarry", BLOCK.LASER_QUARRY.asItem());
+            INSTANCE.registerBlockAlias("automation/quarry_frame", BLOCK.LASER_QUARRY_FRAME);
+            INSTANCE.registerBlockEntityAlias("automation/quarry", ENTITY.LASER_QUARRY_BLOCK_ENTITY);
 
-        // automation domain => core domain (quartz_crystal moved)
-        registerBlockAlias("automation/quartz_crystal", LogisticsCore.BLOCK.QUARTZ_CRYSTAL);
-        registerItemAlias("automation/quartz_crystal", LogisticsCore.BLOCK.QUARTZ_CRYSTAL.asItem());
+            // core domain => automation domain (kiln moved)
+            INSTANCE.registerBlockAlias("core/kiln", BLOCK.KILN);
+            INSTANCE.registerBlockEntityAlias("core/kiln", ENTITY.KILN_BLOCK_ENTITY);
+            INSTANCE.registerItemAlias("core/kiln", BLOCK.KILN.asItem());
+
+            // automation domain => core domain (quartz_crystal moved)
+            INSTANCE.registerBlockAlias("automation/quartz_crystal", LogisticsCore.BLOCK.QUARTZ_CRYSTAL);
+            INSTANCE.registerItemAlias("automation/quartz_crystal", LogisticsCore.BLOCK.QUARTZ_CRYSTAL.asItem());
+        }
     }
 }
