@@ -37,10 +37,7 @@ public record SetSatelliteIdPacket(BlockPos pipePos, String satelliteId)
 
     public void handle(ServerPlayer player) {
         BlockPos pos = pipePos();
-        double dx = player.getX() - (pos.getX() + 0.5);
-        double dy = player.getY() - (pos.getY() + 0.5);
-        double dz = player.getZ() - (pos.getZ() + 0.5);
-        if (dx * dx + dy * dy + dz * dz > 64.0 * 64.0) return;
+        if (PacketValidation.isPlayerOutOfRange(player, pos)) return;
         if (player.level() instanceof ServerLevel level) {
             BlockEntity be = level.getBlockEntity(pos);
             if (be instanceof PipeBlockEntity pipeEntity) {
