@@ -48,8 +48,7 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
         BLOCK.register();
         ENTITY.register();
         SCREEN.register();
-
-        addCreativeTabEntries();
+        CREATIVE.register();
     }
 
     public static final class BLOCK {
@@ -105,12 +104,14 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
         }
     }
 
-    private static void addCreativeTabEntries() {
-        LogisticsCore.LOGISTICS_TAB.add(
-                BLOCK.REDSTONE_ENGINE,
-                BLOCK.STIRLING_ENGINE,
-                BLOCK.CREATIVE_ENGINE,
-                BLOCK.CREATIVE_SINK
-        );
+    public static final class CREATIVE {
+        private CREATIVE() {}
+
+        static void register() {
+            LogisticsCore.CREATIVE.TAB.add(BLOCK.REDSTONE_ENGINE);
+            LogisticsCore.CREATIVE.TAB.add(BLOCK.STIRLING_ENGINE);
+            LogisticsCore.CREATIVE.TAB.add(BLOCK.CREATIVE_ENGINE);
+            LogisticsCore.CREATIVE.TAB.add(BLOCK.CREATIVE_SINK);
+        }
     }
 }

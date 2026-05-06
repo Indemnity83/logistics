@@ -7,6 +7,7 @@ import com.logistics.core.lib.network.NetworkGraph;
 import com.logistics.pipe.block.PipeBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -253,6 +254,15 @@ public class NetworkRegistry {
 
         UUID networkId = levelPositions.get(pos);
         return networkId != null ? levelNetworks.get(networkId) : null;
+    }
+
+    /**
+     * Tick all networks across all levels on a server.
+     */
+    public static void tickNetworks(MinecraftServer server) {
+        for (var level : server.getAllLevels()) {
+            tickNetworks(level);
+        }
     }
 
     /**
