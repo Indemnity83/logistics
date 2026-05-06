@@ -1,4 +1,4 @@
-package com.logistics.core.lib.block.lookup;
+package com.logistics.fabric.capability;
 
 import com.logistics.core.lib.block.capability.HasEnergyStorage;
 import team.reborn.energy.api.EnergyStorage;
