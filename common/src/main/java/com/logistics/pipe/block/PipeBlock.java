@@ -4,7 +4,7 @@ import com.logistics.core.lib.block.behavior.ProbeBehavior;
 import com.logistics.core.lib.block.behavior.WrenchBehavior;
 import com.logistics.core.lib.block.capability.PipeConnection;
 import com.logistics.pipe.network.NetworkRegistry;
-import com.logistics.core.lib.pipe.PipeConnectionRegistry;
+import com.logistics.core.lib.pipe.PipeConnectionLookup;
 import com.logistics.core.lib.support.ProbeResult;
 import com.logistics.pipe.Pipe;
 import com.logistics.pipe.ChassisPipe;
@@ -461,7 +461,7 @@ public class PipeBlock extends BaseEntityBlock implements ProbeBehavior.Probeabl
      */
     @Nullable private PipeConnection.Type checkPipeConnection(
             Level world, BlockPos pos, BlockPos neighborPos, Direction direction, Block neighborBlock) {
-        var connectable = PipeConnectionRegistry.SIDED.find(world, neighborPos, direction.getOpposite());
+        var connectable = PipeConnectionLookup.find(world, neighborPos, direction.getOpposite());
         if (connectable != null) {
             PipeConnection.Type candidate = connectable.getConnectionType(direction.getOpposite());
             if (candidate != PipeConnection.Type.NONE && pipe != null) {

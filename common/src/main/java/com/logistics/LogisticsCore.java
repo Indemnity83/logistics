@@ -10,10 +10,6 @@ import com.logistics.core.macerator.MaceratorRecipeManager;
 import com.logistics.core.macerator.MaceratorRecipeSerializer;
 import com.logistics.core.macerator.MaceratorRecipeWrapper;
 import com.logistics.core.macerator.MaceratorScreenHandler;
-import com.logistics.core.lib.block.lookup.EnergyStorageAccess;
-import com.logistics.core.lib.block.lookup.FluidStorageAccess;
-import com.logistics.core.lib.block.lookup.ItemStorageAccess;
-import com.logistics.core.lib.block.lookup.PipeConnectionAccess;
 import com.logistics.core.lib.resource.ResourceId;
 import net.fabricmc.fabric.api.biome.v1.BiomeModifications;
 import net.fabricmc.fabric.api.biome.v1.BiomeSelectors;
@@ -73,19 +69,11 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         RECIPE.register();
         CREATIVE_TAB.register();
 
-        registerStorageAccess();
         registerLegacyAliases();
         addCreativeTabEntries();
         addVanillaCreativeTabEntries();
         registerWorldgen();
         MaceratorRecipeManager.register();
-    }
-
-    private void registerStorageAccess() {
-        ItemStorageAccess.register();
-        FluidStorageAccess.register();
-        EnergyStorageAccess.register();
-        PipeConnectionAccess.register();
     }
 
     private void registerWorldgen() {

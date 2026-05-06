@@ -2,6 +2,7 @@ package com.logistics.fabric;
 
 import com.logistics.LogisticsMod;
 import com.logistics.core.bootstrap.LogisticsCommonBootstrap;
+import com.logistics.fabric.capability.FabricCapabilityRegistration;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.fabric.api.resource.ResourcePackActivationType;
@@ -15,6 +16,7 @@ public final class LogisticsFabric implements ModInitializer {
         LogisticsMod.LOGGER.info("Initializing {}", LogisticsMod.MOD_ID);
         COMMON_BOOTSTRAP.initialize();
 
+        FabricCapabilityRegistration.register();
         FabricChestLootModifier.register();
         FabricNetworkTickHandler.register();
         FabricCommandRegistration.register();

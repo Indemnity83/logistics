@@ -1,7 +1,6 @@
-package com.logistics.core.lib.block.lookup;
+package com.logistics.fabric.capability;
 
 import com.logistics.core.lib.block.capability.PipeConnection;
-import com.logistics.core.lib.pipe.PipeConnectionRegistry;
 
 /**
  * Bridges internal {@link PipeConnection} interface to the PipeConnectionRegistry lookup API.
