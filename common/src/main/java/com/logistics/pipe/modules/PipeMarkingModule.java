@@ -3,6 +3,7 @@ package com.logistics.pipe.modules;
 import com.logistics.LogisticsPipe;
 import com.logistics.core.lib.pipe.CoreDecoration;
 import com.logistics.core.lib.pipe.Module;
+import com.logistics.pipe.item.MarkingFluidItem;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.core.lib.pipe.PipeContext;
 import com.logistics.pipe.Pipe;
@@ -46,10 +47,10 @@ public class PipeMarkingModule implements Module {
         ItemStack stack = usage.getItemInHand();
         Player player = usage.getPlayer();
 
-        DyeColor color = LogisticsPipe.getMarkingFluidColor(stack);
-        if (color == null) {
+        if (!(stack.getItem() instanceof MarkingFluidItem fluid)) {
             return InteractionResult.PASS;
         }
+        DyeColor color = fluid.getColor();
 
         if (ctx.world().isClientSide()) {
             return InteractionResult.SUCCESS;
