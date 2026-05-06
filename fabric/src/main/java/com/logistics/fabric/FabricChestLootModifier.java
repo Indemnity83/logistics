@@ -1,4 +1,4 @@
-package com.logistics.core.loot;
+package com.logistics.fabric;
 
 import com.logistics.LogisticsCore;
 import net.fabricmc.fabric.api.loot.v3.LootTableEvents;
@@ -11,7 +11,9 @@ import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
 
-public class ChestLootModifier {
+public final class FabricChestLootModifier {
+    private FabricChestLootModifier() {}
+
     // Vanilla chest loot table keys
     private static final ResourceKey<LootTable> ABANDONED_MINESHAFT = ResourceKey.create(Registries.LOOT_TABLE,
         net.minecraft.resources.Identifier.parse("minecraft:chests/abandoned_mineshaft"));
