@@ -15,6 +15,11 @@ public final class LogisticsFabric implements ModInitializer {
         LogisticsMod.LOGGER.info("Initializing {}", LogisticsMod.MOD_ID);
         COMMON_BOOTSTRAP.initialize();
 
+        FabricChestLootModifier.register();
+        FabricNetworkTickHandler.register();
+        FabricCommandRegistration.register();
+        FabricServerLevelEvents.register();
+
         FabricLoader.getInstance().getModContainer(LogisticsMod.MOD_ID).ifPresent(container ->
             ResourceManagerHelper.registerBuiltinResourcePack(
                 LogisticsMod.modId("classic_crafting").toIdentifier(),
