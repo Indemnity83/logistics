@@ -7,10 +7,8 @@ import com.logistics.automation.laserquarry.LaserQuarryBlock;
 import com.logistics.automation.laserquarry.LaserQuarryFrameBlock;
 import com.logistics.automation.laserquarry.entity.LaserQuarryBlockEntity;
 import com.logistics.core.bootstrap.DomainBootstrap;
-import com.logistics.core.lib.pipe.PipeConnectionRegistry;
 import com.logistics.automation.marker.MarkerBlock;
 import com.logistics.automation.marker.MarkerBlockEntity;
-import net.minecraft.core.Direction;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
@@ -47,12 +45,6 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
 
         registerLegacyAliases();
         addCreativeTabEntries();
-
-        // Register pipe connectivity for quarry (only accepts connections from above)
-        PipeConnectionRegistry.SIDED.registerForBlockEntity(
-                (quarry, direction) -> direction == Direction.UP ? quarry : null,
-                ENTITY.LASER_QUARRY_BLOCK_ENTITY);
-
     }
 
     public static final class BLOCK {
