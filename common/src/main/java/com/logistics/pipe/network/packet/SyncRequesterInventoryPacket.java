@@ -1,7 +1,6 @@
 package com.logistics.pipe.network.packet;
 
 import com.logistics.LogisticsPipe;
-import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -34,11 +33,4 @@ public record SyncRequesterInventoryPacket(BlockPos pipePos, List<ItemStack> ite
         return TYPE;
     }
 
-    /**
-     * Register this packet type (server-to-client).
-     * Client-side receiver is registered in LogisticsPipeClient.
-     */
-    public static void register() {
-        PayloadTypeRegistry.clientboundPlay().register(TYPE, CODEC);
-    }
 }

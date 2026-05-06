@@ -19,6 +19,7 @@ public final class LogisticsFabric implements ModInitializer {
         FabricNetworkTickHandler.register();
         FabricCommandRegistration.register();
         FabricServerLevelEvents.register();
+        FabricPacketRegistration.register();
 
         FabricLoader.getInstance().getModContainer(LogisticsMod.MOD_ID).ifPresent(container ->
             ResourceManagerHelper.registerBuiltinResourcePack(
