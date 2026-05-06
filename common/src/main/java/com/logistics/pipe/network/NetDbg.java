@@ -9,6 +9,10 @@ import com.logistics.core.DebugLog;
 public final class NetDbg {
     public static final String DOMAIN = "network";
 
+    static {
+        DebugLog.register(DOMAIN);
+    }
+
     private NetDbg() {}
 
     public static boolean isEnabled() {
