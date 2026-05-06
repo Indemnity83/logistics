@@ -1,7 +1,8 @@
 package com.logistics;
 
 import com.logistics.core.lib.resource.ResourceId;
-import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
+import com.logistics.core.lib.BlockEntitySupplier;
+import com.logistics.core.lib.BlockEntityTypeFactory;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -89,9 +90,9 @@ public class LogisticsMod {
 
     protected <T extends BlockEntity> BlockEntityType<T> registerBlockEntity(
             String name,
-            FabricBlockEntityTypeBuilder.Factory<T> factory,
+            BlockEntitySupplier<T> factory,
             Block... blocks) {
-        BlockEntityType<T> blockEntityType = FabricBlockEntityTypeBuilder.create(factory, blocks).build();
+        BlockEntityType<T> blockEntityType = BlockEntityTypeFactory.INSTANCE.build(factory, blocks);
         return Registry.register(BuiltInRegistries.BLOCK_ENTITY_TYPE, domainResource(name).toIdentifier(), blockEntityType);
     }
 
