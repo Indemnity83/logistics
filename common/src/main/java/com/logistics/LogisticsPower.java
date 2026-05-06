@@ -106,7 +106,7 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
     }
 
     private static void addCreativeTabEntries() {
-        LogisticsCore.CREATIVE_TAB.addItems(
+        LogisticsCore.LOGISTICS_TAB.add(
                 BLOCK.REDSTONE_ENGINE,
                 BLOCK.STIRLING_ENGINE,
                 BLOCK.CREATIVE_ENGINE,

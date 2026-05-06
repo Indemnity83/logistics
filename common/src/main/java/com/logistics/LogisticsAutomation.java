@@ -97,9 +97,7 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
     }
 
     private static void addCreativeTabEntries() {
-        LogisticsCore.CREATIVE_TAB.addItem(BLOCK.MARKER);
-        LogisticsCore.CREATIVE_TAB.addItem(BLOCK.LASER_QUARRY);
-        LogisticsCore.CREATIVE_TAB.addItem(BLOCK.KILN);
+        LogisticsCore.LOGISTICS_TAB.add(BLOCK.MARKER, BLOCK.LASER_QUARRY, BLOCK.KILN);
     }
 
     private void registerLegacyAliases() {
