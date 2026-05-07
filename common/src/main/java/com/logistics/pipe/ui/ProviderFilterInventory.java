@@ -1,8 +1,8 @@
 package com.logistics.pipe.ui;
 
 import com.logistics.core.lib.resource.ResourceId;
-import com.logistics.core.lib.storage.FilterSlots;
-import com.logistics.core.lib.storage.NbtCompat;
+import com.logistics.core.lib.filter.FilterSlots;
+import com.logistics.core.lib.compat.NbtCompat;
 import com.logistics.pipe.Pipe;
 import com.logistics.core.lib.pipe.PipeContext;
 import com.logistics.pipe.block.PipeBlock;

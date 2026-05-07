@@ -1,8 +1,8 @@
 package com.logistics.automation.marker;
 
 import com.logistics.LogisticsAutomation;
-import com.logistics.core.lib.BaseBlockEntity;
-import com.logistics.core.lib.storage.NbtCompat;
+import com.logistics.core.lib.block.BaseBlockEntity;
+import com.logistics.core.lib.compat.NbtCompat;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.core.BlockPos;

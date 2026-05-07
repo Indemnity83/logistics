@@ -2,7 +2,7 @@ package com.logistics.power.block;
 
 import com.logistics.core.lib.block.behavior.ProbeBehavior;
 import com.logistics.core.lib.block.behavior.WrenchBehavior;
-import com.logistics.core.lib.support.ProbeResult;
+import com.logistics.core.lib.block.behavior.ProbeResult;
 import com.logistics.power.block.entity.CreativeSinkBlockEntity;
 import com.logistics.LogisticsPower;
 import com.mojang.serialization.MapCodec;

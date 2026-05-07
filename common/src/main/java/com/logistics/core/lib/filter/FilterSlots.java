@@ -1,5 +1,6 @@
-package com.logistics.core.lib.storage;
+package com.logistics.core.lib.filter;
 
+import com.logistics.core.lib.compat.NbtCompat;
 import com.logistics.core.lib.resource.ResourceId;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;

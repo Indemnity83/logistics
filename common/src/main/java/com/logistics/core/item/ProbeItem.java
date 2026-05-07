@@ -1,7 +1,7 @@
 package com.logistics.core.item;
 
 import com.logistics.core.lib.block.behavior.ProbeBehavior;
-import com.logistics.core.lib.support.ProbeResult;
+import com.logistics.core.lib.block.behavior.ProbeResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.context.UseOnContext;

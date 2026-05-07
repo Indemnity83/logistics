@@ -14,7 +14,7 @@ import com.logistics.core.lib.network.CrafterSnapshot;
 import com.logistics.core.lib.network.ILogisticsNetwork;
 import com.logistics.core.lib.network.RecipeIngredient;
 import com.logistics.core.lib.resource.ResourceId;
-import com.logistics.core.lib.storage.NbtCompat;
+import com.logistics.core.lib.compat.NbtCompat;
 import com.logistics.pipe.block.PipeBlock;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.pipe.network.NetworkRegistry;

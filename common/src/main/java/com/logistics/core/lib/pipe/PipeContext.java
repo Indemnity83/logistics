@@ -3,7 +3,7 @@ package com.logistics.core.lib.pipe;
 import com.logistics.core.lib.block.capability.PipeConnection;
 import com.logistics.core.lib.energy.EnergyComponent;
 import com.logistics.core.lib.network.ILogisticsNetwork;
-import com.logistics.core.lib.storage.NbtCompat;
+import com.logistics.core.lib.compat.NbtCompat;
 
 import java.util.ArrayList;
 import java.util.IdentityHashMap;

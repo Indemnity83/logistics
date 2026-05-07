@@ -11,7 +11,7 @@ import com.logistics.core.lib.network.FulfillmentMode;
 import com.logistics.core.lib.network.ILogisticsNetwork;
 import com.logistics.pipe.network.SupplierModeConfig;
 import com.logistics.core.lib.resource.ResourceId;
-import com.logistics.core.lib.storage.NbtCompat;
+import com.logistics.core.lib.compat.NbtCompat;
 import com.logistics.core.lib.pipe.PipeContext;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.core.lib.pipe.RoutePlan;
@@ -392,11 +392,11 @@ public class SupplierModule implements Module, TickingModule, RoutingModule {
 
     @Nullable
     protected Direction getSupplierDirection(PipeContext ctx) {
-        return com.logistics.core.lib.storage.DirectionSerializer.load(ctx, this, SUPPLIER_DIRECTION);
+        return com.logistics.core.lib.serialization.DirectionSerializer.load(ctx, this, SUPPLIER_DIRECTION);
     }
 
     private void setSupplierDirection(PipeContext ctx, @Nullable Direction direction) {
-        com.logistics.core.lib.storage.DirectionSerializer.save(ctx, this, SUPPLIER_DIRECTION, direction);
+        com.logistics.core.lib.serialization.DirectionSerializer.save(ctx, this, SUPPLIER_DIRECTION, direction);
     }
 
     private boolean isSupplierFace(PipeContext ctx, Direction direction) {

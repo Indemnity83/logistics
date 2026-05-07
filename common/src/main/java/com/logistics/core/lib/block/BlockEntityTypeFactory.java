@@ -1,4 +1,4 @@
-package com.logistics.core.lib;
+package com.logistics.core.lib.block;
 
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;

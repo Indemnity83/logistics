@@ -1,4 +1,4 @@
-package com.logistics.core.lib.storage;
+package com.logistics.core.lib.compat;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
