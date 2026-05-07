@@ -6,11 +6,10 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.logistics.LogisticsMod;
 import com.logistics.core.lib.resource.ResourceId;
-import net.fabricmc.fabric.api.resource.v1.ResourceLoader;
+import com.logistics.core.lib.platform.ResourceReloadRegistrar;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
-import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.tags.TagKey;
@@ -48,8 +47,8 @@ public class MaceratorRecipeManager {
 
     public static void register() {
         LOGGER.info("Registering macerator recipe reload listener");
-        ResourceLoader.get(PackType.SERVER_DATA).registerReloader(
-            LogisticsMod.modId("macerator_recipes").toIdentifier(),
+        ResourceReloadRegistrar.INSTANCE.register(
+            LogisticsMod.modId("macerator_recipes"),
             new PreparableReloadListener() {
                 @Override
                 public CompletableFuture<Void> reload(
