@@ -17,7 +17,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -32,8 +31,6 @@ import java.util.List;
  */
 public class QuickSortModule implements Module, TickingModule {
     private static final String TICKS_SINCE_ACTION = "ticks_since_action";
-    private static final String LAST_SLOT_SCANNED = "last_slot_scanned";
-    private static final String LAST_SUCCESS_SLOT = "last_success_slot";
     private static final String STALLED = "stalled";
 
     private static final int NORMAL_DELAY = 6;
@@ -60,97 +57,54 @@ public class QuickSortModule implements Module, TickingModule {
                 ItemStorageLookup.find(ctx.world(), targetPos, inventoryDir.getOpposite());
         if (storage == null) return;
 
-        // Build indexed slot list for stable position tracking
-        List<IItemView> slots = new ArrayList<>();
-        for (IItemView view : storage.contents()) {
-            slots.add(view);
-        }
-        int size = slots.size();
-        if (size == 0) {
-            if (ctx.getInt(this, STALLED, 0) == 0) NetDbg.out("[QuickSort @ {}] Entering stall (inventory has no slots)", ctx.pos());
-            ctx.saveInt(this, STALLED, 1);
-            return;
-        }
-
-        // Bounds-check position counters against current inventory size
-        int lastScanned = ctx.getInt(this, LAST_SLOT_SCANNED, 0);
-        int lastSuccess = ctx.getInt(this, LAST_SUCCESS_SLOT, 0);
-        if (lastScanned >= size) lastScanned = 0;
-        if (lastSuccess >= size) lastSuccess = 0;
-
-        // Advance forward from lastScanned, skipping empty slots.
-        // Stall if we wrap all the way back to lastSuccess without finding a non-empty slot.
-        int candidate = -1;
-        for (int i = 1; i <= size; i++) {
-            int idx = (lastScanned + i) % size;
-            IItemView view = slots.get(idx);
-            if (view.amount() > 0) {
-                candidate = idx;
-                break;
-            }
-            if (idx == lastSuccess) {
-                // Scanned back to last-success position with nothing found — stall
-                if (ctx.getInt(this, STALLED, 0) == 0) NetDbg.out("[QuickSort @ {}] Entering stall (all slots empty)", ctx.pos());
-                ctx.saveInt(this, STALLED, 1);
-                return;
-            }
-        }
-        if (candidate == -1) {
-            if (ctx.getInt(this, STALLED, 0) == 0) NetDbg.out("[QuickSort @ {}] Entering stall (all slots empty)", ctx.pos());
-            ctx.saveInt(this, STALLED, 1);
-            return;
-        }
-
-        // Commit the new scan position
-        ctx.saveInt(this, LAST_SLOT_SCANNED, candidate);
-
-        // Query network for a filtered destination (no default-route sinks)
-        IItemView candidateView = slots.get(candidate);
-        IItemKey key = candidateView.resource();
-        ItemStack template = key.toStack(1);
-        int stackSize = (int) Math.min(candidateView.amount(), template.getItem().getDefaultMaxStackSize());
-        ItemStack queryStack = key.toStack(stackSize);
-
         ILogisticsNetwork network = ctx.network();
         if (network == null) return;
 
-        BlockPos destination = network.findFilteredSinkFor(queryStack);
-        if (destination == null) {
-            NetDbg.out("[QuickSort @ {}] No network destination for {} in slot {}", ctx.pos(), template.getItem(), candidate);
-            // No destination — stall if full circle, otherwise just wait for next cycle
-            if (candidate == lastSuccess) {
-                if (ctx.getInt(this, STALLED, 0) == 0) NetDbg.out("[QuickSort @ {}] Entering stall (no network destination for {})", ctx.pos(), key.toStack(1).getItem());
-                ctx.saveInt(this, STALLED, 1);
+        // Iterate contents() fresh each tick — slot indices from contents() are ephemeral
+        // (the list only contains non-empty views and changes as items are extracted), so
+        // we resolve the candidate by key each tick rather than persisting slot numbers.
+        boolean anyNonEmpty = false;
+        for (IItemView view : storage.contents()) {
+            anyNonEmpty = true;
+            IItemKey key = view.resource();
+            ItemStack template = key.toStack(1);
+            int stackSize = (int) Math.min(view.amount(), template.getItem().getDefaultMaxStackSize());
+            ItemStack queryStack = key.toStack(stackSize);
+
+            BlockPos destination = network.findFilteredSinkFor(queryStack);
+            if (destination == null) {
+                NetDbg.out("[QuickSort @ {}] No network destination for {}", ctx.pos(), template.getItem());
+                continue;
             }
-            return;
+
+            // Check pipe has room for the extracted items
+            int occupied = ctx.blockEntity().getTravelingItems().stream()
+                    .mapToInt(ti -> ti.getStack().getCount())
+                    .sum();
+            if (PipeBlockEntity.VIRTUAL_CAPACITY - occupied < stackSize) continue;
+
+            // Extract and inject into the pipe with destination pre-set
+            long extracted = storage.extract(key, stackSize, false);
+            if (extracted > 0) {
+                ItemStack extractedStack = key.toStack((int) extracted);
+                NetDbg.out("[QuickSort @ {}] Extracted {}x{}", ctx.pos(), extracted, template.getItem());
+                TravelingItem travelingItem = new TravelingItem(
+                        extractedStack, inventoryDir.getOpposite(),
+                        LogisticsConfig.get().pipe.minSpeed, destination);
+                ctx.blockEntity().forceAddItem(travelingItem, inventoryDir);
+                if (ctx.getInt(this, STALLED, 0) == 1) NetDbg.out("[QuickSort @ {}] Exiting stall", ctx.pos());
+                ctx.saveInt(this, STALLED, 0);
+                return;
+            }
         }
 
-        // Check pipe has room for the extracted items
-        int occupied = ctx.blockEntity().getTravelingItems().stream()
-                .mapToInt(ti -> ti.getStack().getCount())
-                .sum();
-        if (PipeBlockEntity.VIRTUAL_CAPACITY - occupied < stackSize) return;
-
-        // Extract and inject into the pipe with destination pre-set
-        long extracted = storage.extract(key, stackSize, false);
-        if (extracted > 0) {
-            ItemStack extractedStack = key.toStack((int) extracted);
-            NetDbg.out("[QuickSort @ {}] Extracted {}x{} from slot {}", ctx.pos(), extracted, key.toStack(1).getItem(), candidate);
-            TravelingItem travelingItem = new TravelingItem(
-                    extractedStack, inventoryDir.getOpposite(),
-                    LogisticsConfig.get().pipe.minSpeed, destination);
-            ctx.blockEntity().forceAddItem(travelingItem, inventoryDir);
-            // Success: clear stall, record last successful slot
-            if (ctx.getInt(this, STALLED, 0) == 1) NetDbg.out("[QuickSort @ {}] Exiting stall", ctx.pos());
-            ctx.saveInt(this, STALLED, 0);
-            ctx.saveInt(this, LAST_SUCCESS_SLOT, candidate);
+        // Nothing routable found this cycle — stall
+        if (!anyNonEmpty) {
+            if (ctx.getInt(this, STALLED, 0) == 0) NetDbg.out("[QuickSort @ {}] Entering stall (inventory empty)", ctx.pos());
         } else {
-            // Slot appeared non-empty but extraction failed (temporarily locked) —
-            // advance past it and back off to the stall delay
-            ctx.saveInt(this, LAST_SLOT_SCANNED, (candidate + 1) % size);
-            if (ctx.getInt(this, STALLED, 0) == 0) NetDbg.out("[QuickSort @ {}] Entering stall (extraction locked for {} in slot {})", ctx.pos(), key.toStack(1).getItem(), candidate);
-            ctx.saveInt(this, STALLED, 1);
+            if (ctx.getInt(this, STALLED, 0) == 0) NetDbg.out("[QuickSort @ {}] Entering stall (no routable items)", ctx.pos());
         }
+        ctx.saveInt(this, STALLED, 1);
     }
 
     @Nullable

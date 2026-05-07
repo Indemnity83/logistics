@@ -96,8 +96,10 @@ public final class FabricItemStorage implements IItemStorage {
                             @Override
                             public long extract(ItemVariant resource, long maxAmount,
                                     net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext tx) {
+                                if (!resource.equals(getResource())) return 0;
                                 IItemKey key = new FabricItemKey(resource);
-                                long simulated = storage.extract(key, maxAmount, true);
+                                long bounded = Math.min(maxAmount, getAmount());
+                                long simulated = storage.extract(key, bounded, true);
                                 if (simulated > 0) {
                                     tx.addCloseCallback((t, result) -> {
                                         if (result.wasCommitted()) storage.extract(key, simulated, false);

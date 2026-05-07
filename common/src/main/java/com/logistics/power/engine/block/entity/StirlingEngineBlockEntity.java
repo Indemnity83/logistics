@@ -151,11 +151,12 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
                     return 0;
                 }
                 ItemStack current = inventory.getItem(0);
-                ItemStack incoming = item.toStack((int) maxAmount);
+                ItemStack template = item.toStack(1);
+                long clampedAmount = Math.min(maxAmount, template.getMaxStackSize());
                 if (current.isEmpty()) {
-                    if (!simulate) inventory.setItem(0, incoming);
-                    return maxAmount;
-                } else if (ItemStack.isSameItemSameComponents(current, incoming)) {
+                    if (!simulate) inventory.setItem(0, item.toStack((int) clampedAmount));
+                    return clampedAmount;
+                } else if (ItemStack.isSameItemSameComponents(current, template)) {
                     long canFit = current.getMaxStackSize() - current.getCount();
                     long toInsert = Math.min(maxAmount, canFit);
                     if (toInsert > 0 && !simulate) {
