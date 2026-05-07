@@ -4,8 +4,6 @@ import com.logistics.LogisticsPipe;
 import com.logistics.pipe.ChassisPipe;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.pipe.ui.ChassisScreenHandler;
-import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -34,22 +32,15 @@ public record OpenChassisSlotPacket(int slotIndex) implements CustomPacketPayloa
         return TYPE;
     }
 
-    public static void register() {
-        PayloadTypeRegistry.serverboundPlay().register(TYPE, CODEC);
+    public void handle(ServerPlayer player) {
+        if (!(player.containerMenu instanceof ChassisScreenHandler handler)) return;
 
-        ServerPlayNetworking.registerGlobalReceiver(TYPE, (packet, context) -> {
-            context.server().execute(() -> {
-                ServerPlayer player = context.player();
-                if (!(player.containerMenu instanceof ChassisScreenHandler handler)) return;
+        PipeBlockEntity pe = handler.getPipeEntity();
+        if (pe == null) return;
 
-                PipeBlockEntity pe = handler.getPipeEntity();
-                if (pe == null) return;
-
-                var ctx = pe.createContext();
-                var ops = context.server().registryAccess().createSerializationContext(NbtOps.INSTANCE);
-                ChassisPipe.loadSlot(ctx, packet.slotIndex, ops)
-                        .ifPresent(entry -> entry.module().onWrench(entry.scopedContext(ctx), player));
-            });
-        });
+        var ctx = pe.createContext();
+        var ops = player.level().registryAccess().createSerializationContext(NbtOps.INSTANCE);
+        ChassisPipe.loadSlot(ctx, slotIndex(), ops)
+                .ifPresent(entry -> entry.module().onWrench(entry.scopedContext(ctx), player));
     }
 }

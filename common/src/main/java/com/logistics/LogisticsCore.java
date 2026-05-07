@@ -1,6 +1,5 @@
 package com.logistics;
 
-import com.logistics.core.LogisticsCommands;
 import com.logistics.core.LogisticsConfig;
 import com.logistics.core.bootstrap.DomainBootstrap;
 import com.logistics.core.item.ProbeItem;
@@ -12,18 +11,11 @@ import com.logistics.core.macerator.MaceratorRecipeManager;
 import com.logistics.core.macerator.MaceratorRecipeSerializer;
 import com.logistics.core.macerator.MaceratorRecipeWrapper;
 import com.logistics.core.macerator.MaceratorScreenHandler;
-import com.logistics.core.lib.block.lookup.FluidStorageAccess;
-import com.logistics.core.lib.block.lookup.ItemStorageAccess;
-import com.logistics.core.lib.block.lookup.PipeConnectionAccess;
+import com.logistics.core.lib.LogisticsCreativeTab;
+import com.logistics.core.lib.platform.CreativeTabRegistrar;
 import com.logistics.core.lib.resource.ResourceId;
-import com.logistics.core.loot.ChestLootModifier;
-import com.logistics.core.network.NetworkTickHandler;
-import net.fabricmc.fabric.api.biome.v1.BiomeModifications;
-import net.fabricmc.fabric.api.biome.v1.BiomeSelectors;
-import net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents;
-import net.fabricmc.fabric.api.creativetab.v1.FabricCreativeModeTab;
-import net.minecraft.world.item.CreativeModeTabs;
-import net.minecraft.world.item.Items;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeBookCategory;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
@@ -32,22 +24,13 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.level.levelgen.GenerationStep;
-import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.item.Items;
 import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.DropExperienceBlock;
 import net.minecraft.world.level.block.SoundType;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Consumer;
 
 public final class LogisticsCore extends LogisticsMod implements DomainBootstrap {
     private static final LogisticsCore INSTANCE = new LogisticsCore();
@@ -66,6 +49,11 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
     }
 
     @Override
+    public int order() {
+        return -100;
+    }
+
+    @Override
     public void initCommon() {
         LOGGER.info("Registering {}", domain());
 
@@ -76,54 +64,8 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         ENTITY.register();
         MENU.register();
         RECIPE.register();
-        CREATIVE_TAB.register();
-
-        registerStorageAccess();
-        registerLegacyAliases();
-        addCreativeTabEntries();
-        addVanillaCreativeTabEntries();
-        registerWorldgen();
-        ChestLootModifier.register();
-        NetworkTickHandler.register();
-        LogisticsCommands.register();
-        MaceratorRecipeManager.register();
-    }
-
-    private void registerStorageAccess() {
-        ItemStorageAccess.register();
-        FluidStorageAccess.register();
-        // EnergyStorageAccess is loader-specific — registered by each loader's bootstrap
-        PipeConnectionAccess.register();
-    }
-
-    private void registerWorldgen() {
-        // Tin ore worldgen: separate features for stone (rare) and deepslate (abundant)
-        // Stone: ~7% of copper's effective rate (1 vein/chunk vs copper's 16)
-        // Deepslate: ~80% of copper's rate (13 veins/chunk)
-        // Use LogisticsMod.modId() to avoid core/ prefix
-        BiomeModifications.addFeature(
-            BiomeSelectors.foundInOverworld(),
-            GenerationStep.Decoration.UNDERGROUND_ORES,
-            ResourceKey.create(Registries.PLACED_FEATURE, LogisticsMod.modId("tin_ore_stone").toIdentifier())
-        );
-        BiomeModifications.addFeature(
-            BiomeSelectors.foundInOverworld(),
-            GenerationStep.Decoration.UNDERGROUND_ORES,
-            ResourceKey.create(Registries.PLACED_FEATURE, LogisticsMod.modId("tin_ore_deepslate").toIdentifier())
-        );
-
-        // Apatite ore worldgen: large veins (up to 48 blocks) spawning above Y 60
-        // 2 veins per chunk, Y 60-256 (uniform distribution)
-        BiomeModifications.addFeature(
-            BiomeSelectors.foundInOverworld(),
-            GenerationStep.Decoration.UNDERGROUND_ORES,
-            ResourceKey.create(Registries.PLACED_FEATURE, LogisticsMod.modId("apatite_ore_stone").toIdentifier())
-        );
-    }
-
-    @Override
-    public int order() {
-        return -100;
+        CREATIVE.register();
+        ALIAS.register();
     }
 
     public static final class BLOCK {
@@ -164,63 +106,6 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
                     .lightLevel(state -> state.getValue(MaceratorBlock.LIT) ? 13 : 0)));
             QUARTZ_CRYSTAL = INSTANCE.registerBlockWithItem("quartz_crystal",
                 props -> new Block(props.strength(0.8f).sound(SoundType.GLASS).noOcclusion()));
-        }
-    }
-
-    public static final class ENTITY {
-        private ENTITY() {}
-
-        public static BlockEntityType<MaceratorBlockEntity> MACERATOR_BLOCK_ENTITY;
-
-        static void register() {
-            MACERATOR_BLOCK_ENTITY = INSTANCE.registerBlockEntity("macerator", MaceratorBlockEntity::new, BLOCK.MACERATOR);
-        }
-    }
-
-    public static final class MENU {
-        private MENU() {}
-
-        public static MenuType<MaceratorScreenHandler> MACERATOR;
-
-        static void register() {
-            MACERATOR = INSTANCE.registerMenuType("macerator", MaceratorScreenHandler::new);
-        }
-    }
-
-    public static final class RECIPE {
-        private RECIPE() {}
-
-        public static RecipeType<MaceratorRecipeWrapper> MACERATOR_RECIPE_TYPE;
-        public static RecipeSerializer<MaceratorRecipeWrapper> MACERATOR_RECIPE_SERIALIZER;
-        public static RecipeBookCategory MACERATOR_CATEGORY;
-        public static RecipeDisplay.Type<MaceratorRecipeDisplay> MACERATOR_DISPLAY_TYPE;
-
-        static void register() {
-            MACERATOR_RECIPE_TYPE = Registry.register(
-                BuiltInRegistries.RECIPE_TYPE,
-                LogisticsMod.modId("macerator").toIdentifier(),
-                new RecipeType<MaceratorRecipeWrapper>() {
-                    @Override
-                    public String toString() {
-                        return "logistics:macerator";
-                    }
-                }
-            );
-            MACERATOR_RECIPE_SERIALIZER = Registry.register(
-                BuiltInRegistries.RECIPE_SERIALIZER,
-                LogisticsMod.modId("macerator").toIdentifier(),
-                MaceratorRecipeSerializer.INSTANCE
-            );
-            MACERATOR_CATEGORY = Registry.register(
-                BuiltInRegistries.RECIPE_BOOK_CATEGORY,
-                LogisticsMod.modId("macerator").toIdentifier(),
-                new RecipeBookCategory()
-            );
-            MACERATOR_DISPLAY_TYPE = Registry.register(
-                BuiltInRegistries.RECIPE_DISPLAY,
-                LogisticsMod.modId("macerator").toIdentifier(),
-                MaceratorRecipeDisplay.TYPE
-            );
         }
     }
 
@@ -401,155 +286,188 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         }
     }
 
-    public static final class CREATIVE_TAB {
-        private CREATIVE_TAB() {}
-        private static final List<Consumer<CreativeModeTab.Output>> ENTRIES = new ArrayList<>();
+    public static final class ENTITY {
+        private ENTITY() {}
 
-        public static CreativeModeTab LOGISTICS_TRANSPORT;
+        public static BlockEntityType<MaceratorBlockEntity> MACERATOR_BLOCK_ENTITY;
 
         static void register() {
-            LOGISTICS_TRANSPORT = Registry.register(
-                    BuiltInRegistries.CREATIVE_MODE_TAB,
-                    LogisticsMod.modId("logistics_transport").toIdentifier(),
-                    FabricCreativeModeTab.builder()
-                            .title(Component.literal("Logistics"))
-                            .icon(() -> new ItemStack(ITEM.IRON_GEAR))
-                            .displayItems((params, entries) -> {
-                                for (Consumer<CreativeModeTab.Output> entry : ENTRIES) {
-                                    entry.accept(entries);
-                                }
-                            })
-                            .build());
+            MACERATOR_BLOCK_ENTITY = INSTANCE.registerBlockEntity("macerator", MaceratorBlockEntity::new, BLOCK.MACERATOR);
         }
+    }
 
-        public static void add(Consumer<CreativeModeTab.Output> entryBuilder) {
-            ENTRIES.add(entryBuilder);
+    public static final class MENU {
+        private MENU() {}
+
+        public static MenuType<MaceratorScreenHandler> MACERATOR;
+
+        static void register() {
+            MACERATOR = INSTANCE.registerMenuType("macerator", MaceratorScreenHandler::new);
         }
+    }
 
-        public static void addItem(ItemLike item) {
-            add(entries -> entries.accept(item));
-        }
+    public static final class RECIPE {
+        private RECIPE() {}
 
-        public static void addItems(ItemLike... items) {
-            add(entries -> {
-                for (ItemLike item : items) {
-                    entries.accept(item);
+        public static RecipeType<MaceratorRecipeWrapper> MACERATOR_RECIPE_TYPE;
+        public static RecipeSerializer<MaceratorRecipeWrapper> MACERATOR_RECIPE_SERIALIZER;
+        public static RecipeBookCategory MACERATOR_CATEGORY;
+        public static RecipeDisplay.Type<MaceratorRecipeDisplay> MACERATOR_DISPLAY_TYPE;
+
+        static void register() {
+            MACERATOR_RECIPE_TYPE = Registry.register(
+                BuiltInRegistries.RECIPE_TYPE,
+                LogisticsMod.modId("macerator").toIdentifier(),
+                new RecipeType<MaceratorRecipeWrapper>() {
+                    @Override
+                    public String toString() {
+                        return "logistics:macerator";
+                    }
                 }
+            );
+            MACERATOR_RECIPE_SERIALIZER = Registry.register(
+                BuiltInRegistries.RECIPE_SERIALIZER,
+                LogisticsMod.modId("macerator").toIdentifier(),
+                MaceratorRecipeSerializer.INSTANCE
+            );
+            MACERATOR_CATEGORY = Registry.register(
+                BuiltInRegistries.RECIPE_BOOK_CATEGORY,
+                LogisticsMod.modId("macerator").toIdentifier(),
+                new RecipeBookCategory()
+            );
+            MACERATOR_DISPLAY_TYPE = Registry.register(
+                BuiltInRegistries.RECIPE_DISPLAY,
+                LogisticsMod.modId("macerator").toIdentifier(),
+                MaceratorRecipeDisplay.TYPE
+            );
+
+            // Register data-pack reload listener that loads macerator recipe JSON files
+            MaceratorRecipeManager.register();
+        }
+    }
+
+    public static final class CREATIVE {
+        public static final LogisticsCreativeTab TAB = LogisticsCreativeTab.create(
+            LogisticsMod.modId("logistics_transport"),
+            Component.translatable("itemGroup.logistics.logistics_transport"),
+            () -> new ItemStack(ITEM.IRON_GEAR)
+        );
+
+        private CREATIVE() {}
+
+        static void register() {
+            TAB.add(ITEM.WRENCH);
+            TAB.add(ITEM.PROBE);
+            TAB.add(BLOCK.MACERATOR);
+            TAB.add(BLOCK.QUARTZ_CRYSTAL);
+
+            // Register the tab — populate() is lazy, so other domains can still add items after this
+            CreativeTabRegistrar.INSTANCE.registerTab(TAB);
+
+            // Add storage blocks to Building Blocks tab
+            CreativeTabRegistrar.INSTANCE.modifyTab(CreativeModeTabs.BUILDING_BLOCKS, entries -> {
+                entries.insertAfter(Items.COAL_BLOCK, BLOCK.APATITE_BLOCK);
+                entries.insertBefore(Items.IRON_BLOCK, BLOCK.TIN_BLOCK);
+                entries.insertAfter(Items.IRON_BLOCK, BLOCK.BRONZE_BLOCK);
+            });
+
+            // Add materials to Ingredients tab — all in one callback so each insertAfter/insertBefore
+            // sees the items placed by earlier calls in the same invocation
+            CreativeTabRegistrar.INSTANCE.modifyTab(CreativeModeTabs.INGREDIENTS, entries -> {
+                // Raw materials
+                entries.insertBefore(Items.RAW_IRON, ITEM.RAW_TIN);
+
+                // Ingots
+                entries.insertBefore(Items.IRON_INGOT, ITEM.TIN_INGOT);
+                entries.insertAfter(ITEM.TIN_INGOT, ITEM.BRONZE_INGOT);
+
+                // Nuggets
+                entries.insertBefore(Items.IRON_NUGGET, ITEM.TIN_NUGGET);
+                entries.insertAfter(ITEM.TIN_NUGGET, ITEM.BRONZE_NUGGET);
+
+                // Apatite
+                entries.insertBefore(Items.AMETHYST_SHARD, ITEM.APATITE);
+
+                // Intermediate Crafting Items
+                entries.insertBefore(Items.HEAVY_CORE, ITEM.STURDY_CASING);
+                entries.insertAfter(ITEM.STURDY_CASING, ITEM.MACHINE_CORE);
+                entries.insertAfter(ITEM.MACHINE_CORE, ITEM.WOODEN_GEAR);
+                entries.insertAfter(ITEM.WOODEN_GEAR, ITEM.STONE_GEAR);
+                entries.insertAfter(ITEM.STONE_GEAR, ITEM.COPPER_GEAR);
+                entries.insertAfter(ITEM.COPPER_GEAR, ITEM.TIN_GEAR);
+                entries.insertAfter(ITEM.TIN_GEAR, ITEM.IRON_GEAR);
+                entries.insertAfter(ITEM.IRON_GEAR, ITEM.BRONZE_GEAR);
+                entries.insertAfter(ITEM.BRONZE_GEAR, ITEM.GOLD_GEAR);
+                entries.insertAfter(ITEM.GOLD_GEAR, ITEM.DIAMOND_GEAR);
+                entries.insertAfter(ITEM.DIAMOND_GEAR, ITEM.NETHERITE_GEAR);
+
+                // Valves — after netherite gear
+                Item[] valves = {
+                    ITEM.WOODEN_VALVE,
+                    ITEM.COPPER_VALVE, ITEM.BRONZE_VALVE,
+                    ITEM.IRON_VALVE, ITEM.GOLD_VALVE, ITEM.DIAMOND_VALVE,
+                    ITEM.OBSIDIAN_VALVE, ITEM.BLAZING_VALVE, ITEM.EMERALD_VALVE,
+                    ITEM.APATITE_VALVE, ITEM.LAPIS_VALVE, ITEM.ENDER_VALVE,
+                    ITEM.NETHERITE_VALVE
+                };
+                Item prev = ITEM.NETHERITE_GEAR;
+                for (Item valve : valves) {
+                    entries.insertAfter(prev, valve);
+                    prev = valve;
+                }
+
+                // Dusts, chips, cores — after bronze_ingot (inserted above)
+                Item[] intermediates = {
+                    ITEM.APATITE_DUST,
+                    ITEM.IRON_DUST, ITEM.COPPER_DUST, ITEM.TIN_DUST, ITEM.BRONZE_DUST,
+                    ITEM.GOLD_DUST, ITEM.LAPIS_DUST, ITEM.QUARTZ_DUST, ITEM.COAL_DUST,
+                    ITEM.AMETHYST_DUST, ITEM.DIAMOND_DUST, ITEM.EMERALD_DUST,
+                    ITEM.NETHERITE_DUST, ITEM.OBSIDIAN_DUST, ITEM.ENDER_DUST,
+                    ITEM.ECHO_DUST, ITEM.PRISMARINE_DUST,
+                    ITEM.SILICON_MIX, ITEM.SILICON_WAFER, ITEM.FLOUR, ITEM.WOOD_PULP,
+                    ITEM.CARBON_CHIP, ITEM.REDSTONE_CHIP, ITEM.AMETHYST_CHIP, ITEM.ECHO_CHIP,
+                    ITEM.WOODEN_CORE,
+                    ITEM.COPPER_CORE, ITEM.BRONZE_CORE,
+                    ITEM.IRON_CORE, ITEM.GOLD_CORE, ITEM.LAPIS_CORE,
+                    ITEM.APATITE_CORE, ITEM.DIAMOND_CORE, ITEM.EMERALD_CORE,
+                    ITEM.BLAZING_CORE, ITEM.NETHERITE_CORE,
+                    ITEM.OBSIDIAN_CORE, ITEM.ENDER_CORE
+                };
+                Item anchor = ITEM.BRONZE_INGOT;
+                for (Item item : intermediates) {
+                    entries.insertAfter(anchor, item);
+                    anchor = item;
+                }
+            });
+
+            // Add ore blocks to Natural Blocks tab
+            CreativeTabRegistrar.INSTANCE.modifyTab(CreativeModeTabs.NATURAL_BLOCKS, entries -> {
+                // Tin ores
+                entries.insertAfter(Items.DEEPSLATE_COAL_ORE, BLOCK.TIN_ORE);
+                entries.insertAfter(BLOCK.TIN_ORE, BLOCK.DEEPSLATE_TIN_ORE);
+
+                // Apatite ore
+                entries.insertBefore(Items.AMETHYST_BLOCK, BLOCK.APATITE_ORE);
+
+                // Raw tin block
+                entries.insertBefore(Items.RAW_IRON_BLOCK, BLOCK.RAW_TIN_BLOCK);
             });
         }
     }
 
-    private static void addCreativeTabEntries() {
-        CREATIVE_TAB.addItems(
-                ITEM.WRENCH,
-                ITEM.PROBE
-        );
-        CREATIVE_TAB.addItem(BLOCK.MACERATOR);
-        CREATIVE_TAB.addItem(BLOCK.QUARTZ_CRYSTAL);
-    }
+    public static final class ALIAS {
+        private ALIAS() {}
 
-    private static void addVanillaCreativeTabEntries() {
-        // Add storage blocks to Building Blocks tab
-        CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.BUILDING_BLOCKS).register(entries -> {
-            entries.insertAfter(Items.COAL_BLOCK, BLOCK.APATITE_BLOCK);
-            entries.insertBefore(Items.IRON_BLOCK, BLOCK.TIN_BLOCK);
-            entries.insertAfter(Items.IRON_BLOCK, BLOCK.BRONZE_BLOCK);
-        });
-
-        // Add materials to Ingredients tab
-        CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.INGREDIENTS).register(entries -> {
-            // Raw materials
-            entries.insertBefore(Items.RAW_IRON, ITEM.RAW_TIN);
-
-            // Ingots
-            entries.insertBefore(Items.IRON_INGOT, ITEM.TIN_INGOT);
-            entries.insertAfter(ITEM.TIN_INGOT, ITEM.BRONZE_INGOT);
-
-            // Nuggets
-            entries.insertBefore(Items.IRON_NUGGET, ITEM.TIN_NUGGET);
-            entries.insertAfter(ITEM.TIN_NUGGET, ITEM.BRONZE_NUGGET);
-
-            // Apatite
-            entries.insertBefore(Items.AMETHYST_SHARD, ITEM.APATITE);
-
-            // Intermediate Crafting Items
-            entries.insertBefore(Items.HEAVY_CORE, ITEM.STURDY_CASING);
-            entries.insertAfter(ITEM.STURDY_CASING, ITEM.MACHINE_CORE);
-            entries.insertAfter(ITEM.MACHINE_CORE, ITEM.WOODEN_GEAR);
-            entries.insertAfter(ITEM.WOODEN_GEAR, ITEM.STONE_GEAR);
-            entries.insertAfter(ITEM.STONE_GEAR, ITEM.COPPER_GEAR);
-            entries.insertAfter(ITEM.COPPER_GEAR, ITEM.TIN_GEAR);
-            entries.insertAfter(ITEM.TIN_GEAR, ITEM.IRON_GEAR);
-            entries.insertAfter(ITEM.IRON_GEAR, ITEM.BRONZE_GEAR);
-            entries.insertAfter(ITEM.BRONZE_GEAR, ITEM.GOLD_GEAR);
-            entries.insertAfter(ITEM.GOLD_GEAR, ITEM.DIAMOND_GEAR);
-            entries.insertAfter(ITEM.DIAMOND_GEAR, ITEM.NETHERITE_GEAR);
-
-            // Valves — after netherite gear
-            Item[] valves = {
-                ITEM.WOODEN_VALVE,
-                ITEM.COPPER_VALVE, ITEM.BRONZE_VALVE,
-                ITEM.IRON_VALVE, ITEM.GOLD_VALVE, ITEM.DIAMOND_VALVE,
-                ITEM.OBSIDIAN_VALVE, ITEM.BLAZING_VALVE, ITEM.EMERALD_VALVE,
-                ITEM.APATITE_VALVE, ITEM.LAPIS_VALVE, ITEM.ENDER_VALVE,
-                ITEM.NETHERITE_VALVE
-            };
-            Item prev = ITEM.NETHERITE_GEAR;
-            for (Item item : valves) {
-                entries.insertAfter(prev, item);
-                prev = item;
-            }
-        });
-
-        // Add dusts, chips, cores to Ingredients tab — after bronze_ingot
-        CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.INGREDIENTS).register(entries -> {
-            Item[] intermediates = {
-                ITEM.APATITE_DUST,
-                ITEM.IRON_DUST, ITEM.COPPER_DUST, ITEM.TIN_DUST, ITEM.BRONZE_DUST,
-                ITEM.GOLD_DUST, ITEM.LAPIS_DUST, ITEM.QUARTZ_DUST, ITEM.COAL_DUST,
-                ITEM.AMETHYST_DUST, ITEM.DIAMOND_DUST, ITEM.EMERALD_DUST,
-                ITEM.NETHERITE_DUST, ITEM.OBSIDIAN_DUST, ITEM.ENDER_DUST,
-                ITEM.ECHO_DUST, ITEM.PRISMARINE_DUST,
-                ITEM.SILICON_MIX, ITEM.SILICON_WAFER, ITEM.FLOUR, ITEM.WOOD_PULP,
-                ITEM.CARBON_CHIP, ITEM.REDSTONE_CHIP, ITEM.AMETHYST_CHIP, ITEM.ECHO_CHIP,
-                ITEM.WOODEN_CORE,
-                ITEM.COPPER_CORE, ITEM.BRONZE_CORE,
-                ITEM.IRON_CORE, ITEM.GOLD_CORE, ITEM.LAPIS_CORE,
-                ITEM.APATITE_CORE, ITEM.DIAMOND_CORE, ITEM.EMERALD_CORE,
-                ITEM.BLAZING_CORE, ITEM.NETHERITE_CORE,
-                ITEM.OBSIDIAN_CORE, ITEM.ENDER_CORE
-            };
-            Item anchor = ITEM.BRONZE_INGOT;
-            for (Item item : intermediates) {
-                entries.insertAfter(anchor, item);
-                anchor = item;
-            }
-        });
-
-        // Add ore blocks to Natural Blocks tab
-        CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.NATURAL_BLOCKS).register(entries -> {
-            // Tin ores
-            entries.insertAfter(Items.DEEPSLATE_COAL_ORE, BLOCK.TIN_ORE);
-            entries.insertAfter(BLOCK.TIN_ORE, BLOCK.DEEPSLATE_TIN_ORE);
-
-            // Apatite ore
-            entries.insertBefore(Items.AMETHYST_BLOCK, BLOCK.APATITE_ORE);
-
-            // Raw tin block
-            entries.insertBefore(Items.RAW_IRON_BLOCK, BLOCK.RAW_TIN_BLOCK);
-        });
-    }
-
-    private void registerLegacyAliases() {
-        // v0.2 => v0.3
-        registerItemAlias("wrench", ITEM.WRENCH);
-        registerItemAlias("wooden_gear", ITEM.WOODEN_GEAR);
-        registerItemAlias("stone_gear", ITEM.STONE_GEAR);
-        registerItemAlias("copper_gear", ITEM.COPPER_GEAR);
-        registerItemAlias("iron_gear", ITEM.IRON_GEAR);
-        registerItemAlias("gold_gear", ITEM.GOLD_GEAR);
-        registerItemAlias("diamond_gear", ITEM.DIAMOND_GEAR);
-        registerItemAlias("netherite_gear", ITEM.NETHERITE_GEAR);
-
+        static void register() {
+            // v0.2 => v0.3
+            INSTANCE.registerItemAlias("wrench", ITEM.WRENCH);
+            INSTANCE.registerItemAlias("wooden_gear", ITEM.WOODEN_GEAR);
+            INSTANCE.registerItemAlias("stone_gear", ITEM.STONE_GEAR);
+            INSTANCE.registerItemAlias("copper_gear", ITEM.COPPER_GEAR);
+            INSTANCE.registerItemAlias("iron_gear", ITEM.IRON_GEAR);
+            INSTANCE.registerItemAlias("gold_gear", ITEM.GOLD_GEAR);
+            INSTANCE.registerItemAlias("diamond_gear", ITEM.DIAMOND_GEAR);
+            INSTANCE.registerItemAlias("netherite_gear", ITEM.NETHERITE_GEAR);
+        }
     }
 }

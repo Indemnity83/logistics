@@ -4,7 +4,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.logistics.core.lib.pipe.PipeConnectionRegistry;
 import net.minecraft.core.Direction;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.item.ItemStack;
@@ -12,15 +11,8 @@ import net.minecraft.world.item.ItemStack;
 /**
  * Interface for blocks that can connect to pipes.
  *
- * <p>Blocks implement this interface and register with {@link PipeConnectionRegistry#SIDED}
+ * <p>Blocks implement this interface and register with the loader-specific capability system
  * to declare their pipe connectivity and item transfer behavior.
- *
- * <p>Example registration for a quarry that accepts pipes from above but rejects items:
- * <pre>{@code
- * PipeConnectionRegistry.SIDED.registerForBlockEntity(
- *     (quarry, direction) -> direction == Direction.UP ? quarry : null,
- *     QUARRY_BLOCK_ENTITY);
- * }</pre>
  */
 public interface PipeConnection {
 

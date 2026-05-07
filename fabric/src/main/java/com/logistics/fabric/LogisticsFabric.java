@@ -4,6 +4,7 @@ import com.logistics.LogisticsMod;
 import com.logistics.core.bootstrap.LogisticsCommonBootstrap;
 import com.logistics.core.lib.power.AbstractEngineBlock;
 import com.logistics.core.lib.power.AbstractEngineBlockEntity;
+import com.logistics.fabric.capability.FabricCapabilityRegistration;
 import com.logistics.fabric.energy.EnergyStorageAccess;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
@@ -21,6 +22,13 @@ public final class LogisticsFabric implements ModInitializer {
         COMMON_BOOTSTRAP.initialize();
 
         registerEnergyServices();
+        FabricCapabilityRegistration.register();
+        FabricChestLootModifier.register();
+        FabricNetworkTickHandler.register();
+        FabricCommandRegistration.register();
+        FabricServerLevelEvents.register();
+        FabricPacketRegistration.register();
+        FabricBiomeModifications.register();
 
         FabricLoader.getInstance().getModContainer(LogisticsMod.MOD_ID).ifPresent(container ->
             ResourceManagerHelper.registerBuiltinResourcePack(

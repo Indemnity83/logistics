@@ -1,4 +1,4 @@
-package com.logistics.core.lib.pipe;
+package com.logistics.fabric.capability;
 
 import com.logistics.LogisticsMod;
 import com.logistics.core.lib.block.capability.PipeConnection;
