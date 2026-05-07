@@ -1,6 +1,6 @@
 package com.logistics.core.lib.network;
 
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
+import com.logistics.core.lib.storage.IItemKey;
 
 import java.util.List;
 
@@ -21,5 +21,5 @@ public interface ProviderCanFulfill {
      *                branches of the validation tree
      * @return empty list if the provider can fulfill; otherwise the missing ingredients
      */
-    List<ItemVariant> getMissing(long amount, IngredientChecker checker);
+    List<IItemKey> getMissing(long amount, IngredientChecker checker);
 }

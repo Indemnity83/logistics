@@ -7,10 +7,9 @@ import com.logistics.core.lib.pipe.PipeContext;
 import com.logistics.core.lib.network.ILogisticsNetwork;
 import com.logistics.core.lib.pipe.RoutePlan;
 import com.logistics.core.lib.pipe.TravelingItem;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
-import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
-import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
+import com.logistics.core.lib.storage.IItemView;
+import com.logistics.core.lib.storage.IItemStorage;
+import com.logistics.core.lib.storage.ItemStorageLookup;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -132,17 +131,17 @@ public class PassiveSupplierModule extends SupplierModule implements ItemAccepti
 
     private long scanInventory(PipeContext ctx, Direction direction, ItemStack target) {
         BlockPos targetPos = ctx.pos().relative(direction);
-        Storage<ItemVariant> storage =
-                ItemStorage.SIDED.find(ctx.world(), targetPos, direction.getOpposite());
+        IItemStorage storage =
+                ItemStorageLookup.find(ctx.world(), targetPos, direction.getOpposite());
         if (storage == null) return 0;
 
         // Config stores item ID only (no component data), so count all variants of the
         // same item type. This prevents overfilling when enchanted/damaged items arrive
         // for a stock target configured by item type alone.
         long count = 0;
-        for (StorageView<ItemVariant> view : storage) {
-            if (view.getResource().getItem() == target.getItem()) {
-                count += view.getAmount();
+        for (IItemView view : storage.contents()) {
+            if (view.resource().toStack(1).getItem() == target.getItem()) {
+                count += view.amount();
             }
         }
         return count;

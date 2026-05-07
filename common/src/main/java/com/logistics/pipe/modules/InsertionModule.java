@@ -7,13 +7,12 @@ import com.logistics.core.lib.pipe.Module;
 import com.logistics.core.lib.pipe.PipeContext;
 import com.logistics.core.lib.pipe.RoutePlan;
 import com.logistics.core.lib.pipe.TravelingItem;
+import com.logistics.core.lib.storage.IItemKey;
+import com.logistics.core.lib.storage.IItemStorage;
+import com.logistics.core.lib.storage.ItemStorageLookup;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
-import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
-import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -74,31 +73,29 @@ public class InsertionModule implements Module, RoutingModule {
 
     private long getInsertSpace(PipeContext ctx, TravelingItem item, Direction direction) {
         BlockPos targetPos = ctx.pos().relative(direction);
-        Storage<ItemVariant> storage = ItemStorage.SIDED.find(ctx.world(), targetPos, direction.getOpposite());
+        IItemStorage storage = ItemStorageLookup.find(ctx.world(), targetPos, direction.getOpposite());
         if (storage == null) {
             return 0;
         }
 
-        ItemVariant variant = ItemVariant.of(item.getStack());
+        IItemKey key = ItemStorageLookup.of(item.getStack());
         long amount = item.getStack().getCount();
-        if (variant.isBlank() || amount <= 0) {
+        if (amount <= 0) {
             return 0;
         }
 
-        long reserved = getRoutedAmount(ctx, direction, variant);
+        long reserved = getRoutedAmount(ctx, direction, key);
         if (reserved < 0) {
             reserved = 0;
         }
 
-        try (Transaction transaction = Transaction.openOuter()) {
-            long requested = amount + reserved;
-            long accepted = storage.insert(variant, requested, transaction);
-            long available = accepted - reserved;
-            return Math.max(0, available);
-        }
+        long requested = amount + reserved;
+        long accepted = storage.insert(key, requested, true);
+        long available = accepted - reserved;
+        return Math.max(0, available);
     }
 
-    private long getRoutedAmount(PipeContext ctx, Direction direction, ItemVariant variant) {
+    private long getRoutedAmount(PipeContext ctx, Direction direction, IItemKey key) {
         long total = 0;
         for (TravelingItem other : ctx.blockEntity().getTravelingItems()) {
             if (!other.isRouted()) {
@@ -109,8 +106,8 @@ public class InsertionModule implements Module, RoutingModule {
                 continue;
             }
 
-            ItemVariant otherVariant = ItemVariant.of(other.getStack());
-            if (!variant.equals(otherVariant)) {
+            IItemKey otherKey = ItemStorageLookup.of(other.getStack());
+            if (!key.equals(otherKey)) {
                 continue;
             }
 

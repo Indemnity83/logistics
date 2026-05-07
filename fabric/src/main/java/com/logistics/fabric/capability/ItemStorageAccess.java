@@ -1,10 +1,11 @@
 package com.logistics.fabric.capability;
 
 import com.logistics.core.lib.block.capability.HasItemStorage;
+import com.logistics.fabric.storage.FabricItemStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
 
 /**
- * Bridges internal {@link HasItemStorage} interface to Fabric's ItemStorage lookup API.
+ * Bridges the loader-agnostic {@link HasItemStorage} interface to Fabric's ItemStorage lookup API.
  * <p>
  * Any block entity implementing HasItemStorage will automatically work with:
  * <ul>
@@ -25,7 +26,7 @@ public final class ItemStorageAccess {
     public static void register() {
         ItemStorage.SIDED.registerFallback((world, pos, state, blockEntity, direction) -> {
             if (blockEntity instanceof HasItemStorage hasStorage) {
-                return hasStorage.itemStorage(direction);
+                return FabricItemStorage.asFabric(hasStorage.itemStorage(direction));
             }
             return null;
         });

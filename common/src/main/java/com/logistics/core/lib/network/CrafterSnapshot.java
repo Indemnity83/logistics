@@ -1,6 +1,6 @@
 package com.logistics.core.lib.network;
 
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
+import com.logistics.core.lib.storage.IItemKey;
 import net.minecraft.core.BlockPos;
 
 import java.util.List;
@@ -10,11 +10,11 @@ import java.util.List;
  * Contains the output item, the per-batch output count, the recipe ingredients,
  * and the autocrafter's current buffer capacity.
  *
- * <p>Pure value object — no Minecraft world coupling beyond BlockPos/ItemVariant.
+ * <p>Pure value object — no Minecraft world coupling beyond BlockPos/IItemKey.
  */
 public record CrafterSnapshot(
         BlockPos pos,
-        ItemVariant output,
+        IItemKey output,
         long outputCount,
         List<RecipeIngredient> ingredients,
         CrafterBufferState buffer) {

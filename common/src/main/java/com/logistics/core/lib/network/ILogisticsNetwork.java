@@ -5,11 +5,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import net.minecraft.world.item.Item;
-
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
+import com.logistics.core.lib.storage.IItemKey;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
@@ -32,10 +31,10 @@ public interface ILogisticsNetwork {
      * Called periodically by provider and crafter modules after scanning their inventories.
      *
      * @param pos      position of the provider pipe
-     * @param items    items currently available (ItemVariant → amount); pass empty map to remove
+     * @param items    items currently available (IItemKey → amount); pass empty map to remove
      * @param priority dispatch priority (1 = real stock, 5 = crafter/on-demand)
      */
-    void registerSupply(BlockPos pos, Map<ItemVariant, Long> items, int priority);
+    void registerSupply(BlockPos pos, Map<IItemKey, Long> items, int priority);
 
     /**
      * Get the total available amount of an item across all providers.
@@ -65,7 +64,7 @@ public interface ILogisticsNetwork {
      * @param fulfillmentMode whether partial dispatch is acceptable
      * @return UUID of the order (store for cancellation)
      */
-    UUID placeOrder(ItemVariant item, long amount, BlockPos requester, FulfillmentMode fulfillmentMode);
+    UUID placeOrder(IItemKey item, long amount, BlockPos requester, FulfillmentMode fulfillmentMode);
 
     /**
      * Place a standing order with default {@link FulfillmentMode#PARTIAL} fulfillment.
@@ -75,7 +74,7 @@ public interface ILogisticsNetwork {
      * @param requester position of the requesting pipe
      * @return UUID of the order (store for cancellation)
      */
-    default UUID placeOrder(ItemVariant item, long amount, BlockPos requester) {
+    default UUID placeOrder(IItemKey item, long amount, BlockPos requester) {
         return placeOrder(item, amount, requester, FulfillmentMode.PARTIAL);
     }
 
@@ -115,7 +114,7 @@ public interface ILogisticsNetwork {
      * @param amount amount needed
      * @return empty list if satisfiable; otherwise the root missing ingredient(s)
      */
-    List<ItemVariant> getMissingIngredients(ItemVariant item, long amount);
+    List<IItemKey> getMissingIngredients(IItemKey item, long amount);
 
     /**
      * Get the total amount of an item currently ordered for a requester but not yet delivered.
@@ -136,7 +135,7 @@ public interface ILogisticsNetwork {
      * @param item      item variant delivered
      * @param amount    amount delivered
      */
-    void notifyDelivery(BlockPos requester, ItemVariant item, long amount);
+    void notifyDelivery(BlockPos requester, IItemKey item, long amount);
 
     // ===== Crafter Snapshot =====
 

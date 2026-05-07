@@ -8,13 +8,12 @@ import com.logistics.core.lib.pipe.TickingModule;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.core.lib.serialization.DirectionSerializer;
 import com.logistics.core.lib.pipe.PipeContext;
+import com.logistics.core.lib.storage.IItemKey;
+import com.logistics.core.lib.storage.IItemStorage;
+import com.logistics.core.lib.storage.IItemView;
+import com.logistics.core.lib.storage.ItemStorageLookup;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.core.lib.pipe.TravelingItem;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
-import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
-import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
-import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
@@ -83,31 +82,27 @@ public class BasicExtractorModule implements Module, TickingModule {
         if (remaining <= 0) return;
 
         BlockPos targetPos = ctx.pos().relative(dir);
-        Storage<ItemVariant> storage = ItemStorage.SIDED.find(ctx.world(), targetPos, dir.getOpposite());
+        IItemStorage storage = ItemStorageLookup.find(ctx.world(), targetPos, dir.getOpposite());
         if (storage == null) {
             NetDbg.out("[BasicExtractor @ {}] No storage on {}, skipping", ctx.pos(), dir);
             return;
         }
 
         boolean anyExtracted = false;
-        try (Transaction tx = Transaction.openOuter()) {
-            for (StorageView<ItemVariant> view : storage) {
-                if (remaining <= 0) break;
-                ItemVariant variant = view.getResource();
-                if (variant.isBlank()) continue;
+        for (IItemView view : storage.contents()) {
+            if (remaining <= 0) break;
+            IItemKey key = view.resource();
 
-                int toExtract = Math.min(itemsPerPull, remaining);
-                long extracted = view.extract(variant, toExtract, tx);
-                if (extracted > 0) {
-                    ItemStack stack = variant.toStack((int) extracted);
-                    NetDbg.out("[BasicExtractor @ {}] Extracted {}x{} via {}", ctx.pos(), extracted, variant.getItem(), dir);
-                    TravelingItem item = new TravelingItem(stack, dir.getOpposite(), LogisticsConfig.get().pipe.minSpeed);
-                    ctx.blockEntity().forceAddItem(item, dir);
-                    remaining -= (int) extracted;
-                    anyExtracted = true;
-                }
+            int toExtract = Math.min(itemsPerPull, remaining);
+            long extracted = storage.extract(key, toExtract, false);
+            if (extracted > 0) {
+                ItemStack stack = key.toStack((int) extracted);
+                NetDbg.out("[BasicExtractor @ {}] Extracted {}x{} via {}", ctx.pos(), extracted, stack.getItem(), dir);
+                TravelingItem item = new TravelingItem(stack, dir.getOpposite(), LogisticsConfig.get().pipe.minSpeed);
+                ctx.blockEntity().forceAddItem(item, dir);
+                remaining -= (int) extracted;
+                anyExtracted = true;
             }
-            if (anyExtracted) tx.commit();
         }
     }
 

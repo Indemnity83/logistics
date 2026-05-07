@@ -6,10 +6,9 @@ import com.logistics.power.engine.block.entity.CreativeEngineBlockEntity;
 import com.logistics.power.engine.block.entity.RedstoneEngineBlockEntity;
 import com.logistics.power.engine.block.entity.StirlingEngineBlockEntity;
 import com.logistics.core.lib.power.AbstractEngineBlock;
+import com.logistics.core.lib.storage.IItemStorage;
+import com.logistics.fabric.storage.FabricItemKey;
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
-import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
-import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTestHelper;
@@ -112,7 +111,7 @@ public class EngineGameTest {
         }
 
         // Try to access inventory from the front (NORTH) - should be null
-        Storage<ItemVariant> frontStorage = engine.itemStorage(Direction.NORTH);
+        IItemStorage frontStorage = engine.itemStorage(Direction.NORTH);
         if (frontStorage != null) {
             context.fail("Stirling engine inventory should NOT be accessible from front face (NORTH)");
         }
@@ -138,18 +137,18 @@ public class EngineGameTest {
         }
 
         // Try to access inventory from the back (SOUTH) - should work
-        Storage<ItemVariant> backStorage = engine.itemStorage(Direction.SOUTH);
+        IItemStorage backStorage = engine.itemStorage(Direction.SOUTH);
         if (backStorage == null) {
             context.fail("Stirling engine inventory should be accessible from back face (SOUTH)");
         }
 
         // Try to access from other sides
-        Storage<ItemVariant> topStorage = engine.itemStorage(Direction.UP);
+        IItemStorage topStorage = engine.itemStorage(Direction.UP);
         if (topStorage == null) {
             context.fail("Stirling engine inventory should be accessible from top face");
         }
 
-        Storage<ItemVariant> sideStorage = engine.itemStorage(Direction.EAST);
+        IItemStorage sideStorage = engine.itemStorage(Direction.EAST);
         if (sideStorage == null) {
             context.fail("Stirling engine inventory should be accessible from side faces");
         }
@@ -175,17 +174,14 @@ public class EngineGameTest {
         }
 
         // Insert coal from the back (valid fuel)
-        Storage<ItemVariant> backStorage = engine.itemStorage(Direction.SOUTH);
+        IItemStorage backStorage = engine.itemStorage(Direction.SOUTH);
         if (backStorage == null) {
             context.fail("Back storage should be accessible");
         }
 
-        try (Transaction transaction = Transaction.openOuter()) {
-            long inserted = backStorage.insert(ItemVariant.of(Items.COAL), 1, transaction);
-            if (inserted != 1) {
-                context.fail("Should be able to insert 1 coal, inserted: " + inserted);
-            }
-            transaction.commit();
+        long inserted = backStorage.insert(FabricItemKey.of(new ItemStack(Items.COAL)), 1, false);
+        if (inserted != 1) {
+            context.fail("Should be able to insert 1 coal, inserted: " + inserted);
         }
 
         // Verify coal was added to inventory
@@ -215,17 +211,14 @@ public class EngineGameTest {
         }
 
         // Try to insert dirt (not fuel) from the back
-        Storage<ItemVariant> backStorage = engine.itemStorage(Direction.SOUTH);
+        IItemStorage backStorage = engine.itemStorage(Direction.SOUTH);
         if (backStorage == null) {
             context.fail("Back storage should be accessible");
         }
 
-        try (Transaction transaction = Transaction.openOuter()) {
-            long inserted = backStorage.insert(ItemVariant.of(Items.DIRT), 1, transaction);
-            if (inserted != 0) {
-                context.fail("Should NOT be able to insert dirt (non-fuel), inserted: " + inserted);
-            }
-            transaction.commit();
+        long inserted = backStorage.insert(FabricItemKey.of(new ItemStack(Items.DIRT)), 1, false);
+        if (inserted != 0) {
+            context.fail("Should NOT be able to insert dirt (non-fuel), inserted: " + inserted);
         }
 
         // Verify inventory is still empty

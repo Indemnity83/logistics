@@ -2,8 +2,9 @@ package com.logistics.pipe.network;
 
 import com.logistics.core.lib.network.FulfillmentMode;
 import com.logistics.core.lib.network.ItemRequest;
+import com.logistics.core.lib.storage.IItemKey;
 import com.logistics.test.MinecraftTestEnvironment;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
+import com.logistics.test.TestItemKey;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.ItemStack;
@@ -34,19 +35,19 @@ class JobCoordinatorTest extends MinecraftTestEnvironment {
         controller.setOrderFailureListener(coordinator);
     }
 
-    private ItemVariant diamond() {
-        return ItemVariant.of(new ItemStack(Items.DIAMOND));
+    private IItemKey diamond() {
+        return new TestItemKey(Items.DIAMOND);
     }
 
-    private ItemVariant emerald() {
-        return ItemVariant.of(new ItemStack(Items.EMERALD));
+    private IItemKey emerald() {
+        return new TestItemKey(Items.EMERALD);
     }
 
-    private ItemRequest partialRequest(ItemVariant item, long amount, BlockPos dest) {
+    private ItemRequest partialRequest(IItemKey item, long amount, BlockPos dest) {
         return new ItemRequest(item, amount, dest, FulfillmentMode.PARTIAL);
     }
 
-    private ItemRequest fullRequest(ItemVariant item, long amount, BlockPos dest) {
+    private ItemRequest fullRequest(IItemKey item, long amount, BlockPos dest) {
         return new ItemRequest(item, amount, dest, FulfillmentMode.FULL);
     }
 

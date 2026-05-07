@@ -2,7 +2,8 @@ package com.logistics.pipe.network;
 
 import com.logistics.LogisticsMod;
 import com.logistics.core.lib.network.*;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
+import com.logistics.core.lib.storage.IItemKey;
+import com.logistics.core.lib.storage.ItemStorageLookup;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
@@ -50,7 +51,7 @@ public class NetworkController implements PlanningView {
      * Command returned by {@link #nextDispatchable()} describing what the network wants dispatched.
      */
     public record DispatchCommand(
-            UUID orderId, BlockPos provider, BlockPos requester, ItemVariant item, long amount) {}
+            UUID orderId, BlockPos provider, BlockPos requester, IItemKey item, long amount) {}
 
     /**
      * Listener notified when an order is cancelled because its ingredient chain cannot be
@@ -58,18 +59,18 @@ public class NetworkController implements PlanningView {
      */
     @FunctionalInterface
     public interface OrderFailureListener {
-        void onOrderFailed(UUID orderId, BlockPos requester, ItemVariant item,
-                           long amount, List<ItemVariant> missing);
+        void onOrderFailed(UUID orderId, BlockPos requester, IItemKey item,
+                           long amount, List<IItemKey> missing);
     }
 
     // Per-item supply entries, sorted by priority ascending (1 = real stock first, 5 = crafter fallback)
-    private final Map<ItemVariant, List<SupplyEntry>> supplyTable = new HashMap<>();
+    private final Map<IItemKey, List<SupplyEntry>> supplyTable = new HashMap<>();
 
     // Standing orders in insertion order (FIFO)
     private final Map<UUID, Order> orderQueue = new LinkedHashMap<>();
 
     // How many items each requester has outstanding (ordered but not yet delivered)
-    private final Map<BlockPos, Map<ItemVariant, Long>> orderedForRequester = new HashMap<>();
+    private final Map<BlockPos, Map<IItemKey, Long>> orderedForRequester = new HashMap<>();
 
     // Fulfillment-check callbacks for dynamic providers (crafters, machines, etc.)
     private final Map<BlockPos, ProviderCanFulfill> providerChecks = new HashMap<>();
@@ -108,10 +109,10 @@ public class NetworkController implements PlanningView {
      * Replaces all previous supply entries for this position with the new inventory snapshot.
      *
      * @param pos      provider position
-     * @param items    current available items (ItemVariant → amount)
+     * @param items    current available items (IItemKey → amount)
      * @param priority dispatch priority (lower = preferred; 1 = real stock, 5 = crafter)
      */
-    public void registerSupply(BlockPos pos, Map<ItemVariant, Long> items, int priority) {
+    public void registerSupply(BlockPos pos, Map<IItemKey, Long> items, int priority) {
         // Remove all existing entries for this position
         for (List<SupplyEntry> entries : supplyTable.values()) {
             entries.removeIf(e -> e.pos.equals(pos));
@@ -119,7 +120,7 @@ public class NetworkController implements PlanningView {
         supplyTable.entrySet().removeIf(e -> e.getValue().isEmpty());
 
         // Add fresh entries, maintaining sorted order by priority
-        for (Map.Entry<ItemVariant, Long> entry : items.entrySet()) {
+        for (Map.Entry<IItemKey, Long> entry : items.entrySet()) {
             if (entry.getValue() < 0) continue;
             List<SupplyEntry> list = supplyTable.computeIfAbsent(entry.getKey(), k -> new ArrayList<>());
             list.add(new SupplyEntry(pos, entry.getValue(), priority));
@@ -144,7 +145,7 @@ public class NetworkController implements PlanningView {
      *
      * @return UUID of the new order (store for later cancellation)
      */
-    public UUID placeOrder(ItemVariant item, long amount, BlockPos requester, FulfillmentMode fulfillmentMode) {
+    public UUID placeOrder(IItemKey item, long amount, BlockPos requester, FulfillmentMode fulfillmentMode) {
         if (amount <= 0) throw new IllegalArgumentException("Order amount must be positive, got: " + amount);
         UUID id = UUID.randomUUID();
         orderQueue.put(id, new Order(id, item, amount, requester, fulfillmentMode));
@@ -152,12 +153,12 @@ public class NetworkController implements PlanningView {
                 .computeIfAbsent(requester, k -> new HashMap<>())
                 .merge(item, amount, Long::sum);
         NetDbg.out("Order placed: {} | {}x {} → {} (requester)",
-                id.toString().substring(0, 8), amount, item.toStack().getItem(), requester);
+                id.toString().substring(0, 8), amount, item.toStack(1).getItem(), requester);
         return id;
     }
 
     /** Place a standing order with default {@link FulfillmentMode#PARTIAL} fulfillment. */
-    public UUID placeOrder(ItemVariant item, long amount, BlockPos requester) {
+    public UUID placeOrder(IItemKey item, long amount, BlockPos requester) {
         return placeOrder(item, amount, requester, FulfillmentMode.PARTIAL);
     }
 
@@ -244,7 +245,7 @@ public class NetworkController implements PlanningView {
 
         if (supply.available == 0) {
             // On-demand supply (crafter): validate ingredient chain before dispatching
-            List<ItemVariant> missing = getMissingIngredients(order.item(), order.amount());
+            List<IItemKey> missing = getMissingIngredients(order.item(), order.amount());
             if (!missing.isEmpty()) {
                 cancelAndNotify(orderIt, order, missing);
                 return null;
@@ -285,7 +286,7 @@ public class NetworkController implements PlanningView {
         if (order.fulfillmentMode() == FulfillmentMode.FULL
                 && getAvailableAmount(order.item()) < order.amount()) return null;
         if (crafterExists) {
-            List<ItemVariant> missing = getMissingIngredients(order.item(), order.amount());
+            List<IItemKey> missing = getMissingIngredients(order.item(), order.amount());
             if (!missing.isEmpty()) {
                 cancelAndNotify(orderIt, order, missing);
                 return null;
@@ -339,9 +340,9 @@ public class NetworkController implements PlanningView {
      * Record physical delivery of items to a requester. Decrements orderedForRequester.
      * Called by PipeRuntime when a TravelingItem enters an inventory.
      */
-    public void notifyDelivery(BlockPos requester, ItemVariant item, long amount) {
+    public void notifyDelivery(BlockPos requester, IItemKey item, long amount) {
         if (amount <= 0) return;
-        NetDbg.out("Delivery notified: {} received {}x {}", requester, amount, item.toStack().getItem());
+        NetDbg.out("Delivery notified: {} received {}x {}", requester, amount, item.toStack(1).getItem());
         decrementOrdered(requester, item, amount);
         reservationManager.markDelivered(requester, item);
     }
@@ -353,9 +354,9 @@ public class NetworkController implements PlanningView {
      * (from real stock + dynamic providers, recursively). Otherwise returns the terminal missing
      * ingredient(s). Creates a fresh shared-reservation context for the whole validation tree.
      */
-    public List<ItemVariant> getMissingIngredients(ItemVariant item, long amount) {
-        Map<ItemVariant, Long> claimed = new HashMap<>();
-        Set<ItemVariant> visited = new HashSet<>();
+    public List<IItemKey> getMissingIngredients(IItemKey item, long amount) {
+        Map<IItemKey, Long> claimed = new HashMap<>();
+        Set<IItemKey> visited = new HashSet<>();
         return collectMissing(item, amount, claimed, visited);
     }
 
@@ -369,9 +370,9 @@ public class NetworkController implements PlanningView {
      * <p>{@code visited} is a DFS path guard against ingredient cycles. Items are removed on
      * exit from the {@code finally} block so they can appear in separate branches.
      */
-    private List<ItemVariant> collectMissing(
-            ItemVariant item, long amount,
-            Map<ItemVariant, Long> claimed, Set<ItemVariant> visited) {
+    private List<IItemKey> collectMissing(
+            IItemKey item, long amount,
+            Map<IItemKey, Long> claimed, Set<IItemKey> visited) {
         if (!visited.add(item)) return List.of(); // cycle guard: optimistically assume satisfiable
 
         try {
@@ -413,8 +414,8 @@ public class NetworkController implements PlanningView {
                         return List.of(item);
                     }
                     IngredientChecker checker = (ing, amt) ->
-                            collectMissing(ItemVariant.of(ing), amt, claimed, visited);
-                    List<ItemVariant> missing = check.getMissing(remaining, checker);
+                            collectMissing(ItemStorageLookup.of(ing), amt, claimed, visited);
+                    List<IItemKey> missing = check.getMissing(remaining, checker);
                     if (missing.isEmpty()) return List.of();
                     return missing; // return first failure; only one provider is tried
                 }
@@ -451,7 +452,7 @@ public class NetworkController implements PlanningView {
      * Entries are in priority order (same as the internal supply table).
      */
     @Override
-    public List<PlanningView.SupplyPoint> getSupply(ItemVariant item) {
+    public List<PlanningView.SupplyPoint> getSupply(IItemKey item) {
         List<SupplyEntry> entries = supplyTable.get(item);
         if (entries == null || entries.isEmpty()) return List.of();
         List<PlanningView.SupplyPoint> result = new ArrayList<>(entries.size());
@@ -487,8 +488,8 @@ public class NetworkController implements PlanningView {
      * Get how many items are currently ordered (in-flight or pending) for a requester.
      * Used by suppliers/requesters to avoid placing duplicate orders.
      */
-    public long getOrderedAmountFor(BlockPos requester, ItemVariant item) {
-        Map<ItemVariant, Long> map = orderedForRequester.get(requester);
+    public long getOrderedAmountFor(BlockPos requester, IItemKey item) {
+        Map<IItemKey, Long> map = orderedForRequester.get(requester);
         return map == null ? 0L : map.getOrDefault(item, 0L);
     }
 
@@ -497,7 +498,7 @@ public class NetworkController implements PlanningView {
      * Returns Long.MAX_VALUE if any crafter entry (available == 0) can produce it on demand,
      * since the item can always be crafted. Otherwise returns the sum of real-stock amounts.
      */
-    public long getAvailableAmount(ItemVariant item) {
+    public long getAvailableAmount(IItemKey item) {
         List<SupplyEntry> entries = supplyTable.get(item);
         if (entries == null || entries.isEmpty()) return 0L;
         long total = 0;
@@ -513,7 +514,7 @@ public class NetworkController implements PlanningView {
      */
     public Map<ItemStack, Long> getAllAvailableItems() {
         Map<ItemStack, Long> result = new HashMap<>();
-        for (Map.Entry<ItemVariant, List<SupplyEntry>> entry : supplyTable.entrySet()) {
+        for (Map.Entry<IItemKey, List<SupplyEntry>> entry : supplyTable.entrySet()) {
             long total = 0;
             for (SupplyEntry e : entry.getValue()) {
                 total += e.available; // 0 for crafters; positive for real stock
@@ -530,7 +531,7 @@ public class NetworkController implements PlanningView {
      */
     public void merge(NetworkController other) {
         // Merge supply tables (re-sort by priority after combining)
-        for (Map.Entry<ItemVariant, List<SupplyEntry>> entry : other.supplyTable.entrySet()) {
+        for (Map.Entry<IItemKey, List<SupplyEntry>> entry : other.supplyTable.entrySet()) {
             List<SupplyEntry> myList = supplyTable.computeIfAbsent(entry.getKey(), k -> new ArrayList<>());
             for (SupplyEntry e : entry.getValue()) {
                 myList.add(e.copy());
@@ -544,8 +545,8 @@ public class NetworkController implements PlanningView {
         }
 
         // Merge orderedForRequester
-        for (Map.Entry<BlockPos, Map<ItemVariant, Long>> entry : other.orderedForRequester.entrySet()) {
-            Map<ItemVariant, Long> myMap =
+        for (Map.Entry<BlockPos, Map<IItemKey, Long>> entry : other.orderedForRequester.entrySet()) {
+            Map<IItemKey, Long> myMap =
                     orderedForRequester.computeIfAbsent(entry.getKey(), k -> new HashMap<>());
             entry.getValue().forEach((variant, amount) -> myMap.merge(variant, amount, Long::sum));
         }
@@ -563,20 +564,20 @@ public class NetworkController implements PlanningView {
     // ===== Helpers =====
 
     private void cancelAndNotify(
-            Iterator<Map.Entry<UUID, Order>> orderIt, Order order, List<ItemVariant> missing) {
+            Iterator<Map.Entry<UUID, Order>> orderIt, Order order, List<IItemKey> missing) {
         orderIt.remove();
         decrementOrdered(order.requester(), order.item(), order.amount());
         NetDbg.out("Order failed (missing ingredients): {} | {}x {} → {} | missing: {}",
                 order.id().toString().substring(0, 8), order.amount(),
-                order.item().toStack().getItem(), order.requester(), missing);
+                order.item().toStack(1).getItem(), order.requester(), missing);
         if (failureListener != null) {
             failureListener.onOrderFailed(
                     order.id(), order.requester(), order.item(), order.amount(), missing);
         }
     }
 
-    private void decrementOrdered(BlockPos requester, ItemVariant item, long amount) {
-        Map<ItemVariant, Long> map = orderedForRequester.get(requester);
+    private void decrementOrdered(BlockPos requester, IItemKey item, long amount) {
+        Map<IItemKey, Long> map = orderedForRequester.get(requester);
         if (map != null) {
             long remaining = map.merge(item, -amount, Long::sum);
             if (remaining <= 0) map.remove(item);

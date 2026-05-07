@@ -1,6 +1,6 @@
 package com.logistics.pipe.network;
 
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
+import com.logistics.core.lib.storage.IItemKey;
 import net.minecraft.core.BlockPos;
 
 import java.util.UUID;
@@ -12,35 +12,17 @@ import java.util.UUID;
  * <p>Mutable (state field changes over the reservation lifecycle). Not a record.
  */
 public final class ItemReservation {
-    /** Unique identity of this reservation. */
     public final ReservationId id;
-
-    /** The order this reservation was created for. */
     public final UUID orderId;
-
-    /** Provider pipe holding the stock. */
     public final BlockPos provider;
-
-    /** Requester pipe that placed the order. */
     public final BlockPos requester;
-
-    /** Item being reserved. */
-    public final ItemVariant item;
-
-    /** Amount reserved. */
+    public final IItemKey item;
     public final long amount;
-
-    /**
-     * Whether this is a hard reservation (committed, cannot be bumped) vs.
-     * soft (lower-priority, can be displaced by a higher-priority order in a future phase).
-     */
     public final boolean hard;
-
-    /** Current lifecycle state. Mutated by {@link ReservationManager}. */
     AllocationState state;
 
     ItemReservation(ReservationId id, UUID orderId, BlockPos provider, BlockPos requester,
-                    ItemVariant item, long amount, boolean hard, AllocationState initialState) {
+                    IItemKey item, long amount, boolean hard, AllocationState initialState) {
         this.id = id;
         this.orderId = orderId;
         this.provider = provider;
@@ -58,7 +40,7 @@ public final class ItemReservation {
     @Override
     public String toString() {
         return id + " order=" + orderId.toString().substring(0, 8)
-                + " " + amount + "x " + item.toStack().getItem()
+                + " " + amount + "x " + item.toStack(1).getItem()
                 + " from=" + provider + " to=" + requester
                 + " [" + state + (hard ? ",hard" : ",soft") + "]";
     }

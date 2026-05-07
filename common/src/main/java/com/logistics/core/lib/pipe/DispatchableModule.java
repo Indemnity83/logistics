@@ -1,6 +1,6 @@
 package com.logistics.core.lib.pipe;
 
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
+import com.logistics.core.lib.storage.IItemKey;
 import net.minecraft.core.BlockPos;
 
 import java.util.UUID;
@@ -19,10 +19,10 @@ public interface DispatchableModule extends Module {
      *
      * @param ctx        the pipe context
      * @param requester  destination position
-     * @param item       item variant to extract
+     * @param item       item key to extract
      * @param amount     requested amount
      * @param deliveryId UUID to attach to the TravelingItem for delivery tracking
      * @return actual amount dispatched (&gt;0), -1 if temporarily busy (deferred), or 0 if unable
      */
-    long onDispatch(PipeContext ctx, BlockPos requester, ItemVariant item, long amount, UUID deliveryId);
+    long onDispatch(PipeContext ctx, BlockPos requester, IItemKey item, long amount, UUID deliveryId);
 }

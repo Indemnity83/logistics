@@ -10,7 +10,7 @@ import com.logistics.core.lib.pipe.Module;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
+import com.logistics.core.lib.storage.IItemKey;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -81,7 +81,7 @@ public class MinecraftWorldView implements IWorldView {
     }
 
     @Override
-    public long dispatch(BlockPos provider, BlockPos requester, ItemVariant item, long amount, UUID deliveryId) {
+    public long dispatch(BlockPos provider, BlockPos requester, IItemKey item, long amount, UUID deliveryId) {
         if (!(level.getBlockEntity(provider) instanceof PipeBlockEntity pipeEntity)) return 0;
         BlockState state = level.getBlockState(provider);
         if (!(state.getBlock() instanceof PipeBlock pipeBlock)) return 0;

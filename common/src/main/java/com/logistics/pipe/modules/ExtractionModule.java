@@ -7,14 +7,13 @@ import com.logistics.core.lib.pipe.TickingModule;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.core.lib.compat.NbtCompat;
 import com.logistics.core.lib.pipe.PipeContext;
+import com.logistics.core.lib.storage.IItemKey;
+import com.logistics.core.lib.storage.IItemStorage;
+import com.logistics.core.lib.storage.IItemView;
+import com.logistics.core.lib.storage.ItemStorageLookup;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.core.lib.pipe.TravelingItem;
 import java.util.List;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
-import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
-import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
-import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -156,17 +155,17 @@ public class ExtractionModule implements Module, TickingModule {
         }
 
         BlockPos targetPos = ctx.pos().relative(direction);
-        Storage<ItemVariant> storage = ItemStorage.SIDED.find(ctx.world(), targetPos, direction.getOpposite());
+        IItemStorage storage = ItemStorageLookup.find(ctx.world(), targetPos, direction.getOpposite());
 
         if (storage == null) {
             return 0;
         }
 
         // Find first non-empty slot and check stack size
-        for (StorageView<ItemVariant> view : storage) {
-            ItemVariant variant = view.getResource();
-            if (!variant.isBlank()) {
-                return Math.min(64, variant.getItem().getDefaultMaxStackSize());
+        for (IItemView view : storage.contents()) {
+            IItemKey key = view.resource();
+            if (view.amount() > 0) {
+                return Math.min(64, key.toStack(1).getItem().getDefaultMaxStackSize());
             }
         }
         return 0;
@@ -195,27 +194,24 @@ public class ExtractionModule implements Module, TickingModule {
         }
 
         BlockPos targetPos = ctx.pos().relative(direction);
-        Storage<ItemVariant> storage = ItemStorage.SIDED.find(ctx.world(), targetPos, direction.getOpposite());
+        IItemStorage storage = ItemStorageLookup.find(ctx.world(), targetPos, direction.getOpposite());
 
         if (storage == null) {
             return false;
         }
 
-        try (Transaction transaction = Transaction.openOuter()) {
-            for (StorageView<ItemVariant> view : storage) {
-                ItemVariant variant = view.getResource();
-                if (variant.isBlank()) {
-                    continue;
-                }
+        for (IItemView view : storage.contents()) {
+            IItemKey key = view.resource();
+            if (view.amount() <= 0) {
+                continue;
+            }
 
-                long extracted = view.extract(variant, maxItems, transaction);
-                if (extracted > 0) {
-                    ItemStack stack = variant.toStack((int) extracted);
-                    TravelingItem item = new TravelingItem(stack, direction.getOpposite(), LogisticsConfig.get().pipe.minSpeed);
-                    ctx.blockEntity().forceAddItem(item, direction);
-                    transaction.commit();
-                    return true;
-                }
+            long extracted = storage.extract(key, maxItems, false);
+            if (extracted > 0) {
+                ItemStack stack = key.toStack((int) extracted);
+                TravelingItem item = new TravelingItem(stack, direction.getOpposite(), LogisticsConfig.get().pipe.minSpeed);
+                ctx.blockEntity().forceAddItem(item, direction);
+                return true;
             }
         }
 

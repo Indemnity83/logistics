@@ -3,7 +3,7 @@ package com.logistics.pipe.network;
 import com.logistics.core.lib.network.CrafterSnapshot;
 import com.logistics.core.lib.network.FulfillmentMode;
 import com.logistics.core.lib.network.PlanningView;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
+import com.logistics.core.lib.storage.IItemKey;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -39,7 +39,7 @@ public class RequestPlanner {
      * @return a plan describing how to source the item;
      *         {@link FulfillmentPlan#empty()} if FULL mode and cannot fully satisfy
      */
-    public FulfillmentPlan plan(ItemVariant item, long amount, FulfillmentMode mode, PlanningView view) {
+    public FulfillmentPlan plan(IItemKey item, long amount, FulfillmentMode mode, PlanningView view) {
         PlanningContext ctx = PlanningContext.fresh();
         List<PlanNode> roots = new ArrayList<>();
         long planned = planItem(item, amount, view, ctx, roots);
@@ -55,7 +55,7 @@ public class RequestPlanner {
      * @return amount planned (may be less than needed if supply is insufficient)
      */
     private long planItem(
-            ItemVariant item, long needed,
+            IItemKey item, long needed,
             PlanningView view, PlanningContext ctx, List<PlanNode> out) {
         if (!ctx.visited.add(item)) return 0; // cycle guard
         try {

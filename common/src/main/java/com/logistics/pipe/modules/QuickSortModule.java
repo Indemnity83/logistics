@@ -8,11 +8,10 @@ import com.logistics.core.lib.pipe.TickingModule;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.core.lib.network.ILogisticsNetwork;
 import com.logistics.core.lib.pipe.TravelingItem;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
-import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
-import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
-import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
+import com.logistics.core.lib.storage.IItemKey;
+import com.logistics.core.lib.storage.IItemStorage;
+import com.logistics.core.lib.storage.IItemView;
+import com.logistics.core.lib.storage.ItemStorageLookup;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
@@ -57,13 +56,13 @@ public class QuickSortModule implements Module, TickingModule {
         if (inventoryDir == null) return;
 
         BlockPos targetPos = ctx.pos().relative(inventoryDir);
-        Storage<ItemVariant> storage =
-                ItemStorage.SIDED.find(ctx.world(), targetPos, inventoryDir.getOpposite());
+        IItemStorage storage =
+                ItemStorageLookup.find(ctx.world(), targetPos, inventoryDir.getOpposite());
         if (storage == null) return;
 
         // Build indexed slot list for stable position tracking
-        List<StorageView<ItemVariant>> slots = new ArrayList<>();
-        for (StorageView<ItemVariant> view : storage) {
+        List<IItemView> slots = new ArrayList<>();
+        for (IItemView view : storage.contents()) {
             slots.add(view);
         }
         int size = slots.size();
@@ -84,8 +83,8 @@ public class QuickSortModule implements Module, TickingModule {
         int candidate = -1;
         for (int i = 1; i <= size; i++) {
             int idx = (lastScanned + i) % size;
-            StorageView<ItemVariant> view = slots.get(idx);
-            if (!view.getResource().isBlank() && view.getAmount() > 0) {
+            IItemView view = slots.get(idx);
+            if (view.amount() > 0) {
                 candidate = idx;
                 break;
             }
@@ -106,20 +105,20 @@ public class QuickSortModule implements Module, TickingModule {
         ctx.saveInt(this, LAST_SLOT_SCANNED, candidate);
 
         // Query network for a filtered destination (no default-route sinks)
-        StorageView<ItemVariant> candidateView = slots.get(candidate);
-        ItemVariant variant = candidateView.getResource();
-        int stackSize = (int) Math.min(candidateView.getAmount(), variant.getItem().getDefaultMaxStackSize());
-        ItemStack queryStack = variant.toStack(stackSize);
+        IItemView candidateView = slots.get(candidate);
+        IItemKey key = candidateView.resource();
+        int stackSize = (int) Math.min(candidateView.amount(), key.toStack(1).getItem().getDefaultMaxStackSize());
+        ItemStack queryStack = key.toStack(stackSize);
 
         ILogisticsNetwork network = ctx.network();
         if (network == null) return;
 
         BlockPos destination = network.findFilteredSinkFor(queryStack);
         if (destination == null) {
-            NetDbg.out("[QuickSort @ {}] No network destination for {} in slot {}", ctx.pos(), variant.getItem(), candidate);
+            NetDbg.out("[QuickSort @ {}] No network destination for {} in slot {}", ctx.pos(), key.toStack(1).getItem(), candidate);
             // No destination — stall if full circle, otherwise just wait for next cycle
             if (candidate == lastSuccess) {
-                if (ctx.getInt(this, STALLED, 0) == 0) NetDbg.out("[QuickSort @ {}] Entering stall (no network destination for {})", ctx.pos(), variant.getItem());
+                if (ctx.getInt(this, STALLED, 0) == 0) NetDbg.out("[QuickSort @ {}] Entering stall (no network destination for {})", ctx.pos(), key.toStack(1).getItem());
                 ctx.saveInt(this, STALLED, 1);
             }
             return;
@@ -132,27 +131,24 @@ public class QuickSortModule implements Module, TickingModule {
         if (PipeBlockEntity.VIRTUAL_CAPACITY - occupied < stackSize) return;
 
         // Extract and inject into the pipe with destination pre-set
-        try (Transaction tx = Transaction.openOuter()) {
-            long extracted = candidateView.extract(variant, stackSize, tx);
-            if (extracted > 0) {
-                ItemStack extractedStack = variant.toStack((int) extracted);
-                NetDbg.out("[QuickSort @ {}] Extracted {}x{} from slot {}", ctx.pos(), extracted, variant.getItem(), candidate);
-                TravelingItem travelingItem = new TravelingItem(
-                        extractedStack, inventoryDir.getOpposite(),
-                        LogisticsConfig.get().pipe.minSpeed, destination);
-                ctx.blockEntity().forceAddItem(travelingItem, inventoryDir);
-                tx.commit();
-                // Success: clear stall, record last successful slot
-                if (ctx.getInt(this, STALLED, 0) == 1) NetDbg.out("[QuickSort @ {}] Exiting stall", ctx.pos());
-                ctx.saveInt(this, STALLED, 0);
-                ctx.saveInt(this, LAST_SUCCESS_SLOT, candidate);
-            } else {
-                // Slot appeared non-empty but extraction failed (temporarily locked) —
-                // advance past it and back off to the stall delay
-                ctx.saveInt(this, LAST_SLOT_SCANNED, (candidate + 1) % size);
-                if (ctx.getInt(this, STALLED, 0) == 0) NetDbg.out("[QuickSort @ {}] Entering stall (extraction locked for {} in slot {})", ctx.pos(), variant.getItem(), candidate);
-                ctx.saveInt(this, STALLED, 1);
-            }
+        long extracted = storage.extract(key, stackSize, false);
+        if (extracted > 0) {
+            ItemStack extractedStack = key.toStack((int) extracted);
+            NetDbg.out("[QuickSort @ {}] Extracted {}x{} from slot {}", ctx.pos(), extracted, key.toStack(1).getItem(), candidate);
+            TravelingItem travelingItem = new TravelingItem(
+                    extractedStack, inventoryDir.getOpposite(),
+                    LogisticsConfig.get().pipe.minSpeed, destination);
+            ctx.blockEntity().forceAddItem(travelingItem, inventoryDir);
+            // Success: clear stall, record last successful slot
+            if (ctx.getInt(this, STALLED, 0) == 1) NetDbg.out("[QuickSort @ {}] Exiting stall", ctx.pos());
+            ctx.saveInt(this, STALLED, 0);
+            ctx.saveInt(this, LAST_SUCCESS_SLOT, candidate);
+        } else {
+            // Slot appeared non-empty but extraction failed (temporarily locked) —
+            // advance past it and back off to the stall delay
+            ctx.saveInt(this, LAST_SLOT_SCANNED, (candidate + 1) % size);
+            if (ctx.getInt(this, STALLED, 0) == 0) NetDbg.out("[QuickSort @ {}] Entering stall (extraction locked for {} in slot {})", ctx.pos(), key.toStack(1).getItem(), candidate);
+            ctx.saveInt(this, STALLED, 1);
         }
     }
 

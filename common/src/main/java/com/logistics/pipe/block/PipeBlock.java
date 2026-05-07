@@ -14,7 +14,7 @@ import com.logistics.LogisticsPipe;
 import com.logistics.core.lib.pipe.TravelingItem;
 import com.logistics.pipe.item.ModuleItem;
 import com.mojang.serialization.MapCodec;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
+import com.logistics.core.lib.storage.ItemStorageLookup;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -480,14 +480,14 @@ public class PipeBlock extends BaseEntityBlock implements ProbeBehavior.Probeabl
     }
 
     /**
-     * Check for ItemStorage.SIDED on the neighboring block (legacy inventory support).
+     * Check for item storage on the neighboring block (legacy inventory support).
      * Returns INVENTORY if found, null otherwise.
      */
     @Nullable private PipeConnection.Type checkItemStorage(
             Level world, BlockPos pos, BlockPos neighborPos, Direction direction, Block neighborBlock) {
-        var storage = ItemStorage.SIDED.find(world, neighborPos, direction.getOpposite());
+        var storage = ItemStorageLookup.find(world, neighborPos, direction.getOpposite());
 
-        if (storage != null && storage.iterator().hasNext()) {
+        if (storage != null && storage.contents().iterator().hasNext()) {
             PipeConnection.Type candidate = PipeConnection.Type.INVENTORY;
             if (pipe != null) {
                 PipeBlockEntity pipeEntity =
