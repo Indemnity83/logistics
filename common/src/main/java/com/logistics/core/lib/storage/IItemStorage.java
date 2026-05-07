@@ -19,20 +19,28 @@ public interface IItemStorage {
     /**
      * Insert items into this storage.
      *
+     * <p>If {@code maxAmount <= 0}, implementations must return {@code 0} immediately.
+     * The return value is always {@code >= 0} and never exceeds {@code maxAmount}.
+     *
      * @param item      the item type to insert
      * @param maxAmount the maximum number of items to insert
-     * @param simulate  if {@code true}, perform a dry run without modifying state
-     * @return the amount actually inserted (or that would be inserted if simulating)
+     * @param simulate  if {@code true}, perform a dry run without modifying state; the returned
+     *                  value is the amount that would be inserted without any state change
+     * @return the amount actually inserted (or that would be inserted if simulating); never negative
      */
     long insert(IItemKey item, long maxAmount, boolean simulate);
 
     /**
      * Extract items from this storage.
      *
+     * <p>If {@code maxAmount <= 0}, implementations must return {@code 0} immediately.
+     * The return value is always {@code >= 0} and never exceeds {@code maxAmount}.
+     *
      * @param item      the item type to extract
      * @param maxAmount the maximum number of items to extract
-     * @param simulate  if {@code true}, perform a dry run without modifying state
-     * @return the amount actually extracted (or that would be extracted if simulating)
+     * @param simulate  if {@code true}, perform a dry run without modifying state; the returned
+     *                  value is the amount that would be extracted without any state change
+     * @return the amount actually extracted (or that would be extracted if simulating); never negative
      */
     long extract(IItemKey item, long maxAmount, boolean simulate);
 

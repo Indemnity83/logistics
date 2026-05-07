@@ -58,7 +58,7 @@ public interface ILogisticsNetwork {
      * Increments orderedForRequester immediately.
      * The order persists until cancelled or fulfilled via notifyDelivery.
      *
-     * @param item            item variant to request
+     * @param item            {@link IItemKey} identifying the item to request
      * @param amount          amount needed
      * @param requester       position of the requesting pipe
      * @param fulfillmentMode whether partial dispatch is acceptable
@@ -69,7 +69,7 @@ public interface ILogisticsNetwork {
     /**
      * Place a standing order with default {@link FulfillmentMode#PARTIAL} fulfillment.
      *
-     * @param item      item variant to request
+     * @param item      {@link IItemKey} identifying the item to request
      * @param amount    amount needed
      * @param requester position of the requesting pipe
      * @return UUID of the order (store for cancellation)

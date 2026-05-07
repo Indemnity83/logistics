@@ -241,7 +241,13 @@ public class NetworkController implements PlanningView {
     @Nullable
     private DispatchCommand tryDispatch(
             Iterator<Map.Entry<UUID, Order>> orderIt, Order order, List<SupplyEntry> entries) {
-        SupplyEntry supply = entries.getFirst();
+        // Skip deferred providers (buffer full this tick) to find the first dispatchable source
+        int supplyIdx = 0;
+        while (supplyIdx < entries.size() && deferredProviders.contains(entries.get(supplyIdx).pos)) {
+            supplyIdx++;
+        }
+        if (supplyIdx >= entries.size()) return null;
+        SupplyEntry supply = entries.get(supplyIdx);
 
         if (supply.available == 0) {
             // On-demand supply (crafter): validate ingredient chain before dispatching
@@ -267,7 +273,7 @@ public class NetworkController implements PlanningView {
             reservationManager.reserve(order.id(), supply.pos, order.requester(),
                     order.item(), order.amount(), true);
             if (effective - order.amount() == 0) {
-                entries.removeFirst();
+                entries.remove(supplyIdx);
                 if (entries.isEmpty()) supplyTable.remove(order.item());
             }
             return new DispatchCommand(
@@ -296,7 +302,7 @@ public class NetworkController implements PlanningView {
         // Pre-check passed (or no crafter covers this item): dispatch partial stock now
         reservationManager.reserve(order.id(), supply.pos, order.requester(),
                 order.item(), effective, true);
-        entries.removeFirst();
+        entries.remove(supplyIdx);
         if (entries.isEmpty()) supplyTable.remove(order.item());
         return new DispatchCommand(
                 order.id(), supply.pos, order.requester(), order.item(), effective);

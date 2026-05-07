@@ -97,7 +97,13 @@ public final class FabricItemStorage implements IItemStorage {
                             public long extract(ItemVariant resource, long maxAmount,
                                     net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext tx) {
                                 IItemKey key = new FabricItemKey(resource);
-                                return storage.extract(key, maxAmount, false);
+                                long simulated = storage.extract(key, maxAmount, true);
+                                if (simulated > 0) {
+                                    tx.addCloseCallback((t, result) -> {
+                                        if (result.wasCommitted()) storage.extract(key, simulated, false);
+                                    });
+                                }
+                                return simulated;
                             }
 
                             @Override
@@ -128,7 +134,7 @@ public final class FabricItemStorage implements IItemStorage {
 
     @Override
     public long insert(IItemKey item, long maxAmount, boolean simulate) {
-        ItemVariant variant = ((FabricItemKey) item).variant();
+        ItemVariant variant = item instanceof FabricItemKey fk ? fk.variant() : ItemVariant.of(item.toStack(1));
         if (simulate) {
             try (Transaction t = Transaction.openOuter()) {
                 return storage.insert(variant, maxAmount, t);
@@ -144,7 +150,7 @@ public final class FabricItemStorage implements IItemStorage {
 
     @Override
     public long extract(IItemKey item, long maxAmount, boolean simulate) {
-        ItemVariant variant = ((FabricItemKey) item).variant();
+        ItemVariant variant = item instanceof FabricItemKey fk ? fk.variant() : ItemVariant.of(item.toStack(1));
         if (simulate) {
             try (Transaction t = Transaction.openOuter()) {
                 return storage.extract(variant, maxAmount, t);
@@ -159,15 +165,28 @@ public final class FabricItemStorage implements IItemStorage {
 
     @Override
     public Iterable<IItemView> contents() {
-        return () -> {
-            Iterator<StorageView<ItemVariant>> inner = storage.iterator();
-            return new Iterator<>() {
-                @Override
-                public boolean hasNext() { return inner.hasNext(); }
+        return () -> new Iterator<>() {
+            private final Iterator<StorageView<ItemVariant>> inner = storage.iterator();
+            private StorageView<ItemVariant> pending = advance();
 
-                @Override
-                public IItemView next() { return new FabricItemView(inner.next()); }
-            };
+            private StorageView<ItemVariant> advance() {
+                while (inner.hasNext()) {
+                    StorageView<ItemVariant> v = inner.next();
+                    if (v.getAmount() > 0) return v;
+                }
+                return null;
+            }
+
+            @Override
+            public boolean hasNext() { return pending != null; }
+
+            @Override
+            public IItemView next() {
+                if (pending == null) throw new java.util.NoSuchElementException();
+                IItemView view = new FabricItemView(pending);
+                pending = advance();
+                return view;
+            }
         };
     }
 }

@@ -59,7 +59,10 @@ public final class ContainerItemStorage implements IItemStorage {
         ItemStack current = container.getItem(slot);
         if (current.isEmpty()) {
             long toInsert = Math.min(remaining, template.getMaxStackSize());
-            if (!simulate) container.setItem(slot, item.toStack((int) toInsert));
+            if (!simulate) {
+                container.setItem(slot, item.toStack((int) toInsert));
+                container.setChanged();
+            }
             return toInsert;
         } else if (ItemStack.isSameItemSameComponents(current, template)) {
             long canFit = current.getMaxStackSize() - current.getCount();

@@ -195,7 +195,7 @@ public class KilnBlockEntity extends BaseBlockEntity
 
     @Override
     public IItemStorage itemStorage(@Nullable Direction side) {
-        return new ContainerItemStorage(this);
+        return new ContainerItemStorage(this, side);
     }
 
     @Override

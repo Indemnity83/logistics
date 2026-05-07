@@ -35,6 +35,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -305,7 +306,8 @@ public class ProcessModule implements Module, TickingModule, RoutingModule, Disp
         int satId = getInputSatelliteId(ctx);
         String globalDest = satId > 0 ? String.valueOf(satId) : "";
 
-        // Place orders for each input
+        // Place orders for each input; track created order IDs for rollback on failure
+        List<UUID> createdOrderIds = new ArrayList<>();
         ListTag orderIds = new ListTag();
         for (int i = 0; i < MAX_INPUTS; i++) {
             String inputItem = getInputItem(ctx, i);
@@ -327,6 +329,8 @@ public class ProcessModule implements Module, TickingModule, RoutingModule, Disp
             } else {
                 orderDest = network.findSatellite(effectiveDest);
                 if (orderDest == null) {
+                    // Cancel any orders already placed this iteration before aborting
+                    createdOrderIds.forEach(network::cancelOrder);
                     NetDbg.out("[Process @ {}] Dispatch rejected: satellite '{}' not found for input {}", ctx.pos(), effectiveDest, i);
                     LogisticsPipe.LOGGER.warn("[Process @ {}] Satellite '{}' not found for input {}; aborting dispatch", ctx.pos(), effectiveDest, i);
                     return 0;
@@ -334,6 +338,7 @@ public class ProcessModule implements Module, TickingModule, RoutingModule, Disp
             }
 
             UUID orderId = network.placeOrder(inputKey, needed, orderDest);
+            createdOrderIds.add(orderId);
             orderIds.add(StringTag.valueOf(orderId.toString()));
         }
 

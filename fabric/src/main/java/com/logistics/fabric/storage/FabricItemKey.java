@@ -15,6 +15,7 @@ public final class FabricItemKey implements IItemKey {
     private final ItemVariant variant;
 
     public FabricItemKey(ItemVariant variant) {
+        if (variant == null) throw new NullPointerException("variant must not be null");
         this.variant = variant;
     }
 

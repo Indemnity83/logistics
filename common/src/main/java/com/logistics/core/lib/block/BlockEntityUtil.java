@@ -38,7 +38,11 @@ public final class BlockEntityUtil {
         IItemStorage storage = hasItems.itemStorage(null);
         if (storage == null) return drops;
 
-        for (IItemView view : storage.contents()) {
+        // Snapshot contents before extracting to avoid modifying a live iterable during iteration
+        List<IItemView> views = new ArrayList<>();
+        for (IItemView v : storage.contents()) views.add(v);
+
+        for (IItemView view : views) {
             IItemKey key = view.resource();
             long amount = view.amount();
             if (amount <= 0) continue;
