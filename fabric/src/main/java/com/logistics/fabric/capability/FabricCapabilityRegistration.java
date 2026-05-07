@@ -10,7 +10,7 @@ public final class FabricCapabilityRegistration {
     public static void register() {
         ItemStorageAccess.register();
         FluidStorageAccess.register();
-        EnergyStorageAccess.register();
+        // EnergyStorageAccess is registered separately by LogisticsFabric.registerEnergyServices()
         PipeConnectionAccess.register();
 
         // Quarry: only accepts pipe connections from above

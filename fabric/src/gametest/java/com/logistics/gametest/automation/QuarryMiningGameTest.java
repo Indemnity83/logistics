@@ -5,13 +5,12 @@ import com.logistics.core.LogisticsConfig;
 import com.logistics.automation.laserquarry.LaserQuarryGeometry;
 import com.logistics.automation.laserquarry.entity.LaserQuarryBlockEntity;
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
-import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
+import com.logistics.core.lib.energy.IEnergyStorage;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
-import team.reborn.energy.api.EnergyStorage;
 
 /**
  * Tick-based game tests for LaserQuarry mining behavior.
@@ -103,17 +102,17 @@ public class QuarryMiningGameTest {
                 absPos.getX() - 1, absPos.getZ() + 1,
                 absPos.getX() + 1, absPos.getZ() + 3);
 
-        // SimpleEnergyStorage.insert() is rate-limited by MAX_ENERGY_INPUT (1 000 RF/call),
+        // EnergyComponent.insert() is rate-limited by MAX_ENERGY_INPUT (1 000 RF/call),
         // so loop until the battery is full.
-        try (Transaction tx = Transaction.openOuter()) {
-            EnergyStorage es = quarry.energyStorage(Direction.DOWN);
-            long remaining = LogisticsConfig.get().quarry.energyCapacity();
-            while (remaining > 0) {
-                long inserted = es.insert(remaining, tx);
-                if (inserted == 0) break;
-                remaining -= inserted;
+        IEnergyStorage es = quarry.energyStorage(Direction.DOWN);
+        long remaining = LogisticsConfig.get().quarry.energyCapacity();
+        while (remaining > 0) {
+            long inserted = es.insert(remaining, false);
+            if (inserted == 0) {
+                context.fail("Failed to fill quarry energy: insert returned 0 with " + remaining + " RF remaining");
+                return;
             }
-            tx.commit();
+            remaining -= inserted;
         }
 
         // Check at tick 80 — CLEARING finishes in 1 tick, BUILDING_FRAME in ~28 ticks
@@ -180,17 +179,17 @@ public class QuarryMiningGameTest {
                 absPos.getX() - 1, absPos.getZ() + 1,
                 absPos.getX() + 1, absPos.getZ() + 3);
 
-        // SimpleEnergyStorage.insert() is rate-limited by MAX_ENERGY_INPUT (1 000 RF/call);
+        // EnergyComponent.insert() is rate-limited by MAX_ENERGY_INPUT (1 000 RF/call);
         // loop to fill the full 7 680 RF capacity.
-        try (Transaction tx = Transaction.openOuter()) {
-            EnergyStorage es = quarry.energyStorage(Direction.DOWN);
-            long remaining = LogisticsConfig.get().quarry.energyCapacity();
-            while (remaining > 0) {
-                long inserted = es.insert(remaining, tx);
-                if (inserted == 0) break;
-                remaining -= inserted;
+        IEnergyStorage es = quarry.energyStorage(Direction.DOWN);
+        long remaining = LogisticsConfig.get().quarry.energyCapacity();
+        while (remaining > 0) {
+            long inserted = es.insert(remaining, false);
+            if (inserted == 0) {
+                context.fail("Failed to fill quarry energy: insert returned 0 with " + remaining + " RF remaining");
+                return;
             }
-            tx.commit();
+            remaining -= inserted;
         }
 
         // Succeed as soon as the chest contains dirt (quarry mines dirt around tick ~33)
