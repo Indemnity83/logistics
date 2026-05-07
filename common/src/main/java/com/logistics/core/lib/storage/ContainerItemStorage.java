@@ -57,15 +57,17 @@ public final class ContainerItemStorage implements IItemStorage {
 
     private long insertIntoSlot(IItemKey item, ItemStack template, int slot, long remaining, boolean simulate) {
         ItemStack current = container.getItem(slot);
+        long containerLimit = container.getMaxStackSize();
         if (current.isEmpty()) {
-            long toInsert = Math.min(remaining, template.getMaxStackSize());
+            long toInsert = Math.min(remaining, Math.min(template.getMaxStackSize(), containerLimit));
             if (!simulate) {
                 container.setItem(slot, item.toStack((int) toInsert));
                 container.setChanged();
             }
             return toInsert;
         } else if (ItemStack.isSameItemSameComponents(current, template)) {
-            long canFit = current.getMaxStackSize() - current.getCount();
+            long slotLimit = Math.min(current.getMaxStackSize(), containerLimit);
+            long canFit = Math.max(0, slotLimit - current.getCount());
             long toInsert = Math.min(remaining, canFit);
             if (toInsert > 0 && !simulate) {
                 current.grow((int) toInsert);
@@ -105,17 +107,29 @@ public final class ContainerItemStorage implements IItemStorage {
     @Override
     public Iterable<IItemView> contents() {
         List<IItemView> views = new ArrayList<>();
-        for (int slot = 0; slot < container.getContainerSize(); slot++) {
-            ItemStack stack = container.getItem(slot);
-            if (!stack.isEmpty()) {
-                IItemKey key = ItemStorageLookup.of(stack);
-                long amount = stack.getCount();
-                views.add(new IItemView() {
-                    @Override public IItemKey resource() { return key; }
-                    @Override public long amount() { return amount; }
-                });
+        if (side != null && container instanceof WorldlyContainer wc) {
+            for (int slot : wc.getSlotsForFace(side)) {
+                IItemView view = viewForSlot(slot);
+                if (view != null) views.add(view);
+            }
+        } else {
+            for (int slot = 0; slot < container.getContainerSize(); slot++) {
+                IItemView view = viewForSlot(slot);
+                if (view != null) views.add(view);
             }
         }
         return views;
+    }
+
+    @Nullable
+    private IItemView viewForSlot(int slot) {
+        ItemStack stack = container.getItem(slot);
+        if (stack.isEmpty()) return null;
+        IItemKey key = ItemStorageLookup.of(stack);
+        long amount = stack.getCount();
+        return new IItemView() {
+            @Override public IItemKey resource() { return key; }
+            @Override public long amount() { return amount; }
+        };
     }
 }
