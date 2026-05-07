@@ -92,7 +92,7 @@ public class CreativeEngineBlockEntity extends AbstractEngineBlockEntity {
         }
 
         // Infinite energy generation - always fill buffer to max
-        energyStorage.amount = getEnergyBufferCapacity();
+        energyBuffer.setAmount(getEnergyBufferCapacity());
     }
 
     // ==================== Output Level Control ====================

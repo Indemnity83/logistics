@@ -11,7 +11,7 @@ import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.state.BlockState;
-import team.reborn.energy.api.EnergyStorage;
+import com.logistics.core.lib.energy.IEnergyStorage;
 
 public class QuarryGameTest {
 
@@ -52,13 +52,13 @@ public class QuarryGameTest {
 
         // Test all directions provide energy storage
         for (Direction direction : Direction.values()) {
-            EnergyStorage storage = quarry.energyStorage(direction);
+            IEnergyStorage storage = quarry.energyStorage(direction);
             if (storage == null) {
                 context.fail("Laser quarry should accept energy from " + direction);
                 return;
             }
 
-            if (!storage.supportsInsertion()) {
+            if (!storage.canInsert()) {
                 context.fail("Laser quarry energy storage should support insertion from " + direction);
                 return;
             }

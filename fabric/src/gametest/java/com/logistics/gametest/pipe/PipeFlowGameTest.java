@@ -217,7 +217,7 @@ public class PipeFlowGameTest {
             return;
         }
         EnergyComponent energy = extractor.getEnergy();
-        energy.amount = 640L;
+        energy.setAmount(640L);
 
         context.succeedWhen(() -> context.assertContainerContains(destChestPos, Items.DIAMOND));
     }

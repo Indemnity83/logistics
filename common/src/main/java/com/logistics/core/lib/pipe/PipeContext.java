@@ -104,13 +104,13 @@ public record PipeContext(
     // Convenience methods for energy access
     public long getEnergy() {
         EnergyComponent energy = blockEntity.getEnergy();
-        return energy != null ? energy.amount : 0;
+        return energy != null ? energy.getAmount() : 0;
     }
 
     public void setEnergy(long amount) {
         EnergyComponent energy = blockEntity.getEnergy();
         if (energy != null) {
-            energy.amount = amount;
+            energy.setAmount(amount);
             markDirtyAndSync();
         }
     }

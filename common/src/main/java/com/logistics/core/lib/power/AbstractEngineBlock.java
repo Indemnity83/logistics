@@ -27,7 +27,6 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.Property;
 import org.jetbrains.annotations.Nullable;
-import team.reborn.energy.api.EnergyStorage;
 
 /**
  * Abstract base class for all engine blocks.
@@ -251,16 +250,31 @@ public abstract class AbstractEngineBlock<E extends AbstractEngineBlockEntity> e
     }
 
     /**
-     * Checks if there's a block with EnergyStorage capability in the given direction.
+     * Platform service for checking whether a block in a given direction can accept energy.
+     * Set once during loader-specific initialization (Fabric or NeoForge bootstrap).
+     */
+    @FunctionalInterface
+    public interface EnergyPresenceChecker {
+        boolean hasEnergyStorage(Level world, BlockPos pos, Direction direction);
+    }
+
+    private static EnergyPresenceChecker energyPresenceChecker;
+
+    public static void setEnergyPresenceChecker(EnergyPresenceChecker checker) {
+        energyPresenceChecker = checker;
+    }
+
+    /**
+     * Checks if there's a block with energy storage capability in the given direction.
+     * Delegates to the loader-specific {@link EnergyPresenceChecker}.
      *
      * @param world the world
      * @param pos the engine's position
      * @param direction the direction to check
-     * @return true if an EnergyStorage exists in that direction
+     * @return true if an energy-accepting storage exists in that direction
      */
     private static boolean hasEnergyStorage(Level world, BlockPos pos, Direction direction) {
-        BlockPos targetPos = pos.relative(direction);
-        EnergyStorage storage = EnergyStorage.SIDED.find(world, targetPos, direction.getOpposite());
-        return storage != null && storage.supportsInsertion();
+        if (energyPresenceChecker == null) return false;
+        return energyPresenceChecker.hasEnergyStorage(world, pos, direction);
     }
 }

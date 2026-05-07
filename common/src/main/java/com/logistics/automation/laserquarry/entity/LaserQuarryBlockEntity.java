@@ -34,7 +34,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
-import team.reborn.energy.api.EnergyStorage;
+import com.logistics.core.lib.energy.IEnergyStorage;
 
 public class LaserQuarryBlockEntity extends BaseBlockEntity implements PipeConnection, HasEnergyStorage {
     private static final long REGISTRY_TTL_TICKS = 200L;
@@ -114,7 +114,7 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity implements PipeConne
     // ==================== HasEnergyStorage ====================
 
     @Override
-    public EnergyStorage energyStorage(@Nullable Direction side) {
+    public IEnergyStorage energyStorage(@Nullable Direction side) {
         // Quarry accepts energy from all sides
         return energy;
     }
@@ -146,17 +146,17 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity implements PipeConne
         }
 
         // Idle power consumption: 1 RF every 4 ticks (5 RF/second) to slowly drain buffer
-        if (world.getGameTime() % 4 == 0 && entity.energy.amount > 0) {
-            entity.energy.amount = Math.max(0, entity.energy.amount - 1);
+        if (world.getGameTime() % 4 == 0 && entity.energy.getAmount() > 0) {
+            entity.energy.setAmount(Math.max(0, entity.energy.getAmount() - 1));
             entity.setChanged(); // Mark chunk dirty for persistence
         }
 
         // Sync when energy OR consumption flag changes
-        boolean needsSync = entity.energy.amount != entity.lastSyncedEnergy
+        boolean needsSync = entity.energy.getAmount() != entity.lastSyncedEnergy
                 || entity.consumedEnergyThisTick != wasConsumedEnergy;
 
         if (needsSync) {
-            entity.lastSyncedEnergy = entity.energy.amount;
+            entity.lastSyncedEnergy = entity.energy.getAmount();
             entity.syncedArmSpeed = entity.getEffectiveArmSpeed();
             entity.syncToClients();
         }
@@ -178,7 +178,7 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity implements PipeConne
 
     private static void tickClearing(ServerLevel world, BlockPos pos, BlockState state, LaserQuarryBlockEntity entity) {
         // Need at least some energy to operate
-        if (entity.energy.amount == 0) {
+        if (entity.energy.getAmount() == 0) {
             entity.resetBreakProgress();
             return;
         }
@@ -220,7 +220,7 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity implements PipeConne
 
         // Consume as much energy as possible towards breaking (like BC)
         long energyNeeded = (long) Math.ceil(entity.currentBreakTime - entity.breakProgress);
-        long energyToUse = Math.min(entity.energy.amount, energyNeeded);
+        long energyToUse = Math.min(entity.energy.getAmount(), energyNeeded);
         if (energyToUse > 0) {
             entity.consumeEnergy(energyToUse);
             entity.breakProgress += energyToUse;
@@ -370,7 +370,7 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity implements PipeConne
 
             // Consume as much energy as possible towards breaking (like BC)
             long energyNeeded = (long) Math.ceil(entity.currentBreakTime - entity.breakProgress);
-            long energyToUse = Math.min(entity.energy.amount, energyNeeded);
+            long energyToUse = Math.min(entity.energy.getAmount(), energyNeeded);
             if (energyToUse > 0) {
                 entity.consumeEnergy(energyToUse);
                 entity.breakProgress += energyToUse;
@@ -1052,8 +1052,8 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity implements PipeConne
      * Sets consumedEnergyThisTick flag for LED rendering.
      */
     private void consumeEnergy(long amount) {
-        if (energy.amount >= amount) {
-            energy.amount -= amount;
+        if (energy.getAmount() >= amount) {
+            energy.consume(amount);
             consumedEnergyThisTick = true; // Flag for LED when buffer is low
             setChanged();
         }
@@ -1066,14 +1066,14 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity implements PipeConne
      * @return true if enough energy is available
      */
     private boolean hasEnergy(long amount) {
-        return energy.amount >= amount;
+        return energy.getAmount() >= amount;
     }
 
     /**
      * Gets the energy level as a ratio from 0.0 to 1.0.
      */
     public double getEnergyLevel() {
-        return (double) energy.amount / LogisticsConfig.get().quarry.energyCapacity();
+        return (double) energy.getAmount() / LogisticsConfig.get().quarry.energyCapacity();
     }
 
     /**
@@ -1082,7 +1082,7 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity implements PipeConne
      */
     private long getMoveCost() {
         return (long) Math.ceil(
-                LogisticsConfig.get().quarry.armEnergy + (double) energy.amount / MOVE_COST_BUFFER_DIVISOR);
+                LogisticsConfig.get().quarry.armEnergy + (double) energy.getAmount() / MOVE_COST_BUFFER_DIVISOR);
     }
 
     /**
@@ -1131,7 +1131,7 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity implements PipeConne
                 energyPercent > 50 ? ChatFormatting.GREEN : energyPercent > 20 ? ChatFormatting.YELLOW : ChatFormatting.RED;
         builder.entry(
                 "Energy",
-                String.format("%,d / %,d RF (%.1f%%)", energy.amount, LogisticsConfig.get().quarry.energyCapacity(), energyPercent),
+                String.format("%,d / %,d RF (%.1f%%)", energy.getAmount(), LogisticsConfig.get().quarry.energyCapacity(), energyPercent),
                 energyColor);
 
         // Power consumption and speed (only during active phases)
@@ -1150,7 +1150,7 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity implements PipeConne
         }
 
         // Warnings
-        if (energy.amount == 0 && !finished) {
+        if (energy.getAmount() == 0 && !finished) {
             builder.warning("No power!");
         }
 
@@ -1202,7 +1202,7 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity implements PipeConne
         if (nbt.contains("Energy")) {
             energy.readNbt(nbt, "Energy");
         } else {
-            energy.amount = NbtCompat.getLong(nbt, "StoredEnergy", 0L);
+            energy.setAmount(NbtCompat.getLong(nbt, "StoredEnergy", 0L));
         }
 
         // Load mining state
@@ -1261,10 +1261,9 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity implements PipeConne
         customMaxZ = 0;
 
         // Load energy from old "Energy" tag
-        if (nbt.contains("Energy")) {
-            CompoundTag energyState = nbt.getCompound("Energy");
-            energy.amount = NbtCompat.getLong(energyState, "Amount", 0L);
-        }
+        view.read("Energy", CompoundTag.CODEC).ifPresent(energyState -> {
+            energy.setAmount(NbtCompat.getLong(energyState, "Amount", 0L));
+        });
 
         // Load mining state from old "MiningState" tag
         if (nbt.contains("MiningState")) {

@@ -6,7 +6,6 @@ import com.logistics.core.lib.block.capability.HasEnergyStorage;
 import com.logistics.core.lib.power.AcceptsLowTierEnergy;
 import com.logistics.core.lib.storage.NbtCompat;
 import com.logistics.core.lib.support.ProbeResult;
-import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -15,7 +14,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
-import team.reborn.energy.api.EnergyStorage;
+import com.logistics.core.lib.energy.IEnergyStorage;
 
 /**
  * Block entity for the Creative Sink.
@@ -37,26 +36,19 @@ public class CreativeSinkBlockEntity extends BaseBlockEntity
     // Used only for validating energy consumption in tests
     long totalEnergyReceived = 0;
 
-    private final EnergyStorage energyStorage = new EnergyStorage() {
+    private final IEnergyStorage energyStorage = new IEnergyStorage() {
         @Override
-        public boolean supportsExtraction() {
-            return false;
-        }
-
-        @Override
-        public long insert(long maxAmount, TransactionContext transaction) {
+        public long insert(long maxAmount, boolean simulate) {
             long canAccept = Math.max(0, getDrainRate() - energyThisTick);
             long toAccept = Math.min(maxAmount, canAccept);
-            if (toAccept > 0) {
-                // Note: energyThisTick mutated outside transaction lifecycle is intentional.
-                // Counter resets every tick (Line ~65) and energy is discarded anyway.
+            if (toAccept > 0 && !simulate) {
                 energyThisTick += toAccept;
             }
             return toAccept;
         }
 
         @Override
-        public long extract(long maxAmount, TransactionContext transaction) {
+        public long extract(long maxAmount, boolean simulate) {
             return 0;
         }
 
@@ -69,6 +61,11 @@ public class CreativeSinkBlockEntity extends BaseBlockEntity
         public long getCapacity() {
             return Long.MAX_VALUE;
         }
+
+        @Override
+        public boolean canExtract() {
+            return false;
+        }
     };
 
     public CreativeSinkBlockEntity(BlockPos pos, BlockState state) {
@@ -78,7 +75,7 @@ public class CreativeSinkBlockEntity extends BaseBlockEntity
     // ==================== HasEnergyStorage ====================
 
     @Override
-    public EnergyStorage energyStorage(@Nullable Direction side) {
+    public IEnergyStorage energyStorage(@Nullable Direction side) {
         // Creative sink accepts energy from all sides
         return energyStorage;
     }

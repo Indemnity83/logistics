@@ -96,7 +96,7 @@ public class PipeBlockEntity extends BaseBlockEntity
 
     @Override
     @Nullable
-    public team.reborn.energy.api.EnergyStorage energyStorage(@Nullable Direction side) {
+    public com.logistics.core.lib.energy.IEnergyStorage energyStorage(@Nullable Direction side) {
         // Pipes accept energy from all sides (if they support energy at all)
         return getEnergy();
     }
