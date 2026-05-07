@@ -2,7 +2,7 @@ package com.logistics.core;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import net.fabricmc.loader.api.FabricLoader;
+import com.logistics.core.lib.platform.PlatformService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -172,7 +172,7 @@ public final class LogisticsConfig {
      * Does NOT call refresh listeners — each domain applies config in its own initCommon().
      */
     public static void load() {
-        configPath = FabricLoader.getInstance().getConfigDir().resolve("logistics.json");
+        configPath = PlatformService.INSTANCE.configDir().resolve("logistics.json");
         boolean loaded = false;
         if (Files.exists(configPath)) {
             try (Reader reader = Files.newBufferedReader(configPath)) {
