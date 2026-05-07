@@ -8,6 +8,9 @@ public final class LogisticsNeoForge {
 
     public LogisticsNeoForge(IEventBus eventBus) {
         // NeoForge entry point.
-        // TODO(multiloader): call common domain init here once multiloader-loader is wired.
+        // TODO(multiloader): wire common domain init, energy services, and capability registration
+        //   once multiloader-loader is applied (requires common/ to be fully free of Fabric API).
+        //   See: EnergyPushService / EnergyPresenceChecker in AbstractEngineBlockEntity / AbstractEngineBlock,
+        //        and IEnergyStorage in common/core/lib/energy/ for the contracts to implement here.
     }
 }

@@ -32,7 +32,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
-import team.reborn.energy.api.EnergyStorage;
+import com.logistics.core.lib.energy.IEnergyStorage;
 
 /**
  * Block entity for the Electric Kiln.
@@ -200,7 +200,7 @@ public class KilnBlockEntity extends BaseBlockEntity
     }
 
     @Override
-    public EnergyStorage energyStorage(@Nullable Direction side) {
+    public IEnergyStorage energyStorage(@Nullable Direction side) {
         return energy;
     }
 
