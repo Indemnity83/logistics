@@ -8,7 +8,7 @@ import com.logistics.core.lib.block.capability.HasItemStorage;
 import com.logistics.core.lib.energy.EnergyComponent;
 import com.logistics.core.lib.items.ItemInventoryComponent;
 import com.logistics.core.lib.resource.ResourceId;
-import com.logistics.core.lib.storage.NbtCompat;
+import com.logistics.core.lib.compat.NbtCompat;
 import net.fabricmc.fabric.api.transfer.v1.item.ContainerStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;

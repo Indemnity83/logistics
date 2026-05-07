@@ -8,7 +8,7 @@ import com.logistics.pipe.network.NetDbg;
 import com.logistics.core.lib.pipe.*;
 import com.logistics.core.lib.pipe.Module;
 import com.logistics.core.lib.resource.ResourceId;
-import com.logistics.core.lib.storage.NbtCompat;
+import com.logistics.core.lib.compat.NbtCompat;
 import com.logistics.core.lib.network.ILogisticsNetwork;
 import com.logistics.pipe.network.NetworkRegistry;
 import com.logistics.core.lib.network.ProviderCanFulfill;

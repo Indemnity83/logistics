@@ -4,7 +4,7 @@ import com.logistics.LogisticsPipe;
 import com.logistics.pipe.network.NetDbg;
 import com.logistics.core.lib.pipe.Module;
 import com.logistics.core.lib.resource.ResourceId;
-import com.logistics.core.lib.storage.NbtCompat;
+import com.logistics.core.lib.compat.NbtCompat;
 import com.logistics.core.lib.pipe.PipeContext;
 import com.logistics.core.lib.pipe.RoutePlan;
 import com.logistics.core.lib.pipe.RoutingModule;

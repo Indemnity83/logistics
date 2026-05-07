@@ -1,7 +1,7 @@
 package com.logistics.pipe.ui;
 
 import com.logistics.LogisticsPipe;
-import com.logistics.core.lib.storage.NbtCompat;
+import com.logistics.core.lib.compat.NbtCompat;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.pipe.modules.ProviderModule;
 import net.minecraft.core.component.DataComponents;

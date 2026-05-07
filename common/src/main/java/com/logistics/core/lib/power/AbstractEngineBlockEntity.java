@@ -4,7 +4,7 @@ import com.logistics.core.lib.BaseBlockEntity;
 import com.logistics.core.lib.block.capability.HasEnergyStorage;
 import com.logistics.core.lib.energy.EnergyComponent;
 import com.logistics.core.lib.energy.IEnergyStorage;
-import com.logistics.core.lib.storage.NbtCompat;
+import com.logistics.core.lib.compat.NbtCompat;
 import com.logistics.core.lib.support.ProbeResult;
 import java.util.Locale;
 import net.minecraft.ChatFormatting;

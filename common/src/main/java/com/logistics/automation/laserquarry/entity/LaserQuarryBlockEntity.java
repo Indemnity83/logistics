@@ -12,7 +12,7 @@ import com.logistics.core.lib.BaseBlockEntity;
 import com.logistics.core.lib.energy.EnergyComponent;
 import com.logistics.core.lib.block.capability.HasEnergyStorage;
 import com.logistics.core.lib.block.capability.PipeConnection;
-import com.logistics.core.lib.storage.NbtCompat;
+import com.logistics.core.lib.compat.NbtCompat;
 import com.logistics.core.lib.support.ProbeResult;
 import java.util.ArrayList;
 import java.util.HashMap;
