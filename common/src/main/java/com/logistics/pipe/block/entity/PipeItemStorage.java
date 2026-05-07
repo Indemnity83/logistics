@@ -54,7 +54,7 @@ public class PipeItemStorage implements IItemStorage {
         if (accepted <= 0) return 0;
 
         if (!simulate) {
-            ItemStack stack = item.toStack((int) accepted);
+            ItemStack stack = item.toStack((int) Math.min(accepted, Integer.MAX_VALUE));
             pipe.acceptInsertedStack(stack, fromDirection, NO_SPEED);
         }
 

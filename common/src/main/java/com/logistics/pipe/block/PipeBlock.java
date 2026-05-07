@@ -487,7 +487,7 @@ public class PipeBlock extends BaseEntityBlock implements ProbeBehavior.Probeabl
             Level world, BlockPos pos, BlockPos neighborPos, Direction direction, Block neighborBlock) {
         var storage = ItemStorageLookup.find(world, neighborPos, direction.getOpposite());
 
-        if (storage != null && storage.contents().iterator().hasNext()) {
+        if (storage != null) {
             PipeConnection.Type candidate = PipeConnection.Type.INVENTORY;
             if (pipe != null) {
                 PipeBlockEntity pipeEntity =

@@ -46,7 +46,7 @@ public final class BlockEntityUtil {
             ItemStack template = key.toStack(1);
             int maxStackSize = template.getMaxStackSize();
 
-            // Extract by simulating — drops are the current contents, not a real extraction
+            // Build drop stacks from view amount, then do a real extract to remove items from storage
             long remaining = amount;
             while (remaining > 0) {
                 int stackSize = (int) Math.min(remaining, maxStackSize);

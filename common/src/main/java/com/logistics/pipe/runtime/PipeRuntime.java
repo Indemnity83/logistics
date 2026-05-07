@@ -388,10 +388,10 @@ public final class PipeRuntime {
             if (pipeStorage != null) {
                 long inserted = pipeStorage.insertTravelingItem(item);
                 if (inserted <= 0) {
-                    notifyDropAndDrop(world, pos, item, inserted);
+                    notifyDropAndDrop(world, pos, item);
                 }
             } else {
-                notifyDropAndDrop(world, pos, item, 0);
+                notifyDropAndDrop(world, pos, item);
             }
             return;
         }
@@ -435,10 +435,10 @@ public final class PipeRuntime {
         }
 
         // Item could not enter any storage — drop it.
-        notifyDropAndDrop(world, pos, item, item.getStack().getCount());
+        notifyDropAndDrop(world, pos, item);
     }
 
-    private static void notifyDropAndDrop(Level world, BlockPos pos, TravelingItem item, long inserted) {
+    private static void notifyDropAndDrop(Level world, BlockPos pos, TravelingItem item) {
         if (item.getDeliveryId() != null && item.getDestination() != null) {
             PipeNetwork network = NetworkRegistry.getNetwork(world, pos);
             if (network != null) {

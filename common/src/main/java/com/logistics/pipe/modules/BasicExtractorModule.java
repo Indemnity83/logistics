@@ -88,12 +88,13 @@ public class BasicExtractorModule implements Module, TickingModule {
             return;
         }
 
+        int allowed = Math.min(itemsPerPull, remaining);
         boolean anyExtracted = false;
         for (IItemView view : storage.contents()) {
-            if (remaining <= 0) break;
+            if (allowed <= 0 || remaining <= 0) break;
             IItemKey key = view.resource();
 
-            int toExtract = Math.min(itemsPerPull, remaining);
+            int toExtract = Math.min(allowed, remaining);
             long extracted = storage.extract(key, toExtract, false);
             if (extracted > 0) {
                 ItemStack stack = key.toStack((int) extracted);
@@ -101,6 +102,7 @@ public class BasicExtractorModule implements Module, TickingModule {
                 TravelingItem item = new TravelingItem(stack, dir.getOpposite(), LogisticsConfig.get().pipe.minSpeed);
                 ctx.blockEntity().forceAddItem(item, dir);
                 remaining -= (int) extracted;
+                allowed -= (int) extracted;
                 anyExtracted = true;
             }
         }

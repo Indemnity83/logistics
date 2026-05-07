@@ -33,8 +33,8 @@ public final class ItemStorageLookup {
         IItemKey of(ItemStack stack);
     }
 
-    private static Finder finder;
-    private static KeyFactory keyFactory;
+    private static volatile Finder finder;
+    private static volatile KeyFactory keyFactory;
 
     private ItemStorageLookup() {}
 

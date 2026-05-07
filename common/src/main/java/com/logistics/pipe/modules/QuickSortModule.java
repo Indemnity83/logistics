@@ -107,7 +107,8 @@ public class QuickSortModule implements Module, TickingModule {
         // Query network for a filtered destination (no default-route sinks)
         IItemView candidateView = slots.get(candidate);
         IItemKey key = candidateView.resource();
-        int stackSize = (int) Math.min(candidateView.amount(), key.toStack(1).getItem().getDefaultMaxStackSize());
+        ItemStack template = key.toStack(1);
+        int stackSize = (int) Math.min(candidateView.amount(), template.getItem().getDefaultMaxStackSize());
         ItemStack queryStack = key.toStack(stackSize);
 
         ILogisticsNetwork network = ctx.network();
@@ -115,7 +116,7 @@ public class QuickSortModule implements Module, TickingModule {
 
         BlockPos destination = network.findFilteredSinkFor(queryStack);
         if (destination == null) {
-            NetDbg.out("[QuickSort @ {}] No network destination for {} in slot {}", ctx.pos(), key.toStack(1).getItem(), candidate);
+            NetDbg.out("[QuickSort @ {}] No network destination for {} in slot {}", ctx.pos(), template.getItem(), candidate);
             // No destination — stall if full circle, otherwise just wait for next cycle
             if (candidate == lastSuccess) {
                 if (ctx.getInt(this, STALLED, 0) == 0) NetDbg.out("[QuickSort @ {}] Entering stall (no network destination for {})", ctx.pos(), key.toStack(1).getItem());

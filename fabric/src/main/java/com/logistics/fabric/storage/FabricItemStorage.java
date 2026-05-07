@@ -59,16 +59,27 @@ public final class FabricItemStorage implements IItemStorage {
             @Override
             public long insert(ItemVariant resource, long maxAmount,
                     net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext transaction) {
-                // Delegate as non-simulate; the outer transaction handles atomicity
                 IItemKey key = new FabricItemKey(resource);
-                return storage.insert(key, maxAmount, false);
+                long simulated = storage.insert(key, maxAmount, true);
+                if (simulated > 0) {
+                    transaction.addCloseCallback((tx, result) -> {
+                        if (result.wasCommitted()) storage.insert(key, simulated, false);
+                    });
+                }
+                return simulated;
             }
 
             @Override
             public long extract(ItemVariant resource, long maxAmount,
                     net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext transaction) {
                 IItemKey key = new FabricItemKey(resource);
-                return storage.extract(key, maxAmount, false);
+                long simulated = storage.extract(key, maxAmount, true);
+                if (simulated > 0) {
+                    transaction.addCloseCallback((tx, result) -> {
+                        if (result.wasCommitted()) storage.extract(key, simulated, false);
+                    });
+                }
+                return simulated;
             }
 
             @Override
@@ -96,7 +107,9 @@ public final class FabricItemStorage implements IItemStorage {
 
                             @Override
                             public ItemVariant getResource() {
-                                return ((FabricItemKey) view.resource()).variant();
+                                IItemKey key = view.resource();
+                                if (key instanceof FabricItemKey fk) return fk.variant();
+                                return ItemVariant.of(key.toStack(1));
                             }
 
                             @Override

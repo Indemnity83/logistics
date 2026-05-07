@@ -39,8 +39,8 @@ public interface IItemStorage {
     /**
      * Iterate over the contents of this storage.
      *
-     * <p>Each {@link IItemView} represents a resource group or slot. Empty slots may
-     * or may not be included, depending on the implementation.
+     * <p>Each {@link IItemView} represents a non-empty resource group or slot.
+     * Implementations must omit empty slots — callers may rely on this.
      *
      * @return an iterable over the non-empty views in this storage
      */

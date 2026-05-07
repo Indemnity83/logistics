@@ -291,25 +291,7 @@ public class SupplierModule implements Module, TickingModule, RoutingModule {
         }
 
         IItemKey targetKey = ItemStorageLookup.of(targetStack);
-        long availableSpace = 0;
-
-        for (IItemView view : storage.contents()) {
-            IItemKey key = view.resource();
-            long currentAmount = view.amount();
-
-            if (currentAmount == 0) {
-                // Empty slot - can hold full stack
-                availableSpace += targetStack.getMaxStackSize();
-            } else if (key.equals(targetKey)) {
-                // Slot has same item - simulate insert to find space
-                long canInsert = storage.insert(targetKey, targetStack.getMaxStackSize(), true);
-                availableSpace += canInsert;
-                break; // avoid double-counting; let insert simulation handle overall space
-            }
-            // Different item - can't use this slot
-        }
-
-        return availableSpace;
+        return storage.insert(targetKey, Long.MAX_VALUE, true);
     }
 
     /**
