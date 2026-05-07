@@ -41,7 +41,7 @@ import org.jetbrains.annotations.Nullable;
  * </ul>
  *
  * <p>Note: Implements {@link HasEnergyStorage} with custom sided storage.
- * Uses {@link SimpleSidedEnergyContainer} for direction-based output control.
+ * Uses {@link EnergyComponent} for internal energy buffering with direction-based output control.
  */
 public abstract class AbstractEngineBlockEntity extends BaseBlockEntity implements HasEnergyStorage {
 
