@@ -108,7 +108,10 @@ public class QuarryMiningGameTest {
         long remaining = LogisticsConfig.get().quarry.energyCapacity();
         while (remaining > 0) {
             long inserted = es.insert(remaining, false);
-            if (inserted == 0) break;
+            if (inserted == 0) {
+                context.fail("Failed to fill quarry energy: insert returned 0 with " + remaining + " RF remaining");
+                return;
+            }
             remaining -= inserted;
         }
 
@@ -182,7 +185,10 @@ public class QuarryMiningGameTest {
         long remaining = LogisticsConfig.get().quarry.energyCapacity();
         while (remaining > 0) {
             long inserted = es.insert(remaining, false);
-            if (inserted == 0) break;
+            if (inserted == 0) {
+                context.fail("Failed to fill quarry energy: insert returned 0 with " + remaining + " RF remaining");
+                return;
+            }
             remaining -= inserted;
         }
 

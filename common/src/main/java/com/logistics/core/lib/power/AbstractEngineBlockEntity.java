@@ -103,7 +103,11 @@ public abstract class AbstractEngineBlockEntity extends BaseBlockEntity implemen
          * Push up to {@code maxAmount} energy to the block at {@code targetPos},
          * approached from {@code fromDirection}.
          *
-         * @return the amount actually transferred
+         * <p>Implementations must <em>not</em> mutate {@code source}; only return the amount
+         * transferred. The caller ({@link AbstractEngineBlockEntity#sendEnergy()}) is the single
+         * authority that debits the source buffer via {@link EnergyComponent#consume(long)}.
+         *
+         * @return the amount actually transferred (must be &ge; 0 and &le; maxAmount)
          */
         long push(Level level, BlockPos targetPos, Direction fromDirection, IEnergyStorage source, long maxAmount);
     }
@@ -111,6 +115,7 @@ public abstract class AbstractEngineBlockEntity extends BaseBlockEntity implemen
     private static EnergyPushService energyPushService;
 
     public static void setEnergyPushService(EnergyPushService service) {
+        if (service == null) throw new IllegalArgumentException("EnergyPushService must not be null");
         energyPushService = service;
     }
 
@@ -372,7 +377,7 @@ public abstract class AbstractEngineBlockEntity extends BaseBlockEntity implemen
 
         long sent = energyPushService.push(level, targetPos, outputDir.getOpposite(), energyBuffer, maxSend);
         if (sent > 0) {
-            energyBuffer.consume(sent);
+            energyBuffer.consume(Math.min(sent, energyBuffer.getAmount()));
             setChanged();
         }
     }
