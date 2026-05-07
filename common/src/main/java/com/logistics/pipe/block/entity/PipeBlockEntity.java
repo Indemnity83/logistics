@@ -3,7 +3,7 @@ package com.logistics.pipe.block.entity;
 import com.logistics.LogisticsMod;
 import com.logistics.core.LogisticsConfig;
 import com.logistics.LogisticsPipe;
-import com.logistics.core.lib.BaseBlockEntity;
+import com.logistics.core.lib.block.BaseBlockEntity;
 import com.logistics.core.lib.energy.EnergyComponent;
 import com.logistics.core.lib.block.capability.HasEnergyStorage;
 import com.logistics.core.lib.block.capability.HasItemStorage;

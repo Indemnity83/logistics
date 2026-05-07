@@ -1,8 +1,8 @@
 package com.logistics;
 
 import com.logistics.core.lib.resource.ResourceId;
-import com.logistics.core.lib.BlockEntitySupplier;
-import com.logistics.core.lib.BlockEntityTypeFactory;
+import com.logistics.core.lib.block.BlockEntitySupplier;
+import com.logistics.core.lib.block.BlockEntityTypeFactory;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;

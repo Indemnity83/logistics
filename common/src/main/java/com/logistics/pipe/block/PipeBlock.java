@@ -5,7 +5,7 @@ import com.logistics.core.lib.block.behavior.WrenchBehavior;
 import com.logistics.core.lib.block.capability.PipeConnection;
 import com.logistics.pipe.network.NetworkRegistry;
 import com.logistics.core.lib.pipe.PipeConnectionLookup;
-import com.logistics.core.lib.support.ProbeResult;
+import com.logistics.core.lib.block.behavior.ProbeResult;
 import com.logistics.pipe.Pipe;
 import com.logistics.pipe.ChassisPipe;
 import com.logistics.core.lib.pipe.PipeContext;

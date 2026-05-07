@@ -6,7 +6,7 @@ import com.logistics.core.lib.block.capability.HasItemStorage;
 import com.logistics.core.lib.items.ItemInventoryComponent;
 import com.logistics.core.lib.power.AbstractEngineBlockEntity;
 import com.logistics.core.lib.compat.NbtCompat;
-import com.logistics.core.lib.support.ProbeResult;
+import com.logistics.core.lib.block.behavior.ProbeResult;
 import com.logistics.power.engine.PIDController;
 import com.logistics.power.engine.block.StirlingEngineBlock;
 import com.logistics.power.engine.ui.StirlingEngineScreenHandler;

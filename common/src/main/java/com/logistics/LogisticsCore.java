@@ -11,7 +11,7 @@ import com.logistics.core.macerator.MaceratorRecipeManager;
 import com.logistics.core.macerator.MaceratorRecipeSerializer;
 import com.logistics.core.macerator.MaceratorRecipeWrapper;
 import com.logistics.core.macerator.MaceratorScreenHandler;
-import com.logistics.core.lib.LogisticsCreativeTab;
+import com.logistics.core.lib.platform.LogisticsCreativeTab;
 import com.logistics.core.lib.platform.CreativeTabRegistrar;
 import com.logistics.core.lib.resource.ResourceId;
 import net.minecraft.network.chat.Component;

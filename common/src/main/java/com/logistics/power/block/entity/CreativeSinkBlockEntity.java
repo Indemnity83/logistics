@@ -1,11 +1,11 @@
 package com.logistics.power.block.entity;
 
 import com.logistics.LogisticsPower;
-import com.logistics.core.lib.BaseBlockEntity;
+import com.logistics.core.lib.block.BaseBlockEntity;
 import com.logistics.core.lib.block.capability.HasEnergyStorage;
 import com.logistics.core.lib.power.AcceptsLowTierEnergy;
 import com.logistics.core.lib.compat.NbtCompat;
-import com.logistics.core.lib.support.ProbeResult;
+import com.logistics.core.lib.block.behavior.ProbeResult;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;

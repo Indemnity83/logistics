@@ -1,7 +1,7 @@
 package com.logistics.automation.kiln;
 
 import com.logistics.LogisticsAutomation;
-import com.logistics.core.lib.BaseBlockEntity;
+import com.logistics.core.lib.block.BaseBlockEntity;
 import com.logistics.core.lib.block.behavior.MenuBehavior;
 import com.logistics.core.lib.block.capability.HasEnergyStorage;
 import com.logistics.core.lib.block.capability.HasItemStorage;

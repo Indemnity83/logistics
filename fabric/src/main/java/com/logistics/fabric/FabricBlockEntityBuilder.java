@@ -1,7 +1,7 @@
 package com.logistics.fabric;
 
-import com.logistics.core.lib.BlockEntitySupplier;
-import com.logistics.core.lib.BlockEntityTypeFactory;
+import com.logistics.core.lib.block.BlockEntitySupplier;
+import com.logistics.core.lib.block.BlockEntityTypeFactory;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;

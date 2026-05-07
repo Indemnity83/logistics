@@ -1,9 +1,10 @@
-package com.logistics.core.lib.support;
+package com.logistics.core.lib.block.behavior;
+
+import net.minecraft.ChatFormatting;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
-import net.minecraft.ChatFormatting;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents the result of probing a block.
