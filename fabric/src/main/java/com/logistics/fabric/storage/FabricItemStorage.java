@@ -9,7 +9,10 @@ import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 /**
  * Fabric adapter: wraps a Fabric {@link Storage}{@code <ItemVariant>} as an {@link IItemStorage}.
@@ -55,31 +58,56 @@ public final class FabricItemStorage implements IItemStorage {
     @Nullable
     public static Storage<ItemVariant> asFabric(@Nullable IItemStorage storage) {
         if (storage == null) return null;
+        // Staged delta map: tracks pending mutations within a TransactionContext so that
+        // multiple operations in the same transaction see each other's effects before commit.
+        // Key = TransactionContext (identity), Value = per-key net delta (positive = pending insert,
+        // negative = pending extract). A single addCloseCallback per transaction applies or discards
+        // all deltas when the transaction closes.
+        Map<net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext, Map<IItemKey, Long>> staged =
+                new IdentityHashMap<>();
+
         return new Storage<ItemVariant>() {
+
+            private Map<IItemKey, Long> deltas(
+                    net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext transaction) {
+                return staged.computeIfAbsent(transaction, t -> {
+                    Map<IItemKey, Long> d = new HashMap<>();
+                    t.addCloseCallback((closedTx, result) -> {
+                        Map<IItemKey, Long> committed = staged.remove(closedTx);
+                        if (result.wasCommitted() && committed != null) {
+                            for (var e : committed.entrySet()) {
+                                long delta = e.getValue();
+                                if (delta > 0) storage.insert(e.getKey(), delta, false);
+                                else if (delta < 0) storage.extract(e.getKey(), -delta, false);
+                            }
+                        }
+                    });
+                    return d;
+                });
+            }
+
             @Override
             public long insert(ItemVariant resource, long maxAmount,
                     net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext transaction) {
                 IItemKey key = new FabricItemKey(resource);
-                long simulated = storage.insert(key, maxAmount, true);
-                if (simulated > 0) {
-                    transaction.addCloseCallback((tx, result) -> {
-                        if (result.wasCommitted()) storage.insert(key, simulated, false);
-                    });
-                }
-                return simulated;
+                Map<IItemKey, Long> d = deltas(transaction);
+                long netDelta = d.getOrDefault(key, 0L);
+                long effectiveCapacity = Math.max(0, storage.insert(key, Integer.MAX_VALUE, true) - netDelta);
+                long toInsert = Math.min(maxAmount, effectiveCapacity);
+                if (toInsert > 0) d.merge(key, toInsert, Long::sum);
+                return toInsert;
             }
 
             @Override
             public long extract(ItemVariant resource, long maxAmount,
                     net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext transaction) {
                 IItemKey key = new FabricItemKey(resource);
-                long simulated = storage.extract(key, maxAmount, true);
-                if (simulated > 0) {
-                    transaction.addCloseCallback((tx, result) -> {
-                        if (result.wasCommitted()) storage.extract(key, simulated, false);
-                    });
-                }
-                return simulated;
+                Map<IItemKey, Long> d = deltas(transaction);
+                long netDelta = d.getOrDefault(key, 0L);
+                long effectiveAvailable = Math.max(0, storage.extract(key, Integer.MAX_VALUE, true) + netDelta);
+                long toExtract = Math.min(maxAmount, effectiveAvailable);
+                if (toExtract > 0) d.merge(key, -toExtract, Long::sum);
+                return toExtract;
             }
 
             @Override
@@ -98,14 +126,13 @@ public final class FabricItemStorage implements IItemStorage {
                                     net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext tx) {
                                 if (!resource.equals(getResource())) return 0;
                                 IItemKey key = new FabricItemKey(resource);
-                                long bounded = Math.min(maxAmount, getAmount());
-                                long simulated = storage.extract(key, bounded, true);
-                                if (simulated > 0) {
-                                    tx.addCloseCallback((t, result) -> {
-                                        if (result.wasCommitted()) storage.extract(key, simulated, false);
-                                    });
-                                }
-                                return simulated;
+                                Map<IItemKey, Long> d = deltas(tx);
+                                long netDelta = d.getOrDefault(key, 0L);
+                                long effectiveAvailable = Math.max(
+                                        0, storage.extract(key, Integer.MAX_VALUE, true) + netDelta);
+                                long toExtract = Math.min(Math.min(maxAmount, getAmount()), effectiveAvailable);
+                                if (toExtract > 0) d.merge(key, -toExtract, Long::sum);
+                                return toExtract;
                             }
 
                             @Override
