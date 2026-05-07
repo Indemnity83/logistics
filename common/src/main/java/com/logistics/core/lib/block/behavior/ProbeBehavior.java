@@ -1,6 +1,5 @@
 package com.logistics.core.lib.block.behavior;
 
-import com.logistics.core.lib.support.ProbeResult;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;

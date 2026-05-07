@@ -1,6 +1,6 @@
 package com.logistics.fabric;
 
-import com.logistics.core.lib.LogisticsCreativeTab;
+import com.logistics.core.lib.platform.LogisticsCreativeTab;
 import com.logistics.core.lib.platform.CreativeTabRegistrar;
 import net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents;
 import net.fabricmc.fabric.api.creativetab.v1.FabricCreativeModeTab;

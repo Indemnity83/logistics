@@ -1,6 +1,5 @@
 package com.logistics.core.lib.platform;
 
-import com.logistics.core.lib.LogisticsCreativeTab;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.level.ItemLike;

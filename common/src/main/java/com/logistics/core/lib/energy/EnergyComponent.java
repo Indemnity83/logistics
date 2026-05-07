@@ -1,6 +1,6 @@
 package com.logistics.core.lib.energy;
 
-import com.logistics.core.lib.storage.NbtCompat;
+import com.logistics.core.lib.compat.NbtCompat;
 import java.util.function.LongSupplier;
 import net.minecraft.nbt.CompoundTag;
 

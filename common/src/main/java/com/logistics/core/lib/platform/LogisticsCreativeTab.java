@@ -1,4 +1,4 @@
-package com.logistics.core.lib;
+package com.logistics.core.lib.platform;
 
 import com.logistics.core.lib.resource.ResourceId;
 import net.minecraft.network.chat.Component;
