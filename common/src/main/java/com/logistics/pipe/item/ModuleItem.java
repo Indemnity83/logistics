@@ -1,7 +1,7 @@
 package com.logistics.pipe.item;
 
 import com.logistics.core.lib.pipe.Module;
-import com.logistics.core.lib.storage.NbtCompat;
+import com.logistics.core.lib.compat.NbtCompat;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;

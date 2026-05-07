@@ -5,7 +5,7 @@ import static com.logistics.core.lib.power.AbstractEngineBlockEntity.STAGE;
 import com.logistics.core.lib.block.MachineBlock;
 import com.logistics.core.lib.block.behavior.ProbeBehavior;
 import com.logistics.core.lib.block.behavior.WrenchBehavior;
-import com.logistics.core.lib.support.ProbeResult;
+import com.logistics.core.lib.block.behavior.ProbeResult;
 import java.util.Collections;
 import java.util.List;
 import net.minecraft.core.BlockPos;
