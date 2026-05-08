@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": ["RRR", "CCC", "RRR"],
+  "key": {
+    "C": "minecraft:copper_ingot",
+    "R": "logistics:power/rubber_chunk"
+  },
+  "result": {
+    "count": 8,
+    "id": "logistics:power/copper_cable"
+  }
+}

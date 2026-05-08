@@ -1,0 +1,7 @@
+{
+  "parent": "logistics:block/power/cable_stub",
+  "textures": {
+    "1": "logistics:block/power/gold_cable",
+    "particle": "logistics:block/power/gold_cable"
+  }
+}

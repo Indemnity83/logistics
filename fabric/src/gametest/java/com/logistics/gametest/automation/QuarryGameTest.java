@@ -67,6 +67,38 @@ public class QuarryGameTest {
         context.succeed();
     }
 
+    @GameTest(maxTicks = 20)
+    public void testQuarryTracksCommittedEnergyInput(GameTestHelper context) {
+        BlockPos pos = new BlockPos(1, 1, 1);
+
+        context.setBlock(pos, LogisticsAutomation.BLOCK.LASER_QUARRY);
+        LaserQuarryBlockEntity quarry = context.getBlockEntity(pos, LaserQuarryBlockEntity.class);
+
+        if (quarry == null) {
+            context.fail("Expected LaserQuarryBlockEntity");
+            return;
+        }
+
+        try (net.fabricmc.fabric.api.transfer.v1.transaction.Transaction transaction =
+                net.fabricmc.fabric.api.transfer.v1.transaction.Transaction.openOuter()) {
+            long inserted = quarry.energyStorage(Direction.NORTH).insert(60, transaction);
+            if (inserted != 60) {
+                context.fail("Expected quarry to accept 60 RF, got " + inserted);
+                return;
+            }
+            transaction.commit();
+        }
+
+        context.runAfterDelay(1, () -> {
+            if (quarry.getEnergyReceivedLastTick() != 60) {
+                context.fail("Expected quarry probe input to report 60 RF/t, got "
+                        + quarry.getEnergyReceivedLastTick());
+                return;
+            }
+            context.succeed();
+        });
+    }
+
     /**
      * Test that laser quarry does NOT accept items from pipes.
      * Quarry only outputs items, never accepts them.

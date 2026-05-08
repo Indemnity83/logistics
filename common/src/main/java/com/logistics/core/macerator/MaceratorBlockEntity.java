@@ -7,6 +7,7 @@ import com.logistics.core.lib.block.capability.HasEnergyStorage;
 import com.logistics.core.lib.block.capability.HasItemStorage;
 import com.logistics.core.lib.energy.EnergyComponent;
 import com.logistics.core.lib.items.ItemInventoryComponent;
+import com.logistics.core.lib.power.EnergyDemandProvider;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.core.lib.compat.NbtCompat;
 import com.logistics.core.lib.storage.ContainerItemStorage;
@@ -50,7 +51,7 @@ import com.logistics.core.lib.energy.IEnergyStorage;
  * </ul>
  */
 public class MaceratorBlockEntity extends BaseBlockEntity
-    implements HasItemStorage, HasEnergyStorage, WorldlyContainer, MenuBehavior.HasMenu {
+    implements HasItemStorage, HasEnergyStorage, WorldlyContainer, MenuBehavior.HasMenu, EnergyDemandProvider {
 
     static final int INPUT_SLOT = 0;
     static final int OUTPUT_SLOT = 1;
@@ -65,6 +66,52 @@ public class MaceratorBlockEntity extends BaseBlockEntity
 
     private final ItemInventoryComponent inventory = new ItemInventoryComponent(TOTAL_SLOTS, this::setChanged);
     final EnergyComponent energy = new EnergyComponent(ENERGY_CAPACITY, MAX_ENERGY_INPUT, 0, this::setChanged);
+    private final EnergyStorage energyStorage = new EnergyStorage() {
+        @Override
+        public boolean supportsInsertion() {
+            return energy.supportsInsertion();
+        }
+
+        @Override
+        public long insert(long maxAmount, TransactionContext transaction) {
+            long inserted = energy.insert(maxAmount, transaction);
+            if (inserted <= 0) {
+                return 0;
+            }
+
+            if (transaction == null) {
+                energyReceivedThisTick += inserted;
+            } else {
+                transaction.addOuterCloseCallback(result -> {
+                    if (result == Result.COMMITTED) {
+                        energyReceivedThisTick += inserted;
+                    }
+                });
+            }
+            return inserted;
+        }
+
+        @Override
+        public boolean supportsExtraction() {
+            return energy.supportsExtraction();
+        }
+
+        @Override
+        public long extract(long maxAmount, TransactionContext transaction) {
+            return energy.extract(maxAmount, transaction);
+        }
+
+        @Override
+        public long getAmount() {
+            return energy.getAmount();
+        }
+
+        @Override
+        public long getCapacity() {
+            return energy.getCapacity();
+        }
+    };
+    private long energyReceivedThisTick = 0;
 
     @Nullable private ResourceId activeRecipeId = null;
     int processProgress = 0;
@@ -110,6 +157,7 @@ public class MaceratorBlockEntity extends BaseBlockEntity
 
     public static void tick(Level level, BlockPos pos, BlockState state, MaceratorBlockEntity entity) {
         if (level.isClientSide()) return;
+        entity.energyReceivedThisTick = 0;
         if (entity.tickProcessing(level, state)) {
             entity.setChanged();
         }
@@ -222,7 +270,14 @@ public class MaceratorBlockEntity extends BaseBlockEntity
 
     @Override
     public IEnergyStorage energyStorage(@Nullable Direction side) {
-        return energy;
+        return energyStorage;
+    }
+
+    @Override
+    public long networkDemandPerTick() {
+        long storageRoom = Math.max(0, ENERGY_CAPACITY - energy.amount);
+        long remainingInput = Math.max(0, MAX_ENERGY_INPUT - energyReceivedThisTick);
+        return Math.min(remainingInput, storageRoom);
     }
 
     // ==================== WorldlyContainer (Sided Inventory) ====================
