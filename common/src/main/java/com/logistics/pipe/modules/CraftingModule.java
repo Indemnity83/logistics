@@ -21,7 +21,8 @@ import com.logistics.pipe.network.NetworkRegistry;
 import com.logistics.core.lib.pipe.RoutePlan;
 import com.logistics.core.lib.pipe.TravelingItem;
 import com.logistics.pipe.ui.CraftingScreenHandler;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
+import com.logistics.core.lib.storage.IItemKey;
+import com.logistics.core.lib.storage.ItemStorageLookup;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -442,7 +443,7 @@ public class CraftingModule implements Module, TickingModule, RoutingModule, Dis
      */
     @Override
     public long onDispatch(
-            PipeContext ctx, BlockPos requester, ItemVariant item, long amount, UUID deliveryId) {
+            PipeContext ctx, BlockPos requester, IItemKey item, long amount, UUID deliveryId) {
         String resultId = getResultItem(ctx);
         if (resultId.isEmpty()) {
             NetDbg.out("[Crafter @ {}] Dispatch rejected: no result configured", ctx.pos());
@@ -584,7 +585,7 @@ public class CraftingModule implements Module, TickingModule, RoutingModule, Dis
         CompoundTag ingredientOrderIds = new CompoundTag();
         for (Map.Entry<String, Long> entry : neededByItem.entrySet()) {
             UUID ingredientOrderId = network.placeOrder(
-                    ItemVariant.of(resolvedIngredients.get(entry.getKey())), entry.getValue(), ctx.pos());
+                    ItemStorageLookup.of(resolvedIngredients.get(entry.getKey())), entry.getValue(), ctx.pos());
             ingredientOrderIds.putString(entry.getKey(), ingredientOrderId.toString());
         }
 
@@ -688,12 +689,12 @@ public class CraftingModule implements Module, TickingModule, RoutingModule, Dis
             if (ingredientId.isEmpty()) continue;
             ItemStack ingredientStack = resolveItem(ingredientId);
             if (ingredientStack.isEmpty()) continue;
-            ingredients.add(new RecipeIngredient(ItemVariant.of(ingredientStack), getIngredientCount(ctx, slot)));
+            ingredients.add(new RecipeIngredient(ItemStorageLookup.of(ingredientStack), getIngredientCount(ctx, slot)));
         }
         if (ingredients.isEmpty()) return null;
 
         CrafterBufferState buffer = computeBufferState(ctx, autocrafterDir);
-        return new CrafterSnapshot(ctx.pos(), ItemVariant.of(resultStack), resultCount, ingredients, buffer);
+        return new CrafterSnapshot(ctx.pos(), ItemStorageLookup.of(resultStack), resultCount, ingredients, buffer);
     }
 
     private void updateCrafterSupply(PipeContext ctx) {
@@ -727,8 +728,8 @@ public class CraftingModule implements Module, TickingModule, RoutingModule, Dis
         }
 
         // Advertise 0 — signals "craftable on demand" (no stock, but can fulfill any order)
-        Map<ItemVariant, Long> craftable = new HashMap<>();
-        craftable.put(ItemVariant.of(resultStack), 0L);
+        Map<IItemKey, Long> craftable = new HashMap<>();
+        craftable.put(ItemStorageLookup.of(resultStack), 0L);
         network.registerSupply(ctx.pos(), craftable, CRAFTER_PRIORITY);
 
         // Register buffer snapshot so RequestPlanner can cap batch sizes
@@ -743,7 +744,7 @@ public class CraftingModule implements Module, TickingModule, RoutingModule, Dis
             int resultCount = getResultCount(ctx);
             if (resultCount <= 0) return List.of();
             long batchCount = (amount + resultCount - 1L) / resultCount;
-            List<ItemVariant> missing = new ArrayList<>();
+            List<IItemKey> missing = new ArrayList<>();
             for (int slot = 0; slot < 9; slot++) {
                 String id = getIngredientItem(ctx, slot);
                 if (id.isEmpty()) continue;
@@ -867,7 +868,7 @@ public class CraftingModule implements Module, TickingModule, RoutingModule, Dis
         if (item.getDeliveryId() != null) {
             ILogisticsNetwork network = ctx.network();
             if (network != null) {
-                network.notifyDelivery(ctx.pos(), ItemVariant.of(item.getStack()), placed);
+                network.notifyDelivery(ctx.pos(), ItemStorageLookup.of(item.getStack()), placed);
             }
         }
 

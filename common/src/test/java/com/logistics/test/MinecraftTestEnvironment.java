@@ -1,5 +1,6 @@
 package com.logistics.test;
 
+import com.logistics.core.lib.storage.ItemStorageLookup;
 import com.mojang.serialization.Lifecycle;
 import net.minecraft.SharedConstants;
 import net.minecraft.core.Holder;
@@ -91,6 +92,10 @@ public abstract class MinecraftTestEnvironment {
                 BuiltInRegistries.DATA_COMPONENT_INITIALIZERS
                         .build(tagSafeRegistries)
                         .forEach(DataComponentInitializers.PendingComponents::apply);
+
+                // Register the test-environment key factory so ItemStorageLookup.of() works
+                // without a loader-specific implementation (Fabric/NeoForge).
+                ItemStorageLookup.registerKeyFactory(TestItemKey::of);
 
                 bootstrapped = true;
             } catch (Exception e) {

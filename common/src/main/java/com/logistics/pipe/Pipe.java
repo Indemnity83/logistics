@@ -20,7 +20,7 @@ import com.logistics.core.lib.pipe.TravelingItem;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
+import com.logistics.core.lib.storage.IItemKey;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.block.Block;
@@ -501,7 +501,7 @@ public class Pipe {
      * @return actual amount dispatched (&gt;0), -1 if the provider is temporarily busy (deferred),
      *         or 0 if no module could fulfill
      */
-    public long dispatch(PipeContext ctx, BlockPos requester, ItemVariant item, long amount, UUID deliveryId) {
+    public long dispatch(PipeContext ctx, BlockPos requester, IItemKey item, long amount, UUID deliveryId) {
         if (ctx.world().isClientSide()) return 0;
         for (Module module : getModules(ctx)) {
             if (module instanceof DispatchableModule dispatchable) {

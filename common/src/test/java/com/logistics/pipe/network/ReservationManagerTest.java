@@ -1,10 +1,10 @@
 package com.logistics.pipe.network;
 
+import com.logistics.core.lib.storage.IItemKey;
 import com.logistics.test.MinecraftTestEnvironment;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
+import com.logistics.test.TestItemKey;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.ItemStack;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -30,12 +30,12 @@ class ReservationManagerTest extends MinecraftTestEnvironment {
         manager = new ReservationManager();
     }
 
-    private ItemVariant diamond() {
-        return ItemVariant.of(new ItemStack(Items.DIAMOND));
+    private IItemKey diamond() {
+        return new TestItemKey(Items.DIAMOND);
     }
 
-    private ItemVariant emerald() {
-        return ItemVariant.of(new ItemStack(Items.EMERALD));
+    private IItemKey emerald() {
+        return new TestItemKey(Items.EMERALD);
     }
 
     // ===== Reserve + effectiveAvailable =====

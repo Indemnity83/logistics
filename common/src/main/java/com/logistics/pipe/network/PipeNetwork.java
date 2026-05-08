@@ -2,7 +2,8 @@ package com.logistics.pipe.network;
 
 import com.logistics.LogisticsMod;
 import com.logistics.core.lib.network.*;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
+import com.logistics.core.lib.storage.IItemKey;
+import com.logistics.core.lib.storage.ItemStorageLookup;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -127,13 +128,13 @@ public class PipeNetwork implements ILogisticsNetwork {
     }
 
     @Override
-    public void registerSupply(BlockPos pos, Map<ItemVariant, Long> items, int priority) {
+    public void registerSupply(BlockPos pos, Map<IItemKey, Long> items, int priority) {
         controller.registerSupply(pos, items, priority);
     }
 
     @Override
     public long getAvailableAmount(ItemStack stack) {
-        return controller.getAvailableAmount(ItemVariant.of(stack));
+        return controller.getAvailableAmount(ItemStorageLookup.of(stack));
     }
 
     @Override
@@ -142,7 +143,7 @@ public class PipeNetwork implements ILogisticsNetwork {
     }
 
     @Override
-    public UUID placeOrder(ItemVariant item, long amount, BlockPos requester, FulfillmentMode fulfillmentMode) {
+    public UUID placeOrder(IItemKey item, long amount, BlockPos requester, FulfillmentMode fulfillmentMode) {
         return controller.placeOrder(item, amount, requester, fulfillmentMode);
     }
 
@@ -172,17 +173,17 @@ public class PipeNetwork implements ILogisticsNetwork {
     }
 
     @Override
-    public List<ItemVariant> getMissingIngredients(ItemVariant item, long amount) {
+    public List<IItemKey> getMissingIngredients(IItemKey item, long amount) {
         return controller.getMissingIngredients(item, amount);
     }
 
     @Override
     public long getOrderedAmountFor(BlockPos requester, ItemStack stack) {
-        return controller.getOrderedAmountFor(requester, ItemVariant.of(stack));
+        return controller.getOrderedAmountFor(requester, ItemStorageLookup.of(stack));
     }
 
     @Override
-    public void notifyDelivery(BlockPos requester, ItemVariant item, long amount) {
+    public void notifyDelivery(BlockPos requester, IItemKey item, long amount) {
         controller.notifyDelivery(requester, item, amount);
         jobCoordinator.onDelivery(requester, item, amount);
     }
@@ -200,7 +201,7 @@ public class PipeNetwork implements ILogisticsNetwork {
         while ((cmd = controller.nextDispatchable()) != null) {
             NetDbg.out("[Network {}] Dispatch: {} | provider={} → requester={} | {}x {}",
                     getNetworkIdShort(id), cmd.orderId().toString().substring(0, 8),
-                    cmd.provider(), cmd.requester(), cmd.amount(), cmd.item().toStack().getItem());
+                    cmd.provider(), cmd.requester(), cmd.amount(), cmd.item().toStack(1).getItem());
             try {
                 CommandResult result = executor.execute(new NetworkCommand.ExtractCommand(
                         cmd.provider(), cmd.requester(), cmd.item(), cmd.amount(), cmd.orderId()));

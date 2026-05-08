@@ -2,7 +2,7 @@ package com.logistics.pipe.network;
 
 import com.logistics.core.lib.network.ItemRequest;
 import com.logistics.core.lib.network.PlanningView;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
+import com.logistics.core.lib.storage.IItemKey;
 import net.minecraft.core.BlockPos;
 
 import java.util.ArrayList;
@@ -88,7 +88,7 @@ public class JobCoordinator implements NetworkController.OrderFailureListener {
         job.transitionTo(JobState.ACTIVE);
         NetDbg.out("[Jobs] Submitted job {} for {}x {} | plan: {} extract/craft nodes",
                 jobId.toString().substring(0, 8), request.amount(),
-                request.item().toStack().getItem(), plan.roots().size());
+                request.item().toStack(1).getItem(), plan.roots().size());
         return job;
     }
 
@@ -123,7 +123,7 @@ public class JobCoordinator implements NetworkController.OrderFailureListener {
 
             long lost = result.amountLost();
             NetDbg.out("[Jobs] Reconciliation: job {} lost {}x {}",
-                    job.id().toString().substring(0, 8), lost, job.item().toStack().getItem());
+                    job.id().toString().substring(0, 8), lost, job.item().toStack(1).getItem());
 
             // Attempt to replan from alternative supply
             Optional<FulfillmentPlan> replan = service.replan(job, lost, view);
@@ -155,14 +155,14 @@ public class JobCoordinator implements NetworkController.OrderFailureListener {
      * Called when items physically arrive at a destination.
      * Updates the matching active job's {@code deliveredAmount}.
      */
-    public void onDelivery(BlockPos requester, ItemVariant item, long amount) {
+    public void onDelivery(BlockPos requester, IItemKey item, long amount) {
         for (NetworkJob job : jobs.values()) {
             if (job.state().isTerminal()) continue;
             if (job.destination().equals(requester) && job.item().equals(item)) {
                 job.recordDelivery(amount);
                 NetDbg.out("[Jobs] Delivery {} | {}x {} | outstanding={}",
                         job.id().toString().substring(0, 8), amount,
-                        item.toStack().getItem(), job.outstanding());
+                        item.toStack(1).getItem(), job.outstanding());
                 return;
             }
         }
@@ -173,8 +173,8 @@ public class JobCoordinator implements NetworkController.OrderFailureListener {
      * Implements {@link NetworkController.OrderFailureListener}.
      */
     @Override
-    public void onOrderFailed(UUID orderId, BlockPos requester, ItemVariant item,
-                              long amount, List<ItemVariant> missing) {
+    public void onOrderFailed(UUID orderId, BlockPos requester, IItemKey item,
+                              long amount, List<IItemKey> missing) {
         UUID jobId = orderToJob.remove(orderId);
         if (jobId == null) return;
         jobToOrder.remove(jobId);
@@ -183,7 +183,7 @@ public class JobCoordinator implements NetworkController.OrderFailureListener {
         job.transitionTo(JobState.FAILED);
         NetDbg.out("[Jobs] Job {} FAILED | {}x {} | missing: {}",
                 job.id().toString().substring(0, 8), amount,
-                item.toStack().getItem(), missing);
+                item.toStack(1).getItem(), missing);
     }
 
     // ===== Queries =====

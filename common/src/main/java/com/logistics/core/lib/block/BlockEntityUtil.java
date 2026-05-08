@@ -1,10 +1,9 @@
 package com.logistics.core.lib.block;
 
 import com.logistics.core.lib.block.capability.HasItemStorage;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
-import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
-import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
-import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
+import com.logistics.core.lib.storage.IItemKey;
+import com.logistics.core.lib.storage.IItemStorage;
+import com.logistics.core.lib.storage.IItemView;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
@@ -22,7 +21,6 @@ public final class BlockEntityUtil {
     /**
      * Get all items from a block entity's storage for dropping when the block is broken.
      * Works with any BlockEntity implementing HasItemStorage.
-     * Uses Transfer API properly with transactions to extract items.
      *
      * <p>This is intended for use in Block.getDrops() to include inventory contents
      * in the dropped items when a block is broken.
@@ -37,31 +35,30 @@ public final class BlockEntityUtil {
             return drops;
         }
 
-        Storage<ItemVariant> storage = hasItems.itemStorage(null);
+        IItemStorage storage = hasItems.itemStorage(null);
         if (storage == null) return drops;
 
-        try (Transaction tx = Transaction.openOuter()) {
-            for (StorageView<ItemVariant> view : storage) {
-                if (view.isResourceBlank()) continue;
+        // Snapshot contents before extracting to avoid modifying a live iterable during iteration
+        List<IItemView> views = new ArrayList<>();
+        for (IItemView v : storage.contents()) views.add(v);
 
-                ItemVariant variant = view.getResource();
-                long amount = view.getAmount();
-                if (amount <= 0) continue;
+        for (IItemView view : views) {
+            IItemKey key = view.resource();
+            long amount = view.amount();
+            if (amount <= 0) continue;
 
-                // Split large amounts into multiple stacks respecting max stack size
-                ItemStack sampleStack = variant.toStack(1);
-                int maxStackSize = sampleStack.getMaxStackSize();
+            ItemStack template = key.toStack(1);
+            int maxStackSize = template.getMaxStackSize();
 
-                long remaining = view.extract(variant, amount, tx);
-                while (remaining > 0) {
-                    int stackSize = (int) Math.min(remaining, maxStackSize);
-                    drops.add(variant.toStack(stackSize));
-                    remaining -= stackSize;
-                }
-
-                view.extract(variant, amount, tx);
+            // Build drop stacks from view amount, then do a real extract to remove items from storage
+            long remaining = amount;
+            while (remaining > 0) {
+                int stackSize = (int) Math.min(remaining, maxStackSize);
+                drops.add(key.toStack(stackSize));
+                remaining -= stackSize;
             }
-            tx.commit();
+
+            storage.extract(key, amount, false);
         }
 
         return drops;
