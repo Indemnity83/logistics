@@ -7,6 +7,7 @@ import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
+import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
@@ -57,106 +58,7 @@ public final class FabricItemStorage implements IItemStorage {
      */
     @Nullable
     public static Storage<ItemVariant> asFabric(@Nullable IItemStorage storage) {
-        if (storage == null) return null;
-        // Staged delta map: tracks pending mutations within a TransactionContext so that
-        // multiple operations in the same transaction see each other's effects before commit.
-        // Key = TransactionContext (identity), Value = per-key net delta (positive = pending insert,
-        // negative = pending extract). A single addCloseCallback per transaction applies or discards
-        // all deltas when the transaction closes.
-        Map<net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext, Map<IItemKey, Long>> staged =
-                new IdentityHashMap<>();
-
-        return new Storage<ItemVariant>() {
-
-            private Map<IItemKey, Long> deltas(
-                    net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext transaction) {
-                return staged.computeIfAbsent(transaction, t -> {
-                    Map<IItemKey, Long> d = new HashMap<>();
-                    t.addCloseCallback((closedTx, result) -> {
-                        Map<IItemKey, Long> committed = staged.remove(closedTx);
-                        if (result.wasCommitted() && committed != null) {
-                            for (var e : committed.entrySet()) {
-                                long delta = e.getValue();
-                                if (delta > 0) storage.insert(e.getKey(), delta, false);
-                                else if (delta < 0) storage.extract(e.getKey(), -delta, false);
-                            }
-                        }
-                    });
-                    return d;
-                });
-            }
-
-            @Override
-            public long insert(ItemVariant resource, long maxAmount,
-                    net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext transaction) {
-                IItemKey key = new FabricItemKey(resource);
-                Map<IItemKey, Long> d = deltas(transaction);
-                long netDelta = d.getOrDefault(key, 0L);
-                long effectiveCapacity = Math.max(0, storage.insert(key, Integer.MAX_VALUE, true) - netDelta);
-                long toInsert = Math.min(maxAmount, effectiveCapacity);
-                if (toInsert > 0) d.merge(key, toInsert, Long::sum);
-                return toInsert;
-            }
-
-            @Override
-            public long extract(ItemVariant resource, long maxAmount,
-                    net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext transaction) {
-                IItemKey key = new FabricItemKey(resource);
-                Map<IItemKey, Long> d = deltas(transaction);
-                long netDelta = d.getOrDefault(key, 0L);
-                long effectiveAvailable = Math.max(0, storage.extract(key, Integer.MAX_VALUE, true) + netDelta);
-                long toExtract = Math.min(maxAmount, effectiveAvailable);
-                if (toExtract > 0) d.merge(key, -toExtract, Long::sum);
-                return toExtract;
-            }
-
-            @Override
-            public Iterator<StorageView<ItemVariant>> iterator() {
-                Iterator<IItemView> inner = storage.contents().iterator();
-                return new Iterator<>() {
-                    @Override
-                    public boolean hasNext() { return inner.hasNext(); }
-
-                    @Override
-                    public StorageView<ItemVariant> next() {
-                        IItemView view = inner.next();
-                        return new StorageView<>() {
-                            @Override
-                            public long extract(ItemVariant resource, long maxAmount,
-                                    net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext tx) {
-                                if (!resource.equals(getResource())) return 0;
-                                IItemKey key = new FabricItemKey(resource);
-                                Map<IItemKey, Long> d = deltas(tx);
-                                long netDelta = d.getOrDefault(key, 0L);
-                                long effectiveAvailable = Math.max(
-                                        0, storage.extract(key, Integer.MAX_VALUE, true) + netDelta);
-                                long toExtract = Math.min(Math.min(maxAmount, getAmount()), effectiveAvailable);
-                                if (toExtract > 0) d.merge(key, -toExtract, Long::sum);
-                                return toExtract;
-                            }
-
-                            @Override
-                            public boolean isResourceBlank() {
-                                return view.resource().toStack(1).isEmpty();
-                            }
-
-                            @Override
-                            public ItemVariant getResource() {
-                                IItemKey key = view.resource();
-                                if (key instanceof FabricItemKey fk) return fk.variant();
-                                return ItemVariant.of(key.toStack(1));
-                            }
-
-                            @Override
-                            public long getAmount() { return view.amount(); }
-
-                            @Override
-                            public long getCapacity() { return view.amount(); }
-                        };
-                    }
-                };
-            }
-        };
+        return storage == null ? null : new StagedStorage(storage);
     }
 
     // ==================== IItemStorage implementation ====================
@@ -217,5 +119,132 @@ public final class FabricItemStorage implements IItemStorage {
                 return view;
             }
         };
+    }
+
+    // ==================== asFabric() inner classes ====================
+
+    /**
+     * Fabric {@code Storage<ItemVariant>} backed by an {@link IItemStorage}.
+     *
+     * <p>Maintains a per-{@link TransactionContext} staged delta map so that multiple
+     * operations within the same transaction see each other's pending mutations.
+     * Positive delta = pending insert; negative delta = pending extract.
+     * On commit the accumulated deltas are applied to the real storage; on rollback they are discarded.
+     */
+    private static final class StagedStorage implements Storage<ItemVariant> {
+
+        private final IItemStorage storage;
+        private final Map<TransactionContext, Map<IItemKey, Long>> staged = new IdentityHashMap<>();
+
+        StagedStorage(IItemStorage storage) {
+            this.storage = storage;
+        }
+
+        /** Returns the staged delta map for {@code transaction}, registering the commit/rollback callback on first access. */
+        Map<IItemKey, Long> deltas(TransactionContext transaction) {
+            return staged.computeIfAbsent(transaction, t -> {
+                Map<IItemKey, Long> d = new HashMap<>();
+                t.addCloseCallback((closedTx, result) -> {
+                    Map<IItemKey, Long> committed = staged.remove(closedTx);
+                    if (result.wasCommitted() && committed != null) {
+                        for (var e : committed.entrySet()) {
+                            long delta = e.getValue();
+                            if (delta > 0) storage.insert(e.getKey(), delta, false);
+                            else if (delta < 0) storage.extract(e.getKey(), -delta, false);
+                        }
+                    }
+                });
+                return d;
+            });
+        }
+
+        @Override
+        public long insert(ItemVariant resource, long maxAmount, TransactionContext transaction) {
+            IItemKey key = new FabricItemKey(resource);
+            Map<IItemKey, Long> d = deltas(transaction);
+            long netDelta = d.getOrDefault(key, 0L);
+            long effectiveCapacity = Math.max(0, storage.insert(key, Integer.MAX_VALUE, true) - netDelta);
+            long toInsert = Math.min(maxAmount, effectiveCapacity);
+            if (toInsert > 0) d.merge(key, toInsert, Long::sum);
+            return toInsert;
+        }
+
+        @Override
+        public long extract(ItemVariant resource, long maxAmount, TransactionContext transaction) {
+            IItemKey key = new FabricItemKey(resource);
+            Map<IItemKey, Long> d = deltas(transaction);
+            long netDelta = d.getOrDefault(key, 0L);
+            long effectiveAvailable = Math.max(0, storage.extract(key, Integer.MAX_VALUE, true) + netDelta);
+            long toExtract = Math.min(maxAmount, effectiveAvailable);
+            if (toExtract > 0) d.merge(key, -toExtract, Long::sum);
+            return toExtract;
+        }
+
+        @Override
+        public Iterator<StorageView<ItemVariant>> iterator() {
+            return new StagedStorageIterator(storage.contents().iterator(), this);
+        }
+    }
+
+    /** Iterates {@link IItemView}s from an {@link IItemStorage}, wrapping each as a {@link StagedStorageView}. */
+    private static final class StagedStorageIterator implements Iterator<StorageView<ItemVariant>> {
+
+        private final Iterator<IItemView> inner;
+        private final StagedStorage staged;
+
+        StagedStorageIterator(Iterator<IItemView> inner, StagedStorage staged) {
+            this.inner = inner;
+            this.staged = staged;
+        }
+
+        @Override
+        public boolean hasNext() { return inner.hasNext(); }
+
+        @Override
+        public StorageView<ItemVariant> next() {
+            return new StagedStorageView(inner.next(), staged);
+        }
+    }
+
+    /** Fabric {@link StorageView} backed by an {@link IItemView}, with transaction-staged extract. */
+    private static final class StagedStorageView implements StorageView<ItemVariant> {
+
+        private final IItemView view;
+        private final StagedStorage staged;
+
+        StagedStorageView(IItemView view, StagedStorage staged) {
+            this.view = view;
+            this.staged = staged;
+        }
+
+        @Override
+        public long extract(ItemVariant resource, long maxAmount, TransactionContext tx) {
+            if (!resource.equals(getResource())) return 0;
+            IItemKey key = new FabricItemKey(resource);
+            Map<IItemKey, Long> d = staged.deltas(tx);
+            long netDelta = d.getOrDefault(key, 0L);
+            long effectiveAvailable = Math.max(0, staged.storage.extract(key, Integer.MAX_VALUE, true) + netDelta);
+            long toExtract = Math.min(Math.min(maxAmount, getAmount()), effectiveAvailable);
+            if (toExtract > 0) d.merge(key, -toExtract, Long::sum);
+            return toExtract;
+        }
+
+        @Override
+        public boolean isResourceBlank() {
+            return view.resource().toStack(1).isEmpty();
+        }
+
+        @Override
+        public ItemVariant getResource() {
+            IItemKey key = view.resource();
+            if (key instanceof FabricItemKey fk) return fk.variant();
+            return ItemVariant.of(key.toStack(1));
+        }
+
+        @Override
+        public long getAmount() { return view.amount(); }
+
+        @Override
+        public long getCapacity() { return view.amount(); }
     }
 }
