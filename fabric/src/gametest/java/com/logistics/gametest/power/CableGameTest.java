@@ -1,0 +1,511 @@
+package com.logistics.gametest.power;
+
+import com.logistics.LogisticsCore;
+import com.logistics.LogisticsPower;
+import com.logistics.core.macerator.MaceratorBlockEntity;
+import com.logistics.core.lib.power.AbstractEngineBlock;
+import com.logistics.core.lib.support.ProbeResult;
+import com.logistics.power.cable.CableBlock;
+import com.logistics.power.cable.CableBlockEntity;
+import com.logistics.power.block.entity.CreativeSinkBlockEntity;
+import com.logistics.power.engine.block.entity.RedstoneEngineBlockEntity;
+import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
+import net.fabricmc.fabric.api.gametest.v1.GameTest;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Blocks;
+import team.reborn.energy.api.EnergyStorage;
+
+/**
+ * Game tests for power cables.
+ */
+public class CableGameTest {
+    @GameTest
+    public void testCablePlacementExposesEnergyStorage(GameTestHelper context) {
+        BlockPos cablePos = new BlockPos(1, 1, 1);
+
+        context.setBlock(cablePos, LogisticsPower.BLOCK.COPPER_CABLE);
+
+        CableBlockEntity cable = context.getBlockEntity(cablePos, CableBlockEntity.class);
+        if (cable == null) {
+            context.fail("Copper cable should have block entity");
+            return;
+        }
+
+        for (Direction direction : Direction.values()) {
+            EnergyStorage storage = cable.energyStorage(direction);
+            if (storage == null) {
+                context.fail("Copper cable should expose storage from " + direction);
+                return;
+            }
+            if (!storage.supportsInsertion()) {
+                context.fail("Copper cable should support insertion from " + direction);
+                return;
+            }
+            if (storage.supportsExtraction()) {
+                context.fail("Copper cable should not expose extractable battery storage from " + direction);
+                return;
+            }
+            if (storage.getAmount() != 0L || storage.getCapacity() != 0L) {
+                context.fail("Copper cable should report zero stored energy and capacity");
+                return;
+            }
+        }
+
+        context.succeed();
+    }
+
+    @GameTest
+    public void testAbortedCableTransactionAfterTickDoesNotReachCreativeSink(GameTestHelper context) {
+        BlockPos cablePos = new BlockPos(1, 1, 1);
+        BlockPos sinkPos = new BlockPos(2, 1, 1);
+
+        context.setBlock(cablePos, LogisticsPower.BLOCK.COPPER_CABLE);
+        context.setBlock(sinkPos, LogisticsPower.BLOCK.CREATIVE_SINK);
+
+        CableBlockEntity cable = context.getBlockEntity(cablePos, CableBlockEntity.class);
+        CreativeSinkBlockEntity sink = context.getBlockEntity(sinkPos, CreativeSinkBlockEntity.class);
+        if (cable == null || sink == null) {
+            context.fail("Expected cable and creative sink block entities");
+            return;
+        }
+
+        long demandBefore = sink.networkDemandPerTick();
+        if (demandBefore <= 0) {
+            context.fail("Creative sink demand must be positive for cross-tick abort transaction test");
+            return;
+        }
+
+        Transaction transaction = Transaction.openOuter();
+        long inserted = cable.energyStorage(Direction.WEST).insert(demandBefore, transaction);
+        if (inserted != demandBefore) {
+            transaction.close();
+            context.fail("Cable should reserve creative sink demand inside transaction, got: " + inserted);
+            return;
+        }
+
+        CreativeSinkBlockEntity.tick(context.getLevel(), context.absolutePos(sinkPos), context.getBlockState(sinkPos), sink);
+        transaction.close();
+
+        long demandAfterAbort = sink.networkDemandPerTick();
+        if (demandAfterAbort != demandBefore) {
+            context.fail("Aborted cross-tick transaction should restore sink demand, got: " + demandAfterAbort);
+            return;
+        }
+
+        String energyReceived = creativeSinkProbeValue(sink, "Energy Received");
+        if (!"0 RF".equals(energyReceived)) {
+            context.fail("Aborted cross-tick transaction should not count as received energy, got: "
+                    + energyReceived);
+            return;
+        }
+        context.succeed();
+    }
+
+    @GameTest(maxTicks = 30)
+    public void testInsertedCableEnergyPassesThroughToMachine(GameTestHelper context) {
+        BlockPos sourceCablePos = new BlockPos(1, 1, 1);
+        BlockPos relayCablePos = new BlockPos(2, 1, 1);
+        BlockPos machinePos = new BlockPos(3, 1, 1);
+
+        context.setBlock(sourceCablePos, LogisticsPower.BLOCK.COPPER_CABLE);
+        context.setBlock(relayCablePos, LogisticsPower.BLOCK.COPPER_CABLE);
+        context.setBlock(machinePos, LogisticsCore.BLOCK.MACERATOR);
+
+        CableBlockEntity sourceCable = context.getBlockEntity(sourceCablePos, CableBlockEntity.class);
+        MaceratorBlockEntity machine = context.getBlockEntity(machinePos, MaceratorBlockEntity.class);
+        if (sourceCable == null || machine == null) {
+            context.fail("Expected cable and machine block entities");
+            return;
+        }
+        giveMaceratorWork(machine);
+
+        EnergyStorage cableStorage = sourceCable.energyStorage(Direction.WEST);
+        try (Transaction transaction = Transaction.openOuter()) {
+            long inserted = cableStorage.insert(640L, transaction);
+            if (inserted <= 0) {
+                context.fail("Cable network should pass inserted energy through to the machine");
+                return;
+            }
+            transaction.commit();
+        }
+
+        long machineEnergy = machine.energyStorage(Direction.WEST).getAmount();
+        if (machineEnergy <= 0) {
+            context.fail("Cable network should deliver inserted energy to machine, got: " + machineEnergy);
+            return;
+        }
+        if (sourceCable.energyStorage(Direction.WEST).getAmount() != 0) {
+            context.fail("Cable should not retain delivered energy");
+            return;
+        }
+        context.succeed();
+    }
+
+    @GameTest
+    public void testCableChargesIdleMachineBuffer(GameTestHelper context) {
+        BlockPos cablePos = new BlockPos(1, 1, 1);
+        BlockPos machinePos = new BlockPos(2, 1, 1);
+
+        context.setBlock(cablePos, LogisticsPower.BLOCK.COPPER_CABLE);
+        context.setBlock(machinePos, LogisticsCore.BLOCK.MACERATOR);
+
+        CableBlockEntity cable = context.getBlockEntity(cablePos, CableBlockEntity.class);
+        MaceratorBlockEntity machine = context.getBlockEntity(machinePos, MaceratorBlockEntity.class);
+        if (cable == null || machine == null) {
+            context.fail("Expected cable and idle machine block entities");
+            return;
+        }
+
+        try (Transaction transaction = Transaction.openOuter()) {
+            long inserted = cable.energyStorage(Direction.WEST).insert(30L, transaction);
+            if (inserted != 30L) {
+                context.fail("Idle machine buffer should accept cable energy, got: " + inserted);
+                return;
+            }
+            transaction.commit();
+        }
+
+        long machineEnergy = machine.energyStorage(Direction.WEST).getAmount();
+        if (machineEnergy != 30L) {
+            context.fail("Idle machine buffer should charge without work, got: " + machineEnergy);
+            return;
+        }
+        context.succeed();
+    }
+
+    @GameTest
+    public void testAbortedCableTransactionDoesNotReachCreativeSink(GameTestHelper context) {
+        BlockPos cablePos = new BlockPos(1, 1, 1);
+        BlockPos sinkPos = new BlockPos(2, 1, 1);
+
+        context.setBlock(cablePos, LogisticsPower.BLOCK.COPPER_CABLE);
+        context.setBlock(sinkPos, LogisticsPower.BLOCK.CREATIVE_SINK);
+
+        CableBlockEntity cable = context.getBlockEntity(cablePos, CableBlockEntity.class);
+        CreativeSinkBlockEntity sink = context.getBlockEntity(sinkPos, CreativeSinkBlockEntity.class);
+        if (cable == null || sink == null) {
+            context.fail("Expected cable and creative sink block entities");
+            return;
+        }
+
+        long demandBefore = sink.networkDemandPerTick();
+        if (demandBefore <= 0) {
+            context.fail("Creative sink demand must be positive for abort transaction test");
+            return;
+        }
+        try (Transaction transaction = Transaction.openOuter()) {
+            long inserted = cable.energyStorage(Direction.WEST).insert(demandBefore, transaction);
+            if (inserted != demandBefore) {
+                context.fail("Cable should reserve creative sink demand inside transaction, got: " + inserted);
+                return;
+            }
+        }
+
+        long demandAfterAbort = sink.networkDemandPerTick();
+        if (demandAfterAbort != demandBefore) {
+            context.fail("Aborted cable transaction should not count as sink input, got demand: " + demandAfterAbort);
+            return;
+        }
+
+        context.succeed();
+    }
+
+    @GameTest
+    public void testCableInsertionDistributesByReportedDemand(GameTestHelper context) {
+        BlockPos cablePos = new BlockPos(1, 1, 1);
+        BlockPos smallSinkPos = new BlockPos(2, 1, 1);
+        BlockPos largeSinkPos = new BlockPos(1, 1, 2);
+
+        context.setBlock(cablePos, LogisticsPower.BLOCK.COPPER_CABLE);
+        context.setBlock(smallSinkPos, LogisticsPower.BLOCK.CREATIVE_SINK);
+        context.setBlock(largeSinkPos, LogisticsPower.BLOCK.CREATIVE_SINK);
+
+        CableBlockEntity cable = context.getBlockEntity(cablePos, CableBlockEntity.class);
+        CreativeSinkBlockEntity smallSink = context.getBlockEntity(smallSinkPos, CreativeSinkBlockEntity.class);
+        CreativeSinkBlockEntity largeSink = context.getBlockEntity(largeSinkPos, CreativeSinkBlockEntity.class);
+        if (cable == null || smallSink == null || largeSink == null) {
+            context.fail("Expected cable and creative sink block entities");
+            return;
+        }
+        setSinkDrainRate(largeSink, 10L, context);
+
+        try (Transaction transaction = Transaction.openOuter()) {
+            long inserted = cable.energyStorage(Direction.WEST).insert(9L, transaction);
+            if (inserted != 9L) {
+                context.fail("Cable should accept all energy demanded by sinks, got: " + inserted);
+                return;
+            }
+            transaction.commit();
+        }
+
+        long smallDemand = smallSink.networkDemandPerTick();
+        long largeDemand = largeSink.networkDemandPerTick();
+        if (smallDemand != 2L || largeDemand != 4L) {
+            context.fail("Cable should split 9 RF across 5/10 demand as 3/6, remaining demands: "
+                    + smallDemand + "/" + largeDemand);
+            return;
+        }
+
+        context.succeed();
+    }
+
+    @GameTest
+    public void testMixedTierRouteIsCappedByWeakestCable(GameTestHelper context) {
+        BlockPos enderCablePos = new BlockPos(1, 1, 1);
+        BlockPos copperCablePos = new BlockPos(2, 1, 1);
+        BlockPos sinkPos = new BlockPos(3, 1, 1);
+
+        context.setBlock(enderCablePos, LogisticsPower.BLOCK.ENDER_CABLE);
+        context.setBlock(copperCablePos, LogisticsPower.BLOCK.COPPER_CABLE);
+        context.setBlock(sinkPos, LogisticsPower.BLOCK.CREATIVE_SINK);
+
+        CableBlockEntity enderCable = context.getBlockEntity(enderCablePos, CableBlockEntity.class);
+        CreativeSinkBlockEntity sink = context.getBlockEntity(sinkPos, CreativeSinkBlockEntity.class);
+        if (enderCable == null || sink == null) {
+            context.fail("Expected ender cable and creative sink block entities");
+            return;
+        }
+        sink.setUnlimitedDrainRate();
+
+        try (Transaction transaction = Transaction.openOuter()) {
+            long inserted = enderCable.energyStorage(Direction.WEST).insert(60L, transaction);
+            if (inserted != 30L) {
+                context.fail("Ender-to-copper route should be capped at 30 RF/t, got: " + inserted);
+                return;
+            }
+            transaction.commit();
+        }
+
+        try (Transaction transaction = Transaction.openOuter()) {
+            long inserted = enderCable.energyStorage(Direction.WEST).insert(60L, transaction);
+            if (inserted != 0L) {
+                context.fail("Copper bottleneck should be spent for the tick, got extra: " + inserted);
+                return;
+            }
+            transaction.commit();
+        }
+
+        context.succeed();
+    }
+
+    @GameTest(maxTicks = 40)
+    public void testCreativeEnginePowersCableNetwork(GameTestHelper context) {
+        BlockPos enginePos = new BlockPos(0, 1, 1);
+        BlockPos firstCablePos = new BlockPos(1, 1, 1);
+        BlockPos secondCablePos = new BlockPos(2, 1, 1);
+        BlockPos machinePos = new BlockPos(3, 1, 1);
+
+        context.setBlock(firstCablePos, LogisticsPower.BLOCK.COPPER_CABLE);
+        context.setBlock(secondCablePos, LogisticsPower.BLOCK.COPPER_CABLE);
+        context.setBlock(machinePos, LogisticsCore.BLOCK.MACERATOR);
+        context.setBlock(enginePos, LogisticsPower.BLOCK.CREATIVE_ENGINE
+                .defaultBlockState()
+                .setValue(AbstractEngineBlock.FACING, Direction.EAST)
+                .setValue(AbstractEngineBlock.POWERED, true));
+
+        CableBlockEntity firstCable = context.getBlockEntity(firstCablePos, CableBlockEntity.class);
+        CableBlockEntity secondCable = context.getBlockEntity(secondCablePos, CableBlockEntity.class);
+        MaceratorBlockEntity machine = context.getBlockEntity(machinePos, MaceratorBlockEntity.class);
+        if (firstCable == null || secondCable == null || machine == null) {
+            context.fail("Expected cable and machine block entities");
+            return;
+        }
+        giveMaceratorWork(machine);
+
+        context.runAfterDelay(20, () -> {
+            long machineEnergy = machine.energyStorage(Direction.WEST).getAmount();
+            if (machineEnergy <= 0) {
+                context.fail("Creative engine should power machine through cable network");
+                return;
+            }
+            if (firstCable.energyStorage(Direction.WEST).getAmount() != 0
+                    || secondCable.energyStorage(Direction.WEST).getAmount() != 0) {
+                context.fail("Cables should not retain creative engine energy");
+                return;
+            }
+            context.succeed();
+        });
+    }
+
+    @GameTest(maxTicks = 40)
+    public void testCableNetworkStopsAtRemovedCable(GameTestHelper context) {
+        BlockPos sourceCablePos = new BlockPos(1, 1, 1);
+        BlockPos removedCablePos = new BlockPos(2, 1, 1);
+        BlockPos downstreamCablePos = new BlockPos(3, 1, 1);
+        BlockPos machinePos = new BlockPos(4, 1, 1);
+
+        context.setBlock(sourceCablePos, LogisticsPower.BLOCK.COPPER_CABLE);
+        context.setBlock(removedCablePos, LogisticsPower.BLOCK.COPPER_CABLE);
+        context.setBlock(downstreamCablePos, LogisticsPower.BLOCK.COPPER_CABLE);
+        context.setBlock(machinePos, LogisticsCore.BLOCK.MACERATOR);
+
+        context.runAfterDelay(2, () -> {
+            context.setBlock(removedCablePos, Blocks.AIR);
+
+            CableBlockEntity sourceCable = context.getBlockEntity(sourceCablePos, CableBlockEntity.class);
+            CableBlockEntity downstreamCable = context.getBlockEntity(downstreamCablePos, CableBlockEntity.class);
+            MaceratorBlockEntity machine = context.getBlockEntity(machinePos, MaceratorBlockEntity.class);
+            if (sourceCable == null || downstreamCable == null || machine == null) {
+                context.fail("Expected source cable, downstream cable, and machine block entities");
+                return;
+            }
+            giveMaceratorWork(machine);
+
+            EnergyStorage sourceStorage = sourceCable.energyStorage(Direction.WEST);
+            try (Transaction transaction = Transaction.openOuter()) {
+                long inserted = sourceStorage.insert(640L, transaction);
+                if (inserted != 0) {
+                    context.fail("Split cable network should reject energy without connected consumers, got: " + inserted);
+                    return;
+                }
+                transaction.commit();
+            }
+
+            context.runAfterDelay(10, () -> {
+                long machineEnergy = machine.energyStorage(Direction.WEST).getAmount();
+                if (machineEnergy != 0) {
+                    context.fail("Removed cable should split network before energy reaches machine, got: " + machineEnergy);
+                    return;
+                }
+                context.succeed();
+            });
+        });
+    }
+
+    @GameTest
+    public void testCableConnectionUpdatesWhenNeighborOutputRotates(GameTestHelper context) {
+        BlockPos enginePos = new BlockPos(1, 1, 1);
+        BlockPos cablePos = new BlockPos(2, 1, 1);
+
+        context.setBlock(cablePos, LogisticsPower.BLOCK.COPPER_CABLE);
+        context.setBlock(enginePos, LogisticsPower.BLOCK.CREATIVE_ENGINE
+                .defaultBlockState()
+                .setValue(AbstractEngineBlock.FACING, Direction.EAST)
+                .setValue(AbstractEngineBlock.POWERED, true));
+
+        CableBlockEntity cable = context.getBlockEntity(cablePos, CableBlockEntity.class);
+        if (cable == null) {
+            context.fail("Expected cable block entity");
+            return;
+        }
+
+        if (cable.getCachedConnectionType(Direction.WEST) != CableBlock.ConnectionType.DEVICE) {
+            context.fail("Cable should initially connect to engine output");
+            return;
+        }
+
+        context.setBlock(enginePos, LogisticsPower.BLOCK.CREATIVE_ENGINE
+                .defaultBlockState()
+                .setValue(AbstractEngineBlock.FACING, Direction.NORTH)
+                .setValue(AbstractEngineBlock.POWERED, true));
+
+        if (cable.getCachedConnectionType(Direction.WEST) != CableBlock.ConnectionType.NONE) {
+            context.fail("Cable connection cache should update when neighboring output rotates away");
+            return;
+        }
+
+        context.succeed();
+    }
+
+    @GameTest(maxTicks = 30)
+    public void testRedstoneEngineIsNotPulledByCableNetwork(GameTestHelper context) {
+        BlockPos enginePos = new BlockPos(1, 1, 1);
+        BlockPos cablePos = new BlockPos(2, 1, 1);
+
+        context.setBlock(cablePos, LogisticsPower.BLOCK.COPPER_CABLE);
+        context.setBlock(enginePos, LogisticsPower.BLOCK.REDSTONE_ENGINE
+                .defaultBlockState()
+                .setValue(AbstractEngineBlock.FACING, Direction.EAST)
+                .setValue(AbstractEngineBlock.POWERED, true));
+
+        context.runAfterDelay(20, () -> {
+            RedstoneEngineBlockEntity engine = context.getBlockEntity(enginePos, RedstoneEngineBlockEntity.class);
+            CableBlockEntity cable = context.getBlockEntity(cablePos, CableBlockEntity.class);
+            if (engine == null || cable == null) {
+                context.fail("Expected redstone engine and cable block entities");
+                return;
+            }
+            if (engine.getEnergy() <= 0) {
+                context.fail("Cable network should not pull directly from redstone engine buffer");
+                return;
+            }
+            if (cable.energyStorage(Direction.WEST).getAmount() != 0) {
+                context.fail("Cable should not buffer redstone engine energy");
+                return;
+            }
+            context.succeed();
+        });
+    }
+
+    @GameTest(maxTicks = 50)
+    public void testCableNetworkRejoinsAfterCableIsRestored(GameTestHelper context) {
+        BlockPos sourceCablePos = new BlockPos(1, 1, 1);
+        BlockPos restoredCablePos = new BlockPos(2, 1, 1);
+        BlockPos downstreamCablePos = new BlockPos(3, 1, 1);
+        BlockPos machinePos = new BlockPos(4, 1, 1);
+
+        context.setBlock(sourceCablePos, LogisticsPower.BLOCK.COPPER_CABLE);
+        context.setBlock(restoredCablePos, LogisticsPower.BLOCK.COPPER_CABLE);
+        context.setBlock(downstreamCablePos, LogisticsPower.BLOCK.COPPER_CABLE);
+        context.setBlock(machinePos, LogisticsCore.BLOCK.MACERATOR);
+
+        context.runAfterDelay(2, () -> {
+            context.setBlock(restoredCablePos, Blocks.AIR);
+            context.runAfterDelay(2, () -> {
+                context.setBlock(restoredCablePos, LogisticsPower.BLOCK.COPPER_CABLE);
+
+                CableBlockEntity sourceCable = context.getBlockEntity(sourceCablePos, CableBlockEntity.class);
+                MaceratorBlockEntity machine = context.getBlockEntity(machinePos, MaceratorBlockEntity.class);
+                if (sourceCable == null || machine == null) {
+                    context.fail("Expected source cable and machine block entities after restoring cable");
+                    return;
+                }
+                giveMaceratorWork(machine);
+
+                try (Transaction transaction = Transaction.openOuter()) {
+                    long inserted = sourceCable.energyStorage(Direction.WEST).insert(640L, transaction);
+                    if (inserted <= 0) {
+                        context.fail("Restored cable should rejoin network and deliver energy");
+                        return;
+                    }
+                    transaction.commit();
+                }
+
+                long machineEnergy = machine.energyStorage(Direction.WEST).getAmount();
+                if (machineEnergy <= 0) {
+                    context.fail("Restored cable network should deliver energy to machine, got: " + machineEnergy);
+                    return;
+                }
+                context.succeed();
+            });
+        });
+    }
+
+    private static void giveMaceratorWork(MaceratorBlockEntity machine) {
+        machine.setItem(0, new ItemStack(Items.IRON_INGOT));
+    }
+
+    private static void setSinkDrainRate(
+            CreativeSinkBlockEntity sink, long drainRate, GameTestHelper context) {
+        for (int attempts = 0; attempts < 20 && sink.getDrainRate() != drainRate; attempts++) {
+            sink.cycleDrainRate();
+        }
+        if (sink.getDrainRate() != drainRate) {
+            context.fail("Could not set creative sink drain rate to " + drainRate
+                    + ", got: " + sink.getDrainRate());
+        }
+    }
+
+    private static String creativeSinkProbeValue(CreativeSinkBlockEntity sink, String key) {
+        for (ProbeResult.Entry entry : sink.getProbeResult().entries()) {
+            if (entry instanceof ProbeResult.Entry.KeyValue keyValue && keyValue.key().equals(key)) {
+                return keyValue.value();
+            }
+        }
+        return "";
+    }
+}

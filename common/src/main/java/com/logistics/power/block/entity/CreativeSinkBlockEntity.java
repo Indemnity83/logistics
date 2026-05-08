@@ -6,6 +6,7 @@ import com.logistics.core.lib.block.capability.HasEnergyStorage;
 import com.logistics.core.lib.power.AcceptsLowTierEnergy;
 import com.logistics.core.lib.compat.NbtCompat;
 import com.logistics.core.lib.block.behavior.ProbeResult;
+import com.logistics.core.lib.power.EnergyDemandProvider;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -26,7 +27,7 @@ import com.logistics.core.lib.energy.IEnergyStorage;
  * custom logic instead of using {@link com.logistics.core.lib.energy.EnergyComponent}.
  */
 public class CreativeSinkBlockEntity extends BaseBlockEntity
-        implements AcceptsLowTierEnergy, HasEnergyStorage {
+    implements AcceptsLowTierEnergy, HasEnergyStorage, EnergyDemandProvider {
     private static final long[] DRAIN_RATES = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 50, 100, Long.MAX_VALUE};
     private int drainRateIndex = 4; // Default 5 RF/t
     private long energyLastTick = 0;
@@ -99,6 +100,13 @@ public class CreativeSinkBlockEntity extends BaseBlockEntity
 
     public long getDrainRate() {
         return DRAIN_RATES[drainRateIndex];
+    }
+
+    @Override
+    public long networkDemandPerTick() {
+        long drainRate = getDrainRate();
+        if (drainRate == Long.MAX_VALUE) return Long.MAX_VALUE;
+        return Math.max(0, drainRate - energyThisTick);
     }
 
     /**
