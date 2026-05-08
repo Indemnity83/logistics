@@ -18,6 +18,8 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
  */
 public class MaceratorRecipeSerializer implements RecipeSerializer<MaceratorRecipeWrapper> {
 
+    public static final MaceratorRecipeSerializer INSTANCE = new MaceratorRecipeSerializer();
+
     private static final MapCodec<MaceratorRecipeWrapper> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
         Ingredient.CODEC.fieldOf("ingredient").forGetter(MaceratorRecipeWrapper::ingredient),
         ItemStack.STRICT_CODEC.fieldOf("result").forGetter(MaceratorRecipeWrapper::result),

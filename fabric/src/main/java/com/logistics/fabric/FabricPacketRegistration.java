@@ -16,19 +16,19 @@ public final class FabricPacketRegistration {
         ServerNetworking.register(ServerPlayNetworking::send);
 
         // Serverbound packets
-        PayloadTypeRegistry.serverboundPlay().register(RequestItemPacket.TYPE, RequestItemPacket.CODEC);
+        PayloadTypeRegistry.playC2S().register(RequestItemPacket.TYPE, RequestItemPacket.CODEC);
         ServerPlayNetworking.registerGlobalReceiver(RequestItemPacket.TYPE,
                 (packet, context) -> context.server().execute(() -> packet.handle(context.player())));
 
-        PayloadTypeRegistry.serverboundPlay().register(SetSatelliteIdPacket.TYPE, SetSatelliteIdPacket.CODEC);
+        PayloadTypeRegistry.playC2S().register(SetSatelliteIdPacket.TYPE, SetSatelliteIdPacket.CODEC);
         ServerPlayNetworking.registerGlobalReceiver(SetSatelliteIdPacket.TYPE,
                 (packet, context) -> context.server().execute(() -> packet.handle(context.player())));
 
-        PayloadTypeRegistry.serverboundPlay().register(OpenChassisSlotPacket.TYPE, OpenChassisSlotPacket.CODEC);
+        PayloadTypeRegistry.playC2S().register(OpenChassisSlotPacket.TYPE, OpenChassisSlotPacket.CODEC);
         ServerPlayNetworking.registerGlobalReceiver(OpenChassisSlotPacket.TYPE,
                 (packet, context) -> context.server().execute(() -> packet.handle(context.player())));
 
         // Clientbound packets (type registration only; receiver registered in LogisticsPipeClient)
-        PayloadTypeRegistry.clientboundPlay().register(SyncRequesterInventoryPacket.TYPE, SyncRequesterInventoryPacket.CODEC);
+        PayloadTypeRegistry.playS2C().register(SyncRequesterInventoryPacket.TYPE, SyncRequesterInventoryPacket.CODEC);
     }
 }

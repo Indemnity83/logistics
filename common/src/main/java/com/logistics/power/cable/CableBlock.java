@@ -2,7 +2,7 @@ package com.logistics.power.cable;
 
 import com.logistics.LogisticsPower;
 import com.logistics.core.lib.block.behavior.ProbeBehavior;
-import com.logistics.core.lib.support.ProbeResult;
+import com.logistics.core.lib.block.behavior.ProbeResult;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
