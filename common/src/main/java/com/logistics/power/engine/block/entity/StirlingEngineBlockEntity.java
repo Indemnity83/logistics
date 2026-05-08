@@ -11,7 +11,6 @@ import com.logistics.power.engine.PIDController;
 import com.logistics.power.engine.block.StirlingEngineBlock;
 import com.logistics.power.engine.ui.StirlingEngineScreenHandler;
 import com.logistics.LogisticsPower;
-import net.fabricmc.fabric.api.menu.v1.ExtendedMenuProvider;
 import com.logistics.core.lib.storage.IItemKey;
 import com.logistics.core.lib.storage.IItemStorage;
 import com.logistics.core.lib.storage.IItemView;
@@ -23,7 +22,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
@@ -58,7 +56,7 @@ import org.jetbrains.annotations.Nullable;
  * When buffer fills up, temperature rises and generation decreases.
  */
 public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
-        implements ExtendedMenuProvider<BlockPos>, ContainerSingleItem.BlockContainerSingleItem, WorldlyContainer, HasItemStorage, MenuBehavior.HasMenu {
+        implements ContainerSingleItem.BlockContainerSingleItem, WorldlyContainer, HasItemStorage, MenuBehavior.HasMenu {
 
     // ==================== Constants ====================
 
@@ -427,26 +425,21 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
         return direction != outputDir;
     }
 
-    // ==================== ExtendedScreenHandlerFactory Implementation ====================
-
-    @Override
-    public Component getDisplayName() {
-        return Component.translatable("block.logistics.power.stirling_engine");
-    }
-
-    @Override
-    public BlockPos getScreenOpeningData(ServerPlayer player) {
-        return getBlockPos();
-    }
-
-    @Nullable @Override
-    public AbstractContainerMenu createMenu(int syncId, Inventory playerInventory, Player player) {
-        return new StirlingEngineScreenHandler(syncId, playerInventory, this, propertyDelegate);
-    }
+    // ==================== MenuBehavior.HasMenu Implementation ====================
 
     @Override
     public net.minecraft.world.MenuProvider createMenuProvider() {
-        return this; // StirlingEngineBlockEntity already implements MenuProvider via ExtendedScreenHandlerFactory
+        return new net.minecraft.world.MenuProvider() {
+            @Override
+            public Component getDisplayName() {
+                return Component.translatable("block.logistics.power.stirling_engine");
+            }
+
+            @Nullable @Override
+            public AbstractContainerMenu createMenu(int syncId, Inventory playerInventory, Player player) {
+                return new StirlingEngineScreenHandler(syncId, playerInventory, StirlingEngineBlockEntity.this, propertyDelegate);
+            }
+        };
     }
 
     // ==================== NBT Serialization ====================

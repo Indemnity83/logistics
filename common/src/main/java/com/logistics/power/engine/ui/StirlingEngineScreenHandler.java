@@ -2,7 +2,6 @@ package com.logistics.power.engine.ui;
 
 import com.logistics.LogisticsPower;
 import com.logistics.power.engine.block.entity.StirlingEngineBlockEntity;
-import net.minecraft.core.BlockPos;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
@@ -30,9 +29,8 @@ public class StirlingEngineScreenHandler extends AbstractContainerMenu {
     private final Container inventory;
     private final ContainerData propertyDelegate;
 
-    // Client constructor (called from ExtendedAbstractContainerMenuType packet)
-    @SuppressWarnings("unused")
-    public StirlingEngineScreenHandler(int syncId, Inventory playerInventory, BlockPos unusedPos) {
+    // Client constructor (called from MenuType on screen open)
+    public StirlingEngineScreenHandler(int syncId, Inventory playerInventory) {
         this(
                 syncId,
                 playerInventory,
