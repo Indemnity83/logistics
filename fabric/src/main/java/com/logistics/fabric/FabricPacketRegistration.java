@@ -1,5 +1,6 @@
 package com.logistics.fabric;
 
+import com.logistics.core.lib.platform.ServerNetworking;
 import com.logistics.pipe.network.packet.OpenChassisSlotPacket;
 import com.logistics.pipe.network.packet.RequestItemPacket;
 import com.logistics.pipe.network.packet.SetSatelliteIdPacket;
@@ -11,6 +12,9 @@ public final class FabricPacketRegistration {
     private FabricPacketRegistration() {}
 
     public static void register() {
+        // Wire common ServerNetworking SPI to Fabric's server-play networking
+        ServerNetworking.register(ServerPlayNetworking::send);
+
         // Serverbound packets
         PayloadTypeRegistry.serverboundPlay().register(RequestItemPacket.TYPE, RequestItemPacket.CODEC);
         ServerPlayNetworking.registerGlobalReceiver(RequestItemPacket.TYPE,

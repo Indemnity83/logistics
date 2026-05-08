@@ -31,9 +31,8 @@ public class StirlingEngineScreenHandler extends AbstractContainerMenu {
     private final Container inventory;
     private final ContainerData propertyDelegate;
 
-    // Client constructor (called from ExtendedAbstractContainerMenuType packet)
-    @SuppressWarnings("unused")
-    public StirlingEngineScreenHandler(int syncId, Inventory playerInventory, BlockPos unusedPos) {
+    // Client constructor (called from MenuType on screen open)
+    public StirlingEngineScreenHandler(int syncId, Inventory playerInventory) {
         this(
                 syncId,
                 playerInventory,
