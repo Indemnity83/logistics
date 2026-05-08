@@ -1,6 +1,5 @@
 package com.logistics;
 
-import com.logistics.core.LogisticsCommands;
 import com.logistics.core.LogisticsConfig;
 import com.logistics.core.bootstrap.DomainBootstrap;
 import com.logistics.core.item.ProbeItem;
@@ -17,8 +16,6 @@ import com.logistics.core.lib.block.lookup.FluidStorageAccess;
 import com.logistics.core.lib.block.lookup.ItemStorageAccess;
 import com.logistics.core.lib.block.lookup.PipeConnectionAccess;
 import com.logistics.core.lib.resource.ResourceId;
-import com.logistics.core.loot.ChestLootModifier;
-import com.logistics.core.network.NetworkTickHandler;
 import net.fabricmc.fabric.api.biome.v1.BiomeModifications;
 import net.fabricmc.fabric.api.biome.v1.BiomeSelectors;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
@@ -84,9 +81,6 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         addCreativeTabEntries();
         addVanillaCreativeTabEntries();
         registerWorldgen();
-        ChestLootModifier.register();
-        NetworkTickHandler.register();
-        LogisticsCommands.register();
         MaceratorRecipeManager.register();
     }
 
