@@ -46,7 +46,7 @@ public final class LogisticsCommandTree {
 
     public static LiteralArgumentBuilder<CommandSourceStack> build() {
         return Commands.literal("logistics")
-            .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+            .requires(source -> source.hasPermission(Commands.LEVEL_GAMEMASTERS))
             .then(Commands.literal("debug")
                 .executes(ctx -> {
                     List<String> registered = sortedDomains();

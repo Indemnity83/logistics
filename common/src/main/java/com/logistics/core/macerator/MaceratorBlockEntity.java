@@ -66,52 +66,30 @@ public class MaceratorBlockEntity extends BaseBlockEntity
 
     private final ItemInventoryComponent inventory = new ItemInventoryComponent(TOTAL_SLOTS, this::setChanged);
     final EnergyComponent energy = new EnergyComponent(ENERGY_CAPACITY, MAX_ENERGY_INPUT, 0, this::setChanged);
-    private final EnergyStorage energyStorage = new EnergyStorage() {
+    private long energyReceivedThisTick = 0;
+    private final IEnergyStorage trackingStorage = new IEnergyStorage() {
         @Override
-        public boolean supportsInsertion() {
-            return energy.supportsInsertion();
-        }
-
-        @Override
-        public long insert(long maxAmount, TransactionContext transaction) {
-            long inserted = energy.insert(maxAmount, transaction);
-            if (inserted <= 0) {
-                return 0;
-            }
-
-            if (transaction == null) {
-                energyReceivedThisTick += inserted;
-            } else {
-                transaction.addOuterCloseCallback(result -> {
-                    if (result == Result.COMMITTED) {
-                        energyReceivedThisTick += inserted;
-                    }
-                });
-            }
+        public long insert(long maxAmount, boolean simulate) {
+            long inserted = energy.insert(maxAmount, simulate);
+            if (!simulate && inserted > 0) energyReceivedThisTick += inserted;
             return inserted;
         }
 
         @Override
-        public boolean supportsExtraction() {
-            return energy.supportsExtraction();
-        }
+        public long extract(long maxAmount, boolean simulate) { return energy.extract(maxAmount, simulate); }
 
         @Override
-        public long extract(long maxAmount, TransactionContext transaction) {
-            return energy.extract(maxAmount, transaction);
-        }
+        public long getAmount() { return energy.getAmount(); }
 
         @Override
-        public long getAmount() {
-            return energy.getAmount();
-        }
+        public long getCapacity() { return energy.getCapacity(); }
 
         @Override
-        public long getCapacity() {
-            return energy.getCapacity();
-        }
+        public boolean canInsert() { return energy.canInsert(); }
+
+        @Override
+        public boolean canExtract() { return energy.canExtract(); }
     };
-    private long energyReceivedThisTick = 0;
 
     @Nullable private ResourceId activeRecipeId = null;
     int processProgress = 0;
@@ -270,12 +248,12 @@ public class MaceratorBlockEntity extends BaseBlockEntity
 
     @Override
     public IEnergyStorage energyStorage(@Nullable Direction side) {
-        return energyStorage;
+        return trackingStorage;
     }
 
     @Override
     public long networkDemandPerTick() {
-        long storageRoom = Math.max(0, ENERGY_CAPACITY - energy.amount);
+        long storageRoom = Math.max(0, ENERGY_CAPACITY - energy.getAmount());
         long remainingInput = Math.max(0, MAX_ENERGY_INPUT - energyReceivedThisTick);
         return Math.min(remainingInput, storageRoom);
     }

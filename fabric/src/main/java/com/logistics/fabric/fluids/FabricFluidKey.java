@@ -42,7 +42,7 @@ public final class FabricFluidKey implements IFluidKey {
 
     @Override
     public DataComponentPatch getComponents() {
-        return variant.getComponentsPatch();
+        return variant.getComponents();
     }
 
     @Override

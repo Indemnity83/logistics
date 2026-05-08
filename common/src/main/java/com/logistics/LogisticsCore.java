@@ -308,8 +308,6 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
 
         public static RecipeType<MaceratorRecipeWrapper> MACERATOR_RECIPE_TYPE;
         public static RecipeSerializer<MaceratorRecipeWrapper> MACERATOR_RECIPE_SERIALIZER;
-        public static RecipeBookCategory MACERATOR_CATEGORY;
-        public static RecipeDisplay.Type<MaceratorRecipeDisplay> MACERATOR_DISPLAY_TYPE;
 
         static void register() {
             MACERATOR_RECIPE_TYPE = Registry.register(
@@ -325,17 +323,7 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
             MACERATOR_RECIPE_SERIALIZER = Registry.register(
                 BuiltInRegistries.RECIPE_SERIALIZER,
                 LogisticsMod.modId("macerator").toIdentifier(),
-                MaceratorRecipeSerializer.INSTANCE
-            );
-            MACERATOR_CATEGORY = Registry.register(
-                BuiltInRegistries.RECIPE_BOOK_CATEGORY,
-                LogisticsMod.modId("macerator").toIdentifier(),
-                new RecipeBookCategory()
-            );
-            MACERATOR_DISPLAY_TYPE = Registry.register(
-                BuiltInRegistries.RECIPE_DISPLAY,
-                LogisticsMod.modId("macerator").toIdentifier(),
-                MaceratorRecipeDisplay.TYPE
+                new MaceratorRecipeSerializer()
             );
 
             // Register data-pack reload listener that loads macerator recipe JSON files
