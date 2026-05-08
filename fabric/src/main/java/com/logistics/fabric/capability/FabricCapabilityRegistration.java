@@ -2,6 +2,10 @@ package com.logistics.fabric.capability;
 
 import com.logistics.LogisticsAutomation;
 import com.logistics.core.lib.pipe.PipeConnectionLookup;
+import com.logistics.core.lib.storage.ItemStorageLookup;
+import com.logistics.fabric.storage.FabricItemKey;
+import com.logistics.fabric.storage.FabricItemStorage;
+import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
 import net.minecraft.core.Direction;
 
 public final class FabricCapabilityRegistration {
@@ -12,6 +16,13 @@ public final class FabricCapabilityRegistration {
         FluidStorageAccess.register();
         // EnergyStorageAccess is registered separately by LogisticsFabric.registerEnergyServices()
         PipeConnectionAccess.register();
+
+        // Wire ItemStorageLookup so common pipe modules can find IItemStorage without importing Fabric API
+        ItemStorageLookup.register(
+                (world, pos, dir) -> FabricItemStorage.wrap(ItemStorage.SIDED.find(world, pos, dir)));
+
+        // Wire the key factory so common code can construct IItemKey from ItemStack
+        ItemStorageLookup.registerKeyFactory(FabricItemKey::of);
 
         // Quarry: only accepts pipe connections from above
         PipeConnectionRegistry.SIDED.registerForBlockEntity(

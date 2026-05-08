@@ -1,7 +1,7 @@
 package com.logistics.pipe.network;
 
 import com.logistics.core.lib.network.PlanningView;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
+import com.logistics.core.lib.storage.IItemKey;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -22,8 +22,8 @@ import java.util.Set;
  */
 final class PlanningContext {
 
-    final Map<ItemVariant, Long> claimed = new HashMap<>();
-    final Set<ItemVariant> visited = new HashSet<>();
+    final Map<IItemKey, Long> claimed = new HashMap<>();
+    final Set<IItemKey> visited = new HashSet<>();
 
     static PlanningContext fresh() {
         return new PlanningContext();
@@ -34,7 +34,7 @@ final class PlanningContext {
      * claimed in this planning run.
      * Crafter entries ({@code available == 0}) are excluded from the stock sum.
      */
-    long effectiveRealStock(ItemVariant item, List<PlanningView.SupplyPoint> supply) {
+    long effectiveRealStock(IItemKey item, List<PlanningView.SupplyPoint> supply) {
         long raw = 0;
         for (PlanningView.SupplyPoint sp : supply) {
             if (sp.available() > 0) raw += sp.available();

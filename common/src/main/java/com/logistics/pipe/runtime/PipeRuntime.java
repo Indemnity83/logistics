@@ -9,15 +9,13 @@ import com.logistics.pipe.Pipe;
 import com.logistics.core.lib.pipe.PipeContext;
 import com.logistics.pipe.block.PipeBlock;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
+import com.logistics.core.lib.storage.IItemStorage;
+import com.logistics.core.lib.storage.ItemStorageLookup;
 import com.logistics.pipe.block.entity.PipeItemStorage;
 import com.logistics.pipe.network.NetworkRegistry;
 import com.logistics.pipe.network.PipeNetwork;
 import java.util.ArrayList;
 import java.util.List;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
-import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
-import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
@@ -265,7 +263,7 @@ public final class PipeRuntime {
                 if (network != null) {
                     network.notifyDelivery(
                             item.getDestination(),
-                            ItemVariant.of(item.getStack()),
+                            ItemStorageLookup.of(item.getStack()),
                             item.getStack().getCount());
                 }
             }
@@ -383,60 +381,70 @@ public final class PipeRuntime {
         Direction direction = item.getDirection();
         BlockPos targetPos = pos.relative(direction);
 
-        Storage<ItemVariant> storage = ItemStorage.SIDED.find(world, targetPos, direction.getOpposite());
+        // Pipe-to-pipe: bypass the capability system entirely and hand off directly.
+        // This preserves TravelingItem metadata (speed, delivery ID, destination).
+        if (world.getBlockEntity(targetPos) instanceof PipeBlockEntity targetPipe) {
+            PipeItemStorage pipeStorage = targetPipe.getItemStorage(direction.getOpposite());
+            if (pipeStorage != null) {
+                long inserted = pipeStorage.insertTravelingItem(item);
+                if (inserted <= 0) {
+                    notifyDropAndDrop(world, pos, item);
+                }
+            } else {
+                notifyDropAndDrop(world, pos, item);
+            }
+            return;
+        }
+
+        // Non-pipe target: use the loader-agnostic storage lookup.
+        IItemStorage storage = ItemStorageLookup.find(world, targetPos, direction.getOpposite());
 
         if (storage != null) {
-            // For non-pipe storages, give modules a chance to handle the insertion themselves
-            // (e.g., slot-specific insertion into an autocrafter).
-            if (!(storage instanceof PipeItemStorage) && ctx.hasPipe()) {
+            // Give modules a chance to handle insertion (e.g., slot-specific insertion into an autocrafter).
+            if (ctx.hasPipe()) {
                 TravelingItem remaining = ctx.pipe().handleTransfer(ctx.pipeContext(), item, direction);
                 if (remaining == null) return; // module fully handled it
-                item = remaining; // use possibly-modified item for default insertion
+                item = remaining;
             }
 
-            try (Transaction transaction = Transaction.openOuter()) {
-                long inserted;
-                if (storage instanceof PipeItemStorage pipeStorage) {
-                    inserted = pipeStorage.insert(item, transaction);
-                } else {
-                    ItemVariant variant = ItemVariant.of(item.getStack());
-                    inserted = storage.insert(variant, item.getStack().getCount(), transaction);
-                }
+            long inserted = storage.insert(ItemStorageLookup.of(item.getStack()), item.getStack().getCount(), false);
 
-                if (inserted > 0) {
-                    transaction.commit();
-                    // Notify delivery when item fully enters a real inventory (not another pipe).
-                    // Skip on partial insertion — orderedForRequester accounting is best-effort.
-                    if (!(storage instanceof PipeItemStorage) && item.getDeliveryId() != null
-                            && item.getDestination() != null && inserted == item.getStack().getCount()) {
-                        PipeNetwork network = NetworkRegistry.getNetwork(world, pos);
-                        if (network != null) {
-                            network.notifyDelivery(
-                                    item.getDestination(),
-                                    ItemVariant.of(item.getStack()),
-                                    inserted);
-                        } else {
-                            NetDbg.out("[PipeRuntime] notifyDelivery skipped at {}: no network found for {} ({})",
-                                    pos, item.getStack().getItem(), item.getDeliveryId());
-                        }
+            if (inserted > 0) {
+                // Notify delivery when item fully enters a real inventory.
+                // Skip on partial insertion — orderedForRequester accounting is best-effort.
+                if (item.getDeliveryId() != null
+                        && item.getDestination() != null
+                        && inserted == item.getStack().getCount()) {
+                    PipeNetwork network = NetworkRegistry.getNetwork(world, pos);
+                    if (network != null) {
+                        network.notifyDelivery(
+                                item.getDestination(),
+                                ItemStorageLookup.of(item.getStack()),
+                                inserted);
+                    } else {
+                        NetDbg.out("[PipeRuntime] notifyDelivery skipped at {}: no network found for {} ({})",
+                                pos, item.getStack().getItem(), item.getDeliveryId());
                     }
-                    if (inserted < item.getStack().getCount()) {
-                        item.getStack().shrink((int) inserted);
-                        PipeBlockEntity.dropItem(world, pos, item);
-                    }
-                    return;
                 }
+                if (inserted < item.getStack().getCount()) {
+                    item.getStack().shrink((int) inserted);
+                    PipeBlockEntity.dropItem(world, pos, item);
+                }
+                return;
             }
         }
 
-        // Item could not enter any storage — drop it. If it had delivery tracking,
-        // notify the network so orderedForRequester doesn't stay permanently elevated.
+        // Item could not enter any storage — drop it.
+        notifyDropAndDrop(world, pos, item);
+    }
+
+    private static void notifyDropAndDrop(Level world, BlockPos pos, TravelingItem item) {
         if (item.getDeliveryId() != null && item.getDestination() != null) {
             PipeNetwork network = NetworkRegistry.getNetwork(world, pos);
             if (network != null) {
                 network.notifyDelivery(
                         item.getDestination(),
-                        ItemVariant.of(item.getStack()),
+                        ItemStorageLookup.of(item.getStack()),
                         item.getStack().getCount());
             }
         }

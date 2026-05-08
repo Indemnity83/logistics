@@ -1,15 +1,15 @@
 package com.logistics.core.lib.network;
 
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
+import com.logistics.core.lib.storage.IItemKey;
 import net.minecraft.core.BlockPos;
 
 /**
  * A request to the logistics network to source and deliver items to a destination.
  * Submitted to the job coordinator to create a network job.
- * Pure value object — no Minecraft world coupling beyond BlockPos/ItemVariant.
+ * Pure value object — no Minecraft world coupling beyond BlockPos/IItemKey.
  */
 public record ItemRequest(
-        ItemVariant item,
+        IItemKey item,
         long amount,
         BlockPos destination,
         FulfillmentMode fulfillmentMode) {
@@ -22,7 +22,7 @@ public record ItemRequest(
     }
 
     /** Convenience factory for the common PARTIAL fulfillment case. */
-    public static ItemRequest partial(ItemVariant item, long amount, BlockPos destination) {
+    public static ItemRequest partial(IItemKey item, long amount, BlockPos destination) {
         return new ItemRequest(item, amount, destination, FulfillmentMode.PARTIAL);
     }
 }

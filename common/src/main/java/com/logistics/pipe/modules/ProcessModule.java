@@ -15,11 +15,10 @@ import com.logistics.core.lib.network.ProviderCanFulfill;
 import com.logistics.core.lib.pipe.RoutePlan;
 import com.logistics.core.lib.pipe.TravelingItem;
 import com.logistics.pipe.ui.ProcessScreenHandler;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
-import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
-import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
-import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
+import com.logistics.core.lib.storage.IItemKey;
+import com.logistics.core.lib.storage.IItemStorage;
+import com.logistics.core.lib.storage.IItemView;
+import com.logistics.core.lib.storage.ItemStorageLookup;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -36,6 +35,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -266,7 +266,7 @@ public class ProcessModule implements Module, TickingModule, RoutingModule, Disp
     }
 
     @Override
-    public long onDispatch(PipeContext ctx, BlockPos requester, ItemVariant item, long amount, UUID deliveryId) {
+    public long onDispatch(PipeContext ctx, BlockPos requester, IItemKey item, long amount, UUID deliveryId) {
         // Find which output matches the requested item
         int matchedOutput = -1;
         for (int i = 0; i < MAX_OUTPUTS; i++) {
@@ -304,7 +304,8 @@ public class ProcessModule implements Module, TickingModule, RoutingModule, Disp
         int satId = getInputSatelliteId(ctx);
         String globalDest = satId > 0 ? String.valueOf(satId) : "";
 
-        // Place orders for each input
+        // Place orders for each input; track created order IDs for rollback on failure
+        List<UUID> createdOrderIds = new ArrayList<>();
         ListTag orderIds = new ListTag();
         for (int i = 0; i < MAX_INPUTS; i++) {
             String inputItem = getInputItem(ctx, i);
@@ -314,7 +315,7 @@ public class ProcessModule implements Module, TickingModule, RoutingModule, Disp
             ItemStack inputStack = resolveItem(inputItem);
             if (inputStack.isEmpty()) continue;
 
-            ItemVariant inputVariant = ItemVariant.of(inputStack);
+            IItemKey inputKey = ItemStorageLookup.of(inputStack);
             long needed = executions * inputCount;
 
             // Resolve destination: per-input dest first, then global, then self
@@ -326,13 +327,16 @@ public class ProcessModule implements Module, TickingModule, RoutingModule, Disp
             } else {
                 orderDest = network.findSatellite(effectiveDest);
                 if (orderDest == null) {
+                    // Cancel any orders already placed this iteration before aborting
+                    createdOrderIds.forEach(network::cancelOrder);
                     NetDbg.out("[Process @ {}] Dispatch rejected: satellite '{}' not found for input {}", ctx.pos(), effectiveDest, i);
                     LogisticsPipe.LOGGER.warn("[Process @ {}] Satellite '{}' not found for input {}; aborting dispatch", ctx.pos(), effectiveDest, i);
                     return 0;
                 }
             }
 
-            UUID orderId = network.placeOrder(inputVariant, needed, orderDest);
+            UUID orderId = network.placeOrder(inputKey, needed, orderDest);
+            createdOrderIds.add(orderId);
             orderIds.add(StringTag.valueOf(orderId.toString()));
         }
 
@@ -394,13 +398,13 @@ public class ProcessModule implements Module, TickingModule, RoutingModule, Disp
         // Advertise 0 — signals "produceable on demand" (like CraftingModule)
         // The network will validate ingredients via buildProviderCheck before dispatching.
         // Supply is always advertised even while jobs are queued, so additional orders can arrive.
-        Map<ItemVariant, Long> supply = new HashMap<>();
+        Map<IItemKey, Long> supply = new HashMap<>();
         for (int i = 0; i < MAX_OUTPUTS; i++) {
             String outId = getOutputItem(ctx, i);
             if (outId.isEmpty()) continue;
             ItemStack outStack = resolveItem(outId);
             if (!outStack.isEmpty()) {
-                supply.put(ItemVariant.of(outStack), 0L);
+                supply.put(ItemStorageLookup.of(outStack), 0L);
             }
         }
 
@@ -431,7 +435,7 @@ public class ProcessModule implements Module, TickingModule, RoutingModule, Disp
                 int inputCount = getInputCount(ctx, i);
                 ItemStack inputStack = resolveItem(inputId);
                 if (inputStack.isEmpty()) continue;
-                List<ItemVariant> missing = checker.check(inputStack, executions * inputCount);
+                List<IItemKey> missing = checker.check(inputStack, executions * inputCount);
                 if (!missing.isEmpty()) return missing;
             }
             return List.of();
@@ -502,8 +506,8 @@ public class ProcessModule implements Module, TickingModule, RoutingModule, Disp
             long requestedRemaining = Math.max(0, requested - totalSentToRequester);
             long toRequester = Math.min(stillNeeded, requestedRemaining);
 
-            ItemVariant variant = ItemVariant.of(outStack);
-            long extractedNow = extractAndRoute(ctx, variant, stillNeeded, requester, toRequester);
+            IItemKey key = ItemStorageLookup.of(outStack);
+            long extractedNow = extractAndRoute(ctx, key, stillNeeded, requester, toRequester);
 
             if (extractedNow > 0) {
                 long sentNow = Math.min(extractedNow, toRequester);
@@ -528,51 +532,48 @@ public class ProcessModule implements Module, TickingModule, RoutingModule, Disp
         }
     }
 
-    private long extractAndRoute(PipeContext ctx, ItemVariant variant, long needed, BlockPos requester, long toRequester) {
+    private long extractAndRoute(PipeContext ctx, IItemKey key, long needed, BlockPos requester, long toRequester) {
         long extracted = 0;
         for (Direction dir : ctx.getInventoryConnections()) {
             BlockPos neighborPos = ctx.pos().relative(dir);
-            Storage<ItemVariant> storage = ItemStorage.SIDED.find(ctx.world(), neighborPos, dir.getOpposite());
+            IItemStorage storage = ItemStorageLookup.find(ctx.world(), neighborPos, dir.getOpposite());
             if (storage == null) continue;
 
-            try (Transaction tx = Transaction.openOuter()) {
-                long toExtract = needed - extracted;
-                long got = 0;
-                for (StorageView<ItemVariant> view : storage.nonEmptyViews()) {
-                    if (!view.getResource().equals(variant)) continue;
-                    long canGet = Math.min(view.getAmount(), toExtract - got);
-                    if (canGet <= 0) continue;
-                    got += storage.extract(variant, canGet, tx);
-                    if (got >= toExtract) break;
+            long toExtract = needed - extracted;
+            long got = 0;
+            for (IItemView view : storage.contents()) {
+                if (!view.resource().equals(key)) continue;
+                long canGet = Math.min(view.amount(), toExtract - got);
+                if (canGet <= 0) continue;
+                got += storage.extract(key, canGet, false);
+                if (got >= toExtract) break;
+            }
+            if (got > 0) {
+                extracted += got;
+                long forRequester = Math.min(got, toRequester);
+                toRequester -= forRequester;
+                long forSink = got - forRequester;
+                long rem = forRequester;
+                while (rem > 0) {
+                    int chunk = (int) Math.min(rem, Integer.MAX_VALUE);
+                    TravelingItem t = new TravelingItem(
+                            key.toStack(chunk), dir.getOpposite(),
+                            LogisticsConfig.get().pipe.injectSpeed, requester);
+                    t.setDeliveryId(getFirstEntryDeliveryId(ctx));
+                    ctx.blockEntity().forceAddItem(t, dir);
+                    rem -= chunk;
                 }
-                if (got > 0) {
-                    tx.commit();
-                    extracted += got;
-                    long forRequester = Math.min(got, toRequester);
-                    toRequester -= forRequester;
-                    long forSink = got - forRequester;
-                    long rem = forRequester;
-                    while (rem > 0) {
-                        int chunk = (int) Math.min(rem, Integer.MAX_VALUE);
-                        TravelingItem t = new TravelingItem(
-                                variant.toStack(chunk), dir.getOpposite(),
-                                LogisticsConfig.get().pipe.injectSpeed, requester);
-                        t.setDeliveryId(getFirstEntryDeliveryId(ctx));
-                        ctx.blockEntity().forceAddItem(t, dir);
-                        rem -= chunk;
-                    }
-                    rem = forSink;
-                    while (rem > 0) {
-                        // Route excess to a sink (null destination = find default route)
-                        int chunk = (int) Math.min(rem, Integer.MAX_VALUE);
-                        TravelingItem t = new TravelingItem(
-                                variant.toStack(chunk), dir.getOpposite(),
-                                LogisticsConfig.get().pipe.injectSpeed, null);
-                        ctx.blockEntity().forceAddItem(t, dir);
-                        rem -= chunk;
-                    }
-                    if (extracted >= needed) break;
+                rem = forSink;
+                while (rem > 0) {
+                    // Route excess to a sink (null destination = find default route)
+                    int chunk = (int) Math.min(rem, Integer.MAX_VALUE);
+                    TravelingItem t = new TravelingItem(
+                            key.toStack(chunk), dir.getOpposite(),
+                            LogisticsConfig.get().pipe.injectSpeed, null);
+                    ctx.blockEntity().forceAddItem(t, dir);
+                    rem -= chunk;
                 }
+                if (extracted >= needed) break;
             }
         }
         return extracted;

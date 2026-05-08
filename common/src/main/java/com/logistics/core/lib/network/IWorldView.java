@@ -1,10 +1,11 @@
 package com.logistics.core.lib.network;
 
-import java.util.List;
-import java.util.UUID;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
+import com.logistics.core.lib.storage.IItemKey;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+
+import java.util.List;
+import java.util.UUID;
 
 /**
  * Abstraction for world/pipe queries to enable testing.
@@ -35,12 +36,12 @@ public interface IWorldView {
      *
      * @param provider   position of the provider pipe
      * @param requester  position of the destination requester
-     * @param item       item variant to extract
+     * @param item       item key to extract
      * @param amount     requested amount
      * @param deliveryId UUID to attach to the TravelingItem for delivery accounting
      * @return actual amount dispatched (0 if provider could not fulfill)
      */
-    long dispatch(BlockPos provider, BlockPos requester, ItemVariant item, long amount, UUID deliveryId);
+    long dispatch(BlockPos provider, BlockPos requester, IItemKey item, long amount, UUID deliveryId);
 
     /**
      * Check if this is a client-side world.

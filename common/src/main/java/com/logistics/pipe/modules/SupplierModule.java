@@ -12,15 +12,15 @@ import com.logistics.core.lib.network.ILogisticsNetwork;
 import com.logistics.pipe.network.SupplierModeConfig;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.core.lib.compat.NbtCompat;
+import com.logistics.core.lib.storage.IItemKey;
+import com.logistics.core.lib.storage.IItemStorage;
+import com.logistics.core.lib.storage.IItemView;
+import com.logistics.core.lib.storage.ItemStorageLookup;
 import com.logistics.core.lib.pipe.PipeContext;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.core.lib.pipe.RoutePlan;
 import com.logistics.core.lib.pipe.TravelingItem;
 import com.logistics.pipe.ui.SupplierScreenHandler;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
-import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
-import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -240,7 +240,7 @@ public class SupplierModule implements Module, TickingModule, RoutingModule {
             }
 
             if (shouldRequest) {
-                network.placeOrder(ItemVariant.of(stack), toRequest, ctx.pos(), modeConfig.fulfillmentMode());
+                network.placeOrder(ItemStorageLookup.of(stack), toRequest, ctx.pos(), modeConfig.fulfillmentMode());
             }
         }
     }
@@ -251,30 +251,26 @@ public class SupplierModule implements Module, TickingModule, RoutingModule {
     private Map<ItemStack, Long> scanInventory(PipeContext ctx, Direction direction) {
         Map<ItemStack, Long> stock = new HashMap<>();
         BlockPos targetPos = ctx.pos().relative(direction);
-        Storage<ItemVariant> storage = ItemStorage.SIDED.find(ctx.world(), targetPos, direction.getOpposite());
+        IItemStorage storage = ItemStorageLookup.find(ctx.world(), targetPos, direction.getOpposite());
 
         if (storage == null) {
             return stock;
         }
 
-        for (StorageView<ItemVariant> view : storage) {
-            ItemVariant variant = view.getResource();
-            if (variant.isBlank()) {
-                continue;
-            }
-
-            long amount = view.getAmount();
+        for (IItemView view : storage.contents()) {
+            IItemKey key = view.resource();
+            long amount = view.amount();
             if (amount <= 0) {
                 continue;
             }
 
-            ItemStack stack = variant.toStack();
+            ItemStack stack = key.toStack(1);
 
             // Find existing matching stack in map to properly aggregate
             ItemStack existingKey = null;
-            for (ItemStack key : stock.keySet()) {
-                if (ItemStack.isSameItemSameComponents(key, stack)) {
-                    existingKey = key;
+            for (ItemStack k : stock.keySet()) {
+                if (ItemStack.isSameItemSameComponents(k, stack)) {
+                    existingKey = k;
                     break;
                 }
             }
@@ -294,32 +290,14 @@ public class SupplierModule implements Module, TickingModule, RoutingModule {
      */
     private long getAvailableSpace(PipeContext ctx, Direction direction, ItemStack targetStack) {
         BlockPos targetPos = ctx.pos().relative(direction);
-        Storage<ItemVariant> storage = ItemStorage.SIDED.find(ctx.world(), targetPos, direction.getOpposite());
+        IItemStorage storage = ItemStorageLookup.find(ctx.world(), targetPos, direction.getOpposite());
 
         if (storage == null) {
             return 0;
         }
 
-        ItemVariant targetVariant = ItemVariant.of(targetStack);
-        long availableSpace = 0;
-
-        for (StorageView<ItemVariant> view : storage) {
-            long capacity = view.getCapacity();
-            ItemVariant variant = view.getResource();
-            long currentAmount = view.getAmount();
-
-            if (variant.isBlank()) {
-                // Empty slot - can hold full stack
-                availableSpace += targetStack.getMaxStackSize();
-            } else if (variant.equals(targetVariant)) {
-                // Slot has same item - can hold more up to capacity
-                long spaceInSlot = capacity - currentAmount;
-                availableSpace += spaceInSlot;
-            }
-            // Different item - can't use this slot
-        }
-
-        return availableSpace;
+        IItemKey targetKey = ItemStorageLookup.of(targetStack);
+        return storage.insert(targetKey, Long.MAX_VALUE, true);
     }
 
     /**

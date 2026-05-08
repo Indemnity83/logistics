@@ -1,38 +1,23 @@
 package com.logistics.pipe.network;
 
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
+import com.logistics.core.lib.storage.IItemKey;
 import net.minecraft.core.BlockPos;
 import org.jetbrains.annotations.Nullable;
 
 /**
  * A single unit of work within a {@link NetworkJob}.
- * Sealed hierarchy — exactly three concrete forms are possible:
- * <ul>
- *   <li>{@link ExtractWorkOrder} — pull items from a provider</li>
- *   <li>{@link CraftWorkOrder}   — trigger an autocrafter to produce items</li>
- *   <li>{@link DeliverWorkOrder} — route items to the requester</li>
- * </ul>
- * Pure value objects. Use {@link #withLevel(CommitmentLevel)} to produce an updated copy.
+ * Sealed hierarchy — exactly three concrete forms.
  */
 public sealed interface WorkOrder
         permits WorkOrder.ExtractWorkOrder, WorkOrder.CraftWorkOrder, WorkOrder.DeliverWorkOrder {
 
     CommitmentLevel level();
-
-    /** Return a copy of this work order with the given {@link CommitmentLevel}. */
     WorkOrder withLevel(CommitmentLevel newLevel);
 
-    // ───────────────────────────────────────────────────────────────────────
-
-    /**
-     * Pull {@code amount} of {@code item} from a specific provider.
-     *
-     * @param reservation the reservation backing this extraction, or {@code null} if not yet allocated
-     */
     record ExtractWorkOrder(
             @Nullable ReservationId reservation,
             BlockPos provider,
-            ItemVariant item,
+            IItemKey item,
             long amount,
             CommitmentLevel level) implements WorkOrder {
 
@@ -42,14 +27,9 @@ public sealed interface WorkOrder
         }
     }
 
-    // ───────────────────────────────────────────────────────────────────────
-
-    /**
-     * Submit {@code batches} crafting jobs to an autocrafter.
-     */
     record CraftWorkOrder(
             BlockPos crafter,
-            ItemVariant output,
+            IItemKey output,
             long batches,
             CommitmentLevel level) implements WorkOrder {
 
@@ -59,14 +39,9 @@ public sealed interface WorkOrder
         }
     }
 
-    // ───────────────────────────────────────────────────────────────────────
-
-    /**
-     * Deliver {@code amount} of {@code item} to {@code destination}.
-     */
     record DeliverWorkOrder(
             BlockPos destination,
-            ItemVariant item,
+            IItemKey item,
             long amount,
             CommitmentLevel level) implements WorkOrder {
 

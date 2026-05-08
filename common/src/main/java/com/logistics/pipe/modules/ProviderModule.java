@@ -9,17 +9,16 @@ import com.logistics.core.lib.pipe.Module;
 import com.logistics.core.lib.pipe.TickingModule;
 import com.logistics.pipe.network.NetDbg;
 import com.logistics.core.lib.resource.ResourceId;
-import com.logistics.core.lib.filter.FilterSlots;
 import com.logistics.core.lib.compat.NbtCompat;
+import com.logistics.core.lib.filter.FilterSlots;
+import com.logistics.core.lib.storage.IItemKey;
+import com.logistics.core.lib.storage.IItemStorage;
+import com.logistics.core.lib.storage.IItemView;
+import com.logistics.core.lib.storage.ItemStorageLookup;
 import com.logistics.core.lib.pipe.PipeContext;
 import com.logistics.pipe.network.NetworkRegistry;
 import com.logistics.core.lib.pipe.TravelingItem;
 import com.logistics.pipe.ui.ProviderScreenHandler;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
-import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
-import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
-import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -206,21 +205,21 @@ public class ProviderModule implements Module, TickingModule, DispatchableModule
      * when the network places a large order.
      */
     @Override
-    public long onDispatch(PipeContext ctx, BlockPos requester, ItemVariant item, long amount, UUID deliveryId) {
-        if (isFilteredOut(ctx, item.toStack())) return 0;
+    public long onDispatch(PipeContext ctx, BlockPos requester, IItemKey item, long amount, UUID deliveryId) {
+        if (isFilteredOut(ctx, item.toStack(1))) return 0;
         if (ctx.getInventoryConnections().isEmpty()) return 0;
 
         enqueueDispatch(ctx, item, amount, requester, deliveryId);
         NetDbg.out("[Provider @ {}] Queued dispatch: {}x {} → {} (delivery {})",
-                ctx.pos(), amount, item.toStack().getItem(), requester,
+                ctx.pos(), amount, item.toStack(1).getItem(), requester,
                 deliveryId == null ? "none" : deliveryId.toString().substring(0, 8));
         return amount; // Promise: extraction happens from queue at rate-limited pace
     }
 
-    private void enqueueDispatch(PipeContext ctx, ItemVariant item, long amount,
+    private void enqueueDispatch(PipeContext ctx, IItemKey item, long amount,
             BlockPos requester, @Nullable UUID deliveryId) {
         ProviderDispatchQueue queue = loadQueue(ctx);
-        String itemId = BuiltInRegistries.ITEM.getKey(item.getItem()).toString();
+        String itemId = BuiltInRegistries.ITEM.getKey(item.toStack(1).getItem()).toString();
         RegistryOps<Tag> ops = ctx.world().registryAccess().createSerializationContext(NbtOps.INSTANCE);
         CompoundTag itemTag = ItemStack.CODEC.encodeStart(ops, item.toStack(1))
                 .result()
@@ -251,15 +250,16 @@ public class ProviderModule implements Module, TickingModule, DispatchableModule
         ResourceId rid = ResourceId.tryParse(head.itemId());
         if (rid == null) { queue.removeHead(); saveQueue(ctx, queue); return; }
         var holder = BuiltInRegistries.ITEM.get(rid.toIdentifier());
+<<<<<<< HEAD
         if (holder == null) { queue.removeHead(); saveQueue(ctx, queue); return; }
-        ItemVariant item;
+        IItemKey item;
         if (head.itemTag() != null) {
             RegistryOps<Tag> ops = ctx.world().registryAccess().createSerializationContext(NbtOps.INSTANCE);
             ItemStack stack = ItemStack.CODEC.parse(ops, head.itemTag()).result()
                     .orElse(new ItemStack(holder.asItem()));
-            item = ItemVariant.of(stack);
+            item = ItemStorageLookup.of(stack);
         } else {
-            item = ItemVariant.of(new ItemStack(holder.asItem()));
+            item = ItemStorageLookup.of(new ItemStack(holder.asItem()));
         }
 
         ProviderMode mode = getMode(ctx);
@@ -276,18 +276,15 @@ public class ProviderModule implements Module, TickingModule, DispatchableModule
 
             for (Direction direction : ctx.getInventoryConnections()) {
                 BlockPos targetPos = ctx.pos().relative(direction);
-                Storage<ItemVariant> storage =
-                        ItemStorage.SIDED.find(ctx.world(), targetPos, direction.getOpposite());
+                IItemStorage storage =
+                        ItemStorageLookup.find(ctx.world(), targetPos, direction.getOpposite());
                 if (storage == null) continue;
 
-                try (Transaction transaction = Transaction.openOuter()) {
-                    long got = extractItems(storage, item, toExtract, transaction, mode);
-                    if (got > 0) {
-                        transaction.commit();
-                        extracted = got;
-                        extractDir = direction;
-                        break;
-                    }
+                long got = extractItems(storage, item, toExtract, mode);
+                if (got > 0) {
+                    extracted = got;
+                    extractDir = direction;
+                    break;
                 }
             }
 
@@ -301,7 +298,7 @@ public class ProviderModule implements Module, TickingModule, DispatchableModule
                 itemsLeft -= extracted;
                 stacksLeft -= 1;
                 NetDbg.out("[Provider @ {}] Queue drain: {}x {} → {} ({} remaining)",
-                        ctx.pos(), extracted, item.toStack().getItem(), head.requester(),
+                        ctx.pos(), extracted, item.toStack(1).getItem(), head.requester(),
                         head.remaining() - extracted);
             } else {
                 // Inventory empty or inaccessible — drop the entry so the queue doesn't block
@@ -314,7 +311,7 @@ public class ProviderModule implements Module, TickingModule, DispatchableModule
                     network.notifyDelivery(head.requester(), item, head.remaining());
                 }
                 NetDbg.out("[Provider @ {}] Queue drain failed (empty?): {}x {} — dropping entry",
-                        ctx.pos(), head.remaining(), item.toStack().getItem());
+                        ctx.pos(), head.remaining(), item.toStack(1).getItem());
                 queue.removeHead();
                 break;
             }
@@ -422,7 +419,7 @@ public class ProviderModule implements Module, TickingModule, DispatchableModule
 
         ProviderMode mode = getMode(ctx);
         Map<ItemStack, Long> availableItems = aggregateInventoryItems(ctx, inventoryFaces, mode);
-        network.registerSupply(ctx.pos(), toVariantMap(availableItems), SUPPLY_PRIORITY);
+        network.registerSupply(ctx.pos(), toKeyMap(availableItems), SUPPLY_PRIORITY);
 
         if (!availableItems.isEmpty() && NetDbg.isEnabled()) {
             long totalItems = availableItems.values().stream().mapToLong(Long::longValue).sum();
@@ -432,82 +429,79 @@ public class ProviderModule implements Module, TickingModule, DispatchableModule
     }
 
     private Map<ItemStack, Long> aggregateInventoryItems(PipeContext ctx, List<Direction> inventoryFaces, ProviderMode mode) {
-        Map<ItemVariant, ItemStack> variantToStack = new HashMap<>();
-        Map<ItemVariant, Long> variantAmounts = new HashMap<>();
+        Map<IItemKey, ItemStack> keyToStack = new HashMap<>();
+        Map<IItemKey, Long> keyAmounts = new HashMap<>();
 
         for (Direction direction : inventoryFaces) {
-            scanInventoryAtDirection(ctx, direction, mode, variantToStack, variantAmounts);
+            scanInventoryAtDirection(ctx, direction, mode, keyToStack, keyAmounts);
         }
 
         // Subtract items already committed to queued dispatch entries so the supply table
         // does not double-count items that are reserved but not yet physically extracted.
         Map<String, Long> reservations = loadQueue(ctx).getReservations();
         if (!reservations.isEmpty()) {
-            for (Map.Entry<ItemVariant, Long> entry : new ArrayList<>(variantAmounts.entrySet())) {
-                String id = BuiltInRegistries.ITEM.getKey(entry.getKey().getItem()).toString();
+            for (Map.Entry<IItemKey, Long> entry : new ArrayList<>(keyAmounts.entrySet())) {
+                String id = BuiltInRegistries.ITEM.getKey(entry.getKey().toStack(1).getItem()).toString();
                 long adjusted = ProviderDispatchQueue.subtractReservation(entry.getValue(), reservations, id);
                 if (adjusted == 0) {
-                    variantAmounts.remove(entry.getKey());
-                    variantToStack.remove(entry.getKey());
+                    keyAmounts.remove(entry.getKey());
+                    keyToStack.remove(entry.getKey());
                 } else {
-                    variantAmounts.put(entry.getKey(), adjusted);
+                    keyAmounts.put(entry.getKey(), adjusted);
                 }
             }
         }
 
         Map<ItemStack, Long> result = new HashMap<>();
-        for (Map.Entry<ItemVariant, Long> entry : variantAmounts.entrySet()) {
-            result.put(variantToStack.get(entry.getKey()), entry.getValue());
+        for (Map.Entry<IItemKey, Long> entry : keyAmounts.entrySet()) {
+            result.put(keyToStack.get(entry.getKey()), entry.getValue());
         }
         return result;
     }
 
     private void scanInventoryAtDirection(
             PipeContext ctx, Direction direction, ProviderMode mode,
-            Map<ItemVariant, ItemStack> variantToStack, Map<ItemVariant, Long> variantAmounts) {
+            Map<IItemKey, ItemStack> keyToStack, Map<IItemKey, Long> keyAmounts) {
 
         BlockPos targetPos = ctx.pos().relative(direction);
-        Storage<ItemVariant> storage = ItemStorage.SIDED.find(ctx.world(), targetPos, direction.getOpposite());
+        IItemStorage storage = ItemStorageLookup.find(ctx.world(), targetPos, direction.getOpposite());
         if (storage == null) return;
 
-        List<StorageView<ItemVariant>> views = new ArrayList<>();
-        for (StorageView<ItemVariant> view : storage) {
+        List<IItemView> views = new ArrayList<>();
+        for (IItemView view : storage.contents()) {
             views.add(view);
         }
 
         int startIndex = mode.getCropStart();
         int endIndex = Math.max(0, views.size() - mode.getCropEnd());
-        Map<ItemVariant, Boolean> firstSlotSeen = new HashMap<>();
+        Map<IItemKey, Boolean> firstSlotSeen = new HashMap<>();
 
         for (int i = startIndex; i < endIndex; i++) {
-            StorageView<ItemVariant> view = views.get(i);
-            ItemVariant variant = view.getResource();
-            if (variant.isBlank()) continue;
-
-            long rawAmount = view.getAmount();
+            IItemView view = views.get(i);
+            IItemKey key = view.resource();
+            long rawAmount = view.amount();
             if (rawAmount <= 0) continue;
 
-            ItemStack stack = variant.toStack();
+            ItemStack stack = key.toStack(1);
             if (isFilteredOut(ctx, stack)) continue;
 
-            boolean isFirstSlot = !firstSlotSeen.containsKey(variant);
-            firstSlotSeen.put(variant, true);
+            boolean isFirstSlot = !firstSlotSeen.containsKey(key);
+            firstSlotSeen.put(key, true);
 
             long adjustedAmount = calculateAvailableAmount(mode, rawAmount, isFirstSlot);
             if (adjustedAmount <= 0) continue;
 
-            variantToStack.putIfAbsent(variant, stack);
-            variantAmounts.merge(variant, adjustedAmount, Long::sum);
+            keyToStack.putIfAbsent(key, stack);
+            keyAmounts.merge(key, adjustedAmount, Long::sum);
         }
     }
 
     // ==================== Item Extraction ====================
 
-    private long extractItems(Storage<ItemVariant> storage, ItemVariant variant, long requested,
-            Transaction transaction, ProviderMode mode) {
-        List<StorageView<ItemVariant>> views = new ArrayList<>();
-        for (StorageView<ItemVariant> view : storage.nonEmptyViews()) {
-            views.add(view);
+    private long extractItems(IItemStorage storage, IItemKey key, long requested, ProviderMode mode) {
+        List<IItemView> views = new ArrayList<>();
+        for (IItemView view : storage.contents()) {
+            if (view.amount() > 0) views.add(view);
         }
 
         int startIndex = mode.getCropStart();
@@ -518,16 +512,16 @@ public class ProviderModule implements Module, TickingModule, DispatchableModule
         boolean isFirstSlotOfType = true;
 
         for (int i = startIndex; i < endIndex && remaining > 0; i++) {
-            StorageView<ItemVariant> view = views.get(i);
-            if (!view.getResource().equals(variant)) continue;
+            IItemView view = views.get(i);
+            if (!view.resource().equals(key)) continue;
 
-            long available = view.getAmount();
+            long available = view.amount();
             long adjustedAmount = calculateAvailableAmount(mode, available, isFirstSlotOfType);
             isFirstSlotOfType = false;
             if (adjustedAmount <= 0) continue;
 
             long canExtract = Math.min(adjustedAmount, remaining);
-            long extracted = view.extract(variant, canExtract, transaction);
+            long extracted = storage.extract(key, canExtract, false);
             totalExtracted += extracted;
             remaining -= extracted;
         }
@@ -537,11 +531,11 @@ public class ProviderModule implements Module, TickingModule, DispatchableModule
 
     // ==================== Helpers ====================
 
-    /** Convert ItemStack→Long map to ItemVariant→Long map for network supply. */
-    private static Map<ItemVariant, Long> toVariantMap(Map<ItemStack, Long> items) {
-        Map<ItemVariant, Long> result = new HashMap<>(items.size());
+    /** Convert ItemStack→Long map to IItemKey→Long map for network supply. */
+    private static Map<IItemKey, Long> toKeyMap(Map<ItemStack, Long> items) {
+        Map<IItemKey, Long> result = new HashMap<>(items.size());
         for (Map.Entry<ItemStack, Long> entry : items.entrySet()) {
-            result.merge(ItemVariant.of(entry.getKey()), entry.getValue(), Long::sum);
+            result.merge(ItemStorageLookup.of(entry.getKey()), entry.getValue(), Long::sum);
         }
         return result;
     }

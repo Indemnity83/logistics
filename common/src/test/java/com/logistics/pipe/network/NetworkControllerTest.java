@@ -1,8 +1,9 @@
 package com.logistics.pipe.network;
 
 import com.logistics.core.lib.network.FulfillmentMode;
+import com.logistics.core.lib.storage.IItemKey;
 import com.logistics.test.MinecraftTestEnvironment;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
+import com.logistics.test.TestItemKey;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.ItemStack;
@@ -39,28 +40,28 @@ class NetworkControllerTest extends MinecraftTestEnvironment {
         controller = new NetworkController();
     }
 
-    private ItemVariant diamond() {
-        return ItemVariant.of(new ItemStack(Items.DIAMOND));
+    private IItemKey diamond() {
+        return new TestItemKey(Items.DIAMOND);
     }
 
-    private ItemVariant emerald() {
-        return ItemVariant.of(new ItemStack(Items.EMERALD));
+    private IItemKey emerald() {
+        return new TestItemKey(Items.EMERALD);
     }
 
-    private ItemVariant oakLog() {
-        return ItemVariant.of(new ItemStack(Items.OAK_LOG));
+    private IItemKey oakLog() {
+        return new TestItemKey(Items.OAK_LOG);
     }
 
-    private ItemVariant oakPlanks() {
-        return ItemVariant.of(new ItemStack(Items.OAK_PLANKS));
+    private IItemKey oakPlanks() {
+        return new TestItemKey(Items.OAK_PLANKS);
     }
 
-    private ItemVariant stick() {
-        return ItemVariant.of(new ItemStack(Items.STICK));
+    private IItemKey stick() {
+        return new TestItemKey(Items.STICK);
     }
 
-    private ItemVariant ironIngot() {
-        return ItemVariant.of(new ItemStack(Items.IRON_INGOT));
+    private IItemKey ironIngot() {
+        return new TestItemKey(Items.IRON_INGOT);
     }
 
     // ===== Supply Registration =====
@@ -389,10 +390,10 @@ class NetworkControllerTest extends MinecraftTestEnvironment {
     void testSharedClaimed_siblingBranchesSeeSameStock() {
         // Chain: G crafter needs 1 A + 1 B; A crafter needs 1 X; B crafter needs 1 X; only 1 X in stock
         // Validation of G should fail because X cannot satisfy both A and B
-        ItemVariant x = ironIngot();
-        ItemVariant a = oakPlanks();
-        ItemVariant b = stick();
-        ItemVariant g = diamond();
+        IItemKey x = ironIngot();
+        IItemKey a = oakPlanks();
+        IItemKey b = stick();
+        IItemKey g = diamond();
 
         controller.registerSupply(PROVIDER1, Map.of(x, 1L), 1);
         controller.registerSupply(CRAFTER_POS, Map.of(a, 0L), 5);
@@ -407,7 +408,7 @@ class NetworkControllerTest extends MinecraftTestEnvironment {
                 checker.check(x.toStack(1), amount));
         // G crafter: 1 A + 1 B → 1 G
         controller.registerProviderCheck(CRAFTER_POS3, (amount, checker) -> {
-            List<ItemVariant> missing = new ArrayList<>();
+            List<IItemKey> missing = new ArrayList<>();
             missing.addAll(checker.check(a.toStack(1), amount)); // uses 1 X
             missing.addAll(checker.check(b.toStack(1), amount)); // needs another X — none left
             return missing;
@@ -473,7 +474,7 @@ class NetworkControllerTest extends MinecraftTestEnvironment {
         controller.registerProviderCheck(CRAFTER_POS, (amount, checker) ->
                 checker.check(new ItemStack(Items.OAK_LOG), amount));
 
-        List<ItemVariant> capturedMissing = new ArrayList<>();
+        List<IItemKey> capturedMissing = new ArrayList<>();
         controller.setOrderFailureListener((orderId, req, item, amt, missing) ->
                 capturedMissing.addAll(missing));
 
@@ -481,7 +482,7 @@ class NetworkControllerTest extends MinecraftTestEnvironment {
         controller.nextDispatchable();
 
         assertFalse(capturedMissing.isEmpty(), "Missing list should be reported");
-        assertTrue(capturedMissing.stream().anyMatch(v -> v.getItem() == Items.OAK_LOG),
+        assertTrue(capturedMissing.stream().anyMatch(v -> v.matches(new ItemStack(Items.OAK_LOG))),
                 "Missing item should be the root ingredient (oak log), got: " + capturedMissing);
     }
 }

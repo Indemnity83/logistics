@@ -9,14 +9,13 @@ import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.core.lib.serialization.DirectionSerializer;
 import com.logistics.core.lib.filter.FilterSlots;
 import com.logistics.core.lib.pipe.PipeContext;
+import com.logistics.core.lib.storage.IItemKey;
+import com.logistics.core.lib.storage.IItemStorage;
+import com.logistics.core.lib.storage.IItemView;
+import com.logistics.core.lib.storage.ItemStorageLookup;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.core.lib.pipe.TravelingItem;
 import com.logistics.pipe.ui.AdvancedExtractorScreenHandler;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
-import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
-import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
-import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -164,28 +163,25 @@ public class AdvancedExtractorModule implements Module, TickingModule {
         if (PipeBlockEntity.VIRTUAL_CAPACITY - occupied < itemsPerPull) return;
 
         BlockPos targetPos = ctx.pos().relative(dir);
-        Storage<ItemVariant> storage = ItemStorage.SIDED.find(ctx.world(), targetPos, dir.getOpposite());
+        IItemStorage storage = ItemStorageLookup.find(ctx.world(), targetPos, dir.getOpposite());
         if (storage == null) return;
 
-        try (Transaction tx = Transaction.openOuter()) {
-            for (StorageView<ItemVariant> view : storage) {
-                ItemVariant variant = view.getResource();
-                if (variant.isBlank()) continue;
-                if (isFilteredOut(ctx, variant.toStack())) {
-                    NetDbg.out("[AdvancedExtractor @ {}] Filtered out {} (mode={})", ctx.pos(), variant.getItem(), isFilterInverted(ctx) ? "exclude" : "include");
-                    continue;
-                }
+        for (IItemView view : storage.contents()) {
+            IItemKey key = view.resource();
+            if (view.amount() <= 0) continue;
+            if (isFilteredOut(ctx, key.toStack(1))) {
+                NetDbg.out("[AdvancedExtractor @ {}] Filtered out {} (mode={})", ctx.pos(), key.toStack(1).getItem(), isFilterInverted(ctx) ? "exclude" : "include");
+                continue;
+            }
 
-                long extracted = view.extract(variant, itemsPerPull, tx);
-                if (extracted > 0) {
-                    NetDbg.out("[AdvancedExtractor @ {}] Extracted {}x{} via {}", ctx.pos(), extracted, variant.getItem(), dir);
-                    ItemStack stack = variant.toStack((int) extracted);
-                    TravelingItem item = new TravelingItem(
-                            stack, dir.getOpposite(), LogisticsConfig.get().pipe.minSpeed);
-                    ctx.blockEntity().forceAddItem(item, dir);
-                    tx.commit();
-                    return;
-                }
+            long extracted = storage.extract(key, itemsPerPull, false);
+            if (extracted > 0) {
+                NetDbg.out("[AdvancedExtractor @ {}] Extracted {}x{} via {}", ctx.pos(), extracted, key.toStack(1).getItem(), dir);
+                ItemStack stack = key.toStack((int) extracted);
+                TravelingItem item = new TravelingItem(
+                        stack, dir.getOpposite(), LogisticsConfig.get().pipe.minSpeed);
+                ctx.blockEntity().forceAddItem(item, dir);
+                return;
             }
         }
     }

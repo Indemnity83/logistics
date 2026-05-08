@@ -3,8 +3,7 @@ package com.logistics.gametest.automation;
 import com.logistics.LogisticsAutomation;
 import com.logistics.automation.kiln.KilnBlock;
 import com.logistics.automation.kiln.KilnBlockEntity;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
-import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
+import com.logistics.core.lib.storage.IItemStorage;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTest;
@@ -208,7 +207,7 @@ public class KilnGameTest {
         }
 
         for (Direction direction : Direction.values()) {
-            Storage<ItemVariant> storage = kiln.itemStorage(direction);
+            IItemStorage storage = kiln.itemStorage(direction);
             if (storage == null) {
                 context.fail("Kiln should provide item storage from " + direction);
                 return;

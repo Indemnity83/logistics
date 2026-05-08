@@ -9,12 +9,12 @@ import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.core.lib.serialization.DirectionSerializer;
 import com.logistics.core.lib.pipe.PipeContext;
 import com.logistics.core.lib.network.ILogisticsNetwork;
+import com.logistics.core.lib.storage.IItemStorage;
+import com.logistics.core.lib.storage.IItemView;
+import com.logistics.core.lib.storage.ItemStorageLookup;
 import com.logistics.pipe.network.NetDbg;
 import com.logistics.core.lib.pipe.RoutePlan;
 import com.logistics.core.lib.pipe.TravelingItem;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
-import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
@@ -105,14 +105,13 @@ public class PolymorphicSinkModule implements Module, RoutingModule, ItemAccepti
         }
 
         BlockPos targetPos = ctx.pos().relative(sinkDir);
-        var storage = ItemStorage.SIDED.find(ctx.world(), targetPos, sinkDir.getOpposite());
+        IItemStorage storage = ItemStorageLookup.find(ctx.world(), targetPos, sinkDir.getOpposite());
         if (storage == null) {
             return false;
         }
 
-        for (StorageView<ItemVariant> view : storage) {
-            if (!view.getResource().isBlank() && view.getAmount() > 0
-                    && view.getResource().toStack().getItem() == stack.getItem()) {
+        for (IItemView view : storage.contents()) {
+            if (view.amount() > 0 && view.resource().toStack(1).getItem() == stack.getItem()) {
                 return true;
             }
         }

@@ -7,12 +7,13 @@ import com.logistics.core.lib.network.ILogisticsNetwork;
 import com.logistics.core.lib.pipe.Module;
 import com.logistics.core.lib.pipe.TickingModule;
 import com.logistics.core.lib.resource.ResourceId;
-import com.logistics.core.lib.serialization.DirectionSerializer;
 import com.logistics.core.lib.compat.NbtCompat;
+import com.logistics.core.lib.serialization.DirectionSerializer;
+import com.logistics.core.lib.storage.IItemKey;
+import com.logistics.core.lib.storage.ItemStorageLookup;
 import com.logistics.core.lib.pipe.PipeContext;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.pipe.network.NetworkRegistry;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import com.logistics.pipe.ui.RequesterScreenHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -152,7 +153,7 @@ public class RequesterModule implements Module, TickingModule {
             long clamped = Math.min(needed, MAX_REQUEST_AMOUNT);
             if (clamped > 0) {
                 NetDbg.out("[Requester @ {}] Placed order for {}x{}", ctx.pos(), clamped, item);
-                network.placeOrder(ItemVariant.of(stack), clamped, ctx.pos());
+                network.placeOrder(ItemStorageLookup.of(stack), clamped, ctx.pos());
 
                 // TODO(Phase 11): Consume energy
                 // ctx.setEnergy(ctx.getEnergy() - RF_PER_REQUEST_CYCLE);
@@ -269,7 +270,7 @@ public class RequesterModule implements Module, TickingModule {
             return;
         }
 
-        ItemVariant variant = ItemVariant.of(stack);
+        IItemKey key = ItemStorageLookup.of(stack);
 
         // Pre-validate: fail immediately only if there is no supply path at all for this item
         // (no provider and no crafter). For craftable items we allow queuing even when
@@ -296,10 +297,10 @@ public class RequesterModule implements Module, TickingModule {
         // the full requested amount. getMissingIngredients accounts for existing stock and
         // asks the crafter only for the remainder, so this mirrors the dispatch logic exactly.
         if (available == Long.MAX_VALUE) {
-            List<ItemVariant> missing = network.getMissingIngredients(variant, amount);
+            List<IItemKey> missing = network.getMissingIngredients(key, amount);
             if (!missing.isEmpty()) {
                 String missingNames = missing.stream()
-                        .map(v -> v.toStack().getHoverName().getString())
+                        .map(k -> k.toStack(1).getHoverName().getString())
                         .collect(Collectors.joining(", "));
                 sendAlert(ctx, Component.literal(
                         "[Logistics] Cannot fill order for " + itemName
@@ -308,7 +309,7 @@ public class RequesterModule implements Module, TickingModule {
             }
         }
 
-        network.placeOrder(variant, amount, ctx.pos(), FulfillmentMode.FULL);
+        network.placeOrder(key, amount, ctx.pos(), FulfillmentMode.FULL);
     }
 
     private void sendAlert(PipeContext ctx, Component msg) {

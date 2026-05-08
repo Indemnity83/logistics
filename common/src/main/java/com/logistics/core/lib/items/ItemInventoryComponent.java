@@ -1,9 +1,6 @@
 package com.logistics.core.lib.items;
 
 import com.logistics.core.lib.compat.NbtCompat;
-import net.fabricmc.fabric.api.transfer.v1.item.InventoryStorage;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
-import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
@@ -18,27 +15,21 @@ import net.minecraft.world.item.ItemStack;
 import java.util.Collections;
 
 /**
- * Minimal item inventory component that implements vanilla {@link Container}
- * and exposes a Transfer API {@link Storage} wrapper.
+ * Minimal item inventory component that implements vanilla {@link Container}.
  * <p>
  * Use this for simple fixed-size inventories. For more complex inventory behavior,
  * implement {@link Container} directly.
+ * <p>
+ * Loader-specific storage access is handled by platform capability adapters that wrap
+ * this {@link Container} as needed.
  */
 public final class ItemInventoryComponent implements Container {
     private final NonNullList<ItemStack> stacks;
-    private final Storage<ItemVariant> storage;
     private final Runnable onChanged;
 
     public ItemInventoryComponent(int size, Runnable onChanged) {
         this.stacks = NonNullList.withSize(size, ItemStack.EMPTY);
         this.onChanged = onChanged;
-
-        // Transfer API wrapper over vanilla Inventory
-        this.storage = InventoryStorage.of(this, null);
-    }
-
-    public Storage<ItemVariant> storage() {
-        return storage;
     }
 
     public void readNbt(CompoundTag nbt, String key, HolderLookup.Provider registries) {

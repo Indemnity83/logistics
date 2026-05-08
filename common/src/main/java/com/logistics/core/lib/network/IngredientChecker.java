@@ -1,6 +1,6 @@
 package com.logistics.core.lib.network;
 
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
+import com.logistics.core.lib.storage.IItemKey;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.List;
@@ -19,5 +19,5 @@ public interface IngredientChecker {
      *
      * @return empty list if the ingredient can be satisfied; otherwise the missing items
      */
-    List<ItemVariant> check(ItemStack ingredient, long amount);
+    List<IItemKey> check(ItemStack ingredient, long amount);
 }
