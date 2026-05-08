@@ -23,9 +23,27 @@ configurations {
         canBeResolved = false
         canBeConsumed = true
     }
+    commonClientJava {
+        canBeResolved = false
+        canBeConsumed = true
+    }
+    commonClientResources {
+        canBeResolved = false
+        canBeConsumed = true
+    }
 }
 
 artifacts {
     commonJava(sourceSets.main.java.sourceDirectories.singleFile)
     commonResources(sourceSets.main.resources.sourceDirectories.singleFile)
+}
+
+// Register client artifacts only if splitEnvironmentSourceSets() was called (Loom defers this).
+afterEvaluate {
+    if (sourceSets.findByName('client')) {
+        artifacts {
+            commonClientJava(sourceSets.client.java.sourceDirectories.singleFile)
+            commonClientResources(sourceSets.client.resources.sourceDirectories.singleFile)
+        }
+    }
 }

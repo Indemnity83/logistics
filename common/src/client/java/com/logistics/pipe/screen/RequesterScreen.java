@@ -7,7 +7,7 @@ import com.logistics.pipe.network.packet.RequestItemPacket;
 import com.logistics.pipe.screen.widget.NetworkItemButton;
 import com.logistics.pipe.screen.widget.PageButton;
 import com.logistics.pipe.ui.RequesterScreenHandler;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import com.logistics.core.lib.platform.ClientNetworking;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import org.jetbrains.annotations.NotNull;
@@ -230,7 +230,7 @@ public class RequesterScreen extends AbstractContainerScreen<RequesterScreenHand
                     ItemStack requestStack = selectedButton.getItem().copy();
                     requestStack.setCount(1);
 
-                    ClientPlayNetworking.send(new RequestItemPacket(
+                    ClientNetworking.send(new RequestItemPacket(
                             getMenu().getPipePos(),
                             requestStack,
                             amount
