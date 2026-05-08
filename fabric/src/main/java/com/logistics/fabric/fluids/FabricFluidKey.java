@@ -8,8 +8,9 @@ import net.minecraft.world.level.material.Fluid;
 /**
  * Fabric adapter: wraps a {@link FluidVariant} as an {@link IFluidKey}.
  *
- * <p>Delegates {@code equals} and {@code hashCode} to {@link FluidVariant} so instances
- * can be used as {@link java.util.Map} keys with correct identity semantics.
+ * <p>Implements {@code equals} and {@code hashCode} using {@link #getFluid()} and
+ * {@link #getComponents()} so cross-type equality with other {@link IFluidKey}
+ * implementations is consistent with hashing.
  */
 public final class FabricFluidKey implements IFluidKey {
 
@@ -61,6 +62,6 @@ public final class FabricFluidKey implements IFluidKey {
 
     @Override
     public int hashCode() {
-        return variant.hashCode();
+        return 31 * getFluid().hashCode() + getComponents().hashCode();
     }
 }
