@@ -12,11 +12,10 @@ import com.logistics.power.engine.block.StirlingEngineBlock;
 import com.logistics.power.engine.ui.StirlingEngineScreenHandler;
 import com.logistics.LogisticsPower;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
-import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
-import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
-import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
-import java.util.Iterator;
+import com.logistics.core.lib.storage.IItemKey;
+import com.logistics.core.lib.storage.IItemStorage;
+import com.logistics.core.lib.storage.IItemView;
+import com.logistics.core.lib.storage.ItemStorageLookup;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -137,33 +136,57 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
     // ==================== HasItemStorage ====================
 
     @Override
-    public Storage<ItemVariant> itemStorage(@Nullable Direction side) {
+    public IItemStorage itemStorage(@Nullable Direction side) {
         // Don't expose inventory on the output face (facing direction)
         if (side != null && isOutputDirection(side)) {
             return null;
         }
 
-        Storage<ItemVariant> baseStorage = inventory.storage();
-
-        // Wrap storage to validate fuel items (matches GUI validation behavior)
-        return new Storage<ItemVariant>() {
+        // Wrap the single fuel slot with fuel-validation logic
+        return new IItemStorage() {
             @Override
-            public long insert(ItemVariant resource, long maxAmount, TransactionContext transaction) {
+            public long insert(IItemKey item, long maxAmount, boolean simulate) {
                 // Reject non-fuel items (same validation as isValid() for GUI)
-                if (level == null || !level.fuelValues().isFuel(resource.toStack())) {
+                if (level == null || !level.fuelValues().isFuel(item.toStack(1))) {
                     return 0;
                 }
-                return baseStorage.insert(resource, maxAmount, transaction);
+                ItemStack current = inventory.getItem(0);
+                ItemStack template = item.toStack(1);
+                long clampedAmount = Math.min(maxAmount, template.getMaxStackSize());
+                if (current.isEmpty()) {
+                    if (!simulate) inventory.setItem(0, item.toStack((int) clampedAmount));
+                    return clampedAmount;
+                } else if (ItemStack.isSameItemSameComponents(current, template)) {
+                    long canFit = current.getMaxStackSize() - current.getCount();
+                    long toInsert = Math.min(maxAmount, canFit);
+                    if (toInsert > 0 && !simulate) {
+                        current.grow((int) toInsert);
+                        inventory.setChanged();
+                    }
+                    return toInsert;
+                }
+                return 0;
             }
 
             @Override
-            public long extract(ItemVariant resource, long maxAmount, TransactionContext transaction) {
-                return baseStorage.extract(resource, maxAmount, transaction);
+            public long extract(IItemKey item, long maxAmount, boolean simulate) {
+                ItemStack current = inventory.getItem(0);
+                if (current.isEmpty() || !item.matches(current)) return 0;
+                long toExtract = Math.min(maxAmount, current.getCount());
+                if (!simulate) inventory.removeItem(0, (int) toExtract);
+                return toExtract;
             }
 
             @Override
-            public Iterator<StorageView<ItemVariant>> iterator() {
-                return baseStorage.iterator();
+            public Iterable<IItemView> contents() {
+                ItemStack stack = inventory.getItem(0);
+                if (stack.isEmpty()) return java.util.Collections.emptyList();
+                IItemKey key = ItemStorageLookup.of(stack);
+                IItemView view = new IItemView() {
+                    @Override public IItemKey resource() { return key; }
+                    @Override public long amount() { return stack.getCount(); }
+                };
+                return java.util.Collections.singletonList(view);
             }
         };
     }

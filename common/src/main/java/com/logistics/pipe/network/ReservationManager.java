@@ -1,6 +1,6 @@
 package com.logistics.pipe.network;
 
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
+import com.logistics.core.lib.storage.IItemKey;
 import net.minecraft.core.BlockPos;
 
 import java.util.ArrayList;
@@ -39,7 +39,7 @@ public class ReservationManager {
      * @return a new {@link ReservationId} for this reservation
      */
     public ReservationId reserve(UUID orderId, BlockPos provider, BlockPos requester,
-                                 ItemVariant item, long amount, boolean hard) {
+                                 IItemKey item, long amount, boolean hard) {
         ReservationId id = ReservationId.random();
         byId.put(id, new ItemReservation(id, orderId, provider, requester, item, amount, hard,
                 AllocationState.RESERVED));
@@ -110,7 +110,7 @@ public class ReservationManager {
      * {@code (requester, item)} as {@link AllocationState#DELIVERED} and release it.
      * Called when a {@code TravelingItem} physically arrives at its destination.
      */
-    public void markDelivered(BlockPos requester, ItemVariant item) {
+    public void markDelivered(BlockPos requester, IItemKey item) {
         for (var it = byId.entrySet().iterator(); it.hasNext(); ) {
             ItemReservation res = it.next().getValue();
             if (res.requester.equals(requester) && res.item.equals(item)
@@ -132,7 +132,7 @@ public class ReservationManager {
      * @param raw      raw registered supply amount (from {@code SupplyEntry.available})
      * @return max(0, raw − sum of active reservations)
      */
-    public long effectiveAvailable(BlockPos provider, ItemVariant item, long raw) {
+    public long effectiveAvailable(BlockPos provider, IItemKey item, long raw) {
         long reserved = 0;
         for (ItemReservation res : byId.values()) {
             if (res.provider.equals(provider) && res.item.equals(item) && res.state.isActive()) {

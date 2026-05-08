@@ -1,6 +1,6 @@
 package com.logistics.core.lib.network;
 
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
+import com.logistics.core.lib.storage.IItemKey;
 import net.minecraft.core.BlockPos;
 import org.jetbrains.annotations.Nullable;
 
@@ -17,7 +17,7 @@ public interface PlanningView {
     /**
      * Immutable snapshot of a single provider's supply for a specific item.
      *
-     * @param provider position of the supplying pipe
+     * @param provider  position of the supplying pipe
      * @param available raw amount available (0 = on-demand crafter, >0 = real stock)
      * @param priority  dispatch priority (lower = preferred; 1 = real stock, 5 = crafter)
      */
@@ -27,7 +27,7 @@ public interface PlanningView {
      * All supply entries for an item, sorted by priority ascending.
      * Returns an empty list if the item has no registered supply.
      */
-    List<SupplyPoint> getSupply(ItemVariant item);
+    List<SupplyPoint> getSupply(IItemKey item);
 
     /**
      * Provider fulfillment-check callback for a dynamic provider (crafter, machine, etc.).

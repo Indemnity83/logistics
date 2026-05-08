@@ -2,8 +2,8 @@ package com.logistics.pipe.network;
 
 import com.logistics.core.lib.network.IWorldView;
 import com.logistics.core.lib.network.NetworkGraph;
+import com.logistics.core.lib.storage.IItemKey;
 import com.logistics.test.MinecraftTestEnvironment;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
@@ -35,7 +35,7 @@ class SinkResolverTest extends MinecraftTestEnvironment {
         @Override public boolean isPipe(BlockPos pos) { return false; }
         @Override public List<BlockPos> getConnectedNeighbors(BlockPos pos) { return List.of(); }
         @Override public boolean matchesSinkFilter(BlockPos pos, ItemStack stack) { return accepting.contains(pos); }
-        @Override public long dispatch(BlockPos p, BlockPos r, ItemVariant i, long a, UUID d) { return 0; }
+        @Override public long dispatch(BlockPos p, BlockPos r, IItemKey i, long a, UUID d) { return 0; }
         @Override public boolean isClientSide() { return false; }
         @Override public void broadcastAlert(BlockPos pos, Component message) {}
     };

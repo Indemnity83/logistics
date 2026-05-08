@@ -1,6 +1,6 @@
 package com.logistics.core.lib.network;
 
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
+import com.logistics.core.lib.storage.IItemKey;
 import net.minecraft.core.BlockPos;
 import java.util.UUID;
 
@@ -9,7 +9,7 @@ import java.util.UUID;
  * Persists in the network until explicitly cancelled or fulfilled via notifyDelivery.
  * Replaces ItemRequest + LogisticsOrder.
  */
-public record Order(UUID id, ItemVariant item, long amount, BlockPos requester, FulfillmentMode fulfillmentMode) {
+public record Order(UUID id, IItemKey item, long amount, BlockPos requester, FulfillmentMode fulfillmentMode) {
     public Order {
         if (id == null) throw new NullPointerException("id must not be null");
         if (item == null) throw new NullPointerException("item must not be null");

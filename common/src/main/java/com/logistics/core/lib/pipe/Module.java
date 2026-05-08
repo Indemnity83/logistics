@@ -1,9 +1,10 @@
 package com.logistics.core.lib.pipe;
 
 import com.logistics.core.lib.resource.ResourceId;
+import com.logistics.core.lib.storage.IItemKey;
 import java.util.List;
 import java.util.UUID;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponentGetter;
@@ -274,7 +275,7 @@ public interface Module {
      *     {@code onDispatch} on modules that implement {@link DispatchableModule}.
      */
     @Deprecated
-    default long onDispatch(PipeContext ctx, BlockPos requester, ItemVariant item, long amount, UUID deliveryId) {
+    default long onDispatch(PipeContext ctx, BlockPos requester, IItemKey item, long amount, UUID deliveryId) {
         return 0;
     }
 

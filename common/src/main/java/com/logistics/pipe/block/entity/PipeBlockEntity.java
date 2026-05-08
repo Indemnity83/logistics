@@ -22,8 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
-import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
+import com.logistics.core.lib.storage.IItemStorage;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -89,7 +88,7 @@ public class PipeBlockEntity extends BaseBlockEntity
 
     @Override
     @Nullable
-    public Storage<ItemVariant> itemStorage(@Nullable Direction side) {
+    public IItemStorage itemStorage(@Nullable Direction side) {
         return getItemStorage(side);
     }
 
@@ -443,7 +442,7 @@ public class PipeBlockEntity extends BaseBlockEntity
         this.lastConnectionsMask = lastConnectionsMask;
     }
 
-    @Nullable public Storage<ItemVariant> getItemStorage(@Nullable Direction side) {
+    @Nullable public PipeItemStorage getItemStorage(@Nullable Direction side) {
         if (side == null || level == null) {
             return null;
         }

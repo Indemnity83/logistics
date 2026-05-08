@@ -8,9 +8,8 @@ import com.logistics.core.lib.block.capability.HasItemStorage;
 import com.logistics.core.lib.energy.EnergyComponent;
 import com.logistics.core.lib.items.ItemInventoryComponent;
 import com.logistics.core.lib.compat.NbtCompat;
-import net.fabricmc.fabric.api.transfer.v1.item.InventoryStorage;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
-import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
+import com.logistics.core.lib.storage.ContainerItemStorage;
+import com.logistics.core.lib.storage.IItemStorage;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -195,8 +194,8 @@ public class KilnBlockEntity extends BaseBlockEntity
     // ==================== Capability Implementations ====================
 
     @Override
-    public Storage<ItemVariant> itemStorage(@Nullable Direction side) {
-        return InventoryStorage.of(this, side);
+    public IItemStorage itemStorage(@Nullable Direction side) {
+        return new ContainerItemStorage(this, side);
     }
 
     @Override

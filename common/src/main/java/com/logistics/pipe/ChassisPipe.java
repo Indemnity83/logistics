@@ -15,7 +15,7 @@ import com.logistics.core.lib.pipe.TransferHandlerModule;
 import com.logistics.core.lib.pipe.TravelingItem;
 import net.minecraft.util.RandomSource;
 import com.logistics.pipe.ui.ChassisScreenHandler;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
+import com.logistics.core.lib.storage.IItemKey;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.NbtOps;
@@ -197,7 +197,7 @@ public class ChassisPipe extends Pipe {
     }
 
     @Override
-    public long dispatch(PipeContext ctx, BlockPos requester, ItemVariant item, long amount, UUID deliveryId) {
+    public long dispatch(PipeContext ctx, BlockPos requester, IItemKey item, long amount, UUID deliveryId) {
         if (ctx.world().isClientSide()) return 0;
         for (DynamicModule entry : getDynamicModuleEntries(ctx)) {
             Module module = entry.module();

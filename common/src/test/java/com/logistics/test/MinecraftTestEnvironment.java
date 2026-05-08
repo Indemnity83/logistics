@@ -1,5 +1,6 @@
 package com.logistics.test;
 
+import com.logistics.core.lib.storage.ItemStorageLookup;
 import net.minecraft.SharedConstants;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -33,6 +34,10 @@ public abstract class MinecraftTestEnvironment {
                 // Bootstrap registries (blocks, items, entities, etc.)
                 // This is equivalent to what Minecraft does on startup
                 Bootstrap.bootStrap();
+
+                // Register the test-environment key factory so ItemStorageLookup.of() works
+                // without a loader-specific implementation (Fabric/NeoForge).
+                ItemStorageLookup.registerKeyFactory(TestItemKey::of);
 
                 bootstrapped = true;
             } catch (Exception e) {
