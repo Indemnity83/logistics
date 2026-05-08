@@ -5,8 +5,7 @@ import com.logistics.automation.marker.MarkerBlockEntity;
 import com.logistics.automation.marker.MarkerManager;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import net.fabricmc.fabric.api.client.model.loading.v1.FabricBakedModelManager;
-import net.minecraft.client.Minecraft;
+import com.logistics.core.lib.client.model.ClientModelRegistry;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.block.model.BlockStateModel;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
@@ -165,12 +164,7 @@ public class MarkerBlockEntityRenderer implements BlockEntityRenderer<MarkerBloc
     }
 
     private BlockStateModel getBeamModel() {
-        FabricBakedModelManager modelManager = (FabricBakedModelManager) Minecraft.getInstance().getModelManager();
-        BlockStateModel model = modelManager.getModel(LogisticsAutomationClient.MODEL.BEAM);
-        if (model == null || model == Minecraft.getInstance().getModelManager().getMissingBlockStateModel()) {
-            return null;
-        }
-        return model;
+        return ClientModelRegistry.get(LogisticsAutomationClient.MODEL.BEAM);
     }
 
     private void renderBeamInDirection(

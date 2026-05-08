@@ -8,9 +8,7 @@ import com.logistics.automation.laserquarry.entity.LaserQuarryBlockEntity;
 import com.logistics.pipe.block.PipeBlock;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import net.fabricmc.fabric.api.client.model.loading.v1.ExtraModelKey;
-import net.fabricmc.fabric.api.client.model.loading.v1.FabricBakedModelManager;
-import net.minecraft.client.Minecraft;
+import com.logistics.core.lib.client.model.ClientModelRegistry;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.block.model.BlockStateModel;
@@ -35,13 +33,8 @@ import net.minecraft.world.phys.Vec3;
 public class LaserQuarryBlockEntityRenderer implements BlockEntityRenderer<LaserQuarryBlockEntity, LaserQuarryRenderState> {
     public LaserQuarryBlockEntityRenderer(BlockEntityRendererProvider.Context ctx) {}
 
-    private BlockStateModel getModel(ExtraModelKey<BlockStateModel> key) {
-        FabricBakedModelManager modelManager = (FabricBakedModelManager) Minecraft.getInstance().getModelManager();
-        BlockStateModel model = modelManager.getModel(key);
-        if (model == null || model == Minecraft.getInstance().getModelManager().getMissingBlockStateModel()) {
-            return null;
-        }
-        return model;
+    private BlockStateModel getModel(ClientModelRegistry.ModelKey key) {
+        return ClientModelRegistry.get(key);
     }
 
     @Override
