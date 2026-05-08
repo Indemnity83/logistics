@@ -10,4 +10,12 @@ public final class FabricPlatformService implements PlatformService {
     public Path configDir() {
         return FabricLoader.getInstance().getConfigDir();
     }
+
+    @Override
+    public String getModName(String namespace) {
+        return FabricLoader.getInstance()
+                .getModContainer(namespace)
+                .map(c -> c.getMetadata().getName())
+                .orElse(namespace);
+    }
 }

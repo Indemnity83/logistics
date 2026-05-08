@@ -9,11 +9,19 @@ configurations {
     commonResources {
         canBeResolved = true
     }
+    commonClientJava {
+        canBeResolved = true
+    }
+    commonClientResources {
+        canBeResolved = true
+    }
 }
 
 dependencies {
     commonJava(project(path: ':common', configuration: 'commonJava'))
     commonResources(project(path: ':common', configuration: 'commonResources'))
+    commonClientJava(project(path: ':common', configuration: 'commonClientJava'))
+    commonClientResources(project(path: ':common', configuration: 'commonClientResources'))
 }
 
 tasks.named('compileJava', JavaCompile) {
@@ -26,9 +34,27 @@ processResources {
     from configurations.commonResources
 }
 
+// Wire client sources when splitEnvironmentSourceSets() was called (e.g. fabric).
+afterEvaluate {
+    if (tasks.findByName('compileClientJava')) {
+        tasks.named('compileClientJava', JavaCompile) {
+            dependsOn configurations.commonClientJava
+            source configurations.commonClientJava
+        }
+        tasks.named('processClientResources') {
+            dependsOn configurations.commonClientResources
+            from configurations.commonClientResources
+        }
+    }
+}
+
 tasks.named('sourcesJar', Jar) {
     dependsOn configurations.commonJava
     from configurations.commonJava
     dependsOn configurations.commonResources
     from configurations.commonResources
+    dependsOn configurations.commonClientJava
+    from configurations.commonClientJava
+    dependsOn configurations.commonClientResources
+    from configurations.commonClientResources
 }
