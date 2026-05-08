@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": ["RRR", "GGG", "RRR"],
+  "key": {
+    "G": "minecraft:gold_ingot",
+    "R": "logistics:power/rubber_chunk"
+  },
+  "result": {
+    "count": 8,
+    "id": "logistics:power/gold_cable"
+  }
+}

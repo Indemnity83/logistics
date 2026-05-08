@@ -3,16 +3,43 @@ package com.logistics;
 import com.logistics.core.bootstrap.ClientDomainBootstrap;
 import com.logistics.core.lib.client.model.ClientModelRegistry;
 import com.logistics.core.lib.power.AbstractEngineBlockEntity;
+import com.logistics.power.cable.CableTier;
 import com.logistics.power.render.EngineBlockEntityRenderer;
+import com.logistics.power.render.model.CableUnbakedRoot;
 import com.logistics.power.screen.StirlingEngineScreen;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
+import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
+import net.fabricmc.fabric.api.client.rendering.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
+import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 
 import static com.logistics.LogisticsMod.LOGGER;
 
 public final class LogisticsPowerClient implements ClientDomainBootstrap {
+    public LogisticsPowerClient() {
+        ModelLoadingPlugin.register(pluginContext -> {
+            pluginContext.registerBlockStateResolver(LogisticsPower.BLOCK.COPPER_CABLE, ctx -> {
+                CableUnbakedRoot root = new CableUnbakedRoot(CableTier.COPPER);
+                for (var state : ctx.block().getStateDefinition().getPossibleStates()) {
+                    ctx.setModel(state, root);
+                }
+            });
+            pluginContext.registerBlockStateResolver(LogisticsPower.BLOCK.GOLD_CABLE, ctx -> {
+                CableUnbakedRoot root = new CableUnbakedRoot(CableTier.GOLD);
+                for (var state : ctx.block().getStateDefinition().getPossibleStates()) {
+                    ctx.setModel(state, root);
+                }
+            });
+            pluginContext.registerBlockStateResolver(LogisticsPower.BLOCK.ENDER_CABLE, ctx -> {
+                CableUnbakedRoot root = new CableUnbakedRoot(CableTier.ENDER);
+                for (var state : ctx.block().getStateDefinition().getPossibleStates()) {
+                    ctx.setModel(state, root);
+                }
+            });
+        });
+    }
 
     @Override
     public void initClient() {
@@ -23,6 +50,11 @@ public final class LogisticsPowerClient implements ClientDomainBootstrap {
         BlockEntityRenderers.register(LogisticsPower.ENTITY.REDSTONE_ENGINE_BLOCK_ENTITY, EngineBlockEntityRenderer::new);
         BlockEntityRenderers.register(LogisticsPower.ENTITY.STIRLING_ENGINE_BLOCK_ENTITY, EngineBlockEntityRenderer::new);
         BlockEntityRenderers.register(LogisticsPower.ENTITY.CREATIVE_ENGINE_BLOCK_ENTITY, EngineBlockEntityRenderer::new);
+
+        // Register cable blocks for chunk-baked cutout rendering
+        BlockRenderLayerMap.putBlock(LogisticsPower.BLOCK.COPPER_CABLE, ChunkSectionLayer.CUTOUT);
+        BlockRenderLayerMap.putBlock(LogisticsPower.BLOCK.GOLD_CABLE, ChunkSectionLayer.CUTOUT);
+        BlockRenderLayerMap.putBlock(LogisticsPower.BLOCK.ENDER_CABLE, ChunkSectionLayer.CUTOUT);
 
         // Register screens
         MenuScreens.register(LogisticsPower.SCREEN.STIRLING_ENGINE, StirlingEngineScreen::new);
