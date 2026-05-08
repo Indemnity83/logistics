@@ -31,6 +31,7 @@ public final class ServerNetworking {
      * @param s the sender implementation
      */
     public static void register(Sender s) {
+        if (s == null) throw new NullPointerException("sender must not be null");
         sender = s;
     }
 
@@ -39,8 +40,10 @@ public final class ServerNetworking {
      *
      * @param player the target player
      * @param packet the packet to send
+     * @throws IllegalStateException if no sender has been registered
      */
     public static void send(ServerPlayer player, CustomPacketPayload packet) {
-        if (sender != null) sender.send(player, packet);
+        if (sender == null) throw new IllegalStateException("ServerNetworking sender not registered");
+        sender.send(player, packet);
     }
 }
