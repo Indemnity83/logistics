@@ -19,6 +19,7 @@ public final class LogisticsPowerClient implements ClientDomainBootstrap {
     @Override
     public void initClient() {
         LOGGER.info("Registering power (client)");
+        MODEL.init();
 
         // Register engine block entity renderers
         BlockEntityRenderers.register(LogisticsPower.ENTITY.REDSTONE_ENGINE_BLOCK_ENTITY, EngineBlockEntityRenderer::new);
@@ -45,6 +46,9 @@ public final class LogisticsPowerClient implements ClientDomainBootstrap {
         public static final ClientModelRegistry.ModelKey STIRLING_PISTON = ClientModelRegistry.register(LogisticsPower.model("stirling_engine_piston"));
         public static final ClientModelRegistry.ModelKey CREATIVE_BELLOW = ClientModelRegistry.register(LogisticsPower.model("creative_engine_bellow"));
         public static final ClientModelRegistry.ModelKey CREATIVE_PISTON = ClientModelRegistry.register(LogisticsPower.model("creative_engine_piston"));
+
+        /** Forces this class to load, triggering static model registration. */
+        public static void init() {}
 
         private MODEL() {}
     }

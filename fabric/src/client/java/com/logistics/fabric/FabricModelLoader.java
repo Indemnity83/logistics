@@ -1,6 +1,7 @@
 package com.logistics.fabric;
 
 import com.logistics.core.lib.client.model.ClientModelRegistry;
+import com.logistics.core.lib.resource.ResourceId;
 import net.fabricmc.fabric.api.client.model.loading.v1.ExtraModelKey;
 import net.fabricmc.fabric.api.client.model.loading.v1.FabricModelManager;
 import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
@@ -8,7 +9,9 @@ import net.fabricmc.fabric.api.client.model.loading.v1.SimpleUnbakedExtraModel;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 
+import java.util.ArrayList;
 import java.util.IdentityHashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -20,23 +23,32 @@ import java.util.Map;
  */
 public final class FabricModelLoader {
 
+    private static boolean initialized = false;
+
     private static final Map<ClientModelRegistry.ModelKey, ExtraModelKey<BlockStateModel>> FABRIC_KEYS =
             new IdentityHashMap<>();
 
     public static void setup() {
-        // Create a Fabric ExtraModelKey for every model declared in ClientModelRegistry
-        for (var entry : ClientModelRegistry.all().entrySet()) {
+        if (initialized) return;
+
+        // Take a single consistent snapshot so FABRIC_KEYS and the plugin lambda
+        // iterate the exact same entries — no risk of null lookups from interleaved writes.
+        Map<ResourceId, ClientModelRegistry.ModelKey> snapshot = ClientModelRegistry.all();
+
+        List<Map.Entry<ExtraModelKey<BlockStateModel>, ResourceId>> pluginEntries = new ArrayList<>();
+        for (var entry : snapshot.entrySet()) {
             ExtraModelKey<BlockStateModel> fabricKey =
                     ExtraModelKey.create(entry.getKey().toIdentifier()::toString);
             FABRIC_KEYS.put(entry.getValue(), fabricKey);
+            pluginEntries.add(Map.entry(fabricKey, entry.getKey()));
         }
 
         // Register model loading plugin — runs before Minecraft bakes models
         ModelLoadingPlugin.register(ctx -> {
-            for (var entry : ClientModelRegistry.all().entrySet()) {
+            for (var entry : pluginEntries) {
                 ctx.addModel(
-                        FABRIC_KEYS.get(entry.getValue()),
-                        SimpleUnbakedExtraModel.blockStateModel(entry.getKey().toIdentifier()));
+                        entry.getKey(),
+                        SimpleUnbakedExtraModel.blockStateModel(entry.getValue().toIdentifier()));
             }
         });
 
@@ -46,6 +58,8 @@ public final class FabricModelLoader {
             if (fk == null) return null;
             return ((FabricModelManager) Minecraft.getInstance().getModelManager()).getModel(fk);
         });
+
+        initialized = true;
     }
 
     private FabricModelLoader() {}

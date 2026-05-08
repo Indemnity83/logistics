@@ -92,7 +92,7 @@ public final class ClientModelRegistry {
      * @return the key, or {@code null} if not registered
      */
     @Nullable
-    public static ModelKey find(ResourceId modelPath) {
+    public static synchronized ModelKey find(ResourceId modelPath) {
         return REGISTRY.get(modelPath);
     }
 
@@ -100,10 +100,10 @@ public final class ClientModelRegistry {
      * All registered models. Iterated by the loader during its model-loading setup phase
      * to register each model with its native API.
      *
-     * @return unmodifiable snapshot; order matches registration order
+     * @return unmodifiable snapshot; order matches registration order at time of call
      */
-    public static Map<ResourceId, ModelKey> all() {
-        return Collections.unmodifiableMap(REGISTRY);
+    public static synchronized Map<ResourceId, ModelKey> all() {
+        return Collections.unmodifiableMap(new LinkedHashMap<>(REGISTRY));
     }
 
     /**
