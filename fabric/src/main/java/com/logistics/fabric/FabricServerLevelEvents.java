@@ -1,6 +1,7 @@
 package com.logistics.fabric;
 
 import com.logistics.automation.laserquarry.entity.LaserQuarryBlockEntity;
+import com.logistics.power.cable.CableNetworkManager;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLevelEvents;
 
 /**
@@ -12,5 +13,6 @@ public final class FabricServerLevelEvents {
 
     public static void register() {
         ServerLevelEvents.UNLOAD.register((server, world) -> LaserQuarryBlockEntity.clearActiveQuarries(world));
+        ServerLevelEvents.UNLOAD.register((server, world) -> CableNetworkManager.clearLevel(world));
     }
 }
