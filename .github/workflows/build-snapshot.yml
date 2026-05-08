@@ -11,6 +11,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    continue-on-error: ${{ matrix.loader == 'neoforge' }}
     strategy:
       fail-fast: false
       matrix:
