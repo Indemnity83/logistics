@@ -21,6 +21,14 @@ public interface PlatformService {
     /** Returns the loader's standard config directory (e.g. {@code .minecraft/config/}). */
     Path configDir();
 
+    /**
+     * Returns the human-readable display name for the mod with the given namespace/mod-id.
+     * Defaults to the namespace itself if the loader does not know the mod.
+     */
+    default String getModName(String namespace) {
+        return namespace;
+    }
+
     PlatformService INSTANCE = ServiceLoader.load(PlatformService.class)
             .findFirst()
             .orElseThrow(() -> new IllegalStateException("No PlatformService found"));
