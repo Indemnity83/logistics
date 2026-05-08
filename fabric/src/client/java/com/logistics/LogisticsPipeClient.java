@@ -19,6 +19,7 @@ public final class LogisticsPipeClient implements ClientDomainBootstrap {
     @Override
     public void initClient() {
         LOGGER.info("Registering pipe (client)");
+        MODEL.init();
 
         BlockEntityRenderers.register(LogisticsPipe.ENTITY.PIPE_BLOCK_ENTITY, PipeBlockEntityRenderer::new);
 
@@ -148,6 +149,9 @@ public final class LogisticsPipeClient implements ClientDomainBootstrap {
         private static void register(String name) {
             ClientModelRegistry.register(LogisticsPipe.model(name));
         }
+
+        /** Forces this class to load, triggering static model registration. */
+        public static void init() {}
 
         private MODEL() {}
     }

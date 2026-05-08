@@ -20,6 +20,7 @@ public final class LogisticsAutomationClient implements ClientDomainBootstrap {
     @Override
     public void initClient() {
         LOGGER.info("Registering automation (client)");
+        MODEL.init();
         BlockEntityRendererRegistry.register(
                 LogisticsAutomation.ENTITY.MARKER_BLOCK_ENTITY, MarkerBlockEntityRenderer::new);
 
@@ -50,6 +51,9 @@ public final class LogisticsAutomationClient implements ClientDomainBootstrap {
         public static final ClientModelRegistry.ModelKey LED_RED = ClientModelRegistry.register(LogisticsAutomation.model("laser_quarry_led_red"));
         public static final ClientModelRegistry.ModelKey DISPLAY = ClientModelRegistry.register(LogisticsAutomation.model("laser_quarry_display"));
         public static final ClientModelRegistry.ModelKey TOP_HATCH = ClientModelRegistry.register(LogisticsAutomation.model("laser_quarry_top_hatch"));
+
+        /** Forces this class to load, triggering static model registration. */
+        public static void init() {}
 
         private MODEL() {}
     }
