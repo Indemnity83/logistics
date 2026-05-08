@@ -6,30 +6,16 @@ import com.logistics.automation.render.LaserQuarryBlockEntityRenderer;
 import com.logistics.automation.render.LaserQuarryRenderState;
 import com.logistics.automation.render.MarkerBlockEntityRenderer;
 import com.logistics.core.bootstrap.ClientDomainBootstrap;
-import com.logistics.core.lib.resource.ResourceId;
-import com.logistics.core.render.ModelKeyRegistry;
+import com.logistics.core.lib.client.model.ClientModelRegistry;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.model.loading.v1.ExtraModelKey;
-import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
-import net.fabricmc.fabric.api.client.model.loading.v1.SimpleUnbakedExtraModel;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.BlockEntityRendererRegistry;
 import net.minecraft.client.gui.screens.MenuScreens;
-import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
-
-import java.util.Map;
 
 import static com.logistics.LogisticsMod.LOGGER;
 
 public final class LogisticsAutomationClient implements ClientDomainBootstrap {
-    public LogisticsAutomationClient() {
-        ModelLoadingPlugin.register(pluginContext -> {
-            for (var entry : MODEL.getAllModels()) {
-                pluginContext.addModel(entry.getKey(), SimpleUnbakedExtraModel.blockStateModel(entry.getValue().toIdentifier()));
-            }
-        });
-    }
 
     @Override
     public void initClient() {
@@ -56,20 +42,14 @@ public final class LogisticsAutomationClient implements ClientDomainBootstrap {
     }
 
     public static final class MODEL {
-        private static final ModelKeyRegistry REGISTRY = new ModelKeyRegistry(LogisticsAutomation::model);
-
-        public static final ExtraModelKey<BlockStateModel> BEAM = REGISTRY.registerModel("marker_beam");
-        public static final ExtraModelKey<BlockStateModel> CONSTRUCTION_BEAM = REGISTRY.registerModel("construction_beam");
-        public static final ExtraModelKey<BlockStateModel> ARM = REGISTRY.registerModel("laser_quarry_gantry_arm");
-        public static final ExtraModelKey<BlockStateModel> DRILL = REGISTRY.registerModel("laser_quarry_drill");
-        public static final ExtraModelKey<BlockStateModel> LED_GREEN = REGISTRY.registerModel("laser_quarry_led_green");
-        public static final ExtraModelKey<BlockStateModel> LED_RED = REGISTRY.registerModel("laser_quarry_led_red");
-        public static final ExtraModelKey<BlockStateModel> DISPLAY = REGISTRY.registerModel("laser_quarry_display");
-        public static final ExtraModelKey<BlockStateModel> TOP_HATCH = REGISTRY.registerModel("laser_quarry_top_hatch");
-
-        static Iterable<Map.Entry<ExtraModelKey<BlockStateModel>, ResourceId>> getAllModels() {
-            return REGISTRY.getAllModels();
-        }
+        public static final ClientModelRegistry.ModelKey BEAM = ClientModelRegistry.register(LogisticsAutomation.model("marker_beam"));
+        public static final ClientModelRegistry.ModelKey CONSTRUCTION_BEAM = ClientModelRegistry.register(LogisticsAutomation.model("construction_beam"));
+        public static final ClientModelRegistry.ModelKey ARM = ClientModelRegistry.register(LogisticsAutomation.model("laser_quarry_gantry_arm"));
+        public static final ClientModelRegistry.ModelKey DRILL = ClientModelRegistry.register(LogisticsAutomation.model("laser_quarry_drill"));
+        public static final ClientModelRegistry.ModelKey LED_GREEN = ClientModelRegistry.register(LogisticsAutomation.model("laser_quarry_led_green"));
+        public static final ClientModelRegistry.ModelKey LED_RED = ClientModelRegistry.register(LogisticsAutomation.model("laser_quarry_led_red"));
+        public static final ClientModelRegistry.ModelKey DISPLAY = ClientModelRegistry.register(LogisticsAutomation.model("laser_quarry_display"));
+        public static final ClientModelRegistry.ModelKey TOP_HATCH = ClientModelRegistry.register(LogisticsAutomation.model("laser_quarry_top_hatch"));
 
         private MODEL() {}
     }

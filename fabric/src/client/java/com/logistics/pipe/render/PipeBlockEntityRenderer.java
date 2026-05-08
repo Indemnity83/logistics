@@ -1,8 +1,8 @@
 package com.logistics.pipe.render;
 
 import com.logistics.core.LogisticsConfig;
-import com.logistics.LogisticsPipeClient;
 import com.logistics.core.DebugLog;
+import com.logistics.core.lib.client.model.ClientModelRegistry;
 import com.logistics.core.lib.block.capability.PipeConnection;
 import com.logistics.core.lib.pipe.CoreDecoration;
 import com.logistics.core.lib.resource.ResourceId;
@@ -13,10 +13,7 @@ import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.core.lib.pipe.TravelingItem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import net.fabricmc.fabric.api.client.model.loading.v1.ExtraModelKey;
-import net.fabricmc.fabric.api.client.model.loading.v1.FabricModelManager;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
@@ -49,7 +46,6 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
     private static final float ITEM_OFFSET = 0.375f;
 
     private final ItemModelResolver itemModelManager;
-    private final FabricModelManager modelManager;
 
     // Model parts never change at runtime — cache globally by ResourceId to avoid collectParts() each frame
     private final Map<ResourceId, List<BlockStateModelPart>> partsCache = new HashMap<>();
@@ -59,19 +55,11 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
 
     public PipeBlockEntityRenderer(BlockEntityRendererProvider.Context ctx) {
         this.itemModelManager = ctx.itemModelResolver();
-        this.modelManager = (FabricModelManager) Minecraft.getInstance().getModelManager();
     }
 
     private BlockStateModel getModel(ResourceId modelId) {
-        ExtraModelKey<BlockStateModel> key = LogisticsPipeClient.MODEL.getKey(modelId);
-        if (key == null) {
-            return null;
-        }
-        BlockStateModel model = modelManager.getModel(key);
-        if (model == null) {
-            return null;
-        }
-        return model;
+        ClientModelRegistry.ModelKey key = ClientModelRegistry.find(modelId);
+        return key != null ? ClientModelRegistry.get(key) : null;
     }
 
     @Override

@@ -1,36 +1,20 @@
 package com.logistics;
 
 import com.logistics.core.bootstrap.ClientDomainBootstrap;
-import com.logistics.core.lib.resource.ResourceId;
+import com.logistics.core.lib.client.model.ClientModelRegistry;
 import com.logistics.pipe.network.packet.SyncRequesterInventoryPacket;
 import com.logistics.pipe.render.PipeBlockEntityRenderer;
 import com.logistics.pipe.screen.ItemFilterScreen;
 import com.logistics.pipe.screen.RequesterScreen;
 import com.logistics.core.DebugLog;
-import net.fabricmc.fabric.api.client.model.loading.v1.ExtraModelKey;
-import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
-import net.fabricmc.fabric.api.client.model.loading.v1.SimpleUnbakedExtraModel;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.MenuScreens;
-import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
-import org.jetbrains.annotations.Nullable;
-
-
-import java.util.HashMap;
-import java.util.Map;
 
 import static com.logistics.LogisticsMod.LOGGER;
 
 public final class LogisticsPipeClient implements ClientDomainBootstrap {
-    public LogisticsPipeClient() {
-        ModelLoadingPlugin.register(pluginContext -> {
-            for (var entry : MODEL.getAllModels()) {
-                pluginContext.addModel(entry.getKey(), SimpleUnbakedExtraModel.blockStateModel(entry.getValue().toIdentifier()));
-            }
-        });
-    }
 
     @Override
     public void initClient() {
@@ -70,115 +54,99 @@ public final class LogisticsPipeClient implements ClientDomainBootstrap {
         });
     }
 
+    /** Registers all pipe extra models into {@link ClientModelRegistry}. */
     public static final class MODEL {
-        private static final Map<ResourceId, ExtraModelKey<BlockStateModel>> TEMP_LOOKUP = new HashMap<>();
-
-        private static void registerModel(String name) {
-            ResourceId id = LogisticsPipe.model(name);
-            ExtraModelKey<BlockStateModel> key = ExtraModelKey.create(id::toString);
-            TEMP_LOOKUP.put(id, key);
-        }
-
         static {
-            registerModel("pipe_markings");
-            registerModel("stone_transport_pipe_core");
-            registerModel("stone_transport_pipe_arm");
-            registerModel("stone_transport_pipe_arm_extended");
-            registerModel("copper_transport_pipe_core");
-            registerModel("copper_transport_pipe_core_exposed");
-            registerModel("copper_transport_pipe_core_weathered");
-            registerModel("copper_transport_pipe_core_oxidized");
-            registerModel("copper_transport_pipe_arm");
-            registerModel("copper_transport_pipe_arm_exposed");
-            registerModel("copper_transport_pipe_arm_weathered");
-            registerModel("copper_transport_pipe_arm_oxidized");
-            registerModel("copper_transport_pipe_arm_extended");
-            registerModel("copper_transport_pipe_arm_extended_exposed");
-            registerModel("copper_transport_pipe_arm_extended_weathered");
-            registerModel("copper_transport_pipe_arm_extended_oxidized");
-            registerModel("gold_transport_pipe_core");
-            registerModel("gold_transport_pipe_core_powered");
-            registerModel("gold_transport_pipe_arm");
-            registerModel("gold_transport_pipe_arm_powered");
-            registerModel("gold_transport_pipe_arm_extended");
-            registerModel("gold_transport_pipe_arm_extended_powered");
-            registerModel("item_extractor_pipe_core");
-            registerModel("item_extractor_pipe_arm");
-            registerModel("item_extractor_pipe_arm_extended");
-            registerModel("item_extractor_pipe_feature");
-            registerModel("item_extractor_pipe_feature_extended");
-            registerModel("item_filter_pipe_core");
-            registerModel("item_filter_pipe_arm");
-            registerModel("item_filter_pipe_arm_extended");
-            registerModel("item_insertion_pipe_core");
-            registerModel("item_insertion_pipe_arm");
-            registerModel("item_insertion_pipe_arm_extended");
-            registerModel("item_merger_pipe_core");
-            registerModel("item_merger_pipe_arm");
-            registerModel("item_merger_pipe_arm_extended");
-            registerModel("item_merger_pipe_feature");
-            registerModel("item_merger_pipe_feature_extended");
-            registerModel("item_passthrough_pipe_core");
-            registerModel("item_passthrough_pipe_arm");
-            registerModel("item_passthrough_pipe_arm_extended");
-            registerModel("item_void_pipe_core");
-            registerModel("item_void_pipe_arm");
-            registerModel("item_void_pipe_arm_extended");
-            registerModel("basic_logistics_pipe_core");
-            registerModel("basic_logistics_pipe_arm");
-            registerModel("basic_logistics_pipe_arm_extended");
-            registerModel("provider_logistics_pipe_core");
-            registerModel("provider_logistics_pipe_arm");
-            registerModel("provider_logistics_pipe_arm_extended");
-            registerModel("provider_logistics_pipe_feature_extended");
-            registerModel("requester_logistics_pipe_core");
-            registerModel("requester_logistics_pipe_arm");
-            registerModel("requester_logistics_pipe_arm_extended");
-            registerModel("requester_logistics_pipe_feature");
-            registerModel("requester_logistics_pipe_feature_extended");
-            registerModel("supplier_logistics_pipe_core");
-            registerModel("supplier_logistics_pipe_arm");
-            registerModel("supplier_logistics_pipe_arm_extended");
-            registerModel("supplier_logistics_pipe_feature");
-            registerModel("supplier_logistics_pipe_feature_extended");
-            registerModel("crafting_logistics_pipe_core");
-            registerModel("crafting_logistics_pipe_arm");
-            registerModel("crafting_logistics_pipe_arm_extended");
-            registerModel("crafting_logistics_pipe_feature_extended");
-            registerModel("process_logistics_pipe_core");
-            registerModel("process_logistics_pipe_arm");
-            registerModel("process_logistics_pipe_arm_extended");
-            registerModel("satellite_logistics_pipe_core");
-            registerModel("satellite_logistics_pipe_arm");
-            registerModel("satellite_logistics_pipe_arm_extended");
-            registerModel("chassis_logistics_pipe_mk1_core");
-            registerModel("chassis_logistics_pipe_mk1_arm");
-            registerModel("chassis_logistics_pipe_mk1_arm_extended");
-            registerModel("chassis_logistics_pipe_mk2_core");
-            registerModel("chassis_logistics_pipe_mk2_arm");
-            registerModel("chassis_logistics_pipe_mk2_arm_extended");
-            registerModel("chassis_logistics_pipe_mk3_core");
-            registerModel("chassis_logistics_pipe_mk3_arm");
-            registerModel("chassis_logistics_pipe_mk3_arm_extended");
-            registerModel("chassis_logistics_pipe_mk4_core");
-            registerModel("chassis_logistics_pipe_mk4_arm");
-            registerModel("chassis_logistics_pipe_mk4_arm_extended");
-            registerModel("chassis_logistics_pipe_mk5_core");
-            registerModel("chassis_logistics_pipe_mk5_arm");
-            registerModel("chassis_logistics_pipe_mk5_arm_extended");
+            register("pipe_markings");
+            register("stone_transport_pipe_core");
+            register("stone_transport_pipe_arm");
+            register("stone_transport_pipe_arm_extended");
+            register("copper_transport_pipe_core");
+            register("copper_transport_pipe_core_exposed");
+            register("copper_transport_pipe_core_weathered");
+            register("copper_transport_pipe_core_oxidized");
+            register("copper_transport_pipe_arm");
+            register("copper_transport_pipe_arm_exposed");
+            register("copper_transport_pipe_arm_weathered");
+            register("copper_transport_pipe_arm_oxidized");
+            register("copper_transport_pipe_arm_extended");
+            register("copper_transport_pipe_arm_extended_exposed");
+            register("copper_transport_pipe_arm_extended_weathered");
+            register("copper_transport_pipe_arm_extended_oxidized");
+            register("gold_transport_pipe_core");
+            register("gold_transport_pipe_core_powered");
+            register("gold_transport_pipe_arm");
+            register("gold_transport_pipe_arm_powered");
+            register("gold_transport_pipe_arm_extended");
+            register("gold_transport_pipe_arm_extended_powered");
+            register("item_extractor_pipe_core");
+            register("item_extractor_pipe_arm");
+            register("item_extractor_pipe_arm_extended");
+            register("item_extractor_pipe_feature");
+            register("item_extractor_pipe_feature_extended");
+            register("item_filter_pipe_core");
+            register("item_filter_pipe_arm");
+            register("item_filter_pipe_arm_extended");
+            register("item_insertion_pipe_core");
+            register("item_insertion_pipe_arm");
+            register("item_insertion_pipe_arm_extended");
+            register("item_merger_pipe_core");
+            register("item_merger_pipe_arm");
+            register("item_merger_pipe_arm_extended");
+            register("item_merger_pipe_feature");
+            register("item_merger_pipe_feature_extended");
+            register("item_passthrough_pipe_core");
+            register("item_passthrough_pipe_arm");
+            register("item_passthrough_pipe_arm_extended");
+            register("item_void_pipe_core");
+            register("item_void_pipe_arm");
+            register("item_void_pipe_arm_extended");
+            register("basic_logistics_pipe_core");
+            register("basic_logistics_pipe_arm");
+            register("basic_logistics_pipe_arm_extended");
+            register("provider_logistics_pipe_core");
+            register("provider_logistics_pipe_arm");
+            register("provider_logistics_pipe_arm_extended");
+            register("provider_logistics_pipe_feature_extended");
+            register("requester_logistics_pipe_core");
+            register("requester_logistics_pipe_arm");
+            register("requester_logistics_pipe_arm_extended");
+            register("requester_logistics_pipe_feature");
+            register("requester_logistics_pipe_feature_extended");
+            register("supplier_logistics_pipe_core");
+            register("supplier_logistics_pipe_arm");
+            register("supplier_logistics_pipe_arm_extended");
+            register("supplier_logistics_pipe_feature");
+            register("supplier_logistics_pipe_feature_extended");
+            register("crafting_logistics_pipe_core");
+            register("crafting_logistics_pipe_arm");
+            register("crafting_logistics_pipe_arm_extended");
+            register("crafting_logistics_pipe_feature_extended");
+            register("process_logistics_pipe_core");
+            register("process_logistics_pipe_arm");
+            register("process_logistics_pipe_arm_extended");
+            register("satellite_logistics_pipe_core");
+            register("satellite_logistics_pipe_arm");
+            register("satellite_logistics_pipe_arm_extended");
+            register("chassis_logistics_pipe_mk1_core");
+            register("chassis_logistics_pipe_mk1_arm");
+            register("chassis_logistics_pipe_mk1_arm_extended");
+            register("chassis_logistics_pipe_mk2_core");
+            register("chassis_logistics_pipe_mk2_arm");
+            register("chassis_logistics_pipe_mk2_arm_extended");
+            register("chassis_logistics_pipe_mk3_core");
+            register("chassis_logistics_pipe_mk3_arm");
+            register("chassis_logistics_pipe_mk3_arm_extended");
+            register("chassis_logistics_pipe_mk4_core");
+            register("chassis_logistics_pipe_mk4_arm");
+            register("chassis_logistics_pipe_mk4_arm_extended");
+            register("chassis_logistics_pipe_mk5_core");
+            register("chassis_logistics_pipe_mk5_arm");
+            register("chassis_logistics_pipe_mk5_arm_extended");
         }
 
-        private static final Map<ResourceId, ExtraModelKey<BlockStateModel>> MODEL_LOOKUP = Map.copyOf(TEMP_LOOKUP);
-
-        @Nullable
-        public static ExtraModelKey<BlockStateModel> getKey(ResourceId modelId) {
-            return MODEL_LOOKUP.get(modelId);
-        }
-
-        static Iterable<Map.Entry<ExtraModelKey<BlockStateModel>, ResourceId>> getAllModels() {
-            return MODEL_LOOKUP.entrySet().stream()
-                    .map(e -> Map.entry(e.getValue(), e.getKey()))
-                    .toList();
+        private static void register(String name) {
+            ClientModelRegistry.register(LogisticsPipe.model(name));
         }
 
         private MODEL() {}
