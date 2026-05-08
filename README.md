@@ -151,11 +151,15 @@ RF energy generation and distribution:
 - Network logistics: provider, requester, supplier, crafting, satellite, and chassis pipes
 - Autocrafting via vanilla Crafter integration
 - Redstone, Stirling, and Creative engines with heat management
+- Power cables (copper, gold, ender) for RF energy distribution between machines
 - Macerator for grinding ores, gems, and materials into dusts
 - Kiln as an RF-powered electric furnace for any vanilla smelting recipe
 - Laser Quarry with automatic frame construction and energy-scaled mining speed
 
-### 🚧 Future
+### 🚧 In Progress
+- NeoForge mod loader support (architecture groundwork complete; SPI implementations in progress)
+
+### 🔮 Future
 - Fluid pipes with Transfer API integration
 - Power/cost system for logistics operations
 - Additional pipe upgrades and advanced logistics features
