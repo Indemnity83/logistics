@@ -7,8 +7,7 @@ import com.logistics.power.engine.block.entity.RedstoneEngineBlockEntity;
 import com.logistics.power.engine.block.entity.StirlingEngineBlockEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import net.fabricmc.fabric.api.client.model.loading.v1.ExtraModelKey;
-import net.fabricmc.fabric.api.client.model.loading.v1.FabricModelManager;
+import com.logistics.core.lib.client.model.ClientModelRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
@@ -141,7 +140,7 @@ public class EngineBlockEntityRenderer implements BlockEntityRenderer<AbstractEn
         matrices.popPose();
     }
 
-    private ExtraModelKey<BlockStateModel> getBellowKey(EngineRenderState.EngineType type) {
+    private ClientModelRegistry.ModelKey getBellowKey(EngineRenderState.EngineType type) {
         return switch (type) {
             case REDSTONE -> LogisticsPowerClient.MODEL.REDSTONE_BELLOW;
             case STIRLING -> LogisticsPowerClient.MODEL.STIRLING_BELLOW;
@@ -149,7 +148,7 @@ public class EngineBlockEntityRenderer implements BlockEntityRenderer<AbstractEn
         };
     }
 
-    private ExtraModelKey<BlockStateModel> getPistonKey(EngineRenderState.EngineType type) {
+    private ClientModelRegistry.ModelKey getPistonKey(EngineRenderState.EngineType type) {
         return switch (type) {
             case REDSTONE -> LogisticsPowerClient.MODEL.REDSTONE_PISTON;
             case STIRLING -> LogisticsPowerClient.MODEL.STIRLING_PISTON;
@@ -203,15 +202,8 @@ public class EngineBlockEntityRenderer implements BlockEntityRenderer<AbstractEn
     /**
      * Gets a baked model by model key.
      */
-    private BlockStateModel getModel(ExtraModelKey<BlockStateModel> key) {
-        FabricModelManager modelManager = (FabricModelManager) Minecraft.getInstance().getModelManager();
-        BlockStateModel model = modelManager.getModel(key);
-
-        if (model == null) {
-            return null;
-        }
-
-        return model;
+    private BlockStateModel getModel(ClientModelRegistry.ModelKey key) {
+        return ClientModelRegistry.get(key);
     }
 
     /**

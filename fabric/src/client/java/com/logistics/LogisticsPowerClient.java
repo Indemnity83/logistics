@@ -1,40 +1,27 @@
 package com.logistics;
 
 import com.logistics.core.bootstrap.ClientDomainBootstrap;
+import com.logistics.core.lib.client.model.ClientModelRegistry;
 import com.logistics.core.lib.power.AbstractEngineBlockEntity;
-import com.logistics.core.lib.resource.ResourceId;
-import com.logistics.core.render.ModelKeyRegistry;
 import com.logistics.power.render.EngineBlockEntityRenderer;
 import com.logistics.power.screen.StirlingEngineScreen;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
-import net.fabricmc.fabric.api.client.model.loading.v1.ExtraModelKey;
-import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
-import net.fabricmc.fabric.api.client.model.loading.v1.SimpleUnbakedExtraModel;
 import net.fabricmc.fabric.api.client.rendering.v1.BlockColorRegistry;
 import net.minecraft.client.gui.screens.MenuScreens;
-import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 
 import java.util.List;
 
-import java.util.Map;
-
 import static com.logistics.LogisticsMod.LOGGER;
 
 public final class LogisticsPowerClient implements ClientDomainBootstrap {
-    public LogisticsPowerClient() {
-        ModelLoadingPlugin.register(pluginContext -> {
-            for (var entry : MODEL.getAllModels()) {
-                pluginContext.addModel(entry.getKey(), SimpleUnbakedExtraModel.blockStateModel(entry.getValue().toIdentifier()));
-            }
-        });
-    }
 
     @Override
     public void initClient() {
         LOGGER.info("Registering power (client)");
+        MODEL.init();
 
-        // Register engine block entity renderers (static rendering for now)
+        // Register engine block entity renderers
         BlockEntityRenderers.register(LogisticsPower.ENTITY.REDSTONE_ENGINE_BLOCK_ENTITY, EngineBlockEntityRenderer::new);
         BlockEntityRenderers.register(LogisticsPower.ENTITY.STIRLING_ENGINE_BLOCK_ENTITY, EngineBlockEntityRenderer::new);
         BlockEntityRenderers.register(LogisticsPower.ENTITY.CREATIVE_ENGINE_BLOCK_ENTITY, EngineBlockEntityRenderer::new);
@@ -53,18 +40,15 @@ public final class LogisticsPowerClient implements ClientDomainBootstrap {
     }
 
     public static final class MODEL {
-        private static final ModelKeyRegistry REGISTRY = new ModelKeyRegistry(LogisticsPower::model);
+        public static final ClientModelRegistry.ModelKey REDSTONE_BELLOW = ClientModelRegistry.register(LogisticsPower.model("redstone_engine_bellow"));
+        public static final ClientModelRegistry.ModelKey REDSTONE_PISTON = ClientModelRegistry.register(LogisticsPower.model("redstone_engine_piston"));
+        public static final ClientModelRegistry.ModelKey STIRLING_BELLOW = ClientModelRegistry.register(LogisticsPower.model("stirling_engine_bellow"));
+        public static final ClientModelRegistry.ModelKey STIRLING_PISTON = ClientModelRegistry.register(LogisticsPower.model("stirling_engine_piston"));
+        public static final ClientModelRegistry.ModelKey CREATIVE_BELLOW = ClientModelRegistry.register(LogisticsPower.model("creative_engine_bellow"));
+        public static final ClientModelRegistry.ModelKey CREATIVE_PISTON = ClientModelRegistry.register(LogisticsPower.model("creative_engine_piston"));
 
-        public static final ExtraModelKey<BlockStateModel> REDSTONE_BELLOW = REGISTRY.registerModel("redstone_engine_bellow");
-        public static final ExtraModelKey<BlockStateModel> REDSTONE_PISTON = REGISTRY.registerModel("redstone_engine_piston");
-        public static final ExtraModelKey<BlockStateModel> STIRLING_BELLOW = REGISTRY.registerModel("stirling_engine_bellow");
-        public static final ExtraModelKey<BlockStateModel> STIRLING_PISTON = REGISTRY.registerModel("stirling_engine_piston");
-        public static final ExtraModelKey<BlockStateModel> CREATIVE_BELLOW = REGISTRY.registerModel("creative_engine_bellow");
-        public static final ExtraModelKey<BlockStateModel> CREATIVE_PISTON = REGISTRY.registerModel("creative_engine_piston");
-
-        static Iterable<Map.Entry<ExtraModelKey<BlockStateModel>, ResourceId>> getAllModels() {
-            return REGISTRY.getAllModels();
-        }
+        /** Forces this class to load, triggering static model registration. */
+        public static void init() {}
 
         private MODEL() {}
     }
