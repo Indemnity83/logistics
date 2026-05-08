@@ -1,6 +1,7 @@
 package com.logistics.fabric.capability;
 
 import com.logistics.core.lib.block.capability.HasFluidStorage;
+import com.logistics.fabric.fluids.FabricFluidStorage;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage;
 
 /**
@@ -24,7 +25,7 @@ public final class FluidStorageAccess {
     public static void register() {
         FluidStorage.SIDED.registerFallback((world, pos, state, blockEntity, direction) -> {
             if (blockEntity instanceof HasFluidStorage hasStorage) {
-                return hasStorage.fluidStorage(direction);
+                return FabricFluidStorage.asFabric(hasStorage.fluidStorage(direction));
             }
             return null;
         });

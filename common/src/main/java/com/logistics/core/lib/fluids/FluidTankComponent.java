@@ -1,10 +1,8 @@
 package com.logistics.core.lib.fluids;
 
-import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.core.lib.compat.NbtCompat;
-import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
-import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
-import net.fabricmc.fabric.api.transfer.v1.storage.base.SingleVariantStorage;
+import com.logistics.core.lib.resource.ResourceId;
+import java.util.Collections;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
@@ -13,47 +11,110 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 
 /**
- * Minimal fluid tank component using the Transfer API's {@link SingleVariantStorage}.
- * <p>
- * This is an abstract class because {@link SingleVariantStorage} requires it.
- * Use it like this:
+ * Simple, loader-agnostic fluid tank component implementing {@link IFluidStorage}.
+ *
+ * <p>Stores a single fluid type at a time (single-variant semantics). Uses vanilla Minecraft
+ * types ({@link Fluid}, {@link DataComponentPatch}) for state storage — no loader-specific
+ * dependencies. Loader adapters (e.g. {@code FabricFluidStorage}) bridge this to the platform's
+ * native fluid transfer API.
+ *
+ * <p>Example usage:
  * <pre>{@code
- * private final FluidTankComponent tank =
- *     new FluidTankComponent(4000, this::markDirtyAndSync) {};
+ * private final FluidTankComponent tank = new FluidTankComponent(4000, this::markDirtyAndSync);
  * }</pre>
  */
-public abstract class FluidTankComponent extends SingleVariantStorage<FluidVariant> {
+public class FluidTankComponent implements IFluidStorage {
+
     private final long capacity;
     private final Runnable onChanged;
 
-    protected FluidTankComponent(long capacity, Runnable onChanged) {
+    private Fluid fluid = Fluids.EMPTY;
+    private DataComponentPatch components = DataComponentPatch.EMPTY;
+    private long amount = 0;
+
+    public FluidTankComponent(long capacity, Runnable onChanged) {
         this.capacity = capacity;
         this.onChanged = onChanged;
     }
 
+    // ==================== IFluidStorage ====================
+
     @Override
-    protected FluidVariant getBlankVariant() {
-        return FluidVariant.blank();
+    public long insert(IFluidKey key, long maxAmount, boolean simulate) {
+        if (maxAmount <= 0 || key.isBlank()) return 0;
+
+        boolean isEmpty = fluid == Fluids.EMPTY;
+        boolean matches = !isEmpty && fluid == key.getFluid() && components.equals(key.getComponents());
+
+        if (!isEmpty && !matches) return 0;
+
+        long accepted = Math.min(maxAmount, capacity - amount);
+        if (accepted <= 0) return 0;
+
+        if (!simulate) {
+            if (isEmpty) {
+                fluid = key.getFluid();
+                components = key.getComponents();
+            }
+            amount += accepted;
+            onChanged.run();
+        }
+        return accepted;
     }
 
     @Override
-    protected long getCapacity(FluidVariant variant) {
-        return capacity;
+    public long extract(IFluidKey key, long maxAmount, boolean simulate) {
+        if (maxAmount <= 0 || key.isBlank()) return 0;
+        if (fluid != key.getFluid() || !components.equals(key.getComponents())) return 0;
+
+        long extracted = Math.min(maxAmount, amount);
+        if (extracted <= 0) return 0;
+
+        if (!simulate) {
+            amount -= extracted;
+            if (amount == 0) {
+                fluid = Fluids.EMPTY;
+                components = DataComponentPatch.EMPTY;
+            }
+            onChanged.run();
+        }
+        return extracted;
     }
 
     @Override
-    protected void onFinalCommit() {
-        onChanged.run();
+    public Iterable<IFluidView> contents() {
+        if (fluid == Fluids.EMPTY || amount <= 0) return Collections.emptyList();
+        IFluidKey key = currentKey();
+        long currentAmount = amount;
+        return Collections.singletonList(new IFluidView() {
+            @Override public IFluidKey resource() { return key; }
+            @Override public long amount() { return currentAmount; }
+        });
     }
 
-    public Storage<FluidVariant> storage() {
-        return this;
+    // ==================== Accessors ====================
+
+    /** Returns an {@link IFluidKey} representing the currently stored fluid, or a blank key if empty. */
+    public IFluidKey getFluidKey() {
+        return currentKey();
     }
 
-    @Override
+    /** Returns the current amount of fluid stored, in platform-native units. */
+    public long getAmount() {
+        return amount;
+    }
+
+    /** Returns the maximum capacity, in platform-native units. */
     public long getCapacity() {
         return capacity;
     }
+
+    /** Returns {@code true} if no fluid is stored. */
+    public boolean isEmpty() {
+        return fluid == Fluids.EMPTY || amount <= 0;
+    }
+
+    // ==================== NBT Persistence ====================
 
     public void readNbt(CompoundTag nbt, String key) {
         CompoundTag data = NbtCompat.getCompoundOrEmpty(nbt, key);
@@ -61,7 +122,7 @@ public abstract class FluidTankComponent extends SingleVariantStorage<FluidVaria
 
         String id = NbtCompat.getString(data, "fluid", "");
         ResourceId resourceId = ResourceId.tryParse(id);
-        Fluid fluid = Fluids.EMPTY;
+        fluid = Fluids.EMPTY;
         if (resourceId != null) {
             Fluid registryFluid = BuiltInRegistries.FLUID.getValue(resourceId.toIdentifier());
             if (registryFluid != null) {
@@ -69,19 +130,17 @@ public abstract class FluidTankComponent extends SingleVariantStorage<FluidVaria
             }
         }
         CompoundTag compTag = NbtCompat.getCompoundOrEmpty(data, "components");
-        DataComponentPatch comp = compTag.isEmpty() ? DataComponentPatch.EMPTY :
+        components = compTag.isEmpty() ? DataComponentPatch.EMPTY :
                 DataComponentPatch.CODEC.parse(NbtOps.INSTANCE, compTag).result().orElse(DataComponentPatch.EMPTY);
-
-        variant = FluidVariant.of(fluid, comp);
         amount = NbtCompat.getLong(data, "amount", 0L);
     }
 
     public void writeNbt(CompoundTag nbt, String key) {
         CompoundTag data = new CompoundTag();
-        if (variant.getFluid() != Fluids.EMPTY) {
-            data.putString("fluid", BuiltInRegistries.FLUID.getKey(variant.getFluid()).toString());
-            if (!variant.getComponentsPatch().isEmpty()) {
-                DataComponentPatch.CODEC.encodeStart(NbtOps.INSTANCE, variant.getComponentsPatch())
+        if (fluid != Fluids.EMPTY) {
+            data.putString("fluid", BuiltInRegistries.FLUID.getKey(fluid).toString());
+            if (!components.isEmpty()) {
+                DataComponentPatch.CODEC.encodeStart(NbtOps.INSTANCE, components)
                         .result().ifPresent(tag -> data.put("components", tag));
             }
             data.putLong("amount", amount);
@@ -89,5 +148,21 @@ public abstract class FluidTankComponent extends SingleVariantStorage<FluidVaria
         if (!data.isEmpty()) {
             nbt.put(key, data);
         }
+    }
+
+    // ==================== Internals ====================
+
+    private IFluidKey currentKey() {
+        Fluid f = fluid;
+        DataComponentPatch c = components;
+        return new IFluidKey() {
+            @Override public Fluid getFluid() { return f; }
+            @Override public DataComponentPatch getComponents() { return c; }
+            @Override public boolean equals(Object o) {
+                if (!(o instanceof IFluidKey other)) return false;
+                return f == other.getFluid() && c.equals(other.getComponents());
+            }
+            @Override public int hashCode() { return 31 * f.hashCode() + c.hashCode(); }
+        };
     }
 }
