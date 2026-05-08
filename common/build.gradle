@@ -1,5 +1,5 @@
 // Common subproject — shared domain code, compiles against vanilla MC via Loom.
-// No splitEnvironmentSourceSets(): client code lives in fabric/.
+// splitEnvironmentSourceSets() creates src/main (server-safe) and src/client (client-only).
 //
 // TODO(multiloader): swap net.fabricmc.fabric-loom-remap here for net.neoforged.moddev once
 //   NeoForge support is fully wired. When that happens:
@@ -17,7 +17,7 @@ repositories {
 }
 
 loom {
-    // No splitEnvironmentSourceSets() — common has no client split.
+    splitEnvironmentSourceSets()
     // No mods {} block — common is a compilation target, not a runnable mod.
     accessWidenerPath = file("src/main/resources/logistics.accesswidener")
 }

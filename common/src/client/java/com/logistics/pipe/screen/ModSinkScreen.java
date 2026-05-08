@@ -2,7 +2,7 @@ package com.logistics.pipe.screen;
 
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.pipe.ui.ModSinkScreenHandler;
-import net.fabricmc.loader.api.FabricLoader;
+import com.logistics.core.lib.platform.PlatformService;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -188,9 +188,6 @@ public class ModSinkScreen extends AbstractContainerScreen<ModSinkScreenHandler>
     }
 
     private static String getModName(String namespace) {
-        return FabricLoader.getInstance()
-                .getModContainer(namespace)
-                .map(c -> c.getMetadata().getName())
-                .orElse(namespace);
+        return PlatformService.INSTANCE.getModName(namespace);
     }
 }
