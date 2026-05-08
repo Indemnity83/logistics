@@ -31,6 +31,7 @@ public final class ClientNetworking {
      */
     public static void register(Sender s) {
         if (s == null) throw new NullPointerException("sender must not be null");
+        if (sender != null) throw new IllegalStateException("ClientNetworking sender already registered");
         sender = s;
     }
 
@@ -38,9 +39,11 @@ public final class ClientNetworking {
      * Send a packet to the server.
      *
      * @param packet the packet to send
+     * @throws NullPointerException if packet is null
      * @throws IllegalStateException if no sender has been registered
      */
     public static void send(CustomPacketPayload packet) {
+        if (packet == null) throw new NullPointerException("packet must not be null");
         if (sender == null) throw new IllegalStateException("ClientNetworking sender not registered");
         sender.send(packet);
     }
