@@ -3,7 +3,7 @@ package com.logistics.pipe.ui;
 import com.logistics.LogisticsPipe;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.pipe.network.packet.SyncRequesterInventoryPacket;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import com.logistics.core.lib.platform.ServerNetworking;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerPlayer;
@@ -194,7 +194,7 @@ public class RequesterScreenHandler extends AbstractContainerMenu {
 
             // Send to all players on the server (they'll filter based on open screen)
             for (ServerPlayer player : pipeEntity.getLevel().getServer().getPlayerList().getPlayers()) {
-                ServerPlayNetworking.send(player, packet);
+                ServerNetworking.send(player, packet);
             }
 
             initialSyncSent = true;
