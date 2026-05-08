@@ -8,10 +8,10 @@ import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
+import net.fabricmc.fabric.api.transfer.v1.transaction.base.SnapshotParticipant;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
-import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -126,36 +126,50 @@ public final class FabricItemStorage implements IItemStorage {
     /**
      * Fabric {@code Storage<ItemVariant>} backed by an {@link IItemStorage}.
      *
-     * <p>Maintains a per-{@link TransactionContext} staged delta map so that multiple
-     * operations within the same transaction see each other's pending mutations.
-     * Positive delta = pending insert; negative delta = pending extract.
-     * On commit the accumulated deltas are applied to the real storage; on rollback they are discarded.
+     * <p>Extends {@link SnapshotParticipant} to correctly handle nested transactions:
+     * {@code pendingDeltas} is snapshotted at each nesting depth, nested commits merge
+     * into the parent (not into live storage), and {@link #onFinalCommit()} flushes to
+     * the real storage only when the outermost transaction commits.
+     *
+     * <p>Positive delta = pending insert; negative delta = pending extract.
      */
-    private static final class StagedStorage implements Storage<ItemVariant> {
+    private static final class StagedStorage extends SnapshotParticipant<Map<IItemKey, Long>>
+            implements Storage<ItemVariant> {
 
         private final IItemStorage storage;
-        private final Map<TransactionContext, Map<IItemKey, Long>> staged = new IdentityHashMap<>();
+        private Map<IItemKey, Long> pendingDeltas = new HashMap<>();
 
         StagedStorage(IItemStorage storage) {
             this.storage = storage;
         }
 
-        /** Returns the staged delta map for {@code transaction}, registering the commit/rollback callback on first access. */
-        Map<IItemKey, Long> deltas(TransactionContext transaction) {
-            return staged.computeIfAbsent(transaction, t -> {
-                Map<IItemKey, Long> d = new HashMap<>();
-                t.addCloseCallback((closedTx, result) -> {
-                    Map<IItemKey, Long> committed = staged.remove(closedTx);
-                    if (result.wasCommitted() && committed != null) {
-                        for (var e : committed.entrySet()) {
-                            long delta = e.getValue();
-                            if (delta > 0) storage.insert(e.getKey(), delta, false);
-                            else if (delta < 0) storage.extract(e.getKey(), -delta, false);
-                        }
-                    }
-                });
-                return d;
-            });
+        @Override
+        protected Map<IItemKey, Long> createSnapshot() {
+            return new HashMap<>(pendingDeltas);
+        }
+
+        @Override
+        protected void readSnapshot(Map<IItemKey, Long> snapshot) {
+            pendingDeltas = snapshot;
+        }
+
+        @Override
+        protected void onFinalCommit() {
+            for (var e : pendingDeltas.entrySet()) {
+                long delta = e.getValue();
+                if (delta > 0) storage.insert(e.getKey(), delta, false);
+                else if (delta < 0) storage.extract(e.getKey(), -delta, false);
+            }
+            pendingDeltas = new HashMap<>();
+        }
+
+        /**
+         * Registers this participant with {@code tx} (if not already registered at this nesting depth)
+         * and returns the current pending-delta map for mutation.
+         */
+        Map<IItemKey, Long> deltas(TransactionContext tx) {
+            updateSnapshots(tx);
+            return pendingDeltas;
         }
 
         @Override
@@ -163,7 +177,7 @@ public final class FabricItemStorage implements IItemStorage {
             IItemKey key = new FabricItemKey(resource);
             Map<IItemKey, Long> d = deltas(transaction);
             long netDelta = d.getOrDefault(key, 0L);
-            long effectiveCapacity = Math.max(0, storage.insert(key, Integer.MAX_VALUE, true) - netDelta);
+            long effectiveCapacity = Math.max(0, storage.insert(key, Long.MAX_VALUE, true) - netDelta);
             long toInsert = Math.min(maxAmount, effectiveCapacity);
             if (toInsert > 0) d.merge(key, toInsert, Long::sum);
             return toInsert;
@@ -174,7 +188,7 @@ public final class FabricItemStorage implements IItemStorage {
             IItemKey key = new FabricItemKey(resource);
             Map<IItemKey, Long> d = deltas(transaction);
             long netDelta = d.getOrDefault(key, 0L);
-            long effectiveAvailable = Math.max(0, storage.extract(key, Integer.MAX_VALUE, true) + netDelta);
+            long effectiveAvailable = Math.max(0, storage.extract(key, Long.MAX_VALUE, true) + netDelta);
             long toExtract = Math.min(maxAmount, effectiveAvailable);
             if (toExtract > 0) d.merge(key, -toExtract, Long::sum);
             return toExtract;
@@ -223,7 +237,7 @@ public final class FabricItemStorage implements IItemStorage {
             IItemKey key = new FabricItemKey(resource);
             Map<IItemKey, Long> d = staged.deltas(tx);
             long netDelta = d.getOrDefault(key, 0L);
-            long effectiveAvailable = Math.max(0, staged.storage.extract(key, Integer.MAX_VALUE, true) + netDelta);
+            long effectiveAvailable = Math.max(0, staged.storage.extract(key, Long.MAX_VALUE, true) + netDelta);
             long toExtract = Math.min(Math.min(maxAmount, getAmount()), effectiveAvailable);
             if (toExtract > 0) d.merge(key, -toExtract, Long::sum);
             return toExtract;
