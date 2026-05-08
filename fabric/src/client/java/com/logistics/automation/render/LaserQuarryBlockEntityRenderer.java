@@ -9,7 +9,7 @@ import com.logistics.pipe.block.PipeBlock;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
-import net.fabricmc.fabric.api.client.model.loading.v1.FabricBakedModelManager;
+import com.logistics.core.lib.client.model.ClientModelRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -82,15 +82,8 @@ public class LaserQuarryBlockEntityRenderer implements BlockEntityRenderer<Laser
 
     public LaserQuarryBlockEntityRenderer(BlockEntityRendererProvider.Context ctx) {}
 
-    private BakedModel getModel(ResourceLocation modelId) {
-        FabricBakedModelManager modelManager = (FabricBakedModelManager) Minecraft.getInstance().getModelManager();
-        BakedModel model = modelManager.getModel(modelId);
-
-        if (model == null || model == Minecraft.getInstance().getModelManager().getMissingModel()) {
-            return null;
-        }
-
-        return model;
+    private BakedModel getModel(ClientModelRegistry.ModelKey key) {
+        return ClientModelRegistry.get(key);
     }
 
     @Override

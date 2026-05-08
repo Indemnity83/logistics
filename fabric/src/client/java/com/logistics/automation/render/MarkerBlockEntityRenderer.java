@@ -6,8 +6,7 @@ import com.logistics.automation.marker.MarkerManager;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
-import net.fabricmc.fabric.api.client.model.loading.v1.FabricBakedModelManager;
-import net.minecraft.client.Minecraft;
+import com.logistics.core.lib.client.model.ClientModelRegistry;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.ModelBlockRenderer;
@@ -104,12 +103,7 @@ public class MarkerBlockEntityRenderer implements BlockEntityRenderer<MarkerBloc
     }
 
     private BakedModel getBeamModel() {
-        FabricBakedModelManager modelManager = (FabricBakedModelManager) Minecraft.getInstance().getModelManager();
-        BakedModel model = modelManager.getModel(LogisticsAutomationClient.MODEL.BEAM);
-        if (model == null || model == Minecraft.getInstance().getModelManager().getMissingModel()) {
-            return null;
-        }
-        return model;
+        return ClientModelRegistry.get(LogisticsAutomationClient.MODEL.BEAM);
     }
 
     private BeamLengths calculateBeamLengths(MarkerBlockEntity entity) {

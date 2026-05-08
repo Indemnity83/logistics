@@ -1,8 +1,8 @@
 package com.logistics.pipe.render;
 
 import com.logistics.core.LogisticsConfig;
-import com.logistics.LogisticsPipeClient;
 import com.logistics.core.DebugLog;
+import com.logistics.core.lib.client.model.ClientModelRegistry;
 import com.logistics.core.lib.block.capability.PipeConnection;
 import com.logistics.core.lib.pipe.CoreDecoration;
 import com.logistics.core.lib.resource.ResourceId;
@@ -14,7 +14,6 @@ import com.logistics.core.lib.pipe.TravelingItem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
-import net.fabricmc.fabric.api.client.model.loading.v1.FabricBakedModelManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -23,7 +22,6 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemDisplayContext;
@@ -56,6 +54,11 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
     private final RenderProfiler profiler = new RenderProfiler();
 
     public PipeBlockEntityRenderer(BlockEntityRendererProvider.Context ctx) {
+    }
+
+    private BakedModel getModel(ResourceId id) {
+        ClientModelRegistry.ModelKey key = ClientModelRegistry.find(id);
+        return key != null ? ClientModelRegistry.get(key) : null;
     }
 
     @Override
@@ -257,24 +260,6 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
                 0);
 
         poseStack.popPose();
-    }
-
-    private BakedModel getModel(ResourceId id) {
-        // Check if this model ID is registered in our static MODEL class
-        // This ensures we only try to load models we explicitly registered
-        ResourceLocation registeredId = LogisticsPipeClient.MODEL.getKey(id.toIdentifier());
-        if (registeredId == null) {
-            return null;
-        }
-
-        FabricBakedModelManager modelManager = (FabricBakedModelManager) Minecraft.getInstance().getModelManager();
-        BakedModel model = modelManager.getModel(registeredId);
-
-        if (model == null || model == Minecraft.getInstance().getModelManager().getMissingModel()) {
-            return null;
-        }
-
-        return model;
     }
 
     /**

@@ -1,11 +1,11 @@
 package com.logistics.power.render;
 
-import com.logistics.LogisticsPower;
+import com.logistics.LogisticsPowerClient;
+import com.logistics.core.lib.client.model.ClientModelRegistry;
 import com.logistics.core.lib.power.AbstractEngineBlockEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
-import net.fabricmc.fabric.api.client.model.loading.v1.FabricBakedModelManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -104,12 +104,24 @@ public class EngineBlockEntityRenderer implements BlockEntityRenderer<AbstractEn
         poseStack.popPose();
     }
 
-    private ResourceLocation getBellowKey(AbstractEngineBlockEntity entity) {
-        return LogisticsPower.model(getEngineName(entity) + "_bellow").toIdentifier();
+    private ClientModelRegistry.ModelKey getBellowKey(AbstractEngineBlockEntity entity) {
+        String engineName = getEngineName(entity);
+        return switch (engineName) {
+            case "redstone_engine" -> LogisticsPowerClient.MODEL.REDSTONE_BELLOW;
+            case "stirling_engine" -> LogisticsPowerClient.MODEL.STIRLING_BELLOW;
+            case "creative_engine" -> LogisticsPowerClient.MODEL.CREATIVE_BELLOW;
+            default -> LogisticsPowerClient.MODEL.REDSTONE_BELLOW;
+        };
     }
 
-    private ResourceLocation getPistonKey(AbstractEngineBlockEntity entity) {
-        return LogisticsPower.model(getEngineName(entity) + "_piston").toIdentifier();
+    private ClientModelRegistry.ModelKey getPistonKey(AbstractEngineBlockEntity entity) {
+        String engineName = getEngineName(entity);
+        return switch (engineName) {
+            case "redstone_engine" -> LogisticsPowerClient.MODEL.REDSTONE_PISTON;
+            case "stirling_engine" -> LogisticsPowerClient.MODEL.STIRLING_PISTON;
+            case "creative_engine" -> LogisticsPowerClient.MODEL.CREATIVE_PISTON;
+            default -> LogisticsPowerClient.MODEL.REDSTONE_PISTON;
+        };
     }
 
     /**
@@ -167,17 +179,10 @@ public class EngineBlockEntityRenderer implements BlockEntityRenderer<AbstractEn
     }
 
     /**
-     * Gets a baked model by resource location.
+     * Gets a baked model by model key.
      */
-    private BakedModel getModel(ResourceLocation modelId) {
-        FabricBakedModelManager modelManager = (FabricBakedModelManager) Minecraft.getInstance().getModelManager();
-        BakedModel model = modelManager.getModel(modelId);
-
-        if (model == null || model == Minecraft.getInstance().getModelManager().getMissingModel()) {
-            return null;
-        }
-
-        return model;
+    private BakedModel getModel(ClientModelRegistry.ModelKey key) {
+        return ClientModelRegistry.get(key);
     }
 
     /**

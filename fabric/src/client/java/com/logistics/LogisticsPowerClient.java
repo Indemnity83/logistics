@@ -1,38 +1,32 @@
 package com.logistics;
 
 import com.logistics.core.bootstrap.ClientDomainBootstrap;
+import com.logistics.core.lib.client.model.ClientModelRegistry;
 import com.logistics.core.lib.power.AbstractEngineBlockEntity;
-import com.logistics.core.render.ModelKeyRegistry;
 import com.logistics.power.render.EngineBlockEntityRenderer;
 import com.logistics.power.screen.StirlingEngineScreen;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
-import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
 import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
-import net.minecraft.resources.ResourceLocation;
 
 import static com.logistics.LogisticsMod.LOGGER;
 
 public final class LogisticsPowerClient implements ClientDomainBootstrap {
-    public LogisticsPowerClient() {
-        ModelLoadingPlugin.register(pluginContext -> {
-            pluginContext.addModels(MODEL.getAllModels());
-        });
-    }
 
     @Override
     public void initClient() {
         LOGGER.info("Registering power (client)");
+        MODEL.init();
 
         // Register engine blocks for cutout rendering (transparent textures)
         BlockRenderLayerMap.INSTANCE.putBlock(LogisticsPower.BLOCK.REDSTONE_ENGINE, RenderType.cutout());
         BlockRenderLayerMap.INSTANCE.putBlock(LogisticsPower.BLOCK.STIRLING_ENGINE, RenderType.cutout());
         BlockRenderLayerMap.INSTANCE.putBlock(LogisticsPower.BLOCK.CREATIVE_ENGINE, RenderType.cutout());
 
-        // Register engine block entity renderers (static rendering for now)
+        // Register engine block entity renderers
         BlockEntityRenderers.register(LogisticsPower.ENTITY.REDSTONE_ENGINE_BLOCK_ENTITY, EngineBlockEntityRenderer::new);
         BlockEntityRenderers.register(LogisticsPower.ENTITY.STIRLING_ENGINE_BLOCK_ENTITY, EngineBlockEntityRenderer::new);
         BlockEntityRenderers.register(LogisticsPower.ENTITY.CREATIVE_ENGINE_BLOCK_ENTITY, EngineBlockEntityRenderer::new);
@@ -54,18 +48,15 @@ public final class LogisticsPowerClient implements ClientDomainBootstrap {
     }
 
     public static final class MODEL {
-        private static final ModelKeyRegistry REGISTRY = new ModelKeyRegistry(name -> LogisticsPower.model(name).toIdentifier());
+        public static final ClientModelRegistry.ModelKey REDSTONE_BELLOW = ClientModelRegistry.register(LogisticsPower.model("redstone_engine_bellow"));
+        public static final ClientModelRegistry.ModelKey REDSTONE_PISTON = ClientModelRegistry.register(LogisticsPower.model("redstone_engine_piston"));
+        public static final ClientModelRegistry.ModelKey STIRLING_BELLOW = ClientModelRegistry.register(LogisticsPower.model("stirling_engine_bellow"));
+        public static final ClientModelRegistry.ModelKey STIRLING_PISTON = ClientModelRegistry.register(LogisticsPower.model("stirling_engine_piston"));
+        public static final ClientModelRegistry.ModelKey CREATIVE_BELLOW = ClientModelRegistry.register(LogisticsPower.model("creative_engine_bellow"));
+        public static final ClientModelRegistry.ModelKey CREATIVE_PISTON = ClientModelRegistry.register(LogisticsPower.model("creative_engine_piston"));
 
-        public static final ResourceLocation REDSTONE_BELLOW = REGISTRY.registerModel("redstone_engine_bellow");
-        public static final ResourceLocation REDSTONE_PISTON = REGISTRY.registerModel("redstone_engine_piston");
-        public static final ResourceLocation STIRLING_BELLOW = REGISTRY.registerModel("stirling_engine_bellow");
-        public static final ResourceLocation STIRLING_PISTON = REGISTRY.registerModel("stirling_engine_piston");
-        public static final ResourceLocation CREATIVE_BELLOW = REGISTRY.registerModel("creative_engine_bellow");
-        public static final ResourceLocation CREATIVE_PISTON = REGISTRY.registerModel("creative_engine_piston");
-
-        static ResourceLocation[] getAllModels() {
-            return REGISTRY.getAllModels();
-        }
+        /** Forces this class to load, triggering static model registration. */
+        public static void init() {}
 
         private MODEL() {}
     }
