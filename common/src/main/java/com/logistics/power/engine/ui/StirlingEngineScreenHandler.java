@@ -3,7 +3,6 @@ package com.logistics.power.engine.ui;
 import com.logistics.LogisticsPower;
 import com.logistics.power.engine.block.entity.StirlingEngineBlockEntity;
 import net.fabricmc.fabric.api.registry.FuelRegistry;
-import net.minecraft.core.BlockPos;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
