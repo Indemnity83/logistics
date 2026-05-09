@@ -1,6 +1,5 @@
 package com.logistics.power.cable;
 
-import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -54,7 +53,7 @@ public class CableNetworkManager {
 
     public long insert(
             Level level, BlockPos cablePos, @Nullable Direction sourceSide,
-            long maxAmount, TransactionContext transaction) {
+            long maxAmount, boolean simulate) {
         if (maxAmount <= 0
                 || !isPositionLoaded(level, cablePos)
                 || !(level.getBlockEntity(cablePos) instanceof CableBlockEntity)) {
@@ -69,14 +68,14 @@ public class CableNetworkManager {
 
         for (CableNetwork network : networks) {
             if (network.contains(cablePos)) {
-                return network.insert(level, cablePos, sourceSide, maxAmount, transaction);
+                return network.insert(level, cablePos, sourceSide, maxAmount, simulate);
             }
         }
 
         CableNetwork network = CableNetwork.buildFrom(level, cablePos);
         networks.add(network);
         allCables.addAll(network.getCablePositions());
-        return network.insert(level, cablePos, sourceSide, maxAmount, transaction);
+        return network.insert(level, cablePos, sourceSide, maxAmount, simulate);
     }
 
     /**

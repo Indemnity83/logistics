@@ -30,8 +30,8 @@ loom {
 dependencies {
     minecraft "com.mojang:minecraft:${rootProject.minecraft_version}"
 
+    // fabric-loader kept for junit test runner (fabric-loader-junit); not used in main sources
     implementation "net.fabricmc:fabric-loader:${rootProject.fabric_loader_version}"
-    implementation "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_version}"
 
     // Team Reborn Energy API (bundled into the Fabric jar via include in fabric/build.gradle)
     implementation("teamreborn:energy:${rootProject.fabric_energy_version}")
