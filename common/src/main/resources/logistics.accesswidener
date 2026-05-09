@@ -3,3 +3,16 @@ accessWidener v2 official
 # Allow RecipeBookComponent subclasses outside the recipebook package to fill ghost slots
 accessible method net/minecraft/client/gui/screens/recipebook/GhostSlots setInput (Lnet/minecraft/world/inventory/Slot;Lnet/minecraft/util/context/ContextMap;Lnet/minecraft/world/item/crafting/display/SlotDisplay;)V
 accessible method net/minecraft/client/gui/screens/recipebook/GhostSlots setResult (Lnet/minecraft/world/inventory/Slot;Lnet/minecraft/util/context/ContextMap;Lnet/minecraft/world/item/crafting/display/SlotDisplay;)V
+
+# MenuType: private inner supplier interface and constructor — used in LogisticsMod and LogisticsPipe
+# (MC 26.1 made these private; previously access-widened by Fabric API)
+accessible class net/minecraft/world/inventory/MenuType$MenuSupplier
+accessible method net/minecraft/world/inventory/MenuType <init> (Lnet/minecraft/world/inventory/MenuType$MenuSupplier;Lnet/minecraft/world/flag/FeatureFlagSet;)V
+
+# CreativeModeTab.Output — protected inner interface used by LogisticsCreativeTab
+accessible class net/minecraft/world/item/CreativeModeTab$Output
+
+# CreativeModeTabs built-in tab keys — private fields used in LogisticsCore
+accessible field net/minecraft/world/item/CreativeModeTabs BUILDING_BLOCKS Lnet/minecraft/resources/ResourceKey;
+accessible field net/minecraft/world/item/CreativeModeTabs INGREDIENTS Lnet/minecraft/resources/ResourceKey;
+accessible field net/minecraft/world/item/CreativeModeTabs NATURAL_BLOCKS Lnet/minecraft/resources/ResourceKey;
