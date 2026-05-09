@@ -3,11 +3,11 @@ package com.logistics.fabric;
 import com.logistics.core.lib.client.model.ClientModelRegistry;
 import com.logistics.core.lib.resource.ResourceId;
 import net.fabricmc.fabric.api.client.model.loading.v1.ExtraModelKey;
-import net.fabricmc.fabric.api.client.model.loading.v1.FabricModelManager;
+import net.fabricmc.fabric.api.client.model.loading.v1.FabricBakedModelManager;
 import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
 import net.fabricmc.fabric.api.client.model.loading.v1.SimpleUnbakedExtraModel;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
+import net.minecraft.client.renderer.block.model.BlockStateModel;
 
 import java.util.ArrayList;
 import java.util.IdentityHashMap;
@@ -56,7 +56,7 @@ public final class FabricModelLoader {
         ClientModelRegistry.registerProvider(key -> {
             ExtraModelKey<BlockStateModel> fk = FABRIC_KEYS.get(key);
             if (fk == null) return null;
-            return ((FabricModelManager) Minecraft.getInstance().getModelManager()).getModel(fk);
+            return ((FabricBakedModelManager) Minecraft.getInstance().getModelManager()).getModel(fk);
         });
 
         initialized = true;
