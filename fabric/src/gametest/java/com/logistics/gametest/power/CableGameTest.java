@@ -485,7 +485,11 @@ public class CableGameTest {
     }
 
     private static EnergyStorage findStorage(GameTestHelper ctx, BlockPos relPos, Direction dir) {
-        return EnergyStorage.SIDED.find(ctx.getLevel(), ctx.absolutePos(relPos), dir);
+        EnergyStorage storage = EnergyStorage.SIDED.find(ctx.getLevel(), ctx.absolutePos(relPos), dir);
+        if (storage == null) {
+            ctx.fail("No EnergyStorage at " + relPos + " from " + dir);
+        }
+        return storage;
     }
 
     private static void giveMaceratorWork(MaceratorBlockEntity machine) {
