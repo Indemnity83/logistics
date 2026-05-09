@@ -7,12 +7,12 @@ import net.minecraft.world.level.Level;
 public final class NeoForgeFuelHelper implements FuelHelper {
 
     @Override
-    public boolean isFuel(Level level, ItemStack stack) {
+    public boolean checkIsFuel(Level level, ItemStack stack) {
         return level.fuelValues().isFuel(stack);
     }
 
     @Override
-    public int getBurnDuration(Level level, ItemStack stack) {
+    public int checkBurnDuration(Level level, ItemStack stack) {
         return level.fuelValues().burnDuration(stack);
     }
 }

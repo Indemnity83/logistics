@@ -146,7 +146,7 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
             @Override
             public long insert(IItemKey item, long maxAmount, boolean simulate) {
                 // Reject non-fuel items (same validation as isValid() for GUI)
-                if (level == null || !FuelHelper.INSTANCE.isFuel(level, item.toStack(1))) {
+                if (level == null || !FuelHelper.isFuel(level, item.toStack(1))) {
                     return 0;
                 }
                 ItemStack current = inventory.getItem(0);
@@ -286,7 +286,7 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
         }
 
         ItemStack fuel = inventory.getItem(0);
-        int burnTicks = FuelHelper.INSTANCE.getBurnDuration(level, fuel);
+        int burnTicks = FuelHelper.getBurnDuration(level, fuel);
         if (burnTicks <= 0) {
             return false;
         }
@@ -384,7 +384,7 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
         if (level == null) {
             return true; // Allow insertion when world not loaded, validate on use
         }
-        return FuelHelper.INSTANCE.isFuel(level, stack);
+        return FuelHelper.isFuel(level, stack);
     }
 
     @Override

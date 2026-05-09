@@ -227,6 +227,6 @@ public class StirlingEngineScreenHandler extends AbstractContainerMenu {
      * Checks if an item is valid fuel using the world's fuel registry.
      */
     private static boolean isFuel(Player player, ItemStack stack) {
-        return FuelHelper.INSTANCE.isFuel(player.level(), stack);
+        return FuelHelper.isFuel(player.level(), stack);
     }
 }
