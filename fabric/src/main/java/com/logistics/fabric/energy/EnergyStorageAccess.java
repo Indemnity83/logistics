@@ -41,15 +41,23 @@ public final class EnergyStorageAccess {
     }
 
     /**
-     * Adapts a simulate-boolean {@link IEnergyStorage} to Team Reborn's transaction API.
-     * Used for {@code EnergyComponent} instances from the common module.
+     * Adapts a simulate-boolean {@link IEnergyStorage} to Team Reborn's transaction API,
+     * while also implementing {@link IEnergyStorage} directly.
+     *
+     * <p>The TR interface ({@code insert(long, TransactionContext)}) uses close callbacks so
+     * that the actual commit is deferred until the caller's transaction commits. The
+     * {@link IEnergyStorage} interface delegates directly to the underlying storage without
+     * opening any new transactions — safe to call from within TR close callbacks or from
+     * the cable network's simulate-boolean path.
      */
-    private static final class SimulateBooleanAdapter implements EnergyStorage {
+    private static final class SimulateBooleanAdapter implements EnergyStorage, IEnergyStorage {
         private final IEnergyStorage delegate;
 
         SimulateBooleanAdapter(IEnergyStorage delegate) {
             this.delegate = delegate;
         }
+
+        // ── Team Reborn EnergyStorage (transaction-based) ───────────────────────────
 
         @Override
         public long insert(long maxAmount, TransactionContext tx) {
@@ -78,6 +86,29 @@ public final class EnergyStorageAccess {
         }
 
         @Override
+        public boolean supportsInsertion() {
+            return delegate.canInsert();
+        }
+
+        @Override
+        public boolean supportsExtraction() {
+            return delegate.canExtract();
+        }
+
+        // ── IEnergyStorage (simulate-boolean, transaction-free) ──────────────────────
+        // Used by the cable network; safe to call from within TR close callbacks.
+
+        @Override
+        public long insert(long maxAmount, boolean simulate) {
+            return delegate.insert(maxAmount, simulate);
+        }
+
+        @Override
+        public long extract(long maxAmount, boolean simulate) {
+            return delegate.extract(maxAmount, simulate);
+        }
+
+        @Override
         public long getAmount() {
             return delegate.getAmount();
         }
@@ -88,12 +119,12 @@ public final class EnergyStorageAccess {
         }
 
         @Override
-        public boolean supportsInsertion() {
+        public boolean canInsert() {
             return delegate.canInsert();
         }
 
         @Override
-        public boolean supportsExtraction() {
+        public boolean canExtract() {
             return delegate.canExtract();
         }
     }
