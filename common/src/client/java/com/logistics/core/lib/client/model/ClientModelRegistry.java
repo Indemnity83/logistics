@@ -1,7 +1,7 @@
 package com.logistics.core.lib.client.model;
 
 import com.logistics.core.lib.resource.ResourceId;
-import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
+import net.minecraft.client.renderer.block.model.BlockStateModel;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;

@@ -9,6 +9,6 @@ import net.minecraft.server.packs.resources.PreparableReloadListener;
 public final class FabricResourceReloadRegistrar implements ResourceReloadRegistrar {
     @Override
     public void register(ResourceId id, PreparableReloadListener listener) {
-        ResourceLoader.get(PackType.SERVER_DATA).registerReloadListener(id.toIdentifier(), listener);
+        ResourceLoader.get(PackType.SERVER_DATA).registerReloader(id.toIdentifier(), listener);
     }
 }

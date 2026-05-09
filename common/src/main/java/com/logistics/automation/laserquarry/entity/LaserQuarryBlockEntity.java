@@ -14,12 +14,11 @@ import com.logistics.core.lib.block.capability.HasEnergyStorage;
 import com.logistics.core.lib.block.capability.PipeConnection;
 import com.logistics.core.lib.compat.NbtCompat;
 import com.logistics.core.lib.block.behavior.ProbeResult;
+import com.logistics.core.lib.power.EnergyDemandProvider;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
-import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext.Result;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -69,54 +68,34 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity implements PipeConne
             0,
             this::setChanged
     );
-    private final EnergyStorage energyStorage = new EnergyStorage() {
+    private long energyReceivedLastTick = 0;
+    private long energyReceivedThisTick = 0;
+    private final IEnergyStorage trackingStorage = new IEnergyStorage() {
         @Override
-        public boolean supportsExtraction() {
-            return energy.supportsExtraction();
-        }
-
-        @Override
-        public boolean supportsInsertion() {
-            return energy.supportsInsertion();
-        }
-
-        @Override
-        public long insert(long maxAmount, TransactionContext transaction) {
-            long inserted = energy.insert(maxAmount, transaction);
-            if (inserted <= 0) {
-                return 0;
-            }
-
-            if (transaction == null) {
-                energyReceivedThisTick += inserted;
-            } else {
-                transaction.addOuterCloseCallback(result -> {
-                    if (result == Result.COMMITTED) {
-                        energyReceivedThisTick += inserted;
-                    }
-                });
-            }
+        public long insert(long maxAmount, boolean simulate) {
+            long inserted = energy.insert(maxAmount, simulate);
+            if (!simulate && inserted > 0) energyReceivedThisTick += inserted;
             return inserted;
         }
 
         @Override
-        public long extract(long maxAmount, TransactionContext transaction) {
-            return energy.extract(maxAmount, transaction);
+        public long extract(long maxAmount, boolean simulate) {
+            return energy.extract(maxAmount, simulate);
         }
 
         @Override
-        public long getAmount() {
-            return energy.getAmount();
-        }
+        public long getAmount() { return energy.getAmount(); }
 
         @Override
-        public long getCapacity() {
-            return energy.getCapacity();
-        }
+        public long getCapacity() { return energy.getCapacity(); }
+
+        @Override
+        public boolean canInsert() { return energy.canInsert(); }
+
+        @Override
+        public boolean canExtract() { return energy.canExtract(); }
     };
     private long lastSyncedEnergy = 0; // For client sync
-    private long energyReceivedLastTick = 0;
-    private long energyReceivedThisTick = 0;
     private boolean consumedEnergyThisTick = false; // For LED when buffer is low
 
     // Phase state
@@ -165,7 +144,7 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity implements PipeConne
     @Override
     public IEnergyStorage energyStorage(@Nullable Direction side) {
         // Quarry accepts energy from all sides
-        return energyStorage;
+        return trackingStorage;
     }
 
     public static void tick(Level world, BlockPos pos, BlockState state, LaserQuarryBlockEntity entity) {
@@ -1180,7 +1159,7 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity implements PipeConne
 
     @Override
     public long networkDemandPerTick() {
-        long storageRoom = Math.max(0, LogisticsConfig.get().quarry.energyCapacity() - energy.amount);
+        long storageRoom = Math.max(0, LogisticsConfig.get().quarry.energyCapacity() - energy.getAmount());
         long remainingInput = Math.max(0, LogisticsConfig.get().quarry.maxEnergyInput() - energyReceivedThisTick);
         return Math.min(remainingInput, storageRoom);
     }
