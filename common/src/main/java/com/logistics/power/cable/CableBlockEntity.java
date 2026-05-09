@@ -263,11 +263,10 @@ public class CableBlockEntity extends BaseBlockEntity
 
         @Override
         public long insert(long maxAmount, boolean simulate) {
-            if (simulate) return Math.min(maxAmount, getTransferRate());
-            if (level == null || level.isClientSide()) return 0;
+            if (maxAmount <= 0 || level == null || level.isClientSide()) return 0;
             try (Transaction tx = Transaction.openOuter()) {
                 long result = insert(maxAmount, tx);
-                if (result > 0) tx.commit();
+                if (!simulate && result > 0) tx.commit();
                 return result;
             }
         }
