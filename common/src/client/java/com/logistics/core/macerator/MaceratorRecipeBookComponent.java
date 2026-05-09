@@ -1,6 +1,5 @@
 package com.logistics.core.macerator;
 
-import com.logistics.LogisticsCore;
 import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.gui.screens.recipebook.RecipeBookComponent;
 import net.minecraft.network.chat.Component;

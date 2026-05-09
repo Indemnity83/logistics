@@ -67,26 +67,22 @@ public class QuarryGameTest {
         context.succeed();
     }
 
-    @GameTest(maxTicks = 20)
+    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 20)
     public void testQuarryTracksCommittedEnergyInput(GameTestHelper context) {
         BlockPos pos = new BlockPos(1, 1, 1);
 
         context.setBlock(pos, LogisticsAutomation.BLOCK.LASER_QUARRY);
-        LaserQuarryBlockEntity quarry = context.getBlockEntity(pos, LaserQuarryBlockEntity.class);
+        LaserQuarryBlockEntity quarry = (LaserQuarryBlockEntity) context.getBlockEntity(pos);
 
         if (quarry == null) {
             context.fail("Expected LaserQuarryBlockEntity");
             return;
         }
 
-        try (net.fabricmc.fabric.api.transfer.v1.transaction.Transaction transaction =
-                net.fabricmc.fabric.api.transfer.v1.transaction.Transaction.openOuter()) {
-            long inserted = quarry.energyStorage(Direction.NORTH).insert(60, transaction);
-            if (inserted != 60) {
-                context.fail("Expected quarry to accept 60 RF, got " + inserted);
-                return;
-            }
-            transaction.commit();
+        long inserted = quarry.energyStorage(Direction.NORTH).insert(60, false);
+        if (inserted != 60) {
+            context.fail("Expected quarry to accept 60 RF, got " + inserted);
+            return;
         }
 
         context.runAfterDelay(1, () -> {

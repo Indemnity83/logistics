@@ -5,7 +5,6 @@ import com.logistics.power.cable.CableBlockEntity;
 import com.logistics.power.cable.CableTier;
 import java.util.Collections;
 import java.util.List;
-import java.util.function.Function;
 import java.util.function.Supplier;
 import net.fabricmc.fabric.api.renderer.v1.mesh.QuadEmitter;
 import net.fabricmc.fabric.api.renderer.v1.model.FabricBakedModel;
