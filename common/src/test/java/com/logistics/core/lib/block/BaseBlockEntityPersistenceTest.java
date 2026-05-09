@@ -1,6 +1,5 @@
-package com.logistics.core.lib;
+package com.logistics.core.lib.block;
 
-import com.logistics.core.lib.block.BaseBlockEntity;
 import com.logistics.test.MinecraftTestEnvironment;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
