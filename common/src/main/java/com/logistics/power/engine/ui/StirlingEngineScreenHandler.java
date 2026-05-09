@@ -1,8 +1,8 @@
 package com.logistics.power.engine.ui;
 
 import com.logistics.LogisticsPower;
+import com.logistics.core.lib.power.FuelHelper;
 import com.logistics.power.engine.block.entity.StirlingEngineBlockEntity;
-import net.fabricmc.fabric.api.registry.FuelRegistry;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
@@ -227,6 +227,6 @@ public class StirlingEngineScreenHandler extends AbstractContainerMenu {
      * Checks if an item is valid fuel using the Fabric fuel registry.
      */
     private static boolean isFuel(Player player, ItemStack stack) {
-        return FuelRegistry.INSTANCE.get(stack.getItem()) != null;
+        return FuelHelper.isFuel(player.level(), stack);
     }
 }
