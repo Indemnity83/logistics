@@ -1,7 +1,7 @@
 package com.logistics.power.render.model;
 
 import com.logistics.power.cable.CableTier;
-import net.minecraft.client.renderer.block.model.BlockStateModel;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.client.resources.model.ModelBaker;
 import net.minecraft.client.resources.model.ResolvableModel;
 import net.minecraft.data.AtlasIds;

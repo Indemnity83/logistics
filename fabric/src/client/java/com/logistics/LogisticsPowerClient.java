@@ -10,10 +10,8 @@ import com.logistics.power.screen.StirlingEngineScreen;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
 import net.fabricmc.fabric.api.client.rendering.v1.BlockColorRegistry;
-import net.fabricmc.fabric.api.client.rendering.v1.BlockRenderLayerMap;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
-import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 
 import java.util.List;
 
@@ -53,10 +51,9 @@ public final class LogisticsPowerClient implements ClientDomainBootstrap {
         BlockEntityRenderers.register(LogisticsPower.ENTITY.STIRLING_ENGINE_BLOCK_ENTITY, EngineBlockEntityRenderer::new);
         BlockEntityRenderers.register(LogisticsPower.ENTITY.CREATIVE_ENGINE_BLOCK_ENTITY, EngineBlockEntityRenderer::new);
 
-        // Register cable blocks for chunk-baked cutout rendering
-        BlockRenderLayerMap.putBlock(LogisticsPower.BLOCK.COPPER_CABLE, ChunkSectionLayer.CUTOUT);
-        BlockRenderLayerMap.putBlock(LogisticsPower.BLOCK.GOLD_CABLE, ChunkSectionLayer.CUTOUT);
-        BlockRenderLayerMap.putBlock(LogisticsPower.BLOCK.ENDER_CABLE, ChunkSectionLayer.CUTOUT);
+        // Note: In MC 26.1, render layers are set per-quad via QuadEmitter.chunkLayer()
+        // rather than globally via BlockRenderLayerMap. CableModel sets ChunkSectionLayer.CUTOUT
+        // on each emitted quad directly.
 
         // Register screens
         MenuScreens.register(LogisticsPower.SCREEN.STIRLING_ENGINE, StirlingEngineScreen::new);
