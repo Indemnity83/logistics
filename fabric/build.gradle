@@ -46,6 +46,10 @@ dependencies {
     implementation "net.fabricmc:fabric-loader:${rootProject.fabric_loader_version}"
     implementation "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_version}"
 
+    testImplementation "org.junit.jupiter:junit-jupiter:${rootProject.junit_version}"
+    testRuntimeOnly "org.junit.platform:junit-platform-launcher"
+    testImplementation "org.assertj:assertj-core:${rootProject.assertj_version}"
+
     // Team Reborn Energy API
     include("teamreborn:energy:${rootProject.fabric_energy_version}")
     implementation("teamreborn:energy:${rootProject.fabric_energy_version}")
@@ -63,6 +67,14 @@ processResources {
     inputs.property "java_version", rootProject.java_version
     filesMatching("fabric.mod.json") {
         expand inputs.properties
+    }
+}
+
+test {
+    useJUnitPlatform()
+    testLogging {
+        events "passed", "skipped", "failed"
+        exceptionFormat = "full"
     }
 }
 
