@@ -27,15 +27,15 @@ import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import com.logistics.core.lib.energy.EnergyCapabilityLookup;
 import org.jetbrains.annotations.Nullable;
-import team.reborn.energy.api.EnergyStorage;
 
 /**
  * Cable block that connects to engines, machines, and other cables
  * to transfer RF energy across distances.
  *
  * <p>Uses the same visual shape system as pipes (8px core + directional arms)
- * and connects to any block exposing {@link EnergyStorage} via the Team Reborn Energy API.
+ * and connects to any block exposing energy storage via the loader's capability system.
  */
 public class CableBlock extends BaseEntityBlock implements ProbeBehavior.Probeable, SimpleWaterloggedBlock {
     public static final MapCodec<CableBlock> CODEC = simpleCodec(CableBlock::new);
@@ -229,8 +229,8 @@ public class CableBlock extends BaseEntityBlock implements ProbeBehavior.Probeab
         }
 
         // Connect to anything with energy storage (engines, machines, pipes with energy)
-        EnergyStorage storage = EnergyStorage.SIDED.find(level, neighborPos, direction.getOpposite());
-        if (storage != null && (storage.supportsInsertion() || storage.supportsExtraction())) {
+        var storage = EnergyCapabilityLookup.INSTANCE.find(level, neighborPos, direction.getOpposite());
+        if (storage != null && (storage.canInsert() || storage.canExtract())) {
             return ConnectionType.DEVICE;
         }
 
