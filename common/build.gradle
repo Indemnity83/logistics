@@ -27,6 +27,9 @@ dependencies {
     mappings loom.officialMojangMappings()
 
     modImplementation "net.fabricmc:fabric-loader:${rootProject.fabric_loader_version}"
+    // fabric-api remains on the compile classpath in 1.21.1: StirlingEngineBlockEntity and
+    // StirlingEngineScreenHandler use FuelRegistry, which has no vanilla equivalent until 26.1.
+    // Remove once FuelRegistry usage is abstracted behind a platform service.
     modImplementation "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_version}"
 
     // Team Reborn Energy API (bundled into the Fabric jar via include in fabric/build.gradle)

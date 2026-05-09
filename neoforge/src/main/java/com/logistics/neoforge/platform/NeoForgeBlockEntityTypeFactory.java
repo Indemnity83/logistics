@@ -6,13 +6,8 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 
-import java.util.Set;
-
 /**
  * NeoForge implementation of {@link BlockEntityTypeFactory}.
- *
- * <p>MC 26.1 removed {@code BlockEntityType.Builder}; the type is constructed directly
- * via its constructor (access-widened by NeoForge).
  */
 public final class NeoForgeBlockEntityTypeFactory implements BlockEntityTypeFactory {
 
@@ -22,6 +17,6 @@ public final class NeoForgeBlockEntityTypeFactory implements BlockEntityTypeFact
             throw new IllegalArgumentException(
                     "build() requires at least one block; factory=" + factory.getClass().getName());
         }
-        return new BlockEntityType<>(factory::create, Set.of(blocks));
+        return BlockEntityType.Builder.of(factory::create, blocks).build(null);
     }
 }

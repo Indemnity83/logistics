@@ -2,6 +2,8 @@ package com.logistics.fabric;
 
 import com.logistics.core.lib.platform.PlatformService;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceLocation;
 
 import java.nio.file.Path;
 
@@ -17,5 +19,13 @@ public final class FabricPlatformService implements PlatformService {
                 .getModContainer(namespace)
                 .map(c -> c.getMetadata().getName())
                 .orElse(namespace);
+    }
+
+    @Override
+    public <T> void registerAlias(Registry<T> registry, ResourceLocation oldId, T currentEntry) {
+        ResourceLocation currentId = registry.getKey(currentEntry); // Fabric API extension
+        if (currentId != null) {
+            registry.addAlias(oldId, currentId); // Fabric API extension
+        }
     }
 }

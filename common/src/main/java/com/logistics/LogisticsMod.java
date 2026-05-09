@@ -3,6 +3,7 @@ package com.logistics;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.core.lib.block.BlockEntitySupplier;
 import com.logistics.core.lib.block.BlockEntityTypeFactory;
+import com.logistics.core.lib.platform.PlatformService;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -104,23 +105,15 @@ public class LogisticsMod {
     }
 
     protected void registerItemAlias(String name, Item item) {
-        var newItem = BuiltInRegistries.ITEM.getKey(item);
-        if (newItem != null) {
-            BuiltInRegistries.ITEM.addAlias(modId(name).toIdentifier(), newItem);
-        }
+        PlatformService.INSTANCE.registerAlias(BuiltInRegistries.ITEM, modId(name).toIdentifier(), item);
     }
 
     protected void registerBlockAlias(String name, Block block) {
-        var newBlock = BuiltInRegistries.BLOCK.getKey(block);
-        if (newBlock != null) {
-            BuiltInRegistries.BLOCK.addAlias(modId(name).toIdentifier(), newBlock);
-        }
+        PlatformService.INSTANCE.registerAlias(BuiltInRegistries.BLOCK, modId(name).toIdentifier(), block);
     }
 
     protected void registerBlockEntityAlias(String name, BlockEntityType<?> blockEntityType) {
-        var newBlockEntity = BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(blockEntityType);
-        if(newBlockEntity != null) {
-            BuiltInRegistries.BLOCK_ENTITY_TYPE.addAlias(modId(name).toIdentifier(), newBlockEntity);
-        }
+        PlatformService.INSTANCE.registerAlias(
+                BuiltInRegistries.BLOCK_ENTITY_TYPE, modId(name).toIdentifier(), blockEntityType);
     }
 }

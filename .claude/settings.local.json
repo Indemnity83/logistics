@@ -1,0 +1,27 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:fabricmc.net)",
+      "Bash(./gradlew build:*)",
+      "WebSearch",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(jar tf:*)",
+      "Bash(javap:*)",
+      "Bash(jar -tf:*)",
+      "WebFetch(domain:github.com)",
+      "mcp__minecraft-dev__get_minecraft_source",
+      "mcp__minecraft-dev__search_minecraft_code",
+      "mcp__jetbrains__list_directory_tree",
+      "mcp__jetbrains__get_file_text_by_path",
+      "Bash(git checkout:*)",
+      "Bash(git rm:*)",
+      "Bash(./gradlew compileJava:*)",
+      "Bash(./gradlew:*)",
+      "Bash(git add:*)",
+      "Bash(git cherry-pick:*)",
+      "Bash(find:*)",
+      "Bash(git:*)",
+      "Bash(xargs -I{} sh -c \"jar tf \"\"{}\"\" 2>/dev/null | grep -i \"\"empty.nbt\"\" | while read line; do echo \"\"{}: $line\"\"; done\")"
+    ]
+  }
+}

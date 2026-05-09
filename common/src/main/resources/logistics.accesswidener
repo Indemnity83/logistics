@@ -1,1 +1,14 @@
 accessWidener v2 named
+
+# MenuType: private inner supplier interface and constructor — used in LogisticsMod and LogisticsPipe
+# (previously access-widened by Fabric API)
+accessible class net/minecraft/world/inventory/MenuType$MenuSupplier
+accessible method net/minecraft/world/inventory/MenuType <init> (Lnet/minecraft/world/inventory/MenuType$MenuSupplier;Lnet/minecraft/world/flag/FeatureFlagSet;)V
+
+# CreativeModeTab.Output — protected inner interface used by LogisticsCreativeTab
+accessible class net/minecraft/world/item/CreativeModeTab$Output
+
+# CreativeModeTabs built-in tab keys — private fields used in LogisticsCore
+accessible field net/minecraft/world/item/CreativeModeTabs BUILDING_BLOCKS Lnet/minecraft/resources/ResourceKey;
+accessible field net/minecraft/world/item/CreativeModeTabs INGREDIENTS Lnet/minecraft/resources/ResourceKey;
+accessible field net/minecraft/world/item/CreativeModeTabs NATURAL_BLOCKS Lnet/minecraft/resources/ResourceKey;
