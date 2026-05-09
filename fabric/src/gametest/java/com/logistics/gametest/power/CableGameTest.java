@@ -4,7 +4,7 @@ import com.logistics.LogisticsCore;
 import com.logistics.LogisticsPower;
 import com.logistics.core.macerator.MaceratorBlockEntity;
 import com.logistics.core.lib.power.AbstractEngineBlock;
-import com.logistics.core.lib.support.ProbeResult;
+import com.logistics.core.lib.block.behavior.ProbeResult;
 import com.logistics.power.cable.CableBlock;
 import com.logistics.power.cable.CableBlockEntity;
 import com.logistics.power.block.entity.CreativeSinkBlockEntity;
@@ -36,11 +36,7 @@ public class CableGameTest {
         }
 
         for (Direction direction : Direction.values()) {
-            EnergyStorage storage = cable.energyStorage(direction);
-            if (storage == null) {
-                context.fail("Copper cable should expose storage from " + direction);
-                return;
-            }
+            EnergyStorage storage = findStorage(context, cablePos, direction);
             if (!storage.supportsInsertion()) {
                 context.fail("Copper cable should support insertion from " + direction);
                 return;
@@ -80,7 +76,7 @@ public class CableGameTest {
         }
 
         Transaction transaction = Transaction.openOuter();
-        long inserted = cable.energyStorage(Direction.WEST).insert(demandBefore, transaction);
+        long inserted = findStorage(context, cablePos, Direction.WEST).insert(demandBefore, transaction);
         if (inserted != demandBefore) {
             transaction.close();
             context.fail("Cable should reserve creative sink demand inside transaction, got: " + inserted);
@@ -123,9 +119,8 @@ public class CableGameTest {
         }
         giveMaceratorWork(machine);
 
-        EnergyStorage cableStorage = sourceCable.energyStorage(Direction.WEST);
         try (Transaction transaction = Transaction.openOuter()) {
-            long inserted = cableStorage.insert(640L, transaction);
+            long inserted = findStorage(context, sourceCablePos, Direction.WEST).insert(640L, transaction);
             if (inserted <= 0) {
                 context.fail("Cable network should pass inserted energy through to the machine");
                 return;
@@ -161,7 +156,7 @@ public class CableGameTest {
         }
 
         try (Transaction transaction = Transaction.openOuter()) {
-            long inserted = cable.energyStorage(Direction.WEST).insert(30L, transaction);
+            long inserted = findStorage(context, cablePos, Direction.WEST).insert(30L, transaction);
             if (inserted != 30L) {
                 context.fail("Idle machine buffer should accept cable energy, got: " + inserted);
                 return;
@@ -198,7 +193,7 @@ public class CableGameTest {
             return;
         }
         try (Transaction transaction = Transaction.openOuter()) {
-            long inserted = cable.energyStorage(Direction.WEST).insert(demandBefore, transaction);
+            long inserted = findStorage(context, cablePos, Direction.WEST).insert(demandBefore, transaction);
             if (inserted != demandBefore) {
                 context.fail("Cable should reserve creative sink demand inside transaction, got: " + inserted);
                 return;
@@ -234,7 +229,7 @@ public class CableGameTest {
         setSinkDrainRate(largeSink, 10L, context);
 
         try (Transaction transaction = Transaction.openOuter()) {
-            long inserted = cable.energyStorage(Direction.WEST).insert(9L, transaction);
+            long inserted = findStorage(context, cablePos, Direction.WEST).insert(9L, transaction);
             if (inserted != 9L) {
                 context.fail("Cable should accept all energy demanded by sinks, got: " + inserted);
                 return;
@@ -272,7 +267,7 @@ public class CableGameTest {
         sink.setUnlimitedDrainRate();
 
         try (Transaction transaction = Transaction.openOuter()) {
-            long inserted = enderCable.energyStorage(Direction.WEST).insert(60L, transaction);
+            long inserted = findStorage(context, enderCablePos, Direction.WEST).insert(60L, transaction);
             if (inserted != 30L) {
                 context.fail("Ender-to-copper route should be capped at 30 RF/t, got: " + inserted);
                 return;
@@ -281,7 +276,7 @@ public class CableGameTest {
         }
 
         try (Transaction transaction = Transaction.openOuter()) {
-            long inserted = enderCable.energyStorage(Direction.WEST).insert(60L, transaction);
+            long inserted = findStorage(context, enderCablePos, Direction.WEST).insert(60L, transaction);
             if (inserted != 0L) {
                 context.fail("Copper bottleneck should be spent for the tick, got extra: " + inserted);
                 return;
@@ -355,7 +350,7 @@ public class CableGameTest {
             }
             giveMaceratorWork(machine);
 
-            EnergyStorage sourceStorage = sourceCable.energyStorage(Direction.WEST);
+            EnergyStorage sourceStorage = findStorage(context, sourceCablePos, Direction.WEST);
             try (Transaction transaction = Transaction.openOuter()) {
                 long inserted = sourceStorage.insert(640L, transaction);
                 if (inserted != 0) {
@@ -467,7 +462,7 @@ public class CableGameTest {
                 giveMaceratorWork(machine);
 
                 try (Transaction transaction = Transaction.openOuter()) {
-                    long inserted = sourceCable.energyStorage(Direction.WEST).insert(640L, transaction);
+                    long inserted = findStorage(context, sourceCablePos, Direction.WEST).insert(640L, transaction);
                     if (inserted <= 0) {
                         context.fail("Restored cable should rejoin network and deliver energy");
                         return;
@@ -483,6 +478,14 @@ public class CableGameTest {
                 context.succeed();
             });
         });
+    }
+
+    private static EnergyStorage findStorage(GameTestHelper ctx, BlockPos relPos, Direction dir) {
+        EnergyStorage storage = EnergyStorage.SIDED.find(ctx.getLevel(), ctx.absolutePos(relPos), dir);
+        if (storage == null) {
+            ctx.fail("No EnergyStorage at " + relPos + " from " + dir);
+        }
+        return storage;
     }
 
     private static void giveMaceratorWork(MaceratorBlockEntity machine) {

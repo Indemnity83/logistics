@@ -79,14 +79,10 @@ public class QuarryGameTest {
             return;
         }
 
-        try (net.fabricmc.fabric.api.transfer.v1.transaction.Transaction transaction =
-                net.fabricmc.fabric.api.transfer.v1.transaction.Transaction.openOuter()) {
-            long inserted = quarry.energyStorage(Direction.NORTH).insert(60, transaction);
-            if (inserted != 60) {
-                context.fail("Expected quarry to accept 60 RF, got " + inserted);
-                return;
-            }
-            transaction.commit();
+        long inserted = quarry.energyStorage(Direction.NORTH).insert(60, false);
+        if (inserted != 60) {
+            context.fail("Expected quarry to accept 60 RF, got " + inserted);
+            return;
         }
 
         context.runAfterDelay(1, () -> {
