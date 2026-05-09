@@ -1,5 +1,8 @@
 package com.logistics.core.lib.platform;
 
+import net.minecraft.core.Registry;
+import net.minecraft.resources.Identifier;
+
 import java.nio.file.Path;
 import java.util.ServiceLoader;
 
@@ -28,6 +31,15 @@ public interface PlatformService {
     default String getModName(String namespace) {
         return namespace;
     }
+
+    /**
+     * Registers {@code oldId} as a legacy alias for the same registry entry as
+     * {@code currentEntry}, so saves that used the old ID are remapped on load.
+     *
+     * <p>No-op on loaders that don't support registry aliases (e.g. NeoForge stub).
+     * Fabric delegates to {@code Registry.addAlias()} via Fabric API.
+     */
+    default <T> void registerAlias(Registry<T> registry, Identifier oldId, T currentEntry) {}
 
     PlatformService INSTANCE = ServiceLoader.load(PlatformService.class)
             .findFirst()

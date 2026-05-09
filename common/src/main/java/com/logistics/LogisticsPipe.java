@@ -2,6 +2,7 @@ package com.logistics;
 
 import com.logistics.api.LogisticsApi;
 import com.logistics.core.bootstrap.DomainBootstrap;
+import com.logistics.core.lib.platform.PlatformService;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.pipe.modules.*;
 import com.logistics.pipe.Pipe;
@@ -467,19 +468,14 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
                 INSTANCE.registerItemAlias("pipe/marking_fluid_" + entry.getKey().getName(), entry.getValue());
             }
 
-            var newMenuId = BuiltInRegistries.MENU.getKey(SCREEN.ITEM_FILTER);
-            if (newMenuId != null) {
-                BuiltInRegistries.MENU.addAlias(
-                        LogisticsMod.modId("item_filter").toIdentifier(),
-                        newMenuId);
-            }
-
-            var newDataId = BuiltInRegistries.DATA_COMPONENT_TYPE.getKey(DATA.WEATHERING_STATE);
-            if (newDataId != null) {
-                BuiltInRegistries.DATA_COMPONENT_TYPE.addAlias(
-                        LogisticsMod.modId("weathering_state").toIdentifier(),
-                        newDataId);
-            }
+            PlatformService.INSTANCE.registerAlias(
+                    BuiltInRegistries.MENU,
+                    LogisticsMod.modId("item_filter").toIdentifier(),
+                    SCREEN.ITEM_FILTER);
+            PlatformService.INSTANCE.registerAlias(
+                    BuiltInRegistries.DATA_COMPONENT_TYPE,
+                    LogisticsMod.modId("weathering_state").toIdentifier(),
+                    DATA.WEATHERING_STATE);
         }
     }
 
