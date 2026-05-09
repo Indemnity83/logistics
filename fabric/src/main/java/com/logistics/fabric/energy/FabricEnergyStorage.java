@@ -7,9 +7,9 @@ import team.reborn.energy.api.base.SimpleEnergyStorage;
  * Dual-interface energy storage: implements both {@link IEnergyStorage} (loader-agnostic)
  * and extends Team Reborn's {@link SimpleEnergyStorage} (Fabric-native).
  *
- * <p>Translates {@link IEnergyStorage}'s simulate-boolean API into Team Reborn's
- * transaction system. When {@code simulate=true}, opens a transaction that rolls back
- * on close; when {@code simulate=false}, opens and commits a transaction.
+ * <p>The simulate-boolean {@link IEnergyStorage} methods use direct arithmetic — no TR
+ * transactions are opened. When {@code simulate=true} the state is unchanged; when
+ * {@code simulate=false} the amount is mutated in place.
  *
  * <p>Because this class IS already a Team Reborn {@code EnergyStorage}, the Fabric
  * capability lookup can hand it directly to TRE's {@code SIDED} system — no further

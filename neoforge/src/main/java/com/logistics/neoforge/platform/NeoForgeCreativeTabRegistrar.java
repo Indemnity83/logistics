@@ -52,12 +52,16 @@ public final class NeoForgeCreativeTabRegistrar implements CreativeTabRegistrar 
             mod.editor().accept(new TabEditor() {
                 @Override
                 public void insertAfter(ItemLike anchor, ItemLike item) {
-                    // TODO(neoforge): use event.insertAfter(anchor.asItem(), item) or similar API
+                    throw new UnsupportedOperationException(
+                            "NeoForge creative tab ordering not yet implemented; "
+                                    + "wire event.insertAfter or equivalent NeoForge API");
                 }
 
                 @Override
                 public void insertBefore(ItemLike anchor, ItemLike item) {
-                    // TODO(neoforge): use event.insertBefore(anchor.asItem(), item) or similar API
+                    throw new UnsupportedOperationException(
+                            "NeoForge creative tab ordering not yet implemented; "
+                                    + "wire event.insertBefore or equivalent NeoForge API");
                 }
             });
         }

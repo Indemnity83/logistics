@@ -18,6 +18,10 @@ public final class NeoForgeBlockEntityTypeFactory implements BlockEntityTypeFact
 
     @Override
     public <T extends BlockEntity> BlockEntityType<T> build(BlockEntitySupplier<T> factory, Block... blocks) {
+        if (blocks == null || blocks.length == 0) {
+            throw new IllegalArgumentException(
+                    "build() requires at least one block; factory=" + factory.getClass().getName());
+        }
         return new BlockEntityType<>(factory::create, Set.of(blocks));
     }
 }
