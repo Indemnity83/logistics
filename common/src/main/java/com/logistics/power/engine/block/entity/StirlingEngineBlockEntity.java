@@ -5,6 +5,7 @@ import com.logistics.core.lib.block.behavior.MenuBehavior;
 import com.logistics.core.lib.block.capability.HasItemStorage;
 import com.logistics.core.lib.items.ItemInventoryComponent;
 import com.logistics.core.lib.power.AbstractEngineBlockEntity;
+import com.logistics.core.lib.power.FuelHelper;
 import com.logistics.core.lib.compat.NbtCompat;
 import com.logistics.core.lib.block.behavior.ProbeResult;
 import com.logistics.power.engine.PIDController;
@@ -145,7 +146,7 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
             @Override
             public long insert(IItemKey item, long maxAmount, boolean simulate) {
                 // Reject non-fuel items (same validation as isValid() for GUI)
-                if (level == null || !level.fuelValues().isFuel(item.toStack(1))) {
+                if (level == null || !FuelHelper.isFuel(level, item.toStack(1))) {
                     return 0;
                 }
                 ItemStack current = inventory.getItem(0);
@@ -285,7 +286,7 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
         }
 
         ItemStack fuel = inventory.getItem(0);
-        int burnTicks = level.fuelValues().burnDuration(fuel);
+        int burnTicks = FuelHelper.getBurnDuration(level, fuel);
         if (burnTicks <= 0) {
             return false;
         }
@@ -383,7 +384,7 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
         if (level == null) {
             return true; // Allow insertion when world not loaded, validate on use
         }
-        return level.fuelValues().isFuel(stack);
+        return FuelHelper.isFuel(level, stack);
     }
 
     @Override
