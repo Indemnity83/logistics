@@ -29,7 +29,10 @@ dependencies {
     mappings loom.officialMojangMappings()
 
     modImplementation "net.fabricmc:fabric-loader:${rootProject.fabric_loader_version}"
-    modImplementation "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_version}"
+    // fabric-api is NOT on the main compile classpath. modRuntimeOnly (not testImplementation) is
+    // required because 1.21.11 Fabric API uses intermediary mappings that Loom must remap to named;
+    // plain testImplementation bypasses Loom remapping and causes a classTweaker namespace mismatch.
+    modRuntimeOnly "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_version}"
 
     // Team Reborn Energy API (bundled into the Fabric jar via include in fabric/build.gradle)
     modImplementation("teamreborn:energy:${rootProject.fabric_energy_version}")
