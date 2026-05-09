@@ -2,15 +2,12 @@ package com.logistics.fabric;
 
 import com.logistics.core.lib.client.model.ClientModelRegistry;
 import com.logistics.core.lib.resource.ResourceId;
-import net.fabricmc.fabric.api.client.model.loading.v1.ExtraModelKey;
 import net.fabricmc.fabric.api.client.model.loading.v1.FabricBakedModelManager;
 import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
-import net.fabricmc.fabric.api.client.model.loading.v1.SimpleUnbakedExtraModel;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.ArrayList;
-import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -25,38 +22,34 @@ public final class FabricModelLoader {
 
     private static boolean initialized = false;
 
-    private static final Map<ClientModelRegistry.ModelKey, ExtraModelKey<BakedModel>> FABRIC_KEYS =
-            new IdentityHashMap<>();
-
     public static void setup() {
         if (initialized) return;
 
-        // Take a single consistent snapshot so FABRIC_KEYS and the plugin lambda
-        // iterate the exact same entries — no risk of null lookups from interleaved writes.
+        // Take a single consistent snapshot so the plugin lambda iterates
+        // the exact same entries — no risk of null lookups from interleaved writes.
         Map<ResourceId, ClientModelRegistry.ModelKey> snapshot = ClientModelRegistry.all();
 
-        List<Map.Entry<ExtraModelKey<BakedModel>, ResourceId>> pluginEntries = new ArrayList<>();
-        for (var entry : snapshot.entrySet()) {
-            ExtraModelKey<BakedModel> fabricKey =
-                    ExtraModelKey.create(entry.getKey().toIdentifier()::toString);
-            FABRIC_KEYS.put(entry.getValue(), fabricKey);
-            pluginEntries.add(Map.entry(fabricKey, entry.getKey()));
-        }
+        List<ResourceId> resourceIds = new ArrayList<>(snapshot.keySet());
 
         // Register model loading plugin — runs before Minecraft bakes models
         ModelLoadingPlugin.register(ctx -> {
-            for (var entry : pluginEntries) {
-                ctx.addModel(
-                        entry.getKey(),
-                        SimpleUnbakedExtraModel.blockStateModel(entry.getValue().toIdentifier()));
+            for (ResourceId id : resourceIds) {
+                ctx.addModels(id.toIdentifier());
             }
         });
 
-        // Register the render-time provider
+        // Register the render-time provider using FabricBakedModelManager
         ClientModelRegistry.registerProvider(key -> {
-            ExtraModelKey<BakedModel> fk = FABRIC_KEYS.get(key);
-            if (fk == null) return null;
-            return ((FabricBakedModelManager) Minecraft.getInstance().getModelManager()).getModel(fk);
+            ResourceId id = null;
+            for (var entry : snapshot.entrySet()) {
+                if (entry.getValue() == key) {
+                    id = entry.getKey();
+                    break;
+                }
+            }
+            if (id == null) return null;
+            ResourceLocation loc = id.toIdentifier();
+            return ((FabricBakedModelManager) Minecraft.getInstance().getModelManager()).getModel(loc);
         });
 
         initialized = true;

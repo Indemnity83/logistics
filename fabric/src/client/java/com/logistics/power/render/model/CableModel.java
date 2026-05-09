@@ -3,54 +3,88 @@ package com.logistics.power.render.model;
 import com.logistics.power.cable.CableBlock;
 import com.logistics.power.cable.CableBlockEntity;
 import com.logistics.power.cable.CableTier;
+import java.util.Collections;
 import java.util.List;
-import java.util.function.Predicate;
+import java.util.function.Function;
+import java.util.function.Supplier;
 import net.fabricmc.fabric.api.renderer.v1.mesh.QuadEmitter;
-import net.fabricmc.fabric.api.renderer.v1.model.FabricBlockStateModel;
+import net.fabricmc.fabric.api.renderer.v1.model.FabricBakedModel;
+import net.fabricmc.fabric.api.renderer.v1.render.RenderContext;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.block.model.BlockModelPart;
-import net.minecraft.client.renderer.block.model.BlockStateModel;
+import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.block.model.ItemOverrides;
+import net.minecraft.client.renderer.block.model.ItemTransforms;
+import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.data.AtlasIds;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.state.BlockState;
 
-public final class CableModel implements BlockStateModel, FabricBlockStateModel {
-    private final Identifier textureId;
+public final class CableModel implements BakedModel, FabricBakedModel {
+    private final ResourceLocation textureId;
     private TextureAtlasSprite spriteCache;
 
     public CableModel(CableTier tier) {
-        this.textureId = Identifier.fromNamespaceAndPath("logistics", "block/power/" + tier.id());
+        this.textureId = ResourceLocation.fromNamespaceAndPath("logistics", "block/power/" + tier.id());
     }
 
     @Override
-    public TextureAtlasSprite particleIcon() {
+    public TextureAtlasSprite getParticleIcon() {
         return sprite();
     }
 
     @Override
-    public void collectParts(RandomSource random, List<BlockModelPart> parts) {
+    public List<BakedQuad> getQuads(BlockState state, Direction face, RandomSource random) {
+        return Collections.emptyList();
     }
 
     @Override
-    public Object createGeometryKey(BlockAndTintGetter world, BlockPos pos, BlockState state, RandomSource random) {
-        if (!(world.getBlockEntity(pos) instanceof CableBlockEntity cable)) {
-            return Integer.valueOf(0);
-        }
-        return Integer.valueOf(cable.getRenderConnectionMask());
+    public boolean useAmbientOcclusion() {
+        return true;
     }
 
     @Override
-    public void emitQuads(QuadEmitter emitter, BlockAndTintGetter world, BlockPos pos, BlockState state,
-            RandomSource random, Predicate<Direction> cullTest) {
+    public boolean isGui3d() {
+        return false;
+    }
+
+    @Override
+    public boolean usesBlockLight() {
+        return true;
+    }
+
+    @Override
+    public boolean isCustomRenderer() {
+        return false;
+    }
+
+    @Override
+    public ItemTransforms getTransforms() {
+        return ItemTransforms.NO_TRANSFORMS;
+    }
+
+    @Override
+    public ItemOverrides getOverrides() {
+        return ItemOverrides.EMPTY;
+    }
+
+    @Override
+    public boolean isVanillaAdapter() {
+        return false;
+    }
+
+    @Override
+    public void emitBlockQuads(BlockAndTintGetter world, BlockState state, BlockPos pos,
+            Supplier<RandomSource> randomSupplier, RenderContext context) {
         if (!(world.getBlockEntity(pos) instanceof CableBlockEntity cable)) {
             return;
         }
 
+        QuadEmitter emitter = context.getEmitter();
         TextureAtlasSprite sprite = sprite();
         float spriteU0 = sprite.getU0();
         float spriteV0 = sprite.getV0();
@@ -125,7 +159,7 @@ public final class CableModel implements BlockStateModel, FabricBlockStateModel 
 
         for (Direction dir : Direction.values()) {
             if (!isConnected(armMask, dir)) continue;
-            emitArm(emitter, dir, cullTest,
+            emitArm(emitter, dir, context,
                     armSideU0, armSideV0, armSideU1, armSideV1,
                     armFrontU0, armFrontV0, armFrontU1, armFrontV1,
                     armTopU0, armTopV0, armTopU1, armTopV1);
@@ -170,7 +204,7 @@ public final class CableModel implements BlockStateModel, FabricBlockStateModel 
                 spriteV0 + spriteVSpan * (ty1 / 16f));
     }
 
-    private void emitArm(QuadEmitter emitter, Direction dir, Predicate<Direction> cullTest,
+    private void emitArm(QuadEmitter emitter, Direction dir, RenderContext context,
             float sideU0, float sideV0, float sideU1, float sideV1,
             float frontU0, float frontV0, float frontU1, float frontV1,
             float topU0, float topV0, float topU1, float topV1) {
@@ -178,7 +212,7 @@ public final class CableModel implements BlockStateModel, FabricBlockStateModel 
             if (face == Direction.SOUTH) continue;
             Direction rotatedFace = rotateFromNorth(face, dir);
             if (face == Direction.NORTH) {
-                if (!cullTest.test(rotatedFace)) continue;
+                if (!context.isFaceCulled(rotatedFace)) continue;
                 emitRotatedBoxFace(emitter, face, dir,
                         ARM_MODEL_MIN_X, ARM_MODEL_MIN_Y, ARM_MODEL_MIN_Z,
                         ARM_MODEL_MAX_X, ARM_MODEL_MAX_Y, ARM_MODEL_MAX_Z,
@@ -374,8 +408,7 @@ public final class CableModel implements BlockStateModel, FabricBlockStateModel 
     private TextureAtlasSprite sprite() {
         TextureAtlasSprite sprite = spriteCache;
         if (sprite == null) {
-            sprite = Minecraft.getInstance().getAtlasManager()
-                    .getAtlasOrThrow(AtlasIds.BLOCKS).getSprite(textureId);
+            sprite = Minecraft.getInstance().getTextureAtlas(TextureAtlas.LOCATION_BLOCKS).apply(textureId);
             spriteCache = sprite;
         }
         return sprite;

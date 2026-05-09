@@ -2,6 +2,7 @@ package com.logistics;
 
 import com.logistics.core.bootstrap.ClientDomainBootstrap;
 import com.logistics.core.lib.client.model.ClientModelRegistry;
+import com.logistics.pipe.item.MarkingFluidItem;
 import com.logistics.pipe.network.packet.SyncRequesterInventoryPacket;
 import com.logistics.pipe.render.PipeBlockEntityRenderer;
 import com.logistics.pipe.screen.ItemFilterScreen;
@@ -79,15 +80,33 @@ public final class LogisticsPipeClient implements ClientDomainBootstrap {
      * layer0 (the bottle/container) is left untinted.
      */
     private void registerMarkingFluidColors() {
-        Item[] items = java.util.stream.Stream.of(DyeColor.values())
-                .map(LogisticsPipe::getMarkingFluidItem)
-                .toArray(Item[]::new);
+        Item[] items = {
+            LogisticsPipe.ITEM.WHITE_MARKING_FLUID,
+            LogisticsPipe.ITEM.ORANGE_MARKING_FLUID,
+            LogisticsPipe.ITEM.MAGENTA_MARKING_FLUID,
+            LogisticsPipe.ITEM.LIGHT_BLUE_MARKING_FLUID,
+            LogisticsPipe.ITEM.YELLOW_MARKING_FLUID,
+            LogisticsPipe.ITEM.LIME_MARKING_FLUID,
+            LogisticsPipe.ITEM.PINK_MARKING_FLUID,
+            LogisticsPipe.ITEM.GRAY_MARKING_FLUID,
+            LogisticsPipe.ITEM.LIGHT_GRAY_MARKING_FLUID,
+            LogisticsPipe.ITEM.CYAN_MARKING_FLUID,
+            LogisticsPipe.ITEM.PURPLE_MARKING_FLUID,
+            LogisticsPipe.ITEM.BLUE_MARKING_FLUID,
+            LogisticsPipe.ITEM.BROWN_MARKING_FLUID,
+            LogisticsPipe.ITEM.GREEN_MARKING_FLUID,
+            LogisticsPipe.ITEM.RED_MARKING_FLUID,
+            LogisticsPipe.ITEM.BLACK_MARKING_FLUID,
+        };
 
         ColorProviderRegistry.ITEM.register((stack, tintIndex) -> {
             if (tintIndex == 0) return -1;
 
-            DyeColor color = LogisticsPipe.getMarkingFluidColor(stack);
-            return color != null ? (color.getFireworkColor() | 0xFF000000) : -1;
+            if (stack.getItem() instanceof MarkingFluidItem fluid) {
+                DyeColor color = fluid.getColor();
+                return color.getFireworkColor() | 0xFF000000;
+            }
+            return -1;
         }, items);
     }
 

@@ -10,12 +10,10 @@ import com.logistics.power.screen.StirlingEngineScreen;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
-import net.fabricmc.fabric.api.client.rendering.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
-import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 
 import static com.logistics.LogisticsMod.LOGGER;
 
@@ -48,29 +46,21 @@ public final class LogisticsPowerClient implements ClientDomainBootstrap {
         LOGGER.info("Registering power (client)");
         MODEL.init();
 
-        // Register engine blocks for cutout rendering (transparent textures)
-        BlockRenderLayerMap.INSTANCE.putBlock(LogisticsPower.BLOCK.REDSTONE_ENGINE, RenderType.cutout());
-        BlockRenderLayerMap.INSTANCE.putBlock(LogisticsPower.BLOCK.STIRLING_ENGINE, RenderType.cutout());
-        BlockRenderLayerMap.INSTANCE.putBlock(LogisticsPower.BLOCK.CREATIVE_ENGINE, RenderType.cutout());
-
         // Register engine block entity renderers
         BlockEntityRenderers.register(LogisticsPower.ENTITY.REDSTONE_ENGINE_BLOCK_ENTITY, EngineBlockEntityRenderer::new);
         BlockEntityRenderers.register(LogisticsPower.ENTITY.STIRLING_ENGINE_BLOCK_ENTITY, EngineBlockEntityRenderer::new);
         BlockEntityRenderers.register(LogisticsPower.ENTITY.CREATIVE_ENGINE_BLOCK_ENTITY, EngineBlockEntityRenderer::new);
 
-        // Register cable blocks for chunk-baked cutout rendering
-        BlockRenderLayerMap.putBlock(LogisticsPower.BLOCK.COPPER_CABLE, ChunkSectionLayer.CUTOUT);
-        BlockRenderLayerMap.putBlock(LogisticsPower.BLOCK.GOLD_CABLE, ChunkSectionLayer.CUTOUT);
-        BlockRenderLayerMap.putBlock(LogisticsPower.BLOCK.ENDER_CABLE, ChunkSectionLayer.CUTOUT);
+        // Register cable blocks for cutout rendering (transparent textures)
+        BlockRenderLayerMap.INSTANCE.putBlock(LogisticsPower.BLOCK.COPPER_CABLE, RenderType.cutout());
+        BlockRenderLayerMap.INSTANCE.putBlock(LogisticsPower.BLOCK.GOLD_CABLE, RenderType.cutout());
+        BlockRenderLayerMap.INSTANCE.putBlock(LogisticsPower.BLOCK.ENDER_CABLE, RenderType.cutout());
 
         // Register screens
         MenuScreens.register(LogisticsPower.SCREEN.STIRLING_ENGINE, StirlingEngineScreen::new);
 
         // Register block color providers for engine heat stage tinting
         registerEngineBlockColors();
-
-        // Register item color providers for engine items (fixed cool blue color)
-        registerEngineItemColors();
 
         // Register cleanup callback for engine animation cache
         AbstractEngineBlockEntity.setOnRemovedCallback(EngineBlockEntityRenderer::clearAnimationCache);
@@ -119,21 +109,5 @@ public final class LogisticsPowerClient implements ClientDomainBootstrap {
         LogisticsPower.BLOCK.REDSTONE_ENGINE,
         LogisticsPower.BLOCK.STIRLING_ENGINE,
         LogisticsPower.BLOCK.CREATIVE_ENGINE);
-    }
-
-    /**
-     * Registers item color providers for engine items.
-     * Items show a fixed cool blue color (no heat stage variation).
-     */
-    private void registerEngineItemColors() {
-        ColorProviderRegistry.ITEM.register((stack, tintIndex) -> {
-            if (tintIndex != 0) {
-                return 0xFFFFFF;
-            }
-            return 0x3366CC;
-        },
-        LogisticsPower.BLOCK.REDSTONE_ENGINE.asItem(),
-        LogisticsPower.BLOCK.STIRLING_ENGINE.asItem(),
-        LogisticsPower.BLOCK.CREATIVE_ENGINE.asItem());
     }
 }
