@@ -43,6 +43,20 @@ If worktrees are detected at these paths, they may be referenced when working on
 - **`mc/26.1`**: Port features to keep up with snapshot releases
 - **`mc/1.21.1`**: Backport features/fixes (many tech mod users still on this version)
 
+### Branch Protection Rules (CRITICAL)
+
+**Never push or commit directly to `mc/*` branches** (`mc/26.1`, `mc/1.21.11`, `mc/1.21.1`). These are protected primary branches. All work — including in auto mode — must go through a feature branch and PR.
+
+**Required workflow for any new work:**
+1. Create a feature branch first: `git checkout -b descriptive-branch-name`
+2. Make commits on the feature branch
+3. Push the feature branch: `git push origin descriptive-branch-name`
+4. Open a PR targeting the appropriate `mc/*` branch
+
+**The only exception** is cherry-picking between `mc/*` branches for porting already-merged commits. Even then, confirm with the user before pushing.
+
+**In auto mode:** Still pause and confirm before any `git push` when the current branch is `mc/*` or when no feature branch has been created yet. A wrong push to a protected branch is very hard to undo cleanly.
+
 ### Cross-Version Workflow
 
 **When fixing bugs:**
