@@ -1,12 +1,14 @@
 package com.logistics.power.cable;
 
 import com.logistics.LogisticsPower;
-import com.logistics.core.lib.BaseBlockEntity;
+import com.logistics.core.lib.block.BaseBlockEntity;
+import com.logistics.core.lib.block.behavior.ProbeResult;
 import com.logistics.core.lib.block.capability.HasEnergyStorage;
+import com.logistics.core.lib.compat.NbtCompat;
+import com.logistics.core.lib.energy.IEnergyStorage;
 import com.logistics.core.lib.power.AcceptsLowTierEnergy;
 import com.logistics.core.lib.power.EnergyDemandProvider;
-import com.logistics.core.lib.support.ProbeResult;
-import com.logistics.core.lib.storage.NbtCompat;
+import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -50,7 +52,7 @@ public class CableBlockEntity extends BaseBlockEntity
     // ==================== HasEnergyStorage ====================
 
     @Override
-    public EnergyStorage energyStorage(@Nullable Direction side) {
+    public IEnergyStorage energyStorage(@Nullable Direction side) {
         return new CableEnergyStorage(side);
     }
 
@@ -223,13 +225,15 @@ public class CableBlockEntity extends BaseBlockEntity
         return rate > 0 ? String.format("%,d RF/t demand", rate) : "idle";
     }
 
-    private final class CableEnergyStorage implements EnergyStorage {
+    private final class CableEnergyStorage implements EnergyStorage, IEnergyStorage {
         @Nullable
         private final Direction side;
 
         private CableEnergyStorage(@Nullable Direction side) {
             this.side = side;
         }
+
+        // TR EnergyStorage — used by Fabric energy lookup (with transaction support)
 
         @Override
         public boolean supportsInsertion() { return true; }
@@ -254,5 +258,26 @@ public class CableBlockEntity extends BaseBlockEntity
 
         @Override
         public long getCapacity() { return 0; }
+
+        // IEnergyStorage — used by the loader-agnostic HasEnergyStorage contract
+
+        @Override
+        public long insert(long maxAmount, boolean simulate) {
+            if (maxAmount <= 0 || level == null || level.isClientSide()) return 0;
+            try (Transaction tx = Transaction.openOuter()) {
+                long result = insert(maxAmount, tx);
+                if (!simulate && result > 0) tx.commit();
+                return result;
+            }
+        }
+
+        @Override
+        public long extract(long maxAmount, boolean simulate) { return 0; }
+
+        @Override
+        public boolean canInsert() { return true; }
+
+        @Override
+        public boolean canExtract() { return false; }
     }
 }

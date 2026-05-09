@@ -5,18 +5,20 @@ import com.logistics.power.cable.CableBlockEntity;
 import com.logistics.power.cable.CableTier;
 import java.util.List;
 import java.util.function.Predicate;
-import net.fabricmc.fabric.api.renderer.v1.mesh.QuadEmitter;
-import net.fabricmc.fabric.api.renderer.v1.model.FabricBlockStateModel;
+import net.fabricmc.fabric.api.client.renderer.v1.mesh.QuadEmitter;
+import net.fabricmc.fabric.api.client.renderer.v1.model.FabricBlockStateModel;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.block.model.BlockModelPart;
-import net.minecraft.client.renderer.block.model.BlockStateModel;
+import net.minecraft.client.renderer.block.BlockAndTintGetter;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
+import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.data.AtlasIds;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.state.BlockState;
 
 public final class CableModel implements BlockStateModel, FabricBlockStateModel {
@@ -28,12 +30,17 @@ public final class CableModel implements BlockStateModel, FabricBlockStateModel 
     }
 
     @Override
-    public TextureAtlasSprite particleIcon() {
-        return sprite();
+    public Material.Baked particleMaterial() {
+        return new Material.Baked(sprite(), false);
     }
 
     @Override
-    public void collectParts(RandomSource random, List<BlockModelPart> parts) {
+    public int materialFlags() {
+        return 0;
+    }
+
+    @Override
+    public void collectParts(RandomSource random, List<BlockStateModelPart> parts) {
     }
 
     @Override
@@ -294,6 +301,7 @@ public final class CableModel implements BlockStateModel, FabricBlockStateModel 
         emitter.nominalFace(rotatedFace);
         emitter.cullFace(cullable ? rotatedFace : null);
         emitter.color(-1, -1, -1, -1);
+        emitter.chunkLayer(ChunkSectionLayer.CUTOUT);
         emitter.emit();
     }
 
@@ -454,6 +462,7 @@ public final class CableModel implements BlockStateModel, FabricBlockStateModel 
         emitter.nominalFace(face);
         emitter.cullFace(null);
         emitter.color(-1, -1, -1, -1);
+        emitter.chunkLayer(ChunkSectionLayer.CUTOUT);
         emitter.emit();
     }
 
