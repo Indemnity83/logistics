@@ -5,11 +5,10 @@ import com.logistics.core.lib.block.BaseBlockEntity;
 import com.logistics.core.lib.block.behavior.ProbeResult;
 import com.logistics.core.lib.block.capability.HasEnergyStorage;
 import com.logistics.core.lib.compat.NbtCompat;
+import com.logistics.core.lib.energy.EnergyCapabilityLookup;
 import com.logistics.core.lib.energy.IEnergyStorage;
 import com.logistics.core.lib.power.AcceptsLowTierEnergy;
 import com.logistics.core.lib.power.EnergyDemandProvider;
-import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
-import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -21,12 +20,11 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import java.util.Locale;
 import org.jetbrains.annotations.Nullable;
-import team.reborn.energy.api.EnergyStorage;
 
 /**
  * Block entity for cables. Cables do not store energy; they expose
  * an insert-only conduit endpoint that forwards accepted energy through the
- * connected cable network during the same transaction.
+ * connected cable network.
  *
  * <p>Any energy that cannot be delivered to a connected consumer is rejected,
  * allowing the source to keep it instead of leaving power buffered in cables.
@@ -190,8 +188,8 @@ public class CableBlockEntity extends BaseBlockEntity
             BlockPos neighborPos = worldPosition.relative(direction);
             if (!level.isLoaded(neighborPos)) continue;
 
-            EnergyStorage storage = EnergyStorage.SIDED.find(level, neighborPos, direction.getOpposite());
-            if (storage == null || !storage.supportsInsertion()) continue;
+            IEnergyStorage storage = EnergyCapabilityLookup.INSTANCE.find(level, neighborPos, direction.getOpposite());
+            if (storage == null || !storage.canInsert()) continue;
 
             if (!hasMachineEntry) {
                 builder.separator();
@@ -208,14 +206,14 @@ public class CableBlockEntity extends BaseBlockEntity
         }
     }
 
-    private long connectedDemand(@Nullable BlockEntity blockEntity, EnergyStorage storage) {
+    private long connectedDemand(@Nullable BlockEntity blockEntity, IEnergyStorage storage) {
         long demand = blockEntity instanceof EnergyDemandProvider provider
                 ? provider.networkDemandPerTick()
                 : storageRoom(storage);
         return Math.min(Math.max(0, demand), getTransferRate());
     }
 
-    private static long storageRoom(EnergyStorage storage) {
+    private static long storageRoom(IEnergyStorage storage) {
         long capacity = storage.getCapacity();
         if (capacity == Long.MAX_VALUE) return Long.MAX_VALUE;
         return Math.max(0, capacity - storage.getAmount());
@@ -225,7 +223,7 @@ public class CableBlockEntity extends BaseBlockEntity
         return rate > 0 ? String.format("%,d RF/t demand", rate) : "idle";
     }
 
-    private final class CableEnergyStorage implements EnergyStorage, IEnergyStorage {
+    private final class CableEnergyStorage implements IEnergyStorage {
         @Nullable
         private final Direction side;
 
@@ -233,46 +231,21 @@ public class CableBlockEntity extends BaseBlockEntity
             this.side = side;
         }
 
-        // TR EnergyStorage — used by Fabric energy lookup (with transaction support)
-
         @Override
-        public boolean supportsInsertion() { return true; }
-
-        @Override
-        public long insert(long maxAmount, TransactionContext transaction) {
-            if (maxAmount <= 0 || level == null || level.isClientSide()) {
-                return 0;
-            }
+        public long insert(long maxAmount, boolean simulate) {
+            if (maxAmount <= 0 || level == null || level.isClientSide()) return 0;
             return CableNetworkManager.get(level).insert(
-                    level, worldPosition, side, Math.min(maxAmount, getTransferRate()), transaction);
+                    level, worldPosition, side, Math.min(maxAmount, getTransferRate()), simulate);
         }
 
         @Override
-        public boolean supportsExtraction() { return false; }
-
-        @Override
-        public long extract(long maxAmount, TransactionContext transaction) { return 0; }
+        public long extract(long maxAmount, boolean simulate) { return 0; }
 
         @Override
         public long getAmount() { return 0; }
 
         @Override
         public long getCapacity() { return 0; }
-
-        // IEnergyStorage — used by the loader-agnostic HasEnergyStorage contract
-
-        @Override
-        public long insert(long maxAmount, boolean simulate) {
-            if (maxAmount <= 0 || level == null || level.isClientSide()) return 0;
-            try (Transaction tx = Transaction.openOuter()) {
-                long result = insert(maxAmount, tx);
-                if (!simulate && result > 0) tx.commit();
-                return result;
-            }
-        }
-
-        @Override
-        public long extract(long maxAmount, boolean simulate) { return 0; }
 
         @Override
         public boolean canInsert() { return true; }

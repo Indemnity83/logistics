@@ -30,7 +30,10 @@ loom {
 dependencies {
     minecraft "com.mojang:minecraft:${rootProject.minecraft_version}"
 
-    implementation "net.fabricmc:fabric-loader:${rootProject.fabric_loader_version}"
+    testImplementation "net.fabricmc:fabric-loader:${rootProject.fabric_loader_version}"
+    // fabric-api still needed: LogisticsMod/LogisticsPipe/LogisticsCore use access-widened types
+    // (MenuType.MenuSupplier, CreativeModeTab.Output, addAlias(), CreativeModeTabs fields).
+    // Remove once those bootstrap files are refactored behind loader-agnostic abstractions.
     implementation "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_version}"
 
     // Team Reborn Energy API (bundled into the Fabric jar via include in fabric/build.gradle)

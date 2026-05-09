@@ -1,9 +1,6 @@
 // NeoForge loader subproject.
-// NOTE(multiloader): This subproject compiles only its own entry-point code for now.
-//   Integrating multiloader-loader (to share common/ sources) requires first removing all
-//   Fabric API references from common/ — see common/build.gradle for the full TODO list.
 plugins {
-    id 'java-library'
+    id 'multiloader-loader'
     id 'net.neoforged.moddev'
 }
 
