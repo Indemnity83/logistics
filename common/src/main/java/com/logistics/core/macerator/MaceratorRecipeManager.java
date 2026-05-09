@@ -9,6 +9,7 @@ import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.core.lib.platform.ResourceReloadRegistrar;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.tags.TagKey;

@@ -12,7 +12,6 @@ import com.logistics.power.engine.block.StirlingEngineBlock;
 import com.logistics.power.engine.ui.StirlingEngineScreenHandler;
 import com.logistics.LogisticsPower;
 import net.fabricmc.fabric.api.registry.FuelRegistry;
-import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import com.logistics.core.lib.storage.IItemKey;
 import com.logistics.core.lib.storage.IItemStorage;
 import com.logistics.core.lib.storage.IItemView;
@@ -58,7 +57,7 @@ import org.jetbrains.annotations.Nullable;
  * When buffer fills up, temperature rises and generation decreases.
  */
 public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
-        implements ExtendedScreenHandlerFactory<BlockPos>, ContainerSingleItem.BlockContainerSingleItem, WorldlyContainer, HasItemStorage, MenuBehavior.HasMenu {
+        implements ContainerSingleItem.BlockContainerSingleItem, WorldlyContainer, HasItemStorage, MenuBehavior.HasMenu {
 
     // ==================== Constants ====================
 

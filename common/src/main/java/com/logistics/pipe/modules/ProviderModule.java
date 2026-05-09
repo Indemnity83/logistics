@@ -250,7 +250,6 @@ public class ProviderModule implements Module, TickingModule, DispatchableModule
         ResourceId rid = ResourceId.tryParse(head.itemId());
         if (rid == null) { queue.removeHead(); saveQueue(ctx, queue); return; }
         var holder = BuiltInRegistries.ITEM.get(rid.toIdentifier());
-<<<<<<< HEAD
         if (holder == null) { queue.removeHead(); saveQueue(ctx, queue); return; }
         IItemKey item;
         if (head.itemTag() != null) {

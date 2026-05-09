@@ -1,32 +1,36 @@
 package com.logistics.power.render.model;
 
 import com.logistics.power.cable.CableTier;
-import net.minecraft.client.renderer.block.model.BlockStateModel;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.function.Function;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.resources.model.Material;
 import net.minecraft.client.resources.model.ModelBaker;
-import net.minecraft.client.resources.model.ResolvableModel;
-import net.minecraft.data.AtlasIds;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.client.resources.model.ModelState;
+import net.minecraft.client.resources.model.UnbakedModel;
+import net.minecraft.resources.ResourceLocation;
 
-public final class CableUnbakedRoot implements BlockStateModel.UnbakedRoot {
+public final class CableUnbakedRoot implements UnbakedModel {
     private final CableModel model;
-    private final Object equalityGroup = new Object();
 
     public CableUnbakedRoot(CableTier tier) {
         this.model = new CableModel(tier);
     }
 
     @Override
-    public BlockStateModel bake(BlockState state, ModelBaker baker) {
+    public Collection<ResourceLocation> getDependencies() {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public void resolveParents(Function<ResourceLocation, UnbakedModel> resolver) {
+    }
+
+    @Override
+    public BakedModel bake(ModelBaker baker, Function<Material, TextureAtlasSprite> spriteGetter,
+            ModelState modelState) {
         return model;
-    }
-
-    @Override
-    public Object visualEqualityGroup(BlockState state) {
-        return equalityGroup;
-    }
-
-    @Override
-    public void resolveDependencies(ResolvableModel.Resolver resolver) {
-        resolver.markDependency(AtlasIds.BLOCKS);
     }
 }
