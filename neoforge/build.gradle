@@ -35,6 +35,20 @@ neoForge {
     }
 }
 
+dependencies {
+    testImplementation "org.junit.jupiter:junit-jupiter:${rootProject.junit_version}"
+    testRuntimeOnly "org.junit.platform:junit-platform-launcher"
+    testImplementation "org.assertj:assertj-core:${rootProject.assertj_version}"
+}
+
+test {
+    useJUnitPlatform()
+    testLogging {
+        events "passed", "skipped", "failed"
+        exceptionFormat = "full"
+    }
+}
+
 processResources {
     var expandProps = [
         'version'                      : version,
