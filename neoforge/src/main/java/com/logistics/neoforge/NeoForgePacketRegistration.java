@@ -1,40 +1,35 @@
 package com.logistics.neoforge;
 
-// TODO(multiloader): Register packet payloads for NeoForge networking.
-// NeoForge equivalent of FabricPacketRegistration.
-//
-// @Mod.EventBusSubscriber(modid = "logistics", bus = Mod.EventBusSubscriber.Bus.MOD)
-// public class NeoForgePacketRegistration {
-//
-//     @SubscribeEvent
-//     public static void registerPayloads(RegisterPayloadHandlersEvent event) {
-//         PayloadRegistrar registrar = event.registrar("1");
-//
-//         registrar.playToServer(
-//             RequestItemPacket.TYPE,
-//             RequestItemPacket.CODEC,
-//             (packet, ctx) -> ctx.enqueueWork(() -> packet.handle(ctx.player()))
-//         );
-//
-//         registrar.playToServer(
-//             SetSatelliteIdPacket.TYPE,
-//             SetSatelliteIdPacket.CODEC,
-//             (packet, ctx) -> ctx.enqueueWork(() -> packet.handle(ctx.player()))
-//         );
-//
-//         registrar.playToServer(
-//             OpenChassisSlotPacket.TYPE,
-//             OpenChassisSlotPacket.CODEC,
-//             (packet, ctx) -> ctx.enqueueWork(() -> packet.handle(ctx.player()))
-//         );
-//
-//         registrar.playToClient(
-//             SyncRequesterInventoryPacket.TYPE,
-//             SyncRequesterInventoryPacket.CODEC,
-//             (packet, ctx) -> { /* client receiver registered in LogisticsPipeClient */ }
-//         );
-//     }
-// }
+import com.logistics.core.lib.platform.ServerNetworking;
+import com.logistics.pipe.network.packet.OpenChassisSlotPacket;
+import com.logistics.pipe.network.packet.RequestItemPacket;
+import com.logistics.pipe.network.packet.SetSatelliteIdPacket;
+import com.logistics.pipe.network.packet.SyncRequesterInventoryPacket;
+import net.minecraft.server.level.ServerPlayer;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
+import net.neoforged.neoforge.network.registration.PayloadRegistrar;
+
 public final class NeoForgePacketRegistration {
     private NeoForgePacketRegistration() {}
+
+    public static void register(IEventBus modBus) {
+        ServerNetworking.register(PacketDistributor::sendToPlayer);
+        modBus.addListener(NeoForgePacketRegistration::registerPayloads);
+    }
+
+    private static void registerPayloads(RegisterPayloadHandlersEvent event) {
+        PayloadRegistrar registrar = event.registrar("1");
+
+        registrar.playToServer(RequestItemPacket.TYPE, RequestItemPacket.CODEC,
+                (packet, context) -> context.enqueueWork(() -> packet.handle((ServerPlayer) context.player())));
+        registrar.playToServer(SetSatelliteIdPacket.TYPE, SetSatelliteIdPacket.CODEC,
+                (packet, context) -> context.enqueueWork(() -> packet.handle((ServerPlayer) context.player())));
+        registrar.playToServer(OpenChassisSlotPacket.TYPE, OpenChassisSlotPacket.CODEC,
+                (packet, context) -> context.enqueueWork(() -> packet.handle((ServerPlayer) context.player())));
+
+        registrar.playToClient(SyncRequesterInventoryPacket.TYPE, SyncRequesterInventoryPacket.CODEC,
+                (packet, context) -> {});
+    }
 }

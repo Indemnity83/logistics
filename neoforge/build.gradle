@@ -35,6 +35,15 @@ neoForge {
     }
 }
 
+tasks.named('compileJava', JavaCompile) {
+    dependsOn configurations.commonClientJava
+    source configurations.commonClientJava.files.collect {
+        fileTree(it) {
+            exclude '**/jei/**'
+        }
+    }
+}
+
 dependencies {
     testImplementation "org.junit.jupiter:junit-jupiter:${rootProject.junit_version}"
     testRuntimeOnly "org.junit.platform:junit-platform-launcher"

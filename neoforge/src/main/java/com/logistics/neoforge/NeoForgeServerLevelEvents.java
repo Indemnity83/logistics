@@ -1,17 +1,20 @@
 package com.logistics.neoforge;
 
-// TODO(multiloader): Clear active quarries on level unload.
-// NeoForge equivalent of FabricServerLevelEvents.
-//
-// @Mod.EventBusSubscriber(modid = "logistics", bus = Mod.EventBusSubscriber.Bus.FORGE)
-// public final class NeoForgeServerLevelEvents {
-//     @SubscribeEvent
-//     public static void onLevelUnload(LevelEvent.Unload event) {
-//         if (event.getLevel() instanceof ServerLevel level) {
-//             LaserQuarryBlockEntity.clearActiveQuarries(level);
-//         }
-//     }
-// }
+import com.logistics.automation.laserquarry.entity.LaserQuarryBlockEntity;
+import net.minecraft.server.level.ServerLevel;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.event.level.LevelEvent;
+
 public final class NeoForgeServerLevelEvents {
     private NeoForgeServerLevelEvents() {}
+
+    public static void register(IEventBus gameBus) {
+        gameBus.addListener(NeoForgeServerLevelEvents::onLevelUnload);
+    }
+
+    private static void onLevelUnload(LevelEvent.Unload event) {
+        if (event.getLevel() instanceof ServerLevel level) {
+            LaserQuarryBlockEntity.clearActiveQuarries(level);
+        }
+    }
 }
