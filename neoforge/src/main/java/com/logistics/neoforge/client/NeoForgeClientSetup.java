@@ -1,0 +1,107 @@
+package com.logistics.neoforge.client;
+
+import com.logistics.LogisticsAutomation;
+import com.logistics.LogisticsCore;
+import com.logistics.LogisticsPipe;
+import com.logistics.LogisticsPower;
+import com.logistics.automation.kiln.KilnScreen;
+import com.logistics.core.lib.platform.ClientNetworking;
+import com.logistics.core.macerator.MaceratorScreen;
+import com.logistics.pipe.screen.AdvancedExtractorScreen;
+import com.logistics.pipe.screen.ChassisScreen;
+import com.logistics.pipe.screen.CraftingScreen;
+import com.logistics.pipe.screen.ItemFilterScreen;
+import com.logistics.pipe.screen.ModSinkScreen;
+import com.logistics.pipe.screen.ProcessScreen;
+import com.logistics.pipe.screen.ProviderScreen;
+import com.logistics.pipe.screen.RequesterScreen;
+import com.logistics.pipe.screen.SatelliteScreen;
+import com.logistics.pipe.screen.SinkScreen;
+import com.logistics.pipe.screen.SupplierScreen;
+import com.logistics.core.lib.power.AbstractEngineBlockEntity;
+import com.logistics.power.screen.StirlingEngineScreen;
+import com.logistics.neoforge.client.render.NeoForgeEngineBlockEntityRenderer;
+import com.logistics.neoforge.client.render.NeoForgeModelLoader;
+import java.util.List;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.client.event.EntityRenderersEvent;
+import net.neoforged.neoforge.client.event.RegisterBlockStateModels;
+import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
+import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
+import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+import net.minecraft.resources.Identifier;
+
+public final class NeoForgeClientSetup {
+    private NeoForgeClientSetup() {}
+
+    public static void register(IEventBus modBus) {
+        NeoForgeModelLoader.registerPowerModels();
+        modBus.addListener(NeoForgeClientSetup::onClientSetup);
+        modBus.addListener(NeoForgeClientSetup::registerScreens);
+        modBus.addListener(NeoForgeClientSetup::registerRenderers);
+        modBus.addListener(NeoForgeClientSetup::registerBlockColors);
+        modBus.addListener(NeoForgeClientSetup::registerBlockStateModels);
+        modBus.addListener(NeoForgeModelLoader::registerStandaloneModels);
+    }
+
+    private static void onClientSetup(FMLClientSetupEvent event) {
+        ClientNetworking.register(ClientPacketDistributor::sendToServer);
+    }
+
+    private static void registerScreens(RegisterMenuScreensEvent event) {
+        event.register(LogisticsCore.MENU.MACERATOR, MaceratorScreen::new);
+
+        event.register(LogisticsPipe.SCREEN.ITEM_FILTER, ItemFilterScreen::new);
+        event.register(LogisticsPipe.SCREEN.REQUESTER, RequesterScreen::new);
+        event.register(LogisticsPipe.SCREEN.SUPPLIER, SupplierScreen::new);
+        event.register(LogisticsPipe.SCREEN.PROVIDER, ProviderScreen::new);
+        event.register(LogisticsPipe.SCREEN.SINK, SinkScreen::new);
+        event.register(LogisticsPipe.SCREEN.CRAFTING, CraftingScreen::new);
+        event.register(LogisticsPipe.SCREEN.PROCESS, ProcessScreen::new);
+        event.register(LogisticsPipe.SCREEN.SATELLITE, SatelliteScreen::new);
+        event.register(LogisticsPipe.SCREEN.CHASSIS_MK1, ChassisScreen::new);
+        event.register(LogisticsPipe.SCREEN.CHASSIS_MK2, ChassisScreen::new);
+        event.register(LogisticsPipe.SCREEN.CHASSIS_MK3, ChassisScreen::new);
+        event.register(LogisticsPipe.SCREEN.CHASSIS_MK4, ChassisScreen::new);
+        event.register(LogisticsPipe.SCREEN.CHASSIS_MK5, ChassisScreen::new);
+        event.register(LogisticsPipe.SCREEN.ADVANCED_EXTRACTOR, AdvancedExtractorScreen::new);
+        event.register(LogisticsPipe.SCREEN.MOD_SINK, ModSinkScreen::new);
+
+        event.register(LogisticsPower.SCREEN.STIRLING_ENGINE, StirlingEngineScreen::new);
+
+        event.register(LogisticsAutomation.MENU.KILN, KilnScreen::new);
+    }
+
+    private static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
+        event.registerBlockEntityRenderer(
+                LogisticsPower.ENTITY.REDSTONE_ENGINE_BLOCK_ENTITY,
+                NeoForgeEngineBlockEntityRenderer::new);
+        event.registerBlockEntityRenderer(
+                LogisticsPower.ENTITY.STIRLING_ENGINE_BLOCK_ENTITY,
+                NeoForgeEngineBlockEntityRenderer::new);
+        event.registerBlockEntityRenderer(
+                LogisticsPower.ENTITY.CREATIVE_ENGINE_BLOCK_ENTITY,
+                NeoForgeEngineBlockEntityRenderer::new);
+    }
+
+    private static void registerBlockColors(RegisterColorHandlersEvent.BlockTintSources event) {
+        event.register(
+                List.of(state -> switch (state.getValue(AbstractEngineBlockEntity.STAGE)) {
+                    case COLD -> 0xFF3366CC;
+                    case COOL -> 0xFF33CC33;
+                    case WARM -> 0xFFCCCC33;
+                    case HOT -> 0xFFCC3333;
+                    case OVERHEAT -> 0xFF191919;
+                }),
+                LogisticsPower.BLOCK.REDSTONE_ENGINE,
+                LogisticsPower.BLOCK.STIRLING_ENGINE,
+                LogisticsPower.BLOCK.CREATIVE_ENGINE);
+    }
+
+    private static void registerBlockStateModels(RegisterBlockStateModels event) {
+        event.registerDefinition(
+                Identifier.fromNamespaceAndPath("logistics", "power_cable"),
+                com.logistics.neoforge.client.render.NeoForgeCableBlockModelDefinition.CODEC);
+    }
+}

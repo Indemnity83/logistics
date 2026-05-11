@@ -3,6 +3,7 @@ package com.logistics.power.cable;
 import com.logistics.LogisticsPower;
 import com.logistics.core.lib.block.behavior.ProbeBehavior;
 import com.logistics.core.lib.block.behavior.ProbeResult;
+import com.logistics.core.lib.block.capability.HasEnergyStorage;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -158,7 +159,7 @@ public class CableBlock extends BaseEntityBlock implements ProbeBehavior.Probeab
     @Override
     protected void neighborChanged(
             BlockState state, Level world, BlockPos pos, Block block,
-            @Nullable Orientation orientation, boolean notify) {
+        @Nullable Orientation orientation, boolean notify) {
         invalidateConnections(world, pos);
         super.neighborChanged(state, world, pos, block, orientation, notify);
     }
@@ -167,6 +168,7 @@ public class CableBlock extends BaseEntityBlock implements ProbeBehavior.Probeab
         if (!(world instanceof Level level)) return;
         if (level.getBlockEntity(pos) instanceof CableBlockEntity cable) {
             cable.invalidateConnectionCache();
+            level.sendBlockUpdated(pos, level.getBlockState(pos), level.getBlockState(pos), Block.UPDATE_CLIENTS);
             if (!level.isClientSide()) {
                 CableNetworkManager.get(level).markDirty();
             }
@@ -230,6 +232,11 @@ public class CableBlock extends BaseEntityBlock implements ProbeBehavior.Probeab
         BlockEntity neighbor = level.getBlockEntity(neighborPos);
         if (neighbor instanceof CableBlockEntity) {
             return ConnectionType.CABLE;
+        }
+
+        if (neighbor instanceof HasEnergyStorage energyBlock
+                && energyBlock.energyStorage(direction.getOpposite()) != null) {
+            return ConnectionType.DEVICE;
         }
 
         // Connect to anything with energy storage (engines, machines, pipes with energy)
