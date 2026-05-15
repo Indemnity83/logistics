@@ -26,7 +26,7 @@ import org.jetbrains.annotations.Nullable;
 
 public final class NeoForgeCableModel implements DynamicBlockStateModel {
     private final Identifier textureId;
-    private TextureAtlasSprite spriteCache;
+    private volatile TextureAtlasSprite spriteCache;
 
     public NeoForgeCableModel(CableTier tier) {
         this.textureId = Identifier.fromNamespaceAndPath("logistics", "block/power/" + tier.id());
