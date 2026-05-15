@@ -87,6 +87,21 @@ public final class NeoForgeItemStorage implements IItemStorage {
         return (int) Math.max(0, Math.min(amount, Integer.MAX_VALUE));
     }
 
+    /**
+     * Adapts a common {@link IItemStorage} to NeoForge's slot-based {@link ResourceHandler}.
+     *
+     * <p>Reports {@link #size()}{@code == 1} regardless of how many distinct item types the
+     * underlying storage holds. {@link #getResource(int)} returns the first non-empty item
+     * (and {@link #getAmountAsLong(int)} its amount). This is an intentional "unified slot"
+     * view — the common abstraction has no fixed slot count, so we expose it as a single
+     * virtual slot. Insert and extract operations route through {@link #insert} and
+     * {@link #extract} which use the {@link IItemKey} content map and behave correctly
+     * for storages with multiple item types.
+     *
+     * <p>External code that enumerates slots will only observe the first item type.
+     * For correct multi-item interaction, callers should use the key-based insert/extract
+     * methods rather than slot iteration.
+     */
     private static final class CommonItemHandler extends SnapshotJournal<Map<IItemKey, Long>>
             implements ResourceHandler<ItemResource> {
         private final IItemStorage storage;
