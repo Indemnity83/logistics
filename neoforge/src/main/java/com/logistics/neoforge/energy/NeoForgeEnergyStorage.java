@@ -124,7 +124,7 @@ public final class NeoForgeEnergyStorage implements IEnergyStorage {
         @Override
         public int extract(int amount, net.neoforged.neoforge.transfer.transaction.TransactionContext transaction) {
             updateSnapshots(transaction);
-            long extracted = Math.min(amount, Math.min(getAmountAsLong(), storage.extract(amount, true)));
+            long extracted = Math.min(getAmountAsLong(), storage.extract(amount, true));
             if (extracted > 0) {
                 pendingDelta -= extracted;
             }

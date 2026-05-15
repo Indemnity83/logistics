@@ -52,6 +52,8 @@ public final class LogisticsNeoForge {
         if (commonInitialized) {
             return;
         }
+        // NeoForge unfreezes all BuiltInRegistries during RegisterEvent emission, so
+        // direct Registry.register() calls inside initialize() are safe regardless of which registry fired first.
         COMMON_BOOTSTRAP.initialize();
         commonInitialized = true;
     }
