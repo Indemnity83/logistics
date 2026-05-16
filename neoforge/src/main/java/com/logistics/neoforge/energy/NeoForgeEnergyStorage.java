@@ -114,7 +114,8 @@ public final class NeoForgeEnergyStorage implements IEnergyStorage {
         @Override
         public int insert(int amount, net.neoforged.neoforge.transfer.transaction.TransactionContext transaction) {
             updateSnapshots(transaction);
-            long inserted = Math.min(amount, storage.insert(amount, true));
+            long effectiveFree = Math.max(0, getCapacityAsLong() - getAmountAsLong());
+            long inserted = Math.min(amount, effectiveFree);
             if (inserted > 0) {
                 pendingDelta += inserted;
             }
