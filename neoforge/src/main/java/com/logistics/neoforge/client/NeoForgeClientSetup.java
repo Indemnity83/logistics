@@ -18,7 +18,10 @@ import com.logistics.pipe.screen.RequesterScreen;
 import com.logistics.pipe.screen.SatelliteScreen;
 import com.logistics.pipe.screen.SinkScreen;
 import com.logistics.pipe.screen.SupplierScreen;
+import com.logistics.automation.render.LaserQuarryBlockEntityRenderer;
+import com.logistics.automation.render.MarkerBlockEntityRenderer;
 import com.logistics.core.lib.power.AbstractEngineBlockEntity;
+import com.logistics.pipe.render.PipeBlockEntityRenderer;
 import com.logistics.power.screen.StirlingEngineScreen;
 import com.logistics.neoforge.client.render.NeoForgeEngineBlockEntityRenderer;
 import com.logistics.neoforge.client.render.NeoForgeModelLoader;
@@ -83,6 +86,15 @@ public final class NeoForgeClientSetup {
         event.registerBlockEntityRenderer(
                 LogisticsPower.ENTITY.CREATIVE_ENGINE_BLOCK_ENTITY,
                 NeoForgeEngineBlockEntityRenderer::new);
+        event.registerBlockEntityRenderer(
+                LogisticsPipe.ENTITY.PIPE_BLOCK_ENTITY,
+                PipeBlockEntityRenderer::new);
+        event.registerBlockEntityRenderer(
+                LogisticsAutomation.ENTITY.MARKER_BLOCK_ENTITY,
+                MarkerBlockEntityRenderer::new);
+        event.registerBlockEntityRenderer(
+                LogisticsAutomation.ENTITY.LASER_QUARRY_BLOCK_ENTITY,
+                LaserQuarryBlockEntityRenderer::new);
     }
 
     private static void registerBlockColors(RegisterColorHandlersEvent.BlockTintSources event) {

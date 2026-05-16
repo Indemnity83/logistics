@@ -1,5 +1,7 @@
 package com.logistics.neoforge.client.render;
 
+import com.logistics.LogisticsAutomationClientModels;
+import com.logistics.LogisticsPipeClientModels;
 import com.logistics.LogisticsPower;
 import com.logistics.core.lib.client.model.ClientModelRegistry;
 import com.logistics.core.lib.resource.ResourceId;
@@ -18,12 +20,19 @@ public final class NeoForgeModelLoader {
     private NeoForgeModelLoader() {}
 
     public static void registerPowerModels() {
-        register(LogisticsPower.model("redstone_engine_bellow"));
-        register(LogisticsPower.model("redstone_engine_piston"));
-        register(LogisticsPower.model("stirling_engine_bellow"));
-        register(LogisticsPower.model("stirling_engine_piston"));
-        register(LogisticsPower.model("creative_engine_bellow"));
-        register(LogisticsPower.model("creative_engine_piston"));
+        ClientModelRegistry.register(LogisticsPower.model("redstone_engine_bellow"));
+        ClientModelRegistry.register(LogisticsPower.model("redstone_engine_piston"));
+        ClientModelRegistry.register(LogisticsPower.model("stirling_engine_bellow"));
+        ClientModelRegistry.register(LogisticsPower.model("stirling_engine_piston"));
+        ClientModelRegistry.register(LogisticsPower.model("creative_engine_bellow"));
+        ClientModelRegistry.register(LogisticsPower.model("creative_engine_piston"));
+
+        LogisticsPipeClientModels.init();
+        LogisticsAutomationClientModels.init();
+
+        for (var entry : ClientModelRegistry.all().entrySet()) {
+            register(entry.getValue(), entry.getKey());
+        }
 
         ClientModelRegistry.registerProvider(key -> {
             StandaloneModelKey<BlockStateModel> standaloneKey = STANDALONE_KEYS.get(key);
@@ -46,8 +55,7 @@ public final class NeoForgeModelLoader {
         }
     }
 
-    private static void register(ResourceId modelPath) {
-        ClientModelRegistry.ModelKey key = ClientModelRegistry.register(modelPath);
+    private static void register(ClientModelRegistry.ModelKey key, ResourceId modelPath) {
         STANDALONE_KEYS.computeIfAbsent(key,
                 ignored -> new StandaloneModelKey<>(() -> modelPath.toIdentifier().toString()));
     }
