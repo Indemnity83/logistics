@@ -4,7 +4,7 @@ plugins {
     id 'net.neoforged.moddev'
 }
 
-version = System.getenv("MOD_VERSION") ?: "dev-neoforge"
+version = System.getenv("MOD_VERSION") ?: "0.0.0-dev.neoforge"
 group = rootProject.group
 
 base {
@@ -31,6 +31,15 @@ neoForge {
     mods {
         logistics {
             sourceSet sourceSets.main
+        }
+    }
+}
+
+tasks.named('compileJava', JavaCompile) {
+    dependsOn configurations.commonClientJava
+    source configurations.commonClientJava.files.collect {
+        fileTree(it) {
+            exclude '**/jei/**'
         }
     }
 }
