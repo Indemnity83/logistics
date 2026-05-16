@@ -1,18 +1,17 @@
 package com.logistics.neoforge;
 
-// TODO(multiloader): Register /logistics commands using NeoForge's RegisterCommandsEvent.
-// NeoForge equivalent of FabricCommandRegistration.
-//
-// The command tree is already defined in com.logistics.core.LogisticsCommandTree — only
-// the event wiring differs between loaders:
-//
-// @Mod.EventBusSubscriber(modid = "logistics", bus = Mod.EventBusSubscriber.Bus.FORGE)
-// public final class NeoForgeCommandRegistration {
-//     @SubscribeEvent
-//     public static void onRegisterCommands(RegisterCommandsEvent event) {
-//         event.getDispatcher().register(LogisticsCommandTree.build());
-//     }
-// }
+import com.logistics.core.LogisticsCommandTree;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.event.RegisterCommandsEvent;
+
 public final class NeoForgeCommandRegistration {
     private NeoForgeCommandRegistration() {}
+
+    public static void register(IEventBus gameBus) {
+        gameBus.addListener(NeoForgeCommandRegistration::onRegisterCommands);
+    }
+
+    private static void onRegisterCommands(RegisterCommandsEvent event) {
+        event.getDispatcher().register(LogisticsCommandTree.build());
+    }
 }
