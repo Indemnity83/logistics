@@ -1,6 +1,6 @@
-# CLAUDE.md
+# AGENTS.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to codex when working with code in this repository.
 
 ## Branch Strategy (IMPORTANT!)
 
@@ -474,7 +474,7 @@ or add `BREAKING CHANGE:` footer in the PR body.
 - [Documentation](https://indemnity83.github.io/logistics/) - Detailed information on pipes, power, automation, and technical design
 
 **Development:**
-- `CLAUDE.md` (this file) - Primary development guidance for Claude Code
+- `AGENTS.md` (this file) - Primary development guidance for codex
 - `README.md` - Project overview and user-facing documentation
 - `CHANGELOG.md` - Auto-generated release notes
 
