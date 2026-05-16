@@ -21,12 +21,15 @@ import com.logistics.pipe.screen.SupplierScreen;
 import com.logistics.automation.render.LaserQuarryBlockEntityRenderer;
 import com.logistics.automation.render.MarkerBlockEntityRenderer;
 import com.logistics.core.lib.power.AbstractEngineBlockEntity;
+import com.logistics.pipe.network.packet.SyncRequesterInventoryPacket;
 import com.logistics.pipe.render.PipeBlockEntityRenderer;
 import com.logistics.power.screen.StirlingEngineScreen;
 import com.logistics.neoforge.client.render.NeoForgeEngineBlockEntityRenderer;
 import com.logistics.neoforge.client.render.NeoForgeModelLoader;
 import java.util.List;
+import net.minecraft.client.Minecraft;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.client.network.event.RegisterClientPayloadHandlersEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterBlockStateModels;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
@@ -45,6 +48,7 @@ public final class NeoForgeClientSetup {
         modBus.addListener(NeoForgeClientSetup::registerRenderers);
         modBus.addListener(NeoForgeClientSetup::registerBlockColors);
         modBus.addListener(NeoForgeClientSetup::registerBlockStateModels);
+        modBus.addListener(NeoForgeClientSetup::registerClientPayloadHandlers);
         modBus.addListener(NeoForgeModelLoader::registerStandaloneModels);
     }
 
@@ -115,5 +119,14 @@ public final class NeoForgeClientSetup {
         event.registerDefinition(
                 Identifier.fromNamespaceAndPath("logistics", "power_cable"),
                 com.logistics.neoforge.client.render.NeoForgeCableBlockModelDefinition.CODEC);
+    }
+
+    private static void registerClientPayloadHandlers(RegisterClientPayloadHandlersEvent event) {
+        event.register(SyncRequesterInventoryPacket.TYPE, (packet, context) -> {
+            var screen = Minecraft.getInstance().screen;
+            if (screen instanceof RequesterScreen requesterScreen) {
+                requesterScreen.updateAvailableItems(packet.pipePos(), packet.items(), packet.amounts());
+            }
+        });
     }
 }

@@ -5,8 +5,6 @@ import com.logistics.pipe.network.packet.OpenChassisSlotPacket;
 import com.logistics.pipe.network.packet.RequestItemPacket;
 import com.logistics.pipe.network.packet.SetSatelliteIdPacket;
 import com.logistics.pipe.network.packet.SyncRequesterInventoryPacket;
-import com.logistics.pipe.screen.RequesterScreen;
-import net.minecraft.client.Minecraft;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.network.PacketDistributor;
@@ -31,12 +29,6 @@ public final class NeoForgePacketRegistration {
         registrar.playToServer(OpenChassisSlotPacket.TYPE, OpenChassisSlotPacket.CODEC,
                 (packet, context) -> context.enqueueWork(() -> packet.handle((ServerPlayer) context.player())));
 
-        registrar.playToClient(SyncRequesterInventoryPacket.TYPE, SyncRequesterInventoryPacket.CODEC,
-                (packet, context) -> context.enqueueWork(() -> {
-                    var screen = Minecraft.getInstance().screen;
-                    if (screen instanceof RequesterScreen requesterScreen) {
-                        requesterScreen.updateAvailableItems(packet.pipePos(), packet.items(), packet.amounts());
-                    }
-                }));
+        registrar.playToClient(SyncRequesterInventoryPacket.TYPE, SyncRequesterInventoryPacket.CODEC);
     }
 }
