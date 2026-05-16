@@ -1,0 +1,20 @@
+{
+  "ingredients": [
+    "minecraft:magenta_dye",
+    {
+      "items": "minecraft:potion",
+      "components": {
+        "minecraft:potion_contents": {
+          "potion": "minecraft:water"
+        }
+      },
+      "neoforge:ingredient_type": "neoforge:components",
+      "strict": true
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "logistics:pipe/magenta_marking_fluid"
+  },
+  "type": "minecraft:crafting_shapeless"
+}
