@@ -214,12 +214,54 @@ Merge vX.Y+1.0 release-please PR → ships → cherry-pick
 
 ## Architecture
 
-This is a Fabric mod organized into **independent domains** following **SOLID principles** to maximize maintainability.
+This is a multiloader Minecraft mod organized into **independent domains** following **SOLID principles** to maximize maintainability.
 
 The domain architecture applies the **Dependency Inversion Principle** (DIP) - domains depend on abstractions in `core.lib`, not on each other. This enables:
 - Decoupled domains that can be tested and modified independently
 - Potential future modular packaging (splitting into separate JARs)
 - Clear separation of concerns with minimal cross-domain dependencies
+
+### Multiloader Architecture Rules
+
+The repository is split into shared code plus loader-specific adapters:
+
+```
+common/src/main/      # Shared server/common code; no Fabric or NeoForge imports
+common/src/client/    # Shared vanilla client code; Minecraft client imports allowed, no Fabric/NeoForge imports
+fabric/src/main/      # Fabric server/common adapter code
+fabric/src/client/    # Fabric client adapter code and Fabric-only client wiring
+neoforge/src/main/    # NeoForge adapter code; client-only code must stay under com.logistics.neoforge.client
+```
+
+**Hard rules:**
+- `common/src/main` and `common/src/client` must stay loader-agnostic. Do not import `net.fabricmc.*`, Fabric API, `net.neoforged.*`, or NeoForge APIs there.
+- Loader APIs belong behind small adapter classes in `fabric/` or `neoforge/`.
+- Common code talks to loader services only through abstractions in `core.lib` (`PlatformService`, `BlockEntityTypeFactory`, `EnergyCapabilityLookup`, `ItemStorageLookup`, `FluidStorageLookup`, `PipeConnectionLookup`, `ServerNetworking`, `ClientNetworking`, `ClientModelRegistry`, etc.).
+- Any new loader service must have a Fabric implementation, a NeoForge implementation, and `META-INF/services/...` entries where the SPI uses `ServiceLoader`.
+- Client-only Minecraft classes are allowed in `common/src/client`, but loader-specific client APIs stay in loader source sets.
+- In NeoForge, client-only classes and imports must stay under `com.logistics.neoforge.client`. Shared NeoForge classes such as packet/capability/bootstrap registration must not import `net.minecraft.client.*` or common client screens/renderers.
+- NeoForge clientbound payloads should register the payload type/codec in common packet registration and register the actual client handler via `RegisterClientPayloadHandlersEvent`.
+- Loader-specific capability wrappers should be thin adapters. They should preserve simulation/transaction semantics and avoid changing common storage contracts to match one loader.
+- When moving code from Fabric to shared client code, remove Fabric-only helper types first (for example Fabric `ItemVariant`) so NeoForge can compile the same renderer.
+
+**Current multiloader patterns used in this branch:**
+- Server/common domain initialization still uses `LogisticsCommonBootstrap` and `DomainBootstrap` services from `common/src/main/resources/META-INF/services`.
+- Fabric client initialization uses `LogisticsClientBootstrap` plus client-domain services from `fabric/src/client/resources/META-INF/services`.
+- NeoForge common initialization runs once from `RegisterEvent`, because built-in registries are writable during that event.
+- NeoForge deferred services such as creative tabs and resource reload listeners collect registrations through common SPIs, then attach to the correct NeoForge event bus from `LogisticsNeoForge`.
+- Shared dynamic renderers and extra model keys live in `common/src/client`; Fabric and NeoForge only provide model-loader/event wiring.
+- NeoForge custom cable blockstate models use loader-specific blockstate JSON in `neoforge/src/main/resources`, leaving the common Fabric blockstate JSON untouched.
+
+### Small PR Strategy For NeoForge Work
+
+Prefer PRs that are reviewable by one concern, but do not split a commit that only works with its pair:
+- **Bootstrap/SPI PR:** common bootstrap timing, `BlockEntityTypeFactory`, `PlatformService`, resource reload, creative tab registrar, and smoke tests.
+- **Runtime capabilities PR:** energy/item/fluid adapters plus capability lookup registration.
+- **Networking/events PR:** packet registration, server/client payload handlers, pipe/cable tick hooks, unload cleanup, commands, and loot modifiers.
+- **Client rendering PR:** NeoForge client setup, block entity renderers, model loader wiring, shared client renderers/models, and render-only resources.
+- **Build/CI/docs PR:** Gradle wiring, non-blocking CI toggles, `.gitignore`, and architecture documentation.
+
+If the branch already contains all of these, open a draft PR first and explain that it is the integration branch. If maintainers want smaller PRs, split from the branch with stacked branches or interactive cherry-picks in the order above. The safest target for NeoForge implementation work is `mc/26.1`; backports should be cherry-picked after the implementation PR lands.
 
 **Throughout the codebase, follow SOLID principles:**
 - **S**ingle Responsibility: Classes have one reason to change
@@ -268,33 +310,39 @@ src/client/java/com/logistics/
 Domains are initialized using a two-phase pattern (server/common + client):
 
 **Server/Common initialization (ServiceLoader):**
-1. **Entry point**: `fabric.mod.json` declares `LogisticsMod` as the main entry point
-2. **Discovery**: `LogisticsMod.onInitialize()` calls `DomainBootstraps.all()` which uses Java's ServiceLoader
-3. **Registration**: Each domain provides a `DomainBootstrap` implementation listed in `META-INF/services/com.logistics.core.bootstrap.DomainBootstrap`:
+1. **Fabric entry point**: `fabric.mod.json` declares `LogisticsMod` as the main entry point.
+2. **NeoForge entry point**: `neoforge.mods.toml`/`@Mod("logistics")` constructs `LogisticsNeoForge`, which calls `LogisticsCommonBootstrap.initialize()` once from `RegisterEvent`.
+3. **Discovery**: `LogisticsCommonBootstrap.initialize()` calls `DomainBootstraps.all()` which uses Java's ServiceLoader.
+4. **Registration**: Each domain provides a `DomainBootstrap` implementation listed in `META-INF/services/com.logistics.core.bootstrap.DomainBootstrap`:
    - `com.logistics.LogisticsCore`
    - `com.logistics.LogisticsPipe`
    - `com.logistics.LogisticsPower`
    - `com.logistics.LogisticsAutomation`
-4. **Initialization**: Each domain's `initCommon()` method is called to register blocks, items, etc.
+5. **Initialization**: Each domain's `initCommon()` method is called to register blocks, items, etc.
 
-**Client initialization (explicit mapping):**
-1. **Entry point**: `fabric.mod.json` declares `LogisticsModClient` as the client entry point
-2. **Mapping**: `LogisticsModClient` has a hardcoded map of server bootstrap classes to client bootstrap factories
-3. **Initialization**: For each server domain, creates corresponding client bootstrap and calls `initClient()` to register renderers, etc.
+**Client initialization:**
+1. **Fabric entry point**: `fabric.mod.json` declares `LogisticsModClient` as the client entry point.
+2. **Fabric discovery**: `LogisticsModClient` calls `LogisticsClientBootstrap.initialize()`, which discovers `ClientDomainBootstrap` implementations via `fabric/src/client/resources/META-INF/services/com.logistics.core.bootstrap.ClientDomainBootstrap`.
+3. **Fabric model loading**: after client-domain bootstraps register model keys, `FabricModelLoader.setup()` maps `ClientModelRegistry` entries into Fabric extra models.
+4. **NeoForge entry point**: `LogisticsNeoForge` calls `NeoForgeClientSetup.register(modBus)` only when `FMLEnvironment.getDist().isClient()`.
+5. **NeoForge client wiring**: `NeoForgeClientSetup` registers screens, BERs, block colors, client payload handlers, and model loaders on NeoForge client/mod events.
 
 **Adding a new domain:**
 1. **Create packages**:
-   - `src/main/java/com/logistics/newdomain/` - Server/common code
-   - `src/client/java/com/logistics/newdomain/` - Client-only code
+   - `common/src/main/java/com/logistics/newdomain/` - loader-agnostic server/common code
+   - `common/src/client/java/com/logistics/newdomain/` - loader-agnostic client code, if reusable across loaders
+   - loader-specific packages under `fabric/` or `neoforge/` only for loader API wiring
 2. **Implement server bootstrap**:
    - Create `LogisticsNewDomain implements DomainBootstrap`
    - Implement `initCommon()` for registration
    - Add to `META-INF/services/com.logistics.core.bootstrap.DomainBootstrap`
-3. **Implement client bootstrap**:
-   - Create `LogisticsNewDomainClient implements DomainBootstrap`
-   - Implement `initClient()` for rendering
-   - Add mapping to `LogisticsModClient.CLIENT_BOOTSTRAPS` map
-4. **Build will fail if client bootstrap is missing** from the map
+3. **Implement Fabric client bootstrap when needed**:
+   - Create `LogisticsNewDomainClient implements ClientDomainBootstrap`
+   - Implement `initClient()` for Fabric client registration
+   - Add it to `fabric/src/client/resources/META-INF/services/com.logistics.core.bootstrap.ClientDomainBootstrap`
+4. **Implement NeoForge client wiring when needed**:
+   - Add NeoForge-specific client registrations to `NeoForgeClientSetup` or a small helper under `com.logistics.neoforge.client`
+   - Keep NeoForge client event handlers and model loader code out of common packages
 
 ### Domain Details
 
