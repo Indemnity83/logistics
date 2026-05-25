@@ -1,0 +1,20 @@
+{
+  "ingredients": [
+    "minecraft:red_dye",
+    {
+      "items": "minecraft:potion",
+      "components": {
+        "minecraft:potion_contents": {
+          "potion": "minecraft:water"
+        }
+      },
+      "neoforge:ingredient_type": "neoforge:components",
+      "strict": true
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "logistics:pipe/red_marking_fluid"
+  },
+  "type": "minecraft:crafting_shapeless"
+}
