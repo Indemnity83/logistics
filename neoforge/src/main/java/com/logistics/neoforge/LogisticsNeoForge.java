@@ -5,13 +5,15 @@ import com.logistics.core.lib.platform.CreativeTabRegistrar;
 import com.logistics.core.lib.platform.ResourceReloadRegistrar;
 import com.logistics.core.lib.power.AbstractEngineBlock;
 import com.logistics.core.lib.power.AbstractEngineBlockEntity;
+import com.logistics.neoforge.client.NeoForgeClientSetup;
 import com.logistics.neoforge.platform.NeoForgeCreativeTabRegistrar;
 import com.logistics.neoforge.platform.NeoForgeResourceReloadRegistrar;
 import net.neoforged.bus.api.IEventBus;
-import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.registries.RegisterEvent;
+import net.neoforged.fml.common.Mod;
 
 @Mod("logistics")
 public final class LogisticsNeoForge {
@@ -28,6 +30,9 @@ public final class LogisticsNeoForge {
         NeoForgeChestLootModifier.register(NeoForge.EVENT_BUS);
         NeoForgeNetworkTickHandler.register(NeoForge.EVENT_BUS);
         NeoForgeServerLevelEvents.register(NeoForge.EVENT_BUS);
+        if (FMLEnvironment.getDist().isClient()) {
+            NeoForgeClientSetup.register(modBus);
+        }
 
         // Wire deferred event registrations on the creative tab and reload registrars
         // (The SPI INSTANCE is the NeoForge impl because it's the only implementation on classpath)
