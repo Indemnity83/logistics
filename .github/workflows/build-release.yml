@@ -21,7 +21,6 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
-    continue-on-error: ${{ matrix.loader == 'neoforge' }}
     strategy:
       fail-fast: false
       matrix:
@@ -142,8 +141,7 @@ jobs:
           path: ${{ matrix.loader }}/build/libs/logistics-*.jar
 
       - name: Publish to Modrinth and CurseForge
-        # NeoForge publishing deferred until multiloader-loader integration is complete
-        if: (github.event_name != 'workflow_dispatch' || inputs.publish) && matrix.loader == 'fabric'
+        if: github.event_name != 'workflow_dispatch' || inputs.publish
         uses: Kir-Antipov/mc-publish@v3.3
         with:
           modrinth-id: ${{ vars.MODRINTH_PROJECT_ID }}
