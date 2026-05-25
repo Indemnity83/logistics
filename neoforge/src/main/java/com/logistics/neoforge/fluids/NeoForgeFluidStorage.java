@@ -92,7 +92,7 @@ public final class NeoForgeFluidStorage implements IFluidStorage {
         if (key instanceof NeoForgeFluidKey nfKey) {
             return nfKey.toStack(amount);
         }
-        return new FluidStack(key.getFluid(), amount, key.getComponents());
+        return new FluidStack(key.getFluid(), amount);
     }
 
     private static int clampToInt(long amount) {

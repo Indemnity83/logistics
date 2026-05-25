@@ -2,7 +2,7 @@ package com.logistics.neoforge.platform;
 
 import com.logistics.core.lib.platform.PlatformService;
 import net.minecraft.core.Registry;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.neoforged.fml.ModList;
 import net.neoforged.fml.loading.FMLPaths;
 
@@ -26,8 +26,8 @@ public final class NeoForgePlatformService implements PlatformService {
     }
 
     @Override
-    public <T> void registerAlias(Registry<T> registry, Identifier oldId, T currentEntry) {
-        Identifier currentId = registry.getKey(currentEntry);
+    public <T> void registerAlias(Registry<T> registry, ResourceLocation oldId, T currentEntry) {
+        ResourceLocation currentId = registry.getKey(currentEntry);
         if (currentId != null) {
             NeoForgeRegistryAliasHelper.addAlias(registry, oldId, currentId);
         }

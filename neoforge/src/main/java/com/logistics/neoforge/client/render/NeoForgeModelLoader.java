@@ -8,17 +8,28 @@ import com.logistics.core.lib.resource.ResourceId;
 import java.util.IdentityHashMap;
 import java.util.Map;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
+import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.client.event.ModelEvent;
-import net.neoforged.neoforge.client.model.standalone.SimpleUnbakedStandaloneModel;
-import net.neoforged.neoforge.client.model.standalone.StandaloneModelKey;
 
+/**
+ * NeoForge 21.1 model loader for power engines and other custom models.
+ *
+ * <p>Registers extra models via {@link ModelEvent.RegisterAdditional} so that
+ * NeoForge loads them as part of the baking phase.  After baking, a
+ * {@link ClientModelRegistry.Provider} is wired up that retrieves models from
+ * the baked model map.
+ */
 public final class NeoForgeModelLoader {
-    private static final Map<ClientModelRegistry.ModelKey, StandaloneModelKey<BlockStateModel>> STANDALONE_KEYS =
+    private static final Map<ClientModelRegistry.ModelKey, ModelResourceLocation> MODEL_LOCATIONS =
             new IdentityHashMap<>();
 
     private NeoForgeModelLoader() {}
 
+    /**
+     * Called once during client setup (before model loading) to declare which
+     * models to load and to register the {@link ClientModelRegistry} provider.
+     */
     public static void registerPowerModels() {
         ClientModelRegistry.register(LogisticsPower.model("redstone_engine_bellow"));
         ClientModelRegistry.register(LogisticsPower.model("redstone_engine_piston"));
@@ -35,28 +46,36 @@ public final class NeoForgeModelLoader {
         }
 
         ClientModelRegistry.registerProvider(key -> {
-            StandaloneModelKey<BlockStateModel> standaloneKey = STANDALONE_KEYS.get(key);
-            if (standaloneKey == null) {
+            ModelResourceLocation location = MODEL_LOCATIONS.get(key);
+            if (location == null) {
                 return null;
             }
-            return Minecraft.getInstance().getModelManager().getStandaloneModel(standaloneKey);
+            return Minecraft.getInstance().getModelManager().getModel(location);
         });
     }
 
-    public static void registerStandaloneModels(ModelEvent.RegisterStandalone event) {
-        for (var entry : ClientModelRegistry.all().entrySet()) {
-            StandaloneModelKey<BlockStateModel> standaloneKey = STANDALONE_KEYS.get(entry.getValue());
-            if (standaloneKey == null) {
-                continue;
-            }
-            event.register(
-                    standaloneKey,
-                    SimpleUnbakedStandaloneModel.blockStateModel(entry.getKey().toIdentifier()));
+    /**
+     * Subscribes to {@link ModelEvent.RegisterAdditional} to add the declared
+     * models to the loading set.
+     */
+    public static void registerAdditionalModels(ModelEvent.RegisterAdditional event) {
+        for (ModelResourceLocation location : MODEL_LOCATIONS.values()) {
+            event.register(location);
         }
     }
 
+    /**
+     * Subscribes to {@link ModelEvent.RegisterGeometryLoaders} to register
+     * the cable model geometry loader.
+     */
+    public static void registerGeometryLoaders(ModelEvent.RegisterGeometryLoaders event) {
+        event.register(
+                ResourceLocation.fromNamespaceAndPath("logistics", "cable_model"),
+                NeoForgeCableBlockModelDefinition.INSTANCE);
+    }
+
     private static void register(ClientModelRegistry.ModelKey key, ResourceId modelPath) {
-        STANDALONE_KEYS.computeIfAbsent(key,
-                ignored -> new StandaloneModelKey<>(() -> modelPath.toIdentifier().toString()));
+        MODEL_LOCATIONS.computeIfAbsent(key,
+                ignored -> ModelResourceLocation.standalone(modelPath.toIdentifier()));
     }
 }

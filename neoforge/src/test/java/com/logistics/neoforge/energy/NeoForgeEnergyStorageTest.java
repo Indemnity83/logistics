@@ -2,19 +2,56 @@ package com.logistics.neoforge.energy;
 
 import com.logistics.core.lib.energy.EnergyComponent;
 import com.logistics.core.lib.energy.IEnergyStorage;
-import net.neoforged.neoforge.transfer.energy.EnergyHandler;
-import net.neoforged.neoforge.transfer.transaction.Transaction;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@DisplayName("NeoForgeEnergyStorage adapter")
+@DisplayName("NeoForgeEnergyStorage adapter (NeoForge 21.1)")
 class NeoForgeEnergyStorageTest {
 
     private static EnergyComponent component(long capacity) {
         return new EnergyComponent(capacity, capacity, capacity, () -> {});
+    }
+
+    private static net.neoforged.neoforge.energy.IEnergyStorage fakeStorage(int capacity, int stored) {
+        int[] energy = {stored};
+        return new net.neoforged.neoforge.energy.IEnergyStorage() {
+            @Override
+            public int receiveEnergy(int maxReceive, boolean simulate) {
+                int toReceive = Math.min(maxReceive, capacity - energy[0]);
+                if (!simulate) energy[0] += toReceive;
+                return toReceive;
+            }
+
+            @Override
+            public int extractEnergy(int maxExtract, boolean simulate) {
+                int toExtract = Math.min(maxExtract, energy[0]);
+                if (!simulate) energy[0] -= toExtract;
+                return toExtract;
+            }
+
+            @Override
+            public int getEnergyStored() {
+                return energy[0];
+            }
+
+            @Override
+            public int getMaxEnergyStored() {
+                return capacity;
+            }
+
+            @Override
+            public boolean canExtract() {
+                return true;
+            }
+
+            @Override
+            public boolean canReceive() {
+                return true;
+            }
+        };
     }
 
     @Nested
@@ -35,153 +72,145 @@ class NeoForgeEnergyStorageTest {
     }
 
     @Nested
-    @DisplayName("CommonEnergyHandler (common → NeoForge)")
+    @DisplayName("CommonEnergyHandler (common → NeoForge 21.1)")
     class CommonEnergyHandlerTests {
 
         @Test
-        @DisplayName("insert commits energy to backing storage on root commit")
-        void insert_commitsOnRootCommit() {
+        @DisplayName("receiveEnergy commits energy to backing storage")
+        void receiveEnergy_commitsEnergy() {
             EnergyComponent backing = component(100);
-            EnergyHandler handler = NeoForgeEnergyStorage.asNeoForge(backing);
+            var handler = NeoForgeEnergyStorage.asNeoForge(backing);
 
-            try (Transaction tx = Transaction.openRoot()) {
-                assertThat(handler.insert(60, tx)).isEqualTo(60);
-                tx.commit();
-            }
-
+            int received = handler.receiveEnergy(60, false);
+            assertThat(received).isEqualTo(60);
             assertThat(backing.getAmount()).isEqualTo(60);
         }
 
         @Test
-        @DisplayName("insert respects pendingDelta within a transaction (regression: insert ignored staged amount)")
-        void insert_respectsPendingDelta() {
+        @DisplayName("receiveEnergy simulates without committing")
+        void receiveEnergy_simulate_doesNotCommit() {
             EnergyComponent backing = component(100);
-            EnergyHandler handler = NeoForgeEnergyStorage.asNeoForge(backing);
+            var handler = NeoForgeEnergyStorage.asNeoForge(backing);
 
-            try (Transaction tx = Transaction.openRoot()) {
-                int first = handler.insert(60, tx);
-                // Before the fix, second insert returned 100 (ignored the pending 60).
-                // After the fix, only 40 capacity remains.
-                int second = handler.insert(100, tx);
-                assertThat(first).isEqualTo(60);
-                assertThat(second).isEqualTo(40);
-                tx.commit();
-            }
-
-            assertThat(backing.getAmount()).isEqualTo(100);
+            int simulated = handler.receiveEnergy(60, true);
+            assertThat(simulated).isEqualTo(60);
+            assertThat(backing.getAmount()).isZero();
         }
 
         @Test
-        @DisplayName("insert rollback does not mutate backing storage")
-        void insert_rollback_doesNotMutate() {
+        @DisplayName("receiveEnergy clamps to remaining capacity")
+        void receiveEnergy_clampsToCapacity() {
             EnergyComponent backing = component(100);
-            EnergyHandler handler = NeoForgeEnergyStorage.asNeoForge(backing);
+            NeoForgeEnergyStorage.asNeoForge(backing).receiveEnergy(80, false);
+            var handler = NeoForgeEnergyStorage.asNeoForge(backing);
 
-            try (Transaction tx = Transaction.openRoot()) {
-                handler.insert(60, tx);
-                // tx closes without commit → rollback
-            }
-
-            assertThat(backing.getAmount()).isEqualTo(0);
+            int received = handler.receiveEnergy(100, false);
+            assertThat(received).isEqualTo(20);
         }
 
         @Test
-        @DisplayName("getAmountAsLong reflects pending inserts within a transaction")
-        void getAmountAsLong_reflectsPendingInserts() {
-            EnergyComponent backing = component(100);
-            EnergyHandler handler = NeoForgeEnergyStorage.asNeoForge(backing);
-
-            try (Transaction tx = Transaction.openRoot()) {
-                handler.insert(40, tx);
-                assertThat(handler.getAmountAsLong()).isEqualTo(40);
-                // rollback
-            }
-
-            assertThat(handler.getAmountAsLong()).isEqualTo(0);
-        }
-
-        @Test
-        @DisplayName("extract commits energy removal on root commit")
-        void extract_commitsOnRootCommit() {
+        @DisplayName("extractEnergy removes energy from backing storage")
+        void extractEnergy_removesEnergy() {
             EnergyComponent backing = component(100);
             backing.insert(80, false);
-            EnergyHandler handler = NeoForgeEnergyStorage.asNeoForge(backing);
+            var handler = NeoForgeEnergyStorage.asNeoForge(backing);
 
-            try (Transaction tx = Transaction.openRoot()) {
-                assertThat(handler.extract(50, tx)).isEqualTo(50);
-                tx.commit();
-            }
-
+            int extracted = handler.extractEnergy(50, false);
+            assertThat(extracted).isEqualTo(50);
             assertThat(backing.getAmount()).isEqualTo(30);
         }
 
         @Test
-        @DisplayName("extract rollback does not mutate backing storage")
-        void extract_rollback_doesNotMutate() {
+        @DisplayName("extractEnergy simulates without committing")
+        void extractEnergy_simulate_doesNotCommit() {
             EnergyComponent backing = component(100);
             backing.insert(80, false);
-            EnergyHandler handler = NeoForgeEnergyStorage.asNeoForge(backing);
+            var handler = NeoForgeEnergyStorage.asNeoForge(backing);
 
-            try (Transaction tx = Transaction.openRoot()) {
-                handler.extract(50, tx);
-                // rollback
-            }
-
+            int simulated = handler.extractEnergy(50, true);
+            assertThat(simulated).isEqualTo(50);
             assertThat(backing.getAmount()).isEqualTo(80);
         }
 
         @Test
-        @DisplayName("getCapacityAsLong returns backing capacity")
-        void getCapacityAsLong_returnsBackingCapacity() {
-            EnergyHandler handler = NeoForgeEnergyStorage.asNeoForge(component(500));
-            assertThat(handler.getCapacityAsLong()).isEqualTo(500);
+        @DisplayName("getEnergyStored reflects backing storage amount")
+        void getEnergyStored_reflectsAmount() {
+            EnergyComponent backing = component(100);
+            backing.insert(42, false);
+            var handler = NeoForgeEnergyStorage.asNeoForge(backing);
+            assertThat(handler.getEnergyStored()).isEqualTo(42);
+        }
+
+        @Test
+        @DisplayName("getMaxEnergyStored reflects backing capacity")
+        void getMaxEnergyStored_reflectsCapacity() {
+            EnergyComponent backing = component(500);
+            var handler = NeoForgeEnergyStorage.asNeoForge(backing);
+            assertThat(handler.getMaxEnergyStored()).isEqualTo(500);
+        }
+
+        @Test
+        @DisplayName("canReceive reflects canInsert on backing storage")
+        void canReceive_reflectsCanInsert() {
+            assertThat(NeoForgeEnergyStorage.asNeoForge(component(100)).canReceive()).isTrue();
+        }
+
+        @Test
+        @DisplayName("canExtract reflects canExtract on backing storage")
+        void canExtract_reflectsCanExtract() {
+            assertThat(NeoForgeEnergyStorage.asNeoForge(component(100)).canExtract()).isTrue();
         }
     }
 
     @Nested
-    @DisplayName("NeoForgeEnergyStorage (NeoForge → common wrapper)")
-    class WrapperTests {
+    @DisplayName("NeoForgeEnergyStorage (NeoForge 21.1 → common)")
+    class WrapTests {
 
         @Test
-        @DisplayName("insert(simulate=false) commits to backing storage")
-        void insert_simulate_false_commits() {
-            EnergyComponent backing = component(100);
-            IEnergyStorage wrapped = NeoForgeEnergyStorage.wrap(NeoForgeEnergyStorage.asNeoForge(backing));
+        @DisplayName("insert delegates to receiveEnergy with simulate=false")
+        void insert_delegatesToReceiveEnergy() {
+            var neoStorage = fakeStorage(100, 0);
+            IEnergyStorage wrapped = NeoForgeEnergyStorage.wrap(neoStorage);
 
-            assertThat(wrapped.insert(70, false)).isEqualTo(70);
-            assertThat(backing.getAmount()).isEqualTo(70);
+            long inserted = wrapped.insert(60, false);
+            assertThat(inserted).isEqualTo(60);
+            assertThat(wrapped.getAmount()).isEqualTo(60);
         }
 
         @Test
-        @DisplayName("insert(simulate=true) does not mutate backing storage")
-        void insert_simulate_true_doesNotMutate() {
-            EnergyComponent backing = component(100);
-            IEnergyStorage wrapped = NeoForgeEnergyStorage.wrap(NeoForgeEnergyStorage.asNeoForge(backing));
+        @DisplayName("insert simulates without changing storage")
+        void insert_simulate_doesNotChange() {
+            var neoStorage = fakeStorage(100, 0);
+            IEnergyStorage wrapped = NeoForgeEnergyStorage.wrap(neoStorage);
 
-            assertThat(wrapped.insert(70, true)).isEqualTo(70);
-            assertThat(backing.getAmount()).isEqualTo(0);
+            long simulated = wrapped.insert(60, true);
+            assertThat(simulated).isEqualTo(60);
+            assertThat(wrapped.getAmount()).isZero();
         }
 
         @Test
-        @DisplayName("extract(simulate=false) commits removal from backing storage")
-        void extract_simulate_false_commits() {
-            EnergyComponent backing = component(100);
-            backing.insert(80, false);
-            IEnergyStorage wrapped = NeoForgeEnergyStorage.wrap(NeoForgeEnergyStorage.asNeoForge(backing));
+        @DisplayName("extract delegates to extractEnergy with simulate=false")
+        void extract_delegatesToExtractEnergy() {
+            var neoStorage = fakeStorage(100, 80);
+            IEnergyStorage wrapped = NeoForgeEnergyStorage.wrap(neoStorage);
 
-            assertThat(wrapped.extract(50, false)).isEqualTo(50);
-            assertThat(backing.getAmount()).isEqualTo(30);
+            long extracted = wrapped.extract(50, false);
+            assertThat(extracted).isEqualTo(50);
+            assertThat(wrapped.getAmount()).isEqualTo(30);
         }
 
         @Test
-        @DisplayName("extract(simulate=true) does not mutate backing storage")
-        void extract_simulate_true_doesNotMutate() {
-            EnergyComponent backing = component(100);
-            backing.insert(80, false);
-            IEnergyStorage wrapped = NeoForgeEnergyStorage.wrap(NeoForgeEnergyStorage.asNeoForge(backing));
+        @DisplayName("getAmount returns NeoForge getEnergyStored")
+        void getAmount_returnsEnergyStored() {
+            var neoStorage = fakeStorage(100, 42);
+            assertThat(NeoForgeEnergyStorage.wrap(neoStorage).getAmount()).isEqualTo(42);
+        }
 
-            assertThat(wrapped.extract(50, true)).isEqualTo(50);
-            assertThat(backing.getAmount()).isEqualTo(80);
+        @Test
+        @DisplayName("getCapacity returns NeoForge getMaxEnergyStored")
+        void getCapacity_returnsMaxEnergyStored() {
+            var neoStorage = fakeStorage(200, 0);
+            assertThat(NeoForgeEnergyStorage.wrap(neoStorage).getCapacity()).isEqualTo(200);
         }
     }
 }

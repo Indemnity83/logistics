@@ -7,29 +7,25 @@ import com.logistics.power.engine.block.entity.CreativeEngineBlockEntity;
 import com.logistics.power.engine.block.entity.RedstoneEngineBlockEntity;
 import com.logistics.power.engine.block.entity.StirlingEngineBlockEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.SubmitNodeCollector;
-import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
-import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
-import net.minecraft.client.renderer.rendertype.RenderType;
-import net.minecraft.client.renderer.rendertype.RenderTypes;
-import net.minecraft.client.renderer.state.level.CameraRenderState;
-import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.client.model.data.ModelData;
 
 public class NeoForgeEngineBlockEntityRenderer
-        implements BlockEntityRenderer<AbstractEngineBlockEntity, EngineRenderState> {
+        implements BlockEntityRenderer<AbstractEngineBlockEntity> {
     private static final java.util.Map<BlockPos, AnimationCache> ANIMATION_CACHE =
-            new java.util.concurrent.ConcurrentHashMap<>();
+            new ConcurrentHashMap<>();
     private static final float DEFAULT_PISTON_SPEED = 0.02f;
 
     private static final ClientModelRegistry.ModelKey REDSTONE_BELLOW =
@@ -61,79 +57,73 @@ public class NeoForgeEngineBlockEntityRenderer
     public NeoForgeEngineBlockEntityRenderer(BlockEntityRendererProvider.Context ctx) {}
 
     @Override
-    public EngineRenderState createRenderState() {
-        return new EngineRenderState();
-    }
-
-    @Override
-    public void extractRenderState(
+    public void render(
             AbstractEngineBlockEntity entity,
-            EngineRenderState state,
             float tickDelta,
-            Vec3 cameraPos,
-            net.minecraft.client.renderer.feature.ModelFeatureRenderer.CrumblingOverlay crumblingOverlay) {
-        net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState.extractBase(
-                entity, state, crumblingOverlay);
-
-        state.pos = entity.getBlockPos();
-        state.facing = entity.getBlockState().getValue(BlockStateProperties.FACING);
-
+            PoseStack matrices,
+            MultiBufferSource bufferSource,
+            int light,
+            int overlay) {
+        EngineType type;
         if (entity instanceof RedstoneEngineBlockEntity) {
-            state.engineType = EngineRenderState.EngineType.REDSTONE;
+            type = EngineType.REDSTONE;
         } else if (entity instanceof StirlingEngineBlockEntity) {
-            state.engineType = EngineRenderState.EngineType.STIRLING;
+            type = EngineType.STIRLING;
         } else if (entity instanceof CreativeEngineBlockEntity) {
-            state.engineType = EngineRenderState.EngineType.CREATIVE;
+            type = EngineType.CREATIVE;
+        } else {
+            return;
         }
 
-        state.isRunning = entity.isRunning();
-        state.pistonSpeed = entity.getPistonSpeed();
+        Direction facing = entity.getBlockState().getValue(BlockStateProperties.FACING);
+        boolean isRunning = entity.isRunning();
+        float pistonSpeed = entity.getPistonSpeed();
+        BlockPos pos = entity.getBlockPos();
 
-        AnimationCache cache = ANIMATION_CACHE.computeIfAbsent(state.pos, k -> new AnimationCache());
-        updateAnimationCache(cache, state.pistonSpeed, state.isRunning);
-        state.setAnimationProgress(cache.progress);
-    }
+        AnimationCache cache = ANIMATION_CACHE.computeIfAbsent(pos, k -> new AnimationCache());
+        updateAnimationCache(cache, pistonSpeed, isRunning);
+        float pistonOffset = computePistonOffset(cache.progress);
 
-    @Override
-    public void submit(
-            EngineRenderState state,
-            PoseStack matrices,
-            SubmitNodeCollector queue,
-            CameraRenderState cameraState) {
-        BlockStateModel pistonModel = getModel(getPistonKey(state.engineType));
-        BlockStateModel bellowModel = getModel(getBellowKey(state.engineType));
+        BakedModel pistonModel = ClientModelRegistry.get(getPistonKey(type));
+        BakedModel bellowModel = ClientModelRegistry.get(getBellowKey(type));
 
         if (pistonModel == null || bellowModel == null) {
             return;
         }
 
-        RenderType renderLayer = RenderTypes.cutoutMovingBlock();
-        int light = state.lightCoords;
-        float pistonOffset = state.getPistonOffset();
+        RenderType renderLayer = RenderType.cutout();
+        VertexConsumer consumer = bufferSource.getBuffer(renderLayer);
+        RandomSource random = RandomSource.create(0);
 
         matrices.pushPose();
-        applyFacingRotation(matrices, state.facing);
+        applyFacingRotation(matrices, facing);
 
+        // Render bellow (scales vertically)
         matrices.pushPose();
         matrices.translate(0, 4 / 16f, 0);
         float bellowScale = Math.max(pistonOffset / 0.5f, 0.01f);
         matrices.scale(1.0f, bellowScale, 1.0f);
-        List<BlockStateModelPart> bellowParts = new ArrayList<>();
-        bellowModel.collectParts(RandomSource.create(0), bellowParts);
-        queue.submitBlockModel(matrices, renderLayer, bellowParts, new int[]{-1}, light, OverlayTexture.NO_OVERLAY, 0);
+        Minecraft.getInstance().getBlockRenderer().getModelRenderer().renderModel(
+                matrices.last(), consumer, entity.getBlockState(), bellowModel,
+                1.0f, 1.0f, 1.0f, light, overlay, ModelData.EMPTY, renderLayer);
         matrices.popPose();
 
+        // Render piston (translates vertically)
         matrices.pushPose();
         matrices.translate(0, 4 / 16f + pistonOffset, 0);
-        List<BlockStateModelPart> pistonParts = new ArrayList<>();
-        pistonModel.collectParts(RandomSource.create(0), pistonParts);
-        queue.submitBlockModel(matrices, renderLayer, pistonParts, new int[]{-1}, light, OverlayTexture.NO_OVERLAY, 0);
+        Minecraft.getInstance().getBlockRenderer().getModelRenderer().renderModel(
+                matrices.last(), consumer, entity.getBlockState(), pistonModel,
+                1.0f, 1.0f, 1.0f, light, overlay, ModelData.EMPTY, renderLayer);
         matrices.popPose();
 
         matrices.popPose();
     }
 
-    private ClientModelRegistry.ModelKey getBellowKey(EngineRenderState.EngineType type) {
+    private enum EngineType {
+        REDSTONE, STIRLING, CREATIVE
+    }
+
+    private ClientModelRegistry.ModelKey getBellowKey(EngineType type) {
         return switch (type) {
             case REDSTONE -> REDSTONE_BELLOW;
             case STIRLING -> STIRLING_BELLOW;
@@ -141,7 +131,7 @@ public class NeoForgeEngineBlockEntityRenderer
         };
     }
 
-    private ClientModelRegistry.ModelKey getPistonKey(EngineRenderState.EngineType type) {
+    private ClientModelRegistry.ModelKey getPistonKey(EngineType type) {
         return switch (type) {
             case REDSTONE -> REDSTONE_PISTON;
             case STIRLING -> STIRLING_PISTON;
@@ -185,8 +175,12 @@ public class NeoForgeEngineBlockEntityRenderer
         cache.lastGameTick = currentTick;
     }
 
-    private BlockStateModel getModel(ClientModelRegistry.ModelKey key) {
-        return ClientModelRegistry.get(key);
+    private static float computePistonOffset(float progress) {
+        float p = progress;
+        if (p > 0.5f) {
+            p = 1.0f - p;
+        }
+        return p;
     }
 
     private void applyFacingRotation(PoseStack matrices, Direction facing) {

@@ -2,6 +2,7 @@ package com.logistics.neoforge.fluids;
 
 import com.logistics.core.lib.fluids.IFluidKey;
 import net.minecraft.core.component.DataComponentPatch;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.material.Fluid;
 import net.neoforged.neoforge.fluids.FluidStack;
 
@@ -39,7 +40,7 @@ public final class NeoForgeFluidKey implements IFluidKey {
      * @return a new FluidStack representing this fluid
      */
     public FluidStack toStack(int amount) {
-        return new FluidStack(fluid, amount, components);
+        return new FluidStack(BuiltInRegistries.FLUID.wrapAsHolder(fluid), amount, components);
     }
 
     @Override

@@ -26,17 +26,16 @@ import com.logistics.pipe.render.PipeBlockEntityRenderer;
 import com.logistics.power.screen.StirlingEngineScreen;
 import com.logistics.neoforge.client.render.NeoForgeEngineBlockEntityRenderer;
 import com.logistics.neoforge.client.render.NeoForgeModelLoader;
-import java.util.List;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.color.block.BlockColor;
 import net.neoforged.bus.api.IEventBus;
-import net.neoforged.neoforge.client.network.event.RegisterClientPayloadHandlersEvent;
-import net.neoforged.neoforge.client.event.EntityRenderersEvent;
-import net.neoforged.neoforge.client.event.RegisterBlockStateModels;
-import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
-import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
-import net.neoforged.neoforge.client.network.ClientPacketDistributor;
-import net.minecraft.resources.Identifier;
+import net.neoforged.neoforge.client.event.EntityRenderersEvent;
+import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
+import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
+import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
+import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
 public final class NeoForgeClientSetup {
     private NeoForgeClientSetup() {}
@@ -47,13 +46,14 @@ public final class NeoForgeClientSetup {
         modBus.addListener(NeoForgeClientSetup::registerScreens);
         modBus.addListener(NeoForgeClientSetup::registerRenderers);
         modBus.addListener(NeoForgeClientSetup::registerBlockColors);
-        modBus.addListener(NeoForgeClientSetup::registerBlockStateModels);
+        modBus.addListener(NeoForgeModelLoader::registerAdditionalModels);
+        modBus.addListener(NeoForgeModelLoader::registerGeometryLoaders);
         modBus.addListener(NeoForgeClientSetup::registerClientPayloadHandlers);
-        modBus.addListener(NeoForgeModelLoader::registerStandaloneModels);
     }
 
     private static void onClientSetup(FMLClientSetupEvent event) {
-        ClientNetworking.register(ClientPacketDistributor::sendToServer);
+        ClientNetworking.register(payload ->
+                PacketDistributor.sendToServer(payload));
     }
 
     private static void registerScreens(RegisterMenuScreensEvent event) {
@@ -101,32 +101,34 @@ public final class NeoForgeClientSetup {
                 LaserQuarryBlockEntityRenderer::new);
     }
 
-    private static void registerBlockColors(RegisterColorHandlersEvent.BlockTintSources event) {
+    private static void registerBlockColors(RegisterColorHandlersEvent.Block event) {
+        BlockColor engineColor = (state, level, pos, tintIndex) -> {
+            if (tintIndex != 0) {
+                return 0xFFFFFF;
+            }
+            return switch (state.getValue(AbstractEngineBlockEntity.STAGE)) {
+                case COLD -> 0x3366CC;
+                case COOL -> 0x33CC33;
+                case WARM -> 0xCCCC33;
+                case HOT -> 0xCC3333;
+                case OVERHEAT -> 0x191919;
+            };
+        };
         event.register(
-                List.of(state -> switch (state.getValue(AbstractEngineBlockEntity.STAGE)) {
-                    case COLD -> 0xFF3366CC;
-                    case COOL -> 0xFF33CC33;
-                    case WARM -> 0xFFCCCC33;
-                    case HOT -> 0xFFCC3333;
-                    case OVERHEAT -> 0xFF191919;
-                }),
+                engineColor,
                 LogisticsPower.BLOCK.REDSTONE_ENGINE,
                 LogisticsPower.BLOCK.STIRLING_ENGINE,
                 LogisticsPower.BLOCK.CREATIVE_ENGINE);
     }
 
-    private static void registerBlockStateModels(RegisterBlockStateModels event) {
-        event.registerDefinition(
-                Identifier.fromNamespaceAndPath("logistics", "power_cable"),
-                com.logistics.neoforge.client.render.NeoForgeCableBlockModelDefinition.CODEC);
-    }
-
-    private static void registerClientPayloadHandlers(RegisterClientPayloadHandlersEvent event) {
-        event.register(SyncRequesterInventoryPacket.TYPE, (packet, context) -> {
-            var screen = Minecraft.getInstance().screen;
-            if (screen instanceof RequesterScreen requesterScreen) {
-                requesterScreen.updateAvailableItems(packet.pipePos(), packet.items(), packet.amounts());
-            }
-        });
+    private static void registerClientPayloadHandlers(RegisterPayloadHandlersEvent event) {
+        PayloadRegistrar registrar = event.registrar("1");
+        registrar.playToClient(SyncRequesterInventoryPacket.TYPE, SyncRequesterInventoryPacket.CODEC,
+                (packet, context) -> context.enqueueWork(() -> {
+                    var screen = Minecraft.getInstance().screen;
+                    if (screen instanceof RequesterScreen requesterScreen) {
+                        requesterScreen.updateAvailableItems(packet.pipePos(), packet.items(), packet.amounts());
+                    }
+                }));
     }
 }
