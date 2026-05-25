@@ -85,8 +85,6 @@ jobs:
           path: ${{ matrix.loader }}/build/libs/logistics-${{ steps.version.outputs.full_version }}.jar
 
       - name: Publish
-        # NeoForge publishing deferred until multiloader-loader integration is complete
-        if: matrix.loader == 'fabric'
         uses: Kir-Antipov/mc-publish@v3.3
         with:
           modrinth-id: ${{ vars.MODRINTH_PROJECT_ID }}
