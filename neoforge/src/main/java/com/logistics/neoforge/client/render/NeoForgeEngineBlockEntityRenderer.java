@@ -8,28 +8,25 @@ import com.logistics.power.engine.block.entity.RedstoneEngineBlockEntity;
 import com.logistics.power.engine.block.entity.StirlingEngineBlockEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.SubmitNodeCollector;
-import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
-import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
+import net.minecraft.client.renderer.block.model.BlockStateModel;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.rendertype.RenderType;
-import net.minecraft.client.renderer.rendertype.RenderTypes;
-import net.minecraft.client.renderer.state.level.CameraRenderState;
+import net.minecraft.client.renderer.state.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.Vec3;
 
 public class NeoForgeEngineBlockEntityRenderer
         implements BlockEntityRenderer<AbstractEngineBlockEntity, EngineRenderState> {
-    private static final java.util.Map<BlockPos, AnimationCache> ANIMATION_CACHE =
-            new java.util.concurrent.ConcurrentHashMap<>();
+    private static final Map<BlockPos, AnimationCache> ANIMATION_CACHE = new ConcurrentHashMap<>();
     private static final float DEFAULT_PISTON_SPEED = 0.02f;
 
     private static final ClientModelRegistry.ModelKey REDSTONE_BELLOW =
@@ -107,7 +104,7 @@ public class NeoForgeEngineBlockEntityRenderer
             return;
         }
 
-        RenderType renderLayer = RenderTypes.cutoutMovingBlock();
+        RenderType renderLayer = ItemBlockRenderTypes.getRenderType(state.blockState);
         int light = state.lightCoords;
         float pistonOffset = state.getPistonOffset();
 
@@ -118,16 +115,12 @@ public class NeoForgeEngineBlockEntityRenderer
         matrices.translate(0, 4 / 16f, 0);
         float bellowScale = Math.max(pistonOffset / 0.5f, 0.01f);
         matrices.scale(1.0f, bellowScale, 1.0f);
-        List<BlockStateModelPart> bellowParts = new ArrayList<>();
-        bellowModel.collectParts(RandomSource.create(0), bellowParts);
-        queue.submitBlockModel(matrices, renderLayer, bellowParts, new int[]{-1}, light, OverlayTexture.NO_OVERLAY, 0);
+        queue.submitBlockModel(matrices, renderLayer, bellowModel, 1.0f, 1.0f, 1.0f, light, OverlayTexture.NO_OVERLAY, 0);
         matrices.popPose();
 
         matrices.pushPose();
         matrices.translate(0, 4 / 16f + pistonOffset, 0);
-        List<BlockStateModelPart> pistonParts = new ArrayList<>();
-        pistonModel.collectParts(RandomSource.create(0), pistonParts);
-        queue.submitBlockModel(matrices, renderLayer, pistonParts, new int[]{-1}, light, OverlayTexture.NO_OVERLAY, 0);
+        queue.submitBlockModel(matrices, renderLayer, pistonModel, 1.0f, 1.0f, 1.0f, light, OverlayTexture.NO_OVERLAY, 0);
         matrices.popPose();
 
         matrices.popPose();

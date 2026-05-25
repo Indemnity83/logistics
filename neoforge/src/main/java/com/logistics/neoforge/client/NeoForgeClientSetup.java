@@ -26,13 +26,13 @@ import com.logistics.pipe.render.PipeBlockEntityRenderer;
 import com.logistics.power.screen.StirlingEngineScreen;
 import com.logistics.neoforge.client.render.NeoForgeEngineBlockEntityRenderer;
 import com.logistics.neoforge.client.render.NeoForgeModelLoader;
-import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.client.network.event.RegisterClientPayloadHandlersEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterBlockStateModels;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
+import net.minecraft.client.color.block.BlockColor;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
@@ -101,15 +101,21 @@ public final class NeoForgeClientSetup {
                 LaserQuarryBlockEntityRenderer::new);
     }
 
-    private static void registerBlockColors(RegisterColorHandlersEvent.BlockTintSources event) {
+    private static void registerBlockColors(RegisterColorHandlersEvent.Block event) {
+        BlockColor engineColor = (state, level, pos, tintIndex) -> {
+            if (tintIndex != 0) {
+                return 0xFFFFFF;
+            }
+            return switch (state.getValue(AbstractEngineBlockEntity.STAGE)) {
+                case COLD -> 0x3366CC;
+                case COOL -> 0x33CC33;
+                case WARM -> 0xCCCC33;
+                case HOT -> 0xCC3333;
+                case OVERHEAT -> 0x191919;
+            };
+        };
         event.register(
-                List.of(state -> switch (state.getValue(AbstractEngineBlockEntity.STAGE)) {
-                    case COLD -> 0xFF3366CC;
-                    case COOL -> 0xFF33CC33;
-                    case WARM -> 0xFFCCCC33;
-                    case HOT -> 0xFFCC3333;
-                    case OVERHEAT -> 0xFF191919;
-                }),
+                engineColor,
                 LogisticsPower.BLOCK.REDSTONE_ENGINE,
                 LogisticsPower.BLOCK.STIRLING_ENGINE,
                 LogisticsPower.BLOCK.CREATIVE_ENGINE);

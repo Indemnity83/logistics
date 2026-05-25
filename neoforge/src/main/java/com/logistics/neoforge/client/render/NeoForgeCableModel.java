@@ -7,21 +7,18 @@ import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.Sheets;
-import net.minecraft.client.renderer.block.BlockAndTintGetter;
-import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
-import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
+import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.block.model.BlockModelPart;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.resources.model.geometry.BakedQuad;
-import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.data.AtlasIds;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.client.model.DynamicBlockStateModel;
-import net.neoforged.neoforge.client.model.quad.MutableQuad;
+import net.neoforged.neoforge.client.model.pipeline.QuadBakingVertexConsumer;
 import org.jetbrains.annotations.Nullable;
 
 public final class NeoForgeCableModel implements DynamicBlockStateModel {
@@ -33,13 +30,13 @@ public final class NeoForgeCableModel implements DynamicBlockStateModel {
     }
 
     @Override
-    public Material.Baked particleMaterial() {
-        return new Material.Baked(sprite(), false);
+    public TextureAtlasSprite particleIcon() {
+        return sprite();
     }
 
     @Override
-    public int materialFlags() {
-        return 0;
+    public void collectParts(RandomSource random, List<BlockModelPart> parts) {
+        // DynamicBlockStateModel: no-op for the static variant
     }
 
     @Override
@@ -48,13 +45,13 @@ public final class NeoForgeCableModel implements DynamicBlockStateModel {
             BlockPos pos,
             BlockState state,
             RandomSource random,
-            List<BlockStateModelPart> parts) {
+            List<BlockModelPart> parts) {
         if (!(level.getBlockEntity(pos) instanceof CableBlockEntity cable)) {
             return;
         }
 
         TextureAtlasSprite sprite = sprite();
-        CablePartBuilder builder = new CablePartBuilder(sprite, particleMaterial(), materialFlags());
+        CablePartBuilder builder = new CablePartBuilder(sprite);
         CableGeometry.emit(builder, cable.getRenderConnectionMask(), CableGeometry.TextureUvs.fromSprite(sprite), direction -> true);
         parts.add(builder.build());
     }
@@ -71,15 +68,11 @@ public final class NeoForgeCableModel implements DynamicBlockStateModel {
 
     private static final class CablePartBuilder implements CableGeometry.QuadSink {
         private final TextureAtlasSprite sprite;
-        private final Material.Baked particleMaterial;
-        private final int materialFlags;
         private final List<BakedQuad> unculledQuads = new ArrayList<>();
         private final EnumMap<Direction, List<BakedQuad>> culledQuads = new EnumMap<>(Direction.class);
 
-        private CablePartBuilder(TextureAtlasSprite sprite, Material.Baked particleMaterial, int materialFlags) {
+        private CablePartBuilder(TextureAtlasSprite sprite) {
             this.sprite = sprite;
-            this.particleMaterial = particleMaterial;
-            this.materialFlags = materialFlags;
         }
 
         @Override
@@ -88,33 +81,33 @@ public final class NeoForgeCableModel implements DynamicBlockStateModel {
                 float x1, float y1, float z1, float u1, float v1,
                 float x2, float y2, float z2, float u2, float v2,
                 float x3, float y3, float z3, float u3, float v3) {
-            MutableQuad quad = new MutableQuad();
-            quad.setPosition(0, x0, y0, z0).setUv(0, u0, v0);
-            quad.setPosition(1, x1, y1, z1).setUv(1, u1, v1);
-            quad.setPosition(2, x2, y2, z2).setUv(2, u2, v2);
-            quad.setPosition(3, x3, y3, z3).setUv(3, u3, v3);
-            quad.setDirection(nominalFace);
-            quad.setSprite(sprite, ChunkSectionLayer.CUTOUT, Sheets.cutoutBlockSheet());
-            quad.setColor(0xFFFFFFFF);
-            quad.recomputeNormals(false);
+            QuadBakingVertexConsumer baker = new QuadBakingVertexConsumer();
+            baker.setDirection(nominalFace);
+            baker.setSprite(sprite);
+            baker.setShade(true);
+            baker.setHasAmbientOcclusion(true);
+            baker.addVertex(x0, y0, z0).setUv(u0, v0).setColor(-1);
+            baker.addVertex(x1, y1, z1).setUv(u1, v1).setColor(-1);
+            baker.addVertex(x2, y2, z2).setUv(u2, v2).setColor(-1);
+            baker.addVertex(x3, y3, z3).setUv(u3, v3).setColor(-1);
+            BakedQuad quad = baker.bakeQuad();
 
             if (cullFace == null) {
-                unculledQuads.add(quad.toBakedQuad());
+                unculledQuads.add(quad);
             } else {
-                culledQuads.computeIfAbsent(cullFace, ignored -> new ArrayList<>()).add(quad.toBakedQuad());
+                culledQuads.computeIfAbsent(cullFace, ignored -> new ArrayList<>()).add(quad);
             }
         }
 
-        private BlockStateModelPart build() {
-            return new CablePart(unculledQuads, culledQuads, particleMaterial, materialFlags);
+        private BlockModelPart build() {
+            return new CablePart(unculledQuads, culledQuads, sprite);
         }
     }
 
     private record CablePart(
             List<BakedQuad> unculledQuads,
             EnumMap<Direction, List<BakedQuad>> culledQuads,
-            Material.Baked particleMaterial,
-            int materialFlags) implements BlockStateModelPart {
+            TextureAtlasSprite sprite) implements BlockModelPart {
         @Override
         public List<BakedQuad> getQuads(@Nullable Direction direction) {
             if (direction == null) {
@@ -126,6 +119,11 @@ public final class NeoForgeCableModel implements DynamicBlockStateModel {
         @Override
         public boolean useAmbientOcclusion() {
             return true;
+        }
+
+        @Override
+        public TextureAtlasSprite particleIcon() {
+            return sprite;
         }
     }
 }
