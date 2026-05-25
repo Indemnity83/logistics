@@ -25,6 +25,11 @@ public final class LogisticsNeoForge {
         modBus.addListener(this::onRegister);
         registerEnergyServices();
         NeoForgeCapabilityRegistration.register(modBus);
+        NeoForgePacketRegistration.register(modBus);
+        NeoForgeCommandRegistration.register(NeoForge.EVENT_BUS);
+        NeoForgeChestLootModifier.register(NeoForge.EVENT_BUS);
+        NeoForgeNetworkTickHandler.register(NeoForge.EVENT_BUS);
+        NeoForgeServerLevelEvents.register(NeoForge.EVENT_BUS);
 
         // Wire deferred event registrations on the creative tab and reload registrars
         // (The SPI INSTANCE is the NeoForge impl because it's the only implementation on classpath)
