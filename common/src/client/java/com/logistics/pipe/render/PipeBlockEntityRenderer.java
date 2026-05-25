@@ -12,293 +12,268 @@ import com.logistics.pipe.block.PipeBlock;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.core.lib.pipe.TravelingItem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
-import net.minecraft.client.renderer.ItemBlockRenderTypes;
-import net.minecraft.client.renderer.SubmitNodeCollector;
-import net.minecraft.client.renderer.block.model.BlockStateModel;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
-import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
-import net.minecraft.client.renderer.item.ItemModelResolver;
-import net.minecraft.client.renderer.item.ItemStackRenderState;
-import net.minecraft.client.renderer.rendertype.RenderType;
-import net.minecraft.client.renderer.rendertype.RenderTypes;
-import net.minecraft.client.renderer.state.CameraRenderState;
-import net.minecraft.client.renderer.texture.OverlayTexture;
-
-import java.util.HashMap;
-import java.util.Map;
+import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.Direction;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.Vec3;
+
+import java.util.List;
 
 /**
- * Renders traveling items inside pipes
+ * Renders pipe block entities: dynamic core/arm geometry and traveling items.
+ *
+ * <p>Pipe rendering is fully dynamic (no baked blockstate) because connection
+ * directions and module state change at runtime. The renderer:
+ * <ol>
+ *   <li>Renders the pipe core model (module-overridable per pipe type)
+ *   <li>Renders core decoration overlays with per-decoration tint colors
+ *   <li>Renders a directional arm for each connected face (module-overridable)
+ *   <li>Renders traveling items at interpolated positions along the pipe
+ * </ol>
+ *
+ * <p>All arm models are NORTH-facing in their JSON definitions and are rotated
+ * at render time to face the correct direction.
+ *
+ * <p>Tinting is applied per-quad: quads with tintindex receive the model's
+ * designated color; untinted quads render at full white.
  */
-public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEntity, PipeRenderState> {
+public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEntity> {
     private static final float BLOCK_OFFSET = 0.3125f;
     private static final float ITEM_OFFSET = 0.375f;
 
-    private final ItemModelResolver itemModelManager;
-
-    // Models never change at runtime — cache globally by ResourceId to avoid repeated lookups each frame
-    private final Map<ResourceId, BlockStateModel> modelsCache = new HashMap<>();
-
-    // Per-renderer profiler instance — one profiler per renderer (one renderer per pipe type)
     private final RenderProfiler profiler = new RenderProfiler();
 
     public PipeBlockEntityRenderer(BlockEntityRendererProvider.Context ctx) {
-        this.itemModelManager = ctx.itemModelResolver();
     }
 
-    private BlockStateModel getModel(ResourceId modelId) {
-        ClientModelRegistry.ModelKey key = ClientModelRegistry.find(modelId);
+    private BakedModel getModel(ResourceId id) {
+        ClientModelRegistry.ModelKey key = ClientModelRegistry.find(id);
         return key != null ? ClientModelRegistry.get(key) : null;
     }
 
     @Override
-    public PipeRenderState createRenderState() {
-        return new PipeRenderState();
-    }
-
-    @Override
-    public void extractRenderState(
+    public void render(
             PipeBlockEntity entity,
-            PipeRenderState state,
-            float tickDelta,
-            Vec3 cameraPos,
-            net.minecraft.client.renderer.feature.ModelFeatureRenderer.CrumblingOverlay crumblingOverlay) {
+            float partialTick,
+            PoseStack poseStack,
+            MultiBufferSource bufferSource,
+            int packedLight,
+            int packedOverlay) {
 
-        boolean debugRender = DebugLog.isEnabled("render");
-        long t0 = debugRender ? profiler.startExtract() : 0;
+        BlockState state = entity.getBlockState();
+        if (!(state.getBlock() instanceof PipeBlock pipeBlock)) return;
 
-        // Update base block entity render state
-        BlockEntityRenderState.extractBase(entity, state, crumblingOverlay);
-
-        // Store tickDelta for use in render()
-        state.tickDelta = tickDelta;
-
-        BlockState blockState = entity.getBlockState();
-        state.blockState = blockState;
-
-        state.models.clear();
-        {
-
-            // Get pipe properties for speed calculations
-            float maxSpeed = LogisticsConfig.get().pipe.maxSpeed;
-            float accelerationRate = 0f;
-            float dragCoefficient = LogisticsConfig.get().pipe.drag;
-
-            if (blockState.getBlock() instanceof PipeBlock pipeBlock) {
-                if (pipeBlock.getPipe() != null && entity.getLevel() != null) {
-                    PipeContext context = new PipeContext(entity.getLevel(), entity.getBlockPos(), blockState, entity);
-                    maxSpeed = pipeBlock.getPipe().getMaxSpeed(context);
-                    accelerationRate = pipeBlock.getPipe().getAccelerationRate(context);
-                    dragCoefficient = pipeBlock.getPipe().getDrag(context);
-
-                    Pipe pipe = pipeBlock.getPipe();
-                    state.models.add(buildModelInfo(pipe.getCoreModelId(context), 0xFFFFFF));
-                    for (CoreDecoration decoration : pipe.getCoreDecorations(context)) {
-                        state.models.add(buildModelInfo(decoration.modelId(), decoration.color()));
-                    }
-
-                    for (Direction direction : Direction.values()) {
-                        PipeConnection.Type type = entity.getCachedConnectionType(direction);
-                        if (type == PipeConnection.Type.NONE) {
-                            continue;
-                        }
-
-                        // Get arm model (module override or base), rotate at render time
-                        var armModel = pipe.getPipeArm(context, direction);
-                        Integer armTint = pipe.getArmTint(context, direction);
-                        int armColor = armTint != null ? armTint : 0xFFFFFF;
-                        state.models.add(buildModelInfo(armModel, armColor, direction));
-
-                        for (var decoration : pipe.getPipeDecorations(context, direction)) {
-                            state.models.add(buildModelInfo(decoration, 0xFFFFFF));
-                        }
-                    }
-                }
-            }
-
-            state.maxSpeed = maxSpeed;
-            state.accelerationRate = accelerationRate;
-            state.dragCoefficient = dragCoefficient;
-
-            // --- Fix 1: Cache model lookup once per unique ResourceId (renderer-level cache) ---
-            // Model geometry never changes at runtime, so no invalidation needed.
-            for (PipeRenderState.ModelRenderInfo modelInfo : state.models) {
-                BlockStateModel cached = modelsCache.get(modelInfo.modelId);
-                if (cached == null) {
-                    long tp = debugRender ? System.nanoTime() : 0;
-                    cached = getModel(modelInfo.modelId);
-                    if (debugRender) profiler.recordCollectParts(tp);
-                    if (cached == null) {
-                        modelInfo.model = null;
-                        continue;
-                    }
-                    modelsCache.put(modelInfo.modelId, cached);
-                }
-                modelInfo.model = cached;
-            }
-        }
-
-        // Extract traveling items. Each item render state is frame-local and loader-neutral.
-        state.travelingItems.clear();
-        for (TravelingItem travelingItem : entity.getTravelingItems()) {
-            ItemStackRenderState cached = new ItemStackRenderState();
-            long ta = debugRender ? System.nanoTime() : 0;
-            this.itemModelManager.appendItemLayers(
-                    cached,
-                    travelingItem.getStack(),
-                    ItemDisplayContext.GROUND,
-                    entity.getLevel(),
-                    null,
-                    0);
-            if (debugRender) profiler.recordAppendItemLayers(ta);
-            TravelingItemRenderState itemState = new TravelingItemRenderState(cached);
-
-            // Position data must be updated every frame for smooth animation
-            itemState.direction = travelingItem.getDirection();
-            itemState.progress = travelingItem.getProgress();
-            itemState.currentSpeed = travelingItem.getSpeed();
-            itemState.yOffset = travelingItem.getStack().getItem() instanceof BlockItem ? BLOCK_OFFSET : ITEM_OFFSET;
-
-            state.travelingItems.add(itemState);
-        }
-
-        if (debugRender) profiler.endExtract(t0);
-    }
-
-    /** Build a ModelRenderInfo for cores/decorations. Parts are populated in extractRenderState(). */
-    private static PipeRenderState.ModelRenderInfo buildModelInfo(ResourceId modelId, int color) {
-        return new PipeRenderState.ModelRenderInfo(modelId, color);
-    }
-
-    /** Build a ModelRenderInfo for arm models that need direction-based rotation. */
-    private static PipeRenderState.ModelRenderInfo buildModelInfo(ResourceId modelId, int color, Direction direction) {
-        return new PipeRenderState.ModelRenderInfo(modelId, color, direction);
-    }
-
-    @Override
-    public void submit(
-            PipeRenderState state, PoseStack matrices, SubmitNodeCollector queue, CameraRenderState cameraState) {
+        Pipe pipe = pipeBlock.getPipe();
+        if (pipe == null || entity.getLevel() == null) return;
 
         boolean debugRender = DebugLog.isEnabled("render");
         long t0 = debugRender ? profiler.startSubmit() : 0;
 
-        if (!state.models.isEmpty()) {
-            RenderType renderLayer = state.blockState == null
-                    ? RenderTypes.cutoutMovingBlock()
-                    : ItemBlockRenderTypes.getRenderType(state.blockState);
-            for (PipeRenderState.ModelRenderInfo modelInfo : state.models) {
-                // Use cached model (Fix 1) — no repeated lookup here
-                if (modelInfo.model == null) {
-                    continue;
-                }
+        PipeContext ctx = new PipeContext(entity.getLevel(), entity.getBlockPos(), state, entity);
+        VertexConsumer buffer = bufferSource.getBuffer(RenderType.cutout());
 
-                // Apply rotation for arm models
-                if (modelInfo.armDirection != null) {
-                    matrices.pushPose();
-                    matrices.translate(0.5, 0.5, 0.5); // Rotate around block center
-                    applyDirectionRotation(matrices, modelInfo.armDirection);
-                    matrices.translate(-0.5, -0.5, -0.5);
-                }
+        // Render core model
+        renderModel(getModel(pipe.getCoreModelId(ctx)), null, 0xFFFFFF, state, poseStack, buffer, packedLight, packedOverlay);
 
-                int color = modelInfo.color;
-                float red = ((color >> 16) & 0xFF) / 255.0f;
-                float green = ((color >> 8) & 0xFF) / 255.0f;
-                float blue = (color & 0xFF) / 255.0f;
-                queue.submitBlockModel(
-                        matrices,
-                        renderLayer,
-                        modelInfo.model,
-                        red,
-                        green,
-                        blue,
-                        state.lightCoords,
-                        OverlayTexture.NO_OVERLAY,
-                        0);
+        // Render core decorations (e.g., pipe markings color overlay)
+        for (CoreDecoration decoration : pipe.getCoreDecorations(ctx)) {
+            renderModel(getModel(decoration.modelId()), null, decoration.color(), state, poseStack, buffer, packedLight, packedOverlay);
+        }
 
-                if (modelInfo.armDirection != null) {
-                    matrices.popPose();
-                }
+        // Render an arm for each connected direction
+        for (Direction direction : Direction.values()) {
+            if (entity.getCachedConnectionType(direction) == PipeConnection.Type.NONE) continue;
+
+            ResourceId armId = pipe.getPipeArm(ctx, direction);
+            Integer armTint = pipe.getArmTint(ctx, direction);
+            int armColor = armTint != null ? armTint : 0xFFFFFF;
+
+            renderModel(getModel(armId), direction, armColor, state, poseStack, buffer, packedLight, packedOverlay);
+
+            for (ResourceId decoration : pipe.getPipeDecorations(ctx, direction)) {
+                renderModel(getModel(decoration), direction, 0xFFFFFF, state, poseStack, buffer, packedLight, packedOverlay);
             }
         }
 
-        for (TravelingItemRenderState itemState : state.travelingItems) {
-            matrices.pushPose();
+        // Get pipe speed properties for physics-based item interpolation
+        float maxSpeed = pipe.getMaxSpeed(ctx);
+        float accelerationRate = pipe.getAccelerationRate(ctx);
+        float dragCoefficient = pipe.getDrag(ctx);
 
-            // Calculate speed change during this partial tick
-            float speedChange = 0f;
-            boolean deceleratingToMax = itemState.currentSpeed > state.maxSpeed;
-            if (deceleratingToMax) {
-                float remaining = Math.max(1.0e-4f, 1.0f - itemState.progress);
-                float targetSquared = state.maxSpeed * state.maxSpeed;
-                float currentSquared = itemState.currentSpeed * itemState.currentSpeed;
-                float decel = (targetSquared - currentSquared) / (2.0f * remaining);
-                speedChange = decel * state.tickDelta;
-            } else if (state.accelerationRate != 0f) {
-                speedChange = state.accelerationRate * state.tickDelta;
-            } else if (state.dragCoefficient != 0f) {
-                speedChange = -(itemState.currentSpeed * state.dragCoefficient) * state.tickDelta;
-            }
-
-            // Speed at the end of this partial tick
-            float minSpeed = LogisticsConfig.get().pipe.minSpeed;
-            float interpolatedSpeed = itemState.currentSpeed + speedChange;
-            if (interpolatedSpeed < minSpeed) {
-                interpolatedSpeed = minSpeed;
-            } else if (!deceleratingToMax && interpolatedSpeed > state.maxSpeed) {
-                interpolatedSpeed = state.maxSpeed;
-            }
-
-            // Use average speed for progress calculation (trapezoidal integration)
-            float avgSpeed = (itemState.currentSpeed + interpolatedSpeed) / 2.0f;
-            float interpolatedProgress = itemState.progress + (avgSpeed * state.tickDelta);
-
-            // Start at center of pipe. The Y offset accounts for the GROUND display transform's
-            // built-in upward translation, which differs between block items and regular items.
-            matrices.translate(0.5, itemState.yOffset, 0.5);
-
-            // Calculate position along the travel direction
-            // Progress 0.0 = entering from opposite direction (-0.5)
-            // Progress 1.0 = exiting in travel direction (+0.5)
-            float travelDistance = interpolatedProgress - 0.5f;
-            matrices.translate(
-                    itemState.direction.getStepX() * travelDistance,
-                    itemState.direction.getStepY() * travelDistance,
-                    itemState.direction.getStepZ() * travelDistance);
-
-            // Keep items at ground scale (no scaling)
-            // ItemDisplayContext.GROUND already handles proper item sizing
-            // No rotation - items move straight through the pipe
-
-            // Render the item using ItemRenderState.render()
-            itemState.itemRenderState.submit(
-                    matrices, queue, state.lightCoords, OverlayTexture.NO_OVERLAY, 0 // outlineColors
-                    );
-
-            matrices.popPose();
+        // Render items traveling through the pipe
+        List<TravelingItem> travelingItems = entity.getTravelingItems();
+        for (TravelingItem item : travelingItems) {
+            renderTravelingItem(item, partialTick, maxSpeed, accelerationRate, dragCoefficient,
+                    poseStack, bufferSource, packedLight, packedOverlay, entity);
         }
 
         if (debugRender) profiler.endSubmit(t0);
     }
 
+    private void renderModel(
+            BakedModel model,
+            Direction armDirection,
+            int tintColor,
+            BlockState state,
+            PoseStack poseStack,
+            VertexConsumer buffer,
+            int packedLight,
+            int packedOverlay) {
+
+        if (model == null) return;
+
+        if (armDirection != null) {
+            poseStack.pushPose();
+            poseStack.translate(0.5, 0.5, 0.5);
+            applyDirectionRotation(poseStack, armDirection);
+            poseStack.translate(-0.5, -0.5, -0.5);
+        }
+
+        renderModelQuads(model, tintColor, state, poseStack, buffer, packedLight, packedOverlay);
+
+        if (armDirection != null) {
+            poseStack.popPose();
+        }
+    }
+
+    private void renderModelQuads(
+            BakedModel model,
+            int tintColor,
+            BlockState state,
+            PoseStack poseStack,
+            VertexConsumer buffer,
+            int packedLight,
+            int packedOverlay) {
+
+        float r = (tintColor >> 16 & 0xFF) / 255.0f;
+        float g = (tintColor >> 8 & 0xFF) / 255.0f;
+        float b = (tintColor & 0xFF) / 255.0f;
+
+        RandomSource random = RandomSource.create(42L);
+
+        // General quads (not face-culled)
+        renderQuads(model.getQuads(state, null, random), r, g, b, poseStack, buffer, packedLight, packedOverlay);
+
+        // Face-specific quads (can be culled but we render all since pipes use RenderShape.INVISIBLE)
+        for (Direction face : Direction.values()) {
+            random.setSeed(42L);
+            renderQuads(model.getQuads(state, face, random), r, g, b, poseStack, buffer, packedLight, packedOverlay);
+        }
+    }
+
     /**
-     * Applies rotation to the matrix stack for rendering arm models in the given direction.
-     * The base arm model is oriented NORTH; this method rotates it to face other directions.
+     * Renders a list of quads, applying the tint color only to quads that declare a tintindex.
+     * Untinted quads render at full white (1, 1, 1).
      */
-    private static void applyDirectionRotation(PoseStack matrices, Direction direction) {
+    private void renderQuads(
+            List<BakedQuad> quads,
+            float tintR,
+            float tintG,
+            float tintB,
+            PoseStack poseStack,
+            VertexConsumer buffer,
+            int packedLight,
+            int packedOverlay) {
+
+        for (BakedQuad quad : quads) {
+            float r = quad.isTinted() ? tintR : 1.0f;
+            float g = quad.isTinted() ? tintG : 1.0f;
+            float b = quad.isTinted() ? tintB : 1.0f;
+            buffer.putBulkData(poseStack.last(), quad, r, g, b, 1.0f, packedLight, packedOverlay);
+        }
+    }
+
+    /**
+     * Renders a traveling item at its interpolated position within the pipe.
+     * Items move from the entry face (progress=0) to the exit face (progress=1).
+     */
+    private void renderTravelingItem(
+            TravelingItem item,
+            float partialTick,
+            float maxSpeed,
+            float accelerationRate,
+            float dragCoefficient,
+            PoseStack poseStack,
+            MultiBufferSource bufferSource,
+            int packedLight,
+            int packedOverlay,
+            PipeBlockEntity entity) {
+
+        poseStack.pushPose();
+
+        // Ground display context renders items slightly above the "ground", offset Y to center in pipe
+        float yOffset = item.getStack().getItem() instanceof BlockItem ? BLOCK_OFFSET : ITEM_OFFSET;
+        poseStack.translate(0.5, yOffset, 0.5);
+
+        // Calculate speed change during this partial tick
+        float speedChange = 0f;
+        boolean deceleratingToMax = item.getSpeed() > maxSpeed;
+        if (deceleratingToMax) {
+            float remaining = Math.max(1.0e-4f, 1.0f - item.getProgress());
+            float targetSquared = maxSpeed * maxSpeed;
+            float currentSquared = item.getSpeed() * item.getSpeed();
+            float decel = (targetSquared - currentSquared) / (2.0f * remaining);
+            speedChange = decel * partialTick;
+        } else if (accelerationRate != 0f) {
+            speedChange = accelerationRate * partialTick;
+        } else if (dragCoefficient != 0f) {
+            speedChange = -(item.getSpeed() * dragCoefficient) * partialTick;
+        }
+
+        // Speed at the end of this partial tick
+        float interpolatedSpeed = item.getSpeed() + speedChange;
+        if (interpolatedSpeed < LogisticsConfig.get().pipe.minSpeed) {
+            interpolatedSpeed = LogisticsConfig.get().pipe.minSpeed;
+        } else if (!deceleratingToMax && interpolatedSpeed > maxSpeed) {
+            interpolatedSpeed = maxSpeed;
+        }
+
+        // Use average speed for progress calculation (trapezoidal integration)
+        float avgSpeed = (item.getSpeed() + interpolatedSpeed) / 2.0f;
+        float interpolatedProgress = item.getProgress() + (avgSpeed * partialTick);
+        float travelOffset = interpolatedProgress - 0.5f;
+
+        Direction dir = item.getDirection();
+        poseStack.translate(
+                dir.getStepX() * travelOffset,
+                dir.getStepY() * travelOffset,
+                dir.getStepZ() * travelOffset);
+
+        Minecraft.getInstance().getItemRenderer().renderStatic(
+                item.getStack(),
+                ItemDisplayContext.GROUND,
+                packedLight,
+                packedOverlay,
+                poseStack,
+                bufferSource,
+                entity.getLevel(),
+                0);
+
+        poseStack.popPose();
+    }
+
+    /**
+     * Rotates the pose stack so a NORTH-facing arm model points in the given direction.
+     * Arm JSON models are authored to exit toward NORTH (−Z face, z=[0,4]).
+     */
+    private static void applyDirectionRotation(PoseStack poseStack, Direction direction) {
         switch (direction) {
-            case SOUTH -> matrices.mulPose(Axis.YP.rotationDegrees(180));
-            case EAST -> matrices.mulPose(Axis.YP.rotationDegrees(-90));
-            case WEST -> matrices.mulPose(Axis.YP.rotationDegrees(90));
-            case UP -> matrices.mulPose(Axis.XP.rotationDegrees(90));
-            case DOWN -> matrices.mulPose(Axis.XP.rotationDegrees(-90));
-            default -> {} // NORTH: Base orientation, no rotation
+            case SOUTH -> poseStack.mulPose(Axis.YP.rotationDegrees(180));
+            case EAST  -> poseStack.mulPose(Axis.YP.rotationDegrees(-90));
+            case WEST  -> poseStack.mulPose(Axis.YP.rotationDegrees(90));
+            case UP    -> poseStack.mulPose(Axis.XP.rotationDegrees(90));
+            case DOWN  -> poseStack.mulPose(Axis.XP.rotationDegrees(-90));
+            default    -> {} // NORTH: base model orientation, no rotation needed
         }
     }
 }

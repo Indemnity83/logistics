@@ -3,7 +3,6 @@ package com.logistics;
 import com.logistics.automation.kiln.KilnScreen;
 import com.logistics.automation.render.ClientRenderCacheHooks;
 import com.logistics.automation.render.LaserQuarryBlockEntityRenderer;
-import com.logistics.automation.render.LaserQuarryRenderState;
 import com.logistics.automation.render.MarkerBlockEntityRenderer;
 import com.logistics.core.bootstrap.ClientDomainBootstrap;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
@@ -32,12 +31,12 @@ public final class LogisticsAutomationClient implements ClientDomainBootstrap {
 
         MenuScreens.register(LogisticsAutomation.MENU.KILN, KilnScreen::new);
 
-        ClientRenderCacheHooks.setQuarryInterpolationClearer(LaserQuarryRenderState::clearInterpolationCache);
-        ClientRenderCacheHooks.setClearAllInterpolationCaches(LaserQuarryRenderState::clearAllInterpolationCaches);
+        ClientRenderCacheHooks.setQuarryInterpolationClearer(LaserQuarryBlockEntityRenderer::clearInterpolationCache);
+        ClientRenderCacheHooks.setClearAllInterpolationCaches(LaserQuarryBlockEntityRenderer::clearAllInterpolationCaches);
 
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             if (client.level != null) {
-                LaserQuarryRenderState.pruneInterpolationCache(client.level);
+                LaserQuarryBlockEntityRenderer.pruneInterpolationCache(client.level);
             }
         });
         ClientPlayConnectionEvents.DISCONNECT.register(

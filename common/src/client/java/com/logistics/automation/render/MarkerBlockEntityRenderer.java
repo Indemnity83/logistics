@@ -4,79 +4,136 @@ import com.logistics.LogisticsAutomationClientModels;
 import com.logistics.automation.marker.MarkerBlockEntity;
 import com.logistics.automation.marker.MarkerManager;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import com.logistics.core.lib.client.model.ClientModelRegistry;
-import net.minecraft.client.renderer.SubmitNodeCollector;
-import net.minecraft.client.renderer.block.model.BlockStateModel;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.block.ModelBlockRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
-import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
-import net.minecraft.client.renderer.rendertype.RenderType;
-import net.minecraft.client.renderer.rendertype.RenderTypes;
-import net.minecraft.client.renderer.state.CameraRenderState;
-import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.phys.Vec3;
+import net.minecraft.util.RandomSource;
+
+import java.util.List;
 
 /**
  * Renders laser beams for active markers in MC 1.21.1.
  * Uses baked model segments for quad-based beams with proper thickness.
  */
-public class MarkerBlockEntityRenderer implements BlockEntityRenderer<MarkerBlockEntity, MarkerRenderState> {
-    public MarkerBlockEntityRenderer(BlockEntityRendererProvider.Context ctx) {}
+public class MarkerBlockEntityRenderer implements BlockEntityRenderer<MarkerBlockEntity> {
+    private final ModelBlockRenderer modelRenderer;
 
-    @Override
-    public MarkerRenderState createRenderState() {
-        return new MarkerRenderState();
+    public MarkerBlockEntityRenderer(BlockEntityRendererProvider.Context ctx) {
+        this.modelRenderer = ctx.getBlockRenderDispatcher().getModelRenderer();
     }
 
     @Override
-    public void extractRenderState(
+    public void render(
             MarkerBlockEntity entity,
-            MarkerRenderState state,
-            float tickDelta,
-            Vec3 cameraPos,
-            net.minecraft.client.renderer.feature.ModelFeatureRenderer.CrumblingOverlay crumblingOverlay) {
-        BlockEntityRenderState.extractBase(entity, state, crumblingOverlay);
+            float partialTick,
+            PoseStack poseStack,
+            MultiBufferSource bufferSource,
+            int packedLight,
+            int packedOverlay) {
+        if (!entity.isActive()) {
+            return;
+        }
 
-        state.active = entity.isActive();
-        state.markerPos = entity.getBlockPos();
-        state.connectedMarkers.clear();
-        state.connectedMarkers.addAll(entity.getConnectedMarkers());
-        state.boundMin = entity.getBoundMin();
-        state.boundMax = entity.getBoundMax();
-        state.isCornerMarker = entity.isCornerMarker();
+        BakedModel beamModel = getBeamModel();
+        if (beamModel == null) {
+            return;
+        }
 
-        if (state.active && entity.getLevel() != null) {
-            calculateBeamLengths(state, entity.getBlockPos());
-        } else {
-            state.beamNorth = 0;
-            state.beamSouth = 0;
-            state.beamEast = 0;
-            state.beamWest = 0;
+        BeamLengths beams = calculateBeamLengths(entity);
+        VertexConsumer buffer = bufferSource.getBuffer(RenderType.cutout());
+
+        if (beams.north > 0) {
+            renderBeamInDirection(entity, beamModel, poseStack, buffer, packedOverlay, 180, beams.north);
+        }
+        if (beams.south > 0) {
+            renderBeamInDirection(entity, beamModel, poseStack, buffer, packedOverlay, 0, beams.south);
+        }
+        if (beams.east > 0) {
+            renderBeamInDirection(entity, beamModel, poseStack, buffer, packedOverlay, 90, beams.east);
+        }
+        if (beams.west > 0) {
+            renderBeamInDirection(entity, beamModel, poseStack, buffer, packedOverlay, -90, beams.west);
         }
     }
 
-    private void calculateBeamLengths(MarkerRenderState state, BlockPos pos) {
-        int north = 0, south = 0, east = 0, west = 0;
+    private void renderBeamInDirection(
+            MarkerBlockEntity entity,
+            BakedModel beamModel,
+            PoseStack poseStack,
+            VertexConsumer buffer,
+            int packedOverlay,
+            float yRotation,
+            int length) {
+        for (int i = 0; i < length; i++) {
+            poseStack.pushPose();
 
-        if (!state.connectedMarkers.isEmpty()) {
+            // Move to center of marker block (Y is at base of beam model)
+            poseStack.translate(0.5, -0.0625, 0.5);
+
+            // Rotate to face the correct direction (model extends in +Z)
+            poseStack.mulPose(Axis.YP.rotationDegrees(yRotation));
+
+            // Move to segment position
+            poseStack.translate(0, 0, i);
+
+            // Shift back to align model center with block center
+            poseStack.translate(-0.5, 0.0, 0.0);
+
+            modelRenderer.tesselateWithoutAO(
+                    entity.getLevel(),
+                    beamModel,
+                    entity.getBlockState(),
+                    entity.getBlockPos(),
+                    poseStack,
+                    buffer,
+                    false,
+                    RandomSource.create(),
+                    42L,
+                    packedOverlay);
+
+            poseStack.popPose();
+        }
+    }
+
+    private BakedModel getBeamModel() {
+        return ClientModelRegistry.get(LogisticsAutomationClientModels.BEAM);
+    }
+
+    private BeamLengths calculateBeamLengths(MarkerBlockEntity entity) {
+        List<BlockPos> connectedMarkers = entity.getConnectedMarkers();
+        BlockPos pos = entity.getBlockPos();
+
+        if (!connectedMarkers.isEmpty()) {
+            // Connected mode - draw beams to form rectangle outline
+            int north = 0, south = 0, east = 0, west = 0;
+
             int posX = pos.getX();
             int posZ = pos.getZ();
 
-            int minX = posX, maxX = posX;
-            int minZ = posZ, maxZ = posZ;
+            // Compute the rectangle bounds from this marker + connected markers
+            int minX = posX;
+            int maxX = posX;
+            int minZ = posZ;
+            int maxZ = posZ;
 
-            for (BlockPos connected : state.connectedMarkers) {
+            for (BlockPos connected : connectedMarkers) {
                 minX = Math.min(minX, connected.getX());
                 maxX = Math.max(maxX, connected.getX());
                 minZ = Math.min(minZ, connected.getZ());
                 maxZ = Math.max(maxZ, connected.getZ());
             }
 
-            boolean hasMarkerAtNW = hasMarkerAt(state, pos, minX, minZ);
-            boolean hasMarkerAtNE = hasMarkerAt(state, pos, maxX, minZ);
-            boolean hasMarkerAtSW = hasMarkerAt(state, pos, minX, maxZ);
+            // Check which corners have markers
+            boolean hasMarkerAtNW = hasMarkerAt(entity, pos, minX, minZ);
+            boolean hasMarkerAtNE = hasMarkerAt(entity, pos, maxX, minZ);
+            boolean hasMarkerAtSW = hasMarkerAt(entity, pos, minX, maxZ);
 
             if (posZ == minZ) {
                 if (posX == minX) {
@@ -109,90 +166,24 @@ public class MarkerBlockEntityRenderer implements BlockEntityRenderer<MarkerBloc
                     north = maxZ - minZ;
                 }
             }
+
+            return new BeamLengths(north, south, east, west);
         } else {
             int distance = MarkerManager.MAX_MARKER_DISTANCE;
-            north = distance;
-            south = distance;
-            east = distance;
-            west = distance;
+            return new BeamLengths(distance, distance, distance, distance);
         }
-
-        state.beamNorth = north;
-        state.beamSouth = south;
-        state.beamEast = east;
-        state.beamWest = west;
     }
 
-    private boolean hasMarkerAt(MarkerRenderState state, BlockPos thisPos, int x, int z) {
+    private boolean hasMarkerAt(MarkerBlockEntity entity, BlockPos thisPos, int x, int z) {
         if (thisPos.getX() == x && thisPos.getZ() == z) {
             return true;
         }
-        for (BlockPos connected : state.connectedMarkers) {
+        for (BlockPos connected : entity.getConnectedMarkers()) {
             if (connected.getX() == x && connected.getZ() == z) {
                 return true;
             }
         }
         return false;
-    }
-
-    @Override
-    public void submit(
-            MarkerRenderState state, PoseStack matrices, SubmitNodeCollector queue, CameraRenderState cameraState) {
-        if (!state.active) {
-            return;
-        }
-
-        BlockStateModel beamModel = getBeamModel();
-        if (beamModel == null) {
-            return;
-        }
-
-        RenderType renderLayer = RenderTypes.cutoutMovingBlock();
-
-        if (state.beamNorth > 0) {
-            renderBeamInDirection(matrices, queue, beamModel, renderLayer, state.lightCoords, 180, state.beamNorth);
-        }
-        if (state.beamSouth > 0) {
-            renderBeamInDirection(matrices, queue, beamModel, renderLayer, state.lightCoords, 0, state.beamSouth);
-        }
-        if (state.beamEast > 0) {
-            renderBeamInDirection(matrices, queue, beamModel, renderLayer, state.lightCoords, 90, state.beamEast);
-        }
-        if (state.beamWest > 0) {
-            renderBeamInDirection(matrices, queue, beamModel, renderLayer, state.lightCoords, -90, state.beamWest);
-        }
-    }
-
-    private BlockStateModel getBeamModel() {
-        return ClientModelRegistry.get(LogisticsAutomationClientModels.BEAM);
-    }
-
-    private void renderBeamInDirection(
-            PoseStack matrices,
-            SubmitNodeCollector queue,
-            BlockStateModel beamModel,
-            RenderType renderLayer,
-            int lightmap,
-            float yRotation,
-            int length) {
-        for (int i = 0; i < length; i++) {
-            matrices.pushPose();
-            matrices.translate(0.5, -0.0625, 0.5);
-            matrices.mulPose(Axis.YP.rotationDegrees(yRotation));
-            matrices.translate(0, 0, i);
-            matrices.translate(-0.5, 0.0, 0.0);
-            queue.submitBlockModel(
-                    matrices,
-                    renderLayer,
-                    beamModel,
-                    1f,
-                    1f,
-                    1f,
-                    lightmap,
-                    OverlayTexture.NO_OVERLAY,
-                    0);
-            matrices.popPose();
-        }
     }
 
     @Override
