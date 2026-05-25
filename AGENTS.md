@@ -1,6 +1,6 @@
-# CLAUDE.md
+# AGENTS.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to codex when working with code in this repository.
 
 ## Branch Strategy (IMPORTANT!)
 
@@ -105,10 +105,7 @@ Since commits will be cherry-picked across branches, write code that minimizes c
 ./gradlew runServer          # Launch Minecraft server
 ```
 
-**Requirements:**
-- **Java 21**
-- Minecraft 1.21.11+
-- Fabric API
+**Requirements:** See `gradle.properties` for current versions (`java_version`, `minecraft_version`, `loader_version`, `fabric_version`).
 
 **Build output:** `build/libs/logistics-{version}.jar`
 - Local: `logistics-dev-local.jar`
@@ -477,7 +474,7 @@ or add `BREAKING CHANGE:` footer in the PR body.
 - [Documentation](https://indemnity83.github.io/logistics/) - Detailed information on pipes, power, automation, and technical design
 
 **Development:**
-- `CLAUDE.md` (this file) - Primary development guidance for Claude Code
+- `AGENTS.md` (this file) - Primary development guidance for codex
 - `README.md` - Project overview and user-facing documentation
 - `CHANGELOG.md` - Auto-generated release notes
 
