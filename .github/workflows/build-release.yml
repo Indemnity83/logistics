@@ -27,28 +27,33 @@ jobs:
         loader: [fabric, neoforge]
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           ref: ${{ inputs.tag || github.ref }}
 
-      - uses: actions/setup-java@v5
+      - uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5
         with:
           distribution: temurin
           java-version: '21'
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v5
+        uses: gradle/actions/setup-gradle@0723195856401067f7a2779048b490ace7a47d7c # v5
         with:
           cache-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
 
       - name: Extract version information
         id: version
+        env:
+          GH_EVENT: ${{ github.event_name }}
+          INPUT_TAG: ${{ inputs.tag }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+          MATRIX_LOADER: ${{ matrix.loader }}
         run: |
           # Get tag name
-          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-            TAG="${{ inputs.tag }}"
+          if [[ "$GH_EVENT" == "workflow_dispatch" ]]; then
+            TAG="$INPUT_TAG"
           else
-            TAG="${{ github.event.release.tag_name }}"
+            TAG="$RELEASE_TAG"
           fi
 
           # Extract version from tag
@@ -69,8 +74,7 @@ jobs:
           # Extract MC version from gradle.properties
           MC_VERSION="$(grep '^minecraft_version=' gradle.properties | cut -d'=' -f2)"
 
-          # Get loader from matrix
-          LOADER="${{ matrix.loader }}"
+          LOADER="$MATRIX_LOADER"
 
           # Build full version string with SemVer build metadata: VERSION+mcMC_VERSION.LOADER
           # Tag: mc1.21.11-v0.4.0 (for release-please tracking)
@@ -109,7 +113,7 @@ jobs:
           ls -lh ${{ matrix.loader }}/build/libs/
 
       - name: Upload JAR
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: logistics-${{ matrix.loader }}-${{ steps.version.outputs.full_version }}
           path: ${{ matrix.loader }}/build/libs/logistics-${{ steps.version.outputs.full_version }}.jar
@@ -125,18 +129,24 @@ jobs:
         loader: [fabric, neoforge]
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           ref: ${{ inputs.tag || github.ref }}
+          persist-credentials: false
 
       - name: Extract version information
         id: version
+        env:
+          GH_EVENT: ${{ github.event_name }}
+          INPUT_TAG: ${{ inputs.tag }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+          MATRIX_LOADER: ${{ matrix.loader }}
         run: |
           # Get tag name
-          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-            TAG="${{ inputs.tag }}"
+          if [[ "$GH_EVENT" == "workflow_dispatch" ]]; then
+            TAG="$INPUT_TAG"
           else
-            TAG="${{ github.event.release.tag_name }}"
+            TAG="$RELEASE_TAG"
           fi
 
           # Extract version from tag
@@ -149,7 +159,7 @@ jobs:
           VERSION="${VERSION#v}"
 
           MC_VERSION="$(grep '^minecraft_version=' gradle.properties | cut -d'=' -f2)"
-          LOADER="${{ matrix.loader }}"
+          LOADER="$MATRIX_LOADER"
 
           FULL_VERSION="${VERSION}+mc${MC_VERSION}.${LOADER}"
 
@@ -182,13 +192,13 @@ jobs:
           echo "modrinth_featured=$MODRINTH_FEATURED" >> "$GITHUB_OUTPUT"
 
       - name: Download JAR
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
           name: logistics-${{ matrix.loader }}-${{ steps.version.outputs.full_version }}
           path: artifacts/
 
       - name: Publish to Modrinth and CurseForge
-        uses: Kir-Antipov/mc-publish@v3.3
+        uses: Kir-Antipov/mc-publish@995edadc13559a8b28d0b7e6571229f067ec7659 # v3.3
         with:
           modrinth-id: ${{ vars.MODRINTH_PROJECT_ID }}
           modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
