@@ -1,26 +1,94 @@
 package com.logistics.neoforge;
 
-// TODO(multiloader): Register capabilities for NeoForge.
-// NeoForge equivalent of FabricCapabilityRegistration.
-//
-// @Mod.EventBusSubscriber(modid = "logistics", bus = Mod.EventBusSubscriber.Bus.MOD)
-// public final class NeoForgeCapabilityRegistration {
-//
-//     @SubscribeEvent
-//     public static void registerCapabilities(RegisterCapabilitiesEvent event) {
-//         // Energy capability — registered for each block entity that implements HasEnergyStorage
-//         // event.registerBlockEntity(Capabilities.EnergyStorage.BLOCK,
-//         //     LogisticsPower.ENTITY.SOME_ENGINE_BLOCK_ENTITY,
-//         //     (be, side) -> new NeoForgeEnergyStorage(be.getEnergyStorage(side)));
-//
-//         // Item capability — registered for each block entity that implements HasItemStorage
-//         // event.registerBlockEntity(Capabilities.ItemHandler.BLOCK,
-//         //     LogisticsCore.ENTITY.SOME_MACHINE_BLOCK_ENTITY,
-//         //     (be, side) -> new NeoForgeItemHandler(be.itemStorage(side)));
-//
-//         // Pipe connection lookup — NeoForge equivalent TBD
-//     }
-// }
+import com.logistics.LogisticsAutomation;
+import com.logistics.LogisticsCore;
+import com.logistics.LogisticsPipe;
+import com.logistics.LogisticsPower;
+import com.logistics.core.lib.block.capability.HasEnergyStorage;
+import com.logistics.core.lib.block.capability.HasFluidStorage;
+import com.logistics.core.lib.block.capability.HasItemStorage;
+import com.logistics.core.lib.block.capability.PipeConnection;
+import com.logistics.core.lib.fluids.FluidStorageLookup;
+import com.logistics.core.lib.pipe.PipeConnectionLookup;
+import com.logistics.core.lib.storage.ItemStorageLookup;
+import com.logistics.neoforge.energy.NeoForgeEnergyStorage;
+import com.logistics.neoforge.fluids.NeoForgeFluidStorage;
+import com.logistics.neoforge.storage.NeoForgeItemKey;
+import com.logistics.neoforge.storage.NeoForgeItemStorage;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
+
 public final class NeoForgeCapabilityRegistration {
     private NeoForgeCapabilityRegistration() {}
+
+    public static void register(IEventBus modBus) {
+        modBus.addListener(NeoForgeCapabilityRegistration::registerCapabilities);
+
+        ItemStorageLookup.register((world, pos, dir) ->
+                NeoForgeItemStorage.wrap(world.getCapability(Capabilities.ItemHandler.BLOCK, pos, dir)));
+        ItemStorageLookup.registerKeyFactory(NeoForgeItemKey::of);
+
+        FluidStorageLookup.register((world, pos, dir) ->
+                NeoForgeFluidStorage.wrap(world.getCapability(Capabilities.FluidHandler.BLOCK, pos, dir)));
+
+        PipeConnectionLookup.register((level, pos, direction) -> {
+            BlockEntity blockEntity = level.getBlockEntity(pos);
+            if (blockEntity instanceof PipeConnection connection
+                    && connection.getConnectionType(direction) != PipeConnection.Type.NONE) {
+                return connection;
+            }
+            return null;
+        });
+    }
+
+    private static void registerCapabilities(RegisterCapabilitiesEvent event) {
+        registerEnergy(event, LogisticsCore.ENTITY.MACERATOR_BLOCK_ENTITY);
+        registerEnergy(event, LogisticsPower.ENTITY.REDSTONE_ENGINE_BLOCK_ENTITY);
+        registerEnergy(event, LogisticsPower.ENTITY.STIRLING_ENGINE_BLOCK_ENTITY);
+        registerEnergy(event, LogisticsPower.ENTITY.CREATIVE_ENGINE_BLOCK_ENTITY);
+        registerEnergy(event, LogisticsPower.ENTITY.CREATIVE_SINK_BLOCK_ENTITY);
+        registerEnergy(event, LogisticsPower.ENTITY.CABLE_BLOCK_ENTITY);
+        registerEnergy(event, LogisticsPipe.ENTITY.PIPE_BLOCK_ENTITY);
+        registerEnergy(event, LogisticsAutomation.ENTITY.LASER_QUARRY_BLOCK_ENTITY);
+        registerEnergy(event, LogisticsAutomation.ENTITY.KILN_BLOCK_ENTITY);
+
+        registerItems(event, LogisticsCore.ENTITY.MACERATOR_BLOCK_ENTITY);
+        registerItems(event, LogisticsPower.ENTITY.STIRLING_ENGINE_BLOCK_ENTITY);
+        registerItems(event, LogisticsPipe.ENTITY.PIPE_BLOCK_ENTITY);
+        registerItems(event, LogisticsAutomation.ENTITY.KILN_BLOCK_ENTITY);
+
+        // No current block entities implement HasFluidStorage, but keep this as the
+        // registration path for the first fluid-capable machine.
+    }
+
+    private static <BE extends BlockEntity & HasEnergyStorage> void registerEnergy(
+            RegisterCapabilitiesEvent event,
+            BlockEntityType<BE> type) {
+        event.registerBlockEntity(
+                Capabilities.EnergyStorage.BLOCK,
+                type,
+                (blockEntity, side) -> NeoForgeEnergyStorage.asNeoForge(blockEntity.energyStorage(side)));
+    }
+
+    private static <BE extends BlockEntity & HasItemStorage> void registerItems(
+            RegisterCapabilitiesEvent event,
+            BlockEntityType<BE> type) {
+        event.registerBlockEntity(
+                Capabilities.ItemHandler.BLOCK,
+                type,
+                (blockEntity, side) -> NeoForgeItemStorage.asNeoForge(blockEntity.itemStorage(side)));
+    }
+
+    @SuppressWarnings("unused")
+    private static <BE extends BlockEntity & HasFluidStorage> void registerFluids(
+            RegisterCapabilitiesEvent event,
+            BlockEntityType<BE> type) {
+        event.registerBlockEntity(
+                Capabilities.FluidHandler.BLOCK,
+                type,
+                (blockEntity, side) -> NeoForgeFluidStorage.asNeoForge(blockEntity.fluidStorage(side)));
+    }
 }
