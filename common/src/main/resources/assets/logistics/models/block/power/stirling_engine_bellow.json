@@ -2,8 +2,8 @@
 	"parent": "minecraft:block/cube",
 	"texture_size": [64, 64],
 	"textures": {
-		"particle": "logistics:block/power/stirling_engine",
-		"0": "logistics:block/power/stirling_engine"
+		"0": "logistics:block/power/stirling_engine",
+		"particle": "logistics:block/power/stirling_engine"
 	},
 	"elements": [
 		{

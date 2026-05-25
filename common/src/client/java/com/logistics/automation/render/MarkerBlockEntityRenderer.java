@@ -1,6 +1,6 @@
 package com.logistics.automation.render;
 
-import com.logistics.LogisticsAutomationClient;
+import com.logistics.LogisticsAutomationClientModels;
 import com.logistics.automation.marker.MarkerBlockEntity;
 import com.logistics.automation.marker.MarkerManager;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -164,7 +164,7 @@ public class MarkerBlockEntityRenderer implements BlockEntityRenderer<MarkerBloc
     }
 
     private BlockStateModel getBeamModel() {
-        return ClientModelRegistry.get(LogisticsAutomationClient.MODEL.BEAM);
+        return ClientModelRegistry.get(LogisticsAutomationClientModels.BEAM);
     }
 
     private void renderBeamInDirection(

@@ -13,7 +13,6 @@ import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.core.lib.pipe.TravelingItem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.block.model.BlockStateModel;
@@ -146,26 +145,19 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
             }
         }
 
-        // --- Fix 3: Extract traveling items, reusing cached ItemStackRenderState by ItemVariant ---
-        state.itemRenderCache.clear();
+        // Extract traveling items. Each item render state is frame-local and loader-neutral.
         state.travelingItems.clear();
         for (TravelingItem travelingItem : entity.getTravelingItems()) {
-            ItemVariant variant = ItemVariant.of(travelingItem.getStack());
-            ItemStackRenderState cached = state.itemRenderCache.get(variant);
-            if (cached == null) {
-                // First time seeing this item type this frame — resolve its model and cache
-                cached = new ItemStackRenderState();
-                long ta = debugRender ? System.nanoTime() : 0;
-                this.itemModelManager.appendItemLayers(
-                        cached,
-                        travelingItem.getStack(),
-                        ItemDisplayContext.GROUND,
-                        entity.getLevel(),
-                        null,
-                        0);
-                if (debugRender) profiler.recordAppendItemLayers(ta);
-                state.itemRenderCache.put(variant, cached);
-            }
+            ItemStackRenderState cached = new ItemStackRenderState();
+            long ta = debugRender ? System.nanoTime() : 0;
+            this.itemModelManager.appendItemLayers(
+                    cached,
+                    travelingItem.getStack(),
+                    ItemDisplayContext.GROUND,
+                    entity.getLevel(),
+                    null,
+                    0);
+            if (debugRender) profiler.recordAppendItemLayers(ta);
             TravelingItemRenderState itemState = new TravelingItemRenderState(cached);
 
             // Position data must be updated every frame for smooth animation
