@@ -1,35 +1,67 @@
 package com.logistics.neoforge;
 
 import com.logistics.core.bootstrap.LogisticsCommonBootstrap;
+import com.logistics.core.lib.platform.CreativeTabRegistrar;
+import com.logistics.core.lib.platform.ResourceReloadRegistrar;
+import com.logistics.core.lib.power.AbstractEngineBlock;
+import com.logistics.core.lib.power.AbstractEngineBlockEntity;
 import com.logistics.neoforge.platform.NeoForgeCreativeTabRegistrar;
 import com.logistics.neoforge.platform.NeoForgeResourceReloadRegistrar;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
-import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.registries.RegisterEvent;
 
 @Mod("logistics")
 public final class LogisticsNeoForge {
 
     private static final LogisticsCommonBootstrap COMMON_BOOTSTRAP = new LogisticsCommonBootstrap();
+    private boolean commonInitialized;
 
     public LogisticsNeoForge(IEventBus modBus) {
-        COMMON_BOOTSTRAP.initialize();
+        modBus.addListener(this::onRegister);
+        registerEnergyServices();
+        NeoForgeCapabilityRegistration.register(modBus);
+        NeoForgePacketRegistration.register(modBus);
+        NeoForgeCommandRegistration.register(NeoForge.EVENT_BUS);
+        NeoForgeChestLootModifier.register(NeoForge.EVENT_BUS);
+        NeoForgeNetworkTickHandler.register(NeoForge.EVENT_BUS);
+        NeoForgeServerLevelEvents.register(NeoForge.EVENT_BUS);
 
         // Wire deferred event registrations on the creative tab and reload registrars
         // (The SPI INSTANCE is the NeoForge impl because it's the only implementation on classpath)
-        var creativeTabRegistrar = com.logistics.core.lib.platform.CreativeTabRegistrar.INSTANCE;
+        var creativeTabRegistrar = CreativeTabRegistrar.INSTANCE;
         if (creativeTabRegistrar instanceof NeoForgeCreativeTabRegistrar nfRegistrar) {
             nfRegistrar.init(modBus);
         }
-        var reloadRegistrar = com.logistics.core.lib.platform.ResourceReloadRegistrar.INSTANCE;
+        var reloadRegistrar = ResourceReloadRegistrar.INSTANCE;
         if (reloadRegistrar instanceof NeoForgeResourceReloadRegistrar nfRegistrar) {
-            nfRegistrar.init(net.neoforged.neoforge.common.NeoForge.EVENT_BUS);
+            nfRegistrar.init(NeoForge.EVENT_BUS);
         }
-
-        modBus.addListener(this::commonSetup);
     }
 
-    private void commonSetup(FMLCommonSetupEvent event) {
-        // TODO(neoforge): capability registration via RegisterCapabilitiesEvent
+    private synchronized void onRegister(RegisterEvent event) {
+        if (commonInitialized) {
+            return;
+        }
+        COMMON_BOOTSTRAP.initialize();
+        commonInitialized = true;
+    }
+
+    private void registerEnergyServices() {
+        AbstractEngineBlockEntity.setEnergyPushService((level, targetPos, fromDirection, source, maxAmount) -> {
+            var target = level.getCapability(Capabilities.EnergyStorage.BLOCK, targetPos, fromDirection);
+            if (target == null) {
+                return 0L;
+            }
+            return target.receiveEnergy((int) Math.min(maxAmount, Integer.MAX_VALUE), false);
+        });
+
+        AbstractEngineBlock.setEnergyPresenceChecker((world, pos, direction) -> {
+            var target = world.getCapability(
+                    Capabilities.EnergyStorage.BLOCK, pos.relative(direction), direction.getOpposite());
+            return target != null && target.canReceive();
+        });
     }
 }
