@@ -8,13 +8,16 @@ import com.logistics.pipe.modules.ItemFilterModule;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.Tag;
+import net.minecraft.resources.RegistryOps;
 import net.minecraft.world.Container;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.CustomData;
@@ -125,45 +128,46 @@ public class FilterInventory implements Container {
         int slotIndex = 0;
         PipeContext ctx = pipeEntity.createContext();
         for (Direction direction : ItemFilterModule.FILTER_ORDER) {
-            List<String> slots = module.getFilterSlots(ctx, direction);
+            List<ItemStack> filterStacks = module.getFilterStacks(ctx, direction);
             for (int i = 0; i < ItemFilterModule.FILTER_SLOTS_PER_SIDE; i++) {
-                String id = slots.get(i);
-                ItemStack stack = ItemStack.EMPTY;
-                if (!id.isEmpty()) {
-                    ResourceId resource = ResourceId.tryParse(id);
-                    if (resource != null) {
-                        var itemOpt = BuiltInRegistries.ITEM.get(resource.toIdentifier());
-                        if (itemOpt.isPresent()) {
-                            Item item = itemOpt.get().value();
-                            if (item != Items.AIR) {
-                                stack = new ItemStack(item);
-                            }
-                        }
-                    }
-                }
-                stacks.set(slotIndex++, stack);
+                stacks.set(slotIndex++, filterStacks.get(i));
             }
         }
     }
 
-    public void loadFromItem(ItemStack stack) {
+    public void loadFromItem(ItemStack itemStack, HolderLookup.Provider registries) {
         for (int i = 0; i < stacks.size(); i++) stacks.set(i, ItemStack.EMPTY);
-        CustomData customData = stack.get(DataComponents.CUSTOM_DATA);
+        CustomData customData = itemStack.get(DataComponents.CUSTOM_DATA);
         if (customData == null) return;
         CompoundTag tag = customData.copyTag();
         CompoundTag filters = NbtCompat.getCompoundOrEmpty(tag, ItemFilterModule.FILTERS);
+        RegistryOps<Tag> ops = registries != null
+                ? registries.createSerializationContext(NbtOps.INSTANCE)
+                : null;
         int slotIndex = 0;
         for (Direction direction : ItemFilterModule.FILTER_ORDER) {
             ListTag list = NbtCompat.getListOrEmpty(filters, direction.getName());
             for (int i = 0; i < ItemFilterModule.FILTER_SLOTS_PER_SIDE; i++) {
-                String itemId = NbtCompat.getStringAt(list, i, "");
                 ItemStack resolved = ItemStack.EMPTY;
-                if (!itemId.isEmpty()) {
-                    ResourceId rid = ResourceId.tryParse(itemId);
-                    if (rid != null) {
-                        var itemOpt = BuiltInRegistries.ITEM.get(rid.toIdentifier());
-                        if (itemOpt.isPresent() && itemOpt.get().value() != Items.AIR) {
-                            resolved = new ItemStack(itemOpt.get().value());
+                if (i < list.size()) {
+                    if (list.getElementType() == Tag.TAG_COMPOUND) {
+                        // New format: full ItemStack with components
+                        CompoundTag slotTag = list.getCompound(i);
+                        if (!slotTag.isEmpty() && ops != null) {
+                            resolved = ItemStack.CODEC.parse(ops, slotTag).result()
+                                    .orElse(ItemStack.EMPTY);
+                        }
+                    } else {
+                        // Old format: item registry ID string
+                        String itemId = NbtCompat.getStringAt(list, i, "");
+                        if (!itemId.isEmpty()) {
+                            ResourceId rid = ResourceId.tryParse(itemId);
+                            if (rid != null) {
+                                var itemOpt = BuiltInRegistries.ITEM.get(rid.toIdentifier());
+                                if (itemOpt.isPresent() && itemOpt.get().value() != Items.AIR) {
+                                    resolved = new ItemStack(itemOpt.get().value());
+                                }
+                            }
                         }
                     }
                 }
@@ -181,16 +185,11 @@ public class FilterInventory implements Container {
         int slotIndex = 0;
         PipeContext ctx = pipeEntity.createContext();
         for (Direction direction : ItemFilterModule.FILTER_ORDER) {
-            List<String> slots = new ArrayList<>(ItemFilterModule.FILTER_SLOTS_PER_SIDE);
+            List<ItemStack> slots = new ArrayList<>(ItemFilterModule.FILTER_SLOTS_PER_SIDE);
             for (int i = 0; i < ItemFilterModule.FILTER_SLOTS_PER_SIDE; i++) {
-                ItemStack stack = stacks.get(slotIndex++);
-                if (stack.isEmpty()) {
-                    slots.add("");
-                } else {
-                    slots.add(BuiltInRegistries.ITEM.getKey(stack.getItem()).toString());
-                }
+                slots.add(stacks.get(slotIndex++));
             }
-            module.setFilterSlots(ctx, direction, slots);
+            module.setFilterStacks(ctx, direction, slots);
         }
 
         pipeEntity.setChanged();

@@ -7,7 +7,9 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.StringTag;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.Tag;
+import net.minecraft.resources.RegistryOps;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
 import net.minecraft.world.InteractionHand;
@@ -71,7 +73,7 @@ public class ItemFilterScreenHandler extends AbstractContainerMenu {
         this.originalStack = player.getItemInHand(hand);
         this.context = ContainerLevelAccess.NULL;
         this.filterInventory = new FilterInventory(null);
-        this.filterInventory.loadFromItem(this.originalStack);
+        this.filterInventory.loadFromItem(this.originalStack, player.level().registryAccess());
 
         addFilterSlots(filterInventory);
         addPlayerInventorySlots(playerInventory);
@@ -142,26 +144,37 @@ public class ItemFilterScreenHandler extends AbstractContainerMenu {
         return ItemStack.EMPTY;
     }
 
-    /** Writes the full filter state to the held item's CUSTOM_DATA. */
+    /** Writes the full filter state to the held item's CUSTOM_DATA, preserving component data. */
     private void syncFiltersToItem() {
         if (itemConfigPlayer == null || itemConfigPlayer.getItemInHand(itemConfigHand) != originalStack) return;
         ItemStack stack = originalStack;
         CustomData existing = stack.get(DataComponents.CUSTOM_DATA);
         CompoundTag tag = existing != null ? existing.copyTag() : new CompoundTag();
 
+        RegistryOps<Tag> ops = itemConfigPlayer.level().registryAccess()
+                .createSerializationContext(NbtOps.INSTANCE);
         CompoundTag filtersTag = new CompoundTag();
         int slotIndex = 0;
         for (Direction direction : ItemFilterModule.FILTER_ORDER) {
             ListTag list = new ListTag();
+            boolean hasAny = false;
             for (int i = 0; i < ItemFilterModule.FILTER_SLOTS_PER_SIDE; i++) {
                 ItemStack slotItem = filterInventory.getItem(slotIndex++);
-                String itemId = slotItem.isEmpty()
-                        ? ""
-                        : net.minecraft.core.registries.BuiltInRegistries.ITEM
-                                .getKey(slotItem.getItem()).toString();
-                list.add(StringTag.valueOf(itemId));
+                if (!slotItem.isEmpty()) {
+                    hasAny = true;
+                    CompoundTag encoded = ItemStack.CODEC.encodeStart(ops, slotItem.copyWithCount(1))
+                            .result()
+                            .filter(t -> t instanceof CompoundTag)
+                            .map(t -> (CompoundTag) t)
+                            .orElse(new CompoundTag());
+                    list.add(encoded);
+                } else {
+                    list.add(new CompoundTag());
+                }
             }
-            filtersTag.put(direction.getName(), list);
+            if (hasAny) {
+                filtersTag.put(direction.getName(), list);
+            }
         }
         tag.put(ItemFilterModule.FILTERS, filtersTag);
 
