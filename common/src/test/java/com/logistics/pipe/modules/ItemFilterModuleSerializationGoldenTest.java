@@ -12,9 +12,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 /**
  * Golden-fixture regression tests for {@link ItemFilterModule} serialization.
@@ -170,14 +172,8 @@ class ItemFilterModuleSerializationGoldenTest {
     @Test
     @DisplayName("setFilterStacks with null world falls back gracefully (no NPE)")
     void setFilterStacks_nullWorldIsNoop() {
-        // ctx has null world — setFilterStacks should not throw
-        List<ItemStack> toSet = new java.util.ArrayList<>();
-        for (int i = 0; i < ItemFilterModule.FILTER_SLOTS_PER_SIDE; i++) {
-            toSet.add(ItemStack.EMPTY);
-        }
-        // Should not throw even with null world
-        org.junit.jupiter.api.Assertions.assertDoesNotThrow(
-                () -> module.setFilterStacks(ctx, Direction.NORTH, toSet));
+        List<ItemStack> toSet = Collections.nCopies(ItemFilterModule.FILTER_SLOTS_PER_SIDE, ItemStack.EMPTY);
+        assertDoesNotThrow(() -> module.setFilterStacks(ctx, Direction.NORTH, toSet));
     }
 
     // ---------------------------------------------------------------------------
