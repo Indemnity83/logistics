@@ -7,13 +7,16 @@ import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
+import net.minecraft.world.item.ItemStack;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 /**
  * Golden-fixture regression tests for {@link ItemFilterModule} serialization.
@@ -129,6 +132,48 @@ class ItemFilterModuleSerializationGoldenTest {
         // This test intentionally checks the key string. If ItemFilterModule is ever
         // renamed, getStateKey() MUST be overridden to keep returning "itemfiltermodule".
         assertThat(module.getStateKey()).isEqualTo(MODULE_STATE_KEY);
+    }
+
+    // ---------------------------------------------------------------------------
+    // Backward-compat: getFilterStacks() must read old StringTag format correctly.
+    // (New CompoundTag round-trip tests require RegistryAccess and run in-game.)
+    // ---------------------------------------------------------------------------
+
+    @Test
+    @DisplayName("getFilterStacks: old StringTag format returns item-only stacks (no NPE)")
+    void getFilterStacks_readsOldStringFormat() {
+        injectFilters(filtersWithNorth("minecraft:diamond"));
+
+        // getFilterStacks() with null world falls back to item-ID only for old format
+        List<ItemStack> stacks = module.getFilterStacks(ctx, Direction.NORTH);
+
+        assertThat(stacks).hasSize(ItemFilterModule.FILTER_SLOTS_PER_SIDE);
+        // First slot is non-empty (item loaded by ID)
+        assertThat(stacks.get(0).isEmpty()).isFalse();
+        // Component-less (components patch is empty for a plain stack)
+        assertThat(stacks.get(0).getComponentsPatch().isEmpty()).isTrue();
+        // Remaining slots are empty
+        for (int i = 1; i < ItemFilterModule.FILTER_SLOTS_PER_SIDE; i++) {
+            assertThat(stacks.get(i).isEmpty()).isTrue();
+        }
+    }
+
+    @Test
+    @DisplayName("getFilterStacks: missing direction returns all-empty list (no NPE)")
+    void getFilterStacks_missingDirectionIsAllEmpty() {
+        injectFilters(filtersWithNorth("minecraft:diamond"));
+
+        List<ItemStack> stacks = module.getFilterStacks(ctx, Direction.SOUTH);
+
+        assertThat(stacks).hasSize(ItemFilterModule.FILTER_SLOTS_PER_SIDE);
+        assertThat(stacks).allMatch(ItemStack::isEmpty);
+    }
+
+    @Test
+    @DisplayName("setFilterStacks with null world falls back gracefully (no NPE)")
+    void setFilterStacks_nullWorldIsNoop() {
+        List<ItemStack> toSet = Collections.nCopies(ItemFilterModule.FILTER_SLOTS_PER_SIDE, ItemStack.EMPTY);
+        assertDoesNotThrow(() -> module.setFilterStacks(ctx, Direction.NORTH, toSet));
     }
 
     // ---------------------------------------------------------------------------
