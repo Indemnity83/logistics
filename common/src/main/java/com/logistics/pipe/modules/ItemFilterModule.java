@@ -2,6 +2,7 @@ package com.logistics.pipe.modules;
 
 import com.logistics.core.lib.pipe.RoutingModule;
 
+import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.pipe.network.NetDbg;
 import com.logistics.core.lib.pipe.Module;
 import com.logistics.core.lib.compat.NbtCompat;
@@ -17,13 +18,17 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.StringTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.RegistryOps;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 
 /**
@@ -155,12 +160,98 @@ public class ItemFilterModule implements Module, RoutingModule {
         }
     }
 
+    /**
+     * Returns the filter stacks for {@code direction}, preserving full component data.
+     * Handles both old format (ListTag of StringTag item IDs) and new format
+     * (ListTag of CompoundTag full ItemStack). Always returns exactly
+     * {@link #FILTER_SLOTS_PER_SIDE} entries, padding with {@link ItemStack#EMPTY}.
+     */
+    public List<ItemStack> getFilterStacks(PipeContext ctx, Direction direction) {
+        CompoundTag filters = ctx.getCompoundTag(this, FILTERS);
+        List<ItemStack> result = new ArrayList<>(FILTER_SLOTS_PER_SIDE);
+
+        ListTag list = NbtCompat.getListOrEmpty(filters, direction.getName());
+        RegistryOps<Tag> ops = (ctx.world() != null)
+                ? ctx.world().registryAccess().createSerializationContext(NbtOps.INSTANCE)
+                : null;
+
+        for (int i = 0; i < FILTER_SLOTS_PER_SIDE; i++) {
+            ItemStack stack = ItemStack.EMPTY;
+            if (i < list.size()) {
+                var compoundOpt = list.getCompound(i);
+                if (compoundOpt.isPresent()) {
+                    // New format: full ItemStack encoded with ItemStack.CODEC
+                    CompoundTag tag = compoundOpt.get();
+                    if (!tag.isEmpty() && ops != null) {
+                        stack = ItemStack.CODEC.parse(ops, tag).result().orElse(ItemStack.EMPTY);
+                    }
+                } else {
+                    // Old format: item registry ID string
+                    String id = NbtCompat.getStringAt(list, i, "");
+                    if (!id.isEmpty()) {
+                        ResourceId resource = ResourceId.tryParse(id);
+                        if (resource != null) {
+                            var itemOpt = BuiltInRegistries.ITEM.get(resource.toIdentifier());
+                            if (itemOpt.isPresent() && itemOpt.get().value() != Items.AIR) {
+                                stack = new ItemStack(itemOpt.get().value());
+                            }
+                        }
+                    }
+                }
+            }
+            result.add(stack);
+        }
+
+        return result;
+    }
+
+    /**
+     * Persists {@code stacks} for {@code direction} using full {@link ItemStack.CODEC} encoding,
+     * so component data (custom names, colors, NBT) survives save/reload.
+     */
+    public void setFilterStacks(PipeContext ctx, Direction direction, List<ItemStack> stacks) {
+        CompoundTag filters = ctx.getCompoundTag(this, FILTERS);
+        ListTag list = new ListTag();
+        boolean hasAny = false;
+
+        RegistryOps<Tag> ops = (ctx.world() != null)
+                ? ctx.world().registryAccess().createSerializationContext(NbtOps.INSTANCE)
+                : null;
+
+        for (int i = 0; i < FILTER_SLOTS_PER_SIDE; i++) {
+            ItemStack stack = (i < stacks.size() && stacks.get(i) != null) ? stacks.get(i) : ItemStack.EMPTY;
+            if (!stack.isEmpty() && ops != null) {
+                hasAny = true;
+                CompoundTag encoded = ItemStack.CODEC.encodeStart(ops, stack.copyWithCount(1))
+                        .result()
+                        .filter(t -> t instanceof CompoundTag)
+                        .map(t -> (CompoundTag) t)
+                        .orElse(new CompoundTag());
+                list.add(encoded);
+            } else {
+                list.add(new CompoundTag());
+            }
+        }
+
+        if (hasAny) {
+            filters.put(direction.getName(), list);
+        } else {
+            filters.remove(direction.getName());
+        }
+
+        if (!filters.isEmpty()) {
+            ctx.putCompoundTag(this, FILTERS, filters);
+        } else {
+            ctx.remove(this, FILTERS);
+        }
+    }
+
     private List<String> getFiltersForSide(PipeContext ctx, Direction direction) {
-        List<String> slots = getFilterSlots(ctx, direction);
-        List<String> ids = new ArrayList<>(slots.size());
-        for (String id : slots) {
-            if (!id.isEmpty()) {
-                ids.add(id);
+        List<ItemStack> filterStacks = getFilterStacks(ctx, direction);
+        List<String> ids = new ArrayList<>(filterStacks.size());
+        for (ItemStack stack : filterStacks) {
+            if (!stack.isEmpty()) {
+                ids.add(BuiltInRegistries.ITEM.getKey(stack.getItem()).toString());
             }
         }
         return ids;
