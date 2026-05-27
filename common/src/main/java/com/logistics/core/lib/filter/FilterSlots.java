@@ -1,9 +1,11 @@
 package com.logistics.core.lib.filter;
 
 import com.logistics.core.lib.compat.NbtCompat;
+import com.logistics.core.lib.items.ItemMatcher;
 import com.logistics.core.lib.resource.ResourceId;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.item.ItemStack;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -93,6 +95,18 @@ public final class FilterSlots {
     /** Only the non-empty slot values (order preserved, indices lost). */
     public List<String> nonEmpty() {
         return slots.stream().filter(s -> !s.isEmpty()).toList();
+    }
+
+    /**
+     * Returns true if {@code stack} should be excluded by this filter.
+     * An empty filter set means nothing is excluded (always returns false).
+     * When {@code inverted} is true, items IN the filter are excluded;
+     * when false, items NOT in the filter are excluded.
+     */
+    public boolean isFiltered(ItemStack stack, boolean inverted) {
+        Set<String> ids = resolveItemIds();
+        if (ids.isEmpty()) return false;
+        return inverted == ids.contains(ItemMatcher.itemId(stack));
     }
 
     /**

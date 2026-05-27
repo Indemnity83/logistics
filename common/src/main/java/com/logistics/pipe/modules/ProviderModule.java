@@ -40,7 +40,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -177,11 +176,7 @@ public class ProviderModule implements Module, TickingModule, DispatchableModule
     }
 
     private boolean isFilteredOut(PipeContext ctx, ItemStack stack) {
-        Set<String> resolvable = getFilterItems(ctx).resolveItemIds();
-        if (resolvable.isEmpty()) return false;
-        String itemId = BuiltInRegistries.ITEM.getKey(stack.getItem()).toString();
-        boolean itemInFilter = resolvable.contains(itemId);
-        return isFilterInverted(ctx) == itemInFilter;
+        return getFilterItems(ctx).isFiltered(stack, isFilterInverted(ctx));
     }
 
     // ==================== Module Interface ====================

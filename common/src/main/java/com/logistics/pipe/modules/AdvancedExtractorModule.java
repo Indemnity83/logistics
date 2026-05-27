@@ -18,7 +18,6 @@ import com.logistics.core.lib.pipe.TravelingItem;
 import com.logistics.pipe.ui.AdvancedExtractorScreenHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -29,7 +28,6 @@ import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
-import java.util.Set;
 
 /**
  * Advanced extractor module — same extraction behavior as {@link BasicExtractorModule} but with
@@ -84,18 +82,8 @@ public class AdvancedExtractorModule implements Module, TickingModule {
         ctx.markDirtyAndSync();
     }
 
-    /**
-     * Returns true if the item should be skipped during extraction.
-     * With an empty filter, nothing is filtered out.
-     * Include mode (default): only items IN the filter are extracted.
-     * Exclude mode (inverted): items IN the filter are skipped.
-     */
     private boolean isFilteredOut(PipeContext ctx, ItemStack stack) {
-        Set<String> resolvable = getFilterItems(ctx).resolveItemIds();
-        if (resolvable.isEmpty()) return false;
-        String itemId = BuiltInRegistries.ITEM.getKey(stack.getItem()).toString();
-        boolean itemInFilter = resolvable.contains(itemId);
-        return isFilterInverted(ctx) == itemInFilter;
+        return getFilterItems(ctx).isFiltered(stack, isFilterInverted(ctx));
     }
 
     // ==================== Module Interface ====================
