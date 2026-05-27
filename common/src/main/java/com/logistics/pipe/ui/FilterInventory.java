@@ -150,9 +150,10 @@ public class FilterInventory implements Container {
             for (int i = 0; i < ItemFilterModule.FILTER_SLOTS_PER_SIDE; i++) {
                 ItemStack resolved = ItemStack.EMPTY;
                 if (i < list.size()) {
-                    if (list.getElementType() == Tag.TAG_COMPOUND) {
+                    var compoundOpt = list.getCompound(i);
+                    if (compoundOpt.isPresent()) {
                         // New format: full ItemStack with components
-                        CompoundTag slotTag = list.getCompound(i);
+                        CompoundTag slotTag = compoundOpt.get();
                         if (!slotTag.isEmpty() && ops != null) {
                             resolved = ItemStack.CODEC.parse(ops, slotTag).result()
                                     .orElse(ItemStack.EMPTY);

@@ -178,9 +178,10 @@ public class ItemFilterModule implements Module, RoutingModule {
         for (int i = 0; i < FILTER_SLOTS_PER_SIDE; i++) {
             ItemStack stack = ItemStack.EMPTY;
             if (i < list.size()) {
-                if (list.getElementType() == Tag.TAG_COMPOUND) {
+                var compoundOpt = list.getCompound(i);
+                if (compoundOpt.isPresent()) {
                     // New format: full ItemStack encoded with ItemStack.CODEC
-                    CompoundTag tag = list.getCompound(i);
+                    CompoundTag tag = compoundOpt.get();
                     if (!tag.isEmpty() && ops != null) {
                         stack = ItemStack.CODEC.parse(ops, tag).result().orElse(ItemStack.EMPTY);
                     }
