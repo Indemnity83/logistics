@@ -11,6 +11,11 @@ base {
     archivesName = rootProject.archives_base_name
 }
 
+repositories {
+    maven { url = "https://maven.terraformersmc.com/releases/" }
+    maven { name = "Jared's maven"; url = "https://maven.blamejared.com/" }
+}
+
 java {
     toolchain.languageVersion = JavaLanguageVersion.of(rootProject.java_version.toInteger())
     withSourcesJar()
@@ -37,14 +42,14 @@ neoForge {
 
 tasks.named('compileJava', JavaCompile) {
     dependsOn configurations.commonClientJava
-    source configurations.commonClientJava.files.collect {
-        fileTree(it) {
-            exclude '**/jei/**'
-        }
-    }
+    source configurations.commonClientJava
 }
 
 dependencies {
+    // JEI — compile against API only; players install separately at runtime
+    compileOnly("mezz.jei:jei-${rootProject.minecraft_version}-neoforge-api:${rootProject.jei_version}")
+    runtimeOnly("mezz.jei:jei-${rootProject.minecraft_version}-neoforge:${rootProject.jei_version}")
+
     testImplementation "org.junit.jupiter:junit-jupiter:${rootProject.junit_version}"
     testRuntimeOnly "org.junit.platform:junit-platform-launcher"
     testImplementation "org.assertj:assertj-core:${rootProject.assertj_version}"
