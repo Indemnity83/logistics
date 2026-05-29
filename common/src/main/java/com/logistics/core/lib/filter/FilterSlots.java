@@ -97,16 +97,16 @@ public final class FilterSlots {
         return slots.stream().filter(s -> !s.isEmpty()).toList();
     }
 
-    /**
-     * Returns true if {@code stack} should be excluded by this filter.
-     * An empty filter set means nothing is excluded (always returns false).
-     * When {@code inverted} is true, items IN the filter are excluded;
-     * when false, items NOT in the filter are excluded.
-     */
-    public boolean isFiltered(ItemStack stack, boolean inverted) {
+    /** Returns true if this item IS in the filter list. */
+    public boolean included(ItemStack stack) {
         Set<String> ids = resolveItemIds();
-        if (ids.isEmpty()) return false;
-        return inverted == ids.contains(ItemMatcher.itemId(stack));
+        return !ids.isEmpty() && ids.contains(ItemMatcher.itemId(stack));
+    }
+
+    /** Returns true if this item is NOT in the filter list (and the filter is non-empty). */
+    public boolean excluded(ItemStack stack) {
+        Set<String> ids = resolveItemIds();
+        return !ids.isEmpty() && !ids.contains(ItemMatcher.itemId(stack));
     }
 
     /**

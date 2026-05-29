@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@DisplayName("FilterSlots.isFiltered")
+@DisplayName("FilterSlots filter modes")
 class FilterSlotsTest extends MinecraftTestEnvironment {
 
     private static final int SIZE = 9;
@@ -25,43 +25,43 @@ class FilterSlotsTest extends MinecraftTestEnvironment {
     // ==================== empty filter ====================
 
     @Test
-    @DisplayName("empty filter never excludes any item (include mode)")
-    void emptyFilter_includeMode_alwaysFalse() {
-        assertThat(empty().isFiltered(new ItemStack(Items.DIAMOND), false)).isFalse();
+    @DisplayName("empty filter: excluded always false")
+    void emptyFilter_excluded_alwaysFalse() {
+        assertThat(empty().excluded(new ItemStack(Items.DIAMOND))).isFalse();
     }
 
     @Test
-    @DisplayName("empty filter never excludes any item (exclude mode)")
-    void emptyFilter_excludeMode_alwaysFalse() {
-        assertThat(empty().isFiltered(new ItemStack(Items.DIAMOND), true)).isFalse();
+    @DisplayName("empty filter: included always false")
+    void emptyFilter_included_alwaysFalse() {
+        assertThat(empty().included(new ItemStack(Items.DIAMOND))).isFalse();
     }
 
-    // ==================== include mode (inverted=false) ====================
+    // ==================== allowlist / include mode ====================
 
     @Test
-    @DisplayName("include mode: item in filter is not excluded")
-    void includeMode_matchingItem_notFiltered() {
-        assertThat(withDiamond().isFiltered(new ItemStack(Items.DIAMOND), false)).isFalse();
-    }
-
-    @Test
-    @DisplayName("include mode: item not in filter is excluded")
-    void includeMode_nonMatchingItem_isFiltered() {
-        assertThat(withDiamond().isFiltered(new ItemStack(Items.GOLD_INGOT), false)).isTrue();
-    }
-
-    // ==================== exclude mode (inverted=true) ====================
-
-    @Test
-    @DisplayName("exclude mode: item in filter is excluded")
-    void excludeMode_matchingItem_isFiltered() {
-        assertThat(withDiamond().isFiltered(new ItemStack(Items.DIAMOND), true)).isTrue();
+    @DisplayName("allowlist: item in filter is allowed through")
+    void allowList_matchingItem_notFiltered() {
+        assertThat(withDiamond().excluded(new ItemStack(Items.DIAMOND))).isFalse();
     }
 
     @Test
-    @DisplayName("exclude mode: item not in filter is not excluded")
-    void excludeMode_nonMatchingItem_notFiltered() {
-        assertThat(withDiamond().isFiltered(new ItemStack(Items.GOLD_INGOT), true)).isFalse();
+    @DisplayName("allowlist: item not in filter is blocked")
+    void allowList_nonMatchingItem_isFiltered() {
+        assertThat(withDiamond().excluded(new ItemStack(Items.GOLD_INGOT))).isTrue();
+    }
+
+    // ==================== blocklist / exclude mode ====================
+
+    @Test
+    @DisplayName("blocklist: item in filter is blocked")
+    void blockList_matchingItem_isFiltered() {
+        assertThat(withDiamond().included(new ItemStack(Items.DIAMOND))).isTrue();
+    }
+
+    @Test
+    @DisplayName("blocklist: item not in filter is allowed through")
+    void blockList_nonMatchingItem_notFiltered() {
+        assertThat(withDiamond().included(new ItemStack(Items.GOLD_INGOT))).isFalse();
     }
 
     // ==================== stale / unregistered IDs ====================
@@ -70,6 +70,6 @@ class FilterSlotsTest extends MinecraftTestEnvironment {
     @DisplayName("stale item ID in filter is ignored — effectively empty filter")
     void staleId_treatedAsEmpty() {
         FilterSlots stale = empty().with(0, "unloaded_mod:ghost_item");
-        assertThat(stale.isFiltered(new ItemStack(Items.DIAMOND), false)).isFalse();
+        assertThat(stale.excluded(new ItemStack(Items.DIAMOND))).isFalse();
     }
 }

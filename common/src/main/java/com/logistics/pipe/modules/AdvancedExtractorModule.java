@@ -82,10 +82,6 @@ public class AdvancedExtractorModule implements Module, TickingModule {
         ctx.markDirtyAndSync();
     }
 
-    private boolean isFilteredOut(PipeContext ctx, ItemStack stack) {
-        return getFilterItems(ctx).isFiltered(stack, isFilterInverted(ctx));
-    }
-
     // ==================== Module Interface ====================
 
     @Override
@@ -154,11 +150,14 @@ public class AdvancedExtractorModule implements Module, TickingModule {
         IItemStorage storage = ItemStorageLookup.find(ctx.world(), targetPos, dir.getOpposite());
         if (storage == null) return;
 
+        FilterSlots filter = getFilterItems(ctx);
+        boolean inverted = isFilterInverted(ctx);
         for (IItemView view : storage.contents()) {
             IItemKey key = view.resource();
             if (view.amount() <= 0) continue;
-            if (isFilteredOut(ctx, key.toStack(1))) {
-                NetDbg.out("[AdvancedExtractor @ {}] Filtered out {} (mode={})", ctx.pos(), key.toStack(1).getItem(), isFilterInverted(ctx) ? "exclude" : "include");
+            ItemStack stack1 = key.toStack(1);
+            if (inverted ? filter.included(stack1) : filter.excluded(stack1)) {
+                NetDbg.out("[AdvancedExtractor @ {}] Filtered out {} (mode={})", ctx.pos(), key.toStack(1).getItem(), inverted ? "exclude" : "include");
                 continue;
             }
 

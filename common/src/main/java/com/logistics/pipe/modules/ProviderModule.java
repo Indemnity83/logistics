@@ -176,7 +176,8 @@ public class ProviderModule implements Module, TickingModule, DispatchableModule
     }
 
     private boolean isFilteredOut(PipeContext ctx, ItemStack stack) {
-        return getFilterItems(ctx).isFiltered(stack, isFilterInverted(ctx));
+        FilterSlots filter = getFilterItems(ctx);
+        return isFilterInverted(ctx) ? filter.included(stack) : filter.excluded(stack);
     }
 
     // ==================== Module Interface ====================
