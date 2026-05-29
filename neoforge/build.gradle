@@ -46,9 +46,7 @@ tasks.named('compileJava', JavaCompile) {
 }
 
 dependencies {
-    // JEI — compile against API only; players install separately at runtime.
-    // Compiling the shared com.logistics.core.macerator.jei plugin lets NeoForge JEI
-    // discover the @JeiPlugin via classpath scanning, matching the Fabric integration.
+    // JEI — compile against API only; players install separately at runtime
     compileOnly("mezz.jei:jei-${rootProject.minecraft_version}-neoforge-api:${rootProject.jei_version}")
     runtimeOnly("mezz.jei:jei-${rootProject.minecraft_version}-neoforge:${rootProject.jei_version}")
 
