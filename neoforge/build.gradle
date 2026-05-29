@@ -49,7 +49,7 @@ dependencies {
     // JEI — compile against API only; players install separately at runtime.
     // Compiling the shared com.logistics.core.macerator.jei plugin lets NeoForge JEI
     // discover the @JeiPlugin via classpath scanning, matching the Fabric integration.
-    compileOnly("mezz.jei:jei-${rootProject.minecraft_version}-neoforge:${rootProject.jei_version}")
+    compileOnly("mezz.jei:jei-${rootProject.minecraft_version}-neoforge-api:${rootProject.jei_version}")
     runtimeOnly("mezz.jei:jei-${rootProject.minecraft_version}-neoforge:${rootProject.jei_version}")
 
     testImplementation "org.junit.jupiter:junit-jupiter:${rootProject.junit_version}"
