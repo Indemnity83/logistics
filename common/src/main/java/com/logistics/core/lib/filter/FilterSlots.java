@@ -33,6 +33,7 @@ import java.util.Set;
  */
 public final class FilterSlots {
     private final List<String> slots;
+    private volatile Set<String> resolvedIds;
 
     private FilterSlots(List<String> slots) {
         this.slots = slots;
@@ -114,6 +115,8 @@ public final class FilterSlots {
      * Stale IDs (e.g. from an unloaded mod) are silently excluded.
      */
     public Set<String> resolveItemIds() {
+        Set<String> cached = resolvedIds;
+        if (cached != null) return cached;
         Set<String> result = new HashSet<>();
         for (String id : nonEmpty()) {
             ResourceId rid = ResourceId.tryParse(id);
@@ -121,6 +124,7 @@ public final class FilterSlots {
                 result.add(id);
             }
         }
-        return result;
+        resolvedIds = cached = Set.copyOf(result);
+        return cached;
     }
 }

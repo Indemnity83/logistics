@@ -64,6 +64,15 @@ class FilterSlotsTest extends MinecraftTestEnvironment {
         assertThat(withDiamond().included(new ItemStack(Items.GOLD_INGOT))).isFalse();
     }
 
+    // ==================== resolved ID caching ====================
+
+    @Test
+    @DisplayName("resolveItemIds returns the same instance on repeated calls")
+    void resolveItemIds_returnsCachedInstance() {
+        FilterSlots filter = withDiamond();
+        assertThat(filter.resolveItemIds()).isSameAs(filter.resolveItemIds());
+    }
+
     // ==================== stale / unregistered IDs ====================
 
     @Test
