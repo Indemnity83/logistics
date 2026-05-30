@@ -25,6 +25,7 @@ class JobCoordinatorTest extends MinecraftTestEnvironment {
     private JobCoordinator coordinator;
 
     private static final BlockPos PROVIDER = new BlockPos(0, 0, 0);
+    private static final BlockPos PROVIDER2 = new BlockPos(1, 0, 0);
     private static final BlockPos DESTINATION = new BlockPos(5, 0, 0);
     private static final BlockPos DESTINATION2 = new BlockPos(6, 0, 0);
 
@@ -145,9 +146,9 @@ class JobCoordinatorTest extends MinecraftTestEnvironment {
         assertEquals(16, job.outstanding());
         assertTrue(coordinator.activeJobs().contains(job));
 
-        controller.registerSupply(PROVIDER, Map.of(diamond(), 16L), 1);
+        controller.registerSupply(PROVIDER2, Map.of(diamond(), 16L), 1);
         NetworkController.DispatchCommand retry = controller.nextDispatchable();
-        assertNotNull(retry, "Failed delivery should create a replacement order");
+        assertNotNull(retry, "Failed delivery should create a replacement order for fresh supply");
         assertEquals(replacementOrderId, retry.orderId());
         assertEquals(16, retry.amount());
     }

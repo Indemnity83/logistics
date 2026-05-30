@@ -162,6 +162,18 @@ public interface ILogisticsNetwork {
         // Optional for implementations that do not track in-flight orders.
     }
 
+    /**
+     * Record failed delivery when no dispatch id is available. This is a fallback for legacy
+     * queued dispatches and should only release requester accounting.
+     *
+     * @param requester destination the item was intended for
+     * @param item      item variant that failed delivery
+     * @param amount    amount that failed delivery
+     */
+    default void notifyDeliveryFailedNoId(BlockPos requester, IItemKey item, long amount) {
+        // Optional for implementations that do not track requester accounting.
+    }
+
     // ===== Crafter Snapshot =====
 
     /**

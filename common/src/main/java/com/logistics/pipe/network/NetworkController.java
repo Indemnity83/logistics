@@ -388,14 +388,23 @@ public class NetworkController implements PlanningView {
         if (amount <= 0) return null;
 
         Order tracked = releaseInTransit(orderId, amount);
-        FulfillmentMode mode = tracked == null ? FulfillmentMode.PARTIAL : tracked.fulfillmentMode();
-        long failedAmount = tracked == null ? amount : Math.min(amount, tracked.amount());
+        if (tracked == null) return null;
 
-        NetDbg.out("Delivery failed: {} lost {}x {}", requester, failedAmount, item.toStack(1).getItem());
-        decrementOrdered(requester, item, failedAmount);
-        reservationManager.releaseByOrder(orderId);
+        NetDbg.out("Delivery failed: {} lost {}x {}",
+                tracked.requester(), tracked.amount(), tracked.item().toStack(1).getItem());
+        decrementOrdered(tracked.requester(), tracked.item(), tracked.amount());
 
-        return placeOrder(item, failedAmount, requester, mode);
+        return placeOrder(tracked.item(), tracked.amount(), tracked.requester(), tracked.fulfillmentMode());
+    }
+
+    /**
+     * Record failed delivery for a dispatch without an id. This only releases requester
+     * accounting because there is no reliable in-flight order to retry or reservation to match.
+     */
+    public void notifyDeliveryFailedNoId(BlockPos requester, IItemKey item, long amount) {
+        if (amount <= 0) return;
+        NetDbg.out("Untracked delivery failed: {} lost {}x {}", requester, amount, item.toStack(1).getItem());
+        decrementOrdered(requester, item, amount);
     }
 
     // ===== Ingredient Chain Validation =====

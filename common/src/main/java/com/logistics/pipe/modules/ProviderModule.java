@@ -301,8 +301,12 @@ public class ProviderModule implements Module, TickingModule, DispatchableModule
                 // forever, but also notify the network so in-flight accounting is released and
                 // the request can be retried instead of being counted as delivered.
                 ILogisticsNetwork network = NetworkRegistry.getOrCreateNetwork(ctx.world(), ctx.pos());
-                if (network != null && head.deliveryId() != null) {
-                    network.notifyDeliveryFailed(head.deliveryId(), head.requester(), item, head.remaining());
+                if (network != null) {
+                    if (head.deliveryId() != null) {
+                        network.notifyDeliveryFailed(head.deliveryId(), head.requester(), item, head.remaining());
+                    } else {
+                        network.notifyDeliveryFailedNoId(head.requester(), item, head.remaining());
+                    }
                 }
                 NetDbg.out("[Provider @ {}] Queue drain failed (empty?): {}x {} — dropping entry",
                         ctx.pos(), head.remaining(), item.toStack(1).getItem());

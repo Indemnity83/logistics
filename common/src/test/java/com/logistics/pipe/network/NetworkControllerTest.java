@@ -256,11 +256,56 @@ class NetworkControllerTest extends MinecraftTestEnvironment {
         assertEquals(32L, controller.getOrderedAmountFor(REQUESTER, diamond()),
                 "Failed delivery should be replaced by a new pending order");
 
-        controller.registerSupply(PROVIDER1, Map.of(diamond(), 32L), 1);
+        controller.registerSupply(PROVIDER2, Map.of(diamond(), 32L), 1);
+        NetworkController.DispatchCommand retry = controller.nextDispatchable();
+        assertNotNull(retry, "Replacement order should be dispatchable from fresh supply");
+        assertEquals(replacementOrderId, retry.orderId());
+        assertEquals(32L, retry.amount());
+    }
+
+    @Test
+    void testNotifyDeliveryFailed_ignoresUnknownTrackedDispatch() {
+        controller.registerSupply(PROVIDER1, Map.of(diamond(), 64L), 1);
+        controller.placeOrder(diamond(), 32L, REQUESTER);
+
+        UUID replacementOrderId = controller.notifyDeliveryFailed(UUID.randomUUID(), REQUESTER, diamond(), 32L);
+
+        assertNull(replacementOrderId);
+        assertEquals(32L, controller.getOrderedAmountFor(REQUESTER, diamond()));
+    }
+
+    @Test
+    void testNotifyDeliveryFailedNoId_releasesAccountingWithoutRetry() {
+        controller.registerSupply(PROVIDER1, Map.of(diamond(), 64L), 1);
+        controller.placeOrder(diamond(), 32L, REQUESTER);
+
+        controller.notifyDeliveryFailedNoId(REQUESTER, diamond(), 32L);
+
+        assertEquals(0L, controller.getOrderedAmountFor(REQUESTER, diamond()));
+    }
+
+    @Test
+    void testNotifyDeliveryFailed_requeuesRemainderAfterPartialTrackedDelivery() {
+        controller.registerSupply(PROVIDER1, Map.of(diamond(), 64L), 1);
+        UUID orderId = controller.placeOrder(diamond(), 32L, REQUESTER);
+
+        NetworkController.DispatchCommand cmd = controller.nextDispatchable();
+        assertNotNull(cmd);
+        controller.recordDispatched(cmd.orderId(), 32L);
+
+        controller.notifyDelivery(orderId, REQUESTER, diamond(), 12L);
+        UUID replacementOrderId = controller.notifyDeliveryFailed(orderId, REQUESTER, diamond(), 20L);
+
+        assertNotNull(replacementOrderId);
+        assertNotEquals(orderId, replacementOrderId);
+        assertEquals(20L, controller.getOrderedAmountFor(REQUESTER, diamond()),
+                "Only the failed remainder should stay ordered");
+
+        controller.registerSupply(PROVIDER1, Map.of(diamond(), 20L), 1);
         NetworkController.DispatchCommand retry = controller.nextDispatchable();
         assertNotNull(retry, "Replacement order should be dispatchable when supply returns");
         assertEquals(replacementOrderId, retry.orderId());
-        assertEquals(32L, retry.amount());
+        assertEquals(20L, retry.amount());
     }
 
     // ===== cancelOrder =====
