@@ -50,9 +50,18 @@ public final class LogisticsConfig {
         public int scanRate = 256;
 
         // Derived values — computed from the fields above.
-        public double energyPerBlockMultiplier() { return energyPerBlock * energyMultiplier * 2; }
-        public long energyCapacity()          { return (long) (2 * 64 * energyPerBlock * energyMultiplier); }
-        public long maxEnergyInput()          { return (long) (1_000L * energyMultiplier); }
+        public double energyPerBlockMultiplier() { return nonNegativeFiniteOrZero(energyPerBlock * energyMultiplier * 2); }
+        public long energyCapacity()          { return nonNegativeLongOrZero(128.0 * energyPerBlock * energyMultiplier); }
+        public long maxEnergyInput()          { return nonNegativeLongOrZero(1_000L * energyMultiplier); }
+
+        private static double nonNegativeFiniteOrZero(double value) {
+            return Double.isFinite(value) ? Math.max(0.0, value) : 0.0;
+        }
+
+        private static long nonNegativeLongOrZero(double value) {
+            if (Double.isNaN(value)) return 0L;
+            return Math.max(0L, (long) value);
+        }
     }
 
     public static final class PipeConfig {

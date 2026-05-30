@@ -136,6 +136,32 @@ class NeoForgeEnergyStorageTest {
             EnergyHandler handler = NeoForgeEnergyStorage.asNeoForge(component(500));
             assertThat(handler.getCapacityAsLong()).isEqualTo(500);
         }
+
+        @Test
+        @DisplayName("non-positive transaction transfers return zero without mutating backing storage")
+        void nonPositiveTransfers_returnZeroWithoutMutation() {
+            EnergyComponent backing = component(100);
+            backing.insert(40, false);
+            EnergyHandler handler = NeoForgeEnergyStorage.asNeoForge(backing);
+
+            try (Transaction tx = Transaction.openRoot()) {
+                assertThat(handler.insert(-10, tx)).isZero();
+                assertThat(handler.insert(0, tx)).isZero();
+                assertThat(handler.extract(-10, tx)).isZero();
+                assertThat(handler.extract(0, tx)).isZero();
+                tx.commit();
+            }
+
+            assertThat(backing.getAmount()).isEqualTo(40);
+        }
+
+        @Test
+        @DisplayName("getCapacityAsLong clamps negative backing capacity to zero")
+        void getCapacityAsLong_clampsNegativeBackingCapacity() {
+            EnergyHandler handler = NeoForgeEnergyStorage.asNeoForge(new EnergyComponent(() -> -100L, 50, 50, () -> {}));
+
+            assertThat(handler.getCapacityAsLong()).isZero();
+        }
     }
 
     @Nested
@@ -182,6 +208,20 @@ class NeoForgeEnergyStorageTest {
 
             assertThat(wrapped.extract(50, true)).isEqualTo(50);
             assertThat(backing.getAmount()).isEqualTo(80);
+        }
+
+        @Test
+        @DisplayName("non-positive wrapper transfers return zero without mutating backing storage")
+        void nonPositiveTransfers_returnZeroWithoutMutation() {
+            EnergyComponent backing = component(100);
+            backing.insert(40, false);
+            IEnergyStorage wrapped = NeoForgeEnergyStorage.wrap(NeoForgeEnergyStorage.asNeoForge(backing));
+
+            assertThat(wrapped.insert(-10, false)).isZero();
+            assertThat(wrapped.insert(0, false)).isZero();
+            assertThat(wrapped.extract(-10, false)).isZero();
+            assertThat(wrapped.extract(0, false)).isZero();
+            assertThat(backing.getAmount()).isEqualTo(40);
         }
     }
 }

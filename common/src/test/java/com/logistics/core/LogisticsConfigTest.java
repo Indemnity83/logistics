@@ -143,4 +143,22 @@ class LogisticsConfigTest {
         assertThat(sanitized.pipe.minSpeed).isCloseTo(new LogisticsConfig().pipe.minSpeed, within(TOLERANCE));
         assertThat(sanitized.engine.redstoneOutput).isEqualTo(new LogisticsConfig().engine.redstoneOutput);
     }
+
+    @Test
+    @DisplayName("should clamp quarry derived energy values to non-negative")
+    void quarryDerivedEnergyValuesAreNonNegative() {
+        LogisticsConfig.QuarryConfig quarry = new LogisticsConfig.QuarryConfig();
+        quarry.energyPerBlock = 60L;
+        quarry.energyMultiplier = -1.0;
+
+        assertThat(quarry.energyPerBlockMultiplier()).isZero();
+        assertThat(quarry.energyCapacity()).isZero();
+        assertThat(quarry.maxEnergyInput()).isZero();
+
+        quarry.energyMultiplier = Double.NaN;
+
+        assertThat(quarry.energyPerBlockMultiplier()).isZero();
+        assertThat(quarry.energyCapacity()).isZero();
+        assertThat(quarry.maxEnergyInput()).isZero();
+    }
 }
