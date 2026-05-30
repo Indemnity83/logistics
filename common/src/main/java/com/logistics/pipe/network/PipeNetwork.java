@@ -188,6 +188,23 @@ public class PipeNetwork implements ILogisticsNetwork {
         jobCoordinator.onDelivery(requester, item, amount);
     }
 
+    @Override
+    public void notifyDelivery(UUID deliveryId, BlockPos requester, IItemKey item, long amount) {
+        controller.notifyDelivery(deliveryId, requester, item, amount);
+        jobCoordinator.onDelivery(requester, item, amount);
+    }
+
+    @Override
+    public void notifyDeliveryFailed(UUID deliveryId, BlockPos requester, IItemKey item, long amount) {
+        UUID replacementOrderId = controller.notifyDeliveryFailed(deliveryId, requester, item, amount);
+        jobCoordinator.onDeliveryFailed(deliveryId, replacementOrderId);
+    }
+
+    @Override
+    public void notifyDeliveryFailedNoId(BlockPos requester, IItemKey item, long amount) {
+        controller.notifyDeliveryFailedNoId(requester, item, amount);
+    }
+
     /**
      * Tick the network: dispatch all fulfillable standing orders synchronously.
      * Provider modules extract items and inject TravelingItems before returning.

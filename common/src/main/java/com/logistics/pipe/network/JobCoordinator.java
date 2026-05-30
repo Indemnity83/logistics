@@ -4,6 +4,7 @@ import com.logistics.core.lib.network.ItemRequest;
 import com.logistics.core.lib.network.PlanningView;
 import com.logistics.core.lib.storage.IItemKey;
 import net.minecraft.core.BlockPos;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -166,6 +167,27 @@ public class JobCoordinator implements NetworkController.OrderFailureListener {
                 return;
             }
         }
+    }
+
+    /**
+     * Called when a tracked dispatch is lost after it was already sent into the pipe network.
+     * The controller has already released the old in-flight accounting and created a replacement
+     * order; this method keeps job-to-order indexes pointed at the retry.
+     */
+    public void onDeliveryFailed(UUID failedOrderId, @Nullable UUID replacementOrderId) {
+        UUID jobId = orderToJob.get(failedOrderId);
+        if (jobId == null || replacementOrderId == null) return;
+
+        NetworkJob job = jobs.get(jobId);
+        if (job == null || job.state().isTerminal()) return;
+
+        orderToJob.put(replacementOrderId, jobId);
+        jobToOrder.put(jobId, replacementOrderId);
+        job.transitionTo(JobState.REPLANNING);
+        job.transitionTo(JobState.ACTIVE);
+        NetDbg.out("[Jobs] Delivery failed for job {} | retry order {}",
+                job.id().toString().substring(0, 8),
+                replacementOrderId.toString().substring(0, 8));
     }
 
     /**
