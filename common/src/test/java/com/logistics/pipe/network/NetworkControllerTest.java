@@ -226,6 +226,43 @@ class NetworkControllerTest extends MinecraftTestEnvironment {
         assertEquals(16L, controller.getOrderedAmountFor(REQUESTER, diamond()));
     }
 
+    @Test
+    void testNotifyDelivery_trackedDeliveryReleasesInTransitOrder() {
+        controller.registerSupply(PROVIDER1, Map.of(diamond(), 64L), 1);
+        UUID orderId = controller.placeOrder(diamond(), 32L, REQUESTER);
+
+        NetworkController.DispatchCommand cmd = controller.nextDispatchable();
+        assertNotNull(cmd);
+        controller.recordDispatched(cmd.orderId(), 32L);
+
+        controller.notifyDelivery(orderId, REQUESTER, diamond(), 32L);
+
+        assertEquals(0L, controller.getOrderedAmountFor(REQUESTER, diamond()));
+    }
+
+    @Test
+    void testNotifyDeliveryFailed_requeuesTrackedDispatch() {
+        controller.registerSupply(PROVIDER1, Map.of(diamond(), 64L), 1);
+        UUID orderId = controller.placeOrder(diamond(), 32L, REQUESTER);
+
+        NetworkController.DispatchCommand cmd = controller.nextDispatchable();
+        assertNotNull(cmd);
+        controller.recordDispatched(cmd.orderId(), 32L);
+
+        UUID replacementOrderId = controller.notifyDeliveryFailed(orderId, REQUESTER, diamond(), 32L);
+
+        assertNotNull(replacementOrderId);
+        assertNotEquals(orderId, replacementOrderId);
+        assertEquals(32L, controller.getOrderedAmountFor(REQUESTER, diamond()),
+                "Failed delivery should be replaced by a new pending order");
+
+        controller.registerSupply(PROVIDER1, Map.of(diamond(), 32L), 1);
+        NetworkController.DispatchCommand retry = controller.nextDispatchable();
+        assertNotNull(retry, "Replacement order should be dispatchable when supply returns");
+        assertEquals(replacementOrderId, retry.orderId());
+        assertEquals(32L, retry.amount());
+    }
+
     // ===== cancelOrder =====
 
     @Test

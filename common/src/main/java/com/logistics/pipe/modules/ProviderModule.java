@@ -298,13 +298,11 @@ public class ProviderModule implements Module, TickingModule, DispatchableModule
                         head.remaining() - extracted);
             } else {
                 // Inventory empty or inaccessible — drop the entry so the queue doesn't block
-                // forever, but also notify the network so orderedForRequester is decremented.
-                // Without the notify call, orderedForRequester would stay elevated permanently
-                // (it only decrements on physical TravelingItem delivery), which would prevent
-                // suppliers from re-ordering these items.
+                // forever, but also notify the network so in-flight accounting is released and
+                // the request can be retried instead of being counted as delivered.
                 ILogisticsNetwork network = NetworkRegistry.getOrCreateNetwork(ctx.world(), ctx.pos());
-                if (network != null) {
-                    network.notifyDelivery(head.requester(), item, head.remaining());
+                if (network != null && head.deliveryId() != null) {
+                    network.notifyDeliveryFailed(head.deliveryId(), head.requester(), item, head.remaining());
                 }
                 NetDbg.out("[Provider @ {}] Queue drain failed (empty?): {}x {} — dropping entry",
                         ctx.pos(), head.remaining(), item.toStack(1).getItem());

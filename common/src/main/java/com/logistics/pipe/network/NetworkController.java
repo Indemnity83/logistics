@@ -69,6 +69,9 @@ public class NetworkController implements PlanningView {
     // Standing orders in insertion order (FIFO)
     private final Map<UUID, Order> orderQueue = new LinkedHashMap<>();
 
+    // Dispatched orders that are physically traveling and can be retried if delivery fails.
+    private final Map<UUID, Order> inTransitOrders = new HashMap<>();
+
     // How many items each requester has outstanding (ordered but not yet delivered)
     private final Map<BlockPos, Map<IItemKey, Long>> orderedForRequester = new HashMap<>();
 
@@ -172,6 +175,11 @@ public class NetworkController implements PlanningView {
             decrementOrdered(order.requester(), order.item(), order.amount());
             reservationManager.releaseByOrder(id);
         }
+        Order inTransit = inTransitOrders.remove(id);
+        if (inTransit != null) {
+            decrementOrdered(inTransit.requester(), inTransit.item(), inTransit.amount());
+            reservationManager.releaseByOrder(id);
+        }
     }
 
     /**
@@ -180,6 +188,13 @@ public class NetworkController implements PlanningView {
      */
     public void cancelOrdersFor(BlockPos requester) {
         orderQueue.entrySet().removeIf(e -> {
+            if (e.getValue().requester().equals(requester)) {
+                reservationManager.releaseByOrder(e.getKey());
+                return true;
+            }
+            return false;
+        });
+        inTransitOrders.entrySet().removeIf(e -> {
             if (e.getValue().requester().equals(requester)) {
                 reservationManager.releaseByOrder(e.getKey());
                 return true;
@@ -321,6 +336,7 @@ public class NetworkController implements PlanningView {
         if (order == null) return;
         NetDbg.out("Recorded dispatch: {} | {} items shipped", orderId.toString().substring(0, 8), shipped);
         reservationManager.transitionByOrder(orderId, AllocationState.IN_TRANSIT);
+        trackInTransit(order, shipped);
         if (shipped >= order.amount()) {
             orderQueue.remove(orderId);
         } else {
@@ -351,6 +367,35 @@ public class NetworkController implements PlanningView {
         NetDbg.out("Delivery notified: {} received {}x {}", requester, amount, item.toStack(1).getItem());
         decrementOrdered(requester, item, amount);
         reservationManager.markDelivered(requester, item);
+    }
+
+    /**
+     * Record physical delivery for a tracked dispatch.
+     */
+    public void notifyDelivery(UUID orderId, BlockPos requester, IItemKey item, long amount) {
+        if (amount <= 0) return;
+        releaseInTransit(orderId, amount);
+        notifyDelivery(requester, item, amount);
+    }
+
+    /**
+     * Record failed delivery for a tracked dispatch and requeue the missing amount.
+     *
+     * @return replacement order id, or {@code null} when the amount is not positive
+     */
+    @Nullable
+    public UUID notifyDeliveryFailed(UUID orderId, BlockPos requester, IItemKey item, long amount) {
+        if (amount <= 0) return null;
+
+        Order tracked = releaseInTransit(orderId, amount);
+        FulfillmentMode mode = tracked == null ? FulfillmentMode.PARTIAL : tracked.fulfillmentMode();
+        long failedAmount = tracked == null ? amount : Math.min(amount, tracked.amount());
+
+        NetDbg.out("Delivery failed: {} lost {}x {}", requester, failedAmount, item.toStack(1).getItem());
+        decrementOrdered(requester, item, failedAmount);
+        reservationManager.releaseByOrder(orderId);
+
+        return placeOrder(item, failedAmount, requester, mode);
     }
 
     // ===== Ingredient Chain Validation =====
@@ -550,6 +595,11 @@ public class NetworkController implements PlanningView {
             orderQueue.putIfAbsent(entry.getKey(), entry.getValue());
         }
 
+        // Merge in-transit orders (preserve local entries on UUID collision)
+        for (Map.Entry<UUID, Order> entry : other.inTransitOrders.entrySet()) {
+            inTransitOrders.putIfAbsent(entry.getKey(), entry.getValue());
+        }
+
         // Merge orderedForRequester
         for (Map.Entry<BlockPos, Map<IItemKey, Long>> entry : other.orderedForRequester.entrySet()) {
             Map<IItemKey, Long> myMap =
@@ -587,6 +637,39 @@ public class NetworkController implements PlanningView {
         if (map != null) {
             long remaining = map.merge(item, -amount, Long::sum);
             if (remaining <= 0) map.remove(item);
+            if (map.isEmpty()) orderedForRequester.remove(requester);
         }
+    }
+
+    private void trackInTransit(Order order, long shipped) {
+        if (shipped <= 0) return;
+        inTransitOrders.merge(
+                order.id(),
+                new Order(order.id(), order.item(), shipped, order.requester(), order.fulfillmentMode()),
+                (existing, added) -> new Order(
+                        existing.id(),
+                        existing.item(),
+                        existing.amount() + added.amount(),
+                        existing.requester(),
+                        existing.fulfillmentMode()));
+    }
+
+    @Nullable
+    private Order releaseInTransit(UUID orderId, long amount) {
+        Order tracked = inTransitOrders.get(orderId);
+        if (tracked == null || amount <= 0) return tracked;
+
+        if (amount >= tracked.amount()) {
+            inTransitOrders.remove(orderId);
+            return tracked;
+        }
+
+        inTransitOrders.put(orderId, new Order(
+                tracked.id(),
+                tracked.item(),
+                tracked.amount() - amount,
+                tracked.requester(),
+                tracked.fulfillmentMode()));
+        return new Order(tracked.id(), tracked.item(), amount, tracked.requester(), tracked.fulfillmentMode());
     }
 }

@@ -137,6 +137,31 @@ public interface ILogisticsNetwork {
      */
     void notifyDelivery(BlockPos requester, IItemKey item, long amount);
 
+    /**
+     * Record physical delivery of a tracked item to a requester inventory.
+     *
+     * @param deliveryId order/dispatch id carried by the traveling item
+     * @param requester  destination the item was delivered to
+     * @param item       item variant delivered
+     * @param amount     amount delivered
+     */
+    default void notifyDelivery(UUID deliveryId, BlockPos requester, IItemKey item, long amount) {
+        notifyDelivery(requester, item, amount);
+    }
+
+    /**
+     * Record failed delivery of a tracked item. Implementations should release in-flight
+     * accounting without counting the item as delivered.
+     *
+     * @param deliveryId order/dispatch id carried by the traveling item
+     * @param requester  destination the item was intended for
+     * @param item       item variant that failed delivery
+     * @param amount     amount that failed delivery
+     */
+    default void notifyDeliveryFailed(UUID deliveryId, BlockPos requester, IItemKey item, long amount) {
+        // Optional for implementations that do not track in-flight orders.
+    }
+
     // ===== Crafter Snapshot =====
 
     /**

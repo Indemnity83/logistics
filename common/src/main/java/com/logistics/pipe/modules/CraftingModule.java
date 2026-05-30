@@ -868,7 +868,7 @@ public class CraftingModule implements Module, TickingModule, RoutingModule, Dis
         if (item.getDeliveryId() != null) {
             ILogisticsNetwork network = ctx.network();
             if (network != null) {
-                network.notifyDelivery(ctx.pos(), ItemStorageLookup.of(item.getStack()), placed);
+                network.notifyDelivery(item.getDeliveryId(), ctx.pos(), ItemStorageLookup.of(item.getStack()), placed);
             }
         }
 
