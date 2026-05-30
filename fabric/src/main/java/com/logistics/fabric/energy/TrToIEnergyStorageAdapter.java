@@ -19,10 +19,11 @@ final class TrToIEnergyStorageAdapter implements IEnergyStorage {
 
     @Override
     public long insert(long maxAmount, boolean simulate) {
+        if (maxAmount <= 0) return 0;
         if (simulate) {
             // Approximate simulate using capacity math — avoids opening a transaction,
             // so this is safe to call from within any transaction context.
-            long available = Math.max(0, delegate.getCapacity() - delegate.getAmount());
+            long available = Math.max(0, Math.max(0, delegate.getCapacity()) - Math.max(0, delegate.getAmount()));
             return Math.min(maxAmount, available);
         } else {
             try (Transaction tx = Transaction.openOuter()) {
@@ -35,9 +36,10 @@ final class TrToIEnergyStorageAdapter implements IEnergyStorage {
 
     @Override
     public long extract(long maxAmount, boolean simulate) {
+        if (maxAmount <= 0) return 0;
         if (simulate) {
             // Approximate simulate using stored amount — avoids opening a transaction.
-            return Math.min(maxAmount, delegate.getAmount());
+            return Math.min(maxAmount, Math.max(0, delegate.getAmount()));
         } else {
             try (Transaction tx = Transaction.openOuter()) {
                 long extracted = delegate.extract(maxAmount, tx);

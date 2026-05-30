@@ -23,11 +23,13 @@ public class FabricEnergyStorage extends SimpleEnergyStorage implements IEnergyS
 
     @Override
     public long insert(long maxAmount, boolean simulate) {
+        if (maxAmount <= 0) return 0;
         // Use direct arithmetic — safe to call from any context, including within a TR
         // transaction's close callback or from the cable network's simulate-boolean path.
         // The TR insert(long, TransactionContext) method is still available for callers
         // that hold a transaction (e.g. the energy push service in LogisticsFabric).
-        long toInsert = Math.min(maxAmount, Math.min(maxInsert, Math.max(0, capacity - amount)));
+        long room = Math.max(0, Math.max(0, capacity) - Math.max(0, amount));
+        long toInsert = Math.min(maxAmount, Math.min(Math.max(0, maxInsert), room));
         if (!simulate) {
             amount += toInsert;
         }
@@ -36,7 +38,8 @@ public class FabricEnergyStorage extends SimpleEnergyStorage implements IEnergyS
 
     @Override
     public long extract(long maxAmount, boolean simulate) {
-        long toExtract = Math.min(maxAmount, Math.min(maxExtract, amount));
+        if (maxAmount <= 0) return 0;
+        long toExtract = Math.min(maxAmount, Math.min(Math.max(0, maxExtract), Math.max(0, amount)));
         if (!simulate) {
             amount -= toExtract;
         }
