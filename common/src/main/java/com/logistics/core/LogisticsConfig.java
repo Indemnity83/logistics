@@ -59,7 +59,7 @@ public final class LogisticsConfig {
         }
 
         private static long nonNegativeLongOrZero(double value) {
-            if (Double.isNaN(value)) return 0L;
+            if (!Double.isFinite(value)) return 0L;
             return Math.max(0L, (long) value);
         }
     }

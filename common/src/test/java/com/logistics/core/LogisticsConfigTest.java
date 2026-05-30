@@ -160,5 +160,17 @@ class LogisticsConfigTest {
         assertThat(quarry.energyPerBlockMultiplier()).isZero();
         assertThat(quarry.energyCapacity()).isZero();
         assertThat(quarry.maxEnergyInput()).isZero();
+
+        quarry.energyMultiplier = Double.POSITIVE_INFINITY;
+
+        assertThat(quarry.energyPerBlockMultiplier()).isZero();
+        assertThat(quarry.energyCapacity()).isZero();
+        assertThat(quarry.maxEnergyInput()).isZero();
+
+        quarry.energyMultiplier = Double.NEGATIVE_INFINITY;
+
+        assertThat(quarry.energyPerBlockMultiplier()).isZero();
+        assertThat(quarry.energyCapacity()).isZero();
+        assertThat(quarry.maxEnergyInput()).isZero();
     }
 }
