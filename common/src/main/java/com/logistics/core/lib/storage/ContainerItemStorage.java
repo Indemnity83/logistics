@@ -21,7 +21,7 @@ import java.util.List;
  * {@link com.logistics.core.lib.block.capability.HasItemStorage} without depending on
  * any loader-specific storage API.
  */
-public final class ContainerItemStorage implements IItemStorage {
+public final class ContainerItemStorage implements ISlottedItemStorage {
 
     private final Container container;
     @Nullable private final Direction side;
@@ -53,6 +53,23 @@ public final class ContainerItemStorage implements IItemStorage {
             }
         }
         return maxAmount - remaining;
+    }
+
+    @Override
+    public long insert(int slot, IItemKey item, long maxAmount, boolean simulate) {
+        if (maxAmount <= 0) {
+            return 0;
+        }
+        int actualSlot = actualSlot(slot);
+        ItemStack template = item.toStack(1);
+        if (side != null && container instanceof WorldlyContainer wc
+                && !wc.canPlaceItemThroughFace(actualSlot, template, side)) {
+            return 0;
+        }
+        if (!container.canPlaceItem(actualSlot, template)) {
+            return 0;
+        }
+        return insertIntoSlot(item, template, actualSlot, maxAmount, simulate);
     }
 
     private long insertIntoSlot(IItemKey item, ItemStack template, int slot, long remaining, boolean simulate) {
@@ -105,20 +122,60 @@ public final class ContainerItemStorage implements IItemStorage {
     }
 
     @Override
+    public long extract(int slot, IItemKey item, long maxAmount, boolean simulate) {
+        if (maxAmount <= 0) {
+            return 0;
+        }
+        int actualSlot = actualSlot(slot);
+        ItemStack current = container.getItem(actualSlot);
+        if (current.isEmpty() || !item.matches(current)) {
+            return 0;
+        }
+        if (side != null && container instanceof WorldlyContainer wc
+                && !wc.canTakeItemThroughFace(actualSlot, current, side)) {
+            return 0;
+        }
+        long toExtract = Math.min(maxAmount, current.getCount());
+        if (!simulate) {
+            container.removeItem(actualSlot, (int) toExtract);
+        }
+        return toExtract;
+    }
+
+    @Override
     public Iterable<IItemView> contents() {
         List<IItemView> views = new ArrayList<>();
-        if (side != null && container instanceof WorldlyContainer wc) {
-            for (int slot : wc.getSlotsForFace(side)) {
-                IItemView view = viewForSlot(slot);
-                if (view != null) views.add(view);
-            }
-        } else {
-            for (int slot = 0; slot < container.getContainerSize(); slot++) {
-                IItemView view = viewForSlot(slot);
-                if (view != null) views.add(view);
+        for (int slot = 0; slot < slotCount(); slot++) {
+            IItemView view = slotView(slot);
+            if (view != null) {
+                views.add(view);
             }
         }
         return views;
+    }
+
+    @Override
+    public int slotCount() {
+        if (side != null && container instanceof WorldlyContainer wc) {
+            return wc.getSlotsForFace(side).length;
+        }
+        return container.getContainerSize();
+    }
+
+    @Override
+    @Nullable
+    public IItemView slotView(int slot) {
+        return viewForSlot(actualSlot(slot));
+    }
+
+    private int actualSlot(int exposedSlot) {
+        if (exposedSlot < 0 || exposedSlot >= slotCount()) {
+            throw new IndexOutOfBoundsException(exposedSlot);
+        }
+        if (side != null && container instanceof WorldlyContainer wc) {
+            return wc.getSlotsForFace(side)[exposedSlot];
+        }
+        return exposedSlot;
     }
 
     @Nullable

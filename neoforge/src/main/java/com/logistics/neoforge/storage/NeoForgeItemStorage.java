@@ -3,6 +3,7 @@ package com.logistics.neoforge.storage;
 import com.logistics.core.lib.storage.IItemKey;
 import com.logistics.core.lib.storage.IItemStorage;
 import com.logistics.core.lib.storage.IItemView;
+import com.logistics.core.lib.storage.ISlottedItemStorage;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -28,7 +29,13 @@ public final class NeoForgeItemStorage implements IItemStorage {
 
     @Nullable
     public static ResourceHandler<ItemResource> asNeoForge(@Nullable IItemStorage storage) {
-        return storage == null ? null : new CommonItemHandler(storage);
+        if (storage == null) {
+            return null;
+        }
+        if (storage instanceof ISlottedItemStorage slotted) {
+            return new SlottedCommonItemHandler(slotted);
+        }
+        return new CommonItemHandler(storage);
     }
 
     @Override
@@ -87,13 +94,151 @@ public final class NeoForgeItemStorage implements IItemStorage {
         return (int) Math.max(0, Math.min(amount, Integer.MAX_VALUE));
     }
 
+    /** Adapts a slot-aware common storage to NeoForge while preserving exposed slot indices. */
+    private static final class SlottedCommonItemHandler extends SnapshotJournal<Map<SlotItemKey, Long>>
+            implements ResourceHandler<ItemResource> {
+        private final ISlottedItemStorage storage;
+        private Map<SlotItemKey, Long> pendingDeltas = new HashMap<>();
+
+        private SlottedCommonItemHandler(ISlottedItemStorage storage) {
+            this.storage = storage;
+        }
+
+        @Override
+        public int size() {
+            return storage.slotCount();
+        }
+
+        @Override
+        public ItemResource getResource(int index) {
+            checkIndex(index);
+            IItemView view = storage.slotView(index);
+            if (view != null) {
+                long amount = view.amount() + pendingFor(index, view.resource());
+                if (amount > 0) {
+                    return toResource(view.resource());
+                }
+            }
+            SlotItemKey pending = firstPositivePending(index);
+            return pending == null ? ItemResource.EMPTY : toResource(pending.item());
+        }
+
+        @Override
+        public long getAmountAsLong(int index) {
+            checkIndex(index);
+            IItemView view = storage.slotView(index);
+            if (view != null) {
+                long amount = Math.max(0, view.amount() + pendingFor(index, view.resource()));
+                if (amount > 0) {
+                    return amount;
+                }
+            }
+            SlotItemKey pending = firstPositivePending(index);
+            return pending == null ? 0 : pendingDeltas.getOrDefault(pending, 0L);
+        }
+
+        @Override
+        public long getCapacityAsLong(int index, ItemResource resource) {
+            checkIndex(index);
+            if (resource.isEmpty()) {
+                return 0;
+            }
+            IItemKey key = new NeoForgeItemKey(resource);
+            return Math.max(0, storage.insert(index, key, Integer.MAX_VALUE, true) - pendingFor(index, key));
+        }
+
+        @Override
+        public boolean isValid(int index, ItemResource resource) {
+            checkIndex(index);
+            return !resource.isEmpty() && getCapacityAsLong(index, resource) > 0;
+        }
+
+        @Override
+        public int insert(int index, ItemResource resource, int amount, TransactionContext transaction) {
+            checkIndex(index);
+            if (resource.isEmpty() || amount <= 0) {
+                return 0;
+            }
+            updateSnapshots(transaction);
+            IItemKey key = new NeoForgeItemKey(resource);
+            long available = Math.max(0, storage.insert(index, key, Integer.MAX_VALUE, true) - pendingFor(index, key));
+            long inserted = Math.min(amount, available);
+            if (inserted > 0) {
+                pendingDeltas.merge(new SlotItemKey(index, key), inserted, Long::sum);
+            }
+            return clampToInt(inserted);
+        }
+
+        @Override
+        public int extract(int index, ItemResource resource, int amount, TransactionContext transaction) {
+            checkIndex(index);
+            if (resource.isEmpty() || amount <= 0) {
+                return 0;
+            }
+            updateSnapshots(transaction);
+            IItemKey key = new NeoForgeItemKey(resource);
+            long available = Math.max(0, storage.extract(index, key, Integer.MAX_VALUE, true) + pendingFor(index, key));
+            long extracted = Math.min(amount, available);
+            if (extracted > 0) {
+                pendingDeltas.merge(new SlotItemKey(index, key), -extracted, Long::sum);
+            }
+            return clampToInt(extracted);
+        }
+
+        @Override
+        protected Map<SlotItemKey, Long> createSnapshot() {
+            return new HashMap<>(pendingDeltas);
+        }
+
+        @Override
+        protected void revertToSnapshot(Map<SlotItemKey, Long> snapshot) {
+            pendingDeltas = snapshot;
+        }
+
+        @Override
+        protected void onRootCommit(Map<SlotItemKey, Long> originalState) {
+            for (var entry : pendingDeltas.entrySet()) {
+                long original = originalState.getOrDefault(entry.getKey(), 0L);
+                long delta = entry.getValue() - original;
+                if (delta > 0) {
+                    storage.insert(entry.getKey().slot(), entry.getKey().item(), delta, false);
+                } else if (delta < 0) {
+                    storage.extract(entry.getKey().slot(), entry.getKey().item(), -delta, false);
+                }
+            }
+            pendingDeltas = new HashMap<>();
+        }
+
+        private long pendingFor(int slot, IItemKey item) {
+            return pendingDeltas.getOrDefault(new SlotItemKey(slot, item), 0L);
+        }
+
+        @Nullable
+        private SlotItemKey firstPositivePending(int slot) {
+            for (var entry : pendingDeltas.entrySet()) {
+                if (entry.getKey().slot() == slot && entry.getValue() > 0) {
+                    return entry.getKey();
+                }
+            }
+            return null;
+        }
+
+        private void checkIndex(int index) {
+            if (index < 0 || index >= storage.slotCount()) {
+                throw new IndexOutOfBoundsException(index);
+            }
+        }
+    }
+
+    private record SlotItemKey(int slot, IItemKey item) {}
+
     /**
-     * Adapts a common {@link IItemStorage} to NeoForge's slot-based {@link ResourceHandler}.
+     * Fallback adapter for common {@link IItemStorage} implementations without fixed slots.
      *
      * <p>Reports {@link #size()}{@code == 1} regardless of how many distinct item types the
      * underlying storage holds. {@link #getResource(int)} returns the first non-empty item
-     * (and {@link #getAmountAsLong(int)} its amount). This is an intentional "unified slot"
-     * view — the common abstraction has no fixed slot count, so we expose it as a single
+     * (and {@link #getAmountAsLong(int)} its amount). This is a fallback "unified slot"
+     * view: when a common storage has no fixed slot count, NeoForge can only expose one
      * virtual slot. Insert and extract operations route through {@link #insert} and
      * {@link #extract} which use the {@link IItemKey} content map and behave correctly
      * for storages with multiple item types.
