@@ -2,6 +2,7 @@ package com.logistics.pipe.modules;
 
 import com.logistics.core.lib.pipe.RoutingModule;
 
+import com.logistics.core.lib.items.ItemMatcher;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.pipe.network.NetDbg;
 import com.logistics.core.lib.pipe.Module;
@@ -251,7 +252,7 @@ public class ItemFilterModule implements Module, RoutingModule {
         List<String> ids = new ArrayList<>(filterStacks.size());
         for (ItemStack stack : filterStacks) {
             if (!stack.isEmpty()) {
-                ids.add(BuiltInRegistries.ITEM.getKey(stack.getItem()).toString());
+                ids.add(ItemMatcher.itemId(stack));
             }
         }
         return ids;

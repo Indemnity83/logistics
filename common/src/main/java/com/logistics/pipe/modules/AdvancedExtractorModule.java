@@ -18,7 +18,6 @@ import com.logistics.core.lib.pipe.TravelingItem;
 import com.logistics.pipe.ui.AdvancedExtractorScreenHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -29,7 +28,6 @@ import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
-import java.util.Set;
 
 /**
  * Advanced extractor module — same extraction behavior as {@link BasicExtractorModule} but with
@@ -82,20 +80,6 @@ public class AdvancedExtractorModule implements Module, TickingModule {
     public void setFilterInverted(PipeContext ctx, boolean inverted) {
         ctx.saveInt(this, FILTER_INVERTED, inverted ? 1 : 0);
         ctx.markDirtyAndSync();
-    }
-
-    /**
-     * Returns true if the item should be skipped during extraction.
-     * With an empty filter, nothing is filtered out.
-     * Include mode (default): only items IN the filter are extracted.
-     * Exclude mode (inverted): items IN the filter are skipped.
-     */
-    private boolean isFilteredOut(PipeContext ctx, ItemStack stack) {
-        Set<String> resolvable = getFilterItems(ctx).resolveItemIds();
-        if (resolvable.isEmpty()) return false;
-        String itemId = BuiltInRegistries.ITEM.getKey(stack.getItem()).toString();
-        boolean itemInFilter = resolvable.contains(itemId);
-        return isFilterInverted(ctx) == itemInFilter;
     }
 
     // ==================== Module Interface ====================
@@ -166,11 +150,14 @@ public class AdvancedExtractorModule implements Module, TickingModule {
         IItemStorage storage = ItemStorageLookup.find(ctx.world(), targetPos, dir.getOpposite());
         if (storage == null) return;
 
+        FilterSlots filter = getFilterItems(ctx);
+        boolean inverted = isFilterInverted(ctx);
         for (IItemView view : storage.contents()) {
             IItemKey key = view.resource();
             if (view.amount() <= 0) continue;
-            if (isFilteredOut(ctx, key.toStack(1))) {
-                NetDbg.out("[AdvancedExtractor @ {}] Filtered out {} (mode={})", ctx.pos(), key.toStack(1).getItem(), isFilterInverted(ctx) ? "exclude" : "include");
+            ItemStack stack1 = key.toStack(1);
+            if (inverted ? filter.included(stack1) : filter.excluded(stack1)) {
+                NetDbg.out("[AdvancedExtractor @ {}] Filtered out {} (mode={})", ctx.pos(), key.toStack(1).getItem(), inverted ? "exclude" : "include");
                 continue;
             }
 
