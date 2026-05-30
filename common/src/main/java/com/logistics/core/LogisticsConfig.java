@@ -80,71 +80,103 @@ public final class LogisticsConfig {
         reg(map, "quarry_area", "Quarry mining area side length (NxN blocks)",
                 () -> (long) INSTANCE.quarry.area,
                 v -> INSTANCE.quarry.area = v.intValue(),
-                Long::parseLong);
+                Long::parseLong,
+                v -> requireRange(v, 3L, (long) Integer.MAX_VALUE, "must be between 3 and " + Integer.MAX_VALUE));
         reg(map, "quarry_energy_per_block", "RF cost per block mined",
                 () -> INSTANCE.quarry.energyPerBlock,
                 v -> INSTANCE.quarry.energyPerBlock = v,
-                Long::parseLong);
+                Long::parseLong,
+                v -> requireMin(v, 0L, "must be greater than or equal to 0"));
         reg(map, "quarry_energy_multiplier", "Global energy cost multiplier",
                 () -> INSTANCE.quarry.energyMultiplier,
                 v -> INSTANCE.quarry.energyMultiplier = v,
-                Double::parseDouble);
+                Double::parseDouble,
+                v -> requireFiniteMin(v, 0.0, "must be finite and greater than or equal to 0"));
         reg(map, "quarry_arm_speed", "Arm movement speed (blocks/tick)",
                 () -> (double) INSTANCE.quarry.armSpeed,
                 v -> INSTANCE.quarry.armSpeed = v.floatValue(),
-                Double::parseDouble);
+                Double::parseDouble,
+                v -> requireFiniteFloatMin(v, 0.0, "must be finite and greater than or equal to 0"));
         reg(map, "quarry_arm_speed_scaling", "Energy-to-speed scaling constant",
                 () -> (double) INSTANCE.quarry.armSpeedScaling,
                 v -> INSTANCE.quarry.armSpeedScaling = v.floatValue(),
-                Double::parseDouble);
+                Double::parseDouble,
+                v -> requireFiniteFloatGreaterThan(v, 0.0, "must be finite and greater than 0"));
         reg(map, "quarry_arm_energy", "RF/tick cost for arm movement",
                 () -> INSTANCE.quarry.armEnergy,
                 v -> INSTANCE.quarry.armEnergy = v,
-                Long::parseLong);
+                Long::parseLong,
+                v -> requireMin(v, 0L, "must be greater than or equal to 0"));
         reg(map, "quarry_rain_penalty", "Speed multiplier when raining (0.0-1.0)",
                 () -> (double) INSTANCE.quarry.rainPenalty,
                 v -> INSTANCE.quarry.rainPenalty = v.floatValue(),
-                Double::parseDouble);
+                Double::parseDouble,
+                v -> requireFiniteRange(v, 0.0, 1.0, "must be finite and between 0.0 and 1.0"));
         reg(map, "quarry_scan_rate", "Max blocks scanned per tick when searching",
                 () -> (long) INSTANCE.quarry.scanRate,
                 v -> INSTANCE.quarry.scanRate = v.intValue(),
-                Long::parseLong);
+                Long::parseLong,
+                v -> requireRange(v, 1L, (long) Integer.MAX_VALUE, "must be between 1 and " + Integer.MAX_VALUE));
 
         // Pipe
         reg(map, "pipe_max_speed", "Item speed ceiling (blocks/tick)",
                 () -> (double) INSTANCE.pipe.maxSpeed,
                 v -> INSTANCE.pipe.maxSpeed = v.floatValue(),
-                Double::parseDouble);
+                Double::parseDouble,
+                v -> {
+                    requireFiniteFloatGreaterThan(v, 0.0, "must be finite and greater than 0");
+                    requireCondition(v >= INSTANCE.pipe.minSpeed, "must be greater than or equal to pipe_min_speed");
+                });
         reg(map, "pipe_min_speed", "Item speed floor (blocks/tick)",
                 () -> (double) INSTANCE.pipe.minSpeed,
                 v -> INSTANCE.pipe.minSpeed = v.floatValue(),
-                Double::parseDouble);
+                Double::parseDouble,
+                v -> {
+                    requireFiniteFloatGreaterThan(v, 0.0, "must be finite and greater than 0");
+                    requireCondition(v <= INSTANCE.pipe.maxSpeed, "must be less than or equal to pipe_max_speed");
+                });
         reg(map, "pipe_acceleration", "Speed gain per tick when accelerating",
                 () -> (double) INSTANCE.pipe.acceleration,
                 v -> INSTANCE.pipe.acceleration = v.floatValue(),
-                Double::parseDouble);
+                Double::parseDouble,
+                v -> requireFiniteFloatMin(v, 0.0, "must be finite and greater than or equal to 0"));
         reg(map, "pipe_drag", "Speed decay fraction per tick",
                 () -> (double) INSTANCE.pipe.drag,
                 v -> INSTANCE.pipe.drag = v.floatValue(),
-                Double::parseDouble);
+                Double::parseDouble,
+                v -> requireFiniteRange(v, 0.0, 1.0, "must be finite and between 0.0 and 1.0"));
         reg(map, "pipe_inject_speed", "Item speed when injected by network routing (blocks/tick)",
                 () -> (double) INSTANCE.pipe.injectSpeed,
                 v -> INSTANCE.pipe.injectSpeed = v.floatValue(),
-                Double::parseDouble);
+                Double::parseDouble,
+                v -> requireFiniteFloatGreaterThan(v, 0.0, "must be finite and greater than 0"));
 
         // Engine
         reg(map, "redstone_engine_output", "RF generated per 16-tick interval",
                 () -> INSTANCE.engine.redstoneOutput,
                 v -> INSTANCE.engine.redstoneOutput = v,
-                Long::parseLong);
+                Long::parseLong,
+                v -> requireMin(v, 0L, "must be greater than or equal to 0"));
         reg(map, "stirling_engine_min_output", "Stirling engine minimum RF/t output",
                 () -> INSTANCE.engine.stirlingMinOutput,
                 v -> INSTANCE.engine.stirlingMinOutput = v,
-                Double::parseDouble);
+                Double::parseDouble,
+                v -> {
+                    requireFiniteMin(v, 0.0, "must be finite and greater than or equal to 0");
+                    requireCondition(
+                            v <= INSTANCE.engine.stirlingMaxOutput,
+                            "must be less than or equal to stirling_engine_max_output");
+                });
         reg(map, "stirling_engine_max_output", "Stirling engine maximum RF/t output",
                 () -> INSTANCE.engine.stirlingMaxOutput,
                 v -> INSTANCE.engine.stirlingMaxOutput = v,
-                Double::parseDouble);
+                Double::parseDouble,
+                v -> {
+                    requireFiniteMin(v, 0.0, "must be finite and greater than or equal to 0");
+                    requireCondition(
+                            v >= INSTANCE.engine.stirlingMinOutput,
+                            "must be greater than or equal to stirling_engine_min_output");
+                });
 
         ENTRIES = Collections.unmodifiableMap(map);
     }
@@ -155,8 +187,9 @@ public final class LogisticsConfig {
             String description,
             Supplier<T> getter,
             Consumer<T> setter,
-            Function<String, T> parser) {
-        map.put(key, new ConfigEntry<>(key, description, getter, setter, parser));
+            Function<String, T> parser,
+            Consumer<T> validator) {
+        map.put(key, new ConfigEntry<>(key, description, getter, setter, parser, validator));
     }
 
     // ==================== API ====================
@@ -178,7 +211,7 @@ public final class LogisticsConfig {
             try (Reader reader = Files.newBufferedReader(configPath)) {
                 LogisticsConfig parsed = GSON.fromJson(reader, LogisticsConfig.class);
                 if (parsed != null) {
-                    INSTANCE = parsed;
+                    INSTANCE = sanitize(parsed);
                     loaded = true;
                 }
             } catch (Exception e) {
@@ -217,13 +250,226 @@ public final class LogisticsConfig {
         try (Reader reader = Files.newBufferedReader(configPath)) {
             LogisticsConfig loaded = GSON.fromJson(reader, LogisticsConfig.class);
             if (loaded != null) {
-                INSTANCE = loaded;
+                INSTANCE = sanitize(loaded);
             }
         } catch (Exception e) {
             LOGGER.error("Failed to reload logistics.json: {}", e.getMessage());
             return;
         }
         LOGGER.info("Reloaded logistics config from {}", configPath);
+    }
+
+    static LogisticsConfig sanitize(LogisticsConfig config) {
+        LogisticsConfig defaults = new LogisticsConfig();
+        if (config.quarry == null) {
+            LOGGER.warn("Invalid logistics config group quarry: missing; using defaults");
+            config.quarry = defaults.quarry;
+        }
+        if (config.pipe == null) {
+            LOGGER.warn("Invalid logistics config group pipe: missing; using defaults");
+            config.pipe = defaults.pipe;
+        }
+        if (config.engine == null) {
+            LOGGER.warn("Invalid logistics config group engine: missing; using defaults");
+            config.engine = defaults.engine;
+        }
+
+        sanitizeInt("quarry_area", () -> (long) config.quarry.area, v -> config.quarry.area = v.intValue(),
+                () -> (long) defaults.quarry.area, v -> requireRange(
+                        v, 3L, (long) Integer.MAX_VALUE, "must be between 3 and " + Integer.MAX_VALUE));
+        sanitizeLong("quarry_energy_per_block", () -> config.quarry.energyPerBlock,
+                v -> config.quarry.energyPerBlock = v, () -> defaults.quarry.energyPerBlock,
+                v -> requireMin(v, 0L, "must be greater than or equal to 0"));
+        sanitizeDouble("quarry_energy_multiplier", () -> config.quarry.energyMultiplier,
+                v -> config.quarry.energyMultiplier = v, () -> defaults.quarry.energyMultiplier,
+                v -> requireFiniteMin(v, 0.0, "must be finite and greater than or equal to 0"));
+        sanitizeFloat("quarry_arm_speed", () -> (double) config.quarry.armSpeed,
+                v -> config.quarry.armSpeed = v.floatValue(), () -> (double) defaults.quarry.armSpeed,
+                v -> requireFiniteFloatMin(v, 0.0, "must be finite and greater than or equal to 0"));
+        sanitizeFloat("quarry_arm_speed_scaling", () -> (double) config.quarry.armSpeedScaling,
+                v -> config.quarry.armSpeedScaling = v.floatValue(), () -> (double) defaults.quarry.armSpeedScaling,
+                v -> requireFiniteFloatGreaterThan(v, 0.0, "must be finite and greater than 0"));
+        sanitizeLong("quarry_arm_energy", () -> config.quarry.armEnergy,
+                v -> config.quarry.armEnergy = v, () -> defaults.quarry.armEnergy,
+                v -> requireMin(v, 0L, "must be greater than or equal to 0"));
+        sanitizeFloat("quarry_rain_penalty", () -> (double) config.quarry.rainPenalty,
+                v -> config.quarry.rainPenalty = v.floatValue(), () -> (double) defaults.quarry.rainPenalty,
+                v -> requireFiniteRange(v, 0.0, 1.0, "must be finite and between 0.0 and 1.0"));
+        sanitizeInt("quarry_scan_rate", () -> (long) config.quarry.scanRate, v -> config.quarry.scanRate = v.intValue(),
+                () -> (long) defaults.quarry.scanRate, v -> requireRange(
+                        v, 1L, (long) Integer.MAX_VALUE, "must be between 1 and " + Integer.MAX_VALUE));
+
+        sanitizeFloat("pipe_min_speed", () -> (double) config.pipe.minSpeed,
+                v -> config.pipe.minSpeed = v.floatValue(), () -> (double) defaults.pipe.minSpeed,
+                v -> requireFiniteFloatGreaterThan(v, 0.0, "must be finite and greater than 0"));
+        sanitizeFloat("pipe_max_speed", () -> (double) config.pipe.maxSpeed,
+                v -> config.pipe.maxSpeed = v.floatValue(), () -> (double) defaults.pipe.maxSpeed,
+                v -> requireFiniteFloatGreaterThan(v, 0.0, "must be finite and greater than 0"));
+        sanitizePipeSpeedRange(config, defaults);
+        sanitizeFloat("pipe_acceleration", () -> (double) config.pipe.acceleration,
+                v -> config.pipe.acceleration = v.floatValue(), () -> (double) defaults.pipe.acceleration,
+                v -> requireFiniteFloatMin(v, 0.0, "must be finite and greater than or equal to 0"));
+        sanitizeFloat("pipe_drag", () -> (double) config.pipe.drag,
+                v -> config.pipe.drag = v.floatValue(), () -> (double) defaults.pipe.drag,
+                v -> requireFiniteRange(v, 0.0, 1.0, "must be finite and between 0.0 and 1.0"));
+        sanitizeFloat("pipe_inject_speed", () -> (double) config.pipe.injectSpeed,
+                v -> config.pipe.injectSpeed = v.floatValue(), () -> (double) defaults.pipe.injectSpeed,
+                v -> requireFiniteFloatGreaterThan(v, 0.0, "must be finite and greater than 0"));
+
+        sanitizeLong("redstone_engine_output", () -> config.engine.redstoneOutput,
+                v -> config.engine.redstoneOutput = v, () -> defaults.engine.redstoneOutput,
+                v -> requireMin(v, 0L, "must be greater than or equal to 0"));
+        sanitizeDouble("stirling_engine_min_output", () -> config.engine.stirlingMinOutput,
+                v -> config.engine.stirlingMinOutput = v, () -> defaults.engine.stirlingMinOutput,
+                v -> requireFiniteMin(v, 0.0, "must be finite and greater than or equal to 0"));
+        sanitizeDouble("stirling_engine_max_output", () -> config.engine.stirlingMaxOutput,
+                v -> config.engine.stirlingMaxOutput = v, () -> defaults.engine.stirlingMaxOutput,
+                v -> requireFiniteMin(v, 0.0, "must be finite and greater than or equal to 0"));
+        sanitizeStirlingOutputRange(config, defaults);
+
+        return config;
+    }
+
+    static void useForTests(LogisticsConfig config) {
+        INSTANCE = sanitize(config);
+    }
+
+    private static void sanitizeInt(
+            String key,
+            Supplier<Long> getter,
+            Consumer<Long> setter,
+            Supplier<Long> defaultValue,
+            Consumer<Long> validator) {
+        sanitizeLong(key, getter, setter, defaultValue, validator);
+    }
+
+    private static void sanitizeLong(
+            String key,
+            Supplier<Long> getter,
+            Consumer<Long> setter,
+            Supplier<Long> defaultValue,
+            Consumer<Long> validator) {
+        sanitizeValue(key, getter, setter, defaultValue, validator);
+    }
+
+    private static void sanitizeFloat(
+            String key,
+            Supplier<Double> getter,
+            Consumer<Double> setter,
+            Supplier<Double> defaultValue,
+            Consumer<Double> validator) {
+        sanitizeValue(key, getter, setter, defaultValue, validator);
+    }
+
+    private static void sanitizeDouble(
+            String key,
+            Supplier<Double> getter,
+            Consumer<Double> setter,
+            Supplier<Double> defaultValue,
+            Consumer<Double> validator) {
+        sanitizeValue(key, getter, setter, defaultValue, validator);
+    }
+
+    private static <T> void sanitizeValue(
+            String key,
+            Supplier<T> getter,
+            Consumer<T> setter,
+            Supplier<T> defaultValue,
+            Consumer<T> validator) {
+        T value = getter.get();
+        try {
+            validator.accept(value);
+        } catch (IllegalArgumentException e) {
+            T replacement = defaultValue.get();
+            setter.accept(replacement);
+            LOGGER.warn("Invalid logistics config value {}={}: {}; using default {}", key, value, e.getMessage(), replacement);
+        }
+    }
+
+    private static void sanitizePipeSpeedRange(LogisticsConfig config, LogisticsConfig defaults) {
+        if (config.pipe.maxSpeed >= config.pipe.minSpeed) {
+            return;
+        }
+        float originalMax = config.pipe.maxSpeed;
+        if (defaults.pipe.maxSpeed >= config.pipe.minSpeed) {
+            config.pipe.maxSpeed = defaults.pipe.maxSpeed;
+            LOGGER.warn(
+                    "Invalid logistics config value pipe_max_speed={}: must be greater than or equal to pipe_min_speed; using default {}",
+                    originalMax,
+                    config.pipe.maxSpeed);
+            return;
+        }
+
+        float originalMin = config.pipe.minSpeed;
+        config.pipe.minSpeed = defaults.pipe.minSpeed;
+        if (config.pipe.maxSpeed < config.pipe.minSpeed) {
+            config.pipe.maxSpeed = defaults.pipe.maxSpeed;
+        }
+        LOGGER.warn(
+                "Invalid logistics config value pipe_min_speed={}: must be less than or equal to pipe_max_speed; using default {}",
+                originalMin,
+                config.pipe.minSpeed);
+    }
+
+    private static void sanitizeStirlingOutputRange(LogisticsConfig config, LogisticsConfig defaults) {
+        if (config.engine.stirlingMaxOutput >= config.engine.stirlingMinOutput) {
+            return;
+        }
+        double originalMax = config.engine.stirlingMaxOutput;
+        if (defaults.engine.stirlingMaxOutput >= config.engine.stirlingMinOutput) {
+            config.engine.stirlingMaxOutput = defaults.engine.stirlingMaxOutput;
+            LOGGER.warn(
+                    "Invalid logistics config value stirling_engine_max_output={}: must be greater than or equal to stirling_engine_min_output; using default {}",
+                    originalMax,
+                    config.engine.stirlingMaxOutput);
+            return;
+        }
+
+        double originalMin = config.engine.stirlingMinOutput;
+        config.engine.stirlingMinOutput = defaults.engine.stirlingMinOutput;
+        if (config.engine.stirlingMaxOutput < config.engine.stirlingMinOutput) {
+            config.engine.stirlingMaxOutput = defaults.engine.stirlingMaxOutput;
+        }
+        LOGGER.warn(
+                "Invalid logistics config value stirling_engine_min_output={}: must be less than or equal to stirling_engine_max_output; using default {}",
+                originalMin,
+                config.engine.stirlingMinOutput);
+    }
+
+    private static void requireMin(long value, long min, String message) {
+        requireCondition(value >= min, message);
+    }
+
+    private static void requireRange(long value, long min, long max, String message) {
+        requireCondition(value >= min && value <= max, message);
+    }
+
+    private static void requireFiniteMin(double value, double min, String message) {
+        requireCondition(Double.isFinite(value) && value >= min, message);
+    }
+
+    private static void requireFiniteRange(double value, double min, double max, String message) {
+        requireCondition(Double.isFinite(value) && value >= min && value <= max, message);
+    }
+
+    private static void requireFiniteFloatMin(double value, double min, String message) {
+        requireFiniteFloat(value, message);
+        requireCondition(value >= min, message);
+    }
+
+    private static void requireFiniteFloatGreaterThan(double value, double minExclusive, String message) {
+        requireFiniteFloat(value, message);
+        requireCondition(value > minExclusive, message);
+    }
+
+    private static void requireFiniteFloat(double value, String message) {
+        requireCondition(Double.isFinite(value) && Math.abs(value) <= Float.MAX_VALUE, message);
+    }
+
+    private static void requireCondition(boolean condition, String message) {
+        if (!condition) {
+            throw new IllegalArgumentException(message);
+        }
     }
 
     // ==================== ConfigEntry ====================
@@ -233,7 +479,8 @@ public final class LogisticsConfig {
             String description,
             Supplier<T> getter,
             Consumer<T> setter,
-            Function<String, T> parser) {
+            Function<String, T> parser,
+            Consumer<T> validator) {
 
         /** Returns the current value as a string. */
         public String getAsString() {
@@ -247,6 +494,7 @@ public final class LogisticsConfig {
         @SuppressWarnings("unchecked")
         public void setFromString(String value) {
             T parsed = parser.apply(value);
+            validator.accept(parsed);
             ((Consumer<T>) setter).accept(parsed);
         }
     }
