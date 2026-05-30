@@ -34,8 +34,10 @@ public final class EnergyComponent implements IEnergyStorage {
 
     @Override
     public long insert(long maxAmount, boolean simulate) {
+        if (maxAmount <= 0) return 0;
         long cap = getCapacity();
-        long accepted = Math.min(maxAmount, Math.min(maxInsert, cap - amount));
+        long room = Math.max(0, cap - amount);
+        long accepted = Math.min(maxAmount, Math.min(Math.max(0, maxInsert), room));
         if (accepted > 0 && !simulate) {
             amount += accepted;
             onChanged.run();
@@ -45,7 +47,8 @@ public final class EnergyComponent implements IEnergyStorage {
 
     @Override
     public long extract(long maxAmount, boolean simulate) {
-        long extracted = Math.min(maxAmount, Math.min(maxExtract, amount));
+        if (maxAmount <= 0) return 0;
+        long extracted = Math.min(maxAmount, Math.min(Math.max(0, maxExtract), Math.max(0, amount)));
         if (extracted > 0 && !simulate) {
             amount -= extracted;
             onChanged.run();
@@ -60,7 +63,7 @@ public final class EnergyComponent implements IEnergyStorage {
 
     @Override
     public long getCapacity() {
-        return capacitySupplier.getAsLong();
+        return Math.max(0, capacitySupplier.getAsLong());
     }
 
     @Override
@@ -75,7 +78,8 @@ public final class EnergyComponent implements IEnergyStorage {
 
     /** Consumes energy internally (e.g., machine processing). Does not fire change notification. */
     public void consume(long amount) {
-        this.amount -= amount;
+        if (amount <= 0) return;
+        this.amount = Math.max(0, this.amount - amount);
     }
 
     /** Sets the stored amount directly (e.g., client-side sync). Does not fire change notification. */

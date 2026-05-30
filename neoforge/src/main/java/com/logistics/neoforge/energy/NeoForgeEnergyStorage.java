@@ -100,7 +100,7 @@ public final class NeoForgeEnergyStorage implements IEnergyStorage {
 
         @Override
         public long getCapacityAsLong() {
-            return storage.getCapacity();
+            return Math.max(0, storage.getCapacity());
         }
 
         private boolean canInsert() {
@@ -113,6 +113,7 @@ public final class NeoForgeEnergyStorage implements IEnergyStorage {
 
         @Override
         public int insert(int amount, net.neoforged.neoforge.transfer.transaction.TransactionContext transaction) {
+            if (amount <= 0) return 0;
             updateSnapshots(transaction);
             long effectiveFree = Math.max(0, getCapacityAsLong() - getAmountAsLong());
             long inserted = Math.min(amount, effectiveFree);
@@ -124,6 +125,7 @@ public final class NeoForgeEnergyStorage implements IEnergyStorage {
 
         @Override
         public int extract(int amount, net.neoforged.neoforge.transfer.transaction.TransactionContext transaction) {
+            if (amount <= 0) return 0;
             updateSnapshots(transaction);
             long extracted = Math.min(getAmountAsLong(), storage.extract(amount, true));
             if (extracted > 0) {
