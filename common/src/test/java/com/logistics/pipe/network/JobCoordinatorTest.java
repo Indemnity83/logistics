@@ -12,6 +12,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -24,6 +25,7 @@ class JobCoordinatorTest extends MinecraftTestEnvironment {
     private JobCoordinator coordinator;
 
     private static final BlockPos PROVIDER = new BlockPos(0, 0, 0);
+    private static final BlockPos PROVIDER2 = new BlockPos(1, 0, 0);
     private static final BlockPos DESTINATION = new BlockPos(5, 0, 0);
     private static final BlockPos DESTINATION2 = new BlockPos(6, 0, 0);
 
@@ -125,6 +127,30 @@ class JobCoordinatorTest extends MinecraftTestEnvironment {
         assertEquals(JobState.COMPLETE, job.state());
         assertEquals(16, job.deliveredAmount());
         assertEquals(0, job.outstanding());
+    }
+
+    @Test
+    void testOnDeliveryFailed_retriesWithoutCountingDelivery() {
+        controller.registerSupply(PROVIDER, Map.of(diamond(), 64L), 1);
+        NetworkJob job = coordinator.submit(partialRequest(diamond(), 16, DESTINATION));
+
+        NetworkController.DispatchCommand cmd = controller.nextDispatchable();
+        assertNotNull(cmd);
+        controller.recordDispatched(cmd.orderId(), 16);
+
+        UUID replacementOrderId = controller.notifyDeliveryFailed(cmd.orderId(), DESTINATION, diamond(), 16);
+        coordinator.onDeliveryFailed(cmd.orderId(), replacementOrderId);
+
+        assertEquals(JobState.ACTIVE, job.state());
+        assertEquals(0, job.deliveredAmount());
+        assertEquals(16, job.outstanding());
+        assertTrue(coordinator.activeJobs().contains(job));
+
+        controller.registerSupply(PROVIDER2, Map.of(diamond(), 16L), 1);
+        NetworkController.DispatchCommand retry = controller.nextDispatchable();
+        assertNotNull(retry, "Failed delivery should create a replacement order for fresh supply");
+        assertEquals(replacementOrderId, retry.orderId());
+        assertEquals(16, retry.amount());
     }
 
     @Test

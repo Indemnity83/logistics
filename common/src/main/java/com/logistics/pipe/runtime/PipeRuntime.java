@@ -247,7 +247,7 @@ public final class PipeRuntime {
     private static void executeRoutePlan(TickContext ctx, TravelingItem item, RoutePlan plan, ItemTickState itemState) {
         switch (plan.getType()) {
             case DROP -> dropItem(ctx, item, itemState);
-            case DISCARD -> discardItem(item, itemState);
+            case DISCARD -> discardItem(ctx, item, itemState);
             case REROUTE -> rerouteItem(ctx, item, plan, itemState);
             case SPLIT -> splitItem(ctx, item, plan, itemState);
             default -> {} // PASS should have been converted in resolveRoutePlan
@@ -256,23 +256,16 @@ public final class PipeRuntime {
 
     private static void dropItem(TickContext ctx, TravelingItem item, ItemTickState itemState) {
         if (ctx.isServer()) {
-            // If item had delivery tracking, notify network before dropping so
-            // orderedForRequester doesn't stay permanently elevated.
-            if (item.getDeliveryId() != null && item.getDestination() != null) {
-                PipeNetwork network = NetworkRegistry.getNetwork(ctx.world(), ctx.pos());
-                if (network != null) {
-                    network.notifyDelivery(
-                            item.getDestination(),
-                            ItemStorageLookup.of(item.getStack()),
-                            item.getStack().getCount());
-                }
-            }
+            notifyDeliveryFailed(ctx.world(), ctx.pos(), item, item.getStack().getCount());
             PipeBlockEntity.dropItem(ctx.world(), ctx.pos(), item);
         }
         itemState.markForDiscard(item);
     }
 
-    private static void discardItem(TravelingItem item, ItemTickState itemState) {
+    private static void discardItem(TickContext ctx, TravelingItem item, ItemTickState itemState) {
+        if (ctx.isServer()) {
+            notifyDeliveryFailed(ctx.world(), ctx.pos(), item, item.getStack().getCount());
+        }
         itemState.markForDiscard(item);
     }
 
@@ -418,6 +411,7 @@ public final class PipeRuntime {
                     PipeNetwork network = NetworkRegistry.getNetwork(world, pos);
                     if (network != null) {
                         network.notifyDelivery(
+                                item.getDeliveryId(),
                                 item.getDestination(),
                                 ItemStorageLookup.of(item.getStack()),
                                 inserted);
@@ -427,6 +421,22 @@ public final class PipeRuntime {
                     }
                 }
                 if (inserted < item.getStack().getCount()) {
+                    long failed = item.getStack().getCount() - inserted;
+                    if (item.getDeliveryId() != null && item.getDestination() != null) {
+                        PipeNetwork network = NetworkRegistry.getNetwork(world, pos);
+                        if (network != null) {
+                            network.notifyDelivery(
+                                    item.getDeliveryId(),
+                                    item.getDestination(),
+                                    ItemStorageLookup.of(item.getStack()),
+                                    inserted);
+                            network.notifyDeliveryFailed(
+                                    item.getDeliveryId(),
+                                    item.getDestination(),
+                                    ItemStorageLookup.of(item.getStack()),
+                                    failed);
+                        }
+                    }
                     item.getStack().shrink((int) inserted);
                     PipeBlockEntity.dropItem(world, pos, item);
                 }
@@ -439,16 +449,22 @@ public final class PipeRuntime {
     }
 
     private static void notifyDropAndDrop(Level world, BlockPos pos, TravelingItem item) {
-        if (item.getDeliveryId() != null && item.getDestination() != null) {
-            PipeNetwork network = NetworkRegistry.getNetwork(world, pos);
-            if (network != null) {
-                network.notifyDelivery(
-                        item.getDestination(),
-                        ItemStorageLookup.of(item.getStack()),
-                        item.getStack().getCount());
-            }
-        }
+        notifyDeliveryFailed(world, pos, item, item.getStack().getCount());
         PipeBlockEntity.dropItem(world, pos, item);
+    }
+
+    private static void notifyDeliveryFailed(Level world, BlockPos pos, TravelingItem item, long amount) {
+        if (item.getDeliveryId() == null || item.getDestination() == null || amount <= 0) {
+            return;
+        }
+        PipeNetwork network = NetworkRegistry.getNetwork(world, pos);
+        if (network != null) {
+            network.notifyDeliveryFailed(
+                    item.getDeliveryId(),
+                    item.getDestination(),
+                    ItemStorageLookup.of(item.getStack()),
+                    amount);
+        }
     }
 
     private static List<Direction> getValidDirections(
