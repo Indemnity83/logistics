@@ -154,6 +154,32 @@ class JobCoordinatorTest extends MinecraftTestEnvironment {
     }
 
     @Test
+    void testOnDeliveryFailed_afterPartialDelivery_retriesOnlyRemainder() {
+        controller.registerSupply(PROVIDER, Map.of(diamond(), 64L), 1);
+        NetworkJob job = coordinator.submit(partialRequest(diamond(), 32, DESTINATION));
+
+        NetworkController.DispatchCommand cmd = controller.nextDispatchable();
+        assertNotNull(cmd);
+        controller.recordDispatched(cmd.orderId(), 32);
+
+        controller.notifyDelivery(cmd.orderId(), DESTINATION, diamond(), 12);
+        coordinator.onDelivery(DESTINATION, diamond(), 12);
+        UUID replacementOrderId = controller.notifyDeliveryFailed(cmd.orderId(), DESTINATION, diamond(), 20);
+        coordinator.onDeliveryFailed(cmd.orderId(), replacementOrderId);
+
+        assertEquals(JobState.ACTIVE, job.state());
+        assertEquals(12, job.deliveredAmount());
+        assertEquals(20, job.outstanding());
+        assertTrue(coordinator.activeJobs().contains(job));
+
+        controller.registerSupply(PROVIDER2, Map.of(diamond(), 20L), 1);
+        NetworkController.DispatchCommand retry = controller.nextDispatchable();
+        assertNotNull(retry, "Failed remainder should create a replacement order");
+        assertEquals(replacementOrderId, retry.orderId());
+        assertEquals(20, retry.amount());
+    }
+
+    @Test
     void testOnDelivery_doesNotAffectDifferentItem() {
         controller.registerSupply(PROVIDER, Map.of(diamond(), 64L, emerald(), 32L), 1);
         NetworkJob diamondJob = coordinator.submit(partialRequest(diamond(), 16, DESTINATION));
