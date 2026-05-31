@@ -106,6 +106,8 @@ class QuarryBoundsTest extends MinecraftTestEnvironment {
 
         assertThat(bounds.isCustom()).isFalse();
         assertThat(bounds.getMinX()).isZero();
+        assertThat(bounds.getMinZ()).isZero();
+        assertThat(bounds.getMaxX()).isZero();
         assertThat(bounds.getMaxZ()).isZero();
     }
 
