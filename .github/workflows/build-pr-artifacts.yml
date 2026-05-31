@@ -1,0 +1,80 @@
+name: Build PR Artifacts
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: "Branch, tag, or SHA to build"
+        required: true
+        default: "mc/1.21.11"
+      loader:
+        description: "Loader artifact to build"
+        required: true
+        default: "both"
+        type: choice
+        options:
+          - both
+          - fabric
+          - neoforge
+      pr_number:
+        description: "Optional PR number for dev-pr version naming"
+        required: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.pr_number != '' && format('refs/pull/{0}/head', inputs.pr_number) || inputs.ref }}
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v5
+        with:
+          cache-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
+
+      - name: Build artifacts
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          MC_VERSION="$(grep '^minecraft_version=' gradle.properties | cut -d'=' -f2)"
+          SHA7="$(git rev-parse --short=7 HEAD)"
+          PR_NUM="${{ inputs.pr_number }}"
+
+          if [[ -n "$PR_NUM" ]]; then
+            BUILD_VERSION="dev-pr.${PR_NUM}+mc${MC_VERSION}.sha.${SHA7}"
+          else
+            BUILD_VERSION="dev-manual+mc${MC_VERSION}.sha.${SHA7}"
+          fi
+
+          if [[ "${{ inputs.loader }}" == "both" ]]; then
+            LOADERS=(fabric neoforge)
+          else
+            LOADERS=("${{ inputs.loader }}")
+          fi
+
+          for loader in "${LOADERS[@]}"; do
+            # Fabric uses remapJar (obfuscated); NeoForge uses jar
+            if [[ "$loader" == "fabric" ]]; then
+              GRADLE_TASK=":${loader}:remapJar"
+            else
+              GRADLE_TASK=":${loader}:jar"
+            fi
+            MOD_VERSION="$BUILD_VERSION" ./gradlew "$GRADLE_TASK" --console=plain
+          done
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: logistics-pr-artifacts-${{ github.run_id }}
+          path: |
+            fabric/build/libs/logistics-*.jar
+            neoforge/build/libs/logistics-*.jar
+          if-no-files-found: error
