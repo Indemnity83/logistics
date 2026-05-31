@@ -72,6 +72,16 @@ class ActiveQuarryRegistryTest extends MinecraftTestEnvironment {
     }
 
     @Test
+    @DisplayName("retains entries when age equals the TTL exactly (eviction is strict-greater-than)")
+    void retainsEntriesAtExactTTL() {
+        BlockPos pos = new BlockPos(0, 64, 0);
+        ActiveQuarryRegistry.register(OVERWORLD, 0L, pos);
+
+        assertThat(ActiveQuarryRegistry.getAll(OVERWORLD, ActiveQuarryRegistry.REGISTRY_TTL_TICKS))
+                .containsExactly(pos);
+    }
+
+    @Test
     @DisplayName("evicts entries older than the TTL on read")
     void evictsStaleEntries() {
         BlockPos fresh = new BlockPos(0, 64, 0);
