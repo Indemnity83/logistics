@@ -43,11 +43,10 @@ jobs:
 
   lint:
     name: lint (${{ matrix.module }})
-    # Skip: draft PRs, release-please PRs
+    # Skip draft PRs and title/body edits.
     if: |
       github.event.action != 'edited' &&
-      github.event.pull_request.draft == false &&
-      !startsWith(github.head_ref, 'release-please--')
+      github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -75,11 +74,10 @@ jobs:
 
   test:
     name: test (${{ matrix.module }})
-    # Skip: draft PRs, release-please PRs
+    # Skip draft PRs and title/body edits.
     if: |
       github.event.action != 'edited' &&
-      github.event.pull_request.draft == false &&
-      !startsWith(github.head_ref, 'release-please--')
+      github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
