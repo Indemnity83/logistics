@@ -306,6 +306,12 @@ class NetworkControllerTest extends MinecraftTestEnvironment {
         assertNotNull(retry, "Replacement order should be dispatchable when supply returns");
         assertEquals(replacementOrderId, retry.orderId());
         assertEquals(20L, retry.amount());
+
+        controller.recordDispatched(retry.orderId(), 20L);
+        controller.notifyDelivery(retry.orderId(), REQUESTER, diamond(), 20L);
+
+        assertEquals(0L, controller.getOrderedAmountFor(REQUESTER, diamond()),
+                "Retry delivery should clear the remaining requester accounting exactly once");
     }
 
     // ===== cancelOrder =====
