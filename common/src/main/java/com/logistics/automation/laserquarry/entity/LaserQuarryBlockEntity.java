@@ -15,16 +15,12 @@ import com.logistics.core.lib.block.capability.PipeConnection;
 import com.logistics.core.lib.compat.NbtCompat;
 import com.logistics.core.lib.block.behavior.ProbeResult;
 import com.logistics.core.lib.power.EnergyDemandProvider;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Container;
 import net.minecraft.world.WorldlyContainer;
@@ -38,8 +34,6 @@ import org.jetbrains.annotations.Nullable;
 import com.logistics.core.lib.energy.IEnergyStorage;
 
 public class LaserQuarryBlockEntity extends BaseBlockEntity implements PipeConnection, HasEnergyStorage, EnergyDemandProvider {
-    private static final long REGISTRY_TTL_TICKS = 200L;
-    private static final Map<ResourceKey<Level>, Map<Long, Long>> ACTIVE_QUARRIES = new HashMap<>();
     private static final long FRAME_BUILD_COST = 240L;
     private static final long MOVE_COST_BUFFER_DIVISOR = 10L;
 
@@ -110,11 +104,7 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity implements PipeConne
     private boolean finished = false;
 
     // Custom bounds from markers
-    private boolean useCustomBounds = false;
-    private int customMinX = 0;
-    private int customMinZ = 0;
-    private int customMaxX = 0;
-    private int customMaxZ = 0;
+    private final QuarryBounds bounds = new QuarryBounds();
 
     // Cached values for the current mining target
     private BlockPos currentTarget = null;
@@ -152,7 +142,7 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity implements PipeConne
             return;
         }
 
-        registerActiveQuarry((ServerLevel) world, pos);
+        ActiveQuarryRegistry.register((ServerLevel) world, pos);
 
         entity.energyReceivedLastTick = entity.energyReceivedThisTick;
         entity.energyReceivedThisTick = 0;
@@ -632,8 +622,8 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity implements PipeConne
 
     private void advanceToNextBlock() {
         miningX++;
-        int maxX = useCustomBounds ? (customMaxX - customMinX + 1) : LogisticsConfig.get().quarry.area;
-        int maxZ = useCustomBounds ? (customMaxZ - customMinZ + 1) : LogisticsConfig.get().quarry.area;
+        int maxX = bounds.isCustom() ? (bounds.getMaxX() - bounds.getMinX() + 1) : LogisticsConfig.get().quarry.area;
+        int maxZ = bounds.isCustom() ? (bounds.getMaxZ() - bounds.getMinZ() + 1) : LogisticsConfig.get().quarry.area;
 
         if (miningX >= maxX) {
             miningX = 0;
@@ -654,9 +644,9 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity implements PipeConne
 
         int startX;
         int startZ;
-        if (useCustomBounds) {
-            startX = customMinX;
-            startZ = customMinZ;
+        if (bounds.isCustom()) {
+            startX = bounds.getMinX();
+            startZ = bounds.getMinZ();
         } else {
             int half = LogisticsConfig.get().quarry.area / 2;
             Direction facing = LaserQuarryBlock.getMiningDirection(quarryState);
@@ -708,12 +698,12 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity implements PipeConne
         int startZ;
         int innerSizeX;
         int innerSizeZ;
-        if (useCustomBounds) {
+        if (bounds.isCustom()) {
             // Custom bounds: mining area is inset 1 block from frame
-            startX = customMinX + 1;
-            startZ = customMinZ + 1;
-            innerSizeX = customMaxX - customMinX - 1; // frame size - 2 for inset
-            innerSizeZ = customMaxZ - customMinZ - 1;
+            startX = bounds.getMinX() + 1;
+            startZ = bounds.getMinZ() + 1;
+            innerSizeX = bounds.getMaxX() - bounds.getMinX() - 1; // frame size - 2 for inset
+            innerSizeZ = bounds.getMaxZ() - bounds.getMinZ() - 1;
         } else {
             int half = LogisticsConfig.get().quarry.area / 2;
             Direction facing = LaserQuarryBlock.getMiningDirection(quarryState);
@@ -780,9 +770,9 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity implements PipeConne
     private void advanceMiningPosition() {
         int innerSizeX;
         int innerSizeZ;
-        if (useCustomBounds) {
-            innerSizeX = customMaxX - customMinX - 1;
-            innerSizeZ = customMaxZ - customMinZ - 1;
+        if (bounds.isCustom()) {
+            innerSizeX = bounds.getMaxX() - bounds.getMinX() - 1;
+            innerSizeZ = bounds.getMaxZ() - bounds.getMinZ() - 1;
         } else {
             innerSizeX = LogisticsConfig.get().quarry.area - 2;
             innerSizeZ = LogisticsConfig.get().quarry.area - 2;
@@ -852,11 +842,11 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity implements PipeConne
         int startZ;
         int endX;
         int endZ;
-        if (useCustomBounds) {
-            startX = customMinX;
-            startZ = customMinZ;
-            endX = customMaxX;
-            endZ = customMaxZ;
+        if (bounds.isCustom()) {
+            startX = bounds.getMinX();
+            startZ = bounds.getMinZ();
+            endX = bounds.getMaxX();
+            endZ = bounds.getMaxZ();
         } else {
             int half = LogisticsConfig.get().quarry.area / 2;
             Direction facing = LaserQuarryBlock.getMiningDirection(quarryState);
@@ -971,11 +961,11 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity implements PipeConne
         int startZ;
         int endX;
         int endZ;
-        if (useCustomBounds) {
-            startX = customMinX;
-            startZ = customMinZ;
-            endX = customMaxX;
-            endZ = customMaxZ;
+        if (bounds.isCustom()) {
+            startX = bounds.getMinX();
+            startZ = bounds.getMinZ();
+            endX = bounds.getMaxX();
+            endZ = bounds.getMaxZ();
         } else {
             int half = LogisticsConfig.get().quarry.area / 2;
             Direction facing = LaserQuarryBlock.getMiningDirection(quarryState);
@@ -1058,11 +1048,7 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity implements PipeConne
      * The top Y is derived from the quarry's position + offset (same as default mining).
      */
     public void setCustomBounds(int minX, int minZ, int maxX, int maxZ) {
-        this.useCustomBounds = true;
-        this.customMinX = minX;
-        this.customMinZ = minZ;
-        this.customMaxX = maxX;
-        this.customMaxZ = maxZ;
+        bounds.setCustom(minX, minZ, maxX, maxZ);
         this.miningX = 0;
         this.miningY = 0;
         this.miningZ = 0;
@@ -1251,13 +1237,7 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity implements PipeConne
         nbt.putFloat("ArmSyncedSpeed", syncedArmSpeed);
 
         // Save custom bounds
-        nbt.putBoolean("UseCustomBounds", useCustomBounds);
-        if (useCustomBounds) {
-            nbt.putInt("CustomBoundsMinX", customMinX);
-            nbt.putInt("CustomBoundsMinZ", customMinZ);
-            nbt.putInt("CustomBoundsMaxX", customMaxX);
-            nbt.putInt("CustomBoundsMaxZ", customMaxZ);
-        }
+        bounds.save(nbt);
     }
 
     @Override
@@ -1302,29 +1282,14 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity implements PipeConne
         syncedArmSpeed = NbtCompat.getFloat(nbt, "ArmSyncedSpeed", 0.0f);
 
         // Load custom bounds
-        useCustomBounds = NbtCompat.getBoolean(nbt, "UseCustomBounds", false);
-        if (useCustomBounds) {
-            customMinX = NbtCompat.getInt(nbt, "CustomBoundsMinX", 0);
-            customMinZ = NbtCompat.getInt(nbt, "CustomBoundsMinZ", 0);
-            customMaxX = NbtCompat.getInt(nbt, "CustomBoundsMaxX", 0);
-            customMaxZ = NbtCompat.getInt(nbt, "CustomBoundsMaxZ", 0);
-        } else {
-            customMinX = 0;
-            customMinZ = 0;
-            customMaxX = 0;
-            customMaxZ = 0;
-        }
+        bounds.load(nbt);
     }
 
     @Override
     protected void loadLegacyData(net.minecraft.world.level.storage.ValueInput view) {
         super.loadLegacyData(view);
 
-        useCustomBounds = false;
-        customMinX = 0;
-        customMinZ = 0;
-        customMaxX = 0;
-        customMaxZ = 0;
+        bounds.clear();
 
         // Load energy from old "Energy" tag
         view.read("Energy", CompoundTag.CODEC).ifPresent(energyState -> {
@@ -1365,11 +1330,11 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity implements PipeConne
 
         // Load custom bounds from old "CustomBounds" tag
         view.read("CustomBounds", CompoundTag.CODEC).ifPresent(customBoundsNbt -> {
-            useCustomBounds = true;
-            customMinX = NbtCompat.getInt(customBoundsNbt, "MinX", 0);
-            customMinZ = NbtCompat.getInt(customBoundsNbt, "MinZ", 0);
-            customMaxX = NbtCompat.getInt(customBoundsNbt, "MaxX", 0);
-            customMaxZ = NbtCompat.getInt(customBoundsNbt, "MaxZ", 0);
+            bounds.loadLegacy(
+                    NbtCompat.getInt(customBoundsNbt, "MinX", 0),
+                    NbtCompat.getInt(customBoundsNbt, "MinZ", 0),
+                    NbtCompat.getInt(customBoundsNbt, "MaxX", 0),
+                    NbtCompat.getInt(customBoundsNbt, "MaxZ", 0));
         });
     }
 
@@ -1382,7 +1347,7 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity implements PipeConne
         }
 
         if (level != null && !level.isClientSide()) {
-            unregisterActiveQuarry((ServerLevel) level, pos);
+            ActiveQuarryRegistry.unregister((ServerLevel) level, pos);
             // Clear any active breaking animation
             if (currentTarget != null) {
                 ((ServerLevel) level).destroyBlockProgress(breakingEntityId, currentTarget, -1);
@@ -1437,23 +1402,23 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity implements PipeConne
 
     // Custom bounds getters for frame decay logic
     public boolean hasCustomBounds() {
-        return useCustomBounds;
+        return bounds.isCustom();
     }
 
     public int getCustomMinX() {
-        return customMinX;
+        return bounds.getMinX();
     }
 
     public int getCustomMinZ() {
-        return customMinZ;
+        return bounds.getMinZ();
     }
 
     public int getCustomMaxX() {
-        return customMaxX;
+        return bounds.getMaxX();
     }
 
     public int getCustomMaxZ() {
-        return customMaxZ;
+        return bounds.getMaxZ();
     }
 
     /** True if the quarry has been placed but hasn't started any clearing yet. */
@@ -1463,54 +1428,11 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity implements PipeConne
     }
 
     public static List<BlockPos> getActiveQuarries(ServerLevel world) {
-        ResourceKey<Level> key = world.dimension();
-        Map<Long, Long> entries = ACTIVE_QUARRIES.get(key);
-        if (entries == null || entries.isEmpty()) {
-            return List.of();
-        }
-
-        long now = world.getGameTime();
-        java.util.Iterator<java.util.Map.Entry<Long, Long>> iterator =
-                entries.entrySet().iterator();
-        while (iterator.hasNext()) {
-            Map.Entry<Long, Long> entry = iterator.next();
-            if (now - entry.getValue() > REGISTRY_TTL_TICKS) {
-                iterator.remove();
-            }
-        }
-
-        if (entries.isEmpty()) {
-            ACTIVE_QUARRIES.remove(key);
-            return List.of();
-        }
-
-        List<BlockPos> positions = new ArrayList<>(entries.size());
-        for (Long posLong : entries.keySet()) {
-            positions.add(BlockPos.of(posLong));
-        }
-        return positions;
+        return ActiveQuarryRegistry.getAll(world);
     }
 
     public static void clearActiveQuarries(ServerLevel world) {
-        ACTIVE_QUARRIES.remove(world.dimension());
-    }
-
-    private static void registerActiveQuarry(ServerLevel world, BlockPos pos) {
-        ResourceKey<Level> key = world.dimension();
-        Map<Long, Long> entries = ACTIVE_QUARRIES.computeIfAbsent(key, unused -> new HashMap<>());
-        entries.put(pos.asLong(), world.getGameTime());
-    }
-
-    private static void unregisterActiveQuarry(ServerLevel world, BlockPos pos) {
-        ResourceKey<Level> key = world.dimension();
-        Map<Long, Long> entries = ACTIVE_QUARRIES.get(key);
-        if (entries == null) {
-            return;
-        }
-        entries.remove(pos.asLong());
-        if (entries.isEmpty()) {
-            ACTIVE_QUARRIES.remove(key);
-        }
+        ActiveQuarryRegistry.clear(world);
     }
 
     // PipeConnection interface implementation
