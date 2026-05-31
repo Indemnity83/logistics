@@ -60,7 +60,7 @@ dependencies {
 }
 
 processResources {
-    def compatibilityBounds = rootProject.minecraft_compatibility_versions.split(',', 2).collect { it.trim() }
+    def compatibilityBounds = rootProject.minecraft_compatibility_versions.split(',').collect { it.trim() }
     if (compatibilityBounds.size() != 2 || compatibilityBounds.any { it.isEmpty() }) {
         throw new GradleException("minecraft_compatibility_versions must be formatted as '<min>,<next>'")
     }
