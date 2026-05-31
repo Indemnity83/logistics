@@ -119,14 +119,17 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity
         entity.energyReceivedLastTick = entity.energyReceivedThisTick;
         entity.energyReceivedThisTick = 0;
 
+        boolean wasConsumedEnergy = entity.consumedEnergyThisTick;
+        entity.consumedEnergyThisTick = false;
+
         if (entity.phaseRunner.isFinished()) {
+            if (wasConsumedEnergy) {
+                entity.syncToClients();
+            }
             return;
         }
 
         ServerLevel serverWorld = (ServerLevel) world;
-
-        boolean wasConsumedEnergy = entity.consumedEnergyThisTick;
-        entity.consumedEnergyThisTick = false;
 
         entity.phaseRunner.tick(entity, serverWorld, pos, state);
 
