@@ -1,5 +1,6 @@
 plugins {
     id 'com.diffplug.spotless'
+    id 'jacoco'
 }
 
 version = System.getenv("MOD_VERSION") ?: "dev"
@@ -11,18 +12,176 @@ repositories {
 
 spotless {
     // Keep this intentionally minimal to avoid churny formatting diffs.
-    java {
-        target 'common/src/**/*.java', 'fabric/src/**/*.java', 'neoforge/src/**/*.java'
-        removeUnusedImports()
-        trimTrailingWhitespace()
-        endWithNewline()
-    }
-
     // Whitespace hygiene for common text files.
     format('misc') {
         target '*.gradle', '**/*.gradle', '*.md', '*.yml', '*.yaml', '*.json', '*.properties', '.gitignore'
         trimTrailingWhitespace()
         endWithNewline()
+    }
+}
+
+subprojects { subproject ->
+    apply plugin: 'com.diffplug.spotless'
+    apply plugin: 'jacoco'
+
+    spotless {
+        java {
+            target 'src/**/*.java'
+            removeUnusedImports()
+            trimTrailingWhitespace()
+            endWithNewline()
+        }
+    }
+
+    tasks.register('lint') {
+        description = "Check ${subproject.path} source formatting"
+        group = 'verification'
+        dependsOn 'spotlessCheck'
+    }
+
+    tasks.register('fix') {
+        description = "Apply ${subproject.path} source formatting"
+        group = 'formatting'
+        dependsOn 'spotlessApply'
+    }
+
+    plugins.withId('java') {
+        tasks.named('jacocoTestReport', JacocoReport) {
+            dependsOn tasks.withType(Test)
+            reports {
+                html.required = true
+                xml.required = true
+            }
+        }
+
+        subproject.afterEvaluate {
+            tasks.named('jacocoTestReport', JacocoReport) {
+                classDirectories.setFrom(files(coverageClassTrees(subproject)))
+                sourceDirectories.setFrom(files(coverageSourceDirs(subproject)))
+            }
+        }
+    }
+}
+
+def coverageIncludes(Project project) {
+    project.name == 'common' ? ['com/logistics/**'] : ["com/logistics/${project.name}/**"]
+}
+
+def coverageSourceSets(Project project) {
+    project.sourceSets.matching { it.name in ['main', 'client'] }
+}
+
+def coverageClassTrees(Project project) {
+    def includes = coverageIncludes(project)
+    coverageSourceSets(project).collectMany { sourceSet ->
+        sourceSet.output.classesDirs.files.collect { dir ->
+            fileTree(dir: dir, include: includes)
+        }
+    }
+}
+
+def coverageSourceDirs(Project project) {
+    coverageSourceSets(project).collectMany { it.allSource.srcDirs }
+}
+
+tasks.register('checkImportBoundaries') {
+    description = 'Check loader and domain import boundaries'
+    group = 'verification'
+
+    doLast {
+        def failures = []
+        def importMatches = { Object target, String pattern ->
+            fileTree(target) {
+                include '**/*.java'
+            }.findAll { file ->
+                file.readLines().any { line -> line ==~ pattern }
+            }
+        }
+
+        importMatches('common/src', /^import (static )?net\.(fabricmc|neoforged)\..*/).each {
+            failures << "loader import found in common/: ${rootDir.toPath().relativize(it.toPath())}"
+        }
+
+        importMatches('fabric/src', /^import (static )?net\.neoforged\..*/).each {
+            failures << "neoforge import found in fabric/: ${rootDir.toPath().relativize(it.toPath())}"
+        }
+
+        importMatches('neoforge/src', /^import (static )?net\.fabricmc\..*/).each {
+            failures << "fabric import found in neoforge/: ${rootDir.toPath().relativize(it.toPath())}"
+        }
+
+        def domains = ['pipe', 'power', 'automation']
+        domains.each { domain ->
+            def others = domains.findAll { it != domain }.join('|')
+            importMatches("common/src/main/java/com/logistics/${domain}", /^import\s+(?:static\s+)?com\.logistics\.(${others})\..*/).each {
+                failures << "cross-domain import found in ${domain}/: ${rootDir.toPath().relativize(it.toPath())}"
+            }
+        }
+
+        if (!failures.isEmpty()) {
+            throw new GradleException(failures.join(System.lineSeparator()))
+        }
+    }
+}
+
+tasks.register('lint') {
+    description = 'Check all source and repository formatting'
+    group = 'verification'
+    dependsOn 'repoLint'
+    dependsOn subprojects.collect { "${it.path}:lint" }
+}
+
+tasks.register('fix') {
+    description = 'Apply all source and repository formatting'
+    group = 'formatting'
+    dependsOn 'repoFix'
+    dependsOn subprojects.collect { "${it.path}:fix" }
+}
+
+tasks.register('repoLint') {
+    description = 'Check repository-level formatting'
+    group = 'verification'
+    dependsOn 'spotlessMiscCheck'
+}
+
+tasks.register('repoFix') {
+    description = 'Apply repository-level formatting'
+    group = 'formatting'
+    dependsOn 'spotlessMiscApply'
+}
+
+project(':common').tasks.named('lint') {
+    dependsOn rootProject.tasks.named('repoLint')
+    dependsOn rootProject.tasks.named('checkImportBoundaries')
+}
+
+tasks.named('spotlessCheck') {
+    dependsOn subprojects.collect { "${it.path}:spotlessCheck" }
+}
+
+tasks.named('spotlessApply') {
+    dependsOn subprojects.collect { "${it.path}:spotlessApply" }
+}
+
+tasks.register('testCoverage', JacocoReport) {
+    description = 'Generate an aggregate unit test coverage report'
+    group = 'verification'
+
+    dependsOn subprojects.collect { "${it.path}:test" }
+    executionData.from(subprojects.collect { it.layout.buildDirectory.file('jacoco/test.exec') })
+
+    reports {
+        html.required = true
+        html.outputLocation = layout.buildDirectory.dir('reports/jacoco/testCoverage/html')
+        xml.required = true
+        xml.outputLocation = layout.buildDirectory.file('reports/jacoco/testCoverage/testCoverage.xml')
+    }
+}
+
+gradle.projectsEvaluated {
+    tasks.named('testCoverage', JacocoReport) {
+        classDirectories.setFrom(files(subprojects.collectMany { coverageClassTrees(it) }))
+        sourceDirectories.setFrom(files(subprojects.collectMany { coverageSourceDirs(it) }))
     }
 }
 
@@ -81,5 +240,5 @@ tasks.named('build') {
 }
 
 tasks.named('check') {
-    dependsOn 'spotlessCheck'
+    dependsOn 'lint'
 }

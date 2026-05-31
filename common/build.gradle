@@ -44,8 +44,6 @@ dependencies {
     testImplementation "org.assertj:assertj-core:${rootProject.assertj_version}"
 }
 
-apply plugin: 'jacoco'
-
 sourceSets {
     test {
         java { srcDir 'src/test/java' }
@@ -65,18 +63,6 @@ test {
     }
     failFast = false
     maxParallelForks = Runtime.runtime.availableProcessors().intdiv(2) ?: 1
-    finalizedBy jacocoTestReport
-}
-
-jacocoTestReport {
-    dependsOn test
-    reports {
-        html.required = true
-        xml.required = true
-    }
-    classDirectories.setFrom(files(classDirectories.files.collect {
-        fileTree(dir: it, include: ['com/logistics/**'])
-    }))
 }
 
 java {

@@ -2,54 +2,24 @@ name: Check PR
 
 on:
   pull_request:
-    types:
-      - opened
-      - edited
-      - synchronize
+    branches: ['mc/**']
+    types: [opened, edited, synchronize, reopened, ready_for_review]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 permissions:
+  contents: read
   pull-requests: read
 
 jobs:
-  loader-isolation:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
-      - name: Check for cross-loader import leakage
-        run: |
-          FAIL=0
-
-          echo "Checking fabric/ for neoforged imports..."
-          if grep -rEn "^import (static )?net\.neoforged\." fabric/src/ --include="*.java"; then
-            echo "::error::neoforge imports found in fabric/"
-            FAIL=1
-          fi
-
-          echo "Checking neoforge/ for fabricmc imports..."
-          if grep -rEn "^import (static )?net\.fabricmc\." neoforge/src/ --include="*.java"; then
-            echo "::error::fabric imports found in neoforge/"
-            FAIL=1
-          fi
-
-          echo "Checking for cross-domain imports (pipe/power/automation must not import each other)..."
-          DOMAINS="pipe power automation"
-          for domain in $DOMAINS; do
-            others=$(echo $DOMAINS | tr ' ' '\n' | grep -v "^${domain}$" | tr '\n' '|' | sed 's/|$//')
-            if grep -rEn "^import com\.logistics\.(${others})\." common/src/main/java/com/logistics/${domain}/ --include="*.java"; then
-              echo "::error::cross-domain import found in ${domain}/"
-              FAIL=1
-            fi
-          done
-
-          exit $FAIL
-
   validate:
+    name: lint (pr)
     runs-on: ubuntu-latest
     if: github.actor != 'dependabot[bot]'
     steps:
-      - uses: amannn/action-semantic-pull-request@v6
+      - uses: amannn/action-semantic-pull-request@48f256284bd46cdaab1048c3721360e808335d50
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -70,3 +40,76 @@ jobs:
           requireScope: false
           # Validate PR title only (not individual commits)
           validateSingleCommit: false
+
+  lint:
+    name: lint (${{ matrix.module }})
+    # Skip: draft PRs, release-please PRs
+    if: |
+      github.event.action != 'edited' &&
+      github.event.pull_request.draft == false &&
+      !startsWith(github.head_ref, 'release-please--')
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        module: [common, fabric, neoforge]
+
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          persist-credentials: false
+          token: ${{ github.token }}
+
+      - uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@4c125117fe7c5aed11272ec4213f602f012f89f2
+        with:
+          cache-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
+
+      - name: Check ${{ matrix.module }} formatting
+        run: ./gradlew :${{ matrix.module }}:lint --console=plain
+
+  test:
+    name: test (${{ matrix.module }})
+    # Skip: draft PRs, release-please PRs
+    if: |
+      github.event.action != 'edited' &&
+      github.event.pull_request.draft == false &&
+      !startsWith(github.head_ref, 'release-please--')
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        module: [common, fabric, neoforge]
+
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          persist-credentials: false
+          token: ${{ github.token }}
+
+      - uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@4c125117fe7c5aed11272ec4213f602f012f89f2
+        with:
+          cache-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
+
+      - name: Run ${{ matrix.module }} tests
+        run: ./gradlew :${{ matrix.module }}:test --console=plain
+        # Note: Game tests (./gradlew :fabric:runGameTest) are not run in CI due to resource
+        # constraints and long execution time. Run locally before merging if testing game mechanics.
+
+      - name: Upload test reports
+        if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: test-reports-${{ matrix.module }}-${{ github.run_id }}
+          path: ${{ matrix.module }}/build/reports/tests/test/
