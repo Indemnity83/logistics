@@ -55,6 +55,22 @@ Local aggregate coverage is generated with:
 The HTML report is written to `build/reports/jacoco/testCoverage/html/index.html`.
 The XML report is written to `build/reports/jacoco/testCoverage/testCoverage.xml`.
 
+Current aggregate baseline from `./gradlew testCoverage`:
+
+| Counter | Coverage |
+|---------|----------|
+| Instruction | 14.2% |
+| Branch | 12.1% |
+| Line | 14.3% |
+| Method | 19.9% |
+| Class | 29.3% |
+
+High-coverage pure-logic areas include `core.lib.resource`, `core.lib.filter`,
+`power.engine`, `core.lib.energy`, `core.lib.network`, and `neoforge.energy`.
+The aggregate percentage is still low because the report includes block entities,
+blocks, menus, live-world runtime paths, bootstrap code, and loader entrypoints
+that are documented below as requiring restructuring or integration tests.
+
 ---
 
 ## What's Covered
@@ -66,7 +82,7 @@ The XML report is written to `build/reports/jacoco/testCoverage/testCoverage.xml
 - **Pipe network graph** — NetworkGraph, NetworkPathfinder
 - **Pipe runtime** — TravelingItem, TravelingItemPhysics, RoutePlan
 - **Power** — CableTier, PIDController
-- **Core** — BaseBlockEntity, ResourceId, MaceratorRecipe, MaceratorBlockEntityLogic
+- **Core** — BaseBlockEntity, ResourceId, MaceratorRecipe, MaceratorBlockEntityLogic, FluidTankComponent, ItemInventoryComponent
 - **Serialization golden tests** — ItemFilterModule (backward compat), ProviderDispatchQueue, TravelingItem
 
 `fabric/src/test/java/` and `neoforge/src/test/java/` contain ServiceLoader smoke tests
@@ -123,7 +139,8 @@ These classes take a `Level` in their constructor or rely on world state during 
 | Class | Why |
 |-------|-----|
 | `FabricPlatformService.configDir()` / `getModName()` / `registerAlias()` | Calls `FabricLoader.getInstance()` at method invocation time |
-| `FabricEnergyStorage` / `TrToIEnergyStorageAdapter` | Wrap Team Reborn Energy interfaces; require running TR Energy environment |
+| `FabricItemStorage` / `FabricFluidStorage` | Fabric Transfer API resource types require Fabric Loader JUnit or GameTest mixins; enabling that in the current plain unit-test task conflicts with ServiceLoader smoke-test classloading |
+| `NeoForgeFluidStorage` | `FluidResource` / vanilla `Fluids` bootstrap touches FML-only feature flag loading without a full NeoForge loader context |
 
 ---
 
