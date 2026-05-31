@@ -22,9 +22,14 @@ jobs:
       - name: Extract release metadata
         id: meta
         shell: bash
+        env:
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
         run: |
           TAG="${{ github.event.release.tag_name }}"
           URL="${{ github.event.release.html_url }}"
+
+          DEFAULT_COMPONENT="${DEFAULT_BRANCH#mc/}"
+          DEFAULT_TAG_PREFIX="mc${DEFAULT_COMPONENT}-v"
 
           # Extract MC version and semver from tag (e.g. mc1.21.11-v0.5.6)
           if [[ "$TAG" =~ mc([0-9.]+)-v([0-9]+\.[0-9]+\.[0-9]+) ]]; then
@@ -35,13 +40,21 @@ jobs:
             SEMVER="$TAG"
           fi
 
+          if [[ "$TAG" == "$DEFAULT_TAG_PREFIX"* ]]; then
+            DEFAULT_BRANCH_RELEASE="true"
+          else
+            DEFAULT_BRANCH_RELEASE="false"
+          fi
+
           {
             echo "mc_version=$MC_VERSION"
             echo "semver=$SEMVER"
             echo "url=$URL"
+            echo "default_branch_release=$DEFAULT_BRANCH_RELEASE"
           } >> "$GITHUB_OUTPUT"
 
       - name: Send Discord notification
+        if: steps.meta.outputs.default_branch_release == 'true'
         shell: bash
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
