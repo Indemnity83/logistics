@@ -488,6 +488,14 @@ public class PipeBlockEntity extends BaseBlockEntity
         return Math.min(maxAmount, remaining);
     }
 
+    public boolean canAcceptEntireStack(ItemStack stack, Direction fromDirection, boolean bypassIngress) {
+        if (stack.isEmpty()) {
+            return true;
+        }
+
+        return getInsertableAmount(stack.getCount(), fromDirection, stack, bypassIngress) >= stack.getCount();
+    }
+
     void acceptInsertedStack(ItemStack stack, Direction fromDirection, @Nullable Float speedOverride) {
         acceptInsertedStack(stack, fromDirection, speedOverride, null);
     }
