@@ -209,6 +209,7 @@ jobs:
           github-tag: ${{ steps.version.outputs.tag }}
 
           game-version-filter: ${{ steps.version.outputs.game_version_filter }}
+          game-versions: ${{ steps.version.outputs.minecraft_version }}
           version-type: ${{ steps.version.outputs.version_type }}
           name: "Logistics v${{ steps.version.outputs.version }} for ${{ steps.version.outputs.loader }} ${{ steps.version.outputs.minecraft_version }}"
           version: "${{ steps.version.outputs.full_version }}"
