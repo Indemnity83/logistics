@@ -5,6 +5,10 @@ on:
     branches: ['mc/**']
     types: [opened, edited, synchronize, reopened, ready_for_review]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
   pull-requests: read
@@ -41,6 +45,7 @@ jobs:
     name: lint (${{ matrix.module }})
     # Skip: draft PRs, release-please PRs
     if: |
+      github.event.action != 'edited' &&
       github.event.pull_request.draft == false &&
       !startsWith(github.head_ref, 'release-please--')
     runs-on: ubuntu-latest
@@ -72,6 +77,7 @@ jobs:
     name: test (${{ matrix.module }})
     # Skip: draft PRs, release-please PRs
     if: |
+      github.event.action != 'edited' &&
       github.event.pull_request.draft == false &&
       !startsWith(github.head_ref, 'release-please--')
     runs-on: ubuntu-latest

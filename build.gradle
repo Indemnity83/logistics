@@ -113,7 +113,7 @@ tasks.register('checkImportBoundaries') {
         def domains = ['pipe', 'power', 'automation']
         domains.each { domain ->
             def others = domains.findAll { it != domain }.join('|')
-            importMatches("common/src/main/java/com/logistics/${domain}", /^import com\.logistics\.(${others})\..*/).each {
+            importMatches("common/src/main/java/com/logistics/${domain}", /^import\s+(?:static\s+)?com\.logistics\.(${others})\..*/).each {
                 failures << "cross-domain import found in ${domain}/: ${rootDir.toPath().relativize(it.toPath())}"
             }
         }
