@@ -119,8 +119,8 @@ public final class NeoForgeItemStorage implements IItemStorage {
                     return toResource(view.resource());
                 }
             }
-            SlotItemKey pending = firstPositivePending(index);
-            return pending == null ? ItemResource.EMPTY : toResource(pending.item());
+            PendingSlotItem pending = firstPositivePending(index);
+            return pending == null ? ItemResource.EMPTY : toResource(pending.key().item());
         }
 
         @Override
@@ -133,8 +133,8 @@ public final class NeoForgeItemStorage implements IItemStorage {
                     return amount;
                 }
             }
-            SlotItemKey pending = firstPositivePending(index);
-            return pending == null ? 0 : pendingDeltas.getOrDefault(pending, 0L);
+            PendingSlotItem pending = firstPositivePending(index);
+            return pending == null ? 0 : pending.amount();
         }
 
         @Override
@@ -214,10 +214,10 @@ public final class NeoForgeItemStorage implements IItemStorage {
         }
 
         @Nullable
-        private SlotItemKey firstPositivePending(int slot) {
+        private PendingSlotItem firstPositivePending(int slot) {
             for (var entry : pendingDeltas.entrySet()) {
                 if (entry.getKey().slot() == slot && entry.getValue() > 0) {
-                    return entry.getKey();
+                    return new PendingSlotItem(entry.getKey(), entry.getValue());
                 }
             }
             return null;
@@ -231,6 +231,8 @@ public final class NeoForgeItemStorage implements IItemStorage {
     }
 
     private record SlotItemKey(int slot, IItemKey item) {}
+
+    private record PendingSlotItem(SlotItemKey key, long amount) {}
 
     /**
      * Fallback adapter for common {@link IItemStorage} implementations without fixed slots.

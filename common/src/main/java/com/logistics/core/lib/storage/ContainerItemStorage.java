@@ -169,11 +169,15 @@ public final class ContainerItemStorage implements ISlottedItemStorage {
     }
 
     private int actualSlot(int exposedSlot) {
-        if (exposedSlot < 0 || exposedSlot >= slotCount()) {
-            throw new IndexOutOfBoundsException(exposedSlot);
-        }
         if (side != null && container instanceof WorldlyContainer wc) {
-            return wc.getSlotsForFace(side)[exposedSlot];
+            int[] slots = wc.getSlotsForFace(side);
+            if (exposedSlot < 0 || exposedSlot >= slots.length) {
+                throw new IndexOutOfBoundsException(exposedSlot);
+            }
+            return slots[exposedSlot];
+        }
+        if (exposedSlot < 0 || exposedSlot >= container.getContainerSize()) {
+            throw new IndexOutOfBoundsException(exposedSlot);
         }
         return exposedSlot;
     }

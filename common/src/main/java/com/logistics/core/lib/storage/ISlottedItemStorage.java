@@ -18,6 +18,7 @@ public interface ISlottedItemStorage extends IItemStorage {
      *
      * @param slot the exposed slot index
      * @return the non-empty slot view, or {@code null} when the slot is empty
+     * @throws IndexOutOfBoundsException when {@code slot < 0 || slot >= slotCount()}
      */
     @Nullable IItemView slotView(int slot);
 
@@ -29,6 +30,10 @@ public interface ISlottedItemStorage extends IItemStorage {
      * @param maxAmount the maximum number of items to insert
      * @param simulate  whether to leave backing state unchanged
      * @return the amount inserted, or that would be inserted when simulating
+     * @throws IndexOutOfBoundsException when {@code slot < 0 || slot >= slotCount()}
+     *
+     * <p>If {@code maxAmount <= 0}, implementations must return {@code 0} without modifying
+     * backing state, even when {@code simulate} is {@code true}.
      */
     long insert(int slot, IItemKey item, long maxAmount, boolean simulate);
 
@@ -40,6 +45,10 @@ public interface ISlottedItemStorage extends IItemStorage {
      * @param maxAmount the maximum number of items to extract
      * @param simulate  whether to leave backing state unchanged
      * @return the amount extracted, or that would be extracted when simulating
+     * @throws IndexOutOfBoundsException when {@code slot < 0 || slot >= slotCount()}
+     *
+     * <p>If {@code maxAmount <= 0}, implementations must return {@code 0} without modifying
+     * backing state, even when {@code simulate} is {@code true}.
      */
     long extract(int slot, IItemKey item, long maxAmount, boolean simulate);
 }

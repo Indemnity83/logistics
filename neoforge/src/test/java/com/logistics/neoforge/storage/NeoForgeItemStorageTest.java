@@ -6,10 +6,12 @@ import com.logistics.core.lib.storage.IItemView;
 import com.logistics.core.lib.storage.ISlottedItemStorage;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @DisplayName("NeoForgeItemStorage adapter")
 class NeoForgeItemStorageTest {
@@ -27,6 +29,23 @@ class NeoForgeItemStorageTest {
     }
 
     @Test
+    @DisplayName("slotted handler rejects out-of-range transfer indexes")
+    void slottedHandler_rejectsOutOfRangeTransferIndexes() {
+        ResourceHandler<ItemResource> handler = NeoForgeItemStorage.asNeoForge(new EmptySlottedStorage(1));
+
+        try (Transaction tx = Transaction.openRoot()) {
+            assertThatThrownBy(() -> handler.insert(-1, ItemResource.EMPTY, 1, tx))
+                    .isInstanceOf(IndexOutOfBoundsException.class);
+            assertThatThrownBy(() -> handler.insert(handler.size(), ItemResource.EMPTY, 1, tx))
+                    .isInstanceOf(IndexOutOfBoundsException.class);
+            assertThatThrownBy(() -> handler.extract(-1, ItemResource.EMPTY, 1, tx))
+                    .isInstanceOf(IndexOutOfBoundsException.class);
+            assertThatThrownBy(() -> handler.extract(handler.size(), ItemResource.EMPTY, 1, tx))
+                    .isInstanceOf(IndexOutOfBoundsException.class);
+        }
+    }
+
+    @Test
     @DisplayName("non-slotted common storage remains one virtual slot")
     void nonSlottedStorage_remainsOneVirtualSlot() {
         ResourceHandler<ItemResource> handler = NeoForgeItemStorage.asNeoForge(new EmptyStorage());
@@ -34,6 +53,23 @@ class NeoForgeItemStorageTest {
         assertThat(handler.size()).isEqualTo(1);
         assertThat(handler.getResource(0)).isEqualTo(ItemResource.EMPTY);
         assertThat(handler.getAmountAsLong(0)).isZero();
+    }
+
+    @Test
+    @DisplayName("non-slotted handler rejects out-of-range transfer indexes")
+    void nonSlottedHandler_rejectsOutOfRangeTransferIndexes() {
+        ResourceHandler<ItemResource> handler = NeoForgeItemStorage.asNeoForge(new EmptyStorage());
+
+        try (Transaction tx = Transaction.openRoot()) {
+            assertThatThrownBy(() -> handler.insert(-1, ItemResource.EMPTY, 1, tx))
+                    .isInstanceOf(IndexOutOfBoundsException.class);
+            assertThatThrownBy(() -> handler.insert(handler.size(), ItemResource.EMPTY, 1, tx))
+                    .isInstanceOf(IndexOutOfBoundsException.class);
+            assertThatThrownBy(() -> handler.extract(-1, ItemResource.EMPTY, 1, tx))
+                    .isInstanceOf(IndexOutOfBoundsException.class);
+            assertThatThrownBy(() -> handler.extract(handler.size(), ItemResource.EMPTY, 1, tx))
+                    .isInstanceOf(IndexOutOfBoundsException.class);
+        }
     }
 
     private static class EmptyStorage implements IItemStorage {
