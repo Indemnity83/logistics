@@ -67,6 +67,7 @@ dependencies {
 processResources {
     inputs.property "version", project.version
     inputs.property "minecraft_version", rootProject.minecraft_version
+    inputs.property "fabric_minecraft_version_range", rootProject.fabric_minecraft_version_range
     inputs.property "fabric_version", rootProject.fabric_version
     inputs.property "fabric_loader_version", rootProject.fabric_loader_version
     inputs.property "java_version", rootProject.java_version
