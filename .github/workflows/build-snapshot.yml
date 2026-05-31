@@ -85,20 +85,20 @@ jobs:
             GAME_VERSION_FILTER="releases"
           fi
 
-          echo "base_version=$BASE_VERSION" >> $GITHUB_OUTPUT
-          echo "pre_id=$PRE_ID" >> $GITHUB_OUTPUT
-          echo "modrinth_version=$MODRINTH_VERSION" >> $GITHUB_OUTPUT
-          echo "full_version=$FULL_VERSION" >> $GITHUB_OUTPUT
-          echo "minecraft_version=$MC_VERSION" >> $GITHUB_OUTPUT
           {
+            echo "base_version=$BASE_VERSION"
+            echo "pre_id=$PRE_ID"
+            echo "modrinth_version=$MODRINTH_VERSION"
+            echo "full_version=$FULL_VERSION"
+            echo "minecraft_version=$MC_VERSION"
             echo "game_versions<<EOF"
             printf '%s\n' "$GAME_VERSIONS"
             echo "EOF"
-          } >> $GITHUB_OUTPUT
-          echo "loader=$LOADER" >> $GITHUB_OUTPUT
-          echo "gradle_task=$GRADLE_TASK" >> $GITHUB_OUTPUT
-          echo "game_version_filter=$GAME_VERSION_FILTER" >> $GITHUB_OUTPUT
-          echo "base_branch=$BASE_BRANCH" >> $GITHUB_OUTPUT
+            echo "loader=$LOADER"
+            echo "gradle_task=$GRADLE_TASK"
+            echo "game_version_filter=$GAME_VERSION_FILTER"
+            echo "base_branch=$BASE_BRANCH"
+          } >> "$GITHUB_OUTPUT"
 
           echo "Building $FULL_VERSION"
 

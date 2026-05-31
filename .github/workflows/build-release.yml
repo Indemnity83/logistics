@@ -60,13 +60,11 @@ jobs:
           # Extract version from tag
           # Tag format: mc1.21.11-v0.4.0 (component-based for release-please tracking)
           if [[ "$TAG" =~ ^mc([0-9.]+)-v(.+)$ ]]; then
-            MC_COMPONENT="${BASH_REMATCH[1]}"  # "1.21.11" or "26.1"
             VERSION="${BASH_REMATCH[2]}"        # "0.4.0" or "0.4.0-SNAPSHOT"
           else
             # Fallback for old/unexpected tag formats
             echo "⚠️  Tag didn't match expected format: $TAG"
             VERSION="${TAG#v}"
-            MC_COMPONENT="unknown"
           fi
 
           # Ensure version doesn't have leading 'v' (strip it if present)
@@ -89,12 +87,14 @@ jobs:
             GRADLE_TASK=":${LOADER}:jar"
           fi
 
-          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-          echo "full_version=$FULL_VERSION" >> "$GITHUB_OUTPUT"
-          echo "minecraft_version=$MC_VERSION" >> "$GITHUB_OUTPUT"
-          echo "loader=$LOADER" >> "$GITHUB_OUTPUT"
-          echo "gradle_task=$GRADLE_TASK" >> "$GITHUB_OUTPUT"
+          {
+            echo "tag=$TAG"
+            echo "version=$VERSION"
+            echo "full_version=$FULL_VERSION"
+            echo "minecraft_version=$MC_VERSION"
+            echo "loader=$LOADER"
+            echo "gradle_task=$GRADLE_TASK"
+          } >> "$GITHUB_OUTPUT"
           echo "📦 Tag: $TAG"
           echo "📦 Version: $VERSION"
           echo "📦 Built for MC: $MC_VERSION"
@@ -183,20 +183,20 @@ jobs:
             echo "⚠️  Modrinth version truncated to 32 chars: $MODRINTH_VERSION"
           fi
 
-          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
-          echo "modrinth_version=$MODRINTH_VERSION" >> "$GITHUB_OUTPUT"
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-          echo "full_version=$FULL_VERSION" >> "$GITHUB_OUTPUT"
-          echo "minecraft_version=$MC_VERSION" >> "$GITHUB_OUTPUT"
           {
+            echo "tag=$TAG"
+            echo "modrinth_version=$MODRINTH_VERSION"
+            echo "version=$VERSION"
+            echo "full_version=$FULL_VERSION"
+            echo "minecraft_version=$MC_VERSION"
             echo "game_versions<<EOF"
             printf '%s\n' "$GAME_VERSIONS"
             echo "EOF"
+            echo "loader=$LOADER"
+            echo "version_type=$VERSION_TYPE"
+            echo "game_version_filter=$GAME_VERSION_FILTER"
+            echo "modrinth_featured=$MODRINTH_FEATURED"
           } >> "$GITHUB_OUTPUT"
-          echo "loader=$LOADER" >> "$GITHUB_OUTPUT"
-          echo "version_type=$VERSION_TYPE" >> "$GITHUB_OUTPUT"
-          echo "game_version_filter=$GAME_VERSION_FILTER" >> "$GITHUB_OUTPUT"
-          echo "modrinth_featured=$MODRINTH_FEATURED" >> "$GITHUB_OUTPUT"
 
       - name: Download JAR
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
