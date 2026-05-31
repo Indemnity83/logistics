@@ -60,9 +60,15 @@ dependencies {
 }
 
 processResources {
+    def compatibilityBounds = rootProject.minecraft_compatibility_versions.split(',', 2).collect { it.trim() }
+    if (compatibilityBounds.size() != 2 || compatibilityBounds.any { it.isEmpty() }) {
+        throw new GradleException("minecraft_compatibility_versions must be formatted as '<min>,<next>'")
+    }
+    def fabricMinecraftVersionRange = ">=${compatibilityBounds[0]} <${compatibilityBounds[1]}"
+
     inputs.property "version", project.version
     inputs.property "minecraft_version", rootProject.minecraft_version
-    inputs.property "fabric_minecraft_version_range", rootProject.fabric_minecraft_version_range
+    inputs.property "fabric_minecraft_version_range", fabricMinecraftVersionRange
     inputs.property "fabric_version", rootProject.fabric_version
     inputs.property "fabric_loader_version", rootProject.fabric_loader_version
     inputs.property "java_version", rootProject.java_version

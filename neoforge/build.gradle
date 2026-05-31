@@ -70,12 +70,18 @@ test {
 }
 
 processResources {
+    def compatibilityBounds = minecraft_compatibility_versions.split(',', 2).collect { it.trim() }
+    if (compatibilityBounds.size() != 2 || compatibilityBounds.any { it.isEmpty() }) {
+        throw new GradleException("minecraft_compatibility_versions must be formatted as '<min>,<next>'")
+    }
+    def neoforgeMinecraftVersionRange = "[${compatibilityBounds[0]}, ${compatibilityBounds[1]})"
+
     var expandProps = [
-        'version'                      : version,
-        'minecraft_version'            : minecraft_version,
-        'minecraft_version_range'      : minecraft_version_range,
-        'neoforge_version'             : neoforge_version,
-        'neoforge_loader_version_range': neoforge_loader_version_range,
+        'version'                         : version,
+        'minecraft_version'               : minecraft_version,
+        'neoforge_minecraft_version_range': neoforgeMinecraftVersionRange,
+        'neoforge_version'                : neoforge_version,
+        'neoforge_loader_version_range'   : neoforge_loader_version_range,
     ]
     filesMatching('META-INF/neoforge.mods.toml') {
         expand expandProps
