@@ -96,11 +96,13 @@ public final class NeoForgeEnergyStorage implements IEnergyStorage {
 
         @Override
         public int receiveEnergy(int maxReceive, boolean simulate) {
+            if (maxReceive <= 0) return 0;
             return clampToInt(storage.insert(maxReceive, simulate));
         }
 
         @Override
         public int extractEnergy(int maxExtract, boolean simulate) {
+            if (maxExtract <= 0) return 0;
             return clampToInt(storage.extract(maxExtract, simulate));
         }
 
