@@ -4,8 +4,6 @@ import com.logistics.LogisticsAutomation;
 import com.logistics.api.LogisticsApi;
 import com.logistics.api.TransportApi;
 import com.logistics.automation.laserquarry.LaserQuarryBlock;
-import com.logistics.automation.laserquarry.LaserQuarryGeometry;
-import com.logistics.automation.laserquarry.LaserQuarryFrameBlock;
 import com.logistics.automation.render.ClientRenderCacheHooks;
 import com.logistics.core.LogisticsConfig;
 import com.logistics.core.lib.block.BaseBlockEntity;
@@ -496,20 +494,7 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity implements PipeConne
     }
 
     private boolean shouldSkipBlock(Level world, BlockPos pos, BlockState state) {
-        // Skip air
-        if (state.isAir()) {
-            return true;
-        }
-        // Skip fluids (water, lava)
-        if (!state.getFluidState().isEmpty()) {
-            return true;
-        }
-        // Skip unbreakable blocks (bedrock, barriers, etc.)
-        float hardness = state.getDestroySpeed(world, pos);
-        if (hardness < 0) {
-            return true;
-        }
-        return false;
+        return GridScanner.shouldSkip(world, pos, state);
     }
 
     private void mineBlock(ServerLevel world, BlockPos target, BlockState targetState) {
@@ -634,132 +619,27 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity implements PipeConne
         setChanged();
     }
 
-    /**
-     * Calculate target position for clearing phase (area at/above quarry level).
-     */
     private @Nullable BlockPos calculateClearingTargetPos(BlockState quarryState) {
-        BlockPos quarryPos = getBlockPos();
-
-        int startX;
-        int startZ;
-        if (bounds.isCustom()) {
-            startX = bounds.getMinX();
-            startZ = bounds.getMinZ();
-        } else {
-            int half = LogisticsConfig.get().quarry.area / 2;
-            Direction facing = LaserQuarryBlock.getMiningDirection(quarryState);
-            switch (facing) {
-                case NORTH:
-                    startX = quarryPos.getX() - half;
-                    startZ = quarryPos.getZ() - LogisticsConfig.get().quarry.area;
-                    break;
-                case SOUTH:
-                    startX = quarryPos.getX() - half;
-                    startZ = quarryPos.getZ() + 1;
-                    break;
-                case EAST:
-                    startX = quarryPos.getX() + 1;
-                    startZ = quarryPos.getZ() - half;
-                    break;
-                case WEST:
-                    startX = quarryPos.getX() - LogisticsConfig.get().quarry.area;
-                    startZ = quarryPos.getZ() - half;
-                    break;
-                default:
-                    return null;
-            }
-        }
-
-        // Clearing phase only works above and at quarry level
-        int startY = quarryPos.getY() + LaserQuarryGeometry.Y_OFFSET_ABOVE;
-        int currentY = startY - miningY;
-
-        // Stop when we go below quarry level
-        if (currentY < quarryPos.getY()) {
-            return null;
-        }
-
-        int targetX = startX + miningX;
-        int targetZ = startZ + miningZ;
-
-        return new BlockPos(targetX, currentY, targetZ);
+        return GridScanner.clearingTarget(
+                LaserQuarryBlock.getMiningDirection(quarryState),
+                getBlockPos(),
+                bounds,
+                LogisticsConfig.get().quarry.area,
+                miningX,
+                miningY,
+                miningZ);
     }
 
-    /**
-     * Calculate target position for mining phase (area below quarry level).
-     * The area is inset 1 block from the frame to stay within it.
-     */
     private @Nullable BlockPos calculateMiningTargetPos(BlockState quarryState) {
-        BlockPos quarryPos = getBlockPos();
-
-        int startX;
-        int startZ;
-        int innerSizeX;
-        int innerSizeZ;
-        if (bounds.isCustom()) {
-            // Custom bounds: mining area is inset 1 block from frame
-            startX = bounds.getMinX() + 1;
-            startZ = bounds.getMinZ() + 1;
-            innerSizeX = bounds.getMaxX() - bounds.getMinX() - 1; // frame size - 2 for inset
-            innerSizeZ = bounds.getMaxZ() - bounds.getMinZ() - 1;
-        } else {
-            int half = LogisticsConfig.get().quarry.area / 2;
-            Direction facing = LaserQuarryBlock.getMiningDirection(quarryState);
-            switch (facing) {
-                case NORTH:
-                    startX = quarryPos.getX() - half + 1; // Inset 1 from frame
-                    startZ = quarryPos.getZ() - LogisticsConfig.get().quarry.area + 1;
-                    break;
-                case SOUTH:
-                    startX = quarryPos.getX() - half + 1;
-                    startZ = quarryPos.getZ() + 1 + 1;
-                    break;
-                case EAST:
-                    startX = quarryPos.getX() + 1 + 1;
-                    startZ = quarryPos.getZ() - half + 1;
-                    break;
-                case WEST:
-                    startX = quarryPos.getX() - LogisticsConfig.get().quarry.area + 1;
-                    startZ = quarryPos.getZ() - half + 1;
-                    break;
-                default:
-                    return null;
-            }
-            innerSizeX = LogisticsConfig.get().quarry.area - 2;
-            innerSizeZ = LogisticsConfig.get().quarry.area - 2;
-        }
-        if (innerSizeX <= 0 || innerSizeZ <= 0) {
-            return null;
-        }
-
-        // Mining phase starts 1 block below quarry level
-        int startY = quarryPos.getY() - 1;
-        int currentY = startY - miningY;
-
-        // Stop at bedrock or world bottom
-        if (currentY < level.getMinBuildHeight()) {
-            return null;
-        }
-
-        // 3D zigzag pattern: continuous movement across layers
-        // Z direction reverses each layer (even layers go forward, odd layers go backward)
-        int targetZ;
-        if (miningY % 2 == 0) {
-            targetZ = startZ + miningZ;
-        } else {
-            targetZ = startZ + (innerSizeZ - 1 - miningZ);
-        }
-
-        // X direction based on total rows traversed (continuous zigzag)
-        int totalRows = miningY * innerSizeZ + miningZ;
-        int targetX;
-        if (totalRows % 2 == 0) {
-            targetX = startX + miningX;
-        } else {
-            targetX = startX + (innerSizeX - 1 - miningX);
-        }
-
-        return new BlockPos(targetX, currentY, targetZ);
+        return GridScanner.miningTarget(
+                LaserQuarryBlock.getMiningDirection(quarryState),
+                getBlockPos(),
+                bounds,
+                LogisticsConfig.get().quarry.area,
+                level.getMinBuildHeight(),
+                miningX,
+                miningY,
+                miningZ);
     }
 
     /**
@@ -825,220 +705,22 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity implements PipeConne
         }
     }
 
-    /**
-     * Get the next frame position to build based on frameBuildIndex.
-     * Frame consists of:
-     * - Bottom ring at quarryY
-     * - Middle pillars at corners from quarryY+1 to quarryY+3 (4 corners × 3 = 12 blocks)
-     * - Top ring at quarryY+4
-     */
     private @Nullable BlockPos getNextFramePosition(BlockState quarryState) {
-        BlockPos quarryPos = getBlockPos();
-
-        // Calculate frame bounds
-        int startX;
-        int startZ;
-        int endX;
-        int endZ;
-        if (bounds.isCustom()) {
-            startX = bounds.getMinX();
-            startZ = bounds.getMinZ();
-            endX = bounds.getMaxX();
-            endZ = bounds.getMaxZ();
-        } else {
-            int half = LogisticsConfig.get().quarry.area / 2;
-            Direction facing = LaserQuarryBlock.getMiningDirection(quarryState);
-            switch (facing) {
-                case NORTH:
-                    startX = quarryPos.getX() - half;
-                    startZ = quarryPos.getZ() - LogisticsConfig.get().quarry.area;
-                    break;
-                case SOUTH:
-                    startX = quarryPos.getX() - half;
-                    startZ = quarryPos.getZ() + 1;
-                    break;
-                case EAST:
-                    startX = quarryPos.getX() + 1;
-                    startZ = quarryPos.getZ() - half;
-                    break;
-                case WEST:
-                    startX = quarryPos.getX() - LogisticsConfig.get().quarry.area;
-                    startZ = quarryPos.getZ() - half;
-                    break;
-                default:
-                    return null;
-            }
-            endX = startX + LogisticsConfig.get().quarry.area - 1;
-            endZ = startZ + LogisticsConfig.get().quarry.area - 1;
-        }
-
-        int bottomY = quarryPos.getY();
-        int topY = quarryPos.getY() + LaserQuarryGeometry.Y_OFFSET_ABOVE;
-
-        // Calculate ring size: perimeter of rectangle = 2*width + 2*depth - 4 corners
-        int width = endX - startX + 1;
-        int depth = endZ - startZ + 1;
-        int ringSize = 2 * width + 2 * depth - 4;
-
-        // Phase 1: Bottom ring
-        if (frameBuildIndex < ringSize) {
-            return getRingPosition(frameBuildIndex, startX, startZ, endX, endZ, bottomY);
-        }
-
-        // Phase 2: Middle pillars (12 blocks)
-        int pillarIndex = frameBuildIndex - ringSize;
-        if (pillarIndex < 12) {
-            int cornerIndex = pillarIndex / 3;
-            int yOffset = (pillarIndex % 3) + 1; // Y+1, Y+2, Y+3
-            int y = bottomY + yOffset;
-
-            return switch (cornerIndex) {
-                case 0 -> new BlockPos(startX, y, startZ);
-                case 1 -> new BlockPos(endX, y, startZ);
-                case 2 -> new BlockPos(endX, y, endZ);
-                case 3 -> new BlockPos(startX, y, endZ);
-                default -> null;
-            };
-        }
-
-        // Phase 3: Top ring
-        int topRingIndex = frameBuildIndex - ringSize - 12;
-        if (topRingIndex < ringSize) {
-            return getRingPosition(topRingIndex, startX, startZ, endX, endZ, topY);
-        }
-
-        // Done building frame
-        return null;
+        return FrameLayout.nextFramePosition(
+                LaserQuarryBlock.getMiningDirection(quarryState),
+                getBlockPos(),
+                bounds,
+                LogisticsConfig.get().quarry.area,
+                frameBuildIndex);
     }
 
-    /**
-     * Get a position on a frame ring given an index.
-     * Iterates around the perimeter: north edge, east edge, south edge, west edge.
-     */
-    private BlockPos getRingPosition(int index, int startX, int startZ, int endX, int endZ, int y) {
-        int width = endX - startX + 1;
-        int depth = endZ - startZ + 1;
-
-        // North edge: width blocks
-        if (index < width) {
-            return new BlockPos(startX + index, y, startZ);
-        }
-        index -= width;
-
-        // East edge: depth-1 blocks excluding NE corner
-        int eastEdgeSize = depth - 1;
-        if (index < eastEdgeSize) {
-            return new BlockPos(endX, y, startZ + 1 + index);
-        }
-        index -= eastEdgeSize;
-
-        // South edge: width-1 blocks excluding SE corner
-        int southEdgeSize = width - 1;
-        if (index < southEdgeSize) {
-            return new BlockPos(endX - 1 - index, y, endZ);
-        }
-        index -= southEdgeSize;
-
-        // West edge: depth-2 blocks excluding SW and NW corners
-        int westEdgeSize = depth - 2;
-        if (index < westEdgeSize) {
-            return new BlockPos(startX, y, endZ - 1 - index);
-        }
-
-        return null;
-    }
-
-    /**
-     * Calculate the frame block state with appropriate arm connections.
-     */
     private BlockState calculateFrameState(BlockState quarryState, BlockPos framePos) {
-        BlockPos quarryPos = getBlockPos();
-
-        // Calculate frame bounds
-        int startX;
-        int startZ;
-        int endX;
-        int endZ;
-        if (bounds.isCustom()) {
-            startX = bounds.getMinX();
-            startZ = bounds.getMinZ();
-            endX = bounds.getMaxX();
-            endZ = bounds.getMaxZ();
-        } else {
-            int half = LogisticsConfig.get().quarry.area / 2;
-            Direction facing = LaserQuarryBlock.getMiningDirection(quarryState);
-            switch (facing) {
-                case NORTH:
-                    startX = quarryPos.getX() - half;
-                    startZ = quarryPos.getZ() - LogisticsConfig.get().quarry.area;
-                    break;
-                case SOUTH:
-                    startX = quarryPos.getX() - half;
-                    startZ = quarryPos.getZ() + 1;
-                    break;
-                case EAST:
-                    startX = quarryPos.getX() + 1;
-                    startZ = quarryPos.getZ() - half;
-                    break;
-                case WEST:
-                    startX = quarryPos.getX() - LogisticsConfig.get().quarry.area;
-                    startZ = quarryPos.getZ() - half;
-                    break;
-                default:
-                    return LogisticsAutomation.BLOCK.LASER_QUARRY_FRAME.defaultBlockState();
-            }
-            endX = startX + LogisticsConfig.get().quarry.area - 1;
-            endZ = startZ + LogisticsConfig.get().quarry.area - 1;
-        }
-        int bottomY = quarryPos.getY();
-        int topY = quarryPos.getY() + LaserQuarryGeometry.Y_OFFSET_ABOVE;
-
-        int x = framePos.getX();
-        int y = framePos.getY();
-        int z = framePos.getZ();
-
-        // Determine which arms to enable based on position in frame
-        boolean north = false;
-        boolean south = false;
-        boolean east = false;
-        boolean west = false;
-        boolean up = false;
-        boolean down = false;
-
-        // Check if this is a corner position
-        boolean isCornerX = (x == startX || x == endX);
-        boolean isCornerZ = (z == startZ || z == endZ);
-        boolean isCorner = isCornerX && isCornerZ;
-
-        // Vertical connections (corners only, not at very top/bottom if ring exists)
-        if (isCorner) {
-            if (y > bottomY) down = true;
-            if (y < topY) up = true;
-        }
-
-        // Horizontal connections on edges
-        if (y == bottomY || y == topY) {
-            // We're on a ring - connect horizontally
-            if (z == startZ) { // North edge
-                if (x > startX) west = true;
-                if (x < endX) east = true;
-            }
-            if (z == endZ) { // South edge
-                if (x > startX) west = true;
-                if (x < endX) east = true;
-            }
-            if (x == startX) { // West edge
-                if (z > startZ) north = true;
-                if (z < endZ) south = true;
-            }
-            if (x == endX) { // East edge
-                if (z > startZ) north = true;
-                if (z < endZ) south = true;
-            }
-        }
-
-        LaserQuarryFrameBlock frameBlock = (LaserQuarryFrameBlock) LogisticsAutomation.BLOCK.LASER_QUARRY_FRAME;
-        return frameBlock.withArms(north, south, east, west, up, down);
+        return FrameLayout.frameBlockState(
+                LaserQuarryBlock.getMiningDirection(quarryState),
+                getBlockPos(),
+                framePos,
+                bounds,
+                LogisticsConfig.get().quarry.area);
     }
 
     /**
