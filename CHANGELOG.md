@@ -1,5 +1,64 @@
 # Changelog
 
+## [0.6.0](https://github.com/Indemnity83/logistics/compare/mc1.21.1-v0.5.6...mc1.21.1-v0.6.0) (2026-05-31)
+
+
+### Features
+
+* add NeoForge client rendering support ([#381](https://github.com/Indemnity83/logistics/issues/381)) ([82d96f0](https://github.com/Indemnity83/logistics/commit/82d96f0b43c8e5f29a02f9a3c2659a6f62dab5b2))
+* add NeoForge platform SPI services ([#378](https://github.com/Indemnity83/logistics/issues/378)) ([8baeae3](https://github.com/Indemnity83/logistics/commit/8baeae3a502fa4640a3bd0981d6b455daf9cc652))
+* add power cables ([f83a857](https://github.com/Indemnity83/logistics/commit/f83a857e044f217ef2cc4a264ce09ea22ae022a6))
+* wire NeoForge networking and lifecycle ([#380](https://github.com/Indemnity83/logistics/issues/380)) ([a87d87d](https://github.com/Indemnity83/logistics/commit/a87d87db3c079b43a56cdb279b9e727d6c0ed6c0))
+
+
+### Bug Fixes
+
+* add validation and sanitization for logistics config fields ([#398](https://github.com/Indemnity83/logistics/issues/398)) ([9107753](https://github.com/Indemnity83/logistics/commit/91077539c63847e669d7c5f57244f93180a8ef44))
+* clamp energy values and transfer amounts to non-negative ([#399](https://github.com/Indemnity83/logistics/issues/399)) ([e1e927e](https://github.com/Indemnity83/logistics/commit/e1e927e563ed22e685bb34903b7dc5199fc7ff7d))
+* correct NeoForge reload listener event for mc/1.21.1 ([#366](https://github.com/Indemnity83/logistics/issues/366)) ([6c829c7](https://github.com/Indemnity83/logistics/commit/6c829c7598283e1edc3ca318e60954c812eb0ed5))
+* correct power cable compilation errors for mc/1.21.1 ([#359](https://github.com/Indemnity83/logistics/issues/359)) ([425a496](https://github.com/Indemnity83/logistics/commit/425a496631f8616915955a5af3904c71d6a8b504))
+* handle failed deliveries in logistics network tracking ([#397](https://github.com/Indemnity83/logistics/issues/397)) ([e4dfc32](https://github.com/Indemnity83/logistics/commit/e4dfc32eccddfa6736270f3d36498aadeb4d3673))
+* preserve item components in filter pipe slots across save/reload ([#386](https://github.com/Indemnity83/logistics/issues/386)) ([dbaafd0](https://github.com/Indemnity83/logistics/commit/dbaafd00d08aa494a89bd2debf30f9f2d197acc1))
+* show Macerator recipe category in JEI on NeoForge ([#390](https://github.com/Indemnity83/logistics/issues/390)) ([cecd2c6](https://github.com/Indemnity83/logistics/commit/cecd2c6ec31dd0418ed81b27932cf50d0bd763c9))
+* split loader-specific marking fluid recipes ([#382](https://github.com/Indemnity83/logistics/issues/382)) ([f4ac3c6](https://github.com/Indemnity83/logistics/commit/f4ac3c6cf88925dac2b8cb06de03aaff8b7c4522))
+* track META-INF service files blocked by overly broad gitignore ([0897442](https://github.com/Indemnity83/logistics/commit/089744217d8b28ff08d591e5a785d420a45f260f))
+
+
+### Refactorings
+
+* Add NeoForge groundwork and decouple bootstrap initialization ([#306](https://github.com/Indemnity83/logistics/issues/306)) ([7531b52](https://github.com/Indemnity83/logistics/commit/7531b52a5521c7399bd855aadc36368677a81b6e))
+* implement ISlottedItemStorage in Container and NeoForge storage ([#400](https://github.com/Indemnity83/logistics/issues/400)) ([c7efb50](https://github.com/Indemnity83/logistics/commit/c7efb50c715f41721c1087696ba68ba5bbe6d12b))
+* implement ItemMatcher utility for filtering logic ([#389](https://github.com/Indemnity83/logistics/issues/389)) ([649efa2](https://github.com/Indemnity83/logistics/commit/649efa23dd0571f4bf7b459c8965ae67b4288049))
+* introduce ClientModelRegistry SPI to abstract Fabric model loading ([#356](https://github.com/Indemnity83/logistics/issues/356)) ([4ec2184](https://github.com/Indemnity83/logistics/commit/4ec2184d3eca869f499be348408cac37d982875d))
+* introduce FuelHelper interface for fuel value management ([#364](https://github.com/Indemnity83/logistics/issues/364)) ([e80397f](https://github.com/Indemnity83/logistics/commit/e80397fb315a107bed268a2cd4a8e2c0aab3ce6b))
+* introduce loader-agnostic IEnergyStorage ([#340](https://github.com/Indemnity83/logistics/issues/340)) ([044c13e](https://github.com/Indemnity83/logistics/commit/044c13e76f720ab4037b6191de6f9eed479a11f7))
+* introduce loader-agnostic IFluidStorage contract ([#351](https://github.com/Indemnity83/logistics/issues/351)) ([74ea422](https://github.com/Indemnity83/logistics/commit/74ea42208e557a23274f78faa61a9e87d3427f07))
+* introduce loader-agnostic IItemStorage contract ([#349](https://github.com/Indemnity83/logistics/issues/349)) ([9309960](https://github.com/Indemnity83/logistics/commit/93099609e69497f0d462524a707cb918f749d785))
+* move capability lookup registrations to fabric module ([#343](https://github.com/Indemnity83/logistics/issues/343)) ([e750741](https://github.com/Indemnity83/logistics/commit/e75074198bfc8b0fc72fba3ff59d40ab4ca4d5bb))
+* move creative tab and biome registration to Fabric module ([#344](https://github.com/Indemnity83/logistics/issues/344)) ([891e7ee](https://github.com/Indemnity83/logistics/commit/891e7ee432581fc0776e231739884a902d51865a))
+* move fabric event registrations out of common module ([#341](https://github.com/Indemnity83/logistics/issues/341)) ([5892e0d](https://github.com/Indemnity83/logistics/commit/5892e0db4c4aa7c2c00009b1a6567af410efe613))
+* move packet registration out of common module ([#342](https://github.com/Indemnity83/logistics/issues/342)) ([b815a18](https://github.com/Indemnity83/logistics/commit/b815a18d7925131e38bacb2bd0054ae6e35a0c56))
+* remove fabric-api from common compile classpath ([#361](https://github.com/Indemnity83/logistics/issues/361)) ([b8bf7aa](https://github.com/Indemnity83/logistics/commit/b8bf7aa165a1b955f360d2d8c8ce4a8a007f4f7d))
+* remove last Fabric API imports from common/ ([#352](https://github.com/Indemnity83/logistics/issues/352)) ([a21cc3b](https://github.com/Indemnity83/logistics/commit/a21cc3bf3d9d1ad72f03723eded8f07364a43259))
+* reorganize core.lib sub-packages ([#350](https://github.com/Indemnity83/logistics/issues/350)) ([280f181](https://github.com/Indemnity83/logistics/commit/280f18126731506a6ac47f6e22d147389f4ecc2c))
+* simplify block entity registration process with factories ([#345](https://github.com/Indemnity83/logistics/issues/345)) ([b1c77da](https://github.com/Indemnity83/logistics/commit/b1c77daf00d46cf638741a3cd81b6e6a6c6107d7))
+* split vanilla client code into common/src/client/ for multi-loader support ([#355](https://github.com/Indemnity83/logistics/issues/355)) ([b7f1b31](https://github.com/Indemnity83/logistics/commit/b7f1b31ab289f9450e2124643641c9b40d8d63ec))
+* streamline bootstrap classes to registration-only responsibilities ([#348](https://github.com/Indemnity83/logistics/issues/348)) ([a49b867](https://github.com/Indemnity83/logistics/commit/a49b8679a4892f0514d9ed72417ffc1fd7060eaf))
+* unify platform access with service implementations ([#347](https://github.com/Indemnity83/logistics/issues/347)) ([a8888f3](https://github.com/Indemnity83/logistics/commit/a8888f3bbeb13f8b0efb77318a58f0eba473c195))
+* wire neoforge subproject to compile against common sources ([#360](https://github.com/Indemnity83/logistics/issues/360)) ([8607789](https://github.com/Indemnity83/logistics/commit/8607789d2856acde05926428649d9f4c1e97de25))
+
+
+### Testing
+
+* add baseline coverage statistics and tests for components ([#402](https://github.com/Indemnity83/logistics/issues/402)) ([84ac559](https://github.com/Indemnity83/logistics/commit/84ac559c897d01f3965ade949034115bd61c6345))
+* add NeoForge ServiceLoader and energy adapter tests ([#377](https://github.com/Indemnity83/logistics/issues/377)) ([ee20dfc](https://github.com/Indemnity83/logistics/commit/ee20dfc66d0f0823485189f072ce465816337109))
+
+
+### Build System
+
+* add NeoForge support to multi-loader configuration ([#320](https://github.com/Indemnity83/logistics/issues/320)) ([1eba7e5](https://github.com/Indemnity83/logistics/commit/1eba7e5e20cf62187a4bb75d81a66770bfa78348))
+* restructure project to support multiloader architecture ([#318](https://github.com/Indemnity83/logistics/issues/318)) ([4c7a060](https://github.com/Indemnity83/logistics/commit/4c7a060178a8ef65c5ce0d31667155fef0de3198))
+
 ## [0.5.6](https://github.com/Indemnity83/logistics/compare/mc1.21.1-v0.5.5...mc1.21.1-v0.5.6) (2026-05-04)
 
 
