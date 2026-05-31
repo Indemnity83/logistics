@@ -160,6 +160,7 @@ jobs:
           VERSION="${VERSION#v}"
 
           MC_VERSION="$(grep '^minecraft_version=' gradle.properties | cut -d'=' -f2)"
+          GAME_VERSIONS="$(printf '1.21\n1.21.1')"
           LOADER="$MATRIX_LOADER"
 
           FULL_VERSION="${VERSION}+mc${MC_VERSION}.${LOADER}"
@@ -187,6 +188,11 @@ jobs:
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "full_version=$FULL_VERSION" >> "$GITHUB_OUTPUT"
           echo "minecraft_version=$MC_VERSION" >> "$GITHUB_OUTPUT"
+          {
+            echo "game_versions<<EOF"
+            printf '%s\n' "$GAME_VERSIONS"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
           echo "loader=$LOADER" >> "$GITHUB_OUTPUT"
           echo "version_type=$VERSION_TYPE" >> "$GITHUB_OUTPUT"
           echo "game_version_filter=$GAME_VERSION_FILTER" >> "$GITHUB_OUTPUT"
@@ -213,6 +219,7 @@ jobs:
           github-tag: ${{ steps.version.outputs.tag }}
 
           game-version-filter: ${{ steps.version.outputs.game_version_filter }}
+          game-versions: ${{ steps.version.outputs.game_versions }}
           version-type: ${{ steps.version.outputs.version_type }}
           name: "Logistics v${{ steps.version.outputs.version }} for ${{ steps.version.outputs.loader }} ${{ steps.version.outputs.minecraft_version }}"
           version: "${{ steps.version.outputs.full_version }}"
