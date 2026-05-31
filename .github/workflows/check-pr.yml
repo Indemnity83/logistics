@@ -6,7 +6,8 @@ on:
     types: [opened, edited, synchronize, reopened, ready_for_review]
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  # Keep title/body edit runs from cancelling synchronize runs that execute lint/test.
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event.action }}
   cancel-in-progress: true
 
 permissions:
