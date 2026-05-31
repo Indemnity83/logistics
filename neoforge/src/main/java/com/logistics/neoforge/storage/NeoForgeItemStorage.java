@@ -3,6 +3,7 @@ package com.logistics.neoforge.storage;
 import com.logistics.core.lib.storage.IItemKey;
 import com.logistics.core.lib.storage.IItemStorage;
 import com.logistics.core.lib.storage.IItemView;
+import com.logistics.core.lib.storage.ISlottedItemStorage;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.world.item.ItemStack;
@@ -38,16 +39,23 @@ public final class NeoForgeItemStorage implements IItemStorage {
     /**
      * Adapt a common {@link IItemStorage} to a NeoForge {@link IItemHandler}.
      *
-     * <p>The resulting handler reports a single slot that reflects the first non-empty
-     * item in the common storage. This is a "unified view" adapter — callers should prefer
-     * the key-based insert/extract methods for correct multi-item interaction.
+     * <p>If the storage implements {@link ISlottedItemStorage}, the resulting handler exposes
+     * the underlying slot count and preserves slot indices. Otherwise the resulting handler
+     * reports a single virtual slot that reflects the first non-empty item — callers should
+     * prefer the key-based insert/extract methods for correct multi-item interaction.
      *
      * @param storage the common storage to adapt; may be {@code null}
      * @return the NeoForge adapter, or {@code null} if storage is {@code null}
      */
     @Nullable
     public static IItemHandler asNeoForge(@Nullable IItemStorage storage) {
-        return storage == null ? null : new CommonItemHandler(storage);
+        if (storage == null) {
+            return null;
+        }
+        if (storage instanceof ISlottedItemStorage slotted) {
+            return new SlottedCommonItemHandler(slotted);
+        }
+        return new CommonItemHandler(storage);
     }
 
     @Override
@@ -107,13 +115,86 @@ public final class NeoForgeItemStorage implements IItemStorage {
         return (int) Math.max(0, Math.min(amount, Integer.MAX_VALUE));
     }
 
+    /** Adapts a slot-aware common storage to NeoForge while preserving exposed slot indices. */
+    private static final class SlottedCommonItemHandler implements IItemHandler {
+        private final ISlottedItemStorage storage;
+
+        private SlottedCommonItemHandler(ISlottedItemStorage storage) {
+            this.storage = storage;
+        }
+
+        @Override
+        public int getSlots() {
+            return storage.slotCount();
+        }
+
+        @Override
+        public ItemStack getStackInSlot(int slot) {
+            checkIndex(slot);
+            IItemView view = storage.slotView(slot);
+            if (view == null || view.amount() <= 0) {
+                return ItemStack.EMPTY;
+            }
+            return view.resource().toStack(clampToInt(view.amount()));
+        }
+
+        @Override
+        public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
+            checkIndex(slot);
+            if (stack.isEmpty()) {
+                return ItemStack.EMPTY;
+            }
+            IItemKey key = NeoForgeItemKey.of(stack);
+            long inserted = storage.insert(slot, key, stack.getCount(), simulate);
+            int leftover = stack.getCount() - clampToInt(inserted);
+            return leftover <= 0 ? ItemStack.EMPTY : stack.copyWithCount(leftover);
+        }
+
+        @Override
+        public ItemStack extractItem(int slot, int amount, boolean simulate) {
+            checkIndex(slot);
+            if (amount <= 0) {
+                return ItemStack.EMPTY;
+            }
+            IItemView view = storage.slotView(slot);
+            if (view == null || view.amount() <= 0) {
+                return ItemStack.EMPTY;
+            }
+            IItemKey key = view.resource();
+            long extracted = storage.extract(slot, key, amount, simulate);
+            return extracted <= 0 ? ItemStack.EMPTY : key.toStack(clampToInt(extracted));
+        }
+
+        @Override
+        public int getSlotLimit(int slot) {
+            checkIndex(slot);
+            return 64;
+        }
+
+        @Override
+        public boolean isItemValid(int slot, ItemStack stack) {
+            checkIndex(slot);
+            if (stack.isEmpty()) {
+                return false;
+            }
+            return storage.insert(slot, NeoForgeItemKey.of(stack), 1, true) > 0;
+        }
+
+        private void checkIndex(int index) {
+            if (index < 0 || index >= storage.slotCount()) {
+                throw new IndexOutOfBoundsException(index);
+            }
+        }
+    }
+
     /**
-     * Adapts a common {@link IItemStorage} to NeoForge's slot-based {@link IItemHandler}.
+     * Fallback adapter for common {@link IItemStorage} implementations without fixed slots.
      *
-     * <p>Reports {@link #getSlots()}{@code == 1} regardless of how many distinct item types
-     * the underlying storage holds. {@link #getStackInSlot(int)} returns the first non-empty
-     * item. This is an intentional "unified slot" view — the common abstraction has no fixed
-     * slot count, so we expose it as a single virtual slot.
+     * <p>Reports {@link #getSlots()}{@code == 1} regardless of how many distinct item types the
+     * underlying storage holds. {@link #getStackInSlot(int)} returns the first non-empty item.
+     * This is an intentional "unified slot" view — the common abstraction has no fixed slot
+     * count, so we expose it as a single virtual slot. For correct multi-item interaction,
+     * callers should use the key-based insert/extract methods rather than slot iteration.
      */
     private static final class CommonItemHandler implements IItemHandler {
         private final IItemStorage storage;
