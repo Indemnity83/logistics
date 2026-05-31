@@ -21,11 +21,12 @@ import com.logistics.pipe.screen.SupplierScreen;
 import com.logistics.automation.render.LaserQuarryBlockEntityRenderer;
 import com.logistics.automation.render.MarkerBlockEntityRenderer;
 import com.logistics.core.lib.power.AbstractEngineBlockEntity;
+import com.logistics.neoforge.NeoForgePacketRegistration;
+import com.logistics.neoforge.client.render.NeoForgeEngineBlockEntityRenderer;
+import com.logistics.neoforge.client.render.NeoForgeModelLoader;
 import com.logistics.pipe.network.packet.SyncRequesterInventoryPacket;
 import com.logistics.pipe.render.PipeBlockEntityRenderer;
 import com.logistics.power.screen.StirlingEngineScreen;
-import com.logistics.neoforge.client.render.NeoForgeEngineBlockEntityRenderer;
-import com.logistics.neoforge.client.render.NeoForgeModelLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.color.block.BlockColor;
 import net.neoforged.bus.api.IEventBus;
@@ -34,13 +35,12 @@ import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
-import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
-import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
 public final class NeoForgeClientSetup {
     private NeoForgeClientSetup() {}
 
     public static void register(IEventBus modBus) {
+        NeoForgePacketRegistration.registerSyncRequesterInventoryHandler(NeoForgeClientSetup::handleSyncRequesterInventory);
         NeoForgeModelLoader.registerPowerModels();
         modBus.addListener(NeoForgeClientSetup::onClientSetup);
         modBus.addListener(NeoForgeClientSetup::registerScreens);
@@ -48,7 +48,6 @@ public final class NeoForgeClientSetup {
         modBus.addListener(NeoForgeClientSetup::registerBlockColors);
         modBus.addListener(NeoForgeModelLoader::registerAdditionalModels);
         modBus.addListener(NeoForgeModelLoader::registerGeometryLoaders);
-        modBus.addListener(NeoForgeClientSetup::registerClientPayloadHandlers);
     }
 
     private static void onClientSetup(FMLClientSetupEvent event) {
@@ -121,14 +120,10 @@ public final class NeoForgeClientSetup {
                 LogisticsPower.BLOCK.CREATIVE_ENGINE);
     }
 
-    private static void registerClientPayloadHandlers(RegisterPayloadHandlersEvent event) {
-        PayloadRegistrar registrar = event.registrar("1");
-        registrar.playToClient(SyncRequesterInventoryPacket.TYPE, SyncRequesterInventoryPacket.CODEC,
-                (packet, context) -> context.enqueueWork(() -> {
-                    var screen = Minecraft.getInstance().screen;
-                    if (screen instanceof RequesterScreen requesterScreen) {
-                        requesterScreen.updateAvailableItems(packet.pipePos(), packet.items(), packet.amounts());
-                    }
-                }));
+    private static void handleSyncRequesterInventory(SyncRequesterInventoryPacket packet) {
+        var screen = Minecraft.getInstance().screen;
+        if (screen instanceof RequesterScreen requesterScreen) {
+            requesterScreen.updateAvailableItems(packet.pipePos(), packet.items(), packet.amounts());
+        }
     }
 }
