@@ -1,8 +1,6 @@
 package com.logistics.automation.laserquarry.entity;
 
 import com.logistics.LogisticsAutomation;
-import com.logistics.api.LogisticsApi;
-import com.logistics.api.TransportApi;
 import com.logistics.automation.laserquarry.LaserQuarryBlock;
 import com.logistics.automation.render.ClientRenderCacheHooks;
 import com.logistics.core.LogisticsConfig;
@@ -20,13 +18,9 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.Container;
-import net.minecraft.world.WorldlyContainer;
-import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 import com.logistics.core.lib.energy.IEnergyStorage;
@@ -500,109 +494,7 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity implements PipeConne
     }
 
     private void mineBlock(ServerLevel world, BlockPos target, BlockState targetState) {
-        // Get drops before breaking the block
-        BlockEntity blockEntity = world.getBlockEntity(target);
-        List<ItemStack> drops = Block.getDrops(targetState, world, target, blockEntity, null, ItemStack.EMPTY);
-
-        // Break the block without natural drops (we handle drops manually)
-        world.destroyBlock(target, false);
-
-        // Output the calculated drops
-        for (ItemStack drop : drops) {
-            outputItem(world, drop);
-        }
-
-        // Fallback: if getDroppedStacks returned nothing but this wasn't air,
-        // or if this was a container (block entity), collect any spawned items
-        if (drops.isEmpty() || blockEntity != null) {
-            collectNearbyItems(world, target);
-        }
-    }
-
-    private void collectNearbyItems(ServerLevel world, BlockPos target) {
-        List<ItemEntity> itemEntities = world.getEntitiesOfClass(
-                ItemEntity.class, new net.minecraft.world.phys.AABB(target).inflate(2.0), item -> true);
-
-        for (ItemEntity itemEntity : itemEntities) {
-            ItemStack stack = itemEntity.getItem();
-            if (!stack.isEmpty()) {
-                outputItem(world, stack.copy());
-                itemEntity.discard();
-            }
-        }
-    }
-
-    private void outputItem(ServerLevel world, ItemStack stack) {
-        if (stack.isEmpty()) return;
-
-        BlockPos quarryPos = getBlockPos();
-        BlockPos abovePos = quarryPos.above();
-
-        // Check if there's a transport block above
-        BlockState aboveState = world.getBlockState(abovePos);
-        TransportApi transportApi = LogisticsApi.Registry.transport();
-        if (transportApi.isTransportBlock(aboveState)) {
-            transportApi.forceInsert(world, abovePos, stack.copy(), Direction.UP);
-            return;
-        }
-
-        // Check if there's an inventory above (chest, barrel, etc.)
-        if (!stack.isEmpty()) {
-            BlockEntity aboveEntity = world.getBlockEntity(abovePos);
-            if (aboveEntity instanceof Container inv) {
-                // Check if it's a sided inventory and respects insertion from below
-                if (aboveEntity instanceof WorldlyContainer sidedInv) {
-                    int[] availableSlots = sidedInv.getSlotsForFace(Direction.DOWN);
-                    for (int slot : availableSlots) {
-                        if (stack.isEmpty()) break;
-                        if (!sidedInv.canPlaceItemThroughFace(slot, stack, Direction.DOWN)) continue;
-                        stack = insertIntoSlot(inv, slot, stack);
-                    }
-                } else {
-                    // Regular inventory - try all slots
-                    for (int slot = 0; slot < inv.getContainerSize(); slot++) {
-                        if (stack.isEmpty()) break;
-                        if (!inv.canPlaceItem(slot, stack)) continue;
-                        stack = insertIntoSlot(inv, slot, stack);
-                    }
-                }
-            }
-        }
-
-        // Drop any remaining items
-        if (!stack.isEmpty()) {
-            double x = quarryPos.getX() + 0.5;
-            double y = quarryPos.getY() + 1.5;
-            double z = quarryPos.getZ() + 0.5;
-
-            ItemEntity itemEntity = new ItemEntity(world, x, y, z, stack);
-            itemEntity.setDeltaMovement(0, 0.2, 0); // Small upward velocity
-            world.addFreshEntity(itemEntity);
-        }
-    }
-
-    /**
-     * Try to insert a stack into a specific slot of an inventory.
-     * @return the remaining stack (may be empty if fully inserted)
-     */
-    private ItemStack insertIntoSlot(Container inv, int slot, ItemStack stack) {
-        ItemStack existing = inv.getItem(slot);
-
-        if (existing.isEmpty()) {
-            // Empty slot - insert up to max stack size
-            int maxInsert = Math.min(stack.getCount(), Math.min(inv.getMaxStackSize(), stack.getMaxStackSize()));
-            inv.setItem(slot, stack.split(maxInsert));
-        } else if (ItemStack.isSameItemSameComponents(existing, stack)) {
-            // Same item - try to merge
-            int space = Math.min(inv.getMaxStackSize(), existing.getMaxStackSize()) - existing.getCount();
-            if (space > 0) {
-                int toInsert = Math.min(space, stack.getCount());
-                existing.grow(toInsert);
-                stack.shrink(toInsert);
-            }
-        }
-
-        return stack;
+        QuarryBlockBreaker.mineBlock(world, getBlockPos(), target, targetState);
     }
 
     private void advanceToNextBlock() {
