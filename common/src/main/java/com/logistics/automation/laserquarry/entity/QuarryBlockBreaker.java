@@ -67,8 +67,9 @@ public final class QuarryBlockBreaker {
         BlockState aboveState = world.getBlockState(abovePos);
         TransportApi transportApi = LogisticsApi.Registry.transport();
         if (transportApi.isTransportBlock(aboveState)) {
-            transportApi.forceInsert(world, abovePos, stack.copy(), Direction.UP);
-            return;
+            if (transportApi.forceInsert(world, abovePos, stack.copy(), Direction.UP)) {
+                return;
+            }
         }
 
         // Fall back to a regular or sided inventory above.
@@ -112,12 +113,14 @@ public final class QuarryBlockBreaker {
         if (existing.isEmpty()) {
             int maxInsert = Math.min(stack.getCount(), Math.min(inv.getMaxStackSize(), stack.getMaxStackSize()));
             inv.setItem(slot, stack.split(maxInsert));
+            inv.setChanged();
         } else if (ItemStack.isSameItemSameComponents(existing, stack)) {
             int space = Math.min(inv.getMaxStackSize(), existing.getMaxStackSize()) - existing.getCount();
             if (space > 0) {
                 int toInsert = Math.min(space, stack.getCount());
                 existing.grow(toInsert);
                 stack.shrink(toInsert);
+                inv.setChanged();
             }
         }
 

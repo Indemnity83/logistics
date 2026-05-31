@@ -72,12 +72,15 @@ public final class QuarryPhaseRunner {
         this.currentTarget = null;
     }
 
-    /** Marker callback: bounds changed, restart the mining cursor and finished flag. */
+    /** Marker callback: bounds changed, restart the full clear -> frame -> mine sequence. */
     public void onCustomBoundsSet() {
+        phase = Phase.CLEARING;
+        frameBuildIndex = 0;
         miningX = 0;
         miningY = 0;
         miningZ = 0;
         finished = false;
+        resetBreakProgress();
     }
 
     /** True if the quarry has been placed but hasn't started any clearing yet. */
@@ -107,9 +110,7 @@ public final class QuarryPhaseRunner {
         for (int skipped = 0; skipped < LogisticsConfig.get().quarry.scanRate; skipped++) {
             target = clearingTargetPos(be, state);
             if (target == null) {
-                phase = Phase.BUILDING_FRAME;
-                frameBuildIndex = 0;
-                be.setChanged();
+                transitionFromClearingToBuildingFrame(be);
                 return;
             }
 
@@ -120,6 +121,11 @@ public final class QuarryPhaseRunner {
 
             advanceToNextBlock(be);
             resetBreakProgress();
+        }
+
+        if (target == null) {
+            transitionFromClearingToBuildingFrame(be);
+            return;
         }
 
         if (GridScanner.shouldSkip(world, target, targetState)) {
@@ -348,6 +354,14 @@ public final class QuarryPhaseRunner {
             }
         }
         be.setChanged();
+    }
+
+    private void transitionFromClearingToBuildingFrame(LaserQuarryBlockEntity be) {
+        phase = Phase.BUILDING_FRAME;
+        frameBuildIndex = 0;
+        resetBreakProgress();
+        be.setChanged();
+        be.syncToClients();
     }
 
     private void advanceMiningPosition(LaserQuarryBlockEntity be) {
