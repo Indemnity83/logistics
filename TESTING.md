@@ -24,6 +24,8 @@
 ```bash
 ./gradlew lint                  # Check repository text files and all module Java sources
 ./gradlew fix                   # Apply repository and module formatting
+./gradlew repoLint              # Check repository text files only
+./gradlew repoFix               # Format repository text files only
 ./gradlew :common:lint          # Check one module
 ./gradlew :common:fix           # Format one module
 ```
@@ -32,11 +34,12 @@ The same `lint`/`fix` aliases are available for `fabric` and `neoforge`.
 
 ### CI
 
-Pull request CI runs required checks for:
+Pull request CI runs under the **Check PR** workflow:
 
-- repository-level formatting (`spotlessMiscCheck`)
-- module formatting via matrix: `:common:lint`, `:fabric:lint`, `:neoforge:lint`
-- module unit tests via matrix: `:common:test`, `:fabric:test`, `:neoforge:test`
+- `validate` checks the PR title.
+- `structure` checks repository-level formatting and import boundaries.
+- `lint (common|fabric|neoforge)` checks module Java formatting.
+- `test (common|fabric|neoforge)` runs module unit tests.
 
 PR CI does not build preview jars automatically. Use the manual **Build PR Artifacts**
 workflow when a branch needs downloadable Fabric or NeoForge jars for smoke testing.

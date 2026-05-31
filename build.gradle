@@ -87,15 +87,27 @@ def coverageSourceDirs(Project project) {
 tasks.register('lint') {
     description = 'Check all source and repository formatting'
     group = 'verification'
-    dependsOn 'spotlessMiscCheck'
+    dependsOn 'repoLint'
     dependsOn subprojects.collect { "${it.path}:lint" }
 }
 
 tasks.register('fix') {
     description = 'Apply all source and repository formatting'
     group = 'formatting'
-    dependsOn 'spotlessMiscApply'
+    dependsOn 'repoFix'
     dependsOn subprojects.collect { "${it.path}:fix" }
+}
+
+tasks.register('repoLint') {
+    description = 'Check repository-level formatting'
+    group = 'verification'
+    dependsOn 'spotlessMiscCheck'
+}
+
+tasks.register('repoFix') {
+    description = 'Apply repository-level formatting'
+    group = 'formatting'
+    dependsOn 'spotlessMiscApply'
 }
 
 tasks.named('spotlessCheck') {
