@@ -24,10 +24,9 @@ jobs:
         shell: bash
         env:
           DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+          TAG: ${{ github.event.release.tag_name }}
+          URL: ${{ github.event.release.html_url }}
         run: |
-          TAG="${{ github.event.release.tag_name }}"
-          URL="${{ github.event.release.html_url }}"
-
           DEFAULT_COMPONENT="${DEFAULT_BRANCH#mc/}"
           DEFAULT_TAG_PREFIX="mc${DEFAULT_COMPONENT}-v"
 
