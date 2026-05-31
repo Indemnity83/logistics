@@ -6,17 +6,51 @@
 |--------|----------|------|-----------|
 | `common` | `common/src/test/java/` | Unit | JUnit 5 + Minecraft bootstrap |
 | `fabric` | `fabric/src/test/java/` | Unit | JUnit 5 (plain) |
-| `neoforge` | `neoforge/src/test/java/` | Unit (stubs) | JUnit 5 (all @Disabled) |
-| `fabric` | `fabric/src/gametest/java/` | Integration | Fabric @GameTest (deprecated) |
+| `neoforge` | `neoforge/src/test/java/` | Unit | JUnit 5 (plain) |
+| `fabric` | `fabric/src/gametest/java/` | Integration | Fabric @GameTest (deprecated/manual) |
 
 ### Running tests
 
 ```bash
-./gradlew :common:test          # Unit tests for all business logic
-./gradlew :fabric:test          # ServiceLoader smoke tests
-./gradlew :neoforge:test        # Stubs (0 active tests)
-./gradlew :fabric:runGametest   # Integration game tests (deprecated; see below)
+./gradlew :common:test          # Common business logic unit tests
+./gradlew :fabric:test          # Fabric ServiceLoader and adapter unit tests
+./gradlew :neoforge:test        # NeoForge ServiceLoader and adapter unit tests
+./gradlew testCoverage          # Aggregate local JaCoCo coverage report
+./gradlew :fabric:runGameTest   # Integration game tests (deprecated/manual; see below)
 ```
+
+### Formatting
+
+```bash
+./gradlew lint                  # Check repository text files and all module Java sources
+./gradlew fix                   # Apply repository and module formatting
+./gradlew :common:lint          # Check one module
+./gradlew :common:fix           # Format one module
+```
+
+The same `lint`/`fix` aliases are available for `fabric` and `neoforge`.
+
+### CI
+
+Pull request CI runs required checks for:
+
+- repository-level formatting (`spotlessMiscCheck`)
+- module formatting via matrix: `:common:lint`, `:fabric:lint`, `:neoforge:lint`
+- module unit tests via matrix: `:common:test`, `:fabric:test`, `:neoforge:test`
+
+PR CI does not build preview jars automatically. Use the manual **Build PR Artifacts**
+workflow when a branch needs downloadable Fabric or NeoForge jars for smoke testing.
+
+### Coverage
+
+Local aggregate coverage is generated with:
+
+```bash
+./gradlew testCoverage
+```
+
+The HTML report is written to `build/reports/jacoco/testCoverage/html/index.html`.
+The XML report is written to `build/reports/jacoco/testCoverage/testCoverage.xml`.
 
 ---
 
@@ -32,7 +66,9 @@
 - **Core** — BaseBlockEntity, ResourceId, MaceratorRecipe, MaceratorBlockEntityLogic
 - **Serialization golden tests** — ItemFilterModule (backward compat), ProviderDispatchQueue, TravelingItem
 
-`fabric/src/test/java/` contains ServiceLoader smoke tests verifying all six `META-INF/services/` registrations are present and the implementation classes can be instantiated.
+`fabric/src/test/java/` and `neoforge/src/test/java/` contain ServiceLoader smoke tests
+verifying `META-INF/services/` registrations are present and the implementation classes
+can be instantiated. Loader adapter unit tests cover thin storage and energy wrappers.
 
 ---
 
