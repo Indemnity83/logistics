@@ -27,6 +27,17 @@ class QuarryBlockBreakerTest extends MinecraftTestEnvironment {
     }
 
     @Test
+    @DisplayName("marks the container changed when inserting into an empty slot")
+    void marksChangedWhenInsertingIntoEmptySlot() {
+        TrackingContainer container = new TrackingContainer(1);
+        ItemStack stack = new ItemStack(Items.IRON_INGOT, 5);
+
+        QuarryBlockBreaker.insertIntoSlot(container, 0, stack);
+
+        assertThat(container.changedCount).isPositive();
+    }
+
+    @Test
     @DisplayName("merges into a matching slot up to the stack size")
     void mergesIntoMatchingSlot() {
         SimpleContainer container = new SimpleContainer(1);
@@ -38,6 +49,19 @@ class QuarryBlockBreakerTest extends MinecraftTestEnvironment {
         // 64 - 60 = 4 fit, 6 remain.
         assertThat(container.getItem(0).getCount()).isEqualTo(64);
         assertThat(remainder.getCount()).isEqualTo(6);
+    }
+
+    @Test
+    @DisplayName("marks the container changed when merging into a matching slot")
+    void marksChangedWhenMergingIntoMatchingSlot() {
+        TrackingContainer container = new TrackingContainer(1);
+        container.setItem(0, new ItemStack(Items.IRON_INGOT, 60));
+        container.changedCount = 0;
+        ItemStack stack = new ItemStack(Items.IRON_INGOT, 10);
+
+        QuarryBlockBreaker.insertIntoSlot(container, 0, stack);
+
+        assertThat(container.changedCount).isEqualTo(1);
     }
 
     @Test
@@ -82,5 +106,19 @@ class QuarryBlockBreakerTest extends MinecraftTestEnvironment {
 
         assertThat(remainder.getCount()).isEqualTo(5);
         assertThat(container.getItem(0).getCount()).isEqualTo(64);
+    }
+
+    private static final class TrackingContainer extends SimpleContainer {
+        private int changedCount = 0;
+
+        private TrackingContainer(int size) {
+            super(size);
+        }
+
+        @Override
+        public void setChanged() {
+            changedCount++;
+            super.setChanged();
+        }
     }
 }
