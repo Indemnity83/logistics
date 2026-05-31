@@ -45,6 +45,10 @@ tasks.named('compileJava', JavaCompile) {
     source configurations.commonClientJava
 }
 
+tasks.named('compileTestJava', JavaCompile) {
+    classpath += tasks.named('compileJava', JavaCompile).get().classpath
+}
+
 dependencies {
     // JEI — compile against API only; players install separately at runtime
     compileOnly("mezz.jei:jei-${rootProject.minecraft_version}-neoforge-api:${rootProject.jei_version}")
@@ -58,6 +62,7 @@ dependencies {
 
 test {
     useJUnitPlatform()
+    classpath += tasks.named('compileJava', JavaCompile).get().classpath
     testLogging {
         events "passed", "skipped", "failed"
         exceptionFormat = "full"
