@@ -35,9 +35,11 @@ jobs:
             SEMVER="$TAG"
           fi
 
-          echo "mc_version=$MC_VERSION" >> "$GITHUB_OUTPUT"
-          echo "semver=$SEMVER" >> "$GITHUB_OUTPUT"
-          echo "url=$URL" >> "$GITHUB_OUTPUT"
+          {
+            echo "mc_version=$MC_VERSION"
+            echo "semver=$SEMVER"
+            echo "url=$URL"
+          } >> "$GITHUB_OUTPUT"
 
       - name: Send Discord notification
         shell: bash
