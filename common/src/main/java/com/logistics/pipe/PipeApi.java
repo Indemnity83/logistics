@@ -22,9 +22,12 @@ public final class PipeApi implements TransportApi {
     public boolean tryInsert(ServerLevel world, BlockPos targetPos, ItemStack stack, Direction from) {
         BlockEntity aboveEntity = world.getBlockEntity(targetPos);
         if (aboveEntity instanceof PipeBlockEntity pipeEntity) {
+            if (!pipeEntity.canAcceptEntireStack(stack, from.getOpposite(), false)) {
+                return false;
+            }
+
             TravelingItem travelingItem = new TravelingItem(stack.copy(), from, LogisticsConfig.get().pipe.minSpeed);
-            pipeEntity.addItem(travelingItem, from.getOpposite(), false);
-            return true;
+            return pipeEntity.addItem(travelingItem, from.getOpposite(), false);
         }
         return false;
     }
@@ -33,9 +36,12 @@ public final class PipeApi implements TransportApi {
     public boolean forceInsert(ServerLevel world, BlockPos targetPos, ItemStack stack, Direction from) {
         BlockEntity aboveEntity = world.getBlockEntity(targetPos);
         if (aboveEntity instanceof PipeBlockEntity pipeEntity) {
+            if (!pipeEntity.canAcceptEntireStack(stack, from.getOpposite(), true)) {
+                return false;
+            }
+
             TravelingItem travelingItem = new TravelingItem(stack.copy(), from, LogisticsConfig.get().pipe.minSpeed);
-            pipeEntity.addItem(travelingItem, from.getOpposite(), true);
-            return true;
+            return pipeEntity.addItem(travelingItem, from.getOpposite(), true);
         }
         return false;
     }
