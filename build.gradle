@@ -84,6 +84,46 @@ def coverageSourceDirs(Project project) {
     coverageSourceSets(project).collectMany { it.allSource.srcDirs }
 }
 
+tasks.register('checkImportBoundaries') {
+    description = 'Check loader and domain import boundaries'
+    group = 'verification'
+
+    doLast {
+        def failures = []
+        def importMatches = { Object target, String pattern ->
+            fileTree(target) {
+                include '**/*.java'
+            }.findAll { file ->
+                file.readLines().any { line -> line ==~ pattern }
+            }
+        }
+
+        importMatches('common/src', /^import (static )?net\.(fabricmc|neoforged)\..*/).each {
+            failures << "loader import found in common/: ${rootDir.toPath().relativize(it.toPath())}"
+        }
+
+        importMatches('fabric/src', /^import (static )?net\.neoforged\..*/).each {
+            failures << "neoforge import found in fabric/: ${rootDir.toPath().relativize(it.toPath())}"
+        }
+
+        importMatches('neoforge/src', /^import (static )?net\.fabricmc\..*/).each {
+            failures << "fabric import found in neoforge/: ${rootDir.toPath().relativize(it.toPath())}"
+        }
+
+        def domains = ['pipe', 'power', 'automation']
+        domains.each { domain ->
+            def others = domains.findAll { it != domain }.join('|')
+            importMatches("common/src/main/java/com/logistics/${domain}", /^import com\.logistics\.(${others})\..*/).each {
+                failures << "cross-domain import found in ${domain}/: ${rootDir.toPath().relativize(it.toPath())}"
+            }
+        }
+
+        if (!failures.isEmpty()) {
+            throw new GradleException(failures.join(System.lineSeparator()))
+        }
+    }
+}
+
 tasks.register('lint') {
     description = 'Check all source and repository formatting'
     group = 'verification'
@@ -108,6 +148,11 @@ tasks.register('repoFix') {
     description = 'Apply repository-level formatting'
     group = 'formatting'
     dependsOn 'spotlessMiscApply'
+}
+
+project(':common').tasks.named('lint') {
+    dependsOn rootProject.tasks.named('repoLint')
+    dependsOn rootProject.tasks.named('checkImportBoundaries')
 }
 
 tasks.named('spotlessCheck') {

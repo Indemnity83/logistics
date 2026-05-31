@@ -37,61 +37,6 @@ jobs:
           # Validate PR title only (not individual commits)
           validateSingleCommit: false
 
-  structure:
-    name: lint (architecture)
-    # Skip: draft PRs, release-please PRs
-    if: |
-      github.event.pull_request.draft == false &&
-      !startsWith(github.head_ref, 'release-please--')
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
-        with:
-          fetch-depth: 0
-          persist-credentials: false
-          token: ${{ github.token }}
-
-      - uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654
-        with:
-          distribution: temurin
-          java-version: '25'
-
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@4c125117fe7c5aed11272ec4213f602f012f89f2
-        with:
-          cache-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
-
-      - name: Check repository formatting
-        run: ./gradlew repoLint --console=plain
-
-      - name: Check import boundaries
-        run: |
-          FAIL=0
-
-          echo "Checking fabric/ for neoforged imports..."
-          if grep -rEn "^import (static )?net\.neoforged\." fabric/src/ --include="*.java"; then
-            echo "::error::neoforge imports found in fabric/"
-            FAIL=1
-          fi
-
-          echo "Checking neoforge/ for fabricmc imports..."
-          if grep -rEn "^import (static )?net\.fabricmc\." neoforge/src/ --include="*.java"; then
-            echo "::error::fabric imports found in neoforge/"
-            FAIL=1
-          fi
-
-          echo "Checking for cross-domain imports (pipe/power/automation must not import each other)..."
-          DOMAINS="pipe power automation"
-          for domain in $DOMAINS; do
-            others=$(echo $DOMAINS | tr ' ' '\n' | grep -v "^${domain}$" | tr '\n' '|' | sed 's/|$//')
-            if grep -rEn "^import com\.logistics\.(${others})\." common/src/main/java/com/logistics/${domain}/ --include="*.java"; then
-              echo "::error::cross-domain import found in ${domain}/"
-              FAIL=1
-            fi
-          done
-
-          exit $FAIL
-
   lint:
     name: lint (${{ matrix.module }})
     # Skip: draft PRs, release-please PRs
