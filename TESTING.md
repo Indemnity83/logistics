@@ -36,8 +36,8 @@ The same `lint`/`fix` aliases are available for `fabric` and `neoforge`.
 
 Pull request CI runs under the **Check PR** workflow:
 
-- `validate` checks the PR title.
-- `structure` checks repository-level formatting and import boundaries.
+- `lint (pr)` checks the PR title.
+- `lint (architecture)` checks repository-level formatting and import boundaries.
 - `lint (common|fabric|neoforge)` checks module Java formatting.
 - `test (common|fabric|neoforge)` runs module unit tests.
 
