@@ -34,12 +34,15 @@ The same `lint`/`fix` aliases are available for `fabric` and `neoforge`.
 
 ### CI
 
-Pull request CI runs under the **Check PR** workflow:
+Pull request CI runs under two workflows:
 
-- `lint (pr)` checks the PR title.
-- `lint (common)` checks repository-level formatting, common Java formatting, and import boundaries.
-- `lint (fabric|neoforge)` checks module Java formatting.
-- `test (common|fabric|neoforge)` runs module unit tests.
+- **Check PR**:
+  - `lint (pr)` checks the PR title.
+- **Check Code**:
+  - `lint (common)` checks repository-level formatting, common Java formatting, and import boundaries.
+  - `lint (fabric|neoforge)` checks module Java formatting.
+  - `test (common|fabric|neoforge)` runs module unit tests.
+  - `coverage` runs aggregate JaCoCo coverage and verifies the coverage ratchet.
 
 PR CI does not build preview jars automatically. Use the manual **Build PR Artifacts**
 workflow when a branch needs downloadable Fabric or NeoForge jars for smoke testing.
@@ -52,6 +55,16 @@ Local aggregate coverage is generated with:
 ./gradlew testCoverage
 ```
 
+To run the same aggregate coverage ratchet that CI uses:
+
+```bash
+./gradlew checkTestCoverageRatchet
+```
+
+The ratchet baseline lives in `gradle/coverage-baseline.properties`. Update it
+only upward after a PR improves coverage, or deliberately when the coverage
+scope changes.
+
 The HTML report is written to `build/reports/jacoco/testCoverage/html/index.html`.
 The XML report is written to `build/reports/jacoco/testCoverage/testCoverage.xml`.
 
@@ -59,17 +72,23 @@ Current aggregate baseline from `./gradlew testCoverage`:
 
 | Counter | Coverage |
 |---------|----------|
-| Instruction | 14.2% |
-| Branch | 12.1% |
-| Line | 14.3% |
-| Method | 19.9% |
-| Class | 29.3% |
+| Instruction | 15.6% |
+| Branch | 13.2% |
+| Line | 15.7% |
+| Complexity | 15.0% |
+| Method | 20.7% |
+| Class | 30.6% |
 
 High-coverage pure-logic areas include `core.lib.resource`, `core.lib.filter`,
 `power.engine`, `core.lib.energy`, `core.lib.network`, and `neoforge.energy`.
 The aggregate percentage is still low because the report includes block entities,
 blocks, menus, live-world runtime paths, bootstrap code, and loader entrypoints
 that are documented below as requiring restructuring or integration tests.
+
+When adding new tests, prefer extracting deterministic logic into plain common
+classes and keeping Minecraft `Level`, block entity, menu, networking, and
+loader APIs in thin adapters. This keeps coverage cherry-pickable across
+supported branches.
 
 ---
 

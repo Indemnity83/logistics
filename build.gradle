@@ -3,6 +3,8 @@ plugins {
     id 'jacoco'
 }
 
+import groovy.xml.XmlSlurper
+
 version = System.getenv("MOD_VERSION") ?: "dev"
 group = project.maven_group
 
@@ -175,6 +177,63 @@ tasks.register('testCoverage', JacocoReport) {
         html.outputLocation = layout.buildDirectory.dir('reports/jacoco/testCoverage/html')
         xml.required = true
         xml.outputLocation = layout.buildDirectory.file('reports/jacoco/testCoverage/testCoverage.xml')
+    }
+}
+
+tasks.register('checkTestCoverageRatchet') {
+    description = 'Verify aggregate unit test coverage has not regressed'
+    group = 'verification'
+    dependsOn 'testCoverage'
+
+    inputs.file(layout.projectDirectory.file('gradle/coverage-baseline.properties'))
+    inputs.file(layout.buildDirectory.file('reports/jacoco/testCoverage/testCoverage.xml'))
+
+    doLast {
+        def baselineFile = layout.projectDirectory.file('gradle/coverage-baseline.properties').asFile
+        if (!baselineFile.isFile()) {
+            throw new GradleException("Coverage baseline not found: ${baselineFile}")
+        }
+
+        def reportFile = layout.buildDirectory.file('reports/jacoco/testCoverage/testCoverage.xml').get().asFile
+        if (!reportFile.isFile()) {
+            throw new GradleException("Coverage report not found: ${reportFile}. Run ./gradlew testCoverage first.")
+        }
+
+        def baselines = new Properties()
+        baselineFile.withInputStream { baselines.load(it) }
+
+        def parser = new XmlSlurper(false, false)
+        parser.setFeature("http://apache.org/xml/features/disallow-doctype-decl", false)
+        parser.setFeature("http://xml.org/sax/features/external-general-entities", false)
+        parser.setFeature("http://xml.org/sax/features/external-parameter-entities", false)
+        parser.setEntityResolver { String publicId, String systemId ->
+            new org.xml.sax.InputSource(new StringReader(""))
+        }
+        def report = parser.parse(reportFile)
+        def failures = []
+
+        report.counter.each { counter ->
+            String type = counter.@type.text()
+            if (!baselines.containsKey(type)) {
+                return
+            }
+
+            BigDecimal missed = new BigDecimal(counter.@missed.text())
+            BigDecimal covered = new BigDecimal(counter.@covered.text())
+            BigDecimal total = missed + covered
+            BigDecimal actual = total == 0
+                    ? new BigDecimal('100.0')
+                    : covered.multiply(new BigDecimal('100')).divide(total, 1, java.math.RoundingMode.DOWN)
+            BigDecimal expected = new BigDecimal(baselines.getProperty(type))
+
+            if (actual < expected) {
+                failures << "${type}: ${actual}% is below baseline ${expected}%"
+            }
+        }
+
+        if (!failures.isEmpty()) {
+            throw new GradleException("Coverage ratchet failed:\n" + failures.join('\n'))
+        }
     }
 }
 
