@@ -71,14 +71,12 @@ public final class CrashReportNotifier {
         if (enabled) {
             return Component.literal("[ON]").withStyle(style -> style
                     .withColor(ChatFormatting.GREEN)
-                    .withBold(true)
                     .withClickEvent(new ClickEvent.RunCommand(DISABLE_COMMAND))
                     .withHoverEvent(new HoverEvent.ShowText(
                             Component.literal("Click to turn crash reporting off"))));
         }
         return Component.literal("[OFF]").withStyle(style -> style
                 .withColor(ChatFormatting.RED)
-                .withBold(true)
                 .withClickEvent(new ClickEvent.RunCommand(ENABLE_COMMAND))
                 .withHoverEvent(new HoverEvent.ShowText(
                         Component.literal("Click to turn on sanitized crash reporting"))));
