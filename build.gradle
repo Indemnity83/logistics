@@ -211,10 +211,14 @@ tasks.register('checkTestCoverageRatchet') {
         }
         def report = parser.parse(reportFile)
         def failures = []
+        def baselineTypes = baselines.stringPropertyNames() as Set
+        def reportedTypes = [] as Set
 
         report.counter.each { counter ->
             String type = counter.@type.text()
+            reportedTypes << type
             if (!baselines.containsKey(type)) {
+                failures << "${type}: coverage report has no baseline entry"
                 return
             }
 
@@ -229,6 +233,10 @@ tasks.register('checkTestCoverageRatchet') {
             if (actual < expected) {
                 failures << "${type}: ${actual}% is below baseline ${expected}%"
             }
+        }
+
+        (baselineTypes - reportedTypes).sort().each { type ->
+            failures << "${type}: coverage baseline has no matching report counter"
         }
 
         if (!failures.isEmpty()) {
