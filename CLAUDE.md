@@ -435,7 +435,7 @@ Output a SINGLE-LINE commit subject only:
 ## Pull Requests
 
 Use scoped conventional commit format for PR titles:
-```
+```text
 <type>(<scope>): <description>
 ```
 
@@ -493,6 +493,7 @@ These types are allowed, but should be treated as internal/developer-facing and 
 | `ci` | GitHub Actions or automation changes |
 | `chore` | Maintenance work |
 | `docs` | Documentation-only changes |
+| `revert` | Revert a previous commit/PR |
 
 ### Allowed scopes
 

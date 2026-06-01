@@ -217,6 +217,7 @@ These are allowed for PR organization, but do not appear in release notes:
 | `ci` | GitHub Actions or automation changes |
 | `chore` | Maintenance work |
 | `docs` | Documentation-only changes |
+| `revert` | Revert a previous change |
 
 #### Allowed scopes
 
