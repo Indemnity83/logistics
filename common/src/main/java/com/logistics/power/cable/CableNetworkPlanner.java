@@ -181,18 +181,18 @@ final class CableNetworkPlanner {
         Map<BlockPos, Long> bestCapacity = new HashMap<>();
         Map<BlockPos, BlockPos> previous = new HashMap<>();
         Set<BlockPos> visited = new HashSet<>();
-        PriorityQueue<BlockPos> queue = new PriorityQueue<>((a, b) -> Long.compare(
-                bestCapacity.getOrDefault(b, 0L), bestCapacity.getOrDefault(a, 0L)));
+        PriorityQueue<RouteCandidate> queue = new PriorityQueue<>(RouteCandidate.ORDER);
 
         bestCapacity.put(start, startCapacity);
-        queue.add(start);
+        queue.add(new RouteCandidate(start, startCapacity));
 
         while (!queue.isEmpty()) {
-            BlockPos current = queue.poll();
+            RouteCandidate candidate = queue.poll();
+            BlockPos current = candidate.pos();
+            if (candidate.capacity() < bestCapacity.getOrDefault(current, 0L)) continue;
             if (!visited.add(current)) continue;
             if (current.equals(end)) break;
 
-            long currentCapacity = bestCapacity.getOrDefault(current, 0L);
             for (Direction direction : Direction.values()) {
                 BlockPos neighbor = current.relative(direction);
                 if (!cablePositions.contains(neighbor)) continue;
@@ -200,11 +200,11 @@ final class CableNetworkPlanner {
                 long neighborCapacity = remainingTransfer.applyAsLong(neighbor);
                 if (neighborCapacity <= 0) continue;
 
-                long pathCapacity = Math.min(currentCapacity, neighborCapacity);
+                long pathCapacity = Math.min(candidate.capacity(), neighborCapacity);
                 if (pathCapacity > bestCapacity.getOrDefault(neighbor, 0L)) {
                     bestCapacity.put(neighbor, pathCapacity);
                     previous.put(neighbor, current);
-                    queue.add(neighbor);
+                    queue.add(new RouteCandidate(neighbor, pathCapacity));
                 }
             }
         }
@@ -237,6 +237,14 @@ final class CableNetworkPlanner {
     record Allocation<T>(T target, long amount) {}
 
     record CableRoute(List<BlockPos> positions, long remainingTransfer) {}
+
+    private record RouteCandidate(BlockPos pos, long capacity) {
+        private static final Comparator<RouteCandidate> ORDER = Comparator
+                .comparingLong(RouteCandidate::capacity).reversed()
+                .thenComparingInt(candidate -> candidate.pos().getX())
+                .thenComparingInt(candidate -> candidate.pos().getY())
+                .thenComparingInt(candidate -> candidate.pos().getZ());
+    }
 
     private record TargetDemand<T>(Target<T> target, long amount) {}
 

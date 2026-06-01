@@ -99,6 +99,28 @@ class CableNetworkPlannerTest {
     }
 
     @Test
+    void findBestRoute_usesStableTieBreakForEqualCapacityPaths() {
+        BlockPos start = new BlockPos(0, 0, 0);
+        BlockPos end = new BlockPos(2, 0, 0);
+        BlockPos lowA = new BlockPos(0, -1, 0);
+        BlockPos lowB = new BlockPos(1, -1, 0);
+        BlockPos lowC = new BlockPos(2, -1, 0);
+        BlockPos highA = new BlockPos(0, 1, 0);
+        BlockPos highB = new BlockPos(1, 1, 0);
+        BlockPos highC = new BlockPos(2, 1, 0);
+        Set<BlockPos> cables = Set.of(start, end, lowA, lowB, lowC, highA, highB, highC);
+
+        for (int i = 0; i < 20; i++) {
+            CableNetworkPlanner.CableRoute route = CableNetworkPlanner.findBestRoute(
+                    cables, start, end, pos -> 10L);
+
+            assertThat(route).isNotNull();
+            assertThat(route.remainingTransfer()).isEqualTo(10);
+            assertThat(route.positions()).containsExactly(start, lowA, lowB, lowC, end);
+        }
+    }
+
+    @Test
     void findBestRoute_returnsNullWhenNoPositiveCapacityPathExists() {
         BlockPos start = new BlockPos(0, 0, 0);
         BlockPos end = new BlockPos(1, 0, 0);
