@@ -20,13 +20,13 @@ public class CreativeEngineBlockEntity extends AbstractEngineBlockEntity {
     // ==================== Constants ====================
 
     /** Output levels that double with each wrench click. */
-    public static final long[] OUTPUT_LEVELS = {20, 40, 80, 160, 320, 640, 1280};
+    public static final long[] OUTPUT_LEVELS = CreativeOutputLevels.DEFAULT_LEVELS.clone();
 
     private static final long MAX_ENERGY = 10_000L;
 
     // ==================== State ====================
 
-    private int outputLevelIndex = 0;
+    private final CreativeOutputLevels outputLevels = new CreativeOutputLevels();
 
     // ==================== Constructor & Ticker ====================
 
@@ -47,7 +47,7 @@ public class CreativeEngineBlockEntity extends AbstractEngineBlockEntity {
 
     @Override
     protected long getOutputPower() {
-        return OUTPUT_LEVELS[outputLevelIndex];
+        return outputLevels.outputRate();
     }
 
     @Override
@@ -77,7 +77,7 @@ public class CreativeEngineBlockEntity extends AbstractEngineBlockEntity {
 
     @Override
     public float getPistonSpeed() {
-        return 0.02F * (outputLevelIndex + 1);
+        return outputLevels.pistonSpeed();
     }
 
     // ==================== Lifecycle Hooks ====================
@@ -104,23 +104,23 @@ public class CreativeEngineBlockEntity extends AbstractEngineBlockEntity {
      * @return the new output rate in RF/t
      */
     public long cycleOutputLevel() {
-        outputLevelIndex = (outputLevelIndex + 1) % OUTPUT_LEVELS.length;
+        long outputRate = outputLevels.cycle();
         markDirtyAndSync(); // Sync to clients so renderer can update piston speed
-        return OUTPUT_LEVELS[outputLevelIndex];
+        return outputRate;
     }
 
     /**
      * Gets the current output level index.
      */
     public int getOutputLevelIndex() {
-        return outputLevelIndex;
+        return outputLevels.index();
     }
 
     /**
      * Gets the current output rate in RF/t.
      */
     public long getOutputRate() {
-        return OUTPUT_LEVELS[outputLevelIndex];
+        return outputLevels.outputRate();
     }
 
     // ==================== NBT Serialization ====================
@@ -128,17 +128,13 @@ public class CreativeEngineBlockEntity extends AbstractEngineBlockEntity {
     @Override
     protected void saveLogisticsData(CompoundTag nbt, HolderLookup.Provider registries) {
         super.saveLogisticsData(nbt, registries);
-        nbt.putInt("OutputLevelIndex", outputLevelIndex);
+        nbt.putInt("OutputLevelIndex", outputLevels.index());
     }
 
     @Override
     protected void loadLogisticsData(CompoundTag nbt, HolderLookup.Provider registries) {
         super.loadLogisticsData(nbt, registries);
-        outputLevelIndex = NbtCompat.getInt(nbt, "OutputLevelIndex", 0);
-        // Clamp to valid range
-        if (outputLevelIndex < 0 || outputLevelIndex >= OUTPUT_LEVELS.length) {
-            outputLevelIndex = 0;
-        }
+        outputLevels.restore(NbtCompat.getInt(nbt, "OutputLevelIndex", 0));
     }
 
     @Override
@@ -148,11 +144,7 @@ public class CreativeEngineBlockEntity extends AbstractEngineBlockEntity {
         // Load Creative-specific data from old "CreativeData" tag
         if (nbt.contains("CreativeData")) {
             CompoundTag creativeData = nbt.getCompound("CreativeData");
-            outputLevelIndex = NbtCompat.getInt(creativeData, "outputLevelIndex", 0);
-            // Clamp to valid range
-            if (outputLevelIndex < 0 || outputLevelIndex >= OUTPUT_LEVELS.length) {
-                outputLevelIndex = 0;
-            }
+            outputLevels.restore(NbtCompat.getInt(creativeData, "outputLevelIndex", 0));
         }
     }
 }
