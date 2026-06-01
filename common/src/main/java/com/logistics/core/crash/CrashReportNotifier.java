@@ -20,6 +20,10 @@ import java.util.concurrent.ConcurrentHashMap;
 public final class CrashReportNotifier {
     private static final Set<UUID> NOTIFIED_THIS_LAUNCH = ConcurrentHashMap.newKeySet();
 
+    /** Latest crash-reporting & privacy page. Bare URLs are auto-linkified by the client. */
+    private static final String DETAILS_URL =
+            "https://github.com/Indemnity83/logistics/blob/mc/26.1/CRASH_REPORTING.md";
+
     private CrashReportNotifier() {}
 
     /** Notify {@code player} if they are an operator who hasn't been invited yet this launch. */
@@ -49,6 +53,7 @@ public final class CrashReportNotifier {
                 .append(Component.literal("Opt in: /logistics crashreports enable").withStyle(ChatFormatting.WHITE))
                 .append(Component.literal("  •  hide this: ").withStyle(ChatFormatting.GRAY))
                 .append(Component.literal("/logistics crashreports notify off").withStyle(ChatFormatting.WHITE))
-                .append(Component.literal(".").withStyle(ChatFormatting.GRAY));
+                .append(Component.literal("\nWhat's collected: ").withStyle(ChatFormatting.GRAY))
+                .append(Component.literal(DETAILS_URL).withStyle(ChatFormatting.AQUA));
     }
 }
