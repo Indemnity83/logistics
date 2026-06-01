@@ -82,10 +82,7 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
 
     // ==================== State ====================
 
-    // Fuel state
-    private int burnTime = 0;
-    private int fuelTime = 0;
-
+    private final StirlingFuelState fuelState = new StirlingFuelState();
     private final StirlingGenerationPlanner generationPlanner = new StirlingGenerationPlanner(
             PID_KP, PID_KI, PID_KD, TARGET_TEMPERATURE, DEFAULT_MIN_GENERATION);
 
@@ -97,8 +94,8 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
         @Override
         public int get(int index) {
             return switch (index) {
-                case PROPERTY_BURN_TIME -> burnTime;
-                case PROPERTY_FUEL_TIME -> fuelTime;
+                case PROPERTY_BURN_TIME -> fuelState.burnTime();
+                case PROPERTY_FUEL_TIME -> fuelState.fuelTime();
                 case PROPERTY_HEAT -> (int) getTemperature();
                 case PROPERTY_ENERGY -> (int) (getEnergy() / 100);
                 case PROPERTY_GENERATION -> (int) (generationPlanner.currentGeneration() * 100);
@@ -109,8 +106,8 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
         @Override
         public void set(int index, int value) {
             switch (index) {
-                case PROPERTY_BURN_TIME -> burnTime = value;
-                case PROPERTY_FUEL_TIME -> fuelTime = value;
+                case PROPERTY_BURN_TIME -> fuelState.restore(value, fuelState.fuelTime());
+                case PROPERTY_FUEL_TIME -> fuelState.restore(fuelState.burnTime(), value);
                 case PROPERTY_HEAT -> {} // Read-only on client, computed from energy level
                 case PROPERTY_ENERGY -> energyBuffer.setAmount(value * 100L);
                 case PROPERTY_GENERATION -> generationPlanner.restore(
@@ -198,7 +195,7 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
         if (!world.isClientSide()) {
             BlockState currentState = world.getBlockState(pos);
             boolean wasLit = currentState.getValue(StirlingEngineBlock.LIT);
-            boolean isLit = entity.burnTime > 0;
+            boolean isLit = entity.fuelState.isBurning();
             if (isLit != wasLit) {
                 world.setBlock(pos, currentState.setValue(StirlingEngineBlock.LIT, isLit), Block.UPDATE_CLIENTS);
             }
@@ -241,17 +238,17 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
     /** Stirling engine is running when powered, not overheated, AND has fuel burning. */
     @Override
     public boolean isRunning() {
-        return super.isRunning() && burnTime > 0;
+        return super.isRunning() && fuelState.isBurning();
     }
 
     @Override
     protected void produceEnergy() {
         if (!isRedstonePowered() || isOverheated()) {
-            extinguish();
+            fuelState.extinguish();
             return;
         }
 
-        if (burn() || refuel()) {
+        if (fuelState.burn() || refuel()) {
             generateWithCarry();
         }
     }
@@ -262,18 +259,6 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
     }
 
     // ==================== Fuel & Generation ====================
-
-    private void extinguish() {
-        burnTime = 0;
-        fuelTime = 0;
-    }
-
-    private boolean burn() {
-        if (burnTime > 0) {
-            burnTime--;
-        }
-        return burnTime > 0;
-    }
 
     private boolean refuel() {
         if (level == null) {
@@ -286,8 +271,7 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
             return false;
         }
 
-        fuelTime = burnTicks;
-        burnTime = fuelTime;
+        fuelState.ignite(burnTicks);
 
         if (fuel.is(Items.LAVA_BUCKET)) {
             inventory.setItem(0, new ItemStack(Items.BUCKET));
@@ -314,11 +298,11 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
     // ==================== Public API ====================
 
     public int getBurnTime() {
-        return burnTime;
+        return fuelState.burnTime();
     }
 
     public int getFuelTime() {
-        return fuelTime;
+        return fuelState.fuelTime();
     }
 
     public double getCurrentGenerationRate() {
@@ -337,10 +321,14 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
         builder.entry("Generation", String.format("%.2f RF/t", generationPlanner.currentGeneration()), ChatFormatting.GREEN);
 
         // Fuel burn time
-        if (fuelTime > 0) {
+        if (fuelState.fuelTime() > 0) {
             builder.entry(
                     "Fuel",
-                    String.format("%d / %d ticks (%.1f%%)", burnTime, fuelTime, (burnTime / (float) fuelTime) * 100),
+                    String.format(
+                            "%d / %d ticks (%.1f%%)",
+                            fuelState.burnTime(),
+                            fuelState.fuelTime(),
+                            (fuelState.burnTime() / (float) fuelState.fuelTime()) * 100),
                     ChatFormatting.YELLOW);
         } else {
             builder.entry("Fuel", "None", ChatFormatting.GRAY);
@@ -433,8 +421,8 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
         super.saveLogisticsData(nbt, registries);
 
         // Save Stirling-specific data
-        nbt.putInt("BurnTimeRemaining", burnTime);
-        nbt.putInt("TotalFuelTime", fuelTime);
+        nbt.putInt("BurnTimeRemaining", fuelState.burnTime());
+        nbt.putInt("TotalFuelTime", fuelState.fuelTime());
         nbt.putDouble("CurrentGeneration", generationPlanner.currentGeneration());
         nbt.putDouble("GenerationCarryover", generationPlanner.generationCarry());
         nbt.putDouble("PIDIntegral", generationPlanner.pidIntegral());
@@ -448,8 +436,9 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
         super.loadLogisticsData(nbt, registries);
 
         // Load Stirling-specific data
-        burnTime = NbtCompat.getInt(nbt, "BurnTimeRemaining", 0);
-        fuelTime = NbtCompat.getInt(nbt, "TotalFuelTime", 0);
+        fuelState.restore(
+                NbtCompat.getInt(nbt, "BurnTimeRemaining", 0),
+                NbtCompat.getInt(nbt, "TotalFuelTime", 0));
         generationPlanner.restore(
                 NbtCompat.getDouble(nbt, "CurrentGeneration", DEFAULT_MIN_GENERATION),
                 NbtCompat.getDouble(nbt, "GenerationCarryover", 0.0),
@@ -474,8 +463,9 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
 
         // Load Stirling-specific data from old "StirlingData" tag
         view.read("StirlingData", net.minecraft.nbt.CompoundTag.CODEC).ifPresent(stirlingData -> {
-            burnTime = NbtCompat.getInt(stirlingData, "burnTime", 0);
-            fuelTime = NbtCompat.getInt(stirlingData, "fuelTime", 0);
+            fuelState.restore(
+                    NbtCompat.getInt(stirlingData, "burnTime", 0),
+                    NbtCompat.getInt(stirlingData, "fuelTime", 0));
             generationPlanner.restore(
                     NbtCompat.getDouble(stirlingData, "currentGeneration", DEFAULT_MIN_GENERATION),
                     NbtCompat.getDouble(stirlingData, "generationCarry", 0.0),
