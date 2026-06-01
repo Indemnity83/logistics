@@ -227,21 +227,14 @@ public final class PipeRuntime {
      */
     private static RoutePlan resolveRoutePlan(TickContext ctx, TravelingItem item) {
         List<Direction> validDirections = getValidDirections(ctx.world(), ctx.pos(), ctx.state(), item.getDirection());
-        RoutePlan defaultPlan = validDirections.isEmpty() ? RoutePlan.drop() : RoutePlan.reroute(validDirections);
+        RoutePlan defaultPlan = PipeRoutingPlanner.defaultPlan(validDirections);
 
         if (!ctx.hasPipe()) {
             return defaultPlan;
         }
 
         RoutePlan customPlan = ctx.pipe().route(ctx.pipeContext(), item, validDirections);
-
-        customPlan = switch (customPlan.getType()) {
-            case REROUTE -> customPlan.getDirections().isEmpty() ? RoutePlan.drop() : customPlan;
-            case SPLIT -> customPlan.getItems().isEmpty() ? RoutePlan.discard() : customPlan;
-            default -> customPlan;
-        };
-
-        return customPlan.getType() == RoutePlan.Type.PASS ? defaultPlan : customPlan;
+        return PipeRoutingPlanner.normalize(customPlan, defaultPlan);
     }
 
     private static void executeRoutePlan(TickContext ctx, TravelingItem item, RoutePlan plan, ItemTickState itemState) {
@@ -274,7 +267,8 @@ public final class PipeRuntime {
 
         Direction chosen = candidates.size() == 1
                 ? candidates.getFirst()
-                : chooseRandomDirection(ctx.world(), ctx.pos(), item.getDirection(), candidates);
+                : PipeRoutingPlanner.chooseDirection(
+                        ctx.pos(), ctx.world().getGameTime(), item.getDirection(), candidates);
 
         item.setDirection(chosen);
         item.setRouted(true);
@@ -490,13 +484,6 @@ public final class PipeRuntime {
         return validDirections;
     }
 
-    private static Direction chooseRandomDirection(
-            Level world, BlockPos pos, Direction currentDirection, List<Direction> options) {
-        long seed = mixHash(pos.asLong(), world.getGameTime(), currentDirection.get3DDataValue());
-        java.util.Random random = new java.util.Random(seed);
-        return options.get(random.nextInt(options.size()));
-    }
-
     private static List<Direction> getAllConnectedDirections(Level world, BlockPos pos, BlockState state) {
         List<Direction> connected = new ArrayList<>();
         if (!(state.getBlock() instanceof PipeBlock pipeBlock)) {
@@ -512,17 +499,4 @@ public final class PipeRuntime {
         return connected;
     }
 
-    private static long mixHash(long a, long b, long c) {
-        long hash = a;
-        hash = hash * 31 + b;
-        hash = hash * 31 + c;
-
-        hash ^= (hash >>> 33);
-        hash *= 0xff51afd7ed558ccdL;
-        hash ^= (hash >>> 33);
-        hash *= 0xc4ceb9fe1a85ec53L;
-        hash ^= (hash >>> 33);
-
-        return hash;
-    }
 }

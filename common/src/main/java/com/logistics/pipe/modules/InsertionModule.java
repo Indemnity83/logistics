@@ -12,8 +12,6 @@ import com.logistics.core.lib.storage.IItemStorage;
 import com.logistics.core.lib.storage.ItemStorageLookup;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 
@@ -24,21 +22,13 @@ public class InsertionModule implements Module, RoutingModule {
             return RoutePlan.drop();
         }
 
-        List<Direction> inventoryWithSpace = new ArrayList<>();
-        List<Direction> inventoryWithPartialSpace = new ArrayList<>();
-        List<Long> partialAmounts = new ArrayList<>();
+        List<InsertionRoutingPlanner.InventoryOption> inventoryOptions = new ArrayList<>();
         List<Direction> pipeDirections = new ArrayList<>();
-        long amount = item.getStack().getCount();
 
         for (Direction direction : options) {
             if (ctx.isInventoryConnection(direction)) {
-                long available = getInsertSpace(ctx, item, direction);
-                if (available >= amount) {
-                    inventoryWithSpace.add(direction);
-                } else if (available > 0) {
-                    inventoryWithPartialSpace.add(direction);
-                    partialAmounts.add(available);
-                }
+                inventoryOptions.add(new InsertionRoutingPlanner.InventoryOption(
+                        direction, getInsertSpace(ctx, item, direction)));
                 continue;
             }
 
@@ -47,28 +37,14 @@ public class InsertionModule implements Module, RoutingModule {
             }
         }
 
-        if (!inventoryWithSpace.isEmpty()) {
-            NetDbg.out("[Insertion @ {}] Routing {} → full-capacity inventory {}", ctx.pos(), item.getStack().getItem(), inventoryWithSpace);
-            return RoutePlan.reroute(inventoryWithSpace);
-        }
-
-        if (!inventoryWithPartialSpace.isEmpty() && !pipeDirections.isEmpty()) {
-            NetDbg.out("[Insertion @ {}] Routing {} → split (partial inventory + pipes)", ctx.pos(), item.getStack().getItem());
-            return splitToInventoryAndPipes(ctx, item, inventoryWithPartialSpace, partialAmounts, pipeDirections);
-        }
-
-        if (!inventoryWithPartialSpace.isEmpty()) {
-            NetDbg.out("[Insertion @ {}] Routing {} → partial-capacity inventory {}", ctx.pos(), item.getStack().getItem(), inventoryWithPartialSpace);
-            return RoutePlan.reroute(inventoryWithPartialSpace);
-        }
-
-        if (!pipeDirections.isEmpty()) {
-            NetDbg.out("[Insertion @ {}] Routing {} → pipes {}", ctx.pos(), item.getStack().getItem(), pipeDirections);
-            return RoutePlan.reroute(pipeDirections);
-        }
-
-        NetDbg.out("[Insertion @ {}] No route for {}, dropping", ctx.pos(), item.getStack().getItem());
-        return RoutePlan.drop();
+        RoutePlan plan = InsertionRoutingPlanner.route(
+                item,
+                inventoryOptions,
+                pipeDirections,
+                InsertionRoutingPlanner.routeSeed(
+                        ctx.pos().asLong(), ctx.world() == null ? 0L : ctx.world().getGameTime(), item.getDirection()));
+        NetDbg.out("[Insertion @ {}] Routing {} → {}", ctx.pos(), item.getStack().getItem(), plan.getType());
+        return plan;
     }
 
     private long getInsertSpace(PipeContext ctx, TravelingItem item, Direction direction) {
@@ -116,51 +92,4 @@ public class InsertionModule implements Module, RoutingModule {
         return total;
     }
 
-    private RoutePlan splitToInventoryAndPipes(
-            PipeContext ctx,
-            TravelingItem item,
-            List<Direction> inventoryDirections,
-            List<Long> amounts,
-            List<Direction> pipeDirections) {
-        long remaining = item.getStack().getCount();
-        List<TravelingItem> split = new ArrayList<>();
-
-        for (int i = 0; i < inventoryDirections.size() && remaining > 0; i++) {
-            long capacity = amounts.get(i);
-            if (capacity <= 0) {
-                continue;
-            }
-            long take = Math.min(capacity, remaining);
-            if (take <= 0) {
-                continue;
-            }
-            ItemStack stack = item.getStack().copy();
-            stack.setCount((int) take);
-            split.add(new TravelingItem(stack, inventoryDirections.get(i), item.getSpeed()));
-            remaining -= take;
-        }
-
-        if (remaining > 0) {
-            Direction chosen = chooseRandomDirection(ctx, item, pipeDirections);
-            ItemStack stack = item.getStack().copy();
-            stack.setCount((int) remaining);
-            split.add(new TravelingItem(stack, chosen, item.getSpeed()));
-        }
-
-        return RoutePlan.split(split);
-    }
-
-    private Direction chooseRandomDirection(PipeContext ctx, TravelingItem item, List<Direction> options) {
-        long seed = mixHash(
-                ctx.pos().asLong(), ctx.world().getGameTime(), item.getDirection().get3DDataValue());
-        Random random = new Random(seed);
-        return options.get(random.nextInt(options.size()));
-    }
-
-    private long mixHash(long a, long b, long c) {
-        long hash = a;
-        hash = hash * 31 + b;
-        hash = hash * 31 + c;
-        return hash;
-    }
 }
