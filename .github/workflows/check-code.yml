@@ -49,6 +49,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        # Each module uploads one Codecov report. When changing this list, update
+        # after_n_builds (notify and comment) in codecov.yml to match the count.
         module: [common, fabric, neoforge]
 
     steps:
@@ -67,8 +69,10 @@ jobs:
         with:
           cache-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
 
-      - name: Run ${{ matrix.module }} tests
-        run: ./gradlew :${{ matrix.module }}:test --console=plain
+      - name: Run ${{ matrix.module }} tests with coverage
+        run: ./gradlew :${{ matrix.module }}:jacocoTestReport --console=plain
+        # jacocoTestReport depends on the module's test task, so this runs the
+        # tests once and emits the JaCoCo XML in the same step.
         # Note: Game tests (./gradlew :fabric:runGameTest) are not run in CI due to resource
         # constraints and long execution time. Run locally before merging if testing game mechanics.
 
@@ -78,3 +82,12 @@ jobs:
         with:
           name: test-reports-${{ matrix.module }}-${{ github.run_id }}-${{ github.run_attempt }}
           path: ${{ matrix.module }}/build/reports/tests/test/
+
+      - name: Upload ${{ matrix.module }} coverage to Codecov
+        uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
+        with:
+          files: ${{ matrix.module }}/build/reports/jacoco/test/jacocoTestReport.xml
+          flags: ${{ matrix.module }}
+          fail_ci_if_error: true
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
