@@ -1,0 +1,34 @@
+codecov:
+  notify:
+    # Each PR uploads three reports (common, fabric, neoforge matrix jobs).
+    # Wait for all of them before computing status so the merged total is used.
+    after_n_builds: 3
+
+coverage:
+  status:
+    project:
+      default:
+        # Compare against the parent commit's coverage; allow tiny rounding noise.
+        target: auto
+        threshold: 0.5%
+    patch:
+      default:
+        # New / changed lines in a PR should be reasonably covered.
+        target: 70%
+
+# Per-module uploads are tagged with a flag so Codecov can report coverage
+# per loader as well as merged together.
+flag_management:
+  default_rules:
+    carryforward: true
+  individual_flags:
+    - name: common
+    - name: fabric
+    - name: neoforge
+
+comment:
+  layout: "reach, diff, flags, files"
+  require_changes: true
+  # Keep in sync with codecov.notify.after_n_builds and the test matrix size in
+  # .github/workflows/check-code.yml (one upload per module).
+  after_n_builds: 3

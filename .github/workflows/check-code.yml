@@ -49,6 +49,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        # Each module uploads one Codecov report. When changing this list, update
+        # after_n_builds (notify and comment) in codecov.yml to match the count.
         module: [common, fabric, neoforge]
 
     steps:
@@ -67,8 +69,10 @@ jobs:
         with:
           cache-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
 
-      - name: Run ${{ matrix.module }} tests
-        run: ./gradlew :${{ matrix.module }}:test --console=plain
+      - name: Run ${{ matrix.module }} tests with coverage
+        run: ./gradlew :${{ matrix.module }}:jacocoTestReport --console=plain
+        # jacocoTestReport depends on the module's test task, so this runs the
+        # tests once and emits the JaCoCo XML in the same step.
         # Note: Game tests (./gradlew :fabric:runGameTest) are not run in CI due to resource
         # constraints and long execution time. Run locally before merging if testing game mechanics.
 
@@ -79,36 +83,11 @@ jobs:
           name: test-reports-${{ matrix.module }}-${{ github.run_id }}-${{ github.run_attempt }}
           path: ${{ matrix.module }}/build/reports/tests/test/
 
-  coverage:
-    name: coverage
-    if: github.event.pull_request.draft == false
-    runs-on: ubuntu-latest
-    needs: test
-
-    steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      - name: Upload ${{ matrix.module }} coverage to Codecov
+        uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
         with:
-          persist-credentials: false
-          token: ${{ github.token }}
-
-      - uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654
-        with:
-          distribution: temurin
-          java-version: '25'
-
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@4c125117fe7c5aed11272ec4213f602f012f89f2
-        with:
-          cache-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
-
-      - name: Check aggregate coverage
-        run: ./gradlew checkTestCoverageRatchet --console=plain
-
-      - name: Upload coverage reports
-        if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
-        with:
-          name: coverage-reports-${{ github.run_id }}-${{ github.run_attempt }}
-          path: |
-            build/reports/jacoco/testCoverage/html/
-            build/reports/jacoco/testCoverage/testCoverage.xml
+          files: ${{ matrix.module }}/build/reports/jacoco/test/jacocoTestReport.xml
+          flags: ${{ matrix.module }}
+          fail_ci_if_error: true
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
