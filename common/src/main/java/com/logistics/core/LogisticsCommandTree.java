@@ -156,14 +156,23 @@ public final class LogisticsCommandTree {
                 })
                 .then(Commands.literal("enable")
                     .executes(ctx -> {
+                        if (!CrashReporting.enableReporting()) {
+                            ctx.getSource().sendFailure(Component.literal(
+                                "Could not start crash reporting — no DSN configured or initialization failed. "
+                                + "See the log for details."));
+                            return 0;
+                        }
                         ctx.getSource().sendSuccess(
-                            () -> Component.literal(CrashReporting.setReportingEnabled(true)), true);
+                            () -> Component.literal(
+                                "Sanitized crash reporting enabled. Thank you for helping improve Logistics!"),
+                            true);
                         return 1;
                     }))
                 .then(Commands.literal("disable")
                     .executes(ctx -> {
+                        CrashReporting.disableReporting();
                         ctx.getSource().sendSuccess(
-                            () -> Component.literal(CrashReporting.setReportingEnabled(false)), true);
+                            () -> Component.literal("Crash reporting disabled."), true);
                         return 1;
                     }))
                 .then(Commands.literal("preview")

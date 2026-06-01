@@ -151,18 +151,25 @@ public final class CrashReporting {
     // These back the /logistics crashreports subcommands. Kept here (not inline in the Brigadier
     // tree) so the persist-and-toggle logic is unit-testable without a command source.
 
-    /** Persist the operator's opt-in choice and toggle the live client. Returns operator feedback. */
-    public static String setReportingEnabled(boolean enabled) {
-        LogisticsConfig.get().crashReporting.enabled = enabled;
+    /**
+     * Turn reporting on, then persist {@code enabled} to match whether it actually activated.
+     * Returns true if reporting is now active. If activation fails (e.g. no DSN, or init throws
+     * before this returns), the persisted config is left disabled rather than claiming an active
+     * state — so the saved value never lies about a client that isn't running.
+     */
+    public static boolean enableReporting() {
+        enable();
+        boolean active = isActive();
+        LogisticsConfig.get().crashReporting.enabled = active;
         LogisticsConfig.save();
-        if (enabled) {
-            enable();
-        } else {
-            disable();
-        }
-        return enabled
-                ? "Sanitized crash reporting enabled. Thank you for helping improve Logistics!"
-                : "Crash reporting disabled.";
+        return active;
+    }
+
+    /** Turn reporting off and persist the disabled state. */
+    public static void disableReporting() {
+        disable();
+        LogisticsConfig.get().crashReporting.enabled = false;
+        LogisticsConfig.save();
     }
 
     /** Persist whether the join invitation is shown. Returns operator feedback. */

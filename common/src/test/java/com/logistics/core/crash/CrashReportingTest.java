@@ -91,23 +91,22 @@ class CrashReportingTest {
     }
 
     @Test
-    @DisplayName("enable/disable toggles the live client and persists the choice")
+    @DisplayName("enable/disable toggles the live client and persists the actual state")
     void enableDisableLifecycle() {
         LogisticsConfig.get().crashReporting.dsnOverride = LOCAL_DSN;
 
-        String enabledMsg = CrashReporting.setReportingEnabled(true);
+        assertThat(CrashReporting.enableReporting()).isTrue();
         assertThat(CrashReporting.isActive()).isTrue();
+        // Config is persisted only to reflect the real active state.
         assertThat(LogisticsConfig.get().crashReporting.enabled).isTrue();
-        assertThat(enabledMsg).contains("enabled");
 
         // Capturing on an active client is accepted without throwing (sent async to the dead DSN).
         assertThatCode(() -> CrashReporting.capture(new RuntimeException("test")))
                 .doesNotThrowAnyException();
 
-        String disabledMsg = CrashReporting.setReportingEnabled(false);
+        CrashReporting.disableReporting();
         assertThat(CrashReporting.isActive()).isFalse();
         assertThat(LogisticsConfig.get().crashReporting.enabled).isFalse();
-        assertThat(disabledMsg).contains("disabled");
     }
 
     @Test
