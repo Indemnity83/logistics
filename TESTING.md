@@ -68,16 +68,16 @@ publishes `project`/`patch` status checks. The thresholds live in `codecov.yml`
 baseline to bump. The local `testCoverage` task above still produces the aggregate
 HTML/XML for offline inspection.
 
-Current aggregate baseline from `./gradlew testCoverage`:
+Current aggregate snapshot from `./gradlew testCoverage`:
 
 | Counter | Coverage |
 |---------|----------|
-| Instruction | 17.0% |
-| Branch | 14.6% |
-| Line | 17.0% |
-| Complexity | 16.0% |
-| Method | 21.7% |
-| Class | 32.7% |
+| Instruction | 17.3% |
+| Branch | 15.2% |
+| Line | 17.4% |
+| Complexity | 16.5% |
+| Method | 22.0% |
+| Class | 33.6% |
 
 High-coverage pure-logic areas include `core.lib.resource`, `core.lib.filter`,
 `power.engine`, `power.cable`, `core.lib.energy`, `core.lib.network`, and `neoforge.energy`.
@@ -96,7 +96,7 @@ that are documented below as requiring restructuring or integration tests.
 - **Failure accounting regressions** — tracked delivery failure, partial delivery followed by failed remainder, retry accounting, and job state after dispatch loss
 - **Pipe network graph** — NetworkGraph, NetworkPathfinder
 - **Pipe runtime** — TravelingItem, TravelingItemPhysics, RoutePlan
-- **Power** — CableTier, PIDController
+- **Power** — CableTier, PIDController, EngineHeatModel, EngineCyclePlanner
 - **Core** — BaseBlockEntity, ResourceId, MaceratorRecipe, MaceratorBlockEntityLogic, FluidTankComponent, ItemInventoryComponent
 - **Serialization golden tests** — ItemFilterModule (backward compat), ProviderDispatchQueue, TravelingItem
 
