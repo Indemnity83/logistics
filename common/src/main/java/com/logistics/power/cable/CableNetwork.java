@@ -11,14 +11,12 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.Set;
 
@@ -42,7 +40,7 @@ import java.util.Set;
  */
 public class CableNetwork {
     private final Set<BlockPos> cablePositions = new HashSet<>();
-    private final Map<DeviceConnectionKey, Double> allocationDebt = new HashMap<>();
+    private final Map<CableNetworkPlanner.ConnectionKey, Double> allocationDebt = new HashMap<>();
     private final Map<BlockPos, Long> cableTransferredThisTick = new HashMap<>();
 
     private long accountingGameTime = Long.MIN_VALUE;
@@ -109,9 +107,9 @@ public class CableNetwork {
         }
 
         resetAccountingIfNeeded(level);
-        DeviceConnectionKey excludedConnection = sourceSide == null
+        CableNetworkPlanner.ConnectionKey excludedConnection = sourceSide == null
                 ? null
-                : new DeviceConnectionKey(entryCablePos.relative(sourceSide), sourceSide.getOpposite());
+                : new CableNetworkPlanner.ConnectionKey(entryCablePos.relative(sourceSide), sourceSide.getOpposite());
         DeviceConnections connections = collectDeviceConnections(level, excludedConnection);
         long transferLimit = Math.min(
             maxAmount,
@@ -119,10 +117,11 @@ public class CableNetwork {
         return insertIntoTargets(level, connections.targets(), transferLimit, simulate, entryCablePos);
     }
 
-    private DeviceConnections collectDeviceConnections(Level level, @Nullable DeviceConnectionKey excludedConnection) {
+    private DeviceConnections collectDeviceConnections(
+            Level level, @Nullable CableNetworkPlanner.ConnectionKey excludedConnection) {
         List<DeviceConnection> sources = new ArrayList<>();
         List<DeviceConnection> targets = new ArrayList<>();
-        Set<DeviceConnectionKey> seenConnections = new HashSet<>();
+        Set<CableNetworkPlanner.ConnectionKey> seenConnections = new HashSet<>();
 
         for (BlockPos cablePos : cablePositions) {
             if (!isPositionLoaded(level, cablePos)) continue;
@@ -133,7 +132,7 @@ public class CableNetwork {
                 if (!isPositionLoaded(level, neighborPos)) continue;
 
                 Direction side = dir.getOpposite();
-                DeviceConnectionKey key = new DeviceConnectionKey(neighborPos, side);
+                CableNetworkPlanner.ConnectionKey key = new CableNetworkPlanner.ConnectionKey(neighborPos, side);
                 if (key.equals(excludedConnection)) continue;
 
                 IEnergyStorage storage = EnergyCapabilityLookup.INSTANCE.find(level, neighborPos, side);
@@ -160,7 +159,7 @@ public class CableNetwork {
     private long getNetworkTransferLimit(Level level) {
         long limit = 0;
         for (BlockPos cablePos : cablePositions) {
-            limit = saturatedAdd(limit, cableTransferRate(level, cablePos));
+            limit = CableNetworkPlanner.saturatedAdd(limit, cableTransferRate(level, cablePos));
         }
         return limit;
     }
@@ -204,16 +203,16 @@ public class CableNetwork {
 
         long totalTransferred = 0;
         long remaining = input;
-        Set<DeviceConnectionKey> blockedTargets = new HashSet<>();
-        Map<DeviceConnectionKey, Long> deliveredThisCall = new HashMap<>();
+        Set<CableNetworkPlanner.ConnectionKey> blockedTargets = new HashSet<>();
+        Map<CableNetworkPlanner.ConnectionKey, Long> deliveredThisCall = new HashMap<>();
 
         while (remaining > 0) {
             long transferredThisPass = 0;
-            List<EnergyAllocation> allocations = allocateToDemand(
+            List<CableNetworkPlanner.Allocation<DeviceConnection>> allocations = allocateToDemand(
                     validTargets, remaining, blockedTargets, deliveredThisCall);
             if (allocations.isEmpty()) break;
 
-            for (EnergyAllocation allocation : allocations) {
+            for (CableNetworkPlanner.Allocation<DeviceConnection> allocation : allocations) {
                 long requested = Math.min(allocation.amount(), remaining - transferredThisPass);
                 if (requested <= 0) continue;
 
@@ -253,20 +252,20 @@ public class CableNetwork {
 
         long totalInserted = 0;
         long remaining = maxAmount;
-        Set<DeviceConnectionKey> blockedTargets = new HashSet<>();
-        Map<DeviceConnectionKey, Long> deliveredThisCall = new HashMap<>();
+        Set<CableNetworkPlanner.ConnectionKey> blockedTargets = new HashSet<>();
+        Map<CableNetworkPlanner.ConnectionKey, Long> deliveredThisCall = new HashMap<>();
         // Tracks simulated cable usage within this call so repeated passes don't
         // re-use the same cable capacity (recordTransfer is skipped during simulate).
         Map<BlockPos, Long> provisionalTransfers = simulate ? new HashMap<>() : null;
 
         while (remaining > 0) {
             long insertedThisPass = 0;
-            List<EnergyAllocation> allocations = allocateToDemand(
+            List<CableNetworkPlanner.Allocation<DeviceConnection>> allocations = allocateToDemand(
                     validTargets, remaining, blockedTargets, deliveredThisCall);
             if (allocations.isEmpty()) break;
 
-            for (EnergyAllocation allocation : allocations) {
-                CableRoute route = entryCablePos == null
+            for (CableNetworkPlanner.Allocation<DeviceConnection> allocation : allocations) {
+                CableNetworkPlanner.CableRoute route = entryCablePos == null
                         ? null
                         : findBestRoute(level, entryCablePos, allocation.target().cablePos(),
                                 provisionalTransfers);
@@ -303,10 +302,10 @@ public class CableNetwork {
     }
 
     private void recordProvisional(@Nullable Map<BlockPos, Long> provisionalTransfers,
-            long amount, @Nullable CableRoute route) {
+            long amount, @Nullable CableNetworkPlanner.CableRoute route) {
         if (provisionalTransfers == null || amount <= 0 || route == null) return;
         for (BlockPos cablePos : route.positions()) {
-            provisionalTransfers.merge(cablePos, amount, this::saturatedAdd);
+            provisionalTransfers.merge(cablePos, amount, CableNetworkPlanner::saturatedAdd);
         }
     }
 
@@ -334,7 +333,7 @@ public class CableNetwork {
         long total = 0;
         for (DeviceConnection source : sources) {
             if (total >= maxAmount) break;
-            total = saturatedAdd(total, source.storage().extract(maxAmount - total, true));
+            total = CableNetworkPlanner.saturatedAdd(total, source.storage().extract(maxAmount - total, true));
         }
         return total;
     }
@@ -346,7 +345,7 @@ public class CableNetwork {
             if (movedTotal >= maxAmount) break;
             if (source.storage() == target.storage()) continue;
 
-            CableRoute route = findBestRoute(level, source.cablePos(), target.cablePos());
+            CableNetworkPlanner.CableRoute route = findBestRoute(level, source.cablePos(), target.cablePos());
             if (route == null || route.remainingTransfer() <= 0) continue;
 
             long toMove = Math.min(maxAmount - movedTotal, route.remainingTransfer());
@@ -365,135 +364,21 @@ public class CableNetwork {
         return movedTotal;
     }
 
-    private List<EnergyAllocation> allocateToDemand(
-            List<DeviceConnection> targets, long input, Set<DeviceConnectionKey> blockedTargets,
-            Map<DeviceConnectionKey, Long> deliveredThisCall) {
-        if (input <= 0) return List.of();
-
-        List<TargetDemand> finiteDemands = new ArrayList<>();
-        List<DeviceConnection> infiniteTargets = new ArrayList<>();
-        long totalFiniteDemand = 0;
+    private List<CableNetworkPlanner.Allocation<DeviceConnection>> allocateToDemand(
+            List<DeviceConnection> targets, long input, Set<CableNetworkPlanner.ConnectionKey> blockedTargets,
+            Map<CableNetworkPlanner.ConnectionKey, Long> deliveredThisCall) {
+        List<CableNetworkPlanner.Target<DeviceConnection>> plannerTargets = new ArrayList<>();
         for (DeviceConnection target : targets) {
-            if (blockedTargets.contains(target.key())) continue;
-
-            long demand = targetDemand(target, deliveredThisCall);
-            if (demand <= 0) continue;
-
-            if (demand == Long.MAX_VALUE) {
-                infiniteTargets.add(target);
-            } else {
-                finiteDemands.add(new TargetDemand(target, demand));
-                totalFiniteDemand = saturatedAdd(totalFiniteDemand, demand);
-            }
+            plannerTargets.add(new CableNetworkPlanner.Target<>(target.key(), target, targetDemand(target)));
         }
-
-        if (finiteDemands.isEmpty() && infiniteTargets.isEmpty()) return List.of();
-
-        List<EnergyAllocation> allocations = new ArrayList<>();
-        long finiteBudget = Math.min(input, totalFiniteDemand);
-        if (finiteBudget > 0) {
-            allocations.addAll(allocateWeighted(finiteDemands, finiteBudget));
-        }
-
-        long infiniteBudget = input - finiteBudget;
-        if (infiniteBudget > 0 && !infiniteTargets.isEmpty()) {
-            allocations.addAll(allocateEvenly(infiniteTargets, infiniteBudget));
-        }
-
-        return allocations;
+        return CableNetworkPlanner.allocateToDemand(
+                plannerTargets, input, blockedTargets, deliveredThisCall, allocationDebt, DeviceConnection.ORDER);
     }
 
-    private List<EnergyAllocation> allocateWeighted(List<TargetDemand> demands, long budget) {
-        long totalDemand = allocationDemandTotal(demands);
-        if (budget <= 0 || totalDemand <= 0) return List.of();
-
-        List<AllocationCandidate> candidates = new ArrayList<>();
-        long allocated = 0;
-        for (TargetDemand demand : demands) {
-            double ideal = (double) budget * (double) demand.amount() / (double) totalDemand;
-            long amount = Math.min(demand.amount(), Math.max(0, (long) Math.floor(ideal)));
-            allocated += amount;
-            candidates.add(new AllocationCandidate(demand.target(), demand.amount(), amount, ideal));
-        }
-
-        distributeRemainder(candidates, budget - allocated);
-        return finishAllocations(candidates);
-    }
-
-    private List<EnergyAllocation> allocateEvenly(List<DeviceConnection> targets, long budget) {
-        if (budget <= 0 || targets.isEmpty()) return List.of();
-
-        double ideal = (double) budget / (double) targets.size();
-        List<AllocationCandidate> candidates = new ArrayList<>();
-        long allocated = 0;
-        for (DeviceConnection target : targets) {
-            long amount = Math.max(0, (long) Math.floor(ideal));
-            allocated += amount;
-            candidates.add(new AllocationCandidate(target, Long.MAX_VALUE, amount, ideal));
-        }
-
-        distributeRemainder(candidates, budget - allocated);
-        return finishAllocations(candidates);
-    }
-
-    private void distributeRemainder(List<AllocationCandidate> candidates, long remainder) {
-        if (remainder <= 0 || candidates.isEmpty()) return;
-
-        candidates.sort(Comparator
-                .comparingDouble(AllocationCandidate::priority).reversed()
-                .thenComparing(candidate -> candidate.target(), DeviceConnection.ORDER));
-
-        while (remainder > 0) {
-            boolean distributed = false;
-            for (AllocationCandidate candidate : candidates) {
-                if (remainder <= 0) break;
-                if (!candidate.canReceiveMore()) continue;
-
-                candidate.addOne();
-                remainder--;
-                distributed = true;
-            }
-            if (!distributed) break;
-        }
-    }
-
-    private List<EnergyAllocation> finishAllocations(List<AllocationCandidate> candidates) {
-        List<EnergyAllocation> allocations = new ArrayList<>();
-        for (AllocationCandidate candidate : candidates) {
-            updateAllocationDebt(candidate);
-            if (candidate.amount() > 0) {
-                allocations.add(new EnergyAllocation(candidate.target(), candidate.amount()));
-            }
-        }
-        allocations.sort(Comparator.comparing(EnergyAllocation::target, DeviceConnection.ORDER));
-        return allocations;
-    }
-
-    private void updateAllocationDebt(AllocationCandidate candidate) {
-        DeviceConnectionKey key = candidate.target().key();
-        double nextDebt = allocationDebt.getOrDefault(key, 0.0) + candidate.ideal() - candidate.amount();
-        if (Math.abs(nextDebt) < 0.000001) {
-            allocationDebt.remove(key);
-        } else {
-            allocationDebt.put(key, Math.max(-1.0, Math.min(1.0, nextDebt)));
-        }
-    }
-
-    private long allocationDemandTotal(List<TargetDemand> demands) {
-        long total = 0;
-        for (TargetDemand demand : demands) {
-            total = saturatedAdd(total, demand.amount());
-        }
-        return total;
-    }
-
-    private long targetDemand(DeviceConnection target, Map<DeviceConnectionKey, Long> deliveredThisCall) {
+    private long targetDemand(DeviceConnection target) {
         long demand;
         if (target.blockEntity() instanceof EnergyDemandProvider provider) {
             demand = provider.networkDemandPerTick();
-            if (demand != Long.MAX_VALUE) {
-                demand = Math.max(0, demand - deliveredThisCall.getOrDefault(target.key(), 0L));
-            }
         } else {
             demand = storageRoom(target.storage());
         }
@@ -506,74 +391,24 @@ public class CableNetwork {
         return Math.max(0, capacity - storage.getAmount());
     }
 
-    private long saturatedAdd(long a, long b) {
-        if (a == Long.MAX_VALUE || b == Long.MAX_VALUE) return Long.MAX_VALUE;
-        if (b > 0 && a > Long.MAX_VALUE - b) return Long.MAX_VALUE;
-        return a + b;
-    }
-
-    private void recordDelivered(Map<DeviceConnectionKey, Long> deliveredThisCall, DeviceConnectionKey key, long amount) {
+    private void recordDelivered(
+            Map<CableNetworkPlanner.ConnectionKey, Long> deliveredThisCall,
+            CableNetworkPlanner.ConnectionKey key,
+            long amount) {
         if (amount <= 0) return;
-        deliveredThisCall.merge(key, amount, this::saturatedAdd);
+        deliveredThisCall.merge(key, amount, CableNetworkPlanner::saturatedAdd);
     }
 
     @Nullable
-    private CableRoute findBestRoute(Level level, BlockPos start, BlockPos end) {
+    private CableNetworkPlanner.CableRoute findBestRoute(Level level, BlockPos start, BlockPos end) {
         return findBestRoute(level, start, end, null);
     }
 
     @Nullable
-    private CableRoute findBestRoute(Level level, BlockPos start, BlockPos end,
+    private CableNetworkPlanner.CableRoute findBestRoute(Level level, BlockPos start, BlockPos end,
             @Nullable Map<BlockPos, Long> provisionalTransfers) {
-        if (!contains(start) || !contains(end)) return null;
-
-        long startCapacity = effectiveRemainingTransfer(level, start, provisionalTransfers);
-        if (startCapacity <= 0) return null;
-
-        Map<BlockPos, Long> bestCapacity = new HashMap<>();
-        Map<BlockPos, BlockPos> previous = new HashMap<>();
-        Set<BlockPos> visited = new HashSet<>();
-        PriorityQueue<BlockPos> queue = new PriorityQueue<>((a, b) -> Long.compare(
-                bestCapacity.getOrDefault(b, 0L), bestCapacity.getOrDefault(a, 0L)));
-
-        bestCapacity.put(start, startCapacity);
-        queue.add(start);
-
-        while (!queue.isEmpty()) {
-            BlockPos current = queue.poll();
-            if (!visited.add(current)) continue;
-            if (current.equals(end)) break;
-
-            long currentCapacity = bestCapacity.getOrDefault(current, 0L);
-            for (Direction direction : Direction.values()) {
-                BlockPos neighbor = current.relative(direction);
-                if (!cablePositions.contains(neighbor) || !isPositionLoaded(level, neighbor)) continue;
-
-                long neighborCapacity = effectiveRemainingTransfer(level, neighbor, provisionalTransfers);
-                if (neighborCapacity <= 0) continue;
-
-                long pathCapacity = Math.min(currentCapacity, neighborCapacity);
-                if (pathCapacity > bestCapacity.getOrDefault(neighbor, 0L)) {
-                    bestCapacity.put(neighbor, pathCapacity);
-                    previous.put(neighbor, current);
-                    queue.add(neighbor);
-                }
-            }
-        }
-
-        Long remainingTransfer = bestCapacity.get(end);
-        if (remainingTransfer == null || remainingTransfer <= 0) return null;
-
-        List<BlockPos> path = new ArrayList<>();
-        BlockPos cursor = end;
-        path.add(cursor);
-        while (!cursor.equals(start)) {
-            cursor = previous.get(cursor);
-            if (cursor == null) return null;
-            path.add(cursor);
-        }
-        Collections.reverse(path);
-        return new CableRoute(List.copyOf(path), remainingTransfer);
+        return CableNetworkPlanner.findBestRoute(cablePositions, start, end, cablePos ->
+                isPositionLoaded(level, cablePos) ? effectiveRemainingTransfer(level, cablePos, provisionalTransfers) : 0);
     }
 
     private long effectiveRemainingTransfer(Level level, BlockPos cablePos,
@@ -585,13 +420,13 @@ public class CableNetwork {
         return remaining;
     }
 
-    private void recordTransfer(long amount, @Nullable CableRoute route) {
+    private void recordTransfer(long amount, @Nullable CableNetworkPlanner.CableRoute route) {
         if (amount <= 0) return;
 
-        transferredThisTick = saturatedAdd(transferredThisTick, amount);
+        transferredThisTick = CableNetworkPlanner.saturatedAdd(transferredThisTick, amount);
         if (route != null) {
             for (BlockPos cablePos : route.positions()) {
-                cableTransferredThisTick.merge(cablePos, amount, this::saturatedAdd);
+                cableTransferredThisTick.merge(cablePos, amount, CableNetworkPlanner::saturatedAdd);
             }
         }
     }
@@ -610,54 +445,8 @@ public class CableNetwork {
                 .thenComparingInt(connection -> connection.pos().getZ())
                 .thenComparingInt(connection -> connection.side().ordinal());
 
-        private DeviceConnectionKey key() {
-            return new DeviceConnectionKey(pos, side);
+        private CableNetworkPlanner.ConnectionKey key() {
+            return new CableNetworkPlanner.ConnectionKey(pos, side);
         }
     }
-
-    private record TargetDemand(DeviceConnection target, long amount) {}
-
-    private record EnergyAllocation(DeviceConnection target, long amount) {}
-
-    private record CableRoute(List<BlockPos> positions, long remainingTransfer) {}
-
-    private final class AllocationCandidate {
-        private final DeviceConnection target;
-        private final long demand;
-        private long amount;
-        private final double ideal;
-
-        private AllocationCandidate(DeviceConnection target, long demand, long amount, double ideal) {
-            this.target = target;
-            this.demand = demand;
-            this.amount = amount;
-            this.ideal = ideal;
-        }
-
-        private DeviceConnection target() {
-            return target;
-        }
-
-        private long amount() {
-            return amount;
-        }
-
-        private double ideal() {
-            return ideal;
-        }
-
-        private double priority() {
-            return ideal - Math.floor(ideal) + allocationDebt.getOrDefault(target.key(), 0.0);
-        }
-
-        private boolean canReceiveMore() {
-            return amount < demand;
-        }
-
-        private void addOne() {
-            amount++;
-        }
-    }
-
-    private record DeviceConnectionKey(BlockPos pos, Direction side) {}
 }
