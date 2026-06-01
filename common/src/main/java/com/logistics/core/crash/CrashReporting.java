@@ -158,7 +158,14 @@ public final class CrashReporting {
      * state — so the saved value never lies about a client that isn't running.
      */
     public static boolean enableReporting() {
-        enable();
+        try {
+            enable();
+        } catch (Exception e) {
+            LOGGER.error("Failed to start crash reporting", e);
+            LogisticsConfig.get().crashReporting.enabled = false;
+            LogisticsConfig.save();
+            return false;
+        }
         boolean active = isActive();
         LogisticsConfig.get().crashReporting.enabled = active;
         LogisticsConfig.save();

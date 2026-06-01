@@ -110,6 +110,19 @@ class CrashReportingTest {
     }
 
     @Test
+    @DisplayName("enable failure leaves reporting off and persists the disabled state")
+    void enableFailureIsSafe() {
+        // A malformed DSN makes the Sentry client constructor throw inside enable().
+        LogisticsConfig.get().crashReporting.dsnOverride = "https://localhost";
+
+        boolean active = CrashReporting.enableReporting();
+
+        assertThat(active).isFalse();
+        assertThat(CrashReporting.isActive()).isFalse();
+        assertThat(LogisticsConfig.get().crashReporting.enabled).isFalse();
+    }
+
+    @Test
     @DisplayName("bootstrap enables only when the config opted in")
     void bootstrapHonorsConfig() {
         LogisticsConfig.get().crashReporting.enabled = false;
