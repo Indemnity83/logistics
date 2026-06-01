@@ -19,17 +19,19 @@ jobs:
     name: lint (pr)
     runs-on: ubuntu-latest
     if: github.actor != 'dependabot[bot]'
+
+    permissions:
+      pull-requests: read
+
     steps:
       - uses: amannn/action-semantic-pull-request@48f256284bd46cdaab1048c3721360e808335d50
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          # Configure which types are allowed
           types: |
             feat
             fix
             docs
-            style
             refactor
             perf
             test
@@ -37,10 +39,37 @@ jobs:
             ci
             chore
             revert
-          # Don't require scope - keep it simple
-          requireScope: false
-          # Validate PR title only (not individual commits)
+
+          scopes: |
+            core
+            automation
+            pipes
+            energy
+            storage
+            ui
+            compat
+            fabric
+            neoforge
+            docs
+            release
+            update
+            common
+            build
+
+          requireScope: true
           validateSingleCommit: false
+
+          subjectPattern: ^(?![A-Z]).+$
+          subjectPatternError: |
+            The subject "{subject}" found in the pull request title "{title}"
+            should start with a lowercase letter.
+
+            Good:
+              fix(pipes): prevent items from getting stuck
+              feat(energy): add energy pipe support
+
+            Bad:
+              Fix(pipes): Prevent items from getting stuck
 
   lint:
     name: lint (${{ matrix.module }})
