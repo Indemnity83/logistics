@@ -54,6 +54,10 @@ dependencies {
     include("teamreborn:energy:${rootProject.fabric_energy_version}")
     implementation("teamreborn:energy:${rootProject.fabric_energy_version}")
 
+    // Sentry crash reporting SDK — bundled into the Fabric jar via include (jar-in-jar)
+    include("io.sentry:sentry:${rootProject.sentry_version}")
+    implementation("io.sentry:sentry:${rootProject.sentry_version}")
+
     // JEI — compile against API only; players install separately at runtime
     compileOnly("mezz.jei:jei-${rootProject.minecraft_version}-fabric:${rootProject.jei_version}")
     runtimeOnly("mezz.jei:jei-${rootProject.minecraft_version}-fabric:${rootProject.jei_version}")

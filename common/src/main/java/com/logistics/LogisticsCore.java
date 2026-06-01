@@ -2,6 +2,7 @@ package com.logistics;
 
 import com.logistics.core.LogisticsConfig;
 import com.logistics.core.bootstrap.DomainBootstrap;
+import com.logistics.core.crash.CrashReporting;
 import com.logistics.core.item.ProbeItem;
 import com.logistics.core.item.WrenchItem;
 import com.logistics.core.macerator.MaceratorBlock;
@@ -58,6 +59,7 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         LOGGER.info("Registering {}", domain());
 
         LogisticsConfig.load();
+        CrashReporting.bootstrap();
 
         BLOCK.register();
         ITEM.register();

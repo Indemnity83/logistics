@@ -1,0 +1,51 @@
+package com.logistics.core.crash;
+
+import com.logistics.core.LogisticsConfig;
+import net.minecraft.ChatFormatting;
+import net.minecraft.commands.Commands;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
+
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+
+/**
+ * Sends operators a one-time (per launch) invite to opt in to anonymous crash reporting.
+ *
+ * <p>Shared by both loaders; the loader-specific player-join hooks resolve the {@link ServerPlayer}
+ * and call {@link #maybeNotify}. The message is suppressed once reporting is enabled or an operator
+ * silences it via {@code /logistics crashreports notify off}.
+ */
+public final class CrashReportNotifier {
+    private static final Set<UUID> NOTIFIED_THIS_LAUNCH = ConcurrentHashMap.newKeySet();
+
+    private CrashReportNotifier() {}
+
+    /** Notify {@code player} if they are an operator who hasn't been invited yet this launch. */
+    public static void maybeNotify(ServerPlayer player) {
+        LogisticsConfig.CrashReportingConfig cfg = LogisticsConfig.get().crashReporting;
+        if (cfg.enabled || !cfg.notifyOperators) {
+            return;
+        }
+        if (!Commands.LEVEL_GAMEMASTERS.check(player.permissions())) {
+            return;
+        }
+        if (!NOTIFIED_THIS_LAUNCH.add(player.getUUID())) {
+            return;
+        }
+        player.sendSystemMessage(buildInvite());
+    }
+
+    private static Component buildInvite() {
+        return Component.empty()
+                .append(Component.literal("[Logistics] ").withStyle(ChatFormatting.AQUA))
+                .append(Component.literal(
+                        "Anonymous crash reporting is OFF. Opt in to help fix bugs with ")
+                        .withStyle(ChatFormatting.GRAY))
+                .append(Component.literal("/logistics crashreports enable").withStyle(ChatFormatting.WHITE))
+                .append(Component.literal(", or hide this with ").withStyle(ChatFormatting.GRAY))
+                .append(Component.literal("/logistics crashreports notify off").withStyle(ChatFormatting.WHITE))
+                .append(Component.literal(".").withStyle(ChatFormatting.GRAY));
+    }
+}

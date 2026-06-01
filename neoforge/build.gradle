@@ -58,6 +58,16 @@ dependencies {
     testRuntimeOnly "org.junit.platform:junit-platform-launcher"
     testImplementation "org.assertj:assertj-core:${rootProject.assertj_version}"
     testImplementation "net.neoforged:neoforge:${rootProject.neoforge_version}"
+
+    // Sentry crash reporting SDK — compile against it (common sources are recompiled here) and
+    // embed it via jarJar (jar-in-jar). The version range lets JarJar dedupe against any copy
+    // another mod might ship; prefer our pinned version.
+    jarJar(implementation("io.sentry:sentry")) {
+        version {
+            strictly "[8.43.0,9.0.0)"
+            prefer "${rootProject.sentry_version}"
+        }
+    }
 }
 
 test {

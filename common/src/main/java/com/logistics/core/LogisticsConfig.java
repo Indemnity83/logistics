@@ -38,6 +38,7 @@ public final class LogisticsConfig {
     public QuarryConfig quarry = new QuarryConfig();
     public PipeConfig pipe = new PipeConfig();
     public EngineConfig engine = new EngineConfig();
+    public CrashReportingConfig crashReporting = new CrashReportingConfig();
 
     public static final class QuarryConfig {
         public int area = 16;
@@ -76,6 +77,21 @@ public final class LogisticsConfig {
         public long redstoneOutput = 10L;
         public double stirlingMinOutput = 3.0;
         public double stirlingMaxOutput = 10.0;
+    }
+
+    /**
+     * Opt-in anonymous crash reporting (Sentry). Disabled by default; an operator opts in via
+     * {@code /logistics crashreports enable}. These are intentionally NOT in the {@link #ENTRIES}
+     * registry — the {@code /logistics crashreports} commands are the single source of truth so the
+     * persisted value and the live Sentry client never drift apart.
+     */
+    public static final class CrashReportingConfig {
+        /** Whether crash reports are sent. Opt-in: off until an operator enables it. */
+        public boolean enabled = false;
+        /** Whether operators are invited to opt in on join (until they silence it). */
+        public boolean notifyOperators = true;
+        /** Optional DSN override for self-hosting/testing; empty uses the bundled default. */
+        public String dsnOverride = "";
     }
 
     // ==================== Config Entry Registry (for commands) ====================
@@ -281,6 +297,13 @@ public final class LogisticsConfig {
         if (config.engine == null) {
             LOGGER.warn("Invalid logistics config group engine: missing; using defaults");
             config.engine = defaults.engine;
+        }
+        if (config.crashReporting == null) {
+            LOGGER.warn("Invalid logistics config group crashReporting: missing; using defaults");
+            config.crashReporting = defaults.crashReporting;
+        }
+        if (config.crashReporting.dsnOverride == null) {
+            config.crashReporting.dsnOverride = defaults.crashReporting.dsnOverride;
         }
 
         sanitizeInt("quarry_area", () -> (long) config.quarry.area, v -> config.quarry.area = v.intValue(),

@@ -33,6 +33,23 @@ public interface PlatformService {
     }
 
     /**
+     * Returns the Logistics mod version string (e.g. {@code "0.5.5"}), used as the Sentry
+     * release tag. Defaults to {@code "unknown"} when the loader cannot resolve it.
+     */
+    default String modVersion() {
+        return "unknown";
+    }
+
+    /**
+     * Returns {@code true} in a development/dev-runtime environment, {@code false} in a
+     * production install. Used to pick the Sentry environment tag and enable SDK debug logging.
+     * Defaults to {@code false} (production-safe) for any loader that doesn't override it.
+     */
+    default boolean isDevelopmentEnvironment() {
+        return false;
+    }
+
+    /**
      * Registers {@code oldId} as a legacy alias for the same registry entry as
      * {@code currentEntry}, so saves that used the old ID are remapped on load.
      *

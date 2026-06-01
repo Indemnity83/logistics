@@ -1,5 +1,6 @@
 package com.logistics.core;
 
+import com.logistics.core.crash.CrashReporting;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -147,6 +148,49 @@ public final class LogisticsCommandTree {
                         ctx.getSource().sendSuccess(
                             () -> Component.literal("Reloaded logistics config from disk"), true);
                         return 1;
-                    })));
+                    })))
+            .then(Commands.literal("crashreports")
+                .executes(ctx -> {
+                    LogisticsConfig.CrashReportingConfig cfg = LogisticsConfig.get().crashReporting;
+                    String msg = "Anonymous crash reporting: " + (cfg.enabled ? "ON" : "off")
+                        + "\n  join notice: " + (cfg.notifyOperators ? "on" : "off");
+                    ctx.getSource().sendSuccess(() -> Component.literal(msg), false);
+                    return 1;
+                })
+                .then(Commands.literal("enable")
+                    .executes(ctx -> {
+                        LogisticsConfig.get().crashReporting.enabled = true;
+                        LogisticsConfig.save();
+                        CrashReporting.enable();
+                        ctx.getSource().sendSuccess(
+                            () -> Component.literal("Anonymous crash reporting enabled. Thank you!"), true);
+                        return 1;
+                    }))
+                .then(Commands.literal("disable")
+                    .executes(ctx -> {
+                        LogisticsConfig.get().crashReporting.enabled = false;
+                        LogisticsConfig.save();
+                        CrashReporting.disable();
+                        ctx.getSource().sendSuccess(
+                            () -> Component.literal("Anonymous crash reporting disabled."), true);
+                        return 1;
+                    }))
+                .then(Commands.literal("notify")
+                    .then(Commands.literal("on")
+                        .executes(ctx -> {
+                            LogisticsConfig.get().crashReporting.notifyOperators = true;
+                            LogisticsConfig.save();
+                            ctx.getSource().sendSuccess(
+                                () -> Component.literal("Crash reporting join notice: ON"), true);
+                            return 1;
+                        }))
+                    .then(Commands.literal("off")
+                        .executes(ctx -> {
+                            LogisticsConfig.get().crashReporting.notifyOperators = false;
+                            LogisticsConfig.save();
+                            ctx.getSource().sendSuccess(
+                                () -> Component.literal("Crash reporting join notice: OFF"), true);
+                            return 1;
+                        }))));
     }
 }

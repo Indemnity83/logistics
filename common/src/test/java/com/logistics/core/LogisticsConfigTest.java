@@ -145,6 +145,49 @@ class LogisticsConfigTest {
     }
 
     @Test
+    @DisplayName("should default crash reporting to opt-in with the join notice on")
+    void crashReportingDefaultsToOptIn() {
+        LogisticsConfig.CrashReportingConfig cfg = new LogisticsConfig().crashReporting;
+
+        assertThat(cfg.enabled).isFalse();
+        assertThat(cfg.notifyOperators).isTrue();
+        assertThat(cfg.dsnOverride).isEmpty();
+    }
+
+    @Test
+    @DisplayName("should recover a null crash reporting group and null dsn override")
+    void sanitizesNullCrashReportingGroup() {
+        LogisticsConfig parsed = new LogisticsConfig();
+        parsed.crashReporting = null;
+
+        LogisticsConfig sanitized = LogisticsConfig.sanitize(parsed);
+
+        assertThat(sanitized.crashReporting).isNotNull();
+        assertThat(sanitized.crashReporting.enabled).isFalse();
+        assertThat(sanitized.crashReporting.notifyOperators).isTrue();
+        assertThat(sanitized.crashReporting.dsnOverride).isEmpty();
+
+        LogisticsConfig withNullDsn = new LogisticsConfig();
+        withNullDsn.crashReporting.dsnOverride = null;
+        assertThat(LogisticsConfig.sanitize(withNullDsn).crashReporting.dsnOverride).isEmpty();
+    }
+
+    @Test
+    @DisplayName("should preserve valid crash reporting values through sanitize")
+    void preservesValidCrashReportingValues() {
+        LogisticsConfig parsed = new LogisticsConfig();
+        parsed.crashReporting.enabled = true;
+        parsed.crashReporting.notifyOperators = false;
+        parsed.crashReporting.dsnOverride = "https://key@example.invalid/1";
+
+        LogisticsConfig sanitized = LogisticsConfig.sanitize(parsed);
+
+        assertThat(sanitized.crashReporting.enabled).isTrue();
+        assertThat(sanitized.crashReporting.notifyOperators).isFalse();
+        assertThat(sanitized.crashReporting.dsnOverride).isEqualTo("https://key@example.invalid/1");
+    }
+
+    @Test
     @DisplayName("should clamp quarry derived energy values to non-negative")
     void quarryDerivedEnergyValuesAreNonNegative() {
         LogisticsConfig.QuarryConfig quarry = new LogisticsConfig.QuarryConfig();

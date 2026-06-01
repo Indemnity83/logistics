@@ -38,6 +38,11 @@ dependencies {
     // Team Reborn Energy API (bundled into the Fabric jar via include in fabric/build.gradle)
     implementation("teamreborn:energy:${rootProject.fabric_energy_version}")
 
+    // Sentry crash reporting SDK. Pure Java, no MC dependency, so the SDK calls live in common.
+    // Bundled into each loader jar separately (Fabric include, NeoForge jarJar) since common
+    // sources are recompiled into each loader rather than shipped as a shared runtime jar.
+    implementation("io.sentry:sentry:${rootProject.sentry_version}")
+
     // JEI — compile only; players install separately at runtime
     compileOnly("mezz.jei:jei-${rootProject.minecraft_version}-fabric:${rootProject.jei_version}")
 
