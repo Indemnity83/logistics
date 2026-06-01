@@ -24,6 +24,9 @@ final class PipeRoutingPlanner {
     }
 
     static Direction chooseDirection(BlockPos pos, long gameTime, Direction currentDirection, List<Direction> options) {
+        if (options == null || options.isEmpty()) {
+            throw new IllegalArgumentException("options must be non-empty");
+        }
         long seed = mixHash(pos.asLong(), gameTime, currentDirection.get3DDataValue());
         Random random = new Random(seed);
         return options.get(random.nextInt(options.size()));
