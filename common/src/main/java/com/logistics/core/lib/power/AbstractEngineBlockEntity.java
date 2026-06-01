@@ -300,30 +300,17 @@ public abstract class AbstractEngineBlockEntity extends BaseBlockEntity implemen
 
     /** Computes temperature from energy level. Hotter when buffer is fuller. */
     protected void computeTemperature() {
-        temperature = (getMaxTemperature() - getTemperatureFloor()) * getEnergyLevel() + getTemperatureFloor();
+        temperature = EngineHeatModel.temperature(energyBuffer.getAmount(), getEnergyBufferCapacity(), getTemperatureFloor(), getMaxTemperature());
     }
 
     /** Computes the engine stage based on current heat level. */
     protected HeatStage computeStage() {
-        double heatLevelRatio = getHeatLevel();
-
-        if (heatLevelRatio < 0.25) return HeatStage.COLD;
-        if (heatLevelRatio < 0.50) return HeatStage.COOL;
-        if (heatLevelRatio < 0.75) return HeatStage.WARM;
-        if (heatLevelRatio >= 1.0 && canOverheat()) return HeatStage.OVERHEAT;
-
-        // HOT is the max stage for non-overheating engines; flash WARM during compression as a visual cue
-        return !canOverheat() && cyclePhase == CyclePhase.COMPRESSION ? HeatStage.WARM : HeatStage.HOT;
+        return EngineHeatModel.stage(temperature, getMaxTemperature(), canOverheat(), cyclePhase == CyclePhase.COMPRESSION);
     }
 
     /** Compute the piston speed based on current heat level. */
     public float getPistonSpeed() {
-        double heatLevel = getHeatLevel();
-        if (heatLevel < 0.25) return 0.01f;
-        if (heatLevel < 0.50) return 0.02f;
-        if (heatLevel < 0.75) return 0.04f;
-        if (heatLevel < 1.0 || !canOverheat()) return 0.08f;
-        return 0.0f; // OVERHEAT
+        return EngineHeatModel.pistonSpeed(temperature, getMaxTemperature(), canOverheat());
     }
 
     // ==================== Cycle System ====================
@@ -340,29 +327,13 @@ public abstract class AbstractEngineBlockEntity extends BaseBlockEntity implemen
      * <p>When idle, the engine waits for redstone power to start a new cycle.
      */
     protected void advanceCycle() {
-        if (cyclePhase == CyclePhase.IDLE && isRedstonePowered()) {
-            cyclePhase = CyclePhase.EXPANSION;
-            return;
-        }
+        EngineCyclePlanner.Result result = EngineCyclePlanner.advance(
+                cyclePhase, progress, isRedstonePowered(), getPistonSpeed(), sendsEnergyContinuously());
+        cyclePhase = result.phase();
+        progress = result.progress();
 
-        if (cyclePhase == CyclePhase.IDLE) {
-            return; // Don't advance progress while idle
-        }
-
-        progress += getPistonSpeed();
-
-        boolean justTransitioned = cyclePhase == CyclePhase.EXPANSION && progress > 0.5f;
-        if (justTransitioned) {
-            cyclePhase = CyclePhase.COMPRESSION;
-        }
-
-        if (sendsEnergyContinuously() || justTransitioned) {
+        if (result.shouldSendEnergy()) {
             sendEnergy();
-        }
-
-        if (progress >= 1.0f) {
-            progress = 0;
-            cyclePhase = CyclePhase.IDLE;
         }
     }
 
@@ -447,20 +418,12 @@ public abstract class AbstractEngineBlockEntity extends BaseBlockEntity implemen
 
     /** Gets the heat level as a ratio from 0.0 to 1.0. */
     public double getHeatLevel() {
-        double maxTemp = getMaxTemperature();
-        if (maxTemp <= 0) {
-            return 0.0;
-        }
-        return temperature / maxTemp;
+        return EngineHeatModel.heatLevel(temperature, getMaxTemperature());
     }
 
     /** Gets the energy level as a ratio from 0.0 to 1.0. */
     public double getEnergyLevel() {
-        long capacity = getEnergyBufferCapacity();
-        if (capacity <= 0) {
-            return 0.0;
-        }
-        return energyBuffer.getAmount() / (double) capacity;
+        return EngineHeatModel.energyLevel(energyBuffer.getAmount(), getEnergyBufferCapacity());
     }
 
     public long getCurrentOutputPower() {
