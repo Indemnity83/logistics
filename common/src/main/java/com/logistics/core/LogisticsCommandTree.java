@@ -175,6 +175,15 @@ public final class LogisticsCommandTree {
                             () -> Component.literal("Crash reporting disabled."), true);
                         return 1;
                     }))
+                .then(Commands.literal("preview")
+                    .executes(ctx -> {
+                        String report = CrashReporting.previewReport();
+                        ctx.getSource().sendSuccess(
+                            () -> Component.literal(
+                                "Example sanitized report (NOT sent — this is a preview):\n" + report),
+                            false);
+                        return 1;
+                    }))
                 .then(Commands.literal("notify")
                     .then(Commands.literal("on")
                         .executes(ctx -> {

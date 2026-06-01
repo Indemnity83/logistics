@@ -60,6 +60,22 @@ class CrashReportingTest {
     }
 
     @Test
+    @DisplayName("preview builds a scrubbed report without sending or enabling")
+    void previewIsScrubbedAndInert() {
+        String json = CrashReporting.previewReport();
+
+        // Contains the synthetic exception, but the mock sensitive values are redacted.
+        assertThat(json).contains("RuntimeException").contains("preview");
+        assertThat(json).contains("<ip>").doesNotContain("203.0.113.7");
+        assertThat(json).contains("<uuid>").doesNotContain("123e4567-e89b-12d3-a456-426614174000");
+        assertThat(json).contains("<redacted>").doesNotContain("hunter2");
+        assertThat(json).doesNotContain(System.getProperty("user.home"));
+
+        // Previewing neither enables reporting nor sends anything.
+        assertThat(CrashReporting.isActive()).isFalse();
+    }
+
+    @Test
     @DisplayName("forwards only Logistics loggers that carry a throwable")
     void forwardsOnlyLogisticsErrorsWithThrowable() {
         // Matches the codebase's logger names (e.g. "logistics", "logistics/config", "Logistics/JEI")

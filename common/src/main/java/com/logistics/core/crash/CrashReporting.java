@@ -2,14 +2,19 @@ package com.logistics.core.crash;
 
 import com.logistics.core.LogisticsConfig;
 import com.logistics.core.lib.platform.PlatformService;
+import io.sentry.JsonSerializer;
 import io.sentry.SentryClient;
 import io.sentry.SentryEvent;
+import io.sentry.SentryExceptionFactory;
 import io.sentry.SentryOptions;
+import io.sentry.SentryStackTraceFactory;
 import io.sentry.protocol.Message;
 import io.sentry.protocol.SentryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.io.StringWriter;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Pattern;
 
@@ -72,21 +77,7 @@ public final class CrashReporting {
             LOGGER.warn("Crash reporting enabled but no DSN is configured; not starting Sentry");
             return;
         }
-        boolean dev = PlatformService.INSTANCE.isDevelopmentEnvironment();
-        SentryOptions options = new SentryOptions();
-        options.setDsn(dsn);
-        // Belt-and-suspenders: a standalone client installs no integrations anyway, so there is
-        // never a global uncaught-exception handler that could capture other mods or vanilla.
-        options.setEnableUncaughtExceptionHandler(false);
-        options.setSendDefaultPii(false);
-        options.setAttachServerName(false);
-        // Ignore SENTRY_* env vars / sentry.properties so behavior is fully code-driven.
-        options.setEnableExternalConfiguration(false);
-        options.setRelease("logistics@" + PlatformService.INSTANCE.modVersion());
-        options.setEnvironment(dev ? "dev" : "prod");
-        options.setBeforeSend((event, hint) -> scrub(event));
-        options.setDebug(dev);
-
+        SentryOptions options = buildOptions();
         // Dedicated client — never Sentry.init(), which would replace the global SDK scope shared
         // with any other mod bundling the same Sentry. The SentryClient constructor swaps in a real
         // async HTTP transport on its own, so events are actually sent.
@@ -95,7 +86,44 @@ public final class CrashReporting {
         bridge = newBridge();
         bridge.attach();
         ACTIVE.set(true);
-        LOGGER.info("Crash reporting enabled (environment={})", dev ? "dev" : "prod");
+        LOGGER.info("Crash reporting enabled (environment={})", options.getEnvironment());
+    }
+
+    /** Build the Sentry options used for both the live client and the {@link #previewReport()}. */
+    private static SentryOptions buildOptions() {
+        boolean dev = isDevelopmentEnvironment();
+        SentryOptions options = new SentryOptions();
+        options.setDsn(resolveDsn());
+        // Belt-and-suspenders: a standalone client installs no integrations anyway, so there is
+        // never a global uncaught-exception handler that could capture other mods or vanilla.
+        options.setEnableUncaughtExceptionHandler(false);
+        options.setSendDefaultPii(false);
+        options.setAttachServerName(false);
+        // Ignore SENTRY_* env vars / sentry.properties so behavior is fully code-driven.
+        options.setEnableExternalConfiguration(false);
+        options.setRelease("logistics@" + modVersion());
+        options.setEnvironment(dev ? "dev" : "prod");
+        options.setBeforeSend((event, hint) -> scrub(event));
+        options.setDebug(dev);
+        return options;
+    }
+
+    // Platform lookups are defensive: crash reporting is non-critical, so if the SPI is somehow
+    // unavailable (e.g. a unit-test classloader) we fall back rather than failing to report.
+    private static String modVersion() {
+        try {
+            return PlatformService.INSTANCE.modVersion();
+        } catch (Throwable t) {
+            return "unknown";
+        }
+    }
+
+    private static boolean isDevelopmentEnvironment() {
+        try {
+            return PlatformService.INSTANCE.isDevelopmentEnvironment();
+        } catch (Throwable t) {
+            return false;
+        }
     }
 
     /** Stop sending reports and flush. Idempotent. */
@@ -127,6 +155,33 @@ public final class CrashReporting {
         SentryClient current = client;
         if (current != null) {
             current.captureException(throwable);
+        }
+    }
+
+    /**
+     * Build a representative report for a synthetic Logistics error, run it through the exact
+     * sanitization pipeline used before sending, and return it as JSON. Does NOT send and works
+     * whether or not reporting is enabled, so an operator can inspect the output before opting in.
+     * The sample message embeds mock sensitive values so the scrubbing is visible in the result.
+     */
+    public static String previewReport() {
+        SentryOptions options = buildOptions();
+        RuntimeException sample = new RuntimeException(
+                "Logistics crash-report preview (example, not a real crash). Sensitive values are "
+                + "scrubbed before send: home=" + System.getProperty("user.home")
+                + " ip=203.0.113.7 uuid=123e4567-e89b-12d3-a456-426614174000 token=hunter2");
+        SentryEvent event = new SentryEvent(sample);
+        event.setRelease(options.getRelease());
+        event.setEnvironment(options.getEnvironment());
+        SentryExceptionFactory exceptionFactory =
+                new SentryExceptionFactory(new SentryStackTraceFactory(options));
+        event.setExceptions(exceptionFactory.getSentryExceptions(sample));
+        scrub(event);
+        try (StringWriter writer = new StringWriter()) {
+            new JsonSerializer(options).serialize(event, writer);
+            return writer.toString();
+        } catch (IOException e) {
+            return "Failed to build preview: " + e;
         }
     }
 

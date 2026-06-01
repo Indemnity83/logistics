@@ -15,8 +15,12 @@ enable anything on connected players' clients.
 | `/logistics crashreports` | Show current status |
 | `/logistics crashreports enable` | Opt in to sending sanitized reports |
 | `/logistics crashreports disable` | Stop sending reports |
+| `/logistics crashreports preview` | Print an example sanitized report **without sending it** |
 | `/logistics crashreports notify off` | Hide the one-time join invite |
 | `/logistics crashreports notify on` | Re-show the join invite |
+
+`preview` runs a synthetic error through the exact same sanitization pipeline used before sending,
+so you can see precisely what a report looks like (and confirm the scrubbing works) before opting in.
 
 All of these require operator (gamemaster) permission. Disabling is exactly as easy as enabling.
 
