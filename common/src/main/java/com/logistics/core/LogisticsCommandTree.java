@@ -151,54 +151,41 @@ public final class LogisticsCommandTree {
                     })))
             .then(Commands.literal("crashreports")
                 .executes(ctx -> {
-                    LogisticsConfig.CrashReportingConfig cfg = LogisticsConfig.get().crashReporting;
-                    String msg = "Sanitized crash reporting: " + (cfg.enabled ? "ON" : "off")
-                        + "\n  join notice: " + (cfg.notifyOperators ? "on" : "off");
-                    ctx.getSource().sendSuccess(() -> Component.literal(msg), false);
+                    ctx.getSource().sendSuccess(() -> Component.literal(CrashReporting.statusText()), false);
                     return 1;
                 })
                 .then(Commands.literal("enable")
                     .executes(ctx -> {
-                        LogisticsConfig.get().crashReporting.enabled = true;
-                        LogisticsConfig.save();
-                        CrashReporting.enable();
                         ctx.getSource().sendSuccess(
-                            () -> Component.literal("Sanitized crash reporting enabled. Thank you for helping improve Logistics!"), true);
+                            () -> Component.literal(CrashReporting.setReportingEnabled(true)), true);
                         return 1;
                     }))
                 .then(Commands.literal("disable")
                     .executes(ctx -> {
-                        LogisticsConfig.get().crashReporting.enabled = false;
-                        LogisticsConfig.save();
-                        CrashReporting.disable();
                         ctx.getSource().sendSuccess(
-                            () -> Component.literal("Crash reporting disabled."), true);
+                            () -> Component.literal(CrashReporting.setReportingEnabled(false)), true);
                         return 1;
                     }))
                 .then(Commands.literal("preview")
                     .executes(ctx -> {
-                        String report = CrashReporting.previewReport();
                         ctx.getSource().sendSuccess(
                             () -> Component.literal(
-                                "Example sanitized report (NOT sent — this is a preview):\n" + report),
+                                "Example sanitized report (NOT sent — this is a preview):\n"
+                                + CrashReporting.previewReport()),
                             false);
                         return 1;
                     }))
                 .then(Commands.literal("notify")
                     .then(Commands.literal("on")
                         .executes(ctx -> {
-                            LogisticsConfig.get().crashReporting.notifyOperators = true;
-                            LogisticsConfig.save();
                             ctx.getSource().sendSuccess(
-                                () -> Component.literal("Crash reporting join notice: ON"), true);
+                                () -> Component.literal(CrashReporting.setJoinNotice(true)), true);
                             return 1;
                         }))
                     .then(Commands.literal("off")
                         .executes(ctx -> {
-                            LogisticsConfig.get().crashReporting.notifyOperators = false;
-                            LogisticsConfig.save();
                             ctx.getSource().sendSuccess(
-                                () -> Component.literal("Crash reporting join notice: OFF"), true);
+                                () -> Component.literal(CrashReporting.setJoinNotice(false)), true);
                             return 1;
                         }))));
     }

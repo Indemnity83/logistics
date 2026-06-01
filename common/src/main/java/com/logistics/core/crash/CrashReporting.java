@@ -147,6 +147,38 @@ public final class CrashReporting {
         return ACTIVE.get();
     }
 
+    // ==================== Command actions ====================
+    // These back the /logistics crashreports subcommands. Kept here (not inline in the Brigadier
+    // tree) so the persist-and-toggle logic is unit-testable without a command source.
+
+    /** Persist the operator's opt-in choice and toggle the live client. Returns operator feedback. */
+    public static String setReportingEnabled(boolean enabled) {
+        LogisticsConfig.get().crashReporting.enabled = enabled;
+        LogisticsConfig.save();
+        if (enabled) {
+            enable();
+        } else {
+            disable();
+        }
+        return enabled
+                ? "Sanitized crash reporting enabled. Thank you for helping improve Logistics!"
+                : "Crash reporting disabled.";
+    }
+
+    /** Persist whether the join invitation is shown. Returns operator feedback. */
+    public static String setJoinNotice(boolean show) {
+        LogisticsConfig.get().crashReporting.notifyOperators = show;
+        LogisticsConfig.save();
+        return "Crash reporting join notice: " + (show ? "ON" : "off");
+    }
+
+    /** Human-readable current state for the status command. */
+    public static String statusText() {
+        LogisticsConfig.CrashReportingConfig cfg = LogisticsConfig.get().crashReporting;
+        return "Sanitized crash reporting: " + (cfg.enabled ? "ON" : "off")
+                + "\n  join notice: " + (cfg.notifyOperators ? "on" : "off");
+    }
+
     /** Report a throwable when active; a no-op otherwise. */
     public static void capture(Throwable throwable) {
         if (throwable == null || !ACTIVE.get()) {

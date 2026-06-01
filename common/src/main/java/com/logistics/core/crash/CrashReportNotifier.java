@@ -29,19 +29,21 @@ public final class CrashReportNotifier {
     /** Notify {@code player} if they are an operator who hasn't been invited yet this launch. */
     public static void maybeNotify(ServerPlayer player) {
         LogisticsConfig.CrashReportingConfig cfg = LogisticsConfig.get().crashReporting;
-        if (cfg.enabled || !cfg.notifyOperators) {
+        boolean isOperator = Commands.LEVEL_GAMEMASTERS.check(player.permissions());
+        if (!shouldNotify(cfg.enabled, cfg.notifyOperators, isOperator)) {
             return;
         }
-        if (!Commands.LEVEL_GAMEMASTERS.check(player.permissions())) {
-            return;
+        if (NOTIFIED_THIS_LAUNCH.add(player.getUUID())) {
+            player.sendSystemMessage(buildInvite());
         }
-        if (!NOTIFIED_THIS_LAUNCH.add(player.getUUID())) {
-            return;
-        }
-        player.sendSystemMessage(buildInvite());
     }
 
-    private static Component buildInvite() {
+    /** Pure gate: invite only operators, and only when reporting is off but notices are enabled. */
+    static boolean shouldNotify(boolean reportingEnabled, boolean notifyOperators, boolean isOperator) {
+        return !reportingEnabled && notifyOperators && isOperator;
+    }
+
+    static Component buildInvite() {
         return Component.empty()
                 .append(Component.literal("[Logistics] ").withStyle(ChatFormatting.AQUA))
                 .append(Component.literal(
