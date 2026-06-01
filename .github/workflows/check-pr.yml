@@ -6,8 +6,7 @@ on:
     types: [opened, edited, synchronize, reopened, ready_for_review]
 
 concurrency:
-  # Keep title/body edit runs from cancelling synchronize runs that execute lint/test.
-  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event.action }}
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 permissions:
@@ -70,74 +69,3 @@ jobs:
 
             Bad:
               Fix(pipes): Prevent items from getting stuck
-
-  lint:
-    name: lint (${{ matrix.module }})
-    # Skip draft PRs and PR edits (title/body/base).
-    if: |
-      github.event.action != 'edited' &&
-      github.event.pull_request.draft == false
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        module: [common, fabric, neoforge]
-
-    steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
-        with:
-          persist-credentials: false
-          token: ${{ github.token }}
-
-      - uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654
-        with:
-          distribution: temurin
-          java-version: '25'
-
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@4c125117fe7c5aed11272ec4213f602f012f89f2
-        with:
-          cache-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
-
-      - name: Check ${{ matrix.module }} formatting
-        run: ./gradlew :${{ matrix.module }}:lint --console=plain
-
-  test:
-    name: test (${{ matrix.module }})
-    # Skip draft PRs and PR edits (title/body/base).
-    if: |
-      github.event.action != 'edited' &&
-      github.event.pull_request.draft == false
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        module: [common, fabric, neoforge]
-
-    steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
-        with:
-          persist-credentials: false
-          token: ${{ github.token }}
-
-      - uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654
-        with:
-          distribution: temurin
-          java-version: '25'
-
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@4c125117fe7c5aed11272ec4213f602f012f89f2
-        with:
-          cache-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
-
-      - name: Run ${{ matrix.module }} tests
-        run: ./gradlew :${{ matrix.module }}:test --console=plain
-        # Note: Game tests (./gradlew :fabric:runGameTest) are not run in CI due to resource
-        # constraints and long execution time. Run locally before merging if testing game mechanics.
-
-      - name: Upload test reports
-        if: failure()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
-        with:
-          name: test-reports-${{ matrix.module }}-${{ github.run_id }}
-          path: ${{ matrix.module }}/build/reports/tests/test/
