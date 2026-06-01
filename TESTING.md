@@ -41,8 +41,9 @@ Pull request CI runs under two workflows:
 - **Check Code**:
   - `lint (common)` checks repository-level formatting, common Java formatting, and import boundaries.
   - `lint (fabric|neoforge)` checks module Java formatting.
-  - `test (common|fabric|neoforge)` runs module unit tests.
-  - `coverage` runs aggregate JaCoCo coverage and uploads it to Codecov.
+  - `test (common|fabric|neoforge)` runs module unit tests and uploads that
+    module's JaCoCo coverage to Codecov (tagged with a per-module flag). Codecov
+    merges the three uploads into the combined coverage for the commit.
 
 PR CI does not build preview jars automatically. Use the manual **Build PR Artifacts**
 workflow when a branch needs downloadable Fabric or NeoForge jars for smoke testing.
@@ -59,10 +60,13 @@ The HTML report is written to `build/reports/jacoco/testCoverage/html/index.html
 The XML report is written to `build/reports/jacoco/testCoverage/testCoverage.xml`.
 
 Coverage is reported and gated by [Codecov](https://codecov.io/gh/Indemnity83/logistics).
-CI uploads the aggregate XML report on every PR; Codecov posts a summary comment,
-flags uncovered changed lines inline, and publishes `project`/`patch` status checks.
-The thresholds live in `codecov.yml` (project: no drop beyond 0.5%; patch target 70%),
-so there is no hand-maintained baseline to bump.
+On every PR each `test` matrix job uploads its module's JaCoCo report (tagged with a
+`common` / `fabric` / `neoforge` flag) and Codecov merges them, so the suite runs only
+once. Codecov posts a summary comment, flags uncovered changed lines inline, and
+publishes `project`/`patch` status checks. The thresholds live in `codecov.yml`
+(project: no drop beyond 0.5%; patch target 70%), so there is no hand-maintained
+baseline to bump. The local `testCoverage` task above still produces the aggregate
+HTML/XML for offline inspection.
 
 Current aggregate baseline from `./gradlew testCoverage`:
 
