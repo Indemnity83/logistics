@@ -14,14 +14,14 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Sends operators a one-time (per launch) invite to opt in to sanitized crash reporting.
+ * Shows operators a once-per-server-session crash-reporting status line with clickable toggles.
  *
- * <p>Shared by both loaders; the loader-specific player-join hooks resolve the {@link ServerPlayer}
- * and call {@link #maybeNotify}. The message is suppressed once reporting is enabled or an operator
- * silences it via {@code /logistics crashreports notify off}.
+ * <p>Shared by both loaders; the loader-specific hooks call {@link #maybeNotify} on player join and
+ * {@link #reset()} when a server starts so each new world/server session shows the line once. It is
+ * suppressed when an operator silences it via {@code /logistics crashreports notify off}.
  */
 public final class CrashReportNotifier {
-    private static final Set<UUID> NOTIFIED_THIS_LAUNCH = ConcurrentHashMap.newKeySet();
+    private static final Set<UUID> NOTIFIED_THIS_SESSION = ConcurrentHashMap.newKeySet();
 
     private static final String ENABLE_COMMAND = "/logistics crashreports enable";
     private static final String DISABLE_COMMAND = "/logistics crashreports disable";
@@ -33,16 +33,21 @@ public final class CrashReportNotifier {
 
     private CrashReportNotifier() {}
 
-    /** Show operators the once-per-launch crash-reporting status line (unless they've silenced it). */
+    /** Show operators the once-per-session crash-reporting status line (unless they've silenced it). */
     public static void maybeNotify(ServerPlayer player) {
         LogisticsConfig.CrashReportingConfig cfg = LogisticsConfig.get().crashReporting;
         boolean isOperator = Commands.LEVEL_GAMEMASTERS.check(player.permissions());
         if (!shouldNotify(cfg.notifyOperators, isOperator)) {
             return;
         }
-        if (NOTIFIED_THIS_LAUNCH.add(player.getUUID())) {
+        if (NOTIFIED_THIS_SESSION.add(player.getUUID())) {
             player.sendSystemMessage(buildInvite(cfg.enabled));
         }
+    }
+
+    /** Clear the per-session dedup so the next server session shows the status line again. */
+    public static void reset() {
+        NOTIFIED_THIS_SESSION.clear();
     }
 
     /** Pure gate: show the status line only to operators who haven't silenced the notice. */
