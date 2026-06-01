@@ -5,6 +5,7 @@ import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
+import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
@@ -177,11 +178,8 @@ public final class LogisticsCommandTree {
                     }))
                 .then(Commands.literal("preview")
                     .executes(ctx -> {
-                        ctx.getSource().sendSuccess(
-                            () -> Component.literal(
-                                "Example sanitized report (NOT sent — this is a preview):\n"
-                                + CrashReporting.previewReport()),
-                            false);
+                        CrashReporting.logPreviewReport();
+                        ctx.getSource().sendSuccess(LogisticsCommandTree::crashreportsPreviewSummary, false);
                         return 1;
                     }))
                 .then(Commands.literal("notify")
@@ -197,5 +195,18 @@ public final class LogisticsCommandTree {
                                 () -> Component.literal(CrashReporting.setJoinNotice(false)), true);
                             return 1;
                         }))));
+    }
+
+    /** Chat confirmation for {@code /logistics crashreports preview} — the full report goes to the log. */
+    private static Component crashreportsPreviewSummary() {
+        return Component.empty()
+            .append(Component.literal("Wrote an example sanitized crash report to the log.\n")
+                .withStyle(ChatFormatting.GRAY))
+            .append(Component.literal("Includes: ").withStyle(ChatFormatting.GRAY))
+            .append(Component.literal("mod/Minecraft/loader/Java/OS versions and a Logistics stack trace.\n")
+                .withStyle(ChatFormatting.WHITE))
+            .append(Component.literal("Never includes: ").withStyle(ChatFormatting.GRAY))
+            .append(Component.literal("names, UUIDs, IPs, server addresses, chat, or world data.")
+                .withStyle(ChatFormatting.WHITE));
     }
 }

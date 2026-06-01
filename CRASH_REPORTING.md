@@ -69,17 +69,19 @@ it on.
 | `/logistics crashreports` | Show whether reporting and the join notice are on or off |
 | `/logistics crashreports enable` | Opt in to sending sanitized reports |
 | `/logistics crashreports disable` | Stop sending reports |
-| `/logistics crashreports preview` | Print an example sanitized report **without sending it** |
+| `/logistics crashreports preview` | Write an example sanitized report to the log **without sending it** |
 | `/logistics crashreports notify off` | Hide the one-time join invitation |
 | `/logistics crashreports notify on` | Show the join invitation again |
 
 ### See for yourself: `preview`
 
 The `preview` command is the heart of our "trust, but verify" approach. It builds a sample error and
-runs it through the **exact same sanitization** that a real report goes through, then prints the
-result to you — **nothing is sent.** The sample deliberately contains fake sensitive values (a home
-directory, an IP, a UUID, a token) so you can watch them get scrubbed in front of you. It works
-whether or not reporting is enabled, so you can inspect the output before deciding to opt in.
+runs it through the **exact same sanitization** that a real report goes through, then writes the
+result to the game log (`logs/latest.log`) with a short confirmation in chat — **nothing is sent.**
+The full report is written to the log because it's far too detailed to read in chat. The sample
+deliberately contains fake sensitive values (a home directory, an IP, a UUID, a token) so you can see
+them scrubbed in the output. It works whether or not reporting is enabled, so you can inspect it
+before deciding to opt in.
 
 ---
 

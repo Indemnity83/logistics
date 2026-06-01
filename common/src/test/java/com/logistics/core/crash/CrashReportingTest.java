@@ -88,6 +88,10 @@ class CrashReportingTest {
 
         // Previewing neither enables reporting nor sends anything.
         assertThat(CrashReporting.isActive()).isFalse();
+
+        // The log-writing wrapper is also inert and must not throw.
+        assertThatCode(CrashReporting::logPreviewReport).doesNotThrowAnyException();
+        assertThat(CrashReporting.isActive()).isFalse();
     }
 
     @Test

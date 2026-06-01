@@ -205,6 +205,15 @@ public final class CrashReporting {
     }
 
     /**
+     * Write an example sanitized report to the log so an operator can read/copy exactly what would
+     * be sent. Logged at INFO with no throwable, so the {@link LogisticsErrorLogBridge} never picks
+     * it up — previewing never sends anything, even while reporting is active.
+     */
+    public static void logPreviewReport() {
+        LOGGER.info("Example sanitized crash report (NOT sent — preview):\n{}", previewReport());
+    }
+
+    /**
      * Build a representative report for a synthetic Logistics error, run it through the exact
      * sanitization pipeline used before sending, and return it as JSON. Does NOT send and works
      * whether or not reporting is enabled, so an operator can inspect the output before opting in.
