@@ -29,4 +29,6 @@ flag_management:
 comment:
   layout: "reach, diff, flags, files"
   require_changes: true
+  # Keep in sync with codecov.notify.after_n_builds and the test matrix size in
+  # .github/workflows/check-code.yml (one upload per module).
   after_n_builds: 3
