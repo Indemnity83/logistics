@@ -18,7 +18,7 @@ final class EngineCyclePlanner {
         }
 
         float nextProgress = progress + pistonSpeed;
-        boolean transitionedToCompression = phase == AbstractEngineBlockEntity.CyclePhase.EXPANSION && nextProgress > 0.5f;
+        boolean transitionedToCompression = phase == AbstractEngineBlockEntity.CyclePhase.EXPANSION && nextProgress >= 0.5f;
         AbstractEngineBlockEntity.CyclePhase nextPhase =
                 transitionedToCompression ? AbstractEngineBlockEntity.CyclePhase.COMPRESSION : phase;
         boolean shouldSendEnergy = sendsEnergyContinuously || transitionedToCompression;

@@ -62,6 +62,20 @@ class EngineCyclePlannerTest {
     }
 
     @Test
+    void advance_atExactBoundary_progressIsExactlyPointFive() {
+        EngineCyclePlanner.Result result = EngineCyclePlanner.advance(
+                AbstractEngineBlockEntity.CyclePhase.EXPANSION,
+                0.49f,
+                true,
+                0.01f,
+                false);
+
+        assertThat(result.phase()).isEqualTo(AbstractEngineBlockEntity.CyclePhase.COMPRESSION);
+        assertThat(result.progress()).isEqualTo(0.5f);
+        assertThat(result.shouldSendEnergy()).isTrue();
+    }
+
+    @Test
     void advance_requestsContinuousEnergySendEveryActiveTick() {
         EngineCyclePlanner.Result result = EngineCyclePlanner.advance(
                 AbstractEngineBlockEntity.CyclePhase.EXPANSION,
