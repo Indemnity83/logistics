@@ -72,12 +72,12 @@ Current aggregate baseline from `./gradlew testCoverage`:
 
 | Counter | Coverage |
 |---------|----------|
-| Instruction | 16.5% |
-| Branch | 14.1% |
-| Line | 16.6% |
-| Complexity | 15.7% |
-| Method | 21.4% |
-| Class | 32.1% |
+| Instruction | 17.0% |
+| Branch | 14.6% |
+| Line | 17.0% |
+| Complexity | 16.0% |
+| Method | 21.7% |
+| Class | 32.7% |
 
 High-coverage pure-logic areas include `core.lib.resource`, `core.lib.filter`,
 `power.engine`, `power.cable`, `core.lib.energy`, `core.lib.network`, and `neoforge.energy`.

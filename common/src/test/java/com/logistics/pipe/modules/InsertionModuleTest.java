@@ -25,9 +25,8 @@ import static org.assertj.core.api.Assertions.assertThat;
  * {@link PipeContext#isInventoryConnection} and {@link PipeContext#isNeighborPipe} both
  * delegate to {@link FakePipeAccess} and never dereference the world.
  *
- * <p>Inventory routing paths (full/partial space, split) cannot be tested without a real
- * {@code Level} — {@code ItemStorageLookup.find(level, ...)} NPEs with null world.
- * See TESTING.md for details.
+ * <p>World-backed insert-space lookup is still left to integration tests, but the
+ * inventory and split route decisions are covered by {@link InsertionRoutingPlannerTest}.
  */
 @DisplayName("InsertionModule")
 class InsertionModuleTest extends MinecraftTestEnvironment {
