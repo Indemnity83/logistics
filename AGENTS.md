@@ -120,7 +120,7 @@ All branches use **release-please** for automated versioning with **SemVer build
 2. Make commits using imperative mood (non-conventional format)
 3. Work freely - squash commits, force push, iterate as needed
 4. Create PR with:
-   - Title: conventional commit format (`fix:`, `feat:`, etc.)
+   - Title: scoped conventional commit format (`fix(pipes):`, `feat(automation):`, etc.)
    - Body: release notes style
 5. PR gets squash-merged into target branch with the conventional commit message
 6. Release-please sees the conventional commit and creates a release PR
@@ -434,28 +434,10 @@ Output a SINGLE-LINE commit subject only:
 
 ## Pull Requests
 
-Use conventional commit format for PR title (no scope):
+Use scoped conventional commit format for PR titles:
+```text
+<type>(<scope>): <description>
 ```
-<type>: <description>
-```
-
-**Valid types:**
-- `feat` - New features
-- `fix` - Bug fixes
-- `refactor` - Code changes that neither fix bugs nor add features
-- `perf` - Performance improvements
-- `test` - Adding or updating tests
-- `docs` - Documentation only
-- `build` - Build process or tooling changes
-- `ci` - CI/CD changes
-- `chore` - Maintenance tasks
-- `revert` - Reverting previous changes
-
-**Breaking changes:**
-```
-feat!: redesign storage API
-```
-or add `BREAKING CHANGE:` footer in the PR body.
 
 **PR body should read like release notes:**
 - Focus on WHAT changed and WHY it matters
@@ -463,10 +445,103 @@ or add `BREAKING CHANGE:` footer in the PR body.
 - Bullet points, grouped and scannable
 - No low-level implementation details unless they affect behavior or compatibility
 
-**Examples:**
-- `fix: correct pipe rendering in dark mode`
-- `feat: add quantum pipes`
-- `feat!: redesign storage API` (breaking change)
+## Release notes and PR title strategy
+
+This repository uses Release Please with Conventional Commit-style PR titles.
+
+Release notes are intended for players/users of the mod, not primarily for developers. When creating PR titles, commit messages, or squash merge titles, prefer wording that describes the player-visible effect of the change.
+
+Use this format:
+
+```text
+type(scope): short description
+```
+
+Examples:
+
+```text
+feat(pipes): add priority routing mode
+fix(neoforge): fix startup crash on NeoForge
+perf(automation): reduce idle machine tick cost
+refactor(common): simplify platform service lookup
+test(pipes): add routing tests
+build(fabric): update publishing task
+ci(build): update Gradle cache settings
+chore(release): update release metadata
+chore(update): update dependencies
+```
+
+### Changelog-visible types
+
+Only these types should appear in generated player-facing release notes:
+
+| Type | Changelog section | Use for |
+|---|---|---|
+| `feat` | Added | New player-visible behavior |
+| `fix` | Fixed | Player-visible bug fixes |
+| `perf` | Improved | Player-visible performance improvements |
+
+### Internal types
+
+These types are allowed, but should be treated as internal/developer-facing and should not be included in Release Please changelog sections:
+
+| Type | Use for |
+|---|---|
+| `refactor` | Code cleanup without player-visible behavior changes |
+| `test` | Test coverage |
+| `build` | Gradle, publishing, or build system changes |
+| `ci` | GitHub Actions or automation changes |
+| `chore` | Maintenance work |
+| `docs` | Documentation-only changes |
+| `revert` | Revert a previous change |
+
+### Allowed scopes
+
+Use the scope that best describes the player-facing area of the mod affected:
+
+| Scope | Use for |
+|---|---|
+| `core` | Shared mod behavior, base blocks/items, recipes, world behavior |
+| `automation` | Machines, upgrades, automation logic |
+| `pipes` | Pipes, routing, extraction, insertion, pipe networks |
+| `energy` | Energy transfer and storage behavior |
+| `storage` | Inventories, storage blocks, adapters |
+| `ui` | Screens, tooltips, overlays, visible rendering/UX |
+| `compat` | Integration with other mods |
+| `fabric` | Fabric-specific user-visible behavior |
+| `neoforge` | NeoForge-specific user-visible behavior |
+| `docs` | README, wiki, or user documentation |
+| `release` | Release metadata |
+| `update` | Dependency and automated update PRs |
+| `common` | Shared/internal code changes with no better user-facing scope |
+| `build` | Build tooling or CI support scope |
+
+Prefer player-facing scopes for `feat`, `fix`, and `perf`.
+
+Good:
+
+```text
+fix(pipes): fix items getting stuck when a route becomes invalid
+```
+
+Avoid for player-facing changes:
+
+```text
+fix(common): invalidate pipe graph cache on neighbor update
+```
+
+The second title may be technically accurate, but the first produces better release notes.
+
+### Guidance for agents
+
+When creating or modifying PRs:
+
+- Use scoped Conventional Commit PR titles.
+- Think about the generated changelog before choosing the PR title.
+- Prefer player-facing wording for `feat`, `fix`, and `perf`.
+- Use internal types like `refactor`, `test`, `build`, `ci`, and `chore` for non-player-facing work.
+- Do not add `refactor`, `test`, `build`, `ci`, or `chore` to the Release Please changelog sections.
+- Do not attempt to group changelog entries by scope using nested headings unless the release strategy is intentionally changed later.
 
 ## Documentation
 

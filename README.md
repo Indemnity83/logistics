@@ -171,6 +171,91 @@ See the [documentation](https://indemnity83.github.io/logistics/) for detailed i
 
 Contributions welcome! Report issues on [GitHub Issues](https://github.com/indemnity83/logistics/issues). For code contributions, see `CLAUDE.md` for development guidance.
 
+### Pull request titles and changelogs
+
+This project uses Conventional Commit-style pull request titles. Release notes are generated from PR titles, so titles should describe the player-visible impact whenever possible.
+
+Format:
+
+```text
+type(scope): short description
+```
+
+Examples:
+
+```text
+feat(pipes): add priority routing mode
+fix(neoforge): fix startup crash on NeoForge
+perf(automation): reduce idle machine tick cost
+refactor(common): simplify platform service lookup
+test(pipes): add routing tests
+build(fabric): update publishing task
+ci(build): update Gradle cache settings
+chore(release): update release metadata
+chore(update): update dependencies
+```
+
+#### Changelog-visible types
+
+These appear in player-facing release notes:
+
+| Type | Changelog section | Use for |
+|---|---|---|
+| `feat` | Added | New player-visible behavior |
+| `fix` | Fixed | Player-visible bug fixes |
+| `perf` | Improved | Player-visible performance improvements |
+
+#### Internal types
+
+These are allowed for PR organization, but do not appear in release notes:
+
+| Type | Use for |
+|---|---|
+| `refactor` | Code cleanup without player-visible behavior changes |
+| `test` | Test coverage |
+| `build` | Gradle, publishing, or build system changes |
+| `ci` | GitHub Actions or automation changes |
+| `chore` | Maintenance work |
+| `docs` | Documentation-only changes |
+| `revert` | Revert a previous change |
+
+#### Allowed scopes
+
+Use the scope that best describes the part of the mod affected:
+
+| Scope | Use for |
+|---|---|
+| `core` | Shared mod behavior, base blocks/items, recipes, world behavior |
+| `automation` | Machines, upgrades, automation logic |
+| `pipes` | Pipes, routing, extraction, insertion, pipe networks |
+| `energy` | Energy transfer and storage behavior |
+| `storage` | Inventories, storage blocks, adapters |
+| `ui` | Screens, tooltips, overlays, visible rendering/UX |
+| `compat` | Integration with other mods |
+| `fabric` | Fabric-specific user-visible behavior |
+| `neoforge` | NeoForge-specific user-visible behavior |
+| `docs` | README, wiki, or user documentation |
+| `release` | Release metadata |
+| `update` | Dependency and automated update PRs |
+| `common` | Shared/internal code changes with no better user-facing scope |
+| `build` | Build tooling or CI support scope |
+
+Prefer player-facing scopes for `feat`, `fix`, and `perf`.
+
+Good:
+
+```text
+fix(pipes): fix items getting stuck when a route becomes invalid
+```
+
+Avoid for player-facing changes:
+
+```text
+fix(common): invalidate pipe graph cache on neighbor update
+```
+
+The second title may be technically accurate, but the first produces better release notes.
+
 
 ## License
 
