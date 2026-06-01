@@ -8,7 +8,6 @@ import com.logistics.core.lib.power.AbstractEngineBlockEntity;
 import com.logistics.core.lib.power.FuelHelper;
 import com.logistics.core.lib.compat.NbtCompat;
 import com.logistics.core.lib.block.behavior.ProbeResult;
-import com.logistics.power.engine.PIDController;
 import com.logistics.power.engine.block.StirlingEngineBlock;
 import com.logistics.power.engine.ui.StirlingEngineScreenHandler;
 import com.logistics.LogisticsPower;
@@ -87,10 +86,8 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
     private int burnTime = 0;
     private int fuelTime = 0;
 
-    // PID controller for output regulation
-    private final PIDController pidController = new PIDController(PID_KP, PID_KI, PID_KD);
-    private double currentGeneration = DEFAULT_MIN_GENERATION;
-    private double generationCarry = 0.0;
+    private final StirlingGenerationPlanner generationPlanner = new StirlingGenerationPlanner(
+            PID_KP, PID_KI, PID_KD, TARGET_TEMPERATURE, DEFAULT_MIN_GENERATION);
 
     // Inventory (single fuel slot)
     private final ItemInventoryComponent inventory = new ItemInventoryComponent(1, this::setChanged);
@@ -104,7 +101,7 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
                 case PROPERTY_FUEL_TIME -> fuelTime;
                 case PROPERTY_HEAT -> (int) getTemperature();
                 case PROPERTY_ENERGY -> (int) (getEnergy() / 100);
-                case PROPERTY_GENERATION -> (int) (currentGeneration * 100);
+                case PROPERTY_GENERATION -> (int) (generationPlanner.currentGeneration() * 100);
                 default -> 0;
             };
         }
@@ -116,7 +113,8 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
                 case PROPERTY_FUEL_TIME -> fuelTime = value;
                 case PROPERTY_HEAT -> {} // Read-only on client, computed from energy level
                 case PROPERTY_ENERGY -> energyBuffer.setAmount(value * 100L);
-                case PROPERTY_GENERATION -> currentGeneration = value / 100.0;
+                case PROPERTY_GENERATION -> generationPlanner.restore(
+                        value / 100.0, generationPlanner.generationCarry(), generationPlanner.pidIntegral());
                 default -> {}
             }
         }
@@ -216,13 +214,11 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
 
     @Override
     protected long getOutputPower() {
-        double temp = getTemperature();
-        double minGen = LogisticsConfig.get().engine.stirlingMinOutput;
-        double maxGen = LogisticsConfig.get().engine.stirlingMaxOutput;
-        double tempRatio =
-                Math.min(1.0, (temp - getTemperatureFloor()) / (TARGET_TEMPERATURE - getTemperatureFloor()));
-        double output = minGen + tempRatio * (maxGen - minGen);
-        return Math.round(output);
+        return generationPlanner.outputPower(
+                getTemperature(),
+                getTemperatureFloor(),
+                LogisticsConfig.get().engine.stirlingMinOutput,
+                LogisticsConfig.get().engine.stirlingMaxOutput);
     }
 
     @Override
@@ -262,9 +258,7 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
 
     @Override
     protected void onShutdown() {
-        pidController.reset();
-        currentGeneration = DEFAULT_MIN_GENERATION;
-        generationCarry = 0.0;
+        generationPlanner.reset();
     }
 
     // ==================== Fuel & Generation ====================
@@ -305,27 +299,15 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
     }
 
     private void generateWithCarry() {
-        double temp = getTemperature();
-        currentGeneration = pidController.compute(TARGET_TEMPERATURE, temp,
+        long toAdd = generationPlanner.generate(
+                getTemperature(),
+                getEnergy(),
+                getEnergyBufferCapacity(),
                 LogisticsConfig.get().engine.stirlingMinOutput,
                 LogisticsConfig.get().engine.stirlingMaxOutput);
-        generationCarry += currentGeneration;
-
-        long whole = (long) Math.floor(generationCarry);
-        if (whole <= 0) {
-            return;
-        }
-
-        long space = getEnergyBufferCapacity() - getEnergy();
-        long toAdd = Math.min(whole, space);
 
         if (toAdd > 0) {
             addEnergy(toAdd);
-            generationCarry -= toAdd;
-        }
-
-        if (space <= 0) {
-            generationCarry = 0.0;
         }
     }
 
@@ -340,7 +322,7 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
     }
 
     public double getCurrentGenerationRate() {
-        return currentGeneration;
+        return generationPlanner.currentGeneration();
     }
 
     public ContainerData getPropertyDelegate() {
@@ -352,7 +334,7 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
         super.addProbeEntries(builder);
 
         // Generation rate (PID controlled)
-        builder.entry("Generation", String.format("%.2f RF/t", currentGeneration), ChatFormatting.GREEN);
+        builder.entry("Generation", String.format("%.2f RF/t", generationPlanner.currentGeneration()), ChatFormatting.GREEN);
 
         // Fuel burn time
         if (fuelTime > 0) {
@@ -453,9 +435,9 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
         // Save Stirling-specific data
         nbt.putInt("BurnTimeRemaining", burnTime);
         nbt.putInt("TotalFuelTime", fuelTime);
-        nbt.putDouble("CurrentGeneration", currentGeneration);
-        nbt.putDouble("GenerationCarryover", generationCarry);
-        nbt.putDouble("PIDIntegral", pidController.getIntegral());
+        nbt.putDouble("CurrentGeneration", generationPlanner.currentGeneration());
+        nbt.putDouble("GenerationCarryover", generationPlanner.generationCarry());
+        nbt.putDouble("PIDIntegral", generationPlanner.pidIntegral());
 
         // Save fuel inventory
         inventory.writeNbt(nbt, "Inventory", registries);
@@ -468,10 +450,10 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
         // Load Stirling-specific data
         burnTime = NbtCompat.getInt(nbt, "BurnTimeRemaining", 0);
         fuelTime = NbtCompat.getInt(nbt, "TotalFuelTime", 0);
-        currentGeneration = NbtCompat.getDouble(nbt, "CurrentGeneration", DEFAULT_MIN_GENERATION);
-        generationCarry = NbtCompat.getDouble(nbt, "GenerationCarryover", 0.0);
-        double pidIntegral = NbtCompat.getDouble(nbt, "PIDIntegral", 0.0);
-        pidController.setIntegral(pidIntegral);
+        generationPlanner.restore(
+                NbtCompat.getDouble(nbt, "CurrentGeneration", DEFAULT_MIN_GENERATION),
+                NbtCompat.getDouble(nbt, "GenerationCarryover", 0.0),
+                NbtCompat.getDouble(nbt, "PIDIntegral", 0.0));
 
         // Load fuel inventory (try new key first, fall back to legacy)
         if (nbt.contains("Inventory")) {
@@ -494,10 +476,10 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
         view.read("StirlingData", net.minecraft.nbt.CompoundTag.CODEC).ifPresent(stirlingData -> {
             burnTime = NbtCompat.getInt(stirlingData, "burnTime", 0);
             fuelTime = NbtCompat.getInt(stirlingData, "fuelTime", 0);
-            currentGeneration = NbtCompat.getDouble(stirlingData, "currentGeneration", DEFAULT_MIN_GENERATION);
-            generationCarry = NbtCompat.getDouble(stirlingData, "generationCarry", 0.0);
-            double pidIntegral = NbtCompat.getDouble(stirlingData, "pidIntegral", 0.0);
-            pidController.setIntegral(pidIntegral);
+            generationPlanner.restore(
+                    NbtCompat.getDouble(stirlingData, "currentGeneration", DEFAULT_MIN_GENERATION),
+                    NbtCompat.getDouble(stirlingData, "generationCarry", 0.0),
+                    NbtCompat.getDouble(stirlingData, "pidIntegral", 0.0));
         });
 
         // Load fuel from old "Fuel" tag at root level

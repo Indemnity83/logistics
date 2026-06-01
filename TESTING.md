@@ -72,12 +72,12 @@ Current aggregate snapshot from `./gradlew testCoverage`:
 
 | Counter | Coverage |
 |---------|----------|
-| Instruction | 17.3% |
-| Branch | 15.2% |
-| Line | 17.4% |
-| Complexity | 16.5% |
-| Method | 22.0% |
-| Class | 33.6% |
+| Instruction | 17.5% |
+| Branch | 15.3% |
+| Line | 17.5% |
+| Complexity | 16.6% |
+| Method | 22.1% |
+| Class | 33.8% |
 
 High-coverage pure-logic areas include `core.lib.resource`, `core.lib.filter`,
 `power.engine`, `power.cable`, `core.lib.energy`, `core.lib.network`, and `neoforge.energy`.
@@ -96,7 +96,7 @@ that are documented below as requiring restructuring or integration tests.
 - **Failure accounting regressions** — tracked delivery failure, partial delivery followed by failed remainder, retry accounting, and job state after dispatch loss
 - **Pipe network graph** — NetworkGraph, NetworkPathfinder
 - **Pipe runtime** — TravelingItem, TravelingItemPhysics, RoutePlan
-- **Power** — CableTier, PIDController, EngineHeatModel, EngineCyclePlanner
+- **Power** — CableTier, PIDController, EngineHeatModel, EngineCyclePlanner, StirlingGenerationPlanner
 - **Core** — BaseBlockEntity, ResourceId, MaceratorRecipe, MaceratorBlockEntityLogic, FluidTankComponent, ItemInventoryComponent
 - **Serialization golden tests** — ItemFilterModule (backward compat), ProviderDispatchQueue, TravelingItem
 
