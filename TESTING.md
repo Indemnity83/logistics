@@ -42,7 +42,7 @@ Pull request CI runs under two workflows:
   - `lint (common)` checks repository-level formatting, common Java formatting, and import boundaries.
   - `lint (fabric|neoforge)` checks module Java formatting.
   - `test (common|fabric|neoforge)` runs module unit tests.
-  - `coverage` runs aggregate JaCoCo coverage and verifies the coverage ratchet.
+  - `coverage` runs aggregate JaCoCo coverage and uploads it to Codecov.
 
 PR CI does not build preview jars automatically. Use the manual **Build PR Artifacts**
 workflow when a branch needs downloadable Fabric or NeoForge jars for smoke testing.
@@ -55,18 +55,14 @@ Local aggregate coverage is generated with:
 ./gradlew testCoverage
 ```
 
-To run the same aggregate coverage ratchet that CI uses:
-
-```bash
-./gradlew checkTestCoverageRatchet
-```
-
-The ratchet baseline lives in `gradle/coverage-baseline.properties`. Update it
-only upward after a PR improves coverage, or deliberately when the coverage
-scope changes.
-
 The HTML report is written to `build/reports/jacoco/testCoverage/html/index.html`.
 The XML report is written to `build/reports/jacoco/testCoverage/testCoverage.xml`.
+
+Coverage is reported and gated by [Codecov](https://codecov.io/gh/Indemnity83/logistics).
+CI uploads the aggregate XML report on every PR; Codecov posts a summary comment,
+flags uncovered changed lines inline, and publishes `project`/`patch` status checks.
+The thresholds live in `codecov.yml` (project: no drop beyond 0.5%; patch target 70%),
+so there is no hand-maintained baseline to bump.
 
 Current aggregate baseline from `./gradlew testCoverage`:
 

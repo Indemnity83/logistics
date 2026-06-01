@@ -101,14 +101,13 @@ jobs:
         with:
           cache-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
 
-      - name: Check aggregate coverage
-        run: ./gradlew checkTestCoverageRatchet --console=plain
+      - name: Generate aggregate coverage report
+        run: ./gradlew testCoverage --console=plain
 
-      - name: Upload coverage reports
-        if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354
         with:
-          name: coverage-reports-${{ github.run_id }}-${{ github.run_attempt }}
-          path: |
-            build/reports/jacoco/testCoverage/html/
-            build/reports/jacoco/testCoverage/testCoverage.xml
+          files: build/reports/jacoco/testCoverage/testCoverage.xml
+          fail_ci_if_error: true
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}

@@ -1,0 +1,15 @@
+coverage:
+  status:
+    project:
+      default:
+        # Compare against the parent commit's coverage; allow tiny rounding noise.
+        target: auto
+        threshold: 0.5%
+    patch:
+      default:
+        # New / changed lines in a PR should be reasonably covered.
+        target: 70%
+
+comment:
+  layout: "reach, diff, flags, files"
+  require_changes: true
