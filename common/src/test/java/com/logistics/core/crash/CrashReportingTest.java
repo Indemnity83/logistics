@@ -43,6 +43,23 @@ class CrashReportingTest {
     }
 
     @Test
+    @DisplayName("redacts IPs, UUIDs, any-user home paths, and secret-like values")
+    void redactsCommonIdentifiers() {
+        assertThat(CrashReporting.redact("connect to 192.168.1.50:25565"))
+                .contains("<ip>").doesNotContain("192.168.1.50");
+        assertThat(CrashReporting.redact("player 123e4567-e89b-12d3-a456-426614174000 left"))
+                .contains("<uuid>").doesNotContain("123e4567");
+        assertThat(CrashReporting.redact("read /Users/alice/world"))
+                .contains("/Users/<user>").doesNotContain("alice");
+        assertThat(CrashReporting.redact("opening /home/bob/.minecraft"))
+                .contains("/home/<user>").doesNotContain("bob");
+        assertThat(CrashReporting.redact("C:\\Users\\Carol\\saves"))
+                .contains("C:\\Users\\<user>").doesNotContain("Carol");
+        assertThat(CrashReporting.redact("token=abc123secretvalue"))
+                .contains("<redacted>").doesNotContain("abc123secretvalue");
+    }
+
+    @Test
     @DisplayName("forwards only Logistics loggers that carry a throwable")
     void forwardsOnlyLogisticsErrorsWithThrowable() {
         // Matches the codebase's logger names (e.g. "logistics", "logistics/config", "Logistics/JEI")

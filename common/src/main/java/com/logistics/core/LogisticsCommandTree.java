@@ -152,7 +152,7 @@ public final class LogisticsCommandTree {
             .then(Commands.literal("crashreports")
                 .executes(ctx -> {
                     LogisticsConfig.CrashReportingConfig cfg = LogisticsConfig.get().crashReporting;
-                    String msg = "Anonymous crash reporting: " + (cfg.enabled ? "ON" : "off")
+                    String msg = "Sanitized crash reporting: " + (cfg.enabled ? "ON" : "off")
                         + "\n  join notice: " + (cfg.notifyOperators ? "on" : "off");
                     ctx.getSource().sendSuccess(() -> Component.literal(msg), false);
                     return 1;
@@ -163,7 +163,7 @@ public final class LogisticsCommandTree {
                         LogisticsConfig.save();
                         CrashReporting.enable();
                         ctx.getSource().sendSuccess(
-                            () -> Component.literal("Anonymous crash reporting enabled. Thank you!"), true);
+                            () -> Component.literal("Sanitized crash reporting enabled. Thank you for helping improve Logistics!"), true);
                         return 1;
                     }))
                 .then(Commands.literal("disable")
@@ -172,7 +172,7 @@ public final class LogisticsCommandTree {
                         LogisticsConfig.save();
                         CrashReporting.disable();
                         ctx.getSource().sendSuccess(
-                            () -> Component.literal("Anonymous crash reporting disabled."), true);
+                            () -> Component.literal("Crash reporting disabled."), true);
                         return 1;
                     }))
                 .then(Commands.literal("notify")

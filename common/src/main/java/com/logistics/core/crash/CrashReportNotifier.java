@@ -11,7 +11,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Sends operators a one-time (per launch) invite to opt in to anonymous crash reporting.
+ * Sends operators a one-time (per launch) invite to opt in to sanitized crash reporting.
  *
  * <p>Shared by both loaders; the loader-specific player-join hooks resolve the {@link ServerPlayer}
  * and call {@link #maybeNotify}. The message is suppressed once reporting is enabled or an operator
@@ -41,10 +41,13 @@ public final class CrashReportNotifier {
         return Component.empty()
                 .append(Component.literal("[Logistics] ").withStyle(ChatFormatting.AQUA))
                 .append(Component.literal(
-                        "Anonymous crash reporting is OFF. Opt in to help fix bugs with ")
+                        "Optional crash reporting is OFF. If enabled, Logistics sends sanitized mod "
+                        + "error diagnostics (mod/Minecraft/loader/Java/OS versions and stack traces) "
+                        + "to help fix bugs. It does not send chat, world data, player names, UUIDs, "
+                        + "IPs, or server addresses. ")
                         .withStyle(ChatFormatting.GRAY))
-                .append(Component.literal("/logistics crashreports enable").withStyle(ChatFormatting.WHITE))
-                .append(Component.literal(", or hide this with ").withStyle(ChatFormatting.GRAY))
+                .append(Component.literal("Opt in: /logistics crashreports enable").withStyle(ChatFormatting.WHITE))
+                .append(Component.literal("  •  hide this: ").withStyle(ChatFormatting.GRAY))
                 .append(Component.literal("/logistics crashreports notify off").withStyle(ChatFormatting.WHITE))
                 .append(Component.literal(".").withStyle(ChatFormatting.GRAY));
     }

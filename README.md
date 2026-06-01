@@ -131,6 +131,14 @@ RF energy generation and distribution:
 [Full installation guide →](https://indemnity83.github.io/logistics/getting-started/install/)
 
 
+## Crash Reporting & Privacy
+
+Logistics can optionally send **sanitized** crash diagnostics to help fix bugs. It is **off by
+default** and opt-in per install via `/logistics crashreports enable`. It never intentionally sends
+player names, UUIDs, IPs, server addresses, chat, or world data. See
+[CRASH_REPORTING.md](CRASH_REPORTING.md) for exactly what is and isn't collected.
+
+
 ## Quick Start
 
 1. **Craft pipes** - Start with stone or copper transport pipes

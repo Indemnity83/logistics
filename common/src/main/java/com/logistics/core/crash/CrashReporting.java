@@ -11,9 +11,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.regex.Pattern;
 
 /**
- * Opt-in anonymous crash reporting via Sentry. Loader-agnostic — the SDK is pure Java, so all calls
+ * Opt-in sanitized crash reporting via Sentry. Loader-agnostic — the SDK is pure Java, so all calls
  * live in common; loaders only bundle the SDK and provide version/environment via {@link PlatformService}.
  *
  * <p>Design:
@@ -26,8 +27,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
  *       (no uncaught-exception handler, no shutdown hook); exceptions are captured solely through a
  *       {@link LogisticsErrorLogBridge} scoped to the Logistics loggers, so other mods and vanilla
  *       are never reported.</li>
- *   <li><b>Anonymous</b>: PII is off and the host name is not attached; messages are scrubbed of the
- *       local user name / home directory before send.</li>
+ *   <li><b>Sanitized</b>: PII is off and the host/server name is not attached; messages and exception
+ *       values are scrubbed of home directories, IPs, UUIDs, and secret-like values before send. We
+ *       never intentionally send player names, UUIDs, IPs, server addresses, chat, or world data.</li>
  * </ul>
  *
  * <p>Toggled by the {@code /logistics crashreports} commands, which persist {@link LogisticsConfig}
@@ -154,11 +156,23 @@ public final class CrashReporting {
         return override != null && !override.isBlank() ? override.trim() : DEFAULT_DSN;
     }
 
+    // Free-text identifiers to strip from any text that leaves the process.
+    private static final Pattern IPV4 = Pattern.compile("\\b\\d{1,3}(?:\\.\\d{1,3}){3}\\b");
+    private static final Pattern UUID = Pattern.compile(
+            "\\b[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\\b");
+    private static final Pattern UNIX_HOME = Pattern.compile("(/(?:Users|home))/[^/\\s]+");
+    private static final Pattern WINDOWS_HOME = Pattern.compile("([A-Za-z]:\\\\Users\\\\)[^\\\\\\s]+");
+    private static final Pattern SECRET_KV = Pattern.compile(
+            "(?i)(password|passwd|token|secret|api[_-]?key|access[_-]?key|dsn)(\\s*[=:]\\s*)\\S+");
+
     /**
-     * Best-effort anonymization: strip the local user name and home directory from the event
-     * message and exception values before the event leaves the process.
+     * Sanitize an event before it leaves the process: drop the server name and strip identifying
+     * substrings (home directories, IPs, UUIDs, secret-like {@code key=value} pairs) from the event
+     * message and every exception value. Stack frames carry only source file names, not paths, so
+     * they need no scrubbing. Best-effort, biased toward over-redaction.
      */
     private static SentryEvent scrub(SentryEvent event) {
+        event.setServerName(null);
         Message message = event.getMessage();
         if (message != null) {
             message.setFormatted(redact(message.getFormatted()));
@@ -184,6 +198,11 @@ public final class CrashReporting {
         if (user != null && !user.isBlank()) {
             value = value.replace(user, "<user>");
         }
+        value = UNIX_HOME.matcher(value).replaceAll("$1/<user>");
+        value = WINDOWS_HOME.matcher(value).replaceAll("$1<user>");
+        value = UUID.matcher(value).replaceAll("<uuid>");
+        value = IPV4.matcher(value).replaceAll("<ip>");
+        value = SECRET_KV.matcher(value).replaceAll("$1$2<redacted>");
         return value;
     }
 }
