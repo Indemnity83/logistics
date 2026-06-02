@@ -2,7 +2,6 @@ package com.logistics.power.engine.block.entity;
 
 import com.logistics.core.LogisticsConfig;
 import com.logistics.core.lib.power.AbstractEngineBlockEntity;
-import com.logistics.core.lib.power.AcceptsLowTierEnergy;
 import com.logistics.core.lib.power.LowTierEnergySource;
 import com.logistics.power.engine.block.RedstoneEngineBlock;
 import com.logistics.LogisticsPower;
@@ -70,11 +69,7 @@ public class RedstoneEngineBlockEntity extends AbstractEngineBlockEntity impleme
         BlockPos targetPos = worldPosition.relative(outputDir);
         BlockEntity target = level.getBlockEntity(targetPos);
 
-        if (target instanceof AcceptsLowTierEnergy acceptor) {
-            return acceptor.acceptsLowTierEnergyFrom(outputDir.getOpposite());
-        }
-
-        return false; // Target doesn't accept low-tier energy
+        return RedstoneTargetGate.acceptsLowTierEnergy(target, outputDir);
     }
 
     @Override
