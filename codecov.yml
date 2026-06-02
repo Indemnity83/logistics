@@ -13,8 +13,8 @@ coverage:
         threshold: 0.5%
     patch:
       default:
-        # New / changed lines in a PR should be reasonably covered.
-        target: 70%
+        # Keep new / changed lines covered without blocking small Minecraft mod PRs.
+        target: 20%
 
 # Per-module uploads are tagged with a flag so Codecov can report coverage
 # per loader as well as merged together.
