@@ -41,6 +41,22 @@ public interface PlatformService {
     }
 
     /**
+     * Returns the loader id used by this runtime (e.g. {@code "fabric"} or {@code "neoforge"}).
+     * Used for diagnostics tags such as Sentry grouping/search.
+     */
+    default String loaderName() {
+        return "unknown";
+    }
+
+    /**
+     * Returns the active Minecraft version string (e.g. {@code "1.21.11"}). Used for diagnostics
+     * tags so cross-version reports can be filtered without parsing the mod release string.
+     */
+    default String minecraftVersion() {
+        return "unknown";
+    }
+
+    /**
      * Returns {@code true} in a development/dev-runtime environment, {@code false} in a
      * production install. Used to pick the Sentry environment tag and enable SDK debug logging.
      * Defaults to {@code false} (production-safe) for any loader that doesn't override it.
@@ -58,7 +74,7 @@ public interface PlatformService {
      */
     default <T> void registerAlias(Registry<T> registry, Identifier oldId, T currentEntry) {}
 
-    PlatformService INSTANCE = ServiceLoader.load(PlatformService.class)
+    PlatformService INSTANCE = ServiceLoader.load(PlatformService.class, PlatformService.class.getClassLoader())
             .findFirst()
             .orElseThrow(() -> new IllegalStateException("No PlatformService found"));
 }

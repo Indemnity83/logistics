@@ -1,6 +1,7 @@
 package com.logistics.neoforge.platform;
 
 import com.logistics.core.lib.platform.PlatformService;
+import net.minecraft.SharedConstants;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.Identifier;
 import net.neoforged.fml.ModList;
@@ -31,6 +32,16 @@ public final class NeoForgePlatformService implements PlatformService {
         return ModList.get().getModContainerById("logistics")
                 .map(c -> c.getModInfo().getVersion().toString())
                 .orElse("unknown");
+    }
+
+    @Override
+    public String loaderName() {
+        return "neoforge";
+    }
+
+    @Override
+    public String minecraftVersion() {
+        return SharedConstants.getCurrentVersion().id();
     }
 
     @Override

@@ -24,8 +24,8 @@ class CrashReportNotifierTest {
         Component invite = CrashReportNotifier.buildInvite(false);
         assertThat(invite.getString())
                 .contains("Crash reporting is").contains("[OFF]").contains("[Hide Notification]").contains("[More Info]");
-        assertThat(commandOf(invite, "[OFF]")).isEqualTo("/logistics crashreports enable");
-        assertThat(commandOf(invite, "[Hide Notification]")).isEqualTo("/logistics crashreports notify off");
+        assertThat(commandOf(invite, "[OFF]")).isEqualTo("/logistics diagnostics enable");
+        assertThat(commandOf(invite, "[Hide Notification]")).isEqualTo("/logistics diagnostics notify off");
         assertThat(infoLinkPresent(invite)).isTrue();
     }
 
@@ -34,7 +34,7 @@ class CrashReportNotifierTest {
     void inviteWhenOn() {
         Component invite = CrashReportNotifier.buildInvite(true);
         assertThat(invite.getString()).contains("[ON]");
-        assertThat(commandOf(invite, "[ON]")).isEqualTo("/logistics crashreports disable");
+        assertThat(commandOf(invite, "[ON]")).isEqualTo("/logistics diagnostics disable");
     }
 
     /** Command bound to the run-command click on the sibling whose visible text equals {@code label}. */

@@ -18,14 +18,14 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * <p>Shared by both loaders; the loader-specific hooks call {@link #maybeNotify} on player join and
  * {@link #reset()} when a server starts so each new world/server session shows the line once. It is
- * suppressed when an operator silences it via {@code /logistics crashreports notify off}.
+ * suppressed when an operator silences it via {@code /logistics diagnostics notify off}.
  */
 public final class CrashReportNotifier {
     private static final Set<UUID> NOTIFIED_THIS_SESSION = ConcurrentHashMap.newKeySet();
 
-    private static final String ENABLE_COMMAND = "/logistics crashreports enable";
-    private static final String DISABLE_COMMAND = "/logistics crashreports disable";
-    private static final String HIDE_COMMAND = "/logistics crashreports notify off";
+    private static final String ENABLE_COMMAND = "/logistics diagnostics enable";
+    private static final String DISABLE_COMMAND = "/logistics diagnostics disable";
+    private static final String HIDE_COMMAND = "/logistics diagnostics notify off";
 
     /** Latest crash-reporting & privacy page, opened by the [More Info] link. */
     private static final String DETAILS_URL =
@@ -88,7 +88,7 @@ public final class CrashReportNotifier {
                 .withUnderlined(true)
                 .withClickEvent(new ClickEvent.RunCommand(HIDE_COMMAND))
                 .withHoverEvent(new HoverEvent.ShowText(
-                        Component.literal("Stop showing this on join (you can still use /logistics crashreports)"))));
+                        Component.literal("Stop showing this on join (you can still use /logistics diagnostics)"))));
     }
 
     private static Component moreInfoLink() {

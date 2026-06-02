@@ -1,6 +1,7 @@
 package com.logistics.core;
 
 import com.logistics.core.crash.CrashReporting;
+import com.logistics.core.lib.platform.PlatformService;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -47,6 +48,68 @@ public final class LogisticsCommandTree {
     }
 
     public static LiteralArgumentBuilder<CommandSourceStack> build() {
+        LiteralArgumentBuilder<CommandSourceStack> diagnostics = Commands.literal("diagnostics")
+            .executes(ctx -> {
+                ctx.getSource().sendSuccess(() -> Component.literal(CrashReporting.statusText()), false);
+                return 1;
+            })
+            .then(Commands.literal("enable")
+                .executes(ctx -> {
+                    if (!CrashReporting.enableReporting()) {
+                        ctx.getSource().sendFailure(Component.literal(
+                            "Could not start crash reporting — no DSN configured or initialization failed. "
+                            + "See the log for details."));
+                        return 0;
+                    }
+                    ctx.getSource().sendSuccess(
+                        () -> Component.literal(
+                            "Sanitized crash reporting enabled. Thank you for helping improve Logistics!"),
+                        true);
+                    return 1;
+                }))
+            .then(Commands.literal("disable")
+                .executes(ctx -> {
+                    CrashReporting.disableReporting();
+                    ctx.getSource().sendSuccess(
+                        () -> Component.literal("Crash reporting disabled."), true);
+                    return 1;
+                }))
+            .then(Commands.literal("preview")
+                .executes(ctx -> {
+                    CrashReporting.logPreviewReport();
+                    ctx.getSource().sendSuccess(LogisticsCommandTree::diagnosticsPreviewSummary, false);
+                    return 1;
+                }))
+            .then(Commands.literal("notify")
+                .then(Commands.literal("on")
+                    .executes(ctx -> {
+                        ctx.getSource().sendSuccess(
+                            () -> Component.literal(CrashReporting.setJoinNotice(true)), true);
+                        return 1;
+                    }))
+                .then(Commands.literal("off")
+                    .executes(ctx -> {
+                        ctx.getSource().sendSuccess(
+                            () -> Component.literal(CrashReporting.setJoinNotice(false)), true);
+                        return 1;
+                    })));
+
+        // Dev-only: send a temporary test crash report to verify the Sentry pipeline.
+        if (PlatformService.INSTANCE.isDevelopmentEnvironment()) {
+            diagnostics.then(Commands.literal("test")
+                .executes(ctx -> {
+                    if (!CrashReporting.captureTestReport()) {
+                        ctx.getSource().sendFailure(Component.literal(
+                            "Crash reporting is not active. Run /logistics diagnostics enable first."));
+                        return 0;
+                    }
+                    ctx.getSource().sendSuccess(
+                        () -> Component.literal("Sent a temporary test crash report to Sentry."),
+                        false);
+                    return 1;
+                }));
+        }
+
         return Commands.literal("logistics")
             .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
             .then(Commands.literal("debug")
@@ -150,55 +213,11 @@ public final class LogisticsCommandTree {
                             () -> Component.literal("Reloaded logistics config from disk"), true);
                         return 1;
                     })))
-            .then(Commands.literal("crashreports")
-                .executes(ctx -> {
-                    ctx.getSource().sendSuccess(() -> Component.literal(CrashReporting.statusText()), false);
-                    return 1;
-                })
-                .then(Commands.literal("enable")
-                    .executes(ctx -> {
-                        if (!CrashReporting.enableReporting()) {
-                            ctx.getSource().sendFailure(Component.literal(
-                                "Could not start crash reporting — no DSN configured or initialization failed. "
-                                + "See the log for details."));
-                            return 0;
-                        }
-                        ctx.getSource().sendSuccess(
-                            () -> Component.literal(
-                                "Sanitized crash reporting enabled. Thank you for helping improve Logistics!"),
-                            true);
-                        return 1;
-                    }))
-                .then(Commands.literal("disable")
-                    .executes(ctx -> {
-                        CrashReporting.disableReporting();
-                        ctx.getSource().sendSuccess(
-                            () -> Component.literal("Crash reporting disabled."), true);
-                        return 1;
-                    }))
-                .then(Commands.literal("preview")
-                    .executes(ctx -> {
-                        CrashReporting.logPreviewReport();
-                        ctx.getSource().sendSuccess(LogisticsCommandTree::crashreportsPreviewSummary, false);
-                        return 1;
-                    }))
-                .then(Commands.literal("notify")
-                    .then(Commands.literal("on")
-                        .executes(ctx -> {
-                            ctx.getSource().sendSuccess(
-                                () -> Component.literal(CrashReporting.setJoinNotice(true)), true);
-                            return 1;
-                        }))
-                    .then(Commands.literal("off")
-                        .executes(ctx -> {
-                            ctx.getSource().sendSuccess(
-                                () -> Component.literal(CrashReporting.setJoinNotice(false)), true);
-                            return 1;
-                        }))));
+            .then(diagnostics);
     }
 
-    /** Chat confirmation for {@code /logistics crashreports preview} — the full report goes to the log. */
-    private static Component crashreportsPreviewSummary() {
+    /** Chat confirmation for {@code /logistics diagnostics preview} — the full report goes to the log. */
+    private static Component diagnosticsPreviewSummary() {
         return Component.empty()
             .append(Component.literal("Wrote an example sanitized crash report to the log.\n")
                 .withStyle(ChatFormatting.GRAY))

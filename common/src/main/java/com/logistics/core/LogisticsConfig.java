@@ -81,8 +81,8 @@ public final class LogisticsConfig {
 
     /**
      * Opt-in sanitized crash reporting (Sentry). Disabled by default; an operator opts in via
-     * {@code /logistics crashreports enable}. These are intentionally NOT in the {@link #ENTRIES}
-     * registry — the {@code /logistics crashreports} commands are the single source of truth so the
+     * {@code /logistics diagnostics enable}. These are intentionally NOT in the {@link #ENTRIES}
+     * registry — the {@code /logistics diagnostics} commands are the single source of truth so the
      * persisted value and the live Sentry client never drift apart.
      */
     public static final class CrashReportingConfig {

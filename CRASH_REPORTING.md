@@ -22,7 +22,7 @@ seriously.
 - ✅ **Logistics only.** It reports errors from this mod's own code — not from Minecraft, your server,
   or other mods.
 - ✅ **Sanitized.** No player names, UUIDs, IP addresses, server addresses, chat, or world data.
-- ✅ **You can verify it.** `/logistics crashreports preview` shows you a real, sanitized example
+- ✅ **You can verify it.** `/logistics diagnostics preview` shows you a real, sanitized example
   report without sending anything.
 - ✅ **Per-install.** Turning it on for a server does **not** turn it on for your players.
 
@@ -66,12 +66,12 @@ it on.
 
 | Command | What it does |
 | --- | --- |
-| `/logistics crashreports` | Show whether reporting and the join notice are on or off |
-| `/logistics crashreports enable` | Opt in to sending sanitized reports |
-| `/logistics crashreports disable` | Stop sending reports |
-| `/logistics crashreports preview` | Write an example sanitized report to the log **without sending it** |
-| `/logistics crashreports notify off` | Hide the one-time join invitation |
-| `/logistics crashreports notify on` | Show the join invitation again |
+| `/logistics diagnostics` | Show whether reporting and the join notice are on or off |
+| `/logistics diagnostics enable` | Opt in to sending sanitized reports |
+| `/logistics diagnostics disable` | Stop sending reports |
+| `/logistics diagnostics preview` | Write an example sanitized report to the log **without sending it** |
+| `/logistics diagnostics notify off` | Hide the one-time join invitation |
+| `/logistics diagnostics notify on` | Show the join invitation again |
 
 ### See for yourself: `preview`
 
@@ -128,7 +128,7 @@ Several safeguards work together:
 4. **Active scrubbing.** Before a report leaves your machine, a sanitizer rewrites the message and
    error text to remove home-directory paths (e.g. `/Users/you/…` → `~`, Windows paths too), IP
    addresses (→ `<ip>`), UUIDs (→ `<uuid>`), and secret-like `key=value` pairs (→ `key=<redacted>`).
-5. **Verifiable.** `/logistics crashreports preview` lets you see the sanitized output yourself.
+5. **Verifiable.** `/logistics diagnostics preview` lets you see the sanitized output yourself.
 
 This sanitization is best-effort and intentionally biased toward over-redaction: when in doubt, it
 strips it.
@@ -148,8 +148,8 @@ reports go there instead of the default project.
 
 ## How to check the current state, or turn it off
 
-- Run `/logistics crashreports` to see the current status at any time.
-- Run `/logistics crashreports disable` to stop immediately.
+- Run `/logistics diagnostics` to see the current status at any time.
+- Run `/logistics diagnostics disable` to stop immediately.
 - Or open `config/logistics.json` and set `crashReporting.enabled` to `false`.
 
 When disabled, the reporter sends nothing and runs no background networking.
@@ -175,7 +175,7 @@ Please [open an issue](https://github.com/Indemnity83/logistics/issues) and tell
 don't need to include the sensitive value itself). We'll tighten the sanitizer.
 
 **Can I turn off just the in-game invitation but leave reporting off?**
-Yes — `/logistics crashreports notify off` hides the prompt without changing anything else.
+Yes — `/logistics diagnostics notify off` hides the prompt without changing anything else.
 
 ---
 

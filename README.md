@@ -134,7 +134,7 @@ RF energy generation and distribution:
 ## Crash Reporting & Privacy
 
 Logistics can optionally send **sanitized** crash diagnostics to help fix bugs. It is **off by
-default** and opt-in per install via `/logistics crashreports enable`. It never intentionally sends
+default** and opt-in per install via `/logistics diagnostics enable`. It never intentionally sends
 player names, UUIDs, IPs, server addresses, chat, or world data. See
 [CRASH_REPORTING.md](CRASH_REPORTING.md) for exactly what is and isn't collected.
 

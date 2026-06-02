@@ -37,7 +37,7 @@ import java.util.regex.Pattern;
  *       never intentionally send player names, UUIDs, IPs, server addresses, chat, or world data.</li>
  * </ul>
  *
- * <p>Toggled by the {@code /logistics crashreports} commands, which persist {@link LogisticsConfig}
+ * <p>Toggled by the {@code /logistics diagnostics} commands, which persist {@link LogisticsConfig}
  * and call {@link #enable()}/{@link #disable()} so stored and live state stay in sync.
  */
 public final class CrashReporting {
@@ -103,6 +103,9 @@ public final class CrashReporting {
         options.setEnableExternalConfiguration(false);
         options.setRelease("logistics@" + modVersion());
         options.setEnvironment(dev ? "dev" : "prod");
+        options.setTag("loader", loaderName());
+        options.setTag("minecraft_version", minecraftVersion());
+        options.setTag("mod_version", modVersion());
         options.setBeforeSend((event, hint) -> scrub(event));
         options.setDebug(dev);
         return options;
@@ -113,6 +116,22 @@ public final class CrashReporting {
     private static String modVersion() {
         try {
             return PlatformService.INSTANCE.modVersion();
+        } catch (Throwable t) {
+            return "unknown";
+        }
+    }
+
+    private static String loaderName() {
+        try {
+            return PlatformService.INSTANCE.loaderName();
+        } catch (Throwable t) {
+            return "unknown";
+        }
+    }
+
+    private static String minecraftVersion() {
+        try {
+            return PlatformService.INSTANCE.minecraftVersion();
         } catch (Throwable t) {
             return "unknown";
         }
@@ -148,7 +167,7 @@ public final class CrashReporting {
     }
 
     // ==================== Command actions ====================
-    // These back the /logistics crashreports subcommands. Kept here (not inline in the Brigadier
+    // These back the /logistics diagnostics subcommands. Kept here (not inline in the Brigadier
     // tree) so the persist-and-toggle logic is unit-testable without a command source.
 
     /**
@@ -202,6 +221,21 @@ public final class CrashReporting {
         if (current != null) {
             current.captureException(throwable);
         }
+    }
+
+    /** TEMPORARY: send a synthetic report so the Sentry project can be inspected manually. */
+    public static boolean captureTestReport() {
+        if (!ACTIVE.get()) {
+            return false;
+        }
+        SentryClient current = client;
+        if (current == null) {
+            return false;
+        }
+        current.captureException(new RuntimeException(
+                "Temporary Logistics Sentry test report; safe to ignore. marker=" + System.currentTimeMillis()));
+        current.flush(FLUSH_TIMEOUT_MS);
+        return true;
     }
 
     /**
