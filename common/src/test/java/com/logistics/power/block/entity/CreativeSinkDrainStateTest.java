@@ -40,6 +40,17 @@ class CreativeSinkDrainStateTest {
     }
 
     @Test
+    void insert_saturatesUnlimitedTickEnergyAtLongMaxValue() {
+        CreativeSinkDrainState state = new CreativeSinkDrainState(new long[]{Long.MAX_VALUE});
+
+        assertThat(state.insert(Long.MAX_VALUE - 1, false)).isEqualTo(Long.MAX_VALUE - 1);
+        assertThat(state.insert(2, false)).isEqualTo(2);
+
+        assertThat(state.energyThisTick()).isEqualTo(Long.MAX_VALUE);
+        assertThat(state.networkDemandPerTick()).isEqualTo(Long.MAX_VALUE);
+    }
+
+    @Test
     void tick_movesCurrentTickIntoLastTickAndTotalThenResetsDemand() {
         CreativeSinkDrainState state = new CreativeSinkDrainState();
         state.insert(4, false);

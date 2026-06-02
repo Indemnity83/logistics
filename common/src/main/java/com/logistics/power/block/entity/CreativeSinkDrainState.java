@@ -30,9 +30,18 @@ final class CreativeSinkDrainState {
     long insert(long maxAmount, boolean simulate) {
         long toAccept = Math.min(maxAmount, networkDemandPerTick());
         if (toAccept > 0 && !simulate) {
-            energyThisTick += toAccept;
+            energyThisTick = saturatedTickEnergy(energyThisTick, toAccept, drainRate());
         }
         return toAccept;
+    }
+
+    private long saturatedTickEnergy(long current, long added, long drainRate) {
+        if (drainRate == Long.MAX_VALUE) {
+            if (Long.MAX_VALUE - current <= added) return Long.MAX_VALUE;
+            return current + added;
+        }
+
+        return Math.min(current + added, drainRate);
     }
 
     void tick() {
