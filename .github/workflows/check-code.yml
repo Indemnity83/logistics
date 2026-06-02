@@ -84,11 +84,10 @@ jobs:
           path: ${{ matrix.module }}/build/reports/tests/test/
 
       - name: Upload ${{ matrix.module }} coverage to Codecov
-        if: github.actor != 'dependabot[bot]'
         uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
         with:
           files: ${{ matrix.module }}/build/reports/jacoco/test/jacocoTestReport.xml
           flags: ${{ matrix.module }}
-          fail_ci_if_error: true
+          fail_ci_if_error: ${{ github.actor != 'dependabot[bot]' }}
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
