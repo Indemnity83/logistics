@@ -64,7 +64,7 @@ On every PR each `test` matrix job uploads its module's JaCoCo report (tagged wi
 `common` / `fabric` / `neoforge` flag) and Codecov merges them, so the suite runs only
 once. Codecov posts a summary comment, flags uncovered changed lines inline, and
 publishes `project`/`patch` status checks. The thresholds live in `codecov.yml`
-(project: no drop beyond 0.5%; patch target 70%), so there is no hand-maintained
+(project: no drop beyond 0.5%; patch target 20%), so there is no hand-maintained
 baseline to bump. The local `testCoverage` task above still produces the aggregate
 HTML/XML for offline inspection.
 
