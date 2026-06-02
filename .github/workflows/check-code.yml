@@ -1,6 +1,8 @@
 name: Check Code
 
 on:
+  push:
+    branches: ['mc/**']
   pull_request:
     branches: ['mc/**']
     types: [opened, synchronize, reopened, ready_for_review]
@@ -16,7 +18,7 @@ permissions:
 jobs:
   lint:
     name: lint (${{ matrix.module }})
-    if: github.event.pull_request.draft == false
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -44,7 +46,7 @@ jobs:
 
   test:
     name: test (${{ matrix.module }})
-    if: github.event.pull_request.draft == false
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -88,6 +90,6 @@ jobs:
         with:
           files: ${{ matrix.module }}/build/reports/jacoco/test/jacocoTestReport.xml
           flags: ${{ matrix.module }}
-          fail_ci_if_error: true
+          fail_ci_if_error: ${{ github.actor != 'dependabot[bot]' }}
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
