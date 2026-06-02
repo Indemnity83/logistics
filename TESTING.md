@@ -64,20 +64,20 @@ On every PR each `test` matrix job uploads its module's JaCoCo report (tagged wi
 `common` / `fabric` / `neoforge` flag) and Codecov merges them, so the suite runs only
 once. Codecov posts a summary comment, flags uncovered changed lines inline, and
 publishes `project`/`patch` status checks. The thresholds live in `codecov.yml`
-(project: no drop beyond 0.5%; patch target 70%), so there is no hand-maintained
+(project: no drop beyond 0.5%; patch target 20%), so there is no hand-maintained
 baseline to bump. The local `testCoverage` task above still produces the aggregate
 HTML/XML for offline inspection.
 
-Current aggregate baseline from `./gradlew testCoverage`:
+Current aggregate snapshot from `./gradlew testCoverage`:
 
 | Counter | Coverage |
 |---------|----------|
-| Instruction | 17.0% |
-| Branch | 14.6% |
-| Line | 17.0% |
-| Complexity | 16.0% |
-| Method | 21.7% |
-| Class | 32.7% |
+| Instruction | 18.0% |
+| Branch | 15.8% |
+| Line | 18.0% |
+| Complexity | 17.3% |
+| Method | 23.0% |
+| Class | 34.9% |
 
 High-coverage pure-logic areas include `core.lib.resource`, `core.lib.filter`,
 `power.engine`, `power.cable`, `core.lib.energy`, `core.lib.network`, and `neoforge.energy`.
@@ -101,7 +101,8 @@ supported branches.
 - **Failure accounting regressions** — tracked delivery failure, partial delivery followed by failed remainder, retry accounting, and job state after dispatch loss
 - **Pipe network graph** — NetworkGraph, NetworkPathfinder
 - **Pipe runtime** — TravelingItem, TravelingItemPhysics, RoutePlan
-- **Power** — CableTier, PIDController
+- **Automation** — GridScanner, FrameLayout, QuarryBounds, QuarryPhaseRunner, ActiveQuarryRegistry, QuarryBlockBreaker, KilnProcessingPlan
+- **Power** — CableTier, PIDController, EngineHeatModel, EngineCyclePlanner, StirlingGenerationPlanner, StirlingFuelState, CreativeOutputLevels, RedstoneTargetGate, CreativeSinkDrainState
 - **Core** — BaseBlockEntity, ResourceId, MaceratorRecipe, MaceratorBlockEntityLogic, FluidTankComponent, ItemInventoryComponent
 - **Serialization golden tests** — ItemFilterModule (backward compat), ProviderDispatchQueue, TravelingItem
 
