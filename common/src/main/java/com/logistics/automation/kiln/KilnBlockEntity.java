@@ -132,7 +132,7 @@ public class KilnBlockEntity extends BaseBlockEntity
 
         KilnProcessingPlan.Result plan = KilnProcessingPlan.advance(
                 processProgress,
-                activeRecipe.value().cookingTime(),
+                activeRecipe.value().getCookingTime(),
                 energy.getAmount(),
                 ENERGY_PER_TICK,
                 canAcceptOutput(result));
