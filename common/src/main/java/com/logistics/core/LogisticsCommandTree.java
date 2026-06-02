@@ -11,6 +11,8 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.network.chat.Component;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -34,6 +36,8 @@ import java.util.Set;
  */
 public final class LogisticsCommandTree {
     private LogisticsCommandTree() {}
+
+    private static final Logger LOGGER = LoggerFactory.getLogger("logistics/command");
 
     private static final SuggestionProvider<CommandSourceStack> DOMAIN_SUGGESTIONS =
         (ctx, builder) -> SharedSuggestionProvider.suggest(sortedDomains(), builder);
@@ -95,7 +99,7 @@ public final class LogisticsCommandTree {
                     })));
 
         // Dev-only: send a temporary test crash report to verify the Sentry pipeline.
-        if (PlatformService.INSTANCE.isDevelopmentEnvironment()) {
+        if (inDevelopmentEnvironment()) {
             diagnostics.then(Commands.literal("test")
                 .executes(ctx -> {
                     if (!CrashReporting.captureTestReport()) {
@@ -214,6 +218,19 @@ public final class LogisticsCommandTree {
                         return 1;
                     })))
             .then(diagnostics);
+    }
+
+    /**
+     * Resolves the development-environment flag defensively: any failure is treated as production
+     * (false) so dev-only command nodes can never abort registration of the whole command tree.
+     */
+    private static boolean inDevelopmentEnvironment() {
+        try {
+            return PlatformService.INSTANCE.isDevelopmentEnvironment();
+        } catch (Throwable t) {
+            LOGGER.warn("Could not determine development environment; treating as production", t);
+            return false;
+        }
     }
 
     /** Chat confirmation for {@code /logistics diagnostics preview} — the full report goes to the log. */
