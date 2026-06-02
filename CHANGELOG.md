@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.6.1](https://github.com/Indemnity83/logistics/compare/mc1.21.11-v0.6.0...mc1.21.11-v0.6.1) (2026-06-02)
+
+
+### Fixed
+
+* correct laser quarry edge case regressions ([#427](https://github.com/Indemnity83/logistics/issues/427)) ([48afb93](https://github.com/Indemnity83/logistics/commit/48afb93a3943e030a3130c73c41191489b8e6f91))
+* enable custom Minecraft version range in build workflows ([#414](https://github.com/Indemnity83/logistics/issues/414)) ([42b66ed](https://github.com/Indemnity83/logistics/commit/42b66ede0de3f963247eca7ed522c6e8d883d142))
+* update Minecraft version compatibility range for NeoForge ([#416](https://github.com/Indemnity83/logistics/issues/416)) ([5f735aa](https://github.com/Indemnity83/logistics/commit/5f735aa552712172252ee5658cd304a0e55a34e2))
+
 ## [0.6.0](https://github.com/Indemnity83/logistics/compare/mc1.21.11-v0.5.6...mc1.21.11-v0.6.0) (2026-05-31)
 
 ### Features
