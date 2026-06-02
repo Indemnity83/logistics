@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.6.1](https://github.com/Indemnity83/logistics/compare/mc1.21.1-v0.6.0...mc1.21.1-v0.6.1) (2026-06-02)
+
+
+### Fixed
+
+* **automation:** fix kiln cooking time call for MC 1.21.1 ([a8bf0f2](https://github.com/Indemnity83/logistics/commit/a8bf0f2dc7973ac6bc87612b574bc188642aff50))
+* correct laser quarry edge case regressions ([#427](https://github.com/Indemnity83/logistics/issues/427)) ([2228ec8](https://github.com/Indemnity83/logistics/commit/2228ec8c3fa0ee7aabe3e720f18dda8305d8263a))
+* enable custom Minecraft version range in build workflows ([#414](https://github.com/Indemnity83/logistics/issues/414)) ([63f0133](https://github.com/Indemnity83/logistics/commit/63f01337419164beb70be9b45e7418092179466e))
+* register inventory synchronization for NeoForge requester ([#413](https://github.com/Indemnity83/logistics/issues/413)) ([76678e1](https://github.com/Indemnity83/logistics/commit/76678e19dc0e08a08fab8de968431c67af00de0a))
+* update Minecraft version compatibility range for NeoForge ([#416](https://github.com/Indemnity83/logistics/issues/416)) ([af204c4](https://github.com/Indemnity83/logistics/commit/af204c44074413b503309e2ca32e8b43a362b236))
+
 ## [0.6.0](https://github.com/Indemnity83/logistics/compare/mc1.21.1-v0.5.6...mc1.21.1-v0.6.0) (2026-05-31)
 
 ### Features
