@@ -130,17 +130,23 @@ public class KilnBlockEntity extends BaseBlockEntity
 
         ItemStack result = activeRecipe.value().assemble(new SingleRecipeInput(input), level.registryAccess());
 
-        // Pause if not enough energy or output is full
-        if (energy.getAmount() < ENERGY_PER_TICK || !canAcceptOutput(result)) {
+        KilnProcessingPlan.Result plan = KilnProcessingPlan.advance(
+                processProgress,
+                activeRecipe.value().cookingTime(),
+                energy.getAmount(),
+                ENERGY_PER_TICK,
+                canAcceptOutput(result));
+
+        if (!plan.consumedEnergy()) {
             setLit(level, state, false);
             return false;
         }
 
         energy.consume(ENERGY_PER_TICK);
         setLit(level, state, true);
-        processProgress++;
+        processProgress = plan.progress();
 
-        if (processProgress >= activeRecipe.value().cookingTime()) {
+        if (plan.complete()) {
             completeProcessing(result);
         }
 
@@ -165,9 +171,7 @@ public class KilnBlockEntity extends BaseBlockEntity
 
     private boolean canAcceptOutput(ItemStack result) {
         ItemStack output = inventory.getItem(OUTPUT_SLOT);
-        if (output.isEmpty()) return true;
-        return ItemStack.isSameItemSameComponents(output, result)
-            && output.getCount() + result.getCount() <= output.getMaxStackSize();
+        return KilnProcessingPlan.acceptsOutput(output, result);
     }
 
     private void completeProcessing(ItemStack result) {
