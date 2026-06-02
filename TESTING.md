@@ -59,14 +59,15 @@ Current aggregate baseline from `./gradlew testCoverage`:
 
 | Counter | Coverage |
 |---------|----------|
-| Instruction | 14.2% |
-| Branch | 12.1% |
-| Line | 14.3% |
-| Method | 19.9% |
-| Class | 29.3% |
+| Instruction | 16.5% |
+| Branch | 14.1% |
+| Line | 16.6% |
+| Complexity | 15.7% |
+| Method | 21.4% |
+| Class | 32.1% |
 
 High-coverage pure-logic areas include `core.lib.resource`, `core.lib.filter`,
-`power.engine`, `core.lib.energy`, `core.lib.network`, and `neoforge.energy`.
+`power.engine`, `power.cable`, `core.lib.energy`, `core.lib.network`, and `neoforge.energy`.
 The aggregate percentage is still low because the report includes block entities,
 blocks, menus, live-world runtime paths, bootstrap code, and loader entrypoints
 that are documented below as requiring restructuring or integration tests.
