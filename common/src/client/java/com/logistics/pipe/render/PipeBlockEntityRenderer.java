@@ -61,11 +61,17 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
         this.itemModelManager = ctx.itemModelResolver();
     }
 
+    private static final String PIPE_MODEL_PREFIX = "block/pipe/";
+
     /** Build code-generated parts for a pipe model id (core/arm/decoration), one per resolved layer. */
     private List<BlockStateModelPart> buildParts(ResourceId modelId) {
-        String path = modelId.getPath();
-        int slash = path.lastIndexOf('/');
-        String base = slash >= 0 ? path.substring(slash + 1) : path;
+        // Pipe model ids are always produced as logistics:block/pipe/<name> (see Pipe#getCoreModelId /
+        // #getPipeArm). Enforce that contract and fail fast on a stray id, rather than silently
+        // collapsing to a basename + hardcoded prefix and resolving the wrong sprite.
+        if (!"logistics".equals(modelId.getNamespace()) || !modelId.getPath().startsWith(PIPE_MODEL_PREFIX)) {
+            throw new IllegalStateException("Unexpected pipe model id (expected logistics:block/pipe/...): " + modelId);
+        }
+        String base = modelId.getPath().substring(PIPE_MODEL_PREFIX.length());
 
         List<BlockStateModelPart> parts = new ArrayList<>();
         for (PipeModelResolver.Layer layer : PipeModelResolver.resolve(base)) {
