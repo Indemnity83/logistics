@@ -1,13 +1,11 @@
 package com.logistics.automation.render;
 
-import com.logistics.LogisticsAutomationClientModels;
 import com.logistics.automation.marker.MarkerBlockEntity;
 import com.logistics.automation.marker.MarkerManager;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import com.logistics.core.lib.client.model.ClientModelRegistry;
+import com.logistics.core.lib.client.render.MachineModels;
 import net.minecraft.client.renderer.SubmitNodeCollector;
-import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
@@ -16,9 +14,7 @@ import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.util.RandomSource;
 
-import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.Vec3;
@@ -147,41 +143,35 @@ public class MarkerBlockEntityRenderer implements BlockEntityRenderer<MarkerBloc
             return;
         }
 
-        BlockStateModel beamModel = getBeamModel();
-        if (beamModel == null) {
+        List<BlockStateModelPart> beamParts = MachineModels.parts("marker_beam");
+        if (beamParts.isEmpty()) {
             return;
         }
 
         RenderType renderLayer = RenderTypes.cutoutMovingBlock();
 
         if (state.beamNorth > 0) {
-            renderBeamInDirection(matrices, queue, beamModel, renderLayer, state.lightCoords, 180, state.beamNorth);
+            renderBeamInDirection(matrices, queue, beamParts, renderLayer, state.lightCoords, 180, state.beamNorth);
         }
         if (state.beamSouth > 0) {
-            renderBeamInDirection(matrices, queue, beamModel, renderLayer, state.lightCoords, 0, state.beamSouth);
+            renderBeamInDirection(matrices, queue, beamParts, renderLayer, state.lightCoords, 0, state.beamSouth);
         }
         if (state.beamEast > 0) {
-            renderBeamInDirection(matrices, queue, beamModel, renderLayer, state.lightCoords, 90, state.beamEast);
+            renderBeamInDirection(matrices, queue, beamParts, renderLayer, state.lightCoords, 90, state.beamEast);
         }
         if (state.beamWest > 0) {
-            renderBeamInDirection(matrices, queue, beamModel, renderLayer, state.lightCoords, -90, state.beamWest);
+            renderBeamInDirection(matrices, queue, beamParts, renderLayer, state.lightCoords, -90, state.beamWest);
         }
-    }
-
-    private BlockStateModel getBeamModel() {
-        return ClientModelRegistry.get(LogisticsAutomationClientModels.BEAM);
     }
 
     private void renderBeamInDirection(
             PoseStack matrices,
             SubmitNodeCollector queue,
-            BlockStateModel beamModel,
+            List<BlockStateModelPart> parts,
             RenderType renderLayer,
             int lightmap,
             float yRotation,
             int length) {
-        List<BlockStateModelPart> parts = new ArrayList<>();
-        beamModel.collectParts(RandomSource.create(0), parts);
         for (int i = 0; i < length; i++) {
             matrices.pushPose();
             matrices.translate(0.5, -0.0625, 0.5);
