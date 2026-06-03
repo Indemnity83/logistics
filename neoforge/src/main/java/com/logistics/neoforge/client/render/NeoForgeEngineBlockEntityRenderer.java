@@ -1,18 +1,15 @@
 package com.logistics.neoforge.client.render;
 
-import com.logistics.LogisticsPower;
-import com.logistics.core.lib.client.model.ClientModelRegistry;
+import com.logistics.core.lib.client.render.MachineModels;
 import com.logistics.core.lib.power.AbstractEngineBlockEntity;
 import com.logistics.power.engine.block.entity.CreativeEngineBlockEntity;
 import com.logistics.power.engine.block.entity.RedstoneEngineBlockEntity;
 import com.logistics.power.engine.block.entity.StirlingEngineBlockEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.SubmitNodeCollector;
-import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
@@ -22,7 +19,6 @@ import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.Vec3;
 
@@ -31,19 +27,6 @@ public class NeoForgeEngineBlockEntityRenderer
     private static final java.util.Map<BlockPos, AnimationCache> ANIMATION_CACHE =
             new java.util.concurrent.ConcurrentHashMap<>();
     private static final float DEFAULT_PISTON_SPEED = 0.02f;
-
-    private static final ClientModelRegistry.ModelKey REDSTONE_BELLOW =
-            ClientModelRegistry.find(LogisticsPower.model("redstone_engine_bellow"));
-    private static final ClientModelRegistry.ModelKey REDSTONE_PISTON =
-            ClientModelRegistry.find(LogisticsPower.model("redstone_engine_piston"));
-    private static final ClientModelRegistry.ModelKey STIRLING_BELLOW =
-            ClientModelRegistry.find(LogisticsPower.model("stirling_engine_bellow"));
-    private static final ClientModelRegistry.ModelKey STIRLING_PISTON =
-            ClientModelRegistry.find(LogisticsPower.model("stirling_engine_piston"));
-    private static final ClientModelRegistry.ModelKey CREATIVE_BELLOW =
-            ClientModelRegistry.find(LogisticsPower.model("creative_engine_bellow"));
-    private static final ClientModelRegistry.ModelKey CREATIVE_PISTON =
-            ClientModelRegistry.find(LogisticsPower.model("creative_engine_piston"));
 
     private static final class AnimationCache {
         float progress = 0f;
@@ -100,10 +83,10 @@ public class NeoForgeEngineBlockEntityRenderer
             PoseStack matrices,
             SubmitNodeCollector queue,
             CameraRenderState cameraState) {
-        BlockStateModel pistonModel = getModel(getPistonKey(state.engineType));
-        BlockStateModel bellowModel = getModel(getBellowKey(state.engineType));
+        List<BlockStateModelPart> bellowParts = MachineModels.parts(getBellowKey(state.engineType));
+        List<BlockStateModelPart> pistonParts = MachineModels.parts(getPistonKey(state.engineType));
 
-        if (pistonModel == null || bellowModel == null) {
+        if (bellowParts.isEmpty() || pistonParts.isEmpty()) {
             return;
         }
 
@@ -118,34 +101,30 @@ public class NeoForgeEngineBlockEntityRenderer
         matrices.translate(0, 4 / 16f, 0);
         float bellowScale = Math.max(pistonOffset / 0.5f, 0.01f);
         matrices.scale(1.0f, bellowScale, 1.0f);
-        List<BlockStateModelPart> bellowParts = new ArrayList<>();
-        bellowModel.collectParts(RandomSource.create(0), bellowParts);
         queue.submitBlockModel(matrices, renderLayer, bellowParts, new int[]{-1}, light, OverlayTexture.NO_OVERLAY, 0);
         matrices.popPose();
 
         matrices.pushPose();
         matrices.translate(0, 4 / 16f + pistonOffset, 0);
-        List<BlockStateModelPart> pistonParts = new ArrayList<>();
-        pistonModel.collectParts(RandomSource.create(0), pistonParts);
         queue.submitBlockModel(matrices, renderLayer, pistonParts, new int[]{-1}, light, OverlayTexture.NO_OVERLAY, 0);
         matrices.popPose();
 
         matrices.popPose();
     }
 
-    private ClientModelRegistry.ModelKey getBellowKey(EngineRenderState.EngineType type) {
+    private String getBellowKey(EngineRenderState.EngineType type) {
         return switch (type) {
-            case REDSTONE -> REDSTONE_BELLOW;
-            case STIRLING -> STIRLING_BELLOW;
-            case CREATIVE -> CREATIVE_BELLOW;
+            case REDSTONE -> "redstone_engine_bellow";
+            case STIRLING -> "stirling_engine_bellow";
+            case CREATIVE -> "creative_engine_bellow";
         };
     }
 
-    private ClientModelRegistry.ModelKey getPistonKey(EngineRenderState.EngineType type) {
+    private String getPistonKey(EngineRenderState.EngineType type) {
         return switch (type) {
-            case REDSTONE -> REDSTONE_PISTON;
-            case STIRLING -> STIRLING_PISTON;
-            case CREATIVE -> CREATIVE_PISTON;
+            case REDSTONE -> "redstone_engine_piston";
+            case STIRLING -> "stirling_engine_piston";
+            case CREATIVE -> "creative_engine_piston";
         };
     }
 
@@ -183,10 +162,6 @@ public class NeoForgeEngineBlockEntityRenderer
         }
 
         cache.lastGameTick = currentTick;
-    }
-
-    private BlockStateModel getModel(ClientModelRegistry.ModelKey key) {
-        return ClientModelRegistry.get(key);
     }
 
     private void applyFacingRotation(PoseStack matrices, Direction facing) {
