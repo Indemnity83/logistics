@@ -77,13 +77,6 @@ jobs:
           MODRINTH_VERSION="${PRE_ID}+mc${MC_VERSION}.${LOADER_SHORT}"
           (( ${#MODRINTH_VERSION} > 32 )) && MODRINTH_VERSION="${MODRINTH_VERSION:0:32}"
 
-          # Snapshot / prerelease MC detection (supports 24w45a format)
-          if [[ "$MC_VERSION" =~ (snapshot|alpha|beta|-pre[0-9]+|-rc[0-9]+) ]] || [[ "$MC_VERSION" =~ ^[0-9]{2}w[0-9]{2}[a-z]$ ]]; then
-            GAME_VERSION_FILTER="none"
-          else
-            GAME_VERSION_FILTER="releases"
-          fi
-
           {
             echo "base_version=$BASE_VERSION"
             echo "pre_id=$PRE_ID"
@@ -92,7 +85,6 @@ jobs:
             echo "minecraft_version=$MC_VERSION"
             echo "loader=$LOADER"
             echo "gradle_task=$GRADLE_TASK"
-            echo "game_version_filter=$GAME_VERSION_FILTER"
             echo "base_branch=$BASE_BRANCH"
           } >> "$GITHUB_OUTPUT"
 
@@ -119,7 +111,10 @@ jobs:
           curseforge-id: ${{ vars.CURSEFORGE_PROJECT_ID }}
           curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
 
-          game-version-filter: ${{ steps.version.outputs.game_version_filter }}
+          # Snapshots always publish with no game-version filter — they target whatever MC
+          # version (incl. pre-releases/snapshots) the branch builds against, so there is
+          # nothing to filter to "releases". (The old computed filter was release-strategy cruft.)
+          game-version-filter: none
           version-type: alpha
           version: ${{ steps.version.outputs.full_version }}
           name: "Logistics ${{ steps.version.outputs.pre_id }} for ${{ steps.version.outputs.loader }} ${{ steps.version.outputs.minecraft_version }}"
