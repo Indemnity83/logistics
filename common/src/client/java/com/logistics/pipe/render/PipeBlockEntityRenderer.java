@@ -2,19 +2,21 @@ package com.logistics.pipe.render;
 
 import com.logistics.core.LogisticsConfig;
 import com.logistics.core.DebugLog;
-import com.logistics.core.lib.client.model.ClientModelRegistry;
 import com.logistics.core.lib.block.capability.PipeConnection;
+import com.logistics.core.lib.client.render.VanillaQuadBaker;
 import com.logistics.core.lib.pipe.CoreDecoration;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.pipe.Pipe;
 import com.logistics.core.lib.pipe.PipeContext;
 import com.logistics.pipe.block.PipeBlock;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
+import com.logistics.pipe.render.model.PipeGeometry;
+import com.logistics.pipe.render.model.PipeModelResolver;
 import com.logistics.core.lib.pipe.TravelingItem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.SubmitNodeCollector;
-import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
@@ -25,7 +27,9 @@ import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.util.RandomSource;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.data.AtlasIds;
+import net.minecraft.resources.Identifier;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -46,8 +50,9 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
 
     private final ItemModelResolver itemModelManager;
 
-    // Model parts never change at runtime — cache globally by ResourceId to avoid collectParts() each frame
+    // Generated geometry never changes at runtime — cache parts by model id, sprites by texture base.
     private final Map<ResourceId, List<BlockStateModelPart>> partsCache = new HashMap<>();
+    private final Map<String, TextureAtlasSprite> spriteCache = new HashMap<>();
 
     // Per-renderer profiler instance — one profiler per renderer (one renderer per pipe type)
     private final RenderProfiler profiler = new RenderProfiler();
@@ -56,9 +61,28 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
         this.itemModelManager = ctx.itemModelResolver();
     }
 
-    private BlockStateModel getModel(ResourceId modelId) {
-        ClientModelRegistry.ModelKey key = ClientModelRegistry.find(modelId);
-        return key != null ? ClientModelRegistry.get(key) : null;
+    /** Build code-generated parts for a pipe model id (core/arm/decoration), one per resolved layer. */
+    private List<BlockStateModelPart> buildParts(ResourceId modelId) {
+        String path = modelId.getPath();
+        int slash = path.lastIndexOf('/');
+        String base = slash >= 0 ? path.substring(slash + 1) : path;
+
+        List<BlockStateModelPart> parts = new ArrayList<>();
+        for (PipeModelResolver.Layer layer : PipeModelResolver.resolve(base)) {
+            TextureAtlasSprite sprite = sprite(layer.textureBase());
+            VanillaQuadBaker baker = new VanillaQuadBaker(sprite, layer.tintIndex(), true, 0);
+            PipeGeometry.emit(baker::quad, layer.shape(), sprite);
+            if (!baker.isEmpty()) {
+                parts.add(baker.toPart());
+            }
+        }
+        return parts;
+    }
+
+    private TextureAtlasSprite sprite(String textureBase) {
+        return spriteCache.computeIfAbsent(textureBase, b -> Minecraft.getInstance().getAtlasManager()
+                .getAtlasOrThrow(AtlasIds.BLOCKS)
+                .getSprite(Identifier.fromNamespaceAndPath("logistics", "block/pipe/" + b)));
     }
 
     @Override
@@ -135,14 +159,8 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
             for (PipeRenderState.ModelRenderInfo modelInfo : state.models) {
                 List<BlockStateModelPart> cached = partsCache.get(modelInfo.modelId);
                 if (cached == null) {
-                    BlockStateModel model = getModel(modelInfo.modelId);
-                    if (model == null) {
-                        modelInfo.parts = null;
-                        continue;
-                    }
                     long tp = debugRender ? System.nanoTime() : 0;
-                    cached = new ArrayList<>();
-                    model.collectParts(RandomSource.create(0), cached);
+                    cached = buildParts(modelInfo.modelId);
                     partsCache.put(modelInfo.modelId, cached);
                     if (debugRender) profiler.recordCollectParts(tp);
                 }
