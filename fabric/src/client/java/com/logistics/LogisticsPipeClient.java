@@ -46,7 +46,7 @@ public final class LogisticsPipeClient implements ClientDomainBootstrap {
         ClientPlayNetworking.registerGlobalReceiver(SyncRequesterInventoryPacket.TYPE, (packet, context) -> {
             context.client().execute(() -> {
                 // Update the requester screen if it's open
-                if (Minecraft.getInstance().screen instanceof RequesterScreen requesterScreen) {
+                if (Minecraft.getInstance().gui.screen() instanceof RequesterScreen requesterScreen) {
                     requesterScreen.updateAvailableItems(packet.pipePos(), packet.items(), packet.amounts());
                 }
             });

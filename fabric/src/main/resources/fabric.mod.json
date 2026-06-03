@@ -16,8 +16,7 @@
   "description": "A modern logistics and pipe mod with authentic in-pipe item motion, mod interoperability, and request/autocrafting systems.",
   "entrypoints": {
     "client": ["com.logistics.LogisticsModClient"],
-    "main": ["com.logistics.fabric.LogisticsFabric"],
-    "jei_mod_plugin": ["com.logistics.core.macerator.jei.MaceratorJeiPlugin"]
+    "main": ["com.logistics.fabric.LogisticsFabric"]
   },
   "environment": "*",
   "icon": "assets/logistics/icon.png",

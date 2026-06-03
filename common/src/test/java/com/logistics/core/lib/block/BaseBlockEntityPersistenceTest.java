@@ -8,12 +8,12 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.RegistryOps;
 import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.storage.TagValueInput;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -69,7 +69,10 @@ class BaseBlockEntityPersistenceTest extends MinecraftTestEnvironment {
             // Use a real type/block pair to satisfy BlockEntity's validateBlockState check.
             // The type itself is irrelevant to our logic — we only test saveCustomOnly /
             // loadCustomOnly which call saveAdditional/loadAdditional directly.
-            super(BlockEntityType.CHEST, BlockPos.ZERO, Blocks.CHEST.defaultBlockState());
+            // BlockEntityType.CHEST was removed as a static constant in MC 26.2; look it up
+            // from the registry instead (the type is irrelevant to what this test exercises).
+            super(BuiltInRegistries.BLOCK_ENTITY_TYPE.getValue(Identifier.withDefaultNamespace("chest")),
+                    BlockPos.ZERO, Blocks.CHEST.defaultBlockState());
         }
 
         @Override
