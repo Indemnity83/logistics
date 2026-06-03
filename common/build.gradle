@@ -38,18 +38,34 @@ dependencies {
     // Team Reborn Energy API (bundled into the Fabric jar via include in fabric/build.gradle)
     implementation("teamreborn:energy:${rootProject.fabric_energy_version}")
 
-    // JEI — compile only; players install separately at runtime
-    compileOnly("mezz.jei:jei-${rootProject.minecraft_version}-fabric:${rootProject.jei_version}")
+    // JEI — compile only; players install separately at runtime.
+    // Gated: no JEI artifact exists for some MC versions (e.g. 26.2 pre-releases).
+    if (rootProject.jei_enabled.toBoolean()) {
+        compileOnly("mezz.jei:jei-${rootProject.minecraft_version}-fabric:${rootProject.jei_version}")
+    }
 
     // Test infrastructure
     testImplementation "org.junit.jupiter:junit-jupiter:${rootProject.junit_version}"
     testImplementation "net.fabricmc:fabric-loader-junit:${rootProject.fabric_loader_version}"
     testImplementation "org.assertj:assertj-core:${rootProject.assertj_version}"
+    // Fabric Loader 0.19.x pulls sponge-mixin 0.17.0 transitively here, which is missing
+    // IAdviceProvider that mixinextras needs — the Fabric test launcher then fails to start.
+    // Pin to the version Loom uses for the runnable subprojects so the headless env boots.
+    testImplementation "net.fabricmc:sponge-mixin:0.17.3+mixin.0.8.7"
 }
 
 sourceSets {
     test {
         java { srcDir 'src/test/java' }
+    }
+}
+
+// When JEI is disabled (no upstream artifact for this MC version), exclude the JEI
+// integration so the client source set compiles without the JEI API on the classpath.
+// The source stays in the tree, so re-enabling is just flipping jei_enabled.
+if (!rootProject.jei_enabled.toBoolean()) {
+    tasks.named('compileClientJava', JavaCompile) {
+        exclude '**/core/macerator/jei/**'
     }
 }
 
