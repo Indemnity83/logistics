@@ -1,4 +1,6 @@
 {
-  "neoforge:definition_type": "logistics:power_cable",
-  "tier": "ender_cable"
+  "variants": {
+    "waterlogged=false": { "model": "logistics:block/power/ender_cable_empty" },
+    "waterlogged=true": { "model": "logistics:block/power/ender_cable_empty" }
+  }
 }
