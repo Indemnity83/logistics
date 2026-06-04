@@ -23,6 +23,7 @@ import com.logistics.automation.render.MarkerBlockEntityRenderer;
 import com.logistics.core.lib.power.AbstractEngineBlockEntity;
 import com.logistics.pipe.network.packet.SyncRequesterInventoryPacket;
 import com.logistics.pipe.render.PipeBlockEntityRenderer;
+import com.logistics.power.render.CableBlockEntityRenderer;
 import com.logistics.power.screen.StirlingEngineScreen;
 import com.logistics.neoforge.client.render.NeoForgeEngineBlockEntityRenderer;
 import com.logistics.neoforge.client.render.NeoForgeModelLoader;
@@ -30,13 +31,11 @@ import net.minecraft.client.Minecraft;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.client.network.event.RegisterClientPayloadHandlersEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
-import net.neoforged.neoforge.client.event.RegisterBlockStateModels;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.minecraft.client.color.block.BlockColor;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
-import net.minecraft.resources.Identifier;
 
 public final class NeoForgeClientSetup {
     private NeoForgeClientSetup() {}
@@ -47,7 +46,6 @@ public final class NeoForgeClientSetup {
         modBus.addListener(NeoForgeClientSetup::registerScreens);
         modBus.addListener(NeoForgeClientSetup::registerRenderers);
         modBus.addListener(NeoForgeClientSetup::registerBlockColors);
-        modBus.addListener(NeoForgeClientSetup::registerBlockStateModels);
         modBus.addListener(NeoForgeClientSetup::registerClientPayloadHandlers);
         modBus.addListener(NeoForgeModelLoader::registerStandaloneModels);
     }
@@ -94,6 +92,9 @@ public final class NeoForgeClientSetup {
                 LogisticsPipe.ENTITY.PIPE_BLOCK_ENTITY,
                 PipeBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(
+                LogisticsPower.ENTITY.CABLE_BLOCK_ENTITY,
+                CableBlockEntityRenderer::new);
+        event.registerBlockEntityRenderer(
                 LogisticsAutomation.ENTITY.MARKER_BLOCK_ENTITY,
                 MarkerBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(
@@ -119,12 +120,6 @@ public final class NeoForgeClientSetup {
                 LogisticsPower.BLOCK.REDSTONE_ENGINE,
                 LogisticsPower.BLOCK.STIRLING_ENGINE,
                 LogisticsPower.BLOCK.CREATIVE_ENGINE);
-    }
-
-    private static void registerBlockStateModels(RegisterBlockStateModels event) {
-        event.registerDefinition(
-                Identifier.fromNamespaceAndPath("logistics", "power_cable"),
-                com.logistics.neoforge.client.render.NeoForgeCableBlockModelDefinition.CODEC);
     }
 
     private static void registerClientPayloadHandlers(RegisterClientPayloadHandlersEvent event) {
