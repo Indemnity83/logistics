@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.6.2](https://github.com/Indemnity83/logistics/compare/mc1.21.11-v0.6.1...mc1.21.11-v0.6.2) (2026-06-04)
+
+
+### Improved
+
+* **automation:** reduce memory and load time for machine rendering ([#451](https://github.com/Indemnity83/logistics/issues/451)) ([b8eba57](https://github.com/Indemnity83/logistics/commit/b8eba5757681c2e097c2277681f42ebc8934c5b2))
+* **energy:** reduce memory and load time for cable rendering ([#449](https://github.com/Indemnity83/logistics/issues/449)) ([2a82bad](https://github.com/Indemnity83/logistics/commit/2a82bad95744684425ec8ceb22084c577a13621c))
+* **pipes:** reduce memory and load time for pipe rendering ([#450](https://github.com/Indemnity83/logistics/issues/450)) ([155e7b7](https://github.com/Indemnity83/logistics/commit/155e7b77d9f580ff292d7e09f075bfefc23141cb))
+
 ## [0.6.1](https://github.com/Indemnity83/logistics/compare/mc1.21.11-v0.6.0...mc1.21.11-v0.6.1) (2026-06-02)
 
 
