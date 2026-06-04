@@ -2,19 +2,23 @@ package com.logistics.pipe.render;
 
 import com.logistics.core.LogisticsConfig;
 import com.logistics.core.DebugLog;
-import com.logistics.core.lib.client.model.ClientModelRegistry;
 import com.logistics.core.lib.block.capability.PipeConnection;
+import com.logistics.core.lib.client.render.VanillaQuadBaker;
 import com.logistics.core.lib.pipe.CoreDecoration;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.pipe.Pipe;
 import com.logistics.core.lib.pipe.PipeContext;
 import com.logistics.pipe.block.PipeBlock;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
+import com.logistics.pipe.render.model.PipeGeometry;
+import com.logistics.pipe.render.model.PipeModelResolver;
 import com.logistics.core.lib.pipe.TravelingItem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.block.model.BlockModelPart;
 import net.minecraft.client.renderer.block.model.BlockStateModel;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
@@ -25,8 +29,14 @@ import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.state.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.data.AtlasIds;
+import net.minecraft.resources.Identifier;
+import net.minecraft.util.RandomSource;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.BlockItem;
@@ -40,11 +50,13 @@ import net.minecraft.world.phys.Vec3;
 public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEntity, PipeRenderState> {
     private static final float BLOCK_OFFSET = 0.3125f;
     private static final float ITEM_OFFSET = 0.375f;
+    private static final String PIPE_MODEL_PREFIX = "block/pipe/";
 
     private final ItemModelResolver itemModelManager;
 
-    // Models never change at runtime — cache globally by ResourceId to avoid repeated lookups each frame
+    // Generated geometry never changes at runtime — cache built models by id, sprites by texture base.
     private final Map<ResourceId, BlockStateModel> modelsCache = new HashMap<>();
+    private final Map<String, TextureAtlasSprite> spriteCache = new HashMap<>();
 
     // Per-renderer profiler instance — one profiler per renderer (one renderer per pipe type)
     private final RenderProfiler profiler = new RenderProfiler();
@@ -53,9 +65,40 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
         this.itemModelManager = ctx.itemModelResolver();
     }
 
-    private BlockStateModel getModel(ResourceId modelId) {
-        ClientModelRegistry.ModelKey key = ClientModelRegistry.find(modelId);
-        return key != null ? ClientModelRegistry.get(key) : null;
+    /**
+     * Build a code-generated model for a pipe model id (core/arm/decoration). Each resolved layer
+     * becomes one procedurally baked part; on 1.21.11 {@code submitBlockModel} takes a model, so the
+     * parts are wrapped in a {@link BlockStateModel}.
+     */
+    private BlockStateModel buildModel(ResourceId modelId) {
+        // Pipe model ids are always produced as logistics:block/pipe/<name> (see Pipe#getCoreModelId /
+        // #getPipeArm). Enforce that contract and fail fast on a stray id, rather than silently
+        // collapsing to a basename + hardcoded prefix and resolving the wrong sprite.
+        if (!"logistics".equals(modelId.getNamespace()) || !modelId.getPath().startsWith(PIPE_MODEL_PREFIX)) {
+            throw new IllegalStateException("Unexpected pipe model id (expected logistics:block/pipe/...): " + modelId);
+        }
+        String base = modelId.getPath().substring(PIPE_MODEL_PREFIX.length());
+
+        List<BlockModelPart> parts = new ArrayList<>();
+        TextureAtlasSprite particle = null;
+        for (PipeModelResolver.Layer layer : PipeModelResolver.resolve(base)) {
+            TextureAtlasSprite sprite = sprite(layer.textureBase());
+            if (particle == null) {
+                particle = sprite;
+            }
+            VanillaQuadBaker baker = new VanillaQuadBaker(sprite, layer.tintIndex(), true, 0);
+            PipeGeometry.emit(baker::quad, layer.shape(), sprite);
+            if (!baker.isEmpty()) {
+                parts.add(baker.toPart());
+            }
+        }
+        return new ProceduralModel(List.copyOf(parts), particle);
+    }
+
+    private TextureAtlasSprite sprite(String textureBase) {
+        return spriteCache.computeIfAbsent(textureBase, b -> Minecraft.getInstance().getAtlasManager()
+                .getAtlasOrThrow(AtlasIds.BLOCKS)
+                .getSprite(Identifier.fromNamespaceAndPath("logistics", "block/pipe/" + b)));
     }
 
     @Override
@@ -127,19 +170,15 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
             state.accelerationRate = accelerationRate;
             state.dragCoefficient = dragCoefficient;
 
-            // --- Fix 1: Cache model lookup once per unique ResourceId (renderer-level cache) ---
-            // Model geometry never changes at runtime, so no invalidation needed.
+            // Cache built model once per unique ResourceId (renderer-level cache).
+            // Generated geometry never changes at runtime, so no invalidation needed.
             for (PipeRenderState.ModelRenderInfo modelInfo : state.models) {
                 BlockStateModel cached = modelsCache.get(modelInfo.modelId);
                 if (cached == null) {
                     long tp = debugRender ? System.nanoTime() : 0;
-                    cached = getModel(modelInfo.modelId);
-                    if (debugRender) profiler.recordCollectParts(tp);
-                    if (cached == null) {
-                        modelInfo.model = null;
-                        continue;
-                    }
+                    cached = buildModel(modelInfo.modelId);
                     modelsCache.put(modelInfo.modelId, cached);
+                    if (debugRender) profiler.recordCollectParts(tp);
                 }
                 modelInfo.model = cached;
             }
@@ -194,7 +233,7 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
                     ? RenderTypes.cutoutMovingBlock()
                     : ItemBlockRenderTypes.getRenderType(state.blockState);
             for (PipeRenderState.ModelRenderInfo modelInfo : state.models) {
-                // Use cached model (Fix 1) — no repeated lookup here
+                // Use cached model — no repeated lookup here
                 if (modelInfo.model == null) {
                     continue;
                 }
@@ -299,6 +338,23 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
             case UP -> matrices.mulPose(Axis.XP.rotationDegrees(90));
             case DOWN -> matrices.mulPose(Axis.XP.rotationDegrees(-90));
             default -> {} // NORTH: Base orientation, no rotation
+        }
+    }
+
+    /**
+     * Minimal {@link BlockStateModel} that yields pre-built parts. On 1.21.11 {@code submitBlockModel}
+     * takes a model (not a part list), so the procedural parts are wrapped here; {@code collectParts}
+     * is deterministic and ignores the random source.
+     */
+    private record ProceduralModel(List<BlockModelPart> parts, TextureAtlasSprite particle) implements BlockStateModel {
+        @Override
+        public void collectParts(RandomSource random, List<BlockModelPart> out) {
+            out.addAll(parts);
+        }
+
+        @Override
+        public TextureAtlasSprite particleIcon() {
+            return particle;
         }
     }
 }
