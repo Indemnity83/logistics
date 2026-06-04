@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.6.2](https://github.com/Indemnity83/logistics/compare/mc26.1-v0.6.1...mc26.1-v0.6.2) (2026-06-04)
+
+
+### Fixed
+
+* **neoforge:** fix startup crash when JEI is on the classpath ([#453](https://github.com/Indemnity83/logistics/issues/453)) ([d45efef](https://github.com/Indemnity83/logistics/commit/d45efefa3640efd8154c5984492be0fadfe67d3c))
+
+
+### Improved
+
+* **automation:** reduce memory and load time for machine rendering ([f858416](https://github.com/Indemnity83/logistics/commit/f858416733564b6442f10a0c26023725b869d43f))
+* **automation:** reduce memory and load time for machine rendering ([#451](https://github.com/Indemnity83/logistics/issues/451)) ([f858416](https://github.com/Indemnity83/logistics/commit/f858416733564b6442f10a0c26023725b869d43f))
+* **energy:** reduce memory and load time for cable rendering ([#449](https://github.com/Indemnity83/logistics/issues/449)) ([1adf690](https://github.com/Indemnity83/logistics/commit/1adf6905136ea456d5a3763da06f7bf1ce4f49d6))
+* **pipes:** reduce memory and load time for pipe rendering ([c0bb14f](https://github.com/Indemnity83/logistics/commit/c0bb14fe0af13a0ab3fab4dae625fbe5c4a297af))
+* **pipes:** reduce memory and load time for pipe rendering ([#450](https://github.com/Indemnity83/logistics/issues/450)) ([c0bb14f](https://github.com/Indemnity83/logistics/commit/c0bb14fe0af13a0ab3fab4dae625fbe5c4a297af))
+
 ## [0.6.1](https://github.com/Indemnity83/logistics/compare/mc26.1-v0.6.0...mc26.1-v0.6.1) (2026-06-02)
 
 
