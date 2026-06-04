@@ -21,7 +21,6 @@ public final class LogisticsAutomationClient implements ClientDomainBootstrap {
     @Override
     public void initClient() {
         LOGGER.info("Registering automation (client)");
-        LogisticsAutomationClientModels.init();
         BlockEntityRendererRegistry.register(
                 LogisticsAutomation.ENTITY.MARKER_BLOCK_ENTITY, MarkerBlockEntityRenderer::new);
         // Register quarry frame for cutout rendering (transparency support)
