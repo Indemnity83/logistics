@@ -1,13 +1,12 @@
 package com.logistics.power.render;
 
-import com.logistics.LogisticsPowerClient;
+import com.logistics.core.lib.client.render.MachineModels;
 import com.logistics.core.lib.power.AbstractEngineBlockEntity;
 import com.logistics.power.engine.block.entity.CreativeEngineBlockEntity;
 import com.logistics.power.engine.block.entity.RedstoneEngineBlockEntity;
 import com.logistics.power.engine.block.entity.StirlingEngineBlockEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import com.logistics.core.lib.client.model.ClientModelRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.block.model.BlockStateModel;
@@ -24,7 +23,7 @@ import net.minecraft.world.phys.Vec3;
 
 /**
  * Renders engine block entities with animated pistons and bellows.
- * Uses baked models with transformations for smooth animations.
+ * Uses code-generated models with transformations for smooth animations.
  * Uses client-side animation cache for smooth piston movement independent of server updates.
  */
 public class EngineBlockEntityRenderer implements BlockEntityRenderer<AbstractEngineBlockEntity, EngineRenderState> {
@@ -99,13 +98,9 @@ public class EngineBlockEntityRenderer implements BlockEntityRenderer<AbstractEn
             SubmitNodeCollector queue,
             CameraRenderState cameraState) {
 
-        // Get baked models
-        BlockStateModel pistonModel = getModel(getPistonKey(state.engineType));
-        BlockStateModel bellowModel = getModel(getBellowKey(state.engineType));
-
-        if (pistonModel == null || bellowModel == null) {
-            return; // Models not loaded yet
-        }
+        // Get code-generated models
+        BlockStateModel bellowModel = MachineModels.model(getBellowKey(state.engineType));
+        BlockStateModel pistonModel = MachineModels.model(getPistonKey(state.engineType));
 
         RenderType renderLayer = ItemBlockRenderTypes.getRenderType(state.blockState);
         int light = state.lightCoords;
@@ -145,19 +140,19 @@ public class EngineBlockEntityRenderer implements BlockEntityRenderer<AbstractEn
         matrices.popPose();
     }
 
-    private ClientModelRegistry.ModelKey getBellowKey(EngineRenderState.EngineType type) {
+    private String getBellowKey(EngineRenderState.EngineType type) {
         return switch (type) {
-            case REDSTONE -> LogisticsPowerClient.MODEL.REDSTONE_BELLOW;
-            case STIRLING -> LogisticsPowerClient.MODEL.STIRLING_BELLOW;
-            case CREATIVE -> LogisticsPowerClient.MODEL.CREATIVE_BELLOW;
+            case REDSTONE -> "redstone_engine_bellow";
+            case STIRLING -> "stirling_engine_bellow";
+            case CREATIVE -> "creative_engine_bellow";
         };
     }
 
-    private ClientModelRegistry.ModelKey getPistonKey(EngineRenderState.EngineType type) {
+    private String getPistonKey(EngineRenderState.EngineType type) {
         return switch (type) {
-            case REDSTONE -> LogisticsPowerClient.MODEL.REDSTONE_PISTON;
-            case STIRLING -> LogisticsPowerClient.MODEL.STIRLING_PISTON;
-            case CREATIVE -> LogisticsPowerClient.MODEL.CREATIVE_PISTON;
+            case REDSTONE -> "redstone_engine_piston";
+            case STIRLING -> "stirling_engine_piston";
+            case CREATIVE -> "creative_engine_piston";
         };
     }
 
@@ -202,13 +197,6 @@ public class EngineBlockEntityRenderer implements BlockEntityRenderer<AbstractEn
         }
 
         cache.lastGameTick = currentTick;
-    }
-
-    /**
-     * Gets a baked model by model key.
-     */
-    private BlockStateModel getModel(ClientModelRegistry.ModelKey key) {
-        return ClientModelRegistry.get(key);
     }
 
     /**

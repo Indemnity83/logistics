@@ -1,11 +1,10 @@
 package com.logistics.automation.render;
 
-import com.logistics.LogisticsAutomationClientModels;
 import com.logistics.automation.marker.MarkerBlockEntity;
 import com.logistics.automation.marker.MarkerManager;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import com.logistics.core.lib.client.model.ClientModelRegistry;
+import com.logistics.core.lib.client.render.MachineModels;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.block.model.BlockStateModel;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
@@ -20,7 +19,7 @@ import net.minecraft.world.phys.Vec3;
 
 /**
  * Renders laser beams for active markers.
- * Uses baked model segments for quad-based beams with proper thickness.
+ * Uses code-generated model segments for quad-based beams with proper thickness.
  */
 public class MarkerBlockEntityRenderer implements BlockEntityRenderer<MarkerBlockEntity, MarkerRenderState> {
     public MarkerBlockEntityRenderer(BlockEntityRendererProvider.Context ctx) {}
@@ -142,11 +141,7 @@ public class MarkerBlockEntityRenderer implements BlockEntityRenderer<MarkerBloc
             return;
         }
 
-        BlockStateModel beamModel = getBeamModel();
-        if (beamModel == null) {
-            return;
-        }
-
+        BlockStateModel beamModel = MachineModels.model("marker_beam");
         RenderType renderLayer = RenderTypes.cutoutMovingBlock();
 
         if (state.beamNorth > 0) {
@@ -163,14 +158,10 @@ public class MarkerBlockEntityRenderer implements BlockEntityRenderer<MarkerBloc
         }
     }
 
-    private BlockStateModel getBeamModel() {
-        return ClientModelRegistry.get(LogisticsAutomationClientModels.BEAM);
-    }
-
     private void renderBeamInDirection(
             PoseStack matrices,
             SubmitNodeCollector queue,
-            BlockStateModel beamModel,
+            BlockStateModel model,
             RenderType renderLayer,
             int lightmap,
             float yRotation,
@@ -184,7 +175,7 @@ public class MarkerBlockEntityRenderer implements BlockEntityRenderer<MarkerBloc
             queue.submitBlockModel(
                     matrices,
                     renderLayer,
-                    beamModel,
+                    model,
                     1f,
                     1f,
                     1f,
