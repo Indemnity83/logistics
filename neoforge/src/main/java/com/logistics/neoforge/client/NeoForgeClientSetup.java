@@ -26,7 +26,6 @@ import com.logistics.pipe.render.PipeBlockEntityRenderer;
 import com.logistics.power.render.CableBlockEntityRenderer;
 import com.logistics.power.screen.StirlingEngineScreen;
 import com.logistics.neoforge.client.render.NeoForgeEngineBlockEntityRenderer;
-import com.logistics.neoforge.client.render.NeoForgeModelLoader;
 import net.minecraft.client.Minecraft;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.client.network.event.RegisterClientPayloadHandlersEvent;
@@ -41,13 +40,11 @@ public final class NeoForgeClientSetup {
     private NeoForgeClientSetup() {}
 
     public static void register(IEventBus modBus) {
-        NeoForgeModelLoader.registerPowerModels();
         modBus.addListener(NeoForgeClientSetup::onClientSetup);
         modBus.addListener(NeoForgeClientSetup::registerScreens);
         modBus.addListener(NeoForgeClientSetup::registerRenderers);
         modBus.addListener(NeoForgeClientSetup::registerBlockColors);
         modBus.addListener(NeoForgeClientSetup::registerClientPayloadHandlers);
-        modBus.addListener(NeoForgeModelLoader::registerStandaloneModels);
     }
 
     private static void onClientSetup(FMLClientSetupEvent event) {

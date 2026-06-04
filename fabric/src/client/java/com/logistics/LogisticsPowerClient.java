@@ -1,7 +1,6 @@
 package com.logistics;
 
 import com.logistics.core.bootstrap.ClientDomainBootstrap;
-import com.logistics.core.lib.client.model.ClientModelRegistry;
 import com.logistics.core.lib.power.AbstractEngineBlockEntity;
 import com.logistics.power.render.CableBlockEntityRenderer;
 import com.logistics.power.render.EngineBlockEntityRenderer;
@@ -18,7 +17,6 @@ public final class LogisticsPowerClient implements ClientDomainBootstrap {
     @Override
     public void initClient() {
         LOGGER.info("Registering power (client)");
-        MODEL.init();
 
         // Register engine block entity renderers
         BlockEntityRenderers.register(LogisticsPower.ENTITY.REDSTONE_ENGINE_BLOCK_ENTITY, EngineBlockEntityRenderer::new);
@@ -40,20 +38,6 @@ public final class LogisticsPowerClient implements ClientDomainBootstrap {
 
         // Clear all animation caches when disconnecting from server
         ClientLifecycleEvents.CLIENT_STOPPING.register(client -> EngineBlockEntityRenderer.clearAllAnimationCache());
-    }
-
-    public static final class MODEL {
-        public static final ClientModelRegistry.ModelKey REDSTONE_BELLOW = ClientModelRegistry.register(LogisticsPower.model("redstone_engine_bellow"));
-        public static final ClientModelRegistry.ModelKey REDSTONE_PISTON = ClientModelRegistry.register(LogisticsPower.model("redstone_engine_piston"));
-        public static final ClientModelRegistry.ModelKey STIRLING_BELLOW = ClientModelRegistry.register(LogisticsPower.model("stirling_engine_bellow"));
-        public static final ClientModelRegistry.ModelKey STIRLING_PISTON = ClientModelRegistry.register(LogisticsPower.model("stirling_engine_piston"));
-        public static final ClientModelRegistry.ModelKey CREATIVE_BELLOW = ClientModelRegistry.register(LogisticsPower.model("creative_engine_bellow"));
-        public static final ClientModelRegistry.ModelKey CREATIVE_PISTON = ClientModelRegistry.register(LogisticsPower.model("creative_engine_piston"));
-
-        /** Forces this class to load, triggering static model registration. */
-        public static void init() {}
-
-        private MODEL() {}
     }
 
     /**
