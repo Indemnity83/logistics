@@ -1,6 +1,5 @@
 package com.logistics.automation.render;
 
-import com.logistics.LogisticsAutomationClientModels;
 import com.logistics.core.LogisticsConfig;
 import com.logistics.automation.laserquarry.LaserQuarryBlock;
 import com.logistics.automation.laserquarry.LaserQuarryGeometry;
@@ -8,7 +7,7 @@ import com.logistics.automation.laserquarry.entity.LaserQuarryBlockEntity;
 import com.logistics.pipe.block.PipeBlock;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import com.logistics.core.lib.client.model.ClientModelRegistry;
+import com.logistics.core.lib.client.render.MachineModels;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.block.model.BlockStateModel;
@@ -32,10 +31,6 @@ import net.minecraft.world.phys.Vec3;
  */
 public class LaserQuarryBlockEntityRenderer implements BlockEntityRenderer<LaserQuarryBlockEntity, LaserQuarryRenderState> {
     public LaserQuarryBlockEntityRenderer(BlockEntityRendererProvider.Context ctx) {}
-
-    private BlockStateModel getModel(ClientModelRegistry.ModelKey key) {
-        return ClientModelRegistry.get(key);
-    }
 
     @Override
     public LaserQuarryRenderState createRenderState() {
@@ -167,10 +162,7 @@ public class LaserQuarryBlockEntityRenderer implements BlockEntityRenderer<Laser
             return;
         }
 
-        BlockStateModel armModel = getModel(LogisticsAutomationClientModels.ARM);
-        if (armModel == null) {
-            return;
-        }
+        BlockStateModel armModel = MachineModels.model("laser_quarry_gantry_arm");
 
         // Update interpolation every frame for smooth movement
         state.updateClientInterpolation();
@@ -230,16 +222,14 @@ public class LaserQuarryBlockEntityRenderer implements BlockEntityRenderer<Laser
         }
 
         // Render drill head at the bottom of the vertical beam
-        BlockStateModel drillModel = getModel(LogisticsAutomationClientModels.DRILL);
-        if (drillModel != null) {
-            matrices.pushPose();
-            // Position drill at arm location, offset to center the model
-            // Drill model is centered at X=0.5, Z=0.5, extends from Y=0.125 to Y=1
-            matrices.translate(relArmX - 0.5, relArmY, relArmZ - 0.5);
-            queue.submitBlockModel(
-                    matrices, renderLayer, drillModel, 1.0f, 1.0f, 1.0f, light, OverlayTexture.NO_OVERLAY, 0);
-            matrices.popPose();
-        }
+        BlockStateModel drillModel = MachineModels.model("laser_quarry_drill");
+        matrices.pushPose();
+        // Position drill at arm location, offset to center the model
+        // Drill model is centered at X=0.5, Z=0.5, extends from Y=0.125 to Y=1
+        matrices.translate(relArmX - 0.5, relArmY, relArmZ - 0.5);
+        queue.submitBlockModel(
+                matrices, renderLayer, drillModel, 1.0f, 1.0f, 1.0f, light, OverlayTexture.NO_OVERLAY, 0);
+        matrices.popPose();
     }
 
     /**
@@ -360,54 +350,48 @@ public class LaserQuarryBlockEntityRenderer implements BlockEntityRenderer<Laser
 
         // Green LED - instant on, gradual fade off over 12 ticks
         if (state.greenLedBrightness > 0) {
-            BlockStateModel greenLed = getModel(LogisticsAutomationClientModels.LED_GREEN);
-            if (greenLed != null) {
-                matrices.pushPose();
-                matrices.translate(0.5, 0.5, 0.5);
-                matrices.mulPose(Axis.YP.rotationDegrees(rotation));
-                matrices.translate(-0.5, -0.5, -0.5);
-                // Brightness scales with fade (0-15)
-                int brightness = (int) (state.greenLedBrightness * 15);
-                int light = (brightness << 4) | (brightness << 20);
-                queue.submitBlockModel(
-                        matrices, renderLayer, greenLed, 1.0f, 1.0f, 1.0f, light, OverlayTexture.NO_OVERLAY, 0);
-                matrices.popPose();
-            }
+            BlockStateModel greenLed = MachineModels.model("laser_quarry_led_green");
+            matrices.pushPose();
+            matrices.translate(0.5, 0.5, 0.5);
+            matrices.mulPose(Axis.YP.rotationDegrees(rotation));
+            matrices.translate(-0.5, -0.5, -0.5);
+            // Brightness scales with fade (0-15)
+            int brightness = (int) (state.greenLedBrightness * 15);
+            int light = (brightness << 4) | (brightness << 20);
+            queue.submitBlockModel(
+                    matrices, renderLayer, greenLed, 1.0f, 1.0f, 1.0f, light, OverlayTexture.NO_OVERLAY, 0);
+            matrices.popPose();
         }
 
         // Red LED - brightness proportional to energy level (0-15)
         if (state.energyLevel > 0) {
-            BlockStateModel redLed = getModel(LogisticsAutomationClientModels.LED_RED);
-            if (redLed != null) {
-                matrices.pushPose();
-                matrices.translate(0.5, 0.5, 0.5);
-                matrices.mulPose(Axis.YP.rotationDegrees(rotation));
-                matrices.translate(-0.5, -0.5, -0.5);
-                // Brightness scaled by energy level (0-15)
-                int brightness = (int) (state.energyLevel * 15);
-                int light = (brightness << 4) | (brightness << 20);
-                queue.submitBlockModel(
-                        matrices, renderLayer, redLed, 1.0f, 1.0f, 1.0f, light, OverlayTexture.NO_OVERLAY, 0);
-                matrices.popPose();
-            }
+            BlockStateModel redLed = MachineModels.model("laser_quarry_led_red");
+            matrices.pushPose();
+            matrices.translate(0.5, 0.5, 0.5);
+            matrices.mulPose(Axis.YP.rotationDegrees(rotation));
+            matrices.translate(-0.5, -0.5, -0.5);
+            // Brightness scaled by energy level (0-15)
+            int brightness = (int) (state.energyLevel * 15);
+            int light = (brightness << 4) | (brightness << 20);
+            queue.submitBlockModel(
+                    matrices, renderLayer, redLed, 1.0f, 1.0f, 1.0f, light, OverlayTexture.NO_OVERLAY, 0);
+            matrices.popPose();
         }
 
         // Display overlay - scrolling data screen (animated via .mcmeta)
         // Follows green LED: on when working, fades out when stopped
         if (state.greenLedBrightness > 0) {
-            BlockStateModel display = getModel(LogisticsAutomationClientModels.DISPLAY);
-            if (display != null) {
-                matrices.pushPose();
-                matrices.translate(0.5, 0.5, 0.5);
-                matrices.mulPose(Axis.YP.rotationDegrees(rotation));
-                matrices.translate(-0.5, -0.5, -0.5);
-                // Scale brightness with fade (min 8 at full brightness, scales down to 0)
-                int brightness = Math.max(0, (int) (state.greenLedBrightness * 8));
-                int light = (brightness << 4) | (brightness << 20);
-                queue.submitBlockModel(
-                        matrices, renderLayer, display, 1.0f, 1.0f, 1.0f, light, OverlayTexture.NO_OVERLAY, 0);
-                matrices.popPose();
-            }
+            BlockStateModel display = MachineModels.model("laser_quarry_display");
+            matrices.pushPose();
+            matrices.translate(0.5, 0.5, 0.5);
+            matrices.mulPose(Axis.YP.rotationDegrees(rotation));
+            matrices.translate(-0.5, -0.5, -0.5);
+            // Scale brightness with fade (min 8 at full brightness, scales down to 0)
+            int brightness = Math.max(0, (int) (state.greenLedBrightness * 8));
+            int light = (brightness << 4) | (brightness << 20);
+            queue.submitBlockModel(
+                    matrices, renderLayer, display, 1.0f, 1.0f, 1.0f, light, OverlayTexture.NO_OVERLAY, 0);
+            matrices.popPose();
         }
     }
 
@@ -416,10 +400,7 @@ public class LaserQuarryBlockEntityRenderer implements BlockEntityRenderer<Laser
             return;
         }
 
-        BlockStateModel hatch = getModel(LogisticsAutomationClientModels.TOP_HATCH);
-        if (hatch == null) {
-            return;
-        }
+        BlockStateModel hatch = MachineModels.model("laser_quarry_top_hatch");
 
         RenderType renderLayer = RenderTypes.translucentMovingBlock();
         matrices.pushPose();
@@ -432,10 +413,7 @@ public class LaserQuarryBlockEntityRenderer implements BlockEntityRenderer<Laser
 
     private void renderFramePreviewOutline(
             LaserQuarryRenderState state, PoseStack matrices, SubmitNodeCollector queue) {
-        BlockStateModel beamModel = getModel(LogisticsAutomationClientModels.CONSTRUCTION_BEAM);
-        if (beamModel == null) {
-            return;
-        }
+        BlockStateModel beamModel = MachineModels.model("construction_beam");
 
         RenderType renderLayer = RenderTypes.cutoutMovingBlock();
         int lightmap = LightTexture.pack(15, 15);
