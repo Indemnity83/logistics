@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.3](https://github.com/Indemnity83/logistics/compare/mc26.1-v0.6.2...mc26.1-v0.6.3) (2026-06-05)
+
+
+### Fixed
+
+* **energy:** transport energy through cables on NeoForge ([#462](https://github.com/Indemnity83/logistics/issues/462)) ([af7bd3f](https://github.com/Indemnity83/logistics/commit/af7bd3f540b9819f25db51c31378885477371954))
+
 ## [0.6.2](https://github.com/Indemnity83/logistics/compare/mc26.1-v0.6.1...mc26.1-v0.6.2) (2026-06-04)
 
 
