@@ -3,6 +3,7 @@ package com.logistics.core.lib.power;
 import com.logistics.core.lib.block.BaseBlockEntity;
 import com.logistics.core.lib.block.capability.HasEnergyStorage;
 import com.logistics.core.lib.energy.EnergyComponent;
+import com.logistics.core.lib.energy.EnergyPushService;
 import com.logistics.core.lib.energy.IEnergyStorage;
 import com.logistics.core.lib.compat.NbtCompat;
 import com.logistics.core.lib.block.behavior.ProbeResult;
@@ -92,32 +93,6 @@ public abstract class AbstractEngineBlockEntity extends BaseBlockEntity implemen
     protected CyclePhase cyclePhase = CyclePhase.IDLE;
     protected HeatStage heatStage = HeatStage.COLD;
     private boolean wasRunning = false;
-
-    /**
-     * Platform service for pushing energy from this engine to an adjacent block.
-     * Set once during loader-specific initialization (Fabric or NeoForge bootstrap).
-     */
-    @FunctionalInterface
-    public interface EnergyPushService {
-        /**
-         * Push up to {@code maxAmount} energy to the block at {@code targetPos},
-         * approached from {@code fromDirection}.
-         *
-         * <p>Implementations must <em>not</em> mutate {@code source}; only return the amount
-         * transferred. The caller ({@link AbstractEngineBlockEntity#sendEnergy()}) is the single
-         * authority that debits the source buffer via {@link EnergyComponent#consume(long)}.
-         *
-         * @return the amount actually transferred (must be &ge; 0 and &le; maxAmount)
-         */
-        long push(Level level, BlockPos targetPos, Direction fromDirection, IEnergyStorage source, long maxAmount);
-    }
-
-    private static EnergyPushService energyPushService;
-
-    public static void setEnergyPushService(EnergyPushService service) {
-        if (service == null) throw new IllegalArgumentException("EnergyPushService must not be null");
-        energyPushService = service;
-    }
 
     // Energy buffer — engines never accept energy (maxInsert=0); extraction is managed via sendEnergy()
     protected final EnergyComponent energyBuffer = new EnergyComponent(
@@ -339,14 +314,15 @@ public abstract class AbstractEngineBlockEntity extends BaseBlockEntity implemen
 
     /** Sends energy to the block this engine is facing via the loader-specific energy push service. */
     protected void sendEnergy() {
-        if (level == null || !isRedstonePowered() || energyPushService == null) return;
+        EnergyPushService pushService = EnergyPushService.get();
+        if (level == null || !isRedstonePowered() || pushService == null) return;
 
         Direction outputDir = getOutputDirection();
         BlockPos targetPos = getBlockPos().relative(outputDir);
         long maxSend = Math.min(getOutputPower(), energyBuffer.getAmount());
         if (maxSend <= 0) return;
 
-        long sent = energyPushService.push(level, targetPos, outputDir.getOpposite(), energyBuffer, maxSend);
+        long sent = pushService.push(level, targetPos, outputDir.getOpposite(), energyBuffer, maxSend);
         if (sent > 0) {
             energyBuffer.consume(Math.min(sent, energyBuffer.getAmount()));
             setChanged();

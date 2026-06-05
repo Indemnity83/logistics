@@ -115,6 +115,20 @@ public record PipeContext(
         }
     }
 
+    /**
+     * Attempt to consume {@code amount} RF from the logistics network's registered batteries.
+     * All-or-nothing — energy is only deducted if the full amount is available.
+     *
+     * <p>Returns {@code true} when no network is attached yet (a brief bootstrap window) so modules
+     * don't stall before the network forms. Once a network exists, a network with no powered battery
+     * returns {@code false}, gating module work until a battery supplies power.
+     */
+    public boolean consumeEnergy(long amount) {
+        ILogisticsNetwork net = network();
+        if (net == null) return true;
+        return net.consumeEnergy(amount);
+    }
+
     public CompoundTag getCompoundTag(Module module, String key) {
         return NbtCompat.getCompoundOrEmpty(moduleState(module), key);
     }
