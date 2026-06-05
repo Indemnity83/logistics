@@ -203,6 +203,7 @@
   "item.logistics.power.rubber_chunk": "Rubber Chunk",
   "item.logistics.power.rubber_mix": "Rubber Mix",
   "block.logistics.power.creative_sink": "Creative Sink",
+  "block.logistics.power.battery": "Battery",
   "message.logistics.power.creative_sink.drain_rate": "Creative Sink: %s RF/t",
   "message.logistics.power.creative_engine.output": "Creative Engine: %s RF/t",
 

@@ -27,6 +27,8 @@ public class NetworkRouterModule implements Module, RoutingModule {
     // Accelerate aggressively so items reach ITEM_NETWORK_SPEED within one pipe segment.
     // ITEM_NETWORK_SPEED (0.2) - ITEM_MIN_SPEED (0.02) = 0.18 over ~5 ticks → 0.036/tick.
     private static final float NETWORK_ACCELERATION = 0.04f;
+    // Energy cost to assign a destination for an unrouted item.
+    private static final long RF_PER_ROUTE = 2;
 
     @Override
     public float getAcceleration(PipeContext ctx) {
@@ -46,6 +48,7 @@ public class NetworkRouterModule implements Module, RoutingModule {
         if (network == null) return RoutePlan.pass();
 
         if (item.getDestination() == null) {
+            if (!network.consumeEnergy(RF_PER_ROUTE)) return RoutePlan.drop();
             BlockPos destination = network.findSinkFor(item.getStack());
             if (destination == null) {
                 NetDbg.out("[NetworkRouter @ {}] No sink found for {}, dropping", ctx.pos(), item.getStack().getItem());

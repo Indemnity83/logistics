@@ -80,6 +80,8 @@ public class ProviderModule implements Module, TickingModule, DispatchableModule
     private static final int SCAN_INTERVAL = 6;        // Scan every 6 ticks (~3x/second)
     public static final int MAX_FILTER_SLOTS = 9;
     private static final int SUPPLY_PRIORITY = 1;      // Real stock; lower = preferred
+    // Energy cost per item dispatched (drawn from the network battery).
+    private static final long RF_PER_ITEM = 2;
 
     private final int itemLimit;
     private final int stackLimit;
@@ -285,6 +287,7 @@ public class ProviderModule implements Module, TickingModule, DispatchableModule
             }
 
             if (extracted > 0) {
+                if (!ctx.consumeEnergy(RF_PER_ITEM * extracted)) break;
                 ItemStack stack = item.toStack((int) extracted);
                 TravelingItem traveling = new TravelingItem(
                         stack, extractDir.getOpposite(), LogisticsConfig.get().pipe.minSpeed, head.requester());

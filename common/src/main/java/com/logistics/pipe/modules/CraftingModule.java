@@ -68,6 +68,9 @@ import java.util.UUID;
  * parallel rather than serially.
  */
 public class CraftingModule implements Module, TickingModule, RoutingModule, DispatchableModule, TransferHandlerModule {
+    // Energy cost per item dispatched (drawn from the network battery).
+    private static final long RF_PER_ITEM = 20;
+
     /** Max items to craft per 6-tick cycle (one tier step above = larger batches). */
     private final int itemLimit;
     /** Max output stacks to dispatch per cycle (future use; stored for tier identity). */
@@ -485,6 +488,8 @@ public class CraftingModule implements Module, TickingModule, RoutingModule, Dis
         // means onExternalInsert routes the excess as un-destined surplus to a sink rather than
         // force-routing all crafted output to the requester regardless of how much they wanted.
         long actualAmount = Math.min(amount, batchCount * resultCount);
+
+        if (!network.consumeEnergy(RF_PER_ITEM * actualAmount)) return 0;
 
         // Aggregate total ingredient amounts needed for the capped batch count
         Map<String, Long> totalNeededByItem = new LinkedHashMap<>();

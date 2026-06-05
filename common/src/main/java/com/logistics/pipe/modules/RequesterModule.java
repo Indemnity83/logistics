@@ -42,7 +42,7 @@ import java.util.stream.Collectors;
  * <p>Configuration: Up to 9 request slots, each with an item and amount.
  * <p>GUI: TODO (Phase 9) - For now, use NBT commands or placeholder interaction.
  *
- * <p>Energy: TODO (Phase 11): 5 RF per request cycle
+ * <p>Energy: costs {@value #RF_PER_REQUEST} RF per order placed (drawn from the network battery).
  */
 public class RequesterModule implements Module, TickingModule {
     private static final String REQUESTS = "requests";
@@ -51,8 +51,8 @@ public class RequesterModule implements Module, TickingModule {
     private static final int REQUEST_INTERVAL = 20;
     public static final int MAX_REQUEST_SLOTS = 9;
     public static final int MAX_REQUEST_AMOUNT = 576;
-    // TODO(Phase 11): Energy costs
-    // private static final int RF_PER_REQUEST_CYCLE = 5;
+    // Energy cost to place an order during the automatic request cycle.
+    private static final long RF_PER_REQUEST = 10;
 
     @Override
     public void onTick(PipeContext ctx) {
@@ -122,9 +122,6 @@ public class RequesterModule implements Module, TickingModule {
             return;
         }
 
-        // TODO(Phase 11): Check energy availability
-        // if (ctx.getEnergy() < RF_PER_REQUEST_CYCLE) return;
-
         List<RequestConfig> configs = getRequestConfigs(ctx);
         if (configs.isEmpty()) {
             return;
@@ -152,11 +149,9 @@ public class RequesterModule implements Module, TickingModule {
 
             long clamped = Math.min(needed, MAX_REQUEST_AMOUNT);
             if (clamped > 0) {
+                if (!network.consumeEnergy(RF_PER_REQUEST)) return;
                 NetDbg.out("[Requester @ {}] Placed order for {}x{}", ctx.pos(), clamped, item);
                 network.placeOrder(ItemStorageLookup.of(stack), clamped, ctx.pos());
-
-                // TODO(Phase 11): Consume energy
-                // ctx.setEnergy(ctx.getEnergy() - RF_PER_REQUEST_CYCLE);
 
                 break; // Only process one request per cycle
             } else {
