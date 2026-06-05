@@ -29,6 +29,9 @@ patches.lzma
 ats/
 /config.json
 
+# NeoForge
+/neoforge/runs/
+
 # MacOS
 .DS_Store
 
