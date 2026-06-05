@@ -1,8 +1,10 @@
 package com.logistics.core.lib.network;
 
+import com.logistics.core.lib.energy.IEnergyStorage;
 import com.logistics.core.lib.storage.IItemKey;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.UUID;
@@ -56,4 +58,13 @@ public interface IWorldView {
      * @param message message to broadcast
      */
     void broadcastAlert(BlockPos pos, Component message);
+
+    /**
+     * Resolve the energy storage exposed by the block at {@code pos}, or {@code null} if there is
+     * none (or the chunk is unloaded). Used by the network to draw on registered battery sources.
+     */
+    @Nullable
+    default IEnergyStorage energyStorageAt(BlockPos pos) {
+        return null;
+    }
 }

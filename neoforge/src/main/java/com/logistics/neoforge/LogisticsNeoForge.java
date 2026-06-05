@@ -3,8 +3,8 @@ package com.logistics.neoforge;
 import com.logistics.core.bootstrap.LogisticsCommonBootstrap;
 import com.logistics.core.lib.platform.CreativeTabRegistrar;
 import com.logistics.core.lib.platform.ResourceReloadRegistrar;
+import com.logistics.core.lib.energy.EnergyPushService;
 import com.logistics.core.lib.power.AbstractEngineBlock;
-import com.logistics.core.lib.power.AbstractEngineBlockEntity;
 import com.logistics.neoforge.energy.NeoForgeEnergyStorage;
 import com.logistics.neoforge.client.NeoForgeClientSetup;
 import com.logistics.neoforge.platform.NeoForgeCreativeTabRegistrar;
@@ -59,7 +59,7 @@ public final class LogisticsNeoForge {
     }
 
     private void registerEnergyServices() {
-        AbstractEngineBlockEntity.setEnergyPushService((level, targetPos, fromDirection, source, maxAmount) -> {
+        EnergyPushService.set((level, targetPos, fromDirection, source, maxAmount) -> {
             var target = level.getCapability(Capabilities.Energy.BLOCK, targetPos, fromDirection);
             if (target == null) {
                 return 0L;
