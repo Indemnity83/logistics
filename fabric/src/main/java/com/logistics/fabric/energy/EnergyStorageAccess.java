@@ -50,7 +50,7 @@ public final class EnergyStorageAccess {
      * opening any new transactions — safe to call from within TR close callbacks or from
      * the cable network's simulate-boolean path.
      */
-    private static final class SimulateBooleanAdapter implements EnergyStorage, IEnergyStorage {
+    static final class SimulateBooleanAdapter implements EnergyStorage, IEnergyStorage {
         private final IEnergyStorage delegate;
 
         SimulateBooleanAdapter(IEnergyStorage delegate) {

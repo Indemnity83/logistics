@@ -109,6 +109,33 @@ class NeoForgeEnergyStorageTest {
         }
 
         @Test
+        @DisplayName("receiveEnergy forwards energy through a zero-capacity conduit (cable regression)")
+        void receiveEnergy_forwardsThroughZeroCapacityConduit() {
+            // Cables report capacity 0 but forward inserts into their network.
+            // receiveEnergy must delegate to the wrapped storage, not gate on
+            // capacity, or cables would transport no energy on NeoForge.
+            FakeConduit conduit = new FakeConduit(80);
+            var handler = NeoForgeEnergyStorage.asNeoForge(conduit);
+
+            int received = handler.receiveEnergy(200, false);
+
+            assertThat(received).isEqualTo(80);
+            assertThat(conduit.forwarded).isEqualTo(80);
+        }
+
+        @Test
+        @DisplayName("receiveEnergy simulate does not forward through a conduit")
+        void receiveEnergy_simulate_doesNotForwardThroughConduit() {
+            FakeConduit conduit = new FakeConduit(80);
+            var handler = NeoForgeEnergyStorage.asNeoForge(conduit);
+
+            int simulated = handler.receiveEnergy(200, true);
+
+            assertThat(simulated).isEqualTo(80);
+            assertThat(conduit.forwarded).isZero();
+        }
+
+        @Test
         @DisplayName("extractEnergy removes energy from backing storage")
         void extractEnergy_removesEnergy() {
             EnergyComponent backing = component(100);
@@ -248,6 +275,53 @@ class NeoForgeEnergyStorageTest {
             assertThat(wrapped.extract(-10, false)).isZero();
             assertThat(wrapped.extract(0, false)).isZero();
             assertThat(backing.getAmount()).isEqualTo(40);
+        }
+    }
+
+    /**
+     * Models a cable: a bufferless conduit that reports zero capacity/amount but
+     * forwards inserted energy into its network (capped at {@code networkRoom}).
+     */
+    private static final class FakeConduit implements IEnergyStorage {
+        private final long networkRoom;
+        private long forwarded;
+
+        private FakeConduit(long networkRoom) {
+            this.networkRoom = networkRoom;
+        }
+
+        @Override
+        public long insert(long maxAmount, boolean simulate) {
+            if (maxAmount <= 0) return 0;
+            long remaining = Math.max(0, networkRoom - forwarded);
+            long accepted = Math.min(maxAmount, remaining);
+            if (!simulate) forwarded += accepted;
+            return accepted;
+        }
+
+        @Override
+        public long extract(long maxAmount, boolean simulate) {
+            return 0;
+        }
+
+        @Override
+        public long getAmount() {
+            return 0;
+        }
+
+        @Override
+        public long getCapacity() {
+            return 0;
+        }
+
+        @Override
+        public boolean canInsert() {
+            return true;
+        }
+
+        @Override
+        public boolean canExtract() {
+            return false;
         }
     }
 }
