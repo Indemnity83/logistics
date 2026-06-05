@@ -11,10 +11,15 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
+
+import com.logistics.core.lib.energy.IEnergyStorage;
 
 /**
  * Represents a connected network of pipes.
@@ -32,6 +37,10 @@ public class PipeNetwork implements ILogisticsNetwork {
 
     // Satellite registry: logical ID → pipe position
     private final Map<String, BlockPos> satellites = new HashMap<>();
+
+    // Battery positions registered as energy sources. Insertion order = draw order.
+    // Storage is resolved from the world on demand so removed/unloaded batteries are skipped.
+    private final Set<BlockPos> energySources = new LinkedHashSet<>();
 
     /**
      * Constructor with dependency injection.
@@ -341,6 +350,49 @@ public class PipeNetwork implements ILogisticsNetwork {
         return jobCoordinator;
     }
 
+    // ===== Energy Operations =====
+
+    @Override
+    public void registerEnergySource(BlockPos pos) {
+        energySources.add(pos);
+    }
+
+    @Override
+    public void unregisterEnergySource(BlockPos pos) {
+        energySources.remove(pos);
+    }
+
+    @Override
+    public boolean consumeEnergy(long amount) {
+        if (amount <= 0) return true;
+        if (worldView == null || energySources.isEmpty()) return false;
+
+        // Phase 1: build a fixed draw plan by simulating across sources in registration order.
+        Map<BlockPos, Long> plannedDraws = new LinkedHashMap<>();
+        long planned = 0;
+        for (BlockPos pos : energySources) {
+            if (planned >= amount) break;
+            IEnergyStorage storage = worldView.energyStorageAt(pos);
+            if (storage == null) continue;
+            long take = storage.extract(amount - planned, true);
+            if (take > 0) {
+                plannedDraws.put(pos, take);
+                planned += take;
+            }
+        }
+        if (planned < amount) return false;
+
+        // Phase 2: commit exactly the planned amount from each recorded source. Within a single
+        // synchronous tick nothing else mutates these buffers, so each commit matches its plan.
+        long drawn = 0;
+        for (Map.Entry<BlockPos, Long> draw : plannedDraws.entrySet()) {
+            IEnergyStorage storage = worldView.energyStorageAt(draw.getKey());
+            if (storage == null) continue;
+            drawn += storage.extract(draw.getValue(), false);
+        }
+        return drawn >= amount;
+    }
+
     /**
      * Merge another network into this one.
      */
@@ -349,6 +401,7 @@ public class PipeNetwork implements ILogisticsNetwork {
         controller.merge(other.controller);
         jobCoordinator.merge(other.jobCoordinator);
         sinkResolver.merge(other.sinkResolver);
+        energySources.addAll(other.energySources);
         other.satellites.forEach((satId, pos) -> {
             BlockPos existing = satellites.get(satId);
             if (existing != null && !existing.equals(pos)) {

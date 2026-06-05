@@ -1,6 +1,8 @@
 package com.logistics.pipe.network;
 
 import com.logistics.core.lib.block.capability.PipeConnection;
+import com.logistics.core.lib.block.capability.HasEnergyStorage;
+import com.logistics.core.lib.energy.IEnergyStorage;
 import com.logistics.core.lib.network.IWorldView;
 import com.logistics.pipe.Pipe;
 import com.logistics.core.lib.pipe.PipeContext;
@@ -104,6 +106,15 @@ public class MinecraftWorldView implements IWorldView {
                 p.sendSystemMessage(message);
             }
         });
+    }
+
+    @Override
+    @Nullable
+    public IEnergyStorage energyStorageAt(BlockPos pos) {
+        if (level.getBlockEntity(pos) instanceof HasEnergyStorage hasStorage) {
+            return hasStorage.energyStorage(null);
+        }
+        return null;
     }
 
     /**

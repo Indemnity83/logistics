@@ -3,8 +3,8 @@ package com.logistics.fabric;
 import com.logistics.LogisticsMod;
 import com.logistics.LogisticsPower;
 import com.logistics.core.bootstrap.LogisticsCommonBootstrap;
+import com.logistics.core.lib.energy.EnergyPushService;
 import com.logistics.core.lib.power.AbstractEngineBlock;
-import com.logistics.core.lib.power.AbstractEngineBlockEntity;
 import com.logistics.fabric.capability.FabricCapabilityRegistration;
 import com.logistics.fabric.energy.EnergyStorageAccess;
 import com.logistics.power.cable.CableNetworkManager;
@@ -63,7 +63,7 @@ public final class LogisticsFabric implements ModInitializer {
     private void registerEnergyServices() {
         EnergyStorageAccess.register();
 
-        AbstractEngineBlockEntity.setEnergyPushService((level, targetPos, fromDirection, source, maxAmount) -> {
+        EnergyPushService.set((level, targetPos, fromDirection, source, maxAmount) -> {
             EnergyStorage target = EnergyStorage.SIDED.find(level, targetPos, fromDirection);
             if (target == null) return 0L;
             try (Transaction tx = Transaction.openOuter()) {
