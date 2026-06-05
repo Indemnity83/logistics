@@ -82,10 +82,30 @@ class NeoForgeEnergyStorageTest {
 
             try (Transaction tx = Transaction.openRoot()) {
                 assertThat(handler.insert(200, tx)).isEqualTo(80);
+                // Energy is only forwarded on commit, not during the staged insert.
+                assertThat(conduit.forwarded).isZero();
                 tx.commit();
             }
 
             assertThat(conduit.forwarded).isEqualTo(80);
+        }
+
+        @Test
+        @DisplayName("insert reuses room freed by a staged extraction within the same transaction")
+        void insert_reusesStagedExtractionRoom() {
+            EnergyComponent backing = component(100);
+            backing.insert(100, false); // full
+            EnergyHandler handler = NeoForgeEnergyStorage.asNeoForge(backing);
+
+            try (Transaction tx = Transaction.openRoot()) {
+                assertThat(handler.extract(30, tx)).isEqualTo(30);
+                // The staged extraction freed 30; an insert should reclaim that room
+                // even though the committed storage is still full.
+                assertThat(handler.insert(10, tx)).isEqualTo(10);
+                tx.commit();
+            }
+
+            assertThat(backing.getAmount()).isEqualTo(80); // 100 - 30 + 10
         }
 
         @Test
@@ -257,7 +277,8 @@ class NeoForgeEnergyStorageTest {
         @Override
         public long insert(long maxAmount, boolean simulate) {
             if (maxAmount <= 0) return 0;
-            long accepted = Math.min(maxAmount, networkRoom);
+            long remaining = Math.max(0, networkRoom - forwarded);
+            long accepted = Math.min(maxAmount, remaining);
             if (!simulate) forwarded += accepted;
             return accepted;
         }
