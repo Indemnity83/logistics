@@ -115,8 +115,13 @@ public final class NeoForgeEnergyStorage implements IEnergyStorage {
         public int insert(int amount, net.neoforged.neoforge.transfer.transaction.TransactionContext transaction) {
             if (amount <= 0) return 0;
             updateSnapshots(transaction);
-            long effectiveFree = Math.max(0, getCapacityAsLong() - getAmountAsLong());
-            long inserted = Math.min(amount, effectiveFree);
+            // Ask the wrapped storage how much it can actually accept, accounting for
+            // what we've already staged this transaction. Delegating (instead of using
+            // capacity - amount) lets zero-capacity conduits such as cables, which
+            // forward energy into a network, accept inserts.
+            long alreadyStaged = Math.max(0, pendingDelta);
+            long totalInsertable = storage.insert(alreadyStaged + amount, true);
+            long inserted = Math.max(0, totalInsertable - alreadyStaged);
             if (inserted > 0) {
                 pendingDelta += inserted;
             }
