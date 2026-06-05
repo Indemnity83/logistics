@@ -295,6 +295,35 @@ public interface ILogisticsNetwork {
      */
     default Set<String> getAvailableSatelliteIds() { return Set.of(); }
 
+    // ===== Energy Operations =====
+
+    /**
+     * Register a battery position as an energy source for this network.
+     * The battery's stored energy is drawn on by module operations via {@link #consumeEnergy}.
+     * Idempotent — registering the same position twice has no additional effect. The storage is
+     * resolved from the world on demand, so a removed/unloaded battery is simply skipped.
+     *
+     * @param pos world position of the battery block
+     */
+    default void registerEnergySource(BlockPos pos) {}
+
+    /**
+     * Unregister a battery position. Called when the battery is removed or the network splits.
+     *
+     * @param pos world position of the battery block
+     */
+    default void unregisterEnergySource(BlockPos pos) {}
+
+    /**
+     * Attempt to consume {@code amount} RF from the network's registered batteries.
+     * All-or-nothing: energy is only deducted if the full amount is available across all sources;
+     * otherwise nothing is consumed and {@code false} is returned.
+     *
+     * @param amount RF to consume (a non-positive amount is a no-op that returns {@code true})
+     * @return true if the full amount was consumed; false if insufficient energy was available
+     */
+    default boolean consumeEnergy(long amount) { return amount <= 0; }
+
     // ===== Routing Operations =====
 
     /**
