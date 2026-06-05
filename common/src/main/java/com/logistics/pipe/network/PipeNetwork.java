@@ -11,6 +11,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -366,25 +367,30 @@ public class PipeNetwork implements ILogisticsNetwork {
         if (amount <= 0) return true;
         if (worldView == null || energySources.isEmpty()) return false;
 
-        // Phase 1: simulate across sources to verify the full amount is available.
-        long available = 0;
+        // Phase 1: build a fixed draw plan by simulating across sources in registration order.
+        Map<BlockPos, Long> plannedDraws = new LinkedHashMap<>();
+        long planned = 0;
         for (BlockPos pos : energySources) {
+            if (planned >= amount) break;
             IEnergyStorage storage = worldView.energyStorageAt(pos);
             if (storage == null) continue;
-            available += storage.extract(amount - available, true);
-            if (available >= amount) break;
+            long take = storage.extract(amount - planned, true);
+            if (take > 0) {
+                plannedDraws.put(pos, take);
+                planned += take;
+            }
         }
-        if (available < amount) return false;
+        if (planned < amount) return false;
 
-        // Phase 2: commit in the same order. Nothing else mutates these buffers within the tick.
-        long remaining = amount;
-        for (BlockPos pos : energySources) {
-            if (remaining <= 0) break;
-            IEnergyStorage storage = worldView.energyStorageAt(pos);
+        // Phase 2: commit exactly the planned amount from each recorded source. Within a single
+        // synchronous tick nothing else mutates these buffers, so each commit matches its plan.
+        long drawn = 0;
+        for (Map.Entry<BlockPos, Long> draw : plannedDraws.entrySet()) {
+            IEnergyStorage storage = worldView.energyStorageAt(draw.getKey());
             if (storage == null) continue;
-            remaining -= storage.extract(remaining, false);
+            drawn += storage.extract(draw.getValue(), false);
         }
-        return remaining <= 0;
+        return drawn >= amount;
     }
 
     /**
