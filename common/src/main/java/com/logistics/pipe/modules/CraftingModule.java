@@ -489,8 +489,6 @@ public class CraftingModule implements Module, TickingModule, RoutingModule, Dis
         // force-routing all crafted output to the requester regardless of how much they wanted.
         long actualAmount = Math.min(amount, batchCount * resultCount);
 
-        if (!network.consumeEnergy(RF_PER_ITEM * actualAmount)) return 0;
-
         // Aggregate total ingredient amounts needed for the capped batch count
         Map<String, Long> totalNeededByItem = new LinkedHashMap<>();
         for (int slot = 0; slot < 9; slot++) {
@@ -584,6 +582,10 @@ public class CraftingModule implements Module, TickingModule, RoutingModule, Dis
                 neededByItem.put(ingredientId, toOrder);
             }
         }
+
+        // All ingredients validated — charge energy now, immediately before placing orders, so a
+        // rejected dispatch never burns power. No failure paths remain after this point.
+        if (!network.consumeEnergy(RF_PER_ITEM * actualAmount)) return 0;
 
         // Place ingredient orders immediately — each queued order orders its own ingredients
         // independently so materials arrive in parallel rather than waiting for prior orders.

@@ -305,8 +305,6 @@ public class ProcessModule implements Module, TickingModule, RoutingModule, Disp
             return 0;
         }
 
-        if (!network.consumeEnergy(RF_PER_ITEM * actualAmount)) return 0;
-
         int satId = getInputSatelliteId(ctx);
         String globalDest = satId > 0 ? String.valueOf(satId) : "";
 
@@ -344,6 +342,13 @@ public class ProcessModule implements Module, TickingModule, RoutingModule, Disp
             UUID orderId = network.placeOrder(inputKey, needed, orderDest);
             createdOrderIds.add(orderId);
             orderIds.add(StringTag.valueOf(orderId.toString()));
+        }
+
+        // All inputs resolved and orders placed — charge energy now, rolling the orders back if the
+        // network can't pay, so a rejected dispatch never burns power or leaves dangling orders.
+        if (!network.consumeEnergy(RF_PER_ITEM * actualAmount)) {
+            createdOrderIds.forEach(network::cancelOrder);
+            return 0;
         }
 
         // Append entry to queue with snapshot of output config

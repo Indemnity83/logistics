@@ -45,7 +45,7 @@ import java.util.Map;
  * <p>Configuration: Up to 9 supply slots, each with an item and target amount.
  * <p>GUI: Accessible with wrench, similar to RequesterModule.
  *
- * <p>Energy: TODO (Phase 11): 1 RF per item requested
+ * <p>Energy: charges {@value #RF_PER_DISPATCH_CYCLE} RF per active supply cycle, drawn from the network battery.
  */
 public class SupplierModule implements Module, TickingModule, RoutingModule {
     /**
