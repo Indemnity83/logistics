@@ -46,7 +46,7 @@ import java.util.Map;
  * <p>Configuration: Up to 9 supply slots, each with an item and target amount.
  * <p>GUI: Accessible with wrench, similar to RequesterModule.
  *
- * <p>Energy: TODO (Phase 11): 1 RF per item requested
+ * <p>Energy: charges {@value #RF_PER_DISPATCH_CYCLE} RF per active supply cycle, drawn from the network battery.
  */
 public class SupplierModule implements Module, TickingModule, RoutingModule {
     /**
@@ -68,8 +68,8 @@ public class SupplierModule implements Module, TickingModule, RoutingModule {
     private static final int CHECK_INTERVAL = 20;
     public static final int MAX_SUPPLY_SLOTS = 9;
 
-    // TODO(Phase 11): Energy costs
-    // private static final int RF_PER_ITEM = 1;
+    // Energy cost per active supply cycle (drawn from the network battery).
+    private static final long RF_PER_DISPATCH_CYCLE = 20;
 
     @Override
     public void onTick(PipeContext ctx) {
@@ -173,6 +173,8 @@ public class SupplierModule implements Module, TickingModule, RoutingModule {
 
         List<SupplyConfig> configs = getSupplyConfigs(ctx);
         if (configs.isEmpty()) return;
+
+        if (!network.consumeEnergy(RF_PER_DISPATCH_CYCLE)) return;
 
         Map<ItemStack, Long> currentStock = scanInventory(ctx, supplierDir);
         SupplyMode mode = getMode(ctx);
@@ -379,12 +381,6 @@ public class SupplierModule implements Module, TickingModule, RoutingModule {
 
     private boolean isSupplierFace(PipeContext ctx, Direction direction) {
         return getSupplierDirection(ctx) == direction;
-    }
-
-    @Override
-    public boolean acceptsLowTierEnergyFrom(PipeContext ctx, Direction from) {
-        // TODO(Phase 11): Accept energy for supply costs
-        return false; // For now, no energy required
     }
 
     /**

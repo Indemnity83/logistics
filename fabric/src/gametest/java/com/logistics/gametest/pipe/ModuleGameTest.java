@@ -1,6 +1,9 @@
 package com.logistics.gametest.pipe;
 
 import com.logistics.LogisticsPipe;
+import com.logistics.LogisticsPower;
+import com.logistics.core.lib.energy.EnergyComponent;
+import com.logistics.power.block.entity.BatteryBlockEntity;
 import com.logistics.pipe.Pipe;
 import com.logistics.core.lib.pipe.PipeContext;
 import com.logistics.pipe.block.PipeBlock;
@@ -29,6 +32,13 @@ import java.util.List;
  * Tests routing logic, filter matching, extraction timing, and energy calculations.
  */
 public class ModuleGameTest {
+
+    /** Place a fully-charged battery so the network can pay module energy costs. */
+    private static void placeChargedBattery(GameTestHelper context, BlockPos pos) {
+        context.setBlock(pos, LogisticsPower.BLOCK.BATTERY);
+        BatteryBlockEntity battery = (BatteryBlockEntity) context.getBlockEntity(pos);
+        ((EnergyComponent) battery.energyStorage(null)).setAmount(BatteryBlockEntity.CAPACITY);
+    }
 
     /**
      * Test that filter pipes can be placed and have block entities.
@@ -434,6 +444,7 @@ public class ModuleGameTest {
 
         context.setBlock(chestPos, Blocks.CHEST);
         context.setBlock(pipePos, LogisticsPipe.BLOCK.BASIC_LOGISTICS_PIPE);
+        placeChargedBattery(context, pipePos.above()); // power the network so routing can pay its cost
 
         PipeBlockEntity pipe = (PipeBlockEntity) context.getBlockEntity(pipePos);
         if (pipe == null) {
@@ -482,6 +493,7 @@ public class ModuleGameTest {
 
         context.setBlock(chestPos, Blocks.CHEST);
         context.setBlock(pipePos, LogisticsPipe.BLOCK.BASIC_LOGISTICS_PIPE);
+        placeChargedBattery(context, pipePos.above()); // power the network so routing can pay its cost
 
         PipeBlockEntity pipe = (PipeBlockEntity) context.getBlockEntity(pipePos);
         if (pipe == null) {

@@ -50,6 +50,7 @@ public final class NeoForgeCapabilityRegistration {
         registerEnergy(event, LogisticsPower.ENTITY.STIRLING_ENGINE_BLOCK_ENTITY);
         registerEnergy(event, LogisticsPower.ENTITY.CREATIVE_ENGINE_BLOCK_ENTITY);
         registerEnergy(event, LogisticsPower.ENTITY.CREATIVE_SINK_BLOCK_ENTITY);
+        registerEnergy(event, LogisticsPower.ENTITY.BATTERY_BLOCK_ENTITY);
         registerEnergy(event, LogisticsPower.ENTITY.CABLE_BLOCK_ENTITY);
         registerEnergy(event, LogisticsPipe.ENTITY.PIPE_BLOCK_ENTITY);
         registerEnergy(event, LogisticsAutomation.ENTITY.LASER_QUARRY_BLOCK_ENTITY);

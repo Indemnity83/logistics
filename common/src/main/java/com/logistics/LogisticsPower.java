@@ -2,7 +2,10 @@ package com.logistics;
 
 import com.logistics.core.bootstrap.DomainBootstrap;
 import com.logistics.core.lib.resource.ResourceId;
+import com.logistics.power.block.BatteryBlock;
+import com.logistics.power.block.BatteryBlockItem;
 import com.logistics.power.block.CreativeSinkBlock;
+import com.logistics.power.block.entity.BatteryBlockEntity;
 import com.logistics.power.block.entity.CreativeSinkBlockEntity;
 import com.logistics.power.cable.CableBlock;
 import com.logistics.power.cable.CableBlockEntity;
@@ -62,6 +65,7 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
         public static Block STIRLING_ENGINE;
         public static Block CREATIVE_ENGINE;
         public static Block CREATIVE_SINK;
+        public static Block BATTERY;
         public static Block COPPER_CABLE;
         public static Block GOLD_CABLE;
         public static Block ENDER_CABLE;
@@ -75,6 +79,9 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
                 props -> new CreativeEngineBlock(props.strength(5.0f).sound(SoundType.STONE).noOcclusion()));
             CREATIVE_SINK = INSTANCE.registerBlockWithItem("creative_sink",
                 props -> new CreativeSinkBlock(props.strength(5.0f).sound(SoundType.STONE)));
+            BATTERY = INSTANCE.registerBlockWithItem("battery",
+                props -> new BatteryBlock(props.strength(3.0f).sound(SoundType.METAL)),
+                BatteryBlockItem::new);
             COPPER_CABLE = registerCable("copper_cable", CableTier.COPPER, SoundType.COPPER);
             GOLD_CABLE = registerCable("gold_cable", CableTier.GOLD, SoundType.METAL);
             ENDER_CABLE = registerCable("ender_cable", CableTier.ENDER, SoundType.AMETHYST);
@@ -93,6 +100,7 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
         public static BlockEntityType<StirlingEngineBlockEntity> STIRLING_ENGINE_BLOCK_ENTITY;
         public static BlockEntityType<CreativeEngineBlockEntity> CREATIVE_ENGINE_BLOCK_ENTITY;
         public static BlockEntityType<CreativeSinkBlockEntity> CREATIVE_SINK_BLOCK_ENTITY;
+        public static BlockEntityType<BatteryBlockEntity> BATTERY_BLOCK_ENTITY;
         public static BlockEntityType<CableBlockEntity> CABLE_BLOCK_ENTITY;
 
         static void register() {
@@ -104,6 +112,8 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
                 INSTANCE.registerBlockEntity("creative_engine", CreativeEngineBlockEntity::new, BLOCK.CREATIVE_ENGINE);
             CREATIVE_SINK_BLOCK_ENTITY =
                 INSTANCE.registerBlockEntity("creative_sink", CreativeSinkBlockEntity::new, BLOCK.CREATIVE_SINK);
+            BATTERY_BLOCK_ENTITY =
+                INSTANCE.registerBlockEntity("battery", BatteryBlockEntity::new, BLOCK.BATTERY);
             CABLE_BLOCK_ENTITY =
                 INSTANCE.registerBlockEntity("cable", CableBlockEntity::new,
                         BLOCK.COPPER_CABLE, BLOCK.GOLD_CABLE, BLOCK.ENDER_CABLE);
@@ -145,6 +155,7 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
             LogisticsCore.CREATIVE.TAB.add(BLOCK.STIRLING_ENGINE);
             LogisticsCore.CREATIVE.TAB.add(BLOCK.CREATIVE_ENGINE);
             LogisticsCore.CREATIVE.TAB.add(BLOCK.CREATIVE_SINK);
+            LogisticsCore.CREATIVE.TAB.add(BLOCK.BATTERY);
             LogisticsCore.CREATIVE.TAB.add(BLOCK.COPPER_CABLE);
             LogisticsCore.CREATIVE.TAB.add(BLOCK.GOLD_CABLE);
             LogisticsCore.CREATIVE.TAB.add(BLOCK.ENDER_CABLE);

@@ -80,6 +80,8 @@ public class ProcessModule implements Module, TickingModule, RoutingModule, Disp
     private static final int EXTRACT_INTERVAL = 6;
     // Priority: between Provider (1) and Crafter (5)
     static final int PROCESS_PRIORITY = 3;
+    // Energy cost per item dispatched (drawn from the network battery).
+    private static final long RF_PER_ITEM = 20;
     // Maximum number of queued orders (soft cap to prevent unbounded growth)
     private static final int MAX_QUEUE_SIZE = 64;
 
@@ -338,6 +340,13 @@ public class ProcessModule implements Module, TickingModule, RoutingModule, Disp
             UUID orderId = network.placeOrder(inputKey, needed, orderDest);
             createdOrderIds.add(orderId);
             orderIds.add(StringTag.valueOf(orderId.toString()));
+        }
+
+        // All inputs resolved and orders placed — charge energy now, rolling the orders back if the
+        // network can't pay, so a rejected dispatch never burns power or leaves dangling orders.
+        if (!network.consumeEnergy(RF_PER_ITEM * actualAmount)) {
+            createdOrderIds.forEach(network::cancelOrder);
+            return 0;
         }
 
         // Append entry to queue with snapshot of output config
