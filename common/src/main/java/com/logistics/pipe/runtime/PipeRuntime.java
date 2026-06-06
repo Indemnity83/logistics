@@ -175,24 +175,38 @@ public final class PipeRuntime {
         // Only logistics (smart) pipes carry a power indicator; others never tint their arms.
         if (ctx.pipe().getModule(NetworkRouterModule.class, ctx.blockEntity()) == null) return;
 
-        int mask = 0;
-        ILogisticsNetwork network = ctx.blockEntity().getNetwork();
-        if (network != null && network.isPowered()) {
-            for (Direction dir : Direction.values()) {
-                PipeConnection.Type type = ctx.blockEntity().getCachedConnectionType(dir);
-                boolean powered = switch (type) {
-                    case POWER -> true; // a battery
-                    case PIPE -> isPipeNeighbor(ctx.world(), ctx.pos().relative(dir)); // a real pipe
-                    default -> false;   // inventories and unconnected sides stay red
-                };
-                if (powered) mask |= (1 << dir.get3DDataValue());
-            }
-        }
-
+        int mask = computePoweredArmMask(ctx);
         if (mask != ctx.blockEntity().getPoweredArmMask()) {
             ctx.blockEntity().setPoweredArmMask(mask);
             itemState.markNeedsSync();
         }
+    }
+
+    /** Build the per-arm powered bitmask, or {@code 0} when the pipe's network has no stored power. */
+    private static int computePoweredArmMask(TickContext ctx) {
+        ILogisticsNetwork network = ctx.blockEntity().getNetwork();
+        if (network == null || !network.isPowered()) return 0;
+
+        int mask = 0;
+        for (Direction dir : Direction.values()) {
+            if (isArmPowered(ctx, dir)) {
+                mask |= (1 << dir.get3DDataValue());
+            }
+        }
+        return mask;
+    }
+
+    /**
+     * True if the arm toward {@code dir} links into the (powered) network — a battery
+     * ({@code POWER}) or another actual pipe block. Inventory/endpoint connections (e.g. the laser
+     * quarry, which speaks {@code PIPE} only for item I/O) are not power links and stay unpowered.
+     */
+    private static boolean isArmPowered(TickContext ctx, Direction dir) {
+        return switch (ctx.blockEntity().getCachedConnectionType(dir)) {
+            case POWER -> true;
+            case PIPE -> isPipeNeighbor(ctx.world(), ctx.pos().relative(dir));
+            default -> false;
+        };
     }
 
     /** True if the block at {@code pos} is an actual pipe (so power flows through it). */
