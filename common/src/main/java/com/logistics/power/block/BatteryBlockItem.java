@@ -27,7 +27,12 @@ public class BatteryBlockItem extends BlockItem {
     @Override
     public int getBarWidth(ItemStack stack) {
         long stored = getStoredEnergy(stack);
-        return Math.round(13.0f * stored / BatteryBlockEntity.CAPACITY);
+        if (stored <= 0) {
+            return 0;
+        }
+        // Clamp so any positive charge shows at least 1px and a full battery never overflows 13px.
+        int width = Math.round(13.0f * stored / BatteryBlockEntity.CAPACITY);
+        return Math.max(1, Math.min(13, width));
     }
 
     @Override
