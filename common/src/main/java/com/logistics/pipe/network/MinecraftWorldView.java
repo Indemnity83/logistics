@@ -117,6 +117,11 @@ public class MinecraftWorldView implements IWorldView {
         return null;
     }
 
+    @Override
+    public long gameTime() {
+        return level.getGameTime();
+    }
+
     /**
      * Get the underlying Level.
      * This is a temporary bridge method for code that still needs Level access.

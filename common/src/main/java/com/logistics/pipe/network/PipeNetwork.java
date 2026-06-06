@@ -42,6 +42,11 @@ public class PipeNetwork implements ILogisticsNetwork {
     // Storage is resolved from the world on demand so removed/unloaded batteries are skipped.
     private final Set<BlockPos> energySources = new LinkedHashSet<>();
 
+    // Per-tick cache for isPowered(): every logistics pipe queries the shared network each tick,
+    // so the source scan is computed once per game tick and reused for the rest of that tick.
+    private long lastPoweredCheckTick = Long.MIN_VALUE;
+    private boolean cachedPowered;
+
     /**
      * Constructor with dependency injection.
      * @param id Network UUID
@@ -365,11 +370,22 @@ public class PipeNetwork implements ILogisticsNetwork {
     @Override
     public boolean isPowered() {
         if (worldView == null || energySources.isEmpty()) return false;
+
+        // Reuse this tick's result: all pipes on the network ask the same question each tick.
+        long now = worldView.gameTime();
+        if (now == lastPoweredCheckTick) return cachedPowered;
+
+        boolean powered = false;
         for (BlockPos pos : energySources) {
             IEnergyStorage storage = worldView.energyStorageAt(pos);
-            if (storage != null && storage.getAmount() > 0) return true;
+            if (storage != null && storage.getAmount() > 0) {
+                powered = true;
+                break;
+            }
         }
-        return false;
+        lastPoweredCheckTick = now;
+        cachedPowered = powered;
+        return powered;
     }
 
     @Override

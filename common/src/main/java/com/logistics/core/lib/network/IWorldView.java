@@ -67,4 +67,12 @@ public interface IWorldView {
     default IEnergyStorage energyStorageAt(BlockPos pos) {
         return null;
     }
+
+    /**
+     * Current world game time, in ticks. Used to cache per-tick network queries (e.g.
+     * {@code isPowered()}) so they compute once per network per tick rather than once per pipe.
+     */
+    default long gameTime() {
+        return 0L;
+    }
 }
