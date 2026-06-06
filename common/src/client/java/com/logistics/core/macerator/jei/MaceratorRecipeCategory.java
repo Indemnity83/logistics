@@ -2,7 +2,7 @@ package com.logistics.core.macerator.jei;
 
 import com.logistics.LogisticsCore;
 import com.logistics.LogisticsMod;
-import com.logistics.core.macerator.MaceratorRecipe;
+import com.logistics.core.macerator.MaceratorRecipeWrapper;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
 import mezz.jei.api.gui.widgets.IRecipeExtrasBuilder;
@@ -19,10 +19,10 @@ import net.minecraft.world.item.ItemStack;
  * JEI recipe category for the Macerator.
  * Displays a single input ingredient grinding into an output item.
  */
-public class MaceratorRecipeCategory implements IRecipeCategory<MaceratorRecipe> {
+public class MaceratorRecipeCategory implements IRecipeCategory<MaceratorRecipeWrapper> {
 
-    public static final IRecipeType<MaceratorRecipe> RECIPE_TYPE =
-        IRecipeType.create(LogisticsMod.MOD_ID, "macerator", MaceratorRecipe.class);
+    public static final IRecipeType<MaceratorRecipeWrapper> RECIPE_TYPE =
+        IRecipeType.create(LogisticsMod.MOD_ID, "macerator", MaceratorRecipeWrapper.class);
 
     // Matches MaceratorScreen.TEXTURE
     private static final Identifier TEXTURE =
@@ -48,7 +48,7 @@ public class MaceratorRecipeCategory implements IRecipeCategory<MaceratorRecipe>
     }
 
     @Override
-    public IRecipeType<MaceratorRecipe> getRecipeType() {
+    public IRecipeType<MaceratorRecipeWrapper> getRecipeType() {
         return RECIPE_TYPE;
     }
 
@@ -73,14 +73,14 @@ public class MaceratorRecipeCategory implements IRecipeCategory<MaceratorRecipe>
     }
 
     @Override
-    public void createRecipeExtras(IRecipeExtrasBuilder builder, MaceratorRecipe recipe, IFocusGroup focuses) {
+    public void createRecipeExtras(IRecipeExtrasBuilder builder, MaceratorRecipeWrapper recipe, IFocusGroup focuses) {
         builder.addDrawable(arrow, ARROW_X, ARROW_Y);
     }
 
     @Override
-    public void setRecipe(IRecipeLayoutBuilder builder, MaceratorRecipe recipe, IFocusGroup focuses) {
+    public void setRecipe(IRecipeLayoutBuilder builder, MaceratorRecipeWrapper recipe, IFocusGroup focuses) {
         builder.addSlot(RecipeIngredientRole.INPUT, INPUT_X, INPUT_Y)
-            .add(recipe.getIngredient());
+            .add(recipe.ingredient());
         builder.addSlot(RecipeIngredientRole.OUTPUT, OUTPUT_X, OUTPUT_Y)
             .add(recipe.getResultItem());
     }
