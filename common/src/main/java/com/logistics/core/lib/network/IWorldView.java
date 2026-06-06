@@ -69,10 +69,10 @@ public interface IWorldView {
     }
 
     /**
-     * Current world game time, in ticks. Used to cache per-tick network queries (e.g.
+     * Current world game time, in ticks. Used as the cache key for per-tick network queries (e.g.
      * {@code isPowered()}) so they compute once per network per tick rather than once per pipe.
+     * No default: a constant value would make those caches never invalidate, so every
+     * implementation must supply a real, monotonically advancing tick.
      */
-    default long gameTime() {
-        return 0L;
-    }
+    long gameTime();
 }

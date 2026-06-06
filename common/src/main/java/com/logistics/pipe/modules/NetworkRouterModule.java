@@ -29,9 +29,10 @@ public class NetworkRouterModule implements Module, RoutingModule {
     private static final float NETWORK_ACCELERATION = 0.04f;
     // Energy cost to assign a destination for an unrouted item.
     private static final long RF_PER_ROUTE = 2;
-    // Arm-status tint: green = powered network link, red = anything else (unpowered, inventory, machine).
-    private static final int ARM_TINT_POWERED = 0x00FF00;
-    private static final int ARM_TINT_UNPOWERED = 0xFF0000;
+    // Power-status tint: green = powered network link, red = anything else (unpowered, inventory, machine).
+    // Package-private so the arm-tint test can assert against them without duplicating the literals.
+    static final int ARM_TINT_POWERED = 0x00FF00;
+    static final int ARM_TINT_UNPOWERED = 0xFF0000;
 
     @Override
     public float getAcceleration(PipeContext ctx) {
@@ -48,6 +49,16 @@ public class NetworkRouterModule implements Module, RoutingModule {
     public Integer getArmTint(PipeContext ctx, Direction direction) {
         boolean powered = (ctx.blockEntity().getPoweredArmMask() & (1 << direction.get3DDataValue())) != 0;
         return powered ? ARM_TINT_POWERED : ARM_TINT_UNPOWERED;
+    }
+
+    /**
+     * Tints this smart pipe's core by power status: green when the pipe is linked into a powered
+     * network (it has at least one powered power-link arm), red otherwise. Reuses the per-arm mask
+     * the server syncs — any set bit means this pipe reaches power through a battery or pipe link.
+     */
+    @Override
+    public Integer getCoreTint(PipeContext ctx) {
+        return ctx.blockEntity().getPoweredArmMask() != 0 ? ARM_TINT_POWERED : ARM_TINT_UNPOWERED;
     }
 
     @Override

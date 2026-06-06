@@ -14,8 +14,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /** Unit tests for {@link NetworkRouterModule#getArmTint} — green for a powered link, red otherwise. */
 class NetworkRouterModuleArmTintTest extends MinecraftTestEnvironment {
 
-    private static final int GREEN = 0x00FF00;
-    private static final int RED = 0xFF0000;
+    // Reference the production constants so the test follows any future color change.
+    private static final int GREEN = NetworkRouterModule.ARM_TINT_POWERED;
+    private static final int RED = NetworkRouterModule.ARM_TINT_UNPOWERED;
 
     private final NetworkRouterModule module = new NetworkRouterModule();
 
@@ -44,5 +45,17 @@ class NetworkRouterModuleArmTintTest extends MinecraftTestEnvironment {
         FakePipeAccess access = new FakePipeAccess()
                 .setConnection(Direction.NORTH, PipeConnection.Type.INVENTORY);
         assertEquals(RED, module.getArmTint(context(access), Direction.NORTH));
+    }
+
+    @Test
+    void core_isGreen_whenAnyArmIsPowered() {
+        FakePipeAccess access = new FakePipeAccess()
+                .setPoweredArmMask(1 << Direction.EAST.get3DDataValue());
+        assertEquals(GREEN, module.getCoreTint(context(access)));
+    }
+
+    @Test
+    void core_isRed_whenNoArmIsPowered() {
+        assertEquals(RED, module.getCoreTint(context(new FakePipeAccess())));
     }
 }
