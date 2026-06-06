@@ -476,7 +476,8 @@ public final class PipeRuntime {
             }
 
             PipeConnection.Type type = pipeBlock.getConnectionType(world, pos, direction);
-            if (type != PipeConnection.Type.NONE) {
+            // POWER connections (batteries) are rendered as arms but never carry items.
+            if (type != PipeConnection.Type.NONE && type != PipeConnection.Type.POWER) {
                 validDirections.add(direction);
             }
         }

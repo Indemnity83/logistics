@@ -1,0 +1,15 @@
+{
+  "multipart": [
+    { "apply": { "model": "logistics:block/power/battery" } },
+    { "when": { "charge": "1" },  "apply": { "model": "logistics:block/power/battery_charge_1" } },
+    { "when": { "charge": "2" },  "apply": { "model": "logistics:block/power/battery_charge_2" } },
+    { "when": { "charge": "3" },  "apply": { "model": "logistics:block/power/battery_charge_3" } },
+    { "when": { "charge": "4" },  "apply": { "model": "logistics:block/power/battery_charge_4" } },
+    { "when": { "charge": "5" },  "apply": { "model": "logistics:block/power/battery_charge_5" } },
+    { "when": { "charge": "6" },  "apply": { "model": "logistics:block/power/battery_charge_6" } },
+    { "when": { "charge": "7" },  "apply": { "model": "logistics:block/power/battery_charge_7" } },
+    { "when": { "charge": "8" },  "apply": { "model": "logistics:block/power/battery_charge_8" } },
+    { "when": { "charge": "9" },  "apply": { "model": "logistics:block/power/battery_charge_9" } },
+    { "when": { "charge": "10" }, "apply": { "model": "logistics:block/power/battery_charge_10" } }
+  ]
+}

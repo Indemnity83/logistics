@@ -21,6 +21,7 @@
 			"com.logistics.gametest.pipe.PipeInfrastructureGameTest",
 			"com.logistics.gametest.pipe.ModuleGameTest",
 			"com.logistics.gametest.pipe.PipeFlowGameTest",
+			"com.logistics.gametest.power.BatteryGameTest",
 			"com.logistics.gametest.power.CableGameTest",
 			"com.logistics.gametest.power.EngineGameTest",
 			"com.logistics.gametest.automation.QuarryGameTest",
