@@ -42,6 +42,14 @@ public interface IPipeAccess {
     PipeConnection.Type getCachedConnectionType(Direction direction);
 
     /**
+     * Per-arm power-status bitmask (one bit per {@link Direction#get3DDataValue()}; set = that arm
+     * is "powered"/green). Synced from the server; used for client-side arm tinting.
+     */
+    default int getPoweredArmMask() {
+        return 0;
+    }
+
+    /**
      * Return the authoritative connection type for the given direction by querying the
      * current world state (may differ from the cached value mid-tick).
      */

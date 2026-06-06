@@ -5,7 +5,9 @@ import com.logistics.core.lib.pipe.RoutePlan;
 import com.logistics.core.lib.pipe.TravelingItem;
 import com.logistics.pipe.network.NetDbg;
 import com.logistics.core.lib.block.capability.PipeConnection;
+import com.logistics.core.lib.network.ILogisticsNetwork;
 import com.logistics.pipe.Pipe;
+import com.logistics.pipe.modules.NetworkRouterModule;
 import com.logistics.core.lib.pipe.PipeContext;
 import com.logistics.pipe.block.PipeBlock;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
@@ -123,6 +125,7 @@ public final class PipeRuntime {
         // Update connection cache and notify modules of topology changes
         if (ctx.hasPipe()) {
             updateConnections(ctx, itemState);
+            updatePoweredArmMask(ctx, itemState);
             ctx.pipe().onTick(ctx.pipeContext());
         }
 
@@ -156,6 +159,59 @@ public final class PipeRuntime {
             }
             ctx.blockEntity().markConnectionCacheClean();
         }
+    }
+
+    /**
+     * Recompute the per-arm power-status mask for smart (logistics) pipes and sync it to clients
+     * when it changes. An arm is "powered" (green) when the pipe's network has stored energy AND the
+     * arm links into that network — a battery ({@code POWER}) or another actual pipe block, since
+     * power flows network-wide (including through transport pipes that bridge logistics pipes).
+     * Blocks that merely speak the {@code PIPE} connection type for item I/O (e.g. the laser quarry)
+     * are deliberately excluded — they are item endpoints, not power links. Computed every server
+     * tick because power can change (battery draining) without any topology change.
+     */
+    private static void updatePoweredArmMask(TickContext ctx, ItemTickState itemState) {
+        if (!ctx.isServer()) return;
+        // Only logistics (smart) pipes carry a power indicator; others never tint their arms.
+        if (ctx.pipe().getModule(NetworkRouterModule.class, ctx.blockEntity()) == null) return;
+
+        int mask = computePoweredArmMask(ctx);
+        if (mask != ctx.blockEntity().getPoweredArmMask()) {
+            ctx.blockEntity().setPoweredArmMask(mask);
+            itemState.markNeedsSync();
+        }
+    }
+
+    /** Build the per-arm powered bitmask, or {@code 0} when the pipe's network has no stored power. */
+    private static int computePoweredArmMask(TickContext ctx) {
+        ILogisticsNetwork network = ctx.blockEntity().getNetwork();
+        if (network == null || !network.isPowered()) return 0;
+
+        int mask = 0;
+        for (Direction dir : Direction.values()) {
+            if (isArmPowered(ctx, dir)) {
+                mask |= (1 << dir.get3DDataValue());
+            }
+        }
+        return mask;
+    }
+
+    /**
+     * True if the arm toward {@code dir} links into the (powered) network — a battery
+     * ({@code POWER}) or another actual pipe block. Inventory/endpoint connections (e.g. the laser
+     * quarry, which speaks {@code PIPE} only for item I/O) are not power links and stay unpowered.
+     */
+    private static boolean isArmPowered(TickContext ctx, Direction dir) {
+        return switch (ctx.blockEntity().getCachedConnectionType(dir)) {
+            case POWER -> true;
+            case PIPE -> isPipeNeighbor(ctx.world(), ctx.pos().relative(dir));
+            default -> false;
+        };
+    }
+
+    /** True if the block at {@code pos} is an actual pipe (so power flows through it). */
+    private static boolean isPipeNeighbor(Level world, BlockPos pos) {
+        return world.getBlockState(pos).getBlock() instanceof PipeBlock;
     }
 
     private static boolean handleConnectionChanges(TickContext ctx) {

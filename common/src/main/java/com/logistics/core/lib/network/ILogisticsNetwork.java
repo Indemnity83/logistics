@@ -324,6 +324,14 @@ public interface ILogisticsNetwork {
      */
     default boolean consumeEnergy(long amount) { return amount <= 0; }
 
+    /**
+     * Read-only check for whether this network currently has usable power — i.e. at least one
+     * registered battery with stored energy. Does not consume anything. Used for status display.
+     *
+     * @return true if some registered source has energy available
+     */
+    default boolean isPowered() { return false; }
+
     // ===== Routing Operations =====
 
     /**
