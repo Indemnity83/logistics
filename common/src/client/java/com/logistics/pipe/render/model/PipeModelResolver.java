@@ -36,10 +36,15 @@ public final class PipeModelResolver {
                     new Layer(shape, texture, -1),
                     new Layer(shape, "filter_pipe_overlay", 0));
         }
-        // Logistics-pipe arms are tintable so they can show power status (green/red) via
-        // NetworkRouterModule#getArmTint. All other arms stay untinted.
-        int tintIndex = texture.equals("logistics_pipe_arm") ? 0 : -1;
-        return List.of(new Layer(shape, texture, tintIndex));
+        if (texture.equals("logistics_pipe_arm")) {
+            // Untinted base (dark edge pixels) + tinted overlay (the lighter center pixels) so only
+            // the bright region carries the power-status tint (green/red) from
+            // NetworkRouterModule#getArmTint; the dark edges stay neutral.
+            return List.of(
+                    new Layer(shape, texture, -1),
+                    new Layer(shape, "logistics_pipe_arm_overlay", 0));
+        }
+        return List.of(new Layer(shape, texture, -1));
     }
 
     private static PipeShape shapeOf(String base) {
