@@ -2,13 +2,16 @@ package com.logistics.gametest.power;
 
 import com.logistics.LogisticsPipe;
 import com.logistics.LogisticsPower;
+import com.logistics.core.lib.block.capability.PipeConnection;
 import com.logistics.core.lib.energy.EnergyComponent;
 import com.logistics.core.lib.power.AbstractBatteryBlockEntity;
 import com.logistics.power.block.entity.BatteryBlockEntity;
+import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.pipe.network.NetworkRegistry;
 import com.logistics.pipe.network.PipeNetwork;
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTestHelper;
 
 /**
@@ -84,6 +87,29 @@ public class BatteryGameTest {
             long drawn = before - battery.getEnergyStored();
             if (drawn != 500) {
                 context.fail("Expected 500 RF drawn from the battery, drew " + drawn);
+                return;
+            }
+            context.succeed();
+        });
+    }
+
+    /** An adjacent pipe forms a POWER connection (rendered arm) toward the battery, not a route. */
+    @GameTest(maxTicks = 40)
+    public void testPipeFormsPowerConnectionToBattery(GameTestHelper context) {
+        BlockPos pipePos = new BlockPos(0, 1, 0);
+        BlockPos batteryPos = new BlockPos(1, 1, 0); // EAST of the pipe
+        context.setBlock(pipePos, LogisticsPipe.BLOCK.BASIC_LOGISTICS_PIPE);
+        context.setBlock(batteryPos, LogisticsPower.BLOCK.BATTERY);
+
+        context.runAfterDelay(10, () -> {
+            PipeBlockEntity pipe = context.getBlockEntity(pipePos, PipeBlockEntity.class);
+            if (pipe == null) {
+                context.fail("Pipe should have a block entity");
+                return;
+            }
+            PipeConnection.Type type = pipe.getCachedConnectionType(Direction.EAST);
+            if (type != PipeConnection.Type.POWER) {
+                context.fail("Pipe should form a POWER connection toward the battery, got " + type);
                 return;
             }
             context.succeed();

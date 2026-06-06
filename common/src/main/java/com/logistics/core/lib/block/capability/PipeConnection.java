@@ -33,7 +33,13 @@ public interface PipeConnection {
         /**
          * Connection to an inventory (chest, furnace, etc.) or similar storage.
          */
-        INVENTORY("inventory");
+        INVENTORY("inventory"),
+
+        /**
+         * Connection to a power source (e.g. a Battery). Rendered as a connection arm, but items
+         * are never routed toward it — it is a power link, not an item route or inventory.
+         */
+        POWER("power");
 
         private static final Map<String, Type> BY_NAME =
                 Stream.of(values()).collect(Collectors.toMap(Type::getSerializedName, type -> type));

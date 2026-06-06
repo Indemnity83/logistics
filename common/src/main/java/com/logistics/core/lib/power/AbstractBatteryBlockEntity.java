@@ -2,6 +2,7 @@ package com.logistics.core.lib.power;
 
 import com.logistics.core.lib.block.BaseBlockEntity;
 import com.logistics.core.lib.block.capability.HasEnergyStorage;
+import com.logistics.core.lib.block.capability.PipeConnection;
 import com.logistics.core.lib.energy.EnergyComponent;
 import com.logistics.core.lib.energy.EnergyPushService;
 import com.logistics.core.lib.energy.IEnergyStorage;
@@ -13,6 +14,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.TypedEntityData;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -42,7 +44,7 @@ import java.util.Set;
  * draws from them in registration order until the requested amount is satisfied.
  */
 public abstract class AbstractBatteryBlockEntity extends BaseBlockEntity
-        implements HasEnergyStorage, AcceptsLowTierEnergy {
+        implements HasEnergyStorage, AcceptsLowTierEnergy, PipeConnection {
 
     /** Max RF to push into a single adjacent machine per tick. */
     private static final long MAX_OUTPUT_PER_SIDE = 200L;
@@ -150,6 +152,23 @@ public abstract class AbstractBatteryBlockEntity extends BaseBlockEntity
             net.unregisterEnergySource(worldPosition);
         }
         registeredNetworks.clear();
+    }
+
+    // ==================== PipeConnection ====================
+
+    /**
+     * Expose a POWER connection so adjacent pipes render a connection arm toward the battery and
+     * recognise it as a power source. POWER connections are excluded from item routing, so the
+     * battery is never treated as a route, sink, or inventory; items never path into it.
+     */
+    @Override
+    public PipeConnection.Type getConnectionType(Direction direction) {
+        return PipeConnection.Type.POWER;
+    }
+
+    @Override
+    public boolean addItem(Direction from, ItemStack stack) {
+        return false;
     }
 
     // ==================== Item Drop Components ====================
