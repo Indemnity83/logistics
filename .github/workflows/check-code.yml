@@ -90,6 +90,9 @@ jobs:
         with:
           files: ${{ matrix.module }}/build/reports/jacoco/test/jacocoTestReport.xml
           flags: ${{ matrix.module }}
-          fail_ci_if_error: ${{ github.actor != 'dependabot[bot]' }}
+          # Coverage is informational, not a correctness gate. Keep this non-blocking so a
+          # Codecov-side issue (e.g. the uploader's GPG key-import failing to verify the
+          # auto-updated CLI binary) can't fail an otherwise-green CI run.
+          fail_ci_if_error: false
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
