@@ -163,9 +163,10 @@ public final class PipeRuntime {
 
     /**
      * Recompute the per-arm power-status mask for smart (logistics) pipes and sync it to clients
-     * when it changes. An arm is "powered" (green) when the pipe's network has stored energy AND
-     * the arm links toward power — a battery ({@code POWER}) or another logistics pipe. Computed
-     * every server tick because power can change (battery draining) without any topology change.
+     * when it changes. An arm is "powered" (green) when the pipe's network has stored energy AND the
+     * arm links into that network — a battery ({@code POWER}) or any connected pipe ({@code PIPE}),
+     * since power flows network-wide (including through transport pipes that bridge logistics pipes).
+     * Computed every server tick because power can change (battery draining) without topology change.
      */
     private static void updatePoweredArmMask(TickContext ctx, ItemTickState itemState) {
         if (!ctx.isServer()) return;
@@ -178,9 +179,8 @@ public final class PipeRuntime {
             for (Direction dir : Direction.values()) {
                 PipeConnection.Type type = ctx.blockEntity().getCachedConnectionType(dir);
                 boolean powered = switch (type) {
-                    case POWER -> true;
-                    case PIPE -> isLogisticsNeighbor(ctx.world(), ctx.pos().relative(dir));
-                    default -> false;
+                    case POWER, PIPE -> true; // battery, or another pipe carrying network power
+                    default -> false;          // inventories and unconnected sides stay red
                 };
                 if (powered) mask |= (1 << dir.get3DDataValue());
             }
@@ -190,16 +190,6 @@ public final class PipeRuntime {
             ctx.blockEntity().setPoweredArmMask(mask);
             itemState.markNeedsSync();
         }
-    }
-
-    /** True if the block at {@code pos} is a logistics pipe (carries a {@link NetworkRouterModule}). */
-    private static boolean isLogisticsNeighbor(Level world, BlockPos pos) {
-        if (world.getBlockState(pos).getBlock() instanceof PipeBlock pipeBlock
-                && pipeBlock.getPipe() != null
-                && world.getBlockEntity(pos) instanceof PipeBlockEntity neighborBe) {
-            return pipeBlock.getPipe().getModule(NetworkRouterModule.class, neighborBe) != null;
-        }
-        return false;
     }
 
     private static boolean handleConnectionChanges(TickContext ctx) {

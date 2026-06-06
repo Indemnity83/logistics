@@ -203,6 +203,38 @@ public class BatteryGameTest {
         });
     }
 
+    /** Power flows network-wide: a logistics arm into a transport-pipe bridge is green when powered. */
+    @GameTest(maxTicks = 40)
+    public void testPowerFlowsThroughTransportBridge(GameTestHelper context) {
+        BlockPos pipeA = new BlockPos(0, 1, 0);
+        BlockPos copper = new BlockPos(1, 1, 0);   // transport pipe bridging the two logistics pipes
+        BlockPos pipeB = new BlockPos(2, 1, 0);
+        BlockPos batteryPos = new BlockPos(2, 2, 0);
+        context.setBlock(pipeA, LogisticsPipe.BLOCK.BASIC_LOGISTICS_PIPE);
+        context.setBlock(copper, LogisticsPipe.BLOCK.COPPER_TRANSPORT_PIPE);
+        context.setBlock(pipeB, LogisticsPipe.BLOCK.BASIC_LOGISTICS_PIPE);
+        context.setBlock(batteryPos, LogisticsPower.BLOCK.BATTERY);
+        BatteryBlockEntity battery = context.getBlockEntity(batteryPos, BatteryBlockEntity.class);
+        if (battery == null) {
+            context.fail("Battery should have a block entity");
+            return;
+        }
+        setStored(battery, BatteryBlockEntity.CAPACITY);
+
+        context.runAfterDelay(25, () -> {
+            PipeBlockEntity pipe = context.getBlockEntity(pipeA, PipeBlockEntity.class);
+            if (pipe == null) {
+                context.fail("Pipe should have a block entity");
+                return;
+            }
+            if ((pipe.getPoweredArmMask() & bit(Direction.EAST)) == 0) {
+                context.fail("Logistics arm into the transport-pipe bridge should be powered (green)");
+                return;
+            }
+            context.succeed();
+        });
+    }
+
     /** With a drained battery the logistics pipe's arms report unpowered (all red). */
     @GameTest(maxTicks = 40)
     public void testLogisticsArmsUnpoweredWhenBatteryEmpty(GameTestHelper context) {
