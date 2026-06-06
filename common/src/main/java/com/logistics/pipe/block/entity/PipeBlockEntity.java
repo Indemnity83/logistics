@@ -51,6 +51,10 @@ public class PipeBlockEntity extends BaseBlockEntity
     // Tracks changes in connected sides so modules can react deterministically.
     private int lastConnectionsMask = -1;
 
+    // Per-arm power-status bitmask (one bit per direction; set = that arm is "powered"/green).
+    // Computed on the server tick and synced to the client for arm tinting.
+    private int poweredArmMask = 0;
+
     // Connection type cache for rendering (updated when connections change)
     private final PipeConnection.Type[] connectionTypes = new PipeConnection.Type[6];
     private boolean connectionCacheDirty = true;
@@ -235,6 +239,11 @@ public class PipeBlockEntity extends BaseBlockEntity
             pipeData.put("ConnectionTypes", connectionsNbt);
         }
 
+        // Save power-status mask (for client arm tinting)
+        if (poweredArmMask != 0) {
+            pipeData.putInt("PoweredArmMask", poweredArmMask);
+        }
+
         // Save energy (if this pipe has energy capability)
         if (energy != null) {
             energy.writeNbt(pipeData, "Energy");
@@ -281,6 +290,9 @@ public class PipeBlockEntity extends BaseBlockEntity
                 connectionTypes[direction.ordinal()] = PipeConnection.Type.fromSerializedName(typeName);
             }
         });
+
+        // Load power-status mask (client arm tinting)
+        poweredArmMask = NbtCompat.getInt(pipeData, "PoweredArmMask", 0);
 
         // Load energy (if this pipe has energy capability)
         if (energy != null) {
@@ -478,6 +490,14 @@ public class PipeBlockEntity extends BaseBlockEntity
 
     public void setLastConnectionsMask(int lastConnectionsMask) {
         this.lastConnectionsMask = lastConnectionsMask;
+    }
+
+    public int getPoweredArmMask() {
+        return poweredArmMask;
+    }
+
+    public void setPoweredArmMask(int poweredArmMask) {
+        this.poweredArmMask = poweredArmMask;
     }
 
     @Nullable public PipeItemStorage getItemStorage(@Nullable Direction side) {

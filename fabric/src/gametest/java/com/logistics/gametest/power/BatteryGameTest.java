@@ -1,5 +1,6 @@
 package com.logistics.gametest.power;
 
+import com.logistics.LogisticsAutomation;
 import com.logistics.LogisticsPipe;
 import com.logistics.LogisticsPower;
 import com.logistics.core.lib.block.capability.PipeConnection;
@@ -158,6 +159,143 @@ public class BatteryGameTest {
             }
             if (net.consumeEnergy(1)) {
                 context.fail("An empty battery should not be able to power the network");
+                return;
+            }
+            context.succeed();
+        });
+    }
+
+    private static int bit(Direction dir) {
+        return 1 << dir.get3DDataValue();
+    }
+
+    /** A charged battery makes a logistics pipe's battery-facing and pipe-facing arms "powered". */
+    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 40)
+    public void testLogisticsArmsPoweredWhenBatteryCharged(GameTestHelper context) {
+        BlockPos pipeA = new BlockPos(0, 1, 0);
+        BlockPos pipeB = new BlockPos(1, 1, 0); // EAST: another logistics pipe
+        BlockPos batteryPos = new BlockPos(0, 2, 0); // UP: battery
+        context.setBlock(pipeA, LogisticsPipe.BLOCK.BASIC_LOGISTICS_PIPE);
+        context.setBlock(pipeB, LogisticsPipe.BLOCK.BASIC_LOGISTICS_PIPE);
+        context.setBlock(batteryPos, LogisticsPower.BLOCK.BATTERY);
+        BatteryBlockEntity battery = (BatteryBlockEntity) context.getBlockEntity(batteryPos);
+        if (battery == null) {
+            context.fail("Battery should have a block entity");
+            return;
+        }
+        setStored(battery, BatteryBlockEntity.CAPACITY);
+
+        context.runAfterDelay(25, () -> {
+            PipeBlockEntity pipe = (PipeBlockEntity) context.getBlockEntity(pipeA);
+            if (pipe == null) {
+                context.fail("Pipe should have a block entity");
+                return;
+            }
+            int mask = pipe.getPoweredArmMask();
+            if ((mask & bit(Direction.UP)) == 0) {
+                context.fail("Arm toward the battery should be powered (green)");
+                return;
+            }
+            if ((mask & bit(Direction.EAST)) == 0) {
+                context.fail("Arm toward the adjacent logistics pipe should be powered (green)");
+                return;
+            }
+            context.succeed();
+        });
+    }
+
+    /** Power flows network-wide: a logistics arm into a transport-pipe bridge is green when powered. */
+    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 40)
+    public void testPowerFlowsThroughTransportBridge(GameTestHelper context) {
+        BlockPos pipeA = new BlockPos(0, 1, 0);
+        BlockPos copper = new BlockPos(1, 1, 0);   // transport pipe bridging the two logistics pipes
+        BlockPos pipeB = new BlockPos(2, 1, 0);
+        BlockPos batteryPos = new BlockPos(2, 2, 0);
+        context.setBlock(pipeA, LogisticsPipe.BLOCK.BASIC_LOGISTICS_PIPE);
+        context.setBlock(copper, LogisticsPipe.BLOCK.COPPER_TRANSPORT_PIPE);
+        context.setBlock(pipeB, LogisticsPipe.BLOCK.BASIC_LOGISTICS_PIPE);
+        context.setBlock(batteryPos, LogisticsPower.BLOCK.BATTERY);
+        BatteryBlockEntity battery = (BatteryBlockEntity) context.getBlockEntity(batteryPos);
+        if (battery == null) {
+            context.fail("Battery should have a block entity");
+            return;
+        }
+        setStored(battery, BatteryBlockEntity.CAPACITY);
+
+        context.runAfterDelay(25, () -> {
+            PipeBlockEntity pipe = (PipeBlockEntity) context.getBlockEntity(pipeA);
+            if (pipe == null) {
+                context.fail("Pipe should have a block entity");
+                return;
+            }
+            if ((pipe.getPoweredArmMask() & bit(Direction.EAST)) == 0) {
+                context.fail("Logistics arm into the transport-pipe bridge should be powered (green)");
+                return;
+            }
+            context.succeed();
+        });
+    }
+
+    /** A machine that speaks the PIPE connection only for item I/O (the quarry) is not a power link. */
+    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 40)
+    public void testQuarryArmIsNotTreatedAsPower(GameTestHelper context) {
+        BlockPos quarryPos = new BlockPos(0, 1, 0);
+        BlockPos pipePos = new BlockPos(0, 2, 0);   // above the quarry
+        BlockPos batteryPos = new BlockPos(1, 2, 0); // EAST: powers the network
+        context.setBlock(quarryPos, LogisticsAutomation.BLOCK.LASER_QUARRY);
+        context.setBlock(pipePos, LogisticsPipe.BLOCK.BASIC_LOGISTICS_PIPE);
+        context.setBlock(batteryPos, LogisticsPower.BLOCK.BATTERY);
+        BatteryBlockEntity battery = (BatteryBlockEntity) context.getBlockEntity(batteryPos);
+        if (battery == null) {
+            context.fail("Battery should have a block entity");
+            return;
+        }
+        setStored(battery, BatteryBlockEntity.CAPACITY);
+
+        context.runAfterDelay(25, () -> {
+            PipeBlockEntity pipe = (PipeBlockEntity) context.getBlockEntity(pipePos);
+            if (pipe == null) {
+                context.fail("Pipe should have a block entity");
+                return;
+            }
+            int mask = pipe.getPoweredArmMask();
+            if ((mask & bit(Direction.EAST)) == 0) {
+                context.fail("Battery-facing arm should be powered (confirms the network has power)");
+                return;
+            }
+            if ((mask & bit(Direction.DOWN)) != 0) {
+                context.fail("Arm into the quarry should not be a power link (it's an item endpoint)");
+                return;
+            }
+            context.succeed();
+        });
+    }
+
+    /** With a drained battery the logistics pipe's arms report unpowered (all red). */
+    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 40)
+    public void testLogisticsArmsUnpoweredWhenBatteryEmpty(GameTestHelper context) {
+        BlockPos pipeA = new BlockPos(0, 1, 0);
+        BlockPos pipeB = new BlockPos(1, 1, 0);
+        BlockPos batteryPos = new BlockPos(0, 2, 0);
+        context.setBlock(pipeA, LogisticsPipe.BLOCK.BASIC_LOGISTICS_PIPE);
+        context.setBlock(pipeB, LogisticsPipe.BLOCK.BASIC_LOGISTICS_PIPE);
+        context.setBlock(batteryPos, LogisticsPower.BLOCK.BATTERY);
+        BatteryBlockEntity battery = (BatteryBlockEntity) context.getBlockEntity(batteryPos);
+        if (battery == null) {
+            context.fail("Battery should have a block entity");
+            return;
+        }
+        setStored(battery, 0);
+
+        context.runAfterDelay(25, () -> {
+            PipeBlockEntity pipe = (PipeBlockEntity) context.getBlockEntity(pipeA);
+            if (pipe == null) {
+                context.fail("Pipe should have a block entity");
+                return;
+            }
+            if (pipe.getPoweredArmMask() != 0) {
+                context.fail("An unpowered network should leave all arms unpowered, mask="
+                        + pipe.getPoweredArmMask());
                 return;
             }
             context.succeed();

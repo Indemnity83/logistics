@@ -132,8 +132,11 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
         PipeContext ctx = new PipeContext(entity.getLevel(), entity.getBlockPos(), state, entity);
         VertexConsumer buffer = bufferSource.getBuffer(RenderType.cutout());
 
-        // Render core model (geometry generated in code)
-        renderCodeModel(pipe.getCoreModelId(ctx), null, 0xFFFFFF, poseStack, buffer, packedLight, packedOverlay);
+        // Render core model (geometry generated in code). Logistics-pipe cores carry a tintable
+        // power-status overlay (green powered / red unpowered); other cores return null -> untinted.
+        Integer coreTint = pipe.getCoreTint(ctx);
+        int coreColor = coreTint != null ? coreTint : 0xFFFFFF;
+        renderCodeModel(pipe.getCoreModelId(ctx), null, coreColor, poseStack, buffer, packedLight, packedOverlay);
 
         // Render core decorations (e.g., pipe markings color overlay)
         for (CoreDecoration decoration : pipe.getCoreDecorations(ctx)) {

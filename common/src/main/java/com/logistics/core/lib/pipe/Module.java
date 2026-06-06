@@ -160,6 +160,17 @@ public interface Module {
     }
 
     /**
+     * Override the tint color for the pipe core model.
+     * Used for cores with a tintindex overlay (e.g. the logistics power-status core).
+     *
+     * @param ctx the pipe context
+     * @return the tint color (0xRRGGBB), or null to use no tint (white)
+     */
+    @Nullable default Integer getCoreTint(PipeContext ctx) {
+        return null;
+    }
+
+    /**
      * Append decoration models for a specific direction (feature faces, overlays, extensions, etc.).
      *
      * @param ctx the pipe context

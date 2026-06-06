@@ -37,6 +37,7 @@ public class FakePipeAccess implements IPipeAccess {
     private final List<TravelingItem> travelingItems = new ArrayList<>();
     private @Nullable ILogisticsNetwork network = null;
     private boolean powered = false;
+    private int poweredArmMask = 0;
     private @Nullable EnergyComponent energy = null;
 
     // ==================== IPipeAccess ====================
@@ -118,6 +119,17 @@ public class FakePipeAccess implements IPipeAccess {
     /** Inject a logistics network. */
     public FakePipeAccess setNetwork(ILogisticsNetwork network) {
         this.network = network;
+        return this;
+    }
+
+    @Override
+    public int getPoweredArmMask() {
+        return poweredArmMask;
+    }
+
+    /** Set the per-arm powered bitmask used for arm tinting. */
+    public FakePipeAccess setPoweredArmMask(int mask) {
+        this.poweredArmMask = mask;
         return this;
     }
 
