@@ -164,6 +164,23 @@ public class Pipe {
         return null;
     }
 
+    /**
+     * Get the tint color for the pipe core.
+     * Delegates to modules to allow state-dependent coloring (e.g., power-status core overlay).
+     *
+     * @param ctx the pipe context
+     * @return the tint color (0xRRGGBB), or null for no tint (white)
+     */
+    @Nullable public Integer getCoreTint(PipeContext ctx) {
+        for (Module module : getModules(ctx)) {
+            Integer tint = module.getCoreTint(ctx);
+            if (tint != null) {
+                return tint;
+            }
+        }
+        return null;
+    }
+
     public boolean hasRandomTicks() {
         for (Module module : modules) {
             if (module instanceof RandomTickModule) {

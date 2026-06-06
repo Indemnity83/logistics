@@ -36,6 +36,21 @@ public final class PipeModelResolver {
                     new Layer(shape, texture, -1),
                     new Layer(shape, "filter_pipe_overlay", 0));
         }
+        if (texture.equals("logistics_pipe_arm")) {
+            // Untinted base (dark edge pixels) + tinted overlay (the lighter center pixels) so only
+            // the bright region carries the power-status tint (green/red) from
+            // NetworkRouterModule#getArmTint; the dark edges stay neutral.
+            return List.of(
+                    new Layer(shape, texture, -1),
+                    new Layer(shape, "logistics_pipe_arm_overlay", 0));
+        }
+        if (shape == PipeShape.CORE && modelBase.contains("logistics_pipe")) {
+            // Logistics-pipe core: untinted base + a shared tintable overlay that shows the pipe's
+            // power status (green powered / red unpowered), tinted by the renderer's core color.
+            return List.of(
+                    new Layer(shape, texture, -1),
+                    new Layer(shape, "logistics_pipe_core_overlay", 0));
+        }
         return List.of(new Layer(shape, texture, -1));
     }
 
