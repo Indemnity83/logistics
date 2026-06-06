@@ -68,6 +68,9 @@ import java.util.UUID;
  * parallel rather than serially.
  */
 public class CraftingModule implements Module, TickingModule, RoutingModule, DispatchableModule, TransferHandlerModule {
+    // Energy cost per item dispatched (drawn from the network battery).
+    private static final long RF_PER_ITEM = 20;
+
     /** Max items to craft per 6-tick cycle (one tier step above = larger batches). */
     private final int itemLimit;
     /** Max output stacks to dispatch per cycle (future use; stored for tier identity). */
@@ -579,6 +582,10 @@ public class CraftingModule implements Module, TickingModule, RoutingModule, Dis
                 neededByItem.put(ingredientId, toOrder);
             }
         }
+
+        // All ingredients validated — charge energy now, immediately before placing orders, so a
+        // rejected dispatch never burns power. No failure paths remain after this point.
+        if (!network.consumeEnergy(RF_PER_ITEM * actualAmount)) return 0;
 
         // Place ingredient orders immediately — each queued order orders its own ingredients
         // independently so materials arrive in parallel rather than waiting for prior orders.
