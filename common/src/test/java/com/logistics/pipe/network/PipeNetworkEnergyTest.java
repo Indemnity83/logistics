@@ -35,6 +35,9 @@ class PipeNetworkEnergyTest extends MinecraftTestEnvironment {
     // Stub world view resolves a registered battery position to its live storage (or null if gone).
     private final Map<BlockPos, IEnergyStorage> storages = new HashMap<>();
 
+    // Controllable game time so isPowered()'s per-tick cache can be exercised.
+    private long stubTick = 0;
+
     private final IWorldView stubView = new IWorldView() {
         @Override public boolean isPipe(BlockPos pos) { return false; }
         @Override public List<BlockPos> getConnectedNeighbors(BlockPos pos) { return List.of(); }
@@ -43,6 +46,7 @@ class PipeNetworkEnergyTest extends MinecraftTestEnvironment {
         @Override public boolean isClientSide() { return false; }
         @Override public void broadcastAlert(BlockPos pos, Component message) {}
         @Override public IEnergyStorage energyStorageAt(BlockPos pos) { return storages.get(pos); }
+        @Override public long gameTime() { return stubTick; }
     };
 
     private PipeNetwork network;
@@ -56,6 +60,7 @@ class PipeNetworkEnergyTest extends MinecraftTestEnvironment {
     @BeforeEach
     void setUp() {
         storages.clear();
+        stubTick = 0;
         network = new PipeNetwork(UUID.randomUUID(), new NetworkGraph(), stubView);
     }
 
@@ -184,5 +189,67 @@ class PipeNetworkEnergyTest extends MinecraftTestEnvironment {
         assertTrue(network.consumeEnergy(80), "merged network draws from both batteries");
         assertEquals(0, a.getAmount());
         assertEquals(20, b.getAmount());
+    }
+
+    // ===== isPowered() =====
+
+    @Test
+    void isPowered_noSources_returnsFalse() {
+        assertFalse(network.isPowered());
+    }
+
+    @Test
+    @SuppressWarnings("deprecation")
+    void isPowered_noWorldView_returnsFalse() {
+        PipeNetwork legacy = new PipeNetwork(UUID.randomUUID());
+        legacy.registerEnergySource(BAT_A);
+        assertFalse(legacy.isPowered());
+    }
+
+    @Test
+    void isPowered_sourceWithEnergy_returnsTrue() {
+        storages.put(BAT_A, battery(100));
+        network.registerEnergySource(BAT_A);
+        assertTrue(network.isPowered());
+    }
+
+    @Test
+    void isPowered_allSourcesEmpty_returnsFalse() {
+        storages.put(BAT_A, battery(0));
+        network.registerEnergySource(BAT_A);
+        assertFalse(network.isPowered());
+    }
+
+    @Test
+    void isPowered_unresolvedSource_returnsFalse() {
+        // Registered position whose battery was removed/unloaded resolves to null and contributes nothing.
+        network.registerEnergySource(BAT_A);
+        assertFalse(network.isPowered());
+    }
+
+    @Test
+    void isPowered_secondSourceHasEnergy_returnsTrue() {
+        storages.put(BAT_A, battery(0));
+        storages.put(BAT_B, battery(100));
+        network.registerEnergySource(BAT_A);
+        network.registerEnergySource(BAT_B);
+        assertTrue(network.isPowered());
+    }
+
+    @Test
+    void isPowered_cachesResultWithinSameTick() {
+        EnergyComponent a = battery(100);
+        storages.put(BAT_A, a);
+        network.registerEnergySource(BAT_A);
+
+        assertTrue(network.isPowered(), "computes powered on first call");
+
+        // Drain the battery but stay on the same tick: the cached result is reused.
+        a.setAmount(0);
+        assertTrue(network.isPowered(), "same-tick call returns the cached result, not a fresh scan");
+
+        // Advancing the game tick invalidates the cache and recomputes.
+        stubTick++;
+        assertFalse(network.isPowered(), "next tick rescans and sees the drained battery");
     }
 }

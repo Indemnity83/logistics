@@ -52,6 +52,7 @@ class PipeContextEnergyTest extends MinecraftTestEnvironment {
             @Override public boolean isClientSide() { return false; }
             @Override public void broadcastAlert(BlockPos pos, Component message) {}
             @Override public IEnergyStorage energyStorageAt(BlockPos pos) { return storages.get(pos); }
+            @Override public long gameTime() { return 0L; }
         };
         PipeNetwork network = new PipeNetwork(UUID.randomUUID(), new NetworkGraph(), view);
         network.registerEnergySource(batPos);

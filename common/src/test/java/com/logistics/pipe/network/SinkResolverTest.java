@@ -38,6 +38,7 @@ class SinkResolverTest extends MinecraftTestEnvironment {
         @Override public long dispatch(BlockPos p, BlockPos r, IItemKey i, long a, UUID d) { return 0; }
         @Override public boolean isClientSide() { return false; }
         @Override public void broadcastAlert(BlockPos pos, Component message) {}
+        @Override public long gameTime() { return 0L; }
     };
 
     private NetworkGraph graphA;
