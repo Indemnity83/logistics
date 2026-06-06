@@ -163,4 +163,74 @@ public class BatteryGameTest {
             context.succeed();
         });
     }
+
+    private static int bit(Direction dir) {
+        return 1 << dir.get3DDataValue();
+    }
+
+    /** A charged battery makes a logistics pipe's battery-facing and pipe-facing arms "powered". */
+    @GameTest(maxTicks = 40)
+    public void testLogisticsArmsPoweredWhenBatteryCharged(GameTestHelper context) {
+        BlockPos pipeA = new BlockPos(0, 1, 0);
+        BlockPos pipeB = new BlockPos(1, 1, 0); // EAST: another logistics pipe
+        BlockPos batteryPos = new BlockPos(0, 2, 0); // UP: battery
+        context.setBlock(pipeA, LogisticsPipe.BLOCK.BASIC_LOGISTICS_PIPE);
+        context.setBlock(pipeB, LogisticsPipe.BLOCK.BASIC_LOGISTICS_PIPE);
+        context.setBlock(batteryPos, LogisticsPower.BLOCK.BATTERY);
+        BatteryBlockEntity battery = context.getBlockEntity(batteryPos, BatteryBlockEntity.class);
+        if (battery == null) {
+            context.fail("Battery should have a block entity");
+            return;
+        }
+        setStored(battery, BatteryBlockEntity.CAPACITY);
+
+        context.runAfterDelay(25, () -> {
+            PipeBlockEntity pipe = context.getBlockEntity(pipeA, PipeBlockEntity.class);
+            if (pipe == null) {
+                context.fail("Pipe should have a block entity");
+                return;
+            }
+            int mask = pipe.getPoweredArmMask();
+            if ((mask & bit(Direction.UP)) == 0) {
+                context.fail("Arm toward the battery should be powered (green)");
+                return;
+            }
+            if ((mask & bit(Direction.EAST)) == 0) {
+                context.fail("Arm toward the adjacent logistics pipe should be powered (green)");
+                return;
+            }
+            context.succeed();
+        });
+    }
+
+    /** With a drained battery the logistics pipe's arms report unpowered (all red). */
+    @GameTest(maxTicks = 40)
+    public void testLogisticsArmsUnpoweredWhenBatteryEmpty(GameTestHelper context) {
+        BlockPos pipeA = new BlockPos(0, 1, 0);
+        BlockPos pipeB = new BlockPos(1, 1, 0);
+        BlockPos batteryPos = new BlockPos(0, 2, 0);
+        context.setBlock(pipeA, LogisticsPipe.BLOCK.BASIC_LOGISTICS_PIPE);
+        context.setBlock(pipeB, LogisticsPipe.BLOCK.BASIC_LOGISTICS_PIPE);
+        context.setBlock(batteryPos, LogisticsPower.BLOCK.BATTERY);
+        BatteryBlockEntity battery = context.getBlockEntity(batteryPos, BatteryBlockEntity.class);
+        if (battery == null) {
+            context.fail("Battery should have a block entity");
+            return;
+        }
+        setStored(battery, 0);
+
+        context.runAfterDelay(25, () -> {
+            PipeBlockEntity pipe = context.getBlockEntity(pipeA, PipeBlockEntity.class);
+            if (pipe == null) {
+                context.fail("Pipe should have a block entity");
+                return;
+            }
+            if (pipe.getPoweredArmMask() != 0) {
+                context.fail("An unpowered network should leave all arms unpowered, mask="
+                        + pipe.getPoweredArmMask());
+                return;
+            }
+            context.succeed();
+        });
+    }
 }

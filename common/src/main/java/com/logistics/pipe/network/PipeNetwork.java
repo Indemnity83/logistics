@@ -363,6 +363,16 @@ public class PipeNetwork implements ILogisticsNetwork {
     }
 
     @Override
+    public boolean isPowered() {
+        if (worldView == null || energySources.isEmpty()) return false;
+        for (BlockPos pos : energySources) {
+            IEnergyStorage storage = worldView.energyStorageAt(pos);
+            if (storage != null && storage.getAmount() > 0) return true;
+        }
+        return false;
+    }
+
+    @Override
     public boolean consumeEnergy(long amount) {
         if (amount <= 0) return true;
         if (worldView == null || energySources.isEmpty()) return false;

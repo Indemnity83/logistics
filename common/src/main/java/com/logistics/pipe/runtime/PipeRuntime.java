@@ -5,7 +5,9 @@ import com.logistics.core.lib.pipe.RoutePlan;
 import com.logistics.core.lib.pipe.TravelingItem;
 import com.logistics.pipe.network.NetDbg;
 import com.logistics.core.lib.block.capability.PipeConnection;
+import com.logistics.core.lib.network.ILogisticsNetwork;
 import com.logistics.pipe.Pipe;
+import com.logistics.pipe.modules.NetworkRouterModule;
 import com.logistics.core.lib.pipe.PipeContext;
 import com.logistics.pipe.block.PipeBlock;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
@@ -123,6 +125,7 @@ public final class PipeRuntime {
         // Update connection cache and notify modules of topology changes
         if (ctx.hasPipe()) {
             updateConnections(ctx, itemState);
+            updatePoweredArmMask(ctx, itemState);
             ctx.pipe().onTick(ctx.pipeContext());
         }
 
@@ -156,6 +159,47 @@ public final class PipeRuntime {
             }
             ctx.blockEntity().markConnectionCacheClean();
         }
+    }
+
+    /**
+     * Recompute the per-arm power-status mask for smart (logistics) pipes and sync it to clients
+     * when it changes. An arm is "powered" (green) when the pipe's network has stored energy AND
+     * the arm links toward power — a battery ({@code POWER}) or another logistics pipe. Computed
+     * every server tick because power can change (battery draining) without any topology change.
+     */
+    private static void updatePoweredArmMask(TickContext ctx, ItemTickState itemState) {
+        if (!ctx.isServer()) return;
+        // Only logistics (smart) pipes carry a power indicator; others never tint their arms.
+        if (ctx.pipe().getModule(NetworkRouterModule.class, ctx.blockEntity()) == null) return;
+
+        int mask = 0;
+        ILogisticsNetwork network = ctx.blockEntity().getNetwork();
+        if (network != null && network.isPowered()) {
+            for (Direction dir : Direction.values()) {
+                PipeConnection.Type type = ctx.blockEntity().getCachedConnectionType(dir);
+                boolean powered = switch (type) {
+                    case POWER -> true;
+                    case PIPE -> isLogisticsNeighbor(ctx.world(), ctx.pos().relative(dir));
+                    default -> false;
+                };
+                if (powered) mask |= (1 << dir.get3DDataValue());
+            }
+        }
+
+        if (mask != ctx.blockEntity().getPoweredArmMask()) {
+            ctx.blockEntity().setPoweredArmMask(mask);
+            itemState.markNeedsSync();
+        }
+    }
+
+    /** True if the block at {@code pos} is a logistics pipe (carries a {@link NetworkRouterModule}). */
+    private static boolean isLogisticsNeighbor(Level world, BlockPos pos) {
+        if (world.getBlockState(pos).getBlock() instanceof PipeBlock pipeBlock
+                && pipeBlock.getPipe() != null
+                && world.getBlockEntity(pos) instanceof PipeBlockEntity neighborBe) {
+            return pipeBlock.getPipe().getModule(NetworkRouterModule.class, neighborBe) != null;
+        }
+        return false;
     }
 
     private static boolean handleConnectionChanges(TickContext ctx) {

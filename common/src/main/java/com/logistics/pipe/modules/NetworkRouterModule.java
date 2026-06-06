@@ -29,10 +29,24 @@ public class NetworkRouterModule implements Module, RoutingModule {
     private static final float NETWORK_ACCELERATION = 0.04f;
     // Energy cost to assign a destination for an unrouted item.
     private static final long RF_PER_ROUTE = 2;
+    // Power-status arm tint: green when the arm links to a powered network, red otherwise.
+    private static final int ARM_TINT_POWERED = 0x5AAE4D;
+    private static final int ARM_TINT_UNPOWERED = 0xD93F3F;
 
     @Override
     public float getAcceleration(PipeContext ctx) {
         return NETWORK_ACCELERATION;
+    }
+
+    /**
+     * Tints this smart pipe's arms by power status: green for arms that link toward power (a battery
+     * or another logistics pipe in a powered network), red otherwise. Driven by the per-arm mask the
+     * server computes and syncs ({@link com.logistics.core.lib.pipe.IPipeAccess#getPoweredArmMask}).
+     */
+    @Override
+    public Integer getArmTint(PipeContext ctx, Direction direction) {
+        boolean powered = (ctx.blockEntity().getPoweredArmMask() & (1 << direction.get3DDataValue())) != 0;
+        return powered ? ARM_TINT_POWERED : ARM_TINT_UNPOWERED;
     }
 
     @Override
