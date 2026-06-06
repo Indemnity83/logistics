@@ -4,7 +4,6 @@ import com.logistics.core.lib.pipe.RoutingModule;
 import com.logistics.core.LogisticsConfig;
 
 import com.logistics.pipe.network.NetDbg;
-import com.logistics.core.lib.block.capability.PipeConnection;
 import com.logistics.core.lib.pipe.Module;
 import com.logistics.core.lib.network.ILogisticsNetwork;
 import com.logistics.core.lib.pipe.PipeContext;
@@ -30,10 +29,9 @@ public class NetworkRouterModule implements Module, RoutingModule {
     private static final float NETWORK_ACCELERATION = 0.04f;
     // Energy cost to assign a destination for an unrouted item.
     private static final long RF_PER_ROUTE = 2;
-    // Arm-status tint: green = powered network link, red = unpowered, blue = inventory I/O.
-    private static final int ARM_TINT_POWERED = 0x5AAE4D;
-    private static final int ARM_TINT_UNPOWERED = 0xD93F3F;
-    private static final int ARM_TINT_INVENTORY = 0x3F76E4;
+    // Arm-status tint: green = powered network link, red = anything else (unpowered, inventory, machine).
+    private static final int ARM_TINT_POWERED = 0x00FF00;
+    private static final int ARM_TINT_UNPOWERED = 0xFF0000;
 
     @Override
     public float getAcceleration(PipeContext ctx) {
@@ -41,16 +39,13 @@ public class NetworkRouterModule implements Module, RoutingModule {
     }
 
     /**
-     * Tints this smart pipe's arms by status: blue for an arm into an inventory (item I/O), otherwise
-     * green when the arm links into a powered network (battery or another pipe) and red when it isn't.
-     * Inventory is read from the synced connection cache; powered state from the per-arm mask the
-     * server computes and syncs ({@link com.logistics.core.lib.pipe.IPipeAccess#getPoweredArmMask}).
+     * Tints this smart pipe's arms by status: green when the arm links into a powered network (a
+     * battery or another pipe carrying power), red otherwise (unpowered, or a non-power endpoint such
+     * as an inventory, chest, or machine like the laser quarry). Driven by the per-arm mask the server
+     * computes and syncs ({@link com.logistics.core.lib.pipe.IPipeAccess#getPoweredArmMask}).
      */
     @Override
     public Integer getArmTint(PipeContext ctx, Direction direction) {
-        if (ctx.getCachedConnectionType(direction) == PipeConnection.Type.INVENTORY) {
-            return ARM_TINT_INVENTORY;
-        }
         boolean powered = (ctx.blockEntity().getPoweredArmMask() & (1 << direction.get3DDataValue())) != 0;
         return powered ? ARM_TINT_POWERED : ARM_TINT_UNPOWERED;
     }

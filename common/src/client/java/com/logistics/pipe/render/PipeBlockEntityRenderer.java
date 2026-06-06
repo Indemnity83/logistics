@@ -132,7 +132,10 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
                     dragCoefficient = pipeBlock.getPipe().getDrag(context);
 
                     Pipe pipe = pipeBlock.getPipe();
-                    state.models.add(buildModelInfo(pipe.getCoreModelId(context), 0xFFFFFF));
+                    // Logistics-pipe cores carry a tintable power-status overlay: green when the
+                    // pipe's network is powered, red when not. Cores without that overlay ignore it.
+                    int coreColor = entity.getPoweredArmMask() != 0 ? 0x00FF00 : 0xFF0000;
+                    state.models.add(buildModelInfo(pipe.getCoreModelId(context), coreColor));
                     for (CoreDecoration decoration : pipe.getCoreDecorations(context)) {
                         state.models.add(buildModelInfo(decoration.modelId(), decoration.color()));
                     }

@@ -44,6 +44,13 @@ public final class PipeModelResolver {
                     new Layer(shape, texture, -1),
                     new Layer(shape, "logistics_pipe_arm_overlay", 0));
         }
+        if (shape == PipeShape.CORE && modelBase.contains("logistics_pipe")) {
+            // Logistics-pipe core: untinted base + a shared tintable overlay that shows the pipe's
+            // power status (green powered / red unpowered), tinted by the renderer's core color.
+            return List.of(
+                    new Layer(shape, texture, -1),
+                    new Layer(shape, "logistics_pipe_core_overlay", 0));
+        }
         return List.of(new Layer(shape, texture, -1));
     }
 
