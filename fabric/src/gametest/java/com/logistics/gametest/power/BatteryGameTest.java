@@ -1,5 +1,6 @@
 package com.logistics.gametest.power;
 
+import com.logistics.LogisticsAutomation;
 import com.logistics.LogisticsPipe;
 import com.logistics.LogisticsPower;
 import com.logistics.core.lib.block.capability.PipeConnection;
@@ -229,6 +230,41 @@ public class BatteryGameTest {
             }
             if ((pipe.getPoweredArmMask() & bit(Direction.EAST)) == 0) {
                 context.fail("Logistics arm into the transport-pipe bridge should be powered (green)");
+                return;
+            }
+            context.succeed();
+        });
+    }
+
+    /** A machine that speaks the PIPE connection only for item I/O (the quarry) is not a power link. */
+    @GameTest(maxTicks = 40)
+    public void testQuarryArmIsNotTreatedAsPower(GameTestHelper context) {
+        BlockPos quarryPos = new BlockPos(0, 1, 0);
+        BlockPos pipePos = new BlockPos(0, 2, 0);   // above the quarry
+        BlockPos batteryPos = new BlockPos(1, 2, 0); // EAST: powers the network
+        context.setBlock(quarryPos, LogisticsAutomation.BLOCK.LASER_QUARRY);
+        context.setBlock(pipePos, LogisticsPipe.BLOCK.BASIC_LOGISTICS_PIPE);
+        context.setBlock(batteryPos, LogisticsPower.BLOCK.BATTERY);
+        BatteryBlockEntity battery = context.getBlockEntity(batteryPos, BatteryBlockEntity.class);
+        if (battery == null) {
+            context.fail("Battery should have a block entity");
+            return;
+        }
+        setStored(battery, BatteryBlockEntity.CAPACITY);
+
+        context.runAfterDelay(25, () -> {
+            PipeBlockEntity pipe = context.getBlockEntity(pipePos, PipeBlockEntity.class);
+            if (pipe == null) {
+                context.fail("Pipe should have a block entity");
+                return;
+            }
+            int mask = pipe.getPoweredArmMask();
+            if ((mask & bit(Direction.EAST)) == 0) {
+                context.fail("Battery-facing arm should be powered (confirms the network has power)");
+                return;
+            }
+            if ((mask & bit(Direction.DOWN)) != 0) {
+                context.fail("Arm into the quarry should not be a power link (it's an item endpoint)");
                 return;
             }
             context.succeed();

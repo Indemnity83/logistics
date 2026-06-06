@@ -164,9 +164,11 @@ public final class PipeRuntime {
     /**
      * Recompute the per-arm power-status mask for smart (logistics) pipes and sync it to clients
      * when it changes. An arm is "powered" (green) when the pipe's network has stored energy AND the
-     * arm links into that network — a battery ({@code POWER}) or any connected pipe ({@code PIPE}),
-     * since power flows network-wide (including through transport pipes that bridge logistics pipes).
-     * Computed every server tick because power can change (battery draining) without topology change.
+     * arm links into that network — a battery ({@code POWER}) or another actual pipe block, since
+     * power flows network-wide (including through transport pipes that bridge logistics pipes).
+     * Blocks that merely speak the {@code PIPE} connection type for item I/O (e.g. the laser quarry)
+     * are deliberately excluded — they are item endpoints, not power links. Computed every server
+     * tick because power can change (battery draining) without any topology change.
      */
     private static void updatePoweredArmMask(TickContext ctx, ItemTickState itemState) {
         if (!ctx.isServer()) return;
@@ -179,8 +181,9 @@ public final class PipeRuntime {
             for (Direction dir : Direction.values()) {
                 PipeConnection.Type type = ctx.blockEntity().getCachedConnectionType(dir);
                 boolean powered = switch (type) {
-                    case POWER, PIPE -> true; // battery, or another pipe carrying network power
-                    default -> false;          // inventories and unconnected sides stay red
+                    case POWER -> true; // a battery
+                    case PIPE -> isPipeNeighbor(ctx.world(), ctx.pos().relative(dir)); // a real pipe
+                    default -> false;   // inventories and unconnected sides stay red
                 };
                 if (powered) mask |= (1 << dir.get3DDataValue());
             }
@@ -190,6 +193,11 @@ public final class PipeRuntime {
             ctx.blockEntity().setPoweredArmMask(mask);
             itemState.markNeedsSync();
         }
+    }
+
+    /** True if the block at {@code pos} is an actual pipe (so power flows through it). */
+    private static boolean isPipeNeighbor(Level world, BlockPos pos) {
+        return world.getBlockState(pos).getBlock() instanceof PipeBlock;
     }
 
     private static boolean handleConnectionChanges(TickContext ctx) {
