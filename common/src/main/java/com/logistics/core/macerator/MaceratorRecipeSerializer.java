@@ -12,9 +12,8 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
 
 /**
  * Recipe serializer for macerator recipes.
- * Handles bare item ID strings ("minecraft:iron_ore") and standard ingredient objects.
- * Note: {"tag":"..."} object format is not supported by vanilla's Ingredient.CODEC;
- * those recipes are handled exclusively by MaceratorRecipeManager.
+ * Handles bare item ID strings ("minecraft:iron_ore"), tag strings ("#minecraft:logs"),
+ * and standard ingredient objects via vanilla's {@link Ingredient#CODEC}.
  */
 public class MaceratorRecipeSerializer {
 
@@ -22,7 +21,7 @@ public class MaceratorRecipeSerializer {
         Ingredient.CODEC.fieldOf("ingredient").forGetter(MaceratorRecipeWrapper::ingredient),
         ItemStackTemplate.CODEC.fieldOf("result").forGetter(MaceratorRecipeWrapper::result),
         Codec.INT.fieldOf("grindingtime").forGetter(MaceratorRecipeWrapper::grindingTime),
-        Codec.FLOAT.optionalFieldOf("experience", MaceratorRecipe.DEFAULT_EXPERIENCE).forGetter(MaceratorRecipeWrapper::experience)
+        Codec.FLOAT.optionalFieldOf("experience", MaceratorRecipeWrapper.DEFAULT_EXPERIENCE).forGetter(MaceratorRecipeWrapper::experience)
     ).apply(i, MaceratorRecipeWrapper::new));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, MaceratorRecipeWrapper> STREAM_CODEC =
