@@ -3,27 +3,73 @@ package com.logistics.core.macerator;
 import com.logistics.LogisticsCore;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
-import net.minecraft.world.item.crafting.RecipeInput;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.item.crafting.SingleRecipeInput;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Minimal Recipe wrapper to satisfy Minecraft's recipe system.
- * Actual recipe matching is handled by MaceratorRecipeManager.
+ * Macerator recipe, integrated into Minecraft's recipe system via {@link RecipeType} and
+ * {@link RecipeSerializer}. Vanilla's {@code RecipeManager} loads these by their
+ * {@code logistics:macerator} type, so recipes are routed correctly and other mods'
+ * {@code recipe/macerator/} files are never absorbed into our machine.
+ *
+ * <p>Both the machine ({@code MaceratorBlockEntity}) and JEI read this directly.
  */
-public class MaceratorRecipeWrapper implements Recipe<RecipeInput> {
+public class MaceratorRecipeWrapper implements Recipe<SingleRecipeInput> {
 
-    @Override
-    public boolean matches(@NotNull RecipeInput input, @NotNull Level level) {
-        return false;
+    public static final int DEFAULT_GRINDING_TIME = 200;
+    public static final float DEFAULT_EXPERIENCE = 0.0f;
+
+    private final Ingredient ingredient;
+    private final ItemStack result;
+    private final int grindingTime;
+    private final float experience;
+
+    public MaceratorRecipeWrapper(Ingredient ingredient, ItemStack result, int grindingTime, float experience) {
+        this.ingredient = ingredient;
+        this.result = result;
+        this.grindingTime = grindingTime;
+        this.experience = experience;
+    }
+
+    public Ingredient ingredient() {
+        return ingredient;
+    }
+
+    public ItemStack result() {
+        return result;
+    }
+
+    public int grindingTime() {
+        return grindingTime;
+    }
+
+    public float experience() {
+        return experience;
+    }
+
+    /** Convenience for machine logic: does this stack satisfy the ingredient? */
+    public boolean matches(ItemStack stack) {
+        return !stack.isEmpty() && ingredient.test(stack);
+    }
+
+    /** Convenience for machine/JEI: the result as a fresh stack (avoids the version-specific assemble signature). */
+    public ItemStack getResultItem() {
+        return result.copy();
     }
 
     @Override
-    public @NotNull ItemStack assemble(@NotNull RecipeInput input, HolderLookup.@NotNull Provider provider) {
-        return ItemStack.EMPTY;
+    public boolean matches(@NotNull SingleRecipeInput input, @NotNull Level level) {
+        return ingredient.test(input.item());
+    }
+
+    @Override
+    public @NotNull ItemStack assemble(@NotNull SingleRecipeInput input, HolderLookup.@NotNull Provider provider) {
+        return result.copy();
     }
 
     @Override
@@ -33,7 +79,7 @@ public class MaceratorRecipeWrapper implements Recipe<RecipeInput> {
 
     @Override
     public @NotNull ItemStack getResultItem(HolderLookup.@NotNull Provider provider) {
-        return ItemStack.EMPTY;
+        return result.copy();
     }
 
     @Override
@@ -48,6 +94,6 @@ public class MaceratorRecipeWrapper implements Recipe<RecipeInput> {
 
     @Override
     public boolean isSpecial() {
-        return true;
+        return false;
     }
 }

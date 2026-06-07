@@ -8,7 +8,6 @@ import com.logistics.core.lib.block.capability.HasItemStorage;
 import com.logistics.core.lib.energy.EnergyComponent;
 import com.logistics.core.lib.items.ItemInventoryComponent;
 import com.logistics.core.lib.power.EnergyDemandProvider;
-import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.core.lib.compat.NbtCompat;
 import com.logistics.core.lib.storage.ContainerItemStorage;
 import com.logistics.core.lib.storage.IItemStorage;
@@ -26,6 +25,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.item.crafting.SingleRecipeInput;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
@@ -91,7 +92,7 @@ public class MaceratorBlockEntity extends BaseBlockEntity
         public boolean canExtract() { return energy.canExtract(); }
     };
 
-    @Nullable private ResourceId activeRecipeId = null;
+    @Nullable private RecipeHolder<MaceratorRecipeWrapper> activeRecipe = null;
     int processProgress = 0;
 
     // ContainerData indices for GUI sync
@@ -105,11 +106,7 @@ public class MaceratorBlockEntity extends BaseBlockEntity
         public int get(int index) {
             return switch (index) {
                 case DATA_PROGRESS -> processProgress;
-                case DATA_TOTAL_TICKS -> {
-                    if (activeRecipeId == null) yield 0;
-                    MaceratorRecipe r = MaceratorRecipeManager.getRecipe(activeRecipeId);
-                    yield r != null ? r.getGrindingTime() : 0;
-                }
+                case DATA_TOTAL_TICKS -> activeRecipe != null ? activeRecipe.value().grindingTime() : 0;
                 case DATA_ENERGY -> (int) Math.min(energy.getAmount(), Integer.MAX_VALUE);
                 default -> 0;
             };
@@ -143,26 +140,19 @@ public class MaceratorBlockEntity extends BaseBlockEntity
 
     private boolean tickProcessing(Level level, BlockState state) {
         // If no active recipe, try to find one
-        if (activeRecipeId == null) {
-            MaceratorRecipe recipe = findMatchingRecipe();
-            if (recipe == null || !canStartProcessing(recipe)) {
+        if (activeRecipe == null) {
+            activeRecipe = findMatchingRecipe(level);
+            if (activeRecipe == null || !canStartProcessing(activeRecipe)) {
                 setLit(level, state, false);
                 return false;
             }
-            activeRecipeId = recipe.getId();
         }
 
-        MaceratorRecipe recipe = MaceratorRecipeManager.getRecipe(activeRecipeId);
-        if (recipe == null) {
-            activeRecipeId = null;
-            processProgress = 0;
-            setLit(level, state, false);
-            return true;
-        }
+        MaceratorRecipeWrapper recipe = activeRecipe.value();
 
         // Cancel if input no longer matches
         if (!recipe.matches(inventory.getItem(INPUT_SLOT))) {
-            activeRecipeId = null;
+            activeRecipe = null;
             processProgress = 0;
             setLit(level, state, false);
             return true;
@@ -178,27 +168,26 @@ public class MaceratorBlockEntity extends BaseBlockEntity
         setLit(level, state, true);
         processProgress++;
 
-        if (processProgress >= recipe.getGrindingTime()) {
+        if (processProgress >= recipe.grindingTime()) {
             completeProcessing(recipe);
         }
 
         return true;
     }
 
-    private MaceratorRecipe findMatchingRecipe() {
+    @Nullable
+    private RecipeHolder<MaceratorRecipeWrapper> findMatchingRecipe(Level level) {
         ItemStack input = inventory.getItem(INPUT_SLOT);
         if (input.isEmpty()) return null;
-        // Item-specific recipes take priority over tag-based recipes to ensure
-        // deterministic results when a tag and a specific item both match.
-        return MaceratorRecipeManager.getAllRecipes().values().stream()
-            .filter(r -> r.matches(input))
-            .min(java.util.Comparator.comparingInt(r -> r.isTagBased() ? 1 : 0))
+        if (!(level instanceof ServerLevel serverLevel)) return null;
+        return serverLevel.getServer().getRecipeManager()
+            .getRecipeFor(LogisticsCore.RECIPE.MACERATOR_RECIPE_TYPE, new SingleRecipeInput(input), level)
             .orElse(null);
     }
 
-    private boolean canStartProcessing(MaceratorRecipe recipe) {
+    private boolean canStartProcessing(RecipeHolder<MaceratorRecipeWrapper> recipe) {
         return energy.getAmount() >= ENERGY_PER_TICK
-            && canAcceptOutput(recipe.getResultItem());
+            && canAcceptOutput(recipe.value().getResultItem());
     }
 
     private boolean canAcceptOutput(ItemStack result) {
@@ -208,7 +197,7 @@ public class MaceratorBlockEntity extends BaseBlockEntity
             && output.getCount() + result.getCount() <= output.getMaxStackSize();
     }
 
-    private void completeProcessing(MaceratorRecipe recipe) {
+    private void completeProcessing(MaceratorRecipeWrapper recipe) {
         inventory.getItem(INPUT_SLOT).shrink(1);
 
         ItemStack result = recipe.getResultItem();
@@ -219,9 +208,9 @@ public class MaceratorBlockEntity extends BaseBlockEntity
             output.grow(result.getCount());
         }
 
-        awardExperience(recipe.getExperience());
+        awardExperience(recipe.experience());
 
-        activeRecipeId = null;
+        activeRecipe = null;
         processProgress = 0;
     }
 
@@ -328,9 +317,6 @@ public class MaceratorBlockEntity extends BaseBlockEntity
         inventory.writeNbt(tag, "Inventory", registries);
         energy.writeNbt(tag, "Energy");
         tag.putInt("ProcessProgress", processProgress);
-        if (activeRecipeId != null) {
-            tag.putString("ActiveRecipe", activeRecipeId.toString());
-        }
     }
 
     @Override
@@ -338,7 +324,6 @@ public class MaceratorBlockEntity extends BaseBlockEntity
         inventory.readNbt(tag, "Inventory", registries);
         energy.readNbt(tag, "Energy");
         processProgress = NbtCompat.getInt(tag, "ProcessProgress", 0);
-        String recipeStr = NbtCompat.getString(tag, "ActiveRecipe", "");
-        activeRecipeId = recipeStr.isEmpty() ? null : ResourceId.parse(recipeStr);
+        // activeRecipe is re-resolved on the next tick from the vanilla recipe manager
     }
 }

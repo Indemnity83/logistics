@@ -2,7 +2,7 @@ package com.logistics.core.macerator.jei;
 
 import com.logistics.LogisticsCore;
 import com.logistics.LogisticsMod;
-import com.logistics.core.macerator.MaceratorRecipe;
+import com.logistics.core.macerator.MaceratorRecipeWrapper;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
 import mezz.jei.api.helpers.IGuiHelper;
@@ -15,16 +15,15 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Ingredient;
 
 /**
  * JEI recipe category for the Macerator.
  * Displays a single input ingredient grinding into an output item.
  */
-public class MaceratorRecipeCategory implements IRecipeCategory<MaceratorRecipe> {
+public class MaceratorRecipeCategory implements IRecipeCategory<MaceratorRecipeWrapper> {
 
-    public static final RecipeType<MaceratorRecipe> RECIPE_TYPE =
-        RecipeType.create(LogisticsMod.MOD_ID, "macerator", MaceratorRecipe.class);
+    public static final RecipeType<MaceratorRecipeWrapper> RECIPE_TYPE =
+        RecipeType.create(LogisticsMod.MOD_ID, "macerator", MaceratorRecipeWrapper.class);
 
     // Matches MaceratorScreen.TEXTURE
     private static final ResourceLocation TEXTURE =
@@ -51,7 +50,7 @@ public class MaceratorRecipeCategory implements IRecipeCategory<MaceratorRecipe>
     }
 
     @Override
-    public RecipeType<MaceratorRecipe> getRecipeType() {
+    public RecipeType<MaceratorRecipeWrapper> getRecipeType() {
         return RECIPE_TYPE;
     }
 
@@ -81,17 +80,14 @@ public class MaceratorRecipeCategory implements IRecipeCategory<MaceratorRecipe>
     }
 
     @Override
-    public void draw(MaceratorRecipe recipe, IRecipeSlotsView recipeSlotsView, GuiGraphics guiGraphics, double mouseX, double mouseY) {
+    public void draw(MaceratorRecipeWrapper recipe, IRecipeSlotsView recipeSlotsView, GuiGraphics guiGraphics, double mouseX, double mouseY) {
         arrow.draw(guiGraphics, ARROW_X, ARROW_Y);
     }
 
     @Override
-    public void setRecipe(IRecipeLayoutBuilder builder, MaceratorRecipe recipe, IFocusGroup focuses) {
-        Ingredient ingredient = recipe.getIngredient() != null
-            ? recipe.getIngredient()
-            : Ingredient.of(recipe.getTagIngredient());
+    public void setRecipe(IRecipeLayoutBuilder builder, MaceratorRecipeWrapper recipe, IFocusGroup focuses) {
         builder.addSlot(RecipeIngredientRole.INPUT, INPUT_X, INPUT_Y)
-            .addIngredients(ingredient);
+            .addIngredients(recipe.ingredient());
         builder.addSlot(RecipeIngredientRole.OUTPUT, OUTPUT_X, OUTPUT_Y)
             .addItemStack(recipe.getResultItem());
     }
