@@ -158,17 +158,23 @@ public class MaceratorBlockEntity extends BaseBlockEntity
             return true;
         }
 
-        // Pause if not enough energy or output is full
-        if (energy.getAmount() < ENERGY_PER_TICK || !canAcceptOutput(recipe.getResultItem())) {
+        MaceratorProcessingPlan.Result plan = MaceratorProcessingPlan.advance(
+            processProgress,
+            recipe.grindingTime(),
+            energy.getAmount(),
+            ENERGY_PER_TICK,
+            canAcceptOutput(recipe.getResultItem()));
+
+        if (!plan.consumedEnergy()) {
             setLit(level, state, false);
             return false;
         }
 
         energy.consume(ENERGY_PER_TICK);
         setLit(level, state, true);
-        processProgress++;
+        processProgress = plan.progress();
 
-        if (processProgress >= recipe.grindingTime()) {
+        if (plan.complete()) {
             completeProcessing(recipe);
         }
 
@@ -191,10 +197,7 @@ public class MaceratorBlockEntity extends BaseBlockEntity
     }
 
     private boolean canAcceptOutput(ItemStack result) {
-        ItemStack output = inventory.getItem(OUTPUT_SLOT);
-        if (output.isEmpty()) return true;
-        return ItemStack.isSameItemSameComponents(output, result)
-            && output.getCount() + result.getCount() <= output.getMaxStackSize();
+        return MaceratorProcessingPlan.acceptsOutput(inventory.getItem(OUTPUT_SLOT), result);
     }
 
     private void completeProcessing(MaceratorRecipeWrapper recipe) {
