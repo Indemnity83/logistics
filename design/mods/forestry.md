@@ -15,7 +15,7 @@ See [`../principles.md`](../principles.md) for the table legend. Forestry is lar
 | Farm (single-block) | Automated planting/harvesting of a farm type | Port | Target the **older single-block Forestry farms**, *not* the later multiblock Multifarm. One block per farm + a farm-type selection; range/speed upgrades | — | Phase 2 — farms |
 | Multifarm (later multiblock) | Large modular managed-farm structure | Skip | Deliberately not porting the multiblock direction Forestry migrated to — keep farms as single blocks | ❌ | — |
 | Peat bog / peat | Grow peat → solid fuel | Port | Nice early-fuel loop; pairs with apatite fertilizer | — | Phase 2 — farms/fuel |
-| Fertilizer / humus / compost | Apatite-based fertilizer speeds growth | Modernize | **Apatite already implemented** — build the fertilizer chain on it | 🚧 Seeded | `core` / Apatite → fertilizer |
+| Fertilizer / humus / compost | Apatite-based fertilizer speeds growth | Modernize | **Apatite already implemented** — build the fertilizer chain on it | 🚧 Planned | `core` / Apatite → fertilizer |
 
 ## Processing machines & power
 
@@ -29,7 +29,7 @@ See [`../principles.md`](../principles.md) for the table legend. Forestry is lar
 | Still | Biomass → ethanol/biofuel | Port | Biofuel chain step 2; a **parallel fuel** for the combustion engine (couples to BuildCraft) | — | Phase 2 — biofuel |
 | Bottler / Can filling | Fill containers with fluids | Port | Depends on the fluid layer | — | Phase 2 — fluids |
 | Engines (peat / biogas / biofuel / electrical) | Forestry's own engine line | Modernize | **Unify with the engine line**: peat-fired + biofuel engine tiers rather than a parallel system. This is "the power that went with the farms" | — | `power` / engines |
-| Moistener | Make mycelium/mossy blocks | Modernize | Minor; low priority | TBD | — |
+| Moistener | Make mycelium/mossy blocks | Modernize | Minor; low priority | — | — |
 
 ## Trees (arboriculture)
 
@@ -43,8 +43,8 @@ See [`../principles.md`](../principles.md) for the table legend. Forestry is lar
 | Feature | What it did | Decision | Modern take / balance notes | Status | Maps to |
 |---|---|---|---|---|---|
 | Thermionic Fabricator | Molten glass + ingots → **electron tubes** | Modernize | Like the Carpenter, the original was **unintuitive** — redesign for clarity, ideally **unify with the Carpenter** into one approachable components machine | — | Phase 2 — electronics |
-| Electron tubes (copper/tin/bronze/iron/gold/diamond/blaze/apatite/lapis/ender/etc.) | Typed components for circuit programming | Modernize | **Already seeded**: Logistics has *logic chips*, *cores* (13), and *valves* (13) that mirror this tube set | 🚧 Seeded | `core` / cores, valves, logic chips |
-| Circuit boards + Soldering | Program machine/farm behavior via tube layouts | TBD | **Unify** circuits with TE-style augments + BC gates into one "programmable behavior" system across the mod | TBD | Phase 1/2 — electronics (RFC) |
+| Electron tubes (copper/tin/bronze/iron/gold/diamond/blaze/apatite/lapis/ender/etc.) | Typed components for circuit programming | Modernize | **Already seeded**: Logistics has *logic chips*, *cores* (13), and *valves* (13) that mirror this tube set | 🚧 Planned | `core` / cores, valves, logic chips |
+| Circuit boards + Soldering | Program machine/farm behavior via tube layouts | TBD | **Unify** circuits with TE-style augments + BC gates into one "programmable behavior" system across the mod | — | Phase 1/2 — electronics (RFC) |
 
 ## Bees (apiculture) — deferred
 
@@ -52,11 +52,11 @@ See [`../principles.md`](../principles.md) for the table legend. Forestry is lar
 
 | Feature | What it did | Decision | Modern take / balance notes | Status | Maps to |
 |---|---|---|---|---|---|
-| Apiary | Single-block bee housing; bees produce combs | Modernize | **Vanilla already has the beehive/bee nest** — extend its behavior rather than add a parallel block | TBD | — |
-| Bee lifecycle (princess/drone/queen) | Breed queens; offspring; decay | TBD | Fundamentally different from vanilla flower-breeding; the crux of whether bees happen at all | TBD | — |
-| Bee genetics / mutations | Mendelian traits + species discovery | TBD | Depends on the lifecycle decision; if pursued, simplify the trait matrix | TBD | — |
-| Bee products + Centrifuge | Combs → centrifuge → honey/wax/jelly | TBD | Coupled to bees; deferred with them | TBD | — |
-| Frames / Alveary / bee tools | Output modifiers; advanced multiblock; analysis | TBD | Deferred; Alveary would also fight the multiblock stance | TBD | — |
+| Apiary | Single-block bee housing; bees produce combs | Modernize | **Vanilla already has the beehive/bee nest** — extend its behavior rather than add a parallel block | — | — |
+| Bee lifecycle (princess/drone/queen) | Breed queens; offspring; decay | TBD | Fundamentally different from vanilla flower-breeding; the crux of whether bees happen at all | — | — |
+| Bee genetics / mutations | Mendelian traits + species discovery | TBD | Depends on the lifecycle decision; if pursued, simplify the trait matrix | — | — |
+| Bee products + Centrifuge | Combs → centrifuge → honey/wax/jelly | TBD | Coupled to bees; deferred with them | — | — |
+| Frames / Alveary / bee tools | Output modifiers; advanced multiblock; analysis | TBD | Deferred; Alveary would also fight the multiblock stance | — | — |
 
 ## Out of scope
 

@@ -6,7 +6,7 @@
 
 The mod currently ships as one artifact, internally organized into **decoupled domains** that depend only on shared abstractions in `core.lib` (Dependency Inversion):
 
-```
+```text
 common/src/main/java/com/logistics/
 ├── core/         # shared lib + materials, tools, Macerator; core.lib abstractions
 ├── pipe/         # item transport + logistics network (Logistics Pipes)
@@ -22,7 +22,7 @@ The aim is to let players install **only what they want** — not a monolith. Re
 
 Proposed provisional split, roughly along the source-mod lines:
 
-```
+```text
 logistics-core        # shared library: core.lib abstractions, energy/item/fluid APIs,
                       #   base materials (tin/bronze/dusts/gears), tools (wrench/probe).
                       #   Every other module depends on this; it ships nothing "fun" alone.
@@ -40,7 +40,7 @@ logistics-transport   # Railcraft: rails, advanced carts, tanks, signals, bulk p
 
 `logistics-automation` is the biggest bucket and arguably three mods in a trench coat. A finer split could be:
 
-```
+```text
 logistics-pipes    # transport + logistics network (the "glue")
 logistics-power    # engines, cables, battery, energy distribution
 logistics-machines # RF machines: macerator, kiln, quarry, future Thermal-style machines

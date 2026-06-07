@@ -18,7 +18,7 @@ See [`../principles.md`](../principles.md) for the table legend. Railcraft is *e
 | Detector tracks | Emit redstone on cart conditions | Port | Automation glue | — | Phase 3 — tracks |
 | Control tracks (boarding/holding/locking/one-way/buffer/launcher) | Fine cart control + fun (launcher) | Modernize | Consolidate the dozen+ control tracks into a smaller, configurable set | — | Phase 3 — tracks |
 | Routing track + ticket | Route carts by destination | Port | Pairs naturally with the logistics theme | — | Phase 3 — routing |
-| Electric track | Power electric locomotives | TBD | Only if electric locomotives are in scope | TBD | Phase 3 — tracks |
+| Electric track | Power electric locomotives | TBD | Only if electric locomotives are in scope | — | Phase 3 — tracks |
 
 ## Minecarts
 
@@ -28,8 +28,8 @@ See [`../principles.md`](../principles.md) for the table legend. Railcraft is *e
 | Tank cart | Mobile fluid transport | Port | Depends on the fluid layer | — | Phase 3 — carts |
 | Chest / work carts (energy/anchor) | Mobile inventory + utility carts | Port | Mobile storage transport; pairs with loaders | — | Phase 3 — carts |
 | Loaders / unloaders (item & fluid) | Auto-load/unload carts at stations | Port | Connects rails to the pipe/fluid networks | — | Phase 3 — loaders |
-| Fun carts (TNT / gift / undercutter) | Novelty/utility carts | Modernize | Keep a couple (TNT cart); drop the rest | TBD | Phase 3 — carts |
-| Tunnel Bore | Cart-mounted automatic tunneling | Modernize | Cool but complex; possible alt to/with the Laser Quarry | TBD | Later |
+| Fun carts (TNT / gift / undercutter) | Novelty/utility carts | Modernize | Keep a couple (TNT cart); drop the rest | — | Phase 3 — carts |
+| Tunnel Bore | Cart-mounted automatic tunneling | Modernize | Cool but complex; possible alt to/with the Laser Quarry | — | Later |
 | Cart dispenser | Auto-place carts onto track | Port | Station automation | — | Phase 3 — loaders |
 
 ## Signals
@@ -45,12 +45,12 @@ See [`../principles.md`](../principles.md) for the table legend. Railcraft is *e
 |---|---|---|---|---|---|
 | Coke Oven | Multiblock: coal → coke + creosote oil | Modernize | Coke + creosote feed steel + fuel/treated-wood. **Reconsider the multiblock** — prefer single block or tileable (scale optional) | — | Phase 3 — steam chain |
 | Blast Furnace | Multiblock: iron + coke → steel | Modernize | Steel is the module's key material; **single-block machine** preferred over the 34-block structure | — | Phase 3 — steel |
-| Steam Boiler (solid/liquid, HP/LP) | Multiblock: fuel + water → steam | Modernize | Steam as a power tier; big multiblock — reconsider scale-vs-tedium; couples to `power` | TBD | Phase 3 — steam power |
-| Steam Turbine / steam engines | Steam → RF/work | Modernize | Unify with the engine line (steam-tier engine) | TBD | `power` / engines |
-| Iron / Steel Tank | Multiblock bulk fluid storage | Modernize | The classic "Iron Tanks" role. *Scale is the feature* — a valid multiblock exception, or tileable tank blocks | TBD | Phase 3 — tanks (fluids) |
+| Steam Boiler (solid/liquid, HP/LP) | Multiblock: fuel + water → steam | Modernize | Steam as a power tier; big multiblock — reconsider scale-vs-tedium; couples to `power` | — | Phase 3 — steam power |
+| Steam Turbine / steam engines | Steam → RF/work | Modernize | Unify with the engine line (steam-tier engine) | — | `power` / engines |
+| Iron / Steel Tank | Multiblock bulk fluid storage | Modernize | The classic "Iron Tanks" role. *Scale is the feature* — a valid multiblock exception, or tileable tank blocks | — | Phase 3 — tanks (fluids) |
 | Rock Crusher | Multiblock ore processing | Skip | Covered by the Macerator | ❌ | [`thermal-expansion.md`](thermal-expansion.md) |
-| Rolling Machine | Cart/rail crafting | Modernize | Fold rail crafting into normal/vanilla-Crafter recipes | TBD | — |
-| Water Tank (multiblock) | Collect water for boilers | Modernize | Only if boilers need it; prefer simple | TBD | — |
+| Rolling Machine | Cart/rail crafting | Modernize | Fold rail crafting into normal/vanilla-Crafter recipes | — | — |
+| Water Tank (multiblock) | Collect water for boilers | Modernize | Only if boilers need it; prefer simple | — | — |
 
 ## Materials & utility
 
@@ -59,7 +59,7 @@ See [`../principles.md`](../principles.md) for the table legend. Railcraft is *e
 | Steel | Blast-furnace alloy; rails/tools | Port | Core `logistics-transport` material | — | Phase 3 — steel |
 | Creosote oil | Wood preservative (treated wood) + fuel | Port | From the coke oven; treated wood for tracks/ties | — | Phase 3 — steam chain |
 | Coke / charcoal | Smelting fuel | Port | From the coke oven | — | Phase 3 — steam chain |
-| World Anchor (chunkloading) | Keep cart/quarry chunks loaded | TBD | Useful for quarries/farms but sensitive (server perf); needs a Discussion | TBD | Later |
+| World Anchor (chunkloading) | Keep cart/quarry chunks loaded | TBD | Useful for quarries/farms but sensitive (server perf); needs a Discussion | — | Later |
 | Engraving / emblems / firestone / misc | Cosmetic & niche extras | Skip | Out of scope | ❌ | — |
 
 > TODO: the multiblock calls (coke oven, blast furnace, boiler, tank) are the biggest design tension in this module vs. the no-multiblock stance — decide per-block (single vs. tileable vs. true multiblock) via a Discussion before scheduling.

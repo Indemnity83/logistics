@@ -10,7 +10,7 @@ See [`../principles.md`](../principles.md) for the table legend.
 
 ## Network logistics pipes
 
-| Feature | What it did (1.7.10–1.12.2) | Decision | Modern take / balance notes | Status | Maps to |
+| Feature | What it did (1.7.10) | Decision | Modern take / balance notes | Status | Maps to |
 |---|---|---|---|---|---|
 | Basic Logistics Pipe | Network backbone; routes addressed items, optional filtering | Port | Implemented with filtering + default route | ✅ Done | `pipe` / Basic Logistics Pipe |
 | Request Pipe | Pull specific items from the network on demand | Port | Requester pipe + screen | ✅ Done | `pipe` / Requester Logistics Pipe |
@@ -54,7 +54,7 @@ See [`../principles.md`](../principles.md) for the table legend.
 | Power gating for operations | LP operations needed power (Power Junction / supplier) | Port | Done — pipe operations consume RF, with network energy sourcing + a shared energy-push service; pipes render green/red by power state (#464, #465, #469) | ✅ Done | `power` / pipe power gate |
 | Fluid logistics | Liquid supplier/provider/request over the network | Modernize | Depends on fluid pipes (see [`buildcraft.md`](buildcraft.md) / [`thermal-expansion.md`](thermal-expansion.md)) | — | Phase 1 — fluids |
 | Firewall pipe | Isolate/segment a sub-network | Port | Network segmentation block; useful for large bases | — | Phase 1 — logistics advanced |
-| Logistics disk / network mgmt | Save/load network config, naming | Modernize | Data-component-based config item; revisit need | TBD | — |
+| Logistics disk / network mgmt | Save/load network config, naming | Modernize | Data-component-based config item; revisit need | — | — |
 | Security station | Per-player network permissions | Skip | Heavy, niche; out of scope for now | ❌ | — |
 
 > TODO: confirm whether the original "default route" + sink priority behavior fully matches the current Sink module priority model, or if any edge cases differ.

@@ -44,10 +44,10 @@ See [`../principles.md`](../principles.md) for the table legend. Pipe transport 
 
 | Feature | What it did | Decision | Modern take / balance notes | Status | Maps to |
 |---|---|---|---|---|---|
-| Gates (basic/iron/gold/diamond) | Programmable trigger→action logic on pipes/machines | TBD | High value but complex. Possible modern take: a compact "logic gate" pluggable reading machine/pipe state. Big design effort — needs a Discussion | TBD | Phase 1 — automation (RFC) |
-| Pipe wiring (red/blue/green/yellow) | Carry gate signals between pipes | TBD | Only meaningful if gates are ported; could lean on vanilla redstone instead | TBD | Phase 1 — automation (RFC) |
-| Autarchic gate | Self-pulsing redstone engine | Modernize | Could fold into engine/extractor config rather than a separate gate | TBD | — |
-| Assembly Table + Laser | Laser-powered crafting of BC chipsets/gates | TBD | Revisit as we approach the recipes it produced — parts already changed, but the balance is still uncertain. Decide Port vs. Modernize closer in | TBD | Phase 1 — revisit |
+| Gates (basic/iron/gold/diamond) | Programmable trigger→action logic on pipes/machines | TBD | High value but complex. Possible modern take: a compact "logic gate" pluggable reading machine/pipe state. Big design effort — needs a Discussion | — | Phase 1 — automation (RFC) |
+| Pipe wiring (red/blue/green/yellow) | Carry gate signals between pipes | TBD | Only meaningful if gates are ported; could lean on vanilla redstone instead | — | Phase 1 — automation (RFC) |
+| Autarchic gate | Self-pulsing redstone engine | Modernize | Could fold into engine/extractor config rather than a separate gate | — | — |
+| Assembly Table + Laser | Laser-powered crafting of BC chipsets/gates | TBD | Revisit as we approach the recipes it produced — parts already changed, but the balance is still uncertain. Decide Port vs. Modernize closer in | — | Phase 1 — revisit |
 | Facades | Cosmetic covers over pipes | Port | Strong feature — camouflage pipes/cables with block appearances via a data component. Scheduled **post-1.0** | — | Post-1.0 |
 | Robots & stations | Programmable mobile workers | Skip | Very complex; out of scope | ❌ | — |
 | Wrench | Configure/rotate machines | Port | Implemented | ✅ Done | `core` / Wrench |
