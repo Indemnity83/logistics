@@ -1,11 +1,19 @@
 package com.logistics.core.macerator;
 
 import com.logistics.test.MinecraftTestEnvironment;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.Tag;
+import net.minecraft.resources.RegistryOps;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -80,5 +88,58 @@ class MaceratorRecipeTest extends MinecraftTestEnvironment {
             0.7f
         );
         assertThat(recipe.experience()).isEqualTo(0.7f);
+    }
+
+    // ==================== serializer codec round-trip ====================
+
+    @Nested
+    @DisplayName("MaceratorRecipeSerializer")
+    class Serializer {
+
+        private RegistryOps<Tag> ops;
+
+        @BeforeEach
+        void setUp() {
+            RegistryAccess registries = RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY);
+            ops = registries.createSerializationContext(NbtOps.INSTANCE);
+        }
+
+        @Test
+        @DisplayName("round-trips ingredient, result, grinding time, and experience")
+        void roundTripPreservesFields() {
+            MaceratorRecipeWrapper original = new MaceratorRecipeWrapper(
+                Ingredient.of(Items.IRON_ORE),
+                new ItemStackTemplate(Items.IRON_INGOT, 2),
+                200,
+                0.7f
+            );
+
+            Tag encoded = MaceratorRecipeSerializer.CODEC.codec().encodeStart(ops, original).getOrThrow();
+            MaceratorRecipeWrapper decoded = MaceratorRecipeSerializer.CODEC.codec().parse(ops, encoded).getOrThrow();
+
+            assertThat(decoded.matches(new ItemStack(Items.IRON_ORE))).isTrue();
+            assertThat(decoded.matches(new ItemStack(Items.COAL))).isFalse();
+            assertThat(decoded.getResultItem().is(Items.IRON_INGOT)).isTrue();
+            assertThat(decoded.getResultItem().getCount()).isEqualTo(2);
+            assertThat(decoded.grindingTime()).isEqualTo(200);
+            assertThat(decoded.experience()).isEqualTo(0.7f);
+        }
+
+        @Test
+        @DisplayName("omits experience when default and decodes it back to the default")
+        void defaultExperienceIsOptional() {
+            MaceratorRecipeWrapper original = new MaceratorRecipeWrapper(
+                Ingredient.of(Items.IRON_ORE),
+                new ItemStackTemplate(Items.IRON_INGOT, 1),
+                200,
+                MaceratorRecipeWrapper.DEFAULT_EXPERIENCE
+            );
+
+            Tag encoded = MaceratorRecipeSerializer.CODEC.codec().encodeStart(ops, original).getOrThrow();
+            assertThat(((CompoundTag) encoded).contains("experience")).isFalse();
+
+            MaceratorRecipeWrapper decoded = MaceratorRecipeSerializer.CODEC.codec().parse(ops, encoded).getOrThrow();
+            assertThat(decoded.experience()).isEqualTo(MaceratorRecipeWrapper.DEFAULT_EXPERIENCE);
+        }
     }
 }
