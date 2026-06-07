@@ -19,11 +19,17 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 /**
- * Recipe wrapper integrating macerator recipes into Minecraft's recipe system.
- * Carries real ingredient/result data for recipe book display and placement.
- * Actual machine operation still uses MaceratorRecipeManager.
+ * Macerator recipe, integrated into Minecraft's recipe system via {@link RecipeType} and
+ * {@link RecipeSerializer}. Vanilla's {@code RecipeManager} loads these by their
+ * {@code logistics:macerator} type, so recipes are routed correctly and other mods'
+ * {@code recipe/macerator/} files are never absorbed into our machine.
+ *
+ * <p>Both the machine ({@code MaceratorBlockEntity}) and recipe display read this directly.
  */
 public class MaceratorRecipeWrapper implements Recipe<SingleRecipeInput> {
+
+    public static final int DEFAULT_GRINDING_TIME = 200;
+    public static final float DEFAULT_EXPERIENCE = 0.0f;
 
     private final Ingredient ingredient;
     private final ItemStackTemplate result;
@@ -52,6 +58,16 @@ public class MaceratorRecipeWrapper implements Recipe<SingleRecipeInput> {
 
     public float experience() {
         return experience;
+    }
+
+    /** Convenience for machine logic: does this stack satisfy the ingredient? */
+    public boolean matches(ItemStack stack) {
+        return !stack.isEmpty() && ingredient.test(stack);
+    }
+
+    /** Convenience for machine/JEI: the result as a fresh stack (avoids the version-specific assemble signature). */
+    public ItemStack getResultItem() {
+        return result.create();
     }
 
     @Override

@@ -2,13 +2,16 @@ package com.logistics.core.macerator.jei;
 
 import com.logistics.LogisticsCore;
 import com.logistics.LogisticsMod;
-import com.logistics.core.macerator.MaceratorRecipeManager;
+import com.logistics.core.macerator.MaceratorRecipeWrapper;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeCategoryRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
+import net.minecraft.client.Minecraft;
 import net.minecraft.resources.Identifier;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,7 +42,17 @@ public class MaceratorJeiPlugin implements IModPlugin {
 
     @Override
     public void registerRecipes(IRecipeRegistration registration) {
-        var recipes = List.copyOf(MaceratorRecipeManager.getAllRecipes().values());
+        // Full recipe data only exists on the (integrated) server; clients are not sent the
+        // recipe list in modern Minecraft, so JEI shows macerator recipes in singleplayer.
+        MinecraftServer server = Minecraft.getInstance().getSingleplayerServer();
+        if (server == null) {
+            return;
+        }
+        List<MaceratorRecipeWrapper> recipes = server.getRecipeManager().getRecipes().stream()
+            .map(RecipeHolder::value)
+            .filter(MaceratorRecipeWrapper.class::isInstance)
+            .map(MaceratorRecipeWrapper.class::cast)
+            .toList();
         LOGGER.info("Registering {} macerator recipes with JEI", recipes.size());
         registration.addRecipes(MaceratorRecipeCategory.RECIPE_TYPE, recipes);
     }

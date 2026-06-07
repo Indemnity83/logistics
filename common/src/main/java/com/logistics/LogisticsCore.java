@@ -7,7 +7,6 @@ import com.logistics.core.item.WrenchItem;
 import com.logistics.core.macerator.MaceratorBlock;
 import com.logistics.core.macerator.MaceratorBlockEntity;
 import com.logistics.core.macerator.MaceratorRecipeDisplay;
-import com.logistics.core.macerator.MaceratorRecipeManager;
 import com.logistics.core.macerator.MaceratorRecipeSerializer;
 import com.logistics.core.macerator.MaceratorRecipeWrapper;
 import com.logistics.core.macerator.MaceratorScreenHandler;
@@ -340,9 +339,6 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
                 LogisticsMod.modId("macerator").toIdentifier(),
                 MaceratorRecipeDisplay.TYPE
             );
-
-            // Register data-pack reload listener that loads macerator recipe JSON files
-            MaceratorRecipeManager.register();
         }
     }
 
