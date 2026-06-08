@@ -1,7 +1,7 @@
 # Alloy Smelter
 
 > **Status:** 🚧 Planned — **mostly settled** (one open item: confirm Invar's use) · **Phase:** 1 — Automation core · **Module:** `logistics-automation` (`automation` domain) + materials in `core`
-> **Source:** [`../mods/thermal-expansion.md`](../mods/thermal-expansion.md) (Induction Smelter) · **Depends on:** [`0102-macerator-secondary-outputs.md`](0102-macerator-secondary-outputs.md) (Nickel as an iron-ore Macerator byproduct) · **Companion:** a **Hand Grinder** brief — manual, powerless ore→dust; ungates the dust/alloy economy from energy (to be written)
+> **Source:** [`../mods/thermal-expansion.md`](../mods/thermal-expansion.md) (Induction Smelter) · **Depends on:** [`0102-macerator-secondary-outputs.md`](0102-macerator-secondary-outputs.md) (Nickel as an iron-ore Macerator byproduct) · **Companion:** [`0110-hand-grinder.md`](0110-hand-grinder.md) — manual, powerless ore→dust; ungates the dust/alloy economy from energy (built early — prerequisite for the no-power Bronze path)
 > **Maps to (roadmap):** Phase 1 — Alloy Smelter; materials rows in [`../mods/thermal-expansion.md`](../mods/thermal-expansion.md)
 
 A two-input RF machine that combines two metals into an alloy. This feature is **machine + a small materials expansion**: it adds **Nickel + Invar** (the first new metal/alloy since Bronze), introduces an **alloy-via-dust crafting path** so alloys feel like *alloying* and aren't hard-gated on power, and gives alloys a machine + energy cost as the automation tier. Right now Bronze exists but has no production machine; this makes the alloy set coherent. Pairs with the materials rows in [`../mods/thermal-expansion.md`](../mods/thermal-expansion.md).
@@ -76,7 +76,7 @@ common/src/main/java/com/logistics/automation/alloysmelter/
 ## Scope & non-goals
 
 - **In:** the Alloy Smelter (2 inputs + **3-slot shared output inventory**, with the `ChanceResult` + pause-until-clear *capability* built and tested but no v1 recipe using it); the **Nickel + Invar** materials; **Invar gear + valve**; the dust-alloy grid recipes; the smelter's dust- and ingot-form recipes; the iron-ore → nickel Macerator byproduct; JEI + GUI.
-- **Companion (separate brief, required for the no-energy-gate goal):** the **Hand Grinder** — a manual, powerless ore→dust block (the hand counterpart to the Macerator; no byproduct chance, since the powered Macerator is what earns the bonus). Spec it on its own; this feature assumes it exists.
+- **Companion ([`0110-hand-grinder.md`](0110-hand-grinder.md), required for the no-energy-gate goal):** the **Hand Grinder** — a manual, powerless ore→dust block (the hand counterpart to the Macerator; no byproduct chance, since the powered Macerator is what earns the bonus). Built early; this feature assumes it exists.
 - **Out:** the **slag item + any slag-producing recipe + slag's use** (all deferred together — the output capability is built but dormant); Electrum/Silver, Constantan, high-tier alloys (Signalum/Lumium/Enderium); a dedicated Nickel **ore + worldgen** (byproduct-sourced for now; add an ore only if supply is too scarce); fluid I/O; machine tiers ([`0105-machine-upgrades.md`](0105-machine-upgrades.md)); **ingot+ingot grid crafting** (intentionally excluded so hand-alloying routes through dusts).
 
 ## Decisions
@@ -105,4 +105,4 @@ common/src/main/java/com/logistics/automation/alloysmelter/
 - Code pattern: `automation/kiln/*` and `core/macerator/*` (block, BE, recipe, serializer, processing plan, screen, JEI); registration in `LogisticsAutomation.java`; new metal items in `LogisticsCore.java` (next to `TIN_*`/`BRONZE_*`)
 - Shared mechanism: [`0102-macerator-secondary-outputs.md`](0102-macerator-secondary-outputs.md) `ChanceResult` (generalized here to the shared output inventory)
 - **TE sourcing note:** TE has **no public source** — slag/byproduct behavior and ratios are wiki/knowledge-based, approximate; tune in playtest. Existing metal items confirmed in `LogisticsCore.java`: `TIN_*`, `BRONZE_*`, `*_DUST`, `*_GEAR`, `COPPER/BRONZE_VALVE`, `COPPER/BRONZE_CORE` (Nickel/Invar/Slag do **not** exist yet).
-- **Companion brief (to write):** Hand Grinder — manual powerless ore→dust; ungates the dust/alloy economy. Listed in [`README.md`](README.md).
+- **Companion brief:** [`0110-hand-grinder.md`](0110-hand-grinder.md) — manual powerless ore→dust; ungates the dust/alloy economy.
