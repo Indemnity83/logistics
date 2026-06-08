@@ -1,7 +1,7 @@
 {
   "variants": {
     "": {
-      "model": "logistics:block/pipe/process_logistics_pipe_core"
+      "model": "logistics:item/pipe/process_logistics_pipe"
     }
   }
 }

@@ -1,7 +1,6 @@
 package com.logistics.neoforge.client.render;
 
 import com.logistics.LogisticsAutomationClientModels;
-import com.logistics.LogisticsPipeClientModels;
 import com.logistics.LogisticsPower;
 import com.logistics.core.lib.client.model.ClientModelRegistry;
 import com.logistics.core.lib.resource.ResourceId;
@@ -38,7 +37,6 @@ public final class NeoForgeModelLoader {
         ClientModelRegistry.register(LogisticsPower.model("creative_engine_bellow"));
         ClientModelRegistry.register(LogisticsPower.model("creative_engine_piston"));
 
-        LogisticsPipeClientModels.init();
         LogisticsAutomationClientModels.init();
 
         for (var entry : ClientModelRegistry.all().entrySet()) {

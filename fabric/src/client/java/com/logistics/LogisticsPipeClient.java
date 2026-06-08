@@ -24,7 +24,6 @@ public final class LogisticsPipeClient implements ClientDomainBootstrap {
     @Override
     public void initClient() {
         LOGGER.info("Registering pipe (client)");
-        LogisticsPipeClientModels.init();
 
         // Register pipe blocks for cutout rendering (transparent textures)
         BlockRenderLayerMap.INSTANCE.putBlock(LogisticsPipe.BLOCK.STONE_TRANSPORT_PIPE, RenderType.cutout());

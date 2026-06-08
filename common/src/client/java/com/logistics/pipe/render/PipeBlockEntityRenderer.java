@@ -2,7 +2,7 @@ package com.logistics.pipe.render;
 
 import com.logistics.core.LogisticsConfig;
 import com.logistics.core.DebugLog;
-import com.logistics.core.lib.client.model.ClientModelRegistry;
+import com.logistics.core.lib.client.render.VanillaQuadBaker;
 import com.logistics.core.lib.block.capability.PipeConnection;
 import com.logistics.core.lib.pipe.CoreDecoration;
 import com.logistics.core.lib.resource.ResourceId;
@@ -10,6 +10,8 @@ import com.logistics.pipe.Pipe;
 import com.logistics.core.lib.pipe.PipeContext;
 import com.logistics.pipe.block.PipeBlock;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
+import com.logistics.pipe.render.model.PipeGeometry;
+import com.logistics.pipe.render.model.PipeModelResolver;
 import com.logistics.core.lib.pipe.TravelingItem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -20,14 +22,18 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
-import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.renderer.texture.TextureAtlas;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.Direction;
-import net.minecraft.util.RandomSource;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.level.block.state.BlockState;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Renders pipe block entities: dynamic core/arm geometry and traveling items.
@@ -50,15 +56,59 @@ import java.util.List;
 public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEntity> {
     private static final float BLOCK_OFFSET = 0.3125f;
     private static final float ITEM_OFFSET = 0.375f;
+    private static final String PIPE_MODEL_PREFIX = "block/pipe/";
 
     private final RenderProfiler profiler = new RenderProfiler();
+
+    // Generated geometry never changes, so cache built quads per model id and resolved sprites.
+    private final Map<ResourceId, List<BakedQuad>> codeQuadCache = new HashMap<>();
+    private final Map<String, TextureAtlasSprite> spriteCache = new HashMap<>();
 
     public PipeBlockEntityRenderer(BlockEntityRendererProvider.Context ctx) {
     }
 
-    private BakedModel getModel(ResourceId id) {
-        ClientModelRegistry.ModelKey key = ClientModelRegistry.find(id);
-        return key != null ? ClientModelRegistry.get(key) : null;
+    /** Build (and cache) the code-generated quads for a pipe part model id. */
+    private List<BakedQuad> codeQuads(ResourceId modelId) {
+        return codeQuadCache.computeIfAbsent(modelId, id -> {
+            String base = id.getPath().substring(PIPE_MODEL_PREFIX.length());
+            List<BakedQuad> out = new ArrayList<>();
+            for (PipeModelResolver.Layer layer : PipeModelResolver.resolve(base)) {
+                TextureAtlasSprite sprite = sprite(layer.textureBase());
+                VanillaQuadBaker baker = new VanillaQuadBaker(sprite, layer.tintIndex(), true, 0);
+                PipeGeometry.emit(baker::quad, layer.shape(), sprite);
+                out.addAll(baker.toQuads());
+            }
+            return out;
+        });
+    }
+
+    private TextureAtlasSprite sprite(String textureBase) {
+        return spriteCache.computeIfAbsent(textureBase, b -> Minecraft.getInstance()
+                .getTextureAtlas(TextureAtlas.LOCATION_BLOCKS)
+                .apply(ResourceLocation.fromNamespaceAndPath("logistics", "block/pipe/" + b)));
+    }
+
+    /** Draw code-generated quads, reusing the same rotation + putBulkData path as JSON models. */
+    private void renderCodeModel(ResourceId modelId, Direction armDirection, int tintColor,
+            PoseStack poseStack, VertexConsumer buffer, int packedLight, int packedOverlay) {
+        List<BakedQuad> quads = codeQuads(modelId);
+        if (quads.isEmpty()) return;
+
+        if (armDirection != null) {
+            poseStack.pushPose();
+            poseStack.translate(0.5, 0.5, 0.5);
+            applyDirectionRotation(poseStack, armDirection);
+            poseStack.translate(-0.5, -0.5, -0.5);
+        }
+
+        float r = (tintColor >> 16 & 0xFF) / 255.0f;
+        float g = (tintColor >> 8 & 0xFF) / 255.0f;
+        float b = (tintColor & 0xFF) / 255.0f;
+        renderQuads(quads, r, g, b, poseStack, buffer, packedLight, packedOverlay);
+
+        if (armDirection != null) {
+            poseStack.popPose();
+        }
     }
 
     @Override
@@ -82,26 +132,24 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
         PipeContext ctx = new PipeContext(entity.getLevel(), entity.getBlockPos(), state, entity);
         VertexConsumer buffer = bufferSource.getBuffer(RenderType.cutout());
 
-        // Render core model
-        renderModel(getModel(pipe.getCoreModelId(ctx)), null, 0xFFFFFF, state, poseStack, buffer, packedLight, packedOverlay);
+        // Render core model (geometry generated in code)
+        renderCodeModel(pipe.getCoreModelId(ctx), null, 0xFFFFFF, poseStack, buffer, packedLight, packedOverlay);
 
         // Render core decorations (e.g., pipe markings color overlay)
         for (CoreDecoration decoration : pipe.getCoreDecorations(ctx)) {
-            renderModel(getModel(decoration.modelId()), null, decoration.color(), state, poseStack, buffer, packedLight, packedOverlay);
+            renderCodeModel(decoration.modelId(), null, decoration.color(), poseStack, buffer, packedLight, packedOverlay);
         }
 
         // Render an arm for each connected direction
         for (Direction direction : Direction.values()) {
             if (entity.getCachedConnectionType(direction) == PipeConnection.Type.NONE) continue;
 
-            ResourceId armId = pipe.getPipeArm(ctx, direction);
             Integer armTint = pipe.getArmTint(ctx, direction);
             int armColor = armTint != null ? armTint : 0xFFFFFF;
-
-            renderModel(getModel(armId), direction, armColor, state, poseStack, buffer, packedLight, packedOverlay);
+            renderCodeModel(pipe.getPipeArm(ctx, direction), direction, armColor, poseStack, buffer, packedLight, packedOverlay);
 
             for (ResourceId decoration : pipe.getPipeDecorations(ctx, direction)) {
-                renderModel(getModel(decoration), direction, 0xFFFFFF, state, poseStack, buffer, packedLight, packedOverlay);
+                renderCodeModel(decoration, direction, 0xFFFFFF, poseStack, buffer, packedLight, packedOverlay);
             }
         }
 
@@ -118,57 +166,6 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
         }
 
         if (debugRender) profiler.endSubmit(t0);
-    }
-
-    private void renderModel(
-            BakedModel model,
-            Direction armDirection,
-            int tintColor,
-            BlockState state,
-            PoseStack poseStack,
-            VertexConsumer buffer,
-            int packedLight,
-            int packedOverlay) {
-
-        if (model == null) return;
-
-        if (armDirection != null) {
-            poseStack.pushPose();
-            poseStack.translate(0.5, 0.5, 0.5);
-            applyDirectionRotation(poseStack, armDirection);
-            poseStack.translate(-0.5, -0.5, -0.5);
-        }
-
-        renderModelQuads(model, tintColor, state, poseStack, buffer, packedLight, packedOverlay);
-
-        if (armDirection != null) {
-            poseStack.popPose();
-        }
-    }
-
-    private void renderModelQuads(
-            BakedModel model,
-            int tintColor,
-            BlockState state,
-            PoseStack poseStack,
-            VertexConsumer buffer,
-            int packedLight,
-            int packedOverlay) {
-
-        float r = (tintColor >> 16 & 0xFF) / 255.0f;
-        float g = (tintColor >> 8 & 0xFF) / 255.0f;
-        float b = (tintColor & 0xFF) / 255.0f;
-
-        RandomSource random = RandomSource.create(42L);
-
-        // General quads (not face-culled)
-        renderQuads(model.getQuads(state, null, random), r, g, b, poseStack, buffer, packedLight, packedOverlay);
-
-        // Face-specific quads (can be culled but we render all since pipes use RenderShape.INVISIBLE)
-        for (Direction face : Direction.values()) {
-            random.setSeed(42L);
-            renderQuads(model.getQuads(state, face, random), r, g, b, poseStack, buffer, packedLight, packedOverlay);
-        }
     }
 
     /**
