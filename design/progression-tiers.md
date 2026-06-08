@@ -24,28 +24,39 @@ Materials map to five game phases. Ordering is by **intended tier/theme**, not s
 
 ## The canonical material ladder
 
-| Rank | Material | Phase | Flavor / function | Acquisition |
+Each rank has **two canonical labels**: the **material** (visual identity — what a thing is crafted from / looks like) and the **tier name** (the adjective — the durable name for the tier *concept*, and an option for item names). The **function** is the fixed flavor that label carries across every line — pick the material/tier when its function fits the line.
+
+| Rank | Material | Tier name | Function (durable) | Phase |
 |---|---|---|---|---|
-| 0 | Wood / Stone | early | crude, pre-power | start |
-| 1 | **Copper** | early | basic metal · entry conductor | early |
-| 2 | **Iron** | early | structural staple | early-mid |
-| 3 | **Bronze** | mid | early tech-alloy (our signature) | mid (tin + smelt) |
-| 4 | **Gold** | mid | superior conductor · premium mid | mid |
-| 5 | **Diamond** | mid | precision · high quality | mid-late |
-| 6 | **Amethyst** | mid | resonant · crystal | mid-late (geodes) |
-| 7 | **Netherite** | nether | durable endgame *(the "nether" slot)* | late |
-| 8 | **Ender** | end | dimensional · wireless | late |
-| 9 | **Echo Shard** | deep dark | deep · sculk/data · ultimate | endgame |
+| 0 | Wood / Stone | **Crude** | makeshift, pre-power | early |
+| 1 | **Copper** | **Basic** | entry-level, cheap workhorse | early |
+| 2 | **Iron** | **Sturdy** | structural, load-bearing | early |
+| 3 | **Bronze** | **Industrial** | early machine-alloy | mid |
+| 4 | **Gold** | **Conductive** | energy / signal throughput | mid |
+| 5 | **Diamond** | **Precision** | accuracy, high quality | mid |
+| 6 | **Amethyst** | **Resonant** | resonance / buffering / wireless-charge | mid |
+| 7 | **Netherite** | **Infernal** | heat, durability | nether |
+| 8 | **Ender** | **Dimensional** | teleport / cross-dimension / wireless transport | end |
+| 9 | **Echo Shard** | **Deep** | sculk / sensing / data · ultimate | deep dark |
 
-**Function accents (not core ranks).** Some vanilla materials carry a *function* rather than a progression rank — keep them out of the spine and use them for the system they evoke:
-- **Redstone** → signal / active (reserve for gates/logic; *not* power cables, which would muddy the redstone-as-signal identity).
-- **Lapis** → enchant · **Emerald** → trade · **Blaze/Quartz** → nether heat/components.
+## Naming
 
-**Alloys occupy ranks.** Our crafted alloys slot into the ladder by crafting difficulty: **Bronze** is rank 3; **Invar** (see [`features/0104-alloy-smelter.md`](features/0104-alloy-smelter.md)) is a structural variant around rank 3–4, used for frames/precision components. They keep their own names but respect the ordering.
+Item display names can derive from **either** label. Default to the **material** name (Copper Cable, Bronze Gear — honors material identity); use the **tier adjective** when it reads better or the material is clunky (a "Resonant" amethyst tier, a "Dimensional" ender tier). Stay consistent within a line.
+
+## Coverage — where every material sits
+
+The spine lists only **progression-bearing** tiers. The system is *total*: every other material — vanilla or ours — falls into exactly one of these, so nothing is ambiguous about "what tier is this?"
+
+- **Alloy feedstock (no rank):** **Tin**, **Nickel** — exist only to craft alloys (Bronze, Invar); never a tier on their own. (Macerator-byproduct nickel feeds Invar — see [`features/0104-alloy-smelter.md`](features/0104-alloy-smelter.md).)
+- **Our alloys (occupy a rank):** **Bronze** = rank 3 (Industrial). **Invar** = a structural/precision alloy sitting around rank 3–4 (between Industrial and Conductive); its job is machine frames / precision components, so it participates as a *component material*, not a separate visual tier. New alloys take the rank of their role, keep their own name, and respect the ordering.
+- **Function accents (no rank):** carry a *function*, not a progression step — use them for the system they evoke, not as tiers: **Redstone** → signal/logic (reserve for gates/circuits; *not* power cables), **Lapis** → enchant, **Emerald** → trade, **Blaze / Quartz / Glowstone** → nether components, **Obsidian** → containment/blast.
+- **Out of scope:** purely decorative/world materials define no tier.
+
+> Rule of thumb: a material is a **spine rank** (it gates progression), an **alloy** (occupies a rank), a **feedstock** (makes an alloy), an **accent** (a function, not a step), or **out of scope**.
 
 ## Per-line mapping
 
-Each line picks its subset in canonical order. *(Illustrative subsets — refine per line as it's built.)*
+Each line picks its subset in canonical order. *(Illustrative subsets — refine per line as it's built.)* By tier name, the cable line reads **Basic → Conductive → Resonant → Dimensional**.
 
 | Line | Flavor | Canonical subset |
 |---|---|---|
