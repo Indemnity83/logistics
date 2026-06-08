@@ -25,6 +25,8 @@ We split the work across three tools, each doing the job it's best at:
 | [`architecture.md`](architecture.md) | Current domains and the **provisional** module/jar split. |
 | [`roadmap.md`](roadmap.md) | The phased plan (Phase 0–3), what's done, and how it maps to Project #4. |
 | [`mods/`](mods/) | One feature breakdown per source mod: BuildCraft, Logistics Pipes, Thermal Expansion, Forestry, Railcraft. |
+| [`features/`](features/) | **Feature briefs** — settled roadmap rows expanded into start-ready specs (problem, requirements, design sketch grounded in the code, open questions). One file per feature. |
+| [`rfcs/`](rfcs/) | **RFCs** — the contested, unsettled design calls (TBD rows): the question, options with trade-offs, a leaning, and how we'll decide. Authored here, then taken to a Discussion. |
 
 ## How to read a breakdown
 

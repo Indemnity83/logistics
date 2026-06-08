@@ -62,6 +62,6 @@ See [`../principles.md`](../principles.md) for the table legend. Railcraft is *e
 | World Anchor (chunkloading) | Keep cart/quarry chunks loaded | TBD | Useful for quarries/farms but sensitive (server perf); needs a Discussion | — | Later |
 | Engraving / emblems / firestone / misc | Cosmetic & niche extras | Skip | Out of scope | ❌ | — |
 
-> TODO: the multiblock calls (coke oven, blast furnace, boiler, tank) are the biggest design tension in this module vs. the no-multiblock stance — decide per-block (single vs. tileable vs. true multiblock) via a Discussion before scheduling.
-> TODO: confirm scope of the steam power chain — whether steam is a real `power` tier (boiler→turbine→RF) or simplified away; it couples to the engine-line unification in [`buildcraft.md`](buildcraft.md) / [`thermal-expansion.md`](thermal-expansion.md).
+> TODO: the multiblock calls (coke oven, blast furnace, boiler, tank) are the biggest design tension in this module vs. the no-multiblock stance — decide per-block (single vs. tileable vs. true multiblock) via a Discussion before scheduling. See [RFC 0003 — Railcraft Multiblocks & Steam](../rfcs/0003-railcraft-multiblocks.md).
+> TODO: confirm scope of the steam power chain — whether steam is a real `power` tier (boiler→turbine→RF) or simplified away; it couples to the engine-line unification in [`buildcraft.md`](buildcraft.md) / [`thermal-expansion.md`](thermal-expansion.md). See [RFC 0003 — Railcraft Multiblocks & Steam](../rfcs/0003-railcraft-multiblocks.md).
 > TODO: confirm whether electric locomotives/tracks are in scope or steam-only for v1.

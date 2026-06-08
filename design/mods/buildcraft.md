@@ -53,4 +53,4 @@ See [`../principles.md`](../principles.md) for the table legend. Pipe transport 
 | Wrench | Configure/rotate machines | Port | Implemented | ✅ Done | `core` / Wrench |
 
 > TODO: confirm the exact combustion-engine coolant/explosion behavior we want to mirror (water-cooled vs. simplified), and decide oil sourcing (world-gen vs. crafted) — these two couple together and gate the fluids epic.
-> TODO: the gates question is the biggest open design call from BuildCraft — flag for an Ideas/Polls Discussion before scheduling.
+> TODO: the gates question is the biggest open design call from BuildCraft — flag for an Ideas/Polls Discussion before scheduling. See [RFC 0001 — Programmable Behavior](../rfcs/0001-programmable-behavior.md).

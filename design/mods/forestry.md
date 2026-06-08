@@ -67,5 +67,5 @@ See [`../principles.md`](../principles.md) for the table legend. Forestry is lar
 | Crates | Compact storage | Skip | Out of scope | ❌ | — |
 | Mail / Letters / Trade Stations | In-game postal + auto-trade | Skip | Niche; out of scope | ❌ | — |
 
-> TODO: confirm the exact electron-tube → circuit-board recipe model, and whether to merge it with TE augments + BuildCraft gates into a single "programmable behavior" subsystem (likely an Ideas Discussion — it spans three source mods).
-> TODO: settle the bees question (extend vanilla / parallel system / skip for v1) before any Phase 2 bee work is scheduled.
+> TODO: confirm the exact electron-tube → circuit-board recipe model, and whether to merge it with TE augments + BuildCraft gates into a single "programmable behavior" subsystem (likely an Ideas Discussion — it spans three source mods). See [RFC 0001 — Programmable Behavior](../rfcs/0001-programmable-behavior.md).
+> TODO: settle the bees question (extend vanilla / parallel system / skip for v1) before any Phase 2 bee work is scheduled. See [RFC 0002 — Forestry Bees](../rfcs/0002-forestry-bees.md).
