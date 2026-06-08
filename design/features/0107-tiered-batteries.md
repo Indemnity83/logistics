@@ -24,7 +24,7 @@ There's one Battery (100,000 RF, 1,000 RF/t). Energy storage is currently flat �
 
 ### Balance
 - Capacity/throughput anchored to the current Battery (100k cap, **1k RF/t** per-side I/O) as the **middle** of the line; e.g. base ≈ 50k / 0.5k, top ≈ 1M / 5k. **Note:** battery I/O is the *direct per-face* transfer limit and already exceeds cable throughput — cables are a separate, much lower network bottleneck (`CableTier`: copper 30 / gold 60 / **ender 120 RF/t**). So don't size batteries "to saturate a cable"; through a cable network the cable is always the smaller pipe. High battery I/O only matters for direct battery↔machine adjacency and multi-connection draw.
-- Higher tiers gated behind alloys/components from the [`0104-alloy-smelter.md`](0104-alloy-smelter.md) tier so storage progression couples to the materials curve.
+- Higher tiers gated behind alloys/components from the [`0105-alloy-smelter.md`](0105-alloy-smelter.md) tier so storage progression couples to the materials curve.
 - I/O config can't exceed the tier's hardware max — it throttles down, never up.
 
 ### Rate alignment vs TE energy ducts
@@ -87,4 +87,4 @@ common/src/main/java/com/logistics/power/block/
 - Roadmap: [`../roadmap.md`](../roadmap.md) → Phase 1 → Battery (tiers); [`../mods/thermal-expansion.md`](../mods/thermal-expansion.md) → "Energy Cells" row
 - Code: `core/lib/power/AbstractBatteryBlockEntity` (tier-ready constructor), `power/block/{BatteryBlock,BatteryBlockItem}`, `power/block/entity/BatteryBlockEntity`; tier precedent `power/cable/{CableTier,CableBlock,CableBlockEntity,CableNetwork}` (current rates 30/60/120 RF/t, lossless, bufferless); data-component precedent `pipe/data/PipeDataComponents`; registration in `LogisticsPower.java`
 - TE Fluxduct reference (wiki — TE has no public source): [Team CoFH — Fluxducts](https://teamcofh.com/docs/1.12/thermal-dynamics/fluxducts/) (Leadstone 200 / Hardened 800 / Redstone 8,000 / Resonant 32,000 RF/t; [Cryo-Stabilized](https://teamcofh.com/docs/1.12/thermal-dynamics/cryo-stabilized-fluxduct/) = unlimited)
-- Related: [`0104-alloy-smelter.md`](0104-alloy-smelter.md) (materials gate), [`0105-machine-upgrades.md`](0105-machine-upgrades.md) (creates the demand for bigger storage)
+- Related: [`0105-alloy-smelter.md`](0105-alloy-smelter.md) (materials gate), [`0106-machine-upgrades.md`](0106-machine-upgrades.md) (creates the demand for bigger storage)

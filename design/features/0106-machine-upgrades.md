@@ -25,7 +25,7 @@ Each machine is currently a fixed block: fixed speed, fixed energy cost, manual 
 - Augment state persists (slots are part of the BE inventory / NBT) and drops with the machine.
 
 ### Balance
-- Augments are a **trade**, not pure power: Speed costs more energy; the strong effects (max speed + secondary) demand the tiered batteries / better engines to feed them — ties the [`0106-tiered-batteries.md`](0106-tiered-batteries.md) and engine work into a loop.
+- Augments are a **trade**, not pure power: Speed costs more energy; the strong effects (max speed + secondary) demand the tiered batteries / better engines to feed them — ties the [`0107-tiered-batteries.md`](0107-tiered-batteries.md) and engine work into a loop.
 - Keep the set small and the caps modest; avoid TE's late augment overload.
 - Auto-output is convenience, not a logistics replacement — single adjacent target, not network routing.
 
@@ -66,4 +66,4 @@ Define the contract in `core.lib`, apply it in each machine's processing plan.
 - Roadmap: [`../roadmap.md`](../roadmap.md) → Phase 1 → machine upgrades
 - Breakdown: [`../mods/thermal-expansion.md`](../mods/thermal-expansion.md) → "Augments" and "Machine frames / tiers" rows
 - Code: the four machines' `*ProcessingPlan` + `*ScreenHandler`; `core/lib/items/ItemInventoryComponent`; `core/lib/storage/ItemStorageLookup` (auto-output); data-component precedent in `pipe/data/PipeDataComponents`
-- Related: [`0102-macerator-secondary-outputs.md`](0102-macerator-secondary-outputs.md), [`0106-tiered-batteries.md`](0106-tiered-batteries.md)
+- Related: [`0102-macerator-secondary-outputs.md`](0102-macerator-secondary-outputs.md), [`0107-tiered-batteries.md`](0107-tiered-batteries.md)

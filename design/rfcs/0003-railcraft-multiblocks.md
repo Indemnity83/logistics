@@ -48,4 +48,4 @@ Discussion, weighing **tedium vs. the satisfaction of scale** per block, against
 - Breakdown: [`../mods/railcraft.md`](../mods/railcraft.md) § Steam/steel/bulk + the multiblock & steam-power TODOs
 - Principles: [`../principles.md`](../principles.md) § The multiblock stance
 - Roadmap: [`../roadmap.md`](../roadmap.md) → Phase 3 → Steam & steel chain (notes the TBDs)
-- Related: engine-line unification thread in [`../mods/buildcraft.md`](../mods/buildcraft.md) / [`../mods/thermal-expansion.md`](../mods/thermal-expansion.md); Steel pairs with [`../features/0104-alloy-smelter.md`](../features/0104-alloy-smelter.md)
+- Related: engine-line unification thread in [`../mods/buildcraft.md`](../mods/buildcraft.md) / [`../mods/thermal-expansion.md`](../mods/thermal-expansion.md); Steel pairs with [`../features/0105-alloy-smelter.md`](../features/0105-alloy-smelter.md)

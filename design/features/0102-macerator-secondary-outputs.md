@@ -1,8 +1,8 @@
 # Macerator Secondary / Byproduct Outputs
 
-> **Status:** 🚧 Planned — **mechanism design settled, ready to build** (byproduct content map deferred to `0104`) · **Phase:** 1 — Automation core · **Module:** `logistics-automation` (`core` domain — Macerator)
+> **Status:** 🚧 Planned — **mechanism design settled, ready to build** (byproduct content map deferred to `0105`) · **Phase:** 1 — Automation core · **Module:** `logistics-automation` (`core` domain — Macerator)
 > **Source:** [`../mods/thermal-expansion.md`](../mods/thermal-expansion.md) (Pulverizer secondary output) · **Depends on:** nothing
-> **Maps to (roadmap):** Phase 1 — macerator outputs · **Reused by:** [`0103-sawmill.md`](0103-sawmill.md) (sawdust), [`0104-alloy-smelter.md`](0104-alloy-smelter.md) (slag)
+> **Maps to (roadmap):** Phase 1 — macerator outputs · **Reused by:** [`0104-sawmill.md`](0104-sawmill.md) (sawdust), [`0105-alloy-smelter.md`](0105-alloy-smelter.md) (slag)
 
 The classic Pulverizer didn't just double ore — it had a *chance* at a bonus byproduct (e.g. ore → 2 dust + sometimes a second metal's dust or a gem). The Macerator currently produces a single deterministic output. This adds the chance-based second output, and in doing so builds a **reusable chance-output mechanism** the Sawmill and Alloy Smelter also want.
 
@@ -52,8 +52,8 @@ Extend the recipe data model, the slot layout, the GUI, and the pure processing 
 ## Scope & non-goals
 
 - **In:** one optional secondary output per recipe, independent per-operation chance, the dedicated secondary slot + GUI change, pause-until-clear semantics, JEI display, the shared `ChanceResult` helper, legacy 2→3 slot migration.
-- **Deferred (not blocking):** the actual **byproduct content map** (which ore gives which off-metal, and at what %) — lands alongside the alloy/material set in [`0104-alloy-smelter.md`](0104-alloy-smelter.md). This feature ships the mechanism plus one or two illustrative secondaries using existing items.
-- **Out:** multiple secondaries, fortune/luck scaling, upgrade-modified chances (that's [`0105-machine-upgrades.md`](0105-machine-upgrades.md) — the "secondary" augment hooks here later), per-output sided routing (both outputs share the bottom face).
+- **Deferred (not blocking):** the actual **byproduct content map** (which ore gives which off-metal, and at what %) — lands alongside the alloy/material set in [`0105-alloy-smelter.md`](0105-alloy-smelter.md). This feature ships the mechanism plus one or two illustrative secondaries using existing items.
+- **Out:** multiple secondaries, fortune/luck scaling, upgrade-modified chances (that's [`0106-machine-upgrades.md`](0106-machine-upgrades.md) — the "secondary" augment hooks here later), per-output sided routing (both outputs share the bottom face).
 
 ## Decisions
 
@@ -62,7 +62,7 @@ All mechanism-level questions are settled — the byproduct *content* is the onl
 - **Output slots** — **dedicated secondary slot** (in / primary / secondary = 3 slots), TE-style. Secondary never blocks primary; GUI gains a second output + chance bar; both outputs extract from the bottom face.
 - **Slot-full behavior** — **pause-until-clear**: an op completes only when both outputs have room, so a full secondary slot stalls processing rather than dropping the byproduct. No byproduct is ever lost.
 - **Roll model** — **per-operation**, independent chance, deterministic-testable (roll passed into `MaceratorProcessingPlan`).
-- **Byproduct content** — **deferred to [`0104-alloy-smelter.md`](0104-alloy-smelter.md)**: ship the mechanism + `ChanceResult` + a couple of illustrative secondaries (existing items) now; finalize the per-ore byproduct table with the alloy/material set.
+- **Byproduct content** — **deferred to [`0105-alloy-smelter.md`](0105-alloy-smelter.md)**: ship the mechanism + `ChanceResult` + a couple of illustrative secondaries (existing items) now; finalize the per-ore byproduct table with the alloy/material set.
 
 > Remaining choices are implementation details: GUI texture layout for the second slot + chance bar, and the exact illustrative secondaries shipped in v1.
 

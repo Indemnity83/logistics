@@ -12,7 +12,7 @@ Files are prefixed **`PPSS-`** — two digits of **phase**, two digits of **step
 
 - `01xx` = Phase 1 (Automation core), `02xx` = Phase 2 (Forestry), `03xx` = Phase 3 (Transport).
 - The step is the **suggested build order** within the phase, dependency-aware (a feature's prerequisites have lower step numbers). It's a guide, not a contract — parallel tracks exist (see below).
-- New briefs in a batch continue the sequence (this batch ends at `0109`; the deferred fluid-blocked items become `0110+`).
+- New briefs in a batch continue the sequence (this batch ends at `0110`; the deferred fluid-blocked items become `0111+`). When build order changes, briefs are renumbered so the ids keep tracking it.
 
 ## This batch: Phase 1 keystone + ready-now
 
@@ -22,30 +22,30 @@ The first batch covers the **[Fluids foundation](0101-fluids-foundation.md)** (t
 |---|---|---|---|---|
 | 0101 | [Fluids Foundation](0101-fluids-foundation.md) | 🔑 keystone | Port/Modernize | — (platform layer already built) |
 | 0102 | [Macerator Secondary Outputs](0102-macerator-secondary-outputs.md) | Machines | Modernize | — |
-| 0103 | [Sawmill](0103-sawmill.md) | Machines | Port | `ChanceResult` (0102) |
-| 0104 | [Alloy Smelter](0104-alloy-smelter.md) | Machines | Port | `ChanceResult` (0102) |
-| 0105 | [Machine Upgrades / Augments](0105-machine-upgrades.md) | Machines (cross-cutting) | Modernize | the machines (0102–0104) |
-| 0106 | [Tiered Batteries](0106-tiered-batteries.md) | Power | Modernize | — (extends Battery) |
-| 0107 | [Obsidian Vacuum Pipe](0107-obsidian-vacuum-pipe.md) | Pipes | Port | — |
-| 0108 | [Remote Orderer](0108-remote-orderer.md) | Logistics QoL | Modernize | — |
-| 0109 | [Firewall Pipe](0109-firewall-pipe.md) | Logistics advanced | Port | — |
+| 0103 | [Hand Grinder](0103-hand-grinder.md) | Machines (no-power on-ramp) | Modernize | Macerator recipes |
+| 0104 | [Sawmill](0104-sawmill.md) | Machines | Port | `ChanceResult` (0102) |
+| 0105 | [Alloy Smelter](0105-alloy-smelter.md) | Machines + materials | Port/Modernize | `ChanceResult` (0102), Hand Grinder (0103) |
+| 0106 | [Machine Upgrades / Augments](0106-machine-upgrades.md) | Machines (cross-cutting) | Modernize | the machines (0102 / 0104 / 0105) |
+| 0107 | [Tiered Batteries](0107-tiered-batteries.md) | Power | Modernize | — (extends Battery) |
+| 0108 | [Obsidian Vacuum Pipe](0108-obsidian-vacuum-pipe.md) | Pipes | Port | — |
+| 0109 | [Remote Orderer](0109-remote-orderer.md) | Logistics QoL | Modernize | — |
+| 0110 | [Firewall Pipe](0110-firewall-pipe.md) | Logistics advanced | Port | — |
 
 ### Reading the order
 
 The step numbers encode dependencies, but several briefs are independent and can run in parallel:
 
 - **Start first — `0101` Fluids:** the keystone. Begin with its design spike (parallel fluid pipe vs. network-integrated) since it unblocks the entire deferred batch.
-- **Machine chain — `0102` → `0103`/`0104` → `0105`:** build [Macerator Secondary Outputs](0102-macerator-secondary-outputs.md) first; it produces the shared `ChanceResult` mechanism that [Sawmill](0103-sawmill.md) (sawdust) and [Alloy Smelter](0104-alloy-smelter.md) (slag) reuse. Then layer [Machine Upgrades](0105-machine-upgrades.md) across all of them.
-- **Independent (any time) — `0106`/`0107`/`0108`:** [Tiered Batteries](0106-tiered-batteries.md), [Obsidian Vacuum Pipe](0107-obsidian-vacuum-pipe.md), [Remote Orderer](0108-remote-orderer.md) have no in-batch dependencies.
-- **Spike before scheduling — `0101` and `0109`:** the [Fluids](0101-fluids-foundation.md) pipe approach and the [Firewall Pipe](0109-firewall-pipe.md) (routing-gate vs. graph-segmentation, which touches stable network code) each need a short spike to settle the approach.
+- **Machine / dust chain — `0102` → `0103` → `0104` / `0105` → `0106`:** build [Macerator Secondary Outputs](0102-macerator-secondary-outputs.md) first (the shared `ChanceResult` mechanism); then the [Hand Grinder](0103-hand-grinder.md) (the no-power ore→dust on-ramp, prerequisite for the Alloy Smelter's no-power Bronze path). [Sawmill](0104-sawmill.md) and [Alloy Smelter](0105-alloy-smelter.md) reuse `ChanceResult` (Alloy also needs the Hand Grinder); then layer [Machine Upgrades](0106-machine-upgrades.md) across them.
+- **Independent (any time) — `0107`/`0108`/`0109`:** [Tiered Batteries](0107-tiered-batteries.md), [Obsidian Vacuum Pipe](0108-obsidian-vacuum-pipe.md), [Remote Orderer](0109-remote-orderer.md) have no in-batch dependencies.
+- **Spike before scheduling — `0101` and `0110`:** the [Fluids](0101-fluids-foundation.md) pipe approach and the [Firewall Pipe](0110-firewall-pipe.md) (routing-gate vs. graph-segmentation, which touches stable network code) each need a short spike to settle the approach.
 
 ### Deferred to a later batch (Phase 1, fluid-blocked or needs a Discussion)
 
-Not written yet — they wait on the keystone or on an open decision, and will take `0110+` steps:
+Not written yet — they wait on the keystone or on an open decision, and will take `0111+` steps:
 
-- **[Hand Grinder](0110-hand-grinder.md)** (`0110`) *(surfaced while speccing [0104](0104-alloy-smelter.md))* — a placed crank-station: manual, powerless ore→dust (no byproduct chance), the hand counterpart to the Macerator. Ungates the dust/alloy economy from energy so Bronze is reachable without power. ✅ **specced.** **Build order:** *early — before/with `0104`* (it's the prerequisite for 0104's no-power Bronze path), despite the `0110` id. *(Numbering note: ids are unique sortable handles; this one's build position is earlier than its number — renumber the batch if we want ids to track build order exactly.)*
 - **Needs fluids first:** Combustion-tier engine, Magmatic/dynamo tier, Magma Crucible, Fluid Transposer, fluid logistics (provider/supplier/request), Pump (built as the Fluids-foundation validation slice), the oil/biofuel fuel chain.
-- **Deferred post-1.0 (RFC, not a feature brief):** the programmable-automation / gates+circuits system (BuildCraft gates + TE programmable augments + Forestry circuits) — **not a 1.0 item**; revisit when Forestry needs circuit boards (Phase 2) or later. See [`../rfcs/0001-programmable-behavior.md`](../rfcs/0001-programmable-behavior.md). *(Distinct from the Phase-1 machine-modifier upgrades, [0105](0105-machine-upgrades.md).)*
+- **Deferred post-1.0 (RFC, not a feature brief):** the programmable-automation / gates+circuits system (BuildCraft gates + TE programmable augments + Forestry circuits) — **not a 1.0 item**; revisit when Forestry needs circuit boards (Phase 2) or later. See [`../rfcs/0001-programmable-behavior.md`](../rfcs/0001-programmable-behavior.md). *(Distinct from the Phase-1 machine-modifier upgrades, [0106](0106-machine-upgrades.md).)*
 - **Already done:** pipe operation power gating (✅, #464/#465/#469).
 
 ## Brief template

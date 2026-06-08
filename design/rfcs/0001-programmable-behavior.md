@@ -1,7 +1,7 @@
 # RFC 0001: Programmable Behavior (Gates + Circuits)
 
 > **Status:** 🟡 Open — **deferred post-1.0** (maintainer call, Jun 2026): explicitly **not a 1.0 item**; revisit when Forestry needs circuit boards (Phase 2) or later · **Scope:** Phase 2+ · **Decides:** maintainer + community signal
-> **Affects:** [`../mods/buildcraft.md`](../mods/buildcraft.md) (Gates, Pipe wiring, Autarchic gate), [`../mods/forestry.md`](../mods/forestry.md) (Circuit boards + Soldering), [`../mods/thermal-expansion.md`](../mods/thermal-expansion.md) (programmable augments) · **Blocks:** scheduling the BC gate rows and Forestry circuit-board rows — **not** the machines/farms, and **not** the Phase-1 machine-modifier upgrades ([`../features/0105-machine-upgrades.md`](../features/0105-machine-upgrades.md))
+> **Affects:** [`../mods/buildcraft.md`](../mods/buildcraft.md) (Gates, Pipe wiring, Autarchic gate), [`../mods/forestry.md`](../mods/forestry.md) (Circuit boards + Soldering), [`../mods/thermal-expansion.md`](../mods/thermal-expansion.md) (programmable augments) · **Blocks:** scheduling the BC gate rows and Forestry circuit-board rows — **not** the machines/farms, and **not** the Phase-1 machine-modifier upgrades ([`../features/0106-machine-upgrades.md`](../features/0106-machine-upgrades.md))
 
 The biggest open design call spanning the source mods. Three of them each shipped a "make this block do something conditional" system; the roadmap floats unifying them. This RFC frames the decision.
 
@@ -13,7 +13,7 @@ Three lineages of "program a block's behavior":
 - **Forestry circuit boards + soldering** — program machine/farm behavior by arranging **electron tubes** on a board. *Logic / configuration.*
 - **Thermal Expansion augments** — slot-in machine **modifiers** (speed/efficiency/secondary/auto-output). *Modifiers, not logic.*
 
-**Important distinction this RFC draws:** the *modifier* axis (TE augments) is already being handled as [machine upgrades](../features/0105-machine-upgrades.md) (`0105`). That is **not** what's contested here. This RFC is specifically about **programmable logic** — gates and circuits — i.e. "when condition X holds, do action Y." The augment work may *share an item vocabulary* (Logistics already has logic chips, cores, and valves that mirror Forestry's electron tubes), but the logic system is a separate, much larger design question.
+**Important distinction this RFC draws:** the *modifier* axis (TE augments) is already being handled as [machine upgrades](../features/0106-machine-upgrades.md) (`0106`). That is **not** what's contested here. This RFC is specifically about **programmable logic** — gates and circuits — i.e. "when condition X holds, do action Y." The augment work may *share an item vocabulary* (Logistics already has logic chips, cores, and valves that mirror Forestry's electron tubes), but the logic system is a separate, much larger design question.
 
 The tension with [`../principles.md`](../principles.md): programmable logic is high-value for power users but risks violating **"learnable without a wiki"** and is a large, cross-cutting design + implementation effort. Modern Minecraft also already has redstone + comparators, which cover a lot of the simple cases gates once did.
 
@@ -58,5 +58,5 @@ Ideas/Polls **Discussion** (it spans three mods and is taste-heavy). Weigh again
 
 - Roadmap RFC note: [`../roadmap.md`](../roadmap.md) → Phase 1 → "RFC (cross-cutting)"
 - Breakdowns: [`../mods/buildcraft.md`](../mods/buildcraft.md) (Gates/wiring rows + TODO), [`../mods/forestry.md`](../mods/forestry.md) (Circuit boards row + TODO), [`../mods/thermal-expansion.md`](../mods/thermal-expansion.md) (Augments)
-- Related feature brief (the modifier axis, *not* this RFC): [`../features/0105-machine-upgrades.md`](../features/0105-machine-upgrades.md)
+- Related feature brief (the modifier axis, *not* this RFC): [`../features/0106-machine-upgrades.md`](../features/0106-machine-upgrades.md)
 - Already-seeded components: `core` cores / valves / logic chips

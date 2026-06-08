@@ -1,14 +1,14 @@
 # Hand Grinder
 
 > **Status:** 🚧 Planned — **design settled, ready to build** · **Phase:** 1 — Automation core · **Module:** `logistics-automation` (`core` domain — pairs with the Macerator)
-> **Source:** modernization (no direct source) — a manual, powerless counterpart to the Macerator (mortar/quern flavor) · **Depends on:** [`0102-macerator-secondary-outputs.md`](0102-macerator-secondary-outputs.md) (reuses Macerator recipes) · **Required by:** [`0104-alloy-smelter.md`](0104-alloy-smelter.md) (the "Bronze not energy-gated" path)
-> **Maps to (roadmap):** Phase 1 — early-game on-ramp · **Build order:** *early — before/with 0104* (despite the `0110` id; see [README](README.md))
+> **Source:** modernization (no direct source) — a manual, powerless counterpart to the Macerator (mortar/quern flavor) · **Depends on:** [`0102-macerator-secondary-outputs.md`](0102-macerator-secondary-outputs.md) (reuses Macerator recipes) · **Required by:** [`0105-alloy-smelter.md`](0105-alloy-smelter.md) (the "Bronze not energy-gated" path)
+> **Maps to (roadmap):** Phase 1 — early-game on-ramp · **Build order:** `0103` — before the Alloy Smelter (`0105`), whose no-power Bronze path depends on it.
 
 A placed crank-station that grinds ore → dust **by hand, with no RF**. The no-power on-ramp that lets a player reach the dust → alloy economy (Bronze) before they have engines and a Macerator. The powered Macerator stays the upgrade: it's faster *and* it earns the chance byproducts (0102) the hand grinder doesn't.
 
 ## Problem & goal
 
-The dust-crafting alloy path ([`0104-alloy-smelter.md`](0104-alloy-smelter.md)) routes through dusts (e.g. copper dust + tin dust → bronze dust). But dusts come from the Macerator, which needs power — so without this, **Bronze (and the whole alloy tier) would be hard-gated behind energy**. The Hand Grinder breaks that gate with manual effort.
+The dust-crafting alloy path ([`0105-alloy-smelter.md`](0105-alloy-smelter.md)) routes through dusts (e.g. copper dust + tin dust → bronze dust). But dusts come from the Macerator, which needs power — so without this, **Bronze (and the whole alloy tier) would be hard-gated behind energy**. The Hand Grinder breaks that gate with manual effort.
 
 **Goal:** a cheap, early, powerless block that turns ore into base dust through repeated manual cranking — tedious enough that the Macerator is a real upgrade, but enough to bootstrap the tier.
 
@@ -76,6 +76,6 @@ common/src/main/java/com/logistics/core/handgrinder/
 ## References
 
 - Roadmap: [`../roadmap.md`](../roadmap.md) → Phase 1 (early-game processing on-ramp)
-- Pairs with: [`0102-macerator-secondary-outputs.md`](0102-macerator-secondary-outputs.md) (shared recipes; powered upgrade with byproducts), [`0104-alloy-smelter.md`](0104-alloy-smelter.md) (the no-power Bronze path this enables)
+- Pairs with: [`0102-macerator-secondary-outputs.md`](0102-macerator-secondary-outputs.md) (shared recipes; powered upgrade with byproducts), [`0105-alloy-smelter.md`](0105-alloy-smelter.md) (the no-power Bronze path this enables)
 - Tier placement: [`../progression-tiers.md`](../progression-tiers.md) (bottom-of-ladder manual tool)
 - Code precedent: vanilla `ComposterBlock` (block-state progress + right-click), `LecternBlock` (BE holds an item); `core/macerator/{MaceratorRecipeWrapper,MaceratorRecipeSerializer}` (reused recipes); registration in `LogisticsCore.java`

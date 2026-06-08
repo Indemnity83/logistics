@@ -47,7 +47,7 @@ Item display names can derive from **either** label. Default to the **material**
 
 The spine lists only **progression-bearing** tiers. The system is *total*: every other material — vanilla or ours — falls into exactly one of these, so nothing is ambiguous about "what tier is this?"
 
-- **Alloy feedstock (no rank):** **Tin**, **Nickel** — exist only to craft alloys (Bronze, Invar); never a tier on their own. (Macerator-byproduct nickel feeds Invar — see [`features/0104-alloy-smelter.md`](features/0104-alloy-smelter.md).)
+- **Alloy feedstock (no rank):** **Tin**, **Nickel** — exist only to craft alloys (Bronze, Invar); never a tier on their own. (Macerator-byproduct nickel feeds Invar — see [`features/0105-alloy-smelter.md`](features/0105-alloy-smelter.md).)
 - **Our alloys (occupy a rank):** **Bronze** = rank 3 (Industrial). **Invar** = a structural/precision alloy sitting around rank 3–4 (between Industrial and Conductive); its job is machine frames / precision components, so it participates as a *component material*, not a separate visual tier. New alloys take the rank of their role, keep their own name, and respect the ordering.
 - **Function accents (no rank):** carry a *function*, not a progression step — use them for the system they evoke, not as tiers: **Redstone** → signal/logic (reserve for gates/circuits; *not* power cables), **Lapis** → enchant, **Emerald** → trade, **Blaze / Quartz / Glowstone** → nether components, **Obsidian** → containment/blast.
 - **Out of scope:** purely decorative/world materials define no tier.
@@ -62,7 +62,7 @@ Each line picks its subset in canonical order. *(Illustrative subsets — refine
 |---|---|---|
 | **Cables** | conductivity | Copper · Gold · **Amethyst** · Ender |
 | **Gears** | mechanical | Wood · Stone · Copper · Iron · Bronze · Gold · Diamond · Netherite *(drop Tin)* |
-| **Batteries** ([0106](features/0106-tiered-batteries.md)) | storage | Copper · Gold · Ender |
+| **Batteries** ([0107](features/0107-tiered-batteries.md)) | storage | Copper · Gold · Ender |
 | **Cores / Valves** | electronics | Copper · Bronze · Gold · Amethyst |
 | **Machine frames** (future) | structural | Iron · Bronze · Diamond · Netherite |
 | **Chassis MkI–V** | slot count | *intentional exception — numeric, not a material tier* |
@@ -71,7 +71,7 @@ Each line picks its subset in canonical order. *(Illustrative subsets — refine
 
 Per the maintainer call, **existing lines conform too** (not just new work). These are implementation tasks for later PRs on the `mc/*` branches — this doc records the decision; the code changes are separate:
 
-- **Cables** — add an **Amethyst** tier → `Copper 30 / Gold 60 / Amethyst 120 / Ender 240` RF/t (keeps the ×2 ladder; Amethyst takes the old Ender rate and Ender rises for late-game headroom — see [`features/0106-tiered-batteries.md`](features/0106-tiered-batteries.md)). Numbers tunable against the RF curve. Touches `power/cable/CableTier` + an `amethyst_cable` block/model/recipe.
+- **Cables** — add an **Amethyst** tier → `Copper 30 / Gold 60 / Amethyst 120 / Ender 240` RF/t (keeps the ×2 ladder; Amethyst takes the old Ender rate and Ender rises for late-game headroom — see [`features/0107-tiered-batteries.md`](features/0107-tiered-batteries.md)). Numbers tunable against the RF curve. Touches `power/cable/CableTier` + an `amethyst_cable` block/model/recipe.
 - **Gears** — remove `tin_gear`; reorder to canonical Wood · Stone · Copper · Iron · Bronze · Gold · Diamond · Netherite. *Migration:* `tin_gear` removal is breaking for existing worlds — acceptable pre-1.0, or remap `tin_gear → bronze_gear` via a data-fixer/recipe.
 - **Cores / Valves** — currently Copper · Bronze; extend toward Copper · Bronze · Gold · Amethyst as the electronics system grows (couples to the deferred programmable-behavior work — [`rfcs/0001-programmable-behavior.md`](rfcs/0001-programmable-behavior.md)). No forced change now.
 
@@ -79,4 +79,4 @@ Per the maintainer call, **existing lines conform too** (not just new work). The
 
 - [`principles.md`](principles.md) — material-based identity, "respect modern progression tiers" (this doc is the concrete realization)
 - [`vision.md`](vision.md) — material-based identity / layered progression principles
-- Applied in: [`features/0106-tiered-batteries.md`](features/0106-tiered-batteries.md) (cables/batteries), [`features/0104-alloy-smelter.md`](features/0104-alloy-smelter.md) (Bronze/Invar ranks)
+- Applied in: [`features/0107-tiered-batteries.md`](features/0107-tiered-batteries.md) (cables/batteries), [`features/0105-alloy-smelter.md`](features/0105-alloy-smelter.md) (Bronze/Invar ranks)

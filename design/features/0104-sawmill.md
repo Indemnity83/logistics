@@ -22,7 +22,7 @@ Vanilla gives 4 planks per log. The classic Sawmill gave *more* (≈6) plus sawd
 - RF-powered with internal buffer; JEI category; progress + energy GUI (reuse Macerator screen).
 
 ### Balance
-- Yield anchor: log → **6 planks** (vs vanilla 4) + a **modest Wood Pulp chance (~25–50%)**, tuned so it's worth the power but not a plank printer. *Numbers approximate — TE has no public source (wiki/knowledge); tune in playtest.* Upgrade-scaling is [`0105-machine-upgrades.md`](0105-machine-upgrades.md)'s job.
+- Yield anchor: log → **6 planks** (vs vanilla 4) + a **modest Wood Pulp chance (~25–50%)**, tuned so it's worth the power but not a plank printer. *Numbers approximate — TE has no public source (wiki/knowledge); tune in playtest.* Upgrade-scaling is [`0106-machine-upgrades.md`](0106-machine-upgrades.md)'s job.
 - Cheapest new machine to build and run — it's an early-game efficiency unlock. Energy draw at/below the Macerator.
 
 ## Design sketch
@@ -66,7 +66,7 @@ All start-blocking questions are settled:
 - **Recipe model** — **one explicit JSON per vanilla wood**, keyed on the wood's log tag (covers stripped/wood variants). Modded woods are covered only via their own data-pack recipes — no runtime derivation or datamap in v1.
 - **Byproduct item** — **reuse the existing Wood Pulp** (`logistics:core/wood_pulp`); no new sawdust item.
 - **Secondary-output mechanics** — **inherit 0102 verbatim**: dedicated secondary slot + `ChanceResult` + pause-until-clear.
-- **Yield** — anchor **6 planks + ~25–50% Wood Pulp**, approximate (TE wiki/knowledge), tune in playtest; upgrade-scaling handled by `0105`.
+- **Yield** — anchor **6 planks + ~25–50% Wood Pulp**, approximate (TE wiki/knowledge), tune in playtest; upgrade-scaling handled by `0106`.
 
 > Remaining choices are implementation details: the final per-wood plank count / Wood Pulp %, saw time, and the recipe-field name (`byproduct`) shared with the `ChanceResult` helper.
 
