@@ -1,6 +1,6 @@
 # Fluids Foundation
 
-> **Status:** 🚧 Planned (keystone) · **Phase:** 1 — Automation core · **Module:** `logistics-automation` (new `fluid` domain)
+> **Status:** 🚧 Planned — **design settled, ready to build** (keystone) · **Phase:** 1 — Automation core · **Module:** `logistics-automation` (new `fluid` domain)
 > **Source:** [`../mods/buildcraft.md`](../mods/buildcraft.md) (waterproof pipes, pump), [`../mods/thermal-expansion.md`](../mods/thermal-expansion.md) (magma crucible, transposer) · **Depends on:** nothing (the platform layer already exists)
 > **Maps to (roadmap):** Phase 1 — 🔑 Fluids foundation · **Unblocks:** Combustion Engine, Pump, Magma Crucible, Fluid Transposer, fluid logistics, biofuel bottling (Phase 2), tank carts/tanks (Phase 3)
 
@@ -34,8 +34,8 @@ Logistics moves items and energy but cannot move or store **fluids**. That block
 ## Requirements
 
 ### Functional
-- **Fluid transport pipe(s)** — standalone fluid pipes with simple pressure/equalization flow (BuildCraft waterproof-pipe style), carrying one fluid type along a line. Connect to adjacent `HasFluidStorage` block entities (any mod's fluid inventory via `FluidStorageLookup`) and to each other. Foundation set: a base pipe, an energy-gated **extractor** pipe, and a **void** pipe (see the roster in Design sketch).
-- **Tank block** — a single-block buffer backed by `FluidTankComponent`. Stores one fluid variant up to a capacity; accepts insert/extract on all sides; shows fill level (block state stages like the Battery's `CHARGE`, plus a GUI or in-world fluid render).
+- **Fluid transport pipe(s)** — standalone fluid pipes with simple pressure/equalization flow (BuildCraft waterproof-pipe style), carrying **one fluid type per line — no mixing** (a line carrying water won't accept lava until it drains; port BC's behavior). Connect to adjacent `HasFluidStorage` block entities (any mod's fluid inventory via `FluidStorageLookup`) and to each other. **Foundation set:** a **base pipe** (10 mB/t, free passive), a **Golden tier** (80 mB/t, free passive), an **energy-gated extractor** pipe, and a **void** pipe (see the roster in Design sketch).
+- **Tank block** — a buffer backed by `FluidTankComponent`, 16,000 mB (16 buckets). Stores one fluid variant; **insert/extract on all faces** (flat — per-face config is a later concern); **stacks vertically and merges** into one logical reservoir (fills bottom-up, BC `TileTank` behavior). Fill level + fluid shown by a **dynamic block-entity renderer** (actual fluid sprite at height), not block-state stages.
 - **Machine fluid I/O contract** — machines that hold fluid implement `HasFluidStorage`; the NeoForge `registerFluids(...)` template is enabled and called for each such BE type (Fabric auto-discovers via the `FluidStorageAccess` SIDED fallback).
 - **Container interop** — buckets (and ideally any fluid-container item) can fill/drain a tank by hand. (Fluid Transposer automates this later; manual bucket support is the minimum.)
 - **First consumer = Pump** *(thin validation slice, may be its own doc/PR)* — a block that extracts a fluid source block from the world into an adjacent tank/fluid pipe, proving the whole chain end to end.
@@ -55,7 +55,7 @@ Start from BuildCraft's real numbers (it *is* the lineage) and tune from there, 
 
 (Per-pipe internal buffer = `25 × base` = 250 mB; higher rate ⇒ lower travel latency. The *ratios* are what matter — keep the 1×/2×/4×/8× ladder even if we pick a higher base than 10 to suit modern pacing.)
 
-- **Fluid pipe:** start with **one base pipe at BC's base (10–20 mB/t)**; add tiers on the 1×/2×/4×/8× ladder only as demand shows.
+- **Fluid pipe:** base rate **10 mB/t** — match BC exactly. v1 ships the **base pipe (10 mB/t)** plus a **Golden tier (8× = 80 mB/t)**; the mid tiers (Stone 2× = 20, Iron 4× = 40) are fast-follow. All tiers keep the 1×/2×/4×/8× ratios. Passive transport (base/golden/void) is **free** — no RF; only active extraction costs power (below).
 - **Tank:** **16,000 mB (16 buckets)** — exactly BC's `TileTank`. Port the **vertical stack-and-merge** behavior (stacked tanks form one logical reservoir, fill bottom-up); it's cheap, loved, and is the "scale is the feature" tank done as tileable blocks rather than a multiblock.
 - **Pump:** BC's `TilePump` = **100 RF per source block drained**, 16,000 mB internal buffer, pumps 1000 mB/operation on a 16-tick cycle (~62.5 mB/t), pushes up to 400 mB/t into the network. Anchor here; couples to the engine line — no free pumping.
 - **Extractor pipe:** BC's wooden pipe ties extraction to engine power (≈`5 × base` RF per mB/t of pull). Mirror the existing **Item Extractor Pipe**'s energy gating rather than copying the exact RF math.
@@ -70,10 +70,10 @@ common/src/main/java/com/logistics/fluid/
 ├── LogisticsFluid.java            # DomainBootstrap: BLOCK / ITEM / ENTITY / MENU registrars
 ├── pipe/                          # fluid transport pipe (see note below)
 ├── tank/
-│   ├── TankBlock.java             # extends MachineBlock or BaseEntityBlock; FILL_LEVEL state
+│   ├── TankBlock.java             # extends BaseEntityBlock; vertical stack-merge; flat all-side I/O
 │   └── TankBlockEntity.java       # extends BaseBlockEntity implements HasFluidStorage
-│                                  #   wraps a FluidTankComponent; saveLogisticsData/loadLogisticsData
-└── pump/PumpBlock(+Entity).java   # world source → adjacent fluid storage
+│                                  #   wraps a FluidTankComponent (16k mB); saveLogisticsData/loadLogisticsData
+└── pump/PumpBlock(+Entity).java   # world source → adjacent fluid storage; 100 RF/source block (last PR)
 common/src/client/java/com/logistics/fluid/   # tank fill render, pipe fluid render
 ```
 
@@ -83,16 +83,19 @@ common/src/client/java/com/logistics/fluid/   # tank fill render, pipe fluid ren
 
 **Fluid pipe set — BuildCraft roster → Logistics identity.** BC shipped ~11 waterproof pipe variants; per *"features earn their place,"* collapse to a tight set mapped onto Logistics' existing item-pipe identity (Stone/Copper movers, Extractor, Filter, Void, Golden speed):
 
-| Need | BC origin | Logistics fluid pipe | Ship when |
-|---|---|---|---|
-| Base transport | Cobblestone / Stone | Stone (or Copper) Fluid Pipe | foundation |
-| Pull from tanks/machines | Wooden | Fluid Extractor Pipe (energy-gated; mirrors Item Extractor Pipe) | foundation |
-| Destroy fluid | Void | Void Fluid Pipe | foundation (trivial) |
-| Higher throughput | Stone 2× / Iron 4× / Gold 8× | a tier or two (e.g. Copper → Golden) | fast-follow |
-| Sort by fluid type | Diamond | Fluid Filter Pipe | later (only if demand) |
-| Forced directional output | Iron | — likely skip (use placement / wrench) | — |
+| Need | BC origin | Logistics fluid pipe | Rate | Ship when |
+|---|---|---|---|---|
+| Base transport | Cobblestone / Stone | Stone (or Copper) Fluid Pipe | 10 mB/t | **foundation** |
+| Max throughput | Gold (8×) | Golden Fluid Pipe | 80 mB/t | **foundation** |
+| Pull from tanks/machines | Wooden | Fluid Extractor Pipe (energy-gated; mirrors Item Extractor Pipe) | 10 mB/t | **foundation** |
+| Destroy fluid | Void | Void Fluid Pipe | — | **foundation** (trivial) |
+| Mid throughput | Stone 2× / Iron 4× | a mid tier or two | 20 / 40 mB/t | fast-follow |
+| Sort by fluid type | Diamond | Fluid Filter Pipe | — | later (only if demand) |
+| Forced directional output | Iron | — likely skip (use placement / wrench) | — | — |
 
-Note the fluid pipe is a **new continuous-flow transport**, unlike item pipes (discrete `TravelingItem`s) — it shares the *domain and rendering style* of item pipes, not their movement model.
+**Power model (decided):** passive transport pipes (base / golden / void) move fluid **free**, like BC's passive waterproof pipes. Only **active extraction** costs RF — the **extractor pipe** (mirror the Item Extractor Pipe's energy gating) and the **pump** (100 RF/source block). This keeps the power coupling where it matters and stays consistent with the item-pipe power-gating direction (#464/#465/#469) without taxing every drop moved.
+
+Note the fluid pipe is a **new continuous-flow transport**, unlike item pipes (discrete `TravelingItem`s) — it shares the *domain and rendering style* of item pipes, not their movement model. Tank/pipe fluid level is drawn by a **dynamic block-entity renderer** (the actual fluid sprite at fill height), not block-state stages — block-state can't carry arbitrary fluid color/level.
 
 **Wiring a machine for fluid I/O:**
 1. BE implements `HasFluidStorage`, returns its `FluidTankComponent` (or a sided wrapper) from `fluidStorage(side)`.
@@ -101,28 +104,33 @@ Note the fluid pipe is a **new continuous-flow transport**, unlike item pipes (d
 
 ## Scope & non-goals
 
-- **In:** the foundation fluid-pipe set (base + extractor + void), one tank (with vertical stack-and-merge), the machine fluid-I/O contract, manual bucket interop, and the Pump as the validating consumer.
-- **Fast-follow (this feature grows into):** higher pipe tiers on the 1×/2×/4×/8× ladder, a fluid filter pipe — added as demand shows, not gated in v1.
+- **In:** the foundation fluid-pipe set (**base 10 + golden 80 + extractor + void**), the tank (16k mB, vertical stack-and-merge, dynamic render), the machine fluid-I/O contract, manual bucket interop, and the **Pump** as the validating consumer (last PR of the feature).
+- **Fast-follow (this feature grows into):** the mid pipe tiers (Stone 20 / Iron 40), a fluid filter pipe — added as demand shows, not gated in v1.
 - **Out (separate features):** Combustion/Magmatic engines, Magma Crucible, the **Fluid Transposer / packaging machine** (the fluid↔item bridge — its own brief), the oil/biofuel fuel chain, true-multiblock bulk tanks (Railcraft, Phase 3 — our tank is *tileable*, not a schematic).
 - **Out (decided, not merely deferred):** any model that puts fluids *on the logistics network*. Fluid distribution across a base is delivered later by the packaging machine + the existing **item** network — there is no fluid-network primitive, ever.
 - **Out:** inventing a fluid registry or fluid types of our own — use vanilla `Fluid`s (water/lava) and whatever fuels the fuel-chain feature defines.
 
-## Open questions
+## Decisions
 
-- ~~Fluid pipe approach (parallel vs network-integrated)~~ — **resolved:** standalone equalization pipes; fluid logistics later via a fluid↔item packaging machine, network stays item-based.
-- **Base flow rate:** keep BC's 10 mB/t, or pick a higher base (≈20–40) for modern pacing? Keep the 1×/2×/4×/8× tier *ratios* regardless.
-- **Flow model fidelity:** is a simple "flow toward lower-fill/sink, capped by rate" equalizer enough, or do we need BC's section + travel-delay machinery for stable multi-source/multi-sink behavior? Prototype the simple one first.
-- Which pipes are genuinely in the foundation (base + extractor + void) vs. fast-follow (tiers, filter)?
-- Tank fill visualization: block-state stages (cheap, like Battery `CHARGE`) vs. a dynamic in-world fluid quad (prettier, more client code). Start with stages?
-- Should the base tank be sided-configurable (in/out per face) now, or flat all-sides until the machine-upgrade/config story lands?
-- Pump scope here vs. its own brief — leaning "own brief, but built immediately after so the foundation is proven."
+All start-blocking questions are settled — this brief is ready to build:
+
+- **Architecture** — fluid pipes are **standalone forever** (simple equalization, never on the logistics graph). Network-level fluid distribution comes later via a fluid↔item **packaging machine** (Fluid Transposer); the logistics network stays item-based permanently.
+- **Base flow rate** — **10 mB/t**, matching BuildCraft exactly. Tiers keep the 1×/2×/4×/8× ratios (10 / 20 / 40 / 80).
+- **Foundation pipe set** — **base (10) + golden (80) + extractor + void**. Mid tiers (20/40) and a filter pipe are fast-follow.
+- **Power model** — passive transport (base/golden/void) is **free**; only the **extractor pipe** and the **pump** consume RF. Consistent with the item-pipe power-gating direction without taxing every drop.
+- **Flow model** — **simple equalizer** (flow toward lower-fill/sink, split proportional to space, capped by pipe rate); skip BC's section/travel-delay machinery unless a prototype proves it necessary. Keep BC's **rate-as-hard-cap** and **one-fluid-per-line, no mixing**.
+- **Tank** — **16,000 mB**, flat all-side I/O, **vertical stack-and-merge**, drawn by a **dynamic BER** (not block-state stages).
+- **Pump** — **part of this feature**, built as the **last PR** (it's the end-to-end proof of the chain), anchored at BC's 100 RF/source block.
+
+> Remaining choices are *implementation* details, not blockers: exact textures/recipes, the equalizer's tick-order specifics, and whether the mid tiers land in the same release or the next.
 
 ## Done when
 
-- A fluid pipe carries water/lava between a tank and a vanilla/other-mod fluid inventory on **both loaders**.
-- A tank stores a fluid across save/load, fills/drains from a bucket, and reports level to adjacent pipes.
+- A base pipe (10 mB/t) and a golden pipe (80 mB/t) carry water/lava between a tank and a vanilla/other-mod fluid inventory on **both loaders**, passively (no RF), one fluid per line.
+- The extractor pipe pulls fluid from an adjacent tank/machine, consuming RF; with no power it stops.
+- A tank stores 16k mB across save/load, fills/drains from a bucket, **stacks vertically into one logical tank**, and renders its fluid at fill height.
 - A machine BE exposing `HasFluidStorage` is readable/writable by the fluid pipe on both loaders (NeoForge `registerFluids` enabled).
-- Pump moves a world fluid source into the network, consuming RF.
+- The Pump moves a world fluid source into an adjacent tank/pipe, consuming 100 RF/source block.
 
 ## References
 
