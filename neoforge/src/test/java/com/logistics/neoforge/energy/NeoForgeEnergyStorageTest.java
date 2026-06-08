@@ -72,6 +72,43 @@ class NeoForgeEnergyStorageTest {
         }
 
         @Test
+        @DisplayName("insert forwards energy through a zero-capacity conduit (cable regression)")
+        void insert_forwardsThroughZeroCapacityConduit() {
+            // Cables report capacity 0 but forward inserts into their network.
+            // Before the fix, capacity-based gating (capacity - amount = 0) returned
+            // 0 here, so cables never transported energy on NeoForge.
+            FakeConduit conduit = new FakeConduit(80);
+            EnergyHandler handler = NeoForgeEnergyStorage.asNeoForge(conduit);
+
+            try (Transaction tx = Transaction.openRoot()) {
+                assertThat(handler.insert(200, tx)).isEqualTo(80);
+                // Energy is only forwarded on commit, not during the staged insert.
+                assertThat(conduit.forwarded).isZero();
+                tx.commit();
+            }
+
+            assertThat(conduit.forwarded).isEqualTo(80);
+        }
+
+        @Test
+        @DisplayName("insert reuses room freed by a staged extraction within the same transaction")
+        void insert_reusesStagedExtractionRoom() {
+            EnergyComponent backing = component(100);
+            backing.insert(100, false); // full
+            EnergyHandler handler = NeoForgeEnergyStorage.asNeoForge(backing);
+
+            try (Transaction tx = Transaction.openRoot()) {
+                assertThat(handler.extract(30, tx)).isEqualTo(30);
+                // The staged extraction freed 30; an insert should reclaim that room
+                // even though the committed storage is still full.
+                assertThat(handler.insert(10, tx)).isEqualTo(10);
+                tx.commit();
+            }
+
+            assertThat(backing.getAmount()).isEqualTo(80); // 100 - 30 + 10
+        }
+
+        @Test
         @DisplayName("insert rollback does not mutate backing storage")
         void insert_rollback_doesNotMutate() {
             EnergyComponent backing = component(100);
@@ -222,6 +259,53 @@ class NeoForgeEnergyStorageTest {
             assertThat(wrapped.extract(-10, false)).isZero();
             assertThat(wrapped.extract(0, false)).isZero();
             assertThat(backing.getAmount()).isEqualTo(40);
+        }
+    }
+
+    /**
+     * Models a cable: a bufferless conduit that reports zero capacity/amount but
+     * forwards inserted energy into its network (capped at {@code networkRoom}).
+     */
+    private static final class FakeConduit implements IEnergyStorage {
+        private final long networkRoom;
+        private long forwarded;
+
+        private FakeConduit(long networkRoom) {
+            this.networkRoom = networkRoom;
+        }
+
+        @Override
+        public long insert(long maxAmount, boolean simulate) {
+            if (maxAmount <= 0) return 0;
+            long remaining = Math.max(0, networkRoom - forwarded);
+            long accepted = Math.min(maxAmount, remaining);
+            if (!simulate) forwarded += accepted;
+            return accepted;
+        }
+
+        @Override
+        public long extract(long maxAmount, boolean simulate) {
+            return 0;
+        }
+
+        @Override
+        public long getAmount() {
+            return 0;
+        }
+
+        @Override
+        public long getCapacity() {
+            return 0;
+        }
+
+        @Override
+        public boolean canInsert() {
+            return true;
+        }
+
+        @Override
+        public boolean canExtract() {
+            return false;
         }
     }
 }
