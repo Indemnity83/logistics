@@ -4,7 +4,7 @@
 > **Source:** [`../mods/thermal-expansion.md`](../mods/thermal-expansion.md) (Energy Cells: Leadstone→Resonant) · **Depends on:** nothing (extends existing Battery)
 > **Maps to (roadmap):** Phase 1 — Battery → tiered energy-storage line
 
-Expand the single existing Battery into a tiered line (≈Leadstone → Resonant) with growing capacity and configurable I/O rates. The codebase already has the abstraction (`AbstractBatteryBlockEntity`) and a tiering precedent (the cable tiers), so this is mostly content + an I/O-config UX.
+Expand the single existing Battery into a 3-tier line (Copper → Gold → Ender, per the canonical ladder in [`../progression-tiers.md`](../progression-tiers.md)) with growing capacity and configurable I/O rates. The codebase already has the abstraction (`AbstractBatteryBlockEntity`) and a tiering precedent (the cable tiers), so this is mostly content + an I/O-config UX.
 
 ## Problem & goal
 
@@ -15,7 +15,7 @@ There's one Battery (100,000 RF, 1,000 RF/t). Energy storage is currently flat �
 ## Requirements
 
 ### Functional
-- **Three tiers** (names TBD; e.g. Basic / Reinforced / Resonant) with increasing capacity and max I/O. The current Battery becomes the mid or base tier.
+- **Three tiers** named from the canonical ladder ([`../progression-tiers.md`](../progression-tiers.md)) — **Copper · Gold · Ender** (storage flavor) — with increasing capacity and max I/O. The current Battery maps to one of them (prefer Copper or Gold so saved batteries keep their 100k/1k stats).
 - Each tier: distinct block + item, shared `BlockEntityType`, capacity + max-I/O set per tier (cable-tier style).
 - **Configurable I/O rate** — the player can set max input and max output (independently), at least per-block; per-side is the stretch goal. Persisted, and shown in a small GUI or via wrench cycling.
 - Charge level visible in-world (the existing `CHARGE` block-state property, 0–10) and on the item (the existing durability-bar render in `BatteryBlockItem`).
@@ -41,7 +41,9 @@ We checked our power-distribution rates (cables + battery I/O) against Thermal E
 
 **Verdict: aligned on *philosophy*, deliberately *not* on absolute rates — correctly.** Both are lossless, bufferless, per-segment-rate-capped tiered conduits. But our RF economy is ~2 orders of magnitude smaller (Macerator draws ~10 RF/t with a 128 intake cap; Stirling outputs 3–10 RF/t), so TE's 200–32,000 RF/t ducts would be wildly oversized here. **Copy the shape, not the numbers** — Ender's 120 RF/t already comfortably feeds our machines.
 
-**Watch-item (not a change yet):** our ladder is *narrow* — 3 tiers, ×2 steps, 4× total — vs TE's 5 tiers / ~160×. Fine while everything is low-RF, but the Ender top-end (120 RF/t) has little headroom. **Revisit the cable top-end (and these battery I/O numbers) once the combustion-tier engine output and the biggest machine intakes are set** — size them to the largest expected single-line demand, the same "tie rates to consumption" approach used for fluids ([`0101-fluids-foundation.md`](0101-fluids-foundation.md)). If late-game single-line demand stays ≤120 RF/t, keep the current ladder; if it grows, widen Ender or add a 4th tier rather than adopting TE's absolute values.
+**Cable ladder (decided).** Cables adopt the canonical tier ladder ([`../progression-tiers.md`](../progression-tiers.md)) → **Copper · Gold · Amethyst · Ender** at **30 / 60 / 120 / 240 RF/t** (keeps the ×2 ladder; Amethyst is the new "resonant" tier at the old Ender rate, Ender rises to 240 for late-game headroom). Numbers stay tunable against the RF curve — **revisit once the combustion-tier engine output and biggest machine intakes are set**, sizing the top to the largest expected single-line demand (the "tie rates to consumption" approach from [`0101-fluids-foundation.md`](0101-fluids-foundation.md)). This is a retrofit task (adds an `amethyst_cable` tier + re-rates Ender) — see the retrofit plan in [`../progression-tiers.md`](../progression-tiers.md).
+
+**Battery tiers** likewise draw from the canonical ladder — e.g. Copper · Gold · Ender (storage flavor) — rather than inventing names; pick the I/O numbers relative to machine demand, not TE's cell values.
 
 ## Design sketch
 
@@ -49,12 +51,12 @@ The base already supports tiering via constructor parameters — verified: `Abst
 
 ```text
 common/src/main/java/com/logistics/power/block/
-├── BatteryTier.java          # enum {BASIC, REINFORCED, RESONANT} → capacity(), maxIo()
+├── BatteryTier.java          # enum {COPPER, GOLD, ENDER} → capacity(), maxIo()  (canonical ladder)
 ├── BatteryBlock.java         # holds a BatteryTier field (like CableBlock holds CableTier)
 └── entity/BatteryBlockEntity.java  # reads tier from block; passes tier.capacity()/maxIo() to super
 ```
 
-- Register three blocks in `LogisticsPower.BLOCK` (`registerBlockWithItem`), one shared `BlockEntityType` covering all three (`registerBlockEntity(type, factory, BASIC, REINFORCED, RESONANT)`) — exactly the cable registration shape.
+- Register three blocks in `LogisticsPower.BLOCK` (`registerBlockWithItem`), one shared `BlockEntityType` covering all three (`registerBlockEntity(type, factory, COPPER_BATTERY, GOLD_BATTERY, ENDER_BATTERY)`) — exactly the cable registration shape.
 - **I/O configuration storage:** two options —
   - **(A) Block-state IntegerProperties** `INPUT_RATE` / `OUTPUT_RATE` cycled by wrench. Simple, no GUI, but coarse (few discrete steps) and bloats blockstates.
   - **(B) Data component / BE NBT** holding `maxInput`/`maxOutput` (and per-side maps for the stretch), edited in a small GUI. Finer control, follows the `PipeDataComponents` precedent, copies onto the dropped item.
@@ -71,7 +73,7 @@ common/src/main/java/com/logistics/power/block/
 - **I/O config storage: block-state vs data-component+GUI** (above). Drives whether this ships a screen.
 - **Per-side vs whole-block I/O** for v1 — per-side is the classic Energy Cell behavior but more UX/render work. **Lean: whole-block in v1, per-side as a fast-follow.**
 - Tier names + exact capacity/throughput numbers (pick on their own merits — *not* "to saturate a cable," since cables top out at 120 RF/t while even the base battery does more).
-- Does the **existing** Battery become BASIC or REINFORCED? (Affects whether existing worlds' batteries change stats — prefer mapping it so saved batteries keep their current 100k/1k.)
+- Does the **existing** Battery map to the Copper or Gold tier? (Affects whether existing worlds' batteries change stats — prefer mapping it so saved batteries keep their current 100k/1k.)
 
 ## Done when
 

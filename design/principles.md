@@ -19,7 +19,7 @@ When **Modernize** is chosen, prefer these conventions so the result feels nativ
 - **Use vanilla materials that now exist.** Copper is a first-class progression metal now — use it (we already do for cables and copper pipe). Don't invent a parallel to something vanilla added.
 - **Match modern vanilla naming/items.** Trees drop *resin* now, not generic "sap"; honey/honeycomb exist; amethyst, echo shards, etc. are fair game. Align with these instead of reintroducing legacy item names.
 - **Reuse vanilla systems where they fit.** The vanilla **Crafter** block, smelting recipes (Kiln reuses these), tags, and data components are leverage — prefer them over bespoke reimplementations.
-- **Respect modern progression tiers.** Stone → copper → iron → gold → diamond → netherite is the vanilla ladder; map tiers onto it rather than onto legacy (e.g. tin/bronze stay as flavor, not as a mandatory gate unless it earns it).
+- **Respect modern progression tiers.** Stone → copper → iron → gold → diamond → netherite is the vanilla ladder; map tiers onto it rather than onto legacy (e.g. tin/bronze stay as flavor, not as a mandatory gate unless it earns it). The concrete, mod-wide ladder + unlock-point phases (early/mid/nether/end/deep-dark) + the per-line "pick a subset in order" convention live in [`progression-tiers.md`](progression-tiers.md) — every tiered line must draw from it.
 - **Keep RF as the energy unit** via the existing loader-agnostic energy abstraction (`core.lib`), interoperable with Team Reborn Energy (Fabric) and NeoForge energy.
 
 ## Balance philosophy

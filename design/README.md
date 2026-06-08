@@ -23,6 +23,7 @@ We split the work across three tools, each doing the job it's best at:
 | [`vision.md`](vision.md) | The goal: recreate the classic 1.7.10-era tech experience in modern Minecraft. Scope boundaries. |
 | [`principles.md`](principles.md) | The decision framework (**Port / Modernize / Skip**), modernization rules, balance philosophy, and the shared decision-table template. |
 | [`architecture.md`](architecture.md) | Current domains and the **provisional** module/jar split. |
+| [`progression-tiers.md`](progression-tiers.md) | The **canonical tier ladder** (Copper→Echo Shard), unlock-point phases, and the per-line "pick a subset in order" convention every tiered line follows. |
 | [`roadmap.md`](roadmap.md) | The phased plan (Phase 0–3), what's done, and how it maps to Project #4. |
 | [`mods/`](mods/) | One feature breakdown per source mod: BuildCraft, Logistics Pipes, Thermal Expansion, Forestry, Railcraft. |
 | [`features/`](features/) | **Feature briefs** — settled roadmap rows expanded into start-ready specs (problem, requirements, design sketch grounded in the code, open questions). One file per feature. |
