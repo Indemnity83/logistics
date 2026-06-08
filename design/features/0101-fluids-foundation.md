@@ -34,16 +34,32 @@ Logistics moves items and energy but cannot move or store **fluids**. That block
 ## Requirements
 
 ### Functional
-- **Fluid transport pipe** — a pipe variant that connects to adjacent `HasFluidStorage` block entities and to other fluid pipes, moving one fluid type along the line. Connects to any mod's fluid inventory via `FluidStorageLookup`.
+- **Fluid transport pipe(s)** — standalone fluid pipes with simple pressure/equalization flow (BuildCraft waterproof-pipe style), carrying one fluid type along a line. Connect to adjacent `HasFluidStorage` block entities (any mod's fluid inventory via `FluidStorageLookup`) and to each other. Foundation set: a base pipe, an energy-gated **extractor** pipe, and a **void** pipe (see the roster in Design sketch).
 - **Tank block** — a single-block buffer backed by `FluidTankComponent`. Stores one fluid variant up to a capacity; accepts insert/extract on all sides; shows fill level (block state stages like the Battery's `CHARGE`, plus a GUI or in-world fluid render).
 - **Machine fluid I/O contract** — machines that hold fluid implement `HasFluidStorage`; the NeoForge `registerFluids(...)` template is enabled and called for each such BE type (Fabric auto-discovers via the `FluidStorageAccess` SIDED fallback).
 - **Container interop** — buckets (and ideally any fluid-container item) can fill/drain a tank by hand. (Fluid Transposer automates this later; manual bucket support is the minimum.)
 - **First consumer = Pump** *(thin validation slice, may be its own doc/PR)* — a block that extracts a fluid source block from the world into an adjacent tank/fluid pipe, proving the whole chain end to end.
 
-### Balance
-- Fluid pipe throughput in **mB/tick**, tiered later if needed; start with a single sensible rate (anchor to a bucket = 1000 mB; e.g. ~100 mB/t base).
-- Tank capacity in whole buckets (e.g. 16 buckets = 16,000 mB for the base tank) — generous enough to buffer an engine, not so large it replaces dedicated storage mods.
-- Pump consumes RF per source block removed (couples to the engine line); no infinite free pumping.
+### Balance — anchored on BuildCraft
+
+Start from BuildCraft's real numbers (it *is* the lineage) and tune from there, rather than inventing rates. Reference: **BuildCraft 7.1.27 / MC 1.7.10** (`../buildcraft` checkout). Unit: **1 bucket = 1000 mB** — vanilla and BC agree, so this is the base unit throughout.
+
+**Pipe throughput.** BC derives every fluid pipe's rate from a single **base flow rate (default 10 mB/t)** times a per-pipe multiplier (`PipeTransportFluids` `fluidCapacities`):
+
+| BC fluid pipe(s) | Multiplier | Rate @ base 10 | Role |
+|---|---|---|---|
+| Cobblestone · Wooden · Void | 1× | 10 mB/t | base / extractor / void |
+| Stone · Sandstone | 2× | 20 mB/t | mid |
+| Iron · Clay · Quartz · Emerald | 4× | 40 mB/t | high / routing / filtered-extract |
+| Diamond · Gold | 8× | 80 mB/t | sorting / max-speed |
+
+(Per-pipe internal buffer = `25 × base` = 250 mB; higher rate ⇒ lower travel latency. The *ratios* are what matter — keep the 1×/2×/4×/8× ladder even if we pick a higher base than 10 to suit modern pacing.)
+
+- **Fluid pipe:** start with **one base pipe at BC's base (10–20 mB/t)**; add tiers on the 1×/2×/4×/8× ladder only as demand shows.
+- **Tank:** **16,000 mB (16 buckets)** — exactly BC's `TileTank`. Port the **vertical stack-and-merge** behavior (stacked tanks form one logical reservoir, fill bottom-up); it's cheap, loved, and is the "scale is the feature" tank done as tileable blocks rather than a multiblock.
+- **Pump:** BC's `TilePump` = **100 RF per source block drained**, 16,000 mB internal buffer, pumps 1000 mB/operation on a 16-tick cycle (~62.5 mB/t), pushes up to 400 mB/t into the network. Anchor here; couples to the engine line — no free pumping.
+- **Extractor pipe:** BC's wooden pipe ties extraction to engine power (≈`5 × base` RF per mB/t of pull). Mirror the existing **Item Extractor Pipe**'s energy gating rather than copying the exact RF math.
+- **Refinery (later, fuel chain):** for context — BC tanks 4000 mB, ~3 oil : 1 fuel; revisit in the fuel-chain brief.
 
 ## Design sketch
 
@@ -61,11 +77,22 @@ common/src/main/java/com/logistics/fluid/
 common/src/client/java/com/logistics/fluid/   # tank fill render, pipe fluid render
 ```
 
-**Fluid pipe — reuse the item-pipe network or run parallel?** Two options, decide before building:
-- **(A) Parallel minimal pipe** — a standalone fluid pipe with simple pressure/equalization flow (BuildCraft waterproof-pipe style), *not* on the logistics graph. Simpler; ships sooner. Fluid *logistics* (provider/requester over the network) becomes a later, separate feature.
-- **(B) Extend the module/network system** — model fluid endpoints as modules on the existing `Pipe`/`NetworkGraph`. Heavier, but fluid logistics falls out naturally. The `Module`/`RoutingModule`/`DispatchableModule` abstractions are item-typed today, so this is a real refactor.
+**Fluid pipes are standalone — fluid never joins the logistics graph (decided).** Fluid pipes run their own **simple pressure/equalization transport** (BuildCraft waterproof-pipe style): fluid flows toward lower-fill / sink neighbors, capped per tick by the pipe's rate. They are *not* modeled as modules on the item `Pipe`/`NetworkGraph`, and there is **no planned fluid-network refactor**. Keep BC's *flowRate-as-hard-cap* as the throughput contract; we do **not** need to copy BC's full section/TTL/input-output-mode machinery unless a simple equalizer proves insufficient.
 
-Recommendation: **(A) first** to unblock engines/machines fast, then evaluate (B) when fluid logistics is scheduled. Document the call here.
+**How fluid "logistics" happens later — bridge fluids to items, don't teach the network about fluids.** When network-level fluid distribution is wanted, the answer is a **packaging machine** that fills/empties containers (the **Fluid Transposer** / a canning machine) — converting fluid ↔ a filled-container *item*. The existing item logistics network then provides / requests / routes those items exactly like any other item. **The logistics network stays item-based forever.** Fluids get local transport (pipes) + a bridge (the transposer); they never become a network primitive. This makes fluid pipes a self-contained, bounded feature.
+
+**Fluid pipe set — BuildCraft roster → Logistics identity.** BC shipped ~11 waterproof pipe variants; per *"features earn their place,"* collapse to a tight set mapped onto Logistics' existing item-pipe identity (Stone/Copper movers, Extractor, Filter, Void, Golden speed):
+
+| Need | BC origin | Logistics fluid pipe | Ship when |
+|---|---|---|---|
+| Base transport | Cobblestone / Stone | Stone (or Copper) Fluid Pipe | foundation |
+| Pull from tanks/machines | Wooden | Fluid Extractor Pipe (energy-gated; mirrors Item Extractor Pipe) | foundation |
+| Destroy fluid | Void | Void Fluid Pipe | foundation (trivial) |
+| Higher throughput | Stone 2× / Iron 4× / Gold 8× | a tier or two (e.g. Copper → Golden) | fast-follow |
+| Sort by fluid type | Diamond | Fluid Filter Pipe | later (only if demand) |
+| Forced directional output | Iron | — likely skip (use placement / wrench) | — |
+
+Note the fluid pipe is a **new continuous-flow transport**, unlike item pipes (discrete `TravelingItem`s) — it shares the *domain and rendering style* of item pipes, not their movement model.
 
 **Wiring a machine for fluid I/O:**
 1. BE implements `HasFluidStorage`, returns its `FluidTankComponent` (or a sided wrapper) from `fluidStorage(side)`.
@@ -74,13 +101,18 @@ Recommendation: **(A) first** to unblock engines/machines fast, then evaluate (B
 
 ## Scope & non-goals
 
-- **In:** one fluid pipe, one tank, machine fluid-I/O contract, manual bucket interop, Pump as the validating consumer.
-- **Out (separate features):** Combustion/Magmatic engines, Magma Crucible, Fluid Transposer, fluid *logistics* (network provider/requester/supplier), multiblock bulk tanks (Railcraft, Phase 3), fluid pipe tiers/filters.
+- **In:** the foundation fluid-pipe set (base + extractor + void), one tank (with vertical stack-and-merge), the machine fluid-I/O contract, manual bucket interop, and the Pump as the validating consumer.
+- **Fast-follow (this feature grows into):** higher pipe tiers on the 1×/2×/4×/8× ladder, a fluid filter pipe — added as demand shows, not gated in v1.
+- **Out (separate features):** Combustion/Magmatic engines, Magma Crucible, the **Fluid Transposer / packaging machine** (the fluid↔item bridge — its own brief), the oil/biofuel fuel chain, true-multiblock bulk tanks (Railcraft, Phase 3 — our tank is *tileable*, not a schematic).
+- **Out (decided, not merely deferred):** any model that puts fluids *on the logistics network*. Fluid distribution across a base is delivered later by the packaging machine + the existing **item** network — there is no fluid-network primitive, ever.
 - **Out:** inventing a fluid registry or fluid types of our own — use vanilla `Fluid`s (water/lava) and whatever fuels the fuel-chain feature defines.
 
 ## Open questions
 
-- Fluid pipe approach **(A) parallel vs (B) network-integrated** — gates how fluid logistics later works. **Decide first.**
+- ~~Fluid pipe approach (parallel vs network-integrated)~~ — **resolved:** standalone equalization pipes; fluid logistics later via a fluid↔item packaging machine, network stays item-based.
+- **Base flow rate:** keep BC's 10 mB/t, or pick a higher base (≈20–40) for modern pacing? Keep the 1×/2×/4×/8× tier *ratios* regardless.
+- **Flow model fidelity:** is a simple "flow toward lower-fill/sink, capped by rate" equalizer enough, or do we need BC's section + travel-delay machinery for stable multi-source/multi-sink behavior? Prototype the simple one first.
+- Which pipes are genuinely in the foundation (base + extractor + void) vs. fast-follow (tiers, filter)?
 - Tank fill visualization: block-state stages (cheap, like Battery `CHARGE`) vs. a dynamic in-world fluid quad (prettier, more client code). Start with stages?
 - Should the base tank be sided-configurable (in/out per face) now, or flat all-sides until the machine-upgrade/config story lands?
 - Pump scope here vs. its own brief — leaning "own brief, but built immediately after so the foundation is proven."
@@ -98,3 +130,4 @@ Recommendation: **(A) first** to unblock engines/machines fast, then evaluate (B
 - Breakdowns: [`../mods/buildcraft.md`](../mods/buildcraft.md) (Fluid pipes, Pump, Oil/Refinery), [`../mods/thermal-expansion.md`](../mods/thermal-expansion.md) (Magma Crucible, Fluid Transposer)
 - Code precedent (item side, mirror it): `core/lib/storage/IItemStorage`, `core/lib/block/capability/HasItemStorage`, `core/lib/storage/ItemStorageLookup`, `fabric/.../capability/ItemStorageAccess`, `neoforge/.../NeoForgeCapabilityRegistration`
 - Already-built fluid layer: `core/lib/fluids/*`, `core/lib/block/capability/HasFluidStorage`, `fabric/.../fluids/*`, `neoforge/.../fluids/*`
+- BuildCraft balance anchor (`../buildcraft`, v7.1.27 / MC 1.7.10): `common/buildcraft/transport/PipeTransportFluids.java` (base rate 10 mB/t + per-pipe multipliers; 250 mB sections), `common/buildcraft/transport/pipes/PipeFluids*.java` (the waterproof-pipe roster), `common/buildcraft/factory/TileTank.java` (16,000 mB, stack-merge), `common/buildcraft/factory/TilePump.java` (100 RF/source block, 16-tick cycle), `common/buildcraft/factory/TileRefinery.java` (fuel chain, later)
