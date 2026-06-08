@@ -43,6 +43,7 @@ The step numbers encode dependencies, but several briefs are independent and can
 
 Not written yet — they wait on the keystone or on an open decision, and will take `0110+` steps:
 
+- **Hand Grinder** *(surfaced while speccing [0104](0104-alloy-smelter.md))* — a manual, powerless ore→dust block (the hand counterpart to the Macerator; no byproduct chance). Ungates the dust/alloy economy from energy so Bronze is reachable without power. Early-game; pairs with `0102`/`0104`. Build order TBD (likely early). **To write.**
 - **Needs fluids first:** Combustion-tier engine, Magmatic/dynamo tier, Magma Crucible, Fluid Transposer, fluid logistics (provider/supplier/request), Pump (built as the Fluids-foundation validation slice), the oil/biofuel fuel chain.
 - **Needs a Discussion (RFC, not a feature brief yet):** the programmable-automation / gates system (BuildCraft gates + TE augments + Forestry circuits) — see [`../mods/buildcraft.md`](../mods/buildcraft.md).
 - **Already done:** pipe operation power gating (✅, #464/#465/#469).
