@@ -27,6 +27,22 @@ There's one Battery (100,000 RF, 1,000 RF/t). Energy storage is currently flat �
 - Higher tiers gated behind alloys/components from the [`0104-alloy-smelter.md`](0104-alloy-smelter.md) tier so storage progression couples to the materials curve.
 - I/O config can't exceed the tier's hardware max — it throttles down, never up.
 
+### Rate alignment vs TE energy ducts
+
+We checked our power-distribution rates (cables + battery I/O) against Thermal Expansion's **Fluxducts** (Thermal Dynamics; numbers from the Team CoFH wiki — TE has no public source, treat as reference):
+
+| | Logistics | TE Fluxducts |
+|---|---|---|
+| Tiers | 3 — Copper / Gold / Ender | 5 + unlimited — Leadstone / Hardened / Redstone / Signalum / Resonant / Cryo |
+| Rate (RF/t) | 30 / 60 / 120 | 200 / 800 / 8,000 / … / 32,000 / ∞ |
+| Per-tier ratio | ×2 | ~×4–×10 |
+| Total spread | 4× | ~160× (+∞) |
+| Loss / buffer | lossless, no buffer | lossless, no buffer |
+
+**Verdict: aligned on *philosophy*, deliberately *not* on absolute rates — correctly.** Both are lossless, bufferless, per-segment-rate-capped tiered conduits. But our RF economy is ~2 orders of magnitude smaller (Macerator draws ~10 RF/t with a 128 intake cap; Stirling outputs 3–10 RF/t), so TE's 200–32,000 RF/t ducts would be wildly oversized here. **Copy the shape, not the numbers** — Ender's 120 RF/t already comfortably feeds our machines.
+
+**Watch-item (not a change yet):** our ladder is *narrow* — 3 tiers, ×2 steps, 4× total — vs TE's 5 tiers / ~160×. Fine while everything is low-RF, but the Ender top-end (120 RF/t) has little headroom. **Revisit the cable top-end (and these battery I/O numbers) once the combustion-tier engine output and the biggest machine intakes are set** — size them to the largest expected single-line demand, the same "tie rates to consumption" approach used for fluids ([`0101-fluids-foundation.md`](0101-fluids-foundation.md)). If late-game single-line demand stays ≤120 RF/t, keep the current ladder; if it grows, widen Ender or add a 4th tier rather than adopting TE's absolute values.
+
 ## Design sketch
 
 The base already supports tiering via constructor parameters — verified: `AbstractBatteryBlockEntity` takes `(type, pos, state, capacity, maxInsert, maxExtract)` and `BatteryBlockEntity` passes constants. Mirror the **cable tier** approach (`CableTier` enum + per-tier `Block` instances, shared BE type).
@@ -67,5 +83,6 @@ common/src/main/java/com/logistics/power/block/
 ## References
 
 - Roadmap: [`../roadmap.md`](../roadmap.md) → Phase 1 → Battery (tiers); [`../mods/thermal-expansion.md`](../mods/thermal-expansion.md) → "Energy Cells" row
-- Code: `core/lib/power/AbstractBatteryBlockEntity` (tier-ready constructor), `power/block/{BatteryBlock,BatteryBlockItem}`, `power/block/entity/BatteryBlockEntity`; tier precedent `power/cable/{CableTier,CableBlock,CableBlockEntity}`; data-component precedent `pipe/data/PipeDataComponents`; registration in `LogisticsPower.java`
+- Code: `core/lib/power/AbstractBatteryBlockEntity` (tier-ready constructor), `power/block/{BatteryBlock,BatteryBlockItem}`, `power/block/entity/BatteryBlockEntity`; tier precedent `power/cable/{CableTier,CableBlock,CableBlockEntity,CableNetwork}` (current rates 30/60/120 RF/t, lossless, bufferless); data-component precedent `pipe/data/PipeDataComponents`; registration in `LogisticsPower.java`
+- TE Fluxduct reference (wiki — TE has no public source): [Team CoFH — Fluxducts](https://teamcofh.com/docs/1.12/thermal-dynamics/fluxducts/) (Leadstone 200 / Hardened 800 / Redstone 8,000 / Resonant 32,000 RF/t; [Cryo-Stabilized](https://teamcofh.com/docs/1.12/thermal-dynamics/cryo-stabilized-fluxduct/) = unlimited)
 - Related: [`0104-alloy-smelter.md`](0104-alloy-smelter.md) (materials gate), [`0105-machine-upgrades.md`](0105-machine-upgrades.md) (creates the demand for bigger storage)
