@@ -18,7 +18,7 @@ RFCs are numbered sequentially (`NNNN-`), independent of the phase/step build or
 
 | # | RFC | Scope | The question | Leaning |
 |---|---|---|---|---|
-| 0001 | [Programmable Behavior](0001-programmable-behavior.md) | Cross-cutting (Phases 1–2) | Unified gates+circuits logic system, vanilla-leaning hooks, or skip for v1? | Targeted hooks for v1; revisit unified post-1.0 |
+| 0001 | [Programmable Behavior](0001-programmable-behavior.md) | Phase 2+ (post-1.0) | Unified gates+circuits logic system, vanilla-leaning hooks, or skip for v1? | **Deferred post-1.0** (maintainer): not a 1.0 item; revisit when Forestry needs circuit boards |
 | 0002 | [Forestry Bees](0002-forestry-bees.md) | Phase 2 (Forestry) | Ship bees at all — and extend vanilla or build parallel genetics? | Skip for v1; extend-vanilla if pursued later |
 | 0003 | [Railcraft Multiblocks & Steam](0003-railcraft-multiblocks.md) | Phase 3 (Transport) | Single-block / tileable / multiblock per signature block; is steam a power tier? | Single-block machines; tileable bulk tanks; steam simplified for v1 |
 

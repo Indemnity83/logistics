@@ -1,7 +1,7 @@
 # RFC 0001: Programmable Behavior (Gates + Circuits)
 
-> **Status:** 🟡 Open — needs an Ideas Discussion before scheduling · **Scope:** cross-cutting (Phases 1–2) · **Decides:** maintainer + community signal
-> **Affects:** [`../mods/buildcraft.md`](../mods/buildcraft.md) (Gates, Pipe wiring, Autarchic gate), [`../mods/forestry.md`](../mods/forestry.md) (Circuit boards + Soldering), [`../mods/thermal-expansion.md`](../mods/thermal-expansion.md) (Augments) · **Blocks:** scheduling the BC gate rows and Forestry circuit-board rows — **not** the machines/farms themselves
+> **Status:** 🟡 Open — **deferred post-1.0** (maintainer call, Jun 2026): explicitly **not a 1.0 item**; revisit when Forestry needs circuit boards (Phase 2) or later · **Scope:** Phase 2+ · **Decides:** maintainer + community signal
+> **Affects:** [`../mods/buildcraft.md`](../mods/buildcraft.md) (Gates, Pipe wiring, Autarchic gate), [`../mods/forestry.md`](../mods/forestry.md) (Circuit boards + Soldering), [`../mods/thermal-expansion.md`](../mods/thermal-expansion.md) (programmable augments) · **Blocks:** scheduling the BC gate rows and Forestry circuit-board rows — **not** the machines/farms, and **not** the Phase-1 machine-modifier upgrades ([`../features/0105-machine-upgrades.md`](../features/0105-machine-upgrades.md))
 
 The biggest open design call spanning the source mods. Three of them each shipped a "make this block do something conditional" system; the roadmap floats unifying them. This RFC frames the decision.
 
@@ -40,7 +40,7 @@ Ship machines/farms with fixed behavior + basic redstone hooks; defer all gates/
 
 ## Recommendation / leaning
 
-**B for v1, revisit A post-1.0.** Rationale: 1.0 = the Phase 1 automation core complete ([`../roadmap.md`](../roadmap.md)); a general programming system is *not* required for that and would be a major scope risk. Targeted redstone hooks cover the common cases now. Keep the unified system (A) as a post-1.0 ambition, and let community demand (poll) decide whether it's worth the complexity. C is the fallback if even targeted hooks aren't wanted.
+**B for now; A is explicitly post-1.0 — deferred until Forestry needs it (decided, Jun 2026).** Rationale: 1.0 = the Phase 1 automation core complete ([`../roadmap.md`](../roadmap.md)); a general programming system is *not* required for that and would be a major scope risk. The maintainer has confirmed the unified system is **not a 1.0 item** — the natural trigger to revisit it is Forestry **circuit boards** (programming Forestry blocks, Phase 2), or later. Until then, targeted redstone hooks (B) cover the common cases; C is the fallback if even those aren't wanted. When revisited, let community demand (poll) weigh A's complexity.
 
 ## Sub-questions still open
 

@@ -40,7 +40,7 @@ The model (decided): **alloys are made by combining two component *dusts*.**
 
 Follow the machine "shape" exactly as Macerator/Kiln (verified pattern):
 
-```
+```text
 common/src/main/java/com/logistics/automation/alloysmelter/
 ├── AlloySmelterBlock.java            # extends MachineBlock; FACING + LIT; particles when active
 ├── AlloySmelterBlockEntity.java      # extends BaseBlockEntity

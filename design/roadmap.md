@@ -87,8 +87,9 @@ This file is the human-readable mirror of **GitHub Project #4 "Logistics Roadmap
 **Fuels** *(couples to Combustion Engine + Forestry biofuel)*
 - Decide oil/biofuel sourcing; build the fuel chain
 
-**RFC (cross-cutting, needs Discussion before scheduling)**
-- Programmable automation: BuildCraft **gates** + TE **augments** + Forestry **circuits** → one unified "programmable behavior" system
+**Programmable behavior — explicitly post-1.0 (deferred)**
+- The unified gates + circuits system (BuildCraft **gates** · TE programmable **augments** · Forestry **circuits** → one "programmable behavior" layer) is **not a 1.0 item.** Deferred until Forestry actually needs it — i.e. circuit boards to program Forestry blocks (Phase 2) — or later. See [RFC 0001](rfcs/0001-programmable-behavior.md).
+- *Distinct from the Phase-1 **machine upgrades** (speed/efficiency/auto-output modifiers) in the Definition of Done above — that's a modifier system, not the programmable-logic layer, and is unaffected by this deferral.*
 
 ## Phase 2 — Forestry —
 

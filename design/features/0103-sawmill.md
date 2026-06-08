@@ -29,7 +29,7 @@ Vanilla gives 4 planks per log. The classic Sawmill gave *more* (≈6) plus sawd
 
 Structurally the **simplest instance of the machine pattern** — closest sibling to the Kiln (single input) but with a custom recipe like the Macerator.
 
-```
+```text
 common/src/main/java/com/logistics/automation/sawmill/
 ├── SawmillBlock.java               # extends MachineBlock; FACING + LIT
 ├── SawmillBlockEntity.java         # extends BaseBlockEntity; HasItemStorage, HasEnergyStorage,

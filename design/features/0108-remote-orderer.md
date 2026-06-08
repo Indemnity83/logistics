@@ -16,8 +16,8 @@ Today, requesting items means interacting with a Requester pipe at a fixed spot.
 
 ### Functional
 - Right-clicking the item opens the **request UI** (the same flow as the Requester pipe: browse available network items, search, choose amount, place an order).
-- The item targets a network: either (a) **bound** to a specific network/pipe (shift-right-click a pipe to bind, stored on the item), or (b) the **nearest** network within range. Prefer binding for predictability (see Open questions).
-- Orders placed go through the normal `ILogisticsNetwork.placeOrder(...)` path; items route to a configured drop/return point or the player (see Open questions on delivery).
+- The item targets a network by a **stored pipe `BlockPos`** — shift-right-click a pipe to bind it (saved on the item via a data component). *(A "nearest network" fallback would need a manual radius scan for a pipe position — `NetworkRegistry` has no nearest-pipe lookup — so binding is the primary path; see Open questions.)*
+- Orders go through the normal `ILogisticsNetwork.placeOrder(item, amount, requester, FulfillmentMode)` path. **`requester` = the bound pipe's `BlockPos`** (delivery routes to that pipe / its attached inventory — the orderer is a remote *trigger*, not a teleport). **`FulfillmentMode` = allow `PARTIAL`** (deliver what's available now), matching the Requester pipe's behavior — confirm against its actual default. Ties to the delivery open question.
 - Works only when the target network is loaded and within range; clear feedback when out of range / unbound / no network.
 
 ### Balance
@@ -29,14 +29,14 @@ Today, requesting items means interacting with a Requester pipe at a fixed spot.
 
 The request side is fully built — `RequesterScreenHandler` already queries the network for available items and places orders; `RequesterModule.onWrench` shows the exact `openMenu` idiom. The new work is an **item** that reaches a network by position instead of by being a pipe.
 
-```
+```text
 common/src/main/java/com/logistics/pipe/item/RemoteOrdererItem.java
 ```
 
 - `RemoteOrdererItem extends Item`:
-  - `use(level, player, hand)`: server-side, resolve the target network — read a bound `BlockPos`/network UUID from the item's data component (`DataComponents.CUSTOM_DATA`), or find the nearest pipe via `NetworkRegistry`; range-check; then `serverPlayer.openMenu(new SimpleMenuProvider(... new RemoteRequesterScreenHandler(syncId, inv, targetPos), title))`.
+  - `use(level, player, hand)`: **server-side only** (`openMenu` is server-side anyway). Read the bound `BlockPos` from `DataComponents.CUSTOM_DATA`; range-check; resolve the network from that position (below); then `serverPlayer.openMenu(new SimpleMenuProvider(... new RemoteRequesterScreenHandler(syncId, inv, targetPos), title))`. *(No `NetworkRegistry` "nearest" API exists — an optional nearest fallback must manually scan a radius for a pipe `BlockPos`.)*
   - `useOn(...)` / shift-use on a pipe: bind the orderer to that pipe's network, store on the item via `ItemStack.set(DataComponents.CUSTOM_DATA, ...)` (data-component precedent: `pipe/data/PipeDataComponents`).
-- **`RemoteRequesterScreenHandler`**: a thin variant of `RequesterScreenHandler` that takes a `BlockPos` and resolves the network via `NetworkRegistry.getNetwork(level, pos)` instead of holding a `PipeBlockEntity`. Reuse the existing item-browse/search/order logic.
+- **`RemoteRequesterScreenHandler`**: a thin variant of `RequesterScreenHandler` that takes a `BlockPos` and resolves the network **server-side**. `NetworkRegistry.getNetwork(level, pos)` is a **read-only** lookup (returns null for unmapped positions / on the client); use `NetworkRegistry.getOrCreateNetwork(level, pos)` on the server path where the position may not be mapped yet. Reuse the existing item-browse/search/order logic.
 - Register the item in `LogisticsPipe.ITEM` and the menu in the menu registrar (`registerMenuType`). Handheld-item-opens-screen precedent: `pipe/item/ModuleItem#use`.
 - Client: the existing requester screen (or a near-identical one) bound to the new menu type.
 

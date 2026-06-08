@@ -23,7 +23,7 @@ There's one Battery (100,000 RF, 1,000 RF/t). Energy storage is currently flat �
 - Interops with both the push side (engines/batteries → machines) and the network pull side (`ILogisticsNetwork.consumeEnergy`) exactly as the current Battery does.
 
 ### Balance
-- Capacity/throughput anchored to the current Battery (100k / 1k RF/t) as the **middle** of the line; e.g. base ≈ 50k / 0.5k, top ≈ 1M / 10k (match cable ceilings so a top battery can saturate an Ender cable).
+- Capacity/throughput anchored to the current Battery (100k cap, **1k RF/t** per-side I/O) as the **middle** of the line; e.g. base ≈ 50k / 0.5k, top ≈ 1M / 5k. **Note:** battery I/O is the *direct per-face* transfer limit and already exceeds cable throughput — cables are a separate, much lower network bottleneck (`CableTier`: copper 30 / gold 60 / **ender 120 RF/t**). So don't size batteries "to saturate a cable"; through a cable network the cable is always the smaller pipe. High battery I/O only matters for direct battery↔machine adjacency and multi-connection draw.
 - Higher tiers gated behind alloys/components from the [`0104-alloy-smelter.md`](0104-alloy-smelter.md) tier so storage progression couples to the materials curve.
 - I/O config can't exceed the tier's hardware max — it throttles down, never up.
 
@@ -31,7 +31,7 @@ There's one Battery (100,000 RF, 1,000 RF/t). Energy storage is currently flat �
 
 The base already supports tiering via constructor parameters — verified: `AbstractBatteryBlockEntity` takes `(type, pos, state, capacity, maxInsert, maxExtract)` and `BatteryBlockEntity` passes constants. Mirror the **cable tier** approach (`CableTier` enum + per-tier `Block` instances, shared BE type).
 
-```
+```text
 common/src/main/java/com/logistics/power/block/
 ├── BatteryTier.java          # enum {BASIC, REINFORCED, RESONANT} → capacity(), maxIo()
 ├── BatteryBlock.java         # holds a BatteryTier field (like CableBlock holds CableTier)
@@ -54,7 +54,7 @@ common/src/main/java/com/logistics/power/block/
 
 - **I/O config storage: block-state vs data-component+GUI** (above). Drives whether this ships a screen.
 - **Per-side vs whole-block I/O** for v1 — per-side is the classic Energy Cell behavior but more UX/render work. **Lean: whole-block in v1, per-side as a fast-follow.**
-- Tier names + exact capacity/throughput numbers (anchor to cables so the top tier saturates Ender).
+- Tier names + exact capacity/throughput numbers (pick on their own merits — *not* "to saturate a cable," since cables top out at 120 RF/t while even the base battery does more).
 - Does the **existing** Battery become BASIC or REINFORCED? (Affects whether existing worlds' batteries change stats — prefer mapping it so saved batteries keep their current 100k/1k.)
 
 ## Done when
@@ -62,7 +62,7 @@ common/src/main/java/com/logistics/power/block/
 - Three battery tiers place, store, and transfer energy with distinct capacity/throughput on both loaders.
 - I/O rates are configurable and clamp correctly (never exceed tier max), persisted across save/load and break/place.
 - Charge shows in-world and on the item for all tiers.
-- A top-tier battery can feed an Ender cable at its full rate.
+- Battery I/O rates are independent of cable throughput; a battery feeding through a cable network is correctly limited by the cable (≤120 RF/t on Ender), while direct adjacency uses the battery's full per-face rate.
 
 ## References
 

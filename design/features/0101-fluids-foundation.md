@@ -65,7 +65,7 @@ Start from BuildCraft's real numbers (it *is* the lineage) and tune from there, 
 
 New `fluid` domain, parallel to `pipe`, registered as a `DomainBootstrap` (`LogisticsFluid implements DomainBootstrap`, listed in `META-INF/services/com.logistics.core.bootstrap.DomainBootstrap`).
 
-```
+```text
 common/src/main/java/com/logistics/fluid/
 ├── LogisticsFluid.java            # DomainBootstrap: BLOCK / ITEM / ENTITY / MENU registrars
 ├── pipe/                          # fluid transport pipe (see note below)
