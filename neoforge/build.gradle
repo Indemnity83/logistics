@@ -14,6 +14,15 @@ base {
 repositories {
     maven { url = "https://maven.terraformersmc.com/releases/" }
     maven { name = "Jared's maven"; url = "https://maven.blamejared.com/" }
+    // No released NeoForge for MC 26.2 yet. Pull the artifact from the upstream port PR's
+    // CI maven (neoforged/NeoForge#3198, "Port to 26.2"). Scoped to the neoforge module only.
+    // This is an ephemeral, unmerged build — fine for dev/testing, NOT for a shippable release.
+    // Remove this repo and point neoforge_version at the official maven once a real 26.2 alpha ships.
+    maven {
+        name = "NeoForge PR #3198 (Port to 26.2)"
+        url = "https://prmaven.neoforged.net/NeoForge/pr3198"
+        content { includeModule("net.neoforged", "neoforge") }
+    }
 }
 
 java {
@@ -22,6 +31,12 @@ java {
 }
 
 neoForge {
+    // This single property pins BOTH NeoForge AND the Minecraft it runs on. NeoForge ships as a
+    // patched fork of one specific MC build, so ModDevGradle derives the game version from this
+    // artifact's metadata — there is intentionally no `minecraft_version` knob here. That property
+    // only drives Fabric/Loom (and common's compile classpath); the NeoForge side's MC is implied
+    // by neoforge_version. To target a different MC on NeoForge, pick the matching neoforge_version
+    // (NeoForge and MC are released in lockstep), not minecraft_version.
     version = neoforge_version
     runs {
         client {
@@ -45,14 +60,25 @@ tasks.named('compileJava', JavaCompile) {
     source configurations.commonClientJava
 }
 
+// The shared common client source (folded into compileJava above) includes the JEI integration.
+// When JEI is disabled (no upstream artifact for this MC version), exclude it to match common/fabric.
+if (!rootProject.jei_enabled.toBoolean()) {
+    tasks.named('compileJava', JavaCompile) {
+        exclude '**/core/macerator/jei/**'
+    }
+}
+
 tasks.named('compileTestJava', JavaCompile) {
     classpath += tasks.named('compileJava', JavaCompile).get().classpath
 }
 
 dependencies {
-    // JEI — compile against API only; players install separately at runtime
-    compileOnly("mezz.jei:jei-${rootProject.minecraft_version}-neoforge-api:${rootProject.jei_version}")
-    runtimeOnly("mezz.jei:jei-${rootProject.minecraft_version}-neoforge:${rootProject.jei_version}")
+    // JEI — compile against API only; players install separately at runtime.
+    // Gated: no JEI artifact exists for some MC versions (e.g. 26.2 pre-releases).
+    if (rootProject.jei_enabled.toBoolean()) {
+        compileOnly("mezz.jei:jei-${rootProject.minecraft_version}-neoforge-api:${rootProject.jei_version}")
+        runtimeOnly("mezz.jei:jei-${rootProject.minecraft_version}-neoforge:${rootProject.jei_version}")
+    }
 
     testImplementation "org.junit.jupiter:junit-jupiter:${rootProject.junit_version}"
     testRuntimeOnly "org.junit.platform:junit-platform-launcher"
@@ -74,7 +100,12 @@ processResources {
     if (compatibilityBounds.size() != 2 || compatibilityBounds.any { it.isEmpty() }) {
         throw new GradleException("minecraft_compatibility_versions must be formatted as '<min>,<next>'")
     }
-    def neoforgeMinecraftVersionRange = "[${compatibilityBounds[0]}, ${compatibilityBounds[1]})"
+    // The shared compatibility bounds are in Fabric's normalized semver form (pre-release with a
+    // dot, e.g. "26.2-pre.3"). NeoForge/Maven compares against the RAW Minecraft version (dash,
+    // e.g. "26.2-pre-4"), so a dotted bound never matches. Convert the pre-release dot back to a
+    // dash for the NeoForge Maven range; release bounds like "26.3" are unaffected.
+    def toNeoForgeVersion = { String v -> v.replace('-pre.', '-pre-').replace('-rc.', '-rc-') }
+    def neoforgeMinecraftVersionRange = "[${toNeoForgeVersion(compatibilityBounds[0])}, ${toNeoForgeVersion(compatibilityBounds[1])})"
 
     var expandProps = [
         'version'                         : project.version,

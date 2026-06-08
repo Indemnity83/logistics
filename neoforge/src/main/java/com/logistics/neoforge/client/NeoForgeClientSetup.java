@@ -115,7 +115,7 @@ public final class NeoForgeClientSetup {
 
     private static void registerClientPayloadHandlers(RegisterClientPayloadHandlersEvent event) {
         event.register(SyncRequesterInventoryPacket.TYPE, (packet, context) -> {
-            var screen = Minecraft.getInstance().screen;
+            var screen = Minecraft.getInstance().gui.screen();
             if (screen instanceof RequesterScreen requesterScreen) {
                 requesterScreen.updateAvailableItems(packet.pipePos(), packet.items(), packet.amounts());
             }
