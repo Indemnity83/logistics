@@ -2,6 +2,7 @@ package com.logistics.core.macerator;
 
 import com.logistics.LogisticsCore;
 import com.logistics.core.lib.block.BaseBlockEntity;
+import com.logistics.core.lib.block.ProcessingMachine;
 import com.logistics.core.lib.block.behavior.MenuBehavior;
 import com.logistics.core.lib.block.capability.HasEnergyStorage;
 import com.logistics.core.lib.block.capability.HasItemStorage;
@@ -52,7 +53,8 @@ import com.logistics.core.lib.energy.IEnergyStorage;
  * </ul>
  */
 public class MaceratorBlockEntity extends BaseBlockEntity
-    implements HasItemStorage, HasEnergyStorage, WorldlyContainer, MenuBehavior.HasMenu, EnergyDemandProvider {
+    implements HasItemStorage, HasEnergyStorage, WorldlyContainer, MenuBehavior.HasMenu, EnergyDemandProvider,
+        ProcessingMachine {
 
     static final int INPUT_SLOT = 0;
     static final int OUTPUT_SLOT = 1;
@@ -250,6 +252,22 @@ public class MaceratorBlockEntity extends BaseBlockEntity
         long storageRoom = Math.max(0, ENERGY_CAPACITY - energy.getAmount());
         long remainingInput = Math.max(0, MAX_ENERGY_INPUT - energyReceivedThisTick);
         return Math.min(remainingInput, storageRoom);
+    }
+
+    // ==================== ProcessingMachine ====================
+
+    @Override
+    public float processProgress() {
+        if (activeRecipe == null) {
+            return 0f;
+        }
+        int total = activeRecipe.value().grindingTime();
+        return total > 0 ? Math.min(1f, (float) processProgress / total) : 0f;
+    }
+
+    @Override
+    public boolean isProcessing() {
+        return activeRecipe != null;
     }
 
     // ==================== WorldlyContainer (Sided Inventory) ====================
