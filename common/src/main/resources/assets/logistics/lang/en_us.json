@@ -206,6 +206,9 @@
   "message.logistics.power.creative_sink.drain_rate": "Creative Sink: %s RF/t",
   "message.logistics.power.creative_engine.output": "Creative Engine: %s RF/t",
 
+  "jade.logistics.pipe.items": "Items",
+  "jade.logistics.pipe.more": "+%s more",
+
   "tag.item.c.ingots.tin": "Tin Ingots",
   "tag.item.c.ingots.bronze": "Bronze Ingots",
   "tag.item.c.nuggets.tin": "Tin Nuggets",

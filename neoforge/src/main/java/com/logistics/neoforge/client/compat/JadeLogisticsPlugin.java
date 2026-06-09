@@ -1,6 +1,7 @@
 package com.logistics.neoforge.client.compat;
 
 import com.logistics.LogisticsMod;
+import com.logistics.pipe.block.PipeBlock;
 import snownee.jade.api.IWailaClientRegistration;
 import snownee.jade.api.IWailaCommonRegistration;
 import snownee.jade.api.IWailaPlugin;
@@ -11,9 +12,8 @@ import snownee.jade.api.WailaPlugin;
  * via the {@link WailaPlugin} annotation scan — so it only initializes when Jade is actually installed.
  *
  * <p>Client-only by nature (Jade is a client mod), hence the {@code com.logistics.neoforge.client} package
- * required by the NeoForge source-isolation rules. Currently a no-op scaffold: it registers no providers
- * yet. Per-block content (heat, fuel, quarry status, pipe contents) is added in stacked passes on top of
- * this foundation.
+ * required by the NeoForge source-isolation rules. Per-block content is added in stacked passes; see
+ * {@code PipeComponentProvider} for pipes.
  */
 @WailaPlugin(LogisticsMod.MOD_ID)
 public class JadeLogisticsPlugin implements IWailaPlugin {
@@ -22,5 +22,7 @@ public class JadeLogisticsPlugin implements IWailaPlugin {
     public void register(IWailaCommonRegistration registration) {}
 
     @Override
-    public void registerClient(IWailaClientRegistration registration) {}
+    public void registerClient(IWailaClientRegistration registration) {
+        registration.registerBlockComponent(PipeComponentProvider.INSTANCE, PipeBlock.class);
+    }
 }
