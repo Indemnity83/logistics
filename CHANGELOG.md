@@ -1,5 +1,33 @@
 # Changelog
 
+## [0.7.0](https://github.com/Indemnity83/logistics/compare/mc1.21.1-v0.6.1...mc1.21.1-v0.7.0) (2026-06-09)
+
+
+### ⚠ BREAKING CHANGES
+
+* **energy:** logistics pipe operations consume power ([#465](https://github.com/Indemnity83/logistics/issues/465))
+* **energy:** Logistics pipes now require power from an adjacent Battery. Existing networks stop routing/supplying/crafting — and drop items already in transit — until a charged Battery is connected.
+
+### Added
+
+* **energy:** add a Battery block to power logistics networks ([e420625](https://github.com/Indemnity83/logistics/commit/e42062570dab6ee6318dd50f1f861af4ddda874c))
+* **energy:** logistics pipe operations consume power ([#465](https://github.com/Indemnity83/logistics/issues/465)) ([e420625](https://github.com/Indemnity83/logistics/commit/e42062570dab6ee6318dd50f1f861af4ddda874c))
+* **ui:** color logistics pipes green when powered, red when not ([#469](https://github.com/Indemnity83/logistics/issues/469)) ([741f92c](https://github.com/Indemnity83/logistics/commit/741f92c355fbc4e0197b2f24cfaed3549d1f1a1f))
+
+
+### Fixed
+
+* **automation:** stop inactive markers rendering as a black cross ([#484](https://github.com/Indemnity83/logistics/issues/484)) ([ed4c84d](https://github.com/Indemnity83/logistics/commit/ed4c84d7ac27e88e5ee0a68d55ce831a92d03c00))
+* **automation:** stop the macerator from trying to load other mods' recipes ([#473](https://github.com/Indemnity83/logistics/issues/473)) ([f5b7ce3](https://github.com/Indemnity83/logistics/commit/f5b7ce366f0414a6b793a625d33296b068827cf3))
+* **energy:** make engines visibly change color with heat stage ([e4a3cb3](https://github.com/Indemnity83/logistics/commit/e4a3cb3d1c28d6732f9027b3c2be6e1ba66bd2b1))
+* **energy:** stop the battery charge bar rendering black on NeoForge ([1ca61b1](https://github.com/Indemnity83/logistics/commit/1ca61b1e15379b82e03303e51a66dfd9dc659775))
+
+
+### Improved
+
+* **automation:** reduce memory and load time for machine rendering ([#451](https://github.com/Indemnity83/logistics/issues/451)) ([cfb04dd](https://github.com/Indemnity83/logistics/commit/cfb04dd7b89a0074069819efcc0ea8097c80b105))
+* **pipes:** reduce memory and load time for pipe rendering ([#450](https://github.com/Indemnity83/logistics/issues/450)) ([4615511](https://github.com/Indemnity83/logistics/commit/461551129e7965d01aa7184b6cfb7f080cf21edf))
+
 ## [0.6.1](https://github.com/Indemnity83/logistics/compare/mc1.21.1-v0.6.0...mc1.21.1-v0.6.1) (2026-06-02)
 
 
