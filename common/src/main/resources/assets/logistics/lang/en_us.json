@@ -215,6 +215,9 @@
   "jade.logistics.engine.running": "Running",
   "jade.logistics.engine.fuel": "Fuel",
   "jade.logistics.engine.overheated": "Overheated!",
+  "jade.logistics.cable.transfer": "Transfer",
+  "jade.logistics.creative_sink.drain": "Drain Rate",
+  "jade.logistics.creative_sink.received": "Received",
 
   "tag.item.c.ingots.tin": "Tin Ingots",
   "tag.item.c.ingots.bronze": "Bronze Ingots",
