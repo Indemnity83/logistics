@@ -1,9 +1,9 @@
 package com.logistics.core.macerator;
+import com.logistics.core.lib.resource.ResourceId;
 
 import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.gui.screens.recipebook.RecipeBookComponent;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.inventory.Slot;
 
@@ -16,10 +16,10 @@ import java.util.List;
 public class MaceratorRecipeBookComponent extends RecipeBookComponent {
 
     private static final WidgetSprites FILTER_SPRITES = new WidgetSprites(
-        ResourceLocation.withDefaultNamespace("recipe_book/furnace_filter_enabled"),
-        ResourceLocation.withDefaultNamespace("recipe_book/furnace_filter_disabled"),
-        ResourceLocation.withDefaultNamespace("recipe_book/furnace_filter_enabled_highlighted"),
-        ResourceLocation.withDefaultNamespace("recipe_book/furnace_filter_disabled_highlighted")
+        ResourceId.in("minecraft", "recipe_book/furnace_filter_enabled").toIdentifier(),
+        ResourceId.in("minecraft", "recipe_book/furnace_filter_disabled").toIdentifier(),
+        ResourceId.in("minecraft", "recipe_book/furnace_filter_enabled_highlighted").toIdentifier(),
+        ResourceId.in("minecraft", "recipe_book/furnace_filter_disabled_highlighted").toIdentifier()
     );
 
     private static final Component FILTER_NAME = Component.translatable("gui.recipebook.toggleRecipes.smeltable");

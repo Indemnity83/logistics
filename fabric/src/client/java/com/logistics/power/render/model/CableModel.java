@@ -1,4 +1,5 @@
 package com.logistics.power.render.model;
+import com.logistics.core.lib.resource.ResourceId;
 
 import com.logistics.power.cable.CableBlockEntity;
 import com.logistics.power.cable.CableTier;
@@ -27,7 +28,7 @@ public final class CableModel implements BakedModel, FabricBakedModel {
     private TextureAtlasSprite spriteCache;
 
     public CableModel(CableTier tier) {
-        this.textureId = ResourceLocation.fromNamespaceAndPath("logistics", "block/power/" + tier.id());
+        this.textureId = ResourceId.in("logistics", "block/power/" + tier.id()).toIdentifier();
     }
 
     @Override

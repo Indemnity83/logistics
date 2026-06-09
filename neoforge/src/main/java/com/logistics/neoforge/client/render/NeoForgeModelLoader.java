@@ -1,6 +1,6 @@
 package com.logistics.neoforge.client.render;
+import com.logistics.core.lib.resource.ResourceId;
 
-import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.client.event.ModelEvent;
 
 /**
@@ -18,7 +18,7 @@ public final class NeoForgeModelLoader {
      */
     public static void registerGeometryLoaders(ModelEvent.RegisterGeometryLoaders event) {
         event.register(
-                ResourceLocation.fromNamespaceAndPath("logistics", "cable_model"),
+                ResourceId.in("logistics", "cable_model").toIdentifier(),
                 NeoForgeCableBlockModelDefinition.INSTANCE);
     }
 }

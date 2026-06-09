@@ -1,4 +1,5 @@
 package com.logistics.neoforge.client.render;
+import com.logistics.core.lib.resource.ResourceId;
 
 import com.logistics.power.cable.CableBlockEntity;
 import com.logistics.power.cable.CableTier;
@@ -32,7 +33,7 @@ public final class NeoForgeCableModel implements IDynamicBakedModel {
     private volatile TextureAtlasSprite spriteCache;
 
     public NeoForgeCableModel(CableTier tier) {
-        this.textureId = ResourceLocation.fromNamespaceAndPath("logistics", "block/power/" + tier.id());
+        this.textureId = ResourceId.in("logistics", "block/power/" + tier.id()).toIdentifier();
     }
 
     @Override

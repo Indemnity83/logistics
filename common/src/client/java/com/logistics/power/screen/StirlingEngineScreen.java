@@ -1,4 +1,5 @@
 package com.logistics.power.screen;
+import com.logistics.core.lib.resource.ResourceId;
 
 import com.logistics.LogisticsMod;
 import com.logistics.power.engine.ui.StirlingEngineScreenHandler;
@@ -17,7 +18,7 @@ public class StirlingEngineScreen extends AbstractContainerScreen<StirlingEngine
             LogisticsMod.modId("textures/gui/power/stirling_engine.png").toIdentifier();
 
     // Reuse vanilla's lit flame sprite
-    private static final ResourceLocation LIT_PROGRESS_SPRITE = ResourceLocation.withDefaultNamespace("container/furnace/lit_progress");
+    private static final ResourceLocation LIT_PROGRESS_SPRITE = ResourceId.in("minecraft", "container/furnace/lit_progress").toIdentifier();
 
     // Flame position (below the fuel slot)
     private static final int FLAME_X = 80;

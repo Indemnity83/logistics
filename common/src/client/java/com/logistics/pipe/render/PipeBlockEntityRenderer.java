@@ -25,7 +25,6 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.level.block.state.BlockState;
@@ -85,7 +84,7 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
     private TextureAtlasSprite sprite(String textureBase) {
         return spriteCache.computeIfAbsent(textureBase, b -> Minecraft.getInstance()
                 .getTextureAtlas(TextureAtlas.LOCATION_BLOCKS)
-                .apply(ResourceLocation.fromNamespaceAndPath("logistics", "block/pipe/" + b)));
+                .apply(ResourceId.in("logistics", "block/pipe/" + b).toIdentifier()));
     }
 
     /** Draw code-generated quads, reusing the same rotation + putBulkData path as JSON models. */

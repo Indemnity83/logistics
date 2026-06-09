@@ -1,4 +1,5 @@
 package com.logistics.pipe.screen;
+import com.logistics.core.lib.resource.ResourceId;
 
 import com.logistics.pipe.modules.ItemFilterModule;
 import com.logistics.pipe.ui.ItemFilterScreenHandler;
@@ -10,7 +11,7 @@ import net.minecraft.world.entity.player.Inventory;
 
 public class ItemFilterScreen extends AbstractContainerScreen<ItemFilterScreenHandler> {
     private static final ResourceLocation BACKGROUND_TEXTURE =
-            ResourceLocation.withDefaultNamespace("textures/gui/container/generic_54.png");
+            ResourceId.in("minecraft", "textures/gui/container/generic_54.png").toIdentifier();
     private static final int SLOT_START_X = 8;
     private static final int SLOT_START_Y = 18;
     private static final int SLOT_SIZE = 18;
