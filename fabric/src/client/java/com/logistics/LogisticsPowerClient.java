@@ -4,6 +4,7 @@ import com.logistics.core.bootstrap.ClientDomainBootstrap;
 import com.logistics.core.lib.power.AbstractEngineBlockEntity;
 import com.logistics.power.render.CableBlockEntityRenderer;
 import com.logistics.power.render.EngineBlockEntityRenderer;
+import com.logistics.power.render.EngineHeatTintSource;
 import com.logistics.power.screen.StirlingEngineScreen;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.BlockColorRegistry;
@@ -43,8 +44,9 @@ public final class LogisticsPowerClient implements ClientDomainBootstrap {
     }
 
     /**
-     * Registers block color providers for engines to tint based on heat stage.
-     * Uses the STAGE block state property to determine color.
+     * Registers the block tint source that colors engines by heat stage. The source declares STAGE
+     * as a relevant property so 26.1 re-bakes the tint when the stage changes (see
+     * {@link EngineHeatTintSource}).
      *
      * <p>TODO: The non-overheating flash effect (HOT/WARM oscillation) is driven by block state
      * changes on the server tick, which causes chunk rebuilds at each half-stroke transition.
@@ -53,13 +55,7 @@ public final class LogisticsPowerClient implements ClientDomainBootstrap {
      */
     private void registerEngineBlockColors() {
         BlockColorRegistry.register(
-            List.of(state -> switch (state.getValue(AbstractEngineBlockEntity.STAGE)) {
-                case COLD -> 0xFF3366CC;
-                case COOL -> 0xFF33CC33;
-                case WARM -> 0xFFCCCC33;
-                case HOT -> 0xFFCC3333;
-                case OVERHEAT -> 0xFF191919;
-            }),
+            List.of(EngineHeatTintSource.INSTANCE),
             LogisticsPower.BLOCK.REDSTONE_ENGINE,
             LogisticsPower.BLOCK.STIRLING_ENGINE,
             LogisticsPower.BLOCK.CREATIVE_ENGINE);
