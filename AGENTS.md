@@ -7,9 +7,9 @@ This file provides guidance to codex when working with code in this repository.
 **FIRST:** Always check your current branch using `git branch --show-current` or by checking the working directory path (e.g., `../logistics-mc-1.21.11/` indicates mc/1.21.11 branch).
 
 This repository uses a multi-version strategy to support different Minecraft releases:
-- **`mc/1.21.1`** - Stable releases for MC 1.21.1, maintenance focus
-- **`mc/1.21.11`** - Stable releases for MC 1.21.11, active feature development
-- **`mc/26.1`** - Snapshot development for MC 26.1 snapshots, forward-port for testing
+- **`mc/26.1`** - **Main/default branch.** Released MC 26.1; active development — new work starts here
+- **`mc/1.21.11`** - Stable releases for MC 1.21.11, maintenance + backport target
+- **`mc/1.21.1`** - Stable releases for MC 1.21.1, maintenance + backport target
 
 ### Critical Understanding
 
@@ -39,9 +39,9 @@ If worktrees are detected at these paths, they may be referenced when working on
 
 ### Development Strategy
 
-- **`mc/1.21.11`**: Primary development target (latest stable release, most players)
-- **`mc/26.1`**: Port features to keep up with snapshot releases
-- **`mc/1.21.1`**: Backport features/fixes (many tech mod users still on this version)
+- **`mc/26.1`**: Primary development target (main branch) — new features, refactors, and fixes start here
+- **`mc/1.21.11`**: Backport target (maintenance) — port player-facing features/fixes down from 26.1
+- **`mc/1.21.1`**: Backport target (maintenance) — many tech-mod users still on this version
 
 ### Branch Protection Rules (CRITICAL)
 
@@ -60,15 +60,16 @@ If worktrees are detected at these paths, they may be referenced when working on
 ### Cross-Version Workflow
 
 **When fixing bugs:**
-1. Fix on the branch where reported (typically mc/1.21.11 during Pre-1.0)
-2. Check if bug exists on other branches
-3. **Cherry-pick** the fix to affected branches (resolve conflicts if needed)
+1. Fix on **mc/26.1** (main) when the bug exists there
+2. Check if the bug exists on the other branches
+3. **Cherry-pick** the fix down to affected branches (resolve conflicts if needed)
 4. Test on each target branch after cherry-pick
-5. Priority order for porting: mc/1.21.11 → mc/26.1 → mc/1.21.1
+5. Priority order for porting: mc/26.1 → mc/1.21.11 → mc/1.21.1
+6. **Legacy-only bugs** (don't reproduce on 26.1 — e.g. 26.1 auto-derives the cutout render layer from sprite transparency, so manual `BlockRenderLayerMap` registrations only matter on 1.21.x): originate the fix on the highest *affected* branch (mc/1.21.11) and cherry-pick down to mc/1.21.1
 
 **When adding features:**
-- **During Pre-1.0 phase**: Develop on mc/1.21.11, cherry-pick to mc/26.1 and mc/1.21.1
-- **After MC 26.1 releases**: Develop on mc/26.1, backport to mc/1.21.11 if needed
+- Develop on **mc/26.1** (main), then backport to mc/1.21.11 and mc/1.21.1 if the feature applies
+- Internal/infra-only work generally stays on mc/26.1 and is not backported
 - Keep changes minimal and tested
 - Avoid large refactorings unless coordinated across all branches
 
@@ -144,7 +145,7 @@ After 1.0.0, `feat:` → minor and `feat!:` → major (standard SemVer).
 
 ### Hotfix Workflow
 
-When a critical bug needs a patch release *after* feature development has already started on `mc/1.21.11`, use this process to bypass release-please and publish a clean hotfix.
+When a critical bug needs a patch release *after* feature development has already started on the primary development branch, use this process to bypass release-please and publish a clean hotfix.
 
 **Steps:**
 1. Branch from the last release tag:
