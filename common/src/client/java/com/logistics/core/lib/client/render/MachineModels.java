@@ -11,7 +11,7 @@ import net.minecraft.client.renderer.block.model.BlockStateModel;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.Direction;
 import net.minecraft.data.AtlasIds;
-import net.minecraft.resources.Identifier;
+import com.logistics.LogisticsMod;
 import net.minecraft.util.RandomSource;
 import org.jetbrains.annotations.Nullable;
 
@@ -182,7 +182,7 @@ public final class MachineModels {
         }
         TextureAtlasSprite sprite = Minecraft.getInstance().getAtlasManager()
                 .getAtlasOrThrow(AtlasIds.BLOCKS)
-                .getSprite(Identifier.fromNamespaceAndPath("logistics", "block/" + model.textureBase()));
+                .getSprite(LogisticsMod.modId("block/" + model.textureBase()).toIdentifier());
         VanillaQuadBaker baker = new VanillaQuadBaker(sprite, tintIndex, true, 0);
         BoxGeometry.emit(baker::quad, model.elements(), sprite);
         List<BlockModelPart> parts = baker.isEmpty() ? List.of() : List.of(baker.toPart());

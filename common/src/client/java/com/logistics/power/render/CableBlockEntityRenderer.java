@@ -23,7 +23,7 @@ import net.minecraft.client.renderer.state.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.data.AtlasIds;
-import net.minecraft.resources.Identifier;
+import com.logistics.LogisticsMod;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.phys.Vec3;
 
@@ -97,7 +97,7 @@ public class CableBlockEntityRenderer implements BlockEntityRenderer<CableBlockE
     private TextureAtlasSprite sprite(CableTier tier) {
         return spriteCache.computeIfAbsent(tier, t -> Minecraft.getInstance().getAtlasManager()
                 .getAtlasOrThrow(AtlasIds.BLOCKS)
-                .getSprite(Identifier.fromNamespaceAndPath("logistics", "block/power/" + t.id())));
+                .getSprite(LogisticsMod.modId("block/power/" + t.id()).toIdentifier()));
     }
 
     /**

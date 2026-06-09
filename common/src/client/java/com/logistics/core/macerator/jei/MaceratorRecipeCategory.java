@@ -10,9 +10,9 @@ import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.category.IRecipeCategory;
+import com.logistics.core.lib.resource.ResourceId;
 import mezz.jei.api.recipe.types.IRecipeType;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 
 /**
@@ -25,8 +25,8 @@ public class MaceratorRecipeCategory implements IRecipeCategory<MaceratorRecipeW
         IRecipeType.create(LogisticsMod.MOD_ID, "macerator", MaceratorRecipeWrapper.class);
 
     // Matches MaceratorScreen.TEXTURE
-    private static final Identifier TEXTURE =
-        LogisticsMod.modId("textures/gui/core/macerator.png").toIdentifier();
+    private static final ResourceId TEXTURE =
+        LogisticsMod.modId("textures/gui/core/macerator.png");
 
     // GUI slot positions: input at (56,35), output at (116,35).
     // Background region origin: UV (48,27). Relative positions:
@@ -44,7 +44,7 @@ public class MaceratorRecipeCategory implements IRecipeCategory<MaceratorRecipeW
     public MaceratorRecipeCategory(IGuiHelper guiHelper) {
         this.icon = guiHelper.createDrawableItemStack(
             new ItemStack(LogisticsCore.BLOCK.MACERATOR));
-        this.arrow = guiHelper.createDrawable(TEXTURE, 180, 36, 25, 14);
+        this.arrow = guiHelper.createDrawable(TEXTURE.toIdentifier(), 180, 36, 25, 14);
     }
 
     @Override

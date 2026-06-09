@@ -106,15 +106,15 @@ public class LogisticsMod {
     }
 
     protected void registerItemAlias(String name, Item item) {
-        PlatformService.INSTANCE.registerAlias(BuiltInRegistries.ITEM, modId(name).toIdentifier(), item);
+        PlatformService.INSTANCE.registerAlias(BuiltInRegistries.ITEM, modId(name), item);
     }
 
     protected void registerBlockAlias(String name, Block block) {
-        PlatformService.INSTANCE.registerAlias(BuiltInRegistries.BLOCK, modId(name).toIdentifier(), block);
+        PlatformService.INSTANCE.registerAlias(BuiltInRegistries.BLOCK, modId(name), block);
     }
 
     protected void registerBlockEntityAlias(String name, BlockEntityType<?> blockEntityType) {
         PlatformService.INSTANCE.registerAlias(
-                BuiltInRegistries.BLOCK_ENTITY_TYPE, modId(name).toIdentifier(), blockEntityType);
+                BuiltInRegistries.BLOCK_ENTITY_TYPE, modId(name), blockEntityType);
     }
 }

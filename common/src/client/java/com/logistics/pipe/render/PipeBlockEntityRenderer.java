@@ -6,6 +6,7 @@ import com.logistics.core.lib.block.capability.PipeConnection;
 import com.logistics.core.lib.client.render.VanillaQuadBaker;
 import com.logistics.core.lib.pipe.CoreDecoration;
 import com.logistics.core.lib.resource.ResourceId;
+import com.logistics.LogisticsMod;
 import com.logistics.pipe.Pipe;
 import com.logistics.core.lib.pipe.PipeContext;
 import com.logistics.pipe.block.PipeBlock;
@@ -31,7 +32,6 @@ import net.minecraft.client.renderer.state.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.data.AtlasIds;
-import net.minecraft.resources.Identifier;
 import net.minecraft.util.RandomSource;
 
 import java.util.ArrayList;
@@ -98,7 +98,7 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
     private TextureAtlasSprite sprite(String textureBase) {
         return spriteCache.computeIfAbsent(textureBase, b -> Minecraft.getInstance().getAtlasManager()
                 .getAtlasOrThrow(AtlasIds.BLOCKS)
-                .getSprite(Identifier.fromNamespaceAndPath("logistics", "block/pipe/" + b)));
+                .getSprite(LogisticsMod.modId("block/pipe/" + b).toIdentifier()));
     }
 
     @Override
