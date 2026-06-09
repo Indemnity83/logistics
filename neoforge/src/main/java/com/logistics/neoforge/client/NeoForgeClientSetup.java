@@ -41,12 +41,10 @@ public final class NeoForgeClientSetup {
 
     public static void register(IEventBus modBus) {
         NeoForgePacketRegistration.registerSyncRequesterInventoryHandler(NeoForgeClientSetup::handleSyncRequesterInventory);
-        NeoForgeModelLoader.registerPowerModels();
         modBus.addListener(NeoForgeClientSetup::onClientSetup);
         modBus.addListener(NeoForgeClientSetup::registerScreens);
         modBus.addListener(NeoForgeClientSetup::registerRenderers);
         modBus.addListener(NeoForgeClientSetup::registerBlockColors);
-        modBus.addListener(NeoForgeModelLoader::registerAdditionalModels);
         modBus.addListener(NeoForgeModelLoader::registerGeometryLoaders);
     }
 
