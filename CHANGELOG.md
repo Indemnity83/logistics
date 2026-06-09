@@ -1,5 +1,25 @@
 # Changelog
 
+## [0.7.0](https://github.com/Indemnity83/logistics/compare/mc26.1-v0.6.3...mc26.1-v0.7.0) (2026-06-09)
+
+
+### ⚠ BREAKING CHANGES
+
+* **energy:** logistics pipe operations consume power ([#465](https://github.com/Indemnity83/logistics/issues/465))
+* **energy:** Logistics pipes now require power from an adjacent Battery. Existing networks stop routing/supplying/crafting — and drop items already in transit — until a charged Battery is connected.
+
+### Added
+
+* **energy:** add a Battery block to power logistics networks ([aff4ba6](https://github.com/Indemnity83/logistics/commit/aff4ba65fad56cfc5c966d268bc5e0f050468ad8))
+* **energy:** logistics pipe operations consume power ([#465](https://github.com/Indemnity83/logistics/issues/465)) ([aff4ba6](https://github.com/Indemnity83/logistics/commit/aff4ba65fad56cfc5c966d268bc5e0f050468ad8))
+* **ui:** color logistics pipes green when powered, red when not ([#469](https://github.com/Indemnity83/logistics/issues/469)) ([b9162d3](https://github.com/Indemnity83/logistics/commit/b9162d35f98f85d5a6e78c5d6a302bc7a663a7d1))
+
+
+### Fixed
+
+* **automation:** stop the macerator from trying to load other mods' recipes ([#473](https://github.com/Indemnity83/logistics/issues/473)) ([df69b72](https://github.com/Indemnity83/logistics/commit/df69b72163012a7077fa7dbb1759e38a99d95fa3))
+* **energy:** make engines visibly change color with heat stage ([#482](https://github.com/Indemnity83/logistics/issues/482)) ([d3c2463](https://github.com/Indemnity83/logistics/commit/d3c24631ae7e5931181882107658ed8ed689fc7a))
+
 ## [0.6.3](https://github.com/Indemnity83/logistics/compare/mc26.1-v0.6.2...mc26.1-v0.6.3) (2026-06-05)
 
 
