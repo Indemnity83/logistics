@@ -22,7 +22,9 @@ public final class LogisticsAutomationClient implements ClientDomainBootstrap {
         LOGGER.info("Registering automation (client)");
         BlockEntityRendererRegistry.register(
                 LogisticsAutomation.ENTITY.MARKER_BLOCK_ENTITY, MarkerBlockEntityRenderer::new);
-        // Register quarry frame for cutout rendering (transparency support)
+        // Markers and the quarry frame use transparent torch-style textures and need the cutout layer;
+        // without it the inactive marker's transparent pixels render as a black cross.
+        BlockRenderLayerMap.INSTANCE.putBlock(LogisticsAutomation.BLOCK.MARKER, RenderType.cutout());
         BlockRenderLayerMap.INSTANCE.putBlock(LogisticsAutomation.BLOCK.LASER_QUARRY_FRAME, RenderType.cutout());
 
         BlockEntityRendererRegistry.register(
