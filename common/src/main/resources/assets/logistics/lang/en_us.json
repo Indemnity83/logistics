@@ -206,6 +206,16 @@
   "message.logistics.power.creative_sink.drain_rate": "Creative Sink: %s RF/t",
   "message.logistics.power.creative_engine.output": "Creative Engine: %s RF/t",
 
+  "jade.logistics.common.yes": "Yes",
+  "jade.logistics.common.no": "No",
+  "jade.logistics.common.none": "None",
+  "jade.logistics.engine.stage": "Stage",
+  "jade.logistics.engine.temperature": "Temperature",
+  "jade.logistics.engine.output": "Output",
+  "jade.logistics.engine.running": "Running",
+  "jade.logistics.engine.fuel": "Fuel",
+  "jade.logistics.engine.overheated": "Overheated!",
+
   "tag.item.c.ingots.tin": "Tin Ingots",
   "tag.item.c.ingots.bronze": "Bronze Ingots",
   "tag.item.c.nuggets.tin": "Tin Nuggets",
