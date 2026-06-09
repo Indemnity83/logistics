@@ -20,10 +20,10 @@ import com.logistics.pipe.screen.SinkScreen;
 import com.logistics.pipe.screen.SupplierScreen;
 import com.logistics.automation.render.LaserQuarryBlockEntityRenderer;
 import com.logistics.automation.render.MarkerBlockEntityRenderer;
-import com.logistics.core.lib.power.AbstractEngineBlockEntity;
 import com.logistics.pipe.network.packet.SyncRequesterInventoryPacket;
 import com.logistics.pipe.render.PipeBlockEntityRenderer;
 import com.logistics.power.render.CableBlockEntityRenderer;
+import com.logistics.power.render.EngineHeatTintSource;
 import com.logistics.power.screen.StirlingEngineScreen;
 import com.logistics.neoforge.client.render.NeoForgeEngineBlockEntityRenderer;
 import java.util.List;
@@ -101,13 +101,7 @@ public final class NeoForgeClientSetup {
 
     private static void registerBlockColors(RegisterColorHandlersEvent.BlockTintSources event) {
         event.register(
-                List.of(state -> switch (state.getValue(AbstractEngineBlockEntity.STAGE)) {
-                    case COLD -> 0xFF3366CC;
-                    case COOL -> 0xFF33CC33;
-                    case WARM -> 0xFFCCCC33;
-                    case HOT -> 0xFFCC3333;
-                    case OVERHEAT -> 0xFF191919;
-                }),
+                List.of(EngineHeatTintSource.INSTANCE),
                 LogisticsPower.BLOCK.REDSTONE_ENGINE,
                 LogisticsPower.BLOCK.STIRLING_ENGINE,
                 LogisticsPower.BLOCK.CREATIVE_ENGINE);
