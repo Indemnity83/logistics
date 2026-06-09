@@ -32,6 +32,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
 import net.minecraft.util.RandomSource;
 import org.jetbrains.annotations.Nullable;
 
@@ -321,6 +322,17 @@ public class Pipe {
      */
     public List<Module> getModules(PipeBlockEntity entity) {
         return modules;
+    }
+
+    /**
+     * Appends this pipe's module status to a look-at HUD (Jade). Each module contributes its own lines
+     * (a short summary always, fuller detail when {@code showDetails} is set). {@link ChassisPipe}
+     * overrides this to scope each dynamic module to its own state and to list installed modules.
+     */
+    public void appendHud(PipeContext ctx, List<Component> lines, boolean showDetails) {
+        for (Module module : getStaticModules()) {
+            module.appendHud(ctx, lines, showDetails);
+        }
     }
 
     /**

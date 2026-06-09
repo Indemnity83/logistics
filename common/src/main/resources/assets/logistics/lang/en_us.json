@@ -228,6 +228,8 @@
   "jade.logistics.machine.progress": "Progress",
   "jade.logistics.pipe.items": "Items",
   "jade.logistics.pipe.more": "+%s more",
+  "jade.logistics.pipe.filter": "Filter",
+  "jade.logistics.pipe.filter.count": "%s items",
 
   "tag.item.c.ingots.tin": "Tin Ingots",
   "tag.item.c.ingots.bronze": "Bronze Ingots",

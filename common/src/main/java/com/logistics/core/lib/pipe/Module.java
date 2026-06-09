@@ -9,6 +9,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponentGetter;
 import net.minecraft.core.component.DataComponentMap;
+import net.minecraft.network.chat.Component;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -26,6 +27,17 @@ public interface Module {
      */
     @Deprecated
     default void onTick(PipeContext ctx) {}
+
+    /**
+     * Contributes this module's status to a look-at HUD (Jade). Reads the module's own synced state via
+     * {@code ctx} and appends display lines. Convention: a short summary line always; fuller detail only
+     * when {@code showDetails} is set (the player is holding Jade's details key). Default: nothing.
+     *
+     * @param ctx the pipe context, already scoped to this module's state key
+     * @param lines the tooltip lines to append to
+     * @param showDetails whether the player is requesting detailed info
+     */
+    default void appendHud(PipeContext ctx, List<Component> lines, boolean showDetails) {}
 
     default float getAcceleration(PipeContext ctx) {
         return 0f;
