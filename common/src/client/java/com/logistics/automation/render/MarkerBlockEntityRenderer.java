@@ -1,33 +1,27 @@
 package com.logistics.automation.render;
 
-import com.logistics.LogisticsAutomationClientModels;
 import com.logistics.automation.marker.MarkerBlockEntity;
 import com.logistics.automation.marker.MarkerManager;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
-import com.logistics.core.lib.client.model.ClientModelRegistry;
+import com.logistics.core.lib.client.render.CodeModelRenderer;
+import com.logistics.core.lib.client.render.MachineModels;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.block.ModelBlockRenderer;
+import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
-import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
-import net.minecraft.util.RandomSource;
 
 import java.util.List;
 
 /**
  * Renders laser beams for active markers in MC 1.21.1.
- * Uses baked model segments for quad-based beams with proper thickness.
+ * Uses code-generated model segments for quad-based beams with proper thickness.
  */
 public class MarkerBlockEntityRenderer implements BlockEntityRenderer<MarkerBlockEntity> {
-    private final ModelBlockRenderer modelRenderer;
-
-    public MarkerBlockEntityRenderer(BlockEntityRendererProvider.Context ctx) {
-        this.modelRenderer = ctx.getBlockRenderDispatcher().getModelRenderer();
-    }
+    public MarkerBlockEntityRenderer(BlockEntityRendererProvider.Context ctx) {}
 
     @Override
     public void render(
@@ -41,8 +35,8 @@ public class MarkerBlockEntityRenderer implements BlockEntityRenderer<MarkerBloc
             return;
         }
 
-        BakedModel beamModel = getBeamModel();
-        if (beamModel == null) {
+        List<BakedQuad> beamModel = MachineModels.quads("marker_beam");
+        if (beamModel.isEmpty()) {
             return;
         }
 
@@ -50,24 +44,24 @@ public class MarkerBlockEntityRenderer implements BlockEntityRenderer<MarkerBloc
         VertexConsumer buffer = bufferSource.getBuffer(RenderType.cutout());
 
         if (beams.north > 0) {
-            renderBeamInDirection(entity, beamModel, poseStack, buffer, packedOverlay, 180, beams.north);
+            renderBeamInDirection(beamModel, poseStack, buffer, packedLight, packedOverlay, 180, beams.north);
         }
         if (beams.south > 0) {
-            renderBeamInDirection(entity, beamModel, poseStack, buffer, packedOverlay, 0, beams.south);
+            renderBeamInDirection(beamModel, poseStack, buffer, packedLight, packedOverlay, 0, beams.south);
         }
         if (beams.east > 0) {
-            renderBeamInDirection(entity, beamModel, poseStack, buffer, packedOverlay, 90, beams.east);
+            renderBeamInDirection(beamModel, poseStack, buffer, packedLight, packedOverlay, 90, beams.east);
         }
         if (beams.west > 0) {
-            renderBeamInDirection(entity, beamModel, poseStack, buffer, packedOverlay, -90, beams.west);
+            renderBeamInDirection(beamModel, poseStack, buffer, packedLight, packedOverlay, -90, beams.west);
         }
     }
 
     private void renderBeamInDirection(
-            MarkerBlockEntity entity,
-            BakedModel beamModel,
+            List<BakedQuad> beamModel,
             PoseStack poseStack,
             VertexConsumer buffer,
+            int packedLight,
             int packedOverlay,
             float yRotation,
             int length) {
@@ -86,24 +80,10 @@ public class MarkerBlockEntityRenderer implements BlockEntityRenderer<MarkerBloc
             // Shift back to align model center with block center
             poseStack.translate(-0.5, 0.0, 0.0);
 
-            modelRenderer.tesselateWithoutAO(
-                    entity.getLevel(),
-                    beamModel,
-                    entity.getBlockState(),
-                    entity.getBlockPos(),
-                    poseStack,
-                    buffer,
-                    false,
-                    RandomSource.create(),
-                    42L,
-                    packedOverlay);
+            CodeModelRenderer.draw(beamModel, poseStack, buffer, packedLight, packedOverlay);
 
             poseStack.popPose();
         }
-    }
-
-    private BakedModel getBeamModel() {
-        return ClientModelRegistry.get(LogisticsAutomationClientModels.BEAM);
     }
 
     private BeamLengths calculateBeamLengths(MarkerBlockEntity entity) {

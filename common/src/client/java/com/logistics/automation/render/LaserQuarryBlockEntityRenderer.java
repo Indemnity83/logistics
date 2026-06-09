@@ -1,6 +1,5 @@
 package com.logistics.automation.render;
 
-import com.logistics.LogisticsAutomationClientModels;
 import com.logistics.core.LogisticsConfig;
 import com.logistics.automation.laserquarry.LaserQuarryBlock;
 import com.logistics.automation.laserquarry.LaserQuarryGeometry;
@@ -9,21 +8,21 @@ import com.logistics.pipe.block.PipeBlock;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
-import com.logistics.core.lib.client.model.ClientModelRegistry;
+import com.logistics.core.lib.client.render.CodeModelRenderer;
+import com.logistics.core.lib.client.render.MachineModels;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
-import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.block.state.BlockState;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -79,10 +78,6 @@ public class LaserQuarryBlockEntityRenderer implements BlockEntityRenderer<Laser
     }
 
     public LaserQuarryBlockEntityRenderer(BlockEntityRendererProvider.Context ctx) {}
-
-    private BakedModel getModel(ClientModelRegistry.ModelKey key) {
-        return ClientModelRegistry.get(key);
-    }
 
     @Override
     public void render(
@@ -167,8 +162,8 @@ public class LaserQuarryBlockEntityRenderer implements BlockEntityRenderer<Laser
             return;
         }
 
-        BakedModel armModel = getModel(LogisticsAutomationClientModels.ARM);
-        if (armModel == null) {
+        List<BakedQuad> armModel = MachineModels.quads("laser_quarry_gantry_arm");
+        if (armModel.isEmpty()) {
             return;
         }
 
@@ -243,8 +238,8 @@ public class LaserQuarryBlockEntityRenderer implements BlockEntityRenderer<Laser
         }
 
         // Render drill head at the bottom of the vertical beam
-        BakedModel drillModel = getModel(LogisticsAutomationClientModels.DRILL);
-        if (drillModel != null) {
+        List<BakedQuad> drillModel = MachineModels.quads("laser_quarry_drill");
+        if (!drillModel.isEmpty()) {
             matrices.pushPose();
             matrices.translate(relArmX - 0.5, relArmY, relArmZ - 0.5);
             renderModel(entity, drillModel, matrices, bufferSource, light, packedOverlay);
@@ -309,7 +304,7 @@ public class LaserQuarryBlockEntityRenderer implements BlockEntityRenderer<Laser
     private void renderHorizontalBeam(
             PoseStack matrices,
             MultiBufferSource bufferSource,
-            BakedModel model,
+            List<BakedQuad> model,
             int lightmap,
             int overlay,
             float startX,
@@ -341,7 +336,7 @@ public class LaserQuarryBlockEntityRenderer implements BlockEntityRenderer<Laser
     private void renderVerticalBeam(
             PoseStack matrices,
             MultiBufferSource bufferSource,
-            BakedModel model,
+            List<BakedQuad> model,
             int lightmap,
             int overlay,
             float x,
@@ -405,8 +400,8 @@ public class LaserQuarryBlockEntityRenderer implements BlockEntityRenderer<Laser
 
         // Green LED - instant on, gradual fade off over 12 ticks
         if (greenLedBrightness > 0) {
-            BakedModel greenLed = getModel(LogisticsAutomationClientModels.LED_GREEN);
-            if (greenLed != null) {
+            List<BakedQuad> greenLed = MachineModels.quads("laser_quarry_led_green");
+            if (!greenLed.isEmpty()) {
                 matrices.pushPose();
                 matrices.translate(0.5, 0.5, 0.5);
                 matrices.mulPose(Axis.YP.rotationDegrees(rotation));
@@ -420,8 +415,8 @@ public class LaserQuarryBlockEntityRenderer implements BlockEntityRenderer<Laser
 
         // Red LED - brightness proportional to energy level (0-15)
         if (energyLevel > 0) {
-            BakedModel redLed = getModel(LogisticsAutomationClientModels.LED_RED);
-            if (redLed != null) {
+            List<BakedQuad> redLed = MachineModels.quads("laser_quarry_led_red");
+            if (!redLed.isEmpty()) {
                 matrices.pushPose();
                 matrices.translate(0.5, 0.5, 0.5);
                 matrices.mulPose(Axis.YP.rotationDegrees(rotation));
@@ -436,8 +431,8 @@ public class LaserQuarryBlockEntityRenderer implements BlockEntityRenderer<Laser
         // Display overlay - scrolling data screen (animated via .mcmeta)
         // Follows green LED: on when working, fades out when stopped
         if (greenLedBrightness > 0) {
-            BakedModel display = getModel(LogisticsAutomationClientModels.DISPLAY);
-            if (display != null) {
+            List<BakedQuad> display = MachineModels.quads("laser_quarry_display");
+            if (!display.isEmpty()) {
                 matrices.pushPose();
                 matrices.translate(0.5, 0.5, 0.5);
                 matrices.mulPose(Axis.YP.rotationDegrees(rotation));
@@ -508,8 +503,8 @@ public class LaserQuarryBlockEntityRenderer implements BlockEntityRenderer<Laser
             return;
         }
 
-        BakedModel hatch = getModel(LogisticsAutomationClientModels.TOP_HATCH);
-        if (hatch == null) {
+        List<BakedQuad> hatch = MachineModels.quads("laser_quarry_top_hatch");
+        if (hatch.isEmpty()) {
             return;
         }
 
@@ -531,8 +526,8 @@ public class LaserQuarryBlockEntityRenderer implements BlockEntityRenderer<Laser
             PoseStack matrices,
             MultiBufferSource bufferSource,
             int packedOverlay) {
-        BakedModel beamModel = getModel(LogisticsAutomationClientModels.CONSTRUCTION_BEAM);
-        if (beamModel == null) {
+        List<BakedQuad> beamModel = MachineModels.quads("construction_beam");
+        if (beamModel.isEmpty()) {
             return;
         }
 
@@ -572,7 +567,7 @@ public class LaserQuarryBlockEntityRenderer implements BlockEntityRenderer<Laser
 
     private void renderOutlineHorizontalEdge(
             LaserQuarryBlockEntity entity,
-            BakedModel beamModel,
+            List<BakedQuad> beamModel,
             PoseStack matrices,
             MultiBufferSource bufferSource,
             int lightmap,
@@ -595,7 +590,7 @@ public class LaserQuarryBlockEntityRenderer implements BlockEntityRenderer<Laser
 
     private void renderOutlineVerticalEdge(
             LaserQuarryBlockEntity entity,
-            BakedModel beamModel,
+            List<BakedQuad> beamModel,
             PoseStack matrices,
             MultiBufferSource bufferSource,
             int lightmap,
@@ -621,59 +616,33 @@ public class LaserQuarryBlockEntityRenderer implements BlockEntityRenderer<Laser
     }
 
     /**
-     * Renders a baked model at the current transformation using cutout render type.
+     * Renders code-generated quads at the current transformation using cutout render type.
      */
     private void renderModel(
             LaserQuarryBlockEntity entity,
-            BakedModel model,
+            List<BakedQuad> model,
             PoseStack poseStack,
             MultiBufferSource bufferSource,
             int packedLight,
             int packedOverlay) {
 
         VertexConsumer buffer = bufferSource.getBuffer(RenderType.cutout());
-        RandomSource random = RandomSource.create(42L);
-        BlockState state = entity.getBlockState();
-
-        for (BakedQuad quad : model.getQuads(state, null, random)) {
-            float shade = entity.getLevel().getShade(quad.getDirection(), quad.isShade());
-            buffer.putBulkData(poseStack.last(), quad, shade, shade, shade, 1.0f, packedLight, packedOverlay);
-        }
-        for (Direction face : Direction.values()) {
-            random.setSeed(42L);
-            for (BakedQuad quad : model.getQuads(state, face, random)) {
-                float shade = entity.getLevel().getShade(quad.getDirection(), quad.isShade());
-                buffer.putBulkData(poseStack.last(), quad, shade, shade, shade, 1.0f, packedLight, packedOverlay);
-            }
-        }
+        CodeModelRenderer.draw(model, poseStack, buffer, packedLight, packedOverlay);
     }
 
     /**
-     * Renders a baked model at the current transformation using translucent render type.
+     * Renders code-generated quads at the current transformation using translucent render type.
      */
     private void renderModelTranslucent(
             LaserQuarryBlockEntity entity,
-            BakedModel model,
+            List<BakedQuad> model,
             PoseStack poseStack,
             MultiBufferSource bufferSource,
             int packedLight,
             int packedOverlay) {
 
         VertexConsumer buffer = bufferSource.getBuffer(RenderType.translucent());
-        RandomSource random = RandomSource.create(42L);
-        BlockState state = entity.getBlockState();
-
-        for (BakedQuad quad : model.getQuads(state, null, random)) {
-            float shade = entity.getLevel().getShade(quad.getDirection(), quad.isShade());
-            buffer.putBulkData(poseStack.last(), quad, shade, shade, shade, 1.0f, packedLight, packedOverlay);
-        }
-        for (Direction face : Direction.values()) {
-            random.setSeed(42L);
-            for (BakedQuad quad : model.getQuads(state, face, random)) {
-                float shade = entity.getLevel().getShade(quad.getDirection(), quad.isShade());
-                buffer.putBulkData(poseStack.last(), quad, shade, shade, shade, 1.0f, packedLight, packedOverlay);
-            }
-        }
+        CodeModelRenderer.draw(model, poseStack, buffer, packedLight, packedOverlay);
     }
 
     @Override

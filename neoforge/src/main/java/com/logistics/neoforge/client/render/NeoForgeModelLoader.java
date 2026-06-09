@@ -1,7 +1,5 @@
 package com.logistics.neoforge.client.render;
 
-import com.logistics.LogisticsAutomationClientModels;
-import com.logistics.LogisticsPower;
 import com.logistics.core.lib.client.model.ClientModelRegistry;
 import com.logistics.core.lib.resource.ResourceId;
 import java.util.IdentityHashMap;
@@ -30,15 +28,6 @@ public final class NeoForgeModelLoader {
      * models to load and to register the {@link ClientModelRegistry} provider.
      */
     public static void registerPowerModels() {
-        ClientModelRegistry.register(LogisticsPower.model("redstone_engine_bellow"));
-        ClientModelRegistry.register(LogisticsPower.model("redstone_engine_piston"));
-        ClientModelRegistry.register(LogisticsPower.model("stirling_engine_bellow"));
-        ClientModelRegistry.register(LogisticsPower.model("stirling_engine_piston"));
-        ClientModelRegistry.register(LogisticsPower.model("creative_engine_bellow"));
-        ClientModelRegistry.register(LogisticsPower.model("creative_engine_piston"));
-
-        LogisticsAutomationClientModels.init();
-
         for (var entry : ClientModelRegistry.all().entrySet()) {
             register(entry.getValue(), entry.getKey());
         }

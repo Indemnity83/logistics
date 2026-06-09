@@ -1,29 +1,27 @@
 package com.logistics.power.render;
 
-import com.logistics.LogisticsPowerClient;
-import com.logistics.core.lib.client.model.ClientModelRegistry;
+import com.logistics.core.lib.client.render.CodeModelRenderer;
+import com.logistics.core.lib.client.render.MachineModels;
 import com.logistics.core.lib.power.AbstractEngineBlockEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
+import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
-import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.RandomSource;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 
 /**
  * Renders engine block entities with animated pistons and bellows.
- * Uses baked models with transformations for smooth animations.
+ * Uses code-generated quads with transformations for smooth animations.
  * Uses client-side animation cache for smooth piston movement independent of server updates.
  */
 public class EngineBlockEntityRenderer implements BlockEntityRenderer<AbstractEngineBlockEntity> {
@@ -67,11 +65,11 @@ public class EngineBlockEntityRenderer implements BlockEntityRenderer<AbstractEn
 
         Direction facing = entity.getBlockState().getValue(BlockStateProperties.FACING);
 
-        // Get baked models
-        BakedModel pistonModel = getModel(getPistonKey(entity));
-        BakedModel bellowModel = getModel(getBellowKey(entity));
+        // Get code-generated quads
+        List<BakedQuad> pistonModel = MachineModels.quads(getPistonKey(entity));
+        List<BakedQuad> bellowModel = MachineModels.quads(getBellowKey(entity));
 
-        if (pistonModel == null || bellowModel == null) {
+        if (pistonModel.isEmpty() || bellowModel.isEmpty()) {
             return; // Models not loaded yet
         }
 
@@ -104,23 +102,23 @@ public class EngineBlockEntityRenderer implements BlockEntityRenderer<AbstractEn
         poseStack.popPose();
     }
 
-    private ClientModelRegistry.ModelKey getBellowKey(AbstractEngineBlockEntity entity) {
+    private String getBellowKey(AbstractEngineBlockEntity entity) {
         String engineName = getEngineName(entity);
         return switch (engineName) {
-            case "redstone_engine" -> LogisticsPowerClient.MODEL.REDSTONE_BELLOW;
-            case "stirling_engine" -> LogisticsPowerClient.MODEL.STIRLING_BELLOW;
-            case "creative_engine" -> LogisticsPowerClient.MODEL.CREATIVE_BELLOW;
-            default -> LogisticsPowerClient.MODEL.REDSTONE_BELLOW;
+            case "redstone_engine" -> "redstone_engine_bellow";
+            case "stirling_engine" -> "stirling_engine_bellow";
+            case "creative_engine" -> "creative_engine_bellow";
+            default -> "redstone_engine_bellow";
         };
     }
 
-    private ClientModelRegistry.ModelKey getPistonKey(AbstractEngineBlockEntity entity) {
+    private String getPistonKey(AbstractEngineBlockEntity entity) {
         String engineName = getEngineName(entity);
         return switch (engineName) {
-            case "redstone_engine" -> LogisticsPowerClient.MODEL.REDSTONE_PISTON;
-            case "stirling_engine" -> LogisticsPowerClient.MODEL.STIRLING_PISTON;
-            case "creative_engine" -> LogisticsPowerClient.MODEL.CREATIVE_PISTON;
-            default -> LogisticsPowerClient.MODEL.REDSTONE_PISTON;
+            case "redstone_engine" -> "redstone_engine_piston";
+            case "stirling_engine" -> "stirling_engine_piston";
+            case "creative_engine" -> "creative_engine_piston";
+            default -> "redstone_engine_piston";
         };
     }
 
@@ -179,14 +177,7 @@ public class EngineBlockEntityRenderer implements BlockEntityRenderer<AbstractEn
     }
 
     /**
-     * Gets a baked model by model key.
-     */
-    private BakedModel getModel(ClientModelRegistry.ModelKey key) {
-        return ClientModelRegistry.get(key);
-    }
-
-    /**
-     * Renders a baked model at the current transformation.
+     * Renders code-generated quads at the current transformation.
      *
      * Uses direct quad rendering with the BER-provided packedLight rather than
      * tesselateWithoutAO, which samples light from adjacent blocks in the baked
@@ -195,27 +186,14 @@ public class EngineBlockEntityRenderer implements BlockEntityRenderer<AbstractEn
      */
     private void renderModel(
             AbstractEngineBlockEntity entity,
-            BakedModel model,
+            List<BakedQuad> model,
             PoseStack poseStack,
             MultiBufferSource bufferSource,
             int packedLight,
             int packedOverlay) {
 
         VertexConsumer buffer = bufferSource.getBuffer(RenderType.cutout());
-        RandomSource random = RandomSource.create(42L);
-        BlockState state = entity.getBlockState();
-
-        for (BakedQuad quad : model.getQuads(state, null, random)) {
-            float shade = entity.getLevel().getShade(quad.getDirection(), quad.isShade());
-            buffer.putBulkData(poseStack.last(), quad, shade, shade, shade, 1.0f, packedLight, packedOverlay);
-        }
-        for (Direction face : Direction.values()) {
-            random.setSeed(42L);
-            for (BakedQuad quad : model.getQuads(state, face, random)) {
-                float shade = entity.getLevel().getShade(quad.getDirection(), quad.isShade());
-                buffer.putBulkData(poseStack.last(), quad, shade, shade, shade, 1.0f, packedLight, packedOverlay);
-            }
-        }
+        CodeModelRenderer.draw(model, poseStack, buffer, packedLight, packedOverlay);
     }
 
     /**

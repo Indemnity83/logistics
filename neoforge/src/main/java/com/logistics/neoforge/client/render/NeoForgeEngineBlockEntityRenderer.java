@@ -1,7 +1,7 @@
 package com.logistics.neoforge.client.render;
 
-import com.logistics.LogisticsPower;
-import com.logistics.core.lib.client.model.ClientModelRegistry;
+import com.logistics.core.lib.client.render.CodeModelRenderer;
+import com.logistics.core.lib.client.render.MachineModels;
 import com.logistics.core.lib.power.AbstractEngineBlockEntity;
 import com.logistics.power.engine.block.entity.CreativeEngineBlockEntity;
 import com.logistics.power.engine.block.entity.RedstoneEngineBlockEntity;
@@ -9,37 +9,23 @@ import com.logistics.power.engine.block.entity.StirlingEngineBlockEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
-import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.neoforged.neoforge.client.model.data.ModelData;
 
 public class NeoForgeEngineBlockEntityRenderer
         implements BlockEntityRenderer<AbstractEngineBlockEntity> {
     private static final java.util.Map<BlockPos, AnimationCache> ANIMATION_CACHE =
             new ConcurrentHashMap<>();
     private static final float DEFAULT_PISTON_SPEED = 0.02f;
-
-    private static final ClientModelRegistry.ModelKey REDSTONE_BELLOW =
-            ClientModelRegistry.find(LogisticsPower.model("redstone_engine_bellow"));
-    private static final ClientModelRegistry.ModelKey REDSTONE_PISTON =
-            ClientModelRegistry.find(LogisticsPower.model("redstone_engine_piston"));
-    private static final ClientModelRegistry.ModelKey STIRLING_BELLOW =
-            ClientModelRegistry.find(LogisticsPower.model("stirling_engine_bellow"));
-    private static final ClientModelRegistry.ModelKey STIRLING_PISTON =
-            ClientModelRegistry.find(LogisticsPower.model("stirling_engine_piston"));
-    private static final ClientModelRegistry.ModelKey CREATIVE_BELLOW =
-            ClientModelRegistry.find(LogisticsPower.model("creative_engine_bellow"));
-    private static final ClientModelRegistry.ModelKey CREATIVE_PISTON =
-            ClientModelRegistry.find(LogisticsPower.model("creative_engine_piston"));
 
     private static final class AnimationCache {
         float progress = 0f;
@@ -84,16 +70,15 @@ public class NeoForgeEngineBlockEntityRenderer
         updateAnimationCache(cache, pistonSpeed, isRunning);
         float pistonOffset = computePistonOffset(cache.progress);
 
-        BakedModel pistonModel = ClientModelRegistry.get(getPistonKey(type));
-        BakedModel bellowModel = ClientModelRegistry.get(getBellowKey(type));
+        List<BakedQuad> pistonModel = MachineModels.quads(getPistonKey(type));
+        List<BakedQuad> bellowModel = MachineModels.quads(getBellowKey(type));
 
-        if (pistonModel == null || bellowModel == null) {
+        if (pistonModel.isEmpty() || bellowModel.isEmpty()) {
             return;
         }
 
         RenderType renderLayer = RenderType.cutout();
         VertexConsumer consumer = bufferSource.getBuffer(renderLayer);
-        RandomSource random = RandomSource.create(0);
 
         matrices.pushPose();
         applyFacingRotation(matrices, facing);
@@ -103,17 +88,13 @@ public class NeoForgeEngineBlockEntityRenderer
         matrices.translate(0, 4 / 16f, 0);
         float bellowScale = Math.max(pistonOffset / 0.5f, 0.01f);
         matrices.scale(1.0f, bellowScale, 1.0f);
-        Minecraft.getInstance().getBlockRenderer().getModelRenderer().renderModel(
-                matrices.last(), consumer, entity.getBlockState(), bellowModel,
-                1.0f, 1.0f, 1.0f, light, overlay, ModelData.EMPTY, renderLayer);
+        CodeModelRenderer.draw(bellowModel, matrices, consumer, light, overlay);
         matrices.popPose();
 
         // Render piston (translates vertically)
         matrices.pushPose();
         matrices.translate(0, 4 / 16f + pistonOffset, 0);
-        Minecraft.getInstance().getBlockRenderer().getModelRenderer().renderModel(
-                matrices.last(), consumer, entity.getBlockState(), pistonModel,
-                1.0f, 1.0f, 1.0f, light, overlay, ModelData.EMPTY, renderLayer);
+        CodeModelRenderer.draw(pistonModel, matrices, consumer, light, overlay);
         matrices.popPose();
 
         matrices.popPose();
@@ -123,19 +104,19 @@ public class NeoForgeEngineBlockEntityRenderer
         REDSTONE, STIRLING, CREATIVE
     }
 
-    private ClientModelRegistry.ModelKey getBellowKey(EngineType type) {
+    private String getBellowKey(EngineType type) {
         return switch (type) {
-            case REDSTONE -> REDSTONE_BELLOW;
-            case STIRLING -> STIRLING_BELLOW;
-            case CREATIVE -> CREATIVE_BELLOW;
+            case REDSTONE -> "redstone_engine_bellow";
+            case STIRLING -> "stirling_engine_bellow";
+            case CREATIVE -> "creative_engine_bellow";
         };
     }
 
-    private ClientModelRegistry.ModelKey getPistonKey(EngineType type) {
+    private String getPistonKey(EngineType type) {
         return switch (type) {
-            case REDSTONE -> REDSTONE_PISTON;
-            case STIRLING -> STIRLING_PISTON;
-            case CREATIVE -> CREATIVE_PISTON;
+            case REDSTONE -> "redstone_engine_piston";
+            case STIRLING -> "stirling_engine_piston";
+            case CREATIVE -> "creative_engine_piston";
         };
     }
 

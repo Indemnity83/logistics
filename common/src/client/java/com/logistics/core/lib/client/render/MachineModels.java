@@ -1,0 +1,159 @@
+package com.logistics.core.lib.client.render;
+
+import com.logistics.core.lib.client.render.BoxGeometry.Element;
+import com.logistics.core.lib.client.render.BoxGeometry.Face;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.texture.TextureAtlas;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
+
+/**
+ * Code-generated box geometry for the engine / laser-quarry / marker render parts that
+ * formerly loaded as standalone JSON models. Each entry is the model's texture (path under
+ * {@code block/}) plus its cuboid elements + per-face UVs, transcribed verbatim from the
+ * original model JSONs. Consumed by the block-entity renderers via {@link BoxGeometry}.
+ *
+ * <p><b>1.21.1 variant.</b> Emits classic {@code int[]} {@link BakedQuad}s (see
+ * {@link VanillaQuadBaker}) drawn directly with {@code VertexConsumer.putBulkData}, rather than
+ * the newer branches' {@code BlockStateModel}/{@code submitBlockModel} form.
+ */
+public final class MachineModels {
+    private MachineModels() {}
+
+    /** A machine model: its texture base (under {@code block/}) and code-generated elements. */
+    public record Model(String textureBase, List<Element> elements) {}
+
+    private static final Map<String, Model> MODELS = Map.ofEntries(
+        Map.entry("redstone_engine_bellow", new Model("power/redstone_engine", List.of(
+            new Element(2f, 0f, 2f, 14f, 8f, 14f, List.of(
+                    new Face(Direction.NORTH, 0.5f, 12f, 3.5f, 14f, 0),
+                    new Face(Direction.EAST, 0.5f, 12f, 3.5f, 14f, 0),
+                    new Face(Direction.SOUTH, 0.5f, 12f, 3.5f, 14f, 0),
+                    new Face(Direction.WEST, 0.5f, 12f, 3.5f, 14f, 0)))))),
+        Map.entry("redstone_engine_piston", new Model("power/redstone_engine", List.of(
+            new Element(0f, 0f, 0f, 16f, 4f, 16f, List.of(
+                    new Face(Direction.NORTH, 4f, 14f, 8f, 15f, 0),
+                    new Face(Direction.EAST, 0f, 14f, 4f, 15f, 0),
+                    new Face(Direction.SOUTH, 12f, 14f, 16f, 15f, 0),
+                    new Face(Direction.WEST, 8f, 14f, 12f, 15f, 0),
+                    new Face(Direction.UP, 8f, 14f, 4f, 10f, 0),
+                    new Face(Direction.DOWN, 12f, 10f, 8f, 14f, 0)))))),
+        Map.entry("stirling_engine_bellow", new Model("power/stirling_engine", List.of(
+            new Element(2f, 0f, 2f, 14f, 8f, 14f, List.of(
+                    new Face(Direction.NORTH, 0.5f, 12f, 3.5f, 14f, 0),
+                    new Face(Direction.EAST, 0.5f, 12f, 3.5f, 14f, 0),
+                    new Face(Direction.SOUTH, 0.5f, 12f, 3.5f, 14f, 0),
+                    new Face(Direction.WEST, 0.5f, 12f, 3.5f, 14f, 0)))))),
+        Map.entry("stirling_engine_piston", new Model("power/stirling_engine", List.of(
+            new Element(0f, 0f, 0f, 16f, 4f, 16f, List.of(
+                    new Face(Direction.NORTH, 4f, 14f, 8f, 15f, 0),
+                    new Face(Direction.EAST, 0f, 14f, 4f, 15f, 0),
+                    new Face(Direction.SOUTH, 12f, 14f, 16f, 15f, 0),
+                    new Face(Direction.WEST, 8f, 14f, 12f, 15f, 0),
+                    new Face(Direction.UP, 8f, 14f, 4f, 10f, 0),
+                    new Face(Direction.DOWN, 12f, 10f, 8f, 14f, 0)))))),
+        Map.entry("creative_engine_bellow", new Model("power/creative_engine", List.of(
+            new Element(2f, 0f, 2f, 14f, 8f, 14f, List.of(
+                    new Face(Direction.NORTH, 0.5f, 12f, 3.5f, 14f, 0),
+                    new Face(Direction.EAST, 0.5f, 12f, 3.5f, 14f, 0),
+                    new Face(Direction.SOUTH, 0.5f, 12f, 3.5f, 14f, 0),
+                    new Face(Direction.WEST, 0.5f, 12f, 3.5f, 14f, 0)))))),
+        Map.entry("creative_engine_piston", new Model("power/creative_engine", List.of(
+            new Element(0f, 0f, 0f, 16f, 4f, 16f, List.of(
+                    new Face(Direction.NORTH, 4f, 14f, 8f, 15f, 0),
+                    new Face(Direction.EAST, 0f, 14f, 4f, 15f, 0),
+                    new Face(Direction.SOUTH, 12f, 14f, 16f, 15f, 0),
+                    new Face(Direction.WEST, 8f, 14f, 12f, 15f, 0),
+                    new Face(Direction.UP, 8f, 14f, 4f, 10f, 0),
+                    new Face(Direction.DOWN, 12f, 10f, 8f, 14f, 0)))))),
+        Map.entry("marker_beam", new Model("core/marker_beam", List.of(
+            new Element(7.1f, 8.1f, 0f, 8.9f, 9.9f, 16f, List.of(
+                    new Face(Direction.NORTH, 0f, 4f, 2f, 12f, 0),
+                    new Face(Direction.EAST, 0f, 0f, 16f, 8f, 0),
+                    new Face(Direction.SOUTH, 14f, 4f, 16f, 12f, 0),
+                    new Face(Direction.WEST, 0f, 8f, 16f, 16f, 0),
+                    new Face(Direction.UP, 16f, 16f, 0f, 8f, 90),
+                    new Face(Direction.DOWN, 16f, 16f, 0f, 8f, 90)))))),
+        Map.entry("construction_beam", new Model("core/construction_beam", List.of(
+            new Element(7.1f, 8.1f, 0f, 8.9f, 9.9f, 16f, List.of(
+                    new Face(Direction.NORTH, 0f, 4f, 2f, 12f, 0),
+                    new Face(Direction.EAST, 0f, 0f, 16f, 8f, 0),
+                    new Face(Direction.SOUTH, 14f, 4f, 16f, 12f, 0),
+                    new Face(Direction.WEST, 0f, 8f, 16f, 16f, 0),
+                    new Face(Direction.UP, 16f, 16f, 0f, 8f, 90),
+                    new Face(Direction.DOWN, 16f, 16f, 0f, 8f, 90)))))),
+        Map.entry("laser_quarry_gantry_arm", new Model("automation/quary_gantry_arm", List.of(
+            new Element(5f, 5f, 0f, 11f, 11f, 16f, List.of(
+                    new Face(Direction.NORTH, 0f, 1f, 1f, 2f, 0),
+                    new Face(Direction.EAST, 0f, 0f, 16f, 6f, 0),
+                    new Face(Direction.SOUTH, 0f, 1f, 1f, 2f, 0),
+                    new Face(Direction.WEST, 0f, 0f, 16f, 6f, 0),
+                    new Face(Direction.UP, 16f, 0f, 0f, 6f, 90),
+                    new Face(Direction.DOWN, 0f, 6f, 16f, 0f, 90))),
+            new Element(5.5f, 5.5f, 0.01f, 10.5f, 10.5f, 15.99f, List.of(
+                    new Face(Direction.NORTH, 0f, 6f, 5f, 11f, 0),
+                    new Face(Direction.EAST, 0f, 6f, 16f, 11f, 0),
+                    new Face(Direction.SOUTH, 11f, 6f, 16f, 11f, 0),
+                    new Face(Direction.WEST, 0f, 6f, 16f, 11f, 0),
+                    new Face(Direction.UP, 0f, 6f, 16f, 11f, 90),
+                    new Face(Direction.DOWN, 0f, 6f, 16f, 11f, 90)))))),
+        Map.entry("laser_quarry_drill", new Model("automation/quary_drill", List.of(
+            new Element(7f, 2f, 7f, 9f, 16f, 9f, List.of(
+                    new Face(Direction.NORTH, 4f, 2f, 6f, 16f, 0),
+                    new Face(Direction.EAST, 2f, 2f, 4f, 16f, 0),
+                    new Face(Direction.SOUTH, 4f, 2f, 6f, 16f, 0),
+                    new Face(Direction.WEST, 2f, 2f, 4f, 16f, 0),
+                    new Face(Direction.UP, 2f, 2f, 4f, 4f, 0),
+                    new Face(Direction.DOWN, 14f, 5f, 16f, 7f, 0)))))),
+        Map.entry("laser_quarry_led_green", new Model("automation/laser_quarry/led_green", List.of(
+            new Element(0f, 0f, -0.01f, 16f, 16f, -0.01f, List.of(
+                    new Face(Direction.NORTH, 0f, 0f, 16f, 16f, 0)))))),
+        Map.entry("laser_quarry_led_red", new Model("automation/laser_quarry/led_red", List.of(
+            new Element(0f, 0f, -0.01f, 16f, 16f, -0.01f, List.of(
+                    new Face(Direction.NORTH, 0f, 0f, 16f, 16f, 0)))))),
+        Map.entry("laser_quarry_display", new Model("automation/laser_quarry/display", List.of(
+            new Element(2f, 0f, -0.02f, 14f, 16f, -0.02f, List.of(
+                    new Face(Direction.NORTH, 2f, 0f, 14f, 16f, 0)))))),
+        Map.entry("laser_quarry_top_hatch", new Model("automation/laser_quarry/top_hatch", List.of(
+            new Element(0f, 16.01f, 0f, 16f, 16.01f, 16f, List.of(
+                    new Face(Direction.UP, 0f, 0f, 16f, 16f, 0))))))
+    );
+
+    public static Model get(String key) {
+        return MODELS.get(key);
+    }
+
+    private static final Map<String, List<BakedQuad>> QUAD_CACHE = new HashMap<>();
+
+    /**
+     * Build (and cache) the code-generated quads for a machine model key, ready for the renderer's
+     * {@code VertexConsumer.putBulkData} loop. Geometry is static, so quads are cached by key
+     * (assumes no mid-session resource reload, matching the pipe/cable renderers). Returns an empty
+     * list for an unknown key.
+     */
+    public static List<BakedQuad> quads(String key) {
+        List<BakedQuad> cached = QUAD_CACHE.get(key);
+        if (cached != null) {
+            return cached;
+        }
+        Model model = MODELS.get(key);
+        List<BakedQuad> result;
+        if (model == null) {
+            result = List.of();
+        } else {
+            TextureAtlasSprite sprite = Minecraft.getInstance()
+                    .getTextureAtlas(TextureAtlas.LOCATION_BLOCKS)
+                    .apply(ResourceLocation.fromNamespaceAndPath("logistics", "block/" + model.textureBase()));
+            VanillaQuadBaker baker = new VanillaQuadBaker(sprite, -1, true, 0);
+            BoxGeometry.emit(baker::quad, model.elements(), sprite);
+            result = List.copyOf(baker.toQuads());
+        }
+        QUAD_CACHE.put(key, result);
+        return result;
+    }
+}
