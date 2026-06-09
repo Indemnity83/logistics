@@ -1,5 +1,27 @@
 # Changelog
 
+## [0.7.0](https://github.com/Indemnity83/logistics/compare/mc1.21.11-v0.6.3...mc1.21.11-v0.7.0) (2026-06-09)
+
+
+### ⚠ BREAKING CHANGES
+
+* **energy:** logistics pipe operations consume power ([#465](https://github.com/Indemnity83/logistics/issues/465))
+* **energy:** Logistics pipes now require power from an adjacent Battery. Existing networks stop routing/supplying/crafting — and drop items already in transit — until a charged Battery is connected.
+
+### Added
+
+* **energy:** add a Battery block to power logistics networks ([1048c01](https://github.com/Indemnity83/logistics/commit/1048c013f32008095a1d313ef1be53c97d962f0d))
+* **energy:** logistics pipe operations consume power ([#465](https://github.com/Indemnity83/logistics/issues/465)) ([1048c01](https://github.com/Indemnity83/logistics/commit/1048c013f32008095a1d313ef1be53c97d962f0d))
+* **ui:** color logistics pipes green when powered, red when not ([#469](https://github.com/Indemnity83/logistics/issues/469)) ([815b49b](https://github.com/Indemnity83/logistics/commit/815b49bd88e155c4b2963bc19fb2146e61bfedf7))
+
+
+### Fixed
+
+* **automation:** stop inactive markers rendering as a black cross ([#484](https://github.com/Indemnity83/logistics/issues/484)) ([c9f28e8](https://github.com/Indemnity83/logistics/commit/c9f28e8c006004db554df0cea4d7e9d8501f2a8a))
+* **automation:** stop the macerator from trying to load other mods' recipes ([#473](https://github.com/Indemnity83/logistics/issues/473)) ([21c7225](https://github.com/Indemnity83/logistics/commit/21c722532e101f224ced3c42a18ef5a6e651dd3b))
+* **energy:** make engines visibly change color with heat stage ([695288c](https://github.com/Indemnity83/logistics/commit/695288cdb6d3bb55244410da55478e4dd9473fd9))
+* **energy:** stop the battery charge bar rendering black on NeoForge ([2ec31f4](https://github.com/Indemnity83/logistics/commit/2ec31f48c1818f5c0fcb6f5b04a8fe156eecc358))
+
 ## [0.6.3](https://github.com/Indemnity83/logistics/compare/mc1.21.11-v0.6.2...mc1.21.11-v0.6.3) (2026-06-05)
 
 
