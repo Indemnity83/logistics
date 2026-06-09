@@ -1,4 +1,5 @@
 package com.logistics.fabric;
+import com.logistics.core.lib.resource.ResourceId;
 
 import com.logistics.LogisticsCore;
 import net.fabricmc.fabric.api.loot.v3.LootTableEvents;
@@ -16,23 +17,23 @@ public final class FabricChestLootModifier {
 
     // Vanilla chest loot table keys
     private static final ResourceKey<LootTable> ABANDONED_MINESHAFT = ResourceKey.create(Registries.LOOT_TABLE,
-        net.minecraft.resources.Identifier.parse("minecraft:chests/abandoned_mineshaft"));
+        ResourceId.parse("minecraft:chests/abandoned_mineshaft").toIdentifier());
     private static final ResourceKey<LootTable> SIMPLE_DUNGEON = ResourceKey.create(Registries.LOOT_TABLE,
-        net.minecraft.resources.Identifier.parse("minecraft:chests/simple_dungeon"));
+        ResourceId.parse("minecraft:chests/simple_dungeon").toIdentifier());
     private static final ResourceKey<LootTable> VILLAGE_TOOLSMITH = ResourceKey.create(Registries.LOOT_TABLE,
-        net.minecraft.resources.Identifier.parse("minecraft:chests/village/village_toolsmith"));
+        ResourceId.parse("minecraft:chests/village/village_toolsmith").toIdentifier());
     private static final ResourceKey<LootTable> VILLAGE_ARMORER = ResourceKey.create(Registries.LOOT_TABLE,
-        net.minecraft.resources.Identifier.parse("minecraft:chests/village/village_armorer"));
+        ResourceId.parse("minecraft:chests/village/village_armorer").toIdentifier());
     private static final ResourceKey<LootTable> STRONGHOLD_CORRIDOR = ResourceKey.create(Registries.LOOT_TABLE,
-        net.minecraft.resources.Identifier.parse("minecraft:chests/stronghold_corridor"));
+        ResourceId.parse("minecraft:chests/stronghold_corridor").toIdentifier());
     private static final ResourceKey<LootTable> BURIED_TREASURE = ResourceKey.create(Registries.LOOT_TABLE,
-        net.minecraft.resources.Identifier.parse("minecraft:chests/buried_treasure"));
+        ResourceId.parse("minecraft:chests/buried_treasure").toIdentifier());
     private static final ResourceKey<LootTable> SHIPWRECK_TREASURE = ResourceKey.create(Registries.LOOT_TABLE,
-        net.minecraft.resources.Identifier.parse("minecraft:chests/shipwreck_treasure"));
+        ResourceId.parse("minecraft:chests/shipwreck_treasure").toIdentifier());
     private static final ResourceKey<LootTable> SHIPWRECK_SUPPLY = ResourceKey.create(Registries.LOOT_TABLE,
-        net.minecraft.resources.Identifier.parse("minecraft:chests/shipwreck_supply"));
+        ResourceId.parse("minecraft:chests/shipwreck_supply").toIdentifier());
     private static final ResourceKey<LootTable> RUINED_PORTAL = ResourceKey.create(Registries.LOOT_TABLE,
-        net.minecraft.resources.Identifier.parse("minecraft:chests/ruined_portal"));
+        ResourceId.parse("minecraft:chests/ruined_portal").toIdentifier());
 
     public static void register() {
         LootTableEvents.MODIFY.register((key, tableBuilder, source, registries) -> {

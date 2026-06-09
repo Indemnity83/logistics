@@ -6,7 +6,7 @@ import net.minecraft.client.gui.screens.recipebook.GhostSlots;
 import net.minecraft.client.gui.screens.recipebook.RecipeBookComponent;
 import net.minecraft.client.gui.screens.recipebook.RecipeCollection;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
+import com.logistics.core.lib.resource.ResourceId;
 import net.minecraft.util.context.ContextMap;
 import net.minecraft.world.entity.player.StackedItemContents;
 import net.minecraft.world.inventory.Slot;
@@ -21,10 +21,10 @@ import java.util.List;
 public class MaceratorRecipeBookComponent extends RecipeBookComponent<MaceratorScreenHandler> {
 
     private static final WidgetSprites FILTER_SPRITES = new WidgetSprites(
-        Identifier.withDefaultNamespace("recipe_book/furnace_filter_enabled"),
-        Identifier.withDefaultNamespace("recipe_book/furnace_filter_disabled"),
-        Identifier.withDefaultNamespace("recipe_book/furnace_filter_enabled_highlighted"),
-        Identifier.withDefaultNamespace("recipe_book/furnace_filter_disabled_highlighted")
+        ResourceId.in("minecraft", "recipe_book/furnace_filter_enabled").toIdentifier(),
+        ResourceId.in("minecraft", "recipe_book/furnace_filter_disabled").toIdentifier(),
+        ResourceId.in("minecraft", "recipe_book/furnace_filter_enabled_highlighted").toIdentifier(),
+        ResourceId.in("minecraft", "recipe_book/furnace_filter_disabled_highlighted").toIdentifier()
     );
 
     private static final Component FILTER_NAME = Component.translatable("gui.recipebook.toggleRecipes.smeltable");

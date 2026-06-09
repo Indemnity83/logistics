@@ -470,11 +470,11 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
 
             PlatformService.INSTANCE.registerAlias(
                     BuiltInRegistries.MENU,
-                    LogisticsMod.modId("item_filter").toIdentifier(),
+                    LogisticsMod.modId("item_filter"),
                     SCREEN.ITEM_FILTER);
             PlatformService.INSTANCE.registerAlias(
                     BuiltInRegistries.DATA_COMPONENT_TYPE,
-                    LogisticsMod.modId("weathering_state").toIdentifier(),
+                    LogisticsMod.modId("weathering_state"),
                     DATA.WEATHERING_STATE);
         }
     }

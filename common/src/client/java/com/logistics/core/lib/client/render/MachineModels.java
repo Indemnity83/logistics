@@ -1,4 +1,5 @@
 package com.logistics.core.lib.client.render;
+import com.logistics.LogisticsMod;
 
 import com.logistics.core.lib.client.render.BoxGeometry.Element;
 import com.logistics.core.lib.client.render.BoxGeometry.Face;
@@ -10,7 +11,6 @@ import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.Direction;
 import net.minecraft.data.AtlasIds;
-import net.minecraft.resources.Identifier;
 
 /**
  * Code-generated box geometry for the engine / laser-quarry / marker render parts that
@@ -143,7 +143,7 @@ public final class MachineModels {
         }
         TextureAtlasSprite sprite = Minecraft.getInstance().getAtlasManager()
                 .getAtlasOrThrow(AtlasIds.BLOCKS)
-                .getSprite(Identifier.fromNamespaceAndPath("logistics", "block/" + model.textureBase()));
+                .getSprite(LogisticsMod.modId("block/" + model.textureBase()).toIdentifier());
         VanillaQuadBaker baker = new VanillaQuadBaker(sprite, -1, true, 0);
         BoxGeometry.emit(baker::quad, model.elements(), sprite);
         List<BlockStateModelPart> parts = baker.isEmpty() ? List.of() : List.of(baker.toPart());
