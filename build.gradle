@@ -118,6 +118,26 @@ tasks.register('checkImportBoundaries') {
             }
         }
 
+        // Raw Minecraft Identifier/ResourceLocation must not be *constructed* outside ResourceId.java;
+        // route construction through ResourceId / LogisticsMod.modId. (1.21.1's older APIs force the
+        // raw type in many vanilla/Fabric interface overrides, so the type itself is allowed; only
+        // construction is forbidden.) A construction that must stay raw opts out with // raw-id-ok.
+        def rawCtor = /(Identifier|ResourceLocation)\.(fromNamespaceAndPath|parse|of|tryParse|withDefaultNamespace)\(|new\s+(Identifier|ResourceLocation)\s*\(/
+        ['common/src', 'fabric/src', 'neoforge/src'].each { srcRoot ->
+            fileTree(srcRoot) {
+                include '**/*.java'
+                exclude '**/ResourceId.java'
+                exclude '**/test/**'
+            }.each { file ->
+                file.eachLine { String line, int n ->
+                    if (!line.contains('raw-id-ok') && (line =~ rawCtor)) {
+                        failures << "raw Identifier/ResourceLocation construction (use ResourceId): " +
+                                "${rootDir.toPath().relativize(file.toPath())}:${n}"
+                    }
+                }
+            }
+        }
+
         if (!failures.isEmpty()) {
             throw new GradleException(failures.join(System.lineSeparator()))
         }
