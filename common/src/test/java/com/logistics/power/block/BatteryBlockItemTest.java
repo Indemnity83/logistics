@@ -2,11 +2,8 @@ package com.logistics.power.block;
 
 import com.logistics.power.block.entity.BatteryBlockEntity;
 import com.logistics.test.MinecraftTestEnvironment;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.Identifier;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -24,10 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 class BatteryBlockItemTest extends MinecraftTestEnvironment {
 
-    private final BatteryBlockItem item = new BatteryBlockItem(
-            Blocks.STONE,
-            new Item.Properties().setId(
-                    ResourceKey.create(Registries.ITEM, Identifier.parse("logistics:test_battery"))));
+    private final BatteryBlockItem item = new BatteryBlockItem(Blocks.STONE, new Item.Properties());
 
     private static ItemStack stackWithEnergy(long energy) {
         ItemStack stack = new ItemStack(Items.STONE);
