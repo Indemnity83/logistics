@@ -8,8 +8,8 @@ import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeCategoryRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
+import com.logistics.core.lib.resource.ResourceId;
 import net.minecraft.client.Minecraft;
-import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import org.slf4j.Logger;
@@ -25,12 +25,11 @@ import java.util.List;
 public class MaceratorJeiPlugin implements IModPlugin {
 
     private static final Logger LOGGER = LoggerFactory.getLogger("Logistics/JEI");
-    private static final Identifier PLUGIN_ID =
-        LogisticsMod.modId("jei_plugin").toIdentifier();
+    private static final ResourceId PLUGIN_ID = LogisticsMod.modId("jei_plugin");
 
     @Override
-    public Identifier getPluginUid() {
-        return PLUGIN_ID;
+    public net.minecraft.resources.Identifier getPluginUid() { // raw-id-ok: JEI IModPlugin signature
+        return PLUGIN_ID.toIdentifier();
     }
 
     @Override
