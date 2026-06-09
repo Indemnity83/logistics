@@ -2,7 +2,6 @@ package com.logistics;
 
 import com.logistics.core.LogisticsConfig;
 import com.logistics.core.bootstrap.DomainBootstrap;
-import com.logistics.core.item.ProbeItem;
 import com.logistics.core.item.WrenchItem;
 import com.logistics.core.macerator.MaceratorBlock;
 import com.logistics.core.macerator.MaceratorBlockEntity;
@@ -110,7 +109,6 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
 
     public static final class ITEM {
         public static Item WRENCH;
-        public static Item PROBE;
         public static Item RAW_TIN;
         public static Item TIN_INGOT;
         public static Item TIN_NUGGET;
@@ -194,8 +192,6 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         static void register() {
             WRENCH = INSTANCE.registerItem("wrench",
                 props -> new WrenchItem(props.stacksTo(1)));
-            PROBE = INSTANCE.registerItem("probe",
-                props -> new ProbeItem(props.stacksTo(1)));
 
             // Tin Materials
             RAW_TIN = INSTANCE.registerItem("raw_tin", Item::new);
@@ -353,7 +349,6 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
 
         static void register() {
             TAB.add(ITEM.WRENCH);
-            TAB.add(ITEM.PROBE);
             TAB.add(BLOCK.MACERATOR);
             TAB.add(BLOCK.QUARTZ_CRYSTAL);
 

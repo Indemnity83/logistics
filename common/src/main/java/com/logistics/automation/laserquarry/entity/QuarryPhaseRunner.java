@@ -34,7 +34,7 @@ public final class QuarryPhaseRunner {
     private @Nullable BlockPos currentTarget = null;
     private float currentBreakTime = -1f;
 
-    // ==================== Getters used by BE / probe / save ====================
+    // ==================== Getters used by BE / save ====================
 
     public Phase getPhase() {
         return phase;

@@ -60,11 +60,6 @@ public class StirlingEngineBlock extends AbstractEngineBlock<StirlingEngineBlock
     }
 
     @Override
-    protected StirlingEngineBlockEntity getEngineBlockEntity(BlockEntity be) {
-        return be instanceof StirlingEngineBlockEntity ? (StirlingEngineBlockEntity) be : null;
-    }
-
-    @Override
     public InteractionResult onWrench(Level world, BlockPos pos, Player player) {
         // Reset overheat if engine is overheated
         if (world.getBlockEntity(pos) instanceof StirlingEngineBlockEntity engine && engine.isOverheated()) {

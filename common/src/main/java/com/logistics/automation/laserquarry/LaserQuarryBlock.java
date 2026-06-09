@@ -3,8 +3,6 @@ package com.logistics.automation.laserquarry;
 import com.logistics.automation.laserquarry.entity.LaserQuarryBlockEntity;
 import com.logistics.core.LogisticsConfig;
 import com.logistics.LogisticsAutomation;
-import com.logistics.core.lib.block.behavior.ProbeBehavior;
-import com.logistics.core.lib.block.behavior.ProbeResult;
 import com.logistics.automation.marker.MarkerManager;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.network.chat.Component;
@@ -17,7 +15,6 @@ import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.StateDefinition;
@@ -30,7 +27,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
-public class LaserQuarryBlock extends BaseEntityBlock implements ProbeBehavior.Probeable {
+public class LaserQuarryBlock extends BaseEntityBlock {
     public static final MapCodec<LaserQuarryBlock> CODEC = simpleCodec(LaserQuarryBlock::new);
     public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
 
@@ -125,13 +122,5 @@ public class LaserQuarryBlock extends BaseEntityBlock implements ProbeBehavior.P
      */
     public static Direction getMiningDirection(BlockState state) {
         return state.getValue(FACING);
-    }
-
-    @Override
-    public ProbeResult onProbe(Level world, BlockPos pos, Player player) {
-        if (world.getBlockEntity(pos) instanceof LaserQuarryBlockEntity quarry) {
-            return quarry.getProbeResult();
-        }
-        return null;
     }
 }

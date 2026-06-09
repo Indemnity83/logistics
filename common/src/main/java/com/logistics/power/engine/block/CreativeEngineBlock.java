@@ -41,11 +41,6 @@ public class CreativeEngineBlock extends AbstractEngineBlock<CreativeEngineBlock
     }
 
     @Override
-    protected CreativeEngineBlockEntity getEngineBlockEntity(BlockEntity be) {
-        return be instanceof CreativeEngineBlockEntity ? (CreativeEngineBlockEntity) be : null;
-    }
-
-    @Override
     public InteractionResult onWrench(Level world, BlockPos pos, Player player) {
         // Sneak + wrench: cycle output level
         if (player.isShiftKeyDown() && world.getBlockEntity(pos) instanceof CreativeEngineBlockEntity engine) {
