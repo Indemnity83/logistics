@@ -2,6 +2,7 @@ package com.logistics.neoforge.client.render;
 
 import com.logistics.core.lib.client.render.MachineModels;
 import com.logistics.core.lib.power.AbstractEngineBlockEntity;
+import com.logistics.core.lib.power.EngineHeatTint;
 import com.logistics.power.engine.block.entity.CreativeEngineBlockEntity;
 import com.logistics.power.engine.block.entity.RedstoneEngineBlockEntity;
 import com.logistics.power.engine.block.entity.StirlingEngineBlockEntity;
@@ -85,13 +86,23 @@ public class NeoForgeEngineBlockEntityRenderer
             CameraRenderState cameraState) {
         BlockStateModel bellowModel = MachineModels.model(getBellowKey(state.engineType));
         BlockStateModel pistonModel = MachineModels.model(getPistonKey(state.engineType));
+        BlockStateModel coreModel = MachineModels.tintedModel(getCoreKey(state.engineType));
 
         RenderType renderLayer = ItemBlockRenderTypes.getRenderType(state.blockState);
         int light = state.lightCoords;
         float pistonOffset = state.getPistonOffset();
 
+        // Heat-stage tint for the core, read per-frame from the live block state.
+        int heat = EngineHeatTint.color(state.blockState);
+        float heatR = (heat >> 16 & 0xFF) / 255.0f;
+        float heatG = (heat >> 8 & 0xFF) / 255.0f;
+        float heatB = (heat & 0xFF) / 255.0f;
+
         matrices.pushPose();
         applyFacingRotation(matrices, state.facing);
+
+        // Heat-colored core (static trunk; tinted per-frame from the live heat stage).
+        queue.submitBlockModel(matrices, renderLayer, coreModel, heatR, heatG, heatB, light, OverlayTexture.NO_OVERLAY, 0);
 
         matrices.pushPose();
         matrices.translate(0, 4 / 16f, 0);
@@ -113,6 +124,14 @@ public class NeoForgeEngineBlockEntityRenderer
             case REDSTONE -> "redstone_engine_bellow";
             case STIRLING -> "stirling_engine_bellow";
             case CREATIVE -> "creative_engine_bellow";
+        };
+    }
+
+    private String getCoreKey(EngineRenderState.EngineType type) {
+        return switch (type) {
+            case REDSTONE -> "redstone_engine_core";
+            case STIRLING -> "stirling_engine_core";
+            case CREATIVE -> "creative_engine_core";
         };
     }
 

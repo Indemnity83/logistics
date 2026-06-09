@@ -70,6 +70,30 @@ public final class MachineModels {
                     new Face(Direction.WEST, 8f, 14f, 12f, 15f, 0),
                     new Face(Direction.UP, 8f, 14f, 4f, 10f, 0),
                     new Face(Direction.DOWN, 12f, 10f, 8f, 14f, 0)))))),
+        Map.entry("redstone_engine_core", new Model("power/redstone_engine", List.of(
+            new Element(4f, 4f, 4f, 12f, 16f, 12f, List.of(
+                    new Face(Direction.NORTH, 10f, 7f, 12f, 10f, 0),
+                    new Face(Direction.EAST, 8f, 7f, 10f, 10f, 0),
+                    new Face(Direction.SOUTH, 14f, 7f, 16f, 10f, 0),
+                    new Face(Direction.WEST, 12f, 7f, 14f, 10f, 0),
+                    new Face(Direction.UP, 12f, 7f, 10f, 5f, 0),
+                    new Face(Direction.DOWN, 14f, 5f, 12f, 7f, 0)))))),
+        Map.entry("stirling_engine_core", new Model("power/stirling_engine", List.of(
+            new Element(4f, 4f, 4f, 12f, 16f, 12f, List.of(
+                    new Face(Direction.NORTH, 10f, 7f, 12f, 10f, 0),
+                    new Face(Direction.EAST, 8f, 7f, 10f, 10f, 0),
+                    new Face(Direction.SOUTH, 14f, 7f, 16f, 10f, 0),
+                    new Face(Direction.WEST, 12f, 7f, 14f, 10f, 0),
+                    new Face(Direction.UP, 12f, 7f, 10f, 5f, 0),
+                    new Face(Direction.DOWN, 14f, 5f, 12f, 7f, 0)))))),
+        Map.entry("creative_engine_core", new Model("power/creative_engine", List.of(
+            new Element(4f, 4f, 4f, 12f, 16f, 12f, List.of(
+                    new Face(Direction.NORTH, 10f, 7f, 12f, 10f, 0),
+                    new Face(Direction.EAST, 8f, 7f, 10f, 10f, 0),
+                    new Face(Direction.SOUTH, 14f, 7f, 16f, 10f, 0),
+                    new Face(Direction.WEST, 12f, 7f, 14f, 10f, 0),
+                    new Face(Direction.UP, 12f, 7f, 10f, 5f, 0),
+                    new Face(Direction.DOWN, 14f, 5f, 12f, 7f, 0)))))),
         Map.entry("marker_beam", new Model("core/marker_beam", List.of(
             new Element(7.1f, 8.1f, 0f, 8.9f, 9.9f, 16f, List.of(
                     new Face(Direction.NORTH, 0f, 4f, 2f, 12f, 0),
@@ -128,6 +152,7 @@ public final class MachineModels {
     }
 
     private static final Map<String, BlockStateModel> MODEL_CACHE = new HashMap<>();
+    private static final Map<String, BlockStateModel> TINTED_MODEL_CACHE = new HashMap<>();
 
     /**
      * Build (and cache) the code-generated model for a machine model key, ready for
@@ -138,25 +163,30 @@ public final class MachineModels {
      * for an unknown key.
      */
     public static BlockStateModel model(String key) {
-        BlockStateModel cached = MODEL_CACHE.get(key);
-        if (cached != null) {
-            return cached;
-        }
+        return MODEL_CACHE.computeIfAbsent(key, k -> build(k, -1));
+    }
+
+    /**
+     * Like {@link #model(String)} but bakes the quads with tint index 0, so the per-call
+     * {@code r,g,b} passed to {@code submitBlockModel} actually tints them (the submit path only
+     * tints quads that carry a tint index). Used for the engine heat core.
+     */
+    public static BlockStateModel tintedModel(String key) {
+        return TINTED_MODEL_CACHE.computeIfAbsent(key, k -> build(k, 0));
+    }
+
+    private static BlockStateModel build(String key, int tintIndex) {
         Model model = MODELS.get(key);
-        BlockStateModel result;
         if (model == null) {
-            result = new ProceduralModel(List.of(), null);
-        } else {
-            TextureAtlasSprite sprite = Minecraft.getInstance().getAtlasManager()
-                    .getAtlasOrThrow(AtlasIds.BLOCKS)
-                    .getSprite(Identifier.fromNamespaceAndPath("logistics", "block/" + model.textureBase()));
-            VanillaQuadBaker baker = new VanillaQuadBaker(sprite, -1, true, 0);
-            BoxGeometry.emit(baker::quad, model.elements(), sprite);
-            List<BlockModelPart> parts = baker.isEmpty() ? List.of() : List.of(baker.toPart());
-            result = new ProceduralModel(parts, sprite);
+            return new ProceduralModel(List.of(), null);
         }
-        MODEL_CACHE.put(key, result);
-        return result;
+        TextureAtlasSprite sprite = Minecraft.getInstance().getAtlasManager()
+                .getAtlasOrThrow(AtlasIds.BLOCKS)
+                .getSprite(Identifier.fromNamespaceAndPath("logistics", "block/" + model.textureBase()));
+        VanillaQuadBaker baker = new VanillaQuadBaker(sprite, tintIndex, true, 0);
+        BoxGeometry.emit(baker::quad, model.elements(), sprite);
+        List<BlockModelPart> parts = baker.isEmpty() ? List.of() : List.of(baker.toPart());
+        return new ProceduralModel(parts, sprite);
     }
 
     /**

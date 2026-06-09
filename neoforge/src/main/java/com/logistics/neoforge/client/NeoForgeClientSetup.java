@@ -20,7 +20,6 @@ import com.logistics.pipe.screen.SinkScreen;
 import com.logistics.pipe.screen.SupplierScreen;
 import com.logistics.automation.render.LaserQuarryBlockEntityRenderer;
 import com.logistics.automation.render.MarkerBlockEntityRenderer;
-import com.logistics.core.lib.power.AbstractEngineBlockEntity;
 import com.logistics.pipe.network.packet.SyncRequesterInventoryPacket;
 import com.logistics.pipe.render.PipeBlockEntityRenderer;
 import com.logistics.power.render.CableBlockEntityRenderer;
@@ -31,8 +30,6 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.client.network.event.RegisterClientPayloadHandlersEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
-import net.minecraft.client.color.block.BlockColor;
-import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
@@ -43,7 +40,6 @@ public final class NeoForgeClientSetup {
         modBus.addListener(NeoForgeClientSetup::onClientSetup);
         modBus.addListener(NeoForgeClientSetup::registerScreens);
         modBus.addListener(NeoForgeClientSetup::registerRenderers);
-        modBus.addListener(NeoForgeClientSetup::registerBlockColors);
         modBus.addListener(NeoForgeClientSetup::registerClientPayloadHandlers);
     }
 
@@ -99,25 +95,6 @@ public final class NeoForgeClientSetup {
                 LaserQuarryBlockEntityRenderer::new);
     }
 
-    private static void registerBlockColors(RegisterColorHandlersEvent.Block event) {
-        BlockColor engineColor = (state, level, pos, tintIndex) -> {
-            if (tintIndex != 0) {
-                return 0xFFFFFF;
-            }
-            return switch (state.getValue(AbstractEngineBlockEntity.STAGE)) {
-                case COLD -> 0x3366CC;
-                case COOL -> 0x33CC33;
-                case WARM -> 0xCCCC33;
-                case HOT -> 0xCC3333;
-                case OVERHEAT -> 0x191919;
-            };
-        };
-        event.register(
-                engineColor,
-                LogisticsPower.BLOCK.REDSTONE_ENGINE,
-                LogisticsPower.BLOCK.STIRLING_ENGINE,
-                LogisticsPower.BLOCK.CREATIVE_ENGINE);
-    }
 
     private static void registerClientPayloadHandlers(RegisterClientPayloadHandlersEvent event) {
         event.register(SyncRequesterInventoryPacket.TYPE, (packet, context) -> {

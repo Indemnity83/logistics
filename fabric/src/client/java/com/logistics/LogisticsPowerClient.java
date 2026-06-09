@@ -6,9 +6,10 @@ import com.logistics.power.render.CableBlockEntityRenderer;
 import com.logistics.power.render.EngineBlockEntityRenderer;
 import com.logistics.power.screen.StirlingEngineScreen;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
-import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
+import net.fabricmc.fabric.api.client.rendering.v1.BlockRenderLayerMap;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
+import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 
 import static com.logistics.LogisticsMod.LOGGER;
 
@@ -27,44 +28,20 @@ public final class LogisticsPowerClient implements ClientDomainBootstrap {
         // (one BE type covers all tiers; tier is read from the block at render time).
         BlockEntityRenderers.register(LogisticsPower.ENTITY.CABLE_BLOCK_ENTITY, CableBlockEntityRenderer::new);
 
+        // Engines render cutout so the outer trunk's transparent window gaps reveal the heat core
+        // drawn behind them in the BER (NeoForge picks this up from "render_type" in the static
+        // models). The heat tint itself is applied per-frame in EngineBlockEntityRenderer.
+        BlockRenderLayerMap.putBlock(LogisticsPower.BLOCK.REDSTONE_ENGINE, ChunkSectionLayer.CUTOUT);
+        BlockRenderLayerMap.putBlock(LogisticsPower.BLOCK.STIRLING_ENGINE, ChunkSectionLayer.CUTOUT);
+        BlockRenderLayerMap.putBlock(LogisticsPower.BLOCK.CREATIVE_ENGINE, ChunkSectionLayer.CUTOUT);
+
         // Register screens
         MenuScreens.register(LogisticsPower.SCREEN.STIRLING_ENGINE, StirlingEngineScreen::new);
-
-        // Register block color providers for engine heat stage tinting
-        registerEngineBlockColors();
 
         // Register cleanup callback for engine animation cache
         AbstractEngineBlockEntity.setOnRemovedCallback(EngineBlockEntityRenderer::clearAnimationCache);
 
         // Clear all animation caches when disconnecting from server
         ClientLifecycleEvents.CLIENT_STOPPING.register(client -> EngineBlockEntityRenderer.clearAllAnimationCache());
-    }
-
-    /**
-     * Registers block color providers for engines to tint based on heat stage.
-     * Uses the STAGE block state property to determine color.
-     *
-     * <p>TODO: The non-overheating flash effect (HOT/WARM oscillation) is driven by block state
-     * changes on the server tick, which causes chunk rebuilds at each half-stroke transition.
-     * The better long-term solution is to render the engine core dynamically in the block entity
-     * renderer, where per-frame animation progress is available for smooth, rebuild-free coloring.
-     */
-    private void registerEngineBlockColors() {
-        ColorProviderRegistry.BLOCK.register((state, level, pos, tintIndex) -> {
-            if (tintIndex != 0) {
-                return 0xFFFFFF;
-            }
-
-            return switch (state.getValue(AbstractEngineBlockEntity.STAGE)) {
-                case COLD -> 0x3366CC;
-                case COOL -> 0x33CC33;
-                case WARM -> 0xCCCC33;
-                case HOT -> 0xCC3333;
-                case OVERHEAT -> 0x191919;
-            };
-        },
-        LogisticsPower.BLOCK.REDSTONE_ENGINE,
-        LogisticsPower.BLOCK.STIRLING_ENGINE,
-        LogisticsPower.BLOCK.CREATIVE_ENGINE);
     }
 }
