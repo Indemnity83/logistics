@@ -206,6 +206,14 @@
   "message.logistics.power.creative_sink.drain_rate": "Creative Sink: %s RF/t",
   "message.logistics.power.creative_engine.output": "Creative Engine: %s RF/t",
 
+  "jade.logistics.quarry.phase": "Phase",
+  "jade.logistics.quarry.phase.clearing": "Clearing",
+  "jade.logistics.quarry.phase.building_frame": "Building Frame",
+  "jade.logistics.quarry.phase.mining": "Mining",
+  "jade.logistics.quarry.phase.finished": "Finished",
+  "jade.logistics.quarry.power_in": "Power In",
+  "jade.logistics.quarry.arm_speed": "Arm Speed",
+
   "tag.item.c.ingots.tin": "Tin Ingots",
   "tag.item.c.ingots.bronze": "Bronze Ingots",
   "tag.item.c.nuggets.tin": "Tin Nuggets",
