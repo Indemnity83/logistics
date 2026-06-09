@@ -71,6 +71,30 @@ public final class MachineModels {
                     new Face(Direction.WEST, 8f, 14f, 12f, 15f, 0),
                     new Face(Direction.UP, 8f, 14f, 4f, 10f, 0),
                     new Face(Direction.DOWN, 12f, 10f, 8f, 14f, 0)))))),
+        Map.entry("redstone_engine_core", new Model("power/redstone_engine", List.of(
+            new Element(4f, 4f, 4f, 12f, 16f, 12f, List.of(
+                    new Face(Direction.NORTH, 10f, 7f, 12f, 10f, 0),
+                    new Face(Direction.EAST, 8f, 7f, 10f, 10f, 0),
+                    new Face(Direction.SOUTH, 14f, 7f, 16f, 10f, 0),
+                    new Face(Direction.WEST, 12f, 7f, 14f, 10f, 0),
+                    new Face(Direction.UP, 12f, 7f, 10f, 5f, 0),
+                    new Face(Direction.DOWN, 14f, 5f, 12f, 7f, 0)))))),
+        Map.entry("stirling_engine_core", new Model("power/stirling_engine", List.of(
+            new Element(4f, 4f, 4f, 12f, 16f, 12f, List.of(
+                    new Face(Direction.NORTH, 10f, 7f, 12f, 10f, 0),
+                    new Face(Direction.EAST, 8f, 7f, 10f, 10f, 0),
+                    new Face(Direction.SOUTH, 14f, 7f, 16f, 10f, 0),
+                    new Face(Direction.WEST, 12f, 7f, 14f, 10f, 0),
+                    new Face(Direction.UP, 12f, 7f, 10f, 5f, 0),
+                    new Face(Direction.DOWN, 14f, 5f, 12f, 7f, 0)))))),
+        Map.entry("creative_engine_core", new Model("power/creative_engine", List.of(
+            new Element(4f, 4f, 4f, 12f, 16f, 12f, List.of(
+                    new Face(Direction.NORTH, 10f, 7f, 12f, 10f, 0),
+                    new Face(Direction.EAST, 8f, 7f, 10f, 10f, 0),
+                    new Face(Direction.SOUTH, 14f, 7f, 16f, 10f, 0),
+                    new Face(Direction.WEST, 12f, 7f, 14f, 10f, 0),
+                    new Face(Direction.UP, 12f, 7f, 10f, 5f, 0),
+                    new Face(Direction.DOWN, 14f, 5f, 12f, 7f, 0)))))),
         Map.entry("marker_beam", new Model("core/marker_beam", List.of(
             new Element(7.1f, 8.1f, 0f, 8.9f, 9.9f, 16f, List.of(
                     new Face(Direction.NORTH, 0f, 4f, 2f, 12f, 0),

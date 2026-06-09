@@ -3,6 +3,7 @@ package com.logistics.power.render;
 import com.logistics.core.lib.client.render.CodeModelRenderer;
 import com.logistics.core.lib.client.render.MachineModels;
 import com.logistics.core.lib.power.AbstractEngineBlockEntity;
+import com.logistics.core.lib.power.EngineHeatTint;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
@@ -68,6 +69,7 @@ public class EngineBlockEntityRenderer implements BlockEntityRenderer<AbstractEn
         // Get code-generated quads
         List<BakedQuad> pistonModel = MachineModels.quads(getPistonKey(entity));
         List<BakedQuad> bellowModel = MachineModels.quads(getBellowKey(entity));
+        List<BakedQuad> coreModel = MachineModels.quads(getCoreKey(entity));
 
         if (pistonModel.isEmpty() || bellowModel.isEmpty()) {
             return; // Models not loaded yet
@@ -83,6 +85,12 @@ public class EngineBlockEntityRenderer implements BlockEntityRenderer<AbstractEn
 
         poseStack.pushPose();
         applyFacingRotation(poseStack, facing);
+
+        // Render the heat-colored core (static trunk; tinted per-frame from the live heat stage).
+        // Replaces the old static-model tint, which baked a single color for every heat stage.
+        VertexConsumer coreBuffer = bufferSource.getBuffer(RenderType.cutout());
+        CodeModelRenderer.drawTinted(coreModel, EngineHeatTint.color(entity.getBlockState()),
+                poseStack, coreBuffer, packedLight, packedOverlay);
 
         // Render bellow (stretches from Y=4 to piston bottom)
         poseStack.pushPose();
@@ -119,6 +127,16 @@ public class EngineBlockEntityRenderer implements BlockEntityRenderer<AbstractEn
             case "stirling_engine" -> "stirling_engine_piston";
             case "creative_engine" -> "creative_engine_piston";
             default -> "redstone_engine_piston";
+        };
+    }
+
+    private String getCoreKey(AbstractEngineBlockEntity entity) {
+        String engineName = getEngineName(entity);
+        return switch (engineName) {
+            case "redstone_engine" -> "redstone_engine_core";
+            case "stirling_engine" -> "stirling_engine_core";
+            case "creative_engine" -> "creative_engine_core";
+            default -> "redstone_engine_core";
         };
     }
 

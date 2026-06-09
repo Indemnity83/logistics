@@ -38,6 +38,21 @@ public final class CodeModelRenderer {
         }
     }
 
+    /**
+     * Draw {@code quads}, applying {@code tintColor} (0xRRGGBB) to <em>every</em> quad, regardless of
+     * its tint index. Used for parts that are colored as a whole in code (e.g. the engine heat core),
+     * whose code-generated quads carry no tint index but should all receive the tint.
+     */
+    public static void drawTinted(List<BakedQuad> quads, int tintColor, PoseStack poseStack, VertexConsumer buffer,
+            int packedLight, int packedOverlay) {
+        float tr = (tintColor >> 16 & 0xFF) / 255.0f;
+        float tg = (tintColor >> 8 & 0xFF) / 255.0f;
+        float tb = (tintColor & 0xFF) / 255.0f;
+        for (BakedQuad quad : quads) {
+            buffer.putBulkData(poseStack.last(), quad, tr, tg, tb, 1.0f, packedLight, packedOverlay);
+        }
+    }
+
     /** Full-bright light value, for emissive parts (beams) that should ignore world lighting. */
     public static int fullBright() {
         return LightTexture.pack(15, 15);

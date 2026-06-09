@@ -3,6 +3,7 @@ package com.logistics.neoforge.client.render;
 import com.logistics.core.lib.client.render.CodeModelRenderer;
 import com.logistics.core.lib.client.render.MachineModels;
 import com.logistics.core.lib.power.AbstractEngineBlockEntity;
+import com.logistics.core.lib.power.EngineHeatTint;
 import com.logistics.power.engine.block.entity.CreativeEngineBlockEntity;
 import com.logistics.power.engine.block.entity.RedstoneEngineBlockEntity;
 import com.logistics.power.engine.block.entity.StirlingEngineBlockEntity;
@@ -72,6 +73,7 @@ public class NeoForgeEngineBlockEntityRenderer
 
         List<BakedQuad> pistonModel = MachineModels.quads(getPistonKey(type));
         List<BakedQuad> bellowModel = MachineModels.quads(getBellowKey(type));
+        List<BakedQuad> coreModel = MachineModels.quads(getCoreKey(type));
 
         if (pistonModel.isEmpty() || bellowModel.isEmpty()) {
             return;
@@ -82,6 +84,11 @@ public class NeoForgeEngineBlockEntityRenderer
 
         matrices.pushPose();
         applyFacingRotation(matrices, facing);
+
+        // Render the heat-colored core (static trunk; tinted per-frame from the live heat stage).
+        // Replaces the old static-model tint, which baked a single color for every heat stage.
+        CodeModelRenderer.drawTinted(coreModel, EngineHeatTint.color(entity.getBlockState()),
+                matrices, consumer, light, overlay);
 
         // Render bellow (scales vertically)
         matrices.pushPose();
@@ -117,6 +124,14 @@ public class NeoForgeEngineBlockEntityRenderer
             case REDSTONE -> "redstone_engine_piston";
             case STIRLING -> "stirling_engine_piston";
             case CREATIVE -> "creative_engine_piston";
+        };
+    }
+
+    private String getCoreKey(EngineType type) {
+        return switch (type) {
+            case REDSTONE -> "redstone_engine_core";
+            case STIRLING -> "stirling_engine_core";
+            case CREATIVE -> "creative_engine_core";
         };
     }
 
