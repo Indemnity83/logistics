@@ -145,7 +145,7 @@ After 1.0.0, `feat:` → minor and `feat!:` → major (standard SemVer).
 
 ### Hotfix Workflow
 
-When a critical bug needs a patch release *after* feature development has already started on `mc/1.21.11`, use this process to bypass release-please and publish a clean hotfix.
+When a critical bug needs a patch release *after* feature development has already started on the primary development branch, use this process to bypass release-please and publish a clean hotfix.
 
 **Steps:**
 1. Branch from the last release tag:
