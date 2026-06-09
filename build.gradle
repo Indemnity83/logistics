@@ -118,6 +118,25 @@ tasks.register('checkImportBoundaries') {
             }
         }
 
+        // The raw Minecraft Identifier/ResourceLocation type may only be named in ResourceId.java;
+        // everywhere else route through ResourceId / LogisticsMod.modId. A line that must name the
+        // vanilla type at an external-API boundary (e.g. a JEI override signature) opts out with a
+        // trailing "// raw-id-ok" marker. (\b skips our own toIdentifier()/ResourceId names.)
+        ['common/src', 'fabric/src', 'neoforge/src'].each { srcRoot ->
+            fileTree(srcRoot) {
+                include '**/*.java'
+                exclude '**/ResourceId.java'
+                exclude '**/test/**'
+            }.each { file ->
+                file.eachLine { String line, int n ->
+                    if (!line.contains('raw-id-ok') && (line =~ /\b(Identifier|ResourceLocation)\b/)) {
+                        failures << "raw Identifier/ResourceLocation (use ResourceId): " +
+                                "${rootDir.toPath().relativize(file.toPath())}:${n}"
+                    }
+                }
+            }
+        }
+
         if (!failures.isEmpty()) {
             throw new GradleException(failures.join(System.lineSeparator()))
         }
@@ -128,6 +147,7 @@ tasks.register('lint') {
     description = 'Check all source and repository formatting'
     group = 'verification'
     dependsOn 'repoLint'
+    dependsOn 'checkImportBoundaries'
     dependsOn subprojects.collect { "${it.path}:lint" }
 }
 
