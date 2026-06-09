@@ -16,6 +16,7 @@ import com.logistics.core.lib.storage.IItemStorage;
 import com.logistics.core.lib.storage.IItemView;
 import com.logistics.core.lib.storage.ItemStorageLookup;
 import com.logistics.core.lib.pipe.PipeContext;
+import com.logistics.core.lib.pipe.PipeHud;
 import com.logistics.pipe.network.NetworkRegistry;
 import com.logistics.core.lib.pipe.TravelingItem;
 import com.logistics.pipe.ui.ProviderScreenHandler;
@@ -173,16 +174,22 @@ public class ProviderModule implements Module, TickingModule, DispatchableModule
     }
 
     @Override
-    public void appendHud(PipeContext ctx, List<Component> lines, boolean showDetails) {
-        lines.add(ModuleHud.summary("jade.logistics.pipe.provider", getMode(ctx).getTranslationKey()));
-        if (!showDetails) {
-            return;
+    public void appendHud(PipeContext ctx, PipeHud hud) {
+        // Filter first: an exclude filter shows "None", an empty filter "Any", otherwise the item icons.
+        if (isFilterInverted(ctx)) {
+            hud.line(ModuleHud.detail(Component.translatable("jade.logistics.pipe.filter.none")));
+        } else {
+            List<ItemStack> stacks = getFilterItems(ctx).asList().stream()
+                    .map(id -> ModuleHud.stack(id, 1))
+                    .filter(stack -> !stack.isEmpty())
+                    .toList();
+            if (stacks.isEmpty()) {
+                hud.line(ModuleHud.detail(Component.translatable("jade.logistics.pipe.filter.any")));
+            } else {
+                hud.items(stacks);
+            }
         }
-        Component names = ModuleHud.itemNames(getFilterItems(ctx).asList());
-        if (!names.getString().isEmpty()) {
-            String key = isFilterInverted(ctx) ? "jade.logistics.pipe.filter.blocked" : "jade.logistics.pipe.filter";
-            lines.add(ModuleHud.detail(Component.translatable(key).append(Component.literal(": ")).append(names)));
-        }
+        hud.line(ModuleHud.detail(Component.literal(getMode(ctx).getTranslationKey())));
     }
 
     public void setFilterInverted(PipeContext ctx, boolean inverted) {

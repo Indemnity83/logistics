@@ -12,6 +12,7 @@ import com.logistics.core.lib.serialization.DirectionSerializer;
 import com.logistics.core.lib.storage.IItemKey;
 import com.logistics.core.lib.storage.ItemStorageLookup;
 import com.logistics.core.lib.pipe.PipeContext;
+import com.logistics.core.lib.pipe.PipeHud;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.pipe.network.NetworkRegistry;
 import com.logistics.pipe.ui.RequesterScreenHandler;
@@ -188,18 +189,13 @@ public class RequesterModule implements Module, TickingModule {
     }
 
     @Override
-    public void appendHud(PipeContext ctx, List<Component> lines, boolean showDetails) {
-        List<RequestConfig> configs = getRequestConfigs(ctx);
-        if (configs.isEmpty()) {
-            return;
-        }
-        lines.add(ModuleHud.summary(
-                "jade.logistics.pipe.requester", Component.translatable("jade.logistics.pipe.count", configs.size())));
-        if (!showDetails) {
-            return;
-        }
-        for (RequestConfig config : configs) {
-            lines.add(ModuleHud.detail(ModuleHud.itemName(config.itemId()).copy().append(" ×" + config.amount())));
+    public void appendHud(PipeContext ctx, PipeHud hud) {
+        List<ItemStack> stacks = getRequestConfigs(ctx).stream()
+                .map(config -> ModuleHud.stack(config.itemId(), config.amount()))
+                .filter(stack -> !stack.isEmpty())
+                .toList();
+        if (!stacks.isEmpty()) {
+            hud.items(stacks);
         }
     }
 

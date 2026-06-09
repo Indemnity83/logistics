@@ -5,6 +5,7 @@ import com.logistics.core.lib.pipe.RoutingModule;
 import com.logistics.pipe.network.NetDbg;
 import com.logistics.core.lib.pipe.Module;
 import com.logistics.core.lib.pipe.PipeContext;
+import com.logistics.core.lib.pipe.PipeHud;
 import com.logistics.core.lib.pipe.TickingModule;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.core.lib.pipe.RoutePlan;
@@ -127,11 +128,11 @@ public class SatelliteModule implements Module, TickingModule, RoutingModule {
     }
 
     @Override
-    public void appendHud(PipeContext ctx, List<Component> lines, boolean showDetails) {
+    public void appendHud(PipeContext ctx, PipeHud hud) {
         String id = getSatelliteId(ctx);
         Component value =
                 id.isEmpty() ? Component.translatable("jade.logistics.pipe.satellite.unset") : Component.literal(id);
-        lines.add(ModuleHud.summary("jade.logistics.pipe.satellite", value));
+        hud.line(ModuleHud.summary("jade.logistics.pipe.satellite", value));
     }
 
     public int getSatelliteIdInt(PipeContext ctx) {

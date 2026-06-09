@@ -8,13 +8,13 @@ import com.logistics.pipe.network.NetDbg;
 import com.logistics.core.lib.pipe.Module;
 import com.logistics.core.lib.compat.NbtCompat;
 import com.logistics.core.lib.pipe.PipeContext;
+import com.logistics.core.lib.pipe.PipeHud;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.core.lib.pipe.RoutePlan;
 import com.logistics.core.lib.pipe.TravelingItem;
 import com.logistics.pipe.ui.ItemFilterScreenHandler;
 import java.util.ArrayList;
 import java.util.List;
-import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -128,7 +128,7 @@ public class ItemFilterModule implements Module, RoutingModule {
     }
 
     @Override
-    public void appendHud(PipeContext ctx, List<Component> lines, boolean showDetails) {
+    public void appendHud(PipeContext ctx, PipeHud hud) {
         List<ItemStack> distinct = new ArrayList<>();
         for (Direction direction : FILTER_ORDER) {
             for (ItemStack stack : getFilterStacks(ctx, direction)) {
@@ -142,12 +142,10 @@ public class ItemFilterModule implements Module, RoutingModule {
             return;
         }
 
-        lines.add(Component.translatable("jade.logistics.pipe.filter")
-                .append(Component.literal(": "))
-                .append(Component.translatable("jade.logistics.pipe.filter.count", distinct.size())
-                        .withStyle(ChatFormatting.WHITE)));
+        hud.line(ModuleHud.summary(
+                "jade.logistics.pipe.filter", Component.translatable("jade.logistics.pipe.count", distinct.size())));
 
-        if (!showDetails) {
+        if (!hud.showDetails()) {
             return;
         }
         // One line per side, items colored to match that side's filter color — the colour is the label.
@@ -161,7 +159,7 @@ public class ItemFilterModule implements Module, RoutingModule {
             if (names.isEmpty()) {
                 continue;
             }
-            lines.add(Component.literal(String.join(", ", names))
+            hud.line(Component.literal(String.join(", ", names))
                     .withStyle(Style.EMPTY.withColor(TextColor.fromRgb(getFilterColor(direction)))));
         }
     }

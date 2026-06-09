@@ -1,6 +1,7 @@
 package com.logistics.pipe;
 
 import com.logistics.core.lib.pipe.PipeContext;
+import com.logistics.core.lib.pipe.PipeHud;
 import com.logistics.core.lib.pipe.TravelingItem;
 import com.logistics.pipe.block.PipeBlock;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
@@ -12,9 +13,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 
 /**
- * Builds the pipe HUD lines: the items in transit (synced for rendering, so read client-side — no server
- * data round-trip) and each module's status. The count/module summaries show always; per-item and
- * per-module detail shows when Jade's details key is held.
+ * Builds the pipe HUD: items in transit and each module's status. Item displays (chassis modules, filter
+ * contents, supplied/requested items, recipes) render as icons at {@link #ICON_SCALE} — tweak there.
  */
 public final class PipeHudLines {
 
@@ -23,14 +23,12 @@ public final class PipeHudLines {
 
     private PipeHudLines() {}
 
-    /** Lines contributed by the pipe's modules (filters, chassis module configs, …). */
-    public static List<Component> moduleLines(BlockState state, PipeBlockEntity pipe, boolean showDetails) {
-        List<Component> lines = new ArrayList<>();
+    /** Drives each module's {@code appendHud} for this pipe, writing to the given (loader-rendered) sink. */
+    public static void appendModuleHud(BlockState state, PipeBlockEntity pipe, PipeHud hud) {
         if (state.getBlock() instanceof PipeBlock pipeBlock && pipeBlock.getPipe() != null) {
             PipeContext ctx = new PipeContext(pipe.getLevel(), pipe.getBlockPos(), state, pipe);
-            pipeBlock.getPipe().appendHud(ctx, lines, showDetails);
+            pipeBlock.getPipe().appendHud(ctx, hud);
         }
-        return lines;
     }
 
     /** The module item stacks installed in a chassis pipe (empty for non-chassis), for icon display. */

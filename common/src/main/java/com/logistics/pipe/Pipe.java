@@ -4,6 +4,7 @@ import com.logistics.LogisticsMod;
 import com.logistics.core.LogisticsConfig;
 import com.logistics.core.lib.block.capability.PipeConnection;
 import com.logistics.core.lib.pipe.PipeContext;
+import com.logistics.core.lib.pipe.PipeHud;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.pipe.block.PipeBlock;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
@@ -32,7 +33,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.core.Direction;
-import net.minecraft.network.chat.Component;
 import net.minecraft.util.RandomSource;
 import org.jetbrains.annotations.Nullable;
 
@@ -325,13 +325,13 @@ public class Pipe {
     }
 
     /**
-     * Appends this pipe's module status to a look-at HUD (Jade). Each module contributes its own lines
-     * (a short summary always, fuller detail when {@code showDetails} is set). {@link ChassisPipe}
-     * overrides this to scope each dynamic module to its own state and to list installed modules.
+     * Appends this pipe's module status to a look-at HUD (Jade). Each module contributes via the
+     * {@link PipeHud} writer. {@link ChassisPipe} overrides this to scope each dynamic module to its own
+     * state.
      */
-    public void appendHud(PipeContext ctx, List<Component> lines, boolean showDetails) {
+    public void appendHud(PipeContext ctx, PipeHud hud) {
         for (Module module : getStaticModules()) {
-            module.appendHud(ctx, lines, showDetails);
+            module.appendHud(ctx, hud);
         }
     }
 

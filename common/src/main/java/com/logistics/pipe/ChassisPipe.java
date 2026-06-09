@@ -19,7 +19,6 @@ import com.logistics.core.lib.storage.IItemKey;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.NbtOps;
-import net.minecraft.network.chat.Component;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.RegistryOps;
 import net.minecraft.server.level.ServerPlayer;
@@ -182,13 +181,13 @@ public class ChassisPipe extends Pipe {
      * router) carry no display state and contribute nothing.
      */
     @Override
-    public void appendHud(PipeContext ctx, List<Component> lines, boolean showDetails) {
-        if (showDetails) {
+    public void appendHud(PipeContext ctx, PipeHud hud) {
+        if (hud.showDetails()) {
             for (DynamicModule entry : getDynamicModuleEntries(ctx)) {
-                entry.module().appendHud(entry.scopedContext(ctx), lines, true);
+                entry.module().appendHud(entry.scopedContext(ctx), hud);
             }
             for (Module module : getStaticModules()) {
-                module.appendHud(ctx, lines, true);
+                module.appendHud(ctx, hud);
             }
         }
     }
