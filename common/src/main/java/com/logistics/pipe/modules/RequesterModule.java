@@ -187,6 +187,22 @@ public class RequesterModule implements Module, TickingModule {
         return configs;
     }
 
+    @Override
+    public void appendHud(PipeContext ctx, List<Component> lines, boolean showDetails) {
+        List<RequestConfig> configs = getRequestConfigs(ctx);
+        if (configs.isEmpty()) {
+            return;
+        }
+        lines.add(ModuleHud.summary(
+                "jade.logistics.pipe.requester", Component.translatable("jade.logistics.pipe.count", configs.size())));
+        if (!showDetails) {
+            return;
+        }
+        for (RequestConfig config : configs) {
+            lines.add(ModuleHud.detail(ModuleHud.itemName(config.itemId()).copy().append(" ×" + config.amount())));
+        }
+    }
+
     /**
      * Set a request configuration for a specific slot.
      * @param ctx Pipe context

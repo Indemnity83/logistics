@@ -172,6 +172,19 @@ public class ProviderModule implements Module, TickingModule, DispatchableModule
         return ctx.getInt(this, FILTER_INVERTED, 0) == 1;
     }
 
+    @Override
+    public void appendHud(PipeContext ctx, List<Component> lines, boolean showDetails) {
+        lines.add(ModuleHud.summary("jade.logistics.pipe.provider", getMode(ctx).getTranslationKey()));
+        if (!showDetails) {
+            return;
+        }
+        Component names = ModuleHud.itemNames(getFilterItems(ctx).asList());
+        if (!names.getString().isEmpty()) {
+            String key = isFilterInverted(ctx) ? "jade.logistics.pipe.filter.blocked" : "jade.logistics.pipe.filter";
+            lines.add(ModuleHud.detail(Component.translatable(key).append(Component.literal(": ")).append(names)));
+        }
+    }
+
     public void setFilterInverted(PipeContext ctx, boolean inverted) {
         ctx.saveInt(this, FILTER_INVERTED, inverted ? 1 : 0);
         ctx.markDirtyAndSync();

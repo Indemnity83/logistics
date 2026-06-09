@@ -126,6 +126,14 @@ public class SatelliteModule implements Module, TickingModule, RoutingModule {
         return ctx.getString(this, KEY_ID, "");
     }
 
+    @Override
+    public void appendHud(PipeContext ctx, List<Component> lines, boolean showDetails) {
+        String id = getSatelliteId(ctx);
+        Component value =
+                id.isEmpty() ? Component.translatable("jade.logistics.pipe.satellite.unset") : Component.literal(id);
+        lines.add(ModuleHud.summary("jade.logistics.pipe.satellite", value));
+    }
+
     public int getSatelliteIdInt(PipeContext ctx) {
         String s = ctx.getString(this, KEY_ID, "");
         if (s.isEmpty()) return 0;

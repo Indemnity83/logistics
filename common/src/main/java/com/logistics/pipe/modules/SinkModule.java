@@ -237,6 +237,20 @@ public class SinkModule implements Module, TickingModule, RoutingModule, ItemAcc
     }
 
     @Override
+    public void appendHud(PipeContext ctx, List<Component> lines, boolean showDetails) {
+        List<String> ids = getFilters(ctx).asList();
+        long count = ids.stream().filter(id -> id != null && !id.isEmpty()).count();
+        Component value = count > 0
+                ? Component.translatable("jade.logistics.pipe.count", count)
+                : Component.translatable(
+                        isDefaultRoute(ctx) ? "jade.logistics.pipe.sink.default" : "jade.logistics.pipe.sink.any");
+        lines.add(ModuleHud.summary("jade.logistics.pipe.sink", value));
+        if (showDetails && count > 0) {
+            lines.add(ModuleHud.detail(ModuleHud.itemNames(ids)));
+        }
+    }
+
+    @Override
     public boolean acceptsItem(PipeContext ctx, ItemStack stack) {
         return matchesFilter(ctx, stack) || isDefaultRoute(ctx);
     }

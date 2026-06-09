@@ -25,6 +25,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -383,6 +384,20 @@ public class SupplierModule implements Module, TickingModule, RoutingModule {
     public SupplyMode getMode(PipeContext ctx) {
         int ordinal = ctx.getInt(this, MODE, SupplyMode.PARTIAL.ordinal());
         return SupplyMode.values()[ordinal];
+    }
+
+    @Override
+    public void appendHud(PipeContext ctx, List<Component> lines, boolean showDetails) {
+        lines.add(ModuleHud.summary("jade.logistics.pipe.supplier", getMode(ctx).name()));
+        if (!showDetails) {
+            return;
+        }
+        for (SupplyConfig config : getSupplyConfigs(ctx)) {
+            if (config.itemId().isEmpty()) {
+                continue;
+            }
+            lines.add(ModuleHud.detail(ModuleHud.itemName(config.itemId()).copy().append(" ×" + config.amount())));
+        }
     }
 
     /**

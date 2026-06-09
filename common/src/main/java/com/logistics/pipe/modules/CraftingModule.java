@@ -29,6 +29,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
@@ -152,6 +153,37 @@ public class CraftingModule implements Module, TickingModule, RoutingModule, Dis
 
     public int getResultCount(PipeContext ctx) {
         return ctx.getInt(this, RESULT_COUNT, 1);
+    }
+
+    @Override
+    public void appendHud(PipeContext ctx, List<Component> lines, boolean showDetails) {
+        String result = getResultItem(ctx);
+        if (result.isEmpty()) {
+            lines.add(ModuleHud.summary(
+                    "jade.logistics.pipe.crafter", Component.translatable("jade.logistics.pipe.crafter.unconfigured")));
+            return;
+        }
+        MutableComponent value = ModuleHud.itemName(result).copy().append(" ×" + getResultCount(ctx));
+        if (isActive(ctx)) {
+            value.append(" ").append(Component.translatable("jade.logistics.pipe.crafter.active"));
+        }
+        lines.add(ModuleHud.summary("jade.logistics.pipe.crafter", value));
+        if (!showDetails) {
+            return;
+        }
+        List<String> ingredients = new ArrayList<>();
+        for (int slot = 0; slot < 9; slot++) { // 3x3 recipe grid
+            String id = getIngredientItem(ctx, slot);
+            if (id != null && !id.isEmpty()) {
+                ingredients.add(id);
+            }
+        }
+        if (!ingredients.isEmpty()) {
+            lines.add(ModuleHud.detail(ModuleHud.itemNames(ingredients)));
+        }
+        if (isBlocking(ctx)) {
+            lines.add(ModuleHud.detail(Component.translatable("jade.logistics.pipe.crafter.blocking")));
+        }
     }
 
     public void setResult(PipeContext ctx, String itemId, int count) {
