@@ -1,27 +1,104 @@
 {
+  "render_type": "minecraft:cutout",
   "textures": {
     "charge": "logistics:block/power/battery_charge"
   },
   "elements": [
     {
-      "from": [0, 1, -0.01], "to": [16, 10, -0.01],
+      "from": [
+        0,
+        1,
+        -0.01
+      ],
+      "to": [
+        16,
+        10,
+        -0.01
+      ],
       "shade": false,
-      "faces": { "north": { "uv": [0, 6, 16, 15], "texture": "#charge" } }
+      "faces": {
+        "north": {
+          "uv": [
+            0,
+            6,
+            16,
+            15
+          ],
+          "texture": "#charge"
+        }
+      }
     },
     {
-      "from": [0, 1, 16.01], "to": [16, 10, 16.01],
+      "from": [
+        0,
+        1,
+        16.01
+      ],
+      "to": [
+        16,
+        10,
+        16.01
+      ],
       "shade": false,
-      "faces": { "south": { "uv": [0, 6, 16, 15], "texture": "#charge" } }
+      "faces": {
+        "south": {
+          "uv": [
+            0,
+            6,
+            16,
+            15
+          ],
+          "texture": "#charge"
+        }
+      }
     },
     {
-      "from": [-0.01, 1, 0], "to": [-0.01, 10, 16],
+      "from": [
+        -0.01,
+        1,
+        0
+      ],
+      "to": [
+        -0.01,
+        10,
+        16
+      ],
       "shade": false,
-      "faces": { "west": { "uv": [0, 6, 16, 15], "texture": "#charge" } }
+      "faces": {
+        "west": {
+          "uv": [
+            0,
+            6,
+            16,
+            15
+          ],
+          "texture": "#charge"
+        }
+      }
     },
     {
-      "from": [16.01, 1, 0], "to": [16.01, 10, 16],
+      "from": [
+        16.01,
+        1,
+        0
+      ],
+      "to": [
+        16.01,
+        10,
+        16
+      ],
       "shade": false,
-      "faces": { "east": { "uv": [0, 6, 16, 15], "texture": "#charge" } }
+      "faces": {
+        "east": {
+          "uv": [
+            0,
+            6,
+            16,
+            15
+          ],
+          "texture": "#charge"
+        }
+      }
     }
   ]
 }
