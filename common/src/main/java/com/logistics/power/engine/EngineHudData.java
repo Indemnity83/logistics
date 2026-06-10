@@ -13,8 +13,19 @@ import net.minecraft.nbt.CompoundTag;
  */
 public final class EngineHudData {
 
+    // NBT keys shared with the client reader (EngineHudLines) so the two can't silently drift.
     /** NBT key whose presence marks that the tag carries engine diagnostics. */
     public static final String KEY_STAGE = "stage";
+
+    public static final String KEY_HAS_HEAT = "hasHeat";
+    public static final String KEY_TEMP = "temp";
+    public static final String KEY_MAX_TEMP = "maxTemp";
+    public static final String KEY_OUTPUT = "output";
+    public static final String KEY_RUNNING = "running";
+    public static final String KEY_OVERHEATED = "overheated";
+    public static final String KEY_STIRLING = "stirling";
+    public static final String KEY_BURN_TIME = "burnTime";
+    public static final String KEY_FUEL_TIME = "fuelTime";
 
     private EngineHudData() {}
 
@@ -24,17 +35,17 @@ public final class EngineHudData {
         data.putString(KEY_STAGE, engine.getHeatStage().name());
         // The Creative engine is the odd man out: its stage is hardwired to COLD and its temperature is
         // meaningless, so the readout hides both for it.
-        data.putBoolean("hasHeat", !(engine instanceof CreativeEngineBlockEntity));
-        data.putDouble("temp", engine.getTemperature());
-        data.putDouble("maxTemp", engine.getMaxTemperature());
-        data.putLong("output", engine.getCurrentOutputPower());
-        data.putBoolean("running", engine.isRunning());
-        data.putBoolean("overheated", engine.isOverheated());
+        data.putBoolean(KEY_HAS_HEAT, !(engine instanceof CreativeEngineBlockEntity));
+        data.putDouble(KEY_TEMP, engine.getTemperature());
+        data.putDouble(KEY_MAX_TEMP, engine.getMaxTemperature());
+        data.putLong(KEY_OUTPUT, engine.getCurrentOutputPower());
+        data.putBoolean(KEY_RUNNING, engine.isRunning());
+        data.putBoolean(KEY_OVERHEATED, engine.isOverheated());
 
         if (engine instanceof StirlingEngineBlockEntity stirling) {
-            data.putBoolean("stirling", true);
-            data.putInt("burnTime", stirling.getBurnTime());
-            data.putInt("fuelTime", stirling.getFuelTime());
+            data.putBoolean(KEY_STIRLING, true);
+            data.putInt(KEY_BURN_TIME, stirling.getBurnTime());
+            data.putInt(KEY_FUEL_TIME, stirling.getFuelTime());
         }
     }
 }

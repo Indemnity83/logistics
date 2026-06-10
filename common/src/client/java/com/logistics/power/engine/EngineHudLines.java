@@ -27,15 +27,15 @@ public final class EngineHudLines {
             return lines; // not an engine, or server data not present
         }
 
-        boolean hasHeat = NbtCompat.getBoolean(data, "hasHeat", true);
+        boolean hasHeat = NbtCompat.getBoolean(data, EngineHudData.KEY_HAS_HEAT, true);
 
         if (hasHeat && showDetails) {
             lines.add(row("jade.logistics.engine.stage", stage, stageColor(stage)));
         }
 
         if (hasHeat) {
-            double temp = NbtCompat.getDouble(data, "temp", 0);
-            double maxTemp = NbtCompat.getDouble(data, "maxTemp", 0);
+            double temp = NbtCompat.getDouble(data, EngineHudData.KEY_TEMP, 0);
+            double maxTemp = NbtCompat.getDouble(data, EngineHudData.KEY_MAX_TEMP, 0);
             // Current temperature always; the max only when expanded with the details key.
             String tempText = showDetails
                     ? String.format("%.0f°C (Max %.0f)", temp, maxTemp)
@@ -46,17 +46,17 @@ public final class EngineHudLines {
 
         lines.add(row(
                 "jade.logistics.engine.output",
-                String.format("%d RF/t", NbtCompat.getLong(data, "output", 0)),
+                String.format("%d RF/t", NbtCompat.getLong(data, EngineHudData.KEY_OUTPUT, 0)),
                 ChatFormatting.LIGHT_PURPLE));
 
-        boolean running = NbtCompat.getBoolean(data, "running", false);
+        boolean running = NbtCompat.getBoolean(data, EngineHudData.KEY_RUNNING, false);
         lines.add(labelled("jade.logistics.engine.running")
                 .append(Component.translatable(running ? "jade.logistics.common.yes" : "jade.logistics.common.no")
                         .withStyle(running ? ChatFormatting.GREEN : ChatFormatting.GRAY)));
 
-        if (showDetails && NbtCompat.getBoolean(data, "stirling", false)) {
-            int burnTime = NbtCompat.getInt(data, "burnTime", 0);
-            int fuelTime = NbtCompat.getInt(data, "fuelTime", 0);
+        if (showDetails && NbtCompat.getBoolean(data, EngineHudData.KEY_STIRLING, false)) {
+            int burnTime = NbtCompat.getInt(data, EngineHudData.KEY_BURN_TIME, 0);
+            int fuelTime = NbtCompat.getInt(data, EngineHudData.KEY_FUEL_TIME, 0);
             if (fuelTime > 0) {
                 lines.add(row(
                         "jade.logistics.engine.fuel",
@@ -68,7 +68,7 @@ public final class EngineHudLines {
             }
         }
 
-        if (NbtCompat.getBoolean(data, "overheated", false)) {
+        if (NbtCompat.getBoolean(data, EngineHudData.KEY_OVERHEATED, false)) {
             lines.add(Component.translatable("jade.logistics.engine.overheated")
                     .withStyle(ChatFormatting.RED, ChatFormatting.BOLD));
         }

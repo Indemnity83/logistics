@@ -35,11 +35,11 @@ public final class PowerInfraHudLines {
         }
         lines.add(row(
                 "jade.logistics.creative_sink.drain",
-                String.format("%d RF/t", NbtCompat.getLong(data, "drainRate", 0)),
+                String.format("%d RF/t", NbtCompat.getLong(data, PowerInfraHudData.KEY_DRAIN_RATE, 0)),
                 ChatFormatting.AQUA));
         lines.add(row(
                 "jade.logistics.creative_sink.received",
-                String.format("%d RF/t", NbtCompat.getLong(data, "received", 0)),
+                String.format("%d RF/t", NbtCompat.getLong(data, PowerInfraHudData.KEY_RECEIVED, 0)),
                 ChatFormatting.GREEN));
         return lines;
     }
