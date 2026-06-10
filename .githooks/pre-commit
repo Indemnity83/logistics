@@ -1,6 +1,19 @@
 #!/bin/sh
 # Pre-commit hook to auto-format code with Spotless
 
+# Skip during sequencer operations (cherry-pick, rebase, merge, revert).
+# These prepare the commit message in the sequencer state; the stash below
+# wipes it, causing an empty-message abort. Such commits originate from
+# already-formatted commits, and the pre-push hook + CI verify formatting.
+if [ -f "$(git rev-parse --git-path CHERRY_PICK_HEAD)" ] || \
+   [ -f "$(git rev-parse --git-path MERGE_HEAD)" ] || \
+   [ -f "$(git rev-parse --git-path REVERT_HEAD)" ] || \
+   [ -d "$(git rev-parse --git-path rebase-merge)" ] || \
+   [ -d "$(git rev-parse --git-path rebase-apply)" ]; then
+    echo "Skipping Spotless (cherry-pick/rebase/merge/revert in progress)"
+    exit 0
+fi
+
 echo "Formatting code with Spotless..."
 
 # Exit early if no staged files
