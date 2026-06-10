@@ -226,6 +226,8 @@
   "jade.logistics.quarry.power_in": "Power In",
   "jade.logistics.quarry.arm_speed": "Arm Speed",
   "jade.logistics.machine.progress": "Progress",
+  "jade.logistics.pipe.items": "Items",
+  "jade.logistics.pipe.more": "+%s more",
 
   "tag.item.c.ingots.tin": "Tin Ingots",
   "tag.item.c.ingots.bronze": "Bronze Ingots",
