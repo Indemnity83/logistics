@@ -93,11 +93,13 @@ public class RequesterModule implements Module, TickingModule {
 
         Level world = ctx.world();
         BlockPos pos = ctx.pos();
+        String moduleStateKey = ctx.moduleStateKey(this);
         serverPlayer.openMenu(new SimpleMenuProvider(
                 (syncId, inventory, p) -> new RequesterScreenHandler(
                         syncId,
                         inventory,
-                        world.getBlockEntity(pos) instanceof PipeBlockEntity entity ? entity : null
+                        world.getBlockEntity(pos) instanceof PipeBlockEntity entity ? entity : null,
+                        moduleStateKey
                 ),
                 Component.translatable("screen.logistics.requester")
         ));

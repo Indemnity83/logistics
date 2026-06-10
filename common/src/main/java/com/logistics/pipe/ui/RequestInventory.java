@@ -7,6 +7,7 @@ import com.logistics.pipe.modules.RequesterModule;
 import net.minecraft.core.NonNullList;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,11 +22,17 @@ public class RequestInventory implements Container {
     private final NonNullList<ItemStack> stacks =
             NonNullList.withSize(RequesterModule.MAX_REQUEST_SLOTS, ItemStack.EMPTY);
     private final PipeBlockEntity pipeEntity;
+    @Nullable private final String targetModuleStateKey;
     private List<ItemStack> cachedItems = new ArrayList<>();  // Client-side cached items from sync packet
     private List<Long> cachedAmounts = new ArrayList<>();  // Client-side cached full amounts
 
     public RequestInventory(PipeBlockEntity pipeEntity) {
+        this(pipeEntity, null);
+    }
+
+    public RequestInventory(PipeBlockEntity pipeEntity, @Nullable String targetModuleStateKey) {
         this.pipeEntity = pipeEntity;
+        this.targetModuleStateKey = targetModuleStateKey;
 
         if (pipeEntity != null) {
             loadFromNetwork();

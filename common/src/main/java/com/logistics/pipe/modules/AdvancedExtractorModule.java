@@ -136,9 +136,10 @@ public class AdvancedExtractorModule implements Module, TickingModule {
         if (ctx.world().isClientSide()) return InteractionResult.SUCCESS;
         if (!(player instanceof ServerPlayer serverPlayer)) return InteractionResult.PASS;
 
+        String moduleStateKey = ctx.moduleStateKey(this);
         serverPlayer.openMenu(new SimpleMenuProvider(
                 (syncId, playerInventory, p) -> new AdvancedExtractorScreenHandler(
-                        syncId, playerInventory, ((PipeBlockEntity) ctx.blockEntity())),
+                        syncId, playerInventory, ((PipeBlockEntity) ctx.blockEntity()), moduleStateKey),
                 Component.translatable("screen.logistics.advanced_extractor")));
         return InteractionResult.SUCCESS;
     }

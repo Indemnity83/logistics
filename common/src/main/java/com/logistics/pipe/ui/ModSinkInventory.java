@@ -2,8 +2,7 @@ package com.logistics.pipe.ui;
 
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.core.lib.compat.NbtCompat;
-import com.logistics.pipe.Pipe;
-import com.logistics.pipe.block.PipeBlock;
+import com.logistics.core.lib.pipe.PipeContext;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.pipe.modules.ModSinkModule;
 import net.minecraft.core.NonNullList;
@@ -14,6 +13,7 @@ import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Ghost inventory backing the mod filter display slots in the Mod-Based Item Sink GUI.
@@ -25,20 +25,30 @@ import net.minecraft.world.item.component.CustomData;
 public class ModSinkInventory implements Container {
     private final NonNullList<ItemStack> items =
             NonNullList.withSize(ModSinkModule.MAX_FILTERS, ItemStack.EMPTY);
+    @Nullable private final String targetModuleStateKey;
 
     public ModSinkInventory(@SuppressWarnings("unused") PipeBlockEntity pipeEntity) {
+        this(pipeEntity, null);
+    }
+
+    public ModSinkInventory(@SuppressWarnings("unused") PipeBlockEntity pipeEntity,
+            @Nullable String targetModuleStateKey) {
+        this.targetModuleStateKey = targetModuleStateKey;
         if (pipeEntity != null) {
             loadFilters(pipeEntity);
         }
     }
 
     private void loadFilters(PipeBlockEntity pipeEntity) {
-        PipeBlock block = (PipeBlock) pipeEntity.getBlockState().getBlock();
-        Pipe pipe = block.getPipe();
-        ModSinkModule module = pipe.getModule(ModSinkModule.class, pipeEntity);
+        ModSinkModule module =
+                PipeModuleHelper.getModule(pipeEntity, ModSinkModule.class, targetModuleStateKey);
         if (module == null) return;
 
-        String[] filterIds = module.getFilterItemIds(pipeEntity.createContext());
+        PipeContext ctx = pipeEntity.createContext();
+        if (targetModuleStateKey != null) {
+            ctx = ctx.withModuleStateKey(module, targetModuleStateKey);
+        }
+        String[] filterIds = module.getFilterItemIds(ctx);
         for (int i = 0; i < filterIds.length; i++) {
             if (filterIds[i].isEmpty()) continue;
             ResourceId rid = ResourceId.tryParse(filterIds[i]);
