@@ -1,6 +1,7 @@
 package com.logistics.compat.jade;
 
 import com.logistics.LogisticsMod;
+import com.logistics.automation.laserquarry.LaserQuarryBlock;
 import com.logistics.core.lib.power.AbstractEngineBlock;
 import com.logistics.power.block.CreativeSinkBlock;
 import com.logistics.power.cable.CableBlock;
@@ -14,7 +15,8 @@ import snownee.jade.api.WailaPlugin;
  * {@code "jade"} entrypoint in fabric.mod.json — so it only initializes when Jade is actually installed.
  *
  * <p>Per-block content is added in stacked passes; see {@code EngineServerDataProvider} /
- * {@code EngineComponentProvider} for engines and {@code PowerInfra*Provider} for cables and the sink.
+ * {@code EngineComponentProvider} for engines, {@code PowerInfra*Provider} for cables and the sink, and
+ * {@code QuarryServerDataProvider} / {@code QuarryComponentProvider} for the laser quarry.
  */
 @WailaPlugin(LogisticsMod.MOD_ID)
 public class JadeLogisticsPlugin implements IWailaPlugin {
@@ -23,6 +25,7 @@ public class JadeLogisticsPlugin implements IWailaPlugin {
     public void register(IWailaCommonRegistration registration) {
         registration.registerBlockDataProvider(EngineServerDataProvider.INSTANCE, AbstractEngineBlock.class);
         registration.registerBlockDataProvider(PowerInfraServerDataProvider.INSTANCE, CreativeSinkBlock.class);
+        registration.registerBlockDataProvider(QuarryServerDataProvider.INSTANCE, LaserQuarryBlock.class);
     }
 
     @Override
@@ -30,5 +33,6 @@ public class JadeLogisticsPlugin implements IWailaPlugin {
         registration.registerBlockComponent(EngineComponentProvider.INSTANCE, AbstractEngineBlock.class);
         registration.registerBlockComponent(PowerInfraComponentProvider.INSTANCE, CableBlock.class);
         registration.registerBlockComponent(PowerInfraComponentProvider.INSTANCE, CreativeSinkBlock.class);
+        registration.registerBlockComponent(QuarryComponentProvider.INSTANCE, LaserQuarryBlock.class);
     }
 }
