@@ -4,7 +4,6 @@ import com.logistics.LogisticsAutomation;
 import com.logistics.automation.render.ClientRenderCacheHooks;
 import com.logistics.core.LogisticsConfig;
 import com.logistics.core.lib.block.BaseBlockEntity;
-import com.logistics.core.lib.block.behavior.ProbeResult;
 import com.logistics.core.lib.block.capability.HasEnergyStorage;
 import com.logistics.core.lib.block.capability.PipeConnection;
 import com.logistics.core.lib.compat.NbtCompat;
@@ -12,7 +11,6 @@ import com.logistics.core.lib.energy.EnergyComponent;
 import com.logistics.core.lib.energy.IEnergyStorage;
 import com.logistics.core.lib.power.EnergyDemandProvider;
 import java.util.List;
-import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -224,30 +222,6 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity
         return (double) energy.getAmount() / LogisticsConfig.get().quarry.energyCapacity();
     }
 
-    private long getCurrentBufferDraw() {
-        if (phaseRunner.isFinished()) {
-            return 0;
-        }
-
-        return switch (phaseRunner.getPhase()) {
-            case CLEARING -> phaseRunner.getCurrentBreakTime() < 0
-                    ? LogisticsConfig.get().quarry.maxEnergyInput()
-                    : phaseRunner.getCurrentBreakTime() > phaseRunner.getBreakProgress()
-                            ? (long) Math.ceil(phaseRunner.getCurrentBreakTime() - phaseRunner.getBreakProgress())
-                            : 0;
-            case BUILDING_FRAME -> FRAME_BUILD_COST;
-            case MINING -> switch (armController.getState()) {
-                case MOVING -> getMoveCost();
-                case SETTLING -> 0;
-                case BREAKING -> phaseRunner.getCurrentBreakTime() < 0
-                        ? LogisticsConfig.get().quarry.maxEnergyInput()
-                        : phaseRunner.getCurrentBreakTime() > phaseRunner.getBreakProgress()
-                                ? (long) Math.ceil(phaseRunner.getCurrentBreakTime() - phaseRunner.getBreakProgress())
-                                : 0;
-            };
-        };
-    }
-
     @Override
     public long networkDemandPerTick() {
         long storageRoom = Math.max(0, LogisticsConfig.get().quarry.energyCapacity() - energy.getAmount());
@@ -257,58 +231,6 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity
 
     public long getEnergyReceivedLastTick() {
         return energyReceivedLastTick;
-    }
-
-    // ==================== Probe ====================
-
-    public ProbeResult getProbeResult() {
-        ProbeResult.Builder builder = ProbeResult.builder("Laser Quarry Status");
-
-        String phaseName = switch (phaseRunner.getPhase()) {
-            case CLEARING -> "Clearing";
-            case BUILDING_FRAME -> "Building Frame";
-            case MINING -> "Mining";
-        };
-        if (phaseRunner.isFinished()) {
-            builder.entry("Phase", "Finished", ChatFormatting.AQUA);
-        } else if (phaseRunner.getPhase() == Phase.BUILDING_FRAME) {
-            builder.entry("Phase", phaseName + " (need 240 RF)", ChatFormatting.AQUA);
-        } else {
-            builder.entry("Phase", phaseName, ChatFormatting.AQUA);
-        }
-
-        double energyPercent = getEnergyLevel() * 100;
-        ChatFormatting energyColor = energyPercent > 50
-                ? ChatFormatting.GREEN
-                : energyPercent > 20 ? ChatFormatting.YELLOW : ChatFormatting.RED;
-        builder.entry(
-                "Energy",
-                String.format(
-                        "%,d / %,d RF (%.1f%%)",
-                        energy.getAmount(),
-                        LogisticsConfig.get().quarry.energyCapacity(),
-                        energyPercent),
-                energyColor);
-
-        if (!phaseRunner.isFinished()) {
-            builder.entry("Power In", String.format("%,d RF/t", energyReceivedLastTick), ChatFormatting.GREEN);
-            builder.entry("Buffer Draw", String.format("%,d RF/t", getCurrentBufferDraw()), ChatFormatting.GOLD);
-
-            if (phaseRunner.getPhase() == Phase.MINING) {
-                float speed = getEffectiveArmSpeed();
-                String speedText = String.format("%.2f blocks/tick", speed);
-                if (level != null && level.isRainingAt(worldPosition.above())) {
-                    speedText += " (rain)";
-                }
-                builder.entry("Arm Speed", speedText, ChatFormatting.LIGHT_PURPLE);
-            }
-        }
-
-        if (energy.getAmount() == 0 && !phaseRunner.isFinished()) {
-            builder.warning("No power!");
-        }
-
-        return builder.build();
     }
 
     // ==================== NBT ====================
@@ -387,7 +309,7 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity
         }
     }
 
-    // ==================== Public getters (renderer / frame block / probe) ====================
+    // ==================== Public getters (renderer / frame block) ====================
 
     public Phase getCurrentPhase() {
         return phaseRunner.getPhase();
