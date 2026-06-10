@@ -37,16 +37,22 @@ public class AdvancedExtractorScreenHandler extends AbstractContainerMenu {
     private final ContainerData data;
     private final AdvancedExtractorFilterInventory filterInventory;
     private final ContainerLevelAccess context;
+    @Nullable private final String targetModuleStateKey;
     @Nullable private final ServerPlayer itemConfigPlayer;
     @Nullable private final InteractionHand itemConfigHand;
     @Nullable private final ItemStack pinnedStack;
 
     public AdvancedExtractorScreenHandler(int syncId, Container playerInventory) {
-        this(syncId, playerInventory, null, new SimpleContainerData(1));
+        this(syncId, playerInventory, null, null, new SimpleContainerData(1));
     }
 
     public AdvancedExtractorScreenHandler(int syncId, Container playerInventory, PipeBlockEntity pipeEntity) {
-        this(syncId, playerInventory, pipeEntity, new SimpleContainerData(1));
+        this(syncId, playerInventory, pipeEntity, null, new SimpleContainerData(1));
+    }
+
+    public AdvancedExtractorScreenHandler(
+            int syncId, Container playerInventory, PipeBlockEntity pipeEntity, @Nullable String targetModuleStateKey) {
+        this(syncId, playerInventory, pipeEntity, targetModuleStateKey, new SimpleContainerData(1));
     }
 
     public AdvancedExtractorScreenHandler(int syncId, Container playerInventory, ServerPlayer player, InteractionHand hand) {
@@ -54,6 +60,7 @@ public class AdvancedExtractorScreenHandler extends AbstractContainerMenu {
         this.data = new SimpleContainerData(1);
         this.itemConfigPlayer = player;
         this.itemConfigHand = hand;
+        this.targetModuleStateKey = null;
         this.context = ContainerLevelAccess.NULL;
         ItemStack stack = player.getItemInHand(hand);
         this.pinnedStack = stack;
@@ -69,17 +76,22 @@ public class AdvancedExtractorScreenHandler extends AbstractContainerMenu {
     }
 
     private AdvancedExtractorScreenHandler(
-            int syncId, Container playerInventory, PipeBlockEntity pipeEntity, ContainerData data) {
+            int syncId,
+            Container playerInventory,
+            PipeBlockEntity pipeEntity,
+            @Nullable String targetModuleStateKey,
+            ContainerData data) {
         super(LogisticsPipe.SCREEN.ADVANCED_EXTRACTOR, syncId);
         this.data = data;
+        this.targetModuleStateKey = targetModuleStateKey;
         this.itemConfigPlayer = null;
         this.itemConfigHand = null;
         this.pinnedStack = null;
-        this.filterInventory = new AdvancedExtractorFilterInventory(pipeEntity);
+        this.filterInventory = new AdvancedExtractorFilterInventory(pipeEntity, targetModuleStateKey);
 
         if (pipeEntity != null) {
             this.context = ContainerLevelAccess.create(pipeEntity.getLevel(), pipeEntity.getBlockPos());
-            PipeModuleHelper.withModule(pipeEntity, AdvancedExtractorModule.class, (ctx, module) ->
+            PipeModuleHelper.withModule(pipeEntity, AdvancedExtractorModule.class, targetModuleStateKey, (ctx, module) ->
                     data.set(0, module.isFilterInverted(ctx) ? 1 : 0));
         } else {
             this.context = ContainerLevelAccess.NULL;
@@ -148,7 +160,7 @@ public class AdvancedExtractorScreenHandler extends AbstractContainerMenu {
                     });
                 } else {
                     filterInventory.setItem(slotIndex, ItemStack.EMPTY);
-                    PipeModuleHelper.withModule(context, AdvancedExtractorModule.class, (ctx, module) ->
+                    PipeModuleHelper.withModule(context, AdvancedExtractorModule.class, targetModuleStateKey, (ctx, module) ->
                             module.setFilterItem(ctx, slotIndex, ""));
                 }
                 broadcastChanges();
@@ -168,7 +180,7 @@ public class AdvancedExtractorScreenHandler extends AbstractContainerMenu {
                 });
             } else {
                 filterInventory.setItem(slotIndex, cursor.copyWithCount(1));
-                PipeModuleHelper.withModule(context, AdvancedExtractorModule.class, (ctx, module) ->
+                PipeModuleHelper.withModule(context, AdvancedExtractorModule.class, targetModuleStateKey, (ctx, module) ->
                         module.setFilterItem(ctx, slotIndex, itemId));
             }
             broadcastChanges();
@@ -187,7 +199,7 @@ public class AdvancedExtractorScreenHandler extends AbstractContainerMenu {
                 if (!isPinnedItemStillHeld()) return true;
                 ItemTagUtils.writeToItemTag(itemConfigPlayer, itemConfigHand, tag -> tag.putInt(AdvancedExtractorModule.FILTER_INVERTED, newInverted));
             } else {
-                PipeModuleHelper.withModule(context, AdvancedExtractorModule.class, (ctx, module) ->
+                PipeModuleHelper.withModule(context, AdvancedExtractorModule.class, targetModuleStateKey, (ctx, module) ->
                         module.setFilterInverted(ctx, newInverted == 1));
             }
             return true;
@@ -214,7 +226,7 @@ public class AdvancedExtractorScreenHandler extends AbstractContainerMenu {
             super.broadcastChanges();
             return;
         }
-        PipeModuleHelper.withModule(context, AdvancedExtractorModule.class, (ctx, module) ->
+        PipeModuleHelper.withModule(context, AdvancedExtractorModule.class, targetModuleStateKey, (ctx, module) ->
                 data.set(0, module.isFilterInverted(ctx) ? 1 : 0));
         super.broadcastChanges();
     }

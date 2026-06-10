@@ -18,10 +18,16 @@ public class ProcessInventory extends SimpleContainer {
     public static final int TOTAL_SLOTS = INPUT_SLOTS + OUTPUT_SLOTS;
 
     @Nullable private final PipeBlockEntity pipeEntity;
+    @Nullable private final String targetModuleStateKey;
 
     public ProcessInventory(@Nullable PipeBlockEntity pipeEntity) {
+        this(pipeEntity, null);
+    }
+
+    public ProcessInventory(@Nullable PipeBlockEntity pipeEntity, @Nullable String targetModuleStateKey) {
         super(TOTAL_SLOTS);
         this.pipeEntity = pipeEntity;
+        this.targetModuleStateKey = targetModuleStateKey;
         if (pipeEntity != null) {
             loadFromModule();
         }
@@ -30,7 +36,7 @@ public class ProcessInventory extends SimpleContainer {
     /** Refresh display slots from the module's current NBT state. */
     public void loadFromModule() {
         if (pipeEntity == null) return;
-        PipeModuleHelper.withModule(pipeEntity, ProcessModule.class, (ctx, module) -> {
+        PipeModuleHelper.withModule(pipeEntity, ProcessModule.class, targetModuleStateKey, (ctx, module) -> {
             for (int i = 0; i < INPUT_SLOTS; i++) {
                 setItem(i, resolveDisplayStack(module.getInputItem(ctx, i), module.getInputCount(ctx, i)));
             }
