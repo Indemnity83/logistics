@@ -9,6 +9,7 @@ import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.core.lib.serialization.DirectionSerializer;
 import com.logistics.core.lib.filter.FilterSlots;
 import com.logistics.core.lib.pipe.PipeContext;
+import com.logistics.core.lib.pipe.PipeHud;
 import com.logistics.core.lib.storage.IItemKey;
 import com.logistics.core.lib.storage.IItemStorage;
 import com.logistics.core.lib.storage.IItemView;
@@ -75,6 +76,23 @@ public class AdvancedExtractorModule implements Module, TickingModule {
 
     public boolean isFilterInverted(PipeContext ctx) {
         return ctx.getInt(this, FILTER_INVERTED, 0) == 1;
+    }
+
+    @Override
+    public void appendHud(PipeContext ctx, PipeHud hud) {
+        if (isFilterInverted(ctx)) {
+            hud.line(ModuleHud.detail(Component.translatable("jade.logistics.pipe.filter.none")));
+            return;
+        }
+        List<ItemStack> stacks = getFilterItems(ctx).asList().stream()
+                .map(id -> ModuleHud.stack(id, 1))
+                .filter(stack -> !stack.isEmpty())
+                .toList();
+        if (stacks.isEmpty()) {
+            hud.line(ModuleHud.detail(Component.translatable("jade.logistics.pipe.filter.any")));
+        } else {
+            hud.items(stacks);
+        }
     }
 
     public void setFilterInverted(PipeContext ctx, boolean inverted) {

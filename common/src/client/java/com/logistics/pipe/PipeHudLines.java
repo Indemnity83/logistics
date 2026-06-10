@@ -1,15 +1,20 @@
 package com.logistics.pipe;
 
+import com.logistics.core.lib.pipe.PipeContext;
+import com.logistics.core.lib.pipe.PipeHud;
 import com.logistics.core.lib.pipe.TravelingItem;
+import com.logistics.pipe.block.PipeBlock;
+import com.logistics.pipe.block.entity.PipeBlockEntity;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.state.BlockState;
 
 /**
- * Builds the pipe HUD lines from the traveling items the pipe is carrying (synced for rendering, so read
- * client-side — no server data round-trip). The count shows always; the per-item breakdown shows when
- * Jade's details key is held.
+ * Builds the pipe HUD: items in transit and each module's status. Item displays (chassis modules, filter
+ * contents, supplied/requested items, recipes) render as icons at {@link #ICON_SCALE} — tweak there.
  */
 public final class PipeHudLines {
 
@@ -17,6 +22,23 @@ public final class PipeHudLines {
     private static final int MAX_DETAIL_ITEMS = 5;
 
     private PipeHudLines() {}
+
+    /** Drives each module's {@code appendHud} for this pipe, writing to the given (loader-rendered) sink. */
+    public static void appendModuleHud(BlockState state, PipeBlockEntity pipe, PipeHud hud) {
+        if (state.getBlock() instanceof PipeBlock pipeBlock && pipeBlock.getPipe() != null) {
+            PipeContext ctx = new PipeContext(pipe.getLevel(), pipe.getBlockPos(), state, pipe);
+            pipeBlock.getPipe().appendHud(ctx, hud);
+        }
+    }
+
+    /** The module item stacks installed in a chassis pipe (empty for non-chassis), for icon display. */
+    public static List<ItemStack> installedModules(BlockState state, PipeBlockEntity pipe) {
+        if (state.getBlock() instanceof PipeBlock pipeBlock && pipeBlock.getPipe() instanceof ChassisPipe chassis) {
+            PipeContext ctx = new PipeContext(pipe.getLevel(), pipe.getBlockPos(), state, pipe);
+            return chassis.getInstalledModuleStacks(ctx);
+        }
+        return List.of();
+    }
 
     public static List<Component> build(List<TravelingItem> items, boolean showDetails) {
         List<Component> lines = new ArrayList<>();

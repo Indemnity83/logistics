@@ -8,6 +8,7 @@ import com.logistics.pipe.network.NetDbg;
 import com.logistics.core.lib.pipe.Module;
 import com.logistics.core.lib.compat.NbtCompat;
 import com.logistics.core.lib.pipe.PipeContext;
+import com.logistics.core.lib.pipe.PipeHud;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.core.lib.pipe.RoutePlan;
 import com.logistics.core.lib.pipe.TravelingItem;
@@ -23,6 +24,8 @@ import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
+import net.minecraft.network.chat.TextColor;
 import net.minecraft.resources.RegistryOps;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -122,6 +125,43 @@ public class ItemFilterModule implements Module, RoutingModule {
     @Override
     public Integer getArmTint(PipeContext ctx, Direction direction) {
         return getFilterColor(direction);
+    }
+
+    @Override
+    public void appendHud(PipeContext ctx, PipeHud hud) {
+        List<ItemStack> distinct = new ArrayList<>();
+        for (Direction direction : FILTER_ORDER) {
+            for (ItemStack stack : getFilterStacks(ctx, direction)) {
+                if (!stack.isEmpty()
+                        && distinct.stream().noneMatch(existing -> ItemStack.isSameItemSameComponents(existing, stack))) {
+                    distinct.add(stack);
+                }
+            }
+        }
+        if (distinct.isEmpty()) {
+            return;
+        }
+
+        hud.line(ModuleHud.summary(
+                "jade.logistics.pipe.filter", Component.translatable("jade.logistics.pipe.count", distinct.size())));
+
+        if (!hud.showDetails()) {
+            return;
+        }
+        // One line per side, items colored to match that side's filter color — the colour is the label.
+        for (Direction direction : FILTER_ORDER) {
+            List<String> names = new ArrayList<>();
+            for (ItemStack stack : getFilterStacks(ctx, direction)) {
+                if (!stack.isEmpty()) {
+                    names.add(stack.getHoverName().getString());
+                }
+            }
+            if (names.isEmpty()) {
+                continue;
+            }
+            hud.line(Component.literal(String.join(", ", names))
+                    .withStyle(Style.EMPTY.withColor(TextColor.fromRgb(getFilterColor(direction)))));
+        }
     }
 
     public List<String> getFilterSlots(PipeContext ctx, Direction direction) {

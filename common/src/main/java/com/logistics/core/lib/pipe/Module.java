@@ -27,6 +27,16 @@ public interface Module {
     @Deprecated
     default void onTick(PipeContext ctx) {}
 
+    /**
+     * Contributes this module's status to a look-at HUD (Jade). Reads the module's own synced state via
+     * {@code ctx} and writes lines / item rows to {@code hud}. Convention: terse always; fuller detail
+     * only when {@link PipeHud#showDetails()}. Default: nothing.
+     *
+     * @param ctx the pipe context, already scoped to this module's state key
+     * @param hud the HUD writer to emit lines / item rows to
+     */
+    default void appendHud(PipeContext ctx, PipeHud hud) {}
+
     default float getAcceleration(PipeContext ctx) {
         return 0f;
     }
