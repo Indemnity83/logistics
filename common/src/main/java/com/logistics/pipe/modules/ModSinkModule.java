@@ -27,6 +27,7 @@ import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 /**
@@ -170,6 +171,22 @@ public class ModSinkModule implements Module, TickingModule, RoutingModule, Item
             result[i] = ctx.getString(this, MOD_IDS + "_" + i, "");
         }
         return result;
+    }
+
+    @Override
+    public void appendHud(PipeContext ctx, PipeHud hud) {
+        // Stored as example item ids; the accepted "mod" is each id's namespace.
+        LinkedHashSet<String> mods = new LinkedHashSet<>();
+        for (String itemId : getFilterItemIds(ctx)) {
+            if (itemId == null || itemId.isEmpty()) {
+                continue;
+            }
+            int colon = itemId.indexOf(':');
+            mods.add(colon > 0 ? itemId.substring(0, colon) : itemId);
+        }
+        if (!mods.isEmpty()) {
+            hud.line(ModuleHud.summary("jade.logistics.pipe.mods", Component.literal(String.join(", ", mods))));
+        }
     }
 
     /**
