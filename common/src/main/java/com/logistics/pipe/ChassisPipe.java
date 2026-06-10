@@ -139,7 +139,9 @@ public class ChassisPipe extends Pipe {
             boolean missingModuleId = ModuleItem.getModuleId(stack).isBlank();
             Module module = moduleItem.createModule();
             String stateKey = moduleStateKey(stack, module);
-            if (missingModuleId) {
+            // Assigning the persistent module id is a server-side mutation; never write/sync from a
+            // client read (e.g. a HUD enumerating modules). Client state already carries the synced id.
+            if (missingModuleId && !ctx.world().isClientSide()) {
                 ItemStack.CODEC.encodeStart(ops, stack).result()
                         .ifPresent(encoded -> state.put(slotKey, encoded));
                 ctx.markDirtyAndSync();
@@ -155,6 +157,39 @@ public class ChassisPipe extends Pipe {
             loadSlot(ctx, slot, ops).ifPresent(modules::add);
         }
         return modules;
+    }
+
+    /** Returns the module item stacks currently installed in this chassis, for display (e.g. a HUD). */
+    public List<ItemStack> getInstalledModuleStacks(PipeContext ctx) {
+        List<ItemStack> stacks = new ArrayList<>();
+        var state = ctx.moduleState(STATE_KEY);
+        RegistryOps<Tag> ops = ctx.world().registryAccess().createSerializationContext(NbtOps.INSTANCE);
+        for (int slot = 0; slot < maxSlots; slot++) {
+            Tag tag = state.get(String.valueOf(slot));
+            if (tag == null) continue;
+            ItemStack.CODEC.parse(ops, tag).result().ifPresent(stack -> {
+                if (stack.getItem() instanceof ModuleItem) stacks.add(stack);
+            });
+        }
+        return stacks;
+    }
+
+    /**
+     * Chassis HUD: on the details key, let each installed module contribute its own config lines (scoped
+     * to its state). The always-shown row of installed module icons is rendered by the loader Jade
+     * provider (icons are a Jade UI element, not a text component). Fixed modules (e.g. the network
+     * router) carry no display state and contribute nothing.
+     */
+    @Override
+    public void appendHud(PipeContext ctx, PipeHud hud) {
+        if (hud.showDetails()) {
+            for (DynamicModule entry : getDynamicModuleEntries(ctx)) {
+                entry.module().appendHud(entry.scopedContext(ctx), hud);
+            }
+            for (Module module : getStaticModules()) {
+                module.appendHud(ctx, hud);
+            }
+        }
     }
 
     // -------------------------------------------------------------------------

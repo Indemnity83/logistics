@@ -12,6 +12,7 @@ import com.logistics.core.lib.serialization.DirectionSerializer;
 import com.logistics.core.lib.storage.IItemKey;
 import com.logistics.core.lib.storage.ItemStorageLookup;
 import com.logistics.core.lib.pipe.PipeContext;
+import com.logistics.core.lib.pipe.PipeHud;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.pipe.network.NetworkRegistry;
 import com.logistics.pipe.ui.RequesterScreenHandler;
@@ -185,6 +186,17 @@ public class RequesterModule implements Module, TickingModule {
         }
 
         return configs;
+    }
+
+    @Override
+    public void appendHud(PipeContext ctx, PipeHud hud) {
+        List<ItemStack> stacks = getRequestConfigs(ctx).stream()
+                .map(config -> ModuleHud.stack(config.itemId(), config.amount()))
+                .filter(stack -> !stack.isEmpty())
+                .toList();
+        if (!stacks.isEmpty()) {
+            hud.items(stacks);
+        }
     }
 
     /**
