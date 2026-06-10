@@ -4,6 +4,7 @@ import com.logistics.LogisticsMod;
 import com.logistics.core.LogisticsConfig;
 import com.logistics.core.lib.block.capability.PipeConnection;
 import com.logistics.core.lib.pipe.PipeContext;
+import com.logistics.core.lib.pipe.PipeHud;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.pipe.block.PipeBlock;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
@@ -328,6 +329,17 @@ public class Pipe {
      */
     public List<Module> getModules(PipeBlockEntity entity) {
         return modules;
+    }
+
+    /**
+     * Appends this pipe's module status to a look-at HUD (Jade). Each module contributes via the
+     * {@link PipeHud} writer. {@link ChassisPipe} overrides this to scope each dynamic module to its own
+     * state.
+     */
+    public void appendHud(PipeContext ctx, PipeHud hud) {
+        for (Module module : getStaticModules()) {
+            module.appendHud(ctx, hud);
+        }
     }
 
     /**

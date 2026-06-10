@@ -37,6 +37,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -126,6 +127,40 @@ public class ProcessModule implements Module, TickingModule, RoutingModule, Disp
 
     public boolean isActive(PipeContext ctx) {
         return !getQueue(ctx).isEmpty();
+    }
+
+    @Override
+    public void appendHud(PipeContext ctx, PipeHud hud) {
+        List<ItemStack> outputs = new ArrayList<>();
+        for (int slot = 0; slot < MAX_OUTPUTS; slot++) {
+            ItemStack stack = ModuleHud.stack(getOutputItem(ctx, slot), getOutputCount(ctx, slot));
+            if (!stack.isEmpty()) {
+                outputs.add(stack);
+            }
+        }
+        if (outputs.isEmpty()) {
+            hud.line(ModuleHud.detail(Component.translatable("jade.logistics.pipe.crafter.unconfigured")));
+            return;
+        }
+        hud.items(outputs);
+        if (!hud.showDetails()) {
+            return;
+        }
+        // Inputs aggregated by item so duplicates show a count, like an inventory.
+        Map<String, Integer> aggregated = new LinkedHashMap<>();
+        for (int slot = 0; slot < MAX_INPUTS; slot++) {
+            String id = getInputItem(ctx, slot);
+            if (id != null && !id.isEmpty()) {
+                aggregated.merge(id, Math.max(1, getInputCount(ctx, slot)), Integer::sum);
+            }
+        }
+        List<ItemStack> inputs = aggregated.entrySet().stream()
+                .map(entry -> ModuleHud.stack(entry.getKey(), entry.getValue()))
+                .filter(stack -> !stack.isEmpty())
+                .toList();
+        if (!inputs.isEmpty()) {
+            hud.items(inputs);
+        }
     }
 
     // ==================== Queue Helpers ====================

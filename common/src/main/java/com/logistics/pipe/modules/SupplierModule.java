@@ -24,7 +24,9 @@ import com.logistics.pipe.ui.SupplierScreenHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
+import com.logistics.core.lib.pipe.PipeHud;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -36,6 +38,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -389,6 +392,19 @@ public class SupplierModule implements Module, TickingModule, RoutingModule {
     public SupplyMode getMode(PipeContext ctx) {
         int ordinal = ctx.getInt(this, MODE, SupplyMode.PARTIAL.ordinal());
         return SupplyMode.values()[ordinal];
+    }
+
+    @Override
+    public void appendHud(PipeContext ctx, PipeHud hud) {
+        List<ItemStack> stacks = getSupplyConfigs(ctx).stream()
+                .map(config -> ModuleHud.stack(config.itemId(), config.amount()))
+                .filter(stack -> !stack.isEmpty())
+                .toList();
+        if (!stacks.isEmpty()) {
+            hud.items(stacks);
+        }
+        hud.line(ModuleHud.detail(
+                Component.translatable("gui.logistics.mode." + getMode(ctx).name().toLowerCase(Locale.ROOT))));
     }
 
     /**
