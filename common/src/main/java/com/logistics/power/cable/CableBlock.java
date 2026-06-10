@@ -1,8 +1,6 @@
 package com.logistics.power.cable;
 
 import com.logistics.LogisticsPower;
-import com.logistics.core.lib.block.behavior.ProbeBehavior;
-import com.logistics.core.lib.block.behavior.ProbeResult;
 import com.logistics.core.lib.block.capability.HasEnergyStorage;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
@@ -38,7 +36,7 @@ import org.jetbrains.annotations.Nullable;
  * <p>Uses the same visual shape system as pipes (8px core + directional arms)
  * and connects to any block exposing energy storage via the loader's capability system.
  */
-public class CableBlock extends BaseEntityBlock implements ProbeBehavior.Probeable, SimpleWaterloggedBlock {
+public class CableBlock extends BaseEntityBlock implements SimpleWaterloggedBlock {
     public static final MapCodec<CableBlock> CODEC = simpleCodec(CableBlock::new);
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 
@@ -193,14 +191,6 @@ public class CableBlock extends BaseEntityBlock implements ProbeBehavior.Probeab
     @Override
     public FluidState getFluidState(BlockState state) {
         return state.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(state);
-    }
-
-    @Nullable @Override
-    public ProbeResult onProbe(Level world, BlockPos pos, Player player) {
-        if (world.getBlockEntity(pos) instanceof CableBlockEntity cable) {
-            return cable.getProbeResult();
-        }
-        return null;
     }
 
     /**

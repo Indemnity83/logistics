@@ -26,7 +26,7 @@ import java.util.function.Supplier;
  *     Component.literal("Logistics"),
  *     () -> new ItemStack(ITEM.IRON_GEAR)
  * );
- * LOGISTICS_TAB.add(ITEM.WRENCH, ITEM.PROBE);
+ * LOGISTICS_TAB.add(ITEM.WRENCH, ITEM.IRON_GEAR);
  *
  * // fabric adapter — register once
  * FabricCreativeModeTab.builder()

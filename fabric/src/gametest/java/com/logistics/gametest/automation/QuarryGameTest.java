@@ -87,7 +87,7 @@ public class QuarryGameTest {
 
         context.runAfterDelay(1, () -> {
             if (quarry.getEnergyReceivedLastTick() != 60) {
-                context.fail("Expected quarry probe input to report 60 RF/t, got "
+                context.fail("Expected quarry to report 60 RF/t input, got "
                         + quarry.getEnergyReceivedLastTick());
                 return;
             }

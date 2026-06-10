@@ -2,13 +2,11 @@ package com.logistics.power.block.entity;
 
 import com.logistics.LogisticsPower;
 import com.logistics.core.lib.block.BaseBlockEntity;
-import com.logistics.core.lib.block.behavior.ProbeResult;
 import com.logistics.core.lib.block.capability.HasEnergyStorage;
 import com.logistics.core.lib.compat.NbtCompat;
 import com.logistics.core.lib.energy.IEnergyStorage;
 import com.logistics.core.lib.power.AcceptsLowTierEnergy;
 import com.logistics.core.lib.power.EnergyDemandProvider;
-import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -109,13 +107,12 @@ public class CreativeSinkBlockEntity extends BaseBlockEntity
     }
 
     /**
-     * Returns probe diagnostic information.
+     * Energy accepted on the previous tick, in RF. Resets each tick.
+     *
+     * <p><b>Testing API:</b> primarily a diagnostic counter for game tests.
      */
-    public ProbeResult getProbeResult() {
-        return ProbeResult.builder("Creative Sink Stats")
-                .entry("Drain Rate", String.format("%d RF/t", getDrainRate()), ChatFormatting.AQUA)
-                .entry("Energy Received", String.format("%d RF", drainState.energyLastTick()), ChatFormatting.GREEN)
-                .build();
+    public long energyReceivedLastTick() {
+        return drainState.energyLastTick();
     }
 
     // ==================== NBT Serialization ====================

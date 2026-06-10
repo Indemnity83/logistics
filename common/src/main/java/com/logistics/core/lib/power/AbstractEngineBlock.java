@@ -3,9 +3,7 @@ package com.logistics.core.lib.power;
 import static com.logistics.core.lib.power.AbstractEngineBlockEntity.STAGE;
 
 import com.logistics.core.lib.block.MachineBlock;
-import com.logistics.core.lib.block.behavior.ProbeBehavior;
 import com.logistics.core.lib.block.behavior.WrenchBehavior;
-import com.logistics.core.lib.block.behavior.ProbeResult;
 import java.util.Collections;
 import java.util.List;
 import net.minecraft.core.BlockPos;
@@ -18,7 +16,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
@@ -35,7 +32,7 @@ import org.jetbrains.annotations.Nullable;
  * @param <E> The type of engine block entity this block creates
  */
 public abstract class AbstractEngineBlock<E extends AbstractEngineBlockEntity> extends MachineBlock
-        implements ProbeBehavior.Probeable, WrenchBehavior.Wrenchable {
+        implements WrenchBehavior.Wrenchable {
     public static final EnumProperty<Direction> FACING = BlockStateProperties.FACING;
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
 
@@ -74,12 +71,6 @@ public abstract class AbstractEngineBlock<E extends AbstractEngineBlockEntity> e
         return base;
     }
 
-    /**
-     * Type-safe getter for the engine block entity.
-     * Subclasses implement this to cast to their specific block entity type.
-     */
-    protected abstract E getEngineBlockEntity(BlockEntity be);
-
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(FACING, POWERED, STAGE);
@@ -99,18 +90,6 @@ public abstract class AbstractEngineBlock<E extends AbstractEngineBlockEntity> e
                 defaultBlockState().setValue(FACING, facing).setValue(POWERED, powered).setValue(STAGE, AbstractEngineBlockEntity.HeatStage.COLD);
 
         return applyAdditionalPlacementState(base, ctx);
-    }
-
-    @Override
-    public ProbeResult onProbe(Level world, BlockPos pos, Player player) {
-        BlockEntity be = world.getBlockEntity(pos);
-        if (be != null) {
-            E engine = getEngineBlockEntity(be);
-            if (engine != null) {
-                return engine.getProbeResult();
-            }
-        }
-        return null;
     }
 
     @Override

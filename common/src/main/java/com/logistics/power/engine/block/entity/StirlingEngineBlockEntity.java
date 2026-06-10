@@ -7,7 +7,6 @@ import com.logistics.core.lib.items.ItemInventoryComponent;
 import com.logistics.core.lib.power.AbstractEngineBlockEntity;
 import com.logistics.core.lib.power.FuelHelper;
 import com.logistics.core.lib.compat.NbtCompat;
-import com.logistics.core.lib.block.behavior.ProbeResult;
 import com.logistics.power.engine.block.StirlingEngineBlock;
 import com.logistics.power.engine.ui.StirlingEngineScreenHandler;
 import com.logistics.LogisticsPower;
@@ -15,7 +14,6 @@ import com.logistics.core.lib.storage.IItemKey;
 import com.logistics.core.lib.storage.IItemStorage;
 import com.logistics.core.lib.storage.IItemView;
 import com.logistics.core.lib.storage.ItemStorageLookup;
-import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -310,28 +308,6 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
 
     public ContainerData getPropertyDelegate() {
         return propertyDelegate;
-    }
-
-    @Override
-    protected void addProbeEntries(ProbeResult.Builder builder) {
-        super.addProbeEntries(builder);
-
-        // Generation rate (PID controlled)
-        builder.entry("Generation", String.format("%.2f RF/t", generationPlanner.currentGeneration()), ChatFormatting.GREEN);
-
-        // Fuel burn time
-        if (fuelState.fuelTime() > 0) {
-            builder.entry(
-                    "Fuel",
-                    String.format(
-                            "%d / %d ticks (%.1f%%)",
-                            fuelState.burnTime(),
-                            fuelState.fuelTime(),
-                            (fuelState.burnTime() / (float) fuelState.fuelTime()) * 100),
-                    ChatFormatting.YELLOW);
-        } else {
-            builder.entry("Fuel", "None", ChatFormatting.GRAY);
-        }
     }
 
     // ==================== SingleStackInventory Implementation ====================
