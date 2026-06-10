@@ -218,6 +218,13 @@
   "jade.logistics.cable.transfer": "Transfer",
   "jade.logistics.creative_sink.drain": "Drain Rate",
   "jade.logistics.creative_sink.received": "Received",
+  "jade.logistics.quarry.phase": "Phase",
+  "jade.logistics.quarry.phase.clearing": "Clearing",
+  "jade.logistics.quarry.phase.building_frame": "Building Frame",
+  "jade.logistics.quarry.phase.mining": "Mining",
+  "jade.logistics.quarry.phase.finished": "Finished",
+  "jade.logistics.quarry.power_in": "Power In",
+  "jade.logistics.quarry.arm_speed": "Arm Speed",
 
   "tag.item.c.ingots.tin": "Tin Ingots",
   "tag.item.c.ingots.bronze": "Bronze Ingots",
