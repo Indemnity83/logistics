@@ -92,10 +92,12 @@ public class ModSinkModule implements Module, TickingModule, RoutingModule, Item
         if (!(player instanceof ServerPlayer serverPlayer)) return InteractionResult.PASS;
         Level world = ctx.world();
         BlockPos pos = ctx.pos();
+        String moduleStateKey = ctx.moduleStateKey(this);
         serverPlayer.openMenu(new SimpleMenuProvider(
                 (syncId, inventory, p) -> new ModSinkScreenHandler(
                         syncId, inventory,
-                        world.getBlockEntity(pos) instanceof PipeBlockEntity entity ? entity : null),
+                        world.getBlockEntity(pos) instanceof PipeBlockEntity entity ? entity : null,
+                        moduleStateKey),
                 Component.translatable("screen.logistics.mod_sink")));
         return InteractionResult.SUCCESS;
     }

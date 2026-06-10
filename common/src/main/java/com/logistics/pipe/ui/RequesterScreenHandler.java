@@ -11,6 +11,7 @@ import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -26,6 +27,7 @@ public class RequesterScreenHandler extends AbstractContainerMenu {
 
     private final RequestInventory requestInventory;
     private final PipeBlockEntity pipeEntity;
+    @Nullable private final String targetModuleStateKey;
     private BlockPos pipePos;
     private boolean initialSyncSent = false;
 
@@ -36,15 +38,22 @@ public class RequesterScreenHandler extends AbstractContainerMenu {
     public RequesterScreenHandler(int syncId, Container playerInventory) {
         super(LogisticsPipe.SCREEN.REQUESTER, syncId);
         this.pipeEntity = null;
+        this.targetModuleStateKey = null;
         this.pipePos = BlockPos.ZERO;
         this.requestInventory = new RequestInventory(null);
     }
 
     public RequesterScreenHandler(int syncId, Container playerInventory, PipeBlockEntity pipeEntity) {
+        this(syncId, playerInventory, pipeEntity, null);
+    }
+
+    public RequesterScreenHandler(
+            int syncId, Container playerInventory, PipeBlockEntity pipeEntity, @Nullable String targetModuleStateKey) {
         super(LogisticsPipe.SCREEN.REQUESTER, syncId);
         this.pipeEntity = pipeEntity;
+        this.targetModuleStateKey = targetModuleStateKey;
         this.pipePos = pipeEntity.getBlockPos();
-        this.requestInventory = new RequestInventory(pipeEntity);
+        this.requestInventory = new RequestInventory(pipeEntity, targetModuleStateKey);
     }
 
     /**

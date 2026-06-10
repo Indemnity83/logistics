@@ -39,22 +39,29 @@ public class CraftingScreenHandler extends AbstractContainerMenu {
     private final CraftingRecipeInventory recipeInventory;
     private final ContainerLevelAccess context;
     private final ContainerData data;
+    @Nullable private final String targetModuleStateKey;
     @Nullable private final ServerPlayer itemConfigPlayer;
     @Nullable private final InteractionHand itemConfigHand;
     @Nullable private final ItemStack pinnedStack;
 
     public CraftingScreenHandler(int syncId, Container playerInventory) {
-        this(syncId, playerInventory, null, new SimpleContainerData(2));
+        this(syncId, playerInventory, null, null, new SimpleContainerData(2));
     }
 
     public CraftingScreenHandler(int syncId, Container playerInventory, PipeBlockEntity pipeEntity) {
-        this(syncId, playerInventory, pipeEntity, new SimpleContainerData(2));
+        this(syncId, playerInventory, pipeEntity, null, new SimpleContainerData(2));
+    }
+
+    public CraftingScreenHandler(
+            int syncId, Container playerInventory, PipeBlockEntity pipeEntity, @Nullable String targetModuleStateKey) {
+        this(syncId, playerInventory, pipeEntity, targetModuleStateKey, new SimpleContainerData(2));
     }
 
     /** Item-mode constructor: backs the screen with a module item in the player's hand. */
     public CraftingScreenHandler(int syncId, Container playerInventory, ServerPlayer player, InteractionHand hand) {
         super(LogisticsPipe.SCREEN.CRAFTING, syncId);
         this.data = new SimpleContainerData(2);
+        this.targetModuleStateKey = null;
         this.itemConfigPlayer = player;
         this.itemConfigHand = hand;
         this.context = ContainerLevelAccess.NULL;
@@ -76,17 +83,22 @@ public class CraftingScreenHandler extends AbstractContainerMenu {
     }
 
     private CraftingScreenHandler(
-            int syncId, Container playerInventory, PipeBlockEntity pipeEntity, ContainerData data) {
+            int syncId,
+            Container playerInventory,
+            PipeBlockEntity pipeEntity,
+            @Nullable String targetModuleStateKey,
+            ContainerData data) {
         super(LogisticsPipe.SCREEN.CRAFTING, syncId);
         this.data = data;
+        this.targetModuleStateKey = targetModuleStateKey;
         this.itemConfigPlayer = null;
         this.itemConfigHand = null;
         this.pinnedStack = null;
-        this.recipeInventory = new CraftingRecipeInventory(pipeEntity);
+        this.recipeInventory = new CraftingRecipeInventory(pipeEntity, targetModuleStateKey);
 
         if (pipeEntity != null) {
             this.context = ContainerLevelAccess.create(pipeEntity.getLevel(), pipeEntity.getBlockPos());
-            PipeModuleHelper.withModule(pipeEntity, CraftingModule.class, (ctx, module) -> {
+            PipeModuleHelper.withModule(pipeEntity, CraftingModule.class, targetModuleStateKey, (ctx, module) -> {
                 data.set(DATA_CRAFT_STATE, module.isActive(ctx) ? 1 : 0);
                 data.set(DATA_BLOCKING, module.isBlocking(ctx) ? 1 : 0);
             });
@@ -188,7 +200,8 @@ public class CraftingScreenHandler extends AbstractContainerMenu {
             });
         } else {
             recipeInventory.setItem(RESULT_SLOT, ItemStack.EMPTY);
-            PipeModuleHelper.withModule(context, CraftingModule.class, (ctx, module) -> module.setResult(ctx, "", 1));
+            PipeModuleHelper.withModule(
+                    context, CraftingModule.class, targetModuleStateKey, (ctx, module) -> module.setResult(ctx, "", 1));
         }
     }
 
@@ -206,7 +219,11 @@ public class CraftingScreenHandler extends AbstractContainerMenu {
             });
         } else {
             recipeInventory.setItem(slot, ItemStack.EMPTY);
-            PipeModuleHelper.withModule(context, CraftingModule.class, (ctx, module) -> module.setIngredient(ctx, slot, "", 1));
+            PipeModuleHelper.withModule(
+                    context,
+                    CraftingModule.class,
+                    targetModuleStateKey,
+                    (ctx, module) -> module.setIngredient(ctx, slot, "", 1));
         }
     }
 
@@ -220,7 +237,11 @@ public class CraftingScreenHandler extends AbstractContainerMenu {
             });
         } else {
             recipeInventory.setItem(RESULT_SLOT, display);
-            PipeModuleHelper.withModule(context, CraftingModule.class, (ctx, module) -> module.setResult(ctx, itemId, count));
+            PipeModuleHelper.withModule(
+                    context,
+                    CraftingModule.class,
+                    targetModuleStateKey,
+                    (ctx, module) -> module.setResult(ctx, itemId, count));
         }
     }
 
@@ -238,7 +259,11 @@ public class CraftingScreenHandler extends AbstractContainerMenu {
             });
         } else {
             recipeInventory.setItem(slot, display);
-            PipeModuleHelper.withModule(context, CraftingModule.class, (ctx, module) -> module.setIngredient(ctx, slot, itemId, count));
+            PipeModuleHelper.withModule(
+                    context,
+                    CraftingModule.class,
+                    targetModuleStateKey,
+                    (ctx, module) -> module.setIngredient(ctx, slot, itemId, count));
         }
     }
 
@@ -252,7 +277,7 @@ public class CraftingScreenHandler extends AbstractContainerMenu {
                 if (!isPinnedItemStillHeld()) return true;
                 ItemTagUtils.writeToItemTag(itemConfigPlayer, itemConfigHand,tag -> tag.putInt(CraftingModule.BLOCKING, newBlocking));
             } else {
-                PipeModuleHelper.withModule(context, CraftingModule.class, (ctx, module) -> {
+                PipeModuleHelper.withModule(context, CraftingModule.class, targetModuleStateKey, (ctx, module) -> {
                     module.setBlocking(ctx, newBlocking == 1);
                 });
             }
@@ -260,7 +285,11 @@ public class CraftingScreenHandler extends AbstractContainerMenu {
         }
         if (id == 1 && itemConfigPlayer == null) {
             // Import recipe from adjacent autocrafter
-            PipeModuleHelper.withModule(context, CraftingModule.class, (ctx, module) -> module.importFromAutocrafter(ctx));
+            PipeModuleHelper.withModule(
+                    context,
+                    CraftingModule.class,
+                    targetModuleStateKey,
+                    (ctx, module) -> module.importFromAutocrafter(ctx));
             recipeInventory.loadFromModule();
             broadcastChanges();
             return true;
@@ -284,7 +313,7 @@ public class CraftingScreenHandler extends AbstractContainerMenu {
             super.broadcastChanges();
             return;
         }
-        PipeModuleHelper.withModule(context, CraftingModule.class, (ctx, module) -> {
+        PipeModuleHelper.withModule(context, CraftingModule.class, targetModuleStateKey, (ctx, module) -> {
             data.set(DATA_CRAFT_STATE, module.isActive(ctx) ? 1 : 0);
             data.set(DATA_BLOCKING, module.isBlocking(ctx) ? 1 : 0);
         });

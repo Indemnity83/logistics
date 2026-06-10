@@ -36,16 +36,22 @@ public class SinkScreenHandler extends AbstractContainerMenu {
     private final SinkInventory sinkInventory;
     private final ContainerLevelAccess context;
     private final ContainerData data;
+    @Nullable private final String targetModuleStateKey;
     @Nullable private final ServerPlayer itemConfigPlayer;
     @Nullable private final InteractionHand itemConfigHand;
     @Nullable private final ItemStack originalModuleStack;
 
     public SinkScreenHandler(int syncId, Container playerInventory) {
-        this(syncId, playerInventory, null, new SimpleContainerData(1));
+        this(syncId, playerInventory, null, null, new SimpleContainerData(1));
     }
 
     public SinkScreenHandler(int syncId, Container playerInventory, PipeBlockEntity pipeEntity) {
-        this(syncId, playerInventory, pipeEntity, new SimpleContainerData(1));
+        this(syncId, playerInventory, pipeEntity, null, new SimpleContainerData(1));
+    }
+
+    public SinkScreenHandler(
+            int syncId, Container playerInventory, PipeBlockEntity pipeEntity, @Nullable String targetModuleStateKey) {
+        this(syncId, playerInventory, pipeEntity, targetModuleStateKey, new SimpleContainerData(1));
     }
 
     public SinkScreenHandler(int syncId, Container playerInventory, ServerPlayer player, InteractionHand hand) {
@@ -55,6 +61,7 @@ public class SinkScreenHandler extends AbstractContainerMenu {
             throw new IllegalArgumentException("Expected a ModuleItem in " + hand + " hand");
         }
         this.data = new SimpleContainerData(1);
+        this.targetModuleStateKey = null;
         this.itemConfigPlayer = player;
         this.itemConfigHand = hand;
         this.context = ContainerLevelAccess.NULL;
@@ -70,9 +77,15 @@ public class SinkScreenHandler extends AbstractContainerMenu {
         addDataSlots(data);
     }
 
-    private SinkScreenHandler(int syncId, Container playerInventory, PipeBlockEntity pipeEntity, ContainerData data) {
+    private SinkScreenHandler(
+            int syncId,
+            Container playerInventory,
+            PipeBlockEntity pipeEntity,
+            @Nullable String targetModuleStateKey,
+            ContainerData data) {
         super(LogisticsPipe.SCREEN.SINK, syncId);
         this.data = data;
+        this.targetModuleStateKey = targetModuleStateKey;
         this.itemConfigPlayer = null;
         this.itemConfigHand = null;
         this.originalModuleStack = null;
@@ -81,13 +94,13 @@ public class SinkScreenHandler extends AbstractContainerMenu {
             this.context = ContainerLevelAccess.create(pipeEntity.getLevel(), pipeEntity.getBlockPos());
 
             // Load default route setting (server-side)
-            PipeModuleHelper.withModule(this.context, SinkModule.class, (ctx, module) -> {
+            PipeModuleHelper.withModule(this.context, SinkModule.class, targetModuleStateKey, (ctx, module) -> {
                 data.set(0, module.isDefaultRoute(ctx) ? 1 : 0);
             });
         } else {
             this.context = ContainerLevelAccess.NULL;
         }
-        this.sinkInventory = new SinkInventory(pipeEntity);
+        this.sinkInventory = new SinkInventory(pipeEntity, targetModuleStateKey);
 
         addFilterSlots(sinkInventory);
         addPlayerInventorySlots(playerInventory);
@@ -110,7 +123,7 @@ public class SinkScreenHandler extends AbstractContainerMenu {
             return;
         }
         // Sync default route value from module to data slot
-        PipeModuleHelper.withModule(context, SinkModule.class, (ctx, module) -> {
+        PipeModuleHelper.withModule(context, SinkModule.class, targetModuleStateKey, (ctx, module) -> {
             data.set(0, module.isDefaultRoute(ctx) ? 1 : 0);
         });
         super.broadcastChanges();
@@ -181,7 +194,7 @@ public class SinkScreenHandler extends AbstractContainerMenu {
                     });
                 } else {
                     sinkInventory.setItem(slotIndex, ItemStack.EMPTY);
-                    PipeModuleHelper.withModule(context, SinkModule.class, (ctx, module) -> {
+                    PipeModuleHelper.withModule(context, SinkModule.class, targetModuleStateKey, (ctx, module) -> {
                         module.setFilter(ctx, slotIndex, "");
                     });
                 }
@@ -209,7 +222,7 @@ public class SinkScreenHandler extends AbstractContainerMenu {
                 });
             } else {
                 sinkInventory.setItem(slotIndex, ghostItem);
-                PipeModuleHelper.withModule(context, SinkModule.class, (ctx, module) -> {
+                PipeModuleHelper.withModule(context, SinkModule.class, targetModuleStateKey, (ctx, module) -> {
                     module.setFilter(ctx, slotIndex, itemId);
                 });
             }
@@ -237,7 +250,7 @@ public class SinkScreenHandler extends AbstractContainerMenu {
                 if (!isPinnedItemStillHeld()) return true;
                 ItemTagUtils.writeToItemTag(itemConfigPlayer, itemConfigHand, tag -> tag.putInt(SinkModule.DEFAULT_ROUTE, newValue ? 1 : 0));
             } else {
-                PipeModuleHelper.withModule(context, SinkModule.class, (ctx, module) -> {
+                PipeModuleHelper.withModule(context, SinkModule.class, targetModuleStateKey, (ctx, module) -> {
                     module.setDefaultRoute(ctx, newValue);
                 });
             }

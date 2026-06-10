@@ -35,21 +35,28 @@ public class ProviderScreenHandler extends AbstractContainerMenu {
     private final ProviderFilterInventory filterInventory;
     private final ContainerLevelAccess context;
     private final ContainerData data;
+    @Nullable private final String targetModuleStateKey;
     @Nullable private final ServerPlayer itemConfigPlayer;
     @Nullable private final InteractionHand itemConfigHand;
     @Nullable private final ItemStack pinnedItemStack;
 
     public ProviderScreenHandler(int syncId, Container playerInventory) {
-        this(syncId, playerInventory, null, new SimpleContainerData(2));
+        this(syncId, playerInventory, null, null, new SimpleContainerData(2));
     }
 
     public ProviderScreenHandler(int syncId, Container playerInventory, PipeBlockEntity pipeEntity) {
-        this(syncId, playerInventory, pipeEntity, new SimpleContainerData(2));
+        this(syncId, playerInventory, pipeEntity, null, new SimpleContainerData(2));
+    }
+
+    public ProviderScreenHandler(
+            int syncId, Container playerInventory, PipeBlockEntity pipeEntity, @Nullable String targetModuleStateKey) {
+        this(syncId, playerInventory, pipeEntity, targetModuleStateKey, new SimpleContainerData(2));
     }
 
     public ProviderScreenHandler(int syncId, Container playerInventory, ServerPlayer player, InteractionHand hand) {
         super(LogisticsPipe.SCREEN.PROVIDER, syncId);
         this.data = new SimpleContainerData(2);
+        this.targetModuleStateKey = null;
         this.itemConfigPlayer = player;
         this.itemConfigHand = hand;
         this.context = ContainerLevelAccess.NULL;
@@ -68,17 +75,23 @@ public class ProviderScreenHandler extends AbstractContainerMenu {
         addDataSlots(data);
     }
 
-    private ProviderScreenHandler(int syncId, Container playerInventory, PipeBlockEntity pipeEntity, ContainerData data) {
+    private ProviderScreenHandler(
+            int syncId,
+            Container playerInventory,
+            PipeBlockEntity pipeEntity,
+            @Nullable String targetModuleStateKey,
+            ContainerData data) {
         super(LogisticsPipe.SCREEN.PROVIDER, syncId);
         this.data = data;
+        this.targetModuleStateKey = targetModuleStateKey;
         this.itemConfigPlayer = null;
         this.itemConfigHand = null;
         this.pinnedItemStack = null;
-        this.filterInventory = new ProviderFilterInventory(pipeEntity);
+        this.filterInventory = new ProviderFilterInventory(pipeEntity, targetModuleStateKey);
 
         if (pipeEntity != null) {
             this.context = ContainerLevelAccess.create(pipeEntity.getLevel(), pipeEntity.getBlockPos());
-            PipeModuleHelper.withModule(pipeEntity, ProviderModule.class, (ctx, module) -> {
+            PipeModuleHelper.withModule(pipeEntity, ProviderModule.class, targetModuleStateKey, (ctx, module) -> {
                 data.set(0, module.getModeOrdinal(ctx));
                 data.set(1, module.isFilterInverted(ctx) ? 1 : 0);
             });
@@ -170,7 +183,7 @@ public class ProviderScreenHandler extends AbstractContainerMenu {
 
     private void handleClearSlotForModule(int slotIndex) {
         filterInventory.setItem(slotIndex, ItemStack.EMPTY);
-        PipeModuleHelper.withModule(context, ProviderModule.class, (ctx, module) -> module.setFilterItem(ctx, slotIndex, ""));
+        PipeModuleHelper.withModule(context, ProviderModule.class, targetModuleStateKey, (ctx, module) -> module.setFilterItem(ctx, slotIndex, ""));
     }
 
     private void handlePlaceItemForPlayer(int slotIndex, ItemStack cursor) {
@@ -188,7 +201,7 @@ public class ProviderScreenHandler extends AbstractContainerMenu {
     private void handlePlaceItemForModule(int slotIndex, ItemStack cursor) {
         String itemId = net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(cursor.getItem()).toString();
         filterInventory.setItem(slotIndex, cursor.copyWithCount(1));
-        PipeModuleHelper.withModule(context, ProviderModule.class, (ctx, module) -> module.setFilterItem(ctx, slotIndex, itemId));
+        PipeModuleHelper.withModule(context, ProviderModule.class, targetModuleStateKey, (ctx, module) -> module.setFilterItem(ctx, slotIndex, itemId));
     }
 
     @Override
@@ -200,7 +213,7 @@ public class ProviderScreenHandler extends AbstractContainerMenu {
                 if (!isPinnedItemStillHeld()) return true;
                 ItemTagUtils.writeToItemTag(itemConfigPlayer, itemConfigHand,tag -> tag.putInt(ProviderModule.MODE, nextMode));
             } else {
-                PipeModuleHelper.withModule(context, ProviderModule.class, (ctx, module) -> module.setModeFromOrdinal(ctx, nextMode));
+                PipeModuleHelper.withModule(context, ProviderModule.class, targetModuleStateKey, (ctx, module) -> module.setModeFromOrdinal(ctx, nextMode));
             }
             return true;
         } else if (id == 1) {
@@ -210,7 +223,7 @@ public class ProviderScreenHandler extends AbstractContainerMenu {
                 if (!isPinnedItemStillHeld()) return true;
                 ItemTagUtils.writeToItemTag(itemConfigPlayer, itemConfigHand,tag -> tag.putInt(ProviderModule.FILTER_INVERTED, newInverted));
             } else {
-                PipeModuleHelper.withModule(context, ProviderModule.class, (ctx, module) -> module.setFilterInverted(ctx, newInverted == 1));
+                PipeModuleHelper.withModule(context, ProviderModule.class, targetModuleStateKey, (ctx, module) -> module.setFilterInverted(ctx, newInverted == 1));
             }
             return true;
         }
@@ -243,7 +256,7 @@ public class ProviderScreenHandler extends AbstractContainerMenu {
             super.broadcastChanges();
             return;
         }
-        PipeModuleHelper.withModule(context, ProviderModule.class, (ctx, module) -> {
+        PipeModuleHelper.withModule(context, ProviderModule.class, targetModuleStateKey, (ctx, module) -> {
             data.set(0, module.getModeOrdinal(ctx));
             data.set(1, module.isFilterInverted(ctx) ? 1 : 0);
         });
