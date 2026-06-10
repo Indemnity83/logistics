@@ -4,6 +4,7 @@ import com.logistics.core.lib.resource.ResourceId;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
@@ -34,9 +35,9 @@ final class ModuleHud {
         }
         ResourceId resource = ResourceId.tryParse(itemId);
         if (resource != null) {
-            var itemOpt = BuiltInRegistries.ITEM.get(resource.toIdentifier());
-            if (itemOpt.isPresent() && itemOpt.get().value() != Items.AIR) {
-                return new ItemStack(itemOpt.get().value(), Math.max(1, count));
+            Item item = BuiltInRegistries.ITEM.get(resource.toIdentifier());
+            if (item != Items.AIR) {
+                return new ItemStack(item, Math.max(1, count));
             }
         }
         return ItemStack.EMPTY;

@@ -246,7 +246,7 @@ public class KilnBlockEntity extends BaseBlockEntity
         if (activeRecipe == null) {
             return 0f;
         }
-        int total = activeRecipe.value().cookingTime();
+        int total = activeRecipe.value().getCookingTime();
         return total > 0 ? Math.min(1f, (float) processProgress / total) : 0f;
     }
 

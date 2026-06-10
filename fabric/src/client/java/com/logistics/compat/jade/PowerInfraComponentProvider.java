@@ -5,7 +5,7 @@ import com.logistics.power.PowerInfraHudLines;
 import com.logistics.power.block.CreativeSinkBlock;
 import com.logistics.power.cable.CableBlock;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier; // raw-id-ok: Jade's IJadeProvider.getUid() returns Identifier
+import net.minecraft.resources.ResourceLocation; // raw-id-ok: Jade's IJadeProvider.getUid() returns Identifier
 import net.minecraft.world.level.block.Block;
 import snownee.jade.api.BlockAccessor;
 import snownee.jade.api.IBlockComponentProvider;
@@ -21,13 +21,13 @@ import snownee.jade.api.config.IPluginConfig;
 public final class PowerInfraComponentProvider implements IBlockComponentProvider {
     public static final PowerInfraComponentProvider INSTANCE = new PowerInfraComponentProvider();
 
-    private static final Identifier UID = // raw-id-ok: Jade keys providers by Identifier
+    private static final ResourceLocation UID = // raw-id-ok: Jade keys providers by Identifier
             LogisticsMod.modId("power_infra").toIdentifier();
 
     private PowerInfraComponentProvider() {}
 
     @Override
-    public Identifier getUid() { // raw-id-ok: overrides Jade API returning Identifier
+    public ResourceLocation getUid() { // raw-id-ok: overrides Jade API returning Identifier
         return UID;
     }
 

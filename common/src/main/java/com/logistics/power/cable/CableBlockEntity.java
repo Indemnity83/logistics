@@ -5,7 +5,6 @@ import com.logistics.core.lib.block.BaseBlockEntity;
 import com.logistics.core.lib.block.capability.HasEnergyStorage;
 import com.logistics.core.lib.compat.NbtCompat;
 import com.logistics.core.lib.energy.IEnergyStorage;
-import com.logistics.core.lib.block.behavior.ProbeResult;
 import com.logistics.core.lib.power.AcceptsLowTierEnergy;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;

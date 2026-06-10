@@ -3,7 +3,7 @@ package com.logistics.compat.jade;
 import com.logistics.LogisticsMod;
 import com.logistics.power.engine.EngineHudLines;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier; // raw-id-ok: Jade's IJadeProvider.getUid() returns Identifier
+import net.minecraft.resources.ResourceLocation; // raw-id-ok: Jade's IJadeProvider.getUid() returns Identifier
 import snownee.jade.api.BlockAccessor;
 import snownee.jade.api.IBlockComponentProvider;
 import snownee.jade.api.ITooltip;
@@ -17,13 +17,13 @@ import snownee.jade.api.config.IPluginConfig;
 public final class EngineComponentProvider implements IBlockComponentProvider {
     public static final EngineComponentProvider INSTANCE = new EngineComponentProvider();
 
-    private static final Identifier UID = // raw-id-ok: Jade keys providers by Identifier
+    private static final ResourceLocation UID = // raw-id-ok: Jade keys providers by Identifier
             LogisticsMod.modId("engine").toIdentifier();
 
     private EngineComponentProvider() {}
 
     @Override
-    public Identifier getUid() { // raw-id-ok: overrides Jade API returning Identifier
+    public ResourceLocation getUid() { // raw-id-ok: overrides Jade API returning Identifier
         return UID;
     }
 

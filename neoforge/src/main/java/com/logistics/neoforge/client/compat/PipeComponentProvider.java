@@ -6,7 +6,7 @@ import com.logistics.pipe.PipeHudLines;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import java.util.List;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier; // raw-id-ok: Jade's IJadeProvider.getUid() returns Identifier
+import net.minecraft.resources.ResourceLocation; // raw-id-ok: Jade's IJadeProvider.getUid() returns Identifier
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import snownee.jade.api.BlockAccessor;
@@ -14,7 +14,7 @@ import snownee.jade.api.IBlockComponentProvider;
 import snownee.jade.api.ITooltip;
 import snownee.jade.api.JadeIds;
 import snownee.jade.api.config.IPluginConfig;
-import snownee.jade.api.ui.JadeUI;
+import snownee.jade.api.ui.IElementHelper;
 
 /**
  * Jade integration for pipes: items in transit, each module's status (filters, modes, recipes…) and a row
@@ -24,13 +24,13 @@ import snownee.jade.api.ui.JadeUI;
 public final class PipeComponentProvider implements IBlockComponentProvider {
     public static final PipeComponentProvider INSTANCE = new PipeComponentProvider();
 
-    private static final Identifier UID = // raw-id-ok: Jade keys providers by Identifier
+    private static final ResourceLocation UID = // raw-id-ok: Jade keys providers by Identifier
             LogisticsMod.modId("pipe").toIdentifier();
 
     private PipeComponentProvider() {}
 
     @Override
-    public Identifier getUid() { // raw-id-ok: overrides Jade API returning Identifier
+    public ResourceLocation getUid() { // raw-id-ok: overrides Jade API returning Identifier
         return UID;
     }
 
@@ -56,8 +56,8 @@ public final class PipeComponentProvider implements IBlockComponentProvider {
         BlockState state = accessor.getBlockState();
         // One row per installed chassis module: a small item icon, a little padding, then its name.
         for (ItemStack module : PipeHudLines.installedModules(state, pipe)) {
-            tooltip.add(JadeUI.smallItem(module));
-            tooltip.append(JadeUI.spacer(3, 0));
+            tooltip.add(IElementHelper.get().smallItem(module));
+            tooltip.append(IElementHelper.get().spacer(3, 0));
             tooltip.append(module.getHoverName());
         }
 
@@ -84,7 +84,7 @@ public final class PipeComponentProvider implements IBlockComponentProvider {
                 if (stack.isEmpty()) {
                     continue;
                 }
-                tooltip.add(JadeUI.smallItem(stack));
+                tooltip.add(IElementHelper.get().smallItem(stack));
                 Component label = stack.getCount() > 1
                         ? Component.literal(stack.getCount() + "× ").append(stack.getHoverName())
                         : stack.getHoverName().copy();

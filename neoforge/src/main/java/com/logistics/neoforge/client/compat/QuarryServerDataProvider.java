@@ -4,7 +4,7 @@ import com.logistics.LogisticsMod;
 import com.logistics.automation.laserquarry.QuarryHudData;
 import com.logistics.automation.laserquarry.entity.LaserQuarryBlockEntity;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.Identifier; // raw-id-ok: Jade's IJadeProvider.getUid() returns Identifier
+import net.minecraft.resources.ResourceLocation; // raw-id-ok: Jade's IJadeProvider.getUid() returns Identifier
 import snownee.jade.api.BlockAccessor;
 import snownee.jade.api.IServerDataProvider;
 
@@ -15,13 +15,13 @@ import snownee.jade.api.IServerDataProvider;
 public final class QuarryServerDataProvider implements IServerDataProvider<BlockAccessor> {
     public static final QuarryServerDataProvider INSTANCE = new QuarryServerDataProvider();
 
-    private static final Identifier UID = // raw-id-ok: Jade keys providers by Identifier
+    private static final ResourceLocation UID = // raw-id-ok: Jade keys providers by Identifier
             LogisticsMod.modId("quarry").toIdentifier();
 
     private QuarryServerDataProvider() {}
 
     @Override
-    public Identifier getUid() { // raw-id-ok: overrides Jade API returning Identifier
+    public ResourceLocation getUid() { // raw-id-ok: overrides Jade API returning Identifier
         return UID;
     }
 
