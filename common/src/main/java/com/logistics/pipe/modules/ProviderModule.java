@@ -415,9 +415,10 @@ public class ProviderModule implements Module, TickingModule, DispatchableModule
         if (ctx.world().isClientSide()) return InteractionResult.SUCCESS;
         if (!(player instanceof ServerPlayer serverPlayer)) return InteractionResult.PASS;
 
+        String moduleStateKey = ctx.moduleStateKey(this);
         serverPlayer.openMenu(new SimpleMenuProvider(
                 (syncId, playerInventory, p) -> new ProviderScreenHandler(
-                        syncId, playerInventory, ((PipeBlockEntity) ctx.blockEntity())),
+                        syncId, playerInventory, ((PipeBlockEntity) ctx.blockEntity()), moduleStateKey),
                 Component.translatable("screen.logistics.provider")));
 
         return InteractionResult.SUCCESS;

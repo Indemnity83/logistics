@@ -48,6 +48,7 @@ public class ModSinkScreenHandler extends AbstractContainerMenu {
     private final SimpleContainer previewContainer = new SimpleContainer(1);
     private final ModSinkInventory modSinkInventory;
     private final ContainerLevelAccess context;
+    @Nullable private final String targetModuleStateKey;
     @Nullable private final ServerPlayer itemConfigPlayer;
     @Nullable private final InteractionHand itemConfigHand;
     @Nullable private final ItemStack originalModuleStack;
@@ -58,14 +59,20 @@ public class ModSinkScreenHandler extends AbstractContainerMenu {
 
     public ModSinkScreenHandler(int syncId, Container playerInventory,
             @Nullable PipeBlockEntity pipeEntity) {
+        this(syncId, playerInventory, pipeEntity, null);
+    }
+
+    public ModSinkScreenHandler(int syncId, Container playerInventory,
+            @Nullable PipeBlockEntity pipeEntity, @Nullable String targetModuleStateKey) {
         super(LogisticsPipe.SCREEN.MOD_SINK, syncId);
         this.itemConfigPlayer = null;
         this.itemConfigHand = null;
         this.originalModuleStack = null;
+        this.targetModuleStateKey = targetModuleStateKey;
         this.context = pipeEntity != null
                 ? ContainerLevelAccess.create(pipeEntity.getLevel(), pipeEntity.getBlockPos())
                 : ContainerLevelAccess.NULL;
-        this.modSinkInventory = new ModSinkInventory(pipeEntity);
+        this.modSinkInventory = new ModSinkInventory(pipeEntity, targetModuleStateKey);
         addModSinkSlots();
         addPlayerInventorySlots(playerInventory);
     }
@@ -80,6 +87,7 @@ public class ModSinkScreenHandler extends AbstractContainerMenu {
         this.itemConfigPlayer = player;
         this.itemConfigHand = hand;
         this.originalModuleStack = stack;
+        this.targetModuleStateKey = null;
         this.context = ContainerLevelAccess.NULL;
         this.modSinkInventory = new ModSinkInventory(null);
         this.modSinkInventory.loadFromItem(stack);
@@ -162,7 +170,7 @@ public class ModSinkScreenHandler extends AbstractContainerMenu {
                         ItemTagUtils.writeToItemTag(itemConfigPlayer, itemConfigHand,
                                 tag -> tag.putString(ModSinkModule.MOD_IDS + "_" + slotIndex, itemId));
                     } else {
-                        PipeModuleHelper.withModule(context, ModSinkModule.class,
+                        PipeModuleHelper.withModule(context, ModSinkModule.class, targetModuleStateKey,
                                 (ctx, module) -> module.addModId(ctx, itemId));
                     }
                     break;
@@ -198,7 +206,7 @@ public class ModSinkScreenHandler extends AbstractContainerMenu {
                 });
             } else {
                 final int ri = removeIndex;
-                PipeModuleHelper.withModule(context, ModSinkModule.class,
+                PipeModuleHelper.withModule(context, ModSinkModule.class, targetModuleStateKey,
                         (ctx, module) -> module.removeModId(ctx, ri));
             }
             broadcastChanges();

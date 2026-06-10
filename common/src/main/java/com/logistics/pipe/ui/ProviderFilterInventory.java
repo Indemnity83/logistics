@@ -3,9 +3,7 @@ package com.logistics.pipe.ui;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.core.lib.filter.FilterSlots;
 import com.logistics.core.lib.compat.NbtCompat;
-import com.logistics.pipe.Pipe;
 import com.logistics.core.lib.pipe.PipeContext;
-import com.logistics.pipe.block.PipeBlock;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.pipe.modules.ProviderModule;
 import net.minecraft.core.NonNullList;
@@ -17,6 +15,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.CustomData;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Inventory for the Provider filter GUI.
@@ -26,9 +25,15 @@ public class ProviderFilterInventory implements Container {
     private final NonNullList<ItemStack> stacks =
             NonNullList.withSize(ProviderModule.MAX_FILTER_SLOTS, ItemStack.EMPTY);
     private final PipeBlockEntity pipeEntity;
+    @Nullable private final String targetModuleStateKey;
 
     public ProviderFilterInventory(PipeBlockEntity pipeEntity) {
+        this(pipeEntity, null);
+    }
+
+    public ProviderFilterInventory(PipeBlockEntity pipeEntity, @Nullable String targetModuleStateKey) {
         this.pipeEntity = pipeEntity;
+        this.targetModuleStateKey = targetModuleStateKey;
 
         if (pipeEntity != null) {
             loadFromModule();
@@ -102,15 +107,16 @@ public class ProviderFilterInventory implements Container {
             return;
         }
 
-        PipeBlock block = (PipeBlock) pipeEntity.getBlockState().getBlock();
-        Pipe pipe = block.getPipe();
-        ProviderModule module = pipe.getModule(ProviderModule.class, pipeEntity);
+        ProviderModule module = PipeModuleHelper.getModule(pipeEntity, ProviderModule.class, targetModuleStateKey);
 
         if (module == null) {
             return;
         }
 
         PipeContext ctx = pipeEntity.createContext();
+        if (targetModuleStateKey != null) {
+            ctx = ctx.withModuleStateKey(module, targetModuleStateKey);
+        }
         FilterSlots filterItems = module.getFilterItems(ctx);
 
         for (int i = 0; i < Math.min(filterItems.size(), stacks.size()); i++) {

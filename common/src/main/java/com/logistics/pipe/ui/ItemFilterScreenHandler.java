@@ -34,6 +34,7 @@ public class ItemFilterScreenHandler extends AbstractContainerMenu {
 
     private final FilterInventory filterInventory;
     private final ContainerLevelAccess context;
+    @Nullable private final String targetModuleStateKey;
     @Nullable private final ServerPlayer itemConfigPlayer;
     @Nullable private final InteractionHand itemConfigHand;
     @Nullable private final ItemStack originalStack;
@@ -41,6 +42,7 @@ public class ItemFilterScreenHandler extends AbstractContainerMenu {
     public ItemFilterScreenHandler(int syncId, Container playerInventory) {
         super(LogisticsPipe.SCREEN.ITEM_FILTER, syncId);
         this.context = ContainerLevelAccess.NULL;
+        this.targetModuleStateKey = null;
         this.itemConfigPlayer = null;
         this.itemConfigHand = null;
         this.originalStack = null;
@@ -51,7 +53,13 @@ public class ItemFilterScreenHandler extends AbstractContainerMenu {
     }
 
     public ItemFilterScreenHandler(int syncId, Container playerInventory, PipeBlockEntity pipeEntity) {
+        this(syncId, playerInventory, pipeEntity, null);
+    }
+
+    public ItemFilterScreenHandler(
+            int syncId, Container playerInventory, PipeBlockEntity pipeEntity, @Nullable String targetModuleStateKey) {
         super(LogisticsPipe.SCREEN.ITEM_FILTER, syncId);
+        this.targetModuleStateKey = targetModuleStateKey;
         this.itemConfigPlayer = null;
         this.itemConfigHand = null;
         this.originalStack = null;
@@ -60,7 +68,7 @@ public class ItemFilterScreenHandler extends AbstractContainerMenu {
         } else {
             this.context = ContainerLevelAccess.NULL;
         }
-        this.filterInventory = new FilterInventory(pipeEntity);
+        this.filterInventory = new FilterInventory(pipeEntity, targetModuleStateKey);
 
         addFilterSlots(filterInventory);
         addPlayerInventorySlots(playerInventory);
@@ -68,6 +76,7 @@ public class ItemFilterScreenHandler extends AbstractContainerMenu {
 
     public ItemFilterScreenHandler(int syncId, Container playerInventory, ServerPlayer player, InteractionHand hand) {
         super(LogisticsPipe.SCREEN.ITEM_FILTER, syncId);
+        this.targetModuleStateKey = null;
         this.itemConfigPlayer = player;
         this.itemConfigHand = hand;
         this.originalStack = player.getItemInHand(hand);

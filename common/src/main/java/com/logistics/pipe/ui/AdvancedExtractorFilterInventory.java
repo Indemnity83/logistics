@@ -3,9 +3,7 @@ package com.logistics.pipe.ui;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.core.lib.filter.FilterSlots;
 import com.logistics.core.lib.compat.NbtCompat;
-import com.logistics.pipe.Pipe;
 import com.logistics.core.lib.pipe.PipeContext;
-import com.logistics.pipe.block.PipeBlock;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.pipe.modules.AdvancedExtractorModule;
 import net.minecraft.core.NonNullList;
@@ -17,6 +15,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.CustomData;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Inventory for the Advanced Extractor filter GUI.
@@ -28,9 +27,15 @@ public class AdvancedExtractorFilterInventory implements Container {
     private final NonNullList<ItemStack> stacks =
             NonNullList.withSize(FILTER_SLOT_COUNT, ItemStack.EMPTY);
     private final PipeBlockEntity pipeEntity;
+    @Nullable private final String targetModuleStateKey;
 
     public AdvancedExtractorFilterInventory(PipeBlockEntity pipeEntity) {
+        this(pipeEntity, null);
+    }
+
+    public AdvancedExtractorFilterInventory(PipeBlockEntity pipeEntity, @Nullable String targetModuleStateKey) {
         this.pipeEntity = pipeEntity;
+        this.targetModuleStateKey = targetModuleStateKey;
         if (pipeEntity != null) {
             loadFromModule();
         }
@@ -83,12 +88,14 @@ public class AdvancedExtractorFilterInventory implements Container {
 
         if (pipeEntity.getLevel() == null || pipeEntity.getLevel().isClientSide()) return;
 
-        PipeBlock block = (PipeBlock) pipeEntity.getBlockState().getBlock();
-        Pipe pipe = block.getPipe();
-        AdvancedExtractorModule module = pipe.getModule(AdvancedExtractorModule.class, pipeEntity);
+        AdvancedExtractorModule module =
+                PipeModuleHelper.getModule(pipeEntity, AdvancedExtractorModule.class, targetModuleStateKey);
         if (module == null) return;
 
         PipeContext ctx = pipeEntity.createContext();
+        if (targetModuleStateKey != null) {
+            ctx = ctx.withModuleStateKey(module, targetModuleStateKey);
+        }
         FilterSlots filterItems = module.getFilterItems(ctx);
 
         for (int i = 0; i < filterItems.size(); i++) {

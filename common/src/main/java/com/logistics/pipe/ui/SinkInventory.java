@@ -3,8 +3,7 @@ package com.logistics.pipe.ui;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.core.lib.filter.FilterSlots;
 import com.logistics.core.lib.compat.NbtCompat;
-import com.logistics.pipe.Pipe;
-import com.logistics.pipe.block.PipeBlock;
+import com.logistics.core.lib.pipe.PipeContext;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.pipe.modules.SinkModule;
 import net.minecraft.core.NonNullList;
@@ -15,6 +14,7 @@ import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Inventory wrapper for the Sink GUI.
@@ -22,23 +22,34 @@ import net.minecraft.world.item.component.CustomData;
  */
 public class SinkInventory implements Container {
     private final NonNullList<ItemStack> items = NonNullList.withSize(SinkModule.MAX_FILTER_SLOTS, ItemStack.EMPTY);
+    private final PipeBlockEntity pipeEntity;
+    @Nullable private final String targetModuleStateKey;
 
     public SinkInventory(PipeBlockEntity pipeEntity) {
+        this(pipeEntity, null);
+    }
+
+    public SinkInventory(PipeBlockEntity pipeEntity, @Nullable String targetModuleStateKey) {
+        this.pipeEntity = pipeEntity;
+        this.targetModuleStateKey = targetModuleStateKey;
+
         if (pipeEntity != null) {
             loadFilters(pipeEntity);
         }
     }
 
     private void loadFilters(PipeBlockEntity pipeEntity) {
-        PipeBlock block = (PipeBlock) pipeEntity.getBlockState().getBlock();
-        Pipe pipe = block.getPipe();
-        SinkModule module = pipe.getModule(SinkModule.class, pipeEntity);
+        SinkModule module = PipeModuleHelper.getModule(pipeEntity, SinkModule.class, targetModuleStateKey);
 
         if (module == null) {
             return;
         }
 
-        FilterSlots filters = module.getFilters(pipeEntity.createContext());
+        PipeContext ctx = pipeEntity.createContext();
+        if (targetModuleStateKey != null) {
+            ctx = ctx.withModuleStateKey(module, targetModuleStateKey);
+        }
+        FilterSlots filters = module.getFilters(ctx);
         for (int i = 0; i < filters.size(); i++) {
             String id = filters.get(i);
             if (id.isEmpty()) continue;

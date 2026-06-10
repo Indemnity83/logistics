@@ -283,9 +283,11 @@ public class ProcessModule implements Module, TickingModule, RoutingModule, Disp
 
         Level world = ctx.world();
         BlockPos pos = ctx.pos();
+        String moduleStateKey = ctx.moduleStateKey(this);
         serverPlayer.openMenu(new SimpleMenuProvider(
                 (syncId, inv, p) -> new ProcessScreenHandler(syncId, inv,
-                        world.getBlockEntity(pos) instanceof PipeBlockEntity entity ? entity : null),
+                        world.getBlockEntity(pos) instanceof PipeBlockEntity entity ? entity : null,
+                        moduleStateKey),
                 Component.translatable("screen.logistics.process")));
         return InteractionResult.SUCCESS;
     }

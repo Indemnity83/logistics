@@ -30,6 +30,7 @@ public class SatelliteScreenHandler extends AbstractContainerMenu {
 
     private final ContainerLevelAccess context;
     @Nullable private final PipeBlockEntity pipeEntity;
+    @Nullable private final String targetModuleStateKey;
 
     // Synced data: [0] = current satellite ID (0=unset), [1] = boolean flag (0/1) for whether
     // the current ID is taken by another satellite pipe (not a bitmask — MAX_ID exceeds 32 bits)
@@ -54,13 +55,19 @@ public class SatelliteScreenHandler extends AbstractContainerMenu {
     };
 
     public SatelliteScreenHandler(int syncId, Container playerInventory) {
-        this(syncId, playerInventory, null);
+        this(syncId, playerInventory, null, null);
     }
 
     public SatelliteScreenHandler(int syncId, Container playerInventory,
             @Nullable PipeBlockEntity pipeEntity) {
+        this(syncId, playerInventory, pipeEntity, null);
+    }
+
+    public SatelliteScreenHandler(int syncId, Container playerInventory,
+            @Nullable PipeBlockEntity pipeEntity, @Nullable String targetModuleStateKey) {
         super(LogisticsPipe.SCREEN.SATELLITE, syncId);
         this.pipeEntity = pipeEntity;
+        this.targetModuleStateKey = targetModuleStateKey;
         this.context = pipeEntity != null
                 ? ContainerLevelAccess.create(pipeEntity.getLevel(), pipeEntity.getBlockPos())
                 : ContainerLevelAccess.NULL;
@@ -111,7 +118,7 @@ public class SatelliteScreenHandler extends AbstractContainerMenu {
 
         if (nextId > 0 && nextId != currentId) {
             int finalId = nextId;
-            PipeModuleHelper.withModule(pipeEntity, SatelliteModule.class, (ctx, module) ->
+            PipeModuleHelper.withModule(pipeEntity, SatelliteModule.class, targetModuleStateKey, (ctx, module) ->
                     module.setSatelliteId(ctx, finalId));
         }
         return true;
@@ -139,7 +146,7 @@ public class SatelliteScreenHandler extends AbstractContainerMenu {
     private int getCurrentIdFromModule() {
         if (pipeEntity == null) return 0;
         int[] result = {0};
-        PipeModuleHelper.withModule(pipeEntity, SatelliteModule.class, (ctx, module) ->
+        PipeModuleHelper.withModule(pipeEntity, SatelliteModule.class, targetModuleStateKey, (ctx, module) ->
                 result[0] = module.getSatelliteIdInt(ctx));
         return result[0];
     }
@@ -148,7 +155,7 @@ public class SatelliteScreenHandler extends AbstractContainerMenu {
     private Set<String> getNetworkTakenStrings() {
         if (pipeEntity == null) return Set.of();
         String[] ownId = {""};
-        PipeModuleHelper.withModule(pipeEntity, SatelliteModule.class, (ctx, module) ->
+        PipeModuleHelper.withModule(pipeEntity, SatelliteModule.class, targetModuleStateKey, (ctx, module) ->
                 ownId[0] = module.getSatelliteId(ctx));
         var network = NetworkRegistry.getNetwork(pipeEntity.getLevel(), pipeEntity.getBlockPos());
         if (network == null) return Set.of();

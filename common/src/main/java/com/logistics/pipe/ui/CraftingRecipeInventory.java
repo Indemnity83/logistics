@@ -1,9 +1,7 @@
 package com.logistics.pipe.ui;
 
 import com.logistics.core.lib.resource.ResourceId;
-import com.logistics.pipe.Pipe;
 import com.logistics.core.lib.pipe.PipeContext;
-import com.logistics.pipe.block.PipeBlock;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.pipe.modules.CraftingModule;
 import net.minecraft.core.NonNullList;
@@ -13,6 +11,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Inventory for the Crafting Logistics Pipe GUI.
@@ -22,9 +21,15 @@ public class CraftingRecipeInventory implements Container {
     private static final int SLOT_COUNT = 10; // 9 ingredients + 1 result
     private final NonNullList<ItemStack> stacks = NonNullList.withSize(SLOT_COUNT, ItemStack.EMPTY);
     private final PipeBlockEntity pipeEntity;
+    @Nullable private final String targetModuleStateKey;
 
     public CraftingRecipeInventory(PipeBlockEntity pipeEntity) {
+        this(pipeEntity, null);
+    }
+
+    public CraftingRecipeInventory(PipeBlockEntity pipeEntity, @Nullable String targetModuleStateKey) {
         this.pipeEntity = pipeEntity;
+        this.targetModuleStateKey = targetModuleStateKey;
         if (pipeEntity != null) {
             loadFromModule();
         }
@@ -90,12 +95,13 @@ public class CraftingRecipeInventory implements Container {
         if (pipeEntity == null) return;
         if (pipeEntity.getLevel() == null || pipeEntity.getLevel().isClientSide()) return;
 
-        PipeBlock block = (PipeBlock) pipeEntity.getBlockState().getBlock();
-        Pipe pipe = block.getPipe();
-        CraftingModule module = pipe.getModule(CraftingModule.class, pipeEntity);
+        CraftingModule module = PipeModuleHelper.getModule(pipeEntity, CraftingModule.class, targetModuleStateKey);
         if (module == null) return;
 
         PipeContext ctx = pipeEntity.createContext();
+        if (targetModuleStateKey != null) {
+            ctx = ctx.withModuleStateKey(module, targetModuleStateKey);
+        }
 
         // Load ingredient slots 0-8
         for (int slot = 0; slot < 9; slot++) {

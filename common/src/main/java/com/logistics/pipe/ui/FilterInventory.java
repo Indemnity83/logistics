@@ -23,15 +23,22 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.Nullable;
 
 public class FilterInventory implements Container {
     private final NonNullList<ItemStack> stacks = NonNullList.withSize(
             ItemFilterModule.FILTER_ORDER.length * ItemFilterModule.FILTER_SLOTS_PER_SIDE, ItemStack.EMPTY);
     private final PipeBlockEntity pipeEntity;
+    @Nullable private final String targetModuleStateKey;
     private final ItemFilterModule module;
 
     public FilterInventory(PipeBlockEntity pipeEntity) {
+        this(pipeEntity, null);
+    }
+
+    public FilterInventory(PipeBlockEntity pipeEntity, @Nullable String targetModuleStateKey) {
         this.pipeEntity = pipeEntity;
+        this.targetModuleStateKey = targetModuleStateKey;
         this.module = getModuleFromPipe(pipeEntity);
 
         if (pipeEntity != null) {
@@ -44,10 +51,8 @@ public class FilterInventory implements Container {
             return new ItemFilterModule();
         }
 
-        com.logistics.pipe.block.PipeBlock block =
-                (com.logistics.pipe.block.PipeBlock) entity.getBlockState().getBlock();
-        com.logistics.pipe.Pipe pipe = block.getPipe();
-        ItemFilterModule pipeModule = pipe.getModule(ItemFilterModule.class, entity);
+        ItemFilterModule pipeModule =
+                PipeModuleHelper.getModule(entity, ItemFilterModule.class, targetModuleStateKey);
 
         return pipeModule != null ? pipeModule : new ItemFilterModule();
     }
@@ -128,6 +133,9 @@ public class FilterInventory implements Container {
     private void loadFromBlockEntity() {
         int slotIndex = 0;
         PipeContext ctx = pipeEntity.createContext();
+        if (targetModuleStateKey != null) {
+            ctx = ctx.withModuleStateKey(module, targetModuleStateKey);
+        }
         for (Direction direction : ItemFilterModule.FILTER_ORDER) {
             List<ItemStack> filterStacks = module.getFilterStacks(ctx, direction);
             for (int i = 0; i < ItemFilterModule.FILTER_SLOTS_PER_SIDE; i++) {
@@ -185,6 +193,9 @@ public class FilterInventory implements Container {
 
         int slotIndex = 0;
         PipeContext ctx = pipeEntity.createContext();
+        if (targetModuleStateKey != null) {
+            ctx = ctx.withModuleStateKey(module, targetModuleStateKey);
+        }
         for (Direction direction : ItemFilterModule.FILTER_ORDER) {
             List<ItemStack> slots = new ArrayList<>(ItemFilterModule.FILTER_SLOTS_PER_SIDE);
             for (int i = 0; i < ItemFilterModule.FILTER_SLOTS_PER_SIDE; i++) {
