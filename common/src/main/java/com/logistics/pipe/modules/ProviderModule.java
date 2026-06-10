@@ -39,6 +39,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -189,7 +190,8 @@ public class ProviderModule implements Module, TickingModule, DispatchableModule
                 hud.items(stacks);
             }
         }
-        hud.line(ModuleHud.detail(Component.literal(getMode(ctx).getTranslationKey())));
+        hud.line(ModuleHud.detail(Component.translatable(
+                "gui.logistics.provider.mode." + getMode(ctx).name().toLowerCase(Locale.ROOT))));
     }
 
     public void setFilterInverted(PipeContext ctx, boolean inverted) {
