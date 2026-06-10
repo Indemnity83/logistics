@@ -6,9 +6,7 @@ import com.logistics.core.lib.energy.EnergyComponent;
 import com.logistics.core.lib.energy.EnergyPushService;
 import com.logistics.core.lib.energy.IEnergyStorage;
 import com.logistics.core.lib.compat.NbtCompat;
-import com.logistics.core.lib.block.behavior.ProbeResult;
 import java.util.Locale;
-import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -404,67 +402,6 @@ public abstract class AbstractEngineBlockEntity extends BaseBlockEntity implemen
 
     public long getCurrentOutputPower() {
         return getOutputPower();
-    }
-
-    // ==================== Probe Support ====================
-
-    /**
-     * Creates probe result with engine diagnostic information.
-     * Override in subclasses to add engine-specific entries.
-     *
-     * @return the probe result
-     */
-    public ProbeResult getProbeResult() {
-        ProbeResult.Builder builder = ProbeResult.builder("Engine Stats");
-        addProbeEntries(builder);
-        return builder.build();
-    }
-
-    /**
-     * Adds probe entries to the builder.
-     * Subclasses should call super and then add their own entries.
-     */
-    protected void addProbeEntries(ProbeResult.Builder builder) {
-        // Stage with color coding
-        HeatStage stage = getHeatStage();
-        builder.entry("Stage", stage.name(), getStageColor(stage));
-
-        // Temperature info
-        double temp = getTemperature();
-        double maxTemp = getMaxTemperature();
-        double heatLevel = getHeatLevel();
-        ChatFormatting tempColor =
-                heatLevel >= 1.0 ? ChatFormatting.RED : heatLevel >= 0.75 ? ChatFormatting.YELLOW : ChatFormatting.GREEN;
-        builder.entry("Temperature", String.format("%.0f\u00B0C (%.0f Max)", temp, maxTemp), tempColor);
-
-        // Energy info (buffer)
-        long storedEnergy = getEnergy();
-        double energyLevel = getEnergyLevel();
-        builder.entry(
-                "Energy",
-                String.format("%,d / %,d RF (%.1f%%)", storedEnergy, getEnergyBufferCapacity(), energyLevel * 100),
-                ChatFormatting.AQUA);
-
-        // Output power
-        builder.entry("Output Power", String.format("%d RF/t", getCurrentOutputPower()), ChatFormatting.LIGHT_PURPLE);
-
-        // Running state
-        builder.entry("Running", isRunning() ? "Yes" : "No", isRunning() ? ChatFormatting.GREEN : ChatFormatting.GRAY);
-
-        // Overheat warning
-        if (isOverheated()) {
-            builder.warning("OVERHEATED!");
-        }
-    }
-
-    private static ChatFormatting getStageColor(HeatStage stage) {
-        return switch (stage) {
-            case COLD -> ChatFormatting.BLUE;
-            case COOL -> ChatFormatting.GREEN;
-            case WARM -> ChatFormatting.YELLOW;
-            case HOT -> ChatFormatting.RED;
-            case OVERHEAT -> ChatFormatting.DARK_RED;
-        };
     }
 
     // ==================== Energy Storage Access ====================

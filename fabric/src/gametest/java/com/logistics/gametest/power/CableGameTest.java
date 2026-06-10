@@ -4,7 +4,6 @@ import com.logistics.LogisticsCore;
 import com.logistics.LogisticsPower;
 import com.logistics.core.macerator.MaceratorBlockEntity;
 import com.logistics.core.lib.power.AbstractEngineBlock;
-import com.logistics.core.lib.block.behavior.ProbeResult;
 import com.logistics.power.cable.CableBlock;
 import com.logistics.power.cable.CableBlockEntity;
 import com.logistics.power.block.entity.CreativeSinkBlockEntity;
@@ -96,8 +95,8 @@ public class CableGameTest {
             return;
         }
 
-        String energyReceived = creativeSinkProbeValue(sink, "Energy Received");
-        if (!"0 RF".equals(energyReceived)) {
+        long energyReceived = sink.energyReceivedLastTick();
+        if (energyReceived != 0L) {
             context.fail("Aborted cross-tick transaction should not count as received energy, got: "
                     + energyReceived);
             return;
@@ -505,14 +504,5 @@ public class CableGameTest {
             context.fail("Could not set creative sink drain rate to " + drainRate
                     + ", got: " + sink.getDrainRate());
         }
-    }
-
-    private static String creativeSinkProbeValue(CreativeSinkBlockEntity sink, String key) {
-        for (ProbeResult.Entry entry : sink.getProbeResult().entries()) {
-            if (entry instanceof ProbeResult.Entry.KeyValue keyValue && keyValue.key().equals(key)) {
-                return keyValue.value();
-            }
-        }
-        return "";
     }
 }

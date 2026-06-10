@@ -2,23 +2,17 @@ package com.logistics.power.cable;
 
 import com.logistics.LogisticsPower;
 import com.logistics.core.lib.block.BaseBlockEntity;
-import com.logistics.core.lib.block.behavior.ProbeResult;
 import com.logistics.core.lib.block.capability.HasEnergyStorage;
 import com.logistics.core.lib.compat.NbtCompat;
-import com.logistics.core.lib.energy.EnergyCapabilityLookup;
 import com.logistics.core.lib.energy.IEnergyStorage;
 import com.logistics.core.lib.power.AcceptsLowTierEnergy;
-import com.logistics.core.lib.power.EnergyDemandProvider;
-import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import java.util.Locale;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -164,63 +158,8 @@ public class CableBlockEntity extends BaseBlockEntity
         cable.updateConnections();
     }
 
-    // ==================== Probe ====================
-
-    public ProbeResult getProbeResult() {
-        ProbeResult.Builder builder = ProbeResult.builder(tier().displayName())
-                .entry("Transfer", String.format("%d RF/t", getTransferRate()), ChatFormatting.AQUA);
-
-        addConnectedMachineEntries(builder);
-        return builder.build();
-    }
-
     private CableTier tier() {
         return getBlockState().getBlock() instanceof CableBlock cableBlock ? cableBlock.tier() : CableTier.COPPER;
-    }
-
-    private void addConnectedMachineEntries(ProbeResult.Builder builder) {
-        if (level == null) return;
-
-        boolean hasMachineEntry = false;
-        for (Direction direction : Direction.values()) {
-            if (getCachedConnectionType(direction) != CableBlock.ConnectionType.DEVICE) continue;
-
-            BlockPos neighborPos = worldPosition.relative(direction);
-            if (!level.isLoaded(neighborPos)) continue;
-
-            IEnergyStorage storage = EnergyCapabilityLookup.INSTANCE.find(level, neighborPos, direction.getOpposite());
-            if (storage == null || !storage.canInsert()) continue;
-
-            if (!hasMachineEntry) {
-                builder.separator();
-                hasMachineEntry = true;
-            }
-
-            BlockEntity blockEntity = level.getBlockEntity(neighborPos);
-            BlockState neighborState = level.getBlockState(neighborPos);
-            long demand = connectedDemand(blockEntity, storage);
-            builder.entry(
-                    direction.getSerializedName().toUpperCase(Locale.ROOT),
-                    String.format("%s: %s", neighborState.getBlock().getName().getString(), formatRate(demand)),
-                    demand > 0 ? ChatFormatting.GREEN : ChatFormatting.GRAY);
-        }
-    }
-
-    private long connectedDemand(@Nullable BlockEntity blockEntity, IEnergyStorage storage) {
-        long demand = blockEntity instanceof EnergyDemandProvider provider
-                ? provider.networkDemandPerTick()
-                : storageRoom(storage);
-        return Math.min(Math.max(0, demand), getTransferRate());
-    }
-
-    private static long storageRoom(IEnergyStorage storage) {
-        long capacity = storage.getCapacity();
-        if (capacity == Long.MAX_VALUE) return Long.MAX_VALUE;
-        return Math.max(0, capacity - storage.getAmount());
-    }
-
-    private static String formatRate(long rate) {
-        return rate > 0 ? String.format("%,d RF/t demand", rate) : "idle";
     }
 
     private final class CableEnergyStorage implements IEnergyStorage {
