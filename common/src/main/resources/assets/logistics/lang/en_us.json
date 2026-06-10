@@ -225,6 +225,7 @@
   "jade.logistics.quarry.phase.finished": "Finished",
   "jade.logistics.quarry.power_in": "Power In",
   "jade.logistics.quarry.arm_speed": "Arm Speed",
+  "jade.logistics.machine.progress": "Progress",
 
   "tag.item.c.ingots.tin": "Tin Ingots",
   "tag.item.c.ingots.bronze": "Bronze Ingots",
