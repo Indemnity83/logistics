@@ -16,6 +16,7 @@ import com.logistics.core.lib.storage.IItemStorage;
 import com.logistics.core.lib.storage.IItemView;
 import com.logistics.core.lib.storage.ItemStorageLookup;
 import com.logistics.core.lib.pipe.PipeContext;
+import com.logistics.core.lib.pipe.PipeHud;
 import com.logistics.pipe.network.NetworkRegistry;
 import com.logistics.core.lib.pipe.TravelingItem;
 import com.logistics.pipe.ui.ProviderScreenHandler;
@@ -38,6 +39,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -170,6 +172,26 @@ public class ProviderModule implements Module, TickingModule, DispatchableModule
 
     public boolean isFilterInverted(PipeContext ctx) {
         return ctx.getInt(this, FILTER_INVERTED, 0) == 1;
+    }
+
+    @Override
+    public void appendHud(PipeContext ctx, PipeHud hud) {
+        // Filter first: an exclude filter shows "None", an empty filter "Any", otherwise the item icons.
+        if (isFilterInverted(ctx)) {
+            hud.line(ModuleHud.detail(Component.translatable("jade.logistics.pipe.filter.none")));
+        } else {
+            List<ItemStack> stacks = getFilterItems(ctx).asList().stream()
+                    .map(id -> ModuleHud.stack(id, 1))
+                    .filter(stack -> !stack.isEmpty())
+                    .toList();
+            if (stacks.isEmpty()) {
+                hud.line(ModuleHud.detail(Component.translatable("jade.logistics.pipe.filter.any")));
+            } else {
+                hud.items(stacks);
+            }
+        }
+        hud.line(ModuleHud.detail(Component.translatable(
+                "gui.logistics.provider.mode." + getMode(ctx).name().toLowerCase(Locale.ROOT))));
     }
 
     public void setFilterInverted(PipeContext ctx, boolean inverted) {
