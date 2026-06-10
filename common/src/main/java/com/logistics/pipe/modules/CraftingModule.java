@@ -154,6 +154,37 @@ public class CraftingModule implements Module, TickingModule, RoutingModule, Dis
         return ctx.getInt(this, RESULT_COUNT, 1);
     }
 
+    @Override
+    public void appendHud(PipeContext ctx, PipeHud hud) {
+        String result = getResultItem(ctx);
+        if (result.isEmpty()) {
+            hud.line(ModuleHud.detail(Component.translatable("jade.logistics.pipe.crafter.unconfigured")));
+            return;
+        }
+        hud.items(List.of(ModuleHud.stack(result, getResultCount(ctx))));
+        if (!hud.showDetails()) {
+            return;
+        }
+        // Ingredients aggregated by item so duplicates show a count, like an inventory.
+        Map<String, Integer> aggregated = new LinkedHashMap<>();
+        for (int slot = 0; slot < 9; slot++) { // 3x3 recipe grid
+            String id = getIngredientItem(ctx, slot);
+            if (id != null && !id.isEmpty()) {
+                aggregated.merge(id, Math.max(1, getIngredientCount(ctx, slot)), Integer::sum);
+            }
+        }
+        List<ItemStack> ingredients = aggregated.entrySet().stream()
+                .map(entry -> ModuleHud.stack(entry.getKey(), entry.getValue()))
+                .filter(stack -> !stack.isEmpty())
+                .toList();
+        if (!ingredients.isEmpty()) {
+            hud.items(ingredients);
+        }
+        if (isBlocking(ctx)) {
+            hud.line(ModuleHud.detail(Component.translatable("jade.logistics.pipe.crafter.blocking")));
+        }
+    }
+
     public void setResult(PipeContext ctx, String itemId, int count) {
         if (itemId == null || itemId.isEmpty()) {
             ctx.moduleState(this).remove(RESULT_ITEM);
