@@ -1,0 +1,18 @@
+#!/bin/sh
+# Pre-push hook: verify formatting with Spotless as a safety net.
+#
+# Auto-formatting runs on commit, but the pre-commit hook intentionally skips
+# itself during cherry-pick/rebase/merge/revert (which also bypass CI in our
+# normal porting flow). This check should almost never fire; when it does, it
+# stops unformatted code from reaching a branch.
+
+echo "Checking formatting with Spotless..."
+
+if ! ./gradlew spotlessCheck --daemon --quiet; then
+    echo "✗ Spotless found unformatted code."
+    echo "  Run './gradlew spotlessApply', commit the result, then push again."
+    echo "  (To bypass in an emergency: git push --no-verify)"
+    exit 1
+fi
+
+exit 0
