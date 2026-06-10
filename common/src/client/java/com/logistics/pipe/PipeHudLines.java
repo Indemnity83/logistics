@@ -32,12 +32,12 @@ public final class PipeHudLines {
             int shown = Math.min(items.size(), MAX_DETAIL_ITEMS);
             for (int i = 0; i < shown; i++) {
                 TravelingItem item = items.get(i);
-                String text = String.format(
-                        "%dx %s → %s",
-                        item.getStack().getCount(),
-                        item.getStack().getHoverName().getString(),
-                        item.getDirection().name());
-                lines.add(Component.literal(text).withStyle(ChatFormatting.AQUA));
+                // Append the hover name as a Component so colored/renamed items keep their styling.
+                Component line = Component.literal(item.getStack().getCount() + "x ")
+                        .append(item.getStack().getHoverName())
+                        .append(Component.literal(" → " + item.getDirection().name()))
+                        .withStyle(ChatFormatting.AQUA);
+                lines.add(line);
             }
             if (items.size() > shown) {
                 lines.add(Component.translatable("jade.logistics.pipe.more", items.size() - shown)
