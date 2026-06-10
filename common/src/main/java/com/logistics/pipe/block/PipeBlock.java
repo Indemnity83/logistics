@@ -1,11 +1,9 @@
 package com.logistics.pipe.block;
 
-import com.logistics.core.lib.block.behavior.ProbeBehavior;
 import com.logistics.core.lib.block.behavior.WrenchBehavior;
 import com.logistics.core.lib.block.capability.PipeConnection;
 import com.logistics.pipe.network.NetworkRegistry;
 import com.logistics.core.lib.pipe.PipeConnectionLookup;
-import com.logistics.core.lib.block.behavior.ProbeResult;
 import com.logistics.pipe.Pipe;
 import com.logistics.pipe.ChassisPipe;
 import com.logistics.core.lib.pipe.PipeContext;
@@ -15,7 +13,6 @@ import com.logistics.core.lib.pipe.TravelingItem;
 import com.logistics.pipe.item.ModuleItem;
 import com.mojang.serialization.MapCodec;
 import com.logistics.core.lib.storage.ItemStorageLookup;
-import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
@@ -57,7 +54,7 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
 
-public class PipeBlock extends BaseEntityBlock implements ProbeBehavior.Probeable, SimpleWaterloggedBlock, WrenchBehavior.Wrenchable {
+public class PipeBlock extends BaseEntityBlock implements SimpleWaterloggedBlock, WrenchBehavior.Wrenchable {
     public static final MapCodec<PipeBlock> CODEC = simpleCodec(PipeBlock::new);
 
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
@@ -383,32 +380,6 @@ public class PipeBlock extends BaseEntityBlock implements ProbeBehavior.Probeabl
             PipeContext context = new PipeContext(world, pos, state, blockEntity);
             pipe.randomTick(context, random);
         }
-    }
-
-    @Override
-    public ProbeResult onProbe(Level world, BlockPos pos, Player player) {
-        if (!(world.getBlockEntity(pos) instanceof PipeBlockEntity pipeEntity)) {
-            return null;
-        }
-
-        var items = pipeEntity.getTravelingItems();
-        ProbeResult.Builder builder = ProbeResult.builder("Pipe Contents");
-        if (items.isEmpty()) {
-            builder.entry("Items", "Empty", ChatFormatting.GRAY);
-        } else {
-            builder.entry("Items", String.valueOf(items.size()), ChatFormatting.WHITE);
-            builder.separator();
-            for (TravelingItem item : items) {
-                String name = item.getStack().getHoverName().getString();
-                int count = item.getStack().getCount();
-                String info = String.format(
-                        "%dx %s -> %s (%.0f%%)",
-                        count, name, item.getDirection().name(), item.getProgress() * 100);
-                builder.entry("", info, ChatFormatting.AQUA);
-            }
-        }
-
-        return builder.build();
     }
 
     @Override

@@ -16,7 +16,8 @@
   "description": "A modern logistics and pipe mod with authentic in-pipe item motion, mod interoperability, and request/autocrafting systems.",
   "entrypoints": {
     "client": ["com.logistics.LogisticsModClient"],
-    "main": ["com.logistics.fabric.LogisticsFabric"]
+    "main": ["com.logistics.fabric.LogisticsFabric"],
+    "jade": ["com.logistics.compat.jade.JadeLogisticsPlugin"]
   },
   "environment": "*",
   "icon": "assets/logistics/icon.png",

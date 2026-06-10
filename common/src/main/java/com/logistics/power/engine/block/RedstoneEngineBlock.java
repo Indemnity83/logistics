@@ -36,11 +36,6 @@ public class RedstoneEngineBlock extends AbstractEngineBlock<RedstoneEngineBlock
         return CODEC;
     }
 
-    @Override
-    protected RedstoneEngineBlockEntity getEngineBlockEntity(BlockEntity be) {
-        return be instanceof RedstoneEngineBlockEntity ? (RedstoneEngineBlockEntity) be : null;
-    }
-
     @Nullable @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return new RedstoneEngineBlockEntity(pos, state);

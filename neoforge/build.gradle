@@ -23,6 +23,11 @@ repositories {
         url = "https://prmaven.neoforged.net/NeoForge/pr3198"
         content { includeModule("net.neoforged", "neoforge") }
     }
+    maven {
+        name = "Modrinth"
+        url = "https://api.modrinth.com/maven"
+        content { includeGroup "maven.modrinth" }
+    }
 }
 
 java {
@@ -79,6 +84,10 @@ dependencies {
         compileOnly("mezz.jei:jei-${rootProject.minecraft_version}-neoforge-api:${rootProject.jei_version}")
         runtimeOnly("mezz.jei:jei-${rootProject.minecraft_version}-neoforge:${rootProject.jei_version}")
     }
+
+    // Jade HUD — compile against the API only; loaded in dev via runClient, never bundled
+    compileOnly("maven.modrinth:jade:${rootProject.jade_neoforge_version}")
+    runtimeOnly("maven.modrinth:jade:${rootProject.jade_neoforge_version}")
 
     testImplementation "org.junit.jupiter:junit-jupiter:${rootProject.junit_version}"
     testRuntimeOnly "org.junit.platform:junit-platform-launcher"

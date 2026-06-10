@@ -1,8 +1,6 @@
 package com.logistics.power.block;
 
-import com.logistics.core.lib.block.behavior.ProbeBehavior;
 import com.logistics.core.lib.block.behavior.WrenchBehavior;
-import com.logistics.core.lib.block.behavior.ProbeResult;
 import com.logistics.power.block.entity.CreativeSinkBlockEntity;
 import com.logistics.LogisticsPower;
 import com.mojang.serialization.MapCodec;
@@ -28,7 +26,7 @@ import org.jetbrains.annotations.Nullable;
  *   <li>Sneak + right-click with wrench: Cycle through drain rates</li>
  * </ul>
  */
-public class CreativeSinkBlock extends BaseEntityBlock implements ProbeBehavior.Probeable, WrenchBehavior.Wrenchable {
+public class CreativeSinkBlock extends BaseEntityBlock implements WrenchBehavior.Wrenchable {
     public static final MapCodec<CreativeSinkBlock> CODEC = simpleCodec(CreativeSinkBlock::new);
 
     public CreativeSinkBlock(Properties settings) {
@@ -58,14 +56,6 @@ public class CreativeSinkBlock extends BaseEntityBlock implements ProbeBehavior.
             return null;
         }
         return createTickerHelper(type, LogisticsPower.ENTITY.CREATIVE_SINK_BLOCK_ENTITY, CreativeSinkBlockEntity::tick);
-    }
-
-    @Nullable @Override
-    public ProbeResult onProbe(Level world, BlockPos pos, Player player) {
-        if (world.getBlockEntity(pos) instanceof CreativeSinkBlockEntity sink) {
-            return sink.getProbeResult();
-        }
-        return null;
     }
 
     @Override
