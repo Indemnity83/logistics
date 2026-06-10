@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.7.1](https://github.com/Indemnity83/logistics/compare/mc26.1-v0.7.0...mc26.1-v0.7.1) (2026-06-10)
+
+
+### Added
+
+* **automation:** show laser quarry status in the Jade HUD ([c03bf00](https://github.com/Indemnity83/logistics/commit/c03bf009067d2c9796a21d8dee346a5271e0ea1b))
+* **automation:** show laser quarry status in the Jade HUD ([#498](https://github.com/Indemnity83/logistics/issues/498)) ([c03bf00](https://github.com/Indemnity83/logistics/commit/c03bf009067d2c9796a21d8dee346a5271e0ea1b))
+* **automation:** show macerator and kiln progress in the Jade HUD ([5c49049](https://github.com/Indemnity83/logistics/commit/5c49049050f95c5a580947f206d85cace324ed92))
+* **automation:** show macerator and kiln progress in the Jade HUD ([#499](https://github.com/Indemnity83/logistics/issues/499)) ([5c49049](https://github.com/Indemnity83/logistics/commit/5c49049050f95c5a580947f206d85cace324ed92))
+* **compat:** integrate Jade and remove the built-in probe ([49fb320](https://github.com/Indemnity83/logistics/commit/49fb3207c587bb8dab812ca3711ef03359b61f44))
+* **energy:** show power diagnostics in the Jade HUD ([ab53084](https://github.com/Indemnity83/logistics/commit/ab5308452106f06b7977d6906b2562a5b34bad2e))
+* **energy:** show power diagnostics in the Jade HUD ([#497](https://github.com/Indemnity83/logistics/issues/497)) ([ab53084](https://github.com/Indemnity83/logistics/commit/ab5308452106f06b7977d6906b2562a5b34bad2e))
+* **pipes:** show pipe contents in the Jade HUD ([743ba3a](https://github.com/Indemnity83/logistics/commit/743ba3a8b439c0d8b0feb92a2d314a5610b32a05))
+* **pipes:** show pipe contents in the Jade HUD ([#500](https://github.com/Indemnity83/logistics/issues/500)) ([743ba3a](https://github.com/Indemnity83/logistics/commit/743ba3a8b439c0d8b0feb92a2d314a5610b32a05))
+* **pipes:** show pipe module status in the Jade HUD ([fb895a4](https://github.com/Indemnity83/logistics/commit/fb895a4ae08366a5da7fd5459985a769d592d054))
+* **pipes:** show pipe module status in the Jade HUD ([#493](https://github.com/Indemnity83/logistics/issues/493)) ([fb895a4](https://github.com/Indemnity83/logistics/commit/fb895a4ae08366a5da7fd5459985a769d592d054))
+
 ## [0.7.0](https://github.com/Indemnity83/logistics/compare/mc26.1-v0.6.3...mc26.1-v0.7.0) (2026-06-09)
 
 
