@@ -2,6 +2,7 @@ package com.logistics.automation.kiln;
 
 import com.logistics.LogisticsAutomation;
 import com.logistics.core.lib.block.BaseBlockEntity;
+import com.logistics.core.lib.block.ProcessingMachine;
 import com.logistics.core.lib.block.behavior.MenuBehavior;
 import com.logistics.core.lib.block.capability.HasEnergyStorage;
 import com.logistics.core.lib.block.capability.HasItemStorage;
@@ -51,7 +52,7 @@ import com.logistics.core.lib.energy.IEnergyStorage;
  * </ul>
  */
 public class KilnBlockEntity extends BaseBlockEntity
-    implements HasItemStorage, HasEnergyStorage, WorldlyContainer, MenuBehavior.HasMenu {
+    implements HasItemStorage, HasEnergyStorage, WorldlyContainer, MenuBehavior.HasMenu, ProcessingMachine {
 
     static final int INPUT_SLOT = 0;
     static final int OUTPUT_SLOT = 1;
@@ -236,6 +237,22 @@ public class KilnBlockEntity extends BaseBlockEntity
     @Override
     public boolean canTakeItemThroughFace(int slot, ItemStack stack, Direction direction) {
         return direction == Direction.DOWN && slot == OUTPUT_SLOT;
+    }
+
+    // ==================== ProcessingMachine ====================
+
+    @Override
+    public float processProgress() {
+        if (activeRecipe == null) {
+            return 0f;
+        }
+        int total = activeRecipe.value().cookingTime();
+        return total > 0 ? Math.min(1f, (float) processProgress / total) : 0f;
+    }
+
+    @Override
+    public boolean isProcessing() {
+        return activeRecipe != null;
     }
 
     // ==================== Container Delegation ====================
