@@ -1147,9 +1147,10 @@ public class CraftingModule implements Module, TickingModule, RoutingModule, Dis
         if (ctx.world().isClientSide()) return InteractionResult.SUCCESS;
         if (!(player instanceof ServerPlayer serverPlayer)) return InteractionResult.PASS;
 
+        String moduleStateKey = ctx.moduleStateKey(this);
         serverPlayer.openMenu(new SimpleMenuProvider(
-                (syncId, playerInventory, p) ->
-                        new CraftingScreenHandler(syncId, playerInventory, ((PipeBlockEntity) ctx.blockEntity())),
+                (syncId, playerInventory, p) -> new CraftingScreenHandler(
+                        syncId, playerInventory, ((PipeBlockEntity) ctx.blockEntity()), moduleStateKey),
                 Component.translatable("screen.logistics.crafting")));
 
         return InteractionResult.SUCCESS;

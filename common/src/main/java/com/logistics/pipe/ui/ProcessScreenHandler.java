@@ -55,6 +55,7 @@ public class ProcessScreenHandler extends AbstractContainerMenu {
     private final ContainerLevelAccess context;
     private final ContainerData data;
     @Nullable private final PipeBlockEntity pipeEntity;
+    @Nullable private final String targetModuleStateKey;
 
     public ProcessScreenHandler(int syncId, Container playerInventory) {
         this(syncId, playerInventory, null);
@@ -62,14 +63,20 @@ public class ProcessScreenHandler extends AbstractContainerMenu {
 
     public ProcessScreenHandler(int syncId, Container playerInventory,
             @Nullable PipeBlockEntity pipeEntity) {
+        this(syncId, playerInventory, pipeEntity, null);
+    }
+
+    public ProcessScreenHandler(int syncId, Container playerInventory,
+            @Nullable PipeBlockEntity pipeEntity, @Nullable String targetModuleStateKey) {
         super(LogisticsPipe.SCREEN.PROCESS, syncId);
         this.pipeEntity = pipeEntity;
-        this.processInventory = new ProcessInventory(pipeEntity);
+        this.targetModuleStateKey = targetModuleStateKey;
+        this.processInventory = new ProcessInventory(pipeEntity, targetModuleStateKey);
         this.data = new SimpleContainerData(DATA_SIZE);
 
         if (pipeEntity != null) {
             this.context = ContainerLevelAccess.create(pipeEntity.getLevel(), pipeEntity.getBlockPos());
-            PipeModuleHelper.withModule(pipeEntity, ProcessModule.class, (ctx, module) -> {
+            PipeModuleHelper.withModule(pipeEntity, ProcessModule.class, targetModuleStateKey, (ctx, module) -> {
                 for (int i = 0; i < INPUT_SLOTS; i++) {
                     data.set(DATA_INPUT_COUNT_0 + i, module.getInputCount(ctx, i));
                 }
@@ -133,7 +140,7 @@ public class ProcessScreenHandler extends AbstractContainerMenu {
 
         int nextId = available.get(idx);
         if (nextId != currentId) {
-            PipeModuleHelper.withModule(pipeEntity, ProcessModule.class, (ctx, module) ->
+            PipeModuleHelper.withModule(pipeEntity, ProcessModule.class, targetModuleStateKey, (ctx, module) ->
                     module.setInputSatelliteId(ctx, nextId));
         }
         broadcastChanges();
@@ -167,6 +174,7 @@ public class ProcessScreenHandler extends AbstractContainerMenu {
                 context.execute((level, pos) -> PipeModuleHelper.withModule(
                         level.getBlockEntity(pos) instanceof PipeBlockEntity e ? e : null,
                         ProcessModule.class,
+                        targetModuleStateKey,
                         (ctx, module) -> {
                             if (isInput) module.setInput(ctx, moduleSlot, "", 1, "");
                             else module.setOutput(ctx, moduleSlot, "", 1);
@@ -183,6 +191,7 @@ public class ProcessScreenHandler extends AbstractContainerMenu {
             context.execute((level, pos) -> PipeModuleHelper.withModule(
                     level.getBlockEntity(pos) instanceof PipeBlockEntity e ? e : null,
                     ProcessModule.class,
+                    targetModuleStateKey,
                     (ctx, module) -> {
                         if (isInput) {
                             String currentDest = module.getInputDest(ctx, moduleSlot);
@@ -205,6 +214,7 @@ public class ProcessScreenHandler extends AbstractContainerMenu {
             PipeModuleHelper.withModule(
                     level.getBlockEntity(pos) instanceof PipeBlockEntity e ? e : null,
                     ProcessModule.class,
+                    targetModuleStateKey,
                     (ctx, module) -> {
                         for (int i = 0; i < INPUT_SLOTS; i++) {
                             data.set(DATA_INPUT_COUNT_0 + i, module.getInputCount(ctx, i));
@@ -233,7 +243,7 @@ public class ProcessScreenHandler extends AbstractContainerMenu {
     private int getCurrentSatelliteIdFromModule() {
         if (pipeEntity == null) return 0;
         int[] result = {0};
-        PipeModuleHelper.withModule(pipeEntity, ProcessModule.class, (ctx, module) ->
+        PipeModuleHelper.withModule(pipeEntity, ProcessModule.class, targetModuleStateKey, (ctx, module) ->
                 result[0] = module.getInputSatelliteId(ctx));
         return result[0];
     }

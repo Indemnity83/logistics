@@ -117,11 +117,13 @@ public class SinkModule implements Module, TickingModule, RoutingModule, ItemAcc
 
         Level world = ctx.world();
         BlockPos pos = ctx.pos();
+        String moduleStateKey = ctx.moduleStateKey(this);
         serverPlayer.openMenu(new SimpleMenuProvider(
                 (syncId, inventory, p) -> new SinkScreenHandler(
                         syncId,
                         inventory,
-                        world.getBlockEntity(pos) instanceof PipeBlockEntity entity ? entity : null
+                        world.getBlockEntity(pos) instanceof PipeBlockEntity entity ? entity : null,
+                        moduleStateKey
                 ),
                 Component.translatable("screen.logistics.sink.requested_items")
         ));

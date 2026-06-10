@@ -115,10 +115,12 @@ public class SatelliteModule implements Module, TickingModule, RoutingModule {
 
         Level world = ctx.world();
         var pos = ctx.pos();
+        String moduleStateKey = ctx.moduleStateKey(this);
         serverPlayer.openMenu(new SimpleMenuProvider(
                 (syncId, inv, p) -> new SatelliteScreenHandler(
                         syncId, inv,
-                        world.getBlockEntity(pos) instanceof PipeBlockEntity entity ? entity : null),
+                        world.getBlockEntity(pos) instanceof PipeBlockEntity entity ? entity : null,
+                        moduleStateKey),
                 Component.translatable("screen.logistics.satellite")));
         return InteractionResult.SUCCESS;
     }

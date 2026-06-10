@@ -93,11 +93,12 @@ public class ItemFilterModule implements Module, RoutingModule {
 
         Level world = ctx.world();
         BlockPos pos = ctx.pos();
+        String moduleStateKey = ctx.moduleStateKey(this);
         serverPlayer.openMenu(new net.minecraft.world.SimpleMenuProvider(
                 (syncId, inventory, playerEntity) -> {
                     PipeBlockEntity pipeEntity =
                             world.getBlockEntity(pos) instanceof PipeBlockEntity entity ? entity : null;
-                    return new ItemFilterScreenHandler(syncId, inventory, pipeEntity);
+                    return new ItemFilterScreenHandler(syncId, inventory, pipeEntity, moduleStateKey);
                 },
                 Component.translatable("screen.logistics.item_filter")));
         return InteractionResult.SUCCESS;
