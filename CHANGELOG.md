@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.7.1](https://github.com/Indemnity83/logistics/compare/mc1.21.11-v0.7.0...mc1.21.11-v0.7.1) (2026-06-11)
+
+
+### Added
+
+* **automation:** show laser quarry status in the Jade HUD ([#498](https://github.com/Indemnity83/logistics/issues/498)) ([d76b84a](https://github.com/Indemnity83/logistics/commit/d76b84ad7d0ebd72a3d66996197770fa4d62f5bd))
+* **automation:** show macerator and kiln progress in the Jade HUD ([#499](https://github.com/Indemnity83/logistics/issues/499)) ([2ee8ea5](https://github.com/Indemnity83/logistics/commit/2ee8ea5fde49611eeab45e4d435b4e24452ec334))
+* **compat:** integrate Jade and remove the built-in probe ([a1daae5](https://github.com/Indemnity83/logistics/commit/a1daae57fbdc84e6f5fbabe5e25d2d090fe390f4))
+* **energy:** show power diagnostics in the Jade HUD ([#497](https://github.com/Indemnity83/logistics/issues/497)) ([6029420](https://github.com/Indemnity83/logistics/commit/6029420aab3fc0f88eb696c768de014340dd74be))
+* **pipes:** show pipe contents in the Jade HUD ([#500](https://github.com/Indemnity83/logistics/issues/500)) ([f2ab878](https://github.com/Indemnity83/logistics/commit/f2ab87880fcd95f505205c51b55efef44e9a2bba))
+* **pipes:** show pipe module status in the Jade HUD ([#493](https://github.com/Indemnity83/logistics/issues/493)) ([e3c2776](https://github.com/Indemnity83/logistics/commit/e3c2776fc98a3cc852a94e65a6c7e8ca300882eb))
+
+
+### Fixed
+
+* **pipes:** apply config changes to modules installed in a chassis ([#504](https://github.com/Indemnity83/logistics/issues/504)) ([4c3dedc](https://github.com/Indemnity83/logistics/commit/4c3dedcb48c6f8cf30cdf6d8f88daadba4b2cde8)), closes [#494](https://github.com/Indemnity83/logistics/issues/494)
+
 ## [0.7.0](https://github.com/Indemnity83/logistics/compare/mc1.21.11-v0.6.3...mc1.21.11-v0.7.0) (2026-06-09)
 
 
