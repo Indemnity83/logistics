@@ -2,7 +2,7 @@
 
 Logistics is a modern classic-tech mod inspired by the feel of BuildCraft, Logistics Pipes, Thermal Expansion, Forestry, and Railcraft-era automation.
 
-This roadmap describes our current direction, not a promise of exact dates. Priorities may change based on Minecraft updates, loader support, technical risk, and community feedback.
+This roadmap describes the project’s current direction. It is not a promise of exact dates. Priorities may change based on Minecraft updates, loader support, technical risk, and community feedback.
 
 The goal is not to clone every old mod exactly. The goal is to capture the feel of classic automation in a modern Minecraft mod.
 
@@ -25,46 +25,44 @@ This phase focuses on the core automation loop:
 
 Work currently active, planned, or near-term.
 
-| Area | Status | Notes |
-|---|---|---|
-| Fluid foundation | Planned | Fluid pipes, tanks, pumps, and machine I/O |
-| Core machines | Planned | Macerator improvements, Alloy Smelter, Sawmill |
-| Power progression | Planned | Combustion engine and fuel chain |
+| Area                 | Status  | Notes                                            |
+|----------------------|---------|--------------------------------------------------|
+| Fluid foundation     | Active  | Fluid pipes, tanks, pumps, and machine I/O       |
+| Core machines        | Planned | Macerator improvements, Alloy Smelter, Sawmill   |
+| Power progression    | Planned | Combustion engine and fuel chain                 |
 | Material progression | Planned | Bronze, alloys, and machine crafting progression |
-| Loader parity | Ongoing | Keep Fabric and NeoForge aligned |
+| Loader parity        | Ongoing | Keep Fabric and NeoForge aligned                 |
 
 ## Next
 
 Likely after the current automation core is stable.
 
-| Area | Status | Notes |
-|---|---|---|
+| Area               | Status    | Notes                                                        |
+|--------------------|-----------|--------------------------------------------------------------|
 | Crafting logistics | Exploring | A Logistics crafting table or related crafting-request system may become the next major logistics-network expansion |
-| Obsidian Pipe | Planned | Vacuum-style item pickup pipe |
-| Firewall Pipe | Exploring | Needs design validation around routing behavior and network boundaries |
-| Facades / pipe hiding | Planned | Cosmetic integration for hiding pipes cleanly in builds |
+| Firewall Pipe      | Exploring | Needs design validation around routing behavior and network boundaries |
 
 ## Later
 
-Important to the long-term vision, but not part of the immediate core milestone.
+Important to the long-term vision, but not part of the immediate core milestone. 
 
-| Area | Status | Notes |
-|---|---|---|
-| Forestry-style farms | Planned later | Multifarm-inspired automation, modernized for current Minecraft |
-| Rail transport | Planned later | Tracks, carts, routing, and train logistics |
-| Railcraft-style tanks | Exploring | Likely modernized or tileable rather than rigid legacy multiblocks |
-| Machine upgrades | Exploring | Speed, efficiency, or specialization upgrades may be added if they improve progression without adding clutter |
+*These are in no specific order.*
+
+| Area                      | Status        | Notes                                                        |
+|---------------------------|---------------|--------------------------------------------------------------|
+| Facades / pipe hiding     | Planned later | Cosmetic integration for hiding pipes cleanly in builds      |
+| Forestry-style farms      | Planned later | Multifarm-inspired automation, modernized for current Minecraft |
+| Rail transport            | Planned later | Tracks, carts, routing, and train logistics                  |
+| Pipe based power delivery | Planned later | Sending power through logistics pipes to allow one connection to provide items and power to machines.  |
 
 ## Exploring / RFC
 
 These ideas are under discussion and may change significantly.
 
-- Programmable gates / pipe logic
-- Crafting logistics design
-- Machine upgrade model
-- Forestry-style bees, if they can fit modern Minecraft without recreating full classic bee genetics
-- Railcraft-style steam and multiblocks
-- Future module split
+- Programmable pipe gates / pipe signaling
+- Machine upgrades
+- Railcraft-style multiblock steam boilers/engines
+- Optional split of Logistics domains into independent mods (core, pipes, automation, forestry, rails)
 
 ## Not Currently Planned
 
@@ -73,8 +71,11 @@ These are intentionally not part of the current direction.
 - Full BuildCraft builder/filler clone
 - Full classic Forestry bee genetics or butterflies
 - Full Thermal Expansion item/fluid/storage replacement
+- Railcraft style multiblock fluid tanks
+- Forestry style multiblock farms
 - Deep magic-style teleport logistics
 - Exact one-to-one ports of legacy mods
+- Chunk loading
 
 ## How to Give Feedback
 
