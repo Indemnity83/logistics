@@ -20,9 +20,12 @@ import com.logistics.pipe.screen.SinkScreen;
 import com.logistics.pipe.screen.SupplierScreen;
 import com.logistics.automation.render.LaserQuarryBlockEntityRenderer;
 import com.logistics.automation.render.MarkerBlockEntityRenderer;
+import com.logistics.core.lib.power.AbstractEngineBlockEntity.HeatStage;
+import com.logistics.core.lib.power.EngineHeatTint;
 import com.logistics.neoforge.NeoForgePacketRegistration;
 import com.logistics.neoforge.client.render.NeoForgeEngineBlockEntityRenderer;
 import com.logistics.neoforge.client.render.NeoForgeModelLoader;
+import com.logistics.pipe.item.MarkingFluidItem;
 import com.logistics.pipe.network.packet.SyncRequesterInventoryPacket;
 import com.logistics.pipe.render.PipeBlockEntityRenderer;
 import com.logistics.power.screen.StirlingEngineScreen;
@@ -30,6 +33,7 @@ import net.minecraft.client.Minecraft;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
+import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 
@@ -41,6 +45,7 @@ public final class NeoForgeClientSetup {
         modBus.addListener(NeoForgeClientSetup::onClientSetup);
         modBus.addListener(NeoForgeClientSetup::registerScreens);
         modBus.addListener(NeoForgeClientSetup::registerRenderers);
+        modBus.addListener(NeoForgeClientSetup::registerItemColors);
         modBus.addListener(NeoForgeModelLoader::registerGeometryLoaders);
     }
 
@@ -94,6 +99,45 @@ public final class NeoForgeClientSetup {
                 LaserQuarryBlockEntityRenderer::new);
     }
 
+    /**
+     * Registers item tint handlers in code. On MC 1.21.1 the data-driven client item model
+     * "tints" array (1.21.4+) is unavailable, so the marking fluid overlay and the engine item
+     * core must be tinted through {@link RegisterColorHandlersEvent.Item} just like the Fabric
+     * client does via {@code ColorProviderRegistry.ITEM}.
+     */
+    private static void registerItemColors(RegisterColorHandlersEvent.Item event) {
+        // Marking fluid: leave layer0 (bottle) untinted, tint layer1 (overlay) with the dye color.
+        event.register((stack, tintIndex) -> {
+            if (tintIndex == 0) return -1;
+            if (stack.getItem() instanceof MarkingFluidItem fluid) {
+                return fluid.getColor().getFireworkColor() | 0xFF000000;
+            }
+            return -1;
+        },
+                LogisticsPipe.ITEM.WHITE_MARKING_FLUID,
+                LogisticsPipe.ITEM.ORANGE_MARKING_FLUID,
+                LogisticsPipe.ITEM.MAGENTA_MARKING_FLUID,
+                LogisticsPipe.ITEM.LIGHT_BLUE_MARKING_FLUID,
+                LogisticsPipe.ITEM.YELLOW_MARKING_FLUID,
+                LogisticsPipe.ITEM.LIME_MARKING_FLUID,
+                LogisticsPipe.ITEM.PINK_MARKING_FLUID,
+                LogisticsPipe.ITEM.GRAY_MARKING_FLUID,
+                LogisticsPipe.ITEM.LIGHT_GRAY_MARKING_FLUID,
+                LogisticsPipe.ITEM.CYAN_MARKING_FLUID,
+                LogisticsPipe.ITEM.PURPLE_MARKING_FLUID,
+                LogisticsPipe.ITEM.BLUE_MARKING_FLUID,
+                LogisticsPipe.ITEM.BROWN_MARKING_FLUID,
+                LogisticsPipe.ITEM.GREEN_MARKING_FLUID,
+                LogisticsPipe.ITEM.RED_MARKING_FLUID,
+                LogisticsPipe.ITEM.BLACK_MARKING_FLUID);
+
+        // Engine item: the in-inventory model tints its core (tintIndex 0). Items have no live heat
+        // state, so they always show the idle COLD blue (matches 26.x's static engine item tint).
+        event.register((stack, tintIndex) -> tintIndex == 0 ? EngineHeatTint.color(HeatStage.COLD) : -1,
+                LogisticsPower.BLOCK.REDSTONE_ENGINE,
+                LogisticsPower.BLOCK.STIRLING_ENGINE,
+                LogisticsPower.BLOCK.CREATIVE_ENGINE);
+    }
 
     private static void handleSyncRequesterInventory(SyncRequesterInventoryPacket packet) {
         var screen = Minecraft.getInstance().screen;

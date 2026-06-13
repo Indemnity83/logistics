@@ -2,6 +2,8 @@ package com.logistics;
 
 import com.logistics.core.bootstrap.ClientDomainBootstrap;
 import com.logistics.core.lib.power.AbstractEngineBlockEntity;
+import com.logistics.core.lib.power.AbstractEngineBlockEntity.HeatStage;
+import com.logistics.core.lib.power.EngineHeatTint;
 import com.logistics.power.cable.CableTier;
 import com.logistics.power.render.EngineBlockEntityRenderer;
 import com.logistics.power.render.model.CableUnbakedRoot;
@@ -9,6 +11,7 @@ import com.logistics.power.screen.StirlingEngineScreen;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
+import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
@@ -70,6 +73,15 @@ public final class LogisticsPowerClient implements ClientDomainBootstrap {
 
         // Engine heat tinting is rendered in EngineBlockEntityRenderer (the heat core is drawn and
         // tinted per-frame from the live STAGE), so no BlockColors provider is needed here.
+
+        // The in-inventory engine item still tints its core (tintIndex 0) via the item model. On MC
+        // 1.21.1 the data-driven item "tints" array (1.21.4+) is unavailable, so register an item
+        // color in code. Items have no live heat state, so they always show the idle COLD blue.
+        ColorProviderRegistry.ITEM.register(
+                (stack, tintIndex) -> tintIndex == 0 ? EngineHeatTint.color(HeatStage.COLD) : -1,
+                LogisticsPower.BLOCK.REDSTONE_ENGINE,
+                LogisticsPower.BLOCK.STIRLING_ENGINE,
+                LogisticsPower.BLOCK.CREATIVE_ENGINE);
 
         // Register cleanup callback for engine animation cache
         AbstractEngineBlockEntity.setOnRemovedCallback(EngineBlockEntityRenderer::clearAnimationCache);
