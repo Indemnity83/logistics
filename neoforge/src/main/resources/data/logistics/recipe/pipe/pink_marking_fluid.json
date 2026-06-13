@@ -1,6 +1,8 @@
 {
   "ingredients": [
-    "minecraft:pink_dye",
+    {
+      "item": "minecraft:pink_dye"
+    },
     {
       "items": "minecraft:potion",
       "components": {

@@ -1,8 +1,12 @@
 {
   "type": "minecraft:crafting_shapeless",
   "ingredients": [
-    "minecraft:slime_ball",
-    "logistics:core/coal_dust"
+    {
+      "item": "minecraft:slime_ball"
+    },
+    {
+      "item": "logistics:core/coal_dust"
+    }
   ],
   "result": {
     "id": "logistics:power/rubber_mix",

@@ -1,6 +1,8 @@
 {
   "ingredients": [
-    "minecraft:brown_dye",
+    {
+      "item": "minecraft:brown_dye"
+    },
     {
       "items": "minecraft:potion",
       "components": {
