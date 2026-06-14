@@ -1,6 +1,8 @@
 {
   "type": "minecraft:smelting",
-  "ingredient": "logistics:power/rubber_mix",
+  "ingredient": {
+    "item": "logistics:power/rubber_mix"
+  },
   "result": {
     "id": "logistics:power/rubber_chunk",
     "count": 2

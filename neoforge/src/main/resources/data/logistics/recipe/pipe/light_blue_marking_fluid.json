@@ -1,6 +1,8 @@
 {
   "ingredients": [
-    "minecraft:light_blue_dye",
+    {
+      "item": "minecraft:light_blue_dye"
+    },
     {
       "items": "minecraft:potion",
       "components": {
@@ -8,7 +10,7 @@
           "potion": "minecraft:water"
         }
       },
-      "neoforge:ingredient_type": "neoforge:components",
+      "type": "neoforge:components",
       "strict": true
     }
   ],
