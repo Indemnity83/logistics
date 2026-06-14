@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": ["CBC", "BRB", " B "],
+  "key": {
+    "C": "minecraft:copper_nugget",
+    "B": "minecraft:brick",
+    "R": "minecraft:redstone_block"
+  },
+  "result": {
+    "id": "logistics:power/battery",
+    "count": 1
+  }
+}
