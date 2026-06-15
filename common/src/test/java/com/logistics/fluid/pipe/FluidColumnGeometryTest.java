@@ -5,45 +5,43 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@DisplayName("FluidColumnGeometry.of")
+@DisplayName("FluidColumnGeometry")
 class FluidColumnGeometryTest {
 
     // Simple block-space coordinates for readability (treat as 0..16 px).
     private static final float CORE_BOTTOM = 4;
     private static final float CORE_TOP = 12;
-    private static final float FLOOR = 0;
-    private static final float CEILING = 16;
 
-    private static FluidColumnGeometry.Column at(float ratio, boolean down, boolean up) {
-        return FluidColumnGeometry.of(ratio, down, up, CORE_BOTTOM, CORE_TOP, FLOOR, CEILING);
+    @Test
+    @DisplayName("the surface rises linearly over the core span with fill")
+    void surfaceRisesWithFill() {
+        assertThat(FluidColumnGeometry.surface(0f, CORE_BOTTOM, CORE_TOP)).isEqualTo(CORE_BOTTOM);
+        assertThat(FluidColumnGeometry.surface(0.5f, CORE_BOTTOM, CORE_TOP)).isEqualTo(8f); // mid-core
+        assertThat(FluidColumnGeometry.surface(1f, CORE_BOTTOM, CORE_TOP)).isEqualTo(CORE_TOP);
     }
 
     @Test
-    @DisplayName("the surface height depends only on fill, not on which arms are connected")
-    void surfaceMatchesAcrossShapes() {
-        float horizontal = at(0.5f, false, false).surface();
-        float upDown = at(0.5f, true, true).surface();
-        assertThat(upDown).isEqualTo(horizontal).isEqualTo(8f); // mid-core for both
+    @DisplayName("the surface clamps out-of-range fill to the core span")
+    void surfaceClamps() {
+        assertThat(FluidColumnGeometry.surface(-1f, CORE_BOTTOM, CORE_TOP)).isEqualTo(CORE_BOTTOM);
+        assertThat(FluidColumnGeometry.surface(2f, CORE_BOTTOM, CORE_TOP)).isEqualTo(CORE_TOP);
     }
 
     @Test
-    @DisplayName("a down arm is full whenever the pipe holds fluid")
-    void downArmFullWhenWet() {
-        assertThat(at(0.01f, true, false).bottom()).isEqualTo(FLOOR); // reaches the floor even at a trickle
-        assertThat(at(0.01f, false, false).bottom()).isEqualTo(CORE_BOTTOM); // no down arm: starts at the core
+    @DisplayName("the column half-width is area-proportional (∝ sqrt of fill)")
+    void halfWidthIsAreaProportional() {
+        float max = 0.25f;
+        assertThat(FluidColumnGeometry.halfWidth(0f, max)).isEqualTo(0f); // empty: no column
+        assertThat(FluidColumnGeometry.halfWidth(1f, max)).isEqualTo(max); // full: spans the cross-section
+        // Half volume reads as ~71% width, since area (∝ width^2) tracks the fill.
+        assertThat(FluidColumnGeometry.halfWidth(0.5f, max)).isEqualTo(max * (float) Math.sqrt(0.5));
     }
 
     @Test
-    @DisplayName("an up arm fills only once the pipe is full")
-    void upArmFillsOnlyWhenFull() {
-        FluidColumnGeometry.Column almost = at(0.99f, false, true);
-        assertThat(almost.top()).isEqualTo(almost.surface()); // not yet — still at the core surface
-        assertThat(at(1.0f, false, true).top()).isEqualTo(CEILING); // pops to full
-    }
-
-    @Test
-    @DisplayName("without an up arm, a full pipe tops out at the core")
-    void fullWithoutUpArmStopsAtCore() {
-        assertThat(at(1.0f, false, false).top()).isEqualTo(CORE_TOP);
+    @DisplayName("the column half-width clamps out-of-range fill")
+    void halfWidthClamps() {
+        float max = 0.25f;
+        assertThat(FluidColumnGeometry.halfWidth(-1f, max)).isEqualTo(0f);
+        assertThat(FluidColumnGeometry.halfWidth(2f, max)).isEqualTo(max);
     }
 }

@@ -1,35 +1,38 @@
 package com.logistics.fluid.pipe;
 
 /**
- * Pure geometry for the fluid column drawn inside a pipe.
+ * Pure geometry for the fluid drawn inside a pipe.
  *
- * <p>The fluid surface is derived from the fill ratio over the <em>core</em> span alone, so it is independent
- * of which arms are connected — a horizontal pipe and an up/down pipe show the same level at the same fill.
- * A down arm sits below the surface and is full whenever the pipe holds any fluid (fluid settles); an up arm
- * only fills once the pipe is full (fluid only climbs under pressure). Holds no Minecraft types and works in
- * plain block-space coordinates, so it is unit-testable without a renderer.
+ * <p>Two shapes share this helper. A <em>horizontal</em> run shows a rising level: the surface is derived
+ * from the fill ratio over the <em>core</em> span alone, so it is independent of which arms are connected
+ * (a horizontal pipe and a vertical pipe show the same level at the same fill). A <em>vertical</em> run
+ * shows an expanding full-height column whose square cross-section grows from the center toward the walls
+ * as it fills. Holds no Minecraft types and works in plain block-space coordinates, so it is unit-testable
+ * without a renderer.
  */
 public final class FluidColumnGeometry {
 
     private FluidColumnGeometry() {}
 
-    /** Vertical extent of the rendered column, plus the core surface height (for horizontal arms). */
-    public record Column(float bottom, float top, float surface) {}
+    /** The fluid surface height for a horizontal pipe's rising-level fill, in block-space Y. */
+    public static float surface(float ratio, float coreBottom, float coreTop) {
+        return coreBottom + clamp01(ratio) * (coreTop - coreBottom);
+    }
 
     /**
-     * @param ratio      fill fraction, 0..1
-     * @param down       whether a down arm is connected
-     * @param up         whether an up arm is connected
-     * @param coreBottom bottom of the core fluid (block-space Y)
-     * @param coreTop    top of the core fluid (block-space Y)
-     * @param floor      bottom of a down arm (block-space Y)
-     * @param ceiling    top of an up arm (block-space Y)
+     * Half-width of the expanding vertical column drawn in a pipe with up/down arms: the column is full
+     * height and its square cross-section grows from the center toward the walls. Area-proportional, so the
+     * cross-section area tracks the fill — {@code halfWidth ∝ sqrt(ratio)} (a half-full vertical pipe reads
+     * as ~71% of the full width = half the volume).
+     *
+     * @param ratio        fill fraction, 0..1
+     * @param maxHalfWidth half-width when full, i.e. half the inset cross-section
      */
-    public static Column of(
-            float ratio, boolean down, boolean up, float coreBottom, float coreTop, float floor, float ceiling) {
-        float surface = coreBottom + ratio * (coreTop - coreBottom);
-        float bottom = down ? floor : coreBottom;
-        float top = up && ratio >= 1.0F ? ceiling : surface;
-        return new Column(bottom, top, surface);
+    public static float halfWidth(float ratio, float maxHalfWidth) {
+        return maxHalfWidth * (float) Math.sqrt(clamp01(ratio));
+    }
+
+    private static float clamp01(float value) {
+        return value < 0.0F ? 0.0F : Math.min(1.0F, value);
     }
 }

@@ -51,11 +51,12 @@ public class FluidPipeBlockEntityRenderer
     private static final float CORE_MAX = 12.0F / 16F;
     private static final float A = CORE_MIN + INSET; // inset inner wall (low side)
     private static final float B = CORE_MAX - INSET; // inset inner wall (high side)
-    // Minimum fluid column height to draw; below this a partial buffer reads as a flat plane, so skip it.
+    // Minimum fluid thickness/width to draw; below this it reads as a flat plane / hairline, so skip it.
     private static final float MIN_VISIBLE_THICKNESS = 0.4F / 16F;
-    // The rendered surface snaps to coarse bands so it stays steady instead of jittering with every tiny
-    // buffer change (visual fullness is deliberately decoupled from the exact mB amount).
-    private static final int RENDER_BANDS = 8;
+    // Half the inset cross-section — the column's half-width when the pipe is full.
+    private static final float MAX_HALF_WIDTH = (B - A) / 2.0F;
+    // A pipe with less display fill than this reads as empty (the eased fill decays toward 0 but never hits it).
+    private static final float EMPTY_EPSILON = 0.004F;
 
     // Body geometry never changes at runtime — cache parts by model id and sprites by texture base.
     private final Map<ResourceId, List<BlockStateModelPart>> partsCache = new HashMap<>();
@@ -98,18 +99,21 @@ public class FluidPipeBlockEntityRenderer
     }
 
     private void extractFluid(FluidPipeBlockEntity entity, FluidPipeRenderState state) {
-        long amount = entity.tank().getAmount();
-        long capacity = entity.tank().getCapacity();
+        long amount = entity.totalMillibuckets();
+        long capacity = entity.capacityMillibuckets();
         Level level = entity.getLevel();
-        state.hasFluid = amount > 0 && capacity > 0 && !entity.tank().isEmpty() && level != null;
-        state.fillRatio = state.hasFluid ? bandedFillRatio(amount, capacity) : 0.0F;
+        float target = amount > 0 && capacity > 0 ? Math.min(1.0F, (float) amount / capacity) : 0.0F;
+        // Ease toward the (coarsely synced) target so the fill moves fluidly between steps instead of jittering.
+        float ratio = entity.advanceDisplayFill(target);
+        state.fillRatio = ratio;
+        state.hasFluid = ratio > EMPTY_EPSILON && level != null;
         if (!state.hasFluid) {
             state.sprite = null;
             return;
         }
 
         FluidBoxRenderer.Appearance appearance =
-                FluidBoxRenderer.resolve(entity.tank().getFluidKey().getFluid(), level, entity.getBlockPos());
+                FluidBoxRenderer.resolve(entity.containedFluid().getFluid(), level, entity.getBlockPos());
         if (appearance == null) {
             state.hasFluid = false;
             state.sprite = null;
@@ -117,13 +121,6 @@ public class FluidPipeBlockEntityRenderer
         }
         state.sprite = appearance.sprite();
         state.tintColor = appearance.tint();
-    }
-
-    /** Snap the fill to coarse bands; a non-empty pipe always reads at least one band so it stays visible. */
-    private static float bandedFillRatio(long amount, long capacity) {
-        float raw = Math.min(1.0F, (float) amount / capacity);
-        float banded = Math.round(raw * RENDER_BANDS) / (float) RENDER_BANDS;
-        return Math.max(1.0F / RENDER_BANDS, banded);
     }
 
     private static String baseName(FluidPipeBlockEntity entity) {
@@ -185,36 +182,60 @@ public class FluidPipeBlockEntityRenderer
             int color = FluidBoxRenderer.opaque(state.tintColor);
             int light = state.lightCoords;
             float ratio = Math.min(1.0F, state.fillRatio);
+
+            float coreBottom = CORE_MIN + INSET;
+            float coreTop = CORE_MAX - INSET;
+            float floor = INSET;
+            float ceiling = 1.0F - INSET;
+
             boolean down = state.connectedArms[Direction.DOWN.get3DDataValue()];
             boolean up = state.connectedArms[Direction.UP.get3DDataValue()];
+            boolean hasVertical = down || up;
+            boolean hasHorizontal = state.connectedArms[Direction.NORTH.get3DDataValue()]
+                    || state.connectedArms[Direction.SOUTH.get3DDataValue()]
+                    || state.connectedArms[Direction.WEST.get3DDataValue()]
+                    || state.connectedArms[Direction.EAST.get3DDataValue()];
 
-            // The surface is a function of fill over the core alone, so the level lines up across pipe shapes.
-            // A down arm sits below it (full whenever wet); an up arm only fills once the pipe is full.
-            FluidColumnGeometry.Column column = FluidColumnGeometry.of(
-                    ratio, down, up, CORE_MIN + INSET, CORE_MAX - INSET, INSET, 1.0F - INSET);
-
-            // Below a visible thickness the column would render as a flat plane — treat as empty.
-            if (column.top() - column.bottom() < MIN_VISIBLE_THICKNESS) {
-                return;
+            // Vertical run: an expanding column whose square cross-section grows from the center toward the
+            // walls as it fills (area-proportional, so the cross-section tracks %full). Its vertical extent
+            // spans only the connected arms: down-only fills the down arm (floor..coreBottom), up-only fills
+            // the up arm (coreBottom..ceiling), both span the whole block.
+            if (hasVertical) {
+                float halfWidth = FluidColumnGeometry.halfWidth(ratio, MAX_HALF_WIDTH);
+                if (halfWidth * 2.0F >= MIN_VISIBLE_THICKNESS) {
+                    float columnBottom = down ? floor : coreBottom;
+                    float columnTop = up ? ceiling : coreBottom;
+                    float c0 = 0.5F - halfWidth;
+                    float c1 = 0.5F + halfWidth;
+                    queue.submitCustomGeometry(
+                            matrices,
+                            RenderTypes.translucentMovingBlock(),
+                            (entry, buffer) -> FluidBoxRenderer.renderBox(
+                                    entry, buffer, sprite, color, light,
+                                    c0, columnBottom, c0, c1, columnTop, c1, true, true));
+                }
             }
 
-            // Vertical column (down arm + core + up arm share the same inset cross-section).
-            float columnBottom = column.bottom();
-            float columnTop = column.top();
-            queue.submitCustomGeometry(
-                    matrices,
-                    RenderTypes.translucentMovingBlock(),
-                    (entry, buffer) -> FluidBoxRenderer.renderBox(
-                            entry, buffer, sprite, color, light, A, columnBottom, A, B, columnTop, B, true, true));
-
-            // Horizontal arms fill to the core surface, matching the central column.
-            float hBottom = CORE_MIN + INSET;
-            float hTop = column.surface();
-            if (hTop > hBottom) {
-                submitHorizontalArm(state, queue, matrices, sprite, color, light, Direction.NORTH, hBottom, hTop);
-                submitHorizontalArm(state, queue, matrices, sprite, color, light, Direction.SOUTH, hBottom, hTop);
-                submitHorizontalArm(state, queue, matrices, sprite, color, light, Direction.WEST, hBottom, hTop);
-                submitHorizontalArm(state, queue, matrices, sprite, color, light, Direction.EAST, hBottom, hTop);
+            // Horizontal run (and the isolated-pipe core): a rising level over the core span.
+            float surface = FluidColumnGeometry.surface(ratio, coreBottom, coreTop);
+            if (surface - coreBottom >= MIN_VISIBLE_THICKNESS) {
+                // Core level-box: bridges horizontal arms through the core / shows a lone pipe's level. Skipped
+                // only for a purely vertical run (the narrow column already represents that fluid); any
+                // horizontal arm needs the level-box so the arm fluid connects across the core.
+                if (hasHorizontal || !hasVertical) {
+                    queue.submitCustomGeometry(
+                            matrices,
+                            RenderTypes.translucentMovingBlock(),
+                            (entry, buffer) -> FluidBoxRenderer.renderBox(
+                                    entry, buffer, sprite, color, light,
+                                    A, coreBottom, A, B, surface, B, true, true));
+                }
+                if (hasHorizontal) {
+                    submitHorizontalArm(state, queue, matrices, sprite, color, light, Direction.NORTH, coreBottom, surface);
+                    submitHorizontalArm(state, queue, matrices, sprite, color, light, Direction.SOUTH, coreBottom, surface);
+                    submitHorizontalArm(state, queue, matrices, sprite, color, light, Direction.WEST, coreBottom, surface);
+                    submitHorizontalArm(state, queue, matrices, sprite, color, light, Direction.EAST, coreBottom, surface);
+                }
             }
         }
     }
