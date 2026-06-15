@@ -23,14 +23,15 @@ This is **Phase 3 / post-1.0**, so it does *not* gate 1.0 — but it defines the
 |---|---|---|---|
 | **Coke Oven** | Multiblock | **Single block** (or tileable) | Produces coke + creosote; scale isn't the point — hold the no-multiblock line. |
 | **Blast Furnace → Steel** | 34-block multiblock | **Single-block machine** | Breakdown already prefers this; steel is the module's key material and shouldn't need a schematic. Pairs with the Alloy Smelter pattern. |
-| **Steam Boiler** | Up to 36-block multiblock | **Single-block engine-line tier *or* cut** | Tied to the steam-power decision below. If steam stays, a single-block boiler tier; if not, drop it. |
+| **Steam Boiler** | Up to 36-block multiblock | **Create compat, single-block tier, *or* cut** | Tied to the steam-power decision below. Leaning: lean on **Create** for steam rather than build our own boiler; otherwise a single-block boiler tier, or drop it. |
 | **Bulk Tank** | Multiblock | **Tileable tank blocks** (auto-merge into one logical tank) | The one genuine "scale is the feature" case — but tileable, not a rigid schematic. The valid exception. |
 
-**Steam-power scope:** two sub-options —
+**Steam-power scope:** three sub-options —
 - **(i) Steam is a real tier** — boiler → turbine → RF, unified into the engine line (consistent with the "unify everything into one engine line" thread in [`../mods/buildcraft.md`](../mods/buildcraft.md)/[`../mods/thermal-expansion.md`](../mods/thermal-expansion.md)).
 - **(ii) Simplified** — ship coke/creosote/steel and treated-wood tracks **without** a steam power tier; carts run on the existing RF/engine power.
+- **(iii) Create compat instead of our own steam** *(maintainer leaning, Jun 2026)* — don't reimplement a steam/boiler subsystem at all. **Create already nails steam**, and its multiblocks read intuitively. Instead, build a thin **compatibility layer**: accept Create steam/rotational power to drive a Logistics engine (or convert Create rotation → the Logistics reciprocal), so players who run Create get the satisfying steam progression there while Logistics avoids the multiblock + steam-design burden. Steam becomes an *optional, integration-gated* tier rather than core content.
 
-**Leaning:** hold single-block for Coke Oven + Blast Furnace; allow **tileable** Bulk Tanks as the lone scale-is-the-feature exception; treat steam as **(ii) simplified for the transport module's v1**, revisiting a steam engine tier only if it earns its place.
+**Leaning:** hold single-block for Coke Oven + Blast Furnace; allow **tileable** Bulk Tanks as the lone scale-is-the-feature exception. For steam power, the maintainer leans toward **(iii) a Create compat layer** over a homegrown boiler — keeping Logistics out of the multiblock/steam-balance trench while still letting steam-loving players reach it through Create; **(ii) simplified** is the fallback if no compat is built. Reconsider a first-party steam tier (i) only if it clearly earns its place.
 
 ## Sub-questions still open
 
@@ -47,5 +48,5 @@ Discussion, weighing **tedium vs. the satisfaction of scale** per block, against
 
 - Breakdown: [`../mods/railcraft.md`](../mods/railcraft.md) § Steam/steel/bulk + the multiblock & steam-power TODOs
 - Principles: [`../principles.md`](../principles.md) § The multiblock stance
-- Roadmap: [`../roadmap.md`](../roadmap.md) → Phase 3 → Steam & steel chain (notes the TBDs)
+- Roadmap: [`../delivery-plan.md`](../delivery-plan.md) → Phase 3 → Steam & steel chain (notes the TBDs)
 - Related: engine-line unification thread in [`../mods/buildcraft.md`](../mods/buildcraft.md) / [`../mods/thermal-expansion.md`](../mods/thermal-expansion.md); Steel pairs with [`../features/0105-alloy-smelter.md`](../features/0105-alloy-smelter.md)

@@ -101,7 +101,7 @@ common/src/main/java/com/logistics/automation/alloysmelter/
 
 ## References
 
-- Roadmap: [`../roadmap.md`](../roadmap.md) → Phase 1 → Alloy Smelter; materials rows in [`../mods/thermal-expansion.md`](../mods/thermal-expansion.md)
+- Roadmap: [`../delivery-plan.md`](../delivery-plan.md) → Phase 1 → Alloy Smelter; materials rows in [`../mods/thermal-expansion.md`](../mods/thermal-expansion.md)
 - Code pattern: `automation/kiln/*` and `core/macerator/*` (block, BE, recipe, serializer, processing plan, screen, JEI); registration in `LogisticsAutomation.java`; new metal items in `LogisticsCore.java` (next to `TIN_*`/`BRONZE_*`)
 - Shared mechanism: [`0102-macerator-secondary-outputs.md`](0102-macerator-secondary-outputs.md) `ChanceResult` (generalized here to the shared output inventory)
 - **TE sourcing note:** TE has **no public source** — slag/byproduct behavior and ratios are wiki/knowledge-based, approximate; tune in playtest. Existing metal items confirmed in `LogisticsCore.java`: `TIN_*`, `BRONZE_*`, `*_DUST`, `*_GEAR`, `COPPER/BRONZE_VALVE`, `COPPER/BRONZE_CORE` (Nickel/Invar/Slag do **not** exist yet).

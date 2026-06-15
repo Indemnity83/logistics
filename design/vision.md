@@ -4,7 +4,7 @@
 
 Recreate the gameplay of a **classic 1.7.10-era tech modpack** in a modern Minecraft client — with a single coherent mod (or small family of mods) that *feels* classic rather than bolting old content onto new versions.
 
-Think of it as a **parallel to Create, but classic**: where Create leans into kinetic contraptions and a bespoke aesthetic, Logistics leans into the BuildCraft/Thermal/Forestry lineage — pipes you can see items move through, engines that overheat, RF machines, ore doubling, bees and trees, and rails that tie a base together.
+Think of it as a **parallel to Create, but classic**: where Create leans into kinetic contraptions and a bespoke aesthetic, Logistics leans into the BuildCraft/Thermal/Forestry lineage — pipes you can see items move through, engines that overheat, RF machines, ore doubling, automated farms, and rails that tie a base together.
 
 > *Personal note: this grew out of a 1.7.10 pack I used to run. The target is the genre that pack represented, not any one pack's exact contents.*
 
@@ -17,7 +17,7 @@ That era's tech identity came from a handful of mods, **all now abandoned**. The
 | **BuildCraft** | Pipes, engines, the quarry, gates/automation | Largely covered (pipes, engines, laser quarry) |
 | **Logistics Pipes** | Request/provider/supplier network logistics — *the* glue that tied a base together | **Done** (3-tier pipe network, chassis + modules) |
 | **Thermal Expansion** | RF machines, ore processing (pulverizer/dusts), energy cells, fluid handling | Partially covered (macerator, kiln, dusts, cables) |
-| **Forestry** | Bees, trees, butterflies, farms/multifarms, electron tubes, the worktable | Not started |
+| **Forestry** | Bees, trees, butterflies, farms/multifarms, electron tubes, the worktable | Not started — **industrial side only** (farms, processing, electronics); genetics (bees/trees/butterflies) is out of scope |
 | **Railcraft** | Rails, advanced minecarts, tanks, signals, coke ovens, boilers | Not started |
 
 See each breakdown in [`mods/`](mods/).
@@ -53,7 +53,7 @@ A player can install Logistics (or its module family) on a modern client and pla
 1. Early mechanical pipes + redstone/stirling engines.
 2. Ore processing and RF machines (the Thermal layer).
 3. Logistics-network automation tying storage and crafting together.
-4. Forestry-style biological automation (bees/trees/farms) for endgame variety.
+4. Forestry-style farming and processing automation (farms, biofuel, electronics) for endgame variety.
 5. Railcraft-style transport and bulk processing for inter-base logistics.
 
 …all while letting players install **only the parts they want** (see [`architecture.md`](architecture.md)).

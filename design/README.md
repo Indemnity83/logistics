@@ -24,7 +24,7 @@ We split the work across three tools, each doing the job it's best at:
 | [`principles.md`](principles.md) | The decision framework (**Port / Modernize / Skip**), modernization rules, balance philosophy, and the shared decision-table template. |
 | [`architecture.md`](architecture.md) | Current domains and the **provisional** module/jar split. |
 | [`progression-tiers.md`](progression-tiers.md) | The **canonical tier ladder** (Copper→Echo Shard), unlock-point phases, and the per-line "pick a subset in order" convention every tiered line follows. |
-| [`roadmap.md`](roadmap.md) | The phased plan (Phase 0–3), what's done, and how it maps to Project #4. |
+| [`delivery-plan.md`](delivery-plan.md) | The detailed phased build plan (Phase 0–3), what's done, and how it maps to Project #4 — the contributor-facing companion to the root user-facing [`ROADMAP.md`](../ROADMAP.md). |
 | [`mods/`](mods/) | One feature breakdown per source mod: BuildCraft, Logistics Pipes, Thermal Expansion, Forestry, Railcraft. |
 | [`features/`](features/) | **Feature briefs** — settled roadmap rows expanded into start-ready specs (problem, requirements, design sketch grounded in the code, open questions). One file per feature. |
 | [`rfcs/`](rfcs/) | **RFCs** — the contested, unsettled design calls (TBD rows): the question, options with trade-offs, a leaning, and how we'll decide. Authored here, then taken to a Discussion. |

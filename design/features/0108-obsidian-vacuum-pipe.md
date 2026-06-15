@@ -1,8 +1,8 @@
 # Obsidian Vacuum Pipe
 
-> **Status:** 🚧 Planned · **Phase:** 1 — Automation core · **Module:** `logistics-automation` (`pipe` domain)
+> **Status:** ❌ Not planned — vanilla **hoppers** fill this role in modern Minecraft ([`ROADMAP.md`](../../ROADMAP.md) → Not Currently Planned). This brief is retained as a record of the design only. · **Module:** `logistics-automation` (`pipe` domain)
 > **Source:** [`../mods/buildcraft.md`](../mods/buildcraft.md) (Obsidian pipe — world pickup) · **Depends on:** nothing
-> **Maps to (roadmap):** Phase 1 — pipes (Obsidian vacuum pipe)
+> **Maps to (roadmap):** [`ROADMAP.md`](../../ROADMAP.md) → Not Currently Planned
 
 A pipe that vacuums up dropped item entities from the world around it and injects them into the pipe network. A faithful, low-risk Port — the pipe/module system already has everything needed; this is a new module + pipe registration.
 
@@ -59,5 +59,5 @@ The closest precedent is the **Void pipe** (`VoidModule`) for "special routing p
 
 ## References
 
-- Roadmap: [`../roadmap.md`](../roadmap.md) → Phase 1 → pipes; [`../mods/buildcraft.md`](../mods/buildcraft.md) → Obsidian pipe row
+- Roadmap: [`../delivery-plan.md`](../delivery-plan.md) → Phase 1 → pipes; [`../mods/buildcraft.md`](../mods/buildcraft.md) → Obsidian pipe row
 - Code: `pipe/modules/VoidModule` (special pipe precedent), `core/lib/pipe/{Module,TickingModule,RoutingModule,TravelingItem}`, `pipe/block/entity/PipeBlockEntity#dropItem` (reverse of the operation), `automation/laserquarry/.../QuarryBlockBreaker` (entity-scan idiom), `pipe/PipeTypes`, `LogisticsPipe.java`

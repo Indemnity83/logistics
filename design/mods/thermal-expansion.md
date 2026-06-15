@@ -28,7 +28,7 @@ See [`../principles.md`](../principles.md) for the table legend.
 
 | Feature | What it did | Decision | Modern take / balance notes | Status | Maps to |
 |---|---|---|---|---|---|
-| Augments (speed / efficiency / secondary / auto-output) | Slot-in machine modifiers | Modernize | Strong system worth adopting as a unified **machine upgrade** mechanic across Macerator/Kiln/etc. | 🚧 Planned | Phase 1 — machine upgrades |
+| Augments (speed / efficiency / secondary / auto-output) | Slot-in machine modifiers | Modernize | Strong system worth adopting as a unified **machine upgrade** mechanic across Macerator/Kiln/etc. **Exploratory — not committed for 1.0** ([ROADMAP](../../ROADMAP.md) Exploring/RFC) | — | Exploring — machine upgrades |
 | Machine frames / tiers (Basic→Resonant) | Crafted tiers gating machine power | Modernize | Map onto vanilla metal ladder; keep tier count modest | — | Phase 1 — machine tiers |
 
 ## Power generation & storage (Dynamos / Energy Cells)
