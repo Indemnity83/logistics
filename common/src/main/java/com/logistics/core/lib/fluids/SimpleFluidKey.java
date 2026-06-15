@@ -3,6 +3,7 @@ package com.logistics.core.lib.fluids;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
+import java.util.Objects;
 
 /**
  * A concrete, immutable {@link IFluidKey} over a vanilla {@link Fluid} and component patch.
@@ -12,6 +13,11 @@ import net.minecraft.world.level.material.Fluids;
  * components, consistent with the loader adapters.
  */
 public record SimpleFluidKey(Fluid fluid, DataComponentPatch components) implements IFluidKey {
+
+    public SimpleFluidKey {
+        Objects.requireNonNull(fluid, "fluid");
+        Objects.requireNonNull(components, "components");
+    }
 
     public static final SimpleFluidKey BLANK = new SimpleFluidKey(Fluids.EMPTY, DataComponentPatch.EMPTY);
 

@@ -33,6 +33,9 @@ public final class TankColumnStorage implements IFluidStorage {
     @Override
     public Iterable<IFluidView> contents() {
         TankColumn column = columnSupplier.get();
+        if (column.mixed()) {
+            return Collections.emptyList(); // refuse to report a single view for a mixed column, like insert/extract
+        }
         IFluidKey shared = column.shared();
         long total = column.total();
         if (shared.isBlank() || total <= 0) {

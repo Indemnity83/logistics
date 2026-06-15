@@ -130,4 +130,4 @@ connected body churning every tick, which caching of unchanged bodies avoids.
 
 Open question to resolve before choosing: is the per-tick solver cost acceptable for the
 largest realistic networks, given caching — or does the cellular model's O(1) simplicity win
-despite losing free U-tube equalization?O
+despite losing free U-tube equalization?

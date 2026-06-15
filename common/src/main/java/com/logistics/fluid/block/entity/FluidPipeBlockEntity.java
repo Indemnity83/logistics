@@ -144,6 +144,7 @@ public class FluidPipeBlockEntity extends BaseBlockEntity
     public void toggleSide(Direction direction) {
         disabledMask ^= (1 << direction.get3DDataValue());
         invalidateConnectionCache();
+        invalidateNeighbour(direction);
         markDirtyAndSync();
     }
 
@@ -151,12 +152,24 @@ public class FluidPipeBlockEntity extends BaseBlockEntity
         if (disabledMask != 0) {
             disabledMask = 0;
             invalidateConnectionCache();
+            for (Direction direction : Direction.values()) {
+                invalidateNeighbour(direction);
+            }
             markDirtyAndSync();
         }
     }
 
     public void invalidateConnectionCache() {
         connectionCacheDirty = true;
+    }
+
+    /** Invalidate the adjacent pipe's cache too — its connection toward this pipe just changed. */
+    private void invalidateNeighbour(Direction direction) {
+        Level level = getLevel();
+        if (level != null
+                && level.getBlockEntity(getBlockPos().relative(direction)) instanceof FluidPipeBlockEntity neighbour) {
+            neighbour.invalidateConnectionCache();
+        }
     }
 
     // ==================== Server tick ====================

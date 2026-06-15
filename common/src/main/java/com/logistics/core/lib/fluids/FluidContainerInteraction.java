@@ -6,6 +6,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import java.util.Objects;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -27,7 +28,7 @@ public final class FluidContainerInteraction {
 
     /** Register the platform-specific interaction. Called once during loader initialization. */
     public static void register(Interaction interaction) {
-        impl = interaction;
+        impl = Objects.requireNonNull(interaction, "interaction");
     }
 
     /** Try to fill/drain the player's held container item against the block at {@code pos}. */

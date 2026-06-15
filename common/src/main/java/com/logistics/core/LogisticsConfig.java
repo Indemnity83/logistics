@@ -226,18 +226,34 @@ public final class LogisticsConfig {
                 v -> INSTANCE.fluidPipe.woodenPulse = v.intValue(),
                 Long::parseLong,
                 v -> requireRange(v, 1L, (long) Integer.MAX_VALUE, "must be between 1 and " + Integer.MAX_VALUE));
+        reg(map, "fluid_pipe_wooden_requires_engine", "Fluid Extractor Pipe requires engine power",
+                () -> INSTANCE.fluidPipe.woodenRequiresEngine,
+                v -> INSTANCE.fluidPipe.woodenRequiresEngine = v,
+                LogisticsConfig::parseBooleanStrict,
+                v -> {});
         reg(map, "fluid_pipe_passive_settling", "Debug: passive body solver enabled",
                 () -> INSTANCE.fluidPipe.passiveSettling,
                 v -> INSTANCE.fluidPipe.passiveSettling = v,
-                Boolean::parseBoolean,
+                LogisticsConfig::parseBooleanStrict,
                 v -> {});
         reg(map, "fluid_pipe_active_extraction", "Debug: extractor pulling enabled",
                 () -> INSTANCE.fluidPipe.activeExtraction,
                 v -> INSTANCE.fluidPipe.activeExtraction = v,
-                Boolean::parseBoolean,
+                LogisticsConfig::parseBooleanStrict,
                 v -> {});
 
         ENTRIES = Collections.unmodifiableMap(map);
+    }
+
+    /** Strict boolean parse — rejects anything but {@code true}/{@code false} (unlike {@link Boolean#parseBoolean}). */
+    private static Boolean parseBooleanStrict(String value) {
+        if ("true".equalsIgnoreCase(value)) {
+            return Boolean.TRUE;
+        }
+        if ("false".equalsIgnoreCase(value)) {
+            return Boolean.FALSE;
+        }
+        throw new IllegalArgumentException("must be 'true' or 'false'");
     }
 
     private static <T> void reg(

@@ -22,7 +22,7 @@ final class FakeFluidProvider implements FluidProvider<String> {
 
     @Override
     public long drain(long millibuckets) {
-        long drained = Math.min(millibuckets, amountMb);
+        long drained = Math.max(0, Math.min(millibuckets, amountMb));
         amountMb -= drained;
         return drained;
     }

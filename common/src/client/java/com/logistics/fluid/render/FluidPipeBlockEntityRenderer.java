@@ -41,6 +41,9 @@ public class FluidPipeBlockEntityRenderer
 
     private static final String MODEL_PREFIX = "block/pipe/";
 
+    // Opaque-white tint for the pipe body parts; hoisted out of the render loop to avoid per-frame allocation.
+    private static final int[] WHITE_TINT = {0xFFFFFFFF};
+
     // Pipe geometry in block units: the core spans 4..12 px (0.25..0.75); arms run from the core face
     // to the block edge. The fluid is inset 0.1 px from the inner walls on all four longitudinal sides.
     private static final float INSET = 0.1F / 16F;
@@ -165,7 +168,7 @@ public class FluidPipeBlockEntityRenderer
                     matrices,
                     RenderTypes.cutoutMovingBlock(),
                     info.parts,
-                    new int[]{0xFFFFFFFF},
+                    WHITE_TINT,
                     state.lightCoords,
                     OverlayTexture.NO_OVERLAY,
                     0);

@@ -52,7 +52,7 @@ public final class FluidPipe<F> {
      * callers must pass an already-valid amount.
      */
     public void restore(F fluid, long amountMb) {
-        this.amountMb = Math.max(0, amountMb);
+        this.amountMb = Math.max(0, Math.min(amountMb, CAPACITY_MB));
         this.fluid = this.amountMb > 0 ? fluid : null;
     }
 
@@ -65,6 +65,9 @@ public final class FluidPipe<F> {
      * @return the amount actually extracted, in millibuckets
      */
     public long extract(FluidProvider<F> source, long millibuckets) {
+        if (millibuckets <= 0) {
+            return 0;
+        }
         F incoming = source.fluid();
         if (incoming == null || (fluid != null && !fluid.equals(incoming))) {
             return 0;

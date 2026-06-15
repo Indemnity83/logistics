@@ -256,6 +256,29 @@ class FluidPipeTest {
         assertThat(above.amount()).isZero();
     }
 
+    @Test
+    @DisplayName("extraction of a non-positive amount is a no-op and never touches the provider")
+    void rejectsNonPositiveExtraction() {
+        FluidPipe<String> pipe = FluidPipe.extractor();
+        FakeFluidProvider tank = new FakeFluidProvider(WATER, 500);
+
+        assertThat(pipe.extract(tank, 0)).isZero();
+        assertThat(pipe.extract(tank, -50)).isZero();
+
+        assertThat(pipe.amount()).isZero();
+        assertThat(pipe.fluid()).isNull();
+        assertThat(tank.amount()).isEqualTo(500); // provider untouched
+    }
+
+    @Test
+    @DisplayName("restore clamps an over-capacity amount down to the pipe's capacity")
+    void restoreClampsToCapacity() {
+        FluidPipe<String> pipe = FluidPipe.extractor();
+        pipe.restore(WATER, 1000); // more than the 250 mB capacity
+        assertThat(pipe.amount()).isEqualTo(250);
+        assertThat(pipe.fluid()).isEqualTo(WATER);
+    }
+
     /** A water provider with effectively unlimited fluid, for tests where the source isn't the constraint. */
     private static FakeFluidProvider ampleProvider() {
         return new FakeFluidProvider(WATER, 1_000_000);
