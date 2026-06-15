@@ -22,11 +22,14 @@ import net.minecraft.world.phys.Vec3;
 public class GlassTankBlockEntityRenderer
         implements BlockEntityRenderer<GlassTankBlockEntity, GlassTankRenderState> {
 
-    // Matches irontanks: walls inset to 2.5..13.5 px (inside the glass), fluid sitting on the block floor
-    // (y=0) and rising to the full block height when full, so it fills all the way to the bottom.
+    // Matches irontanks: walls inset to 2.5..13.5 px (inside the glass), fluid sitting near the block floor
+    // and rising to near the full block height when full.
     private static final float MIN = 2.5F / 16F;
     private static final float MAX = 13.5F / 16F;
-    private static final float FLOOR = 0.0F;
+    // Pull the exposed top/bottom a hair inside the block to avoid z-fighting with the block boundary.
+    private static final float EDGE_INSET = 0.01F;
+    private static final float FLOOR = EDGE_INSET;
+    private static final float CEILING = 1.0F - EDGE_INSET;
 
     public GlassTankBlockEntityRenderer(BlockEntityRendererProvider.Context ctx) {}
 
@@ -75,8 +78,9 @@ public class GlassTankBlockEntityRenderer
         TextureAtlasSprite sprite = state.sprite;
         int color = FluidBoxRenderer.opaque(state.tintColor);
         int light = state.lightCoords;
-        // Surface tracks the fill; if fluid continues above, fill to the block top and hide the surface.
-        float top = state.renderTop ? state.fillRatio : 1.0F;
+        // Surface tracks the fill, capped a hair below the block top to avoid z-fighting; if fluid continues
+        // above, fill to the full block top (seamless stack) and hide the surface.
+        float top = state.renderTop ? Math.min(state.fillRatio, CEILING) : 1.0F;
         boolean renderTop = state.renderTop;
         queue.submitCustomGeometry(
                 matrices,
