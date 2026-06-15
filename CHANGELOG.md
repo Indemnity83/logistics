@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.7.2](https://github.com/Indemnity83/logistics/compare/mc1.21.1-v0.7.1...mc1.21.1-v0.7.2) (2026-06-15)
+
+
+### Fixed
+
+* **core:** repair recipes and item colors ([#508](https://github.com/Indemnity83/logistics/issues/508)) ([021701d](https://github.com/Indemnity83/logistics/commit/021701d92688150fefb70cbb2be75f1c44dc00ae))
+* **energy:** add crafting recipe for battery ([#510](https://github.com/Indemnity83/logistics/issues/510)) ([e1abd12](https://github.com/Indemnity83/logistics/commit/e1abd1206cecb9f92b3df73c52c811862899b90f))
+
 ## [0.7.1](https://github.com/Indemnity83/logistics/compare/mc1.21.1-v0.7.0...mc1.21.1-v0.7.1) (2026-06-11)
 
 
