@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.2](https://github.com/Indemnity83/logistics/compare/mc26.1-v0.7.1...mc26.1-v0.7.2) (2026-06-15)
+
+
+### Fixed
+
+* **energy:** add crafting recipe for battery ([#510](https://github.com/Indemnity83/logistics/issues/510)) ([b38e601](https://github.com/Indemnity83/logistics/commit/b38e6010bc40d8dd8faf8387bd3e5ab9f0c06e62))
+
 ## [0.7.1](https://github.com/Indemnity83/logistics/compare/mc26.1-v0.7.0...mc26.1-v0.7.1) (2026-06-11)
 
 
