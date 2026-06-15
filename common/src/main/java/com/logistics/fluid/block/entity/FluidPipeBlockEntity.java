@@ -423,20 +423,18 @@ public class FluidPipeBlockEntity extends BaseBlockEntity
             }
         }
 
-        // Extraction: extractors whose source is this fluid pull it into their own cell.
+        // Extraction: extractors whose source is this fluid pull it into their own cell. The pull is bounded by
+        // the extractor's OWN free space — never the whole region's — because the fluid lands in this one cell and
+        // the rate-limited body settle can only carry so much away per tick. Pulling against far-away free space
+        // would overflow this cell, and the surplus would be clamped away (deleted) on write-back. When the line
+        // backs up to the extractor (its cell full), extraction stops on its own — correct backpressure.
         if (cfg.activeExtraction) {
-            long frontierFreeSpace = 0;
-            for (int i = 0; i < n; i++) {
-                if (frontier[i] && participating[i]) {
-                    frontierFreeSpace += capacity[i] - fluidAmount[i];
-                }
-            }
             for (int i = 0; i < n; i++) {
                 FluidPipeBlockEntity extractor = members.get(i);
                 if (extractor.energy == null || !fluid.equals(extractorSource[i]) || !participating[i]) {
                     continue; // wrong source fluid, or this cell is already claimed by another fluid this tick
                 }
-                long room = cfg.passiveSettling ? frontierFreeSpace : capacity[i] - fluidAmount[i];
+                long room = capacity[i] - fluidAmount[i];
                 if (room <= 0) {
                     continue;
                 }
@@ -453,7 +451,6 @@ public class FluidPipeBlockEntity extends BaseBlockEntity
                     amount[i] = fluidAmount[i];
                     cellFluid[i] = fluid;
                     participating[i] = true;
-                    frontierFreeSpace -= pulled.amount();
                 }
             }
         }
