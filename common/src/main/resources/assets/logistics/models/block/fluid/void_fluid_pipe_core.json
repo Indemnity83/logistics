@@ -17,7 +17,7 @@
     }
   ],
   "textures": {
-    "particle": "logistics:block/pipe/copper_fluid_pipe_core",
-    "texture": "logistics:block/pipe/copper_fluid_pipe_core"
+    "particle": "logistics:block/fluid/void_fluid_pipe_core",
+    "texture": "logistics:block/fluid/void_fluid_pipe_core"
   }
 }

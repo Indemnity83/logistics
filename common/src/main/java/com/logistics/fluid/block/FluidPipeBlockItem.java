@@ -30,16 +30,14 @@ public class FluidPipeBlockItem extends BlockItem {
         FluidPipeKind kind = getBlock() instanceof FluidPipeBlock pipe ? pipe.kind() : FluidPipeKind.COPPER;
         LogisticsConfig.FluidPipeConfig cfg = LogisticsConfig.get().fluidPipe;
 
-        String roleKey = kind.isExtractor()
-                ? "tooltip.logistics.fluid.fluid_extractor_pipe"
-                : "tooltip.logistics.fluid.copper_fluid_pipe";
-        consumer.accept(Component.translatable(roleKey).withStyle(ChatFormatting.GRAY));
-
-        int capacity = kind.isExtractor() ? cfg.woodenCapacity : cfg.copperCapacity;
-        consumer.accept(Component.translatable("tooltip.logistics.fluid.capacity", capacity)
+        consumer.accept(Component.translatable("tooltip.logistics.fluid." + kind.modelBase())
                 .withStyle(ChatFormatting.GRAY));
-        if (!kind.isExtractor()) {
-            consumer.accept(Component.translatable("tooltip.logistics.fluid.transfer", cfg.copperTransferRate)
+
+        consumer.accept(Component.translatable("tooltip.logistics.fluid.capacity", (int) kind.capacity(cfg))
+                .withStyle(ChatFormatting.GRAY));
+        // Extractors are paced by engine power, not a fixed rate; void destroys rather than transfers.
+        if (!kind.isExtractor() && !kind.isVoid()) {
+            consumer.accept(Component.translatable("tooltip.logistics.fluid.transfer", (int) kind.transferRate(cfg))
                     .withStyle(ChatFormatting.GRAY));
         }
         consumer.accept(Component.translatable("tooltip.logistics.fluid.no_item_pipes")

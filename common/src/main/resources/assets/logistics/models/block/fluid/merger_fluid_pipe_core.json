@@ -17,7 +17,7 @@
     }
   ],
   "textures": {
-    "particle": "logistics:block/pipe/fluid_extractor_pipe_core",
-    "texture": "logistics:block/pipe/fluid_extractor_pipe_core"
+    "particle": "logistics:block/fluid/merger_fluid_pipe_core",
+    "texture": "logistics:block/fluid/merger_fluid_pipe_core"
   }
 }

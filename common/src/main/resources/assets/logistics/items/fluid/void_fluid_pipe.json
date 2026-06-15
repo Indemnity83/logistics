@@ -2,11 +2,11 @@
   "model": {
     "models": [
       {
-        "model": "logistics:block/fluid/copper_fluid_pipe_core",
+        "model": "logistics:block/fluid/void_fluid_pipe_core",
         "type": "minecraft:model"
       },
       {
-        "model": "logistics:block/fluid/copper_fluid_pipe_arm",
+        "model": "logistics:block/fluid/void_fluid_pipe_arm",
         "type": "minecraft:model"
       }
     ],

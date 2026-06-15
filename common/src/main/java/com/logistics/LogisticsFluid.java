@@ -49,7 +49,12 @@ public final class LogisticsFluid extends LogisticsMod implements DomainBootstra
         private BLOCK() {}
 
         public static Block COPPER_FLUID_PIPE;
+        public static Block STONE_FLUID_PIPE;
+        public static Block GOLD_FLUID_PIPE;
+        public static Block MERGER_FLUID_PIPE;
         public static Block FLUID_EXTRACTOR_PIPE;
+        public static Block VOID_FLUID_PIPE;
+        public static Block BYPASS_FLUID_PIPE;
         public static Block GLASS_TANK;
 
         private static BlockBehaviour.Properties fluidPipeProps(BlockBehaviour.Properties props) {
@@ -74,8 +79,23 @@ public final class LogisticsFluid extends LogisticsMod implements DomainBootstra
             COPPER_FLUID_PIPE = INSTANCE.registerBlockWithItem("copper_fluid_pipe",
                     props -> new FluidPipeBlock(fluidPipeProps(props), FluidPipeKind.COPPER),
                     FluidPipeBlockItem::new);
+            STONE_FLUID_PIPE = INSTANCE.registerBlockWithItem("stone_fluid_pipe",
+                    props -> new FluidPipeBlock(fluidPipeProps(props), FluidPipeKind.STONE),
+                    FluidPipeBlockItem::new);
+            GOLD_FLUID_PIPE = INSTANCE.registerBlockWithItem("gold_fluid_pipe",
+                    props -> new FluidPipeBlock(fluidPipeProps(props), FluidPipeKind.GOLD),
+                    FluidPipeBlockItem::new);
+            MERGER_FLUID_PIPE = INSTANCE.registerBlockWithItem("merger_fluid_pipe",
+                    props -> new FluidPipeBlock(fluidPipeProps(props), FluidPipeKind.MERGER),
+                    FluidPipeBlockItem::new);
             FLUID_EXTRACTOR_PIPE = INSTANCE.registerBlockWithItem("fluid_extractor_pipe",
                     props -> new FluidPipeBlock(fluidPipeProps(props), FluidPipeKind.EXTRACTOR),
+                    FluidPipeBlockItem::new);
+            VOID_FLUID_PIPE = INSTANCE.registerBlockWithItem("void_fluid_pipe",
+                    props -> new FluidPipeBlock(fluidPipeProps(props), FluidPipeKind.VOID),
+                    FluidPipeBlockItem::new);
+            BYPASS_FLUID_PIPE = INSTANCE.registerBlockWithItem("bypass_fluid_pipe",
+                    props -> new FluidPipeBlock(fluidPipeProps(props), FluidPipeKind.BYPASS),
                     FluidPipeBlockItem::new);
             GLASS_TANK = INSTANCE.registerBlockWithItem("glass_tank",
                     props -> new GlassTankBlock(tankProps(props)),
@@ -93,7 +113,12 @@ public final class LogisticsFluid extends LogisticsMod implements DomainBootstra
             FLUID_PIPE_BLOCK_ENTITY = INSTANCE.registerBlockEntity("fluid_pipe",
                     FluidPipeBlockEntity::new,
                     BLOCK.COPPER_FLUID_PIPE,
-                    BLOCK.FLUID_EXTRACTOR_PIPE);
+                    BLOCK.STONE_FLUID_PIPE,
+                    BLOCK.GOLD_FLUID_PIPE,
+                    BLOCK.MERGER_FLUID_PIPE,
+                    BLOCK.FLUID_EXTRACTOR_PIPE,
+                    BLOCK.VOID_FLUID_PIPE,
+                    BLOCK.BYPASS_FLUID_PIPE);
             GLASS_TANK_BLOCK_ENTITY = INSTANCE.registerBlockEntity("glass_tank",
                     GlassTankBlockEntity::new,
                     BLOCK.GLASS_TANK);
@@ -105,7 +130,12 @@ public final class LogisticsFluid extends LogisticsMod implements DomainBootstra
 
         static void register() {
             LogisticsCore.CREATIVE.TAB.add(BLOCK.COPPER_FLUID_PIPE);
+            LogisticsCore.CREATIVE.TAB.add(BLOCK.STONE_FLUID_PIPE);
+            LogisticsCore.CREATIVE.TAB.add(BLOCK.GOLD_FLUID_PIPE);
+            LogisticsCore.CREATIVE.TAB.add(BLOCK.MERGER_FLUID_PIPE);
             LogisticsCore.CREATIVE.TAB.add(BLOCK.FLUID_EXTRACTOR_PIPE);
+            LogisticsCore.CREATIVE.TAB.add(BLOCK.VOID_FLUID_PIPE);
+            LogisticsCore.CREATIVE.TAB.add(BLOCK.BYPASS_FLUID_PIPE);
             LogisticsCore.CREATIVE.TAB.add(BLOCK.GLASS_TANK);
         }
     }

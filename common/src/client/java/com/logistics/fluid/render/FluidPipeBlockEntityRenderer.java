@@ -39,7 +39,7 @@ import net.minecraft.world.phys.Vec3;
 public class FluidPipeBlockEntityRenderer
         implements BlockEntityRenderer<FluidPipeBlockEntity, FluidPipeRenderState> {
 
-    private static final String MODEL_PREFIX = "block/pipe/";
+    private static final String MODEL_PREFIX = "block/fluid/";
 
     // Opaque-white tint for the pipe body parts; hoisted out of the render loop to avoid per-frame allocation.
     private static final int[] WHITE_TINT = {0xFFFFFFFF};
@@ -78,13 +78,16 @@ public class FluidPipeBlockEntityRenderer
         BlockEntityRenderState.extractBase(entity, state, crumblingOverlay);
 
         String base = baseName(entity);
+        // The merger pipe marks its single output face with the feature (arrow) texture, like the item Merger Pipe.
+        Direction output = entity.kind().isDirectional() ? entity.outputDirection() : null;
         state.models.clear();
         state.models.add(modelInfo(base + "_core", null));
         for (Direction direction : Direction.values()) {
             boolean connected = entity.connection(direction) != FluidConnection.NONE;
             state.connectedArms[direction.get3DDataValue()] = connected;
             if (connected) {
-                state.models.add(modelInfo(base + "_arm", direction));
+                String armBase = direction == output ? base + "_feature" : base + "_arm";
+                state.models.add(modelInfo(armBase, direction));
             }
         }
         for (FluidPipeRenderState.ModelRenderInfo info : state.models) {
@@ -124,7 +127,7 @@ public class FluidPipeBlockEntityRenderer
     }
 
     private static String baseName(FluidPipeBlockEntity entity) {
-        return entity.kind().isExtractor() ? "fluid_extractor_pipe" : "copper_fluid_pipe";
+        return entity.kind().modelBase();
     }
 
     private static FluidPipeRenderState.ModelRenderInfo modelInfo(String base, Direction armDirection) {
@@ -148,7 +151,7 @@ public class FluidPipeBlockEntityRenderer
     private TextureAtlasSprite sprite(String textureBase) {
         return spriteCache.computeIfAbsent(textureBase, b -> Minecraft.getInstance().getAtlasManager()
                 .getAtlasOrThrow(AtlasIds.BLOCKS)
-                .getSprite(LogisticsMod.modId("block/pipe/" + b).toIdentifier()));
+                .getSprite(LogisticsMod.modId(MODEL_PREFIX + b).toIdentifier()));
     }
 
     @Override

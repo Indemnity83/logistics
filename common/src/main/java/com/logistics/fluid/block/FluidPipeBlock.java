@@ -135,9 +135,11 @@ public class FluidPipeBlock extends BaseEntityBlock implements SimpleWaterlogged
         if (FluidStorageLookup.find(level, neighbour, direction.getOpposite()) == null) {
             return FluidConnection.NONE;
         }
-        return level.getBlockState(neighbour).getBlock() instanceof FluidPipeBlock
-                ? FluidConnection.PIPE
-                : FluidConnection.HANDLER;
+        if (level.getBlockState(neighbour).getBlock() instanceof FluidPipeBlock) {
+            return FluidConnection.PIPE;
+        }
+        // Void and bypass pipes connect only to other fluid pipes, never to external handlers.
+        return kind.connectsToHandlers() ? FluidConnection.HANDLER : FluidConnection.NONE;
     }
 
     private boolean isConnected(BlockGetter world, BlockPos pos, Direction direction) {
@@ -220,7 +222,10 @@ public class FluidPipeBlock extends BaseEntityBlock implements SimpleWaterlogged
         if (!(level.getBlockEntity(pos) instanceof FluidPipeBlockEntity pipe)) {
             return InteractionResult.PASS;
         }
-        if (player.isShiftKeyDown()) {
+        if (kind.isDirectional()) {
+            // Merger check valve: each wrench cycles the output to the next connected face, like the item Merger.
+            pipe.cycleOutputDirection();
+        } else if (player.isShiftKeyDown()) {
             pipe.resetSides();
         } else {
             pipe.toggleSide(face);

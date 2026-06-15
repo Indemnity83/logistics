@@ -62,6 +62,11 @@ public class FluidPipeBlockEntity extends BaseBlockEntity
     /** Bitmask of wrench-disabled sides (bit per {@link Direction#get3DDataValue()}). */
     private int disabledMask;
 
+    /** Merger (directional) pipe only: the single face fluid is allowed to exit, or {@code null} when unset
+     * (an unconfigured merger pipe is a closed valve that passes nothing). */
+    @Nullable
+    private Direction outputDirection;
+
     @Nullable
     private final EnergyComponent energy;
 
@@ -86,8 +91,7 @@ public class FluidPipeBlockEntity extends BaseBlockEntity
         }
 
         LogisticsConfig.FluidPipeConfig cfg = LogisticsConfig.get().fluidPipe;
-        long capacityMb = kind.isExtractor() ? cfg.woodenCapacity : cfg.copperCapacity;
-        this.tank = new FluidTankComponent(FluidUnits.mb((int) capacityMb), this::setChanged);
+        this.tank = new FluidTankComponent(FluidUnits.mb((int) kind.capacity(cfg)), this::setChanged);
         this.energy = kind.isExtractor()
                 ? new EnergyComponent(ENERGY_CAPACITY, ENERGY_MAX_INSERT, 0, this::setChanged)
                 : null;
@@ -111,6 +115,62 @@ public class FluidPipeBlockEntity extends BaseBlockEntity
 
     public boolean isExtractor() {
         return kind.isExtractor();
+    }
+
+    /** Merger pipe's configured output face, or {@code null} if unset (no connections / closed valve). */
+    @Nullable
+    public Direction outputDirection() {
+        return outputDirection;
+    }
+
+    /** Sets the merger pipe's output face (or {@code null}); resyncs so the cut + arm rendering update. */
+    public void setOutputDirection(@Nullable Direction direction) {
+        if (outputDirection != direction) {
+            outputDirection = direction;
+            markDirtyAndSync();
+        }
+    }
+
+    /** The directions this pipe currently connects on (pipe or handler), in {@link Direction} order. */
+    private List<Direction> connectedDirections() {
+        List<Direction> result = new ArrayList<>(6);
+        for (Direction direction : Direction.values()) {
+            if (connection(direction) != FluidConnection.NONE) {
+                result.add(direction);
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Wrench action for the merger pipe: advance the output to the next connected face (wrapping), exactly like
+     * the item Merger Pipe. Ignores the clicked face so it is predictable on a thin pipe.
+     */
+    public void cycleOutputDirection() {
+        List<Direction> connected = connectedDirections();
+        if (connected.isEmpty()) {
+            setOutputDirection(null);
+            return;
+        }
+        int index = outputDirection == null ? -1 : connected.indexOf(outputDirection);
+        setOutputDirection(connected.get((index + 1) % connected.size()));
+    }
+
+    /**
+     * Keep the merger's output on a valid connected face: default to the first connection when unset or when the
+     * current output is no longer connected; clear it only when nothing is connected. Mirrors the item Merger
+     * Pipe's {@code onConnectionsChanged}, so a freshly placed merger immediately has a sensible output.
+     */
+    private void ensureValidOutput() {
+        if (!kind.isDirectional()) {
+            return;
+        }
+        List<Direction> connected = connectedDirections();
+        if (connected.isEmpty()) {
+            setOutputDirection(null);
+        } else if (outputDirection == null || !connected.contains(outputDirection)) {
+            setOutputDirection(connected.getFirst());
+        }
     }
 
     // ==================== Capabilities ====================
@@ -206,7 +266,7 @@ public class FluidPipeBlockEntity extends BaseBlockEntity
      */
     private void solveComponentIfLeader(Level level) {
         long tick = level.getGameTime();
-        if (lastSolvedTick == tick || (tank.isEmpty() && !isExtractor())) {
+        if (lastSolvedTick == tick || (tank.isEmpty() && !isExtractor() && !kind.isVoid())) {
             return;
         }
 
@@ -268,9 +328,16 @@ public class FluidPipeBlockEntity extends BaseBlockEntity
                     continue;
                 }
                 Integer j = index.get(member.getBlockPos().relative(direction));
-                if (j != null && j.intValue() != i) {
-                    neighbours.get(i).add(j);
+                if (j == null || j.intValue() == i) {
+                    continue;
                 }
+                // A merger never equalizes with its neighbours: it pulls fluid IN from its input faces and pushes
+                // it OUT only its output (feature) face, both handled explicitly (see processMergers). So drop any
+                // edge touching a merger from the body equilibrium entirely.
+                if (member.kind.isDirectional() || members.get(j).kind.isDirectional()) {
+                    continue;
+                }
+                neighbours.get(i).add(j);
             }
         }
 
@@ -299,7 +366,7 @@ public class FluidPipeBlockEntity extends BaseBlockEntity
             }
         }
         for (IFluidKey f : fluids) {
-            solveFluid(level, members, neighbours, amount, capacity, cellFluid, extractorSource, f, tick, cfg);
+            solveFluid(level, members, neighbours, index, amount, capacity, cellFluid, extractorSource, f, tick, cfg);
         }
     }
 
@@ -321,8 +388,8 @@ public class FluidPipeBlockEntity extends BaseBlockEntity
      * what this pass claimed, and writes the affected tanks and handlers back.
      */
     private void solveFluid(Level level, List<FluidPipeBlockEntity> members, List<List<Integer>> neighbours,
-            long[] amount, long[] capacity, IFluidKey[] cellFluid, IFluidKey[] extractorSource, IFluidKey fluid,
-            long tick, LogisticsConfig.FluidPipeConfig cfg) {
+            Map<BlockPos, Integer> index, long[] amount, long[] capacity, IFluidKey[] cellFluid,
+            IFluidKey[] extractorSource, IFluidKey fluid, long tick, LogisticsConfig.FluidPipeConfig cfg) {
         int n = members.size();
 
         // This fluid's amount per cell, and which cells it may occupy (its own cells + empty cells).
@@ -377,7 +444,7 @@ public class FluidPipeBlockEntity extends BaseBlockEntity
                 List<FluidProvider<IFluidKey>> sources =
                         extractor.gatherProviders(level).stream().filter(s -> target.equals(s.fluid())).toList();
                 FluidPipe<IFluidKey> pulled = new FluidPipe<>();
-                long budget = Math.min(cfg.copperTransferRate, room);
+                long budget = Math.min(extractor.kind.transferRate(cfg), room);
                 FluidExtraction.Result result = FluidExtraction.tick(
                         pulled, sources, extractor.energy.getAmount(), budget, cfg.woodenRequiresEngine);
                 if (pulled.amount() > 0) {
@@ -434,44 +501,23 @@ public class FluidPipeBlockEntity extends BaseBlockEntity
             }
         }
 
-        // Tank output: pipes holding this fluid push it into adjacent handlers (sideways/down always, up only
-        // from a full pipe), paced at the transfer rate. Extractors only pull, never push.
-        long tankRate = cfg.copperTransferRate;
-        List<IFluidStorage> tankHandlers = new ArrayList<>();
-        Map<BlockPos, Integer> tankCellIndex = new HashMap<>();
+        // Throttle flow to the slowest pipe carrying this fluid: a long stone run is slow, a gold backbone is
+        // fast, and a stone segment bottlenecks a gold line. The cap is per connected component, so parallel
+        // branches of differing tier share the bottleneck.
+        long throughRate = Long.MAX_VALUE;
         for (int i = 0; i < n; i++) {
-            if (members.get(i).isExtractor() || !participating[i]) {
-                continue;
-            }
-            BlockPos pos = members.get(i).getBlockPos();
-            boolean pipeFull = fluidAmount[i] == capacity[i];
-            for (Direction direction : Direction.values()) {
-                if (members.get(i).connection(direction) != FluidConnection.HANDLER) {
-                    continue;
-                }
-                if (direction == Direction.UP && !pipeFull) {
-                    continue; // push up into a tank only from a full pipe (fluid has risen to the top)
-                }
-                BlockPos handlerPos = pos.relative(direction);
-                Integer existing = tankCellIndex.get(handlerPos);
-                if (existing != null) {
-                    edges.add(new int[] {i, existing});
-                    continue;
-                }
-                IFluidStorage handler = FluidStorageLookup.find(level, handlerPos, direction.getOpposite());
-                if (handler == null) {
-                    continue;
-                }
-                long roomMb = FluidUnits.toMillibuckets(handler.insert(fluid, FluidUnits.mb((int) tankRate), true));
-                int cellIndex = cells.size();
-                tankCellIndex.put(handlerPos, cellIndex);
-                tankHandlers.add(handler);
-                cells.add(new FluidBodySolver.Cell(handlerPos.getY(), roomMb, 0, true));
-                edges.add(new int[] {i, cellIndex});
+            if (participating[i] && !members.get(i).kind.isVoid()) {
+                throughRate = Math.min(throughRate, members.get(i).kind.transferRate(cfg));
             }
         }
+        if (throughRate == Long.MAX_VALUE) {
+            throughRate = cfg.copperTransferRate;
+        }
 
-        long[] settled = FluidBodySolver.equilibrium(cells, edges.toArray(new int[0][]));
+        // Settle the pipe body alone — tanks and void are deliberately NOT cells in this graph. Communicating
+        // vessels: the pipes equalize among themselves each tick (rate-limited by the bottleneck). Outputs then
+        // run separately below.
+        long[] settled = FluidBodySolver.step(cells, edges.toArray(new int[0][]), throughRate);
         for (int i = 0; i < n; i++) {
             if (settled[i] != stored[i]) {
                 members.get(i).tank.setContents(settled[i] > 0 ? fluid : null, FluidUnits.mb((int) settled[i]));
@@ -479,10 +525,171 @@ public class FluidPipeBlockEntity extends BaseBlockEntity
                 cellFluid[i] = settled[i] > 0 ? fluid : null;
             }
         }
-        for (int k = 0; k < tankHandlers.size(); k++) {
-            long intake = settled[n + k];
-            if (intake > 0) {
-                tankHandlers.get(k).insert(fluid, FluidUnits.mb((int) intake), false);
+
+        // Outputs run AFTER the body settles and each drain only the *adjacent* pipe's settled content — never
+        // the whole connected pool — capped at that pipe's transfer rate. The body re-balances next tick, so a
+        // line feeding a tank/void/merger drains gradually at the pipe rate instead of dumping its whole volume.
+        pushTankOutputs(level, members, amount, capacity, cellFluid, fluid, cfg);
+        drainVoidPipes(members, amount, cellFluid, fluid, cfg);
+        processMergers(level, members, index, amount, capacity, cellFluid, fluid, cfg);
+    }
+
+    /**
+     * After the body settles, each passive-mover pipe holding this fluid pushes into its adjacent tank handlers,
+     * draining only its own settled content (not the connected pool), capped at the pipe's transfer rate. Pushing
+     * up only happens from a full pipe. The body re-balances next tick, so a fed line fills a tank gradually at
+     * the pipe rate rather than dumping its whole volume at once.
+     */
+    private void pushTankOutputs(Level level, List<FluidPipeBlockEntity> members, long[] amount, long[] capacity,
+            IFluidKey[] cellFluid, IFluidKey fluid, LogisticsConfig.FluidPipeConfig cfg) {
+        for (int i = 0; i < members.size(); i++) {
+            FluidPipeBlockEntity pipe = members.get(i);
+            if (!pipe.kind.isPassiveMover() || !fluid.equals(cellFluid[i])) {
+                continue;
+            }
+            long budget = Math.min(pipe.kind.transferRate(cfg), amount[i]); // own content, capped at the rate
+            if (budget <= 0) {
+                continue;
+            }
+            boolean pipeFull = amount[i] == capacity[i];
+            BlockPos pos = pipe.getBlockPos();
+            for (Direction direction : Direction.values()) {
+                if (budget <= 0) {
+                    break;
+                }
+                if (pipe.connection(direction) != FluidConnection.HANDLER) {
+                    continue;
+                }
+                if (direction == Direction.UP && !pipeFull) {
+                    continue; // push up into a tank only from a full pipe (fluid has risen to the top)
+                }
+                IFluidStorage handler =
+                        FluidStorageLookup.find(level, pos.relative(direction), direction.getOpposite());
+                if (handler == null) {
+                    continue;
+                }
+                long inserted = FluidUnits.toMillibuckets(handler.insert(fluid, FluidUnits.mb((int) budget), false));
+                if (inserted > 0) {
+                    amount[i] -= inserted;
+                    budget -= inserted;
+                    cellFluid[i] = amount[i] > 0 ? fluid : null;
+                    pipe.tank.setContents(amount[i] > 0 ? fluid : null, FluidUnits.mb((int) amount[i]));
+                }
+            }
+        }
+    }
+
+    /**
+     * After the body settles, each void pipe destroys only its own settled content (not the connected pool),
+     * capped at the void rate; the body re-balances next tick, so a line feeding a void drains gradually.
+     */
+    private void drainVoidPipes(List<FluidPipeBlockEntity> members, long[] amount, IFluidKey[] cellFluid,
+            IFluidKey fluid, LogisticsConfig.FluidPipeConfig cfg) {
+        for (int i = 0; i < members.size(); i++) {
+            FluidPipeBlockEntity pipe = members.get(i);
+            if (!pipe.kind.isVoid() || !fluid.equals(cellFluid[i])) {
+                continue;
+            }
+            long destroyed = Math.min(pipe.kind.transferRate(cfg), amount[i]);
+            if (destroyed <= 0) {
+                continue;
+            }
+            amount[i] -= destroyed;
+            cellFluid[i] = amount[i] > 0 ? fluid : null;
+            pipe.tank.setContents(amount[i] > 0 ? fluid : null, FluidUnits.mb((int) amount[i]));
+        }
+    }
+
+    /**
+     * One-way flow for merger (directional) pipes after the body has settled. A merger never equalizes with its
+     * neighbours (every edge is cut); instead it pulls this fluid IN from each non-output face and pushes it OUT
+     * only its configured output (feature) face — so the feature face is the sole exit and all other faces are
+     * intake-only, mirroring the item Merger Pipe. Intake and output are each capped at the merger's transfer
+     * rate and drain only the adjacent pipe's settled content, so flow stays gradual. A merger with no output
+     * face configured (no connections) moves nothing.
+     */
+    private void processMergers(Level level, List<FluidPipeBlockEntity> members, Map<BlockPos, Integer> index,
+            long[] amount, long[] capacity, IFluidKey[] cellFluid, IFluidKey fluid,
+            LogisticsConfig.FluidPipeConfig cfg) {
+        for (int i = 0; i < members.size(); i++) {
+            FluidPipeBlockEntity merger = members.get(i);
+            if (!merger.kind.isDirectional() || merger.outputDirection == null) {
+                continue;
+            }
+            if (cellFluid[i] != null && !fluid.equals(cellFluid[i])) {
+                continue; // merger already holds a different fluid this tick
+            }
+            Direction out = merger.outputDirection;
+            long rate = merger.kind.transferRate(cfg);
+            BlockPos pos = merger.getBlockPos();
+
+            // Output first, so fluid pulled in this tick stays buffered until the next — the merger fills like a
+            // pipe instead of passing straight through. Drains only the feature face, capped at the slower of the
+            // merger and the receiving pipe (a tank uses the merger's own rate).
+            if (fluid.equals(cellFluid[i]) && amount[i] > 0) {
+                BlockPos outPos = pos.relative(out);
+                FluidConnection conn = merger.connection(out);
+                if (conn == FluidConnection.PIPE) {
+                    Integer j = index.get(outPos);
+                    if (j != null && (cellFluid[j] == null || fluid.equals(cellFluid[j]))) {
+                        long edgeRate = Math.min(rate, members.get(j).kind.transferRate(cfg));
+                        long move = Math.min(Math.min(edgeRate, amount[i]), capacity[j] - amount[j]);
+                        if (move > 0) {
+                            amount[i] -= move;
+                            amount[j] += move;
+                            cellFluid[i] = amount[i] > 0 ? fluid : null;
+                            cellFluid[j] = fluid;
+                            merger.tank.setContents(amount[i] > 0 ? fluid : null, FluidUnits.mb((int) amount[i]));
+                            members.get(j).tank.setContents(fluid, FluidUnits.mb((int) amount[j]));
+                        }
+                    }
+                } else if (conn == FluidConnection.HANDLER) {
+                    IFluidStorage handler = FluidStorageLookup.find(level, outPos, out.getOpposite());
+                    if (handler != null) {
+                        long inserted = FluidUnits.toMillibuckets(
+                                handler.insert(fluid, FluidUnits.mb((int) Math.min(rate, amount[i])), false));
+                        if (inserted > 0) {
+                            amount[i] -= inserted;
+                            cellFluid[i] = amount[i] > 0 ? fluid : null;
+                            merger.tank.setContents(amount[i] > 0 ? fluid : null, FluidUnits.mb((int) amount[i]));
+                        }
+                    }
+                }
+            }
+
+            // Intake: equalize this fluid IN from each non-output pipe face — inflow only (a one-way diode, the
+            // merger never pushes back out an input). It moves toward an even level rather than fully draining the
+            // feeder, so the input pipe keeps fluid instead of emptying every tick. Each face is capped at the
+            // slower of the two pipes' rates; total intake is capped at the merger's rate.
+            long inBudget = rate;
+            for (Direction direction : Direction.values()) {
+                if (inBudget <= 0) {
+                    break;
+                }
+                if (direction == out || merger.connection(direction) != FluidConnection.PIPE) {
+                    continue;
+                }
+                Integer j = index.get(pos.relative(direction));
+                if (j == null || !fluid.equals(cellFluid[j])) {
+                    continue;
+                }
+                long diff = amount[j] - amount[i];
+                if (diff <= 0) {
+                    continue; // only when the input side is higher — fluid flows in, never back out
+                }
+                long edgeRate = Math.min(inBudget, members.get(j).kind.transferRate(cfg));
+                // Move toward the midpoint (rounded up so a 1 mB gap still closes), capped by rate and space.
+                long move = Math.min(Math.min((diff + 1) / 2, edgeRate), capacity[i] - amount[i]);
+                if (move <= 0) {
+                    continue;
+                }
+                amount[j] -= move;
+                amount[i] += move;
+                inBudget -= move;
+                cellFluid[i] = fluid;
+                cellFluid[j] = amount[j] > 0 ? fluid : null;
+                merger.tank.setContents(fluid, FluidUnits.mb((int) amount[i]));
+                members.get(j).tank.setContents(amount[j] > 0 ? fluid : null, FluidUnits.mb((int) amount[j]));
             }
         }
     }
@@ -541,6 +748,7 @@ public class FluidPipeBlockEntity extends BaseBlockEntity
         }
         connectionCacheDirty = false;
         if (changed) {
+            ensureValidOutput(); // merger: keep its output face on a valid connection as neighbours change
             markDirtyAndSync();
         }
     }
@@ -573,6 +781,9 @@ public class FluidPipeBlockEntity extends BaseBlockEntity
             tag.putInt("Disabled", disabledMask);
         }
         tag.putInt("Conn", encodeConnections());
+        if (outputDirection != null) {
+            tag.putInt("OutDir", outputDirection.get3DDataValue());
+        }
         if (energy != null) {
             energy.writeNbt(tag, "Energy");
         }
@@ -584,6 +795,7 @@ public class FluidPipeBlockEntity extends BaseBlockEntity
         tank.readNbt(tag, "Tank");
         disabledMask = NbtCompat.getInt(tag, "Disabled", 0);
         decodeConnections(NbtCompat.getInt(tag, "Conn", 0));
+        outputDirection = tag.contains("OutDir") ? Direction.from3DDataValue(NbtCompat.getInt(tag, "OutDir", 0)) : null;
         if (energy != null) {
             energy.readNbt(tag, "Energy");
         }

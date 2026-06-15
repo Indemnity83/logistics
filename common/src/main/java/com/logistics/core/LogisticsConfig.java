@@ -82,6 +82,14 @@ public final class LogisticsConfig {
     public static final class FluidPipeConfig {
         /** Copper Fluid Pipe transfer rate, in mB/tick. */
         public int copperTransferRate = 20;
+        /** Stone Fluid Pipe transfer rate, in mB/tick (the slow tier). */
+        public int stoneTransferRate = 10;
+        /** Gold Fluid Pipe transfer rate, in mB/tick (the fast tier). */
+        public int goldTransferRate = 80;
+        /** Merger Fluid Pipe transfer rate, in mB/tick (a one-way router at the standard transport rate). */
+        public int mergerTransferRate = 20;
+        /** Void Fluid Pipe destruction rate, in mB/tick (the standard transport rate). */
+        public int voidRate = 20;
         /** Copper Fluid Pipe internal buffer, in mB. */
         public int copperCapacity = 250;
         /** Fluid Extractor Pipe internal buffer, in mB. */
@@ -209,6 +217,26 @@ public final class LogisticsConfig {
         reg(map, "fluid_pipe_copper_transfer_rate", "Copper Fluid Pipe transfer rate (mB/tick)",
                 () -> (long) INSTANCE.fluidPipe.copperTransferRate,
                 v -> INSTANCE.fluidPipe.copperTransferRate = v.intValue(),
+                Long::parseLong,
+                v -> requireRange(v, 1L, (long) Integer.MAX_VALUE, "must be between 1 and " + Integer.MAX_VALUE));
+        reg(map, "fluid_pipe_stone_transfer_rate", "Stone Fluid Pipe transfer rate (mB/tick)",
+                () -> (long) INSTANCE.fluidPipe.stoneTransferRate,
+                v -> INSTANCE.fluidPipe.stoneTransferRate = v.intValue(),
+                Long::parseLong,
+                v -> requireRange(v, 1L, (long) Integer.MAX_VALUE, "must be between 1 and " + Integer.MAX_VALUE));
+        reg(map, "fluid_pipe_gold_transfer_rate", "Gold Fluid Pipe transfer rate (mB/tick)",
+                () -> (long) INSTANCE.fluidPipe.goldTransferRate,
+                v -> INSTANCE.fluidPipe.goldTransferRate = v.intValue(),
+                Long::parseLong,
+                v -> requireRange(v, 1L, (long) Integer.MAX_VALUE, "must be between 1 and " + Integer.MAX_VALUE));
+        reg(map, "fluid_pipe_merger_transfer_rate", "Merger Fluid Pipe transfer rate (mB/tick)",
+                () -> (long) INSTANCE.fluidPipe.mergerTransferRate,
+                v -> INSTANCE.fluidPipe.mergerTransferRate = v.intValue(),
+                Long::parseLong,
+                v -> requireRange(v, 1L, (long) Integer.MAX_VALUE, "must be between 1 and " + Integer.MAX_VALUE));
+        reg(map, "fluid_pipe_void_rate", "Void Fluid Pipe destruction rate (mB/tick)",
+                () -> (long) INSTANCE.fluidPipe.voidRate,
+                v -> INSTANCE.fluidPipe.voidRate = v.intValue(),
                 Long::parseLong,
                 v -> requireRange(v, 1L, (long) Integer.MAX_VALUE, "must be between 1 and " + Integer.MAX_VALUE));
         reg(map, "fluid_pipe_copper_capacity", "Copper Fluid Pipe buffer capacity (mB)",
@@ -408,6 +436,18 @@ public final class LogisticsConfig {
 
         sanitizeInt("fluid_pipe_copper_transfer_rate", () -> (long) config.fluidPipe.copperTransferRate,
                 v -> config.fluidPipe.copperTransferRate = v.intValue(), () -> (long) defaults.fluidPipe.copperTransferRate,
+                v -> requireRange(v, 1L, (long) Integer.MAX_VALUE, "must be between 1 and " + Integer.MAX_VALUE));
+        sanitizeInt("fluid_pipe_stone_transfer_rate", () -> (long) config.fluidPipe.stoneTransferRate,
+                v -> config.fluidPipe.stoneTransferRate = v.intValue(), () -> (long) defaults.fluidPipe.stoneTransferRate,
+                v -> requireRange(v, 1L, (long) Integer.MAX_VALUE, "must be between 1 and " + Integer.MAX_VALUE));
+        sanitizeInt("fluid_pipe_gold_transfer_rate", () -> (long) config.fluidPipe.goldTransferRate,
+                v -> config.fluidPipe.goldTransferRate = v.intValue(), () -> (long) defaults.fluidPipe.goldTransferRate,
+                v -> requireRange(v, 1L, (long) Integer.MAX_VALUE, "must be between 1 and " + Integer.MAX_VALUE));
+        sanitizeInt("fluid_pipe_merger_transfer_rate", () -> (long) config.fluidPipe.mergerTransferRate,
+                v -> config.fluidPipe.mergerTransferRate = v.intValue(), () -> (long) defaults.fluidPipe.mergerTransferRate,
+                v -> requireRange(v, 1L, (long) Integer.MAX_VALUE, "must be between 1 and " + Integer.MAX_VALUE));
+        sanitizeInt("fluid_pipe_void_rate", () -> (long) config.fluidPipe.voidRate,
+                v -> config.fluidPipe.voidRate = v.intValue(), () -> (long) defaults.fluidPipe.voidRate,
                 v -> requireRange(v, 1L, (long) Integer.MAX_VALUE, "must be between 1 and " + Integer.MAX_VALUE));
         sanitizeInt("fluid_pipe_copper_capacity", () -> (long) config.fluidPipe.copperCapacity,
                 v -> config.fluidPipe.copperCapacity = v.intValue(), () -> (long) defaults.fluidPipe.copperCapacity,
