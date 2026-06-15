@@ -1,8 +1,8 @@
 {
   "type": "minecraft:crafting_shaped",
-  "pattern": ["CBC", "BRB", " B "],
+  "pattern": ["NBN", "BRB", " B "],
   "key": {
-    "C": "minecraft:copper_nugget",
+    "N": "minecraft:iron_nugget",
     "B": "minecraft:brick",
     "R": "minecraft:redstone_block"
   },
