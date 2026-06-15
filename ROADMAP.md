@@ -44,7 +44,7 @@ Likely after the current automation core is stable.
 
 ## Later
 
-Important to the long-term vision, but not part of the immediate core milestone. 
+Important to the long-term vision, but not part of the immediate core milestone.
 
 *These are in no specific order.*
 
