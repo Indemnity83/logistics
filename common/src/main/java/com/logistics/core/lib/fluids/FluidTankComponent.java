@@ -99,6 +99,23 @@ public class FluidTankComponent implements IFluidStorage {
         return currentKey();
     }
 
+    /**
+     * Raw write of the contents, bypassing fluid-match/capacity checks (used by tank-column settling).
+     * An {@code amount} of 0 or a blank key empties the tank; otherwise the amount is clamped to capacity.
+     */
+    public void setContents(IFluidKey key, long amount) {
+        if (key == null || key.isBlank() || amount <= 0) {
+            fluid = Fluids.EMPTY;
+            components = DataComponentPatch.EMPTY;
+            this.amount = 0;
+        } else {
+            fluid = key.getFluid();
+            components = key.getComponents();
+            this.amount = Math.min(amount, capacity);
+        }
+        onChanged.run();
+    }
+
     /** Returns the current amount of fluid stored, in platform-native units. */
     public long getAmount() {
         return amount;
@@ -118,7 +135,14 @@ public class FluidTankComponent implements IFluidStorage {
 
     public void readNbt(CompoundTag nbt, String key) {
         CompoundTag data = NbtCompat.getCompoundOrEmpty(nbt, key);
-        if (data.isEmpty() || !data.contains("fluid")) return;
+        if (data.isEmpty() || !data.contains("fluid")) {
+            // No fluid data means the tank is empty. Reset, rather than retaining stale contents — this
+            // is how an emptied tank/pipe syncs to the client (writeNbt omits the key when empty).
+            fluid = Fluids.EMPTY;
+            components = DataComponentPatch.EMPTY;
+            amount = 0;
+            return;
+        }
 
         String id = NbtCompat.getString(data, "fluid", "");
         ResourceId resourceId = ResourceId.tryParse(id);
@@ -136,18 +160,19 @@ public class FluidTankComponent implements IFluidStorage {
     }
 
     public void writeNbt(CompoundTag nbt, String key) {
+        // Always emit the key — including when empty — so an emptied tank still produces non-empty
+        // block-entity data. Otherwise the owning BlockEntity omits its data tag, the client's load
+        // path skips deserialization, and the stale (non-empty) contents are never cleared on screen.
         CompoundTag data = new CompoundTag();
+        data.putLong("amount", fluid == Fluids.EMPTY ? 0L : amount);
         if (fluid != Fluids.EMPTY) {
             data.putString("fluid", BuiltInRegistries.FLUID.getKey(fluid).toString());
             if (!components.isEmpty()) {
                 DataComponentPatch.CODEC.encodeStart(NbtOps.INSTANCE, components)
                         .result().ifPresent(tag -> data.put("components", tag));
             }
-            data.putLong("amount", amount);
         }
-        if (!data.isEmpty()) {
-            nbt.put(key, data);
-        }
+        nbt.put(key, data);
     }
 
     // ==================== Internals ====================

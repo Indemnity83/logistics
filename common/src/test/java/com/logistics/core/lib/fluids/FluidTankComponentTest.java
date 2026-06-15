@@ -130,6 +130,26 @@ class FluidTankComponentTest extends MinecraftTestEnvironment {
         assertThat(read.getAmount()).isEqualTo(750);
     }
 
+    @Test
+    @DisplayName("reading empty NBT clears stale contents (emptied-tank sync)")
+    void nbt_empty_clearsStaleContents() {
+        // An emptied tank writes no key; reading that must reset, not retain old fluid — otherwise the
+        // client keeps rendering fluid after the server tank has drained to zero.
+        FluidTankComponent emptied = tank(1000, () -> {});
+        CompoundTag emptyNbt = new CompoundTag();
+        emptied.writeNbt(emptyNbt, "tank");
+        // The key must be present even when empty, so the owning BE always emits its data tag.
+        assertThat(emptyNbt.contains("tank")).isTrue();
+
+        FluidTankComponent stale = tank(1000, () -> {});
+        stale.insert(water(), 500, false);
+        stale.readNbt(emptyNbt, "tank");
+
+        assertThat(stale.isEmpty()).isTrue();
+        assertThat(stale.getAmount()).isZero();
+        assertThat(stale.getFluidKey().isBlank()).isTrue();
+    }
+
     private static FluidTankComponent tank(long capacity, Runnable onChanged) {
         return new FluidTankComponent(capacity, onChanged);
     }

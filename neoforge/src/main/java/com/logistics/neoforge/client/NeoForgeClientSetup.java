@@ -2,8 +2,11 @@ package com.logistics.neoforge.client;
 
 import com.logistics.LogisticsAutomation;
 import com.logistics.LogisticsCore;
+import com.logistics.LogisticsFluid;
 import com.logistics.LogisticsPipe;
 import com.logistics.LogisticsPower;
+import com.logistics.fluid.render.FluidPipeBlockEntityRenderer;
+import com.logistics.fluid.render.GlassTankBlockEntityRenderer;
 import com.logistics.automation.kiln.KilnScreen;
 import com.logistics.core.lib.platform.ClientNetworking;
 import com.logistics.core.macerator.MaceratorScreen;
@@ -97,6 +100,12 @@ public final class NeoForgeClientSetup {
         event.registerBlockEntityRenderer(
                 LogisticsAutomation.ENTITY.LASER_QUARRY_BLOCK_ENTITY,
                 LaserQuarryBlockEntityRenderer::new);
+        event.registerBlockEntityRenderer(
+                LogisticsFluid.ENTITY.FLUID_PIPE_BLOCK_ENTITY,
+                FluidPipeBlockEntityRenderer::new);
+        event.registerBlockEntityRenderer(
+                LogisticsFluid.ENTITY.GLASS_TANK_BLOCK_ENTITY,
+                GlassTankBlockEntityRenderer::new);
     }
 
     private static void registerBlockColors(RegisterColorHandlersEvent.BlockTintSources event) {

@@ -38,6 +38,7 @@ public final class LogisticsConfig {
     public QuarryConfig quarry = new QuarryConfig();
     public PipeConfig pipe = new PipeConfig();
     public EngineConfig engine = new EngineConfig();
+    public FluidPipeConfig fluidPipe = new FluidPipeConfig();
 
     public static final class QuarryConfig {
         public int area = 16;
@@ -76,6 +77,23 @@ public final class LogisticsConfig {
         public long redstoneOutput = 10L;
         public double stirlingMinOutput = 3.0;
         public double stirlingMaxOutput = 10.0;
+    }
+
+    public static final class FluidPipeConfig {
+        /** Copper Fluid Pipe transfer rate, in mB/tick. */
+        public int copperTransferRate = 20;
+        /** Copper Fluid Pipe internal buffer, in mB. */
+        public int copperCapacity = 250;
+        /** Fluid Extractor Pipe internal buffer, in mB. */
+        public int woodenCapacity = 250;
+        /** Fluid Extractor Pipe maximum extraction per tick while powered, in mB. */
+        public int woodenPulse = 20;
+        /** Whether the Fluid Extractor Pipe requires engine power to extract. */
+        public boolean woodenRequiresEngine = true;
+        /** Debug toggle: when false, the passive body solver is skipped (fluid stays where the extractor puts it). */
+        public boolean passiveSettling = true;
+        /** Debug toggle: when false, extractors stop pulling fluid into the network. */
+        public boolean activeExtraction = true;
     }
 
     // ==================== Config Entry Registry (for commands) ====================
@@ -187,6 +205,38 @@ public final class LogisticsConfig {
                             "must be greater than or equal to stirling_engine_min_output");
                 });
 
+        // Fluid pipes
+        reg(map, "fluid_pipe_copper_transfer_rate", "Copper Fluid Pipe transfer rate (mB/tick)",
+                () -> (long) INSTANCE.fluidPipe.copperTransferRate,
+                v -> INSTANCE.fluidPipe.copperTransferRate = v.intValue(),
+                Long::parseLong,
+                v -> requireRange(v, 1L, (long) Integer.MAX_VALUE, "must be between 1 and " + Integer.MAX_VALUE));
+        reg(map, "fluid_pipe_copper_capacity", "Copper Fluid Pipe buffer capacity (mB)",
+                () -> (long) INSTANCE.fluidPipe.copperCapacity,
+                v -> INSTANCE.fluidPipe.copperCapacity = v.intValue(),
+                Long::parseLong,
+                v -> requireRange(v, 1L, (long) Integer.MAX_VALUE, "must be between 1 and " + Integer.MAX_VALUE));
+        reg(map, "fluid_pipe_wooden_capacity", "Fluid Extractor Pipe buffer capacity (mB)",
+                () -> (long) INSTANCE.fluidPipe.woodenCapacity,
+                v -> INSTANCE.fluidPipe.woodenCapacity = v.intValue(),
+                Long::parseLong,
+                v -> requireRange(v, 1L, (long) Integer.MAX_VALUE, "must be between 1 and " + Integer.MAX_VALUE));
+        reg(map, "fluid_pipe_wooden_pulse", "Fluid Extractor Pipe extraction per engine pulse (mB)",
+                () -> (long) INSTANCE.fluidPipe.woodenPulse,
+                v -> INSTANCE.fluidPipe.woodenPulse = v.intValue(),
+                Long::parseLong,
+                v -> requireRange(v, 1L, (long) Integer.MAX_VALUE, "must be between 1 and " + Integer.MAX_VALUE));
+        reg(map, "fluid_pipe_passive_settling", "Debug: passive body solver enabled",
+                () -> INSTANCE.fluidPipe.passiveSettling,
+                v -> INSTANCE.fluidPipe.passiveSettling = v,
+                Boolean::parseBoolean,
+                v -> {});
+        reg(map, "fluid_pipe_active_extraction", "Debug: extractor pulling enabled",
+                () -> INSTANCE.fluidPipe.activeExtraction,
+                v -> INSTANCE.fluidPipe.activeExtraction = v,
+                Boolean::parseBoolean,
+                v -> {});
+
         ENTRIES = Collections.unmodifiableMap(map);
     }
 
@@ -282,6 +332,10 @@ public final class LogisticsConfig {
             LOGGER.warn("Invalid logistics config group engine: missing; using defaults");
             config.engine = defaults.engine;
         }
+        if (config.fluidPipe == null) {
+            LOGGER.warn("Invalid logistics config group fluidPipe: missing; using defaults");
+            config.fluidPipe = defaults.fluidPipe;
+        }
 
         sanitizeInt("quarry_area", () -> (long) config.quarry.area, v -> config.quarry.area = v.intValue(),
                 () -> (long) defaults.quarry.area, v -> requireRange(
@@ -335,6 +389,19 @@ public final class LogisticsConfig {
                 v -> config.engine.stirlingMaxOutput = v, () -> defaults.engine.stirlingMaxOutput,
                 v -> requireFiniteMin(v, 0.0, "must be finite and greater than or equal to 0"));
         sanitizeStirlingOutputRange(config, defaults);
+
+        sanitizeInt("fluid_pipe_copper_transfer_rate", () -> (long) config.fluidPipe.copperTransferRate,
+                v -> config.fluidPipe.copperTransferRate = v.intValue(), () -> (long) defaults.fluidPipe.copperTransferRate,
+                v -> requireRange(v, 1L, (long) Integer.MAX_VALUE, "must be between 1 and " + Integer.MAX_VALUE));
+        sanitizeInt("fluid_pipe_copper_capacity", () -> (long) config.fluidPipe.copperCapacity,
+                v -> config.fluidPipe.copperCapacity = v.intValue(), () -> (long) defaults.fluidPipe.copperCapacity,
+                v -> requireRange(v, 1L, (long) Integer.MAX_VALUE, "must be between 1 and " + Integer.MAX_VALUE));
+        sanitizeInt("fluid_pipe_wooden_capacity", () -> (long) config.fluidPipe.woodenCapacity,
+                v -> config.fluidPipe.woodenCapacity = v.intValue(), () -> (long) defaults.fluidPipe.woodenCapacity,
+                v -> requireRange(v, 1L, (long) Integer.MAX_VALUE, "must be between 1 and " + Integer.MAX_VALUE));
+        sanitizeInt("fluid_pipe_wooden_pulse", () -> (long) config.fluidPipe.woodenPulse,
+                v -> config.fluidPipe.woodenPulse = v.intValue(), () -> (long) defaults.fluidPipe.woodenPulse,
+                v -> requireRange(v, 1L, (long) Integer.MAX_VALUE, "must be between 1 and " + Integer.MAX_VALUE));
 
         return config;
     }
