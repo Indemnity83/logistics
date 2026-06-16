@@ -1,4 +1,4 @@
-package com.logistics.fluid.pipe;
+package com.logistics.pipe.fluid;
 
 /**
  * Pure geometry for the fluid drawn inside a pipe.

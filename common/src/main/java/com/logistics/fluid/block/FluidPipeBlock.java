@@ -9,7 +9,7 @@ import com.logistics.core.lib.pipe.Module;
 import com.logistics.core.lib.pipe.PipeContext;
 import com.logistics.core.lib.pipe.PipeFamily;
 import com.logistics.fluid.block.entity.FluidPipeBlockEntity;
-import com.logistics.fluid.pipe.FluidPipeModules;
+import com.logistics.pipe.fluid.FluidPipeModules;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;

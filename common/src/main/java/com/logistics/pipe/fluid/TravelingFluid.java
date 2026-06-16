@@ -1,4 +1,4 @@
-package com.logistics.fluid.pipe;
+package com.logistics.pipe.fluid;
 
 import com.logistics.core.lib.fluids.IFluidKey;
 import com.logistics.core.lib.fluids.SimpleFluidKey;

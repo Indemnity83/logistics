@@ -1,4 +1,4 @@
-package com.logistics.fluid.pipe;
+package com.logistics.pipe.fluid;
 
 /**
  * Pure helper for splitting a quantity of fluid across a pipe junction's outputs. Kept free of Minecraft

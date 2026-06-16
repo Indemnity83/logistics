@@ -1,4 +1,4 @@
-package com.logistics.fluid.pipe;
+package com.logistics.pipe.fluid;
 
 /**
  * Pure per-tick extraction policy for an extractor pipe, kept free of Minecraft types so it is unit-testable

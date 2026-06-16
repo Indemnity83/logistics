@@ -1,4 +1,4 @@
-package com.logistics.fluid.pipe;
+package com.logistics.pipe.fluid;
 
 /**
  * Pure model of a single fluid pipe segment's internal storage.

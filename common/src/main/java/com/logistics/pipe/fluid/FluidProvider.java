@@ -1,4 +1,4 @@
-package com.logistics.fluid.pipe;
+package com.logistics.pipe.fluid;
 
 /**
  * A source of fluid an extraction pipe can pull from — typically an adjacent tank.
