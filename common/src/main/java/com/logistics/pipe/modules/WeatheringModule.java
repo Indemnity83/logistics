@@ -47,15 +47,28 @@ public class WeatheringModule implements Module, RandomTickModule {
     /** Asset base name for this pipe's weathering models, e.g. {@code "copper_transport_pipe"}. */
     private final String modelBase;
 
+    /**
+     * Whether arms have a distinct {@code _arm_extended} model for inventory/handler connections. Item pipes
+     * do (long arm into the inventory); fluid pipes render the same short arm regardless, so they pass
+     * {@code false} and always use the {@code _arm} model.
+     */
+    private final boolean extendedArms;
+
     /** Item copper transport pipe defaults (existing behavior). */
     public WeatheringModule() {
-        this(LogisticsPipe::model, "copper_transport_pipe");
+        this(LogisticsPipe::model, "copper_transport_pipe", true);
     }
 
-    /** Domain-neutral constructor: supply the model resolver and asset base for the owning pipe family. */
+    /** Domain-neutral constructor (extended arms enabled): supply the model resolver and asset base. */
     public WeatheringModule(Function<String, ResourceId> modelResolver, String modelBase) {
+        this(modelResolver, modelBase, true);
+    }
+
+    /** Domain-neutral constructor: supply the model resolver, asset base, and whether arms have an extended variant. */
+    public WeatheringModule(Function<String, ResourceId> modelResolver, String modelBase, boolean extendedArms) {
         this.modelResolver = modelResolver;
         this.modelBase = modelBase;
+        this.extendedArms = extendedArms;
     }
 
     public static final int STAGE_UNAFFECTED = 0;
@@ -234,7 +247,7 @@ public class WeatheringModule implements Module, RandomTickModule {
             return null; // Use default model
         }
         String suffix = getStageSuffix(stage);
-        String armType = ctx.isInventoryConnection(direction) ? "_arm_extended" : "_arm";
+        String armType = (extendedArms && ctx.isInventoryConnection(direction)) ? "_arm_extended" : "_arm";
         return modelResolver.apply(modelBase + armType + suffix);
     }
 
