@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "ggg",
+    "g g",
+    "ggg"
+  ],
+  "key": {
+    "g": "#c:glass_blocks/colorless"
+  },
+  "result": {
+    "id": "logistics:fluid/glass_tank",
+    "count": 1
+  }
+}

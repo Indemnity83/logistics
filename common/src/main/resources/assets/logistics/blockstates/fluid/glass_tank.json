@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "joined_below=false": {
+      "model": "logistics:block/tank/glass_tank"
+    },
+    "joined_below=true": {
+      "model": "logistics:block/tank/glass_tank_stacked"
+    }
+  }
+}

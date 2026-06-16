@@ -46,3 +46,6 @@ Thumbs.db
 
 # Scripts
 scripts/
+
+# Worktree tooling (air)
+.air/
