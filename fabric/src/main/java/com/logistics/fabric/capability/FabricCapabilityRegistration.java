@@ -4,7 +4,10 @@ import com.logistics.LogisticsAutomation;
 import com.logistics.core.lib.fluids.FluidContainerInteraction;
 import com.logistics.core.lib.fluids.FluidStorageLookup;
 import com.logistics.core.lib.pipe.PipeConnectionLookup;
+import com.logistics.core.lib.platform.PlatformService;
 import com.logistics.core.lib.storage.ItemStorageLookup;
+import com.logistics.core.lib.tank.TankCell;
+import com.logistics.core.lib.tank.TankCellLookup;
 import com.logistics.fabric.fluids.FabricFluidStorage;
 import com.logistics.fabric.storage.FabricItemKey;
 import com.logistics.fabric.storage.FabricItemStorage;
@@ -33,6 +36,11 @@ public final class FabricCapabilityRegistration {
         // Wire FluidStorageLookup so common code can find IFluidStorage without importing Fabric API
         FluidStorageLookup.register(
                 (world, pos, dir) -> FabricFluidStorage.wrap(FluidStorage.SIDED.find(world, pos, dir)));
+
+        // Wire the cross-mod tank-column lookup: catch any block entity that is itself a TankCell (the
+        // Glass Tank), and supply the column-global gas predicate. Other mods append their own finders.
+        TankCellLookup.register((world, pos) -> world.getBlockEntity(pos) instanceof TankCell cell ? cell : null);
+        TankCellLookup.registerGasPredicate(key -> PlatformService.INSTANCE.isLighterThanAir(key.getFluid()));
 
         // Wire bucket/fluid-container interaction (Fabric Transfer API helper) for tanks
         FluidContainerInteraction.register((world, pos, player, hand, side) -> {
