@@ -55,6 +55,11 @@ public class FluidPipeBlockEntity extends BaseBlockEntity
     private static final long ENERGY_CAPACITY = 20;
     private static final int SYNC_STEPS = 16;
     private static final float DWELL_MULTIPLIER = 2.0F;
+    /**
+     * Reference fluid tick delay (vanilla water's spread rate) that extraction rate is scaled against. Fluids
+     * slower than this extract proportionally less per tick; water and anything faster pull at the full rate.
+     */
+    private static final int EXTRACTION_REFERENCE_TICK_DELAY = 5;
 
     private final FluidPipeKind kind;
     /** Pipe buffer capacity in mB (per kind); the sum of all parcels never exceeds it. */
@@ -262,10 +267,28 @@ public class FluidPipeBlockEntity extends BaseBlockEntity
         return accepted;
     }
 
-    private int spreadRate(IFluidKey fluid) {
+    /** A fluid's natural spread rate (vanilla {@code getTickDelay}), in ticks; the dwell/extraction baseline. */
+    private int tickDelay(IFluidKey fluid) {
         Level level = getLevel();
-        int base = level == null ? 5 : Math.max(1, fluid.getFluid().getTickDelay(level));
-        return Math.max(1, Math.round(base * DWELL_MULTIPLIER));
+        return level == null
+                ? EXTRACTION_REFERENCE_TICK_DELAY
+                : Math.max(1, fluid.getFluid().getTickDelay(level));
+    }
+
+    private int spreadRate(IFluidKey fluid) {
+        return Math.max(1, Math.round(tickDelay(fluid) * DWELL_MULTIPLIER));
+    }
+
+    /**
+     * Per-tick extraction rate for {@code fluid}, scaled down for slow-spreading fluids. A slow fluid (lava)
+     * dwells far longer per pipe, so pulling at the full rate just fills the first pipe to capacity before its
+     * parcel hops. Scaling by {@code referenceDelay / tickDelay} keeps the amount moved per dwell period roughly
+     * constant, so lava flows block-to-block like water — just in smaller per-tick amounts. Water (the fast
+     * reference) is unaffected, and no fluid extracts faster than the base rate.
+     */
+    private long scaledExtractionRate(long baseRate, IFluidKey fluid) {
+        long scaled = baseRate * EXTRACTION_REFERENCE_TICK_DELAY / tickDelay(fluid);
+        return Math.max(1, Math.min(baseRate, scaled));
     }
 
     // ==================== Wrench side toggling ====================
@@ -357,7 +380,7 @@ public class FluidPipeBlockEntity extends BaseBlockEntity
             if (fluid == null || (!contained.isBlank() && !contained.equals(fluid))) {
                 continue;
             }
-            long budget = Math.min(kind.transferRate(cfg), room);
+            long budget = Math.min(scaledExtractionRate(kind.transferRate(cfg), fluid), room);
             FluidPipe<IFluidKey> pulled = new FluidPipe<>();
             FluidExtraction.Result result = FluidExtraction.tick(
                     pulled, List.of(provider), energy.getAmount(), budget, cfg.woodenRequiresEngine, extractionCarryMb);
