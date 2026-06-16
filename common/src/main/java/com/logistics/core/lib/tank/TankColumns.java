@@ -21,8 +21,6 @@ import org.jetbrains.annotations.Nullable;
  */
 public final class TankColumns {
 
-    private static final int MAX_HEIGHT = 256;
-
     private TankColumns() {}
 
     /**
@@ -51,15 +49,17 @@ public final class TankColumns {
 
     /**
      * Walks down from {@code pos} to the bottom of the connected, joinable column. Returns {@code pos}
-     * itself if the cell there is isolated or there is no joinable cell below.
+     * itself if the cell there is isolated or there is no joinable cell below. {@code maxHeight} caps the
+     * walk as a defensive loop guard — callers pass the dimension's block height so even a column spanning
+     * the whole world is traversed in one piece.
      */
-    static BlockPos bottomOf(CellSource src, BlockPos pos) {
+    static BlockPos bottomOf(CellSource src, BlockPos pos, int maxHeight) {
         BlockPos bottom = pos;
         TankCell here = src.at(pos);
         if (here == null || !here.joinsColumn()) {
             return bottom; // isolated or not a tank: it is its own bottom
         }
-        for (int i = 0; i < MAX_HEIGHT; i++) {
+        for (int i = 0; i < maxHeight; i++) {
             BlockPos below = bottom.below();
             if (!joinable(src, below)) {
                 break;
@@ -70,7 +70,7 @@ public final class TankColumns {
     }
 
     /** The connected, joinable cells at {@code pos} ordered bottom-to-top (always at least one cell). */
-    static List<TankCell> column(CellSource src, BlockPos pos) {
+    static List<TankCell> column(CellSource src, BlockPos pos, int maxHeight) {
         TankCell here = src.at(pos);
         if (here == null) {
             return List.of();
@@ -78,10 +78,10 @@ public final class TankColumns {
         if (!here.joinsColumn()) {
             return List.of(here); // isolated: single-cell column
         }
-        BlockPos bottom = bottomOf(src, pos);
+        BlockPos bottom = bottomOf(src, pos, maxHeight);
         List<TankCell> cells = new ArrayList<>();
         BlockPos cur = bottom;
-        for (int i = 0; i < MAX_HEIGHT; i++) {
+        for (int i = 0; i < maxHeight; i++) {
             TankCell cell = src.at(cur);
             if (cell == null || !cell.joinsColumn()) {
                 break;
@@ -110,14 +110,14 @@ public final class TankColumns {
 
     // ==================== World-backed public API ====================
 
-    /** @see #bottomOf(CellSource, BlockPos) */
+    /** @see #bottomOf(CellSource, BlockPos, int) */
     public static BlockPos bottomOf(Level level, BlockPos pos) {
-        return bottomOf(world(level), pos);
+        return bottomOf(world(level), pos, level.getHeight());
     }
 
-    /** @see #column(CellSource, BlockPos) */
+    /** @see #column(CellSource, BlockPos, int) */
     public static List<TankCell> column(Level level, BlockPos pos) {
-        return column(world(level), pos);
+        return column(world(level), pos, level.getHeight());
     }
 
     /** @see #isColumnBottom(CellSource, BlockPos) */

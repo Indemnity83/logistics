@@ -9,6 +9,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 
 /**
  * Covers the cross-mod finder registry and the column-global gas predicate.
@@ -65,6 +66,32 @@ class TankCellLookupTest extends MinecraftTestEnvironment {
         TankCellLookup.register((level, p) -> p.equals(pos) ? match : null);
 
         assertThat(TankCellLookup.find(null, pos)).isSameAs(match);
+    }
+
+    @Test
+    @DisplayName("a finder that throws is skipped and the next finder still resolves")
+    void findSkipsThrowingFinder() {
+        BlockPos pos = new BlockPos(1040, 0, 0);
+        StubCell match = new StubCell("match");
+        TankCellLookup.register((level, p) -> {
+            throw new IllegalStateException("buggy third-party finder");
+        });
+        TankCellLookup.register((level, p) -> p.equals(pos) ? match : null);
+
+        // The throwing finder must not abort the lookup for every tank.
+        assertThat(TankCellLookup.find(null, pos)).isSameAs(match);
+    }
+
+    @Test
+    @DisplayName("register rejects a null finder")
+    void registerRejectsNull() {
+        assertThatNullPointerException().isThrownBy(() -> TankCellLookup.register(null));
+    }
+
+    @Test
+    @DisplayName("registerGasPredicate rejects a null predicate")
+    void registerGasPredicateRejectsNull() {
+        assertThatNullPointerException().isThrownBy(() -> TankCellLookup.registerGasPredicate(null));
     }
 
     @Test

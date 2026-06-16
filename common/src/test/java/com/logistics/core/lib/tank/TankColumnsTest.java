@@ -18,6 +18,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DisplayName("TankColumns")
 class TankColumnsTest extends MinecraftTestEnvironment {
 
+    /** Generous loop-guard bound for the in-memory tests; larger than any stack built below. */
+    private static final int BOUND = 512;
+
     /** Minimal cell carrying only what the walker reads: its capacity and whether it joins its column. */
     private static final class FakeCell implements TankCell {
         private final boolean joins;
@@ -60,7 +63,7 @@ class TankColumnsTest extends MinecraftTestEnvironment {
                 .put(2, new FakeCell(true))
                 .source();
 
-        assertThat(TankColumns.bottomOf(src, at(2))).isEqualTo(at(0));
+        assertThat(TankColumns.bottomOf(src, at(2), BOUND)).isEqualTo(at(0));
     }
 
     @Test
@@ -71,7 +74,7 @@ class TankColumnsTest extends MinecraftTestEnvironment {
                 .put(2, new FakeCell(true))
                 .source(); // nothing at y=0
 
-        assertThat(TankColumns.bottomOf(src, at(2))).isEqualTo(at(1));
+        assertThat(TankColumns.bottomOf(src, at(2), BOUND)).isEqualTo(at(1));
     }
 
     @Test
@@ -82,7 +85,7 @@ class TankColumnsTest extends MinecraftTestEnvironment {
                 .put(1, new FakeCell(false)) // isolated: does not join the cell below
                 .source();
 
-        assertThat(TankColumns.bottomOf(src, at(1))).isEqualTo(at(1));
+        assertThat(TankColumns.bottomOf(src, at(1), BOUND)).isEqualTo(at(1));
     }
 
     @Test
@@ -94,13 +97,13 @@ class TankColumnsTest extends MinecraftTestEnvironment {
                 .put(2, new FakeCell(true))
                 .source();
 
-        assertThat(TankColumns.bottomOf(src, at(2))).isEqualTo(at(2));
+        assertThat(TankColumns.bottomOf(src, at(2), BOUND)).isEqualTo(at(2));
     }
 
     @Test
     @DisplayName("bottomOf on an empty position returns that position")
     void bottomOfEmpty() {
-        assertThat(TankColumns.bottomOf(new FakeWorld().source(), at(5))).isEqualTo(at(5));
+        assertThat(TankColumns.bottomOf(new FakeWorld().source(), at(5), BOUND)).isEqualTo(at(5));
     }
 
     @Test
@@ -112,8 +115,8 @@ class TankColumnsTest extends MinecraftTestEnvironment {
         TankColumns.CellSource src = new FakeWorld().put(0, c0).put(1, c1).put(2, c2).source();
 
         // Starting anywhere in the stack yields the same ordered column.
-        assertThat(TankColumns.column(src, at(1))).containsExactly(c0, c1, c2);
-        assertThat(TankColumns.column(src, at(0))).containsExactly(c0, c1, c2);
+        assertThat(TankColumns.column(src, at(1), BOUND)).containsExactly(c0, c1, c2);
+        assertThat(TankColumns.column(src, at(0), BOUND)).containsExactly(c0, c1, c2);
     }
 
     @Test
@@ -123,7 +126,7 @@ class TankColumnsTest extends MinecraftTestEnvironment {
         FakeCell c1 = new FakeCell(true);
         TankColumns.CellSource src = new FakeWorld().put(0, c0).put(1, c1).source(); // nothing at y=2
 
-        assertThat(TankColumns.column(src, at(0))).containsExactly(c0, c1);
+        assertThat(TankColumns.column(src, at(0), BOUND)).containsExactly(c0, c1);
     }
 
     @Test
@@ -135,13 +138,13 @@ class TankColumnsTest extends MinecraftTestEnvironment {
                 .put(1, isolated)
                 .source();
 
-        assertThat(TankColumns.column(src, at(1))).containsExactly(isolated);
+        assertThat(TankColumns.column(src, at(1), BOUND)).containsExactly(isolated);
     }
 
     @Test
     @DisplayName("column of an empty position is empty")
     void columnEmpty() {
-        assertThat(TankColumns.column(new FakeWorld().source(), at(0))).isEmpty();
+        assertThat(TankColumns.column(new FakeWorld().source(), at(0), BOUND)).isEmpty();
     }
 
     @Test
@@ -175,16 +178,31 @@ class TankColumnsTest extends MinecraftTestEnvironment {
     }
 
     @Test
-    @DisplayName("walking is bounded and survives a stack taller than the height cap")
-    void boundedByMaxHeight() {
+    @DisplayName("a tall column is walked in one piece up to the world height")
+    void wholeColumnUpToWorldHeight() {
+        // A 300-tall stack — taller than the old fixed 256 cap. With a world-height bound it stays one column.
+        FakeWorld world = new FakeWorld();
+        for (int y = 0; y < 300; y++) {
+            world.put(y, new FakeCell(true));
+        }
+        TankColumns.CellSource src = world.source();
+        int worldHeight = 384; // overworld block height in 26.1
+
+        assertThat(TankColumns.column(src, at(0), worldHeight)).hasSize(300);
+        assertThat(TankColumns.bottomOf(src, at(299), worldHeight)).isEqualTo(at(0));
+    }
+
+    @Test
+    @DisplayName("maxHeight bounds the walk as a defensive loop guard")
+    void maxHeightCapsTheWalk() {
         FakeWorld world = new FakeWorld();
         for (int y = 0; y < 300; y++) {
             world.put(y, new FakeCell(true));
         }
         TankColumns.CellSource src = world.source();
 
-        // 256-cell cap: bottomOf descends at most MAX_HEIGHT steps, column collects at most MAX_HEIGHT cells.
-        assertThat(TankColumns.column(src, at(0))).hasSize(256);
-        assertThat(TankColumns.bottomOf(src, at(256))).isEqualTo(at(0));
+        // With a tight cap the walk stops early rather than running unbounded over a pathological source.
+        assertThat(TankColumns.column(src, at(0), 10)).hasSize(10);
+        assertThat(TankColumns.bottomOf(src, at(10), 10)).isEqualTo(at(0));
     }
 }

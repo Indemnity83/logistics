@@ -2,11 +2,14 @@ package com.logistics.core.lib.tank;
 
 import com.logistics.core.lib.fluids.IFluidKey;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Loader- and mod-agnostic registry for discovering a {@link TankCell} at a world position, so a vertical
@@ -31,6 +34,8 @@ public final class TankCellLookup {
         @Nullable TankCell find(Level level, BlockPos pos);
     }
 
+    private static final Logger LOGGER = LoggerFactory.getLogger("logistics/tank");
+
     private static final List<Finder> FINDERS = new CopyOnWriteArrayList<>();
     private static volatile Predicate<IFluidKey> gasPredicate = key -> false;
 
@@ -41,14 +46,23 @@ public final class TankCellLookup {
      * because each mod's finder matches only its own block entity class, registration order is irrelevant.
      */
     public static void register(Finder finder) {
-        FINDERS.add(finder);
+        FINDERS.add(Objects.requireNonNull(finder, "finder"));
     }
 
-    /** Find the {@link TankCell} at {@code pos}, or {@code null} if no registered finder matches. */
+    /**
+     * Find the {@link TankCell} at {@code pos}, or {@code null} if no registered finder matches. A finder
+     * that throws is logged and skipped so one misbehaving mod cannot abort lookups for every tank.
+     */
     @Nullable
     public static TankCell find(Level level, BlockPos pos) {
         for (Finder finder : FINDERS) {
-            TankCell cell = finder.find(level, pos);
+            TankCell cell;
+            try {
+                cell = finder.find(level, pos);
+            } catch (RuntimeException e) {
+                LOGGER.error("Tank cell finder {} failed at {}", finder.getClass().getName(), pos, e);
+                continue;
+            }
             if (cell != null) {
                 return cell;
             }
@@ -61,7 +75,7 @@ public final class TankCellLookup {
      * it to {@code PlatformService.isLighterThanAir}). The last registration wins.
      */
     public static void registerGasPredicate(Predicate<IFluidKey> predicate) {
-        gasPredicate = predicate;
+        gasPredicate = Objects.requireNonNull(predicate, "predicate");
     }
 
     /** Whether {@code fluid} settles upward (a gas) rather than downward (a liquid). */
