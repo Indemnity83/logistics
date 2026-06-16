@@ -1,4 +1,4 @@
-package com.logistics.fluid.render;
+package com.logistics.pipe.fluid.render;
 
 import com.logistics.LogisticsMod;
 import com.logistics.core.lib.client.render.FluidBoxRenderer;

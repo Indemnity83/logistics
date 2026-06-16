@@ -1,4 +1,4 @@
-package com.logistics.fluid.render;
+package com.logistics.pipe.fluid.render;
 
 import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
