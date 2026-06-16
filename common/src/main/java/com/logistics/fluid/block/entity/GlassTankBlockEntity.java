@@ -6,12 +6,12 @@ import com.logistics.core.lib.block.capability.HasFluidStorage;
 import com.logistics.core.lib.fluids.FluidTankComponent;
 import com.logistics.core.lib.fluids.IFluidKey;
 import com.logistics.core.lib.fluids.IFluidStorage;
-import com.logistics.core.lib.platform.PlatformService;
-import com.logistics.fluid.tank.TankCell;
-import com.logistics.fluid.tank.TankColumn;
+import com.logistics.core.lib.tank.TankCell;
+import com.logistics.core.lib.tank.TankCellLookup;
+import com.logistics.core.lib.tank.TankColumn;
+import com.logistics.core.lib.tank.TankColumns;
 import com.logistics.fluid.tank.TankColumnStorage;
 import com.logistics.fluid.tank.TankTier;
-import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -27,8 +27,6 @@ import org.jetbrains.annotations.Nullable;
  * the column, settling bottom-up), and the bottom cell re-settles the column each tick.
  */
 public class GlassTankBlockEntity extends BaseBlockEntity implements HasFluidStorage, TankCell {
-
-    private static final int MAX_COLUMN_HEIGHT = 256;
 
     private final FluidTankComponent tank;
 
@@ -65,48 +63,24 @@ public class GlassTankBlockEntity extends BaseBlockEntity implements HasFluidSto
 
     // ==================== Column ====================
 
-    /** Builds a {@link TankColumn} over this tank's vertical stack (bottom-to-top). */
+    /**
+     * Builds a {@link TankColumn} over this tank's vertical stack (bottom-to-top), via the shared
+     * {@link TankColumns} walker so a column can include another mod's tanks registered with
+     * {@link TankCellLookup}.
+     */
     public TankColumn column() {
-        return new TankColumn(columnCells(), key -> PlatformService.INSTANCE.isLighterThanAir(key.getFluid()));
-    }
-
-    private List<GlassTankBlockEntity> columnCells() {
         if (level == null) {
-            return List.of(this);
+            return new TankColumn(List.of(this), TankCellLookup::isGas);
         }
-        GlassTankBlockEntity bottom = this;
-        for (int i = 0; i < MAX_COLUMN_HEIGHT; i++) {
-            GlassTankBlockEntity below = tankAt(bottom.getBlockPos().below());
-            if (below == null) {
-                break;
-            }
-            bottom = below;
-        }
-        List<GlassTankBlockEntity> cells = new ArrayList<>();
-        GlassTankBlockEntity cur = bottom;
-        for (int i = 0; i < MAX_COLUMN_HEIGHT && cur != null; i++) {
-            cells.add(cur);
-            cur = tankAt(cur.getBlockPos().above());
-        }
-        return cells;
+        return TankColumns.columnAt(level, getBlockPos());
     }
 
-    @Nullable
-    private GlassTankBlockEntity tankAt(BlockPos pos) {
-        if (level == null || !level.isLoaded(pos)) {
-            return null;
-        }
-        return level.getBlockEntity(pos) instanceof GlassTankBlockEntity tank ? tank : null;
-    }
-
-    private boolean hasTankBelow() {
-        return tankAt(getBlockPos().below()) != null;
-    }
-
-    /** Whether a connected tank above holds fluid — lets the renderer draw one continuous column. */
+    /** Whether a connected glass tank above holds fluid — lets the renderer draw one continuous column. */
     public boolean hasFluidAbove() {
-        GlassTankBlockEntity above = tankAt(getBlockPos().above());
-        return above != null && above.amount() > 0;
+        if (level == null) {
+            return false;
+        }
+        return level.getBlockEntity(getBlockPos().above()) instanceof GlassTankBlockEntity above && above.amount() > 0;
     }
 
     // ==================== Capability ====================
@@ -123,9 +97,9 @@ public class GlassTankBlockEntity extends BaseBlockEntity implements HasFluidSto
         if (level.isClientSide()) {
             return;
         }
-        // Only the bottom cell drives the rebalance, so each column settles once per tick.
-        if (!be.hasTankBelow()) {
-            be.column().rebalance();
+        // Only the bottom cell drives the rebalance, so each (possibly cross-mod) column settles once per tick.
+        if (TankColumns.isColumnBottom(level, pos)) {
+            TankColumns.columnAt(level, pos).rebalance();
         }
     }
 

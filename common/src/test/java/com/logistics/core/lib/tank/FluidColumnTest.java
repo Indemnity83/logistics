@@ -1,4 +1,4 @@
-package com.logistics.fluid.tank;
+package com.logistics.core.lib.tank;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
