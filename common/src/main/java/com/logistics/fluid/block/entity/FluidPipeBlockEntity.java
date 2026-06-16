@@ -71,9 +71,13 @@ public class FluidPipeBlockEntity extends BaseBlockEntity
     /** Bitmask of wrench-disabled sides (bit per {@link Direction#get3DDataValue()}). */
     private int disabledMask;
 
-    /** Merger (directional) pipe only: the single face fluid may exit, or {@code null} when unset. */
+    /**
+     * The single wrench-selected "feature" face, or {@code null} when unset. Its meaning depends on the kind:
+     * for the merger it's the one face fluid may exit; for the extractor it's the one handler face fluid is
+     * pulled from. Other kinds don't use it.
+     */
     @Nullable
-    private Direction outputDirection;
+    private Direction featureDirection;
 
     @Nullable
     private final EnergyComponent energy;
@@ -153,53 +157,66 @@ public class FluidPipeBlockEntity extends BaseBlockEntity
         return displayFill;
     }
 
-    // ==================== Merger output face ====================
+    // ==================== Feature face (merger output / extractor pull) ====================
 
     @Nullable
-    public Direction outputDirection() {
-        return outputDirection;
+    public Direction featureDirection() {
+        return featureDirection;
     }
 
-    /** Sets the merger pipe's output face (or {@code null}); resyncs so the arrow renders. */
-    public void setOutputDirection(@Nullable Direction direction) {
-        if (outputDirection != direction) {
-            outputDirection = direction;
+    /** Sets the feature face (or {@code null}); resyncs so the arrow renders. */
+    public void setFeatureDirection(@Nullable Direction direction) {
+        if (featureDirection != direction) {
+            featureDirection = direction;
             markDirtyAndSync();
         }
     }
 
-    /** The directions this pipe currently connects on (pipe or handler), in {@link Direction} order. */
-    private List<Direction> connectedDirections() {
+    /** Whether this kind uses a single wrench-selected feature face (merger output or extractor pull). */
+    private boolean usesFeatureFace() {
+        return kind.isDirectional() || kind.isExtractor();
+    }
+
+    /**
+     * The faces the feature direction may sit on, in {@link Direction} order: every connection for the merger,
+     * but only handler connections for the extractor (it pulls from adjacent storage, never from a pipe).
+     */
+    private List<Direction> featureCandidates() {
         List<Direction> result = new ArrayList<>(6);
         for (Direction direction : Direction.values()) {
-            if (connection(direction) != FluidConnection.NONE) {
-                result.add(direction);
+            FluidConnection conn = connection(direction);
+            if (conn == FluidConnection.NONE) {
+                continue;
             }
+            if (kind.isExtractor() && conn != FluidConnection.HANDLER) {
+                continue;
+            }
+            result.add(direction);
         }
         return result;
     }
 
-    /** Wrench action for the merger pipe: advance the output to the next connected face, like the item Merger. */
-    public void cycleOutputDirection() {
-        List<Direction> connected = connectedDirections();
-        if (connected.isEmpty()) {
-            setOutputDirection(null);
+    /** Wrench action: advance the feature face to the next candidate, like the item Merger/Extractor pipes. */
+    public void cycleFeatureDirection() {
+        List<Direction> candidates = featureCandidates();
+        if (candidates.isEmpty()) {
+            setFeatureDirection(null);
             return;
         }
-        int index = outputDirection == null ? -1 : connected.indexOf(outputDirection);
-        setOutputDirection(connected.get((index + 1) % connected.size()));
+        int index = featureDirection == null ? -1 : candidates.indexOf(featureDirection);
+        setFeatureDirection(candidates.get((index + 1) % candidates.size()));
     }
 
-    /** Keep the merger's output on a valid connected face; default to the first connection, clear when none. */
-    private void ensureValidOutput() {
-        if (!kind.isDirectional()) {
+    /** Keep the feature face on a valid candidate; default to the first one, clear when none. */
+    private void ensureValidFeature() {
+        if (!usesFeatureFace()) {
             return;
         }
-        List<Direction> connected = connectedDirections();
-        if (connected.isEmpty()) {
-            setOutputDirection(null);
-        } else if (outputDirection == null || !connected.contains(outputDirection)) {
-            setOutputDirection(connected.getFirst());
+        List<Direction> candidates = featureCandidates();
+        if (candidates.isEmpty()) {
+            setFeatureDirection(null);
+        } else if (featureDirection == null || !candidates.contains(featureDirection)) {
+            setFeatureDirection(candidates.getFirst());
         }
     }
 
@@ -233,7 +250,7 @@ public class FluidPipeBlockEntity extends BaseBlockEntity
      * entering through its output face (check valve).
      */
     public long roomFor(IFluidKey fluid, Direction enteringSide) {
-        if (kind.isDirectional() && enteringSide == outputDirection) {
+        if (kind.isDirectional() && enteringSide == featureDirection) {
             return 0;
         }
         IFluidKey contained = containedFluid();
@@ -359,37 +376,31 @@ public class FluidPipeBlockEntity extends BaseBlockEntity
         syncIfChanged();
     }
 
-    /** Extractor: pull this pipe's fluid (or any, if empty) from an adjacent source handler into itself. */
+    /** Extractor: pull fluid from the handler on the wrench-selected pull face into this pipe. */
     private void extract(Level level, LogisticsConfig.FluidPipeConfig cfg) {
         long room = capacityMb - totalMillibuckets();
-        if (room <= 0) {
+        Direction side = featureDirection;
+        if (room <= 0 || side == null || connection(side) != FluidConnection.HANDLER) {
             return;
         }
+        IFluidStorage handler = FluidStorageLookup.find(level, getBlockPos().relative(side), side.getOpposite());
+        if (handler == null) {
+            return;
+        }
+        FluidProvider<IFluidKey> provider = asProvider(handler);
+        IFluidKey fluid = provider.fluid();
         IFluidKey contained = containedFluid();
-        BlockPos pos = getBlockPos();
-        for (Direction side : Direction.values()) {
-            if (connection(side) != FluidConnection.HANDLER) {
-                continue;
-            }
-            IFluidStorage handler = FluidStorageLookup.find(level, pos.relative(side), side.getOpposite());
-            if (handler == null) {
-                continue;
-            }
-            FluidProvider<IFluidKey> provider = asProvider(handler);
-            IFluidKey fluid = provider.fluid();
-            if (fluid == null || (!contained.isBlank() && !contained.equals(fluid))) {
-                continue;
-            }
-            long budget = Math.min(scaledExtractionRate(kind.transferRate(cfg), fluid), room);
-            FluidPipe<IFluidKey> pulled = new FluidPipe<>();
-            FluidExtraction.Result result = FluidExtraction.tick(
-                    pulled, List.of(provider), energy.getAmount(), budget, cfg.woodenRequiresEngine, extractionCarryMb);
-            if (pulled.amount() > 0) {
-                energy.consume(result.energyToConsume());
-                extractionCarryMb = result.carryMb();
-                acceptFluid(pulled.fluid(), pulled.amount(), side); // enter from the source side → head away from it
-                return;
-            }
+        if (fluid == null || (!contained.isBlank() && !contained.equals(fluid))) {
+            return;
+        }
+        long budget = Math.min(scaledExtractionRate(kind.transferRate(cfg), fluid), room);
+        FluidPipe<IFluidKey> pulled = new FluidPipe<>();
+        FluidExtraction.Result result = FluidExtraction.tick(
+                pulled, provider, energy.getAmount(), budget, cfg.woodenRequiresEngine, extractionCarryMb);
+        if (pulled.amount() > 0) {
+            energy.consume(result.energyToConsume());
+            extractionCarryMb = result.carryMb();
+            acceptFluid(pulled.fluid(), pulled.amount(), side); // enter from the source side → head away from it
         }
     }
 
@@ -461,8 +472,8 @@ public class FluidPipeBlockEntity extends BaseBlockEntity
     private List<Direction> candidateOutputs(TravelingFluid parcel) {
         List<Direction> result = new ArrayList<>(6);
         if (kind.isDirectional()) {
-            if (outputDirection != null && connection(outputDirection) != FluidConnection.NONE) {
-                result.add(outputDirection);
+            if (featureDirection != null && connection(featureDirection) != FluidConnection.NONE) {
+                result.add(featureDirection);
             }
             return result;
         }
@@ -471,9 +482,9 @@ public class FluidPipeBlockEntity extends BaseBlockEntity
             if (connection(direction) == FluidConnection.NONE) {
                 continue;
             }
-            // An extractor only ever pulls fluid out of an adjacent handler; it must never deposit back into a
-            // provider (which would drain the source then immediately refill it).
-            if (isExtractor() && connection(direction) == FluidConnection.HANDLER) {
+            // An extractor must never deposit back into its own pull face (that would drain the source then
+            // immediately refill it); it may still push into any other adjacent handler.
+            if (isExtractor() && direction == featureDirection) {
                 continue;
             }
             if (!parcel.blocked() && direction == incoming) {
@@ -555,7 +566,7 @@ public class FluidPipeBlockEntity extends BaseBlockEntity
         }
         connectionCacheDirty = false;
         if (changed) {
-            ensureValidOutput(); // merger: keep its output face on a valid connection as neighbours change
+            ensureValidFeature(); // keep the merger output / extractor pull face valid as neighbours change
             markDirtyAndSync();
         }
     }
@@ -592,8 +603,8 @@ public class FluidPipeBlockEntity extends BaseBlockEntity
             tag.putInt("Disabled", disabledMask);
         }
         tag.putInt("Conn", encodeConnections());
-        if (outputDirection != null) {
-            tag.putInt("OutDir", outputDirection.get3DDataValue());
+        if (featureDirection != null) {
+            tag.putInt("FeatureDir", featureDirection.get3DDataValue());
         }
         if (energy != null) {
             energy.writeNbt(tag, "Energy");
@@ -618,7 +629,8 @@ public class FluidPipeBlockEntity extends BaseBlockEntity
         });
         disabledMask = NbtCompat.getInt(tag, "Disabled", 0);
         decodeConnections(NbtCompat.getInt(tag, "Conn", 0));
-        outputDirection = tag.contains("OutDir") ? Direction.from3DDataValue(NbtCompat.getInt(tag, "OutDir", 0)) : null;
+        featureDirection =
+                tag.contains("FeatureDir") ? Direction.from3DDataValue(NbtCompat.getInt(tag, "FeatureDir", 0)) : null;
         if (energy != null) {
             energy.readNbt(tag, "Energy");
             extractionCarryMb = NbtCompat.getLong(tag, "ExtractCarry", 0);

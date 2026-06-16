@@ -83,15 +83,18 @@ public class FluidPipeBlockEntityRenderer
         BlockEntityRenderState.extractBase(entity, state, crumblingOverlay);
 
         String base = baseName(entity);
-        // The merger pipe marks its single output face with the feature (arrow) texture, like the item Merger Pipe.
-        Direction output = entity.kind().isDirectional() ? entity.outputDirection() : null;
+        // The merger (output) and extractor (pull) mark their single feature face with the arrow texture,
+        // like the item Merger/Extractor pipes.
+        Direction feature = entity.kind().isDirectional() || entity.kind().isExtractor()
+                ? entity.featureDirection()
+                : null;
         state.models.clear();
         state.models.add(modelInfo(base + "_core", null));
         for (Direction direction : Direction.values()) {
             boolean connected = entity.connection(direction) != FluidConnection.NONE;
             state.connectedArms[direction.get3DDataValue()] = connected;
             if (connected) {
-                String armBase = direction == output ? base + "_feature" : base + "_arm";
+                String armBase = direction == feature ? base + "_feature" : base + "_arm";
                 state.models.add(modelInfo(armBase, direction));
             }
         }

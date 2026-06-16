@@ -222,9 +222,10 @@ public class FluidPipeBlock extends BaseEntityBlock implements SimpleWaterlogged
         if (!(level.getBlockEntity(pos) instanceof FluidPipeBlockEntity pipe)) {
             return InteractionResult.PASS;
         }
-        if (kind.isDirectional()) {
-            // Merger check valve: each wrench cycles the output to the next connected face, like the item Merger.
-            pipe.cycleOutputDirection();
+        if (kind.isDirectional() || kind.isExtractor()) {
+            // Merger output / extractor pull face: each wrench advances it to the next candidate face,
+            // like the item Merger and Extractor pipes.
+            pipe.cycleFeatureDirection();
         } else if (player.isShiftKeyDown()) {
             pipe.resetSides();
         } else {
