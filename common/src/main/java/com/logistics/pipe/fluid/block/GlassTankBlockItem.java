@@ -1,4 +1,4 @@
-package com.logistics.fluid.block;
+package com.logistics.pipe.fluid.block;
 
 import com.logistics.pipe.fluid.tank.TankTier;
 import java.util.function.Consumer;

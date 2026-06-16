@@ -1,4 +1,4 @@
-package com.logistics.fluid.block;
+package com.logistics.pipe.fluid.block;
 
 import com.logistics.LogisticsFluid;
 import com.logistics.core.lib.fluids.FluidContainerInteraction;
@@ -6,7 +6,7 @@ import com.logistics.core.lib.fluids.IFluidKey;
 import com.logistics.core.lib.fluids.SimpleFluidKey;
 import com.logistics.core.lib.platform.PlatformService;
 import com.logistics.core.lib.tank.TankColumn;
-import com.logistics.fluid.block.entity.GlassTankBlockEntity;
+import com.logistics.pipe.fluid.block.entity.GlassTankBlockEntity;
 import com.logistics.pipe.fluid.tank.TankTier;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;

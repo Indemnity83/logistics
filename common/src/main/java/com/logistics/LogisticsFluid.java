@@ -1,13 +1,13 @@
 package com.logistics;
 
 import com.logistics.core.lib.resource.ResourceId;
-import com.logistics.fluid.block.FluidPipeBlock;
-import com.logistics.fluid.block.FluidPipeBlockItem;
-import com.logistics.fluid.block.FluidPipeKind;
-import com.logistics.fluid.block.GlassTankBlock;
-import com.logistics.fluid.block.GlassTankBlockItem;
-import com.logistics.fluid.block.entity.FluidPipeBlockEntity;
-import com.logistics.fluid.block.entity.GlassTankBlockEntity;
+import com.logistics.pipe.fluid.block.FluidPipeBlock;
+import com.logistics.pipe.fluid.block.FluidPipeBlockItem;
+import com.logistics.pipe.fluid.block.FluidPipeKind;
+import com.logistics.pipe.fluid.block.GlassTankBlock;
+import com.logistics.pipe.fluid.block.GlassTankBlockItem;
+import com.logistics.pipe.fluid.block.entity.FluidPipeBlockEntity;
+import com.logistics.pipe.fluid.block.entity.GlassTankBlockEntity;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntityType;

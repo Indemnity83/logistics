@@ -1,4 +1,4 @@
-package com.logistics.fluid.block;
+package com.logistics.pipe.fluid.block;
 
 import com.logistics.core.LogisticsConfig;
 import com.mojang.serialization.Codec;

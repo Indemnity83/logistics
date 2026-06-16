@@ -1,4 +1,4 @@
-package com.logistics.fluid.block;
+package com.logistics.pipe.fluid.block;
 
 import com.logistics.LogisticsFluid;
 import com.logistics.core.lib.block.behavior.WrenchBehavior;
@@ -8,7 +8,7 @@ import com.logistics.core.lib.pipe.ModularPipeBlock;
 import com.logistics.core.lib.pipe.Module;
 import com.logistics.core.lib.pipe.PipeContext;
 import com.logistics.core.lib.pipe.PipeFamily;
-import com.logistics.fluid.block.entity.FluidPipeBlockEntity;
+import com.logistics.pipe.fluid.block.entity.FluidPipeBlockEntity;
 import com.logistics.pipe.fluid.FluidPipeModules;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;

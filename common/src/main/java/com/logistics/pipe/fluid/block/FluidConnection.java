@@ -1,4 +1,4 @@
-package com.logistics.fluid.block;
+package com.logistics.pipe.fluid.block;
 
 /**
  * How a fluid pipe relates to the block on one of its sides.

@@ -1,4 +1,4 @@
-package com.logistics.fluid.block.entity;
+package com.logistics.pipe.fluid.block.entity;
 
 import com.logistics.core.lib.fluids.IFluidKey;
 import com.logistics.core.lib.fluids.IFluidStorage;

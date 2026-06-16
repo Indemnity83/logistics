@@ -1,4 +1,4 @@
-package com.logistics.fluid.block.entity;
+package com.logistics.pipe.fluid.block.entity;
 
 import com.logistics.LogisticsFluid;
 import com.logistics.core.LogisticsConfig;
@@ -19,9 +19,9 @@ import com.logistics.core.lib.pipe.IModuleHost;
 import com.logistics.core.lib.pipe.PipeContext;
 import com.logistics.core.lib.power.AcceptsLowTierEnergy;
 import com.logistics.core.lib.fluids.FluidUnits;
-import com.logistics.fluid.block.FluidConnection;
-import com.logistics.fluid.block.FluidPipeBlock;
-import com.logistics.fluid.block.FluidPipeKind;
+import com.logistics.pipe.fluid.block.FluidConnection;
+import com.logistics.pipe.fluid.block.FluidPipeBlock;
+import com.logistics.pipe.fluid.block.FluidPipeKind;
 import com.logistics.pipe.fluid.FluidExtraction;
 import com.logistics.pipe.fluid.FluidPipe;
 import com.logistics.pipe.fluid.FluidPipeModules;

@@ -7,7 +7,7 @@ import com.logistics.core.lib.pipe.Module;
 import com.logistics.core.lib.pipe.PipeContext;
 import com.logistics.core.lib.pipe.RandomTickModule;
 import com.logistics.core.lib.resource.ResourceId;
-import com.logistics.fluid.block.FluidPipeKind;
+import com.logistics.pipe.fluid.block.FluidPipeKind;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.core.Direction;

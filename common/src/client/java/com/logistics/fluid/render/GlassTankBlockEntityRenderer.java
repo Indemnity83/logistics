@@ -1,7 +1,7 @@
 package com.logistics.fluid.render;
 
 import com.logistics.core.lib.client.render.FluidBoxRenderer;
-import com.logistics.fluid.block.entity.GlassTankBlockEntity;
+import com.logistics.pipe.fluid.block.entity.GlassTankBlockEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;

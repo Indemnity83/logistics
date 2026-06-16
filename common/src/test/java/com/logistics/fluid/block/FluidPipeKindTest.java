@@ -1,4 +1,4 @@
-package com.logistics.fluid.block;
+package com.logistics.pipe.fluid.block;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
