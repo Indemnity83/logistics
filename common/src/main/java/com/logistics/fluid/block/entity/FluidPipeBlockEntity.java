@@ -464,7 +464,7 @@ public class FluidPipeBlockEntity extends BaseBlockEntity
             if (handler == null) {
                 return 0;
             }
-            return FluidUnits.toMillibuckets(handler.insert(fluid, FluidUnits.mb((int) cap), true));
+            return FluidUnits.toMillibuckets(handler.insert(fluid, FluidUnits.mb(cap), true));
         }
         if (level.getBlockEntity(neighbourPos) instanceof FluidPipeBlockEntity neighbour) {
             return neighbour.roomFor(fluid, direction.getOpposite());
@@ -480,7 +480,7 @@ public class FluidPipeBlockEntity extends BaseBlockEntity
             if (handler == null) {
                 return 0;
             }
-            return FluidUnits.toMillibuckets(handler.insert(fluid, FluidUnits.mb((int) amountMb), false));
+            return FluidUnits.toMillibuckets(handler.insert(fluid, FluidUnits.mb(amountMb), false));
         }
         if (level.getBlockEntity(neighbourPos) instanceof FluidPipeBlockEntity neighbour) {
             return neighbour.acceptFluid(fluid, amountMb, direction.getOpposite());
@@ -506,7 +506,7 @@ public class FluidPipeBlockEntity extends BaseBlockEntity
                 if (fluid == null || millibuckets <= 0) {
                     return 0;
                 }
-                long drainedNative = handler.extract(fluid, FluidUnits.mb((int) millibuckets), false);
+                long drainedNative = handler.extract(fluid, FluidUnits.mb(millibuckets), false);
                 return FluidUnits.toMillibuckets(drainedNative);
             }
         };

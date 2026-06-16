@@ -40,7 +40,7 @@ public final class PipeFluidStorage implements IFluidStorage {
         if (!simulate) {
             pipe.acceptFluid(fluid, accepted, side);
         }
-        return FluidUnits.mb((int) accepted);
+        return FluidUnits.mb(accepted);
     }
 
     @Override
@@ -55,7 +55,7 @@ public final class PipeFluidStorage implements IFluidStorage {
         if (fluid.isBlank() || total <= 0) {
             return Collections.emptyList();
         }
-        long nativeAmount = FluidUnits.mb((int) total);
+        long nativeAmount = FluidUnits.mb(total);
         return List.of(new IFluidView() {
             @Override
             public IFluidKey resource() {

@@ -17,8 +17,8 @@ public final class FluidUnits {
     private FluidUnits() {}
 
     /** Converts a millibucket amount to platform-native fluid units. */
-    public static long mb(int millibuckets) {
-        return (long) millibuckets * PlatformService.INSTANCE.fluidUnitsPerMillibucket();
+    public static long mb(long millibuckets) {
+        return millibuckets * PlatformService.INSTANCE.fluidUnitsPerMillibucket();
     }
 
     /** Converts platform-native fluid units back to millibuckets, rounding down. */

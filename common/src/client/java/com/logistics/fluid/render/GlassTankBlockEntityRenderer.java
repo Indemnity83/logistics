@@ -80,7 +80,8 @@ public class GlassTankBlockEntityRenderer
         int light = state.lightCoords;
         // Surface tracks the fill, capped a hair below the block top to avoid z-fighting; if fluid continues
         // above, fill to the full block top (seamless stack) and hide the surface.
-        float top = state.renderTop ? Math.min(state.fillRatio, CEILING) : 1.0F;
+        // Keep the surface at/above the floor so a tiny fill never inverts the box's Y bounds.
+        float top = state.renderTop ? Math.max(FLOOR, Math.min(state.fillRatio, CEILING)) : 1.0F;
         boolean renderTop = state.renderTop;
         queue.submitCustomGeometry(
                 matrices,
