@@ -7,8 +7,6 @@ package com.logistics.fluid.tank;
  * aggregate amount — every tank in a connected column holds one fluid, so its contents are fully
  * described by a total. Liquids settle toward the bottom; gases rise toward the top. Amounts are in
  * platform-native fluid units. Holds no Minecraft types, so it is unit-testable without a game.
- *
- * <p>Ported from the irontanks {@code core/FluidColumn}.
  */
 public final class FluidColumn {
 

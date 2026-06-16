@@ -12,8 +12,7 @@ import net.minecraft.core.component.DataComponents;
  * The tank-column fluid algorithm, owned once here instead of copied into each loader's adapter. A
  * column is a list of {@link TankCell}s ordered bottom-to-top that all share one fluid. Every operation
  * works in native units and re-settles the column via {@link FluidColumn} (liquids to the bottom, gases
- * to the top). Ported from irontanks {@code core/TankColumn}, keyed on the loader-agnostic
- * {@link IFluidKey} (so no generic {@code FluidKind} seam is needed).
+ * to the top), keyed on the loader-agnostic {@link IFluidKey} (so no generic {@code FluidKind} seam is needed).
  *
  * <p>Rules, unit-testable without a game:
  * <ul>

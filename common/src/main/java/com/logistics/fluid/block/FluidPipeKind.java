@@ -11,12 +11,12 @@ import net.minecraft.util.StringRepresentable;
  * {@code instanceof}/{@code ==} checks.
  *
  * <ul>
- *   <li>{@link #COPPER} — passive transport at the base rate.</li>
+ *   <li>{@link #COPPER} — passive transport at 2× the base rate.</li>
  *   <li>{@link #EXTRACTOR} — the "wooden" extractor: pulls fluid from adjacent handlers when powered.</li>
- *   <li>{@link #STONE} — passive transport at a slower rate.</li>
- *   <li>{@link #GOLD} — passive transport at a faster rate.</li>
+ *   <li>{@link #STONE} — passive transport at the base rate (1×, the slow tier).</li>
+ *   <li>{@link #GOLD} — passive transport at 4× the base rate.</li>
  *   <li>{@link #MERGER} — directional check valve: a wrench-set output face; fluid leaves only that face
- *       and never flows back through it (mirrors the item Merger Pipe).</li>
+ *       and never flows back through it.</li>
  *   <li>{@link #VOID} — destroys fluid drawn from adjacent pipes (connects to pipes only).</li>
  *   <li>{@link #BYPASS} — passive transport that connects to pipes only, never to handlers.</li>
  * </ul>
@@ -87,8 +87,8 @@ public enum FluidPipeKind implements StringRepresentable {
 
     /**
      * This pipe's transfer rate in mB/tick, used to pace flow through it, into handlers, and extraction.
-     * Mirrors BuildCraft: a single configurable base rate scaled by a per-tier multiplier (stone/extractor/void
-     * 1×, copper/bypass 2×, merger 3×, gold 4×).
+     * A single configurable base rate scaled by a per-tier multiplier (stone/extractor/void 1×, copper/bypass
+     * 2×, merger 3×, gold 4×).
      */
     public long transferRate(LogisticsConfig.FluidPipeConfig cfg) {
         return (long) cfg.baseTransferRate * rateMultiplier;

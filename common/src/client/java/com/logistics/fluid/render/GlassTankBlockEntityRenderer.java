@@ -22,8 +22,8 @@ import net.minecraft.world.phys.Vec3;
 public class GlassTankBlockEntityRenderer
         implements BlockEntityRenderer<GlassTankBlockEntity, GlassTankRenderState> {
 
-    // Matches irontanks: walls inset to 2.5..13.5 px (inside the glass), fluid sitting near the block floor
-    // and rising to near the full block height when full.
+    // Walls inset to 2.5..13.5 px (inside the glass), fluid sitting near the block floor and rising to near
+    // the full block height when full.
     private static final float MIN = 2.5F / 16F;
     private static final float MAX = 13.5F / 16F;
     // Pull the exposed top/bottom a hair inside the block to avoid z-fighting with the block boundary.

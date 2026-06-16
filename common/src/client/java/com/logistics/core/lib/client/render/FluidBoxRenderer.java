@@ -50,7 +50,7 @@ public final class FluidBoxRenderer {
      * Render a fluid box spanning {@code [x0,x1] × [y0,y1] × [z0,z1]} using {@code sprite}. The four walls
      * are always drawn; the top (+Y) face only when {@code renderTop} (omit it when fluid continues above,
      * so a stacked column reads as one surface) and the bottom (-Y) face only when {@code renderBottom}
-     * (a tank sitting on a surface, like irontanks, omits it; a free-floating box in a pipe keeps it).
+     * (a tank sitting on a surface omits it; a free-floating box in a pipe keeps it).
      */
     public static void renderBox(
             PoseStack.Pose entry,

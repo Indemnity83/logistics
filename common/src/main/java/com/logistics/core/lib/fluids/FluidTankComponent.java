@@ -137,7 +137,7 @@ public class FluidTankComponent implements IFluidStorage {
         CompoundTag data = NbtCompat.getCompoundOrEmpty(nbt, key);
         if (data.isEmpty() || !data.contains("fluid")) {
             // No fluid data means the tank is empty. Reset, rather than retaining stale contents — this
-            // is how an emptied tank/pipe syncs to the client (writeNbt omits the key when empty).
+            // is how an emptied tank/pipe syncs to the client (writeNbt records no fluid field when empty).
             fluid = Fluids.EMPTY;
             components = DataComponentPatch.EMPTY;
             amount = 0;

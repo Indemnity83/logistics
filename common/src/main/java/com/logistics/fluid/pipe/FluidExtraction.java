@@ -1,11 +1,12 @@
 package com.logistics.fluid.pipe;
 
 /**
- * Pure per-tick extraction policy for an extractor pipe — the decision logic that used to live in the block
- * entity, lifted out so it is unit-testable without a running game.
+ * Pure per-tick extraction policy for an extractor pipe, kept free of Minecraft types so it is unit-testable
+ * without a running game.
  *
- * <p>Energy buys fluid at {@link #MB_PER_RF} mB per RF (matching BuildCraft's wooden fluid pipe): the per-tick
- * allowance is the configured transfer {@code rate} clamped to what the available {@code energy} can pay for.
+ * <p>Energy buys fluid at {@link #MB_PER_RF} mB per RF (a balance choice in the spirit of BuildCraft's wooden
+ * pipe): the per-tick allowance is the configured transfer {@code rate} clamped to what the {@code energy} can
+ * pay for.
  * Fluid is pulled from the single {@code source} up to that allowance. Energy is charged in proportion to the
  * fluid actually moved; since a single tick usually moves less than one RF's worth, the sub-RF remainder is
  * carried ({@code carryMb}) into the next tick so the buffer still drains gradually instead of rounding the
