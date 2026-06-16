@@ -8,6 +8,9 @@ import com.logistics.pipe.fluid.block.GlassTankBlock;
 import com.logistics.pipe.fluid.block.GlassTankBlockItem;
 import com.logistics.pipe.fluid.block.entity.FluidPipeBlockEntity;
 import com.logistics.pipe.fluid.block.entity.GlassTankBlockEntity;
+import java.util.ArrayList;
+import java.util.List;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -134,6 +137,17 @@ public final class LogisticsFluid extends LogisticsMod {
         private CREATIVE() {}
 
         static void register() {
+            // Copper fluid pipe weathering variants (exposed/weathered/oxidized + waxed), mirroring the
+            // copper transport pipe; the base (unweathered) entry is added below.
+            LogisticsCore.CREATIVE.TAB.add(entries -> {
+                if (BLOCK.COPPER_FLUID_PIPE instanceof FluidPipeBlock pipeBlock) {
+                    ItemStack baseStack = new ItemStack(BLOCK.COPPER_FLUID_PIPE);
+                    List<ItemStack> variants = new ArrayList<>();
+                    pipeBlock.modules().appendCreativeMenuVariants(variants, baseStack);
+                    variants.forEach(entries::accept);
+                }
+            });
+
             LogisticsCore.CREATIVE.TAB.add(BLOCK.COPPER_FLUID_PIPE);
             LogisticsCore.CREATIVE.TAB.add(BLOCK.STONE_FLUID_PIPE);
             LogisticsCore.CREATIVE.TAB.add(BLOCK.GOLD_FLUID_PIPE);
