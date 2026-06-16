@@ -1,5 +1,6 @@
 package com.logistics.pipe.fluid;
 
+import com.logistics.LogisticsFluid;
 import com.logistics.core.lib.pipe.CoreDecoration;
 import com.logistics.core.lib.pipe.IModuleHost;
 import com.logistics.core.lib.pipe.ModularPipe;
@@ -8,6 +9,7 @@ import com.logistics.core.lib.pipe.PipeContext;
 import com.logistics.core.lib.pipe.RandomTickModule;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.pipe.fluid.block.FluidPipeKind;
+import com.logistics.pipe.modules.PipeMarkingModule;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.core.Direction;
@@ -38,11 +40,14 @@ public final class FluidPipeModules implements ModularPipe {
     }
 
     /**
-     * The modules a given fluid pipe kind composes. Returns an empty set for every kind today — the
-     * weathering (#517) and marking (#518) features attach their modules here on top of this foundation,
-     * e.g. {@code new WeatheringModule(LogisticsFluid::model, kind.modelBase())} for copper.
+     * The modules a given fluid pipe kind composes. The copper pipe can be marked with a colored
+     * marking fluid to segment fluid networks (differently-marked pipes refuse to connect), reusing the
+     * item pipes' {@link PipeMarkingModule} — mirroring the copper transport pipe.
      */
     public static FluidPipeModules forKind(FluidPipeKind kind) {
+        if (kind == FluidPipeKind.COPPER) {
+            return new FluidPipeModules(new PipeMarkingModule(LogisticsFluid::model, "pipe_markings"));
+        }
         return new FluidPipeModules();
     }
 
