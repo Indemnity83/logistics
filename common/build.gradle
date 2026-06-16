@@ -80,3 +80,49 @@ jar {
         rename { "${it}_${inputs.properties.archivesName}" }
     }
 }
+
+// ------------------------------------------------------------------------------------------------
+// Loader-independent API jar — the cross-mod tank/fluid contract for downstream mods (e.g. irontanks).
+//
+// These packages are loader-agnostic and compile against Mojang official mappings (verified: public
+// signatures use net.minecraft.world.level.Level, not intermediary class_*), so ONE jar serves both
+// Fabric and NeoForge consumers. Consume it with plain `compileOnly` (NOT modCompileOnly, so Loom
+// leaves it un-remapped) and guard use behind a mod-loaded check; the consumer's own remap carries
+// call sites to its runtime mappings, matching the separately-installed logistics mod jar.
+//
+// Scope is the full transitive closure of the public contract — keep it minimal so internals stay
+// off downstream classpaths.
+def apiPackages = [
+    'com/logistics/api/**',
+    'com/logistics/core/lib/tank/**',
+    'com/logistics/core/lib/fluids/**',
+    'com/logistics/core/lib/compat/**',
+    'com/logistics/core/lib/resource/**',
+]
+
+tasks.register('apiJar', Jar) {
+    description = 'Loader-independent API jar for downstream mods to compile against.'
+    group = 'build'
+    archiveBaseName = "${rootProject.archives_base_name}-api"
+    from(sourceSets.main.output) {
+        include apiPackages
+    }
+    from("../LICENSE") {
+        rename { "${it}_${rootProject.archives_base_name}-api" }
+    }
+}
+
+tasks.named('assemble') {
+    dependsOn 'apiJar'
+}
+
+publishing {
+    publications {
+        api(MavenPublication) {
+            groupId = rootProject.maven_group
+            artifactId = "${rootProject.archives_base_name}-api"
+            version = project.version
+            artifact tasks.named('apiJar')
+        }
+    }
+}

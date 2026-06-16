@@ -12,7 +12,10 @@ import com.logistics.core.lib.block.capability.PipeConnection;
 import com.logistics.core.lib.fluids.FluidContainerInteraction;
 import com.logistics.core.lib.fluids.FluidStorageLookup;
 import com.logistics.core.lib.pipe.PipeConnectionLookup;
+import com.logistics.core.lib.platform.PlatformService;
 import com.logistics.core.lib.storage.ItemStorageLookup;
+import com.logistics.core.lib.tank.TankCell;
+import com.logistics.core.lib.tank.TankCellLookup;
 import com.logistics.neoforge.energy.NeoForgeEnergyStorage;
 import com.logistics.neoforge.fluids.NeoForgeFluidStorage;
 import com.logistics.neoforge.storage.NeoForgeItemKey;
@@ -35,6 +38,11 @@ public final class NeoForgeCapabilityRegistration {
 
         FluidStorageLookup.register((world, pos, dir) ->
                 NeoForgeFluidStorage.wrap(world.getCapability(Capabilities.Fluid.BLOCK, pos, dir)));
+
+        // Wire the cross-mod tank-column lookup: catch any block entity that is itself a TankCell (the
+        // Glass Tank), and supply the column-global gas predicate. Other mods append their own finders.
+        TankCellLookup.register((world, pos) -> world.getBlockEntity(pos) instanceof TankCell cell ? cell : null);
+        TankCellLookup.registerGasPredicate(key -> PlatformService.INSTANCE.isLighterThanAir(key.getFluid()));
 
         FluidContainerInteraction.register((world, pos, player, hand, side) ->
                 net.neoforged.neoforge.fluids.FluidUtil.interactWithFluidHandler(player, hand, world, pos, side)

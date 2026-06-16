@@ -1,4 +1,4 @@
-package com.logistics.fluid.tank;
+package com.logistics.core.lib.tank;
 
 /**
  * Pure fluid-distribution math for a vertical column of tanks that all hold the same fluid.

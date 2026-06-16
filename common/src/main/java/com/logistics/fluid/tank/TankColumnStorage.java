@@ -3,6 +3,7 @@ package com.logistics.fluid.tank;
 import com.logistics.core.lib.fluids.IFluidKey;
 import com.logistics.core.lib.fluids.IFluidStorage;
 import com.logistics.core.lib.fluids.IFluidView;
+import com.logistics.core.lib.tank.TankColumn;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Supplier;
