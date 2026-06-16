@@ -1,6 +1,6 @@
 package com.logistics.fluid.block;
 
-import com.logistics.fluid.tank.TankTier;
+import com.logistics.pipe.fluid.tank.TankTier;
 import java.util.function.Consumer;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
