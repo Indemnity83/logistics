@@ -51,7 +51,12 @@ public record PipeContext(
      * this cast is safe wherever an item-transport module reaches for it.
      */
     public IPipeAccess pipeAccess() {
-        return (IPipeAccess) blockEntity;
+        if (blockEntity instanceof IPipeAccess access) {
+            return access;
+        }
+        throw new IllegalStateException("pipeAccess() requires an item-transport pipe host (IPipeAccess), but got "
+                + blockEntity.getClass().getName()
+                + " — an item-transport module was composed on a non-item pipe");
     }
 
     public CompoundTag moduleState(String key) {
