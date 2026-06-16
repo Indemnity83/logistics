@@ -23,6 +23,19 @@ class FluidPipeKindTest {
         assertThat(FluidPipeKind.BYPASS.transferRate(cfg)).isEqualTo(2 * base);
         assertThat(FluidPipeKind.MERGER.transferRate(cfg)).isEqualTo(3 * base);
         assertThat(FluidPipeKind.GOLD.transferRate(cfg)).isEqualTo(4 * base);
+        assertThat(FluidPipeKind.INSERTION.transferRate(cfg)).isEqualTo(2 * base); // matches copper
+    }
+
+    @Test
+    @DisplayName("only the insertion pipe prioritizes filling adjacent handlers")
+    void prioritizesHandlers() {
+        assertThat(FluidPipeKind.INSERTION.prioritizesHandlers()).isTrue();
+        for (FluidPipeKind kind : new FluidPipeKind[] {
+            FluidPipeKind.COPPER, FluidPipeKind.STONE, FluidPipeKind.GOLD, FluidPipeKind.BYPASS,
+            FluidPipeKind.MERGER, FluidPipeKind.VOID, FluidPipeKind.EXTRACTOR
+        }) {
+            assertThat(kind.prioritizesHandlers()).as("%s prioritizes handlers", kind).isFalse();
+        }
     }
 
     @Test
@@ -32,7 +45,7 @@ class FluidPipeKindTest {
         assertThat(FluidPipeKind.BYPASS.connectsToHandlers()).isFalse();
         for (FluidPipeKind kind : new FluidPipeKind[] {
             FluidPipeKind.COPPER, FluidPipeKind.STONE, FluidPipeKind.GOLD,
-            FluidPipeKind.MERGER, FluidPipeKind.EXTRACTOR
+            FluidPipeKind.INSERTION, FluidPipeKind.MERGER, FluidPipeKind.EXTRACTOR
         }) {
             assertThat(kind.connectsToHandlers()).as("%s connects to handlers", kind).isTrue();
         }
@@ -49,6 +62,7 @@ class FluidPipeKindTest {
         assertThat(FluidPipeKind.COPPER.isPassiveMover()).isTrue();
         assertThat(FluidPipeKind.STONE.isPassiveMover()).isTrue();
         assertThat(FluidPipeKind.GOLD.isPassiveMover()).isTrue();
+        assertThat(FluidPipeKind.INSERTION.isPassiveMover()).isTrue();
         assertThat(FluidPipeKind.BYPASS.isPassiveMover()).isTrue();
         assertThat(FluidPipeKind.EXTRACTOR.isPassiveMover()).isFalse();
         assertThat(FluidPipeKind.MERGER.isPassiveMover()).isFalse();
@@ -61,6 +75,7 @@ class FluidPipeKindTest {
         assertThat(FluidPipeKind.COPPER.modelBase()).isEqualTo("copper_fluid_pipe");
         assertThat(FluidPipeKind.STONE.modelBase()).isEqualTo("stone_fluid_pipe");
         assertThat(FluidPipeKind.GOLD.modelBase()).isEqualTo("gold_fluid_pipe");
+        assertThat(FluidPipeKind.INSERTION.modelBase()).isEqualTo("insertion_fluid_pipe");
         assertThat(FluidPipeKind.MERGER.modelBase()).isEqualTo("merger_fluid_pipe");
         assertThat(FluidPipeKind.EXTRACTOR.modelBase()).isEqualTo("fluid_extractor_pipe");
         assertThat(FluidPipeKind.VOID.modelBase()).isEqualTo("void_fluid_pipe");

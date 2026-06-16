@@ -15,6 +15,8 @@ import net.minecraft.util.StringRepresentable;
  *   <li>{@link #EXTRACTOR} — the "wooden" extractor: pulls fluid from adjacent handlers when powered.</li>
  *   <li>{@link #STONE} — passive transport at the base rate (1×, the slow tier).</li>
  *   <li>{@link #GOLD} — passive transport at 4× the base rate.</li>
+ *   <li>{@link #INSERTION} — passive transport that fills adjacent tanks first, spilling to pipes only once
+ *       they are full.</li>
  *   <li>{@link #MERGER} — directional check valve: a wrench-set output face; fluid leaves only that face
  *       and never flows back through it.</li>
  *   <li>{@link #VOID} — destroys fluid drawn from adjacent pipes (connects to pipes only).</li>
@@ -22,13 +24,14 @@ import net.minecraft.util.StringRepresentable;
  * </ul>
  */
 public enum FluidPipeKind implements StringRepresentable {
-    COPPER("copper", "copper_fluid_pipe", Role.PASSIVE, true, 2),
-    EXTRACTOR("extractor", "fluid_extractor_pipe", Role.EXTRACTOR, true, 1),
-    STONE("stone", "stone_fluid_pipe", Role.PASSIVE, true, 1),
-    GOLD("gold", "gold_fluid_pipe", Role.PASSIVE, true, 4),
-    MERGER("merger", "merger_fluid_pipe", Role.DIRECTIONAL, true, 3),
-    VOID("void", "void_fluid_pipe", Role.VOID, false, 1),
-    BYPASS("bypass", "bypass_fluid_pipe", Role.PASSIVE, false, 2);
+    COPPER("copper", "copper_fluid_pipe", Role.PASSIVE, true, 2, false),
+    EXTRACTOR("extractor", "fluid_extractor_pipe", Role.EXTRACTOR, true, 1, false),
+    STONE("stone", "stone_fluid_pipe", Role.PASSIVE, true, 1, false),
+    GOLD("gold", "gold_fluid_pipe", Role.PASSIVE, true, 4, false),
+    INSERTION("insertion", "insertion_fluid_pipe", Role.PASSIVE, true, 2, true),
+    MERGER("merger", "merger_fluid_pipe", Role.DIRECTIONAL, true, 3, false),
+    VOID("void", "void_fluid_pipe", Role.VOID, false, 1, false),
+    BYPASS("bypass", "bypass_fluid_pipe", Role.PASSIVE, false, 2, false);
 
     /** What a pipe fundamentally does. Mutually exclusive; distinct from the connect-to-handlers flag. */
     private enum Role {
@@ -49,13 +52,21 @@ public enum FluidPipeKind implements StringRepresentable {
     private final Role role;
     private final boolean connectsToHandlers;
     private final int rateMultiplier;
+    private final boolean handlerPriority;
 
-    FluidPipeKind(String name, String modelBase, Role role, boolean connectsToHandlers, int rateMultiplier) {
+    FluidPipeKind(
+            String name,
+            String modelBase,
+            Role role,
+            boolean connectsToHandlers,
+            int rateMultiplier,
+            boolean handlerPriority) {
         this.name = name;
         this.modelBase = modelBase;
         this.role = role;
         this.connectsToHandlers = connectsToHandlers;
         this.rateMultiplier = rateMultiplier;
+        this.handlerPriority = handlerPriority;
     }
 
     public boolean isExtractor() {
@@ -83,6 +94,11 @@ public enum FluidPipeKind implements StringRepresentable {
     /** Whether this pipe connects to external (non-pipe) fluid handlers. False for void and bypass. */
     public boolean connectsToHandlers() {
         return connectsToHandlers;
+    }
+
+    /** True for the insertion pipe: route fluid into adjacent tanks with room before spilling to other pipes. */
+    public boolean prioritizesHandlers() {
+        return handlerPriority;
     }
 
     /**

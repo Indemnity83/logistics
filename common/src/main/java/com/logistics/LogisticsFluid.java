@@ -51,6 +51,7 @@ public final class LogisticsFluid extends LogisticsMod implements DomainBootstra
         public static Block COPPER_FLUID_PIPE;
         public static Block STONE_FLUID_PIPE;
         public static Block GOLD_FLUID_PIPE;
+        public static Block INSERTION_FLUID_PIPE;
         public static Block MERGER_FLUID_PIPE;
         public static Block FLUID_EXTRACTOR_PIPE;
         public static Block VOID_FLUID_PIPE;
@@ -85,6 +86,9 @@ public final class LogisticsFluid extends LogisticsMod implements DomainBootstra
             GOLD_FLUID_PIPE = INSTANCE.registerBlockWithItem("gold_fluid_pipe",
                     props -> new FluidPipeBlock(fluidPipeProps(props), FluidPipeKind.GOLD),
                     FluidPipeBlockItem::new);
+            INSERTION_FLUID_PIPE = INSTANCE.registerBlockWithItem("insertion_fluid_pipe",
+                    props -> new FluidPipeBlock(fluidPipeProps(props), FluidPipeKind.INSERTION),
+                    FluidPipeBlockItem::new);
             MERGER_FLUID_PIPE = INSTANCE.registerBlockWithItem("merger_fluid_pipe",
                     props -> new FluidPipeBlock(fluidPipeProps(props), FluidPipeKind.MERGER),
                     FluidPipeBlockItem::new);
@@ -115,6 +119,7 @@ public final class LogisticsFluid extends LogisticsMod implements DomainBootstra
                     BLOCK.COPPER_FLUID_PIPE,
                     BLOCK.STONE_FLUID_PIPE,
                     BLOCK.GOLD_FLUID_PIPE,
+                    BLOCK.INSERTION_FLUID_PIPE,
                     BLOCK.MERGER_FLUID_PIPE,
                     BLOCK.FLUID_EXTRACTOR_PIPE,
                     BLOCK.VOID_FLUID_PIPE,
@@ -132,6 +137,7 @@ public final class LogisticsFluid extends LogisticsMod implements DomainBootstra
             LogisticsCore.CREATIVE.TAB.add(BLOCK.COPPER_FLUID_PIPE);
             LogisticsCore.CREATIVE.TAB.add(BLOCK.STONE_FLUID_PIPE);
             LogisticsCore.CREATIVE.TAB.add(BLOCK.GOLD_FLUID_PIPE);
+            LogisticsCore.CREATIVE.TAB.add(BLOCK.INSERTION_FLUID_PIPE);
             LogisticsCore.CREATIVE.TAB.add(BLOCK.MERGER_FLUID_PIPE);
             LogisticsCore.CREATIVE.TAB.add(BLOCK.FLUID_EXTRACTOR_PIPE);
             LogisticsCore.CREATIVE.TAB.add(BLOCK.VOID_FLUID_PIPE);

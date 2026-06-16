@@ -444,10 +444,15 @@ public class FluidPipeBlockEntity extends BaseBlockEntity
                 continue;
             }
             long[] room = new long[outs.size()];
-            long totalRoom = 0;
             for (int i = 0; i < outs.size(); i++) {
                 room[i] = roomToward(level, outs.get(i), fluid, rate);
-                totalRoom += room[i];
+            }
+            if (kind.prioritizesHandlers()) {
+                preferHandlers(outs, room);
+            }
+            long totalRoom = 0;
+            for (long r : room) {
+                totalRoom += r;
             }
             long moveTotal = Math.min(Math.min(parcel.amount(), budget), totalRoom);
             if (moveTotal <= 0) {
@@ -493,6 +498,28 @@ public class FluidPipeBlockEntity extends BaseBlockEntity
             result.add(direction);
         }
         return result;
+    }
+
+    /**
+     * Insertion pipe routing: when any adjacent handler can take fluid this tick, zero the room of every
+     * non-handler output so the split fills tanks first; pipes get the overflow only once the tanks are full.
+     */
+    private void preferHandlers(List<Direction> outs, long[] room) {
+        boolean handlerHasRoom = false;
+        for (int i = 0; i < outs.size(); i++) {
+            if (room[i] > 0 && connection(outs.get(i)) == FluidConnection.HANDLER) {
+                handlerHasRoom = true;
+                break;
+            }
+        }
+        if (!handlerHasRoom) {
+            return;
+        }
+        for (int i = 0; i < outs.size(); i++) {
+            if (connection(outs.get(i)) != FluidConnection.HANDLER) {
+                room[i] = 0;
+            }
+        }
     }
 
     /** How much (mB, capped at {@code cap}) the neighbour or handler in {@code direction} can take of {@code fluid}. */
