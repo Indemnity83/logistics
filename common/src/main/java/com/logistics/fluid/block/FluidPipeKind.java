@@ -94,9 +94,9 @@ public enum FluidPipeKind implements StringRepresentable {
         return (long) cfg.baseTransferRate * rateMultiplier;
     }
 
-    /** This pipe's internal buffer capacity in mB. */
+    /** This pipe's internal buffer capacity in mB (shared base capacity across all kinds). */
     public long capacity(LogisticsConfig.FluidPipeConfig cfg) {
-        return isExtractor() ? cfg.woodenCapacity : cfg.copperCapacity;
+        return cfg.baseCapacity;
     }
 
     /** Asset base name (under {@code block/pipe/}) for this kind's {@code _core}/{@code _arm} models. */

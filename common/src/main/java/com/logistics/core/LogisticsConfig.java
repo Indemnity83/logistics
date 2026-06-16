@@ -85,16 +85,10 @@ public final class LogisticsConfig {
          * (stone/extractor/void 1×, copper/bypass 2×, merger 3×, gold 4×), so this one knob moves them all.
          */
         public int baseTransferRate = 10;
-        /** Copper Fluid Pipe internal buffer, in mB. */
-        public int copperCapacity = 250;
-        /** Fluid Extractor Pipe internal buffer, in mB. */
-        public int woodenCapacity = 250;
-        /** Fluid Extractor Pipe maximum extraction per tick while powered, in mB. */
-        public int woodenPulse = 20;
+        /** Fluid pipe internal buffer, in mB (shared by every pipe kind). */
+        public int baseCapacity = 250;
         /** Whether the Fluid Extractor Pipe requires engine power to extract. */
         public boolean woodenRequiresEngine = true;
-        /** Debug toggle: when false, the passive body solver is skipped (fluid stays where the extractor puts it). */
-        public boolean passiveSettling = true;
         /** Debug toggle: when false, extractors stop pulling fluid into the network. */
         public boolean activeExtraction = true;
     }
@@ -214,29 +208,14 @@ public final class LogisticsConfig {
                 v -> INSTANCE.fluidPipe.baseTransferRate = v.intValue(),
                 Long::parseLong,
                 v -> requireRange(v, 1L, (long) Integer.MAX_VALUE, "must be between 1 and " + Integer.MAX_VALUE));
-        reg(map, "fluid_pipe_copper_capacity", "Copper Fluid Pipe buffer capacity (mB)",
-                () -> (long) INSTANCE.fluidPipe.copperCapacity,
-                v -> INSTANCE.fluidPipe.copperCapacity = v.intValue(),
-                Long::parseLong,
-                v -> requireRange(v, 1L, (long) Integer.MAX_VALUE, "must be between 1 and " + Integer.MAX_VALUE));
-        reg(map, "fluid_pipe_wooden_capacity", "Fluid Extractor Pipe buffer capacity (mB)",
-                () -> (long) INSTANCE.fluidPipe.woodenCapacity,
-                v -> INSTANCE.fluidPipe.woodenCapacity = v.intValue(),
-                Long::parseLong,
-                v -> requireRange(v, 1L, (long) Integer.MAX_VALUE, "must be between 1 and " + Integer.MAX_VALUE));
-        reg(map, "fluid_pipe_wooden_pulse", "Fluid Extractor Pipe extraction per engine pulse (mB)",
-                () -> (long) INSTANCE.fluidPipe.woodenPulse,
-                v -> INSTANCE.fluidPipe.woodenPulse = v.intValue(),
+        reg(map, "fluid_pipe_base_capacity", "Fluid Pipe buffer capacity (mB)",
+                () -> (long) INSTANCE.fluidPipe.baseCapacity,
+                v -> INSTANCE.fluidPipe.baseCapacity = v.intValue(),
                 Long::parseLong,
                 v -> requireRange(v, 1L, (long) Integer.MAX_VALUE, "must be between 1 and " + Integer.MAX_VALUE));
         reg(map, "fluid_pipe_wooden_requires_engine", "Fluid Extractor Pipe requires engine power",
                 () -> INSTANCE.fluidPipe.woodenRequiresEngine,
                 v -> INSTANCE.fluidPipe.woodenRequiresEngine = v,
-                LogisticsConfig::parseBooleanStrict,
-                v -> {});
-        reg(map, "fluid_pipe_passive_settling", "Debug: passive body solver enabled",
-                () -> INSTANCE.fluidPipe.passiveSettling,
-                v -> INSTANCE.fluidPipe.passiveSettling = v,
                 LogisticsConfig::parseBooleanStrict,
                 v -> {});
         reg(map, "fluid_pipe_active_extraction", "Debug: extractor pulling enabled",
@@ -412,14 +391,8 @@ public final class LogisticsConfig {
         sanitizeInt("fluid_pipe_base_transfer_rate", () -> (long) config.fluidPipe.baseTransferRate,
                 v -> config.fluidPipe.baseTransferRate = v.intValue(), () -> (long) defaults.fluidPipe.baseTransferRate,
                 v -> requireRange(v, 1L, (long) Integer.MAX_VALUE, "must be between 1 and " + Integer.MAX_VALUE));
-        sanitizeInt("fluid_pipe_copper_capacity", () -> (long) config.fluidPipe.copperCapacity,
-                v -> config.fluidPipe.copperCapacity = v.intValue(), () -> (long) defaults.fluidPipe.copperCapacity,
-                v -> requireRange(v, 1L, (long) Integer.MAX_VALUE, "must be between 1 and " + Integer.MAX_VALUE));
-        sanitizeInt("fluid_pipe_wooden_capacity", () -> (long) config.fluidPipe.woodenCapacity,
-                v -> config.fluidPipe.woodenCapacity = v.intValue(), () -> (long) defaults.fluidPipe.woodenCapacity,
-                v -> requireRange(v, 1L, (long) Integer.MAX_VALUE, "must be between 1 and " + Integer.MAX_VALUE));
-        sanitizeInt("fluid_pipe_wooden_pulse", () -> (long) config.fluidPipe.woodenPulse,
-                v -> config.fluidPipe.woodenPulse = v.intValue(), () -> (long) defaults.fluidPipe.woodenPulse,
+        sanitizeInt("fluid_pipe_base_capacity", () -> (long) config.fluidPipe.baseCapacity,
+                v -> config.fluidPipe.baseCapacity = v.intValue(), () -> (long) defaults.fluidPipe.baseCapacity,
                 v -> requireRange(v, 1L, (long) Integer.MAX_VALUE, "must be between 1 and " + Integer.MAX_VALUE));
 
         return config;
