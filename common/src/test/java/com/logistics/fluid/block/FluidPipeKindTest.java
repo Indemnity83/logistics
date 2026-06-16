@@ -12,15 +12,17 @@ class FluidPipeKindTest {
     private final LogisticsConfig.FluidPipeConfig cfg = new LogisticsConfig.FluidPipeConfig();
 
     @Test
-    @DisplayName("transfer rate resolves per kind, with stone slower and gold faster than copper")
+    @DisplayName("transfer rate is the base rate scaled by a per-tier multiplier")
     void transferRatePerKind() {
-        long copper = FluidPipeKind.COPPER.transferRate(cfg);
-        assertThat(FluidPipeKind.STONE.transferRate(cfg)).isEqualTo(cfg.stoneTransferRate).isLessThan(copper);
-        assertThat(FluidPipeKind.GOLD.transferRate(cfg)).isEqualTo(cfg.goldTransferRate).isGreaterThan(copper);
-        assertThat(FluidPipeKind.MERGER.transferRate(cfg)).isEqualTo(cfg.mergerTransferRate);
-        assertThat(FluidPipeKind.VOID.transferRate(cfg)).isEqualTo(cfg.voidRate);
-        assertThat(FluidPipeKind.BYPASS.transferRate(cfg)).isEqualTo(copper);
-        assertThat(FluidPipeKind.EXTRACTOR.transferRate(cfg)).isEqualTo(copper);
+        long base = cfg.baseTransferRate;
+        // stone/extractor/void 1×, copper/bypass 2×, merger 3×, gold 4×
+        assertThat(FluidPipeKind.STONE.transferRate(cfg)).isEqualTo(base);
+        assertThat(FluidPipeKind.EXTRACTOR.transferRate(cfg)).isEqualTo(base);
+        assertThat(FluidPipeKind.VOID.transferRate(cfg)).isEqualTo(base);
+        assertThat(FluidPipeKind.COPPER.transferRate(cfg)).isEqualTo(2 * base);
+        assertThat(FluidPipeKind.BYPASS.transferRate(cfg)).isEqualTo(2 * base);
+        assertThat(FluidPipeKind.MERGER.transferRate(cfg)).isEqualTo(3 * base);
+        assertThat(FluidPipeKind.GOLD.transferRate(cfg)).isEqualTo(4 * base);
     }
 
     @Test

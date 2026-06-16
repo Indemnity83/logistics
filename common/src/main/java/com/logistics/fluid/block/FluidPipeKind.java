@@ -22,13 +22,13 @@ import net.minecraft.util.StringRepresentable;
  * </ul>
  */
 public enum FluidPipeKind implements StringRepresentable {
-    COPPER("copper", "copper_fluid_pipe", Role.PASSIVE, true),
-    EXTRACTOR("extractor", "fluid_extractor_pipe", Role.EXTRACTOR, true),
-    STONE("stone", "stone_fluid_pipe", Role.PASSIVE, true),
-    GOLD("gold", "gold_fluid_pipe", Role.PASSIVE, true),
-    MERGER("merger", "merger_fluid_pipe", Role.DIRECTIONAL, true),
-    VOID("void", "void_fluid_pipe", Role.VOID, false),
-    BYPASS("bypass", "bypass_fluid_pipe", Role.PASSIVE, false);
+    COPPER("copper", "copper_fluid_pipe", Role.PASSIVE, true, 2),
+    EXTRACTOR("extractor", "fluid_extractor_pipe", Role.EXTRACTOR, true, 1),
+    STONE("stone", "stone_fluid_pipe", Role.PASSIVE, true, 1),
+    GOLD("gold", "gold_fluid_pipe", Role.PASSIVE, true, 4),
+    MERGER("merger", "merger_fluid_pipe", Role.DIRECTIONAL, true, 3),
+    VOID("void", "void_fluid_pipe", Role.VOID, false, 1),
+    BYPASS("bypass", "bypass_fluid_pipe", Role.PASSIVE, false, 2);
 
     /** What a pipe fundamentally does. Mutually exclusive; distinct from the connect-to-handlers flag. */
     private enum Role {
@@ -48,12 +48,14 @@ public enum FluidPipeKind implements StringRepresentable {
     private final String modelBase;
     private final Role role;
     private final boolean connectsToHandlers;
+    private final int rateMultiplier;
 
-    FluidPipeKind(String name, String modelBase, Role role, boolean connectsToHandlers) {
+    FluidPipeKind(String name, String modelBase, Role role, boolean connectsToHandlers, int rateMultiplier) {
         this.name = name;
         this.modelBase = modelBase;
         this.role = role;
         this.connectsToHandlers = connectsToHandlers;
+        this.rateMultiplier = rateMultiplier;
     }
 
     public boolean isExtractor() {
@@ -83,15 +85,13 @@ public enum FluidPipeKind implements StringRepresentable {
         return connectsToHandlers;
     }
 
-    /** This pipe's transfer rate in mB/tick, used to pace flow through it, into handlers, and extraction. */
+    /**
+     * This pipe's transfer rate in mB/tick, used to pace flow through it, into handlers, and extraction.
+     * Mirrors BuildCraft: a single configurable base rate scaled by a per-tier multiplier (stone/extractor/void
+     * 1×, copper/bypass 2×, merger 3×, gold 4×).
+     */
     public long transferRate(LogisticsConfig.FluidPipeConfig cfg) {
-        return switch (this) {
-            case COPPER, EXTRACTOR, BYPASS -> cfg.copperTransferRate;
-            case STONE -> cfg.stoneTransferRate;
-            case GOLD -> cfg.goldTransferRate;
-            case MERGER -> cfg.mergerTransferRate;
-            case VOID -> cfg.voidRate;
-        };
+        return (long) cfg.baseTransferRate * rateMultiplier;
     }
 
     /** This pipe's internal buffer capacity in mB. */

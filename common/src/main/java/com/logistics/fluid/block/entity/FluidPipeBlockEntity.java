@@ -52,9 +52,9 @@ import org.jetbrains.annotations.Nullable;
 public class FluidPipeBlockEntity extends BaseBlockEntity
         implements HasFluidStorage, HasEnergyStorage, AcceptsLowTierEnergy {
 
-    private static final long ENERGY_CAPACITY = 1000;
-    private static final long ENERGY_MAX_INSERT = 100;
+    private static final long ENERGY_CAPACITY = 20;
     private static final int SYNC_STEPS = 16;
+    private static final float DWELL_MULTIPLIER = 2.0F;
 
     private final FluidPipeKind kind;
     /** Pipe buffer capacity in mB (per kind); the sum of all parcels never exceeds it. */
@@ -73,6 +73,9 @@ public class FluidPipeBlockEntity extends BaseBlockEntity
     @Nullable
     private final EnergyComponent energy;
 
+    /** Extractor only: sub-RF fluid remainder carried between ticks so small per-tick pulls still drain energy. */
+    private long extractionCarryMb;
+
     // Connection cache (server-computed, synced to client for shape + arm rendering).
     private final FluidConnection[] connections = new FluidConnection[6];
     private boolean connectionCacheDirty = true;
@@ -90,7 +93,7 @@ public class FluidPipeBlockEntity extends BaseBlockEntity
         }
         this.capacityMb = kind.capacity(LogisticsConfig.get().fluidPipe);
         this.energy = kind.isExtractor()
-                ? new EnergyComponent(ENERGY_CAPACITY, ENERGY_MAX_INSERT, 0, this::setChanged)
+                ? new EnergyComponent(ENERGY_CAPACITY, ENERGY_CAPACITY, 0, this::setChanged)
                 : null;
     }
 
@@ -261,7 +264,8 @@ public class FluidPipeBlockEntity extends BaseBlockEntity
 
     private int spreadRate(IFluidKey fluid) {
         Level level = getLevel();
-        return level == null ? 5 : Math.max(1, fluid.getFluid().getTickDelay(level));
+        int base = level == null ? 5 : Math.max(1, fluid.getFluid().getTickDelay(level));
+        return Math.max(1, Math.round(base * DWELL_MULTIPLIER));
     }
 
     // ==================== Wrench side toggling ====================
@@ -323,7 +327,7 @@ public class FluidPipeBlockEntity extends BaseBlockEntity
         }
 
         if (kind.isVoid()) {
-            destroyReady(cfg.voidRate);
+            destroyReady(kind.transferRate(cfg));
         } else {
             moveReadyFluid(level, kind.transferRate(cfg));
         }
@@ -356,9 +360,10 @@ public class FluidPipeBlockEntity extends BaseBlockEntity
             long budget = Math.min(kind.transferRate(cfg), room);
             FluidPipe<IFluidKey> pulled = new FluidPipe<>();
             FluidExtraction.Result result = FluidExtraction.tick(
-                    pulled, List.of(provider), energy.getAmount(), budget, cfg.woodenRequiresEngine);
+                    pulled, List.of(provider), energy.getAmount(), budget, cfg.woodenRequiresEngine, extractionCarryMb);
             if (pulled.amount() > 0) {
                 energy.consume(result.energyToConsume());
+                extractionCarryMb = result.carryMb();
                 acceptFluid(pulled.fluid(), pulled.amount(), side); // enter from the source side → head away from it
                 return;
             }
@@ -569,6 +574,9 @@ public class FluidPipeBlockEntity extends BaseBlockEntity
         }
         if (energy != null) {
             energy.writeNbt(tag, "Energy");
+            if (extractionCarryMb != 0) {
+                tag.putLong("ExtractCarry", extractionCarryMb);
+            }
         }
     }
 
@@ -590,6 +598,7 @@ public class FluidPipeBlockEntity extends BaseBlockEntity
         outputDirection = tag.contains("OutDir") ? Direction.from3DDataValue(NbtCompat.getInt(tag, "OutDir", 0)) : null;
         if (energy != null) {
             energy.readNbt(tag, "Energy");
+            extractionCarryMb = NbtCompat.getLong(tag, "ExtractCarry", 0);
         }
     }
 

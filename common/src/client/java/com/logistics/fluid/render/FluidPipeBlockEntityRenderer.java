@@ -53,6 +53,10 @@ public class FluidPipeBlockEntityRenderer
     private static final float B = CORE_MAX - INSET; // inset inner wall (high side)
     // Minimum fluid thickness/width to draw; below this it reads as a flat plane / hairline, so skip it.
     private static final float MIN_VISIBLE_THICKNESS = 0.4F / 16F;
+    // Floor for the horizontal rising-level thickness when the pipe holds any fluid. A linear level vanishes at
+    // a few percent fill (a 20 mB pulse is ~0.6 px), whereas the vertical column stays visible via its
+    // area-proportional (sqrt) width — this keeps a small moving pulse readable in horizontal runs too.
+    private static final float MIN_FLUID_LEVEL = 1.5F / 16F;
     // Half the inset cross-section — the column's half-width when the pipe is full.
     private static final float MAX_HALF_WIDTH = (B - A) / 2.0F;
     // A pipe with less display fill than this reads as empty (the eased fill decays toward 0 but never hits it).
@@ -216,8 +220,10 @@ public class FluidPipeBlockEntityRenderer
                 }
             }
 
-            // Horizontal run (and the isolated-pipe core): a rising level over the core span.
-            float surface = FluidColumnGeometry.surface(ratio, coreBottom, coreTop);
+            // Horizontal run (and the isolated-pipe core): a rising level over the core span, floored to a
+            // visible thickness so a small pulse reads here the way the sqrt column keeps it visible vertically.
+            float surface = Math.max(
+                    FluidColumnGeometry.surface(ratio, coreBottom, coreTop), coreBottom + MIN_FLUID_LEVEL);
             if (surface - coreBottom >= MIN_VISIBLE_THICKNESS) {
                 // Core level-box: bridges horizontal arms through the core / shows a lone pipe's level. Skipped
                 // only for a purely vertical run (the narrow column already represents that fluid); any
