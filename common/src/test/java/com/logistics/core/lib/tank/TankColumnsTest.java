@@ -202,7 +202,9 @@ class TankColumnsTest extends MinecraftTestEnvironment {
         TankColumns.CellSource src = world.source();
 
         // With a tight cap the walk stops early rather than running unbounded over a pathological source.
+        // Start well above the true floor (y=0) so a missing cap would overshoot: capped at 10 steps from
+        // y=100 the bottom is y=90, not the real floor — which is what distinguishes capped from uncapped.
         assertThat(TankColumns.column(src, at(0), 10)).hasSize(10);
-        assertThat(TankColumns.bottomOf(src, at(10), 10)).isEqualTo(at(0));
+        assertThat(TankColumns.bottomOf(src, at(100), 10)).isEqualTo(at(90));
     }
 }

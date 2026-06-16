@@ -73,8 +73,12 @@ class TankCellLookupTest extends MinecraftTestEnvironment {
     void findSkipsThrowingFinder() {
         BlockPos pos = new BlockPos(1040, 0, 0);
         StubCell match = new StubCell("match");
+        // Throw only at this test's sentinel position so the finder doesn't pollute other tests' lookups.
         TankCellLookup.register((level, p) -> {
-            throw new IllegalStateException("buggy third-party finder");
+            if (p.equals(pos)) {
+                throw new IllegalStateException("buggy third-party finder");
+            }
+            return null;
         });
         TankCellLookup.register((level, p) -> p.equals(pos) ? match : null);
 
