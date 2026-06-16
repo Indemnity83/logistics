@@ -1,4 +1,4 @@
-package com.logistics.fluid.pipe;
+package com.logistics.pipe.fluid;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

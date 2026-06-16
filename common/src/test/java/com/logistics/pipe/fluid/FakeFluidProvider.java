@@ -1,4 +1,4 @@
-package com.logistics.fluid.pipe;
+package com.logistics.pipe.fluid;
 
 /** Test double: a finite provider of a single (String) fluid, measured in millibuckets. */
 final class FakeFluidProvider implements FluidProvider<String> {
