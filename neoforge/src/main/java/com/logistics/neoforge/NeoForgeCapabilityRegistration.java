@@ -2,12 +2,14 @@ package com.logistics.neoforge;
 
 import com.logistics.LogisticsAutomation;
 import com.logistics.LogisticsCore;
+import com.logistics.LogisticsFluid;
 import com.logistics.LogisticsPipe;
 import com.logistics.LogisticsPower;
 import com.logistics.core.lib.block.capability.HasEnergyStorage;
 import com.logistics.core.lib.block.capability.HasFluidStorage;
 import com.logistics.core.lib.block.capability.HasItemStorage;
 import com.logistics.core.lib.block.capability.PipeConnection;
+import com.logistics.core.lib.fluids.FluidContainerInteraction;
 import com.logistics.core.lib.fluids.FluidStorageLookup;
 import com.logistics.core.lib.pipe.PipeConnectionLookup;
 import com.logistics.core.lib.storage.ItemStorageLookup;
@@ -34,6 +36,11 @@ public final class NeoForgeCapabilityRegistration {
         FluidStorageLookup.register((world, pos, dir) ->
                 NeoForgeFluidStorage.wrap(world.getCapability(Capabilities.Fluid.BLOCK, pos, dir)));
 
+        FluidContainerInteraction.register((world, pos, player, hand, side) ->
+                net.neoforged.neoforge.fluids.FluidUtil.interactWithFluidHandler(player, hand, world, pos, side)
+                        ? net.minecraft.world.InteractionResult.SUCCESS
+                        : net.minecraft.world.InteractionResult.PASS);
+
         PipeConnectionLookup.register((level, pos, direction) -> {
             BlockEntity blockEntity = level.getBlockEntity(pos);
             if (blockEntity instanceof PipeConnection connection
@@ -55,14 +62,18 @@ public final class NeoForgeCapabilityRegistration {
         registerEnergy(event, LogisticsPipe.ENTITY.PIPE_BLOCK_ENTITY);
         registerEnergy(event, LogisticsAutomation.ENTITY.LASER_QUARRY_BLOCK_ENTITY);
         registerEnergy(event, LogisticsAutomation.ENTITY.KILN_BLOCK_ENTITY);
+        // Fluid Extractor Pipes receive engine RF; copper pipes return a null energy handler.
+        registerEnergy(event, LogisticsFluid.ENTITY.FLUID_PIPE_BLOCK_ENTITY);
 
         registerItems(event, LogisticsCore.ENTITY.MACERATOR_BLOCK_ENTITY);
         registerItems(event, LogisticsPower.ENTITY.STIRLING_ENGINE_BLOCK_ENTITY);
         registerItems(event, LogisticsPipe.ENTITY.PIPE_BLOCK_ENTITY);
         registerItems(event, LogisticsAutomation.ENTITY.KILN_BLOCK_ENTITY);
 
-        // No current block entities implement HasFluidStorage, but keep this as the
-        // registration path for the first fluid-capable machine.
+        // Fluid pipes expose their buffer tank as a fluid handler on every enabled side.
+        registerFluids(event, LogisticsFluid.ENTITY.FLUID_PIPE_BLOCK_ENTITY);
+        // Glass tanks expose their whole vertical column as a fluid handler.
+        registerFluids(event, LogisticsFluid.ENTITY.GLASS_TANK_BLOCK_ENTITY);
     }
 
     private static <BE extends BlockEntity & HasEnergyStorage> void registerEnergy(
@@ -83,7 +94,6 @@ public final class NeoForgeCapabilityRegistration {
                 (blockEntity, side) -> NeoForgeItemStorage.asNeoForge(blockEntity.itemStorage(side)));
     }
 
-    @SuppressWarnings("unused")
     private static <BE extends BlockEntity & HasFluidStorage> void registerFluids(
             RegisterCapabilitiesEvent event,
             BlockEntityType<BE> type) {

@@ -1,0 +1,9 @@
+{
+  "parent": "logistics:block/tank/tank",
+  "render_type": "minecraft:translucent",
+  "textures": {
+    "end": "logistics:block/tank/end",
+    "side": "logistics:block/tank/side",
+    "particle": "logistics:block/tank/side"
+  }
+}
