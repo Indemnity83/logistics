@@ -2,3 +2,4 @@ com.logistics.LogisticsCoreClient
 com.logistics.LogisticsPipeClient
 com.logistics.LogisticsPowerClient
 com.logistics.LogisticsAutomationClient
+com.logistics.LogisticsFluidClient
