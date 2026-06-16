@@ -55,6 +55,7 @@ jobs:
             common
             build
             fluids
+            api
 
           requireScope: true
           validateSingleCommit: false
