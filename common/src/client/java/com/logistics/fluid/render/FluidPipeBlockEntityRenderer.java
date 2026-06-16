@@ -3,10 +3,14 @@ package com.logistics.fluid.render;
 import com.logistics.LogisticsMod;
 import com.logistics.core.lib.client.render.FluidBoxRenderer;
 import com.logistics.core.lib.client.render.VanillaQuadBaker;
+import com.logistics.core.lib.pipe.CoreDecoration;
+import com.logistics.core.lib.pipe.PipeContext;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.fluid.block.FluidConnection;
+import com.logistics.fluid.block.FluidPipeBlock;
 import com.logistics.fluid.block.entity.FluidPipeBlockEntity;
 import com.logistics.fluid.pipe.FluidColumnGeometry;
+import com.logistics.fluid.pipe.FluidPipeModules;
 import com.logistics.pipe.render.model.PipeGeometry;
 import com.logistics.pipe.render.model.PipeModelResolver;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -88,14 +92,35 @@ public class FluidPipeBlockEntityRenderer
         Direction feature = entity.kind().isDirectional() || entity.kind().isExtractor()
                 ? entity.featureDirection()
                 : null;
+
+        // Hosted modules may override the core/arm model (e.g. weathering) and add core overlays (e.g.
+        // markings). With no modules composed, the host returns defaults/empty and rendering is unchanged.
+        FluidPipeModules host =
+                entity.getBlockState().getBlock() instanceof FluidPipeBlock block ? block.modules() : null;
+        PipeContext ctx = host != null && !host.modules().isEmpty() ? entity.createContext() : null;
+
         state.models.clear();
-        state.models.add(modelInfo(base + "_core", null));
+        ResourceId coreOverride = ctx != null ? host.coreModelOverride(ctx) : null;
+        state.models.add(coreOverride != null
+                ? new FluidPipeRenderState.ModelRenderInfo(coreOverride, null)
+                : modelInfo(base + "_core", null));
+        if (ctx != null) {
+            for (CoreDecoration decoration : host.getCoreDecorations(ctx)) {
+                state.models.add(new FluidPipeRenderState.ModelRenderInfo(
+                        decoration.modelId(), decoration.color(), null));
+            }
+        }
         for (Direction direction : Direction.values()) {
             boolean connected = entity.connection(direction) != FluidConnection.NONE;
             state.connectedArms[direction.get3DDataValue()] = connected;
             if (connected) {
-                String armBase = direction == feature ? base + "_feature" : base + "_arm";
-                state.models.add(modelInfo(armBase, direction));
+                ResourceId armOverride = ctx != null ? host.armModelOverride(ctx, direction) : null;
+                if (armOverride != null) {
+                    state.models.add(new FluidPipeRenderState.ModelRenderInfo(armOverride, direction));
+                } else {
+                    String armBase = direction == feature ? base + "_feature" : base + "_arm";
+                    state.models.add(modelInfo(armBase, direction));
+                }
             }
         }
         for (FluidPipeRenderState.ModelRenderInfo info : state.models) {
@@ -171,11 +196,12 @@ public class FluidPipeBlockEntityRenderer
                 applyDirectionRotation(matrices, info.armDirection);
                 matrices.translate(-0.5, -0.5, -0.5);
             }
+            int[] tint = info.color == 0xFFFFFFFF ? WHITE_TINT : new int[] {info.color | 0xFF000000};
             queue.submitBlockModel(
                     matrices,
                     RenderTypes.cutoutMovingBlock(),
                     info.parts,
-                    WHITE_TINT,
+                    tint,
                     state.lightCoords,
                     OverlayTexture.NO_OVERLAY,
                     0);

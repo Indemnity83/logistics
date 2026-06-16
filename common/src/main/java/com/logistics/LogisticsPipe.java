@@ -62,6 +62,10 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
         ALIAS.register();
 
         LogisticsApi.Registry.transport(new PipeApi());
+
+        // Fluid is part of the pipe domain (so fluid pipes can compose pipe modules); register it here
+        // rather than as an independent DomainBootstrap.
+        LogisticsFluid.registerCommon();
     }
 
     public static final class BLOCK {

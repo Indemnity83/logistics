@@ -78,7 +78,7 @@ public class QuickSortModule implements Module, TickingModule {
             }
 
             // Check pipe has room for the extracted items
-            int occupied = ctx.blockEntity().getTravelingItems().stream()
+            int occupied = ctx.pipeAccess().getTravelingItems().stream()
                     .mapToInt(ti -> ti.getStack().getCount())
                     .sum();
             if (PipeBlockEntity.VIRTUAL_CAPACITY - occupied < stackSize) continue;
@@ -91,7 +91,7 @@ public class QuickSortModule implements Module, TickingModule {
                 TravelingItem travelingItem = new TravelingItem(
                         extractedStack, inventoryDir.getOpposite(),
                         LogisticsConfig.get().pipe.minSpeed, destination);
-                ctx.blockEntity().forceAddItem(travelingItem, inventoryDir);
+                ctx.pipeAccess().forceAddItem(travelingItem, inventoryDir);
                 if (ctx.getInt(this, STALLED, 0) == 1) NetDbg.out("[QuickSort @ {}] Exiting stall", ctx.pos());
                 ctx.saveInt(this, STALLED, 0);
                 return;

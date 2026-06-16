@@ -5,6 +5,7 @@ import com.logistics.core.LogisticsConfig;
 import com.logistics.core.lib.block.BaseBlockEntity;
 import com.logistics.core.lib.block.capability.HasEnergyStorage;
 import com.logistics.core.lib.block.capability.HasFluidStorage;
+import com.logistics.core.lib.block.capability.PipeConnection;
 import com.logistics.core.lib.compat.NbtCompat;
 import com.logistics.core.lib.energy.EnergyComponent;
 import com.logistics.core.lib.energy.IEnergyStorage;
@@ -13,6 +14,9 @@ import com.logistics.core.lib.fluids.IFluidKey;
 import com.logistics.core.lib.fluids.IFluidStorage;
 import com.logistics.core.lib.fluids.IFluidView;
 import com.logistics.core.lib.fluids.SimpleFluidKey;
+import com.logistics.core.lib.network.ILogisticsNetwork;
+import com.logistics.core.lib.pipe.IModuleHost;
+import com.logistics.core.lib.pipe.PipeContext;
 import com.logistics.core.lib.power.AcceptsLowTierEnergy;
 import com.logistics.fluid.FluidUnits;
 import com.logistics.fluid.block.FluidConnection;
@@ -20,6 +24,7 @@ import com.logistics.fluid.block.FluidPipeBlock;
 import com.logistics.fluid.block.FluidPipeKind;
 import com.logistics.fluid.pipe.FluidExtraction;
 import com.logistics.fluid.pipe.FluidPipe;
+import com.logistics.fluid.pipe.FluidPipeModules;
 import com.logistics.fluid.pipe.FluidProvider;
 import com.logistics.fluid.pipe.FluidSplit;
 import com.logistics.fluid.pipe.TravelingFluid;
@@ -29,6 +34,8 @@ import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponentGetter;
+import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtOps;
@@ -50,7 +57,7 @@ import org.jetbrains.annotations.Nullable;
  * backpressure. Gravity is intentionally ignored (predictable transport over physical accuracy).
  */
 public class FluidPipeBlockEntity extends BaseBlockEntity
-        implements HasFluidStorage, HasEnergyStorage, AcceptsLowTierEnergy {
+        implements HasFluidStorage, HasEnergyStorage, AcceptsLowTierEnergy, IModuleHost {
 
     private static final long ENERGY_CAPACITY = 20;
     private static final int SYNC_STEPS = 16;
@@ -67,6 +74,9 @@ public class FluidPipeBlockEntity extends BaseBlockEntity
 
     /** Fluid parcels currently inside this pipe. One fluid type per pipe (no mixing). */
     private final List<TravelingFluid> parcels = new ArrayList<>();
+
+    /** Persisted, client-synced NBT state for hosted modules (weathering, marking, …). */
+    private final CompoundTag moduleState = new CompoundTag();
 
     /** Bitmask of wrench-disabled sides (bit per {@link Direction#get3DDataValue()}). */
     private int disabledMask;
@@ -343,6 +353,90 @@ public class FluidPipeBlockEntity extends BaseBlockEntity
                 && level.getBlockEntity(getBlockPos().relative(direction)) instanceof FluidPipeBlockEntity neighbour) {
             neighbour.invalidateConnectionCache();
         }
+    }
+
+    /** Invalidate this pipe's connection cache and all six neighbours' (used after a marking change). */
+    public void invalidateConnectionsAndNeighbours() {
+        invalidateConnectionCache();
+        for (Direction direction : Direction.values()) {
+            invalidateNeighbour(direction);
+        }
+    }
+
+    // ==================== Module host (IModuleHost) ====================
+
+    /** The module composition hosted by this pipe's block (empty unless a kind composes modules). */
+    private FluidPipeModules modules() {
+        return getBlockState().getBlock() instanceof FluidPipeBlock block ? block.modules() : FluidPipeModules.forKind(kind);
+    }
+
+    public PipeContext createContext() {
+        return new PipeContext(getLevel(), getBlockPos(), getBlockState(), this);
+    }
+
+    private static PipeConnection.Type mapConnection(FluidConnection connection) {
+        return switch (connection) {
+            case PIPE -> PipeConnection.Type.PIPE;
+            case HANDLER -> PipeConnection.Type.INVENTORY;
+            case NONE -> PipeConnection.Type.NONE;
+        };
+    }
+
+    @Override
+    public CompoundTag moduleState(String key) {
+        if (!moduleState.contains(key)) {
+            moduleState.put(key, new CompoundTag());
+        }
+        return NbtCompat.getCompoundOrEmpty(moduleState, key);
+    }
+
+    @Override
+    @Nullable
+    public CompoundTag existingModuleState(String key) {
+        return moduleState.contains(key) ? NbtCompat.getCompoundOrEmpty(moduleState, key) : null;
+    }
+
+    @Override
+    public void clearModuleState(String key) {
+        moduleState.remove(key);
+    }
+
+    @Override
+    @Nullable
+    public EnergyComponent getEnergy() {
+        return energy;
+    }
+
+    @Override
+    public void markDirty() {
+        setChanged();
+    }
+
+    @Override
+    public PipeConnection.Type getCachedConnectionType(Direction direction) {
+        return mapConnection(connection(direction));
+    }
+
+    @Override
+    public PipeConnection.Type getConnectionType(Level world, BlockPos pos, Direction direction) {
+        return mapConnection(connection(direction));
+    }
+
+    @Override
+    public boolean isNeighborPipe(Level world, BlockPos pos, Direction direction) {
+        return world.getBlockState(pos.relative(direction)).getBlock() instanceof FluidPipeBlock;
+    }
+
+    @Override
+    public boolean isPowered() {
+        Level level = getLevel();
+        return level != null && level.hasNeighborSignal(getBlockPos());
+    }
+
+    @Override
+    @Nullable
+    public ILogisticsNetwork getNetwork() {
+        return null; // fluid pipes are cellular; no logistics network
     }
 
     // ==================== Server tick ====================
@@ -639,6 +733,9 @@ public class FluidPipeBlockEntity extends BaseBlockEntity
                 tag.putLong("ExtractCarry", extractionCarryMb);
             }
         }
+        if (!moduleState.isEmpty()) {
+            tag.put("ModuleState", moduleState);
+        }
     }
 
     @Override
@@ -662,6 +759,29 @@ public class FluidPipeBlockEntity extends BaseBlockEntity
             energy.readNbt(tag, "Energy");
             extractionCarryMb = NbtCompat.getLong(tag, "ExtractCarry", 0);
         }
+        new ArrayList<>(moduleState.keySet()).forEach(moduleState::remove);
+        NbtCompat.ifHasCompound(tag, "ModuleState", stored -> {
+            for (String key : stored.keySet()) {
+                Tag value = stored.get(key);
+                if (value != null) {
+                    moduleState.put(key, value.copy());
+                }
+            }
+        });
+    }
+
+    // ==================== Component round-trip (item drops / placement) ====================
+
+    @Override
+    protected void applyImplicitComponents(DataComponentGetter components) {
+        super.applyImplicitComponents(components);
+        modules().readItemComponents(components, createContext());
+    }
+
+    @Override
+    protected void collectImplicitComponents(DataComponentMap.Builder builder) {
+        super.collectImplicitComponents(builder);
+        modules().addItemComponents(builder, createContext());
     }
 
     private int encodeConnections() {

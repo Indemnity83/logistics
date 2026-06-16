@@ -10,7 +10,9 @@ import com.logistics.pipe.block.PipeBlock;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.core.lib.pipe.CoreDecoration;
 import com.logistics.core.lib.pipe.DispatchableModule;
+import com.logistics.core.lib.pipe.IModuleHost;
 import com.logistics.core.lib.pipe.ItemAcceptingModule;
+import com.logistics.core.lib.pipe.ModularPipe;
 import com.logistics.core.lib.pipe.Module;
 import com.logistics.core.lib.pipe.RandomTickModule;
 import com.logistics.core.lib.pipe.TickingModule;
@@ -36,7 +38,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
 import org.jetbrains.annotations.Nullable;
 
-public class Pipe {
+public class Pipe implements ModularPipe {
     private final List<Module> modules;
     private PipeBlock pipeBlock;
     private boolean hasEnergy = false;
@@ -290,6 +292,18 @@ public class Pipe {
      * modules that cannot be found in the static module list.
      */
     public <T extends Module> T getModule(Class<T> moduleClass, PipeBlockEntity entity) {
+        return getModule(moduleClass);
+    }
+
+    /**
+     * {@link ModularPipe} entry point. Item pipes route through the chassis-aware lookup when the
+     * host is a {@link PipeBlockEntity}; otherwise fall back to the static module list.
+     */
+    @Override
+    public <T extends Module> T getModule(Class<T> moduleClass, IModuleHost host) {
+        if (host instanceof PipeBlockEntity pbe) {
+            return getModule(moduleClass, pbe);
+        }
         return getModule(moduleClass);
     }
 

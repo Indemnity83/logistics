@@ -23,11 +23,18 @@ public class FluidPipeRenderState extends BlockEntityRenderState {
     /** A body model part (core or directional arm), with parts cached at the renderer level. */
     public static final class ModelRenderInfo {
         public final ResourceId modelId;
+        /** ARGB tint applied to this part; opaque white for the pipe body, set for module overlays (e.g. markings). */
+        public final int color;
         public final @Nullable Direction armDirection;
         @Nullable public List<BlockStateModelPart> parts = null;
 
         public ModelRenderInfo(ResourceId modelId, @Nullable Direction armDirection) {
+            this(modelId, 0xFFFFFFFF, armDirection);
+        }
+
+        public ModelRenderInfo(ResourceId modelId, int color, @Nullable Direction armDirection) {
             this.modelId = modelId;
+            this.color = color;
             this.armDirection = armDirection;
         }
     }

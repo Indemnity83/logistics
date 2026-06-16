@@ -19,6 +19,19 @@ public class FluidPipeBlockItem extends BlockItem {
     }
 
     @Override
+    public Component getName(ItemStack stack) {
+        Block block = getBlock();
+        if (!(block instanceof FluidPipeBlock pipe)) {
+            return super.getName(stack);
+        }
+        String suffix = pipe.modules().getItemNameSuffixFromComponents(stack);
+        if (suffix.isEmpty()) {
+            return super.getName(stack);
+        }
+        return Component.translatable(block.getDescriptionId() + suffix);
+    }
+
+    @Override
     public void appendHoverText(
             ItemStack stack,
             Item.TooltipContext context,

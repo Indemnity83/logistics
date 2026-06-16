@@ -1,15 +1,17 @@
 package com.logistics.pipe.modules;
 
 import com.logistics.LogisticsPipe;
+import com.logistics.core.lib.pipe.IModuleHost;
+import com.logistics.core.lib.pipe.ModularPipe;
+import com.logistics.core.lib.pipe.ModularPipeBlock;
 import com.logistics.core.lib.pipe.Module;
+import com.logistics.core.lib.pipe.PipeFamily;
 import com.logistics.core.lib.pipe.RandomTickModule;
 import com.logistics.core.lib.resource.ResourceId;
-import com.logistics.pipe.Pipe;
 import com.logistics.core.lib.pipe.PipeContext;
-import com.logistics.pipe.block.PipeBlock;
-import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.pipe.data.PipeDataComponents.WeatheringState;
 import java.util.List;
+import java.util.function.Function;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponentGetter;
@@ -38,6 +40,23 @@ import org.jetbrains.annotations.Nullable;
 public class WeatheringModule implements Module, RandomTickModule {
     private static final String OXIDATION_KEY = "oxidation_stage";
     private static final String WAXED_KEY = "waxed";
+
+    /** Resolves a model base name to a full {@link ResourceId} in the owning domain's asset namespace. */
+    private final Function<String, ResourceId> modelResolver;
+
+    /** Asset base name for this pipe's weathering models, e.g. {@code "copper_transport_pipe"}. */
+    private final String modelBase;
+
+    /** Item copper transport pipe defaults (existing behavior). */
+    public WeatheringModule() {
+        this(LogisticsPipe::model, "copper_transport_pipe");
+    }
+
+    /** Domain-neutral constructor: supply the model resolver and asset base for the owning pipe family. */
+    public WeatheringModule(Function<String, ResourceId> modelResolver, String modelBase) {
+        this.modelResolver = modelResolver;
+        this.modelBase = modelBase;
+    }
 
     public static final int STAGE_UNAFFECTED = 0;
     public static final int STAGE_EXPOSED = 1;
@@ -80,6 +99,10 @@ public class WeatheringModule implements Module, RandomTickModule {
         // Step 1: random tick gate (vanilla copper uses 1125/64 odds)
         if (rand.nextInt(1125) >= 64) return;
 
+        // Only consider neighbors of this pipe's own family (item pipes never influence fluid pipes).
+        PipeFamily selfFamily =
+                (ctx.state().getBlock() instanceof ModularPipeBlock self) ? self.family() : null;
+
         // Step 2: scan neighbors within Manhattan distance 4
         int a = 0; // nearby non-waxed weathering pipes
         int b = 0; // nearby pipes more oxidized than me
@@ -89,10 +112,11 @@ public class WeatheringModule implements Module, RandomTickModule {
             if (p.equals(origin)) continue;
             if (origin.distManhattan(p) > 4) continue;
 
-            if (!(ctx.world().getBlockState(p).getBlock() instanceof PipeBlock pipeBlock)) continue;
-            if (!(ctx.world().getBlockEntity(p) instanceof PipeBlockEntity be)) continue;
+            if (!(ctx.world().getBlockState(p).getBlock() instanceof ModularPipeBlock pipeBlock)) continue;
+            if (pipeBlock.family() != selfFamily) continue;
+            if (!(ctx.world().getBlockEntity(p) instanceof IModuleHost be)) continue;
 
-            Pipe pipe = pipeBlock.getPipe();
+            ModularPipe pipe = pipeBlock.modularPipe();
             if (pipe == null || pipe.getModule(WeatheringModule.class, be) == null) continue;
 
             PipeContext neighbor = new PipeContext(ctx.world(), p, ctx.world().getBlockState(p), be);
@@ -200,7 +224,7 @@ public class WeatheringModule implements Module, RandomTickModule {
             return null; // Use default model
         }
         String suffix = getStageSuffix(stage);
-        return LogisticsPipe.model("copper_transport_pipe_core" + suffix);
+        return modelResolver.apply(modelBase + "_core" + suffix);
     }
 
     @Override
@@ -211,7 +235,7 @@ public class WeatheringModule implements Module, RandomTickModule {
         }
         String suffix = getStageSuffix(stage);
         String armType = ctx.isInventoryConnection(direction) ? "_arm_extended" : "_arm";
-        return LogisticsPipe.model("copper_transport_pipe" + armType + suffix);
+        return modelResolver.apply(modelBase + armType + suffix);
     }
 
     // --- Item component handling ---

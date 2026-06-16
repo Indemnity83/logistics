@@ -3,15 +3,26 @@ package com.logistics.fluid.block;
 import com.logistics.LogisticsFluid;
 import com.logistics.core.lib.block.behavior.WrenchBehavior;
 import com.logistics.core.lib.fluids.FluidStorageLookup;
+import com.logistics.core.lib.pipe.ModularPipe;
+import com.logistics.core.lib.pipe.ModularPipeBlock;
+import com.logistics.core.lib.pipe.Module;
+import com.logistics.core.lib.pipe.PipeContext;
+import com.logistics.core.lib.pipe.PipeFamily;
 import com.logistics.fluid.block.entity.FluidPipeBlockEntity;
+import com.logistics.fluid.pipe.FluidPipeModules;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
@@ -41,7 +52,8 @@ import org.jetbrains.annotations.Nullable;
  * {@code FluidPipeBlockEntityRenderer}. Connections are computed by this block and cached on the
  * block entity for shape and arm rendering.
  */
-public class FluidPipeBlock extends BaseEntityBlock implements SimpleWaterloggedBlock, WrenchBehavior.Wrenchable {
+public class FluidPipeBlock extends BaseEntityBlock
+        implements SimpleWaterloggedBlock, WrenchBehavior.Wrenchable, ModularPipeBlock {
 
     public static final MapCodec<FluidPipeBlock> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
             propertiesCodec(),
@@ -72,15 +84,32 @@ public class FluidPipeBlock extends BaseEntityBlock implements SimpleWaterlogged
     }
 
     private final FluidPipeKind kind;
+    private final FluidPipeModules modules;
 
     public FluidPipeBlock(BlockBehaviour.Properties settings, FluidPipeKind kind) {
         super(settings);
         this.kind = kind;
+        this.modules = FluidPipeModules.forKind(kind);
         registerDefaultState(defaultBlockState().setValue(WATERLOGGED, false));
     }
 
     public FluidPipeKind kind() {
         return kind;
+    }
+
+    /** The module composition this fluid pipe hosts (cosmetic/connection behaviors). */
+    public FluidPipeModules modules() {
+        return modules;
+    }
+
+    @Override
+    public ModularPipe modularPipe() {
+        return modules;
+    }
+
+    @Override
+    public PipeFamily family() {
+        return PipeFamily.FLUID;
     }
 
     @Override
@@ -117,6 +146,55 @@ public class FluidPipeBlock extends BaseEntityBlock implements SimpleWaterlogged
                 FluidPipeBlockEntity::tick);
     }
 
+    // ==================== Module dispatch (use / random tick) ====================
+
+    @Override
+    protected InteractionResult useItemOn(
+            ItemStack stack,
+            BlockState state,
+            Level level,
+            BlockPos pos,
+            Player player,
+            InteractionHand hand,
+            BlockHitResult hit) {
+        if (!modules.modules().isEmpty() && level.getBlockEntity(pos) instanceof FluidPipeBlockEntity be) {
+            InteractionResult result = modules.onUseWithItem(be.createContext(), new UseOnContext(player, hand, hit));
+            if (result != InteractionResult.PASS) {
+                // A connection-affecting change (e.g. marking) must re-evaluate this pipe and its
+                // neighbours so a marked boundary actually splits the fluid body.
+                be.invalidateConnectionsAndNeighbours();
+                return result;
+            }
+        }
+        return super.useItemOn(stack, state, level, pos, player, hand, hit);
+    }
+
+    @Override
+    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
+        if (!modules.modules().isEmpty() && level.getBlockEntity(pos) instanceof FluidPipeBlockEntity be) {
+            InteractionResult result =
+                    modules.onUseWithoutItem(be.createContext(), new UseOnContext(player, InteractionHand.MAIN_HAND, hit));
+            if (result != InteractionResult.PASS) {
+                be.invalidateConnectionsAndNeighbours();
+                return result;
+            }
+        }
+        return super.useWithoutItem(state, level, pos, player, hit);
+    }
+
+    @Override
+    protected boolean isRandomlyTicking(BlockState state) {
+        return modules.hasRandomTicks();
+    }
+
+    @Override
+    protected void randomTick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
+        super.randomTick(state, level, pos, random);
+        if (level.getBlockEntity(pos) instanceof FluidPipeBlockEntity be) {
+            modules.randomTick(be.createContext(), random);
+        }
+    }
+
     // ==================== Connections ====================
 
     /**
@@ -135,11 +213,28 @@ public class FluidPipeBlock extends BaseEntityBlock implements SimpleWaterlogged
         if (FluidStorageLookup.find(level, neighbour, direction.getOpposite()) == null) {
             return FluidConnection.NONE;
         }
+        FluidConnection candidate;
         if (level.getBlockState(neighbour).getBlock() instanceof FluidPipeBlock) {
-            return FluidConnection.PIPE;
+            candidate = FluidConnection.PIPE;
+        } else {
+            // Void and bypass pipes connect only to other fluid pipes, never to external handlers.
+            candidate = kind.connectsToHandlers() ? FluidConnection.HANDLER : FluidConnection.NONE;
         }
-        // Void and bypass pipes connect only to other fluid pipes, never to external handlers.
-        return kind.connectsToHandlers() ? FluidConnection.HANDLER : FluidConnection.NONE;
+        if (candidate == FluidConnection.NONE) {
+            return FluidConnection.NONE;
+        }
+        // Let hosted modules veto the connection (mirror of Pipe.filterConnection) — e.g. differently
+        // marked pipes refuse to connect. No-op while no kind composes connection-gating modules.
+        if (!modules.modules().isEmpty() && level.getBlockEntity(pos) instanceof FluidPipeBlockEntity be) {
+            PipeContext ctx = be.createContext();
+            Block neighbourBlock = level.getBlockState(neighbour).getBlock();
+            for (Module module : modules.modules()) {
+                if (!module.allowsConnection(ctx, direction, neighbourBlock)) {
+                    return FluidConnection.NONE;
+                }
+            }
+        }
+        return candidate;
     }
 
     private boolean isConnected(BlockGetter world, BlockPos pos, Direction direction) {

@@ -6,7 +6,10 @@ import com.logistics.pipe.network.NetworkRegistry;
 import com.logistics.core.lib.pipe.PipeConnectionLookup;
 import com.logistics.pipe.Pipe;
 import com.logistics.pipe.ChassisPipe;
+import com.logistics.core.lib.pipe.ModularPipe;
+import com.logistics.core.lib.pipe.ModularPipeBlock;
 import com.logistics.core.lib.pipe.PipeContext;
+import com.logistics.core.lib.pipe.PipeFamily;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.LogisticsPipe;
 import com.logistics.core.lib.pipe.TravelingItem;
@@ -54,7 +57,8 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
 
-public class PipeBlock extends BaseEntityBlock implements SimpleWaterloggedBlock, WrenchBehavior.Wrenchable {
+public class PipeBlock extends BaseEntityBlock
+        implements SimpleWaterloggedBlock, WrenchBehavior.Wrenchable, ModularPipeBlock {
     public static final MapCodec<PipeBlock> CODEC = simpleCodec(PipeBlock::new);
 
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
@@ -102,6 +106,16 @@ public class PipeBlock extends BaseEntityBlock implements SimpleWaterloggedBlock
 
     public Pipe getPipe() {
         return pipe;
+    }
+
+    @Override
+    public ModularPipe modularPipe() {
+        return pipe;
+    }
+
+    @Override
+    public PipeFamily family() {
+        return PipeFamily.ITEM;
     }
 
     @Override

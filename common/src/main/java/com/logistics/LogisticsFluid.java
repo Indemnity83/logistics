@@ -1,6 +1,5 @@
 package com.logistics;
 
-import com.logistics.core.bootstrap.DomainBootstrap;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.fluid.block.FluidPipeBlock;
 import com.logistics.fluid.block.FluidPipeBlockItem;
@@ -15,7 +14,13 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
 
-public final class LogisticsFluid extends LogisticsMod implements DomainBootstrap {
+/**
+ * Fluid registration. No longer an independent {@link com.logistics.core.bootstrap.DomainBootstrap}:
+ * fluid is now part of the pipe domain (so fluid pipes can compose pipe modules). Registration is driven
+ * from {@link LogisticsPipe#initCommon()} via {@link #registerCommon()}; the client renderers are wired
+ * from the pipe client bootstrap / NeoForge client setup. It keeps its own {@code fluid} asset namespace.
+ */
+public final class LogisticsFluid extends LogisticsMod {
     private static final LogisticsFluid INSTANCE = new LogisticsFluid();
 
     @Override
@@ -31,14 +36,9 @@ public final class LogisticsFluid extends LogisticsMod implements DomainBootstra
         return INSTANCE.domainModelResource(name);
     }
 
-    @Override
-    public int order() {
-        return 20;
-    }
-
-    @Override
-    public void initCommon() {
-        LOGGER.info("Registering {}", domain());
+    /** Register all fluid blocks, block entities, and creative entries. Called by the pipe domain bootstrap. */
+    public static void registerCommon() {
+        LOGGER.info("Registering {}", INSTANCE.domain());
 
         BLOCK.register();
         ENTITY.register();
