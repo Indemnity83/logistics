@@ -1,4 +1,4 @@
-package com.logistics.pipe.fluid;
+package com.logistics.core.lib.fluids;
 
 import com.logistics.core.lib.platform.PlatformService;
 

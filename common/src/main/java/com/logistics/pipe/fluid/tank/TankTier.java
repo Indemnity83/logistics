@@ -1,6 +1,6 @@
 package com.logistics.pipe.fluid.tank;
 
-import com.logistics.pipe.fluid.FluidUnits;
+import com.logistics.core.lib.fluids.FluidUnits;
 
 /**
  * Capacity tiers for fluid tanks, expressed in buckets. Only {@link #GLASS} exists today; the enum is

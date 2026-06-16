@@ -3,7 +3,7 @@ package com.logistics.fluid.block.entity;
 import com.logistics.core.lib.fluids.IFluidKey;
 import com.logistics.core.lib.fluids.IFluidStorage;
 import com.logistics.core.lib.fluids.IFluidView;
-import com.logistics.pipe.fluid.FluidUnits;
+import com.logistics.core.lib.fluids.FluidUnits;
 import java.util.Collections;
 import java.util.List;
 import net.minecraft.core.Direction;

@@ -18,7 +18,7 @@ import com.logistics.core.lib.network.ILogisticsNetwork;
 import com.logistics.core.lib.pipe.IModuleHost;
 import com.logistics.core.lib.pipe.PipeContext;
 import com.logistics.core.lib.power.AcceptsLowTierEnergy;
-import com.logistics.pipe.fluid.FluidUnits;
+import com.logistics.core.lib.fluids.FluidUnits;
 import com.logistics.fluid.block.FluidConnection;
 import com.logistics.fluid.block.FluidPipeBlock;
 import com.logistics.fluid.block.FluidPipeKind;
