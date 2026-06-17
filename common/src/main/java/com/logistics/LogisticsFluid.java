@@ -1,21 +1,29 @@
 package com.logistics;
 
-import com.logistics.core.bootstrap.DomainBootstrap;
 import com.logistics.core.lib.resource.ResourceId;
-import com.logistics.fluid.block.FluidPipeBlock;
-import com.logistics.fluid.block.FluidPipeBlockItem;
-import com.logistics.fluid.block.FluidPipeKind;
-import com.logistics.fluid.block.GlassTankBlock;
-import com.logistics.fluid.block.GlassTankBlockItem;
-import com.logistics.fluid.block.entity.FluidPipeBlockEntity;
-import com.logistics.fluid.block.entity.GlassTankBlockEntity;
+import com.logistics.pipe.PipeTypes;
+import com.logistics.pipe.block.FluidPipeBlock;
+import com.logistics.pipe.item.FluidPipeBlockItem;
+import com.logistics.pipe.block.GlassTankBlock;
+import com.logistics.pipe.item.GlassTankBlockItem;
+import com.logistics.pipe.block.entity.FluidPipeBlockEntity;
+import com.logistics.pipe.block.entity.GlassTankBlockEntity;
+import java.util.ArrayList;
+import java.util.List;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
 
-public final class LogisticsFluid extends LogisticsMod implements DomainBootstrap {
+/**
+ * Fluid registration. No longer an independent {@link com.logistics.core.bootstrap.DomainBootstrap}:
+ * fluid is now part of the pipe domain (so fluid pipes can compose pipe modules). Registration is driven
+ * from {@link LogisticsPipe#initCommon()} via {@link #registerCommon()}; the client renderers are wired
+ * from the pipe client bootstrap / NeoForge client setup. It keeps its own {@code fluid} asset namespace.
+ */
+public final class LogisticsFluid extends LogisticsMod {
     private static final LogisticsFluid INSTANCE = new LogisticsFluid();
 
     @Override
@@ -31,14 +39,9 @@ public final class LogisticsFluid extends LogisticsMod implements DomainBootstra
         return INSTANCE.domainModelResource(name);
     }
 
-    @Override
-    public int order() {
-        return 20;
-    }
-
-    @Override
-    public void initCommon() {
-        LOGGER.info("Registering {}", domain());
+    /** Register all fluid blocks, block entities, and creative entries. Called by the pipe domain bootstrap. */
+    public static void registerCommon() {
+        LOGGER.info("Registering {}", INSTANCE.domain());
 
         BLOCK.register();
         ENTITY.register();
@@ -78,28 +81,28 @@ public final class LogisticsFluid extends LogisticsMod implements DomainBootstra
 
         static void register() {
             COPPER_FLUID_PIPE = INSTANCE.registerBlockWithItem("copper_fluid_pipe",
-                    props -> new FluidPipeBlock(fluidPipeProps(props), FluidPipeKind.COPPER),
+                    props -> new FluidPipeBlock(fluidPipeProps(props), PipeTypes.COPPER_FLUID_PIPE),
                     FluidPipeBlockItem::new);
             STONE_FLUID_PIPE = INSTANCE.registerBlockWithItem("stone_fluid_pipe",
-                    props -> new FluidPipeBlock(fluidPipeProps(props), FluidPipeKind.STONE),
+                    props -> new FluidPipeBlock(fluidPipeProps(props), PipeTypes.STONE_FLUID_PIPE),
                     FluidPipeBlockItem::new);
             GOLD_FLUID_PIPE = INSTANCE.registerBlockWithItem("gold_fluid_pipe",
-                    props -> new FluidPipeBlock(fluidPipeProps(props), FluidPipeKind.GOLD),
+                    props -> new FluidPipeBlock(fluidPipeProps(props), PipeTypes.GOLD_FLUID_PIPE),
                     FluidPipeBlockItem::new);
             INSERTION_FLUID_PIPE = INSTANCE.registerBlockWithItem("insertion_fluid_pipe",
-                    props -> new FluidPipeBlock(fluidPipeProps(props), FluidPipeKind.INSERTION),
+                    props -> new FluidPipeBlock(fluidPipeProps(props), PipeTypes.INSERTION_FLUID_PIPE),
                     FluidPipeBlockItem::new);
             MERGER_FLUID_PIPE = INSTANCE.registerBlockWithItem("merger_fluid_pipe",
-                    props -> new FluidPipeBlock(fluidPipeProps(props), FluidPipeKind.MERGER),
+                    props -> new FluidPipeBlock(fluidPipeProps(props), PipeTypes.MERGER_FLUID_PIPE),
                     FluidPipeBlockItem::new);
             FLUID_EXTRACTOR_PIPE = INSTANCE.registerBlockWithItem("fluid_extractor_pipe",
-                    props -> new FluidPipeBlock(fluidPipeProps(props), FluidPipeKind.EXTRACTOR),
+                    props -> new FluidPipeBlock(fluidPipeProps(props), PipeTypes.FLUID_EXTRACTOR_PIPE),
                     FluidPipeBlockItem::new);
             VOID_FLUID_PIPE = INSTANCE.registerBlockWithItem("void_fluid_pipe",
-                    props -> new FluidPipeBlock(fluidPipeProps(props), FluidPipeKind.VOID),
+                    props -> new FluidPipeBlock(fluidPipeProps(props), PipeTypes.VOID_FLUID_PIPE),
                     FluidPipeBlockItem::new);
             BYPASS_FLUID_PIPE = INSTANCE.registerBlockWithItem("bypass_fluid_pipe",
-                    props -> new FluidPipeBlock(fluidPipeProps(props), FluidPipeKind.BYPASS),
+                    props -> new FluidPipeBlock(fluidPipeProps(props), PipeTypes.BYPASS_FLUID_PIPE),
                     FluidPipeBlockItem::new);
             GLASS_TANK = INSTANCE.registerBlockWithItem("glass_tank",
                     props -> new GlassTankBlock(tankProps(props)),
@@ -134,6 +137,17 @@ public final class LogisticsFluid extends LogisticsMod implements DomainBootstra
         private CREATIVE() {}
 
         static void register() {
+            // Copper fluid pipe weathering variants (exposed/weathered/oxidized + waxed); the base entry
+            // is added below.
+            LogisticsCore.CREATIVE.TAB.add(entries -> {
+                if (BLOCK.COPPER_FLUID_PIPE instanceof FluidPipeBlock pipeBlock && pipeBlock.fluidPipe() != null) {
+                    ItemStack baseStack = new ItemStack(BLOCK.COPPER_FLUID_PIPE);
+                    List<ItemStack> variants = new ArrayList<>();
+                    pipeBlock.fluidPipe().appendCreativeMenuVariants(variants, baseStack);
+                    variants.forEach(entries::accept);
+                }
+            });
+
             LogisticsCore.CREATIVE.TAB.add(BLOCK.COPPER_FLUID_PIPE);
             LogisticsCore.CREATIVE.TAB.add(BLOCK.STONE_FLUID_PIPE);
             LogisticsCore.CREATIVE.TAB.add(BLOCK.GOLD_FLUID_PIPE);

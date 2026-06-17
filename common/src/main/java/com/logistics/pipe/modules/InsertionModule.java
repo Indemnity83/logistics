@@ -73,7 +73,7 @@ public class InsertionModule implements Module, RoutingModule {
 
     private long getRoutedAmount(PipeContext ctx, Direction direction, IItemKey key) {
         long total = 0;
-        for (TravelingItem other : ctx.blockEntity().getTravelingItems()) {
+        for (TravelingItem other : ctx.pipeAccess().getTravelingItems()) {
             if (!other.isRouted()) {
                 continue;
             }

@@ -21,6 +21,9 @@ public final class LogisticsPipeClient implements ClientDomainBootstrap {
 
         BlockEntityRenderers.register(LogisticsPipe.ENTITY.PIPE_BLOCK_ENTITY, PipeBlockEntityRenderer::new);
 
+        // Fluid is part of the pipe domain; register its client renderers here.
+        LogisticsFluidClient.registerClient();
+
         MenuScreens.register(LogisticsPipe.SCREEN.ITEM_FILTER, ItemFilterScreen::new);
         MenuScreens.register(LogisticsPipe.SCREEN.REQUESTER, com.logistics.pipe.screen.RequesterScreen::new);
         MenuScreens.register(LogisticsPipe.SCREEN.SUPPLIER, com.logistics.pipe.screen.SupplierScreen::new);

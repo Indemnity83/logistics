@@ -6,7 +6,7 @@ import com.logistics.core.lib.pipe.TravelingItem;
 import com.logistics.pipe.network.NetDbg;
 import com.logistics.core.lib.block.capability.PipeConnection;
 import com.logistics.core.lib.network.ILogisticsNetwork;
-import com.logistics.pipe.Pipe;
+import com.logistics.pipe.ItemPipe;
 import com.logistics.pipe.modules.NetworkRouterModule;
 import com.logistics.core.lib.pipe.PipeContext;
 import com.logistics.pipe.block.PipeBlock;
@@ -35,7 +35,7 @@ public final class PipeRuntime {
             BlockPos pos,
             BlockState state,
             PipeBlockEntity blockEntity,
-            @Nullable Pipe pipe,
+            @Nullable ItemPipe pipe,
             @Nullable PipeContext pipeContext,
             float maxSpeed,
             float accelerationRate,
@@ -45,7 +45,7 @@ public final class PipeRuntime {
             float maxSpeed = LogisticsConfig.get().pipe.maxSpeed;
             float accelerationRate = 0f;
             float dragCoefficient = LogisticsConfig.get().pipe.drag;
-            Pipe pipe = null;
+            ItemPipe pipe = null;
             PipeContext pipeContext = null;
 
             if (state.getBlock() instanceof PipeBlock pipeBlock && pipeBlock.getPipe() != null) {

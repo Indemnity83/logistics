@@ -1,16 +1,20 @@
 package com.logistics;
 
-import com.logistics.core.bootstrap.ClientDomainBootstrap;
-import com.logistics.fluid.render.FluidPipeBlockEntityRenderer;
-import com.logistics.fluid.render.GlassTankBlockEntityRenderer;
+import com.logistics.pipe.render.FluidPipeBlockEntityRenderer;
+import com.logistics.pipe.render.GlassTankBlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 
 import static com.logistics.LogisticsMod.LOGGER;
 
-public final class LogisticsFluidClient implements ClientDomainBootstrap {
+/**
+ * Fluid client registration. No longer a standalone {@code ClientDomainBootstrap}: fluid is part of the
+ * pipe domain, so its renderers are registered from {@link LogisticsPipeClient#initClient()}.
+ */
+public final class LogisticsFluidClient {
 
-    @Override
-    public void initClient() {
+    private LogisticsFluidClient() {}
+
+    public static void registerClient() {
         LOGGER.info("Registering fluid (client)");
 
         BlockEntityRenderers.register(

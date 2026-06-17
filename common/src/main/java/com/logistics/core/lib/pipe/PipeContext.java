@@ -20,10 +20,10 @@ public record PipeContext(
         Level world,
         BlockPos pos,
         BlockState state,
-        IPipeAccess blockEntity,
+        IModuleHost blockEntity,
         Map<Module, String> moduleStateKeys) {
 
-    public PipeContext(Level world, BlockPos pos, BlockState state, IPipeAccess blockEntity) {
+    public PipeContext(Level world, BlockPos pos, BlockState state, IModuleHost blockEntity) {
         this(world, pos, state, blockEntity, Map.of());
     }
 
@@ -43,6 +43,20 @@ public record PipeContext(
 
     public String moduleStateKey(Module module) {
         return moduleStateKeys.getOrDefault(module, module.getStateKey());
+    }
+
+    /**
+     * The item-transport view of this pipe's host. Only valid for item pipes — fluid pipes host only
+     * the payload-agnostic {@link IModuleHost} surface and never compose item-transport modules, so
+     * this cast is safe wherever an item-transport module reaches for it.
+     */
+    public IPipeAccess pipeAccess() {
+        if (blockEntity instanceof IPipeAccess access) {
+            return access;
+        }
+        throw new IllegalStateException("pipeAccess() requires an item-transport pipe host (IPipeAccess), but got "
+                + blockEntity.getClass().getName()
+                + " — an item-transport module was composed on a non-item pipe");
     }
 
     public CompoundTag moduleState(String key) {
