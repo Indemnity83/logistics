@@ -27,7 +27,7 @@ See each breakdown in [`mods/`](mods/).
 Packs of this style also leaned on storage and quality-of-life mods. Most have living modern equivalents and are **not** Logistics' job:
 
 - **Storage** — Iron Chests, Iron Tanks, Storage Drawers all exist in modern form; **Ender Storage** is abandoned but has modern replacements. Out of scope (Logistics provides the *pipes*, not the *boxes*).
-- **World/flair** — Biomes O' Plenty, Binnie's Mods (extends Forestry). Out of scope, though Forestry-style genetics may overlap.
+- **World/flair** — Biomes O' Plenty, Binnie's Mods (extends Forestry). Out of scope; Logistics may share the same farming/processing context, but Forestry-style genetics itself is not in scope.
 - **Magic** — Soul Shards. Out of scope.
 - **Tools/QoL** — NEI, Waila, Schematica, Chisel, Carpenter's Blocks. Out of scope (modern equivalents exist; we integrate with JEI/Jade where it helps).
 

@@ -45,8 +45,8 @@ See [`../principles.md`](../principles.md) for the table legend. Railcraft is *e
 |---|---|---|---|---|---|
 | Coke Oven | Multiblock: coal → coke + creosote oil | Modernize | Coke + creosote feed steel + fuel/treated-wood. **Reconsider the multiblock** — prefer single block or tileable (scale optional) | — | Phase 3 — steam chain |
 | Blast Furnace | Multiblock: iron + coke → steel | Modernize | Steel is the module's key material; **single-block machine** preferred over the 34-block structure | — | Phase 3 — steel |
-| Steam Boiler (solid/liquid, HP/LP) | Multiblock: fuel + water → steam | TBD | Steam as a power tier, but the big multiblock fights the no-multiblock stance. **Leaning: lean on Create for steam via a compat layer** rather than build our own boiler; else single-block tier or cut. See [RFC 0003](../rfcs/0003-railcraft-multiblocks.md) | — | Phase 3 — steam power |
-| Steam Turbine / steam engines | Steam → RF/work | Modernize | Unify with the engine line (steam-tier engine) | — | `power` / engines |
+| Steam Boiler (solid/liquid, HP/LP) | Multiblock: fuel + water → steam | Modernize | Prefer **Create steam compat** over building a Logistics boiler; fallback is a simplified Logistics steam path if compat is not enough. See [RFC 0003](../rfcs/0003-railcraft-multiblocks.md) | — | Phase 3 — steam power |
+| Steam Turbine / steam engines | Steam → RF/work | Modernize | Unify with the engine line through Create steam compat first; fallback is a simplified steam-tier engine | — | `power` / engines |
 | Iron / Steel Tank | Multiblock bulk fluid storage | Modernize | The classic "Iron Tanks" role. *Scale is the feature* — a valid multiblock exception, or tileable tank blocks | — | Phase 3 — tanks (fluids) |
 | Rock Crusher | Multiblock ore processing | Skip | Covered by the Macerator | ❌ | [`thermal-expansion.md`](thermal-expansion.md) |
 | Rolling Machine | Cart/rail crafting | Modernize | Fold rail crafting into normal/vanilla-Crafter recipes | — | — |
@@ -63,5 +63,5 @@ See [`../principles.md`](../principles.md) for the table legend. Railcraft is *e
 | Engraving / emblems / firestone / misc | Cosmetic & niche extras | Skip | Out of scope | ❌ | — |
 
 > TODO: the multiblock calls (coke oven, blast furnace, boiler, tank) are the biggest design tension in this module vs. the no-multiblock stance — decide per-block (single vs. tileable vs. true multiblock) via a Discussion before scheduling. See [RFC 0003 — Railcraft Multiblocks & Steam](../rfcs/0003-railcraft-multiblocks.md).
-> TODO: confirm scope of the steam power chain — whether steam is a real `power` tier (boiler→turbine→RF), a **Create compat layer** (the current maintainer leaning), or simplified away; it couples to the engine-line unification in [`buildcraft.md`](buildcraft.md) / [`thermal-expansion.md`](thermal-expansion.md). See [RFC 0003 — Railcraft Multiblocks & Steam](../rfcs/0003-railcraft-multiblocks.md).
+> TODO: confirm the exact Create compatibility seam for steam power, with a simplified Logistics steam path only as fallback; it couples to the engine-line unification in [`buildcraft.md`](buildcraft.md) / [`thermal-expansion.md`](thermal-expansion.md). See [RFC 0003 — Railcraft Multiblocks & Steam](../rfcs/0003-railcraft-multiblocks.md).
 > Decided (Jun 2026): **electric locomotives/tracks are out of scope** — Railcraft transport is steam-only for v1.

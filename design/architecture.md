@@ -20,7 +20,7 @@ Domains don't import each other; they talk through `core.lib` (`PlatformService`
 
 The aim is to let players install **only what they want** — not a monolith. Recreating five mods' worth of content in one giant jar would undercut the "install the parts you want" flexibility that defined classic tech packs.
 
-Proposed provisional split, roughly along the source-mod lines:
+Finalized split, roughly along the source-mod lines:
 
 ```text
 logistics-core        # shared library: core.lib abstractions, energy/item/fluid APIs,

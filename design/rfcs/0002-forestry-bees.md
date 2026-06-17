@@ -47,9 +47,9 @@ If breeding-style genetics is ever pursued, it should be its **own dedicated mod
 - The **Alveary** (advanced multiblock) is a Skip regardless of A/B/C — confirm and record.
 - Does anything else in Forestry depend on bee products (e.g. Carpenter recipes using honey/wax)? If so, source those another way under A.
 
-## How we'll decide
+## Historical note
 
-Ideas/**Polls** Discussion — bees are nostalgia-heavy, so reaction/vote demand is the right signal. Decide **before** any Phase 2 bee scheduling. Outcome flips the `forestry.md` Bees rows from TBD to Modernize/Skip and, if B, seeds a feature brief.
+This was originally expected to need an Ideas/**Polls** Discussion because bees are nostalgia-heavy. The June 2026 maintainer + contributor call closed it earlier: genetics is out of scope for Logistics, and any future genetics work should live in a separate dedicated mod.
 
 ## References
 

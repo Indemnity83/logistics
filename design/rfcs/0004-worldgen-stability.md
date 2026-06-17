@@ -40,11 +40,10 @@ Design each new material to be obtainable from already-available inputs: **vanil
 
 ## Recommendation / leaning
 
-**C is the default; B is the fallback; A is a narrow exception.**
+**C is the default; B is the fallback.**
 
 1. **Source without worldgen (C) by default.** Every new material should derive from vanilla ores, alloying, byproducts, processing, or structure/loot. This is already the documented sourcing stance — make it an explicit rule.
 2. **If a material genuinely must be a fresh worldgen ore, commit to version-tracked retrogen (B)** for it, on both loaders — don't pre-seed.
-3. **Pre-seed (A) only** for an ore whose need *and* distribution are already certain and settled — a deliberate, case-by-case call, never the default.
 
 And: **fold content availability into the 1.0 stability promise.** "No save-breaking changes" should also mean "a 1.0 world stays fully playable through later phases — no material becomes unobtainable on an existing save." (Added to the delivery-plan Definition of Done.)
 

@@ -62,5 +62,5 @@ common/src/main/java/com/logistics/pipe/item/RemoteOrdererItem.java
 
 ## References
 
-- Roadmap: [`../delivery-plan.md`](../delivery-plan.md) → Phase 1 → logistics QoL; [`../mods/logistics-pipes.md`](../mods/logistics-pipes.md) → Remote Orderer row
+- Roadmap: [`../../ROADMAP.md`](../../ROADMAP.md) → Exploring/RFC; [`../mods/logistics-pipes.md`](../mods/logistics-pipes.md) → Remote Orderer row
 - Code: `pipe/ui/RequesterScreenHandler` (reuse), `pipe/modules/RequesterModule#onWrench` (openMenu idiom), `pipe/item/ModuleItem#use` (handheld→screen), `pipe/network/NetworkRegistry` (resolve network by pos), `core/lib/network/{ILogisticsNetwork,Order}`, `pipe/data/PipeDataComponents` (data-component binding), `LogisticsPipe.java`

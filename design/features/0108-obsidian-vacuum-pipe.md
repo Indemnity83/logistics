@@ -59,5 +59,5 @@ The closest precedent is the **Void pipe** (`VoidModule`) for "special routing p
 
 ## References
 
-- Roadmap: [`../delivery-plan.md`](../delivery-plan.md) → Phase 1 → pipes; [`../mods/buildcraft.md`](../mods/buildcraft.md) → Obsidian pipe row
+- Roadmap: [`../../ROADMAP.md`](../../ROADMAP.md) → Not Currently Planned; [`../mods/buildcraft.md`](../mods/buildcraft.md) → Obsidian pipe row
 - Code: `pipe/modules/VoidModule` (special pipe precedent), `core/lib/pipe/{Module,TickingModule,RoutingModule,TravelingItem}`, `pipe/block/entity/PipeBlockEntity#dropItem` (reverse of the operation), `automation/laserquarry/.../QuarryBlockBreaker` (entity-scan idiom), `pipe/PipeTypes`, `LogisticsPipe.java`

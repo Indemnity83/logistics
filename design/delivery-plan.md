@@ -14,7 +14,7 @@ This file is the human-readable mirror of **GitHub Project #4 "Logistics Roadmap
 |-------------------------|--------------------------------------------------------------------------------------------------------|----------------------------------------|----------------|
 | **0 — Foundation**      | Materials, tools, energy, the pipe network                                                             | Logistics Pipes, base of BuildCraft/TE | ✅ Largely done |
 | **1 — Automation core** | Round out engines, ore processing, RF machines, and the quarry                                         | BuildCraft + Thermal Expansion         | 🚧 In progress |
-| **2 — Forestry**        | Industrial Forestry: farms, processing, power, electronics *(no genetics — no bees/trees/butterflies)* | Forestry                               | — Not started  |
+| **2 — Forestry**        | Industrial Forestry: farms, processing, power, electronics *(tree harvesting only; no genetics/breeding)* | Forestry                               | — Not started  |
 | **3 — Transport**       | Rails, advanced carts, tanks, signals, bulk processing                                                 | Railcraft                              | — Not started  |
 
 ---
