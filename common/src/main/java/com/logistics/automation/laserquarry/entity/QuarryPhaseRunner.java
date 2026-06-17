@@ -1,5 +1,6 @@
 package com.logistics.automation.laserquarry.entity;
 
+import com.logistics.LogisticsAutomation;
 import com.logistics.automation.laserquarry.LaserQuarryBlock;
 import com.logistics.automation.laserquarry.entity.LaserQuarryBlockEntity.ArmState;
 import com.logistics.automation.laserquarry.entity.LaserQuarryBlockEntity.Phase;
@@ -7,9 +8,13 @@ import com.logistics.core.LogisticsConfig;
 import com.logistics.core.lib.compat.NbtCompat;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.*;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Owns the laser quarry's per-phase execution state — {@code Phase} dispatch,
@@ -72,7 +77,9 @@ public final class QuarryPhaseRunner {
         this.currentTarget = null;
     }
 
-    /** Marker callback: bounds changed, restart the full clear -> frame -> mine sequence. */
+    /**
+     * Marker callback: bounds changed, restart the full clear -> frame -> mine sequence.
+     */
     public void onCustomBoundsSet() {
         phase = Phase.CLEARING;
         frameBuildIndex = 0;
@@ -83,7 +90,9 @@ public final class QuarryPhaseRunner {
         resetBreakProgress();
     }
 
-    /** True if the quarry has been placed but hasn't started any clearing yet. */
+    /**
+     * True if the quarry has been placed but hasn't started any clearing yet.
+     */
     public boolean isFreshlyPlaced() {
         return phase == Phase.CLEARING && miningX == 0 && miningY == 0 && miningZ == 0 && breakProgress == 0;
     }
@@ -91,12 +100,61 @@ public final class QuarryPhaseRunner {
     // ==================== Tick dispatch ====================
 
     public void tick(LaserQuarryBlockEntity be, ServerLevel world, BlockPos pos, BlockState state) {
+        switch (LogisticsConfig.get().quarry.chunkLoading) {
+            case NONE -> {
+            }
+            case BOUNDARY_ONLY -> loadBoundaryOnly(be, world, pos, state);
+            case FULL -> loadFull(be, world, pos, state);
+        }
+
         switch (phase) {
             case CLEARING -> tickClearing(be, world, pos, state);
             case BUILDING_FRAME -> tickBuildingFrame(be, world, state);
             case MINING -> tickMining(be, world, state);
-            default -> {}
+            default -> {
+            }
         }
+    }
+
+    private void loadBoundaryOnly(LaserQuarryBlockEntity be, ServerLevel world, BlockPos pos, BlockState state) {
+        ServerChunkCache chunkCache = world.getChunkSource();
+        QuarryFrameRect frame = QuarryFrameRect.resolve(
+                LaserQuarryBlock.getMiningDirection(state),
+                pos,
+                be.getBounds(),
+                LogisticsConfig.get().quarry.area
+        );
+
+        Set<ChunkPos> chunks = new HashSet<>();
+        for (int x = frame.startX(); x < frame.endX(); x++) {
+            for (int z = frame.startZ(); z < frame.endZ(); z++) {
+                BlockPos offsetPost = new BlockPos(x, frame.bottomY(), z);
+                chunks.add(ChunkPos.containing(offsetPost));
+            }
+        }
+
+        for (ChunkPos chunk : chunks) {
+            System.out.printf("%d %d %n", chunk.x(), chunk.z());
+            Ticket ticket = new Ticket(
+                    LogisticsAutomation.TICKET_TYPE.QUARRY_BOUNDARY,
+                    ChunkLevel.byStatus(FullChunkStatus.BLOCK_TICKING)
+            );
+
+            chunkCache.addTicket(ticket, chunk);
+        }
+    }
+
+    private void loadFull(LaserQuarryBlockEntity be, ServerLevel world, BlockPos pos, BlockState state) {
+        this.loadBoundaryOnly(be, world, pos, state);
+
+        Ticket ticket = new Ticket(
+                LogisticsAutomation.TICKET_TYPE.QUARRY,
+                ChunkLevel.byStatus(FullChunkStatus.BLOCK_TICKING)
+        );
+        ChunkPos chunk = ChunkPos.containing(pos);
+
+        ServerChunkCache chunkCache = world.getChunkSource();
+        chunkCache.addTicket(ticket, chunk);
     }
 
     private void tickClearing(LaserQuarryBlockEntity be, ServerLevel world, BlockPos pos, BlockState state) {
@@ -442,7 +500,9 @@ public final class QuarryPhaseRunner {
         }
     }
 
-    /** Load from the legacy {@code MiningState} compound. */
+    /**
+     * Load from the legacy {@code MiningState} compound.
+     */
     public void loadLegacy(CompoundTag miningStateTag) {
         miningX = NbtCompat.getInt(miningStateTag, "X", 0);
         miningY = NbtCompat.getInt(miningStateTag, "Y", 0);

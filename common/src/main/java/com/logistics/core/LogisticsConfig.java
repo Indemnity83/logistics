@@ -49,6 +49,18 @@ public final class LogisticsConfig {
         public long armEnergy = 20L;
         public float rainPenalty = 0.7f;
         public int scanRate = 256;
+        public ChunkLoadingMode chunkLoading = ChunkLoadingMode.BOUNDARY_ONLY;
+
+        public enum ChunkLoadingMode {
+            // No chunks are loaded
+            NONE,
+
+            // Only chunks within the quarry boundary are loaded as TODO chunks
+            BOUNDARY_ONLY,
+
+            // The chunk the quarry is located in is fully loaded, and the boundary chunks are loaded as TODO chunks
+            FULL;
+        };
 
         // Derived values — computed from the fields above.
         public double energyPerBlockMultiplier() { return nonNegativeFiniteOrZero(energyPerBlock * energyMultiplier * 2); }
@@ -141,6 +153,11 @@ public final class LogisticsConfig {
                 v -> INSTANCE.quarry.scanRate = v.intValue(),
                 Long::parseLong,
                 v -> requireRange(v, 1L, (long) Integer.MAX_VALUE, "must be between 1 and " + Integer.MAX_VALUE));
+        reg(map, "quarry_chunk_loading", "Quarry chunk loading.",
+                () -> INSTANCE.quarry.chunkLoading,
+                mode -> INSTANCE.quarry.chunkLoading = mode,
+                QuarryConfig.ChunkLoadingMode::valueOf,
+                _ -> {});
 
         // Pipe
         reg(map, "pipe_max_speed", "Item speed ceiling (blocks/tick)",
