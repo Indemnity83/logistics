@@ -5,6 +5,7 @@ import com.logistics.automation.kiln.KilnBlock;
 import com.logistics.automation.laserquarry.LaserQuarryBlock;
 import com.logistics.core.lib.power.AbstractEngineBlock;
 import com.logistics.core.macerator.MaceratorBlock;
+import com.logistics.pipe.block.FluidPipeBlock;
 import com.logistics.pipe.block.PipeBlock;
 import com.logistics.power.block.CreativeSinkBlock;
 import com.logistics.power.cable.CableBlock;
@@ -44,5 +45,6 @@ public class JadeLogisticsPlugin implements IWailaPlugin {
         registration.registerBlockComponent(MachineComponentProvider.INSTANCE, MaceratorBlock.class);
         registration.registerBlockComponent(MachineComponentProvider.INSTANCE, KilnBlock.class);
         registration.registerBlockComponent(PipeComponentProvider.INSTANCE, PipeBlock.class);
+        registration.registerBlockComponent(PipeComponentProvider.INSTANCE, FluidPipeBlock.class);
     }
 }
