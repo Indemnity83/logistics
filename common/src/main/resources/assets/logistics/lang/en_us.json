@@ -24,8 +24,6 @@
   "block.logistics.fluid.void_fluid_pipe": "Void Fluid Pipe",
   "block.logistics.fluid.bypass_fluid_pipe": "Bypass Fluid Pipe",
   "block.logistics.fluid.glass_tank": "Glass Tank",
-  "fluid.minecraft.water": "Water",
-  "fluid.minecraft.lava": "Lava",
   "tooltip.logistics.fluid.tank_capacity": "Holds %s buckets",
   "tooltip.logistics.fluid.tank_empty": "Empty",
   "tooltip.logistics.fluid.tank_contents": "%1$s: %2$s / %3$s mB",

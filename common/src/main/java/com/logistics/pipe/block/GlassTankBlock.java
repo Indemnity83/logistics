@@ -13,7 +13,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -222,7 +221,7 @@ public class GlassTankBlock extends BaseEntityBlock {
         long perMb = Math.max(1, PlatformService.INSTANCE.fluidUnitsPerMillibucket());
         long amountMb = column.total() / perMb;
         long capacityMb = column.capacity() / perMb;
-        Component name = Component.translatable(BuiltInRegistries.FLUID.getKey(shared.getFluid()).toLanguageKey("fluid"));
+        Component name = shared.getFluid().defaultFluidState().createLegacyBlock().getBlock().getName();
         return Component.translatable("tooltip.logistics.fluid.tank_contents", name, amountMb, capacityMb);
     }
 
