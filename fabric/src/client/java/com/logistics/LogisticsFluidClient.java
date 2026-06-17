@@ -1,7 +1,7 @@
 package com.logistics;
 
-import com.logistics.pipe.fluid.render.FluidPipeBlockEntityRenderer;
-import com.logistics.pipe.fluid.render.GlassTankBlockEntityRenderer;
+import com.logistics.pipe.render.FluidPipeBlockEntityRenderer;
+import com.logistics.pipe.render.GlassTankBlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 
 import static com.logistics.LogisticsMod.LOGGER;

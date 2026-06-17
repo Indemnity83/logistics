@@ -31,7 +31,7 @@ import org.jetbrains.annotations.Nullable;
  * item-component round-trip, creative variants, comparator, and use/wrench dispatch.
  *
  * <p>Item transport lives in {@link ItemPipe}; fluid policy lives in
- * {@link com.logistics.pipe.fluid.FluidPipe}. Cosmetic methods iterate {@link #getModules(PipeContext)},
+ * {@link FluidPipe}. Cosmetic methods iterate {@link #getModules(PipeContext)},
  * which subclasses override (e.g. chassis pipes inject runtime-installed modules) so inherited base
  * methods see the right module list via virtual dispatch.
  */

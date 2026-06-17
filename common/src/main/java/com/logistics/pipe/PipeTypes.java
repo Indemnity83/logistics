@@ -2,11 +2,6 @@ package com.logistics.pipe;
 
 import com.logistics.LogisticsFluid;
 import com.logistics.core.LogisticsConfig;
-import com.logistics.pipe.fluid.FluidPipe;
-import com.logistics.pipe.fluid.module.FluidExtractorModule;
-import com.logistics.pipe.fluid.module.FluidMergerModule;
-import com.logistics.pipe.fluid.module.FluidTransportModule;
-import com.logistics.pipe.fluid.module.FluidVoidModule;
 import com.logistics.pipe.modules.*;
 
 public final class PipeTypes {

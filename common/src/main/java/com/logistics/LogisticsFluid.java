@@ -2,12 +2,12 @@ package com.logistics;
 
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.pipe.PipeTypes;
-import com.logistics.pipe.fluid.block.FluidPipeBlock;
-import com.logistics.pipe.fluid.block.FluidPipeBlockItem;
-import com.logistics.pipe.fluid.block.GlassTankBlock;
-import com.logistics.pipe.fluid.block.GlassTankBlockItem;
-import com.logistics.pipe.fluid.block.entity.FluidPipeBlockEntity;
-import com.logistics.pipe.fluid.block.entity.GlassTankBlockEntity;
+import com.logistics.pipe.block.FluidPipeBlock;
+import com.logistics.pipe.item.FluidPipeBlockItem;
+import com.logistics.pipe.block.GlassTankBlock;
+import com.logistics.pipe.item.GlassTankBlockItem;
+import com.logistics.pipe.block.entity.FluidPipeBlockEntity;
+import com.logistics.pipe.block.entity.GlassTankBlockEntity;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.world.item.ItemStack;
