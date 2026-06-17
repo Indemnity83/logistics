@@ -47,7 +47,7 @@ import java.util.UUID;
  *
  * <p>Dynamic modules are consulted before fixed modules for routing, ticking, and rendering.
  */
-public class ChassisPipe extends Pipe {
+public class ChassisPipe extends ItemPipe {
     /** Maximum number of module slots across all chassis marks. */
     public static final int MAX_SLOTS = 8;
 

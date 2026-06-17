@@ -608,7 +608,7 @@ public class ProcessModule implements Module, TickingModule, RoutingModule, Disp
                             key.toStack(chunk), dir.getOpposite(),
                             LogisticsConfig.get().pipe.injectSpeed, requester);
                     t.setDeliveryId(getFirstEntryDeliveryId(ctx));
-                    ctx.blockEntity().forceAddItem(t, dir);
+                    ctx.pipeAccess().forceAddItem(t, dir);
                     rem -= chunk;
                 }
                 rem = forSink;
@@ -618,7 +618,7 @@ public class ProcessModule implements Module, TickingModule, RoutingModule, Disp
                     TravelingItem t = new TravelingItem(
                             key.toStack(chunk), dir.getOpposite(),
                             LogisticsConfig.get().pipe.injectSpeed, null);
-                    ctx.blockEntity().forceAddItem(t, dir);
+                    ctx.pipeAccess().forceAddItem(t, dir);
                     rem -= chunk;
                 }
                 if (extracted >= needed) break;
