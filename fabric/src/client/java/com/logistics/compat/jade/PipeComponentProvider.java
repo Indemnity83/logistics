@@ -42,11 +42,12 @@ public final class PipeComponentProvider implements IBlockComponentProvider {
 
     @Override
     public void appendTooltip(ITooltip tooltip, BlockAccessor accessor, IPluginConfig config) {
+        // A pipe's energy buffer is an internal implementation detail — drop Jade's generic energy bar.
+        tooltip.remove(JadeIds.UNIVERSAL_ENERGY_STORAGE);
+
         if (!(accessor.getBlockEntity() instanceof PipeBlockEntity pipe)) {
             return;
         }
-        // A pipe's energy buffer is an internal implementation detail — drop Jade's generic energy bar.
-        tooltip.remove(JadeIds.UNIVERSAL_ENERGY_STORAGE);
 
         boolean details = accessor.showDetails();
         for (Component line : PipeHudLines.build(pipe.getTravelingItems(), details)) {
