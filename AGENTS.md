@@ -389,6 +389,7 @@ Domains are initialized using a two-phase pattern (server/common + client):
 - **Formatting:** Automated via Spotless (minimal rules for consistency)
 - **Single-line if/for allowed** but braces preferred for multi-line
 - Keep nesting depth reasonable (prefer max 3 levels)
+- **Comments: terse, and about the code — not the change.** State the non-obvious *what* a future reader needs; don't narrate why this edit was made, version history, or context around the change (meaningless to the next reader). Put change rationale in the commit/PR, not the code.
 
 ### Code Formatting (Spotless)
 
