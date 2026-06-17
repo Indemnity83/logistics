@@ -217,7 +217,7 @@ public class FluidPipeBlock extends BaseEntityBlock
             candidate = FluidConnection.PIPE;
         } else {
             // Void and bypass pipes connect only to other fluid pipes, never to external handlers.
-            candidate = (fluidPipe == null || fluidPipe.connectsToHandlers())
+            candidate = (fluidPipe == null || fluidPipe.canConnectToFluidHandler())
                     ? FluidConnection.HANDLER
                     : FluidConnection.NONE;
         }

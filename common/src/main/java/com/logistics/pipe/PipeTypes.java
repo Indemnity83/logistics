@@ -3,6 +3,7 @@ package com.logistics.pipe;
 import com.logistics.LogisticsFluid;
 import com.logistics.core.LogisticsConfig;
 import com.logistics.pipe.modules.*;
+import com.logistics.pipe.modules.FluidTransportModule.FlowRate;
 
 public final class PipeTypes {
     // -----------------
@@ -121,35 +122,46 @@ public final class PipeTypes {
     // Fluid pipes (cellular fluid transport; defined the same compositional way as item pipes)
     // -----------------
 
-    // Copper fluid pipe - 2x rate; weathers like vanilla copper and accepts colored markings.
+    // Copper fluid pipe - normal rate; weathers like vanilla copper and accepts colored markings.
     public static final FluidPipe COPPER_FLUID_PIPE = new FluidPipe(
-            new FluidTransportModule(2, true, false),
+            new FluidTransportModule(FlowRate.NORMAL),
             new WeatheringModule(LogisticsFluid::model, "copper_fluid_pipe", false),
             new PipeMarkingModule(LogisticsFluid::model, "pipe_markings"));
 
-    // Stone fluid pipe - base (1x) rate.
-    public static final FluidPipe STONE_FLUID_PIPE = new FluidPipe(new FluidTransportModule(1, true, false));
+    // Stone fluid pipe - slow rate.
+    public static final FluidPipe STONE_FLUID_PIPE = new FluidPipe(
+            new FluidTransportModule(FlowRate.SLOW));
 
-    // Gold fluid pipe - 4x rate.
-    public static final FluidPipe GOLD_FLUID_PIPE = new FluidPipe(new FluidTransportModule(4, true, false));
+    // Gold fluid pipe - fast rate.
+    public static final FluidPipe GOLD_FLUID_PIPE = new FluidPipe(
+            new FluidTransportModule(FlowRate.FAST));
 
     // Insertion fluid pipe - fills adjacent tanks before spilling to pipes.
-    public static final FluidPipe INSERTION_FLUID_PIPE = new FluidPipe(new FluidTransportModule(2, true, true));
+    public static final FluidPipe INSERTION_FLUID_PIPE = new FluidPipe(
+            new FluidTransportModule(FlowRate.NORMAL),
+            new FluidInsertionModule());
 
     // Bypass fluid pipe - connects to pipes only, never to handlers.
-    public static final FluidPipe BYPASS_FLUID_PIPE = new FluidPipe(new FluidTransportModule(2, false, false));
+    public static final FluidPipe BYPASS_FLUID_PIPE = new FluidPipe(
+            new FluidTransportModule(FlowRate.NORMAL),
+            new FluidBypassModule());
 
     // Merger fluid pipe - directional check valve with a wrench-set output face.
     public static final FluidPipe MERGER_FLUID_PIPE = new FluidPipe(
-            new FluidTransportModule(3, true, false), new FluidMergerModule());
+            new FluidTransportModule(FlowRate.NORMAL),
+            new FluidMergerModule());
 
     // Fluid extractor - pulls fluid from an adjacent handler when powered.
     public static final FluidPipe FLUID_EXTRACTOR_PIPE = new FluidPipe(
-            new FluidTransportModule(1, true, false), new FluidExtractorModule()).withEnergy();
+            new FluidTransportModule(FlowRate.SLOW),
+            new FluidExtractorModule())
+            .withEnergy();
 
     // Void fluid pipe - destroys fluid; connects to pipes only.
     public static final FluidPipe VOID_FLUID_PIPE = new FluidPipe(
-            new FluidTransportModule(1, false, false), new FluidVoidModule());
+            new FluidTransportModule(FlowRate.SLOW),
+            new FluidBypassModule(),
+            new FluidVoidModule());
 
     private PipeTypes() {}
 }

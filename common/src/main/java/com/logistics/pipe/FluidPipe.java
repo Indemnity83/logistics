@@ -1,12 +1,13 @@
 package com.logistics.pipe;
 
 import com.logistics.core.LogisticsConfig;
+import com.logistics.core.lib.pipe.DestinationPriority;
+import com.logistics.core.lib.pipe.FluidPipeBehavior;
 import com.logistics.core.lib.pipe.Module;
 import com.logistics.core.lib.pipe.PipeContext;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.pipe.modules.FluidExtractorModule;
 import com.logistics.pipe.modules.FluidMergerModule;
-import com.logistics.pipe.modules.FluidTransportModule;
 import com.logistics.pipe.modules.FluidVoidModule;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.Block;
@@ -14,10 +15,11 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * A fluid transport pipe definition — the fluid-family sibling of {@link com.logistics.pipe.ItemPipe}.
- * Composes a {@link FluidTransportModule} (rate + handler policy) plus optional marker modules
- * ({@link FluidMergerModule}, {@link FluidExtractorModule}, {@link FluidVoidModule}) and any cosmetic
- * modules (weathering, marking). The fluid block entity reads the typed policy methods below instead of
- * branching on a kind enum; cosmetic/connection/item-component behavior is inherited from {@link Pipe}.
+ * Composes single-responsibility {@link FluidPipeBehavior} modules (rate multiplier, bypass, insertion)
+ * plus optional mode modules ({@link FluidMergerModule}, {@link FluidExtractorModule},
+ * {@link FluidVoidModule}) and cosmetic modules (weathering, marking). Each transport decision is resolved
+ * from a default plus module overrides, so the block entity asks a domain question instead of branching on
+ * a kind enum; cosmetic/connection/item-component behavior is inherited from {@link Pipe}.
  *
  * <p>Fluid transport itself (cellular {@code TravelingFluid} movement) stays in {@code FluidPipeBlockEntity};
  * this class only describes per-pipe policy.
@@ -36,10 +38,15 @@ public final class FluidPipe extends Pipe {
 
     // ==================== Transport policy ====================
 
-    /** Transfer rate in mB/tick, from the composed {@link FluidTransportModule}. */
+    /** Transfer rate in mB/tick: the configured base rate folded through each behavior's rate modifier. */
     public long transferRate(LogisticsConfig.FluidPipeConfig cfg) {
-        FluidTransportModule transport = getModule(FluidTransportModule.class);
-        return transport != null ? transport.transferRate(cfg) : cfg.baseTransferRate;
+        long rate = cfg.baseTransferRate;
+        for (Module module : getStaticModules()) {
+            if (module instanceof FluidPipeBehavior behavior) {
+                rate = behavior.modifyTransferRate(rate);
+            }
+        }
+        return rate;
     }
 
     /** Buffer capacity in mB — a shared config value across all kinds. */
@@ -47,16 +54,25 @@ public final class FluidPipe extends Pipe {
         return cfg.baseCapacity;
     }
 
-    /** Whether this pipe connects to external (non-pipe) fluid handlers. */
-    public boolean connectsToHandlers() {
-        FluidTransportModule transport = getModule(FluidTransportModule.class);
-        return transport == null || transport.connectsToHandlers();
+    /** Whether this pipe connects to external (non-pipe) fluid handlers — true unless a behavior vetoes it. */
+    public boolean canConnectToFluidHandler() {
+        for (Module module : getStaticModules()) {
+            if (module instanceof FluidPipeBehavior behavior && !behavior.canConnectToFluidHandler()) {
+                return false;
+            }
+        }
+        return true;
     }
 
-    /** True for the insertion pipe: fill adjacent tanks before spilling to other pipes. */
-    public boolean prioritizesHandlers() {
-        FluidTransportModule transport = getModule(FluidTransportModule.class);
-        return transport != null && transport.prioritizesHandlers();
+    /** Where this pipe prefers to send fluid at a junction — {@code NORMAL} unless a behavior overrides it. */
+    public DestinationPriority destinationPriority() {
+        DestinationPriority priority = DestinationPriority.NORMAL;
+        for (Module module : getStaticModules()) {
+            if (module instanceof FluidPipeBehavior behavior) {
+                priority = behavior.destinationPriority(priority);
+            }
+        }
+        return priority;
     }
 
     /** True for the merger check valve (directional, single wrench-set output face). */

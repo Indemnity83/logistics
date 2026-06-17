@@ -15,6 +15,7 @@ import com.logistics.core.lib.fluids.IFluidStorage;
 import com.logistics.core.lib.fluids.IFluidView;
 import com.logistics.core.lib.fluids.SimpleFluidKey;
 import com.logistics.core.lib.network.ILogisticsNetwork;
+import com.logistics.core.lib.pipe.DestinationPriority;
 import com.logistics.core.lib.pipe.IModuleHost;
 import com.logistics.core.lib.pipe.PipeContext;
 import com.logistics.core.lib.power.AcceptsLowTierEnergy;
@@ -553,7 +554,7 @@ public class FluidPipeBlockEntity extends BaseBlockEntity
             for (int i = 0; i < outs.size(); i++) {
                 room[i] = roomToward(level, outs.get(i), fluid, rate);
             }
-            if (def != null && def.prioritizesHandlers()) {
+            if (def != null && def.destinationPriority() == DestinationPriority.HANDLERS_FIRST) {
                 preferHandlers(outs, room);
             }
             long totalRoom = 0;
