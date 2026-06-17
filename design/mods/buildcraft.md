@@ -14,7 +14,7 @@ See [`../principles.md`](../principles.md) for the table legend. Pipe transport 
 |---|---|---|---|---|---|
 | Item transport pipes (wood/cobble/stone/iron/gold/diamond/obsidian/etc.) | Move/sort/extract items by material | Modernize | Covered by the Logistics transport + smart pipe set with vanilla-material identity | ✅ Done | `pipe` / transport + smart pipes |
 | Diamond pipe (sorting) | Per-side item sorting | Port | Item Filter Pipe | ✅ Done | `pipe` / Item Filter Pipe |
-| Obsidian pipe (world pickup) | Suck up dropped items/entities | Port | Worth adding — vacuum behavior; balance range | — | Phase 1 — pipes |
+| Obsidian pipe (world pickup) | Suck up dropped items/entities | Skip | Vanilla **hoppers** fill this role in modern Minecraft — not worth a dedicated pipe ([ROADMAP](../../ROADMAP.md) → Not Currently Planned) | ❌ | — |
 | Cobblestone/lapis/quartz flavor pipes | Routing-speed/color variants | Modernize | Covered/absorbed by current material tiers + marking fluid | ✅ Done | `pipe` / pipes + marking |
 | Kinesis (power) pipes | Transport engine power (MJ) | Modernize | Replaced by RF **cables** (copper/gold/ender) | ✅ Done | `power` / cables |
 | Fluid (waterproof) pipes | Transport liquids | Port | Needs a fluid-transport layer (platform fluid API) | — | Phase 1 — fluids |
@@ -37,7 +37,7 @@ See [`../principles.md`](../principles.md) for the table legend. Pipe transport 
 | Landmarks / markers | Define work areas | Modernize | Marker blocks (solo + connected bounds) | ✅ Done | `automation` / Marker |
 | Pump | Pump fluids from world into pipes/tanks | Port | Needs the fluid layer; classic oil/water/lava pumping | — | Phase 1 — fluids |
 | Oil & Refinery & Fuel | Oil lakes → refine to fuel for combustion engines | Port | Bring it over as-is: oil world-gen → Refinery → fuel. Couples to the Combustion Engine; Forestry biofuel is a *parallel* fuel, not a replacement | — | Phase 1 — fuels |
-| Filler | Auto-fill/clear areas with patterns | Skip | Construction automation; tedious, overlaps Create/Schematica niche | ❌ | — |
+| Filler | Auto-fill/clear areas with patterns | Skip | Handy, but **terrain/construction automation isn't this mod's job** — it belongs in its own dedicated mod (and modern Create/Schematica-likes already cover the niche). A simplified clear/flatten Filler was floated in review; the call is to keep it out of Logistics' scope | ❌ | — |
 | Builder / Architect / Blueprints / Library | Save & auto-build structures | Skip | Heavy; modern Schematica-likes cover this; out of scope | ❌ | — |
 
 ## Gates, wiring & automation logic

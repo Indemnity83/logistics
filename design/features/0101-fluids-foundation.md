@@ -134,7 +134,7 @@ All start-blocking questions are settled — this brief is ready to build:
 
 ## References
 
-- Roadmap: [`../roadmap.md`](../roadmap.md) → Phase 1 → 🔑 Fluids foundation
+- Roadmap: [`../delivery-plan.md`](../delivery-plan.md) → Phase 1 → 🔑 Fluids foundation
 - Breakdowns: [`../mods/buildcraft.md`](../mods/buildcraft.md) (Fluid pipes, Pump, Oil/Refinery), [`../mods/thermal-expansion.md`](../mods/thermal-expansion.md) (Magma Crucible, Fluid Transposer)
 - Code precedent (item side, mirror it): `core/lib/storage/IItemStorage`, `core/lib/block/capability/HasItemStorage`, `core/lib/storage/ItemStorageLookup`, `fabric/.../capability/ItemStorageAccess`, `neoforge/.../NeoForgeCapabilityRegistration`
 - Already-built fluid layer: `core/lib/fluids/*`, `core/lib/block/capability/HasFluidStorage`, `fabric/.../fluids/*`, `neoforge/.../fluids/*`

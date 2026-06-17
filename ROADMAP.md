@@ -25,22 +25,23 @@ This phase focuses on the core automation loop:
 
 Work currently active, planned, or near-term.
 
-| Area                 | Status  | Notes                                            |
-|----------------------|---------|--------------------------------------------------|
-| Fluid foundation     | Active  | Fluid pipes, tanks, pumps, and machine I/O       |
-| Core machines        | Planned | Macerator improvements, Alloy Smelter, Sawmill   |
-| Power progression    | Planned | Combustion engine and fuel chain                 |
-| Material progression | Planned | Bronze, alloys, and machine crafting progression |
-| Loader parity        | Ongoing | Keep Fabric and NeoForge aligned                 |
+| Area                 | Status  | Notes                                               |
+|----------------------|---------|-----------------------------------------------------|
+| Fluid foundation     | Active  | Fluid pipes, tanks, pumps, and machine I/O          |
+| Core machines        | Planned | Macerator improvements, Alloy Smelter, Sawmill      |
+| Power progression    | Planned | Combustion engine, fuel chain, and tiered batteries |
+| Material progression | Planned | Bronze, alloys, and machine crafting progression    |
+| Loader parity        | Ongoing | Keep Fabric and NeoForge aligned                    |
 
 ## Next
 
 Likely after the current automation core is stable.
 
-| Area               | Status    | Notes                                                        |
-|--------------------|-----------|--------------------------------------------------------------|
-| Crafting logistics | Exploring | A Logistics crafting table or related crafting-request system may become the next major logistics-network expansion |
-| Firewall Pipe      | Exploring | Needs design validation around routing behavior and network boundaries |
+| Area                      | Status    | Notes                                                                                                               |
+|---------------------------|-----------|---------------------------------------------------------------------------------------------------------------------|
+| Crafting logistics        | Planned   | A Logistics crafting table or related crafting-request system may become the next major logistics-network expansion |
+| Firewall Pipe             | Exploring | Needs design validation around routing behavior and network boundaries                                              |
+| Pipe based power delivery | Exploring | Sending power through logistics pipes to allow one connection to provide items and power to machines.               |
 
 ## Later
 
@@ -48,12 +49,11 @@ Important to the long-term vision, but not part of the immediate core milestone.
 
 *These are in no specific order.*
 
-| Area                      | Status        | Notes                                                        |
-|---------------------------|---------------|--------------------------------------------------------------|
-| Facades / pipe hiding     | Planned later | Cosmetic integration for hiding pipes cleanly in builds      |
-| Forestry-style farms      | Planned later | Multifarm-inspired automation, modernized for current Minecraft |
-| Rail transport            | Planned later | Tracks, carts, routing, and train logistics                  |
-| Pipe based power delivery | Planned later | Sending power through logistics pipes to allow one connection to provide items and power to machines.  |
+| Area                  | Status        | Notes                                                                                                                 |
+|-----------------------|---------------|-----------------------------------------------------------------------------------------------------------------------|
+| Facades / pipe hiding | Planned later | Cosmetic integration for hiding pipes cleanly in builds                                                               |
+| Forestry-style farms  | Planned later | Single-block farms plus the processing/biofuel chain, modernized for current Minecraft (not the multiblock multifarm) |
+| Rail transport        | Planned later | Tracks, carts, routing, and train logistics                                                                           |
 
 ## Exploring / RFC
 
@@ -61,19 +61,21 @@ These ideas are under discussion and may change significantly.
 
 - Programmable pipe gates / pipe signaling
 - Machine upgrades
+- Remote Orderer (handheld network access; really wants an Ender Chest-style companion to shine)
 - Railcraft-style multiblock steam boilers/engines
-- Optional split of Logistics domains into independent mods (core, pipes, automation, forestry, rails)
+- Optional split of Logistics domains into independent mods (core, automation, forestry, transport)
 
 ## Not Currently Planned
 
 These are intentionally not part of the current direction.
 
 - Full BuildCraft builder/filler clone
-- Full classic Forestry bee genetics or butterflies
+- Obsidian / vacuum pickup pipe (vanilla hoppers fill this role now)
+- Full classic Forestry bee, tree or butterfly genetics
 - Full Thermal Expansion item/fluid/storage replacement
 - Railcraft style multiblock fluid tanks
 - Forestry style multiblock farms
-- Deep magic-style teleport logistics
+- Deep magic-style teleport logistics (tesseracts)
 - Exact one-to-one ports of legacy mods
 - Chunk loading
 
