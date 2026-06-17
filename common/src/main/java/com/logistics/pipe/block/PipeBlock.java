@@ -4,9 +4,12 @@ import com.logistics.core.lib.block.behavior.WrenchBehavior;
 import com.logistics.core.lib.block.capability.PipeConnection;
 import com.logistics.pipe.network.NetworkRegistry;
 import com.logistics.core.lib.pipe.PipeConnectionLookup;
-import com.logistics.pipe.Pipe;
+import com.logistics.pipe.ItemPipe;
 import com.logistics.pipe.ChassisPipe;
+import com.logistics.core.lib.pipe.ModularPipe;
+import com.logistics.core.lib.pipe.ModularPipeBlock;
 import com.logistics.core.lib.pipe.PipeContext;
+import com.logistics.core.lib.pipe.PipeFamily;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.LogisticsPipe;
 import com.logistics.core.lib.pipe.TravelingItem;
@@ -54,7 +57,8 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
 
-public class PipeBlock extends BaseEntityBlock implements SimpleWaterloggedBlock, WrenchBehavior.Wrenchable {
+public class PipeBlock extends BaseEntityBlock
+        implements SimpleWaterloggedBlock, WrenchBehavior.Wrenchable, ModularPipeBlock {
     public static final MapCodec<PipeBlock> CODEC = simpleCodec(PipeBlock::new);
 
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
@@ -85,13 +89,13 @@ public class PipeBlock extends BaseEntityBlock implements SimpleWaterloggedBlock
     private static final VoxelShape DOWN_SHAPE = Block.box(
             8 - PIPE_SIZE / 2, 0, 8 - PIPE_SIZE / 2, 8 + PIPE_SIZE / 2, 8 - PIPE_SIZE / 2, 8 + PIPE_SIZE / 2);
 
-    private final Pipe pipe;
+    private final ItemPipe pipe;
 
     public PipeBlock(BlockBehaviour.Properties settings) {
         this(settings, null);
     }
 
-    public PipeBlock(Properties settings, Pipe pipe) {
+    public PipeBlock(Properties settings, ItemPipe pipe) {
         super(settings);
         this.pipe = pipe;
         if (pipe != null) {
@@ -100,8 +104,18 @@ public class PipeBlock extends BaseEntityBlock implements SimpleWaterloggedBlock
         registerDefaultState(defaultBlockState().setValue(POWERED, false).setValue(WATERLOGGED, false).setValue(CRAFTING, false));
     }
 
-    public Pipe getPipe() {
+    public ItemPipe getPipe() {
         return pipe;
+    }
+
+    @Override
+    public ModularPipe modularPipe() {
+        return pipe;
+    }
+
+    @Override
+    public PipeFamily family() {
+        return PipeFamily.ITEM;
     }
 
     @Override

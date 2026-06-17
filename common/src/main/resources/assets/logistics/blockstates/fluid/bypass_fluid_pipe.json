@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "logistics:block/fluid/bypass_fluid_pipe_core"
+    }
+  }
+}
