@@ -253,6 +253,19 @@ public class FluidPipeBlock extends BaseEntityBlock
         return shape;
     }
 
+    @Override
+    public ItemStack getCloneItemStack(
+            LevelReader world, BlockPos pos, BlockState state, boolean includeData) {
+        ItemStack stack = super.getCloneItemStack(world, pos, state, includeData);
+
+        // Copy components from the block entity so pick-block preserves state (e.g. copper weathering stage).
+        if (world.getBlockEntity(pos) instanceof FluidPipeBlockEntity be) {
+            stack.applyComponents(be.collectComponents());
+        }
+
+        return stack;
+    }
+
     // ==================== Placement / waterlogging / neighbour updates ====================
 
     @Nullable
