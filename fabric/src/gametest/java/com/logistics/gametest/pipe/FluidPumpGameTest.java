@@ -40,6 +40,10 @@ public class FluidPumpGameTest {
                 context.fail("Fluid pump should accept energy from " + direction);
                 return;
             }
+            if (!pump.acceptsLowTierEnergyFrom(direction)) {
+                context.fail("Fluid pump should accept low-tier energy from " + direction);
+                return;
+            }
         }
         context.succeed();
     }

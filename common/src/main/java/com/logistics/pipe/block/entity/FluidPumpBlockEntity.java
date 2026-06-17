@@ -15,6 +15,7 @@ import com.logistics.core.lib.fluids.IFluidKey;
 import com.logistics.core.lib.fluids.IFluidStorage;
 import com.logistics.core.lib.fluids.IFluidView;
 import com.logistics.core.lib.fluids.SimpleFluidKey;
+import com.logistics.core.lib.power.AcceptsLowTierEnergy;
 import com.logistics.core.lib.power.EnergyDemandProvider;
 import java.util.ArrayDeque;
 import java.util.HashSet;
@@ -36,7 +37,7 @@ import net.minecraft.world.level.material.Fluids;
 import org.jetbrains.annotations.Nullable;
 
 public class FluidPumpBlockEntity extends BaseBlockEntity
-        implements HasEnergyStorage, HasFluidStorage, EnergyDemandProvider {
+        implements HasEnergyStorage, HasFluidStorage, EnergyDemandProvider, AcceptsLowTierEnergy {
 
     public enum Phase {
         DESCENDING,
