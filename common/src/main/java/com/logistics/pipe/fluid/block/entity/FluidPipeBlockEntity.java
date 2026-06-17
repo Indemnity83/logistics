@@ -21,10 +21,9 @@ import com.logistics.core.lib.power.AcceptsLowTierEnergy;
 import com.logistics.core.lib.fluids.FluidUnits;
 import com.logistics.pipe.fluid.block.FluidConnection;
 import com.logistics.pipe.fluid.block.FluidPipeBlock;
-import com.logistics.pipe.fluid.block.FluidPipeKind;
-import com.logistics.pipe.fluid.FluidExtraction;
 import com.logistics.pipe.fluid.FluidPipe;
-import com.logistics.pipe.fluid.FluidPipeModules;
+import com.logistics.pipe.fluid.FluidExtraction;
+import com.logistics.pipe.fluid.FluidBuffer;
 import com.logistics.pipe.fluid.FluidProvider;
 import com.logistics.pipe.fluid.FluidSplit;
 import com.logistics.pipe.fluid.TravelingFluid;
@@ -68,8 +67,9 @@ public class FluidPipeBlockEntity extends BaseBlockEntity
      */
     private static final int EXTRACTION_REFERENCE_TICK_DELAY = 5;
 
-    private final FluidPipeKind kind;
-    /** Pipe buffer capacity in mB (per kind); the sum of all parcels never exceeds it. */
+    @Nullable
+    private final FluidPipe def;
+    /** Pipe buffer capacity in mB (shared base); the sum of all parcels never exceeds it. */
     private final long capacityMb;
 
     /** Fluid parcels currently inside this pipe. One fluid type per pipe (no mixing). */
@@ -106,22 +106,26 @@ public class FluidPipeBlockEntity extends BaseBlockEntity
 
     public FluidPipeBlockEntity(BlockPos pos, BlockState state) {
         super(LogisticsFluid.ENTITY.FLUID_PIPE_BLOCK_ENTITY, pos, state);
-        this.kind = kindOf(state);
+        this.def = defOf(state);
         for (int i = 0; i < 6; i++) {
             connections[i] = FluidConnection.NONE;
         }
-        this.capacityMb = kind.capacity(LogisticsConfig.get().fluidPipe);
-        this.energy = kind.isExtractor()
+        LogisticsConfig.FluidPipeConfig cfg = LogisticsConfig.get().fluidPipe;
+        this.capacityMb = def != null ? def.capacity(cfg) : cfg.baseCapacity;
+        this.energy = (def != null && def.isExtractor())
                 ? new EnergyComponent(ENERGY_CAPACITY, ENERGY_CAPACITY, 0, this::setChanged)
                 : null;
     }
 
-    private static FluidPipeKind kindOf(BlockState state) {
-        return state.getBlock() instanceof FluidPipeBlock block ? block.kind() : FluidPipeKind.COPPER;
+    @Nullable
+    private static FluidPipe defOf(BlockState state) {
+        return state.getBlock() instanceof FluidPipeBlock block ? block.fluidPipe() : null;
     }
 
-    public FluidPipeKind kind() {
-        return kind;
+    /** The fluid pipe definition backing this block entity (transport policy + cosmetic/connection modules). */
+    @Nullable
+    public FluidPipe fluidPipe() {
+        return def;
     }
 
     public FluidConnection connection(Direction direction) {
@@ -129,7 +133,20 @@ public class FluidPipeBlockEntity extends BaseBlockEntity
     }
 
     public boolean isExtractor() {
-        return kind.isExtractor();
+        return def != null && def.isExtractor();
+    }
+
+    private boolean isMerger() {
+        return def != null && def.isMerger();
+    }
+
+    private boolean isVoid() {
+        return def != null && def.isVoid();
+    }
+
+    /** This pipe's transfer rate in mB/tick, from its definition (falls back to the base rate if unbound). */
+    private long transferRate(LogisticsConfig.FluidPipeConfig cfg) {
+        return def != null ? def.transferRate(cfg) : cfg.baseTransferRate;
     }
 
     // ==================== Contents (for rendering + capability) ====================
@@ -184,7 +201,7 @@ public class FluidPipeBlockEntity extends BaseBlockEntity
 
     /** Whether this kind uses a single wrench-selected feature face (merger output or extractor pull). */
     private boolean usesFeatureFace() {
-        return kind.isDirectional() || kind.isExtractor();
+        return isMerger() || isExtractor();
     }
 
     /**
@@ -198,7 +215,7 @@ public class FluidPipeBlockEntity extends BaseBlockEntity
             if (conn == FluidConnection.NONE) {
                 continue;
             }
-            if (kind.isExtractor() && conn != FluidConnection.HANDLER) {
+            if (isExtractor() && conn != FluidConnection.HANDLER) {
                 continue;
             }
             result.add(direction);
@@ -260,7 +277,7 @@ public class FluidPipeBlockEntity extends BaseBlockEntity
      * entering through its output face (check valve).
      */
     public long roomFor(IFluidKey fluid, Direction enteringSide) {
-        if (kind.isDirectional() && enteringSide == featureDirection) {
+        if (isMerger() && enteringSide == featureDirection) {
             return 0;
         }
         IFluidKey contained = containedFluid();
@@ -365,11 +382,6 @@ public class FluidPipeBlockEntity extends BaseBlockEntity
 
     // ==================== Module host (IModuleHost) ====================
 
-    /** The module composition hosted by this pipe's block (empty unless a kind composes modules). */
-    private FluidPipeModules modules() {
-        return getBlockState().getBlock() instanceof FluidPipeBlock block ? block.modules() : FluidPipeModules.forKind(kind);
-    }
-
     public PipeContext createContext() {
         return new PipeContext(getLevel(), getBlockPos(), getBlockState(), this);
     }
@@ -460,10 +472,10 @@ public class FluidPipeBlockEntity extends BaseBlockEntity
             parcel.tickCountdown();
         }
 
-        if (kind.isVoid()) {
-            destroyReady(kind.transferRate(cfg));
+        if (isVoid()) {
+            destroyReady(transferRate(cfg));
         } else {
-            moveReadyFluid(level, kind.transferRate(cfg));
+            moveReadyFluid(level, transferRate(cfg));
         }
 
         parcels.removeIf(parcel -> parcel.amount() <= 0);
@@ -487,8 +499,8 @@ public class FluidPipeBlockEntity extends BaseBlockEntity
         if (fluid == null || (!contained.isBlank() && !contained.equals(fluid))) {
             return;
         }
-        long budget = Math.min(scaledExtractionRate(kind.transferRate(cfg), fluid), room);
-        FluidPipe<IFluidKey> pulled = new FluidPipe<>();
+        long budget = Math.min(scaledExtractionRate(transferRate(cfg), fluid), room);
+        FluidBuffer<IFluidKey> pulled = new FluidBuffer<>();
         FluidExtraction.Result result = FluidExtraction.tick(
                 pulled, provider, energy.getAmount(), budget, cfg.woodenRequiresEngine, extractionCarryMb);
         if (pulled.amount() > 0) {
@@ -541,7 +553,7 @@ public class FluidPipeBlockEntity extends BaseBlockEntity
             for (int i = 0; i < outs.size(); i++) {
                 room[i] = roomToward(level, outs.get(i), fluid, rate);
             }
-            if (kind.prioritizesHandlers()) {
+            if (def != null && def.prioritizesHandlers()) {
                 preferHandlers(outs, room);
             }
             long totalRoom = 0;
@@ -570,7 +582,7 @@ public class FluidPipeBlockEntity extends BaseBlockEntity
      * incoming side unless the parcel is blocked (then it may reflect back the way it came). */
     private List<Direction> candidateOutputs(TravelingFluid parcel) {
         List<Direction> result = new ArrayList<>(6);
-        if (kind.isDirectional()) {
+        if (isMerger()) {
             if (featureDirection != null && connection(featureDirection) != FluidConnection.NONE) {
                 result.add(featureDirection);
             }
@@ -775,13 +787,17 @@ public class FluidPipeBlockEntity extends BaseBlockEntity
     @Override
     protected void applyImplicitComponents(DataComponentGetter components) {
         super.applyImplicitComponents(components);
-        modules().readItemComponents(components, createContext());
+        if (def != null) {
+            def.readItemComponents(components, createContext());
+        }
     }
 
     @Override
     protected void collectImplicitComponents(DataComponentMap.Builder builder) {
         super.collectImplicitComponents(builder);
-        modules().addItemComponents(builder, createContext());
+        if (def != null) {
+            def.addItemComponents(builder, createContext());
+        }
     }
 
     private int encodeConnections() {

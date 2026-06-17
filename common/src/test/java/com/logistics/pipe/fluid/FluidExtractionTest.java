@@ -14,7 +14,7 @@ class FluidExtractionTest {
     @Test
     @DisplayName("transfers up to the rate when energy is plentiful")
     void rateCapsWhenEnergyPlentiful() {
-        FluidPipe<String> pipe = FluidPipe.extractor();
+        FluidBuffer<String> pipe = FluidBuffer.extractor();
         FluidExtraction.Result result =
                 FluidExtraction.tick(pipe, new FakeFluidProvider(WATER, 1000), 1000, RATE, true, 0);
         assertThat(result.extractedMb()).isEqualTo(20);
@@ -24,7 +24,7 @@ class FluidExtractionTest {
     @Test
     @DisplayName("energy caps the transfer when scarce (50 mB per RF)")
     void energyCapsWhenScarce() {
-        FluidPipe<String> pipe = FluidPipe.extractor();
+        FluidBuffer<String> pipe = FluidBuffer.extractor();
         // Rate well above what 5 RF can pay for, so energy is the binding limit: 5 RF × 50 mB/RF = 250 mB.
         FluidExtraction.Result result =
                 FluidExtraction.tick(pipe, new FakeFluidProvider(WATER, 1000), 5, 1000, true, 0);
@@ -36,7 +36,7 @@ class FluidExtractionTest {
     @Test
     @DisplayName("no energy means no extraction when an engine is required")
     void noEnergyNoExtraction() {
-        FluidPipe<String> pipe = FluidPipe.extractor();
+        FluidBuffer<String> pipe = FluidBuffer.extractor();
         FakeFluidProvider tank = new FakeFluidProvider(WATER, 1000);
         FluidExtraction.Result result = FluidExtraction.tick(pipe, tank, 0, RATE, true, 0);
         assertThat(result.extractedMb()).isZero();
@@ -48,7 +48,7 @@ class FluidExtractionTest {
     @Test
     @DisplayName("free mode transfers at the rate ignoring energy")
     void freeModeIgnoresEnergy() {
-        FluidPipe<String> pipe = FluidPipe.extractor();
+        FluidBuffer<String> pipe = FluidBuffer.extractor();
         FluidExtraction.Result result =
                 FluidExtraction.tick(pipe, new FakeFluidProvider(WATER, 1000), 0, RATE, false, 0);
         assertThat(result.extractedMb()).isEqualTo(20);
@@ -59,7 +59,7 @@ class FluidExtractionTest {
     @Test
     @DisplayName("a partially-filled source caps the transfer at what it holds")
     void sourceCapsTransfer() {
-        FluidPipe<String> pipe = FluidPipe.extractor();
+        FluidBuffer<String> pipe = FluidBuffer.extractor();
         FakeFluidProvider source = new FakeFluidProvider(WATER, 5); // less than the rate
         FluidExtraction.Result result = FluidExtraction.tick(pipe, source, 1000, RATE, true, 0);
         assertThat(result.extractedMb()).isEqualTo(5);
@@ -70,7 +70,7 @@ class FluidExtractionTest {
     @Test
     @DisplayName("charges one whole RF per MB_PER_RF of fluid moved")
     void chargesProportionalRf() {
-        FluidPipe<String> pipe = FluidPipe.extractor();
+        FluidBuffer<String> pipe = FluidBuffer.extractor();
         // Rate equals exactly one RF's worth, so a full tick moves 50 mB and costs exactly 1 RF.
         FluidExtraction.Result result = FluidExtraction.tick(
                 pipe, new FakeFluidProvider(WATER, 1000), 10, FluidExtraction.MB_PER_RF, true, 0);
@@ -83,7 +83,7 @@ class FluidExtractionTest {
     @DisplayName("a sub-RF pull burns no energy yet but carries the remainder forward")
     void smallPullCarriesRemainder() {
         // First tick moves 20 mB (< 50), so no whole RF is due yet — it carries.
-        FluidPipe<String> first = FluidPipe.extractor();
+        FluidBuffer<String> first = FluidBuffer.extractor();
         FluidExtraction.Result a =
                 FluidExtraction.tick(first, new FakeFluidProvider(WATER, 1000), 10, RATE, true, 0);
         assertThat(a.extractedMb()).isEqualTo(20);
@@ -91,7 +91,7 @@ class FluidExtractionTest {
         assertThat(a.carryMb()).isEqualTo(20);
 
         // Feeding the carried remainder back in lets the next pull cross a whole RF: 40 carried + 20 = 60 → 1 RF, 10 left.
-        FluidPipe<String> second = FluidPipe.extractor();
+        FluidBuffer<String> second = FluidBuffer.extractor();
         FluidExtraction.Result b =
                 FluidExtraction.tick(second, new FakeFluidProvider(WATER, 1000), 10, RATE, true, 40);
         assertThat(b.extractedMb()).isEqualTo(20);
@@ -102,7 +102,7 @@ class FluidExtractionTest {
     @Test
     @DisplayName("burns no energy and preserves the carry when nothing is extracted")
     void burnsNothingWhenIdle() {
-        FluidPipe<String> pipe = FluidPipe.extractor();
+        FluidBuffer<String> pipe = FluidBuffer.extractor();
         FluidExtraction.Result result = FluidExtraction.tick(pipe, new FakeFluidProvider(WATER, 0), 1000, RATE, true, 30);
         assertThat(result.extractedMb()).isZero();
         assertThat(result.energyToConsume()).isZero();

@@ -5,8 +5,8 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@DisplayName("FluidPipe")
-class FluidPipeTest {
+@DisplayName("FluidBuffer")
+class FluidBufferTest {
 
     private static final String WATER = "water";
     private static final String LAVA = "lava";
@@ -14,14 +14,14 @@ class FluidPipeTest {
     @Test
     @DisplayName("holds up to 250 mB internally")
     void capacityIs250Millibuckets() {
-        FluidPipe<String> pipe = new FluidPipe<>();
+        FluidBuffer<String> pipe = new FluidBuffer<>();
         assertThat(pipe.capacity()).isEqualTo(250);
     }
 
     @Test
     @DisplayName("extracted fluid fills the pipe's internal storage")
     void extractedFluidFillsStorage() {
-        FluidPipe<String> pipe = FluidPipe.extractor();
+        FluidBuffer<String> pipe = FluidBuffer.extractor();
         pipe.extract(ampleProvider(), 250);
         assertThat(pipe.amount()).isEqualTo(250);
     }
@@ -29,7 +29,7 @@ class FluidPipeTest {
     @Test
     @DisplayName("extraction can't overfill the pipe")
     void extractionLimitedByCapacity() {
-        FluidPipe<String> pipe = FluidPipe.extractor();
+        FluidBuffer<String> pipe = FluidBuffer.extractor();
         long extracted = pipe.extract(ampleProvider(), 1000); // ask for a full bucket into a 250 mB pipe
         assertThat(extracted).isEqualTo(250); // only what fits
         assertThat(pipe.amount()).isEqualTo(250); // pipe is full, not overfilled
@@ -38,7 +38,7 @@ class FluidPipeTest {
     @Test
     @DisplayName("fluid is removed from an adjacent provider equal to what is inserted into the pipe")
     void extractionDrainsProvider() {
-        FluidPipe<String> pipe = FluidPipe.extractor();
+        FluidBuffer<String> pipe = FluidBuffer.extractor();
         FakeFluidProvider tank = new FakeFluidProvider(WATER, 500);
         long extracted = pipe.extract(tank, 250);
         assertThat(extracted).isEqualTo(250);
@@ -49,7 +49,7 @@ class FluidPipeTest {
     @Test
     @DisplayName("fluid transferred cannot exceed what the provider can provide")
     void extractionLimitedByProvider() {
-        FluidPipe<String> pipe = FluidPipe.extractor();
+        FluidBuffer<String> pipe = FluidBuffer.extractor();
         FakeFluidProvider tank = new FakeFluidProvider(WATER, 100); // provider holds less than a full pipe
         long extracted = pipe.extract(tank, 250); // ask for a full pipe's worth
         assertThat(extracted).isEqualTo(100); // capped by the provider
@@ -60,7 +60,7 @@ class FluidPipeTest {
     @Test
     @DisplayName("extraction is bounded by the requested amount")
     void extractionLimitedByRequestedAmount() {
-        FluidPipe<String> pipe = FluidPipe.extractor();
+        FluidBuffer<String> pipe = FluidBuffer.extractor();
         FakeFluidProvider tank = new FakeFluidProvider(WATER, 1000); // neither capacity nor supply is the constraint
         long extracted = pipe.extract(tank, 20); // the caller's per-tick allowance
         assertThat(extracted).isEqualTo(20); // capped by the request
@@ -71,7 +71,7 @@ class FluidPipeTest {
     @Test
     @DisplayName("fluid of one type cannot be transferred into a pipe holding another type")
     void rejectsMismatchedFluid() {
-        FluidPipe<String> pipe = FluidPipe.extractor();
+        FluidBuffer<String> pipe = FluidBuffer.extractor();
         pipe.extract(new FakeFluidProvider(WATER, 100), 250); // pipe now holds 100 mB water, with room to spare
 
         FakeFluidProvider lava = new FakeFluidProvider(LAVA, 250);
@@ -85,9 +85,9 @@ class FluidPipeTest {
     @Test
     @DisplayName("a pipe pushes fluid into a connected pipe until levels equalize")
     void pushEqualizesLevels() {
-        FluidPipe<String> source = FluidPipe.extractor();
+        FluidBuffer<String> source = FluidBuffer.extractor();
         source.restore(WATER, 100);
-        FluidPipe<String> destination = FluidPipe.extractor();
+        FluidBuffer<String> destination = FluidBuffer.extractor();
 
         long moved = source.push(destination, 100); // try to push a lot
 
@@ -100,9 +100,9 @@ class FluidPipeTest {
     @Test
     @DisplayName("a push may leave the destination at most 1 mB fuller than the source")
     void pushLeavesDestinationAtMostOneMoreFull() {
-        FluidPipe<String> source = FluidPipe.extractor();
+        FluidBuffer<String> source = FluidBuffer.extractor();
         source.restore(WATER, 101); // odd gap — the spare 1 mB goes across so the gap can close
-        FluidPipe<String> destination = FluidPipe.extractor();
+        FluidBuffer<String> destination = FluidBuffer.extractor();
 
         long moved = source.push(destination, 200);
 
@@ -114,9 +114,9 @@ class FluidPipeTest {
     @Test
     @DisplayName("push moves no more than the requested rate")
     void pushLimitedByRequestedRate() {
-        FluidPipe<String> source = FluidPipe.extractor();
+        FluidBuffer<String> source = FluidBuffer.extractor();
         source.restore(WATER, 250); // equalize gap (125) is larger than the rate
-        FluidPipe<String> destination = FluidPipe.extractor();
+        FluidBuffer<String> destination = FluidBuffer.extractor();
 
         long moved = source.push(destination, 20); // one tick's transfer allowance
 
@@ -128,9 +128,9 @@ class FluidPipeTest {
     @Test
     @DisplayName("push won't move into a target that is already as full or fuller")
     void pushWontMoveIntoFullerTarget() {
-        FluidPipe<String> source = FluidPipe.extractor();
+        FluidBuffer<String> source = FluidBuffer.extractor();
         source.restore(WATER, 50);
-        FluidPipe<String> destination = FluidPipe.extractor();
+        FluidBuffer<String> destination = FluidBuffer.extractor();
         destination.restore(WATER, 100); // already fuller than the source
 
         long moved = source.push(destination, 100);
@@ -143,9 +143,9 @@ class FluidPipeTest {
     @Test
     @DisplayName("push won't mix into a target holding a different fluid")
     void pushRejectsMismatchedFluid() {
-        FluidPipe<String> source = FluidPipe.extractor();
+        FluidBuffer<String> source = FluidBuffer.extractor();
         source.restore(WATER, 200);
-        FluidPipe<String> destination = FluidPipe.extractor();
+        FluidBuffer<String> destination = FluidBuffer.extractor();
         destination.restore(LAVA, 50); // emptier, so equalization would move if allowed
 
         long moved = source.push(destination, 200);
@@ -159,9 +159,9 @@ class FluidPipeTest {
     @Test
     @DisplayName("a pipe pours fluid down to fill the pipe below, past its own level")
     void poursDownGreedily() {
-        FluidPipe<String> source = FluidPipe.extractor();
+        FluidBuffer<String> source = FluidBuffer.extractor();
         source.restore(WATER, 100);
-        FluidPipe<String> below = FluidPipe.extractor();
+        FluidBuffer<String> below = FluidBuffer.extractor();
 
         long moved = source.pour(below, 100);
 
@@ -173,9 +173,9 @@ class FluidPipeTest {
     @Test
     @DisplayName("pour can't overfill the pipe below")
     void pourLimitedByTargetCapacity() {
-        FluidPipe<String> source = FluidPipe.extractor();
+        FluidBuffer<String> source = FluidBuffer.extractor();
         source.restore(WATER, 250);
-        FluidPipe<String> below = FluidPipe.extractor();
+        FluidBuffer<String> below = FluidBuffer.extractor();
         below.restore(WATER, 200); // only 50 mB of space left
 
         long moved = source.pour(below, 250);
@@ -188,9 +188,9 @@ class FluidPipeTest {
     @Test
     @DisplayName("pour won't mix into a pipe holding a different fluid")
     void pourRejectsMismatchedFluid() {
-        FluidPipe<String> source = FluidPipe.extractor();
+        FluidBuffer<String> source = FluidBuffer.extractor();
         source.restore(WATER, 200);
-        FluidPipe<String> below = FluidPipe.extractor();
+        FluidBuffer<String> below = FluidBuffer.extractor();
         below.restore(LAVA, 50);
 
         long moved = source.pour(below, 200);
@@ -204,9 +204,9 @@ class FluidPipeTest {
     @Test
     @DisplayName("a source fully drained by pouring resets to empty")
     void pourDrainedSourceResetsToEmpty() {
-        FluidPipe<String> source = FluidPipe.extractor();
+        FluidBuffer<String> source = FluidBuffer.extractor();
         source.restore(WATER, 100);
-        FluidPipe<String> below = FluidPipe.extractor();
+        FluidBuffer<String> below = FluidBuffer.extractor();
 
         source.pour(below, 100);
 
@@ -217,9 +217,9 @@ class FluidPipeTest {
     @Test
     @DisplayName("a full pipe lifts fluid up greedily when it has head")
     void liftsUpWhenFull() {
-        FluidPipe<String> source = FluidPipe.extractor();
+        FluidBuffer<String> source = FluidBuffer.extractor();
         source.restore(WATER, 250); // full
-        FluidPipe<String> above = FluidPipe.extractor();
+        FluidBuffer<String> above = FluidBuffer.extractor();
 
         long moved = source.lift(above, 100, 8); // head available
 
@@ -231,9 +231,9 @@ class FluidPipeTest {
     @Test
     @DisplayName("a pipe that isn't full won't lift fluid up")
     void doesNotLiftWhenNotFull() {
-        FluidPipe<String> source = FluidPipe.extractor();
+        FluidBuffer<String> source = FluidBuffer.extractor();
         source.restore(WATER, 100); // partial — fluid pools and fills first, it doesn't climb yet
-        FluidPipe<String> above = FluidPipe.extractor();
+        FluidBuffer<String> above = FluidBuffer.extractor();
 
         long moved = source.lift(above, 100, 8); // has head, but isn't full
 
@@ -245,9 +245,9 @@ class FluidPipeTest {
     @Test
     @DisplayName("a pipe with no head can't lift fluid up even when full")
     void noHeadNoLift() {
-        FluidPipe<String> source = FluidPipe.extractor();
+        FluidBuffer<String> source = FluidBuffer.extractor();
         source.restore(WATER, 250); // full, but no head
-        FluidPipe<String> above = FluidPipe.extractor();
+        FluidBuffer<String> above = FluidBuffer.extractor();
 
         long moved = source.lift(above, 100, 0); // no head — fluid won't climb
 
@@ -259,7 +259,7 @@ class FluidPipeTest {
     @Test
     @DisplayName("extraction of a non-positive amount is a no-op and never touches the provider")
     void rejectsNonPositiveExtraction() {
-        FluidPipe<String> pipe = FluidPipe.extractor();
+        FluidBuffer<String> pipe = FluidBuffer.extractor();
         FakeFluidProvider tank = new FakeFluidProvider(WATER, 500);
 
         assertThat(pipe.extract(tank, 0)).isZero();
@@ -273,7 +273,7 @@ class FluidPipeTest {
     @Test
     @DisplayName("restore clamps an over-capacity amount down to the pipe's capacity")
     void restoreClampsToCapacity() {
-        FluidPipe<String> pipe = FluidPipe.extractor();
+        FluidBuffer<String> pipe = FluidBuffer.extractor();
         pipe.restore(WATER, 1000); // more than the 250 mB capacity
         assertThat(pipe.amount()).isEqualTo(250);
         assertThat(pipe.fluid()).isEqualTo(WATER);

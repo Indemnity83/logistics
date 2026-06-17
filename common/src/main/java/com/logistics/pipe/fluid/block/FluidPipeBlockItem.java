@@ -1,6 +1,7 @@
 package com.logistics.pipe.fluid.block;
 
 import com.logistics.core.LogisticsConfig;
+import com.logistics.pipe.fluid.FluidPipe;
 import java.util.function.Consumer;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
@@ -21,10 +22,10 @@ public class FluidPipeBlockItem extends BlockItem {
     @Override
     public Component getName(ItemStack stack) {
         Block block = getBlock();
-        if (!(block instanceof FluidPipeBlock pipe)) {
+        if (!(block instanceof FluidPipeBlock pipe) || pipe.fluidPipe() == null) {
             return super.getName(stack);
         }
-        String suffix = pipe.modules().getItemNameSuffixFromComponents(stack);
+        String suffix = pipe.fluidPipe().getItemNameSuffixFromComponents(stack);
         if (suffix.isEmpty()) {
             return super.getName(stack);
         }
@@ -40,17 +41,20 @@ public class FluidPipeBlockItem extends BlockItem {
             TooltipFlag flag) {
         super.appendHoverText(stack, context, tooltipDisplay, consumer, flag);
 
-        FluidPipeKind kind = getBlock() instanceof FluidPipeBlock pipe ? pipe.kind() : FluidPipeKind.COPPER;
+        if (!(getBlock() instanceof FluidPipeBlock block) || block.fluidPipe() == null) {
+            return;
+        }
+        FluidPipe def = block.fluidPipe();
         LogisticsConfig.FluidPipeConfig cfg = LogisticsConfig.get().fluidPipe;
 
-        consumer.accept(Component.translatable("tooltip.logistics.fluid." + kind.modelBase())
+        consumer.accept(Component.translatable("tooltip.logistics.fluid." + def.modelBase())
                 .withStyle(ChatFormatting.GRAY));
 
-        consumer.accept(Component.translatable("tooltip.logistics.fluid.capacity", (int) kind.capacity(cfg))
+        consumer.accept(Component.translatable("tooltip.logistics.fluid.capacity", (int) def.capacity(cfg))
                 .withStyle(ChatFormatting.GRAY));
         // Extractors are paced by engine power, not a fixed rate; void destroys rather than transfers.
-        if (!kind.isExtractor() && !kind.isVoid()) {
-            consumer.accept(Component.translatable("tooltip.logistics.fluid.transfer", (int) kind.transferRate(cfg))
+        if (!def.isExtractor() && !def.isVoid()) {
+            consumer.accept(Component.translatable("tooltip.logistics.fluid.transfer", (int) def.transferRate(cfg))
                     .withStyle(ChatFormatting.GRAY));
         }
         consumer.accept(Component.translatable("tooltip.logistics.fluid.no_item_pipes")

@@ -40,7 +40,7 @@ public final class FluidExtraction {
      * @param carryMb        sub-RF fluid remainder left unpaid from prior ticks (from the previous {@link Result})
      */
     public static <F> Result tick(
-            FluidPipe<F> pipe, FluidProvider<F> source, long energy, long rate, boolean requiresEngine, long carryMb) {
+            FluidBuffer<F> pipe, FluidProvider<F> source, long energy, long rate, boolean requiresEngine, long carryMb) {
         long extracted = pipe.extract(source, allowance(rate, energy, requiresEngine));
         if (requiresEngine && extracted > 0) {
             return chargeEnergy(extracted, carryMb);

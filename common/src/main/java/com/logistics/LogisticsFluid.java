@@ -1,13 +1,16 @@
 package com.logistics;
 
 import com.logistics.core.lib.resource.ResourceId;
+import com.logistics.pipe.PipeTypes;
 import com.logistics.pipe.fluid.block.FluidPipeBlock;
 import com.logistics.pipe.fluid.block.FluidPipeBlockItem;
-import com.logistics.pipe.fluid.block.FluidPipeKind;
 import com.logistics.pipe.fluid.block.GlassTankBlock;
 import com.logistics.pipe.fluid.block.GlassTankBlockItem;
 import com.logistics.pipe.fluid.block.entity.FluidPipeBlockEntity;
 import com.logistics.pipe.fluid.block.entity.GlassTankBlockEntity;
+import java.util.ArrayList;
+import java.util.List;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -78,28 +81,28 @@ public final class LogisticsFluid extends LogisticsMod {
 
         static void register() {
             COPPER_FLUID_PIPE = INSTANCE.registerBlockWithItem("copper_fluid_pipe",
-                    props -> new FluidPipeBlock(fluidPipeProps(props), FluidPipeKind.COPPER),
+                    props -> new FluidPipeBlock(fluidPipeProps(props), PipeTypes.COPPER_FLUID_PIPE),
                     FluidPipeBlockItem::new);
             STONE_FLUID_PIPE = INSTANCE.registerBlockWithItem("stone_fluid_pipe",
-                    props -> new FluidPipeBlock(fluidPipeProps(props), FluidPipeKind.STONE),
+                    props -> new FluidPipeBlock(fluidPipeProps(props), PipeTypes.STONE_FLUID_PIPE),
                     FluidPipeBlockItem::new);
             GOLD_FLUID_PIPE = INSTANCE.registerBlockWithItem("gold_fluid_pipe",
-                    props -> new FluidPipeBlock(fluidPipeProps(props), FluidPipeKind.GOLD),
+                    props -> new FluidPipeBlock(fluidPipeProps(props), PipeTypes.GOLD_FLUID_PIPE),
                     FluidPipeBlockItem::new);
             INSERTION_FLUID_PIPE = INSTANCE.registerBlockWithItem("insertion_fluid_pipe",
-                    props -> new FluidPipeBlock(fluidPipeProps(props), FluidPipeKind.INSERTION),
+                    props -> new FluidPipeBlock(fluidPipeProps(props), PipeTypes.INSERTION_FLUID_PIPE),
                     FluidPipeBlockItem::new);
             MERGER_FLUID_PIPE = INSTANCE.registerBlockWithItem("merger_fluid_pipe",
-                    props -> new FluidPipeBlock(fluidPipeProps(props), FluidPipeKind.MERGER),
+                    props -> new FluidPipeBlock(fluidPipeProps(props), PipeTypes.MERGER_FLUID_PIPE),
                     FluidPipeBlockItem::new);
             FLUID_EXTRACTOR_PIPE = INSTANCE.registerBlockWithItem("fluid_extractor_pipe",
-                    props -> new FluidPipeBlock(fluidPipeProps(props), FluidPipeKind.EXTRACTOR),
+                    props -> new FluidPipeBlock(fluidPipeProps(props), PipeTypes.FLUID_EXTRACTOR_PIPE),
                     FluidPipeBlockItem::new);
             VOID_FLUID_PIPE = INSTANCE.registerBlockWithItem("void_fluid_pipe",
-                    props -> new FluidPipeBlock(fluidPipeProps(props), FluidPipeKind.VOID),
+                    props -> new FluidPipeBlock(fluidPipeProps(props), PipeTypes.VOID_FLUID_PIPE),
                     FluidPipeBlockItem::new);
             BYPASS_FLUID_PIPE = INSTANCE.registerBlockWithItem("bypass_fluid_pipe",
-                    props -> new FluidPipeBlock(fluidPipeProps(props), FluidPipeKind.BYPASS),
+                    props -> new FluidPipeBlock(fluidPipeProps(props), PipeTypes.BYPASS_FLUID_PIPE),
                     FluidPipeBlockItem::new);
             GLASS_TANK = INSTANCE.registerBlockWithItem("glass_tank",
                     props -> new GlassTankBlock(tankProps(props)),
@@ -134,6 +137,17 @@ public final class LogisticsFluid extends LogisticsMod {
         private CREATIVE() {}
 
         static void register() {
+            // Copper fluid pipe weathering variants (exposed/weathered/oxidized + waxed); the base entry
+            // is added below.
+            LogisticsCore.CREATIVE.TAB.add(entries -> {
+                if (BLOCK.COPPER_FLUID_PIPE instanceof FluidPipeBlock pipeBlock && pipeBlock.fluidPipe() != null) {
+                    ItemStack baseStack = new ItemStack(BLOCK.COPPER_FLUID_PIPE);
+                    List<ItemStack> variants = new ArrayList<>();
+                    pipeBlock.fluidPipe().appendCreativeMenuVariants(variants, baseStack);
+                    variants.forEach(entries::accept);
+                }
+            });
+
             LogisticsCore.CREATIVE.TAB.add(BLOCK.COPPER_FLUID_PIPE);
             LogisticsCore.CREATIVE.TAB.add(BLOCK.STONE_FLUID_PIPE);
             LogisticsCore.CREATIVE.TAB.add(BLOCK.GOLD_FLUID_PIPE);

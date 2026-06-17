@@ -5,13 +5,10 @@ import com.logistics.core.lib.block.behavior.WrenchBehavior;
 import com.logistics.core.lib.fluids.FluidStorageLookup;
 import com.logistics.core.lib.pipe.ModularPipe;
 import com.logistics.core.lib.pipe.ModularPipeBlock;
-import com.logistics.core.lib.pipe.Module;
-import com.logistics.core.lib.pipe.PipeContext;
 import com.logistics.core.lib.pipe.PipeFamily;
+import com.logistics.pipe.fluid.FluidPipe;
 import com.logistics.pipe.fluid.block.entity.FluidPipeBlockEntity;
-import com.logistics.pipe.fluid.FluidPipeModules;
 import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -48,17 +45,15 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Block for both fluid pipe kinds. Renders as an invisible block; geometry is produced in code by
- * {@code FluidPipeBlockEntityRenderer}. Connections are computed by this block and cached on the
- * block entity for shape and arm rendering.
+ * Block for every fluid pipe. Renders as an invisible block; geometry is produced in code by
+ * {@code FluidPipeBlockEntityRenderer}. The pipe's behavior comes from its bound {@link FluidPipe}
+ * definition (bound at registration, mirroring how item {@code PipeBlock} binds its {@code ItemPipe}).
+ * Connections are computed here and cached on the block entity for shape and arm rendering.
  */
 public class FluidPipeBlock extends BaseEntityBlock
         implements SimpleWaterloggedBlock, WrenchBehavior.Wrenchable, ModularPipeBlock {
 
-    public static final MapCodec<FluidPipeBlock> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-            propertiesCodec(),
-            FluidPipeKind.CODEC.fieldOf("kind").forGetter(FluidPipeBlock::kind))
-            .apply(instance, FluidPipeBlock::new));
+    public static final MapCodec<FluidPipeBlock> CODEC = simpleCodec(FluidPipeBlock::new);
 
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 
@@ -83,28 +78,32 @@ public class FluidPipeBlock extends BaseEntityBlock
                 8 - PIPE_SIZE / 2, 0, 8 - PIPE_SIZE / 2, 8 + PIPE_SIZE / 2, 8 - PIPE_SIZE / 2, 8 + PIPE_SIZE / 2);
     }
 
-    private final FluidPipeKind kind;
-    private final FluidPipeModules modules;
+    @Nullable
+    private final FluidPipe fluidPipe;
 
-    public FluidPipeBlock(BlockBehaviour.Properties settings, FluidPipeKind kind) {
+    /** Codec/registry constructor: produces a definition-less block (never placed in-world). */
+    public FluidPipeBlock(BlockBehaviour.Properties settings) {
+        this(settings, null);
+    }
+
+    public FluidPipeBlock(BlockBehaviour.Properties settings, @Nullable FluidPipe fluidPipe) {
         super(settings);
-        this.kind = kind;
-        this.modules = FluidPipeModules.forKind(kind);
+        this.fluidPipe = fluidPipe;
+        if (fluidPipe != null) {
+            fluidPipe.setPipeBlock(this);
+        }
         registerDefaultState(defaultBlockState().setValue(WATERLOGGED, false));
     }
 
-    public FluidPipeKind kind() {
-        return kind;
-    }
-
-    /** The module composition this fluid pipe hosts (cosmetic/connection behaviors). */
-    public FluidPipeModules modules() {
-        return modules;
+    /** The fluid pipe definition backing this block (its transport policy + cosmetic/connection modules). */
+    @Nullable
+    public FluidPipe fluidPipe() {
+        return fluidPipe;
     }
 
     @Override
     public ModularPipe modularPipe() {
-        return modules;
+        return fluidPipe;
     }
 
     @Override
@@ -157,8 +156,8 @@ public class FluidPipeBlock extends BaseEntityBlock
             Player player,
             InteractionHand hand,
             BlockHitResult hit) {
-        if (!modules.modules().isEmpty() && level.getBlockEntity(pos) instanceof FluidPipeBlockEntity be) {
-            InteractionResult result = modules.onUseWithItem(be.createContext(), new UseOnContext(player, hand, hit));
+        if (fluidPipe != null && level.getBlockEntity(pos) instanceof FluidPipeBlockEntity be) {
+            InteractionResult result = fluidPipe.onUseWithItem(be.createContext(), new UseOnContext(player, hand, hit));
             if (result != InteractionResult.PASS) {
                 // A connection-affecting change (e.g. marking) must re-evaluate this pipe and its
                 // neighbours so a marked boundary actually splits the fluid body.
@@ -171,9 +170,9 @@ public class FluidPipeBlock extends BaseEntityBlock
 
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
-        if (!modules.modules().isEmpty() && level.getBlockEntity(pos) instanceof FluidPipeBlockEntity be) {
+        if (fluidPipe != null && level.getBlockEntity(pos) instanceof FluidPipeBlockEntity be) {
             InteractionResult result =
-                    modules.onUseWithoutItem(be.createContext(), new UseOnContext(player, InteractionHand.MAIN_HAND, hit));
+                    fluidPipe.onUseWithoutItem(be.createContext(), new UseOnContext(player, InteractionHand.MAIN_HAND, hit));
             if (result != InteractionResult.PASS) {
                 be.invalidateConnectionsAndNeighbours();
                 return result;
@@ -184,14 +183,14 @@ public class FluidPipeBlock extends BaseEntityBlock
 
     @Override
     protected boolean isRandomlyTicking(BlockState state) {
-        return modules.hasRandomTicks();
+        return fluidPipe != null && fluidPipe.hasRandomTicks();
     }
 
     @Override
     protected void randomTick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
         super.randomTick(state, level, pos, random);
-        if (level.getBlockEntity(pos) instanceof FluidPipeBlockEntity be) {
-            modules.randomTick(be.createContext(), random);
+        if (fluidPipe != null && level.getBlockEntity(pos) instanceof FluidPipeBlockEntity be) {
+            fluidPipe.randomTick(be.createContext(), random);
         }
     }
 
@@ -218,20 +217,19 @@ public class FluidPipeBlock extends BaseEntityBlock
             candidate = FluidConnection.PIPE;
         } else {
             // Void and bypass pipes connect only to other fluid pipes, never to external handlers.
-            candidate = kind.connectsToHandlers() ? FluidConnection.HANDLER : FluidConnection.NONE;
+            candidate = (fluidPipe == null || fluidPipe.connectsToHandlers())
+                    ? FluidConnection.HANDLER
+                    : FluidConnection.NONE;
         }
         if (candidate == FluidConnection.NONE) {
             return FluidConnection.NONE;
         }
         // Let hosted modules veto the connection (mirror of Pipe.filterConnection) — e.g. differently
-        // marked pipes refuse to connect. No-op while no kind composes connection-gating modules.
-        if (!modules.modules().isEmpty() && level.getBlockEntity(pos) instanceof FluidPipeBlockEntity be) {
-            PipeContext ctx = be.createContext();
+        // marked pipes refuse to connect.
+        if (fluidPipe != null && level.getBlockEntity(pos) instanceof FluidPipeBlockEntity be) {
             Block neighbourBlock = level.getBlockState(neighbour).getBlock();
-            for (Module module : modules.modules()) {
-                if (!module.allowsConnection(ctx, direction, neighbourBlock)) {
-                    return FluidConnection.NONE;
-                }
+            if (!fluidPipe.allowsConnection(be.createContext(), direction, neighbourBlock)) {
+                return FluidConnection.NONE;
             }
         }
         return candidate;
@@ -317,7 +315,7 @@ public class FluidPipeBlock extends BaseEntityBlock
         if (!(level.getBlockEntity(pos) instanceof FluidPipeBlockEntity pipe)) {
             return InteractionResult.PASS;
         }
-        if (kind.isDirectional() || kind.isExtractor()) {
+        if (fluidPipe != null && fluidPipe.usesFeatureFace()) {
             // Merger output / extractor pull face: each wrench advances it to the next candidate face,
             // like the item Merger and Extractor pipes.
             pipe.cycleFeatureDirection();
