@@ -1,8 +1,8 @@
 # Remote Orderer
 
-> **Status:** 🚧 Planned · **Phase:** 1 — Automation core · **Module:** `logistics-automation` (`pipe` domain)
+> **Status:** 🔍 Exploring — **not committed** ([`ROADMAP.md`](../../ROADMAP.md) → Exploring/RFC). Its payoff leaned on an Ender Chest-style companion mod to be broadly useful; revisit if that need is met. This brief captures *how* we'd build it if accepted. · **Module:** `logistics-automation` (`pipe` domain)
 > **Source:** [`../mods/logistics-pipes.md`](../mods/logistics-pipes.md) (Remote Orderer) · **Depends on:** nothing
-> **Maps to (roadmap):** Phase 1 — logistics QoL
+> **Maps to (roadmap):** [`ROADMAP.md`](../../ROADMAP.md) → Exploring/RFC
 
 A handheld item that opens the network request UI from anywhere in range — order items from your logistics network without standing at a Requester pipe. A high-value QoL Modernize: the request UI and order flow already exist; this is a new item that reaches them.
 
@@ -62,5 +62,5 @@ common/src/main/java/com/logistics/pipe/item/RemoteOrdererItem.java
 
 ## References
 
-- Roadmap: [`../roadmap.md`](../roadmap.md) → Phase 1 → logistics QoL; [`../mods/logistics-pipes.md`](../mods/logistics-pipes.md) → Remote Orderer row
+- Roadmap: [`../../ROADMAP.md`](../../ROADMAP.md) → Exploring/RFC; [`../mods/logistics-pipes.md`](../mods/logistics-pipes.md) → Remote Orderer row
 - Code: `pipe/ui/RequesterScreenHandler` (reuse), `pipe/modules/RequesterModule#onWrench` (openMenu idiom), `pipe/item/ModuleItem#use` (handheld→screen), `pipe/network/NetworkRegistry` (resolve network by pos), `core/lib/network/{ILogisticsNetwork,Order}`, `pipe/data/PipeDataComponents` (data-component binding), `LogisticsPipe.java`

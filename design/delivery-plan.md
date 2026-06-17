@@ -1,4 +1,6 @@
-# Roadmap
+# Delivery Plan
+
+> The **detailed, contributor-facing** phased build plan. For the short, high-level, user-facing direction, see the root [`ROADMAP.md`](../ROADMAP.md) — that's the canonical public roadmap; this file is its in-depth companion.
 
 The phased plan from day zero to "complete." Phases are sequenced to **build on existing strength first**: the BuildCraft / Logistics Pipes / Thermal Expansion automation core is largely in place, so we round it out before opening the Forestry and Railcraft frontiers.
 
@@ -8,26 +10,27 @@ This file is the human-readable mirror of **GitHub Project #4 "Logistics Roadmap
 
 ## Phase overview
 
-| Phase | Theme | Source mods | State |
-|---|---|---|---|
-| **0 — Foundation** | Materials, tools, energy, the pipe network | Logistics Pipes, base of BuildCraft/TE | ✅ Largely done |
-| **1 — Automation core** | Round out engines, ore processing, RF machines, quarry, gates/automation | BuildCraft + Thermal Expansion | 🚧 In progress |
-| **2 — Forestry** | Biological automation: bees, trees, farms, electronics | Forestry | — Not started |
-| **3 — Transport** | Rails, advanced carts, tanks, signals, bulk processing | Railcraft | — Not started |
+| Phase                   | Theme                                                                                                  | Source mods                            | State          |
+|-------------------------|--------------------------------------------------------------------------------------------------------|----------------------------------------|----------------|
+| **0 — Foundation**      | Materials, tools, energy, the pipe network                                                             | Logistics Pipes, base of BuildCraft/TE | ✅ Largely done |
+| **1 — Automation core** | Round out engines, ore processing, RF machines, and the quarry                                         | BuildCraft + Thermal Expansion         | 🚧 In progress |
+| **2 — Forestry**        | Industrial Forestry: farms, processing, power, electronics *(tree harvesting only; no genetics/breeding)* | Forestry                               | — Not started  |
+| **3 — Transport**       | Rails, advanced carts, tanks, signals, bulk processing                                                 | Railcraft                              | — Not started  |
 
 ---
 
 ## Versioning & 1.0
 
-**1.0 is a stability promise, not the finish line.** It does *not* mean all five mods are done — that's the long-term vision. 1.0 means a coherent, self-contained slice is complete and we'll stand behind it.
+**1.0 is a stability promise, not the finish line.** It does *not* mean all four mods are done — that's the long-term vision. 1.0 means a coherent, self-contained slice is complete and we'll stand behind it.
 
 **1.0 = the Automation core (Phase 1) complete and stable, on both loaders.** That's BuildCraft + Logistics Pipes + Thermal Expansion — a complete, recognizable mod on its own. Forestry (`logistics-forestry`) and Railcraft (`logistics-transport`) are **post-1.0** modules that ship as later 1.x minors.
 
 ### Definition of done for 1.0
 
-1. **Phase 1 feature-complete** — the BC/TE gaps filled (fluids foundation, combustion-tier engine, alloy smelter, sawmill, macerator secondary outputs, machine upgrades). Logistics Pipes is already done.
+1. **Phase 1 feature-complete** — the BC/TE gaps filled (fluids foundation, combustion-tier engine, alloy smelter, sawmill, macerator secondary outputs). Logistics Pipes is already done. *(Machine upgrades is **exploratory**, not part of the 1.0 bar — see [ROADMAP.md](../ROADMAP.md) Exploring/RFC.)*
 2. **Loader parity** — NeoForge shipped, not "in progress." Fabric + NeoForge both at the bar.
 3. **Format stability** — block/BE NBT, data components, and config settled; **no save-breaking changes expected**. This is the real meaning of 1.0.
+   - **Content availability** is part of this promise: a 1.0 world must stay fully playable through later phases — no post-1.0 material may become *unobtainable* on an existing save. New materials are sourced without new worldgen ore where possible; any genuinely-new ore commits to retrogen, not pre-seeding. See [RFC 0004](rfcs/0004-worldgen-stability.md).
 4. **Polish** — JEI/recipe coverage, a balance pass, current docs, no known crashes.
 
 ### Released in lockstep
@@ -74,26 +77,30 @@ This file is the human-readable mirror of **GitHub Project #4 "Logistics Roadmap
 - Macerator secondary/byproduct outputs (chance-based)
 - Alloy Smelter (Bronze/Invar/Electrum + the alloy material set)
 - Sawmill (logs → planks + sawdust)
-- Machine upgrades / augments (speed / efficiency / secondary / auto-output)
 - Magma Crucible + Fluid Transposer *(needs fluids)*
 
+*Exploratory (not committed for 1.0 — [ROADMAP.md](../ROADMAP.md) Exploring/RFC):*
+- Machine upgrades / augments (speed / efficiency / secondary / auto-output) — see [`features/0106-machine-upgrades.md`](features/0106-machine-upgrades.md)
+
 **Pipes & logistics QoL**
-- Pipe operation power gating *(in progress)*
-- Remote Orderer (handheld network access)
-- Obsidian vacuum pipe (world item pickup)
+- Pipe operation power gating *(done — #464/#465/#469)*
 - Firewall pipe (network segmentation)
 - Fluid logistics: liquid provider/supplier/request *(needs fluids)*
+
+*Reclassified (not committed for 1.0 — [ROADMAP.md](../ROADMAP.md)):*
+- Remote Orderer (handheld network access) — **exploratory**; leaned on an Ender Chest-style companion mod. See [`features/0109-remote-orderer.md`](features/0109-remote-orderer.md).
+- Obsidian vacuum pipe (world item pickup) — **not planned**; vanilla hoppers cover this. See [`features/0108-obsidian-vacuum-pipe.md`](features/0108-obsidian-vacuum-pipe.md).
 
 **Fuels** *(couples to Combustion Engine + Forestry biofuel)*
 - Decide oil/biofuel sourcing; build the fuel chain
 
 **Programmable behavior — explicitly post-1.0 (deferred)**
 - The unified gates + circuits system (BuildCraft **gates** · TE programmable **augments** · Forestry **circuits** → one "programmable behavior" layer) is **not a 1.0 item.** Deferred until Forestry actually needs it — i.e. circuit boards to program Forestry blocks (Phase 2) — or later. See [RFC 0001](rfcs/0001-programmable-behavior.md).
-- *Distinct from the Phase-1 **machine upgrades** (speed/efficiency/auto-output modifiers) in the Definition of Done above — that's a modifier system, not the programmable-logic layer, and is unaffected by this deferral.*
+- *Distinct from **machine upgrades** (speed/efficiency/auto-output modifiers) — that's a modifier system, not the programmable-logic layer. It's separately **exploratory** (not committed for 1.0; see [ROADMAP.md](../ROADMAP.md) Exploring/RFC) and is unaffected by this deferral either way.*
 
 ## Phase 2 — Forestry —
 
-*Biological automation and endgame variety. Derived from [`mods/forestry.md`](mods/forestry.md). Apatite (fertilizer) and the logic-chip/core/valve "electronics" are already seeded.*
+*Industrial Forestry — farms, processing, power, and electronics. Derived from [`mods/forestry.md`](mods/forestry.md). Apatite (fertilizer) and the logic-chip/core/valve "electronics" are already seeded. The genetics/biology axis (bees, tree-breeding, butterflies) is **out of scope** — see [RFC 0002](rfcs/0002-forestry-bees.md).*
 
 **Farms** *(headline)*
 - Single-block farms (the older Forestry design, **not** the later multiblock multifarm) + farm-type selection/upgrades
@@ -106,15 +113,15 @@ This file is the human-readable mirror of **GitHub Project #4 "Logistics Roadmap
 - Bottler *(needs fluids)*
 - Peat / biofuel engines unified into the engine line
 
-**Trees**
-- Arboriculture (saplings/pollen, grafter); products aligned to vanilla woods + resin
+**Trees** *(wood via farms only — no breeding)*
+- Farms harvest vanilla trees for wood + resin; **no arboriculture/breeding genetics** (out of scope — [RFC 0002](rfcs/0002-forestry-bees.md))
 
 **Electronics**
 - Thermionic Fabricator (modernized, ideally unified with the Carpenter) → electron tubes (map to existing cores/valves/logic chips)
-- Circuit boards + soldering → ties into the Phase 1 programmable-behavior RFC
+- Circuit boards + soldering → ties into the (post-1.0) programmable-behavior RFC, and is the natural trigger to revisit it
 
-**Bees** *(deferred / uncertain — may be skipped for v1)*
-- Vanilla flower-breeding diverges sharply from Forestry's princess/drone/queen; needs a design pass (Discussion) before scheduling
+**Bees / genetics** *(out of scope — separate-mod territory)*
+- Bees, tree-breeding, and butterflies are not built here; the genetics axis diverges from vanilla and would dominate the module — see [RFC 0002](rfcs/0002-forestry-bees.md)
 
 ## Phase 3 — Transport —
 
@@ -136,7 +143,7 @@ This file is the human-readable mirror of **GitHub Project #4 "Logistics Roadmap
 **Steam & steel chain**
 - Coke Oven (coke + creosote) — reconsider multiblock
 - Blast Furnace → **Steel** (single-block preferred); creosote → treated wood
-- Steam power (boiler/turbine) — *TBD, couples to engine line*
+- Steam power (boiler/turbine) — *TBD; leaning toward a **Create compat layer** over a homegrown boiler (see [RFC 0003](rfcs/0003-railcraft-multiblocks.md)); electric locomotives/tracks are out of scope*
 - Bulk fluid Tanks — *TBD (valid multiblock exception?)*
 
 > **Cross-cutting dependencies:** the **Fluids foundation** (Phase 1) unblocks fluid logistics, several TE machines, biofuel bottling (Phase 2), and tank carts/tanks (Phase 3). The **programmable-behavior RFC** spans Phases 1–2. Schedule both early within their phases.
@@ -147,13 +154,13 @@ This file is the human-readable mirror of **GitHub Project #4 "Logistics Roadmap
 
 When a breakdown section settles, decompose it into Project #4:
 
-| Doc concept | Project #4 representation |
-|---|---|
-| **Phase** (0–3) | **Milestone** (e.g. "Phase 1 — Automation core") |
-| **Mod-area / epic** (e.g. "Engines & power") | **Epic issue** (parent issue) |
-| **Feature row** in a `mods/*.md` table | **Sub-issue** under the epic (uses the board's *Parent issue* / *Sub-issues progress* fields) |
-| **Decision** (Port/Modernize/Skip) | Label: `port` / `modernize` / `wontport` *(to be created)* + existing scope labels |
-| **Status** (✅/🚧/—/❌) | Board **Status** field; ❌ rows are not filed |
+| Doc concept                                  | Project #4 representation                                                                     |
+|----------------------------------------------|-----------------------------------------------------------------------------------------------|
+| **Phase** (0–3)                              | **Milestone** (e.g. "Phase 1 — Automation core")                                              |
+| **Mod-area / epic** (e.g. "Engines & power") | **Epic issue** (parent issue)                                                                 |
+| **Feature row** in a `mods/*.md` table       | **Sub-issue** under the epic (uses the board's *Parent issue* / *Sub-issues progress* fields) |
+| **Decision** (Port/Modernize/Skip)           | Label: `port` / `modernize` / `wontport` *(to be created)* + existing scope labels            |
+| **Status** (✅/🚧/—/❌)                        | Board **Status** field; ❌ rows are not filed                                                  |
 
 **Decomposition rules:**
 - Reconcile with issues already on the board (e.g. *"Forestry-Inspired Farming & Electronics Roadmap"*, *"BuildCraft compatibility shim"*) — extend/link them, don't duplicate.

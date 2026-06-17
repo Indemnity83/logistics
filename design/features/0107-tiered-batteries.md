@@ -84,7 +84,7 @@ common/src/main/java/com/logistics/power/block/
 
 ## References
 
-- Roadmap: [`../roadmap.md`](../roadmap.md) → Phase 1 → Battery (tiers); [`../mods/thermal-expansion.md`](../mods/thermal-expansion.md) → "Energy Cells" row
+- Roadmap: [`../delivery-plan.md`](../delivery-plan.md) → Phase 1 → Battery (tiers); [`../mods/thermal-expansion.md`](../mods/thermal-expansion.md) → "Energy Cells" row
 - Code: `core/lib/power/AbstractBatteryBlockEntity` (tier-ready constructor), `power/block/{BatteryBlock,BatteryBlockItem}`, `power/block/entity/BatteryBlockEntity`; tier precedent `power/cable/{CableTier,CableBlock,CableBlockEntity,CableNetwork}` (current rates 30/60/120 RF/t, lossless, bufferless); data-component precedent `pipe/data/PipeDataComponents`; registration in `LogisticsPower.java`
 - TE Fluxduct reference (wiki — TE has no public source): [Team CoFH — Fluxducts](https://teamcofh.com/docs/1.12/thermal-dynamics/fluxducts/) (Leadstone 200 / Hardened 800 / Redstone 8,000 / Resonant 32,000 RF/t; [Cryo-Stabilized](https://teamcofh.com/docs/1.12/thermal-dynamics/cryo-stabilized-fluxduct/) = unlimited)
 - Related: [`0105-alloy-smelter.md`](0105-alloy-smelter.md) (materials gate), [`0106-machine-upgrades.md`](0106-machine-upgrades.md) (creates the demand for bigger storage)

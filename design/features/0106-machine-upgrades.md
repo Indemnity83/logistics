@@ -1,8 +1,8 @@
 # Machine Upgrades / Augments
 
-> **Status:** 🚧 Planned · **Phase:** 1 — Automation core · **Module:** `logistics-automation` (cross-machine; `core.lib` contract)
+> **Status:** 🔍 Exploring — **not committed for 1.0** ([`ROADMAP.md`](../../ROADMAP.md) lists machine upgrades under *Exploring / RFC*). This brief captures *how* we'd build it if/when it's accepted; it is not yet scheduled. · **Module:** `logistics-automation` (cross-machine; `core.lib` contract)
 > **Source:** [`../mods/thermal-expansion.md`](../mods/thermal-expansion.md) (Augments) · **Depends on:** the machine pattern (Macerator/Kiln); pairs with [`0102-macerator-secondary-outputs.md`](0102-macerator-secondary-outputs.md) (secondary augment)
-> **Maps to (roadmap):** Phase 1 — machine upgrades
+> **Maps to (roadmap):** [`ROADMAP.md`](../../ROADMAP.md) → Exploring / RFC → machine upgrades
 
 A unified, slot-in modifier system applied across all RF machines (Macerator, Kiln, Sawmill, Alloy Smelter): speed, efficiency, secondary-yield, and auto-output augments. The cross-cutting "make machines feel like a system, not isolated blocks" feature. There is no upgrade system today — this defines one.
 
@@ -43,7 +43,7 @@ Define the contract in `core.lib`, apply it in each machine's processing plan.
 
 ## Scope & non-goals
 
-- **In:** the `core.lib` upgrade contract, four augment types, GUI slots, adoption across the four Phase-1 machines.
+- **In (if accepted):** the `core.lib` upgrade contract, four augment types, GUI slots, adoption across the four core machines (Macerator/Kiln/Sawmill/Alloy Smelter).
 - **Out:** machine **tiers / frames** (Basic→Resonant crafted machine bodies — separate, see TE breakdown "Machine frames / tiers"); per-side augment config; augments that change *what* a machine does (only how fast/cheap/auto); fluid-machine augments (until those machines exist).
 - **Out:** engine augments — engines aren't processing machines; revisit separately if wanted.
 
@@ -63,7 +63,7 @@ Define the contract in `core.lib`, apply it in each machine's processing plan.
 
 ## References
 
-- Roadmap: [`../roadmap.md`](../roadmap.md) → Phase 1 → machine upgrades
+- Roadmap: [`ROADMAP.md`](../../ROADMAP.md) → Exploring / RFC → machine upgrades (and [`../delivery-plan.md`](../delivery-plan.md) → Phase 1 → exploratory)
 - Breakdown: [`../mods/thermal-expansion.md`](../mods/thermal-expansion.md) → "Augments" and "Machine frames / tiers" rows
 - Code: the four machines' `*ProcessingPlan` + `*ScreenHandler`; `core/lib/items/ItemInventoryComponent`; `core/lib/storage/ItemStorageLookup` (auto-output); data-component precedent in `pipe/data/PipeDataComponents`
 - Related: [`0102-macerator-secondary-outputs.md`](0102-macerator-secondary-outputs.md), [`0107-tiered-batteries.md`](0107-tiered-batteries.md)

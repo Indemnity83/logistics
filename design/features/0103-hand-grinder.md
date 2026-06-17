@@ -75,7 +75,7 @@ common/src/main/java/com/logistics/core/handgrinder/
 
 ## References
 
-- Roadmap: [`../roadmap.md`](../roadmap.md) → Phase 1 (early-game processing on-ramp)
+- Roadmap: [`../delivery-plan.md`](../delivery-plan.md) → Phase 1 (early-game processing on-ramp)
 - Pairs with: [`0102-macerator-secondary-outputs.md`](0102-macerator-secondary-outputs.md) (shared recipes; powered upgrade with byproducts), [`0105-alloy-smelter.md`](0105-alloy-smelter.md) (the no-power Bronze path this enables)
 - Tier placement: [`../progression-tiers.md`](../progression-tiers.md) (bottom-of-ladder manual tool)
 - Code precedent: vanilla `ComposterBlock` (block-state progress + right-click), `LecternBlock` (BE holds an item); `core/macerator/{MaceratorRecipeWrapper,MaceratorRecipeSerializer}` (reused recipes); registration in `LogisticsCore.java`

@@ -19,10 +19,16 @@ RFCs are numbered sequentially (`NNNN-`), independent of the phase/step build or
 | # | RFC | Scope | The question | Leaning |
 |---|---|---|---|---|
 | 0001 | [Programmable Behavior](0001-programmable-behavior.md) | Phase 2+ (post-1.0) | Unified gates+circuits logic system, vanilla-leaning hooks, or skip for v1? | **Deferred post-1.0** (maintainer): not a 1.0 item; revisit when Forestry needs circuit boards |
-| 0002 | [Forestry Bees](0002-forestry-bees.md) | Phase 2 (Forestry) | Ship bees at all — and extend vanilla or build parallel genetics? | Skip for v1; extend-vanilla if pursued later |
-| 0003 | [Railcraft Multiblocks & Steam](0003-railcraft-multiblocks.md) | Phase 3 (Transport) | Single-block / tileable / multiblock per signature block; is steam a power tier? | Single-block machines; tileable bulk tanks; steam simplified for v1 |
+| 0003 | [Railcraft Multiblocks & Steam](0003-railcraft-multiblocks.md) | Phase 3 (Transport) | Single-block / tileable / multiblock per signature block; is steam a power tier? | Single-block machines; tileable bulk tanks; **steam via a Create compat layer** (else simplified) |
+| 0004 | [Material Sourcing & Worldgen Stability](0004-worldgen-stability.md) | Cross-cutting (post-1.0 materials) | How do we keep post-1.0 materials obtainable on existing 1.0 worlds without dead pre-seeded ore? | Source without new worldgen ore by default; retrogen as fallback |
 
 > The **leaning** column is a starting position to argue against, not a decision. Each RFC carries the full options + trade-offs.
+
+## Decided RFCs
+
+| # | RFC | Scope | Decision |
+|---|---|---|---|
+| 0002 | [Forestry Genetics](0002-forestry-bees.md) | Phase 2 (Forestry) | Genetics is out of scope for Logistics; bees, tree breeding, and butterflies belong in a separate dedicated mod |
 
 ## RFC template
 
