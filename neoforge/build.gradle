@@ -14,15 +14,6 @@ base {
 repositories {
     maven { url = "https://maven.terraformersmc.com/releases/" }
     maven { name = "Jared's maven"; url = "https://maven.blamejared.com/" }
-    // No released NeoForge for MC 26.2 yet. Pull the artifact from the upstream port PR's
-    // CI maven (neoforged/NeoForge#3198, "Port to 26.2"). Scoped to the neoforge module only.
-    // This is an ephemeral, unmerged build — fine for dev/testing, NOT for a shippable release.
-    // Remove this repo and point neoforge_version at the official maven once a real 26.2 alpha ships.
-    maven {
-        name = "NeoForge PR #3198 (Port to 26.2)"
-        url = "https://prmaven.neoforged.net/NeoForge/pr3198"
-        content { includeModule("net.neoforged", "neoforge") }
-    }
     maven {
         name = "Modrinth"
         url = "https://api.modrinth.com/maven"
@@ -85,9 +76,13 @@ dependencies {
         runtimeOnly("mezz.jei:jei-${rootProject.minecraft_version}-neoforge:${rootProject.jei_version}")
     }
 
-    // Jade HUD — compile against the API only; loaded in dev via runClient, never bundled
+    // Jade HUD — compile against the API only; never bundled.
     compileOnly("maven.modrinth:jade:${rootProject.jade_neoforge_version}")
-    runtimeOnly("maven.modrinth:jade:${rootProject.jade_neoforge_version}")
+    // No Jade NeoForge build for MC 26.2 yet — the 26.1.x jar is runtime-incompatible
+    // (NoClassDefFoundError MinMaxBounds$Ints, which moved in 26.2) and crashes runClient
+    // during mod construction. Keep it off the runtime classpath until a 26.2 build ships;
+    // restore runtimeOnly (and test the in-game HUD) then. The release jar is unaffected.
+    // runtimeOnly("maven.modrinth:jade:${rootProject.jade_neoforge_version}")
 
     testImplementation "org.junit.jupiter:junit-jupiter:${rootProject.junit_version}"
     testRuntimeOnly "org.junit.platform:junit-platform-launcher"
