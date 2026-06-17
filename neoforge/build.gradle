@@ -76,9 +76,13 @@ dependencies {
         runtimeOnly("mezz.jei:jei-${rootProject.minecraft_version}-neoforge:${rootProject.jei_version}")
     }
 
-    // Jade HUD — compile against the API only; loaded in dev via runClient, never bundled
+    // Jade HUD — compile against the API only; never bundled.
     compileOnly("maven.modrinth:jade:${rootProject.jade_neoforge_version}")
-    runtimeOnly("maven.modrinth:jade:${rootProject.jade_neoforge_version}")
+    // No Jade NeoForge build for MC 26.2 yet — the 26.1.x jar is runtime-incompatible
+    // (NoClassDefFoundError MinMaxBounds$Ints, which moved in 26.2) and crashes runClient
+    // during mod construction. Keep it off the runtime classpath until a 26.2 build ships;
+    // restore runtimeOnly (and test the in-game HUD) then. The release jar is unaffected.
+    // runtimeOnly("maven.modrinth:jade:${rootProject.jade_neoforge_version}")
 
     testImplementation "org.junit.jupiter:junit-jupiter:${rootProject.junit_version}"
     testRuntimeOnly "org.junit.platform:junit-platform-launcher"
