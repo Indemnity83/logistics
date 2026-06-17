@@ -2,13 +2,15 @@ package com.logistics.pipe.modules;
 
 import com.logistics.LogisticsPipe;
 import com.logistics.core.lib.pipe.CoreDecoration;
+import com.logistics.core.lib.pipe.IModuleHost;
+import com.logistics.core.lib.pipe.ModularPipe;
+import com.logistics.core.lib.pipe.ModularPipeBlock;
 import com.logistics.core.lib.pipe.Module;
+import com.logistics.core.lib.pipe.PipeFamily;
 import com.logistics.pipe.item.MarkingFluidItem;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.core.lib.pipe.PipeContext;
-import com.logistics.pipe.Pipe;
-import com.logistics.pipe.block.PipeBlock;
-import com.logistics.pipe.block.entity.PipeBlockEntity;
+import java.util.function.Function;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
@@ -23,6 +25,23 @@ import org.jetbrains.annotations.Nullable;
 
 public class PipeMarkingModule implements Module {
     public static final String COLOR_KEY = "pipe_color";
+
+    /** Resolves the marking-overlay model name to a full {@link ResourceId} in the owning domain. */
+    private final Function<String, ResourceId> modelResolver;
+
+    /** Asset name for the marking overlay model, e.g. {@code "pipe_markings"}. */
+    private final String overlayModel;
+
+    /** Item pipe defaults (existing behavior). */
+    public PipeMarkingModule() {
+        this(LogisticsPipe::model, "pipe_markings");
+    }
+
+    /** Domain-neutral constructor: supply the model resolver and overlay asset for the owning family. */
+    public PipeMarkingModule(Function<String, ResourceId> modelResolver, String overlayModel) {
+        this.modelResolver = modelResolver;
+        this.overlayModel = overlayModel;
+    }
 
     /**
      * Read the stored marking color for this pipe, if any.
@@ -98,10 +117,10 @@ public class PipeMarkingModule implements Module {
      */
     public java.util.List<CoreDecoration> getCoreDecorations(PipeContext ctx) {
         DyeColor color = getStoredColor(ctx);
-        if (color == null || !(ctx.state().getBlock() instanceof PipeBlock)) {
+        if (color == null || !(ctx.state().getBlock() instanceof ModularPipeBlock)) {
             return java.util.List.of();
         }
-        ResourceId pipeMarkings = LogisticsPipe.model("pipe_markings");
+        ResourceId pipeMarkings = modelResolver.apply(overlayModel);
         return java.util.List.of(new CoreDecoration(pipeMarkings, color.getFireworkColor()));
     }
 
@@ -110,7 +129,14 @@ public class PipeMarkingModule implements Module {
      */
     public boolean allowsConnection(
             @Nullable PipeContext ctx, Direction direction, Block neighborBlock) {
-        if (ctx == null || !(neighborBlock instanceof PipeBlock neighborPipeBlock)) {
+        if (ctx == null || !(neighborBlock instanceof ModularPipeBlock neighborPipeBlock)) {
+            return true;
+        }
+
+        // Only gate connections within the same pipe family.
+        PipeFamily selfFamily =
+                (ctx.state().getBlock() instanceof ModularPipeBlock self) ? self.family() : null;
+        if (selfFamily == null || neighborPipeBlock.family() != selfFamily) {
             return true;
         }
 
@@ -120,11 +146,11 @@ public class PipeMarkingModule implements Module {
         }
 
         BlockPos neighborPos = ctx.pos().relative(direction);
-        if (!(ctx.world().getBlockEntity(neighborPos) instanceof PipeBlockEntity neighborEntity)) {
+        if (!(ctx.world().getBlockEntity(neighborPos) instanceof IModuleHost neighborEntity)) {
             return true;
         }
 
-        Pipe neighborPipe = neighborPipeBlock.getPipe();
+        ModularPipe neighborPipe = neighborPipeBlock.modularPipe();
         if (neighborPipe == null || neighborPipe.getModule(PipeMarkingModule.class, neighborEntity) == null) {
             return true;
         }

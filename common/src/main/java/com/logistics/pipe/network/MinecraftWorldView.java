@@ -4,7 +4,7 @@ import com.logistics.core.lib.block.capability.PipeConnection;
 import com.logistics.core.lib.block.capability.HasEnergyStorage;
 import com.logistics.core.lib.energy.IEnergyStorage;
 import com.logistics.core.lib.network.IWorldView;
-import com.logistics.pipe.Pipe;
+import com.logistics.pipe.ItemPipe;
 import com.logistics.core.lib.pipe.PipeContext;
 import com.logistics.pipe.block.PipeBlock;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
@@ -66,7 +66,7 @@ public class MinecraftWorldView implements IWorldView {
         }
 
         PipeBlock block = (PipeBlock) pipeEntity.getBlockState().getBlock();
-        Pipe pipe = block.getPipe();
+        ItemPipe pipe = block.getPipe();
         return pipe.getModule(moduleClass, pipeEntity);
     }
 
@@ -76,7 +76,7 @@ public class MinecraftWorldView implements IWorldView {
             return false;
         }
         PipeBlock block = (PipeBlock) pipeEntity.getBlockState().getBlock();
-        Pipe pipe = block.getPipe();
+        ItemPipe pipe = block.getPipe();
         PipeContext ctx = pipeEntity.createContext();
 
         return pipe.matchesSinkFilter(ctx, stack);
@@ -88,7 +88,7 @@ public class MinecraftWorldView implements IWorldView {
         BlockState state = level.getBlockState(provider);
         if (!(state.getBlock() instanceof PipeBlock pipeBlock)) return 0;
 
-        Pipe pipe = pipeBlock.getPipe();
+        ItemPipe pipe = pipeBlock.getPipe();
         PipeContext ctx = pipeEntity.createContext();
         return pipe.dispatch(ctx, requester, item, amount, deliveryId);
     }

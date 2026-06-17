@@ -1,7 +1,9 @@
 package com.logistics.pipe;
 
+import com.logistics.LogisticsFluid;
 import com.logistics.core.LogisticsConfig;
 import com.logistics.pipe.modules.*;
+import com.logistics.pipe.modules.FluidTransportModule.FlowRate;
 
 public final class PipeTypes {
     // -----------------
@@ -9,78 +11,78 @@ public final class PipeTypes {
     // -----------------
 
     // Early transport pipe - slow item movement.
-    public static final Pipe STONE_TRANSPORT_PIPE =
-            new Pipe(new TransportModule(LogisticsConfig.get().pipe.minSpeed, LogisticsConfig.get().pipe.drag)) {};
+    public static final ItemPipe STONE_TRANSPORT_PIPE =
+            new ItemPipe(new TransportModule(LogisticsConfig.get().pipe.minSpeed, LogisticsConfig.get().pipe.drag)) {};
 
     // Base transport pipe - simple item movement.
     // NOTE: No special connection restrictions; this is the default backbone pipe.
-    public static final Pipe COPPER_TRANSPORT_PIPE = new Pipe(new WeatheringModule(), new PipeMarkingModule()) {};
+    public static final ItemPipe COPPER_TRANSPORT_PIPE = new ItemPipe(new WeatheringModule(), new PipeMarkingModule()) {};
 
     // Accelerator transport - accelerates items when powered by redstone.
-    public static final Pipe GOLD_TRANSPORT = new Pipe(new BoostModule(LogisticsConfig.get().pipe.acceleration)) {};
+    public static final ItemPipe GOLD_TRANSPORT = new ItemPipe(new BoostModule(LogisticsConfig.get().pipe.acceleration)) {};
 
     // Item extractor - pulls items from an adjacent inventory (requires energy)
-    public static final Pipe ITEM_EXTRACTOR =
-            new Pipe(new ExtractionModule(), new BlockConnectionModule(() -> PipeTypes.ITEM_EXTRACTOR))
+    public static final ItemPipe ITEM_EXTRACTOR =
+            new ItemPipe(new ExtractionModule(), new BlockConnectionModule(() -> PipeTypes.ITEM_EXTRACTOR))
                     .withEnergy();
 
     // Item merger - combines multiple incoming streams into a single output.
-    public static final Pipe ITEM_MERGER = new Pipe(new MergerModule()) {};
+    public static final ItemPipe ITEM_MERGER = new ItemPipe(new MergerModule()) {};
 
     // Item insertion pipe - decorative pipe that only connects to other pipes.
-    public static final Pipe ITEM_PASSTHROUGH_PIPE = new Pipe(new PipeOnlyModule()) {};
+    public static final ItemPipe ITEM_PASSTHROUGH_PIPE = new ItemPipe(new PipeOnlyModule()) {};
 
     // -----------------
     // Tier 2 (Decision based routing / bulk movement)
     // -----------------
 
     // Item filter - routes items based on per-side filters.
-    public static final Pipe ITEM_FILTER = new Pipe(new ItemFilterModule()) {};
+    public static final ItemPipe ITEM_FILTER = new ItemPipe(new ItemFilterModule()) {};
 
     // Item void - deletes items at the center with particle effects.
-    public static final Pipe ITEM_VOID = new Pipe(new VoidModule(), new PipeOnlyModule()) {};
+    public static final ItemPipe ITEM_VOID = new ItemPipe(new VoidModule(), new PipeOnlyModule()) {};
 
     // -----------------
     // Tier 3 (Network Logistics)
     // -----------------
 
     // Basic Logistics Pipe - network sink with filtering and default route capability.
-    public static final Pipe BASIC_LOGISTICS_PIPE = new Pipe(
+    public static final ItemPipe BASIC_LOGISTICS_PIPE = new ItemPipe(
             new NetworkRouterModule(),
             new SinkModule(5)) {};
 
     // Provider Logistics Pipe - scans adjacent inventories and fulfills network requests.
-    public static final Pipe PROVIDER_LOGISTICS_PIPE = new Pipe(
+    public static final ItemPipe PROVIDER_LOGISTICS_PIPE = new ItemPipe(
             new NetworkRouterModule(),
             new ProviderModule(8, 1))
             .withEnergy();
 
     // Requester Logistics Pipe - creates requests for items from the network.
-    public static final Pipe REQUESTER_LOGISTICS_PIPE = new Pipe(
+    public static final ItemPipe REQUESTER_LOGISTICS_PIPE = new ItemPipe(
             new NetworkRouterModule(),
             new RequesterModule())
             .withEnergy();
 
     // Supplier Logistics Pipe - maintains inventory stock levels by requesting items from the network.
-    public static final Pipe SUPPLIER_LOGISTICS_PIPE = new Pipe(
+    public static final ItemPipe SUPPLIER_LOGISTICS_PIPE = new ItemPipe(
             new NetworkRouterModule(),
             new SupplierModule())
             .withEnergy();
 
     // Crafting Logistics Pipe - on-demand crafting via adjacent Autocrafter.
-    public static final Pipe CRAFTING_LOGISTICS_PIPE = new Pipe(
+    public static final ItemPipe CRAFTING_LOGISTICS_PIPE = new ItemPipe(
             new CraftingModule(1, 1),
             new NetworkRouterModule())
             .withEnergy();
 
     // Process Logistics Pipe - machine-style transformation (furnace smelting, alloy machines, etc.)
-    public static final Pipe PROCESS_LOGISTICS_PIPE = new Pipe(
+    public static final ItemPipe PROCESS_LOGISTICS_PIPE = new ItemPipe(
             new ProcessModule(),
             new NetworkRouterModule())
             .withEnergy();
 
     // Satellite Logistics Pipe - named insertion endpoint for routing inputs to machine faces.
-    public static final Pipe SATELLITE_LOGISTICS_PIPE = new Pipe(
+    public static final ItemPipe SATELLITE_LOGISTICS_PIPE = new ItemPipe(
             new SatelliteModule(),
             new NetworkRouterModule())
             .withEnergy();
@@ -114,7 +116,52 @@ public final class PipeTypes {
     // -----------------
 
     // Item insertion - prefers inventories with space, otherwise routes to pipes.
-    public static final Pipe ITEM_INSERTION = new Pipe(new InsertionModule()) {};
+    public static final ItemPipe ITEM_INSERTION = new ItemPipe(new InsertionModule()) {};
+
+    // -----------------
+    // Fluid pipes (cellular fluid transport; defined the same compositional way as item pipes)
+    // -----------------
+
+    // Copper fluid pipe - normal rate; weathers like vanilla copper and accepts colored markings.
+    public static final FluidPipe COPPER_FLUID_PIPE = new FluidPipe(
+            new FluidTransportModule(FlowRate.NORMAL),
+            new WeatheringModule(LogisticsFluid::model, "copper_fluid_pipe", false),
+            new PipeMarkingModule(LogisticsFluid::model, "pipe_markings"));
+
+    // Stone fluid pipe - slow rate.
+    public static final FluidPipe STONE_FLUID_PIPE = new FluidPipe(
+            new FluidTransportModule(FlowRate.SLOW));
+
+    // Gold fluid pipe - fast rate.
+    public static final FluidPipe GOLD_FLUID_PIPE = new FluidPipe(
+            new FluidTransportModule(FlowRate.FAST));
+
+    // Insertion fluid pipe - fills adjacent tanks before spilling to pipes.
+    public static final FluidPipe INSERTION_FLUID_PIPE = new FluidPipe(
+            new FluidTransportModule(FlowRate.NORMAL),
+            new FluidInsertionModule());
+
+    // Bypass fluid pipe - connects to pipes only, never to handlers.
+    public static final FluidPipe BYPASS_FLUID_PIPE = new FluidPipe(
+            new FluidTransportModule(FlowRate.NORMAL),
+            new FluidBypassModule());
+
+    // Merger fluid pipe - directional check valve with a wrench-set output face.
+    public static final FluidPipe MERGER_FLUID_PIPE = new FluidPipe(
+            new FluidTransportModule(FlowRate.NORMAL),
+            new FluidMergerModule());
+
+    // Fluid extractor - pulls fluid from an adjacent handler when powered.
+    public static final FluidPipe FLUID_EXTRACTOR_PIPE = new FluidPipe(
+            new FluidTransportModule(FlowRate.SLOW),
+            new FluidExtractorModule())
+            .withEnergy();
+
+    // Void fluid pipe - destroys fluid; connects to pipes only.
+    public static final FluidPipe VOID_FLUID_PIPE = new FluidPipe(
+            new FluidTransportModule(FlowRate.SLOW),
+            new FluidBypassModule(),
+            new FluidVoidModule());
 
     private PipeTypes() {}
 }

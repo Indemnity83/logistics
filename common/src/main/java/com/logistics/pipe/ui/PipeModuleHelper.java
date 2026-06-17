@@ -1,6 +1,6 @@
 package com.logistics.pipe.ui;
 
-import com.logistics.pipe.Pipe;
+import com.logistics.pipe.ItemPipe;
 import com.logistics.core.lib.pipe.PipeContext;
 import com.logistics.pipe.block.PipeBlock;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
@@ -97,7 +97,7 @@ public class PipeModuleHelper {
         @Nullable String stateKey
     ) {
         PipeBlock block = (PipeBlock) pipeEntity.getBlockState().getBlock();
-        Pipe pipe = block.getPipe();
+        ItemPipe pipe = block.getPipe();
         return pipe.getModule(moduleClass, pipeEntity, stateKey);
     }
 }
