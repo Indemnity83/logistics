@@ -160,7 +160,7 @@ public class AdvancedExtractorModule implements Module, TickingModule {
     }
 
     private void extract(PipeContext ctx, Direction dir) {
-        int occupied = ctx.blockEntity().getTravelingItems().stream()
+        int occupied = ctx.pipeAccess().getTravelingItems().stream()
                 .mapToInt(i -> i.getStack().getCount())
                 .sum();
         if (PipeBlockEntity.VIRTUAL_CAPACITY - occupied < itemsPerPull) return;
@@ -186,7 +186,7 @@ public class AdvancedExtractorModule implements Module, TickingModule {
                 ItemStack stack = key.toStack((int) extracted);
                 TravelingItem item = new TravelingItem(
                         stack, dir.getOpposite(), LogisticsConfig.get().pipe.minSpeed);
-                ctx.blockEntity().forceAddItem(item, dir);
+                ctx.pipeAccess().forceAddItem(item, dir);
                 return;
             }
         }

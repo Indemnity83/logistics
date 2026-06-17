@@ -25,6 +25,25 @@ public interface PlatformService {
     Path configDir();
 
     /**
+     * Returns how many platform-native fluid units make up one millibucket (mB).
+     *
+     * <p>Fluid amounts in {@link com.logistics.core.lib.fluids.IFluidStorage} are expressed in
+     * platform-native units, which differ per loader: Fabric uses droplets (81 per mB), NeoForge
+     * uses millibuckets directly (1 per mB). Author-facing config values (e.g. "250 mB") must be
+     * multiplied by this factor before being handed to the native fluid APIs.
+     *
+     * @return native fluid units per millibucket; {@code 81} on Fabric, {@code 1} on NeoForge
+     */
+    long fluidUnitsPerMillibucket();
+
+    /**
+     * Whether the given fluid is lighter than air (a gas), used by tank columns to settle gases upward.
+     *
+     * <p>Loader-specific: Fabric reads {@code FluidVariantAttributes}, NeoForge reads the fluid type.
+     */
+    boolean isLighterThanAir(net.minecraft.world.level.material.Fluid fluid);
+
+    /**
      * Returns the human-readable display name for the mod with the given namespace/mod-id.
      * Defaults to the namespace itself if the loader does not know the mod.
      */

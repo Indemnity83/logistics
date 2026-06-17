@@ -19,6 +19,17 @@ public final class NeoForgePlatformService implements PlatformService {
     }
 
     @Override
+    public long fluidUnitsPerMillibucket() {
+        // NeoForge measures fluids in millibuckets: 1_000 per bucket => 1 per mB.
+        return 1L;
+    }
+
+    @Override
+    public boolean isLighterThanAir(net.minecraft.world.level.material.Fluid fluid) {
+        return fluid.getFluidType().isLighterThanAir();
+    }
+
+    @Override
     public String getModName(String namespace) {
         return ModList.get().getModContainerById(namespace)
                 .map(c -> c.getModInfo().getDisplayName())

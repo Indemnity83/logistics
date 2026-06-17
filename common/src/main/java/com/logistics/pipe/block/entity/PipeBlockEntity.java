@@ -12,7 +12,7 @@ import com.logistics.core.lib.block.capability.PipeConnection;
 import com.logistics.core.lib.network.ILogisticsNetwork;
 import com.logistics.core.lib.pipe.IPipeAccess;
 import com.logistics.core.lib.power.AcceptsLowTierEnergy;
-import com.logistics.pipe.Pipe;
+import com.logistics.pipe.ItemPipe;
 import com.logistics.core.lib.pipe.PipeContext;
 import com.logistics.pipe.block.PipeBlock;
 import com.logistics.pipe.data.PipeDataComponents.WeatheringState;
@@ -72,7 +72,7 @@ public class PipeBlockEntity extends BaseBlockEntity
         }
 
         // Create energy storage only if pipe has energy capability
-        Pipe pipe = state.getBlock() instanceof PipeBlock pipeBlock ? pipeBlock.getPipe() : null;
+        ItemPipe pipe = state.getBlock() instanceof PipeBlock pipeBlock ? pipeBlock.getPipe() : null;
         if (pipe != null && pipe.hasEnergy()) {
             // TODO: Configure capacity/maxInsert/maxExtract based on pipe type
             this.energy = new EnergyComponent(1000, 100, 0, this::setChanged);
@@ -457,7 +457,7 @@ public class PipeBlockEntity extends BaseBlockEntity
         BlockState state = getBlockState();
         if (!(state.getBlock() instanceof PipeBlock pipeBlock)) return;
 
-        Pipe pipe = pipeBlock.getPipe();
+        ItemPipe pipe = pipeBlock.getPipe();
         if (pipe == null) return;
 
         pipe.addItemComponents(builder, createContext());
@@ -470,7 +470,7 @@ public class PipeBlockEntity extends BaseBlockEntity
         BlockState state = getBlockState();
         if (!(state.getBlock() instanceof PipeBlock pipeBlock)) return;
 
-        Pipe pipe = pipeBlock.getPipe();
+        ItemPipe pipe = pipeBlock.getPipe();
         if (pipe == null) return;
 
         // Apply weathering state directly - DataComponentInput has protected access
@@ -512,7 +512,7 @@ public class PipeBlockEntity extends BaseBlockEntity
 
         if (pipeBlock.getPipe() != null) {
             PipeContext context = new PipeContext(level, worldPosition, state, this);
-            Pipe modulePipe = pipeBlock.getPipe();
+            ItemPipe modulePipe = pipeBlock.getPipe();
             if (modulePipe.canAcceptFrom(context, side, ItemStack.EMPTY)) {
                 return new PipeItemStorage(this, side);
             }
@@ -638,7 +638,7 @@ public class PipeBlockEntity extends BaseBlockEntity
     @Override
     public boolean canAcceptFrom(Direction from, ItemStack stack) {
         PipeBlock pipeBlock = (PipeBlock) getBlockState().getBlock();
-        Pipe pipe = pipeBlock.getPipe();
+        ItemPipe pipe = pipeBlock.getPipe();
         if (pipe == null) {
             return false;
         }

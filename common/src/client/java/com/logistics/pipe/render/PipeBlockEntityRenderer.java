@@ -6,7 +6,7 @@ import com.logistics.core.lib.client.render.VanillaQuadBaker;
 import com.logistics.core.lib.block.capability.PipeConnection;
 import com.logistics.core.lib.pipe.CoreDecoration;
 import com.logistics.core.lib.resource.ResourceId;
-import com.logistics.pipe.Pipe;
+import com.logistics.pipe.ItemPipe;
 import com.logistics.core.lib.pipe.PipeContext;
 import com.logistics.pipe.block.PipeBlock;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
@@ -122,7 +122,7 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
         BlockState state = entity.getBlockState();
         if (!(state.getBlock() instanceof PipeBlock pipeBlock)) return;
 
-        Pipe pipe = pipeBlock.getPipe();
+        ItemPipe pipe = pipeBlock.getPipe();
         if (pipe == null || entity.getLevel() == null) return;
 
         boolean debugRender = DebugLog.isEnabled("render");

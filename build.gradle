@@ -257,6 +257,7 @@ tasks.named('build') {
     dependsOn ':fabric:build'
     dependsOn ':neoforge:build'
     dependsOn ':common:test'
+    dependsOn ':common:apiJar'
 }
 
 tasks.named('check') {

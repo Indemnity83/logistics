@@ -320,7 +320,7 @@ public class ProviderModule implements Module, TickingModule, DispatchableModule
                 TravelingItem traveling = new TravelingItem(
                         stack, extractDir.getOpposite(), LogisticsConfig.get().pipe.minSpeed, head.requester());
                 traveling.setDeliveryId(head.deliveryId());
-                ctx.blockEntity().forceAddItem(traveling, extractDir);
+                ctx.pipeAccess().forceAddItem(traveling, extractDir);
                 queue.consumeFromHead(extracted);
                 itemsLeft -= extracted;
                 stacksLeft -= 1;

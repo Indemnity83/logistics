@@ -14,6 +14,18 @@ public final class FabricPlatformService implements PlatformService {
     }
 
     @Override
+    public long fluidUnitsPerMillibucket() {
+        // Fabric Transfer API measures fluids in droplets: 81_000 per bucket => 81 per mB.
+        return 81L;
+    }
+
+    @Override
+    public boolean isLighterThanAir(net.minecraft.world.level.material.Fluid fluid) {
+        return net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariantAttributes.isLighterThanAir(
+                net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant.of(fluid));
+    }
+
+    @Override
     public String getModName(String namespace) {
         return FabricLoader.getInstance()
                 .getModContainer(namespace)

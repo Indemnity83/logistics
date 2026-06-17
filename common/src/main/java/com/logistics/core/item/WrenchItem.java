@@ -24,7 +24,8 @@ public class WrenchItem extends Item {
         return WrenchBehavior.tryWrench(
             context.getLevel(),
             context.getClickedPos(),
-            context.getPlayer()
+            context.getPlayer(),
+            context.getClickedFace()
         );
     }
 }

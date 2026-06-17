@@ -47,7 +47,7 @@ public class NetworkRouterModule implements Module, RoutingModule {
      */
     @Override
     public Integer getArmTint(PipeContext ctx, Direction direction) {
-        boolean powered = (ctx.blockEntity().getPoweredArmMask() & (1 << direction.get3DDataValue())) != 0;
+        boolean powered = (ctx.pipeAccess().getPoweredArmMask() & (1 << direction.get3DDataValue())) != 0;
         return powered ? ARM_TINT_POWERED : ARM_TINT_UNPOWERED;
     }
 
@@ -58,7 +58,7 @@ public class NetworkRouterModule implements Module, RoutingModule {
      */
     @Override
     public Integer getCoreTint(PipeContext ctx) {
-        return ctx.blockEntity().getPoweredArmMask() != 0 ? ARM_TINT_POWERED : ARM_TINT_UNPOWERED;
+        return ctx.pipeAccess().getPoweredArmMask() != 0 ? ARM_TINT_POWERED : ARM_TINT_UNPOWERED;
     }
 
     @Override

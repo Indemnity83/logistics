@@ -1,28 +1,17 @@
 package com.logistics.pipe;
 
 import com.logistics.LogisticsMod;
-import com.logistics.core.LogisticsConfig;
 import com.logistics.core.lib.block.capability.PipeConnection;
 import com.logistics.core.lib.pipe.PipeContext;
 import com.logistics.core.lib.pipe.PipeHud;
 import com.logistics.core.lib.resource.ResourceId;
-import com.logistics.pipe.block.PipeBlock;
-import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.core.lib.pipe.CoreDecoration;
-import com.logistics.core.lib.pipe.DispatchableModule;
-import com.logistics.core.lib.pipe.ItemAcceptingModule;
+import com.logistics.core.lib.pipe.IModuleHost;
+import com.logistics.core.lib.pipe.ModularPipe;
 import com.logistics.core.lib.pipe.Module;
 import com.logistics.core.lib.pipe.RandomTickModule;
-import com.logistics.core.lib.pipe.TickingModule;
-import com.logistics.core.lib.pipe.RoutePlan;
-import com.logistics.core.lib.pipe.RoutingModule;
-import com.logistics.core.lib.pipe.TransferHandlerModule;
-import com.logistics.core.lib.pipe.TravelingItem;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
-import com.logistics.core.lib.storage.IItemKey;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.core.component.DataComponentMap;
@@ -34,9 +23,19 @@ import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
 import org.jetbrains.annotations.Nullable;
 
-public class Pipe {
+/**
+ * Abstract base for a module-composed pipe definition. Holds the payload-agnostic surface shared by
+ * item and fluid pipes: the module list, module lookup, connection filtering, render/cosmetic hooks,
+ * item-component round-trip, creative variants, comparator, and use/wrench dispatch.
+ *
+ * <p>Item transport lives in {@link ItemPipe}; fluid policy lives in
+ * {@link FluidPipe}. Cosmetic methods iterate {@link #getModules(PipeContext)},
+ * which subclasses override (e.g. chassis pipes inject runtime-installed modules) so inherited base
+ * methods see the right module list via virtual dispatch.
+ */
+public abstract class Pipe implements ModularPipe {
     private final List<Module> modules;
-    private PipeBlock pipeBlock;
+    private Block pipeBlock;
     private boolean hasEnergy = false;
 
     protected Pipe(Module... modules) {
@@ -64,21 +63,29 @@ public class Pipe {
     }
 
     /**
-     * Called by PipeBlock during registration to establish back-reference.
-     * This allows the Pipe to derive model identifiers from the block's registry name.
+     * Called by the pipe block during registration to establish a back-reference.
+     * This allows the pipe to derive model identifiers from the block's registry name.
      */
-    public void setPipeBlock(PipeBlock block) {
+    public void setPipeBlock(Block block) {
         this.pipeBlock = block;
     }
 
     /**
-     * Get the registry name of this pipe (e.g., "pipe/copper_transport_pipe").
+     * Get the registry path of this pipe (e.g., "copper_transport_pipe").
      */
     public String getPipeName() {
         if (pipeBlock == null) {
             throw new IllegalStateException("Pipe has not been registered yet");
         }
         return BuiltInRegistries.BLOCK.getKey(pipeBlock).getPath();
+    }
+
+    /**
+     * Returns this pipe's modules for the given context. Base implementation returns the static list;
+     * {@link ItemPipe} overrides it to include chassis-installed dynamic modules.
+     */
+    protected List<Module> getModules(PipeContext ctx) {
+        return modules;
     }
 
     /**
@@ -111,10 +118,6 @@ public class Pipe {
      * Delegates to modules first to allow them to override with custom models (like feature faces).
      * Falls back to the base arm model if no module provides an override.
      * The returned model is NORTH-facing and should be rotated at render time.
-     *
-     * @param ctx the pipe context
-     * @param direction the direction of the arm
-     * @return the arm model identifier
      */
     public ResourceId getPipeArm(PipeContext ctx, Direction direction) {
         for (Module module : getModules(ctx)) {
@@ -130,12 +133,6 @@ public class Pipe {
 
     /**
      * Get decoration model identifiers for an arm in the given direction.
-     * Decorations are additive parts rendered alongside the core arm model,
-     * such as module-provided overlays.
-     *
-     * @param ctx the pipe context
-     * @param direction the direction of the arm
-     * @return a (possibly empty) list of decoration model identifiers
      */
     public List<ResourceId> getPipeDecorations(PipeContext ctx, Direction direction) {
         List<ResourceId> models = new ArrayList<>();
@@ -147,11 +144,6 @@ public class Pipe {
 
     /**
      * Get the tint color for the arm in the given direction.
-     * Delegates to modules to allow directional coloring (e.g., filter pipe overlays).
-     *
-     * @param ctx the pipe context
-     * @param direction the direction of the arm
-     * @return the tint color (0xRRGGBB), or null for no tint (white)
      */
     @Nullable public Integer getArmTint(PipeContext ctx, Direction direction) {
         for (Module module : getModules(ctx)) {
@@ -165,10 +157,6 @@ public class Pipe {
 
     /**
      * Get the tint color for the pipe core.
-     * Delegates to modules to allow state-dependent coloring (e.g., power-status core overlay).
-     *
-     * @param ctx the pipe context
-     * @return the tint color (0xRRGGBB), or null for no tint (white)
      */
     @Nullable public Integer getCoreTint(PipeContext ctx) {
         for (Module module : getModules(ctx)) {
@@ -268,8 +256,7 @@ public class Pipe {
     /**
      * Append creative menu variants from all modules.
      */
-    public void appendCreativeMenuVariants(
-            List<net.minecraft.world.item.ItemStack> stacks, net.minecraft.world.item.ItemStack baseStack) {
+    public void appendCreativeMenuVariants(List<ItemStack> stacks, ItemStack baseStack) {
         for (Module module : modules) {
             module.appendCreativeMenuVariants(stacks, baseStack);
         }
@@ -292,161 +279,21 @@ public class Pipe {
     }
 
     /**
-     * Returns a module of the given type, considering dynamic modules when a block entity
-     * is available. Subclasses (e.g. ChassisPipe) override this to support runtime-installed
-     * modules that cannot be found in the static module list.
+     * {@link ModularPipe} entry point. Base implementation scans the static module list; {@link ItemPipe}
+     * overrides it to consult chassis-installed modules when the host is a pipe block entity.
      */
-    public <T extends Module> T getModule(Class<T> moduleClass, PipeBlockEntity entity) {
+    @Override
+    public <T extends Module> T getModule(Class<T> moduleClass, IModuleHost host) {
         return getModule(moduleClass);
     }
 
-    public <T extends Module> T getModule(
-            Class<T> moduleClass, PipeBlockEntity entity, @Nullable String stateKey) {
-        if (stateKey == null) {
-            return getModule(moduleClass, entity);
-        }
-
-        for (Module module : getModules(entity)) {
-            if (moduleClass.isInstance(module) && stateKey.equals(module.getStateKey())) {
-                return moduleClass.cast(module);
-            }
-        }
-        return null;
-    }
-
-    public boolean matchesSinkFilter(PipeContext ctx, ItemStack stack) {
-        for (Module module : getModules(ctx)) {
-            if (module instanceof ItemAcceptingModule sink && sink.acceptsItem(ctx, stack)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     /**
-     * Returns all modules for this pipe. For chassis pipes, includes dynamically-installed modules.
-     * Used when iterating all modules (e.g., to find all ItemAcceptingModules).
-     */
-    public List<Module> getModules(PipeBlockEntity entity) {
-        return modules;
-    }
-
-    /**
-     * Appends this pipe's module status to a look-at HUD (Jade). Each module contributes via the
-     * {@link PipeHud} writer. {@link ChassisPipe} overrides this to scope each dynamic module to its own
-     * state.
+     * Appends this pipe's module status to a look-at HUD (Jade).
      */
     public void appendHud(PipeContext ctx, PipeHud hud) {
         for (Module module : getStaticModules()) {
             module.appendHud(ctx, hud);
         }
-    }
-
-    /**
-     * Returns all modules for this pipe using the context's block entity.
-     * Dispatches polymorphically so chassis pipe overrides are respected in all base-class methods.
-     */
-    private List<Module> getModules(PipeContext ctx) {
-        if (ctx.blockEntity() instanceof PipeBlockEntity pbe) {
-            return getModules(pbe);
-        }
-        return modules;
-    }
-
-    public float getAccelerationRate(PipeContext ctx) {
-        for (Module module : getModules(ctx)) {
-            float accel = module.getAcceleration(ctx);
-            if (accel > 0f) {
-                return accel;
-            }
-        }
-        return 0f;
-    }
-
-    public float getDrag(PipeContext ctx) {
-        for (Module module : getModules(ctx)) {
-            float drag = module.getDrag(ctx);
-            if (drag > 0f) {
-                return drag;
-            }
-        }
-        return LogisticsConfig.get().pipe.drag;
-    }
-
-    public float getMaxSpeed(PipeContext ctx) {
-        for (Module module : getModules(ctx)) {
-            float max = module.getMaxSpeed(ctx);
-            if (max > 0f) {
-                return max;
-            }
-        }
-        return LogisticsConfig.get().pipe.maxSpeed;
-    }
-
-    public RoutePlan route(PipeContext ctx, TravelingItem item, List<Direction> options) {
-        for (Module module : getModules(ctx)) {
-            if (module instanceof RoutingModule router) {
-                RoutePlan plan = router.route(ctx, item, options);
-                if (plan.getType() != RoutePlan.Type.PASS) {
-                    return plan;
-                }
-            }
-        }
-
-        return RoutePlan.pass();
-    }
-
-    /**
-     * Give modules a chance to handle transfer of a TravelingItem into an adjacent non-pipe
-     * storage. Returns null if a module fully handled the transfer (PipeRuntime skips generic
-     * insertion), or the item (possibly modified) if no module handled it.
-     */
-    @Nullable
-    public TravelingItem handleTransfer(PipeContext ctx, TravelingItem item, Direction direction) {
-        TravelingItem current = item;
-        for (Module module : getModules(ctx)) {
-            if (module instanceof TransferHandlerModule handler) {
-                current = handler.onTransferToStorage(ctx, current, direction);
-                if (current == null) return null;
-            }
-        }
-        return current;
-    }
-
-    /**
-     * Called when an item is inserted from an external (non-pipe) source before the default
-     * single TravelingItem is created. Delegates to modules in order; stops at the first that
-     * returns true (handled).
-     */
-    public boolean onExternalInsert(PipeContext ctx, net.minecraft.world.item.ItemStack stack, Direction from) {
-        for (Module module : getModules(ctx)) {
-            if (module.onExternalInsert(ctx, stack, from)) return true;
-        }
-        return false;
-    }
-
-    public boolean canAcceptFrom(PipeContext ctx, Direction from, net.minecraft.world.item.ItemStack stack) {
-        // Default behavior: pipes only accept items from other pipes (not from inventories/hoppers)
-        // This prevents free automation and preserves the extraction energy cost
-        if (!ctx.isNeighborPipe(from)) {
-            // Allow non-pipe insertion if any module explicitly permits it
-            boolean allowed = false;
-            for (Module module : getModules(ctx)) {
-                if (module.canAcceptFromNonPipe(ctx, from)) {
-                    allowed = true;
-                    break;
-                }
-            }
-            if (!allowed) return false;
-        }
-
-        // Check all modules for additional acceptance criteria
-        for (Module module : getModules(ctx)) {
-            if (!module.canAcceptFrom(ctx, from, stack)) {
-                return false;
-            }
-        }
-        return true;
     }
 
     public InteractionResult onUseWithItem(PipeContext ctx, net.minecraft.world.item.context.UseOnContext usage) {
@@ -477,21 +324,6 @@ public class Pipe {
             }
         }
         return InteractionResult.PASS;
-    }
-
-    public void onConnectionsChanged(PipeContext ctx, List<Direction> connected) {
-        for (Module module : getModules(ctx)) {
-            module.onConnectionsChanged(ctx, connected);
-        }
-    }
-
-    public void onTick(PipeContext ctx) {
-        if (ctx.world().isClientSide()) return;
-        for (Module module : getModules(ctx)) {
-            if (module instanceof TickingModule ticking) {
-                ticking.onTick(ctx);
-            }
-        }
     }
 
     public boolean hasComparatorOutput() {
@@ -528,38 +360,5 @@ public class Pipe {
             }
         }
         return candidate;
-    }
-
-    /**
-     * Dispatch items to a requester by asking the first module that can fulfill to extract.
-     * Called by MinecraftWorldView.dispatch() during the network tick.
-     *
-     * @return actual amount dispatched (&gt;0), -1 if the provider is temporarily busy (deferred),
-     *         or 0 if no module could fulfill
-     */
-    public long dispatch(PipeContext ctx, BlockPos requester, IItemKey item, long amount, UUID deliveryId) {
-        if (ctx.world().isClientSide()) return 0;
-        for (Module module : getModules(ctx)) {
-            if (module instanceof DispatchableModule dispatchable) {
-                long dispatched = dispatchable.onDispatch(ctx, requester, item, amount, deliveryId);
-                if (dispatched != 0) return dispatched; // propagate both success (>0) and deferred (<0)
-            }
-        }
-        return 0;
-    }
-
-    // Energy capability check for low-tier energy sources
-    public boolean acceptsLowTierEnergyFrom(PipeContext ctx, Direction from) {
-        // Only accept low-tier energy if this pipe has energy storage
-        if (!hasEnergy) {
-            return false;
-        }
-        // Delegate to modules for additional logic
-        for (Module module : getModules(ctx)) {
-            if (module.acceptsLowTierEnergyFrom(ctx, from)) {
-                return true;
-            }
-        }
-        return false;
     }
 }

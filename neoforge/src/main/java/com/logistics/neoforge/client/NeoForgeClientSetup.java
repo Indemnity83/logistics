@@ -2,9 +2,14 @@ package com.logistics.neoforge.client;
 
 import com.logistics.LogisticsAutomation;
 import com.logistics.LogisticsCore;
+import com.logistics.LogisticsFluid;
 import com.logistics.LogisticsPipe;
 import com.logistics.LogisticsPower;
+import com.logistics.pipe.render.FluidPipeBlockEntityRenderer;
+import com.logistics.pipe.render.GlassTankBlockEntityRenderer;
 import com.logistics.automation.kiln.KilnScreen;
+import com.logistics.core.lib.client.render.FluidBoxRenderer;
+import com.logistics.core.lib.client.render.FluidSpriteLookup;
 import com.logistics.core.lib.platform.ClientNetworking;
 import com.logistics.core.macerator.MaceratorScreen;
 import com.logistics.pipe.screen.AdvancedExtractorScreen;
@@ -30,7 +35,11 @@ import com.logistics.pipe.network.packet.SyncRequesterInventoryPacket;
 import com.logistics.pipe.render.PipeBlockEntityRenderer;
 import com.logistics.power.screen.StirlingEngineScreen;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.texture.TextureAtlas;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.world.level.material.FluidState;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
@@ -52,6 +61,21 @@ public final class NeoForgeClientSetup {
     private static void onClientSetup(FMLClientSetupEvent event) {
         ClientNetworking.register(payload ->
                 PacketDistributor.sendToServer(payload));
+
+        // Resolve fluid still sprite + tint through NeoForge's client fluid extensions (1.21.x has no
+        // unified vanilla fluid model). Shared fluid pipe/tank renderers call this via FluidSpriteLookup.
+        FluidSpriteLookup.register((fluid, level, pos) -> {
+            FluidState fluidState = fluid.defaultFluidState();
+            IClientFluidTypeExtensions ext = IClientFluidTypeExtensions.of(fluidState);
+            var still = ext.getStillTexture();
+            if (still == null) {
+                return null;
+            }
+            TextureAtlasSprite sprite = Minecraft.getInstance()
+                    .getTextureAtlas(TextureAtlas.LOCATION_BLOCKS)
+                    .apply(still);
+            return new FluidBoxRenderer.Appearance(sprite, ext.getTintColor());
+        });
     }
 
     private static void registerScreens(RegisterMenuScreensEvent event) {
@@ -97,6 +121,12 @@ public final class NeoForgeClientSetup {
         event.registerBlockEntityRenderer(
                 LogisticsAutomation.ENTITY.LASER_QUARRY_BLOCK_ENTITY,
                 LaserQuarryBlockEntityRenderer::new);
+        event.registerBlockEntityRenderer(
+                LogisticsFluid.ENTITY.FLUID_PIPE_BLOCK_ENTITY,
+                FluidPipeBlockEntityRenderer::new);
+        event.registerBlockEntityRenderer(
+                LogisticsFluid.ENTITY.GLASS_TANK_BLOCK_ENTITY,
+                GlassTankBlockEntityRenderer::new);
     }
 
     /**

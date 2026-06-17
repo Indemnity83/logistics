@@ -185,7 +185,7 @@ public class ExtractionModule implements Module, TickingModule {
         }
 
         // Check if pipe has space for the full extraction
-        int totalItems = ctx.blockEntity().getTravelingItems().stream()
+        int totalItems = ctx.pipeAccess().getTravelingItems().stream()
                 .mapToInt(item -> item.getStack().getCount())
                 .sum();
         int remaining = PipeBlockEntity.VIRTUAL_CAPACITY - totalItems;
@@ -210,7 +210,7 @@ public class ExtractionModule implements Module, TickingModule {
             if (extracted > 0) {
                 ItemStack stack = key.toStack((int) extracted);
                 TravelingItem item = new TravelingItem(stack, direction.getOpposite(), LogisticsConfig.get().pipe.minSpeed);
-                ctx.blockEntity().forceAddItem(item, direction);
+                ctx.pipeAccess().forceAddItem(item, direction);
                 return true;
             }
         }

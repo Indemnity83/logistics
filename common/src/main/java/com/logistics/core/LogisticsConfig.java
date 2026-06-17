@@ -38,6 +38,7 @@ public final class LogisticsConfig {
     public QuarryConfig quarry = new QuarryConfig();
     public PipeConfig pipe = new PipeConfig();
     public EngineConfig engine = new EngineConfig();
+    public FluidPipeConfig fluidPipe = new FluidPipeConfig();
 
     public static final class QuarryConfig {
         public int area = 16;
@@ -76,6 +77,20 @@ public final class LogisticsConfig {
         public long redstoneOutput = 10L;
         public double stirlingMinOutput = 3.0;
         public double stirlingMaxOutput = 10.0;
+    }
+
+    public static final class FluidPipeConfig {
+        /**
+         * Base fluid pipe transfer rate, in mB/tick. Each pipe tier scales this by a fixed multiplier
+         * (stone/extractor/void 1×, copper/bypass 2×, merger 3×, gold 4×), so this one knob moves them all.
+         */
+        public int baseTransferRate = 10;
+        /** Fluid pipe internal buffer, in mB (shared by every pipe kind). */
+        public int baseCapacity = 250;
+        /** Whether the Fluid Extractor Pipe requires engine power to extract. */
+        public boolean woodenRequiresEngine = true;
+        /** Debug toggle: when false, extractors stop pulling fluid into the network. */
+        public boolean activeExtraction = true;
     }
 
     // ==================== Config Entry Registry (for commands) ====================
@@ -187,7 +202,40 @@ public final class LogisticsConfig {
                             "must be greater than or equal to stirling_engine_min_output");
                 });
 
+        // Fluid pipes
+        reg(map, "fluid_pipe_base_transfer_rate", "Base Fluid Pipe transfer rate (mB/tick), scaled per tier",
+                () -> (long) INSTANCE.fluidPipe.baseTransferRate,
+                v -> INSTANCE.fluidPipe.baseTransferRate = v.intValue(),
+                Long::parseLong,
+                v -> requireRange(v, 1L, (long) Integer.MAX_VALUE, "must be between 1 and " + Integer.MAX_VALUE));
+        reg(map, "fluid_pipe_base_capacity", "Fluid Pipe buffer capacity (mB)",
+                () -> (long) INSTANCE.fluidPipe.baseCapacity,
+                v -> INSTANCE.fluidPipe.baseCapacity = v.intValue(),
+                Long::parseLong,
+                v -> requireRange(v, 1L, (long) Integer.MAX_VALUE, "must be between 1 and " + Integer.MAX_VALUE));
+        reg(map, "fluid_pipe_wooden_requires_engine", "Fluid Extractor Pipe requires engine power",
+                () -> INSTANCE.fluidPipe.woodenRequiresEngine,
+                v -> INSTANCE.fluidPipe.woodenRequiresEngine = v,
+                LogisticsConfig::parseBooleanStrict,
+                v -> {});
+        reg(map, "fluid_pipe_active_extraction", "Debug: extractor pulling enabled",
+                () -> INSTANCE.fluidPipe.activeExtraction,
+                v -> INSTANCE.fluidPipe.activeExtraction = v,
+                LogisticsConfig::parseBooleanStrict,
+                v -> {});
+
         ENTRIES = Collections.unmodifiableMap(map);
+    }
+
+    /** Strict boolean parse — rejects anything but {@code true}/{@code false} (unlike {@link Boolean#parseBoolean}). */
+    private static Boolean parseBooleanStrict(String value) {
+        if ("true".equalsIgnoreCase(value)) {
+            return Boolean.TRUE;
+        }
+        if ("false".equalsIgnoreCase(value)) {
+            return Boolean.FALSE;
+        }
+        throw new IllegalArgumentException("must be 'true' or 'false'");
     }
 
     private static <T> void reg(
@@ -282,6 +330,10 @@ public final class LogisticsConfig {
             LOGGER.warn("Invalid logistics config group engine: missing; using defaults");
             config.engine = defaults.engine;
         }
+        if (config.fluidPipe == null) {
+            LOGGER.warn("Invalid logistics config group fluidPipe: missing; using defaults");
+            config.fluidPipe = defaults.fluidPipe;
+        }
 
         sanitizeInt("quarry_area", () -> (long) config.quarry.area, v -> config.quarry.area = v.intValue(),
                 () -> (long) defaults.quarry.area, v -> requireRange(
@@ -335,6 +387,13 @@ public final class LogisticsConfig {
                 v -> config.engine.stirlingMaxOutput = v, () -> defaults.engine.stirlingMaxOutput,
                 v -> requireFiniteMin(v, 0.0, "must be finite and greater than or equal to 0"));
         sanitizeStirlingOutputRange(config, defaults);
+
+        sanitizeInt("fluid_pipe_base_transfer_rate", () -> (long) config.fluidPipe.baseTransferRate,
+                v -> config.fluidPipe.baseTransferRate = v.intValue(), () -> (long) defaults.fluidPipe.baseTransferRate,
+                v -> requireRange(v, 1L, (long) Integer.MAX_VALUE, "must be between 1 and " + Integer.MAX_VALUE));
+        sanitizeInt("fluid_pipe_base_capacity", () -> (long) config.fluidPipe.baseCapacity,
+                v -> config.fluidPipe.baseCapacity = v.intValue(), () -> (long) defaults.fluidPipe.baseCapacity,
+                v -> requireRange(v, 1L, (long) Integer.MAX_VALUE, "must be between 1 and " + Integer.MAX_VALUE));
 
         return config;
     }
