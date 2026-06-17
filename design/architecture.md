@@ -1,6 +1,6 @@
 # Architecture: Domains & Module Split
 
-> **Status: provisional.** This is a target to steer toward and revisit, not a committed boundary. The hard question — *where exactly do the seams go so each module stands alone?* — is still open.
+> **Status: shape decided, seams provisional.** The module *count and lines* are settled — **four modules: `core` / `automation` / `forestry` / `transport`** (Jun 2026). What's still open is the precise seam placement (*where exactly does each module end so it stands alone?*) and the timing — packaging only becomes real once Forestry and Transport exist.
 
 ## Today: domains in one jar
 
@@ -20,7 +20,7 @@ Domains don't import each other; they talk through `core.lib` (`PlatformService`
 
 The aim is to let players install **only what they want** — not a monolith. Recreating five mods' worth of content in one giant jar would undercut the "install the parts you want" flexibility that defined classic tech packs.
 
-Proposed provisional split, roughly along the source-mod lines:
+Finalized split, roughly along the source-mod lines:
 
 ```text
 logistics-core        # shared library: core.lib abstractions, energy/item/fluid APIs,
@@ -31,14 +31,17 @@ logistics-automation  # BuildCraft + Logistics Pipes + Thermal Expansion:
                       #   pipes & the logistics network, engines & cables, RF machines
                       #   (macerator, kiln, quarry). The current "main" content.
 
-logistics-forestry    # Forestry: bees, trees, farms, electron tubes, the worktable.
+logistics-forestry    # Forestry (industrial side): farms, processing, electron tubes, the worktable.
+                      #   Genetics (bees/trees/butterflies) is out of scope.
 
 logistics-transport   # Railcraft: rails, advanced carts, tanks, signals, bulk processing.
 ```
 
-### Open question: split `logistics-automation` further?
+### Decided: four modules, not finer
 
-`logistics-automation` is the biggest bucket and arguably three mods in a trench coat. A finer split could be:
+**The direction is the four-module split above — `core` + `automation` + `forestry` + `transport`** (maintainer + contributor call, Jun 2026). We will *not* carve `logistics-automation` further into `pipes` / `power` / `machines`.
+
+A finer split was considered:
 
 ```text
 logistics-pipes    # transport + logistics network (the "glue")
@@ -46,11 +49,11 @@ logistics-power    # engines, cables, battery, energy distribution
 logistics-machines # RF machines: macerator, kiln, quarry, future Thermal-style machines
 ```
 
-**Trade-off:**
-- *Finer split* → maximum player choice (pipes without machines, etc.), but more inter-module API surface to keep stable, and harder to "find the edges" so each stands alone (e.g. pipes are far more useful *with* power once operations cost energy — see the power-gated pipe work).
-- *Coarser split* (single `logistics-automation`) → simpler edges, fewer cross-module contracts, but less granular choice.
+It was rejected (for now) because:
+- The extra granularity buys little real player choice — pipes are far more useful *with* power once operations cost energy (see the power-gated pipe work), so the pieces don't cleanly stand alone.
+- It adds inter-module API surface to keep stable for no current payoff.
 
-**Provisional recommendation:** ship the coarse split first (`core` + `automation` + `forestry` + `transport`), and only carve `automation` apart if/when the internal `core.lib` seams prove clean enough that pipes/power/machines genuinely stand alone. Decide via Discussion before committing.
+This isn't urgent either way: **packaging only becomes a real question once Forestry and Transport actually exist**, so the four-module shape stays the working target and `automation` is treated as one bucket until evidence says otherwise. If the internal `core.lib` seams later prove clean enough that pipes/power/machines genuinely stand alone, revisit via Discussion.
 
 ## Principles for keeping modules separable
 

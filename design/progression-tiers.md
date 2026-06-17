@@ -61,7 +61,7 @@ Each line picks its subset in canonical order. *(Illustrative subsets — refine
 | Line | Flavor | Canonical subset |
 |---|---|---|
 | **Cables** | conductivity | Copper · Gold · **Amethyst** · Ender |
-| **Gears** | mechanical | Wood · Stone · Copper · Iron · Bronze · Gold · Diamond · Netherite *(drop Tin)* |
+| **Gears** | mechanical | Wood · Stone · Copper · Iron · Bronze · Gold · Diamond · Netherite *(Tin is not a tier — see note)* |
 | **Batteries** ([0107](features/0107-tiered-batteries.md)) | storage | Copper · Gold · Ender |
 | **Cores / Valves** | electronics | Copper · Bronze · Gold · Amethyst |
 | **Machine frames** (future) | structural | Iron · Bronze · Diamond · Netherite |
@@ -72,7 +72,7 @@ Each line picks its subset in canonical order. *(Illustrative subsets — refine
 Per the maintainer call, **existing lines conform too** (not just new work). These are implementation tasks for later PRs on the `mc/*` branches — this doc records the decision; the code changes are separate:
 
 - **Cables** — add an **Amethyst** tier → `Copper 30 / Gold 60 / Amethyst 120 / Ender 240` RF/t (keeps the ×2 ladder; Amethyst takes the old Ender rate and Ender rises for late-game headroom — see [`features/0107-tiered-batteries.md`](features/0107-tiered-batteries.md)). Numbers tunable against the RF curve. Touches `power/cable/CableTier` + an `amethyst_cable` block/model/recipe.
-- **Gears** — remove `tin_gear`; reorder to canonical Wood · Stone · Copper · Iron · Bronze · Gold · Diamond · Netherite. *Migration:* `tin_gear` removal is breaking for existing worlds — acceptable pre-1.0, or remap `tin_gear → bronze_gear` via a data-fixer/recipe.
+- **Gears** — the canonical ladder is Wood · Stone · Copper · Iron · Bronze · Gold · Diamond · Netherite; **Tin is not a tier.** The already-shipped `tin_gear` is **grandfathered legacy** — we are *not* doing a breaking removal/migration (maintainer + contributor call, Jun 2026: tin's only role is enabling Bronze, and a removal isn't worth the world-break). It simply stays as-is and the gear line gains no new tin content; treat tin everywhere else as a Bronze feedstock, not a rank.
 - **Cores / Valves** — currently Copper · Bronze; extend toward Copper · Bronze · Gold · Amethyst as the electronics system grows (couples to the deferred programmable-behavior work — [`rfcs/0001-programmable-behavior.md`](rfcs/0001-programmable-behavior.md)). No forced change now.
 
 ## References

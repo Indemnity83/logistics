@@ -62,5 +62,5 @@ The explore surfaced **two viable approaches** — this is the key decision to m
 
 ## References
 
-- Roadmap: [`../roadmap.md`](../roadmap.md) → Phase 1 → logistics advanced; [`../mods/logistics-pipes.md`](../mods/logistics-pipes.md) → Firewall pipe row
+- Roadmap: [`../delivery-plan.md`](../delivery-plan.md) → Phase 1 → logistics advanced; [`../mods/logistics-pipes.md`](../mods/logistics-pipes.md) → Firewall pipe row
 - Code: `core/lib/pipe/{Module,RoutingModule}`, `pipe/modules/*` (e.g. `NetworkRouterModule`, `VoidModule`), `pipe/network/{NetworkRegistry,PipeNetwork,NetworkController}`, `core/lib/network/{INetworkGraph,NetworkGraph,NetworkPathfinder,ILogisticsNetwork}`, `pipe/ui/RequesterScreenHandler` (config-UI pattern), `pipe/PipeTypes`, `LogisticsPipe.java`

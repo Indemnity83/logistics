@@ -78,7 +78,7 @@ All start-blocking questions are settled:
 
 ## References
 
-- Roadmap: [`../roadmap.md`](../roadmap.md) → Phase 1 → Sawmill
+- Roadmap: [`../delivery-plan.md`](../delivery-plan.md) → Phase 1 → Sawmill
 - Breakdown: [`../mods/thermal-expansion.md`](../mods/thermal-expansion.md) → Sawmill row (notes existing Wood Pulp/Flour dusts)
 - **TE sourcing note:** TE has **no public source** — yields are wiki/knowledge-based, approximate; tune in playtest. Existing items confirmed in `LogisticsCore.java`: `WOOD_PULP` (`logistics:core/wood_pulp`), `FLOUR`.
 - Code pattern: `automation/kiln/*`, `core/macerator/*`; registration in `LogisticsAutomation.java`

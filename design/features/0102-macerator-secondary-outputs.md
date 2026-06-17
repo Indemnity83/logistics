@@ -76,7 +76,7 @@ All mechanism-level questions are settled — the byproduct *content* is the onl
 
 ## References
 
-- Roadmap: [`../roadmap.md`](../roadmap.md) → Phase 1 → macerator outputs
+- Roadmap: [`../delivery-plan.md`](../delivery-plan.md) → Phase 1 → macerator outputs
 - Breakdown: [`../mods/thermal-expansion.md`](../mods/thermal-expansion.md) → "secondary/byproduct outputs" row
 - **TE sourcing note:** Thermal Expansion has **no public source repo** — Pulverizer behavior (dedicated secondary slot, per-op chance, ~5–25% range) is reconstructed from knowledge + the TE wiki. Treat exact chances as *approximate* and tune in playtesting; do not cite source line numbers.
 - Code: `core/macerator/{MaceratorRecipeWrapper,MaceratorRecipeSerializer,MaceratorProcessingPlan,MaceratorRecipeDisplay}.java`, `core/macerator/jei/MaceratorRecipeCategory.java`, recipes in `data/logistics/recipe/macerator/`
