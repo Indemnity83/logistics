@@ -15,6 +15,7 @@ on:
 jobs:
   notify:
     runs-on: ubuntu-latest
+    permissions: {}
     if: |
       (github.event_name == 'issues') ||
       (github.event.pull_request.merged == true &&
@@ -51,6 +52,7 @@ jobs:
             --arg url "$PR_URL" \
             --arg description "$DESCRIPTION" \
             '{
+              "allowed_mentions": {"parse": []},
               "embeds": [{
                 "title": $title,
                 "url": $url,
@@ -59,12 +61,19 @@ jobs:
               }]
             }')
 
+          set +e
           STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            --connect-timeout 5 \
+            --max-time 15 \
             -H "Content-Type: application/json" \
             -d "$PAYLOAD" \
             "$DISCORD_DEVLOG_WEBHOOK_URL")
+          CURL_EXIT=$?
+          set -e
 
-          if [[ "$STATUS" -ge 400 ]]; then
+          if [[ "$CURL_EXIT" -ne 0 ]]; then
+            echo "Discord notification failed (curl exit $CURL_EXIT)"
+          elif [[ "$STATUS" -ge 400 ]]; then
             echo "Discord notification failed (HTTP $STATUS)"
           else
             echo "Discord dev-log notification sent (HTTP $STATUS)"
@@ -99,6 +108,7 @@ jobs:
             --arg description "Closed as **${LABEL}** by **${ISSUE_CLOSER}**" \
             --argjson color "$COLOR" \
             '{
+              "allowed_mentions": {"parse": []},
               "embeds": [{
                 "title": $title,
                 "url": $url,
@@ -107,12 +117,19 @@ jobs:
               }]
             }')
 
+          set +e
           STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            --connect-timeout 5 \
+            --max-time 15 \
             -H "Content-Type: application/json" \
             -d "$PAYLOAD" \
             "$DISCORD_DEVLOG_WEBHOOK_URL")
+          CURL_EXIT=$?
+          set -e
 
-          if [[ "$STATUS" -ge 400 ]]; then
+          if [[ "$CURL_EXIT" -ne 0 ]]; then
+            echo "Discord notification failed (curl exit $CURL_EXIT)"
+          elif [[ "$STATUS" -ge 400 ]]; then
             echo "Discord notification failed (HTTP $STATUS)"
           else
             echo "Discord dev-log notification sent (HTTP $STATUS)"
