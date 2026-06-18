@@ -49,18 +49,7 @@ public final class LogisticsConfig {
         public long armEnergy = 20L;
         public float rainPenalty = 0.7f;
         public int scanRate = 256;
-        public ChunkLoadingMode chunkLoading = ChunkLoadingMode.BOUNDARY_ONLY;
-
-        public enum ChunkLoadingMode {
-            // No chunks are loaded
-            NONE,
-
-            // Only chunks within the quarry boundary are loaded as TODO chunks
-            BOUNDARY_ONLY,
-
-            // The chunk the quarry is located in is fully loaded, and the boundary chunks are loaded as TODO chunks
-            FULL;
-        };
+        public boolean loadChunks = false;
 
         // Derived values — computed from the fields above.
         public double energyPerBlockMultiplier() { return nonNegativeFiniteOrZero(energyPerBlock * energyMultiplier * 2); }
@@ -153,17 +142,11 @@ public final class LogisticsConfig {
                 v -> INSTANCE.quarry.scanRate = v.intValue(),
                 Long::parseLong,
                 v -> requireRange(v, 1L, (long) Integer.MAX_VALUE, "must be between 1 and " + Integer.MAX_VALUE));
-        reg(map, "quarry_chunk_loading", "Quarry chunk loading. Must be one of NONE, BOUNDARY_ONLY, FULL",
-                () -> INSTANCE.quarry.chunkLoading,
-                mode -> INSTANCE.quarry.chunkLoading = mode,
-                string -> {
-                    try {
-                        return QuarryConfig.ChunkLoadingMode.valueOf(string);
-                    } catch (IllegalArgumentException e) {
-                        return null;
-                    }
-                },
-                mode -> requireCondition(mode != null, "must be one of NONE, BOUNDARY_ONLY, FULL"));
+        reg(map, "quarry_load_chunks", "Should the quarry chunk-load itself",
+                () -> INSTANCE.quarry.loadChunks,
+                mode -> INSTANCE.quarry.loadChunks = mode,
+                LogisticsConfig::parseBooleanStrict,
+                v -> {});
 
         // Pipe
         reg(map, "pipe_max_speed", "Item speed ceiling (blocks/tick)",
@@ -382,8 +365,6 @@ public final class LogisticsConfig {
         sanitizeInt("quarry_scan_rate", () -> (long) config.quarry.scanRate, v -> config.quarry.scanRate = v.intValue(),
                 () -> (long) defaults.quarry.scanRate, v -> requireRange(
                         v, 1L, (long) Integer.MAX_VALUE, "must be between 1 and " + Integer.MAX_VALUE));
-        sanitizeValue("quarry_chunk_loading", () -> config.quarry.chunkLoading, m -> config.quarry.chunkLoading = m,
-                () -> defaults.quarry.chunkLoading, mode -> requireCondition(mode != null, "must be one of NONE, BOUNDARY_ONLY, FULL"));
 
         sanitizeFloat("pipe_min_speed", () -> (double) config.pipe.minSpeed,
                 v -> config.pipe.minSpeed = v.floatValue(), () -> (double) defaults.pipe.minSpeed,

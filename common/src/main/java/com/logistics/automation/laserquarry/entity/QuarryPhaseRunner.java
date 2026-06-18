@@ -100,11 +100,8 @@ public final class QuarryPhaseRunner {
     // ==================== Tick dispatch ====================
 
     public void tick(LaserQuarryBlockEntity be, ServerLevel world, BlockPos pos, BlockState state) {
-        switch (LogisticsConfig.get().quarry.chunkLoading) {
-            case NONE -> {
-            }
-            case BOUNDARY_ONLY -> loadBoundaryOnly(be, world, pos, state);
-            case FULL -> loadFull(be, world, pos, state);
+        if (LogisticsConfig.get().quarry.loadChunks) {
+            loadChunks(be, world, pos, state);
         }
 
         switch (phase) {
@@ -116,7 +113,7 @@ public final class QuarryPhaseRunner {
         }
     }
 
-    private void loadBoundaryOnly(LaserQuarryBlockEntity be, ServerLevel world, BlockPos pos, BlockState state) {
+    private void loadChunks(LaserQuarryBlockEntity be, ServerLevel world, BlockPos pos, BlockState state) {
         ServerChunkCache chunkCache = world.getChunkSource();
         QuarryFrameRect frame = QuarryFrameRect.resolve(
                 LaserQuarryBlock.getMiningDirection(state),
@@ -146,18 +143,12 @@ public final class QuarryPhaseRunner {
 
             chunkCache.addTicket(ticket, chunk);
         }
-    }
-
-    private void loadFull(LaserQuarryBlockEntity be, ServerLevel world, BlockPos pos, BlockState state) {
-        this.loadBoundaryOnly(be, world, pos, state);
 
         Ticket ticket = new Ticket(
                 LogisticsAutomation.TICKET_TYPE.QUARRY,
                 ChunkLevel.byStatus(FullChunkStatus.BLOCK_TICKING)
         );
         ChunkPos chunk = ChunkPos.containing(pos);
-
-        ServerChunkCache chunkCache = world.getChunkSource();
         chunkCache.addTicket(ticket, chunk);
     }
 
