@@ -3,10 +3,12 @@ package com.logistics;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.pipe.PipeTypes;
 import com.logistics.pipe.block.FluidPipeBlock;
+import com.logistics.pipe.block.FluidPumpBlock;
 import com.logistics.pipe.item.FluidPipeBlockItem;
 import com.logistics.pipe.block.GlassTankBlock;
 import com.logistics.pipe.item.GlassTankBlockItem;
 import com.logistics.pipe.block.entity.FluidPipeBlockEntity;
+import com.logistics.pipe.block.entity.FluidPumpBlockEntity;
 import com.logistics.pipe.block.entity.GlassTankBlockEntity;
 import java.util.ArrayList;
 import java.util.List;
@@ -60,6 +62,7 @@ public final class LogisticsFluid extends LogisticsMod {
         public static Block VOID_FLUID_PIPE;
         public static Block BYPASS_FLUID_PIPE;
         public static Block GLASS_TANK;
+        public static Block FLUID_PUMP;
 
         private static BlockBehaviour.Properties fluidPipeProps(BlockBehaviour.Properties props) {
             return props.mapColor(MapColor.NONE)
@@ -107,6 +110,11 @@ public final class LogisticsFluid extends LogisticsMod {
             GLASS_TANK = INSTANCE.registerBlockWithItem("glass_tank",
                     props -> new GlassTankBlock(tankProps(props)),
                     GlassTankBlockItem::new);
+            FLUID_PUMP = INSTANCE.registerBlockWithItem("fluid_pump",
+                    props -> new FluidPumpBlock(props.mapColor(MapColor.METAL)
+                            .strength(3.5f)
+                            .sound(SoundType.METAL)
+                            .requiresCorrectToolForDrops()));
         }
     }
 
@@ -115,6 +123,7 @@ public final class LogisticsFluid extends LogisticsMod {
 
         public static BlockEntityType<FluidPipeBlockEntity> FLUID_PIPE_BLOCK_ENTITY;
         public static BlockEntityType<GlassTankBlockEntity> GLASS_TANK_BLOCK_ENTITY;
+        public static BlockEntityType<FluidPumpBlockEntity> FLUID_PUMP_BLOCK_ENTITY;
 
         static void register() {
             FLUID_PIPE_BLOCK_ENTITY = INSTANCE.registerBlockEntity("fluid_pipe",
@@ -130,6 +139,9 @@ public final class LogisticsFluid extends LogisticsMod {
             GLASS_TANK_BLOCK_ENTITY = INSTANCE.registerBlockEntity("glass_tank",
                     GlassTankBlockEntity::new,
                     BLOCK.GLASS_TANK);
+            FLUID_PUMP_BLOCK_ENTITY = INSTANCE.registerBlockEntity("fluid_pump",
+                    FluidPumpBlockEntity::new,
+                    BLOCK.FLUID_PUMP);
         }
     }
 
@@ -157,6 +169,7 @@ public final class LogisticsFluid extends LogisticsMod {
             LogisticsCore.CREATIVE.TAB.add(BLOCK.VOID_FLUID_PIPE);
             LogisticsCore.CREATIVE.TAB.add(BLOCK.BYPASS_FLUID_PIPE);
             LogisticsCore.CREATIVE.TAB.add(BLOCK.GLASS_TANK);
+            LogisticsCore.CREATIVE.TAB.add(BLOCK.FLUID_PUMP);
         }
     }
 }

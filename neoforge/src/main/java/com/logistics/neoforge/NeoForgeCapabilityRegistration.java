@@ -72,6 +72,7 @@ public final class NeoForgeCapabilityRegistration {
         registerEnergy(event, LogisticsAutomation.ENTITY.KILN_BLOCK_ENTITY);
         // Fluid Extractor Pipes receive engine RF; copper pipes return a null energy handler.
         registerEnergy(event, LogisticsFluid.ENTITY.FLUID_PIPE_BLOCK_ENTITY);
+        registerEnergy(event, LogisticsFluid.ENTITY.FLUID_PUMP_BLOCK_ENTITY);
 
         registerItems(event, LogisticsCore.ENTITY.MACERATOR_BLOCK_ENTITY);
         registerItems(event, LogisticsPower.ENTITY.STIRLING_ENGINE_BLOCK_ENTITY);
@@ -82,6 +83,7 @@ public final class NeoForgeCapabilityRegistration {
         registerFluids(event, LogisticsFluid.ENTITY.FLUID_PIPE_BLOCK_ENTITY);
         // Glass tanks expose their whole vertical column as a fluid handler.
         registerFluids(event, LogisticsFluid.ENTITY.GLASS_TANK_BLOCK_ENTITY);
+        registerFluids(event, LogisticsFluid.ENTITY.FLUID_PUMP_BLOCK_ENTITY);
     }
 
     private static <BE extends BlockEntity & HasEnergyStorage> void registerEnergy(

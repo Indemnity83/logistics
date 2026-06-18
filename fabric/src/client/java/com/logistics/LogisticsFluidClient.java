@@ -3,6 +3,7 @@ package com.logistics;
 import com.logistics.core.lib.client.render.FluidBoxRenderer;
 import com.logistics.core.lib.client.render.FluidSpriteLookup;
 import com.logistics.pipe.render.FluidPipeBlockEntityRenderer;
+import com.logistics.pipe.render.FluidPumpBlockEntityRenderer;
 import com.logistics.pipe.render.GlassTankBlockEntityRenderer;
 import net.fabricmc.fabric.api.client.render.fluid.v1.FluidRenderHandler;
 import net.fabricmc.fabric.api.client.render.fluid.v1.FluidRenderHandlerRegistry;
@@ -27,6 +28,8 @@ public final class LogisticsFluidClient {
                 LogisticsFluid.ENTITY.FLUID_PIPE_BLOCK_ENTITY, FluidPipeBlockEntityRenderer::new);
         BlockEntityRenderers.register(
                 LogisticsFluid.ENTITY.GLASS_TANK_BLOCK_ENTITY, GlassTankBlockEntityRenderer::new);
+        BlockEntityRenderers.register(
+                LogisticsFluid.ENTITY.FLUID_PUMP_BLOCK_ENTITY, FluidPumpBlockEntityRenderer::new);
 
         // Resolve fluid still sprite + tint through Fabric's fluid render handlers (1.21.x has no unified
         // vanilla fluid model). Shared fluid pipe/tank renderers call this via FluidSpriteLookup.
