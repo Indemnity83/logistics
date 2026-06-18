@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.7.3](https://github.com/Indemnity83/logistics/compare/mc1.21.11-v0.7.2...mc1.21.11-v0.7.3) (2026-06-18)
+
+
+### Added
+
+* **api:** add loader-independent API for cross-mod fluid integration ([#516](https://github.com/Indemnity83/logistics/issues/516)) ([d8f0c9b](https://github.com/Indemnity83/logistics/commit/d8f0c9bc852b9bd2c9b166751e319fad1980e39e))
+* **pipes:** add copper fluid pipe oxidation and fluid pipe marking ([#520](https://github.com/Indemnity83/logistics/issues/520)) ([d8f0c9b](https://github.com/Indemnity83/logistics/commit/d8f0c9bc852b9bd2c9b166751e319fad1980e39e))
+* **pipes:** add fluid pipes, tanks, and powered fluid extraction ([#511](https://github.com/Indemnity83/logistics/issues/511)) ([d8f0c9b](https://github.com/Indemnity83/logistics/commit/d8f0c9bc852b9bd2c9b166751e319fad1980e39e))
+* **pipes:** add fluid pump ([#537](https://github.com/Indemnity83/logistics/issues/537)) ([4606765](https://github.com/Indemnity83/logistics/commit/46067657ca8655389a4fd7ecc25b0c1c4dd153c1))
+
+
+### Fixed
+
+* **compat:** hide fluid extractor energy in Jade ([#533](https://github.com/Indemnity83/logistics/issues/533)) ([209976d](https://github.com/Indemnity83/logistics/commit/209976ddf8fda5d82ecc430075468ab536863d25))
+* **pipes:** fix fluid pipe drain flicker ([#532](https://github.com/Indemnity83/logistics/issues/532)) ([0bd1b83](https://github.com/Indemnity83/logistics/commit/0bd1b836a83e533e023b1ec30890ecd87197e81c))
+* **ui:** fix glass tank capacity overlay with held items ([#534](https://github.com/Indemnity83/logistics/issues/534)) ([caddca1](https://github.com/Indemnity83/logistics/commit/caddca1c9d8db5c766f4bf798d4fbc88c6dc17b6))
+
 ## [0.7.2](https://github.com/Indemnity83/logistics/compare/mc1.21.11-v0.7.1...mc1.21.11-v0.7.2) (2026-06-15)
 
 
