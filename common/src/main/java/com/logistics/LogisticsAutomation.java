@@ -52,8 +52,7 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
     }
 
     public static final class BLOCK {
-        private BLOCK() {
-        }
+        private BLOCK() {}
 
         public static Block MARKER;
         public static Block LASER_QUARRY;
@@ -62,20 +61,19 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
 
         static void register() {
             MARKER = INSTANCE.registerBlockWithItem("marker",
-                    props -> new MarkerBlock(props.strength(0.0f).sound(SoundType.WOOD).noCollision()));
+        props -> new MarkerBlock(props.strength(0.0f).sound(SoundType.WOOD).noCollision()));
             LASER_QUARRY = INSTANCE.registerBlockWithItem("laser_quarry",
-                    props -> new LaserQuarryBlock(props.strength(5.0f).sound(SoundType.STONE)));
+        props -> new LaserQuarryBlock(props.strength(5.0f).sound(SoundType.STONE)));
             LASER_QUARRY_FRAME = INSTANCE.registerBlock("laser_quarry_frame",
-                    props -> new LaserQuarryFrameBlock(props.strength(-1.0f, 3600000.0f).noOcclusion().noLootTable().randomTicks()));
+        props -> new LaserQuarryFrameBlock(props.strength(-1.0f, 3600000.0f).noOcclusion().noLootTable().randomTicks()));
             KILN = INSTANCE.registerBlockWithItem("kiln",
-                    props -> new KilnBlock(props.strength(3.5f).sound(SoundType.METAL).requiresCorrectToolForDrops()
-                            .lightLevel(state -> state.getValue(KilnBlock.LIT) ? 13 : 0)));
+        props -> new KilnBlock(props.strength(3.5f).sound(SoundType.METAL).requiresCorrectToolForDrops()
+            .lightLevel(state -> state.getValue(KilnBlock.LIT) ? 13 : 0)));
         }
     }
 
     public static final class ENTITY {
-        private ENTITY() {
-        }
+        private ENTITY() {}
 
         public static BlockEntityType<MarkerBlockEntity> MARKER_BLOCK_ENTITY;
         public static BlockEntityType<LaserQuarryBlockEntity> LASER_QUARRY_BLOCK_ENTITY;
@@ -91,8 +89,7 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
     }
 
     public static final class MENU {
-        private MENU() {
-        }
+        private MENU() {}
 
         public static MenuType<KilnScreenHandler> KILN;
 
@@ -102,8 +99,7 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
     }
 
     public static final class CREATIVE {
-        private CREATIVE() {
-        }
+        private CREATIVE() {}
 
         static void register() {
             LogisticsCore.CREATIVE.TAB.add(BLOCK.MARKER);
@@ -113,8 +109,7 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
     }
 
     public static final class ALIAS {
-        private ALIAS() {
-        }
+        private ALIAS() {}
 
         static void register() {
             // v0.2 => v0.3
@@ -148,10 +143,10 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
     }
 
     public static final class TICKET_TYPE {
+        private TICKET_TYPE() {}
 
         public static TicketType QUARRY;
         public static TicketType QUARRY_BOUNDARY;
-
 
         static void register() {
             QUARRY = Registry.register(

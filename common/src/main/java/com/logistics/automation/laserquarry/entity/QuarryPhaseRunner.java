@@ -77,9 +77,7 @@ public final class QuarryPhaseRunner {
         this.currentTarget = null;
     }
 
-    /**
-     * Marker callback: bounds changed, restart the full clear -> frame -> mine sequence.
-     */
+    /** Marker callback: bounds changed, restart the full clear -> frame -> mine sequence. */
     public void onCustomBoundsSet() {
         phase = Phase.CLEARING;
         frameBuildIndex = 0;
@@ -90,9 +88,7 @@ public final class QuarryPhaseRunner {
         resetBreakProgress();
     }
 
-    /**
-     * True if the quarry has been placed but hasn't started any clearing yet.
-     */
+    /** True if the quarry has been placed but hasn't started any clearing yet. */
     public boolean isFreshlyPlaced() {
         return phase == Phase.CLEARING && miningX == 0 && miningY == 0 && miningZ == 0 && breakProgress == 0;
     }
@@ -495,9 +491,7 @@ public final class QuarryPhaseRunner {
         }
     }
 
-    /**
-     * Load from the legacy {@code MiningState} compound.
-     */
+    /** Load from the legacy {@code MiningState} compound. */
     public void loadLegacy(CompoundTag miningStateTag) {
         miningX = NbtCompat.getInt(miningStateTag, "X", 0);
         miningY = NbtCompat.getInt(miningStateTag, "Y", 0);
