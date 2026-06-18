@@ -49,3 +49,4 @@ scripts/
 
 # Worktree tooling (air)
 .air/
+.claude/

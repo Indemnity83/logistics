@@ -1,0 +1,41 @@
+name: Cleanup Branches
+
+on:
+  pull_request:
+    types: [closed]
+
+permissions:
+  contents: write
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.merged == true
+
+    steps:
+      - name: Delete merged branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
+          HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [[ "$HEAD_REPO" != "$REPO" ]]; then
+            echo "PR branch is from a fork; skipping branch deletion."
+            exit 0
+          fi
+
+          if [[ -z "$HEAD_REF" || "$HEAD_REF" == mc/* ]]; then
+            echo "Branch '$HEAD_REF' is not eligible for automatic deletion."
+            exit 0
+          fi
+
+          gh api \
+            --method DELETE \
+            -H "Accept: application/vnd.github+json" \
+            "repos/$REPO/git/refs/heads/$HEAD_REF"
+
+          echo "Deleted merged branch '$HEAD_REF'."
