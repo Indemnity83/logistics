@@ -6,6 +6,7 @@ import com.logistics.LogisticsFluid;
 import com.logistics.LogisticsPipe;
 import com.logistics.LogisticsPower;
 import com.logistics.pipe.render.FluidPipeBlockEntityRenderer;
+import com.logistics.pipe.render.FluidPumpBlockEntityRenderer;
 import com.logistics.pipe.render.GlassTankBlockEntityRenderer;
 import com.logistics.automation.kiln.KilnScreen;
 import com.logistics.core.lib.client.render.FluidBoxRenderer;
@@ -124,6 +125,9 @@ public final class NeoForgeClientSetup {
         event.registerBlockEntityRenderer(
                 LogisticsFluid.ENTITY.GLASS_TANK_BLOCK_ENTITY,
                 GlassTankBlockEntityRenderer::new);
+        event.registerBlockEntityRenderer(
+                LogisticsFluid.ENTITY.FLUID_PUMP_BLOCK_ENTITY,
+                FluidPumpBlockEntityRenderer::new);
     }
 
 

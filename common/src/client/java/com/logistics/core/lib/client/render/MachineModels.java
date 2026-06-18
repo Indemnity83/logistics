@@ -110,6 +110,13 @@ public final class MachineModels {
                     new Face(Direction.WEST, 0f, 8f, 16f, 16f, 0),
                     new Face(Direction.UP, 16f, 16f, 0f, 8f, 90),
                     new Face(Direction.DOWN, 16f, 16f, 0f, 8f, 90)))))),
+        Map.entry("fluid_pump_tube", new Model("fluid/fluid_pump_pipe", List.of(
+            new Element(4f, 0f, 4f, 12f, 16f, 12f, List.of(
+                    new Face(Direction.NORTH, 0f, 0f, 8f, 16f, 0),
+                    new Face(Direction.EAST, 0f, 0f, 8f, 16f, 0),
+                    new Face(Direction.SOUTH, 0f, 0f, 8f, 16f, 0),
+                    new Face(Direction.WEST, 0f, 0f, 8f, 16f, 0),
+                    new Face(Direction.DOWN, 8f, 8f, 16f, 16f, 0)))))),
         Map.entry("laser_quarry_gantry_arm", new Model("automation/quary_gantry_arm", List.of(
             new Element(5f, 5f, 0f, 11f, 11f, 16f, List.of(
                     new Face(Direction.NORTH, 0f, 1f, 1f, 2f, 0),

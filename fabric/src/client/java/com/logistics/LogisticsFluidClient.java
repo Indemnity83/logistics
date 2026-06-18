@@ -3,6 +3,7 @@ package com.logistics;
 import com.logistics.core.lib.client.render.FluidBoxRenderer;
 import com.logistics.core.lib.client.render.FluidSpriteLookup;
 import com.logistics.pipe.render.FluidPipeBlockEntityRenderer;
+import com.logistics.pipe.render.FluidPumpBlockEntityRenderer;
 import com.logistics.pipe.render.GlassTankBlockEntityRenderer;
 import net.fabricmc.fabric.api.client.render.fluid.v1.FluidRenderHandler;
 import net.fabricmc.fabric.api.client.render.fluid.v1.FluidRenderHandlerRegistry;
@@ -29,6 +30,8 @@ public final class LogisticsFluidClient {
                 LogisticsFluid.ENTITY.FLUID_PIPE_BLOCK_ENTITY, FluidPipeBlockEntityRenderer::new);
         BlockEntityRenderers.register(
                 LogisticsFluid.ENTITY.GLASS_TANK_BLOCK_ENTITY, GlassTankBlockEntityRenderer::new);
+        BlockEntityRenderers.register(
+                LogisticsFluid.ENTITY.FLUID_PUMP_BLOCK_ENTITY, FluidPumpBlockEntityRenderer::new);
 
         // The glass tank uses translucent rendering so the contained fluid shows through. On 1.21.11
         // Fabric the model render_type JSON is not honored, so register it explicitly (NeoForge reads
