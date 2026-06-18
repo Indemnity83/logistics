@@ -19,9 +19,6 @@ import com.logistics.core.lib.power.AcceptsLowTierEnergy;
 import com.logistics.core.lib.power.EnergyDemandProvider;
 import java.util.ArrayDeque;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import net.minecraft.core.BlockPos;
@@ -65,10 +62,6 @@ public class FluidPumpBlockEntity extends BaseBlockEntity
     private long lastSyncedTank = -1;
     private int lastSyncedTargetY = Integer.MIN_VALUE;
     private final ArrayDeque<BlockPos> sourceQueue = new ArrayDeque<>();
-    // Positions drained from the current body; re-cleared each tick so adjacent sources can't seep
-    // back into the hole, and leftover flowing water (which the no-update removal leaves un-ticked)
-    // gets cleaned up rather than sitting there forever.
-    private final Map<BlockPos, Fluid> drainedThisBody = new LinkedHashMap<>();
     private boolean infiniteBody;
     @Nullable private Fluid queuedFluid;
     private int queuedY;
@@ -127,7 +120,6 @@ public class FluidPumpBlockEntity extends BaseBlockEntity
             return;
         }
 
-        be.holdDrainedPositions((ServerLevel) level);
         be.pushOut(level, pos);
 
         LogisticsConfig.FluidPumpConfig cfg = LogisticsConfig.get().fluidPump;
@@ -263,24 +255,8 @@ public class FluidPumpBlockEntity extends BaseBlockEntity
         return nextY >= level.getMinBuildHeight() && !isBlocked(level, new BlockPos(pos.getX(), nextY, pos.getZ()));
     }
 
-    // Re-clear any fluid that has seeped back into positions drained from the current body.
-    private void holdDrainedPositions(ServerLevel level) {
-        if (drainedThisBody.isEmpty()) {
-            return;
-        }
-        for (Map.Entry<BlockPos, Fluid> entry : drainedThisBody.entrySet()) {
-            // isSame matches both the source and the flowing form; the leftover seepage is flowing water.
-            if (level.getFluidState(entry.getKey()).getType().isSame(entry.getValue())) {
-                level.setBlock(
-                        entry.getKey(), Blocks.AIR.defaultBlockState(), Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE);
-            }
-        }
-    }
-
     private void descendToNextLayer(ServerLevel level, BlockPos pos) {
         sourceQueue.clear();
-        // drainedThisBody is kept (not cleared) so already-drained cells stay suppressed until the whole
-        // body is gone; leftover flowing water in them never gets a tick to decay otherwise.
         infiniteBody = false;
         queuedFluid = null;
         // Don't step the tube into a solid block or below the world; stall instead.
@@ -310,22 +286,10 @@ public class FluidPumpBlockEntity extends BaseBlockEntity
             // Effectively infinite body: draw fluid without carving the landscape. Re-queue at the front
             // so the furthest-first ordering keeps cycling the body.
             sourceQueue.addFirst(source);
-        } else if (createsSourceBlocks(fluid)) {
-            // Water reforms, so remove it without notifying neighbors (no UPDATE_NEIGHBORS / shape update)
-            // and have drainedThisBody re-clear any seepage that flows in before the body is fully drained.
-            level.setBlock(source, Blocks.AIR.defaultBlockState(), Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE);
-            // Cap the tracked set for a long-lived pump; evict the oldest cells (already stable air held by
-            // the no-update removal) and keep recently drained ones that may still see seepage.
-            if (drainedThisBody.size() >= 4096) {
-                Iterator<BlockPos> oldest = drainedThisBody.keySet().iterator();
-                while (drainedThisBody.size() > 3072 && oldest.hasNext()) {
-                    oldest.next();
-                    oldest.remove();
-                }
-            }
-            drainedThisBody.put(source.immutable(), fluid);
         } else {
-            // Lava can't reform into sources, so let it flow and settle normally.
+            // Finite body: remove the source and let neighbors settle normally. Reforming fluids (water)
+            // may flow back in, but draining a sub-9-source pool is the player's choice; a 3x3+ pool is
+            // treated as infinite and skipped entirely.
             level.setBlock(source, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
         }
         markDirtyAndSync();
