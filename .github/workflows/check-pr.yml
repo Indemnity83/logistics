@@ -17,7 +17,6 @@ jobs:
   validate:
     name: lint (pr)
     runs-on: ubuntu-latest
-    if: github.actor != 'dependabot[bot]'
 
     permissions:
       pull-requests: read

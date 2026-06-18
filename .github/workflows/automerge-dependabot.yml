@@ -1,0 +1,68 @@
+name: Automerge Dependabot
+
+on:
+  workflow_run:
+    workflows: [Check Code]
+    types: [completed]
+
+permissions:
+  checks: read
+  contents: write
+  pull-requests: write
+
+jobs:
+  automerge:
+    runs-on: ubuntu-latest
+    if: github.event.workflow_run.conclusion == 'success'
+
+    steps:
+      - name: Merge Dependabot PR
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          PR_JSON=$(gh api \
+            -H "Accept: application/vnd.github+json" \
+            "repos/$REPO/commits/$HEAD_SHA/pulls" \
+            --jq '[.[] | select(.state == "open" and .user.login == "dependabot[bot]" and (.base.ref | startswith("mc/")) and .head.repo.full_name == .base.repo.full_name)][0]')
+
+          if [[ -z "$PR_JSON" || "$PR_JSON" == "null" ]]; then
+            echo "No open Dependabot PR for $HEAD_SHA targeting mc/*; skipping."
+            exit 0
+          fi
+
+          PR_NUMBER=$(jq -r '.number' <<< "$PR_JSON")
+          PR_TITLE=$(jq -r '.title' <<< "$PR_JSON")
+          echo "Checking Dependabot PR #$PR_NUMBER: $PR_TITLE"
+
+          lint_pr_success=false
+          for _ in {1..30}; do
+            LINT_CONCLUSION=$(gh api \
+              -H "Accept: application/vnd.github+json" \
+              "repos/$REPO/commits/$HEAD_SHA/check-runs?per_page=100" \
+              --jq '[.check_runs[] | select(.name == "lint (pr)")][0].conclusion // ""')
+
+            if [[ "$LINT_CONCLUSION" == "success" ]]; then
+              lint_pr_success=true
+              break
+            fi
+
+            if [[ -n "$LINT_CONCLUSION" && "$LINT_CONCLUSION" != "null" && "$LINT_CONCLUSION" != "success" ]]; then
+              echo "lint (pr) completed with conclusion: $LINT_CONCLUSION"
+              exit 0
+            fi
+
+            echo "Waiting for lint (pr) to complete..."
+            sleep 10
+          done
+
+          if [[ "$lint_pr_success" != "true" ]]; then
+            echo "lint (pr) did not complete successfully; skipping auto-merge."
+            exit 0
+          fi
+
+          gh pr merge "$PR_NUMBER" --repo "$REPO" --squash
