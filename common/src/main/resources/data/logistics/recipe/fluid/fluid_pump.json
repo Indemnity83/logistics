@@ -1,9 +1,9 @@
 {
   "type": "minecraft:crafting_shaped",
   "pattern": [
-    " G ",
-    "VMV",
-    "IBI"
+    "IRI",
+    "IGI",
+    "TBT"
   ],
   "key": {
     "B": {
@@ -15,11 +15,11 @@
     "I": {
       "item": "minecraft:iron_ingot"
     },
-    "M": {
-      "item": "logistics:core/machine_core"
+    "R": {
+      "item": "minecraft:redstone"
     },
-    "V": {
-      "item": "logistics:core/iron_valve"
+    "T": {
+      "item": "logistics:fluid/glass_tank"
     }
   },
   "result": {
