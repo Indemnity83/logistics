@@ -145,8 +145,7 @@ jobs:
         run: ./gradlew :${{ matrix.module }}:jacocoTestReport --console=plain
         # jacocoTestReport depends on the module's test task, so this runs the
         # tests once and emits the JaCoCo XML in the same step.
-        # Note: Game tests (./gradlew :fabric:runGameTest) are not run in CI due to resource
-        # constraints and long execution time. Run locally before merging if testing game mechanics.
+        # Note: Fabric game tests run separately in the `gametest` job below.
 
       - name: Upload test reports
         if: needs.changes.outputs.code_changed == 'true' && failure()
@@ -167,3 +166,46 @@ jobs:
           fail_ci_if_error: false
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+  gametest:
+    name: gametest (fabric)
+    # Fabric is the only module with a gametest source set; it boots a headless
+    # server, so it runs as its own job rather than in the unit-test matrix.
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
+    needs: changes
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Skip game tests for non-code changes
+        if: needs.changes.outputs.code_changed != 'true'
+        run: echo "No code-affecting files changed; skipping Fabric game tests."
+
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        if: needs.changes.outputs.code_changed == 'true'
+        with:
+          persist-credentials: false
+          token: ${{ github.token }}
+
+      - uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654
+        if: needs.changes.outputs.code_changed == 'true'
+        with:
+          distribution: temurin
+          java-version: '25'
+
+      - name: Setup Gradle
+        if: needs.changes.outputs.code_changed == 'true'
+        uses: gradle/actions/setup-gradle@11d4d83c63a6ce61b32d8a9c4faddbdb04fe9917
+        with:
+          cache-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
+
+      - name: Run Fabric game tests
+        if: needs.changes.outputs.code_changed == 'true'
+        run: ./gradlew :fabric:runGameTest --console=plain
+
+      - name: Upload game test logs
+        if: needs.changes.outputs.code_changed == 'true' && failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: gametest-logs-${{ github.run_id }}-${{ github.run_attempt }}
+          path: fabric/build/run/gameTest/logs/
