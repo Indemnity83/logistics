@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " G ",
+    "VMV",
+    "IBI"
+  ],
+  "key": {
+    "B": "minecraft:bucket",
+    "G": "logistics:core/iron_gear",
+    "I": "minecraft:iron_ingot",
+    "M": "logistics:core/machine_core",
+    "V": "logistics:core/iron_valve"
+  },
+  "result": {
+    "id": "logistics:fluid/fluid_pump",
+    "count": 1
+  }
+}

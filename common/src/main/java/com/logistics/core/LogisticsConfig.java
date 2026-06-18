@@ -39,6 +39,7 @@ public final class LogisticsConfig {
     public PipeConfig pipe = new PipeConfig();
     public EngineConfig engine = new EngineConfig();
     public FluidPipeConfig fluidPipe = new FluidPipeConfig();
+    public FluidPumpConfig fluidPump = new FluidPumpConfig();
 
     public static final class QuarryConfig {
         public int area = 16;
@@ -91,6 +92,18 @@ public final class LogisticsConfig {
         public boolean woodenRequiresEngine = true;
         /** Debug toggle: when false, extractors stop pulling fluid into the network. */
         public boolean activeExtraction = true;
+    }
+
+    public static final class FluidPumpConfig {
+        public int tankCapacityMb = 16_000;
+        public long energyCapacity = 1_000L;
+        public long maxEnergyInput = 150L;
+        public long energyPerSource = 100L;
+        public int pushRateMb = 400;
+        public int pumpIntervalTicks = 16;
+        public int searchRadius = 64;
+        public float armSpeed = 0.01f;
+        public int infiniteSourceThreshold = 9;
     }
 
     // ==================== Config Entry Registry (for commands) ====================
@@ -224,6 +237,54 @@ public final class LogisticsConfig {
                 LogisticsConfig::parseBooleanStrict,
                 v -> {});
 
+        // Fluid pump
+        reg(map, "fluid_pump_tank_capacity_mb", "Fluid Pump tank capacity (mB)",
+                () -> (long) INSTANCE.fluidPump.tankCapacityMb,
+                v -> INSTANCE.fluidPump.tankCapacityMb = v.intValue(),
+                Long::parseLong,
+                v -> requireRange(v, 1L, (long) Integer.MAX_VALUE, "must be between 1 and " + Integer.MAX_VALUE));
+        reg(map, "fluid_pump_energy_capacity", "Fluid Pump energy buffer capacity (RF)",
+                () -> INSTANCE.fluidPump.energyCapacity,
+                v -> INSTANCE.fluidPump.energyCapacity = v,
+                Long::parseLong,
+                v -> requireMin(v, 1L, "must be greater than or equal to 1"));
+        reg(map, "fluid_pump_max_energy_input", "Fluid Pump max energy input (RF/t)",
+                () -> INSTANCE.fluidPump.maxEnergyInput,
+                v -> INSTANCE.fluidPump.maxEnergyInput = v,
+                Long::parseLong,
+                v -> requireMin(v, 1L, "must be greater than or equal to 1"));
+        reg(map, "fluid_pump_energy_per_source", "RF consumed per source block pumped",
+                () -> INSTANCE.fluidPump.energyPerSource,
+                v -> INSTANCE.fluidPump.energyPerSource = v,
+                Long::parseLong,
+                v -> requireMin(v, 0L, "must be greater than or equal to 0"));
+        reg(map, "fluid_pump_push_rate_mb", "Fluid Pump output rate (mB/tick)",
+                () -> (long) INSTANCE.fluidPump.pushRateMb,
+                v -> INSTANCE.fluidPump.pushRateMb = v.intValue(),
+                Long::parseLong,
+                v -> requireRange(v, 1L, (long) Integer.MAX_VALUE, "must be between 1 and " + Integer.MAX_VALUE));
+        reg(map, "fluid_pump_interval_ticks", "Fluid Pump source pickup interval (ticks)",
+                () -> (long) INSTANCE.fluidPump.pumpIntervalTicks,
+                v -> INSTANCE.fluidPump.pumpIntervalTicks = v.intValue(),
+                Long::parseLong,
+                v -> requireRange(v, 1L, (long) Integer.MAX_VALUE, "must be between 1 and " + Integer.MAX_VALUE));
+        reg(map, "fluid_pump_search_radius", "Fluid Pump connected source search radius",
+                () -> (long) INSTANCE.fluidPump.searchRadius,
+                v -> INSTANCE.fluidPump.searchRadius = v.intValue(),
+                Long::parseLong,
+                v -> requireRange(v, 1L, (long) Integer.MAX_VALUE, "must be between 1 and " + Integer.MAX_VALUE));
+        reg(map, "fluid_pump_arm_speed", "Fluid Pump arm movement speed (blocks/tick)",
+                () -> (double) INSTANCE.fluidPump.armSpeed,
+                v -> INSTANCE.fluidPump.armSpeed = v.floatValue(),
+                Double::parseDouble,
+                v -> requireFiniteFloatGreaterThan(v, 0.0, "must be finite and greater than 0"));
+        reg(map, "fluid_pump_infinite_source_threshold",
+                "Connected water sources at or above which the pump treats the body as infinite and pumps without consuming blocks (0 = always consume)",
+                () -> (long) INSTANCE.fluidPump.infiniteSourceThreshold,
+                v -> INSTANCE.fluidPump.infiniteSourceThreshold = v.intValue(),
+                Long::parseLong,
+                v -> requireMin(v, 0L, "must be greater than or equal to 0"));
+
         ENTRIES = Collections.unmodifiableMap(map);
     }
 
@@ -334,6 +395,10 @@ public final class LogisticsConfig {
             LOGGER.warn("Invalid logistics config group fluidPipe: missing; using defaults");
             config.fluidPipe = defaults.fluidPipe;
         }
+        if (config.fluidPump == null) {
+            LOGGER.warn("Invalid logistics config group fluidPump: missing; using defaults");
+            config.fluidPump = defaults.fluidPump;
+        }
 
         sanitizeInt("quarry_area", () -> (long) config.quarry.area, v -> config.quarry.area = v.intValue(),
                 () -> (long) defaults.quarry.area, v -> requireRange(
@@ -394,6 +459,35 @@ public final class LogisticsConfig {
         sanitizeInt("fluid_pipe_base_capacity", () -> (long) config.fluidPipe.baseCapacity,
                 v -> config.fluidPipe.baseCapacity = v.intValue(), () -> (long) defaults.fluidPipe.baseCapacity,
                 v -> requireRange(v, 1L, (long) Integer.MAX_VALUE, "must be between 1 and " + Integer.MAX_VALUE));
+
+        sanitizeInt("fluid_pump_tank_capacity_mb", () -> (long) config.fluidPump.tankCapacityMb,
+                v -> config.fluidPump.tankCapacityMb = v.intValue(), () -> (long) defaults.fluidPump.tankCapacityMb,
+                v -> requireRange(v, 1L, (long) Integer.MAX_VALUE, "must be between 1 and " + Integer.MAX_VALUE));
+        sanitizeLong("fluid_pump_energy_capacity", () -> config.fluidPump.energyCapacity,
+                v -> config.fluidPump.energyCapacity = v, () -> defaults.fluidPump.energyCapacity,
+                v -> requireMin(v, 1L, "must be greater than or equal to 1"));
+        sanitizeLong("fluid_pump_max_energy_input", () -> config.fluidPump.maxEnergyInput,
+                v -> config.fluidPump.maxEnergyInput = v, () -> defaults.fluidPump.maxEnergyInput,
+                v -> requireMin(v, 1L, "must be greater than or equal to 1"));
+        sanitizeLong("fluid_pump_energy_per_source", () -> config.fluidPump.energyPerSource,
+                v -> config.fluidPump.energyPerSource = v, () -> defaults.fluidPump.energyPerSource,
+                v -> requireMin(v, 0L, "must be greater than or equal to 0"));
+        sanitizeInt("fluid_pump_push_rate_mb", () -> (long) config.fluidPump.pushRateMb,
+                v -> config.fluidPump.pushRateMb = v.intValue(), () -> (long) defaults.fluidPump.pushRateMb,
+                v -> requireRange(v, 1L, (long) Integer.MAX_VALUE, "must be between 1 and " + Integer.MAX_VALUE));
+        sanitizeInt("fluid_pump_interval_ticks", () -> (long) config.fluidPump.pumpIntervalTicks,
+                v -> config.fluidPump.pumpIntervalTicks = v.intValue(), () -> (long) defaults.fluidPump.pumpIntervalTicks,
+                v -> requireRange(v, 1L, (long) Integer.MAX_VALUE, "must be between 1 and " + Integer.MAX_VALUE));
+        sanitizeInt("fluid_pump_search_radius", () -> (long) config.fluidPump.searchRadius,
+                v -> config.fluidPump.searchRadius = v.intValue(), () -> (long) defaults.fluidPump.searchRadius,
+                v -> requireRange(v, 1L, (long) Integer.MAX_VALUE, "must be between 1 and " + Integer.MAX_VALUE));
+        sanitizeFloat("fluid_pump_arm_speed", () -> (double) config.fluidPump.armSpeed,
+                v -> config.fluidPump.armSpeed = v.floatValue(), () -> (double) defaults.fluidPump.armSpeed,
+                v -> requireFiniteFloatGreaterThan(v, 0.0, "must be finite and greater than 0"));
+        sanitizeInt("fluid_pump_infinite_source_threshold", () -> (long) config.fluidPump.infiniteSourceThreshold,
+                v -> config.fluidPump.infiniteSourceThreshold = v.intValue(),
+                () -> (long) defaults.fluidPump.infiniteSourceThreshold,
+                v -> requireMin(v, 0L, "must be greater than or equal to 0"));
 
         return config;
     }
