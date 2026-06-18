@@ -25,7 +25,7 @@ See [`../principles.md`](../principles.md) for the table legend. Railcraft is *e
 | Feature | What it did | Decision | Modern take / balance notes | Status | Maps to |
 |---|---|---|---|---|---|
 | Locomotive (steam / electric / creative) | Self-powered engine that pulls carts | Port | The headline: automated trains. Start with steam; **electric is out of scope** (see Tracks → Electric track) | — | Phase 3 — locomotives |
-| Tank cart | Mobile fluid transport | Port | Depends on the fluid layer | — | Phase 3 — carts |
+| Tank cart | Mobile fluid transport | Port | Fluid layer shipped (v0.7.3) — now unblocked | — | Phase 3 — carts |
 | Chest / work carts (energy/anchor) | Mobile inventory + utility carts | Port | Mobile storage transport; pairs with loaders | — | Phase 3 — carts |
 | Loaders / unloaders (item & fluid) | Auto-load/unload carts at stations | Port | Connects rails to the pipe/fluid networks | — | Phase 3 — loaders |
 | Fun carts (TNT / gift / undercutter) | Novelty/utility carts | Modernize | Keep a couple (TNT cart); drop the rest | — | Phase 3 — carts |

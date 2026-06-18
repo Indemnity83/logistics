@@ -35,18 +35,18 @@ The first batch covers the **[Fluids foundation](0101-fluids-foundation.md)** (t
 
 The step numbers encode dependencies, but several briefs are independent and can run in parallel:
 
-- **Start first — `0101` Fluids:** the keystone. Begin with its design spike (parallel fluid pipe vs. network-integrated) since it unblocks the entire deferred batch.
+- **Shipped — `0101` Fluids:** the keystone, ✅ shipped in v0.7.3 (standalone cellular fluid pipes + Glass Tank + Pump on both loaders). This unblocked the deferred fluid batch below.
 - **Machine / dust chain — `0102` → `0103` → `0104` / `0105` → `0106`:** build [Macerator Secondary Outputs](0102-macerator-secondary-outputs.md) first (the shared `ChanceResult` mechanism); then the [Hand Grinder](0103-hand-grinder.md) (the no-power ore→dust on-ramp, prerequisite for the Alloy Smelter's no-power Bronze path). [Sawmill](0104-sawmill.md) and [Alloy Smelter](0105-alloy-smelter.md) reuse `ChanceResult` (Alloy also needs the Hand Grinder). [Machine Upgrades](0106-machine-upgrades.md) could later layer across them, but it's **exploratory** (per [`ROADMAP.md`](../../ROADMAP.md) Exploring/RFC), not part of the committed batch.
 - **Independent (any time) — `0107`:** [Tiered Batteries](0107-tiered-batteries.md) has no in-batch dependencies. ([Obsidian Vacuum Pipe](0108-obsidian-vacuum-pipe.md) is now **not planned** — hoppers cover it; [Remote Orderer](0109-remote-orderer.md) is **exploratory**, not committed — see [`ROADMAP.md`](../../ROADMAP.md).)
-- **Spike before scheduling — `0101` and `0110`:** the [Fluids](0101-fluids-foundation.md) pipe approach and the [Firewall Pipe](0110-firewall-pipe.md) (routing-gate vs. graph-segmentation, which touches stable network code) each need a short spike to settle the approach.
+- **Spike before scheduling — `0110`:** the [Firewall Pipe](0110-firewall-pipe.md) (routing-gate vs. graph-segmentation, which touches stable network code) needs a short spike to settle the approach. *(The [Fluids](0101-fluids-foundation.md) approach is settled and shipped.)*
 
 ### Deferred to a later batch (Phase 1, fluid-blocked or needs a Discussion)
 
 Not written yet — they wait on the keystone or on an open decision, and will take `0111+` steps:
 
-- **Needs fluids first:** Combustion-tier engine, Magmatic/dynamo tier, Magma Crucible, Fluid Transposer, fluid logistics (provider/supplier/request), Pump (built as the Fluids-foundation validation slice), the oil/biofuel fuel chain.
+- **Needs fluids first** *(now unblocked — fluids shipped):* Combustion-tier engine, Magmatic/dynamo tier, Magma Crucible, Fluid Transposer, fluid logistics (provider/supplier/request), the oil/biofuel fuel chain. *(The Pump shipped with the Fluids foundation as its validation slice.)*
 - **Deferred post-1.0 (RFC, not a feature brief):** the programmable-automation / gates+circuits system (BuildCraft gates + TE programmable augments + Forestry circuits) — **not a 1.0 item**; revisit when Forestry needs circuit boards (Phase 2) or later. See [`../rfcs/0001-programmable-behavior.md`](../rfcs/0001-programmable-behavior.md). *(Distinct from the machine-modifier upgrades, [0106](0106-machine-upgrades.md) — themselves exploratory, not committed for 1.0.)*
-- **Already done:** pipe operation power gating (✅, #464/#465/#469).
+- **Already done:** pipe operation power gating (✅, #464/#465/#469); the Fluids foundation (✅, v0.7.3 — fluid pipes, Glass Tank, Pump, machine fluid I/O).
 
 ## Brief template
 

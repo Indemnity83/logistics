@@ -27,7 +27,7 @@ See [`../principles.md`](../principles.md) for the table legend. Forestry is lar
 | Squeezer | Seeds/fruit/honey → liquids (seed oil, juice) | Port | Feeds biofuel + Carpenter | — | Phase 2 — processing |
 | Fermenter | Saplings/biomass + fertilizer → biomass liquid | Port | Biofuel chain step 1 | — | Phase 2 — biofuel |
 | Still | Biomass → ethanol/biofuel | Port | Biofuel chain step 2; a **parallel fuel** for the combustion engine (couples to BuildCraft) | — | Phase 2 — biofuel |
-| Bottler / Can filling | Fill containers with fluids | Port | Depends on the fluid layer | — | Phase 2 — fluids |
+| Bottler / Can filling | Fill containers with fluids | Port | Fluid layer shipped (v0.7.3) — now unblocked | — | Phase 2 — fluids |
 | Engines (peat / biogas / biofuel / electrical) | Forestry's own engine line | Modernize | **Unify with the engine line**: peat-fired + biofuel engine tiers rather than a parallel system. This is "the power that went with the farms" | — | `power` / engines |
 | Moistener | Make mycelium/mossy blocks | Modernize | Minor; low priority | — | — |
 

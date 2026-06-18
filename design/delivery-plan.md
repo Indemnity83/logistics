@@ -63,10 +63,11 @@ This file is the human-readable mirror of **GitHub Project #4 "Logistics Roadmap
 
 *Finish the BuildCraft + Thermal Expansion layer the classic tech experience was built on. Derived from [`mods/buildcraft.md`](mods/buildcraft.md), [`mods/thermal-expansion.md`](mods/thermal-expansion.md), and the gaps in [`mods/logistics-pipes.md`](mods/logistics-pipes.md).*
 
-**🔑 Fluids foundation** *(prerequisite for much of this phase + later)*
-- Fluid transport layer (fluid pipes) on the platform fluid API
-- Fluid storage (tanks) + machine fluid I/O
-- Pump (world fluid → network)
+**🔑 Fluids foundation** ✅ *(shipped v0.7.3 — prerequisite for much of this phase + later)*
+- ✅ Fluid transport layer (fluid pipes) on the platform fluid API
+- ✅ Fluid storage (tanks) + machine fluid I/O
+- ✅ Pump (world fluid → network)
+- *Fast-follow:* Iron mid-tier pipe and a fluid filter pipe (not gated for the foundation)
 
 **Engines & power**
 - Combustion-tier engine (fluid fuel + coolant, manage-or-explode tension)
