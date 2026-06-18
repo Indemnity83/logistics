@@ -16,9 +16,62 @@ permissions:
   pull-requests: read
 
 jobs:
+  changes:
+    name: detect changes
+    runs-on: ubuntu-latest
+    outputs:
+      code_changed: ${{ steps.changed.outputs.code_changed }}
+
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+          token: ${{ github.token }}
+
+      - name: Detect code changes
+        id: changed
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PUSH_BEFORE: ${{ github.event.before }}
+          PUSH_AFTER: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+
+          if [[ "$EVENT_NAME" == "pull_request" ]]; then
+            BASE="$PR_BASE_SHA"
+            HEAD="HEAD"
+          else
+            BASE="$PUSH_BEFORE"
+            HEAD="$PUSH_AFTER"
+          fi
+
+          if [[ -z "$BASE" || "$BASE" =~ ^0+$ ]]; then
+            echo "code_changed=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          code_changed=false
+          while IFS= read -r file; do
+            case "$file" in
+              common/*|fabric/*|neoforge/*|buildSrc/*|gradle/*|\
+              build.gradle|settings.gradle|gradle.properties|gradlew|gradlew.bat|\
+              .github/workflows/check-code.yml)
+                code_changed=true
+                break
+                ;;
+            esac
+          done < <(git diff --name-only "$BASE" "$HEAD")
+
+          echo "code_changed=$code_changed" >> "$GITHUB_OUTPUT"
+          echo "code_changed=$code_changed"
+
   lint:
     name: lint (${{ matrix.module }})
     if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
+    needs: changes
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -26,27 +79,36 @@ jobs:
         module: [common, fabric, neoforge]
 
     steps:
+      - name: Skip lint for non-code changes
+        if: needs.changes.outputs.code_changed != 'true'
+        run: echo "No code-affecting files changed; skipping Gradle lint."
+
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        if: needs.changes.outputs.code_changed == 'true'
         with:
           persist-credentials: false
           token: ${{ github.token }}
 
       - uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654
+        if: needs.changes.outputs.code_changed == 'true'
         with:
           distribution: temurin
           java-version: '25'
 
       - name: Setup Gradle
+        if: needs.changes.outputs.code_changed == 'true'
         uses: gradle/actions/setup-gradle@11d4d83c63a6ce61b32d8a9c4faddbdb04fe9917
         with:
           cache-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
 
       - name: Check ${{ matrix.module }} formatting
+        if: needs.changes.outputs.code_changed == 'true'
         run: ./gradlew :${{ matrix.module }}:lint --console=plain
 
   test:
     name: test (${{ matrix.module }})
     if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
+    needs: changes
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -56,22 +118,30 @@ jobs:
         module: [common, fabric, neoforge]
 
     steps:
+      - name: Skip tests for non-code changes
+        if: needs.changes.outputs.code_changed != 'true'
+        run: echo "No code-affecting files changed; skipping Gradle tests."
+
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        if: needs.changes.outputs.code_changed == 'true'
         with:
           persist-credentials: false
           token: ${{ github.token }}
 
       - uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654
+        if: needs.changes.outputs.code_changed == 'true'
         with:
           distribution: temurin
           java-version: '25'
 
       - name: Setup Gradle
+        if: needs.changes.outputs.code_changed == 'true'
         uses: gradle/actions/setup-gradle@11d4d83c63a6ce61b32d8a9c4faddbdb04fe9917
         with:
           cache-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
 
       - name: Run ${{ matrix.module }} tests with coverage
+        if: needs.changes.outputs.code_changed == 'true'
         run: ./gradlew :${{ matrix.module }}:jacocoTestReport --console=plain
         # jacocoTestReport depends on the module's test task, so this runs the
         # tests once and emits the JaCoCo XML in the same step.
@@ -79,14 +149,14 @@ jobs:
         # constraints and long execution time. Run locally before merging if testing game mechanics.
 
       - name: Upload test reports
-        if: failure()
+        if: needs.changes.outputs.code_changed == 'true' && failure()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
           name: test-reports-${{ matrix.module }}-${{ github.run_id }}-${{ github.run_attempt }}
           path: ${{ matrix.module }}/build/reports/tests/test/
 
       - name: Upload common coverage to Codecov
-        if: matrix.module == 'common'
+        if: needs.changes.outputs.code_changed == 'true' && matrix.module == 'common'
         uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
         with:
           files: ${{ matrix.module }}/build/reports/jacoco/test/jacocoTestReport.xml
