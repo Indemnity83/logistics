@@ -17,8 +17,8 @@ See [`../principles.md`](../principles.md) for the table legend.
 | Redstone Furnace | RF-powered smelting | Modernize | **Kiln** (reuses vanilla smelting recipes) | ✅ Done | `automation` / Kiln |
 | Sawmill | Logs → extra planks + sawdust | Port | We already have Wood Pulp/Flour dusts; needs the machine | 🚧 Planned | Phase 1 — Sawmill |
 | Induction Smelter | Alloying: 2 inputs → alloy (+ slag) | Port | Key machine — makes Bronze/Invar/Electrum etc. coherent; pairs with the alloy material set | 🚧 Planned | Phase 1 — Alloy Smelter |
-| Magma Crucible | Solids → molten fluid | Port | Depends on the fluid layer | — | Phase 1 — fluids |
-| Fluid Transposer | Fill/empty containers; fluid+item recipes | Port | Depends on the fluid layer | — | Phase 1 — fluids |
+| Magma Crucible | Solids → molten fluid | Port | Fluid layer shipped (v0.7.3) — now unblocked, machine not yet built | — | Phase 1 — machines |
+| Fluid Transposer | Fill/empty containers; fluid+item recipes | Port | Fluid layer shipped (v0.7.3) — now unblocked; the fluid↔item bridge for network fluid logistics | — | Phase 1 — machines |
 | Cyclic Assembler | Machine autocrafting | Skip | Covered by vanilla Crafter + Crafting Logistics Pipe | ❌ | [`logistics-pipes.md`](logistics-pipes.md) |
 | Phytogenic Insolator | RF + fertilizer → grow crops/trees | Modernize | Overlaps Forestry farms; defer and unify there | — | Phase 2 — Forestry farms |
 | Energetic Infuser / Charge Bench | Charge powered items | TBD | Only if we add powered handheld items | — | — |

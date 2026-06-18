@@ -1,4 +1,4 @@
-# Logistics Roadmap
+    # Logistics Roadmap
 
 Logistics is a modern classic-tech mod inspired by the feel of BuildCraft, Logistics Pipes, Thermal Expansion, Forestry, and Railcraft-era automation.
 
@@ -27,7 +27,7 @@ Work currently active, planned, or near-term.
 
 | Area                 | Status  | Notes                                               |
 |----------------------|---------|-----------------------------------------------------|
-| Fluid foundation     | Active  | Fluid pipes, tanks, pumps, and machine I/O          |
+| Fluid foundation     | Shipped | Fluid pipes, tanks, pump, and machine fluid I/O     |
 | Core machines        | Planned | Macerator improvements, Alloy Smelter, Sawmill      |
 | Power progression    | Planned | Combustion engine, fuel chain, and tiered batteries |
 | Material progression | Planned | Bronze, alloys, and machine crafting progression    |

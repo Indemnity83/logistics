@@ -1,8 +1,10 @@
 # Fluids Foundation
 
-> **Status:** 🚧 Planned — **design settled, ready to build** (keystone) · **Phase:** 1 — Automation core · **Module:** `logistics-automation` (new `fluid` domain)
+> **Status:** ✅ **Shipped** (v0.7.3, all branches) — Stone/Copper/Gold transport + extractor + void fluid pipes, Glass Tank, and Pump on both loaders · **Phase:** 1 — Automation core · **Module:** `logistics-automation` (folded into the `pipe` domain; content registered under the `fluid:` namespace)
 > **Source:** [`../mods/buildcraft.md`](../mods/buildcraft.md) (waterproof pipes, pump), [`../mods/thermal-expansion.md`](../mods/thermal-expansion.md) (magma crucible, transposer) · **Depends on:** nothing (the platform layer already exists)
 > **Maps to (roadmap):** Phase 1 — 🔑 Fluids foundation · **Unblocks:** Combustion Engine, Pump, Magma Crucible, Fluid Transposer, fluid logistics, biofuel bottling (Phase 2), tank carts/tanks (Phase 3)
+
+> **Shipped as (deviations from this brief):** fluids fold into the **`pipe` domain** (not a standalone `fluid` domain) and reuse its Module system. Transport is **cellular parcels** (`TravelingFluid`), not the simple equalizer this brief sketched — one fluid per line, rate-as-hard-cap preserved. The roster shipped Stone/Copper/Gold transport plus extractor, void, and the insertion/merger/bypass variants; the **Iron mid-tier and a fluid filter pipe remain fast-follow**, and the Gold tier ships at **4×**, not the 8× the ratio ladder suggested. All five "Done when" criteria below are met.
 
 The single highest-leverage item in Phase 1. Roughly half the remaining Phase 1/2/3 work is gated on fluid handling. **The platform abstraction is already built and wired** — this feature is the *content* that sits on it: a fluid transport pipe, a tank block, and a contract for machine fluid I/O.
 
@@ -22,8 +24,6 @@ The hard, loader-specific part is **done**. Verified in the codebase:
 | NeoForge machine wiring | `NeoForgeCapabilityRegistration.registerFluids(event, type)` | `neoforge/...` | ⚠️ Template present, currently commented out — uncomment + call per fluid BE type |
 
 This mirrors the item-storage stack 1:1 (`IItemStorage`/`HasItemStorage`/`ItemStorageLookup` → `IFluidStorage`/`HasFluidStorage`/`FluidStorageLookup`). It is the **same pattern as Team Reborn Energy**: common code talks to an SPI; each loader supplies the native bridge (Fabric Transfer API `Storage<FluidVariant>`, NeoForge `ResourceHandler<FluidResource>`). No new external dependency is needed.
-
-> **Doc-accuracy note:** the roadmap and the BuildCraft/TE breakdowns describe fluids as "needs a fluid-transport layer (platform fluid API)." That platform layer is already present. Update those rows from "needs the fluid layer" to "needs fluid *content* (pipes/tanks); platform layer done" when this feature is scheduled.
 
 ## Problem & goal
 

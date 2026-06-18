@@ -1,6 +1,6 @@
 # BuildCraft
 
-*The foundation of classic tech: pipes, engines, the quarry, and gate-based automation. Logistics already covers the pipe and engine core and a modernized quarry; the open frontier is fluids, combustion-tier power, and gate automation.*
+*The foundation of classic tech: pipes, engines, the quarry, and gate-based automation. Logistics already covers the pipe and engine core, a modernized quarry, and the fluids foundation (pipes/tank/pump, v0.7.3); the open frontier is combustion-tier power and gate automation.*
 
 **Source era:** 1.7.10–1.12.2 (BuildCraft).
 **Logistics module:** `logistics-automation` (pipe + power + automation domains).
@@ -17,7 +17,7 @@ See [`../principles.md`](../principles.md) for the table legend. Pipe transport 
 | Obsidian pipe (world pickup) | Suck up dropped items/entities | Skip | Vanilla **hoppers** fill this role in modern Minecraft — not worth a dedicated pipe ([ROADMAP](../../ROADMAP.md) → Not Currently Planned) | ❌ | — |
 | Cobblestone/lapis/quartz flavor pipes | Routing-speed/color variants | Modernize | Covered/absorbed by current material tiers + marking fluid | ✅ Done | `pipe` / pipes + marking |
 | Kinesis (power) pipes | Transport engine power (MJ) | Modernize | Replaced by RF **cables** (copper/gold/ender) | ✅ Done | `power` / cables |
-| Fluid (waterproof) pipes | Transport liquids | Port | Needs a fluid-transport layer (platform fluid API) | — | Phase 1 — fluids |
+| Fluid (waterproof) pipes | Transport liquids | Port | **Shipped** (v0.7.3) — standalone cellular fluid pipes (Stone/Copper/Gold + extractor/void), one fluid per line | ✅ Done | `pipe` / fluid pipes |
 
 ## Engines & power
 
@@ -35,7 +35,7 @@ See [`../principles.md`](../principles.md) for the table legend. Pipe transport 
 |---|---|---|---|---|---|
 | Quarry | Frame-bounded automatic mining | Modernize | **Laser Quarry**: marker-bounded, energy-scaled, no monolithic frame build | ✅ Done | `automation` / Laser Quarry |
 | Landmarks / markers | Define work areas | Modernize | Marker blocks (solo + connected bounds) | ✅ Done | `automation` / Marker |
-| Pump | Pump fluids from world into pipes/tanks | Port | Needs the fluid layer; classic oil/water/lava pumping | — | Phase 1 — fluids |
+| Pump | Pump fluids from world into pipes/tanks | Port | **Shipped** (v0.7.3) — extracts world fluid sources into adjacent tanks/pipes, 100 RF/source | ✅ Done | `pipe` / Fluid Pump |
 | Oil & Refinery & Fuel | Oil lakes → refine to fuel for combustion engines | Port | Bring it over as-is: oil world-gen → Refinery → fuel. Couples to the Combustion Engine; Forestry biofuel is a *parallel* fuel, not a replacement | — | Phase 1 — fuels |
 | Filler | Auto-fill/clear areas with patterns | Skip | Handy, but **terrain/construction automation isn't this mod's job** — it belongs in its own dedicated mod (and modern Create/Schematica-likes already cover the niche). A simplified clear/flatten Filler was floated in review; the call is to keep it out of Logistics' scope | ❌ | — |
 | Builder / Architect / Blueprints / Library | Save & auto-build structures | Skip | Heavy; modern Schematica-likes cover this; out of scope | ❌ | — |
