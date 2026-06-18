@@ -100,6 +100,16 @@ Transport items through networks with different behaviors:
 
 [View all pipes →](https://indemnity83.github.io/logistics/pipes/)
 
+### Fluids
+Move and store liquids with a standalone fluid system, separate from the item network:
+- **Fluid Pipes** - Stone, Copper, and Gold pipes carry one fluid per line at increasing rates; passive transport is free
+- **Fluid Extractor Pipe** - Pull fluids from adjacent tanks and machines using RF
+- **Void Fluid Pipe** - Discard unwanted fluids
+- **Glass Tank** - 16-bucket buffer; stack tanks vertically to form one larger reservoir; fill or drain by hand with a bucket
+- **Pump** - Extract fluid sources from the world into your tanks and pipes, powered by RF
+
+Works with any mod's fluid storage via Fabric's Transfer API.
+
 ### Power
 RF energy generation and distribution:
 - **Redstone Engine** - Simple, safe, steady power; never overheats
@@ -156,13 +166,17 @@ RF energy generation and distribution:
 - Macerator for grinding ores, gems, and materials into dusts
 - Kiln as an RF-powered electric furnace for any vanilla smelting recipe
 - Laser Quarry with automatic frame construction and energy-scaled mining speed
+- Fluid pipes (transport, extraction, void) carrying one fluid per line
+- Glass Tank with vertical stacking, bucket interaction, and dynamic fill rendering
+- Pump for extracting world fluid sources into tanks and pipes
+- Machine fluid I/O contract, working with any mod's fluid storage via the Transfer API
 
 ### 🚧 In Progress
 - NeoForge mod loader support (architecture groundwork complete; SPI implementations in progress)
 
 ### 🔮 Future
-- Fluid pipes with Transfer API integration
-- Power/cost system for logistics operations
+- Combustion-tier engines and fluid-fueled power generation
+- Fluid logistics over the network (fluid ↔ item packaging)
 - Additional pipe upgrades and advanced logistics features
 
 See the [documentation](https://indemnity83.github.io/logistics/) for detailed information on pipes, power, automation, and more.
