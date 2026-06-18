@@ -14,6 +14,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.material.Fluids;
 
 public class FluidPumpGameTest {
@@ -263,6 +264,139 @@ public class FluidPumpGameTest {
             if (pipe.totalMillibuckets() <= 0 || pipe.containedFluid().getFluid() != Fluids.WATER) {
                 throw context.assertionException("Fluid pump should push water into a pipe on its side");
             }
+        });
+    }
+
+    @GameTest(maxTicks = 80)
+    public void testFluidPumpDrainsConnectedLavaSources(GameTestHelper context) {
+        BlockPos pumpPos = new BlockPos(2, 4, 2);
+        BlockPos a = pumpPos.below();
+        BlockPos b = a.east();
+        BlockPos c = b.east();
+        context.setBlock(pumpPos, LogisticsFluid.BLOCK.FLUID_PUMP);
+        context.setBlock(a, Blocks.LAVA);
+        context.setBlock(b, Blocks.LAVA);
+        context.setBlock(c, Blocks.LAVA);
+        encloseWater(context, a, b, c);
+
+        FluidPumpBlockEntity pump = context.getBlockEntity(pumpPos, FluidPumpBlockEntity.class);
+        if (pump == null) {
+            context.fail("Expected FluidPumpBlockEntity");
+            return;
+        }
+        fillEnergy(pump);
+        LogisticsConfig.get().fluidPump.armSpeed = 16f;
+
+        context.runAfterDelay(LogisticsConfig.get().fluidPump.pumpIntervalTicks * 5L, () -> {
+            if (!context.getBlockState(a).isAir()
+                    || !context.getBlockState(b).isAir()
+                    || !context.getBlockState(c).isAir()) {
+                context.fail("Fluid pump should drain all connected lava sources at the same layer");
+                return;
+            }
+            context.succeed();
+        });
+    }
+
+    @GameTest(maxTicks = 80)
+    public void testFluidPumpCrossesFlowingToReachSources(GameTestHelper context) {
+        BlockPos pumpPos = new BlockPos(2, 4, 2);
+        BlockPos a = pumpPos.below();
+        BlockPos b = a.east();
+        BlockPos c = b.east();
+        context.setBlock(pumpPos, LogisticsFluid.BLOCK.FLUID_PUMP);
+        context.setBlock(a, Blocks.LAVA);
+        // Flowing lava between the two sources: the flood must cross it to reach the far source.
+        context.setBlock(b, Blocks.LAVA.defaultBlockState().setValue(LiquidBlock.LEVEL, 1));
+        context.setBlock(c, Blocks.LAVA);
+        encloseWater(context, a, b, c);
+
+        FluidPumpBlockEntity pump = context.getBlockEntity(pumpPos, FluidPumpBlockEntity.class);
+        if (pump == null) {
+            context.fail("Expected FluidPumpBlockEntity");
+            return;
+        }
+        fillEnergy(pump);
+        LogisticsConfig.get().fluidPump.armSpeed = 16f;
+
+        context.runAfterDelay(LogisticsConfig.get().fluidPump.pumpIntervalTicks * 5L, () -> {
+            if (!context.getBlockState(a).isAir() || !context.getBlockState(c).isAir()) {
+                context.fail("Fluid pump should reach sources across flowing fluid in the same layer");
+                return;
+            }
+            context.succeed();
+        });
+    }
+
+    @GameTest(maxTicks = 200)
+    public void testFluidPumpDrainsOpenLavaPool(GameTestHelper context) {
+        BlockPos pumpPos = new BlockPos(3, 4, 3);
+        BlockPos center = pumpPos.below();
+        for (int dx = -2; dx <= 2; dx++) {
+            for (int dz = -2; dz <= 2; dz++) {
+                context.setBlock(center.offset(dx, -1, dz), Blocks.STONE);
+            }
+        }
+        BlockPos[] pool = new BlockPos[9];
+        int i = 0;
+        for (int dx = -1; dx <= 1; dx++) {
+            for (int dz = -1; dz <= 1; dz++) {
+                pool[i] = center.offset(dx, 0, dz);
+                context.setBlock(pool[i], Blocks.LAVA);
+                i++;
+            }
+        }
+        context.setBlock(pumpPos, LogisticsFluid.BLOCK.FLUID_PUMP);
+
+        FluidPumpBlockEntity pump = context.getBlockEntity(pumpPos, FluidPumpBlockEntity.class);
+        if (pump == null) {
+            context.fail("Expected FluidPumpBlockEntity");
+            return;
+        }
+        fillEnergy(pump);
+
+        context.runAfterDelay(LogisticsConfig.get().fluidPump.pumpIntervalTicks * 12L, () -> {
+            for (BlockPos p : pool) {
+                if (!context.getBlockState(p).getFluidState().isEmpty()) {
+                    context.fail("Open lava pool not fully drained at " + p);
+                    return;
+                }
+            }
+            context.succeed();
+        });
+    }
+
+    @GameTest(maxTicks = 80)
+    public void testFluidPumpFinishesLayerWithOutputTank(GameTestHelper context) {
+        BlockPos pumpPos = new BlockPos(2, 4, 2);
+        BlockPos tankPos = pumpPos.above();
+        BlockPos a = pumpPos.below();
+        BlockPos b = a.east();
+        BlockPos c = b.east();
+        context.setBlock(pumpPos, LogisticsFluid.BLOCK.FLUID_PUMP);
+        context.setBlock(tankPos, LogisticsFluid.BLOCK.GLASS_TANK);
+        context.setBlock(a, Blocks.WATER);
+        context.setBlock(b, Blocks.WATER);
+        context.setBlock(c, Blocks.WATER);
+        encloseWater(context, a, b, c);
+
+        FluidPumpBlockEntity pump = context.getBlockEntity(pumpPos, FluidPumpBlockEntity.class);
+        if (pump == null) {
+            context.fail("Expected FluidPumpBlockEntity");
+            return;
+        }
+        fillEnergy(pump);
+        LogisticsConfig.get().fluidPump.armSpeed = 16f;
+
+        // The tank instantly empties the pump's buffer each pump; the pump must still finish the layer.
+        context.runAfterDelay(LogisticsConfig.get().fluidPump.pumpIntervalTicks * 4L, () -> {
+            if (!context.getBlockState(a).isAir()
+                    || !context.getBlockState(b).isAir()
+                    || !context.getBlockState(c).isAir()) {
+                context.fail("Fluid pump should finish the layer even while a tank empties its buffer");
+                return;
+            }
+            context.succeed();
         });
     }
 

@@ -221,13 +221,14 @@ public class FluidPumpBlockEntity extends BaseBlockEntity
             descendToNextLayer();
             return;
         }
-        if (phase == Phase.PUMPING && !tank.isEmpty()) {
+        if (phase == Phase.PUMPING && queuedFluid != null) {
             if (energy.getAmount() < cfg.energyPerSource) {
                 phase = Phase.STALLED;
                 return;
             }
-            Fluid fluid = tank.getFluidKey().getFluid();
-            if (pumpFromLayer(level, pos, target, fluid, cfg)) {
+            // Keep draining the layer based on the body being pumped, not the tank's momentary level,
+            // so an attached pipe emptying the tank doesn't cut the layer short.
+            if (pumpFromLayer(level, pos, target, queuedFluid, cfg)) {
                 return;
             }
             descendToNextLayer();
@@ -320,7 +321,7 @@ public class FluidPumpBlockEntity extends BaseBlockEntity
         while (!sourceQueue.isEmpty()) {
             BlockPos source = sourceQueue.removeFirst();
             FluidState state = level.getFluidState(source);
-            if (state.getType() == fluid && state.isSource()) {
+            if (state.getType().isSame(fluid) && state.isSource()) {
                 return source;
             }
         }
@@ -347,7 +348,7 @@ public class FluidPumpBlockEntity extends BaseBlockEntity
         while (!queue.isEmpty()) {
             BlockPos current = queue.remove();
             FluidState state = level.getFluidState(current);
-            if (state.getType() != fluid) {
+            if (!state.getType().isSame(fluid)) {
                 continue;
             }
             if (state.isSource()) {
@@ -378,7 +379,7 @@ public class FluidPumpBlockEntity extends BaseBlockEntity
         if (dx * dx + dz * dz > radiusSq || next.getY() < level.getMinY() || next.getY() > level.getMaxY()) {
             return;
         }
-        if (visited.add(next) && level.getFluidState(next).getType() == fluid) {
+        if (visited.add(next) && level.getFluidState(next).getType().isSame(fluid)) {
             queue.add(next);
         }
     }
