@@ -23,13 +23,13 @@
 
 ## About
 
-Logistics is a Fabric mod inspired by BuildCraft and Logistics Pipes, bringing authentic item pipe systems to modern Minecraft. Items travel smoothly through thin pipes with visible motion, integrating seamlessly with other mods via Fabric's Transfer API.
+Logistics is a multiloader (Fabric & NeoForge) mod inspired by BuildCraft and Logistics Pipes, bringing authentic item pipe systems to modern Minecraft. Items travel smoothly through thin pipes with visible motion, integrating seamlessly with other mods' storage on both loaders.
 
 **Design Principles:**
 - **Material-Based Identity** - Each pipe uses distinct vanilla materials for visual clarity
 - **Layered Progression** - Three tiers: Mechanical pipes (basic operations), Smart pipes (decisions), Network logistics (abstract services)
 - **Authentic Visuals** - Items travel continuously through pipes with visible speed
-- **Mod Interoperability** - Works with any mod using Fabric Transfer API (ItemStorage)
+- **Mod Interoperability** - Works with other mods' item, fluid, and energy storage on both Fabric and NeoForge
 - **Classic Ergonomics** - Simple placement, visible connections, easy to understand
 
 
@@ -108,7 +108,7 @@ Move and store liquids with a standalone fluid system, separate from the item ne
 - **Glass Tank** - 16-bucket buffer; stack tanks vertically to form one larger reservoir; fill or drain by hand with a bucket
 - **Pump** - Extract fluid sources from the world into your tanks and pipes, powered by RF
 
-Works with any mod's fluid storage via Fabric's Transfer API.
+Works with any mod's fluid storage on both Fabric and NeoForge.
 
 ### Power
 RF energy generation and distribution:
@@ -131,7 +131,7 @@ RF energy generation and distribution:
 
 ## Installation
 
-**Requirements:** Minecraft 26.1+ • Fabric Loader 0.18.6+ • Fabric API • Java 25+
+**Requirements:** Minecraft 26.1+ • Fabric (Loader 0.18.6+ with Fabric API) or NeoForge • Java 25+
 
 **Download from:**
 - [GitHub Releases](https://github.com/indemnity83/logistics/releases) (includes dev builds)
@@ -169,10 +169,8 @@ RF energy generation and distribution:
 - Fluid pipes (transport, extraction, void) carrying one fluid per line
 - Glass Tank with vertical stacking, bucket interaction, and dynamic fill rendering
 - Pump for extracting world fluid sources into tanks and pipes
-- Machine fluid I/O contract, working with any mod's fluid storage via the Transfer API
-
-### 🚧 In Progress
-- NeoForge mod loader support (architecture groundwork complete; SPI implementations in progress)
+- Machine fluid I/O contract, working with any mod's fluid storage on both loaders
+- Full Fabric and NeoForge loader support
 
 ### 🔮 Future
 - Combustion-tier engines and fluid-fueled power generation
