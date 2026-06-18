@@ -1,16 +1,16 @@
 {
   "type": "minecraft:crafting_shaped",
   "pattern": [
-    " G ",
-    "VMV",
-    "IBI"
+    "IRI",
+    "IGI",
+    "TBT"
   ],
   "key": {
     "B": "minecraft:bucket",
     "G": "logistics:core/iron_gear",
     "I": "minecraft:iron_ingot",
-    "M": "logistics:core/machine_core",
-    "V": "logistics:core/iron_valve"
+    "R": "minecraft:redstone",
+    "T": "logistics:fluid/glass_tank"
   },
   "result": {
     "id": "logistics:fluid/fluid_pump",
