@@ -1,101 +1,119 @@
 name: Notify Discord
 
-# Posts a formatted release announcement to the Discord #announcements channel
-# whenever a new GitHub release is published (stable releases only).
+# Posts a compact merge notification to #dev-log when a PR is merged.
+# Skips release-please PRs.
+# Skips draft PRs.
 #
-# Setup required:
-#   1. Discord: Server Settings → Integrations → Webhooks → New Webhook
-#              Assign to #announcements channel, copy the URL
-#   2. GitHub:  repo Settings → Secrets → Actions → New secret
-#              Name: DISCORD_WEBHOOK_URL   Value: the URL from step 1
+# Setup: add a DISCORD_DEVLOG_WEBHOOK_URL secret pointing to a webhook
+# configured for the #dev-log channel.
 on:
-  release:
-    types: [published]
+  pull_request:
+    types: [closed]
+  issues:
+    types: [closed]
 
 jobs:
   notify:
     runs-on: ubuntu-latest
-    # Skip draft releases and pre-releases (betas post their own message manually)
-    if: ${{ !github.event.release.draft && !github.event.release.prerelease }}
+    if: |
+      (github.event_name == 'issues') ||
+      (github.event.pull_request.merged == true &&
+       !github.event.pull_request.draft &&
+       !startsWith(github.event.pull_request.title, 'chore: release'))
 
     steps:
-      - name: Extract release metadata
-        id: meta
+      - name: Send Discord notification (PR merged)
+        if: github.event_name == 'pull_request'
         shell: bash
         env:
-          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
-          TAG: ${{ github.event.release.tag_name }}
-          URL: ${{ github.event.release.html_url }}
+          DISCORD_DEVLOG_WEBHOOK_URL: ${{ secrets.DISCORD_DEVLOG_WEBHOOK_URL }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+          BASE_BRANCH: ${{ github.event.pull_request.base.ref }}
         run: |
-          DEFAULT_COMPONENT="${DEFAULT_BRANCH#mc/}"
-          DEFAULT_TAG_PREFIX="mc${DEFAULT_COMPONENT}-v"
-
-          # Extract MC version and semver from tag (e.g. mc1.21.11-v0.5.6)
-          if [[ "$TAG" =~ mc([0-9.]+)-v([0-9]+\.[0-9]+\.[0-9]+) ]]; then
-            MC_VERSION="${BASH_REMATCH[1]}"
-            SEMVER="${BASH_REMATCH[2]}"
-          else
-            MC_VERSION="unknown"
-            SEMVER="$TAG"
-          fi
-
-          if [[ "$TAG" == "$DEFAULT_TAG_PREFIX"* ]]; then
-            DEFAULT_BRANCH_RELEASE="true"
-          else
-            DEFAULT_BRANCH_RELEASE="false"
-          fi
-
-          {
-            echo "mc_version=$MC_VERSION"
-            echo "semver=$SEMVER"
-            echo "url=$URL"
-            echo "default_branch_release=$DEFAULT_BRANCH_RELEASE"
-          } >> "$GITHUB_OUTPUT"
-
-      - name: Send Discord notification
-        if: steps.meta.outputs.default_branch_release == 'true'
-        shell: bash
-        env:
-          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
-          RELEASE_BODY: ${{ github.event.release.body }}
-          RELEASE_URL: ${{ steps.meta.outputs.url }}
-          SEMVER: ${{ steps.meta.outputs.semver }}
-          MC_VERSION: ${{ steps.meta.outputs.mc_version }}
-        run: |
-          if [[ -z "$DISCORD_WEBHOOK_URL" ]]; then
-            echo "DISCORD_WEBHOOK_URL not set, skipping notification"
+          if [[ -z "$DISCORD_DEVLOG_WEBHOOK_URL" ]]; then
+            echo "DISCORD_DEVLOG_WEBHOOK_URL not set, skipping"
             exit 0
           fi
 
-          # Truncate body to keep embed readable
-          BODY="$RELEASE_BODY"
-          if [ ${#BODY} -gt 1800 ]; then
-            BODY="${BODY:0:1800}..."$'\n\n'"[Read full release notes]($RELEASE_URL)"
+          SUMMARY=$(echo "$PR_BODY" | head -1 | cut -c1-150)
+
+          DESCRIPTION="Merged into \`${BASE_BRANCH}\` by **${PR_AUTHOR}**"
+          if [[ -n "$SUMMARY" ]]; then
+            DESCRIPTION="${DESCRIPTION}\n${SUMMARY}"
           fi
 
           PAYLOAD=$(jq -n \
-            --arg title "Logistics v${SEMVER} for MC ${MC_VERSION}" \
-            --arg url "$RELEASE_URL" \
-            --arg description "$BODY" \
+            --arg title "#${PR_NUMBER} — ${PR_TITLE}" \
+            --arg url "$PR_URL" \
+            --arg description "$DESCRIPTION" \
             '{
               "embeds": [{
                 "title": $title,
                 "url": $url,
                 "description": $description,
-                "color": 5814783,
-                "footer": {
-                  "text": "Download on Modrinth and CurseForge"
-                }
+                "color": 5025616
               }]
             }')
 
-          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
             -H "Content-Type: application/json" \
             -d "$PAYLOAD" \
-            "$DISCORD_WEBHOOK_URL")
+            "$DISCORD_DEVLOG_WEBHOOK_URL")
 
-          if [[ "$HTTP_STATUS" -ge 400 ]]; then
-            echo "Discord webhook returned HTTP $HTTP_STATUS — notification failed but not failing the build"
+          if [[ "$STATUS" -ge 400 ]]; then
+            echo "Discord notification failed (HTTP $STATUS)"
           else
-            echo "Discord notification sent (HTTP $HTTP_STATUS)"
+            echo "Discord dev-log notification sent (HTTP $STATUS)"
+          fi
+
+      - name: Send Discord notification (issue closed)
+        if: github.event_name == 'issues'
+        shell: bash
+        env:
+          DISCORD_DEVLOG_WEBHOOK_URL: ${{ secrets.DISCORD_DEVLOG_WEBHOOK_URL }}
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          ISSUE_URL: ${{ github.event.issue.html_url }}
+          ISSUE_CLOSER: ${{ github.event.sender.login }}
+          ISSUE_REASON: ${{ github.event.issue.state_reason }}
+        run: |
+          if [[ -z "$DISCORD_DEVLOG_WEBHOOK_URL" ]]; then
+            echo "DISCORD_DEVLOG_WEBHOOK_URL not set, skipping"
+            exit 0
+          fi
+
+          # Map state_reason to a readable label and color
+          case "$ISSUE_REASON" in
+            completed)  LABEL="resolved";   COLOR=5025616 ;;  # green
+            not_planned) LABEL="won't fix"; COLOR=9807270 ;;  # grey
+            *)           LABEL="closed";    COLOR=9807270 ;;
+          esac
+
+          PAYLOAD=$(jq -n \
+            --arg title "#${ISSUE_NUMBER} — ${ISSUE_TITLE}" \
+            --arg url "$ISSUE_URL" \
+            --arg description "Closed as **${LABEL}** by **${ISSUE_CLOSER}**" \
+            --argjson color "$COLOR" \
+            '{
+              "embeds": [{
+                "title": $title,
+                "url": $url,
+                "description": $description,
+                "color": $color
+              }]
+            }')
+
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            -H "Content-Type: application/json" \
+            -d "$PAYLOAD" \
+            "$DISCORD_DEVLOG_WEBHOOK_URL")
+
+          if [[ "$STATUS" -ge 400 ]]; then
+            echo "Discord notification failed (HTTP $STATUS)"
+          else
+            echo "Discord dev-log notification sent (HTTP $STATUS)"
           fi
