@@ -133,7 +133,8 @@ public class FluidPumpGameTest {
         LogisticsConfig.get().fluidPump.armSpeed = 16f;
 
         context.runAfterDelay(LogisticsConfig.get().fluidPump.pumpIntervalTicks * 4L, () -> {
-            if (!context.getBlockState(firstWater).isAir() || !context.getBlockState(connectedWater).isAir()) {
+            if (context.getBlockState(firstWater).getFluidState().isSource()
+                    || context.getBlockState(connectedWater).getFluidState().isSource()) {
                 context.fail("Fluid pump should remove connected source blocks on the same body");
                 return;
             }
@@ -146,10 +147,13 @@ public class FluidPumpGameTest {
     }
 
     @GameTest(maxTicks = 160)
-    public void testFluidPumpConsumesFinitePoolWithoutReflow(GameTestHelper context) {
-        BlockPos pumpPos = new BlockPos(3, 3, 3);
+    public void testFluidPumpDrainsFinitePool(GameTestHelper context) {
+        BlockPos pumpPos = new BlockPos(2, 4, 2);
         BlockPos firstWater = pumpPos.below();
-        BlockPos[] pool = {firstWater, firstWater.east(), firstWater.south(), firstWater.east().south()};
+        // 3 sources < infinite threshold (9), in a line that can't reform sources, so the pump carves
+        // the whole pool. Water flows (UPDATE_ALL), so assert no sources remain rather than full air
+        // (flowing remnants decay on vanilla's schedule).
+        BlockPos[] pool = {firstWater, firstWater.east(), firstWater.east().east()};
         context.setBlock(pumpPos, LogisticsFluid.BLOCK.FLUID_PUMP);
         for (BlockPos water : pool) {
             context.setBlock(water, Blocks.WATER);
@@ -164,11 +168,10 @@ public class FluidPumpGameTest {
         fillEnergy(pump);
         LogisticsConfig.get().fluidPump.armSpeed = 16f;
 
-        // 4 sources < default threshold (9) => finite pool, drained permanently with no reflow.
         context.runAfterDelay(LogisticsConfig.get().fluidPump.pumpIntervalTicks * 6L, () -> {
             for (BlockPos water : pool) {
-                if (!context.getBlockState(water).isAir()) {
-                    context.fail("Fluid pump should fully drain the finite pool without reflow");
+                if (context.getBlockState(water).getFluidState().isSource()) {
+                    context.fail("Fluid pump should carve every source from a finite pool");
                     return;
                 }
             }
@@ -392,10 +395,11 @@ public class FluidPumpGameTest {
         LogisticsConfig.get().fluidPump.armSpeed = 16f;
 
         // The tank instantly empties the pump's buffer each pump; the pump must still finish the layer.
+        // Water flows (UPDATE_ALL), so assert no sources remain rather than full air.
         context.runAfterDelay(LogisticsConfig.get().fluidPump.pumpIntervalTicks * 4L, () -> {
-            if (!context.getBlockState(a).isAir()
-                    || !context.getBlockState(b).isAir()
-                    || !context.getBlockState(c).isAir()) {
+            if (context.getBlockState(a).getFluidState().isSource()
+                    || context.getBlockState(b).getFluidState().isSource()
+                    || context.getBlockState(c).getFluidState().isSource()) {
                 context.fail("Fluid pump should finish the layer even while a tank empties its buffer");
                 return;
             }
@@ -457,7 +461,7 @@ public class FluidPumpGameTest {
 
         // After the first pump the furthest source is gone but the one under the tube remains.
         context.runAfterDelay(LogisticsConfig.get().fluidPump.pumpIntervalTicks + 6L, () -> {
-            if (!context.getBlockState(far).isAir()) {
+            if (context.getBlockState(far).getFluidState().isSource()) {
                 context.fail("Fluid pump should drain the furthest source first");
                 return;
             }
