@@ -258,7 +258,7 @@ public final class LogisticsConfig {
                 v -> INSTANCE.fluidPump.energyPerSource = v,
                 Long::parseLong,
                 v -> requireMin(v, 0L, "must be greater than or equal to 0"));
-        reg(map, "fluid_pump_push_rate_mb", "Fluid Pump upward output rate (mB/tick)",
+        reg(map, "fluid_pump_push_rate_mb", "Fluid Pump output rate (mB/tick)",
                 () -> (long) INSTANCE.fluidPump.pushRateMb,
                 v -> INSTANCE.fluidPump.pushRateMb = v.intValue(),
                 Long::parseLong,

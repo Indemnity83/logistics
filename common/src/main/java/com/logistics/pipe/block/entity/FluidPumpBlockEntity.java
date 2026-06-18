@@ -76,13 +76,19 @@ public class FluidPumpBlockEntity extends BaseBlockEntity
     @Override
     @Nullable
     public IEnergyStorage energyStorage(@Nullable Direction side) {
-        return energy;
+        // Top and sides only; the bottom is the intake tube.
+        return side == Direction.DOWN ? null : energy;
     }
 
     @Override
     @Nullable
     public IFluidStorage fluidStorage(@Nullable Direction side) {
-        return tank;
+        return side == Direction.DOWN ? null : tank;
+    }
+
+    @Override
+    public boolean acceptsLowTierEnergyFrom(Direction from) {
+        return from != Direction.DOWN;
     }
 
     public FluidTankComponent tank() {
@@ -114,7 +120,7 @@ public class FluidPumpBlockEntity extends BaseBlockEntity
             return;
         }
 
-        be.pushUp(level, pos);
+        be.pushOut(level, pos);
 
         LogisticsConfig.FluidPumpConfig cfg = LogisticsConfig.get().fluidPump;
         if ((level.getGameTime() + be.tickOffset) % cfg.pumpIntervalTicks == 0) {
@@ -131,23 +137,32 @@ public class FluidPumpBlockEntity extends BaseBlockEntity
         }
     }
 
-    private void pushUp(Level level, BlockPos pos) {
-        if (tank.isEmpty()) {
-            return;
-        }
-        IFluidStorage target = FluidStorageLookup.find(level, pos.above(), Direction.DOWN);
-        if (target == null) {
-            return;
-        }
-        IFluidView view = tank.contents().iterator().next();
-        long max = Math.min(FluidUnits.mb(LogisticsConfig.get().fluidPump.pushRateMb), view.amount());
-        long accepted = target.insert(view.resource(), max, true);
-        if (accepted <= 0) {
-            return;
-        }
-        accepted = target.insert(view.resource(), accepted, false);
-        if (accepted > 0) {
-            tank.extract(view.resource(), accepted, false);
+    // Output faces: top and sides (the bottom is the intake tube).
+    private static final Direction[] OUTPUT_SIDES = {
+        Direction.UP, Direction.NORTH, Direction.SOUTH, Direction.EAST, Direction.WEST
+    };
+
+    private void pushOut(Level level, BlockPos pos) {
+        long budget = FluidUnits.mb(LogisticsConfig.get().fluidPump.pushRateMb);
+        for (Direction side : OUTPUT_SIDES) {
+            if (budget <= 0 || tank.isEmpty()) {
+                return;
+            }
+            IFluidStorage target = FluidStorageLookup.find(level, pos.relative(side), side.getOpposite());
+            if (target == null) {
+                continue;
+            }
+            IFluidView view = tank.contents().iterator().next();
+            long max = Math.min(budget, view.amount());
+            long accepted = target.insert(view.resource(), max, true);
+            if (accepted <= 0) {
+                continue;
+            }
+            accepted = target.insert(view.resource(), accepted, false);
+            if (accepted > 0) {
+                tank.extract(view.resource(), accepted, false);
+                budget -= accepted;
+            }
         }
     }
 
