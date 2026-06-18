@@ -124,17 +124,21 @@ public final class QuarryPhaseRunner {
                 be.getBounds(),
                 LogisticsConfig.get().quarry.area
         );
+        if (frame == null) {
+            throw new IllegalStateException("Query has null frame");
+        }
 
         Set<ChunkPos> chunks = new HashSet<>();
-        for (int x = frame.startX(); x < frame.endX(); x++) {
-            for (int z = frame.startZ(); z < frame.endZ(); z++) {
-                BlockPos offsetPost = new BlockPos(x, frame.bottomY(), z);
-                chunks.add(ChunkPos.containing(offsetPost));
+        ChunkPos start = ChunkPos.containing(new BlockPos(frame.startX(), 0, frame.startZ()));
+        ChunkPos end = ChunkPos.containing(new BlockPos(frame.endX(), 0, frame.endZ()));
+
+        for (int x = start.x(); x <= end.x(); x++) {
+            for (int z = start.z(); z <= end.z(); z++) {
+                chunks.add(new ChunkPos(x, z));
             }
         }
 
         for (ChunkPos chunk : chunks) {
-            System.out.printf("%d %d %n", chunk.x(), chunk.z());
             Ticket ticket = new Ticket(
                     LogisticsAutomation.TICKET_TYPE.QUARRY_BOUNDARY,
                     ChunkLevel.byStatus(FullChunkStatus.BLOCK_TICKING)

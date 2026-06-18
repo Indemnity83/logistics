@@ -153,11 +153,17 @@ public final class LogisticsConfig {
                 v -> INSTANCE.quarry.scanRate = v.intValue(),
                 Long::parseLong,
                 v -> requireRange(v, 1L, (long) Integer.MAX_VALUE, "must be between 1 and " + Integer.MAX_VALUE));
-        reg(map, "quarry_chunk_loading", "Quarry chunk loading.",
+        reg(map, "quarry_chunk_loading", "Quarry chunk loading. Must be one of NONE, BOUNDARY_ONLY, FULL",
                 () -> INSTANCE.quarry.chunkLoading,
                 mode -> INSTANCE.quarry.chunkLoading = mode,
-                QuarryConfig.ChunkLoadingMode::valueOf,
-                _ -> {});
+                string -> {
+                    try {
+                        return QuarryConfig.ChunkLoadingMode.valueOf(string);
+                    } catch (IllegalArgumentException e) {
+                        return null;
+                    }
+                },
+                mode -> requireCondition(mode != null, "must be one of NONE, BOUNDARY_ONLY, FULL"));
 
         // Pipe
         reg(map, "pipe_max_speed", "Item speed ceiling (blocks/tick)",
@@ -376,6 +382,8 @@ public final class LogisticsConfig {
         sanitizeInt("quarry_scan_rate", () -> (long) config.quarry.scanRate, v -> config.quarry.scanRate = v.intValue(),
                 () -> (long) defaults.quarry.scanRate, v -> requireRange(
                         v, 1L, (long) Integer.MAX_VALUE, "must be between 1 and " + Integer.MAX_VALUE));
+        sanitizeValue("quarry_chunk_loading", () -> config.quarry.chunkLoading, m -> config.quarry.chunkLoading = m,
+                () -> defaults.quarry.chunkLoading, mode -> requireCondition(mode != null, "must be one of NONE, BOUNDARY_ONLY, FULL"));
 
         sanitizeFloat("pipe_min_speed", () -> (double) config.pipe.minSpeed,
                 v -> config.pipe.minSpeed = v.floatValue(), () -> (double) defaults.pipe.minSpeed,
