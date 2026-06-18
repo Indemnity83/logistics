@@ -354,6 +354,7 @@ public class FluidPumpGameTest {
             return;
         }
         fillEnergy(pump);
+        LogisticsConfig.get().fluidPump.armSpeed = 16f;
 
         // Lava flows (UPDATE_ALL), so flowing remnants decay on vanilla's slow schedule; the pump's job
         // is to remove every source block in the pool.
@@ -473,7 +474,7 @@ public class FluidPumpGameTest {
         long capacity = LogisticsConfig.get().fluidPump.energyCapacity;
         long input = Math.max(1, LogisticsConfig.get().fluidPump.maxEnergyInput);
         for (long filled = 0; filled <= capacity; filled += input) {
-            pump.energyStorage(Direction.NORTH).insert(capacity, false);
+            pump.energyStorage(Direction.NORTH).insert(input, false);
         }
     }
 

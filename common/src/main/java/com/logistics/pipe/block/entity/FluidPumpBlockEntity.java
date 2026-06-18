@@ -18,8 +18,9 @@ import com.logistics.core.lib.fluids.SimpleFluidKey;
 import com.logistics.core.lib.power.AcceptsLowTierEnergy;
 import com.logistics.core.lib.power.EnergyDemandProvider;
 import java.util.ArrayDeque;
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
@@ -67,7 +68,7 @@ public class FluidPumpBlockEntity extends BaseBlockEntity
     // Positions drained from the current body; re-cleared each tick so adjacent sources can't seep
     // back into the hole, and leftover flowing water (which the no-update removal leaves un-ticked)
     // gets cleaned up rather than sitting there forever.
-    private final Map<BlockPos, Fluid> drainedThisBody = new HashMap<>();
+    private final Map<BlockPos, Fluid> drainedThisBody = new LinkedHashMap<>();
     private boolean infiniteBody;
     @Nullable private Fluid queuedFluid;
     private int queuedY;
@@ -313,8 +314,14 @@ public class FluidPumpBlockEntity extends BaseBlockEntity
             // Water reforms, so remove it without notifying neighbors (no UPDATE_NEIGHBORS / shape update)
             // and have drainedThisBody re-clear any seepage that flows in before the body is fully drained.
             level.setBlock(source, Blocks.AIR.defaultBlockState(), Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE);
-            if (drainedThisBody.size() > 4096) {
-                drainedThisBody.clear();
+            // Cap the tracked set for a long-lived pump; evict the oldest cells (already stable air held by
+            // the no-update removal) and keep recently drained ones that may still see seepage.
+            if (drainedThisBody.size() >= 4096) {
+                Iterator<BlockPos> oldest = drainedThisBody.keySet().iterator();
+                while (drainedThisBody.size() > 3072 && oldest.hasNext()) {
+                    oldest.next();
+                    oldest.remove();
+                }
             }
             drainedThisBody.put(source.immutable(), fluid);
         } else {
