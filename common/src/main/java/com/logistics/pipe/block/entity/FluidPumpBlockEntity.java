@@ -18,7 +18,9 @@ import com.logistics.core.lib.fluids.SimpleFluidKey;
 import com.logistics.core.lib.power.AcceptsLowTierEnergy;
 import com.logistics.core.lib.power.EnergyDemandProvider;
 import java.util.ArrayDeque;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import net.minecraft.core.BlockPos;
@@ -62,6 +64,10 @@ public class FluidPumpBlockEntity extends BaseBlockEntity
     private long lastSyncedTank = -1;
     private int lastSyncedTargetY = Integer.MIN_VALUE;
     private final ArrayDeque<BlockPos> sourceQueue = new ArrayDeque<>();
+    // Positions drained from the current body; re-cleared each tick so adjacent sources can't seep
+    // back into the hole, and leftover flowing water (which the no-update removal leaves un-ticked)
+    // gets cleaned up rather than sitting there forever.
+    private final Map<BlockPos, Fluid> drainedThisBody = new HashMap<>();
     private boolean infiniteBody;
     @Nullable private Fluid queuedFluid;
     private int queuedY;
@@ -120,6 +126,7 @@ public class FluidPumpBlockEntity extends BaseBlockEntity
             return;
         }
 
+        be.holdDrainedPositions((ServerLevel) level);
         be.pushOut(level, pos);
 
         LogisticsConfig.FluidPumpConfig cfg = LogisticsConfig.get().fluidPump;
@@ -247,8 +254,24 @@ public class FluidPumpBlockEntity extends BaseBlockEntity
         targetY--;
     }
 
+    // Re-clear any fluid that has seeped back into positions drained from the current body.
+    private void holdDrainedPositions(ServerLevel level) {
+        if (drainedThisBody.isEmpty()) {
+            return;
+        }
+        for (Map.Entry<BlockPos, Fluid> entry : drainedThisBody.entrySet()) {
+            // isSame matches both the source and the flowing form; the leftover seepage is flowing water.
+            if (level.getFluidState(entry.getKey()).getType().isSame(entry.getValue())) {
+                level.setBlock(
+                        entry.getKey(), Blocks.AIR.defaultBlockState(), Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE);
+            }
+        }
+    }
+
     private void descendToNextLayer() {
         sourceQueue.clear();
+        // Keep suppressing already-drained cells: with no neighbor updates, leftover flowing water in
+        // them never gets a tick to decay, so it must be cleared until the whole body is gone.
         infiniteBody = false;
         queuedFluid = null;
         targetY--;
@@ -273,9 +296,16 @@ public class FluidPumpBlockEntity extends BaseBlockEntity
             // Effectively infinite body: draw fluid without carving the landscape.
             sourceQueue.addLast(source);
         } else {
-            // UPDATE_CLIENTS | UPDATE_KNOWN_SHAPE removes the source without notifying
-            // neighbors, so adjacent sources never reflow to refill the hole.
+            // UPDATE_CLIENTS | UPDATE_KNOWN_SHAPE removes the source without notifying neighbors, so
+            // our removal can't trigger reflow; drainedThisBody re-clears any seepage from adjacent
+            // sources that flow in on their own fluid tick before the body is fully drained.
             level.setBlock(source, Blocks.AIR.defaultBlockState(), Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE);
+            // Seepage only happens within a few ticks of draining, so cap the tracked set; older cells
+            // are already stable air held by the no-update removal.
+            if (drainedThisBody.size() > 4096) {
+                drainedThisBody.clear();
+            }
+            drainedThisBody.put(source.immutable(), fluid);
         }
         markDirtyAndSync();
         return true;
