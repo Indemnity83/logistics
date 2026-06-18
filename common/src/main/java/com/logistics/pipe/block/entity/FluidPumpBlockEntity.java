@@ -218,7 +218,7 @@ public class FluidPumpBlockEntity extends BaseBlockEntity
             if (pumpFromLayer(level, pos, target, queuedFluid, cfg)) {
                 return;
             }
-            descendToNextLayer();
+            descendToNextLayer(level, pos);
             return;
         }
         if (phase == Phase.PUMPING && queuedFluid != null) {
@@ -231,7 +231,7 @@ public class FluidPumpBlockEntity extends BaseBlockEntity
             if (pumpFromLayer(level, pos, target, queuedFluid, cfg)) {
                 return;
             }
-            descendToNextLayer();
+            descendToNextLayer(level, pos);
             return;
         }
         if (isPumpableSource(fluidState)) {
@@ -241,18 +241,25 @@ public class FluidPumpBlockEntity extends BaseBlockEntity
             }
             phase = Phase.PUMPING;
             if (!pumpFromLayer(level, pos, target, fluidState.getType(), cfg)) {
-                descendToNextLayer();
+                descendToNextLayer(level, pos);
             }
             return;
         }
 
-        if (isBlocked(level, target)) {
+        // Don't descend the tube into a solid block or below the world; stall instead.
+        if (isBlocked(level, target) || !canDescend(level, pos)) {
             phase = Phase.STALLED;
             return;
         }
 
         phase = Phase.DESCENDING;
         targetY--;
+    }
+
+    // The tube can extend one more block down only into air/fluid that's still inside the world.
+    private boolean canDescend(ServerLevel level, BlockPos pos) {
+        int nextY = targetY - 1;
+        return nextY >= level.getMinY() && !isBlocked(level, new BlockPos(pos.getX(), nextY, pos.getZ()));
     }
 
     // Re-clear any fluid that has seeped back into positions drained from the current body.
@@ -269,12 +276,17 @@ public class FluidPumpBlockEntity extends BaseBlockEntity
         }
     }
 
-    private void descendToNextLayer() {
+    private void descendToNextLayer(ServerLevel level, BlockPos pos) {
         sourceQueue.clear();
-        // Keep suppressing already-drained cells: with no neighbor updates, leftover flowing water in
-        // them never gets a tick to decay, so it must be cleared until the whole body is gone.
+        // drainedThisBody is kept (not cleared) so already-drained cells stay suppressed until the whole
+        // body is gone; leftover flowing water in them never gets a tick to decay otherwise.
         infiniteBody = false;
         queuedFluid = null;
+        // Don't step the tube into a solid block or below the world; stall instead.
+        if (!canDescend(level, pos)) {
+            phase = Phase.STALLED;
+            return;
+        }
         targetY--;
         phase = Phase.DESCENDING;
     }
@@ -294,19 +306,20 @@ public class FluidPumpBlockEntity extends BaseBlockEntity
         energy.consume(cfg.energyPerSource);
         tank.insert(key, bucket, false);
         if (infiniteBody) {
-            // Effectively infinite body: draw fluid without carving the landscape.
-            sourceQueue.addLast(source);
-        } else {
-            // UPDATE_CLIENTS | UPDATE_KNOWN_SHAPE removes the source without notifying neighbors, so
-            // our removal can't trigger reflow; drainedThisBody re-clears any seepage from adjacent
-            // sources that flow in on their own fluid tick before the body is fully drained.
+            // Effectively infinite body: draw fluid without carving the landscape. Re-queue at the front
+            // so the furthest-first ordering keeps cycling the body.
+            sourceQueue.addFirst(source);
+        } else if (createsSourceBlocks(fluid)) {
+            // Water reforms, so remove it without notifying neighbors (no UPDATE_NEIGHBORS / shape update)
+            // and have drainedThisBody re-clear any seepage that flows in before the body is fully drained.
             level.setBlock(source, Blocks.AIR.defaultBlockState(), Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE);
-            // Seepage only happens within a few ticks of draining, so cap the tracked set; older cells
-            // are already stable air held by the no-update removal.
             if (drainedThisBody.size() > 4096) {
                 drainedThisBody.clear();
             }
             drainedThisBody.put(source.immutable(), fluid);
+        } else {
+            // Lava can't reform into sources, so let it flow and settle normally.
+            level.setBlock(source, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
         }
         markDirtyAndSync();
         return true;
@@ -318,14 +331,21 @@ public class FluidPumpBlockEntity extends BaseBlockEntity
             rebuildSourceQueue(level, pumpPos, origin, fluid, radius);
         }
 
+        // Pump the furthest-out source first (BFS order is nearest-first) so the body recedes toward the
+        // tube and the cell under the tube is drained last, instead of vanishing from under it.
         while (!sourceQueue.isEmpty()) {
-            BlockPos source = sourceQueue.removeFirst();
+            BlockPos source = sourceQueue.removeLast();
             FluidState state = level.getFluidState(source);
             if (state.getType().isSame(fluid) && state.isSource()) {
                 return source;
             }
         }
         return null;
+    }
+
+    // Whether the fluid forms new source blocks (water), so the pump must suppress reflow; lava does not.
+    private static boolean createsSourceBlocks(Fluid fluid) {
+        return fluid.defaultFluidState().is(FluidTags.WATER);
     }
 
     // Floods only the horizontal layer at origin's Y, so the pump exhausts one layer before stepping down.
@@ -337,7 +357,7 @@ public class FluidPumpBlockEntity extends BaseBlockEntity
 
         // Only reforming fluids (water) get infinite treatment; lava is always consumed.
         int threshold = LogisticsConfig.get().fluidPump.infiniteSourceThreshold;
-        boolean canBeInfinite = threshold > 0 && fluid.defaultFluidState().is(FluidTags.WATER);
+        boolean canBeInfinite = threshold > 0 && createsSourceBlocks(fluid);
 
         Queue<BlockPos> queue = new ArrayDeque<>();
         Set<BlockPos> visited = new HashSet<>();
