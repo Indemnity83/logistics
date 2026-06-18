@@ -152,7 +152,7 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
             QUARRY = Registry.register(
                     BuiltInRegistries.TICKET_TYPE,
                     "logistics:quarry",
-                    new TicketType(2props0L, TicketType.FLAG_PERSIST | TicketType.FLAG_LOADING | TicketType.FLAG_SIMULATION | TicketType.FLAG_KEEP_DIMENSION_ACTIVE)
+                    new TicketType(20L, TicketType.FLAG_PERSIST | TicketType.FLAG_LOADING | TicketType.FLAG_SIMULATION | TicketType.FLAG_KEEP_DIMENSION_ACTIVE)
             );
 
             QUARRY_BOUNDARY = Registry.register(

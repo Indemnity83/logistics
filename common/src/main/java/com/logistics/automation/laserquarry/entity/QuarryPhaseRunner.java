@@ -104,8 +104,7 @@ public final class QuarryPhaseRunner {
             case CLEARING -> tickClearing(be, world, pos, state);
             case BUILDING_FRAME -> tickBuildingFrame(be, world, state);
             case MINING -> tickMining(be, world, state);
-            default -> {
-            }
+            default -> {}
         }
     }
 
