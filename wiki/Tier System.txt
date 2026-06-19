@@ -59,7 +59,7 @@ This effectively creates a tier within a tier: you build Tier 3 network infrastr
 
 '''Module categories:'''
 * '''Extraction''' — [[Extractor Module]], [[Advanced Extractor Module]]
-* '''Provider/Supplier''' — [[Provider Module]], [[Supplier Module]]
+* '''Provider/Supplier''' — [[Provider Module]], [[Passive Supplier Module]], [[Active Supplier Module]]
 * '''Crafting''' — [[Crafter Module]]
 * '''Sorting & Routing''' — [[Quicksort Module]], [[Terminus Module]]
 * '''Sinks''' — [[Item Sink Module|Item Sink]], [[Polymorphic Sink Module|Polymorphic Sink]], [[Enchantment Sink Module|Enchantment Sink]], [[Mod Item Sink Module|Mod Item Sink]]

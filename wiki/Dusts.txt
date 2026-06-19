@@ -17,7 +17,7 @@
 |-
 | Diamond Dust || Diamond Ore / Deepslate Diamond Ore, Diamond, Diamond Block || [[Quicksort Module]], [[Cores|Diamond Core]]
 |-
-| Emerald Dust || Emerald Ore / Deepslate Emerald Ore, Emerald, Emerald Block || [[Supplier Module]], [[Cores|Emerald Core]]
+| Emerald Dust || Emerald Ore / Deepslate Emerald Ore, Emerald, Emerald Block || [[Passive Supplier Module|Supplier Modules]], [[Cores|Emerald Core]]
 |-
 | Lapis Dust || Lapis Ore / Deepslate Lapis Ore, Lapis Lazuli, Lapis Block || [[Marker]], [[Cores|Lapis Core]]
 |-

@@ -1,0 +1,49 @@
+{{Infobox Item
+|name      = Passive Supplier Module
+|image     = Grid Passive Supplier Module.png
+|type      = Item (Module)
+|stackable = Yes (64)
+|tier      = Tier 3 - Network
+|added     = v0.2.0
+}}
+
+The '''Passive Supplier Module''' is a [[Chassis Logistics Pipe]] module that keeps an adjacent inventory stocked by '''intercepting matching items already traveling through the [[Pipe Networks|logistics network]]'''. It never places its own orders — it acts as a network '''sink''', grabbing in-transit items whose type matches a configured supply slot while that item's stock sits below the target.
+
+Because it never requests, it adds no ordering load to the network and draws no power to operate. It is the counterpart to the [[Active Supplier Module]], which actively orders replenishment.
+
+==Recipe==
+
+{{Grid Crafting Table
+|A1=Emerald Dust |B1=Redstone Chip |C1=Emerald Dust
+|A2=Redstone |B2=Blank Module |C2=Redstone
+|Output=Passive Supplier Module
+}}
+
+'''Yields:''' 1× Passive Supplier Module — 2× [[Dusts|Emerald Dust]] + [[Chips|Redstone Chip]] + 2× Redstone + [[Blank Module]]
+
+==Behavior==
+
+When installed in a [[Chassis Logistics Pipe]], this module registers as a network sink for the items configured in its GUI. As matching items flow through the network — sent by [[Provider Module|Providers]], crafters, or active suppliers — it pulls them into the adjacent inventory until the target stock level is reached.
+
+'''Key points:'''
+* Never places orders — only intercepts items already in transit
+* Accepts an item only while the inventory is below the configured target for that item
+* No power cost to operate (it does not actively request)
+* Re-syncs its accepted-item list periodically and whenever connections change
+
+==Tips==
+* Use for backup stockpiles or low-priority storage that fills opportunistically from network traffic
+* Pair with an [[Active Supplier Module]] when you need guaranteed replenishment rather than opportunistic fills
+* Configure the items and target quantities via the module GUI in the chassis (use a [[Wrench]])
+
+==See Also==
+* [[Active Supplier Module]] - Actively orders replenishment (uses power)
+* [[Supplier Logistics Pipe]] - Standalone supplier pipe
+* [[Provider Module]] - Supplies the items this module intercepts
+* [[Chassis Logistics Pipe]] - Required container
+* [[Blank Module]] - Crafting base
+* [[Dusts|Emerald Dust]] - Crafting component
+* [[Chips|Redstone Chip]] - Module chip
+
+[[Category:Modules]]
+[[Category:Recipes]]

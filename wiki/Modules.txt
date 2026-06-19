@@ -33,7 +33,8 @@ Pull items from adjacent inventories into the logistics network.
 Advertise and supply items to the network.
 
 * '''[[Provider Module]]''' (MK1/II) - Advertise adjacent inventory contents to the network; higher mark provides larger item counts
-* '''[[Supplier Module]]''' (Passive/Active) - Maintain stock levels in adjacent inventories by requesting items from the network; Active variant requests proactively
+* '''[[Passive Supplier Module]]''' - Keep an inventory stocked by intercepting matching items already in transit (no power, never orders)
+* '''[[Active Supplier Module]]''' - Keep an inventory stocked by actively requesting items from the network (draws power)
 
 ==Crafting Modules==
 

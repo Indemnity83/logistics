@@ -1,0 +1,57 @@
+{{Infobox Item
+|name      = Active Supplier Module
+|image     = Grid Active Supplier Module.png
+|type      = Item (Module)
+|stackable = Yes (64)
+|tier      = Tier 3 - Network
+|added     = v0.2.0
+}}
+
+The '''Active Supplier Module''' is a [[Chassis Logistics Pipe]] module that keeps an adjacent inventory stocked by '''actively requesting items from the [[Pipe Networks|logistics network]]'''. It periodically checks the inventory and places orders with the network's [[Provider Module|providers]] to maintain configured stock levels.
+
+Unlike the [[Passive Supplier Module]] — which only skims items already in transit — the Active variant initiates requests, so it can guarantee replenishment, at the cost of drawing RF from the network [[Battery]] on each supply cycle.
+
+==Recipe==
+
+{{Grid Crafting Table
+|A1=Emerald Dust |B1=Amethyst Chip |C1=Emerald Dust
+|A2=Redstone |B2=Blank Module |C2=Redstone
+|Output=Active Supplier Module
+}}
+
+'''Yields:''' 1× Active Supplier Module — 2× [[Dusts|Emerald Dust]] + [[Chips|Amethyst Chip]] + 2× Redstone + [[Blank Module]]
+
+==Behavior==
+
+When installed in a [[Chassis Logistics Pipe]], this module periodically checks the adjacent inventory and requests items from the network to top it up to the configured target levels.
+
+'''Key points:'''
+* Actively places orders with network providers — does not wait for passing traffic
+* Draws RF from a connected [[Battery]] on each supply cycle
+* Stocking modes control how aggressively it orders:
+** '''Bulk 50%''' — request in bulk once stock drops to half the target
+** '''Partial''' — request whatever is currently available (default)
+** '''Full''' — only request when the entire missing amount is available (all-or-nothing)
+** '''Bulk 100%''' — request whenever any amount is missing
+
+==Power==
+
+The Active Supplier Module is part of the Tier 3 [[Pipe Networks|logistics network]] and draws RF from a connected [[Battery]] to place its orders. Without a charged Battery it cannot request items. (The [[Passive Supplier Module]] has no such cost.)
+
+==Tips==
+* Use for machine input buffers (furnaces, kilns) that must never run dry
+* Choose '''Full''' / all-or-nothing mode when partial deliveries would waste a craft
+* Combine with a [[Provider Module]] on a nearby chassis to form a closed-loop supply system
+
+==See Also==
+* [[Passive Supplier Module]] - Skims in-transit items instead of ordering (no power)
+* [[Supplier Logistics Pipe]] - Standalone supplier pipe
+* [[Provider Module]] - Fulfills this module's requests
+* [[Battery]] - Powers the requests
+* [[Chassis Logistics Pipe]] - Required container
+* [[Blank Module]] - Crafting base
+* [[Dusts|Emerald Dust]] - Crafting component
+* [[Chips|Amethyst Chip]] - Module chip
+
+[[Category:Modules]]
+[[Category:Recipes]]

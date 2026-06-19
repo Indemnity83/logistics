@@ -1,6 +1,6 @@
 {{Infobox Item
 |name      = Chassis Logistics Pipe
-|image     = Grid Chassis Logistics Pipe.png
+|image     = Grid Chassis Logistics Pipe MK1.png
 |type      = Block (Pipe)
 |stackable = Yes (64)
 |tier      = Tier 3 - Network
