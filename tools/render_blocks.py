@@ -35,6 +35,11 @@ BLOCK_NAME_OVERRIDES = {
     "pipe/chassis_logistics_pipe_mk3": "Chassis Logistics Pipe MK3",
     "pipe/chassis_logistics_pipe_mk4": "Chassis Logistics Pipe MK4",
     "pipe/chassis_logistics_pipe_mk5": "Chassis Logistics Pipe MK5",
+    # storage blocks: pages reference "X Block", not lang's "Block of X"
+    "core/apatite_block": "Apatite Block",
+    "core/bronze_block": "Bronze Block",
+    "core/tin_block": "Tin Block",
+    "core/raw_tin_block": "Raw Tin Block",
 }
 
 PNG_SIG = b"\x89PNG\r\n\x1a\n"
@@ -46,7 +51,8 @@ DIR_NORMAL = {"up": (0, 1, 0), "down": (0, -1, 0), "north": (0, 0, -1),
 # ----------------------------------------------------------------- PNG decode
 
 def decode_png(path):
-    """Return (w, h, bytearray RGBA). Handles 8-bit gray/RGB/palette/RGBA, first frame only."""
+    """Return (w, h, bytearray RGBA). Handles gray/RGB/palette/RGBA, 8-bit and sub-byte
+    (1/2/4-bit) palette/grayscale, first frame of animated strips only."""
     data = open(path, "rb").read()
     if data[:8] != PNG_SIG:
         raise ValueError("not a PNG")
@@ -69,16 +75,16 @@ def decode_png(path):
             idat += chunk
         elif typ == b"IEND":
             break
-    if bit != 8:
-        raise ValueError(f"unsupported bit depth {bit}")
+    if ct in (2, 4, 6) and bit != 8:
+        raise ValueError(f"unsupported colortype {ct} @ {bit}-bit")
     channels = {0: 1, 2: 3, 3: 1, 4: 2, 6: 4}[ct]
-    stride = w * channels
+    stride = (w * channels * bit + 7) // 8
+    bpp = max(1, (channels * bit) // 8)
     raw = zlib.decompress(bytes(idat))
     rows, prev, p = bytearray(), bytearray(stride), 0
     for _ in range(h):
         f = raw[p]; p += 1
         line = bytearray(raw[p:p + stride]); p += stride
-        bpp = channels
         if f == 1:
             for x in range(bpp, stride): line[x] = (line[x] + line[x - bpp]) & 255
         elif f == 2:
@@ -93,22 +99,33 @@ def decode_png(path):
                 c = prev[x - bpp] if x >= bpp else 0
                 line[x] = (line[x] + _paeth(a, prev[x], c)) & 255
         rows += line; prev = line
-    # to RGBA
     out = bytearray(w * h * 4)
-    for i in range(w * h):
-        s = i * channels
-        if ct == 6:
-            out[i * 4:i * 4 + 4] = rows[s:s + 4]
-        elif ct == 2:
-            out[i * 4:i * 4 + 3] = rows[s:s + 3]; out[i * 4 + 3] = 255
-        elif ct == 0:
-            g = rows[s]; out[i * 4:i * 4 + 4] = bytes((g, g, g, 255))
-        elif ct == 4:
-            g = rows[s]; out[i * 4:i * 4 + 4] = bytes((g, g, g, rows[s + 1]))
-        elif ct == 3:
-            idx = rows[s]
-            out[i * 4:i * 4 + 3] = plte[idx * 3:idx * 3 + 3]
-            out[i * 4 + 3] = trns[idx] if idx < len(trns) else 255
+    maxv = (1 << bit) - 1
+    for y in range(h):
+        ro = y * stride
+        for x in range(w):
+            o = (y * w + x) * 4
+            if bit == 8:
+                s = ro + x * channels
+                if ct == 6:
+                    out[o:o + 4] = rows[s:s + 4]
+                elif ct == 2:
+                    out[o:o + 3] = rows[s:s + 3]; out[o + 3] = 255
+                elif ct == 0:
+                    g = rows[s]; out[o:o + 4] = bytes((g, g, g, 255))
+                elif ct == 4:
+                    g = rows[s]; out[o:o + 4] = bytes((g, g, g, rows[s + 1]))
+                elif ct == 3:
+                    idx = rows[s]; out[o:o + 3] = plte[idx * 3:idx * 3 + 3]
+                    out[o + 3] = trns[idx] if idx < len(trns) else 255
+            else:  # sub-byte palette or grayscale (channels == 1)
+                bp = x * bit
+                val = (rows[ro + bp // 8] >> (8 - bit - (bp % 8))) & maxv
+                if ct == 3:
+                    out[o:o + 3] = plte[val * 3:val * 3 + 3]
+                    out[o + 3] = trns[val] if val < len(trns) else 255
+                else:
+                    g = val * 255 // maxv; out[o:o + 4] = bytes((g, g, g, 255))
     if h > w and h % w == 0:  # animated strip -> first frame
         out = out[:w * w * 4]; h = w
     return w, h, out
@@ -232,10 +249,11 @@ def rotate_axis(p, axis, ang, origin):
 
 
 def rot_xyz(p, rx, ry, rz):
+    # Match Minecraft's gui rotationXYZ (= Rx*Ry*Rz): apply Z, then Y, then X to the vertex.
     x, y, z = p
-    c, s = math.cos(rx), math.sin(rx); y, z = y * c - z * s, y * s + z * c
-    c, s = math.cos(ry), math.sin(ry); x, z = x * c + z * s, -x * s + z * c
     c, s = math.cos(rz), math.sin(rz); x, y = x * c - y * s, x * s + y * c
+    c, s = math.cos(ry), math.sin(ry); x, z = x * c + z * s, -x * s + z * c
+    c, s = math.cos(rx), math.sin(rx); y, z = y * c - z * s, y * s + z * c
     return (x, y, z)
 
 
@@ -257,6 +275,7 @@ def render(model, assets, size=256, ss=3, alpha_cut=64):
     tw, th = model.get("texture_size", [16, 16])
     gui = model.get("display", {}).get("gui", {})
     rx, ry, rz = [math.radians(a) for a in gui.get("rotation", [30, 225, 0])]
+    ry = -ry  # Minecraft's GUI camera negates the Y rotation vs our math (front lands on the left)
 
     # collect faces as (verts[(x,y,z,u,v)x4], texture, shade)
     faces = []
@@ -438,6 +457,7 @@ def main():
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--size", type=int, default=256)
     ap.add_argument("--ss", type=int, default=3, help="supersampling factor")
+    ap.add_argument("--rot", help="override gui rotation 'rx,ry,rz' (testing)")
     args = ap.parse_args()
 
     if args.batch:
@@ -448,6 +468,8 @@ def main():
     model = load_chain(args.model, args.assets)
     if not model.get("elements"):
         sys.exit(f"no geometry resolved for {args.model}")
+    if args.rot:
+        model.setdefault("display", {}).setdefault("gui", {})["rotation"] = [float(a) for a in args.rot.split(",")]
     px = render(model, args.assets, args.size, args.ss)
     encode_png(args.out, args.size, args.size, px)
     print(f"wrote {args.out} ({args.size}px, ss={args.ss}, {len(model['elements'])} elements)")
