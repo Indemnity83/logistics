@@ -253,6 +253,24 @@ def build_pipe_model(core_ref, assets):
             "display": display, "texture_size": [16, 16]}
 
 
+def load_item_tints(item_id, assets):
+    """Read constant tints from a 26.x item definition (assets/items/<id>.json), keyed by
+    tintindex. Engines tint their core face with a cool [0.2,0.4,0.8] blue this way."""
+    path = os.path.join(assets, "items", item_id + ".json")
+    if not os.path.isfile(path):
+        return {}
+    try:
+        data = json.load(open(path, encoding="utf-8"))
+    except (ValueError, OSError):
+        return {}
+    out = {}
+    for i, t in enumerate(data.get("model", {}).get("tints", [])):
+        if str(t.get("type", "")).endswith("constant"):
+            v = t.get("value", [1, 1, 1])
+            out[i] = tuple(max(0, min(255, int(c * 255))) for c in v)
+    return out
+
+
 def resolve_render_model(ref, assets):
     """The model to actually render for a resolved ref (pipes get the core+arm special case)."""
     return build_pipe_model(ref, assets) if is_pipe_core(ref) else load_chain(ref, assets)
@@ -301,7 +319,8 @@ def rot_xyz(p, rx, ry, rz):
 
 # -------------------------------------------------------------------- render
 
-def render(model, assets, size=256, ss=3, alpha_cut=64):
+def render(model, assets, size=256, ss=3, alpha_cut=64, tints=None):
+    tints = tints or {}
     textures = model["textures"]
     tex_cache = {}
 
@@ -343,7 +362,7 @@ def render(model, assets, size=256, ss=3, alpha_cut=64):
                     p = rotate_axis(p, erot["axis"], math.radians(erot["angle"]), erot["origin"])
                 p = rot_xyz((p[0] - 8, p[1] - 8, p[2] - 8), rx, ry, rz)
                 v3.append((p[0], p[1], p[2], uu / 16.0, vv / 16.0))
-            faces.append((v3, tex, SHADE.get(d, 1.0)))
+            faces.append((v3, tex, SHADE.get(d, 1.0), tints.get(face.get("tintindex"))))
 
     if not faces:
         raise ValueError("model produced no drawable faces")
@@ -362,17 +381,17 @@ def render(model, assets, size=256, ss=3, alpha_cut=64):
 
     color = bytearray(S * S * 4)
     zbuf = [-1e9] * (S * S)
-    for v3, tex, sh in faces:
+    for v3, tex, sh, tint in faces:
         scr = [project(v) for v in v3]
         tri = [(0, 1, 2), (0, 2, 3)]
         for a, b, c in tri:
             _raster(color, zbuf, S, scr[a], scr[b], scr[c],
-                    v3[a][3:5], v3[b][3:5], v3[c][3:5], tex, sh, alpha_cut)
+                    v3[a][3:5], v3[b][3:5], v3[c][3:5], tex, sh, alpha_cut, tint)
 
     return _downsample(color, S, size, ss)
 
 
-def _raster(color, zbuf, S, A, B, C, uvA, uvB, uvC, tex, sh, acut):
+def _raster(color, zbuf, S, A, B, C, uvA, uvB, uvC, tex, sh, acut, tint=None):
     tw, th, tpx = tex
     minx = max(0, int(min(A[0], B[0], C[0]))); maxx = min(S - 1, int(math.ceil(max(A[0], B[0], C[0]))))
     miny = max(0, int(min(A[1], B[1], C[1]))); maxy = min(S - 1, int(math.ceil(max(A[1], B[1], C[1]))))
@@ -401,8 +420,14 @@ def _raster(color, zbuf, S, A, B, C, uvA, uvB, uvC, tex, sh, acut):
                 continue
             zbuf[idx] = depth
             o = idx * 4
-            color[o] = int(tpx[t] * sh); color[o + 1] = int(tpx[t + 1] * sh)
-            color[o + 2] = int(tpx[t + 2] * sh); color[o + 3] = a
+            if tint:
+                color[o] = int(tpx[t] * sh * tint[0] / 255)
+                color[o + 1] = int(tpx[t + 1] * sh * tint[1] / 255)
+                color[o + 2] = int(tpx[t + 2] * sh * tint[2] / 255)
+            else:
+                color[o] = int(tpx[t] * sh); color[o + 1] = int(tpx[t + 1] * sh)
+                color[o + 2] = int(tpx[t + 2] * sh)
+            color[o + 3] = a
 
 
 def _downsample(color, S, size, ss):
@@ -470,7 +495,8 @@ def batch(assets, out_dir, wiki_dir, size, ss, dry):
             failed.append((item_id, "no model")); continue
         try:
             if not dry:
-                px = render(resolve_render_model(ref, assets), assets, size, ss)
+                px = render(resolve_render_model(ref, assets), assets, size, ss,
+                            tints=load_item_tints(item_id, assets))
                 encode_png(os.path.join(out_dir, f"Grid {wiki_name}.png"), size, size, px)
             done.append(wiki_name)
             print(f"  {'(dry) ' if dry else ''}Grid {wiki_name}.png   <- {ref}")
@@ -514,7 +540,8 @@ def main():
         sys.exit(f"no geometry resolved for {args.model}")
     if args.rot:
         model.setdefault("display", {}).setdefault("gui", {})["rotation"] = [float(a) for a in args.rot.split(",")]
-    px = render(model, args.assets, args.size, args.ss)
+    item_id = args.model[len("item/"):] if args.model.startswith("item/") else args.model
+    px = render(model, args.assets, args.size, args.ss, tints=load_item_tints(item_id, args.assets))
     encode_png(args.out, args.size, args.size, px)
     print(f"wrote {args.out} ({args.size}px, ss={args.ss}, {len(model['elements'])} elements)")
 
