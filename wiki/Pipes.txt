@@ -32,7 +32,17 @@ System-aware pipes that participate in a logistics network. These pipes communic
 * '''[[Satellite Logistics Pipe]]''' - Named remote destination for network-addressed item delivery
 * '''[[Chassis Logistics Pipe]]''' (MK1–MK5) - Modular pipe that holds swappable [[Modules|modules]] for customizable behavior
 
+==Fluid Pipes==
+
+Fluids use a '''separate''' pipe set and a standalone transport system — they never join the item logistics network. Each line carries one fluid type, passive transport is free, and only active extraction costs power. See '''[[Fluid Pipes]]''' for the full overview.
+
+* '''[[Stone Fluid Pipe]]''', '''[[Copper Fluid Pipe]]''', '''[[Golden Fluid Pipe]]''' - Passive fluid transport at increasing rates
+* '''[[Fluid Extractor Pipe]]''' - Pull fluid from tanks and machines (engine-driven)
+* '''[[Insertion Fluid Pipe]]''', '''[[Merger Fluid Pipe]]''', '''[[Bypass Fluid Pipe]]''', '''[[Void Fluid Pipe]]''' - Behavior pipes
+* '''[[Glass Tank]]''' and '''[[Pump]]''' - Fluid storage and world extraction
+
 ==See Also==
+* [[Fluid Pipes]] - The standalone fluid transport system
 * [[Pipe Networks]] - Understanding how pipes connect
 * [[Tier System]] - Mechanical vs Smart vs Network tiers
 * [[Routing]] - How items choose paths

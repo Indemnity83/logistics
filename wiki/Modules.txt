@@ -26,7 +26,7 @@ All modules are crafted from a [[Blank Module]] base component.
 
 Pull items from adjacent inventories into the logistics network.
 
-* '''[[Extractor Module]]''' (MK1/II/III) - Extract items from an adjacent inventory; higher marks extract faster or in greater quantities
+* '''[[Extractor Module]]''' (MkI–MkIII) - Extract items from an adjacent inventory; higher marks extract faster or in greater quantities. The single Extractor Module page covers all three marks — there is no separate "advanced" extractor item.
 
 ==Provider & Supplier Modules==
 

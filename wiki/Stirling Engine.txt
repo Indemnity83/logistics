@@ -54,7 +54,8 @@ Right-click the engine to open the fuel GUI:
 
 The engine heats up during operation:
 * '''Temperature rises''' while running
-* '''Overheat threshold''' - engine shuts down if too hot
+* '''Visible heat stages''' - the engine block changes color as it heats up, so you can read its temperature at a glance
+* '''Overheat threshold''' - the engine shuts down safely if it gets too hot (it does not break or explode)
 * '''Cooldown required''' - wait for temperature to drop
 * '''Reset with wrench''' - right-click overheated engine with wrench to reset
 
@@ -91,6 +92,7 @@ Substantially more powerful than [[Redstone Engine]].
 ==See Also==
 * [[RF Energy]] - Understanding the power system
 * [[Redstone Engine]] - Low-power alternative
+* [[Creative Engine]] - Unlimited power for creative mode
 * [[Laser Quarry]] - Major power consumer
 * [[Wrench]] - Configuration and overheat reset
 * [[Stone Gear]] - Crafting component

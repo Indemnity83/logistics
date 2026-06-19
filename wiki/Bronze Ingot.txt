@@ -7,7 +7,9 @@
 |added     = v0.2.0
 }}
 
-'''Bronze Ingot''' is an alloy created from copper and tin. It's used for bronze valves and gears.
+'''Bronze Ingot''' is an alloy created from copper and tin. It's used for the [[Machine Core]], [[Sturdy Casing]], bronze valves, and gears.
+
+'''Related forms:''' Bronze has a full storage set — '''Block of Bronze''' (9 ingots) and '''Bronze Nugget''' (1/9 ingot) — plus '''Bronze Dust''' from the [[Macerator]].
 
 ==Recipe==
 
@@ -55,26 +57,40 @@
 
 ==Usage==
 
-'''[[Kiln]] Crafting:'''
-* [[Bronze Valve]] - 5× bronze ingot required
+'''Machine components:'''
+* [[Machine Core]] - 8× bronze ingot
+* [[Sturdy Casing]] - 8× bronze ingot
+
+'''Valves:'''
+* [[Materials#Bronze Valve|Bronze Valve]] - via a Bronze [[Cores|Core]]
 
 '''Gears:'''
 * [[Bronze Gear]] - 4× bronze ingot
 
+'''Dust:'''
+* Grind in the [[Macerator]] → Bronze Dust (see [[Dusts]])
+
 '''Storage:'''
-* 9× Bronze Ingot → Bronze Block
+* 9× Bronze Ingot → Block of Bronze
+* 9× Bronze Nugget → 1× Bronze Ingot
+
+==Related Items==
+
+* '''Block of Bronze''' - Compact storage (9 ingots)
+* '''Bronze Nugget''' - 1/9 of an ingot
+* '''Bronze Dust''' - Ground form from the [[Macerator]] (see [[Dusts]])
 
 ==Tips==
 
 * Alloy of copper + tin
-* Used for mid-tier components
-* Bronze valve requires blaze rod/lava fuel
+* Used for mid-tier components and machine crafting
 * Stock up for mid-tier progression
 
 ==See Also==
 * [[Tin Ingot]] - Alloy component
-* [[Bronze Valve]] - Major use
+* [[Machine Core]], [[Sturdy Casing]] - Machine components
 * [[Bronze Gear]] - Crafting component
+* [[Dusts]] - Bronze Dust
 
 [[Category:Materials]]
 [[Category:Recipes]]

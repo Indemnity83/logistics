@@ -66,6 +66,10 @@ Use a [[Wrench]] to open the supplier GUI:
 * Only one inventory face is used for delivery; the pipe automatically selects the first available adjacent inventory
 * Combine with a [[Provider Logistics Pipe]] on the same chest to both provide to and replenish from the network
 
+==Power==
+
+As a [[Tier System|Tier 3]] network pipe, this draws [[RF Energy|RF]] from a connected [[Battery]]. Without a charged Battery the network stops supplying and drops in-transit items; the pipe renders '''green when powered''' and '''red when not'''.
+
 ==See Also==
 * [[Basic Logistics Pipe]] - Required crafting component
 * [[Provider Logistics Pipe]] - Fulfills the requests this pipe places

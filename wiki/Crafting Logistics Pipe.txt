@@ -44,6 +44,10 @@ Use a [[Wrench]] to open the GUI:
 * Chain multiple Crafting Logistics Pipes for multi-step crafting chains — a pipe can use items produced by another crafting pipe
 * Requires a [[Basic Logistics Pipe]] as its crafting component — make sure your network has an established backbone first
 
+==Power==
+
+As a [[Tier System|Tier 3]] network pipe, this draws [[RF Energy|RF]] from a connected [[Battery]]. Without a charged Battery the network stops crafting and drops in-transit items; the pipe renders '''green when powered''' and '''red when not'''.
+
 ==See Also==
 * [[Basic Logistics Pipe]] - Required crafting component; the network backbone pipe
 * [[Provider Logistics Pipe]] - Supplies ingredients this pipe requests

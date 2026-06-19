@@ -1,11 +1,12 @@
 '''Machines''' perform tasks automatically using RF energy.
 
 ==Mining==
-* '''[[Laser Quarry]]''' - Automatically mines 16×16 area below, requires RF power
+* '''[[Laser Quarry]]''' - Automatically mines the area below, requires RF power; default 16×16 or a custom area
+* '''[[Marker]]''' - Placement aid that defines a custom [[Laser Quarry]] mining area
 
 ==Processing==
 * '''[[Macerator]]''' - Grinds items into dust; 70+ recipes covering ores, plants, and dyes
-* '''[[Kiln]]''' - RF-powered electric furnace; processes any vanilla smelting recipe
+* '''[[Kiln]]''' - RF-powered electric furnace; smelts any vanilla smelting recipe (no fuel — uses RF), with recipe-book GUI
 
 ==See Also==
 * [[Machine Core]] - Required component for all machines

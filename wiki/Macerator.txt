@@ -32,6 +32,7 @@ The Macerator grinds input items into dust over 200 ticks (10 seconds). Place an
 * Grants XP when processing ore-based recipes
 * Energy capacity: 10,000 RF; max input: 128 RF/tick; consumption: 10 RF/tick while active
 * Recipe book integration — browse all valid recipes in the GUI
+* JEI support — Macerator recipes appear in the Just Enough Items recipe viewer
 
 ==Setup==
 

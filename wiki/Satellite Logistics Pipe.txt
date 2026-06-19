@@ -45,6 +45,10 @@ Use a [[Wrench]] to open the GUI:
 * Rename a satellite when reorganizing storage without needing to reconfigure every sending pipe
 * Combine with [[Process Logistics Pipe|Process Logistics Pipes]] to deliver machine outputs to named satellite destinations
 
+==Power==
+
+As a [[Tier System|Tier 3]] network pipe, this draws [[RF Energy|RF]] from a connected [[Battery]]. Without a charged Battery the network stops routing and drops in-transit items; the pipe renders '''green when powered''' and '''red when not'''.
+
 ==See Also==
 * [[Basic Logistics Pipe]] - Required crafting component; the network backbone pipe
 * [[Chassis Logistics Pipe]] - Uses satellite names to route items to named destinations

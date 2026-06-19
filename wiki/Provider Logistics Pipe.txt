@@ -69,6 +69,10 @@ Configure via the [[Wrench]] GUI.
 * The item filter is useful for dedicating a provider to only certain item types, even if a chest holds mixed items
 * Multiple Provider Pipes can service the same network — the network will pull from whichever has the requested item
 
+==Power==
+
+As a [[Tier System|Tier 3]] network pipe, this draws [[RF Energy|RF]] from a connected [[Battery]]. Without a charged Battery the network stops routing and drops in-transit items; the pipe renders '''green when powered''' and '''red when not'''.
+
 ==See Also==
 * [[Basic Logistics Pipe]] - Required crafting component; the network backbone pipe
 * [[Requester Logistics Pipe]] - Manually request items this pipe provides

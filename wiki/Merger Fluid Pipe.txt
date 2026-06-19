@@ -1,0 +1,50 @@
+{{Infobox Item
+|name      = Merger Fluid Pipe
+|image     = Grid Merger Fluid Pipe.png
+|id        = logistics:fluid/merger_fluid_pipe
+|type      = Block (Fluid Pipe)
+|stackable = Yes (64)
+|rate      = 10 mB/t (passive)
+|tool      = [[Wrench]]
+|added     = v0.7.3
+}}
+
+The '''Merger Fluid Pipe''' acts as a '''check valve''': it only lets fluid flow out one wrench-set face, never back in. It is the fluid-side counterpart to the [[Item Merger Pipe]], used to converge several inputs into one one-way output.
+
+Fluid pipes form a '''standalone''' transport system, separate from the item [[Pipe Networks|logistics network]]: each connected line carries one fluid type and moves it by pressure equalization. Passive transport is free — no power required.
+
+==Recipe==
+
+{{Grid Crafting Table
+|A1=Item Merger Pipe |B1=Slime Ball
+|Output=Merger Fluid Pipe
+}}
+
+'''Yields:''' 1× Merger Fluid Pipe (shapeless: [[Item Merger Pipe]] + Slime Ball)
+
+==Behavior==
+
+* '''Directs fluid one way out a wrench-set face''' — a directional check valve
+* Fluid may only leave through the chosen output face; it cannot flow back in that direction
+* Other faces act as inputs, letting multiple lines converge into a single one-way output
+* Passive transport is '''free''' (no RF)
+* Carries '''one fluid type''' per connected line
+
+==Configuration==
+Use a [[Wrench]] to set the output face. Right-click the pipe to cycle which face the valve points out of; fluid then flows only in that direction.
+
+==Tips==
+* Use to merge several incoming fluid lines into one without back-flow
+* Place at a tank's input to ensure fluid only ever flows into the tank, never drains back out
+* Pair with [[Insertion Fluid Pipe|insertion]] pipes for tightly-controlled fill behavior
+
+==See Also==
+* [[Fluid Pipes]] - Overview of the fluid system
+* [[Item Merger Pipe]] - The item-transport counterpart
+* [[Wrench]] - Set the output face
+* [[Copper Fluid Pipe]] - Standard transport
+* [[Insertion Fluid Pipe]] - Fill neighbors first
+
+[[Category:Pipes]]
+[[Category:Fluids]]
+[[Category:Recipes]]

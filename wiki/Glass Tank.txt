@@ -1,9 +1,46 @@
-{{Stub}}
+{{Infobox Item
+|name      = Glass Tank
+|image     = Grid Glass Tank.png
+|id        = logistics:fluid/glass_tank
+|type      = Block
+|stackable = Yes (64)
+|capacity  = 16,000 mB (16 buckets)
+|added     = v0.7.3
+}}
 
-The '''Glass Tank''' is a basic fluid storage block used to hold liquids in a Logistics network. It is not yet documented on this wiki.
+The '''Glass Tank''' is a fluid storage block that buffers liquids for a [[Fluid Pipes|fluid network]]. It holds '''16,000 mB''' (16 buckets) of a single fluid type, and stacked tanks merge into one larger reservoir.
+
+==Recipe==
+
+{{Grid Crafting Table
+|A1=Glass |B1=Glass |C1=Glass
+|A2=Glass |C2=Glass
+|A3=Glass |B3=Glass |C3=Glass
+|Output=Glass Tank
+}}
+
+'''Yields:''' 1× Glass Tank (a ring of 8 Glass)
+
+==Behavior==
+
+* Stores '''16,000 mB (16 buckets)''' of one fluid type
+* Accepts insert and extract on all faces — connect a [[Fluid Pipes|fluid pipe]] to any side
+* '''Stack vertically to merge''': tanks placed in a column form one logical reservoir whose capacity is the sum of all tanks, filling '''bottom-up'''
+* A dynamic block-entity renderer shows the fluid's actual sprite and color at its current fill height through the glass
+* Fill or drain by hand with a bucket (and other fluid-container items) — right-click to add or remove fluid
+
+==Tips==
+* Stack several tanks to build a tall reservoir — "scale is the feature," done as tileable blocks rather than a multiblock
+* Buffer the output of a [[Pump]] or [[Fluid Extractor Pipe]] before feeding it onward
+* Because each tank holds one fluid type, keep separate columns for different fluids
+* Use an [[Insertion Fluid Pipe]] or [[Merger Fluid Pipe]] to control how fluid enters the tank
 
 ==See Also==
-* [[Materials]] - Crafting components and blocks
-* [[Fluid Pipes]] - Fluid transport
+* [[Fluid Pipes]] - Overview of the fluid system
+* [[Pump]] - Fill tanks from world fluid sources
+* [[Fluid Extractor Pipe]] - Pull fluid from machines into a tank
+* [[Copper Fluid Pipe]], [[Golden Fluid Pipe]] - Connect tanks to your network
 
-[[Category:Materials]]
+[[Category:Machines]]
+[[Category:Fluids]]
+[[Category:Recipes]]

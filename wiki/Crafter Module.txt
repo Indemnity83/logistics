@@ -18,9 +18,9 @@ Three mark variants exist (MK1/II/III), with higher marks supporting more comple
 |-
 | Crafter Module (MK1) || Redstone Chip || Single recipe, standard speed
 |-
-| Crafter Module MK2 || Amethyst Chip || Enhanced throughput or priority handling
+| Crafter MkII Module || Amethyst Chip || Enhanced throughput or priority handling
 |-
-| Crafter Module MK3 || Echo Chip || Maximum crafting speed, advanced recipe support
+| Crafter MkIII Module || Echo Chip || Maximum crafting speed, advanced recipe support
 |}
 
 ==Recipes==
@@ -35,25 +35,25 @@ Three mark variants exist (MK1/II/III), with higher marks supporting more comple
 
 '''Yields:''' 1× Crafter Module (MK1) — 2× [[Dusts|Bronze Dust]] + [[Chips|Redstone Chip]] + 2× Redstone + [[Blank Module]]
 
-===Crafter Module MK2===
+===Crafter MkII Module===
 
 {{Grid Crafting Table
 |A1=Bronze Dust |B1=Amethyst Chip |C1=Bronze Dust
 |A2=Redstone |B2=Blank Module |C2=Redstone
-|Output=Crafter Module MK2
+|Output=Crafter MkII Module
 }}
 
-'''Yields:''' 1× Crafter Module MK2 — 2× [[Dusts|Bronze Dust]] + [[Chips|Amethyst Chip]] + 2× Redstone + [[Blank Module]]
+'''Yields:''' 1× Crafter MkII Module — 2× [[Dusts|Bronze Dust]] + [[Chips|Amethyst Chip]] + 2× Redstone + [[Blank Module]]
 
-===Crafter Module MK3===
+===Crafter MkIII Module===
 
 {{Grid Crafting Table
 |A1=Bronze Dust |B1=Echo Chip |C1=Bronze Dust
 |A2=Redstone |B2=Blank Module |C2=Redstone
-|Output=Crafter Module MK3
+|Output=Crafter MkIII Module
 }}
 
-'''Yields:''' 1× Crafter Module MK3 — 2× [[Dusts|Bronze Dust]] + [[Chips|Echo Chip]] + 2× Redstone + [[Blank Module]]
+'''Yields:''' 1× Crafter MkIII Module — 2× [[Dusts|Bronze Dust]] + [[Chips|Echo Chip]] + 2× Redstone + [[Blank Module]]
 
 ==Behavior==
 

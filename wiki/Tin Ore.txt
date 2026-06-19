@@ -8,7 +8,7 @@
 |added     = v0.2.0
 }}
 
-'''Tin Ore''' is a common ore found underground. Smelt it to create [[Tin Ingot|tin ingots]] for crafting bronze and tin valves.
+'''Tin Ore''' is a common ore found underground. Smelt its drop to create [[Tin Ingot|tin ingots]] for crafting bronze and tin components. A '''Deepslate Tin Ore''' variant occurs in deepslate layers.
 
 ==Obtaining==
 
@@ -29,21 +29,30 @@
 * Raw Tin → [[Tin Ingot]]
 * Used in furnaces or blast furnaces
 
+'''Grinding:'''
+* Tin Ore / Deepslate Tin Ore → 2× Tin Dust in the [[Macerator]] (ore doubling, see [[Dusts]])
+
 '''Storage:'''
-* Raw Tin Block (9× raw tin)
-* Compact storage
+* Block of Raw Tin (9× Raw Tin) - compact storage
+
+==Related Items==
+
+* '''Deepslate Tin Ore''' - Deepslate-layer variant, same drop
+* '''Raw Tin''' - Mined drop
+* '''Block of Raw Tin''' - Compact storage for Raw Tin
+* '''Tin Dust''' - Ground form from the [[Macerator]] (see [[Dusts]])
 
 ==Tips==
 
-* Mine with fortune pickaxe for more raw tin
+* Mine with a Fortune pickaxe for more Raw Tin
 * Common ore - easy to find
 * Needed for bronze alloy ([[Bronze Ingot]])
-* Required for [[Tin Valve]]
+* Grind in the [[Macerator]] to double your output
 
 ==See Also==
 * [[Tin Ingot]] - Smelted product
 * [[Bronze Ingot]] - Tin + copper alloy
-* [[Tin Valve]] - Main use for tin
 * [[Tin Gear]] - Crafting component
+* [[Dusts]] - Tin Dust and ore doubling
 
 [[Category:Materials]]

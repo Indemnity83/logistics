@@ -1,4 +1,4 @@
-'''Energy''' covers the engines and RF power system in Logistics. Engines generate RF energy to power automation machines. All engines require a direct redstone signal to operate and output energy from one configurable face.
+'''Energy''' covers the engines, cables, storage, and RF power system in Logistics. Engines generate RF energy, cables distribute it, and a [[Battery]] stores it to power the logistics network. All engines require a direct redstone signal to operate and output energy from one configurable face.
 
 ==Energy System==
 * '''[[RF Energy]]''' - Understanding the power system
@@ -6,6 +6,22 @@
 ==Engines==
 * '''[[Redstone Engine]]''' - Basic engine, converts redstone signal to small steady power
 * '''[[Stirling Engine]]''' - Burns fuel for substantial power output, can overheat
+* '''[[Creative Engine]]''' - Infinite RF for testing and creative mode (not craftable)
+
+==Cables==
+Cables distribute RF from engines to a [[Battery]] or machine at increasing transfer rates:
+* '''[[Copper Cable]]''' - 30 RF/t
+* '''[[Gold Cable]]''' - 60 RF/t
+* '''[[Ender Cable]]''' - 120 RF/t
+
+==Storage==
+* '''[[Battery]]''' - Stores RF and powers the logistics network
+
+==Powering the logistics network==
+
+The Tier 3 logistics network runs on stored power. An [[Engines & Power|engine]] generates RF, [[Copper Cable|cables]] carry it to a [[Battery]], and the network draws from that Battery to route, supply, and craft items. Logistics pipes render '''green when powered''' and '''red when not''' — an unpowered network stops working and drops items already in transit until a charged Battery is connected.
+
+Note that Tier 1 extraction pipes (the [[Item Extractor Pipe]] and [[Fluid Extractor Pipe]]) are paced by an adjacent engine instead, not the network Battery.
 
 ==See Also==
 * [[Machines]] - Machines that use power

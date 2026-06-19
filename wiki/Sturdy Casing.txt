@@ -1,0 +1,38 @@
+{{Infobox Item
+|name      = Sturdy Casing
+|image     = Grid Sturdy Casing.png
+|id        = logistics:core/sturdy_casing
+|type      = Item (Component)
+|stackable = Yes (64)
+|function  = Machine crafting component
+}}
+
+The '''Sturdy Casing''' is a crafting component used to build machines. It is a reinforced shell formed from [[Bronze Ingot|Bronze Ingots]], serving as the structural body that machine internals are built around — a companion to the [[Machine Core]].
+
+==Recipe==
+
+{{Grid Crafting Table
+|A1=Bronze Ingot |B1=Bronze Ingot |C1=Bronze Ingot
+|A2=Bronze Ingot |C2=Bronze Ingot
+|A3=Bronze Ingot |B3=Bronze Ingot |C3=Bronze Ingot
+|Output=Sturdy Casing
+}}
+
+'''Yields:''' 1× Sturdy Casing (8× [[Bronze Ingot]] arranged in a ring)
+
+==Usage==
+
+The Sturdy Casing is a structural crafting component used in machine recipes, providing the outer shell that houses a [[Machine Core]] and other internals.
+
+==Tips==
+
+* Bronze Ingots are an alloy of Copper + Tin — keep a [[Tin Ore|tin]] supply on hand
+* Craft casings in batches alongside [[Machine Core|Machine Cores]] when building several machines at once
+
+==See Also==
+* [[Bronze Ingot]] - Primary crafting material
+* [[Machine Core]] - Companion machine component
+* [[Machines]] - Machines built from these components
+
+[[Category:Materials]]
+[[Category:Recipes]]

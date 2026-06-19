@@ -17,6 +17,10 @@
 {{!}} style="padding:4px 8px; font-weight:bold;" {{!}} Function {{!}}{{!}} style="padding:4px 8px;" {{!}} {{{function}}}}}
 {{#if:{{{energy|}}}|{{!}}-
 {{!}} style="padding:4px 8px; font-weight:bold;" {{!}} Energy {{!}}{{!}} style="padding:4px 8px;" {{!}} {{{energy}}}}}
+{{#if:{{{capacity|}}}|{{!}}-
+{{!}} style="padding:4px 8px; font-weight:bold;" {{!}} Capacity {{!}}{{!}} style="padding:4px 8px;" {{!}} {{{capacity}}}}}
+{{#if:{{{rate|}}}|{{!}}-
+{{!}} style="padding:4px 8px; font-weight:bold;" {{!}} Transfer rate {{!}}{{!}} style="padding:4px 8px;" {{!}} {{{rate}}}}}
 {{#if:{{{tool|}}}|{{!}}-
 {{!}} style="padding:4px 8px; font-weight:bold;" {{!}} Tool {{!}}{{!}} style="padding:4px 8px;" {{!}} {{{tool}}}}}
 {{#if:{{{added|}}}|{{!}}-
@@ -37,7 +41,7 @@ Usage:
  }}
 
 All fields except name are optional. Extra optional fields: mod (defaults to
-"Logistics"), function, energy, tool. The image looks for an uploaded
+"Logistics"), function, energy, capacity, rate, tool. The image looks for an uploaded
 [[File:Grid <name>.png]]; see the ''ASSET_UPLOAD_MAP'' reference shipped with the wiki source.
 
 [[Category:Templates]]

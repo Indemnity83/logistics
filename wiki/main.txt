@@ -34,6 +34,8 @@ New to Logistics? These pages are the best place to begin:
 |-
 | [[Engines & Power]] || Power source used by Logistics machines and extraction systems.
 |-
+| [[Battery]] || Stores RF and powers the logistics network.
+|-
 | [[Recipes]] || Crafting recipes for Logistics blocks and items.
 |-
 |}
@@ -60,15 +62,14 @@ The mod is developed by '''Indemnity83''' and is available through common Minecr
 
 ==Wiki status==
 
-This wiki was recently reopened and is being rebuilt as documentation for the Logistics Minecraft mod.
+This wiki is being maintained as documentation for the Logistics Minecraft mod, currently targeting '''Minecraft 26.1''' on '''Fabric & NeoForge'''.
 
-Current priorities:
+The item pipes, [[Fluid Pipes|fluid pipes]], [[Glass Tank]], [[Pump]], and the [[Battery]]-based [[Energy|power system]] are now documented. Current priorities:
 
-* Replace placeholder pages
-* Add block and item documentation
-* Add crafting recipes
-* Add screenshots and icons
-* Build templates for recipes, pipes, and modules
+* Fill in remaining module and Tier 3 logistics pipe pages
+* Add crafting recipes to pages that still lack them
+* Upload item icons (see asset upload map)
+* Keep version, loader, and behavior notes in sync with releases
 * Organize pages into useful categories
 
 ==Browse==

@@ -1872,3 +1872,42 @@ Until an image is uploaded, `{{Grid}}` falls back to a plain text link, so pages
 | `minecraft__zombie_spawn_egg.png` | `File:Grid Zombie Spawn Egg.png` |
 | `minecraft__zombie_villager_spawn_egg.png` | `File:Grid Zombie Villager Spawn Egg.png` |
 | `minecraft__zombified_piglin_spawn_egg.png` | `File:Grid Zombified Piglin Spawn Egg.png` |
+
+## New in 26.1
+
+Icons needed for the pages added in the 26.1 update (fluid pipes, fluid storage,
+the [[Battery]] power system, the Creative Engine, and new materials/dusts).
+
+Some rendered icons already exist in `docs/assets/icons/` (Source listed). The fluid
+pipes, fluid storage blocks, Battery, and cables do not yet have rendered inventory
+icons in that set — their in-world block textures live under
+`../logistics-mc-26.1/common/src/main/resources/assets/logistics/textures/block/{fluid,power}/`,
+but a rendered `Grid <Name>.png` still needs to be produced and uploaded (marked TODO).
+
+| Source icon | Upload as |
+| --- | --- |
+| TODO (block tex: `block/fluid/stone_fluid_pipe_core.png`) | `File:Grid Stone Fluid Pipe.png` |
+| TODO (block tex: `block/fluid/copper_fluid_pipe_core.png`) | `File:Grid Copper Fluid Pipe.png` |
+| TODO (block tex: `block/fluid/gold_fluid_pipe_core.png`) | `File:Grid Golden Fluid Pipe.png` |
+| TODO (block tex: `block/fluid/*fluid_extractor*`) | `File:Grid Fluid Extractor Pipe.png` |
+| TODO (block tex: `block/fluid/void_fluid_pipe_core.png`) | `File:Grid Void Fluid Pipe.png` |
+| TODO (block tex: `block/fluid/insertion_fluid_pipe_core.png`) | `File:Grid Insertion Fluid Pipe.png` |
+| TODO (block tex: `block/fluid/merger_fluid_pipe_core.png`) | `File:Grid Merger Fluid Pipe.png` |
+| TODO (block tex: `block/fluid/bypass_fluid_pipe_core.png`) | `File:Grid Bypass Fluid Pipe.png` |
+| TODO (fluid storage block) | `File:Grid Glass Tank.png` |
+| TODO (block tex: `block/fluid/fluid_pump_*`) | `File:Grid Pump.png` (Fluid Pump) |
+| TODO (block tex: `block/power/battery_*`) | `File:Grid Battery.png` |
+| TODO (block tex: `block/power/copper_cable.png`) | `File:Grid Copper Cable.png` |
+| TODO (block tex: `block/power/gold_cable.png`) | `File:Grid Gold Cable.png` |
+| TODO (block tex: `block/power/ender_cable.png`) | `File:Grid Ender Cable.png` |
+| `logistics__power___creative_engine.png` | `File:Grid Creative Engine.png` |
+| `logistics__automation___marker.png` (also `logistics__core___marker.png`) | `File:Grid Marker.png` |
+| `logistics__core___sturdy_casing.png` | `File:Grid Sturdy Casing.png` |
+| TODO (Rubber Mix) | `File:Grid Rubber Mix.png` |
+| TODO (Rubber Chunk) | `File:Grid Rubber Chunk.png` |
+| `logistics__core___echo_dust.png` | `File:Grid Echo Dust.png` |
+| `logistics__core___prismarine_dust.png` | `File:Grid Prismarine Dust.png` |
+| `logistics__core___coal_dust.png` | `File:Grid Coal Dust.png` |
+| `logistics__core___amethyst_dust.png` | `File:Grid Amethyst Dust.png` |
+| `logistics__core___netherite_dust.png` | `File:Grid Netherite Dust.png` |
+| `logistics__core___obsidian_dust.png` | `File:Grid Obsidian Dust.png` |

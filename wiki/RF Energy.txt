@@ -1,25 +1,37 @@
-'''RF (Redstone Flux)''' is the energy system used by Logistics to power automation machines like the [[Laser Quarry]]. Engines generate RF, and machines consume it to operate.
+'''RF (Redstone Flux)''' is the energy system used by Logistics. [[Engines & Power|Engines]] generate RF, [[Copper Cable|cables]] distribute it, and machines and the logistics network consume it to operate.
 
-==How It Works==
+There are '''two separate power paths''' in the mod — they do not share a power source:
 
-# [[Energy|Engines]] generate RF energy when running
-# '''Energy transfers''' from engine output face to adjacent machines
-# '''Machines''' consume RF to perform work
-# '''No cables needed''' - direct face-to-face connection
+==Path 1: Powering the logistics network==
 
-==Energy Transfer==
+The Tier 3 logistics network is powered from a stored reservoir, not directly off an engine:
 
-Engines output RF from '''one face only''' (configurable with [[Wrench]]):
+# An [[Engines & Power|engine]] ([[Redstone Engine]], [[Stirling Engine]], or [[Creative Engine]]) generates RF
+# [[Copper Cable|Power cables]] carry that RF to a [[Battery]]
+# The Tier 3 logistics pipes and chassis modules draw RF from the connected Battery each time they route, supply, or craft
 
-<pre>
-[Engine output face] → [Machine input face]
-    Direct connection required
-</pre>
+'''When the network runs out of power:'''
+* Routing, supplying, and crafting all stop
+* Items already in transit are '''dropped'''
+* Logistics pipes render '''green when powered''' and '''red when not''', so you can see network status at a glance
 
-* Output face must touch machine input face
-* No pipes or cables for RF
-* Rotate engine output with wrench
-* Transfer is automatic when connected
+Power is restored as soon as a charged [[Battery]] is connected again.
+
+==Path 2: Tier 1 extraction pacing==
+
+Tier 1 extraction pipes do '''not''' use the Battery. Instead, each is paced by an '''adjacent engine''':
+
+* The [[Item Extractor Pipe]] and [[Fluid Extractor Pipe]] pull faster the more RF the adjacent engine supplies
+* This is the original, mechanical power model — the engine touches the pipe directly
+* No Battery or logistics network is involved
+
+==Cables==
+
+Cables carry RF from an engine to a [[Battery]] or machine. They connect to each other and to adjacent power blocks, and differ only in throughput (Copper < Gold < Ender):
+
+* '''[[Copper Cable]]''' - 30 RF/t
+* '''[[Gold Cable]]''' - 60 RF/t
+* '''[[Ender Cable]]''' - 120 RF/t
 
 ==Engine Types==
 
@@ -29,7 +41,7 @@ Different engines generate different amounts of RF:
 * Small, steady output
 * Powered by redstone signal only
 * Cannot overheat
-* Good for low-power machines
+* Good for low-power needs
 
 '''[[Stirling Engine]]:'''
 * Substantial output
@@ -37,28 +49,23 @@ Different engines generate different amounts of RF:
 * Can overheat if run too long
 * Good for high-power machines like quarries
 
-==Power Requirements==
-
-Machines have different power needs:
-
-'''[[Laser Quarry]]:'''
-* Consumes RF continuously while mining
-* Mining speed scales with RF throughput
-* More power = faster mining
-* Recommended: [[Stirling Engine]]
+'''[[Creative Engine]]:'''
+* Infinite output for testing and creative mode
+* Never runs out of fuel, never overheats
+* Not craftable
 
 ==Tips==
 
-* Connect engine output face directly to machine
-* Use [[Wrench]] to rotate output face
-* More powerful engines allow faster operation
-* Engines require redstone signal to run
-* No energy storage - engines run on-demand
+* Keep a charged [[Battery]] on the network at all times — an empty Battery drops in-transit items
+* Use higher-tier cables ([[Gold Cable]], [[Ender Cable]]) to feed a high-demand network
+* Engines require a redstone signal to run
+* Place an engine directly against an [[Item Extractor Pipe]] to pace its extraction
 
 ==See Also==
-* [[Redstone Engine]] - Basic power generation
-* [[Stirling Engine]] - High power generation
+* [[Battery]] - Stores RF for the logistics network
+* [[Copper Cable]], [[Gold Cable]], [[Ender Cable]] - Distribute RF
+* [[Redstone Engine]], [[Stirling Engine]], [[Creative Engine]] - Generate RF
+* [[Item Extractor Pipe]] - Tier 1 extraction paced by an engine
 * [[Laser Quarry]] - Major power consumer
-* [[Wrench]] - Rotate engine faces
 
 [[Category:Power]]

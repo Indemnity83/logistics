@@ -1,0 +1,48 @@
+{{Infobox Item
+|name      = Copper Fluid Pipe
+|image     = Grid Copper Fluid Pipe.png
+|id        = logistics:fluid/copper_fluid_pipe
+|type      = Block (Fluid Pipe)
+|stackable = Yes (64)
+|rate      = 10 mB/t (passive)
+|added     = v0.7.3
+}}
+
+The '''Copper Fluid Pipe''' is a standard-speed [[Fluid Pipes|fluid pipe]] that carries liquids between [[Glass Tank|tanks]], [[Pump|pumps]], and machines. It is the backbone of most fluid networks, the fluid-side counterpart to the [[Copper Transport Pipe]].
+
+Fluid pipes form a '''standalone''' transport system, separate from the item [[Pipe Networks|logistics network]]: each connected line carries one fluid type and moves it by pressure equalization. Passive transport through stone, copper, and golden fluid pipes is free — no power required.
+
+==Recipe==
+
+{{Grid Crafting Table
+|A1=Copper Transport Pipe |B1=Slime Ball
+|Output=Copper Fluid Pipe
+}}
+
+'''Yields:''' 1× Copper Fluid Pipe (shapeless: any [[Copper Transport Pipe]] + Slime Ball)
+
+==Behavior==
+
+* Transfers fluid between adjacent tanks, machines, and other fluid pipes at '''10 mB/t'''
+* Carries '''one fluid type''' per connected line
+* Passive transport is '''free''' (no RF)
+* Connects automatically to fluid handlers on every face; use a [[Bypass Fluid Pipe]] to connect only to pipes
+* Works with any mod's fluid storage on both Fabric and NeoForge
+* Like vanilla copper, the pipe weathers through exposed/weathered/oxidized stages; wax it with honeycomb to stop oxidation
+
+==Tips==
+* Pair with a [[Pump]] to pull fluid sources from the world, or a [[Fluid Extractor Pipe]] to draw from machine tanks
+* Use a [[Golden Fluid Pipe]] (80 mB/t) for high-throughput lines and a [[Stone Fluid Pipe]] (10 mB/t) as a cheap alternative
+* Store buffered fluid in a [[Glass Tank]]; stack tanks vertically to grow the reservoir
+
+==See Also==
+* [[Fluid Pipes]] - Overview of the fluid system
+* [[Stone Fluid Pipe]], [[Golden Fluid Pipe]] - Other passive fluid pipes
+* [[Fluid Extractor Pipe]] - Pull fluid from tanks and machines (RF powered)
+* [[Glass Tank]] - Fluid storage
+* [[Pump]] - Extract world fluid sources
+* [[Copper Transport Pipe]] - The item-transport counterpart
+
+[[Category:Pipes]]
+[[Category:Fluids]]
+[[Category:Recipes]]

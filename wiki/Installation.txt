@@ -2,40 +2,47 @@ Get Logistics installed and running in your Minecraft instance.
 
 ==Requirements==
 
-* '''Minecraft:''' 1.21.11
-* '''Fabric Loader:''' 0.18.4 or newer
-* '''Fabric API:''' Latest version for 1.21.11
-* '''Java:''' 21 or newer
+* '''Minecraft:''' 26.1 or newer
+* '''Mod Loader:''' Fabric (Loader 0.18.6 or newer, with Fabric API) '''or''' NeoForge
+* '''Java:''' 25 or newer
+
+Logistics is a multiloader mod and runs on either Fabric or NeoForge. Pick the loader you already use and download the matching build.
 
 ==Installation Steps==
 
-===1. Install Fabric Loader===
+===1. Install your mod loader===
 
-If you haven't already:
+If you haven't already, install '''either''' Fabric '''or''' NeoForge for Minecraft 26.1:
 
-# Download [https://fabricmc.net/use/ Fabric Loader] for Minecraft 1.21.11
+'''Fabric:'''
+# Download [https://fabricmc.net/use/ Fabric Loader] (0.18.6+) for Minecraft 26.1
 # Run the installer
 # Select "Client" installation
 # Choose your Minecraft directory
 # Click Install
 
-===2. Download Fabric API===
+'''NeoForge:'''
+# Download the [https://neoforged.net/ NeoForge installer] for Minecraft 26.1
+# Run the installer and select "Client"
+# Launch once to create the NeoForge profile
 
-Fabric API is required for Logistics to work:
+===2. Download the API (Fabric only)===
+
+On '''Fabric''', Fabric API is required for Logistics to work (NeoForge needs no separate API):
 
 # Download from [https://modrinth.com/mod/fabric-api Modrinth] or [https://www.curseforge.com/minecraft/mc-mods/fabric-api CurseForge]
-# Choose version for Minecraft 1.21.11
+# Choose the version for Minecraft 26.1
 # Save the <code>.jar</code> file
 
 ===3. Download Logistics===
 
-Get the Logistics mod:
+Get the Logistics mod, choosing the build for your loader:
 
 * '''[https://github.com/indemnity83/logistics/releases GitHub Releases]''' - Latest releases and dev builds
 * '''[https://modrinth.com/mod/logistics Modrinth]''' - Stable releases
 * '''[https://www.curseforge.com/minecraft/mc-mods/logistics CurseForge]''' - Stable releases
 
-Download the version for Minecraft 1.21.11.
+Download the Fabric or NeoForge version for Minecraft 26.1.
 
 ===4. Install Mods===
 
@@ -44,14 +51,14 @@ Download the version for Minecraft 1.21.11.
 #* '''macOS:''' <code>~/Library/Application Support/minecraft/mods</code>
 #* '''Linux:''' <code>~/.minecraft/mods</code>
 # Create the <code>mods</code> folder if it doesn't exist
-# Copy both <code>.jar</code> files into the <code>mods</code> folder:
-#* Fabric API <code>.jar</code>
+# Copy the required <code>.jar</code> files into the <code>mods</code> folder:
+#* Fabric API <code>.jar</code> (Fabric only)
 #* Logistics <code>.jar</code>
 
 ===5. Launch Minecraft===
 
 # Open the Minecraft Launcher
-# Select the '''Fabric''' profile
+# Select the '''Fabric''' or '''NeoForge''' profile
 # Click '''Play'''
 # Verify Logistics is loaded (check mods menu)
 
@@ -68,14 +75,14 @@ Or just try crafting a [[Copper Transport Pipe]]!
 ==Troubleshooting==
 
 '''Game crashes on startup:'''
-* Verify you're using Minecraft 1.21.11
-* Check Fabric Loader is version 0.18.4+
-* Ensure Fabric API is installed
-* Confirm Java 21 or newer
+* Verify you're using Minecraft 26.1
+* On Fabric, check Fabric Loader is version 0.18.6+ and Fabric API is installed
+* Confirm Java 25 or newer
 
 '''Mod doesn't appear:'''
 * Check <code>.jar</code> files are in the <code>mods</code> folder
-* Verify Fabric profile is selected in launcher
+* Verify the Fabric or NeoForge profile is selected in launcher
+* Confirm you downloaded the build matching your loader
 * Look for error messages in launcher log
 
 '''Recipe conflicts or issues:'''

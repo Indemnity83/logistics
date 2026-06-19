@@ -58,6 +58,17 @@ Right-click blocks with the wrench to configure them. Different blocks respond d
 
 The wrench works with any configurable Logistics block. Future machines and components will use the wrench for configuration.
 
+==Inspecting Blocks (Jade HUD)==
+
+The old in-game '''Probe''' tool has been removed. Hover information is now provided through '''[https://www.curseforge.com/minecraft/mc-mods/jade Jade]''' HUD integration, which displays:
+
+* Pipe contents (items currently inside a pipe)
+* Pipe module status (installed modules in a [[Chassis Logistics Pipe]])
+* Machine progress (Kiln, Macerator, Laser Quarry, etc.)
+* Power and energy diagnostics
+
+Install Jade alongside Logistics to read this information by simply looking at a block. The wrench itself is for configuration only, not inspection.
+
 ==Tips==
 
 * Keep wrench in hotbar for quick configuration

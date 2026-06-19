@@ -1,29 +1,31 @@
-'''Dusts''' are ground materials produced by the [[Macerator]]. They are used as crafting ingredients for [[Modules|modules]] and [[Chips|chips]], and can be smelted back into ingots for better ore yields.
+'''Dusts''' are ground materials produced by the [[Macerator]]. They are used as crafting ingredients for [[Modules|modules]], [[Cores|cores]], and [[Chips|chips]], and metal dusts can be smelted back into ingots for better ore yields.
 
 ==All Dust Types==
 
 {| class="wikitable"
 ! Dust !! Source !! Uses
 |-
-| Iron Dust || Iron Ore, Iron Ingot, Iron Block, Raw Iron || [[Provider Module]], smelt → Iron Ingot
+| Iron Dust || Iron Ore / Deepslate Iron Ore, Iron Ingot, Iron Block, Raw Iron || [[Provider Module]], smelt → Iron Ingot
 |-
-| Copper Dust || Copper Ore, Copper Ingot, Copper Block, Raw Copper || [[Item Sink Module]], smelt → Copper Ingot
+| Copper Dust || Copper Ore / Deepslate Copper Ore, Copper Ingot, Copper Block, Raw Copper (+ Raw Copper Block) || [[Item Sink Module]], smelt → Copper Ingot
 |-
-| Gold Dust || Gold Ore, Gold Ingot, Gold Block, Raw Gold, Nether Gold Ore || Smelt → Gold Ingot
+| Gold Dust || Gold Ore / Deepslate / Nether Gold Ore, Gold Ingot, Gold Block, Raw Gold (+ Raw Gold Block) || Smelt → Gold Ingot
 |-
-| Tin Dust || Tin Ore, Tin Ingot || Smelt → Tin Ingot
+| Tin Dust || Tin Ore / Deepslate Tin Ore, Tin Ingot || Smelt → Tin Ingot
 |-
 | Bronze Dust || Bronze Ingot || [[Crafter Module]], smelt → Bronze Ingot
 |-
-| Diamond Dust || Diamond Ore, Diamond Block || [[Quicksort Module]], [[Cores|Diamond Core]]
+| Diamond Dust || Diamond Ore / Deepslate Diamond Ore, Diamond, Diamond Block || [[Quicksort Module]], [[Cores|Diamond Core]]
 |-
-| Emerald Dust || Emerald Ore, Emerald Block || [[Supplier Module]], [[Cores|Emerald Core]]
+| Emerald Dust || Emerald Ore / Deepslate Emerald Ore, Emerald, Emerald Block || [[Supplier Module]], [[Cores|Emerald Core]]
 |-
-| Lapis Dust || Lapis Ore, Lapis Block || [[Machines|Marker]], smelt or craft
+| Lapis Dust || Lapis Ore / Deepslate Lapis Ore, Lapis Lazuli, Lapis Block || [[Marker]], [[Cores|Lapis Core]]
 |-
-| Coal Dust || Coal Ore, Coal, Charcoal || [[Chips#Silicon Wafer|Silicon Mix]], [[Chips|Carbon Chip]]
+| Coal Dust || Coal Ore / Deepslate Coal Ore, Coal, Charcoal || [[Rubber|Rubber Mix]], [[Chips#Silicon Wafer|Silicon Mix]], [[Chips|Carbon Chip]]
 |-
-| Quartz Dust || Nether Quartz, Quartz Ore, Quartz Block || [[Cores#Quartz Crystal|Quartz Crystal]], [[Chips#Silicon Wafer|Silicon Mix]]
+| Quartz Dust || Nether Quartz, Quartz Block || [[Cores#Quartz Crystal|Quartz Crystal]], [[Chips#Silicon Wafer|Silicon Mix]]
+|-
+| Apatite Dust || Apatite Ore || Crafting ingredient
 |-
 | Amethyst Dust || Amethyst Shard || [[Chips|Amethyst Chip]]
 |-
@@ -31,14 +33,14 @@
 |-
 | Ender Dust || Ender Pearl || [[Cores|Ender Core]], [[Chips]] (shared ingredient)
 |-
-| Tin Dust || Tin Ore, Tin Ingot || Smelt → Tin Ingot
-|-
-| Netherite Dust || — || Smelt → Netherite Ingot
+| Prismarine Dust || Prismarine Shard, Prismarine Bricks || Decorative / future use
 |-
 | Obsidian Dust || Obsidian || [[Cores|Obsidian Core]]
 |-
-| Prismarine Dust || Prismarine Shard, Prismarine Bricks || Decorative / future use
+| Netherite Dust || Netherite scrap/ingot processing || [[Cores|Netherite Core]], smelt → Netherite Ingot
 |}
+
+In addition, '''Flour''' (from Wheat) is a non-metal ground product of the [[Macerator]], used for baking food.
 
 ==Wood Pulp==
 
@@ -58,10 +60,11 @@ vs.
 </pre>
 
 ==See Also==
-* [[Macerator]] - Produces all dusts
+* [[Macerator]] - Produces all dusts (see its page for full grind counts)
 * [[Kiln]] - Smelts dusts into ingots or crystals
 * [[Chips]] - Advanced components made from dusts
 * [[Cores]] - Some cores require specific dusts
 * [[Modules]] - Consume dusts as crafting ingredients
+* [[Rubber]] - Crafted from Coal Dust
 
 [[Category:Materials]]

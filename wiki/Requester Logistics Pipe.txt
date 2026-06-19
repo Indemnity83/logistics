@@ -44,6 +44,10 @@ Use a [[Wrench]] to open the requester GUI:
 * The network browser shows live availability; if a provider runs out, that item's count drops to zero
 * Items are routed to the adjacent inventory automatically when delivered — no manual collection needed
 
+==Power==
+
+As a [[Tier System|Tier 3]] network pipe, this draws [[RF Energy|RF]] from a connected [[Battery]]. Without a charged Battery the network stops routing and drops in-transit items; the pipe renders '''green when powered''' and '''red when not'''.
+
 ==See Also==
 * [[Basic Logistics Pipe]] - Required crafting component
 * [[Provider Logistics Pipe]] - Provides the items this pipe requests

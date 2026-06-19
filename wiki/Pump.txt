@@ -1,0 +1,52 @@
+{{Infobox Item
+|name      = Pump
+|image     = Grid Pump.png
+|id        = logistics:fluid/fluid_pump
+|type      = Block (Machine)
+|stackable = Yes (64)
+|capacity  = 16,000 mB (16 buckets) internal buffer
+|rate      = up to 62.5 mB/t output
+|energy    = 100 RF per source block
+|added     = v0.7.3
+}}
+
+The '''Pump''' (also called the '''Fluid Pump''') extracts fluid source blocks from the world and feeds them into an adjacent [[Glass Tank|tank]] or [[Fluid Pipes|fluid pipe]]. It is the end-to-end consumer of the fluid system — the simplest way to get water or lava into your network.
+
+==Recipe==
+
+{{Grid Crafting Table
+|A1=Iron Ingot |B1=Redstone |C1=Iron Ingot
+|A2=Iron Ingot |B2=Iron Gear |C2=Iron Ingot
+|A3=Glass Tank |B3=Bucket |C3=Glass Tank
+|Output=Pump
+}}
+
+'''Yields:''' 1× Pump (uses an [[Iron Gear]], a Bucket, two [[Glass Tank|Glass Tanks]], Iron Ingots, and Redstone)
+
+==Behavior==
+
+* '''Drains fluid source blocks''' from the world below it into its internal buffer
+* Consumes '''100 RF per source block''' drained — no power, no pumping
+* Holds a '''16,000 mB (16 buckets)''' internal buffer
+* Outputs up to '''62.5 mB/t''' into an adjacent tank or fluid pipe
+* Works with any vanilla or modded fluid source on both Fabric and NeoForge
+
+==Power==
+The Pump runs on RF and has its own internal buffer — it does '''not''' need an engine pressed against it the way a [[Fluid Extractor Pipe]] does. Supply it with RF from your power system to keep it draining; with no power it stops.
+
+==Tips==
+* Place a [[Glass Tank]] or [[Copper Fluid Pipe]] against the pump's output to carry away what it draws
+* Buffer the output in stacked [[Glass Tank|tanks]] so the pump can keep draining even when the network is briefly full
+* Use a [[Golden Fluid Pipe]] (80 mB/t) on the output if you need to move fluid faster than one pump produces
+* To pull fluid out of a machine's tank instead of the world, use a [[Fluid Extractor Pipe]]
+
+==See Also==
+* [[Fluid Pipes]] - Overview of the fluid system
+* [[Glass Tank]] - Buffer the pump's output
+* [[Fluid Extractor Pipe]] - Pull fluid from tanks and machines instead
+* [[Copper Fluid Pipe]], [[Golden Fluid Pipe]] - Carry pumped fluid through your network
+* [[Iron Gear]] - Recipe component
+
+[[Category:Machines]]
+[[Category:Fluids]]
+[[Category:Recipes]]

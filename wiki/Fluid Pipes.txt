@@ -1,8 +1,39 @@
-{{Stub}}
+'''Fluid Pipes''' move and store liquids through a '''standalone''' fluid system, separate from the item-carrying [[Pipes|logistics network]]. Fluids never join the item [[Pipe Networks|network graph]] — they get their own local transport, storage, and extraction.
 
-'''Fluid Pipes''' transport liquids through a Logistics network, the fluid counterpart to item-carrying [[Pipes]]. Fluid transport is not yet documented on this wiki.
+==How it works==
+
+* '''One fluid per line''' — each connected run of fluid pipe carries a single fluid type. A line carrying one fluid won't accept another until it drains (no mixing).
+* '''Pressure equalization''' — fluid flows from fuller pipes toward emptier ones and toward sinks, capped each tick by the pipe's transfer rate.
+* '''Passive transport is free''' — stone, copper, and golden pipes (and the void and bypass pipes) move fluid without any power.
+* '''Active extraction costs power''' — only the [[Fluid Extractor Pipe]] (driven by an adjacent engine) and the [[Pump]] (RF) consume energy to pull fluid in.
+* Works with any mod's fluid storage on both Fabric and NeoForge.
+
+==Transport Pipes==
+
+Passive movers that carry fluid between tanks, machines, and other pipes at increasing rates. The slowest pipe on a line caps its throughput.
+
+* '''[[Stone Fluid Pipe]]''' - Cheap, slow transport (10 mB/t)
+* '''[[Copper Fluid Pipe]]''' - Standard transport backbone (10 mB/t)
+* '''[[Golden Fluid Pipe]]''' - High-throughput transport (80 mB/t)
+
+==Behavior Pipes==
+
+Pipes that shape how fluid enters, leaves, or connects.
+
+* '''[[Fluid Extractor Pipe]]''' - Pull fluid from tanks and machines; driven by an adjacent engine
+* '''[[Insertion Fluid Pipe]]''' - Fill adjacent tanks and machines first, passing fluid on only when they are full
+* '''[[Merger Fluid Pipe]]''' - Directional check valve; fluid leaves only through a wrench-set face
+* '''[[Bypass Fluid Pipe]]''' - Connect only to other fluid pipes, never to tanks or machines
+* '''[[Void Fluid Pipe]]''' - Destroy any fluid that flows into it
+
+==Storage & Sources==
+
+* '''[[Glass Tank]]''' - 16,000 mB buffer; stack tanks vertically to merge into one larger reservoir
+* '''[[Pump]]''' - Extract fluid source blocks from the world into your tanks and pipes (RF powered)
 
 ==See Also==
 * [[Pipes]] - The full pipe overview, including item pipes
+* [[Redstone Engine]], [[Stirling Engine]] - Drive the [[Fluid Extractor Pipe]]
 
 [[Category:Pipes]]
+[[Category:Fluids]]

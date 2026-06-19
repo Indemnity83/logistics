@@ -1,0 +1,49 @@
+{{Infobox Item
+|name      = Battery
+|image     = Grid Battery.png
+|id        = logistics:power/battery
+|type      = Block (Power)
+|stackable = Yes (64)
+|function  = Powers the logistics network
+|added     = v0.7.0
+}}
+
+The '''Battery''' is a power-storage block that energizes a [[Pipe Networks|logistics network]]. Tier 3 logistics pipes draw [[RF Energy|RF]] from a connected Battery to route, supply, and craft items. Without a charged Battery the network stops working entirely — and items already in transit are dropped — until power is restored.
+
+==Recipe==
+
+{{Grid Crafting Table
+|A1=Iron Nugget |B1=Brick |C1=Iron Nugget
+|A2=Brick |B2=Redstone Block |C2=Brick
+|B3=Brick
+|Output=Battery
+}}
+
+'''Yields:''' 1× Battery
+
+==Behavior==
+
+* Acts as the energy reservoir for the [[Pipe Networks|logistics network]] it connects to
+* [[Basic Logistics Pipe|Logistics pipes]] and [[Modules|modules]] draw RF from the Battery each time they route, supply, or craft
+* An unpowered network '''stops routing/supplying/crafting and drops in-transit items''' until a charged Battery is connected
+* Logistics pipes are colored '''green when powered''' and '''red when not''', so you can see at a glance whether the network has energy
+* Charge level is shown as a fill bar on the placed block and as a green charge bar on the item
+* If several Batteries serve one network, they are drawn in the order they were connected
+
+==Powering a Battery==
+
+A Battery is charged with RF produced by an [[Engines & Power|engine]] and delivered through [[Copper Cable|power cables]]:
+
+* [[Redstone Engine]] / [[Stirling Engine]] / [[Creative Engine]] generate RF
+* [[Copper Cable]], [[Gold Cable]], and [[Ender Cable]] carry that RF to the Battery at increasing transfer rates
+
+Note that Tier 1 extraction pipes (the [[Item Extractor Pipe]] and [[Fluid Extractor Pipe]]) are paced by an adjacent '''engine''' instead, not the network Battery.
+
+==See Also==
+* [[RF Energy]] - How the power system works
+* [[Engines & Power]] - Generating RF
+* [[Copper Cable]], [[Gold Cable]], [[Ender Cable]] - Distributing RF
+* [[Basic Logistics Pipe]] - The network these power
+
+[[Category:Power]]
+[[Category:Recipes]]

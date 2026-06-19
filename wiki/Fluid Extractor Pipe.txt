@@ -1,0 +1,48 @@
+{{Infobox Item
+|name      = Fluid Extractor Pipe
+|image     = Grid Fluid Extractor Pipe.png
+|id        = logistics:fluid/fluid_extractor_pipe
+|type      = Block (Fluid Pipe)
+|stackable = Yes (64)
+|rate      = 10 mB/t (active, engine-driven)
+|added     = v0.7.3
+}}
+
+The '''Fluid Extractor Pipe''' actively pulls liquids out of an adjacent tank or machine and into a [[Fluid Pipes|fluid network]]. It is the fluid-side counterpart to the [[Item Extractor Pipe]], and like it, the extractor must be driven by an adjacent [[Redstone Engine|engine]].
+
+Fluid pipes form a '''standalone''' transport system, separate from the item [[Pipe Networks|logistics network]]: each connected line carries one fluid type and moves it by pressure equalization. While passive pipes move fluid for free, '''active extraction costs power'''.
+
+==Recipe==
+
+{{Grid Crafting Table
+|A1=Item Extractor Pipe |B1=Slime Ball
+|Output=Fluid Extractor Pipe
+}}
+
+'''Yields:''' 1× Fluid Extractor Pipe (shapeless: [[Item Extractor Pipe]] + Slime Ball)
+
+==Behavior==
+
+* '''Extracts fluid from tanks and machines when driven by an engine''' — pulls from the adjacent fluid handler and pushes it down the connected fluid line
+* Pacing is set by the adjacent engine: a [[Stirling Engine]] pulls faster than a [[Redstone Engine]]; a [[Creative Engine]] runs at full speed
+* With no engine power it stops — passive pipes alone cannot pull fluid out of a tank or machine
+* Carries '''one fluid type''' per connected line
+
+==Power==
+The Fluid Extractor Pipe is gated by an adjacent '''engine''', the same model as the [[Item Extractor Pipe]] (this is the Tier 1 extraction power path, not the Tier 3 network's [[Battery]]). Place a [[Redstone Engine]], [[Stirling Engine]], or [[Creative Engine]] against the pipe to drive it.
+
+==Tips==
+* Point the extractor at a machine's output tank, then run [[Copper Fluid Pipe|copper]] or [[Golden Fluid Pipe|golden]] pipes to a [[Glass Tank]] to buffer the result
+* For pulling fluid sources straight out of the world, use a [[Pump]] instead — it has its own RF buffer and doesn't need an engine touching it
+* A [[Stirling Engine]] keeps a steady pull without redstone pulsing
+
+==See Also==
+* [[Fluid Pipes]] - Overview of the fluid system
+* [[Item Extractor Pipe]] - The item-transport counterpart
+* [[Pump]] - Extract world fluid sources (RF powered)
+* [[Redstone Engine]], [[Stirling Engine]], [[Creative Engine]] - Drive the extractor
+* [[Glass Tank]] - Buffer extracted fluid
+
+[[Category:Pipes]]
+[[Category:Fluids]]
+[[Category:Recipes]]

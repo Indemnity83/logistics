@@ -1,4 +1,4 @@
-Welcome to the '''Logistics''' wiki! A modern Minecraft logistics and pipe mod with authentic in-pipe item motion, built on Fabric.
+Welcome to the '''Logistics''' wiki! A modern Minecraft logistics and pipe mod with authentic in-pipe item motion, fluid transport, storage, and a [[Battery]]-powered network, built for '''Fabric & NeoForge'''.
 
 ==Getting Started==
 
@@ -47,12 +47,24 @@ The core of Logistics - transporting items through your network.
 
 [[Pipes|Browse all pipes →]]
 
+==Fluids==
+
+Move and store liquids with dedicated fluid pipes, tanks, and pumps.
+
+* '''[[Stone Fluid Pipe]]''' / '''[[Copper Fluid Pipe]]''' / '''[[Golden Fluid Pipe]]''' - Fluid transport
+* '''[[Fluid Extractor Pipe]]''' - Pull fluid from tanks (engine-paced)
+* '''[[Merger Fluid Pipe]]''' / '''[[Insertion Fluid Pipe]]''' / '''[[Bypass Fluid Pipe]]''' / '''[[Void Fluid Pipe]]''' - Routing and disposal
+* '''[[Glass Tank]]''' - Fluid storage
+* '''[[Pump]]''' - Pull fluid from the world
+
+[[Fluid Pipes|Browse all fluid pipes →]]
+
 ==Modules==
 
 Modules are installed into [[Chassis Logistics Pipe|Chassis Logistics Pipes]] to define their behavior. Mix and match modules to create custom logistics nodes.
 
 * '''[[Blank Module]]''' - Base crafting component for all modules
-* '''[[Extractor Module]]''' / '''[[Advanced Extractor Module]]''' - Pull items from inventories
+* '''[[Extractor Module]]''' (MkI–MkIII) - Pull items from inventories
 * '''[[Provider Module]]''' - Advertise inventory contents to the network
 * '''[[Supplier Module]]''' - Maintain inventory stock levels (Passive/Active)
 * '''[[Crafter Module]]''' - Craft items on demand within the chassis
@@ -64,11 +76,14 @@ Modules are installed into [[Chassis Logistics Pipe|Chassis Logistics Pipes]] to
 
 ==Power==
 
-Engines generate RF energy to power automation machines.
+Engines generate RF energy, which cables carry to a Battery that powers the logistics network and machines.
 
 * '''[[RF Energy]]''' - Understanding the power system
 * '''[[Redstone Engine]]''' - Basic power from redstone
 * '''[[Stirling Engine]]''' - High power from fuel
+* '''[[Creative Engine]]''' - Unlimited power for creative mode
+* '''[[Battery]]''' - Store RF and power the logistics network
+* '''[[Copper Cable]]''' / '''[[Gold Cable]]''' / '''[[Ender Cable]]''' - Carry RF between engines, batteries, and machines
 
 [[Energy|Browse all power →]]
 
@@ -101,7 +116,7 @@ Gears, valves, ores, and crafting components.
 * '''[[Netherite Gear]]''' - End tier
 
 '''Valves ([[Kiln]]-Crafted):'''
-* '''Tier 1:''' [[Copper Valve|Copper]] | [[Tin Valve|Tin]] (Coal fuel)
+* '''Tier 1:''' [[Materials#Wooden Valve|Wooden]] | [[Materials#Copper Valve|Copper]]
 * '''Tier 2:''' [[Iron Valve|Iron]] | [[Bronze Valve|Bronze]] (Coal at limit/fails)
 * '''Tier 3:''' [[Gold Valve|Gold]] | [[Apatite Valve|Apatite]] (Blaze rod/lava)
 * '''Tier 4-6:''' [[Diamond Valve|Diamond]] | [[Ender Valve|Ender]] | [[Emerald Valve|Emerald]] | [[Lapis Valve|Lapis]] | [[Obsidian Valve|Obsidian]] | [[Netherite Valve|Netherite]] | [[Blazing Valve|Blazing]] (Lava required)
@@ -135,10 +150,11 @@ Gears, valves, ores, and crafting components.
 
 ==About Logistics==
 
-'''Early Development:''' Logistics is in active development. Core features (Tier 1-2) are implemented and functional. Tier 3 network logistics is planned for future updates.
+'''Active Development:''' Logistics is in active development. Item pipes (Tier 1-3), [[Fluid Pipes|fluid pipes]], tanks, pumps, and the [[Battery]]-powered network are implemented and functional.
 
-'''Mod Version:''' 1.21.11
-'''Mod Loader:''' Fabric 0.18.4+
+'''Minecraft:''' 26.1+
+'''Mod Loader:''' Fabric (Loader 0.18.6+ with Fabric API) or NeoForge
+'''Java:''' 25 or newer
 '''License:''' MIT
 
 [https://github.com/indemnity83/logistics GitHub Repository] | [https://github.com/indemnity83/logistics/issues Report Issues]

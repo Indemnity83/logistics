@@ -9,7 +9,7 @@
 |added     = v0.1.0
 }}
 
-The '''Laser Quarry''' is a powered mining machine that automatically excavates an area below it down to bedrock. It builds its own frame and mines continuously when powered with RF energy. By default it mines a 16×16 area, but you can use markers to define custom boundaries of any size.
+The '''Laser Quarry''' is a powered mining machine that automatically excavates an area below it down to bedrock. It builds its own frame and mines continuously when powered with RF energy. By default it mines a 16×16 area, but you can use [[Marker|markers]] to define custom boundaries of any size.
 
 ==Recipe==
 
@@ -45,14 +45,14 @@ The Laser Quarry automatically mines an area below itself. When placed and power
 * Mines a 16×16 area
 * Centered on the quarry's placement
 
-'''Custom area (with markers):'''
-# Place markers to outline desired mining area
-# Place quarry adjacent to any side of the marked boundary
-# Markers break and drop when quarry activates
-# Quarry uses marked boundary for mining
-# Can create any size area (up to marker limits)
+'''Custom area (with [[Marker|markers]]):'''
+# Place three [[Marker|markers]] in a right-triangle (L-shape) to outline the area
+# Activate the markers to define the rectangular boundary
+# Place the quarry adjacent to the marked boundary
+# Quarry uses the marked boundary for mining instead of the default
+# Can create any size area (above the minimum)
 
-This allows you to define exactly what area to mine, avoiding buildings, important terrain, or other quarries.
+This allows you to define exactly what area to mine, avoiding buildings, important terrain, or other quarries. See [[Marker]] for full placement rules.
 
 ==Setup==
 
@@ -107,6 +107,10 @@ Mined items are '''output from the top of the quarry''':
 * Consider [[Item Void Pipe]] for cobblestone/dirt overflow
 * Items output directly into connected inventory/pipe
 
+==Jade HUD==
+
+With [https://www.curseforge.com/minecraft/mc-mods/jade Jade] installed, looking at a Laser Quarry shows its live status in the HUD — including its working state and mining progress — so you can monitor it without opening the GUI.
+
 ==Tips==
 
 * Mining speed depends on RF throughput from engine
@@ -134,6 +138,7 @@ Mined items are '''output from the top of the quarry''':
 </pre>
 
 ==See Also==
+* [[Marker]] - Define a custom mining area
 * [[Stirling Engine]] - Recommended power source
 * [[RF Energy]] - Power system
 * [[Machine Core]] - Crafting component

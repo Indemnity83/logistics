@@ -1,0 +1,48 @@
+{{Infobox Item
+|name      = Copper Cable
+|image     = Grid Copper Cable.png
+|id        = logistics:power/copper_cable
+|type      = Block (Power)
+|stackable = Yes (64)
+|function  = Carries RF between engines and machines
+|rate      = 30 RF/t
+|added     = v0.6.0
+}}
+
+The '''Copper Cable''' is the basic [[RF Energy|RF]] power cable. It carries energy from an [[Engines & Power|engine]] to a [[Battery]] or other machines, letting power be routed across a distance instead of relying on a direct face-to-face connection.
+
+==Recipe==
+
+{{Grid Crafting Table
+|A1=Rubber Chunk |B1=Rubber Chunk |C1=Rubber Chunk
+|A2=Copper Ingot |B2=Copper Ingot |C2=Copper Ingot
+|A3=Rubber Chunk |B3=Rubber Chunk |C3=Rubber Chunk
+|Output=Copper Cable |OutputCount=8
+}}
+
+'''Yields:''' 8× Copper Cable
+
+==Behavior==
+
+* Transfers RF from a connected [[Engines & Power|engine]] to a [[Battery]] or machine
+* Transfer rate: '''30 RF/t''' — the slowest of the three cable tiers
+* Cables connect to each other and to adjacent power blocks, forming a power network
+* The cheapest cable; use [[Gold Cable]] or [[Ender Cable]] when you need more throughput
+
+==Cable Tiers==
+
+The three cables behave identically except for how much RF they can move per tick (Copper < Gold < Ender):
+
+* '''[[Copper Cable]]''' - 30 RF/t
+* '''[[Gold Cable]]''' - 60 RF/t
+* '''[[Ender Cable]]''' - 120 RF/t
+
+==See Also==
+* [[RF Energy]] - How the power system works
+* [[Battery]] - Stores RF for the logistics network
+* [[Gold Cable]], [[Ender Cable]] - Higher-throughput cables
+* [[Redstone Engine]], [[Stirling Engine]], [[Creative Engine]] - Generate RF
+* [[Rubber|Rubber Chunk]] - Crafting component
+
+[[Category:Power]]
+[[Category:Recipes]]

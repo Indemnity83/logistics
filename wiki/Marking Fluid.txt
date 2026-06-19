@@ -8,20 +8,24 @@
 |added     = v0.1.0
 }}
 
-'''Marking Fluid''' is a color-coding tool that prevents [[Copper Transport Pipe|Copper Transport Pipes]] from connecting to each other. Use it to segment networks and run multiple independent pipe systems side-by-side.
+'''Marking Fluid''' is a color-coding tool that prevents [[Copper Transport Pipe|Copper Transport Pipes]] from connecting to each other. Use it to segment networks and run multiple independent pipe systems side-by-side. It comes in all '''16''' Minecraft dye colors, each crafted with its matching dye.
 
 ==Recipe==
 
+Each colored marking fluid is crafted '''shapeless''' from a Water Bottle plus the matching dye. For example, Red Marking Fluid:
+
 {{Grid Crafting Table
-|A2=Water Bottle |B2=Dye
-|Output=Marking Fluid
+|A1=Water Bottle |B1=Red Dye
+|Output=Red Marking Fluid
 }}
 
-'''Shapeless crafting:''' Water Bottle + Dye (any color) = Marking Fluid (colored)
+'''Shapeless crafting:''' Water Bottle + matching Dye = 1× Marking Fluid (that color)
+
+Swap the dye to craft any of the 16 colors — White Dye yields White Marking Fluid, Blue Dye yields Blue Marking Fluid, and so on.
 
 ==Available Colors==
 
-Marking fluid comes in all 16 Minecraft dye colors: White, Light Gray, Gray, Black, Red, Orange, Yellow, Lime, Green, Cyan, Light Blue, Blue, Purple, Magenta, Pink, and Brown.
+Marking fluid comes in all 16 Minecraft dye colors, each a separate item with its own recipe: White, Light Gray, Gray, Black, Red, Orange, Yellow, Lime, Green, Cyan, Light Blue, Blue, Purple, Magenta, Pink, and Brown.
 
 ==Usage==
 

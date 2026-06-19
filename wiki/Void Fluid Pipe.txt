@@ -1,0 +1,44 @@
+{{Infobox Item
+|name      = Void Fluid Pipe
+|image     = Grid Void Fluid Pipe.png
+|id        = logistics:fluid/void_fluid_pipe
+|type      = Block (Fluid Pipe)
+|stackable = Yes (64)
+|added     = v0.7.3
+}}
+
+The '''Void Fluid Pipe''' destroys any fluid that flows into it. It is the fluid-side counterpart to the [[Item Void Pipe]], used to harmlessly dispose of unwanted liquids.
+
+Fluid pipes form a '''standalone''' transport system, separate from the item [[Pipe Networks|logistics network]]: each connected line carries one fluid type and moves it by pressure equalization. Passive pipes — including this one — move fluid for free.
+
+==Recipe==
+
+{{Grid Crafting Table
+|A1=Item Void Pipe |B1=Slime Ball
+|Output=Void Fluid Pipe
+}}
+
+'''Yields:''' 1× Void Fluid Pipe (shapeless: [[Item Void Pipe]] + Slime Ball)
+
+==Behavior==
+
+* '''Destroys any fluid that flows into it''' — fluid drawn down a line into the void pipe is deleted, never to return
+* Acts as an infinite sink: any connected line will keep draining toward it
+* Passive operation is '''free''' (no RF)
+* Carries '''one fluid type''' per connected line until drained
+
+==Tips==
+* Use to dump excess output — for example, surplus fluid from a [[Pump]] or an overfull [[Glass Tank]]
+* Because it is a bottomless sink, fluid always flows toward a void pipe; place it deliberately so it doesn't drain tanks you meant to keep
+* For item disposal, use the [[Item Void Pipe]] instead
+
+==See Also==
+* [[Fluid Pipes]] - Overview of the fluid system
+* [[Item Void Pipe]] - The item-transport counterpart
+* [[Copper Fluid Pipe]] - Standard transport
+* [[Glass Tank]] - Fluid storage
+* [[Pump]] - Extract world fluid sources
+
+[[Category:Pipes]]
+[[Category:Fluids]]
+[[Category:Recipes]]

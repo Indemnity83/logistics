@@ -55,7 +55,7 @@ Redstone Engines produce '''low RF output''' suitable for:
 * Testing setups
 * Early-game automation
 
-For high-power needs like the [[Laser Quarry]], use a [[Stirling Engine]] instead.
+For high-power needs like the [[Laser Quarry]], use a [[Stirling Engine]] instead. In creative mode, the [[Creative Engine]] supplies unlimited RF with no fuel or redstone.
 
 ==Tips==
 
@@ -69,6 +69,7 @@ For high-power needs like the [[Laser Quarry]], use a [[Stirling Engine]] instea
 ==See Also==
 * [[RF Energy]] - Understanding the power system
 * [[Stirling Engine]] - High-power alternative
+* [[Creative Engine]] - Unlimited power for creative mode
 * [[Wrench]] - Rotate output face
 * [[Wooden Gear]] - Crafting component
 * [[Laser Quarry]] - Example power consumer

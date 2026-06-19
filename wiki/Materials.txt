@@ -1,11 +1,23 @@
 Crafting components, ores, metals, and gems used throughout Logistics.
 
-==Machine Components==
+==Machine & Crafting Components==
 
 * '''[[Machine Core]]''' - Required component for all RF-powered machines (Macerator, Kiln, Laser Quarry)
+* '''[[Sturdy Casing]]''' - Reinforced bronze machine shell, companion to the Machine Core
 * '''[[Cores]]''' - Intermediate components used in valve crafting (Wooden Core, Iron Core, Bronze Core, etc.)
 * '''[[Dusts]]''' - Ground materials produced by the Macerator; used in module crafting and ore doubling
 * '''[[Chips|Chips & Silicon]]''' - Electronic components for module crafting (Redstone Chip, Amethyst Chip, Echo Chip, Carbon Chip)
+* '''[[Rubber]]''' - Rubber Mix and Rubber Chunk; insulates [[Copper Cable|power cables]]
+
+==Dusts==
+
+Ground materials from the [[Macerator]]. Metal dusts can be smelted back into ingots for ore doubling.
+
+* '''Metals:''' [[Dusts|Iron]], [[Dusts|Copper]], [[Dusts|Gold]], [[Dusts|Tin]], [[Dusts|Bronze]], [[Dusts|Netherite]] Dust
+* '''Gems & minerals:''' [[Dusts|Diamond]], [[Dusts|Emerald]], [[Dusts|Lapis]], [[Dusts|Quartz]], [[Dusts|Apatite]], [[Dusts|Amethyst]], [[Dusts|Echo]], [[Dusts|Ender]], [[Dusts|Obsidian]], [[Dusts|Prismarine]], [[Dusts|Coal]] Dust
+* '''Other:''' [[Dusts|Flour]], [[Dusts|Wood Pulp]]
+
+See '''[[Dusts]]''' for sources and full grind counts.
 
 ==Gears==
 

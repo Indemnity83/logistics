@@ -1,0 +1,47 @@
+{{Infobox Item
+|name      = Golden Fluid Pipe
+|image     = Grid Golden Fluid Pipe.png
+|id        = logistics:fluid/gold_fluid_pipe
+|type      = Block (Fluid Pipe)
+|stackable = Yes (64)
+|rate      = 80 mB/t (passive)
+|added     = v0.7.3
+}}
+
+The '''Golden Fluid Pipe''' is the fastest [[Fluid Pipes|fluid pipe]], carrying liquids between [[Glass Tank|tanks]], [[Pump|pumps]], and machines at 8× the rate of a [[Copper Fluid Pipe]]. It is the fluid-side counterpart to the [[Golden Transport Pipe]].
+
+Fluid pipes form a '''standalone''' transport system, separate from the item [[Pipe Networks|logistics network]]: each connected line carries one fluid type and moves it by pressure equalization. Passive transport through stone, copper, and golden fluid pipes is free — no power required.
+
+==Recipe==
+
+{{Grid Crafting Table
+|A1=Golden Transport Pipe |B1=Slime Ball
+|Output=Golden Fluid Pipe
+}}
+
+'''Yields:''' 1× Golden Fluid Pipe (shapeless: [[Golden Transport Pipe]] + Slime Ball)
+
+==Behavior==
+
+* Transfers fluid between adjacent tanks, machines, and other fluid pipes at '''80 mB/t'''
+* Carries '''one fluid type''' per connected line
+* Passive transport is '''free''' (no RF) — unlike the [[Golden Transport Pipe]], no redstone is needed for the speed boost
+* Connects automatically to fluid handlers on every face; use a [[Bypass Fluid Pipe]] to connect only to pipes
+* Works with any mod's fluid storage on both Fabric and NeoForge
+
+==Tips==
+* Use on high-throughput lines — for example, draining a fast [[Pump]] or feeding a thirsty machine
+* Mix with cheaper [[Copper Fluid Pipe|copper]] or [[Stone Fluid Pipe|stone]] pipes elsewhere; the slowest pipe on a line caps its throughput
+* Store buffered fluid in a [[Glass Tank]]; stack tanks vertically to grow the reservoir
+
+==See Also==
+* [[Fluid Pipes]] - Overview of the fluid system
+* [[Stone Fluid Pipe]], [[Copper Fluid Pipe]] - Slower passive fluid pipes
+* [[Fluid Extractor Pipe]] - Pull fluid from tanks and machines (RF powered)
+* [[Glass Tank]] - Fluid storage
+* [[Pump]] - Extract world fluid sources
+* [[Golden Transport Pipe]] - The item-transport counterpart
+
+[[Category:Pipes]]
+[[Category:Fluids]]
+[[Category:Recipes]]

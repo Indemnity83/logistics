@@ -56,6 +56,10 @@ When an item arrives at this pipe, it checks in this order:
 * This pipe is the foundation for [[Provider Logistics Pipe|Provider]], [[Supplier Logistics Pipe|Supplier]], and [[Requester Logistics Pipe|Requester]] pipes, which are all crafted from it
 * Connect to a network using [[Copper Transport Pipe|Copper Transport Pipes]]
 
+==Power==
+
+As a [[Tier System|Tier 3]] network pipe, this draws [[RF Energy|RF]] from a connected [[Battery]]. Without a charged Battery the network stops routing and drops in-transit items; the pipe renders '''green when powered''' and '''red when not'''.
+
 ==See Also==
 * [[Provider Logistics Pipe]] - Expose inventory contents to the network
 * [[Supplier Logistics Pipe]] - Maintain inventory stock levels automatically

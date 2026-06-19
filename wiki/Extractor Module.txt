@@ -16,9 +16,9 @@ The '''Extractor Module''' is a [[Chassis Logistics Pipe]] module that actively 
 |-
 | Extractor Module (MK1) || Redstone Chip || Standard extraction speed
 |-
-| Extractor Module MK2 || Amethyst Chip || Faster extraction or larger stack sizes
+| Extractor MkII Module || Amethyst Chip || Faster extraction or larger stack sizes
 |-
-| Extractor Module MK3 || Echo Chip || Highest extraction throughput
+| Extractor MkIII Module || Echo Chip || Highest extraction throughput
 |}
 
 ==Recipes==
@@ -33,25 +33,25 @@ The '''Extractor Module''' is a [[Chassis Logistics Pipe]] module that actively 
 
 '''Yields:''' 1× Extractor Module (MK1) — 2× [[Dusts#Wood Pulp|Wood Pulp]] + [[Chips|Redstone Chip]] + 2× Redstone + [[Blank Module]]
 
-===Extractor Module MK2===
+===Extractor MkII Module===
 
 {{Grid Crafting Table
 |A1=Wood Pulp |B1=Amethyst Chip |C1=Wood Pulp
 |A2=Redstone |B2=Blank Module |C2=Redstone
-|Output=Extractor Module MK2
+|Output=Extractor MkII Module
 }}
 
-'''Yields:''' 1× Extractor Module MK2 — 2× [[Dusts#Wood Pulp|Wood Pulp]] + [[Chips|Amethyst Chip]] + 2× Redstone + [[Blank Module]]
+'''Yields:''' 1× Extractor MkII Module — 2× [[Dusts#Wood Pulp|Wood Pulp]] + [[Chips|Amethyst Chip]] + 2× Redstone + [[Blank Module]]
 
-===Extractor Module MK3===
+===Extractor MkIII Module===
 
 {{Grid Crafting Table
 |A1=Wood Pulp |B1=Echo Chip |C1=Wood Pulp
 |A2=Redstone |B2=Blank Module |C2=Redstone
-|Output=Extractor Module MK3
+|Output=Extractor MkIII Module
 }}
 
-'''Yields:''' 1× Extractor Module MK3 — 2× [[Dusts#Wood Pulp|Wood Pulp]] + [[Chips|Echo Chip]] + 2× Redstone + [[Blank Module]]
+'''Yields:''' 1× Extractor MkIII Module — 2× [[Dusts#Wood Pulp|Wood Pulp]] + [[Chips|Echo Chip]] + 2× Redstone + [[Blank Module]]
 
 ==Behavior==
 

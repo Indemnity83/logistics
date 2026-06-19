@@ -1,0 +1,45 @@
+{{Infobox Item
+|name      = Insertion Fluid Pipe
+|image     = Grid Insertion Fluid Pipe.png
+|id        = logistics:fluid/insertion_fluid_pipe
+|type      = Block (Fluid Pipe)
+|stackable = Yes (64)
+|rate      = 10 mB/t (passive)
+|added     = v0.7.3
+}}
+
+The '''Insertion Fluid Pipe''' prefers to fill adjacent tanks and machines, only passing fluid further down the line once they are full. It is the fluid-side counterpart to the [[Item Insertion Pipe]].
+
+Fluid pipes form a '''standalone''' transport system, separate from the item [[Pipe Networks|logistics network]]: each connected line carries one fluid type and moves it by pressure equalization. Passive transport is free — no power required.
+
+==Recipe==
+
+{{Grid Crafting Table
+|A1=Item Insertion Pipe |B1=Slime Ball
+|Output=Insertion Fluid Pipe
+}}
+
+'''Yields:''' 1× Insertion Fluid Pipe (shapeless: [[Item Insertion Pipe]] + Slime Ball)
+
+==Behavior==
+
+* '''Fills adjacent tanks and machines first''', passing fluid on only when they are full
+* Connected fluid handlers take priority over downstream pipes — fluid prefers to "top off" a neighbor before continuing
+* Passive transport is '''free''' (no RF)
+* Carries '''one fluid type''' per connected line
+
+==Tips==
+* Use to guarantee a machine or [[Glass Tank]] is kept full before any overflow continues down the line
+* Chain insertion pipes to fill a row of tanks in sequence, sending the surplus onward only when each is topped off
+* Combine with a [[Void Fluid Pipe]] at the end of the line to safely discard any overflow
+
+==See Also==
+* [[Fluid Pipes]] - Overview of the fluid system
+* [[Item Insertion Pipe]] - The item-transport counterpart
+* [[Copper Fluid Pipe]] - Standard transport
+* [[Glass Tank]] - Fluid storage
+* [[Merger Fluid Pipe]] - Directional output control
+
+[[Category:Pipes]]
+[[Category:Fluids]]
+[[Category:Recipes]]

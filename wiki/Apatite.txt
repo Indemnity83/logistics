@@ -7,7 +7,7 @@
 |added     = v0.2.0
 }}
 
-'''Apatite''' is a gem obtained from mining [[Apatite Ore|apatite ore]]. It's used for apatite valves.
+'''Apatite''' is a gem obtained from mining [[Apatite Ore|apatite ore]]. It's used for apatite valves. It can be compacted into a '''Block of Apatite''' or ground into '''Apatite Dust''' in the [[Macerator]].
 
 ==Obtaining==
 
@@ -33,11 +33,19 @@
 
 ==Usage==
 
-'''[[Kiln]] Crafting:'''
-* [[Apatite Valve]] - 5× apatite required
+'''Valves:'''
+* [[Materials#Apatite Valve|Apatite Valve]] - via an Apatite [[Cores|Core]]
+
+'''Dust:'''
+* Grind [[Apatite Ore]] in the [[Macerator]] → Apatite Dust (see [[Dusts]])
 
 '''Storage:'''
-* 9× Apatite → Apatite Block
+* 9× Apatite → Block of Apatite
+
+==Related Items==
+
+* '''Block of Apatite''' - Compact storage (9 gems)
+* '''Apatite Dust''' - Ground form from the [[Macerator]] (see [[Dusts]])
 
 ==Tips==
 
@@ -48,7 +56,8 @@
 
 ==See Also==
 * [[Apatite Ore]] - Source of apatite
-* [[Apatite Valve]] - Major use
+* [[Materials#Apatite Valve|Apatite Valve]] - Major use
+* [[Dusts]] - Apatite Dust
 
 [[Category:Materials]]
 [[Category:Recipes]]

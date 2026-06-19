@@ -19,7 +19,7 @@ Two mark variants exist: MK1 (Redstone Chip) and MK2 (Amethyst Chip).
 |-
 | Provider Module (MK1) || Redstone Chip || Standard provider behavior
 |-
-| Provider Module MK2 || Amethyst Chip || Enhanced — provides larger quantities per request cycle
+| Provider MkII Module || Amethyst Chip || Enhanced — provides larger quantities per request cycle
 |}
 
 ==Recipes==
@@ -36,15 +36,15 @@ All module recipes use the <code>DCD / RBR</code> pattern: Dust (corners), Chip 
 
 '''Yields:''' 1× Provider Module (MK1) — 2× [[Dusts|Iron Dust]] + [[Chips|Redstone Chip]] + 2× Redstone + [[Blank Module]]
 
-===Provider Module MK2===
+===Provider MkII Module===
 
 {{Grid Crafting Table
 |A1=Iron Dust |B1=Amethyst Chip |C1=Iron Dust
 |A2=Redstone |B2=Blank Module |C2=Redstone
-|Output=Provider Module MK2
+|Output=Provider MkII Module
 }}
 
-'''Yields:''' 1× Provider Module MK2 — 2× [[Dusts|Iron Dust]] + [[Chips|Amethyst Chip]] + 2× Redstone + [[Blank Module]]
+'''Yields:''' 1× Provider MkII Module — 2× [[Dusts|Iron Dust]] + [[Chips|Amethyst Chip]] + 2× Redstone + [[Blank Module]]
 
 ==Behavior==
 

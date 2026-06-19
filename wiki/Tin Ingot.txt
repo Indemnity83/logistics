@@ -9,6 +9,8 @@
 
 '''Tin Ingot''' is a metal obtained by smelting [[Tin Ore|raw tin]]. It's used to create bronze alloy and tin-based components.
 
+'''Related forms:''' Tin Ingot has a full set of storage and processing forms — '''Block of Tin''' (9 ingots), '''Tin Nugget''' (1/9 ingot), '''Raw Tin''' and the '''Block of Raw Tin''', and '''Tin Dust''' from the [[Macerator]].
+
 ==Recipe==
 
 '''Smelting:'''
@@ -52,27 +54,34 @@
 '''Bronze Alloy:'''
 * Tin + Copper → [[Bronze Ingot]]
 
-'''[[Kiln]] Crafting:'''
-* [[Tin Valve]] - 5× tin ingot required
-
 '''Gears:'''
 * [[Tin Gear]] - 4× tin ingot
 
+'''Dust:'''
+* Grind in the [[Macerator]] → Tin Dust (see [[Dusts]])
+
 '''Storage:'''
-* 9× Tin Ingot → Tin Block
+* 9× Tin Ingot → Block of Tin
+* 9× Tin Nugget → 1× Tin Ingot
 
 ==Tips==
 
 * Common metal, easy to obtain
 * Essential for bronze production
-* Needed for tin valve crafting
-* Stock up for gear and valve production
+* Stock up for gear production
+
+==Related Items==
+
+* '''Block of Tin''' - Compact storage (9 ingots)
+* '''Tin Nugget''' - 1/9 of an ingot
+* '''Raw Tin''' / '''Block of Raw Tin''' - Mined drop and its storage block
+* '''Tin Dust''' - Ground form from the [[Macerator]] (see [[Dusts]])
 
 ==See Also==
-* [[Tin Ore]] - Source of raw tin
+* [[Tin Ore]] - Source of raw tin (incl. Deepslate Tin Ore)
 * [[Bronze Ingot]] - Tin + copper alloy
-* [[Tin Valve]] - Major use
 * [[Tin Gear]] - Crafting component
+* [[Dusts]] - Tin Dust and ore doubling
 
 [[Category:Materials]]
 [[Category:Recipes]]

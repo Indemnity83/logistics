@@ -46,6 +46,10 @@ Use a [[Wrench]] to open the GUI:
 * Combine with [[Provider Logistics Pipe|Provider Logistics Pipes]] to keep raw materials flowing without manual restocking
 * Use with [[Requester Logistics Pipe|Requester Logistics Pipes]] to pull processed output on demand
 
+==Power==
+
+As a [[Tier System|Tier 3]] network pipe, this draws [[RF Energy|RF]] from a connected [[Battery]]. Without a charged Battery the network stops routing and drops in-transit items; the pipe renders '''green when powered''' and '''red when not'''.
+
 ==See Also==
 * [[Basic Logistics Pipe]] - Required crafting component; the network backbone pipe
 * [[Provider Logistics Pipe]] - Source of raw materials for processing
