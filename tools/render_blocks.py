@@ -314,7 +314,9 @@ def render(model, assets, size=256, ss=3, alpha_cut=64):
             tex_cache[tid] = decode_png(path) if os.path.isfile(path) else None
         return tex_cache[tid]
 
-    tw, th = model.get("texture_size", [16, 16])
+    # UVs are always authored in 16-space (0-16 = full texture). texture_size is only a
+    # source-resolution hint (BlockBench) and is NOT a UV divisor, despite the models that
+    # declare [8,8] (pipes) or [64,64] (engine atlases).
     gui = model.get("display", {}).get("gui", {})
     rx, ry, rz = [math.radians(a) for a in gui.get("rotation", [30, 225, 0])]
     ry = -ry  # Minecraft's GUI camera negates the Y rotation vs our math (front lands on the left)
@@ -340,7 +342,7 @@ def render(model, assets, size=256, ss=3, alpha_cut=64):
                 if erot:
                     p = rotate_axis(p, erot["axis"], math.radians(erot["angle"]), erot["origin"])
                 p = rot_xyz((p[0] - 8, p[1] - 8, p[2] - 8), rx, ry, rz)
-                v3.append((p[0], p[1], p[2], uu / tw, vv / th))
+                v3.append((p[0], p[1], p[2], uu / 16.0, vv / 16.0))
             faces.append((v3, tex, SHADE.get(d, 1.0)))
 
     if not faces:
