@@ -1,6 +1,6 @@
 {{Infobox Item
 |name      = Marking Fluid
-|image     = Grid Marking Fluid.png
+|image     = Grid Blue Marking Fluid.png
 |id        = logistics:tool/marking_fluid
 |type      = Tool
 |stackable = Yes (64)
@@ -12,11 +12,11 @@
 
 ==Recipe==
 
-Each colored marking fluid is crafted '''shapeless''' from a Water Bottle plus the matching dye. For example, Red Marking Fluid:
+Each colored marking fluid is crafted '''shapeless''' from a Water Bottle plus the matching dye. For example, Blue Marking Fluid:
 
 {{Grid Crafting Table
-|A1=Water Bottle |B1=Red Dye
-|Output=Red Marking Fluid
+|A1=Water Bottle |B1=Blue Dye
+|Output=Blue Marking Fluid
 }}
 
 '''Shapeless crafting:''' Water Bottle + matching Dye = 1× Marking Fluid (that color)

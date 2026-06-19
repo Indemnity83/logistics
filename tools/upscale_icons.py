@@ -49,6 +49,18 @@ NAME_OVERRIDES = {
 
 # ------------------------------------------------------------------ PNG codec
 
+# Minecraft DyeColor texture-diffuse RGB, in enum order. The 16 marking fluids share one
+# model (a base bottle + an overlay tinted by the item's DyeColor), so we tint the overlay.
+DYE_RGB = {
+    "white": (0xF9, 0xFF, 0xFE), "orange": (0xF9, 0x80, 0x1D), "magenta": (0xC7, 0x4E, 0xBD),
+    "light_blue": (0x3A, 0xB3, 0xDA), "yellow": (0xFE, 0xD8, 0x3D), "lime": (0x80, 0xC7, 0x1F),
+    "pink": (0xF3, 0x8B, 0xAA), "gray": (0x47, 0x4F, 0x52), "light_gray": (0x9D, 0x9D, 0x97),
+    "cyan": (0x16, 0x9C, 0x9C), "purple": (0x89, 0x32, 0xB8), "blue": (0x3C, 0x44, 0xAA),
+    "brown": (0x83, 0x54, 0x32), "green": (0x5E, 0x7C, 0x16), "red": (0xB0, 0x2E, 0x26),
+    "black": (0x1D, 0x1D, 0x21),
+}
+
+
 def decode_rgba(path):
     """Return (w, h, bytearray) for an 8-bit RGBA, non-interlaced PNG. Raises on anything else."""
     data = open(path, "rb").read()
@@ -229,6 +241,29 @@ def referenced_names(wiki_dir):
     return names
 
 
+def marking_fluids(assets, out, size, dry, display_name):
+    """The 16 colored marking fluids: tint the overlay by each DyeColor, composite, upscale."""
+    base_p = os.path.join(assets, "textures", "item", "pipe", "marking_fluid.png")
+    ov_p = os.path.join(assets, "textures", "item", "pipe", "marking_fluid_overlay.png")
+    if not (os.path.isfile(base_p) and os.path.isfile(ov_p)):
+        return []
+    bw, bh, base = decode_rgba(base_p); bw, bh, base = first_frame(bw, bh, base, base_p)
+    ow, oh, ov0 = decode_rgba(ov_p); ow, oh, ov0 = first_frame(ow, oh, ov0, ov_p)
+    names = []
+    for color, (r, g, b) in DYE_RGB.items():
+        name = display_name(f"pipe/{color}_marking_fluid")
+        if not name:
+            continue
+        ov = bytearray(ov0)
+        for i in range(0, len(ov), 4):
+            ov[i] = ov[i] * r // 255; ov[i + 1] = ov[i + 1] * g // 255; ov[i + 2] = ov[i + 2] * b // 255
+        comp = composite_over(base, ov)
+        if not dry:
+            encode_rgba(os.path.join(out, f"Grid {name}.png"), size, size, nearest_resize(bw, bh, comp, size, size))
+        names.append(f"Grid {name}.png")
+    return names
+
+
 def main():
     repo = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     default_assets = os.path.normpath(os.path.join(
@@ -270,6 +305,11 @@ def main():
         if not args.dry_run:
             encode_rgba(out_path, args.size, args.size, nearest_resize(bw, bh, base, args.size, args.size))
         written.append(out_name)
+
+    mf = marking_fluids(args.assets, args.out, args.size, args.dry_run, display_name)
+    written += mf
+    if mf:
+        print(f"  + {len(mf)} colored marking fluids")
 
     verb = "would write" if args.dry_run else "wrote"
     print(f"{verb} {len(written)} item icons @ {args.size}px -> {args.out}"
