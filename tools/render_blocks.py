@@ -216,6 +216,48 @@ def resolve_texture(var, textures):
     return var  # a "ns:path" texture id, or None
 
 
+PIPE_ARM_YAW = 90  # rotate pipes so the single connection arm points out the back, not the left
+
+
+def is_pipe_core(ref):
+    return ref.endswith("_core") and ("/pipe/" in ref or "/fluid/" in ref)
+
+
+def build_pipe_model(core_ref, assets):
+    """Pipe inventory icon: the 8^3 core plus one connection arm out the back, combined.
+
+    The core/arm block models declare texture_size [8,8] but author their UVs in 16-space
+    (so the core maps its texture once and the arm uses bottom-half strips). We resolve each
+    model's #texture to an absolute id, merge the elements, and force texture_size [16,16] so
+    the UVs map as intended instead of tiling."""
+    core = load_chain(core_ref, assets)
+    arm = load_chain(core_ref[:-len("_core")] + "_arm", assets)
+    elements = []
+    for m in (core, arm):
+        tex = m.get("textures", {})
+        for el in m.get("elements", []):
+            faces = {}
+            for d, f in el.get("faces", {}).items():
+                nf = dict(f)
+                nf["texture"] = resolve_texture(f.get("texture", "#" + d), tex) or f.get("texture")
+                faces[d] = nf
+            ne = dict(el); ne["faces"] = faces
+            elements.append(ne)
+    display = {k: dict(v) for k, v in core.get("display", {}).items()}
+    gui = dict(display.get("gui", {}))
+    rot = list(gui.get("rotation", [30, -50, 0]))
+    rot[1] += PIPE_ARM_YAW
+    gui["rotation"] = rot
+    display["gui"] = gui
+    return {"textures": {}, "elements": elements,
+            "display": display, "texture_size": [16, 16]}
+
+
+def resolve_render_model(ref, assets):
+    """The model to actually render for a resolved ref (pipes get the core+arm special case)."""
+    return build_pipe_model(ref, assets) if is_pipe_core(ref) else load_chain(ref, assets)
+
+
 # ------------------------------------------------------------------ geometry
 
 def face_quad(el, d, uv):
@@ -426,7 +468,7 @@ def batch(assets, out_dir, wiki_dir, size, ss, dry):
             failed.append((item_id, "no model")); continue
         try:
             if not dry:
-                px = render(load_chain(ref, assets), assets, size, ss)
+                px = render(resolve_render_model(ref, assets), assets, size, ss)
                 encode_png(os.path.join(out_dir, f"Grid {wiki_name}.png"), size, size, px)
             done.append(wiki_name)
             print(f"  {'(dry) ' if dry else ''}Grid {wiki_name}.png   <- {ref}")
@@ -465,7 +507,7 @@ def main():
         return
     if not args.model or not args.out:
         ap.error("single-model mode needs --model and --out (or use --batch)")
-    model = load_chain(args.model, args.assets)
+    model = resolve_render_model(args.model, args.assets)
     if not model.get("elements"):
         sys.exit(f"no geometry resolved for {args.model}")
     if args.rot:
