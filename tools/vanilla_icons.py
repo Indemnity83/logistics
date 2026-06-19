@@ -45,8 +45,12 @@ ALIAS = {
     "Slime Ball": "slime_ball",        # lang spelling varies ("Slimeball")
     "Wood Pulp": None,                 # mod item, not vanilla (skip)
 }
-# Names we deliberately skip (special render / not vanilla).
-SKIP = {"Water Bottle"}
+# Names we deliberately skip (none currently).
+SKIP = set()
+
+# Vanilla potions draw a tinted liquid overlay under the glass bottle; the water bottle
+# uses the water-blue potion tint.
+WATER_BOTTLE_TINT = (0x38, 0x5D, 0xC6)
 
 
 def reverse_lang(assets):
@@ -82,6 +86,22 @@ def flat_textures(vid, assets):
     return [p] if os.path.isfile(p) else []
 
 
+def render_water_bottle(assets, out, size):
+    """Composite the tinted potion liquid (layer0) under the glass bottle (layer1)."""
+    liq_p = os.path.join(assets, "textures", "item", "potion_overlay.png")
+    bottle_p = os.path.join(assets, "textures", "item", "potion.png")
+    w, h, liquid = rb.decode_png(liq_p); w, h, liquid = up.first_frame(w, h, liquid, liq_p)
+    r, g, b = WATER_BOTTLE_TINT
+    liquid = bytearray(liquid)
+    for i in range(0, len(liquid), 4):
+        liquid[i] = liquid[i] * r // 255; liquid[i + 1] = liquid[i + 1] * g // 255
+        liquid[i + 2] = liquid[i + 2] * b // 255
+    _, _, bottle = rb.decode_png(bottle_p); _, _, bottle = up.first_frame(w, h, bottle, bottle_p)
+    comp = up.composite_over(liquid, bottle)  # glass bottle over the tinted liquid
+    rb.encode_png(os.path.join(out, "Grid Water Bottle.png"), size, size,
+                  up.nearest_resize(w, h, comp, size, size))
+
+
 def referenced_missing(wiki_dir, media_dir):
     have = {os.path.basename(p)[len("Grid "):-4]
             for p in os.listdir(media_dir) if p.startswith("Grid ") and p.endswith(".png")}
@@ -108,6 +128,12 @@ def main():
     unresolved = []
     for name in targets:
         if name in SKIP:
+            continue
+        if name == "Water Bottle":
+            if not args.dry_run:
+                render_water_bottle(args.assets, args.out, args.size)
+            flats += 1
+            print("  flat   Grid Water Bottle.png   <- potion + water tint")
             continue
         vid = ALIAS[name] if name in ALIAS else rev.get(name)
         if not vid:
