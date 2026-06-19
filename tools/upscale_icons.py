@@ -1,0 +1,293 @@
+#!/usr/bin/env python3
+"""
+Generate crisp wiki icons for the FLAT (sprite) items of the Logistics mod, into wiki/media/.
+
+Minecraft item art is 16x16 pixel art; "high quality" just means scaling it up with
+nearest-neighbor so the pixels stay sharp (no blur, no antialiasing). This reads the mod's
+item models, finds the flat ones (those with a `layer0` texture — 3D block items have none
+and are skipped), composites any layers, takes the first frame of animated textures, and
+writes a 256x256 nearest-neighbor PNG for each.
+
+Files are written to `wiki/media/` and named exactly as the wiki references them:
+`Grid <Display Name>.png` — where the display name comes from the mod's lang file (the
+canonical in-game name). So `core/iron_gear` -> `wiki/media/Grid Iron Gear.png`, which the
+`{{Grid}}` / `{{Infobox Item}}` templates look up as `File:Grid Iron Gear.png`.
+
+The script ends with a DRIFT REPORT: generated icon names that no wiki page references
+(usually a name that differs between the page and the mod's lang — fix one to match).
+
+No third-party dependencies — pure stdlib (zlib). All item textures are 8-bit RGBA PNGs,
+which is all this handles; anything else is skipped with a note. Blocks (pipes, tanks,
+machines) and vanilla ingredient icons are NOT handled here — those need 3D iso renders.
+
+Usage:
+  python tools/upscale_icons.py [--dry-run]
+  python tools/upscale_icons.py --size 256 \
+      --assets ../logistics-mc-26.1/common/src/main/resources/assets/logistics \
+      --out wiki/media
+"""
+
+import argparse
+import glob
+import json
+import os
+import re
+import sys
+import zlib
+
+PNG_SIG = b"\x89PNG\r\n\x1a\n"
+
+# A few items whose wiki page title reads better than the raw lang string; name the
+# icon to match the page so it actually displays. (item id -> wiki name)
+NAME_OVERRIDES = {
+    "pipe/quicksort_module": "Quicksort Module",
+    "pipe/item_sink_module": "Item Sink Module",
+    "pipe/polymorphic_sink_module": "Polymorphic Sink Module",
+    "pipe/mod_item_sink_module": "Mod Item Sink Module",
+}
+
+
+# ------------------------------------------------------------------ PNG codec
+
+def decode_rgba(path):
+    """Return (w, h, bytearray) for an 8-bit RGBA, non-interlaced PNG. Raises on anything else."""
+    data = open(path, "rb").read()
+    if data[:8] != PNG_SIG:
+        raise ValueError("not a PNG")
+    pos, w, h, idat = 8, None, None, bytearray()
+    bit_depth = color_type = interlace = None
+    while pos < len(data):
+        ln = int.from_bytes(data[pos:pos + 4], "big")
+        typ = data[pos + 4:pos + 8]
+        chunk = data[pos + 8:pos + 8 + ln]
+        pos += 12 + ln
+        if typ == b"IHDR":
+            w = int.from_bytes(chunk[0:4], "big")
+            h = int.from_bytes(chunk[4:8], "big")
+            bit_depth, color_type, interlace = chunk[8], chunk[9], chunk[12]
+        elif typ == b"IDAT":
+            idat += chunk
+        elif typ == b"IEND":
+            break
+    if bit_depth != 8 or color_type != 6 or interlace != 0:
+        raise ValueError(f"unsupported PNG (bitdepth={bit_depth} colortype={color_type} interlace={interlace})")
+    raw = zlib.decompress(bytes(idat))
+    bpp, stride = 4, w * 4
+    out, prev = bytearray(), bytearray(stride)
+    pos = 0
+    for _ in range(h):
+        filt = raw[pos]; pos += 1
+        line = bytearray(raw[pos:pos + stride]); pos += stride
+        if filt == 1:
+            for x in range(bpp, stride):
+                line[x] = (line[x] + line[x - bpp]) & 255
+        elif filt == 2:
+            for x in range(stride):
+                line[x] = (line[x] + prev[x]) & 255
+        elif filt == 3:
+            for x in range(stride):
+                a = line[x - bpp] if x >= bpp else 0
+                line[x] = (line[x] + ((a + prev[x]) >> 1)) & 255
+        elif filt == 4:
+            for x in range(stride):
+                a = line[x - bpp] if x >= bpp else 0
+                c = prev[x - bpp] if x >= bpp else 0
+                line[x] = (line[x] + _paeth(a, prev[x], c)) & 255
+        out += line
+        prev = line
+    return w, h, out
+
+
+def _paeth(a, b, c):
+    p = a + b - c
+    pa, pb, pc = abs(p - a), abs(p - b), abs(p - c)
+    if pa <= pb and pa <= pc:
+        return a
+    return b if pb <= pc else c
+
+
+def encode_rgba(path, w, h, px):
+    stride = w * 4
+    raw = bytearray()
+    for y in range(h):
+        raw.append(0)  # filter type 0 (None)
+        raw += px[y * stride:(y + 1) * stride]
+    comp = zlib.compress(bytes(raw), 9)
+
+    def chunk(typ, payload):
+        return (len(payload).to_bytes(4, "big") + typ + payload
+                + zlib.crc32(typ + payload).to_bytes(4, "big"))
+
+    ihdr = w.to_bytes(4, "big") + h.to_bytes(4, "big") + bytes([8, 6, 0, 0, 0])
+    with open(path, "wb") as fh:
+        fh.write(PNG_SIG + chunk(b"IHDR", ihdr) + chunk(b"IDAT", comp) + chunk(b"IEND", b""))
+
+
+# ------------------------------------------------------------- image operations
+
+def first_frame(w, h, px, path):
+    """Animated item textures are a vertical strip; keep the top w x w frame."""
+    animated = os.path.exists(path + ".mcmeta") or (h > w and h % w == 0)
+    if animated and h > w:
+        return w, w, bytearray(px[:w * w * 4])
+    return w, h, px
+
+
+def composite_over(base, top):
+    """Source-over alpha composite of two equally sized RGBA buffers."""
+    out = bytearray(len(base))
+    for i in range(0, len(base), 4):
+        ta = top[i + 3]
+        if ta == 255:
+            out[i:i + 4] = top[i:i + 4]
+        elif ta == 0:
+            out[i:i + 4] = base[i:i + 4]
+        else:
+            inv = 255 - ta
+            for k in range(3):
+                out[i + k] = (top[i + k] * ta + base[i + k] * inv) // 255
+            out[i + 3] = ta + base[i + 3] * inv // 255
+    return out
+
+
+def nearest_resize(w, h, px, nw, nh):
+    sx_map = [x * w // nw for x in range(nw)]
+    row_cache, out = {}, bytearray()
+    for ny in range(nh):
+        sy = ny * h // nh
+        row = row_cache.get(sy)
+        if row is None:
+            base = sy * w * 4
+            row = b"".join(px[base + sx * 4: base + sx * 4 + 4] for sx in sx_map)
+            row_cache[sy] = row
+        out += row
+    return out
+
+
+# -------------------------------------------------------------------- pipeline
+
+def resolve_texture(layer_value, assets_dir):
+    """'logistics:item/core/iron_gear' -> <assets>/textures/item/core/iron_gear.png (logistics ns only)."""
+    ns, _, rel = layer_value.partition(":")
+    if not rel:
+        ns, rel = "logistics", ns
+    if ns != "logistics":
+        return None  # vanilla/other-mod layer we can't resolve from this asset tree
+    return os.path.join(assets_dir, "textures", rel + ".png")
+
+
+def flat_items(assets_dir):
+    """Yield (item_id, [texture_paths]) for every flat item model."""
+    models_root = os.path.join(assets_dir, "models", "item")
+    for model in sorted(glob.glob(os.path.join(models_root, "**", "*.json"), recursive=True)):
+        try:
+            data = json.load(open(model, encoding="utf-8"))
+        except (ValueError, OSError):
+            continue
+        textures = data.get("textures", {})
+        layer_keys = sorted((k for k in textures if k.startswith("layer")),
+                            key=lambda k: int(k[5:] or 0))
+        if not layer_keys:
+            continue  # 3D block item — skip
+        tex_paths = [resolve_texture(textures[k], assets_dir) for k in layer_keys]
+        tex_paths = [p for p in tex_paths if p]
+        if not tex_paths:
+            continue
+        item_id = os.path.relpath(model, models_root)[:-5].replace(os.sep, "/")
+        yield item_id, tex_paths
+
+
+def load_display_names(assets_dir):
+    lang = json.load(open(os.path.join(assets_dir, "lang", "en_us.json"), encoding="utf-8"))
+
+    def name(item_id):
+        base = item_id.replace("/", ".")
+        for prefix in ("item.logistics.", "block.logistics."):
+            if prefix + base in lang:
+                return lang[prefix + base]
+        return None
+    return name
+
+
+# names referenced by the wiki pages (for the drift report) -------------------
+_LIT = re.compile(r"Grid ([^\n|}\]=]+?)\.png")
+_TMPL = re.compile(r"\{\{Grid\|([^}|]+)")
+_TABLE = re.compile(r"\{\{Grid Crafting Table(.*?)\}\}", re.S)
+_PARAM = re.compile(r"\|\s*(?:[ABC][123]|Output)\s*=\s*([^|}\n]+)")
+
+
+def referenced_names(wiki_dir):
+    names = set()
+    for fn in os.listdir(wiki_dir):
+        if not fn.endswith(".txt") or fn.startswith("Template_"):
+            continue
+        text = open(os.path.join(wiki_dir, fn), encoding="utf-8").read()
+        names |= {n.strip() for n in _LIT.findall(text)}
+        names |= {n.strip() for n in _TMPL.findall(text)}
+        for block in _TABLE.findall(text):
+            names |= {v.strip() for v in _PARAM.findall(block)}
+    return names
+
+
+def main():
+    repo = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    default_assets = os.path.normpath(os.path.join(
+        repo, "..", "logistics-mc-26.1",
+        "common", "src", "main", "resources", "assets", "logistics"))
+    ap = argparse.ArgumentParser(description="Upscale flat item textures into wiki/media as Grid <Name>.png.")
+    ap.add_argument("--assets", default=default_assets, help="mod assets/logistics dir")
+    ap.add_argument("--out", default=os.path.join(repo, "wiki", "media"))
+    ap.add_argument("--wiki-dir", default=os.path.join(repo, "wiki"))
+    ap.add_argument("--size", type=int, default=256)
+    ap.add_argument("--dry-run", action="store_true")
+    args = ap.parse_args()
+
+    if not os.path.isdir(args.assets):
+        sys.exit(f"assets dir not found: {args.assets}\nPass --assets <path to assets/logistics>.")
+    os.makedirs(args.out, exist_ok=True)
+    display_name = load_display_names(args.assets)
+
+    written, no_name, bad = [], [], 0
+    for item_id, tex_paths in flat_items(args.assets):
+        name = NAME_OVERRIDES.get(item_id) or display_name(item_id)
+        if not name:
+            no_name.append(item_id)
+            continue
+        try:
+            base = None
+            for tp in tex_paths:
+                w, h, px = decode_rgba(tp)
+                w, h, px = first_frame(w, h, px, tp)
+                base = px if base is None else composite_over(base, px)
+                bw, bh = w, h
+        except (ValueError, OSError) as e:
+            bad += 1
+            print(f"  skip  {item_id}: {e}")
+            continue
+
+        out_name = f"Grid {name}.png"
+        out_path = os.path.join(args.out, out_name)
+        if not args.dry_run:
+            encode_rgba(out_path, args.size, args.size, nearest_resize(bw, bh, base, args.size, args.size))
+        written.append(out_name)
+
+    verb = "would write" if args.dry_run else "wrote"
+    print(f"{verb} {len(written)} item icons @ {args.size}px -> {args.out}"
+          f"  ({bad} skipped, {len(no_name)} had no lang name)")
+    if no_name:
+        print("  no lang name (skipped):", ", ".join(no_name))
+
+    # drift report: generated names not referenced by any page
+    refs = referenced_names(args.wiki_dir)
+    orphans = sorted(n[len("Grid "):-len(".png")] for n in written
+                     if n[len("Grid "):-len(".png")] not in refs)
+    if orphans:
+        print(f"\nDrift: {len(orphans)} icon name(s) no page references "
+              f"(name differs between page and mod lang, or item not yet shown):")
+        for o in orphans:
+            print(f"  Grid {o}.png")
+    print("\nBlocks (pipes/tanks/machines) and vanilla ingredient icons are not handled here.")
+
+
+if __name__ == "__main__":
+    main()
