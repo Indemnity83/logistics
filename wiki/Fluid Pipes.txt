@@ -1,0 +1,8 @@
+{{Stub}}
+
+'''Fluid Pipes''' transport liquids through a Logistics network, the fluid counterpart to item-carrying [[Pipes]]. Fluid transport is not yet documented on this wiki.
+
+==See Also==
+* [[Pipes]] - The full pipe overview, including item pipes
+
+[[Category:Pipes]]

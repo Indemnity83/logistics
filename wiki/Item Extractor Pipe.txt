@@ -1,0 +1,76 @@
+{{Infobox Item
+|name      = Item Extractor Pipe
+|image     = Grid Item Extractor Pipe.png
+|id        = logistics:pipe/item_extractor_pipe
+|type      = Block (Pipe)
+|stackable = Yes (64)
+|tier      = Tier 1 - Mechanical
+|added     = v0.1.0
+}}
+
+The '''Item Extractor Pipe''' is a [[Tier System|Tier 1]] mechanical pipe that actively pulls items from adjacent inventories into your pipe network. It's how you get items moving through your system.
+
+==Recipe==
+
+{{Grid Crafting Table
+|A2=Planks |B2=Glass |C2=Planks
+|Output=Item Extractor Pipe |OutputCount=8
+}}
+
+'''Yields:''' 8× Item Extractor Pipe
+
+==Behavior==
+
+The Item Extractor Pipe pulls one item at a time from a connected inventory and inserts it into the pipe network. Extraction happens automatically at regular intervals.
+
+'''Key features:'''
+* Extracts from one face only (configurable)
+* Pulls one item per extraction cycle
+* Requires adjacent inventory to extract from
+* Connects to other pipes on remaining faces
+* Requires power from an adjacent [[Redstone Engine|engine]]; a [[Redstone Engine]] extracts 1 item per cycle, while higher-powered engines can extract up to a stack per cycle
+* Works with any block implementing Fabric Transfer API
+
+==Configuration==
+
+Use a [[Wrench]] to select which face extracts from the inventory:
+
+# Right-click the pipe with a wrench
+# Extraction face cycles through available directions
+# Active extraction face indicated by '''opaque connector'''
+# Only one face can extract at a time
+
+The opaque connector shows which face is pulling from the inventory.
+
+==Tips==
+
+* Place extraction face directly against the inventory (chest, furnace, etc.)
+* Connect other faces to [[Copper Transport Pipe|Copper Transport Pipes]] for network
+* Use [[Item Merger Pipe|Item Merger Pipes]] to collect from multiple extractors
+* Cannot extract through [[Item Passthrough Pipe|Item Passthrough Pipes]]
+* Use a higher-powered engine (e.g. [[Stirling Engine]]) to extract more items per cycle, up to a full stack
+
+==Common Patterns==
+
+'''Single chest extraction:'''
+<pre>
+[Chest] → [Item Extractor] → [Copper Transport Pipe] → [Network]
+</pre>
+
+'''Multi-chest collection:'''
+<pre>
+[Chest A] → [Extractor A] ↘
+                            [Item Merger Pipe] → [Network]
+[Chest B] → [Extractor B] ↗
+</pre>
+
+==See Also==
+* [[Wrench]] - Configure extraction face
+* [[Copper Transport Pipe]] - Connect to network
+* [[Item Merger Pipe]] - Collect from multiple extractors
+* [[Pipe Networks]] - Building extraction networks
+* [[Connectivity]] - How extractors connect
+
+[[Category:Pipes]]
+[[Category:Item Pipes]]
+[[Category:Recipes]]

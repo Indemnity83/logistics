@@ -1,0 +1,40 @@
+<includeonly>{| style="display:inline-table; vertical-align:middle; border-collapse:collapse; margin:0.3em 0;"
+|-
+|
+{| class="wikitable" style="border-collapse:collapse; text-align:center; background:#c6c6c6;"
+|-
+| style="width:38px; height:38px;" | {{#if:{{{A1|}}}|{{Grid|{{{A1}}}}}|&nbsp;}}
+| style="width:38px; height:38px;" | {{#if:{{{B1|}}}|{{Grid|{{{B1}}}}}|&nbsp;}}
+| style="width:38px; height:38px;" | {{#if:{{{C1|}}}|{{Grid|{{{C1}}}}}|&nbsp;}}
+|-
+| style="width:38px; height:38px;" | {{#if:{{{A2|}}}|{{Grid|{{{A2}}}}}|&nbsp;}}
+| style="width:38px; height:38px;" | {{#if:{{{B2|}}}|{{Grid|{{{B2}}}}}|&nbsp;}}
+| style="width:38px; height:38px;" | {{#if:{{{C2|}}}|{{Grid|{{{C2}}}}}|&nbsp;}}
+|-
+| style="width:38px; height:38px;" | {{#if:{{{A3|}}}|{{Grid|{{{A3}}}}}|&nbsp;}}
+| style="width:38px; height:38px;" | {{#if:{{{B3|}}}|{{Grid|{{{B3}}}}}|&nbsp;}}
+| style="width:38px; height:38px;" | {{#if:{{{C3|}}}|{{Grid|{{{C3}}}}}|&nbsp;}}
+|}
+| style="padding:0 14px; font-size:24px; vertical-align:middle;" | →
+| style="text-align:center; vertical-align:middle;" | {{Grid|{{{Output}}}|{{{OutputCount|}}}}}
+|}</includeonly><noinclude>
+Renders a 3×3 crafting-table recipe followed by an arrow and the output item.
+
+Slot parameters are addressed by column (A=left, B=middle, C=right) and row (1=top,
+2=middle, 3=bottom). Omit empty slots — they render as blank grid cells.
+
+Usage:
+ {{Grid Crafting Table
+ |A1=Oak Planks |B1=Glass |C1=Oak Planks
+ |Output=Item Extractor Pipe |OutputCount=8
+ }}
+
+Parameters:
+ A1 B1 C1 / A2 B2 C2 / A3 B3 C3 — item name in each slot (rendered via {{Grid}})
+ Output      — the resulting item's name
+ OutputCount — quantity produced (optional; omit for 1)
+
+Depends on [[Template:Grid]].
+
+[[Category:Templates]]
+</noinclude>

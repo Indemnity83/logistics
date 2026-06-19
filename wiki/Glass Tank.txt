@@ -1,0 +1,9 @@
+{{Stub}}
+
+The '''Glass Tank''' is a basic fluid storage block used to hold liquids in a Logistics network. It is not yet documented on this wiki.
+
+==See Also==
+* [[Materials]] - Crafting components and blocks
+* [[Fluid Pipes]] - Fluid transport
+
+[[Category:Materials]]

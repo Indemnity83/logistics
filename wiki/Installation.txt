@@ -1,0 +1,97 @@
+Get Logistics installed and running in your Minecraft instance.
+
+==Requirements==
+
+* '''Minecraft:''' 1.21.11
+* '''Fabric Loader:''' 0.18.4 or newer
+* '''Fabric API:''' Latest version for 1.21.11
+* '''Java:''' 21 or newer
+
+==Installation Steps==
+
+===1. Install Fabric Loader===
+
+If you haven't already:
+
+# Download [https://fabricmc.net/use/ Fabric Loader] for Minecraft 1.21.11
+# Run the installer
+# Select "Client" installation
+# Choose your Minecraft directory
+# Click Install
+
+===2. Download Fabric API===
+
+Fabric API is required for Logistics to work:
+
+# Download from [https://modrinth.com/mod/fabric-api Modrinth] or [https://www.curseforge.com/minecraft/mc-mods/fabric-api CurseForge]
+# Choose version for Minecraft 1.21.11
+# Save the <code>.jar</code> file
+
+===3. Download Logistics===
+
+Get the Logistics mod:
+
+* '''[https://github.com/indemnity83/logistics/releases GitHub Releases]''' - Latest releases and dev builds
+* '''[https://modrinth.com/mod/logistics Modrinth]''' - Stable releases
+* '''[https://www.curseforge.com/minecraft/mc-mods/logistics CurseForge]''' - Stable releases
+
+Download the version for Minecraft 1.21.11.
+
+===4. Install Mods===
+
+# Locate your <code>.minecraft/mods</code> folder:
+#* '''Windows:''' <code>%appdata%\.minecraft\mods</code>
+#* '''macOS:''' <code>~/Library/Application Support/minecraft/mods</code>
+#* '''Linux:''' <code>~/.minecraft/mods</code>
+# Create the <code>mods</code> folder if it doesn't exist
+# Copy both <code>.jar</code> files into the <code>mods</code> folder:
+#* Fabric API <code>.jar</code>
+#* Logistics <code>.jar</code>
+
+===5. Launch Minecraft===
+
+# Open the Minecraft Launcher
+# Select the '''Fabric''' profile
+# Click '''Play'''
+# Verify Logistics is loaded (check mods menu)
+
+==Verification==
+
+In-game, check that Logistics loaded successfully:
+
+# Open the mods menu (usually Mod Menu mod)
+# Look for "Logistics" in the list
+# Verify version matches what you downloaded
+
+Or just try crafting a [[Copper Transport Pipe]]!
+
+==Troubleshooting==
+
+'''Game crashes on startup:'''
+* Verify you're using Minecraft 1.21.11
+* Check Fabric Loader is version 0.18.4+
+* Ensure Fabric API is installed
+* Confirm Java 21 or newer
+
+'''Mod doesn't appear:'''
+* Check <code>.jar</code> files are in the <code>mods</code> folder
+* Verify Fabric profile is selected in launcher
+* Look for error messages in launcher log
+
+'''Recipe conflicts or issues:'''
+* Check for mod compatibility issues
+* Try with only Logistics and Fabric API installed first
+
+==Next Steps==
+
+Once installed, learn how to build your first network:
+
+* [[Your First Pipe Network]] - Build a basic item transport system
+* [[Understanding Tiers]] - Learn the progression system
+
+==See Also==
+* [[Pipe Networks]] - How pipes connect
+* [[Pipes]] - All available pipe types
+* [[Copper Transport Pipe]] - Basic transport pipe
+
+[[Category:Guides]]

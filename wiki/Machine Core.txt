@@ -1,0 +1,50 @@
+{{Infobox Item
+|name      = Machine Core
+|image     = Grid Machine Core.png
+|id        = logistics:core/machine_core
+|type      = Item (Component)
+|stackable = Yes (64)
+|added     = v0.5.0
+}}
+
+The '''Machine Core''' is a crafting component required to build all RF-powered machines. It is made from [[Bronze Ingot|Bronze Ingots]] and Blaze Powder.
+
+==Recipe==
+
+{{Grid Crafting Table
+|A1=Bronze Ingot |B1=Bronze Ingot |C1=Bronze Ingot
+|A2=Bronze Ingot |B2=Blaze Powder |C2=Bronze Ingot
+|A3=Bronze Ingot |B3=Bronze Ingot |C3=Bronze Ingot
+|Output=Machine Core
+}}
+
+'''Yields:''' 1× Machine Core (8× [[Bronze Ingot]] + 1× Blaze Powder)
+
+==Usage==
+
+The Machine Core is the central component in all RF-powered machine recipes:
+
+{| class="wikitable"
+! Machine !! Notes
+|-
+| [[Kiln]] || RF-powered smelting furnace
+|-
+| [[Macerator]] || RF-powered grinding machine
+|-
+| [[Laser Quarry]] || Automated mining machine
+|}
+
+==Tips==
+
+* Craft Machine Cores in batches — each machine requires one and they share the same recipe base
+* Bronze Ingots are made from Copper + Tin; you'll need a source of Tin Ore
+* Blaze Powder comes from Blaze Rods (dropped by Blazes in the Nether) or can be ground from Blaze Rods in the [[Macerator]]
+
+==See Also==
+* [[Bronze Ingot]] - Primary crafting material
+* [[Kiln]] - Uses Machine Core
+* [[Macerator]] - Uses Machine Core
+* [[Laser Quarry]] - Uses Machine Core
+
+[[Category:Materials]]
+[[Category:Recipes]]

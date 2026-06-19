@@ -1,0 +1,93 @@
+<mainpage-leftcolumn-start />
+
+
+
+Welcome to the '''{{SITENAME}}''', a player-maintained wiki for '''Logistics''', a Minecraft mod by [[User:Indemnity83|Indemnity83]] focused on item transport, fluid transport, storage, power, and automation.
+
+Logistics is inspired by the classic pipe-and-machine style of Minecraft automation mods, while being rebuilt as a modern standalone mod for current Minecraft versions. This wiki documents blocks, items, recipes, pipe behavior, fluid handling, modules, compatibility, and getting-started guides.
+
+==Getting started==
+
+New to Logistics? These pages are the best place to begin:
+
+* [[Getting Started]]
+* [[Recipes]]
+* [[Pipes]]
+* [[Energy]]
+* [[Machines]]
+
+
+==Important pages==
+
+{| class="wikitable"
+! Page !! Description
+|-
+| [[Getting Started]] || A beginner-friendly guide to building your first Logistics network.
+|-
+| [[Pipes]] || Overview of pipe types and how networks connect.
+|-
+| [[Item Pipes]] || Item transport pipes, extraction, routing, and behavior.
+|-
+| [[Fluid Pipes]] || Fluid transport pipes, tanks, pumps, and liquid movement.
+|-
+| [[Glass Tank]] || Basic fluid storage block.
+|-
+| [[Engines & Power]] || Power source used by Logistics machines and extraction systems.
+|-
+| [[Recipes]] || Crafting recipes for Logistics blocks and items.
+|-
+|}
+
+==Contributing==
+
+This wiki is currently being rebuilt after being reopened. Some pages may still be missing, incomplete, or left over from the previous placeholder content.
+
+You can help by improving pages, adding recipes, documenting behavior, uploading item images, or fixing outdated information. When adding information, please try to match the behavior of the latest released version of Logistics.
+
+<mainpage-endcolumn /><mainpage-rightcolumn-start />[[File:Logistics_Automation_Logo.png|alt=Logistics Automation Logo|frameless|300x300px]]
+
+==About Logistics==
+
+'''Logistics''' is a Minecraft automation mod that adds transport pipes, fluid pipes, tanks, power systems, and related tools for moving resources around a world.
+
+The mod is developed by '''Indemnity83''' and is available through common Minecraft mod distribution platforms.
+
+==Useful links==
+
+* [https://github.com/Indemnity83/logistics GitHub]
+* [https://modrinth.com/mod/logistics Modrinth]
+* [https://www.curseforge.com/minecraft/mc-mods/logistics CurseForge]
+
+==Wiki status==
+
+This wiki was recently reopened and is being rebuilt as documentation for the Logistics Minecraft mod.
+
+Current priorities:
+
+* Replace placeholder pages
+* Add block and item documentation
+* Add crafting recipes
+* Add screenshots and icons
+* Build templates for recipes, pipes, and modules
+* Organize pages into useful categories
+
+==Browse==
+
+* [[Special:AllPages|All pages]]
+* [[Special:Categories|Categories]]
+* [[Special:RecentChanges|Recent changes]]
+* [[Special:CreatePage|Create a new page]]
+
+==Helping out==
+
+* [[Project:Wiki rules|Rules of this wiki]]
+* [[Project:Policies|Policies of this wiki]]
+* [[w:Help:Getting Started|Fandom editing help]]
+* [[w:Help:Contributing|How to contribute]]
+
+<mainpage-endcolumn />
+
+[[Category:{{SITENAME}}]]
+[[Category:Logistics]]
+__NOTOC__
+__NOEDITSECTION__

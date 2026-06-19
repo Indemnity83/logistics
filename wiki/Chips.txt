@@ -1,0 +1,101 @@
+'''Chips''' are advanced electronic components used to craft [[Modules|modules]]. The chip tier determines the module's mark (MK1, MK2, or MK3). All chips are built on a Silicon Wafer base.
+
+==Silicon Wafer==
+
+The Silicon Wafer is the substrate for all chips.
+
+'''Step 1 — Silicon Mix (shapeless crafting):'''
+
+3× [[Dusts#Quartz Dust|Quartz Dust]] + 1× [[Dusts|Coal Dust]] → 1× Silicon Mix
+
+'''Step 2 — Silicon Wafer (smelting):'''
+
+Smelt Silicon Mix in a [[Kiln]] or furnace → 1× Silicon Wafer
+
+==Chip Recipes==
+
+All chips use the same pattern:
+
+<pre>
+[Ender Dust] [Resin Clump] [Ender Dust]
+[Ender Dust] [Core Dust  ] [Ender Dust]
+[Ender Dust] [Silicon Wfr] [Ender Dust]
+</pre>
+
+Where "Core Dust" is the substance that defines the chip type. All chips yield '''4× per craft'''.
+
+===Redstone Chip===
+
+{{Grid Crafting Table
+|A1=Ender Dust |B1=Resin Clump |C1=Ender Dust
+|A2=Ender Dust |B2=Redstone |C2=Ender Dust
+|A3=Ender Dust |B3=Silicon Wafer |C3=Ender Dust
+|Output=Redstone Chip |OutputCount=4
+}}
+
+'''Yields:''' 4× Redstone Chip — [[Dusts|Ender Dust]] (×6) + Resin Clump + Redstone + [[Chips#Silicon Wafer|Silicon Wafer]]
+
+Used in: '''MK1''' tier modules (Extractor MK1, Provider MK1, Passive Supplier, Crafter MK1, Item/Mod Item Sink, Terminus)
+
+----
+
+===Amethyst Chip===
+
+Same pattern as Redstone Chip but with [[Dusts|Amethyst Dust]] in the center slot.
+
+'''Yields:''' 4× Amethyst Chip
+
+Used in: '''MK2''' tier modules (Extractor MK2, Provider MK2, Active Supplier, Crafter MK2, Enchantment Sink)
+
+----
+
+===Echo Chip===
+
+Same pattern but with [[Dusts|Echo Dust]] in the center slot.
+
+'''Yields:''' 4× Echo Chip
+
+Used in: '''MK3''' tier modules (Extractor MK3, Crafter MK3, Polymorphic Sink, Quicksort)
+
+----
+
+===Carbon Chip===
+
+Same pattern but with [[Dusts|Coal Dust]] in the center slot.
+
+'''Yields:''' 4× Carbon Chip
+
+Used in: [[Item Sink Module]] only
+
+----
+
+==Chip Tier Summary==
+
+{| class="wikitable"
+! Chip !! Tier !! Module Grade
+|-
+| Redstone Chip || 1 || MK1 / base modules
+|-
+| Amethyst Chip || 2 || MK2 / enhanced modules
+|-
+| Echo Chip || 3 || MK3 / highest tier modules
+|-
+| Carbon Chip || Special || Item Sink only
+|}
+
+==Progression Note==
+
+Chips are mid-to-late game components. To craft them you need:
+# [[Macerator]] — to produce Ender Dust, Quartz Dust, Coal Dust, and other dusts
+# [[Kiln]] — to smelt Silicon Mix into Silicon Wafer
+# Source of Resin Clumps (vanilla item, found in mangrove swamps)
+
+==See Also==
+* [[Dusts]] - Source of all dust ingredients
+* [[Chips#Silicon Wafer|Silicon Wafer]] - Required base for all chips
+* [[Modules]] - Chips are used in all module recipes
+* [[Macerator]] - Produces the required dusts
+* [[Kiln]] - Smelts Silicon Mix into Silicon Wafer
+
+[[Category:Materials]]
+[[Category:Recipes]]

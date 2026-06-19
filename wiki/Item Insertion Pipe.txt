@@ -1,0 +1,92 @@
+{{Infobox Item
+|name      = Item Insertion Pipe
+|image     = Grid Item Insertion Pipe.png
+|id        = logistics:pipe/item_insertion_pipe
+|type      = Block (Pipe)
+|stackable = Yes (64)
+|tier      = Tier 2 - Smart
+|added     = v0.1.0
+}}
+
+The '''Item Insertion Pipe''' is a [[Tier System|Tier 2]] smart pipe that routes items into connected inventories with space. If no inventory accepts the item, it continues along the pipe network instead of dropping.
+
+==Recipe==
+
+{{Grid Crafting Table
+|A2=Quartz |B2=Glass |C2=Quartz
+|Output=Item Insertion Pipe |OutputCount=8
+}}
+
+'''Yields:''' 8× Item Insertion Pipe
+
+==Behavior==
+
+Item Insertion Pipes actively try to insert items into adjacent inventories. They check connected inventories for available space and prefer those directions over pipe-only exits.
+
+'''Key features:'''
+* Prefers inventory directions over pipe directions
+* Checks if inventory will accept the item
+* Falls back to pipe routing if no inventory available
+* Items drop only if no pipes or inventories can accept
+* Inventory-aware but not item-type aware
+
+==Routing Priority==
+
+When an item reaches the pipe center:
+
+# '''Try inventories first''' - Check connected inventories for space
+# '''Fall back to pipes''' - If no inventory accepts, route to pipe directions
+# '''Drop if no route''' - Only drops if no valid pipes or inventories
+
+This makes insertion pipes "smart" about finding storage without needing manual filter configuration.
+
+==Tips==
+
+* Place near storage systems to automatically route items to available space
+* Doesn't filter by item type - will insert any item the inventory accepts
+* Use after [[Item Filter Pipe|Item Filter Pipes]] for sorted storage
+* Good for general-purpose storage distribution
+* Prevents item drops when storage is available
+* Falls back gracefully to pipe network if all inventories full
+
+==Common Patterns==
+
+'''Auto-storage:'''
+<pre>
+[Source] → [Item Insertion Pipe] → [Chest A]
+                                 → [Chest B]
+                                 → [Chest C]
+                (Routes to first available storage)
+</pre>
+
+'''Sorted storage:'''
+<pre>
+[Source] → [Filter] → [Ores] → [Insertion Pipe] → [Ore storage]
+                ↓
+          [Filter] → [Food] → [Insertion Pipe] → [Food storage]
+</pre>
+
+'''Overflow to void:'''
+<pre>
+[Source] → [Insertion Pipe] → [Storage]
+                    ↓
+          [Item Void Pipe] (catches overflow when storage full)
+</pre>
+
+'''Smart distribution:'''
+<pre>
+                       → [Chest A] (fills first)
+[Items] → [Insertion] → [Chest B] (fills when A full)
+                       → [Chest C] (fills when B full)
+</pre>
+
+==See Also==
+* [[Tier System]] - Tier 2 smart pipes
+* [[Routing]] - Inventory-preference routing
+* [[Item Filter Pipe]] - Item-type filtering
+* [[Item Void Pipe]] - Overflow management
+* [[Connectivity]] - Inventory connections
+
+[[Category:Pipes]]
+[[Category:Item Pipes]]
+[[Category:Recipes]]

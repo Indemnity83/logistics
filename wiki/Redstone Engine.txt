@@ -1,0 +1,77 @@
+{{Infobox Item
+|name      = Redstone Engine
+|image     = Grid Redstone Engine.png
+|id        = logistics:power/redstone_engine
+|type      = Block (Engine)
+|stackable = No
+|function  = RF Generation
+|added     = v0.1.0
+}}
+
+The '''Redstone Engine''' is a basic power generator that converts a redstone signal into a small, steady RF energy output. It's the simplest engine in Logistics and cannot overheat.
+
+==Recipe==
+
+{{Grid Crafting Table
+|A1=Planks |B1=Planks |C1=Planks
+|A2=Wooden Gear |B2=Glass |C2=Wooden Gear
+|B3=Piston
+|Output=Redstone Engine
+}}
+
+'''Yields:''' 1× Redstone Engine
+
+==Behavior==
+
+The Redstone Engine generates RF energy when powered by a redstone signal. Energy outputs from one configurable face and transfers directly to adjacent machines.
+
+'''Key features:'''
+* Powered by redstone signal only (no fuel)
+* Small, steady energy output
+* '''Cannot overheat''' - safe to run indefinitely
+* Output face configurable with [[Wrench]]
+* No GUI - just place and power
+
+==Operation==
+
+# Place engine next to machine
+# Use [[Wrench]] to rotate output face toward machine
+# Apply redstone signal (lever, torch, redstone dust, etc.)
+# Engine runs automatically, generating RF
+
+'''Output face:''' The face touching the machine must be the engine's output face.
+
+==Configuration==
+
+Use a [[Wrench]] to rotate the output face:
+* Right-click engine with wrench
+* Output face cycles through directions
+* Position output face against machine input
+
+==Power Output==
+
+Redstone Engines produce '''low RF output''' suitable for:
+* Light-duty machines
+* Testing setups
+* Early-game automation
+
+For high-power needs like the [[Laser Quarry]], use a [[Stirling Engine]] instead.
+
+==Tips==
+
+* Simplest engine - no fuel, no overheat management
+* Always safe to leave running
+* Low output limits usefulness for big machines
+* Good for learning the power system
+* Requires constant redstone signal to operate
+* Upgrade to [[Stirling Engine]] for more power
+
+==See Also==
+* [[RF Energy]] - Understanding the power system
+* [[Stirling Engine]] - High-power alternative
+* [[Wrench]] - Rotate output face
+* [[Wooden Gear]] - Crafting component
+* [[Laser Quarry]] - Example power consumer
+
+[[Category:Power]]
+[[Category:Recipes]]

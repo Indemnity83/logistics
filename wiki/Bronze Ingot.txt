@@ -1,0 +1,80 @@
+{{Infobox Item
+|name      = Bronze Ingot
+|image     = Grid Bronze Ingot.png
+|id        = logistics:core/bronze_ingot
+|type      = Item (Alloy)
+|stackable = Yes (64)
+|added     = v0.2.0
+}}
+
+'''Bronze Ingot''' is an alloy created from copper and tin. It's used for bronze valves and gears.
+
+==Recipe==
+
+'''Alloy Crafting:'''
+
+{{Grid Crafting Table
+|A2=Copper Ingot |B2=Copper Ingot |C2=Copper Ingot
+|A3=Tin Ingot
+|Output=Bronze Ingot |OutputCount=4
+}}
+
+'''Shapeless crafting:''' 3× Copper Ingot + 1× [[Tin Ingot]] = 4× Bronze Ingot
+
+'''Crafting (to block):'''
+
+{{Grid Crafting Table
+|A1=Bronze Ingot |B1=Bronze Ingot |C1=Bronze Ingot
+|A2=Bronze Ingot |B2=Bronze Ingot |C2=Bronze Ingot
+|A3=Bronze Ingot |B3=Bronze Ingot |C3=Bronze Ingot
+|Output=Bronze Block
+}}
+
+'''Crafting (from block):'''
+
+{{Grid Crafting Table
+|B2=Bronze Block
+|Output=Bronze Ingot |OutputCount=9
+}}
+
+'''Crafting (from nuggets):'''
+
+{{Grid Crafting Table
+|A1=Bronze Nugget |B1=Bronze Nugget |C1=Bronze Nugget
+|A2=Bronze Nugget |B2=Bronze Nugget |C2=Bronze Nugget
+|A3=Bronze Nugget |B3=Bronze Nugget |C3=Bronze Nugget
+|Output=Bronze Ingot
+}}
+
+'''Crafting (to nuggets):'''
+
+{{Grid Crafting Table
+|B2=Bronze Ingot
+|Output=Bronze Nugget |OutputCount=9
+}}
+
+==Usage==
+
+'''[[Kiln]] Crafting:'''
+* [[Bronze Valve]] - 5× bronze ingot required
+
+'''Gears:'''
+* [[Bronze Gear]] - 4× bronze ingot
+
+'''Storage:'''
+* 9× Bronze Ingot → Bronze Block
+
+==Tips==
+
+* Alloy of copper + tin
+* Used for mid-tier components
+* Bronze valve requires blaze rod/lava fuel
+* Stock up for mid-tier progression
+
+==See Also==
+* [[Tin Ingot]] - Alloy component
+* [[Bronze Valve]] - Major use
+* [[Bronze Gear]] - Crafting component
+
+[[Category:Materials]]
+[[Category:Recipes]]

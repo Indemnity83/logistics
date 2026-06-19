@@ -1,0 +1,70 @@
+{{Infobox Item
+|name      = Kiln
+|image     = Grid Kiln.png
+|id        = logistics:core/kiln
+|type      = Block (Machine)
+|stackable = Yes (64)
+|function  = RF-powered smelting
+|energy    = RF Energy
+|added     = v0.2.0
+}}
+
+The '''Kiln''' is an RF-powered electric furnace that processes any vanilla smelting recipe. It works like a furnace but uses RF energy instead of fuel, and is faster and more efficient for automated setups.
+
+==Recipe==
+
+{{Grid Crafting Table
+|A1=Redstone |B1=Redstone |C1=Redstone
+|A2=Iron Ingot |B2=Machine Core |C2=Iron Ingot
+|A3=Iron Ingot |B3=Iron Ingot |C3=Iron Ingot
+|Output=Kiln
+}}
+
+'''Yields:''' 1× Kiln (requires [[Machine Core]], 5× Iron Ingot, 3× Redstone)
+
+==Behavior==
+
+The Kiln is a direct replacement for a vanilla furnace in automated setups. Place an item in the input slot and the Kiln will smelt it using RF energy, depositing the result in the output slot.
+
+'''Key features:'''
+* Processes any vanilla smelting recipe (ores, raw metals, food, etc.)
+* Input from top and sides; output from bottom (same as a vanilla furnace)
+* Uses RF energy — no fuel slot
+* Recipe book integration — browse all valid recipes in the GUI
+* Energy capacity: 10,000 RF; max input: 128 RF/tick; consumption: 1 RF/tick while active
+
+==Setup==
+
+# '''Place the Kiln''' in your automation area
+# '''Connect power''' — attach a [[Stirling Engine]] or any RF source to a side or top face
+# '''Feed input''' — pipe items in from the top or sides (e.g., use an [[Item Extractor Pipe]] on a chest)
+# '''Collect output''' — pipe from the bottom into storage
+
+The Kiln will smelt continuously as long as it has power and input items.
+
+==Uses==
+
+The Kiln is particularly useful for:
+* Smelting ore → ingot in automated pipelines
+* Processing raw metals extracted by the [[Laser Quarry]]
+* Smelting [[Dusts|Quartz Dust]] into [[Cores#Quartz Crystal|Quartz Crystal]] (required for [[Materials#Valves|Valve]] crafting)
+* Smelting [[Chips#Silicon Wafer|Silicon Mix]] into [[Chips#Silicon Wafer|Silicon Wafer]] (required for [[Chips]])
+
+==Tips==
+
+* At only 1 RF/tick, the Kiln is very energy-efficient — a single Stirling Engine can power many kilns simultaneously
+* Connect with pipes to fully automate: extract raw materials → kiln → output storage
+* Use the recipe book in the GUI to verify which items the Kiln can process
+* The [[Macerator]] pairs well with the Kiln: grind ores into dust in the Macerator, then smelt dust into ingots in the Kiln for higher yields
+
+==See Also==
+* [[Machine Core]] - Crafting component
+* [[Macerator]] - Companion grinding machine
+* [[Stirling Engine]] - Recommended power source
+* [[RF Energy]] - Power system overview
+* [[Cores#Quartz Crystal|Quartz Crystal]] - Key product; smelted from Quartz Dust in the Kiln
+* [[Chips#Silicon Wafer|Silicon Wafer]] - Key product; smelted from Silicon Mix in the Kiln
+* [[Materials#Valves|Valves]] - Require Quartz Crystal from the Kiln
+
+[[Category:Machines]]
+[[Category:Recipes]]

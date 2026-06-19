@@ -1,0 +1,49 @@
+{{Infobox Item
+|name      = Tin Ore
+|image     = Grid Tin Ore.png
+|id        = logistics:core/tin_ore
+|type      = Block (Ore)
+|stackable = Yes (64)
+|tool      = Pickaxe (Stone+)
+|added     = v0.2.0
+}}
+
+'''Tin Ore''' is a common ore found underground. Smelt it to create [[Tin Ingot|tin ingots]] for crafting bronze and tin valves.
+
+==Obtaining==
+
+'''Mining:'''
+* Found underground in the Overworld
+* Y-level distribution: (TBD - similar to copper/iron)
+* Drops: Raw Tin
+* Requires stone pickaxe or better
+
+'''Deepslate variant:'''
+* Deepslate Tin Ore
+* Found in deepslate layers
+* Same drops, harder to mine
+
+==Usage==
+
+'''Smelting:'''
+* Raw Tin → [[Tin Ingot]]
+* Used in furnaces or blast furnaces
+
+'''Storage:'''
+* Raw Tin Block (9× raw tin)
+* Compact storage
+
+==Tips==
+
+* Mine with fortune pickaxe for more raw tin
+* Common ore - easy to find
+* Needed for bronze alloy ([[Bronze Ingot]])
+* Required for [[Tin Valve]]
+
+==See Also==
+* [[Tin Ingot]] - Smelted product
+* [[Bronze Ingot]] - Tin + copper alloy
+* [[Tin Valve]] - Main use for tin
+* [[Tin Gear]] - Crafting component
+
+[[Category:Materials]]

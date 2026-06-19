@@ -1,0 +1,46 @@
+{{Infobox Item
+|name      = Enchantment Sink Module
+|image     = Grid Enchantment Sink Module.png
+|id        = logistics:pipe/enchantment_sink_module
+|type      = Item (Module)
+|stackable = Yes (64)
+|tier      = Tier 3 - Network
+|added     = v0.2.0
+}}
+
+The '''Enchantment Sink Module''' is a [[Chassis Logistics Pipe]] module that accepts '''any enchanted item''' from the [[Pipe Networks|logistics network]] and deposits it into an adjacent inventory. It acts as a catch-all for enchanted tools, armor, and books passing through the network.
+
+==Recipe==
+
+{{Grid Crafting Table
+|A1=Copper Dust |B1=Amethyst Chip |C1=Copper Dust
+|A2=Redstone |B2=Blank Module |C2=Redstone
+|Output=Enchantment Sink Module
+}}
+
+'''Yields:''' 1× Enchantment Sink Module — 2× [[Dusts|Copper Dust]] + [[Chips|Amethyst Chip]] + 2× Redstone + [[Blank Module]]
+
+==Behavior==
+
+When installed in a [[Chassis Logistics Pipe]], this module checks every item arriving at the chassis for enchantment data. If an item carries any enchantment (including enchanted books), this module claims it and deposits it into the adjacent inventory. Non-enchanted items of the same type are ignored.
+
+'''Key features:'''
+* Accepts any item with enchantment NBT data
+* Works for all enchanted item types: tools, armor, books, weapons
+* Does not filter by enchantment type — any enchantment triggers acceptance
+* Useful for automatically segregating enchanted loot from non-enchanted items
+
+==Tips==
+
+* Place adjacent to an enchanted-item storage chest to automatically collect all enchanted drops from mob farms or quarry output
+* Combine with a [[Mod Item Sink Module]] to separately route both enchanted items and specific mod items in the same chassis
+* The book ingredient reflects the module's purpose: capturing enchanted books and items
+
+==See Also==
+* [[Item Sink Module]] - Accept a specific configured item type
+* [[Mod Item Sink Module]] - Accept all items from a specific mod namespace
+* [[Chassis Logistics Pipe]] - Required container
+* [[Blank Module]] - Crafting base
+
+[[Category:Modules]]
+[[Category:Recipes]]

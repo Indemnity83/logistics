@@ -1,0 +1,99 @@
+{{Infobox Item
+|name      = Stirling Engine
+|image     = Grid Stirling Engine.png
+|id        = logistics:power/stirling_engine
+|type      = Block (Engine)
+|stackable = No
+|function  = RF Generation
+|added     = v0.1.0
+}}
+
+The '''Stirling Engine''' is a high-power generator that burns fuel to produce substantial RF energy. It can overheat if run continuously without cooling, requiring careful management.
+
+==Recipe==
+
+{{Grid Crafting Table
+|A1=Stone |B1=Stone |C1=Stone
+|A2=Stone Gear |B2=Glass |C2=Stone Gear
+|B3=Piston
+|Output=Stirling Engine
+}}
+
+'''Yields:''' 1× Stirling Engine
+
+==Behavior==
+
+The Stirling Engine burns fuel (coal, charcoal, wood, lava buckets, etc.) to generate RF energy. It requires both fuel and a redstone signal to operate. Temperature rises with use - if the engine overheats, it shuts down until reset.
+
+'''Key features:'''
+* Burns fuel for substantial power output
+* Requires redstone signal to run
+* Temperature management - can overheat
+* Output face configurable with [[Wrench]]
+* Fuel GUI for loading fuel
+* Much more powerful than [[Redstone Engine]]
+
+==Operation==
+
+# Place engine next to machine
+# Use [[Wrench]] to rotate output face toward machine
+# Right-click to open fuel GUI
+# Add fuel (coal, charcoal, wood, lava bucket, etc.)
+# Apply redstone signal
+# Engine runs, consuming fuel and generating RF
+
+==Fuel Management==
+
+Right-click the engine to open the fuel GUI:
+* Add burnable items (coal, charcoal, wood planks, lava buckets)
+* Fuel burns while engine is powered by redstone
+* More fuel types accepted than vanilla furnace
+* Lava buckets provide long burn time
+
+==Temperature and Overheating==
+
+The engine heats up during operation:
+* '''Temperature rises''' while running
+* '''Overheat threshold''' - engine shuts down if too hot
+* '''Cooldown required''' - wait for temperature to drop
+* '''Reset with wrench''' - right-click overheated engine with wrench to reset
+
+'''To prevent overheating:'''
+* Run in intervals (not continuously)
+* Turn off redstone signal periodically
+* Monitor temperature visually (if indicator present)
+* Use multiple engines in rotation
+
+==Configuration==
+
+Use a [[Wrench]] to:
+* '''Rotate output face''' - cycle through directions
+* '''Reset overheat''' - right-click overheated engine to reset
+
+==Power Output==
+
+Stirling Engines produce '''high RF output''' suitable for:
+* [[Laser Quarry]] - recommended power source
+* High-throughput machines
+* Fast operation speeds
+
+Substantially more powerful than [[Redstone Engine]].
+
+==Tips==
+
+* Best power source for [[Laser Quarry]]
+* Keep fuel stocked for continuous operation
+* Watch for overheating - shut off redstone if needed
+* Multiple engines can power one machine
+* Requires both fuel AND redstone signal
+* More expensive than redstone engine but much more capable
+
+==See Also==
+* [[RF Energy]] - Understanding the power system
+* [[Redstone Engine]] - Low-power alternative
+* [[Laser Quarry]] - Major power consumer
+* [[Wrench]] - Configuration and overheat reset
+* [[Stone Gear]] - Crafting component
+
+[[Category:Power]]
+[[Category:Recipes]]

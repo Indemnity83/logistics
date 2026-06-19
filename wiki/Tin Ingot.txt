@@ -1,0 +1,78 @@
+{{Infobox Item
+|name      = Tin Ingot
+|image     = Grid Tin Ingot.png
+|id        = logistics:core/tin_ingot
+|type      = Item
+|stackable = Yes (64)
+|added     = v0.2.0
+}}
+
+'''Tin Ingot''' is a metal obtained by smelting [[Tin Ore|raw tin]]. It's used to create bronze alloy and tin-based components.
+
+==Recipe==
+
+'''Smelting:'''
+* Raw Tin (from [[Tin Ore]]) → Tin Ingot
+* Furnace or blast furnace
+
+'''Crafting (to block):'''
+
+{{Grid Crafting Table
+|A1=Tin Ingot |B1=Tin Ingot |C1=Tin Ingot
+|A2=Tin Ingot |B2=Tin Ingot |C2=Tin Ingot
+|A3=Tin Ingot |B3=Tin Ingot |C3=Tin Ingot
+|Output=Tin Block
+}}
+
+'''Crafting (from block):'''
+
+{{Grid Crafting Table
+|B2=Tin Block
+|Output=Tin Ingot |OutputCount=9
+}}
+
+'''Crafting (from nuggets):'''
+
+{{Grid Crafting Table
+|A1=Tin Nugget |B1=Tin Nugget |C1=Tin Nugget
+|A2=Tin Nugget |B2=Tin Nugget |C2=Tin Nugget
+|A3=Tin Nugget |B3=Tin Nugget |C3=Tin Nugget
+|Output=Tin Ingot
+}}
+
+'''Crafting (to nuggets):'''
+
+{{Grid Crafting Table
+|B2=Tin Ingot
+|Output=Tin Nugget |OutputCount=9
+}}
+
+==Usage==
+
+'''Bronze Alloy:'''
+* Tin + Copper → [[Bronze Ingot]]
+
+'''[[Kiln]] Crafting:'''
+* [[Tin Valve]] - 5× tin ingot required
+
+'''Gears:'''
+* [[Tin Gear]] - 4× tin ingot
+
+'''Storage:'''
+* 9× Tin Ingot → Tin Block
+
+==Tips==
+
+* Common metal, easy to obtain
+* Essential for bronze production
+* Needed for tin valve crafting
+* Stock up for gear and valve production
+
+==See Also==
+* [[Tin Ore]] - Source of raw tin
+* [[Bronze Ingot]] - Tin + copper alloy
+* [[Tin Valve]] - Major use
+* [[Tin Gear]] - Crafting component
+
+[[Category:Materials]]
+[[Category:Recipes]]

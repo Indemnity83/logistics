@@ -1,0 +1,82 @@
+{{Infobox Item
+|name      = Item Merger Pipe
+|image     = Grid Item Merger Pipe.png
+|id        = logistics:pipe/item_merger_pipe
+|type      = Block (Pipe)
+|stackable = Yes (64)
+|tier      = Tier 1 - Mechanical
+|added     = v0.1.0
+}}
+
+The '''Item Merger Pipe''' is a [[Tier System|Tier 1]] mechanical pipe that takes items from any input direction and routes them all to a single configured output direction. It's essential for controlled directional routing.
+
+==Recipe==
+
+{{Grid Crafting Table
+|A2=Iron Ingot |B2=Glass |C2=Iron Ingot
+|Output=Item Merger Pipe |OutputCount=8
+}}
+
+'''Yields:''' 8× Item Merger Pipe
+
+==Behavior==
+
+Item Merger Pipes converge all inputs to a single output. Items can enter from any direction except the output face, and all items exit in the configured output direction.
+
+'''Key features:'''
+* All inputs merge to single output
+* Output direction configurable with [[Wrench]]
+* Items '''cannot''' enter through output face
+* Output face marked with '''opaque connector'''
+* Guaranteed directional routing (no randomness)
+
+==Configuration==
+
+Use a [[Wrench]] to change the output direction:
+
+# Right-click the pipe with a wrench
+# Output direction cycles through available faces
+# Output face indicated by '''opaque connector'''
+# Items will only exit through this face
+
+==Tips==
+
+* Perfect for collecting from multiple [[Item Extractor Pipe|Item Extractor Pipes]]
+* Guarantees items go in one direction (unlike random routing)
+* Combine with [[Copper Transport Pipe|Copper Transport Pipes]] for backbone
+* Cannot accept items from output direction - plan accordingly
+* Use multiple mergers to build tree structures
+
+==Common Patterns==
+
+'''Multi-extractor collection:'''
+<pre>
+[Extractor A] ↘
+[Extractor B] → [Item Merger] → [Copper Pipe] → [Destination]
+[Extractor C] ↗
+</pre>
+
+'''Tree merger structure:'''
+<pre>
+[Sources A-C] → [Merger 1] ↘
+                            [Merger 3] → [Main line]
+[Sources D-F] → [Merger 2] ↗
+</pre>
+
+'''Controlled junction:'''
+<pre>
+[Branch A] ↘
+           [Item Merger] → [Guaranteed direction]
+[Branch B] ↗
+</pre>
+
+==See Also==
+* [[Wrench]] - Configure output direction
+* [[Item Extractor Pipe]] - Common input source
+* [[Copper Transport Pipe]] - Connect to network
+* [[Routing]] - Directional vs random routing
+* [[Connectivity]] - Input/output face rules
+
+[[Category:Pipes]]
+[[Category:Item Pipes]]
+[[Category:Recipes]]

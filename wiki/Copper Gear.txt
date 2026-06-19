@@ -1,0 +1,78 @@
+{{Infobox Item
+|name      = Copper Gear
+|image     = Grid Copper Gear.png
+|id        = logistics:core/copper_gear
+|type      = Item
+|stackable = Yes (64)
+|added     = v0.1.0
+}}
+
+The '''Copper Gear''' is a mid-tier crafting component used to create advanced machines and automation equipment. It's equivalent in tier to the [[Iron Gear]] but uses copper instead.
+
+==Recipe==
+
+{{Grid Crafting Table
+|B1=Copper Ingot
+|A2=Copper Ingot |B2=Stone Gear |C2=Copper Ingot
+|B3=Copper Ingot
+|Output=Copper Gear
+}}
+
+'''Yields:''' 1× Copper Gear (requires [[Stone Gear]])
+
+==Uses==
+
+'''[[Iron Gear]]:'''
+
+{{Grid Crafting Table
+|B1=Iron Ingot
+|A2=Iron Ingot |B2=Copper Gear |C2=Iron Ingot
+|B3=Iron Ingot
+|Output=Iron Gear
+}}
+
+'''[[Tin Gear]]:'''
+
+{{Grid Crafting Table
+|B1=Tin Ingot
+|A2=Tin Ingot |B2=Copper Gear |C2=Tin Ingot
+|B3=Tin Ingot
+|Output=Tin Gear
+}}
+
+'''[[Laser Quarry]]:'''
+
+{{Grid Crafting Table
+|A1=Iron Gear |B1=Redstone |C1=Iron Gear
+|A2=Gold Gear |B2=Copper Gear |C2=Gold Gear
+|A3=Diamond Gear |B3=Diamond Pickaxe |C3=Diamond Gear
+|Output=Laser Quarry
+}}
+
+==Progression==
+
+Copper Gears represent mid-tier crafting materials:
+* [[Wooden Gear]] → Basic tier
+* [[Stone Gear]] → Stone tier
+* [[Iron Gear]] → Mid tier
+* '''Copper Gear''' → Mid tier (this item)
+* [[Diamond Gear]] → Advanced tier
+
+==Tips==
+
+* Copper alternative to iron gear
+* Needed for advanced automation (quarry)
+* Stock up before building large-scale automation
+* 1:1 copper-to-gear ratio (4 ingots = 1 gear)
+* Equivalent tier to iron gear
+
+==See Also==
+* [[Laser Quarry]] - Primary use
+* [[Iron Gear]] - Same tier, different metal
+* [[Diamond Gear]] - Next tier up
+* [[Stone Gear]] - Previous tier
+* [[Materials]] - All crafting components
+
+[[Category:Materials]]
+[[Category:Gears]]
+[[Category:Recipes]]

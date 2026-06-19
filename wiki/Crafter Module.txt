@@ -1,0 +1,85 @@
+{{Infobox Item
+|name      = Crafter Module
+|image     = Grid Crafter Module.png
+|type      = Item (Module)
+|stackable = Yes (64)
+|tier      = Tier 3 - Network
+|added     = v0.2.0
+}}
+
+The '''Crafter Module''' is a [[Chassis Logistics Pipe]] module that enables '''automated crafting''' within a chassis pipe. When installed, the chassis can fulfill network requests for a specific crafted item by sourcing ingredients from the network and performing the crafting operation.
+
+Three mark variants exist (MK1/II/III), with higher marks supporting more complex recipes or faster crafting cycles.
+
+==Variants==
+
+{| class="wikitable"
+! Variant !! Chip !! Notes
+|-
+| Crafter Module (MK1) || Redstone Chip || Single recipe, standard speed
+|-
+| Crafter Module MK2 || Amethyst Chip || Enhanced throughput or priority handling
+|-
+| Crafter Module MK3 || Echo Chip || Maximum crafting speed, advanced recipe support
+|}
+
+==Recipes==
+
+===Crafter Module (MK1)===
+
+{{Grid Crafting Table
+|A1=Bronze Dust |B1=Redstone Chip |C1=Bronze Dust
+|A2=Redstone |B2=Blank Module |C2=Redstone
+|Output=Crafter Module
+}}
+
+'''Yields:''' 1× Crafter Module (MK1) — 2× [[Dusts|Bronze Dust]] + [[Chips|Redstone Chip]] + 2× Redstone + [[Blank Module]]
+
+===Crafter Module MK2===
+
+{{Grid Crafting Table
+|A1=Bronze Dust |B1=Amethyst Chip |C1=Bronze Dust
+|A2=Redstone |B2=Blank Module |C2=Redstone
+|Output=Crafter Module MK2
+}}
+
+'''Yields:''' 1× Crafter Module MK2 — 2× [[Dusts|Bronze Dust]] + [[Chips|Amethyst Chip]] + 2× Redstone + [[Blank Module]]
+
+===Crafter Module MK3===
+
+{{Grid Crafting Table
+|A1=Bronze Dust |B1=Echo Chip |C1=Bronze Dust
+|A2=Redstone |B2=Blank Module |C2=Redstone
+|Output=Crafter Module MK3
+}}
+
+'''Yields:''' 1× Crafter Module MK3 — 2× [[Dusts|Bronze Dust]] + [[Chips|Echo Chip]] + 2× Redstone + [[Blank Module]]
+
+==Behavior==
+
+When installed in a [[Chassis Logistics Pipe]], this module registers a crafting recipe with the network. When the network receives a request for the output item, this module requests the necessary ingredients from the network's providers and performs the crafting operation, delivering the result to the requester.
+
+'''Key features:'''
+* Registers a crafting recipe with the logistics network
+* Automatically requests ingredients from [[Provider Logistics Pipe|Provider Logistics Pipes]] or [[Provider Module|Provider Modules]]
+* Delivers crafted output back into the network or to a configured destination
+* Multiple Crafter Modules in different chassis pipes can produce the same item — the network balances the load
+
+==Tips==
+
+* Combine Crafter Module + Provider Module in a single MK2 chassis for a complete crafting station that both produces and provides items
+* Chain crafting modules for multi-step production — one module produces intermediate items that another consumes
+* MK3 is worthwhile for high-demand recipes where speed is critical
+* Place the chassis adjacent to a crafting inventory buffer for ingredient staging
+
+==See Also==
+* [[Crafting Logistics Pipe]] - Standalone crafting pipe (simpler setup)
+* [[Chassis Logistics Pipe]] - Required container
+* [[Blank Module]] - Crafting base
+* [[Provider Module]] - Pairs well to provide crafted output
+* [[Iron Gear]] - MK1 crafting component
+* [[Gold Gear]] - MK2 crafting component
+* [[Diamond Gear]] - MK3 crafting component
+
+[[Category:Modules]]
+[[Category:Recipes]]

@@ -1,0 +1,48 @@
+{{Infobox Item
+|name      = Polymorphic Sink Module
+|image     = Grid Polymorphic Sink Module.png
+|id        = logistics:pipe/polymorphic_sink_module
+|type      = Item (Module)
+|stackable = Yes (64)
+|tier      = Tier 3 - Network
+|added     = v0.2.0
+}}
+
+The '''Polymorphic Sink Module''' is a [[Chassis Logistics Pipe]] module that accepts '''any item type that already exists''' in an adjacent inventory. It dynamically fills existing partial stacks rather than requiring a preconfigured item type like the [[Item Sink Module]].
+
+==Recipe==
+
+{{Grid Crafting Table
+|A1=Copper Dust |B1=Echo Chip |C1=Copper Dust
+|A2=Redstone |B2=Blank Module |C2=Redstone
+|Output=Polymorphic Sink Module
+}}
+
+'''Yields:''' 1× Polymorphic Sink Module — 2× [[Dusts|Copper Dust]] + [[Chips|Echo Chip]] + 2× Redstone + [[Blank Module]]
+
+==Behavior==
+
+When installed in a [[Chassis Logistics Pipe]], this module scans the adjacent inventory for existing item types. Any network item that matches a type already present in that inventory is accepted by this module and deposited to fill or extend those stacks.
+
+'''Key features:'''
+* Accepts any item type that already has at least one item in the adjacent inventory
+* Dynamically updates as the adjacent inventory contents change
+* Will not accept items for which the adjacent inventory has no existing stack
+* Ideal for refilling partially depleted storage without configuring each item type manually
+
+==Tips==
+
+* Seed the adjacent inventory with one of each item type you want it to accept — the module handles the rest automatically
+* Use for buffer chests that get replenished regularly — the module keeps them topped off
+* Combine with an [[Item Sink Module]] in the same chassis for a two-tier acceptance strategy: polymorphic for the bulk, specific sinks for overflow
+
+==See Also==
+* [[Item Sink Module]] - Accept a specifically configured item type
+* [[Mod Item Sink Module]] - Accept all items from a specific mod namespace
+* [[Quicksort Module]] - Route items by type across multiple inventories
+* [[Chassis Logistics Pipe]] - Required container
+* [[Blank Module]] - Crafting base
+* [[Bronze Gear]] - Crafting component
+
+[[Category:Modules]]
+[[Category:Recipes]]

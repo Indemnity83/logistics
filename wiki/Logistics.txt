@@ -1,0 +1,146 @@
+Welcome to the '''Logistics''' wiki! A modern Minecraft logistics and pipe mod with authentic in-pipe item motion, built on Fabric.
+
+==Getting Started==
+
+New to Logistics? Start here:
+
+* '''[[Installation]]''' - Get the mod installed and running
+* '''[[Your First Pipe Network]]''' - Build a basic transport system
+* '''[[Understanding Tiers]]''' - Learn the progression system
+
+==Core Concepts==
+
+Understand the fundamentals:
+
+* '''[[Pipe Networks]]''' - How pipes connect and form networks
+* '''[[Tier System]]''' - Mechanical → Smart → Network progression
+* '''[[Item Transport]]''' - How items move through pipes
+* '''[[Connectivity]]''' - Connection rules and behaviors
+* '''[[Routing]]''' - How items choose paths at junctions
+
+==Pipes==
+
+The core of Logistics - transporting items through your network.
+
+===Tier 1: Mechanical Pipes===
+* '''[[Stone Transport Pipe]]''' - Very slow transport
+* '''[[Copper Transport Pipe]]''' - Standard transport backbone
+* '''[[Item Extractor Pipe]]''' - Pull from inventories
+* '''[[Item Merger Pipe]]''' - Converge to single output
+* '''[[Golden Transport Pipe]]''' - Speed boost with redstone
+* '''[[Item Passthrough Pipe]]''' - Bypass inventories
+* '''[[Item Void Pipe]]''' - Delete items
+
+===Tier 2: Smart Pipes===
+* '''[[Item Filter Pipe]]''' - Route by item type
+* '''[[Item Insertion Pipe]]''' - Prefer inventories with space
+
+===Tier 3: Network Logistics===
+* '''[[Basic Logistics Pipe]]''' - Network backbone
+* '''[[Provider Logistics Pipe]]''' - Expose inventory to network
+* '''[[Supplier Logistics Pipe]]''' - Auto-maintain stock levels
+* '''[[Requester Logistics Pipe]]''' - Request items on demand
+* '''[[Crafting Logistics Pipe]]''' - Craft items on demand
+* '''[[Process Logistics Pipe]]''' - Automate processing machines
+* '''[[Satellite Logistics Pipe]]''' - Named remote destinations
+* '''[[Chassis Logistics Pipe]]''' (MK1–MK5) - Modular, module-driven behavior
+
+[[Pipes|Browse all pipes →]]
+
+==Modules==
+
+Modules are installed into [[Chassis Logistics Pipe|Chassis Logistics Pipes]] to define their behavior. Mix and match modules to create custom logistics nodes.
+
+* '''[[Blank Module]]''' - Base crafting component for all modules
+* '''[[Extractor Module]]''' / '''[[Advanced Extractor Module]]''' - Pull items from inventories
+* '''[[Provider Module]]''' - Advertise inventory contents to the network
+* '''[[Supplier Module]]''' - Maintain inventory stock levels (Passive/Active)
+* '''[[Crafter Module]]''' - Craft items on demand within the chassis
+* '''[[Quicksort Module]]''' - Sort items into designated storage
+* '''[[Terminus Module]]''' - Mark a network dead-end
+* '''[[Item Sink Module]]''' / '''[[Polymorphic Sink Module|Polymorphic Sink]]''' / '''[[Enchantment Sink Module|Enchantment Sink]]''' / '''[[Mod Item Sink Module|Mod Item Sink]]''' - Accept items by type, content, or mod namespace
+
+[[Modules|Browse all modules →]]
+
+==Power==
+
+Engines generate RF energy to power automation machines.
+
+* '''[[RF Energy]]''' - Understanding the power system
+* '''[[Redstone Engine]]''' - Basic power from redstone
+* '''[[Stirling Engine]]''' - High power from fuel
+
+[[Energy|Browse all power →]]
+
+==Automation==
+
+Machines that automate tasks - some use RF power, others use fuel and temperature.
+
+* '''[[Laser Quarry]]''' - Automated 16×16 mining (RF powered)
+* '''[[Kiln]]''' - Temperature-controlled crafting for valves
+
+[[Machines|Browse all automation →]]
+
+==Tools==
+
+Configuration and network management tools.
+
+* '''[[Wrench]]''' - Configure pipes, engines, and machines
+* '''[[Marking Fluid]]''' - Color-code copper pipes to segment networks
+
+[[Tools|Browse all tools →]]
+
+==Materials==
+
+Gears, valves, ores, and crafting components.
+
+'''Gears (Engines & Machines):'''
+* '''[[Wooden Gear]]''' - Basic | '''[[Stone Gear]]''' - Stone
+* '''[[Iron Gear]]''' | '''[[Copper Gear]]''' | '''[[Tin Gear]]''' | '''[[Bronze Gear]]''' - Mid tier
+* '''[[Gold Gear]]''' | '''[[Diamond Gear]]''' - Advanced
+* '''[[Netherite Gear]]''' - End tier
+
+'''Valves ([[Kiln]]-Crafted):'''
+* '''Tier 1:''' [[Copper Valve|Copper]] | [[Tin Valve|Tin]] (Coal fuel)
+* '''Tier 2:''' [[Iron Valve|Iron]] | [[Bronze Valve|Bronze]] (Coal at limit/fails)
+* '''Tier 3:''' [[Gold Valve|Gold]] | [[Apatite Valve|Apatite]] (Blaze rod/lava)
+* '''Tier 4-6:''' [[Diamond Valve|Diamond]] | [[Ender Valve|Ender]] | [[Emerald Valve|Emerald]] | [[Lapis Valve|Lapis]] | [[Obsidian Valve|Obsidian]] | [[Netherite Valve|Netherite]] | [[Blazing Valve|Blazing]] (Lava required)
+
+'''Ores & Metals:'''
+* '''[[Tin Ore]]''' → '''[[Tin Ingot]]''' - Common metal
+* '''[[Bronze Ingot]]''' - Copper + tin alloy
+* '''[[Apatite Ore]]''' → '''[[Apatite]]''' - Gem material
+
+[[Materials|Browse all materials →]]
+
+==Quick Reference==
+
+===Common Tasks===
+* '''Building a basic network:''' [[Your First Pipe Network]]
+* '''Sorting items:''' [[Item Filter Pipe]]
+* '''Powering machines:''' [[Stirling Engine]] + [[RF Energy]]
+* '''Automated mining:''' [[Laser Quarry]]
+* '''Extracting items:''' [[Item Extractor Pipe]]
+* '''Controlling flow:''' [[Item Merger Pipe]]
+* '''Crafting valves:''' [[Kiln]] + fuel + molten glass
+
+===By Material===
+* '''Stone:''' [[Stone Transport Pipe]], [[Stone Gear]]
+* '''Copper:''' [[Copper Transport Pipe]], [[Copper Gear]]
+* '''Wood:''' [[Item Extractor Pipe]], [[Wooden Gear]]
+* '''Iron:''' [[Item Merger Pipe]], [[Iron Gear]]
+* '''Gold:''' [[Golden Transport Pipe]]
+* '''Diamond:''' [[Item Filter Pipe]], [[Diamond Gear]]
+* '''Quartz:''' [[Item Insertion Pipe]]
+
+==About Logistics==
+
+'''Early Development:''' Logistics is in active development. Core features (Tier 1-2) are implemented and functional. Tier 3 network logistics is planned for future updates.
+
+'''Mod Version:''' 1.21.11
+'''Mod Loader:''' Fabric 0.18.4+
+'''License:''' MIT
+
+[https://github.com/indemnity83/logistics GitHub Repository] | [https://github.com/indemnity83/logistics/issues Report Issues]
+
+[[Category:Logistics]]

@@ -1,0 +1,17 @@
+'''Machines''' perform tasks automatically using RF energy.
+
+==Mining==
+* '''[[Laser Quarry]]''' - Automatically mines 16×16 area below, requires RF power
+
+==Processing==
+* '''[[Macerator]]''' - Grinds items into dust; 70+ recipes covering ores, plants, and dyes
+* '''[[Kiln]]''' - RF-powered electric furnace; processes any vanilla smelting recipe
+
+==See Also==
+* [[Machine Core]] - Required component for all machines
+* [[Energy]] - RF engines for machines
+* [[Pipes]] - Collecting machine output
+* [[Materials#Valves|Valves]] - Crafted using Quartz Crystal from the Macerator/Kiln chain
+* [[Item Extractor Pipe]] - Extract from machine output
+
+[[Category:Machines]]

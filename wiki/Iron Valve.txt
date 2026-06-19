@@ -1,0 +1,41 @@
+{{Infobox Item
+|name      = Iron Valve
+|image     = Grid Iron Valve.png
+|id        = logistics:core/iron_valve
+|type      = Item (Component)
+|stackable = Yes (64)
+|added     = v0.2.0
+}}
+
+The '''Iron Valve''' is a crafting component used to make the [[Provider Logistics Pipe]] and [[Chassis Logistics Pipe#MK1 Recipe|Chassis Logistics Pipe MK1]].
+
+==Recipe==
+
+{{Grid Crafting Table
+|A1=Quartz Crystal |B1=Quartz Crystal |C1=Quartz Crystal
+|A2=Quartz Crystal |B2=Iron Core |C2=Quartz Crystal
+|A3=Iron Nugget |B3=Gold Nugget |C3=Iron Nugget
+|Output=Iron Valve
+}}
+
+'''Yields:''' 1× Iron Valve — 5× [[Cores#Quartz Crystal|Quartz Crystal]] + 1× [[Cores|Iron Core]] + 2× Iron Nugget + 1× Gold Nugget
+
+==Usage==
+
+{| class="wikitable"
+! Used In !! Role
+|-
+| [[Provider Logistics Pipe]] || 2× required
+|-
+| [[Chassis Logistics Pipe#MK1 Recipe|Chassis Logistics Pipe MK1]] || 4× required
+|}
+
+==See Also==
+* [[Cores]] - Iron Core crafting
+* [[Cores#Quartz Crystal|Quartz Crystal]] - Required ingredient; smelted from Quartz Dust
+* [[Macerator]] - Produces Quartz Dust for Quartz Crystal
+* [[Materials#Valves|Valves]] - All valve types
+
+[[Category:Materials]]
+[[Category:Valves]]
+[[Category:Recipes]]

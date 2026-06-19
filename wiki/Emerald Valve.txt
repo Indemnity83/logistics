@@ -1,0 +1,38 @@
+{{Infobox Item
+|name      = Emerald Valve
+|image     = Grid Emerald Valve.png
+|id        = logistics:core/emerald_valve
+|type      = Item (Component)
+|stackable = Yes (64)
+|added     = v0.2.0
+}}
+
+The '''Emerald Valve''' is a crafting component used to make the [[Supplier Logistics Pipe]].
+
+==Recipe==
+
+{{Grid Crafting Table
+|A1=Quartz Crystal |B1=Quartz Crystal |C1=Quartz Crystal
+|A2=Quartz Crystal |B2=Emerald Core |C2=Quartz Crystal
+|A3=Iron Nugget |B3=Gold Nugget |C3=Iron Nugget
+|Output=Emerald Valve
+}}
+
+'''Yields:''' 1× Emerald Valve — 5× [[Cores#Quartz Crystal|Quartz Crystal]] + 1× [[Cores|Emerald Core]] + 2× Iron Nugget + 1× Gold Nugget
+
+==Usage==
+
+{| class="wikitable"
+! Used In !! Role
+|-
+| [[Supplier Logistics Pipe]] || 2× required
+|}
+
+==See Also==
+* [[Cores]] - Emerald Core crafting
+* [[Cores#Quartz Crystal|Quartz Crystal]] - Required ingredient
+* [[Materials#Valves|Valves]] - All valve types
+
+[[Category:Materials]]
+[[Category:Valves]]
+[[Category:Recipes]]

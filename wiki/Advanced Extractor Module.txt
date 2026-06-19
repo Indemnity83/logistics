@@ -1,0 +1,9 @@
+{{Stub}}
+
+The '''Advanced Extractor Module''' is an upgraded version of the [[Extractor Module]], pulling items from adjacent inventories faster or in greater quantities. It is not yet fully documented on this wiki.
+
+==See Also==
+* [[Extractor Module]] - The base extractor module
+* [[Modules]] - All chassis modules
+
+[[Category:Modules]]

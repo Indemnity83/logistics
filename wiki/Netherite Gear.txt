@@ -1,0 +1,54 @@
+{{Infobox Item
+|name      = Netherite Gear
+|image     = Grid Netherite Gear.png
+|id        = logistics:core/netherite_gear
+|type      = Item
+|stackable = Yes (64)
+|added     = v0.1.0
+}}
+
+The '''Netherite Gear''' is an end-tier crafting component made from netherite ingots. It represents the highest tier of crafting materials.
+
+==Recipe==
+
+{{Grid Crafting Table
+|B1=Netherite Ingot
+|A2=Netherite Ingot |B2=Diamond Gear |C2=Netherite Ingot
+|B3=Netherite Ingot
+|Output=Netherite Gear
+}}
+
+'''Yields:''' 1× Netherite Gear (requires [[Diamond Gear]])
+
+==Uses==
+
+Netherite Gears are crafting components for end-game machines and engines (specific uses TBD).
+
+==Progression==
+
+Netherite Gears represent the highest tier of crafting materials:
+* [[Wooden Gear]] → Basic tier
+* [[Stone Gear]] → Stone tier
+* [[Iron Gear]] → Mid tier
+* [[Copper Gear]] → Mid tier
+* [[Tin Gear]] → Mid tier
+* [[Bronze Gear]] → Mid tier
+* [[Gold Gear]] → Advanced tier
+* [[Diamond Gear]] → Advanced tier
+* '''Netherite Gear''' → End tier (this item, maximum)
+
+==Tips==
+
+* Most expensive gear - requires netherite ingots
+* End-game crafting tier
+* 1:1 netherite-to-gear ratio (4 ingots = 1 gear)
+* Plan netherite usage carefully
+
+==See Also==
+* [[Diamond Gear]] - Lower tier
+* [[Gold Gear]] - Lower tier
+* [[Materials]] - All crafting components
+
+[[Category:Materials]]
+[[Category:Gears]]
+[[Category:Recipes]]

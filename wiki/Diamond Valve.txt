@@ -1,0 +1,40 @@
+{{Infobox Item
+|name      = Diamond Valve
+|image     = Grid Diamond Valve.png
+|id        = logistics:core/diamond_valve
+|type      = Item (Component)
+|stackable = Yes (64)
+|added     = v0.2.0
+}}
+
+The '''Diamond Valve''' is a crafting component used to make the [[Requester Logistics Pipe]] and [[Chassis Logistics Pipe#MK4 Recipe|Chassis Logistics Pipe MK4]].
+
+==Recipe==
+
+{{Grid Crafting Table
+|A1=Quartz Crystal |B1=Quartz Crystal |C1=Quartz Crystal
+|A2=Quartz Crystal |B2=Diamond Core |C2=Quartz Crystal
+|A3=Iron Nugget |B3=Gold Nugget |C3=Iron Nugget
+|Output=Diamond Valve
+}}
+
+'''Yields:''' 1× Diamond Valve — 5× [[Cores#Quartz Crystal|Quartz Crystal]] + 1× [[Cores|Diamond Core]] + 2× Iron Nugget + 1× Gold Nugget
+
+==Usage==
+
+{| class="wikitable"
+! Used In !! Role
+|-
+| [[Requester Logistics Pipe]] || 2× required
+|-
+| [[Chassis Logistics Pipe#MK4 Recipe|Chassis Logistics Pipe MK4]] || 4× required
+|}
+
+==See Also==
+* [[Cores]] - Diamond Core crafting
+* [[Cores#Quartz Crystal|Quartz Crystal]] - Required ingredient
+* [[Materials#Valves|Valves]] - All valve types
+
+[[Category:Materials]]
+[[Category:Valves]]
+[[Category:Recipes]]

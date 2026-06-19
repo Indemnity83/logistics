@@ -1,0 +1,75 @@
+{{Infobox Item
+|name      = Copper Transport Pipe
+|image     = Grid Copper Transport Pipe.png
+|id        = logistics:pipe/copper_transport_pipe
+|type      = Block (Pipe)
+|stackable = Yes (64)
+|tier      = Tier 1 - Mechanical
+|added     = v0.1.0
+}}
+
+The '''Copper Transport Pipe''' is a [[Tier System|Tier 1]] mechanical pipe that provides standard-speed item transport. It's the backbone of most pipe networks, offering reliable connectivity with random routing.
+
+==Recipe==
+
+{{Grid Crafting Table
+|A2=Copper Ingot |B2=Glass |C2=Copper Ingot
+|Output=Copper Transport Pipe |OutputCount=8
+}}
+
+'''Yields:''' 8× Copper Transport Pipe
+
+==Behavior==
+
+Copper Transport Pipes move items through your network at standard speed. When an item reaches a junction with multiple possible exits, it randomly selects a direction.
+
+'''Key features:'''
+* Standard transport speed
+* Random routing at junctions
+* Reliable backbone for networks
+* Connects to all other pipe types
+* Connects to inventories
+* Can be color-marked for network segmentation
+
+==Network Segmentation==
+
+Mark copper pipes with [[Marking Fluid]] to segment networks by color:
+
+# Right-click pipe with marking fluid (water bottle + dye)
+# Pipe takes on the dye color
+# Pipes with the same marking '''will not connect''' to each other
+# Different colors connect normally
+# Sneak + empty hand to clear marking
+
+This lets you run multiple independent networks side-by-side without them merging.
+
+==Oxidization==
+
+Copper pipes oxidize naturally like vanilla copper blocks, going through all the standard oxidization stages over time: Copper (fresh, orange) → Exposed (slightly weathered) → Weathered (green-tinted) → Oxidized (fully green).
+
+'''Managing oxidization:'''
+* Use '''honeycomb''' to wax pipes and prevent further oxidization
+* Use '''axe''' to scrape off oxidization layers
+* Works exactly like vanilla copper mechanics
+* '''Purely cosmetic''' - doesn't affect item transport speed or functionality
+* Mix oxidization stages for aesthetic builds
+
+==Tips==
+
+* Standard choice for network backbone
+* Use marking fluid to prevent unwanted connections
+* Random routing works fine for single-destination networks
+* For controlled routing, use [[Item Merger Pipe|Item Merger Pipes]] or [[Item Filter Pipe|Item Filter Pipes]]
+* Faster than [[Stone Transport Pipe|Stone Transport Pipes]], cheaper than smart pipes
+
+==See Also==
+* [[Marking Fluid]] - Color-code for segmentation
+* [[Stone Transport Pipe]] - Slower, cheaper alternative
+* [[Item Merger Pipe]] - Controlled directional routing
+* [[Item Filter Pipe]] - Item-aware routing
+* [[Routing]] - How random routing works
+* [[Connectivity]] - Connection rules
+
+[[Category:Pipes]]
+[[Category:Item Pipes]]
+[[Category:Recipes]]

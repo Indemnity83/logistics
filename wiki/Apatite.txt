@@ -1,0 +1,54 @@
+{{Infobox Item
+|name      = Apatite
+|image     = Grid Apatite.png
+|id        = logistics:core/apatite
+|type      = Item (Gem)
+|stackable = Yes (64)
+|added     = v0.2.0
+}}
+
+'''Apatite''' is a gem obtained from mining [[Apatite Ore|apatite ore]]. It's used for apatite valves.
+
+==Obtaining==
+
+'''Mining:'''
+* Mine [[Apatite Ore]]
+* Drops 1× Apatite (more with Fortune)
+
+'''Crafting (from block):'''
+
+{{Grid Crafting Table
+|B2=Apatite Block
+|Output=Apatite |OutputCount=9
+}}
+
+'''Crafting (to block):'''
+
+{{Grid Crafting Table
+|A1=Apatite |B1=Apatite |C1=Apatite
+|A2=Apatite |B2=Apatite |C2=Apatite
+|A3=Apatite |B3=Apatite |C3=Apatite
+|Output=Apatite Block
+}}
+
+==Usage==
+
+'''[[Kiln]] Crafting:'''
+* [[Apatite Valve]] - 5× apatite required
+
+'''Storage:'''
+* 9× Apatite → Apatite Block
+
+==Tips==
+
+* Gem-type material (like diamond/emerald)
+* Fortune enchantment increases drops
+* Needed for Tier 3 valves
+* Requires premium fuel (blaze rod/lava) to craft valve
+
+==See Also==
+* [[Apatite Ore]] - Source of apatite
+* [[Apatite Valve]] - Major use
+
+[[Category:Materials]]
+[[Category:Recipes]]

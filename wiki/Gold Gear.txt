@@ -1,0 +1,70 @@
+{{Infobox Item
+|name      = Gold Gear
+|image     = Grid Gold Gear.png
+|id        = logistics:core/gold_gear
+|type      = Item
+|stackable = Yes (64)
+|added     = v0.1.0
+}}
+
+The '''Gold Gear''' is an advanced-tier crafting component made from gold ingots.
+
+==Recipe==
+
+{{Grid Crafting Table
+|B1=Gold Ingot
+|A2=Gold Ingot |B2=Bronze Gear |C2=Gold Ingot
+|B3=Gold Ingot
+|Output=Gold Gear
+}}
+
+'''Yields:''' 1× Gold Gear (requires [[Bronze Gear]])
+
+==Uses==
+
+'''[[Diamond Gear]]:'''
+
+{{Grid Crafting Table
+|B1=Diamond
+|A2=Diamond |B2=Gold Gear |C2=Diamond
+|B3=Diamond
+|Output=Diamond Gear
+}}
+
+'''[[Laser Quarry]]:'''
+
+{{Grid Crafting Table
+|A1=Iron Gear |B1=Redstone |C1=Iron Gear
+|A2=Gold Gear |B2=Copper Gear |C2=Gold Gear
+|A3=Diamond Gear |B3=Diamond Pickaxe |C3=Diamond Gear
+|Output=Laser Quarry
+}}
+
+==Progression==
+
+Gold Gears represent advanced-tier crafting materials:
+* [[Wooden Gear]] → Basic tier
+* [[Stone Gear]] → Stone tier
+* [[Iron Gear]] → Mid tier
+* [[Copper Gear]] → Mid tier
+* [[Tin Gear]] → Mid tier
+* [[Bronze Gear]] → Mid tier
+* '''Gold Gear''' → Advanced tier (this item)
+* [[Diamond Gear]] → Advanced tier
+* [[Netherite Gear]] → End tier
+
+==Tips==
+
+* Requires gold ingots
+* More valuable than iron/copper/tin gears
+* 1:1 gold-to-gear ratio (4 ingots = 1 gear)
+
+==See Also==
+* [[Diamond Gear]] - Same tier
+* [[Bronze Gear]] - Lower tier
+* [[Netherite Gear]] - Higher tier
+* [[Materials]] - All crafting components
+
+[[Category:Materials]]
+[[Category:Gears]]
+[[Category:Recipes]]

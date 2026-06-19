@@ -1,0 +1,30 @@
+{{Infobox Item
+|name      = Obsidian Valve
+|image     = Grid Obsidian Valve.png
+|id        = logistics:core/obsidian_valve
+|type      = Item (Component)
+|stackable = Yes (64)
+|added     = v0.2.0
+}}
+
+The '''Obsidian Valve''' is a crafting component used in future network pipe variants.
+
+==Recipe==
+
+{{Grid Crafting Table
+|A1=Quartz Crystal |B1=Quartz Crystal |C1=Quartz Crystal
+|A2=Quartz Crystal |B2=Obsidian Core |C2=Quartz Crystal
+|A3=Iron Nugget |B3=Gold Nugget |C3=Iron Nugget
+|Output=Obsidian Valve
+}}
+
+'''Yields:''' 1× Obsidian Valve — 5× [[Cores#Quartz Crystal|Quartz Crystal]] + 1× [[Cores|Obsidian Core]] + 2× Iron Nugget + 1× Gold Nugget
+
+==See Also==
+* [[Cores]] - Obsidian Core crafting
+* [[Cores#Quartz Crystal|Quartz Crystal]] - Required ingredient
+* [[Materials#Valves|Valves]] - All valve types
+
+[[Category:Materials]]
+[[Category:Valves]]
+[[Category:Recipes]]

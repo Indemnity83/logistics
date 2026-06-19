@@ -1,0 +1,31 @@
+'''Item Pipes''' are the [[Tier System|Tier 1]] and [[Tier System|Tier 2]] pipes that move items through a Logistics network. Tier 1 pipes perform mechanical operations without inspecting items, while Tier 2 pipes inspect items to make routing decisions.
+
+For the complete list of every pipe type, including the Tier 3 network logistics pipes, see [[Pipes]].
+
+==Tier 1: Mechanical Pipes==
+
+Basic pipes that move, merge, accelerate, or remove items without item awareness.
+
+* '''[[Stone Transport Pipe]]''' - Very slow transport; cheap early-game pipe.
+* '''[[Copper Transport Pipe]]''' - Standard transport backbone at normal speed.
+* '''[[Item Extractor Pipe]]''' - Actively pulls items from adjacent inventories into the network.
+* '''[[Item Merger Pipe]]''' - Converges multiple inputs into a single guaranteed output direction.
+* '''[[Golden Transport Pipe]]''' - Accelerates items when supplied with redstone power.
+* '''[[Item Passthrough Pipe]]''' - Carries items past inventories without inserting into them.
+* '''[[Item Void Pipe]]''' - Deletes items that enter it.
+
+==Tier 2: Smart Pipes==
+
+Item-aware pipes that inspect contents and route accordingly.
+
+* '''[[Item Filter Pipe]]''' - Routes items by type to different destinations.
+* '''[[Item Insertion Pipe]]''' - Prefers inserting into inventories that have space.
+
+==See Also==
+* [[Pipes]] - Full list of all pipe types, including Tier 3
+* [[Pipe Networks]] - How pipes connect and form networks
+* [[Routing]] - How items choose paths at junctions
+* [[Tier System]] - The three-tier progression
+* [[Your First Pipe Network]] - Build a network with these pipes
+
+[[Category:Pipes]]

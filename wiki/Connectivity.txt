@@ -1,0 +1,68 @@
+Pipes connect automatically to adjacent blocks based on simple rules. Understanding connectivity helps you build clean, organized networks.
+
+==Connection Rules==
+
+Pipes connect to:
+* '''Other pipes''' - Any pipe connects to any other pipe type
+* '''Inventories''' - Chests, furnaces, hoppers, barrels, etc.
+* '''Fabric Transfer API blocks''' - Any mod block that implements ItemStorage
+
+Pipes do NOT connect to:
+* Solid blocks (stone, dirt, etc.)
+* Non-inventory blocks
+* Air
+
+==Visual Indicators==
+
+Connected faces show a '''connector''' (extended connection point) in the direction of the connection. No connector means no connection on that face.
+
+'''Connector types:'''
+* '''Transparent''' - Connects to another pipe
+* '''Opaque''' - Connects to inventory or shows active face (merger/extractor pipes)
+
+==Special Connection Behaviors==
+
+'''[[Item Passthrough Pipe]]:'''
+* Only connects to other pipes
+* Never connects to inventories
+* Use to bypass nearby chests
+
+'''[[Item Merger Pipe]]:'''
+* Output face marked with opaque connector
+* Items cannot enter through output face
+* Configure output direction with [[Wrench]]
+
+'''[[Item Extractor Pipe]]:'''
+* Extraction face marked with opaque connector
+* Only one face extracts at a time
+* Configure extraction face with [[Wrench]]
+
+==Network Segmentation==
+
+Prevent connections between pipes using:
+
+'''[[Marking Fluid]]:'''
+* Color-code [[Copper Transport Pipe|Copper Transport Pipes]]
+* Pipes with same color won't connect to each other
+* Different colors connect normally
+* Sneak + empty hand removes marking
+
+'''Physical separation:'''
+* Place non-pipe blocks between networks
+* Use vertical spacing
+* Build separate systems
+
+==All Tiers Connect==
+
+All pipe tiers connect to each other:
+* [[Tier System#Tier 1: Mechanical Pipes|Tier 1]] mechanical pipes connect to [[Tier System#Tier 2: Smart Pipes|Tier 2]] smart pipes
+* Mix and match pipe types as needed
+* Build complex networks combining different behaviors
+
+==See Also==
+* [[Pipe Networks]] - How connections form networks
+* [[Marking Fluid]] - Prevent connections with color coding
+* [[Item Passthrough Pipe]] - Bypass inventories
+* [[Wrench]] - Configure pipe faces
+
+[[Category:Concepts]]

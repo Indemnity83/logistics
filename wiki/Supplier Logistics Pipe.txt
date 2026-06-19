@@ -1,0 +1,79 @@
+{{Infobox Item
+|name      = Supplier Logistics Pipe
+|image     = Grid Supplier Logistics Pipe.png
+|id        = logistics:pipe/supplier_logistics_pipe
+|type      = Block (Pipe)
+|stackable = Yes (64)
+|tier      = Tier 3 - Network
+|added     = v0.2.0
+}}
+
+The '''Supplier Logistics Pipe''' is a [[Tier System|Tier 3]] network logistics pipe that '''automatically maintains stock levels''' in an adjacent inventory. You configure which items should be kept and in what quantity; the pipe monitors the inventory and requests more from the network whenever supply runs low.
+
+==Recipe==
+
+{{Grid Crafting Table
+|A1=Emerald Valve |B1=Basic Logistics Pipe |C1=Emerald Valve
+|Output=Supplier Logistics Pipe
+}}
+
+'''Yields:''' 1× Supplier Logistics Pipe (2× [[Emerald Valve]] + 1× Basic Logistics Pipe)
+
+==Behavior==
+
+The Supplier Logistics Pipe checks the adjacent inventory every second against up to 9 configured supply targets. If any item falls below its target amount, the pipe places a request into the [[Pipe Networks|logistics network]]. A [[Provider Logistics Pipe]] elsewhere on the network fulfills the request and routes items back to this pipe, which then deposits them into the connected inventory.
+
+'''Key features:'''
+* Monitors one adjacent inventory for stock levels every second
+* Up to 9 configurable supply slots (item + target amount each)
+* Tracks items in transit to avoid over-requesting
+* Four '''Supply Modes''' control when and how much to request
+* Items delivered by the network are automatically deposited into the connected inventory
+
+==Supply Modes==
+
+Supply Modes control the requesting strategy. Configure via the [[Wrench]] GUI.
+
+{| class="wikitable"
+! Mode !! Behavior
+|-
+| '''Partial''' || Request whatever is available, up to the needed amount (default)
+|-
+| '''Stocked''' || Only request when inventory drops to '''50% or below''' the target — then request the full shortfall
+|-
+| '''Infinite''' || Ignore the target amount; continuously fill all available space, one stack at a time
+|-
+| '''Full''' || Only request if the '''complete shortfall''' is available — all-or-nothing
+|}
+
+'''Partial''' is the standard mode and works well in most situations. '''Stocked''' is useful for bulk storage where you don't want constant small top-ups — it waits until supply is genuinely low before ordering a large batch. '''Infinite''' is for always-full buffers where you want to maximize inventory space regardless of a specific target. '''Full''' is useful when partial deliveries would cause problems (e.g., a process that needs an exact batch size).
+
+==Configuration==
+
+Use a [[Wrench]] to open the supplier GUI:
+
+# Each of the 9 supply slots takes an item and a target amount
+# Set the item by placing or clicking an item into the slot
+# Set the target amount — the pipe will maintain at least this many in the inventory
+# Choose a Supply Mode (applies to all supply slots)
+
+==Tips==
+
+* The pipe tracks items currently in transit to prevent duplicate requests; it won't re-order until deliveries are received or the request times out
+* Use '''Stocked''' mode on large buffer chests to reduce network chatter — orders arrive in bulk rather than constantly trickling in
+* Use '''Infinite''' mode on a crafting station's input chest to keep it topped up at all times
+* Use '''Full''' mode when you need a guaranteed minimum batch (e.g., smelting processes that need a full stack)
+* Only one inventory face is used for delivery; the pipe automatically selects the first available adjacent inventory
+* Combine with a [[Provider Logistics Pipe]] on the same chest to both provide to and replenish from the network
+
+==See Also==
+* [[Basic Logistics Pipe]] - Required crafting component
+* [[Provider Logistics Pipe]] - Fulfills the requests this pipe places
+* [[Requester Logistics Pipe]] - Manual counterpart to automatic supply
+* [[Pipe Networks]] - How the logistics network works
+* [[Tier System]] - Tier 3 network logistics
+* [[Wrench]] - Open supplier GUI to configure supply slots and mode
+* [[Gold Gear]] - Crafting component
+
+[[Category:Pipes]]
+[[Category:Recipes]]

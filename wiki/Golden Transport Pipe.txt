@@ -1,0 +1,77 @@
+{{Infobox Item
+|name      = Golden Transport Pipe
+|image     = Grid Golden Transport Pipe.png
+|id        = logistics:pipe/gold_transport_pipe
+|type      = Block (Pipe)
+|stackable = Yes (64)
+|tier      = Tier 1 - Mechanical
+|added     = v0.1.0
+}}
+
+The '''Golden Transport Pipe''' is a [[Tier System|Tier 1]] mechanical pipe that accelerates items when powered by redstone. Use it to speed up item transport in your network.
+
+==Recipe==
+
+{{Grid Crafting Table
+|A2=Gold Ingot |B2=Glass |C2=Gold Ingot
+|Output=Golden Transport Pipe |OutputCount=8
+}}
+
+'''Yields:''' 8× Golden Transport Pipe
+
+==Behavior==
+
+Golden Transport Pipes accelerate items passing through them '''when powered by redstone'''. Items gain speed and maintain their increased velocity as they continue through the network.
+
+'''Key features:'''
+* Speed boost when powered by redstone
+* Items maintain velocity when leaving the pipe
+* No effect when unpowered (acts as normal transport pipe)
+* Random routing at junctions (like [[Copper Transport Pipe]])
+* Connects to all other pipe types
+
+==Acceleration Mechanics==
+
+* '''Powered state:''' Redstone signal directly adjacent to the pipe
+* '''Effect:''' Items passing through gain speed boost
+* '''Velocity preservation:''' Accelerated items keep their speed in subsequent pipes
+* '''Stacking:''' Items can pass through multiple powered golden pipes for cumulative speed
+
+==Tips==
+
+* Place redstone torch, lever, or redstone dust adjacent to the pipe
+* Acceleration persists - items stay fast through normal pipes
+* Use at the start of long transport runs for faster delivery
+* Chain multiple golden pipes for higher speeds
+* Unpowered golden pipes work as normal transport (no penalty)
+* Random routing still applies - use with [[Item Merger Pipe|Item Merger Pipes]] for control
+
+==Common Patterns==
+
+'''High-speed main line:'''
+<pre>
+[Source] → [Golden Pipe (powered)] → [Long copper pipe run] → [Destination]
+</pre>
+
+'''Speed boost chain:'''
+<pre>
+[Source] → [Golden] → [Golden] → [Golden] → [Fast transport]
+              ↑          ↑          ↑
+          [Redstone] [Redstone] [Redstone]
+</pre>
+
+'''Conditional acceleration:'''
+<pre>
+[Lever] → [Golden Pipe] → [Network]
+            Toggle speed on/off
+</pre>
+
+==See Also==
+* [[Item Transport]] - Speed and acceleration mechanics
+* [[Copper Transport Pipe]] - Standard transport
+* [[Stone Transport Pipe]] - Slow alternative
+* [[Routing]] - Random routing behavior
+
+[[Category:Pipes]]
+[[Category:Item Pipes]]
+[[Category:Recipes]]

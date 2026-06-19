@@ -1,0 +1,71 @@
+{{Infobox Item
+|name      = Basic Logistics Pipe
+|image     = Grid Basic Logistics Pipe.png
+|id        = logistics:pipe/basic_logistics_pipe
+|type      = Block (Pipe)
+|stackable = Yes (64)
+|tier      = Tier 3 - Network
+|added     = v0.2.0
+}}
+
+The '''Basic Logistics Pipe''' is a [[Tier System|Tier 3]] network logistics pipe that acts as a '''sink''' in the [[Pipe Networks|logistics network]]. It accepts items arriving from the network and deposits them into an adjacent inventory. It can be configured to accept specific items by filter, items addressed specifically to it, or act as the network's default fallback route.
+
+==Recipe==
+
+{{Grid Crafting Table
+|A1=Glass |B1=Redstone Torch |C1=Glass
+|A2=Copper Transport Pipe |B2=Item Filter Pipe |C2=Copper Transport Pipe
+|B3=Gold Gear
+|Output=Basic Logistics Pipe |OutputCount=8
+}}
+
+'''Yields:''' 8× Basic Logistics Pipe
+
+==Behavior==
+
+The Basic Logistics Pipe is the entry point into Tier 3 network logistics. When connected to an adjacent inventory and a logistics network, it acts as a '''delivery destination''' — network items addressed to this pipe are routed through the network and inserted into the connected inventory.
+
+'''Key features:'''
+* Accepts items from the [[Pipe Networks|logistics network]] and deposits them into an adjacent inventory
+* Configurable item filter (9 slots) — only accept specific item types
+* Optional '''Default Route''' mode — catch-all for any network item with no explicit destination
+* Uses network-aware A* pathfinding for efficient routing
+* Automatically selects the first adjacent inventory as its sink face
+
+==Configuration==
+
+Use a [[Wrench]] to open the GUI:
+
+'''Filter slots (9 slots):''' Place items in filter slots to restrict which items this pipe accepts. Only items matching the filter will be deposited. Leave all slots empty to accept any item addressed to this pipe.
+
+'''Default Route toggle:''' When enabled, the pipe accepts any item that has no explicit destination and has run out of other routing options. This is the network's "catch-all" — useful for a central chest that should receive everything that doesn't go anywhere else.
+
+===Routing Priority===
+
+When an item arrives at this pipe, it checks in this order:
+
+# '''Filter match''' — item matches a configured filter slot → deposit immediately
+# '''Destination match''' — item is explicitly addressed to this pipe → deposit
+# '''Default route''' — Default Route is enabled and the item has no other options → deposit
+
+==Tips==
+
+* Place next to a chest to create a simple network delivery point
+* Use the item filter to dedicate a pipe (and chest) to specific item types
+* Only one Default Route pipe should exist per network — having multiple can cause unpredictable delivery behavior
+* This pipe is the foundation for [[Provider Logistics Pipe|Provider]], [[Supplier Logistics Pipe|Supplier]], and [[Requester Logistics Pipe|Requester]] pipes, which are all crafted from it
+* Connect to a network using [[Copper Transport Pipe|Copper Transport Pipes]]
+
+==See Also==
+* [[Provider Logistics Pipe]] - Expose inventory contents to the network
+* [[Supplier Logistics Pipe]] - Maintain inventory stock levels automatically
+* [[Requester Logistics Pipe]] - Manually request items from the network
+* [[Pipe Networks]] - Understanding the logistics network
+* [[Tier System]] - Tier 3 network logistics
+* [[Wrench]] - Configure filter and default route
+* [[Gold Gear]] - Crafting component
+* [[Item Filter Pipe]] - Crafting component
+* [[Copper Transport Pipe]] - Backbone network connectivity
+
+[[Category:Pipes]]
+[[Category:Recipes]]

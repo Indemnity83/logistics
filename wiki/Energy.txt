@@ -1,0 +1,15 @@
+'''Energy''' covers the engines and RF power system in Logistics. Engines generate RF energy to power automation machines. All engines require a direct redstone signal to operate and output energy from one configurable face.
+
+==Energy System==
+* '''[[RF Energy]]''' - Understanding the power system
+
+==Engines==
+* '''[[Redstone Engine]]''' - Basic engine, converts redstone signal to small steady power
+* '''[[Stirling Engine]]''' - Burns fuel for substantial power output, can overheat
+
+==See Also==
+* [[Machines]] - Machines that use power
+* [[Laser Quarry]] - Major power consumer
+* [[Wrench]] - Rotate engine output face
+
+[[Category:Power]]

@@ -1,0 +1,30 @@
+{{Infobox Item
+|name      = Ender Valve
+|image     = Grid Ender Valve.png
+|id        = logistics:core/ender_valve
+|type      = Item (Component)
+|stackable = Yes (64)
+|added     = v0.2.0
+}}
+
+The '''Ender Valve''' is a crafting component used in future network pipe variants.
+
+==Recipe==
+
+{{Grid Crafting Table
+|A1=Quartz Crystal |B1=Quartz Crystal |C1=Quartz Crystal
+|A2=Quartz Crystal |B2=Ender Core |C2=Quartz Crystal
+|A3=Iron Nugget |B3=Gold Nugget |C3=Iron Nugget
+|Output=Ender Valve
+}}
+
+'''Yields:''' 1× Ender Valve — 5× [[Cores#Quartz Crystal|Quartz Crystal]] + 1× [[Cores|Ender Core]] + 2× Iron Nugget + 1× Gold Nugget
+
+==See Also==
+* [[Cores]] - Ender Core crafting
+* [[Cores#Quartz Crystal|Quartz Crystal]] - Required ingredient
+* [[Materials#Valves|Valves]] - All valve types
+
+[[Category:Materials]]
+[[Category:Valves]]
+[[Category:Recipes]]

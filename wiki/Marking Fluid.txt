@@ -1,0 +1,100 @@
+{{Infobox Item
+|name      = Marking Fluid
+|image     = Grid Marking Fluid.png
+|id        = logistics:tool/marking_fluid
+|type      = Tool
+|stackable = Yes (64)
+|function  = Pipe color-coding
+|added     = v0.1.0
+}}
+
+'''Marking Fluid''' is a color-coding tool that prevents [[Copper Transport Pipe|Copper Transport Pipes]] from connecting to each other. Use it to segment networks and run multiple independent pipe systems side-by-side.
+
+==Recipe==
+
+{{Grid Crafting Table
+|A2=Water Bottle |B2=Dye
+|Output=Marking Fluid
+}}
+
+'''Shapeless crafting:''' Water Bottle + Dye (any color) = Marking Fluid (colored)
+
+==Available Colors==
+
+Marking fluid comes in all 16 Minecraft dye colors: White, Light Gray, Gray, Black, Red, Orange, Yellow, Lime, Green, Cyan, Light Blue, Blue, Purple, Magenta, Pink, and Brown.
+
+==Usage==
+
+Right-click [[Copper Transport Pipe|Copper Transport Pipes]] with marking fluid to color-code them:
+
+# Craft marking fluid with desired dye color
+# Right-click copper pipe with marking fluid
+# Pipe takes on the dye color
+# '''Pipes will only connect to other pipes of the same color'''
+# Different colored pipes will not connect to each other
+# Unmarked pipes connect to all colors
+
+==Removing Marking==
+
+To clear a pipe's color marking:
+* Sneak + right-click with empty hand
+* Pipe returns to unmarked state
+* Can now connect to any pipe
+
+==Connection Rules==
+
+'''Same color pipes:'''
+* '''Connect to each other'''
+* Form isolated networks by color
+
+'''Different color pipes:'''
+* '''Do not connect''' to each other
+* Keeps colored networks separate
+
+'''Unmarked pipes:'''
+* '''Connect to all pipes''' regardless of color
+* Can bridge between different colored networks
+
+==Use Cases==
+
+'''Run parallel networks:'''
+<pre>
+[Red pipes] ═══ [Red network A] (red only connects to red)
+[Blue pipes] ══ [Blue network B] (blue only connects to blue)
+    (Red and blue networks remain separate)
+</pre>
+
+'''Isolate same-colored networks:'''
+<pre>
+[Green network A] → [Green pipes only]
+
+[Green network B] → [Green pipes only]
+    (Two separate green networks won't merge)
+</pre>
+
+'''Organize complex builds:'''
+<pre>
+Different colored pipes for different purposes:
+- Red = ore processing
+- Blue = item sorting
+- Green = overflow management
+</pre>
+
+==Tips==
+
+* Only works on [[Copper Transport Pipe|Copper Transport Pipes]]
+* Each dye creates a different color
+* Sneak + empty hand to remove marking
+* Visual indicator shows pipe color
+* Alternative to physical separation
+* Cleaner than using blocks to separate networks
+* Different from filters - this prevents physical connections
+
+==See Also==
+* [[Copper Transport Pipe]] - Pipe type that accepts marking
+* [[Connectivity]] - Connection rules
+* [[Pipe Networks]] - Network segmentation
+* [[Item Passthrough Pipe]] - Alternative segmentation method
+
+[[Category:Tools]]
+[[Category:Recipes]]

@@ -1,0 +1,68 @@
+{{Infobox Item
+|name      = Iron Gear
+|image     = Grid Iron Gear.png
+|id        = logistics:core/iron_gear
+|type      = Item
+|stackable = Yes (64)
+|added     = v0.1.0
+}}
+
+The '''Iron Gear''' is a mid-tier crafting component used to create advanced machines and automation equipment. It requires more valuable materials than early-game gears.
+
+==Recipe==
+
+{{Grid Crafting Table
+|B1=Iron Ingot
+|A2=Iron Ingot |B2=Copper Gear |C2=Iron Ingot
+|B3=Iron Ingot
+|Output=Iron Gear
+}}
+
+'''Yields:''' 1× Iron Gear (requires [[Copper Gear]])
+
+==Uses==
+
+'''[[Bronze Gear]]:'''
+
+{{Grid Crafting Table
+|B1=Bronze Ingot
+|A2=Bronze Ingot |B2=Iron Gear |C2=Bronze Ingot
+|B3=Bronze Ingot
+|Output=Bronze Gear
+}}
+
+'''[[Laser Quarry]]:'''
+
+{{Grid Crafting Table
+|A1=Iron Gear |B1=Redstone |C1=Iron Gear
+|A2=Gold Gear |B2=Copper Gear |C2=Gold Gear
+|A3=Diamond Gear |B3=Diamond Pickaxe |C3=Diamond Gear
+|Output=Laser Quarry
+}}
+
+==Progression==
+
+Iron Gears represent mid-tier crafting materials:
+* [[Wooden Gear]] → Basic tier
+* [[Stone Gear]] → Stone tier
+* '''Iron Gear''' → Mid tier (this item)
+* [[Copper Gear]] → Mid tier
+* [[Diamond Gear]] → Advanced tier
+
+==Tips==
+
+* Requires iron - more valuable than wooden/stone gears
+* Needed for advanced automation (quarry)
+* Stock up before building large-scale automation
+* 1:1 iron-to-gear ratio (4 ingots = 1 gear)
+
+==See Also==
+* [[Laser Quarry]] - Primary use
+* [[Copper Gear]] - Same tier, different metal
+* [[Diamond Gear]] - Next tier up
+* [[Stone Gear]] - Previous tier
+* [[Materials]] - All crafting components
+
+[[Category:Materials]]
+[[Category:Gears]]
+[[Category:Recipes]]

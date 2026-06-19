@@ -1,0 +1,54 @@
+{{Infobox Item
+|name      = Mod Item Sink Module
+|image     = Grid Mod Item Sink Module.png
+|id        = logistics:pipe/mod_item_sink_module
+|type      = Item (Module)
+|stackable = Yes (64)
+|tier      = Tier 3 - Network
+|added     = v0.2.0
+}}
+
+The '''Mod Item Sink Module''' is a [[Chassis Logistics Pipe]] module that accepts '''all items from a configured mod namespace''' from the [[Pipe Networks|logistics network]]. It routes items from a specific mod into a designated adjacent inventory, regardless of item type.
+
+==Recipe==
+
+{{Grid Crafting Table
+|A1=Copper Dust |B1=Redstone Chip |C1=Copper Dust
+|A2=Redstone |B2=Blank Module |C2=Redstone
+|Output=Mod Item Sink Module
+}}
+
+'''Yields:''' 1× Mod Item Sink Module — 2× [[Dusts|Copper Dust]] + [[Chips|Redstone Chip]] + 2× Redstone + [[Blank Module]]
+
+==Behavior==
+
+When installed in a [[Chassis Logistics Pipe]], this module checks the namespace (mod ID) of every item arriving at the chassis. If an item's namespace matches the configured mod ID, the module claims it and deposits it into the adjacent inventory. Items from other mods or vanilla Minecraft pass through.
+
+'''Key features:'''
+* Accepts all items from a single configured mod namespace (e.g., <code>create</code>, <code>thermal</code>, <code>ae2</code>)
+* Namespace-based matching — any item whose item ID begins with <code>modid:</code> is accepted
+* Useful for modpacks where you want to store all items from a specific mod together
+* Multiple Mod Item Sink Modules can be combined in one chassis to cover multiple mods
+
+==Configuration==
+
+Use a [[Wrench]] to open the chassis GUI, then configure the module:
+
+'''Mod namespace field:''' Enter the mod ID of the mod whose items this module should accept (e.g., <code>logistics</code>, <code>minecraft</code>, <code>create</code>).
+
+==Tips==
+
+* Particularly useful in large modpacks for keeping mod-specific resources organized in dedicated storage areas
+* Combine multiple Mod Item Sink Modules in an MK3+ chassis to route items from several mods simultaneously
+* Use alongside an [[Item Sink Module]] to handle specific items and a Mod Item Sink for broader catch-all routing
+
+==See Also==
+* [[Item Sink Module]] - Accept a specific configured item type
+* [[Polymorphic Sink Module]] - Accept items that already exist in the adjacent inventory
+* [[Enchantment Sink Module]] - Accept any enchanted item
+* [[Chassis Logistics Pipe]] - Required container
+* [[Blank Module]] - Crafting base
+* [[Bronze Gear]] - Crafting component
+
+[[Category:Modules]]
+[[Category:Recipes]]

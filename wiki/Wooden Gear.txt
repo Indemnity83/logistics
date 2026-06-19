@@ -1,0 +1,66 @@
+{{Infobox Item
+|name      = Wooden Gear
+|image     = Grid Wooden Gear.png
+|id        = logistics:core/wooden_gear
+|type      = Item
+|stackable = Yes (64)
+|added     = v0.1.0
+}}
+
+The '''Wooden Gear''' is a basic crafting component used to create early-game machines and engines. It's the foundation of the gear progression system.
+
+==Recipe==
+
+{{Grid Crafting Table
+|B1=Stick
+|A2=Stick |C2=Stick
+|B3=Stick
+|Output=Wooden Gear
+}}
+
+'''Yields:''' 1× Wooden Gear
+
+==Uses==
+
+'''[[Stone Gear]]:'''
+
+{{Grid Crafting Table
+|B1=Stone
+|A2=Stone |B2=Wooden Gear |C2=Stone
+|B3=Stone
+|Output=Stone Gear
+}}
+
+'''[[Redstone Engine]]:'''
+
+{{Grid Crafting Table
+|A1=Planks |B1=Planks |C1=Planks
+|A2=Wooden Gear |B2=Glass |C2=Wooden Gear
+|B3=Piston
+|Output=Redstone Engine
+}}
+
+==Progression==
+
+Wooden Gears represent the first tier of crafting materials:
+* '''Wooden Gear''' → Basic tier (this item)
+* [[Stone Gear]] → Stone tier
+* [[Iron Gear]] → Mid tier
+* [[Copper Gear]] → Mid tier
+* [[Diamond Gear]] → Advanced tier
+
+==Tips==
+
+* Craft from readily available sticks
+* Needed for first engine
+* Simple 1:1 stick-to-gear ratio (4 sticks = 1 gear)
+* Stock up for early automation
+
+==See Also==
+* [[Redstone Engine]] - Primary use
+* [[Stone Gear]] - Next tier up
+* [[Materials]] - All crafting components
+
+[[Category:Materials]]
+[[Category:Gears]]
+[[Category:Recipes]]

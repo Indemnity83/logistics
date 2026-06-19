@@ -1,0 +1,67 @@
+{{Infobox Item
+|name      = Stone Gear
+|image     = Grid Stone Gear.png
+|id        = logistics:core/stone_gear
+|type      = Item
+|stackable = Yes (64)
+|added     = v0.1.0
+}}
+
+The '''Stone Gear''' is a stone-tier crafting component used to create more advanced machines and engines. It represents progression beyond wooden-tier components.
+
+==Recipe==
+
+{{Grid Crafting Table
+|B1=Stone
+|A2=Stone |B2=Wooden Gear |C2=Stone
+|B3=Stone
+|Output=Stone Gear
+}}
+
+'''Yields:''' 1× Stone Gear (requires [[Wooden Gear]])
+
+==Uses==
+
+'''[[Copper Gear]]:'''
+
+{{Grid Crafting Table
+|B1=Copper Ingot
+|A2=Copper Ingot |B2=Stone Gear |C2=Copper Ingot
+|B3=Copper Ingot
+|Output=Copper Gear
+}}
+
+'''[[Stirling Engine]]:'''
+
+{{Grid Crafting Table
+|A1=Stone |B1=Stone |C1=Stone
+|A2=Stone Gear |B2=Glass |C2=Stone Gear
+|B3=Piston
+|Output=Stirling Engine
+}}
+
+==Progression==
+
+Stone Gears represent the second tier of crafting materials:
+* [[Wooden Gear]] → Basic tier
+* '''Stone Gear''' → Stone tier (this item)
+* [[Iron Gear]] → Mid tier
+* [[Copper Gear]] → Mid tier
+* [[Diamond Gear]] → Advanced tier
+
+==Tips==
+
+* Craft from common cobblestone or stone
+* Needed for Stirling Engine (better than Redstone Engine)
+* Stock up before building power infrastructure
+* Simple 1:1 cobblestone-to-gear ratio
+
+==See Also==
+* [[Stirling Engine]] - Primary use
+* [[Wooden Gear]] - Previous tier
+* [[Iron Gear]] - Next tier up
+* [[Materials]] - All crafting components
+
+[[Category:Materials]]
+[[Category:Gears]]
+[[Category:Recipes]]
