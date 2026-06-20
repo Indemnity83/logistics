@@ -1,46 +1,21 @@
-'''Recipes''' describe how to craft Logistics blocks and items. On this wiki, crafting recipes are displayed with the <code>{{[[Template:Grid Crafting Table|Grid Crafting Table]]}}</code> template, which renders a 3×3 crafting grid and the resulting output.
+'''Recipes''' describe how to craft Logistics blocks and items. Every craftable page shows its recipe inline under an '''Obtaining''' section.
 
-Every page that documents a craftable block or item includes its recipe inline and is tagged under [[:Category:Recipes]].
+== How recipes are shown ==
 
-==Browsing Recipes==
+A single recipe is drawn as a Minecraft-style crafting grid with the [[Template:Grid Crafting Table|Grid Crafting Table]] template, while pages that cover a whole family of items group their recipes into a [[Template:Crafting|Crafting]] table (Name / Ingredients / Recipe / Description).
 
-* '''[[:Category:Recipes]]''' - Every page that contains a crafting recipe.
+== Where to find recipes ==
 
-==Recipe Template==
+The recipe-heavy overview pages are the quickest way to browse what's craftable:
 
-To add a recipe to a page, use the [[Template:Grid Crafting Table|Grid Crafting Table]] template. Grid positions are named by column (A–C) and row (1–3):
+* '''Pipes''' — [[Transport Pipes]], [[Logistics Pipes]], [[Fluid Pipes]]
+* '''Power''' — [[Cables]], and the engines and [[Battery]] under [[Energy]]
+* '''Components''' — [[Gears]], [[Valves]], [[Cores]], [[Chips]], [[Dusts]]
 
-<pre>
-{{Grid Crafting Table
-|A2=Planks |B2=Glass |C2=Planks
-|Output=Item Extractor Pipe |OutputCount=8
-}}
-</pre>
+Individual machine, tool, and module pages each show their own recipe as well.
 
-Omit any empty slots. Use <code>Output</code> for the result item and <code>OutputCount</code> when the recipe yields more than one.
+== For editors ==
 
-==Major Recipe Pages==
+See [[Help:Page layout]] for how to add a recipe to a page (single recipe → [[Template:Grid Crafting Table|Grid Crafting Table]]; several recipes on one page → a [[Template:Crafting|Crafting]] table).
 
-Recipes are documented on each item's own page. Good starting points:
-
-'''Pipes:'''
-* [[Copper Transport Pipe]], [[Stone Transport Pipe]], [[Golden Transport Pipe]]
-* [[Item Extractor Pipe]], [[Item Merger Pipe]], [[Item Filter Pipe]]
-
-'''Power & Automation:'''
-* [[Redstone Engine]], [[Stirling Engine]]
-* [[Laser Quarry]], [[Kiln]], [[Macerator]]
-
-'''Tools:'''
-* [[Wrench]], [[Marking Fluid]]
-
-'''Materials:'''
-* [[Materials|Gears, valves, ores, and crafting components]]
-
-==See Also==
-* [[Pipes]] - All pipe types
-* [[Materials]] - Crafting components
-* [[Kiln]] - Temperature-controlled crafting for valves
-* [[Template:Grid Crafting Table]] - The recipe template
-
-[[Category:Recipes]]
+[[Category:Help]]
