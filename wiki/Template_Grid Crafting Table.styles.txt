@@ -1,0 +1,43 @@
+/* Crafting recipe grid styling, loaded via <templatestyles> from [[Template:Grid Crafting Table]].
+   Edit here to restyle every recipe on the wiki at once. */
+.pcraft {
+	display: inline-table;
+	vertical-align: middle;
+	margin: 0.3em 0;
+	background: #c6c6c6;
+	padding: 6px;
+	border: 2px solid;
+	border-color: #ffffff #555555 #555555 #ffffff;
+	border-radius: 3px;
+}
+.pcraft-grid {
+	border-collapse: separate;
+	border-spacing: 3px;
+	background: transparent;
+}
+.pcraft-cell {
+	vertical-align: middle;
+	padding: 0;
+}
+.pcraft-slot {
+	width: 32px;
+	height: 32px;
+	padding: 2px;
+	background: #8b8b8b;
+	box-shadow: inset 2px 2px 0 #565656, inset -2px -2px 0 #ffffff;
+	text-align: center;
+	vertical-align: middle;
+}
+.pcraft-arrow {
+	padding: 0 12px;
+	vertical-align: middle;
+	color: #4d4d4d;
+	font-size: 28px;
+	font-weight: bold;
+	line-height: 1;
+}
+.pcraft-count {
+	vertical-align: middle;
+	padding-left: 6px;
+	font-weight: bold;
+}

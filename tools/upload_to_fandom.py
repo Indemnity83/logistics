@@ -231,6 +231,9 @@ def page_title(filename):
     stem = filename[:-4]  # drop .txt
     if stem == "main":
         return "Main Page"
+    if stem.startswith("Template_") and stem.endswith(".styles"):
+        # Template_X.styles.txt -> Template:X/styles.css (a TemplateStyles subpage)
+        return "Template:" + stem[len("Template_"):-len(".styles")] + "/styles.css"
     if stem.startswith("Template_"):
         return "Template:" + stem[len("Template_"):]
     return stem
