@@ -1,7 +1,7 @@
 <includeonly>{| style="display:inline-table; vertical-align:middle; margin:0.3em 0; background:#c6c6c6; padding:5px; border:2px solid; border-color:#ffffff #555555 #555555 #ffffff;"
 |-
 |
-{| style="border-collapse:separate; border-spacing:3px; background:transparent;"
+{| style="border-collapse:separate; border-spacing:2px; background:transparent;"
 |-
 | style="width:36px; height:36px; padding:0; background:#8b8b8b; border:2px solid; border-color:#373737 #ffffff #ffffff #373737; text-align:center; vertical-align:middle;" | {{#if:{{{A1|}}}|{{Grid|{{{A1}}}}}|&nbsp;}}
 | style="width:36px; height:36px; padding:0; background:#8b8b8b; border:2px solid; border-color:#373737 #ffffff #ffffff #373737; text-align:center; vertical-align:middle;" | {{#if:{{{B1|}}}|{{Grid|{{{B1}}}}}|&nbsp;}}
@@ -16,7 +16,11 @@
 | style="width:36px; height:36px; padding:0; background:#8b8b8b; border:2px solid; border-color:#373737 #ffffff #ffffff #373737; text-align:center; vertical-align:middle;" | {{#if:{{{C3|}}}|{{Grid|{{{C3}}}}}|&nbsp;}}
 |}
 | style="padding:0 10px; vertical-align:middle; color:#555555; font-size:28px; font-weight:bold;" | →
+| style="vertical-align:middle;" |
+{| style="border-collapse:separate; background:transparent;"
+|-
 | style="width:36px; height:36px; padding:0; background:#8b8b8b; border:2px solid; border-color:#373737 #ffffff #ffffff #373737; text-align:center; vertical-align:middle;" | {{Grid|{{{Output}}}}}
+|}
 | style="vertical-align:middle; padding-left:5px; font-weight:bold;" | {{#if:{{{OutputCount|}}}|×{{{OutputCount}}}}}
 |}</includeonly><noinclude>
 Renders a 3×3 crafting-table recipe as a Minecraft-style panel: recessed input slots, a
