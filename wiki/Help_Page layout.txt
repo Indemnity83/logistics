@@ -1,0 +1,65 @@
+This page describes the standard layout for an article on the Logistics Wiki. It follows the
+conventions of the official Minecraft wiki so pages feel familiar and consistent. New or
+incomplete pages should be marked with [[Template:Stub|Stub]] and grown toward this structure.
+
+== Page skeleton ==
+
+Copy this skeleton when starting a new article (drop the parts that don't apply):
+
+<pre>
+{{About|this item|the other meaning|Other Page}}   <!-- only if the title is ambiguous -->
+{{Block|image=Grid Name.png|...}}                  <!-- or {{Item|...}} for tools/items -->
+
+'''Name''' is a one- or two-sentence description of what it is and what it does,
+linking the key [[concept]]s.
+
+== Obtaining ==
+
+=== Crafting ===
+{{Grid Crafting Table|A2=Ingredient|B2=Ingredient|C2=Ingredient|Output=Name|OutputCount=8}}
+
+== Usage ==
+
+A short lead, then a subsection per distinct behavior.
+
+=== Behavior ===
+...
+
+== History ==
+
+{{History|head=1|foot=1|v0.1.0|Added '''Name'''.}}
+
+== See also ==
+* [[Related Page]] — why it's related
+
+[[Category:...]]
+</pre>
+
+== Order of elements ==
+
+# '''Hatnote''' — [[Template:About|About]] (or another hatnote), only when the title is ambiguous.
+# '''Infobox''' — [[Template:Block|Block]] for blocks (pipes, machines), [[Template:Item|Item]] for tools and items.
+# '''Lead''' — the bolded page name and a concise description. No heading.
+# '''Obtaining''' — how to get it, with an L3 per method that applies: ''Crafting'', ''Breaking'', ''Natural generation'', ''Mob loot'', ''Chest loot'', ''Trading'', ''Villager gifts''. Most items only have ''Crafting''.
+# '''Usage''' — what it does, with an L3 per distinct behavior.
+# '''History''' — a [[Template:History|History]] table, newest version first.
+# '''See also''' — bulleted links to related pages.
+# '''Categories''' — at the very bottom.
+
+== Conventions ==
+
+* Headings use '''sentence case''' (''Network segmentation'', not ''Network Segmentation'').
+* Link the first mention of another item, block, or concept; don't over-link repeats.
+* Single recipe → [[Template:Grid Crafting Table|Grid Crafting Table]]; many recipes on one page → a [[Template:Crafting|Crafting]] table.
+* Keep the lead short — detail belongs under ''Usage'', not the intro.
+
+== Templates ==
+
+* [[Template:Grid Crafting Table|Grid Crafting Table]] — a single crafting recipe as a Minecraft-style grid.
+* [[Template:Crafting|Crafting]] — a table of several recipes (Name / Ingredients / Recipe / Description).
+* [[Template:History|History]] — the version-history table.
+* [[Template:About|About]], [[Template:Hatnote|Hatnote]] — top-of-page notes.
+* [[Template:Block|Block]], [[Template:Item|Item]] — infoboxes.
+* [[Template:Stub|Stub]] — the incomplete-article notice.
+
+[[Category:Help]]

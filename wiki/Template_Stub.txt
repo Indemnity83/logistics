@@ -1,8 +1,10 @@
-<includeonly>{| style="width:100%; border:1px solid #c8ccd1; background:#f8f9fa; margin:0 0 1em 0;"
-| style="padding:8px 12px;" | ''This article is a '''stub'''. The Logistics wiki is being rebuilt — you can help by [[Special:CreatePage|expanding it]] with recipes, behavior, and screenshots.''
-|}[[Category:Stubs]]</includeonly><noinclude>
-Marks a short or incomplete page. Place {{Stub}} at the top of the article.
-Adds the page to [[:Category:Stubs]].
+<includeonly><templatestyles src="Stub/styles.css" /><div class="logi-stub">This article is a '''stub'''. You can help the Logistics Wiki by [{{fullurl:{{FULLPAGENAME}}|action=edit}} expanding it] with recipes, behavior, and screenshots. See [[Help:Page layout]] for the standard article structure.</div>[[Category:Stubs]]</includeonly><noinclude>
+A notice for short or incomplete articles. Place it at the very top of the page (above the
+infobox). Transcluding it adds the page to [[:Category:Stubs]]. Styling lives in
+[[Template:Stub/styles.css]].
+
+Usage:
+ {{Stub}}
 
 [[Category:Templates]]
 </noinclude>

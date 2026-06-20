@@ -238,6 +238,8 @@ def page_title(filename):
         return "Template:" + stem[len("Template_"):]
     if stem.startswith("Module_"):
         return "Module:" + stem[len("Module_"):]
+    if stem.startswith("Help_"):
+        return "Help:" + stem[len("Help_"):]
     return stem
 
 

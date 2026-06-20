@@ -1,0 +1,10 @@
+/* Stub-notice styling, loaded via <templatestyles> from [[Template:Stub]]. A light banner with
+   an amber accent bar, set at the top of incomplete articles. */
+.logi-stub {
+	border: 1px solid #c8ccd1;
+	border-left: 4px solid #f0a000;
+	background: #fcf8e3;
+	padding: 8px 12px;
+	margin: 0 0 1em 0;
+	font-style: italic;
+}
