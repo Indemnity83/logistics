@@ -2,3 +2,8 @@ site/
 
 # macOS
 .DS_Store
+
+# Local secrets (Fandom bot credentials, etc.)
+.env
+.env.*
+!.env.example
