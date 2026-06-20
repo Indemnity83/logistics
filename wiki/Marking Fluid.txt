@@ -50,39 +50,29 @@ Each colored marking fluid is crafted '''shapeless''' from a Water Bottle plus t
 {{Crafting|foot=1
 |name=Brown Marking Fluid      |A1=Water Bottle |B1=Brown Dye      |Output=Brown Marking Fluid}}
 
-==Usage==
+== Usage ==
 
-Right-click [[Copper Transport Pipe|Copper Transport Pipes]] with marking fluid to color-code them:
+Marking fluid segments a network by color. A marked [[Copper Transport Pipe]] only connects to other pipes of the same color, so independent systems can run side by side. It works only on [[Copper Transport Pipe|Copper Transport Pipes]].
 
-# Craft marking fluid with desired dye color
-# Right-click copper pipe with marking fluid
-# Pipe takes on the dye color
-# '''Pipes will only connect to other pipes of the same color'''
-# Different colored pipes will not connect to each other
-# Unmarked pipes connect to all colors
+=== Applying ===
 
-==Removing Marking==
+Right-click a [[Copper Transport Pipe]] with marking fluid to color it:
 
-To clear a pipe's color marking:
-* Sneak + right-click with empty hand
-* Pipe returns to unmarked state
-* Can now connect to any pipe
+# Craft marking fluid in the desired dye color
+# Right-click the copper pipe with the marking fluid
+# The pipe takes on the dye color
 
-==Connection Rules==
+=== Removing ===
 
-'''Same color pipes:'''
-* '''Connect to each other'''
-* Form isolated networks by color
+Sneak + right-click a marked pipe with an empty hand to clear it. The pipe returns to its unmarked state and connects to any pipe again.
 
-'''Different color pipes:'''
-* '''Do not connect''' to each other
-* Keeps colored networks separate
+=== Connection rules ===
 
-'''Unmarked pipes:'''
-* '''Connect to all pipes''' regardless of color
-* Can bridge between different colored networks
+* '''Same color''' — pipes connect to each other, forming networks isolated by color.
+* '''Different colors''' — pipes do not connect, keeping colored networks separate.
+* '''Unmarked''' — pipes connect to all pipes regardless of color, and can bridge between colored networks.
 
-==Use Cases==
+=== Examples ===
 
 '''Run parallel networks:'''
 <pre>
