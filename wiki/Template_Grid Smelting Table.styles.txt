@@ -1,0 +1,20 @@
+/* Smelting-widget styling, loaded via <templatestyles> from [[Template:Grid Smelting Table]] and
+   [[Module:Smelting]]. Complements [[Template:Grid Crafting Table/styles.css]] (which styles the
+   shared .logi-grid panel, slots, and arrow) with the furnace flame and experience rows. */
+.logi-furnace-fire {
+	text-align: center;
+	vertical-align: middle;
+	padding: 1px 0;
+}
+.logi-furnace-out {
+	border-collapse: separate;
+	border-spacing: 0;
+}
+.logi-furnace-xp {
+	text-align: center;
+	font-size: 85%;
+	font-weight: bold;
+	color: #2e7d32;
+	padding-top: 2px;
+	white-space: nowrap;
+}

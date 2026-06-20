@@ -1,0 +1,42 @@
+<includeonly>{| class="logi-grid"
+|-
+| class="logi-grid-cell" |
+{| class="logi-grid-grid"
+|-
+| class="logi-grid-slot" | {{#if:{{{Input|}}}|{{Grid|{{{Input}}}}}|&nbsp;}}
+|-
+| class="logi-furnace-fire" | [[File:Grid Furnace Flame.png|18px|link=]]
+|-
+| class="logi-grid-slot" | {{#if:{{{Fuel|}}}|{{Grid|{{{Fuel}}}}}|&nbsp;}}
+|}
+| class="logi-grid-arrow" | →
+| class="logi-grid-cell" |
+{| class="logi-furnace-out"
+|-
+| class="logi-grid-slot" | {{Grid|{{{Output}}}|{{{OutputCount|}}}}}
+|-
+| class="logi-furnace-xp" | {{#if:{{{XP|}}}|{{{XP}}} XP|&nbsp;}}
+|}
+|}<templatestyles src="Grid Crafting Table/styles.css" /><templatestyles src="Grid Smelting Table/styles.css" /></includeonly><noinclude>
+Renders a furnace-style smelting recipe: the input on top, a flame, the fuel slot below, an arrow,
+and the output with its experience. Styling reuses [[Template:Grid Crafting Table/styles.css]] for
+the slots and arrow, plus [[Template:Grid Smelting Table/styles.css]] for the flame and XP.
+
+Usage:
+ {{Grid Smelting Table
+ |Input=Raw Tin
+ |Output=Tin Ingot
+ |XP=0.7
+ }}
+
+Parameters:
+ Input       — the item being smelted (rendered via {{Grid}})
+ Fuel        — the fuel item (optional; the slot is left blank if omitted — "any fuel")
+ Output      — the resulting item
+ OutputCount — quantity produced (optional)
+ XP          — experience granted (optional)
+
+Depends on [[Template:Grid]].
+
+[[Category:Templates]]
+</noinclude>

@@ -1,0 +1,30 @@
+<includeonly>{{#invoke:Smelting|smelting}}</includeonly><noinclude>
+Builds a row of a smelting recipe table (Name / Ingredients / Smelting recipe), powered by
+[[Module:Smelting]]. Each call is one row; group several into one table with <code>head=1</code>
+on the first and <code>foot=1</code> on the last. A standalone single recipe sets both. The
+'''Smelting recipe''' column reuses [[Template:Grid Smelting Table]].
+
+Usage (a 2-recipe table):
+ {{Smelting
+ |head=1
+ |Input=Tin Ore |Output=Tin Ingot |XP=0.7
+ }}
+ {{Smelting
+ |foot=1
+ |Input=Raw Tin |Output=Tin Ingot |XP=0.7
+ }}
+
+Parameters:
+ Input       — the item being smelted
+ Fuel        — the fuel item (optional; blank slot = "any fuel")
+ Output      — result item; "Name,Count" is accepted (or use OutputCount)
+ XP          — experience granted (optional)
+ head/foot   — open / close the table
+ name        — override the Name cell (default: a link to the Output)
+ ingredients — override the Ingredients cell (default: "<Input> + Any fuel")
+ showname=0  — hide the Name column
+
+Depends on [[Module:Smelting]] and [[Template:Grid Smelting Table]].
+
+[[Category:Templates]]
+</noinclude>

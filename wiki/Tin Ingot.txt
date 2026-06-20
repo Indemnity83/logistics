@@ -14,7 +14,12 @@
 
 === Smelting ===
 
-Smelt [[Raw Tin]] (from [[Tin Ore]]) in a furnace or blast furnace to produce one Tin Ingot.
+Smelting raw tin or tin ore in a furnace or blast furnace is the most common way to obtain tin ingots:
+
+{{Smelting|head=1
+|name=Tin Ingot |Input=Tin Ore |ingredients=[[Tin Ore]] or Deepslate Tin Ore + Any fuel |Output=Tin Ingot |XP=0.7}}
+{{Smelting|foot=1
+|name=Tin Ingot |Input=Raw Tin |ingredients=[[Raw Tin]] + Any fuel |Output=Tin Ingot |XP=0.7}}
 
 === Crafting ===
 
@@ -33,22 +38,16 @@ Tin Ingots pack into and unpack from their storage forms:
 
 Tin Ingot is the basis of bronze and several tin components.
 
-=== Alloying ===
+=== Crafting ingredient ===
 
-Combine tin with copper to craft [[Bronze Ingot|bronze ingots]].
-
-=== Gears ===
-
-Craft a [[Tin Gear]] from 4× tin ingot.
+{{Crafting|head=1|showdescription=1
+|name=Bronze Ingot |A2=Copper Ingot |B2=Copper Ingot |C2=Copper Ingot |A3=Tin Ingot |Output=Bronze Ingot,4 |description=Shapeless — 3× [[Copper Ingot]] + 1× Tin Ingot.}}
+{{Crafting|foot=1
+|name=[[Tin Gear]] |B1=Tin Ingot |A2=Tin Ingot |B2=Copper Gear |C2=Tin Ingot |B3=Tin Ingot |Output=Tin Gear |description=Tin around a [[Copper Gear]].}}
 
 === Grinding ===
 
 Grind tin in the [[Macerator]] for Tin Dust (see [[Dusts]]).
-
-=== Storage ===
-
-* 9× Tin Ingot → Block of Tin
-* 9× Tin Nugget → 1× Tin Ingot
 
 == History ==
 
