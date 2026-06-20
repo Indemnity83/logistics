@@ -17,7 +17,7 @@ Welcome to the '''{{SITENAME}}''' — the player-maintained guide to '''Logistic
 | style="width:50%; padding:10px; border:1px solid rgba(127,127,127,0.35);" | [[File:Grid Macerator.png|left|56px|link=Machines]] '''[[Machines|Automation]]'''<br>Machines that grind, smelt, and mine for you.<br><small>[[Macerator]] · [[Kiln]] · [[Laser Quarry]]</small>
 |-
 | style="width:50%; padding:10px; border:1px solid rgba(127,127,127,0.35);" | [[File:Grid Extractor Module.png|left|56px|link=Modules]] '''[[Modules]]'''<br>Slot modules into [[Chassis Logistics Pipe|chassis pipes]] to build custom logistics nodes.<br><small>[[Provider Module]] · [[Extractor Module]] · [[Crafter Module]]</small>
-| style="width:50%; padding:10px; border:1px solid rgba(127,127,127,0.35);" | [[File:Grid Iron Gear.png|left|56px|link=Materials]] '''[[Materials]]'''<br>Gears, valves, dusts, and the crafting components behind everything.<br><small>[[Dusts]] · [[Chips]] · [[Cores]]</small>
+| style="width:50%; padding:10px; border:1px solid rgba(127,127,127,0.35);" | [[File:Grid Iron Gear.png|left|56px|link=Materials]] '''[[Materials]]'''<br>Gears, valves, dusts, and the crafting components behind everything.<br><small>[[Materials#Gears|Gears]] · [[Materials#Valves|Valves]] · [[Dusts]] · [[Chips]] · [[Cores]]</small>
 |}
 
 ==Tools & reference==
