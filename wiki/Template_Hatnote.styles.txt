@@ -1,0 +1,12 @@
+/* Hatnote styling, loaded via <templatestyles> from [[Module:Hatnote]] (used by
+   [[Template:About]], [[Template:Hatnote]], and future hatnotes). Italic, indented note
+   set just under the page title. */
+.logi-hatnote {
+	font-style: italic;
+	padding-left: 1.6em;
+	margin: 0.2em 0 0.6em 0;
+	color: #54595d;
+}
+.logi-hatnote a {
+	font-style: italic;
+}

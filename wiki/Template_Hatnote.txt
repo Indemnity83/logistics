@@ -1,0 +1,12 @@
+<includeonly>{{#invoke:Hatnote|hatnote}}</includeonly><noinclude>
+Renders free text as the standard italic, indented hatnote at the top of an article — the base
+used by [[Template:About]] and other hatnotes. Powered by [[Module:Hatnote]]; styling lives in
+[[Template:Hatnote/styles.css]].
+
+Usage:
+ {{Hatnote|For the power system, see [[RF Energy]].}}
+
+For the common "this article is about…" case, use [[Template:About]] instead.
+
+[[Category:Templates]]
+</noinclude>

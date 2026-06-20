@@ -1,0 +1,52 @@
+-- Module:Hatnote — the italic, indented note at the top of an article.
+-- Clean-room implementation (NOT copied from Wikipedia/Minecraft wiki). Provides a generic
+-- hatnote renderer plus the {{About}} entry point; future hatnotes ({{Main}}, {{See also}},
+-- {{For}}) can reuse p._hatnote.
+
+local p = {}
+
+local function trim(s)
+	if s == nil then return nil end
+	s = mw.text.trim(s)
+	if s == '' then return nil end
+	return s
+end
+
+-- Wrap arbitrary body text as the standard hatnote (styles loaded once via TemplateStyles).
+function p._hatnote(frame, text)
+	local styles = frame:extensionTag{ name = 'templatestyles', args = { src = 'Hatnote/styles.css' } }
+	return styles .. '<div role="note" class="logi-hatnote">' .. text .. '</div>'
+end
+
+-- {{Hatnote|free text}} — render any text as a hatnote.
+function p.hatnote(frame)
+	return p._hatnote(frame, trim(frame:getParent().args[1]) or '')
+end
+
+-- {{About|USE1|USE2|PAGE2|USE3|PAGE3|...}}
+--   "This article is about USE1. For USE2, see [[PAGE2]]. For USE3, see [[PAGE3]]. ..."
+-- A trailing USE with no PAGE renders as "For USE." (no link).
+function p.about(frame)
+	local args = frame:getParent().args
+	local parts = {}
+
+	local use1 = trim(args[1])
+	parts[#parts + 1] = 'This article is about ' .. (use1 or 'this topic') .. '.'
+
+	local i = 2
+	while i <= 50 do
+		local use = trim(args[i])
+		local page = trim(args[i + 1])
+		if not use and not page then break end
+		if use and page then
+			parts[#parts + 1] = 'For ' .. use .. ', see [[' .. page .. ']].'
+		elseif use then
+			parts[#parts + 1] = 'For ' .. use .. '.'
+		end
+		i = i + 2
+	end
+
+	return p._hatnote(frame, table.concat(parts, ' '))
+end
+
+return p

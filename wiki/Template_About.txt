@@ -1,0 +1,20 @@
+<includeonly>{{#invoke:Hatnote|about}}</includeonly><noinclude>
+A hatnote for the top of an article, clarifying what the page covers and pointing to related
+pages. Powered by [[Module:Hatnote]]; styling lives in [[Template:Hatnote/styles.css]].
+
+Usage:
+ {{About|the item that pulls from inventories}}
+ {{About|USE1|USE2|PAGE2|USE3|PAGE3}}
+
+Renders:
+ ''This article is about USE1. For USE2, see [[PAGE2]]. For USE3, see [[PAGE3]].''
+
+Parameters (positional):
+ 1        — what THIS article is about (the "This article is about ___." clause)
+ 2, 3     — a "For ___, see [[___]]." pair (description, target page)
+ 4, 5 …   — further pairs, as many as needed
+
+A trailing description with no target page renders as "For ___." with no link.
+
+[[Category:Templates]]
+</noinclude>
