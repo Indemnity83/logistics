@@ -253,12 +253,14 @@ GRID_TABLE = re.compile(r"\{\{Grid Crafting Table(.*?)\}\}", re.S)
 TABLE_PARAM = re.compile(r"\|\s*(?:A[123]|B[123]|C[123]|Output)\s*=\s*([^|}\n]+)")
 
 
-def referenced_files(wiki_dir):
-    """Set of 'Grid <name>.png' filenames actually used across the wiki pages."""
+def referenced_files(wiki_dir, only=None):
+    """Set of 'Grid <name>.png' filenames used across the wiki pages (or only `only` stems)."""
     needed = set()
     for fn in os.listdir(wiki_dir):
         if not fn.endswith(".txt") or fn.startswith("Template_"):
             continue  # templates only hold placeholder examples, not real icon references
+        if only is not None and fn[:-4] not in only:
+            continue
         text = open(os.path.join(wiki_dir, fn), encoding="utf-8").read()
         for name in GRID_LITERAL.findall(text):
             needed.add(f"Grid {name.strip()}.png")
@@ -281,6 +283,9 @@ def main():
     ap.add_argument("--pages", action="store_true", help="upload wiki/*.txt pages")
     ap.add_argument("--media", action="store_true", help="upload icons from the asset map")
     ap.add_argument("--all", action="store_true", help="pages and media")
+    ap.add_argument("--only", nargs="*", metavar="STEM",
+                    help="restrict to these page file stems (e.g. --only main); with --media "
+                         "--used-only, limits icons to those referenced by these pages")
     ap.add_argument("--used-only", action="store_true",
                     help="media: upload only icons referenced by the pages")
     ap.add_argument("--force", action="store_true", help="re-write/re-upload even if unchanged")
@@ -313,8 +318,11 @@ def main():
     print(f"{'DRY-RUN — ' if args.dry_run else ''}Target: {api_url}")
     wiki.login(args.user, args.password)
 
+    only = set(args.only) if args.only else None
+
     if do_pages:
-        files = sorted([f for f in os.listdir(args.wiki_dir) if f.endswith(".txt")],
+        files = sorted([f for f in os.listdir(args.wiki_dir)
+                        if f.endswith(".txt") and (only is None or f[:-4] in only)],
                        key=page_sort_key)
         print(f"\n=== Pages: {len(files)} ===")
         tally = {}
@@ -344,7 +352,7 @@ def main():
                 print(f"  (no media dir at {args.media_dir})")
             src_desc = f"from {args.media_dir}"
         if args.used_only:
-            needed = referenced_files(args.wiki_dir)
+            needed = referenced_files(args.wiki_dir, only=only)
             pairs = [(t, p) for (t, p) in pairs if t in needed]
             print(f"\n=== Media (--used-only): {len(pairs)} of the referenced set ===")
         else:
