@@ -231,7 +231,13 @@ def build_pipe_model(core_ref, assets):
     model's #texture to an absolute id, merge the elements, and force texture_size [16,16] so
     the UVs map as intended instead of tiling."""
     core = load_chain(core_ref, assets)
-    arm = load_chain(core_ref[:-len("_core")] + "_arm", assets)
+    arm_base = core_ref[:-len("_core")]
+    arm = load_chain(arm_base + "_arm", assets)
+    if not arm.get("elements"):
+        # Extractor/merger pipes have no _arm model; their connection arm is a "_feature"
+        # model that inherits the arm geometry (parent: copper_transport_pipe_arm) but swaps
+        # in its own face texture.
+        arm = load_chain(arm_base + "_feature", assets)
     elements = []
     for m in (core, arm):
         tex = m.get("textures", {})
