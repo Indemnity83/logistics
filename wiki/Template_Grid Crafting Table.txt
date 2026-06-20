@@ -1,27 +1,29 @@
-<includeonly>{| style="display:inline-table; vertical-align:middle; border-collapse:collapse; margin:0.3em 0;"
+<includeonly>{| style="display:inline-table; vertical-align:middle; margin:0.3em 0; background:#c6c6c6; padding:5px; border:2px solid; border-color:#ffffff #555555 #555555 #ffffff;"
 |-
 |
-{| class="wikitable" style="border-collapse:collapse; text-align:center; background:#c6c6c6;"
+{| style="border-collapse:separate; border-spacing:3px; background:transparent;"
 |-
-| style="width:38px; height:38px;" | {{#if:{{{A1|}}}|{{Grid|{{{A1}}}}}|&nbsp;}}
-| style="width:38px; height:38px;" | {{#if:{{{B1|}}}|{{Grid|{{{B1}}}}}|&nbsp;}}
-| style="width:38px; height:38px;" | {{#if:{{{C1|}}}|{{Grid|{{{C1}}}}}|&nbsp;}}
+| style="width:36px; height:36px; padding:0; background:#8b8b8b; border:2px solid; border-color:#373737 #ffffff #ffffff #373737; text-align:center; vertical-align:middle;" | {{#if:{{{A1|}}}|{{Grid|{{{A1}}}}}|&nbsp;}}
+| style="width:36px; height:36px; padding:0; background:#8b8b8b; border:2px solid; border-color:#373737 #ffffff #ffffff #373737; text-align:center; vertical-align:middle;" | {{#if:{{{B1|}}}|{{Grid|{{{B1}}}}}|&nbsp;}}
+| style="width:36px; height:36px; padding:0; background:#8b8b8b; border:2px solid; border-color:#373737 #ffffff #ffffff #373737; text-align:center; vertical-align:middle;" | {{#if:{{{C1|}}}|{{Grid|{{{C1}}}}}|&nbsp;}}
 |-
-| style="width:38px; height:38px;" | {{#if:{{{A2|}}}|{{Grid|{{{A2}}}}}|&nbsp;}}
-| style="width:38px; height:38px;" | {{#if:{{{B2|}}}|{{Grid|{{{B2}}}}}|&nbsp;}}
-| style="width:38px; height:38px;" | {{#if:{{{C2|}}}|{{Grid|{{{C2}}}}}|&nbsp;}}
+| style="width:36px; height:36px; padding:0; background:#8b8b8b; border:2px solid; border-color:#373737 #ffffff #ffffff #373737; text-align:center; vertical-align:middle;" | {{#if:{{{A2|}}}|{{Grid|{{{A2}}}}}|&nbsp;}}
+| style="width:36px; height:36px; padding:0; background:#8b8b8b; border:2px solid; border-color:#373737 #ffffff #ffffff #373737; text-align:center; vertical-align:middle;" | {{#if:{{{B2|}}}|{{Grid|{{{B2}}}}}|&nbsp;}}
+| style="width:36px; height:36px; padding:0; background:#8b8b8b; border:2px solid; border-color:#373737 #ffffff #ffffff #373737; text-align:center; vertical-align:middle;" | {{#if:{{{C2|}}}|{{Grid|{{{C2}}}}}|&nbsp;}}
 |-
-| style="width:38px; height:38px;" | {{#if:{{{A3|}}}|{{Grid|{{{A3}}}}}|&nbsp;}}
-| style="width:38px; height:38px;" | {{#if:{{{B3|}}}|{{Grid|{{{B3}}}}}|&nbsp;}}
-| style="width:38px; height:38px;" | {{#if:{{{C3|}}}|{{Grid|{{{C3}}}}}|&nbsp;}}
+| style="width:36px; height:36px; padding:0; background:#8b8b8b; border:2px solid; border-color:#373737 #ffffff #ffffff #373737; text-align:center; vertical-align:middle;" | {{#if:{{{A3|}}}|{{Grid|{{{A3}}}}}|&nbsp;}}
+| style="width:36px; height:36px; padding:0; background:#8b8b8b; border:2px solid; border-color:#373737 #ffffff #ffffff #373737; text-align:center; vertical-align:middle;" | {{#if:{{{B3|}}}|{{Grid|{{{B3}}}}}|&nbsp;}}
+| style="width:36px; height:36px; padding:0; background:#8b8b8b; border:2px solid; border-color:#373737 #ffffff #ffffff #373737; text-align:center; vertical-align:middle;" | {{#if:{{{C3|}}}|{{Grid|{{{C3}}}}}|&nbsp;}}
 |}
-| style="padding:0 14px; font-size:24px; vertical-align:middle;" | →
-| style="text-align:center; vertical-align:middle;" | {{Grid|{{{Output}}}|{{{OutputCount|}}}}}
+| style="padding:0 10px; vertical-align:middle; color:#555555; font-size:28px; font-weight:bold;" | →
+| style="width:36px; height:36px; padding:0; background:#8b8b8b; border:2px solid; border-color:#373737 #ffffff #ffffff #373737; text-align:center; vertical-align:middle;" | {{Grid|{{{Output}}}}}
+| style="vertical-align:middle; padding-left:5px; font-weight:bold;" | {{#if:{{{OutputCount|}}}|×{{{OutputCount}}}}}
 |}</includeonly><noinclude>
-Renders a 3×3 crafting-table recipe followed by an arrow and the output item.
+Renders a 3×3 crafting-table recipe as a Minecraft-style panel: recessed input slots, a
+gray arrow, and the output in its own slot (with an optional ×count beside it).
 
 Slot parameters are addressed by column (A=left, B=middle, C=right) and row (1=top,
-2=middle, 3=bottom). Omit empty slots — they render as blank grid cells.
+2=middle, 3=bottom). Omit empty slots — they render as blank slots.
 
 Usage:
  {{Grid Crafting Table
