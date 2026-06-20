@@ -1,0 +1,33 @@
+<includeonly>{{#invoke:Crafting|crafting}}</includeonly><noinclude>
+Builds a row of a recipe table (Name / Ingredients / Recipe / Description), powered by
+[[Module:Crafting]]. Each call is one row; group several into one table with <code>head=1</code>
+on the first and <code>foot=1</code> on the last. A standalone single recipe sets both.
+
+The '''Recipe''' column reuses [[Template:Grid Crafting Table]], so the slots match the rest
+of the wiki. Styling: [[Template:Crafting/styles.css]].
+
+Usage (a 2-recipe table):
+ {{Crafting
+ |head=1
+ |A2=Cobblestone |B2=Glass |C2=Cobblestone
+ |Output=Stone Transport Pipe,8
+ }}
+ {{Crafting
+ |foot=1
+ |A2=Copper Ingot |B2=Glass |C2=Copper Ingot
+ |Output=Copper Transport Pipe,8
+ }}
+
+Parameters:
+ A1 B1 C1 / A2 B2 C2 / A3 B3 C3 — slot items (rendered as the crafting grid)
+ Output      — result item; "Name,Count" is accepted (or use OutputCount)
+ head/foot   — open / close the table (group consecutive calls into one table)
+ name        — override the Name cell (default: a link to the Output)
+ ingredients — override the Ingredients cell (default: the deduped slot items)
+ showname=0  — hide the Name column
+ showdescription=1 + description = ... — add a Description column
+
+Depends on [[Module:Crafting]] and [[Template:Grid Crafting Table]].
+
+[[Category:Templates]]
+</noinclude>

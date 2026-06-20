@@ -1,0 +1,104 @@
+-- Module:Crafting — builds recipe tables (Name / Ingredients / Recipe / Description)
+-- Clean-room implementation (NOT copied from the Minecraft wiki). Each {{Crafting}} call
+-- renders one row; head=1 opens the table + header, foot=1 closes it. A standalone single
+-- recipe sets head=1|foot=1. The Recipe cell reuses our own {{Grid Crafting Table}}.
+
+local p = {}
+
+local SLOTS = {'A1','B1','C1','A2','B2','C2','A3','B3','C3'}
+
+local function trim(s)
+	if s == nil then return nil end
+	s = mw.text.trim(s)
+	if s == '' then return nil end
+	return s
+end
+
+local function truthy(v)
+	v = trim(v)
+	return v ~= nil and v ~= '0'
+end
+
+-- "Name,Count" -> name, count  (also honours an explicit OutputCount)
+local function parseOutput(args)
+	local out = trim(args.Output) or trim(args.output) or ''
+	local count = trim(args.OutputCount) or trim(args.outputcount)
+	local n, c = out:match('^(.-)%s*,%s*(%d+)$')
+	if n then
+		out = n
+		count = count or c
+	end
+	return out, count
+end
+
+-- Ingredients column: explicit |ingredients=, else the deduped non-empty slots as links.
+local function ingredientsCell(args)
+	local ing = trim(args.ingredients)
+	if ing then return ing end
+	local seen, list = {}, {}
+	for _, k in ipairs(SLOTS) do
+		local v = trim(args[k])
+		if v and not seen[v] then
+			seen[v] = true
+			list[#list + 1] = v   -- plain text; many ingredients are vanilla (no wiki page)
+		end
+	end
+	return table.concat(list, ' + ')
+end
+
+-- Recipe column: our own styled crafting grid.
+local function recipeCell(frame, args, outName, outCount)
+	local g = { Output = outName }
+	if outCount then g.OutputCount = outCount end
+	for _, k in ipairs(SLOTS) do
+		local v = trim(args[k])
+		if v then g[k] = v end
+	end
+	local grid = frame:expandTemplate{ title = 'Grid Crafting Table', args = g }
+	-- Strip the grid's own <templatestyles> (loaded once in the table head) so the
+	-- cell ends cleanly on the grid's |}, keeping the next cell/row at line start.
+	grid = grid:gsub('<templatestyles.-/>', '')
+	return mw.text.trim(grid)
+end
+
+function p.crafting(frame)
+	local args = frame:getParent().args
+	local outName, outCount = parseOutput(args)
+	local showName = trim(args.showname) ~= '0'          -- Name column on by default
+	local showDesc = truthy(args.showdescription) or trim(args.description) ~= nil
+	local head = truthy(args.head)
+	local foot = truthy(args.foot)
+
+	local out = {}
+
+	if head then
+		-- load styling once, then open the table + header row
+		out[#out + 1] = frame:extensionTag{ name = 'templatestyles', args = { src = 'Crafting/styles.css' } }
+		out[#out + 1] = frame:extensionTag{ name = 'templatestyles', args = { src = 'Grid Crafting Table/styles.css' } }
+		out[#out + 1] = '\n{| class="logi-recipes"'
+		out[#out + 1] = '\n|- class="logi-recipes-head"'
+		if showName then out[#out + 1] = '\n! Name' end
+		out[#out + 1] = '\n! Ingredients\n! Recipe'
+		if showDesc then out[#out + 1] = '\n! Description' end
+	end
+
+	-- data row
+	out[#out + 1] = '\n|-'
+	if showName then
+		local nm = trim(args.name) or ('[[' .. outName .. ']]')
+		out[#out + 1] = '\n| class="logi-recipes-name" | ' .. nm
+	end
+	out[#out + 1] = '\n| class="logi-recipes-ingredients" | ' .. ingredientsCell(args)
+	out[#out + 1] = '\n| class="logi-recipes-recipe" |\n' .. recipeCell(frame, args, outName, outCount)
+	if showDesc then
+		out[#out + 1] = '\n| class="logi-recipes-desc" | ' .. (trim(args.description) or '')
+	end
+
+	if foot then
+		out[#out + 1] = '\n|}'
+	end
+
+	return table.concat(out)
+end
+
+return p

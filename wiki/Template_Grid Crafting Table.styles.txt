@@ -1,6 +1,6 @@
 /* Crafting recipe grid styling, loaded via <templatestyles> from [[Template:Grid Crafting Table]].
    Edit here to restyle every recipe on the wiki at once. */
-.pcraft {
+.logi-grid {
 	display: inline-table;
 	vertical-align: middle;
 	margin: 0.3em 0;
@@ -10,16 +10,16 @@
 	border-color: #ffffff #555555 #555555 #ffffff;
 	border-radius: 3px;
 }
-.pcraft-grid {
+.logi-grid-grid {
 	border-collapse: separate;
 	border-spacing: 3px;
 	background: transparent;
 }
-.pcraft-cell {
+.logi-grid-cell {
 	vertical-align: middle;
 	padding: 0;
 }
-.pcraft-slot {
+.logi-grid-slot {
 	width: 32px;
 	height: 32px;
 	padding: 2px;
@@ -28,7 +28,7 @@
 	text-align: center;
 	vertical-align: middle;
 }
-.pcraft-arrow {
+.logi-grid-arrow {
 	padding: 0 12px;
 	vertical-align: middle;
 	color: #4d4d4d;
@@ -36,7 +36,7 @@
 	font-weight: bold;
 	line-height: 1;
 }
-.pcraft-count {
+.logi-grid-count {
 	vertical-align: middle;
 	padding-left: 6px;
 	font-weight: bold;

@@ -236,13 +236,15 @@ def page_title(filename):
         return "Template:" + stem[len("Template_"):-len(".styles")] + "/styles.css"
     if stem.startswith("Template_"):
         return "Template:" + stem[len("Template_"):]
+    if stem.startswith("Module_"):
+        return "Module:" + stem[len("Module_"):]
     return stem
 
 
 def page_sort_key(filename):
     stem = filename[:-4]
-    if stem.startswith("Template_"):
-        return (0, stem)            # templates first — pages depend on them
+    if stem.startswith("Template_") or stem.startswith("Module_"):
+        return (0, stem)            # templates & modules first — pages depend on them
     if stem == "main":
         return (1, stem)            # then the Main Page
     return (2, stem)
@@ -274,7 +276,13 @@ def parse_asset_map(map_path, icons_dir):
 GRID_LITERAL = re.compile(r"Grid ([^\n|}\]=]+?)\.png")
 GRID_TMPL = re.compile(r"\{\{Grid\|([^}|]+)")
 GRID_TABLE = re.compile(r"\{\{Grid Crafting Table(.*?)\}\}", re.S)
+CRAFTING_TABLE = re.compile(r"\{\{Crafting(.*?)\}\}", re.S)
 TABLE_PARAM = re.compile(r"\|\s*(?:A[123]|B[123]|C[123]|Output)\s*=\s*([^|}\n]+)")
+
+
+def _icon_name(val):
+    """Slot/Output value -> icon stem, dropping the ',<count>' form used by {{Crafting}}."""
+    return re.sub(r"\s*,\s*\d+\s*$", "", val.strip())
 
 
 def referenced_files(wiki_dir, only=None):
@@ -292,7 +300,10 @@ def referenced_files(wiki_dir, only=None):
             needed.add(f"Grid {name.strip()}.png")
         for block in GRID_TABLE.findall(text):
             for val in TABLE_PARAM.findall(block):
-                needed.add(f"Grid {val.strip()}.png")
+                needed.add(f"Grid {_icon_name(val)}.png")
+        for block in CRAFTING_TABLE.findall(text):
+            for val in TABLE_PARAM.findall(block):
+                needed.add(f"Grid {_icon_name(val)}.png")
     return needed
 
 

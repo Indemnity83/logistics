@@ -10,22 +10,42 @@
 
 '''Marking Fluid''' is a color-coding tool that prevents [[Copper Transport Pipe|Copper Transport Pipes]] from connecting to each other. Use it to segment networks and run multiple independent pipe systems side-by-side. It comes in all '''16''' Minecraft dye colors, each crafted with its matching dye.
 
-==Recipe==
+==Recipes==
 
-Each colored marking fluid is crafted '''shapeless''' from a Water Bottle plus the matching dye. For example, Blue Marking Fluid:
+Each colored marking fluid is crafted '''shapeless''' from a Water Bottle plus the matching dye — one recipe per color, all 16 Minecraft dye colors:
 
-{{Grid Crafting Table
-|A1=Water Bottle |B1=Blue Dye
-|Output=Blue Marking Fluid
-}}
-
-'''Shapeless crafting:''' Water Bottle + matching Dye = 1× Marking Fluid (that color)
-
-Swap the dye to craft any of the 16 colors — White Dye yields White Marking Fluid, Blue Dye yields Blue Marking Fluid, and so on.
-
-==Available Colors==
-
-Marking fluid comes in all 16 Minecraft dye colors, each a separate item with its own recipe: White, Light Gray, Gray, Black, Red, Orange, Yellow, Lime, Green, Cyan, Light Blue, Blue, Purple, Magenta, Pink, and Brown.
+{{Crafting|head=1
+|name=White Marking Fluid      |A1=Water Bottle |B1=White Dye      |Output=White Marking Fluid}}
+{{Crafting
+|name=Light Gray Marking Fluid |A1=Water Bottle |B1=Light Gray Dye |Output=Light Gray Marking Fluid}}
+{{Crafting
+|name=Gray Marking Fluid       |A1=Water Bottle |B1=Gray Dye       |Output=Gray Marking Fluid}}
+{{Crafting
+|name=Black Marking Fluid      |A1=Water Bottle |B1=Black Dye      |Output=Black Marking Fluid}}
+{{Crafting
+|name=Red Marking Fluid        |A1=Water Bottle |B1=Red Dye        |Output=Red Marking Fluid}}
+{{Crafting
+|name=Orange Marking Fluid     |A1=Water Bottle |B1=Orange Dye     |Output=Orange Marking Fluid}}
+{{Crafting
+|name=Yellow Marking Fluid     |A1=Water Bottle |B1=Yellow Dye     |Output=Yellow Marking Fluid}}
+{{Crafting
+|name=Lime Marking Fluid       |A1=Water Bottle |B1=Lime Dye       |Output=Lime Marking Fluid}}
+{{Crafting
+|name=Green Marking Fluid      |A1=Water Bottle |B1=Green Dye      |Output=Green Marking Fluid}}
+{{Crafting
+|name=Cyan Marking Fluid       |A1=Water Bottle |B1=Cyan Dye       |Output=Cyan Marking Fluid}}
+{{Crafting
+|name=Light Blue Marking Fluid |A1=Water Bottle |B1=Light Blue Dye |Output=Light Blue Marking Fluid}}
+{{Crafting
+|name=Blue Marking Fluid       |A1=Water Bottle |B1=Blue Dye       |Output=Blue Marking Fluid}}
+{{Crafting
+|name=Purple Marking Fluid     |A1=Water Bottle |B1=Purple Dye     |Output=Purple Marking Fluid}}
+{{Crafting
+|name=Magenta Marking Fluid    |A1=Water Bottle |B1=Magenta Dye    |Output=Magenta Marking Fluid}}
+{{Crafting
+|name=Pink Marking Fluid       |A1=Water Bottle |B1=Pink Dye       |Output=Pink Marking Fluid}}
+{{Crafting|foot=1
+|name=Brown Marking Fluid      |A1=Water Bottle |B1=Brown Dye      |Output=Brown Marking Fluid}}
 
 ==Usage==
 

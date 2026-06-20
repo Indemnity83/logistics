@@ -1,0 +1,36 @@
+/* Recipe-table styling, loaded via <templatestyles> from [[Module:Crafting]] / [[Template:Crafting]].
+   Selectors target the outer table's own cells BY CLASS — never a bare `.logi-recipes td` — so they
+   do not leak into the nested crafting grid (its slots are styled by
+   [[Template:Grid Crafting Table/styles.css]]; a descendant `td` rule would out-rank and distort them). */
+.logi-recipes {
+	border-collapse: collapse;
+	margin: 0.5em 0;
+	border: 1px solid #a2a9b1;
+	background: #f8f9fa;
+}
+.logi-recipes-head th,
+.logi-recipes-name,
+.logi-recipes-ingredients,
+.logi-recipes-recipe,
+.logi-recipes-desc {
+	border: 1px solid #c8ccd1;
+	padding: 6px 10px;
+	vertical-align: middle;
+}
+.logi-recipes-head th {
+	background: #2c3e50;
+	color: #ffffff;
+	text-align: center;
+	font-weight: bold;
+}
+.logi-recipes-name {
+	font-weight: bold;
+	text-align: center;
+	white-space: nowrap;
+}
+.logi-recipes-recipe {
+	text-align: center;
+}
+.logi-recipes-desc {
+	font-size: 95%;
+}

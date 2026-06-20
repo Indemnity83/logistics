@@ -1,27 +1,27 @@
-<includeonly>{| class="pcraft"
+<includeonly>{| class="logi-grid"
 |-
-| class="pcraft-cell" |
-{| class="pcraft-grid"
+| class="logi-grid-cell" |
+{| class="logi-grid-grid"
 |-
-| class="pcraft-slot" | {{#if:{{{A1|}}}|{{Grid|{{{A1}}}}}|&nbsp;}}
-| class="pcraft-slot" | {{#if:{{{B1|}}}|{{Grid|{{{B1}}}}}|&nbsp;}}
-| class="pcraft-slot" | {{#if:{{{C1|}}}|{{Grid|{{{C1}}}}}|&nbsp;}}
+| class="logi-grid-slot" | {{#if:{{{A1|}}}|{{Grid|{{{A1}}}}}|&nbsp;}}
+| class="logi-grid-slot" | {{#if:{{{B1|}}}|{{Grid|{{{B1}}}}}|&nbsp;}}
+| class="logi-grid-slot" | {{#if:{{{C1|}}}|{{Grid|{{{C1}}}}}|&nbsp;}}
 |-
-| class="pcraft-slot" | {{#if:{{{A2|}}}|{{Grid|{{{A2}}}}}|&nbsp;}}
-| class="pcraft-slot" | {{#if:{{{B2|}}}|{{Grid|{{{B2}}}}}|&nbsp;}}
-| class="pcraft-slot" | {{#if:{{{C2|}}}|{{Grid|{{{C2}}}}}|&nbsp;}}
+| class="logi-grid-slot" | {{#if:{{{A2|}}}|{{Grid|{{{A2}}}}}|&nbsp;}}
+| class="logi-grid-slot" | {{#if:{{{B2|}}}|{{Grid|{{{B2}}}}}|&nbsp;}}
+| class="logi-grid-slot" | {{#if:{{{C2|}}}|{{Grid|{{{C2}}}}}|&nbsp;}}
 |-
-| class="pcraft-slot" | {{#if:{{{A3|}}}|{{Grid|{{{A3}}}}}|&nbsp;}}
-| class="pcraft-slot" | {{#if:{{{B3|}}}|{{Grid|{{{B3}}}}}|&nbsp;}}
-| class="pcraft-slot" | {{#if:{{{C3|}}}|{{Grid|{{{C3}}}}}|&nbsp;}}
+| class="logi-grid-slot" | {{#if:{{{A3|}}}|{{Grid|{{{A3}}}}}|&nbsp;}}
+| class="logi-grid-slot" | {{#if:{{{B3|}}}|{{Grid|{{{B3}}}}}|&nbsp;}}
+| class="logi-grid-slot" | {{#if:{{{C3|}}}|{{Grid|{{{C3}}}}}|&nbsp;}}
 |}
-| class="pcraft-arrow" | →
-| class="pcraft-cell" |
+| class="logi-grid-arrow" | →
+| class="logi-grid-cell" |
 {| style="border-collapse:separate;"
 |-
-| class="pcraft-slot" | {{Grid|{{{Output}}}}}
+| class="logi-grid-slot" | {{Grid|{{{Output}}}}}
 |}
-| class="pcraft-count" | {{#if:{{{OutputCount|}}}|×{{{OutputCount}}}}}
+| class="logi-grid-count" | {{#if:{{{OutputCount|}}}|×{{{OutputCount}}}}}
 |}<templatestyles src="Grid Crafting Table/styles.css" /></includeonly><noinclude>
 Renders a 3×3 crafting-table recipe as a Minecraft-style panel: recessed input slots, a
 gray arrow, and the output in its own slot (with an optional ×count beside it).

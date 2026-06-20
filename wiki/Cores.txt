@@ -1,125 +1,37 @@
-'''Cores''' are intermediate crafting components used to craft [[Materials#Valves|Valves]]. Each valve type requires its matching core. Cores are made at the crafting table from the corresponding material and Redstone (or other binders).
-
-Quartz Crystal is the other key ingredient in valve crafting and is covered below.
+'''Cores''' are intermediate crafting components used to craft [[Materials#Valves|Valves]]. Each valve type requires its matching core, paired with a [[#Quartz Crystal|Quartz Crystal]]. Cores are made at the crafting table from the corresponding base material and a binder (usually Redstone).
 
 ==Core Recipes==
 
-All cores yield '''4× per craft'''.
+All cores yield '''4× per craft''' and share the same shape — the base material top and bottom with a binder in the center slot.
 
-===Wooden Core===
+{{Crafting|head=1|showdescription=1
+|name=Wooden Core    |B1=Wood Pulp       |B2=Slime Ball     |B3=Wood Pulp       |Output=Wooden Core,4    |description=Crafts the [[Wooden Valve]]}}
+{{Crafting
+|name=Copper Core    |B1=Copper Ingot    |B2=Redstone       |B3=Copper Ingot    |Output=Copper Core,4    |description=Crafts the [[Copper Valve]]}}
+{{Crafting
+|name=Iron Core      |B1=Iron Ingot      |B2=Redstone       |B3=Iron Ingot      |Output=Iron Core,4      |description=Crafts the [[Iron Valve]]}}
+{{Crafting
+|name=Bronze Core    |B1=Bronze Ingot    |B2=Redstone       |B3=Bronze Ingot    |Output=Bronze Core,4    |description=Crafts the [[Bronze Valve]]}}
+{{Crafting
+|name=Gold Core      |B1=Gold Ingot      |B2=Redstone       |B3=Gold Ingot      |Output=Gold Core,4      |description=Crafts the [[Gold Valve]]}}
+{{Crafting
+|name=Lapis Core     |B1=Lapis Lazuli    |B2=Redstone       |B3=Lapis Lazuli    |Output=Lapis Core,4     |description=Crafts the [[Lapis Valve]]}}
+{{Crafting
+|name=Diamond Core   |B1=Diamond Dust    |B2=Amethyst Shard |B3=Diamond Dust    |Output=Diamond Core,4   |description=Crafts the [[Diamond Valve]]}}
+{{Crafting
+|name=Emerald Core   |B1=Emerald Dust    |B2=Amethyst Shard |B3=Emerald Dust    |Output=Emerald Core,4   |description=Crafts the [[Emerald Valve]]}}
+{{Crafting
+|name=Apatite Core   |B1=Apatite         |B2=Redstone       |B3=Apatite         |Output=Apatite Core,4   |description=Crafts the [[Apatite Valve]]}}
+{{Crafting
+|name=Obsidian Core  |B1=Obsidian Dust   |B2=Redstone       |B3=Obsidian Dust   |Output=Obsidian Core,4  |description=Crafts the [[Obsidian Valve]]}}
+{{Crafting
+|name=Netherite Core |B1=Netherite Ingot |B2=Redstone       |B3=Netherite Ingot |Output=Netherite Core,4 |description=Crafts the [[Netherite Valve]]}}
+{{Crafting
+|name=Blazing Core   |B1=Blaze Powder    |B2=Blaze Rod      |B3=Blaze Powder    |Output=Blazing Core,4   |description=Crafts the [[Blazing Valve]]}}
+{{Crafting|foot=1
+|name=Ender Core     |B1=Ender Dust      |B2=Eye of Ender   |B3=Ender Dust      |Output=Ender Core,4     |description=Crafts the [[Ender Valve]]}}
 
-{{Grid Crafting Table
-|B1=Wood Pulp
-|B2=Slime Ball
-|B3=Wood Pulp
-|Output=Wooden Core |OutputCount=4
-}}
-
-'''Yields:''' 4× Wooden Core — [[Dusts#Wood Pulp|Wood Pulp]] (top & bottom) + Slime Ball (center)
-
-Used for: [[Wooden Valve]]
-
-----
-
-===Copper Core===
-
-{{Grid Crafting Table
-|B1=Copper Ingot
-|B2=Redstone
-|B3=Copper Ingot
-|Output=Copper Core |OutputCount=4
-}}
-
-'''Yields:''' 4× Copper Core — Copper Ingot (top & bottom) + Redstone (center). Used for: [[Copper Valve]]
-
-----
-
-===Iron Core===
-
-{{Grid Crafting Table
-|B1=Iron Ingot
-|B2=Redstone
-|B3=Iron Ingot
-|Output=Iron Core |OutputCount=4
-}}
-
-'''Yields:''' 4× Iron Core — Iron Ingot (top & bottom) + Redstone (center). Used for: [[Iron Valve]]
-
-----
-
-===Bronze Core===
-
-Bronze Ingot (top & bottom) + Redstone (center) → 4× Bronze Core. Used for: [[Bronze Valve]]
-
-----
-
-===Gold Core===
-
-Gold Ingot (top & bottom) + Redstone (center) → 4× Gold Core. Used for: [[Gold Valve]]
-
-----
-
-===Lapis Core===
-
-Lapis Lazuli (top & bottom) + Redstone (center) → 4× Lapis Core. Used for: [[Lapis Valve]]
-
-----
-
-===Diamond Core===
-
-{{Grid Crafting Table
-|B1=Diamond Dust
-|B2=Amethyst Shard
-|B3=Diamond Dust
-|Output=Diamond Core |OutputCount=4
-}}
-
-'''Yields:''' 4× Diamond Core — [[Dusts|Diamond Dust]] (top & bottom) + Amethyst Shard (center). Used for: [[Diamond Valve]]
-
-----
-
-===Emerald Core===
-
-Emerald Dust (top & bottom) + Amethyst Shard (center) → 4× Emerald Core. Used for: [[Emerald Valve]]
-
-----
-
-===Apatite Core===
-
-Apatite (top & bottom) + Redstone (center) → 4× Apatite Core. Used for: [[Apatite Valve]]
-
-----
-
-===Obsidian Core===
-
-Obsidian Dust (top & bottom) + Redstone (center) → 4× Obsidian Core. Used for: [[Obsidian Valve]]
-
-----
-
-===Netherite Core===
-
-Netherite Ingot (top & bottom) + Redstone (center) → 4× Netherite Core. Used for: [[Netherite Valve]]
-
-----
-
-===Blazing Core===
-
-{{Grid Crafting Table
-|B1=Blaze Powder
-|B2=Blaze Rod
-|B3=Blaze Powder
-|Output=Blazing Core |OutputCount=4
-}}
-
-'''Yields:''' 4× Blazing Core — Blaze Powder (top & bottom) + Blaze Rod (center). Used for: [[Blazing Valve]]
-
-----
-
-===Ender Core===
-
-Ender Dust (top & bottom) + Eye of Ender (center) → 4× Ender Core. Used for: [[Ender Valve]]
-
-----
+Ingredient sources: [[Dusts#Wood Pulp|Wood Pulp]], [[Dusts|Diamond Dust]], [[Dusts|Emerald Dust]], [[Dusts|Obsidian Dust]], and [[Dusts|Ender Dust]] all come from the [[Macerator]]; [[Apatite]] and Bronze Ingot are mod materials.
 
 ==Quartz Crystal==
 
