@@ -1,0 +1,67 @@
+{{Item
+|title     = Apatite
+|image     = Grid Apatite.png
+|id        = logistics:core/apatite
+|type      = Item (Gem)
+|stackable = Yes (64)
+|added     = v0.2.0
+}}
+
+{{About|the gem item|the material and all its forms|Apatite}}
+
+'''Apatite''' is a gem obtained from mining [[Apatite Ore|apatite ore]]. It is used for [[Apatite Valve|apatite valves]], and can be compacted into a '''Block of Apatite''' or ground into '''[[Dusts|Apatite Dust]]''' in the [[Macerator]].
+
+== Obtaining ==
+
+=== Mining ===
+
+Mine [[Apatite Ore]] to drop apatite gems directly (more with Fortune).
+
+=== Crafting ===
+
+Apatite can be packed into and unpacked from its storage block:
+
+{{Grid Crafting Table
+|B2=Apatite Block
+|Output=Apatite |OutputCount=9
+}}
+
+'''From a block:''' 1× Apatite Block = 9× Apatite.
+
+{{Grid Crafting Table
+|A1=Apatite |B1=Apatite |C1=Apatite
+|A2=Apatite |B2=Apatite |C2=Apatite
+|A3=Apatite |B3=Apatite |C3=Apatite
+|Output=Apatite Block
+}}
+
+'''To a block:''' 9× Apatite = 1× Apatite Block.
+
+== Usage ==
+
+Apatite is a gem-type material used for valves and processing.
+
+=== Valves ===
+
+Craft an [[Apatite Valve]] via an Apatite [[Cores|Core]]. The valve craft requires a premium fuel such as a blaze rod or lava.
+
+=== Grinding ===
+
+Grind [[Apatite Ore]] in the [[Macerator]] for Apatite Dust (see [[Dusts]]).
+
+=== Storage ===
+
+Nine apatite pack into a Block of Apatite for compact storage.
+
+== History ==
+
+{{History|head=1|foot=1|v0.2.0|Added '''Apatite'''.}}
+
+== See also ==
+
+* [[Apatite]] - Material overview and all forms
+* [[Apatite Ore]] - Source of apatite
+* [[Apatite Valve]] - Major use
+* [[Dusts]] - Apatite Dust
+
+[[Category:Materials]]

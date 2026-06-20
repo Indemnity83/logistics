@@ -23,7 +23,7 @@ Welcome to the '''{{SITENAME}}''' — the player-maintained guide to '''Logistic
 ==Tools & reference==
 
 * [[File:Grid Wrench.png|20px|link=Wrench]] '''[[Tools]]''' — [[Wrench]], [[Marking Fluid]], and [[Marker]]
-* [[File:Grid Apatite Ore.png|20px|link=Apatite Ore]] '''World generation''' — the mod's world-generated ores: [[Apatite Ore]] and [[Tin Ore]]
+* [[File:Grid Apatite Ore.png|20px|link=Apatite]] '''World generation''' — the mod's naturally-occurring materials: [[Tin]] and [[Apatite]]
 * [[File:Grid Crafting Table.png|20px|link=Recipes]] '''[[Recipes]]''' — how crafting recipes are shown across the wiki
 * [[File:Grid Knowledge Book.png|20px|link=Pipes]] '''Core concepts''' — [[Pipes]] · [[Pipe Networks]] · [[Connectivity]] · [[Routing]] · [[Item Transport]]
 

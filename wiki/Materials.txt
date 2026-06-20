@@ -117,7 +117,7 @@ Where Q = Quartz Crystal, I = Iron Nugget, G = Gold Nugget. The Core in the cent
 
 '''Apatite:'''
 * '''[[Apatite Ore]]''' - Gem ore
-* '''[[Apatite]]''' - Gem material
+* '''[[Apatite (gem)|Apatite]]''' - Gem material
 
 ==See Also==
 * [[Macerator]] - Produces dusts from ores and other materials

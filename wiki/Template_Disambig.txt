@@ -1,0 +1,10 @@
+<includeonly><div style="border-top:1px solid #c8ccd1; margin-top:1em; padding-top:0.5em; font-style:italic; color:#54595d;">This is a '''disambiguation''' page — it lists a material and its various forms (ore, raw item, ingot, dust, and storage blocks). If an internal link led you here, you may want to point it at one of the specific pages above.</div>[[Category:Disambiguation]]</includeonly><noinclude>
+Marks a broad material overview / disambiguation page — one that lists the different forms of a
+single material rather than documenting one item. Place {{Disambig}} at the bottom, above the
+categories. Adds the page to [[:Category:Disambiguation]].
+
+Usage:
+ {{Disambig}}
+
+[[Category:Templates]]
+</noinclude>

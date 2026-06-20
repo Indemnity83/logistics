@@ -1,0 +1,20 @@
+'''Tin''' is a metal found underground in the Overworld. It generates in tin ore, which drops raw tin when mined; the raw tin is smelted into tin ingots and crafted into components.
+
+== Blocks and items ==
+
+* [[Tin Ore]] — an ore found underground, with a Deepslate Tin Ore variant in the deepslate layer
+* [[Raw Tin]] — an item that drops from tin ore when mined
+* [[Tin Ingot]] — an item created by smelting raw tin
+* '''Tin Nugget''' — one-ninth of a tin ingot
+* '''Block of Raw Tin''' — a block used for compact raw tin storage
+* '''Block of Tin''' — a block used for compact tin ingot storage
+* [[Dusts|Tin Dust]] — produced by grinding tin ore in a [[Macerator]] (ore doubling)
+
+== Uses ==
+
+* [[Tin Gear]] — a crafting component in the gear progression
+* [[Bronze Ingot]] — a tin-and-copper alloy
+
+{{Disambig}}
+
+[[Category:Materials]]
