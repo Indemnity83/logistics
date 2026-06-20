@@ -6,8 +6,12 @@
 ==Network Tools==
 * '''[[Marking Fluid]]''' - Color-code copper pipes to segment networks
 
+==Quarry Tools==
+* '''[[Marker]]''' - Define a custom [[Laser Quarry]] mining area
+
 ==See Also==
 * [[Pipes]] - Items configured with tools
 * [[Energy]] - Engines configured with wrench
+* [[Machines]] - Machines configured and bounded with these tools
 
 [[Category:Tools]]

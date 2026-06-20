@@ -1,8 +1,7 @@
 '''Machines''' perform tasks automatically using RF energy.
 
 ==Mining==
-* '''[[Laser Quarry]]''' - Automatically mines the area below, requires RF power; default 16×16 or a custom area
-* '''[[Marker]]''' - Placement aid that defines a custom [[Laser Quarry]] mining area
+* '''[[Laser Quarry]]''' - Automatically mines the area below, requires RF power; default 16×16 or a custom area marked out with the [[Marker]] tool
 
 ==Processing==
 * '''[[Macerator]]''' - Grinds items into dust; 70+ recipes covering ores, plants, and dyes

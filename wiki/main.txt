@@ -22,7 +22,7 @@ Welcome to the '''{{SITENAME}}''' — the player-maintained guide to '''Logistic
 
 ==Tools & reference==
 
-* [[File:Grid Wrench.png|20px|link=Wrench]] '''[[Tools]]''' — [[Wrench]] and [[Marking Fluid]] for configuring and color-coding your build
+* [[File:Grid Wrench.png|20px|link=Wrench]] '''[[Tools]]''' — [[Wrench]], [[Marking Fluid]], and the quarry [[Marker]] for configuring, color-coding, and bounding your build
 * '''[[Recipes]]''' — how crafting recipes are shown across the wiki
 * '''Core concepts''' — [[Tier System]] · [[Pipe Networks]] · [[Connectivity]] · [[Routing]] · [[Item Transport]]
 

@@ -47,8 +47,9 @@ Markers will refuse activation if there are not three markers in a right triangl
 
 ==See Also==
 * [[Laser Quarry]] - The machine that uses marked areas
+* [[Tools]] - Other configuration and utility items
 * [[Dusts|Lapis Dust]] - Crafting ingredient, from the [[Macerator]]
 * [[Macerator]] - Produces Lapis Dust
 
-[[Category:Machines]]
+[[Category:Tools]]
 [[Category:Recipes]]
