@@ -52,10 +52,10 @@ Prevent connections between pipes using:
 * Use vertical spacing
 * Build separate systems
 
-==All Tiers Connect==
+==All Pipes Connect==
 
-All pipe tiers connect to each other:
-* [[Tier System#Tier 1: Mechanical Pipes|Tier 1]] mechanical pipes connect to [[Tier System#Tier 2: Smart Pipes|Tier 2]] smart pipes
+Every pipe type connects to every other:
+* [[Transport Pipes]] connect to [[Logistics Pipes]] and to each other
 * Mix and match pipe types as needed
 * Build complex networks combining different behaviors
 

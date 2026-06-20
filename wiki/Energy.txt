@@ -19,9 +19,9 @@ Cables distribute RF from engines to a [[Battery]] or machine at increasing tran
 
 ==Powering the logistics network==
 
-The Tier 3 logistics network runs on stored power. An [[Engines & Power|engine]] generates RF, [[Copper Cable|cables]] carry it to a [[Battery]], and the network draws from that Battery to route, supply, and craft items. Logistics pipes render '''green when powered''' and '''red when not''' — an unpowered network stops working and drops items already in transit until a charged Battery is connected.
+The [[Logistics Pipes|logistics network]] runs on stored power. An [[Engines & Power|engine]] generates RF, [[Cables|cables]] carry it to a [[Battery]], and the network draws from that Battery to route, supply, and craft items. Logistics pipes render '''green when powered''' and '''red when not''' — an unpowered network stops working and drops items already in transit until a charged Battery is connected.
 
-Note that Tier 1 extraction pipes (the [[Item Extractor Pipe]] and [[Fluid Extractor Pipe]]) are paced by an adjacent engine instead, not the network Battery.
+Note that the extraction pipes (the [[Item Extractor Pipe]] and [[Fluid Extractor Pipe]]) are paced by an adjacent engine instead, not the network Battery.
 
 ==See Also==
 * [[Machines]] - Machines that use power

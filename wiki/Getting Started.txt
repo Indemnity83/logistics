@@ -4,7 +4,7 @@ New to '''Logistics'''? This is the place to begin. The guides below walk you fr
 
 * '''[[Installation]]''' - Requirements and step-by-step setup for installing Logistics with Fabric.
 * '''[[Your First Pipe Network]]''' - Build a basic chest → extractor → pipes → chest system and learn the fundamentals.
-* '''[[Understanding Tiers]]''' - Learn the three-tier progression: Mechanical → Smart → Network logistics.
+* '''[[Pipes]]''' - Browse the pipe families and learn what each one does.
 
 ==Core Concepts==
 
@@ -14,12 +14,12 @@ Once you've built your first network, these pages explain how everything works:
 * '''[[Item Transport]]''' - How items physically move through pipes.
 * '''[[Connectivity]]''' - Connection rules between pipes and inventories.
 * '''[[Routing]]''' - How items choose their paths at junctions.
-* '''[[Tier System]]''' - The technical architecture behind the three tiers.
 
 ==Next Steps==
 
 * '''[[Pipes]]''' - Browse every available pipe type.
-* '''[[Item Pipes]]''' - The Tier 1 and Tier 2 item-transport pipes.
+* '''[[Transport Pipes]]''' - The everyday item-transport pipes.
+* '''[[Logistics Pipes]]''' - Network-wide routing, supply, and crafting.
 * '''[[Energy]]''' - Power your extractors and machines.
 * '''[[Recipes]]''' - Crafting recipes for Logistics blocks and items.
 

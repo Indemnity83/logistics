@@ -6,36 +6,35 @@ New to Logistics? Start here:
 
 * '''[[Installation]]''' - Get the mod installed and running
 * '''[[Your First Pipe Network]]''' - Build a basic transport system
-* '''[[Understanding Tiers]]''' - Learn the progression system
+* '''[[Pipes]]''' - Browse the pipe families and what each does
 
 ==Core Concepts==
 
 Understand the fundamentals:
 
 * '''[[Pipe Networks]]''' - How pipes connect and form networks
-* '''[[Tier System]]''' - Mechanical → Smart → Network progression
 * '''[[Item Transport]]''' - How items move through pipes
 * '''[[Connectivity]]''' - Connection rules and behaviors
 * '''[[Routing]]''' - How items choose paths at junctions
 
 ==Pipes==
 
-The core of Logistics - transporting items through your network.
+The core of Logistics - transporting items through your network. Item pipes come in three families:
 
-===Tier 1: Mechanical Pipes===
+===[[Transport Pipes]]===
+Move and manipulate items directly, without item-aware routing.
 * '''[[Stone Transport Pipe]]''' - Very slow transport
 * '''[[Copper Transport Pipe]]''' - Standard transport backbone
 * '''[[Item Extractor Pipe]]''' - Pull from inventories
 * '''[[Item Merger Pipe]]''' - Converge to single output
 * '''[[Golden Transport Pipe]]''' - Speed boost with redstone
+* '''[[Item Filter Pipe]]''' - Route by item type
+* '''[[Item Insertion Pipe]]''' - Prefer inventories with space
 * '''[[Item Passthrough Pipe]]''' - Bypass inventories
 * '''[[Item Void Pipe]]''' - Delete items
 
-===Tier 2: Smart Pipes===
-* '''[[Item Filter Pipe]]''' - Route by item type
-* '''[[Item Insertion Pipe]]''' - Prefer inventories with space
-
-===Tier 3: Network Logistics===
+===[[Logistics Pipes]]===
+Powered, network-aware pipes that supply, request, and craft on demand.
 * '''[[Basic Logistics Pipe]]''' - Network backbone
 * '''[[Provider Logistics Pipe]]''' - Expose inventory to network
 * '''[[Supplier Logistics Pipe]]''' - Auto-maintain stock levels
@@ -109,17 +108,16 @@ Configuration and network management tools.
 
 Gears, valves, ores, and crafting components.
 
-'''Gears (Engines & Machines):'''
-* '''[[Wooden Gear]]''' - Basic | '''[[Stone Gear]]''' - Stone
-* '''[[Iron Gear]]''' | '''[[Copper Gear]]''' | '''[[Tin Gear]]''' | '''[[Bronze Gear]]''' - Mid tier
-* '''[[Gold Gear]]''' | '''[[Diamond Gear]]''' - Advanced
-* '''[[Netherite Gear]]''' - End tier
+'''[[Gears]] (Engines & Machines):'''
+* '''[[Wooden Gear]]''' | '''[[Stone Gear]]'''
+* '''[[Iron Gear]]''' | '''[[Copper Gear]]''' | '''[[Tin Gear]]''' | '''[[Bronze Gear]]'''
+* '''[[Gold Gear]]''' | '''[[Diamond Gear]]''' | '''[[Netherite Gear]]'''
 
-'''Valves ([[Kiln]]-Crafted):'''
-* '''Tier 1:''' [[Materials#Wooden Valve|Wooden]] | [[Materials#Copper Valve|Copper]]
-* '''Tier 2:''' [[Iron Valve|Iron]] | [[Bronze Valve|Bronze]] (Coal at limit/fails)
-* '''Tier 3:''' [[Gold Valve|Gold]] | [[Apatite Valve|Apatite]] (Blaze rod/lava)
-* '''Tier 4-6:''' [[Diamond Valve|Diamond]] | [[Ender Valve|Ender]] | [[Emerald Valve|Emerald]] | [[Lapis Valve|Lapis]] | [[Obsidian Valve|Obsidian]] | [[Netherite Valve|Netherite]] | [[Blazing Valve|Blazing]] (Lava required)
+'''[[Valves]] ([[Kiln]]-Crafted):'''
+* [[Wooden Valve|Wooden]] | [[Copper Valve|Copper]] (low heat)
+* [[Iron Valve|Iron]] | [[Bronze Valve|Bronze]] (coal at limit/fails)
+* [[Gold Valve|Gold]] | [[Apatite Valve|Apatite]] (blaze rod/lava)
+* [[Diamond Valve|Diamond]] | [[Ender Valve|Ender]] | [[Emerald Valve|Emerald]] | [[Lapis Valve|Lapis]] | [[Obsidian Valve|Obsidian]] | [[Netherite Valve|Netherite]] | [[Blazing Valve|Blazing]] (lava required)
 
 '''Ores & Metals:'''
 * '''[[Tin Ore]]''' → '''[[Tin Ingot]]''' - Common metal
@@ -150,7 +148,7 @@ Gears, valves, ores, and crafting components.
 
 ==About Logistics==
 
-'''Active Development:''' Logistics is in active development. Item pipes (Tier 1-3), [[Fluid Pipes|fluid pipes]], tanks, pumps, and the [[Battery]]-powered network are implemented and functional.
+'''Active Development:''' Logistics is in active development. [[Transport Pipes]], [[Logistics Pipes]], [[Fluid Pipes|fluid pipes]], tanks, pumps, and the [[Battery]]-powered network are implemented and functional.
 
 '''Minecraft:''' 26.1+
 '''Mod Loader:''' Fabric (Loader 0.18.6+ with Fabric API) or NeoForge

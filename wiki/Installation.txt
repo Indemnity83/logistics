@@ -94,7 +94,7 @@ Or just try crafting a [[Copper Transport Pipe]]!
 Once installed, learn how to build your first network:
 
 * [[Your First Pipe Network]] - Build a basic item transport system
-* [[Understanding Tiers]] - Learn the progression system
+* [[Pipes]] - Learn what each pipe family does
 
 ==See Also==
 * [[Pipe Networks]] - How pipes connect

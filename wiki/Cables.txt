@@ -1,13 +1,13 @@
-'''Cables''' carry [[RF Energy|RF]] power between [[Redstone Engine|engines]], a [[Battery]], and machines, so power can be routed across a distance instead of relying on a direct face-to-face connection. They come in three tiers that behave identically apart from how much RF they move per tick.
+'''Cables''' carry [[RF Energy|RF]] power between [[Redstone Engine|engines]], a [[Battery]], and machines, so power can be routed across a distance instead of relying on a direct face-to-face connection. They come in three grades that behave identically apart from how much RF they move per tick.
 
 == Variants ==
 
 All cables are crafted '''8 at a time''' from [[Rubber|Rubber Chunks]] wrapped around a conductive core:
 
 {{Crafting|head=1|showdescription=1
-|name=Copper Cable |A1=Rubber Chunk |B1=Rubber Chunk |C1=Rubber Chunk |A2=Copper Ingot |B2=Copper Ingot |C2=Copper Ingot |A3=Rubber Chunk |B3=Rubber Chunk |C3=Rubber Chunk |Output=Copper Cable,8 |description=30 RF/t — the cheapest tier.}}
+|name=Copper Cable |A1=Rubber Chunk |B1=Rubber Chunk |C1=Rubber Chunk |A2=Copper Ingot |B2=Copper Ingot |C2=Copper Ingot |A3=Rubber Chunk |B3=Rubber Chunk |C3=Rubber Chunk |Output=Copper Cable,8 |description=30 RF/t — the cheapest grade.}}
 {{Crafting
-|name=Gold Cable   |A1=Rubber Chunk |B1=Rubber Chunk |C1=Rubber Chunk |A2=Gold Ingot |B2=Gold Ingot |C2=Gold Ingot |A3=Rubber Chunk |B3=Rubber Chunk |C3=Rubber Chunk |Output=Gold Cable,8 |description=60 RF/t — the mid tier.}}
+|name=Gold Cable   |A1=Rubber Chunk |B1=Rubber Chunk |C1=Rubber Chunk |A2=Gold Ingot |B2=Gold Ingot |C2=Gold Ingot |A3=Rubber Chunk |B3=Rubber Chunk |C3=Rubber Chunk |Output=Gold Cable,8 |description=60 RF/t — the mid grade.}}
 {{Crafting|foot=1
 |name=Ender Cable  |A1=Rubber Chunk |B1=Rubber Chunk |C1=Rubber Chunk |A2=Ender Dust |B2=Gold Ingot |C2=Ender Dust |A3=Rubber Chunk |B3=Rubber Chunk |C3=Rubber Chunk |Output=Ender Cable,8 |description=120 RF/t — the highest throughput.}}
 

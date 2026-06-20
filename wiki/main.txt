@@ -3,28 +3,28 @@
 Welcome to the '''{{SITENAME}}''' — the player-maintained guide to '''Logistics''', a Minecraft automation mod by [[User:Indemnity83|Indemnity83]] that adds transport pipes, fluids, power, and machines for moving resources around your world.
 
 {| style="width:100%; border:1px solid rgba(127,127,127,0.35); margin:10px 0;"
-| style="padding:12px; vertical-align:middle;" | '''New here?''' Start with '''[[Getting Started]]''', then build your '''[[Your First Pipe Network|first pipe network]]''', grab the mod on the [[Installation|install]] page, and learn how progression works in the '''[[Tier System]]'''.
+| style="padding:12px; vertical-align:middle;" | '''New here?''' Start with '''[[Getting Started]]''', then build your '''[[Your First Pipe Network|first pipe network]]''', grab the mod on the [[Installation|install]] page, and browse the '''[[Pipes]]''' to see what's available.
 |}
 
 ==Browse by topic==
 
 {| style="width:100%; border-spacing:8px; border-collapse:separate;"
 |- style="vertical-align:top;"
-| style="width:50%; padding:10px; border:1px solid rgba(127,127,127,0.35);" | [[File:Grid Copper Transport Pipe.png|left|56px|link=Pipes]] '''[[Pipes]]'''<br>Move items through connected networks — from basic transport to smart routing and a full logistics system.<br><small>[[Item Pipes]] · [[Pipe Networks]] · [[Routing]]</small>
+| style="width:50%; padding:10px; border:1px solid rgba(127,127,127,0.35);" | [[File:Grid Copper Transport Pipe.png|left|56px|link=Pipes]] '''[[Pipes]]'''<br>Move items through connected networks — from basic transport to filtered routing and a full logistics system.<br><small>[[Transport Pipes]] · [[Logistics Pipes]] · [[Pipe Networks]]</small>
 | style="width:50%; padding:10px; border:1px solid rgba(127,127,127,0.35);" | [[File:Grid Glass Tank.png|left|56px|link=Fluid Pipes]] '''[[Fluid Pipes|Fluids]]'''<br>Pump, pipe, and store liquids with a standalone fluid system separate from the item network.<br><small>[[Glass Tank]] · [[Pump]] · [[Fluid Pipes|Fluid pipes]]</small>
 |-
 | style="width:50%; padding:10px; border:1px solid rgba(127,127,127,0.35);" | [[File:Grid Stirling Engine.png|left|56px|link=Energy]] '''[[Energy|Power]]'''<br>Generate RF with engines and power the network with batteries and cables.<br><small>[[Battery]] · [[Stirling Engine]] · [[Copper Cable|Cables]]</small>
 | style="width:50%; padding:10px; border:1px solid rgba(127,127,127,0.35);" | [[File:Grid Macerator.png|left|56px|link=Machines]] '''[[Machines|Automation]]'''<br>Machines that grind, smelt, and mine for you.<br><small>[[Macerator]] · [[Kiln]] · [[Laser Quarry]]</small>
 |-
 | style="width:50%; padding:10px; border:1px solid rgba(127,127,127,0.35);" | [[File:Grid Extractor Module.png|left|56px|link=Modules]] '''[[Modules]]'''<br>Slot modules into [[Chassis Logistics Pipe|chassis pipes]] to build custom logistics nodes.<br><small>[[Provider Module]] · [[Extractor Module]] · [[Crafter Module]]</small>
-| style="width:50%; padding:10px; border:1px solid rgba(127,127,127,0.35);" | [[File:Grid Iron Gear.png|left|56px|link=Materials]] '''[[Materials]]'''<br>Gears, valves, dusts, and the crafting components behind everything.<br><small>[[Materials#Gears|Gears]] · [[Materials#Valves|Valves]] · [[Dusts]] · [[Chips]] · [[Cores]]</small>
+| style="width:50%; padding:10px; border:1px solid rgba(127,127,127,0.35);" | [[File:Grid Iron Gear.png|left|56px|link=Materials]] '''[[Materials]]'''<br>Gears, valves, dusts, and the crafting components behind everything.<br><small>[[Gears]] · [[Valves]] · [[Dusts]] · [[Chips]] · [[Cores]]</small>
 |}
 
 ==Tools & reference==
 
 * [[File:Grid Wrench.png|20px|link=Wrench]] '''[[Tools]]''' — [[Wrench]], [[Marking Fluid]], and the quarry [[Marker]] for configuring, color-coding, and bounding your build
 * [[File:Grid Crafting Table.png|20px|link=Recipes]] '''[[Recipes]]''' — how crafting recipes are shown across the wiki
-* [[File:Grid Knowledge Book.png|20px|link=Tier System]] '''Core concepts''' — [[Tier System]] · [[Pipe Networks]] · [[Connectivity]] · [[Routing]] · [[Item Transport]]
+* [[File:Grid Knowledge Book.png|20px|link=Pipes]] '''Core concepts''' — [[Pipes]] · [[Pipe Networks]] · [[Connectivity]] · [[Routing]] · [[Item Transport]]
 
 ==Contributing==
 

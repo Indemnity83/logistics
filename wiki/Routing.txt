@@ -8,7 +8,7 @@ If only one direction is available, the item takes that path automatically (no r
 
 ==Routing Strategies==
 
-===Random Routing (Tier 1)===
+===Random Routing===
 '''Used by:''' [[Stone Transport Pipe]], [[Copper Transport Pipe]]
 
 * Randomly selects from available exit directions
@@ -16,14 +16,14 @@ If only one direction is available, the item takes that path automatically (no r
 * Simple and unpredictable
 * Suitable for early networks with single destinations
 
-===Directional Routing (Tier 1)===
+===Directional Routing===
 '''Used by:''' [[Item Merger Pipe]]
 
 * All inputs route to single configured output
 * Output direction set with [[Wrench]]
 * Items cannot enter through output face
 
-===Filter-Based Routing (Tier 2)===
+===Filter-Based Routing===
 '''Used by:''' [[Item Filter Pipe]]
 
 * Routes based on per-side item filters
@@ -31,14 +31,14 @@ If only one direction is available, the item takes that path automatically (no r
 * Unmatched items route to unfiltered directions
 * Items drop if no valid route found
 
-===Inventory-Preference Routing (Tier 2)===
+===Inventory-Preference Routing===
 '''Used by:''' [[Item Insertion Pipe]]
 
 * Prefers directions with accepting inventories
 * Falls back to pipe directions if no inventory
 * Items drop if no valid output
 
-===Deletion (Tier 1)===
+===Deletion===
 '''Used by:''' [[Item Void Pipe]]
 
 * "Routes" items to deletion
@@ -62,12 +62,12 @@ Items drop as entities when:
 
 ==Building Reliable Routes==
 
-'''For Tier 1 networks:'''
+'''For simple networks:'''
 * Use [[Item Merger Pipe|Item Merger Pipes]] to guarantee direction
 * Design single-path routes where possible
 * Accept randomness for multi-destination networks
 
-'''For Tier 2 networks:'''
+'''For item-aware networks:'''
 * Use [[Item Filter Pipe|Item Filter Pipes]] for deterministic sorting
 * Use [[Item Insertion Pipe|Item Insertion Pipes]] to prefer storage
 * Combine both for complex routing logic
@@ -78,7 +78,7 @@ Items drop as entities when:
 * Test networks with small item batches first
 
 ==See Also==
-* [[Tier System]] - How tiers affect routing
+* [[Pipes]] - All available pipe types
 * [[Item Transport]] - Item movement mechanics
 * [[Pipe Networks]] - Network structure
 * [[Item Filter Pipe]] - Advanced routing

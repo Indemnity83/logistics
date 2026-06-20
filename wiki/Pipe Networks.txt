@@ -33,6 +33,6 @@ Items travel through the network until they:
 * [[Connectivity]] - How pipes connect to each other
 * [[Routing]] - How items choose paths
 * [[Item Transport]] - How items move through pipes
-* [[Tier System]] - Different pipe capabilities
+* [[Pipes]] - Different pipe types and capabilities
 
 [[Category:Concepts]]

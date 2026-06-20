@@ -4,11 +4,11 @@ There are '''two separate power paths''' in the mod — they do not share a powe
 
 ==Path 1: Powering the logistics network==
 
-The Tier 3 logistics network is powered from a stored reservoir, not directly off an engine:
+The logistics network is powered from a stored reservoir, not directly off an engine:
 
 # An [[Engines & Power|engine]] ([[Redstone Engine]], [[Stirling Engine]], or [[Creative Engine]]) generates RF
 # [[Copper Cable|Power cables]] carry that RF to a [[Battery]]
-# The Tier 3 logistics pipes and chassis modules draw RF from the connected Battery each time they route, supply, or craft
+# The [[Logistics Pipes]] and chassis modules draw RF from the connected Battery each time they route, supply, or craft
 
 '''When the network runs out of power:'''
 * Routing, supplying, and crafting all stop
@@ -17,9 +17,9 @@ The Tier 3 logistics network is powered from a stored reservoir, not directly of
 
 Power is restored as soon as a charged [[Battery]] is connected again.
 
-==Path 2: Tier 1 extraction pacing==
+==Path 2: Extraction pacing==
 
-Tier 1 extraction pipes do '''not''' use the Battery. Instead, each is paced by an '''adjacent engine''':
+Extraction pipes do '''not''' use the Battery. Instead, each is paced by an '''adjacent engine''':
 
 * The [[Item Extractor Pipe]] and [[Fluid Extractor Pipe]] pull faster the more RF the adjacent engine supplies
 * This is the original, mechanical power model — the engine touches the pipe directly
@@ -57,7 +57,7 @@ Different engines generate different amounts of RF:
 ==Tips==
 
 * Keep a charged [[Battery]] on the network at all times — an empty Battery drops in-transit items
-* Use higher-tier cables ([[Gold Cable]], [[Ender Cable]]) to feed a high-demand network
+* Use higher-throughput cables ([[Gold Cable]], [[Ender Cable]]) to feed a high-demand network
 * Engines require a redstone signal to run
 * Place an engine directly against an [[Item Extractor Pipe]] to pace its extraction
 
@@ -65,7 +65,7 @@ Different engines generate different amounts of RF:
 * [[Battery]] - Stores RF for the logistics network
 * [[Copper Cable]], [[Gold Cable]], [[Ender Cable]] - Distribute RF
 * [[Redstone Engine]], [[Stirling Engine]], [[Creative Engine]] - Generate RF
-* [[Item Extractor Pipe]] - Tier 1 extraction paced by an engine
+* [[Item Extractor Pipe]] - Extraction paced by an engine
 * [[Laser Quarry]] - Major power consumer
 
 [[Category:Power]]

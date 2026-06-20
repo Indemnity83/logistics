@@ -116,7 +116,7 @@ Use [[Item Filter Pipe]]:
 Use [[Golden Transport Pipe]] with redstone power to accelerate items.
 
 ===Learn More===
-* [[Understanding Tiers]] - The progression system
+* [[Pipes]] - Browse all pipe families
 * [[Pipe Networks]] - How networks work
 * [[Routing]] - How items choose paths
 * [[Pipes|All Pipes]] - Explore all pipe types
