@@ -3,10 +3,8 @@
 `upload_to_fandom.py` pushes the `wiki/*.txt` pages and the item icons to a Fandom
 (MediaWiki) site over the API. It is idempotent — re-running only sends what changed.
 
-## 1. Install the one dependency
-```bash
-pip install requests
-```
+## 1. Requirements
+Pure Python 3 standard library — no `pip install`, no virtualenv.
 
 ## 2. Create a bot password
 On your wiki, open **`Special:BotPasswords`** and create a bot with these grants:

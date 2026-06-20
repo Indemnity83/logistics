@@ -16,7 +16,7 @@ Interrupted runs just resume — already-done items are skipped on the next run.
 
 ------------------------------------------------------------------------------------
 SETUP
-  1. pip install requests
+  1. (no install needed — pure Python stdlib)
   2. On your wiki, go to  Special:BotPasswords , create a bot with the
      "Edit existing pages", "Create, edit, and move pages", and "Upload new files /
      Upload, replace, and move files" grants. You get a username like
@@ -45,15 +45,15 @@ NOTES
 
 import argparse
 import hashlib
+import http.cookiejar
+import json
 import os
 import re
 import sys
 import time
-
-try:
-    import requests
-except ImportError:
-    sys.exit("This script needs 'requests'.  Install it with:  pip install requests")
+import urllib.error
+import urllib.parse
+import urllib.request
 
 
 USER_AGENT = "LogisticsWikiUploader/1.0 (https://github.com/Indemnity83/logistics; bot)"
@@ -69,29 +69,38 @@ class Wiki:
         self.maxlag = maxlag
         self.max_retries = max_retries
         self.csrf = "+\\"
-        self.s = requests.Session()
-        self.s.headers["User-Agent"] = USER_AGENT
+        cj = http.cookiejar.CookieJar()
+        self.opener = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(cj))
+        self.opener.addheaders = [("User-Agent", USER_AGENT)]
 
     def _call(self, params, post=False, files_factory=None):
-        """One API call with retry/backoff. files_factory() returns a fresh files dict."""
-        params = dict(params, format="json", formatversion="2")
+        """One API call (stdlib urllib) with retry/backoff. files_factory() returns a fresh files dict."""
+        params = {k: str(v) for k, v in dict(params, format="json", formatversion="2").items()}
         attempt = 0
         while True:
             attempt += 1
             try:
-                if post or files_factory:
-                    files = files_factory() if files_factory else None
-                    r = self.s.post(self.api, data=params, files=files, timeout=60)
+                if files_factory:
+                    body, ctype = _encode_multipart(params, files_factory())
+                    req = urllib.request.Request(self.api, data=body, headers={"Content-Type": ctype})
+                elif post:
+                    req = urllib.request.Request(self.api, data=urllib.parse.urlencode(params).encode())
                 else:
-                    r = self.s.get(self.api, params=params, timeout=60)
-                if r.status_code in (429, 502, 503):
-                    raise _Retry(r.headers.get("Retry-After"))
-                r.raise_for_status()
-                data = r.json()
-            except (requests.RequestException, _Retry, ValueError) as e:
+                    req = urllib.request.Request(self.api + "?" + urllib.parse.urlencode(params))
+                with self.opener.open(req, timeout=60) as resp:
+                    data = json.loads(resp.read().decode("utf-8"))
+            except urllib.error.HTTPError as e:
                 if attempt > self.max_retries:
                     raise
-                wait = _retry_after(e) or min(2 ** attempt, 30)
+                ra = e.headers.get("Retry-After")
+                wait = int(ra) if (ra and ra.isdigit()) else min(2 ** attempt, 30)
+                print(f"    … HTTP {e.code}; retry {attempt} in {wait}s")
+                time.sleep(wait)
+                continue
+            except (urllib.error.URLError, TimeoutError, ValueError, OSError) as e:
+                if attempt > self.max_retries:
+                    raise
+                wait = min(2 ** attempt, 30)
                 print(f"    … transient error ({e}); retry {attempt} in {wait}s")
                 time.sleep(wait)
                 continue
@@ -182,18 +191,23 @@ class Wiki:
         return res.get("upload", {}).get("result", "ok").lower()
 
 
-class _Retry(Exception):
-    def __init__(self, retry_after=None):
-        self.retry_after = retry_after
-
-
-def _retry_after(e):
-    if isinstance(e, _Retry) and e.retry_after:
+def _encode_multipart(fields, files):
+    """Build a multipart/form-data body. files: {name: (filename, fileobj, content_type)}."""
+    boundary = "----Logistics" + os.urandom(16).hex()
+    body = bytearray()
+    for k, v in fields.items():
+        body += (f"--{boundary}\r\nContent-Disposition: form-data; name=\"{k}\"\r\n\r\n"
+                 f"{v}\r\n").encode("utf-8")
+    for name, (filename, fileobj, ctype) in files.items():
         try:
-            return int(e.retry_after)
-        except ValueError:
-            return None
-    return None
+            content = fileobj.read()
+        finally:
+            fileobj.close()
+        body += (f"--{boundary}\r\nContent-Disposition: form-data; name=\"{name}\"; "
+                 f"filename=\"{filename}\"\r\nContent-Type: {ctype}\r\n\r\n").encode("utf-8")
+        body += content + b"\r\n"
+    body += f"--{boundary}--\r\n".encode("utf-8")
+    return bytes(body), f"multipart/form-data; boundary={boundary}"
 
 
 def _sha1(path):
@@ -276,7 +290,8 @@ def referenced_files(wiki_dir, only=None):
 
 def main():
     ap = argparse.ArgumentParser(description="Upload the Logistics wiki to Fandom/MediaWiki.")
-    ap.add_argument("--site", help="Wiki base URL, e.g. https://yourwiki.fandom.com")
+    ap.add_argument("--site", default=os.environ.get("FANDOM_SITE"),
+                    help="Wiki base URL, e.g. https://yourwiki.fandom.com (or set FANDOM_SITE)")
     ap.add_argument("--api", help="Full api.php URL (overrides --site; needed for /<lang>/ wikis)")
     ap.add_argument("--user", default=os.environ.get("FANDOM_USER"))
     ap.add_argument("--password", default=os.environ.get("FANDOM_PASSWORD"))
