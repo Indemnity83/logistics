@@ -52,7 +52,7 @@ Each colored marking fluid is crafted '''shapeless''' from a Water Bottle plus t
 
 == Usage ==
 
-Marking fluid segments a network by color. A marked [[Copper Transport Pipe]] only connects to other pipes of the same color, so independent systems can run side by side. It works only on [[Copper Transport Pipe|Copper Transport Pipes]].
+Marking fluid segments a network by color. A marked [[Copper Transport Pipe]] only connects to other pipes of the same color, so independent systems can run side by side — a cleaner alternative to physically separating them with blocks. It works only on [[Copper Transport Pipe|Copper Transport Pipes]], and unlike an [[Item Filter Pipe]] it prevents a physical connection rather than sorting items.
 
 === Applying ===
 
@@ -97,17 +97,7 @@ Different colored pipes for different purposes:
 - Green = overflow management
 </pre>
 
-==Tips==
-
-* Only works on [[Copper Transport Pipe|Copper Transport Pipes]]
-* Each dye creates a different color
-* Sneak + empty hand to remove marking
-* Visual indicator shows pipe color
-* Alternative to physical separation
-* Cleaner than using blocks to separate networks
-* Different from filters - this prevents physical connections
-
-==See Also==
+== See also ==
 * [[Copper Transport Pipe]] - Pipe type that accepts marking
 * [[Connectivity]] - Connection rules
 * [[Pipe Networks]] - Network segmentation
