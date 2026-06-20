@@ -1,0 +1,23 @@
+{{Stub}}
+{{Block
+|image     = Grid Tin Block.png
+|id        = logistics:core/tin_block
+|type      = Block
+|stackable = Yes (64)
+|added     = v0.2.0
+}}
+
+'''Block of Tin''' is a storage block that compacts nine [[Tin Ingot|tin ingots]].
+
+== Obtaining ==
+
+=== Crafting ===
+
+Craft from nine [[Tin Ingot|tin ingots]] arranged in a 3×3 grid; the block unpacks back into nine ingots.
+
+== See also ==
+
+* [[Tin]] — material overview
+* [[Tin Ingot]] — crafting component
+
+[[Category:Materials]]

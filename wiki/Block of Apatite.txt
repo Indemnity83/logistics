@@ -1,0 +1,23 @@
+{{Stub}}
+{{Block
+|image     = Grid Apatite Block.png
+|id        = logistics:core/apatite_block
+|type      = Block
+|stackable = Yes (64)
+|added     = v0.2.0
+}}
+
+'''Block of Apatite''' is a storage block that compacts nine [[Apatite (gem)|apatite]].
+
+== Obtaining ==
+
+=== Crafting ===
+
+Craft from nine [[Apatite (gem)|apatite]] arranged in a 3×3 grid; the block unpacks back into nine.
+
+== See also ==
+
+* [[Apatite]] — material overview
+* [[Apatite (gem)]] — the loose gem
+
+[[Category:Materials]]

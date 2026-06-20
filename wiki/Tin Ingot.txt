@@ -18,39 +18,16 @@ Smelt [[Raw Tin]] (from [[Tin Ore]]) in a furnace or blast furnace to produce on
 
 === Crafting ===
 
-Tin Ingots can be packed into and unpacked from their storage forms:
+Tin Ingots pack into and unpack from their storage forms:
 
-{{Grid Crafting Table
-|B2=Tin Block
-|Output=Tin Ingot |OutputCount=9
-}}
-
-'''From a Tin Block:''' 1× Tin Block = 9× Tin Ingot.
-
-{{Grid Crafting Table
-|A1=Tin Nugget |B1=Tin Nugget |C1=Tin Nugget
-|A2=Tin Nugget |B2=Tin Nugget |C2=Tin Nugget
-|A3=Tin Nugget |B3=Tin Nugget |C3=Tin Nugget
-|Output=Tin Ingot
-}}
-
-'''From nuggets:''' 9× Tin Nugget = 1× Tin Ingot.
-
-{{Grid Crafting Table
-|A1=Tin Ingot |B1=Tin Ingot |C1=Tin Ingot
-|A2=Tin Ingot |B2=Tin Ingot |C2=Tin Ingot
-|A3=Tin Ingot |B3=Tin Ingot |C3=Tin Ingot
-|Output=Tin Block
-}}
-
-'''To a block:''' 9× Tin Ingot = 1× Tin Block.
-
-{{Grid Crafting Table
-|B2=Tin Ingot
-|Output=Tin Nugget |OutputCount=9
-}}
-
-'''To nuggets:''' 1× Tin Ingot = 9× Tin Nugget.
+{{Crafting|head=1|showdescription=1
+|name=Tin Ingot |B2=Tin Block |Output=Tin Ingot,9 |description=Unpack a [[Block of Tin]].}}
+{{Crafting
+|name=Tin Ingot |A1=Tin Nugget |B1=Tin Nugget |C1=Tin Nugget |A2=Tin Nugget |B2=Tin Nugget |C2=Tin Nugget |A3=Tin Nugget |B3=Tin Nugget |C3=Tin Nugget |Output=Tin Ingot |description=Combine nine [[Tin Nugget|Tin Nuggets]].}}
+{{Crafting
+|name=[[Block of Tin]] |A1=Tin Ingot |B1=Tin Ingot |C1=Tin Ingot |A2=Tin Ingot |B2=Tin Ingot |C2=Tin Ingot |A3=Tin Ingot |B3=Tin Ingot |C3=Tin Ingot |Output=Tin Block |description=Pack nine Tin Ingots into a block.}}
+{{Crafting|foot=1
+|name=[[Tin Nugget]] |B2=Tin Ingot |Output=Tin Nugget,9 |description=Split a Tin Ingot into nuggets.}}
 
 == Usage ==
 

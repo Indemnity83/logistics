@@ -2,18 +2,18 @@
 
 == Blocks and items ==
 
-* [[Tin Ore]] — an ore found underground, with a Deepslate Tin Ore variant in the deepslate layer
-* [[Raw Tin]] — an item that drops from tin ore when mined
-* [[Tin Ingot]] — an item created by smelting raw tin
-* '''Tin Nugget''' — one-ninth of a tin ingot
-* '''Block of Raw Tin''' — a block used for compact raw tin storage
-* '''Block of Tin''' — a block used for compact tin ingot storage
-* [[Dusts|Tin Dust]] — produced by grinding tin ore in a [[Macerator]] (ore doubling)
+* [[File:Grid Tin Ore.png|24px|link=Tin Ore]] '''[[Tin Ore]]''' — an ore found underground, with a Deepslate Tin Ore variant in the deepslate layer
+* [[File:Grid Raw Tin.png|24px|link=Raw Tin]] '''[[Raw Tin]]''' — an item that drops from tin ore when mined
+* [[File:Grid Tin Ingot.png|24px|link=Tin Ingot]] '''[[Tin Ingot]]''' — an item created by smelting raw tin
+* [[File:Grid Tin Nugget.png|24px|link=Tin Nugget]] '''[[Tin Nugget]]''' — one-ninth of a tin ingot
+* [[File:Grid Raw Tin Block.png|24px|link=Block of Raw Tin]] '''[[Block of Raw Tin]]''' — a block used for compact raw tin storage
+* [[File:Grid Tin Block.png|24px|link=Block of Tin]] '''[[Block of Tin]]''' — a block used for compact tin ingot storage
+* [[File:Grid Tin Dust.png|24px|link=Dusts]] '''[[Dusts|Tin Dust]]''' — produced by grinding tin ore in a [[Macerator]] (ore doubling)
 
 == Uses ==
 
-* [[Tin Gear]] — a crafting component in the gear progression
-* [[Bronze Ingot]] — a tin-and-copper alloy
+* [[File:Grid Tin Gear.png|24px|link=Tin Gear]] '''[[Tin Gear]]''' — a crafting component in the gear progression
+* [[File:Grid Bronze Ingot.png|24px|link=Bronze Ingot]] '''[[Bronze Ingot]]''' — a tin-and-copper alloy
 
 {{Disambig}}
 

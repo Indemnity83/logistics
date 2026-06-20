@@ -1,0 +1,23 @@
+{{Stub}}
+{{Block
+|image     = Grid Raw Tin Block.png
+|id        = logistics:core/raw_tin_block
+|type      = Block
+|stackable = Yes (64)
+|added     = v0.2.0
+}}
+
+'''Block of Raw Tin''' is a storage block that compacts nine [[Raw Tin]].
+
+== Obtaining ==
+
+=== Crafting ===
+
+Craft from nine [[Raw Tin]] arranged in a 3×3 grid; the block unpacks back into nine.
+
+== See also ==
+
+* [[Tin]] — material overview
+* [[Raw Tin]] — the loose item
+
+[[Category:Materials]]

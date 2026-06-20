@@ -1,0 +1,23 @@
+{{Stub}}
+{{Item
+|image     = Grid Tin Nugget.png
+|id        = logistics:core/tin_nugget
+|type      = Item
+|stackable = Yes (64)
+|added     = v0.2.0
+}}
+
+'''Tin Nugget''' is one-ninth of a [[Tin Ingot]], handy for fine crafting and storage.
+
+== Obtaining ==
+
+=== Crafting ===
+
+One [[Tin Ingot]] unpacks into nine Tin Nuggets, and nine nuggets craft back into one ingot.
+
+== See also ==
+
+* [[Tin]] — material overview
+* [[Tin Ingot]] — the full ingot
+
+[[Category:Materials]]
