@@ -1,44 +1,48 @@
-{{Infobox Item
-|name      = Apatite Ore
+{{Block
 |image     = Grid Apatite Ore.png
 |id        = logistics:core/apatite_ore
-|type      = Block (Ore)
+|type      = Ore
+|tool      = Stone Pickaxe
+|hardness  = 3
+|blastresistance = 3
+|drops     = Apatite
+|experience = 0-2
 |stackable = Yes (64)
-|tool      = Pickaxe (Iron+)
 |added     = v0.2.0
 }}
 
-'''Apatite Ore''' is an ore that drops [[Apatite|apatite]] gems. Used for apatite valves and advanced components.
+'''Apatite Ore''' is an ore that drops [[Apatite|apatite]] gems, used for apatite valves and advanced components.
 
-==Obtaining==
+== Obtaining ==
 
-'''Mining:'''
-* Found underground in the Overworld
-* Y-level distribution: (TBD)
-* Drops: Apatite (gem)
-* Requires iron pickaxe or better (likely)
+=== Breaking ===
 
-==Usage==
+Apatite Ore drops [[Apatite]] gems directly when mined — no smelting needed — and requires a '''stone pickaxe''' or better. It also drops '''0–2 experience'''. The Fortune enchantment increases apatite drops.
 
-'''Direct drops:'''
-* Drops [[Apatite]] gems directly when mined
-* No smelting needed
+=== Natural generation ===
 
-'''Fortune:'''
-* Fortune enchantment increases apatite drops
+Apatite Ore generates underground in the Overworld.
 
-'''Storage:'''
-* Apatite Block (9× apatite)
+== Usage ==
 
-==Tips==
+Apatite from this ore feeds gem-based components.
 
-* Drops gems directly (like diamond/emerald)
-* Fortune pickaxe recommended
-* Needed for [[Apatite Valve]]
-* Stock up for Tier 3 valve production
+=== Grinding ===
 
-==See Also==
+Grind Apatite Ore in the [[Macerator]] for '''Apatite Dust''' (see [[Dusts]]).
+
+=== Storage ===
+
+Nine apatite can be packed into an '''Apatite Block''' for compact storage.
+
+== History ==
+
+{{History|head=1|foot=1|v0.2.0|Added '''Apatite Ore'''.}}
+
+== See also ==
+
 * [[Apatite]] - Dropped gem
 * [[Apatite Valve]] - Major use
+* [[Dusts]] - Apatite Dust
 
 [[Category:Materials]]

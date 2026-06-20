@@ -1,15 +1,50 @@
-{{Infobox Item
-|name      = Extractor Module
+{{Item
 |image     = Grid Extractor Module.png
 |type      = Item (Module)
 |stackable = Yes (64)
-|tier      = Tier 3 - Network
 |added     = v0.2.0
 }}
 
-The '''Extractor Module''' is a [[Chassis Logistics Pipe]] module that actively pulls items from an adjacent inventory and injects them into the [[Pipe Networks|logistics network]]. Three mark variants exist, with higher marks extracting at greater speed or quantity.
+The '''Extractor Module''' is a [[Logistics Pipes#Chassis Logistics Pipe|Chassis Logistics Pipe]] module that actively pulls items from an adjacent inventory and injects them into the [[Pipe Networks|logistics network]]. Three mark variants exist, with higher marks extracting at greater speed or quantity.
 
-==Variants==
+== Obtaining ==
+
+=== Crafting ===
+
+==== Extractor Module (MK1) ====
+
+{{Grid Crafting Table
+|A1=Wood Pulp |B1=Redstone Chip |C1=Wood Pulp
+|A2=Redstone |B2=Blank Module |C2=Redstone
+|Output=Extractor Module
+}}
+
+==== Extractor MkII Module ====
+
+{{Grid Crafting Table
+|A1=Wood Pulp |B1=Amethyst Chip |C1=Wood Pulp
+|A2=Redstone |B2=Blank Module |C2=Redstone
+|Output=Extractor MkII Module
+}}
+
+==== Extractor MkIII Module ====
+
+{{Grid Crafting Table
+|A1=Wood Pulp |B1=Echo Chip |C1=Wood Pulp
+|A2=Redstone |B2=Blank Module |C2=Redstone
+|Output=Extractor MkIII Module
+}}
+
+== Usage ==
+
+When installed in a [[Logistics Pipes#Chassis Logistics Pipe|Chassis Logistics Pipe]], this module pulls items from an adjacent inventory and routes them into the logistics network. It functions similarly to the standalone [[Item Extractor Pipe]] but is network-aware and can be combined with other modules in the same chassis.
+
+* Extracts items from an adjacent inventory into the logistics network.
+* Configurable item filter — extract only specific item types.
+* Higher mark variants extract faster or in larger quantities per tick.
+* Can be configured to route extracted items to a specific network destination.
+
+=== Variants ===
 
 {| class="wikitable"
 ! Variant !! Chip !! Notes
@@ -21,58 +56,21 @@ The '''Extractor Module''' is a [[Chassis Logistics Pipe]] module that actively 
 | Extractor MkIII Module || Echo Chip || Highest extraction throughput
 |}
 
-==Recipes==
+=== Tips ===
 
-===Extractor Module (MK1)===
+* Pair with a [[Provider Module]] in the same chassis to both extract and advertise from one inventory.
+* Configure the item filter to ensure only the right items leave a mixed-content chest.
+* MK3 is ideal for high-output machines (blast furnaces, high-tier kilns) that produce items faster than MK1 can handle.
 
-{{Grid Crafting Table
-|A1=Wood Pulp |B1=Redstone Chip |C1=Wood Pulp
-|A2=Redstone |B2=Blank Module |C2=Redstone
-|Output=Extractor Module
-}}
+== History ==
 
-'''Yields:''' 1× Extractor Module (MK1) — 2× [[Dusts#Wood Pulp|Wood Pulp]] + [[Chips|Redstone Chip]] + 2× Redstone + [[Blank Module]]
+{{History|head=1|foot=1|v0.2.0|Added '''Extractor Module'''.}}
 
-===Extractor MkII Module===
-
-{{Grid Crafting Table
-|A1=Wood Pulp |B1=Amethyst Chip |C1=Wood Pulp
-|A2=Redstone |B2=Blank Module |C2=Redstone
-|Output=Extractor MkII Module
-}}
-
-'''Yields:''' 1× Extractor MkII Module — 2× [[Dusts#Wood Pulp|Wood Pulp]] + [[Chips|Amethyst Chip]] + 2× Redstone + [[Blank Module]]
-
-===Extractor MkIII Module===
-
-{{Grid Crafting Table
-|A1=Wood Pulp |B1=Echo Chip |C1=Wood Pulp
-|A2=Redstone |B2=Blank Module |C2=Redstone
-|Output=Extractor MkIII Module
-}}
-
-'''Yields:''' 1× Extractor MkIII Module — 2× [[Dusts#Wood Pulp|Wood Pulp]] + [[Chips|Echo Chip]] + 2× Redstone + [[Blank Module]]
-
-==Behavior==
-
-When installed in a [[Chassis Logistics Pipe]], this module pulls items from an adjacent inventory and routes them into the logistics network. It functions similarly to the standalone [[Item Extractor Pipe]] but is network-aware and can be combined with other modules in the same chassis.
-
-'''Key features:'''
-* Extracts items from an adjacent inventory into the logistics network
-* Configurable item filter — extract only specific item types
-* Higher mark variants extract faster or in larger quantities per tick
-* Can be configured to route extracted items to a specific network destination
-
-==Tips==
-
-* Use in an MK2 chassis alongside a [[Provider Module]] to both extract and advertise from the same inventory
-* Configure the item filter to ensure only the right items leave a mixed-content chest
-* MK3 is ideal for high-output machines (blast furnaces, high-tier kilns) that produce items faster than MK1 can handle
-
-==See Also==
-* [[Item Extractor Pipe]] - Standalone Tier 1 extractor (simpler, cheaper)
+== See also ==
+* [[Item Extractor Pipe]] - Standalone extractor (simpler, cheaper)
 * [[Advanced Extractor Module]] - Extractor with more filter/scheduling options
-* [[Chassis Logistics Pipe]] - Required container
+* [[Modules]] - All available modules
+* [[Logistics Pipes#Chassis Logistics Pipe|Chassis Logistics Pipe]] - Required container
 * [[Blank Module]] - Crafting base
 * [[Dusts#Wood Pulp|Wood Pulp]] - Crafting component
 * [[Chips|Redstone Chip]] - MK1 chip
@@ -80,4 +78,3 @@ When installed in a [[Chassis Logistics Pipe]], this module pulls items from an 
 * [[Chips|Echo Chip]] - MK3 chip
 
 [[Category:Modules]]
-[[Category:Recipes]]

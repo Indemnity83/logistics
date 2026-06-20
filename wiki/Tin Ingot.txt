@@ -1,5 +1,4 @@
-{{Infobox Item
-|name      = Tin Ingot
+{{Item
 |image     = Grid Tin Ingot.png
 |id        = logistics:core/tin_ingot
 |type      = Item
@@ -7,33 +6,26 @@
 |added     = v0.2.0
 }}
 
-'''Tin Ingot''' is a metal obtained by smelting [[Tin Ore|raw tin]]. It's used to create bronze alloy and tin-based components.
+'''Tin Ingot''' is a metal obtained by smelting [[Tin Ore|raw tin]]. It is used to create bronze alloy and tin-based components.
 
 '''Related forms:''' Tin Ingot has a full set of storage and processing forms — '''Block of Tin''' (9 ingots), '''Tin Nugget''' (1/9 ingot), '''Raw Tin''' and the '''Block of Raw Tin''', and '''Tin Dust''' from the [[Macerator]].
 
-==Recipe==
+== Obtaining ==
 
-'''Smelting:'''
-* Raw Tin (from [[Tin Ore]]) → Tin Ingot
-* Furnace or blast furnace
+=== Smelting ===
 
-'''Crafting (to block):'''
+Smelt Raw Tin (from [[Tin Ore]]) in a furnace or blast furnace to produce one Tin Ingot.
 
-{{Grid Crafting Table
-|A1=Tin Ingot |B1=Tin Ingot |C1=Tin Ingot
-|A2=Tin Ingot |B2=Tin Ingot |C2=Tin Ingot
-|A3=Tin Ingot |B3=Tin Ingot |C3=Tin Ingot
-|Output=Tin Block
-}}
+=== Crafting ===
 
-'''Crafting (from block):'''
+Tin Ingots can be packed into and unpacked from their storage forms:
 
 {{Grid Crafting Table
 |B2=Tin Block
 |Output=Tin Ingot |OutputCount=9
 }}
 
-'''Crafting (from nuggets):'''
+'''From a Tin Block:''' 1× Tin Block = 9× Tin Ingot.
 
 {{Grid Crafting Table
 |A1=Tin Nugget |B1=Tin Nugget |C1=Tin Nugget
@@ -42,46 +34,54 @@
 |Output=Tin Ingot
 }}
 
-'''Crafting (to nuggets):'''
+'''From nuggets:''' 9× Tin Nugget = 1× Tin Ingot.
+
+{{Grid Crafting Table
+|A1=Tin Ingot |B1=Tin Ingot |C1=Tin Ingot
+|A2=Tin Ingot |B2=Tin Ingot |C2=Tin Ingot
+|A3=Tin Ingot |B3=Tin Ingot |C3=Tin Ingot
+|Output=Tin Block
+}}
+
+'''To a block:''' 9× Tin Ingot = 1× Tin Block.
 
 {{Grid Crafting Table
 |B2=Tin Ingot
 |Output=Tin Nugget |OutputCount=9
 }}
 
-==Usage==
+'''To nuggets:''' 1× Tin Ingot = 9× Tin Nugget.
 
-'''Bronze Alloy:'''
-* Tin + Copper → [[Bronze Ingot]]
+== Usage ==
 
-'''Gears:'''
-* [[Tin Gear]] - 4× tin ingot
+Tin Ingot is the basis of bronze and several tin components.
 
-'''Dust:'''
-* Grind in the [[Macerator]] → Tin Dust (see [[Dusts]])
+=== Alloying ===
 
-'''Storage:'''
+Combine tin with copper to craft [[Bronze Ingot|bronze ingots]].
+
+=== Gears ===
+
+Craft a [[Tin Gear]] from 4× tin ingot.
+
+=== Grinding ===
+
+Grind tin in the [[Macerator]] for Tin Dust (see [[Dusts]]).
+
+=== Storage ===
+
 * 9× Tin Ingot → Block of Tin
 * 9× Tin Nugget → 1× Tin Ingot
 
-==Tips==
+== History ==
 
-* Common metal, easy to obtain
-* Essential for bronze production
-* Stock up for gear production
+{{History|head=1|foot=1|v0.2.0|Added '''Tin Ingot'''.}}
 
-==Related Items==
+== See also ==
 
-* '''Block of Tin''' - Compact storage (9 ingots)
-* '''Tin Nugget''' - 1/9 of an ingot
-* '''Raw Tin''' / '''Block of Raw Tin''' - Mined drop and its storage block
-* '''Tin Dust''' - Ground form from the [[Macerator]] (see [[Dusts]])
-
-==See Also==
 * [[Tin Ore]] - Source of raw tin (incl. Deepslate Tin Ore)
 * [[Bronze Ingot]] - Tin + copper alloy
 * [[Tin Gear]] - Crafting component
 * [[Dusts]] - Tin Dust and ore doubling
 
 [[Category:Materials]]
-[[Category:Recipes]]

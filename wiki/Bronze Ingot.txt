@@ -1,5 +1,4 @@
-{{Infobox Item
-|name      = Bronze Ingot
+{{Item
 |image     = Grid Bronze Ingot.png
 |id        = logistics:core/bronze_ingot
 |type      = Item (Alloy)
@@ -7,13 +6,15 @@
 |added     = v0.2.0
 }}
 
-'''Bronze Ingot''' is an alloy created from copper and tin. It's used for the [[Machine Core]], [[Sturdy Casing]], bronze valves, and gears.
+'''Bronze Ingot''' is an alloy created from copper and tin. It is used for the [[Machine Core]], [[Sturdy Casing]], bronze valves, and gears.
 
 '''Related forms:''' Bronze has a full storage set — '''Block of Bronze''' (9 ingots) and '''Bronze Nugget''' (1/9 ingot) — plus '''Bronze Dust''' from the [[Macerator]].
 
-==Recipe==
+== Obtaining ==
 
-'''Alloy Crafting:'''
+=== Crafting ===
+
+Bronze Ingot is an alloy of copper and tin:
 
 {{Grid Crafting Table
 |A2=Copper Ingot |B2=Copper Ingot |C2=Copper Ingot
@@ -21,25 +22,16 @@
 |Output=Bronze Ingot |OutputCount=4
 }}
 
-'''Shapeless crafting:''' 3× Copper Ingot + 1× [[Tin Ingot]] = 4× Bronze Ingot
+'''Shapeless:''' 3× Copper Ingot + 1× [[Tin Ingot]] = 4× Bronze Ingot.
 
-'''Crafting (to block):'''
-
-{{Grid Crafting Table
-|A1=Bronze Ingot |B1=Bronze Ingot |C1=Bronze Ingot
-|A2=Bronze Ingot |B2=Bronze Ingot |C2=Bronze Ingot
-|A3=Bronze Ingot |B3=Bronze Ingot |C3=Bronze Ingot
-|Output=Bronze Block
-}}
-
-'''Crafting (from block):'''
+Bronze Ingots can also be packed into and unpacked from their storage forms:
 
 {{Grid Crafting Table
 |B2=Bronze Block
 |Output=Bronze Ingot |OutputCount=9
 }}
 
-'''Crafting (from nuggets):'''
+'''From a Bronze Block:''' 1× Bronze Block = 9× Bronze Ingot.
 
 {{Grid Crafting Table
 |A1=Bronze Nugget |B1=Bronze Nugget |C1=Bronze Nugget
@@ -48,49 +40,59 @@
 |Output=Bronze Ingot
 }}
 
-'''Crafting (to nuggets):'''
+'''From nuggets:''' 9× Bronze Nugget = 1× Bronze Ingot.
+
+{{Grid Crafting Table
+|A1=Bronze Ingot |B1=Bronze Ingot |C1=Bronze Ingot
+|A2=Bronze Ingot |B2=Bronze Ingot |C2=Bronze Ingot
+|A3=Bronze Ingot |B3=Bronze Ingot |C3=Bronze Ingot
+|Output=Bronze Block
+}}
+
+'''To a block:''' 9× Bronze Ingot = 1× Bronze Block.
 
 {{Grid Crafting Table
 |B2=Bronze Ingot
 |Output=Bronze Nugget |OutputCount=9
 }}
 
-==Usage==
+'''To nuggets:''' 1× Bronze Ingot = 9× Bronze Nugget.
 
-'''Machine components:'''
+== Usage ==
+
+Bronze is the basis of machine components and several bronze items.
+
+=== Machine components ===
+
 * [[Machine Core]] - 8× bronze ingot
 * [[Sturdy Casing]] - 8× bronze ingot
 
-'''Valves:'''
-* [[Materials#Bronze Valve|Bronze Valve]] - via a Bronze [[Cores|Core]]
+=== Valves ===
 
-'''Gears:'''
-* [[Bronze Gear]] - 4× bronze ingot
+Craft a [[Valves|Bronze Valve]] via a Bronze [[Cores|Core]].
 
-'''Dust:'''
-* Grind in the [[Macerator]] → Bronze Dust (see [[Dusts]])
+=== Gears ===
 
-'''Storage:'''
+Craft a [[Bronze Gear]] from 4× bronze ingot.
+
+=== Grinding ===
+
+Grind bronze in the [[Macerator]] for Bronze Dust (see [[Dusts]]).
+
+=== Storage ===
+
 * 9× Bronze Ingot → Block of Bronze
 * 9× Bronze Nugget → 1× Bronze Ingot
 
-==Related Items==
+== History ==
 
-* '''Block of Bronze''' - Compact storage (9 ingots)
-* '''Bronze Nugget''' - 1/9 of an ingot
-* '''Bronze Dust''' - Ground form from the [[Macerator]] (see [[Dusts]])
+{{History|head=1|foot=1|v0.2.0|Added '''Bronze Ingot'''.}}
 
-==Tips==
+== See also ==
 
-* Alloy of copper + tin
-* Used for mid-tier components and machine crafting
-* Stock up for mid-tier progression
-
-==See Also==
 * [[Tin Ingot]] - Alloy component
 * [[Machine Core]], [[Sturdy Casing]] - Machine components
 * [[Bronze Gear]] - Crafting component
 * [[Dusts]] - Bronze Dust
 
 [[Category:Materials]]
-[[Category:Recipes]]

@@ -1,16 +1,20 @@
-{{Infobox Item
-|name      = Redstone Engine
-|image     = Grid Redstone Engine.png
-|id        = logistics:power/redstone_engine
-|type      = Block (Engine)
-|stackable = No
-|function  = RF Generation
-|added     = v0.1.0
+{{Block
+|image            = Grid Redstone Engine.png
+|id               = logistics:power/redstone_engine
+|type             = Block (Engine)
+|function         = RF generation
+|stackable        = No
+|transparent      = Partial
+|hardness         = 5.0
+|blastresistance  = 5.0
+|added            = v0.1.0
 }}
 
-The '''Redstone Engine''' is a basic power generator that converts a redstone signal into a small, steady RF energy output. It's the simplest engine in Logistics and cannot overheat.
+The '''Redstone Engine''' is a basic power generator that converts a redstone signal into a small, steady [[RF Energy|RF]] output. It is the simplest engine in Logistics and cannot overheat.
 
-==Recipe==
+== Obtaining ==
+
+=== Crafting ===
 
 {{Grid Crafting Table
 |A1=Planks |B1=Planks |C1=Planks
@@ -19,54 +23,23 @@ The '''Redstone Engine''' is a basic power generator that converts a redstone si
 |Output=Redstone Engine
 }}
 
-'''Yields:''' 1× Redstone Engine
+== Usage ==
 
-==Behavior==
+The Redstone Engine generates RF while powered by a redstone signal (lever, torch, redstone dust, etc.). Energy outputs from one configurable face and transfers directly to the adjacent machine. It has no GUI and no fuel — just place, point, and power. It cannot overheat, so it is always safe to leave running.
 
-The Redstone Engine generates RF energy when powered by a redstone signal. Energy outputs from one configurable face and transfers directly to adjacent machines.
+=== Configuration ===
 
-'''Key features:'''
-* Powered by redstone signal only (no fuel)
-* Small, steady energy output
-* '''Cannot overheat''' - safe to run indefinitely
-* Output face configurable with [[Wrench]]
-* No GUI - just place and power
+Use a [[Wrench]] to set the output face: right-click the engine and the output face cycles through directions. The face touching the machine must be the engine's output face.
 
-==Operation==
+=== Power output ===
 
-# Place engine next to machine
-# Use [[Wrench]] to rotate output face toward machine
-# Apply redstone signal (lever, torch, redstone dust, etc.)
-# Engine runs automatically, generating RF
+The Redstone Engine produces low RF, suitable for light-duty machines, early-game automation, and testing setups. For high-power needs like the [[Laser Quarry]], use a [[Stirling Engine]] instead. In creative mode, the [[Creative Engine]] supplies unlimited RF with no fuel or redstone.
 
-'''Output face:''' The face touching the machine must be the engine's output face.
+== History ==
 
-==Configuration==
+{{History|head=1|foot=1|v0.1.0|Added '''Redstone Engine'''.}}
 
-Use a [[Wrench]] to rotate the output face:
-* Right-click engine with wrench
-* Output face cycles through directions
-* Position output face against machine input
-
-==Power Output==
-
-Redstone Engines produce '''low RF output''' suitable for:
-* Light-duty machines
-* Testing setups
-* Early-game automation
-
-For high-power needs like the [[Laser Quarry]], use a [[Stirling Engine]] instead. In creative mode, the [[Creative Engine]] supplies unlimited RF with no fuel or redstone.
-
-==Tips==
-
-* Simplest engine - no fuel, no overheat management
-* Always safe to leave running
-* Low output limits usefulness for big machines
-* Good for learning the power system
-* Requires constant redstone signal to operate
-* Upgrade to [[Stirling Engine]] for more power
-
-==See Also==
+== See also ==
 * [[RF Energy]] - Understanding the power system
 * [[Stirling Engine]] - High-power alternative
 * [[Creative Engine]] - Unlimited power for creative mode
@@ -75,4 +48,3 @@ For high-power needs like the [[Laser Quarry]], use a [[Stirling Engine]] instea
 * [[Laser Quarry]] - Example power consumer
 
 [[Category:Power]]
-[[Category:Recipes]]

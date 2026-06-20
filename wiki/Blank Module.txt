@@ -1,16 +1,16 @@
-{{Infobox Item
-|name      = Blank Module
+{{Item
 |image     = Grid Blank Module.png
 |id        = logistics:pipe/blank_module
 |type      = Item (Module)
 |stackable = Yes (64)
-|tier      = Tier 3 - Network
 |added     = v0.2.0
 }}
 
-The '''Blank Module''' is the base crafting component for all [[Modules|modules]]. It has no behavior on its own — it is only used as an ingredient in module recipes. Every module type is crafted by combining a Blank Module with specific materials in the crafting grid.
+The '''Blank Module''' is the base crafting component for all [[Modules|modules]]. It has no behavior on its own — it is only used as an ingredient in module recipes. Every module type is crafted by combining a Blank Module with specific materials in the crafting grid, then installed into a [[Logistics Pipes#Chassis Logistics Pipe|Chassis Logistics Pipe]].
 
-==Recipe==
+== Obtaining ==
+
+=== Crafting ===
 
 {{Grid Crafting Table
 |A1=Paper |B1=Redstone |C1=Paper
@@ -19,23 +19,24 @@ The '''Blank Module''' is the base crafting component for all [[Modules|modules]
 |Output=Blank Module
 }}
 
-'''Yields:''' 1× Blank Module
+== Usage ==
 
-==Usage==
+The Blank Module is consumed when crafting any other module type. Craft it in advance so you have a supply ready when building out your [[Logistics Pipes#Chassis Logistics Pipe|Chassis Logistics Pipe]] setup.
 
-The Blank Module is consumed when crafting any other module type. Craft it in advance so you have a supply ready when building out your [[Chassis Logistics Pipe]] setup.
+=== Tips ===
 
-==Tips==
+* Craft Blank Modules in batches — each module type requires one, and a fully loaded chassis needs several.
+* Paper is plentiful from sugar cane farms; gold nuggets come from gold ingots (9 nuggets per ingot).
+* Store a stack of Blank Modules near your logistics crafting area to streamline module production.
 
-* Craft Blank Modules in batches — each module type requires one, and a fully loaded MK5 chassis needs 5
-* Paper is plentiful from sugar cane farms; gold nuggets come from gold ingots (9 nuggets per ingot)
-* Store a stack of Blank Modules near your logistics crafting area to streamline module production
+== History ==
 
-==See Also==
+{{History|head=1|foot=1|v0.2.0|Added '''Blank Module'''.}}
+
+== See also ==
 * [[Modules]] - All available modules
-* [[Chassis Logistics Pipe]] - The pipe that holds modules
+* [[Logistics Pipes#Chassis Logistics Pipe|Chassis Logistics Pipe]] - The pipe that holds modules
 * [[Provider Module]] - Example module crafted from Blank Module
 * [[Extractor Module]] - Example module crafted from Blank Module
 
 [[Category:Modules]]
-[[Category:Recipes]]

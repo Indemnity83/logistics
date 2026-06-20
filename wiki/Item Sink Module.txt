@@ -1,16 +1,16 @@
-{{Infobox Item
-|name      = Item Sink Module
+{{Item
 |image     = Grid Item Sink Module.png
 |id        = logistics:pipe/item_sink_module
 |type      = Item (Module)
 |stackable = Yes (64)
-|tier      = Tier 3 - Network
 |added     = v0.2.0
 }}
 
-The '''Item Sink Module''' is a [[Chassis Logistics Pipe]] module that accepts a '''specific configured item type''' from the [[Pipe Networks|logistics network]] and deposits it into an adjacent inventory. It is the module-form equivalent of a [[Basic Logistics Pipe]] with a strict item filter.
+The '''Item Sink Module''' is a [[Logistics Pipes#Chassis Logistics Pipe|Chassis Logistics Pipe]] module that accepts a '''specific configured item type''' from the [[Pipe Networks|logistics network]] and deposits it into an adjacent inventory. It is the module-form equivalent of a [[Basic Logistics Pipe]] with a strict item filter.
 
-==Recipe==
+== Obtaining ==
+
+=== Crafting ===
 
 {{Grid Crafting Table
 |A1=Copper Dust |B1=Carbon Chip |C1=Copper Dust
@@ -18,36 +18,38 @@ The '''Item Sink Module''' is a [[Chassis Logistics Pipe]] module that accepts a
 |Output=Item Sink Module
 }}
 
-'''Yields:''' 1× Item Sink Module — 2× [[Dusts|Copper Dust]] + [[Chips|Carbon Chip]] + 2× Redstone + [[Blank Module]]
+== Usage ==
 
-==Behavior==
+When installed in a [[Logistics Pipes#Chassis Logistics Pipe|Chassis Logistics Pipe]], this module registers itself as a delivery destination for a configured item type. Network items of the matching type are routed to this chassis and deposited into an adjacent inventory.
 
-When installed in a [[Chassis Logistics Pipe]], this module registers itself as a delivery destination for a configured item type. Network items of the matching type are routed to this chassis and deposited into an adjacent inventory.
+* Accepts one configured item type from the network.
+* Deposits received items into an adjacent inventory.
+* Multiple Item Sink Modules can be installed in a single chassis (using multiple module slots) to accept multiple item types.
+* Does not accept unconfigured or non-matching items.
 
-'''Key features:'''
-* Accepts one configured item type from the network
-* Deposits received items into an adjacent inventory
-* Multiple Item Sink Modules can be installed in a single chassis (using multiple module slots) to accept multiple item types
-* Does not accept unconfigured or non-matching items
-
-==Configuration==
+=== Configuration ===
 
 Use a [[Wrench]] to open the chassis GUI, then configure the module:
 
 '''Target item slot:''' Place the item type this module should accept. Only items matching this type will be routed here.
 
-==Tips==
+=== Tips ===
 
-* Install multiple Item Sink Modules in an MK3+ chassis to create a multi-item sorting station in one pipe
-* Use alongside a [[Quicksort Module]] for a tiered approach: quicksort handles known items, Item Sink catches the rest
-* Leave adjacent storage slots pre-stocked with the target item to help the module recognize the correct inventory slot
+* Install multiple Item Sink Modules in one chassis to create a multi-item sorting station in a single pipe.
+* Use alongside a [[Quicksort Module]] for a tiered approach: quicksort handles known items, Item Sink catches the rest.
+* Leave adjacent storage slots pre-stocked with the target item to help the module recognize the correct inventory slot.
 
-==See Also==
+== History ==
+
+{{History|head=1|foot=1|v0.2.0|Added '''Item Sink Module'''.}}
+
+== See also ==
 * [[Polymorphic Sink Module]] - Accepts any item type that already exists in the adjacent inventory
 * [[Mod Item Sink Module]] - Accepts all items from a specific mod namespace
-* [[Chassis Logistics Pipe]] - Required container
+* [[Modules]] - All available modules
+* [[Logistics Pipes#Chassis Logistics Pipe|Chassis Logistics Pipe]] - Required container
 * [[Blank Module]] - Crafting base
-* [[Iron Gear]] - Crafting component
+* [[Dusts|Copper Dust]] - Crafting component
+* [[Chips|Carbon Chip]] - Module chip
 
 [[Category:Modules]]
-[[Category:Recipes]]

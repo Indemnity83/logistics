@@ -1,16 +1,17 @@
-{{Infobox Item
-|name      = Wrench
+{{Item
 |image     = Grid Wrench.png
 |id        = logistics:tool/wrench
 |type      = Tool
-|stackable = No
 |function  = Configuration
+|stackable = No
 |added     = v0.1.0
 }}
 
 The '''Wrench''' is a configuration tool for pipes, engines, and machines. Use it to rotate output faces, select extraction directions, open filter GUIs, and reset overheated engines.
 
-==Recipe==
+== Obtaining ==
+
+=== Crafting ===
 
 {{Grid Crafting Table
 |A1=Iron Ingot |C1=Iron Ingot
@@ -21,91 +22,42 @@ The '''Wrench''' is a configuration tool for pipes, engines, and machines. Use i
 
 '''Yields:''' 1× Wrench
 
-==Usage==
+== Usage ==
 
-Right-click blocks with the wrench to configure them. Different blocks respond differently:
+Right-click a block with the wrench to configure it; different blocks respond differently. The wrench is non-destructive — it never breaks a block (sneak to break normally), so it can stay in your hotbar while you build.
 
-===Pipe Configuration===
+=== Configuring pipes ===
 
-'''[[Item Merger Pipe]]:'''
-* Cycles output direction
-* Output face marked with opaque connector
-* Items exit only through configured direction
+* '''[[Item Merger Pipe]]''' — cycles the output direction. Items exit only through the configured face, marked by an opaque connector.
+* '''[[Item Extractor Pipe]]''' — cycles the extraction face. Only one face extracts at a time, marked by an opaque connector.
+* '''[[Item Filter Pipe]]''' — opens the filter configuration GUI, where you set which items route to which faces (per-side filters).
 
-'''[[Item Extractor Pipe]]:'''
-* Cycles extraction face
-* Active face marked with opaque connector
-* Only one face extracts at a time
+=== Configuring engines ===
 
-'''[[Item Filter Pipe]]:'''
-* Opens filter configuration GUI
-* Set which items route to which faces
-* Configure per-side filters
+* '''[[Redstone Engine]] / [[Stirling Engine]]''' — rotates the RF output face. The output face must touch the machine's input for power to transfer, so position the engine accordingly.
+* '''[[Stirling Engine]] overheat reset''' — right-click an overheated engine to reset it, letting it cool and restart. This is required after an overheat shutdown.
 
-===Engine Configuration===
+=== Other blocks ===
 
-'''[[Redstone Engine]] / [[Stirling Engine]]:'''
-* Rotates RF output face
-* Output face must touch machine input
-* Position engine correctly for power transfer
+The wrench works with any configurable Logistics block; future machines and components will use it for configuration as well.
 
-'''[[Stirling Engine]] overheat reset:'''
-* Right-click overheated engine to reset
-* Allows engine to cool and restart
-* Required after overheat shutdown
+=== Inspecting blocks ===
 
-===Other Blocks===
-
-The wrench works with any configurable Logistics block. Future machines and components will use the wrench for configuration.
-
-==Inspecting Blocks (Jade HUD)==
-
-The old in-game '''Probe''' tool has been removed. Hover information is now provided through '''[https://www.curseforge.com/minecraft/mc-mods/jade Jade]''' HUD integration, which displays:
+The wrench itself is for configuration only, not inspection. Hover information comes through '''[https://www.curseforge.com/minecraft/mc-mods/jade Jade]''' HUD integration, which displays:
 
 * Pipe contents (items currently inside a pipe)
 * Pipe module status (installed modules in a [[Chassis Logistics Pipe]])
 * Machine progress (Kiln, Macerator, Laser Quarry, etc.)
 * Power and energy diagnostics
 
-Install Jade alongside Logistics to read this information by simply looking at a block. The wrench itself is for configuration only, not inspection.
+Install Jade alongside Logistics to read this information by simply looking at a block.
 
-==Tips==
+== History ==
 
-* Keep wrench in hotbar for quick configuration
-* Output faces shown with opaque connectors
-* Right-click to cycle through options
-* Filter pipes open GUI instead of cycling
-* Essential tool for building complex networks
-* Non-destructive - doesn't break blocks (sneak to break normally)
+{{History|head=1|foot=1|v0.1.0|Added '''Wrench'''.}}
 
-==Common Tasks==
+== See also ==
 
-'''Configure merger output:'''
-<pre>
-Right-click [Item Merger Pipe] → output direction cycles
-</pre>
-
-'''Select extraction face:'''
-<pre>
-Right-click [Item Extractor Pipe] → extraction face cycles
-</pre>
-
-'''Open filter GUI:'''
-<pre>
-Right-click [Item Filter Pipe] → GUI opens for configuration
-</pre>
-
-'''Rotate engine:'''
-<pre>
-Right-click [Engine] → output face rotates
-</pre>
-
-'''Reset overheated engine:'''
-<pre>
-Right-click [Stirling Engine] (overheated) → resets temperature
-</pre>
-
-==See Also==
 * [[Item Merger Pipe]] - Configure output direction
 * [[Item Extractor Pipe]] - Select extraction face
 * [[Item Filter Pipe]] - Open filter GUI
@@ -114,4 +66,3 @@ Right-click [Stirling Engine] (overheated) → resets temperature
 * [[Connectivity]] - Understanding pipe faces
 
 [[Category:Tools]]
-[[Category:Recipes]]

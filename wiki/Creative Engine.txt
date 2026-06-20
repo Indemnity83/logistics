@@ -1,25 +1,33 @@
-{{Infobox Item
-|name      = Creative Engine
-|image     = Grid Creative Engine.png
-|id        = logistics:power/creative_engine
-|type      = Block (Power)
-|stackable = Yes (64)
-|function  = Generates infinite RF
-|added     = v0.6.0
+{{Block
+|image            = Grid Creative Engine.png
+|id               = logistics:power/creative_engine
+|type             = Block (Power)
+|function         = Generates infinite RF
+|stackable        = Yes (64)
+|transparent      = Partial
+|hardness         = 5.0
+|blastresistance  = 5.0
+|added            = v0.6.0
 }}
 
 The '''Creative Engine''' is a power source that produces an unlimited supply of [[RF Energy|RF]] for testing and creative-mode builds. It lets you power a [[Battery]], the logistics network, or any machine without worrying about fuel or engine output.
 
+== Obtaining ==
+
 '''Creative only — not craftable.''' The Creative Engine has no crafting recipe and is intended for testing and creative mode.
 
-==Behavior==
+== Usage ==
 
 * Outputs a steady, configurable amount of RF every tick — effectively infinite power
 * Never runs out of fuel and never overheats
 * Output is delivered through [[Copper Cable|power cables]] just like the [[Redstone Engine]] and [[Stirling Engine]]
 * Useful for charging a [[Battery]] instantly while testing a logistics network
 
-==See Also==
+== History ==
+
+{{History|head=1|foot=1|v0.6.0|Added '''Creative Engine'''.}}
+
+== See also ==
 * [[RF Energy]] - How the power system works
 * [[Battery]] - Stores RF for the logistics network
 * [[Redstone Engine]], [[Stirling Engine]] - Survival-friendly power sources

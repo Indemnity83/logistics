@@ -1,16 +1,16 @@
-{{Infobox Item
-|name      = Enchantment Sink Module
+{{Item
 |image     = Grid Enchantment Sink Module.png
 |id        = logistics:pipe/enchantment_sink_module
 |type      = Item (Module)
 |stackable = Yes (64)
-|tier      = Tier 3 - Network
 |added     = v0.2.0
 }}
 
-The '''Enchantment Sink Module''' is a [[Chassis Logistics Pipe]] module that accepts '''any enchanted item''' from the [[Pipe Networks|logistics network]] and deposits it into an adjacent inventory. It acts as a catch-all for enchanted tools, armor, and books passing through the network.
+The '''Enchantment Sink Module''' is a [[Logistics Pipes#Chassis Logistics Pipe|Chassis Logistics Pipe]] module that accepts '''any enchanted item''' from the [[Pipe Networks|logistics network]] and deposits it into an adjacent inventory. It acts as a catch-all for enchanted tools, armor, and books passing through the network.
 
-==Recipe==
+== Obtaining ==
+
+=== Crafting ===
 
 {{Grid Crafting Table
 |A1=Copper Dust |B1=Amethyst Chip |C1=Copper Dust
@@ -18,29 +18,31 @@ The '''Enchantment Sink Module''' is a [[Chassis Logistics Pipe]] module that ac
 |Output=Enchantment Sink Module
 }}
 
-'''Yields:''' 1× Enchantment Sink Module — 2× [[Dusts|Copper Dust]] + [[Chips|Amethyst Chip]] + 2× Redstone + [[Blank Module]]
+== Usage ==
 
-==Behavior==
+When installed in a [[Logistics Pipes#Chassis Logistics Pipe|Chassis Logistics Pipe]], this module checks every item arriving at the chassis for enchantment data. If an item carries any enchantment (including enchanted books), this module claims it and deposits it into the adjacent inventory. Non-enchanted items of the same type are ignored.
 
-When installed in a [[Chassis Logistics Pipe]], this module checks every item arriving at the chassis for enchantment data. If an item carries any enchantment (including enchanted books), this module claims it and deposits it into the adjacent inventory. Non-enchanted items of the same type are ignored.
+* Accepts any item with enchantment data.
+* Works for all enchanted item types: tools, armor, books, weapons.
+* Does not filter by enchantment type — any enchantment triggers acceptance.
+* Useful for automatically segregating enchanted loot from non-enchanted items.
 
-'''Key features:'''
-* Accepts any item with enchantment NBT data
-* Works for all enchanted item types: tools, armor, books, weapons
-* Does not filter by enchantment type — any enchantment triggers acceptance
-* Useful for automatically segregating enchanted loot from non-enchanted items
+=== Tips ===
 
-==Tips==
+* Place adjacent to an enchanted-item storage chest to automatically collect all enchanted drops from mob farms or quarry output.
+* Combine with a [[Mod Item Sink Module]] to separately route both enchanted items and specific mod items in the same chassis.
 
-* Place adjacent to an enchanted-item storage chest to automatically collect all enchanted drops from mob farms or quarry output
-* Combine with a [[Mod Item Sink Module]] to separately route both enchanted items and specific mod items in the same chassis
-* The book ingredient reflects the module's purpose: capturing enchanted books and items
+== History ==
 
-==See Also==
+{{History|head=1|foot=1|v0.2.0|Added '''Enchantment Sink Module'''.}}
+
+== See also ==
 * [[Item Sink Module]] - Accept a specific configured item type
 * [[Mod Item Sink Module]] - Accept all items from a specific mod namespace
-* [[Chassis Logistics Pipe]] - Required container
+* [[Modules]] - All available modules
+* [[Logistics Pipes#Chassis Logistics Pipe|Chassis Logistics Pipe]] - Required container
 * [[Blank Module]] - Crafting base
+* [[Dusts|Copper Dust]] - Crafting component
+* [[Chips|Amethyst Chip]] - Module chip
 
 [[Category:Modules]]
-[[Category:Recipes]]

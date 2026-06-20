@@ -1,16 +1,16 @@
-{{Infobox Item
-|name      = Terminus Module
+{{Item
 |image     = Grid Terminus Module.png
 |id        = logistics:pipe/terminus_module
 |type      = Item (Module)
 |stackable = Yes (64)
-|tier      = Tier 3 - Network
 |added     = v0.2.0
 }}
 
-The '''Terminus Module''' is a [[Chassis Logistics Pipe]] module that marks the chassis as a '''network terminus''' — a defined end-point in the [[Pipe Networks|logistics network]]. Items routed to this terminus are held or redirected according to the module's configuration.
+The '''Terminus Module''' is a [[Logistics Pipes#Chassis Logistics Pipe|Chassis Logistics Pipe]] module that marks the chassis as a '''network terminus''' — a defined end-point in the [[Pipe Networks|logistics network]]. Items routed to this terminus are held or redirected according to the module's configuration.
 
-==Recipe==
+== Obtaining ==
+
+=== Crafting ===
 
 {{Grid Crafting Table
 |A1=Ender Dust |B1=Redstone Chip |C1=Ender Dust
@@ -18,30 +18,32 @@ The '''Terminus Module''' is a [[Chassis Logistics Pipe]] module that marks the 
 |Output=Terminus Module
 }}
 
-'''Yields:''' 1× Terminus Module — 2× [[Dusts|Ender Dust]] + [[Chips|Redstone Chip]] + 2× Redstone + [[Blank Module]]
+== Usage ==
 
-==Behavior==
+When installed in a [[Logistics Pipes#Chassis Logistics Pipe|Chassis Logistics Pipe]], the Terminus Module prevents items from passing further through the network at this pipe. Items that arrive here are deposited into an adjacent inventory. It effectively creates a dead-end in the network, ensuring items don't loop or get lost.
 
-When installed in a [[Chassis Logistics Pipe]], the Terminus Module prevents items from passing further through the network at this pipe. Items that arrive here are deposited into an adjacent inventory. It effectively creates a dead-end in the network, ensuring items don't loop or get lost.
+* Marks the chassis as a network dead-end.
+* Items arriving at this point are deposited into an adjacent inventory.
+* Prevents routing loops in complex networks.
+* Can be combined with filter modules to create a selective terminus.
 
-'''Key features:'''
-* Marks the chassis as a network dead-end
-* Items arriving at this point are deposited into an adjacent inventory
-* Prevents routing loops in complex networks
-* Can be combined with filter modules to create a selective terminus
+=== Tips ===
 
-==Tips==
+* Use at the physical end of a pipe run to prevent items from bouncing back into the network.
+* Combine with an [[Item Sink Module]] to deposit specific item types at this terminus.
 
-* Use at the physical end of a pipe run to prevent items from bouncing back into the network
-* Combine with an [[Item Sink Module]] to deposit specific item types at this terminus
-* The ender pearl ingredient reflects its role in "closing" or "teleporting" items to a final destination
+== History ==
 
-==See Also==
-* [[Chassis Logistics Pipe]] - Required container
+{{History|head=1|foot=1|v0.2.0|Added '''Terminus Module'''.}}
+
+== See also ==
+* [[Modules]] - All available modules
+* [[Logistics Pipes#Chassis Logistics Pipe|Chassis Logistics Pipe]] - Required container
 * [[Blank Module]] - Crafting base
 * [[Item Sink Module]] - Accept specific items at the terminus
 * [[Satellite Logistics Pipe]] - Named remote destinations
 * [[Pipe Networks]] - Network topology concepts
+* [[Dusts|Ender Dust]] - Crafting component
+* [[Chips|Redstone Chip]] - Module chip
 
 [[Category:Modules]]
-[[Category:Recipes]]

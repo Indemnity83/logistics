@@ -1,18 +1,40 @@
-{{Infobox Item
-|name      = Provider Module
+{{Item
 |image     = Grid Provider Module.png
 |id        = logistics:pipe/provider_module
 |type      = Item (Module)
 |stackable = Yes (64)
-|tier      = Tier 3 - Network
 |added     = v0.2.0
 }}
 
-The '''Provider Module''' is a [[Chassis Logistics Pipe]] module that advertises adjacent inventory contents to the [[Pipe Networks|logistics network]] and fulfills item requests — the same function as a standalone [[Provider Logistics Pipe]], in module form.
+The '''Provider Module''' is a [[Logistics Pipes#Chassis Logistics Pipe|Chassis Logistics Pipe]] module that advertises adjacent inventory contents to the [[Pipe Networks|logistics network]] and fulfills item requests — the same function as a standalone [[Provider Logistics Pipe]], in module form. Two mark variants exist: MK1 (Redstone Chip) and MK2 (Amethyst Chip).
 
-Two mark variants exist: MK1 (Redstone Chip) and MK2 (Amethyst Chip).
+== Obtaining ==
 
-==Variants==
+=== Crafting ===
+
+==== Provider Module (MK1) ====
+
+{{Grid Crafting Table
+|A1=Iron Dust |B1=Redstone Chip |C1=Iron Dust
+|A2=Redstone |B2=Blank Module |C2=Redstone
+|Output=Provider Module
+}}
+
+==== Provider MkII Module ====
+
+{{Grid Crafting Table
+|A1=Iron Dust |B1=Amethyst Chip |C1=Iron Dust
+|A2=Redstone |B2=Blank Module |C2=Redstone
+|Output=Provider MkII Module
+}}
+
+== Usage ==
+
+When installed in a [[Logistics Pipes#Chassis Logistics Pipe|Chassis Logistics Pipe]], this module scans adjacent inventories and registers available items with the network. When a [[Requester Logistics Pipe|Requester]] or [[Supplier Logistics Pipe|Supplier]] requests an item, this module extracts it and routes it through the network.
+
+Use this module when you want provider behavior combined with other module functions in the same chassis — for example, extracting from the same inventory with an [[Extractor Module]].
+
+=== Variants ===
 
 {| class="wikitable"
 ! Variant !! Chip !! Notes
@@ -22,50 +44,24 @@ Two mark variants exist: MK1 (Redstone Chip) and MK2 (Amethyst Chip).
 | Provider MkII Module || Amethyst Chip || Enhanced — provides larger quantities per request cycle
 |}
 
-==Recipes==
+=== Tips ===
 
-All module recipes use the <code>DCD / RBR</code> pattern: Dust (corners), Chip (top center), Redstone (sides + bottom center), Blank Module (center).
+* MK2 is worth the upgrade when servicing high-throughput requests.
+* Combine with an [[Extractor Module]] in one chassis to both extract and provide from the same inventory.
+* Configure an optional item filter to restrict which items this module makes available.
 
-===Provider Module (MK1)===
+== History ==
 
-{{Grid Crafting Table
-|A1=Iron Dust |B1=Redstone Chip |C1=Iron Dust
-|A2=Redstone |B2=Blank Module |C2=Redstone
-|Output=Provider Module
-}}
+{{History|head=1|foot=1|v0.2.0|Added '''Provider Module'''.}}
 
-'''Yields:''' 1× Provider Module (MK1) — 2× [[Dusts|Iron Dust]] + [[Chips|Redstone Chip]] + 2× Redstone + [[Blank Module]]
-
-===Provider MkII Module===
-
-{{Grid Crafting Table
-|A1=Iron Dust |B1=Amethyst Chip |C1=Iron Dust
-|A2=Redstone |B2=Blank Module |C2=Redstone
-|Output=Provider MkII Module
-}}
-
-'''Yields:''' 1× Provider MkII Module — 2× [[Dusts|Iron Dust]] + [[Chips|Amethyst Chip]] + 2× Redstone + [[Blank Module]]
-
-==Behavior==
-
-When installed in a [[Chassis Logistics Pipe]], this module scans adjacent inventories and registers available items with the network. When a [[Requester Logistics Pipe|Requester]] or [[Supplier Logistics Pipe|Supplier]] requests an item, this module extracts it and routes it through the network.
-
-Use this module when you want provider behavior combined with other module functions in the same chassis — for example, extracting from the same inventory with an [[Extractor Module]].
-
-==Tips==
-
-* MK2 is worth the gold gear investment when servicing high-throughput requests
-* Combine with an [[Extractor Module]] in an MK2 chassis to both extract and provide from the same inventory
-* Configure an optional item filter to restrict which items this module makes available
-
-==See Also==
+== See also ==
 * [[Provider Logistics Pipe]] - Standalone version of this behavior
-* [[Chassis Logistics Pipe]] - Required container
+* [[Modules]] - All available modules
+* [[Logistics Pipes#Chassis Logistics Pipe|Chassis Logistics Pipe]] - Required container
 * [[Blank Module]] - Crafting base
-* [[Extractor Module]] - Pairs well in an MK2+ chassis
+* [[Extractor Module]] - Pairs well in a chassis
 * [[Dusts|Iron Dust]] - Crafting component
 * [[Chips|Redstone Chip]] - MK1 chip
 * [[Chips|Amethyst Chip]] - MK2 chip
 
 [[Category:Modules]]
-[[Category:Recipes]]

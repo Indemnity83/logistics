@@ -1,55 +1,49 @@
-{{Infobox Item
-|name      = Tin Ore
+{{Block
 |image     = Grid Tin Ore.png
 |id        = logistics:core/tin_ore
-|type      = Block (Ore)
+|type      = Ore
+|tool      = Stone Pickaxe
+|hardness  = 3
+|blastresistance = 3
+|drops     = Raw Tin
 |stackable = Yes (64)
-|tool      = Pickaxe (Stone+)
 |added     = v0.2.0
 }}
 
 '''Tin Ore''' is a common ore found underground. Smelt its drop to create [[Tin Ingot|tin ingots]] for crafting bronze and tin components. A '''Deepslate Tin Ore''' variant occurs in deepslate layers.
 
-==Obtaining==
+== Obtaining ==
 
-'''Mining:'''
-* Found underground in the Overworld
-* Y-level distribution: (TBD - similar to copper/iron)
-* Drops: Raw Tin
-* Requires stone pickaxe or better
+=== Breaking ===
 
-'''Deepslate variant:'''
-* Deepslate Tin Ore
-* Found in deepslate layers
-* Same drops, harder to mine
+Tin Ore drops '''Raw Tin''' when mined and requires a '''stone pickaxe''' or better. The '''Deepslate Tin Ore''' variant drops the same Raw Tin but is harder to break. Mining with a [[Macerator]] is not required, but grinding the ore there yields '''2× Tin Dust''' (ore doubling, see [[Dusts]]); a Fortune pickaxe increases Raw Tin drops.
 
-==Usage==
+=== Natural generation ===
 
-'''Smelting:'''
-* Raw Tin → [[Tin Ingot]]
-* Used in furnaces or blast furnaces
+Tin Ore generates underground in the Overworld, with the Deepslate Tin Ore variant replacing it in deepslate layers.
 
-'''Grinding:'''
-* Tin Ore / Deepslate Tin Ore → 2× Tin Dust in the [[Macerator]] (ore doubling, see [[Dusts]])
+== Usage ==
 
-'''Storage:'''
-* Block of Raw Tin (9× Raw Tin) - compact storage
+Raw Tin from this ore is processed into tin and bronze components.
 
-==Related Items==
+=== Smelting ===
 
-* '''Deepslate Tin Ore''' - Deepslate-layer variant, same drop
-* '''Raw Tin''' - Mined drop
-* '''Block of Raw Tin''' - Compact storage for Raw Tin
-* '''Tin Dust''' - Ground form from the [[Macerator]] (see [[Dusts]])
+Smelt Raw Tin in a furnace or blast furnace to produce [[Tin Ingot|tin ingots]].
 
-==Tips==
+=== Grinding ===
 
-* Mine with a Fortune pickaxe for more Raw Tin
-* Common ore - easy to find
-* Needed for bronze alloy ([[Bronze Ingot]])
-* Grind in the [[Macerator]] to double your output
+Grind Tin Ore or Deepslate Tin Ore in the [[Macerator]] for '''2× Tin Dust''' per ore (ore doubling, see [[Dusts]]).
 
-==See Also==
+=== Storage ===
+
+Raw Tin can be packed into a '''Block of Raw Tin''' (9× Raw Tin) for compact storage.
+
+== History ==
+
+{{History|head=1|foot=1|v0.2.0|Added '''Tin Ore'''.}}
+
+== See also ==
+
 * [[Tin Ingot]] - Smelted product
 * [[Bronze Ingot]] - Tin + copper alloy
 * [[Tin Gear]] - Crafting component

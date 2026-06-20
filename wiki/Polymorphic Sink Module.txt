@@ -1,16 +1,16 @@
-{{Infobox Item
-|name      = Polymorphic Sink Module
+{{Item
 |image     = Grid Polymorphic Sink Module.png
 |id        = logistics:pipe/polymorphic_sink_module
 |type      = Item (Module)
 |stackable = Yes (64)
-|tier      = Tier 3 - Network
 |added     = v0.2.0
 }}
 
-The '''Polymorphic Sink Module''' is a [[Chassis Logistics Pipe]] module that accepts '''any item type that already exists''' in an adjacent inventory. It dynamically fills existing partial stacks rather than requiring a preconfigured item type like the [[Item Sink Module]].
+The '''Polymorphic Sink Module''' is a [[Logistics Pipes#Chassis Logistics Pipe|Chassis Logistics Pipe]] module that accepts '''any item type that already exists''' in an adjacent inventory. It dynamically fills existing partial stacks rather than requiring a preconfigured item type like the [[Item Sink Module]].
 
-==Recipe==
+== Obtaining ==
+
+=== Crafting ===
 
 {{Grid Crafting Table
 |A1=Copper Dust |B1=Echo Chip |C1=Copper Dust
@@ -18,31 +18,33 @@ The '''Polymorphic Sink Module''' is a [[Chassis Logistics Pipe]] module that ac
 |Output=Polymorphic Sink Module
 }}
 
-'''Yields:''' 1× Polymorphic Sink Module — 2× [[Dusts|Copper Dust]] + [[Chips|Echo Chip]] + 2× Redstone + [[Blank Module]]
+== Usage ==
 
-==Behavior==
+When installed in a [[Logistics Pipes#Chassis Logistics Pipe|Chassis Logistics Pipe]], this module scans the adjacent inventory for existing item types. Any network item that matches a type already present in that inventory is accepted by this module and deposited to fill or extend those stacks.
 
-When installed in a [[Chassis Logistics Pipe]], this module scans the adjacent inventory for existing item types. Any network item that matches a type already present in that inventory is accepted by this module and deposited to fill or extend those stacks.
+* Accepts any item type that already has at least one item in the adjacent inventory.
+* Dynamically updates as the adjacent inventory contents change.
+* Will not accept items for which the adjacent inventory has no existing stack.
+* Ideal for refilling partially depleted storage without configuring each item type manually.
 
-'''Key features:'''
-* Accepts any item type that already has at least one item in the adjacent inventory
-* Dynamically updates as the adjacent inventory contents change
-* Will not accept items for which the adjacent inventory has no existing stack
-* Ideal for refilling partially depleted storage without configuring each item type manually
+=== Tips ===
 
-==Tips==
+* Seed the adjacent inventory with one of each item type you want it to accept — the module handles the rest automatically.
+* Use for buffer chests that get replenished regularly — the module keeps them topped off.
+* Combine with an [[Item Sink Module]] in the same chassis for a two-tier acceptance strategy: polymorphic for the bulk, specific sinks for overflow.
 
-* Seed the adjacent inventory with one of each item type you want it to accept — the module handles the rest automatically
-* Use for buffer chests that get replenished regularly — the module keeps them topped off
-* Combine with an [[Item Sink Module]] in the same chassis for a two-tier acceptance strategy: polymorphic for the bulk, specific sinks for overflow
+== History ==
 
-==See Also==
+{{History|head=1|foot=1|v0.2.0|Added '''Polymorphic Sink Module'''.}}
+
+== See also ==
 * [[Item Sink Module]] - Accept a specifically configured item type
 * [[Mod Item Sink Module]] - Accept all items from a specific mod namespace
 * [[Quicksort Module]] - Route items by type across multiple inventories
-* [[Chassis Logistics Pipe]] - Required container
+* [[Modules]] - All available modules
+* [[Logistics Pipes#Chassis Logistics Pipe|Chassis Logistics Pipe]] - Required container
 * [[Blank Module]] - Crafting base
-* [[Bronze Gear]] - Crafting component
+* [[Dusts|Copper Dust]] - Crafting component
+* [[Chips|Echo Chip]] - Module chip
 
 [[Category:Modules]]
-[[Category:Recipes]]

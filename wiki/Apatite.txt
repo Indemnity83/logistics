@@ -1,5 +1,4 @@
-{{Infobox Item
-|name      = Apatite
+{{Item
 |image     = Grid Apatite.png
 |id        = logistics:core/apatite
 |type      = Item (Gem)
@@ -7,22 +6,24 @@
 |added     = v0.2.0
 }}
 
-'''Apatite''' is a gem obtained from mining [[Apatite Ore|apatite ore]]. It's used for apatite valves. It can be compacted into a '''Block of Apatite''' or ground into '''Apatite Dust''' in the [[Macerator]].
+'''Apatite''' is a gem obtained from mining [[Apatite Ore|apatite ore]]. It is used for apatite valves, and can be compacted into a '''Block of Apatite''' or ground into '''Apatite Dust''' in the [[Macerator]].
 
-==Obtaining==
+== Obtaining ==
 
-'''Mining:'''
-* Mine [[Apatite Ore]]
-* Drops 1× Apatite (more with Fortune)
+=== Mining ===
 
-'''Crafting (from block):'''
+Mine [[Apatite Ore]] to drop apatite gems directly (more with Fortune).
+
+=== Crafting ===
+
+Apatite can be packed into and unpacked from its storage block:
 
 {{Grid Crafting Table
 |B2=Apatite Block
 |Output=Apatite |OutputCount=9
 }}
 
-'''Crafting (to block):'''
+'''From a block:''' 1× Apatite Block = 9× Apatite.
 
 {{Grid Crafting Table
 |A1=Apatite |B1=Apatite |C1=Apatite
@@ -31,33 +32,32 @@
 |Output=Apatite Block
 }}
 
-==Usage==
+'''To a block:''' 9× Apatite = 1× Apatite Block.
 
-'''Valves:'''
-* [[Materials#Apatite Valve|Apatite Valve]] - via an Apatite [[Cores|Core]]
+== Usage ==
 
-'''Dust:'''
-* Grind [[Apatite Ore]] in the [[Macerator]] → Apatite Dust (see [[Dusts]])
+Apatite is a gem-type material used for valves and processing.
 
-'''Storage:'''
-* 9× Apatite → Block of Apatite
+=== Valves ===
 
-==Related Items==
+Craft an [[Valves|Apatite Valve]] via an Apatite [[Cores|Core]]. The valve craft requires a premium fuel such as a blaze rod or lava.
 
-* '''Block of Apatite''' - Compact storage (9 gems)
-* '''Apatite Dust''' - Ground form from the [[Macerator]] (see [[Dusts]])
+=== Grinding ===
 
-==Tips==
+Grind [[Apatite Ore]] in the [[Macerator]] for Apatite Dust (see [[Dusts]]).
 
-* Gem-type material (like diamond/emerald)
-* Fortune enchantment increases drops
-* Needed for Tier 3 valves
-* Requires premium fuel (blaze rod/lava) to craft valve
+=== Storage ===
 
-==See Also==
+Nine apatite pack into a Block of Apatite for compact storage.
+
+== History ==
+
+{{History|head=1|foot=1|v0.2.0|Added '''Apatite'''.}}
+
+== See also ==
+
 * [[Apatite Ore]] - Source of apatite
-* [[Materials#Apatite Valve|Apatite Valve]] - Major use
+* [[Valves|Apatite Valve]] - Major use
 * [[Dusts]] - Apatite Dust
 
 [[Category:Materials]]
-[[Category:Recipes]]

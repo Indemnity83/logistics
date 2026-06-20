@@ -1,16 +1,19 @@
-{{Infobox Item
-|name      = Battery
-|image     = Grid Battery.png
-|id        = logistics:power/battery
-|type      = Block (Power)
-|stackable = Yes (64)
-|function  = Powers the logistics network
-|added     = v0.7.0
+{{Block
+|image            = Grid Battery.png
+|id               = logistics:power/battery
+|type             = Block (Power)
+|function         = Powers the logistics network
+|stackable        = Yes (64)
+|hardness         = 3.0
+|blastresistance  = 3.0
+|added            = v0.7.0
 }}
 
-The '''Battery''' is a power-storage block that energizes a [[Pipe Networks|logistics network]]. Tier 3 logistics pipes draw [[RF Energy|RF]] from a connected Battery to route, supply, and craft items. Without a charged Battery the network stops working entirely — and items already in transit are dropped — until power is restored.
+The '''Battery''' is a power-storage block that energizes a [[Pipe Networks|logistics network]]. [[Basic Logistics Pipe|Logistics pipes]] draw [[RF Energy|RF]] from a connected Battery to route, supply, and craft items. Without a charged Battery the network stops working entirely — and items already in transit are dropped — until power is restored.
 
-==Recipe==
+== Obtaining ==
+
+=== Crafting ===
 
 {{Grid Crafting Table
 |A1=Iron Nugget |B1=Brick |C1=Iron Nugget
@@ -19,31 +22,32 @@ The '''Battery''' is a power-storage block that energizes a [[Pipe Networks|logi
 |Output=Battery
 }}
 
-'''Yields:''' 1× Battery
+== Usage ==
 
-==Behavior==
+The Battery acts as the energy reservoir for the [[Pipe Networks|logistics network]] it connects to. [[Basic Logistics Pipe|Logistics pipes]] and [[Modules|modules]] draw RF from it each time they route, supply, or craft.
 
-* Acts as the energy reservoir for the [[Pipe Networks|logistics network]] it connects to
-* [[Basic Logistics Pipe|Logistics pipes]] and [[Modules|modules]] draw RF from the Battery each time they route, supply, or craft
 * An unpowered network '''stops routing/supplying/crafting and drops in-transit items''' until a charged Battery is connected
-* Logistics pipes are colored '''green when powered''' and '''red when not''', so you can see at a glance whether the network has energy
+* Logistics pipes show '''green when powered''' and '''red when not''', so you can see at a glance whether the network has energy
 * Charge level is shown as a fill bar on the placed block and as a green charge bar on the item
 * If several Batteries serve one network, they are drawn in the order they were connected
 
-==Powering a Battery==
+=== Power ===
 
 A Battery is charged with RF produced by an [[Engines & Power|engine]] and delivered through [[Copper Cable|power cables]]:
 
 * [[Redstone Engine]] / [[Stirling Engine]] / [[Creative Engine]] generate RF
 * [[Copper Cable]], [[Gold Cable]], and [[Ender Cable]] carry that RF to the Battery at increasing transfer rates
 
-Note that Tier 1 extraction pipes (the [[Item Extractor Pipe]] and [[Fluid Extractor Pipe]]) are paced by an adjacent '''engine''' instead, not the network Battery.
+Note that extraction pipes (the [[Item Extractor Pipe]] and [[Fluid Extractor Pipe]]) are paced by an adjacent '''engine''' instead, not the network Battery.
 
-==See Also==
+== History ==
+
+{{History|head=1|foot=1|v0.7.0|Added '''Battery'''.}}
+
+== See also ==
 * [[RF Energy]] - How the power system works
 * [[Engines & Power]] - Generating RF
 * [[Copper Cable]], [[Gold Cable]], [[Ender Cable]] - Distributing RF
 * [[Basic Logistics Pipe]] - The network these power
 
 [[Category:Power]]
-[[Category:Recipes]]

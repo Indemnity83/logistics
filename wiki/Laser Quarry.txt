@@ -1,17 +1,19 @@
-{{Infobox Item
-|name      = Laser Quarry
-|image     = Grid Laser Quarry.png
-|id        = logistics:automation/laser_quarry
-|type      = Block (Machine)
-|stackable = Yes (64)
-|function  = Automated mining
-|energy    = RF Energy
-|added     = v0.1.0
+{{Block
+|image            = Grid Laser Quarry.png
+|id               = logistics:automation/laser_quarry
+|type             = Block (Machine)
+|function         = Automated mining
+|stackable        = Yes (64)
+|hardness         = 5.0
+|blastresistance  = 5.0
+|added            = v0.1.0
 }}
 
-The '''Laser Quarry''' is a powered mining machine that automatically excavates an area below it down to bedrock. It builds its own frame and mines continuously when powered with RF energy. By default it mines a 16×16 area, but you can use [[Marker|markers]] to define custom boundaries of any size.
+The '''Laser Quarry''' is a powered mining machine that automatically excavates an area below it down to bedrock. It builds its own frame and mines continuously when powered with [[RF Energy|RF]]. By default it mines a 16×16 area, but you can use [[Marker|markers]] to define custom boundaries of any size.
 
-==Recipe==
+== Obtaining ==
+
+=== Crafting ===
 
 {{Grid Crafting Table
 |A1=Diamond Gear |B1=Diamond Gear |C1=Diamond Gear
@@ -20,124 +22,57 @@ The '''Laser Quarry''' is a powered mining machine that automatically excavates 
 |Output=Laser Quarry
 }}
 
-'''Yields:''' 1× Laser Quarry (requires [[Machine Core]], 5× Iron Ingot, 3× [[Diamond Gear]])
+Requires a [[Machine Core]], 5× Iron Ingot, and 3× [[Diamond Gear]].
 
-==Behavior==
+== Usage ==
 
-The Laser Quarry automatically mines an area below itself. When placed and powered, it:
+When placed and powered, the Laser Quarry constructs a mining frame around the target area, then excavates layer by layer down to bedrock, running indefinitely until it bottoms out. Mined blocks output from the top of the quarry into a chest or pipe. Mining speed scales with power throughput, and the quarry stops if power is interrupted.
 
-# '''Builds frame''' - Constructs mining frame structure around the area
-# '''Mines downward''' - Excavates layer by layer to bedrock
-# '''Outputs items''' - Mined blocks output from the top of the quarry
-# '''Runs indefinitely''' - Continues until it reaches bedrock
+=== Mining area ===
 
-'''Key features:'''
-* Automatic frame construction
-* Default 16×16 mining area (customizable with markers)
-* Requires RF power to operate
-* Mining speed scales with power throughput
-* Items output from top (into chest or pipe)
-* No fuel needed - only RF energy
-
-==Mining Area==
-
-'''Default (no markers):'''
-* Mines a 16×16 area
-* Centered on the quarry's placement
+'''Default (no markers):''' mines a 16×16 area centered on the quarry's placement.
 
 '''Custom area (with [[Marker|markers]]):'''
+
 # Place three [[Marker|markers]] in a right-triangle (L-shape) to outline the area
 # Activate the markers to define the rectangular boundary
 # Place the quarry adjacent to the marked boundary
-# Quarry uses the marked boundary for mining instead of the default
-# Can create any size area (above the minimum)
+# The quarry consumes the markers and mines that boundary instead of the default 16×16
 
-This allows you to define exactly what area to mine, avoiding buildings, important terrain, or other quarries. See [[Marker]] for full placement rules.
+This lets you define exactly what area to mine, avoiding buildings, important terrain, or other quarries. See [[Marker]] for full placement rules.
 
-==Setup==
+=== Power ===
 
-'''Basic setup (16×16 default):'''
-# '''Place quarry''' at desired location (mining happens below)
-# '''Connect power''' - Attach [[Stirling Engine]] or other RF source
-# '''Connect collection''' - Place chest or pipe on top to receive items
-# '''Provide power''' - Ensure engine has fuel and redstone signal
-# '''Quarry runs automatically''' - Frame builds, then mining begins
+The Laser Quarry consumes [[RF Energy|RF]] continuously while mining. A [[Stirling Engine]] is the recommended source — connect its output face directly to the quarry. More RF throughput means faster mining; a well-fed quarry mines faster than a power-starved one, and the quarry stops entirely without power.
 
-'''Custom area setup (with markers):'''
-# '''Place markers''' - Outline the area you want to mine
-# '''Place quarry''' - Adjacent to any side of the marker boundary
-# '''Markers break''' - Quarry consumes markers and uses that boundary
-# '''Connect power and collection''' - Same as basic setup
-# '''Quarry mines custom area''' - Uses marked boundaries instead of default 16×16
+=== Setup ===
 
-==Power Requirements==
+# '''Place the quarry''' at the desired location (mining happens below)
+# '''Connect power''' — attach a [[Stirling Engine]] or other RF source
+# '''Connect collection''' — place a chest or pipe on top to receive items
+# '''Provide power''' — the frame builds, then mining begins automatically
 
-The Laser Quarry consumes RF energy continuously while mining:
+=== Item collection ===
 
-* '''Power source:''' [[Stirling Engine]] recommended
-* '''Power scaling:''' More RF throughput = faster mining
-* '''No operation without power''' - Quarry stops if power is interrupted
+Mined items output from the top of the quarry into any connected inventory or pipe (no extractor needed).
 
-Connect the engine's output face directly to the quarry.
-
-==Item Collection==
-
-Mined items are '''output from the top of the quarry''':
-
-'''Collection options:'''
-
-'''With chest:'''
-<pre>
-     [Chest]
-        ↑
-  [Laser Quarry]
-</pre>
-
-'''With pipes:'''
 <pre>
 [Copper Transport Pipe] → [Filter Pipe] → [Storage]
          ↑
   [Laser Quarry]
 </pre>
 
-'''Tips for collection:'''
-* Place chest on top for simple storage
-* Or connect any pipe on top (no extractor needed)
-* Use [[Item Filter Pipe|Item Filter Pipes]] to sort valuable ores
-* Consider [[Item Void Pipe]] for cobblestone/dirt overflow
-* Items output directly into connected inventory/pipe
+Use [[Item Filter Pipe|Item Filter Pipes]] to sort valuable ores and an [[Item Void Pipe]] to discard cobblestone and dirt overflow. Set up sorting before starting large-scale mining.
 
-==Jade HUD==
+=== Jade HUD ===
 
 With [https://www.curseforge.com/minecraft/mc-mods/jade Jade] installed, looking at a Laser Quarry shows its live status in the HUD — including its working state and mining progress — so you can monitor it without opening the GUI.
 
-==Tips==
+== History ==
 
-* Mining speed depends on RF throughput from engine
-* Well-fed quarry mines faster than power-starved one
-* Frame builds automatically - no manual construction
-* Default 16×16 area - use markers for custom sizes
-* Use markers to avoid mining your base or other structures
-* Markers are consumed when quarry activates (you get them back)
-* Mines all blocks (stone, ores, dirt, gravel, etc.)
-* Set up item sorting before starting large-scale mining
-* Multiple quarries can run simultaneously with separate power
-* Quarry stops at bedrock
+{{History|head=1|foot=1|v0.1.0|Added '''Laser Quarry'''.}}
 
-==Common Setup==
-
-'''Complete quarry system:'''
-<pre>
-[Stirling Engine] → [Laser Quarry]
-                         ↑ (outputs to top)
-                    [Transport Pipe]
-                         ↓
-                    [Filter Pipe] → [Ores] → [Storage]
-                         ↓
-                    [Void Pipe] ← [Cobblestone/dirt]
-</pre>
-
-==See Also==
+== See also ==
 * [[Marker]] - Define a custom mining area
 * [[Stirling Engine]] - Recommended power source
 * [[RF Energy]] - Power system
@@ -149,4 +84,3 @@ With [https://www.curseforge.com/minecraft/mc-mods/jade Jade] installed, looking
 * [[Macerator]] - Process mined ores into dust for doubling
 
 [[Category:Machines]]
-[[Category:Recipes]]

@@ -1,16 +1,16 @@
-{{Infobox Item
-|name      = Quicksort Module
+{{Item
 |image     = Grid Quicksort Module.png
 |id        = logistics:pipe/quicksort_module
 |type      = Item (Module)
 |stackable = Yes (64)
-|tier      = Tier 3 - Network
 |added     = v0.2.0
 }}
 
-The '''Quicksort Module''' is a [[Chassis Logistics Pipe]] module that '''automatically sorts items''' into designated storage locations within the [[Pipe Networks|logistics network]]. It scans available storage and routes items to inventories that already contain matching item types.
+The '''Quicksort Module''' is a [[Logistics Pipes#Chassis Logistics Pipe|Chassis Logistics Pipe]] module that '''automatically sorts items''' into designated storage locations within the [[Pipe Networks|logistics network]]. It scans available storage and routes items to inventories that already contain matching item types.
 
-==Recipe==
+== Obtaining ==
+
+=== Crafting ===
 
 {{Grid Crafting Table
 |A1=Diamond Dust |B1=Echo Chip |C1=Diamond Dust
@@ -18,31 +18,33 @@ The '''Quicksort Module''' is a [[Chassis Logistics Pipe]] module that '''automa
 |Output=Quicksort Module
 }}
 
-'''Yields:''' 1× Quicksort Module — 2× [[Dusts|Diamond Dust]] + [[Chips|Echo Chip]] + 2× Redstone + [[Blank Module]]
+== Usage ==
 
-==Behavior==
+When installed in a [[Logistics Pipes#Chassis Logistics Pipe|Chassis Logistics Pipe]], the Quicksort Module intercepts items arriving at the chassis from the network and intelligently routes each item to a storage location that already holds that item type. This fills existing stacks before opening new storage slots, keeping your network organized automatically.
 
-When installed in a [[Chassis Logistics Pipe]], the Quicksort Module intercepts items arriving at the chassis from the network and intelligently routes each item to a storage location that already holds that item type. This fills existing stacks before opening new storage slots, keeping your network organized automatically.
+* Routes items to existing partial stacks of the same type.
+* Reduces storage fragmentation by consolidating item types.
+* Requires [[Provider Logistics Pipe|Provider Logistics Pipes]] nearby to know where items are stored.
+* Items with no existing storage destination fall through to the default route.
 
-'''Key features:'''
-* Routes items to existing partial stacks of the same type
-* Reduces storage fragmentation by consolidating item types
-* Requires [[Provider Logistics Pipe|Provider Logistics Pipes]] nearby to know where items are stored
-* Items with no existing storage destination fall through to the default route
+=== Tips ===
 
-==Tips==
+* Place in a chassis near your main storage array — items passing through will be sorted as they arrive.
+* Works best when paired with a well-organized storage system where each inventory type stores one item category.
+* If an item has no existing home, it may land on the default route — add an [[Item Sink Module]] as a fallback.
 
-* Place in a chassis near your main storage array — items passing through will be sorted as they arrive
-* Works best when paired with a well-organized storage system where each inventory type stores one item category
-* If an item has no existing home, it may land on the default route — add an [[Item Sink Module]] as a fallback
+== History ==
 
-==See Also==
-* [[Chassis Logistics Pipe]] - Required container
+{{History|head=1|foot=1|v0.2.0|Added '''Quicksort Module'''.}}
+
+== See also ==
+* [[Modules]] - All available modules
+* [[Logistics Pipes#Chassis Logistics Pipe|Chassis Logistics Pipe]] - Required container
 * [[Blank Module]] - Crafting base
 * [[Item Sink Module]] - Accept specific item types as fallback
 * [[Polymorphic Sink Module]] - Fills existing stacks of any type
 * [[Provider Logistics Pipe]] - Provides location information for sorting
-* [[Diamond Gear]] - Crafting component
+* [[Dusts|Diamond Dust]] - Crafting component
+* [[Chips|Echo Chip]] - Module chip
 
 [[Category:Modules]]
-[[Category:Recipes]]
