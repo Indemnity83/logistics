@@ -16,21 +16,10 @@
 
 Tin Ingots unpack from their storage forms:
 
-{{Grid Crafting Table
-|B2=Tin Block
-|Output=Tin Ingot |OutputCount=9
-}}
-
-'''From a block:''' 1× [[Block of Tin]] = 9× Tin Ingot.
-
-{{Grid Crafting Table
-|A1=Tin Nugget |B1=Tin Nugget |C1=Tin Nugget
-|A2=Tin Nugget |B2=Tin Nugget |C2=Tin Nugget
-|A3=Tin Nugget |B3=Tin Nugget |C3=Tin Nugget
-|Output=Tin Ingot
-}}
-
-'''From nuggets:''' 9× [[Tin Nugget]] = 1× Tin Ingot.
+{{Crafting|head=1|showdescription=1
+|name=Tin Ingot |B2=Tin Block |Output=Tin Ingot,9 |description=Unpack a [[Block of Tin]].}}
+{{Crafting|foot=1
+|name=Tin Ingot |A1=Tin Nugget |B1=Tin Nugget |C1=Tin Nugget |A2=Tin Nugget |B2=Tin Nugget |C2=Tin Nugget |A3=Tin Nugget |B3=Tin Nugget |C3=Tin Nugget |Output=Tin Ingot |description=Combine nine [[Tin Nugget|Tin Nuggets]].}}
 
 === Smelting ===
 
@@ -49,38 +38,14 @@ Tin Ingot is the basis of bronze and several tin components.
 
 === Crafting ingredient ===
 
-{{Grid Crafting Table
-|A2=Copper Ingot |B2=Copper Ingot |C2=Copper Ingot
-|A3=Tin Ingot
-|Output=Bronze Ingot |OutputCount=4
-}}
-
-'''Shapeless:''' 3× [[Copper Ingot]] + 1× Tin Ingot = 4× [[Bronze Ingot]].
-
-{{Grid Crafting Table
-|B1=Tin Ingot
-|A2=Tin Ingot |B2=Copper Gear |C2=Tin Ingot
-|B3=Tin Ingot
-|Output=Tin Gear
-}}
-
-'''Gear:''' 4× Tin Ingot around a [[Copper Gear]] = 1× [[Tin Gear]].
-
-{{Grid Crafting Table
-|A1=Tin Ingot |B1=Tin Ingot |C1=Tin Ingot
-|A2=Tin Ingot |B2=Tin Ingot |C2=Tin Ingot
-|A3=Tin Ingot |B3=Tin Ingot |C3=Tin Ingot
-|Output=Tin Block
-}}
-
-'''To a block:''' 9× Tin Ingot = 1× [[Block of Tin]].
-
-{{Grid Crafting Table
-|B2=Tin Ingot
-|Output=Tin Nugget |OutputCount=9
-}}
-
-'''To nuggets:''' 1× Tin Ingot = 9× [[Tin Nugget]].
+{{Crafting|head=1|showdescription=1
+|name=[[Bronze Ingot]] |A2=Copper Ingot |B2=Copper Ingot |C2=Copper Ingot |A3=Tin Ingot |Output=Bronze Ingot,4 |description=Shapeless — 3× [[Copper Ingot]] + 1× Tin Ingot.}}
+{{Crafting
+|name=[[Tin Gear]] |B1=Tin Ingot |A2=Tin Ingot |B2=Copper Gear |C2=Tin Ingot |B3=Tin Ingot |Output=Tin Gear |description=Tin around a [[Copper Gear]].}}
+{{Crafting
+|name=[[Block of Tin]] |A1=Tin Ingot |B1=Tin Ingot |C1=Tin Ingot |A2=Tin Ingot |B2=Tin Ingot |C2=Tin Ingot |A3=Tin Ingot |B3=Tin Ingot |C3=Tin Ingot |Output=Tin Block |description=Pack nine into a [[Block of Tin]].}}
+{{Crafting|foot=1
+|name=[[Tin Nugget]] |B2=Tin Ingot |Output=Tin Nugget,9 |description=Split a Tin Ingot into nuggets.}}
 
 === Grinding ===
 
