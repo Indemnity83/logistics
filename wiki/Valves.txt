@@ -1,0 +1,47 @@
+'''Valves''' are crafting components that pair with [[Cores]] to build the [[Logistics Pipes]]. Every valve shares one recipe — a frame of [[Cores#Quartz Crystal|Quartz Crystal]] with Iron and Gold nuggets along the bottom, around a [[Cores|core]] — and differs only by which core sits in the center, which determines the pipe it builds.
+
+== Variants ==
+
+{{Crafting|head=1|showdescription=1
+|name=Wooden Valve    |A1=Quartz Crystal |B1=Quartz Crystal |C1=Quartz Crystal |A2=Quartz Crystal |B2=Wooden Core |C2=Quartz Crystal |A3=Iron Nugget |B3=Gold Nugget |C3=Iron Nugget |Output=Wooden Valve |description=Reserved for a future network pipe.}}
+{{Crafting
+|name=Copper Valve    |A1=Quartz Crystal |B1=Quartz Crystal |C1=Quartz Crystal |A2=Quartz Crystal |B2=Copper Core |C2=Quartz Crystal |A3=Iron Nugget |B3=Gold Nugget |C3=Iron Nugget |Output=Copper Valve |description=Reserved for a future network pipe.}}
+{{Crafting
+|name=Iron Valve      |A1=Quartz Crystal |B1=Quartz Crystal |C1=Quartz Crystal |A2=Quartz Crystal |B2=Iron Core |C2=Quartz Crystal |A3=Iron Nugget |B3=Gold Nugget |C3=Iron Nugget |Output=Iron Valve |description=Builds the [[Logistics Pipes#Provider Logistics Pipe|Provider]] pipe and Chassis MkI.}}
+{{Crafting
+|name=Bronze Valve    |A1=Quartz Crystal |B1=Quartz Crystal |C1=Quartz Crystal |A2=Quartz Crystal |B2=Bronze Core |C2=Quartz Crystal |A3=Iron Nugget |B3=Gold Nugget |C3=Iron Nugget |Output=Bronze Valve |description=Builds the [[Logistics Pipes#Crafting Logistics Pipe|Crafting]] pipe and Chassis MkII.}}
+{{Crafting
+|name=Gold Valve      |A1=Quartz Crystal |B1=Quartz Crystal |C1=Quartz Crystal |A2=Quartz Crystal |B2=Gold Core |C2=Quartz Crystal |A3=Iron Nugget |B3=Gold Nugget |C3=Iron Nugget |Output=Gold Valve |description=Builds the [[Logistics Pipes#Process Logistics Pipe|Process]] pipe and Chassis MkIII.}}
+{{Crafting
+|name=Lapis Valve     |A1=Quartz Crystal |B1=Quartz Crystal |C1=Quartz Crystal |A2=Quartz Crystal |B2=Lapis Core |C2=Quartz Crystal |A3=Iron Nugget |B3=Gold Nugget |C3=Iron Nugget |Output=Lapis Valve |description=Builds the [[Logistics Pipes#Satellite Logistics Pipe|Satellite]] pipe.}}
+{{Crafting
+|name=Diamond Valve   |A1=Quartz Crystal |B1=Quartz Crystal |C1=Quartz Crystal |A2=Quartz Crystal |B2=Diamond Core |C2=Quartz Crystal |A3=Iron Nugget |B3=Gold Nugget |C3=Iron Nugget |Output=Diamond Valve |description=Builds the [[Logistics Pipes#Requester Logistics Pipe|Requester]] pipe and Chassis MkIV.}}
+{{Crafting
+|name=Emerald Valve   |A1=Quartz Crystal |B1=Quartz Crystal |C1=Quartz Crystal |A2=Quartz Crystal |B2=Emerald Core |C2=Quartz Crystal |A3=Iron Nugget |B3=Gold Nugget |C3=Iron Nugget |Output=Emerald Valve |description=Builds the [[Logistics Pipes#Supplier Logistics Pipe|Supplier]] pipe.}}
+{{Crafting
+|name=Apatite Valve   |A1=Quartz Crystal |B1=Quartz Crystal |C1=Quartz Crystal |A2=Quartz Crystal |B2=Apatite Core |C2=Quartz Crystal |A3=Iron Nugget |B3=Gold Nugget |C3=Iron Nugget |Output=Apatite Valve |description=Reserved for a future network pipe.}}
+{{Crafting
+|name=Obsidian Valve  |A1=Quartz Crystal |B1=Quartz Crystal |C1=Quartz Crystal |A2=Quartz Crystal |B2=Obsidian Core |C2=Quartz Crystal |A3=Iron Nugget |B3=Gold Nugget |C3=Iron Nugget |Output=Obsidian Valve |description=Reserved for a future network pipe.}}
+{{Crafting
+|name=Netherite Valve |A1=Quartz Crystal |B1=Quartz Crystal |C1=Quartz Crystal |A2=Quartz Crystal |B2=Netherite Core |C2=Quartz Crystal |A3=Iron Nugget |B3=Gold Nugget |C3=Iron Nugget |Output=Netherite Valve |description=Builds Chassis MkV.}}
+{{Crafting
+|name=Ender Valve     |A1=Quartz Crystal |B1=Quartz Crystal |C1=Quartz Crystal |A2=Quartz Crystal |B2=Ender Core |C2=Quartz Crystal |A3=Iron Nugget |B3=Gold Nugget |C3=Iron Nugget |Output=Ender Valve |description=Reserved for a future network pipe.}}
+{{Crafting|foot=1
+|name=Blazing Valve   |A1=Quartz Crystal |B1=Quartz Crystal |C1=Quartz Crystal |A2=Quartz Crystal |B2=Blazing Core |C2=Quartz Crystal |A3=Iron Nugget |B3=Gold Nugget |C3=Iron Nugget |Output=Blazing Valve |description=Reserved for a future network pipe.}}
+
+== Usage ==
+
+Valves are ingredients only. Each [[Logistics Pipes|logistics pipe]] and Chassis mark calls for a specific valve, which in turn needs the matching [[Cores|core]] and a supply of [[Cores#Quartz Crystal|Quartz Crystal]]. Several valves (Wooden, Copper, Apatite, Obsidian, Ender, Blazing) are reserved for pipes planned in future updates.
+
+== History ==
+
+{{History|head=1|foot=1|v0.2.0|Added the valve set.}}
+
+== See also ==
+
+* [[Cores]] — the center ingredient that defines each valve
+* [[Logistics Pipes]] — what valves are used to build
+* [[Gears]] — the other major logistics crafting component
+* [[Materials]] — all crafting components
+
+[[Category:Materials]]
