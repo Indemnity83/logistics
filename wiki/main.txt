@@ -1,76 +1,48 @@
 <mainpage-leftcolumn-start />
 
+Welcome to the '''{{SITENAME}}''' — the player-maintained guide to '''Logistics''', a Minecraft automation mod by [[User:Indemnity83|Indemnity83]] that adds transport pipes, fluids, power, and machines for moving resources around your world.
 
-
-Welcome to the '''{{SITENAME}}''', a player-maintained wiki for '''Logistics''', a Minecraft mod by [[User:Indemnity83|Indemnity83]] focused on item transport, fluid transport, storage, power, and automation.
-
-Logistics is inspired by the classic pipe-and-machine style of Minecraft automation mods, while being rebuilt as a modern standalone mod for current Minecraft versions. This wiki documents blocks, items, recipes, pipe behavior, fluid handling, modules, compatibility, and getting-started guides.
-
-==Getting started==
-
-New to Logistics? These pages are the best place to begin:
-
-* [[Getting Started]]
-* [[Recipes]]
-* [[Pipes]]
-* [[Energy]]
-* [[Machines]]
-
-
-==Important pages==
-
-{| class="wikitable"
-! Page !! Description
-|-
-| [[Getting Started]] || A beginner-friendly guide to building your first Logistics network.
-|-
-| [[Pipes]] || Overview of pipe types and how networks connect.
-|-
-| [[Item Pipes]] || Item transport pipes, extraction, routing, and behavior.
-|-
-| [[Fluid Pipes]] || Fluid transport pipes, tanks, pumps, and liquid movement.
-|-
-| [[Glass Tank]] || Basic fluid storage block.
-|-
-| [[Engines & Power]] || Power source used by Logistics machines and extraction systems.
-|-
-| [[Battery]] || Stores RF and powers the logistics network.
-|-
-| [[Recipes]] || Crafting recipes for Logistics blocks and items.
-|-
+{| style="width:100%; border:1px solid rgba(127,127,127,0.35); margin:10px 0;"
+| style="padding:12px; vertical-align:middle;" | '''New here?''' Start with '''[[Getting Started]]''', then build your '''[[Your First Pipe Network|first pipe network]]''', grab the mod on the [[Installation|install]] page, and learn how progression works in the '''[[Tier System]]'''.
 |}
+
+==Browse by topic==
+
+{| style="width:100%; border-spacing:8px; border-collapse:separate;"
+|- style="vertical-align:top;"
+| style="width:50%; padding:10px; border:1px solid rgba(127,127,127,0.35);" | [[File:Grid Copper Transport Pipe.png|left|56px|link=Pipes]] '''[[Pipes]]'''<br>Move items through connected networks — from basic transport to smart routing and a full logistics system.<br><small>[[Item Pipes]] · [[Pipe Networks]] · [[Routing]]</small>
+| style="width:50%; padding:10px; border:1px solid rgba(127,127,127,0.35);" | [[File:Grid Glass Tank.png|left|56px|link=Fluid Pipes]] '''[[Fluid Pipes|Fluids]]'''<br>Pump, pipe, and store liquids with a standalone fluid system separate from the item network.<br><small>[[Glass Tank]] · [[Pump]] · [[Fluid Pipes|Fluid pipes]]</small>
+|-
+| style="width:50%; padding:10px; border:1px solid rgba(127,127,127,0.35);" | [[File:Grid Stirling Engine.png|left|56px|link=Energy]] '''[[Energy|Power]]'''<br>Generate RF with engines and power the network with batteries and cables.<br><small>[[Battery]] · [[Stirling Engine]] · [[Copper Cable|Cables]]</small>
+| style="width:50%; padding:10px; border:1px solid rgba(127,127,127,0.35);" | [[File:Grid Macerator.png|left|56px|link=Machines]] '''[[Machines|Automation]]'''<br>Machines that grind, smelt, and mine for you.<br><small>[[Macerator]] · [[Kiln]] · [[Laser Quarry]]</small>
+|-
+| style="width:50%; padding:10px; border:1px solid rgba(127,127,127,0.35);" | [[File:Grid Extractor Module.png|left|56px|link=Modules]] '''[[Modules]]'''<br>Slot modules into [[Chassis Logistics Pipe|chassis pipes]] to build custom logistics nodes.<br><small>[[Provider Module]] · [[Extractor Module]] · [[Crafter Module]]</small>
+| style="width:50%; padding:10px; border:1px solid rgba(127,127,127,0.35);" | [[File:Grid Iron Gear.png|left|56px|link=Materials]] '''[[Materials]]'''<br>Gears, valves, dusts, and the crafting components behind everything.<br><small>[[Dusts]] · [[Chips]] · [[Cores]]</small>
+|}
+
+==Tools & reference==
+
+* [[File:Grid Wrench.png|20px|link=Wrench]] '''[[Tools]]''' — [[Wrench]] and [[Marking Fluid]] for configuring and color-coding your build
+* '''[[Recipes]]''' — how crafting recipes are shown across the wiki
+* '''Core concepts''' — [[Tier System]] · [[Pipe Networks]] · [[Connectivity]] · [[Routing]] · [[Item Transport]]
 
 ==Contributing==
 
-This wiki is currently being rebuilt after being reopened. Some pages may still be missing, incomplete, or left over from the previous placeholder content.
-
-You can help by improving pages, adding recipes, documenting behavior, uploading item images, or fixing outdated information. When adding information, please try to match the behavior of the latest released version of Logistics.
+You can help by improving pages, adding recipes, documenting behavior, uploading item images, or fixing outdated information. Please match the behavior of the latest released version of Logistics.
 
 <mainpage-endcolumn /><mainpage-rightcolumn-start />[[File:Logistics_Automation_Logo.png|alt=Logistics Automation Logo|frameless|300x300px]]
 
 ==About Logistics==
 
-'''Logistics''' is a Minecraft automation mod that adds transport pipes, fluid pipes, tanks, power systems, and related tools for moving resources around a world.
+'''Logistics''' is inspired by the classic pipe-and-machine style of Minecraft automation mods, rebuilt as a modern standalone mod. It adds transport pipes, fluids, tanks, power systems, machines, and tools for moving resources around a world.
 
-The mod is developed by '''Indemnity83''' and is available through common Minecraft mod distribution platforms.
+Currently targeting '''Minecraft 26.1''' on '''Fabric & NeoForge'''. Developed by '''Indemnity83'''.
 
-==Useful links==
+==Get the mod==
 
-* [https://github.com/Indemnity83/logistics GitHub]
 * [https://modrinth.com/mod/logistics Modrinth]
 * [https://www.curseforge.com/minecraft/mc-mods/logistics CurseForge]
-
-==Wiki status==
-
-This wiki is being maintained as documentation for the Logistics Minecraft mod, currently targeting '''Minecraft 26.1''' on '''Fabric & NeoForge'''.
-
-The item pipes, [[Fluid Pipes|fluid pipes]], [[Glass Tank]], [[Pump]], and the [[Battery]]-based [[Energy|power system]] are now documented. Current priorities:
-
-* Fill in remaining module and Tier 3 logistics pipe pages
-* Add crafting recipes to pages that still lack them
-* Upload item icons (see asset upload map)
-* Keep version, loader, and behavior notes in sync with releases
-* Organize pages into useful categories
+* [https://github.com/Indemnity83/logistics GitHub]
 
 ==Browse==
 
@@ -81,10 +53,8 @@ The item pipes, [[Fluid Pipes|fluid pipes]], [[Glass Tank]], [[Pump]], and the [
 
 ==Helping out==
 
-* [[Project:Wiki rules|Rules of this wiki]]
-* [[Project:Policies|Policies of this wiki]]
+* [[Project:Wiki rules|Rules of this wiki]] · [[Project:Policies|Policies]]
 * [[w:Help:Getting Started|Fandom editing help]]
-* [[w:Help:Contributing|How to contribute]]
 
 <mainpage-endcolumn />
 
