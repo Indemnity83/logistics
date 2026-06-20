@@ -11,7 +11,7 @@
 |added     = v0.2.0
 }}
 
-'''Apatite Ore''' is an ore that drops [[Apatite|apatite]] gems, used for apatite valves and advanced components.
+'''Apatite Ore''' is an ore that drops [[Apatite|apatite]] gems, used for [[Apatite Valve|apatite valves]] and advanced components.
 
 == Obtaining ==
 

@@ -6,15 +6,15 @@
 |added     = v0.2.0
 }}
 
-'''Tin Ingot''' is a metal obtained by smelting [[Tin Ore|raw tin]]. It is used to create bronze alloy and tin-based components.
+'''Tin Ingot''' is a metal obtained by smelting [[Raw Tin]]. It is used to create [[Bronze Ingot|bronze]] alloy and tin-based components.
 
-'''Related forms:''' Tin Ingot has a full set of storage and processing forms — '''Block of Tin''' (9 ingots), '''Tin Nugget''' (1/9 ingot), '''Raw Tin''' and the '''Block of Raw Tin''', and '''Tin Dust''' from the [[Macerator]].
+'''Related forms:''' Tin Ingot has a full set of storage and processing forms — '''Block of Tin''' (9 ingots), '''Tin Nugget''' (1/9 ingot), '''[[Raw Tin]]''' and the '''Block of Raw Tin''', and '''[[Dusts|Tin Dust]]''' from the [[Macerator]].
 
 == Obtaining ==
 
 === Smelting ===
 
-Smelt Raw Tin (from [[Tin Ore]]) in a furnace or blast furnace to produce one Tin Ingot.
+Smelt [[Raw Tin]] (from [[Tin Ore]]) in a furnace or blast furnace to produce one Tin Ingot.
 
 === Crafting ===
 

@@ -10,13 +10,13 @@
 |added     = v0.2.0
 }}
 
-'''Tin Ore''' is a common ore found underground. Smelt its drop to create [[Tin Ingot|tin ingots]] for crafting bronze and tin components. A '''Deepslate Tin Ore''' variant occurs in deepslate layers.
+'''Tin Ore''' is a common ore found underground. Smelt its [[Raw Tin]] drop to create [[Tin Ingot|tin ingots]] for crafting [[Bronze Ingot|bronze]] and tin components. A '''Deepslate Tin Ore''' variant occurs in deepslate layers.
 
 == Obtaining ==
 
 === Breaking ===
 
-Tin Ore drops '''Raw Tin''' when mined and requires a '''stone pickaxe''' or better. The '''Deepslate Tin Ore''' variant drops the same Raw Tin but is harder to break. Mining with a [[Macerator]] is not required, but grinding the ore there yields '''2× Tin Dust''' (ore doubling, see [[Dusts]]); a Fortune pickaxe increases Raw Tin drops.
+Tin Ore drops '''[[Raw Tin]]''' when mined and requires a '''stone pickaxe''' or better. The '''Deepslate Tin Ore''' variant drops the same Raw Tin but is harder to break. Mining with a [[Macerator]] is not required, but grinding the ore there yields '''2× [[Dusts|Tin Dust]]''' (ore doubling); a Fortune pickaxe increases Raw Tin drops.
 
 === Natural generation ===
 
@@ -34,11 +34,11 @@ Veins generate normally even where they are exposed to air, so they show on cave
 
 == Usage ==
 
-Raw Tin from this ore is processed into tin and bronze components.
+[[Raw Tin]] from this ore is processed into tin and [[Bronze Ingot|bronze]] components.
 
 === Smelting ===
 
-Smelt Raw Tin in a furnace or blast furnace to produce [[Tin Ingot|tin ingots]].
+Smelt it in a furnace or blast furnace to produce [[Tin Ingot|tin ingots]].
 
 === Grinding ===
 
@@ -46,7 +46,7 @@ Grind Tin Ore or Deepslate Tin Ore in the [[Macerator]] for '''2× Tin Dust''' p
 
 === Storage ===
 
-Raw Tin can be packed into a '''Block of Raw Tin''' (9× Raw Tin) for compact storage.
+[[Raw Tin]] can be packed into a '''Block of Raw Tin''' (9× Raw Tin) for compact storage.
 
 == History ==
 

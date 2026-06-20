@@ -6,7 +6,7 @@
 |added     = v0.2.0
 }}
 
-'''Apatite''' is a gem obtained from mining [[Apatite Ore|apatite ore]]. It is used for apatite valves, and can be compacted into a '''Block of Apatite''' or ground into '''Apatite Dust''' in the [[Macerator]].
+'''Apatite''' is a gem obtained from mining [[Apatite Ore|apatite ore]]. It is used for [[Apatite Valve|apatite valves]], and can be compacted into a '''Block of Apatite''' or ground into '''[[Dusts|Apatite Dust]]''' in the [[Macerator]].
 
 == Obtaining ==
 

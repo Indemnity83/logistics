@@ -1,0 +1,38 @@
+{{Item
+|image     = Grid Raw Tin.png
+|id        = logistics:core/raw_tin
+|type      = Item
+|stackable = Yes (64)
+|added     = v0.2.0
+}}
+
+'''Raw Tin''' is the item dropped by [[Tin Ore]]. Smelt it into a [[Tin Ingot]] for crafting [[Bronze Ingot|bronze]] and tin components.
+
+== Obtaining ==
+
+=== Breaking ===
+
+[[Tin Ore]] and Deepslate Tin Ore drop Raw Tin when mined with a '''stone pickaxe''' or better; the Fortune enchantment increases the drop. Grinding the ore in a [[Macerator]] instead yields '''2× [[Dusts|Tin Dust]]''' (ore doubling).
+
+=== Crafting ===
+
+Nine Raw Tin pack into a '''Block of Raw Tin''' for compact storage, and the block unpacks back into nine.
+
+== Usage ==
+
+=== Smelting ===
+
+Smelt Raw Tin in a furnace or blast furnace to produce one [[Tin Ingot]].
+
+== History ==
+
+{{History|head=1|foot=1|v0.2.0|Added '''Raw Tin'''.}}
+
+== See also ==
+
+* [[Tin Ore]] - Source block
+* [[Tin Ingot]] - Smelted product
+* [[Bronze Ingot]] - Tin + copper alloy
+* [[Dusts]] - Tin Dust and ore doubling
+
+[[Category:Materials]]
