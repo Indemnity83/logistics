@@ -72,31 +72,6 @@ Sneak + right-click a marked pipe with an empty hand to clear it. The pipe retur
 * '''Different colors''' — pipes do not connect, keeping colored networks separate.
 * '''Unmarked''' — pipes connect to all pipes regardless of color, and can bridge between colored networks.
 
-=== Examples ===
-
-'''Run parallel networks:'''
-<pre>
-[Red pipes] ═══ [Red network A] (red only connects to red)
-[Blue pipes] ══ [Blue network B] (blue only connects to blue)
-    (Red and blue networks remain separate)
-</pre>
-
-'''Isolate same-colored networks:'''
-<pre>
-[Green network A] → [Green pipes only]
-
-[Green network B] → [Green pipes only]
-    (Two separate green networks won't merge)
-</pre>
-
-'''Organize complex builds:'''
-<pre>
-Different colored pipes for different purposes:
-- Red = ore processing
-- Blue = item sorting
-- Green = overflow management
-</pre>
-
 == History ==
 
 {{History|head=1|foot=1|v0.1.0|Added '''Marking Fluid''' in all 16 dye colors.}}
