@@ -1,5 +1,6 @@
 {
   "parent": "logistics:block/pipe/pipe_arm",
+  "render_type": "minecraft:cutout",
   "elements": [
     {
       "name": "arm",

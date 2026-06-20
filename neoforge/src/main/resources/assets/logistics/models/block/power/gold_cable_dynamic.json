@@ -1,0 +1,8 @@
+{
+  "loader": "logistics:cable_model",
+  "render_type": "minecraft:cutout",
+  "textures": {
+    "particle": "logistics:block/power/gold_cable",
+    "cable": "logistics:block/power/gold_cable"
+  }
+}

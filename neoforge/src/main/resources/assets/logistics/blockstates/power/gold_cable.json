@@ -1,4 +1,5 @@
 {
-  "neoforge:definition_type": "logistics:power_cable",
-  "tier": "gold_cable"
+  "variants": {
+    "": { "model": "logistics:block/power/gold_cable_dynamic" }
+  }
 }
