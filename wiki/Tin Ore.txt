@@ -20,7 +20,17 @@ Tin Ore drops '''Raw Tin''' when mined and requires a '''stone pickaxe''' or bet
 
 === Natural generation ===
 
-Tin Ore generates underground in the Overworld, with the Deepslate Tin Ore variant replacing it in deepslate layers.
+Tin Ore generates in every Overworld biome during the underground-ore step, in veins of up to '''10''' blocks. It appears in two depth bands — the deepslate variant is far more abundant:
+
+{| class="wikitable"
+! Variant !! Height (Y) !! Distribution !! Veins per chunk
+|-
+| Tin Ore || 0 to 112 || trapezoid (peaks near Y 56) || 1
+|-
+| Deepslate Tin Ore || −16 to 0 || trapezoid (peaks near Y −8) || 13
+|}
+
+Veins generate normally even where they are exposed to air, so they show on cave walls.
 
 == Usage ==
 

@@ -21,7 +21,7 @@ Apatite Ore drops [[Apatite]] gems directly when mined â€” no smelting needed â€
 
 === Natural generation ===
 
-Apatite Ore generates underground in the Overworld.
+Apatite Ore generates in every Overworld biome during the underground-ore step, between '''Y 60 and Y 256''' with a '''uniform''' distribution (equally likely at any height in that band, so it favors hills and mountains). It forms in unusually '''large veins of up to 48 blocks''', with about '''2 veins per chunk''', and has no deepslate variant. Veins generate normally even where they are exposed to air.
 
 == Usage ==
 
