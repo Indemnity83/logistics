@@ -12,7 +12,7 @@ When pipes touch, they form a continuous network. Items can flow through any con
 ==Network Segmentation==
 
 You can prevent pipes from connecting using:
-* '''[[Marking Fluid]]''' - Color-code [[Copper Transport Pipe|Copper Transport Pipes]] so same colors won't connect
+* '''[[Marking Fluid]]''' - Color-code [[Copper Transport Pipe|Copper Transport Pipes]] so different colors won't connect
 * '''[[Item Passthrough Pipe]]''' - Only connects to pipes, never inventories
 
 This lets you run multiple independent networks side-by-side without them merging.

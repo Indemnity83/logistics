@@ -43,8 +43,8 @@ Prevent connections between pipes using:
 
 '''[[Marking Fluid]]:'''
 * Color-code [[Copper Transport Pipe|Copper Transport Pipes]]
-* Pipes with same color won't connect to each other
-* Different colors connect normally
+* Pipes with different color won't connect to each other
+* Pipes with a color connect to pipes without a color normally
 * Sneak + empty hand removes marking
 
 '''Physical separation:'''
