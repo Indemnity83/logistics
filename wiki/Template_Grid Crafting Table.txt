@@ -1,4 +1,4 @@
-<includeonly><templatestyles src="Grid Crafting Table/styles.css" />{| class="pcraft"
+<includeonly>{| class="pcraft"
 |-
 | class="pcraft-cell" |
 {| class="pcraft-grid"
@@ -22,7 +22,7 @@
 | class="pcraft-slot" | {{Grid|{{{Output}}}}}
 |}
 | class="pcraft-count" | {{#if:{{{OutputCount|}}}|×{{{OutputCount}}}}}
-|}</includeonly><noinclude>
+|}<templatestyles src="Grid Crafting Table/styles.css" /></includeonly><noinclude>
 Renders a 3×3 crafting-table recipe as a Minecraft-style panel: recessed input slots, a
 gray arrow, and the output in its own slot (with an optional ×count beside it).
 
