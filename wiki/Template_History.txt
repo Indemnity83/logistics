@@ -1,0 +1,17 @@
+<includeonly>{{#invoke:History|history}}</includeonly><noinclude>
+A row of the version-history table (Version | Changes), powered by [[Module:History]]. Each call
+is one row; group several into one table with <code>head=1</code> on the first and
+<code>foot=1</code> on the last. A single-row history sets both. Styling lives in
+[[Template:History/styles.css]].
+
+Usage (newest version first):
+ {{History|head=1|v0.2.0|Added eight more dye colors.}}
+ {{History|foot=1|v0.1.0|Added '''Marking Fluid'''.}}
+
+Parameters:
+ 1 / version  — the version string
+ 2 / changes  — what changed in that version (wikitext allowed)
+ head / foot  — open / close the table
+
+[[Category:Templates]]
+</noinclude>

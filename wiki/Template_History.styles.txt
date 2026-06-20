@@ -1,0 +1,29 @@
+/* Version-history table styling, loaded via <templatestyles> from [[Module:History]] /
+   [[Template:History]]. Selectors are scoped by class to the table's own cells. */
+.logi-history {
+	border-collapse: collapse;
+	margin: 0.5em 0;
+	border: 1px solid #a2a9b1;
+	background: #f8f9fa;
+	width: 100%;
+	max-width: 720px;
+}
+.logi-history-head th {
+	background: #2c3e50;
+	color: #ffffff;
+	text-align: left;
+	font-weight: bold;
+	padding: 6px 10px;
+}
+.logi-history-version,
+.logi-history-changes {
+	border-top: 1px solid #c8ccd1;
+	padding: 6px 10px;
+	vertical-align: top;
+	text-align: left;
+}
+.logi-history-version {
+	width: 120px;
+	font-weight: bold;
+	white-space: nowrap;
+}

@@ -1,0 +1,47 @@
+-- Module:History — the version-history table (Version | Changes).
+-- Clean-room implementation (NOT copied from the Minecraft wiki). Mirrors our {{Crafting}}
+-- pattern: one {{History}} call per row, head=1 opens the table + header, foot=1 closes it;
+-- a single-row history sets both.
+
+local p = {}
+
+local function trim(s)
+	if s == nil then return nil end
+	s = mw.text.trim(s)
+	if s == '' then return nil end
+	return s
+end
+
+local function truthy(v)
+	v = trim(v)
+	return v ~= nil and v ~= '0'
+end
+
+function p.history(frame)
+	local args = frame:getParent().args
+	local version = trim(args.version) or trim(args[1]) or ''
+	local changes = trim(args.changes) or trim(args[2]) or ''
+	local head = truthy(args.head)
+	local foot = truthy(args.foot)
+
+	local out = {}
+
+	if head then
+		out[#out + 1] = frame:extensionTag{ name = 'templatestyles', args = { src = 'History/styles.css' } }
+		out[#out + 1] = '\n{| class="logi-history"'
+		out[#out + 1] = '\n|- class="logi-history-head"'
+		out[#out + 1] = '\n! Version\n! Changes'
+	end
+
+	out[#out + 1] = '\n|-'
+	out[#out + 1] = '\n| class="logi-history-version" | ' .. version
+	out[#out + 1] = '\n| class="logi-history-changes" | ' .. changes
+
+	if foot then
+		out[#out + 1] = '\n|}'
+	end
+
+	return table.concat(out)
+end
+
+return p

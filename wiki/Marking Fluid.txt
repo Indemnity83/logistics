@@ -97,6 +97,10 @@ Different colored pipes for different purposes:
 - Green = overflow management
 </pre>
 
+== History ==
+
+{{History|head=1|foot=1|v0.1.0|Added '''Marking Fluid''' in all 16 dye colors.}}
+
 == See also ==
 * [[Copper Transport Pipe]] - Pipe type that accepts marking
 * [[Connectivity]] - Connection rules
