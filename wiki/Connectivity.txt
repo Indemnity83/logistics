@@ -3,14 +3,13 @@ Pipes connect automatically to adjacent blocks based on simple rules. Understand
 ==Connection Rules==
 
 Pipes connect to:
-* '''Other pipes''' - Any pipe connects to any other pipe type
-* '''Inventories''' - Chests, furnaces, hoppers, barrels, etc.
-* '''Fabric Transfer API blocks''' - Any mod block that implements ItemStorage
+* '''Other pipes of the same family''' - item pipes (both [[Transport Pipes|transport]] and [[Logistics Pipes|logistics]]) connect to each other, and [[Fluid Pipes|fluid pipes]] connect to each other
+* '''Compatible handlers''' - item pipes connect to inventories (chests, furnaces, hoppers, barrels, and any mod block exposing item storage); fluid pipes connect to tanks and fluid-handling machines
 
 Pipes do NOT connect to:
-* Solid blocks (stone, dirt, etc.)
-* Non-inventory blocks
-* Air
+* '''The other pipe family''' - item pipes and fluid pipes never connect to one another
+* '''[[Cables]]''' - power cables are a separate RF network and never connect to pipes
+* Solid or non-handler blocks, or air
 
 ==Visual Indicators==
 
@@ -52,12 +51,12 @@ Prevent connections between pipes using:
 * Use vertical spacing
 * Build separate systems
 
-==All Pipes Connect==
+==Pipe families==
 
-Every pipe type connects to every other:
-* [[Transport Pipes]] connect to [[Logistics Pipes]] and to each other
-* Mix and match pipe types as needed
-* Build complex networks combining different behaviors
+Connectivity is scoped by '''family''':
+* '''Item pipes''' — [[Transport Pipes]] and [[Logistics Pipes]] all connect to each other, so you can freely mix transport and logistics behaviors in one network
+* '''Fluid pipes''' — [[Fluid Pipes]] connect only to other fluid pipes, forming a separate system that never joins the item network
+* '''[[Cables]]''' — power cables are their own [[RF Energy|RF]] network and don't connect to either pipe family
 
 ==See Also==
 * [[Pipe Networks]] - How connections form networks
