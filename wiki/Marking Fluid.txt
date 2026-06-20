@@ -1,11 +1,12 @@
-{{Infobox Item
-|name      = Marking Fluid
+{{About|the tool that color-codes pipes|the pipe it is applied to|Copper Transport Pipe}}
+{{Item
 |image     = Grid Blue Marking Fluid.png
-|id        = logistics:tool/marking_fluid
 |type      = Tool
-|stackable = Yes (64)
 |function  = Pipe color-coding
+|renewable = Yes
+|stackable = Yes (64)
 |added     = v0.1.0
+|id        = logistics:tool/marking_fluid
 }}
 
 '''Marking Fluid''' is a color-coding tool that prevents [[Copper Transport Pipe|Copper Transport Pipes]] from connecting to each other. Use it to segment networks and run multiple independent pipe systems side-by-side. It comes in all '''16''' Minecraft dye colors, each crafted with its matching dye.
