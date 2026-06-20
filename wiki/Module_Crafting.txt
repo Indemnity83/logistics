@@ -40,7 +40,13 @@ local function ingredientsCell(args)
 		local v = trim(args[k])
 		if v and not seen[v] then
 			seen[v] = true
-			list[#list + 1] = v   -- plain text; many ingredients are vanilla (no wiki page)
+			-- Link items that have a wiki page or redirect; leave vanilla items (no page) plain.
+			local t = mw.title.new(v)
+			if t and t.exists then
+				list[#list + 1] = '[[' .. v .. ']]'
+			else
+				list[#list + 1] = v
+			end
 		end
 	end
 	return table.concat(list, ' + ')

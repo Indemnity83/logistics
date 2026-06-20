@@ -35,6 +35,8 @@ local function ingredientsCell(args)
 	if ing then return ing end
 	local input = trim(args.Input) or trim(args.input) or ''
 	local fuel = trim(args.Fuel) or trim(args.fuel) or 'Any fuel'
+	local t = input ~= '' and mw.title.new(input)
+	if t and t.exists then input = '[[' .. input .. ']]' end
 	return input .. ' + ' .. fuel
 end
 

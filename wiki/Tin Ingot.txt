@@ -17,9 +17,9 @@
 Tin Ingots unpack from their storage forms:
 
 {{Crafting|head=1|showdescription=1
-|name=Tin Ingot |B2=Tin Block |Output=Tin Ingot,9 |description=Unpack a [[Block of Tin]].}}
+|name=Tin Ingot |B2=Tin Block |Output=Tin Ingot,9 |description=Unpacked from a block.}}
 {{Crafting|foot=1
-|name=Tin Ingot |A1=Tin Nugget |B1=Tin Nugget |C1=Tin Nugget |A2=Tin Nugget |B2=Tin Nugget |C2=Tin Nugget |A3=Tin Nugget |B3=Tin Nugget |C3=Tin Nugget |Output=Tin Ingot |description=Combine nine [[Tin Nugget|Tin Nuggets]].}}
+|name=Tin Ingot |A1=Tin Nugget |B1=Tin Nugget |C1=Tin Nugget |A2=Tin Nugget |B2=Tin Nugget |C2=Tin Nugget |A3=Tin Nugget |B3=Tin Nugget |C3=Tin Nugget |Output=Tin Ingot |description=Assembled from nuggets.}}
 
 === Smelting ===
 
@@ -39,13 +39,13 @@ Tin Ingot is the basis of bronze and several tin components.
 === Crafting ingredient ===
 
 {{Crafting|head=1|showdescription=1
-|name=[[Bronze Ingot]] |A2=Copper Ingot |B2=Copper Ingot |C2=Copper Ingot |A3=Tin Ingot |Output=Bronze Ingot,4 |description=Shapeless — 3× [[Copper Ingot]] + 1× Tin Ingot.}}
+|name=[[Bronze Ingot]] |A2=Copper Ingot |B2=Copper Ingot |C2=Copper Ingot |A3=Tin Ingot |Output=Bronze Ingot,4 |description=A shapeless copper-tin alloy.}}
 {{Crafting
-|name=[[Tin Gear]] |B1=Tin Ingot |A2=Tin Ingot |B2=Copper Gear |C2=Tin Ingot |B3=Tin Ingot |Output=Tin Gear |description=Tin around a [[Copper Gear]].}}
+|name=[[Tin Gear]] |B1=Tin Ingot |A2=Tin Ingot |B2=Copper Gear |C2=Tin Ingot |B3=Tin Ingot |Output=Tin Gear |description=A tin-tier gear.}}
 {{Crafting
-|name=[[Block of Tin]] |A1=Tin Ingot |B1=Tin Ingot |C1=Tin Ingot |A2=Tin Ingot |B2=Tin Ingot |C2=Tin Ingot |A3=Tin Ingot |B3=Tin Ingot |C3=Tin Ingot |Output=Tin Block |description=Pack nine into a [[Block of Tin]].}}
+|name=[[Block of Tin]] |A1=Tin Ingot |B1=Tin Ingot |C1=Tin Ingot |A2=Tin Ingot |B2=Tin Ingot |C2=Tin Ingot |A3=Tin Ingot |B3=Tin Ingot |C3=Tin Ingot |Output=Tin Block |description=Compact storage.}}
 {{Crafting|foot=1
-|name=[[Tin Nugget]] |B2=Tin Ingot |Output=Tin Nugget,9 |description=Split a Tin Ingot into nuggets.}}
+|name=[[Tin Nugget]] |B2=Tin Ingot |Output=Tin Nugget,9 |description=Splits into nuggets.}}
 
 === Grinding ===
 
