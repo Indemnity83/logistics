@@ -4,7 +4,8 @@ Upload the Logistics wiki (pages + media) to a Fandom / MediaWiki site via the A
 
 It does two jobs:
   * Pages  — every `wiki/*.txt` becomes one page. Filename (minus `.txt`) is the title,
-             `Template_X.txt` -> `Template:X`, and `main.txt` -> `Main Page`.
+             `Template_X.txt` -> `Template:X`, and `main.txt` -> the wiki's configured main
+             page (from siteinfo, e.g. `Logistics Wiki`), which gets the full-width no-rail layout.
   * Media  — every `wiki/media/*.png` is uploaded as `File:<filename>` (the files are
              already named `Grid <Name>.png`). `--used-only` limits to icons the pages
              reference. (Legacy: `--from-map` uploads via `ASSET_UPLOAD_MAP.md` instead.)
@@ -125,6 +126,12 @@ class Wiki:
                      "Check the bot username (Name@botname) and password from Special:BotPasswords.")
         self.csrf = self._call({"action": "query", "meta": "tokens"})["query"]["tokens"]["csrftoken"]
         print(f"Logged in as {user}")
+
+    def site_mainpage(self):
+        """The wiki's configured main-page title (e.g. 'Logistics Wiki'), which gets the
+        special full-width no-rail layout — NOT necessarily 'Main Page'."""
+        d = self._call({"action": "query", "meta": "siteinfo", "siprop": "general"})
+        return d.get("query", {}).get("general", {}).get("mainpage")
 
     # -- reads --
     def page_text(self, title):
@@ -340,9 +347,10 @@ def main():
                         if f.endswith(".txt") and (only is None or f[:-4] in only)],
                        key=page_sort_key)
         print(f"\n=== Pages: {len(files)} ===")
+        main_title = wiki.site_mainpage() or "Main Page"  # this wiki's real home page
         tally = {}
         for i, fn in enumerate(files, 1):
-            title = page_title(fn)
+            title = main_title if fn == "main.txt" else page_title(fn)
             text = open(os.path.join(args.wiki_dir, fn), encoding="utf-8").read()
             try:
                 result = wiki.edit(title, text, "Import from logistics wiki source", args.force)

@@ -41,7 +41,7 @@ python tools/upload_to_fandom.py --site https://yourwiki.fandom.com --media
 | --- | --- |
 | `wiki/Item Extractor Pipe.txt` | page **Item Extractor Pipe** |
 | `wiki/Template_Grid.txt` | **Template:Grid** |
-| `wiki/main.txt` | **Main Page** |
+| `wiki/main.txt` | the wiki's **configured main page** (from siteinfo, e.g. *Logistics Wiki*) — gets the full-width, no-rail main-page layout |
 | `docs/assets/icons/<x>.png` (per `ASSET_UPLOAD_MAP.md`) | **File:Grid \<Name\>.png** |
 
 ## Good to know
