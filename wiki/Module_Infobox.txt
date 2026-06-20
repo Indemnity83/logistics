@@ -63,8 +63,24 @@ local BLOCK_FIELDS = {
 	{ 'Namespaced ID', 'id' },
 }
 
+-- Field order for items/tools (no block-only physics; adds rarity/durability).
+local ITEM_FIELDS = {
+	{ 'Type', 'type' },
+	{ 'Function', 'function' },
+	{ 'Rarity', 'rarity' },
+	{ 'Renewable', 'renewable' },
+	{ 'Stackable', 'stackable' },
+	{ 'Durability', 'durability' },
+	{ 'First appearance', 'added' },
+	{ 'Namespaced ID', 'id' },
+}
+
 function p.block(frame)
 	return build(frame, frame:getParent().args, BLOCK_FIELDS)
+end
+
+function p.item(frame)
+	return build(frame, frame:getParent().args, ITEM_FIELDS)
 end
 
 return p

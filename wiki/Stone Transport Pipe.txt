@@ -1,11 +1,18 @@
-{{Infobox Item
-|name      = Stone Transport Pipe
-|image     = Grid Stone Transport Pipe.png
-|id        = logistics:pipe/stone_transport_pipe
-|type      = Block (Pipe)
-|stackable = Yes (64)
-|tier      = Tier 1 - Mechanical
-|added     = v0.1.0
+{{Block
+|image           = Grid Stone Transport Pipe.png
+|type            = Block (Pipe)
+|function        = Item transport
+|transparent     = Yes
+|light           = No
+|tool            = Any
+|renewable       = Yes
+|stackable       = Yes (64)
+|flammable       = No
+|lavasusceptible = No
+|hardness        = 0.25
+|blastresistance = 0.25
+|added           = v0.1.0
+|id              = logistics:pipe/stone_transport_pipe
 }}
 
 The '''Stone Transport Pipe''' is a [[Tier System|Tier 1]] mechanical pipe that provides very slow item transport for early-game networks. It uses random routing at junctions.

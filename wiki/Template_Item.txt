@@ -1,0 +1,26 @@
+<includeonly>{{#invoke:Infobox|item}}</includeonly><noinclude>
+The infobox for an item or tool page — a right-floated card with the item's sprite and its
+properties. Powered by [[Module:Infobox]] (same engine as [[Template:Block]]); styling lives in
+[[Template:Infobox/styles.css]]. Only the fields you supply are shown.
+
+Usage:
+ {{Item
+ | image      = Grid Blue Marking Fluid.png
+ | type       = Tool
+ | function   = Pipe color-coding
+ | stackable  = Yes (64)
+ | added      = v0.1.0
+ | id         = logistics:tool/marking_fluid
+ }}
+
+Parameters (all optional except a sensible image):
+ title / name  — heading (defaults to the page name)
+ image         — file name of the sprite, e.g. ''Grid Blue Marking Fluid.png''
+ imagesize     — image width in px (default 150)
+ extratext     — small caption under the image
+ type, function, rarity, renewable, stackable, durability, added, id
+
+For blocks (pipes, machines), use [[Template:Block]] instead.
+
+[[Category:Templates]]
+</noinclude>
