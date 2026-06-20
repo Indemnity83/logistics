@@ -1,0 +1,67 @@
+'''Transport Pipes''' are the item-carrying pipes of the Logistics mod. They move items between inventories and form the backbone of a network: every transport pipe connects to the others and — except the [[#Bypassing storage|passthrough pipe]] — to adjacent inventories. They differ in speed and in the one special job each one does. For network-aware routing (requests, crafting, stock-keeping) see [[Logistics Pipes]]; for fluids see [[Fluid Pipes]].
+
+== Variants ==
+
+Every transport pipe is crafted '''8 at a time''' from a pane of Glass flanked by the material that defines its job:
+
+{{Crafting|head=1|showdescription=1
+|name=Stone Transport Pipe     |A2=Cobblestone |B2=Glass |C2=Cobblestone |Output=Stone Transport Pipe,8     |description=Very slow transport with a tiny buffer — the cheapest pipe.}}
+{{Crafting
+|name=Copper Transport Pipe    |A2=Copper Ingot |B2=Glass |C2=Copper Ingot |Output=Copper Transport Pipe,8   |description=Standard-speed backbone. Oxidizes cosmetically and accepts [[Marking Fluid]].}}
+{{Crafting
+|name=Golden Transport Pipe    |A2=Gold Ingot |B2=Glass |C2=Gold Ingot |Output=Golden Transport Pipe,8       |description=Accelerates items while powered by redstone; the boost persists downstream.}}
+{{Crafting
+|name=Item Extractor Pipe      |A2=Planks |B2=Glass |C2=Planks |Output=Item Extractor Pipe,8                 |description=Pulls items from the inventory on its selected face into the network. Needs [[Redstone Engine|engine]] power.}}
+{{Crafting
+|name=Item Merger Pipe         |A2=Iron Ingot |B2=Glass |C2=Iron Ingot |Output=Item Merger Pipe,8             |description=Sends every input to one wrench-selected output — a guaranteed direction.}}
+{{Crafting
+|name=Item Insertion Pipe      |A2=Quartz |B2=Glass |C2=Quartz |Output=Item Insertion Pipe,8                 |description=Prefers inserting into adjacent inventories with space; otherwise stays on the network.}}
+{{Crafting
+|name=Item Filter Pipe         |A2=Diamond |B2=Glass |C2=Diamond |Output=Item Filter Pipe,8                   |description=Per-face item filters route items by type — the sorting pipe.}}
+{{Crafting
+|name=Item Passthrough Pipe    |A2=Sandstone |B2=Glass |C2=Sandstone |Output=Item Passthrough Pipe,8         |description=Connects only to pipes, never inventories — run a line past storage.}}
+{{Crafting|foot=1
+|name=Item Void Pipe           |A2=Obsidian |B2=Glass |C2=Ender Pearl |Output=Item Void Pipe,8               |description=Destroys any item that reaches its center.}}
+
+== Usage ==
+
+Transport pipes connect to each other and to adjacent inventories automatically. At a junction with several exits, an item picks a direction at '''random''', so a plain network spreads items unpredictably; the pipes below override that when you need control. Speed varies by material — the [[#Variants|Stone]] pipe is very slow, Copper is the standard, and a powered Golden pipe is fastest.
+
+=== Routing ===
+
+Random routing is fine for a single destination. For control, the '''Item Merger Pipe''' forces every input to one wrench-set output, the '''Item Filter Pipe''' routes by item type, and the '''Item Insertion Pipe''' prefers inventories. Mix them to build deterministic paths.
+
+=== Extraction ===
+
+The '''Item Extractor Pipe''' pulls items from the inventory on its wrench-selected face into the network. It must be powered by an adjacent [[Redstone Engine|engine]]: a [[Redstone Engine]] moves one item per cycle, while a stronger engine such as the [[Stirling Engine]] can pull up to a full stack. Use a [[Wrench]] to set which face extracts (shown by an opaque connector).
+
+=== Filtering and sorting ===
+
+The '''Item Filter Pipe''' gives each face its own item filter — right-click for the GUI. Matching items route to that face; unmatched items go to any unfiltered face; items with nowhere to go drop. Pair it with the '''Item Insertion Pipe''' (fills adjacent storage that has space, else stays on the network) and the '''Item Void Pipe''' (destroys items at its center, after a brief visible delay) to build sorted storage with overflow disposal.
+
+=== Acceleration ===
+
+The '''Golden Transport Pipe''' speeds items up while it is powered by redstone, and the boost persists as those items travel on through ordinary pipes. Chain several powered golden pipes for a cumulative boost; unpowered, it behaves like a copper pipe.
+
+=== Bypassing storage ===
+
+The '''Item Passthrough Pipe''' connects only to other pipes, never to inventories. Use it to run a line directly past chests, furnaces, or other storage without inserting into them.
+
+=== Marking ===
+
+[[Marking Fluid]] color-codes [[#Variants|Copper Transport Pipes]] so that same-color pipes connect, different colors don't, and unmarked pipes connect to anything — letting independent networks share the same space. Copper pipes also oxidize cosmetically like vanilla copper (wax with honeycomb, scrape with an axe); oxidization has no effect on transport.
+
+== History ==
+
+{{History|head=1|foot=1|v0.1.0|Added the transport pipes.}}
+
+== See also ==
+
+* [[Logistics Pipes]] — network-aware item routing, requests, and crafting
+* [[Fluid Pipes]] — the fluid-carrying equivalents
+* [[Marking Fluid]] — color-code pipes to segment networks
+* [[Wrench]] — set extractor and merger faces
+* [[Redstone Engine]] — powers the Item Extractor Pipe
+
+[[Category:Pipes]]
+[[Category:Item Pipes]]

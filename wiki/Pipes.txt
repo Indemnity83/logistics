@@ -1,51 +1,21 @@
-Pipes are the core of the Logistics mod, transporting items through your network. Pipes connect automatically to adjacent inventories and other pipes, forming networks that move items from extractors to destinations.
+Pipes are the core of the Logistics mod, transporting items and fluids through your network. Pipes connect automatically to adjacent inventories and to each other, forming networks that move items from extractors to destinations.
 
-==Tier 1: Mechanical Pipes==
+== Transport Pipes ==
 
-Basic pipes that perform mechanical operations without item awareness. These pipes don't look at what's flowing through them - they just move, merge, accelerate, or delete items regardless of type.
+[[Transport Pipes]] move items between inventories — the everyday backbone of a network. They range from the slow Stone pipe to the redstone-accelerated Golden pipe, plus special pipes for extracting, merging, filtering, inserting, bypassing, and voiding items.
 
-* '''[[Stone Transport Pipe]]''' - Very slow transport, random routing at junctions
-* '''[[Copper Transport Pipe]]''' - Standard transport backbone, random routing
-* '''[[Item Extractor Pipe]]''' - Pull items from adjacent inventories
-* '''[[Item Merger Pipe]]''' - Converge all inputs to single output
-* '''[[Golden Transport Pipe]]''' - Speed boost when powered by redstone
-* '''[[Item Passthrough Pipe]]''' - Connect only to pipes, bypass inventories
-* '''[[Item Void Pipe]]''' - Delete unwanted items
+== Logistics Pipes ==
 
-==Tier 2: Smart Pipes==
+[[Logistics Pipes]] are item pipes that join a logistics '''network''': they advertise stock, fulfill requests, automate crafting, and keep inventories topped up. The group includes the Provider, Requester, Supplier, Crafting, Process, and Satellite pipes, plus the modular Chassis pipe.
 
-Item-aware pipes that make routing decisions based on what they're transporting. These pipes inspect items and change behavior conditionally.
+== Fluid Pipes ==
 
-* '''[[Item Filter Pipe]]''' - Route specific items to specific destinations
-* '''[[Item Insertion Pipe]]''' - Prefer inventories with space, otherwise route to pipes
+Fluids use a '''separate''' pipe set and a standalone transport system — they never join the item network. See [[Fluid Pipes]] for the passive transport pipes, the engine-driven Fluid Extractor, the behavior pipes, and the [[Glass Tank]] and [[Pump]].
 
-==Tier 3: Network Logistics==
+== See also ==
 
-System-aware pipes that participate in a logistics network. These pipes communicate with each other to advertise available items, fulfill requests, automate crafting, and maintain stock levels automatically.
-
-* '''[[Basic Logistics Pipe]]''' - Accept and deposit network items; the foundation for all Tier 3 pipes
-* '''[[Provider Logistics Pipe]]''' - Advertise adjacent inventory contents and fulfill network requests
-* '''[[Supplier Logistics Pipe]]''' - Automatically maintain configured stock levels by requesting from the network
-* '''[[Requester Logistics Pipe]]''' - Manually request items from the network via a browsable GUI
-* '''[[Crafting Logistics Pipe]]''' - Fulfill network requests by crafting items from available ingredients
-* '''[[Process Logistics Pipe]]''' - Automate processing machines (furnaces, kilns) within the network
-* '''[[Satellite Logistics Pipe]]''' - Named remote destination for network-addressed item delivery
-* '''[[Chassis Logistics Pipe]]''' (MK1–MK5) - Modular pipe that holds swappable [[Modules|modules]] for customizable behavior
-
-==Fluid Pipes==
-
-Fluids use a '''separate''' pipe set and a standalone transport system — they never join the item logistics network. Each line carries one fluid type, passive transport is free, and only active extraction costs power. See '''[[Fluid Pipes]]''' for the full overview.
-
-* '''[[Stone Fluid Pipe]]''', '''[[Copper Fluid Pipe]]''', '''[[Golden Fluid Pipe]]''' - Passive fluid transport at increasing rates
-* '''[[Fluid Extractor Pipe]]''' - Pull fluid from tanks and machines (engine-driven)
-* '''[[Insertion Fluid Pipe]]''', '''[[Merger Fluid Pipe]]''', '''[[Bypass Fluid Pipe]]''', '''[[Void Fluid Pipe]]''' - Behavior pipes
-* '''[[Glass Tank]]''' and '''[[Pump]]''' - Fluid storage and world extraction
-
-==See Also==
-* [[Fluid Pipes]] - The standalone fluid transport system
-* [[Pipe Networks]] - Understanding how pipes connect
-* [[Tier System]] - Mechanical vs Smart vs Network tiers
-* [[Routing]] - How items choose paths
-* [[Item Transport]] - How items move through pipes
+* [[Pipe Networks]] — how pipes connect into networks
+* [[Routing]] — how items choose paths
+* [[Item Transport]] — how items move through pipes
 
 [[Category:Pipes]]
