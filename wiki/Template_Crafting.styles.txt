@@ -30,6 +30,7 @@
 }
 .logi-recipes-recipe {
 	text-align: center;
+	padding: 0;   /* the grid carries its own padding; cell padding just inflates the row */
 }
 .logi-recipes-desc {
 	font-size: 95%;
