@@ -1,67 +1,61 @@
-Pipes connect automatically to adjacent blocks based on simple rules. Understanding connectivity helps you build clean, organized networks.
+Pipes and cables connect automatically to adjacent blocks based on simple rules, forming the networks that carry items, fluids, and power. Understanding connectivity helps you build clean, organized systems.
 
 ==Connection Rules==
 
-Pipes connect to:
-* '''Other pipes of the same family''' - item pipes (both [[Transport Pipes|transport]] and [[Logistics Pipes|logistics]]) connect to each other, and [[Fluid Pipes|fluid pipes]] connect to each other
-* '''Compatible handlers''' - item pipes connect to inventories (chests, furnaces, hoppers, barrels, and any mod block exposing item storage); fluid pipes connect to tanks and fluid-handling machines
+Each transport system connects automatically within its own '''family''' — to others of its kind, and to the things it moves to or from:
 
-Pipes do NOT connect to:
-* '''The other pipe family''' - item pipes and fluid pipes never connect to one another
-* '''[[Cables]]''' - power cables are a separate RF network and never connect to pipes
-* Solid or non-handler blocks, or air
+* '''Item pipes''' connect to other item pipes ([[Transport Pipes]] and [[Logistics Pipes]]) and to inventories — chests, furnaces, hoppers, barrels, and any mod block exposing item storage.
+* '''Fluid pipes''' connect to other [[Fluid Pipes|fluid pipes]] and to tanks and fluid-handling machines.
+* '''[[Cables]]''' connect to other cables and to power blocks — [[Redstone Engine|engines]], a [[Battery]], and the machines that draw [[RF Energy|RF]].
+
+The three families are '''independent''': item pipes, fluid pipes, and cables each form their own network and never connect to one another, even sitting side by side. None of them connect to solid or non-handler blocks, or to air.
 
 ==Visual Indicators==
 
-Connected faces show a '''connector''' (extended connection point) in the direction of the connection. No connector means no connection on that face.
+A connected face shows a '''connector''' extending toward the neighbor; no connector means no connection on that face.
 
-'''Connector types:'''
-* '''Transparent''' - Connects to another pipe
-* '''Opaque''' - Connects to inventory or shows active face (merger/extractor pipes)
+'''Pipe connectors:'''
+* '''Transparent''' — connects to another pipe
+* '''Opaque''' — connects to a handler (inventory or tank), or marks an active face (merger/extractor pipes)
+
+[[Cables]] connect the same way, but render as a thin wire that runs to each adjacent cable or power block rather than a boxy connector — the form looks different, the auto-connecting behavior is the same.
 
 ==Special Connection Behaviors==
 
-'''[[Item Passthrough Pipe]]:'''
-* Only connects to other pipes
-* Never connects to inventories
-* Use to bypass nearby chests
+Some pipes override the default "connect to everything compatible" behavior:
+
+'''[[Item Passthrough Pipe]]''' (and the fluid [[Fluid Pipes#Bypassing handlers|Bypass Fluid Pipe]]):
+* Connect only to other pipes, never to handlers
+* Use to run a line past a chest, tank, or machine without tapping it
 
 '''[[Item Merger Pipe]]:'''
-* Output face marked with opaque connector
-* Items cannot enter through output face
-* Configure output direction with [[Wrench]]
+* Output face marked with an opaque connector; items cannot enter through it
+* Configure the output direction with a [[Wrench]]
 
 '''[[Item Extractor Pipe]]:'''
-* Extraction face marked with opaque connector
-* Only one face extracts at a time
-* Configure extraction face with [[Wrench]]
+* Extraction face marked with an opaque connector; only one face extracts
+* Configure the extraction face with a [[Wrench]]
 
 ==Network Segmentation==
 
-Prevent connections between pipes using:
+To keep two separate networks of the same family from merging:
 
-'''[[Marking Fluid]]:'''
+'''[[Marking Fluid]]''' (item pipes only):
 * Color-code [[Copper Transport Pipe|Copper Transport Pipes]]
-* Pipes with different color won't connect to each other
-* Pipes with a color connect to pipes without a color normally
-* Sneak + empty hand removes marking
+* Pipes with different colors won't connect to each other
+* A colored pipe still connects to uncolored pipes normally
+* Sneak + empty hand removes the marking
 
-'''Physical separation:'''
-* Place non-pipe blocks between networks
-* Use vertical spacing
-* Build separate systems
+'''Physical separation''' (works for pipes and cables alike):
+* Place a non-connecting block between the two networks, or leave a gap
+* Build the systems apart
 
-==Pipe families==
+==See also==
 
-Connectivity is scoped by '''family''':
-* '''Item pipes''' — [[Transport Pipes]] and [[Logistics Pipes]] all connect to each other, so you can freely mix transport and logistics behaviors in one network
-* '''Fluid pipes''' — [[Fluid Pipes]] connect only to other fluid pipes, forming a separate system that never joins the item network
-* '''[[Cables]]''' — power cables are their own [[RF Energy|RF]] network and don't connect to either pipe family
-
-==See Also==
-* [[Pipe Networks]] - How connections form networks
-* [[Marking Fluid]] - Prevent connections with color coding
-* [[Item Passthrough Pipe]] - Bypass inventories
-* [[Wrench]] - Configure pipe faces
+* [[Pipe Networks]] - How connections form item-routing networks
+* [[Cables]] - The power-cable network
+* [[RF Energy]] - How power moves through cables
+* [[Marking Fluid]] - Segment item networks by color
+* [[Wrench]] - Configure pipe and cable faces
 
 [[Category:Concepts]]
