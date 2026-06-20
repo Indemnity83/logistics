@@ -1,0 +1,43 @@
+/* Infobox styling, loaded via <templatestyles> from [[Module:Infobox]] (used by [[Template:Block]]
+   and future infobox wrappers). A right-floated card: dark title bar, framed image, then a
+   striped table of properties. */
+.logi-infobox {
+	float: right;
+	clear: right;
+	width: 270px;
+	margin: 0 0 1em 1.2em;
+	border: 1px solid #a2a9b1;
+	background: #f8f9fa;
+	font-size: 90%;
+	border-collapse: collapse;
+}
+.logi-infobox-title {
+	background: #2c3e50;
+	color: #ffffff;
+	font-weight: bold;
+	font-size: 115%;
+	text-align: center;
+	padding: 6px 8px;
+}
+.logi-infobox-image {
+	text-align: center;
+	padding: 12px;
+	background: #eaecf0;
+}
+.logi-infobox-extra {
+	margin-top: 4px;
+	font-size: 85%;
+	color: #54595d;
+}
+.logi-infobox-row th,
+.logi-infobox-row td {
+	border-top: 1px solid #c8ccd1;
+	padding: 4px 8px;
+	vertical-align: top;
+	text-align: left;
+}
+.logi-infobox-row th {
+	width: 45%;
+	background: #f0f1f3;
+	font-weight: bold;
+}

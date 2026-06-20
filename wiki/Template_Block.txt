@@ -1,0 +1,34 @@
+<includeonly>{{#invoke:Infobox|block}}</includeonly><noinclude>
+The infobox for a block page — a right-floated card with the block's render and its properties.
+Powered by [[Module:Infobox]]; styling lives in [[Template:Infobox/styles.css]]. Only the fields
+you supply are shown.
+
+Usage:
+ {{Block
+ | image           = Grid Copper Transport Pipe.png
+ | extratext       = View [[#Gallery|all renders]]
+ | type            = Solid Block
+ | function        = Item transport
+ | transparent     = Partial
+ | light           = No
+ | tool            = Wrench
+ | renewable       = Yes
+ | stackable       = Yes (64)
+ | flammable       = No
+ | lavasusceptible = No
+ | hardness        = 0.5
+ | blastresistance = 0.5
+ | added           = v0.1.0
+ | id              = logistics:copper_transport_pipe
+ }}
+
+Parameters (all optional except a sensible image):
+ title / name  — heading (defaults to the page name)
+ image         — file name of the render, e.g. ''Grid Copper Transport Pipe.png''
+ imagesize     — image width in px (default 150)
+ extratext     — small caption under the image (e.g. a link to the gallery)
+ type, function, gravity, transparent, light, tool, renewable, stackable, flammable,
+ lavasusceptible, blastresistance, hardness, drops, experience, added, id
+
+[[Category:Templates]]
+</noinclude>

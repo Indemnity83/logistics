@@ -1,0 +1,70 @@
+-- Module:Infobox — the right-floated info card at the top of an article.
+-- Clean-room implementation (NOT copied from the Minecraft wiki). A generic renderer plus a
+-- {{Block}} entry point; sibling wrappers ({{Item}}, {{Machine}}, …) can reuse build() with
+-- their own field list. Only the fields actually supplied are shown.
+
+local p = {}
+
+local function trim(s)
+	if s == nil then return nil end
+	s = mw.text.trim(s)
+	if s == '' then return nil end
+	return s
+end
+
+-- spec: ordered array of { label, paramName }. Rows with an empty value are omitted.
+local function build(frame, args, spec)
+	local styles = frame:extensionTag{ name = 'templatestyles', args = { src = 'Infobox/styles.css' } }
+	local title = trim(args.title) or trim(args.name) or mw.title.getCurrentTitle().text
+
+	local box = mw.html.create('table'):addClass('logi-infobox')
+	box:tag('tr'):tag('th'):attr('colspan', 2):addClass('logi-infobox-title'):wikitext(title)
+
+	local image = trim(args.image)
+	if image then
+		local size = trim(args.imagesize) or '150'
+		local cell = box:tag('tr'):tag('td'):attr('colspan', 2):addClass('logi-infobox-image')
+		cell:wikitext('[[File:' .. image .. '|' .. size .. 'px|center|' .. title .. ']]')
+		local extra = trim(args.extratext)
+		if extra then
+			cell:tag('div'):addClass('logi-infobox-extra'):wikitext(extra)
+		end
+	end
+
+	for _, row in ipairs(spec) do
+		local v = trim(args[row[2]])
+		if v then
+			local tr = box:tag('tr'):addClass('logi-infobox-row')
+			tr:tag('th'):wikitext(row[1])
+			tr:tag('td'):wikitext(v)
+		end
+	end
+
+	return styles .. tostring(box)
+end
+
+-- Field order mirrors the Minecraft wiki's block infobox, with a few of our own (Function).
+local BLOCK_FIELDS = {
+	{ 'Type', 'type' },
+	{ 'Function', 'function' },
+	{ 'Affected by gravity', 'gravity' },
+	{ 'Transparency', 'transparent' },
+	{ 'Luminant', 'light' },
+	{ 'Tool', 'tool' },
+	{ 'Renewable', 'renewable' },
+	{ 'Stackable', 'stackable' },
+	{ 'Flammable', 'flammable' },
+	{ 'Catches fire from lava', 'lavasusceptible' },
+	{ 'Blast resistance', 'blastresistance' },
+	{ 'Hardness', 'hardness' },
+	{ 'Drops', 'drops' },
+	{ 'Experience', 'experience' },
+	{ 'First appearance', 'added' },
+	{ 'Namespaced ID', 'id' },
+}
+
+function p.block(frame)
+	return build(frame, frame:getParent().args, BLOCK_FIELDS)
+end
+
+return p
