@@ -1,23 +1,60 @@
-{{Stub}}
+{{About|the nugget|the ingot|Tin Ingot|the mineral block|Block of Tin|the metal in general|Tin}}
 {{Item
 |image     = Grid Tin Nugget.png
-|id        = logistics:core/tin_nugget
 |type      = Item
+|renewable = No
 |stackable = Yes (64)
 |added     = v0.2.0
 }}
 
-'''Tin Nugget''' is one-ninth of a [[Tin Ingot]], handy for fine crafting and storage.
+'''Tin nuggets''' are pieces of tin worth one-ninth of a [[Tin Ingot|tin ingot]], handy for fine crafting and storage.
 
 == Obtaining ==
 
+=== Chest loot ===
+
+{{LootChestItem|tin-nugget}}
+
 === Crafting ===
 
-One [[Tin Ingot]] unpacks into nine Tin Nuggets, and nine nuggets craft back into one ingot.
+{{Crafting
+|head=1
+|foot=1
+|name=Tin Nugget
+|B2=Tin Ingot
+|Output=Tin Nugget,9
+}}
+
+== Usage ==
+
+Nine tin nuggets craft back into a [[Tin Ingot|tin ingot]].
+
+=== Crafting ingredient ===
+
+{{Crafting
+|head=1
+|foot=1
+|name=[[Tin Ingot]]
+|A1=Tin Nugget |B1=Tin Nugget |C1=Tin Nugget
+|A2=Tin Nugget |B2=Tin Nugget |C2=Tin Nugget
+|A3=Tin Nugget |B3=Tin Nugget |C3=Tin Nugget
+|Output=Tin Ingot
+}}
+
+== Data values ==
+
+=== ID ===
+
+{{ID|logistics:core/tin_nugget|item.logistics.core.tin_nugget}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.2.0|Added '''Tin Nugget'''.}}
 
 == See also ==
 
-* [[Tin]] — material overview
-* [[Tin Ingot]] — the full ingot
+* [[Tin]] - Material overview
+* [[Tin Ingot]] - The full ingot
+* [[Block of Tin]] - Bulk storage block
 
 [[Category:Materials]]
