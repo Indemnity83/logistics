@@ -18,6 +18,7 @@ The '''Glass Tank''' is a fluid storage block that buffers liquids for a [[Fluid
 The Glass Tank can be broken with any tool — it breaks almost instantly.
 
 {{Breaking
+|tool=none
 |tier=none
 |name1=Glass Tank |icon1=Grid Glass Tank.png |hardness1=0.5
 }}

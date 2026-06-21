@@ -11,6 +11,7 @@ Usage:
  }}
 
 Parameters:
+ tool             — correct tool type: pickaxe (default), axe, shovel, hoe, or none
  tier             — minimum tool tier that harvests the block: none, wood, stone, copper, iron,
                     diamond, netherite (default stone)
  toolicon         — icon for the Tool row (default Grid Stone Pickaxe.png)

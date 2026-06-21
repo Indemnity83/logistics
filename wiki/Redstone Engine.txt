@@ -15,9 +15,10 @@ The '''Redstone Engine''' is a basic power generator that converts a redstone si
 
 === Breaking ===
 
-The Redstone Engine can be broken with any tool, though a pickaxe is fastest.
+The Redstone Engine is mined fastest with an axe, but breaks with any tool.
 
 {{Breaking
+|tool=axe
 |tier=none
 |name1=Redstone Engine |icon1=Grid Redstone Engine.png |hardness1=5
 }}

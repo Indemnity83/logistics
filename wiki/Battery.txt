@@ -17,6 +17,7 @@ The '''Battery''' is a power-storage block that energizes a [[Pipe Networks|logi
 The Battery can be broken with any tool, though a pickaxe is fastest.
 
 {{Breaking
+|tool=none
 |tier=none
 |name1=Battery |icon1=Grid Battery.png |hardness1=3
 }}
