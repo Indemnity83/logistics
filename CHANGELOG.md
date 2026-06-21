@@ -5,7 +5,7 @@
 
 ### Added
 
-* **automation:** add configurable laser quarry chunk loading ([#536](https://github.com/Indemnity83/logistics/issues/536)) ([11fcba1](https://github.com/Indemnity83/logistics/commit/11fcba15bf5419ad45eeffde80e6463693c1f273))
+* **automation:** add configurable laser quarry chunk loading ([#536](https://github.com/Indemnity83/logistics/issues/536)) ([11fcba1](https://github.com/Indemnity83/logistics/commit/11fcba15bf5419ad45eeffde80e6463693c1f273)) — thanks @floralpetals
 * **core:** grant ore XP when macerating metal and apatite ores ([#555](https://github.com/Indemnity83/logistics/issues/555)) ([c48dd10](https://github.com/Indemnity83/logistics/commit/c48dd104b949a90d7d5f05928ac4baa7847107fe))
 
 
@@ -13,6 +13,9 @@
 
 * **automation:** add missing macerator recipes for obsidian, netherite, and metal blocks ([#554](https://github.com/Indemnity83/logistics/issues/554)) ([f710856](https://github.com/Indemnity83/logistics/commit/f710856f3b0d57e12ada9a59b23aac25c206de93))
 * **energy:** fix crash when cables power machines from other mods ([#556](https://github.com/Indemnity83/logistics/issues/556)) ([189e427](https://github.com/Indemnity83/logistics/commit/189e42700c5c674484795c0d2c62508c54f2b867))
+
+### New Contributors
+* @floralpetals made their first contribution in #536
 
 ## [0.7.3](https://github.com/Indemnity83/logistics/compare/mc26.1-v0.7.2...mc26.1-v0.7.3) (2026-06-18)
 
