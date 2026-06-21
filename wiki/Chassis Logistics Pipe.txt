@@ -71,11 +71,13 @@ Like every [[Logistics Pipes|logistics pipe]], the chassis draws [[RF Energy|RF]
 
 === ID ===
 
-* '''MK1''': <code>logistics:pipe/chassis_logistics_pipe_mk1</code>
-* '''MK2''': <code>logistics:pipe/chassis_logistics_pipe_mk2</code>
-* '''MK3''': <code>logistics:pipe/chassis_logistics_pipe_mk3</code>
-* '''MK4''': <code>logistics:pipe/chassis_logistics_pipe_mk4</code>
-* '''MK5''': <code>logistics:pipe/chassis_logistics_pipe_mk5</code>
+{{ID
+|name=Chassis Logistics Pipe MkI|logistics:pipe/chassis_logistics_pipe_mk1|block.logistics.pipe.chassis_logistics_pipe_mk1
+|name2=Chassis Logistics Pipe MkII|logistics:pipe/chassis_logistics_pipe_mk2|block.logistics.pipe.chassis_logistics_pipe_mk2
+|name3=Chassis Logistics Pipe MkIII|logistics:pipe/chassis_logistics_pipe_mk3|block.logistics.pipe.chassis_logistics_pipe_mk3
+|name4=Chassis Logistics Pipe MkIV|logistics:pipe/chassis_logistics_pipe_mk4|block.logistics.pipe.chassis_logistics_pipe_mk4
+|name5=Chassis Logistics Pipe MkV|logistics:pipe/chassis_logistics_pipe_mk5|block.logistics.pipe.chassis_logistics_pipe_mk5
+}}
 
 == History ==
 
