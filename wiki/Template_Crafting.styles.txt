@@ -35,3 +35,7 @@
 .logi-recipes-desc {
 	font-size: 95%;
 }
+.logi-recipes-ingredient {
+	display: block;        /* each ingredient (with its trailing "+"/"or") on its own line */
+	white-space: nowrap;   /* never break an item name mid-word */
+}

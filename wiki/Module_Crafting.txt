@@ -49,7 +49,11 @@ local function ingredientsCell(args)
 			end
 		end
 	end
-	return table.concat(list, ' + ')
+	local out = {}
+	for i, item in ipairs(list) do
+		out[#out + 1] = '<span class="logi-recipes-ingredient">' .. item .. ((i < #list) and ' +' or '') .. '</span>'
+	end
+	return table.concat(out)
 end
 
 -- Recipe column: our own styled crafting grid.

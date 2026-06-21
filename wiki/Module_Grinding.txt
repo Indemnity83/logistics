@@ -42,7 +42,11 @@ local function ingredientsCell(args)
 			parts[#parts + 1] = (t and t.exists) and ('[[' .. v .. ']]') or v
 		end
 	end
-	return table.concat(parts, ' or ')
+	local out = {}
+	for i, item in ipairs(parts) do
+		out[#out + 1] = '<span class="logi-recipes-ingredient">' .. item .. ((i < #parts) and ' or' or '') .. '</span>'
+	end
+	return table.concat(out)
 end
 
 -- Recipe column: our own grinding widget.
