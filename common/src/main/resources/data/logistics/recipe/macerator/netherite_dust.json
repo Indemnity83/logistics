@@ -1,0 +1,9 @@
+{
+  "type": "logistics:macerator",
+  "ingredient": "minecraft:ancient_debris",
+  "result": {
+    "id": "logistics:core/netherite_dust",
+    "count": 1
+  },
+  "grindingtime": 200
+}
