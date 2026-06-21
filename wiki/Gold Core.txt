@@ -5,7 +5,7 @@
 |added     = v0.2.0
 }}
 
-'''Gold Core''' is an intermediate crafting component, paired with a [[Cores#Quartz Crystal|Quartz Crystal]] to craft the [[Gold Valve]].
+'''Gold Core''' is an intermediate crafting component, paired with a [[Quartz Crystal]] to craft the [[Gold Valve]].
 
 == Obtaining ==
 

@@ -5,7 +5,7 @@
 |added     = v0.2.0
 }}
 
-'''Ender Valve''' is a fluid-network [[Valves|valve]], crafted from a [[Ender Core]] and a frame of [[Cores#Quartz Crystal|Quartz Crystal]].
+'''Ender Valve''' is a fluid-network [[Valves|valve]], crafted from a [[Ender Core]] and a frame of [[Quartz Crystal]].
 
 == Obtaining ==
 

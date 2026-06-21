@@ -5,7 +5,7 @@
 |added     = v0.2.0
 }}
 
-'''Iron Core''' is an intermediate crafting component, paired with a [[Cores#Quartz Crystal|Quartz Crystal]] to craft the [[Iron Valve]].
+'''Iron Core''' is an intermediate crafting component, paired with a [[Quartz Crystal]] to craft the [[Iron Valve]].
 
 == Obtaining ==
 

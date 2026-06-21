@@ -5,7 +5,7 @@
 |added     = v0.2.0
 }}
 
-'''Copper Core''' is an intermediate crafting component, paired with a [[Cores#Quartz Crystal|Quartz Crystal]] to craft the [[Copper Valve]].
+'''Copper Core''' is an intermediate crafting component, paired with a [[Quartz Crystal]] to craft the [[Copper Valve]].
 
 == Obtaining ==
 

@@ -42,7 +42,7 @@ See '''[[Dusts]]''' for sources and full grind counts.
 
 ==Valves==
 
-Valves are crafted at the crafting table using [[Cores#Quartz Crystal|Quartz Crystal]] and a matching [[Cores|Core]]. All valves share the same recipe pattern:
+Valves are crafted at the crafting table using [[Quartz Crystal]] and a matching [[Cores|Core]]. All valves share the same recipe pattern:
 
 <pre>
 [Q] [Q] [Q]

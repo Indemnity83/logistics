@@ -5,7 +5,7 @@
 |added     = v0.2.0
 }}
 
-'''Lapis Valve''' is a fluid-network [[Valves|valve]], crafted from a [[Lapis Core]] and a frame of [[Cores#Quartz Crystal|Quartz Crystal]].
+'''Lapis Valve''' is a fluid-network [[Valves|valve]], crafted from a [[Lapis Core]] and a frame of [[Quartz Crystal]].
 
 == Obtaining ==
 

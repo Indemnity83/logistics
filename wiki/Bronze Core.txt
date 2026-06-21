@@ -5,7 +5,7 @@
 |added     = v0.2.0
 }}
 
-'''Bronze Core''' is an intermediate crafting component, paired with a [[Cores#Quartz Crystal|Quartz Crystal]] to craft the [[Bronze Valve]].
+'''Bronze Core''' is an intermediate crafting component, paired with a [[Quartz Crystal]] to craft the [[Bronze Valve]].
 
 == Obtaining ==
 

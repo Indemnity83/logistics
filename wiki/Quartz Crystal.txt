@@ -1,0 +1,48 @@
+{{Item
+|image     = Grid Quartz Crystal.png
+|type      = Item (Crystal)
+|stackable = Yes (64)
+|added     = v0.2.0
+}}
+
+'''Quartz Crystal''' is a crafting component — the frame of every [[Valves|valve]] recipe. It is smelted from [[Quartz Dust]].
+
+== Obtaining ==
+
+=== Smelting ===
+
+Smelt [[Quartz Dust]] in a [[Kiln]] or furnace:
+
+{{Smelting
+|head=1
+|foot=1
+|showname=0
+|Input=Quartz Dust
+|Output=Quartz Crystal
+|XP=0.1
+}}
+
+== Usage ==
+
+=== Crafting ingredient ===
+
+Quartz Crystal forms the frame of every [[Valves|valve]] — eight crystals around a [[Cores|core]], with iron and gold nuggets along the bottom. See [[Valves]] for the full recipe.
+
+== Data values ==
+
+=== ID ===
+
+{{ID|logistics:automation/quartz_crystal|block.logistics.core.quartz_crystal}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.2.0|Added '''Quartz Crystal'''.}}
+
+== See also ==
+
+* [[Quartz Dust]] - Smelted into Quartz Crystal
+* [[Valves]] - What Quartz Crystal builds
+* [[Cores]] - The other valve ingredient
+* [[Kiln]] - Smelts the dust
+
+[[Category:Materials]]

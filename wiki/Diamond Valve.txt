@@ -5,7 +5,7 @@
 |added     = v0.2.0
 }}
 
-'''Diamond Valve''' is a fluid-network [[Valves|valve]], crafted from a [[Diamond Core]] and a frame of [[Cores#Quartz Crystal|Quartz Crystal]].
+'''Diamond Valve''' is a fluid-network [[Valves|valve]], crafted from a [[Diamond Core]] and a frame of [[Quartz Crystal]].
 
 == Obtaining ==
 

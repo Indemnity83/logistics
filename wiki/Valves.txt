@@ -1,4 +1,4 @@
-'''Valves''' are crafting components that pair with [[Cores]] to build the [[Logistics Pipes]]. Every valve shares one recipe — a frame of [[Cores#Quartz Crystal|Quartz Crystal]] with iron and gold nuggets along the bottom, around a [[Cores|core]] — and differs only by which core sits in the center, which determines the pipe it builds.
+'''Valves''' are crafting components that pair with [[Cores]] to build the [[Logistics Pipes]]. Every valve shares one recipe — a frame of [[Quartz Crystal]] with iron and gold nuggets along the bottom, around a [[Cores|core]] — and differs only by which core sits in the center, which determines the pipe it builds.
 
 == Variants ==
 
@@ -18,7 +18,7 @@
 
 == Usage ==
 
-Valves are ingredients only. Each [[Logistics Pipes|logistics pipe]] and Chassis mark calls for a specific valve, which in turn needs the matching [[Cores|core]] and a supply of [[Cores#Quartz Crystal|Quartz Crystal]]. Several valves (Wooden, Copper, Apatite, Obsidian, Ender, Blazing) are reserved for pipes planned in future updates.
+Valves are ingredients only. Each [[Logistics Pipes|logistics pipe]] and Chassis mark calls for a specific valve, which in turn needs the matching [[Cores|core]] and a supply of [[Quartz Crystal]]. Several valves (Wooden, Copper, Apatite, Obsidian, Ender, Blazing) are reserved for pipes planned in future updates.
 
 == See also ==
 

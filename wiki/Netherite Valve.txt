@@ -5,7 +5,7 @@
 |added     = v0.2.0
 }}
 
-'''Netherite Valve''' is a fluid-network [[Valves|valve]], crafted from a [[Netherite Core]] and a frame of [[Cores#Quartz Crystal|Quartz Crystal]].
+'''Netherite Valve''' is a fluid-network [[Valves|valve]], crafted from a [[Netherite Core]] and a frame of [[Quartz Crystal]].
 
 == Obtaining ==
 

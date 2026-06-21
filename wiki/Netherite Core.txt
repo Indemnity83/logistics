@@ -5,7 +5,7 @@
 |added     = v0.2.0
 }}
 
-'''Netherite Core''' is an intermediate crafting component, paired with a [[Cores#Quartz Crystal|Quartz Crystal]] to craft the [[Netherite Valve]].
+'''Netherite Core''' is an intermediate crafting component, paired with a [[Quartz Crystal]] to craft the [[Netherite Valve]].
 
 == Obtaining ==
 

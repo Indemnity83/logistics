@@ -5,7 +5,7 @@
 |added     = v0.2.0
 }}
 
-'''Blazing Valve''' is a fluid-network [[Valves|valve]], crafted from a [[Blazing Core]] and a frame of [[Cores#Quartz Crystal|Quartz Crystal]].
+'''Blazing Valve''' is a fluid-network [[Valves|valve]], crafted from a [[Blazing Core]] and a frame of [[Quartz Crystal]].
 
 == Obtaining ==
 

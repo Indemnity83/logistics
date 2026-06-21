@@ -1,4 +1,4 @@
-'''Cores''' are intermediate crafting components used to craft [[Valves]]. Each valve needs its matching core, paired with a [[#Quartz Crystal|Quartz Crystal]]. Every core is crafted from a base material and a binder (usually Redstone) and yields four per craft.
+'''Cores''' are intermediate crafting components used to craft [[Valves]]. Each valve needs its matching core, paired with a [[Quartz Crystal]]. Every core is crafted from a base material and a binder (usually Redstone) and yields four per craft.
 
 == Variants ==
 
@@ -18,25 +18,11 @@
 
 The [[Machine Core]] is a separate component used to build machines, not valves.
 
-== Quartz Crystal ==
-
-Quartz Crystal is not a core, but it is the other ingredient in every valve recipe. Smelt a [[Quartz Dust]] in a [[Kiln]] or furnace:
-
-{{Smelting
-|head=1
-|foot=1
-|showname=0
-|Input=Quartz Dust
-|Output=Quartz Crystal
-|XP=0.1
-}}
-
-Quartz Dust is ground from nether quartz in the [[Macerator]], so valve crafting is gated behind having a Macerator and a [[Kiln]] running.
-
 == See also ==
 
 * [[Valves]] — what cores are crafted into
+* [[Quartz Crystal]] — the other valve ingredient
 * [[Gears]], [[Chips]] — other crafting components
-* [[Macerator]], [[Kiln]] — produce and smelt the Quartz Dust
+* [[Macerator]], [[Kiln]] — produce and smelt the dusts
 
 [[Category:Materials]]

@@ -58,7 +58,7 @@ Smelt it in a furnace, blast furnace, or a [[Kiln]]:
 * [[Dusts]] - All dusts
 * [[Macerator]] - Produces dusts
 * [[Kiln]] - Smelts dust into ingots and crystals
-* [[Cores#Quartz Crystal|Quartz Crystal]]
+* [[Quartz Crystal]]
 * [[Chips]]
 
 [[Category:Materials]]

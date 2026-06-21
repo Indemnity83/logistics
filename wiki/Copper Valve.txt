@@ -5,7 +5,7 @@
 |added     = v0.2.0
 }}
 
-'''Copper Valve''' is a fluid-network [[Valves|valve]], crafted from a [[Copper Core]] and a frame of [[Cores#Quartz Crystal|Quartz Crystal]].
+'''Copper Valve''' is a fluid-network [[Valves|valve]], crafted from a [[Copper Core]] and a frame of [[Quartz Crystal]].
 
 == Obtaining ==
 
