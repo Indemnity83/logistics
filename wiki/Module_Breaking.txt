@@ -1,0 +1,111 @@
+-- Module:Breaking — the Minecraft-style breaking-time table for a block (and its variants).
+-- Times are computed from hardness and the tool's mining speed, the same way the game does:
+--   seconds = ceil( (canHarvest ? 30 : 100) * hardness / toolSpeed ) / 20
+-- A row is green when that tool tier can actually harvest the block (drops it), red otherwise.
+
+local p = {}
+
+local function trim(s)
+	if s == nil then return nil end
+	s = mw.text.trim(s)
+	if s == '' then return nil end
+	return s
+end
+
+-- Trim trailing zeros: 15.00 -> "15", 0.90 -> "0.9", 1.15 -> "1.15".
+local function fmt(n)
+	local s = string.format('%.2f', n)
+	s = s:gsub('0+$', ''):gsub('%.$', '')
+	return s
+end
+
+-- label, icon, mining speed, harvest level, is-a-pickaxe. "Default" is the bare hand.
+local TIERS = {
+	{ 'Default',   nil,                          1,  -1, false },
+	{ 'Wooden',    'Grid Wooden Pickaxe.png',    2,   0, true },
+	{ 'Stone',     'Grid Stone Pickaxe.png',     4,   1, true },
+	{ 'Copper',    'Grid Copper Pickaxe.png',    5,   1, true },
+	{ 'Iron',      'Grid Iron Pickaxe.png',      6,   2, true },
+	{ 'Diamond',   'Grid Diamond Pickaxe.png',   8,   3, true },
+	{ 'Netherite', 'Grid Netherite Pickaxe.png', 9,   4, true },
+	{ 'Golden',    'Grid Golden Pickaxe.png',    12,  0, true },
+}
+
+-- Required harvest level by tier name (the block's minimum tool).
+local LEVELS = { none = -1, hand = -1, wood = 0, wooden = 0, gold = 0, golden = 0,
+	stone = 1, copper = 1, iron = 2, diamond = 3, netherite = 4 }
+
+local GREEN, RED = '#d4f7d4', '#f7d4d4'
+
+local function icon(file, size)
+	return '[[File:' .. file .. '|' .. (size or 20) .. 'px|link=]]'
+end
+
+function p.table(frame)
+	local a = frame:getParent().args
+	local reqLevel = LEVELS[(trim(a.tier) or 'stone'):lower()] or 1
+	local toolIcon = trim(a.toolicon) or 'Grid Stone Pickaxe.png'
+
+	-- collect block variants: name1/icon1/hardness1, name2/...
+	local variants = {}
+	local i = 1
+	while trim(a['name' .. i]) do
+		variants[#variants + 1] = {
+			name = trim(a['name' .. i]),
+			icon = trim(a['icon' .. i]),
+			hardness = tonumber(trim(a['hardness' .. i]) or ''),
+		}
+		i = i + 1
+	end
+	if #variants == 0 then return '' end
+
+	local t = mw.html.create('table'):addClass('wikitable'):addClass('logi-breaking')
+
+	-- header: Block | <icon> Name ...
+	local hr = t:tag('tr')
+	hr:tag('th'):wikitext('Block')
+	for _, v in ipairs(variants) do
+		hr:tag('th'):wikitext((v.icon and (icon(v.icon) .. ' ') or '') .. v.name)
+	end
+
+	-- hardness row
+	local hd = t:tag('tr')
+	hd:tag('th'):wikitext('Hardness')
+	for _, v in ipairs(variants) do
+		hd:tag('td'):css('text-align', 'center'):wikitext(v.hardness and fmt(v.hardness) or '?')
+	end
+
+	-- tool row
+	local tl = t:tag('tr')
+	tl:tag('th'):wikitext('Tool')
+	for _ in ipairs(variants) do
+		tl:tag('td'):css('text-align', 'center'):wikitext(icon(toolIcon))
+	end
+
+	-- breaking-time subheader
+	t:tag('tr'):tag('th'):attr('colspan', #variants + 1)
+		:addClass('logi-breaking-sub'):wikitext("'''Breaking''' time")
+
+	-- one row per tool tier
+	for _, tier in ipairs(TIERS) do
+		local label, ic, speed, level, isPick = tier[1], tier[2], tier[3], tier[4], tier[5]
+		local canHarvest = isPick and level >= reqLevel
+		local row = t:tag('tr')
+		row:tag('th'):css('text-align', 'left')
+			:wikitext((ic and (icon(ic, 18) .. ' ') or '') .. label)
+		for _, v in ipairs(variants) do
+			local cell = row:tag('td'):css('text-align', 'center'):css('background', canHarvest and GREEN or RED)
+			if v.hardness then
+				local secs = math.ceil((canHarvest and 30 or 100) * v.hardness / speed) / 20
+				cell:wikitext(fmt(secs))
+			else
+				cell:wikitext('?')
+			end
+		end
+	end
+
+	return tostring(t) ..
+		"\n<small>Times are for unenchanted tools wielded by players with no status effects, measured in seconds.</small>"
+end
+
+return p

@@ -22,6 +22,12 @@
 
 Tin ore drops 2–5 '''[[Raw Tin|raw tin]]''' when mined with a stone pickaxe or better; the count is increased by Fortune. Mined with Silk Touch it drops itself instead. Deepslate tin ore behaves identically.
 
+{{Breaking
+|tier=stone
+|name1=Tin Ore           |icon1=Grid Tin Ore.png           |hardness1=3
+|name2=Deepslate Tin Ore |icon2=Grid Deepslate Tin Ore.png |hardness2=4.5
+}}
+
 === Natural generation ===
 
 Tin ore generates in every Overworld biome during the world's underground-ore step, in veins of up to '''10''' blocks. It generates in two batches.
