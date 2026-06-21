@@ -1,0 +1,9 @@
+{
+  "type": "logistics:macerator",
+  "ingredient": "logistics:core/raw_tin_block",
+  "result": {
+    "id": "logistics:core/tin_dust",
+    "count": 9
+  },
+  "grindingtime": 200
+}
