@@ -1,1 +1,48 @@
-#REDIRECT [[Logistics Pipes#Satellite Logistics Pipe]]
+{{Block
+|image     = Grid Satellite Logistics Pipe.png
+|type      = Block (Pipe)
+|stackable = Yes (64)
+|added     = v0.2.0
+}}
+
+The '''Satellite Logistics Pipe''' is a [[Logistics Pipes|logistics pipe]] that registers a named destination on the network.
+
+== Obtaining ==
+
+=== Crafting ===
+
+{{Crafting
+|head=1
+|foot=1
+|showname=0
+|A1=Lapis Valve |B1=Basic Logistics Pipe |C1=Lapis Valve
+|Output=Satellite Logistics Pipe
+}}
+
+== Usage ==
+
+The Satellite Logistics Pipe registers a named destination so other pipes can route to it by name rather than location. Set a descriptive name in its GUI (e.g. "Iron Storage"); items addressed to that name are deposited into the adjacent inventory. Several satellites can share a name to load-balance deliveries.
+
+== Power ==
+
+Like every [[Logistics Pipes|logistics pipe]], it draws [[RF Energy|RF]] from a connected [[Battery]] — it renders '''green''' while powered and '''red''' when the network has no charge, in which case routing stops and items in transit drop.
+
+== Data values ==
+
+=== ID ===
+
+{{ID|logistics:pipe/satellite_logistics_pipe|block.logistics.pipe.satellite_logistics_pipe}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.2.0|Added '''Satellite Logistics Pipe'''.}}
+
+== See also ==
+
+* [[Logistics Pipes]] - All logistics pipes
+* [[Requester Logistics Pipe]] - Routes items to satellites by name
+* [[Battery]] - Powers the network
+* [[Pipe Networks]] - How the network routes items
+
+[[Category:Pipes]]
+[[Category:Item Pipes]]

@@ -1,1 +1,63 @@
-#REDIRECT [[Logistics Pipes#Provider Logistics Pipe]]
+{{Block
+|image     = Grid Provider Logistics Pipe.png
+|type      = Block (Pipe)
+|stackable = Yes (64)
+|added     = v0.2.0
+}}
+
+The '''Provider Logistics Pipe''' is a [[Logistics Pipes|logistics pipe]] that advertises an adjacent inventory's contents and fulfills network requests.
+
+== Obtaining ==
+
+=== Crafting ===
+
+{{Crafting
+|head=1
+|foot=1
+|showname=0
+|A1=Iron Valve |B1=Basic Logistics Pipe |C1=Iron Valve
+|Output=Provider Logistics Pipe
+}}
+
+== Usage ==
+
+The Provider Logistics Pipe connects to '''all''' adjacent inventories automatically and, every second, registers their contents with the network. When the network needs an item it can't get elsewhere, the provider extracts it and routes it to the requester. A 9-slot filter (whitelist or blacklist) limits what it offers, and a '''Provider Mode''' controls how much of the inventory is exposed:
+
+{| class="wikitable"
+! Mode !! Behavior
+|-
+| '''Supply''' || Provide all items — the full inventory (default)
+|-
+| '''Reserve''' || Never extract from the first inventory slot
+|-
+| '''Guarded''' || Never extract from the first '''and''' last slots
+|-
+| '''Seeded''' || Always leave 1 item in each slot
+|-
+| '''Sample''' || Always leave 1 of each item type
+|}
+
+== Power ==
+
+Like every [[Logistics Pipes|logistics pipe]], it draws [[RF Energy|RF]] from a connected [[Battery]] — it renders '''green''' while powered and '''red''' when the network has no charge, in which case routing stops and items in transit drop.
+
+== Data values ==
+
+=== ID ===
+
+{{ID|logistics:pipe/provider_logistics_pipe|block.logistics.pipe.provider_logistics_pipe}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.2.0|Added '''Provider Logistics Pipe'''.}}
+
+== See also ==
+
+* [[Logistics Pipes]] - All logistics pipes
+* [[Requester Logistics Pipe]], [[Supplier Logistics Pipe]] - Ask for the items it provides
+* [[Provider Module]] - The same behavior in module form
+* [[Battery]] - Powers the network
+* [[Pipe Networks]] - How the network routes items
+
+[[Category:Pipes]]
+[[Category:Item Pipes]]

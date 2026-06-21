@@ -1,1 +1,50 @@
-#REDIRECT [[Transport Pipes#Variants]]
+{{Block
+|image     = Grid Copper Transport Pipe.png
+|type      = Block (Pipe)
+|function  = Standard item transport
+|stackable = Yes (64)
+|added     = v0.1.0
+}}
+
+The '''Copper Transport Pipe''' is the standard-speed backbone of an item network.
+
+== Obtaining ==
+
+=== Crafting ===
+
+Crafted eight at a time from a pane of Glass flanked by its defining material:
+
+{{Crafting
+|head=1
+|foot=1
+|showname=0
+|A2=Copper Ingot |B2=Glass |C2=Copper Ingot
+|Output=Copper Transport Pipe,8
+}}
+
+== Usage ==
+
+Copper is the default transport pipe — faster than [[Stone Transport Pipe|stone]], cheaper than a powered [[Golden Transport Pipe|golden]] pipe — and forms most of a network's length.
+
+Copper pipes oxidize cosmetically like vanilla copper (wax with a honeycomb, scrape with an axe); oxidation has no effect on transport.
+
+They also accept [[Marking Fluid]], which color-codes pipes so that same-color pipes connect, different colors don't, and unmarked pipes connect to anything — letting independent networks share the same space.
+
+== Data values ==
+
+=== ID ===
+
+{{ID|logistics:pipe/copper_transport_pipe|block.logistics.pipe.copper_transport_pipe}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.1.0|Added '''Copper Transport Pipe'''.}}
+
+== See also ==
+
+* [[Transport Pipes]] - All item-transport pipes
+* [[Marking Fluid]] - Color-codes copper pipes
+* [[Stone Transport Pipe]], [[Golden Transport Pipe]] - Slower and faster alternatives
+* [[Pipe Networks]] - How pipe networks work
+
+[[Category:Pipes]]

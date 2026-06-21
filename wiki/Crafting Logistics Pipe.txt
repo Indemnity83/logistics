@@ -1,1 +1,49 @@
-#REDIRECT [[Logistics Pipes#Crafting Logistics Pipe]]
+{{Block
+|image     = Grid Crafting Logistics Pipe.png
+|type      = Block (Pipe)
+|stackable = Yes (64)
+|added     = v0.2.0
+}}
+
+The '''Crafting Logistics Pipe''' is a [[Logistics Pipes|logistics pipe]] that crafts requested items on demand.
+
+== Obtaining ==
+
+=== Crafting ===
+
+{{Crafting
+|head=1
+|foot=1
+|showname=0
+|A1=Bronze Valve |B1=Basic Logistics Pipe |C1=Bronze Valve
+|Output=Crafting Logistics Pipe
+}}
+
+== Usage ==
+
+The Crafting Logistics Pipe fulfills requests for items that aren't in stock by crafting them. Configure a 3×3 recipe in its GUI; when the output is requested, the pipe pulls the ingredients from providers, crafts, and delivers the result. Chain several to build multi-step crafting trees — one pipe can consume what another produces.
+
+== Power ==
+
+Like every [[Logistics Pipes|logistics pipe]], it draws [[RF Energy|RF]] from a connected [[Battery]] — it renders '''green''' while powered and '''red''' when the network has no charge, in which case routing stops and items in transit drop.
+
+== Data values ==
+
+=== ID ===
+
+{{ID|logistics:pipe/crafting_logistics_pipe|block.logistics.pipe.crafting_logistics_pipe}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.2.0|Added '''Crafting Logistics Pipe'''.}}
+
+== See also ==
+
+* [[Logistics Pipes]] - All logistics pipes
+* [[Crafter Module]] - The same behavior in module form
+* [[Process Logistics Pipe]] - Automates machines instead of crafting tables
+* [[Battery]] - Powers the network
+* [[Pipe Networks]] - How the network routes items
+
+[[Category:Pipes]]
+[[Category:Item Pipes]]

@@ -1,1 +1,47 @@
-#REDIRECT [[Transport Pipes#Routing]]
+{{Block
+|image     = Grid Item Merger Pipe.png
+|type      = Block (Pipe)
+|function  = Funnel items to one output
+|stackable = Yes (64)
+|added     = v0.1.0
+}}
+
+The '''Item Merger Pipe''' is a [[Transport Pipes|transport pipe]] that sends every input to one chosen output.
+
+== Obtaining ==
+
+=== Crafting ===
+
+Crafted eight at a time from a pane of Glass flanked by its defining material:
+
+{{Crafting
+|head=1
+|foot=1
+|showname=0
+|A2=Iron Ingot |B2=Glass |C2=Iron Ingot
+|Output=Item Merger Pipe,8
+}}
+
+== Usage ==
+
+The Item Merger Pipe forces every item that enters it out through a single wrench-selected face, giving a guaranteed direction instead of random routing. Use it to funnel several input streams into one destination.
+
+Set the output face with a [[Wrench]].
+
+== Data values ==
+
+=== ID ===
+
+{{ID|logistics:pipe/item_merger_pipe|block.logistics.pipe.item_merger_pipe}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.1.0|Added '''Item Merger Pipe'''.}}
+
+== See also ==
+
+* [[Transport Pipes]] - All item-transport pipes
+* [[Wrench]] - Sets the output face
+* [[Pipe Networks]] - How pipe networks work
+
+[[Category:Pipes]]

@@ -5,7 +5,7 @@
 |added     = v0.2.0
 }}
 
-The '''Mod Item Sink Module''' is a [[Logistics Pipes#Chassis Logistics Pipe|Chassis Logistics Pipe]] module that accepts '''all items from a configured mod namespace''' from the [[Pipe Networks|logistics network]]. It routes items from a specific mod into a designated adjacent inventory, regardless of item type.
+The '''Mod Item Sink Module''' is a [[Chassis Logistics Pipe]] module that accepts '''all items from a configured mod namespace''' from the [[Pipe Networks|logistics network]]. It routes items from a specific mod into a designated adjacent inventory, regardless of item type.
 
 == Obtaining ==
 
@@ -19,7 +19,7 @@ The '''Mod Item Sink Module''' is a [[Logistics Pipes#Chassis Logistics Pipe|Cha
 
 == Usage ==
 
-When installed in a [[Logistics Pipes#Chassis Logistics Pipe|Chassis Logistics Pipe]], this module checks the namespace (mod ID) of every item arriving at the chassis. If an item's namespace matches the configured mod ID, the module claims it and deposits it into the adjacent inventory. Items from other mods or vanilla Minecraft pass through.
+When installed in a [[Chassis Logistics Pipe]], this module checks the namespace (mod ID) of every item arriving at the chassis. If an item's namespace matches the configured mod ID, the module claims it and deposits it into the adjacent inventory. Items from other mods or vanilla Minecraft pass through.
 
 * Accepts all items from a single configured mod namespace (e.g., <code>create</code>, <code>thermal</code>, <code>ae2</code>).
 * Namespace-based matching — any item whose item ID begins with <code>modid:</code> is accepted.
@@ -53,7 +53,7 @@ Use a [[Wrench]] to open the chassis GUI, then configure the module:
 * [[Polymorphic Sink Module]] - Accept items that already exist in the adjacent inventory
 * [[Enchantment Sink Module]] - Accept any enchanted item
 * [[Modules]] - All available modules
-* [[Logistics Pipes#Chassis Logistics Pipe|Chassis Logistics Pipe]] - Required container
+* [[Chassis Logistics Pipe]] - Required container
 * [[Blank Module]] - Crafting base
 * [[Copper Dust]] - Crafting component
 * [[Redstone Chip]] - Module chip

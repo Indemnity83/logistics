@@ -1,25 +1,15 @@
-'''Logistics Pipes''' are item pipes that join a logistics '''network''': instead of pushing items along at random, they advertise stock, place and fulfill requests, automate crafting, and keep inventories topped up. Every logistics pipe is built on the [[#Basic Logistics Pipe|Basic Logistics Pipe]], draws [[#Power|power]] from a [[Battery]], and connects to the rest of a network through ordinary [[Transport Pipes]].
+'''Logistics Pipes''' are item pipes that join a logistics '''network''': instead of pushing items along at random, they advertise stock, place and fulfill requests, automate crafting, and keep inventories topped up. Every logistics pipe is built on the [[Basic Logistics Pipe]], draws [[#Power|power]] from a [[Battery]], and connects to the rest of a network through ordinary [[Transport Pipes]].
 
 == Variants ==
 
-The Basic Logistics Pipe is crafted first (it yields 8); each role pipe then adds a pair of [[Valves|valves]] to one Basic pipe:
-
-{{Crafting|head=1|showdescription=1
-|name=Basic Logistics Pipe     |A1=Glass |B1=Redstone Torch |C1=Glass |A2=Copper Transport Pipe |B2=Item Filter Pipe |C2=Copper Transport Pipe |B3=Gold Gear |Output=Basic Logistics Pipe,8 |description=The network's sink and the base for every other logistics pipe — deposits addressed items into an adjacent inventory.}}
-{{Crafting
-|name=Provider Logistics Pipe  |A1=Iron Valve |B1=Basic Logistics Pipe |C1=Iron Valve |Output=Provider Logistics Pipe |description=Advertises an adjacent inventory's contents and fulfills network requests.}}
-{{Crafting
-|name=Requester Logistics Pipe |A1=Diamond Valve |B1=Basic Logistics Pipe |C1=Diamond Valve |Output=Requester Logistics Pipe |description=Browse the whole network and pull items on demand.}}
-{{Crafting
-|name=Supplier Logistics Pipe  |A1=Emerald Valve |B1=Basic Logistics Pipe |C1=Emerald Valve |Output=Supplier Logistics Pipe |description=Keeps an adjacent inventory stocked to configured levels.}}
-{{Crafting
-|name=Crafting Logistics Pipe  |A1=Bronze Valve |B1=Basic Logistics Pipe |C1=Bronze Valve |Output=Crafting Logistics Pipe |description=Crafts requested items on demand from network ingredients.}}
-{{Crafting
-|name=Process Logistics Pipe   |A1=Gold Valve |B1=Basic Logistics Pipe |C1=Gold Valve |Output=Process Logistics Pipe |description=Automates a processing machine — feeds inputs, returns outputs.}}
-{{Crafting|foot=1
-|name=Satellite Logistics Pipe |A1=Lapis Valve |B1=Basic Logistics Pipe |C1=Lapis Valve |Output=Satellite Logistics Pipe |description=A named destination other pipes route to by name.}}
-
-The modular [[#Chassis Logistics Pipe|Chassis Logistics Pipe]] (MK1–MK5) is built the same way but takes its behavior from installed [[Modules]].
+* [[File:Grid Basic Logistics Pipe.png|24px|link=Basic Logistics Pipe]] '''[[Basic Logistics Pipe]]'''
+* [[File:Grid Provider Logistics Pipe.png|24px|link=Provider Logistics Pipe]] '''[[Provider Logistics Pipe]]'''
+* [[File:Grid Requester Logistics Pipe.png|24px|link=Requester Logistics Pipe]] '''[[Requester Logistics Pipe]]'''
+* [[File:Grid Supplier Logistics Pipe.png|24px|link=Supplier Logistics Pipe]] '''[[Supplier Logistics Pipe]]'''
+* [[File:Grid Crafting Logistics Pipe.png|24px|link=Crafting Logistics Pipe]] '''[[Crafting Logistics Pipe]]'''
+* [[File:Grid Process Logistics Pipe.png|24px|link=Process Logistics Pipe]] '''[[Process Logistics Pipe]]'''
+* [[File:Grid Satellite Logistics Pipe.png|24px|link=Satellite Logistics Pipe]] '''[[Satellite Logistics Pipe]]'''
+* [[File:Grid Chassis Logistics Pipe MK1.png|24px|link=Chassis Logistics Pipe]] '''[[Chassis Logistics Pipe]]'''
 
 == Power ==
 
@@ -27,83 +17,7 @@ Logistics pipes are powered. Each draws [[RF Energy|RF]] from a connected [[Batt
 
 == Usage ==
 
-A logistics network is formed by connecting logistics pipes (through [[Transport Pipes]]) and giving it power. Providers advertise what's available, requesters and suppliers ask for items, and the network uses pathfinding to route each item from a provider to its destination.
-
-=== Basic Logistics Pipe ===
-
-The entry point into the network and the base for every other logistics pipe. It accepts items arriving from the network and deposits them into the first adjacent inventory. Open it with a [[Wrench]] to configure:
-
-* '''Filter (9 slots)''' — restrict which items this pipe accepts; leave empty to accept anything addressed to it.
-* '''Default Route''' — when enabled, the pipe catches any item that has run out of other routing options. Keep only '''one''' Default Route pipe per network.
-
-When an item arrives it checks, in order: a filter match → an explicit address to this pipe → Default Route.
-
-=== Provider Logistics Pipe ===
-
-Connects to '''all''' adjacent inventories automatically and, every second, registers their contents with the network. When the network needs an item it can't get elsewhere, the provider extracts it and routes it to the requester. A 9-slot filter (whitelist or blacklist) limits what it offers, and a '''Provider Mode''' controls how much of the inventory is exposed:
-
-{| class="wikitable"
-! Mode !! Behavior
-|-
-| '''Supply''' || Provide all items — the full inventory (default)
-|-
-| '''Reserve''' || Never extract from the first inventory slot
-|-
-| '''Guarded''' || Never extract from the first '''and''' last slots
-|-
-| '''Seeded''' || Always leave 1 item in each slot
-|-
-| '''Sample''' || Always leave 1 of each item type
-|}
-
-=== Requester Logistics Pipe ===
-
-Lets you pull items from the network by hand. Open it with a [[Wrench]] to browse every item available across all providers (searchable, paginated), pick an item and quantity, and the network delivers it into the adjacent inventory. For recurring needs, use a Supplier instead.
-
-=== Supplier Logistics Pipe ===
-
-Keeps an adjacent inventory stocked. It checks the inventory every second against up to 9 supply targets (item + amount) and orders the shortfall from the network, tracking in-transit items so it never over-requests. A '''Supply Mode''' sets the strategy:
-
-{| class="wikitable"
-! Mode !! Behavior
-|-
-| '''Partial''' || Request whatever is available, up to the needed amount (default)
-|-
-| '''Stocked''' || Only order once stock drops to 50% or below, then request the full shortfall
-|-
-| '''Infinite''' || Ignore the target; continuously fill all space, one stack at a time
-|-
-| '''Full''' || Only request if the complete shortfall is available — all-or-nothing
-|}
-
-=== Crafting Logistics Pipe ===
-
-Fulfills requests for items that aren't in stock by crafting them. Configure a 3×3 recipe in its GUI; when the output is requested, the pipe pulls the ingredients from providers, crafts, and delivers the result. Chain several to build multi-step crafting trees — one pipe can consume what another produces.
-
-=== Process Logistics Pipe ===
-
-Automates a processing machine (furnace, blast furnace, [[Kiln]], etc.). It feeds raw materials from the network into the machine's input and extracts finished output back into the network, mapping input/output faces and watching machine state so it never overfills. Pair with [[#Provider Logistics Pipe|Providers]] for materials and [[#Requester Logistics Pipe|Requesters]] to pull results.
-
-=== Satellite Logistics Pipe ===
-
-Registers a named destination on the network so other pipes can route to it by name rather than location. Set a descriptive name in its GUI (e.g. "Iron Storage"); items addressed to that name are deposited into the adjacent inventory. Several satellites can share a name to load-balance deliveries.
-
-=== Chassis Logistics Pipe ===
-
-A modular pipe that is an empty frame until you install [[Modules]] — its behavior is entirely defined by the modules it carries. Each mark holds more module slots and is built from a richer valve, but otherwise behaves identically:
-
-{{Crafting|head=1|showdescription=1
-|name=Chassis Logistics Pipe MkI   |B1=Iron Valve |A2=Iron Valve |B2=Basic Logistics Pipe |C2=Iron Valve |B3=Iron Valve |Output=Chassis Logistics Pipe MK1 |description=1 module slot.}}
-{{Crafting
-|name=Chassis Logistics Pipe MkII  |B1=Bronze Valve |A2=Bronze Valve |B2=Basic Logistics Pipe |C2=Bronze Valve |B3=Bronze Valve |Output=Chassis Logistics Pipe MK2 |description=2 module slots.}}
-{{Crafting
-|name=Chassis Logistics Pipe MkIII |B1=Gold Valve |A2=Gold Valve |B2=Basic Logistics Pipe |C2=Gold Valve |B3=Gold Valve |Output=Chassis Logistics Pipe MK3 |description=3 module slots.}}
-{{Crafting
-|name=Chassis Logistics Pipe MkIV  |B1=Diamond Valve |A2=Diamond Valve |B2=Basic Logistics Pipe |C2=Diamond Valve |B3=Diamond Valve |Output=Chassis Logistics Pipe MK4 |description=4 module slots.}}
-{{Crafting|foot=1
-|name=Chassis Logistics Pipe MkV   |B1=Netherite Valve |A2=Netherite Valve |B2=Basic Logistics Pipe |C2=Netherite Valve |B3=Netherite Valve |Output=Chassis Logistics Pipe MK5 |description=5 module slots.}}
-
-Install or swap modules with a [[Wrench]]; multiple modules run at once, so one chassis can combine several logistics functions (e.g. an [[Extractor Module]] plus a [[Provider Module]] in an MK2). See [[Modules]] for the full list.
+A logistics network is formed by connecting logistics pipes (through [[Transport Pipes]]) and giving it power. [[Provider Logistics Pipe|Providers]] advertise what's available, [[Requester Logistics Pipe|requesters]] and [[Supplier Logistics Pipe|suppliers]] ask for items, and the network uses pathfinding to route each item from a provider to its destination. The modular [[Chassis Logistics Pipe]] takes its behavior from installed [[Modules]] instead.
 
 == History ==
 
@@ -115,7 +29,6 @@ Install or swap modules with a [[Wrench]]; multiple modules run at once, so one 
 * [[Modules]] — installable behaviors for the Chassis pipe
 * [[Valves]] — crafting components for the role and chassis pipes
 * [[Battery]] — powers the network
-* [[Wrench]] — configures every logistics pipe
 
 [[Category:Pipes]]
 [[Category:Item Pipes]]

@@ -1,1 +1,47 @@
-#REDIRECT [[Fluid Pipes#Merging]]
+{{Block
+|image     = Grid Merger Fluid Pipe.png
+|type      = Block (Pipe)
+|function  = One-way fluid check valve
+|stackable = Yes (64)
+|added     = v0.7.3
+}}
+
+The '''Merger Fluid Pipe''' is a [[Fluid Pipes|fluid pipe]] that acts as a one-way check valve. It is the fluid counterpart of the [[Item Merger Pipe]].
+
+== Obtaining ==
+
+=== Crafting ===
+
+Combine the [[Item Merger Pipe]] with a Slime Ball (shapeless):
+
+{{Crafting
+|head=1
+|foot=1
+|showname=0
+|A1=Item Merger Pipe |B1=Slime Ball
+|Output=Merger Fluid Pipe
+}}
+
+== Usage ==
+
+The Merger Fluid Pipe lets fluid leave only through a wrench-set output face, and never flow back in. Use it to converge several input lines into one one-way output, or at a tank's input so fluid never drains back out.
+
+== Data values ==
+
+=== ID ===
+
+{{ID|logistics:fluid/merger_fluid_pipe|block.logistics.fluid.merger_fluid_pipe}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.7.3|Added '''Merger Fluid Pipe'''.}}
+
+== See also ==
+
+* [[Fluid Pipes]] - All fluid pipes
+* [[Item Merger Pipe]] - The item-transport counterpart
+* [[Wrench]] - Sets the output face
+* [[Glass Tank]] - Fluid storage
+
+[[Category:Pipes]]
+[[Category:Fluids]]

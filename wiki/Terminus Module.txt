@@ -5,7 +5,7 @@
 |added     = v0.2.0
 }}
 
-The '''Terminus Module''' is a [[Logistics Pipes#Chassis Logistics Pipe|Chassis Logistics Pipe]] module that marks the chassis as a '''network terminus''' — a defined end-point in the [[Pipe Networks|logistics network]]. Items routed to this terminus are held or redirected according to the module's configuration.
+The '''Terminus Module''' is a [[Chassis Logistics Pipe]] module that marks the chassis as a '''network terminus''' — a defined end-point in the [[Pipe Networks|logistics network]]. Items routed to this terminus are held or redirected according to the module's configuration.
 
 == Obtaining ==
 
@@ -19,7 +19,7 @@ The '''Terminus Module''' is a [[Logistics Pipes#Chassis Logistics Pipe|Chassis 
 
 == Usage ==
 
-When installed in a [[Logistics Pipes#Chassis Logistics Pipe|Chassis Logistics Pipe]], the Terminus Module prevents items from passing further through the network at this pipe. Items that arrive here are deposited into an adjacent inventory. It effectively creates a dead-end in the network, ensuring items don't loop or get lost.
+When installed in a [[Chassis Logistics Pipe]], the Terminus Module prevents items from passing further through the network at this pipe. Items that arrive here are deposited into an adjacent inventory. It effectively creates a dead-end in the network, ensuring items don't loop or get lost.
 
 * Marks the chassis as a network dead-end.
 * Items arriving at this point are deposited into an adjacent inventory.
@@ -43,7 +43,7 @@ When installed in a [[Logistics Pipes#Chassis Logistics Pipe|Chassis Logistics P
 
 == See also ==
 * [[Modules]] - All available modules
-* [[Logistics Pipes#Chassis Logistics Pipe|Chassis Logistics Pipe]] - Required container
+* [[Chassis Logistics Pipe]] - Required container
 * [[Blank Module]] - Crafting base
 * [[Item Sink Module]] - Accept specific items at the terminus
 * [[Satellite Logistics Pipe]] - Named remote destinations

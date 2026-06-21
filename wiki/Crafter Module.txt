@@ -5,7 +5,7 @@
 |added     = v0.2.0
 }}
 
-The '''Crafter Module''' is a [[Logistics Pipes#Chassis Logistics Pipe|Chassis Logistics Pipe]] module that enables '''automated crafting''' within a chassis pipe. When installed, the chassis can fulfill network requests for a specific crafted item by sourcing ingredients from the network and performing the crafting operation. Three mark variants exist (MK1/II/III), with higher marks supporting more complex recipes or faster crafting cycles.
+The '''Crafter Module''' is a [[Chassis Logistics Pipe]] module that enables '''automated crafting''' within a chassis pipe. When installed, the chassis can fulfill network requests for a specific crafted item by sourcing ingredients from the network and performing the crafting operation. Three mark variants exist (MK1/II/III), with higher marks supporting more complex recipes or faster crafting cycles.
 
 == Obtaining ==
 
@@ -37,7 +37,7 @@ The '''Crafter Module''' is a [[Logistics Pipes#Chassis Logistics Pipe|Chassis L
 
 == Usage ==
 
-When installed in a [[Logistics Pipes#Chassis Logistics Pipe|Chassis Logistics Pipe]], this module registers a crafting recipe with the network. When the network receives a request for the output item, this module requests the necessary ingredients from the network's providers and performs the crafting operation, delivering the result to the requester.
+When installed in a [[Chassis Logistics Pipe]], this module registers a crafting recipe with the network. When the network receives a request for the output item, this module requests the necessary ingredients from the network's providers and performs the crafting operation, delivering the result to the requester.
 
 * Registers a crafting recipe with the logistics network.
 * Automatically requests ingredients from [[Provider Logistics Pipe|Provider Logistics Pipes]] or [[Provider Module|Provider Modules]].
@@ -76,7 +76,7 @@ When installed in a [[Logistics Pipes#Chassis Logistics Pipe|Chassis Logistics P
 == See also ==
 * [[Crafting Logistics Pipe]] - Standalone crafting pipe (simpler setup)
 * [[Modules]] - All available modules
-* [[Logistics Pipes#Chassis Logistics Pipe|Chassis Logistics Pipe]] - Required container
+* [[Chassis Logistics Pipe]] - Required container
 * [[Blank Module]] - Crafting base
 * [[Provider Module]] - Pairs well to provide crafted output
 * [[Bronze Dust]] - Crafting component

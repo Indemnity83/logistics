@@ -1,1 +1,48 @@
-#REDIRECT [[Transport Pipes#Extraction]]
+{{Block
+|image     = Grid Item Extractor Pipe.png
+|type      = Block (Pipe)
+|function  = Pull items from inventories
+|stackable = Yes (64)
+|added     = v0.1.0
+}}
+
+The '''Item Extractor Pipe''' is a [[Transport Pipes|transport pipe]] that pulls items from an adjacent inventory into the network.
+
+== Obtaining ==
+
+=== Crafting ===
+
+Crafted eight at a time from a pane of Glass flanked by its defining material:
+
+{{Crafting
+|head=1
+|foot=1
+|showname=0
+|A2=Planks |B2=Glass |C2=Planks
+|Output=Item Extractor Pipe,8
+}}
+
+== Usage ==
+
+The Item Extractor Pipe pulls items from the inventory on its wrench-selected face into the network. Use a [[Wrench]] to set which face extracts — the active face is shown by an opaque connector.
+
+Extraction must be powered by an adjacent engine: a [[Redstone Engine]] moves one item per cycle, while a stronger engine such as the [[Stirling Engine]] can pull up to a full stack.
+
+== Data values ==
+
+=== ID ===
+
+{{ID|logistics:pipe/item_extractor_pipe|block.logistics.pipe.item_extractor_pipe}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.1.0|Added '''Item Extractor Pipe'''.}}
+
+== See also ==
+
+* [[Transport Pipes]] - All item-transport pipes
+* [[Wrench]] - Sets the extraction face
+* [[Redstone Engine]], [[Stirling Engine]] - Power the extraction
+* [[Pipe Networks]] - How pipe networks work
+
+[[Category:Pipes]]

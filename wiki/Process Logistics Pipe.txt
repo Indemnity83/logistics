@@ -1,1 +1,49 @@
-#REDIRECT [[Logistics Pipes#Process Logistics Pipe]]
+{{Block
+|image     = Grid Process Logistics Pipe.png
+|type      = Block (Pipe)
+|stackable = Yes (64)
+|added     = v0.2.0
+}}
+
+The '''Process Logistics Pipe''' is a [[Logistics Pipes|logistics pipe]] that automates a processing machine.
+
+== Obtaining ==
+
+=== Crafting ===
+
+{{Crafting
+|head=1
+|foot=1
+|showname=0
+|A1=Gold Valve |B1=Basic Logistics Pipe |C1=Gold Valve
+|Output=Process Logistics Pipe
+}}
+
+== Usage ==
+
+The Process Logistics Pipe automates a machine such as a furnace, blast furnace, or [[Kiln]]. It feeds raw materials from the network into the machine's input and extracts finished output back into the network, mapping input/output faces and watching machine state so it never overfills. Pair it with [[Provider Logistics Pipe|providers]] for materials and [[Requester Logistics Pipe|requesters]] to pull results.
+
+== Power ==
+
+Like every [[Logistics Pipes|logistics pipe]], it draws [[RF Energy|RF]] from a connected [[Battery]] — it renders '''green''' while powered and '''red''' when the network has no charge, in which case routing stops and items in transit drop.
+
+== Data values ==
+
+=== ID ===
+
+{{ID|logistics:pipe/process_logistics_pipe|block.logistics.pipe.process_logistics_pipe}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.2.0|Added '''Process Logistics Pipe'''.}}
+
+== See also ==
+
+* [[Logistics Pipes]] - All logistics pipes
+* [[Crafting Logistics Pipe]] - Crafting-table automation
+* [[Kiln]] - A common machine to automate
+* [[Battery]] - Powers the network
+* [[Pipe Networks]] - How the network routes items
+
+[[Category:Pipes]]
+[[Category:Item Pipes]]

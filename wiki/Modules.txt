@@ -1,4 +1,4 @@
-'''Modules''' are items that are installed into a [[Logistics Pipes#Chassis Logistics Pipe|Chassis Logistics Pipe]] to give it specific behaviors. Each module type provides a distinct logistics function — combining multiple modules in a single chassis creates a multi-function logistics node.
+'''Modules''' are items that are installed into a [[Chassis Logistics Pipe]] to give it specific behaviors. Each module type provides a distinct logistics function — combining multiple modules in a single chassis creates a multi-function logistics node.
 
 All modules are crafted from a [[Blank Module]] base component.
 
@@ -7,15 +7,15 @@ All modules are crafted from a [[Blank Module]] base component.
 {| class="wikitable"
 ! Chassis !! Slots
 |-
-| [[Logistics Pipes#Chassis Logistics Pipe|MK1]] || 1
+| [[Chassis Logistics Pipe|MK1]] || 1
 |-
-| [[Logistics Pipes#Chassis Logistics Pipe|MK2]] || 2
+| [[Chassis Logistics Pipe|MK2]] || 2
 |-
-| [[Logistics Pipes#Chassis Logistics Pipe|MK3]] || 3
+| [[Chassis Logistics Pipe|MK3]] || 3
 |-
-| [[Logistics Pipes#Chassis Logistics Pipe|MK4]] || 4
+| [[Chassis Logistics Pipe|MK4]] || 4
 |-
-| [[Logistics Pipes#Chassis Logistics Pipe|MK5]] || 5
+| [[Chassis Logistics Pipe|MK5]] || 5
 |}
 
 ==Base Component==
@@ -59,7 +59,7 @@ Accept and store specific items or categories.
 * [[File:Grid Mod Item Sink Module.png|24px|link=Mod Item Sink Module]] '''[[Mod Item Sink Module]]''' - Accept any item from a specified mod namespace
 
 ==See Also==
-* [[Logistics Pipes#Chassis Logistics Pipe|Chassis Logistics Pipe]] - The pipe that holds modules
+* [[Chassis Logistics Pipe]] - The pipe that holds modules
 * [[Blank Module]] - Base crafting component for all modules
 * [[Logistics Pipes]] - The powered, network-aware pipe family
 * [[Pipe Networks]] - How the logistics network works

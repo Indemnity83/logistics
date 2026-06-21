@@ -5,7 +5,7 @@
 |added     = v0.2.0
 }}
 
-The '''Extractor Module''' is a [[Logistics Pipes#Chassis Logistics Pipe|Chassis Logistics Pipe]] module that actively pulls items from an adjacent inventory and injects them into the [[Pipe Networks|logistics network]]. Three mark variants exist, with higher marks extracting at greater speed or quantity.
+The '''Extractor Module''' is a [[Chassis Logistics Pipe]] module that actively pulls items from an adjacent inventory and injects them into the [[Pipe Networks|logistics network]]. Three mark variants exist, with higher marks extracting at greater speed or quantity.
 
 == Obtaining ==
 
@@ -37,7 +37,7 @@ The '''Extractor Module''' is a [[Logistics Pipes#Chassis Logistics Pipe|Chassis
 
 == Usage ==
 
-When installed in a [[Logistics Pipes#Chassis Logistics Pipe|Chassis Logistics Pipe]], this module pulls items from an adjacent inventory and routes them into the logistics network. It functions similarly to the standalone [[Item Extractor Pipe]] but is network-aware and can be combined with other modules in the same chassis.
+When installed in a [[Chassis Logistics Pipe]], this module pulls items from an adjacent inventory and routes them into the logistics network. It functions similarly to the standalone [[Item Extractor Pipe]] but is network-aware and can be combined with other modules in the same chassis.
 
 * Extracts items from an adjacent inventory into the logistics network.
 * Configurable item filter — extract only specific item types.
@@ -76,7 +76,7 @@ When installed in a [[Logistics Pipes#Chassis Logistics Pipe|Chassis Logistics P
 * [[Item Extractor Pipe]] - Standalone extractor (simpler, cheaper)
 * [[Advanced Extractor Module]] - Extractor with more filter/scheduling options
 * [[Modules]] - All available modules
-* [[Logistics Pipes#Chassis Logistics Pipe|Chassis Logistics Pipe]] - Required container
+* [[Chassis Logistics Pipe]] - Required container
 * [[Blank Module]] - Crafting base
 * [[Macerator|Wood Pulp]] - Crafting component
 * [[Redstone Chip]] - MK1 chip

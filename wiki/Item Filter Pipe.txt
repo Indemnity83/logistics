@@ -1,1 +1,47 @@
-#REDIRECT [[Transport Pipes#Filtering and sorting]]
+{{Block
+|image     = Grid Item Filter Pipe.png
+|type      = Block (Pipe)
+|function  = Route items by type
+|stackable = Yes (64)
+|added     = v0.1.0
+}}
+
+The '''Item Filter Pipe''' is the sorting [[Transport Pipes|transport pipe]] — it routes items by type.
+
+== Obtaining ==
+
+=== Crafting ===
+
+Crafted eight at a time from a pane of Glass flanked by its defining material:
+
+{{Crafting
+|head=1
+|foot=1
+|showname=0
+|A2=Diamond |B2=Glass |C2=Diamond
+|Output=Item Filter Pipe,8
+}}
+
+== Usage ==
+
+Each face of the Item Filter Pipe has its own item filter; right-click for the GUI. Matching items route to that face, unmatched items go to any unfiltered face, and items with nowhere to go drop.
+
+It is the core of a sorting system — combine it with the [[Item Insertion Pipe]] for storage and the [[Item Void Pipe]] for overflow.
+
+== Data values ==
+
+=== ID ===
+
+{{ID|logistics:pipe/item_filter_pipe|block.logistics.pipe.item_filter_pipe}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.1.0|Added '''Item Filter Pipe'''.}}
+
+== See also ==
+
+* [[Transport Pipes]] - All item-transport pipes
+* [[Item Insertion Pipe]], [[Item Void Pipe]] - Build sorted storage with overflow
+* [[Pipe Networks]] - How pipe networks work
+
+[[Category:Pipes]]

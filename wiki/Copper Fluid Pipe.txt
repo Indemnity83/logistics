@@ -1,1 +1,47 @@
-#REDIRECT [[Fluid Pipes#Transport]]
+{{Block
+|image     = Grid Copper Fluid Pipe.png
+|type      = Block (Pipe)
+|function  = Standard fluid transport
+|stackable = Yes (64)
+|added     = v0.7.3
+}}
+
+The '''Copper Fluid Pipe''' is the standard passive [[Fluid Pipes|fluid pipe]] — 10 mB/t. It is the fluid counterpart of the [[Copper Transport Pipe]].
+
+== Obtaining ==
+
+=== Crafting ===
+
+Combine the [[Copper Transport Pipe]] with a Slime Ball (shapeless):
+
+{{Crafting
+|head=1
+|foot=1
+|showname=0
+|A1=Copper Transport Pipe |B1=Slime Ball
+|Output=Copper Fluid Pipe
+}}
+
+== Usage ==
+
+Copper fluid pipes passively carry fluid at '''10 mB/t''' and form most of a fluid line's length. They oxidize cosmetically like vanilla copper, with no effect on transport.
+
+== Data values ==
+
+=== ID ===
+
+{{ID|logistics:fluid/copper_fluid_pipe|block.logistics.fluid.copper_fluid_pipe}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.7.3|Added '''Copper Fluid Pipe'''.}}
+
+== See also ==
+
+* [[Fluid Pipes]] - All fluid pipes
+* [[Copper Transport Pipe]] - The item-transport counterpart
+* [[Golden Fluid Pipe]] - The faster upgrade (80 mB/t)
+* [[Glass Tank]] - Fluid storage
+
+[[Category:Pipes]]
+[[Category:Fluids]]

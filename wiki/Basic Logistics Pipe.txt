@@ -1,1 +1,55 @@
-#REDIRECT [[Logistics Pipes#Basic Logistics Pipe]]
+{{Block
+|image     = Grid Basic Logistics Pipe.png
+|type      = Block (Pipe)
+|stackable = Yes (64)
+|added     = v0.2.0
+}}
+
+The '''Basic Logistics Pipe''' is the network's sink and the base for every other [[Logistics Pipes|logistics pipe]] — it deposits addressed items into an adjacent inventory.
+
+== Obtaining ==
+
+=== Crafting ===
+
+{{Crafting
+|head=1
+|foot=1
+|showname=0
+|A1=Glass |B1=Redstone Torch |C1=Glass
+|A2=Copper Transport Pipe |B2=Item Filter Pipe |C2=Copper Transport Pipe
+|B3=Gold Gear
+|Output=Basic Logistics Pipe,8
+}}
+
+== Usage ==
+
+The Basic Logistics Pipe is the entry point into the network. It accepts items arriving from the network and deposits them into the first adjacent inventory. Open it with a [[Wrench]] to configure:
+
+* '''Filter (9 slots)''' — restrict which items this pipe accepts; leave empty to accept anything addressed to it.
+* '''Default Route''' — when enabled, the pipe catches any item that has run out of other routing options. Keep only '''one''' Default Route pipe per network.
+
+When an item arrives it checks, in order: a filter match → an explicit address to this pipe → Default Route.
+
+== Power ==
+
+Like every [[Logistics Pipes|logistics pipe]], it draws [[RF Energy|RF]] from a connected [[Battery]] — it renders '''green''' while powered and '''red''' when the network has no charge, in which case routing stops and items in transit drop.
+
+== Data values ==
+
+=== ID ===
+
+{{ID|logistics:pipe/basic_logistics_pipe|block.logistics.pipe.basic_logistics_pipe}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.2.0|Added '''Basic Logistics Pipe'''.}}
+
+== See also ==
+
+* [[Logistics Pipes]] - All logistics pipes
+* [[Chassis Logistics Pipe]] - The modular pipe built on the same base
+* [[Battery]] - Powers the network
+* [[Pipe Networks]] - How the network routes items
+
+[[Category:Pipes]]
+[[Category:Item Pipes]]

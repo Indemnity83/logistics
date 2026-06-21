@@ -1,1 +1,47 @@
-#REDIRECT [[Fluid Pipes#Bypassing handlers]]
+{{Block
+|image     = Grid Bypass Fluid Pipe.png
+|type      = Block (Pipe)
+|function  = Bypass tanks and machines
+|stackable = Yes (64)
+|added     = v0.7.3
+}}
+
+The '''Bypass Fluid Pipe''' is a [[Fluid Pipes|fluid pipe]] that connects only to pipes, never tanks or machines. It is the fluid counterpart of the [[Item Passthrough Pipe]].
+
+== Obtaining ==
+
+=== Crafting ===
+
+Combine the [[Item Passthrough Pipe]] with a Slime Ball (shapeless):
+
+{{Crafting
+|head=1
+|foot=1
+|showname=0
+|A1=Item Passthrough Pipe |B1=Slime Ball
+|Output=Bypass Fluid Pipe
+}}
+
+== Usage ==
+
+The Bypass Fluid Pipe connects only to other fluid pipes, never to tanks or machines. Use it to run a fluid line straight past a handler without filling or draining it.
+
+== Data values ==
+
+=== ID ===
+
+{{ID|logistics:fluid/bypass_fluid_pipe|block.logistics.fluid.bypass_fluid_pipe}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.7.3|Added '''Bypass Fluid Pipe'''.}}
+
+== See also ==
+
+* [[Fluid Pipes]] - All fluid pipes
+* [[Item Passthrough Pipe]] - The item-transport counterpart
+* [[Fluid Pipes]] - Pipe overview
+* [[Glass Tank]] - Fluid storage
+
+[[Category:Pipes]]
+[[Category:Fluids]]

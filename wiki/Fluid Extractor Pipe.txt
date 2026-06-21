@@ -1,1 +1,48 @@
-#REDIRECT [[Fluid Pipes#Extraction]]
+{{Block
+|image     = Grid Fluid Extractor Pipe.png
+|type      = Block (Pipe)
+|function  = Pull fluid from tanks and machines
+|stackable = Yes (64)
+|added     = v0.7.3
+}}
+
+The '''Fluid Extractor Pipe''' is a [[Fluid Pipes|fluid pipe]] that pulls fluid out of an adjacent tank or machine. It is the fluid counterpart of the [[Item Extractor Pipe]].
+
+== Obtaining ==
+
+=== Crafting ===
+
+Combine the [[Item Extractor Pipe]] with a Slime Ball (shapeless):
+
+{{Crafting
+|head=1
+|foot=1
+|showname=0
+|A1=Item Extractor Pipe |B1=Slime Ball
+|Output=Fluid Extractor Pipe
+}}
+
+== Usage ==
+
+The Fluid Extractor Pipe pulls fluid from an adjacent tank or machine and pushes it down the line. Like the [[Item Extractor Pipe]] it must be driven by an adjacent engine — a [[Stirling Engine]] pulls faster than a [[Redstone Engine]], and a [[Creative Engine]] runs at full speed. With no engine it stops; passive pipes alone can't pull fluid from a handler. To draw fluid sources straight from the world, use a [[Pump]] instead.
+
+== Data values ==
+
+=== ID ===
+
+{{ID|logistics:fluid/fluid_extractor_pipe|block.logistics.fluid.fluid_extractor_pipe}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.7.3|Added '''Fluid Extractor Pipe'''.}}
+
+== See also ==
+
+* [[Fluid Pipes]] - All fluid pipes
+* [[Item Extractor Pipe]] - The item-transport counterpart
+* [[Pump]] - Pulls fluid source blocks from the world
+* [[Redstone Engine]], [[Stirling Engine]] - Drive the extraction
+* [[Glass Tank]] - Fluid storage
+
+[[Category:Pipes]]
+[[Category:Fluids]]

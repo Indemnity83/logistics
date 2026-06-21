@@ -1,1 +1,47 @@
-#REDIRECT [[Fluid Pipes#Transport]]
+{{Block
+|image     = Grid Golden Fluid Pipe.png
+|type      = Block (Pipe)
+|function  = Fast fluid transport
+|stackable = Yes (64)
+|added     = v0.7.3
+}}
+
+The '''Golden Fluid Pipe''' is the fastest passive [[Fluid Pipes|fluid pipe]] — 80 mB/t. It is the fluid counterpart of the [[Golden Transport Pipe]].
+
+== Obtaining ==
+
+=== Crafting ===
+
+Combine the [[Golden Transport Pipe]] with a Slime Ball (shapeless):
+
+{{Crafting
+|head=1
+|foot=1
+|showname=0
+|A1=Golden Transport Pipe |B1=Slime Ball
+|Output=Golden Fluid Pipe
+}}
+
+== Usage ==
+
+Golden fluid pipes passively carry fluid at '''80 mB/t''', eight times a copper pipe. Use them on high-demand runs; the slowest pipe on a line still caps the whole line's throughput.
+
+== Data values ==
+
+=== ID ===
+
+{{ID|logistics:fluid/gold_fluid_pipe|block.logistics.fluid.gold_fluid_pipe}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.7.3|Added '''Golden Fluid Pipe'''.}}
+
+== See also ==
+
+* [[Fluid Pipes]] - All fluid pipes
+* [[Golden Transport Pipe]] - The item-transport counterpart
+* [[Copper Fluid Pipe]] - The standard 10 mB/t pipe
+* [[Glass Tank]] - Fluid storage
+
+[[Category:Pipes]]
+[[Category:Fluids]]

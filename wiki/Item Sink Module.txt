@@ -5,7 +5,7 @@
 |added     = v0.2.0
 }}
 
-The '''Item Sink Module''' is a [[Logistics Pipes#Chassis Logistics Pipe|Chassis Logistics Pipe]] module that accepts a '''specific configured item type''' from the [[Pipe Networks|logistics network]] and deposits it into an adjacent inventory. It is the module-form equivalent of a [[Basic Logistics Pipe]] with a strict item filter.
+The '''Item Sink Module''' is a [[Chassis Logistics Pipe]] module that accepts a '''specific configured item type''' from the [[Pipe Networks|logistics network]] and deposits it into an adjacent inventory. It is the module-form equivalent of a [[Basic Logistics Pipe]] with a strict item filter.
 
 == Obtaining ==
 
@@ -19,7 +19,7 @@ The '''Item Sink Module''' is a [[Logistics Pipes#Chassis Logistics Pipe|Chassis
 
 == Usage ==
 
-When installed in a [[Logistics Pipes#Chassis Logistics Pipe|Chassis Logistics Pipe]], this module registers itself as a delivery destination for a configured item type. Network items of the matching type are routed to this chassis and deposited into an adjacent inventory.
+When installed in a [[Chassis Logistics Pipe]], this module registers itself as a delivery destination for a configured item type. Network items of the matching type are routed to this chassis and deposited into an adjacent inventory.
 
 * Accepts one configured item type from the network.
 * Deposits received items into an adjacent inventory.
@@ -52,7 +52,7 @@ Use a [[Wrench]] to open the chassis GUI, then configure the module:
 * [[Polymorphic Sink Module]] - Accepts any item type that already exists in the adjacent inventory
 * [[Mod Item Sink Module]] - Accepts all items from a specific mod namespace
 * [[Modules]] - All available modules
-* [[Logistics Pipes#Chassis Logistics Pipe|Chassis Logistics Pipe]] - Required container
+* [[Chassis Logistics Pipe]] - Required container
 * [[Blank Module]] - Crafting base
 * [[Copper Dust]] - Crafting component
 * [[Carbon Chip]] - Module chip

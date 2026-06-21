@@ -1,1 +1,47 @@
-#REDIRECT [[Transport Pipes#Variants]]
+{{Block
+|image     = Grid Stone Transport Pipe.png
+|type      = Block (Pipe)
+|function  = Slow item transport
+|stackable = Yes (64)
+|added     = v0.1.0
+}}
+
+The '''Stone Transport Pipe''' is the cheapest [[Transport Pipes|transport pipe]] — very slow, with a tiny buffer.
+
+== Obtaining ==
+
+=== Crafting ===
+
+Crafted eight at a time from a pane of Glass flanked by its defining material:
+
+{{Crafting
+|head=1
+|foot=1
+|showname=0
+|A2=Cobblestone |B2=Glass |C2=Cobblestone
+|Output=Stone Transport Pipe,8
+}}
+
+== Usage ==
+
+Stone pipes move items much more slowly than a [[Copper Transport Pipe]] and hold only a small buffer, so they suit short runs and early-game networks where cost matters more than speed.
+
+Like every transport pipe it connects to other pipes and to adjacent inventories automatically, and at a junction items pick a random direction unless a routing pipe overrides it.
+
+== Data values ==
+
+=== ID ===
+
+{{ID|logistics:pipe/stone_transport_pipe|block.logistics.pipe.stone_transport_pipe}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.1.0|Added '''Stone Transport Pipe'''.}}
+
+== See also ==
+
+* [[Transport Pipes]] - All item-transport pipes
+* [[Copper Transport Pipe]] - The standard-speed upgrade
+* [[Pipe Networks]] - How pipe networks work
+
+[[Category:Pipes]]

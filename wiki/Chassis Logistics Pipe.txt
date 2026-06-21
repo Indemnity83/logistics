@@ -1,1 +1,92 @@
-#REDIRECT [[Logistics Pipes#Chassis Logistics Pipe]]
+{{Block
+|image     = Grid Chassis Logistics Pipe MK1.png
+|type      = Block (Pipe)
+|function  = Modular logistics node
+|stackable = Yes (64)
+|added     = v0.2.0
+}}
+
+The '''Chassis Logistics Pipe''' is a modular [[Logistics Pipes|logistics pipe]] — an empty frame until you install [[Modules]]. Its behavior is entirely defined by the modules it carries, and it comes in five marks (MK1–MK5) that differ only in how many module slots they hold.
+
+== Obtaining ==
+
+=== Crafting ===
+
+Each mark is built from a [[Basic Logistics Pipe]] surrounded by four [[Valves|valves]] — a richer valve for each higher mark:
+
+{{Crafting|head=1|showdescription=1
+|name=Chassis MK1
+|B1=Iron Valve
+|A2=Iron Valve |B2=Basic Logistics Pipe |C2=Iron Valve
+|B3=Iron Valve
+|Output=Chassis Logistics Pipe MK1
+|description=1 module slot.
+}}
+
+{{Crafting
+|name=Chassis MK2
+|B1=Bronze Valve
+|A2=Bronze Valve |B2=Basic Logistics Pipe |C2=Bronze Valve
+|B3=Bronze Valve
+|Output=Chassis Logistics Pipe MK2
+|description=2 module slots.
+}}
+
+{{Crafting
+|name=Chassis MK3
+|B1=Gold Valve
+|A2=Gold Valve |B2=Basic Logistics Pipe |C2=Gold Valve
+|B3=Gold Valve
+|Output=Chassis Logistics Pipe MK3
+|description=3 module slots.
+}}
+
+{{Crafting
+|name=Chassis MK4
+|B1=Diamond Valve
+|A2=Diamond Valve |B2=Basic Logistics Pipe |C2=Diamond Valve
+|B3=Diamond Valve
+|Output=Chassis Logistics Pipe MK4
+|description=4 module slots.
+}}
+
+{{Crafting|foot=1
+|name=Chassis MK5
+|B1=Netherite Valve
+|A2=Netherite Valve |B2=Basic Logistics Pipe |C2=Netherite Valve
+|B3=Netherite Valve
+|Output=Chassis Logistics Pipe MK5
+|description=5 module slots.
+}}
+
+== Usage ==
+
+A chassis does nothing on its own. Install or swap [[Modules]] with a [[Wrench]]; multiple modules run at once, so one chassis can combine several logistics functions (for example an [[Extractor Module]] plus a [[Provider Module]] in an MK2). Each mark holds one more module slot than the last (MK1 = 1 slot, up to MK5 = 5 slots).
+
+== Power ==
+
+Like every [[Logistics Pipes|logistics pipe]], the chassis draws [[RF Energy|RF]] from a connected [[Battery]] — green while powered, red when the network has no charge.
+
+== Data values ==
+
+=== ID ===
+
+* '''MK1''': <code>logistics:pipe/chassis_logistics_pipe_mk1</code>
+* '''MK2''': <code>logistics:pipe/chassis_logistics_pipe_mk2</code>
+* '''MK3''': <code>logistics:pipe/chassis_logistics_pipe_mk3</code>
+* '''MK4''': <code>logistics:pipe/chassis_logistics_pipe_mk4</code>
+* '''MK5''': <code>logistics:pipe/chassis_logistics_pipe_mk5</code>
+
+== History ==
+
+{{History|head=1|foot=1|v0.2.0|Added the '''Chassis Logistics Pipe''' (MK1–MK5).}}
+
+== See also ==
+
+* [[Modules]] - Installable behaviors for the chassis
+* [[Logistics Pipes]] - All logistics pipes
+* [[Valves]] - The crafting components for each mark
+* [[Battery]] - Powers the network
+
+[[Category:Pipes]]
+[[Category:Item Pipes]]

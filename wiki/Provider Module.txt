@@ -5,7 +5,7 @@
 |added     = v0.2.0
 }}
 
-The '''Provider Module''' is a [[Logistics Pipes#Chassis Logistics Pipe|Chassis Logistics Pipe]] module that advertises adjacent inventory contents to the [[Pipe Networks|logistics network]] and fulfills item requests — the same function as a standalone [[Provider Logistics Pipe]], in module form. Two mark variants exist: MK1 (Redstone Chip) and MK2 (Amethyst Chip).
+The '''Provider Module''' is a [[Chassis Logistics Pipe]] module that advertises adjacent inventory contents to the [[Pipe Networks|logistics network]] and fulfills item requests — the same function as a standalone [[Provider Logistics Pipe]], in module form. Two mark variants exist: MK1 (Redstone Chip) and MK2 (Amethyst Chip).
 
 == Obtaining ==
 
@@ -29,7 +29,7 @@ The '''Provider Module''' is a [[Logistics Pipes#Chassis Logistics Pipe|Chassis 
 
 == Usage ==
 
-When installed in a [[Logistics Pipes#Chassis Logistics Pipe|Chassis Logistics Pipe]], this module scans adjacent inventories and registers available items with the network. When a [[Requester Logistics Pipe|Requester]] or [[Supplier Logistics Pipe|Supplier]] requests an item, this module extracts it and routes it through the network.
+When installed in a [[Chassis Logistics Pipe]], this module scans adjacent inventories and registers available items with the network. When a [[Requester Logistics Pipe|Requester]] or [[Supplier Logistics Pipe|Supplier]] requests an item, this module extracts it and routes it through the network.
 
 Use this module when you want provider behavior combined with other module functions in the same chassis — for example, extracting from the same inventory with an [[Extractor Module]].
 
@@ -62,7 +62,7 @@ Use this module when you want provider behavior combined with other module funct
 == See also ==
 * [[Provider Logistics Pipe]] - Standalone version of this behavior
 * [[Modules]] - All available modules
-* [[Logistics Pipes#Chassis Logistics Pipe|Chassis Logistics Pipe]] - Required container
+* [[Chassis Logistics Pipe]] - Required container
 * [[Blank Module]] - Crafting base
 * [[Extractor Module]] - Pairs well in a chassis
 * [[Iron Dust]] - Crafting component

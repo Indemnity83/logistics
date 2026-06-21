@@ -1,1 +1,45 @@
-#REDIRECT [[Transport Pipes#Filtering and sorting]]
+{{Block
+|image     = Grid Item Void Pipe.png
+|type      = Block (Pipe)
+|function  = Destroy items
+|stackable = Yes (64)
+|added     = v0.1.0
+}}
+
+The '''Item Void Pipe''' is a [[Transport Pipes|transport pipe]] that destroys any item reaching it.
+
+== Obtaining ==
+
+=== Crafting ===
+
+Crafted eight at a time from a pane of Glass flanked by its defining material:
+
+{{Crafting
+|head=1
+|foot=1
+|showname=0
+|A2=Obsidian |B2=Glass |C2=Ender Pearl
+|Output=Item Void Pipe,8
+}}
+
+== Usage ==
+
+Any item that reaches the center of an Item Void Pipe is destroyed after a brief visible delay. Use it as overflow disposal at the end of a filtered line, behind an [[Item Filter Pipe]].
+
+== Data values ==
+
+=== ID ===
+
+{{ID|logistics:pipe/item_void_pipe|block.logistics.pipe.item_void_pipe}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.1.0|Added '''Item Void Pipe'''.}}
+
+== See also ==
+
+* [[Transport Pipes]] - All item-transport pipes
+* [[Item Filter Pipe]] - Send only unwanted items here
+* [[Pipe Networks]] - How pipe networks work
+
+[[Category:Pipes]]

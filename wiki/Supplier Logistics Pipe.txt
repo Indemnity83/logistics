@@ -1,1 +1,61 @@
-#REDIRECT [[Logistics Pipes#Supplier Logistics Pipe]]
+{{Block
+|image     = Grid Supplier Logistics Pipe.png
+|type      = Block (Pipe)
+|stackable = Yes (64)
+|added     = v0.2.0
+}}
+
+The '''Supplier Logistics Pipe''' is a [[Logistics Pipes|logistics pipe]] that keeps an adjacent inventory stocked.
+
+== Obtaining ==
+
+=== Crafting ===
+
+{{Crafting
+|head=1
+|foot=1
+|showname=0
+|A1=Emerald Valve |B1=Basic Logistics Pipe |C1=Emerald Valve
+|Output=Supplier Logistics Pipe
+}}
+
+== Usage ==
+
+The Supplier Logistics Pipe checks its inventory every second against up to 9 supply targets (item + amount) and orders the shortfall from the network, tracking in-transit items so it never over-requests. A '''Supply Mode''' sets the strategy:
+
+{| class="wikitable"
+! Mode !! Behavior
+|-
+| '''Partial''' || Request whatever is available, up to the needed amount (default)
+|-
+| '''Stocked''' || Only order once stock drops to 50% or below, then request the full shortfall
+|-
+| '''Infinite''' || Ignore the target; continuously fill all space, one stack at a time
+|-
+| '''Full''' || Only request if the complete shortfall is available — all-or-nothing
+|}
+
+== Power ==
+
+Like every [[Logistics Pipes|logistics pipe]], it draws [[RF Energy|RF]] from a connected [[Battery]] — it renders '''green''' while powered and '''red''' when the network has no charge, in which case routing stops and items in transit drop.
+
+== Data values ==
+
+=== ID ===
+
+{{ID|logistics:pipe/supplier_logistics_pipe|block.logistics.pipe.supplier_logistics_pipe}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.2.0|Added '''Supplier Logistics Pipe'''.}}
+
+== See also ==
+
+* [[Logistics Pipes]] - All logistics pipes
+* [[Provider Logistics Pipe]] - Supplies the items
+* [[Active Supplier Module]] - The same behavior in module form
+* [[Battery]] - Powers the network
+* [[Pipe Networks]] - How the network routes items
+
+[[Category:Pipes]]
+[[Category:Item Pipes]]

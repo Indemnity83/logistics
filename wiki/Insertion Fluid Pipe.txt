@@ -1,1 +1,47 @@
-#REDIRECT [[Fluid Pipes#Insertion]]
+{{Block
+|image     = Grid Insertion Fluid Pipe.png
+|type      = Block (Pipe)
+|function  = Fill tanks before passing fluid on
+|stackable = Yes (64)
+|added     = v0.7.3
+}}
+
+The '''Insertion Fluid Pipe''' is a [[Fluid Pipes|fluid pipe]] that fills adjacent tanks and machines first. It is the fluid counterpart of the [[Item Insertion Pipe]].
+
+== Obtaining ==
+
+=== Crafting ===
+
+Combine the [[Item Insertion Pipe]] with a Slime Ball (shapeless):
+
+{{Crafting
+|head=1
+|foot=1
+|showname=0
+|A1=Item Insertion Pipe |B1=Slime Ball
+|Output=Insertion Fluid Pipe
+}}
+
+== Usage ==
+
+The Insertion Fluid Pipe fills adjacent tanks and machines before passing fluid further down the line. Chain several to top off a row of tanks in sequence.
+
+== Data values ==
+
+=== ID ===
+
+{{ID|logistics:fluid/insertion_fluid_pipe|block.logistics.fluid.insertion_fluid_pipe}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.7.3|Added '''Insertion Fluid Pipe'''.}}
+
+== See also ==
+
+* [[Fluid Pipes]] - All fluid pipes
+* [[Item Insertion Pipe]] - The item-transport counterpart
+* [[Glass Tank]] - Fluid storage to fill
+* [[Glass Tank]] - Fluid storage
+
+[[Category:Pipes]]
+[[Category:Fluids]]

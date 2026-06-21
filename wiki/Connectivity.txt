@@ -24,7 +24,7 @@ A connected face shows a '''connector''' extending toward the neighbor; no conne
 
 Some pipes override the default "connect to everything compatible" behavior:
 
-'''[[Item Passthrough Pipe]]''' (and the fluid [[Fluid Pipes#Bypassing handlers|Bypass Fluid Pipe]]):
+'''[[Item Passthrough Pipe]]''' (and the fluid [[Bypass Fluid Pipe]]):
 * Connect only to other pipes, never to handlers
 * Use to run a line past a chest, tank, or machine without tapping it
 

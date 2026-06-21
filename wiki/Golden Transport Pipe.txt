@@ -1,1 +1,47 @@
-#REDIRECT [[Transport Pipes#Acceleration]]
+{{Block
+|image     = Grid Golden Transport Pipe.png
+|type      = Block (Pipe)
+|function  = Item acceleration
+|stackable = Yes (64)
+|added     = v0.1.0
+}}
+
+The '''Golden Transport Pipe''' is a [[Transport Pipes|transport pipe]] that accelerates items while powered.
+
+== Obtaining ==
+
+=== Crafting ===
+
+Crafted eight at a time from a pane of Glass flanked by its defining material:
+
+{{Crafting
+|head=1
+|foot=1
+|showname=0
+|A2=Gold Ingot |B2=Glass |C2=Gold Ingot
+|Output=Golden Transport Pipe,8
+}}
+
+== Usage ==
+
+While powered by redstone, the Golden Transport Pipe speeds items up, and the boost persists as those items travel on through ordinary pipes.
+
+Chain several powered golden pipes for a cumulative boost. Unpowered, it behaves like a [[Copper Transport Pipe]].
+
+== Data values ==
+
+=== ID ===
+
+{{ID|logistics:pipe/gold_transport_pipe|block.logistics.pipe.gold_transport_pipe}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.1.0|Added '''Golden Transport Pipe'''.}}
+
+== See also ==
+
+* [[Transport Pipes]] - All item-transport pipes
+* [[Copper Transport Pipe]] - Its unpowered behavior
+* [[Pipe Networks]] - How pipe networks work
+
+[[Category:Pipes]]

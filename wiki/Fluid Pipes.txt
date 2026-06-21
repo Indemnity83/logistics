@@ -1,56 +1,22 @@
-'''Fluid Pipes''' move liquids through a '''standalone''' fluid system, separate from the item-carrying [[Logistics Pipes|logistics network]]. Fluids never join the item [[Pipe Networks|network graph]] — they get their own local transport, extraction, and storage. Each fluid pipe is the liquid counterpart of an item [[Transport Pipes|transport pipe]], and is crafted from one by combining it with a Slime Ball.
+'''Fluid Pipes''' move liquids through a '''standalone''' fluid system, separate from the item-carrying [[Logistics Pipes|logistics network]]. Fluids never join the item [[Pipe Networks|network graph]] — they get their own local transport, extraction, and storage. Each fluid pipe is the liquid counterpart of an item [[Transport Pipes|transport pipe]], crafted from one by combining it with a Slime Ball.
 
 == Variants ==
 
-Every fluid pipe is made '''shapeless''' from its item-pipe counterpart plus a Slime Ball:
-
-{{Crafting|head=1|showdescription=1
-|name=Stone Fluid Pipe     |A1=Stone Transport Pipe |B1=Slime Ball |Output=Stone Fluid Pipe       |description=Cheap passive transport — 10 mB/t.}}
-{{Crafting
-|name=Copper Fluid Pipe    |A1=Copper Transport Pipe |B1=Slime Ball |Output=Copper Fluid Pipe     |description=Standard passive backbone — 10 mB/t; oxidizes cosmetically.}}
-{{Crafting
-|name=Golden Fluid Pipe    |A1=Golden Transport Pipe |B1=Slime Ball |Output=Golden Fluid Pipe     |description=Fastest passive transport — 80 mB/t.}}
-{{Crafting
-|name=Fluid Extractor Pipe |A1=Item Extractor Pipe |B1=Slime Ball |Output=Fluid Extractor Pipe   |description=Pulls fluid from a tank or machine; engine-driven.}}
-{{Crafting
-|name=Insertion Fluid Pipe |A1=Item Insertion Pipe |B1=Slime Ball |Output=Insertion Fluid Pipe   |description=Fills adjacent tanks and machines before passing fluid on.}}
-{{Crafting
-|name=Merger Fluid Pipe    |A1=Item Merger Pipe |B1=Slime Ball |Output=Merger Fluid Pipe         |description=A one-way check valve out a wrench-set face.}}
-{{Crafting
-|name=Bypass Fluid Pipe    |A1=Item Passthrough Pipe |B1=Slime Ball |Output=Bypass Fluid Pipe     |description=Connects only to pipes, never tanks or machines.}}
-{{Crafting|foot=1
-|name=Void Fluid Pipe      |A1=Item Void Pipe |B1=Slime Ball |Output=Void Fluid Pipe           |description=Destroys any fluid that reaches it.}}
+* [[File:Grid Stone Fluid Pipe.png|24px|link=Stone Fluid Pipe]] '''[[Stone Fluid Pipe]]'''
+* [[File:Grid Copper Fluid Pipe.png|24px|link=Copper Fluid Pipe]] '''[[Copper Fluid Pipe]]'''
+* [[File:Grid Golden Fluid Pipe.png|24px|link=Golden Fluid Pipe]] '''[[Golden Fluid Pipe]]'''
+* [[File:Grid Fluid Extractor Pipe.png|24px|link=Fluid Extractor Pipe]] '''[[Fluid Extractor Pipe]]'''
+* [[File:Grid Insertion Fluid Pipe.png|24px|link=Insertion Fluid Pipe]] '''[[Insertion Fluid Pipe]]'''
+* [[File:Grid Merger Fluid Pipe.png|24px|link=Merger Fluid Pipe]] '''[[Merger Fluid Pipe]]'''
+* [[File:Grid Bypass Fluid Pipe.png|24px|link=Bypass Fluid Pipe]] '''[[Bypass Fluid Pipe]]'''
+* [[File:Grid Void Fluid Pipe.png|24px|link=Void Fluid Pipe]] '''[[Void Fluid Pipe]]'''
 
 == Usage ==
 
 * '''One fluid per line''' — each connected run carries a single fluid type and won't accept another until it drains (no mixing).
 * '''Pressure equalization''' — fluid flows from fuller pipes toward emptier ones and toward sinks, capped each tick by the pipe's transfer rate.
-* '''Passive transport is free''' — the stone, copper, golden, insertion, merger, bypass, and void pipes move fluid with no power. Only '''active extraction''' (the [[#Extraction|Fluid Extractor Pipe]] and the [[Pump]]) costs energy.
+* '''Passive transport is free''' — the stone, copper, golden, insertion, merger, bypass, and void pipes move fluid with no power. Only active extraction (the [[Fluid Extractor Pipe]] and the [[Pump]]) costs energy.
 * Works with any mod's fluid storage on both Fabric and NeoForge.
-
-=== Transport ===
-
-The '''Stone''', '''Copper''', and '''Golden''' fluid pipes are passive movers carrying fluid between tanks, machines, and other pipes at 10, 10, and 80 mB/t respectively. The slowest pipe on a line caps its throughput, so use golden pipes on high-demand runs. Copper fluid pipes oxidize cosmetically like vanilla copper.
-
-=== Extraction ===
-
-The '''Fluid Extractor Pipe''' pulls fluid out of an adjacent tank or machine and pushes it down the line. Like the [[Item Extractor Pipe]] it must be driven by an adjacent [[Redstone Engine|engine]] — a [[Stirling Engine]] pulls faster than a [[Redstone Engine]], and a [[Creative Engine]] runs at full speed. With no engine it stops; passive pipes alone can't pull fluid from a handler. To draw fluid sources straight from the world, use a [[Pump]] instead (it has its own RF buffer).
-
-=== Insertion ===
-
-The '''Insertion Fluid Pipe''' fills adjacent tanks and machines first, passing fluid further down the line only once they are full. Chain several to top off a row of tanks in sequence.
-
-=== Merging ===
-
-The '''Merger Fluid Pipe''' is a directional check valve: fluid may only leave through a wrench-set output face and can't flow back in. Use it to converge several input lines into one one-way output, or at a tank's input so fluid never drains back out.
-
-=== Bypassing handlers ===
-
-The '''Bypass Fluid Pipe''' connects only to other fluid pipes, never to tanks or machines — run a fluid line straight past a handler without filling or draining it.
-
-=== Voiding ===
-
-The '''Void Fluid Pipe''' destroys any fluid that flows into it, acting as a bottomless sink. Because a line always flows toward it, place it deliberately so it doesn't drain tanks you meant to keep.
 
 == History ==
 
@@ -62,7 +28,6 @@ The '''Void Fluid Pipe''' destroys any fluid that flows into it, acting as a bot
 * [[Glass Tank]] — fluid storage (16,000 mB; stack to merge)
 * [[Pump]] — extract fluid source blocks from the world
 * [[Redstone Engine]], [[Stirling Engine]] — drive the Fluid Extractor Pipe
-* [[Wrench]] — set the Merger's output face
 
 [[Category:Pipes]]
 [[Category:Fluids]]

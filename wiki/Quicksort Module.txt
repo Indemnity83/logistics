@@ -5,7 +5,7 @@
 |added     = v0.2.0
 }}
 
-The '''Quicksort Module''' is a [[Logistics Pipes#Chassis Logistics Pipe|Chassis Logistics Pipe]] module that '''automatically sorts items''' into designated storage locations within the [[Pipe Networks|logistics network]]. It scans available storage and routes items to inventories that already contain matching item types.
+The '''Quicksort Module''' is a [[Chassis Logistics Pipe]] module that '''automatically sorts items''' into designated storage locations within the [[Pipe Networks|logistics network]]. It scans available storage and routes items to inventories that already contain matching item types.
 
 == Obtaining ==
 
@@ -19,7 +19,7 @@ The '''Quicksort Module''' is a [[Logistics Pipes#Chassis Logistics Pipe|Chassis
 
 == Usage ==
 
-When installed in a [[Logistics Pipes#Chassis Logistics Pipe|Chassis Logistics Pipe]], the Quicksort Module intercepts items arriving at the chassis from the network and intelligently routes each item to a storage location that already holds that item type. This fills existing stacks before opening new storage slots, keeping your network organized automatically.
+When installed in a [[Chassis Logistics Pipe]], the Quicksort Module intercepts items arriving at the chassis from the network and intelligently routes each item to a storage location that already holds that item type. This fills existing stacks before opening new storage slots, keeping your network organized automatically.
 
 * Routes items to existing partial stacks of the same type.
 * Reduces storage fragmentation by consolidating item types.
@@ -44,7 +44,7 @@ When installed in a [[Logistics Pipes#Chassis Logistics Pipe|Chassis Logistics P
 
 == See also ==
 * [[Modules]] - All available modules
-* [[Logistics Pipes#Chassis Logistics Pipe|Chassis Logistics Pipe]] - Required container
+* [[Chassis Logistics Pipe]] - Required container
 * [[Blank Module]] - Crafting base
 * [[Item Sink Module]] - Accept specific item types as fallback
 * [[Polymorphic Sink Module]] - Fills existing stacks of any type

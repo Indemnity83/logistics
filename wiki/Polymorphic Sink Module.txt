@@ -5,7 +5,7 @@
 |added     = v0.2.0
 }}
 
-The '''Polymorphic Sink Module''' is a [[Logistics Pipes#Chassis Logistics Pipe|Chassis Logistics Pipe]] module that accepts '''any item type that already exists''' in an adjacent inventory. It dynamically fills existing partial stacks rather than requiring a preconfigured item type like the [[Item Sink Module]].
+The '''Polymorphic Sink Module''' is a [[Chassis Logistics Pipe]] module that accepts '''any item type that already exists''' in an adjacent inventory. It dynamically fills existing partial stacks rather than requiring a preconfigured item type like the [[Item Sink Module]].
 
 == Obtaining ==
 
@@ -19,7 +19,7 @@ The '''Polymorphic Sink Module''' is a [[Logistics Pipes#Chassis Logistics Pipe|
 
 == Usage ==
 
-When installed in a [[Logistics Pipes#Chassis Logistics Pipe|Chassis Logistics Pipe]], this module scans the adjacent inventory for existing item types. Any network item that matches a type already present in that inventory is accepted by this module and deposited to fill or extend those stacks.
+When installed in a [[Chassis Logistics Pipe]], this module scans the adjacent inventory for existing item types. Any network item that matches a type already present in that inventory is accepted by this module and deposited to fill or extend those stacks.
 
 * Accepts any item type that already has at least one item in the adjacent inventory.
 * Dynamically updates as the adjacent inventory contents change.
@@ -47,7 +47,7 @@ When installed in a [[Logistics Pipes#Chassis Logistics Pipe|Chassis Logistics P
 * [[Mod Item Sink Module]] - Accept all items from a specific mod namespace
 * [[Quicksort Module]] - Route items by type across multiple inventories
 * [[Modules]] - All available modules
-* [[Logistics Pipes#Chassis Logistics Pipe|Chassis Logistics Pipe]] - Required container
+* [[Chassis Logistics Pipe]] - Required container
 * [[Blank Module]] - Crafting base
 * [[Copper Dust]] - Crafting component
 * [[Echo Chip]] - Module chip

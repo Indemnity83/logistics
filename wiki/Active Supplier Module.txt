@@ -5,7 +5,7 @@
 |added     = v0.2.0
 }}
 
-The '''Active Supplier Module''' is a [[Logistics Pipes#Chassis Logistics Pipe|Chassis Logistics Pipe]] module that keeps an adjacent inventory stocked by '''actively requesting items from the [[Pipe Networks|logistics network]]'''. It periodically checks the inventory and places orders with the network's [[Provider Module|providers]] to maintain configured stock levels.
+The '''Active Supplier Module''' is a [[Chassis Logistics Pipe]] module that keeps an adjacent inventory stocked by '''actively requesting items from the [[Pipe Networks|logistics network]]'''. It periodically checks the inventory and places orders with the network's [[Provider Module|providers]] to maintain configured stock levels.
 
 Unlike the [[Passive Supplier Module]] — which only skims items already in transit — the Active variant initiates requests, so it can guarantee replenishment, at the cost of drawing RF from the network [[Battery]] on each supply cycle.
 
@@ -21,7 +21,7 @@ Unlike the [[Passive Supplier Module]] — which only skims items already in tra
 
 == Usage ==
 
-When installed in a [[Logistics Pipes#Chassis Logistics Pipe|Chassis Logistics Pipe]], this module periodically checks the adjacent inventory and requests items from the network to top it up to the configured target levels.
+When installed in a [[Chassis Logistics Pipe]], this module periodically checks the adjacent inventory and requests items from the network to top it up to the configured target levels.
 
 * Actively places orders with network providers — does not wait for passing traffic.
 * Draws RF from a connected [[Battery]] on each supply cycle; without a charged Battery it cannot request items.
@@ -57,7 +57,7 @@ Stocking modes control how aggressively it orders:
 * [[Provider Module]] - Fulfills this module's requests
 * [[Battery]] - Powers the requests
 * [[Modules]] - All available modules
-* [[Logistics Pipes#Chassis Logistics Pipe|Chassis Logistics Pipe]] - Required container
+* [[Chassis Logistics Pipe]] - Required container
 * [[Blank Module]] - Crafting base
 * [[Emerald Dust]] - Crafting component
 * [[Amethyst Chip]] - Module chip

@@ -5,7 +5,7 @@
 |added     = v0.2.0
 }}
 
-The '''Enchantment Sink Module''' is a [[Logistics Pipes#Chassis Logistics Pipe|Chassis Logistics Pipe]] module that accepts '''any enchanted item''' from the [[Pipe Networks|logistics network]] and deposits it into an adjacent inventory. It acts as a catch-all for enchanted tools, armor, and books passing through the network.
+The '''Enchantment Sink Module''' is a [[Chassis Logistics Pipe]] module that accepts '''any enchanted item''' from the [[Pipe Networks|logistics network]] and deposits it into an adjacent inventory. It acts as a catch-all for enchanted tools, armor, and books passing through the network.
 
 == Obtaining ==
 
@@ -19,7 +19,7 @@ The '''Enchantment Sink Module''' is a [[Logistics Pipes#Chassis Logistics Pipe|
 
 == Usage ==
 
-When installed in a [[Logistics Pipes#Chassis Logistics Pipe|Chassis Logistics Pipe]], this module checks every item arriving at the chassis for enchantment data. If an item carries any enchantment (including enchanted books), this module claims it and deposits it into the adjacent inventory. Non-enchanted items of the same type are ignored.
+When installed in a [[Chassis Logistics Pipe]], this module checks every item arriving at the chassis for enchantment data. If an item carries any enchantment (including enchanted books), this module claims it and deposits it into the adjacent inventory. Non-enchanted items of the same type are ignored.
 
 * Accepts any item with enchantment data.
 * Works for all enchanted item types: tools, armor, books, weapons.
@@ -45,7 +45,7 @@ When installed in a [[Logistics Pipes#Chassis Logistics Pipe|Chassis Logistics P
 * [[Item Sink Module]] - Accept a specific configured item type
 * [[Mod Item Sink Module]] - Accept all items from a specific mod namespace
 * [[Modules]] - All available modules
-* [[Logistics Pipes#Chassis Logistics Pipe|Chassis Logistics Pipe]] - Required container
+* [[Chassis Logistics Pipe]] - Required container
 * [[Blank Module]] - Crafting base
 * [[Copper Dust]] - Crafting component
 * [[Amethyst Chip]] - Module chip

@@ -1,1 +1,49 @@
-#REDIRECT [[Logistics Pipes#Requester Logistics Pipe]]
+{{Block
+|image     = Grid Requester Logistics Pipe.png
+|type      = Block (Pipe)
+|stackable = Yes (64)
+|added     = v0.2.0
+}}
+
+The '''Requester Logistics Pipe''' is a [[Logistics Pipes|logistics pipe]] that pulls items from the network by hand.
+
+== Obtaining ==
+
+=== Crafting ===
+
+{{Crafting
+|head=1
+|foot=1
+|showname=0
+|A1=Diamond Valve |B1=Basic Logistics Pipe |C1=Diamond Valve
+|Output=Requester Logistics Pipe
+}}
+
+== Usage ==
+
+Open the Requester Logistics Pipe with a [[Wrench]] to browse every item available across all [[Provider Logistics Pipe|providers]] (searchable, paginated), pick an item and quantity, and the network delivers it into the adjacent inventory. For recurring needs, use a [[Supplier Logistics Pipe]] instead.
+
+== Power ==
+
+Like every [[Logistics Pipes|logistics pipe]], it draws [[RF Energy|RF]] from a connected [[Battery]] — it renders '''green''' while powered and '''red''' when the network has no charge, in which case routing stops and items in transit drop.
+
+== Data values ==
+
+=== ID ===
+
+{{ID|logistics:pipe/requester_logistics_pipe|block.logistics.pipe.requester_logistics_pipe}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.2.0|Added '''Requester Logistics Pipe'''.}}
+
+== See also ==
+
+* [[Logistics Pipes]] - All logistics pipes
+* [[Provider Logistics Pipe]] - Supplies the items
+* [[Supplier Logistics Pipe]] - Automated restocking
+* [[Battery]] - Powers the network
+* [[Pipe Networks]] - How the network routes items
+
+[[Category:Pipes]]
+[[Category:Item Pipes]]
