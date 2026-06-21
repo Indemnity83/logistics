@@ -10,7 +10,7 @@
 |added            = v0.2.0
 }}
 
-The '''Kiln''' is an RF-powered electric furnace that processes any vanilla smelting recipe. It works like a furnace but uses [[RF Energy|RF]] instead of fuel, and is faster and more efficient for automated setups.
+The '''Kiln''' is an RF-powered electric furnace that '''fires''' any vanilla smelting recipe — anything you can smelt in a furnace, the Kiln makes too. It runs those recipes at the same speed as a furnace, but on [[RF Energy|RF]] instead of fuel (just 1 RF/tick, no fuel to manage), which makes it ideal for automated setups. There are no Kiln-only recipes; see an item's '''Smelting''' section for what it produces.
 
 == Obtaining ==
 

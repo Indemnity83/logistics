@@ -49,4 +49,30 @@ function p.about(frame)
 	return p._hatnote(frame, table.concat(parts, ' '))
 end
 
+-- {{See also|Page#Section|Page2|...}} — "See also: Page § Section, ...". A "#Section" is shown
+-- with the § symbol; the whole line is the italic, indented hatnote.
+function p.seealso(frame)
+	local args = frame:getParent().args
+	local links = {}
+	local i = 1
+	while true do
+		local a = trim(args[i])
+		if not a then break end
+		local page, section = a:match('^(.-)#(.+)$')
+		local disp = section and (trim(page) .. ' § ' .. section) or a
+		links[#links + 1] = '[[' .. a .. '|' .. disp .. ']]'
+		i = i + 1
+	end
+	if #links == 0 then return '' end
+	local joined
+	if #links == 1 then
+		joined = links[1]
+	elseif #links == 2 then
+		joined = links[1] .. ' and ' .. links[2]
+	else
+		joined = table.concat(links, ', ', 1, #links - 1) .. ', and ' .. links[#links]
+	end
+	return p._hatnote(frame, 'See also: ' .. joined)
+end
+
 return p

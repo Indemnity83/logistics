@@ -35,6 +35,10 @@
 
 === Smelting ===
 
+{{See also|Tin Ore#Natural generation}}
+
+Smelt raw tin or tin ore in a furnace, blast furnace, or a [[Kiln]] (RF-powered, no fuel):
+
 {{Smelting
 |head=1
 |name=Tin Ingot

@@ -1,0 +1,11 @@
+<includeonly>{{#invoke:Hatnote|seealso}}</includeonly><noinclude>
+An italic, indented "See also: …" hatnote placed under a section heading, pointing at related pages
+or sections. Powered by [[Module:Hatnote]]; styling lives in [[Template:Hatnote/styles.css]]. A
+<code>#Section</code> is shown with the § symbol.
+
+Usage:
+ {{See also|Tin Ore#Natural generation}}
+ {{See also|Page A|Page B#Section}}
+
+[[Category:Templates]]
+</noinclude>
