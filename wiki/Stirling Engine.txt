@@ -13,6 +13,15 @@ The '''Stirling Engine''' is a high-power generator that burns fuel to produce s
 
 == Obtaining ==
 
+=== Breaking ===
+
+The Stirling Engine can be broken with any tool, though a pickaxe is fastest.
+
+{{Breaking
+|tier=none
+|name1=Stirling Engine |icon1=Grid Stirling Engine.png |hardness1=5
+}}
+
 === Crafting ===
 
 {{Grid Crafting Table

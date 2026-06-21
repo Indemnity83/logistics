@@ -91,7 +91,8 @@ function p.table(frame)
 	-- one row per tool tier
 	for _, tier in ipairs(TIERS) do
 		local label, ic, speed, level, isPick = tier[1], tier[2], tier[3], tier[4], tier[5]
-		local canHarvest = isPick and level >= reqLevel
+		-- tier=none (reqLevel < 0): the block drops with any tool, including by hand
+		local canHarvest = reqLevel < 0 or (isPick and level >= reqLevel)
 		local row = t:tag('tr')
 		row:tag('th'):css('text-align', 'left')
 			:wikitext((ic and (icon(ic, 18) .. ' ') or '') .. label)

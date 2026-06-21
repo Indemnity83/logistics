@@ -14,6 +14,15 @@ The '''Pump''' (also called the '''Fluid Pump''') extracts fluid source blocks f
 
 == Obtaining ==
 
+=== Breaking ===
+
+The Pump is mined with a pickaxe; without one it drops nothing.
+
+{{Breaking
+|tier=wood
+|name1=Pump |icon1=Grid Pump.png |hardness1=3.5
+}}
+
 === Crafting ===
 
 {{Grid Crafting Table

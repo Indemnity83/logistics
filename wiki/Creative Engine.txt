@@ -13,6 +13,15 @@ The '''Creative Engine''' is a power source that produces an unlimited supply of
 
 == Obtaining ==
 
+=== Breaking ===
+
+The Creative Engine can be broken with any tool, though a pickaxe is fastest.
+
+{{Breaking
+|tier=none
+|name1=Creative Engine |icon1=Grid Creative Engine.png |hardness1=5
+}}
+
 '''Creative only — not craftable.''' The Creative Engine has no crafting recipe and is intended for testing and creative mode.
 
 == Usage ==

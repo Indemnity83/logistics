@@ -13,6 +13,15 @@ The '''Macerator''' is an RF-powered grinding machine that converts items into [
 
 == Obtaining ==
 
+=== Breaking ===
+
+The Macerator is mined with a stone pickaxe or better; without one it drops nothing.
+
+{{Breaking
+|tier=stone
+|name1=Macerator |icon1=Grid Macerator.png |hardness1=3.5
+}}
+
 === Crafting ===
 
 {{Grid Crafting Table

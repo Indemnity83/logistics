@@ -1,131 +1,25 @@
-Crafting components, ores, metals, and gems used throughout Logistics.
+'''Materials''' are the crafting components, ores, and metals used throughout Logistics. Browse them by family.
 
-==Machine & Crafting Components==
+== Crafting components ==
 
-* '''[[Machine Core]]''' - Required component for all RF-powered machines (Macerator, Kiln, Laser Quarry)
-* '''[[Sturdy Casing]]''' - Reinforced bronze machine shell, companion to the Machine Core
-* '''[[Cores]]''' - Intermediate components used in valve crafting (Wooden Core, Iron Core, Bronze Core, etc.)
-* '''[[Dusts]]''' - Ground materials produced by the Macerator; used in module crafting and ore doubling
-* '''[[Chips|Chips & Silicon]]''' - Electronic components for module crafting (Redstone Chip, Amethyst Chip, Echo Chip, Carbon Chip)
-* '''[[Rubber]]''' - Rubber Mix and Rubber Chunk; insulates [[Copper Cable|power cables]]
+* [[File:Grid Iron Gear.png|24px|link=Gears]] '''[[Gears]]''' — the gear progression, Wooden through Netherite
+* [[File:Grid Diamond Core.png|24px|link=Cores]] '''[[Cores]]''' — the cores that craft valves
+* [[File:Grid Bronze Valve.png|24px|link=Valves]] '''[[Valves]]''' — the valves that build logistics pipes
+* [[File:Grid Redstone Chip.png|24px|link=Chips]] '''[[Chips]]''' — electronic components for modules
+* [[File:Grid Iron Dust.png|24px|link=Dusts]] '''[[Dusts]]''' — ground materials from the [[Macerator]]
+* [[File:Grid Quartz Crystal.png|24px|link=Quartz Crystal]] '''[[Quartz Crystal]]''' — the frame of every valve
+* [[File:Grid Machine Core.png|24px|link=Machine Core]] '''[[Machine Core]]''' and '''[[Sturdy Casing]]''' — machine components
+* [[File:Grid Rubber Chunk.png|24px|link=Rubber]] '''[[Rubber]]''' — insulates power cables
 
-==Dusts==
+== Ores & metals ==
 
-Ground materials from the [[Macerator]]. Metal dusts can be smelted back into ingots for ore doubling.
+* [[File:Grid Tin Ingot.png|24px|link=Tin]] '''[[Tin]]''' — ore, ingot, nugget, storage blocks, and dust
+* [[File:Grid Bronze Ingot.png|24px|link=Bronze]] '''[[Bronze]]''' — the copper-and-tin alloy
+* [[File:Grid Apatite.png|24px|link=Apatite]] '''[[Apatite]]''' — the gem and its ore
 
-* '''Metals:''' [[Iron Dust|Iron]], [[Copper Dust|Copper]], [[Gold Dust|Gold]], [[Tin Dust|Tin]], [[Bronze Dust|Bronze]], [[Netherite Dust|Netherite]] Dust
-* '''Gems & minerals:''' [[Diamond Dust|Diamond]], [[Emerald Dust|Emerald]], [[Lapis Dust|Lapis]], [[Quartz Dust|Quartz]], [[Apatite Dust|Apatite]], [[Amethyst Dust|Amethyst]], [[Echo Dust|Echo]], [[Ender Dust|Ender]], [[Obsidian Dust|Obsidian]], [[Prismarine Dust|Prismarine]], [[Coal Dust|Coal]] Dust
-* '''Other:''' [[Macerator|Flour]], [[Macerator|Wood Pulp]]
+== See also ==
 
-See '''[[Dusts]]''' for sources and full grind counts.
-
-==Gears==
-
-'''Basic Tier:'''
-* '''[[Wooden Gear]]''' - Early-game gear
-
-'''Stone Tier:'''
-* '''[[Stone Gear]]''' - Stone-tier gear
-
-'''Mid Tier:'''
-* '''[[Iron Gear]]''' - Mid-tier gear
-* '''[[Copper Gear]]''' - Mid-tier gear
-* '''[[Tin Gear]]''' - Mid-tier gear
-* '''[[Bronze Gear]]''' - Mid-tier gear
-
-'''Advanced Tier:'''
-* '''[[Gold Gear]]''' - Advanced gear
-* '''[[Diamond Gear]]''' - Advanced gear
-
-'''End Tier:'''
-* '''[[Netherite Gear]]''' - Highest tier gear
-
-==Valves==
-
-Valves are crafted at the crafting table using [[Quartz Crystal]] and a matching [[Cores|Core]]. All valves share the same recipe pattern:
-
-<pre>
-[Q] [Q] [Q]
-[Q] [Core] [Q]
-[I] [G] [I]
-</pre>
-
-Where Q = Quartz Crystal, I = Iron Nugget, G = Gold Nugget. The Core in the center determines the valve type.
-
-'''Quartz Crystal''' is obtained by smelting [[Quartz Dust]] (ground from Nether Quartz in the [[Macerator]]) in the [[Kiln]] or furnace.
-
-===Wooden Valve===
-* '''Core:''' [[Wooden Core]] (Wood Pulp + Slime Ball)
-* '''Used in:''' Future features
-
-===Copper Valve===
-* '''Core:''' [[Copper Core]] (Copper Ingot + Redstone)
-* '''Used in:''' Future features
-
-===Iron Valve===
-* '''Core:''' [[Iron Core]] (Iron Ingot + Redstone)
-* '''Used in:''' [[Provider Logistics Pipe]], [[Chassis Logistics Pipe#MK1 Recipe|Chassis MK1]]
-
-===Bronze Valve===
-* '''Core:''' [[Bronze Core]] (Bronze Ingot + Redstone)
-* '''Used in:''' [[Crafting Logistics Pipe]], [[Chassis Logistics Pipe#MK2 Recipe|Chassis MK2]]
-
-===Gold Valve===
-* '''Core:''' [[Gold Core]] (Gold Ingot + Redstone)
-* '''Used in:''' [[Process Logistics Pipe]], [[Chassis Logistics Pipe#MK3 Recipe|Chassis MK3]]
-
-===Lapis Valve===
-* '''Core:''' [[Lapis Core]] (Lapis Lazuli + Redstone)
-* '''Used in:''' [[Satellite Logistics Pipe]]
-
-===Diamond Valve===
-* '''Core:''' [[Diamond Core]] (Diamond Dust + Amethyst Shard)
-* '''Used in:''' [[Requester Logistics Pipe]], [[Chassis Logistics Pipe#MK4 Recipe|Chassis MK4]]
-
-===Emerald Valve===
-* '''Core:''' [[Emerald Core]] (Emerald Dust + Amethyst Shard)
-* '''Used in:''' [[Supplier Logistics Pipe]]
-
-===Apatite Valve===
-* '''Core:''' [[Apatite Core]] (Apatite + Redstone)
-* '''Used in:''' Future features
-
-===Obsidian Valve===
-* '''Core:''' [[Obsidian Core]] (Obsidian Dust + Redstone)
-* '''Used in:''' Future features
-
-===Netherite Valve===
-* '''Core:''' [[Netherite Core]] (Netherite Ingot + Redstone)
-* '''Used in:''' [[Chassis Logistics Pipe#MK5 Recipe|Chassis MK5]]
-
-===Blazing Valve===
-* '''Core:''' [[Blazing Core]] (Blaze Powder + Blaze Rod)
-* '''Used in:''' Future features
-
-===Ender Valve===
-* '''Core:''' [[Ender Core]] (Ender Dust + Eye of Ender)
-* '''Used in:''' Future features
-
-==Ores & Metals==
-
-'''Tin:''' (overview: '''[[Tin]]''')
-* '''[[Tin Ore]]''' - Underground ore
-* '''[[Tin Ingot]]''' - Smelted metal
-
-'''Bronze:''' (overview: '''[[Bronze]]''')
-* '''[[Bronze Ingot]]''' - Copper + tin alloy
-
-'''Apatite:'''
-* '''[[Apatite Ore]]''' - Gem ore
-* '''[[Apatite (gem)|Apatite]]''' - Gem material
-
-==See Also==
-* [[Macerator]] - Produces dusts from ores and other materials
-* [[Kiln]] - Smelts Quartz Dust into Quartz Crystal; processes ores
-* [[Machine Core]] - Crafts all RF machines
-* [[Cores]] - Valve crafting components
-* [[Redstone Engine]] - Uses wooden gears
-* [[Stirling Engine]] - Uses stone gears
-* [[Laser Quarry]] - Uses diamond gears and Machine Core
+* [[Macerator]], [[Kiln]] — process raw materials
+* [[Modules]] — built from chips and dusts
 
 [[Category:Materials]]

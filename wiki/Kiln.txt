@@ -13,6 +13,15 @@ The '''Kiln''' is an RF-powered electric furnace that '''fires''' any vanilla sm
 
 == Obtaining ==
 
+=== Breaking ===
+
+The Kiln is mined with a stone pickaxe or better; without one it drops nothing.
+
+{{Breaking
+|tier=stone
+|name1=Kiln |icon1=Grid Kiln.png |hardness1=3.5
+}}
+
 === Crafting ===
 
 {{Grid Crafting Table

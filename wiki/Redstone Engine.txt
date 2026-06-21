@@ -13,6 +13,15 @@ The '''Redstone Engine''' is a basic power generator that converts a redstone si
 
 == Obtaining ==
 
+=== Breaking ===
+
+The Redstone Engine can be broken with any tool, though a pickaxe is fastest.
+
+{{Breaking
+|tier=none
+|name1=Redstone Engine |icon1=Grid Redstone Engine.png |hardness1=5
+}}
+
 === Crafting ===
 
 {{Grid Crafting Table
