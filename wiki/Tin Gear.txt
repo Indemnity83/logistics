@@ -1,1 +1,38 @@
-#REDIRECT [[Gears#Variants]]
+{{Item
+|image     = Grid Tin Gear.png
+|type      = Item (Gear)
+|stackable = Yes (64)
+|added     = v0.1.0
+}}
+
+'''Tin Gear''' is a crafting component in the [[Gears|gear]] progression — each gear is crafted from four of its tier material around the previous gear.
+
+== Obtaining ==
+
+=== Crafting ===
+
+{{Crafting|head=1|foot=1
+|showname=0
+|B1=Tin Ingot
+|A2=Tin Ingot |B2=Copper Gear |C2=Tin Ingot
+|B3=Tin Ingot
+|Output=Tin Gear
+}}
+
+== Data values ==
+
+=== ID ===
+
+{{ID|logistics:core/tin_gear|item.logistics.core.tin_gear}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.1.0|Added '''Tin Gear'''.}}
+
+== See also ==
+
+* [[Gears]] - All gears
+* [[Materials]] - Crafting components
+* [[Machines]] - What gears help build
+
+[[Category:Materials]]

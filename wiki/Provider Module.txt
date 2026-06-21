@@ -61,7 +61,7 @@ Use this module when you want provider behavior combined with other module funct
 * [[Blank Module]] - Crafting base
 * [[Extractor Module]] - Pairs well in a chassis
 * [[Iron Dust]] - Crafting component
-* [[Chips|Redstone Chip]] - MK1 chip
-* [[Chips|Amethyst Chip]] - MK2 chip
+* [[Redstone Chip]] - MK1 chip
+* [[Amethyst Chip]] - MK2 chip
 
 [[Category:Modules]]

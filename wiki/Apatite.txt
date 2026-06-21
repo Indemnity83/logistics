@@ -9,7 +9,7 @@
 
 == Uses ==
 
-* [[File:Grid Apatite Core.png|24px|link=Cores]] '''[[Cores|Apatite Core]]''' — an intermediate component for valve crafting
+* [[File:Grid Apatite Core.png|24px|link=Cores]] '''[[Apatite Core]]''' — an intermediate component for valve crafting
 * [[File:Grid Apatite Valve.png|24px|link=Apatite Valve]] '''[[Apatite Valve]]''' — the gem's main use, crafted via an Apatite Core
 
 {{Disambig}}

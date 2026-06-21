@@ -1,0 +1,84 @@
+{{Item
+|image     = Grid Redstone Chip.png
+|type      = Item (Chip)
+|stackable = Yes (64)
+|added     = v0.2.0
+}}
+
+'''Redstone Chip''' is an electronic [[Chips|chip]] used to craft [[Modules|modules]], built on a [[Chips#Silicon Wafer|Silicon Wafer]] base.
+
+== Obtaining ==
+
+=== Crafting ===
+
+{{Crafting|head=1|foot=1
+|showname=0
+|A1=Ender Dust |B1=Resin Clump |C1=Ender Dust
+|A2=Ender Dust |B2=Redstone |C2=Ender Dust
+|A3=Ender Dust |B3=Silicon Wafer |C3=Ender Dust
+|Output=Redstone Chip,4
+}}
+
+== Usage ==
+
+=== Crafting ingredient ===
+
+{{Crafting|head=1
+|name=[[Crafter Module]]
+|A1=Bronze Dust |B1=Redstone Chip |C1=Bronze Dust
+|A2=Redstone |B2=Blank Module |C2=Redstone
+|Output=Crafter Module
+}}
+
+{{Crafting
+|name=[[Extractor Module]]
+|A1=Wood Pulp |B1=Redstone Chip |C1=Wood Pulp
+|A2=Redstone |B2=Blank Module |C2=Redstone
+|Output=Extractor Module
+}}
+
+{{Crafting
+|name=[[Mod Item Sink Module]]
+|A1=Copper Dust |B1=Redstone Chip |C1=Copper Dust
+|A2=Redstone |B2=Blank Module |C2=Redstone
+|Output=Mod Item Sink Module
+}}
+
+{{Crafting
+|name=[[Passive Supplier Module]]
+|A1=Emerald Dust |B1=Redstone Chip |C1=Emerald Dust
+|A2=Redstone |B2=Blank Module |C2=Redstone
+|Output=Passive Supplier Module
+}}
+
+{{Crafting
+|name=[[Provider Module]]
+|A1=Iron Dust |B1=Redstone Chip |C1=Iron Dust
+|A2=Redstone |B2=Blank Module |C2=Redstone
+|Output=Provider Module
+}}
+
+{{Crafting|foot=1
+|name=[[Terminus Module]]
+|A1=Ender Dust |B1=Redstone Chip |C1=Ender Dust
+|A2=Redstone |B2=Blank Module |C2=Redstone
+|Output=Terminus Module
+}}
+
+== Data values ==
+
+=== ID ===
+
+{{ID|logistics:core/redstone_chip|item.logistics.core.redstone_chip}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.2.0|Added '''Redstone Chip'''.}}
+
+== See also ==
+
+* [[Chips]] - All chips
+* [[Modules]] - What chips build
+* [[Dusts]] - Source of chip ingredients
+
+[[Category:Materials]]

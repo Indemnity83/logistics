@@ -2,36 +2,19 @@
 
 == Variants ==
 
-{{Crafting|head=1|showdescription=1
-|name=Wooden Gear    |B1=Stick |A2=Stick |C2=Stick |B3=Stick |Output=Wooden Gear                                    |description=Four sticks — the start of the chain.}}
-{{Crafting
-|name=Stone Gear     |B1=Stone |A2=Stone |B2=Wooden Gear |C2=Stone |B3=Stone |Output=Stone Gear                     |description=Stone around a Wooden Gear.}}
-{{Crafting
-|name=Copper Gear    |B1=Copper Ingot |A2=Copper Ingot |B2=Stone Gear |C2=Copper Ingot |B3=Copper Ingot |Output=Copper Gear |description=Copper around a Stone Gear.}}
-{{Crafting
-|name=Iron Gear      |B1=Iron Ingot |A2=Iron Ingot |B2=Copper Gear |C2=Iron Ingot |B3=Iron Ingot |Output=Iron Gear     |description=Iron around a Copper Gear.}}
-{{Crafting
-|name=Tin Gear       |B1=Tin Ingot |A2=Tin Ingot |B2=Copper Gear |C2=Tin Ingot |B3=Tin Ingot |Output=Tin Gear           |description=Tin around a Copper Gear — a parallel to the Iron Gear.}}
-{{Crafting
-|name=Bronze Gear    |B1=Bronze Ingot |A2=Bronze Ingot |B2=Iron Gear |C2=Bronze Ingot |B3=Bronze Ingot |Output=Bronze Gear |description=Bronze around an Iron Gear.}}
-{{Crafting
-|name=Gold Gear      |B1=Gold Ingot |A2=Gold Ingot |B2=Bronze Gear |C2=Gold Ingot |B3=Gold Ingot |Output=Gold Gear       |description=Gold around a Bronze Gear.}}
-{{Crafting
-|name=Diamond Gear   |B1=Diamond |A2=Diamond |B2=Gold Gear |C2=Diamond |B3=Diamond |Output=Diamond Gear               |description=Diamond around a Gold Gear.}}
-{{Crafting|foot=1
-|name=Netherite Gear |B1=Netherite Ingot |A2=Netherite Ingot |B2=Diamond Gear |C2=Netherite Ingot |B3=Netherite Ingot |Output=Netherite Gear |description=Netherite around a Diamond Gear — the top tier.}}
-
-== Usage ==
-
-Gears are ingredients, not placeable blocks. Machines, engines, and logistics pipes call for a gear of an appropriate tier — for example, a [[Logistics Pipes#Basic Logistics Pipe|Basic Logistics Pipe]] needs a Gold Gear, and the engines and processing machines use the lower tiers. Because each gear contains the one below it, keeping a stock of the cheaper gears makes the expensive ones quicker to build.
-
-== History ==
-
-{{History|head=1|foot=1|v0.1.0|Added the gear progression (Wooden through Netherite).}}
+* [[File:Grid Wooden Gear.png|24px|link=Wooden Gear]] '''[[Wooden Gear]]'''
+* [[File:Grid Stone Gear.png|24px|link=Stone Gear]] '''[[Stone Gear]]'''
+* [[File:Grid Copper Gear.png|24px|link=Copper Gear]] '''[[Copper Gear]]'''
+* [[File:Grid Iron Gear.png|24px|link=Iron Gear]] '''[[Iron Gear]]'''
+* [[File:Grid Tin Gear.png|24px|link=Tin Gear]] '''[[Tin Gear]]'''
+* [[File:Grid Bronze Gear.png|24px|link=Bronze Gear]] '''[[Bronze Gear]]'''
+* [[File:Grid Gold Gear.png|24px|link=Gold Gear]] '''[[Gold Gear]]'''
+* [[File:Grid Diamond Gear.png|24px|link=Diamond Gear]] '''[[Diamond Gear]]'''
+* [[File:Grid Netherite Gear.png|24px|link=Netherite Gear]] '''[[Netherite Gear]]'''
 
 == See also ==
 
-* [[Valves]] — the other major logistics crafting component
+* [[Cores]], [[Valves]], [[Chips]] — other crafting components
 * [[Materials]] — all crafting components
 * [[Machines]] — what gears help build
 

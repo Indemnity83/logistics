@@ -49,6 +49,6 @@ Configure the items and target quantities via the module GUI in the chassis (use
 * [[Logistics Pipes#Chassis Logistics Pipe|Chassis Logistics Pipe]] - Required container
 * [[Blank Module]] - Crafting base
 * [[Emerald Dust]] - Crafting component
-* [[Chips|Redstone Chip]] - Module chip
+* [[Redstone Chip]] - Module chip
 
 [[Category:Modules]]

@@ -34,7 +34,7 @@
 }}
 
 {{Crafting
-|name=[[Cores|Emerald Core]]
+|name=[[Emerald Core]]
 |B1=Emerald Dust
 |B2=Amethyst Shard
 |B3=Emerald Dust
@@ -62,6 +62,6 @@
 
 * [[Dusts]] - All dusts
 * [[Macerator]] - Produces dusts
-* [[Cores|Emerald Core]]
+* [[Emerald Core]]
 
 [[Category:Materials]]

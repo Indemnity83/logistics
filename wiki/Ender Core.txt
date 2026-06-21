@@ -1,0 +1,50 @@
+{{Item
+|image     = Grid Ender Core.png
+|type      = Item (Core)
+|stackable = Yes (64)
+|added     = v0.2.0
+}}
+
+'''Ender Core''' is an intermediate crafting component, paired with a [[Cores#Quartz Crystal|Quartz Crystal]] to craft the [[Ender Valve]].
+
+== Obtaining ==
+
+=== Crafting ===
+
+{{Crafting|head=1|foot=1
+|showname=0
+|B1=Ender Dust
+|B2=End Rod
+|B3=Ender Dust
+|Output=Ender Core,4
+}}
+
+== Usage ==
+
+=== Crafting ingredient ===
+
+{{Crafting|head=1|foot=1
+|name=[[Ender Valve]]
+|A1=Quartz Crystal |B1=Quartz Crystal |C1=Quartz Crystal
+|A2=Quartz Crystal |B2=Ender Core |C2=Quartz Crystal
+|A3=Iron Nugget |B3=Gold Nugget |C3=Iron Nugget
+|Output=Ender Valve
+}}
+
+== Data values ==
+
+=== ID ===
+
+{{ID|logistics:core/ender_core|item.logistics.core.ender_core}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.2.0|Added '''Ender Core'''.}}
+
+== See also ==
+
+* [[Ender Valve]] - What it crafts
+* [[Cores]] - All cores
+* [[Valves]] - Built from cores
+
+[[Category:Materials]]

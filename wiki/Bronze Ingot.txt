@@ -84,7 +84,7 @@ Smelt [[Bronze Dust]] back into an ingot in a furnace, blast furnace, or a [[Kil
 }}
 
 {{Crafting
-|name=[[Cores|Bronze Core]]
+|name=[[Bronze Core]]
 |B1=Bronze Ingot
 |B2=Redstone
 |B3=Bronze Ingot

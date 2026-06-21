@@ -1,1 +1,58 @@
-#REDIRECT [[Gears#Variants]]
+{{Item
+|image     = Grid Stone Gear.png
+|type      = Item (Gear)
+|stackable = Yes (64)
+|added     = v0.1.0
+}}
+
+'''Stone Gear''' is a crafting component in the [[Gears|gear]] progression — each gear is crafted from four of its tier material around the previous gear.
+
+== Obtaining ==
+
+=== Crafting ===
+
+{{Crafting|head=1|foot=1
+|showname=0
+|B1=Stone
+|A2=Stone |B2=Wooden Gear |C2=Stone
+|B3=Stone
+|Output=Stone Gear
+}}
+
+== Usage ==
+
+=== Crafting ingredient ===
+
+{{Crafting|head=1
+|name=[[Copper Gear]]
+|B1=Copper Ingot
+|A2=Copper Ingot |B2=Stone Gear |C2=Copper Ingot
+|B3=Copper Ingot
+|Output=Copper Gear
+}}
+
+{{Crafting|foot=1
+|name=[[Stirling Engine]]
+|A1=Stone |B1=Stone |C1=Stone
+|B2=Glass
+|A3=Stone Gear |B3=Piston |C3=Stone Gear
+|Output=Stirling Engine
+}}
+
+== Data values ==
+
+=== ID ===
+
+{{ID|logistics:core/stone_gear|item.logistics.core.stone_gear}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.1.0|Added '''Stone Gear'''.}}
+
+== See also ==
+
+* [[Gears]] - All gears
+* [[Materials]] - Crafting components
+* [[Machines]] - What gears help build
+
+[[Category:Materials]]

@@ -54,6 +54,6 @@ Stocking modes control how aggressively it orders:
 * [[Logistics Pipes#Chassis Logistics Pipe|Chassis Logistics Pipe]] - Required container
 * [[Blank Module]] - Crafting base
 * [[Emerald Dust]] - Crafting component
-* [[Chips|Amethyst Chip]] - Module chip
+* [[Amethyst Chip]] - Module chip
 
 [[Category:Modules]]

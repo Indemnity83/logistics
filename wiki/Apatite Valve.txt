@@ -1,1 +1,38 @@
-#REDIRECT [[Valves#Variants]]
+{{Item
+|image     = Grid Apatite Valve.png
+|type      = Item (Valve)
+|stackable = Yes (64)
+|added     = v0.2.0
+}}
+
+'''Apatite Valve''' is a fluid-network [[Valves|valve]], crafted from a [[Apatite Core]] and a frame of [[Cores#Quartz Crystal|Quartz Crystal]].
+
+== Obtaining ==
+
+=== Crafting ===
+
+{{Crafting|head=1|foot=1
+|showname=0
+|A1=Quartz Crystal |B1=Quartz Crystal |C1=Quartz Crystal
+|A2=Quartz Crystal |B2=Apatite Core |C2=Quartz Crystal
+|A3=Iron Nugget |B3=Gold Nugget |C3=Iron Nugget
+|Output=Apatite Valve
+}}
+
+== Data values ==
+
+=== ID ===
+
+{{ID|logistics:core/apatite_valve|item.logistics.core.apatite_valve}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.2.0|Added '''Apatite Valve'''.}}
+
+== See also ==
+
+* [[Apatite Core]] - The center ingredient
+* [[Valves]] - All valves
+* [[Logistics Pipes]] - What valves build
+
+[[Category:Materials]]

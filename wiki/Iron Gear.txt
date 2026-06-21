@@ -1,1 +1,66 @@
-#REDIRECT [[Gears#Variants]]
+{{Item
+|image     = Grid Iron Gear.png
+|type      = Item (Gear)
+|stackable = Yes (64)
+|added     = v0.1.0
+}}
+
+'''Iron Gear''' is a crafting component in the [[Gears|gear]] progression — each gear is crafted from four of its tier material around the previous gear.
+
+== Obtaining ==
+
+=== Crafting ===
+
+{{Crafting|head=1|foot=1
+|showname=0
+|B1=Iron Ingot
+|A2=Iron Ingot |B2=Copper Gear |C2=Iron Ingot
+|B3=Iron Ingot
+|Output=Iron Gear
+}}
+
+== Usage ==
+
+=== Crafting ingredient ===
+
+{{Crafting|head=1
+|name=[[Bronze Gear]]
+|B1=Bronze Ingot
+|A2=Bronze Ingot |B2=Iron Gear |C2=Bronze Ingot
+|B3=Bronze Ingot
+|Output=Bronze Gear
+}}
+
+{{Crafting
+|name=[[Laser Quarry]]
+|A1=Iron Gear |B1=Redstone |C1=Iron Gear
+|A2=Gold Gear |B2=Iron Gear |C2=Gold Gear
+|A3=Diamond Gear |B3=Diamond Pickaxe |C3=Diamond Gear
+|Output=Laser Quarry
+}}
+
+{{Crafting|foot=1
+|name=[[Pump]]
+|A1=Iron Ingot |B1=Redstone |C1=Iron Ingot
+|A2=Iron Ingot |B2=Iron Gear |C2=Iron Ingot
+|A3=Glass Tank |B3=Bucket |C3=Glass Tank
+|Output=Pump
+}}
+
+== Data values ==
+
+=== ID ===
+
+{{ID|logistics:core/iron_gear|item.logistics.core.iron_gear}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.1.0|Added '''Iron Gear'''.}}
+
+== See also ==
+
+* [[Gears]] - All gears
+* [[Materials]] - Crafting components
+* [[Machines]] - What gears help build
+
+[[Category:Materials]]

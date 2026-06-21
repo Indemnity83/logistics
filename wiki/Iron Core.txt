@@ -1,0 +1,50 @@
+{{Item
+|image     = Grid Iron Core.png
+|type      = Item (Core)
+|stackable = Yes (64)
+|added     = v0.2.0
+}}
+
+'''Iron Core''' is an intermediate crafting component, paired with a [[Cores#Quartz Crystal|Quartz Crystal]] to craft the [[Iron Valve]].
+
+== Obtaining ==
+
+=== Crafting ===
+
+{{Crafting|head=1|foot=1
+|showname=0
+|B1=Iron Ingot
+|B2=Redstone
+|B3=Iron Ingot
+|Output=Iron Core,4
+}}
+
+== Usage ==
+
+=== Crafting ingredient ===
+
+{{Crafting|head=1|foot=1
+|name=[[Iron Valve]]
+|A1=Quartz Crystal |B1=Quartz Crystal |C1=Quartz Crystal
+|A2=Quartz Crystal |B2=Iron Core |C2=Quartz Crystal
+|A3=Iron Nugget |B3=Gold Nugget |C3=Iron Nugget
+|Output=Iron Valve
+}}
+
+== Data values ==
+
+=== ID ===
+
+{{ID|logistics:core/iron_core|item.logistics.core.iron_core}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.2.0|Added '''Iron Core'''.}}
+
+== See also ==
+
+* [[Iron Valve]] - What it crafts
+* [[Cores]] - All cores
+* [[Valves]] - Built from cores
+
+[[Category:Materials]]

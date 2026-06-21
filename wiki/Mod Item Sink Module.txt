@@ -51,6 +51,6 @@ Use a [[Wrench]] to open the chassis GUI, then configure the module:
 * [[Logistics Pipes#Chassis Logistics Pipe|Chassis Logistics Pipe]] - Required container
 * [[Blank Module]] - Crafting base
 * [[Copper Dust]] - Crafting component
-* [[Chips|Redstone Chip]] - Module chip
+* [[Redstone Chip]] - Module chip
 
 [[Category:Modules]]

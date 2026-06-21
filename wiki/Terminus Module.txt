@@ -44,6 +44,6 @@ When installed in a [[Logistics Pipes#Chassis Logistics Pipe|Chassis Logistics P
 * [[Satellite Logistics Pipe]] - Named remote destinations
 * [[Pipe Networks]] - Network topology concepts
 * [[Ender Dust]] - Crafting component
-* [[Chips|Redstone Chip]] - Module chip
+* [[Redstone Chip]] - Module chip
 
 [[Category:Modules]]

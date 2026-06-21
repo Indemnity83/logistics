@@ -1,1 +1,56 @@
-#REDIRECT [[Valves#Variants]]
+{{Item
+|image     = Grid Gold Valve.png
+|type      = Item (Valve)
+|stackable = Yes (64)
+|added     = v0.2.0
+}}
+
+'''Gold Valve''' is a fluid-network [[Valves|valve]], crafted from a [[Gold Core]] and a frame of [[Cores#Quartz Crystal|Quartz Crystal]].
+
+== Obtaining ==
+
+=== Crafting ===
+
+{{Crafting|head=1|foot=1
+|showname=0
+|A1=Quartz Crystal |B1=Quartz Crystal |C1=Quartz Crystal
+|A2=Quartz Crystal |B2=Gold Core |C2=Quartz Crystal
+|A3=Iron Nugget |B3=Gold Nugget |C3=Iron Nugget
+|Output=Gold Valve
+}}
+
+== Usage ==
+
+=== Crafting ingredient ===
+
+{{Crafting|head=1
+|name=[[Chassis Logistics Pipe|Chassis Logistics Pipe MK3]]
+|B1=Gold Valve
+|A2=Gold Valve |B2=Basic Logistics Pipe |C2=Gold Valve
+|B3=Gold Valve
+|Output=Chassis Logistics Pipe MK3
+}}
+
+{{Crafting|foot=1
+|name=[[Process Logistics Pipe]]
+|A1=Gold Valve |B1=Basic Logistics Pipe |C1=Gold Valve
+|Output=Process Logistics Pipe
+}}
+
+== Data values ==
+
+=== ID ===
+
+{{ID|logistics:core/gold_valve|item.logistics.core.gold_valve}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.2.0|Added '''Gold Valve'''.}}
+
+== See also ==
+
+* [[Gold Core]] - The center ingredient
+* [[Valves]] - All valves
+* [[Logistics Pipes]] - What valves build
+
+[[Category:Materials]]

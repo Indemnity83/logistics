@@ -5,7 +5,7 @@
 |added     = v0.2.0
 }}
 
-'''Obsidian Dust''' is a dust used to craft the [[Cores|Obsidian Core]]. It currently has no grinding recipe, so it cannot be obtained in survival.
+'''Obsidian Dust''' is a dust used to craft the [[Obsidian Core]]. It currently has no grinding recipe, so it cannot be obtained in survival.
 
 == Obtaining ==
 
@@ -16,7 +16,7 @@ This dust has no obtaining recipe in the current version.
 === Crafting ingredient ===
 
 {{Crafting|head=1|foot=1
-|name=[[Cores|Obsidian Core]]
+|name=[[Obsidian Core]]
 |B1=Obsidian Dust
 |B2=End Rod
 |B3=Obsidian Dust
@@ -37,6 +37,6 @@ This dust has no obtaining recipe in the current version.
 
 * [[Dusts]] - All dusts
 * [[Macerator]] - Produces dusts
-* [[Cores|Obsidian Core]]
+* [[Obsidian Core]]
 
 [[Category:Materials]]

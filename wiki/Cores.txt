@@ -1,58 +1,42 @@
-'''Cores''' are intermediate crafting components used to craft [[Materials#Valves|Valves]]. Each valve type requires its matching core, paired with a [[#Quartz Crystal|Quartz Crystal]]. Cores are made at the crafting table from the corresponding base material and a binder (usually Redstone).
+'''Cores''' are intermediate crafting components used to craft [[Valves]]. Each valve needs its matching core, paired with a [[#Quartz Crystal|Quartz Crystal]]. Every core is crafted from a base material and a binder (usually Redstone) and yields four per craft.
 
-==Core Recipes==
+== Variants ==
 
-All cores yield '''4× per craft''' and share the same shape — the base material top and bottom with a binder in the center slot.
+* [[File:Grid Wooden Core.png|24px|link=Wooden Core]] '''[[Wooden Core]]'''
+* [[File:Grid Copper Core.png|24px|link=Copper Core]] '''[[Copper Core]]'''
+* [[File:Grid Iron Core.png|24px|link=Iron Core]] '''[[Iron Core]]'''
+* [[File:Grid Bronze Core.png|24px|link=Bronze Core]] '''[[Bronze Core]]'''
+* [[File:Grid Gold Core.png|24px|link=Gold Core]] '''[[Gold Core]]'''
+* [[File:Grid Lapis Core.png|24px|link=Lapis Core]] '''[[Lapis Core]]'''
+* [[File:Grid Diamond Core.png|24px|link=Diamond Core]] '''[[Diamond Core]]'''
+* [[File:Grid Emerald Core.png|24px|link=Emerald Core]] '''[[Emerald Core]]'''
+* [[File:Grid Apatite Core.png|24px|link=Apatite Core]] '''[[Apatite Core]]'''
+* [[File:Grid Obsidian Core.png|24px|link=Obsidian Core]] '''[[Obsidian Core]]'''
+* [[File:Grid Netherite Core.png|24px|link=Netherite Core]] '''[[Netherite Core]]'''
+* [[File:Grid Blazing Core.png|24px|link=Blazing Core]] '''[[Blazing Core]]'''
+* [[File:Grid Ender Core.png|24px|link=Ender Core]] '''[[Ender Core]]'''
 
-{{Crafting|head=1|showdescription=1
-|name=Wooden Core    |B1=Wood Pulp       |B2=Slime Ball     |B3=Wood Pulp       |Output=Wooden Core,4    |description=Crafts the [[Wooden Valve]]}}
-{{Crafting
-|name=Copper Core    |B1=Copper Ingot    |B2=Redstone       |B3=Copper Ingot    |Output=Copper Core,4    |description=Crafts the [[Copper Valve]]}}
-{{Crafting
-|name=Iron Core      |B1=Iron Ingot      |B2=Redstone       |B3=Iron Ingot      |Output=Iron Core,4      |description=Crafts the [[Iron Valve]]}}
-{{Crafting
-|name=Bronze Core    |B1=Bronze Ingot    |B2=Redstone       |B3=Bronze Ingot    |Output=Bronze Core,4    |description=Crafts the [[Bronze Valve]]}}
-{{Crafting
-|name=Gold Core      |B1=Gold Ingot      |B2=Redstone       |B3=Gold Ingot      |Output=Gold Core,4      |description=Crafts the [[Gold Valve]]}}
-{{Crafting
-|name=Lapis Core     |B1=Lapis Lazuli    |B2=Redstone       |B3=Lapis Lazuli    |Output=Lapis Core,4     |description=Crafts the [[Lapis Valve]]}}
-{{Crafting
-|name=Diamond Core   |B1=Diamond Dust    |B2=Amethyst Shard |B3=Diamond Dust    |Output=Diamond Core,4   |description=Crafts the [[Diamond Valve]]}}
-{{Crafting
-|name=Emerald Core   |B1=Emerald Dust    |B2=Amethyst Shard |B3=Emerald Dust    |Output=Emerald Core,4   |description=Crafts the [[Emerald Valve]]}}
-{{Crafting
-|name=Apatite Core   |B1=Apatite         |B2=Redstone       |B3=Apatite         |Output=Apatite Core,4   |description=Crafts the [[Apatite Valve]]}}
-{{Crafting
-|name=Obsidian Core  |B1=Obsidian Dust   |B2=Redstone       |B3=Obsidian Dust   |Output=Obsidian Core,4  |description=Crafts the [[Obsidian Valve]]}}
-{{Crafting
-|name=Netherite Core |B1=Netherite Ingot |B2=Redstone       |B3=Netherite Ingot |Output=Netherite Core,4 |description=Crafts the [[Netherite Valve]]}}
-{{Crafting
-|name=Blazing Core   |B1=Blaze Powder    |B2=Blaze Rod      |B3=Blaze Powder    |Output=Blazing Core,4   |description=Crafts the [[Blazing Valve]]}}
-{{Crafting|foot=1
-|name=Ender Core     |B1=Ender Dust      |B2=Eye of Ender   |B3=Ender Dust      |Output=Ender Core,4     |description=Crafts the [[Ender Valve]]}}
+The [[Machine Core]] is a separate component used to build machines, not valves.
 
-Ingredient sources: [[Macerator|Wood Pulp]], [[Diamond Dust]], [[Emerald Dust]], [[Obsidian Dust]], and [[Ender Dust]] all come from the [[Macerator]]; [[Apatite]] and Bronze Ingot are mod materials.
+== Quartz Crystal ==
 
-==Quartz Crystal==
+Quartz Crystal is not a core, but it is the other ingredient in every valve recipe. Smelt a [[Quartz Dust]] in a [[Kiln]] or furnace:
 
-Quartz Crystal is not a "core" but is the other required ingredient in all valve recipes.
-
-{{Grid Crafting Table
-|A1=Quartz Dust |B1=Quartz Dust |C1=Quartz Dust
+{{Smelting
+|head=1
+|foot=1
+|showname=0
+|Input=Quartz Dust
 |Output=Quartz Crystal
+|XP=0.1
 }}
 
-'''Recipe:''' Smelt [[Quartz Dust|Quartz Dust]] in a [[Kiln]] or furnace → 1× Quartz Crystal
+Quartz Dust is ground from nether quartz in the [[Macerator]], so valve crafting is gated behind having a Macerator and a [[Kiln]] running.
 
-Quartz Dust is obtained by grinding Nether Quartz or Quartz Ore in the [[Macerator]].
+== See also ==
 
-'''Progression note:''' Quartz Crystal is gated behind the Macerator, so valve crafting requires a Macerator to be operational first.
-
-==See Also==
-* [[Materials#Valves|Valves]] - What cores are used for
-* [[Dusts]] - Source of Wood Pulp, Diamond Dust, and other core ingredients
-* [[Macerator]] - Produces dusts and Quartz Dust
-* [[Kiln]] - Smelts Quartz Dust into Quartz Crystal
+* [[Valves]] — what cores are crafted into
+* [[Gears]], [[Chips]] — other crafting components
+* [[Macerator]], [[Kiln]] — produce and smelt the Quartz Dust
 
 [[Category:Materials]]
-[[Category:Recipes]]

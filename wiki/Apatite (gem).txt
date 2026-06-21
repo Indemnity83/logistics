@@ -26,7 +26,7 @@
 
 {{Crafting
 |head=1
-|name=[[Cores|Apatite Core]]
+|name=[[Apatite Core]]
 |B1=Apatite
 |B2=Amethyst Shard
 |B3=Apatite

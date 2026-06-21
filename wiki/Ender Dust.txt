@@ -21,7 +21,7 @@
 === Crafting ingredient ===
 
 {{Crafting|head=1
-|name=[[Chips|Amethyst Chip]]
+|name=[[Amethyst Chip]]
 |A1=Ender Dust |B1=Resin Clump |C1=Ender Dust
 |A2=Ender Dust |B2=Amethyst Dust |C2=Ender Dust
 |A3=Ender Dust |B3=Silicon Wafer |C3=Ender Dust
@@ -29,7 +29,7 @@
 }}
 
 {{Crafting
-|name=[[Chips|Carbon Chip]]
+|name=[[Carbon Chip]]
 |A1=Ender Dust |B1=Resin Clump |C1=Ender Dust
 |A2=Ender Dust |B2=Coal Dust |C2=Ender Dust
 |A3=Ender Dust |B3=Silicon Wafer |C3=Ender Dust
@@ -37,7 +37,7 @@
 }}
 
 {{Crafting
-|name=[[Chips|Echo Chip]]
+|name=[[Echo Chip]]
 |A1=Ender Dust |B1=Resin Clump |C1=Ender Dust
 |A2=Ender Dust |B2=Echo Dust |C2=Ender Dust
 |A3=Ender Dust |B3=Silicon Wafer |C3=Ender Dust
@@ -53,7 +53,7 @@
 }}
 
 {{Crafting
-|name=[[Cores|Ender Core]]
+|name=[[Ender Core]]
 |B1=Ender Dust
 |B2=End Rod
 |B3=Ender Dust
@@ -61,7 +61,7 @@
 }}
 
 {{Crafting
-|name=[[Chips|Redstone Chip]]
+|name=[[Redstone Chip]]
 |A1=Ender Dust |B1=Resin Clump |C1=Ender Dust
 |A2=Ender Dust |B2=Redstone |C2=Ender Dust
 |A3=Ender Dust |B3=Silicon Wafer |C3=Ender Dust
@@ -89,7 +89,7 @@
 
 * [[Dusts]] - All dusts
 * [[Macerator]] - Produces dusts
-* [[Cores|Ender Core]]
+* [[Ender Core]]
 * [[Chips]]
 
 [[Category:Materials]]

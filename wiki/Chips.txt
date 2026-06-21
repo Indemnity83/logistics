@@ -1,77 +1,37 @@
 '''Chips''' are advanced electronic components used to craft [[Modules|modules]]. The chip tier determines the module's mark (MK1, MK2, or MK3). All chips are built on a [[#Silicon Wafer|Silicon Wafer]] base.
 
-==Silicon Wafer==
+== Variants ==
 
-The Silicon Wafer is the substrate for all chips, made in two steps.
+* [[File:Grid Redstone Chip.png|24px|link=Redstone Chip]] '''[[Redstone Chip]]'''
+* [[File:Grid Amethyst Chip.png|24px|link=Amethyst Chip]] '''[[Amethyst Chip]]'''
+* [[File:Grid Echo Chip.png|24px|link=Echo Chip]] '''[[Echo Chip]]'''
+* [[File:Grid Carbon Chip.png|24px|link=Carbon Chip]] '''[[Carbon Chip]]'''
 
-'''Step 1 — Silicon Mix (shapeless crafting):''' 3× [[Quartz Dust|Quartz Dust]] + 1× [[Coal Dust]] → 1× Silicon Mix
+== Silicon Wafer ==
 
-'''Step 2 — Silicon Wafer (smelting):''' Smelt Silicon Mix in a [[Kiln]] or furnace → 1× Silicon Wafer
+The Silicon Wafer is the substrate for every chip, made in two steps:
 
-==Chip Recipes==
+# '''Silicon Mix''' — combine 3× [[Quartz Dust]] and 1× [[Coal Dust]] at a crafting table (shapeless).
+# '''Silicon Wafer''' — smelt the Silicon Mix in a [[Kiln]] or furnace.
 
-All chips share the same shape — a frame of [[Ender Dust]] around a Resin Clump, a defining dust, and a Silicon Wafer. Only the center slot changes, and all chips yield '''4× per craft'''.
-
-{{Crafting|head=1|showdescription=1
-|name=Redstone Chip
-|A1=Ender Dust |B1=Resin Clump |C1=Ender Dust
-|A2=Ender Dust |B2=Redstone |C2=Ender Dust
-|A3=Ender Dust |B3=Silicon Wafer |C3=Ender Dust
-|Output=Redstone Chip,4
-|ingredients=6× Ender Dust + Resin Clump + Redstone + Silicon Wafer
-|description='''MK1''' modules (Extractor MK1, Provider MK1, Passive Supplier, Crafter MK1, Item/Mod Item Sink, Terminus)}}
-{{Crafting
-|name=Amethyst Chip
-|A1=Ender Dust |B1=Resin Clump |C1=Ender Dust
-|A2=Ender Dust |B2=Amethyst Dust |C2=Ender Dust
-|A3=Ender Dust |B3=Silicon Wafer |C3=Ender Dust
-|Output=Amethyst Chip,4
-|ingredients=6× Ender Dust + Resin Clump + Amethyst Dust + Silicon Wafer
-|description='''MK2''' modules (Extractor MK2, Provider MK2, Active Supplier, Crafter MK2, Enchantment Sink)}}
-{{Crafting
-|name=Echo Chip
-|A1=Ender Dust |B1=Resin Clump |C1=Ender Dust
-|A2=Ender Dust |B2=Echo Dust |C2=Ender Dust
-|A3=Ender Dust |B3=Silicon Wafer |C3=Ender Dust
-|Output=Echo Chip,4
-|ingredients=6× Ender Dust + Resin Clump + Echo Dust + Silicon Wafer
-|description='''MK3''' modules (Extractor MK3, Crafter MK3, Polymorphic Sink, Quicksort)}}
-{{Crafting|foot=1
-|name=Carbon Chip
-|A1=Ender Dust |B1=Resin Clump |C1=Ender Dust
-|A2=Ender Dust |B2=Coal Dust |C2=Ender Dust
-|A3=Ender Dust |B3=Silicon Wafer |C3=Ender Dust
-|Output=Carbon Chip,4
-|ingredients=6× Ender Dust + Resin Clump + Coal Dust + Silicon Wafer
-|description=[[Item Sink Module]] only}}
-
-==Chip Tier Summary==
+== Chip tiers ==
 
 {| class="wikitable"
-! Chip !! Tier !! Module Grade
+! Chip !! Tier !! Module grade
 |-
-| Redstone Chip || 1 || MK1 / base modules
+| [[Redstone Chip]] || 1 || MK1 / base modules
 |-
-| Amethyst Chip || 2 || MK2 / enhanced modules
+| [[Amethyst Chip]] || 2 || MK2 / enhanced modules
 |-
-| Echo Chip || 3 || MK3 / highest tier modules
+| [[Echo Chip]] || 3 || MK3 / highest-tier modules
 |-
-| Carbon Chip || Special || Item Sink only
+| [[Carbon Chip]] || Special || Item Sink only
 |}
 
-==Progression Note==
+== See also ==
 
-Chips are mid-to-late game components. To craft them you need:
-# [[Macerator]] — to produce Ender Dust, Quartz Dust, Coal Dust, and other dusts
-# [[Kiln]] — to smelt Silicon Mix into Silicon Wafer
-# Source of Resin Clumps (vanilla item, found in mangrove swamps)
-
-==See Also==
-* [[Dusts]] - Source of all dust ingredients
-* [[Chips#Silicon Wafer|Silicon Wafer]] - Required base for all chips
-* [[Modules]] - Chips are used in all module recipes
-* [[Macerator]] - Produces the required dusts
-* [[Kiln]] - Smelts Silicon Mix into Silicon Wafer
+* [[Modules]] — what chips are used to build
+* [[Dusts]] — source of the dust ingredients
+* [[Macerator]], [[Kiln]] — produce and smelt the chip materials
 
 [[Category:Materials]]
-[[Category:Recipes]]

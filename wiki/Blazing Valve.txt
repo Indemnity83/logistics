@@ -1,1 +1,38 @@
-#REDIRECT [[Valves#Variants]]
+{{Item
+|image     = Grid Blazing Valve.png
+|type      = Item (Valve)
+|stackable = Yes (64)
+|added     = v0.2.0
+}}
+
+'''Blazing Valve''' is a fluid-network [[Valves|valve]], crafted from a [[Blazing Core]] and a frame of [[Cores#Quartz Crystal|Quartz Crystal]].
+
+== Obtaining ==
+
+=== Crafting ===
+
+{{Crafting|head=1|foot=1
+|showname=0
+|A1=Quartz Crystal |B1=Quartz Crystal |C1=Quartz Crystal
+|A2=Quartz Crystal |B2=Blazing Core |C2=Quartz Crystal
+|A3=Iron Nugget |B3=Gold Nugget |C3=Iron Nugget
+|Output=Blazing Valve
+}}
+
+== Data values ==
+
+=== ID ===
+
+{{ID|logistics:core/blazing_valve|item.logistics.core.blazing_valve}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.2.0|Added '''Blazing Valve'''.}}
+
+== See also ==
+
+* [[Blazing Core]] - The center ingredient
+* [[Valves]] - All valves
+* [[Logistics Pipes]] - What valves build
+
+[[Category:Materials]]

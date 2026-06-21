@@ -1,1 +1,48 @@
-#REDIRECT [[Valves#Variants]]
+{{Item
+|image     = Grid Emerald Valve.png
+|type      = Item (Valve)
+|stackable = Yes (64)
+|added     = v0.2.0
+}}
+
+'''Emerald Valve''' is a fluid-network [[Valves|valve]], crafted from a [[Emerald Core]] and a frame of [[Cores#Quartz Crystal|Quartz Crystal]].
+
+== Obtaining ==
+
+=== Crafting ===
+
+{{Crafting|head=1|foot=1
+|showname=0
+|A1=Quartz Crystal |B1=Quartz Crystal |C1=Quartz Crystal
+|A2=Quartz Crystal |B2=Emerald Core |C2=Quartz Crystal
+|A3=Iron Nugget |B3=Gold Nugget |C3=Iron Nugget
+|Output=Emerald Valve
+}}
+
+== Usage ==
+
+=== Crafting ingredient ===
+
+{{Crafting|head=1|foot=1
+|name=[[Supplier Logistics Pipe]]
+|A1=Emerald Valve |B1=Basic Logistics Pipe |C1=Emerald Valve
+|Output=Supplier Logistics Pipe
+}}
+
+== Data values ==
+
+=== ID ===
+
+{{ID|logistics:core/emerald_valve|item.logistics.core.emerald_valve}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.2.0|Added '''Emerald Valve'''.}}
+
+== See also ==
+
+* [[Emerald Core]] - The center ingredient
+* [[Valves]] - All valves
+* [[Logistics Pipes]] - What valves build
+
+[[Category:Materials]]

@@ -55,55 +55,55 @@ Where Q = Quartz Crystal, I = Iron Nugget, G = Gold Nugget. The Core in the cent
 '''Quartz Crystal''' is obtained by smelting [[Quartz Dust]] (ground from Nether Quartz in the [[Macerator]]) in the [[Kiln]] or furnace.
 
 ===Wooden Valve===
-* '''Core:''' [[Cores|Wooden Core]] (Wood Pulp + Slime Ball)
+* '''Core:''' [[Wooden Core]] (Wood Pulp + Slime Ball)
 * '''Used in:''' Future features
 
 ===Copper Valve===
-* '''Core:''' [[Cores|Copper Core]] (Copper Ingot + Redstone)
+* '''Core:''' [[Copper Core]] (Copper Ingot + Redstone)
 * '''Used in:''' Future features
 
 ===Iron Valve===
-* '''Core:''' [[Cores|Iron Core]] (Iron Ingot + Redstone)
+* '''Core:''' [[Iron Core]] (Iron Ingot + Redstone)
 * '''Used in:''' [[Provider Logistics Pipe]], [[Chassis Logistics Pipe#MK1 Recipe|Chassis MK1]]
 
 ===Bronze Valve===
-* '''Core:''' [[Cores|Bronze Core]] (Bronze Ingot + Redstone)
+* '''Core:''' [[Bronze Core]] (Bronze Ingot + Redstone)
 * '''Used in:''' [[Crafting Logistics Pipe]], [[Chassis Logistics Pipe#MK2 Recipe|Chassis MK2]]
 
 ===Gold Valve===
-* '''Core:''' [[Cores|Gold Core]] (Gold Ingot + Redstone)
+* '''Core:''' [[Gold Core]] (Gold Ingot + Redstone)
 * '''Used in:''' [[Process Logistics Pipe]], [[Chassis Logistics Pipe#MK3 Recipe|Chassis MK3]]
 
 ===Lapis Valve===
-* '''Core:''' [[Cores|Lapis Core]] (Lapis Lazuli + Redstone)
+* '''Core:''' [[Lapis Core]] (Lapis Lazuli + Redstone)
 * '''Used in:''' [[Satellite Logistics Pipe]]
 
 ===Diamond Valve===
-* '''Core:''' [[Cores|Diamond Core]] (Diamond Dust + Amethyst Shard)
+* '''Core:''' [[Diamond Core]] (Diamond Dust + Amethyst Shard)
 * '''Used in:''' [[Requester Logistics Pipe]], [[Chassis Logistics Pipe#MK4 Recipe|Chassis MK4]]
 
 ===Emerald Valve===
-* '''Core:''' [[Cores|Emerald Core]] (Emerald Dust + Amethyst Shard)
+* '''Core:''' [[Emerald Core]] (Emerald Dust + Amethyst Shard)
 * '''Used in:''' [[Supplier Logistics Pipe]]
 
 ===Apatite Valve===
-* '''Core:''' [[Cores|Apatite Core]] (Apatite + Redstone)
+* '''Core:''' [[Apatite Core]] (Apatite + Redstone)
 * '''Used in:''' Future features
 
 ===Obsidian Valve===
-* '''Core:''' [[Cores|Obsidian Core]] (Obsidian Dust + Redstone)
+* '''Core:''' [[Obsidian Core]] (Obsidian Dust + Redstone)
 * '''Used in:''' Future features
 
 ===Netherite Valve===
-* '''Core:''' [[Cores|Netherite Core]] (Netherite Ingot + Redstone)
+* '''Core:''' [[Netherite Core]] (Netherite Ingot + Redstone)
 * '''Used in:''' [[Chassis Logistics Pipe#MK5 Recipe|Chassis MK5]]
 
 ===Blazing Valve===
-* '''Core:''' [[Cores|Blazing Core]] (Blaze Powder + Blaze Rod)
+* '''Core:''' [[Blazing Core]] (Blaze Powder + Blaze Rod)
 * '''Used in:''' Future features
 
 ===Ender Valve===
-* '''Core:''' [[Cores|Ender Core]] (Ender Dust + Eye of Ender)
+* '''Core:''' [[Ender Core]] (Ender Dust + Eye of Ender)
 * '''Used in:''' Future features
 
 ==Ores & Metals==

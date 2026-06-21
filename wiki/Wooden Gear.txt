@@ -1,1 +1,58 @@
-#REDIRECT [[Gears#Variants]]
+{{Item
+|image     = Grid Wooden Gear.png
+|type      = Item (Gear)
+|stackable = Yes (64)
+|added     = v0.1.0
+}}
+
+'''Wooden Gear''' is a crafting component in the [[Gears|gear]] progression — each gear is crafted from four of its tier material around the previous gear.
+
+== Obtaining ==
+
+=== Crafting ===
+
+{{Crafting|head=1|foot=1
+|showname=0
+|B1=Stick
+|A2=Stick |C2=Stick
+|B3=Stick
+|Output=Wooden Gear
+}}
+
+== Usage ==
+
+=== Crafting ingredient ===
+
+{{Crafting|head=1
+|name=[[Redstone Engine]]
+|A1=Planks |B1=Planks |C1=Planks
+|B2=Glass
+|A3=Wooden Gear |B3=Piston |C3=Wooden Gear
+|Output=Redstone Engine
+}}
+
+{{Crafting|foot=1
+|name=[[Stone Gear]]
+|B1=Stone
+|A2=Stone |B2=Wooden Gear |C2=Stone
+|B3=Stone
+|Output=Stone Gear
+}}
+
+== Data values ==
+
+=== ID ===
+
+{{ID|logistics:core/wooden_gear|item.logistics.core.wooden_gear}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.1.0|Added '''Wooden Gear'''.}}
+
+== See also ==
+
+* [[Gears]] - All gears
+* [[Materials]] - Crafting components
+* [[Machines]] - What gears help build
+
+[[Category:Materials]]

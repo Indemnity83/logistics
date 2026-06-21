@@ -27,7 +27,7 @@
 === Crafting ingredient ===
 
 {{Crafting|head=1
-|name=[[Cores|Lapis Core]]
+|name=[[Lapis Core]]
 |B1=Lapis Dust
 |B2=Amethyst Shard
 |B3=Lapis Dust
@@ -55,7 +55,7 @@
 
 * [[Dusts]] - All dusts
 * [[Macerator]] - Produces dusts
-* [[Cores|Lapis Core]]
+* [[Lapis Core]]
 * [[Marker]]
 
 [[Category:Materials]]

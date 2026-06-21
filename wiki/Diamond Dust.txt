@@ -27,7 +27,7 @@
 === Crafting ingredient ===
 
 {{Crafting|head=1
-|name=[[Cores|Diamond Core]]
+|name=[[Diamond Core]]
 |B1=Diamond Dust
 |B2=Amethyst Shard
 |B3=Diamond Dust
@@ -55,6 +55,6 @@
 
 * [[Dusts]] - All dusts
 * [[Macerator]] - Produces dusts
-* [[Cores|Diamond Core]]
+* [[Diamond Core]]
 
 [[Category:Materials]]

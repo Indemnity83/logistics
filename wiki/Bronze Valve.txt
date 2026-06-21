@@ -1,1 +1,56 @@
-#REDIRECT [[Valves#Variants]]
+{{Item
+|image     = Grid Bronze Valve.png
+|type      = Item (Valve)
+|stackable = Yes (64)
+|added     = v0.2.0
+}}
+
+'''Bronze Valve''' is a fluid-network [[Valves|valve]], crafted from a [[Bronze Core]] and a frame of [[Cores#Quartz Crystal|Quartz Crystal]].
+
+== Obtaining ==
+
+=== Crafting ===
+
+{{Crafting|head=1|foot=1
+|showname=0
+|A1=Quartz Crystal |B1=Quartz Crystal |C1=Quartz Crystal
+|A2=Quartz Crystal |B2=Bronze Core |C2=Quartz Crystal
+|A3=Iron Nugget |B3=Gold Nugget |C3=Iron Nugget
+|Output=Bronze Valve
+}}
+
+== Usage ==
+
+=== Crafting ingredient ===
+
+{{Crafting|head=1
+|name=[[Chassis Logistics Pipe|Chassis Logistics Pipe MK2]]
+|B1=Bronze Valve
+|A2=Bronze Valve |B2=Basic Logistics Pipe |C2=Bronze Valve
+|B3=Bronze Valve
+|Output=Chassis Logistics Pipe MK2
+}}
+
+{{Crafting|foot=1
+|name=[[Crafting Logistics Pipe]]
+|A1=Bronze Valve |B1=Basic Logistics Pipe |C1=Bronze Valve
+|Output=Crafting Logistics Pipe
+}}
+
+== Data values ==
+
+=== ID ===
+
+{{ID|logistics:core/bronze_valve|item.logistics.core.bronze_valve}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.2.0|Added '''Bronze Valve'''.}}
+
+== See also ==
+
+* [[Bronze Core]] - The center ingredient
+* [[Valves]] - All valves
+* [[Logistics Pipes]] - What valves build
+
+[[Category:Materials]]

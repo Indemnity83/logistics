@@ -1,1 +1,38 @@
-#REDIRECT [[Valves#Variants]]
+{{Item
+|image     = Grid Obsidian Valve.png
+|type      = Item (Valve)
+|stackable = Yes (64)
+|added     = v0.2.0
+}}
+
+'''Obsidian Valve''' is a fluid-network [[Valves|valve]], crafted from a [[Obsidian Core]] and a frame of [[Cores#Quartz Crystal|Quartz Crystal]].
+
+== Obtaining ==
+
+=== Crafting ===
+
+{{Crafting|head=1|foot=1
+|showname=0
+|A1=Quartz Crystal |B1=Quartz Crystal |C1=Quartz Crystal
+|A2=Quartz Crystal |B2=Obsidian Core |C2=Quartz Crystal
+|A3=Iron Nugget |B3=Gold Nugget |C3=Iron Nugget
+|Output=Obsidian Valve
+}}
+
+== Data values ==
+
+=== ID ===
+
+{{ID|logistics:core/obsidian_valve|item.logistics.core.obsidian_valve}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.2.0|Added '''Obsidian Valve'''.}}
+
+== See also ==
+
+* [[Obsidian Core]] - The center ingredient
+* [[Valves]] - All valves
+* [[Logistics Pipes]] - What valves build
+
+[[Category:Materials]]

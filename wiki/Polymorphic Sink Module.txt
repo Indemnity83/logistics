@@ -45,6 +45,6 @@ When installed in a [[Logistics Pipes#Chassis Logistics Pipe|Chassis Logistics P
 * [[Logistics Pipes#Chassis Logistics Pipe|Chassis Logistics Pipe]] - Required container
 * [[Blank Module]] - Crafting base
 * [[Copper Dust]] - Crafting component
-* [[Chips|Echo Chip]] - Module chip
+* [[Echo Chip]] - Module chip
 
 [[Category:Modules]]

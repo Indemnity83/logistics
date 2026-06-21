@@ -1,11 +1,11 @@
 {{Item
-|image     = Grid Apatite Core.png
+|image     = Grid Lapis Core.png
 |type      = Item (Core)
 |stackable = Yes (64)
 |added     = v0.2.0
 }}
 
-'''Apatite Core''' is an intermediate crafting component, paired with a [[Cores#Quartz Crystal|Quartz Crystal]] to craft the [[Apatite Valve]].
+'''Lapis Core''' is an intermediate crafting component, paired with a [[Cores#Quartz Crystal|Quartz Crystal]] to craft the [[Lapis Valve]].
 
 == Obtaining ==
 
@@ -13,10 +13,10 @@
 
 {{Crafting|head=1|foot=1
 |showname=0
-|B1=Apatite
+|B1=Lapis Dust
 |B2=Amethyst Shard
-|B3=Apatite
-|Output=Apatite Core,4
+|B3=Lapis Dust
+|Output=Lapis Core,4
 }}
 
 == Usage ==
@@ -24,26 +24,26 @@
 === Crafting ingredient ===
 
 {{Crafting|head=1|foot=1
-|name=[[Apatite Valve]]
+|name=[[Lapis Valve]]
 |A1=Quartz Crystal |B1=Quartz Crystal |C1=Quartz Crystal
-|A2=Quartz Crystal |B2=Apatite Core |C2=Quartz Crystal
+|A2=Quartz Crystal |B2=Lapis Core |C2=Quartz Crystal
 |A3=Iron Nugget |B3=Gold Nugget |C3=Iron Nugget
-|Output=Apatite Valve
+|Output=Lapis Valve
 }}
 
 == Data values ==
 
 === ID ===
 
-{{ID|logistics:core/apatite_core|item.logistics.core.apatite_core}}
+{{ID|logistics:core/lapis_core|item.logistics.core.lapis_core}}
 
 == History ==
 
-{{History|head=1|foot=1|v0.2.0|Added '''Apatite Core'''.}}
+{{History|head=1|foot=1|v0.2.0|Added '''Lapis Core'''.}}
 
 == See also ==
 
-* [[Apatite Valve]] - What it crafts
+* [[Lapis Valve]] - What it crafts
 * [[Cores]] - All cores
 * [[Valves]] - Built from cores
 

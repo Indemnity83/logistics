@@ -1,0 +1,49 @@
+{{Item
+|image     = Grid Carbon Chip.png
+|type      = Item (Chip)
+|stackable = Yes (64)
+|added     = v0.2.0
+}}
+
+'''Carbon Chip''' is an electronic [[Chips|chip]] used to craft [[Modules|modules]], built on a [[Chips#Silicon Wafer|Silicon Wafer]] base.
+
+== Obtaining ==
+
+=== Crafting ===
+
+{{Crafting|head=1|foot=1
+|showname=0
+|A1=Ender Dust |B1=Resin Clump |C1=Ender Dust
+|A2=Ender Dust |B2=Coal Dust |C2=Ender Dust
+|A3=Ender Dust |B3=Silicon Wafer |C3=Ender Dust
+|Output=Carbon Chip,4
+}}
+
+== Usage ==
+
+=== Crafting ingredient ===
+
+{{Crafting|head=1|foot=1
+|name=[[Item Sink Module]]
+|A1=Copper Dust |B1=Carbon Chip |C1=Copper Dust
+|A2=Redstone |B2=Blank Module |C2=Redstone
+|Output=Item Sink Module
+}}
+
+== Data values ==
+
+=== ID ===
+
+{{ID|logistics:core/carbon_chip|item.logistics.core.carbon_chip}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.2.0|Added '''Carbon Chip'''.}}
+
+== See also ==
+
+* [[Chips]] - All chips
+* [[Modules]] - What chips build
+* [[Dusts]] - Source of chip ingredients
+
+[[Category:Materials]]

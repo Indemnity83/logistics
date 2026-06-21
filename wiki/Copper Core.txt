@@ -1,0 +1,50 @@
+{{Item
+|image     = Grid Copper Core.png
+|type      = Item (Core)
+|stackable = Yes (64)
+|added     = v0.2.0
+}}
+
+'''Copper Core''' is an intermediate crafting component, paired with a [[Cores#Quartz Crystal|Quartz Crystal]] to craft the [[Copper Valve]].
+
+== Obtaining ==
+
+=== Crafting ===
+
+{{Crafting|head=1|foot=1
+|showname=0
+|B1=Copper Ingot
+|B2=Redstone
+|B3=Copper Ingot
+|Output=Copper Core,4
+}}
+
+== Usage ==
+
+=== Crafting ingredient ===
+
+{{Crafting|head=1|foot=1
+|name=[[Copper Valve]]
+|A1=Quartz Crystal |B1=Quartz Crystal |C1=Quartz Crystal
+|A2=Quartz Crystal |B2=Copper Core |C2=Quartz Crystal
+|A3=Iron Nugget |B3=Gold Nugget |C3=Iron Nugget
+|Output=Copper Valve
+}}
+
+== Data values ==
+
+=== ID ===
+
+{{ID|logistics:core/copper_core|item.logistics.core.copper_core}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.2.0|Added '''Copper Core'''.}}
+
+== See also ==
+
+* [[Copper Valve]] - What it crafts
+* [[Cores]] - All cores
+* [[Valves]] - Built from cores
+
+[[Category:Materials]]

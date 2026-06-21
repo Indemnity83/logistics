@@ -1,0 +1,50 @@
+{{Item
+|image     = Grid Bronze Core.png
+|type      = Item (Core)
+|stackable = Yes (64)
+|added     = v0.2.0
+}}
+
+'''Bronze Core''' is an intermediate crafting component, paired with a [[Cores#Quartz Crystal|Quartz Crystal]] to craft the [[Bronze Valve]].
+
+== Obtaining ==
+
+=== Crafting ===
+
+{{Crafting|head=1|foot=1
+|showname=0
+|B1=Bronze Ingot
+|B2=Redstone
+|B3=Bronze Ingot
+|Output=Bronze Core,4
+}}
+
+== Usage ==
+
+=== Crafting ingredient ===
+
+{{Crafting|head=1|foot=1
+|name=[[Bronze Valve]]
+|A1=Quartz Crystal |B1=Quartz Crystal |C1=Quartz Crystal
+|A2=Quartz Crystal |B2=Bronze Core |C2=Quartz Crystal
+|A3=Iron Nugget |B3=Gold Nugget |C3=Iron Nugget
+|Output=Bronze Valve
+}}
+
+== Data values ==
+
+=== ID ===
+
+{{ID|logistics:core/bronze_core|item.logistics.core.bronze_core}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.2.0|Added '''Bronze Core'''.}}
+
+== See also ==
+
+* [[Bronze Valve]] - What it crafts
+* [[Cores]] - All cores
+* [[Valves]] - Built from cores
+
+[[Category:Materials]]

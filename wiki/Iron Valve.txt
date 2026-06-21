@@ -1,1 +1,56 @@
-#REDIRECT [[Valves#Variants]]
+{{Item
+|image     = Grid Iron Valve.png
+|type      = Item (Valve)
+|stackable = Yes (64)
+|added     = v0.2.0
+}}
+
+'''Iron Valve''' is a fluid-network [[Valves|valve]], crafted from a [[Iron Core]] and a frame of [[Cores#Quartz Crystal|Quartz Crystal]].
+
+== Obtaining ==
+
+=== Crafting ===
+
+{{Crafting|head=1|foot=1
+|showname=0
+|A1=Quartz Crystal |B1=Quartz Crystal |C1=Quartz Crystal
+|A2=Quartz Crystal |B2=Iron Core |C2=Quartz Crystal
+|A3=Iron Nugget |B3=Gold Nugget |C3=Iron Nugget
+|Output=Iron Valve
+}}
+
+== Usage ==
+
+=== Crafting ingredient ===
+
+{{Crafting|head=1
+|name=[[Chassis Logistics Pipe|Chassis Logistics Pipe MK1]]
+|B1=Iron Valve
+|A2=Iron Valve |B2=Basic Logistics Pipe |C2=Iron Valve
+|B3=Iron Valve
+|Output=Chassis Logistics Pipe MK1
+}}
+
+{{Crafting|foot=1
+|name=[[Provider Logistics Pipe]]
+|A1=Iron Valve |B1=Basic Logistics Pipe |C1=Iron Valve
+|Output=Provider Logistics Pipe
+}}
+
+== Data values ==
+
+=== ID ===
+
+{{ID|logistics:core/iron_valve|item.logistics.core.iron_valve}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.2.0|Added '''Iron Valve'''.}}
+
+== See also ==
+
+* [[Iron Core]] - The center ingredient
+* [[Valves]] - All valves
+* [[Logistics Pipes]] - What valves build
+
+[[Category:Materials]]
