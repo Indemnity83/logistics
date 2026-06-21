@@ -17,39 +17,94 @@
 
 === Crafting ===
 
-{{Crafting|head=1
-|name=Tin Ingot |B2=Tin Block |Output=Tin Ingot,9}}
-{{Crafting|foot=1
-|name=Tin Ingot |A1=Tin Nugget |B1=Tin Nugget |C1=Tin Nugget |A2=Tin Nugget |B2=Tin Nugget |C2=Tin Nugget |A3=Tin Nugget |B3=Tin Nugget |C3=Tin Nugget |Output=Tin Ingot}}
+{{Crafting
+|head=1
+|name=Tin Ingot
+|B2=Tin Block
+|Output=Tin Ingot,9
+}}
+
+{{Crafting
+|foot=1
+|name=Tin Ingot
+|A1=Tin Nugget |B1=Tin Nugget |C1=Tin Nugget
+|A2=Tin Nugget |B2=Tin Nugget |C2=Tin Nugget
+|A3=Tin Nugget |B3=Tin Nugget |C3=Tin Nugget
+|Output=Tin Ingot
+}}
 
 === Smelting ===
 
-{{Smelting|head=1
-|name=Tin Ingot |Input=Tin Ore;Deepslate Tin Ore |Output=Tin Ingot |XP=0.7}}
 {{Smelting
-|name=Tin Ingot |Input=Raw Tin |Output=Tin Ingot |XP=0.7}}
-{{Smelting|foot=1
-|name=Tin Ingot |Input=Tin Dust |Output=Tin Ingot}}
+|head=1
+|name=Tin Ingot
+|Input=Tin Ore;Deepslate Tin Ore
+|Output=Tin Ingot
+|XP=0.7
+}}
+
+{{Smelting
+|name=Tin Ingot
+|Input=Raw Tin
+|Output=Tin Ingot
+|XP=0.7
+}}
+
+{{Smelting
+|foot=1
+|name=Tin Ingot
+|Input=Tin Dust
+|Output=Tin Ingot
+}}
 
 == Usage ==
 
 === Crafting ingredient ===
 
-{{Crafting|head=1
-|name=[[Bronze Ingot]] |A2=Copper Ingot |B2=Copper Ingot |C2=Copper Ingot |A3=Tin Ingot |Output=Bronze Ingot,4}}
 {{Crafting
-|name=[[Tin Gear]] |B1=Tin Ingot |A2=Tin Ingot |B2=Copper Gear |C2=Tin Ingot |B3=Tin Ingot |Output=Tin Gear}}
+|head=1
+|name=[[Bronze Ingot]]
+|A2=Copper Ingot |B2=Copper Ingot |C2=Copper Ingot
+|A3=Tin Ingot
+|Output=Bronze Ingot,4
+}}
+
 {{Crafting
-|name=[[Block of Tin]] |A1=Tin Ingot |B1=Tin Ingot |C1=Tin Ingot |A2=Tin Ingot |B2=Tin Ingot |C2=Tin Ingot |A3=Tin Ingot |B3=Tin Ingot |C3=Tin Ingot |Output=Tin Block}}
-{{Crafting|foot=1
-|name=[[Tin Nugget]] |B2=Tin Ingot |Output=Tin Nugget,9}}
+|name=[[Tin Gear]]
+|B1=Tin Ingot
+|A2=Tin Ingot |B2=Copper Gear |C2=Tin Ingot
+|B3=Tin Ingot
+|Output=Tin Gear
+}}
+
+{{Crafting
+|name=[[Block of Tin]]
+|A1=Tin Ingot |B1=Tin Ingot |C1=Tin Ingot
+|A2=Tin Ingot |B2=Tin Ingot |C2=Tin Ingot
+|A3=Tin Ingot |B3=Tin Ingot |C3=Tin Ingot
+|Output=Tin Block
+}}
+
+{{Crafting
+|foot=1
+|name=[[Tin Nugget]]
+|B2=Tin Ingot
+|Output=Tin Nugget,9
+}}
 
 === Grinding ===
 
-{{Grinding|head=1
-|Input=Tin Ore;Deepslate Tin Ore |Output=Tin Dust,2}}
-{{Grinding|foot=1
-|Input=Tin Ingot |Output=Tin Dust}}
+{{Grinding
+|head=1
+|Input=Tin Ore;Deepslate Tin Ore
+|Output=Tin Dust,2
+}}
+
+{{Grinding
+|foot=1
+|Input=Tin Ingot
+|Output=Tin Dust
+}}
 
 == History ==
 
