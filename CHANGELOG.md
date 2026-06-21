@@ -5,7 +5,7 @@
 
 ### Added
 
-* **automation:** add configurable laser quarry chunk loading ([#536](https://github.com/Indemnity83/logistics/issues/536)) ([ce661fe](https://github.com/Indemnity83/logistics/commit/ce661fe1d1e02421052b6cb2fb31f1cecacb7d97))
+* **automation:** add configurable laser quarry chunk loading ([#536](https://github.com/Indemnity83/logistics/issues/536)) ([ce661fe](https://github.com/Indemnity83/logistics/commit/ce661fe1d1e02421052b6cb2fb31f1cecacb7d97)) — thanks @floralpetals
 * **core:** grant ore XP when macerating metal and apatite ores ([#555](https://github.com/Indemnity83/logistics/issues/555)) ([9faaa4f](https://github.com/Indemnity83/logistics/commit/9faaa4f16574368721e1036571d695334a83450c))
 
 
@@ -13,7 +13,10 @@
 
 * **automation:** add missing macerator recipes for obsidian, netherite, and metal blocks ([#554](https://github.com/Indemnity83/logistics/issues/554)) ([73cb00c](https://github.com/Indemnity83/logistics/commit/73cb00c56c31daddf96d72fbbd74ab3afcd5ecc8))
 * **energy:** fix crash when cables power machines from other mods ([#556](https://github.com/Indemnity83/logistics/issues/556)) ([b6f68d2](https://github.com/Indemnity83/logistics/commit/b6f68d29641f33fb06e0f68f08dd5989d008669e))
-* **neoforge:** cables and quarry frames no longer render as broken/solid blocks ([#546](https://github.com/Indemnity83/logistics/issues/546)) ([4fb9ae0](https://github.com/Indemnity83/logistics/commit/4fb9ae0f46144e9b08e79e9551bd86327509ef85))
+* **neoforge:** cables and quarry frames no longer render as broken/solid blocks ([#546](https://github.com/Indemnity83/logistics/issues/546)) ([4fb9ae0](https://github.com/Indemnity83/logistics/commit/4fb9ae0f46144e9b08e79e9551bd86327509ef85)) — thanks @AdolfoCarneiro
+
+### New Contributors
+* @floralpetals made their first contribution in #536
 
 ## [0.7.3](https://github.com/Indemnity83/logistics/compare/mc1.21.1-v0.7.2...mc1.21.1-v0.7.3) (2026-06-18)
 
