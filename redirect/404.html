@@ -4,21 +4,30 @@
 <meta charset="utf-8">
 <title>The Logistics docs have moved</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="refresh" content="0; url=https://logistics.fandom.com/">
 <link rel="canonical" href="https://logistics.fandom.com/">
 <meta name="robots" content="noindex">
-<script>location.replace("https://logistics.fandom.com/" + (location.hash || ""));</script>
 <style>
   body{font-family:system-ui,-apple-system,sans-serif;background:#0f1115;color:#e6e6e6;
        display:flex;min-height:100vh;margin:0;align-items:center;justify-content:center;text-align:center}
   a{color:#6cc4ff}
 </style>
+<script>
+(function(){
+  var WIKI = "https://logistics.fandom.com/";
+  var MAP = {"automation":"Machines","automation/kiln":"Kiln","automation/laser-quarry":"Laser Quarry","automation/macerator":"Macerator","core/connectivity":"Connectivity","core/item-transport":"Item Transport","core/pipe-networks":"Pipe Networks","core/routing":"Routing","core/tier-system":"Pipes","getting-started/first-network":"Your First Pipe Network","getting-started/install":"Installation","getting-started/understanding-tiers":"Getting Started","materials":"Materials","materials/apatite":"Apatite (gem)","materials/apatite-ore":"Apatite Ore","materials/bronze-gear":"Bronze Gear","materials/bronze-ingot":"Bronze Ingot","materials/chips":"Chips","materials/copper-gear":"Copper Gear","materials/cores":"Cores","materials/diamond-gear":"Diamond Gear","materials/dusts":"Dusts","materials/gold-gear":"Gold Gear","materials/iron-gear":"Iron Gear","materials/machine-core":"Machine Core","materials/netherite-gear":"Netherite Gear","materials/stone-gear":"Stone Gear","materials/tin-gear":"Tin Gear","materials/tin-ingot":"Tin Ingot","materials/tin-ore":"Tin Ore","materials/valve-apatite":"Apatite Valve","materials/valve-blazing":"Blazing Valve","materials/valve-bronze":"Bronze Valve","materials/valve-copper":"Copper Valve","materials/valve-diamond":"Diamond Valve","materials/valve-emerald":"Emerald Valve","materials/valve-ender":"Ender Valve","materials/valve-gold":"Gold Valve","materials/valve-iron":"Iron Valve","materials/valve-lapis":"Lapis Valve","materials/valve-netherite":"Netherite Valve","materials/valve-obsidian":"Obsidian Valve","materials/valve-wooden":"Wooden Valve","materials/wooden-gear":"Wooden Gear","modules":"Modules","modules/blank-module":"Blank Module","modules/crafter-module":"Crafter Module","modules/enchantment-sink-module":"Enchantment Sink Module","modules/extractor-module":"Extractor Module","modules/item-sink-module":"Item Sink Module","modules/mod-item-sink-module":"Mod Item Sink Module","modules/polymorphic-sink-module":"Polymorphic Sink Module","modules/provider-module":"Provider Module","modules/quicksort-module":"Quicksort Module","modules/supplier-module":"Active Supplier Module","modules/terminus-module":"Terminus Module","pipes":"Pipes","pipes/basic-logistics-pipe":"Basic Logistics Pipe","pipes/chassis-logistics-pipe":"Chassis Logistics Pipe","pipes/copper-transport-pipe":"Copper Transport Pipe","pipes/crafting-logistics-pipe":"Crafting Logistics Pipe","pipes/golden-transport-pipe":"Golden Transport Pipe","pipes/item-extractor-pipe":"Item Extractor Pipe","pipes/item-filter-pipe":"Item Filter Pipe","pipes/item-insertion-pipe":"Item Insertion Pipe","pipes/item-merger-pipe":"Item Merger Pipe","pipes/item-passthrough-pipe":"Item Passthrough Pipe","pipes/item-void-pipe":"Item Void Pipe","pipes/process-logistics-pipe":"Process Logistics Pipe","pipes/provider-logistics-pipe":"Provider Logistics Pipe","pipes/requester-logistics-pipe":"Requester Logistics Pipe","pipes/satellite-logistics-pipe":"Satellite Logistics Pipe","pipes/stone-transport-pipe":"Stone Transport Pipe","pipes/supplier-logistics-pipe":"Supplier Logistics Pipe","power":"Energy","power/redstone-engine":"Redstone Engine","power/rf-energy":"RF Energy","power/stirling-engine":"Stirling Engine","tools/marking-fluid":"Marking Fluid","tools/wrench":"Wrench"};
+  var p = location.pathname.replace(/^\/+|\/+$/g,"").split("/");
+  if (p[0] === "logistics") p.shift();                 // strip the GitHub Pages project base
+  if (p.length && /^index(\.html)?$/i.test(p[p.length-1])) p.pop();
+  var key = decodeURIComponent(p.join("/"));
+  var page = MAP[key];
+  location.replace(page ? WIKI + "wiki/" + page.replace(/ /g, "_") : WIKI);
+})();
+</script>
 </head>
 <body>
 <div>
   <h1>The Logistics documentation has moved</h1>
-  <p>You're being redirected to the <a href="https://logistics.fandom.com/">Logistics Wiki</a>.</p>
-  <p>If nothing happens, <a href="https://logistics.fandom.com/">click here</a>.</p>
+  <p>Redirecting to the <a href="https://logistics.fandom.com/">Logistics Wiki</a>…</p>
 </div>
 </body>
 </html>
