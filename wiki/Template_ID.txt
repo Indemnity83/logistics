@@ -1,0 +1,20 @@
+<includeonly>{| class="wikitable"
+|-
+! Name
+! Namespaced ID
+|-
+| {{{name|{{PAGENAME}}}}}
+| <code>{{{1}}}</code>
+|}</includeonly><noinclude>
+Renders the '''Data values''' ID table for an item or block — place it under a
+"== Data values ==" / "=== ID ===" heading near the bottom of a page, instead of putting the long
+namespaced ID in the infobox.
+
+Usage:
+ {{ID|logistics:core/tin_ingot}}
+ {{ID|logistics:core/tin_ingot|name=Tin Ingot}}
+
+The name defaults to the page title.
+
+[[Category:Templates]]
+</noinclude>

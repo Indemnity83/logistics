@@ -1,7 +1,6 @@
 {{About|the ingot|the ore|Tin Ore|the mineral block|Block of Tin|the nugget|Tin Nugget|the raw mineral|Raw Tin}}
 {{Item
 |image     = Grid Tin Ingot.png
-|id        = logistics:core/tin_ingot
 |type      = Item
 |renewable = No
 |stackable = Yes (64)
@@ -111,9 +110,19 @@ Smelt raw tin or tin ore in a furnace, blast furnace, or a [[Kiln]] (RF-powered,
 |Output=Tin Dust
 }}
 
+== Data values ==
+
+=== ID ===
+
+{{ID|logistics:core/tin_ingot}}
+
 == History ==
 
 {{History|head=1|foot=1|v0.2.0|Added '''Tin Ingot'''.}}
+
+== Trivia ==
+
+* Tin and copper make [[Bronze Ingot|bronze]], echoing the real-world Bronze Age — when smiths first alloyed tin into copper for tools harder than copper alone. The mod's copper-heavy bronze recipe (three parts copper to one part tin) is even roughly true to real bronze, which is mostly copper with a smaller share of tin.
 
 == See also ==
 
