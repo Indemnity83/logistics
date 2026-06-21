@@ -1,9 +1,12 @@
 {{About|the ore|the ingot|Tin Ingot|the storage block|Block of Tin|the nugget|Tin Nugget|the raw item|Raw Tin|the metal in general|Tin}}
 {{Block
 |image     = Grid Tin Ore.png
+|caption   = Tin Ore
+|image2    = Grid Deepslate Tin Ore.png
+|caption2  = Deepslate Tin Ore
 |type      = Ore
 |tool      = Stone Pickaxe
-|hardness  = 3<br>Deepslate: 4.5
+|hardness  = Tin Ore: 3<br>Deepslate Tin Ore: 4.5
 |blastresistance = 3
 |drops     = Raw Tin
 |renewable = No
@@ -13,7 +16,7 @@
 
 '''Tin ore''' is a mineral block found underground. It is a source of [[Raw Tin|raw tin]], which is smelted into [[Tin Ingot|tin ingots]].
 
-[[File:Grid Deepslate Tin Ore.png|32px|link=]] '''Deepslate tin ore''' is a variant that generates in the deepslate layer; it drops the same raw tin but is slightly harder to break.
+'''Deepslate tin ore''' is a variant that generates in the deepslate layer; it drops the same raw tin but is slightly harder to break.
 
 == Obtaining ==
 
@@ -23,17 +26,11 @@ Tin ore drops 2–5 '''[[Raw Tin|raw tin]]''' when mined with a stone pickaxe or
 
 === Natural generation ===
 
-Tin ore generates in every Overworld biome during the underground-ore step, in veins of up to '''10''' blocks. It appears in two depth bands — the deepslate variant is far more abundant:
+Tin ore generates in every Overworld biome during the world's underground-ore step, in veins of up to '''10''' blocks. It generates in two batches.
 
-{| class="wikitable"
-! Variant !! Height (Y) !! Distribution !! Veins per chunk
-|-
-| Tin Ore || 0 to 112 || trapezoid (peaks near Y 56) || 1
-|-
-| Deepslate Tin Ore || −16 to 0 || trapezoid (peaks near Y −8) || 13
-|}
+The upper batch places one vein per chunk between Y 0 and Y 112, tapering off toward either end and most common around Y 56. It produces regular tin ore in stone, granite, diorite, andesite, and tuff.
 
-Veins generate normally even where exposed to air, so they show on cave walls.
+The lower batch is far more abundant — 13 veins per chunk between Y −16 and Y 0, most common around Y −8 — and produces deepslate tin ore where it replaces deepslate. Veins generate normally even where exposed to air, so they show on cave walls.
 
 == Usage ==
 

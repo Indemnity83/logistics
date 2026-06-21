@@ -22,9 +22,23 @@ local function build(frame, args, spec)
 
 	local image = trim(args.image)
 	if image then
-		local size = trim(args.imagesize) or '150'
+		local image2 = trim(args.image2)
 		local cell = box:tag('tr'):tag('td'):attr('colspan', 2):addClass('logi-infobox-image')
-		cell:wikitext('[[File:' .. image .. '|' .. size .. 'px|center|' .. title .. ']]')
+		if image2 then
+			-- two stacked variants (e.g. an ore and its deepslate form), each optionally captioned
+			local size = trim(args.imagesize) or '150'
+			local function variant(file, caption)
+				local fig = '[[File:' .. file .. '|' .. size .. 'px|' .. (caption or title) .. ']]'
+				if caption then
+					fig = fig .. '<div class="logi-infobox-caption">' .. caption .. '</div>'
+				end
+				return '<div class="logi-infobox-variant">' .. fig .. '</div>'
+			end
+			cell:wikitext(variant(image, trim(args.caption)) .. variant(image2, trim(args.caption2)))
+		else
+			local size = trim(args.imagesize) or '150'
+			cell:wikitext('[[File:' .. image .. '|' .. size .. 'px|center|' .. title .. ']]')
+		end
 		local extra = trim(args.extratext)
 		if extra then
 			cell:tag('div'):addClass('logi-infobox-extra'):wikitext(extra)

@@ -29,6 +29,17 @@
 	font-size: 85%;
 	color: #54595d;
 }
+.logi-infobox-variant {
+	text-align: center;
+}
+.logi-infobox-variant + .logi-infobox-variant {
+	margin-top: 10px;
+}
+.logi-infobox-caption {
+	margin-top: 2px;
+	font-size: 85%;
+	color: #54595d;
+}
 .logi-infobox-row th,
 .logi-infobox-row td {
 	border-top: 1px solid #c8ccd1;
