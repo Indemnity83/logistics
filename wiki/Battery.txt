@@ -33,7 +33,7 @@ The Battery acts as the energy reservoir for the [[Pipe Networks|logistics netwo
 
 === Power ===
 
-A Battery is charged with RF produced by an [[Engines & Power|engine]] and delivered through [[Copper Cable|power cables]]:
+A Battery is charged with RF produced by an [[Engines|engine]] and delivered through [[Copper Cable|power cables]]:
 
 * [[Redstone Engine]] / [[Stirling Engine]] / [[Creative Engine]] generate RF
 * [[Copper Cable]], [[Gold Cable]], and [[Ender Cable]] carry that RF to the Battery at increasing transfer rates
@@ -46,7 +46,7 @@ Note that extraction pipes (the [[Item Extractor Pipe]] and [[Fluid Extractor Pi
 
 == See also ==
 * [[RF Energy]] - How the power system works
-* [[Engines & Power]] - Generating RF
+* [[Engines]] - Generating RF
 * [[Copper Cable]], [[Gold Cable]], [[Ender Cable]] - Distributing RF
 * [[Basic Logistics Pipe]] - The network these power
 

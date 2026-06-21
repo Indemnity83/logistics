@@ -1,4 +1,4 @@
-'''RF (Redstone Flux)''' is the energy system used by Logistics. [[Engines & Power|Engines]] generate RF, [[Copper Cable|cables]] distribute it, and machines and the logistics network consume it to operate.
+'''RF (Redstone Flux)''' is the energy system used by Logistics. [[Engines]] generate RF, [[Copper Cable|cables]] distribute it, and machines and the logistics network consume it to operate.
 
 There are '''two separate power paths''' in the mod — they do not share a power source:
 
@@ -6,7 +6,7 @@ There are '''two separate power paths''' in the mod — they do not share a powe
 
 The logistics network is powered from a stored reservoir, not directly off an engine:
 
-# An [[Engines & Power|engine]] ([[Redstone Engine]], [[Stirling Engine]], or [[Creative Engine]]) generates RF
+# An [[Engines|engine]] ([[Redstone Engine]], [[Stirling Engine]], or [[Creative Engine]]) generates RF
 # [[Copper Cable|Power cables]] carry that RF to a [[Battery]]
 # The [[Logistics Pipes]] and chassis modules draw RF from the connected Battery each time they route, supply, or craft
 
