@@ -3,6 +3,7 @@
 |image     = Grid Tin Ingot.png
 |id        = logistics:core/tin_ingot
 |type      = Item
+|renewable = No
 |stackable = Yes (64)
 |added     = v0.2.0
 }}
