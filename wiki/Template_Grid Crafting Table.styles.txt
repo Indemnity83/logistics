@@ -37,7 +37,10 @@
 	line-height: 1;
 }
 .logi-grid-count {
+	width: 2.6em;          /* fixed so the grid box is the same width with or without a ×count */
 	vertical-align: middle;
 	padding-left: 6px;
 	font-weight: bold;
+	text-align: left;
+	white-space: nowrap;
 }
