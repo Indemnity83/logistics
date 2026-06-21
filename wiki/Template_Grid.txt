@@ -3,8 +3,8 @@ This template renders a single inventory item: its grid icon (linked to the item
 with an optional count.
 
 Usage:
- {{Grid|Iron Ingot}}      -> icon linking to [[Iron Ingot]]
- {{Grid|Iron Ingot|8}}    -> icon + "×8"
+ {{Grid|Tin Ingot}}      -> icon linking to [[Tin Ingot]]
+ {{Grid|Tin Ingot|8}}    -> icon + "×8"
 
 Image lookup: it looks for [[File:Grid <name>.png]]. If that image has not been
 uploaded yet, it falls back to a plain text link to the item's page, so the template

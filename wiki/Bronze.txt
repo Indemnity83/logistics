@@ -1,4 +1,4 @@
-'''Bronze''' is an alloy of copper and tin. Unlike [[Tin]], it has no ore — bronze ingots are crafted by alloying [[Copper Ingot|copper]] and [[Tin Ingot|tin]], then formed into components and storage blocks.
+'''Bronze''' is an alloy of copper and tin. Unlike [[Tin]], it has no ore — bronze ingots are crafted by alloying copper and [[Tin Ingot|tin]], then formed into components and storage blocks.
 
 == Blocks and items ==
 

@@ -7,7 +7,7 @@
 |added     = v0.2.0
 }}
 
-'''Bronze ingots''' are an alloy of [[Copper Ingot|copper]] and [[Tin Ingot|tin]], used as the base material for [[Machine Core|machine cores]], [[Sturdy Casing|casings]], [[Bronze Gear|gears]], and [[Valves|valves]].
+'''Bronze ingots''' are an alloy of copper and [[Tin Ingot|tin]], used as the base material for [[Machine Core|machine cores]], [[Sturdy Casing|casings]], [[Bronze Gear|gears]], and [[Valves|valves]].
 
 == Obtaining ==
 
@@ -17,7 +17,7 @@
 
 === Crafting ===
 
-Alloy three [[Copper Ingot|copper]] with one [[Tin Ingot|tin]] (shapeless):
+Alloy three copper with one [[Tin Ingot|tin]] (shapeless):
 
 {{Crafting
 |head=1
@@ -134,7 +134,7 @@ Grind a bronze ingot in a [[Macerator]] to recover [[Bronze Dust]]:
 == See also ==
 
 * [[Bronze]] - All bronze blocks and items
-* [[Tin Ingot]], [[Copper Ingot]] - Alloy components
+* [[Tin Ingot]], Copper Ingot - Alloy components
 * [[Machine Core]], [[Sturdy Casing]] - Machine components
 * [[Bronze Gear]] - Crafting component
 * [[Bronze Dust]] - Ground form
