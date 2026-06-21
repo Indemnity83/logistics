@@ -40,6 +40,9 @@
 	font-size: 85%;
 	color: #54595d;
 }
+.logi-infobox-row {
+	font-size: 75%;
+}
 .logi-infobox-row th,
 .logi-infobox-row td {
 	border-top: 1px solid #c8ccd1;
