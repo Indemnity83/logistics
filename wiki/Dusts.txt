@@ -2,66 +2,89 @@
 
 == Variants ==
 
+Each dust grinds from several sources at different yields — an ore (the doubling path), the ingot or gem, and the storage block. Every grinding recipe is listed below.
+
 {{Grinding|head=1|showdescription=1
 |name=Iron Dust
 |Input=Iron Ore;Deepslate Iron Ore
 |Output=Iron Dust,2
-|description=Smelts into iron; 2× per ore (doubling)
+|description=Smelts into iron (ore doubling)
 }}
 
 {{Grinding
-|name=Iron Dust
+|name=&nbsp;
+|Input=Block of Iron;Block of Raw Iron
+|Output=Iron Dust,9
+|description=
+}}
+
+{{Grinding
+|name=&nbsp;
 |Input=Iron Ingot
-|Output=Iron Dust
-|description=1× per ingot
+|Output=Iron Dust,1
+|description=
 }}
 
 {{Grinding
 |name=Copper Dust
 |Input=Copper Ore;Deepslate Copper Ore
 |Output=Copper Dust,2
-|description=Smelts into copper; 2× per ore (doubling)
+|description=Smelts into copper (ore doubling)
 }}
 
 {{Grinding
-|name=Copper Dust
+|name=&nbsp;
+|Input=Block of Copper;Block of Raw Copper
+|Output=Copper Dust,9
+|description=
+}}
+
+{{Grinding
+|name=&nbsp;
 |Input=Copper Ingot
-|Output=Copper Dust
-|description=1× per ingot
+|Output=Copper Dust,1
+|description=
 }}
 
 {{Grinding
 |name=Gold Dust
 |Input=Gold Ore;Deepslate Gold Ore
 |Output=Gold Dust,2
-|description=Smelts into gold; 2× per ore (doubling)
+|description=Smelts into gold (ore doubling)
 }}
 
 {{Grinding
-|name=Gold Dust
-|Input=Gold Ingot
-|Output=Gold Dust
-|description=1× per ingot
+|name=&nbsp;
+|Input=Block of Gold;Block of Raw Gold
+|Output=Gold Dust,9
+|description=
+}}
+
+{{Grinding
+|name=&nbsp;
+|Input=Gold Ingot;Nether Gold Ore
+|Output=Gold Dust,1
+|description=
 }}
 
 {{Grinding
 |name=Tin Dust
 |Input=Tin Ore;Deepslate Tin Ore
 |Output=Tin Dust,2
-|description=Smelts into [[Tin Ingot|tin]]; 2× per ore (doubling)
+|description=Smelts into [[Tin Ingot|tin]] (ore doubling)
 }}
 
 {{Grinding
-|name=Tin Dust
+|name=&nbsp;
 |Input=Tin Ingot
-|Output=Tin Dust
-|description=1× per ingot
+|Output=Tin Dust,1
+|description=
 }}
 
 {{Grinding
 |name=Bronze Dust
 |Input=Bronze Ingot
-|Output=Bronze Dust
+|Output=Bronze Dust,1
 |description=Smelts into [[Bronze Ingot|bronze]]
 }}
 
@@ -74,11 +97,25 @@
 }}
 
 {{Grinding
+|name=&nbsp;
+|Input=Diamond
+|Output=Diamond Dust,1
+|description=
+}}
+
+{{Grinding
 |name=Emerald Dust
 |Input=Emerald Ore;Deepslate Emerald Ore
 |Output=Emerald Dust,2
 |XP=1.0
 |description=[[Cores|Emerald Core]], supplier [[Modules]]
+}}
+
+{{Grinding
+|name=&nbsp;
+|Input=Emerald
+|Output=Emerald Dust,1
+|description=
 }}
 
 {{Grinding
@@ -90,6 +127,13 @@
 }}
 
 {{Grinding
+|name=&nbsp;
+|Input=Lapis Lazuli
+|Output=Lapis Dust,1
+|description=
+}}
+
+{{Grinding
 |name=Coal Dust
 |Input=Coal Ore;Deepslate Coal Ore
 |Output=Coal Dust,2
@@ -98,11 +142,25 @@
 }}
 
 {{Grinding
+|name=&nbsp;
+|Input=Coal;Charcoal
+|Output=Coal Dust,2
+|description=
+}}
+
+{{Grinding
 |name=Quartz Dust
 |Input=Nether Quartz Ore
 |Output=Quartz Dust,2
 |XP=0.2
 |description=Smelts into [[Cores#Quartz Crystal|Quartz Crystal]]
+}}
+
+{{Grinding
+|name=&nbsp;
+|Input=Nether Quartz
+|Output=Quartz Dust,1
+|description=
 }}
 
 {{Grinding
@@ -115,32 +173,46 @@
 {{Grinding
 |name=Amethyst Dust
 |Input=Amethyst Shard
-|Output=Amethyst Dust
+|Output=Amethyst Dust,1
 |description=[[Chips|Amethyst Chip]]
 }}
 
 {{Grinding
 |name=Echo Dust
 |Input=Echo Shard
-|Output=Echo Dust
+|Output=Echo Dust,1
 |description=[[Chips|Echo Chip]]
 }}
 
 {{Grinding
 |name=Ender Dust
 |Input=Ender Pearl
-|Output=Ender Dust
+|Output=Ender Dust,1
 |description=[[Cores|Ender Core]]
 }}
 
-{{Grinding|foot=1
+{{Grinding
 |name=Prismarine Dust
-|Input=Prismarine Shard
-|Output=Prismarine Dust
+|Input=Prismarine Bricks
+|Output=Prismarine Dust,9
 |description=Decorative / future use
 }}
 
-Metal dusts also grind from the matching storage block (9× per block) and raw item. '''Obsidian Dust''' and '''Netherite Dust''' are consumed by their [[Cores|cores]] but currently have no grinding recipe.
+{{Grinding
+|name=&nbsp;
+|Input=Prismarine
+|Output=Prismarine Dust,4
+|description=
+}}
+
+{{Grinding|foot=1
+|name=&nbsp;
+|Input=Prismarine Shard
+|Output=Prismarine Dust,1
+|description=
+}}
+
+'''Obsidian Dust''' and '''Netherite Dust''' are consumed by their [[Cores|cores]] but currently have no grinding recipe.
 
 == Usage ==
 
