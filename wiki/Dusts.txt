@@ -1,70 +1,145 @@
-'''Dusts''' are ground materials produced by the [[Macerator]]. They are used as crafting ingredients for [[Modules|modules]], [[Cores|cores]], and [[Chips|chips]], and metal dusts can be smelted back into ingots for better ore yields.
+'''Dusts''' are ground materials produced by the [[Macerator]]. Grinding a metal ore yields more dust than smelting the ore directly would, and each dust smelts back into one ingot — so grinding then smelting an ore '''doubles''' its metal. Gem and mineral dusts are crafting ingredients for [[Cores|cores]], [[Chips|chips]], and [[Modules|modules]].
 
-==All Dust Types==
+== Variants ==
 
-{| class="wikitable"
-! Dust !! Source !! Uses
-|-
-| Iron Dust || Iron Ore / Deepslate Iron Ore, Iron Ingot, Iron Block, Raw Iron || [[Provider Module]], smelt → Iron Ingot
-|-
-| Copper Dust || Copper Ore / Deepslate Copper Ore, Copper Ingot, Copper Block, Raw Copper (+ Raw Copper Block) || [[Item Sink Module]], smelt → Copper Ingot
-|-
-| Gold Dust || Gold Ore / Deepslate / Nether Gold Ore, Gold Ingot, Gold Block, Raw Gold (+ Raw Gold Block) || Smelt → Gold Ingot
-|-
-| Tin Dust || Tin Ore / Deepslate Tin Ore, Tin Ingot || Smelt → Tin Ingot
-|-
-| Bronze Dust || Bronze Ingot || [[Crafter Module]], smelt → Bronze Ingot
-|-
-| Diamond Dust || Diamond Ore / Deepslate Diamond Ore, Diamond, Diamond Block || [[Quicksort Module]], [[Cores|Diamond Core]]
-|-
-| Emerald Dust || Emerald Ore / Deepslate Emerald Ore, Emerald, Emerald Block || [[Passive Supplier Module|Supplier Modules]], [[Cores|Emerald Core]]
-|-
-| Lapis Dust || Lapis Ore / Deepslate Lapis Ore, Lapis Lazuli, Lapis Block || [[Marker]], [[Cores|Lapis Core]]
-|-
-| Coal Dust || Coal Ore / Deepslate Coal Ore, Coal, Charcoal || [[Rubber|Rubber Mix]], [[Chips#Silicon Wafer|Silicon Mix]], [[Chips|Carbon Chip]]
-|-
-| Quartz Dust || Nether Quartz, Quartz Block || [[Cores#Quartz Crystal|Quartz Crystal]], [[Chips#Silicon Wafer|Silicon Mix]]
-|-
-| Apatite Dust || Apatite Ore || Crafting ingredient
-|-
-| Amethyst Dust || Amethyst Shard || [[Chips|Amethyst Chip]]
-|-
-| Echo Dust || Echo Shard || [[Chips|Echo Chip]]
-|-
-| Ender Dust || Ender Pearl || [[Cores|Ender Core]], [[Chips]] (shared ingredient)
-|-
-| Prismarine Dust || Prismarine Shard, Prismarine Bricks || Decorative / future use
-|-
-| Obsidian Dust || Obsidian || [[Cores|Obsidian Core]]
-|-
-| Netherite Dust || Netherite scrap/ingot processing || [[Cores|Netherite Core]], smelt → Netherite Ingot
-|}
+{{Grinding|head=1|showdescription=1
+|name=Iron Dust
+|Input=Iron Ore;Deepslate Iron Ore
+|Output=Iron Dust,2
+|description=Smelts into iron (ore doubling)
+}}
 
-In addition, '''Flour''' (from Wheat) is a non-metal ground product of the [[Macerator]], used for baking food.
+{{Grinding
+|name=Copper Dust
+|Input=Copper Ore;Deepslate Copper Ore
+|Output=Copper Dust,2
+|description=Smelts into copper (ore doubling)
+}}
 
-==Wood Pulp==
+{{Grinding
+|name=Gold Dust
+|Input=Gold Ore;Deepslate Gold Ore
+|Output=Gold Dust,2
+|description=Smelts into gold (ore doubling)
+}}
 
-Wood Pulp is a plant-based ground material, not strictly a "dust" but produced by the Macerator:
+{{Grinding
+|name=Tin Dust
+|Input=Tin Ore;Deepslate Tin Ore
+|Output=Tin Dust,2
+|description=Smelts into [[Tin Ingot|tin]] (ore doubling)
+}}
 
-* '''Source:''' Logs (8× per log), Planks (2× per plank), Sticks (1× per stick)
-* '''Uses:''' [[Cores|Wooden Core]], [[Extractor Module]]
+{{Grinding
+|name=Bronze Dust
+|Input=Bronze Ingot
+|Output=Bronze Dust
+|description=Smelts into [[Bronze Ingot|bronze]]
+}}
 
-==Ore Doubling==
+{{Grinding
+|name=Diamond Dust
+|Input=Diamond Ore;Deepslate Diamond Ore
+|Output=Diamond Dust,2
+|XP=1.0
+|description=[[Cores|Diamond Core]], [[Modules|Quicksort Module]]
+}}
 
-The primary use of metal dusts in automation is '''ore doubling''': grinding an ore block produces 2 dust, and smelting each dust yields 1 ingot — double the output of direct smelting.
+{{Grinding
+|name=Emerald Dust
+|Input=Emerald Ore;Deepslate Emerald Ore
+|Output=Emerald Dust,2
+|XP=1.0
+|description=[[Cores|Emerald Core]], supplier [[Modules]]
+}}
 
-<pre>
-[Iron Ore] → Macerator → [2× Iron Dust] → Kiln/Furnace → [2× Iron Ingot]
-vs.
-[Iron Ore] → Furnace → [1× Iron Ingot]
-</pre>
+{{Grinding
+|name=Lapis Dust
+|Input=Lapis Ore;Deepslate Lapis Ore
+|Output=Lapis Dust,8
+|XP=0.2
+|description=[[Cores|Lapis Core]], [[Marker]]
+}}
 
-==See Also==
-* [[Macerator]] - Produces all dusts (see its page for full grind counts)
-* [[Kiln]] - Smelts dusts into ingots or crystals
-* [[Chips]] - Advanced components made from dusts
-* [[Cores]] - Some cores require specific dusts
-* [[Modules]] - Consume dusts as crafting ingredients
+{{Grinding
+|name=Coal Dust
+|Input=Coal Ore;Deepslate Coal Ore
+|Output=Coal Dust,2
+|XP=0.1
+|description=[[Rubber]], [[Chips#Silicon Wafer|Silicon Mix]], carbon [[Chips]]
+}}
+
+{{Grinding
+|name=Quartz Dust
+|Input=Nether Quartz Ore
+|Output=Quartz Dust,2
+|XP=0.2
+|description=Smelts into [[Cores#Quartz Crystal|Quartz Crystal]]
+}}
+
+{{Grinding
+|name=Apatite Dust
+|Input=Apatite Ore
+|Output=Apatite Dust,6
+|description=Crafting ingredient
+}}
+
+{{Grinding
+|name=Amethyst Dust
+|Input=Amethyst Shard
+|Output=Amethyst Dust
+|description=[[Chips|Amethyst Chip]]
+}}
+
+{{Grinding
+|name=Echo Dust
+|Input=Echo Shard
+|Output=Echo Dust
+|description=[[Chips|Echo Chip]]
+}}
+
+{{Grinding
+|name=Ender Dust
+|Input=Ender Pearl
+|Output=Ender Dust
+|description=[[Cores|Ender Core]]
+}}
+
+{{Grinding|foot=1
+|name=Prismarine Dust
+|Input=Prismarine Shard
+|Output=Prismarine Dust
+|description=Decorative / future use
+}}
+
+Metal dusts also grind from the matching ingot, block, and raw item — not only the ore. '''Obsidian Dust''' and '''Netherite Dust''' are consumed by their [[Cores|cores]] but currently have no grinding recipe.
+
+== Usage ==
+
+=== Ore doubling ===
+
+The main use of metal dusts is doubling ore output. Grinding one ore block produces '''two''' dust, and smelting each dust yields one ingot — twice what you get smelting the ore directly:
+
+* '''Direct:''' Tin Ore → furnace → 1× [[Tin Ingot]]
+* '''Doubled:''' Tin Ore → [[Macerator]] → 2× Tin Dust → furnace or [[Kiln]] → 2× [[Tin Ingot]]
+
+Dust-to-ingot smelting grants no experience — the ore's smelting experience is collected only on the direct path.
+
+=== Components ===
+
+Gem and mineral dusts are crafting ingredients rather than smelting stock. They feed [[Cores|cores]], [[Chips|chips]], and [[Modules|modules]] — for example a [[Cores|Diamond Core]] from Diamond Dust, or the carbon [[Chips]] line from Coal Dust. [[Cores#Quartz Crystal|Quartz Crystal]] is the exception that is smelted, from Quartz Dust.
+
+The [[Macerator]] also produces non-dust ground products such as Wood Pulp and Flour; see its page for the full output list.
+
+== History ==
+
+{{History|head=1|foot=1|v0.2.0|Added dusts and the [[Macerator]] grinding system.}}
+
+== See also ==
+
+* [[Macerator]] - Produces all dusts
+* [[Kiln]] - Smelts metal dusts into ingots and Quartz Dust into Quartz Crystal
+* [[Cores]], [[Chips]], [[Modules]] - Components crafted from dusts
 * [[Rubber]] - Crafted from Coal Dust
 
 [[Category:Materials]]

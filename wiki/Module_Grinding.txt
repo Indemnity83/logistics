@@ -66,6 +66,7 @@ function p.grinding(frame)
 	local args = frame:getParent().args
 	local outName, outCount = parseOutput(args)
 	local showName = trim(args.showname) ~= '0'
+	local showDesc = truthy(args.showdescription) or trim(args.description) ~= nil
 	local head = truthy(args.head)
 	local foot = truthy(args.foot)
 
@@ -79,6 +80,7 @@ function p.grinding(frame)
 		out[#out + 1] = '\n|- class="logi-recipes-head"'
 		if showName then out[#out + 1] = '\n! Name' end
 		out[#out + 1] = '\n! Ingredients\n! Grinding recipe'
+		if showDesc then out[#out + 1] = '\n! Description' end
 	end
 
 	out[#out + 1] = '\n|-'
@@ -88,6 +90,9 @@ function p.grinding(frame)
 	end
 	out[#out + 1] = '\n| class="logi-recipes-ingredients" | ' .. ingredientsCell(args)
 	out[#out + 1] = '\n| class="logi-recipes-recipe" |\n' .. recipeCell(frame, args, outName, outCount)
+	if showDesc then
+		out[#out + 1] = '\n| class="logi-recipes-desc" | ' .. (trim(args.description) or '')
+	end
 
 	if foot then
 		out[#out + 1] = '\n|}'
