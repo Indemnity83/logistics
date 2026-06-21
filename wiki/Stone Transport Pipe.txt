@@ -32,7 +32,7 @@ Like every transport pipe it connects to other pipes and to adjacent inventories
 
 === ID ===
 
-{{ID|logistics:pipe/stone_transport_pipe|block.logistics.pipe.stone_transport_pipe}}
+{{ID|head=1|foot=1|logistics:pipe/stone_transport_pipe|block.logistics.pipe.stone_transport_pipe}}
 
 == History ==
 

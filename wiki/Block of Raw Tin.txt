@@ -53,7 +53,7 @@ A block of raw tin stores raw tin compactly. It can be unpacked back into nine a
 
 === ID ===
 
-{{ID|logistics:core/raw_tin_block|block.logistics.core.raw_tin_block}}
+{{ID|head=1|foot=1|logistics:core/raw_tin_block|block.logistics.core.raw_tin_block}}
 
 == History ==
 

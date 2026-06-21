@@ -1,0 +1,4 @@
+/* Hide the stray <p><br></p> that a stacked {{ID}} row leaves in its last cell. */
+.logi-idtable td p {
+	display: none;
+}

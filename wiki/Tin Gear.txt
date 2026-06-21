@@ -23,7 +23,7 @@
 
 === ID ===
 
-{{ID|logistics:core/tin_gear|item.logistics.core.tin_gear}}
+{{ID|head=1|foot=1|logistics:core/tin_gear|item.logistics.core.tin_gear}}
 
 == History ==
 

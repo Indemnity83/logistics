@@ -32,7 +32,7 @@
 
 === ID ===
 
-{{ID|logistics:core/amethyst_dust|item.logistics.core.amethyst_dust}}
+{{ID|head=1|foot=1|logistics:core/amethyst_dust|item.logistics.core.amethyst_dust}}
 
 == History ==
 

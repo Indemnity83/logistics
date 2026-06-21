@@ -1,0 +1,1 @@
+<includeonly>{|</includeonly><noinclude>Outputs a table-open <code>{{!}}</code> for use inside parser functions (Fandom lacks the {{((!))}} magic word). [[Category:Templates]]</noinclude>

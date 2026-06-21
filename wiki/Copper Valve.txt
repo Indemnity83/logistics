@@ -23,7 +23,7 @@
 
 === ID ===
 
-{{ID|logistics:core/copper_valve|item.logistics.core.copper_valve}}
+{{ID|head=1|foot=1|logistics:core/copper_valve|item.logistics.core.copper_valve}}
 
 == History ==
 

@@ -23,7 +23,7 @@
 
 === ID ===
 
-{{ID|logistics:core/blazing_valve|item.logistics.core.blazing_valve}}
+{{ID|head=1|foot=1|logistics:core/blazing_valve|item.logistics.core.blazing_valve}}
 
 == History ==
 

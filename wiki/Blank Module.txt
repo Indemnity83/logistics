@@ -32,7 +32,7 @@ The Blank Module is consumed when crafting any other module type. Craft it in ad
 
 === ID ===
 
-{{ID|logistics:pipe/blank_module|item.logistics.pipe.blank_module}}
+{{ID|head=1|foot=1|logistics:pipe/blank_module|item.logistics.pipe.blank_module}}
 
 == History ==
 

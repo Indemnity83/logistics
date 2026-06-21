@@ -53,7 +53,7 @@ Use this module when you want provider behavior combined with other module funct
 
 === ID ===
 
-{{ID|logistics:pipe/provider_module|item.logistics.pipe.provider_module}}
+{{ID|head=1|foot=1|logistics:pipe/provider_module|item.logistics.pipe.provider_module}}
 
 == History ==
 

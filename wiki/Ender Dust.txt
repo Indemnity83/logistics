@@ -79,7 +79,7 @@
 
 === ID ===
 
-{{ID|logistics:core/ender_dust|item.logistics.core.ender_dust}}
+{{ID|head=1|foot=1|logistics:core/ender_dust|item.logistics.core.ender_dust}}
 
 == History ==
 

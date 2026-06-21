@@ -23,7 +23,7 @@
 
 === ID ===
 
-{{ID|logistics:core/netherite_gear|item.logistics.core.netherite_gear}}
+{{ID|head=1|foot=1|logistics:core/netherite_gear|item.logistics.core.netherite_gear}}
 
 == History ==
 

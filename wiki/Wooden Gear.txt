@@ -43,7 +43,7 @@
 
 === ID ===
 
-{{ID|logistics:core/wooden_gear|item.logistics.core.wooden_gear}}
+{{ID|head=1|foot=1|logistics:core/wooden_gear|item.logistics.core.wooden_gear}}
 
 == History ==
 

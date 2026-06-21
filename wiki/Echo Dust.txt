@@ -32,7 +32,7 @@
 
 === ID ===
 
-{{ID|logistics:core/echo_dust|item.logistics.core.echo_dust}}
+{{ID|head=1|foot=1|logistics:core/echo_dust|item.logistics.core.echo_dust}}
 
 == History ==
 

@@ -42,7 +42,7 @@ Use a [[Wrench]] to open the chassis GUI, then configure the module:
 
 === ID ===
 
-{{ID|logistics:pipe/item_sink_module|item.logistics.pipe.item_sink_module}}
+{{ID|head=1|foot=1|logistics:pipe/item_sink_module|item.logistics.pipe.item_sink_module}}
 
 == History ==
 

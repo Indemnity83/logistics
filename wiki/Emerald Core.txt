@@ -35,7 +35,7 @@
 
 === ID ===
 
-{{ID|logistics:core/emerald_core|item.logistics.core.emerald_core}}
+{{ID|head=1|foot=1|logistics:core/emerald_core|item.logistics.core.emerald_core}}
 
 == History ==
 

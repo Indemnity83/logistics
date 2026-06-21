@@ -41,7 +41,7 @@
 
 === ID ===
 
-{{ID|logistics:core/iron_valve|item.logistics.core.iron_valve}}
+{{ID|head=1|foot=1|logistics:core/iron_valve|item.logistics.core.iron_valve}}
 
 == History ==
 

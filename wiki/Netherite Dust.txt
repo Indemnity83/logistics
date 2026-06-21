@@ -27,7 +27,7 @@ This dust has no obtaining recipe in the current version.
 
 === ID ===
 
-{{ID|logistics:core/netherite_dust|item.logistics.core.netherite_dust}}
+{{ID|head=1|foot=1|logistics:core/netherite_dust|item.logistics.core.netherite_dust}}
 
 == History ==
 

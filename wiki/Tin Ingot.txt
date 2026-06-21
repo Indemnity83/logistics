@@ -116,7 +116,7 @@ Grind tin ore in a [[Macerator]] to produce two [[Tin Dust]] per ore — an ore-
 
 === ID ===
 
-{{ID|logistics:core/tin_ingot|item.logistics.core.tin_ingot}}
+{{ID|head=1|foot=1|logistics:core/tin_ingot|item.logistics.core.tin_ingot}}
 
 == History ==
 

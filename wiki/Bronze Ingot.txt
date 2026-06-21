@@ -121,7 +121,7 @@ Grind a bronze ingot in a [[Macerator]] to recover [[Bronze Dust]]:
 
 === ID ===
 
-{{ID|logistics:core/bronze_ingot|item.logistics.core.bronze_ingot}}
+{{ID|head=1|foot=1|logistics:core/bronze_ingot|item.logistics.core.bronze_ingot}}
 
 == History ==
 

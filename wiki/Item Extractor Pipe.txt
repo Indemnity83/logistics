@@ -32,7 +32,7 @@ Extraction must be powered by an adjacent engine: a [[Redstone Engine]] moves on
 
 === ID ===
 
-{{ID|logistics:pipe/item_extractor_pipe|block.logistics.pipe.item_extractor_pipe}}
+{{ID|head=1|foot=1|logistics:pipe/item_extractor_pipe|block.logistics.pipe.item_extractor_pipe}}
 
 == History ==
 

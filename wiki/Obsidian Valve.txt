@@ -23,7 +23,7 @@
 
 === ID ===
 
-{{ID|logistics:core/obsidian_valve|item.logistics.core.obsidian_valve}}
+{{ID|head=1|foot=1|logistics:core/obsidian_valve|item.logistics.core.obsidian_valve}}
 
 == History ==
 

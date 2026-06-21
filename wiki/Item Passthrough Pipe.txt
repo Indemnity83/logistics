@@ -30,7 +30,7 @@ The Item Passthrough Pipe connects only to other pipes, never to adjacent invent
 
 === ID ===
 
-{{ID|logistics:pipe/item_passthrough_pipe|block.logistics.pipe.item_passthrough_pipe}}
+{{ID|head=1|foot=1|logistics:pipe/item_passthrough_pipe|block.logistics.pipe.item_passthrough_pipe}}
 
 == History ==
 

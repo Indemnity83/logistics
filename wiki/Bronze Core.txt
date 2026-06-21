@@ -35,7 +35,7 @@
 
 === ID ===
 
-{{ID|logistics:core/bronze_core|item.logistics.core.bronze_core}}
+{{ID|head=1|foot=1|logistics:core/bronze_core|item.logistics.core.bronze_core}}
 
 == History ==
 

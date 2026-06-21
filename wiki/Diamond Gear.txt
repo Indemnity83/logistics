@@ -51,7 +51,7 @@
 
 === ID ===
 
-{{ID|logistics:core/diamond_gear|item.logistics.core.diamond_gear}}
+{{ID|head=1|foot=1|logistics:core/diamond_gear|item.logistics.core.diamond_gear}}
 
 == History ==
 

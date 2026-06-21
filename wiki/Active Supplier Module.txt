@@ -45,7 +45,7 @@ Stocking modes control how aggressively it orders:
 
 === ID ===
 
-{{ID|logistics:pipe/active_supplier_module|item.logistics.pipe.active_supplier_module}}
+{{ID|head=1|foot=1|logistics:pipe/active_supplier_module|item.logistics.pipe.active_supplier_module}}
 
 == History ==
 

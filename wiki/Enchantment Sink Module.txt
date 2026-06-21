@@ -35,7 +35,7 @@ When installed in a [[Chassis Logistics Pipe]], this module checks every item ar
 
 === ID ===
 
-{{ID|logistics:pipe/enchantment_sink_module|item.logistics.pipe.enchantment_sink_module}}
+{{ID|head=1|foot=1|logistics:pipe/enchantment_sink_module|item.logistics.pipe.enchantment_sink_module}}
 
 == History ==
 

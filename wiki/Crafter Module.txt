@@ -67,7 +67,7 @@ When installed in a [[Chassis Logistics Pipe]], this module registers a crafting
 
 === ID ===
 
-{{ID|logistics:pipe/crafter_module|item.logistics.pipe.crafter_module}}
+{{ID|head=1|foot=1|logistics:pipe/crafter_module|item.logistics.pipe.crafter_module}}
 
 == History ==
 

@@ -32,7 +32,7 @@ Quartz Crystal forms the frame of every [[Valves|valve]] — eight crystals arou
 
 === ID ===
 
-{{ID|logistics:automation/quartz_crystal|block.logistics.core.quartz_crystal}}
+{{ID|head=1|foot=1|logistics:automation/quartz_crystal|block.logistics.core.quartz_crystal}}
 
 == History ==
 

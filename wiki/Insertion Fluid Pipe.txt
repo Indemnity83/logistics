@@ -30,7 +30,7 @@ The Insertion Fluid Pipe fills adjacent tanks and machines before passing fluid 
 
 === ID ===
 
-{{ID|logistics:fluid/insertion_fluid_pipe|block.logistics.fluid.insertion_fluid_pipe}}
+{{ID|head=1|foot=1|logistics:fluid/insertion_fluid_pipe|block.logistics.fluid.insertion_fluid_pipe}}
 
 == History ==
 

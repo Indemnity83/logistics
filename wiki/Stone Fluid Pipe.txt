@@ -30,7 +30,7 @@ Stone fluid pipes passively move fluid between tanks, machines, and other pipes 
 
 === ID ===
 
-{{ID|logistics:fluid/stone_fluid_pipe|block.logistics.fluid.stone_fluid_pipe}}
+{{ID|head=1|foot=1|logistics:fluid/stone_fluid_pipe|block.logistics.fluid.stone_fluid_pipe}}
 
 == History ==
 

@@ -45,7 +45,7 @@
 
 === ID ===
 
-{{ID|logistics:core/lapis_dust|item.logistics.core.lapis_dust}}
+{{ID|head=1|foot=1|logistics:core/lapis_dust|item.logistics.core.lapis_dust}}
 
 == History ==
 

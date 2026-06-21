@@ -45,7 +45,7 @@ Smelt it in a furnace, blast furnace, or a [[Kiln]]:
 
 === ID ===
 
-{{ID|logistics:core/tin_dust|item.logistics.core.tin_dust}}
+{{ID|head=1|foot=1|logistics:core/tin_dust|item.logistics.core.tin_dust}}
 
 == History ==
 

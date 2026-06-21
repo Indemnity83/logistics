@@ -1,0 +1,1 @@
+<includeonly>|}</includeonly><noinclude>Outputs a table-close for use inside parser functions. [[Category:Templates]]</noinclude>

@@ -30,7 +30,7 @@ The Bypass Fluid Pipe connects only to other fluid pipes, never to tanks or mach
 
 === ID ===
 
-{{ID|logistics:fluid/bypass_fluid_pipe|block.logistics.fluid.bypass_fluid_pipe}}
+{{ID|head=1|foot=1|logistics:fluid/bypass_fluid_pipe|block.logistics.fluid.bypass_fluid_pipe}}
 
 == History ==
 

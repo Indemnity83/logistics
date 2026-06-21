@@ -53,7 +53,7 @@ A block of tin stores tin ingots compactly. It can be unpacked back into nine in
 
 === ID ===
 
-{{ID|logistics:core/tin_block|block.logistics.core.tin_block}}
+{{ID|head=1|foot=1|logistics:core/tin_block|block.logistics.core.tin_block}}
 
 == History ==
 

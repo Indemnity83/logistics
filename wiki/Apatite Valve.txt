@@ -23,7 +23,7 @@
 
 === ID ===
 
-{{ID|logistics:core/apatite_valve|item.logistics.core.apatite_valve}}
+{{ID|head=1|foot=1|logistics:core/apatite_valve|item.logistics.core.apatite_valve}}
 
 == History ==
 

@@ -33,7 +33,7 @@
 
 === ID ===
 
-{{ID|logistics:core/emerald_valve|item.logistics.core.emerald_valve}}
+{{ID|head=1|foot=1|logistics:core/emerald_valve|item.logistics.core.emerald_valve}}
 
 == History ==
 

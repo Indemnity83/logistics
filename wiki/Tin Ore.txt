@@ -66,10 +66,8 @@ Grind tin ore in a [[Macerator]] for two [[Tin Dust]] per ore — an ore-doublin
 
 === ID ===
 
-{{ID
-|logistics:core/tin_ore|block.logistics.core.tin_ore
-|name2=Deepslate Tin Ore|logistics:core/deepslate_tin_ore|block.logistics.core.deepslate_tin_ore
-}}
+{{ID|head=1|logistics:core/tin_ore|block.logistics.core.tin_ore|name=Tin Ore}}
+{{ID|foot=1|logistics:core/deepslate_tin_ore|block.logistics.core.deepslate_tin_ore|name=Deepslate Tin Ore}}
 
 == History ==
 

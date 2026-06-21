@@ -36,7 +36,7 @@ Prismarine dust currently has no crafting or smelting use.
 
 === ID ===
 
-{{ID|logistics:core/prismarine_dust|item.logistics.core.prismarine_dust}}
+{{ID|head=1|foot=1|logistics:core/prismarine_dust|item.logistics.core.prismarine_dust}}
 
 == History ==
 

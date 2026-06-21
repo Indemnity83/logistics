@@ -32,7 +32,7 @@ Chain several powered golden pipes for a cumulative boost. Unpowered, it behaves
 
 === ID ===
 
-{{ID|logistics:pipe/gold_transport_pipe|block.logistics.pipe.gold_transport_pipe}}
+{{ID|head=1|foot=1|logistics:pipe/gold_transport_pipe|block.logistics.pipe.gold_transport_pipe}}
 
 == History ==
 

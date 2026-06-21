@@ -45,7 +45,7 @@
 
 === ID ===
 
-{{ID|logistics:core/diamond_dust|item.logistics.core.diamond_dust}}
+{{ID|head=1|foot=1|logistics:core/diamond_dust|item.logistics.core.diamond_dust}}
 
 == History ==
 

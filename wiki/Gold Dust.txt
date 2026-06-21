@@ -41,7 +41,7 @@ Smelt it in a furnace, blast furnace, or a [[Kiln]]:
 
 === ID ===
 
-{{ID|logistics:core/gold_dust|item.logistics.core.gold_dust}}
+{{ID|head=1|foot=1|logistics:core/gold_dust|item.logistics.core.gold_dust}}
 
 == History ==
 

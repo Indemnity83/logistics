@@ -43,7 +43,7 @@
 
 === ID ===
 
-{{ID|logistics:core/stone_gear|item.logistics.core.stone_gear}}
+{{ID|head=1|foot=1|logistics:core/stone_gear|item.logistics.core.stone_gear}}
 
 == History ==
 

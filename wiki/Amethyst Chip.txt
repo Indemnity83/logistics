@@ -62,7 +62,7 @@
 
 === ID ===
 
-{{ID|logistics:core/amethyst_chip|item.logistics.core.amethyst_chip}}
+{{ID|head=1|foot=1|logistics:core/amethyst_chip|item.logistics.core.amethyst_chip}}
 
 == History ==
 

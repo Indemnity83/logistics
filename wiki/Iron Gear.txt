@@ -51,7 +51,7 @@
 
 === ID ===
 
-{{ID|logistics:core/iron_gear|item.logistics.core.iron_gear}}
+{{ID|head=1|foot=1|logistics:core/iron_gear|item.logistics.core.iron_gear}}
 
 == History ==
 

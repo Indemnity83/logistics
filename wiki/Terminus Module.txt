@@ -35,7 +35,7 @@ When installed in a [[Chassis Logistics Pipe]], the Terminus Module prevents ite
 
 === ID ===
 
-{{ID|logistics:pipe/terminus_module|item.logistics.pipe.terminus_module}}
+{{ID|head=1|foot=1|logistics:pipe/terminus_module|item.logistics.pipe.terminus_module}}
 
 == History ==
 

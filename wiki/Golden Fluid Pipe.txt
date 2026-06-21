@@ -30,7 +30,7 @@ Golden fluid pipes passively carry fluid at '''80 mB/t''', eight times a copper 
 
 === ID ===
 
-{{ID|logistics:fluid/gold_fluid_pipe|block.logistics.fluid.gold_fluid_pipe}}
+{{ID|head=1|foot=1|logistics:fluid/gold_fluid_pipe|block.logistics.fluid.gold_fluid_pipe}}
 
 == History ==
 

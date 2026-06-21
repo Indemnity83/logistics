@@ -1,43 +1,28 @@
-<includeonly>{| class="wikitable"
+<includeonly>{{#if:{{{head|}}}|<templatestyles src="ID/styles.css" />{{(!}} class="wikitable logi-idtable"
 ! Name
 ! Namespaced ID
-! Translation key
-|-
-| {{{name|{{PAGENAME}}}}}
-| <code>{{{1}}}</code>
-| <code>{{{2}}}</code>
-{{#if:{{{3|}}}|{{!}}-
-{{!}} {{{name2|}}}
-{{!}} <code>{{{3}}}</code>
-{{!}} <code>{{{4|}}}</code>
-{{#if:{{{5|}}}|{{!}}-
-{{!}} {{{name3|}}}
-{{!}} <code>{{{5}}}</code>
-{{!}} <code>{{{6|}}}</code>
-{{#if:{{{7|}}}|{{!}}-
-{{!}} {{{name4|}}}
-{{!}} <code>{{{7}}}</code>
-{{!}} <code>{{{8|}}}</code>
-{{#if:{{{9|}}}|{{!}}-
-{{!}} {{{name5|}}}
-{{!}} <code>{{{9}}}</code>
-{{!}} <code>{{{10|}}}</code>
-{{!}}}|{{!}}}}}|{{!}}}}}|{{!}}}}}|{{!}}}}}</includeonly><noinclude>
-Renders the '''Data values''' ID table (Name / Namespaced ID / Translation key). Pass each row's
-namespaced ID and translation key as literal strings — take the key from the lang file, don't infer
-it. Supports up to five rows for multi-variant blocks.
+! Translation key}}
+{{!}}-
+{{!}} {{{name|{{PAGENAME}}}}}
+{{!}} <code>{{{1}}}</code>
+{{!}} <code>{{{2}}}</code>
+{{#if:{{{foot|}}}|{{)!}}}}</includeonly><noinclude>
+Renders one row of the '''Data values''' ID table (Name / Namespaced ID / Translation key). Stack
+one {{ID}} call per row: '''head=1''' on the first (opens the table + header), '''foot=1''' on the
+last (closes it). A single-row table sets both. Pass the ID and translation key as literal strings —
+take the key from the lang file, don't infer it.
 
 Usage:
- {{ID|logistics:core/tin_ingot|item.logistics.core.tin_ingot}}
- {{ID
- |logistics:core/tin_ore|block.logistics.core.tin_ore
- |name2=Deepslate Tin Ore|logistics:core/deepslate_tin_ore|block.logistics.core.deepslate_tin_ore
- }}
+ {{ID|head=1|foot=1|logistics:core/tin_ingot|item.logistics.core.tin_ingot}}
+
+ {{ID|head=1|logistics:core/tin_ore|block.logistics.core.tin_ore|name=Tin Ore}}
+ {{ID|foot=1|logistics:core/deepslate_tin_ore|block.logistics.core.deepslate_tin_ore|name=Deepslate Tin Ore}}
 
 Parameters:
- 1, 2          — row 1 namespaced ID and translation key
- name          — row 1 display name (defaults to the page title)
- 3/4 + name2   — optional row 2; 5/6 + name3, 7/8 + name4, 9/10 + name5 — optional rows 3-5
+ 1, 2   — namespaced ID and translation key for this row
+ name   — display name (defaults to the page title)
+ head   — set on the first row to open the table + header
+ foot   — set on the last row to close the table
 
 [[Category:Templates]]
 </noinclude>

@@ -35,7 +35,7 @@
 
 === ID ===
 
-{{ID|logistics:core/blazing_core|item.logistics.core.blazing_core}}
+{{ID|head=1|foot=1|logistics:core/blazing_core|item.logistics.core.blazing_core}}
 
 == History ==
 

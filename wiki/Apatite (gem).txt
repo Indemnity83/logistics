@@ -46,7 +46,7 @@
 
 === ID ===
 
-{{ID|logistics:core/apatite|item.logistics.core.apatite}}
+{{ID|head=1|foot=1|logistics:core/apatite|item.logistics.core.apatite}}
 
 == History ==
 

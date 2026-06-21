@@ -69,7 +69,7 @@
 
 === ID ===
 
-{{ID|logistics:core/redstone_chip|item.logistics.core.redstone_chip}}
+{{ID|head=1|foot=1|logistics:core/redstone_chip|item.logistics.core.redstone_chip}}
 
 == History ==
 

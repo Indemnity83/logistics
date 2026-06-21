@@ -46,7 +46,7 @@ Grind apatite ore in a [[Macerator]] for six [[Apatite Dust]] per ore — a gene
 
 === ID ===
 
-{{ID|logistics:core/apatite_ore|block.logistics.core.apatite_ore}}
+{{ID|head=1|foot=1|logistics:core/apatite_ore|block.logistics.core.apatite_ore}}
 
 == History ==
 

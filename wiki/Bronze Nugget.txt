@@ -45,7 +45,7 @@ Nine bronze nuggets craft back into a [[Bronze Ingot|bronze ingot]].
 
 === ID ===
 
-{{ID|logistics:core/bronze_nugget|item.logistics.core.bronze_nugget}}
+{{ID|head=1|foot=1|logistics:core/bronze_nugget|item.logistics.core.bronze_nugget}}
 
 == History ==
 

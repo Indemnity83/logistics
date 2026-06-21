@@ -55,7 +55,7 @@
 
 === ID ===
 
-{{ID|logistics:core/echo_chip|item.logistics.core.echo_chip}}
+{{ID|head=1|foot=1|logistics:core/echo_chip|item.logistics.core.echo_chip}}
 
 == History ==
 

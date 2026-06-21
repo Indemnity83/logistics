@@ -66,7 +66,7 @@ When installed in a [[Chassis Logistics Pipe]], this module pulls items from an 
 
 === ID ===
 
-{{ID|logistics:pipe/extractor_module|item.logistics.pipe.extractor_module}}
+{{ID|head=1|foot=1|logistics:pipe/extractor_module|item.logistics.pipe.extractor_module}}
 
 == History ==
 

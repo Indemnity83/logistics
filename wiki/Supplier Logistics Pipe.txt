@@ -43,7 +43,7 @@ Like every [[Logistics Pipes|logistics pipe]], it draws [[RF Energy|RF]] from a 
 
 === ID ===
 
-{{ID|logistics:pipe/supplier_logistics_pipe|block.logistics.pipe.supplier_logistics_pipe}}
+{{ID|head=1|foot=1|logistics:pipe/supplier_logistics_pipe|block.logistics.pipe.supplier_logistics_pipe}}
 
 == History ==
 

@@ -45,7 +45,7 @@ Nine tin nuggets craft back into a [[Tin Ingot|tin ingot]].
 
 === ID ===
 
-{{ID|logistics:core/tin_nugget|item.logistics.core.tin_nugget}}
+{{ID|head=1|foot=1|logistics:core/tin_nugget|item.logistics.core.tin_nugget}}
 
 == History ==
 

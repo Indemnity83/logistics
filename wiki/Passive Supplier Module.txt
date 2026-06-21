@@ -41,7 +41,7 @@ Configure the items and target quantities via the module GUI in the chassis (use
 
 === ID ===
 
-{{ID|logistics:pipe/passive_supplier_module|item.logistics.pipe.passive_supplier_module}}
+{{ID|head=1|foot=1|logistics:pipe/passive_supplier_module|item.logistics.pipe.passive_supplier_module}}
 
 == History ==
 

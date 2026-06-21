@@ -51,7 +51,7 @@
 
 === ID ===
 
-{{ID|logistics:core/coal_dust|item.logistics.core.coal_dust}}
+{{ID|head=1|foot=1|logistics:core/coal_dust|item.logistics.core.coal_dust}}
 
 == History ==
 

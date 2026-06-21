@@ -27,7 +27,7 @@ This dust has no obtaining recipe in the current version.
 
 === ID ===
 
-{{ID|logistics:core/obsidian_dust|item.logistics.core.obsidian_dust}}
+{{ID|head=1|foot=1|logistics:core/obsidian_dust|item.logistics.core.obsidian_dust}}
 
 == History ==
 

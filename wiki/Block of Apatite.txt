@@ -53,7 +53,7 @@ A block of apatite stores apatite compactly. It can be unpacked back into nine g
 
 === ID ===
 
-{{ID|logistics:core/apatite_block|block.logistics.core.apatite_block}}
+{{ID|head=1|foot=1|logistics:core/apatite_block|block.logistics.core.apatite_block}}
 
 == History ==
 

@@ -36,7 +36,7 @@ When installed in a [[Chassis Logistics Pipe]], the Quicksort Module intercepts 
 
 === ID ===
 
-{{ID|logistics:pipe/quicksort_module|item.logistics.pipe.quicksort_module}}
+{{ID|head=1|foot=1|logistics:pipe/quicksort_module|item.logistics.pipe.quicksort_module}}
 
 == History ==
 

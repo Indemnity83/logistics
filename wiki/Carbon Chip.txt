@@ -34,7 +34,7 @@
 
 === ID ===
 
-{{ID|logistics:core/carbon_chip|item.logistics.core.carbon_chip}}
+{{ID|head=1|foot=1|logistics:core/carbon_chip|item.logistics.core.carbon_chip}}
 
 == History ==
 

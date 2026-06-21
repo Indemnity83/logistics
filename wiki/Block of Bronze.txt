@@ -53,7 +53,7 @@ A block of bronze stores bronze ingots compactly. It can be unpacked back into n
 
 === ID ===
 
-{{ID|logistics:core/bronze_block|block.logistics.core.bronze_block}}
+{{ID|head=1|foot=1|logistics:core/bronze_block|block.logistics.core.bronze_block}}
 
 == History ==
 

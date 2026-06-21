@@ -50,7 +50,7 @@ Smelt raw tin in a furnace, blast furnace, or a [[Kiln]] (RF-powered, no fuel) t
 
 === ID ===
 
-{{ID|logistics:core/raw_tin|item.logistics.core.raw_tin}}
+{{ID|head=1|foot=1|logistics:core/raw_tin|item.logistics.core.raw_tin}}
 
 == History ==
 

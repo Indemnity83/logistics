@@ -34,7 +34,7 @@ They also accept [[Marking Fluid]], which color-codes pipes so that same-color p
 
 === ID ===
 
-{{ID|logistics:pipe/copper_transport_pipe|block.logistics.pipe.copper_transport_pipe}}
+{{ID|head=1|foot=1|logistics:pipe/copper_transport_pipe|block.logistics.pipe.copper_transport_pipe}}
 
 == History ==
 

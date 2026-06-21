@@ -35,7 +35,7 @@
 
 === ID ===
 
-{{ID|logistics:core/bronze_gear|item.logistics.core.bronze_gear}}
+{{ID|head=1|foot=1|logistics:core/bronze_gear|item.logistics.core.bronze_gear}}
 
 == History ==
 

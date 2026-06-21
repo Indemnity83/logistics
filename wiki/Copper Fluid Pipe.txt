@@ -30,7 +30,7 @@ Copper fluid pipes passively carry fluid at '''10 mB/t''' and form most of a flu
 
 === ID ===
 
-{{ID|logistics:fluid/copper_fluid_pipe|block.logistics.fluid.copper_fluid_pipe}}
+{{ID|head=1|foot=1|logistics:fluid/copper_fluid_pipe|block.logistics.fluid.copper_fluid_pipe}}
 
 == History ==
 

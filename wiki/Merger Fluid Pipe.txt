@@ -30,7 +30,7 @@ The Merger Fluid Pipe lets fluid leave only through a wrench-set output face, an
 
 === ID ===
 
-{{ID|logistics:fluid/merger_fluid_pipe|block.logistics.fluid.merger_fluid_pipe}}
+{{ID|head=1|foot=1|logistics:fluid/merger_fluid_pipe|block.logistics.fluid.merger_fluid_pipe}}
 
 == History ==
 

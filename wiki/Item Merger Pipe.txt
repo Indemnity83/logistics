@@ -32,7 +32,7 @@ Set the output face with a [[Wrench]].
 
 === ID ===
 
-{{ID|logistics:pipe/item_merger_pipe|block.logistics.pipe.item_merger_pipe}}
+{{ID|head=1|foot=1|logistics:pipe/item_merger_pipe|block.logistics.pipe.item_merger_pipe}}
 
 == History ==
 

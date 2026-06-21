@@ -36,7 +36,7 @@ When installed in a [[Chassis Logistics Pipe]], this module scans the adjacent i
 
 === ID ===
 
-{{ID|logistics:pipe/polymorphic_sink_module|item.logistics.pipe.polymorphic_sink_module}}
+{{ID|head=1|foot=1|logistics:pipe/polymorphic_sink_module|item.logistics.pipe.polymorphic_sink_module}}
 
 == History ==
 

@@ -26,7 +26,7 @@ Apatite dust currently has no crafting or smelting use.
 
 === ID ===
 
-{{ID|logistics:core/apatite_dust|item.logistics.core.apatite_dust}}
+{{ID|head=1|foot=1|logistics:core/apatite_dust|item.logistics.core.apatite_dust}}
 
 == History ==
 

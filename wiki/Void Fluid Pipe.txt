@@ -30,7 +30,7 @@ The Void Fluid Pipe destroys any fluid that flows into it, acting as a bottomles
 
 === ID ===
 
-{{ID|logistics:fluid/void_fluid_pipe|block.logistics.fluid.void_fluid_pipe}}
+{{ID|head=1|foot=1|logistics:fluid/void_fluid_pipe|block.logistics.fluid.void_fluid_pipe}}
 
 == History ==
 

@@ -30,7 +30,7 @@ The Fluid Extractor Pipe pulls fluid from an adjacent tank or machine and pushes
 
 === ID ===
 
-{{ID|logistics:fluid/fluid_extractor_pipe|block.logistics.fluid.fluid_extractor_pipe}}
+{{ID|head=1|foot=1|logistics:fluid/fluid_extractor_pipe|block.logistics.fluid.fluid_extractor_pipe}}
 
 == History ==
 

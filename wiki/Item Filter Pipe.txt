@@ -32,7 +32,7 @@ It is the core of a sorting system — combine it with the [[Item Insertion Pipe
 
 === ID ===
 
-{{ID|logistics:pipe/item_filter_pipe|block.logistics.pipe.item_filter_pipe}}
+{{ID|head=1|foot=1|logistics:pipe/item_filter_pipe|block.logistics.pipe.item_filter_pipe}}
 
 == History ==
 
