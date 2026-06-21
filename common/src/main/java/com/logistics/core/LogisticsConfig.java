@@ -50,6 +50,7 @@ public final class LogisticsConfig {
         public long armEnergy = 20L;
         public float rainPenalty = 0.7f;
         public int scanRate = 256;
+        public boolean loadChunks = false;
 
         // Derived values — computed from the fields above.
         public double energyPerBlockMultiplier() { return nonNegativeFiniteOrZero(energyPerBlock * energyMultiplier * 2); }
@@ -154,6 +155,11 @@ public final class LogisticsConfig {
                 v -> INSTANCE.quarry.scanRate = v.intValue(),
                 Long::parseLong,
                 v -> requireRange(v, 1L, (long) Integer.MAX_VALUE, "must be between 1 and " + Integer.MAX_VALUE));
+        reg(map, "quarry_load_chunks", "Keep the quarry and its work area chunk-loaded while running",
+                () -> INSTANCE.quarry.loadChunks,
+                mode -> INSTANCE.quarry.loadChunks = mode,
+                LogisticsConfig::parseBooleanStrict,
+                v -> {});
 
         // Pipe
         reg(map, "pipe_max_speed", "Item speed ceiling (blocks/tick)",
