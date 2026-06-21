@@ -8,13 +8,14 @@ import com.logistics.core.LogisticsConfig;
 import com.logistics.core.lib.compat.NbtCompat;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.server.level.*;
+import net.minecraft.server.level.ChunkLevel;
+import net.minecraft.server.level.FullChunkStatus;
+import net.minecraft.server.level.ServerChunkCache;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.Ticket;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * Owns the laser quarry's per-phase execution state — {@code Phase} dispatch,
@@ -117,34 +118,21 @@ public final class QuarryPhaseRunner {
                 LogisticsConfig.get().quarry.area
         );
         if (frame == null) {
-            throw new IllegalStateException("Query has null frame");
+            throw new IllegalStateException("Quarry has null frame");
         }
 
-        Set<ChunkPos> chunks = new HashSet<>();
+        int ticketLevel = ChunkLevel.byStatus(FullChunkStatus.BLOCK_TICKING);
         ChunkPos start = ChunkPos.containing(new BlockPos(frame.startX(), 0, frame.startZ()));
         ChunkPos end = ChunkPos.containing(new BlockPos(frame.endX(), 0, frame.endZ()));
 
         for (int x = start.x(); x <= end.x(); x++) {
             for (int z = start.z(); z <= end.z(); z++) {
-                chunks.add(new ChunkPos(x, z));
+                chunkCache.addTicket(
+                        new Ticket(LogisticsAutomation.TICKET_TYPE.QUARRY_BOUNDARY, ticketLevel), new ChunkPos(x, z));
             }
         }
 
-        for (ChunkPos chunk : chunks) {
-            Ticket ticket = new Ticket(
-                    LogisticsAutomation.TICKET_TYPE.QUARRY_BOUNDARY,
-                    ChunkLevel.byStatus(FullChunkStatus.BLOCK_TICKING)
-            );
-
-            chunkCache.addTicket(ticket, chunk);
-        }
-
-        Ticket ticket = new Ticket(
-                LogisticsAutomation.TICKET_TYPE.QUARRY,
-                ChunkLevel.byStatus(FullChunkStatus.BLOCK_TICKING)
-        );
-        ChunkPos chunk = ChunkPos.containing(pos);
-        chunkCache.addTicket(ticket, chunk);
+        chunkCache.addTicket(new Ticket(LogisticsAutomation.TICKET_TYPE.QUARRY, ticketLevel), ChunkPos.containing(pos));
     }
 
     private void tickClearing(LaserQuarryBlockEntity be, ServerLevel world, BlockPos pos, BlockState state) {

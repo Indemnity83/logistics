@@ -151,13 +151,13 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
         static void register() {
             QUARRY = Registry.register(
                     BuiltInRegistries.TICKET_TYPE,
-                    "logistics:quarry",
+                    LogisticsMod.modId("quarry").toIdentifier(),
                     new TicketType(20L, TicketType.FLAG_PERSIST | TicketType.FLAG_LOADING | TicketType.FLAG_SIMULATION | TicketType.FLAG_KEEP_DIMENSION_ACTIVE)
             );
 
             QUARRY_BOUNDARY = Registry.register(
                     BuiltInRegistries.TICKET_TYPE,
-                    "logistics:quarry_boundary",
+                    LogisticsMod.modId("quarry_boundary").toIdentifier(),
                     new TicketType(20L, TicketType.FLAG_LOADING | TicketType.FLAG_SIMULATION | TicketType.FLAG_KEEP_DIMENSION_ACTIVE)
             );
         }

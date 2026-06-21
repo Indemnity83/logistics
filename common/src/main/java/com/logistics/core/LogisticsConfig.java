@@ -142,7 +142,7 @@ public final class LogisticsConfig {
                 v -> INSTANCE.quarry.scanRate = v.intValue(),
                 Long::parseLong,
                 v -> requireRange(v, 1L, (long) Integer.MAX_VALUE, "must be between 1 and " + Integer.MAX_VALUE));
-        reg(map, "quarry_load_chunks", "Should the quarry chunk-load itself",
+        reg(map, "quarry_load_chunks", "Keep the quarry and its work area chunk-loaded while running",
                 () -> INSTANCE.quarry.loadChunks,
                 mode -> INSTANCE.quarry.loadChunks = mode,
                 LogisticsConfig::parseBooleanStrict,
