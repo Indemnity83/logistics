@@ -14,19 +14,25 @@
 	border-collapse: separate;
 	border-spacing: 3px;
 	background: transparent;
+	table-layout: fixed;   /* every slot the same width whether or not it holds an item */
 }
 .logi-grid-cell {
 	vertical-align: middle;
 	padding: 0;
 }
 .logi-grid-slot {
-	width: 32px;
-	height: 32px;
+	box-sizing: border-box;
+	width: 36px;
+	height: 36px;
 	padding: 2px;
 	background: #8b8b8b;
 	box-shadow: inset 2px 2px 0 #565656, inset -2px -2px 0 #ffffff;
 	text-align: center;
 	vertical-align: middle;
+}
+.logi-grid-slot img {
+	display: block;
+	margin: 0 auto;
 }
 .logi-grid-arrow {
 	padding: 0 12px;
