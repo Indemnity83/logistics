@@ -19,7 +19,7 @@
 | class="logi-grid-slot" | {{Grid|{{{Output}}}}}
 | class="logi-grid-count" | {{#if:{{{OutputCount|}}}|×{{{OutputCount}}}}}
 |-
-| class="logi-furnace-xp" | {{#if:{{{XP|}}}|[[File:Grid XP Orb.png|11px|link=|alt=XP]] {{{XP}}}|&nbsp;}}
+| class="logi-furnace-xp" | {{#if:{{{XP|}}}|[[File:Grid XP Orb.png|14px|link=|alt=XP]]<span class="logi-xp-val">{{{XP}}}</span>|&nbsp;}}
 | class="logi-grid-count" | &nbsp;
 |}
 |}<templatestyles src="Grid Crafting Table/styles.css" /><templatestyles src="Grid Smelting Table/styles.css" /></includeonly><noinclude>

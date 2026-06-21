@@ -19,6 +19,11 @@
 	padding-top: 2px;
 	white-space: nowrap;
 }
-.logi-furnace-xp img {
-	vertical-align: -0.15em;   /* seat the XP orb on the value */
+/* center the orb and value on the same line; .mw-file-element is MediaWiki's <img> */
+.logi-furnace-xp .mw-file-element,
+.logi-furnace-xp .logi-xp-val {
+	vertical-align: middle;
+}
+.logi-furnace-xp .logi-xp-val {
+	margin-left: 2px;
 }
