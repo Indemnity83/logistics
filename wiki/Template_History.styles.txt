@@ -27,3 +27,7 @@
 	font-weight: bold;
 	white-space: nowrap;
 }
+
+.logi-history-changes p {
+	display: none;   /* hide the stray <p><br></p> a stacked row leaves */
+}

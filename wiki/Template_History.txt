@@ -1,7 +1,14 @@
-<includeonly>{{#invoke:History|history}}</includeonly><noinclude>
-A row of the version-history table (Version | Changes), powered by [[Module:History]]. Each call
-is one row; group several into one table with <code>head=1</code> on the first and
-<code>foot=1</code> on the last. A single-row history sets both. Styling lives in
+<includeonly>{{#if:{{{head|}}}|<templatestyles src="History/styles.css" />{{(!}} class="logi-history"
+{{!}}- class="logi-history-head"
+! Version
+! Changes}}
+{{!}}-
+{{!}} class="logi-history-version" {{!}} {{{version|{{{1|}}}}}}
+{{!}} class="logi-history-changes" {{!}} {{{changes|{{{2|}}}}}}
+{{#if:{{{foot|}}}|{{)!}}}}</includeonly><noinclude>
+A row of the version-history table (Version | Changes). Each call is one row; group several into one
+table with <code>head=1</code> on the first and <code>foot=1</code> on the last. A single-row history
+sets both. Plain wikitext (uses the {{((!))}} / {{())!))}} table helpers); styling lives in
 [[Template:History/styles.css]].
 
 Usage (newest version first):
