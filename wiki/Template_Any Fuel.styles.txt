@@ -1,0 +1,33 @@
+/* Cycling "any fuel" animation, loaded via <templatestyles> from [[Template:Any Fuel]]. MediaWiki
+   wraps each image in its own <span>, so we stack and stagger those direct child spans (one shown
+   per sixth of the cycle) rather than the <img> elements. */
+.logi-fuel {
+	position: relative;
+	display: inline-block;
+	width: 32px;
+	height: 32px;
+	vertical-align: middle;
+}
+.logi-fuel > span {
+	position: absolute;
+	top: 0;
+	left: 0;
+	opacity: 0;
+	animation: logi-fuel-cycle 6s linear infinite;
+}
+.logi-fuel > span:nth-child(2) { animation-delay: 1s; }
+.logi-fuel > span:nth-child(3) { animation-delay: 2s; }
+.logi-fuel > span:nth-child(4) { animation-delay: 3s; }
+.logi-fuel > span:nth-child(5) { animation-delay: 4s; }
+.logi-fuel > span:nth-child(6) { animation-delay: 5s; }
+.logi-fuel img {
+	display: block;
+	width: 32px;
+	height: 32px;
+}
+@keyframes logi-fuel-cycle {
+	0% { opacity: 1; }
+	16.66% { opacity: 1; }
+	16.67% { opacity: 0; }
+	100% { opacity: 0; }
+}

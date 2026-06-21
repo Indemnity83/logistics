@@ -7,7 +7,7 @@
 |-
 | class="logi-furnace-fire" | [[File:Grid Furnace Flame.png|18px|link=]]
 |-
-| class="logi-grid-slot" | {{#if:{{{Fuel|}}}|{{Grid|{{{Fuel}}}}}|&nbsp;}}
+| class="logi-grid-slot" | {{#if:{{{Fuel|}}}|{{Grid|{{{Fuel}}}}}|{{Any Fuel}}}}
 |}
 | class="logi-grid-arrow" | →
 | class="logi-grid-cell" |
