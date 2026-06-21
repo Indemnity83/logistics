@@ -1,28 +1,56 @@
+{{About|the raw item|the ore|Tin Ore|the ingot|Tin Ingot|the storage block|Block of Raw Tin|the metal in general|Tin}}
 {{Item
 |image     = Grid Raw Tin.png
-|id        = logistics:core/raw_tin
 |type      = Item
+|renewable = No
 |stackable = Yes (64)
 |added     = v0.2.0
 }}
 
-'''Raw Tin''' is the item dropped by [[Tin Ore]]. Smelt it into a [[Tin Ingot]] for crafting [[Bronze Ingot|bronze]] and tin components.
+'''Raw tin''' is a raw metal dropped by [[Tin Ore|tin ore]]. It is smelted into a [[Tin Ingot|tin ingot]].
 
 == Obtaining ==
 
-=== Breaking ===
+=== Mining ===
 
-[[Tin Ore]] and Deepslate Tin Ore drop Raw Tin when mined with a '''stone pickaxe''' or better; the Fortune enchantment increases the drop. Grinding the ore in a [[Macerator]] instead yields '''2× [[Dusts|Tin Dust]]''' (ore doubling).
+[[Tin Ore]] and deepslate tin ore drop 2–5 raw tin when mined with a stone pickaxe or better; the count is increased by Fortune. See [[Tin Ore#Breaking|Tin Ore]] for the full breaking table.
 
-=== Crafting ===
+=== Chest loot ===
 
-Nine Raw Tin pack into a '''Block of Raw Tin''' for compact storage, and the block unpacks back into nine.
+{{LootChestItem|raw-tin}}
 
 == Usage ==
 
 === Smelting ===
 
-Smelt Raw Tin in a furnace or blast furnace to produce one [[Tin Ingot]].
+Smelt raw tin in a furnace, blast furnace, or a [[Kiln]] (RF-powered, no fuel) to produce a [[Tin Ingot]]:
+
+{{Smelting
+|head=1
+|foot=1
+|name=Tin Ingot
+|Input=Raw Tin
+|Output=Tin Ingot
+|XP=0.7
+}}
+
+=== Crafting ingredient ===
+
+{{Crafting
+|head=1
+|foot=1
+|name=[[Block of Raw Tin]]
+|A1=Raw Tin |B1=Raw Tin |C1=Raw Tin
+|A2=Raw Tin |B2=Raw Tin |C2=Raw Tin
+|A3=Raw Tin |B3=Raw Tin |C3=Raw Tin
+|Output=Raw Tin Block
+}}
+
+== Data values ==
+
+=== ID ===
+
+{{ID|logistics:core/raw_tin|item.logistics.core.raw_tin}}
 
 == History ==
 
@@ -30,9 +58,9 @@ Smelt Raw Tin in a furnace or blast furnace to produce one [[Tin Ingot]].
 
 == See also ==
 
+* [[Tin]] - Material overview
 * [[Tin Ore]] - Source block
 * [[Tin Ingot]] - Smelted product
-* [[Bronze Ingot]] - Tin + copper alloy
-* [[Dusts]] - Tin Dust and ore doubling
+* [[Block of Raw Tin]] - Bulk storage block
 
 [[Category:Materials]]
