@@ -26,7 +26,7 @@ local function build(frame, args, spec)
 		local cell = box:tag('tr'):tag('td'):attr('colspan', 2):addClass('logi-infobox-image')
 		if image2 then
 			-- two stacked variants (e.g. an ore and its deepslate form), each optionally captioned
-			local size = trim(args.imagesize) or '150'
+			local size = trim(args.imagesize) or '200'
 			local function variant(file, caption)
 				local fig = '[[File:' .. file .. '|' .. size .. 'px|' .. (caption or title) .. ']]'
 				if caption then
@@ -36,7 +36,7 @@ local function build(frame, args, spec)
 			end
 			cell:wikitext(variant(image, trim(args.caption)) .. variant(image2, trim(args.caption2)))
 		else
-			local size = trim(args.imagesize) or '150'
+			local size = trim(args.imagesize) or '200'
 			cell:wikitext('[[File:' .. image .. '|' .. size .. 'px|center|' .. title .. ']]')
 		end
 		local extra = trim(args.extratext)
