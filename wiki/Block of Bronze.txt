@@ -1,18 +1,53 @@
-{{Stub}}
+{{About|the mineral block|the ingot|Bronze Ingot|the nugget|Bronze Nugget|the metal in general|Bronze}}
 {{Block
 |image     = Grid Bronze Block.png
 |type      = Block
+|tool      = Stone Pickaxe
+|hardness  = 3
+|blastresistance = 6
+|renewable = No
 |stackable = Yes (64)
 |added     = v0.2.0
 }}
 
-'''Block of Bronze''' is a storage block that compacts nine [[Bronze Ingot|bronze ingots]].
+A '''block of bronze''' is a storage block equivalent to nine [[Bronze Ingot|bronze ingots]].
 
 == Obtaining ==
 
+=== Breaking ===
+
+A block of bronze can be mined only with a stone pickaxe or better. Mined without a pickaxe it drops nothing.
+
+{{Breaking
+|tier=stone
+|name1=Block of Bronze |icon1=Grid Bronze Block.png |hardness1=3
+}}
+
 === Crafting ===
 
-Craft from nine [[Bronze Ingot|bronze ingots]] arranged in a 3×3 grid; the block unpacks back into nine ingots.
+{{Crafting
+|head=1
+|foot=1
+|name=Block of Bronze
+|A1=Bronze Ingot |B1=Bronze Ingot |C1=Bronze Ingot
+|A2=Bronze Ingot |B2=Bronze Ingot |C2=Bronze Ingot
+|A3=Bronze Ingot |B3=Bronze Ingot |C3=Bronze Ingot
+|Output=Bronze Block
+}}
+
+== Usage ==
+
+A block of bronze stores bronze ingots compactly. It can be unpacked back into nine ingots at any time.
+
+=== Crafting ingredient ===
+
+{{Crafting
+|head=1
+|foot=1
+|name=[[Bronze Ingot]]
+|B2=Bronze Block
+|Output=Bronze Ingot,9
+}}
 
 == Data values ==
 
@@ -20,9 +55,14 @@ Craft from nine [[Bronze Ingot|bronze ingots]] arranged in a 3×3 grid; the bloc
 
 {{ID|logistics:core/bronze_block|block.logistics.core.bronze_block}}
 
+== History ==
+
+{{History|head=1|foot=1|v0.2.0|Added '''Block of Bronze'''.}}
+
 == See also ==
 
-* [[Bronze]] — material overview
-* [[Bronze Ingot]] — crafting component
+* [[Bronze]] - Material overview
+* [[Bronze Ingot]] - The ingot it stores
+* [[Bronze Nugget]] - Smaller unit
 
 [[Category:Materials]]

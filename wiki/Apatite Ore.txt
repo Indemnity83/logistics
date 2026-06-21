@@ -1,39 +1,52 @@
+{{About|the ore|the gem|Apatite (gem)|the mineral block|Block of Apatite|the metal in general|Apatite}}
 {{Block
 |image     = Grid Apatite Ore.png
-|id        = logistics:core/apatite_ore
 |type      = Ore
 |tool      = Stone Pickaxe
 |hardness  = 3
 |blastresistance = 3
 |drops     = Apatite
-|experience = 0-2
+|experience = 0–2
+|renewable = No
 |stackable = Yes (64)
 |added     = v0.2.0
 }}
 
-'''Apatite Ore''' is an ore that drops [[Apatite (gem)|apatite]] gems, used for [[Apatite Valve|apatite valves]] and advanced components.
+'''Apatite ore''' is a gem ore found underground. It drops [[Apatite (gem)|apatite]], used mainly to craft [[Apatite Valve|apatite valves]].
 
 == Obtaining ==
 
 === Breaking ===
 
-Apatite Ore drops [[Apatite]] gems directly when mined — no smelting needed — and requires a '''stone pickaxe''' or better. It also drops '''0–2 experience'''. The Fortune enchantment increases apatite drops.
+Apatite ore drops 1–6 [[Apatite (gem)|apatite]] when mined with a stone pickaxe or better; the count is increased by Fortune. Mined with Silk Touch it drops itself instead. Breaking it also releases 0–2 experience.
+
+{{Breaking
+|tier=stone
+|name1=Apatite Ore |icon1=Grid Apatite Ore.png |hardness1=3
+}}
 
 === Natural generation ===
 
-Apatite Ore generates in every Overworld biome during the underground-ore step, between '''Y 60 and Y 256''' with a '''uniform''' distribution (equally likely at any height in that band, so it favors hills and mountains). It forms in unusually '''large veins of up to 48 blocks''', with about '''2 veins per chunk''', and has no deepslate variant. Veins generate normally even where they are exposed to air.
+Apatite ore generates in every Overworld biome during the world's underground-ore step, in unusually large veins of up to '''48''' blocks. It places two veins per chunk spread evenly from Y 60 to Y 256, so it favors hills and mountains. There is no deepslate variant. Veins generate normally even where exposed to air, so they show on cave walls.
 
 == Usage ==
 
-Apatite from this ore feeds gem-based components.
-
 === Grinding ===
 
-Grind Apatite Ore in the [[Macerator]] for '''Apatite Dust''' (see [[Dusts]]).
+Grind apatite ore in a [[Macerator]] for six [[Dusts|Apatite Dust]] per ore — a generous yield versus mining the gems directly:
 
-=== Storage ===
+{{Grinding
+|head=1
+|foot=1
+|Input=Apatite Ore
+|Output=Apatite Dust,6
+}}
 
-Nine apatite can be packed into an '''Apatite Block''' for compact storage.
+== Data values ==
+
+=== ID ===
+
+{{ID|logistics:core/apatite_ore|block.logistics.core.apatite_ore}}
 
 == History ==
 
@@ -41,8 +54,9 @@ Nine apatite can be packed into an '''Apatite Block''' for compact storage.
 
 == See also ==
 
-* [[Apatite]] - Dropped gem
+* [[Apatite]] - Material overview
+* [[Apatite (gem)]] - The dropped gem
 * [[Apatite Valve]] - Major use
-* [[Dusts]] - Apatite Dust
+* [[Dusts|Apatite Dust]] - Ground form
 
 [[Category:Materials]]

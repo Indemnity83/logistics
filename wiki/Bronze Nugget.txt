@@ -1,18 +1,45 @@
-{{Stub}}
+{{About|the nugget|the ingot|Bronze Ingot|the mineral block|Block of Bronze|the metal in general|Bronze}}
 {{Item
 |image     = Grid Bronze Nugget.png
 |type      = Item
+|renewable = No
 |stackable = Yes (64)
 |added     = v0.2.0
 }}
 
-'''Bronze Nugget''' is one-ninth of a [[Bronze Ingot]], handy for fine crafting and storage.
+'''Bronze nuggets''' are pieces of bronze worth one-ninth of a [[Bronze Ingot|bronze ingot]], handy for fine crafting and storage.
 
 == Obtaining ==
 
+=== Chest loot ===
+
+{{LootChestItem|bronze-nugget}}
+
 === Crafting ===
 
-One [[Bronze Ingot]] unpacks into nine Bronze Nuggets, and nine nuggets craft back into one ingot.
+{{Crafting
+|head=1
+|foot=1
+|name=Bronze Nugget
+|B2=Bronze Ingot
+|Output=Bronze Nugget,9
+}}
+
+== Usage ==
+
+Nine bronze nuggets craft back into a [[Bronze Ingot|bronze ingot]].
+
+=== Crafting ingredient ===
+
+{{Crafting
+|head=1
+|foot=1
+|name=[[Bronze Ingot]]
+|A1=Bronze Nugget |B1=Bronze Nugget |C1=Bronze Nugget
+|A2=Bronze Nugget |B2=Bronze Nugget |C2=Bronze Nugget
+|A3=Bronze Nugget |B3=Bronze Nugget |C3=Bronze Nugget
+|Output=Bronze Ingot
+}}
 
 == Data values ==
 
@@ -20,9 +47,14 @@ One [[Bronze Ingot]] unpacks into nine Bronze Nuggets, and nine nuggets craft ba
 
 {{ID|logistics:core/bronze_nugget|item.logistics.core.bronze_nugget}}
 
+== History ==
+
+{{History|head=1|foot=1|v0.2.0|Added '''Bronze Nugget'''.}}
+
 == See also ==
 
-* [[Bronze]] — material overview
-* [[Bronze Ingot]] — the full ingot
+* [[Bronze]] - Material overview
+* [[Bronze Ingot]] - The full ingot
+* [[Block of Bronze]] - Bulk storage block
 
 [[Category:Materials]]
