@@ -1,5 +1,4 @@
 <includeonly>{| class="wikitable"
-|-
 ! Name
 ! Namespaced ID
 ! Translation key
@@ -7,22 +6,31 @@
 | {{{name|{{PAGENAME}}}}}
 | <code>{{{1}}}</code>
 | <code>{{{2}}}</code>
-|}</includeonly><noinclude>
-Renders the '''Data values''' ID table for an item or block (Name / Namespaced ID / Translation
-key) — place it under a "== Data values ==" / "=== ID ===" heading near the bottom of a page,
-instead of putting the long namespaced ID in the infobox.
+{{#if:{{{3|}}}|{{!}}-
+{{!}} {{{name2|}}}
+{{!}} <code>{{{3}}}</code>
+{{!}} <code>{{{4|}}}</code>
+{{!}}}|{{!}}}}}</includeonly><noinclude>
+Renders the '''Data values''' ID table (Name / Namespaced ID / Translation key) — place it under a
+"== Data values ==" / "=== ID ===" heading near the bottom of a page, instead of putting the long
+namespaced ID in the infobox.
 
 Both the namespaced ID and the translation key are passed as literal strings (don't infer the key
-— take it from the lang file).
+— take it from the lang file). A second row (e.g. a deepslate ore variant) can be added with the
+3/4 positional params plus name2.
 
 Usage:
  {{ID|logistics:core/tin_ingot|item.logistics.core.tin_ingot}}
  {{ID|logistics:automation/kiln|block.logistics.automation.kiln|name=Kiln}}
+ {{ID
+ |logistics:core/tin_ore|block.logistics.core.tin_ore
+ |name2=Deepslate Tin Ore|logistics:core/deepslate_tin_ore|block.logistics.core.deepslate_tin_ore
+ }}
 
 Parameters:
- 1     — the namespaced ID
- 2     — the translation key (literal lang key)
- name  — display name (defaults to the page title)
+ 1, 2          — row 1 namespaced ID and translation key
+ name          — row 1 display name (defaults to the page title)
+ 3, 4, name2   — optional row 2 (e.g. the deepslate variant)
 
 [[Category:Templates]]
 </noinclude>

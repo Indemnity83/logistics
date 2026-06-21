@@ -1,26 +1,29 @@
+{{About|the ore|the ingot|Tin Ingot|the storage block|Block of Tin|the nugget|Tin Nugget|the raw item|Raw Tin|the metal in general|Tin}}
 {{Block
 |image     = Grid Tin Ore.png
-|id        = logistics:core/tin_ore
 |type      = Ore
 |tool      = Stone Pickaxe
-|hardness  = 3
+|hardness  = 3<br>Deepslate: 4.5
 |blastresistance = 3
 |drops     = Raw Tin
+|renewable = No
 |stackable = Yes (64)
 |added     = v0.2.0
 }}
 
-'''Tin Ore''' is a common ore found underground. Smelt its [[Raw Tin]] drop to create [[Tin Ingot|tin ingots]] for crafting [[Bronze Ingot|bronze]] and tin components. A '''Deepslate Tin Ore''' variant occurs in deepslate layers.
+'''Tin ore''' is a mineral block found underground. It is a source of [[Raw Tin|raw tin]], which is smelted into [[Tin Ingot|tin ingots]].
+
+[[File:Grid Deepslate Tin Ore.png|32px|link=]] '''Deepslate tin ore''' is a variant that generates in the deepslate layer; it drops the same raw tin but is slightly harder to break.
 
 == Obtaining ==
 
 === Breaking ===
 
-Tin Ore drops '''[[Raw Tin]]''' when mined and requires a '''stone pickaxe''' or better. The '''Deepslate Tin Ore''' variant drops the same Raw Tin but is harder to break. Mining with a [[Macerator]] is not required, but grinding the ore there yields '''2× [[Dusts|Tin Dust]]''' (ore doubling); a Fortune pickaxe increases Raw Tin drops.
+Tin ore drops 2–5 '''[[Raw Tin|raw tin]]''' when mined with a stone pickaxe or better; the count is increased by Fortune. Mined with Silk Touch it drops itself instead. Deepslate tin ore behaves identically.
 
 === Natural generation ===
 
-Tin Ore generates in every Overworld biome during the underground-ore step, in veins of up to '''10''' blocks. It appears in two depth bands — the deepslate variant is far more abundant:
+Tin ore generates in every Overworld biome during the underground-ore step, in veins of up to '''10''' blocks. It appears in two depth bands — the deepslate variant is far more abundant:
 
 {| class="wikitable"
 ! Variant !! Height (Y) !! Distribution !! Veins per chunk
@@ -30,33 +33,53 @@ Tin Ore generates in every Overworld biome during the underground-ore step, in v
 | Deepslate Tin Ore || −16 to 0 || trapezoid (peaks near Y −8) || 13
 |}
 
-Veins generate normally even where they are exposed to air, so they show on cave walls.
+Veins generate normally even where exposed to air, so they show on cave walls.
 
 == Usage ==
 
-[[Raw Tin]] from this ore is processed into tin and [[Bronze Ingot|bronze]] components.
-
 === Smelting ===
 
-Smelt it in a furnace or blast furnace to produce [[Tin Ingot|tin ingots]].
+Smelt tin ore in a furnace, blast furnace, or a [[Kiln]] (RF-powered, no fuel) to produce a [[Tin Ingot]]:
+
+{{Smelting
+|head=1
+|foot=1
+|name=Tin Ingot
+|Input=Tin Ore;Deepslate Tin Ore
+|Output=Tin Ingot
+|XP=0.7
+}}
 
 === Grinding ===
 
-Grind Tin Ore or Deepslate Tin Ore in the [[Macerator]] for '''2× Tin Dust''' per ore (ore doubling, see [[Dusts]]).
+Grind tin ore in a [[Macerator]] for two [[Dusts|Tin Dust]] per ore — an ore-doubling step, since each dust then smelts into a full ingot:
 
-=== Storage ===
+{{Grinding
+|head=1
+|foot=1
+|Input=Tin Ore;Deepslate Tin Ore
+|Output=Tin Dust,2
+}}
 
-[[Raw Tin]] can be packed into a '''Block of Raw Tin''' (9× Raw Tin) for compact storage.
+== Data values ==
+
+=== ID ===
+
+{{ID
+|logistics:core/tin_ore|block.logistics.core.tin_ore
+|name2=Deepslate Tin Ore|logistics:core/deepslate_tin_ore|block.logistics.core.deepslate_tin_ore
+}}
 
 == History ==
 
-{{History|head=1|foot=1|v0.2.0|Added '''Tin Ore'''.}}
+{{History|head=1|foot=1|v0.2.0|Added '''Tin Ore''' and '''Deepslate Tin Ore'''.}}
 
 == See also ==
 
+* [[Tin]] - Material overview
+* [[Raw Tin]] - Mining drop
 * [[Tin Ingot]] - Smelted product
 * [[Bronze Ingot]] - Tin + copper alloy
-* [[Tin Gear]] - Crafting component
-* [[Dusts]] - Tin Dust and ore doubling
+* [[Dusts|Tin Dust]] - Ground form (ore doubling)
 
 [[Category:Materials]]
