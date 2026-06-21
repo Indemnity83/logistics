@@ -1,6 +1,5 @@
 {{Block
 |image            = Grid Glass Tank.png
-|id               = logistics:fluid/glass_tank
 |type             = Block
 |function         = Fluid storage
 |stackable        = Yes (64)
@@ -38,6 +37,12 @@ Tanks placed in a vertical column form one logical reservoir whose capacity is t
 * Buffer the output of a [[Pump]] or [[Fluid Extractor Pipe]] before feeding it onward
 * Because each tank holds one fluid type, keep separate columns for different fluids
 * Use an [[Insertion Fluid Pipe]] or [[Merger Fluid Pipe]] to control how fluid enters the tank
+
+== Data values ==
+
+=== ID ===
+
+{{ID|head=1|foot=1|logistics:fluid/glass_tank|block.logistics.fluid.glass_tank}}
 
 == History ==
 

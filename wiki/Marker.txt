@@ -1,6 +1,5 @@
 {{Item
 |image     = Grid Marker.png
-|id        = logistics:automation/marker
 |type      = Block
 |function  = Defines the Laser Quarry mining area
 |stackable = Yes (64)
@@ -36,6 +35,12 @@ The area must meet a '''minimum size'''; too-small layouts are rejected. A succe
 
 * Use markers to avoid mining your base, important terrain, or other quarries.
 * Without markers the [[Laser Quarry]] simply mines its default 16×16 area.
+
+== Data values ==
+
+=== ID ===
+
+{{ID|head=1|foot=1|logistics:core/marker|block.logistics.core.marker}}
 
 == See also ==
 

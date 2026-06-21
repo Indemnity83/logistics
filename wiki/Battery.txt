@@ -1,6 +1,5 @@
 {{Block
 |image            = Grid Battery.png
-|id               = logistics:power/battery
 |type             = Block (Power)
 |function         = Powers the logistics network
 |stackable        = Yes (64)
@@ -39,6 +38,12 @@ A Battery is charged with RF produced by an [[Engines|engine]] and delivered thr
 * [[Copper Cable]], [[Gold Cable]], and [[Ender Cable]] carry that RF to the Battery at increasing transfer rates
 
 Note that extraction pipes (the [[Item Extractor Pipe]] and [[Fluid Extractor Pipe]]) are paced by an adjacent '''engine''' instead, not the network Battery.
+
+== Data values ==
+
+=== ID ===
+
+{{ID|head=1|foot=1|logistics:power/battery|block.logistics.power.battery}}
 
 == History ==
 

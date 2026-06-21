@@ -1,6 +1,5 @@
 {{Block
 |image            = Grid Kiln.png
-|id               = logistics:core/kiln
 |type             = Block (Machine)
 |function         = RF-powered smelting
 |stackable        = Yes (64)
@@ -51,6 +50,12 @@ The Kiln smelts continuously as long as it has power and input items.
 * Smelting [[Quartz Dust]] into [[Quartz Crystal]] (required for [[Materials#Valves|Valve]] crafting)
 * Smelting [[Chips#Silicon Wafer|Silicon Mix]] into [[Chips#Silicon Wafer|Silicon Wafer]] (required for [[Chips]])
 * Pairing with the [[Macerator]]: grind ores into dust, then smelt the dust into ingots for higher yields
+
+== Data values ==
+
+=== ID ===
+
+{{ID|head=1|foot=1|logistics:automation/kiln|block.logistics.automation.kiln}}
 
 == History ==
 

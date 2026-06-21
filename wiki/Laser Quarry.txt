@@ -1,6 +1,5 @@
 {{Block
 |image            = Grid Laser Quarry.png
-|id               = logistics:automation/laser_quarry
 |type             = Block (Machine)
 |function         = Automated mining
 |stackable        = Yes (64)
@@ -67,6 +66,12 @@ Use [[Item Filter Pipe|Item Filter Pipes]] to sort valuable ores and an [[Item V
 === Jade HUD ===
 
 With [https://www.curseforge.com/minecraft/mc-mods/jade Jade] installed, looking at a Laser Quarry shows its live status in the HUD — including its working state and mining progress — so you can monitor it without opening the GUI.
+
+== Data values ==
+
+=== ID ===
+
+{{ID|head=1|foot=1|logistics:automation/laser_quarry|block.logistics.automation.laser_quarry}}
 
 == History ==
 

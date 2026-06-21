@@ -1,6 +1,5 @@
 {{Block
 |image            = Grid Pump.png
-|id               = logistics:fluid/fluid_pump
 |type             = Block (Machine)
 |function         = Drains world fluid sources
 |stackable        = Yes (64)
@@ -44,6 +43,12 @@ The Pump runs on [[RF Energy|RF]] and has its own internal buffer — it does ''
 * Buffer the output in stacked [[Glass Tank|tanks]] so the pump can keep draining even when the network is briefly full
 * Use a [[Golden Fluid Pipe]] (80 mB/t) on the output if you need to move fluid faster than one pump produces
 * To pull fluid out of a machine's tank instead of the world, use a [[Fluid Extractor Pipe]]
+
+== Data values ==
+
+=== ID ===
+
+{{ID|head=1|foot=1|logistics:fluid/fluid_pump|block.logistics.fluid.fluid_pump}}
 
 == History ==
 

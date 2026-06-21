@@ -1,6 +1,5 @@
 {{Block
 |image            = Grid Stirling Engine.png
-|id               = logistics:power/stirling_engine
 |type             = Block (Engine)
 |function         = RF generation
 |stackable        = No
@@ -38,6 +37,12 @@ The engine heats up during operation, and the block changes color through visibl
 === Configuration ===
 
 Use a [[Wrench]] to rotate the output face (cycle through directions) and to reset an overheated engine.
+
+== Data values ==
+
+=== ID ===
+
+{{ID|head=1|foot=1|logistics:power/stirling_engine|block.logistics.power.stirling_engine}}
 
 == History ==
 

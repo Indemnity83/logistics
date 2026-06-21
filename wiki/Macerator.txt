@@ -1,6 +1,5 @@
 {{Block
 |image            = Grid Macerator.png
-|id               = logistics:core/macerator
 |type             = Block (Machine)
 |function         = Grinding / dust production
 |stackable        = Yes (64)
@@ -154,6 +153,12 @@ Grinding an ore block yields 2 dust, each smeltable into 1 ingot — effectively
 </pre>
 
 Wood Pulp from logs feeds [[Cores|Wooden Cores]] and [[Extractor Module|Extractor Modules]], and Flour from wheat can be baked into bread and other food.
+
+== Data values ==
+
+=== ID ===
+
+{{ID|head=1|foot=1|logistics:core/macerator|block.logistics.core.macerator}}
 
 == History ==
 

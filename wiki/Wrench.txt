@@ -1,6 +1,5 @@
 {{Item
 |image     = Grid Wrench.png
-|id        = logistics:tool/wrench
 |type      = Tool
 |function  = Configuration
 |stackable = No
@@ -51,6 +50,12 @@ The wrench itself is for configuration only, not inspection. Hover information c
 * Power and energy diagnostics
 
 Install Jade alongside Logistics to read this information by simply looking at a block.
+
+== Data values ==
+
+=== ID ===
+
+{{ID|head=1|foot=1|logistics:core/wrench|item.logistics.core.wrench}}
 
 == History ==
 

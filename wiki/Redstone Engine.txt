@@ -1,6 +1,5 @@
 {{Block
 |image            = Grid Redstone Engine.png
-|id               = logistics:power/redstone_engine
 |type             = Block (Engine)
 |function         = RF generation
 |stackable        = No
@@ -34,6 +33,12 @@ Use a [[Wrench]] to set the output face: right-click the engine and the output f
 === Power output ===
 
 The Redstone Engine produces low RF, suitable for light-duty machines, early-game automation, and testing setups. For high-power needs like the [[Laser Quarry]], use a [[Stirling Engine]] instead. In creative mode, the [[Creative Engine]] supplies unlimited RF with no fuel or redstone.
+
+== Data values ==
+
+=== ID ===
+
+{{ID|head=1|foot=1|logistics:power/redstone_engine|block.logistics.power.redstone_engine}}
 
 == History ==
 

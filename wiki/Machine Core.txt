@@ -1,6 +1,5 @@
 {{Item
 |image     = Grid Machine Core.png
-|id        = logistics:core/machine_core
 |type      = Item (Component)
 |stackable = Yes (64)
 |added     = v0.5.0
@@ -36,6 +35,12 @@ The Machine Core is the central component in all RF-powered machine recipes:
 |}
 
 Craft Machine Cores in batches — each machine requires one and they share the same recipe base. Bronze Ingots are made from copper and tin, so you will need a source of [[Tin Ore]].
+
+== Data values ==
+
+=== ID ===
+
+{{ID|head=1|foot=1|logistics:core/machine_core|item.logistics.core.machine_core}}
 
 == History ==
 

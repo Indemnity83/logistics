@@ -1,6 +1,5 @@
 {{Item
 |image     = Grid Rubber Chunk.png
-|id        = logistics:power/rubber_chunk
 |type      = Item (Component)
 |function  = Power cable crafting component
 |stackable = Yes (64)
@@ -37,6 +36,12 @@ Rubber Chunks insulate power cables:
 
 * Smelting one Rubber Mix yields '''two''' Rubber Chunks, so set up a [[Macerator]] → [[Kiln]] line for cheap, bulk rubber.
 * Slime Balls are also used for [[Fluid Pipes|fluid pipe]] crafting — keep a slime farm running.
+
+== Data values ==
+
+=== ID ===
+
+{{ID|head=1|foot=1|logistics:power/rubber_chunk|item.logistics.power.rubber_chunk}}
 
 == See also ==
 

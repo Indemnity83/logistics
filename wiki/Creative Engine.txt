@@ -1,6 +1,5 @@
 {{Block
 |image            = Grid Creative Engine.png
-|id               = logistics:power/creative_engine
 |type             = Block (Power)
 |function         = Generates infinite RF
 |stackable        = Yes (64)
@@ -22,6 +21,12 @@ The '''Creative Engine''' is a power source that produces an unlimited supply of
 * Never runs out of fuel and never overheats
 * Output is delivered through [[Copper Cable|power cables]] just like the [[Redstone Engine]] and [[Stirling Engine]]
 * Useful for charging a [[Battery]] instantly while testing a logistics network
+
+== Data values ==
+
+=== ID ===
+
+{{ID|head=1|foot=1|logistics:power/creative_engine|block.logistics.power.creative_engine}}
 
 == History ==
 
