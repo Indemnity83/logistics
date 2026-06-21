@@ -1,0 +1,28 @@
+{{Stub}}
+{{Item
+|image     = Grid Bronze Nugget.png
+|type      = Item
+|stackable = Yes (64)
+|added     = v0.2.0
+}}
+
+'''Bronze Nugget''' is one-ninth of a [[Bronze Ingot]], handy for fine crafting and storage.
+
+== Obtaining ==
+
+=== Crafting ===
+
+One [[Bronze Ingot]] unpacks into nine Bronze Nuggets, and nine nuggets craft back into one ingot.
+
+== Data values ==
+
+=== ID ===
+
+{{ID|logistics:core/bronze_nugget|item.logistics.core.bronze_nugget}}
+
+== See also ==
+
+* [[Bronze]] — material overview
+* [[Bronze Ingot]] — the full ingot
+
+[[Category:Materials]]

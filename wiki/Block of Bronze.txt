@@ -1,0 +1,28 @@
+{{Stub}}
+{{Block
+|image     = Grid Bronze Block.png
+|type      = Block
+|stackable = Yes (64)
+|added     = v0.2.0
+}}
+
+'''Block of Bronze''' is a storage block that compacts nine [[Bronze Ingot|bronze ingots]].
+
+== Obtaining ==
+
+=== Crafting ===
+
+Craft from nine [[Bronze Ingot|bronze ingots]] arranged in a 3×3 grid; the block unpacks back into nine ingots.
+
+== Data values ==
+
+=== ID ===
+
+{{ID|logistics:core/bronze_block|block.logistics.core.bronze_block}}
+
+== See also ==
+
+* [[Bronze]] — material overview
+* [[Bronze Ingot]] — crafting component
+
+[[Category:Materials]]
