@@ -6,28 +6,56 @@
 |name=Iron Dust
 |Input=Iron Ore;Deepslate Iron Ore
 |Output=Iron Dust,2
-|description=Smelts into iron (ore doubling)
+|description=Smelts into iron; 2× per ore (doubling)
+}}
+
+{{Grinding
+|name=Iron Dust
+|Input=Iron Ingot
+|Output=Iron Dust
+|description=1× per ingot
 }}
 
 {{Grinding
 |name=Copper Dust
 |Input=Copper Ore;Deepslate Copper Ore
 |Output=Copper Dust,2
-|description=Smelts into copper (ore doubling)
+|description=Smelts into copper; 2× per ore (doubling)
+}}
+
+{{Grinding
+|name=Copper Dust
+|Input=Copper Ingot
+|Output=Copper Dust
+|description=1× per ingot
 }}
 
 {{Grinding
 |name=Gold Dust
 |Input=Gold Ore;Deepslate Gold Ore
 |Output=Gold Dust,2
-|description=Smelts into gold (ore doubling)
+|description=Smelts into gold; 2× per ore (doubling)
+}}
+
+{{Grinding
+|name=Gold Dust
+|Input=Gold Ingot
+|Output=Gold Dust
+|description=1× per ingot
 }}
 
 {{Grinding
 |name=Tin Dust
 |Input=Tin Ore;Deepslate Tin Ore
 |Output=Tin Dust,2
-|description=Smelts into [[Tin Ingot|tin]] (ore doubling)
+|description=Smelts into [[Tin Ingot|tin]]; 2× per ore (doubling)
+}}
+
+{{Grinding
+|name=Tin Dust
+|Input=Tin Ingot
+|Output=Tin Dust
+|description=1× per ingot
 }}
 
 {{Grinding
@@ -112,7 +140,7 @@
 |description=Decorative / future use
 }}
 
-Metal dusts also grind from the matching ingot, block, and raw item — not only the ore. '''Obsidian Dust''' and '''Netherite Dust''' are consumed by their [[Cores|cores]] but currently have no grinding recipe.
+Metal dusts also grind from the matching storage block (9× per block) and raw item. '''Obsidian Dust''' and '''Netherite Dust''' are consumed by their [[Cores|cores]] but currently have no grinding recipe.
 
 == Usage ==
 
