@@ -3,6 +3,8 @@
 | class="logi-grid-cell" |
 {| class="logi-grind-grid"
 |-
+| class="logi-grind-xp" colspan="4" | &nbsp;
+|-
 | class="logi-grid-slot" | {{#if:{{{Input|}}}|{{Grid|{{{Input}}}}}|&nbsp;}}
 | class="logi-grid-arrow" | →
 | class="logi-grid-slot" | {{Grid|{{{Output}}}}}
@@ -14,9 +16,9 @@
 |}
 |}<templatestyles src="Grid Crafting Table/styles.css" /><templatestyles src="Grid Grinding Table/styles.css" /></includeonly><noinclude>
 Renders a grinding recipe (e.g. in the [[Macerator]]): a single input slot, an arrow, and the
-output with its experience below. Styling reuses [[Template:Grid Crafting Table/styles.css]] for
-the slot, arrow, and count, plus [[Template:Grid Grinding Table/styles.css]] for the layout and
-experience row.
+output. The slot row is vertically centered — an empty row above balances the experience row
+below. Styling reuses [[Template:Grid Crafting Table/styles.css]] for the slot, arrow, and count,
+plus [[Template:Grid Grinding Table/styles.css]] for the layout and experience.
 
 Usage:
  {{Grid Grinding Table
