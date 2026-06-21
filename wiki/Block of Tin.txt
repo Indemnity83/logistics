@@ -1,23 +1,69 @@
-{{Stub}}
+{{About|the mineral block|the ingot|Tin Ingot|the nugget|Tin Nugget|the raw variant|Block of Raw Tin|the metal in general|Tin}}
 {{Block
 |image     = Grid Tin Block.png
-|id        = logistics:core/tin_block
 |type      = Block
+|tool      = Stone Pickaxe
+|hardness  = 3
+|blastresistance = 6
+|renewable = No
 |stackable = Yes (64)
 |added     = v0.2.0
 }}
 
-'''Block of Tin''' is a storage block that compacts nine [[Tin Ingot|tin ingots]].
+A '''block of tin''' is a storage block equivalent to nine [[Tin Ingot|tin ingots]].
 
 == Obtaining ==
 
+=== Breaking ===
+
+A block of tin can be mined only with a stone pickaxe or better. Mined without a pickaxe it drops nothing.
+
+{{Breaking
+|tier=stone
+|name1=Block of Tin |icon1=Grid Tin Block.png |hardness1=3
+}}
+
 === Crafting ===
 
-Craft from nine [[Tin Ingot|tin ingots]] arranged in a 3×3 grid; the block unpacks back into nine ingots.
+{{Crafting
+|head=1
+|foot=1
+|name=Block of Tin
+|A1=Tin Ingot |B1=Tin Ingot |C1=Tin Ingot
+|A2=Tin Ingot |B2=Tin Ingot |C2=Tin Ingot
+|A3=Tin Ingot |B3=Tin Ingot |C3=Tin Ingot
+|Output=Tin Block
+}}
+
+== Usage ==
+
+A block of tin stores tin ingots compactly. It can be unpacked back into nine ingots at any time.
+
+=== Crafting ingredient ===
+
+{{Crafting
+|head=1
+|foot=1
+|name=[[Tin Ingot]]
+|B2=Tin Block
+|Output=Tin Ingot,9
+}}
+
+== Data values ==
+
+=== ID ===
+
+{{ID|logistics:core/tin_block|block.logistics.core.tin_block}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.2.0|Added '''Block of Tin'''.}}
 
 == See also ==
 
-* [[Tin]] — material overview
-* [[Tin Ingot]] — crafting component
+* [[Tin]] - Material overview
+* [[Tin Ingot]] - The ingot it stores
+* [[Block of Raw Tin]] - Raw-tin storage block
+* [[Tin Nugget]] - Smaller unit
 
 [[Category:Materials]]
