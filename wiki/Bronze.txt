@@ -1,0 +1,20 @@
+'''Bronze''' is an alloy of copper and tin. Unlike [[Tin]], it has no ore — bronze ingots are crafted by alloying [[Copper Ingot|copper]] and [[Tin Ingot|tin]], then formed into components and storage blocks.
+
+== Blocks and items ==
+
+* [[File:Grid Bronze Ingot.png|24px|link=Bronze Ingot]] '''[[Bronze Ingot]]''' — the alloy ingot, crafted from copper and tin
+* [[File:Grid Bronze Block.png|24px|link=Block of Bronze]] '''[[Block of Bronze]]''' — a block used for compact bronze ingot storage
+* [[File:Grid Bronze Nugget.png|24px|link=Bronze Nugget]] '''[[Bronze Nugget]]''' — one-ninth of a bronze ingot
+* [[File:Grid Bronze Dust.png|24px|link=Dusts]] '''[[Dusts|Bronze Dust]]''' — produced by grinding a bronze ingot in a [[Macerator]]
+
+== Uses ==
+
+* [[File:Grid Bronze Gear.png|24px|link=Bronze Gear]] '''[[Bronze Gear]]''' — a mid-tier crafting component in the gear progression
+* [[File:Grid Bronze Valve.png|24px|link=Bronze Valve]] '''[[Bronze Valve]]''' — a fluid valve crafted via a Bronze [[Cores|Core]]
+* [[File:Grid Bronze Core.png|24px|link=Cores]] '''[[Cores|Bronze Core]]''' — an intermediate component for valve crafting
+* [[File:Grid Machine Core.png|24px|link=Machine Core]] '''[[Machine Core]]''' — the heart of every machine (8 bronze + blaze powder)
+* [[File:Grid Sturdy Casing.png|24px|link=Sturdy Casing]] '''[[Sturdy Casing]]''' — a reinforced machine shell (8 bronze)
+
+{{Disambig}}
+
+[[Category:Materials]]

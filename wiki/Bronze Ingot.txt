@@ -1,98 +1,142 @@
+{{About|the ingot|the storage block|Block of Bronze|the nugget|Bronze Nugget|the metal in general|Bronze}}
 {{Item
 |image     = Grid Bronze Ingot.png
-|id        = logistics:core/bronze_ingot
 |type      = Item (Alloy)
+|renewable = No
 |stackable = Yes (64)
 |added     = v0.2.0
 }}
 
-'''Bronze Ingot''' is an alloy created from copper and tin. It is used for the [[Machine Core]], [[Sturdy Casing]], bronze valves, and gears.
-
-'''Related forms:''' Bronze has a full storage set — '''Block of Bronze''' (9 ingots) and '''Bronze Nugget''' (1/9 ingot) — plus '''Bronze Dust''' from the [[Macerator]].
+'''Bronze ingots''' are an alloy of [[Copper Ingot|copper]] and [[Tin Ingot|tin]], used as the base material for [[Machine Core|machine cores]], [[Sturdy Casing|casings]], [[Bronze Gear|gears]], and [[Valves|valves]].
 
 == Obtaining ==
 
+=== Chest loot ===
+
+{{LootChestItem|bronze-ingot}}
+
 === Crafting ===
 
-Bronze Ingot is an alloy of copper and tin:
+Alloy three [[Copper Ingot|copper]] with one [[Tin Ingot|tin]] (shapeless):
 
-{{Grid Crafting Table
+{{Crafting
+|head=1
+|name=Bronze Ingot
 |A2=Copper Ingot |B2=Copper Ingot |C2=Copper Ingot
 |A3=Tin Ingot
-|Output=Bronze Ingot |OutputCount=4
+|Output=Bronze Ingot,4
 }}
 
-'''Shapeless:''' 3× Copper Ingot + 1× [[Tin Ingot]] = 4× Bronze Ingot.
-
-Bronze Ingots can also be packed into and unpacked from their storage forms:
-
-{{Grid Crafting Table
+{{Crafting
+|name=Bronze Ingot
 |B2=Bronze Block
-|Output=Bronze Ingot |OutputCount=9
+|Output=Bronze Ingot,9
 }}
 
-'''From a Bronze Block:''' 1× Bronze Block = 9× Bronze Ingot.
-
-{{Grid Crafting Table
+{{Crafting
+|foot=1
+|name=Bronze Ingot
 |A1=Bronze Nugget |B1=Bronze Nugget |C1=Bronze Nugget
 |A2=Bronze Nugget |B2=Bronze Nugget |C2=Bronze Nugget
 |A3=Bronze Nugget |B3=Bronze Nugget |C3=Bronze Nugget
 |Output=Bronze Ingot
 }}
 
-'''From nuggets:''' 9× Bronze Nugget = 1× Bronze Ingot.
+=== Smelting ===
 
-{{Grid Crafting Table
+Smelt [[Dusts|Bronze Dust]] back into an ingot in a furnace, blast furnace, or a [[Kiln]] (RF-powered, no fuel):
+
+{{Smelting
+|head=1
+|foot=1
+|name=Bronze Ingot
+|Input=Bronze Dust
+|Output=Bronze Ingot
+}}
+
+== Usage ==
+
+=== Crafting ingredient ===
+
+{{Crafting
+|head=1
+|name=[[Machine Core]]
+|A1=Bronze Ingot |B1=Bronze Ingot |C1=Bronze Ingot
+|A2=Bronze Ingot |B2=Blaze Powder |C2=Bronze Ingot
+|A3=Bronze Ingot |B3=Bronze Ingot |C3=Bronze Ingot
+|Output=Machine Core
+}}
+
+{{Crafting
+|name=[[Sturdy Casing]]
+|A1=Bronze Ingot |B1=Bronze Ingot |C1=Bronze Ingot
+|A2=Bronze Ingot |C2=Bronze Ingot
+|A3=Bronze Ingot |B3=Bronze Ingot |C3=Bronze Ingot
+|Output=Sturdy Casing
+}}
+
+{{Crafting
+|name=[[Bronze Gear]]
+|B1=Bronze Ingot
+|A2=Bronze Ingot |B2=Iron Gear |C2=Bronze Ingot
+|B3=Bronze Ingot
+|Output=Bronze Gear
+}}
+
+{{Crafting
+|name=[[Cores|Bronze Core]]
+|B1=Bronze Ingot
+|B2=Redstone
+|B3=Bronze Ingot
+|Output=Bronze Core,4
+}}
+
+{{Crafting
+|name=[[Block of Bronze]]
 |A1=Bronze Ingot |B1=Bronze Ingot |C1=Bronze Ingot
 |A2=Bronze Ingot |B2=Bronze Ingot |C2=Bronze Ingot
 |A3=Bronze Ingot |B3=Bronze Ingot |C3=Bronze Ingot
 |Output=Bronze Block
 }}
 
-'''To a block:''' 9× Bronze Ingot = 1× Bronze Block.
-
-{{Grid Crafting Table
+{{Crafting
+|foot=1
+|name=[[Bronze Nugget]]
 |B2=Bronze Ingot
-|Output=Bronze Nugget |OutputCount=9
+|Output=Bronze Nugget,9
 }}
-
-'''To nuggets:''' 1× Bronze Ingot = 9× Bronze Nugget.
-
-== Usage ==
-
-Bronze is the basis of machine components and several bronze items.
-
-=== Machine components ===
-
-* [[Machine Core]] - 8× bronze ingot
-* [[Sturdy Casing]] - 8× bronze ingot
-
-=== Valves ===
-
-Craft a [[Valves|Bronze Valve]] via a Bronze [[Cores|Core]].
-
-=== Gears ===
-
-Craft a [[Bronze Gear]] from 4× bronze ingot.
 
 === Grinding ===
 
-Grind bronze in the [[Macerator]] for Bronze Dust (see [[Dusts]]).
+Grind a bronze ingot in a [[Macerator]] to recover [[Dusts|Bronze Dust]]:
 
-=== Storage ===
+{{Grinding
+|head=1
+|foot=1
+|Input=Bronze Ingot
+|Output=Bronze Dust
+}}
 
-* 9× Bronze Ingot → Block of Bronze
-* 9× Bronze Nugget → 1× Bronze Ingot
+== Data values ==
+
+=== ID ===
+
+{{ID|logistics:core/bronze_ingot|item.logistics.core.bronze_ingot}}
 
 == History ==
 
 {{History|head=1|foot=1|v0.2.0|Added '''Bronze Ingot'''.}}
 
+== Trivia ==
+
+* Bronze is humanity's first widespread alloy — mixing a little tin into copper makes a metal harder than either, which is why the mod gates its [[Machine Core|machine cores]] behind it. The three-to-one copper-to-tin recipe is roughly the ratio of real bronze.
+
 == See also ==
 
-* [[Tin Ingot]] - Alloy component
+* [[Bronze]] - All bronze blocks and items
+* [[Tin Ingot]], [[Copper Ingot]] - Alloy components
 * [[Machine Core]], [[Sturdy Casing]] - Machine components
 * [[Bronze Gear]] - Crafting component
-* [[Dusts]] - Bronze Dust
+* [[Dusts|Bronze Dust]] - Ground form
 
 [[Category:Materials]]

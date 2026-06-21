@@ -108,11 +108,11 @@ Where Q = Quartz Crystal, I = Iron Nugget, G = Gold Nugget. The Core in the cent
 
 ==Ores & Metals==
 
-'''Tin:'''
+'''Tin:''' (overview: '''[[Tin]]''')
 * '''[[Tin Ore]]''' - Underground ore
 * '''[[Tin Ingot]]''' - Smelted metal
 
-'''Bronze:'''
+'''Bronze:''' (overview: '''[[Bronze]]''')
 * '''[[Bronze Ingot]]''' - Copper + tin alloy
 
 '''Apatite:'''
