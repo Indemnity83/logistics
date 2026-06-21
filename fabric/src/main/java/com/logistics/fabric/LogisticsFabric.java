@@ -4,18 +4,18 @@ import com.logistics.LogisticsMod;
 import com.logistics.LogisticsPower;
 import com.logistics.core.bootstrap.LogisticsCommonBootstrap;
 import com.logistics.core.lib.platform.CreativeTabRegistrar;
+import com.logistics.core.lib.energy.EnergyCapabilityLookup;
 import com.logistics.core.lib.energy.EnergyPushService;
+import com.logistics.core.lib.energy.IEnergyStorage;
 import com.logistics.core.lib.power.AbstractEngineBlock;
 import com.logistics.fabric.capability.FabricCapabilityRegistration;
 import com.logistics.fabric.energy.EnergyStorageAccess;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.fabric.api.resource.ResourcePackActivationType;
-import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Items;
-import team.reborn.energy.api.EnergyStorage;
 
 public final class LogisticsFabric implements ModInitializer {
     private static final LogisticsCommonBootstrap COMMON_BOOTSTRAP = new LogisticsCommonBootstrap();
@@ -53,18 +53,17 @@ public final class LogisticsFabric implements ModInitializer {
         EnergyStorageAccess.register();
 
         EnergyPushService.set((level, targetPos, fromDirection, source, maxAmount) -> {
-            EnergyStorage target = EnergyStorage.SIDED.find(level, targetPos, fromDirection);
-            if (target == null) return 0L;
-            try (Transaction tx = Transaction.openOuter()) {
-                long inserted = target.insert(maxAmount, tx);
-                if (inserted > 0) tx.commit();
-                return inserted;
-            }
+            IEnergyStorage target = EnergyCapabilityLookup.INSTANCE.find(level, targetPos, fromDirection);
+            if (target == null || !target.canInsert()) return 0L;
+            // No outer transaction here: it would force the cable network's push to a
+            // third-party storage to nest openOuter() inside it, which Fabric forbids.
+            return target.insert(maxAmount, false);
         });
 
         AbstractEngineBlock.setEnergyPresenceChecker((world, pos, direction) -> {
-            EnergyStorage target = EnergyStorage.SIDED.find(world, pos.relative(direction), direction.getOpposite());
-            return target != null && target.supportsInsertion();
+            IEnergyStorage target = EnergyCapabilityLookup.INSTANCE.find(
+                    world, pos.relative(direction), direction.getOpposite());
+            return target != null && target.canInsert();
         });
     }
 }
