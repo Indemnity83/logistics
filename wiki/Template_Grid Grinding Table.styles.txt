@@ -1,13 +1,11 @@
 /* Grinding-widget styling, loaded via <templatestyles> from [[Template:Grid Grinding Table]] and
    [[Module:Grinding]]. Complements [[Template:Grid Crafting Table/styles.css]] (the shared
-   .logi-grid panel, slots, and arrow) with the experience row under the output. */
-.logi-grind-in {
+   .logi-grid panel, slots, arrow, and count). Input, arrow, and output sit in one row so they
+   align; the experience hangs in a second row under the output. */
+.logi-grind-grid {
 	border-collapse: separate;
-	border-spacing: 0;
-}
-.logi-grind-out {
-	border-collapse: separate;
-	border-spacing: 0;
+	border-spacing: 3px;
+	background: transparent;
 }
 .logi-grind-xp {
 	text-align: center;
