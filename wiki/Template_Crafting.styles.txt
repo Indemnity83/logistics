@@ -32,6 +32,9 @@
 	text-align: center;
 	padding: 1px;   /* the grid carries its own padding; keep the cell padding minimal */
 }
+.logi-recipes-recipe p {
+	display: none;   /* a blank line between grouped recipe calls leaves a stray <p><br></p> here */
+}
 .logi-recipes-desc {
 	font-size: 95%;
 }
