@@ -1,9 +1,15 @@
-name: Documentation
+name: Docs redirect
+
+# The old Zensical docs site has been retired; GitHub Pages now serves a static
+# redirect to the wiki at https://logistics.fandom.com/. Deploys the redirect/ folder.
 
 on:
   push:
     branches:
       - docs
+    paths:
+      - "redirect/**"
+      - ".github/workflows/docs.yml"
   workflow_dispatch:
 
 permissions:
@@ -18,15 +24,10 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/configure-pages@v5
       - uses: actions/checkout@v5
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.x"
-      - run: pip install zensical
-      - run: zensical build --clean
+      - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v4
         with:
-          path: site
+          path: redirect
       - uses: actions/deploy-pages@v4
         id: deployment
