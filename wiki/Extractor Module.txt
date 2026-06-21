@@ -62,6 +62,12 @@ When installed in a [[Logistics Pipes#Chassis Logistics Pipe|Chassis Logistics P
 * Configure the item filter to ensure only the right items leave a mixed-content chest.
 * MK3 is ideal for high-output machines (blast furnaces, high-tier kilns) that produce items faster than MK1 can handle.
 
+== Data values ==
+
+=== ID ===
+
+{{ID|logistics:pipe/extractor_module|item.logistics.pipe.extractor_module}}
+
 == History ==
 
 {{History|head=1|foot=1|v0.2.0|Added '''Extractor Module'''.}}

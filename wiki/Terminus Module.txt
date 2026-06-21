@@ -1,6 +1,5 @@
 {{Item
 |image     = Grid Terminus Module.png
-|id        = logistics:pipe/terminus_module
 |type      = Item (Module)
 |stackable = Yes (64)
 |added     = v0.2.0
@@ -31,6 +30,12 @@ When installed in a [[Logistics Pipes#Chassis Logistics Pipe|Chassis Logistics P
 
 * Use at the physical end of a pipe run to prevent items from bouncing back into the network.
 * Combine with an [[Item Sink Module]] to deposit specific item types at this terminus.
+
+== Data values ==
+
+=== ID ===
+
+{{ID|logistics:pipe/terminus_module|item.logistics.pipe.terminus_module}}
 
 == History ==
 

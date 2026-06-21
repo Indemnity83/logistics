@@ -1,6 +1,5 @@
 {{Item
 |image     = Grid Enchantment Sink Module.png
-|id        = logistics:pipe/enchantment_sink_module
 |type      = Item (Module)
 |stackable = Yes (64)
 |added     = v0.2.0
@@ -31,6 +30,12 @@ When installed in a [[Logistics Pipes#Chassis Logistics Pipe|Chassis Logistics P
 
 * Place adjacent to an enchanted-item storage chest to automatically collect all enchanted drops from mob farms or quarry output.
 * Combine with a [[Mod Item Sink Module]] to separately route both enchanted items and specific mod items in the same chassis.
+
+== Data values ==
+
+=== ID ===
+
+{{ID|logistics:pipe/enchantment_sink_module|item.logistics.pipe.enchantment_sink_module}}
 
 == History ==
 

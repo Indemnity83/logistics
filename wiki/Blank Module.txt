@@ -1,6 +1,5 @@
 {{Item
 |image     = Grid Blank Module.png
-|id        = logistics:pipe/blank_module
 |type      = Item (Module)
 |stackable = Yes (64)
 |added     = v0.2.0
@@ -28,6 +27,12 @@ The Blank Module is consumed when crafting any other module type. Craft it in ad
 * Craft Blank Modules in batches — each module type requires one, and a fully loaded chassis needs several.
 * Paper is plentiful from sugar cane farms; gold nuggets come from gold ingots (9 nuggets per ingot).
 * Store a stack of Blank Modules near your logistics crafting area to streamline module production.
+
+== Data values ==
+
+=== ID ===
+
+{{ID|logistics:pipe/blank_module|item.logistics.pipe.blank_module}}
 
 == History ==
 

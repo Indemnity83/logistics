@@ -20,43 +20,43 @@ All modules are crafted from a [[Blank Module]] base component.
 
 ==Base Component==
 
-* '''[[Blank Module]]''' - Required crafting base for all modules
+* [[File:Grid Blank Module.png|24px|link=Blank Module]] '''[[Blank Module]]''' - Required crafting base for all modules
 
 ==Extraction Modules==
 
 Pull items from adjacent inventories into the logistics network.
 
-* '''[[Extractor Module]]''' (MkI–MkIII) - Extract items from an adjacent inventory; higher marks extract faster or in greater quantities. The single Extractor Module page covers all three marks — there is no separate "advanced" extractor item.
+* [[File:Grid Extractor Module.png|24px|link=Extractor Module]] '''[[Extractor Module]]''' (MkI–MkIII) - Extract items from an adjacent inventory; higher marks extract faster or in greater quantities. The single Extractor Module page covers all three marks — there is no separate "advanced" extractor item.
 
 ==Provider & Supplier Modules==
 
 Advertise and supply items to the network.
 
-* '''[[Provider Module]]''' (MK1/II) - Advertise adjacent inventory contents to the network; higher mark provides larger item counts
-* '''[[Passive Supplier Module]]''' - Keep an inventory stocked by intercepting matching items already in transit (no power, never orders)
-* '''[[Active Supplier Module]]''' - Keep an inventory stocked by actively requesting items from the network (draws power)
+* [[File:Grid Provider Module.png|24px|link=Provider Module]] '''[[Provider Module]]''' (MK1/II) - Advertise adjacent inventory contents to the network; higher mark provides larger item counts
+* [[File:Grid Passive Supplier Module.png|24px|link=Passive Supplier Module]] '''[[Passive Supplier Module]]''' - Keep an inventory stocked by intercepting matching items already in transit (no power, never orders)
+* [[File:Grid Active Supplier Module.png|24px|link=Active Supplier Module]] '''[[Active Supplier Module]]''' - Keep an inventory stocked by actively requesting items from the network (draws power)
 
 ==Crafting Modules==
 
 Automate item crafting within the chassis.
 
-* '''[[Crafter Module]]''' (MK1/II/III) - Define a crafting recipe to fulfill on demand; higher marks support more complex or faster crafting
+* [[File:Grid Crafter Module.png|24px|link=Crafter Module]] '''[[Crafter Module]]''' (MK1/II/III) - Define a crafting recipe to fulfill on demand; higher marks support more complex or faster crafting
 
 ==Sorting & Routing Modules==
 
 Control where items go within the network.
 
-* '''[[Quicksort Module]]''' - Sort items by type into designated storage locations
-* '''[[Terminus Module]]''' - Mark a pipe as a network terminus; items reaching this pipe are held or redirected
+* [[File:Grid Quicksort Module.png|24px|link=Quicksort Module]] '''[[Quicksort Module]]''' - Sort items by type into designated storage locations
+* [[File:Grid Terminus Module.png|24px|link=Terminus Module]] '''[[Terminus Module]]''' - Mark a pipe as a network terminus; items reaching this pipe are held or redirected
 
 ==Sink Modules==
 
 Accept and store specific items or categories.
 
-* '''[[Item Sink Module]]''' - Accept a specific configured item type and deposit it into an adjacent inventory
-* '''[[Polymorphic Sink Module]]''' - Accept any item that matches an already-stored item type in the adjacent inventory (fills existing stacks)
-* '''[[Enchantment Sink Module]]''' - Accept any enchanted item and deposit into a book or chest
-* '''[[Mod Item Sink Module]]''' - Accept any item from a specified mod namespace
+* [[File:Grid Item Sink Module.png|24px|link=Item Sink Module]] '''[[Item Sink Module]]''' - Accept a specific configured item type and deposit it into an adjacent inventory
+* [[File:Grid Polymorphic Sink Module.png|24px|link=Polymorphic Sink Module]] '''[[Polymorphic Sink Module]]''' - Accept any item that matches an already-stored item type in the adjacent inventory (fills existing stacks)
+* [[File:Grid Enchantment Sink Module.png|24px|link=Enchantment Sink Module]] '''[[Enchantment Sink Module]]''' - Accept any enchanted item and deposit into a book or chest
+* [[File:Grid Mod Item Sink Module.png|24px|link=Mod Item Sink Module]] '''[[Mod Item Sink Module]]''' - Accept any item from a specified mod namespace
 
 ==See Also==
 * [[Logistics Pipes#Chassis Logistics Pipe|Chassis Logistics Pipe]] - The pipe that holds modules

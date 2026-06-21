@@ -1,6 +1,5 @@
 {{Item
 |image     = Grid Item Sink Module.png
-|id        = logistics:pipe/item_sink_module
 |type      = Item (Module)
 |stackable = Yes (64)
 |added     = v0.2.0
@@ -38,6 +37,12 @@ Use a [[Wrench]] to open the chassis GUI, then configure the module:
 * Install multiple Item Sink Modules in one chassis to create a multi-item sorting station in a single pipe.
 * Use alongside a [[Quicksort Module]] for a tiered approach: quicksort handles known items, Item Sink catches the rest.
 * Leave adjacent storage slots pre-stocked with the target item to help the module recognize the correct inventory slot.
+
+== Data values ==
+
+=== ID ===
+
+{{ID|logistics:pipe/item_sink_module|item.logistics.pipe.item_sink_module}}
 
 == History ==
 

@@ -1,6 +1,5 @@
 {{Item
 |image     = Grid Provider Module.png
-|id        = logistics:pipe/provider_module
 |type      = Item (Module)
 |stackable = Yes (64)
 |added     = v0.2.0
@@ -49,6 +48,12 @@ Use this module when you want provider behavior combined with other module funct
 * MK2 is worth the upgrade when servicing high-throughput requests.
 * Combine with an [[Extractor Module]] in one chassis to both extract and provide from the same inventory.
 * Configure an optional item filter to restrict which items this module makes available.
+
+== Data values ==
+
+=== ID ===
+
+{{ID|logistics:pipe/provider_module|item.logistics.pipe.provider_module}}
 
 == History ==
 

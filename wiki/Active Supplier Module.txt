@@ -41,6 +41,12 @@ Stocking modes control how aggressively it orders:
 * Choose '''Full''' / all-or-nothing mode when partial deliveries would waste a craft.
 * Combine with a [[Provider Module]] on a nearby chassis to form a closed-loop supply system.
 
+== Data values ==
+
+=== ID ===
+
+{{ID|logistics:pipe/active_supplier_module|item.logistics.pipe.active_supplier_module}}
+
 == History ==
 
 {{History|head=1|foot=1|v0.2.0|Added '''Active Supplier Module'''.}}

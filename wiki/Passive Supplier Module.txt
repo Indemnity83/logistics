@@ -37,6 +37,12 @@ Configure the items and target quantities via the module GUI in the chassis (use
 * Use for backup stockpiles or low-priority storage that fills opportunistically from network traffic.
 * Pair with an [[Active Supplier Module]] when you need guaranteed replenishment rather than opportunistic fills.
 
+== Data values ==
+
+=== ID ===
+
+{{ID|logistics:pipe/passive_supplier_module|item.logistics.pipe.passive_supplier_module}}
+
 == History ==
 
 {{History|head=1|foot=1|v0.2.0|Added '''Passive Supplier Module'''.}}

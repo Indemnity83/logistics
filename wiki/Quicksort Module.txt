@@ -1,6 +1,5 @@
 {{Item
 |image     = Grid Quicksort Module.png
-|id        = logistics:pipe/quicksort_module
 |type      = Item (Module)
 |stackable = Yes (64)
 |added     = v0.2.0
@@ -32,6 +31,12 @@ When installed in a [[Logistics Pipes#Chassis Logistics Pipe|Chassis Logistics P
 * Place in a chassis near your main storage array — items passing through will be sorted as they arrive.
 * Works best when paired with a well-organized storage system where each inventory type stores one item category.
 * If an item has no existing home, it may land on the default route — add an [[Item Sink Module]] as a fallback.
+
+== Data values ==
+
+=== ID ===
+
+{{ID|logistics:pipe/quicksort_module|item.logistics.pipe.quicksort_module}}
 
 == History ==
 

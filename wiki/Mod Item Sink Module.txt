@@ -1,6 +1,5 @@
 {{Item
 |image     = Grid Mod Item Sink Module.png
-|id        = logistics:pipe/mod_item_sink_module
 |type      = Item (Module)
 |stackable = Yes (64)
 |added     = v0.2.0
@@ -38,6 +37,12 @@ Use a [[Wrench]] to open the chassis GUI, then configure the module:
 * Particularly useful in large modpacks for keeping mod-specific resources organized in dedicated storage areas.
 * Combine multiple Mod Item Sink Modules in one chassis to route items from several mods simultaneously.
 * Use alongside an [[Item Sink Module]] to handle specific items and a Mod Item Sink for broader catch-all routing.
+
+== Data values ==
+
+=== ID ===
+
+{{ID|logistics:pipe/mod_item_sink_module|item.logistics.pipe.mod_item_sink_module}}
 
 == History ==
 

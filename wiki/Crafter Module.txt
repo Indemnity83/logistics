@@ -63,6 +63,12 @@ When installed in a [[Logistics Pipes#Chassis Logistics Pipe|Chassis Logistics P
 * MK3 is worthwhile for high-demand recipes where speed is critical.
 * Place the chassis adjacent to a crafting inventory buffer for ingredient staging.
 
+== Data values ==
+
+=== ID ===
+
+{{ID|logistics:pipe/crafter_module|item.logistics.pipe.crafter_module}}
+
 == History ==
 
 {{History|head=1|foot=1|v0.2.0|Added '''Crafter Module'''.}}

@@ -1,6 +1,5 @@
 {{Item
 |image     = Grid Polymorphic Sink Module.png
-|id        = logistics:pipe/polymorphic_sink_module
 |type      = Item (Module)
 |stackable = Yes (64)
 |added     = v0.2.0
@@ -32,6 +31,12 @@ When installed in a [[Logistics Pipes#Chassis Logistics Pipe|Chassis Logistics P
 * Seed the adjacent inventory with one of each item type you want it to accept — the module handles the rest automatically.
 * Use for buffer chests that get replenished regularly — the module keeps them topped off.
 * Combine with an [[Item Sink Module]] in the same chassis for a two-tier acceptance strategy: polymorphic for the bulk, specific sinks for overflow.
+
+== Data values ==
+
+=== ID ===
+
+{{ID|logistics:pipe/polymorphic_sink_module|item.logistics.pipe.polymorphic_sink_module}}
 
 == History ==
 
