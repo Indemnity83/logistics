@@ -49,7 +49,12 @@ Tin Ingot is the basis of bronze and several tin components.
 
 === Grinding ===
 
-Grind tin in the [[Macerator]] for Tin Dust (see [[Dusts]]).
+Grinding tin in a [[Macerator]] yields [[Dusts|Tin Dust]] — ore doubling makes it the cheapest route to dust:
+
+{{Grinding|head=1
+|Input=Tin Ore |ingredients=[[Tin Ore]] or Deepslate Tin Ore |Output=Tin Dust,2}}
+{{Grinding|foot=1
+|Input=Tin Ingot |Output=Tin Dust}}
 
 == History ==
 

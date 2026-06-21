@@ -1,0 +1,36 @@
+<includeonly>{| class="logi-grid"
+|-
+| class="logi-grid-cell" |
+{| class="logi-grind-in"
+|-
+| class="logi-grid-slot" | {{#if:{{{Input|}}}|{{Grid|{{{Input}}}}}|&nbsp;}}
+|}
+| class="logi-grid-arrow" | →
+| class="logi-grid-cell" |
+{| class="logi-grind-out"
+|-
+| class="logi-grid-slot" | {{Grid|{{{Output}}}|{{{OutputCount|}}}}}
+|-
+| class="logi-grind-xp" | {{#if:{{{XP|}}}|{{{XP}}} XP|&nbsp;}}
+|}
+|}<templatestyles src="Grid Crafting Table/styles.css" /><templatestyles src="Grid Grinding Table/styles.css" /></includeonly><noinclude>
+Renders a grinding recipe (e.g. in the [[Macerator]]): a single input slot, an arrow, and the
+output with its experience. Styling reuses [[Template:Grid Crafting Table/styles.css]] for the slot
+and arrow, plus [[Template:Grid Grinding Table/styles.css]] for the experience row.
+
+Usage:
+ {{Grid Grinding Table
+ |Input=Tin Ore
+ |Output=Tin Dust |OutputCount=2
+ }}
+
+Parameters:
+ Input       — the item being ground (rendered via {{Grid}})
+ Output      — the resulting item
+ OutputCount — quantity produced (optional)
+ XP          — experience granted (optional)
+
+Depends on [[Template:Grid]].
+
+[[Category:Templates]]
+</noinclude>

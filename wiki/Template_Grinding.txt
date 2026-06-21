@@ -1,0 +1,29 @@
+<includeonly>{{#invoke:Grinding|grinding}}</includeonly><noinclude>
+Builds a row of a grinding recipe table (Name / Ingredients / Grinding recipe), powered by
+[[Module:Grinding]]. Each call is one row; group several into one table with <code>head=1</code>
+on the first and <code>foot=1</code> on the last. A standalone single recipe sets both. The
+'''Grinding recipe''' column reuses [[Template:Grid Grinding Table]] (input → output, no fuel).
+
+Usage (a 2-recipe table):
+ {{Grinding
+ |head=1
+ |Input=Tin Ore |Output=Tin Dust |OutputCount=2
+ }}
+ {{Grinding
+ |foot=1
+ |Input=Tin Ingot |Output=Tin Dust
+ }}
+
+Parameters:
+ Input       — the item being ground
+ Output      — result item; "Name,Count" is accepted (or use OutputCount)
+ XP          — experience granted (optional)
+ head/foot   — open / close the table
+ name        — override the Name cell (default: a link to the Output)
+ ingredients — override the Ingredients cell (default: the input)
+ showname=0  — hide the Name column
+
+Depends on [[Module:Grinding]] and [[Template:Grid Grinding Table]].
+
+[[Category:Templates]]
+</noinclude>

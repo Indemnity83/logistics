@@ -1,0 +1,89 @@
+-- Module:Grinding — builds grinding recipe tables (Name / Ingredients / Grinding recipe).
+-- Clean-room implementation. Mirrors Module:Smelting but with a single input (no fuel); the
+-- Recipe cell reuses our own {{Grid Grinding Table}} widget. head=1 opens the table + header,
+-- foot=1 closes it.
+
+local p = {}
+
+local function trim(s)
+	if s == nil then return nil end
+	s = mw.text.trim(s)
+	if s == '' then return nil end
+	return s
+end
+
+local function truthy(v)
+	v = trim(v)
+	return v ~= nil and v ~= '0'
+end
+
+-- "Name,Count" -> name, count (also honours an explicit OutputCount)
+local function parseOutput(args)
+	local out = trim(args.Output) or trim(args.output) or ''
+	local count = trim(args.OutputCount) or trim(args.outputcount)
+	local n, c = out:match('^(.-)%s*,%s*(%d+)$')
+	if n then
+		out = n
+		count = count or c
+	end
+	return out, count
+end
+
+-- Ingredients column: explicit |ingredients=, else the input (linked if it has a wiki page).
+local function ingredientsCell(args)
+	local ing = trim(args.ingredients)
+	if ing then return ing end
+	local input = trim(args.Input) or trim(args.input) or ''
+	local t = input ~= '' and mw.title.new(input)
+	if t and t.exists then return '[[' .. input .. ']]' end
+	return input
+end
+
+-- Recipe column: our own grinding widget.
+local function recipeCell(frame, args, outName, outCount)
+	local g = { Output = outName }
+	if outCount then g.OutputCount = outCount end
+	local input = trim(args.Input) or trim(args.input)
+	if input then g.Input = input end
+	local xp = trim(args.XP) or trim(args.xp)
+	if xp then g.XP = xp end
+	local grid = frame:expandTemplate{ title = 'Grid Grinding Table', args = g }
+	grid = grid:gsub('<templatestyles.-/>', '')
+	return mw.text.trim(grid)
+end
+
+function p.grinding(frame)
+	local args = frame:getParent().args
+	local outName, outCount = parseOutput(args)
+	local showName = trim(args.showname) ~= '0'
+	local head = truthy(args.head)
+	local foot = truthy(args.foot)
+
+	local out = {}
+
+	if head then
+		out[#out + 1] = frame:extensionTag{ name = 'templatestyles', args = { src = 'Crafting/styles.css' } }
+		out[#out + 1] = frame:extensionTag{ name = 'templatestyles', args = { src = 'Grid Crafting Table/styles.css' } }
+		out[#out + 1] = frame:extensionTag{ name = 'templatestyles', args = { src = 'Grid Grinding Table/styles.css' } }
+		out[#out + 1] = '\n{| class="logi-recipes"'
+		out[#out + 1] = '\n|- class="logi-recipes-head"'
+		if showName then out[#out + 1] = '\n! Name' end
+		out[#out + 1] = '\n! Ingredients\n! Grinding recipe'
+	end
+
+	out[#out + 1] = '\n|-'
+	if showName then
+		local nm = trim(args.name) or ('[[' .. outName .. ']]')
+		out[#out + 1] = '\n| class="logi-recipes-name" | ' .. nm
+	end
+	out[#out + 1] = '\n| class="logi-recipes-ingredients" | ' .. ingredientsCell(args)
+	out[#out + 1] = '\n| class="logi-recipes-recipe" |\n' .. recipeCell(frame, args, outName, outCount)
+
+	if foot then
+		out[#out + 1] = '\n|}'
+	end
+
+	return table.concat(out)
+end
+
+return p

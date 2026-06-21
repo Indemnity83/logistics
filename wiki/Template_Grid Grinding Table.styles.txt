@@ -1,0 +1,19 @@
+/* Grinding-widget styling, loaded via <templatestyles> from [[Template:Grid Grinding Table]] and
+   [[Module:Grinding]]. Complements [[Template:Grid Crafting Table/styles.css]] (the shared
+   .logi-grid panel, slots, and arrow) with the experience row under the output. */
+.logi-grind-in {
+	border-collapse: separate;
+	border-spacing: 0;
+}
+.logi-grind-out {
+	border-collapse: separate;
+	border-spacing: 0;
+}
+.logi-grind-xp {
+	text-align: center;
+	font-size: 85%;
+	font-weight: bold;
+	color: #2e7d32;
+	padding-top: 2px;
+	white-space: nowrap;
+}
