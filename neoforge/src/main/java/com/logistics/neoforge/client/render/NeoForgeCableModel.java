@@ -1,49 +1,48 @@
 package com.logistics.neoforge.client.render;
-import com.logistics.core.lib.resource.ResourceId;
 
 import com.logistics.power.cable.CableBlockEntity;
-import com.logistics.power.cable.CableTier;
 import com.logistics.power.render.model.CableGeometry;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.ItemOverrides;
-import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.neoforge.client.ChunkRenderTypeSet;
 import net.neoforged.neoforge.client.model.IDynamicBakedModel;
 import net.neoforged.neoforge.client.model.data.ModelData;
 import net.neoforged.neoforge.client.model.data.ModelProperty;
 import net.neoforged.neoforge.client.model.pipeline.QuadBakingVertexConsumer;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class NeoForgeCableModel implements IDynamicBakedModel {
     /** Stores the cable connection bitmask from the block entity. */
     public static final ModelProperty<Integer> CONNECTION_MASK = new ModelProperty<>();
 
-    private final ResourceLocation textureId;
-    private volatile TextureAtlasSprite spriteCache;
+    /** Cables use transparent torch-style textures, so they always render on the cutout layer. */
+    private static final ChunkRenderTypeSet RENDER_TYPES = ChunkRenderTypeSet.of(RenderType.cutout());
 
-    public NeoForgeCableModel(CableTier tier) {
-        this.textureId = ResourceId.in("logistics", "block/power/" + tier.id()).toIdentifier();
+    private final TextureAtlasSprite sprite;
+
+    public NeoForgeCableModel(TextureAtlasSprite sprite) {
+        this.sprite = sprite;
     }
 
     @Override
     public TextureAtlasSprite getParticleIcon() {
-        return sprite();
+        return sprite;
     }
 
     @Override
     public TextureAtlasSprite getParticleIcon(ModelData data) {
-        return sprite();
+        return sprite;
     }
 
     @Override
@@ -72,6 +71,12 @@ public final class NeoForgeCableModel implements IDynamicBakedModel {
     }
 
     @Override
+    public @NotNull ChunkRenderTypeSet getRenderTypes(
+            @NotNull BlockState state, @NotNull RandomSource rand, @NotNull ModelData data) {
+        return RENDER_TYPES;
+    }
+
+    @Override
     public ModelData getModelData(
             BlockAndTintGetter level,
             BlockPos pos,
@@ -95,7 +100,6 @@ public final class NeoForgeCableModel implements IDynamicBakedModel {
             return List.of();
         }
 
-        TextureAtlasSprite sprite = sprite();
         CablePartBuilder builder = new CablePartBuilder(sprite);
         CableGeometry.emit(
                 builder,
@@ -103,17 +107,6 @@ public final class NeoForgeCableModel implements IDynamicBakedModel {
                 CableGeometry.TextureUvs.fromSprite(sprite),
                 direction -> true);
         return side == null ? builder.getUnculled() : builder.getCulled(side);
-    }
-
-    private TextureAtlasSprite sprite() {
-        TextureAtlasSprite sprite = spriteCache;
-        if (sprite == null) {
-            sprite = Minecraft.getInstance().getModelManager()
-                    .getAtlas(TextureAtlas.LOCATION_BLOCKS)
-                    .getSprite(textureId);
-            spriteCache = sprite;
-        }
-        return sprite;
     }
 
     private static final class CablePartBuilder implements CableGeometry.QuadSink {

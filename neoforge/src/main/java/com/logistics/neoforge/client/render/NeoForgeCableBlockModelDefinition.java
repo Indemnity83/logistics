@@ -2,8 +2,6 @@ package com.logistics.neoforge.client.render;
 
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonObject;
-import com.logistics.power.cable.CableTier;
-import java.util.Locale;
 import java.util.function.Function;
 import net.minecraft.client.renderer.block.model.ItemOverrides;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -18,12 +16,13 @@ import net.neoforged.neoforge.client.model.geometry.IUnbakedGeometry;
 /**
  * NeoForge 21.1 custom geometry loader for power cables.
  *
- * <p>Implements {@link IGeometryLoader} to deserialize cable blockstate model JSON
- * and returns a {@link NeoForgeCableModel} as the baked model. Registered via
- * {@link net.neoforged.neoforge.client.event.ModelEvent.RegisterGeometryLoaders}.
+ * <p>Implements {@link IGeometryLoader} to deserialize cable model JSON and returns a
+ * {@link NeoForgeCableModel} as the baked model. The cable sprite is resolved from the model's
+ * {@code "cable"} texture variable through the baking context, so it is stitched into the block
+ * atlas like any normal model texture.
  *
- * <p>The loader ID is {@code logistics:cable_model}. Reference it from the cable
- * blockstate model JSON using {@code "loader": "logistics:cable_model"}.
+ * <p>The loader ID is {@code logistics:cable_model}. Reference it from the cable block model JSON
+ * using {@code "loader": "logistics:cable_model"}.
  */
 public final class NeoForgeCableBlockModelDefinition
         implements IGeometryLoader<NeoForgeCableBlockModelDefinition.CableGeometry> {
@@ -35,29 +34,12 @@ public final class NeoForgeCableBlockModelDefinition
 
     @Override
     public CableGeometry read(JsonObject jsonObject, JsonDeserializationContext context) {
-        String tierStr = jsonObject.has("tier")
-                ? jsonObject.get("tier").getAsString()
-                : "copper";
-        return new CableGeometry(tierFromId(tierStr));
+        return new CableGeometry();
     }
 
-    private static CableTier tierFromId(String id) {
-        for (CableTier tier : CableTier.values()) {
-            if (tier.id().equals(id) || tier.name().toLowerCase(Locale.ROOT).equals(id)) {
-                return tier;
-            }
-        }
-        throw new IllegalArgumentException("Unknown cable tier: " + id);
-    }
-
-    /** Unbaked geometry for a specific cable tier. */
-    public static final class CableGeometry
-            implements IUnbakedGeometry<CableGeometry> {
-        private final CableTier tier;
-
-        private CableGeometry(CableTier tier) {
-            this.tier = tier;
-        }
+    /** Unbaked geometry for a cable. The tier is encoded in the model's texture, not here. */
+    public static final class CableGeometry implements IUnbakedGeometry<CableGeometry> {
+        private CableGeometry() {}
 
         @Override
         public BakedModel bake(
@@ -66,7 +48,8 @@ public final class NeoForgeCableBlockModelDefinition
                 Function<Material, TextureAtlasSprite> spriteGetter,
                 ModelState modelState,
                 ItemOverrides overrides) {
-            return new NeoForgeCableModel(tier);
+            TextureAtlasSprite sprite = spriteGetter.apply(context.getMaterial("cable"));
+            return new NeoForgeCableModel(sprite);
         }
     }
 }
