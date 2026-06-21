@@ -53,7 +53,7 @@ Smelt tin ore in a furnace, blast furnace, or a [[Kiln]] (RF-powered, no fuel) t
 
 === Grinding ===
 
-Grind tin ore in a [[Macerator]] for two [[Dusts|Tin Dust]] per ore — an ore-doubling step, since each dust then smelts into a full ingot:
+Grind tin ore in a [[Macerator]] for two [[Tin Dust]] per ore — an ore-doubling step, since each dust then smelts into a full ingot:
 
 {{Grinding
 |head=1
@@ -81,6 +81,6 @@ Grind tin ore in a [[Macerator]] for two [[Dusts|Tin Dust]] per ore — an ore-d
 * [[Raw Tin]] - Mining drop
 * [[Tin Ingot]] - Smelted product
 * [[Bronze Ingot]] - Tin + copper alloy
-* [[Dusts|Tin Dust]] - Ground form (ore doubling)
+* [[Tin Dust]] - Ground form (ore doubling)
 
 [[Category:Materials]]

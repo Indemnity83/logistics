@@ -18,7 +18,7 @@ The '''Marker''' is a placement aid used to define a custom mining area for the 
 |Output=Marker |OutputCount=2
 }}
 
-'''Yields:''' 2× Marker (1× [[Dusts|Lapis Dust]] over 1× Stick). Lapis Dust comes from the [[Macerator]] (grind Lapis Ore or Lapis Block), so set up processing first.
+'''Yields:''' 2× Marker (1× [[Lapis Dust]] over 1× Stick). Lapis Dust comes from the [[Macerator]] (grind Lapis Ore or Lapis Block), so set up processing first.
 
 == Usage ==
 
@@ -41,7 +41,7 @@ The area must meet a '''minimum size'''; too-small layouts are rejected. A succe
 
 * [[Laser Quarry]] - The machine that uses marked areas
 * [[Tools]] - Other configuration and utility items
-* [[Dusts|Lapis Dust]] - Crafting ingredient, from the [[Macerator]]
+* [[Lapis Dust]] - Crafting ingredient, from the [[Macerator]]
 * [[Macerator]] - Produces Lapis Dust
 
 [[Category:Tools]]

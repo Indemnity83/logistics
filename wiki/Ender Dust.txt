@@ -1,1 +1,42 @@
-#REDIRECT [[Dusts]]
+{{Item
+|image     = Grid Ender Dust.png
+|type      = Item (Dust)
+|stackable = Yes (64)
+|added     = v0.2.0
+}}
+
+'''Ender Dust''' is ground from an ender pearl in a [[Macerator]].
+
+== Obtaining ==
+
+=== Grinding ===
+
+{{Grinding|head=1|showname=0|foot=1
+|Input=Ender Pearl
+|Output=Ender Dust,1
+}}
+
+== Usage ==
+
+=== Crafting ingredient ===
+
+A widely used component: the [[Cores|Ender Core]], [[Cables|Ender Cable]], [[Modules|Terminus Module]], and several [[Chips]].
+
+== Data values ==
+
+=== ID ===
+
+{{ID|logistics:core/ender_dust|item.logistics.core.ender_dust}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.2.0|Added '''Ender Dust'''.}}
+
+== See also ==
+
+* [[Dusts]] - All dusts
+* [[Macerator]] - Produces dusts
+* [[Cores|Ender Core]]
+* [[Chips]]
+
+[[Category:Materials]]

@@ -1,1 +1,58 @@
-#REDIRECT [[Dusts]]
+{{Item
+|image     = Grid Tin Dust.png
+|type      = Item (Dust)
+|stackable = Yes (64)
+|added     = v0.2.0
+}}
+
+'''Tin Dust''' is ground from [[Tin Ore|tin ore]] (or a [[Tin Ingot|tin ingot]]) in a [[Macerator]].
+
+== Obtaining ==
+
+=== Grinding ===
+
+{{Grinding|head=1|showname=0
+|Input=Tin Ore;Deepslate Tin Ore
+|Output=Tin Dust,2
+}}
+
+{{Grinding|showname=0|foot=1
+|Input=Tin Ingot
+|Output=Tin Dust,1
+}}
+
+== Usage ==
+
+=== Smelting ===
+
+Smelt it in a furnace, blast furnace, or a [[Kiln]]:
+
+{{Smelting|head=1|foot=1|showname=0
+|Input=Tin Dust
+|Output=Tin Ingot
+}}
+
+=== Crafting ingredient ===
+
+Combined with [[Copper Dust]] to craft [[Bronze Dust]].
+
+== Data values ==
+
+=== ID ===
+
+{{ID|logistics:core/tin_dust|item.logistics.core.tin_dust}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.2.0|Added '''Tin Dust'''.}}
+
+== See also ==
+
+* [[Dusts]] - All dusts
+* [[Macerator]] - Produces dusts
+* [[Kiln]] - Smelts dust into ingots and crystals
+* [[Tin Ore]]
+* [[Tin Ingot]]
+* [[Bronze Dust]]
+
+[[Category:Materials]]

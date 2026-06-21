@@ -57,6 +57,6 @@
 * [[Apatite]] - Material overview
 * [[Apatite Ore]] - Source of apatite
 * [[Apatite Valve]] - Major use
-* [[Dusts|Apatite Dust]] - Ground from the ore
+* [[Apatite Dust]] - Ground from the ore
 
 [[Category:Materials]]

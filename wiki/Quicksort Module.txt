@@ -44,7 +44,7 @@ When installed in a [[Logistics Pipes#Chassis Logistics Pipe|Chassis Logistics P
 * [[Item Sink Module]] - Accept specific item types as fallback
 * [[Polymorphic Sink Module]] - Fills existing stacks of any type
 * [[Provider Logistics Pipe]] - Provides location information for sorting
-* [[Dusts|Diamond Dust]] - Crafting component
+* [[Diamond Dust]] - Crafting component
 * [[Chips|Echo Chip]] - Module chip
 
 [[Category:Modules]]

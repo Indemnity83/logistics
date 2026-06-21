@@ -8,7 +8,7 @@
 * [[File:Grid Tin Nugget.png|24px|link=Tin Nugget]] '''[[Tin Nugget]]''' — one-ninth of a tin ingot
 * [[File:Grid Raw Tin Block.png|24px|link=Block of Raw Tin]] '''[[Block of Raw Tin]]''' — a block used for compact raw tin storage
 * [[File:Grid Tin Block.png|24px|link=Block of Tin]] '''[[Block of Tin]]''' — a block used for compact tin ingot storage
-* [[File:Grid Tin Dust.png|24px|link=Dusts]] '''[[Dusts|Tin Dust]]''' — produced by grinding tin ore in a [[Macerator]] (ore doubling)
+* [[File:Grid Tin Dust.png|24px|link=Tin Dust]] '''[[Tin Dust]]''' — produced by grinding tin ore in a [[Macerator]] (ore doubling)
 
 == Uses ==
 

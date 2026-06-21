@@ -1,1 +1,66 @@
-#REDIRECT [[Dusts]]
+{{Item
+|image     = Grid Bronze Dust.png
+|type      = Item (Dust)
+|stackable = Yes (64)
+|added     = v0.2.0
+}}
+
+'''Bronze Dust''' is a dust produced by grinding a [[Bronze Ingot|bronze ingot]], or crafted directly from [[Copper Dust|copper]] and [[Tin Dust|tin]] dust.
+
+== Obtaining ==
+
+=== Grinding ===
+
+{{Grinding|head=1|showname=0|foot=1
+|Input=Bronze Ingot
+|Output=Bronze Dust,1
+}}
+
+=== Crafting ===
+
+Combine three [[Copper Dust]] with one [[Tin Dust]] (shapeless):
+
+{{Crafting
+|head=1
+|foot=1
+|showname=0
+|A2=Copper Dust |B2=Copper Dust |C2=Copper Dust
+|A3=Tin Dust
+|Output=Bronze Dust,4
+}}
+
+== Usage ==
+
+=== Smelting ===
+
+Smelt it in a furnace, blast furnace, or a [[Kiln]]:
+
+{{Smelting|head=1|foot=1|showname=0
+|Input=Bronze Dust
+|Output=Bronze Ingot
+}}
+
+=== Crafting ingredient ===
+
+Used to craft the [[Crafter Module|Crafter modules]].
+
+== Data values ==
+
+=== ID ===
+
+{{ID|logistics:core/bronze_dust|item.logistics.core.bronze_dust}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.2.0|Added '''Bronze Dust'''.}}
+
+== See also ==
+
+* [[Dusts]] - All dusts
+* [[Macerator]] - Produces dusts
+* [[Kiln]] - Smelts dust into ingots and crystals
+* [[Bronze Ingot]]
+* [[Copper Dust]]
+* [[Tin Dust]]
+
+[[Category:Materials]]

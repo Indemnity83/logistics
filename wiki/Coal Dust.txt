@@ -1,1 +1,48 @@
-#REDIRECT [[Dusts]]
+{{Item
+|image     = Grid Coal Dust.png
+|type      = Item (Dust)
+|stackable = Yes (64)
+|added     = v0.2.0
+}}
+
+'''Coal Dust''' is ground from coal ore, coal, or charcoal in a [[Macerator]].
+
+== Obtaining ==
+
+=== Grinding ===
+
+{{Grinding|head=1|showname=0
+|Input=Coal Ore;Deepslate Coal Ore
+|Output=Coal Dust,2
+|XP=0.1
+}}
+
+{{Grinding|showname=0|foot=1
+|Input=Coal;Charcoal
+|Output=Coal Dust,2
+}}
+
+== Usage ==
+
+=== Crafting ingredient ===
+
+A carbon source for [[Rubber|Rubber Mix]], [[Chips#Silicon Wafer|Silicon Mix]], and the [[Chips|Carbon Chip]].
+
+== Data values ==
+
+=== ID ===
+
+{{ID|logistics:core/coal_dust|item.logistics.core.coal_dust}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.2.0|Added '''Coal Dust'''.}}
+
+== See also ==
+
+* [[Dusts]] - All dusts
+* [[Macerator]] - Produces dusts
+* [[Rubber]]
+* [[Chips]]
+
+[[Category:Materials]]

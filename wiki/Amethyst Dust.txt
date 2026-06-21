@@ -1,1 +1,41 @@
-#REDIRECT [[Dusts]]
+{{Item
+|image     = Grid Amethyst Dust.png
+|type      = Item (Dust)
+|stackable = Yes (64)
+|added     = v0.2.0
+}}
+
+'''Amethyst Dust''' is ground from an amethyst shard in a [[Macerator]].
+
+== Obtaining ==
+
+=== Grinding ===
+
+{{Grinding|head=1|showname=0|foot=1
+|Input=Amethyst Shard
+|Output=Amethyst Dust,1
+}}
+
+== Usage ==
+
+=== Crafting ingredient ===
+
+Used to craft the [[Chips|Amethyst Chip]].
+
+== Data values ==
+
+=== ID ===
+
+{{ID|logistics:core/amethyst_dust|item.logistics.core.amethyst_dust}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.2.0|Added '''Amethyst Dust'''.}}
+
+== See also ==
+
+* [[Dusts]] - All dusts
+* [[Macerator]] - Produces dusts
+* [[Chips]]
+
+[[Category:Materials]]

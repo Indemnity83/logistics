@@ -4,13 +4,13 @@
 
 The Silicon Wafer is the substrate for all chips, made in two steps.
 
-'''Step 1 — Silicon Mix (shapeless crafting):''' 3× [[Dusts#Quartz Dust|Quartz Dust]] + 1× [[Dusts|Coal Dust]] → 1× Silicon Mix
+'''Step 1 — Silicon Mix (shapeless crafting):''' 3× [[Quartz Dust|Quartz Dust]] + 1× [[Coal Dust]] → 1× Silicon Mix
 
 '''Step 2 — Silicon Wafer (smelting):''' Smelt Silicon Mix in a [[Kiln]] or furnace → 1× Silicon Wafer
 
 ==Chip Recipes==
 
-All chips share the same shape — a frame of [[Dusts|Ender Dust]] around a Resin Clump, a defining dust, and a Silicon Wafer. Only the center slot changes, and all chips yield '''4× per craft'''.
+All chips share the same shape — a frame of [[Ender Dust]] around a Resin Clump, a defining dust, and a Silicon Wafer. Only the center slot changes, and all chips yield '''4× per craft'''.
 
 {{Crafting|head=1|showdescription=1
 |name=Redstone Chip

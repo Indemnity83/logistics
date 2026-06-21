@@ -72,7 +72,7 @@ When installed in a [[Logistics Pipes#Chassis Logistics Pipe|Chassis Logistics P
 * [[Modules]] - All available modules
 * [[Logistics Pipes#Chassis Logistics Pipe|Chassis Logistics Pipe]] - Required container
 * [[Blank Module]] - Crafting base
-* [[Dusts#Wood Pulp|Wood Pulp]] - Crafting component
+* [[Macerator|Wood Pulp]] - Crafting component
 * [[Chips|Redstone Chip]] - MK1 chip
 * [[Chips|Amethyst Chip]] - MK2 chip
 * [[Chips|Echo Chip]] - MK3 chip

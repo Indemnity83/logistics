@@ -1,1 +1,47 @@
-#REDIRECT [[Dusts]]
+{{Item
+|image     = Grid Emerald Dust.png
+|type      = Item (Dust)
+|stackable = Yes (64)
+|added     = v0.2.0
+}}
+
+'''Emerald Dust''' is ground from emerald ore or an emerald in a [[Macerator]].
+
+== Obtaining ==
+
+=== Grinding ===
+
+{{Grinding|head=1|showname=0
+|Input=Emerald Ore;Deepslate Emerald Ore
+|Output=Emerald Dust,2
+|XP=1.0
+}}
+
+{{Grinding|showname=0|foot=1
+|Input=Emerald
+|Output=Emerald Dust,1
+}}
+
+== Usage ==
+
+=== Crafting ingredient ===
+
+Used to craft an [[Cores|Emerald Core]] and the supplier [[Modules]].
+
+== Data values ==
+
+=== ID ===
+
+{{ID|logistics:core/emerald_dust|item.logistics.core.emerald_dust}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.2.0|Added '''Emerald Dust'''.}}
+
+== See also ==
+
+* [[Dusts]] - All dusts
+* [[Macerator]] - Produces dusts
+* [[Cores|Emerald Core]]
+
+[[Category:Materials]]

@@ -1,1 +1,47 @@
-#REDIRECT [[Dusts]]
+{{Item
+|image     = Grid Diamond Dust.png
+|type      = Item (Dust)
+|stackable = Yes (64)
+|added     = v0.2.0
+}}
+
+'''Diamond Dust''' is ground from diamond ore or a diamond in a [[Macerator]].
+
+== Obtaining ==
+
+=== Grinding ===
+
+{{Grinding|head=1|showname=0
+|Input=Diamond Ore;Deepslate Diamond Ore
+|Output=Diamond Dust,2
+|XP=1.0
+}}
+
+{{Grinding|showname=0|foot=1
+|Input=Diamond
+|Output=Diamond Dust,1
+}}
+
+== Usage ==
+
+=== Crafting ingredient ===
+
+Used to craft a [[Cores|Diamond Core]] and the [[Modules|Quicksort Module]].
+
+== Data values ==
+
+=== ID ===
+
+{{ID|logistics:core/diamond_dust|item.logistics.core.diamond_dust}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.2.0|Added '''Diamond Dust'''.}}
+
+== See also ==
+
+* [[Dusts]] - All dusts
+* [[Macerator]] - Produces dusts
+* [[Cores|Diamond Core]]
+
+[[Category:Materials]]

@@ -1,1 +1,36 @@
-#REDIRECT [[Dusts]]
+{{Item
+|image     = Grid Obsidian Dust.png
+|type      = Item (Dust)
+|stackable = Yes (64)
+|added     = v0.2.0
+}}
+
+'''Obsidian Dust''' is a dust used to craft the [[Cores|Obsidian Core]]. It currently has no grinding recipe, so it cannot be obtained in survival.
+
+== Obtaining ==
+
+This dust has no obtaining recipe in the current version.
+
+== Usage ==
+
+=== Crafting ingredient ===
+
+Intended to craft the [[Cores|Obsidian Core]].
+
+== Data values ==
+
+=== ID ===
+
+{{ID|logistics:core/obsidian_dust|item.logistics.core.obsidian_dust}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.2.0|Added '''Obsidian Dust'''.}}
+
+== See also ==
+
+* [[Dusts]] - All dusts
+* [[Macerator]] - Produces dusts
+* [[Cores|Obsidian Core]]
+
+[[Category:Materials]]

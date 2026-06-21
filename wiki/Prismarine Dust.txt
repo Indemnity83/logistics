@@ -1,1 +1,50 @@
-#REDIRECT [[Dusts]]
+{{Item
+|image     = Grid Prismarine Dust.png
+|type      = Item (Dust)
+|stackable = Yes (64)
+|added     = v0.2.0
+}}
+
+'''Prismarine Dust''' is ground from prismarine, prismarine bricks, or a prismarine shard in a [[Macerator]].
+
+== Obtaining ==
+
+=== Grinding ===
+
+{{Grinding|head=1|showname=0
+|Input=Prismarine Bricks
+|Output=Prismarine Dust,9
+}}
+
+{{Grinding|showname=0
+|Input=Prismarine
+|Output=Prismarine Dust,4
+}}
+
+{{Grinding|showname=0|foot=1
+|Input=Prismarine Shard
+|Output=Prismarine Dust,1
+}}
+
+== Usage ==
+
+=== Crafting ingredient ===
+
+Prismarine dust currently has no crafting or smelting use.
+
+== Data values ==
+
+=== ID ===
+
+{{ID|logistics:core/prismarine_dust|item.logistics.core.prismarine_dust}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.2.0|Added '''Prismarine Dust'''.}}
+
+== See also ==
+
+* [[Dusts]] - All dusts
+* [[Macerator]] - Produces dusts
+
+[[Category:Materials]]

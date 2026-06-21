@@ -1,1 +1,41 @@
-#REDIRECT [[Dusts]]
+{{Item
+|image     = Grid Echo Dust.png
+|type      = Item (Dust)
+|stackable = Yes (64)
+|added     = v0.2.0
+}}
+
+'''Echo Dust''' is ground from an echo shard in a [[Macerator]].
+
+== Obtaining ==
+
+=== Grinding ===
+
+{{Grinding|head=1|showname=0|foot=1
+|Input=Echo Shard
+|Output=Echo Dust,1
+}}
+
+== Usage ==
+
+=== Crafting ingredient ===
+
+Used to craft the [[Chips|Echo Chip]].
+
+== Data values ==
+
+=== ID ===
+
+{{ID|logistics:core/echo_dust|item.logistics.core.echo_dust}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.2.0|Added '''Echo Dust'''.}}
+
+== See also ==
+
+* [[Dusts]] - All dusts
+* [[Macerator]] - Produces dusts
+* [[Chips]]
+
+[[Category:Materials]]

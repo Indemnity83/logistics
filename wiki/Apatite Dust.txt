@@ -1,1 +1,42 @@
-#REDIRECT [[Dusts]]
+{{Item
+|image     = Grid Apatite Dust.png
+|type      = Item (Dust)
+|stackable = Yes (64)
+|added     = v0.2.0
+}}
+
+'''Apatite Dust''' is ground from [[Apatite Ore|apatite ore]] in a [[Macerator]] — a generous six per ore.
+
+== Obtaining ==
+
+=== Grinding ===
+
+{{Grinding|head=1|showname=0|foot=1
+|Input=Apatite Ore
+|Output=Apatite Dust,6
+}}
+
+== Usage ==
+
+=== Crafting ingredient ===
+
+Apatite dust currently has no crafting or smelting use.
+
+== Data values ==
+
+=== ID ===
+
+{{ID|logistics:core/apatite_dust|item.logistics.core.apatite_dust}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.2.0|Added '''Apatite Dust'''.}}
+
+== See also ==
+
+* [[Dusts]] - All dusts
+* [[Macerator]] - Produces dusts
+* [[Apatite Ore]]
+* [[Apatite (gem)|Apatite]]
+
+[[Category:Materials]]

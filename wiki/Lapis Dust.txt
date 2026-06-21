@@ -1,1 +1,48 @@
-#REDIRECT [[Dusts]]
+{{Item
+|image     = Grid Lapis Dust.png
+|type      = Item (Dust)
+|stackable = Yes (64)
+|added     = v0.2.0
+}}
+
+'''Lapis Dust''' is ground from lapis ore (eight per ore) or lapis lazuli in a [[Macerator]].
+
+== Obtaining ==
+
+=== Grinding ===
+
+{{Grinding|head=1|showname=0
+|Input=Lapis Ore;Deepslate Lapis Ore
+|Output=Lapis Dust,8
+|XP=0.2
+}}
+
+{{Grinding|showname=0|foot=1
+|Input=Lapis Lazuli
+|Output=Lapis Dust,1
+}}
+
+== Usage ==
+
+=== Crafting ingredient ===
+
+Used to craft a [[Cores|Lapis Core]] and the [[Marker]].
+
+== Data values ==
+
+=== ID ===
+
+{{ID|logistics:core/lapis_dust|item.logistics.core.lapis_dust}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.2.0|Added '''Lapis Dust'''.}}
+
+== See also ==
+
+* [[Dusts]] - All dusts
+* [[Macerator]] - Produces dusts
+* [[Cores|Lapis Core]]
+* [[Marker]]
+
+[[Category:Materials]]

@@ -5,7 +5,7 @@
 * [[File:Grid Bronze Ingot.png|24px|link=Bronze Ingot]] '''[[Bronze Ingot]]''' — the alloy ingot, crafted from copper and tin
 * [[File:Grid Bronze Block.png|24px|link=Block of Bronze]] '''[[Block of Bronze]]''' — a block used for compact bronze ingot storage
 * [[File:Grid Bronze Nugget.png|24px|link=Bronze Nugget]] '''[[Bronze Nugget]]''' — one-ninth of a bronze ingot
-* [[File:Grid Bronze Dust.png|24px|link=Dusts]] '''[[Dusts|Bronze Dust]]''' — produced by grinding a bronze ingot in a [[Macerator]]
+* [[File:Grid Bronze Dust.png|24px|link=Bronze Dust]] '''[[Bronze Dust]]''' — produced by grinding a bronze ingot in a [[Macerator]]
 
 == Uses ==
 

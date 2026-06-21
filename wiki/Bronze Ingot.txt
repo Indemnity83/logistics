@@ -44,7 +44,7 @@ Alloy three [[Copper Ingot|copper]] with one [[Tin Ingot|tin]] (shapeless):
 
 === Smelting ===
 
-Smelt [[Dusts|Bronze Dust]] back into an ingot in a furnace, blast furnace, or a [[Kiln]] (RF-powered, no fuel):
+Smelt [[Bronze Dust]] back into an ingot in a furnace, blast furnace, or a [[Kiln]] (RF-powered, no fuel):
 
 {{Smelting
 |head=1
@@ -108,7 +108,7 @@ Smelt [[Dusts|Bronze Dust]] back into an ingot in a furnace, blast furnace, or a
 
 === Grinding ===
 
-Grind a bronze ingot in a [[Macerator]] to recover [[Dusts|Bronze Dust]]:
+Grind a bronze ingot in a [[Macerator]] to recover [[Bronze Dust]]:
 
 {{Grinding
 |head=1
@@ -137,6 +137,6 @@ Grind a bronze ingot in a [[Macerator]] to recover [[Dusts|Bronze Dust]]:
 * [[Tin Ingot]], [[Copper Ingot]] - Alloy components
 * [[Machine Core]], [[Sturdy Casing]] - Machine components
 * [[Bronze Gear]] - Crafting component
-* [[Dusts|Bronze Dust]] - Ground form
+* [[Bronze Dust]] - Ground form
 
 [[Category:Materials]]

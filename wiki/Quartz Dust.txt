@@ -1,1 +1,59 @@
-#REDIRECT [[Dusts]]
+{{Item
+|image     = Grid Quartz Dust.png
+|type      = Item (Dust)
+|stackable = Yes (64)
+|added     = v0.2.0
+}}
+
+'''Quartz Dust''' is ground from nether quartz ore or nether quartz in a [[Macerator]].
+
+== Obtaining ==
+
+=== Grinding ===
+
+{{Grinding|head=1|showname=0
+|Input=Nether Quartz Ore
+|Output=Quartz Dust,2
+|XP=0.2
+}}
+
+{{Grinding|showname=0|foot=1
+|Input=Nether Quartz
+|Output=Quartz Dust,1
+}}
+
+== Usage ==
+
+=== Smelting ===
+
+Smelt it in a furnace, blast furnace, or a [[Kiln]]:
+
+{{Smelting|head=1|foot=1|showname=0
+|Input=Quartz Dust
+|Output=Quartz Crystal
+|XP=0.1
+}}
+
+=== Crafting ingredient ===
+
+Also crafted into [[Chips#Silicon Wafer|Silicon Mix]].
+
+== Data values ==
+
+=== ID ===
+
+{{ID|logistics:core/quartz_dust|item.logistics.core.quartz_dust}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.2.0|Added '''Quartz Dust'''.}}
+
+== See also ==
+
+* [[Dusts]] - All dusts
+* [[Macerator]] - Produces dusts
+* [[Kiln]] - Smelts dust into ingots and crystals
+* [[Cores#Quartz Crystal|Quartz Crystal]]
+* [[Chips]]
+
+[[Category:Materials]]

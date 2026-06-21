@@ -19,7 +19,7 @@ The Rubber Mix is the raw, unprocessed form:
 |Output=Rubber Mix
 }}
 
-'''Yields:''' 1× Rubber Mix (shapeless: Slime Ball + [[Dusts|Coal Dust]]). Coal Dust comes from the [[Macerator]] (grind Coal, Charcoal, or Coal Ore).
+'''Yields:''' 1× Rubber Mix (shapeless: Slime Ball + [[Coal Dust]]). Coal Dust comes from the [[Macerator]] (grind Coal, Charcoal, or Coal Ore).
 
 === Smelting ===
 
@@ -41,7 +41,7 @@ Rubber Chunks insulate power cables:
 == See also ==
 
 * [[Cables]] - Crafted with Rubber Chunks
-* [[Dusts|Coal Dust]] - Crafting ingredient, from the [[Macerator]]
+* [[Coal Dust]] - Crafting ingredient, from the [[Macerator]]
 * [[Macerator]] - Produces Coal Dust
 * [[Kiln]] - Smelts Rubber Mix into Rubber Chunks
 

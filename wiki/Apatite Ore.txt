@@ -33,7 +33,7 @@ Apatite ore generates in every Overworld biome during the world's underground-or
 
 === Grinding ===
 
-Grind apatite ore in a [[Macerator]] for six [[Dusts|Apatite Dust]] per ore — a generous yield versus mining the gems directly:
+Grind apatite ore in a [[Macerator]] for six [[Apatite Dust]] per ore — a generous yield versus mining the gems directly:
 
 {{Grinding
 |head=1
@@ -57,6 +57,6 @@ Grind apatite ore in a [[Macerator]] for six [[Dusts|Apatite Dust]] per ore — 
 * [[Apatite]] - Material overview
 * [[Apatite (gem)]] - The dropped gem
 * [[Apatite Valve]] - Major use
-* [[Dusts|Apatite Dust]] - Ground form
+* [[Apatite Dust]] - Ground form
 
 [[Category:Materials]]

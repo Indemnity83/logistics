@@ -1,1 +1,61 @@
-#REDIRECT [[Dusts]]
+{{Item
+|image     = Grid Iron Dust.png
+|type      = Item (Dust)
+|stackable = Yes (64)
+|added     = v0.2.0
+}}
+
+'''Iron Dust''' is ground from iron ore (or an iron ingot or block) in a [[Macerator]]. Smelting it back into an iron ingot lets grinding double an ore's metal.
+
+== Obtaining ==
+
+=== Grinding ===
+
+{{Grinding|head=1|showname=0
+|Input=Iron Ore;Deepslate Iron Ore
+|Output=Iron Dust,2
+}}
+
+{{Grinding|showname=0
+|Input=Block of Iron;Block of Raw Iron
+|Output=Iron Dust,9
+}}
+
+{{Grinding|showname=0|foot=1
+|Input=Iron Ingot
+|Output=Iron Dust,1
+}}
+
+== Usage ==
+
+=== Smelting ===
+
+Smelt it in a furnace, blast furnace, or a [[Kiln]]:
+
+{{Smelting|head=1|foot=1|showname=0
+|Input=Iron Dust
+|Output=Iron Ingot
+}}
+
+=== Crafting ingredient ===
+
+Used to craft the [[Provider Module]] and its upgrades.
+
+== Data values ==
+
+=== ID ===
+
+{{ID|logistics:core/iron_dust|item.logistics.core.iron_dust}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.2.0|Added '''Iron Dust'''.}}
+
+== See also ==
+
+* [[Dusts]] - All dusts
+* [[Macerator]] - Produces dusts
+* [[Kiln]] - Smelts dust into ingots and crystals
+* [[Provider Module]]
+
+[[Category:Materials]]

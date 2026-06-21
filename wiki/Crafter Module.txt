@@ -73,7 +73,7 @@ When installed in a [[Logistics Pipes#Chassis Logistics Pipe|Chassis Logistics P
 * [[Logistics Pipes#Chassis Logistics Pipe|Chassis Logistics Pipe]] - Required container
 * [[Blank Module]] - Crafting base
 * [[Provider Module]] - Pairs well to provide crafted output
-* [[Dusts|Bronze Dust]] - Crafting component
+* [[Bronze Dust]] - Crafting component
 * [[Chips|Redstone Chip]] - MK1 chip
 * [[Chips|Amethyst Chip]] - MK2 chip
 * [[Chips|Echo Chip]] - MK3 chip

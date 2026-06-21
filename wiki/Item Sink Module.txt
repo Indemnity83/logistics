@@ -49,7 +49,7 @@ Use a [[Wrench]] to open the chassis GUI, then configure the module:
 * [[Modules]] - All available modules
 * [[Logistics Pipes#Chassis Logistics Pipe|Chassis Logistics Pipe]] - Required container
 * [[Blank Module]] - Crafting base
-* [[Dusts|Copper Dust]] - Crafting component
+* [[Copper Dust]] - Crafting component
 * [[Chips|Carbon Chip]] - Module chip
 
 [[Category:Modules]]

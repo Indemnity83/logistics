@@ -98,7 +98,7 @@ Smelt raw tin or tin ore in a furnace, blast furnace, or a [[Kiln]] (RF-powered,
 
 === Grinding ===
 
-Grind tin ore in a [[Macerator]] to produce two [[Dusts|Tin Dust]] per ore — an ore-doubling step, since each dust then smelts back into a full ingot:
+Grind tin ore in a [[Macerator]] to produce two [[Tin Dust]] per ore — an ore-doubling step, since each dust then smelts back into a full ingot:
 
 {{Grinding
 |head=1

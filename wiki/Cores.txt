@@ -31,7 +31,7 @@ All cores yield '''4× per craft''' and share the same shape — the base materi
 {{Crafting|foot=1
 |name=Ender Core     |B1=Ender Dust      |B2=Eye of Ender   |B3=Ender Dust      |Output=Ender Core,4     |description=Crafts the [[Ender Valve]]}}
 
-Ingredient sources: [[Dusts#Wood Pulp|Wood Pulp]], [[Dusts|Diamond Dust]], [[Dusts|Emerald Dust]], [[Dusts|Obsidian Dust]], and [[Dusts|Ender Dust]] all come from the [[Macerator]]; [[Apatite]] and Bronze Ingot are mod materials.
+Ingredient sources: [[Macerator|Wood Pulp]], [[Diamond Dust]], [[Emerald Dust]], [[Obsidian Dust]], and [[Ender Dust]] all come from the [[Macerator]]; [[Apatite]] and Bronze Ingot are mod materials.
 
 ==Quartz Crystal==
 
@@ -42,7 +42,7 @@ Quartz Crystal is not a "core" but is the other required ingredient in all valve
 |Output=Quartz Crystal
 }}
 
-'''Recipe:''' Smelt [[Dusts#Quartz Dust|Quartz Dust]] in a [[Kiln]] or furnace → 1× Quartz Crystal
+'''Recipe:''' Smelt [[Quartz Dust|Quartz Dust]] in a [[Kiln]] or furnace → 1× Quartz Crystal
 
 Quartz Dust is obtained by grinding Nether Quartz or Quartz Ore in the [[Macerator]].
 

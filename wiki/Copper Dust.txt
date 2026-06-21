@@ -1,1 +1,62 @@
-#REDIRECT [[Dusts]]
+{{Item
+|image     = Grid Copper Dust.png
+|type      = Item (Dust)
+|stackable = Yes (64)
+|added     = v0.2.0
+}}
+
+'''Copper Dust''' is ground from copper ore (or a copper ingot or block) in a [[Macerator]].
+
+== Obtaining ==
+
+=== Grinding ===
+
+{{Grinding|head=1|showname=0
+|Input=Copper Ore;Deepslate Copper Ore
+|Output=Copper Dust,2
+}}
+
+{{Grinding|showname=0
+|Input=Block of Copper;Block of Raw Copper
+|Output=Copper Dust,9
+}}
+
+{{Grinding|showname=0|foot=1
+|Input=Copper Ingot
+|Output=Copper Dust,1
+}}
+
+== Usage ==
+
+=== Smelting ===
+
+Smelt it in a furnace, blast furnace, or a [[Kiln]]:
+
+{{Smelting|head=1|foot=1|showname=0
+|Input=Copper Dust
+|Output=Copper Ingot
+}}
+
+=== Crafting ingredient ===
+
+Combined with [[Tin Dust]] to craft [[Bronze Dust]], and used in the [[Modules|ItemSink and Enchantment Sink modules]].
+
+== Data values ==
+
+=== ID ===
+
+{{ID|logistics:core/copper_dust|item.logistics.core.copper_dust}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.2.0|Added '''Copper Dust'''.}}
+
+== See also ==
+
+* [[Dusts]] - All dusts
+* [[Macerator]] - Produces dusts
+* [[Kiln]] - Smelts dust into ingots and crystals
+* [[Bronze Dust]]
+* [[Tin Dust]]
+
+[[Category:Materials]]
