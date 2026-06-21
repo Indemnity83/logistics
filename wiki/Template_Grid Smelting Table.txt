@@ -13,7 +13,8 @@
 | class="logi-grid-cell" |
 {| class="logi-furnace-out"
 |-
-| class="logi-grid-slot" | {{Grid|{{{Output}}}|{{{OutputCount|}}}}}
+| class="logi-grid-slot" | {{Grid|{{{Output}}}}}
+| class="logi-grid-count" | {{#if:{{{OutputCount|}}}|×{{{OutputCount}}}}}
 |-
 | class="logi-furnace-xp" | {{#if:{{{XP|}}}|{{{XP}}} XP|&nbsp;}}
 |}

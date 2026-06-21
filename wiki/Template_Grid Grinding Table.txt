@@ -9,7 +9,8 @@
 | class="logi-grid-cell" |
 {| class="logi-grind-out"
 |-
-| class="logi-grid-slot" | {{Grid|{{{Output}}}|{{{OutputCount|}}}}}
+| class="logi-grid-slot" | {{Grid|{{{Output}}}}}
+| class="logi-grid-count" | {{#if:{{{OutputCount|}}}|×{{{OutputCount}}}}}
 |-
 | class="logi-grind-xp" | {{#if:{{{XP|}}}|{{{XP}}} XP|&nbsp;}}
 |}
