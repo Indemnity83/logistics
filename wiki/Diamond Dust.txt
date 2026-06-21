@@ -26,7 +26,20 @@
 
 === Crafting ingredient ===
 
-Used to craft a [[Cores|Diamond Core]] and the [[Modules|Quicksort Module]].
+{{Crafting|head=1
+|name=[[Cores|Diamond Core]]
+|B1=Diamond Dust
+|B2=Amethyst Shard
+|B3=Diamond Dust
+|Output=Diamond Core,4
+}}
+
+{{Crafting|foot=1
+|name=[[Quicksort Module]]
+|A1=Diamond Dust |B1=Echo Chip |C1=Diamond Dust
+|A2=Redstone |B2=Blank Module |C2=Redstone
+|Output=Quicksort Module
+}}
 
 == Data values ==
 

@@ -15,7 +15,13 @@ This dust has no obtaining recipe in the current version.
 
 === Crafting ingredient ===
 
-Intended to craft the [[Cores|Netherite Core]].
+{{Crafting|head=1|foot=1
+|name=[[Cores|Netherite Core]]
+|B1=Netherite Dust
+|B2=Blaze Rod
+|B3=Netherite Dust
+|Output=Netherite Core,4
+}}
 
 == Data values ==
 

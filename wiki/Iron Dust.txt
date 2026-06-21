@@ -39,7 +39,19 @@ Smelt it in a furnace, blast furnace, or a [[Kiln]]:
 
 === Crafting ingredient ===
 
-Used to craft the [[Provider Module]] and its upgrades.
+{{Crafting|head=1
+|name=[[Provider Module|Provider MkII Module]]
+|A1=Iron Dust |B1=Amethyst Chip |C1=Iron Dust
+|A2=Redstone |B2=Blank Module |C2=Redstone
+|Output=Provider MkII Module
+}}
+
+{{Crafting|foot=1
+|name=[[Provider Module]]
+|A1=Iron Dust |B1=Redstone Chip |C1=Iron Dust
+|A2=Redstone |B2=Blank Module |C2=Redstone
+|Output=Provider Module
+}}
 
 == Data values ==
 

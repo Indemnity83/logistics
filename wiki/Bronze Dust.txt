@@ -42,7 +42,26 @@ Smelt it in a furnace, blast furnace, or a [[Kiln]]:
 
 === Crafting ingredient ===
 
-Used to craft the [[Crafter Module|Crafter modules]].
+{{Crafting|head=1
+|name=[[Crafter Module|Crafter MkII Module]]
+|A1=Bronze Dust |B1=Amethyst Chip |C1=Bronze Dust
+|A2=Redstone |B2=Blank Module |C2=Redstone
+|Output=Crafter MkII Module
+}}
+
+{{Crafting
+|name=[[Crafter Module|Crafter MkIII Module]]
+|A1=Bronze Dust |B1=Echo Chip |C1=Bronze Dust
+|A2=Redstone |B2=Blank Module |C2=Redstone
+|Output=Crafter MkIII Module
+}}
+
+{{Crafting|foot=1
+|name=[[Crafter Module]]
+|A1=Bronze Dust |B1=Redstone Chip |C1=Bronze Dust
+|A2=Redstone |B2=Blank Module |C2=Redstone
+|Output=Crafter Module
+}}
 
 == Data values ==
 

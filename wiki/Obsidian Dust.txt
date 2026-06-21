@@ -15,7 +15,13 @@ This dust has no obtaining recipe in the current version.
 
 === Crafting ingredient ===
 
-Intended to craft the [[Cores|Obsidian Core]].
+{{Crafting|head=1|foot=1
+|name=[[Cores|Obsidian Core]]
+|B1=Obsidian Dust
+|B2=End Rod
+|B3=Obsidian Dust
+|Output=Obsidian Core,4
+}}
 
 == Data values ==
 

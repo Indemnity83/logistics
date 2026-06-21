@@ -20,7 +20,13 @@
 
 === Crafting ingredient ===
 
-Used to craft the [[Chips|Amethyst Chip]].
+{{Crafting|head=1|foot=1
+|name=[[Chips|Amethyst Chip]]
+|A1=Ender Dust |B1=Resin Clump |C1=Ender Dust
+|A2=Ender Dust |B2=Amethyst Dust |C2=Ender Dust
+|A3=Ender Dust |B3=Silicon Wafer |C3=Ender Dust
+|Output=Amethyst Chip,4
+}}
 
 == Data values ==
 

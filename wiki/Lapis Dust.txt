@@ -26,7 +26,20 @@
 
 === Crafting ingredient ===
 
-Used to craft a [[Cores|Lapis Core]] and the [[Marker]].
+{{Crafting|head=1
+|name=[[Cores|Lapis Core]]
+|B1=Lapis Dust
+|B2=Amethyst Shard
+|B3=Lapis Dust
+|Output=Lapis Core,4
+}}
+
+{{Crafting|foot=1
+|name=[[Marker]]
+|B1=Lapis Dust
+|B2=Stick
+|Output=Marker,2
+}}
 
 == Data values ==
 

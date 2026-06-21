@@ -34,7 +34,12 @@ Smelt it in a furnace, blast furnace, or a [[Kiln]]:
 
 === Crafting ingredient ===
 
-Combined with [[Copper Dust]] to craft [[Bronze Dust]].
+{{Crafting|head=1|foot=1
+|name=[[Bronze Dust]]
+|A1=Copper Dust |B1=Copper Dust |C1=Copper Dust
+|A2=Tin Dust
+|Output=Bronze Dust,4
+}}
 
 == Data values ==
 

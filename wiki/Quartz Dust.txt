@@ -36,7 +36,12 @@ Smelt it in a furnace, blast furnace, or a [[Kiln]]:
 
 === Crafting ingredient ===
 
-Also crafted into [[Chips#Silicon Wafer|Silicon Mix]].
+{{Crafting|head=1|foot=1
+|name=[[Chips|Silicon Mix]]
+|A1=Quartz Dust |B1=Quartz Dust |C1=Quartz Dust
+|A2=Coal Dust
+|Output=Silicon Mix
+}}
 
 == Data values ==
 

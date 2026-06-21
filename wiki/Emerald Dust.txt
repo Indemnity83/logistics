@@ -26,7 +26,27 @@
 
 === Crafting ingredient ===
 
-Used to craft an [[Cores|Emerald Core]] and the supplier [[Modules]].
+{{Crafting|head=1
+|name=[[Active Supplier Module]]
+|A1=Emerald Dust |B1=Amethyst Chip |C1=Emerald Dust
+|A2=Redstone |B2=Blank Module |C2=Redstone
+|Output=Active Supplier Module
+}}
+
+{{Crafting
+|name=[[Cores|Emerald Core]]
+|B1=Emerald Dust
+|B2=Amethyst Shard
+|B3=Emerald Dust
+|Output=Emerald Core,4
+}}
+
+{{Crafting|foot=1
+|name=[[Passive Supplier Module]]
+|A1=Emerald Dust |B1=Redstone Chip |C1=Emerald Dust
+|A2=Redstone |B2=Blank Module |C2=Redstone
+|Output=Passive Supplier Module
+}}
 
 == Data values ==
 

@@ -20,7 +20,60 @@
 
 === Crafting ingredient ===
 
-A widely used component: the [[Cores|Ender Core]], [[Cables|Ender Cable]], [[Modules|Terminus Module]], and several [[Chips]].
+{{Crafting|head=1
+|name=[[Chips|Amethyst Chip]]
+|A1=Ender Dust |B1=Resin Clump |C1=Ender Dust
+|A2=Ender Dust |B2=Amethyst Dust |C2=Ender Dust
+|A3=Ender Dust |B3=Silicon Wafer |C3=Ender Dust
+|Output=Amethyst Chip,4
+}}
+
+{{Crafting
+|name=[[Chips|Carbon Chip]]
+|A1=Ender Dust |B1=Resin Clump |C1=Ender Dust
+|A2=Ender Dust |B2=Coal Dust |C2=Ender Dust
+|A3=Ender Dust |B3=Silicon Wafer |C3=Ender Dust
+|Output=Carbon Chip,4
+}}
+
+{{Crafting
+|name=[[Chips|Echo Chip]]
+|A1=Ender Dust |B1=Resin Clump |C1=Ender Dust
+|A2=Ender Dust |B2=Echo Dust |C2=Ender Dust
+|A3=Ender Dust |B3=Silicon Wafer |C3=Ender Dust
+|Output=Echo Chip,4
+}}
+
+{{Crafting
+|name=[[Cables|Ender Cable]]
+|A1=Rubber Chunk |B1=Rubber Chunk |C1=Rubber Chunk
+|A2=Ender Dust |B2=Gold Ingot |C2=Ender Dust
+|A3=Rubber Chunk |B3=Rubber Chunk |C3=Rubber Chunk
+|Output=Ender Cable,8
+}}
+
+{{Crafting
+|name=[[Cores|Ender Core]]
+|B1=Ender Dust
+|B2=End Rod
+|B3=Ender Dust
+|Output=Ender Core,4
+}}
+
+{{Crafting
+|name=[[Chips|Redstone Chip]]
+|A1=Ender Dust |B1=Resin Clump |C1=Ender Dust
+|A2=Ender Dust |B2=Redstone |C2=Ender Dust
+|A3=Ender Dust |B3=Silicon Wafer |C3=Ender Dust
+|Output=Redstone Chip,4
+}}
+
+{{Crafting|foot=1
+|name=[[Terminus Module]]
+|A1=Ender Dust |B1=Redstone Chip |C1=Ender Dust
+|A2=Redstone |B2=Blank Module |C2=Redstone
+|Output=Terminus Module
+}}
 
 == Data values ==
 
