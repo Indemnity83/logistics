@@ -13,12 +13,14 @@
 | class="logi-grid-cell" |
 {| class="logi-furnace-out"
 |-
-| class="logi-furnace-xp" colspan="2" | &nbsp;
+| class="logi-furnace-xp" | &nbsp;
+| class="logi-grid-count" | &nbsp;
 |-
 | class="logi-grid-slot" | {{Grid|{{{Output}}}}}
 | class="logi-grid-count" | {{#if:{{{OutputCount|}}}|×{{{OutputCount}}}}}
 |-
-| class="logi-furnace-xp" colspan="2" | {{#if:{{{XP|}}}|{{{XP}}} XP|&nbsp;}}
+| class="logi-furnace-xp" | {{#if:{{{XP|}}}|[[File:Grid XP Orb.png|11px|link=|alt=XP]] {{{XP}}}|&nbsp;}}
+| class="logi-grid-count" | &nbsp;
 |}
 |}<templatestyles src="Grid Crafting Table/styles.css" /><templatestyles src="Grid Smelting Table/styles.css" /></includeonly><noinclude>
 Renders a furnace-style smelting recipe: the input on top, a flame, the fuel slot below, an arrow,

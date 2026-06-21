@@ -12,7 +12,7 @@
 |-
 |
 |
-| class="logi-grind-xp" | {{#if:{{{XP|}}}|{{{XP}}} XP|&nbsp;}}
+| class="logi-grind-xp" | {{#if:{{{XP|}}}|[[File:Grid XP Orb.png|11px|link=|alt=XP]] {{{XP}}}|&nbsp;}}
 |}
 |}<templatestyles src="Grid Crafting Table/styles.css" /><templatestyles src="Grid Grinding Table/styles.css" /></includeonly><noinclude>
 Renders a grinding recipe (e.g. in the [[Macerator]]): a single input slot, an arrow, and the

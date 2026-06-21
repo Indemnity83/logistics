@@ -9,9 +9,13 @@
 }
 .logi-grind-xp {
 	text-align: center;
-	font-size: 85%;
-	font-weight: bold;
-	color: #2e7d32;
+	/* "Minecraft" must be installed site-wide (MediaWiki:Common.css @font-face); falls back to monospace */
+	font-family: "Minecraft", monospace;
+	font-size: 90%;
+	color: #000000;       /* the orb carries the colour, so the value stays black */
 	padding-top: 2px;
 	white-space: nowrap;
+}
+.logi-grind-xp img {
+	vertical-align: -0.15em;   /* seat the XP orb on the value */
 }
