@@ -114,7 +114,7 @@ Smelt raw tin or tin ore in a furnace, blast furnace, or a [[Kiln]] (RF-powered,
 
 === ID ===
 
-{{ID|logistics:core/tin_ingot}}
+{{ID|logistics:core/tin_ingot|item.logistics.core.tin_ingot}}
 
 == History ==
 

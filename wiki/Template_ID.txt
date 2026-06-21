@@ -2,19 +2,27 @@
 |-
 ! Name
 ! Namespaced ID
+! Translation key
 |-
 | {{{name|{{PAGENAME}}}}}
 | <code>{{{1}}}</code>
+| <code>{{{2}}}</code>
 |}</includeonly><noinclude>
-Renders the '''Data values''' ID table for an item or block — place it under a
-"== Data values ==" / "=== ID ===" heading near the bottom of a page, instead of putting the long
-namespaced ID in the infobox.
+Renders the '''Data values''' ID table for an item or block (Name / Namespaced ID / Translation
+key) — place it under a "== Data values ==" / "=== ID ===" heading near the bottom of a page,
+instead of putting the long namespaced ID in the infobox.
+
+Both the namespaced ID and the translation key are passed as literal strings (don't infer the key
+— take it from the lang file).
 
 Usage:
- {{ID|logistics:core/tin_ingot}}
- {{ID|logistics:core/tin_ingot|name=Tin Ingot}}
+ {{ID|logistics:core/tin_ingot|item.logistics.core.tin_ingot}}
+ {{ID|logistics:automation/kiln|block.logistics.automation.kiln|name=Kiln}}
 
-The name defaults to the page title.
+Parameters:
+ 1     — the namespaced ID
+ 2     — the translation key (literal lang key)
+ name  — display name (defaults to the page title)
 
 [[Category:Templates]]
 </noinclude>
