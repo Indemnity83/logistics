@@ -1,3 +1,4 @@
+{{About|the ingot|the ore|Tin Ore|the mineral block|Block of Tin|the nugget|Tin Nugget|the raw mineral|Raw Tin}}
 {{Item
 |image     = Grid Tin Ingot.png
 |id        = logistics:core/tin_ingot
@@ -6,24 +7,18 @@
 |added     = v0.2.0
 }}
 
-'''Tin Ingot''' is a metal obtained by smelting [[Raw Tin]]. It is used to create [[Bronze Ingot|bronze]] alloy and tin-based components.
-
-'''Related forms:''' Tin Ingot has a full set of storage and processing forms — '''Block of Tin''' (9 ingots), '''Tin Nugget''' (1/9 ingot), '''[[Raw Tin]]''' and the '''Block of Raw Tin''', and '''[[Dusts|Tin Dust]]''' from the [[Macerator]].
+'''Tin ingots''' are a metal ingot used primarily for alloying with copper to make [[Bronze Ingot|bronze]].
 
 == Obtaining ==
 
 === Crafting ===
 
-Tin Ingots unpack from their storage forms:
-
-{{Crafting|head=1|showdescription=1
-|name=Tin Ingot |B2=Tin Block |Output=Tin Ingot,9 |description=Unpacked from a block.}}
+{{Crafting|head=1
+|name=Tin Ingot |B2=Tin Block |Output=Tin Ingot,9}}
 {{Crafting|foot=1
-|name=Tin Ingot |A1=Tin Nugget |B1=Tin Nugget |C1=Tin Nugget |A2=Tin Nugget |B2=Tin Nugget |C2=Tin Nugget |A3=Tin Nugget |B3=Tin Nugget |C3=Tin Nugget |Output=Tin Ingot |description=Assembled from nuggets.}}
+|name=Tin Ingot |A1=Tin Nugget |B1=Tin Nugget |C1=Tin Nugget |A2=Tin Nugget |B2=Tin Nugget |C2=Tin Nugget |A3=Tin Nugget |B3=Tin Nugget |C3=Tin Nugget |Output=Tin Ingot}}
 
 === Smelting ===
-
-Smelting raw tin or tin ore in a furnace or blast furnace is the most common way to obtain tin ingots:
 
 {{Smelting|head=1
 |name=Tin Ingot |Input=Tin Ore |ingredients=[[Tin Ore]] or Deepslate Tin Ore + Any fuel |Output=Tin Ingot |XP=0.7}}
@@ -34,22 +29,18 @@ Smelting raw tin or tin ore in a furnace or blast furnace is the most common way
 
 == Usage ==
 
-Tin Ingot is the basis of bronze and several tin components.
-
 === Crafting ingredient ===
 
-{{Crafting|head=1|showdescription=1
-|name=[[Bronze Ingot]] |A2=Copper Ingot |B2=Copper Ingot |C2=Copper Ingot |A3=Tin Ingot |Output=Bronze Ingot,4 |description=A shapeless copper-tin alloy.}}
+{{Crafting|head=1
+|name=[[Bronze Ingot]] |A2=Copper Ingot |B2=Copper Ingot |C2=Copper Ingot |A3=Tin Ingot |Output=Bronze Ingot,4}}
 {{Crafting
-|name=[[Tin Gear]] |B1=Tin Ingot |A2=Tin Ingot |B2=Copper Gear |C2=Tin Ingot |B3=Tin Ingot |Output=Tin Gear |description=A tin-tier gear.}}
+|name=[[Tin Gear]] |B1=Tin Ingot |A2=Tin Ingot |B2=Copper Gear |C2=Tin Ingot |B3=Tin Ingot |Output=Tin Gear}}
 {{Crafting
-|name=[[Block of Tin]] |A1=Tin Ingot |B1=Tin Ingot |C1=Tin Ingot |A2=Tin Ingot |B2=Tin Ingot |C2=Tin Ingot |A3=Tin Ingot |B3=Tin Ingot |C3=Tin Ingot |Output=Tin Block |description=Compact storage.}}
+|name=[[Block of Tin]] |A1=Tin Ingot |B1=Tin Ingot |C1=Tin Ingot |A2=Tin Ingot |B2=Tin Ingot |C2=Tin Ingot |A3=Tin Ingot |B3=Tin Ingot |C3=Tin Ingot |Output=Tin Block}}
 {{Crafting|foot=1
-|name=[[Tin Nugget]] |B2=Tin Ingot |Output=Tin Nugget,9 |description=Splits into nuggets.}}
+|name=[[Tin Nugget]] |B2=Tin Ingot |Output=Tin Nugget,9}}
 
 === Grinding ===
-
-Grinding tin in a [[Macerator]] yields [[Dusts|Tin Dust]] — ore doubling makes it the cheapest route to dust:
 
 {{Grinding|head=1
 |Input=Tin Ore |ingredients=[[Tin Ore]] or Deepslate Tin Ore |Output=Tin Dust,2}}
