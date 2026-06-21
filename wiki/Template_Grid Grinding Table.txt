@@ -5,7 +5,7 @@
 |-
 | class="logi-grind-xp" colspan="4" | &nbsp;
 |-
-| class="logi-grid-slot" | {{#if:{{{Input|}}}|{{Grid|{{{Input}}}}}|&nbsp;}}
+| class="logi-grid-slot" | {{#if:{{{Input|}}}|{{Grid Cycle|{{{Input}}}|{{{Input2|}}}|{{{Input3|}}}}}|&nbsp;}}
 | class="logi-grid-arrow" | →
 | class="logi-grid-slot" | {{Grid|{{{Output}}}}}
 | class="logi-grid-count" | {{#if:{{{OutputCount|}}}|×{{{OutputCount}}}}}

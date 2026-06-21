@@ -46,6 +46,10 @@ local function recipeCell(frame, args, outName, outCount)
 	if outCount then g.OutputCount = outCount end
 	local input = trim(args.Input) or trim(args.input)
 	if input then g.Input = input end
+	local input2 = trim(args.Input2) or trim(args.input2)
+	if input2 then g.Input2 = input2 end
+	local input3 = trim(args.Input3) or trim(args.input3)
+	if input3 then g.Input3 = input3 end
 	local fuel = trim(args.Fuel) or trim(args.fuel)
 	if fuel then g.Fuel = fuel end
 	local xp = trim(args.XP) or trim(args.xp)

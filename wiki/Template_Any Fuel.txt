@@ -1,7 +1,7 @@
-<includeonly><templatestyles src="Any Fuel/styles.css" /><span class="logi-fuel" title="Any fuel">[[File:Grid Coal.png|32px|link=|Coal]][[File:Grid Charcoal.png|32px|link=|Charcoal]][[File:Grid Stick.png|32px|link=|Stick]][[File:Grid Blaze Rod.png|32px|link=|Blaze Rod]][[File:Grid Lava Bucket.png|32px|link=|Lava Bucket]][[File:Grid Bamboo.png|32px|link=|Bamboo]]</span></includeonly><noinclude>
+<includeonly>{{Grid Cycle|Coal|Charcoal|Stick|Blaze Rod|Lava Bucket|Bamboo}}</includeonly><noinclude>
 The cycling "any fuel" slot used by [[Template:Smelting]] / [[Template:Grid Smelting Table]] — an
 animation that rotates through representative furnace fuels (coal, charcoal, stick, blaze rod, lava
-bucket, bamboo). Styling: [[Template:Any Fuel/styles.css]].
+bucket, bamboo). A thin wrapper around [[Template:Grid Cycle]].
 
 [[Category:Templates]]
 </noinclude>

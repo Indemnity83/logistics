@@ -25,7 +25,7 @@
 === Smelting ===
 
 {{Smelting|head=1
-|name=Tin Ingot |Input=Tin Ore |ingredients=[[Tin Ore]] or Deepslate Tin Ore + Any fuel |Output=Tin Ingot |XP=0.7}}
+|name=Tin Ingot |Input=Tin Ore |Input2=Deepslate Tin Ore |ingredients=[[Tin Ore]] or Deepslate Tin Ore + Any fuel |Output=Tin Ingot |XP=0.7}}
 {{Smelting
 |name=Tin Ingot |Input=Raw Tin |ingredients=[[Raw Tin]] + Any fuel |Output=Tin Ingot |XP=0.7}}
 {{Smelting|foot=1
@@ -47,7 +47,7 @@
 === Grinding ===
 
 {{Grinding|head=1
-|Input=Tin Ore |ingredients=[[Tin Ore]] or Deepslate Tin Ore |Output=Tin Dust,2}}
+|Input=Tin Ore |Input2=Deepslate Tin Ore |ingredients=[[Tin Ore]] or Deepslate Tin Ore |Output=Tin Dust,2}}
 {{Grinding|foot=1
 |Input=Tin Ingot |Output=Tin Dust}}
 

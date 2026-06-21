@@ -1,0 +1,36 @@
+-- Module:Cycle — renders a slot that cycles through a list of items (for the smelting "any fuel"
+-- slot and for recipes that accept more than one input, e.g. an ore or its deepslate variant).
+-- Clean-room. Stacks the item icons; the animation lives in [[Template:Grid Cycle/styles.css]].
+
+local p = {}
+
+local function trim(s)
+	if s == nil then return nil end
+	s = mw.text.trim(s)
+	if s == '' then return nil end
+	return s
+end
+
+local function icon(it)
+	return '[[File:Grid ' .. it .. '.png|32px|link=|' .. it .. ']]'
+end
+
+function p.render(frame)
+	local args = frame:getParent() and frame:getParent().args or frame.args
+	local items = {}
+	for i = 1, 12 do
+		local v = trim(args[i])
+		if v then items[#items + 1] = v end
+	end
+	if #items == 0 then return '' end
+	if #items == 1 then return icon(items[1]) end
+
+	local n = math.min(#items, 6)
+	local styles = frame:extensionTag{ name = 'templatestyles', args = { src = 'Grid Cycle/styles.css' } }
+	local out = { styles, '<span class="logi-cycle logi-cycle-' .. n .. '">' }
+	for _, it in ipairs(items) do out[#out + 1] = icon(it) end
+	out[#out + 1] = '</span>'
+	return table.concat(out)
+end
+
+return p
