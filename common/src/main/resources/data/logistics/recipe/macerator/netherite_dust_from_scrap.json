@@ -1,0 +1,11 @@
+{
+  "type": "logistics:macerator",
+  "ingredient": {
+    "item": "minecraft:netherite_scrap"
+  },
+  "result": {
+    "id": "logistics:core/netherite_dust",
+    "count": 1
+  },
+  "grindingtime": 200
+}
