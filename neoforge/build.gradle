@@ -56,25 +56,14 @@ tasks.named('compileJava', JavaCompile) {
     source configurations.commonClientJava
 }
 
-// The shared common client source (folded into compileJava above) includes the JEI integration.
-// When JEI is disabled (no upstream artifact for this MC version), exclude it to match common/fabric.
-if (!rootProject.jei_enabled.toBoolean()) {
-    tasks.named('compileJava', JavaCompile) {
-        exclude '**/core/macerator/jei/**'
-    }
-}
-
 tasks.named('compileTestJava', JavaCompile) {
     classpath += tasks.named('compileJava', JavaCompile).get().classpath
 }
 
 dependencies {
-    // JEI — compile against API only; players install separately at runtime.
-    // Gated: no JEI artifact exists for some MC versions (e.g. 26.2 pre-releases).
-    if (rootProject.jei_enabled.toBoolean()) {
-        compileOnly("mezz.jei:jei-${rootProject.minecraft_version}-neoforge-api:${rootProject.jei_version}")
-        runtimeOnly("mezz.jei:jei-${rootProject.minecraft_version}-neoforge:${rootProject.jei_version}")
-    }
+    // JEI — compile against API only; players install separately at runtime
+    compileOnly("mezz.jei:jei-${rootProject.minecraft_version}-neoforge-api:${rootProject.jei_version}")
+    runtimeOnly("mezz.jei:jei-${rootProject.minecraft_version}-neoforge:${rootProject.jei_version}")
 
     // Jade HUD — compile against the API only; never bundled.
     compileOnly("maven.modrinth:jade:${rootProject.jade_neoforge_version}")

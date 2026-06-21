@@ -59,12 +59,9 @@ dependencies {
     include("teamreborn:energy:${rootProject.fabric_energy_version}")
     implementation("teamreborn:energy:${rootProject.fabric_energy_version}")
 
-    // JEI — compile against API only; players install separately at runtime.
-    // Gated: no JEI artifact exists for some MC versions (e.g. 26.2 pre-releases).
-    if (rootProject.jei_enabled.toBoolean()) {
-        compileOnly("mezz.jei:jei-${rootProject.minecraft_version}-fabric:${rootProject.jei_version}")
-        runtimeOnly("mezz.jei:jei-${rootProject.minecraft_version}-fabric:${rootProject.jei_version}")
-    }
+    // JEI — compile against API only; players install separately at runtime
+    compileOnly("mezz.jei:jei-${rootProject.minecraft_version}-fabric:${rootProject.jei_version}")
+    runtimeOnly("mezz.jei:jei-${rootProject.minecraft_version}-fabric:${rootProject.jei_version}")
 
     // Jade HUD — compile against the API on the client source set only; loaded in dev via runClient, never bundled
     clientCompileOnly("maven.modrinth:jade:${rootProject.jade_fabric_version}")
@@ -99,15 +96,6 @@ test {
 
 tasks.withType(JavaCompile).configureEach {
     it.options.release = rootProject.java_version.toInteger()
-}
-
-// The multiloader-loader convention adds common's client source dir to compileClientJava via
-// `source configurations.commonClientJava`, so the (shared) JEI integration compiles here too.
-// When JEI is disabled (no upstream artifact for this MC version), exclude it to match common.
-if (!rootProject.jei_enabled.toBoolean()) {
-    tasks.named('compileClientJava', JavaCompile) {
-        exclude '**/core/macerator/jei/**'
-    }
 }
 
 java {

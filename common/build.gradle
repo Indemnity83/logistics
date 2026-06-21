@@ -38,11 +38,8 @@ dependencies {
     // Team Reborn Energy API (bundled into the Fabric jar via include in fabric/build.gradle)
     implementation("teamreborn:energy:${rootProject.fabric_energy_version}")
 
-    // JEI — compile only; players install separately at runtime.
-    // Gated: no JEI artifact exists for some MC versions (e.g. 26.2 pre-releases).
-    if (rootProject.jei_enabled.toBoolean()) {
-        compileOnly("mezz.jei:jei-${rootProject.minecraft_version}-fabric:${rootProject.jei_version}")
-    }
+    // JEI — compile only; players install separately at runtime
+    compileOnly("mezz.jei:jei-${rootProject.minecraft_version}-fabric:${rootProject.jei_version}")
 
     // Test infrastructure
     testImplementation "org.junit.jupiter:junit-jupiter:${rootProject.junit_version}"
@@ -57,15 +54,6 @@ dependencies {
 sourceSets {
     test {
         java { srcDir 'src/test/java' }
-    }
-}
-
-// When JEI is disabled (no upstream artifact for this MC version), exclude the JEI
-// integration so the client source set compiles without the JEI API on the classpath.
-// The source stays in the tree, so re-enabling is just flipping jei_enabled.
-if (!rootProject.jei_enabled.toBoolean()) {
-    tasks.named('compileClientJava', JavaCompile) {
-        exclude '**/core/macerator/jei/**'
     }
 }
 
