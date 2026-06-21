@@ -40,7 +40,7 @@
 
 ### Fixed
 
-* **core:** repair recipes and item colors ([#508](https://github.com/Indemnity83/logistics/issues/508)) ([021701d](https://github.com/Indemnity83/logistics/commit/021701d92688150fefb70cbb2be75f1c44dc00ae))
+* **core:** repair recipes and item colors ([#508](https://github.com/Indemnity83/logistics/issues/508)) ([021701d](https://github.com/Indemnity83/logistics/commit/021701d92688150fefb70cbb2be75f1c44dc00ae)) — thanks @AdolfoCarneiro
 * **energy:** add crafting recipe for battery ([#510](https://github.com/Indemnity83/logistics/issues/510)) ([e1abd12](https://github.com/Indemnity83/logistics/commit/e1abd1206cecb9f92b3df73c52c811862899b90f))
 
 ## [0.7.1](https://github.com/Indemnity83/logistics/compare/mc1.21.1-v0.7.0...mc1.21.1-v0.7.1) (2026-06-11)
@@ -109,19 +109,22 @@
 ### Bug Fixes
 
 * Improved logistics network reliability and safety by handling failed deliveries, validating/sanitizing config fields, and clamping energy values and transfer amounts to non-negative values. [#397](https://github.com/Indemnity83/logistics/issues/397), [#398](https://github.com/Indemnity83/logistics/issues/398), [#399](https://github.com/Indemnity83/logistics/issues/399)
-* Fixed NeoForge and multi-loader content issues, including reload listener events, JEI Macerator recipe visibility, marking fluid recipe separation, and missing `META-INF` service files. [#366](https://github.com/Indemnity83/logistics/issues/366), [#382](https://github.com/Indemnity83/logistics/issues/382), [#390](https://github.com/Indemnity83/logistics/issues/390), [0897442](https://github.com/Indemnity83/logistics/commit/089744217d8b28ff08d591e5a785d420a45f260f)
+* Fixed NeoForge and multi-loader content issues, including reload listener events, JEI Macerator recipe visibility, marking fluid recipe separation, and missing `META-INF` service files. [#366](https://github.com/Indemnity83/logistics/issues/366), [#382](https://github.com/Indemnity83/logistics/issues/382), [#390](https://github.com/Indemnity83/logistics/issues/390), [0897442](https://github.com/Indemnity83/logistics/commit/089744217d8b28ff08d591e5a785d420a45f260f) — thanks @AdolfoCarneiro
 * Fixed power cable compilation errors for Minecraft 1.21.1. [#359](https://github.com/Indemnity83/logistics/issues/359)
 * Preserved item components in filter pipe slots across save/reload. [#386](https://github.com/Indemnity83/logistics/issues/386)
 
 ### Refactorings
 
-* Reworked the project for multi-loader support, including NeoForge groundwork, loader-agnostic bootstrap flow, service-based platform access, cleaner module boundaries, and build configuration updates. [#306](https://github.com/Indemnity83/logistics/issues/306), [#318](https://github.com/Indemnity83/logistics/issues/318), [#320](https://github.com/Indemnity83/logistics/issues/320), [#341](https://github.com/Indemnity83/logistics/issues/341), [#342](https://github.com/Indemnity83/logistics/issues/342), [#343](https://github.com/Indemnity83/logistics/issues/343), [#344](https://github.com/Indemnity83/logistics/issues/344), [#347](https://github.com/Indemnity83/logistics/issues/347), [#348](https://github.com/Indemnity83/logistics/issues/348), [#360](https://github.com/Indemnity83/logistics/issues/360), [#361](https://github.com/Indemnity83/logistics/issues/361)
+* Reworked the project for multi-loader support, including NeoForge groundwork, loader-agnostic bootstrap flow, service-based platform access, cleaner module boundaries, and build configuration updates. [#306](https://github.com/Indemnity83/logistics/issues/306), [#318](https://github.com/Indemnity83/logistics/issues/318), [#320](https://github.com/Indemnity83/logistics/issues/320), [#341](https://github.com/Indemnity83/logistics/issues/341), [#342](https://github.com/Indemnity83/logistics/issues/342), [#343](https://github.com/Indemnity83/logistics/issues/343), [#344](https://github.com/Indemnity83/logistics/issues/344), [#347](https://github.com/Indemnity83/logistics/issues/347), [#348](https://github.com/Indemnity83/logistics/issues/348), [#360](https://github.com/Indemnity83/logistics/issues/360), [#361](https://github.com/Indemnity83/logistics/issues/361) — thanks @AdolfoCarneiro
 * Introduced loader-agnostic storage, energy, fluid, fuel, item matching, and client model abstractions. [#340](https://github.com/Indemnity83/logistics/issues/340), [#349](https://github.com/Indemnity83/logistics/issues/349), [#351](https://github.com/Indemnity83/logistics/issues/351), [#356](https://github.com/Indemnity83/logistics/issues/356), [#364](https://github.com/Indemnity83/logistics/issues/364), [#389](https://github.com/Indemnity83/logistics/issues/389), [#400](https://github.com/Indemnity83/logistics/issues/400)
 * Cleaned up common code organization and removed remaining Fabric-specific dependencies/imports from shared sources. [#345](https://github.com/Indemnity83/logistics/issues/345), [#350](https://github.com/Indemnity83/logistics/issues/350), [#352](https://github.com/Indemnity83/logistics/issues/352), [#355](https://github.com/Indemnity83/logistics/issues/355)
 
 ### Testing
 
 * Added NeoForge ServiceLoader and energy adapter tests, component coverage, and baseline coverage reporting. [#377](https://github.com/Indemnity83/logistics/issues/377), [#402](https://github.com/Indemnity83/logistics/issues/402)
+
+### New Contributors
+* @AdolfoCarneiro made their first contribution in #306
 
 ## [0.5.5](https://github.com/Indemnity83/logistics/compare/mc1.21.1-v0.5.4...mc1.21.1-v0.5.5) (2026-04-25)
 
@@ -135,8 +138,11 @@
 
 ### Bug Fixes
 
-* add ender dust macerator recipe ([#282](https://github.com/Indemnity83/logistics/issues/282)) ([a82b1c2](https://github.com/Indemnity83/logistics/commit/a82b1c2a76d786bb5e4fbe3658a4a94a862a0e65))
-* use RegistryOps to fix enchanted item crash ([#283](https://github.com/Indemnity83/logistics/issues/283)) ([b9b12be](https://github.com/Indemnity83/logistics/commit/b9b12bed1a1f492832025b437de1eff8cc4d8269))
+* add ender dust macerator recipe ([#282](https://github.com/Indemnity83/logistics/issues/282)) ([a82b1c2](https://github.com/Indemnity83/logistics/commit/a82b1c2a76d786bb5e4fbe3658a4a94a862a0e65)) — thanks @ZayshaaCodes
+* use RegistryOps to fix enchanted item crash ([#283](https://github.com/Indemnity83/logistics/issues/283)) ([b9b12be](https://github.com/Indemnity83/logistics/commit/b9b12bed1a1f492832025b437de1eff8cc4d8269)) — thanks @ZayshaaCodes
+
+### New Contributors
+* @ZayshaaCodes made their first contribution in #282
 
 ## [0.5.3](https://github.com/Indemnity83/logistics/compare/mc1.21.1-v0.5.2...mc1.21.1-v0.5.3) (2026-04-14)
 
@@ -225,7 +231,6 @@
 ### Testing
 
 * add unit, integration, and flow tests for logistics network and modules ([#191](https://github.com/Indemnity83/logistics/issues/191), [#221](https://github.com/Indemnity83/logistics/issues/221), [#223](https://github.com/Indemnity83/logistics/issues/223))
-
 
 ## [0.3.5](https://github.com/Indemnity83/logistics/compare/mc1.21.1-v0.3.4...mc1.21.1-v0.3.5) (2026-02-27)
 
