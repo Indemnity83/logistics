@@ -1,23 +1,69 @@
-{{Stub}}
+{{About|the raw mineral block|the raw item|Raw Tin|the ingot block|Block of Tin|the metal in general|Tin}}
 {{Block
 |image     = Grid Raw Tin Block.png
-|id        = logistics:core/raw_tin_block
 |type      = Block
+|tool      = Stone Pickaxe
+|hardness  = 5
+|blastresistance = 6
+|renewable = No
 |stackable = Yes (64)
 |added     = v0.2.0
 }}
 
-'''Block of Raw Tin''' is a storage block that compacts nine [[Raw Tin]].
+A '''block of raw tin''' is a storage block equivalent to nine [[Raw Tin|raw tin]].
 
 == Obtaining ==
 
+=== Breaking ===
+
+A block of raw tin can be mined only with a stone pickaxe or better. Mined without a pickaxe it drops nothing.
+
+{{Breaking
+|tier=stone
+|name1=Block of Raw Tin |icon1=Grid Raw Tin Block.png |hardness1=5
+}}
+
 === Crafting ===
 
-Craft from nine [[Raw Tin]] arranged in a 3×3 grid; the block unpacks back into nine.
+{{Crafting
+|head=1
+|foot=1
+|name=Block of Raw Tin
+|A1=Raw Tin |B1=Raw Tin |C1=Raw Tin
+|A2=Raw Tin |B2=Raw Tin |C2=Raw Tin
+|A3=Raw Tin |B3=Raw Tin |C3=Raw Tin
+|Output=Raw Tin Block
+}}
+
+== Usage ==
+
+A block of raw tin stores raw tin compactly. It can be unpacked back into nine at any time.
+
+=== Crafting ingredient ===
+
+{{Crafting
+|head=1
+|foot=1
+|name=[[Raw Tin]]
+|B2=Raw Tin Block
+|Output=Raw Tin,9
+}}
+
+== Data values ==
+
+=== ID ===
+
+{{ID|logistics:core/raw_tin_block|block.logistics.core.raw_tin_block}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.2.0|Added '''Block of Raw Tin'''.}}
 
 == See also ==
 
-* [[Tin]] — material overview
-* [[Raw Tin]] — the loose item
+* [[Tin]] - Material overview
+* [[Raw Tin]] - The loose item it stores
+* [[Block of Tin]] - Ingot storage block
+* [[Tin Ore]] - Source of raw tin
 
 [[Category:Materials]]
