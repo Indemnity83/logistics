@@ -20,15 +20,17 @@ local function fmt(n)
 end
 
 -- label, icon, mining speed, harvest level, is-a-pickaxe. "Default" is the bare hand.
+-- Rows show the tier's crafting material (planks/cobble/ingots), not the pickaxe — the pickaxe
+-- heads are nearly identical at this size.
 local TIERS = {
-	{ 'Default',   nil,                          1,  -1, false },
-	{ 'Wooden',    'Grid Wooden Pickaxe.png',    2,   0, true },
-	{ 'Stone',     'Grid Stone Pickaxe.png',     4,   1, true },
-	{ 'Copper',    'Grid Copper Pickaxe.png',    5,   1, true },
-	{ 'Iron',      'Grid Iron Pickaxe.png',      6,   2, true },
-	{ 'Diamond',   'Grid Diamond Pickaxe.png',   8,   3, true },
-	{ 'Netherite', 'Grid Netherite Pickaxe.png', 9,   4, true },
-	{ 'Golden',    'Grid Golden Pickaxe.png',    12,  0, true },
+	{ 'Default',   nil,                       1,  -1, false },
+	{ 'Wooden',    'Grid Oak Planks.png',     2,   0, true },
+	{ 'Stone',     'Grid Cobblestone.png',    4,   1, true },
+	{ 'Copper',    'Grid Copper Ingot.png',   5,   1, true },
+	{ 'Iron',      'Grid Iron Ingot.png',     6,   2, true },
+	{ 'Diamond',   'Grid Diamond.png',        8,   3, true },
+	{ 'Netherite', 'Grid Netherite Ingot.png', 9,  4, true },
+	{ 'Golden',    'Grid Gold Ingot.png',     12,  0, true },
 }
 
 -- Required harvest level by tier name (the block's minimum tool).
