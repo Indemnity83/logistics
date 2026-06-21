@@ -18,9 +18,15 @@ end
 function p.render(frame)
 	local args = frame:getParent() and frame:getParent().args or frame.args
 	local items = {}
+	-- accept either separate positional args or a single ;-separated list (Minecraft-wiki style)
 	for i = 1, 12 do
-		local v = trim(args[i])
-		if v then items[#items + 1] = v end
+		local raw = args[i]
+		if raw then
+			for part in tostring(raw):gmatch('[^;]+') do
+				local v = trim(part)
+				if v then items[#items + 1] = v end
+			end
+		end
 	end
 	if #items == 0 then return '' end
 	if #items == 1 then return icon(items[1]) end

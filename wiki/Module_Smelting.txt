@@ -33,11 +33,17 @@ end
 local function ingredientsCell(args)
 	local ing = trim(args.ingredients)
 	if ing then return ing end
-	local input = trim(args.Input) or trim(args.input) or ''
+	-- split the ;-separated inputs, link those with a page, join the alternatives with "or"
+	local parts = {}
+	for part in (trim(args.Input) or trim(args.input) or ''):gmatch('[^;]+') do
+		local v = trim(part)
+		if v then
+			local t = mw.title.new(v)
+			parts[#parts + 1] = (t and t.exists) and ('[[' .. v .. ']]') or v
+		end
+	end
 	local fuel = trim(args.Fuel) or trim(args.fuel) or 'Any fuel'
-	local t = input ~= '' and mw.title.new(input)
-	if t and t.exists then input = '[[' .. input .. ']]' end
-	return input .. ' + ' .. fuel
+	return table.concat(parts, ' or ') .. ' + ' .. fuel
 end
 
 -- Recipe column: our own furnace widget.
@@ -46,10 +52,6 @@ local function recipeCell(frame, args, outName, outCount)
 	if outCount then g.OutputCount = outCount end
 	local input = trim(args.Input) or trim(args.input)
 	if input then g.Input = input end
-	local input2 = trim(args.Input2) or trim(args.input2)
-	if input2 then g.Input2 = input2 end
-	local input3 = trim(args.Input3) or trim(args.input3)
-	if input3 then g.Input3 = input3 end
 	local fuel = trim(args.Fuel) or trim(args.fuel)
 	if fuel then g.Fuel = fuel end
 	local xp = trim(args.XP) or trim(args.xp)

@@ -3,7 +3,7 @@
 | class="logi-grid-cell" |
 {| class="logi-grid-grid"
 |-
-| class="logi-grid-slot" | {{#if:{{{Input|}}}|{{Grid Cycle|{{{Input}}}|{{{Input2|}}}|{{{Input3|}}}}}|&nbsp;}}
+| class="logi-grid-slot" | {{#if:{{{Input|}}}|{{Grid Cycle|{{{Input}}}}}|&nbsp;}}
 |-
 | class="logi-furnace-fire" | [[File:Grid Furnace Flame.png|18px|link=]]
 |-
