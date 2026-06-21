@@ -1,2 +1,12 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
 reviews:
   review_status: false
+  # Don't append the high-level summary to the PR description.
+  high_level_summary: false
+  auto_review:
+    # Skip release-please PRs (negative match); review everything else.
+    labels:
+      - "!autorelease: pending"
+    # Review PRs targeting any version branch, not just the default branch.
+    base_branches:
+      - "mc/.*"
