@@ -1,0 +1,15 @@
+<includeonly>{{#invoke:LootChest|item|{{{1|}}}}}</includeonly><noinclude>
+Renders the chest-loot table for an item (Item / Structure / Container / Quantity / Chance),
+powered by [[Module:LootChest]]. The mod adds the item to vanilla structure chests; the data and
+drop chances live in the module.
+
+Usage:
+ {{LootChestItem|tin-ingot}}
+
+Known item slugs: raw-tin, tin-ingot, tin-nugget, tin-gear, bronze-ingot, bronze-nugget,
+bronze-gear, apatite, sturdy-casing.
+
+Chance is the item's weight divided by its pool's total weight (each added pool rolls once).
+
+[[Category:Templates]]
+</noinclude>

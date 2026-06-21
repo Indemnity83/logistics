@@ -11,6 +11,10 @@
 
 == Obtaining ==
 
+=== Chest loot ===
+
+{{LootChestItem|tin-ingot}}
+
 === Crafting ===
 
 {{Crafting|head=1

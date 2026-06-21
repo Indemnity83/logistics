@@ -1,0 +1,24 @@
+/* Chest-loot table styling, loaded via <templatestyles> from [[Module:LootChest]] /
+   [[Template:LootChestItem]]. */
+.logi-loot {
+	border-collapse: collapse;
+	margin: 0.5em 0;
+	border: 1px solid #a2a9b1;
+	background: #f8f9fa;
+}
+.logi-loot th,
+.logi-loot td {
+	border: 1px solid #c8ccd1;
+	padding: 5px 9px;
+	text-align: left;
+	vertical-align: middle;
+}
+.logi-loot th {
+	background: #2c3e50;
+	color: #ffffff;
+}
+.logi-loot-item {
+	text-align: center;
+	font-weight: bold;
+	white-space: nowrap;
+}

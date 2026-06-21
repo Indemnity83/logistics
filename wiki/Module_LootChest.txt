@@ -1,0 +1,80 @@
+-- Module:LootChest — renders the chest-loot table for an item.
+-- Clean-room. The data mirrors the mod's chest-loot injection (NeoForgeChestLootModifier /
+-- the Fabric equivalent): each listed structure gets one added loot pool that rolls exactly
+-- once, so an item's chance in that container = its weight / the pool's total weight.
+
+local p = {}
+
+-- item slug -> display name, page, icon
+local ITEMS = {
+	['raw-tin']       = { name = 'Raw Tin',       page = 'Raw Tin',       icon = 'Grid Raw Tin.png' },
+	['tin-ingot']     = { name = 'Tin Ingot',     page = 'Tin Ingot',     icon = 'Grid Tin Ingot.png' },
+	['tin-nugget']    = { name = 'Tin Nugget',    page = 'Tin Nugget',    icon = 'Grid Tin Nugget.png' },
+	['tin-gear']      = { name = 'Tin Gear',      page = 'Tin Gear',      icon = 'Grid Tin Gear.png' },
+	['bronze-ingot']  = { name = 'Bronze Ingot',  page = 'Bronze Ingot',  icon = 'Grid Bronze Ingot.png' },
+	['bronze-nugget'] = { name = 'Bronze Nugget', page = 'Bronze Nugget', icon = 'Grid Bronze Nugget.png' },
+	['bronze-gear']   = { name = 'Bronze Gear',   page = 'Gears',         icon = 'Grid Bronze Gear.png' },
+	['apatite']       = { name = 'Apatite',       page = 'Apatite (gem)', icon = 'Grid Apatite.png' },
+	['sturdy-casing'] = { name = 'Sturdy Casing', page = 'Sturdy Casing', icon = 'Grid Sturdy Casing.png' },
+}
+
+-- each pool: structure, container, and { slug = { weight, min, max } }
+local POOLS = {
+	{ s = 'Mineshaft',       c = 'Chest',             it = { ['raw-tin'] = {10,2,8}, ['apatite'] = {15,4,12} } },
+	{ s = 'Monster Room',    c = 'Chest',             it = { ['raw-tin'] = {8,2,8}, ['tin-nugget'] = {12,5,15}, ['tin-ingot'] = {5,1,3}, ['apatite'] = {15,3,10}, ['tin-gear'] = {4,1,1} } },
+	{ s = 'Village',         c = "Toolsmith's chest", it = { ['tin-nugget'] = {10,5,15}, ['tin-ingot'] = {4,1,3}, ['bronze-nugget'] = {8,4,12}, ['bronze-ingot'] = {3,1,2}, ['apatite'] = {10,3,10}, ['tin-gear'] = {4,1,1}, ['bronze-gear'] = {3,1,1} } },
+	{ s = 'Village',         c = "Armorer's chest",   it = { ['bronze-nugget'] = {10,4,12}, ['bronze-ingot'] = {4,1,2}, ['bronze-gear'] = {4,1,1} } },
+	{ s = 'Stronghold',      c = 'Corridor chest',    it = { ['bronze-nugget'] = {10,4,12}, ['bronze-ingot'] = {4,1,2}, ['bronze-gear'] = {4,1,1}, ['sturdy-casing'] = {3,1,2} } },
+	{ s = 'Buried Treasure', c = 'Chest',             it = { ['tin-nugget'] = {8,8,20}, ['tin-ingot'] = {5,2,5}, ['bronze-nugget'] = {9,6,18}, ['bronze-ingot'] = {6,1,4}, ['apatite'] = {10,6,16}, ['bronze-gear'] = {5,1,3} } },
+	{ s = 'Shipwreck',       c = 'Treasure chest',    it = { ['bronze-nugget'] = {12,6,18}, ['bronze-ingot'] = {6,1,3}, ['bronze-gear'] = {6,1,1} } },
+	{ s = 'Shipwreck',       c = 'Supply chest',      it = { ['raw-tin'] = {8,2,6}, ['tin-ingot'] = {6,1,4}, ['apatite'] = {10,3,8} } },
+	{ s = 'Ruined Portal',   c = 'Chest',             it = { ['tin-ingot'] = {5,1,3}, ['bronze-ingot'] = {4,1,2}, ['tin-gear'] = {3,1,1} } },
+}
+
+local function poolTotal(it)
+	local t = 0
+	for _, e in pairs(it) do t = t + e[1] end
+	return t
+end
+
+local function fmtChance(c)
+	return (string.format('%.1f', c):gsub('%.0$', '')) .. '%'
+end
+
+local function fmtQty(min, max)
+	if min == max then return tostring(min) end
+	return min .. '–' .. max
+end
+
+function p.item(frame)
+	local slug = mw.text.trim(frame.args[1] or (frame:getParent() and frame:getParent().args[1]) or '')
+	local meta = ITEMS[slug]
+	if not meta then
+		return '<strong class="error">Unknown loot item: ' .. mw.text.nowiki(slug) .. '</strong>'
+	end
+
+	local rows = {}
+	for _, pool in ipairs(POOLS) do
+		local e = pool.it[slug]
+		if e then
+			rows[#rows + 1] = { s = pool.s, c = pool.c, qty = fmtQty(e[2], e[3]), chance = e[1] / poolTotal(pool.it) * 100 }
+		end
+	end
+	if #rows == 0 then return '' end
+
+	local styles = frame:extensionTag{ name = 'templatestyles', args = { src = 'LootChestItem/styles.css' } }
+	local out = { '\n{| class="logi-loot sortable"',
+		'\n! Item !! Structure !! Container !! Quantity !! Chance' }
+	for i, r in ipairs(rows) do
+		out[#out + 1] = '\n|-'
+		if i == 1 then
+			out[#out + 1] = '\n| class="logi-loot-item" rowspan="' .. #rows .. '" | [[File:'
+				.. meta.icon .. '|24px|link=' .. meta.page .. ']] [[' .. meta.page .. '|' .. meta.name .. ']]'
+		end
+		out[#out + 1] = '\n| ' .. r.s .. ' || ' .. r.c .. ' || ' .. r.qty .. ' || ' .. fmtChance(r.chance)
+	end
+	out[#out + 1] = '\n|}'
+	return styles .. table.concat(out)
+end
+
+return p
