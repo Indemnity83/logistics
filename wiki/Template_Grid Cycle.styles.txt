@@ -1,6 +1,6 @@
 /* Cycling-slot animation (loaded via <templatestyles> from [[Module:Cycle]] / [[Template:Grid Cycle]]).
    Item icons are stacked; one shows at a time. Each list length N has its own keyframe (visible for
-   1/N of the cycle) at a one-second-per-item cadence. MediaWiki wraps each image in a <span>, so we
+   1/N of the cycle) at a 2-second-per-item cadence. MediaWiki wraps each image in a <span>, so we
    stagger the direct child spans. */
 .logi-cycle {
 	position: relative;
@@ -20,28 +20,28 @@
 	width: 32px;
 	height: 32px;
 }
-.logi-cycle-2 > span { animation: logi-cyc2 2s linear infinite; }
-.logi-cycle-2 > span:nth-child(2) { animation-delay: 1s; }
+.logi-cycle-2 > span { animation: logi-cyc2 4s linear infinite; }
+.logi-cycle-2 > span:nth-child(2) { animation-delay: 2s; }
 @keyframes logi-cyc2 { 0% { opacity: 1; } 49% { opacity: 1; } 50% { opacity: 0; } 100% { opacity: 0; } }
-.logi-cycle-3 > span { animation: logi-cyc3 3s linear infinite; }
-.logi-cycle-3 > span:nth-child(2) { animation-delay: 1s; }
-.logi-cycle-3 > span:nth-child(3) { animation-delay: 2s; }
+.logi-cycle-3 > span { animation: logi-cyc3 6s linear infinite; }
+.logi-cycle-3 > span:nth-child(2) { animation-delay: 2s; }
+.logi-cycle-3 > span:nth-child(3) { animation-delay: 4s; }
 @keyframes logi-cyc3 { 0% { opacity: 1; } 32% { opacity: 1; } 33.33% { opacity: 0; } 100% { opacity: 0; } }
-.logi-cycle-4 > span { animation: logi-cyc4 4s linear infinite; }
-.logi-cycle-4 > span:nth-child(2) { animation-delay: 1s; }
-.logi-cycle-4 > span:nth-child(3) { animation-delay: 2s; }
-.logi-cycle-4 > span:nth-child(4) { animation-delay: 3s; }
+.logi-cycle-4 > span { animation: logi-cyc4 8s linear infinite; }
+.logi-cycle-4 > span:nth-child(2) { animation-delay: 2s; }
+.logi-cycle-4 > span:nth-child(3) { animation-delay: 4s; }
+.logi-cycle-4 > span:nth-child(4) { animation-delay: 6s; }
 @keyframes logi-cyc4 { 0% { opacity: 1; } 24% { opacity: 1; } 25% { opacity: 0; } 100% { opacity: 0; } }
-.logi-cycle-5 > span { animation: logi-cyc5 5s linear infinite; }
-.logi-cycle-5 > span:nth-child(2) { animation-delay: 1s; }
-.logi-cycle-5 > span:nth-child(3) { animation-delay: 2s; }
-.logi-cycle-5 > span:nth-child(4) { animation-delay: 3s; }
-.logi-cycle-5 > span:nth-child(5) { animation-delay: 4s; }
+.logi-cycle-5 > span { animation: logi-cyc5 10s linear infinite; }
+.logi-cycle-5 > span:nth-child(2) { animation-delay: 2s; }
+.logi-cycle-5 > span:nth-child(3) { animation-delay: 4s; }
+.logi-cycle-5 > span:nth-child(4) { animation-delay: 6s; }
+.logi-cycle-5 > span:nth-child(5) { animation-delay: 8s; }
 @keyframes logi-cyc5 { 0% { opacity: 1; } 19% { opacity: 1; } 20% { opacity: 0; } 100% { opacity: 0; } }
-.logi-cycle-6 > span { animation: logi-cyc6 6s linear infinite; }
-.logi-cycle-6 > span:nth-child(2) { animation-delay: 1s; }
-.logi-cycle-6 > span:nth-child(3) { animation-delay: 2s; }
-.logi-cycle-6 > span:nth-child(4) { animation-delay: 3s; }
-.logi-cycle-6 > span:nth-child(5) { animation-delay: 4s; }
-.logi-cycle-6 > span:nth-child(6) { animation-delay: 5s; }
+.logi-cycle-6 > span { animation: logi-cyc6 12s linear infinite; }
+.logi-cycle-6 > span:nth-child(2) { animation-delay: 2s; }
+.logi-cycle-6 > span:nth-child(3) { animation-delay: 4s; }
+.logi-cycle-6 > span:nth-child(4) { animation-delay: 6s; }
+.logi-cycle-6 > span:nth-child(5) { animation-delay: 8s; }
+.logi-cycle-6 > span:nth-child(6) { animation-delay: 10s; }
 @keyframes logi-cyc6 { 0% { opacity: 1; } 16% { opacity: 1; } 16.66% { opacity: 0; } 100% { opacity: 0; } }
