@@ -10,8 +10,10 @@ import com.logistics.core.bootstrap.DomainBootstrap;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.automation.marker.MarkerBlock;
 import com.logistics.automation.marker.MarkerBlockEntity;
-
+import java.util.Comparator;
+import net.minecraft.server.level.TicketType;
 import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -46,6 +48,7 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
         MENU.register();
         CREATIVE.register();
         ALIAS.register();
+        TICKET_TYPE.register();
     }
 
     public static final class BLOCK {
@@ -136,6 +139,18 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
             // automation domain => core domain (quartz_crystal moved)
             INSTANCE.registerBlockAlias("automation/quartz_crystal", LogisticsCore.BLOCK.QUARTZ_CRYSTAL);
             INSTANCE.registerItemAlias("automation/quartz_crystal", LogisticsCore.BLOCK.QUARTZ_CRYSTAL.asItem());
+        }
+    }
+
+    public static final class TICKET_TYPE {
+        private TICKET_TYPE() {}
+
+        public static TicketType<ChunkPos> QUARRY;
+        public static TicketType<ChunkPos> QUARRY_BOUNDARY;
+
+        static void register() {
+            QUARRY = TicketType.create("logistics:quarry", Comparator.comparingLong(ChunkPos::toLong), 20);
+            QUARRY_BOUNDARY = TicketType.create("logistics:quarry_boundary", Comparator.comparingLong(ChunkPos::toLong), 20);
         }
     }
 }

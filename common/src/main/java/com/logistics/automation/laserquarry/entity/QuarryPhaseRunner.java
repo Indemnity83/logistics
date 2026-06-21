@@ -1,5 +1,6 @@
 package com.logistics.automation.laserquarry.entity;
 
+import com.logistics.LogisticsAutomation;
 import com.logistics.automation.laserquarry.LaserQuarryBlock;
 import com.logistics.automation.laserquarry.entity.LaserQuarryBlockEntity.ArmState;
 import com.logistics.automation.laserquarry.entity.LaserQuarryBlockEntity.Phase;
@@ -7,7 +8,11 @@ import com.logistics.core.LogisticsConfig;
 import com.logistics.core.lib.compat.NbtCompat;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ChunkLevel;
+import net.minecraft.server.level.FullChunkStatus;
+import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
@@ -91,12 +96,43 @@ public final class QuarryPhaseRunner {
     // ==================== Tick dispatch ====================
 
     public void tick(LaserQuarryBlockEntity be, ServerLevel world, BlockPos pos, BlockState state) {
+        if (LogisticsConfig.get().quarry.loadChunks) {
+            loadChunks(be, world, pos, state);
+        }
+
         switch (phase) {
             case CLEARING -> tickClearing(be, world, pos, state);
             case BUILDING_FRAME -> tickBuildingFrame(be, world, state);
             case MINING -> tickMining(be, world, state);
             default -> {}
         }
+    }
+
+    private void loadChunks(LaserQuarryBlockEntity be, ServerLevel world, BlockPos pos, BlockState state) {
+        ServerChunkCache chunkCache = world.getChunkSource();
+        QuarryFrameRect frame = QuarryFrameRect.resolve(
+                LaserQuarryBlock.getMiningDirection(state),
+                pos,
+                be.getBounds(),
+                LogisticsConfig.get().quarry.area
+        );
+        if (frame == null) {
+            throw new IllegalStateException("Quarry has null frame");
+        }
+
+        int radius = ChunkLevel.byStatus(FullChunkStatus.FULL) - ChunkLevel.byStatus(FullChunkStatus.BLOCK_TICKING);
+        ChunkPos start = new ChunkPos(new BlockPos(frame.startX(), 0, frame.startZ()));
+        ChunkPos end = new ChunkPos(new BlockPos(frame.endX(), 0, frame.endZ()));
+
+        for (int x = start.x; x <= end.x; x++) {
+            for (int z = start.z; z <= end.z; z++) {
+                ChunkPos chunkPos = new ChunkPos(x, z);
+                chunkCache.addRegionTicket(LogisticsAutomation.TICKET_TYPE.QUARRY_BOUNDARY, chunkPos, radius, chunkPos);
+            }
+        }
+
+        ChunkPos center = new ChunkPos(pos);
+        chunkCache.addRegionTicket(LogisticsAutomation.TICKET_TYPE.QUARRY, center, radius, center);
     }
 
     private void tickClearing(LaserQuarryBlockEntity be, ServerLevel world, BlockPos pos, BlockState state) {
