@@ -1,0 +1,4 @@
+{
+  "parent": "logistics:block/automation/laser_quarry",
+  "textures": { "front": "logistics:block/automation/quarry_on" }
+}

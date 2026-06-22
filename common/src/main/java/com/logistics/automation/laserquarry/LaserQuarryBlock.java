@@ -18,6 +18,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.Mirror;
@@ -30,10 +31,12 @@ import org.jetbrains.annotations.Nullable;
 public class LaserQuarryBlock extends BaseEntityBlock {
     public static final MapCodec<LaserQuarryBlock> CODEC = simpleCodec(LaserQuarryBlock::new);
     public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
+    // True while powered and mining; drives the lit front texture. Not redstone-gated.
+    public static final BooleanProperty ACTIVE = BooleanProperty.create("active");
 
     public LaserQuarryBlock(Properties settings) {
         super(settings);
-        registerDefaultState(defaultBlockState().setValue(FACING, Direction.NORTH));
+        registerDefaultState(defaultBlockState().setValue(FACING, Direction.NORTH).setValue(ACTIVE, false));
     }
 
     @Override
@@ -43,7 +46,7 @@ public class LaserQuarryBlock extends BaseEntityBlock {
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(FACING);
+        builder.add(FACING, ACTIVE);
     }
 
     @Override
