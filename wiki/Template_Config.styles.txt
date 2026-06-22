@@ -1,0 +1,16 @@
+/* Hide the stray <p><br></p> that a stacked {{Config}} row leaves in its last cell. */
+.logi-configtable td p {
+	display: none;
+}
+
+/* Render the config key as a tight, monospace code chip. */
+.logi-configtable .logi-config-key {
+	white-space: nowrap;
+}
+
+.logi-configtable .logi-config-key code {
+	display: inline-block;
+	padding: 2px 6px;
+	border-radius: 3px;
+	background: rgba(127, 127, 127, 0.15);
+}

@@ -74,7 +74,11 @@ Use [[Item Filter Pipe|Item Filter Pipes]] to sort valuable ores and an [[Item V
 
 === Chunk loading ===
 
-By default the quarry only runs while its chunk stays loaded — typically while a player is nearby — and pauses when the area unloads. Enabling the '''Keep chunks loaded''' server option (config key <code>quarry_load_chunks</code>, off by default) makes a running quarry hold itself and its work area loaded, so it keeps mining unattended even when no players are around. The chunk tickets are released once the quarry finishes or is removed.
+By default the quarry only runs while its chunk stays loaded — typically while a player is nearby — and pauses when the area unloads. Turning on the chunk-loading setting makes a running quarry hold itself and its work area loaded, so it keeps mining unattended even when no players are around. The chunk tickets are released once the quarry finishes or is removed.
+
+The setting lives in <code>config/logistics.json</code> and can be changed in-game with the operator-only <code>/logistics config</code> command:
+
+{{Config|head=1|foot=1|quarry_load_chunks|Keep the quarry and its work area chunk-loaded while running.|false|Boolean}}
 
 === Jade HUD ===
 

@@ -1,0 +1,36 @@
+<includeonly>{{#if:{{{head|}}}|<templatestyles src="Config/styles.css" />{{(!}} class="wikitable logi-configtable"
+! Config
+! Description
+! Default
+! Type}}
+{{!}}-
+{{!}} class="logi-config-key" {{!}} <code>{{{1}}}</code>
+{{!}} {{{2}}}
+{{!}} <code>{{{3}}}</code>
+{{!}} {{{4}}}
+{{#if:{{{foot|}}}|{{)!}}}}</includeonly><noinclude>
+Renders one row of a '''config''' table for an option in <code>config/logistics.json</code>. Columns
+are '''Config''' (the key, shown in a code block), '''Description''', '''Default''', and '''Type'''.
+Stack one {{Config}} call per row: '''head=1''' on the first (opens the table + header), '''foot=1'''
+on the last (closes it). A single-row table sets both.
+
+Every option is changed the same way, so the command form is written in page prose rather than
+repeated per row: <code>/logistics config set &lt;config&gt; &lt;value&gt;</code> (operator only;
+<code>get</code>, <code>list</code>, and <code>reload</code> are the other subcommands).
+
+Usage:
+ {{Config|head=1|foot=1|quarry_load_chunks|Keep the quarry and its work area chunk-loaded while running.|false|Boolean}}
+
+ {{Config|head=1|quarry_area|Quarry mining area side length (N×N blocks).|16|Integer}}
+ {{Config|foot=1|quarry_energy_per_block|RF cost per block mined.|60|Integer}}
+
+Parameters:
+ 1   — the config key (as registered for the <code>/logistics config</code> command)
+ 2   — what the setting does
+ 3   — its default value
+ 4   — its type (Boolean, Integer, Number, …)
+ head — set on the first row to open the table + header
+ foot — set on the last row to close the table
+
+[[Category:Templates]]
+</noinclude>
