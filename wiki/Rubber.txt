@@ -1,47 +1,58 @@
 {{Item
 |image     = Grid Rubber Chunk.png
 |type      = Item (Component)
-|function  = Power cable crafting component
 |stackable = Yes (64)
+|added     = v0.6.0
 }}
 
-'''Rubber''' is a flexible crafting component used to insulate [[Cables|power cables]]. It is produced in two steps: a '''Rubber Mix''' is crafted from raw ingredients, then smelted into a finished '''Rubber Chunk'''.
+'''Rubber''' is a flexible crafting component used to insulate [[Cables|power cables]]. It is made in two steps: a '''Rubber Mix''' is crafted from a slime ball and [[Coal Dust]], then smelted to cure it into finished '''Rubber Chunks'''.
 
 == Obtaining ==
 
 === Crafting ===
 
-The Rubber Mix is the raw, unprocessed form:
+Combine a slime ball with one [[Coal Dust]] (shapeless) to make a Rubber Mix:
 
-{{Grid Crafting Table
-|A1=Slime Ball |B1=Coal Dust
+{{Crafting|head=1|foot=1|showname=0
+|A2=Slime Ball |B2=Coal Dust
 |Output=Rubber Mix
 }}
 
-'''Yields:''' 1× Rubber Mix (shapeless: Slime Ball + [[Coal Dust]]). Coal Dust comes from the [[Macerator]] (grind Coal, Charcoal, or Coal Ore).
-
 === Smelting ===
 
-Smelt 1× Rubber Mix in a [[Kiln]] or furnace to cure it into '''2× Rubber Chunk'''.
+Smelt a Rubber Mix in a furnace, blast furnace, or a [[Kiln]] to cure it into '''two''' Rubber Chunks:
+
+{{Smelting|head=1|foot=1|showname=0
+|Input=Rubber Mix
+|Output=Rubber Chunk,2
+|XP=0.1
+}}
 
 == Usage ==
 
-Rubber Chunks insulate power cables:
+=== Crafting ingredient ===
 
-* [[Cables|Copper Cable]] - Standard RF transport cable
-* [[Cables|Gold Cable]] - Higher-rate cable
-* [[Cables|Ender Cable]] - Highest-rate cable
+Rubber Chunks insulate every [[Cables|power cable]] — six chunks wrapped around a conductive core, crafted '''8 at a time''':
 
-=== Tips ===
+{{Crafting|head=1|showdescription=1
+|name=[[Cables|Copper Cable]] |A1=Rubber Chunk |B1=Rubber Chunk |C1=Rubber Chunk |A2=Copper Ingot |B2=Copper Ingot |C2=Copper Ingot |A3=Rubber Chunk |B3=Rubber Chunk |C3=Rubber Chunk |Output=Copper Cable,8 |description=30 RF/t — the cheapest grade.}}
+{{Crafting
+|name=[[Cables|Gold Cable]] |A1=Rubber Chunk |B1=Rubber Chunk |C1=Rubber Chunk |A2=Gold Ingot |B2=Gold Ingot |C2=Gold Ingot |A3=Rubber Chunk |B3=Rubber Chunk |C3=Rubber Chunk |Output=Gold Cable,8 |description=60 RF/t — the mid grade.}}
+{{Crafting|foot=1
+|name=[[Cables|Ender Cable]] |A1=Rubber Chunk |B1=Rubber Chunk |C1=Rubber Chunk |A2=Ender Dust |B2=Gold Ingot |C2=Ender Dust |A3=Rubber Chunk |B3=Rubber Chunk |C3=Rubber Chunk |Output=Ender Cable,8 |description=120 RF/t — the highest throughput.}}
 
-* Smelting one Rubber Mix yields '''two''' Rubber Chunks, so set up a [[Macerator]] → [[Kiln]] line for cheap, bulk rubber.
-* Slime Balls are also used for [[Fluid Pipes|fluid pipe]] crafting — keep a slime farm running.
+A single Rubber Mix smelts into two chunks, so a [[Macerator]] → [[Kiln]] line — grinding coal into [[Coal Dust]] — turns out rubber cheaply in bulk.
 
 == Data values ==
 
 === ID ===
 
-{{ID|head=1|foot=1|logistics:power/rubber_chunk|item.logistics.power.rubber_chunk}}
+{{ID|head=1|logistics:power/rubber_mix|item.logistics.power.rubber_mix|name=Rubber Mix}}
+{{ID|foot=1|logistics:power/rubber_chunk|item.logistics.power.rubber_chunk|name=Rubber Chunk}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.6.0|Added '''Rubber Mix''' and '''Rubber Chunk''' alongside the power cables.}}
 
 == See also ==
 
