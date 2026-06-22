@@ -1,5 +1,61 @@
 # Changelog
 
+## [0.7.4](https://github.com/Indemnity83/logistics/compare/mc26.2-v0.6.1...mc26.2-v0.7.4) (2026-06-21)
+
+
+### ⚠ BREAKING CHANGES
+
+* **energy:** logistics pipe operations consume power ([#465](https://github.com/Indemnity83/logistics/issues/465))
+* **energy:** Logistics pipes now require power from an adjacent Battery. Existing networks stop routing/supplying/crafting — and drop items already in transit — until a charged Battery is connected.
+
+### chore
+
+* **build:** update to released MC 26.2 with official NeoForge beta ([#525](https://github.com/Indemnity83/logistics/issues/525)) ([d9b9daa](https://github.com/Indemnity83/logistics/commit/d9b9daae92de7c87dcf47360d80cf0dceebfdfd1))
+* **core:** force version bump ([f83dafc](https://github.com/Indemnity83/logistics/commit/f83dafcf884941f84696496494db2cbdd2d40892))
+
+
+### Added
+
+* **api:** add loader-independent API for cross-mod fluid integration ([#516](https://github.com/Indemnity83/logistics/issues/516)) ([bc46019](https://github.com/Indemnity83/logistics/commit/bc46019c726b20817a2f5a281fa3929ce246ce6e))
+* **automation:** add configurable laser quarry chunk loading ([#536](https://github.com/Indemnity83/logistics/issues/536)) ([2095caf](https://github.com/Indemnity83/logistics/commit/2095caf4bd769317cbd98de404b1a1e9245a904e))
+* **automation:** show laser quarry status in the Jade HUD ([#498](https://github.com/Indemnity83/logistics/issues/498)) ([0beaace](https://github.com/Indemnity83/logistics/commit/0beaacee007bcacaf9965300e467aa05d59c6f6b))
+* **automation:** show macerator and kiln progress in the Jade HUD ([#499](https://github.com/Indemnity83/logistics/issues/499)) ([9d9944e](https://github.com/Indemnity83/logistics/commit/9d9944e131ecf8b4f62170791ab70614c75200c8))
+* **compat:** integrate Jade and remove the built-in probe ([3979277](https://github.com/Indemnity83/logistics/commit/397927718371980974c507b4c79a33d29ef0891b))
+* **core:** grant ore XP when macerating metal and apatite ores ([#555](https://github.com/Indemnity83/logistics/issues/555)) ([0adb9a7](https://github.com/Indemnity83/logistics/commit/0adb9a7a1719877d3a6ee3ec415a6d0d8ba40c92))
+* **energy:** add a Battery block to power logistics networks ([a711b09](https://github.com/Indemnity83/logistics/commit/a711b09270a6a459dac21e543a840bd5da89d289))
+* **energy:** logistics pipe operations consume power ([#465](https://github.com/Indemnity83/logistics/issues/465)) ([a711b09](https://github.com/Indemnity83/logistics/commit/a711b09270a6a459dac21e543a840bd5da89d289))
+* **energy:** show power diagnostics in the Jade HUD ([#497](https://github.com/Indemnity83/logistics/issues/497)) ([b720220](https://github.com/Indemnity83/logistics/commit/b720220883cfc17f890e9770f62daf772efdc0ba))
+* **pipes:** add copper fluid pipe oxidation and fluid pipe marking ([#520](https://github.com/Indemnity83/logistics/issues/520)) ([dda9508](https://github.com/Indemnity83/logistics/commit/dda95084150f6f56c35c8803758be71ea39ac37c))
+* **pipes:** add fluid pipes, tanks, and powered fluid extraction ([#511](https://github.com/Indemnity83/logistics/issues/511)) ([c04a76a](https://github.com/Indemnity83/logistics/commit/c04a76a0c30e45592299091a76ae89bd876e9e12))
+* **pipes:** add fluid pump ([#537](https://github.com/Indemnity83/logistics/issues/537)) ([2dfdc3b](https://github.com/Indemnity83/logistics/commit/2dfdc3b152d96108f0110e68a823a1abc21f24f5))
+* **pipes:** show pipe contents in the Jade HUD ([#500](https://github.com/Indemnity83/logistics/issues/500)) ([b53ee0c](https://github.com/Indemnity83/logistics/commit/b53ee0c47e3458e79f6fa091f5157c0947b687b0))
+* **pipes:** show pipe module status in the Jade HUD ([#493](https://github.com/Indemnity83/logistics/issues/493)) ([86b7f72](https://github.com/Indemnity83/logistics/commit/86b7f729523280a318689be8174409d1d36faa03))
+* **ui:** color logistics pipes green when powered, red when not ([#469](https://github.com/Indemnity83/logistics/issues/469)) ([d9f9d60](https://github.com/Indemnity83/logistics/commit/d9f9d60519c9b5d665ccc3f641749a57613ed261))
+
+
+### Fixed
+
+* **automation:** add missing macerator recipes for obsidian, netherite, and metal blocks ([#554](https://github.com/Indemnity83/logistics/issues/554)) ([f5b7304](https://github.com/Indemnity83/logistics/commit/f5b7304c5f8816b7055fbf5f84276729a4b11fd7))
+* **automation:** stop the macerator from trying to load other mods' recipes ([#473](https://github.com/Indemnity83/logistics/issues/473)) ([f347495](https://github.com/Indemnity83/logistics/commit/f3474952fdbe8b879f218e9c6343e144c6799985))
+* **compat:** hide fluid extractor energy in Jade ([#533](https://github.com/Indemnity83/logistics/issues/533)) ([441669e](https://github.com/Indemnity83/logistics/commit/441669e67ae130841e3320122633caba79d648d5))
+* **energy:** add crafting recipe for battery ([#510](https://github.com/Indemnity83/logistics/issues/510)) ([a101ad3](https://github.com/Indemnity83/logistics/commit/a101ad355dc8d27caa858d3f106f512460e8cfc1))
+* **energy:** fix crash when cables power machines from other mods ([#556](https://github.com/Indemnity83/logistics/issues/556)) ([56f1d44](https://github.com/Indemnity83/logistics/commit/56f1d449cfa92148b72ced98283f30528194a5fb))
+* **energy:** make engines visibly change color with heat stage ([#482](https://github.com/Indemnity83/logistics/issues/482)) ([681de24](https://github.com/Indemnity83/logistics/commit/681de2436cd9e926ed7b861fceef66aec447a1ee))
+* **neoforge:** correct energy bridge insert/extract accounting ([e10bdfe](https://github.com/Indemnity83/logistics/commit/e10bdfeab1966cd4b8e17a65a9643e18df87e7c6))
+* **neoforge:** fix startup crash when JEI is on the classpath ([#453](https://github.com/Indemnity83/logistics/issues/453)) ([d45efef](https://github.com/Indemnity83/logistics/commit/d45efefa3640efd8154c5984492be0fadfe67d3c))
+* **pipes:** apply config changes to modules installed in a chassis ([#504](https://github.com/Indemnity83/logistics/issues/504)) ([19b2a61](https://github.com/Indemnity83/logistics/commit/19b2a61594bf11fc835a026da6bcf5ce2cd1cf99)), closes [#494](https://github.com/Indemnity83/logistics/issues/494)
+* **pipes:** fix fluid pipe drain flicker ([#532](https://github.com/Indemnity83/logistics/issues/532)) ([eec7f47](https://github.com/Indemnity83/logistics/commit/eec7f47df920ee23f4cf4516627afde3cda073ea))
+* **ui:** fix glass tank capacity overlay with held items ([#534](https://github.com/Indemnity83/logistics/issues/534)) ([bbe20d4](https://github.com/Indemnity83/logistics/commit/bbe20d457c3748d37175e554cf9e4ffedc1e6b35))
+
+
+### Improved
+
+* **automation:** reduce memory and load time for machine rendering ([f858416](https://github.com/Indemnity83/logistics/commit/f858416733564b6442f10a0c26023725b869d43f))
+* **automation:** reduce memory and load time for machine rendering ([#451](https://github.com/Indemnity83/logistics/issues/451)) ([f858416](https://github.com/Indemnity83/logistics/commit/f858416733564b6442f10a0c26023725b869d43f))
+* **energy:** reduce memory and load time for cable rendering ([#449](https://github.com/Indemnity83/logistics/issues/449)) ([1adf690](https://github.com/Indemnity83/logistics/commit/1adf6905136ea456d5a3763da06f7bf1ce4f49d6))
+* **pipes:** reduce memory and load time for pipe rendering ([c0bb14f](https://github.com/Indemnity83/logistics/commit/c0bb14fe0af13a0ab3fab4dae625fbe5c4a297af))
+* **pipes:** reduce memory and load time for pipe rendering ([#450](https://github.com/Indemnity83/logistics/issues/450)) ([c0bb14f](https://github.com/Indemnity83/logistics/commit/c0bb14fe0af13a0ab3fab4dae625fbe5c4a297af))
+
 ## [0.6.1](https://github.com/Indemnity83/logistics/compare/mc26.1-v0.6.0...mc26.1-v0.6.1) (2026-06-02)
 
 
