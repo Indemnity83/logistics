@@ -72,6 +72,10 @@ Mined items output from the top of the quarry into any connected inventory or pi
 
 Use [[Item Filter Pipe|Item Filter Pipes]] to sort valuable ores and an [[Item Void Pipe]] to discard cobblestone and dirt overflow. Set up sorting before starting large-scale mining.
 
+=== Chunk loading ===
+
+By default the quarry only runs while its chunk stays loaded — typically while a player is nearby — and pauses when the area unloads. Enabling the '''Keep chunks loaded''' server option (config key <code>quarry_load_chunks</code>, off by default) makes a running quarry hold itself and its work area loaded, so it keeps mining unattended even when no players are around. The chunk tickets are released once the quarry finishes or is removed.
+
 === Jade HUD ===
 
 With [https://www.curseforge.com/minecraft/mc-mods/jade Jade] installed, looking at a Laser Quarry shows its live status in the HUD — including its working state and mining progress — so you can monitor it without opening the GUI.
@@ -84,7 +88,8 @@ With [https://www.curseforge.com/minecraft/mc-mods/jade Jade] installed, looking
 
 == History ==
 
-{{History|head=1|foot=1|v0.1.0|Added '''Laser Quarry'''.}}
+{{History|head=1|v0.1.0|Added '''Laser Quarry'''.}}
+{{History|foot=1|v0.7.4|Added an optional '''Keep chunks loaded''' setting so the quarry can mine unattended.}}
 
 == See also ==
 * [[Marker]] - Define a custom mining area

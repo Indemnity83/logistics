@@ -5,11 +5,16 @@
 |added     = v0.2.0
 }}
 
-'''Netherite Dust''' is a dust used to craft the [[Netherite Core]]. It currently has no grinding recipe, so it cannot be obtained in survival.
+'''Netherite Dust''' is ground from ancient debris (or netherite scrap) in a [[Macerator]], and is used to craft the [[Netherite Core]].
 
 == Obtaining ==
 
-This dust has no obtaining recipe in the current version.
+=== Grinding ===
+
+{{Grinding|head=1|showname=0|foot=1
+|Input=Ancient Debris;Netherite Scrap
+|Output=Netherite Dust,1
+}}
 
 == Usage ==
 
@@ -31,7 +36,8 @@ This dust has no obtaining recipe in the current version.
 
 == History ==
 
-{{History|head=1|foot=1|v0.2.0|Added '''Netherite Dust'''.}}
+{{History|head=1|v0.2.0|Added '''Netherite Dust'''.}}
+{{History|foot=1|v0.7.4|Now obtainable — added a grinding recipe from ancient debris and netherite scrap.}}
 
 == See also ==
 

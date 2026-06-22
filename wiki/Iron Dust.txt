@@ -14,6 +14,7 @@
 {{Grinding|head=1|showname=0
 |Input=Iron Ore;Deepslate Iron Ore
 |Output=Iron Dust,2
+|XP=0.7
 }}
 
 {{Grinding|showname=0
@@ -61,7 +62,8 @@ Smelt it in a furnace, blast furnace, or a [[Kiln]]:
 
 == History ==
 
-{{History|head=1|foot=1|v0.2.0|Added '''Iron Dust'''.}}
+{{History|head=1|v0.2.0|Added '''Iron Dust'''.}}
+{{History|foot=1|v0.7.4|Grinding iron ore now grants experience.}}
 
 == See also ==
 

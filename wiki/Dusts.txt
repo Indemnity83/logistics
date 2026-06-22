@@ -20,8 +20,6 @@
 * [[File:Grid Obsidian Dust.png|24px|link=Obsidian Dust]] '''[[Obsidian Dust]]'''
 * [[File:Grid Netherite Dust.png|24px|link=Netherite Dust]] '''[[Netherite Dust]]'''
 
-'''Obsidian Dust''' and '''Netherite Dust''' are used by their [[Cores|cores]] but currently have no grinding recipe.
-
 == Ore doubling ==
 
 The main use of metal dusts is doubling ore output. Grinding one ore block produces '''two''' dust, and smelting each dust yields one ingot — twice what you get smelting the ore directly:
@@ -29,7 +27,7 @@ The main use of metal dusts is doubling ore output. Grinding one ore block produ
 * '''Direct:''' Tin Ore → furnace → 1× [[Tin Ingot]]
 * '''Doubled:''' Tin Ore → [[Macerator]] → 2× [[Tin Dust]] → furnace or [[Kiln]] → 2× [[Tin Ingot]]
 
-Dust-to-ingot smelting grants no experience — the ore's smelting experience is collected only on the direct path.
+Grinding the source ore in the [[Macerator]] grants the same experience the furnace would, so ore doubling no longer costs any experience. (Smelting the dust itself grants none.)
 
 == See also ==
 

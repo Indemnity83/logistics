@@ -53,13 +53,14 @@ Smelt tin ore in a furnace, blast furnace, or a [[Kiln]] (RF-powered, no fuel) t
 
 === Grinding ===
 
-Grind tin ore in a [[Macerator]] for two [[Tin Dust]] per ore — an ore-doubling step, since each dust then smelts into a full ingot:
+Grind tin ore in a [[Macerator]] for two [[Tin Dust]] per ore — an ore-doubling step that also grants experience, since each dust then smelts into a full ingot:
 
 {{Grinding
 |head=1
 |foot=1
 |Input=Tin Ore;Deepslate Tin Ore
 |Output=Tin Dust,2
+|XP=0.7
 }}
 
 == Data values ==
@@ -71,7 +72,8 @@ Grind tin ore in a [[Macerator]] for two [[Tin Dust]] per ore — an ore-doublin
 
 == History ==
 
-{{History|head=1|foot=1|v0.2.0|Added '''Tin Ore''' and '''Deepslate Tin Ore'''.}}
+{{History|head=1|v0.2.0|Added '''Tin Ore''' and '''Deepslate Tin Ore'''.}}
+{{History|foot=1|v0.7.4|Grinding tin ore now grants experience.}}
 
 == See also ==
 

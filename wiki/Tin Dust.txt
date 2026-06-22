@@ -5,7 +5,7 @@
 |added     = v0.2.0
 }}
 
-'''Tin Dust''' is ground from [[Tin Ore|tin ore]] (or a [[Tin Ingot|tin ingot]]) in a [[Macerator]].
+'''Tin Dust''' is ground from [[Tin Ore|tin ore]] (or a [[Tin Ingot|tin ingot]] or [[Block of Tin|block]]) in a [[Macerator]].
 
 == Obtaining ==
 
@@ -14,6 +14,12 @@
 {{Grinding|head=1|showname=0
 |Input=Tin Ore;Deepslate Tin Ore
 |Output=Tin Dust,2
+|XP=0.7
+}}
+
+{{Grinding|showname=0
+|Input=Block of Tin;Block of Raw Tin
+|Output=Tin Dust,9
 }}
 
 {{Grinding|showname=0|foot=1
@@ -49,7 +55,8 @@ Smelt it in a furnace, blast furnace, or a [[Kiln]]:
 
 == History ==
 
-{{History|head=1|foot=1|v0.2.0|Added '''Tin Dust'''.}}
+{{History|head=1|v0.2.0|Added '''Tin Dust'''.}}
+{{History|foot=1|v0.7.4|Tin and raw tin blocks can now be ground into dust; grinding tin ore now grants experience.}}
 
 == See also ==
 

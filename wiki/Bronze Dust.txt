@@ -5,13 +5,18 @@
 |added     = v0.2.0
 }}
 
-'''Bronze Dust''' is a dust produced by grinding a [[Bronze Ingot|bronze ingot]], or crafted directly from [[Copper Dust|copper]] and [[Tin Dust|tin]] dust.
+'''Bronze Dust''' is a dust produced by grinding a [[Bronze Ingot|bronze ingot]] or [[Block of Bronze|block]], or crafted directly from [[Copper Dust|copper]] and [[Tin Dust|tin]] dust.
 
 == Obtaining ==
 
 === Grinding ===
 
-{{Grinding|head=1|showname=0|foot=1
+{{Grinding|head=1|showname=0
+|Input=Block of Bronze
+|Output=Bronze Dust,9
+}}
+
+{{Grinding|showname=0|foot=1
 |Input=Bronze Ingot
 |Output=Bronze Dust,1
 }}
@@ -71,7 +76,8 @@ Smelt it in a furnace, blast furnace, or a [[Kiln]]:
 
 == History ==
 
-{{History|head=1|foot=1|v0.2.0|Added '''Bronze Dust'''.}}
+{{History|head=1|v0.2.0|Added '''Bronze Dust'''.}}
+{{History|foot=1|v0.7.4|Blocks of bronze can now be ground into dust.}}
 
 == See also ==
 

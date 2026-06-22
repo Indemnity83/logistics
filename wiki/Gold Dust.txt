@@ -14,6 +14,13 @@
 {{Grinding|head=1|showname=0
 |Input=Gold Ore;Deepslate Gold Ore
 |Output=Gold Dust,2
+|XP=1.0
+}}
+
+{{Grinding|showname=0
+|Input=Nether Gold Ore
+|Output=Gold Dust,1
+|XP=1.0
 }}
 
 {{Grinding|showname=0
@@ -22,7 +29,7 @@
 }}
 
 {{Grinding|showname=0|foot=1
-|Input=Gold Ingot;Nether Gold Ore
+|Input=Gold Ingot
 |Output=Gold Dust,1
 }}
 
@@ -45,7 +52,8 @@ Smelt it in a furnace, blast furnace, or a [[Kiln]]:
 
 == History ==
 
-{{History|head=1|foot=1|v0.2.0|Added '''Gold Dust'''.}}
+{{History|head=1|v0.2.0|Added '''Gold Dust'''.}}
+{{History|foot=1|v0.7.4|Grinding gold ore (and nether gold ore) now grants experience.}}
 
 == See also ==
 
