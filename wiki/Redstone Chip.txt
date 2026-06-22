@@ -11,12 +11,21 @@
 
 === Crafting ===
 
-{{Crafting|head=1|foot=1
-|showname=0
+The binder differs by version — a resin clump on Minecraft 1.21.11 and newer, or a slime ball on 1.21.1:
+
+{{Crafting|head=1|showname=0|showdescription=1
 |A1=Ender Dust |B1=Resin Clump |C1=Ender Dust
 |A2=Ender Dust |B2=Redstone |C2=Ender Dust
 |A3=Ender Dust |B3=Silicon Wafer |C3=Ender Dust
 |Output=Redstone Chip,4
+|description=For Minecraft 1.21.11 and beyond.
+}}
+{{Crafting|foot=1|showname=0|showdescription=1
+|A1=Ender Dust |B1=Slime Ball |C1=Ender Dust
+|A2=Ender Dust |B2=Redstone |C2=Ender Dust
+|A3=Ender Dust |B3=Silicon Wafer |C3=Ender Dust
+|Output=Redstone Chip,4
+|description=For Minecraft 1.21.1.
 }}
 
 == Usage ==
