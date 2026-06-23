@@ -1,10 +1,12 @@
 {
   "type": "minecraft:crafting_shaped",
-  "pattern": ["FFF", "IMI", "III"],
+  "pattern": [" P ", "FMF", "GCG"],
   "key": {
+    "P": "minecraft:piston",
     "F": "minecraft:flint",
-    "I": "minecraft:iron_ingot",
-    "M": "logistics:automation/machine_core"
+    "M": "logistics:automation/machine_core",
+    "G": "logistics:core/copper_gear",
+    "C": "logistics:automation/redstone_reception_coil"
   },
   "result": { "id": "logistics:automation/macerator", "count": 1 }
 }
