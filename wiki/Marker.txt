@@ -1,8 +1,12 @@
-{{Item
+{{Block
 |image     = Grid Marker.png
-|type      = Block
-|function  = Defines the Laser Quarry mining area
+|type      = Block (Utility)
+|function  = Defines a custom Laser Quarry mining area
+|hardness  = 0
+|blastresistance = 0
+|drops     = Marker
 |stackable = Yes (64)
+|added     = v0.1.0
 }}
 
 The '''Marker''' is a placement aid used to define a custom mining area for the [[Laser Quarry]]. Place markers to outline the region you want to excavate instead of relying on the quarry's default 16×16 footprint.
@@ -11,13 +15,13 @@ The '''Marker''' is a placement aid used to define a custom mining area for the 
 
 === Crafting ===
 
-{{Grid Crafting Table
+{{Crafting|head=1|foot=1|showname=0
 |A1=Lapis Dust
 |A2=Stick
-|Output=Marker |OutputCount=2
+|Output=Marker,2
 }}
 
-'''Yields:''' 2× Marker (1× [[Lapis Dust]] over 1× Stick). Lapis Dust comes from the [[Macerator]] (grind Lapis Ore or Lapis Block), so set up processing first.
+Yields 2× Marker from one [[Lapis Dust]] stacked over a stick. Lapis Dust comes from the [[Macerator]] (grind lapis ore or a lapis block).
 
 == Usage ==
 
@@ -26,15 +30,12 @@ Markers work together to mark out a rectangular mining boundary for the [[Laser 
 === Defining an area ===
 
 # '''Place three markers in a right-triangle (L-shape)''' to outline two perpendicular edges of the desired area.
-# '''Activate''' the markers to project the resulting rectangular boundary.
+# '''Activate''' the markers with the [[Wrench]] to project the resulting rectangular boundary.
 # '''Place a [[Laser Quarry]]''' adjacent to the marked boundary; it mines the custom region instead of the default 16×16 footprint.
 
-The area must meet a '''minimum size'''; too-small layouts are rejected. A successful activation reports the defined area size (e.g. ''area defined: 9x9''). Markers refuse activation if there are not three markers in a right triangle, or if the resulting area is below the minimum size.
+A successful activation reports the defined area size (e.g. ''area defined: 9x9''). Activation fails if there are not three markers in a right triangle, or if the resulting area is below the minimum size. Wrenching an active marker again deactivates the connected set.
 
-=== Tips ===
-
-* Use markers to avoid mining your base, important terrain, or other quarries.
-* Without markers the [[Laser Quarry]] simply mines its default 16×16 area.
+Markers have no collision — you can walk through them — and break instantly with any tool, dropping themselves. Use them to keep the quarry off your base, important terrain, or a neighbouring quarry; without markers the [[Laser Quarry]] just mines its default 16×16 area.
 
 == Data values ==
 
@@ -42,11 +43,16 @@ The area must meet a '''minimum size'''; too-small layouts are rejected. A succe
 
 {{ID|head=1|foot=1|logistics:core/marker|block.logistics.core.marker}}
 
+== History ==
+
+{{History|head=1|foot=1|v0.1.0|Added '''Marker''' with the [[Laser Quarry]].}}
+
 == See also ==
 
 * [[Laser Quarry]] - The machine that uses marked areas
-* [[Tools]] - Other configuration and utility items
+* [[Wrench]] - Activates and deactivates markers
 * [[Lapis Dust]] - Crafting ingredient, from the [[Macerator]]
 * [[Macerator]] - Produces Lapis Dust
+* [[Tools]] - Other configuration and utility items
 
 [[Category:Tools]]
