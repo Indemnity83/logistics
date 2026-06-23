@@ -321,6 +321,11 @@ def main():
     ap.add_argument("--pages", action="store_true", help="upload wiki/*.txt pages")
     ap.add_argument("--media", action="store_true", help="upload icons from the asset map")
     ap.add_argument("--all", action="store_true", help="pages and media")
+    ap.add_argument("--pull", action="store_true",
+                    help="reverse of --pages: download the live wikitext for the selected pages "
+                         "into wiki/*.txt so local picks up edits made on the wiki. Run this "
+                         "(and commit/reconcile) BEFORE editing and pushing, so a push never "
+                         "silently clobbers someone's on-wiki change.")
     ap.add_argument("--only", nargs="*", metavar="STEM",
                     help="restrict to these page file stems (e.g. --only main); with --media "
                          "--used-only, limits icons to those referenced by these pages")
@@ -341,8 +346,8 @@ def main():
 
     do_pages = args.pages or args.all
     do_media = args.media or args.all
-    if not (do_pages or do_media):
-        ap.error("choose --pages, --media, or --all")
+    if not (do_pages or do_media or args.pull):
+        ap.error("choose --pages, --media, --all, or --pull")
     if not args.api and not args.site:
         ap.error("pass --site https://yourwiki.fandom.com (or --api .../api.php)")
     if not args.user or not args.password:
@@ -357,6 +362,35 @@ def main():
     wiki.login(args.user, args.password)
 
     only = set(args.only) if args.only else None
+
+    if args.pull:
+        files = sorted([f for f in os.listdir(args.wiki_dir)
+                        if f.endswith(".txt") and (only is None or f[:-4] in only)],
+                       key=page_sort_key)
+        print(f"\n=== Pull: {len(files)} pages ===")
+        main_title = wiki.site_mainpage() or "Main Page"
+        tally = {}
+        for i, fn in enumerate(files, 1):
+            title = main_title if fn == "main.txt" else page_title(fn)
+            path = os.path.join(args.wiki_dir, fn)
+            live = wiki.page_text(title)
+            local = open(path, encoding="utf-8").read()
+            if live is None:
+                result = "absent"          # not on the wiki (local-only page)
+            elif live.rstrip("\n") == local.rstrip("\n"):
+                result = "in-sync"
+            elif args.dry_run:
+                result = "would-update"
+            else:
+                with open(path, "w", encoding="utf-8") as fh:
+                    fh.write(live if live.endswith("\n") else live + "\n")
+                result = "updated"
+            tally[result] = tally.get(result, 0) + 1
+            if result != "in-sync" or i % 50 == 0:
+                print(f"  [{i}/{len(files)}] {result:12} {title}")
+        print("  pull:", dict(sorted(tally.items())))
+        if tally.get("updated") or tally.get("would-update"):
+            print("  ! local pages changed — review/commit before editing & pushing.")
 
     if do_pages:
         files = sorted([f for f in os.listdir(args.wiki_dir)
