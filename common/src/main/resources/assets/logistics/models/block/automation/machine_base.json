@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/orientable_with_bottom",
+  "textures": {
+    "top": "logistics:block/automation/top",
+    "bottom": "logistics:block/automation/bottom",
+    "side": "logistics:block/automation/side"
+  }
+}

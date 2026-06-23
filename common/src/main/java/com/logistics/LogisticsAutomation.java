@@ -7,13 +7,18 @@ import com.logistics.automation.laserquarry.LaserQuarryBlock;
 import com.logistics.automation.laserquarry.LaserQuarryFrameBlock;
 import com.logistics.automation.laserquarry.entity.LaserQuarryBlockEntity;
 import com.logistics.core.bootstrap.DomainBootstrap;
+import com.logistics.core.lib.platform.CreativeTabRegistrar;
+import com.logistics.core.lib.platform.LogisticsCreativeTab;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.automation.marker.MarkerBlock;
 import com.logistics.automation.marker.MarkerBlockEntity;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.TicketType;
 import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -43,12 +48,26 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
     public void initCommon() {
         LOGGER.info("Registering {}", domain());
 
+        ITEM.register();
         BLOCK.register();
         ENTITY.register();
         MENU.register();
         CREATIVE.register();
         ALIAS.register();
         TICKET_TYPE.register();
+    }
+
+    public static final class ITEM {
+        private ITEM() {}
+
+        // Shared machine components — only ever used in machine recipes, so they live here.
+        public static Item MACHINE_CORE;
+        public static Item REDSTONE_RECEPTION_COIL;
+
+        static void register() {
+            MACHINE_CORE = INSTANCE.registerItem("machine_core", Item::new);
+            REDSTONE_RECEPTION_COIL = INSTANCE.registerItem("redstone_reception_coil", Item::new);
+        }
     }
 
     public static final class BLOCK {
@@ -99,12 +118,23 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
     }
 
     public static final class CREATIVE {
+        public static final LogisticsCreativeTab TAB = LogisticsCreativeTab.create(
+            LogisticsMod.modId("automation"),
+            Component.translatable("itemGroup.logistics.automation"),
+            () -> new ItemStack(ITEM.MACHINE_CORE)
+        );
+
         private CREATIVE() {}
 
         static void register() {
-            LogisticsCore.CREATIVE.TAB.add(BLOCK.MARKER);
-            LogisticsCore.CREATIVE.TAB.add(BLOCK.LASER_QUARRY);
-            LogisticsCore.CREATIVE.TAB.add(BLOCK.KILN);
+            // Machine components, then the machines themselves. (Macerator joins when its
+            // domain move lands.)
+            TAB.add(ITEM.MACHINE_CORE);
+            TAB.add(ITEM.REDSTONE_RECEPTION_COIL);
+            TAB.add(BLOCK.KILN);
+            TAB.add(BLOCK.LASER_QUARRY);
+            TAB.add(BLOCK.MARKER);
+            CreativeTabRegistrar.INSTANCE.registerTab(TAB);
         }
     }
 
@@ -112,6 +142,9 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
         private ALIAS() {}
 
         static void register() {
+            // core domain => automation domain (machine frame moved)
+            INSTANCE.registerItemAlias("core/machine_core", ITEM.MACHINE_CORE);
+
             // v0.2 => v0.3
             INSTANCE.registerBlockAlias("marker", BLOCK.MARKER);
             INSTANCE.registerBlockEntityAlias("marker", ENTITY.MARKER_BLOCK_ENTITY);

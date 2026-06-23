@@ -4,7 +4,7 @@
   "key": {
     "R": "minecraft:redstone",
     "I": "minecraft:iron_ingot",
-    "M": "logistics:core/machine_core"
+    "M": "logistics:automation/machine_core"
   },
   "result": { "id": "logistics:automation/kiln", "count": 1 }
 }
