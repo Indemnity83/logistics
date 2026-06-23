@@ -148,7 +148,7 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         public static Item SILICON_MIX;
         public static Item SILICON_WAFER;
         public static Item FLOUR;
-        public static Item WOOD_PULP;
+        public static Item SAWDUST;
 
         // Chips — logic components for pipe modules
         public static Item CARBON_CHIP;
@@ -239,7 +239,7 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
             SILICON_MIX = INSTANCE.registerItem("silicon_mix", Item::new);
             SILICON_WAFER = INSTANCE.registerItem("silicon_wafer", Item::new);
             FLOUR = INSTANCE.registerItem("flour", Item::new);
-            WOOD_PULP = INSTANCE.registerItem("wood_pulp", Item::new);
+            SAWDUST = INSTANCE.registerItem("sawdust", Item::new);
 
             // Chips
             CARBON_CHIP = INSTANCE.registerItem("carbon_chip", Item::new);
@@ -412,7 +412,7 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
                     ITEM.AMETHYST_DUST, ITEM.DIAMOND_DUST, ITEM.EMERALD_DUST,
                     ITEM.NETHERITE_DUST, ITEM.OBSIDIAN_DUST, ITEM.ENDER_DUST,
                     ITEM.ECHO_DUST, ITEM.PRISMARINE_DUST,
-                    ITEM.SILICON_MIX, ITEM.SILICON_WAFER, ITEM.FLOUR, ITEM.WOOD_PULP,
+                    ITEM.SILICON_MIX, ITEM.SILICON_WAFER, ITEM.FLOUR, ITEM.SAWDUST,
                     ITEM.CARBON_CHIP, ITEM.REDSTONE_CHIP, ITEM.AMETHYST_CHIP, ITEM.ECHO_CHIP,
                     ITEM.WOODEN_CORE,
                     ITEM.COPPER_CORE, ITEM.BRONZE_CORE,
@@ -456,6 +456,9 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
             INSTANCE.registerItemAlias("gold_gear", ITEM.GOLD_GEAR);
             INSTANCE.registerItemAlias("diamond_gear", ITEM.DIAMOND_GEAR);
             INSTANCE.registerItemAlias("netherite_gear", ITEM.NETHERITE_GEAR);
+
+            // wood_pulp renamed to sawdust
+            INSTANCE.registerItemAlias("core/wood_pulp", ITEM.SAWDUST);
         }
     }
 }

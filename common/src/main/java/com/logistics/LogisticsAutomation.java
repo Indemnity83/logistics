@@ -6,6 +6,12 @@ import com.logistics.automation.kiln.KilnScreenHandler;
 import com.logistics.automation.laserquarry.LaserQuarryBlock;
 import com.logistics.automation.laserquarry.LaserQuarryFrameBlock;
 import com.logistics.automation.laserquarry.entity.LaserQuarryBlockEntity;
+import com.logistics.automation.sawmill.SawmillBlock;
+import com.logistics.automation.sawmill.SawmillBlockEntity;
+import com.logistics.automation.sawmill.SawmillRecipe;
+import com.logistics.automation.sawmill.SawmillRecipeDisplay;
+import com.logistics.automation.sawmill.SawmillRecipeSerializer;
+import com.logistics.automation.sawmill.SawmillScreenHandler;
 import com.logistics.core.bootstrap.DomainBootstrap;
 import com.logistics.core.lib.platform.CreativeTabRegistrar;
 import com.logistics.core.lib.platform.LogisticsCreativeTab;
@@ -19,6 +25,10 @@ import net.minecraft.server.level.TicketType;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.RecipeBookCategory;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.item.crafting.display.RecipeDisplay;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -52,6 +62,7 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
         BLOCK.register();
         ENTITY.register();
         MENU.register();
+        RECIPE.register();
         CREATIVE.register();
         ALIAS.register();
         TICKET_TYPE.register();
@@ -77,6 +88,7 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
         public static Block LASER_QUARRY;
         public static Block LASER_QUARRY_FRAME;
         public static Block KILN;
+        public static Block SAWMILL;
 
         static void register() {
             MARKER = INSTANCE.registerBlockWithItem("marker",
@@ -88,6 +100,9 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
             KILN = INSTANCE.registerBlockWithItem("kiln",
                 props -> new KilnBlock(props.strength(3.5f).sound(SoundType.METAL).requiresCorrectToolForDrops()
                     .lightLevel(state -> state.getValue(KilnBlock.LIT) ? 13 : 0)));
+            SAWMILL = INSTANCE.registerBlockWithItem("sawmill",
+                props -> new SawmillBlock(props.strength(3.5f).sound(SoundType.METAL).requiresCorrectToolForDrops()
+                    .lightLevel(state -> state.getValue(SawmillBlock.LIT) ? 13 : 0)));
         }
     }
 
@@ -97,6 +112,7 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
         public static BlockEntityType<MarkerBlockEntity> MARKER_BLOCK_ENTITY;
         public static BlockEntityType<LaserQuarryBlockEntity> LASER_QUARRY_BLOCK_ENTITY;
         public static BlockEntityType<KilnBlockEntity> KILN_BLOCK_ENTITY;
+        public static BlockEntityType<SawmillBlockEntity> SAWMILL_BLOCK_ENTITY;
 
         static void register() {
             MARKER_BLOCK_ENTITY = INSTANCE.registerBlockEntity("marker", MarkerBlockEntity::new, LogisticsAutomation.BLOCK.MARKER);
@@ -104,6 +120,8 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
                 INSTANCE.registerBlockEntity("laser_quarry", LaserQuarryBlockEntity::new, BLOCK.LASER_QUARRY);
             KILN_BLOCK_ENTITY =
                 INSTANCE.registerBlockEntity("kiln", KilnBlockEntity::new, BLOCK.KILN);
+            SAWMILL_BLOCK_ENTITY =
+                INSTANCE.registerBlockEntity("sawmill", SawmillBlockEntity::new, BLOCK.SAWMILL);
         }
     }
 
@@ -111,9 +129,48 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
         private MENU() {}
 
         public static MenuType<KilnScreenHandler> KILN;
+        public static MenuType<SawmillScreenHandler> SAWMILL;
 
         static void register() {
             KILN = INSTANCE.registerMenuType("kiln", KilnScreenHandler::new);
+            SAWMILL = INSTANCE.registerMenuType("sawmill", SawmillScreenHandler::new);
+        }
+    }
+
+    public static final class RECIPE {
+        private RECIPE() {}
+
+        public static RecipeType<SawmillRecipe> SAWMILL_RECIPE_TYPE;
+        public static RecipeSerializer<SawmillRecipe> SAWMILL_RECIPE_SERIALIZER;
+        public static RecipeBookCategory SAWMILL_CATEGORY;
+        public static RecipeDisplay.Type<SawmillRecipeDisplay> SAWMILL_DISPLAY_TYPE;
+
+        static void register() {
+            SAWMILL_RECIPE_TYPE = Registry.register(
+                BuiltInRegistries.RECIPE_TYPE,
+                LogisticsMod.modId("sawmill").toIdentifier(),
+                new RecipeType<SawmillRecipe>() {
+                    @Override
+                    public String toString() {
+                        return "logistics:sawmill";
+                    }
+                }
+            );
+            SAWMILL_RECIPE_SERIALIZER = Registry.register(
+                BuiltInRegistries.RECIPE_SERIALIZER,
+                LogisticsMod.modId("sawmill").toIdentifier(),
+                SawmillRecipeSerializer.INSTANCE
+            );
+            SAWMILL_CATEGORY = Registry.register(
+                BuiltInRegistries.RECIPE_BOOK_CATEGORY,
+                LogisticsMod.modId("sawmill").toIdentifier(),
+                new RecipeBookCategory()
+            );
+            SAWMILL_DISPLAY_TYPE = Registry.register(
+                BuiltInRegistries.RECIPE_DISPLAY,
+                LogisticsMod.modId("sawmill").toIdentifier(),
+                SawmillRecipeDisplay.TYPE
+            );
         }
     }
 
@@ -131,6 +188,7 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
             TAB.add(ITEM.MACHINE_CORE);
             TAB.add(ITEM.REDSTONE_RECEPTION_COIL);
             TAB.add(BLOCK.KILN);
+            TAB.add(BLOCK.SAWMILL);
             TAB.add(BLOCK.LASER_QUARRY);
             TAB.add(BLOCK.MARKER);
             CreativeTabRegistrar.INSTANCE.registerTab(TAB);

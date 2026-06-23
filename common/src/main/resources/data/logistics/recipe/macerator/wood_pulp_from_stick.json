@@ -1,9 +1,0 @@
-{
-  "type": "logistics:macerator",
-  "ingredient": "minecraft:stick",
-  "result": {
-    "id": "logistics:core/wood_pulp",
-    "count": 1
-  },
-  "grindingtime": 200
-}

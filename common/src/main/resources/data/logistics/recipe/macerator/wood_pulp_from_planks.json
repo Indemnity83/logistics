@@ -1,9 +1,0 @@
-{
-  "type": "logistics:macerator",
-  "ingredient": "#minecraft:planks",
-  "result": {
-    "id": "logistics:core/wood_pulp",
-    "count": 2
-  },
-  "grindingtime": 200
-}

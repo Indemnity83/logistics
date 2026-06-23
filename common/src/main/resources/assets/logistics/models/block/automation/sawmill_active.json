@@ -1,0 +1,4 @@
+{
+  "parent": "logistics:block/automation/sawmill",
+  "textures": { "front": "logistics:block/automation/sawmill_on" }
+}

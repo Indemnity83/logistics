@@ -1,0 +1,8 @@
+{
+  "type": "logistics:sawmill",
+  "ingredient": "minecraft:bamboo_stairs",
+  "count": 2,
+  "result": { "id": "minecraft:bamboo_planks", "count": 1 },
+  "byproduct": { "id": "logistics:core/sawdust", "chance": 0.25 },
+  "energy": 2000
+}

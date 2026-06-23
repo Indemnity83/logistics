@@ -9,6 +9,7 @@ import com.logistics.pipe.render.FluidPipeBlockEntityRenderer;
 import com.logistics.pipe.render.FluidPumpBlockEntityRenderer;
 import com.logistics.pipe.render.GlassTankBlockEntityRenderer;
 import com.logistics.automation.kiln.KilnScreen;
+import com.logistics.automation.sawmill.SawmillScreen;
 import com.logistics.core.lib.platform.ClientNetworking;
 import com.logistics.core.macerator.MaceratorScreen;
 import com.logistics.pipe.screen.AdvancedExtractorScreen;
@@ -77,6 +78,7 @@ public final class NeoForgeClientSetup {
         event.register(LogisticsPower.SCREEN.STIRLING_ENGINE, StirlingEngineScreen::new);
 
         event.register(LogisticsAutomation.MENU.KILN, KilnScreen::new);
+        event.register(LogisticsAutomation.MENU.SAWMILL, SawmillScreen::new);
     }
 
     private static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
