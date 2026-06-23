@@ -7,6 +7,8 @@ import com.logistics.automation.laserquarry.LaserQuarryBlock;
 import com.logistics.automation.laserquarry.LaserQuarryFrameBlock;
 import com.logistics.automation.laserquarry.entity.LaserQuarryBlockEntity;
 import com.logistics.core.bootstrap.DomainBootstrap;
+import com.logistics.core.macerator.MaceratorBlock;
+import com.logistics.core.macerator.MaceratorBlockEntity;
 import com.logistics.core.lib.platform.CreativeTabRegistrar;
 import com.logistics.core.lib.platform.LogisticsCreativeTab;
 import com.logistics.core.lib.resource.ResourceId;
@@ -77,8 +79,12 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
         public static Block LASER_QUARRY;
         public static Block LASER_QUARRY_FRAME;
         public static Block KILN;
+        public static Block MACERATOR;
 
         static void register() {
+            MACERATOR = INSTANCE.registerBlockWithItem("macerator",
+                props -> new MaceratorBlock(props.strength(3.5f).sound(SoundType.METAL).requiresCorrectToolForDrops()
+                    .lightLevel(state -> state.getValue(MaceratorBlock.LIT) ? 13 : 0)));
             MARKER = INSTANCE.registerBlockWithItem("marker",
                 props -> new MarkerBlock(props.strength(0.0f).sound(SoundType.WOOD).noCollision()));
             LASER_QUARRY = INSTANCE.registerBlockWithItem("laser_quarry",
@@ -97,8 +103,10 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
         public static BlockEntityType<MarkerBlockEntity> MARKER_BLOCK_ENTITY;
         public static BlockEntityType<LaserQuarryBlockEntity> LASER_QUARRY_BLOCK_ENTITY;
         public static BlockEntityType<KilnBlockEntity> KILN_BLOCK_ENTITY;
+        public static BlockEntityType<MaceratorBlockEntity> MACERATOR_BLOCK_ENTITY;
 
         static void register() {
+            MACERATOR_BLOCK_ENTITY = INSTANCE.registerBlockEntity("macerator", MaceratorBlockEntity::new, BLOCK.MACERATOR);
             MARKER_BLOCK_ENTITY = INSTANCE.registerBlockEntity("marker", MarkerBlockEntity::new, LogisticsAutomation.BLOCK.MARKER);
             LASER_QUARRY_BLOCK_ENTITY =
                 INSTANCE.registerBlockEntity("laser_quarry", LaserQuarryBlockEntity::new, BLOCK.LASER_QUARRY);
@@ -130,6 +138,7 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
             // Machine components, then the machines.
             TAB.add(ITEM.MACHINE_CORE);
             TAB.add(ITEM.REDSTONE_RECEPTION_COIL);
+            TAB.add(BLOCK.MACERATOR);
             TAB.add(BLOCK.KILN);
             TAB.add(BLOCK.LASER_QUARRY);
             TAB.add(BLOCK.MARKER);
@@ -143,6 +152,11 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
         static void register() {
             // core domain => automation domain (machine frame moved)
             INSTANCE.registerItemAlias("core/machine_core", ITEM.MACHINE_CORE);
+
+            // core domain => automation domain (macerator moved)
+            INSTANCE.registerBlockAlias("core/macerator", BLOCK.MACERATOR);
+            INSTANCE.registerItemAlias("core/macerator", BLOCK.MACERATOR.asItem());
+            INSTANCE.registerBlockEntityAlias("core/macerator", ENTITY.MACERATOR_BLOCK_ENTITY);
 
             // v0.2 => v0.3
             INSTANCE.registerBlockAlias("marker", BLOCK.MARKER);

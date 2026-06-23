@@ -1,6 +1,6 @@
 package com.logistics.core.macerator.jei;
 
-import com.logistics.LogisticsCore;
+import com.logistics.LogisticsAutomation;
 import com.logistics.LogisticsMod;
 import com.logistics.core.macerator.MaceratorRecipeWrapper;
 import mezz.jei.api.IModPlugin;
@@ -59,6 +59,6 @@ public class MaceratorJeiPlugin implements IModPlugin {
     @Override
     public void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
         registration.addCraftingStation(
-            MaceratorRecipeCategory.RECIPE_TYPE, LogisticsCore.BLOCK.MACERATOR);
+            MaceratorRecipeCategory.RECIPE_TYPE, LogisticsAutomation.BLOCK.MACERATOR);
     }
 }

@@ -6,5 +6,5 @@
     "I": "minecraft:iron_ingot",
     "M": "logistics:automation/machine_core"
   },
-  "result": { "id": "logistics:core/macerator", "count": 1 }
+  "result": { "id": "logistics:automation/macerator", "count": 1 }
 }

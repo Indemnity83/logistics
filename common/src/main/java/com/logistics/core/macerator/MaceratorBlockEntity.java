@@ -1,5 +1,6 @@
 package com.logistics.core.macerator;
 
+import com.logistics.LogisticsAutomation;
 import com.logistics.LogisticsCore;
 import com.logistics.core.lib.block.BaseBlockEntity;
 import com.logistics.core.lib.block.ProcessingMachine;
@@ -131,7 +132,7 @@ public class MaceratorBlockEntity extends BaseBlockEntity
     };
 
     public MaceratorBlockEntity(BlockPos pos, BlockState state) {
-        super(LogisticsCore.ENTITY.MACERATOR_BLOCK_ENTITY, pos, state);
+        super(LogisticsAutomation.ENTITY.MACERATOR_BLOCK_ENTITY, pos, state);
     }
 
     public static void tick(Level level, BlockPos pos, BlockState state, MaceratorBlockEntity entity) {
