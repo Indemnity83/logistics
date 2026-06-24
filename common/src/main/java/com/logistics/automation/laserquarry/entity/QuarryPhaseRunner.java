@@ -477,21 +477,4 @@ public final class QuarryPhaseRunner {
             phase = Phase.CLEARING;
         }
     }
-
-    /** Load from the legacy {@code MiningState} compound. */
-    public void loadLegacy(CompoundTag miningStateTag) {
-        miningX = NbtCompat.getInt(miningStateTag, "X", 0);
-        miningY = NbtCompat.getInt(miningStateTag, "Y", 0);
-        miningZ = NbtCompat.getInt(miningStateTag, "Z", 0);
-        breakProgress = NbtCompat.getFloat(miningStateTag, "Progress", 0f);
-        finished = NbtCompat.getBoolean(miningStateTag, "Finished", false);
-        frameBuildIndex = NbtCompat.getInt(miningStateTag, "FrameBuildIndex", 0);
-
-        String phaseName = NbtCompat.getString(miningStateTag, "Phase", "CLEARING");
-        try {
-            phase = Phase.valueOf(phaseName);
-        } catch (IllegalArgumentException e) {
-            phase = Phase.CLEARING;
-        }
-    }
 }

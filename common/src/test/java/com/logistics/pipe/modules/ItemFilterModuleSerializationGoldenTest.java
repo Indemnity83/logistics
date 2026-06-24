@@ -54,108 +54,12 @@ class ItemFilterModuleSerializationGoldenTest {
         ctx = new PipeContext(null, BlockPos.ZERO, null, access);
     }
 
-    // ---------------------------------------------------------------------------
-    // 0.5.5 format: filters stored as CompoundTag keyed by direction name,
-    //               each direction holds a ListTag of 8 StringTag item IDs.
-    // ---------------------------------------------------------------------------
-
-    @Test
-    @DisplayName("0.5.5 format: loads single configured direction correctly")
-    void golden_0_5_5_singleDirectionWithFilters() {
-        // Inject NBT in the exact format written by 0.5.5
-        injectFilters(filtersWithNorth("minecraft:diamond", "minecraft:emerald"));
-
-        List<String> slots = module.getFilterSlots(ctx, Direction.NORTH);
-
-        assertThat(slots).hasSize(ItemFilterModule.FILTER_SLOTS_PER_SIDE);
-        assertThat(slots.get(0)).isEqualTo("minecraft:diamond");
-        assertThat(slots.get(1)).isEqualTo("minecraft:emerald");
-        assertThat(slots.get(2)).isEmpty();
-    }
-
-    @Test
-    @DisplayName("0.5.5 format: unconfigured directions return empty slots (no silent data corruption)")
-    void golden_0_5_5_unconfiguredDirectionIsEmpty() {
-        injectFilters(filtersWithNorth("minecraft:diamond"));
-
-        // SOUTH was not in the saved data — must return empty, not throw
-        List<String> south = module.getFilterSlots(ctx, Direction.SOUTH);
-        assertThat(south).hasSize(ItemFilterModule.FILTER_SLOTS_PER_SIDE);
-        assertThat(south).allMatch(String::isEmpty);
-    }
-
-    @Test
-    @DisplayName("0.5.5 format: all six directions load independently")
-    void golden_0_5_5_allSixDirections() {
-        CompoundTag filters = new CompoundTag();
-        filters.put("north",  singleItemList("minecraft:diamond"));
-        filters.put("south",  singleItemList("minecraft:emerald"));
-        filters.put("east",   singleItemList("minecraft:iron_ingot"));
-        filters.put("west",   singleItemList("minecraft:gold_ingot"));
-        filters.put("up",     singleItemList("minecraft:copper_ingot"));
-        filters.put("down",   singleItemList("minecraft:iron_nugget"));
-        injectFilters(filters);
-
-        assertThat(module.getFilterSlots(ctx, Direction.NORTH).get(0)).isEqualTo("minecraft:diamond");
-        assertThat(module.getFilterSlots(ctx, Direction.SOUTH).get(0)).isEqualTo("minecraft:emerald");
-        assertThat(module.getFilterSlots(ctx, Direction.EAST).get(0)).isEqualTo("minecraft:iron_ingot");
-        assertThat(module.getFilterSlots(ctx, Direction.WEST).get(0)).isEqualTo("minecraft:gold_ingot");
-        assertThat(module.getFilterSlots(ctx, Direction.UP).get(0)).isEqualTo("minecraft:copper_ingot");
-        assertThat(module.getFilterSlots(ctx, Direction.DOWN).get(0)).isEqualTo("minecraft:iron_nugget");
-    }
-
-    @Test
-    @DisplayName("0.5.5 format: partially-filled list (fewer than 8 items) pads with empty strings")
-    void golden_0_5_5_shortListPadsWithEmpty() {
-        // A save that only stored 3 items in a filter slot (could happen if the slot count ever changes)
-        ListTag shortList = new ListTag();
-        shortList.add(StringTag.valueOf("minecraft:diamond"));
-        shortList.add(StringTag.valueOf("minecraft:coal"));
-        shortList.add(StringTag.valueOf(""));
-        CompoundTag filters = new CompoundTag();
-        filters.put("north", shortList);
-        injectFilters(filters);
-
-        List<String> slots = module.getFilterSlots(ctx, Direction.NORTH);
-        assertThat(slots).hasSize(ItemFilterModule.FILTER_SLOTS_PER_SIDE);
-        assertThat(slots.get(0)).isEqualTo("minecraft:diamond");
-        assertThat(slots.get(1)).isEqualTo("minecraft:coal");
-        assertThat(slots.get(2)).isEmpty();
-        // Indices beyond the saved list are padded with empty
-        assertThat(slots.get(3)).isEmpty();
-        assertThat(slots.get(7)).isEmpty();
-    }
-
     @Test
     @DisplayName("state key is stable — module rename would break existing saves")
     void moduleStateKeyIsStable() {
         // This test intentionally checks the key string. If ItemFilterModule is ever
         // renamed, getStateKey() MUST be overridden to keep returning "itemfiltermodule".
         assertThat(module.getStateKey()).isEqualTo(MODULE_STATE_KEY);
-    }
-
-    // ---------------------------------------------------------------------------
-    // Backward-compat: getFilterStacks() must read old StringTag format correctly.
-    // (New CompoundTag round-trip tests require RegistryAccess and run in-game.)
-    // ---------------------------------------------------------------------------
-
-    @Test
-    @DisplayName("getFilterStacks: old StringTag format returns item-only stacks (no NPE)")
-    void getFilterStacks_readsOldStringFormat() {
-        injectFilters(filtersWithNorth("minecraft:diamond"));
-
-        // getFilterStacks() with null world falls back to item-ID only for old format
-        List<ItemStack> stacks = module.getFilterStacks(ctx, Direction.NORTH);
-
-        assertThat(stacks).hasSize(ItemFilterModule.FILTER_SLOTS_PER_SIDE);
-        // First slot is non-empty (item loaded by ID)
-        assertThat(stacks.get(0).isEmpty()).isFalse();
-        // Component-less (components patch is empty for a plain stack)
-        assertThat(stacks.get(0).getComponentsPatch().isEmpty()).isTrue();
-        // Remaining slots are empty
-        for (int i = 1; i < ItemFilterModule.FILTER_SLOTS_PER_SIDE; i++) {
-            assertThat(stacks.get(i).isEmpty()).isTrue();
-        }
     }
 
     @Test
@@ -200,10 +104,5 @@ class ItemFilterModuleSerializationGoldenTest {
             list.add(StringTag.valueOf(value));
         }
         return list;
-    }
-
-    /** Build a padded ListTag with one item ID and the rest empty. */
-    private ListTag singleItemList(String itemId) {
-        return itemList(itemId);
     }
 }

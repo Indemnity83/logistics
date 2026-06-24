@@ -216,6 +216,18 @@ Merge vX.Y+1.0 release-please PR → ships → cherry-pick
 
 **Use the Hotfix Workflow (above) only when:** v0.6.0 is already out AND new features have already merged, making a v0.5.x backport necessary.
 
+## Backward Compatibility Policy
+
+To bound technical debt while in pre-release, backward-compatibility support reaches back **one major only**. During pre-release the "major" is the **second version digit** (e.g. `0.7.x`); each major keeps compatibility bridges for the **previous major** (`0.6.x`) but nothing older.
+
+This applies to **two** kinds of bridge:
+- **Registry ID aliases** — old block/item/block-entity/menu/data-component IDs mapped to current ones. Registered in the `ALIAS` static classes of `LogisticsCore` / `LogisticsAutomation` / `LogisticsPipe` via `registerItemAlias` / `registerBlockAlias` / `registerBlockEntityAlias` / `PlatformService.registerAlias`.
+- **NBT save migrations** — old saved-state formats read on load. Implemented as `loadLegacyData` overrides on block entities (the live format is read by `loadLogisticsData`).
+
+**Rule of thumb:** keep a bridge only if its old form was the **live (written) form in some release of the previous major**. Drop anything whose old form was already gone by the previous major's first release. When a new major opens, prune the bridges that now fall outside the window.
+
+**Consequence for players:** worlds must be loaded in the **latest release of each major in sequence** before skipping ahead (e.g. pre-`0.6` → latest `0.6.x` → `0.7+`). Skipping a major may silently drop blocks/items or saved machine state. Note this in release notes whenever bridges are pruned.
+
 ## Architecture
 
 This is a multiloader Minecraft mod organized into **independent domains** following **SOLID principles** to maximize maintainability.
