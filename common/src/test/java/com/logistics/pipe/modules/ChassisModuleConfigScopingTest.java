@@ -1,6 +1,7 @@
 package com.logistics.pipe.modules;
 
 import com.logistics.core.lib.block.capability.PipeConnection;
+import com.logistics.core.lib.compat.NbtCompat;
 import com.logistics.core.lib.energy.EnergyComponent;
 import com.logistics.core.lib.network.ILogisticsNetwork;
 import com.logistics.core.lib.pipe.IPipeAccess;
@@ -115,19 +116,27 @@ class ChassisModuleConfigScopingTest extends MinecraftTestEnvironment {
     }
 
     @Test
-    @DisplayName("ItemFilter per-direction filter slots are scoped")
-    void itemFilter_filterSlotsScoped() {
+    @DisplayName("ItemFilter filter state is scoped")
+    void itemFilter_filterStateScoped() {
         ItemFilterModule module = new ItemFilterModule();
         Scope scope = scopeFor(module);
 
-        module.setFilterSlots(scope.scoped(), Direction.NORTH, List.of("minecraft:iron_ingot"));
-        module.setFilterSlots(scope.base(), Direction.NORTH, List.of("minecraft:gold_ingot"));
+        // The filter's on-disk format (ItemStack CODEC) needs a live world to encode, which this
+        // layer lacks; assert the FILTERS compound is partitioned per scope at the raw-state level.
+        CompoundTag scopedFilters = new CompoundTag();
+        scopedFilters.putString("marker", "scoped");
+        scope.scoped().putCompoundTag(module, ItemFilterModule.FILTERS, scopedFilters);
 
-        // getFilterSlots returns a fixed-size, blank-padded list; only the first entry is set.
-        assertThat(module.getFilterSlots(scope.scoped(), Direction.NORTH).get(0))
-                .isEqualTo("minecraft:iron_ingot");
-        assertThat(module.getFilterSlots(scope.base(), Direction.NORTH).get(0))
-                .isEqualTo("minecraft:gold_ingot");
+        CompoundTag baseFilters = new CompoundTag();
+        baseFilters.putString("marker", "base");
+        scope.base().putCompoundTag(module, ItemFilterModule.FILTERS, baseFilters);
+
+        assertThat(NbtCompat.getString(
+                        scope.scoped().getCompoundTag(module, ItemFilterModule.FILTERS), "marker", ""))
+                .isEqualTo("scoped");
+        assertThat(NbtCompat.getString(
+                        scope.base().getCompoundTag(module, ItemFilterModule.FILTERS), "marker", ""))
+                .isEqualTo("base");
     }
 
     // ==================== Helpers ====================

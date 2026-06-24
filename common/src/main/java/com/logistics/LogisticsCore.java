@@ -450,15 +450,7 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         private ALIAS() {}
 
         static void register() {
-            // v0.2 => v0.3
-            INSTANCE.registerItemAlias("wrench", ITEM.WRENCH);
-            INSTANCE.registerItemAlias("wooden_gear", ITEM.WOODEN_GEAR);
-            INSTANCE.registerItemAlias("stone_gear", ITEM.STONE_GEAR);
-            INSTANCE.registerItemAlias("copper_gear", ITEM.COPPER_GEAR);
-            INSTANCE.registerItemAlias("iron_gear", ITEM.IRON_GEAR);
-            INSTANCE.registerItemAlias("gold_gear", ITEM.GOLD_GEAR);
-            INSTANCE.registerItemAlias("diamond_gear", ITEM.DIAMOND_GEAR);
-            INSTANCE.registerItemAlias("netherite_gear", ITEM.NETHERITE_GEAR);
+            // Aliases bridging IDs renamed in the previous major go here; none in window.
         }
     }
 }

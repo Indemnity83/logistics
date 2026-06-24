@@ -6,7 +6,6 @@ import com.logistics.core.LogisticsConfig;
 import com.logistics.core.lib.block.BaseBlockEntity;
 import com.logistics.core.lib.block.capability.HasEnergyStorage;
 import com.logistics.core.lib.block.capability.PipeConnection;
-import com.logistics.core.lib.compat.NbtCompat;
 import com.logistics.core.lib.energy.EnergyComponent;
 import com.logistics.core.lib.energy.IEnergyStorage;
 import com.logistics.core.lib.power.EnergyDemandProvider;
@@ -249,37 +248,11 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity
     protected void loadLogisticsData(CompoundTag nbt, HolderLookup.Provider registries) {
         super.loadLogisticsData(nbt, registries);
 
-        if (nbt.contains("Energy")) {
-            energy.readNbt(nbt, "Energy");
-        } else {
-            energy.setAmount(NbtCompat.getLong(nbt, "StoredEnergy", 0L));
-        }
+        energy.readNbt(nbt, "Energy");
 
         phaseRunner.load(nbt);
         armController.load(nbt);
         bounds.load(nbt);
-    }
-
-    @Override
-    protected void loadLegacyData(net.minecraft.world.level.storage.ValueInput view) {
-        super.loadLegacyData(view);
-
-        bounds.clear();
-
-        view.read("Energy", CompoundTag.CODEC)
-                .ifPresent(energyState -> energy.setAmount(NbtCompat.getLong(energyState, "Amount", 0L)));
-
-        view.read("MiningState", CompoundTag.CODEC).ifPresent(miningState -> {
-            phaseRunner.loadLegacy(miningState);
-            armController.loadLegacy(miningState);
-        });
-
-        view.read("CustomBounds", CompoundTag.CODEC)
-                .ifPresent(customBoundsNbt -> bounds.loadLegacy(
-                        NbtCompat.getInt(customBoundsNbt, "MinX", 0),
-                        NbtCompat.getInt(customBoundsNbt, "MinZ", 0),
-                        NbtCompat.getInt(customBoundsNbt, "MaxX", 0),
-                        NbtCompat.getInt(customBoundsNbt, "MaxZ", 0)));
     }
 
     // ==================== Lifecycle ====================
