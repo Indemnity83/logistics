@@ -37,7 +37,6 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
@@ -306,46 +305,6 @@ public class PipeBlockEntity extends BaseBlockEntity
                     durationMs,
                     travelingItems.size());
         }
-    }
-
-    @Override
-    protected void loadLegacyData(ValueInput view) {
-        super.loadLegacyData(view);
-        HolderLookup.Provider registries = view.lookup();
-
-        view.read("PipeData", CompoundTag.CODEC).ifPresent(oldData -> {
-            long readStart = System.nanoTime();
-
-            // Massage old format to new format
-            CompoundTag massaged = new CompoundTag();
-
-            // Rename "TravelingItems" -> "ItemsInTransit"
-            if (oldData.contains("TravelingItems")) {
-                massaged.put("ItemsInTransit", Objects.requireNonNull(oldData.get("TravelingItems")));
-            }
-
-            // "ModuleState" has same key name
-            if (oldData.contains("ModuleState")) {
-                massaged.put("ModuleState", Objects.requireNonNull(oldData.get("ModuleState")));
-            }
-
-            // Rename "Connections" -> "ConnectionTypes"
-            if (oldData.contains("Connections")) {
-                massaged.put("ConnectionTypes", Objects.requireNonNull(oldData.get("Connections")));
-            }
-
-            // Now load using the standard loader which expects new keys
-            loadLogisticsData(massaged, registries);
-
-            long durationMs = (System.nanoTime() - readStart) / 1_000_000L;
-            if (durationMs >= 2L && Boolean.getBoolean("logistics.timing")) {
-                LogisticsMod.LOGGER.debug(
-                        "[timing] PipeBlockEntity loadLegacyData at {} took {} ms (items={})",
-                        getBlockPos(),
-                        durationMs,
-                        travelingItems.size());
-            }
-        });
     }
 
     public static void tick(

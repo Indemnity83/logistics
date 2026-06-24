@@ -2,7 +2,6 @@ package com.logistics;
 
 import com.logistics.api.LogisticsApi;
 import com.logistics.core.bootstrap.DomainBootstrap;
-import com.logistics.core.lib.platform.PlatformService;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.pipe.modules.*;
 import com.logistics.pipe.Pipe;
@@ -460,26 +459,7 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
         private ALIAS() {}
 
         static void register() {
-            // v0.2 => v0.3
-            INSTANCE.registerBlockEntityAlias("pipe", ENTITY.PIPE_BLOCK_ENTITY);
-
-            for (Map.Entry<DyeColor, Item> entry : ITEM.MARKING_FLUIDS_BY_COLOR.entrySet()) {
-                INSTANCE.registerItemAlias("marking_fluid_" + entry.getKey().getName(), entry.getValue());
-            }
-
-            // v0.4.0 => v0.4.1 (marking_fluid_<color> => <color>_marking_fluid)
-            for (Map.Entry<DyeColor, Item> entry : ITEM.MARKING_FLUIDS_BY_COLOR.entrySet()) {
-                INSTANCE.registerItemAlias("pipe/marking_fluid_" + entry.getKey().getName(), entry.getValue());
-            }
-
-            PlatformService.INSTANCE.registerAlias(
-                    BuiltInRegistries.MENU,
-                    LogisticsMod.modId("item_filter"),
-                    SCREEN.ITEM_FILTER);
-            PlatformService.INSTANCE.registerAlias(
-                    BuiltInRegistries.DATA_COMPONENT_TYPE,
-                    LogisticsMod.modId("weathering_state"),
-                    DATA.WEATHERING_STATE);
+            // Aliases bridging IDs renamed in the previous major go here; none in window.
         }
     }
 
