@@ -82,7 +82,7 @@ public class KilnBlockEntity extends MachineEntity {
 
         var items = machine.items("inventory")
                 .slots(SlotRole.INPUT, SlotRole.OUTPUT)
-                .topAccess(this::canSmelt)
+                .furnaceAccess(this::canSmelt)
                 .build();
 
         processor = machine.recipeProcessor("processor")
