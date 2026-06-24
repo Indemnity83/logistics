@@ -202,24 +202,4 @@ public final class ArmController {
         expectedTravelTicks = NbtCompat.getInt(tag, "ArmExpectedTravelTicks", 0);
         syncedSpeed = NbtCompat.getFloat(tag, "ArmSyncedSpeed", 0.0f);
     }
-
-    /**
-     * Load from the legacy {@code MiningState} compound, which used different keys
-     * for the settling and travel-tick fields than the current top-level format.
-     */
-    public void loadLegacy(CompoundTag miningStateTag) {
-        String armStateName = NbtCompat.getString(miningStateTag, "ArmState", "MOVING");
-        try {
-            state = ArmState.valueOf(armStateName);
-        } catch (IllegalArgumentException e) {
-            state = ArmState.MOVING;
-        }
-        x = NbtCompat.getFloat(miningStateTag, "ArmX", 0f);
-        y = NbtCompat.getFloat(miningStateTag, "ArmY", 0f);
-        z = NbtCompat.getFloat(miningStateTag, "ArmZ", 0f);
-        initialized = NbtCompat.getBoolean(miningStateTag, "ArmInitialized", false);
-        settlingTicksRemaining = NbtCompat.getInt(miningStateTag, "SettlingTicks", 0);
-        expectedTravelTicks = NbtCompat.getInt(miningStateTag, "ExpectedTravelTicks", 0);
-        syncedSpeed = NbtCompat.getFloat(miningStateTag, "SyncedArmSpeed", 0.0f);
-    }
 }

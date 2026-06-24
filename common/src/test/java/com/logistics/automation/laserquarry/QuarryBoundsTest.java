@@ -110,17 +110,4 @@ class QuarryBoundsTest extends MinecraftTestEnvironment {
         assertThat(bounds.getMaxX()).isZero();
         assertThat(bounds.getMaxZ()).isZero();
     }
-
-    @Test
-    @DisplayName("loadLegacy promotes raw values to a custom configuration")
-    void loadLegacyApplies() {
-        QuarryBounds bounds = new QuarryBounds();
-        bounds.loadLegacy(-1, -2, 5, 6);
-
-        assertThat(bounds.isCustom()).isTrue();
-        assertThat(bounds.getMinX()).isEqualTo(-1);
-        assertThat(bounds.getMinZ()).isEqualTo(-2);
-        assertThat(bounds.getMaxX()).isEqualTo(5);
-        assertThat(bounds.getMaxZ()).isEqualTo(6);
-    }
 }

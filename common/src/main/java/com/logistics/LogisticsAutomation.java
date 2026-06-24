@@ -112,33 +112,7 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
         private ALIAS() {}
 
         static void register() {
-            // v0.2 => v0.3
-            INSTANCE.registerBlockAlias("marker", BLOCK.MARKER);
-            INSTANCE.registerBlockEntityAlias("marker", ENTITY.MARKER_BLOCK_ENTITY);
-            INSTANCE.registerItemAlias("marker", BLOCK.MARKER.asItem());
-            // core domain => automation domain (marker moved)
-            INSTANCE.registerBlockAlias("core/marker", BLOCK.MARKER);
-            INSTANCE.registerBlockEntityAlias("core/marker", ENTITY.MARKER_BLOCK_ENTITY);
-            INSTANCE.registerItemAlias("core/marker", BLOCK.MARKER.asItem());
-            INSTANCE.registerBlockAlias("quarry", BLOCK.LASER_QUARRY);
-            INSTANCE.registerItemAlias("quarry", BLOCK.LASER_QUARRY.asItem());
-            INSTANCE.registerBlockAlias("quarry_frame", BLOCK.LASER_QUARRY_FRAME);
-            INSTANCE.registerBlockEntityAlias("quarry", ENTITY.LASER_QUARRY_BLOCK_ENTITY);
-
-            // v0.2 => v0.3 (quarry renamed to laser_quarry)
-            INSTANCE.registerBlockAlias("automation/quarry", BLOCK.LASER_QUARRY);
-            INSTANCE.registerItemAlias("automation/quarry", BLOCK.LASER_QUARRY.asItem());
-            INSTANCE.registerBlockAlias("automation/quarry_frame", BLOCK.LASER_QUARRY_FRAME);
-            INSTANCE.registerBlockEntityAlias("automation/quarry", ENTITY.LASER_QUARRY_BLOCK_ENTITY);
-
-            // core domain => automation domain (kiln moved)
-            INSTANCE.registerBlockAlias("core/kiln", BLOCK.KILN);
-            INSTANCE.registerBlockEntityAlias("core/kiln", ENTITY.KILN_BLOCK_ENTITY);
-            INSTANCE.registerItemAlias("core/kiln", BLOCK.KILN.asItem());
-
-            // automation domain => core domain (quartz_crystal moved)
-            INSTANCE.registerBlockAlias("automation/quartz_crystal", LogisticsCore.BLOCK.QUARTZ_CRYSTAL);
-            INSTANCE.registerItemAlias("automation/quartz_crystal", LogisticsCore.BLOCK.QUARTZ_CRYSTAL.asItem());
+            // Aliases bridging IDs renamed in the previous major go here; none in window.
         }
     }
 

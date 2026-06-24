@@ -130,14 +130,4 @@ public class CreativeSinkBlockEntity extends BaseBlockEntity
         drainState.restore(NbtCompat.getInt(nbt, "DrainRateIndex", 4));
         // Note: totalEnergyReceived not loaded - testing-only counter, starts at 0
     }
-
-    @Override
-    protected void loadLegacyData(CompoundTag nbt, HolderLookup.Provider registries) {
-        super.loadLegacyData(nbt, registries);
-        if (nbt.contains("CreativeSink")) {
-            CompoundTag data = nbt.getCompound("CreativeSink");
-            // Load old key name (before BaseBlockEntity refactoring)
-            drainState.restore(NbtCompat.getInt(data, "drainRateIndex", 4));
-        }
-    }
 }

@@ -204,36 +204,6 @@ public class MarkerBlockEntity extends BaseBlockEntity {
         }
     }
 
-    @Override
-    protected void loadLegacyData(CompoundTag nbt, HolderLookup.Provider registries) {
-        super.loadLegacyData(nbt, registries);
-
-        if (nbt.contains("MarkerData")) {
-            CompoundTag data = nbt.getCompound("MarkerData");
-            connectedMarkers.clear();
-            boundMin = null;
-            boundMax = null;
-            isCornerMarker = false;
-
-            loadConnectedMarkers(data);
-
-            // Convert old key names to new format for loadBounds
-            CompoundTag massaged = new CompoundTag();
-            if (data.contains("MinX")) massaged.putInt("BoundMinX", NbtCompat.getInt(data, "MinX", 0));
-            if (data.contains("MinY")) massaged.putInt("BoundMinY", NbtCompat.getInt(data, "MinY", 0));
-            if (data.contains("MinZ")) massaged.putInt("BoundMinZ", NbtCompat.getInt(data, "MinZ", 0));
-            if (data.contains("MaxX")) massaged.putInt("BoundMaxX", NbtCompat.getInt(data, "MaxX", 0));
-            if (data.contains("MaxY")) massaged.putInt("BoundMaxY", NbtCompat.getInt(data, "MaxY", 0));
-            if (data.contains("MaxZ")) massaged.putInt("BoundMaxZ", NbtCompat.getInt(data, "MaxZ", 0));
-            if (data.contains("IsCorner")) massaged.putBoolean("IsCornerMarker", NbtCompat.getBoolean(data, "IsCorner", false));
-
-            loadBounds(massaged);
-            if (!hasValidBounds()) {
-                isCornerMarker = false;
-            }
-        }
-    }
-
     private void loadBounds(CompoundTag data) {
         boolean hasMin = data.contains("BoundMinX");
         boolean hasMax = data.contains("BoundMaxX");

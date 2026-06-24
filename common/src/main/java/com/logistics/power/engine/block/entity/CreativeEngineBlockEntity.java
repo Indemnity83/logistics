@@ -136,15 +136,4 @@ public class CreativeEngineBlockEntity extends AbstractEngineBlockEntity {
         super.loadLogisticsData(nbt, registries);
         outputLevels.restore(NbtCompat.getInt(nbt, "OutputLevelIndex", 0));
     }
-
-    @Override
-    protected void loadLegacyData(CompoundTag nbt, HolderLookup.Provider registries) {
-        super.loadLegacyData(nbt, registries); // Loads engine data from "Engine" tag
-
-        // Load Creative-specific data from old "CreativeData" tag
-        if (nbt.contains("CreativeData")) {
-            CompoundTag creativeData = nbt.getCompound("CreativeData");
-            outputLevels.restore(NbtCompat.getInt(creativeData, "outputLevelIndex", 0));
-        }
-    }
 }

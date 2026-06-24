@@ -75,8 +75,4 @@ public final class QuarryBounds {
             maxZ = 0;
         }
     }
-
-    public void loadLegacy(int minX, int minZ, int maxX, int maxZ) {
-        setCustom(minX, minZ, maxX, maxZ);
-    }
 }
