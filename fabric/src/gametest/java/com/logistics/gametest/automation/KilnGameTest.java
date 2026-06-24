@@ -218,6 +218,37 @@ public class KilnGameTest {
     }
 
     /**
+     * Test that the kiln smelts its input over time when supplied with energy.
+     */
+    @GameTest(maxTicks = 160)
+    public void testKilnSmeltsWithEnergy(GameTestHelper context) {
+        BlockPos pos = new BlockPos(1, 1, 1);
+        context.setBlock(pos, LogisticsAutomation.BLOCK.KILN);
+        KilnBlockEntity kiln = context.getBlockEntity(pos, KilnBlockEntity.class);
+
+        // Fill the energy buffer (each insert is capped at the 128 RF/t input limit).
+        var energy = kiln.energyStorage(null);
+        for (int i = 0; i < 80; i++) {
+            energy.insert(128, false);
+        }
+        kiln.setItem(0, new ItemStack(Items.RAW_IRON));
+
+        // Raw iron (200-tick recipe) costs 2,000 RF and smelts in 100 ticks at 20 RF/t.
+        context.runAfterDelay(140, () -> {
+            if (!kiln.getItem(0).isEmpty()) {
+                context.fail("Input should be consumed after smelting");
+                return;
+            }
+            ItemStack output = kiln.getItem(1);
+            if (!output.is(Items.IRON_INGOT)) {
+                context.fail("Kiln should have smelted raw iron into an iron ingot");
+                return;
+            }
+            context.succeed();
+        });
+    }
+
+    /**
      * Test that kiln block state has correct FACING property.
      */
     @GameTest
