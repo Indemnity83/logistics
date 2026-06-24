@@ -161,14 +161,9 @@ public final class MarkerManager {
             mutable.move(direction);
             BlockState state = world.getBlockState(mutable);
 
+            // Markers detect each other through intervening blocks; only the distance bounds the scan.
             if (state.getBlock() instanceof MarkerBlock) {
                 return mutable.immutable();
-            }
-
-            // Stop at non-air blocks that would obstruct the beam
-            // (but allow transparent blocks, fluids, etc.)
-            if (state.isSolidRender(world, mutable)) {
-                break;
             }
         }
 
