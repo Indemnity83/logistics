@@ -4,7 +4,6 @@ import com.logistics.core.LogisticsConfig;
 import com.logistics.automation.laserquarry.LaserQuarryBlock;
 import com.logistics.automation.laserquarry.LaserQuarryGeometry;
 import com.logistics.automation.laserquarry.entity.LaserQuarryBlockEntity;
-import com.logistics.pipe.block.PipeBlock;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import com.logistics.core.lib.client.render.MachineModels;
@@ -53,12 +52,6 @@ public class LaserQuarryBlockEntityRenderer implements BlockEntityRenderer<Laser
         state.armState = entity.getArmState();
         state.syncedArmSpeed = entity.getSyncedArmSpeed();
 
-        // LED state - always populated for LED rendering
-        state.energyLevel = (float) entity.getEnergyLevel();
-        state.isFinished = entity.isFinished();
-        // Show LED if: (has energy in buffer) OR (consumed energy this tick, even if buffer now empty)
-        state.isWorking = !state.isFinished && (state.energyLevel > 0 || entity.consumedEnergyThisTick());
-
         Level level = entity.getLevel();
         if (level == null) {
             state.shouldRenderArm = false;
@@ -74,20 +67,8 @@ public class LaserQuarryBlockEntityRenderer implements BlockEntityRenderer<Laser
             return;
         }
 
-        // Get facing direction for both arm rendering and LED orientation
+        // Get facing direction for arm rendering
         state.facing = LaserQuarryBlock.getMiningDirection(blockState);
-        state.blockFacing = state.facing;
-
-        // Sample light at quarry position for display overlay
-        state.quarryLight = state.lightCoords; // Use base light from quarry position
-
-        // Check for pipe connected above by checking block type
-        BlockPos abovePos = state.quarryPos.above();
-        BlockState aboveState = level.getBlockState(abovePos);
-        state.hasPipeAbove = aboveState.getBlock() instanceof PipeBlock;
-        int blockLightAbove = level.getBrightness(LightLayer.BLOCK, abovePos);
-        int skyLightAbove = level.getBrightness(LightLayer.SKY, abovePos);
-        state.aboveLight = LightCoordsUtil.pack(blockLightAbove, skyLightAbove);
 
         // Only render arm during mining phase when arm is initialized
         state.shouldRenderArm = (state.phase == LaserQuarryBlockEntity.Phase.MINING) && entity.isArmInitialized();
