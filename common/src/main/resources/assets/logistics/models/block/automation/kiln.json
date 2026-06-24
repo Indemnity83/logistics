@@ -1,9 +1,4 @@
 {
-  "parent": "minecraft:block/orientable_with_bottom",
-  "textures": {
-    "top":    "logistics:block/automation/kiln_top",
-    "bottom": "logistics:block/automation/kiln_bottom",
-    "front":  "logistics:block/automation/kiln_front_off",
-    "side":   "logistics:block/automation/kiln_side"
-  }
+  "parent": "logistics:block/automation/machine_base",
+  "textures": { "front": "logistics:block/automation/kiln_off" }
 }
