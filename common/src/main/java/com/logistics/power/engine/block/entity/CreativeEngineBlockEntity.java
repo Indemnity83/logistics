@@ -136,14 +136,4 @@ public class CreativeEngineBlockEntity extends AbstractEngineBlockEntity {
         super.loadLogisticsData(nbt, registries);
         outputLevels.restore(NbtCompat.getInt(nbt, "OutputLevelIndex", 0));
     }
-
-    @Override
-    protected void loadLegacyData(net.minecraft.world.level.storage.ValueInput view) {
-        super.loadLegacyData(view); // Loads engine data from "Engine" tag
-
-        // Load Creative-specific data from old "CreativeData" tag
-        view.read("CreativeData", CompoundTag.CODEC).ifPresent(creativeData -> {
-            outputLevels.restore(NbtCompat.getInt(creativeData, "outputLevelIndex", 0));
-        });
-    }
 }

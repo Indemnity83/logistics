@@ -130,13 +130,4 @@ public class CreativeSinkBlockEntity extends BaseBlockEntity
         drainState.restore(NbtCompat.getInt(nbt, "DrainRateIndex", 4));
         // Note: totalEnergyReceived not loaded - testing-only counter, starts at 0
     }
-
-    @Override
-    protected void loadLegacyData(net.minecraft.world.level.storage.ValueInput view) {
-        super.loadLegacyData(view);
-        view.read("CreativeSink", net.minecraft.nbt.CompoundTag.CODEC).ifPresent(data -> {
-            // Load old key name (before BaseBlockEntity refactoring)
-            drainState.restore(NbtCompat.getInt(data, "drainRateIndex", 4));
-        });
-    }
 }

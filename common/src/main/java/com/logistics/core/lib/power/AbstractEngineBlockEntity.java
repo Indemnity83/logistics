@@ -426,18 +426,6 @@ public abstract class AbstractEngineBlockEntity extends BaseBlockEntity implemen
         heatStage = HeatStage.fromOrdinal(NbtCompat.getInt(engineData, "HeatStage", 0));
     }
 
-    @Override
-    protected void loadLegacyData(net.minecraft.world.level.storage.ValueInput view) {
-        view.read("Engine", CompoundTag.CODEC).ifPresent(engineData -> {
-            // Load old key names (before BaseBlockEntity refactoring)
-            energyBuffer.setAmount(NbtCompat.getLong(engineData, "energy", 0L));
-            temperature = NbtCompat.getDouble(engineData, "heat", 0.0);
-            progress = NbtCompat.getFloat(engineData, "progress", 0f);
-            cyclePhase = CyclePhase.fromOrdinal(NbtCompat.getInt(engineData, "cyclePhase", 0));
-            heatStage = HeatStage.fromOrdinal(NbtCompat.getInt(engineData, "stage", 0));
-        });
-    }
-
     // ==================== Lifecycle ====================
 
     /**

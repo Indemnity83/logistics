@@ -3,7 +3,6 @@ package com.logistics.pipe.modules;
 import com.logistics.core.lib.pipe.RoutingModule;
 
 import com.logistics.core.lib.items.ItemMatcher;
-import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.pipe.network.NetDbg;
 import com.logistics.core.lib.pipe.Module;
 import com.logistics.core.lib.compat.NbtCompat;
@@ -21,7 +20,6 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtOps;
-import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
@@ -32,7 +30,6 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 
 /**
@@ -165,48 +162,10 @@ public class ItemFilterModule implements Module, RoutingModule {
         }
     }
 
-    public List<String> getFilterSlots(PipeContext ctx, Direction direction) {
-        CompoundTag filters = ctx.getCompoundTag(this, FILTERS);
-        List<String> slots = new ArrayList<>(FILTER_SLOTS_PER_SIDE);
-
-        ListTag list = NbtCompat.getListOrEmpty(filters, direction.getName());
-        for (int i = 0; i < FILTER_SLOTS_PER_SIDE; i++) {
-            slots.add(NbtCompat.getStringAt(list, i, ""));
-        }
-        return slots;
-    }
-
-    public void setFilterSlots(PipeContext ctx, Direction direction, List<String> slots) {
-        CompoundTag filters = ctx.getCompoundTag(this, FILTERS);
-        ListTag list = new ListTag();
-        boolean hasAny = false;
-
-        for (String slot : slots) {
-            String value = slot == null ? "" : slot;
-            if (!value.isEmpty()) {
-                hasAny = true;
-            }
-            list.add(StringTag.valueOf(value));
-        }
-
-        if (hasAny) {
-            filters.put(direction.getName(), list);
-        } else {
-            filters.remove(direction.getName());
-        }
-
-        if (!filters.isEmpty()) {
-            ctx.putCompoundTag(this, FILTERS, filters);
-        } else {
-            ctx.remove(this, FILTERS);
-        }
-    }
-
     /**
      * Returns the filter stacks for {@code direction}, preserving full component data.
-     * Handles both old format (ListTag of StringTag item IDs) and new format
-     * (ListTag of CompoundTag full ItemStack). Always returns exactly
-     * {@link #FILTER_SLOTS_PER_SIDE} entries, padding with {@link ItemStack#EMPTY}.
+     * Always returns exactly {@link #FILTER_SLOTS_PER_SIDE} entries, padding with
+     * {@link ItemStack#EMPTY}.
      */
     public List<ItemStack> getFilterStacks(PipeContext ctx, Direction direction) {
         CompoundTag filters = ctx.getCompoundTag(this, FILTERS);
@@ -222,22 +181,9 @@ public class ItemFilterModule implements Module, RoutingModule {
             if (i < list.size()) {
                 var compoundOpt = list.getCompound(i);
                 if (compoundOpt.isPresent()) {
-                    // New format: full ItemStack encoded with ItemStack.CODEC
                     CompoundTag tag = compoundOpt.get();
                     if (!tag.isEmpty() && ops != null) {
                         stack = ItemStack.CODEC.parse(ops, tag).result().orElse(ItemStack.EMPTY);
-                    }
-                } else {
-                    // Old format: item registry ID string
-                    String id = NbtCompat.getStringAt(list, i, "");
-                    if (!id.isEmpty()) {
-                        ResourceId resource = ResourceId.tryParse(id);
-                        if (resource != null) {
-                            var itemOpt = BuiltInRegistries.ITEM.get(resource.toIdentifier());
-                            if (itemOpt.isPresent() && itemOpt.get().value() != Items.AIR) {
-                                stack = new ItemStack(itemOpt.get().value());
-                            }
-                        }
                     }
                 }
             }
