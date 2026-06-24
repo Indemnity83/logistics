@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.logistics.core.machine.FakeMachineContext;
 import com.logistics.test.MinecraftTestEnvironment;
+import java.util.List;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import org.junit.jupiter.api.Test;
@@ -14,28 +15,19 @@ class RecipeProcessorComponentTest extends MinecraftTestEnvironment {
     private static final class FakeProcessIO implements ProcessIO {
         long energy;
         boolean hasInput = true;
+        int inputCount = 1;
         boolean outputAccepts = true;
         int inputsConsumed;
         int outputsProduced;
 
         @Override
         public ItemStack input() {
-            return hasInput ? new ItemStack(Items.RAW_IRON) : ItemStack.EMPTY;
+            return hasInput ? new ItemStack(Items.RAW_IRON, inputCount) : ItemStack.EMPTY;
         }
 
         @Override
-        public boolean canAcceptOutput(ItemStack result) {
-            return outputAccepts;
-        }
-
-        @Override
-        public void consumeInput() {
-            inputsConsumed++;
-        }
-
-        @Override
-        public void produceOutput(ItemStack result) {
-            outputsProduced++;
+        public void consumeInput(int count) {
+            inputsConsumed += count;
         }
 
         @Override
@@ -47,11 +39,25 @@ class RecipeProcessorComponentTest extends MinecraftTestEnvironment {
         public void consumeEnergy(long rf) {
             energy -= rf;
         }
+
+        @Override
+        public boolean canAcceptOutputs(ItemStack result, List<ChanceOutput> byproducts) {
+            return outputAccepts;
+        }
+
+        @Override
+        public void produceOutputs(ItemStack result, List<ItemStack> rolledByproducts) {
+            outputsProduced++;
+            outputsProduced += (int) rolledByproducts.stream().filter(s -> !s.isEmpty()).count();
+        }
     }
 
     private static RecipeProcessorComponent processor(FakeProcessIO io, long required, long rfPerTick) {
-        RecipeResolver resolver = (i, ctx) ->
-                io.hasInput ? new RecipePlan(required, new ItemStack(Items.IRON_INGOT), 0f) : null;
+        return processor(io, new RecipePlan(required, new ItemStack(Items.IRON_INGOT), 0f), rfPerTick);
+    }
+
+    private static RecipeProcessorComponent processor(FakeProcessIO io, RecipePlan plan, long rfPerTick) {
+        RecipeResolver resolver = (i, ctx) -> io.hasInput ? plan : null;
         return new RecipeProcessorComponent("processor", resolver, rfPerTick, io, (ctx, lit) -> {}, () -> {});
     }
 
@@ -123,5 +129,36 @@ class RecipeProcessorComponentTest extends MinecraftTestEnvironment {
 
         processor.serverTick(new FakeMachineContext()); // 10 of 40
         assertThat(processor.progress()).isEqualTo(0.25f);
+    }
+
+    @Test
+    void producesPrimaryAndGuaranteedByproduct() {
+        FakeProcessIO io = new FakeProcessIO();
+        io.energy = 1_000;
+        RecipePlan plan = new RecipePlan(
+                20, 1, new ItemStack(Items.IRON_INGOT),
+                List.of(new ChanceOutput(new ItemStack(Items.GUNPOWDER), 1.0f)), 0f);
+        RecipeProcessorComponent processor = processor(io, plan, 10);
+        FakeMachineContext ctx = new FakeMachineContext();
+
+        processor.serverTick(ctx); // 10
+        processor.serverTick(ctx); // 20 -> complete
+
+        assertThat(io.inputsConsumed).isEqualTo(1);
+        assertThat(io.outputsProduced).isEqualTo(2); // primary + one guaranteed byproduct
+    }
+
+    @Test
+    void stallsUntilInputCountIsAvailable() {
+        FakeProcessIO io = new FakeProcessIO();
+        io.energy = 1_000;
+        io.inputCount = 1; // only one in the slot
+        RecipePlan plan = new RecipePlan(20, 2, new ItemStack(Items.IRON_INGOT), List.of(), 0f); // needs two
+        RecipeProcessorComponent processor = processor(io, plan, 10);
+
+        processor.serverTick(new FakeMachineContext());
+
+        assertThat(processor.energySpent()).isZero();
+        assertThat(io.energy).isEqualTo(1_000);
     }
 }

@@ -4,6 +4,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
@@ -19,6 +20,7 @@ public final class FakeMachineContext implements MachineContext {
 
     private final HolderLookup.Provider registries =
             RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY);
+    private final RandomSource random = RandomSource.create(42L);
     public int changedCalls;
 
     @Override
@@ -57,5 +59,10 @@ public final class FakeMachineContext implements MachineContext {
     @Nullable
     public RecipeManager recipeManager() {
         return null;
+    }
+
+    @Override
+    public RandomSource random() {
+        return random;
     }
 }

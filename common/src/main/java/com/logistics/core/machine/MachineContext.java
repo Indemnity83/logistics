@@ -2,6 +2,7 @@ package com.logistics.core.machine;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
@@ -40,6 +41,9 @@ public interface MachineContext {
     /** The server recipe manager, or {@code null} off-server / in tests without one. */
     @Nullable
     RecipeManager recipeManager();
+
+    /** Randomness source for chance-based outputs and XP rounding (seeded/deterministic in tests). */
+    RandomSource random();
 
     default boolean isServer() {
         Level level = level();

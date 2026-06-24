@@ -24,7 +24,7 @@ public final class ItemStoreComponent implements MachineComponent, MachineCompon
     private final SlotRole[] roles;
     private final SidedLayout layout;
     private final int inputSlot;
-    private final int outputSlot;
+    private final int[] outputSlots;
 
     public ItemStoreComponent(String id, SlotRole[] roles, SidedLayout layout, Runnable onChanged) {
         this.id = id;
@@ -32,7 +32,7 @@ public final class ItemStoreComponent implements MachineComponent, MachineCompon
         this.roles = roles.clone();
         this.layout = layout;
         this.inputSlot = firstSlot(roles, SlotRole.INPUT);
-        this.outputSlot = firstSlot(roles, SlotRole.OUTPUT);
+        this.outputSlots = slotsWithRole(roles, SlotRole.OUTPUT);
     }
 
     private static int firstSlot(SlotRole[] roles, SlotRole role) {
@@ -42,6 +42,10 @@ public final class ItemStoreComponent implements MachineComponent, MachineCompon
             }
         }
         return -1;
+    }
+
+    private static int[] slotsWithRole(SlotRole[] roles, SlotRole role) {
+        return java.util.stream.IntStream.range(0, roles.length).filter(i -> roles[i] == role).toArray();
     }
 
     @Override
@@ -55,34 +59,42 @@ public final class ItemStoreComponent implements MachineComponent, MachineCompon
         return inputSlot >= 0 ? inventory.getItem(inputSlot) : ItemStack.EMPTY;
     }
 
-    public void shrinkInput() {
-        if (inputSlot >= 0) {
-            inventory.getItem(inputSlot).shrink(1);
+    public void consumeInput(int count) {
+        if (inputSlot >= 0 && count > 0) {
+            inventory.getItem(inputSlot).shrink(count);
             inventory.setChanged();
         }
     }
 
-    public boolean canAcceptOutput(ItemStack result) {
-        if (outputSlot < 0) {
+    /** Number of output slots (in declaration order). */
+    public int outputCount() {
+        return outputSlots.length;
+    }
+
+    /** Whether {@code stack} fits into the output slot at {@code outputIndex}. */
+    public boolean canAcceptInto(int outputIndex, ItemStack stack) {
+        if (outputIndex < 0 || outputIndex >= outputSlots.length) {
             return false;
         }
-        ItemStack output = inventory.getItem(outputSlot);
+        ItemStack output = inventory.getItem(outputSlots[outputIndex]);
         if (output.isEmpty()) {
             return true;
         }
-        return ItemStack.isSameItemSameComponents(output, result)
-                && output.getCount() + result.getCount() <= output.getMaxStackSize();
+        return ItemStack.isSameItemSameComponents(output, stack)
+                && output.getCount() + stack.getCount() <= output.getMaxStackSize();
     }
 
-    public void produceOutput(ItemStack result) {
-        if (outputSlot < 0) {
+    /** Places {@code stack} into the output slot at {@code outputIndex} (merging into a match). */
+    public void produceInto(int outputIndex, ItemStack stack) {
+        if (outputIndex < 0 || outputIndex >= outputSlots.length || stack.isEmpty()) {
             return;
         }
-        ItemStack output = inventory.getItem(outputSlot);
+        int slot = outputSlots[outputIndex];
+        ItemStack output = inventory.getItem(slot);
         if (output.isEmpty()) {
-            inventory.setItem(outputSlot, result.copy());
+            inventory.setItem(slot, stack.copy());
         } else {
-            output.grow(result.getCount());
+            output.grow(stack.getCount());
             inventory.setChanged();
         }
     }
