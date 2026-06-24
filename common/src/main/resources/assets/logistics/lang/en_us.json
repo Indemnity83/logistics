@@ -1,5 +1,6 @@
 {
   "itemGroup.logistics.logistics_transport": "Logistics",
+  "itemGroup.logistics.automation": "Automation",
   "block.logistics.pipe.copper_transport_pipe": "Copper Transport Pipe",
   "block.logistics.pipe.copper_transport_pipe.exposed": "Exposed Copper Transport Pipe",
   "block.logistics.pipe.copper_transport_pipe.weathered": "Weathered Copper Transport Pipe",
@@ -110,7 +111,8 @@
   "item.logistics.core.bronze_ingot": "Bronze Ingot",
   "item.logistics.core.bronze_nugget": "Bronze Nugget",
   "item.logistics.core.sturdy_casing": "Sturdy Casing",
-  "item.logistics.core.machine_core": "Machine Core",
+  "item.logistics.core.machine_core": "Machine Frame",
+  "item.logistics.core.redstone_reception_coil": "Redstone Reception Coil",
   "item.logistics.core.apatite_dust": "Apatite Dust",
   "item.logistics.core.iron_dust": "Iron Dust",
   "item.logistics.core.copper_dust": "Copper Dust",
