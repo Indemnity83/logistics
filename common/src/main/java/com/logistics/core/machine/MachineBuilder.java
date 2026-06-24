@@ -125,10 +125,16 @@ public final class MachineBuilder {
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         /** Vanilla-furnace access with an insertion filter on the input slots. */
         public ItemsBuilder furnaceAccess(Predicate<ItemStack> insertFilter) {
             this.accessMode = AccessMode.FURNACE;
             this.insertFilter = insertFilter;
+=======
+        /** Vanilla-furnace access with an insertion filter on the input slots. */
+        public ItemsBuilder furnaceAccess(Predicate<ItemStack> insertFilter) {
+            this.layout = SidedLayout.furnace(indicesOf(SlotRole.INPUT), indicesOf(SlotRole.OUTPUT), insertFilter);
+>>>>>>> 917a38ec2 (Support byproducts and multi-output in the recipe processor)
             return this;
         }
 
@@ -138,6 +144,7 @@ public final class MachineBuilder {
         }
 
         /** Bottom-out access with an insertion filter on the input slots. */
+<<<<<<< HEAD
         public ItemsBuilder bottomOutAccess(Predicate<ItemStack> insertFilter) {
             this.accessMode = AccessMode.BOTTOM_OUT;
             this.insertFilter = insertFilter;
@@ -166,6 +173,10 @@ public final class MachineBuilder {
         public ItemsBuilder bottomOutAccess(Predicate<ItemStack> insertFilter) {
             this.layout = SidedLayout.bottomOut(inputIndex(), outputIndex(), insertFilter);
 >>>>>>> 6b00e8500 (Rename sided-access layouts: furnace is top-only, bottomOut is any-side)
+=======
+        public ItemsBuilder bottomOutAccess(Predicate<ItemStack> insertFilter) {
+            this.layout = SidedLayout.bottomOut(indicesOf(SlotRole.INPUT), indicesOf(SlotRole.OUTPUT), insertFilter);
+>>>>>>> 917a38ec2 (Support byproducts and multi-output in the recipe processor)
             return this;
         }
 
@@ -189,6 +200,7 @@ public final class MachineBuilder {
             return components.add(new ItemStoreComponent(id, roles, layout, onChanged));
         }
 
+<<<<<<< HEAD
         private int inputIndex() {
             return indexOf(SlotRole.INPUT);
         }
@@ -205,6 +217,10 @@ public final class MachineBuilder {
             }
             return -1;
 >>>>>>> b9517e5fb (Add component-hosted machine framework)
+=======
+        private int[] indicesOf(SlotRole role) {
+            return java.util.stream.IntStream.range(0, roles.length).filter(i -> roles[i] == role).toArray();
+>>>>>>> 917a38ec2 (Support byproducts and multi-output in the recipe processor)
         }
     }
 

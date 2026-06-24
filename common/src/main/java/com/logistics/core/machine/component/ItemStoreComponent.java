@@ -92,6 +92,7 @@ public final class ItemStoreComponent implements MachineComponent, MachineCompon
         int slot = outputSlots[outputIndex];
         ItemStack output = inventory.getItem(slot);
         if (output.isEmpty()) {
+<<<<<<< HEAD
             inventory.setItem(slot, stack.copyWithCount(Math.min(stack.getCount(), stack.getMaxStackSize())));
         } else {
             int room = output.getMaxStackSize() - output.getCount();
@@ -100,6 +101,12 @@ public final class ItemStoreComponent implements MachineComponent, MachineCompon
                 output.grow(add);
                 inventory.setChanged();
             }
+=======
+            inventory.setItem(slot, stack.copy());
+        } else {
+            output.grow(stack.getCount());
+            inventory.setChanged();
+>>>>>>> 917a38ec2 (Support byproducts and multi-output in the recipe processor)
         }
     }
 

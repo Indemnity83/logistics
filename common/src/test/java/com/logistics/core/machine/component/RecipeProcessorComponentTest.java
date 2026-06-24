@@ -149,6 +149,7 @@ class RecipeProcessorComponentTest extends MinecraftTestEnvironment {
     }
 
     @Test
+<<<<<<< HEAD
     void preservesRestoredProgressOnFirstTickAfterReload() {
         FakeProcessIO io = new FakeProcessIO();
         io.energy = 1_000;
@@ -165,6 +166,8 @@ class RecipeProcessorComponentTest extends MinecraftTestEnvironment {
     }
 
     @Test
+=======
+>>>>>>> 917a38ec2 (Support byproducts and multi-output in the recipe processor)
     void stallsUntilInputCountIsAvailable() {
         FakeProcessIO io = new FakeProcessIO();
         io.energy = 1_000;
