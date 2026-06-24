@@ -1,6 +1,6 @@
 {
   "parent": "logistics:block/automation/machine",
   "textures": {
-    "front": "logistics:block/automation/quarry_off"
+    "front": "logistics:block/automation/quarry_on"
   }
 }
