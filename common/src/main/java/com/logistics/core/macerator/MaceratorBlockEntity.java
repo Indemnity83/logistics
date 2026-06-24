@@ -80,7 +80,7 @@ public class MaceratorBlockEntity extends MachineEntity {
 
         var items = machine.items("inventory")
                 .slots(SlotRole.INPUT, SlotRole.OUTPUT)
-                .furnaceAccess()
+                .bottomOutAccess()
                 .build();
 
         processor = machine.recipeProcessor("processor")
