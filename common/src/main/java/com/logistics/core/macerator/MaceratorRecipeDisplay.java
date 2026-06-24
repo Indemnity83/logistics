@@ -16,7 +16,7 @@ public record MaceratorRecipeDisplay(
     SlotDisplay ingredient,
     SlotDisplay result,
     SlotDisplay craftingStation,
-    int grindingTime,
+    int energyRequired,
     float experience
 ) implements RecipeDisplay {
 
@@ -24,7 +24,7 @@ public record MaceratorRecipeDisplay(
         SlotDisplay.CODEC.fieldOf("ingredient").forGetter(MaceratorRecipeDisplay::ingredient),
         SlotDisplay.CODEC.fieldOf("result").forGetter(MaceratorRecipeDisplay::result),
         SlotDisplay.CODEC.fieldOf("crafting_station").forGetter(MaceratorRecipeDisplay::craftingStation),
-        Codec.INT.fieldOf("duration").forGetter(MaceratorRecipeDisplay::grindingTime),
+        Codec.INT.fieldOf("energy").forGetter(MaceratorRecipeDisplay::energyRequired),
         Codec.FLOAT.fieldOf("experience").forGetter(MaceratorRecipeDisplay::experience)
     ).apply(i, MaceratorRecipeDisplay::new));
 
@@ -33,7 +33,7 @@ public record MaceratorRecipeDisplay(
             SlotDisplay.STREAM_CODEC, MaceratorRecipeDisplay::ingredient,
             SlotDisplay.STREAM_CODEC, MaceratorRecipeDisplay::result,
             SlotDisplay.STREAM_CODEC, MaceratorRecipeDisplay::craftingStation,
-            ByteBufCodecs.VAR_INT, MaceratorRecipeDisplay::grindingTime,
+            ByteBufCodecs.VAR_INT, MaceratorRecipeDisplay::energyRequired,
             ByteBufCodecs.FLOAT, MaceratorRecipeDisplay::experience,
             MaceratorRecipeDisplay::new
         );

@@ -28,19 +28,19 @@ import java.util.List;
  */
 public class MaceratorRecipeWrapper implements Recipe<SingleRecipeInput> {
 
-    public static final int DEFAULT_GRINDING_TIME = 200;
+    public static final int DEFAULT_ENERGY_REQUIRED = 2000;
     public static final float DEFAULT_EXPERIENCE = 0.0f;
 
     private final Ingredient ingredient;
     private final ItemStackTemplate result;
-    private final int grindingTime;
+    private final int energyRequired;
     private final float experience;
     @Nullable private PlacementInfo placementInfo;
 
-    public MaceratorRecipeWrapper(Ingredient ingredient, ItemStackTemplate result, int grindingTime, float experience) {
+    public MaceratorRecipeWrapper(Ingredient ingredient, ItemStackTemplate result, int energyRequired, float experience) {
         this.ingredient = ingredient;
         this.result = result;
-        this.grindingTime = grindingTime;
+        this.energyRequired = energyRequired;
         this.experience = experience;
     }
 
@@ -52,8 +52,9 @@ public class MaceratorRecipeWrapper implements Recipe<SingleRecipeInput> {
         return result;
     }
 
-    public int grindingTime() {
-        return grindingTime;
+    /** Total energy (RF) the machine must spend to complete this recipe. */
+    public int energyRequired() {
+        return energyRequired;
     }
 
     public float experience() {
@@ -124,7 +125,7 @@ public class MaceratorRecipeWrapper implements Recipe<SingleRecipeInput> {
             ingredient.display(),
             new SlotDisplay.ItemStackSlotDisplay(result),
             new SlotDisplay.ItemSlotDisplay(LogisticsCore.BLOCK.MACERATOR.asItem()),
-            grindingTime,
+            energyRequired,
             experience
         ));
     }

@@ -5,5 +5,5 @@
     "id": "logistics:core/coal_dust",
     "count": 2
   },
-  "grindingtime": 200
+  "energyrequired": 2000
 }

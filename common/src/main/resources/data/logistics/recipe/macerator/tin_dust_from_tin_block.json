@@ -5,5 +5,5 @@
     "id": "logistics:core/tin_dust",
     "count": 9
   },
-  "grindingtime": 200
+  "energyrequired": 2000
 }

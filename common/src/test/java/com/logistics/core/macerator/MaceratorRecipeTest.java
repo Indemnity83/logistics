@@ -25,7 +25,7 @@ class MaceratorRecipeTest extends MinecraftTestEnvironment {
         return new MaceratorRecipeWrapper(
             Ingredient.of(Items.RAW_IRON),
             new ItemStackTemplate(Items.IRON_INGOT, 2),
-            MaceratorRecipeWrapper.DEFAULT_GRINDING_TIME,
+            MaceratorRecipeWrapper.DEFAULT_ENERGY_REQUIRED,
             MaceratorRecipeWrapper.DEFAULT_EXPERIENCE
         );
     }
@@ -67,15 +67,15 @@ class MaceratorRecipeTest extends MinecraftTestEnvironment {
     }
 
     @Test
-    @DisplayName("should preserve non-default grinding time")
-    void grindingTime() {
+    @DisplayName("should preserve non-default energy required")
+    void energyRequired() {
         MaceratorRecipeWrapper recipe = new MaceratorRecipeWrapper(
             Ingredient.of(Items.RAW_IRON),
             new ItemStackTemplate(Items.IRON_INGOT, 2),
-            5,
+            500,
             MaceratorRecipeWrapper.DEFAULT_EXPERIENCE
         );
-        assertThat(recipe.grindingTime()).isEqualTo(5);
+        assertThat(recipe.energyRequired()).isEqualTo(500);
     }
 
     @Test
@@ -84,7 +84,7 @@ class MaceratorRecipeTest extends MinecraftTestEnvironment {
         MaceratorRecipeWrapper recipe = new MaceratorRecipeWrapper(
             Ingredient.of(Items.RAW_IRON),
             new ItemStackTemplate(Items.IRON_INGOT, 2),
-            MaceratorRecipeWrapper.DEFAULT_GRINDING_TIME,
+            MaceratorRecipeWrapper.DEFAULT_ENERGY_REQUIRED,
             0.7f
         );
         assertThat(recipe.experience()).isEqualTo(0.7f);
@@ -105,12 +105,12 @@ class MaceratorRecipeTest extends MinecraftTestEnvironment {
         }
 
         @Test
-        @DisplayName("round-trips ingredient, result, grinding time, and experience")
+        @DisplayName("round-trips ingredient, result, energy required, and experience")
         void roundTripPreservesFields() {
             MaceratorRecipeWrapper original = new MaceratorRecipeWrapper(
                 Ingredient.of(Items.IRON_ORE),
                 new ItemStackTemplate(Items.IRON_INGOT, 2),
-                200,
+                2000,
                 0.7f
             );
 
@@ -121,7 +121,7 @@ class MaceratorRecipeTest extends MinecraftTestEnvironment {
             assertThat(decoded.matches(new ItemStack(Items.COAL))).isFalse();
             assertThat(decoded.getResultItem().is(Items.IRON_INGOT)).isTrue();
             assertThat(decoded.getResultItem().getCount()).isEqualTo(2);
-            assertThat(decoded.grindingTime()).isEqualTo(200);
+            assertThat(decoded.energyRequired()).isEqualTo(2000);
             assertThat(decoded.experience()).isEqualTo(0.7f);
         }
 
