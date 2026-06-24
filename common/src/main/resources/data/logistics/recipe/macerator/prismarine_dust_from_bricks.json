@@ -5,5 +5,5 @@
     "id": "logistics:core/prismarine_dust",
     "count": 9
   },
-  "grindingtime": 200
+  "energyrequired": 2000
 }

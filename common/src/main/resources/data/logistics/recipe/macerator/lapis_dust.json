@@ -5,6 +5,6 @@
     "id": "logistics:core/lapis_dust",
     "count": 8
   },
-  "grindingtime": 200,
+  "energyrequired": 2000,
   "experience": 0.2
 }

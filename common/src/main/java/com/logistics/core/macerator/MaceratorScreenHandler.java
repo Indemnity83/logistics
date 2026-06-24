@@ -168,13 +168,13 @@ public class MaceratorScreenHandler extends RecipeBookMenu {
 
     // ==================== Data Getters for GUI Rendering ====================
 
-    /** Progress in ticks (0 to processTotalTicks). */
-    public int getProcessProgress() {
+    /** Energy spent so far toward the active recipe (RF). */
+    public int getEnergySpent() {
         return data.get(0);
     }
 
-    /** Total ticks for the current recipe (0 if idle). */
-    public int getProcessTotalTicks() {
+    /** Total energy the active recipe requires (RF), or 0 if idle. */
+    public int getEnergyRequired() {
         return data.get(1);
     }
 
@@ -188,11 +188,11 @@ public class MaceratorScreenHandler extends RecipeBookMenu {
         return (int) MaceratorBlockEntity.ENERGY_CAPACITY;
     }
 
-    /** Progress as a 0–25 pixel width for the arrow, or 0 if idle. */
+    /** Processing progress as a 0–25 pixel width for the arrow, or 0 if idle. */
     public int getProgressArrowWidth() {
-        int total = getProcessTotalTicks();
-        if (total <= 0) return 0;
-        return 25 * getProcessProgress() / total;
+        int required = getEnergyRequired();
+        if (required <= 0) return 0;
+        return 25 * getEnergySpent() / required;
     }
 
     /** Energy bar height in pixels (0–13). */

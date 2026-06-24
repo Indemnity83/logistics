@@ -5,5 +5,5 @@
     "id": "logistics:core/emerald_dust",
     "count": 1
   },
-  "grindingtime": 200
+  "energyrequired": 2000
 }

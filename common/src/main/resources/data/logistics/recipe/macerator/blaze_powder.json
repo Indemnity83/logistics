@@ -5,5 +5,5 @@
     "id": "minecraft:blaze_powder",
     "count": 4
   },
-  "grindingtime": 200
+  "energyrequired": 2000
 }
