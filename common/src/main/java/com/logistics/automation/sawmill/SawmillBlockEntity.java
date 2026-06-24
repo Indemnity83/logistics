@@ -1,16 +1,12 @@
 package com.logistics.automation.sawmill;
 
 import com.logistics.LogisticsAutomation;
-import com.logistics.core.lib.block.BaseBlockEntity;
+import com.logistics.core.lib.block.MachineBlockEntity;
 import com.logistics.core.lib.block.ProcessingMachine;
 import com.logistics.core.lib.block.behavior.MenuBehavior;
-import com.logistics.core.lib.block.capability.HasEnergyStorage;
 import com.logistics.core.lib.block.capability.HasItemStorage;
 import com.logistics.core.lib.compat.NbtCompat;
-import com.logistics.core.lib.energy.EnergyComponent;
-import com.logistics.core.lib.energy.IEnergyStorage;
 import com.logistics.core.lib.items.ItemInventoryComponent;
-import com.logistics.core.lib.power.EnergyDemandProvider;
 import com.logistics.core.lib.storage.ContainerItemStorage;
 import com.logistics.core.lib.storage.IItemStorage;
 import net.minecraft.core.BlockPos;
@@ -43,8 +39,8 @@ import org.jetbrains.annotations.Nullable;
  * Top/sides feed the input; bottom pulls both outputs. A full output slot stalls processing
  * (pause-until-clear) so nothing is lost.
  */
-public class SawmillBlockEntity extends BaseBlockEntity
-    implements HasItemStorage, HasEnergyStorage, WorldlyContainer, MenuBehavior.HasMenu, ProcessingMachine, EnergyDemandProvider {
+public class SawmillBlockEntity extends MachineBlockEntity
+    implements HasItemStorage, WorldlyContainer, MenuBehavior.HasMenu, ProcessingMachine {
 
     static final int INPUT_SLOT = 0;
     static final int PRIMARY_OUTPUT_SLOT = 1;
@@ -61,43 +57,6 @@ public class SawmillBlockEntity extends BaseBlockEntity
     static final int ENERGY_PER_TICK = 20;
 
     private final ItemInventoryComponent inventory = new ItemInventoryComponent(TOTAL_SLOTS, this::setChanged);
-    final EnergyComponent energy = new EnergyComponent(ENERGY_CAPACITY, MAX_ENERGY_INPUT, 0, this::setChanged);
-    private long energyReceivedThisTick = 0;
-
-    // Tracks energy received per tick so {@link #networkDemandPerTick} reports the room still left.
-    private final IEnergyStorage trackingStorage = new IEnergyStorage() {
-        @Override
-        public long insert(long maxAmount, boolean simulate) {
-            long inserted = energy.insert(maxAmount, simulate);
-            if (!simulate && inserted > 0) energyReceivedThisTick += inserted;
-            return inserted;
-        }
-
-        @Override
-        public long extract(long maxAmount, boolean simulate) {
-            return energy.extract(maxAmount, simulate);
-        }
-
-        @Override
-        public long getAmount() {
-            return energy.getAmount();
-        }
-
-        @Override
-        public long getCapacity() {
-            return energy.getCapacity();
-        }
-
-        @Override
-        public boolean canInsert() {
-            return energy.canInsert();
-        }
-
-        @Override
-        public boolean canExtract() {
-            return energy.canExtract();
-        }
-    };
 
     @Nullable private RecipeHolder<SawmillRecipe> activeRecipe = null;
     int processProgress = 0;
@@ -133,12 +92,12 @@ public class SawmillBlockEntity extends BaseBlockEntity
     };
 
     public SawmillBlockEntity(BlockPos pos, BlockState state) {
-        super(LogisticsAutomation.ENTITY.SAWMILL_BLOCK_ENTITY, pos, state);
+        super(LogisticsAutomation.ENTITY.SAWMILL_BLOCK_ENTITY, pos, state, () -> ENERGY_CAPACITY, () -> MAX_ENERGY_INPUT);
     }
 
     public static void tick(Level level, BlockPos pos, BlockState state, SawmillBlockEntity entity) {
         if (level.isClientSide()) return;
-        entity.energyReceivedThisTick = 0;
+        entity.resetEnergyReceived();
         if (entity.tickProcessing(level, state)) {
             entity.setChanged();
         }
@@ -248,18 +207,6 @@ public class SawmillBlockEntity extends BaseBlockEntity
         return new ContainerItemStorage(this, side);
     }
 
-    @Override
-    public IEnergyStorage energyStorage(@Nullable Direction side) {
-        return trackingStorage;
-    }
-
-    @Override
-    public long networkDemandPerTick() {
-        long storageRoom = Math.max(0, ENERGY_CAPACITY - energy.getAmount());
-        long remainingInput = Math.max(0, MAX_ENERGY_INPUT - energyReceivedThisTick);
-        return Math.min(remainingInput, storageRoom);
-    }
-
     // ==================== WorldlyContainer (Sided Inventory) ====================
 
     private static final int[] SLOTS_INPUT = {INPUT_SLOT};
@@ -356,15 +303,15 @@ public class SawmillBlockEntity extends BaseBlockEntity
 
     @Override
     protected void saveLogisticsData(CompoundTag tag, HolderLookup.Provider registries) {
+        super.saveLogisticsData(tag, registries);
         inventory.writeNbt(tag, "Inventory", registries);
-        energy.writeNbt(tag, "Energy");
         tag.putInt("ProcessProgress", processProgress);
     }
 
     @Override
     protected void loadLogisticsData(CompoundTag tag, HolderLookup.Provider registries) {
+        super.loadLogisticsData(tag, registries);
         inventory.readNbt(tag, "Inventory", registries);
-        energy.readNbt(tag, "Energy");
         processProgress = NbtCompat.getInt(tag, "ProcessProgress", 0);
     }
 }
