@@ -1,6 +1,7 @@
 package com.logistics.core.machine;
 
 import com.logistics.core.machine.component.EnergyStorageComponent;
+import com.logistics.core.machine.component.FluidStoreComponent;
 import com.logistics.core.machine.component.ItemStoreComponent;
 import com.logistics.core.machine.component.RecipeProcessorComponent;
 import com.logistics.core.machine.component.RecipeProcessorComponent.LitController;
@@ -32,6 +33,10 @@ public final class MachineBuilder {
 
     public ItemsBuilder items(String id) {
         return new ItemsBuilder(id);
+    }
+
+    public FluidBuilder fluids(String id) {
+        return new FluidBuilder(id);
     }
 
     public RecipeProcessorBuilder recipeProcessor(String id) {
@@ -79,6 +84,25 @@ public final class MachineBuilder {
         public EnergyStorageComponent build() {
             return components.add(new EnergyStorageComponent(
                     id, capacity, maxInput, maxOutput, providesDemand, providesDemand, onChanged));
+        }
+    }
+
+    /** Builds a single-variant {@link FluidStoreComponent} tank. */
+    public final class FluidBuilder {
+        private final String id;
+        private long capacity;
+
+        private FluidBuilder(String id) {
+            this.id = id;
+        }
+
+        public FluidBuilder capacity(long capacity) {
+            this.capacity = capacity;
+            return this;
+        }
+
+        public FluidStoreComponent build() {
+            return components.add(new FluidStoreComponent(id, capacity, onChanged));
         }
     }
 
