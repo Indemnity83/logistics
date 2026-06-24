@@ -97,20 +97,25 @@ public final class MachineBuilder {
             return this;
         }
 
-        /** Furnace access: input from the top and sides, output from the bottom. */
+        /** Vanilla-furnace access: input from the top, output from the bottom, sides expose nothing. */
         public ItemsBuilder furnaceAccess() {
             return furnaceAccess(stack -> true);
         }
 
-        /** Furnace access with an insertion filter on the input slot. */
+        /** Vanilla-furnace access with an insertion filter on the input slot. */
         public ItemsBuilder furnaceAccess(Predicate<ItemStack> insertFilter) {
             this.layout = SidedLayout.furnace(inputIndex(), outputIndex(), insertFilter);
             return this;
         }
 
-        /** Top-only input access: input from the top, output from the bottom, sides expose nothing. */
-        public ItemsBuilder topAccess(Predicate<ItemStack> insertFilter) {
-            this.layout = SidedLayout.topInput(inputIndex(), outputIndex(), insertFilter);
+        /** Bottom-out access: input from any non-bottom face, output from the bottom. */
+        public ItemsBuilder bottomOutAccess() {
+            return bottomOutAccess(stack -> true);
+        }
+
+        /** Bottom-out access with an insertion filter on the input slot. */
+        public ItemsBuilder bottomOutAccess(Predicate<ItemStack> insertFilter) {
+            this.layout = SidedLayout.bottomOut(inputIndex(), outputIndex(), insertFilter);
             return this;
         }
 

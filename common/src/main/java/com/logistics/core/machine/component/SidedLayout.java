@@ -9,10 +9,10 @@ import net.minecraft.world.item.ItemStack;
  * slot is insertable from the faces that expose it (subject to {@code insertFilter}) and the output
  * slot is extractable from the faces that expose it.
  *
- * <p>Factories cover the two furnace-derived shapes used today:
+ * <p>Factories cover the two shapes used today:
  * <ul>
- *   <li>{@link #furnace} — input from the top and all horizontal sides, output from the bottom.</li>
- *   <li>{@link #topInput} — input from the top only (sides expose nothing), output from the bottom.</li>
+ *   <li>{@link #furnace} — input from the top only (sides expose nothing), output from the bottom.</li>
+ *   <li>{@link #bottomOut} — input from the top and all horizontal sides, output from the bottom.</li>
  * </ul>
  */
 public final class SidedLayout {
@@ -41,16 +41,19 @@ public final class SidedLayout {
         this.insertFilter = insertFilter;
     }
 
-    /** Input insertable from the top and horizontal faces; output extractable from the bottom. */
+    /**
+     * Vanilla-furnace item access: input from the top only, output from the bottom; horizontal faces
+     * expose nothing (a furnace's sides are its fuel slot, which electric machines don't have).
+     */
     public static SidedLayout furnace(int inputSlot, int outputSlot, Predicate<ItemStack> insertFilter) {
         return new SidedLayout(
-                new int[] {inputSlot}, new int[] {inputSlot}, new int[] {outputSlot}, inputSlot, outputSlot, insertFilter);
+                new int[] {inputSlot}, NONE, new int[] {outputSlot}, inputSlot, outputSlot, insertFilter);
     }
 
-    /** Input insertable from the top only; output extractable from the bottom; horizontal faces expose nothing. */
-    public static SidedLayout topInput(int inputSlot, int outputSlot, Predicate<ItemStack> insertFilter) {
+    /** Input insertable from the top and all horizontal faces; output extractable from the bottom. */
+    public static SidedLayout bottomOut(int inputSlot, int outputSlot, Predicate<ItemStack> insertFilter) {
         return new SidedLayout(
-                new int[] {inputSlot}, NONE, new int[] {outputSlot}, inputSlot, outputSlot, insertFilter);
+                new int[] {inputSlot}, new int[] {inputSlot}, new int[] {outputSlot}, inputSlot, outputSlot, insertFilter);
     }
 
     public int[] slotsForFace(Direction side) {
