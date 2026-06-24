@@ -102,9 +102,9 @@ public final class MachineBuilder {
             return furnaceAccess(stack -> true);
         }
 
-        /** Vanilla-furnace access with an insertion filter on the input slot. */
+        /** Vanilla-furnace access with an insertion filter on the input slots. */
         public ItemsBuilder furnaceAccess(Predicate<ItemStack> insertFilter) {
-            this.layout = SidedLayout.furnace(inputIndex(), outputIndex(), insertFilter);
+            this.layout = SidedLayout.furnace(indicesOf(SlotRole.INPUT), indicesOf(SlotRole.OUTPUT), insertFilter);
             return this;
         }
 
@@ -113,9 +113,9 @@ public final class MachineBuilder {
             return bottomOutAccess(stack -> true);
         }
 
-        /** Bottom-out access with an insertion filter on the input slot. */
+        /** Bottom-out access with an insertion filter on the input slots. */
         public ItemsBuilder bottomOutAccess(Predicate<ItemStack> insertFilter) {
-            this.layout = SidedLayout.bottomOut(inputIndex(), outputIndex(), insertFilter);
+            this.layout = SidedLayout.bottomOut(indicesOf(SlotRole.INPUT), indicesOf(SlotRole.OUTPUT), insertFilter);
             return this;
         }
 
@@ -123,21 +123,8 @@ public final class MachineBuilder {
             return components.add(new ItemStoreComponent(id, roles, layout, onChanged));
         }
 
-        private int inputIndex() {
-            return indexOf(SlotRole.INPUT);
-        }
-
-        private int outputIndex() {
-            return indexOf(SlotRole.OUTPUT);
-        }
-
-        private int indexOf(SlotRole role) {
-            for (int i = 0; i < roles.length; i++) {
-                if (roles[i] == role) {
-                    return i;
-                }
-            }
-            return -1;
+        private int[] indicesOf(SlotRole role) {
+            return java.util.stream.IntStream.range(0, roles.length).filter(i -> roles[i] == role).toArray();
         }
     }
 

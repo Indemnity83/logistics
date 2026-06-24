@@ -3,9 +3,12 @@ package com.logistics.core.machine.component;
 import com.logistics.core.lib.compat.NbtCompat;
 import com.logistics.core.machine.MachineComponent;
 import com.logistics.core.machine.MachineContext;
+import java.util.ArrayList;
+import java.util.List;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
@@ -82,8 +85,10 @@ public final class RecipeProcessorComponent implements MachineComponent, Machine
             energySpent = 0;
         }
 
-        RecipeProcessPlan.Result result = RecipeProcessPlan.advance(
-                energySpent, plan.energyRequired(), io.energyStored(), rfPerTick, io.canAcceptOutput(plan.result()));
+        boolean canRun = io.input().getCount() >= plan.inputCount()
+                && io.canAcceptOutputs(plan.result(), plan.byproducts());
+        RecipeProcessPlan.Result result =
+                RecipeProcessPlan.advance(energySpent, plan.energyRequired(), io.energyStored(), rfPerTick, canRun);
 
         if (!result.consumedEnergy()) {
             lit.setLit(ctx, false);
@@ -96,12 +101,21 @@ public final class RecipeProcessorComponent implements MachineComponent, Machine
         onChanged.run();
 
         if (result.complete()) {
-            io.consumeInput();
-            io.produceOutput(plan.result());
+            io.consumeInput(plan.inputCount());
+            io.produceOutputs(plan.result(), rollByproducts(plan.byproducts(), ctx.random()));
             awardExperience(ctx, plan.experience());
             energySpent = 0;
             activePlan = null;
         }
+    }
+
+    /** Rolls each byproduct's yield into a stack (empty when the roll is zero), parallel to {@code byproducts}. */
+    private static List<ItemStack> rollByproducts(List<ChanceOutput> byproducts, RandomSource random) {
+        List<ItemStack> rolled = new ArrayList<>(byproducts.size());
+        for (ChanceOutput byproduct : byproducts) {
+            rolled.add(byproduct.stack(byproduct.roll(random)));
+        }
+        return rolled;
     }
 
     private void reset(MachineContext ctx) {
@@ -123,7 +137,7 @@ public final class RecipeProcessorComponent implements MachineComponent, Machine
             return;
         }
         int xp = (int) experience;
-        if (serverLevel.getRandom().nextFloat() < (experience - xp)) {
+        if (ctx.random().nextFloat() < (experience - xp)) {
             xp++;
         }
         if (xp > 0) {
@@ -187,18 +201,8 @@ public final class RecipeProcessorComponent implements MachineComponent, Machine
         }
 
         @Override
-        public boolean canAcceptOutput(ItemStack result) {
-            return items.canAcceptOutput(result);
-        }
-
-        @Override
-        public void consumeInput() {
-            items.shrinkInput();
-        }
-
-        @Override
-        public void produceOutput(ItemStack result) {
-            items.produceOutput(result);
+        public void consumeInput(int count) {
+            items.consumeInput(count);
         }
 
         @Override
@@ -209,6 +213,28 @@ public final class RecipeProcessorComponent implements MachineComponent, Machine
         @Override
         public void consumeEnergy(long rf) {
             energy.consume(rf);
+        }
+
+        @Override
+        public boolean canAcceptOutputs(ItemStack result, List<ChanceOutput> byproducts) {
+            if (!items.canAcceptInto(0, result)) {
+                return false;
+            }
+            for (int i = 0; i < byproducts.size(); i++) {
+                ChanceOutput byproduct = byproducts.get(i);
+                if (byproduct.guaranteedCount() > 0 && !items.canAcceptInto(i + 1, byproduct.guaranteedStack())) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        @Override
+        public void produceOutputs(ItemStack result, List<ItemStack> rolledByproducts) {
+            items.produceInto(0, result);
+            for (int i = 0; i < rolledByproducts.size(); i++) {
+                items.produceInto(i + 1, rolledByproducts.get(i));
+            }
         }
     }
 }

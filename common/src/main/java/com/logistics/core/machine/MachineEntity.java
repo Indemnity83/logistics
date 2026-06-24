@@ -18,6 +18,7 @@ import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.WorldlyContainer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -199,6 +200,11 @@ public abstract class MachineEntity extends BaseBlockEntity
     @Nullable
     public RecipeManager recipeManager() {
         return level instanceof ServerLevel serverLevel ? serverLevel.getServer().getRecipeManager() : null;
+    }
+
+    @Override
+    public RandomSource random() {
+        return level != null ? level.getRandom() : RandomSource.create();
     }
 
     // ==================== Persistence ====================
