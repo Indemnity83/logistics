@@ -111,14 +111,19 @@ public final class MachineBuilder {
         }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
         /** Vanilla-furnace access: input from the top, output from the bottom, sides expose nothing. */
 =======
         /** Furnace access: input from the top and sides, output from the bottom. */
 >>>>>>> b9517e5fb (Add component-hosted machine framework)
+=======
+        /** Vanilla-furnace access: input from the top, output from the bottom, sides expose nothing. */
+>>>>>>> 6b00e8500 (Rename sided-access layouts: furnace is top-only, bottomOut is any-side)
         public ItemsBuilder furnaceAccess() {
             return furnaceAccess(stack -> true);
         }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
         /** Vanilla-furnace access with an insertion filter on the input slots. */
         public ItemsBuilder furnaceAccess(Predicate<ItemStack> insertFilter) {
@@ -138,15 +143,29 @@ public final class MachineBuilder {
             this.insertFilter = insertFilter;
 =======
         /** Furnace access with an insertion filter on the input slot. */
+=======
+        /** Vanilla-furnace access with an insertion filter on the input slot. */
+>>>>>>> 6b00e8500 (Rename sided-access layouts: furnace is top-only, bottomOut is any-side)
         public ItemsBuilder furnaceAccess(Predicate<ItemStack> insertFilter) {
             this.layout = SidedLayout.furnace(inputIndex(), outputIndex(), insertFilter);
             return this;
         }
 
+<<<<<<< HEAD
         /** Top-only input access: input from the top, output from the bottom, sides expose nothing. */
         public ItemsBuilder topAccess(Predicate<ItemStack> insertFilter) {
             this.layout = SidedLayout.topInput(inputIndex(), outputIndex(), insertFilter);
 >>>>>>> b9517e5fb (Add component-hosted machine framework)
+=======
+        /** Bottom-out access: input from any non-bottom face, output from the bottom. */
+        public ItemsBuilder bottomOutAccess() {
+            return bottomOutAccess(stack -> true);
+        }
+
+        /** Bottom-out access with an insertion filter on the input slot. */
+        public ItemsBuilder bottomOutAccess(Predicate<ItemStack> insertFilter) {
+            this.layout = SidedLayout.bottomOut(inputIndex(), outputIndex(), insertFilter);
+>>>>>>> 6b00e8500 (Rename sided-access layouts: furnace is top-only, bottomOut is any-side)
             return this;
         }
 
