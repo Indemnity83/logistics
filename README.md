@@ -20,6 +20,8 @@
 
 **Logistics is in active development.** Core pipe transport works, but expect rough edges, missing features, and the occasional bug. Report issues on [GitHub](https://github.com/indemnity83/logistics/issues) if something breaks, or [join the Discord](https://discord.gg/94DP3CVNVt) for help and discussion.
 
+**Updating worlds:** while in pre-release, save compatibility reaches back one major version (the second version digit). Load your world in the **latest release of each major in turn** before jumping ahead — e.g. a `0.5.x` world should pass through the latest `0.6.x` before `0.7+`. Skipping a major may drop renamed blocks/items or saved machine state.
+
 
 ## About
 

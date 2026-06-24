@@ -166,33 +166,7 @@ public class ProcessModule implements Module, TickingModule, RoutingModule, Disp
     // ==================== Queue Helpers ====================
 
     private ListTag getQueue(PipeContext ctx) {
-        CompoundTag state = ctx.moduleState(this);
-        ListTag queue = NbtCompat.getListOrEmpty(state, QUEUE);
-        if (!queue.isEmpty()) return queue;
-
-        // One-shot migration: convert a legacy "active_job" CompoundTag into a queue entry
-        if (!state.contains("active_job")) return queue;
-        CompoundTag legacy = NbtCompat.getCompoundOrEmpty(state, "active_job");
-
-        CompoundTag migrated = new CompoundTag();
-        migrated.putString(ENTRY_REQ, NbtCompat.getString(legacy, "req", ""));
-        String legacyDlv = NbtCompat.getString(legacy, "dlv", "");
-        if (!legacyDlv.isEmpty()) migrated.putString(ENTRY_DLV, legacyDlv);
-        migrated.putLong(ENTRY_EXEC, NbtCompat.getLong(legacy, "exec", 0));
-        migrated.putLong(ENTRY_EXTR, NbtCompat.getLong(legacy, "extr", 0));
-        migrated.putLong(ENTRY_REQUESTED, NbtCompat.getLong(legacy, "req_amount", 0));
-        migrated.put(ENTRY_ORDERS, NbtCompat.getListOrEmpty(legacy, "orders"));
-        // Populate output snapshot from current config (best-effort; may be empty if config changed)
-        String outputItem = getOutputItem(ctx, 0);
-        migrated.putString(ENTRY_OUTPUT_ITEM, outputItem);
-        migrated.putInt(ENTRY_OUTPUT_COUNT, outputItem.isEmpty() ? 0 : getOutputCount(ctx, 0));
-
-        queue = new ListTag();
-        queue.add(migrated);
-        state.put(QUEUE, queue);
-        state.remove("active_job");
-        ctx.markDirtyAndSync();
-        return queue;
+        return NbtCompat.getListOrEmpty(ctx.moduleState(this), QUEUE);
     }
 
     private void saveQueue(PipeContext ctx, ListTag queue) {
