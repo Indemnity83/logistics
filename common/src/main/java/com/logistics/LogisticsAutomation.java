@@ -60,7 +60,7 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
     public static final class ITEM {
         private ITEM() {}
 
-        // Shared machine components — only ever used in machine recipes, so they live here.
+        // Shared machine components used in machine recipes.
         public static Item MACHINE_CORE;
         public static Item REDSTONE_RECEPTION_COIL;
 
@@ -127,8 +127,7 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
         private CREATIVE() {}
 
         static void register() {
-            // Machine components, then the machines themselves. (Macerator joins when its
-            // domain move lands.)
+            // Machine components, then the machines.
             TAB.add(ITEM.MACHINE_CORE);
             TAB.add(ITEM.REDSTONE_RECEPTION_COIL);
             TAB.add(BLOCK.KILN);

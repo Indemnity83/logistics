@@ -3,10 +3,10 @@
 	"credit": "Made with Blockbench",
 	"parent": "minecraft:block/cube",
 	"textures": {
-		"0": "logistics:block/automation/bottom",
-		"1": "logistics:block/automation/side",
-		"2": "logistics:block/automation/top",
-		"particle": "logistics:block/automation/bottom"
+		"0": "logistics:block/automation/machine_bottom",
+		"1": "logistics:block/automation/machine_side",
+		"2": "logistics:block/automation/machine_top",
+		"particle": "logistics:block/automation/machine_bottom"
 	},
 	"elements": [
 		{

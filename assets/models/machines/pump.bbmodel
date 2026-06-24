@@ -4,7 +4,7 @@
     "model_format": "java_block",
     "box_uv": false
   },
-  "name": "pump",
+  "name": "fluid_pump",
   "parent": "",
   "java_block_version": "1.21.11",
   "ambientocclusion": true,
