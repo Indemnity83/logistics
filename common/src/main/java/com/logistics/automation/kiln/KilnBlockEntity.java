@@ -1,12 +1,10 @@
 package com.logistics.automation.kiln;
 
 import com.logistics.LogisticsAutomation;
-import com.logistics.core.lib.block.BaseBlockEntity;
+import com.logistics.core.lib.block.MachineBlockEntity;
 import com.logistics.core.lib.block.ProcessingMachine;
 import com.logistics.core.lib.block.behavior.MenuBehavior;
-import com.logistics.core.lib.block.capability.HasEnergyStorage;
 import com.logistics.core.lib.block.capability.HasItemStorage;
-import com.logistics.core.lib.energy.EnergyComponent;
 import com.logistics.core.lib.items.ItemInventoryComponent;
 import com.logistics.core.lib.compat.NbtCompat;
 import com.logistics.core.lib.storage.ContainerItemStorage;
@@ -32,7 +30,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
-import com.logistics.core.lib.energy.IEnergyStorage;
 
 /**
  * Block entity for the Electric Kiln.
@@ -51,8 +48,8 @@ import com.logistics.core.lib.energy.IEnergyStorage;
  *   <li>BOTTOM: Output slot</li>
  * </ul>
  */
-public class KilnBlockEntity extends BaseBlockEntity
-    implements HasItemStorage, HasEnergyStorage, WorldlyContainer, MenuBehavior.HasMenu, ProcessingMachine {
+public class KilnBlockEntity extends MachineBlockEntity
+    implements HasItemStorage, WorldlyContainer, MenuBehavior.HasMenu, ProcessingMachine {
 
     static final int INPUT_SLOT = 0;
     static final int OUTPUT_SLOT = 1;
@@ -64,7 +61,6 @@ public class KilnBlockEntity extends BaseBlockEntity
     static final int ENERGY_PER_TICK = 1;
 
     private final ItemInventoryComponent inventory = new ItemInventoryComponent(TOTAL_SLOTS, this::setChanged);
-    final EnergyComponent energy = new EnergyComponent(ENERGY_CAPACITY, MAX_ENERGY_INPUT, 0, this::setChanged);
 
     @Nullable private RecipeHolder<SmeltingRecipe> activeRecipe = null;
     int processProgress = 0;
@@ -100,11 +96,12 @@ public class KilnBlockEntity extends BaseBlockEntity
     };
 
     public KilnBlockEntity(BlockPos pos, BlockState state) {
-        super(LogisticsAutomation.ENTITY.KILN_BLOCK_ENTITY, pos, state);
+        super(LogisticsAutomation.ENTITY.KILN_BLOCK_ENTITY, pos, state, () -> ENERGY_CAPACITY, () -> MAX_ENERGY_INPUT);
     }
 
     public static void tick(Level level, BlockPos pos, BlockState state, KilnBlockEntity entity) {
         if (level.isClientSide()) return;
+        entity.resetEnergyReceived();
         if (entity.tickProcessing(level, state)) {
             entity.setChanged();
         }
@@ -203,11 +200,6 @@ public class KilnBlockEntity extends BaseBlockEntity
         return new ContainerItemStorage(this, side);
     }
 
-    @Override
-    public IEnergyStorage energyStorage(@Nullable Direction side) {
-        return energy;
-    }
-
     // ==================== WorldlyContainer (Sided Inventory) ====================
 
     private static final int[] SLOTS_INPUT = new int[]{INPUT_SLOT};
@@ -302,15 +294,15 @@ public class KilnBlockEntity extends BaseBlockEntity
 
     @Override
     protected void saveLogisticsData(CompoundTag tag, HolderLookup.Provider registries) {
+        super.saveLogisticsData(tag, registries);
         inventory.writeNbt(tag, "Inventory", registries);
-        energy.writeNbt(tag, "Energy");
         tag.putInt("ProcessProgress", processProgress);
     }
 
     @Override
     protected void loadLogisticsData(CompoundTag tag, HolderLookup.Provider registries) {
+        super.loadLogisticsData(tag, registries);
         inventory.readNbt(tag, "Inventory", registries);
-        energy.readNbt(tag, "Energy");
         processProgress = NbtCompat.getInt(tag, "ProcessProgress", 0);
         // activeRecipe is re-resolved on the next tick
     }
