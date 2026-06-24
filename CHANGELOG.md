@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.5](https://github.com/Indemnity83/logistics/compare/mc1.21.1-v0.7.4...mc1.21.1-v0.7.5) (2026-06-24)
+
+
+### Fixed
+
+* **automation:** let quarry markers connect through solid blocks ([#581](https://github.com/Indemnity83/logistics/issues/581)) ([e9d194c](https://github.com/Indemnity83/logistics/commit/e9d194cb327298d6190d6fca243c5c8670a476df))
+
 ## [0.7.4](https://github.com/Indemnity83/logistics/compare/mc1.21.1-v0.7.3...mc1.21.1-v0.7.4) (2026-06-21)
 
 
