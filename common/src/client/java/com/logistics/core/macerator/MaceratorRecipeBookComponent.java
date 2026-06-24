@@ -1,5 +1,6 @@
 package com.logistics.core.macerator;
 
+import com.logistics.LogisticsAutomation;
 import com.logistics.LogisticsCore;
 import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.gui.screens.recipebook.GhostSlots;
@@ -30,7 +31,7 @@ public class MaceratorRecipeBookComponent extends RecipeBookComponent<MaceratorS
     private static final Component FILTER_NAME = Component.translatable("gui.recipebook.toggleRecipes.smeltable");
 
     private static final List<TabInfo> TABS = List.of(
-        new TabInfo(LogisticsCore.BLOCK.MACERATOR.asItem(), LogisticsCore.RECIPE.MACERATOR_CATEGORY)
+        new TabInfo(LogisticsAutomation.BLOCK.MACERATOR.asItem(), LogisticsCore.RECIPE.MACERATOR_CATEGORY)
     );
 
     public MaceratorRecipeBookComponent(MaceratorScreenHandler handler) {

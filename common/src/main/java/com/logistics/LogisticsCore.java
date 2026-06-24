@@ -3,8 +3,6 @@ package com.logistics;
 import com.logistics.core.LogisticsConfig;
 import com.logistics.core.bootstrap.DomainBootstrap;
 import com.logistics.core.item.WrenchItem;
-import com.logistics.core.macerator.MaceratorBlock;
-import com.logistics.core.macerator.MaceratorBlockEntity;
 import com.logistics.core.macerator.MaceratorRecipeDisplay;
 import com.logistics.core.macerator.MaceratorRecipeSerializer;
 import com.logistics.core.macerator.MaceratorRecipeWrapper;
@@ -19,7 +17,6 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.crafting.display.RecipeDisplay;
 import net.minecraft.world.inventory.MenuType;
-import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.CreativeModeTabs;
@@ -74,7 +71,6 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         public static Block BRONZE_BLOCK;
         public static Block APATITE_ORE;
         public static Block APATITE_BLOCK;
-        public static Block MACERATOR;
         public static Block QUARTZ_CRYSTAL;
 
         private BLOCK() {}
@@ -99,9 +95,6 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
                 props -> new DropExperienceBlock(UniformInt.of(0, 2), props.strength(3.0f, 3.0f).sound(SoundType.STONE).requiresCorrectToolForDrops()));
             APATITE_BLOCK = INSTANCE.registerBlockWithItem("apatite_block",
                 props -> new Block(props.strength(5.0f, 6.0f).sound(SoundType.STONE).requiresCorrectToolForDrops()));
-            MACERATOR = INSTANCE.registerBlockWithItem("macerator",
-                props -> new MaceratorBlock(props.strength(3.5f).sound(SoundType.METAL).requiresCorrectToolForDrops()
-                    .lightLevel(state -> state.getValue(MaceratorBlock.LIT) ? 13 : 0)));
             QUARTZ_CRYSTAL = INSTANCE.registerBlockWithItem("quartz_crystal",
                 props -> new Block(props.strength(0.8f).sound(SoundType.GLASS).noOcclusion()));
         }
@@ -286,10 +279,8 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
     public static final class ENTITY {
         private ENTITY() {}
 
-        public static BlockEntityType<MaceratorBlockEntity> MACERATOR_BLOCK_ENTITY;
-
         static void register() {
-            MACERATOR_BLOCK_ENTITY = INSTANCE.registerBlockEntity("macerator", MaceratorBlockEntity::new, BLOCK.MACERATOR);
+            // Macerator block entity now registered in LogisticsAutomation (moved to the automation domain).
         }
     }
 
@@ -351,7 +342,6 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
 
         static void register() {
             TAB.add(ITEM.WRENCH);
-            TAB.add(BLOCK.MACERATOR);
             TAB.add(BLOCK.QUARTZ_CRYSTAL);
 
             // Register the tab — populate() is lazy, so other domains can still add items after this

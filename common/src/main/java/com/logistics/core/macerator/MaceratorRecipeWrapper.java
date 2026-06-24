@@ -1,5 +1,6 @@
 package com.logistics.core.macerator;
 
+import com.logistics.LogisticsAutomation;
 import com.logistics.LogisticsCore;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
@@ -124,7 +125,7 @@ public class MaceratorRecipeWrapper implements Recipe<SingleRecipeInput> {
         return List.of(new MaceratorRecipeDisplay(
             ingredient.display(),
             new SlotDisplay.ItemStackSlotDisplay(result),
-            new SlotDisplay.ItemSlotDisplay(LogisticsCore.BLOCK.MACERATOR.asItem()),
+            new SlotDisplay.ItemSlotDisplay(LogisticsAutomation.BLOCK.MACERATOR.asItem()),
             energyRequired,
             experience
         ));

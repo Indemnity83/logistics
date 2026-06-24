@@ -1,6 +1,6 @@
 package com.logistics.core.macerator.jei;
 
-import com.logistics.LogisticsCore;
+import com.logistics.LogisticsAutomation;
 import com.logistics.LogisticsMod;
 import com.logistics.core.macerator.MaceratorRecipeWrapper;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
@@ -43,7 +43,7 @@ public class MaceratorRecipeCategory implements IRecipeCategory<MaceratorRecipeW
 
     public MaceratorRecipeCategory(IGuiHelper guiHelper) {
         this.icon = guiHelper.createDrawableItemStack(
-            new ItemStack(LogisticsCore.BLOCK.MACERATOR));
+            new ItemStack(LogisticsAutomation.BLOCK.MACERATOR));
         this.arrow = guiHelper.createDrawable(TEXTURE.toIdentifier(), 180, 36, 25, 14);
     }
 

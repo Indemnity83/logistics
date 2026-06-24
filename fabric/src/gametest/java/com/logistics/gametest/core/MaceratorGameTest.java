@@ -1,6 +1,6 @@
 package com.logistics.gametest.core;
 
-import com.logistics.LogisticsCore;
+import com.logistics.LogisticsAutomation;
 import com.logistics.core.lib.energy.IEnergyStorage;
 import com.logistics.core.lib.storage.IItemStorage;
 import com.logistics.core.macerator.MaceratorBlock;
@@ -26,7 +26,7 @@ public class MaceratorGameTest {
     @GameTest
     public void testPlacementCreatesBlockEntity(GameTestHelper context) {
         BlockPos pos = new BlockPos(1, 1, 1);
-        context.setBlock(pos, LogisticsCore.BLOCK.MACERATOR);
+        context.setBlock(pos, LogisticsAutomation.BLOCK.MACERATOR);
 
         if (context.getBlockEntity(pos, MaceratorBlockEntity.class) == null) {
             context.fail("Macerator should create MaceratorBlockEntity");
@@ -38,7 +38,7 @@ public class MaceratorGameTest {
     @GameTest
     public void testSidedAccess(GameTestHelper context) {
         BlockPos pos = new BlockPos(1, 1, 1);
-        context.setBlock(pos, LogisticsCore.BLOCK.MACERATOR);
+        context.setBlock(pos, LogisticsAutomation.BLOCK.MACERATOR);
 
         if (!(context.getBlockEntity(pos, MaceratorBlockEntity.class) instanceof WorldlyContainer sided)) {
             context.fail("Macerator should implement WorldlyContainer");
@@ -78,7 +78,7 @@ public class MaceratorGameTest {
     @GameTest
     public void testCapabilitiesExposed(GameTestHelper context) {
         BlockPos pos = new BlockPos(1, 1, 1);
-        context.setBlock(pos, LogisticsCore.BLOCK.MACERATOR);
+        context.setBlock(pos, LogisticsAutomation.BLOCK.MACERATOR);
         MaceratorBlockEntity macerator = context.getBlockEntity(pos, MaceratorBlockEntity.class);
 
         if (macerator.energyStorage(null) == null) {
@@ -102,7 +102,7 @@ public class MaceratorGameTest {
     @GameTest(maxTicks = 240)
     public void testMaceratesOreWithEnergy(GameTestHelper context) {
         BlockPos pos = new BlockPos(1, 1, 1);
-        context.setBlock(pos, LogisticsCore.BLOCK.MACERATOR);
+        context.setBlock(pos, LogisticsAutomation.BLOCK.MACERATOR);
         MaceratorBlockEntity macerator = context.getBlockEntity(pos, MaceratorBlockEntity.class);
 
         // Fill the energy buffer (each insert is capped at the 128 RF/t input limit).

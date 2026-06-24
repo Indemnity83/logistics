@@ -1,6 +1,6 @@
 package com.logistics.core.macerator;
 
-import com.logistics.LogisticsCore;
+import com.logistics.LogisticsAutomation;
 import com.logistics.core.machine.MachineBuilder;
 import com.logistics.core.machine.MachineContext;
 import com.logistics.core.machine.MachineEntity;
@@ -67,7 +67,7 @@ public class MaceratorBlockEntity extends MachineEntity {
     };
 
     public MaceratorBlockEntity(BlockPos pos, BlockState state) {
-        super(LogisticsCore.ENTITY.MACERATOR_BLOCK_ENTITY, pos, state);
+        super(LogisticsAutomation.ENTITY.MACERATOR_BLOCK_ENTITY, pos, state);
     }
 
     @Override
