@@ -4,13 +4,9 @@ import com.logistics.LogisticsAutomation;
 import com.logistics.automation.laserquarry.LaserQuarryBlock;
 import com.logistics.automation.render.ClientRenderCacheHooks;
 import com.logistics.core.LogisticsConfig;
-import com.logistics.core.lib.block.BaseBlockEntity;
-import com.logistics.core.lib.block.capability.HasEnergyStorage;
+import com.logistics.core.lib.block.MachineBlockEntity;
 import com.logistics.core.lib.block.capability.PipeConnection;
 import com.logistics.core.lib.compat.NbtCompat;
-import com.logistics.core.lib.energy.EnergyComponent;
-import com.logistics.core.lib.energy.IEnergyStorage;
-import com.logistics.core.lib.power.EnergyDemandProvider;
 import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -21,10 +17,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.Nullable;
 
-public class LaserQuarryBlockEntity extends BaseBlockEntity
-        implements PipeConnection, HasEnergyStorage, EnergyDemandProvider {
+public class LaserQuarryBlockEntity extends MachineBlockEntity
+        implements PipeConnection {
     static final long FRAME_BUILD_COST = 240L;
     private static final long MOVE_COST_BUFFER_DIVISOR = 10L;
 
@@ -42,47 +37,7 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity
         BREAKING
     }
 
-    // Energy storage — kept on the BE because it's part of the capability surface.
-    private final EnergyComponent energy = new EnergyComponent(
-            LogisticsConfig.get().quarry.energyCapacity(),
-            LogisticsConfig.get().quarry.maxEnergyInput(),
-            0,
-            this::setChanged);
     private long energyReceivedLastTick = 0;
-    private long energyReceivedThisTick = 0;
-    private final IEnergyStorage trackingStorage = new IEnergyStorage() {
-        @Override
-        public long insert(long maxAmount, boolean simulate) {
-            long inserted = energy.insert(maxAmount, simulate);
-            if (!simulate && inserted > 0) energyReceivedThisTick += inserted;
-            return inserted;
-        }
-
-        @Override
-        public long extract(long maxAmount, boolean simulate) {
-            return energy.extract(maxAmount, simulate);
-        }
-
-        @Override
-        public long getAmount() {
-            return energy.getAmount();
-        }
-
-        @Override
-        public long getCapacity() {
-            return energy.getCapacity();
-        }
-
-        @Override
-        public boolean canInsert() {
-            return energy.canInsert();
-        }
-
-        @Override
-        public boolean canExtract() {
-            return energy.canExtract();
-        }
-    };
     private long lastSyncedEnergy = 0;
     private boolean consumedEnergyThisTick = false;
 
@@ -95,15 +50,10 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity
     private final int breakingEntityId;
 
     public LaserQuarryBlockEntity(BlockPos pos, BlockState state) {
-        super(LogisticsAutomation.ENTITY.LASER_QUARRY_BLOCK_ENTITY, pos, state);
+        super(LogisticsAutomation.ENTITY.LASER_QUARRY_BLOCK_ENTITY, pos, state,
+                () -> LogisticsConfig.get().quarry.energyCapacity(),
+                () -> LogisticsConfig.get().quarry.maxEnergyInput());
         this.breakingEntityId = pos.hashCode();
-    }
-
-    // ==================== HasEnergyStorage ====================
-
-    @Override
-    public IEnergyStorage energyStorage(@Nullable Direction side) {
-        return trackingStorage;
     }
 
     // ==================== Tick ====================
@@ -115,8 +65,8 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity
 
         ActiveQuarryRegistry.register((ServerLevel) world, pos);
 
-        entity.energyReceivedLastTick = entity.energyReceivedThisTick;
-        entity.energyReceivedThisTick = 0;
+        entity.energyReceivedLastTick = entity.energyReceivedThisTick();
+        entity.resetEnergyReceived();
 
         boolean wasConsumedEnergy = entity.consumedEnergyThisTick;
         entity.consumedEnergyThisTick = false;
@@ -234,13 +184,6 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity
         return (double) energy.getAmount() / LogisticsConfig.get().quarry.energyCapacity();
     }
 
-    @Override
-    public long networkDemandPerTick() {
-        long storageRoom = Math.max(0, LogisticsConfig.get().quarry.energyCapacity() - energy.getAmount());
-        long remainingInput = Math.max(0, LogisticsConfig.get().quarry.maxEnergyInput() - energyReceivedThisTick);
-        return Math.min(remainingInput, storageRoom);
-    }
-
     public long getEnergyReceivedLastTick() {
         return energyReceivedLastTick;
     }
@@ -251,7 +194,6 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity
     protected void saveLogisticsData(CompoundTag nbt, HolderLookup.Provider registries) {
         super.saveLogisticsData(nbt, registries);
 
-        energy.writeNbt(nbt, "Energy");
         phaseRunner.save(nbt);
         armController.save(nbt);
         bounds.save(nbt);
@@ -261,9 +203,8 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity
     protected void loadLogisticsData(CompoundTag nbt, HolderLookup.Provider registries) {
         super.loadLogisticsData(nbt, registries);
 
-        if (nbt.contains("Energy")) {
-            energy.readNbt(nbt, "Energy");
-        } else {
+        // Legacy fallback — pre-"Energy" saves stored the buffer under "StoredEnergy".
+        if (!nbt.contains("Energy")) {
             energy.setAmount(NbtCompat.getLong(nbt, "StoredEnergy", 0L));
         }
 
