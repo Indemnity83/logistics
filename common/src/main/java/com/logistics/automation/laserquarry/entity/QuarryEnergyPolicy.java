@@ -1,7 +1,7 @@
 package com.logistics.automation.laserquarry.entity;
 
 import com.logistics.core.LogisticsConfig;
-import com.logistics.core.lib.energy.EnergyComponent;
+import com.logistics.core.machine.component.EnergyStorageComponent;
 import com.logistics.core.machine.upgrade.MachineModifiers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
@@ -20,13 +20,13 @@ public final class QuarryEnergyPolicy {
     private static final long FRAME_BUILD_COST = 240L;
     private static final long MOVE_COST_BUFFER_DIVISOR = 10L;
 
-    private final EnergyComponent energy;
+    private final EnergyStorageComponent energy;
     private final MachineModifiers modifiers;
     private final Runnable onConsume;
 
     private boolean consumedThisTick = false;
 
-    public QuarryEnergyPolicy(EnergyComponent energy, MachineModifiers modifiers, Runnable onConsume) {
+    public QuarryEnergyPolicy(EnergyStorageComponent energy, MachineModifiers modifiers, Runnable onConsume) {
         this.energy = energy;
         this.modifiers = modifiers;
         this.onConsume = onConsume;
@@ -35,16 +35,16 @@ public final class QuarryEnergyPolicy {
     // ==================== Storage query / spend ====================
 
     public long stored() {
-        return energy.getAmount();
+        return energy.amount();
     }
 
     public boolean has(long rf) {
-        return energy.getAmount() >= rf;
+        return energy.amount() >= rf;
     }
 
     /** Spends RF if the buffer can afford it, flagging consumption this tick and marking dirty. */
     public void consume(long rf) {
-        if (energy.getAmount() >= rf) {
+        if (energy.amount() >= rf) {
             energy.consume(rf);
             consumedThisTick = true;
             onConsume.run();
@@ -61,7 +61,7 @@ public final class QuarryEnergyPolicy {
 
     /** Bleed idle RF from the buffer (not "work" — does not set the consumed flag). */
     public void drainIdle(long rf) {
-        long amount = energy.getAmount();
+        long amount = energy.amount();
         if (amount > 0) {
             energy.setAmount(Math.max(0, amount - rf));
             onConsume.run();
@@ -76,7 +76,7 @@ public final class QuarryEnergyPolicy {
 
     /** Move cost per tick — scales with current buffer to drain excess energy faster. */
     public long moveCost() {
-        long base = ArmController.moveCost(energy.getAmount(), MOVE_COST_BUFFER_DIVISOR);
+        long base = ArmController.moveCost(energy.amount(), MOVE_COST_BUFFER_DIVISOR);
         return (long) (base * modifiers.cost(QuarryOperation.MOVE_ARM));
     }
 
@@ -89,7 +89,7 @@ public final class QuarryEnergyPolicy {
 
     /** Effective arm speed in blocks/tick, including the rain penalty when applicable. */
     public float effectiveArmSpeed(Level level, BlockPos pos) {
-        float base = ArmController.effectiveSpeed(energy.getAmount(), MOVE_COST_BUFFER_DIVISOR, level, pos);
+        float base = ArmController.effectiveSpeed(energy.amount(), MOVE_COST_BUFFER_DIVISOR, level, pos);
         return base * (float) modifiers.speed(QuarryOperation.MOVE_ARM);
     }
 }
