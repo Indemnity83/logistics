@@ -136,7 +136,10 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
         private ALIAS() {}
 
         static void register() {
-            // Aliases bridging IDs renamed in the previous major go here; none in window.
+            // Macerator moved from the core domain to automation; bridge the previous-major (0.6.x) IDs.
+            INSTANCE.registerBlockAlias("core/macerator", BLOCK.MACERATOR);
+            INSTANCE.registerBlockEntityAlias("core/macerator", ENTITY.MACERATOR_BLOCK_ENTITY);
+            INSTANCE.registerItemAlias("core/macerator", BLOCK.MACERATOR.asItem());
         }
     }
 
