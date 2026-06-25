@@ -1,20 +1,12 @@
 {
   "type": "minecraft:crafting_shaped",
-  "pattern": [
-    "RRR",
-    "IMI",
-    "III"
-  ],
+  "pattern": [" R ", "BMB", "GCG"],
   "key": {
-    "R": {
-      "item": "minecraft:redstone"
-    },
-    "I": {
-      "item": "minecraft:iron_ingot"
-    },
-    "M": {
-      "item": "logistics:core/machine_core"
-    }
+    "R": { "item": "minecraft:redstone" },
+    "B": { "item": "minecraft:bricks" },
+    "M": { "item": "logistics:core/machine_core" },
+    "G": { "item": "logistics:core/copper_gear" },
+    "C": { "item": "logistics:core/redstone_reception_coil" }
   },
   "result": {
     "id": "logistics:automation/kiln",
