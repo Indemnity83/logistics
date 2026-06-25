@@ -1,0 +1,8 @@
+{
+  "type": "logistics:sawmill",
+  "ingredient": "minecraft:pale_oak_door",
+  "count": 1,
+  "result": { "id": "minecraft:pale_oak_planks", "count": 1 },
+  "byproduct": { "id": "logistics:core/sawdust", "chance": 0.5 },
+  "energy": 2000
+}
