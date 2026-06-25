@@ -1,4 +1,4 @@
-package com.logistics.core.macerator;
+package com.logistics.automation.macerator;
 
 import com.logistics.LogisticsMod;
 import com.logistics.core.lib.resource.ResourceId;

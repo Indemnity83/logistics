@@ -4,7 +4,7 @@ import com.logistics.LogisticsMod;
 import com.logistics.automation.kiln.KilnBlock;
 import com.logistics.automation.laserquarry.LaserQuarryBlock;
 import com.logistics.core.lib.power.AbstractEngineBlock;
-import com.logistics.core.macerator.MaceratorBlock;
+import com.logistics.automation.macerator.MaceratorBlock;
 import com.logistics.pipe.block.FluidPipeBlock;
 import com.logistics.pipe.block.PipeBlock;
 import com.logistics.power.block.CreativeSinkBlock;

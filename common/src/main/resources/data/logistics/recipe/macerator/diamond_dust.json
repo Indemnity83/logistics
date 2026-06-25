@@ -5,6 +5,6 @@
     "id": "logistics:core/diamond_dust",
     "count": 2
   },
-  "grindingtime": 200,
+  "energyrequired": 2000,
   "experience": 1.0
 }

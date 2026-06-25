@@ -1,9 +1,0 @@
-{
-  "parent": "minecraft:block/orientable_with_bottom",
-  "textures": {
-    "top":    "logistics:block/core/macerator_top",
-    "bottom": "logistics:block/core/macerator_bottom",
-    "front":  "logistics:block/core/macerator_front_off",
-    "side":   "logistics:block/core/macerator_side"
-  }
-}

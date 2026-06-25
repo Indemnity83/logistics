@@ -1,6 +1,6 @@
-package com.logistics.core.macerator;
+package com.logistics.automation.macerator;
 
-import com.logistics.LogisticsCore;
+import com.logistics.LogisticsAutomation;
 import com.logistics.core.lib.block.MachineBlock;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
@@ -64,7 +64,7 @@ public class MaceratorBlock extends MachineBlock {
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
         return level.isClientSide() ? null
-            : createTickerHelper(type, LogisticsCore.ENTITY.MACERATOR_BLOCK_ENTITY, MaceratorBlockEntity::tick);
+            : createTickerHelper(type, LogisticsAutomation.ENTITY.MACERATOR_BLOCK_ENTITY, MaceratorBlockEntity::tick);
     }
 
     @Override

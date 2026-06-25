@@ -2,7 +2,7 @@
   "pools": [
     {
       "conditions": [{ "condition": "minecraft:survives_explosion" }],
-      "entries": [{ "name": "logistics:core/macerator", "type": "minecraft:item" }],
+      "entries": [{ "name": "logistics:automation/macerator", "type": "minecraft:item" }],
       "rolls": 1
     }
   ],
