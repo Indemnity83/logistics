@@ -170,11 +170,13 @@ public class KilnScreenHandler extends RecipeBookMenu {
 
     // ==================== Data Getters for GUI Rendering ====================
 
-    public int getProcessProgress() {
+    /** Energy spent so far toward the active recipe (RF). */
+    public int getEnergySpent() {
         return data.get(0);
     }
 
-    public int getProcessTotalTicks() {
+    /** Total energy the active recipe requires (RF), or 0 if idle. */
+    public int getEnergyRequired() {
         return data.get(1);
     }
 
@@ -187,9 +189,9 @@ public class KilnScreenHandler extends RecipeBookMenu {
     }
 
     public int getProgressArrowWidth() {
-        int total = getProcessTotalTicks();
-        if (total <= 0) return 0;
-        return 25 * getProcessProgress() / total;
+        int required = getEnergyRequired();
+        if (required <= 0) return 0;
+        return 25 * getEnergySpent() / required;
     }
 
     public int getEnergyBarHeight() {
