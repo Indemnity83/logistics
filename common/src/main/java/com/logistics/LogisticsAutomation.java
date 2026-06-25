@@ -6,6 +6,12 @@ import com.logistics.automation.kiln.KilnScreenHandler;
 import com.logistics.automation.laserquarry.LaserQuarryBlock;
 import com.logistics.automation.laserquarry.LaserQuarryFrameBlock;
 import com.logistics.automation.laserquarry.entity.LaserQuarryBlockEntity;
+import com.logistics.automation.macerator.MaceratorBlock;
+import com.logistics.automation.macerator.MaceratorBlockEntity;
+import com.logistics.automation.macerator.MaceratorRecipeDisplay;
+import com.logistics.automation.macerator.MaceratorRecipeSerializer;
+import com.logistics.automation.macerator.MaceratorRecipeWrapper;
+import com.logistics.automation.macerator.MaceratorScreenHandler;
 import com.logistics.core.bootstrap.DomainBootstrap;
 import com.logistics.core.lib.platform.CreativeTabRegistrar;
 import com.logistics.core.lib.platform.LogisticsCreativeTab;
@@ -18,6 +24,10 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.TicketType;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.RecipeBookCategory;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.item.crafting.display.RecipeDisplay;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -50,6 +60,7 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
         BLOCK.register();
         ENTITY.register();
         MENU.register();
+        RECIPE.register();
         CREATIVE.register();
         ALIAS.register();
         TICKET_TYPE.register();
@@ -62,6 +73,7 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
         public static Block LASER_QUARRY;
         public static Block LASER_QUARRY_FRAME;
         public static Block KILN;
+        public static Block MACERATOR;
 
         static void register() {
             MARKER = INSTANCE.registerBlockWithItem("marker",
@@ -73,6 +85,9 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
             KILN = INSTANCE.registerBlockWithItem("kiln",
                 props -> new KilnBlock(props.strength(3.5f).sound(SoundType.METAL).requiresCorrectToolForDrops()
                     .lightLevel(state -> state.getValue(KilnBlock.LIT) ? 13 : 0)));
+            MACERATOR = INSTANCE.registerBlockWithItem("macerator",
+                props -> new MaceratorBlock(props.strength(3.5f).sound(SoundType.METAL).requiresCorrectToolForDrops()
+                    .lightLevel(state -> state.getValue(MaceratorBlock.LIT) ? 13 : 0)));
         }
     }
 
@@ -82,6 +97,7 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
         public static BlockEntityType<MarkerBlockEntity> MARKER_BLOCK_ENTITY;
         public static BlockEntityType<LaserQuarryBlockEntity> LASER_QUARRY_BLOCK_ENTITY;
         public static BlockEntityType<KilnBlockEntity> KILN_BLOCK_ENTITY;
+        public static BlockEntityType<MaceratorBlockEntity> MACERATOR_BLOCK_ENTITY;
 
         static void register() {
             MARKER_BLOCK_ENTITY = INSTANCE.registerBlockEntity("marker", MarkerBlockEntity::new, LogisticsAutomation.BLOCK.MARKER);
@@ -89,6 +105,8 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
                 INSTANCE.registerBlockEntity("laser_quarry", LaserQuarryBlockEntity::new, BLOCK.LASER_QUARRY);
             KILN_BLOCK_ENTITY =
                 INSTANCE.registerBlockEntity("kiln", KilnBlockEntity::new, BLOCK.KILN);
+            MACERATOR_BLOCK_ENTITY =
+                INSTANCE.registerBlockEntity("macerator", MaceratorBlockEntity::new, BLOCK.MACERATOR);
         }
     }
 
@@ -96,9 +114,48 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
         private MENU() {}
 
         public static MenuType<KilnScreenHandler> KILN;
+        public static MenuType<MaceratorScreenHandler> MACERATOR;
 
         static void register() {
             KILN = INSTANCE.registerMenuType("kiln", KilnScreenHandler::new);
+            MACERATOR = INSTANCE.registerMenuType("macerator", MaceratorScreenHandler::new);
+        }
+    }
+
+    public static final class RECIPE {
+        private RECIPE() {}
+
+        public static RecipeType<MaceratorRecipeWrapper> MACERATOR_RECIPE_TYPE;
+        public static RecipeSerializer<MaceratorRecipeWrapper> MACERATOR_RECIPE_SERIALIZER;
+        public static RecipeBookCategory MACERATOR_CATEGORY;
+        public static RecipeDisplay.Type<MaceratorRecipeDisplay> MACERATOR_DISPLAY_TYPE;
+
+        static void register() {
+            MACERATOR_RECIPE_TYPE = Registry.register(
+                BuiltInRegistries.RECIPE_TYPE,
+                LogisticsMod.modId("macerator").toIdentifier(),
+                new RecipeType<MaceratorRecipeWrapper>() {
+                    @Override
+                    public String toString() {
+                        return "logistics:macerator";
+                    }
+                }
+            );
+            MACERATOR_RECIPE_SERIALIZER = Registry.register(
+                BuiltInRegistries.RECIPE_SERIALIZER,
+                LogisticsMod.modId("macerator").toIdentifier(),
+                MaceratorRecipeSerializer.INSTANCE
+            );
+            MACERATOR_CATEGORY = Registry.register(
+                BuiltInRegistries.RECIPE_BOOK_CATEGORY,
+                LogisticsMod.modId("macerator").toIdentifier(),
+                new RecipeBookCategory()
+            );
+            MACERATOR_DISPLAY_TYPE = Registry.register(
+                BuiltInRegistries.RECIPE_DISPLAY,
+                LogisticsMod.modId("macerator").toIdentifier(),
+                MaceratorRecipeDisplay.TYPE
+            );
         }
     }
 
@@ -118,6 +175,7 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
             TAB.add(BLOCK.MARKER);
             TAB.add(BLOCK.LASER_QUARRY);
             TAB.add(BLOCK.KILN);
+            TAB.add(BLOCK.MACERATOR);
             CreativeTabRegistrar.INSTANCE.registerTab(TAB);
         }
     }
@@ -126,7 +184,10 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
         private ALIAS() {}
 
         static void register() {
-            // Aliases bridging IDs renamed in the previous major go here; none in window.
+            // Macerator moved from the core domain to automation; bridge the previous-major (0.6.x) IDs.
+            INSTANCE.registerBlockAlias("core/macerator", BLOCK.MACERATOR);
+            INSTANCE.registerBlockEntityAlias("core/macerator", ENTITY.MACERATOR_BLOCK_ENTITY);
+            INSTANCE.registerItemAlias("core/macerator", BLOCK.MACERATOR.asItem());
         }
     }
 

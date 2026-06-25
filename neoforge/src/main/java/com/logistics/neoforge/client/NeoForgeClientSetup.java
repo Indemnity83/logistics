@@ -1,7 +1,6 @@
 package com.logistics.neoforge.client;
 
 import com.logistics.LogisticsAutomation;
-import com.logistics.LogisticsCore;
 import com.logistics.LogisticsFluid;
 import com.logistics.LogisticsPipe;
 import com.logistics.LogisticsPower;
@@ -10,7 +9,7 @@ import com.logistics.pipe.render.FluidPumpBlockEntityRenderer;
 import com.logistics.pipe.render.GlassTankBlockEntityRenderer;
 import com.logistics.automation.kiln.KilnScreen;
 import com.logistics.core.lib.platform.ClientNetworking;
-import com.logistics.core.macerator.MaceratorScreen;
+import com.logistics.automation.macerator.MaceratorScreen;
 import com.logistics.pipe.screen.AdvancedExtractorScreen;
 import com.logistics.pipe.screen.ChassisScreen;
 import com.logistics.pipe.screen.CraftingScreen;
@@ -56,7 +55,7 @@ public final class NeoForgeClientSetup {
     }
 
     private static void registerScreens(RegisterMenuScreensEvent event) {
-        event.register(LogisticsCore.MENU.MACERATOR, MaceratorScreen::new);
+        event.register(LogisticsAutomation.MENU.MACERATOR, MaceratorScreen::new);
 
         event.register(LogisticsPipe.SCREEN.ITEM_FILTER, ItemFilterScreen::new);
         event.register(LogisticsPipe.SCREEN.REQUESTER, RequesterScreen::new);

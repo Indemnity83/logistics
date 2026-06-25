@@ -217,7 +217,7 @@
   "gui.logistics.process.state.active": "Active",
   "block.logistics.automation.laser_quarry": "Laser Quarry",
   "laser_quarry.area_preview": "Mining area: %sx%s blocks",
-  "block.logistics.core.macerator": "Macerator",
+  "block.logistics.automation.macerator": "Macerator",
   "container.logistics.macerator": "Macerator",
   "marker.deactivated": "Marker deactivated",
   "marker.activated": "Marker activated",

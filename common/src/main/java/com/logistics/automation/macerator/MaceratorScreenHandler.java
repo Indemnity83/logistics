@@ -1,6 +1,6 @@
-package com.logistics.core.macerator;
+package com.logistics.automation.macerator;
 
-import com.logistics.LogisticsCore;
+import com.logistics.LogisticsAutomation;
 import net.minecraft.recipebook.ServerPlaceRecipe;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Container;
@@ -39,7 +39,7 @@ public class MaceratorScreenHandler extends RecipeBookMenu {
 
     /** Server-side constructor. */
     public MaceratorScreenHandler(int syncId, Inventory playerInventory, Container inventory, ContainerData data) {
-        super(LogisticsCore.MENU.MACERATOR, syncId);
+        super(LogisticsAutomation.MENU.MACERATOR, syncId);
         checkContainerSize(inventory, MACHINE_SLOT_COUNT);
         checkContainerDataCount(data, MaceratorBlockEntity.DATA_COUNT);
 
@@ -168,19 +168,19 @@ public class MaceratorScreenHandler extends RecipeBookMenu {
 
     // ==================== Data Getters for GUI Rendering ====================
 
-    /** Progress in ticks (0 to processTotalTicks). */
-    public int getProcessProgress() {
-        return data.get(0);
+    /** Energy spent so far toward the active recipe (RF). */
+    public int getEnergySpent() {
+        return data.get(MaceratorBlockEntity.DATA_PROGRESS);
     }
 
-    /** Total ticks for the current recipe (0 if idle). */
-    public int getProcessTotalTicks() {
-        return data.get(1);
+    /** Total energy the active recipe requires (RF), or 0 if idle. */
+    public int getEnergyRequired() {
+        return data.get(MaceratorBlockEntity.DATA_TOTAL);
     }
 
     /** Current energy stored (RF). */
     public int getEnergyStored() {
-        return data.get(2);
+        return data.get(MaceratorBlockEntity.DATA_ENERGY);
     }
 
     /** Max energy capacity (RF). */
@@ -188,11 +188,11 @@ public class MaceratorScreenHandler extends RecipeBookMenu {
         return (int) MaceratorBlockEntity.ENERGY_CAPACITY;
     }
 
-    /** Progress as a 0–25 pixel width for the arrow, or 0 if idle. */
+    /** Processing progress as a 0–25 pixel width for the arrow, or 0 if idle. */
     public int getProgressArrowWidth() {
-        int total = getProcessTotalTicks();
-        if (total <= 0) return 0;
-        return 25 * getProcessProgress() / total;
+        int required = getEnergyRequired();
+        if (required <= 0) return 0;
+        return 25 * getEnergySpent() / required;
     }
 
     /** Energy bar height in pixels (0–13). */
