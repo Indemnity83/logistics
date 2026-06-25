@@ -1,12 +1,10 @@
 package com.logistics.automation.laserquarry.entity;
 
-import com.logistics.LogisticsAutomation;
 import com.logistics.automation.laserquarry.LaserQuarryBlock;
 import com.logistics.core.LogisticsConfig;
 import com.logistics.core.machine.MachineComponent;
 import com.logistics.core.machine.MachineContext;
 import com.logistics.core.machine.component.ChunkArea;
-import com.logistics.core.machine.component.ChunkLoadingComponent;
 import com.logistics.core.machine.component.EnergyStorageComponent;
 import com.logistics.core.machine.upgrade.MachineModifiers;
 import java.util.ArrayList;
@@ -32,7 +30,6 @@ public final class QuarryComponent implements MachineComponent, QuarryContext {
     private final int breakingEntityId;
     private final QuarryEnergyPolicy energyPolicy;
     private final QuarryOutput output;
-    private final ChunkLoadingComponent chunkLoader;
 
     private final QuarryBounds bounds = new QuarryBounds();
     private final ArmController armController = new ArmController();
@@ -49,11 +46,6 @@ public final class QuarryComponent implements MachineComponent, QuarryContext {
         this.breakingEntityId = pos.hashCode();
         this.energyPolicy = new QuarryEnergyPolicy(energy, modifiers, this::markChanged);
         this.output = new QuarryOutput(pos);
-        this.chunkLoader = new ChunkLoadingComponent(
-                "chunks",
-                LogisticsAutomation.TICKET_TYPE.QUARRY,
-                LogisticsAutomation.TICKET_TYPE.QUARRY_BOUNDARY,
-                this::chunkArea);
     }
 
     @Override
@@ -80,7 +72,6 @@ public final class QuarryComponent implements MachineComponent, QuarryContext {
                 return;
             }
 
-            chunkLoader.keepLoaded((ServerLevel) context.level());
             phaseRunner.tick(this);
 
             // Idle power consumption: 1 RF every 4 ticks (5 RF/second) to slowly drain buffer.
@@ -112,17 +103,18 @@ public final class QuarryComponent implements MachineComponent, QuarryContext {
 
     /**
      * The chunks to keep loaded this tick — the work-area boundary plus the quarry's own chunk — or
-     * {@code null} when chunk loading is disabled. Throws if a configured quarry resolves no frame,
-     * preserving the original guard.
+     * {@code null} when chunk loading is disabled or the quarry has finished. Throws if a configured,
+     * unfinished quarry resolves no frame, preserving the original guard. Supplied to the sibling
+     * {@code ChunkLoadingComponent}, so it receives its own context.
      */
     @Nullable
-    private ChunkArea chunkArea() {
-        if (!LogisticsConfig.get().quarry.loadChunks) {
+    public ChunkArea chunkArea(MachineContext context) {
+        if (!LogisticsConfig.get().quarry.loadChunks || phaseRunner.isFinished()) {
             return null;
         }
         QuarryFrameRect frame = QuarryFrameRect.resolve(
-                LaserQuarryBlock.getMiningDirection(ctx.blockState()),
-                ctx.pos(),
+                LaserQuarryBlock.getMiningDirection(context.blockState()),
+                context.pos(),
                 bounds,
                 LogisticsConfig.get().quarry.area);
         if (frame == null) {
@@ -137,7 +129,7 @@ public final class QuarryComponent implements MachineComponent, QuarryContext {
                 boundary.add(new ChunkPos(x, z));
             }
         }
-        ChunkPos center = new ChunkPos(ctx.pos());
+        ChunkPos center = new ChunkPos(context.pos());
 
         return new ChunkArea() {
             @Override
