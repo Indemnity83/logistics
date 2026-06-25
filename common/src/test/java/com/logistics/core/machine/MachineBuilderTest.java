@@ -21,12 +21,14 @@ class MachineBuilderTest extends MinecraftTestEnvironment {
                 machine.items("items").slots(SlotRole.INPUT, SlotRole.OUTPUT).furnaceAccess().build();
         EnergyStorageComponent energy = machine.energy("energy").capacity(1_000).maxInput(1_000).build();
 
-        assertThatThrownBy(() -> machine.recipeProcessor("processor")
-                        .resolver((io, ctx) -> null)
-                        .items(items)
-                        .energy(energy)
-                        .rfPerTick(0)
-                        .build())
-                .isInstanceOf(IllegalStateException.class);
+        for (long rfPerTick : new long[] {0, -1}) {
+            assertThatThrownBy(() -> machine.recipeProcessor("processor")
+                            .resolver((io, ctx) -> null)
+                            .items(items)
+                            .energy(energy)
+                            .rfPerTick(rfPerTick)
+                            .build())
+                    .isInstanceOf(IllegalStateException.class);
+        }
     }
 }
