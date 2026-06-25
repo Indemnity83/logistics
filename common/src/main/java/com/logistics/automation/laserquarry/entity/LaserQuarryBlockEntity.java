@@ -17,6 +17,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import com.logistics.automation.laserquarry.LaserQuarryBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
@@ -120,6 +121,7 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity
         entity.consumedEnergyThisTick = false;
 
         if (entity.phaseRunner.isFinished()) {
+            entity.updateActiveState(world, pos, false);
             if (wasConsumedEnergy) {
                 entity.syncToClients();
             }
@@ -135,6 +137,8 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity
             entity.energy.setAmount(Math.max(0, entity.energy.getAmount() - 1));
             entity.setChanged();
         }
+
+        entity.updateActiveState(world, pos, entity.energy.getAmount() > 0);
 
         boolean needsSync = entity.energy.getAmount() != entity.lastSyncedEnergy
                 || entity.consumedEnergyThisTick != wasConsumedEnergy;
@@ -156,6 +160,14 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity
         if (level != null && !level.isClientSide()) {
             BlockState state = getBlockState();
             level.sendBlockUpdated(worldPosition, state, state, Block.UPDATE_ALL);
+        }
+    }
+
+    /** Drives {@link LaserQuarryBlock#ACTIVE} so the front lights up while powered and mining. */
+    private void updateActiveState(Level level, BlockPos pos, boolean active) {
+        BlockState state = getBlockState();
+        if (state.getValue(LaserQuarryBlock.ACTIVE) != active) {
+            level.setBlock(pos, state.setValue(LaserQuarryBlock.ACTIVE, active), Block.UPDATE_ALL);
         }
     }
 
