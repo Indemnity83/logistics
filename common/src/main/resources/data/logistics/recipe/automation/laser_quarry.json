@@ -1,13 +1,12 @@
 {
+  "type": "minecraft:crafting_shaped",
+  "pattern": [" P ", "GMG", "DCD"],
   "key": {
-    "D": {"item": "logistics:core/diamond_gear"},
-    "M": {"item": "logistics:core/machine_core"},
-    "I": {"item": "minecraft:iron_ingot"}
+    "P": { "item": "minecraft:diamond_pickaxe" },
+    "G": { "item": "logistics:core/gold_gear" },
+    "M": { "item": "logistics:core/machine_core" },
+    "D": { "item": "logistics:core/diamond_gear" },
+    "C": { "item": "logistics:core/redstone_reception_coil" }
   },
-  "pattern": ["DDD", "IMI", "III"],
-  "result": {
-    "count": 1,
-    "id": "logistics:automation/laser_quarry"
-  },
-  "type": "minecraft:crafting_shaped"
+  "result": { "id": "logistics:automation/laser_quarry", "count": 1 }
 }

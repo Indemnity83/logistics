@@ -4,7 +4,6 @@ import com.logistics.core.LogisticsConfig;
 import com.logistics.automation.laserquarry.LaserQuarryBlock;
 import com.logistics.automation.laserquarry.LaserQuarryGeometry;
 import com.logistics.automation.laserquarry.entity.LaserQuarryBlockEntity;
-import com.logistics.pipe.block.PipeBlock;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
@@ -87,10 +86,6 @@ public class LaserQuarryBlockEntityRenderer implements BlockEntityRenderer<Laser
             MultiBufferSource bufferSource,
             int packedLight,
             int packedOverlay) {
-
-        // Always render LEDs and overlays
-        renderLEDs(entity, matrices, bufferSource, packedLight, packedOverlay);
-        renderTopHatch(entity, matrices, bufferSource, packedLight, packedOverlay);
 
         // Only render arm during mining phase when arm is initialized
         boolean shouldRenderArm = (entity.getCurrentPhase() == LaserQuarryBlockEntity.Phase.MINING) && entity.isArmInitialized();
@@ -369,153 +364,9 @@ public class LaserQuarryBlockEntityRenderer implements BlockEntityRenderer<Laser
         }
     }
 
-    private void renderLEDs(
-            LaserQuarryBlockEntity entity,
-            PoseStack matrices,
-            MultiBufferSource bufferSource,
-            int packedLight,
-            int packedOverlay) {
-        BlockState state = entity.getBlockState();
-        if (!(state.getBlock() instanceof LaserQuarryBlock)) {
-            return;
-        }
-
-        Direction blockFacing = LaserQuarryBlock.getMiningDirection(state);
-        float energyLevel = (float) entity.getEnergyLevel();
-        boolean isFinished = entity.isFinished();
-        boolean isWorking = !isFinished && (energyLevel > 0 || entity.consumedEnergyThisTick());
-
-        // Update green LED fade effect
-        float greenLedBrightness = updateGreenLedBrightness(entity.getBlockPos(), isWorking);
-
-        // Calculate rotation based on block facing
-        float rotation =
-                switch (blockFacing) {
-                    case NORTH -> 180f;
-                    case SOUTH -> 0f;
-                    case WEST -> 270f;
-                    case EAST -> 90f;
-                    default -> 0f;
-                };
-
-        // Green LED - instant on, gradual fade off over 12 ticks
-        if (greenLedBrightness > 0) {
-            List<BakedQuad> greenLed = MachineModels.quads("laser_quarry_led_green");
-            if (!greenLed.isEmpty()) {
-                matrices.pushPose();
-                matrices.translate(0.5, 0.5, 0.5);
-                matrices.mulPose(Axis.YP.rotationDegrees(rotation));
-                matrices.translate(-0.5, -0.5, -0.5);
-                int brightness = (int) (greenLedBrightness * 15);
-                int light = (brightness << 4) | (brightness << 20);
-                renderModelTranslucent(entity, greenLed, matrices, bufferSource, light, packedOverlay);
-                matrices.popPose();
-            }
-        }
-
-        // Red LED - brightness proportional to energy level (0-15)
-        if (energyLevel > 0) {
-            List<BakedQuad> redLed = MachineModels.quads("laser_quarry_led_red");
-            if (!redLed.isEmpty()) {
-                matrices.pushPose();
-                matrices.translate(0.5, 0.5, 0.5);
-                matrices.mulPose(Axis.YP.rotationDegrees(rotation));
-                matrices.translate(-0.5, -0.5, -0.5);
-                int brightness = (int) (energyLevel * 15);
-                int light = (brightness << 4) | (brightness << 20);
-                renderModelTranslucent(entity, redLed, matrices, bufferSource, light, packedOverlay);
-                matrices.popPose();
-            }
-        }
-
-        // Display overlay - scrolling data screen (animated via .mcmeta)
-        // Follows green LED: on when working, fades out when stopped
-        if (greenLedBrightness > 0) {
-            List<BakedQuad> display = MachineModels.quads("laser_quarry_display");
-            if (!display.isEmpty()) {
-                matrices.pushPose();
-                matrices.translate(0.5, 0.5, 0.5);
-                matrices.mulPose(Axis.YP.rotationDegrees(rotation));
-                matrices.translate(-0.5, -0.5, -0.5);
-                int brightness = Math.max(0, (int) (greenLedBrightness * 8));
-                int light = (brightness << 4) | (brightness << 20);
-                renderModelTranslucent(entity, display, matrices, bufferSource, light, packedOverlay);
-                matrices.popPose();
-            }
-        }
-    }
-
     /**
      * Update green LED brightness with fade-out effect.
      */
-    private float updateGreenLedBrightness(BlockPos quarryPos, boolean isWorking) {
-        LedFadeState fade = LED_FADE_CACHE.computeIfAbsent(quarryPos, k -> new LedFadeState());
-        long currentTime = System.nanoTime();
-
-        if (isWorking) {
-            // Instant on - full brightness
-            fade.isFading = false;
-            fade.wasWorking = true;
-            return 1.0f;
-        } else if (fade.wasWorking && !fade.isFading) {
-            // Just stopped working - start fade
-            fade.isFading = true;
-            fade.fadeStartTimeNanos = currentTime;
-            fade.wasWorking = false;
-            return 1.0f;
-        } else if (fade.isFading) {
-            // Currently fading - calculate brightness based on elapsed time
-            float tickRate = 20f;
-            float elapsedSeconds = (currentTime - fade.fadeStartTimeNanos) / 1_000_000_000f;
-            float elapsedTicks = elapsedSeconds * tickRate;
-
-            if (elapsedTicks >= LED_FADE_TICKS) {
-                // Fade complete
-                fade.isFading = false;
-                fade.wasWorking = false;
-                return 0f;
-            } else {
-                // Linear fade from 1.0 to 0.0
-                return 1.0f - (elapsedTicks / LED_FADE_TICKS);
-            }
-        } else {
-            // Not working, not fading - LED is off
-            return 0f;
-        }
-    }
-
-    private void renderTopHatch(
-            LaserQuarryBlockEntity entity,
-            PoseStack matrices,
-            MultiBufferSource bufferSource,
-            int packedLight,
-            int packedOverlay) {
-        Level level = entity.getLevel();
-        if (level == null) {
-            return;
-        }
-
-        BlockPos quarryPos = entity.getBlockPos();
-        BlockPos abovePos = quarryPos.above();
-        BlockState aboveState = level.getBlockState(abovePos);
-
-        if (!(aboveState.getBlock() instanceof PipeBlock)) {
-            return;
-        }
-
-        List<BakedQuad> hatch = MachineModels.quads("laser_quarry_top_hatch");
-        if (hatch.isEmpty()) {
-            return;
-        }
-
-        matrices.pushPose();
-        int blockLightAbove = level.getBrightness(LightLayer.BLOCK, abovePos);
-        int skyLightAbove = level.getBrightness(LightLayer.SKY, abovePos);
-        int aboveLight = LightTexture.pack(blockLightAbove, skyLightAbove);
-        renderModelTranslucent(entity, hatch, matrices, bufferSource, aboveLight, packedOverlay);
-        matrices.popPose();
-    }
-
     private void renderFramePreviewOutline(
             LaserQuarryBlockEntity entity,
             BlockPos quarryPos,
