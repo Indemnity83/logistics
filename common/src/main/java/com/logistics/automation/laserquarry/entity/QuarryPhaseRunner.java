@@ -2,8 +2,6 @@ package com.logistics.automation.laserquarry.entity;
 
 import com.logistics.LogisticsAutomation;
 import com.logistics.automation.laserquarry.LaserQuarryBlock;
-import com.logistics.automation.laserquarry.entity.LaserQuarryBlockEntity.ArmState;
-import com.logistics.automation.laserquarry.entity.LaserQuarryBlockEntity.Phase;
 import com.logistics.core.LogisticsConfig;
 import com.logistics.core.lib.compat.NbtCompat;
 import net.minecraft.core.BlockPos;
@@ -28,7 +26,7 @@ import org.jetbrains.annotations.Nullable;
  */
 public final class QuarryPhaseRunner {
 
-    private Phase phase = Phase.CLEARING;
+    private QuarryPhase phase = QuarryPhase.CLEARING;
     private int frameBuildIndex = 0;
 
     private int miningX = 0;
@@ -42,7 +40,7 @@ public final class QuarryPhaseRunner {
 
     // ==================== Getters used by BE / save ====================
 
-    public Phase getPhase() {
+    public QuarryPhase getPhase() {
         return phase;
     }
 
@@ -80,7 +78,7 @@ public final class QuarryPhaseRunner {
 
     /** Marker callback: bounds changed, restart the full clear -> frame -> mine sequence. */
     public void onCustomBoundsSet() {
-        phase = Phase.CLEARING;
+        phase = QuarryPhase.CLEARING;
         frameBuildIndex = 0;
         miningX = 0;
         miningY = 0;
@@ -91,7 +89,7 @@ public final class QuarryPhaseRunner {
 
     /** True if the quarry has been placed but hasn't started any clearing yet. */
     public boolean isFreshlyPlaced() {
-        return phase == Phase.CLEARING && miningX == 0 && miningY == 0 && miningZ == 0 && breakProgress == 0;
+        return phase == QuarryPhase.CLEARING && miningX == 0 && miningY == 0 && miningZ == 0 && breakProgress == 0;
     }
 
     // ==================== Tick dispatch ====================
@@ -202,7 +200,7 @@ public final class QuarryPhaseRunner {
                 frameBuildIndex);
         if (framePos == null) {
             // Frame built — transition to mining.
-            phase = Phase.MINING;
+            phase = QuarryPhase.MINING;
             miningX = 0;
             miningY = 0;
             miningZ = 0;
@@ -276,7 +274,7 @@ public final class QuarryPhaseRunner {
             be.syncToClients();
         }
 
-        if (arm.getState() == ArmState.MOVING) {
+        if (arm.getState() == QuarryArmState.MOVING) {
             long moveCost = be.getMoveCost();
             if (!be.hasEnergy(moveCost)) {
                 return;
@@ -296,11 +294,11 @@ public final class QuarryPhaseRunner {
                 be.syncToClients();
                 currentTarget = target;
             }
-        } else if (arm.getState() == ArmState.SETTLING) {
+        } else if (arm.getState() == QuarryArmState.SETTLING) {
             if (arm.tickSettling()) {
                 arm.enterBreaking();
             }
-        } else if (arm.getState() == ArmState.BREAKING) {
+        } else if (arm.getState() == QuarryArmState.BREAKING) {
             BlockState targetState = world.getBlockState(target);
 
             if (!target.equals(currentTarget) || currentBreakTime < 0) {
@@ -393,7 +391,7 @@ public final class QuarryPhaseRunner {
     }
 
     private void transitionFromClearingToBuildingFrame(LaserQuarryBlockEntity be) {
-        phase = Phase.BUILDING_FRAME;
+        phase = QuarryPhase.BUILDING_FRAME;
         frameBuildIndex = 0;
         resetBreakProgress();
         be.setChanged();
@@ -472,9 +470,9 @@ public final class QuarryPhaseRunner {
 
         String phaseName = NbtCompat.getString(tag, "CurrentPhase", "CLEARING");
         try {
-            phase = Phase.valueOf(phaseName);
+            phase = QuarryPhase.valueOf(phaseName);
         } catch (IllegalArgumentException e) {
-            phase = Phase.CLEARING;
+            phase = QuarryPhase.CLEARING;
         }
     }
 }

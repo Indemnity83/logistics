@@ -1,6 +1,8 @@
 package com.logistics.automation.render;
 
 import com.logistics.automation.laserquarry.entity.LaserQuarryBlockEntity;
+import com.logistics.automation.laserquarry.entity.QuarryArmState;
+import com.logistics.automation.laserquarry.entity.QuarryPhase;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
@@ -35,8 +37,8 @@ public class LaserQuarryRenderState extends BlockEntityRenderState {
     public float renderArmZ;
 
     // Current phase and arm state
-    public LaserQuarryBlockEntity.Phase phase = LaserQuarryBlockEntity.Phase.CLEARING;
-    public LaserQuarryBlockEntity.ArmState armState = LaserQuarryBlockEntity.ArmState.MOVING;
+    public QuarryPhase phase = QuarryPhase.CLEARING;
+    public QuarryArmState armState = QuarryArmState.MOVING;
 
     // Light level sampled at the frame top (where horizontal beams are)
     public int frameTopLight;
