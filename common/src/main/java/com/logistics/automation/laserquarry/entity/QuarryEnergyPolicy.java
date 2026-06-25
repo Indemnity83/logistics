@@ -59,6 +59,15 @@ public final class QuarryEnergyPolicy {
         consumedThisTick = false;
     }
 
+    /** Bleed idle RF from the buffer (not "work" — does not set the consumed flag). */
+    public void drainIdle(long rf) {
+        long amount = energy.getAmount();
+        if (amount > 0) {
+            energy.setAmount(Math.max(0, amount - rf));
+            onConsume.run();
+        }
+    }
+
     // ==================== Action costs (modifier-scaled by operation) ====================
 
     public long frameBuildCost() {
