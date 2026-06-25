@@ -9,7 +9,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ChunkLevel;
 import net.minecraft.server.level.FullChunkStatus;
 import net.minecraft.server.level.ServerChunkCache;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.Ticket;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.state.BlockState;
@@ -19,7 +18,7 @@ import org.jetbrains.annotations.Nullable;
  * Owns the laser quarry's per-phase execution state — {@code Phase} dispatch,
  * the frame-build cursor, the mining grid cursor, and the in-flight break
  * progress — plus the {@code tick} routines that drive {@link ArmController}
- * and call back into the block entity for energy/world side effects.
+ * and call out through {@link QuarryContext} for energy/world side effects.
  *
  * <p>All NBT keys remain identical to the pre-refactor block entity layout so
  * existing worlds load unchanged.
@@ -94,27 +93,26 @@ public final class QuarryPhaseRunner {
 
     // ==================== Tick dispatch ====================
 
-    public void tick(LaserQuarryBlockEntity be, ServerLevel world, BlockPos pos, BlockState state) {
+    public void tick(QuarryContext q) {
         if (LogisticsConfig.get().quarry.loadChunks) {
-            loadChunks(be, world, pos, state);
+            loadChunks(q);
         }
 
         switch (phase) {
-            case CLEARING -> tickClearing(be, world, pos, state);
-            case BUILDING_FRAME -> tickBuildingFrame(be, world, state);
-            case MINING -> tickMining(be, world, state);
+            case CLEARING -> tickClearing(q);
+            case BUILDING_FRAME -> tickBuildingFrame(q);
+            case MINING -> tickMining(q);
             default -> {}
         }
     }
 
-    private void loadChunks(LaserQuarryBlockEntity be, ServerLevel world, BlockPos pos, BlockState state) {
-        ServerChunkCache chunkCache = world.getChunkSource();
+    private void loadChunks(QuarryContext q) {
+        ServerChunkCache chunkCache = q.level().getChunkSource();
         QuarryFrameRect frame = QuarryFrameRect.resolve(
-                LaserQuarryBlock.getMiningDirection(state),
-                pos,
-                be.getBounds(),
-                LogisticsConfig.get().quarry.area
-        );
+                LaserQuarryBlock.getMiningDirection(q.quarryState()),
+                q.pos(),
+                q.bounds(),
+                LogisticsConfig.get().quarry.area);
         if (frame == null) {
             throw new IllegalStateException("Quarry has null frame");
         }
@@ -130,11 +128,12 @@ public final class QuarryPhaseRunner {
             }
         }
 
-        chunkCache.addTicket(new Ticket(LogisticsAutomation.TICKET_TYPE.QUARRY, ticketLevel), ChunkPos.containing(pos));
+        chunkCache.addTicket(
+                new Ticket(LogisticsAutomation.TICKET_TYPE.QUARRY, ticketLevel), ChunkPos.containing(q.pos()));
     }
 
-    private void tickClearing(LaserQuarryBlockEntity be, ServerLevel world, BlockPos pos, BlockState state) {
-        if (be.getEnergyAmount() == 0) {
+    private void tickClearing(QuarryContext q) {
+        if (q.energyStored() == 0) {
             resetBreakProgress();
             return;
         }
@@ -142,60 +141,60 @@ public final class QuarryPhaseRunner {
         BlockPos target = null;
         BlockState targetState = null;
         for (int skipped = 0; skipped < LogisticsConfig.get().quarry.scanRate; skipped++) {
-            target = clearingTargetPos(be, state);
+            target = clearingTargetPos(q);
             if (target == null) {
-                transitionFromClearingToBuildingFrame(be);
+                transitionFromClearingToBuildingFrame(q);
                 return;
             }
 
-            targetState = world.getBlockState(target);
-            if (!GridScanner.shouldSkip(world, target, targetState)) {
+            targetState = q.level().getBlockState(target);
+            if (!GridScanner.shouldSkip(q.level(), target, targetState)) {
                 break;
             }
 
-            advanceToNextBlock(be);
+            advanceToNextBlock(q);
             resetBreakProgress();
         }
 
         if (target == null) {
-            transitionFromClearingToBuildingFrame(be);
+            transitionFromClearingToBuildingFrame(q);
             return;
         }
 
-        if (GridScanner.shouldSkip(world, target, targetState)) {
+        if (GridScanner.shouldSkip(q.level(), target, targetState)) {
             return;
         }
 
         if (!target.equals(currentTarget) || currentBreakTime < 0) {
             currentTarget = target;
-            float hardness = targetState.getDestroySpeed(world, target);
+            float hardness = targetState.getDestroySpeed(q.level(), target);
             currentBreakTime = (float) (LogisticsConfig.get().quarry.energyPerBlockMultiplier() * (hardness + 1));
             breakProgress = 0;
         }
 
         long energyNeeded = (long) Math.ceil(currentBreakTime - breakProgress);
-        long energyToUse = Math.min(be.getEnergyAmount(), energyNeeded);
+        long energyToUse = Math.min(q.energyStored(), energyNeeded);
         if (energyToUse > 0) {
-            be.consumeEnergy(energyToUse);
+            q.consumeEnergy(energyToUse);
             breakProgress += energyToUse;
         }
 
         if (breakProgress >= currentBreakTime) {
-            QuarryBlockBreaker.mineBlock(world, be.getBlockPos(), target, targetState);
-            advanceToNextBlock(be);
+            QuarryBlockBreaker.mineBlock(q.level(), q.pos(), target, targetState);
+            advanceToNextBlock(q);
             resetBreakProgress();
         }
     }
 
-    private void tickBuildingFrame(LaserQuarryBlockEntity be, ServerLevel world, BlockState state) {
-        if (!be.hasEnergy(LaserQuarryBlockEntity.FRAME_BUILD_COST)) {
+    private void tickBuildingFrame(QuarryContext q) {
+        if (!q.hasEnergy(q.frameBuildCost())) {
             return;
         }
 
         BlockPos framePos = FrameLayout.nextFramePosition(
-                LaserQuarryBlock.getMiningDirection(state),
-                be.getBlockPos(),
-                be.getBounds(),
+                LaserQuarryBlock.getMiningDirection(q.quarryState()),
+                q.pos(),
+                q.bounds(),
                 LogisticsConfig.get().quarry.area,
                 frameBuildIndex);
         if (framePos == null) {
@@ -204,55 +203,55 @@ public final class QuarryPhaseRunner {
             miningX = 0;
             miningY = 0;
             miningZ = 0;
-            be.getArmController().resetExpectedTravelTicks();
+            q.arm().resetExpectedTravelTicks();
             // armInitialized flips false so first MINING tick re-anchors the arm.
-            be.getArmController().enterMoving();
-            be.getArmController().markUninitialized();
-            be.syncToClients();
-            be.setChanged();
+            q.arm().enterMoving();
+            q.arm().markUninitialized();
+            q.sync();
+            q.markChanged();
             return;
         }
 
-        be.consumeEnergy(LaserQuarryBlockEntity.FRAME_BUILD_COST);
+        q.consumeEnergy(q.frameBuildCost());
 
-        BlockState existingState = world.getBlockState(framePos);
+        BlockState existingState = q.level().getBlockState(framePos);
         if (existingState.isAir() || existingState.canBeReplaced()) {
             BlockState frameState = FrameLayout.frameBlockState(
-                    LaserQuarryBlock.getMiningDirection(state),
-                    be.getBlockPos(),
+                    LaserQuarryBlock.getMiningDirection(q.quarryState()),
+                    q.pos(),
                     framePos,
-                    be.getBounds(),
+                    q.bounds(),
                     LogisticsConfig.get().quarry.area);
-            world.setBlockAndUpdate(framePos, frameState);
+            q.level().setBlockAndUpdate(framePos, frameState);
         }
 
         frameBuildIndex++;
-        be.setChanged();
+        q.markChanged();
     }
 
-    private void tickMining(LaserQuarryBlockEntity be, ServerLevel world, BlockState state) {
-        ArmController arm = be.getArmController();
+    private void tickMining(QuarryContext q) {
+        ArmController arm = q.arm();
 
         BlockPos target = null;
         boolean skippedAny = false;
         for (int skipped = 0; skipped < LogisticsConfig.get().quarry.scanRate; skipped++) {
-            target = miningTargetPos(be, state);
+            target = miningTargetPos(q);
             if (target == null) {
                 if (currentTarget != null) {
-                    world.destroyBlockProgress(be.getBreakingEntityId(), currentTarget, -1);
+                    q.level().destroyBlockProgress(q.breakingEntityId(), currentTarget, -1);
                 }
                 finished = true;
-                be.setChanged();
-                be.syncToClients();
+                q.markChanged();
+                q.sync();
                 return;
             }
 
-            BlockState targetState = world.getBlockState(target);
-            if (!GridScanner.shouldSkip(world, target, targetState)) {
+            BlockState targetState = q.level().getBlockState(target);
+            if (!GridScanner.shouldSkip(q.level(), target, targetState)) {
                 break;
             }
 
-            advanceMiningPosition(be);
+            advanceMiningPosition(q);
             target = null;
             skippedAny = true;
         }
@@ -262,7 +261,7 @@ public final class QuarryPhaseRunner {
         }
 
         if (skippedAny) {
-            be.syncToClients();
+            q.sync();
         }
 
         float targetX = target.getX() + 0.5f;
@@ -271,17 +270,17 @@ public final class QuarryPhaseRunner {
 
         if (!arm.isInitialized()) {
             arm.initializeAt(targetX, targetY, targetZ);
-            be.syncToClients();
+            q.sync();
         }
 
         if (arm.getState() == QuarryArmState.MOVING) {
-            long moveCost = be.getMoveCost();
-            if (!be.hasEnergy(moveCost)) {
+            long moveCost = q.moveCost();
+            if (!q.hasEnergy(moveCost)) {
                 return;
             }
-            be.consumeEnergy(moveCost);
+            q.consumeEnergy(moveCost);
 
-            float speed = be.getEffectiveArmSpeed();
+            float speed = q.effectiveArmSpeed();
             if (arm.getExpectedTravelTicks() == 0 && !arm.isAt(targetX, targetY, targetZ, speed)) {
                 arm.setExpectedTravelTicks(arm.travelTicksFor(targetX, targetY, targetZ, speed));
             }
@@ -291,7 +290,7 @@ public final class QuarryPhaseRunner {
             if (reachedTarget) {
                 arm.enterSettling(arm.getExpectedTravelTicks());
                 arm.resetExpectedTravelTicks();
-                be.syncToClients();
+                q.sync();
                 currentTarget = target;
             }
         } else if (arm.getState() == QuarryArmState.SETTLING) {
@@ -299,84 +298,84 @@ public final class QuarryPhaseRunner {
                 arm.enterBreaking();
             }
         } else if (arm.getState() == QuarryArmState.BREAKING) {
-            BlockState targetState = world.getBlockState(target);
+            BlockState targetState = q.level().getBlockState(target);
 
             if (!target.equals(currentTarget) || currentBreakTime < 0) {
                 currentTarget = target;
-                float hardness = targetState.getDestroySpeed(world, target);
+                float hardness = targetState.getDestroySpeed(q.level(), target);
                 currentBreakTime = (float) (LogisticsConfig.get().quarry.energyPerBlockMultiplier() * (hardness + 1));
                 breakProgress = 0;
             }
 
             long energyNeeded = (long) Math.ceil(currentBreakTime - breakProgress);
-            long energyToUse = Math.min(be.getEnergyAmount(), energyNeeded);
+            long energyToUse = Math.min(q.energyStored(), energyNeeded);
             if (energyToUse > 0) {
-                be.consumeEnergy(energyToUse);
+                q.consumeEnergy(energyToUse);
                 breakProgress += energyToUse;
             }
 
             int breakStage = (int) ((breakProgress / currentBreakTime) * 10f);
             breakStage = Math.min(breakStage, 9);
-            world.destroyBlockProgress(be.getBreakingEntityId(), target, breakStage);
+            q.level().destroyBlockProgress(q.breakingEntityId(), target, breakStage);
 
             if (breakProgress >= currentBreakTime) {
-                world.destroyBlockProgress(be.getBreakingEntityId(), target, -1);
+                q.level().destroyBlockProgress(q.breakingEntityId(), target, -1);
 
-                QuarryBlockBreaker.mineBlock(world, be.getBlockPos(), target, targetState);
-                advanceMiningPosition(be);
+                QuarryBlockBreaker.mineBlock(q.level(), q.pos(), target, targetState);
+                advanceMiningPosition(q);
                 resetBreakProgress();
 
-                skipToNextSolidBlock(be, world, state);
+                skipToNextSolidBlock(q);
 
-                BlockPos nextTarget = miningTargetPos(be, state);
+                BlockPos nextTarget = miningTargetPos(q);
                 if (nextTarget != null) {
                     float newX = nextTarget.getX() + 0.5f;
                     float newY = nextTarget.getY() + 1.0f;
                     float newZ = nextTarget.getZ() + 0.5f;
 
-                    arm.warpTo(newX, newY, newZ, be.getEffectiveArmSpeed());
+                    arm.warpTo(newX, newY, newZ, q.effectiveArmSpeed());
                     arm.enterSettling(arm.getExpectedTravelTicks());
                     currentTarget = nextTarget;
                 } else {
                     arm.enterMoving();
                 }
-                be.syncToClients();
+                q.sync();
             }
         }
     }
 
     // ==================== Internal grid math ====================
 
-    private @Nullable BlockPos clearingTargetPos(LaserQuarryBlockEntity be, BlockState quarryState) {
+    private @Nullable BlockPos clearingTargetPos(QuarryContext q) {
         return GridScanner.clearingTarget(
-                LaserQuarryBlock.getMiningDirection(quarryState),
-                be.getBlockPos(),
-                be.getBounds(),
+                LaserQuarryBlock.getMiningDirection(q.quarryState()),
+                q.pos(),
+                q.bounds(),
                 LogisticsConfig.get().quarry.area,
                 miningX,
                 miningY,
                 miningZ);
     }
 
-    private @Nullable BlockPos miningTargetPos(LaserQuarryBlockEntity be, BlockState quarryState) {
+    private @Nullable BlockPos miningTargetPos(QuarryContext q) {
         return GridScanner.miningTarget(
-                LaserQuarryBlock.getMiningDirection(quarryState),
-                be.getBlockPos(),
-                be.getBounds(),
+                LaserQuarryBlock.getMiningDirection(q.quarryState()),
+                q.pos(),
+                q.bounds(),
                 LogisticsConfig.get().quarry.area,
-                be.getLevelMinY(),
+                q.levelMinY(),
                 miningX,
                 miningY,
                 miningZ);
     }
 
-    private void advanceToNextBlock(LaserQuarryBlockEntity be) {
+    private void advanceToNextBlock(QuarryContext q) {
         miningX++;
-        int maxX = be.getBounds().isCustom()
-                ? (be.getBounds().getMaxX() - be.getBounds().getMinX() + 1)
+        int maxX = q.bounds().isCustom()
+                ? (q.bounds().getMaxX() - q.bounds().getMinX() + 1)
                 : LogisticsConfig.get().quarry.area;
-        int maxZ = be.getBounds().isCustom()
-                ? (be.getBounds().getMaxZ() - be.getBounds().getMinZ() + 1)
+        int maxZ = q.bounds().isCustom()
+                ? (q.bounds().getMaxZ() - q.bounds().getMinZ() + 1)
                 : LogisticsConfig.get().quarry.area;
 
         if (miningX >= maxX) {
@@ -387,21 +386,21 @@ public final class QuarryPhaseRunner {
                 miningY++;
             }
         }
-        be.setChanged();
+        q.markChanged();
     }
 
-    private void transitionFromClearingToBuildingFrame(LaserQuarryBlockEntity be) {
+    private void transitionFromClearingToBuildingFrame(QuarryContext q) {
         phase = QuarryPhase.BUILDING_FRAME;
         frameBuildIndex = 0;
         resetBreakProgress();
-        be.setChanged();
-        be.syncToClients();
+        q.markChanged();
+        q.sync();
     }
 
-    private void advanceMiningPosition(LaserQuarryBlockEntity be) {
+    private void advanceMiningPosition(QuarryContext q) {
         int innerSizeX;
         int innerSizeZ;
-        QuarryBounds bounds = be.getBounds();
+        QuarryBounds bounds = q.bounds();
         if (bounds.isCustom()) {
             innerSizeX = bounds.getMaxX() - bounds.getMinX() - 1;
             innerSizeZ = bounds.getMaxZ() - bounds.getMinZ() - 1;
@@ -422,23 +421,23 @@ public final class QuarryPhaseRunner {
                 miningY++;
             }
         }
-        be.setChanged();
+        q.markChanged();
     }
 
-    private void skipToNextSolidBlock(LaserQuarryBlockEntity be, ServerLevel world, BlockState quarryState) {
+    private void skipToNextSolidBlock(QuarryContext q) {
         for (int skipped = 0; skipped < LogisticsConfig.get().quarry.scanRate; skipped++) {
-            BlockPos target = miningTargetPos(be, quarryState);
+            BlockPos target = miningTargetPos(q);
             if (target == null) {
                 finished = true;
                 return;
             }
 
-            BlockState targetState = world.getBlockState(target);
-            if (!GridScanner.shouldSkip(world, target, targetState)) {
+            BlockState targetState = q.level().getBlockState(target);
+            if (!GridScanner.shouldSkip(q.level(), target, targetState)) {
                 return;
             }
 
-            advanceMiningPosition(be);
+            advanceMiningPosition(q);
         }
     }
 
