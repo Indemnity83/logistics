@@ -189,6 +189,10 @@ public final class MachineBuilder {
             java.util.Objects.requireNonNull(resolver, "recipeProcessor(" + id + ") requires a resolver");
             java.util.Objects.requireNonNull(items, "recipeProcessor(" + id + ") requires items");
             java.util.Objects.requireNonNull(energy, "recipeProcessor(" + id + ") requires energy");
+            if (rfPerTick <= 0) {
+                throw new IllegalStateException(
+                        "recipeProcessor(" + id + ") requires a positive rfPerTick, got " + rfPerTick);
+            }
             return components.add(new RecipeProcessorComponent(id, resolver, rfPerTick, items, energy, lit, onChanged));
         }
     }
