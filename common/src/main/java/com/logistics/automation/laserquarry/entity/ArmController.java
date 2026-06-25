@@ -1,6 +1,5 @@
 package com.logistics.automation.laserquarry.entity;
 
-import com.logistics.automation.laserquarry.entity.LaserQuarryBlockEntity.ArmState;
 import com.logistics.core.LogisticsConfig;
 import com.logistics.core.lib.compat.NbtCompat;
 import net.minecraft.core.BlockPos;
@@ -14,7 +13,7 @@ import net.minecraft.world.level.Level;
  * when to push state to clients.
  */
 public final class ArmController {
-    private ArmState state = ArmState.MOVING;
+    private QuarryArmState state = QuarryArmState.MOVING;
     private float x = 0f;
     private float y = 0f;
     private float z = 0f;
@@ -25,7 +24,7 @@ public final class ArmController {
 
     // ==================== Public getters ====================
 
-    public ArmState getState() {
+    public QuarryArmState getState() {
         return state;
     }
 
@@ -60,12 +59,12 @@ public final class ArmController {
         this.y = y;
         this.z = z;
         this.initialized = true;
-        this.state = ArmState.MOVING;
+        this.state = QuarryArmState.MOVING;
         this.expectedTravelTicks = 0;
     }
 
     public void enterMoving() {
-        this.state = ArmState.MOVING;
+        this.state = QuarryArmState.MOVING;
     }
 
     /** Drop the initialized flag so the next mining tick re-anchors at the first target. */
@@ -74,12 +73,12 @@ public final class ArmController {
     }
 
     public void enterSettling(int ticks) {
-        this.state = ArmState.SETTLING;
+        this.state = QuarryArmState.SETTLING;
         this.settlingTicksRemaining = Math.max(1, ticks);
     }
 
     public void enterBreaking() {
-        this.state = ArmState.BREAKING;
+        this.state = QuarryArmState.BREAKING;
     }
 
     /** Decrement the settling timer; returns {@code true} when it reaches zero. */
@@ -190,9 +189,9 @@ public final class ArmController {
     public void load(CompoundTag tag) {
         String armStateName = NbtCompat.getString(tag, "ArmState", "MOVING");
         try {
-            state = ArmState.valueOf(armStateName);
+            state = QuarryArmState.valueOf(armStateName);
         } catch (IllegalArgumentException e) {
-            state = ArmState.MOVING;
+            state = QuarryArmState.MOVING;
         }
         x = NbtCompat.getFloat(tag, "ArmX", 0f);
         y = NbtCompat.getFloat(tag, "ArmY", 0f);
