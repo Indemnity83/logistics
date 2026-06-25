@@ -23,7 +23,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
 public class LaserQuarryBlockEntity extends BaseBlockEntity
-        implements PipeConnection, HasEnergyStorage, EnergyDemandProvider {
+        implements PipeConnection, HasEnergyStorage, EnergyDemandProvider, QuarryContext {
     static final long FRAME_BUILD_COST = 240L;
     private static final long MOVE_COST_BUFFER_DIVISOR = 10L;
 
@@ -112,9 +112,7 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity
             return;
         }
 
-        ServerLevel serverWorld = (ServerLevel) world;
-
-        entity.phaseRunner.tick(entity, serverWorld, pos, state);
+        entity.phaseRunner.tick(entity);
 
         // Idle power consumption: 1 RF every 4 ticks (5 RF/second) to slowly drain buffer.
         if (world.getGameTime() % 4 == 0 && entity.energy.getAmount() > 0) {
@@ -129,7 +127,7 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity
 
         if (needsSync) {
             entity.lastSyncedEnergy = entity.energy.getAmount();
-            entity.armController.setSyncedSpeed(entity.getEffectiveArmSpeed());
+            entity.armController.setSyncedSpeed(entity.effectiveArmSpeed());
             entity.syncToClients();
         }
     }
@@ -155,52 +153,91 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity
         }
     }
 
-    // ==================== Package-private accessors for collaborators ====================
+    // ==================== QuarryContext (collaborator boundary) ====================
 
-    QuarryBounds getBounds() {
+    @Override
+    public ServerLevel level() {
+        return (ServerLevel) this.level;
+    }
+
+    @Override
+    public BlockPos pos() {
+        return worldPosition;
+    }
+
+    @Override
+    public BlockState quarryState() {
+        return getBlockState();
+    }
+
+    @Override
+    public QuarryBounds bounds() {
         return bounds;
     }
 
-    ArmController getArmController() {
+    @Override
+    public ArmController arm() {
         return armController;
     }
 
-    int getBreakingEntityId() {
+    @Override
+    public int breakingEntityId() {
         return breakingEntityId;
     }
 
-    int getLevelMinY() {
+    @Override
+    public int levelMinY() {
         return level.getMinBuildHeight();
     }
 
-    long getEnergyAmount() {
+    @Override
+    public long energyStored() {
         return energy.getAmount();
     }
 
-    boolean hasEnergy(long amount) {
-        return energy.getAmount() >= amount;
+    @Override
+    public boolean hasEnergy(long rf) {
+        return energy.getAmount() >= rf;
     }
 
     /**
      * Consumes energy from the buffer if available. Sets the consumed-this-tick flag
-     * so the LED ring renders correctly.
+     * so the active state renders correctly.
      */
-    void consumeEnergy(long amount) {
-        if (energy.getAmount() >= amount) {
-            energy.consume(amount);
+    @Override
+    public void consumeEnergy(long rf) {
+        if (energy.getAmount() >= rf) {
+            energy.consume(rf);
             consumedEnergyThisTick = true;
             setChanged();
         }
     }
 
     /** Move cost per tick — scales with current buffer to drain excess energy faster. */
-    long getMoveCost() {
+    @Override
+    public long moveCost() {
         return ArmController.moveCost(energy.getAmount(), MOVE_COST_BUFFER_DIVISOR);
     }
 
     /** Effective arm speed in blocks/tick, including the rain penalty when applicable. */
-    float getEffectiveArmSpeed() {
+    @Override
+    public float effectiveArmSpeed() {
         return ArmController.effectiveSpeed(energy.getAmount(), MOVE_COST_BUFFER_DIVISOR, level, worldPosition);
+    }
+
+    @Override
+    public long frameBuildCost() {
+        return FRAME_BUILD_COST;
+    }
+
+    @Override
+    public void markChanged() {
+        setChanged();
+    }
+
+    @Override
+    public void sync() {
+        syncToClients();
     }
 
     // ==================== Marker / bounds API ====================
