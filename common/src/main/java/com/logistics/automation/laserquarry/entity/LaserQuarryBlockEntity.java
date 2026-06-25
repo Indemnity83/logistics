@@ -9,28 +9,34 @@ import com.logistics.core.lib.block.capability.PipeConnection;
 import com.logistics.core.lib.energy.EnergyComponent;
 import com.logistics.core.lib.energy.IEnergyStorage;
 import com.logistics.core.lib.power.EnergyDemandProvider;
-import com.logistics.core.machine.component.ChunkArea;
-import com.logistics.core.machine.component.ChunkLoadingComponent;
+import com.logistics.core.machine.MachineContext;
 import com.logistics.core.machine.upgrade.MachineModifiers;
-import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.ChunkPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.Level;
-import com.logistics.automation.laserquarry.LaserQuarryBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Laser Quarry block entity. Holds the RF buffer (the capability surface) and the
+ * {@link QuarryComponent} that owns all mining behavior, and serves as the component's
+ * {@link MachineContext}. Most public methods are thin facades the renderer / HUD / frame block /
+ * markers call.
+ */
 public class LaserQuarryBlockEntity extends BaseBlockEntity
-        implements PipeConnection, HasEnergyStorage, EnergyDemandProvider, QuarryContext {
+        implements PipeConnection, HasEnergyStorage, EnergyDemandProvider, MachineContext {
 
-    // Energy storage — kept on the BE because it's part of the capability surface.
+    // Energy storage — kept on the BE because it's the capability surface.
     private final EnergyComponent energy = new EnergyComponent(
             LogisticsConfig.get().quarry.energyCapacity(),
             LogisticsConfig.get().quarry.maxEnergyInput(),
@@ -71,34 +77,13 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity
             return energy.canExtract();
         }
     };
-    private long lastSyncedEnergy = 0;
 
-    // Quarry-specific energy behavior (action costs + spend); modifiers are identity until upgrades land.
-    private final QuarryEnergyPolicy energyPolicy =
-            new QuarryEnergyPolicy(energy, MachineModifiers.identity(), this::setChanged);
-
-    // Extracted collaborators — see ArmController/QuarryPhaseRunner/QuarryBounds.
-    private final QuarryBounds bounds = new QuarryBounds();
-    private final ArmController armController = new ArmController();
-    private final QuarryPhaseRunner phaseRunner = new QuarryPhaseRunner();
-
-    // Keeps the work area chunk-loaded; the area provider gates on the loadChunks config.
-    private final ChunkLoadingComponent chunkLoader = new ChunkLoadingComponent(
-            "chunks",
-            LogisticsAutomation.TICKET_TYPE.QUARRY,
-            LogisticsAutomation.TICKET_TYPE.QUARRY_BOUNDARY,
-            this::chunkArea);
-
-    // Block breaking animation entity ID (use position hash for uniqueness).
-    private final int breakingEntityId;
-
-    // Routes mined drops out (pipe/inventory above, else dropped).
-    private final QuarryOutput output;
+    // All mining behavior (bounds, arm, phase runner, energy policy, output, chunk loading).
+    private final QuarryComponent quarry;
 
     public LaserQuarryBlockEntity(BlockPos pos, BlockState state) {
         super(LogisticsAutomation.ENTITY.LASER_QUARRY_BLOCK_ENTITY, pos, state);
-        this.breakingEntityId = pos.hashCode();
-        this.output = new QuarryOutput(pos);
+        this.quarry = new QuarryComponent("quarry", pos, energy, MachineModifiers.identity());
     }
 
     // ==================== HasEnergyStorage ====================
@@ -115,48 +100,18 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity
             return;
         }
 
-        ActiveQuarryRegistry.register((ServerLevel) world, pos);
-
+        // Energy-received roll stays with the energy capability (moves to the energy component later).
         entity.energyReceivedLastTick = entity.energyReceivedThisTick;
         entity.energyReceivedThisTick = 0;
 
-        boolean wasConsumedEnergy = entity.energyPolicy.consumedThisTick();
-        entity.energyPolicy.resetConsumedThisTick();
-
-        if (entity.phaseRunner.isFinished()) {
-            entity.updateActiveState(world, pos, false);
-            if (wasConsumedEnergy) {
-                entity.syncToClients();
-            }
-            return;
-        }
-
-        entity.chunkLoader.keepLoaded((ServerLevel) world);
-        entity.phaseRunner.tick(entity);
-
-        // Idle power consumption: 1 RF every 4 ticks (5 RF/second) to slowly drain buffer.
-        if (world.getGameTime() % 4 == 0 && entity.energy.getAmount() > 0) {
-            entity.energy.setAmount(Math.max(0, entity.energy.getAmount() - 1));
-            entity.setChanged();
-        }
-
-        entity.updateActiveState(world, pos, entity.energy.getAmount() > 0);
-
-        boolean needsSync = entity.energy.getAmount() != entity.lastSyncedEnergy
-                || entity.energyPolicy.consumedThisTick() != wasConsumedEnergy;
-
-        if (needsSync) {
-            entity.lastSyncedEnergy = entity.energy.getAmount();
-            entity.armController.setSyncedSpeed(entity.effectiveArmSpeed());
-            entity.syncToClients();
-        }
+        entity.quarry.serverTick(entity);
     }
 
     /**
      * Sync arm state to clients. Called on arm state transitions.
      *
-     * <p>Does not call {@code setChanged()} — chunk dirty is managed separately by
-     * {@link #tick}, which marks dirty when energy is consumed or mining advances.
+     * <p>Does not call {@code setChanged()} — chunk dirty is managed separately, marked when energy
+     * is consumed or mining advances.
      */
     void syncToClients() {
         if (level != null && !level.isClientSide()) {
@@ -165,61 +120,11 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity
         }
     }
 
-    /** Drives {@link LaserQuarryBlock#ACTIVE} so the front lights up while powered and mining. */
-    private void updateActiveState(Level level, BlockPos pos, boolean active) {
-        BlockState state = getBlockState();
-        if (state.getValue(LaserQuarryBlock.ACTIVE) != active) {
-            level.setBlock(pos, state.setValue(LaserQuarryBlock.ACTIVE, active), Block.UPDATE_ALL);
-        }
-    }
-
-    /**
-     * The chunks to keep loaded this tick — the work-area boundary plus the quarry's own chunk — or
-     * {@code null} when chunk loading is disabled. Throws if a configured quarry resolves no frame,
-     * preserving the original guard.
-     */
-    @Nullable
-    private ChunkArea chunkArea() {
-        if (!LogisticsConfig.get().quarry.loadChunks) {
-            return null;
-        }
-        QuarryFrameRect frame = QuarryFrameRect.resolve(
-                LaserQuarryBlock.getMiningDirection(getBlockState()),
-                worldPosition,
-                bounds,
-                LogisticsConfig.get().quarry.area);
-        if (frame == null) {
-            throw new IllegalStateException("Quarry has null frame");
-        }
-
-        ChunkPos start = ChunkPos.containing(new BlockPos(frame.startX(), 0, frame.startZ()));
-        ChunkPos end = ChunkPos.containing(new BlockPos(frame.endX(), 0, frame.endZ()));
-        List<ChunkPos> boundary = new ArrayList<>();
-        for (int x = start.x(); x <= end.x(); x++) {
-            for (int z = start.z(); z <= end.z(); z++) {
-                boundary.add(new ChunkPos(x, z));
-            }
-        }
-        ChunkPos center = ChunkPos.containing(worldPosition);
-
-        return new ChunkArea() {
-            @Override
-            public ChunkPos center() {
-                return center;
-            }
-
-            @Override
-            public Iterable<ChunkPos> boundary() {
-                return boundary;
-            }
-        };
-    }
-
-    // ==================== QuarryContext (collaborator boundary) ====================
+    // ==================== MachineContext (host view for QuarryComponent) ====================
 
     @Override
-    public ServerLevel level() {
-        return (ServerLevel) this.level;
+    public Level level() {
+        return this.level;
     }
 
     @Override
@@ -228,73 +133,15 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity
     }
 
     @Override
-    public BlockState quarryState() {
+    public BlockState blockState() {
         return getBlockState();
     }
 
     @Override
-    public QuarryBounds bounds() {
-        return bounds;
-    }
-
-    @Override
-    public ArmController arm() {
-        return armController;
-    }
-
-    @Override
-    public QuarryOutput output() {
-        return output;
-    }
-
-    @Override
-    public int breakingEntityId() {
-        return breakingEntityId;
-    }
-
-    @Override
-    public int levelMinY() {
-        return level.getMinY();
-    }
-
-    @Override
-    public long energyStored() {
-        return energyPolicy.stored();
-    }
-
-    @Override
-    public boolean hasEnergy(long rf) {
-        return energyPolicy.has(rf);
-    }
-
-    @Override
-    public void consumeEnergy(long rf) {
-        energyPolicy.consume(rf);
-    }
-
-    @Override
-    public long moveCost() {
-        return energyPolicy.moveCost();
-    }
-
-    @Override
-    public float effectiveArmSpeed() {
-        return energyPolicy.effectiveArmSpeed(level, worldPosition);
-    }
-
-    @Override
-    public long frameBuildCost() {
-        return energyPolicy.frameBuildCost();
-    }
-
-    @Override
-    public float breakCost(float hardness) {
-        return energyPolicy.breakCost(hardness);
-    }
-
-    @Override
-    public void markChanged() {
-        setChanged();
+    public HolderLookup.Provider registries() {
+        return level != null
+                ? level.registryAccess()
+                : RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY);
     }
 
     @Override
@@ -302,11 +149,28 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity
         syncToClients();
     }
 
+    @Override
+    public void setBlockState(BlockState newState, int flags) {
+        if (level != null) {
+            level.setBlock(worldPosition, newState, flags);
+        }
+    }
+
+    @Override
+    @Nullable
+    public RecipeManager recipeManager() {
+        return null;
+    }
+
+    @Override
+    public RandomSource random() {
+        return level != null ? level.getRandom() : RandomSource.create();
+    }
+
     // ==================== Marker / bounds API ====================
 
     public void setCustomBounds(int minX, int minZ, int maxX, int maxZ) {
-        bounds.setCustom(minX, minZ, maxX, maxZ);
-        phaseRunner.onCustomBoundsSet();
+        quarry.setCustomBounds(minX, minZ, maxX, maxZ);
         setChanged();
     }
 
@@ -334,9 +198,7 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity
         super.saveLogisticsData(nbt, registries);
 
         energy.writeNbt(nbt, "Energy");
-        phaseRunner.save(nbt);
-        armController.save(nbt);
-        bounds.save(nbt);
+        quarry.save(nbt, registries);
     }
 
     @Override
@@ -345,9 +207,7 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity
 
         energy.readNbt(nbt, "Energy");
 
-        phaseRunner.load(nbt);
-        armController.load(nbt);
-        bounds.load(nbt);
+        quarry.load(nbt, registries);
     }
 
     // ==================== Lifecycle ====================
@@ -362,9 +222,9 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity
 
         if (level != null && !level.isClientSide()) {
             ActiveQuarryRegistry.unregister((ServerLevel) level, pos);
-            BlockPos currentTarget = phaseRunner.getCurrentTarget();
+            BlockPos currentTarget = quarry.currentTarget();
             if (currentTarget != null) {
-                ((ServerLevel) level).destroyBlockProgress(breakingEntityId, currentTarget, -1);
+                ((ServerLevel) level).destroyBlockProgress(quarry.breakingEntityIdValue(), currentTarget, -1);
             }
         }
     }
@@ -377,67 +237,67 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity
         }
     }
 
-    // ==================== Public getters (renderer / frame block) ====================
+    // ==================== Public getters (renderer / frame block / HUD) ====================
 
     public QuarryPhase getCurrentPhase() {
-        return phaseRunner.getPhase();
+        return quarry.phase();
     }
 
     public float getArmX() {
-        return armController.getX();
+        return quarry.armX();
     }
 
     public float getArmY() {
-        return armController.getY();
+        return quarry.armY();
     }
 
     public float getArmZ() {
-        return armController.getZ();
+        return quarry.armZ();
     }
 
     public QuarryArmState getArmState() {
-        return armController.getState();
+        return quarry.armState();
     }
 
     public float getSyncedArmSpeed() {
-        return armController.getSyncedSpeed();
+        return quarry.syncedArmSpeed();
     }
 
     public boolean isArmInitialized() {
-        return armController.isInitialized();
+        return quarry.armInitialized();
     }
 
     public boolean isFinished() {
-        return phaseRunner.isFinished();
+        return quarry.isFinished();
     }
 
     public boolean consumedEnergyThisTick() {
-        return energyPolicy.consumedThisTick();
+        return quarry.consumedEnergyThisTick();
     }
 
     public boolean hasCustomBounds() {
-        return bounds.isCustom();
+        return quarry.hasCustomBounds();
     }
 
     public int getCustomMinX() {
-        return bounds.getMinX();
+        return quarry.customMinX();
     }
 
     public int getCustomMinZ() {
-        return bounds.getMinZ();
+        return quarry.customMinZ();
     }
 
     public int getCustomMaxX() {
-        return bounds.getMaxX();
+        return quarry.customMaxX();
     }
 
     public int getCustomMaxZ() {
-        return bounds.getMaxZ();
+        return quarry.customMaxZ();
     }
 
     /** True if the quarry has been placed but hasn't started any clearing yet. */
     public boolean isFreshlyPlaced() {
-        return phaseRunner.isFreshlyPlaced();
+        return quarry.isFreshlyPlaced();
     }
 
     public static List<BlockPos> getActiveQuarries(ServerLevel world) {
