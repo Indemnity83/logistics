@@ -1,5 +1,6 @@
 package com.logistics.core.machine;
 
+import com.logistics.core.machine.component.ChunkLoadingComponent;
 import com.logistics.core.machine.component.EnergyStorageComponent;
 import com.logistics.core.machine.component.FluidStoreComponent;
 import com.logistics.core.machine.component.ItemStoreComponent;
@@ -8,7 +9,9 @@ import com.logistics.core.machine.component.RecipeProcessorComponent.LitControll
 import com.logistics.core.machine.component.RecipeResolver;
 import com.logistics.core.machine.component.SidedLayout;
 import com.logistics.core.machine.component.SlotRole;
+import com.logistics.core.machine.upgrade.UpgradeComponent;
 import java.util.function.Predicate;
+import net.minecraft.server.level.TicketType;
 import net.minecraft.world.item.ItemStack;
 
 /**
@@ -43,9 +46,47 @@ public final class MachineBuilder {
         return new RecipeProcessorBuilder(id);
     }
 
+    /** Registers an {@link UpgradeComponent} (no configuration) and returns it for wiring. */
+    public UpgradeComponent upgrades(String id) {
+        return components.add(new UpgradeComponent(id));
+    }
+
+    public ChunkLoaderBuilder chunkLoader(String id) {
+        return new ChunkLoaderBuilder(id);
+    }
+
     /** Escape hatch for registering a component that has no fluent builder yet. */
     public <T extends MachineComponent> T add(T component) {
         return components.add(component);
+    }
+
+    /** Builds a {@link ChunkLoadingComponent} fed by a machine-supplied area provider. */
+    public final class ChunkLoaderBuilder {
+        private final String id;
+        private TicketType centerType;
+        private TicketType boundaryType;
+        private ChunkLoadingComponent.AreaProvider area;
+
+        private ChunkLoaderBuilder(String id) {
+            this.id = id;
+        }
+
+        /** The ticket types to use for the center chunk and the surrounding boundary chunks. */
+        public ChunkLoaderBuilder tickets(TicketType center, TicketType boundary) {
+            this.centerType = center;
+            this.boundaryType = boundary;
+            return this;
+        }
+
+        /** Supplies the chunks to keep loaded (or {@code null} for none) each tick. */
+        public ChunkLoaderBuilder area(ChunkLoadingComponent.AreaProvider area) {
+            this.area = area;
+            return this;
+        }
+
+        public ChunkLoadingComponent build() {
+            return components.add(new ChunkLoadingComponent(id, centerType, boundaryType, area));
+        }
     }
 
     /** Builds an {@link EnergyStorageComponent}. */
