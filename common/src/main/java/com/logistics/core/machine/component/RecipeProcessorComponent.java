@@ -225,7 +225,9 @@ public final class RecipeProcessorComponent implements MachineComponent, Machine
             }
             for (int i = 0; i < byproducts.size(); i++) {
                 ChanceOutput byproduct = byproducts.get(i);
-                if (byproduct.guaranteedCount() > 0 && !items.canAcceptInto(i + 1, byproduct.guaranteedStack())) {
+                // Validate the worst-case roll so a fractional bonus is never silently dropped on completion.
+                int maxCount = byproduct.maxCount();
+                if (maxCount > 0 && !items.canAcceptInto(i + 1, byproduct.stack(maxCount))) {
                     return false;
                 }
             }

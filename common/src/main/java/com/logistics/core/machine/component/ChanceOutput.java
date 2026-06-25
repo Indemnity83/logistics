@@ -22,6 +22,12 @@ public record ChanceOutput(ItemStack template, float chance) {
         return (int) chance;
     }
 
+    /** The most a single {@link #roll} can yield: the guaranteed count plus the possible fractional bonus. */
+    public int maxCount() {
+        int guaranteed = (int) chance;
+        return guaranteed + (chance - guaranteed > 0f ? 1 : 0);
+    }
+
     /** Rolls this output's yield: the guaranteed count plus the fractional bonus. */
     public int roll(RandomSource random) {
         int guaranteed = (int) chance;
