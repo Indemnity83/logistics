@@ -9,9 +9,13 @@ import com.logistics.core.lib.block.capability.PipeConnection;
 import com.logistics.core.lib.energy.EnergyComponent;
 import com.logistics.core.lib.energy.IEnergyStorage;
 import com.logistics.core.lib.power.EnergyDemandProvider;
+import com.logistics.core.machine.component.ChunkArea;
+import com.logistics.core.machine.component.ChunkLoadingComponent;
 import com.logistics.core.machine.upgrade.MachineModifiers;
+import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -78,6 +82,13 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity
     private final ArmController armController = new ArmController();
     private final QuarryPhaseRunner phaseRunner = new QuarryPhaseRunner();
 
+    // Keeps the work area chunk-loaded; the area provider gates on the loadChunks config.
+    private final ChunkLoadingComponent chunkLoader = new ChunkLoadingComponent(
+            "chunks",
+            LogisticsAutomation.TICKET_TYPE.QUARRY,
+            LogisticsAutomation.TICKET_TYPE.QUARRY_BOUNDARY,
+            this::chunkArea);
+
     // Block breaking animation entity ID (use position hash for uniqueness).
     private final int breakingEntityId;
 
@@ -120,6 +131,7 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity
             return;
         }
 
+        entity.chunkLoader.keepLoaded((ServerLevel) world);
         entity.phaseRunner.tick(entity);
 
         // Idle power consumption: 1 RF every 4 ticks (5 RF/second) to slowly drain buffer.
@@ -159,6 +171,48 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity
         if (state.getValue(LaserQuarryBlock.ACTIVE) != active) {
             level.setBlock(pos, state.setValue(LaserQuarryBlock.ACTIVE, active), Block.UPDATE_ALL);
         }
+    }
+
+    /**
+     * The chunks to keep loaded this tick — the work-area boundary plus the quarry's own chunk — or
+     * {@code null} when chunk loading is disabled. Throws if a configured quarry resolves no frame,
+     * preserving the original guard.
+     */
+    @Nullable
+    private ChunkArea chunkArea() {
+        if (!LogisticsConfig.get().quarry.loadChunks) {
+            return null;
+        }
+        QuarryFrameRect frame = QuarryFrameRect.resolve(
+                LaserQuarryBlock.getMiningDirection(getBlockState()),
+                worldPosition,
+                bounds,
+                LogisticsConfig.get().quarry.area);
+        if (frame == null) {
+            throw new IllegalStateException("Quarry has null frame");
+        }
+
+        ChunkPos start = ChunkPos.containing(new BlockPos(frame.startX(), 0, frame.startZ()));
+        ChunkPos end = ChunkPos.containing(new BlockPos(frame.endX(), 0, frame.endZ()));
+        List<ChunkPos> boundary = new ArrayList<>();
+        for (int x = start.x(); x <= end.x(); x++) {
+            for (int z = start.z(); z <= end.z(); z++) {
+                boundary.add(new ChunkPos(x, z));
+            }
+        }
+        ChunkPos center = ChunkPos.containing(worldPosition);
+
+        return new ChunkArea() {
+            @Override
+            public ChunkPos center() {
+                return center;
+            }
+
+            @Override
+            public Iterable<ChunkPos> boundary() {
+                return boundary;
+            }
+        };
     }
 
     // ==================== QuarryContext (collaborator boundary) ====================
