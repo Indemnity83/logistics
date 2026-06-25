@@ -9,6 +9,7 @@ import com.logistics.core.lib.block.capability.PipeConnection;
 import com.logistics.core.lib.energy.EnergyComponent;
 import com.logistics.core.lib.energy.IEnergyStorage;
 import com.logistics.core.lib.power.EnergyDemandProvider;
+import com.logistics.core.machine.upgrade.MachineModifiers;
 import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -24,8 +25,6 @@ import org.jetbrains.annotations.Nullable;
 
 public class LaserQuarryBlockEntity extends BaseBlockEntity
         implements PipeConnection, HasEnergyStorage, EnergyDemandProvider, QuarryContext {
-    static final long FRAME_BUILD_COST = 240L;
-    private static final long MOVE_COST_BUFFER_DIVISOR = 10L;
 
     // Energy storage — kept on the BE because it's part of the capability surface.
     private final EnergyComponent energy = new EnergyComponent(
@@ -69,7 +68,10 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity
         }
     };
     private long lastSyncedEnergy = 0;
-    private boolean consumedEnergyThisTick = false;
+
+    // Quarry-specific energy behavior (action costs + spend); modifiers are identity until upgrades land.
+    private final QuarryEnergyPolicy energyPolicy =
+            new QuarryEnergyPolicy(energy, MachineModifiers.identity(), this::setChanged);
 
     // Extracted collaborators — see ArmController/QuarryPhaseRunner/QuarryBounds.
     private final QuarryBounds bounds = new QuarryBounds();
@@ -103,8 +105,8 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity
         entity.energyReceivedLastTick = entity.energyReceivedThisTick;
         entity.energyReceivedThisTick = 0;
 
-        boolean wasConsumedEnergy = entity.consumedEnergyThisTick;
-        entity.consumedEnergyThisTick = false;
+        boolean wasConsumedEnergy = entity.energyPolicy.consumedThisTick();
+        entity.energyPolicy.resetConsumedThisTick();
 
         if (entity.phaseRunner.isFinished()) {
             entity.updateActiveState(world, pos, false);
@@ -125,7 +127,7 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity
         entity.updateActiveState(world, pos, entity.energy.getAmount() > 0);
 
         boolean needsSync = entity.energy.getAmount() != entity.lastSyncedEnergy
-                || entity.consumedEnergyThisTick != wasConsumedEnergy;
+                || entity.energyPolicy.consumedThisTick() != wasConsumedEnergy;
 
         if (needsSync) {
             entity.lastSyncedEnergy = entity.energy.getAmount();
@@ -194,42 +196,37 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity
 
     @Override
     public long energyStored() {
-        return energy.getAmount();
+        return energyPolicy.stored();
     }
 
     @Override
     public boolean hasEnergy(long rf) {
-        return energy.getAmount() >= rf;
+        return energyPolicy.has(rf);
     }
 
-    /**
-     * Consumes energy from the buffer if available. Sets the consumed-this-tick flag
-     * so the active state renders correctly.
-     */
     @Override
     public void consumeEnergy(long rf) {
-        if (energy.getAmount() >= rf) {
-            energy.consume(rf);
-            consumedEnergyThisTick = true;
-            setChanged();
-        }
+        energyPolicy.consume(rf);
     }
 
-    /** Move cost per tick — scales with current buffer to drain excess energy faster. */
     @Override
     public long moveCost() {
-        return ArmController.moveCost(energy.getAmount(), MOVE_COST_BUFFER_DIVISOR);
+        return energyPolicy.moveCost();
     }
 
-    /** Effective arm speed in blocks/tick, including the rain penalty when applicable. */
     @Override
     public float effectiveArmSpeed() {
-        return ArmController.effectiveSpeed(energy.getAmount(), MOVE_COST_BUFFER_DIVISOR, level, worldPosition);
+        return energyPolicy.effectiveArmSpeed(level, worldPosition);
     }
 
     @Override
     public long frameBuildCost() {
-        return FRAME_BUILD_COST;
+        return energyPolicy.frameBuildCost();
+    }
+
+    @Override
+    public float breakCost(float hardness) {
+        return energyPolicy.breakCost(hardness);
     }
 
     @Override
@@ -352,7 +349,7 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity
     }
 
     public boolean consumedEnergyThisTick() {
-        return consumedEnergyThisTick;
+        return energyPolicy.consumedThisTick();
     }
 
     public boolean hasCustomBounds() {
