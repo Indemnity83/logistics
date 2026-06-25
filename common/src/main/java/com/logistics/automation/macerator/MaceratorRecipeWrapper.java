@@ -1,6 +1,6 @@
-package com.logistics.core.macerator;
+package com.logistics.automation.macerator;
 
-import com.logistics.LogisticsCore;
+import com.logistics.LogisticsAutomation;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -28,19 +28,22 @@ import java.util.List;
  */
 public class MaceratorRecipeWrapper implements Recipe<SingleRecipeInput> {
 
-    public static final int DEFAULT_GRINDING_TIME = 200;
+    public static final int DEFAULT_ENERGY_REQUIRED = 2000;
     public static final float DEFAULT_EXPERIENCE = 0.0f;
 
     private final Ingredient ingredient;
     private final ItemStack result;
-    private final int grindingTime;
+    private final int energyRequired;
     private final float experience;
     @Nullable private PlacementInfo placementInfo;
 
-    public MaceratorRecipeWrapper(Ingredient ingredient, ItemStack result, int grindingTime, float experience) {
+    public MaceratorRecipeWrapper(Ingredient ingredient, ItemStack result, int energyRequired, float experience) {
+        if (energyRequired <= 0) {
+            throw new IllegalArgumentException("energyRequired must be positive, got " + energyRequired);
+        }
         this.ingredient = ingredient;
         this.result = result;
-        this.grindingTime = grindingTime;
+        this.energyRequired = energyRequired;
         this.experience = experience;
     }
 
@@ -52,8 +55,9 @@ public class MaceratorRecipeWrapper implements Recipe<SingleRecipeInput> {
         return result;
     }
 
-    public int grindingTime() {
-        return grindingTime;
+    /** Total energy (RF) the machine must spend to complete this recipe. */
+    public int energyRequired() {
+        return energyRequired;
     }
 
     public float experience() {
@@ -76,23 +80,33 @@ public class MaceratorRecipeWrapper implements Recipe<SingleRecipeInput> {
     }
 
     @Override
+    public @NotNull String group() {
+        return "";
+    }
+
+    @Override
     public @NotNull ItemStack assemble(@NotNull SingleRecipeInput input, HolderLookup.@NotNull Provider provider) {
         return result.copy();
     }
 
     @Override
     public @NotNull RecipeSerializer<MaceratorRecipeWrapper> getSerializer() {
-        return LogisticsCore.RECIPE.MACERATOR_RECIPE_SERIALIZER;
+        return MaceratorRecipeSerializer.INSTANCE;
     }
 
     @Override
     public @NotNull RecipeType<MaceratorRecipeWrapper> getType() {
-        return LogisticsCore.RECIPE.MACERATOR_RECIPE_TYPE;
+        return LogisticsAutomation.RECIPE.MACERATOR_RECIPE_TYPE;
     }
 
     @Override
     public boolean isSpecial() {
         return false;
+    }
+
+    @Override
+    public boolean showNotification() {
+        return true;
     }
 
     @Override
@@ -105,7 +119,7 @@ public class MaceratorRecipeWrapper implements Recipe<SingleRecipeInput> {
 
     @Override
     public @NotNull RecipeBookCategory recipeBookCategory() {
-        return LogisticsCore.RECIPE.MACERATOR_CATEGORY;
+        return LogisticsAutomation.RECIPE.MACERATOR_CATEGORY;
     }
 
     @Override
@@ -113,8 +127,8 @@ public class MaceratorRecipeWrapper implements Recipe<SingleRecipeInput> {
         return List.of(new MaceratorRecipeDisplay(
             ingredient.display(),
             new SlotDisplay.ItemStackSlotDisplay(result),
-            new SlotDisplay.ItemSlotDisplay(LogisticsCore.BLOCK.MACERATOR.asItem()),
-            grindingTime,
+            new SlotDisplay.ItemSlotDisplay(LogisticsAutomation.BLOCK.MACERATOR.asItem()),
+            energyRequired,
             experience
         ));
     }
