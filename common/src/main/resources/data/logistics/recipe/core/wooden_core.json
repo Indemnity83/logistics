@@ -2,7 +2,7 @@
   "type": "minecraft:crafting_shaped",
   "pattern": ["M", "S", "M"],
   "key": {
-    "M": "logistics:core/wood_pulp",
+    "M": "logistics:core/sawdust",
     "S": "minecraft:slime_ball"
   },
   "result": {
