@@ -39,7 +39,7 @@ public final class SmeltingRecipeResolver implements RecipeResolver {
                 .map(holder -> new RecipePlan(
                         (long) holder.value().cookingTime() * RF_PER_COOK_TICK,
                         holder.value().assemble(recipeInput),
-                        0f))
+                        holder.value().experience()))
                 .orElse(null);
     }
 }
