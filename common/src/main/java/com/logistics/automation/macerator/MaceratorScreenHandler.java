@@ -170,17 +170,17 @@ public class MaceratorScreenHandler extends RecipeBookMenu {
 
     /** Energy spent so far toward the active recipe (RF). */
     public int getEnergySpent() {
-        return data.get(0);
+        return data.get(MaceratorBlockEntity.DATA_PROGRESS);
     }
 
     /** Total energy the active recipe requires (RF), or 0 if idle. */
     public int getEnergyRequired() {
-        return data.get(1);
+        return data.get(MaceratorBlockEntity.DATA_TOTAL);
     }
 
     /** Current energy stored (RF). */
     public int getEnergyStored() {
-        return data.get(2);
+        return data.get(MaceratorBlockEntity.DATA_ENERGY);
     }
 
     /** Max energy capacity (RF). */

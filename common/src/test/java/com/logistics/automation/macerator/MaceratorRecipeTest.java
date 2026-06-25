@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @DisplayName("MaceratorRecipeWrapper")
 class MaceratorRecipeTest extends MinecraftTestEnvironment {
@@ -76,6 +77,19 @@ class MaceratorRecipeTest extends MinecraftTestEnvironment {
             MaceratorRecipeWrapper.DEFAULT_EXPERIENCE
         );
         assertThat(recipe.energyRequired()).isEqualTo(500);
+    }
+
+    @Test
+    @DisplayName("should reject non-positive energy required")
+    void rejectsNonPositiveEnergyRequired() {
+        for (int energy : new int[] {0, -1}) {
+            assertThatThrownBy(() -> new MaceratorRecipeWrapper(
+                    Ingredient.of(Items.RAW_IRON),
+                    new ItemStackTemplate(Items.IRON_INGOT, 2),
+                    energy,
+                    MaceratorRecipeWrapper.DEFAULT_EXPERIENCE))
+                .isInstanceOf(IllegalArgumentException.class);
+        }
     }
 
     @Test

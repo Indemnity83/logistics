@@ -36,9 +36,10 @@ public class MaceratorBlockEntity extends MachineEntity {
     static final int ENERGY_PER_TICK = 10;
 
     // ContainerData indices for GUI sync. Progress/total are RF-denominated under the RF-cost model.
-    private static final int DATA_PROGRESS = 0;
-    private static final int DATA_TOTAL = 1;
-    private static final int DATA_ENERGY = 2;
+    // Package-visible so MaceratorScreenHandler reads the same layout instead of raw literals.
+    static final int DATA_PROGRESS = 0;
+    static final int DATA_TOTAL = 1;
+    static final int DATA_ENERGY = 2;
     static final int DATA_COUNT = 3;
 
     private EnergyStorageComponent energy;
