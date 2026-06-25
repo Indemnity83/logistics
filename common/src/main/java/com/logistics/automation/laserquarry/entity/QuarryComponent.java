@@ -20,9 +20,10 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * The Laser Quarry's behavior as a single machine component. Owns the mining region, the arm, the
- * phase runner, the energy policy, the output sink, and chunk loading, and runs the full mining
- * tick. Implements {@link QuarryContext} so {@link QuarryPhaseRunner} depends only on it; world,
- * sync, and dirty handles come from the per-tick {@link MachineContext}.
+ * phase runner, the energy policy, and the output sink, and runs the full mining tick. Implements
+ * {@link QuarryContext} so {@link QuarryPhaseRunner} depends only on it; world, sync, and dirty
+ * handles come from the per-tick {@link MachineContext}. Chunk loading is a sibling component fed by
+ * {@link #chunkArea}.
  */
 public final class QuarryComponent implements MachineComponent, QuarryContext {
 
