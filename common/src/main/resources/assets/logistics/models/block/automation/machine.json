@@ -3,6 +3,7 @@
   "textures": {
     "top": "logistics:block/automation/machine_top",
     "bottom": "logistics:block/automation/machine_bottom",
-    "side": "logistics:block/automation/machine_side"
+    "side": "logistics:block/automation/machine_side",
+    "front": "logistics:block/automation/machine_side"
   }
 }
