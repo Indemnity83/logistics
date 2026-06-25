@@ -114,6 +114,7 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         public static Item APATITE;
         public static Item STURDY_CASING;
         public static Item MACHINE_CORE;
+        public static Item REDSTONE_RECEPTION_COIL;
 
         public static Item WOODEN_GEAR;
         public static Item STONE_GEAR;
@@ -205,6 +206,7 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
             // Components
             STURDY_CASING = INSTANCE.registerItem("sturdy_casing", Item::new);
             MACHINE_CORE = INSTANCE.registerItem("machine_core", Item::new);
+            REDSTONE_RECEPTION_COIL = INSTANCE.registerItem("redstone_reception_coil", Item::new);
 
             // Gears
             WOODEN_GEAR = INSTANCE.registerItem("wooden_gear", Item::new);
@@ -367,7 +369,8 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
                 // Intermediate Crafting Items
                 entries.insertBefore(Items.HEAVY_CORE, ITEM.STURDY_CASING);
                 entries.insertAfter(ITEM.STURDY_CASING, ITEM.MACHINE_CORE);
-                entries.insertAfter(ITEM.MACHINE_CORE, ITEM.WOODEN_GEAR);
+                entries.insertAfter(ITEM.MACHINE_CORE, ITEM.REDSTONE_RECEPTION_COIL);
+                entries.insertAfter(ITEM.REDSTONE_RECEPTION_COIL, ITEM.WOODEN_GEAR);
                 entries.insertAfter(ITEM.WOODEN_GEAR, ITEM.STONE_GEAR);
                 entries.insertAfter(ITEM.STONE_GEAR, ITEM.COPPER_GEAR);
                 entries.insertAfter(ITEM.COPPER_GEAR, ITEM.TIN_GEAR);

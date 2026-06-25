@@ -7,6 +7,8 @@ import com.logistics.automation.laserquarry.LaserQuarryBlock;
 import com.logistics.automation.laserquarry.LaserQuarryFrameBlock;
 import com.logistics.automation.laserquarry.entity.LaserQuarryBlockEntity;
 import com.logistics.core.bootstrap.DomainBootstrap;
+import com.logistics.core.lib.platform.CreativeTabRegistrar;
+import com.logistics.core.lib.platform.LogisticsCreativeTab;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.automation.marker.MarkerBlock;
 import com.logistics.automation.marker.MarkerBlockEntity;
@@ -14,6 +16,10 @@ import java.util.Comparator;
 import net.minecraft.server.level.TicketType;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.TicketType;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -99,12 +105,22 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
     }
 
     public static final class CREATIVE {
+        public static final LogisticsCreativeTab TAB = LogisticsCreativeTab.create(
+            LogisticsMod.modId("automation"),
+            Component.translatable("itemGroup.logistics.automation"),
+            () -> new ItemStack(LogisticsCore.ITEM.MACHINE_CORE)
+        );
+
         private CREATIVE() {}
 
         static void register() {
-            LogisticsCore.CREATIVE.TAB.add(BLOCK.MARKER);
-            LogisticsCore.CREATIVE.TAB.add(BLOCK.LASER_QUARRY);
-            LogisticsCore.CREATIVE.TAB.add(BLOCK.KILN);
+            // Machine components, then the machines.
+            TAB.add(LogisticsCore.ITEM.MACHINE_CORE);
+            TAB.add(LogisticsCore.ITEM.REDSTONE_RECEPTION_COIL);
+            TAB.add(BLOCK.MARKER);
+            TAB.add(BLOCK.LASER_QUARRY);
+            TAB.add(BLOCK.KILN);
+            CreativeTabRegistrar.INSTANCE.registerTab(TAB);
         }
     }
 

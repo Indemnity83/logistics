@@ -118,6 +118,16 @@ public final class NbtCompat {
     }
 
     /**
+     * Returns whether a compound tag is present at the key.
+     *
+     * <p><b>mc/1.21.11 implementation:</b> {@code tag.getCompound(key).isPresent()}
+     * <p><b>mc/1.21.1 backport:</b> {@code tag.contains(key, Tag.TAG_COMPOUND)}
+     */
+    public static boolean hasCompound(CompoundTag tag, String key) {
+        return tag.contains(key, Tag.TAG_COMPOUND);
+    }
+
+    /**
      * Execute action if compound tag exists at key.
      *
      * <p><b>mc/1.21.11 implementation:</b> {@code tag.getCompound(key).ifPresent(action)}

@@ -1,0 +1,6 @@
+{
+  "model": {
+    "model": "logistics:item/core/redstone_reception_coil",
+    "type": "minecraft:model"
+  }
+}
