@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "logistics:item/core/wood_pulp"
+    "model": "logistics:item/core/sawdust"
   }
 }
