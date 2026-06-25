@@ -3,6 +3,7 @@ package com.logistics.gametest.automation;
 import com.logistics.LogisticsAutomation;
 import com.logistics.automation.laserquarry.LaserQuarryBlock;
 import com.logistics.automation.laserquarry.entity.LaserQuarryBlockEntity;
+import com.logistics.automation.laserquarry.entity.QuarryPhase;
 import com.logistics.core.lib.block.capability.PipeConnection;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.core.BlockPos;
@@ -146,7 +147,7 @@ public class QuarryGameTest {
         }
 
         // Verify starts in CLEARING phase
-        if (quarry.getCurrentPhase() != LaserQuarryBlockEntity.Phase.CLEARING) {
+        if (quarry.getCurrentPhase() != QuarryPhase.CLEARING) {
             context.fail("Laser quarry should start in CLEARING phase, got: " + quarry.getCurrentPhase());
             return;
         }

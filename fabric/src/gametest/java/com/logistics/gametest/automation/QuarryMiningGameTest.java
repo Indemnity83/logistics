@@ -4,6 +4,7 @@ import com.logistics.LogisticsAutomation;
 import com.logistics.core.LogisticsConfig;
 import com.logistics.automation.laserquarry.LaserQuarryGeometry;
 import com.logistics.automation.laserquarry.entity.LaserQuarryBlockEntity;
+import com.logistics.automation.laserquarry.entity.QuarryPhase;
 import net.minecraft.gametest.framework.GameTest;
 import com.logistics.core.lib.energy.IEnergyStorage;
 import net.minecraft.core.BlockPos;
@@ -47,7 +48,7 @@ public class QuarryMiningGameTest {
         }
 
         context.runAfterDelay(20, () -> {
-            if (quarry.getCurrentPhase() != LaserQuarryBlockEntity.Phase.CLEARING) {
+            if (quarry.getCurrentPhase() != QuarryPhase.CLEARING) {
                 context.fail("Quarry with no energy should stay in CLEARING, got: "
                         + quarry.getCurrentPhase());
             } else {
@@ -117,7 +118,7 @@ public class QuarryMiningGameTest {
 
         // Check at tick 80 — CLEARING finishes in 1 tick, BUILDING_FRAME in ~28 ticks
         context.runAfterDelay(80, () -> {
-            if (quarry.getCurrentPhase() != LaserQuarryBlockEntity.Phase.MINING) {
+            if (quarry.getCurrentPhase() != QuarryPhase.MINING) {
                 context.fail("Expected MINING phase after 80 ticks with full energy, got: "
                         + quarry.getCurrentPhase());
             } else {

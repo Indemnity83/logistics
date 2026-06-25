@@ -4,6 +4,7 @@ import com.logistics.core.LogisticsConfig;
 import com.logistics.automation.laserquarry.LaserQuarryBlock;
 import com.logistics.automation.laserquarry.LaserQuarryGeometry;
 import com.logistics.automation.laserquarry.entity.LaserQuarryBlockEntity;
+import com.logistics.automation.laserquarry.entity.QuarryPhase;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
@@ -88,7 +89,7 @@ public class LaserQuarryBlockEntityRenderer implements BlockEntityRenderer<Laser
             int packedOverlay) {
 
         // Only render arm during mining phase when arm is initialized
-        boolean shouldRenderArm = (entity.getCurrentPhase() == LaserQuarryBlockEntity.Phase.MINING) && entity.isArmInitialized();
+        boolean shouldRenderArm = (entity.getCurrentPhase() == QuarryPhase.MINING) && entity.isArmInitialized();
         boolean shouldRenderPreviewOutline = entity.isFreshlyPlaced();
 
         if (!shouldRenderArm && !shouldRenderPreviewOutline) {

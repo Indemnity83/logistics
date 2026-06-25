@@ -27,20 +27,6 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity
     static final long FRAME_BUILD_COST = 240L;
     private static final long MOVE_COST_BUFFER_DIVISOR = 10L;
 
-    /** Quarry operation phases. */
-    public enum Phase {
-        CLEARING,
-        BUILDING_FRAME,
-        MINING
-    }
-
-    /** Arm movement sub-states during mining phase. */
-    public enum ArmState {
-        MOVING,
-        SETTLING,
-        BREAKING
-    }
-
     // Energy storage — kept on the BE because it's part of the capability surface.
     private final EnergyComponent energy = new EnergyComponent(
             LogisticsConfig.get().quarry.energyCapacity(),
@@ -286,7 +272,7 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity
 
     // ==================== Public getters (renderer / frame block) ====================
 
-    public Phase getCurrentPhase() {
+    public QuarryPhase getCurrentPhase() {
         return phaseRunner.getPhase();
     }
 
@@ -302,7 +288,7 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity
         return armController.getZ();
     }
 
-    public ArmState getArmState() {
+    public QuarryArmState getArmState() {
         return armController.getState();
     }
 
