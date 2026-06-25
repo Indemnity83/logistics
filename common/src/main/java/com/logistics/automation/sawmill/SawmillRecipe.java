@@ -70,7 +70,7 @@ public class SawmillRecipe implements Recipe<SingleRecipeInput> {
 
     @Override
     public boolean matches(@NotNull SingleRecipeInput input, @NotNull Level level) {
-        return ingredient.test(input.item());
+        return ingredient.test(input.item()) && input.item().getCount() >= ingredientCount;
     }
 
     @Override

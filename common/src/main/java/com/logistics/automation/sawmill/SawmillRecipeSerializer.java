@@ -18,10 +18,14 @@ public class SawmillRecipeSerializer {
 
     public static final MapCodec<SawmillRecipe> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
         Ingredient.CODEC.fieldOf("ingredient").forGetter(SawmillRecipe::ingredient),
-        Codec.INT.optionalFieldOf("count", SawmillRecipe.DEFAULT_INGREDIENT_COUNT).forGetter(SawmillRecipe::ingredientCount),
+        Codec.intRange(1, Integer.MAX_VALUE)
+            .optionalFieldOf("count", SawmillRecipe.DEFAULT_INGREDIENT_COUNT)
+            .forGetter(SawmillRecipe::ingredientCount),
         ItemStackTemplate.CODEC.fieldOf("result").forGetter(SawmillRecipe::result),
         SawmillByproduct.CODEC.fieldOf("byproduct").forGetter(SawmillRecipe::byproduct),
-        Codec.INT.optionalFieldOf("energy", SawmillRecipe.DEFAULT_ENERGY).forGetter(SawmillRecipe::energy)
+        Codec.intRange(0, Integer.MAX_VALUE)
+            .optionalFieldOf("energy", SawmillRecipe.DEFAULT_ENERGY)
+            .forGetter(SawmillRecipe::energy)
     ).apply(i, SawmillRecipe::new));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, SawmillRecipe> STREAM_CODEC =

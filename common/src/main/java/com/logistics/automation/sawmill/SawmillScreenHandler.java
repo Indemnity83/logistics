@@ -104,6 +104,12 @@ public class SawmillScreenHandler extends AbstractContainerMenu {
         return this.inventory.stillValid(player);
     }
 
+    @Override
+    public void removed(Player player) {
+        super.removed(player);
+        this.inventory.stopOpen(player);
+    }
+
     // ==================== Data Getters for GUI Rendering ====================
 
     public int getProcessProgress() {
