@@ -1,4 +1,4 @@
-package com.logistics.core.macerator;
+package com.logistics.automation.macerator;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;

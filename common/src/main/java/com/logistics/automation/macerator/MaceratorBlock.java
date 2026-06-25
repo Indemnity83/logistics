@@ -1,4 +1,4 @@
-package com.logistics.core.macerator;
+package com.logistics.automation.macerator;
 
 import com.logistics.LogisticsAutomation;
 import com.logistics.core.lib.block.MachineBlock;

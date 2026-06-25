@@ -1,6 +1,6 @@
-package com.logistics.core.macerator;
+package com.logistics.automation.macerator;
 
-import com.logistics.LogisticsCore;
+import com.logistics.LogisticsAutomation;
 import net.minecraft.recipebook.ServerPlaceRecipe;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Container;
@@ -39,7 +39,7 @@ public class MaceratorScreenHandler extends RecipeBookMenu {
 
     /** Server-side constructor. */
     public MaceratorScreenHandler(int syncId, Inventory playerInventory, Container inventory, ContainerData data) {
-        super(LogisticsCore.MENU.MACERATOR, syncId);
+        super(LogisticsAutomation.MENU.MACERATOR, syncId);
         checkContainerSize(inventory, MACHINE_SLOT_COUNT);
         checkContainerDataCount(data, MaceratorBlockEntity.DATA_COUNT);
 

@@ -1,7 +1,6 @@
-package com.logistics.core.macerator;
+package com.logistics.automation.macerator;
 
 import com.logistics.LogisticsAutomation;
-import com.logistics.LogisticsCore;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -97,7 +96,7 @@ public class MaceratorRecipeWrapper implements Recipe<SingleRecipeInput> {
 
     @Override
     public @NotNull RecipeType<MaceratorRecipeWrapper> getType() {
-        return LogisticsCore.RECIPE.MACERATOR_RECIPE_TYPE;
+        return LogisticsAutomation.RECIPE.MACERATOR_RECIPE_TYPE;
     }
 
     @Override
@@ -120,7 +119,7 @@ public class MaceratorRecipeWrapper implements Recipe<SingleRecipeInput> {
 
     @Override
     public @NotNull RecipeBookCategory recipeBookCategory() {
-        return LogisticsCore.RECIPE.MACERATOR_CATEGORY;
+        return LogisticsAutomation.RECIPE.MACERATOR_CATEGORY;
     }
 
     @Override

@@ -1,6 +1,6 @@
-package com.logistics.core.macerator;
+package com.logistics.automation.macerator;
 
-import com.logistics.LogisticsCore;
+import com.logistics.LogisticsAutomation;
 import com.logistics.core.machine.MachineContext;
 import com.logistics.core.machine.component.ProcessIO;
 import com.logistics.core.machine.component.RecipePlan;
@@ -30,7 +30,7 @@ public final class MaceratorRecipeResolver implements RecipeResolver {
             return null;
         }
         return recipeManager
-                .getRecipeFor(LogisticsCore.RECIPE.MACERATOR_RECIPE_TYPE, new SingleRecipeInput(input), level)
+                .getRecipeFor(LogisticsAutomation.RECIPE.MACERATOR_RECIPE_TYPE, new SingleRecipeInput(input), level)
                 .map(holder -> new RecipePlan(
                         holder.value().energyRequired(), holder.value().getResultItem(), holder.value().experience()))
                 .orElse(null);

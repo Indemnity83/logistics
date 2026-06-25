@@ -6,8 +6,12 @@ import com.logistics.automation.kiln.KilnScreenHandler;
 import com.logistics.automation.laserquarry.LaserQuarryBlock;
 import com.logistics.automation.laserquarry.LaserQuarryFrameBlock;
 import com.logistics.automation.laserquarry.entity.LaserQuarryBlockEntity;
-import com.logistics.core.macerator.MaceratorBlock;
-import com.logistics.core.macerator.MaceratorBlockEntity;
+import com.logistics.automation.macerator.MaceratorBlock;
+import com.logistics.automation.macerator.MaceratorBlockEntity;
+import com.logistics.automation.macerator.MaceratorRecipeDisplay;
+import com.logistics.automation.macerator.MaceratorRecipeSerializer;
+import com.logistics.automation.macerator.MaceratorRecipeWrapper;
+import com.logistics.automation.macerator.MaceratorScreenHandler;
 import com.logistics.core.bootstrap.DomainBootstrap;
 import com.logistics.core.lib.platform.CreativeTabRegistrar;
 import com.logistics.core.lib.platform.LogisticsCreativeTab;
@@ -20,6 +24,10 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.TicketType;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.RecipeBookCategory;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.item.crafting.display.RecipeDisplay;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -52,6 +60,7 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
         BLOCK.register();
         ENTITY.register();
         MENU.register();
+        RECIPE.register();
         CREATIVE.register();
         ALIAS.register();
         TICKET_TYPE.register();
@@ -105,9 +114,48 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
         private MENU() {}
 
         public static MenuType<KilnScreenHandler> KILN;
+        public static MenuType<MaceratorScreenHandler> MACERATOR;
 
         static void register() {
             KILN = INSTANCE.registerMenuType("kiln", KilnScreenHandler::new);
+            MACERATOR = INSTANCE.registerMenuType("macerator", MaceratorScreenHandler::new);
+        }
+    }
+
+    public static final class RECIPE {
+        private RECIPE() {}
+
+        public static RecipeType<MaceratorRecipeWrapper> MACERATOR_RECIPE_TYPE;
+        public static RecipeSerializer<MaceratorRecipeWrapper> MACERATOR_RECIPE_SERIALIZER;
+        public static RecipeBookCategory MACERATOR_CATEGORY;
+        public static RecipeDisplay.Type<MaceratorRecipeDisplay> MACERATOR_DISPLAY_TYPE;
+
+        static void register() {
+            MACERATOR_RECIPE_TYPE = Registry.register(
+                BuiltInRegistries.RECIPE_TYPE,
+                LogisticsMod.modId("macerator").toIdentifier(),
+                new RecipeType<MaceratorRecipeWrapper>() {
+                    @Override
+                    public String toString() {
+                        return "logistics:macerator";
+                    }
+                }
+            );
+            MACERATOR_RECIPE_SERIALIZER = Registry.register(
+                BuiltInRegistries.RECIPE_SERIALIZER,
+                LogisticsMod.modId("macerator").toIdentifier(),
+                MaceratorRecipeSerializer.INSTANCE
+            );
+            MACERATOR_CATEGORY = Registry.register(
+                BuiltInRegistries.RECIPE_BOOK_CATEGORY,
+                LogisticsMod.modId("macerator").toIdentifier(),
+                new RecipeBookCategory()
+            );
+            MACERATOR_DISPLAY_TYPE = Registry.register(
+                BuiltInRegistries.RECIPE_DISPLAY,
+                LogisticsMod.modId("macerator").toIdentifier(),
+                MaceratorRecipeDisplay.TYPE
+            );
         }
     }
 

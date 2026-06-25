@@ -2,7 +2,7 @@ package com.logistics.gametest.power;
 
 import com.logistics.LogisticsAutomation;
 import com.logistics.LogisticsPower;
-import com.logistics.core.macerator.MaceratorBlockEntity;
+import com.logistics.automation.macerator.MaceratorBlockEntity;
 import com.logistics.core.lib.power.AbstractEngineBlock;
 import com.logistics.power.cable.CableBlock;
 import com.logistics.power.cable.CableBlockEntity;

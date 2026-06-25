@@ -1,8 +1,8 @@
-package com.logistics.core.macerator.jei;
+package com.logistics.automation.macerator.jei;
 
 import com.logistics.LogisticsAutomation;
 import com.logistics.LogisticsMod;
-import com.logistics.core.macerator.MaceratorRecipeWrapper;
+import com.logistics.automation.macerator.MaceratorRecipeWrapper;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
