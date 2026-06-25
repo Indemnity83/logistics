@@ -39,6 +39,9 @@ public class MaceratorRecipeWrapper implements Recipe<SingleRecipeInput> {
     @Nullable private PlacementInfo placementInfo;
 
     public MaceratorRecipeWrapper(Ingredient ingredient, ItemStackTemplate result, int energyRequired, float experience) {
+        if (energyRequired <= 0) {
+            throw new IllegalArgumentException("energyRequired must be positive, got " + energyRequired);
+        }
         this.ingredient = ingredient;
         this.result = result;
         this.energyRequired = energyRequired;

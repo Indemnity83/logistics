@@ -80,6 +80,10 @@ public class MaceratorGameTest {
         BlockPos pos = new BlockPos(1, 1, 1);
         context.setBlock(pos, LogisticsAutomation.BLOCK.MACERATOR);
         MaceratorBlockEntity macerator = context.getBlockEntity(pos, MaceratorBlockEntity.class);
+        if (macerator == null) {
+            context.fail("Macerator block entity should exist");
+            return;
+        }
 
         if (macerator.energyStorage(null) == null) {
             context.fail("Macerator should expose energy storage");
@@ -104,6 +108,10 @@ public class MaceratorGameTest {
         BlockPos pos = new BlockPos(1, 1, 1);
         context.setBlock(pos, LogisticsAutomation.BLOCK.MACERATOR);
         MaceratorBlockEntity macerator = context.getBlockEntity(pos, MaceratorBlockEntity.class);
+        if (macerator == null) {
+            context.fail("Macerator block entity should exist");
+            return;
+        }
 
         // Fill the energy buffer (each insert is capped at the 128 RF/t input limit).
         IEnergyStorage energy = macerator.energyStorage(null);
