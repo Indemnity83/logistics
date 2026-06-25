@@ -3,11 +3,11 @@ package com.logistics.automation.laserquarry.entity;
 import com.logistics.LogisticsAutomation;
 import com.logistics.automation.laserquarry.LaserQuarryBlock;
 import com.logistics.core.LogisticsConfig;
-import com.logistics.core.lib.energy.EnergyComponent;
 import com.logistics.core.machine.MachineComponent;
 import com.logistics.core.machine.MachineContext;
 import com.logistics.core.machine.component.ChunkArea;
 import com.logistics.core.machine.component.ChunkLoadingComponent;
+import com.logistics.core.machine.component.EnergyStorageComponent;
 import com.logistics.core.machine.upgrade.MachineModifiers;
 import java.util.ArrayList;
 import java.util.List;
@@ -44,7 +44,7 @@ public final class QuarryComponent implements MachineComponent, QuarryContext {
     @Nullable
     private MachineContext ctx;
 
-    public QuarryComponent(String id, BlockPos pos, EnergyComponent energy, MachineModifiers modifiers) {
+    public QuarryComponent(String id, BlockPos pos, EnergyStorageComponent energy, MachineModifiers modifiers) {
         this.id = id;
         this.breakingEntityId = pos.hashCode();
         this.energyPolicy = new QuarryEnergyPolicy(energy, modifiers, this::markChanged);

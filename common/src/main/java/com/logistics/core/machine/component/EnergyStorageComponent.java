@@ -29,6 +29,7 @@ public final class EnergyStorageComponent implements MachineComponent, MachineCo
     private final boolean exposeDemand;
 
     private long receivedThisTick;
+    private long receivedLastTick;
 
     private final IEnergyStorage tracking = new IEnergyStorage() {
         @Override
@@ -89,7 +90,13 @@ public final class EnergyStorageComponent implements MachineComponent, MachineCo
 
     @Override
     public void serverTick(MachineContext ctx) {
+        receivedLastTick = receivedThisTick;
         receivedThisTick = 0;
+    }
+
+    /** Energy received during the previous tick (for HUD readouts); requires {@code trackReceived}. */
+    public long receivedLastTick() {
+        return receivedLastTick;
     }
 
     @Override
@@ -118,6 +125,11 @@ public final class EnergyStorageComponent implements MachineComponent, MachineCo
         storage.consume(rf);
     }
 
+    /** Sets the stored amount directly (e.g. legacy migration). */
+    public void setAmount(long amount) {
+        storage.setAmount(amount);
+    }
+
     @Override
     public void save(CompoundTag tag, HolderLookup.Provider registries) {
         storage.writeNbt(tag, "amount");
@@ -131,5 +143,13 @@ public final class EnergyStorageComponent implements MachineComponent, MachineCo
     @Override
     public void loadLegacy(CompoundTag root, HolderLookup.Provider registries) {
         storage.readNbt(root, LEGACY_KEY);
+    }
+
+    /**
+     * Writes the buffer under the root {@link #LEGACY_KEY} (symmetric with {@link #loadLegacy}), for
+     * a machine that persists energy at the root rather than in a hosted component sub-tag.
+     */
+    public void saveLegacy(CompoundTag root) {
+        storage.writeNbt(root, LEGACY_KEY);
     }
 }
