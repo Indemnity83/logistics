@@ -3,136 +3,69 @@ package com.logistics.automation.laserquarry.entity;
 import com.logistics.LogisticsAutomation;
 import com.logistics.automation.render.ClientRenderCacheHooks;
 import com.logistics.core.LogisticsConfig;
-import com.logistics.core.lib.block.BaseBlockEntity;
-import com.logistics.core.lib.block.capability.HasEnergyStorage;
 import com.logistics.core.lib.block.capability.PipeConnection;
 import com.logistics.core.lib.compat.NbtCompat;
-import com.logistics.core.lib.energy.IEnergyStorage;
-import com.logistics.core.lib.power.EnergyDemandProvider;
-import com.logistics.core.machine.MachineContext;
+import com.logistics.core.machine.MachineBuilder;
+import com.logistics.core.machine.MachineEntity;
+import com.logistics.core.machine.component.ChunkLoadingComponent;
 import com.logistics.core.machine.component.EnergyStorageComponent;
-import com.logistics.core.machine.upgrade.MachineModifiers;
+import com.logistics.core.machine.upgrade.UpgradeComponent;
 import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.RegistryAccess;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.util.RandomSource;
+import net.minecraft.world.MenuProvider;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Laser Quarry block entity. Holds the RF buffer (the capability surface) and the
- * {@link QuarryComponent} that owns all mining behavior, and serves as the component's
- * {@link MachineContext}. Most public methods are thin facades the renderer / HUD / frame block /
- * markers call.
+ * Laser Quarry block entity: a component-hosted machine composed of an energy buffer, an upgrade
+ * holder, the {@link QuarryComponent} (all mining behavior), and a chunk loader. The block entity
+ * itself is mostly lifecycle + capability + facade plumbing; most public methods delegate to the
+ * quarry component for the renderer / HUD / frame block / markers.
  */
-public class LaserQuarryBlockEntity extends BaseBlockEntity
-        implements PipeConnection, HasEnergyStorage, EnergyDemandProvider, MachineContext {
+public class LaserQuarryBlockEntity extends MachineEntity implements PipeConnection {
 
-    // Energy buffer — the capability surface; tracks received energy for demand + the HUD readout.
-    private final EnergyStorageComponent energy = new EnergyStorageComponent(
-            "energy",
-            LogisticsConfig.get().quarry.energyCapacity(),
-            LogisticsConfig.get().quarry.maxEnergyInput(),
-            0,
-            true,
-            true,
-            this::setChanged);
-
-    // All mining behavior (bounds, arm, phase runner, energy policy, output, chunk loading).
-    private final QuarryComponent quarry;
+    private EnergyStorageComponent energy;
+    private QuarryComponent quarry;
 
     public LaserQuarryBlockEntity(BlockPos pos, BlockState state) {
         super(LogisticsAutomation.ENTITY.LASER_QUARRY_BLOCK_ENTITY, pos, state);
-        this.quarry = new QuarryComponent("quarry", pos, energy, MachineModifiers.identity());
     }
-
-    // ==================== HasEnergyStorage ====================
 
     @Override
-    public IEnergyStorage energyStorage(@Nullable Direction side) {
-        return energy.energy(side);
+    protected void configure(MachineBuilder machine) {
+        var cfg = LogisticsConfig.get().quarry;
+        // Order is load-bearing: energy resets its received-counter before the quarry consumes; the
+        // chunk loader ticks after the quarry so a freshly-finished quarry stops loading the same tick.
+        UpgradeComponent upgrades = machine.add(new UpgradeComponent("upgrades"));
+        energy = machine.energy("energy")
+                .capacity(cfg.energyCapacity())
+                .maxInput(cfg.maxEnergyInput())
+                .providesDemand()
+                .build();
+        quarry = machine.add(new QuarryComponent("quarry", getBlockPos(), energy, upgrades.modifiers()));
+        machine.add(new ChunkLoadingComponent(
+                "chunks",
+                LogisticsAutomation.TICKET_TYPE.QUARRY,
+                LogisticsAutomation.TICKET_TYPE.QUARRY_BOUNDARY,
+                quarry::chunkArea));
     }
-
-    // ==================== Tick ====================
 
     public static void tick(Level world, BlockPos pos, BlockState state, LaserQuarryBlockEntity entity) {
-        if (world.isClientSide()) {
-            return;
-        }
-
-        // Reset the energy-received counter (rolls the "last tick" value for the HUD).
-        entity.energy.serverTick(entity);
-
-        entity.quarry.serverTick(entity);
-    }
-
-    /**
-     * Sync arm state to clients. Called on arm state transitions.
-     *
-     * <p>Does not call {@code setChanged()} — chunk dirty is managed separately, marked when energy
-     * is consumed or mining advances.
-     */
-    void syncToClients() {
-        if (level != null && !level.isClientSide()) {
-            BlockState state = getBlockState();
-            level.sendBlockUpdated(worldPosition, state, state, Block.UPDATE_ALL);
-        }
-    }
-
-    // ==================== MachineContext (host view for QuarryComponent) ====================
-
-    @Override
-    public Level level() {
-        return this.level;
-    }
-
-    @Override
-    public BlockPos pos() {
-        return worldPosition;
-    }
-
-    @Override
-    public BlockState blockState() {
-        return getBlockState();
-    }
-
-    @Override
-    public HolderLookup.Provider registries() {
-        return level != null
-                ? level.registryAccess()
-                : RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY);
-    }
-
-    @Override
-    public void sync() {
-        syncToClients();
-    }
-
-    @Override
-    public void setBlockState(BlockState newState, int flags) {
-        if (level != null) {
-            level.setBlock(worldPosition, newState, flags);
-        }
+        // No client-side animation to run (the renderer interpolates the arm itself).
+        MachineEntity.tick(world, pos, state, entity);
     }
 
     @Override
     @Nullable
-    public RecipeManager recipeManager() {
+    public MenuProvider createMenuProvider() {
+        // The quarry has no GUI; the block never opens a menu.
         return null;
-    }
-
-    @Override
-    public RandomSource random() {
-        return level != null ? level.getRandom() : RandomSource.create();
     }
 
     // ==================== Marker / bounds API ====================
@@ -148,36 +81,20 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity
         return (double) energy.amount() / LogisticsConfig.get().quarry.energyCapacity();
     }
 
-    @Override
-    public long networkDemandPerTick() {
-        return energy.networkDemandPerTick();
-    }
-
     public long getEnergyReceivedLastTick() {
         return energy.receivedLastTick();
     }
 
-    // ==================== NBT ====================
-
-    @Override
-    protected void saveLogisticsData(CompoundTag nbt, HolderLookup.Provider registries) {
-        super.saveLogisticsData(nbt, registries);
-
-        energy.saveLegacy(nbt);
-        quarry.save(nbt, registries);
-    }
+    // ==================== NBT (legacy fallbacks) ====================
 
     @Override
     protected void loadLogisticsData(CompoundTag nbt, HolderLookup.Provider registries) {
         super.loadLogisticsData(nbt, registries);
 
-        if (nbt.contains("Energy")) {
-            energy.loadLegacy(nbt, registries);
-        } else {
+        // Ancient pre-"Energy" save: a bare root StoredEnergy long, before the component format.
+        if (!nbt.contains("components") && !nbt.contains("Energy") && nbt.contains("StoredEnergy")) {
             energy.setAmount(NbtCompat.getLong(nbt, "StoredEnergy", 0L));
         }
-
-        quarry.load(nbt, registries);
     }
 
     // ==================== Lifecycle ====================
