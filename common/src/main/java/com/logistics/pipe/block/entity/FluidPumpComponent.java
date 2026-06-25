@@ -27,6 +27,7 @@ import net.minecraft.tags.FluidTags;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
@@ -59,6 +60,7 @@ public final class FluidPumpComponent implements MachineComponent {
     private long lastSyncedEnergy = -1;
     private long lastSyncedTank = -1;
     private int lastSyncedTargetY = Integer.MIN_VALUE;
+    @Nullable private Phase lastSyncedPhase;
     private final ArrayDeque<BlockPos> sourceQueue = new ArrayDeque<>();
     private boolean infiniteBody;
     @Nullable private Fluid queuedFluid;
@@ -104,10 +106,14 @@ public final class FluidPumpComponent implements MachineComponent {
 
         long currentEnergy = energy.amount();
         long currentTank = tank().getAmount();
-        if (currentEnergy != lastSyncedEnergy || currentTank != lastSyncedTank || targetY != lastSyncedTargetY) {
+        if (currentEnergy != lastSyncedEnergy
+                || currentTank != lastSyncedTank
+                || targetY != lastSyncedTargetY
+                || phase != lastSyncedPhase) {
             lastSyncedEnergy = currentEnergy;
             lastSyncedTank = currentTank;
             lastSyncedTargetY = targetY;
+            lastSyncedPhase = phase;
             ctx.sync();
         }
     }
@@ -178,7 +184,7 @@ public final class FluidPumpComponent implements MachineComponent {
         // non-source fluid so it reaches the body smoothly.
         boolean atLayer = phase == Phase.PUMPING
                 || (phase == Phase.STALLED && !sourceQueue.isEmpty() && queuedFluid != null)
-                || isPumpableSource(fluidState);
+                || isPumpableSource(level, target, fluidState);
         if (atLayer && armY > targetY + 0.55f) {
             return;
         }
@@ -206,7 +212,7 @@ public final class FluidPumpComponent implements MachineComponent {
             descendToNextLayer(level, pos);
             return;
         }
-        if (isPumpableSource(fluidState)) {
+        if (isPumpableSource(level, target, fluidState)) {
             if (energy.amount() < cfg.energyPerSource) {
                 phase = Phase.STALLED;
                 return;
@@ -287,7 +293,7 @@ public final class FluidPumpComponent implements MachineComponent {
         while (!sourceQueue.isEmpty()) {
             BlockPos source = sourceQueue.removeLast();
             FluidState state = level.getFluidState(source);
-            if (state.getType().isSame(fluid) && state.isSource()) {
+            if (state.getType().isSame(fluid) && state.isSource() && isStandaloneLiquid(level, source)) {
                 return source;
             }
         }
@@ -322,7 +328,7 @@ public final class FluidPumpComponent implements MachineComponent {
             if (!state.getType().isSame(fluid)) {
                 continue;
             }
-            if (state.isSource()) {
+            if (state.isSource() && isStandaloneLiquid(level, current)) {
                 sourceQueue.add(current);
                 if (canBeInfinite && sourceQueue.size() >= threshold) {
                     infiniteBody = true;
@@ -355,14 +361,19 @@ public final class FluidPumpComponent implements MachineComponent {
         }
     }
 
-    private boolean isPumpableSource(FluidState state) {
+    private boolean isPumpableSource(Level level, BlockPos pos, FluidState state) {
         Fluid fluid = state.getType();
-        if (fluid == Fluids.EMPTY || !state.isSource()) {
+        if (fluid == Fluids.EMPTY || !state.isSource() || !isStandaloneLiquid(level, pos)) {
             return false;
         }
         FluidTankComponent tank = tank();
         IFluidKey current = tank.getFluidKey();
         return tank.isEmpty() || current.getFluid() == fluid;
+    }
+
+    /** True only for a standalone liquid block (not a waterlogged solid), so draining won't replace blocks. */
+    private static boolean isStandaloneLiquid(Level level, BlockPos pos) {
+        return level.getBlockState(pos).getBlock() instanceof LiquidBlock;
     }
 
     private boolean isBlocked(Level level, BlockPos pos) {

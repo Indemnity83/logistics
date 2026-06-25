@@ -15,6 +15,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LiquidBlock;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.material.Fluids;
 
 public class FluidPumpGameTest {
@@ -108,6 +109,35 @@ public class FluidPumpGameTest {
             if (pump.tank().getAmount() < FluidUnits.mb(1_000)
                     || pump.tank().getFluidKey().getFluid() != Fluids.WATER) {
                 context.fail("Fluid pump should store 1000 mB of water");
+                return;
+            }
+            context.succeed();
+        });
+    }
+
+    @GameTest(maxTicks = 40)
+    public void testFluidPumpDoesNotDrainWaterloggedBlocks(GameTestHelper context) {
+        BlockPos pumpPos = new BlockPos(1, 3, 1);
+        BlockPos slabPos = pumpPos.below();
+        context.setBlock(pumpPos, LogisticsFluid.BLOCK.FLUID_PUMP);
+        context.setBlock(
+                slabPos, Blocks.OAK_SLAB.defaultBlockState().setValue(BlockStateProperties.WATERLOGGED, true));
+
+        FluidPumpBlockEntity pump = context.getBlockEntity(pumpPos, FluidPumpBlockEntity.class);
+        if (pump == null) {
+            context.fail("Expected FluidPumpBlockEntity");
+            return;
+        }
+        fillEnergy(pump);
+        LogisticsConfig.get().fluidPump.armSpeed = 16f;
+
+        context.runAfterDelay(LogisticsConfig.get().fluidPump.pumpIntervalTicks + 2, () -> {
+            if (!context.getBlockState(slabPos).is(Blocks.OAK_SLAB)) {
+                context.fail("Fluid pump must not drain or replace a waterlogged block");
+                return;
+            }
+            if (pump.tank().getAmount() > 0) {
+                context.fail("Fluid pump must not pump fluid out of a waterlogged block");
                 return;
             }
             context.succeed();
