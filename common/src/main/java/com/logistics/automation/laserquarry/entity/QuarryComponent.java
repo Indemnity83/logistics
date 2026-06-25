@@ -339,20 +339,4 @@ public final class QuarryComponent implements MachineComponent, QuarryContext {
         armController.load(root);
         bounds.load(root);
     }
-
-    /** Reset bounds before reading the ancient {@code MiningState}/{@code CustomBounds} compounds. */
-    public void clearBounds() {
-        bounds.clear();
-    }
-
-    /** Load the ancient {@code MiningState} compound (pre-current-format saves). */
-    public void loadAncientMiningState(CompoundTag miningState) {
-        phaseRunner.loadLegacy(miningState);
-        armController.loadLegacy(miningState);
-    }
-
-    /** Load the ancient {@code CustomBounds} compound (pre-current-format saves). */
-    public void loadAncientBounds(int minX, int minZ, int maxX, int maxZ) {
-        bounds.loadLegacy(minX, minZ, maxX, maxZ);
-    }
 }
