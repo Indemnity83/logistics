@@ -149,6 +149,22 @@ class RecipeProcessorComponentTest extends MinecraftTestEnvironment {
     }
 
     @Test
+    void preservesRestoredProgressOnFirstTickAfterReload() {
+        FakeProcessIO io = new FakeProcessIO();
+        io.energy = 1_000;
+        RecipeProcessorComponent processor = processor(io, 100, 10);
+
+        net.minecraft.nbt.CompoundTag tag = new net.minecraft.nbt.CompoundTag();
+        tag.putLong("energySpent", 20);
+        processor.load(tag, null);
+        assertThat(processor.energySpent()).isEqualTo(20);
+
+        // First tick after reload re-resolves the recipe; restored progress must not be wiped.
+        processor.serverTick(new FakeMachineContext());
+        assertThat(processor.energySpent()).isEqualTo(30);
+    }
+
+    @Test
     void stallsUntilInputCountIsAvailable() {
         FakeProcessIO io = new FakeProcessIO();
         io.energy = 1_000;

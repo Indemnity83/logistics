@@ -92,10 +92,14 @@ public final class ItemStoreComponent implements MachineComponent, MachineCompon
         int slot = outputSlots[outputIndex];
         ItemStack output = inventory.getItem(slot);
         if (output.isEmpty()) {
-            inventory.setItem(slot, stack.copy());
+            inventory.setItem(slot, stack.copyWithCount(Math.min(stack.getCount(), stack.getMaxStackSize())));
         } else {
-            output.grow(stack.getCount());
-            inventory.setChanged();
+            int room = output.getMaxStackSize() - output.getCount();
+            int add = Math.min(room, stack.getCount());
+            if (add > 0) {
+                output.grow(add);
+                inventory.setChanged();
+            }
         }
     }
 

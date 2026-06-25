@@ -80,7 +80,10 @@ public final class RecipeProcessorComponent implements MachineComponent, Machine
             reset(ctx);
             return;
         }
-        if (activePlan == null || !sameRecipe(activePlan, plan)) {
+        if (activePlan == null) {
+            activePlan = plan;
+            energySpent = Math.min(energySpent, plan.energyRequired()); // keep progress restored from NBT
+        } else if (!sameRecipe(activePlan, plan)) {
             activePlan = plan;
             energySpent = 0;
         }

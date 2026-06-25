@@ -84,9 +84,16 @@ public final class MachineBuilder {
 
     /** Builds an {@link ItemStoreComponent} with role-based slots and a sided-access layout. */
     public final class ItemsBuilder {
+        private enum AccessMode {
+            NONE,
+            FURNACE,
+            BOTTOM_OUT
+        }
+
         private final String id;
         private SlotRole[] roles = new SlotRole[0];
-        private SidedLayout layout;
+        private AccessMode accessMode = AccessMode.NONE;
+        private Predicate<ItemStack> insertFilter = stack -> true;
 
         private ItemsBuilder(String id) {
             this.id = id;
@@ -104,7 +111,8 @@ public final class MachineBuilder {
 
         /** Vanilla-furnace access with an insertion filter on the input slots. */
         public ItemsBuilder furnaceAccess(Predicate<ItemStack> insertFilter) {
-            this.layout = SidedLayout.furnace(indicesOf(SlotRole.INPUT), indicesOf(SlotRole.OUTPUT), insertFilter);
+            this.accessMode = AccessMode.FURNACE;
+            this.insertFilter = insertFilter;
             return this;
         }
 
@@ -115,11 +123,21 @@ public final class MachineBuilder {
 
         /** Bottom-out access with an insertion filter on the input slots. */
         public ItemsBuilder bottomOutAccess(Predicate<ItemStack> insertFilter) {
-            this.layout = SidedLayout.bottomOut(indicesOf(SlotRole.INPUT), indicesOf(SlotRole.OUTPUT), insertFilter);
+            this.accessMode = AccessMode.BOTTOM_OUT;
+            this.insertFilter = insertFilter;
             return this;
         }
 
         public ItemStoreComponent build() {
+            // Resolve the layout from the final roles so slot order is independent of call order.
+            SidedLayout layout =
+                    switch (accessMode) {
+                        case FURNACE -> SidedLayout.furnace(
+                                indicesOf(SlotRole.INPUT), indicesOf(SlotRole.OUTPUT), insertFilter);
+                        case BOTTOM_OUT -> SidedLayout.bottomOut(
+                                indicesOf(SlotRole.INPUT), indicesOf(SlotRole.OUTPUT), insertFilter);
+                        case NONE -> null;
+                    };
             return components.add(new ItemStoreComponent(id, roles, layout, onChanged));
         }
 
@@ -168,6 +186,9 @@ public final class MachineBuilder {
         }
 
         public RecipeProcessorComponent build() {
+            java.util.Objects.requireNonNull(resolver, "recipeProcessor(" + id + ") requires a resolver");
+            java.util.Objects.requireNonNull(items, "recipeProcessor(" + id + ") requires items");
+            java.util.Objects.requireNonNull(energy, "recipeProcessor(" + id + ") requires energy");
             return components.add(new RecipeProcessorComponent(id, resolver, rfPerTick, items, energy, lit, onChanged));
         }
     }
