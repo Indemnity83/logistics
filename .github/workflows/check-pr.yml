@@ -28,7 +28,12 @@ jobs:
         with:
           types: |
             feat
+            balance
+            change
+            deprecate
+            remove
             fix
+            security
             docs
             refactor
             perf

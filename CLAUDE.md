@@ -474,40 +474,62 @@ type(scope): short description
 Examples:
 
 ```text
-feat(pipes): add priority routing mode
+feat(automation): add the sawmill
+balance(automation): increase the laser quarry frame material cost
+change(automation): rename Wood Pulp to Sawdust
 fix(neoforge): fix startup crash on NeoForge
+remove(automation): drop the unused crusher recipe
 perf(automation): reduce idle machine tick cost
 refactor(common): simplify platform service lookup
-test(pipes): add routing tests
 build(fabric): update publishing task
-ci(build): update Gradle cache settings
 chore(release): update release metadata
-chore(update): update dependencies
 ```
 
-### Changelog-visible types
+### Commit types and changelog sections
 
-Only these types should appear in generated player-facing release notes:
+The changelog follows [Keep a Changelog](https://keepachangelog.com). Each type maps to a section:
 
 | Type | Changelog section | Use for |
 |---|---|---|
-| `feat` | Added | New player-visible behavior |
-| `fix` | Fixed | Player-visible bug fixes |
-| `perf` | Improved | Player-visible performance improvements |
+| `feat` | Added | new player-facing capability, block, item, or machine |
+| `balance` | Changed | recipe / cost / rate / output / power / progression tuning (buffs and nerfs) |
+| `change` | Changed | other player-facing change (rename, restyle, behavior shift) |
+| `perf` | Changed | player-visible performance improvement |
+| `deprecate` | Deprecated | content/behavior marked for future removal |
+| `remove` | Removed | removed content or behavior |
+| `fix` | Fixed | corrected broken or unintended behavior |
+| `security` | Security | security-sensitive fix |
+
+Prefer `balance` over `change` when the change is gameplay tuning (recipes, costs, rates,
+progression); `balance` is honest about both buffs and nerfs without implying an improvement.
 
 ### Internal types
 
-These types are allowed, but should be treated as internal/developer-facing and should not be included in Release Please changelog sections:
+These types are allowed but hidden from the changelog (developer-facing):
 
 | Type | Use for |
 |---|---|
-| `refactor` | Code cleanup without player-visible behavior changes |
-| `test` | Test coverage |
+| `refactor` | code restructuring with no player-visible change |
+| `test` | test coverage |
 | `build` | Gradle, publishing, or build system changes |
 | `ci` | GitHub Actions or automation changes |
-| `chore` | Maintenance work |
-| `docs` | Documentation-only changes |
-| `revert` | Revert a previous commit/PR |
+| `chore` | maintenance work |
+| `docs` | documentation-only changes |
+| `revert` | revert a previous commit/PR |
+
+### Multi-change squash commits
+
+When one PR makes several distinct player-facing changes, record each as its own changelog entry by
+putting one Conventional Commit line per change in the squash commit BODY (the subject is the first
+entry). Release Please parses each `type(scope): description` line into a separate changelog entry:
+
+```text
+feat(automation): add the sawmill
+
+change(automation): rename Wood Pulp to Sawdust
+balance(automation): move wood processing from the macerator to the sawmill
+remove(automation): drop the macerator's wood-pulp recipes
+```
 
 ### Allowed scopes
 
@@ -530,7 +552,7 @@ Use the scope that best describes the player-facing area of the mod affected:
 | `common` | Shared/internal code changes with no better user-facing scope |
 | `build` | Build tooling or CI support scope |
 
-Prefer player-facing scopes for `feat`, `fix`, and `perf`.
+Prefer player-facing scopes for the player-facing types (`feat`, `balance`, `change`, `fix`, `remove`).
 
 Good:
 
@@ -552,8 +574,9 @@ When creating or modifying PRs:
 
 - Use scoped Conventional Commit PR titles.
 - Think about the generated changelog before choosing the PR title.
-- Prefer player-facing wording for `feat`, `fix`, and `perf`.
+- Prefer player-facing wording and the player-facing types (`feat`, `balance`, `change`, `fix`, `remove`).
 - Use internal types like `refactor`, `test`, `build`, `ci`, and `chore` for non-player-facing work.
+- For PRs with several player-facing changes, list each as its own Conventional Commit line in the squash body (see "Multi-change squash commits").
 - Do not add `refactor`, `test`, `build`, `ci`, or `chore` to the Release Please changelog sections.
 - Do not attempt to group changelog entries by scope using nested headings unless the release strategy is intentionally changed later.
 
