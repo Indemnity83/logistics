@@ -29,6 +29,7 @@
 			"com.logistics.gametest.automation.QuarryGameTest",
 			"com.logistics.gametest.automation.QuarryMiningGameTest",
 			"com.logistics.gametest.automation.KilnGameTest",
+			"com.logistics.gametest.automation.SawmillGameTest",
 			"com.logistics.gametest.network.NetworkIntegrationGameTest"
 		]
 	}
