@@ -180,7 +180,7 @@ public final class QuarryPhaseRunner {
         }
 
         if (breakProgress >= currentBreakTime) {
-            QuarryBlockBreaker.mineBlock(q.level(), q.pos(), target, targetState);
+            QuarryBlockBreaker.mineBlock(q.level(), target, targetState, q.output());
             advanceToNextBlock(q);
             resetBreakProgress();
         }
@@ -321,7 +321,7 @@ public final class QuarryPhaseRunner {
             if (breakProgress >= currentBreakTime) {
                 q.level().destroyBlockProgress(q.breakingEntityId(), target, -1);
 
-                QuarryBlockBreaker.mineBlock(q.level(), q.pos(), target, targetState);
+                QuarryBlockBreaker.mineBlock(q.level(), target, targetState, q.output());
                 advanceMiningPosition(q);
                 resetBreakProgress();
 
