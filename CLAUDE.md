@@ -533,40 +533,69 @@ remove(automation): drop the macerator's wood-pulp recipes
 
 ### Allowed scopes
 
-Use the scope that best describes the player-facing area of the mod affected:
+Scopes identify the mod's product surface or implementation area.
 
-| Scope | Use for |
-|---|---|
-| `core` | Shared mod behavior, base blocks/items, recipes, world behavior |
-| `automation` | Machines, upgrades, automation logic |
-| `pipes` | Pipes, routing, extraction, insertion, pipe networks |
-| `energy` | Energy transfer and storage behavior |
-| `storage` | Inventories, storage blocks, adapters |
-| `ui` | Screens, tooltips, overlays, visible rendering/UX |
-| `compat` | Integration with other mods |
-| `fabric` | Fabric-specific user-visible behavior |
-| `neoforge` | NeoForge-specific user-visible behavior |
-| `docs` | README, wiki, or user documentation |
-| `release` | Release metadata |
-| `update` | Dependency and automated update PRs |
-| `common` | Shared/internal code changes with no better user-facing scope |
-| `build` | Build tooling or CI support scope |
+**Product scopes** — major player-recognizable systems, machines, and feature areas:
+`macerator`, `kiln`, `quarry`, `sawmill`, `pump`, `transport`, `routing`, `fluids`, `pipes`,
+`energy`, `storage`, `crafting`, `worldgen`, `ui`.
 
-Prefer player-facing scopes for the player-facing types (`feat`, `balance`, `change`, `fix`, `remove`).
+**Framework / internal scopes:** `core`, `automation`, `api`, `common`.
+**Platform scopes:** `fabric`, `neoforge`, `compat`.
+**Project scopes:** `docs`, `build`, `ci`, `release`.
+
+Pipe-related scope rules:
+- `transport` — basic item transport pipes
+- `routing` — smart/routed/requested item logistics pipes
+- `fluids` — fluid pipes, tanks, handlers, transfer rules, pipe sealant, and general fluid mechanics
+- `pipes` — shared pipe framework code used across multiple pipe families (use `transport`/`routing`/`fluids` for one family)
+
+Other rules:
+- Use `automation` only for the shared machine framework or behavior that crosses multiple machines
+  (shared components, machine base classes, reusable output handling, chunk loading, upgrade seams).
+- Use `core` for low-level shared infrastructure that is not specific to machines.
+- Use `common`, `fabric`, `neoforge` for loader/platform-specific implementation work.
+- Repo automation: `build` (Gradle, mappings, dependencies, publishing), `ci` (GitHub Actions /
+  validation), `release` (release-please, versions, changelog configuration).
+- Do not use `logistics` (too broad — it's the mod name; use `routing` for smart-pipe behavior) or
+  `fluid-pipes` (folded into `fluids`).
+
+### Changelog-readable subjects
+
+Let the scope carry the main product noun, but keep enough context that the changelog line stands on
+its own — roughly **4–8 words** after the colon. Prefer changelog-readable over ultra-short.
 
 Good:
 
 ```text
-fix(pipes): fix items getting stuck when a route becomes invalid
+balance(macerator): standardize recipe around machine components
+change(kiln): restyle with machine shell
+fix(pump): stop destroying waterlogged blocks
+feat(transport): add gold item pipe
+fix(routing): respect destination priority
+feat(fluids): add void fluid pipe
+refactor(pipes): share connection logic
+refactor(automation): extract ChunkLoadingComponent
 ```
 
-Avoid for player-facing changes:
+Too short (changelog becomes vague):
 
 ```text
-fix(common): invalidate pipe graph cache on neighbor update
+balance(macerator): rework recipe
+change(kiln): restyle machine
+fix(automation): stop voiding byproducts
 ```
 
-The second title may be technically accurate, but the first produces better release notes.
+Too long / implementation-heavy (the scope already says the machine):
+
+```text
+balance(macerator): rework the macerator recipe to use the shared machine components
+change(kiln): restyle the kiln to match the shared machine-component visual design
+```
+
+For the standardized machine recipes, prefer wording like
+`balance(<machine>): standardize recipe around machine components` — these recipes share a consistent
+structure (machine frame + redstone coil + machine-specific ingredients, e.g. tanks/buckets for the
+pump, a pickaxe for the quarry, flint for the macerator).
 
 ### Guidance for agents
 
