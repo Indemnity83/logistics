@@ -21,7 +21,7 @@ public interface ProcessIO {
 
     void consumeEnergy(long rf);
 
-    /** Whether the primary result and every byproduct's guaranteed portion fit their output slots. */
+    /** Whether the primary result and every byproduct's worst-case roll fit their output slots. */
     boolean canAcceptOutputs(ItemStack result, List<ChanceOutput> byproducts);
 
     /** Places the primary result and the already-rolled byproduct stacks into their output slots. */
