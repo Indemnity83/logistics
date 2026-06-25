@@ -7,7 +7,7 @@
   ],
   "key": {
     "Q": {
-      "item": "logistics:automation/quartz_crystal"
+      "item": "logistics:core/quartz_crystal"
     },
     "F": {
       "item": "logistics:core/bronze_core"
