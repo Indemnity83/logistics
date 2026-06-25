@@ -81,9 +81,13 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity
     // Block breaking animation entity ID (use position hash for uniqueness).
     private final int breakingEntityId;
 
+    // Routes mined drops out (pipe/inventory above, else dropped).
+    private final QuarryOutput output;
+
     public LaserQuarryBlockEntity(BlockPos pos, BlockState state) {
         super(LogisticsAutomation.ENTITY.LASER_QUARRY_BLOCK_ENTITY, pos, state);
         this.breakingEntityId = pos.hashCode();
+        this.output = new QuarryOutput(pos);
     }
 
     // ==================== HasEnergyStorage ====================
@@ -182,6 +186,11 @@ public class LaserQuarryBlockEntity extends BaseBlockEntity
     @Override
     public ArmController arm() {
         return armController;
+    }
+
+    @Override
+    public QuarryOutput output() {
+        return output;
     }
 
     @Override

@@ -2,7 +2,7 @@ package com.logistics.automation.laserquarry;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.logistics.automation.laserquarry.entity.QuarryBlockBreaker;
+import com.logistics.automation.laserquarry.entity.QuarryOutput;
 import com.logistics.test.MinecraftTestEnvironment;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.item.ItemStack;
@@ -10,8 +10,8 @@ import net.minecraft.world.item.Items;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-@DisplayName("QuarryBlockBreaker.insertIntoSlot")
-class QuarryBlockBreakerTest extends MinecraftTestEnvironment {
+@DisplayName("QuarryOutput.insertIntoSlot")
+class QuarryOutputTest extends MinecraftTestEnvironment {
 
     @Test
     @DisplayName("fully inserts into an empty slot")
@@ -19,7 +19,7 @@ class QuarryBlockBreakerTest extends MinecraftTestEnvironment {
         SimpleContainer container = new SimpleContainer(1);
         ItemStack stack = new ItemStack(Items.IRON_INGOT, 5);
 
-        ItemStack remainder = QuarryBlockBreaker.insertIntoSlot(container, 0, stack);
+        ItemStack remainder = QuarryOutput.insertIntoSlot(container, 0, stack);
 
         assertThat(remainder.isEmpty()).isTrue();
         assertThat(container.getItem(0).getItem()).isEqualTo(Items.IRON_INGOT);
@@ -32,7 +32,7 @@ class QuarryBlockBreakerTest extends MinecraftTestEnvironment {
         TrackingContainer container = new TrackingContainer(1);
         ItemStack stack = new ItemStack(Items.IRON_INGOT, 5);
 
-        QuarryBlockBreaker.insertIntoSlot(container, 0, stack);
+        QuarryOutput.insertIntoSlot(container, 0, stack);
 
         assertThat(container.changedCount).isPositive();
     }
@@ -44,7 +44,7 @@ class QuarryBlockBreakerTest extends MinecraftTestEnvironment {
         container.setItem(0, new ItemStack(Items.IRON_INGOT, 60));
         ItemStack stack = new ItemStack(Items.IRON_INGOT, 10);
 
-        ItemStack remainder = QuarryBlockBreaker.insertIntoSlot(container, 0, stack);
+        ItemStack remainder = QuarryOutput.insertIntoSlot(container, 0, stack);
 
         // 64 - 60 = 4 fit, 6 remain.
         assertThat(container.getItem(0).getCount()).isEqualTo(64);
@@ -59,7 +59,7 @@ class QuarryBlockBreakerTest extends MinecraftTestEnvironment {
         container.changedCount = 0;
         ItemStack stack = new ItemStack(Items.IRON_INGOT, 10);
 
-        QuarryBlockBreaker.insertIntoSlot(container, 0, stack);
+        QuarryOutput.insertIntoSlot(container, 0, stack);
 
         assertThat(container.changedCount).isEqualTo(1);
     }
@@ -71,7 +71,7 @@ class QuarryBlockBreakerTest extends MinecraftTestEnvironment {
         container.setItem(0, new ItemStack(Items.COAL, 1));
         ItemStack stack = new ItemStack(Items.IRON_INGOT, 5);
 
-        ItemStack remainder = QuarryBlockBreaker.insertIntoSlot(container, 0, stack);
+        ItemStack remainder = QuarryOutput.insertIntoSlot(container, 0, stack);
 
         assertThat(container.getItem(0).getItem()).isEqualTo(Items.COAL);
         assertThat(container.getItem(0).getCount()).isEqualTo(1);
@@ -89,7 +89,7 @@ class QuarryBlockBreakerTest extends MinecraftTestEnvironment {
         };
         ItemStack stack = new ItemStack(Items.IRON_INGOT, 40);
 
-        ItemStack remainder = QuarryBlockBreaker.insertIntoSlot(container, 0, stack);
+        ItemStack remainder = QuarryOutput.insertIntoSlot(container, 0, stack);
 
         assertThat(container.getItem(0).getCount()).isEqualTo(16);
         assertThat(remainder.getCount()).isEqualTo(24);
@@ -102,7 +102,7 @@ class QuarryBlockBreakerTest extends MinecraftTestEnvironment {
         container.setItem(0, new ItemStack(Items.IRON_INGOT, 64));
         ItemStack stack = new ItemStack(Items.IRON_INGOT, 5);
 
-        ItemStack remainder = QuarryBlockBreaker.insertIntoSlot(container, 0, stack);
+        ItemStack remainder = QuarryOutput.insertIntoSlot(container, 0, stack);
 
         assertThat(remainder.getCount()).isEqualTo(5);
         assertThat(container.getItem(0).getCount()).isEqualTo(64);
