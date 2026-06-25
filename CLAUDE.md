@@ -603,7 +603,7 @@ When creating or modifying PRs:
 
 - Use scoped Conventional Commit PR titles.
 - Think about the generated changelog before choosing the PR title.
-- Prefer player-facing wording and the player-facing types (`feat`, `balance`, `change`, `fix`, `remove`).
+- Prefer player-facing wording and a changelog-visible type — most commonly `feat`, `balance`, `change`, `fix`, and `remove` (the type table above lists the full set, including `perf`, `deprecate`, and `security`).
 - Use internal types like `refactor`, `test`, `build`, `ci`, and `chore` for non-player-facing work.
 - For PRs with several player-facing changes, list each as its own Conventional Commit line in the squash body (see "Multi-change squash commits").
 - Do not add `refactor`, `test`, `build`, `ci`, or `chore` to the Release Please changelog sections.
