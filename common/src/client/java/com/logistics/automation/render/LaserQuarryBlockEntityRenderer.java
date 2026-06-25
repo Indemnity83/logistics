@@ -4,6 +4,7 @@ import com.logistics.core.LogisticsConfig;
 import com.logistics.automation.laserquarry.LaserQuarryBlock;
 import com.logistics.automation.laserquarry.LaserQuarryGeometry;
 import com.logistics.automation.laserquarry.entity.LaserQuarryBlockEntity;
+import com.logistics.automation.laserquarry.entity.QuarryPhase;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import com.logistics.core.lib.client.render.MachineModels;
@@ -71,7 +72,7 @@ public class LaserQuarryBlockEntityRenderer implements BlockEntityRenderer<Laser
         state.facing = LaserQuarryBlock.getMiningDirection(blockState);
 
         // Only render arm during mining phase when arm is initialized
-        state.shouldRenderArm = (state.phase == LaserQuarryBlockEntity.Phase.MINING) && entity.isArmInitialized();
+        state.shouldRenderArm = (state.phase == QuarryPhase.MINING) && entity.isArmInitialized();
 
         // Calculate frame bounds - used for arm rendering and preview outline
         // Must be computed before the early return so the preview outline has access to bounds
