@@ -1,6 +1,7 @@
 package com.logistics.core.machine.component;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.logistics.test.MinecraftTestEnvironment;
 import net.minecraft.util.RandomSource;
@@ -44,6 +45,13 @@ class ChanceOutputTest extends MinecraftTestEnvironment {
         }
         // ~25% of rolls should produce the bonus item (loose bounds, deterministic seed).
         assertThat(twos).isBetween(150, 350);
+    }
+
+    @Test
+    void rejectsNegativeNanAndInfiniteChance() {
+        assertThatThrownBy(() -> of(-1.0f)).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> of(Float.NaN)).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> of(Float.POSITIVE_INFINITY)).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
