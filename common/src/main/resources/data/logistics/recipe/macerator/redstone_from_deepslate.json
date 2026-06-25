@@ -7,6 +7,6 @@
     "id": "minecraft:redstone",
     "count": 2
   },
-  "grindingtime": 200,
+  "energyrequired": 2000,
   "experience": 0.7
 }

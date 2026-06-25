@@ -1,7 +1,6 @@
 package com.logistics.neoforge;
 
 import com.logistics.LogisticsAutomation;
-import com.logistics.LogisticsCore;
 import com.logistics.LogisticsFluid;
 import com.logistics.LogisticsPipe;
 import com.logistics.LogisticsPower;
@@ -60,7 +59,7 @@ public final class NeoForgeCapabilityRegistration {
     }
 
     private static void registerCapabilities(RegisterCapabilitiesEvent event) {
-        registerEnergy(event, LogisticsCore.ENTITY.MACERATOR_BLOCK_ENTITY);
+        registerEnergy(event, LogisticsAutomation.ENTITY.MACERATOR_BLOCK_ENTITY);
         registerEnergy(event, LogisticsPower.ENTITY.REDSTONE_ENGINE_BLOCK_ENTITY);
         registerEnergy(event, LogisticsPower.ENTITY.STIRLING_ENGINE_BLOCK_ENTITY);
         registerEnergy(event, LogisticsPower.ENTITY.CREATIVE_ENGINE_BLOCK_ENTITY);
@@ -74,7 +73,7 @@ public final class NeoForgeCapabilityRegistration {
         registerEnergy(event, LogisticsFluid.ENTITY.FLUID_PIPE_BLOCK_ENTITY);
         registerEnergy(event, LogisticsFluid.ENTITY.FLUID_PUMP_BLOCK_ENTITY);
 
-        registerItems(event, LogisticsCore.ENTITY.MACERATOR_BLOCK_ENTITY);
+        registerItems(event, LogisticsAutomation.ENTITY.MACERATOR_BLOCK_ENTITY);
         registerItems(event, LogisticsPower.ENTITY.STIRLING_ENGINE_BLOCK_ENTITY);
         registerItems(event, LogisticsPipe.ENTITY.PIPE_BLOCK_ENTITY);
         registerItems(event, LogisticsAutomation.ENTITY.KILN_BLOCK_ENTITY);

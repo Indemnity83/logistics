@@ -1,6 +1,6 @@
-package com.logistics.core.macerator;
+package com.logistics.automation.macerator;
 
-import com.logistics.LogisticsCore;
+import com.logistics.LogisticsAutomation;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -17,22 +17,26 @@ import org.jetbrains.annotations.NotNull;
  * {@code logistics:macerator} type, so recipes are routed correctly and other mods'
  * {@code recipe/macerator/} files are never absorbed into our machine.
  *
- * <p>Both the machine ({@code MaceratorBlockEntity}) and JEI read this directly.
+ * <p>RF-cost based: {@code energyRequired} is the total energy the machine spends to complete the
+ * recipe. Both the machine ({@code MaceratorBlockEntity}) and JEI read this directly.
  */
 public class MaceratorRecipeWrapper implements Recipe<SingleRecipeInput> {
 
-    public static final int DEFAULT_GRINDING_TIME = 200;
+    public static final int DEFAULT_ENERGY_REQUIRED = 2000;
     public static final float DEFAULT_EXPERIENCE = 0.0f;
 
     private final Ingredient ingredient;
     private final ItemStack result;
-    private final int grindingTime;
+    private final int energyRequired;
     private final float experience;
 
-    public MaceratorRecipeWrapper(Ingredient ingredient, ItemStack result, int grindingTime, float experience) {
+    public MaceratorRecipeWrapper(Ingredient ingredient, ItemStack result, int energyRequired, float experience) {
+        if (energyRequired <= 0) {
+            throw new IllegalArgumentException("energyRequired must be positive, got " + energyRequired);
+        }
         this.ingredient = ingredient;
         this.result = result;
-        this.grindingTime = grindingTime;
+        this.energyRequired = energyRequired;
         this.experience = experience;
     }
 
@@ -44,8 +48,9 @@ public class MaceratorRecipeWrapper implements Recipe<SingleRecipeInput> {
         return result;
     }
 
-    public int grindingTime() {
-        return grindingTime;
+    /** Total energy (RF) the machine must spend to complete this recipe. */
+    public int energyRequired() {
+        return energyRequired;
     }
 
     public float experience() {
@@ -84,12 +89,12 @@ public class MaceratorRecipeWrapper implements Recipe<SingleRecipeInput> {
 
     @Override
     public @NotNull RecipeSerializer<MaceratorRecipeWrapper> getSerializer() {
-        return LogisticsCore.RECIPE.MACERATOR_RECIPE_SERIALIZER;
+        return LogisticsAutomation.RECIPE.MACERATOR_RECIPE_SERIALIZER;
     }
 
     @Override
     public @NotNull RecipeType<MaceratorRecipeWrapper> getType() {
-        return LogisticsCore.RECIPE.MACERATOR_RECIPE_TYPE;
+        return LogisticsAutomation.RECIPE.MACERATOR_RECIPE_TYPE;
     }
 
     @Override

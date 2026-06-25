@@ -1,6 +1,7 @@
 package com.logistics;
 
 import com.logistics.automation.kiln.KilnScreen;
+import com.logistics.automation.macerator.MaceratorScreen;
 import com.logistics.automation.render.ClientRenderCacheHooks;
 import com.logistics.automation.render.LaserQuarryBlockEntityRenderer;
 import com.logistics.automation.render.MarkerBlockEntityRenderer;
@@ -31,6 +32,7 @@ public final class LogisticsAutomationClient implements ClientDomainBootstrap {
                 LogisticsAutomation.ENTITY.LASER_QUARRY_BLOCK_ENTITY, LaserQuarryBlockEntityRenderer::new);
 
         MenuScreens.register(LogisticsAutomation.MENU.KILN, KilnScreen::new);
+        MenuScreens.register(LogisticsAutomation.MENU.MACERATOR, MaceratorScreen::new);
 
         ClientRenderCacheHooks.setQuarryInterpolationClearer(LaserQuarryBlockEntityRenderer::clearInterpolationCache);
         ClientRenderCacheHooks.setClearAllInterpolationCaches(LaserQuarryBlockEntityRenderer::clearAllInterpolationCaches);

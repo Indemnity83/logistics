@@ -1,4 +1,4 @@
-package com.logistics.core.macerator;
+package com.logistics.automation.macerator;
 
 import com.logistics.LogisticsMod;
 import net.minecraft.client.gui.GuiGraphics;

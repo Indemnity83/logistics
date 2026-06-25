@@ -1,4 +1,4 @@
-package com.logistics.core.macerator;
+package com.logistics.automation.macerator;
 import com.logistics.core.lib.resource.ResourceId;
 
 import net.minecraft.client.gui.components.WidgetSprites;

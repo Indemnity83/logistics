@@ -1,8 +1,8 @@
 package com.logistics.gametest.power;
 
-import com.logistics.LogisticsCore;
+import com.logistics.LogisticsAutomation;
 import com.logistics.LogisticsPower;
-import com.logistics.core.macerator.MaceratorBlockEntity;
+import com.logistics.automation.macerator.MaceratorBlockEntity;
 import com.logistics.core.lib.power.AbstractEngineBlock;
 import com.logistics.power.cable.CableBlock;
 import com.logistics.power.cable.CableBlockEntity;
@@ -112,7 +112,7 @@ public class CableGameTest {
 
         context.setBlock(sourceCablePos, LogisticsPower.BLOCK.COPPER_CABLE);
         context.setBlock(relayCablePos, LogisticsPower.BLOCK.COPPER_CABLE);
-        context.setBlock(machinePos, LogisticsCore.BLOCK.MACERATOR);
+        context.setBlock(machinePos, LogisticsAutomation.BLOCK.MACERATOR);
 
         CableBlockEntity sourceCable = (CableBlockEntity) context.getBlockEntity(sourceCablePos);
         MaceratorBlockEntity machine = (MaceratorBlockEntity) context.getBlockEntity(machinePos);
@@ -149,7 +149,7 @@ public class CableGameTest {
         BlockPos machinePos = new BlockPos(2, 1, 1);
 
         context.setBlock(cablePos, LogisticsPower.BLOCK.COPPER_CABLE);
-        context.setBlock(machinePos, LogisticsCore.BLOCK.MACERATOR);
+        context.setBlock(machinePos, LogisticsAutomation.BLOCK.MACERATOR);
 
         CableBlockEntity cable = (CableBlockEntity) context.getBlockEntity(cablePos);
         MaceratorBlockEntity machine = (MaceratorBlockEntity) context.getBlockEntity(machinePos);
@@ -299,7 +299,7 @@ public class CableGameTest {
 
         context.setBlock(firstCablePos, LogisticsPower.BLOCK.COPPER_CABLE);
         context.setBlock(secondCablePos, LogisticsPower.BLOCK.COPPER_CABLE);
-        context.setBlock(machinePos, LogisticsCore.BLOCK.MACERATOR);
+        context.setBlock(machinePos, LogisticsAutomation.BLOCK.MACERATOR);
         context.setBlock(enginePos, LogisticsPower.BLOCK.CREATIVE_ENGINE
                 .defaultBlockState()
                 .setValue(AbstractEngineBlock.FACING, Direction.EAST)
@@ -339,7 +339,7 @@ public class CableGameTest {
         context.setBlock(sourceCablePos, LogisticsPower.BLOCK.COPPER_CABLE);
         context.setBlock(removedCablePos, LogisticsPower.BLOCK.COPPER_CABLE);
         context.setBlock(downstreamCablePos, LogisticsPower.BLOCK.COPPER_CABLE);
-        context.setBlock(machinePos, LogisticsCore.BLOCK.MACERATOR);
+        context.setBlock(machinePos, LogisticsAutomation.BLOCK.MACERATOR);
 
         context.runAfterDelay(2, () -> {
             context.setBlock(removedCablePos, Blocks.AIR);
@@ -449,7 +449,7 @@ public class CableGameTest {
         context.setBlock(sourceCablePos, LogisticsPower.BLOCK.COPPER_CABLE);
         context.setBlock(restoredCablePos, LogisticsPower.BLOCK.COPPER_CABLE);
         context.setBlock(downstreamCablePos, LogisticsPower.BLOCK.COPPER_CABLE);
-        context.setBlock(machinePos, LogisticsCore.BLOCK.MACERATOR);
+        context.setBlock(machinePos, LogisticsAutomation.BLOCK.MACERATOR);
 
         context.runAfterDelay(2, () -> {
             context.setBlock(restoredCablePos, Blocks.AIR);

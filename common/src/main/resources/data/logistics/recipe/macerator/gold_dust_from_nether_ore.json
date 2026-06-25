@@ -7,6 +7,6 @@
     "id": "logistics:core/gold_dust",
     "count": 1
   },
-  "grindingtime": 200,
+  "energyrequired": 2000,
   "experience": 1.0
 }
