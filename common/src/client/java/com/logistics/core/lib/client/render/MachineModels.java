@@ -139,19 +139,7 @@ public final class MachineModels {
                     new Face(Direction.SOUTH, 4f, 2f, 6f, 16f, 0),
                     new Face(Direction.WEST, 2f, 2f, 4f, 16f, 0),
                     new Face(Direction.UP, 2f, 2f, 4f, 4f, 0),
-                    new Face(Direction.DOWN, 14f, 5f, 16f, 7f, 0)))))),
-        Map.entry("laser_quarry_led_green", new Model("automation/laser_quarry/led_green", List.of(
-            new Element(0f, 0f, -0.01f, 16f, 16f, -0.01f, List.of(
-                    new Face(Direction.NORTH, 0f, 0f, 16f, 16f, 0)))))),
-        Map.entry("laser_quarry_led_red", new Model("automation/laser_quarry/led_red", List.of(
-            new Element(0f, 0f, -0.01f, 16f, 16f, -0.01f, List.of(
-                    new Face(Direction.NORTH, 0f, 0f, 16f, 16f, 0)))))),
-        Map.entry("laser_quarry_display", new Model("automation/laser_quarry/display", List.of(
-            new Element(2f, 0f, -0.02f, 14f, 16f, -0.02f, List.of(
-                    new Face(Direction.NORTH, 2f, 0f, 14f, 16f, 0)))))),
-        Map.entry("laser_quarry_top_hatch", new Model("automation/laser_quarry/top_hatch", List.of(
-            new Element(0f, 16.01f, 0f, 16f, 16.01f, 16f, List.of(
-                    new Face(Direction.UP, 0f, 0f, 16f, 16f, 0))))))
+                    new Face(Direction.DOWN, 14f, 5f, 16f, 7f, 0))))))
     );
 
     public static Model get(String key) {
