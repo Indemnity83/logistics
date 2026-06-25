@@ -28,7 +28,12 @@ jobs:
         with:
           types: |
             feat
+            balance
+            change
+            deprecate
+            remove
             fix
+            security
             docs
             refactor
             perf
@@ -41,20 +46,29 @@ jobs:
           scopes: |
             core
             automation
+            macerator
+            kiln
+            quarry
+            sawmill
+            pump
+            transport
+            routing
             pipes
+            fluids
             energy
             storage
+            crafting
+            worldgen
             ui
+            api
             compat
+            common
             fabric
             neoforge
             docs
-            release
-            update
-            common
             build
-            fluids
-            api
+            ci
+            release
 
           requireScope: true
           validateSingleCommit: false
