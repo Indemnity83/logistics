@@ -5,5 +5,5 @@
     "id": "minecraft:bone_meal",
     "count": 6
   },
-  "grindingtime": 200
+  "energyrequired": 2000
 }
