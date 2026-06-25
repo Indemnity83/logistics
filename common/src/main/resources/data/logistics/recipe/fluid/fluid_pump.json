@@ -1,19 +1,12 @@
 {
   "type": "minecraft:crafting_shaped",
-  "pattern": [
-    "IRI",
-    "IGI",
-    "TBT"
-  ],
+  "pattern": [" T ", "BMB", "GCG"],
   "key": {
+    "T": "logistics:fluid/glass_tank",
     "B": "minecraft:bucket",
-    "G": "logistics:core/iron_gear",
-    "I": "minecraft:iron_ingot",
-    "R": "minecraft:redstone",
-    "T": "logistics:fluid/glass_tank"
+    "M": "logistics:core/machine_core",
+    "G": "logistics:core/copper_gear",
+    "C": "logistics:core/redstone_reception_coil"
   },
-  "result": {
-    "id": "logistics:fluid/fluid_pump",
-    "count": 1
-  }
+  "result": { "id": "logistics:fluid/fluid_pump", "count": 1 }
 }
