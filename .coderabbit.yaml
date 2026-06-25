@@ -1,6 +1,9 @@
 # yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
 reviews:
   review_status: false
+  # Fail the commit status when CodeRabbit can't review (e.g. rate-limited), so an
+  # unreviewed PR shows red instead of a misleading pass.
+  fail_commit_status: true
   # Don't append the high-level summary to the PR description.
   high_level_summary: false
   auto_review:
