@@ -132,7 +132,8 @@ public class FluidPumpGameTest {
         LogisticsConfig.get().fluidPump.armSpeed = 16f;
 
         context.runAfterDelay(LogisticsConfig.get().fluidPump.pumpIntervalTicks + 2, () -> {
-            if (!context.getBlockState(slabPos).is(Blocks.OAK_SLAB)) {
+            if (!context.getBlockState(slabPos).is(Blocks.OAK_SLAB)
+                    || !context.getBlockState(slabPos).getValue(BlockStateProperties.WATERLOGGED)) {
                 context.fail("Fluid pump must not drain or replace a waterlogged block");
                 return;
             }

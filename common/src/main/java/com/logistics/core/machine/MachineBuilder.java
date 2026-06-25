@@ -102,6 +102,9 @@ public final class MachineBuilder {
         }
 
         public FluidStoreComponent build() {
+            if (capacity <= 0) {
+                throw new IllegalStateException("fluids(" + id + ") requires a positive capacity, got " + capacity);
+            }
             return components.add(new FluidStoreComponent(id, capacity, onChanged));
         }
     }
