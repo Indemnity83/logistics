@@ -24,6 +24,15 @@ class ChanceOutputTest extends MinecraftTestEnvironment {
     }
 
     @Test
+    void maxCountIncludesTheFractionalBonus() {
+        assertThat(of(0.0f).maxCount()).isZero();
+        assertThat(of(0.25f).maxCount()).isEqualTo(1); // a purely fractional bonus can still yield one
+        assertThat(of(1.0f).maxCount()).isEqualTo(1);
+        assertThat(of(1.25f).maxCount()).isEqualTo(2);
+        assertThat(of(2.0f).maxCount()).isEqualTo(2);
+    }
+
+    @Test
     void wholeChanceAlwaysRollsExactly() {
         RandomSource random = RandomSource.create(1L);
         for (int i = 0; i < 100; i++) {

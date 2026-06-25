@@ -165,6 +165,39 @@ class RecipeProcessorComponentTest extends MinecraftTestEnvironment {
     }
 
     @Test
+    void blocksCompletionWhenFractionalByproductSlotIsFull() {
+        Runnable noop = () -> {};
+        ItemStoreComponent items = new ItemStoreComponent(
+                "items",
+                new SlotRole[] {SlotRole.INPUT, SlotRole.OUTPUT, SlotRole.OUTPUT},
+                SidedLayout.furnace(new int[] {0}, new int[] {1, 2}, stack -> true),
+                noop);
+        EnergyStorageComponent energy = new EnergyStorageComponent("energy", 100_000, 100_000, 0, false, false, noop);
+        energy.energy(null).insert(100_000, false);
+
+        items.container().setItem(0, new ItemStack(Items.RAW_IRON, 1));
+        items.produceInto(1, new ItemStack(Items.GUNPOWDER, 64)); // fill the byproduct output slot
+
+        RecipePlan plan = new RecipePlan(
+                20,
+                1,
+                new ItemStack(Items.IRON_INGOT),
+                List.of(new ChanceOutput(new ItemStack(Items.GUNPOWDER), 0.5f)),
+                0f);
+        RecipeProcessorComponent processor = new RecipeProcessorComponent(
+                "processor", (io, ctx) -> io.input().isEmpty() ? null : plan, 10, items, energy, (ctx, lit) -> {}, noop);
+
+        FakeMachineContext ctx = new FakeMachineContext();
+        for (int i = 0; i < 5; i++) {
+            processor.serverTick(ctx); // 5 x 10 RF >> 20 required: would complete if the bonus slot weren't full
+        }
+
+        // The 0.5 bonus could roll one gunpowder but its slot is full, so the recipe must not complete.
+        assertThat(items.input().getCount()).isEqualTo(1);
+        assertThat(processor.energySpent()).isZero();
+    }
+
+    @Test
     void stallsUntilInputCountIsAvailable() {
         FakeProcessIO io = new FakeProcessIO();
         io.energy = 1_000;
