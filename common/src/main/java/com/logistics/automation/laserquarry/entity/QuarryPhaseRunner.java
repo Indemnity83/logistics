@@ -167,7 +167,7 @@ public final class QuarryPhaseRunner {
         if (!target.equals(currentTarget) || currentBreakTime < 0) {
             currentTarget = target;
             float hardness = targetState.getDestroySpeed(q.level(), target);
-            currentBreakTime = (float) (LogisticsConfig.get().quarry.energyPerBlockMultiplier() * (hardness + 1));
+            currentBreakTime = q.breakCost(hardness);
             breakProgress = 0;
         }
 

@@ -44,6 +44,8 @@ public interface QuarryContext {
 
     long frameBuildCost();
 
+    float breakCost(float hardness);
+
     // --- change / sync ---
 
     void markChanged();
