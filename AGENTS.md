@@ -552,7 +552,8 @@ Other rules:
 - Use `automation` only for the shared machine framework or behavior that crosses multiple machines
   (shared components, machine base classes, reusable output handling, chunk loading, upgrade seams).
 - Use `core` for low-level shared infrastructure that is not specific to machines.
-- Use `common`, `fabric`, `neoforge` for loader/platform-specific implementation work.
+- Use `common` for shared implementation code with no better product/framework scope.
+- Use `fabric` and `neoforge` for loader-specific implementation work.
 - Repo automation: `build` (Gradle, mappings, dependencies, publishing), `ci` (GitHub Actions /
   validation), `release` (release-please, versions, changelog configuration).
 - Do not use `logistics` (too broad — it's the mod name; use `routing` for smart-pipe behavior) or
