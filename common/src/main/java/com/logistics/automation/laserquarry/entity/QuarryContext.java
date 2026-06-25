@@ -26,6 +26,8 @@ public interface QuarryContext {
 
     ArmController arm();
 
+    QuarryOutput output();
+
     int breakingEntityId();
 
     int levelMinY();
