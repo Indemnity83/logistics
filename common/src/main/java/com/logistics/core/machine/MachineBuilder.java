@@ -85,12 +85,16 @@ public final class MachineBuilder {
     /** Builds an {@link ItemStoreComponent} with role-based slots and a sided-access layout. */
     public final class ItemsBuilder {
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 2bb335b9d (Fix machine-component reload progress loss and improve item stack handling)
         private enum AccessMode {
             NONE,
             FURNACE,
             BOTTOM_OUT
         }
 
+<<<<<<< HEAD
         private final String id;
         private SlotRole[] roles = new SlotRole[0];
         private AccessMode accessMode = AccessMode.NONE;
@@ -100,6 +104,12 @@ public final class MachineBuilder {
         private SlotRole[] roles = new SlotRole[0];
         private SidedLayout layout;
 >>>>>>> b9517e5fb (Add component-hosted machine framework)
+=======
+        private final String id;
+        private SlotRole[] roles = new SlotRole[0];
+        private AccessMode accessMode = AccessMode.NONE;
+        private Predicate<ItemStack> insertFilter = stack -> true;
+>>>>>>> 2bb335b9d (Fix machine-component reload progress loss and improve item stack handling)
 
         private ItemsBuilder(String id) {
             this.id = id;
@@ -133,8 +143,13 @@ public final class MachineBuilder {
 =======
         /** Vanilla-furnace access with an insertion filter on the input slots. */
         public ItemsBuilder furnaceAccess(Predicate<ItemStack> insertFilter) {
+<<<<<<< HEAD
             this.layout = SidedLayout.furnace(indicesOf(SlotRole.INPUT), indicesOf(SlotRole.OUTPUT), insertFilter);
 >>>>>>> 917a38ec2 (Support byproducts and multi-output in the recipe processor)
+=======
+            this.accessMode = AccessMode.FURNACE;
+            this.insertFilter = insertFilter;
+>>>>>>> 2bb335b9d (Fix machine-component reload progress loss and improve item stack handling)
             return this;
         }
 
@@ -175,13 +190,21 @@ public final class MachineBuilder {
 >>>>>>> 6b00e8500 (Rename sided-access layouts: furnace is top-only, bottomOut is any-side)
 =======
         public ItemsBuilder bottomOutAccess(Predicate<ItemStack> insertFilter) {
+<<<<<<< HEAD
             this.layout = SidedLayout.bottomOut(indicesOf(SlotRole.INPUT), indicesOf(SlotRole.OUTPUT), insertFilter);
 >>>>>>> 917a38ec2 (Support byproducts and multi-output in the recipe processor)
+=======
+            this.accessMode = AccessMode.BOTTOM_OUT;
+            this.insertFilter = insertFilter;
+>>>>>>> 2bb335b9d (Fix machine-component reload progress loss and improve item stack handling)
             return this;
         }
 
         public ItemStoreComponent build() {
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 2bb335b9d (Fix machine-component reload progress loss and improve item stack handling)
             // Resolve the layout from the final roles so slot order is independent of call order.
             SidedLayout layout =
                     switch (accessMode) {
@@ -265,11 +288,17 @@ public final class MachineBuilder {
 
         public RecipeProcessorComponent build() {
 <<<<<<< HEAD
+<<<<<<< HEAD
             java.util.Objects.requireNonNull(resolver, "recipeProcessor(" + id + ") requires a resolver");
             java.util.Objects.requireNonNull(items, "recipeProcessor(" + id + ") requires items");
             java.util.Objects.requireNonNull(energy, "recipeProcessor(" + id + ") requires energy");
 =======
 >>>>>>> b9517e5fb (Add component-hosted machine framework)
+=======
+            java.util.Objects.requireNonNull(resolver, "recipeProcessor(" + id + ") requires a resolver");
+            java.util.Objects.requireNonNull(items, "recipeProcessor(" + id + ") requires items");
+            java.util.Objects.requireNonNull(energy, "recipeProcessor(" + id + ") requires energy");
+>>>>>>> 2bb335b9d (Fix machine-component reload progress loss and improve item stack handling)
             return components.add(new RecipeProcessorComponent(id, resolver, rfPerTick, items, energy, lit, onChanged));
         }
     }

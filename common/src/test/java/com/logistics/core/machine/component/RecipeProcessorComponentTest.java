@@ -150,6 +150,9 @@ class RecipeProcessorComponentTest extends MinecraftTestEnvironment {
 
     @Test
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 2bb335b9d (Fix machine-component reload progress loss and improve item stack handling)
     void preservesRestoredProgressOnFirstTickAfterReload() {
         FakeProcessIO io = new FakeProcessIO();
         io.energy = 1_000;
@@ -166,8 +169,11 @@ class RecipeProcessorComponentTest extends MinecraftTestEnvironment {
     }
 
     @Test
+<<<<<<< HEAD
 =======
 >>>>>>> 917a38ec2 (Support byproducts and multi-output in the recipe processor)
+=======
+>>>>>>> 2bb335b9d (Fix machine-component reload progress loss and improve item stack handling)
     void stallsUntilInputCountIsAvailable() {
         FakeProcessIO io = new FakeProcessIO();
         io.energy = 1_000;
