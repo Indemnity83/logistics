@@ -11,6 +11,11 @@ import com.logistics.automation.macerator.MaceratorBlockEntity;
 import com.logistics.automation.macerator.MaceratorRecipeSerializer;
 import com.logistics.automation.macerator.MaceratorRecipeWrapper;
 import com.logistics.automation.macerator.MaceratorScreenHandler;
+import com.logistics.automation.sawmill.SawmillBlock;
+import com.logistics.automation.sawmill.SawmillBlockEntity;
+import com.logistics.automation.sawmill.SawmillRecipe;
+import com.logistics.automation.sawmill.SawmillRecipeSerializer;
+import com.logistics.automation.sawmill.SawmillScreenHandler;
 import com.logistics.core.bootstrap.DomainBootstrap;
 import com.logistics.core.lib.platform.CreativeTabRegistrar;
 import com.logistics.core.lib.platform.LogisticsCreativeTab;
@@ -75,6 +80,7 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
         public static Block LASER_QUARRY_FRAME;
         public static Block KILN;
         public static Block MACERATOR;
+        public static Block SAWMILL;
 
         static void register() {
             MARKER = INSTANCE.registerBlockWithItem("marker",
@@ -89,6 +95,9 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
             MACERATOR = INSTANCE.registerBlockWithItem("macerator",
                 props -> new MaceratorBlock(props.strength(3.5f).sound(SoundType.METAL).requiresCorrectToolForDrops()
                     .lightLevel(state -> state.getValue(MaceratorBlock.LIT) ? 13 : 0)));
+            SAWMILL = INSTANCE.registerBlockWithItem("sawmill",
+                props -> new SawmillBlock(props.strength(3.5f).sound(SoundType.METAL).requiresCorrectToolForDrops()
+                    .lightLevel(state -> state.getValue(SawmillBlock.LIT) ? 13 : 0)));
         }
     }
 
@@ -99,6 +108,7 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
         public static BlockEntityType<LaserQuarryBlockEntity> LASER_QUARRY_BLOCK_ENTITY;
         public static BlockEntityType<KilnBlockEntity> KILN_BLOCK_ENTITY;
         public static BlockEntityType<MaceratorBlockEntity> MACERATOR_BLOCK_ENTITY;
+        public static BlockEntityType<SawmillBlockEntity> SAWMILL_BLOCK_ENTITY;
 
         static void register() {
             MARKER_BLOCK_ENTITY = INSTANCE.registerBlockEntity("marker", MarkerBlockEntity::new, LogisticsAutomation.BLOCK.MARKER);
@@ -108,6 +118,8 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
                 INSTANCE.registerBlockEntity("kiln", KilnBlockEntity::new, BLOCK.KILN);
             MACERATOR_BLOCK_ENTITY =
                 INSTANCE.registerBlockEntity("macerator", MaceratorBlockEntity::new, BLOCK.MACERATOR);
+            SAWMILL_BLOCK_ENTITY =
+                INSTANCE.registerBlockEntity("sawmill", SawmillBlockEntity::new, BLOCK.SAWMILL);
         }
     }
 
@@ -116,10 +128,12 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
 
         public static MenuType<KilnScreenHandler> KILN;
         public static MenuType<MaceratorScreenHandler> MACERATOR;
+        public static MenuType<SawmillScreenHandler> SAWMILL;
 
         static void register() {
             KILN = INSTANCE.registerMenuType("kiln", KilnScreenHandler::new);
             MACERATOR = INSTANCE.registerMenuType("macerator", MaceratorScreenHandler::new);
+            SAWMILL = INSTANCE.registerMenuType("sawmill", SawmillScreenHandler::new);
         }
     }
 
@@ -128,6 +142,8 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
 
         public static RecipeType<MaceratorRecipeWrapper> MACERATOR_RECIPE_TYPE;
         public static RecipeSerializer<MaceratorRecipeWrapper> MACERATOR_RECIPE_SERIALIZER;
+        public static RecipeType<SawmillRecipe> SAWMILL_RECIPE_TYPE;
+        public static RecipeSerializer<SawmillRecipe> SAWMILL_RECIPE_SERIALIZER;
 
         static void register() {
             MACERATOR_RECIPE_TYPE = Registry.register(
@@ -144,6 +160,21 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
                 BuiltInRegistries.RECIPE_SERIALIZER,
                 LogisticsMod.modId("macerator").toIdentifier(),
                 MaceratorRecipeSerializer.INSTANCE
+            );
+            SAWMILL_RECIPE_TYPE = Registry.register(
+                BuiltInRegistries.RECIPE_TYPE,
+                LogisticsMod.modId("sawmill").toIdentifier(),
+                new RecipeType<SawmillRecipe>() {
+                    @Override
+                    public String toString() {
+                        return "logistics:sawmill";
+                    }
+                }
+            );
+            SAWMILL_RECIPE_SERIALIZER = Registry.register(
+                BuiltInRegistries.RECIPE_SERIALIZER,
+                LogisticsMod.modId("sawmill").toIdentifier(),
+                SawmillRecipeSerializer.INSTANCE
             );
         }
     }
@@ -165,6 +196,7 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
             TAB.add(BLOCK.LASER_QUARRY);
             TAB.add(BLOCK.KILN);
             TAB.add(BLOCK.MACERATOR);
+            TAB.add(BLOCK.SAWMILL);
             CreativeTabRegistrar.INSTANCE.registerTab(TAB);
         }
     }

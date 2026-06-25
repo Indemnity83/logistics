@@ -1,0 +1,8 @@
+{
+  "type": "logistics:sawmill",
+  "ingredient": "minecraft:pale_oak_boat",
+  "count": 1,
+  "result": { "id": "minecraft:pale_oak_planks", "count": 4 },
+  "byproduct": { "id": "logistics:core/sawdust", "chance": 1.25 },
+  "energy": 2000
+}

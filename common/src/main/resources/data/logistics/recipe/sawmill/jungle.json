@@ -1,0 +1,7 @@
+{
+  "type": "logistics:sawmill",
+  "ingredient": "#minecraft:jungle_logs",
+  "result": { "id": "minecraft:jungle_planks", "count": 6 },
+  "byproduct": { "id": "logistics:core/sawdust", "chance": 1.0 },
+  "energy": 3000
+}
