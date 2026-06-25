@@ -2,7 +2,7 @@
   "type": "minecraft:crafting_shaped",
   "pattern": ["QQQ", "QFQ", "IGI"],
   "key": {
-    "Q": "logistics:automation/quartz_crystal",
+    "Q": "logistics:core/quartz_crystal",
     "F": "logistics:core/copper_core",
     "I": "minecraft:iron_nugget",
     "G": "minecraft:gold_nugget"
