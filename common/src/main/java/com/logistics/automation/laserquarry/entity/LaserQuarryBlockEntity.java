@@ -7,7 +7,6 @@ import com.logistics.core.lib.block.capability.PipeConnection;
 import com.logistics.core.lib.compat.NbtCompat;
 import com.logistics.core.machine.MachineBuilder;
 import com.logistics.core.machine.MachineEntity;
-import com.logistics.core.machine.component.ChunkLoadingComponent;
 import com.logistics.core.machine.component.EnergyStorageComponent;
 import com.logistics.core.machine.upgrade.UpgradeComponent;
 import java.util.List;
@@ -42,18 +41,17 @@ public class LaserQuarryBlockEntity extends MachineEntity implements PipeConnect
         var cfg = LogisticsConfig.get().quarry;
         // Order is load-bearing: energy resets its received-counter before the quarry consumes; the
         // chunk loader ticks after the quarry so a freshly-finished quarry stops loading the same tick.
-        UpgradeComponent upgrades = machine.add(new UpgradeComponent("upgrades"));
+        UpgradeComponent upgrades = machine.upgrades("upgrades");
         energy = machine.energy("energy")
                 .capacity(cfg.energyCapacity())
                 .maxInput(cfg.maxEnergyInput())
                 .providesDemand()
                 .build();
         quarry = machine.add(new QuarryComponent("quarry", getBlockPos(), energy, upgrades.modifiers()));
-        machine.add(new ChunkLoadingComponent(
-                "chunks",
-                LogisticsAutomation.TICKET_TYPE.QUARRY,
-                LogisticsAutomation.TICKET_TYPE.QUARRY_BOUNDARY,
-                quarry::chunkArea));
+        machine.chunkLoader("chunks")
+                .tickets(LogisticsAutomation.TICKET_TYPE.QUARRY, LogisticsAutomation.TICKET_TYPE.QUARRY_BOUNDARY)
+                .area(quarry::chunkArea)
+                .build();
     }
 
     public static void tick(Level world, BlockPos pos, BlockState state, LaserQuarryBlockEntity entity) {
