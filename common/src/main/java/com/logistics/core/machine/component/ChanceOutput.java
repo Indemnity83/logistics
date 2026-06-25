@@ -12,14 +12,20 @@ import net.minecraft.world.item.ItemStack;
 public record ChanceOutput(ItemStack template, float chance) {
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 9a4735ba9 (Validate ChanceOutput chance for finite and non-negative values)
     public ChanceOutput {
         if (!Float.isFinite(chance) || chance < 0f) {
             throw new IllegalArgumentException("chance must be finite and non-negative, got " + chance);
         }
     }
 
+<<<<<<< HEAD
 =======
 >>>>>>> 917a38ec2 (Support byproducts and multi-output in the recipe processor)
+=======
+>>>>>>> 9a4735ba9 (Validate ChanceOutput chance for finite and non-negative values)
     /** The amount always produced (the integer part of the chance). */
     public int guaranteedCount() {
         return (int) chance;

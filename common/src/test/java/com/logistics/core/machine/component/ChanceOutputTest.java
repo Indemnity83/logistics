@@ -2,9 +2,13 @@ package com.logistics.core.machine.component;
 
 import static org.assertj.core.api.Assertions.assertThat;
 <<<<<<< HEAD
+<<<<<<< HEAD
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 =======
 >>>>>>> 917a38ec2 (Support byproducts and multi-output in the recipe processor)
+=======
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+>>>>>>> 9a4735ba9 (Validate ChanceOutput chance for finite and non-negative values)
 
 import com.logistics.test.MinecraftTestEnvironment;
 import net.minecraft.util.RandomSource;
@@ -52,6 +56,9 @@ class ChanceOutputTest extends MinecraftTestEnvironment {
 
     @Test
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 9a4735ba9 (Validate ChanceOutput chance for finite and non-negative values)
     void rejectsNegativeNanAndInfiniteChance() {
         assertThatThrownBy(() -> of(-1.0f)).isInstanceOf(IllegalArgumentException.class);
         assertThatThrownBy(() -> of(Float.NaN)).isInstanceOf(IllegalArgumentException.class);
@@ -59,8 +66,11 @@ class ChanceOutputTest extends MinecraftTestEnvironment {
     }
 
     @Test
+<<<<<<< HEAD
 =======
 >>>>>>> 917a38ec2 (Support byproducts and multi-output in the recipe processor)
+=======
+>>>>>>> 9a4735ba9 (Validate ChanceOutput chance for finite and non-negative values)
     void stackCopiesTemplateWithCount() {
         assertThat(of(1.25f).stack(3).getCount()).isEqualTo(3);
         assertThat(of(1.25f).guaranteedStack().getCount()).isEqualTo(1);
