@@ -217,6 +217,7 @@
   "gui.logistics.process.state.idle": "Idle",
   "gui.logistics.process.state.active": "Active",
   "block.logistics.automation.laser_quarry": "Laser Quarry",
+  "block.logistics.automation.laser_quarry_frame": "Laser Quarry Frame",
   "laser_quarry.area_preview": "Mining area: %sx%s blocks",
   "block.logistics.automation.macerator": "Macerator",
   "container.logistics.macerator": "Macerator",
