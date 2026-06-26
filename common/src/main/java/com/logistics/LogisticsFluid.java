@@ -66,7 +66,7 @@ public final class LogisticsFluid extends LogisticsMod {
 
         private static BlockBehaviour.Properties fluidPipeProps(BlockBehaviour.Properties props) {
             return props.mapColor(MapColor.NONE)
-                    .strength(0.25f)
+                    .strength(0.3f)
                     .sound(SoundType.METAL)
                     .noOcclusion();
         }
