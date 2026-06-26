@@ -133,9 +133,12 @@ public final class NeoForgeFluidStorage implements IFluidStorage {
             if (resource.isEmpty()) {
                 return 0;
             }
-            // Report the live capacity backing the stored fluid; only fall back to free room when empty.
+            // Report the live capacity backing the stored fluid when the resource matches;
+            // otherwise fall back to the room a fresh insert would find (0 for an incompatible fluid).
             for (IFluidView view : storage.contents()) {
-                return view.capacity();
+                if (resource.equals(toResource(view.resource()))) {
+                    return view.capacity();
+                }
             }
             return storage.insert(NeoForgeFluidKey.of(resource), Integer.MAX_VALUE, true);
         }
