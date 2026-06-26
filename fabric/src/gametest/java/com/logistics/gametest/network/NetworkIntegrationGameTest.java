@@ -1,9 +1,8 @@
 package com.logistics.gametest.network;
 
 import com.logistics.LogisticsPipe;
-import com.logistics.LogisticsPower;
-import com.logistics.core.lib.energy.EnergyComponent;
-import com.logistics.power.block.entity.BatteryBlockEntity;
+import com.logistics.core.lib.energy.IEnergyStorage;
+import com.logistics.pipe.block.entity.PowerJunctionBlockEntity;
 import com.logistics.core.lib.pipe.PipeContext;
 import com.logistics.core.lib.pipe.TravelingItem;
 import com.logistics.pipe.block.PipeBlock;
@@ -34,11 +33,17 @@ import net.minecraft.world.level.block.Blocks;
  */
 public class NetworkIntegrationGameTest {
 
-    /** Place a fully-charged battery so the network can pay module energy costs. */
-    private static void placeChargedBattery(GameTestHelper context, BlockPos pos) {
-        context.setBlock(pos, LogisticsPower.BLOCK.BATTERY);
-        BatteryBlockEntity battery = (BatteryBlockEntity) context.getBlockEntity(pos);
-        ((EnergyComponent) battery.energyStorage(null)).setAmount(BatteryBlockEntity.CAPACITY);
+    /** Place a filled Power Junction so the network can pay module energy costs. */
+    private static void placeChargedPowerJunction(GameTestHelper context, BlockPos pos) {
+        context.setBlock(pos, LogisticsPipe.BLOCK.POWER_JUNCTION);
+        PowerJunctionBlockEntity junction = (PowerJunctionBlockEntity) context.getBlockEntity(pos);
+        IEnergyStorage es = junction.energyStorage(null);
+        long remaining = PowerJunctionBlockEntity.CAPACITY;
+        while (remaining > 0) {
+            long inserted = es.insert(remaining, false);
+            if (inserted <= 0) break;
+            remaining -= inserted;
+        }
     }
 
     /**
@@ -139,7 +144,7 @@ public class NetworkIntegrationGameTest {
 
         context.setBlock(chestPos, Blocks.CHEST);
         context.setBlock(sinkPos, LogisticsPipe.BLOCK.BASIC_LOGISTICS_PIPE);
-        placeChargedBattery(context, sinkPos.above()); // power the network so routing can pay its cost
+        placeChargedPowerJunction(context, sinkPos.above()); // power the network so routing can pay its cost
 
         PipeBlockEntity pipeEntity = (PipeBlockEntity) context.getBlockEntity(sinkPos);
         if (pipeEntity == null) {
@@ -268,7 +273,7 @@ public class NetworkIntegrationGameTest {
         context.setBlock(transportPos, LogisticsPipe.BLOCK.COPPER_TRANSPORT_PIPE);
         context.setBlock(providerPos, LogisticsPipe.BLOCK.PROVIDER_LOGISTICS_PIPE);
         context.setBlock(sourceChestPos, Blocks.CHEST);
-        placeChargedBattery(context, transportPos.above()); // power the network so modules can pay their costs
+        placeChargedPowerJunction(context, transportPos.above()); // power the network so modules can pay their costs
 
         // Pre-fill source chest with 4 diamonds
         Storage<ItemVariant> sourceStorage = ItemStorage.SIDED.find(

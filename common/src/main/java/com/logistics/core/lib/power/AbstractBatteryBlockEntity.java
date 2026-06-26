@@ -2,11 +2,9 @@ package com.logistics.core.lib.power;
 
 import com.logistics.core.lib.block.BaseBlockEntity;
 import com.logistics.core.lib.block.capability.HasEnergyStorage;
-import com.logistics.core.lib.block.capability.PipeConnection;
 import com.logistics.core.lib.energy.EnergyComponent;
 import com.logistics.core.lib.energy.EnergyPushService;
 import com.logistics.core.lib.energy.IEnergyStorage;
-import com.logistics.core.lib.network.ILogisticsNetwork;
 import com.logistics.core.lib.pipe.IPipeAccess;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -14,7 +12,6 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -23,11 +20,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashSet;
-import java.util.Set;
-
 /**
- * Abstract base class for energy buffer blocks that can supply power to adjacent pipe networks.
+ * Abstract base class for energy buffer blocks (batteries).
  *
  * <p>Concrete subclasses provide capacity/rate constants via the constructor.
  *
@@ -35,22 +29,16 @@ import java.util.Set;
  * <ul>
  *   <li>Accepts energy on all sides (loader energy API + low-tier from Redstone Engines)</li>
  *   <li>Each tick: pushes energy into adjacent non-pipe blocks that accept it (machines, etc.)</li>
- *   <li>Each tick: registers this battery with any adjacent logistics pipe networks so that
- *       modules can {@link ILogisticsNetwork#consumeEnergy draw from it}</li>
- *   <li>On removal: unregisters from all tracked networks</li>
  * </ul>
  *
- * <p>Multiple batteries adjacent to the same network are all registered; the network
- * draws from them in registration order until the requested amount is satisfied.
+ * <p>Batteries do not feed the logistics pipe network directly — power enters a network through a
+ * Power Junction (which the network draws from); batteries supply that junction over cables.
  */
 public abstract class AbstractBatteryBlockEntity extends BaseBlockEntity
-        implements HasEnergyStorage, AcceptsLowTierEnergy, PipeConnection {
+        implements HasEnergyStorage, AcceptsLowTierEnergy {
 
     /** Max RF to push into a single adjacent machine per tick. */
     private static final long MAX_OUTPUT_PER_SIDE = 200L;
-
-    /** How often (in ticks) to refresh pipe-network registrations. */
-    private static final int NETWORK_SCAN_INTERVAL = 20;
 
     /**
      * Discrete charge level (0–10) exposed as a block state property so the battery's fill bar is
@@ -59,13 +47,6 @@ public abstract class AbstractBatteryBlockEntity extends BaseBlockEntity
     public static final IntegerProperty CHARGE = IntegerProperty.create("charge", 0, 10);
 
     protected final EnergyComponent energy;
-
-    /** Networks this battery is currently registered with. */
-    private final Set<ILogisticsNetwork> registeredNetworks = new HashSet<>();
-
-    // Start at NETWORK_SCAN_INTERVAL - 1 so the first tick triggers an immediate scan.
-    // Ensures the battery registers with adjacent networks as soon as it is placed.
-    private int networkScanTick = NETWORK_SCAN_INTERVAL - 1;
 
     protected AbstractBatteryBlockEntity(
             BlockEntityType<?> type, BlockPos pos, BlockState state,
@@ -79,7 +60,6 @@ public abstract class AbstractBatteryBlockEntity extends BaseBlockEntity
     public static void tick(Level level, BlockPos pos, BlockState state, AbstractBatteryBlockEntity entity) {
         if (level.isClientSide()) return;
         entity.pushEnergyToMachines(level, pos);
-        entity.refreshNetworkRegistrations(level, pos);
         entity.updateChargeBlockState(level, pos, state);
     }
 
@@ -93,8 +73,8 @@ public abstract class AbstractBatteryBlockEntity extends BaseBlockEntity
 
     /**
      * Push energy into adjacent blocks that have energy storage (skipping pipe blocks), using the
-     * loader-agnostic {@link EnergyPushService}. Pipe neighbors are intentionally skipped — they
-     * draw from the battery through the network energy path, not direct insertion.
+     * loader-agnostic {@link EnergyPushService}. Pipe neighbors are intentionally skipped — pipes are
+     * not energy receivers (power enters a logistics network through a Power Junction).
      */
     private void pushEnergyToMachines(Level level, BlockPos pos) {
         if (energy.getAmount() <= 0) return;
@@ -111,64 +91,6 @@ public abstract class AbstractBatteryBlockEntity extends BaseBlockEntity
                 setChanged();
             }
         }
-    }
-
-    /** Scan adjacent pipes to keep network registrations up to date. */
-    private void refreshNetworkRegistrations(Level level, BlockPos pos) {
-        networkScanTick++;
-        // Scan every tick until registered with a network (so a freshly placed battery powers the
-        // network as soon as it forms), then back off to the interval to keep periodic scans cheap.
-        if (!registeredNetworks.isEmpty() && networkScanTick < NETWORK_SCAN_INTERVAL) return;
-        networkScanTick = 0;
-
-        Set<ILogisticsNetwork> currentNetworks = new HashSet<>();
-        for (Direction dir : Direction.values()) {
-            if (level.getBlockEntity(pos.relative(dir)) instanceof IPipeAccess pipe) {
-                ILogisticsNetwork net = pipe.getNetwork();
-                if (net != null) currentNetworks.add(net);
-            }
-        }
-
-        // Register with newly found networks
-        for (ILogisticsNetwork net : currentNetworks) {
-            if (registeredNetworks.add(net)) {
-                net.registerEnergySource(worldPosition);
-            }
-        }
-
-        // Unregister from networks no longer adjacent
-        Set<ILogisticsNetwork> toRemove = new HashSet<>(registeredNetworks);
-        toRemove.removeAll(currentNetworks);
-        for (ILogisticsNetwork net : toRemove) {
-            net.unregisterEnergySource(worldPosition);
-            registeredNetworks.remove(net);
-        }
-    }
-
-    @Override
-    public void setRemoved() {
-        super.setRemoved();
-        for (ILogisticsNetwork net : registeredNetworks) {
-            net.unregisterEnergySource(worldPosition);
-        }
-        registeredNetworks.clear();
-    }
-
-    // ==================== PipeConnection ====================
-
-    /**
-     * Expose a POWER connection so adjacent pipes render a connection arm toward the battery and
-     * recognise it as a power source. POWER connections are excluded from item routing, so the
-     * battery is never treated as a route, sink, or inventory; items never path into it.
-     */
-    @Override
-    public PipeConnection.Type getConnectionType(Direction direction) {
-        return PipeConnection.Type.POWER;
-    }
-
-    @Override
-    public boolean addItem(Direction from, ItemStack stack) {
-        return false;
     }
 
     // ==================== Item Drop Components ====================

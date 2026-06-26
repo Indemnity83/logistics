@@ -1,6 +1,6 @@
 {
   "parent": "logistics:block/core/machine",
   "textures": {
-    "front": "logistics:block/automation/sawmill_off"
+    "front": "logistics:block/pipe/power_junction_off"
   }
 }
