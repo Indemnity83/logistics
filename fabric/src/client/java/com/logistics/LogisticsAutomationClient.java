@@ -6,7 +6,6 @@ import com.logistics.automation.sawmill.SawmillScreen;
 import com.logistics.automation.render.ClientRenderCacheHooks;
 import com.logistics.automation.render.LaserQuarryBlockEntityRenderer;
 import com.logistics.automation.render.LaserQuarryRenderState;
-import com.logistics.automation.render.MarkerBlockEntityRenderer;
 import com.logistics.core.bootstrap.ClientDomainBootstrap;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -21,9 +20,6 @@ public final class LogisticsAutomationClient implements ClientDomainBootstrap {
     @Override
     public void initClient() {
         LOGGER.info("Registering automation (client)");
-        BlockEntityRendererRegistry.register(
-                LogisticsAutomation.ENTITY.MARKER_BLOCK_ENTITY, MarkerBlockEntityRenderer::new);
-
         BlockEntityRendererRegistry.register(
                 LogisticsAutomation.ENTITY.LASER_QUARRY_BLOCK_ENTITY, LaserQuarryBlockEntityRenderer::new);
 
