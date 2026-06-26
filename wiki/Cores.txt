@@ -18,6 +18,10 @@
 
 The [[Machine Core]] is a separate component used to build machines, not valves.
 
+== History ==
+
+{{History|head=1|foot=1|v0.2.0|Added the cores.}}
+
 == See also ==
 
 * [[Valves]] — what cores are crafted into

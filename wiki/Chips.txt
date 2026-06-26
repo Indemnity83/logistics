@@ -28,6 +28,10 @@ The Silicon Wafer is the substrate for every chip, made in two steps:
 | [[Carbon Chip]] || Special || Item Sink only
 |}
 
+== History ==
+
+{{History|head=1|foot=1|v0.2.0|Added the chips.}}
+
 == See also ==
 
 * [[Modules]] — what chips are used to build

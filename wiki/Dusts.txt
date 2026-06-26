@@ -29,6 +29,10 @@ The main use of metal dusts is doubling ore output. Grinding one ore block produ
 
 Grinding the source ore in the [[Macerator]] grants the same experience the furnace would, so ore doubling no longer costs any experience. (Smelting the dust itself grants none.)
 
+== History ==
+
+{{History|head=1|foot=1|v0.2.0|Added the dusts.}}
+
 == See also ==
 
 * [[Macerator]] - Produces all dusts
