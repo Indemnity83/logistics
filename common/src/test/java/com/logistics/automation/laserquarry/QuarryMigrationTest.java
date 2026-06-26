@@ -22,7 +22,7 @@ class QuarryMigrationTest extends MinecraftTestEnvironment {
             RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY);
 
     private static EnergyStorageComponent energyComponent() {
-        return new EnergyStorageComponent("energy", 10_000L, 128L, 0L, true, true, () -> {});
+        return new EnergyStorageComponent("energy", 10_000L, 128L, 0L, () -> {});
     }
 
     @Test

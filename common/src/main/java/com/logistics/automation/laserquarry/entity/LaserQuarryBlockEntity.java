@@ -45,7 +45,6 @@ public class LaserQuarryBlockEntity extends MachineEntity implements PipeConnect
         energy = machine.energy("energy")
                 .capacity(cfg.energyCapacity())
                 .maxInput(cfg.maxEnergyInput())
-                .providesDemand()
                 .build();
         quarry = machine.add(new QuarryComponent("quarry", getBlockPos(), energy, upgrades.modifiers()));
         machine.chunkLoader("chunks")

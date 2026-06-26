@@ -48,7 +48,6 @@ public class FluidPumpBlockEntity extends MachineEntity implements AcceptsLowTie
         energy = machine.energy("energy")
                 .capacity(cfg.energyCapacity)
                 .maxInput(cfg.maxEnergyInput)
-                .providesDemand()
                 .build();
         fluidStore = machine.fluids("tank")
                 .capacity(FluidUnits.mb(cfg.tankCapacityMb))

@@ -36,7 +36,7 @@ class MachineEntityPersistenceTest extends MinecraftTestEnvironment {
 
         @Override
         protected void configure(MachineBuilder machine) {
-            machine.energy("energy").capacity(10_000).maxInput(128).providesDemand().build();
+            machine.energy("energy").capacity(10_000).maxInput(128).build();
             machine.items("inventory").slots(SlotRole.INPUT, SlotRole.OUTPUT).bottomOutAccess().build();
         }
 

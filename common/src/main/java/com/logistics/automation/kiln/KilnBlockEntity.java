@@ -77,7 +77,6 @@ public class KilnBlockEntity extends MachineEntity {
         energy = machine.energy("energy")
                 .capacity(ENERGY_CAPACITY)
                 .maxInput(MAX_ENERGY_INPUT)
-                .providesDemand()
                 .build();
 
         var items = machine.items("inventory")
