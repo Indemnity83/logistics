@@ -1,9 +1,9 @@
 {
   "key": {
     "G": "minecraft:gold_ingot",
-    "I": "logistics:core/iron_gear"
+    "B": "logistics:core/bronze_gear"
   },
-  "pattern": [" G ", "GIG", " G "],
+  "pattern": [" G ", "GBG", " G "],
   "result": {
     "count": 1,
     "id": "logistics:core/gold_gear"
