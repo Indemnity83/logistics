@@ -1,5 +1,67 @@
 # Changelog
 
+## [0.8.0](https://github.com/Indemnity83/logistics/compare/mc26.2-v0.7.4...mc26.2-v0.8.0) (2026-06-26)
+
+
+### ⚠ BREAKING CHANGES
+
+* **energy:** Batteries no longer power a logistics network directly. A network is powered only through a Power Junction — place one between your power source (cables/batteries) and the network. Existing setups that powered a network with a battery placed next to a pipe will stop working until a Power Junction is added.
+
+### Added
+
+* **energy:** add the power junction ([#612](https://github.com/Indemnity83/logistics/issues/612)) ([88cf04f](https://github.com/Indemnity83/logistics/commit/88cf04fce37ccd1e0b654f74772236d09e58d926))
+* **sawmill:** add wood processing ([#580](https://github.com/Indemnity83/logistics/issues/580)) ([ab407af](https://github.com/Indemnity83/logistics/commit/ab407afc617e3e695dd677e572d8fd81a1097f01))
+* **sawmill:** show recipes in JEI and details in the Jade HUD ([fc66406](https://github.com/Indemnity83/logistics/commit/fc66406a8fe8123ff36c837c108a0aac937bbf04))
+
+
+### Changed
+
+* **core:** move the marker to the core domain ([#603](https://github.com/Indemnity83/logistics/issues/603)) ([62c8aac](https://github.com/Indemnity83/logistics/commit/62c8aac606c754f2e94c8bb82c7ac412d9b8bffb))
+* **core:** streamline world loading by dropping legacy save migrations ([#586](https://github.com/Indemnity83/logistics/issues/586)) ([9227d6e](https://github.com/Indemnity83/logistics/commit/9227d6ed9eb5edafbed141891a0eaa5ffefae494))
+* **crafting:** require a bronze gear in the machine frame ([#610](https://github.com/Indemnity83/logistics/issues/610)) ([40ad1f6](https://github.com/Indemnity83/logistics/commit/40ad1f69f24fda5696a37eac0a75b0188f2150dd))
+* **energy:** feed the logistics network through a power junction instead of batteries directly ([88cf04f](https://github.com/Indemnity83/logistics/commit/88cf04fce37ccd1e0b654f74772236d09e58d926))
+* **energy:** require a power junction to power the logistics network ([362f151](https://github.com/Indemnity83/logistics/commit/362f151025fc0bb2743327de334d3df5ef0965f4))
+* **kiln:** restyle with machine shell ([a0abb8a](https://github.com/Indemnity83/logistics/commit/a0abb8aa9d42baa9c42ef40276358f407393c3e2))
+* **kiln:** retune smelting speed and RF cost ([a0abb8a](https://github.com/Indemnity83/logistics/commit/a0abb8aa9d42baa9c42ef40276358f407393c3e2))
+* **kiln:** standardize recipe around machine components ([a0abb8a](https://github.com/Indemnity83/logistics/commit/a0abb8aa9d42baa9c42ef40276358f407393c3e2))
+* **macerator:** restyle with machine shell ([28449b7](https://github.com/Indemnity83/logistics/commit/28449b7433f3b97112a08ead8c42900ca1463e4b))
+* **macerator:** standardize recipe around machine components ([28449b7](https://github.com/Indemnity83/logistics/commit/28449b7433f3b97112a08ead8c42900ca1463e4b))
+* **pipes:** raise pipe blast resistance to match glass ([#618](https://github.com/Indemnity83/logistics/issues/618)) ([3cdc2ea](https://github.com/Indemnity83/logistics/commit/3cdc2ea58af9269a38aec910c37d60247c10be41))
+* **pump:** standardize recipe around machine components ([86b9281](https://github.com/Indemnity83/logistics/commit/86b9281ca02e1712cee1160615d018b8a3c611ad))
+* **quarry:** restyle with machine shell ([#582](https://github.com/Indemnity83/logistics/issues/582)) ([1fec1a1](https://github.com/Indemnity83/logistics/commit/1fec1a1e004650c43c077dade3a35187542912ca))
+* **quarry:** standardize recipe around machine components ([1fec1a1](https://github.com/Indemnity83/logistics/commit/1fec1a1e004650c43c077dade3a35187542912ca))
+* **quarry:** yield one marker per craft ([#607](https://github.com/Indemnity83/logistics/issues/607)) ([5bc8b98](https://github.com/Indemnity83/logistics/commit/5bc8b9805877e34f3229f0f620c83aee401fa5c3))
+* **sawmill:** move wood processing from macerator ([ab407af](https://github.com/Indemnity83/logistics/commit/ab407afc617e3e695dd677e572d8fd81a1097f01))
+* **sawmill:** rename Wood Pulp to Sawdust ([ab407af](https://github.com/Indemnity83/logistics/commit/ab407afc617e3e695dd677e572d8fd81a1097f01))
+* **worldgen:** tin ore drops one raw tin ([#608](https://github.com/Indemnity83/logistics/issues/608)) ([48701b1](https://github.com/Indemnity83/logistics/commit/48701b146a26d3d056b777f2d4b91b7e54a1704a))
+
+
+### Removed
+
+* **macerator:** remove wood-pulp recipes ([ab407af](https://github.com/Indemnity83/logistics/commit/ab407afc617e3e695dd677e572d8fd81a1097f01))
+
+
+### Fixed
+
+* **automation:** let quarry markers connect through solid blocks ([#581](https://github.com/Indemnity83/logistics/issues/581)) ([2194976](https://github.com/Indemnity83/logistics/commit/21949761350bd9b45015860c34cfd4418d192b93))
+* **automation:** pause recipes until byproducts have space ([ec4e8cb](https://github.com/Indemnity83/logistics/commit/ec4e8cb60c5ed1842da770b9c4f650b90acacb65))
+* **automation:** pause recipes until byproducts have space ([#597](https://github.com/Indemnity83/logistics/issues/597)) ([ec4e8cb](https://github.com/Indemnity83/logistics/commit/ec4e8cb60c5ed1842da770b9c4f650b90acacb65))
+* **crafting:** restore valve and quartz crystal recipes ([#600](https://github.com/Indemnity83/logistics/issues/600)) ([66dd157](https://github.com/Indemnity83/logistics/commit/66dd157c4d94b4f52f1183acd2f305932bee544a))
+* **energy:** drop the creative sink when broken ([#616](https://github.com/Indemnity83/logistics/issues/616)) ([a5867bc](https://github.com/Indemnity83/logistics/commit/a5867bc832b4d113bcb205265a80725335f363bd))
+* **fluids:** drop fluid pipes and glass tank when broken ([#614](https://github.com/Indemnity83/logistics/issues/614)) ([1f3e03f](https://github.com/Indemnity83/logistics/commit/1f3e03f6e3312038584fecc659a0955b102499e4))
+* **fluids:** match the fluid pump's top to the other machines ([#561](https://github.com/Indemnity83/logistics/issues/561)) ([28e3cf1](https://github.com/Indemnity83/logistics/commit/28e3cf125a0ce455b3a529c52fa50750cff2b3d9))
+* **kiln:** accept energy from the power network ([#602](https://github.com/Indemnity83/logistics/issues/602)) ([767c9b7](https://github.com/Indemnity83/logistics/commit/767c9b7ac1b89bf8cc950165d55ef1141f22f270))
+* **kiln:** award smelting experience ([a0abb8a](https://github.com/Indemnity83/logistics/commit/a0abb8aa9d42baa9c42ef40276358f407393c3e2))
+* **kiln:** bank smelting XP and pay it out like a furnace ([#605](https://github.com/Indemnity83/logistics/issues/605)) ([4decb90](https://github.com/Indemnity83/logistics/commit/4decb90211fb653e5e5c6d0d9034aa75914e4e0a))
+* **kiln:** mine with the correct pickaxe tier ([#601](https://github.com/Indemnity83/logistics/issues/601)) ([42996cb](https://github.com/Indemnity83/logistics/commit/42996cb15549b0832ee6b6903392130512b133e6))
+* **macerator:** bank maceration XP and pay it out like a furnace ([4decb90](https://github.com/Indemnity83/logistics/commit/4decb90211fb653e5e5c6d0d9034aa75914e4e0a))
+* **macerator:** restore the JEI integration ([#599](https://github.com/Indemnity83/logistics/issues/599)) ([a2a7a4e](https://github.com/Indemnity83/logistics/commit/a2a7a4ecca1268261014a9426df432ba785a0f49))
+* **pump:** stop destroying waterlogged blocks ([86b9281](https://github.com/Indemnity83/logistics/commit/86b9281ca02e1712cee1160615d018b8a3c611ad))
+* **pump:** sync tube animation on phase changes ([86b9281](https://github.com/Indemnity83/logistics/commit/86b9281ca02e1712cee1160615d018b8a3c611ad))
+* **quarry:** give the laser quarry frame a display name ([#617](https://github.com/Indemnity83/logistics/issues/617)) ([f607e7a](https://github.com/Indemnity83/logistics/commit/f607e7a08f65057f7b94a3c9ed48343d050d5924))
+* **routing:** refresh neighbor pipe arms when markings change ([#606](https://github.com/Indemnity83/logistics/issues/606)) ([6a333c7](https://github.com/Indemnity83/logistics/commit/6a333c7efe9793f498b580c808f03edc493f3005))
+* **sawmill:** add the missing crafting recipe ([#609](https://github.com/Indemnity83/logistics/issues/609)) ([58d8fae](https://github.com/Indemnity83/logistics/commit/58d8fae66bb9c69ea18c54758594a98bf7edad2e))
+
 ## [0.7.4](https://github.com/Indemnity83/logistics/compare/mc26.2-v0.6.1...mc26.2-v0.7.4) (2026-06-21)
 
 
