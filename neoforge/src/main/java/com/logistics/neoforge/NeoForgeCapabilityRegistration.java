@@ -67,6 +67,7 @@ public final class NeoForgeCapabilityRegistration {
         registerEnergy(event, LogisticsPower.ENTITY.BATTERY_BLOCK_ENTITY);
         registerEnergy(event, LogisticsPower.ENTITY.CABLE_BLOCK_ENTITY);
         registerEnergy(event, LogisticsPipe.ENTITY.PIPE_BLOCK_ENTITY);
+        registerEnergy(event, LogisticsPipe.ENTITY.POWER_JUNCTION_BLOCK_ENTITY);
         registerEnergy(event, LogisticsAutomation.ENTITY.LASER_QUARRY_BLOCK_ENTITY);
         registerEnergy(event, LogisticsAutomation.ENTITY.KILN_BLOCK_ENTITY);
         // Fluid Extractor Pipes receive engine RF; copper pipes return a null energy handler.
