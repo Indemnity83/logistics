@@ -1,6 +1,7 @@
 package com.logistics.neoforge.client;
 
 import com.logistics.LogisticsAutomation;
+import com.logistics.LogisticsCore;
 import com.logistics.LogisticsFluid;
 import com.logistics.LogisticsPipe;
 import com.logistics.LogisticsPower;
@@ -23,7 +24,7 @@ import com.logistics.pipe.screen.SatelliteScreen;
 import com.logistics.pipe.screen.SinkScreen;
 import com.logistics.pipe.screen.SupplierScreen;
 import com.logistics.automation.render.LaserQuarryBlockEntityRenderer;
-import com.logistics.automation.render.MarkerBlockEntityRenderer;
+import com.logistics.core.render.MarkerBlockEntityRenderer;
 import com.logistics.pipe.network.packet.SyncRequesterInventoryPacket;
 import com.logistics.pipe.render.PipeBlockEntityRenderer;
 import com.logistics.power.render.CableBlockEntityRenderer;
@@ -97,7 +98,7 @@ public final class NeoForgeClientSetup {
                 LogisticsPower.ENTITY.CABLE_BLOCK_ENTITY,
                 CableBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(
-                LogisticsAutomation.ENTITY.MARKER_BLOCK_ENTITY,
+                LogisticsCore.ENTITY.MARKER_BLOCK_ENTITY,
                 MarkerBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(
                 LogisticsAutomation.ENTITY.LASER_QUARRY_BLOCK_ENTITY,
