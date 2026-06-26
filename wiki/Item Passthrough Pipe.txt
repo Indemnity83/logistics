@@ -1,3 +1,4 @@
+{{About|the item pipe|the fluid version|Bypass Fluid Pipe}}
 {{Block
 |image     = Grid Item Passthrough Pipe.png
 |type      = Block (Pipe)
