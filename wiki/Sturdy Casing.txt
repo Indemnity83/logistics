@@ -3,6 +3,7 @@
 |type      = Item (Component)
 |function  = Machine crafting component
 |stackable = Yes (64)
+|added     = v0.2.0
 }}
 
 The '''Sturdy Casing''' is a crafting component used to build machines. It is a reinforced shell formed from [[Bronze Ingot|bronze ingots]], serving as the structural body that machine internals are built around — a companion to the [[Machine Core]].
@@ -31,6 +32,10 @@ Bronze Ingots are an alloy of copper and tin, so keep a [[Tin Ore|tin]] supply o
 === ID ===
 
 {{ID|head=1|foot=1|logistics:core/sturdy_casing|item.logistics.core.sturdy_casing}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.2.0|Added '''Sturdy Casing''' with the bronze materials.}}
 
 == See also ==
 
