@@ -66,7 +66,6 @@ public final class FabricChestLootModifier {
                     .add(LootItem.lootTableItem(LogisticsCore.ITEM.APATITE)
                         .setWeight(15)
                         .apply(SetItemCountFunction.setCount(UniformGenerator.between(3, 10))))
-                    .add(LootItem.lootTableItem(LogisticsCore.ITEM.TIN_GEAR).setWeight(4))
                     .build());
             }
 
@@ -89,7 +88,6 @@ public final class FabricChestLootModifier {
                     .add(LootItem.lootTableItem(LogisticsCore.ITEM.APATITE)
                         .setWeight(10)
                         .apply(SetItemCountFunction.setCount(UniformGenerator.between(3, 10))))
-                    .add(LootItem.lootTableItem(LogisticsCore.ITEM.TIN_GEAR).setWeight(4))
                     .add(LootItem.lootTableItem(LogisticsCore.ITEM.BRONZE_GEAR).setWeight(3))
                     .build());
             }
@@ -190,7 +188,6 @@ public final class FabricChestLootModifier {
                     .add(LootItem.lootTableItem(LogisticsCore.ITEM.BRONZE_INGOT)
                         .setWeight(4)
                         .apply(SetItemCountFunction.setCount(UniformGenerator.between(1, 2))))
-                    .add(LootItem.lootTableItem(LogisticsCore.ITEM.TIN_GEAR).setWeight(3))
                     .build());
             }
         });
