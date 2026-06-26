@@ -94,7 +94,7 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
 
         private static Block.Properties pipeProps(Block.Properties props) {
             return props.mapColor(MapColor.NONE)
-                    .strength(0.25f)
+                    .strength(0.3f)
                     .sound(SoundType.METAL)
                     .noOcclusion();
         }
