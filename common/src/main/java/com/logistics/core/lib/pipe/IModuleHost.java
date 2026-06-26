@@ -36,6 +36,9 @@ public interface IModuleHost {
     /** Mark the block entity as changed so it is saved on the next world save. */
     void markDirty();
 
+    /** Force the connection arms to be recomputed on the next tick. */
+    void invalidateConnectionCache();
+
     /**
      * Return the cached connection type for the given direction.
      * Always uses the value computed on the last tick without re-probing neighbours.

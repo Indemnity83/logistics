@@ -86,7 +86,7 @@ public class PipeMarkingModule implements Module {
         }
 
         ctx.saveString(this, COLOR_KEY, colorId);
-        ctx.markDirtyAndSync();
+        ctx.markConnectionsChanged();
         EquipmentSlot slot = usage.getHand() == InteractionHand.MAIN_HAND
                 ? EquipmentSlot.MAINHAND
                 : EquipmentSlot.OFFHAND;
@@ -105,7 +105,7 @@ public class PipeMarkingModule implements Module {
                     return InteractionResult.SUCCESS;
                 }
                 ctx.remove(this, COLOR_KEY);
-                ctx.markDirtyAndSync();
+                ctx.markConnectionsChanged();
             }
             return InteractionResult.SUCCESS;
         }
