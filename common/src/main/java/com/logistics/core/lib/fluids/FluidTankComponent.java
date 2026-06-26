@@ -86,9 +86,11 @@ public class FluidTankComponent implements IFluidStorage {
         if (fluid == Fluids.EMPTY || amount <= 0) return Collections.emptyList();
         IFluidKey key = currentKey();
         long currentAmount = amount;
+        long currentCapacity = capacity;
         return Collections.singletonList(new IFluidView() {
             @Override public IFluidKey resource() { return key; }
             @Override public long amount() { return currentAmount; }
+            @Override public long capacity() { return currentCapacity; }
         });
     }
 
