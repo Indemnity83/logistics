@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " P ",
+    "RMR",
+    "GCG"
+  ],
+  "key": {
+    "P": "logistics:pipe/basic_logistics_pipe",
+    "R": "minecraft:redstone",
+    "M": "logistics:core/machine_core",
+    "G": "logistics:core/copper_gear",
+    "C": "logistics:core/redstone_reception_coil"
+  },
+  "result": {
+    "id": "logistics:pipe/power_junction",
+    "count": 1
+  }
+}
