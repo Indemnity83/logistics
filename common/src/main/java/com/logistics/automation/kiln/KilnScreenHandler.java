@@ -1,6 +1,7 @@
 package com.logistics.automation.kiln;
 
 import com.logistics.LogisticsAutomation;
+import com.logistics.core.lib.block.MachineResultSlot;
 import net.minecraft.recipebook.ServerPlaceRecipe;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Container;
@@ -52,13 +53,8 @@ public class KilnScreenHandler extends RecipeBookMenu {
         // Input slot (0)
         this.addSlot(new Slot(inventory, KilnBlockEntity.INPUT_SLOT, 56, 35));
 
-        // Output slot (1) — no insertion allowed
-        this.addSlot(new Slot(inventory, KilnBlockEntity.OUTPUT_SLOT, 116, 35) {
-            @Override
-            public boolean mayPlace(ItemStack stack) {
-                return false;
-            }
-        });
+        // Output slot (1) — no insertion; releases banked smelting XP to the player on take
+        this.addSlot(new MachineResultSlot(inventory, KilnBlockEntity.OUTPUT_SLOT, 116, 35));
 
         // Player inventory (3 rows of 9)
         for (int row = 0; row < 3; row++) {

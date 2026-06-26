@@ -5,6 +5,7 @@ import com.logistics.core.lib.fluids.IFluidStorage;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
@@ -73,5 +74,10 @@ public interface MachineComponent {
         float progress();
 
         boolean isProcessing();
+    }
+
+    /** Banks processing experience and releases it on demand (e.g. when the machine is broken). */
+    interface ExperienceStore {
+        int drainExperience(RandomSource random);
     }
 }
