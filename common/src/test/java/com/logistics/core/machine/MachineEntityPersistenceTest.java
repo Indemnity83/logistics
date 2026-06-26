@@ -15,7 +15,7 @@ import net.minecraft.world.MenuProvider;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.entity.BlockEntityTypes;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -31,12 +31,12 @@ class MachineEntityPersistenceTest extends MinecraftTestEnvironment {
     /** A processing-machine shell backed by a vanilla BE type so no mod registration is needed. */
     private static final class TestMachine extends MachineEntity {
         TestMachine() {
-            super(BlockEntityTypes.FURNACE, BlockPos.ZERO, Blocks.FURNACE.defaultBlockState());
+            super(BlockEntityType.FURNACE, BlockPos.ZERO, Blocks.FURNACE.defaultBlockState());
         }
 
         @Override
         protected void configure(MachineBuilder machine) {
-            machine.energy("energy").capacity(10_000).maxInput(128).providesDemand().build();
+            machine.energy("energy").capacity(10_000).maxInput(128).build();
             machine.items("inventory").slots(SlotRole.INPUT, SlotRole.OUTPUT).bottomOutAccess().build();
         }
 

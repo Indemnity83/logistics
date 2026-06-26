@@ -172,7 +172,7 @@ class RecipeProcessorComponentTest extends MinecraftTestEnvironment {
                 new SlotRole[] {SlotRole.INPUT, SlotRole.OUTPUT, SlotRole.OUTPUT},
                 SidedLayout.furnace(new int[] {0}, new int[] {1, 2}, stack -> true),
                 noop);
-        EnergyStorageComponent energy = new EnergyStorageComponent("energy", 100_000, 100_000, 0, false, false, noop);
+        EnergyStorageComponent energy = new EnergyStorageComponent("energy", 100_000, 100_000, 0, noop);
         energy.energy(null).insert(100_000, false);
 
         items.container().setItem(0, new ItemStack(Items.RAW_IRON, 1));
