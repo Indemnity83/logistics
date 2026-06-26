@@ -109,7 +109,6 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         public static Item WOODEN_GEAR;
         public static Item STONE_GEAR;
         public static Item COPPER_GEAR;
-        public static Item TIN_GEAR;
         public static Item IRON_GEAR;
         public static Item GOLD_GEAR;
         public static Item BRONZE_GEAR;
@@ -202,7 +201,6 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
             WOODEN_GEAR = INSTANCE.registerItem("wooden_gear", Item::new);
             STONE_GEAR = INSTANCE.registerItem("stone_gear", Item::new);
             COPPER_GEAR = INSTANCE.registerItem("copper_gear", Item::new);
-            TIN_GEAR = INSTANCE.registerItem("tin_gear", Item::new);
             IRON_GEAR = INSTANCE.registerItem("iron_gear", Item::new);
             GOLD_GEAR = INSTANCE.registerItem("gold_gear", Item::new);
             BRONZE_GEAR = INSTANCE.registerItem("bronze_gear", Item::new);
@@ -328,8 +326,7 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
                 entries.insertAfter(ITEM.REDSTONE_RECEPTION_COIL, ITEM.WOODEN_GEAR);
                 entries.insertAfter(ITEM.WOODEN_GEAR, ITEM.STONE_GEAR);
                 entries.insertAfter(ITEM.STONE_GEAR, ITEM.COPPER_GEAR);
-                entries.insertAfter(ITEM.COPPER_GEAR, ITEM.TIN_GEAR);
-                entries.insertAfter(ITEM.TIN_GEAR, ITEM.IRON_GEAR);
+                entries.insertAfter(ITEM.COPPER_GEAR, ITEM.IRON_GEAR);
                 entries.insertAfter(ITEM.IRON_GEAR, ITEM.BRONZE_GEAR);
                 entries.insertAfter(ITEM.BRONZE_GEAR, ITEM.GOLD_GEAR);
                 entries.insertAfter(ITEM.GOLD_GEAR, ITEM.DIAMOND_GEAR);

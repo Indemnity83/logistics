@@ -34,7 +34,6 @@ public final class NeoForgeChestLootModifier {
                     .add(counted(LogisticsCore.ITEM.TIN_NUGGET, 12, 5, 15))
                     .add(counted(LogisticsCore.ITEM.TIN_INGOT, 5, 1, 3))
                     .add(counted(LogisticsCore.ITEM.APATITE, 15, 3, 10))
-                    .add(LootItem.lootTableItem(LogisticsCore.ITEM.TIN_GEAR).setWeight(4))
                     .build());
         }
         if (BuiltInLootTables.VILLAGE_TOOLSMITH.equals(key)
@@ -45,7 +44,6 @@ public final class NeoForgeChestLootModifier {
                     .add(counted(LogisticsCore.ITEM.BRONZE_NUGGET, 8, 4, 12))
                     .add(counted(LogisticsCore.ITEM.BRONZE_INGOT, 3, 1, 2))
                     .add(counted(LogisticsCore.ITEM.APATITE, 10, 3, 10))
-                    .add(LootItem.lootTableItem(LogisticsCore.ITEM.TIN_GEAR).setWeight(4))
                     .add(LootItem.lootTableItem(LogisticsCore.ITEM.BRONZE_GEAR).setWeight(3))
                     .build());
         }
@@ -98,7 +96,6 @@ public final class NeoForgeChestLootModifier {
             event.getTable().addPool(pool("logistics:ruined_portal")
                     .add(counted(LogisticsCore.ITEM.TIN_INGOT, 5, 1, 3))
                     .add(counted(LogisticsCore.ITEM.BRONZE_INGOT, 4, 1, 2))
-                    .add(LootItem.lootTableItem(LogisticsCore.ITEM.TIN_GEAR).setWeight(3))
                     .build());
         }
     }
