@@ -17,4 +17,13 @@ public interface IFluidView {
 
     /** The amount of fluid available in this view, in platform-native units. Always {@code > 0}. */
     long amount();
+
+    /**
+     * The total capacity backing this view's resource, in platform-native units. Used for HUD/fill
+     * displays; always {@code >= amount()}. Defaults to {@link #amount()} for storages that don't
+     * track a distinct capacity.
+     */
+    default long capacity() {
+        return amount();
+    }
 }

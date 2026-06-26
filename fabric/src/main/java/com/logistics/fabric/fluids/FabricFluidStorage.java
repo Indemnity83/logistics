@@ -118,9 +118,11 @@ public final class FabricFluidStorage implements IFluidStorage {
                 pending = advance();
                 IFluidKey key = FabricFluidKey.of(view.getResource());
                 long amt = view.getAmount();
+                long cap = view.getCapacity();
                 return new IFluidView() {
                     @Override public IFluidKey resource() { return key; }
                     @Override public long amount() { return amt; }
+                    @Override public long capacity() { return cap; }
                 };
             }
         };
@@ -204,6 +206,7 @@ public final class FabricFluidStorage implements IFluidStorage {
                     IFluidView view = inner.next();
                     FluidVariant variant = toVariant(view.resource());
                     long amount = view.amount();
+                    long capacity = view.capacity();
                     StagedStorage staged = StagedStorage.this;
                     return new StorageView<>() {
                         @Override
@@ -221,7 +224,7 @@ public final class FabricFluidStorage implements IFluidStorage {
                         @Override public boolean isResourceBlank() { return variant.isBlank(); }
                         @Override public FluidVariant getResource() { return variant; }
                         @Override public long getAmount() { return amount; }
-                        @Override public long getCapacity() { return amount; }
+                        @Override public long getCapacity() { return capacity; }
                     };
                 }
             };

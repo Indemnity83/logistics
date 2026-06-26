@@ -43,6 +43,7 @@ public final class TankColumnStorage implements IFluidStorage {
             return Collections.emptyList();
         }
         long amount = total;
+        long capacity = column.capacity();
         return List.of(new IFluidView() {
             @Override
             public IFluidKey resource() {
@@ -52,6 +53,11 @@ public final class TankColumnStorage implements IFluidStorage {
             @Override
             public long amount() {
                 return amount;
+            }
+
+            @Override
+            public long capacity() {
+                return capacity;
             }
         });
     }
