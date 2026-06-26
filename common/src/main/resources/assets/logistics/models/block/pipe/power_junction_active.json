@@ -1,0 +1,6 @@
+{
+  "parent": "logistics:block/pipe/power_junction",
+  "textures": {
+    "front": "logistics:block/pipe/power_junction_on"
+  }
+}

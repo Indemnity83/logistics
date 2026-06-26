@@ -1,0 +1,9 @@
+{
+  "parent": "minecraft:block/orientable_with_bottom",
+  "textures": {
+    "top": "logistics:block/core/machine_top",
+    "bottom": "logistics:block/core/machine_bottom",
+    "side": "logistics:block/core/machine_side",
+    "front": "logistics:block/core/machine_side"
+  }
+}

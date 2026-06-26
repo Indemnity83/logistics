@@ -47,6 +47,7 @@
   "block.logistics.pipe.item_merger_pipe": "Item Merger Pipe",
   "block.logistics.pipe.item_passthrough_pipe": "Item Passthrough Pipe",
   "block.logistics.pipe.item_void_pipe": "Item Void Pipe",
+  "block.logistics.pipe.power_junction": "Power Junction",
   "block.logistics.pipe.stone_transport_pipe": "Stone Transport Pipe",
   "block.logistics.pipe.basic_logistics_pipe": "Basic Logistics Pipe",
   "block.logistics.pipe.provider_logistics_pipe": "Provider Logistics Pipe",

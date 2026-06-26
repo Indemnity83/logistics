@@ -8,7 +8,9 @@ import com.logistics.pipe.Pipe;
 import com.logistics.pipe.PipeApi;
 import com.logistics.pipe.PipeTypes;
 import com.logistics.pipe.block.PipeBlock;
+import com.logistics.pipe.block.PowerJunctionBlock;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
+import com.logistics.pipe.block.entity.PowerJunctionBlockEntity;
 import com.logistics.pipe.data.PipeDataComponents.WeatheringState;
 import com.logistics.pipe.item.MarkingFluidItem;
 import com.logistics.pipe.item.ModularPipeBlockItem;
@@ -91,6 +93,7 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
         public static Block CHASSIS_LOGISTICS_PIPE_MK3;
         public static Block CHASSIS_LOGISTICS_PIPE_MK4;
         public static Block CHASSIS_LOGISTICS_PIPE_MK5;
+        public static Block POWER_JUNCTION;
 
         private static Block.Properties pipeProps(Block.Properties props) {
             return props.mapColor(MapColor.NONE)
@@ -143,6 +146,8 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
                 props -> new PipeBlock(pipeProps(props), PipeTypes.CHASSIS_LOGISTICS_PIPE_MK4));
             CHASSIS_LOGISTICS_PIPE_MK5 = INSTANCE.registerBlockWithItem("chassis_logistics_pipe_mk5",
                 props -> new PipeBlock(pipeProps(props), PipeTypes.CHASSIS_LOGISTICS_PIPE_MK5));
+            POWER_JUNCTION = INSTANCE.registerBlockWithItem("power_junction",
+                props -> new PowerJunctionBlock(props.strength(3.0f).sound(SoundType.METAL)));
         }
     }
 
@@ -250,10 +255,13 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
 
     public static final class ENTITY {
         public static BlockEntityType<PipeBlockEntity> PIPE_BLOCK_ENTITY;
+        public static BlockEntityType<PowerJunctionBlockEntity> POWER_JUNCTION_BLOCK_ENTITY;
 
         private ENTITY() {}
 
         static void register() {
+            POWER_JUNCTION_BLOCK_ENTITY = INSTANCE.registerBlockEntity("power_junction",
+                PowerJunctionBlockEntity::new, BLOCK.POWER_JUNCTION);
             PIPE_BLOCK_ENTITY = INSTANCE.registerBlockEntity("pipe",
                 PipeBlockEntity::new,
                 BLOCK.STONE_TRANSPORT_PIPE,
@@ -435,6 +443,7 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
             LogisticsCore.CREATIVE.TAB.add(BLOCK.CHASSIS_LOGISTICS_PIPE_MK3);
             LogisticsCore.CREATIVE.TAB.add(BLOCK.CHASSIS_LOGISTICS_PIPE_MK4);
             LogisticsCore.CREATIVE.TAB.add(BLOCK.CHASSIS_LOGISTICS_PIPE_MK5);
+            LogisticsCore.CREATIVE.TAB.add(BLOCK.POWER_JUNCTION);
             LogisticsCore.CREATIVE.TAB.add(ITEM.BLANK_MODULE);
             LogisticsCore.CREATIVE.TAB.add(ITEM.ITEM_SINK_MODULE);
             LogisticsCore.CREATIVE.TAB.add(ITEM.POLYMORPHIC_SINK_MODULE);
