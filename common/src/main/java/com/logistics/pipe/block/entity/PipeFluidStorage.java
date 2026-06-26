@@ -56,6 +56,7 @@ public final class PipeFluidStorage implements IFluidStorage {
             return Collections.emptyList();
         }
         long nativeAmount = FluidUnits.mb(total);
+        long nativeCapacity = FluidUnits.mb(pipe.capacityMillibuckets());
         return List.of(new IFluidView() {
             @Override
             public IFluidKey resource() {
@@ -65,6 +66,11 @@ public final class PipeFluidStorage implements IFluidStorage {
             @Override
             public long amount() {
                 return nativeAmount;
+            }
+
+            @Override
+            public long capacity() {
+                return nativeCapacity;
             }
         });
     }

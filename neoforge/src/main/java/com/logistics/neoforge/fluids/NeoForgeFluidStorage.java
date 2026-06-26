@@ -71,9 +71,11 @@ public final class NeoForgeFluidStorage implements IFluidStorage {
                 continue;
             }
             IFluidKey key = NeoForgeFluidKey.of(resource);
+            long capacity = handler.getCapacityAsLong(i, resource);
             views.add(new IFluidView() {
                 @Override public IFluidKey resource() { return key; }
                 @Override public long amount() { return amount; }
+                @Override public long capacity() { return capacity; }
             });
         }
         return views;
@@ -130,6 +132,13 @@ public final class NeoForgeFluidStorage implements IFluidStorage {
             checkIndex(index);
             if (resource.isEmpty()) {
                 return 0;
+            }
+            // Report the live capacity backing the stored fluid when the resource matches;
+            // otherwise fall back to the room a fresh insert would find (0 for an incompatible fluid).
+            for (IFluidView view : storage.contents()) {
+                if (resource.equals(toResource(view.resource()))) {
+                    return view.capacity();
+                }
             }
             return storage.insert(NeoForgeFluidKey.of(resource), Integer.MAX_VALUE, true);
         }
