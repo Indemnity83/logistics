@@ -74,10 +74,10 @@ public class KilnBlockEntity extends MachineEntity {
 
     @Override
     protected void configure(MachineBuilder machine) {
-        // No demand provider: the Kiln is powered by adjacent capability push, not the pipe network.
         energy = machine.energy("energy")
                 .capacity(ENERGY_CAPACITY)
                 .maxInput(MAX_ENERGY_INPUT)
+                .providesDemand()
                 .build();
 
         var items = machine.items("inventory")
