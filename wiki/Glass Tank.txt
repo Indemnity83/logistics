@@ -25,7 +25,7 @@ The Glass Tank can be broken with any tool — it breaks almost instantly.
 
 === Crafting ===
 
-{{Grid Crafting Table
+{{Crafting|head=1|foot=1|showname=0
 |A1=Glass |B1=Glass |C1=Glass
 |A2=Glass |C2=Glass
 |A3=Glass |B3=Glass |C3=Glass
@@ -42,11 +42,7 @@ The Glass Tank stores '''16,000 mB (16 buckets)''' of one fluid type. It accepts
 
 Tanks placed in a vertical column form one logical reservoir whose capacity is the sum of all tanks, filling '''bottom-up'''. Stack several to build a tall reservoir — "scale is the feature," done as tileable blocks rather than a multiblock.
 
-=== Tips ===
-
-* Buffer the output of a [[Pump]] or [[Fluid Extractor Pipe]] before feeding it onward
-* Because each tank holds one fluid type, keep separate columns for different fluids
-* Use an [[Insertion Fluid Pipe]] or [[Merger Fluid Pipe]] to control how fluid enters the tank
+Buffer the output of a [[Pump]] or [[Fluid Extractor Pipe]] before feeding it onward, and because each tank holds one fluid type, keep separate columns for different fluids. Use an [[Insertion Fluid Pipe]] or [[Merger Fluid Pipe]] to control how fluid enters the tank.
 
 == Data values ==
 

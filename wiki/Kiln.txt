@@ -24,7 +24,7 @@ The Kiln is mined with a stone pickaxe or better; without one it drops nothing.
 
 === Crafting ===
 
-{{Grid Crafting Table
+{{Crafting|head=1|foot=1|showname=0
 |A1=Redstone |B1=Redstone |C1=Redstone
 |A2=Iron Ingot |B2=Machine Core |C2=Iron Ingot
 |A3=Iron Ingot |B3=Iron Ingot |C3=Iron Ingot

@@ -23,7 +23,7 @@ The Laser Quarry can be broken with any tool, though a pickaxe is fastest.
 
 === Crafting ===
 
-{{Grid Crafting Table
+{{Crafting|head=1|foot=1|showname=0
 |A1=Diamond Gear |B1=Diamond Gear |C1=Diamond Gear
 |A2=Iron Ingot |B2=Machine Core |C2=Iron Ingot
 |A3=Iron Ingot |B3=Iron Ingot |C3=Iron Ingot

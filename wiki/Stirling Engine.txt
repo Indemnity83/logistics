@@ -24,10 +24,10 @@ The Stirling Engine can be broken with any tool, though a pickaxe is fastest.
 
 === Crafting ===
 
-{{Grid Crafting Table
+{{Crafting|head=1|foot=1|showname=0
 |A1=Stone |B1=Stone |C1=Stone
-|A2=Stone Gear |B2=Glass |C2=Stone Gear
-|B3=Piston
+|B2=Glass
+|A3=Stone Gear |B3=Piston |C3=Stone Gear
 |Output=Stirling Engine
 }}
 

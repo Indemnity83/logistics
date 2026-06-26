@@ -24,7 +24,7 @@ The Macerator is mined with a stone pickaxe or better; without one it drops noth
 
 === Crafting ===
 
-{{Grid Crafting Table
+{{Crafting|head=1|foot=1|showname=0
 |A1=Flint |B1=Flint |C1=Flint
 |A2=Iron Ingot |B2=Machine Core |C2=Iron Ingot
 |A3=Iron Ingot |B3=Iron Ingot |C3=Iron Ingot

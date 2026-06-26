@@ -24,7 +24,7 @@ The Battery can be broken with any tool, though a pickaxe is fastest.
 
 === Crafting ===
 
-{{Grid Crafting Table
+{{Crafting|head=1|foot=1|showname=0
 |A1=Iron Nugget |B1=Brick |C1=Iron Nugget
 |A2=Brick |B2=Redstone Block |C2=Brick
 |B3=Brick

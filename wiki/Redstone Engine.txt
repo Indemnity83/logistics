@@ -25,10 +25,10 @@ The Redstone Engine is mined fastest with an axe, but breaks with any tool.
 
 === Crafting ===
 
-{{Grid Crafting Table
+{{Crafting|head=1|foot=1|showname=0
 |A1=Planks |B1=Planks |C1=Planks
-|A2=Wooden Gear |B2=Glass |C2=Wooden Gear
-|B3=Piston
+|B2=Glass
+|A3=Wooden Gear |B3=Piston |C3=Wooden Gear
 |Output=Redstone Engine
 }}
 
