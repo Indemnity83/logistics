@@ -1,3 +1,4 @@
+{{About|the standalone logistics pipe|the equivalent chassis module|Provider Module}}
 {{Block
 |image     = Grid Provider Logistics Pipe.png
 |type      = Block (Pipe)

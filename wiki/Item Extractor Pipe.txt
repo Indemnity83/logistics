@@ -1,3 +1,4 @@
+{{About|the standalone pipe|the equivalent chassis module|Extractor Module}}
 {{Block
 |image     = Grid Item Extractor Pipe.png
 |type      = Block (Pipe)

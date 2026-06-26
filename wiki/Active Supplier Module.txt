@@ -1,3 +1,4 @@
+{{About|the actively-requesting module|the standalone logistics pipe|Supplier Logistics Pipe|the passively-skimming module|Passive Supplier Module}}
 {{Item
 |image     = Grid Active Supplier Module.png
 |type      = Item (Module)
