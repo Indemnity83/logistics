@@ -1,4 +1,4 @@
-package com.logistics.automation.marker;
+package com.logistics.core.marker;
 
 import java.util.ArrayList;
 import java.util.HashSet;

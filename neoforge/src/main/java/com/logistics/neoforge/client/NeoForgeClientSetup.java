@@ -1,6 +1,7 @@
 package com.logistics.neoforge.client;
 
 import com.logistics.LogisticsAutomation;
+import com.logistics.LogisticsCore;
 import com.logistics.LogisticsFluid;
 import com.logistics.LogisticsPipe;
 import com.logistics.LogisticsPower;
@@ -25,7 +26,7 @@ import com.logistics.pipe.screen.SatelliteScreen;
 import com.logistics.pipe.screen.SinkScreen;
 import com.logistics.pipe.screen.SupplierScreen;
 import com.logistics.automation.render.LaserQuarryBlockEntityRenderer;
-import com.logistics.automation.render.MarkerBlockEntityRenderer;
+import com.logistics.core.render.MarkerBlockEntityRenderer;
 import com.logistics.core.lib.power.AbstractEngineBlockEntity.HeatStage;
 import com.logistics.core.lib.power.EngineHeatTint;
 import com.logistics.neoforge.NeoForgePacketRegistration;
@@ -118,7 +119,7 @@ public final class NeoForgeClientSetup {
                 LogisticsPipe.ENTITY.PIPE_BLOCK_ENTITY,
                 PipeBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(
-                LogisticsAutomation.ENTITY.MARKER_BLOCK_ENTITY,
+                LogisticsCore.ENTITY.MARKER_BLOCK_ENTITY,
                 MarkerBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(
                 LogisticsAutomation.ENTITY.LASER_QUARRY_BLOCK_ENTITY,

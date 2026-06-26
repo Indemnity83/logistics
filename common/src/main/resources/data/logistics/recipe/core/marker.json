@@ -13,7 +13,7 @@
     }
   },
   "result": {
-    "id": "logistics:automation/marker",
+    "id": "logistics:core/marker",
     "count": 2
   }
 }

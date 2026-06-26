@@ -5,7 +5,6 @@ import com.logistics.automation.macerator.MaceratorScreen;
 import com.logistics.automation.sawmill.SawmillScreen;
 import com.logistics.automation.render.ClientRenderCacheHooks;
 import com.logistics.automation.render.LaserQuarryBlockEntityRenderer;
-import com.logistics.automation.render.MarkerBlockEntityRenderer;
 import com.logistics.core.bootstrap.ClientDomainBootstrap;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
@@ -22,11 +21,7 @@ public final class LogisticsAutomationClient implements ClientDomainBootstrap {
     @Override
     public void initClient() {
         LOGGER.info("Registering automation (client)");
-        BlockEntityRendererRegistry.register(
-                LogisticsAutomation.ENTITY.MARKER_BLOCK_ENTITY, MarkerBlockEntityRenderer::new);
-        // Markers and the quarry frame use transparent torch-style textures and need the cutout layer;
-        // without it the inactive marker's transparent pixels render as a black cross.
-        BlockRenderLayerMap.INSTANCE.putBlock(LogisticsAutomation.BLOCK.MARKER, RenderType.cutout());
+        // The quarry frame uses a transparent torch-style texture and needs the cutout layer.
         BlockRenderLayerMap.INSTANCE.putBlock(LogisticsAutomation.BLOCK.LASER_QUARRY_FRAME, RenderType.cutout());
 
         BlockEntityRendererRegistry.register(

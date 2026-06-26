@@ -1,7 +1,7 @@
-package com.logistics.automation.render;
+package com.logistics.core.render;
 
-import com.logistics.automation.marker.MarkerBlockEntity;
-import com.logistics.automation.marker.MarkerManager;
+import com.logistics.core.marker.MarkerBlockEntity;
+import com.logistics.core.marker.MarkerManager;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;

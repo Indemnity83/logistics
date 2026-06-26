@@ -1,4 +1,4 @@
-package com.logistics.automation.marker;
+package com.logistics.core.marker;
 
 import com.logistics.core.lib.block.behavior.WrenchBehavior;
 import com.mojang.serialization.MapCodec;
