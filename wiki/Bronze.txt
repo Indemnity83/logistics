@@ -17,4 +17,10 @@
 
 {{Disambig}}
 
+== See also ==
+
+* [[Apatite]], [[Tin]] — other material families
+* [[Materials]] — all crafting components
+* [[Machine Core]], [[Sturdy Casing]] — machine components made from bronze
+
 [[Category:Materials]]

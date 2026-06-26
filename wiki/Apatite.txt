@@ -14,4 +14,10 @@
 
 {{Disambig}}
 
+== See also ==
+
+* [[Bronze]], [[Tin]] — other material families
+* [[Materials]] — all crafting components
+* [[Macerator]] — grinds apatite into [[Apatite Dust]]
+
 [[Category:Materials]]
