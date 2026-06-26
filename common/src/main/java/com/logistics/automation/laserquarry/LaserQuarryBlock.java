@@ -3,7 +3,7 @@ package com.logistics.automation.laserquarry;
 import com.logistics.automation.laserquarry.entity.LaserQuarryBlockEntity;
 import com.logistics.core.LogisticsConfig;
 import com.logistics.LogisticsAutomation;
-import com.logistics.automation.marker.MarkerManager;
+import com.logistics.core.marker.MarkerManager;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.block.Block;
