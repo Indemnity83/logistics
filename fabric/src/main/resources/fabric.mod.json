@@ -17,7 +17,10 @@
   "entrypoints": {
     "client": ["com.logistics.LogisticsModClient"],
     "main": ["com.logistics.fabric.LogisticsFabric"],
-    "jei_mod_plugin": ["com.logistics.automation.macerator.jei.MaceratorJeiPlugin"],
+    "jei_mod_plugin": [
+      "com.logistics.automation.macerator.jei.MaceratorJeiPlugin",
+      "com.logistics.automation.sawmill.jei.SawmillJeiPlugin"
+    ],
     "jade": ["com.logistics.compat.jade.JadeLogisticsPlugin"]
   },
   "environment": "*",
