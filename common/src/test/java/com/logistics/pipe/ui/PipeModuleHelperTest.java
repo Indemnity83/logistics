@@ -128,6 +128,9 @@ class PipeModuleHelperTest extends MinecraftTestEnvironment {
         public void markDirty() {}
 
         @Override
+        public void invalidateConnectionCache() {}
+
+        @Override
         public PipeConnection.Type getCachedConnectionType(Direction direction) {
             return PipeConnection.Type.NONE;
         }
