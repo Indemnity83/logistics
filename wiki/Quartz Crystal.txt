@@ -1,3 +1,4 @@
+{{About|the smelted crystal|the ground dust|Quartz Dust}}
 {{Item
 |image     = Grid Quartz Crystal.png
 |type      = Item (Crystal)

@@ -1,3 +1,4 @@
+{{About|the fluid pipe|the item-transport version|Golden Transport Pipe}}
 {{Block
 |image     = Grid Golden Fluid Pipe.png
 |type      = Block (Pipe)

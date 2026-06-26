@@ -1,4 +1,4 @@
-{{About|the raw mineral block|the raw item|Raw Tin|the ingot block|Block of Tin|the metal in general|Tin}}
+{{About|the raw mineral block|the raw item|Raw Tin|the ingot block|Block of Tin|the dust|Tin Dust|the metal in general|Tin}}
 {{Block
 |image     = Grid Raw Tin Block.png
 |type      = Block

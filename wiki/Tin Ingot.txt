@@ -1,4 +1,4 @@
-{{About|the ingot|the ore|Tin Ore|the mineral block|Block of Tin|the nugget|Tin Nugget|the raw mineral|Raw Tin}}
+{{About|the ingot|the ore|Tin Ore|the mineral block|Block of Tin|the nugget|Tin Nugget|the raw mineral|Raw Tin|the dust|Tin Dust|the metal in general|Tin}}
 {{Item
 |image     = Grid Tin Ingot.png
 |type      = Item

@@ -1,3 +1,4 @@
+{{About|the dust|the gem|Apatite (gem)|the ore|Apatite Ore|the mineral block|Block of Apatite|the material in general|Apatite}}
 {{Item
 |image     = Grid Apatite Dust.png
 |type      = Item (Dust)

@@ -1,4 +1,4 @@
-{{About|the ingot|the storage block|Block of Bronze|the nugget|Bronze Nugget|the metal in general|Bronze}}
+{{About|the ingot|the storage block|Block of Bronze|the nugget|Bronze Nugget|the dust|Bronze Dust|the metal in general|Bronze}}
 {{Item
 |image     = Grid Bronze Ingot.png
 |type      = Item (Alloy)

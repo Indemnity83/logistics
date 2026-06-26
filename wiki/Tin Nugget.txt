@@ -1,4 +1,4 @@
-{{About|the nugget|the ingot|Tin Ingot|the mineral block|Block of Tin|the metal in general|Tin}}
+{{About|the nugget|the ingot|Tin Ingot|the mineral block|Block of Tin|the dust|Tin Dust|the metal in general|Tin}}
 {{Item
 |image     = Grid Tin Nugget.png
 |type      = Item

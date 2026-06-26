@@ -1,3 +1,4 @@
+{{About|the macerated dust|the module chip|Amethyst Chip}}
 {{Item
 |image     = Grid Amethyst Dust.png
 |type      = Item (Dust)

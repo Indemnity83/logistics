@@ -1,4 +1,4 @@
-{{About|the ore|the gem|Apatite (gem)|the mineral block|Block of Apatite|the metal in general|Apatite}}
+{{About|the ore|the gem|Apatite (gem)|the mineral block|Block of Apatite|the dust|Apatite Dust|the material in general|Apatite}}
 {{Block
 |image     = Grid Apatite Ore.png
 |type      = Ore

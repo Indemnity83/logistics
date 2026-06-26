@@ -1,4 +1,4 @@
-{{About|the mineral block|the ingot|Bronze Ingot|the nugget|Bronze Nugget|the metal in general|Bronze}}
+{{About|the mineral block|the ingot|Bronze Ingot|the nugget|Bronze Nugget|the dust|Bronze Dust|the metal in general|Bronze}}
 {{Block
 |image     = Grid Bronze Block.png
 |type      = Block

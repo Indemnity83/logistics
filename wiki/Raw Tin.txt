@@ -1,4 +1,4 @@
-{{About|the raw item|the ore|Tin Ore|the ingot|Tin Ingot|the storage block|Block of Raw Tin|the metal in general|Tin}}
+{{About|the raw item|the ore|Tin Ore|the ingot|Tin Ingot|the storage block|Block of Raw Tin|the dust|Tin Dust|the metal in general|Tin}}
 {{Item
 |image     = Grid Raw Tin.png
 |type      = Item

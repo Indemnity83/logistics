@@ -1,3 +1,4 @@
+{{About|the macerated dust|the module chip|Echo Chip}}
 {{Item
 |image     = Grid Echo Dust.png
 |type      = Item (Dust)

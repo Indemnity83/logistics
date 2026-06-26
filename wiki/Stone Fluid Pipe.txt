@@ -1,3 +1,4 @@
+{{About|the fluid pipe|the item-transport version|Stone Transport Pipe}}
 {{Block
 |image     = Grid Stone Fluid Pipe.png
 |type      = Block (Pipe)

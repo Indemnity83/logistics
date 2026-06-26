@@ -1,3 +1,4 @@
+{{About|the dust|the ore|Tin Ore|the ingot|Tin Ingot|the nugget|Tin Nugget|the storage block|Block of Tin|the raw item|Raw Tin|the metal in general|Tin}}
 {{Item
 |image     = Grid Tin Dust.png
 |type      = Item (Dust)

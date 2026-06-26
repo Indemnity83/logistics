@@ -1,3 +1,4 @@
+{{About|the fluid pipe|the item-transport version|Copper Transport Pipe}}
 {{Block
 |image     = Grid Copper Fluid Pipe.png
 |type      = Block (Pipe)
