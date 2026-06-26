@@ -174,6 +174,13 @@ public class PowerJunctionGameTest {
                 context.fail("Pipe should have a block entity");
                 return;
             }
+            // The quarry must actually be connected (as PIPE for item I/O) — otherwise the
+            // "not a power link" check below would pass simply because nothing is connected.
+            PipeConnection.Type quarryConnection = pipe.getCachedConnectionType(Direction.DOWN);
+            if (quarryConnection != PipeConnection.Type.PIPE) {
+                context.fail("Pipe should connect to the quarry as PIPE for item I/O, got " + quarryConnection);
+                return;
+            }
             int mask = pipe.getPoweredArmMask();
             if ((mask & bit(Direction.EAST)) == 0) {
                 context.fail("Junction-facing arm should be powered (confirms the network has power)");
