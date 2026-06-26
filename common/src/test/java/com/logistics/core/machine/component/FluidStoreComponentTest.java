@@ -37,6 +37,7 @@ class FluidStoreComponentTest extends MinecraftTestEnvironment {
 
         CompoundTag tag = new CompoundTag();
         writer.save(tag, registries);
+        assertThat(tag.contains("fluid")).isTrue(); // lock the persisted NBT key
 
         FluidStoreComponent reader = store();
         reader.load(tag, registries);
