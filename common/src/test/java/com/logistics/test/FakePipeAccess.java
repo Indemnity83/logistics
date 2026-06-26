@@ -63,6 +63,11 @@ public class FakePipeAccess implements IPipeAccess {
     }
 
     @Override
+    public void invalidateConnectionCache() {
+        // no-op in tests
+    }
+
+    @Override
     public PipeConnection.Type getCachedConnectionType(Direction direction) {
         return connections.getOrDefault(direction, PipeConnection.Type.NONE);
     }
