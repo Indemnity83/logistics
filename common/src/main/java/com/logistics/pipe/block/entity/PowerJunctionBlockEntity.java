@@ -43,7 +43,6 @@ public class PowerJunctionBlockEntity extends MachineEntity implements PipeConne
                 .capacity(CAPACITY)
                 .maxInput(MAX_INPUT)
                 .maxOutput(MAX_OUTPUT)
-                .providesDemand()
                 .build();
         networkSource = machine.add(new NetworkEnergySourceComponent("network"));
     }
