@@ -12,8 +12,10 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Energy buffer component wrapping the loader-agnostic {@link EnergyComponent} holder.
  *
- * <p>Optionally tracks energy received this tick and reports it as network demand, mirroring the
- * tracking-storage pattern that machines like the Macerator use today. Demand and received-tick
+ * <p>Reports power-network demand derived from the buffer itself — the remaining per-tick input
+ * ({@code maxInsert}) minus what was already received this tick, clamped to free room. A buffer with
+ * {@code maxInsert > 0} therefore pulls from the cable network automatically; a machine opts out of
+ * network power simply by not accepting input ({@code maxInsert == 0}). Demand and received-tick
  * tracking require this component to tick before any work component that spends energy — which the
  * host guarantees by registration order.
  */
@@ -25,8 +27,6 @@ public final class EnergyStorageComponent implements MachineComponent, MachineCo
     private final EnergyComponent storage;
     private final long capacity;
     private final long maxInsert;
-    private final boolean trackReceived;
-    private final boolean exposeDemand;
 
     private long receivedThisTick;
     private long receivedLastTick;
@@ -35,7 +35,7 @@ public final class EnergyStorageComponent implements MachineComponent, MachineCo
         @Override
         public long insert(long maxAmount, boolean simulate) {
             long inserted = storage.insert(maxAmount, simulate);
-            if (trackReceived && !simulate && inserted > 0) {
+            if (!simulate && inserted > 0) {
                 receivedThisTick += inserted;
             }
             return inserted;
@@ -68,19 +68,11 @@ public final class EnergyStorageComponent implements MachineComponent, MachineCo
     };
 
     public EnergyStorageComponent(
-            String id,
-            long capacity,
-            long maxInsert,
-            long maxExtract,
-            boolean trackReceived,
-            boolean exposeDemand,
-            Runnable onChanged) {
+            String id, long capacity, long maxInsert, long maxExtract, Runnable onChanged) {
         this.id = id;
         this.storage = new EnergyComponent(capacity, maxInsert, maxExtract, onChanged);
         this.capacity = capacity;
         this.maxInsert = maxInsert;
-        this.trackReceived = trackReceived;
-        this.exposeDemand = exposeDemand;
     }
 
     @Override
@@ -94,7 +86,7 @@ public final class EnergyStorageComponent implements MachineComponent, MachineCo
         receivedThisTick = 0;
     }
 
-    /** Energy received during the previous tick (for HUD readouts); requires {@code trackReceived}. */
+    /** Energy received during the previous tick (for HUD readouts). */
     public long receivedLastTick() {
         return receivedLastTick;
     }
@@ -107,9 +99,6 @@ public final class EnergyStorageComponent implements MachineComponent, MachineCo
 
     @Override
     public long networkDemandPerTick() {
-        if (!exposeDemand) {
-            return 0;
-        }
         long storageRoom = Math.max(0, capacity - storage.getAmount());
         long remainingInput = Math.max(0, maxInsert - receivedThisTick);
         return Math.min(remainingInput, storageRoom);
