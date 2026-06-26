@@ -249,6 +249,36 @@ class RecipeProcessorComponentTest extends MinecraftTestEnvironment {
     }
 
     @Test
+    void roundsFractionalExperienceUpAfterReload() {
+        // Probe the seeded RNG's first roll so we can bank a fraction guaranteed to round up,
+        // making the rounding branch in drainExperience deterministic.
+        final long seed = 42L;
+        float roll = net.minecraft.util.RandomSource.create(seed).nextFloat();
+        float fraction = (roll + 1.0f) / 2.0f; // strictly between roll and 1 -> always rounds up
+        float experience = 2.0f + fraction;
+
+        FakeProcessIO io = new FakeProcessIO();
+        io.energy = 1_000;
+        RecipePlan plan = new RecipePlan(20, 1, new ItemStack(Items.IRON_INGOT), List.of(), experience);
+        RecipeProcessorComponent processor = processor(io, plan, 10);
+        FakeMachineContext ctx = new FakeMachineContext();
+
+        processor.serverTick(ctx);
+        processor.serverTick(ctx); // complete, banks a fractional XP amount
+
+        net.minecraft.nbt.CompoundTag tag = new net.minecraft.nbt.CompoundTag();
+        processor.save(tag, null);
+        assertThat(tag.contains("storedExperience")).isTrue();
+
+        RecipeProcessorComponent reloaded = processor(new FakeProcessIO(), plan, 10);
+        reloaded.load(tag, null);
+
+        // 2 whole points + a fraction that beats the seeded roll -> 3 (rounding branch, not truncation).
+        assertThat(reloaded.drainExperience(net.minecraft.util.RandomSource.create(seed))).isEqualTo(3);
+        assertThat(reloaded.drainExperience(net.minecraft.util.RandomSource.create(seed))).isZero();
+    }
+
+    @Test
     void stallsUntilInputCountIsAvailable() {
         FakeProcessIO io = new FakeProcessIO();
         io.energy = 1_000;
