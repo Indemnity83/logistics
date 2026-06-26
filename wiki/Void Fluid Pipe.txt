@@ -1,3 +1,4 @@
+{{About|the fluid-void pipe|the item version|Item Void Pipe}}
 {{Block
 |image     = Grid Void Fluid Pipe.png
 |type      = Block (Pipe)

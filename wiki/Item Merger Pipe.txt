@@ -1,3 +1,4 @@
+{{About|the item-merging pipe|the fluid version|Merger Fluid Pipe}}
 {{Block
 |image     = Grid Item Merger Pipe.png
 |type      = Block (Pipe)

@@ -1,3 +1,4 @@
+{{About|the item-insertion pipe|the fluid version|Insertion Fluid Pipe}}
 {{Block
 |image     = Grid Item Insertion Pipe.png
 |type      = Block (Pipe)

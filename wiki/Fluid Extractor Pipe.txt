@@ -1,3 +1,4 @@
+{{About|the fluid-extraction pipe|the item version|Item Extractor Pipe}}
 {{Block
 |image     = Grid Fluid Extractor Pipe.png
 |type      = Block (Pipe)
