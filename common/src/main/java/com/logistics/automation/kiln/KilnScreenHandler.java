@@ -1,6 +1,7 @@
 package com.logistics.automation.kiln;
 
 import com.logistics.LogisticsAutomation;
+import com.logistics.core.lib.block.MachineResultSlot;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
@@ -42,12 +43,8 @@ public class KilnScreenHandler extends AbstractContainerMenu {
 
         this.addSlot(new Slot(inventory, KilnBlockEntity.INPUT_SLOT, 56, 35));
 
-        this.addSlot(new Slot(inventory, KilnBlockEntity.OUTPUT_SLOT, 116, 35) {
-            @Override
-            public boolean mayPlace(ItemStack stack) {
-                return false;
-            }
-        });
+        // Output slot (1) — no insertion; releases banked smelting XP to the player on take
+        this.addSlot(new MachineResultSlot(inventory, KilnBlockEntity.OUTPUT_SLOT, 116, 35));
 
         for (int row = 0; row < 3; row++) {
             for (int col = 0; col < 9; col++) {

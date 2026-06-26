@@ -1,10 +1,13 @@
 package com.logistics.core.lib.block;
 
 import com.logistics.core.lib.block.behavior.MenuBehavior;
+import com.logistics.core.lib.block.capability.HasExperienceStorage;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -15,6 +18,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,6 +44,19 @@ public abstract class MachineBlock extends BaseEntityBlock {
     @Override
     protected RenderShape getRenderShape(BlockState blockState) {
         return RenderShape.MODEL;
+    }
+
+    @Override
+    public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
+        // Release banked processing experience (furnace-style) before the block entity is gone.
+        if (level instanceof ServerLevel serverLevel
+                && serverLevel.getBlockEntity(pos) instanceof HasExperienceStorage xpStore) {
+            int xp = xpStore.drainExperience(serverLevel.getRandom());
+            if (xp > 0) {
+                ExperienceOrb.award(serverLevel, Vec3.atCenterOf(pos), xp);
+            }
+        }
+        return super.playerWillDestroy(level, pos, state, player);
     }
 
     @Override
