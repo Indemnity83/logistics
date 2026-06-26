@@ -1,5 +1,5 @@
 {
-  "parent": "logistics:block/automation/machine",
+  "parent": "logistics:block/core/machine",
   "textures": {
     "front": "logistics:block/automation/sawmill_off"
   }
