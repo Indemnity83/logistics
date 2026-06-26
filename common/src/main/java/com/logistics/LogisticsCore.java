@@ -276,7 +276,6 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         public static BlockEntityType<MarkerBlockEntity> MARKER_BLOCK_ENTITY;
 
         static void register() {
-            // Macerator block entity now registered in LogisticsAutomation (moved to the automation domain).
             MARKER_BLOCK_ENTITY = INSTANCE.registerBlockEntity("marker", MarkerBlockEntity::new, BLOCK.MARKER);
         }
     }
