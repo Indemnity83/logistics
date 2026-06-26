@@ -6,6 +6,8 @@ import com.logistics.core.item.WrenchItem;
 import com.logistics.core.lib.platform.LogisticsCreativeTab;
 import com.logistics.core.lib.platform.CreativeTabRegistrar;
 import com.logistics.core.lib.resource.ResourceId;
+import com.logistics.core.marker.MarkerBlock;
+import com.logistics.core.marker.MarkerBlockEntity;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.CreativeModeTabs;
@@ -15,6 +17,7 @@ import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.DropExperienceBlock;
 import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 
 public final class LogisticsCore extends LogisticsMod implements DomainBootstrap {
     private static final LogisticsCore INSTANCE = new LogisticsCore();
@@ -59,6 +62,7 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         public static Block APATITE_ORE;
         public static Block APATITE_BLOCK;
         public static Block QUARTZ_CRYSTAL;
+        public static Block MARKER;
 
         private BLOCK() {}
 
@@ -84,6 +88,9 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
                 props -> new Block(props.strength(5.0f, 6.0f).sound(SoundType.STONE).requiresCorrectToolForDrops()));
             QUARTZ_CRYSTAL = INSTANCE.registerBlockWithItem("quartz_crystal",
                 props -> new Block(props.strength(0.8f).sound(SoundType.GLASS).noOcclusion()));
+
+            MARKER = INSTANCE.registerBlockWithItem("marker",
+                props -> new MarkerBlock(props.strength(0.0f).sound(SoundType.WOOD).noCollision()));
         }
     }
 
@@ -266,8 +273,10 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
     public static final class ENTITY {
         private ENTITY() {}
 
+        public static BlockEntityType<MarkerBlockEntity> MARKER_BLOCK_ENTITY;
+
         static void register() {
-            // Macerator block entity now registered in LogisticsAutomation (moved to the automation domain).
+            MARKER_BLOCK_ENTITY = INSTANCE.registerBlockEntity("marker", MarkerBlockEntity::new, BLOCK.MARKER);
         }
     }
 
@@ -283,6 +292,7 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         static void register() {
             TAB.add(ITEM.WRENCH);
             TAB.add(BLOCK.QUARTZ_CRYSTAL);
+            TAB.add(BLOCK.MARKER);
 
             // Register the tab — populate() is lazy, so other domains can still add items after this
             CreativeTabRegistrar.INSTANCE.registerTab(TAB);
@@ -385,6 +395,11 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         static void register() {
             // Wood Pulp renamed to Sawdust; old recipes/worlds resolve to the new item.
             INSTANCE.registerItemAlias("core/wood_pulp", ITEM.SAWDUST);
+
+            // Marker moved from the automation domain to core; bridge the previous-major (0.6.x) IDs.
+            INSTANCE.registerBlockAlias("automation/marker", BLOCK.MARKER);
+            INSTANCE.registerBlockEntityAlias("automation/marker", ENTITY.MARKER_BLOCK_ENTITY);
+            INSTANCE.registerItemAlias("automation/marker", BLOCK.MARKER.asItem());
         }
     }
 }

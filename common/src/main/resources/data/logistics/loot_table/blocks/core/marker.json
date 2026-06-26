@@ -8,7 +8,7 @@
       ],
       "entries": [
         {
-          "name": "logistics:automation/marker",
+          "name": "logistics:core/marker",
           "type": "minecraft:item"
         }
       ],

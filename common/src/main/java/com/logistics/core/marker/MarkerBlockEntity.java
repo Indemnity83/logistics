@@ -1,6 +1,6 @@
-package com.logistics.automation.marker;
+package com.logistics.core.marker;
 
-import com.logistics.LogisticsAutomation;
+import com.logistics.LogisticsCore;
 import com.logistics.core.lib.block.BaseBlockEntity;
 import com.logistics.core.lib.compat.NbtCompat;
 import java.util.ArrayList;
@@ -27,7 +27,7 @@ public class MarkerBlockEntity extends BaseBlockEntity {
     private boolean isCornerMarker = false;
 
     public MarkerBlockEntity(BlockPos pos, BlockState state) {
-        super(LogisticsAutomation.ENTITY.MARKER_BLOCK_ENTITY, pos, state);
+        super(LogisticsCore.ENTITY.MARKER_BLOCK_ENTITY, pos, state);
     }
 
     /**

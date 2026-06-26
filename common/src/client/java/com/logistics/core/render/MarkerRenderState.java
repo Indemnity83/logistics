@@ -1,4 +1,4 @@
-package com.logistics.automation.render;
+package com.logistics.core.render;
 
 import java.util.ArrayList;
 import java.util.List;
