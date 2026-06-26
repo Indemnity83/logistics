@@ -4,6 +4,7 @@ import com.logistics.core.lib.block.BaseBlockEntity;
 import com.logistics.core.lib.block.ProcessingMachine;
 import com.logistics.core.lib.block.behavior.MenuBehavior;
 import com.logistics.core.lib.block.capability.HasEnergyStorage;
+import com.logistics.core.lib.block.capability.HasExperienceStorage;
 import com.logistics.core.lib.block.capability.HasFluidStorage;
 import com.logistics.core.lib.block.capability.HasItemStorage;
 import com.logistics.core.lib.energy.IEnergyStorage;
@@ -41,7 +42,7 @@ import org.jetbrains.annotations.Nullable;
  */
 public abstract class MachineEntity extends BaseBlockEntity
         implements MachineContext, HasItemStorage, HasEnergyStorage, HasFluidStorage,
-                WorldlyContainer, MenuBehavior.HasMenu, EnergyDemandProvider, ProcessingMachine {
+                HasExperienceStorage, WorldlyContainer, MenuBehavior.HasMenu, EnergyDemandProvider, ProcessingMachine {
 
     private static final int[] NO_SLOTS = new int[0];
 
@@ -87,6 +88,11 @@ public abstract class MachineEntity extends BaseBlockEntity
     @Override
     public long networkDemandPerTick() {
         return components.find(MachineComponent.Demand.class).map(MachineComponent.Demand::networkDemandPerTick).orElse(0L);
+    }
+
+    @Override
+    public int drainExperience(RandomSource random) {
+        return components.find(MachineComponent.ExperienceStore.class).map(s -> s.drainExperience(random)).orElse(0);
     }
 
     @Override

@@ -7,11 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -22,7 +19,8 @@ import org.jetbrains.annotations.Nullable;
  * <p>The pure spend/complete decision lives in {@link RecipeProcessPlan} for unit-testing; this
  * class wires it to sibling item/energy components and toggles the machine's "lit" state.
  */
-public final class RecipeProcessorComponent implements MachineComponent, MachineComponent.ProcessState {
+public final class RecipeProcessorComponent
+        implements MachineComponent, MachineComponent.ProcessState, MachineComponent.ExperienceStore {
 
     /** Toggles the machine's working/lit block state. */
     @FunctionalInterface
@@ -38,6 +36,7 @@ public final class RecipeProcessorComponent implements MachineComponent, Machine
     private final Runnable onChanged;
 
     private long energySpent;
+    private float storedExperience;
     @Nullable
     private RecipePlan activePlan;
 
@@ -106,7 +105,9 @@ public final class RecipeProcessorComponent implements MachineComponent, Machine
         if (result.complete()) {
             io.consumeInput(plan.inputCount());
             io.produceOutputs(plan.result(), rollByproducts(plan.byproducts(), ctx.random()));
-            awardExperience(ctx, plan.experience());
+            if (plan.experience() > 0) {
+                storedExperience += plan.experience();
+            }
             energySpent = 0;
             activePlan = null;
         }
@@ -135,17 +136,15 @@ public final class RecipeProcessorComponent implements MachineComponent, Machine
                 && ItemStack.isSameItemSameComponents(a.result(), b.result());
     }
 
-    private void awardExperience(MachineContext ctx, float experience) {
-        if (experience <= 0 || !(ctx.level() instanceof ServerLevel serverLevel)) {
-            return;
-        }
-        int xp = (int) experience;
-        if (ctx.random().nextFloat() < (experience - xp)) {
+    @Override
+    public int drainExperience(RandomSource random) {
+        int xp = (int) storedExperience;
+        float fraction = storedExperience - xp;
+        if (fraction > 0 && random.nextFloat() < fraction) {
             xp++;
         }
-        if (xp > 0) {
-            ExperienceOrb.award(serverLevel, Vec3.atCenterOf(ctx.pos()), xp);
-        }
+        storedExperience = 0;
+        return xp;
     }
 
     // ----- ProcessState -----
@@ -180,11 +179,15 @@ public final class RecipeProcessorComponent implements MachineComponent, Machine
         if (energySpent > 0) {
             tag.putLong("energySpent", energySpent);
         }
+        if (storedExperience > 0) {
+            tag.putFloat("storedExperience", storedExperience);
+        }
     }
 
     @Override
     public void load(CompoundTag tag, HolderLookup.Provider registries) {
         energySpent = NbtCompat.getLong(tag, "energySpent", 0L);
+        storedExperience = NbtCompat.getFloat(tag, "storedExperience", 0f);
         // activePlan is re-resolved on the next tick.
     }
 
