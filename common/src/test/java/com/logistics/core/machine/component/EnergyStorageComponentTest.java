@@ -8,13 +8,13 @@ import org.junit.jupiter.api.Test;
 
 class EnergyStorageComponentTest extends MinecraftTestEnvironment {
 
-    private EnergyStorageComponent withDemand() {
-        return new EnergyStorageComponent("energy", 1_000, 128, 0, true, true, () -> {});
+    private EnergyStorageComponent buffer() {
+        return new EnergyStorageComponent("energy", 1_000, 128, 0, () -> {});
     }
 
     @Test
     void demandReflectsRoomAndRemainingInput() {
-        EnergyStorageComponent energy = withDemand();
+        EnergyStorageComponent energy = buffer();
 
         // Empty buffer: demand is limited by max input (128), not the 1000 of room.
         assertThat(energy.networkDemandPerTick()).isEqualTo(128);
@@ -22,7 +22,7 @@ class EnergyStorageComponentTest extends MinecraftTestEnvironment {
 
     @Test
     void receivedEnergyReducesDemandUntilTickReset() {
-        EnergyStorageComponent energy = withDemand();
+        EnergyStorageComponent energy = buffer();
         FakeMachineContext ctx = new FakeMachineContext();
 
         energy.energy(null).insert(50, false);
@@ -36,7 +36,7 @@ class EnergyStorageComponentTest extends MinecraftTestEnvironment {
 
     @Test
     void demandClampedByRemainingRoom() {
-        EnergyStorageComponent energy = new EnergyStorageComponent("energy", 100, 128, 0, true, true, () -> {});
+        EnergyStorageComponent energy = new EnergyStorageComponent("energy", 100, 128, 0, () -> {});
 
         energy.energy(null).insert(100, false); // fill to capacity
         energy.serverTick(new FakeMachineContext()); // clear received counter
@@ -44,14 +44,15 @@ class EnergyStorageComponentTest extends MinecraftTestEnvironment {
     }
 
     @Test
-    void demandIsZeroWhenNotExposed() {
-        EnergyStorageComponent energy = new EnergyStorageComponent("energy", 1_000, 128, 0, true, false, () -> {});
+    void demandIsZeroWhenInputDisabled() {
+        // A buffer that accepts no input (maxInsert == 0) reports no demand — the natural opt-out.
+        EnergyStorageComponent energy = new EnergyStorageComponent("energy", 1_000, 0, 0, () -> {});
         assertThat(energy.networkDemandPerTick()).isZero();
     }
 
     @Test
     void consumeReducesStoredEnergy() {
-        EnergyStorageComponent energy = withDemand();
+        EnergyStorageComponent energy = buffer();
         energy.energy(null).insert(100, false);
         energy.consume(30);
         assertThat(energy.amount()).isEqualTo(70);
