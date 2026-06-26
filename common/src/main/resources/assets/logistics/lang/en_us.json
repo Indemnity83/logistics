@@ -26,6 +26,7 @@
   "block.logistics.fluid.bypass_fluid_pipe": "Bypass Fluid Pipe",
   "block.logistics.fluid.glass_tank": "Glass Tank",
   "block.logistics.fluid.fluid_pump": "Fluid Pump",
+  "jei.logistics.sawmill.byproduct_chance": "%s%% chance",
   "tooltip.logistics.fluid.tank_capacity": "Holds %s buckets",
   "tooltip.logistics.fluid.tank_empty": "Empty",
   "tooltip.logistics.fluid.tank_contents": "%1$s: %2$s / %3$s mB",
