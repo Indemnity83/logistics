@@ -5,6 +5,7 @@ import com.logistics.automation.kiln.KilnBlock;
 import com.logistics.automation.laserquarry.LaserQuarryBlock;
 import com.logistics.core.lib.power.AbstractEngineBlock;
 import com.logistics.automation.macerator.MaceratorBlock;
+import com.logistics.automation.sawmill.SawmillBlock;
 import com.logistics.pipe.block.FluidPipeBlock;
 import com.logistics.pipe.block.PipeBlock;
 import com.logistics.power.block.CreativeSinkBlock;
@@ -21,8 +22,8 @@ import snownee.jade.api.WailaPlugin;
  * <p>Per-block content is added in stacked passes; see {@code EngineServerDataProvider} /
  * {@code EngineComponentProvider} for engines, {@code PowerInfra*Provider} for cables and the sink,
  * {@code QuarryServerDataProvider} / {@code QuarryComponentProvider} for the laser quarry,
- * {@code MachineServerDataProvider} / {@code MachineComponentProvider} for the macerator and kiln, and
- * {@code PipeComponentProvider} for pipes.
+ * {@code MachineServerDataProvider} / {@code MachineComponentProvider} for the macerator, kiln, and
+ * sawmill, and {@code PipeComponentProvider} for pipes.
  */
 @WailaPlugin(LogisticsMod.MOD_ID)
 public class JadeLogisticsPlugin implements IWailaPlugin {
@@ -34,6 +35,7 @@ public class JadeLogisticsPlugin implements IWailaPlugin {
         registration.registerBlockDataProvider(QuarryServerDataProvider.INSTANCE, LaserQuarryBlock.class);
         registration.registerBlockDataProvider(MachineServerDataProvider.INSTANCE, MaceratorBlock.class);
         registration.registerBlockDataProvider(MachineServerDataProvider.INSTANCE, KilnBlock.class);
+        registration.registerBlockDataProvider(MachineServerDataProvider.INSTANCE, SawmillBlock.class);
     }
 
     @Override
@@ -44,6 +46,7 @@ public class JadeLogisticsPlugin implements IWailaPlugin {
         registration.registerBlockComponent(QuarryComponentProvider.INSTANCE, LaserQuarryBlock.class);
         registration.registerBlockComponent(MachineComponentProvider.INSTANCE, MaceratorBlock.class);
         registration.registerBlockComponent(MachineComponentProvider.INSTANCE, KilnBlock.class);
+        registration.registerBlockComponent(MachineComponentProvider.INSTANCE, SawmillBlock.class);
         registration.registerBlockComponent(PipeComponentProvider.INSTANCE, PipeBlock.class);
         registration.registerBlockComponent(PipeComponentProvider.INSTANCE, FluidPipeBlock.class);
     }
