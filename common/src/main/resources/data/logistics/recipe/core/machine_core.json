@@ -1,10 +1,10 @@
 {
   "type": "minecraft:crafting_shaped",
-  "pattern": ["IGI", "GTG", "IGI"],
+  "pattern": ["IGI", "GBG", "IGI"],
   "key": {
     "I": "minecraft:iron_ingot",
     "G": "minecraft:glass",
-    "T": "logistics:core/tin_gear"
+    "B": "logistics:core/bronze_gear"
   },
   "result": { "id": "logistics:core/machine_core", "count": 1 }
 }
