@@ -13,7 +13,7 @@ Because it never requests, it adds no ordering load to the network and draws no 
 
 === Crafting ===
 
-{{Grid Crafting Table
+{{Crafting|head=1|foot=1|showname=0
 |A1=Emerald Dust |B1=Redstone Chip |C1=Emerald Dust
 |A2=Redstone |B2=Blank Module |C2=Redstone
 |Output=Passive Supplier Module
@@ -32,10 +32,7 @@ When installed in a [[Chassis Logistics Pipe]], this module registers as a netwo
 
 Configure the items and target quantities via the module GUI in the chassis (use a [[Wrench]]).
 
-=== Tips ===
-
-* Use for backup stockpiles or low-priority storage that fills opportunistically from network traffic.
-* Pair with an [[Active Supplier Module]] when you need guaranteed replenishment rather than opportunistic fills.
+Use it for backup stockpiles or low-priority storage that fills opportunistically from network traffic, and reach for an [[Active Supplier Module]] instead when you need guaranteed replenishment rather than opportunistic fills.
 
 == Data values ==
 

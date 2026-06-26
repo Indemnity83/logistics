@@ -11,7 +11,7 @@ The '''Quicksort Module''' is a [[Chassis Logistics Pipe]] module that '''automa
 
 === Crafting ===
 
-{{Grid Crafting Table
+{{Crafting|head=1|foot=1|showname=0
 |A1=Diamond Dust |B1=Echo Chip |C1=Diamond Dust
 |A2=Redstone |B2=Blank Module |C2=Redstone
 |Output=Quicksort Module
@@ -26,11 +26,7 @@ When installed in a [[Chassis Logistics Pipe]], the Quicksort Module intercepts 
 * Requires [[Provider Logistics Pipe|Provider Logistics Pipes]] nearby to know where items are stored.
 * Items with no existing storage destination fall through to the default route.
 
-=== Tips ===
-
-* Place in a chassis near your main storage array — items passing through will be sorted as they arrive.
-* Works best when paired with a well-organized storage system where each inventory type stores one item category.
-* If an item has no existing home, it may land on the default route — add an [[Item Sink Module]] as a fallback.
+Place it in a chassis near your main storage array so items are sorted as they arrive; it works best with a well-organized system where each inventory holds one item category. Add an [[Item Sink Module]] as a fallback so items with no existing home don't simply land on the default route.
 
 == Data values ==
 

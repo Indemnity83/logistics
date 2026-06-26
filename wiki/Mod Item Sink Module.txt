@@ -11,7 +11,7 @@ The '''Mod Item Sink Module''' is a [[Chassis Logistics Pipe]] module that accep
 
 === Crafting ===
 
-{{Grid Crafting Table
+{{Crafting|head=1|foot=1|showname=0
 |A1=Copper Dust |B1=Redstone Chip |C1=Copper Dust
 |A2=Redstone |B2=Blank Module |C2=Redstone
 |Output=Mod Item Sink Module
@@ -32,11 +32,7 @@ Use a [[Wrench]] to open the chassis GUI, then configure the module:
 
 '''Mod namespace field:''' Enter the mod ID of the mod whose items this module should accept (e.g., <code>logistics</code>, <code>minecraft</code>, <code>create</code>).
 
-=== Tips ===
-
-* Particularly useful in large modpacks for keeping mod-specific resources organized in dedicated storage areas.
-* Combine multiple Mod Item Sink Modules in one chassis to route items from several mods simultaneously.
-* Use alongside an [[Item Sink Module]] to handle specific items and a Mod Item Sink for broader catch-all routing.
+It is most useful in large modpacks for keeping a mod's resources together in dedicated storage. Combine several in one chassis to route items from multiple mods at once, or pair one with an [[Item Sink Module]] so specific items are handled separately from the broader catch-all.
 
 == Data values ==
 

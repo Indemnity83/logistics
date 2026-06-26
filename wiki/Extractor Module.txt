@@ -11,29 +11,14 @@ The '''Extractor Module''' is a [[Chassis Logistics Pipe]] module that actively 
 
 === Crafting ===
 
-==== Extractor Module (MK1) ====
+The three marks share a recipe, differing only by the [[Chips|chip]] — higher marks extract faster or in larger quantities:
 
-{{Grid Crafting Table
-|A1=Wood Pulp |B1=Redstone Chip |C1=Wood Pulp
-|A2=Redstone |B2=Blank Module |C2=Redstone
-|Output=Extractor Module
-}}
-
-==== Extractor MkII Module ====
-
-{{Grid Crafting Table
-|A1=Wood Pulp |B1=Amethyst Chip |C1=Wood Pulp
-|A2=Redstone |B2=Blank Module |C2=Redstone
-|Output=Extractor MkII Module
-}}
-
-==== Extractor MkIII Module ====
-
-{{Grid Crafting Table
-|A1=Wood Pulp |B1=Echo Chip |C1=Wood Pulp
-|A2=Redstone |B2=Blank Module |C2=Redstone
-|Output=Extractor MkIII Module
-}}
+{{Crafting|head=1|showdescription=1
+|name=Extractor Module |A1=Wood Pulp |B1=Redstone Chip |C1=Wood Pulp |A2=Redstone |B2=Blank Module |C2=Redstone |Output=Extractor Module |description=MK1 — uses a [[Redstone Chip]].}}
+{{Crafting
+|name=Extractor MkII Module |A1=Wood Pulp |B1=Amethyst Chip |C1=Wood Pulp |A2=Redstone |B2=Blank Module |C2=Redstone |Output=Extractor MkII Module |description=MK2 — uses an [[Amethyst Chip]].}}
+{{Crafting|foot=1
+|name=Extractor MkIII Module |A1=Wood Pulp |B1=Echo Chip |C1=Wood Pulp |A2=Redstone |B2=Blank Module |C2=Redstone |Output=Extractor MkIII Module |description=MK3 — uses an [[Echo Chip]].}}
 
 == Usage ==
 
@@ -44,23 +29,7 @@ When installed in a [[Chassis Logistics Pipe]], this module pulls items from an 
 * Higher mark variants extract faster or in larger quantities per tick.
 * Can be configured to route extracted items to a specific network destination.
 
-=== Variants ===
-
-{| class="wikitable"
-! Variant !! Chip !! Notes
-|-
-| Extractor Module (MK1) || Redstone Chip || Standard extraction speed
-|-
-| Extractor MkII Module || Amethyst Chip || Faster extraction or larger stack sizes
-|-
-| Extractor MkIII Module || Echo Chip || Highest extraction throughput
-|}
-
-=== Tips ===
-
-* Pair with a [[Provider Module]] in the same chassis to both extract and advertise from one inventory.
-* Configure the item filter to ensure only the right items leave a mixed-content chest.
-* MK3 is ideal for high-output machines (blast furnaces, high-tier kilns) that produce items faster than MK1 can handle.
+Pair it with a [[Provider Module]] in the same chassis to both extract from and advertise one inventory, and set the item filter so only the right items leave a mixed-content chest. The higher marks suit high-output machines (blast furnaces, high-tier kilns) that produce items faster than an MK1 can keep up with.
 
 == Data values ==
 

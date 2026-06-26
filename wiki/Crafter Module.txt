@@ -11,29 +11,14 @@ The '''Crafter Module''' is a [[Chassis Logistics Pipe]] module that enables '''
 
 === Crafting ===
 
-==== Crafter Module (MK1) ====
+The three marks share a recipe, differing only by the [[Chips|chip]] — higher marks handle more demanding crafting workloads:
 
-{{Grid Crafting Table
-|A1=Bronze Dust |B1=Redstone Chip |C1=Bronze Dust
-|A2=Redstone |B2=Blank Module |C2=Redstone
-|Output=Crafter Module
-}}
-
-==== Crafter MkII Module ====
-
-{{Grid Crafting Table
-|A1=Bronze Dust |B1=Amethyst Chip |C1=Bronze Dust
-|A2=Redstone |B2=Blank Module |C2=Redstone
-|Output=Crafter MkII Module
-}}
-
-==== Crafter MkIII Module ====
-
-{{Grid Crafting Table
-|A1=Bronze Dust |B1=Echo Chip |C1=Bronze Dust
-|A2=Redstone |B2=Blank Module |C2=Redstone
-|Output=Crafter MkIII Module
-}}
+{{Crafting|head=1|showdescription=1
+|name=Crafter Module |A1=Bronze Dust |B1=Redstone Chip |C1=Bronze Dust |A2=Redstone |B2=Blank Module |C2=Redstone |Output=Crafter Module |description=MK1 — uses a [[Redstone Chip]].}}
+{{Crafting
+|name=Crafter MkII Module |A1=Bronze Dust |B1=Amethyst Chip |C1=Bronze Dust |A2=Redstone |B2=Blank Module |C2=Redstone |Output=Crafter MkII Module |description=MK2 — uses an [[Amethyst Chip]].}}
+{{Crafting|foot=1
+|name=Crafter MkIII Module |A1=Bronze Dust |B1=Echo Chip |C1=Bronze Dust |A2=Redstone |B2=Blank Module |C2=Redstone |Output=Crafter MkIII Module |description=MK3 — uses an [[Echo Chip]].}}
 
 == Usage ==
 
@@ -44,24 +29,7 @@ When installed in a [[Chassis Logistics Pipe]], this module registers a crafting
 * Delivers crafted output back into the network or to a configured destination.
 * Multiple Crafter Modules in different chassis pipes can produce the same item — the network balances the load.
 
-=== Variants ===
-
-{| class="wikitable"
-! Variant !! Chip !! Notes
-|-
-| Crafter Module (MK1) || Redstone Chip || Single recipe, standard speed
-|-
-| Crafter MkII Module || Amethyst Chip || Enhanced throughput or priority handling
-|-
-| Crafter MkIII Module || Echo Chip || Maximum crafting speed, advanced recipe support
-|}
-
-=== Tips ===
-
-* Combine Crafter Module + Provider Module in a single chassis for a complete station that both produces and provides items.
-* Chain crafting modules for multi-step production — one module produces intermediate items that another consumes.
-* MK3 is worthwhile for high-demand recipes where speed is critical.
-* Place the chassis adjacent to a crafting inventory buffer for ingredient staging.
+Combine a Crafter Module with a [[Provider Module]] in one chassis for a station that both produces and provides items, and chain crafters so one module's output feeds another's recipe for multi-step production. Higher marks are worthwhile for high-demand recipes where crafting speed matters.
 
 == Data values ==
 

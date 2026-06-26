@@ -11,43 +11,18 @@ The '''Provider Module''' is a [[Chassis Logistics Pipe]] module that advertises
 
 === Crafting ===
 
-==== Provider Module (MK1) ====
+The two marks share a recipe, differing only by the [[Chips|chip]] — MK2 provides larger quantities per request cycle:
 
-{{Grid Crafting Table
-|A1=Iron Dust |B1=Redstone Chip |C1=Iron Dust
-|A2=Redstone |B2=Blank Module |C2=Redstone
-|Output=Provider Module
-}}
-
-==== Provider MkII Module ====
-
-{{Grid Crafting Table
-|A1=Iron Dust |B1=Amethyst Chip |C1=Iron Dust
-|A2=Redstone |B2=Blank Module |C2=Redstone
-|Output=Provider MkII Module
-}}
+{{Crafting|head=1|showdescription=1
+|name=Provider Module |A1=Iron Dust |B1=Redstone Chip |C1=Iron Dust |A2=Redstone |B2=Blank Module |C2=Redstone |Output=Provider Module |description=MK1 — uses a [[Redstone Chip]].}}
+{{Crafting|foot=1
+|name=Provider MkII Module |A1=Iron Dust |B1=Amethyst Chip |C1=Iron Dust |A2=Redstone |B2=Blank Module |C2=Redstone |Output=Provider MkII Module |description=MK2 — uses an [[Amethyst Chip]].}}
 
 == Usage ==
 
 When installed in a [[Chassis Logistics Pipe]], this module scans adjacent inventories and registers available items with the network. When a [[Requester Logistics Pipe|Requester]] or [[Supplier Logistics Pipe|Supplier]] requests an item, this module extracts it and routes it through the network.
 
-Use this module when you want provider behavior combined with other module functions in the same chassis — for example, extracting from the same inventory with an [[Extractor Module]].
-
-=== Variants ===
-
-{| class="wikitable"
-! Variant !! Chip !! Notes
-|-
-| Provider Module (MK1) || Redstone Chip || Standard provider behavior
-|-
-| Provider MkII Module || Amethyst Chip || Enhanced — provides larger quantities per request cycle
-|}
-
-=== Tips ===
-
-* MK2 is worth the upgrade when servicing high-throughput requests.
-* Combine with an [[Extractor Module]] in one chassis to both extract and provide from the same inventory.
-* Configure an optional item filter to restrict which items this module makes available.
+Use this module when you want provider behavior combined with other module functions in the same chassis — for example, extracting from the same inventory with an [[Extractor Module]]. MK2 is worth the upgrade when servicing high-throughput requests, and an optional item filter can restrict which items this module makes available.
 
 == Data values ==
 

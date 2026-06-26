@@ -11,7 +11,7 @@ The '''Terminus Module''' is a [[Chassis Logistics Pipe]] module that marks the 
 
 === Crafting ===
 
-{{Grid Crafting Table
+{{Crafting|head=1|foot=1|showname=0
 |A1=Ender Dust |B1=Redstone Chip |C1=Ender Dust
 |A2=Redstone |B2=Blank Module |C2=Redstone
 |Output=Terminus Module
@@ -26,10 +26,7 @@ When installed in a [[Chassis Logistics Pipe]], the Terminus Module prevents ite
 * Prevents routing loops in complex networks.
 * Can be combined with filter modules to create a selective terminus.
 
-=== Tips ===
-
-* Use at the physical end of a pipe run to prevent items from bouncing back into the network.
-* Combine with an [[Item Sink Module]] to deposit specific item types at this terminus.
+Place it at the physical end of a pipe run to stop items from bouncing back into the network, and combine it with an [[Item Sink Module]] to deposit specific item types at the terminus.
 
 == Data values ==
 

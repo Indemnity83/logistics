@@ -11,7 +11,7 @@ The '''Polymorphic Sink Module''' is a [[Chassis Logistics Pipe]] module that ac
 
 === Crafting ===
 
-{{Grid Crafting Table
+{{Crafting|head=1|foot=1|showname=0
 |A1=Copper Dust |B1=Echo Chip |C1=Copper Dust
 |A2=Redstone |B2=Blank Module |C2=Redstone
 |Output=Polymorphic Sink Module
@@ -26,11 +26,7 @@ When installed in a [[Chassis Logistics Pipe]], this module scans the adjacent i
 * Will not accept items for which the adjacent inventory has no existing stack.
 * Ideal for refilling partially depleted storage without configuring each item type manually.
 
-=== Tips ===
-
-* Seed the adjacent inventory with one of each item type you want it to accept — the module handles the rest automatically.
-* Use for buffer chests that get replenished regularly — the module keeps them topped off.
-* Combine with an [[Item Sink Module]] in the same chassis for a two-tier acceptance strategy: polymorphic for the bulk, specific sinks for overflow.
+Seed the adjacent inventory with one of each item type you want it to accept and the module handles the rest, keeping regularly-replenished buffer chests topped off. Combine it with an [[Item Sink Module]] in the same chassis for a two-tier strategy: polymorphic for the bulk, specific sinks for overflow.
 
 == Data values ==
 

@@ -13,7 +13,7 @@ Unlike the [[Passive Supplier Module]] — which only skims items already in tra
 
 === Crafting ===
 
-{{Grid Crafting Table
+{{Crafting|head=1|foot=1|showname=0
 |A1=Emerald Dust |B1=Amethyst Chip |C1=Emerald Dust
 |A2=Redstone |B2=Blank Module |C2=Redstone
 |Output=Active Supplier Module
@@ -35,11 +35,7 @@ Stocking modes control how aggressively it orders:
 * '''Full''' — only request when the entire missing amount is available (all-or-nothing).
 * '''Bulk 100%''' — request whenever any amount is missing.
 
-=== Tips ===
-
-* Use for machine input buffers (furnaces, kilns) that must never run dry.
-* Choose '''Full''' / all-or-nothing mode when partial deliveries would waste a craft.
-* Combine with a [[Provider Module]] on a nearby chassis to form a closed-loop supply system.
+Use it for machine input buffers (furnaces, kilns) that must never run dry, and choose '''Full''' mode when a partial delivery would waste a craft. Pairing it with a [[Provider Module]] on a nearby chassis forms a closed-loop supply system.
 
 == Data values ==
 

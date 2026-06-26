@@ -11,7 +11,7 @@ The '''Enchantment Sink Module''' is a [[Chassis Logistics Pipe]] module that ac
 
 === Crafting ===
 
-{{Grid Crafting Table
+{{Crafting|head=1|foot=1|showname=0
 |A1=Copper Dust |B1=Amethyst Chip |C1=Copper Dust
 |A2=Redstone |B2=Blank Module |C2=Redstone
 |Output=Enchantment Sink Module
@@ -26,10 +26,7 @@ When installed in a [[Chassis Logistics Pipe]], this module checks every item ar
 * Does not filter by enchantment type — any enchantment triggers acceptance.
 * Useful for automatically segregating enchanted loot from non-enchanted items.
 
-=== Tips ===
-
-* Place adjacent to an enchanted-item storage chest to automatically collect all enchanted drops from mob farms or quarry output.
-* Combine with a [[Mod Item Sink Module]] to separately route both enchanted items and specific mod items in the same chassis.
+Place it next to an enchanted-item storage chest to collect enchanted drops from mob farms or quarry output, and combine it with a [[Mod Item Sink Module]] to route enchanted items and specific mod items in the same chassis.
 
 == Data values ==
 
