@@ -13,6 +13,7 @@
     "logistics:core/apatite_ore",
     "logistics:core/apatite_block",
     "logistics:automation/kiln",
-    "logistics:automation/macerator"
+    "logistics:automation/macerator",
+    "logistics:fluid/fluid_pump"
   ]
 }
