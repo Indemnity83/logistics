@@ -198,6 +198,57 @@ class RecipeProcessorComponentTest extends MinecraftTestEnvironment {
     }
 
     @Test
+    void banksExperienceOnCompletionAndDrainsItOnce() {
+        FakeProcessIO io = new FakeProcessIO();
+        io.energy = 1_000;
+        RecipePlan plan = new RecipePlan(20, 1, new ItemStack(Items.IRON_INGOT), List.of(), 2f);
+        RecipeProcessorComponent processor = processor(io, plan, 10);
+        FakeMachineContext ctx = new FakeMachineContext();
+
+        processor.serverTick(ctx); // 10
+        processor.serverTick(ctx); // 20 -> complete, banks 2 XP
+
+        net.minecraft.util.RandomSource random = net.minecraft.util.RandomSource.create();
+        assertThat(processor.drainExperience(random)).isEqualTo(2);
+        assertThat(processor.drainExperience(random)).isZero(); // drained, not re-awarded
+    }
+
+    @Test
+    void accumulatesFractionalExperienceIntoWholePoints() {
+        FakeProcessIO io = new FakeProcessIO();
+        io.energy = 1_000;
+        RecipePlan plan = new RecipePlan(20, 1, new ItemStack(Items.IRON_INGOT), List.of(), 0.5f);
+        RecipeProcessorComponent processor = processor(io, plan, 10);
+        FakeMachineContext ctx = new FakeMachineContext();
+
+        for (int i = 0; i < 4; i++) {
+            processor.serverTick(ctx); // two completions of 0.5 XP -> 1.0 banked
+        }
+
+        // 0.5 + 0.5 = 1.0 exactly, so the whole point drops regardless of the rounding roll.
+        assertThat(processor.drainExperience(net.minecraft.util.RandomSource.create())).isEqualTo(1);
+    }
+
+    @Test
+    void persistsBankedExperienceAcrossReload() {
+        FakeProcessIO io = new FakeProcessIO();
+        io.energy = 1_000;
+        RecipePlan plan = new RecipePlan(20, 1, new ItemStack(Items.IRON_INGOT), List.of(), 3f);
+        RecipeProcessorComponent processor = processor(io, plan, 10);
+        FakeMachineContext ctx = new FakeMachineContext();
+
+        processor.serverTick(ctx);
+        processor.serverTick(ctx); // complete, banks 3 XP
+
+        net.minecraft.nbt.CompoundTag tag = new net.minecraft.nbt.CompoundTag();
+        processor.save(tag, null);
+
+        RecipeProcessorComponent reloaded = processor(new FakeProcessIO(), plan, 10);
+        reloaded.load(tag, null);
+        assertThat(reloaded.drainExperience(net.minecraft.util.RandomSource.create())).isEqualTo(3);
+    }
+
+    @Test
     void stallsUntilInputCountIsAvailable() {
         FakeProcessIO io = new FakeProcessIO();
         io.energy = 1_000;
