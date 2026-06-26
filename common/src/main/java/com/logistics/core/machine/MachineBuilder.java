@@ -95,7 +95,6 @@ public final class MachineBuilder {
         private long capacity;
         private long maxInput;
         private long maxOutput;
-        private boolean providesDemand;
 
         private EnergyBuilder(String id) {
             this.id = id;
@@ -116,15 +115,10 @@ public final class MachineBuilder {
             return this;
         }
 
-        /** Track energy received per tick and report it as logistics-network demand. */
-        public EnergyBuilder providesDemand() {
-            this.providesDemand = true;
-            return this;
-        }
-
         public EnergyStorageComponent build() {
-            return components.add(new EnergyStorageComponent(
-                    id, capacity, maxInput, maxOutput, providesDemand, providesDemand, onChanged));
+            // A buffer that accepts input (maxInput > 0) reports demand and pulls from the power
+            // network automatically; no opt-in needed.
+            return components.add(new EnergyStorageComponent(id, capacity, maxInput, maxOutput, onChanged));
         }
     }
 
