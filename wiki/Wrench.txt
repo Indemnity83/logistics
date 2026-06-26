@@ -12,7 +12,7 @@ The '''Wrench''' is a configuration tool for pipes, engines, and machines. Use i
 
 === Crafting ===
 
-{{Grid Crafting Table
+{{Crafting|head=1|foot=1|showname=0
 |A1=Iron Ingot |C1=Iron Ingot
 |B2=Iron Ingot
 |B3=Iron Ingot

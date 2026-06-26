@@ -11,7 +11,7 @@ The '''Sturdy Casing''' is a crafting component used to build machines. It is a 
 
 === Crafting ===
 
-{{Grid Crafting Table
+{{Crafting|head=1|foot=1|showname=0
 |A1=Bronze Ingot |B1=Bronze Ingot |C1=Bronze Ingot
 |A2=Bronze Ingot |C2=Bronze Ingot
 |A3=Bronze Ingot |B3=Bronze Ingot |C3=Bronze Ingot

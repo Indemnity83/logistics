@@ -11,7 +11,7 @@ The '''Machine Core''' is a crafting component required to build all RF-powered 
 
 === Crafting ===
 
-{{Grid Crafting Table
+{{Crafting|head=1|foot=1|showname=0
 |A1=Bronze Ingot |B1=Bronze Ingot |C1=Bronze Ingot
 |A2=Bronze Ingot |B2=Blaze Powder |C2=Bronze Ingot
 |A3=Bronze Ingot |B3=Bronze Ingot |C3=Bronze Ingot
