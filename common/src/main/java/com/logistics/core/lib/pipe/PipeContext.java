@@ -164,6 +164,25 @@ public record PipeContext(
     }
 
     /**
+     * Sync this pipe and force it plus any neighboring pipes to recompute their connection arms.
+     * Use after a change that can connect/disconnect arms (e.g. markings) but doesn't go through a
+     * block update — neighbors otherwise keep a stale arm because their cache is never invalidated.
+     */
+    public void markConnectionsChanged() {
+        markDirtyAndSync();
+
+        if (world == null || world.isClientSide()) {
+            return;
+        }
+        blockEntity.invalidateConnectionCache();
+        for (Direction direction : Direction.values()) {
+            if (world.getBlockEntity(pos.relative(direction)) instanceof IModuleHost neighbor) {
+                neighbor.invalidateConnectionCache();
+            }
+        }
+    }
+
+    /**
      * Check if this pipe is receiving redstone power.
      * Used by modules like BoostModule to conditionally enable behaviors.
      *
