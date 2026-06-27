@@ -1,9 +1,10 @@
 package com.logistics.automation.sawmill;
 
 import com.logistics.LogisticsAutomation;
+import com.logistics.core.lib.recipe.MachineResult;
 import java.util.List;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.PlacementInfo;
 import net.minecraft.world.item.crafting.Recipe;
@@ -28,12 +29,12 @@ public class SawmillRecipe implements Recipe<SingleRecipeInput> {
 
     private final Ingredient ingredient;
     private final int ingredientCount;
-    private final ItemStack result;
+    private final MachineResult result;
     private final SawmillByproduct byproduct;
     private final int energy;
     @Nullable private PlacementInfo placementInfo;
 
-    public SawmillRecipe(Ingredient ingredient, int ingredientCount, ItemStack result, SawmillByproduct byproduct, int energy) {
+    public SawmillRecipe(Ingredient ingredient, int ingredientCount, MachineResult result, SawmillByproduct byproduct, int energy) {
         this.ingredient = ingredient;
         this.ingredientCount = ingredientCount;
         this.result = result;
@@ -50,7 +51,7 @@ public class SawmillRecipe implements Recipe<SingleRecipeInput> {
         return ingredientCount;
     }
 
-    public ItemStack result() {
+    public MachineResult result() {
         return result;
     }
 
@@ -65,7 +66,7 @@ public class SawmillRecipe implements Recipe<SingleRecipeInput> {
 
     /** The primary product as a fresh stack. */
     public ItemStack getResultItem() {
-        return result.copy();
+        return result.toStack();
     }
 
     @Override
@@ -80,7 +81,7 @@ public class SawmillRecipe implements Recipe<SingleRecipeInput> {
 
     @Override
     public @NotNull ItemStack assemble(@NotNull SingleRecipeInput input, HolderLookup.@NotNull Provider provider) {
-        return result.copy();
+        return result.toStack();
     }
 
     @Override
@@ -120,7 +121,7 @@ public class SawmillRecipe implements Recipe<SingleRecipeInput> {
     public @NotNull List<RecipeDisplay> display() {
         return List.of(new SawmillRecipeDisplay(
             ingredient.display(),
-            new SlotDisplay.ItemStackSlotDisplay(result),
+            result.slotDisplay(),
             new SlotDisplay.ItemSlotDisplay(LogisticsAutomation.BLOCK.SAWMILL.asItem()),
             energy
         ));
