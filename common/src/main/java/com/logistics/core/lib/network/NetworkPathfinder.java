@@ -1,6 +1,5 @@
 package com.logistics.core.lib.network;
 
-import com.logistics.core.lib.LogisticsProfiler;
 import net.minecraft.core.BlockPos;
 
 import java.util.ArrayList;
@@ -57,15 +56,6 @@ public class NetworkPathfinder {
             return List.of(start);
         }
 
-        LogisticsProfiler.push("pathfind");
-        try {
-            return runAStar(start, goal, networkMembers);
-        } finally {
-            LogisticsProfiler.pop();
-        }
-    }
-
-    private static List<BlockPos> runAStar(BlockPos start, BlockPos goal, Set<BlockPos> networkMembers) {
         PriorityQueue<Node> openSet = new PriorityQueue<>();
         Map<BlockPos, Double> bestCosts = new HashMap<>();
 

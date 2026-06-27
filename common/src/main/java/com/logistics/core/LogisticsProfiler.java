@@ -1,4 +1,4 @@
-package com.logistics.core.lib;
+package com.logistics.core;
 
 import java.util.function.Supplier;
 import net.minecraft.util.profiling.Profiler;

@@ -1,6 +1,6 @@
 package com.logistics.power.cable;
 
-import com.logistics.core.lib.LogisticsProfiler;
+import com.logistics.core.LogisticsProfiler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;

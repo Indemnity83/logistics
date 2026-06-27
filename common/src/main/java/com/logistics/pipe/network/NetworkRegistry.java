@@ -1,6 +1,6 @@
 package com.logistics.pipe.network;
 
-import com.logistics.core.lib.LogisticsProfiler;
+import com.logistics.core.LogisticsProfiler;
 import com.logistics.core.lib.block.capability.PipeConnection;
 import com.logistics.core.lib.network.INetworkGraph;
 import com.logistics.core.lib.network.IWorldView;

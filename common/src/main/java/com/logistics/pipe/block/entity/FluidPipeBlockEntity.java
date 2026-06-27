@@ -2,7 +2,7 @@ package com.logistics.pipe.block.entity;
 
 import com.logistics.LogisticsFluid;
 import com.logistics.core.LogisticsConfig;
-import com.logistics.core.lib.LogisticsProfiler;
+import com.logistics.core.LogisticsProfiler;
 import com.logistics.core.lib.block.BaseBlockEntity;
 import com.logistics.core.lib.block.capability.HasEnergyStorage;
 import com.logistics.core.lib.block.capability.HasFluidStorage;

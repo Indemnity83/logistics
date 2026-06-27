@@ -1,7 +1,7 @@
 package com.logistics.pipe.network;
 
 import com.logistics.LogisticsMod;
-import com.logistics.core.lib.LogisticsProfiler;
+import com.logistics.core.LogisticsProfiler;
 import com.logistics.core.lib.network.*;
 import com.logistics.core.lib.storage.IItemKey;
 import com.logistics.core.lib.storage.ItemStorageLookup;
@@ -139,7 +139,12 @@ public class PipeNetwork implements ILogisticsNetwork {
      * Find path between two positions.
      */
     public List<BlockPos> findPath(BlockPos start, BlockPos goal) {
-        return graph.findPath(start, goal);
+        LogisticsProfiler.push("pathfind");
+        try {
+            return graph.findPath(start, goal);
+        } finally {
+            LogisticsProfiler.pop();
+        }
     }
 
     @Override

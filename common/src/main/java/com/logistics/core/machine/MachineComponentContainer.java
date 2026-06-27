@@ -1,6 +1,6 @@
 package com.logistics.core.machine;
 
-import com.logistics.core.lib.LogisticsProfiler;
+import com.logistics.core.LogisticsProfiler;
 import com.logistics.core.lib.compat.NbtCompat;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;

@@ -43,10 +43,10 @@ line in the loader `build.gradle` until then (the release jar never references S
 ## 2. Named profiler sections (built-in profiler)
 
 Logistics wraps its hot paths in named [`ProfilerFiller`](https://minecraft.wiki) sections via
-`com.logistics.core.lib.LogisticsProfiler`, all prefixed `logistics:`. These appear in **both**
+`com.logistics.core.LogisticsProfiler`, all prefixed `logistics:`. These appear in **both**
 Spark and Minecraft's built-in profiler:
 
-```
+```bash
 /debug start
   … play / let the network run …
 /debug stop      # writes debug/profiling/*.txt under the run directory
