@@ -279,6 +279,17 @@ class FluidBufferTest {
         assertThat(pipe.fluid()).isEqualTo(WATER);
     }
 
+    @Test
+    @DisplayName("restore normalizes to empty rather than holding an amount with no fluid")
+    void restoreNormalizesNullFluidToEmpty() {
+        FluidBuffer<String> pipe = FluidBuffer.extractor();
+        pipe.restore(WATER, 100); // seed some real contents first
+
+        pipe.restore(null, 100); // a positive amount with no fluid is invalid
+        assertThat(pipe.fluid()).isNull();
+        assertThat(pipe.amount()).isZero();
+    }
+
     /** A water provider with effectively unlimited fluid, for tests where the source isn't the constraint. */
     private static FakeFluidProvider ampleProvider() {
         return new FakeFluidProvider(WATER, 1_000_000);

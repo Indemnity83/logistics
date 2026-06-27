@@ -51,11 +51,11 @@ public class FluidPipeBlockItem extends BlockItem {
         consumer.accept(Component.translatable("tooltip.logistics.fluid." + def.modelBase())
                 .withStyle(ChatFormatting.GRAY));
 
-        consumer.accept(Component.translatable("tooltip.logistics.fluid.capacity", (int) def.capacity(cfg))
+        consumer.accept(Component.translatable("tooltip.logistics.fluid.capacity", def.capacity(cfg))
                 .withStyle(ChatFormatting.GRAY));
         // Extractors are paced by engine power, not a fixed rate; void destroys rather than transfers.
         if (!def.isExtractor() && !def.isVoid()) {
-            consumer.accept(Component.translatable("tooltip.logistics.fluid.transfer", (int) def.transferRate(cfg))
+            consumer.accept(Component.translatable("tooltip.logistics.fluid.transfer", def.transferRate(cfg))
                     .withStyle(ChatFormatting.GRAY));
         }
         consumer.accept(Component.translatable("tooltip.logistics.fluid.no_item_pipes")
