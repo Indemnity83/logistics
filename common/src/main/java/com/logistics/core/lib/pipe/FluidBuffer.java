@@ -52,8 +52,10 @@ public final class FluidBuffer<F> {
      * callers must pass an already-valid amount.
      */
     public void restore(F fluid, long amountMb) {
-        this.amountMb = Math.max(0, Math.min(amountMb, CAPACITY_MB));
-        this.fluid = this.amountMb > 0 ? fluid : null;
+        long clamped = Math.max(0, Math.min(amountMb, CAPACITY_MB));
+        // Normalize to empty rather than persist the invalid "some amount, no fluid" state.
+        this.fluid = clamped > 0 ? fluid : null;
+        this.amountMb = this.fluid == null ? 0 : clamped;
     }
 
     /**
