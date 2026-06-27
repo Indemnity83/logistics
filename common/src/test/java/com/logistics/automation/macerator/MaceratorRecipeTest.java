@@ -1,5 +1,6 @@
 package com.logistics.automation.macerator;
 
+import com.logistics.core.lib.recipe.MachineResult;
 import com.logistics.test.MinecraftTestEnvironment;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -24,7 +25,7 @@ class MaceratorRecipeTest extends MinecraftTestEnvironment {
     private static MaceratorRecipeWrapper rawIronRecipe() {
         return new MaceratorRecipeWrapper(
             Ingredient.of(Items.RAW_IRON),
-            new ItemStack(Items.IRON_INGOT, 2),
+            MachineResult.of(Items.IRON_INGOT, 2),
             MaceratorRecipeWrapper.DEFAULT_ENERGY_REQUIRED,
             MaceratorRecipeWrapper.DEFAULT_EXPERIENCE
         );
@@ -71,7 +72,7 @@ class MaceratorRecipeTest extends MinecraftTestEnvironment {
     void energyRequired() {
         MaceratorRecipeWrapper recipe = new MaceratorRecipeWrapper(
             Ingredient.of(Items.RAW_IRON),
-            new ItemStack(Items.IRON_INGOT, 2),
+            MachineResult.of(Items.IRON_INGOT, 2),
             500,
             MaceratorRecipeWrapper.DEFAULT_EXPERIENCE
         );
@@ -84,7 +85,7 @@ class MaceratorRecipeTest extends MinecraftTestEnvironment {
         for (int energy : new int[] {0, -1}) {
             assertThatThrownBy(() -> new MaceratorRecipeWrapper(
                     Ingredient.of(Items.RAW_IRON),
-                    new ItemStack(Items.IRON_INGOT, 2),
+                    MachineResult.of(Items.IRON_INGOT, 2),
                     energy,
                     MaceratorRecipeWrapper.DEFAULT_EXPERIENCE))
                 .isInstanceOf(IllegalArgumentException.class);
@@ -96,7 +97,7 @@ class MaceratorRecipeTest extends MinecraftTestEnvironment {
     void experience() {
         MaceratorRecipeWrapper recipe = new MaceratorRecipeWrapper(
             Ingredient.of(Items.RAW_IRON),
-            new ItemStack(Items.IRON_INGOT, 2),
+            MachineResult.of(Items.IRON_INGOT, 2),
             MaceratorRecipeWrapper.DEFAULT_ENERGY_REQUIRED,
             0.7f
         );
@@ -122,7 +123,7 @@ class MaceratorRecipeTest extends MinecraftTestEnvironment {
         void roundTripPreservesFields() {
             MaceratorRecipeWrapper original = new MaceratorRecipeWrapper(
                 Ingredient.of(Items.IRON_ORE),
-                new ItemStack(Items.IRON_INGOT, 2),
+                MachineResult.of(Items.IRON_INGOT, 2),
                 2000,
                 0.7f
             );
@@ -143,7 +144,7 @@ class MaceratorRecipeTest extends MinecraftTestEnvironment {
         void defaultExperienceIsOptional() {
             MaceratorRecipeWrapper original = new MaceratorRecipeWrapper(
                 Ingredient.of(Items.IRON_ORE),
-                new ItemStack(Items.IRON_INGOT, 1),
+                MachineResult.of(Items.IRON_INGOT, 1),
                 200,
                 MaceratorRecipeWrapper.DEFAULT_EXPERIENCE
             );

@@ -1,6 +1,7 @@
 package com.logistics.automation.sawmill;
 
 import com.logistics.LogisticsAutomation;
+import com.logistics.core.lib.recipe.MachineResult;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -22,11 +23,11 @@ public class SawmillRecipe implements Recipe<SingleRecipeInput> {
 
     private final Ingredient ingredient;
     private final int ingredientCount;
-    private final ItemStack result;
+    private final MachineResult result;
     private final SawmillByproduct byproduct;
     private final int energy;
 
-    public SawmillRecipe(Ingredient ingredient, int ingredientCount, ItemStack result, SawmillByproduct byproduct, int energy) {
+    public SawmillRecipe(Ingredient ingredient, int ingredientCount, MachineResult result, SawmillByproduct byproduct, int energy) {
         this.ingredient = ingredient;
         this.ingredientCount = ingredientCount;
         this.result = result;
@@ -43,7 +44,7 @@ public class SawmillRecipe implements Recipe<SingleRecipeInput> {
         return ingredientCount;
     }
 
-    public ItemStack result() {
+    public MachineResult result() {
         return result;
     }
 
@@ -58,7 +59,7 @@ public class SawmillRecipe implements Recipe<SingleRecipeInput> {
 
     /** The primary product as a fresh stack. */
     public ItemStack getResultItem() {
-        return result.copy();
+        return result.toStack();
     }
 
     @Override
@@ -68,7 +69,7 @@ public class SawmillRecipe implements Recipe<SingleRecipeInput> {
 
     @Override
     public @NotNull ItemStack assemble(@NotNull SingleRecipeInput input, HolderLookup.@NotNull Provider provider) {
-        return result.copy();
+        return result.toStack();
     }
 
     @Override
@@ -78,7 +79,7 @@ public class SawmillRecipe implements Recipe<SingleRecipeInput> {
 
     @Override
     public @NotNull ItemStack getResultItem(HolderLookup.@NotNull Provider provider) {
-        return result.copy();
+        return result.toStack();
     }
 
     @Override

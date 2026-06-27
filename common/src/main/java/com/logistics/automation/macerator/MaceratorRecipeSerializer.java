@@ -1,12 +1,13 @@
 package com.logistics.automation.macerator;
 
+import com.logistics.core.lib.recipe.MachineRecipeSerializers;
+import com.logistics.core.lib.recipe.MachineResult;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 
@@ -18,35 +19,26 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
  * <p>Recipes are RF-cost based: {@code energyrequired} is the total energy the machine spends to
  * complete the recipe.
  */
-public class MaceratorRecipeSerializer implements RecipeSerializer<MaceratorRecipeWrapper> {
-
-    public static final MaceratorRecipeSerializer INSTANCE = new MaceratorRecipeSerializer();
+public class MaceratorRecipeSerializer {
 
     public static final MapCodec<MaceratorRecipeWrapper> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
         Ingredient.CODEC.fieldOf("ingredient").forGetter(MaceratorRecipeWrapper::ingredient),
-        ItemStack.STRICT_CODEC.fieldOf("result").forGetter(MaceratorRecipeWrapper::result),
-        Codec.INT.fieldOf("energyrequired").forGetter(MaceratorRecipeWrapper::energyRequired),
+        MachineResult.CODEC.fieldOf("result").forGetter(MaceratorRecipeWrapper::result),
+        Codec.intRange(1, Integer.MAX_VALUE).fieldOf("energyrequired").forGetter(MaceratorRecipeWrapper::energyRequired),
         Codec.FLOAT.optionalFieldOf("experience", MaceratorRecipeWrapper.DEFAULT_EXPERIENCE).forGetter(MaceratorRecipeWrapper::experience)
     ).apply(i, MaceratorRecipeWrapper::new));
 
-    private static final StreamCodec<RegistryFriendlyByteBuf, MaceratorRecipeWrapper> STREAM_CODEC =
+    public static final StreamCodec<RegistryFriendlyByteBuf, MaceratorRecipeWrapper> STREAM_CODEC =
         StreamCodec.composite(
             Ingredient.CONTENTS_STREAM_CODEC, MaceratorRecipeWrapper::ingredient,
-            ItemStack.STREAM_CODEC, MaceratorRecipeWrapper::result,
+            MachineResult.STREAM_CODEC, MaceratorRecipeWrapper::result,
             ByteBufCodecs.VAR_INT, MaceratorRecipeWrapper::energyRequired,
             ByteBufCodecs.FLOAT, MaceratorRecipeWrapper::experience,
             MaceratorRecipeWrapper::new
         );
 
+    public static final RecipeSerializer<MaceratorRecipeWrapper> INSTANCE =
+        MachineRecipeSerializers.create(CODEC, STREAM_CODEC);
+
     private MaceratorRecipeSerializer() {}
-
-    @Override
-    public MapCodec<MaceratorRecipeWrapper> codec() {
-        return CODEC;
-    }
-
-    @Override
-    public StreamCodec<RegistryFriendlyByteBuf, MaceratorRecipeWrapper> streamCodec() {
-        return STREAM_CODEC;
-    }
 }
