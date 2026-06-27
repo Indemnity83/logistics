@@ -77,6 +77,12 @@ class LogisticsConfigTest {
         assertThatThrownBy(() -> LogisticsConfig.ENTRIES.get("fluid_pump_search_radius").setFromString("46341"))
                 .isInstanceOf(IllegalArgumentException.class);
         assertThat(LogisticsConfig.get().fluidPump.searchRadius).isEqualTo(46340); // rejected, unchanged
+
+        // A hand-edited config that exceeds the cap is reset to the default on load.
+        LogisticsConfig parsed = new LogisticsConfig();
+        parsed.fluidPump.searchRadius = 46341;
+        assertThat(LogisticsConfig.sanitize(parsed).fluidPump.searchRadius)
+                .isEqualTo(new LogisticsConfig().fluidPump.searchRadius);
     }
 
     @Test

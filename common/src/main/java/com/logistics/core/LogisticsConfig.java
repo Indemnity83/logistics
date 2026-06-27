@@ -490,7 +490,8 @@ public final class LogisticsConfig {
                 v -> requireRange(v, 1L, (long) Integer.MAX_VALUE, "must be between 1 and " + Integer.MAX_VALUE));
         sanitizeInt("fluid_pump_search_radius", () -> (long) config.fluidPump.searchRadius,
                 v -> config.fluidPump.searchRadius = v.intValue(), () -> (long) defaults.fluidPump.searchRadius,
-                v -> requireRange(v, 1L, (long) Integer.MAX_VALUE, "must be between 1 and " + Integer.MAX_VALUE));
+                // Same cap as the command path so a hand-edited config can't reach the downstream squaring.
+                v -> requireRange(v, 1L, MAX_PUMP_SEARCH_RADIUS, "must be between 1 and " + MAX_PUMP_SEARCH_RADIUS));
         sanitizeFloat("fluid_pump_arm_speed", () -> (double) config.fluidPump.armSpeed,
                 v -> config.fluidPump.armSpeed = v.floatValue(), () -> (double) defaults.fluidPump.armSpeed,
                 v -> requireFiniteFloatGreaterThan(v, 0.0, "must be finite and greater than 0"));
