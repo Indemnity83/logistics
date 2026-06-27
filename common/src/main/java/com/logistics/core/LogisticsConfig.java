@@ -109,6 +109,9 @@ public final class LogisticsConfig {
 
     // ==================== Config Entry Registry (for commands) ====================
 
+    /** Largest pump search radius whose square still fits in an int ({@code 46340^2 < Integer.MAX_VALUE}). */
+    private static final long MAX_PUMP_SEARCH_RADIUS = 46_340L;
+
     public static final Map<String, ConfigEntry<?>> ENTRIES;
 
     static {
@@ -278,7 +281,8 @@ public final class LogisticsConfig {
                 () -> (long) INSTANCE.fluidPump.searchRadius,
                 v -> INSTANCE.fluidPump.searchRadius = v.intValue(),
                 Long::parseLong,
-                v -> requireRange(v, 1L, (long) Integer.MAX_VALUE, "must be between 1 and " + Integer.MAX_VALUE));
+                // Capped so the radius can be squared as an int downstream without overflowing.
+                v -> requireRange(v, 1L, MAX_PUMP_SEARCH_RADIUS, "must be between 1 and " + MAX_PUMP_SEARCH_RADIUS));
         reg(map, "fluid_pump_arm_speed", "Fluid Pump arm movement speed (blocks/tick)",
                 () -> (double) INSTANCE.fluidPump.armSpeed,
                 v -> INSTANCE.fluidPump.armSpeed = v.floatValue(),
