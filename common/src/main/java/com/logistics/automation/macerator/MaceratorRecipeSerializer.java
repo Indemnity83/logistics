@@ -24,7 +24,7 @@ public class MaceratorRecipeSerializer {
     public static final MapCodec<MaceratorRecipeWrapper> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
         Ingredient.CODEC.fieldOf("ingredient").forGetter(MaceratorRecipeWrapper::ingredient),
         MachineResult.CODEC.fieldOf("result").forGetter(MaceratorRecipeWrapper::result),
-        Codec.INT.fieldOf("energyrequired").forGetter(MaceratorRecipeWrapper::energyRequired),
+        Codec.intRange(1, Integer.MAX_VALUE).fieldOf("energyrequired").forGetter(MaceratorRecipeWrapper::energyRequired),
         Codec.FLOAT.optionalFieldOf("experience", MaceratorRecipeWrapper.DEFAULT_EXPERIENCE).forGetter(MaceratorRecipeWrapper::experience)
     ).apply(i, MaceratorRecipeWrapper::new));
 
