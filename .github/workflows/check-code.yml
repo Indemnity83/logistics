@@ -53,6 +53,14 @@ jobs:
             exit 0
           fi
 
+          # A rewritten/force-pushed base may no longer exist; treat a failed diff as "code changed"
+          # so CI runs the full checks rather than silently skipping them on an empty diff.
+          if ! changed_files=$(git diff --name-only "$BASE" "$HEAD" 2>/dev/null); then
+            echo "git diff against base '$BASE' failed (rewritten history?); assuming code changed."
+            echo "code_changed=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
           code_changed=false
           while IFS= read -r file; do
             case "$file" in
@@ -63,7 +71,7 @@ jobs:
                 break
                 ;;
             esac
-          done < <(git diff --name-only "$BASE" "$HEAD")
+          done <<< "$changed_files"
 
           echo "code_changed=$code_changed" >> "$GITHUB_OUTPUT"
           echo "code_changed=$code_changed"
