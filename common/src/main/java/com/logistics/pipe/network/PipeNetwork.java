@@ -1,6 +1,7 @@
 package com.logistics.pipe.network;
 
 import com.logistics.LogisticsMod;
+import com.logistics.core.lib.LogisticsProfiler;
 import com.logistics.core.lib.network.*;
 import com.logistics.core.lib.storage.IItemKey;
 import com.logistics.core.lib.storage.ItemStorageLookup;
@@ -226,6 +227,15 @@ public class PipeNetwork implements ILogisticsNetwork {
      */
     public void tick(long gameTime) {
         if (worldView == null) return;
+        LogisticsProfiler.push("network_dispatch");
+        try {
+            tickDispatch();
+        } finally {
+            LogisticsProfiler.pop();
+        }
+    }
+
+    private void tickDispatch() {
         controller.clearDeferredProviders();
         NetworkCommandExecutor executor = new NetworkCommandExecutor(worldView);
         NetworkController.DispatchCommand cmd;

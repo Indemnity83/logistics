@@ -1,5 +1,6 @@
 package com.logistics.pipe.network;
 
+import com.logistics.core.lib.LogisticsProfiler;
 import com.logistics.core.lib.block.capability.PipeConnection;
 import com.logistics.core.lib.network.INetworkGraph;
 import com.logistics.core.lib.network.IWorldView;
@@ -279,8 +280,13 @@ public class NetworkRegistry {
         }
 
         long gameTime = level.getGameTime();
-        for (PipeNetwork network : levelNetworks.values()) {
-            network.tick(gameTime);
+        LogisticsProfiler.push("item_networks");
+        try {
+            for (PipeNetwork network : levelNetworks.values()) {
+                network.tick(gameTime);
+            }
+        } finally {
+            LogisticsProfiler.pop();
         }
     }
 
