@@ -66,6 +66,10 @@ dependencies {
     // Jade HUD — compile against the API on the client source set only; loaded in dev via runClient, never bundled
     clientCompileOnly("maven.modrinth:jade:${rootProject.jade_fabric_version}")
     clientRuntimeOnly("maven.modrinth:jade:${rootProject.jade_fabric_version}")
+
+    // Spark profiler (https://spark.lucko.me) — loaded in dev via runClient/runServer, never bundled.
+    // If a future MC snapshot has no matching Spark build, comment this out until one ships.
+    runtimeOnly("maven.modrinth:spark:${rootProject.spark_fabric_version}")
 }
 
 processResources {

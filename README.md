@@ -184,7 +184,7 @@ See the [documentation](https://indemnity83.github.io/logistics/) for detailed i
 
 ## Contributing
 
-Contributions welcome! Report issues on [GitHub Issues](https://github.com/indemnity83/logistics/issues). For code contributions, see `CLAUDE.md` for development guidance.
+Contributions welcome! Report issues on [GitHub Issues](https://github.com/indemnity83/logistics/issues). For code contributions, see `CLAUDE.md` for development guidance. To diagnose performance, see `PROFILING.md`.
 
 ### Pull request titles and changelogs
 

@@ -1,5 +1,6 @@
 package com.logistics.core.machine;
 
+import com.logistics.core.LogisticsProfiler;
 import com.logistics.core.lib.compat.NbtCompat;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -50,8 +51,13 @@ public final class MachineComponentContainer {
     }
 
     public void serverTick(MachineContext ctx) {
-        for (MachineComponent c : ordered) {
-            c.serverTick(ctx);
+        LogisticsProfiler.push("machines");
+        try {
+            for (MachineComponent c : ordered) {
+                c.serverTick(ctx);
+            }
+        } finally {
+            LogisticsProfiler.pop();
         }
     }
 
