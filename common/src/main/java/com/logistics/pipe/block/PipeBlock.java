@@ -1,5 +1,6 @@
 package com.logistics.pipe.block;
 
+import com.logistics.core.lib.block.ConnectedShapeCache;
 import com.logistics.core.lib.block.behavior.WrenchBehavior;
 import com.logistics.core.lib.block.capability.PipeConnection;
 import com.logistics.pipe.network.NetworkRegistry;
@@ -42,7 +43,6 @@ import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
@@ -78,6 +78,19 @@ public class PipeBlock extends BaseEntityBlock
             8 - PIPE_SIZE / 2, 8 + PIPE_SIZE / 2, 8 - PIPE_SIZE / 2, 8 + PIPE_SIZE / 2, 16, 8 + PIPE_SIZE / 2);
     private static final VoxelShape DOWN_SHAPE = Block.box(
             8 - PIPE_SIZE / 2, 0, 8 - PIPE_SIZE / 2, 8 + PIPE_SIZE / 2, 8 - PIPE_SIZE / 2, 8 + PIPE_SIZE / 2);
+
+    private static final ConnectedShapeCache SHAPE_CACHE;
+
+    static {
+        VoxelShape[] arms = new VoxelShape[6];
+        arms[Direction.NORTH.get3DDataValue()] = NORTH_SHAPE;
+        arms[Direction.SOUTH.get3DDataValue()] = SOUTH_SHAPE;
+        arms[Direction.EAST.get3DDataValue()] = EAST_SHAPE;
+        arms[Direction.WEST.get3DDataValue()] = WEST_SHAPE;
+        arms[Direction.UP.get3DDataValue()] = UP_SHAPE;
+        arms[Direction.DOWN.get3DDataValue()] = DOWN_SHAPE;
+        SHAPE_CACHE = new ConnectedShapeCache(CORE_SHAPE, arms);
+    }
 
     private final ItemPipe pipe;
 
@@ -223,28 +236,13 @@ public class PipeBlock extends BaseEntityBlock
 
     @Override
     public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
-        VoxelShape shape = CORE_SHAPE;
-
-        if (getConnectionType(world, pos, Direction.NORTH) != PipeConnection.Type.NONE) {
-            shape = Shapes.or(shape, NORTH_SHAPE);
+        int mask = 0;
+        for (Direction dir : Direction.values()) {
+            if (getConnectionType(world, pos, dir) != PipeConnection.Type.NONE) {
+                mask |= ConnectedShapeCache.bit(dir);
+            }
         }
-        if (getConnectionType(world, pos, Direction.SOUTH) != PipeConnection.Type.NONE) {
-            shape = Shapes.or(shape, SOUTH_SHAPE);
-        }
-        if (getConnectionType(world, pos, Direction.EAST) != PipeConnection.Type.NONE) {
-            shape = Shapes.or(shape, EAST_SHAPE);
-        }
-        if (getConnectionType(world, pos, Direction.WEST) != PipeConnection.Type.NONE) {
-            shape = Shapes.or(shape, WEST_SHAPE);
-        }
-        if (getConnectionType(world, pos, Direction.UP) != PipeConnection.Type.NONE) {
-            shape = Shapes.or(shape, UP_SHAPE);
-        }
-        if (getConnectionType(world, pos, Direction.DOWN) != PipeConnection.Type.NONE) {
-            shape = Shapes.or(shape, DOWN_SHAPE);
-        }
-
-        return shape;
+        return SHAPE_CACHE.get(mask);
     }
 
     @Nullable @Override

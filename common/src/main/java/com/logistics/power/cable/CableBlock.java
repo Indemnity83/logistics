@@ -1,6 +1,7 @@
 package com.logistics.power.cable;
 
 import com.logistics.LogisticsPower;
+import com.logistics.core.lib.block.ConnectedShapeCache;
 import com.logistics.core.lib.block.capability.HasEnergyStorage;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
@@ -24,7 +25,6 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import com.logistics.core.lib.energy.EnergyCapabilityLookup;
 import org.jetbrains.annotations.Nullable;
@@ -64,6 +64,19 @@ public class CableBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
     private static final VoxelShape DOWN_SHAPE = Block.box(
             8 - CABLE_SIZE / 2, 0, 8 - CABLE_SIZE / 2,
             8 + CABLE_SIZE / 2, 8 - CABLE_SIZE / 2, 8 + CABLE_SIZE / 2);
+
+    private static final ConnectedShapeCache SHAPE_CACHE;
+
+    static {
+        VoxelShape[] arms = new VoxelShape[6];
+        arms[Direction.NORTH.get3DDataValue()] = NORTH_SHAPE;
+        arms[Direction.SOUTH.get3DDataValue()] = SOUTH_SHAPE;
+        arms[Direction.EAST.get3DDataValue()] = EAST_SHAPE;
+        arms[Direction.WEST.get3DDataValue()] = WEST_SHAPE;
+        arms[Direction.UP.get3DDataValue()] = UP_SHAPE;
+        arms[Direction.DOWN.get3DDataValue()] = DOWN_SHAPE;
+        SHAPE_CACHE = new ConnectedShapeCache(CORE_SHAPE, arms);
+    }
 
     private final CableTier tier;
 
@@ -112,24 +125,13 @@ public class CableBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
 
     @Override
     public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
-        VoxelShape shape = CORE_SHAPE;
+        int mask = 0;
         for (Direction dir : Direction.values()) {
             if (getConnectionType(world, pos, dir) != ConnectionType.NONE) {
-                shape = Shapes.or(shape, getShapeForDirection(dir));
+                mask |= ConnectedShapeCache.bit(dir);
             }
         }
-        return shape;
-    }
-
-    private VoxelShape getShapeForDirection(Direction dir) {
-        return switch (dir) {
-            case NORTH -> NORTH_SHAPE;
-            case SOUTH -> SOUTH_SHAPE;
-            case EAST -> EAST_SHAPE;
-            case WEST -> WEST_SHAPE;
-            case UP -> UP_SHAPE;
-            case DOWN -> DOWN_SHAPE;
-        };
+        return SHAPE_CACHE.get(mask);
     }
 
     @Nullable @Override

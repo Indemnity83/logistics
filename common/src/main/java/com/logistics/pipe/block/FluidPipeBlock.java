@@ -1,6 +1,7 @@
 package com.logistics.pipe.block;
 
 import com.logistics.LogisticsFluid;
+import com.logistics.core.lib.block.ConnectedShapeCache;
 import com.logistics.core.lib.block.behavior.WrenchBehavior;
 import com.logistics.core.lib.fluids.FluidStorageLookup;
 import com.logistics.core.lib.pipe.ModularPipe;
@@ -40,7 +41,6 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
@@ -77,6 +77,8 @@ public class FluidPipeBlock extends BaseEntityBlock
         ARM_SHAPES[Direction.DOWN.get3DDataValue()] = Block.box(
                 8 - PIPE_SIZE / 2, 0, 8 - PIPE_SIZE / 2, 8 + PIPE_SIZE / 2, 8 - PIPE_SIZE / 2, 8 + PIPE_SIZE / 2);
     }
+
+    private static final ConnectedShapeCache SHAPE_CACHE = new ConnectedShapeCache(CORE_SHAPE, ARM_SHAPES);
 
     @Nullable
     private final FluidPipe fluidPipe;
@@ -247,13 +249,13 @@ public class FluidPipeBlock extends BaseEntityBlock
 
     @Override
     public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
-        VoxelShape shape = CORE_SHAPE;
+        int mask = 0;
         for (Direction direction : Direction.values()) {
             if (isConnected(world, pos, direction)) {
-                shape = Shapes.or(shape, ARM_SHAPES[direction.get3DDataValue()]);
+                mask |= ConnectedShapeCache.bit(direction);
             }
         }
-        return shape;
+        return SHAPE_CACHE.get(mask);
     }
 
     @Override
