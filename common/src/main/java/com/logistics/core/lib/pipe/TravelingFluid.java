@@ -3,6 +3,7 @@ package com.logistics.core.lib.pipe;
 import com.logistics.core.lib.fluids.IFluidKey;
 import com.logistics.core.lib.fluids.SimpleFluidKey;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponentPatch;
@@ -51,8 +52,13 @@ public final class TravelingFluid {
                         FLUID_KEY
                                 .fieldOf("fluid")
                                 .forGetter(t -> new SimpleFluidKey(t.fluid.getFluid(), t.fluid.getComponents())),
-                        Codec.LONG.fieldOf("amount").forGetter(t -> t.amount),
-                        Codec.INT
+                        Codec.LONG
+                                .validate(amount -> amount < 0
+                                        ? DataResult.error(() -> "amount must be non-negative, was " + amount)
+                                        : DataResult.success(amount))
+                                .fieldOf("amount")
+                                .forGetter(t -> t.amount),
+                        Codec.intRange(0, 5)
                                 .xmap(Direction::from3DDataValue, Direction::get3DDataValue)
                                 .fieldOf("heading")
                                 .forGetter(t -> t.heading),
@@ -76,9 +82,16 @@ public final class TravelingFluid {
 
     public TravelingFluid(IFluidKey fluid, long amount, Direction heading, int countdown) {
         this.fluid = fluid;
-        this.amount = amount;
+        this.amount = requireNonNegative(amount);
         this.heading = heading;
         this.countdown = countdown;
+    }
+
+    private static long requireNonNegative(long amount) {
+        if (amount < 0) {
+            throw new IllegalArgumentException("fluid amount must be non-negative, was " + amount);
+        }
+        return amount;
     }
 
     public IFluidKey fluid() {
@@ -94,11 +107,11 @@ public final class TravelingFluid {
     }
 
     public void setAmount(long amount) {
-        this.amount = amount;
+        this.amount = requireNonNegative(amount);
     }
 
     public void add(long delta) {
-        this.amount += delta;
+        this.amount = requireNonNegative(this.amount + delta);
     }
 
     public Direction heading() {
