@@ -28,7 +28,8 @@ public final class ConnectedShapeCache {
                     shape = Shapes.or(shape, arms[dir.get3DDataValue()]);
                 }
             }
-            byMask[mask] = shape;
+            // Simplify once up front so cached collision/raycast lookups use the fewest boxes.
+            byMask[mask] = shape.optimize();
         }
     }
 
