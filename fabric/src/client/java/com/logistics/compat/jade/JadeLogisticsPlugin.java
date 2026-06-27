@@ -48,6 +48,6 @@ public class JadeLogisticsPlugin implements IWailaPlugin {
         registration.registerBlockComponent(MachineComponentProvider.INSTANCE, KilnBlock.class);
         registration.registerBlockComponent(MachineComponentProvider.INSTANCE, SawmillBlock.class);
         registration.registerBlockComponent(PipeComponentProvider.INSTANCE, PipeBlock.class);
-        registration.registerBlockComponent(PipeComponentProvider.INSTANCE, FluidPipeBlock.class);
+        registration.registerBlockComponent(FluidPipeComponentProvider.INSTANCE, FluidPipeBlock.class);
     }
 }
