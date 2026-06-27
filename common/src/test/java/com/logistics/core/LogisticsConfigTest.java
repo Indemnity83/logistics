@@ -66,6 +66,26 @@ class LogisticsConfigTest {
     }
 
     @Test
+    @DisplayName("should clamp the fluid pump search radius so its square fits in an int")
+    void clampsPumpSearchRadius() {
+        LogisticsConfig.useForTests(new LogisticsConfig());
+
+        // 46340^2 fits in an int; one more overflows it once the pump squares the radius.
+        LogisticsConfig.ENTRIES.get("fluid_pump_search_radius").setFromString("46340");
+        assertThat(LogisticsConfig.get().fluidPump.searchRadius).isEqualTo(46340);
+
+        assertThatThrownBy(() -> LogisticsConfig.ENTRIES.get("fluid_pump_search_radius").setFromString("46341"))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThat(LogisticsConfig.get().fluidPump.searchRadius).isEqualTo(46340); // rejected, unchanged
+
+        // A hand-edited config that exceeds the cap is reset to the default on load.
+        LogisticsConfig parsed = new LogisticsConfig();
+        parsed.fluidPump.searchRadius = 46341;
+        assertThat(LogisticsConfig.sanitize(parsed).fluidPump.searchRadius)
+                .isEqualTo(new LogisticsConfig().fluidPump.searchRadius);
+    }
+
+    @Test
     @DisplayName("should reject pipe speed ranges that invert min and max")
     void rejectsInvertedPipeSpeeds() {
         LogisticsConfig.useForTests(new LogisticsConfig());
