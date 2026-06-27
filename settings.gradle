@@ -16,6 +16,7 @@ pluginManagement {
         id 'net.fabricmc.fabric-loom' version "${loom_version}"
         id 'net.neoforged.moddev' version "${moddev_version}"
         id 'com.diffplug.spotless' version '8.7.0'
+        id 'io.sentry.jvm.gradle' version "${sentry_gradle_version}"
     }
 }
 
