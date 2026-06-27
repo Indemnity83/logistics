@@ -1,6 +1,7 @@
 package com.logistics.gametest.pipe;
 
 import com.logistics.LogisticsPipe;
+import com.logistics.core.lib.compat.NbtCompat;
 import com.logistics.core.lib.energy.IEnergyStorage;
 import com.logistics.pipe.block.entity.PowerJunctionBlockEntity;
 import com.logistics.pipe.Pipe;
@@ -10,19 +11,25 @@ import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.pipe.modules.ItemFilterModule;
 import com.logistics.pipe.modules.MergerModule;
 import com.logistics.pipe.modules.SinkModule;
+import com.logistics.pipe.ui.ChassisInventory;
 import com.logistics.core.lib.pipe.RoutePlan;
 import com.logistics.core.lib.pipe.TravelingItem;
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.phys.AABB;
 
 import java.util.List;
 
@@ -522,5 +529,53 @@ public class ModuleGameTest {
         });
 
         context.succeedWhen(() -> context.assertContainerContains(chestPos, Items.DIRT));
+    }
+
+    /**
+     * A chassis pipe destroyed by a non-player removal (explosion, /setblock) must still drop its
+     * installed modules with configuration intact. The drop runs in
+     * {@code PipeBlockEntity.preRemoveSideEffects()}, which fires on every removal path -- not only
+     * the player-break path -- so modules are no longer voided by explosions.
+     */
+    @GameTest
+    public void testChassisDropsModulesOnNonPlayerBreak(GameTestHelper context) {
+        BlockPos pos = new BlockPos(0, 1, 0);
+        context.setBlock(pos, LogisticsPipe.BLOCK.CHASSIS_LOGISTICS_PIPE_MK1);
+
+        PipeBlockEntity pipeEntity = context.getBlockEntity(pos, PipeBlockEntity.class);
+        if (pipeEntity == null) {
+            context.fail("Chassis pipe should have a block entity");
+        }
+
+        // Insert a module carrying a marker so we can confirm its configuration survives the break.
+        ItemStack module = new ItemStack(LogisticsPipe.ITEM.ITEM_SINK_MODULE);
+        CompoundTag marker = new CompoundTag();
+        marker.putString("qa_marker", "kept");
+        module.set(DataComponents.CUSTOM_DATA, CustomData.of(marker));
+
+        ChassisInventory inventory = new ChassisInventory(pipeEntity);
+        inventory.setItem(0, module);
+
+        // Remove the block via a non-player path (the same removal path explosions use).
+        BlockPos absPos = context.absolutePos(pos);
+        ServerLevel level = context.getLevel();
+        level.destroyBlock(absPos, false);
+
+        List<ItemEntity> drops = level.getEntitiesOfClass(
+                ItemEntity.class,
+                new AABB(absPos).inflate(2.0),
+                e -> e.getItem().is(LogisticsPipe.ITEM.ITEM_SINK_MODULE));
+
+        if (drops.size() != 1) {
+            context.fail("Expected exactly one module to drop on break, found " + drops.size());
+        }
+
+        ItemStack dropped = drops.get(0).getItem();
+        CustomData data = dropped.get(DataComponents.CUSTOM_DATA);
+        if (data == null || !"kept".equals(NbtCompat.getString(data.copyTag(), "qa_marker", ""))) {
+            context.fail("Dropped module lost its configuration on break");
+        }
+
+        context.succeed();
     }
 }
