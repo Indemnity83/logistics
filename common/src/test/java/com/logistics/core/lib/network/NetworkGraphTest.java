@@ -299,4 +299,42 @@ class NetworkGraphTest {
         graph.removeNode(new BlockPos(0, 0, 0));
         assertEquals(1, graph.size());
     }
+
+    @Test
+    void testGetNextHopManySourcesOneDestination() {
+        // T-junction: a straight trunk along +X with a branch going +Z at the middle.
+        //   (0,0,0)-(1,0,0)-(2,0,0)-(3,0,0)  trunk
+        //                    (2,0,1)         branch off the middle
+        for (int x = 0; x <= 3; x++) {
+            graph.addNode(new BlockPos(x, 0, 0));
+        }
+        BlockPos branch = new BlockPos(2, 0, 1);
+        graph.addNode(branch);
+        BlockPos dest = new BlockPos(0, 0, 0);
+
+        // Every source's first hop heads back toward the trunk end at (0,0,0).
+        assertEquals(Direction.WEST, graph.getNextHop(new BlockPos(3, 0, 0), dest));
+        assertEquals(Direction.WEST, graph.getNextHop(new BlockPos(2, 0, 0), dest));
+        assertEquals(Direction.WEST, graph.getNextHop(new BlockPos(1, 0, 0), dest));
+        // The branch must first rejoin the trunk (NORTH, -Z) before heading west.
+        assertEquals(Direction.NORTH, graph.getNextHop(branch, dest));
+        // The destination itself has no next hop.
+        assertNull(graph.getNextHop(dest, dest));
+    }
+
+    @Test
+    void testGetNextHopRecomputesAfterTopologyChange() {
+        BlockPos a = new BlockPos(0, 0, 0);
+        BlockPos b = new BlockPos(1, 0, 0);
+        BlockPos c = new BlockPos(2, 0, 0);
+        graph.addNode(a);
+        graph.addNode(b);
+        graph.addNode(c);
+
+        assertEquals(Direction.EAST, graph.getNextHop(a, c)); // caches the table for dest c
+
+        // Removing the middle node breaks the path; the cached table must be invalidated.
+        graph.removeNode(b);
+        assertNull(graph.getNextHop(a, c));
+    }
 }

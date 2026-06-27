@@ -1,10 +1,13 @@
 package com.logistics.core.lib.network;
 
+import java.util.ArrayDeque;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -19,6 +22,18 @@ import org.jetbrains.annotations.Nullable;
 public class NetworkGraph implements INetworkGraph {
     private final Set<BlockPos> nodes = new HashSet<>();
     private final Map<PathKey, CachedPath> pathCache = new HashMap<>();
+
+    // Per-destination next-hop tables. The graph is unweighted, so one BFS from a destination yields
+    // the next hop for every source toward it — shared across all items routing there, instead of a
+    // per-(source, destination) A* search. LRU-bounded; invalidated wholesale on any topology change.
+    private static final int NEXT_HOP_CACHE_MAX = 64;
+    private final Map<BlockPos, Map<BlockPos, Direction>> nextHopCache =
+        new LinkedHashMap<>(16, 0.75f, true) {
+            @Override
+            protected boolean removeEldestEntry(Map.Entry<BlockPos, Map<BlockPos, Direction>> eldest) {
+                return size() > NEXT_HOP_CACHE_MAX;
+            }
+        };
 
     private static final int PATH_CACHE_MAX_AGE = 200;
 
@@ -80,17 +95,39 @@ public class NetworkGraph implements INetworkGraph {
             return null;
         }
 
-        List<BlockPos> path = findPath(current, destination);
-        if (path == null || path.size() < 2) {
-            return null;
+        Map<BlockPos, Direction> table = nextHopCache.get(destination);
+        if (table == null) {
+            table = computeNextHopTable(destination);
+            nextHopCache.put(destination, table);
         }
+        return table.get(current);
+    }
 
-        BlockPos nextPos = path.get(1);
-        return directionFromDelta(
-            nextPos.getX() - current.getX(),
-            nextPos.getY() - current.getY(),
-            nextPos.getZ() - current.getZ()
-        );
+    /**
+     * Breadth-first search outward from {@code goal} over the unweighted graph, recording for each
+     * reachable node the direction of its first step along a shortest path back to {@code goal}.
+     * One pass serves every source; {@code goal} itself has no entry.
+     */
+    private Map<BlockPos, Direction> computeNextHopTable(BlockPos goal) {
+        Map<BlockPos, Direction> nextHop = new HashMap<>();
+        Set<BlockPos> visited = new HashSet<>();
+        Queue<BlockPos> queue = new ArrayDeque<>();
+        queue.add(goal);
+        visited.add(goal);
+
+        while (!queue.isEmpty()) {
+            BlockPos current = queue.poll();
+            for (Direction dir : Direction.values()) {
+                BlockPos neighbor = current.relative(dir);
+                if (!nodes.contains(neighbor) || !visited.add(neighbor)) {
+                    continue;
+                }
+                // neighbor sits one step farther from goal; stepping back to current heads toward it.
+                nextHop.put(neighbor, dir.getOpposite());
+                queue.add(neighbor);
+            }
+        }
+        return nextHop;
     }
 
     @Override
@@ -106,24 +143,11 @@ public class NetworkGraph implements INetworkGraph {
     }
 
     /**
-     * Invalidate all cached paths.
+     * Invalidate all cached routing data (paths and next-hop tables).
      * Called when graph topology changes (add/remove nodes).
      */
     private void invalidatePathCache() {
         pathCache.clear();
-    }
-
-    /**
-     * Convert position delta to Direction.
-     */
-    @Nullable
-    private static Direction directionFromDelta(int dx, int dy, int dz) {
-        if (dx == 1) return Direction.EAST;
-        if (dx == -1) return Direction.WEST;
-        if (dy == 1) return Direction.UP;
-        if (dy == -1) return Direction.DOWN;
-        if (dz == 1) return Direction.SOUTH;
-        if (dz == -1) return Direction.NORTH;
-        return null;
+        nextHopCache.clear();
     }
 }
