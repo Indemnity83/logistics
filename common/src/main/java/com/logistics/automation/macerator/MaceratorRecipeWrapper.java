@@ -1,8 +1,8 @@
 package com.logistics.automation.macerator;
 
 import com.logistics.LogisticsAutomation;
+import com.logistics.core.lib.recipe.MachineResult;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.PlacementInfo;
 import net.minecraft.world.item.crafting.Recipe;
@@ -32,12 +32,12 @@ public class MaceratorRecipeWrapper implements Recipe<SingleRecipeInput> {
     public static final float DEFAULT_EXPERIENCE = 0.0f;
 
     private final Ingredient ingredient;
-    private final ItemStackTemplate result;
+    private final MachineResult result;
     private final int energyRequired;
     private final float experience;
     @Nullable private PlacementInfo placementInfo;
 
-    public MaceratorRecipeWrapper(Ingredient ingredient, ItemStackTemplate result, int energyRequired, float experience) {
+    public MaceratorRecipeWrapper(Ingredient ingredient, MachineResult result, int energyRequired, float experience) {
         if (energyRequired <= 0) {
             throw new IllegalArgumentException("energyRequired must be positive, got " + energyRequired);
         }
@@ -51,7 +51,7 @@ public class MaceratorRecipeWrapper implements Recipe<SingleRecipeInput> {
         return ingredient;
     }
 
-    public ItemStackTemplate result() {
+    public MachineResult result() {
         return result;
     }
 
@@ -71,7 +71,7 @@ public class MaceratorRecipeWrapper implements Recipe<SingleRecipeInput> {
 
     /** Convenience for machine/JEI: the result as a fresh stack (avoids the version-specific assemble signature). */
     public ItemStack getResultItem() {
-        return result.create();
+        return result.toStack();
     }
 
     @Override
@@ -86,7 +86,7 @@ public class MaceratorRecipeWrapper implements Recipe<SingleRecipeInput> {
 
     @Override
     public @NotNull ItemStack assemble(@NotNull SingleRecipeInput input) {
-        return result.create();
+        return result.toStack();
     }
 
     @Override
@@ -126,7 +126,7 @@ public class MaceratorRecipeWrapper implements Recipe<SingleRecipeInput> {
     public @NotNull List<RecipeDisplay> display() {
         return List.of(new MaceratorRecipeDisplay(
             ingredient.display(),
-            new SlotDisplay.ItemStackSlotDisplay(result),
+            result.slotDisplay(),
             new SlotDisplay.ItemSlotDisplay(LogisticsAutomation.BLOCK.MACERATOR.asItem()),
             energyRequired,
             experience
