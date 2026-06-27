@@ -1,7 +1,15 @@
 {
   "type": "logistics:sawmill",
-  "ingredient": "#minecraft:dark_oak_logs",
-  "result": { "id": "minecraft:dark_oak_planks", "count": 6 },
-  "byproduct": { "id": "logistics:core/sawdust", "chance": 1.0 },
+  "ingredient": {
+    "tag": "minecraft:dark_oak_logs"
+  },
+  "result": {
+    "id": "minecraft:dark_oak_planks",
+    "count": 6
+  },
+  "byproduct": {
+    "id": "logistics:core/sawdust",
+    "chance": 1.0
+  },
   "energy": 3000
 }

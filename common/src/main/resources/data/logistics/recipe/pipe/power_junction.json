@@ -6,11 +6,21 @@
     "GCG"
   ],
   "key": {
-    "P": "logistics:pipe/basic_logistics_pipe",
-    "R": "minecraft:redstone",
-    "M": "logistics:core/machine_core",
-    "G": "logistics:core/copper_gear",
-    "C": "logistics:core/redstone_reception_coil"
+    "P": {
+      "item": "logistics:pipe/basic_logistics_pipe"
+    },
+    "R": {
+      "item": "minecraft:redstone"
+    },
+    "M": {
+      "item": "logistics:core/machine_core"
+    },
+    "G": {
+      "item": "logistics:core/copper_gear"
+    },
+    "C": {
+      "item": "logistics:core/redstone_reception_coil"
+    }
   },
   "result": {
     "id": "logistics:pipe/power_junction",

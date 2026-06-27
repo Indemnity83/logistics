@@ -1,8 +1,16 @@
 {
   "type": "logistics:sawmill",
-  "ingredient": "minecraft:oak_stairs",
+  "ingredient": {
+    "item": "minecraft:oak_stairs"
+  },
   "count": 2,
-  "result": { "id": "minecraft:oak_planks", "count": 1 },
-  "byproduct": { "id": "logistics:core/sawdust", "chance": 0.25 },
+  "result": {
+    "id": "minecraft:oak_planks",
+    "count": 1
+  },
+  "byproduct": {
+    "id": "logistics:core/sawdust",
+    "chance": 0.25
+  },
   "energy": 2000
 }

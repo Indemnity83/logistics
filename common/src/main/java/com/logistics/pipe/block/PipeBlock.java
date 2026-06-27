@@ -148,10 +148,6 @@ public class PipeBlock extends BaseEntityBlock
         return RenderShape.INVISIBLE;
     }
 
-    // Pipe break drops (traveling items + chassis modules) and network detach are handled in
-    // PipeBlockEntity.preRemoveSideEffects(), which covers explosions and /setblock, not just
-    // player breaks.
-
     /**
      * Route item use interactions to pipe modules before default block handling.
      */

@@ -1,8 +1,16 @@
 {
   "type": "logistics:sawmill",
-  "ingredient": "minecraft:spruce_fence",
+  "ingredient": {
+    "item": "minecraft:spruce_fence"
+  },
   "count": 2,
-  "result": { "id": "minecraft:spruce_planks", "count": 1 },
-  "byproduct": { "id": "logistics:core/sawdust", "chance": 0.25 },
+  "result": {
+    "id": "minecraft:spruce_planks",
+    "count": 1
+  },
+  "byproduct": {
+    "id": "logistics:core/sawdust",
+    "chance": 0.25
+  },
   "energy": 2000
 }

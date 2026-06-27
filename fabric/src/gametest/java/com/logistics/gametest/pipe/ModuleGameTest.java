@@ -537,12 +537,12 @@ public class ModuleGameTest {
      * {@code PipeBlockEntity.preRemoveSideEffects()}, which fires on every removal path -- not only
      * the player-break path -- so modules are no longer voided by explosions.
      */
-    @GameTest
+    @GameTest(template = "fabric-gametest-api-v1:empty")
     public void testChassisDropsModulesOnNonPlayerBreak(GameTestHelper context) {
         BlockPos pos = new BlockPos(0, 1, 0);
         context.setBlock(pos, LogisticsPipe.BLOCK.CHASSIS_LOGISTICS_PIPE_MK1);
 
-        PipeBlockEntity pipeEntity = context.getBlockEntity(pos, PipeBlockEntity.class);
+        PipeBlockEntity pipeEntity = (PipeBlockEntity) context.getBlockEntity(pos);
         if (pipeEntity == null) {
             context.fail("Chassis pipe should have a block entity");
         }

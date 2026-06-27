@@ -39,7 +39,7 @@ public final class NbtCompat {
      * <p><b>mc/1.21.1 backport:</b> Replace with {@code tag.contains(key, Tag.TAG_INT) ? tag.getInt(key) : defaultValue}
      */
     public static int getInt(CompoundTag tag, String key, int defaultValue) {
-        return tag.contains(key, Tag.TAG_INT) ? tag.getInt(key) : defaultValue;
+        return tag.contains(key, Tag.TAG_ANY_NUMERIC) ? tag.getInt(key) : defaultValue;
     }
 
     /**

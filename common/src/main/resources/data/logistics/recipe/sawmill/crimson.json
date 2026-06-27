@@ -1,7 +1,15 @@
 {
   "type": "logistics:sawmill",
-  "ingredient": "#minecraft:crimson_stems",
-  "result": { "id": "minecraft:crimson_planks", "count": 6 },
-  "byproduct": { "id": "logistics:core/sawdust", "chance": 1.0 },
+  "ingredient": {
+    "tag": "minecraft:crimson_stems"
+  },
+  "result": {
+    "id": "minecraft:crimson_planks",
+    "count": 6
+  },
+  "byproduct": {
+    "id": "logistics:core/sawdust",
+    "chance": 1.0
+  },
   "energy": 3000
 }

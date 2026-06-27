@@ -1,7 +1,7 @@
 package com.logistics.compat.jade;
 
 import com.logistics.LogisticsMod;
-import net.minecraft.resources.Identifier; // raw-id-ok: Jade's IJadeProvider.getUid() returns Identifier
+import net.minecraft.resources.ResourceLocation; // raw-id-ok: Jade's IJadeProvider.getUid() returns ResourceLocation
 import snownee.jade.api.BlockAccessor;
 import snownee.jade.api.IBlockComponentProvider;
 import snownee.jade.api.ITooltip;
@@ -19,13 +19,13 @@ import snownee.jade.api.config.IPluginConfig;
 public final class FluidPipeComponentProvider implements IBlockComponentProvider {
     public static final FluidPipeComponentProvider INSTANCE = new FluidPipeComponentProvider();
 
-    private static final Identifier UID = // raw-id-ok: Jade keys providers by Identifier
+    private static final ResourceLocation UID = // raw-id-ok: Jade keys providers by ResourceLocation
             LogisticsMod.modId("fluid_pipe").toIdentifier();
 
     private FluidPipeComponentProvider() {}
 
     @Override
-    public Identifier getUid() { // raw-id-ok: overrides Jade API returning Identifier
+    public ResourceLocation getUid() { // raw-id-ok: overrides Jade API returning ResourceLocation
         return UID;
     }
 

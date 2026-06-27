@@ -1,9 +1,20 @@
 {
   "type": "minecraft:crafting_shaped",
-  "pattern": ["R", "G", "R"],
+  "pattern": [
+    "R",
+    "G",
+    "R"
+  ],
   "key": {
-    "R": "minecraft:redstone",
-    "G": "minecraft:gold_ingot"
+    "R": {
+      "item": "minecraft:redstone"
+    },
+    "G": {
+      "item": "minecraft:gold_ingot"
+    }
   },
-  "result": { "id": "logistics:core/redstone_reception_coil", "count": 1 }
+  "result": {
+    "id": "logistics:core/redstone_reception_coil",
+    "count": 1
+  }
 }

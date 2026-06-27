@@ -1,12 +1,29 @@
 {
   "type": "minecraft:crafting_shaped",
-  "pattern": [" A ", "LML", "GCG"],
+  "pattern": [
+    " A ",
+    "LML",
+    "GCG"
+  ],
   "key": {
-    "A": "minecraft:iron_axe",
-    "L": "#minecraft:planks",
-    "M": "logistics:core/machine_core",
-    "G": "logistics:core/copper_gear",
-    "C": "logistics:core/redstone_reception_coil"
+    "A": {
+      "item": "minecraft:iron_axe"
+    },
+    "L": {
+      "tag": "minecraft:planks"
+    },
+    "M": {
+      "item": "logistics:core/machine_core"
+    },
+    "G": {
+      "item": "logistics:core/copper_gear"
+    },
+    "C": {
+      "item": "logistics:core/redstone_reception_coil"
+    }
   },
-  "result": { "id": "logistics:automation/sawmill", "count": 1 }
+  "result": {
+    "id": "logistics:automation/sawmill",
+    "count": 1
+  }
 }

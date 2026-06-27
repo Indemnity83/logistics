@@ -1,8 +1,16 @@
 {
   "type": "logistics:sawmill",
-  "ingredient": "minecraft:birch_fence",
+  "ingredient": {
+    "item": "minecraft:birch_fence"
+  },
   "count": 2,
-  "result": { "id": "minecraft:birch_planks", "count": 1 },
-  "byproduct": { "id": "logistics:core/sawdust", "chance": 0.25 },
+  "result": {
+    "id": "minecraft:birch_planks",
+    "count": 1
+  },
+  "byproduct": {
+    "id": "logistics:core/sawdust",
+    "chance": 0.25
+  },
   "energy": 2000
 }

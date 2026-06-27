@@ -1,8 +1,16 @@
 {
   "type": "logistics:sawmill",
-  "ingredient": "minecraft:jungle_fence_gate",
+  "ingredient": {
+    "item": "minecraft:jungle_fence_gate"
+  },
   "count": 2,
-  "result": { "id": "minecraft:jungle_planks", "count": 1 },
-  "byproduct": { "id": "logistics:core/sawdust", "chance": 1.25 },
+  "result": {
+    "id": "minecraft:jungle_planks",
+    "count": 1
+  },
+  "byproduct": {
+    "id": "logistics:core/sawdust",
+    "chance": 1.25
+  },
   "energy": 2000
 }
