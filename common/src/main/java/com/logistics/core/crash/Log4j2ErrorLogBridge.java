@@ -45,20 +45,22 @@ final class Log4j2ErrorLogBridge implements LogisticsErrorLogBridge {
     }
 
     @Override
-    public void attach() {
+    public boolean attach() {
         try {
             if (!(LogManager.getContext(false) instanceof LoggerContext ctx)) {
                 LOGGER.warn("Log4j2 backend unavailable; crash log capture disabled");
-                return;
+                return false;
             }
             Configuration config = ctx.getConfiguration();
             appender = new ForwardingAppender(APPENDER_NAME, sink);
             appender.start();
             config.getRootLogger().addAppender(appender, Level.ERROR, null);
             ctx.updateLoggers();
+            return true;
         } catch (Throwable t) {
             LOGGER.warn("Failed to attach crash log capture: {}", t.toString());
             appender = null;
+            return false;
         }
     }
 

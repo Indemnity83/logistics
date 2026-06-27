@@ -8,8 +8,11 @@ package com.logistics.core.crash;
  * missing/incompatible backend can degrade to a no-op.
  */
 public interface LogisticsErrorLogBridge {
-    /** Begin forwarding Logistics ERROR-level exceptions to the sink. */
-    void attach();
+    /**
+     * Begin forwarding Logistics ERROR-level exceptions to the sink. Returns false if it could not
+     * attach (e.g. an incompatible logging backend), so callers don't claim capture is wired.
+     */
+    boolean attach();
 
     /** Stop forwarding and detach from the logging backend. */
     void detach();

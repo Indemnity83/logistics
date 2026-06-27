@@ -62,8 +62,31 @@ public final class CrashReporting {
 
     /** Called once after config load. Enables reporting only if the operator opted in previously. */
     public static void bootstrap() {
-        if (LogisticsConfig.get().crashReporting.enabled) {
+        if (!LogisticsConfig.get().crashReporting.enabled) {
+            return;
+        }
+        // Crash reporting is non-critical: a bad persisted DSN must never abort domain startup.
+        try {
             enable();
+        } catch (Exception e) {
+            LOGGER.error("Failed to start crash reporting; continuing without it", e);
+        }
+    }
+
+    /**
+     * Bring the live client in line with the persisted config, e.g. after {@code /logistics config
+     * reload} edits {@code crashReporting} on disk. Rebuilds when enabled so a changed DSN takes
+     * effect; tears down when disabled.
+     */
+    public static synchronized void reconcile() {
+        disable();
+        if (!LogisticsConfig.get().crashReporting.enabled) {
+            return;
+        }
+        try {
+            enable();
+        } catch (Exception e) {
+            LOGGER.error("Failed to restart crash reporting after config reload", e);
         }
     }
 
@@ -84,7 +107,14 @@ public final class CrashReporting {
         client = new SentryClient(options);
         registerExitFlushHookOnce();
         bridge = newBridge();
-        bridge.attach();
+        if (!bridge.attach()) {
+            // No log capture means no reports would actually flow; don't claim an active state.
+            LOGGER.warn("Crash reporting could not attach log capture; not enabling");
+            bridge = null;
+            client.close();
+            client = null;
+            return;
+        }
         ACTIVE.set(true);
         LOGGER.info("Crash reporting enabled (environment={})", options.getEnvironment());
     }

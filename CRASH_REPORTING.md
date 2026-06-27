@@ -21,7 +21,9 @@ seriously.
 - ✅ **Opt-in, and easy to opt out.** One command on, one command off.
 - ✅ **Logistics only.** It reports errors from this mod's own code — not from Minecraft, your server,
   or other mods.
-- ✅ **Sanitized.** No player names, UUIDs, IP addresses, server addresses, chat, or world data.
+- ✅ **Sanitized.** Player names, server addresses, chat, and world data are never intentionally
+  collected, and identifying details that could slip into an error message (home-directory paths, IP
+  addresses, UUIDs, and secret-like values) are actively scrubbed.
 - ✅ **You can verify it.** `/logistics diagnostics preview` shows you a real, sanitized example
   report without sending anything.
 - ✅ **Per-install.** Turning it on for a server does **not** turn it on for your players.
@@ -100,7 +102,7 @@ That's it. The goal is "what broke, where, and on what version" — nothing more
 
 ## What is never collected
 
-We deliberately exclude, and actively scrub for:
+None of the following is ever intentionally collected or sent:
 
 - ❌ Player names or player UUIDs
 - ❌ IP addresses
@@ -110,8 +112,10 @@ We deliberately exclude, and actively scrub for:
 - ❌ Your full configuration
 - ❌ Anything that looks like a secret (values labelled `password`, `token`, `secret`, `key`, `dsn`, …)
 
-We never intentionally send any of the above, and the sanitizer below is a second line of defense in
-case any of it ever slipped into an error message.
+As a second line of defense, the sanitizer **actively scrubs** the specific identifiers that could
+slip into an error message: your local OS user name and home-directory paths, IP addresses, UUIDs,
+and secret-like `key=value` pairs. It cannot detect free-form player names, server hostnames, chat,
+or world data, so those are kept out by simply never gathering them rather than by scrubbing.
 
 ---
 

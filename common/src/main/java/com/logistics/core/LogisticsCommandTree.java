@@ -213,6 +213,7 @@ public final class LogisticsCommandTree {
                 .then(Commands.literal("reload")
                     .executes(ctx -> {
                         LogisticsConfig.reload();
+                        CrashReporting.reconcile();
                         ctx.getSource().sendSuccess(
                             () -> Component.literal("Reloaded logistics config from disk"), true);
                         return 1;
