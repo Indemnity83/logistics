@@ -33,15 +33,18 @@ final class Log4j2ErrorLogBridge implements LogisticsErrorLogBridge {
 
     /**
      * True when an event should be reported: it carries a throwable and originates from a Logistics
-     * logger. Package-private and parameterized over primitives so it is unit-testable without
-     * constructing a Log4j2 {@link LogEvent}.
+     * logger.
      */
     static boolean shouldForward(String loggerName, boolean hasThrowable) {
         if (!hasThrowable || loggerName == null) {
             return false;
         }
         String lower = loggerName.toLowerCase(Locale.ROOT);
-        return lower.startsWith("logistics") || lower.contains("com.logistics");
+        // Match only our own namespaces — not a foreign "logisticsaddons" or "other.com.logistics".
+        return lower.equals("logistics")
+                || lower.startsWith("logistics/")
+                || lower.startsWith("logistics.")
+                || lower.startsWith("com.logistics.");
     }
 
     @Override
@@ -59,7 +62,8 @@ final class Log4j2ErrorLogBridge implements LogisticsErrorLogBridge {
             return true;
         } catch (Throwable t) {
             LOGGER.warn("Failed to attach crash log capture: {}", t.toString());
-            appender = null;
+            // Undo any partial registration so a half-attached appender can't linger on root.
+            detach();
             return false;
         }
     }

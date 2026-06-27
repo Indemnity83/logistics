@@ -165,5 +165,9 @@ class CrashReportingTest {
         assertThat(Log4j2ErrorLogBridge.shouldForward("net.minecraft.server.Main", true)).isFalse();
         assertThat(Log4j2ErrorLogBridge.shouldForward("some.other.mod", true)).isFalse();
         assertThat(Log4j2ErrorLogBridge.shouldForward(null, true)).isFalse();
+
+        // Look-alike namespaces from other mods must not pass the filter.
+        assertThat(Log4j2ErrorLogBridge.shouldForward("logisticsaddons", true)).isFalse();
+        assertThat(Log4j2ErrorLogBridge.shouldForward("other.com.logistics.Thing", true)).isFalse();
     }
 }
