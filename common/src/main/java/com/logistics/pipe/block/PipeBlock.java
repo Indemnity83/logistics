@@ -5,24 +5,16 @@ import com.logistics.core.lib.block.capability.PipeConnection;
 import com.logistics.pipe.network.NetworkRegistry;
 import com.logistics.core.lib.pipe.PipeConnectionLookup;
 import com.logistics.pipe.ItemPipe;
-import com.logistics.pipe.ChassisPipe;
 import com.logistics.core.lib.pipe.ModularPipe;
 import com.logistics.core.lib.pipe.ModularPipeBlock;
 import com.logistics.core.lib.pipe.PipeContext;
 import com.logistics.core.lib.pipe.PipeFamily;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.LogisticsPipe;
-import com.logistics.core.lib.pipe.TravelingItem;
-import com.logistics.pipe.item.ModuleItem;
 import com.mojang.serialization.MapCodec;
 import com.logistics.core.lib.storage.ItemStorageLookup;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.component.DataComponents;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtOps;
-import net.minecraft.nbt.Tag;
-import net.minecraft.resources.RegistryOps;
 import net.minecraft.world.level.redstone.Orientation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
@@ -53,7 +45,6 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraft.world.level.ScheduledTickAccess;
-import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
 
@@ -133,54 +124,9 @@ public class PipeBlock extends BaseEntityBlock
         return RenderShape.INVISIBLE;
     }
 
-    @Override
-    public BlockState playerWillDestroy(
-            Level level, BlockPos pos, BlockState state, net.minecraft.world.entity.player.Player player) {
-        // Drop traveling items and module items when pipe is broken by player
-        if (!level.isClientSide()) {
-            BlockEntity blockEntity = level.getBlockEntity(pos);
-            if (blockEntity instanceof PipeBlockEntity pipeEntity) {
-                for (TravelingItem item : pipeEntity.getTravelingItems()) {
-                    PipeBlockEntity.dropItem(level, pos, item);
-                }
-                dropChassisModules(level, pos, pipeEntity);
-            }
-            // Remove pipe from network
-            NetworkRegistry.removePipe(level, pos);
-        }
-        return super.playerWillDestroy(level, pos, state, player);
-    }
-
-    /** Drop installed chassis module items at the pipe position. */
-    private void dropChassisModules(Level level, BlockPos pos, PipeBlockEntity pipeEntity) {
-        CompoundTag chassisState = pipeEntity.getOrCreateModuleState(ChassisPipe.STATE_KEY);
-        if (chassisState.isEmpty()) return;
-
-        // ItemStack.CODEC needs registry-aware ops for registry-backed components such as enchantments.
-        RegistryOps<Tag> ops = level.registryAccess().createSerializationContext(NbtOps.INSTANCE);
-        PipeContext ctx = pipeEntity.createContext();
-
-        for (int slot = 0; slot < ChassisPipe.MAX_SLOTS; slot++) {
-            Tag tag = chassisState.get(String.valueOf(slot));
-            if (tag == null) continue;
-
-            ItemStack.CODEC.parse(ops, tag).result().ifPresent(stack -> {
-                applyModuleStateToStack(ctx, stack);
-                ItemEntity entity = new ItemEntity(
-                        level, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, stack);
-                entity.setDefaultPickUpDelay();
-                level.addFreshEntity(entity);
-            });
-        }
-    }
-
-    private void applyModuleStateToStack(PipeContext ctx, ItemStack stack) {
-        if (!(stack.getItem() instanceof ModuleItem moduleItem)) return;
-
-        String stateKey = ChassisPipe.moduleStateKey(stack, moduleItem.createModule());
-        CompoundTag moduleData = ctx.moduleState(stateKey);
-        stack.set(DataComponents.CUSTOM_DATA, ModuleItem.customDataWithModuleState(stack, moduleData));
-    }
+    // Pipe break drops (traveling items + chassis modules) and network detach are handled in
+    // PipeBlockEntity.preRemoveSideEffects(), which covers explosions and /setblock, not just
+    // player breaks.
 
     /**
      * Route item use interactions to pipe modules before default block handling.
