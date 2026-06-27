@@ -12,9 +12,11 @@ import com.logistics.core.lib.block.capability.PipeConnection;
 import com.logistics.core.lib.network.ILogisticsNetwork;
 import com.logistics.core.lib.pipe.IPipeAccess;
 import com.logistics.core.lib.power.AcceptsLowTierEnergy;
+import com.logistics.pipe.ChassisPipe;
 import com.logistics.pipe.ItemPipe;
 import com.logistics.core.lib.pipe.PipeContext;
 import com.logistics.pipe.block.PipeBlock;
+import com.logistics.pipe.item.ModuleItem;
 import com.logistics.pipe.network.NetworkRegistry;
 import com.logistics.pipe.runtime.PipeRuntime;
 import com.logistics.core.lib.pipe.TravelingItem;
@@ -28,6 +30,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentGetter;
 import net.minecraft.core.component.DataComponentMap;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtOps;
@@ -340,7 +343,61 @@ public class PipeBlockEntity extends BaseBlockEntity
     @Override
     public void setRemoved() {
         super.setRemoved();
-        // Item dropping is handled in PipeBlock.playerWillDestroy() instead
+        // Dropping is handled in preRemoveSideEffects(); setRemoved() also fires on chunk unload.
+    }
+
+    /**
+     * Drop in-transit items and installed chassis modules, then detach from the network, when the
+     * pipe is removed by any means (player break, explosion, /setblock). Runs while the block entity
+     * is still present -- unlike affectNeighborsAfterRemoval -- and is not called on chunk unload.
+     */
+    @Override
+    public void preRemoveSideEffects(BlockPos pos, BlockState state) {
+        super.preRemoveSideEffects(pos, state);
+        if (level == null || level.isClientSide()) {
+            return;
+        }
+        for (TravelingItem item : travelingItems) {
+            dropItem(level, pos, item);
+        }
+        dropChassisModules(pos);
+        NetworkRegistry.removePipe(level, pos);
+    }
+
+    /** Drop installed chassis module items, each carrying its saved configuration. */
+    private void dropChassisModules(BlockPos pos) {
+        CompoundTag chassisState = getOrCreateModuleState(ChassisPipe.STATE_KEY);
+        if (chassisState.isEmpty()) {
+            return;
+        }
+
+        // ItemStack.CODEC needs registry-aware ops for registry-backed components such as enchantments.
+        RegistryOps<Tag> ops = level.registryAccess().createSerializationContext(NbtOps.INSTANCE);
+        PipeContext ctx = createContext();
+
+        for (int slot = 0; slot < ChassisPipe.MAX_SLOTS; slot++) {
+            Tag tag = chassisState.get(String.valueOf(slot));
+            if (tag == null) {
+                continue;
+            }
+
+            ItemStack.CODEC.parse(ops, tag).result().ifPresent(stack -> {
+                applyModuleStateToStack(ctx, stack);
+                ItemEntity entity = new ItemEntity(
+                        level, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, stack);
+                entity.setDefaultPickUpDelay();
+                level.addFreshEntity(entity);
+            });
+        }
+    }
+
+    private void applyModuleStateToStack(PipeContext ctx, ItemStack stack) {
+        if (!(stack.getItem() instanceof ModuleItem moduleItem)) {
+            return;
+        }
+        String stateKey = ChassisPipe.moduleStateKey(stack, moduleItem.createModule());
+        CompoundTag moduleData = ctx.moduleState(stateKey);
+        stack.set(DataComponents.CUSTOM_DATA, ModuleItem.customDataWithModuleState(stack, moduleData));
     }
 
     public CompoundTag getOrCreateModuleState(String key) {
