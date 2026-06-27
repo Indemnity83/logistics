@@ -42,4 +42,10 @@ public class KilnScreen extends AbstractContainerScreen<KilnScreenHandler> {
                 180, 55 + (13 - energyHeight), 7, energyHeight);
         }
     }
+
+    @Override
+    public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
+        super.render(graphics, mouseX, mouseY, delta);
+        renderTooltip(graphics, mouseX, mouseY);
+    }
 }
