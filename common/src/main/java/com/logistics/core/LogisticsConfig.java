@@ -40,6 +40,7 @@ public final class LogisticsConfig {
     public EngineConfig engine = new EngineConfig();
     public FluidPipeConfig fluidPipe = new FluidPipeConfig();
     public FluidPumpConfig fluidPump = new FluidPumpConfig();
+    public CrashReportingConfig crashReporting = new CrashReportingConfig();
 
     public static final class QuarryConfig {
         public int area = 16;
@@ -105,6 +106,18 @@ public final class LogisticsConfig {
         public int searchRadius = 64;
         public float armSpeed = 0.01f;
         public int infiniteSourceThreshold = 9;
+    }
+
+    /**
+     * Opt-in sanitized crash reporting (Sentry). Disabled by default; an operator opts in via
+     * {@code /logistics diagnostics enable}. Intentionally NOT in the {@link #ENTRIES} registry —
+     * the {@code /logistics diagnostics} commands are the single source of truth so the persisted
+     * value and the live Sentry client never drift apart (e.g. via a generic {@code config set}).
+     */
+    public static final class CrashReportingConfig {
+        public boolean enabled = false;
+        public boolean notifyOperators = true;
+        public String dsnOverride = "";
     }
 
     // ==================== Config Entry Registry (for commands) ====================
@@ -408,6 +421,13 @@ public final class LogisticsConfig {
         if (config.fluidPump == null) {
             LOGGER.warn("Invalid logistics config group fluidPump: missing; using defaults");
             config.fluidPump = defaults.fluidPump;
+        }
+        if (config.crashReporting == null) {
+            LOGGER.warn("Invalid logistics config group crashReporting: missing; using defaults");
+            config.crashReporting = defaults.crashReporting;
+        }
+        if (config.crashReporting.dsnOverride == null) {
+            config.crashReporting.dsnOverride = defaults.crashReporting.dsnOverride;
         }
 
         sanitizeInt("quarry_area", () -> (long) config.quarry.area, v -> config.quarry.area = v.intValue(),
