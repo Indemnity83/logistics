@@ -32,6 +32,7 @@ public final class LogisticsNeoForge {
         NeoForgeChestLootModifier.register(NeoForge.EVENT_BUS);
         NeoForgeNetworkTickHandler.register(NeoForge.EVENT_BUS);
         NeoForgeServerLevelEvents.register(NeoForge.EVENT_BUS);
+        NeoForgePlayerJoinEvents.register(NeoForge.EVENT_BUS);
         if (FMLEnvironment.getDist().isClient()) {
             NeoForgeClientSetup.register(modBus);
         }

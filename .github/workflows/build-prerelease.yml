@@ -11,6 +11,10 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    # Non-secret boolean so the "Create Sentry release" step can gate on it (secrets can't be used in
+    # `if`). The token itself is passed only to the steps that need it, never the whole job.
+    env:
+      HAS_SENTRY_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN != '' }}
     strategy:
       fail-fast: false
       matrix:
@@ -75,6 +79,22 @@ jobs:
         run: ./gradlew ${{ steps.version.outputs.gradle_task }} --console=plain
         env:
           MOD_VERSION: ${{ steps.version.outputs.full_version }}
+          # Enables Sentry source-context upload during the build (gated on the token being present).
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+
+      - name: Create Sentry release
+        if: ${{ env.HAS_SENTRY_TOKEN == 'true' }}
+        uses: getsentry/action-release@ff07929a6537bac57790c3451cf4d364aca38528 # v3.7.0
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: indmenity83
+          SENTRY_PROJECT: logistics-mod
+        with:
+          release: logistics@${{ steps.version.outputs.full_version }}
+          set_commits: auto
+          finalize: true
+          # Pre-releases (betas) stay out of the production deploy stream.
+          environment: preview
 
       - name: Upload artifact
         uses: actions/upload-artifact@v7

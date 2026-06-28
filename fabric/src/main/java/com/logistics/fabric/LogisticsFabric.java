@@ -31,6 +31,7 @@ public final class LogisticsFabric implements ModInitializer {
         FabricNetworkTickHandler.register();
         FabricCommandRegistration.register();
         FabricServerLevelEvents.register();
+        FabricPlayerJoinEvents.register();
         FabricPacketRegistration.register();
         FabricBiomeModifications.register();
 
