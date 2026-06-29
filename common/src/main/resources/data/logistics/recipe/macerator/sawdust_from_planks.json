@@ -1,0 +1,9 @@
+{
+  "type": "logistics:macerator",
+  "ingredient": "#minecraft:planks",
+  "result": {
+    "id": "logistics:core/sawdust",
+    "count": 2
+  },
+  "energyrequired": 1000
+}

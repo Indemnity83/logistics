@@ -1,0 +1,13 @@
+{
+  "type": "logistics:macerator",
+  "ingredient": "minecraft:sandstone_stairs",
+  "result": {
+    "id": "minecraft:sand",
+    "count": 2
+  },
+  "energyrequired": 3000,
+  "byproduct": {
+    "id": "logistics:core/niter",
+    "chance": 0.4
+  }
+}

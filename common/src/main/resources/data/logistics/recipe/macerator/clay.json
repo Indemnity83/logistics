@@ -1,0 +1,9 @@
+{
+  "type": "logistics:macerator",
+  "ingredient": "minecraft:clay",
+  "result": {
+    "id": "minecraft:clay_ball",
+    "count": 4
+  },
+  "energyrequired": 3000
+}
