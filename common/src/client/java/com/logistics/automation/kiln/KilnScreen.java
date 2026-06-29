@@ -18,6 +18,10 @@ public class KilnScreen extends AbstractRecipeBookScreen<KilnScreenHandler> {
     private static final int TEXTURE_WIDTH = 256;
     private static final int TEXTURE_HEIGHT = 256;
 
+    // Shared static energy-gauge bar (gui/sprites/automation/charge.png), drawn dark for empty + bright for fill.
+    private static final ResourceId CHARGE = LogisticsMod.modId("automation/charge");
+    private static final int CHARGE_EMPTY_TINT = 0xFF404040;
+
     public KilnScreen(KilnScreenHandler handler, Inventory inventory, Component title) {
         super(handler, new KilnRecipeBookComponent(handler), inventory, title);
         this.imageWidth = 176;
@@ -32,7 +36,7 @@ public class KilnScreen extends AbstractRecipeBookScreen<KilnScreenHandler> {
 
     @Override
     protected ScreenPosition getRecipeBookButtonPosition() {
-        return new ScreenPosition(this.leftPos + 20, this.height / 2 - 49);
+        return new ScreenPosition(this.leftPos + 30, this.height / 2 - 49);
     }
 
     @Override
@@ -50,21 +54,30 @@ public class KilnScreen extends AbstractRecipeBookScreen<KilnScreenHandler> {
             graphics.blit(
                 RenderPipelines.GUI_TEXTURED,
                 TEXTURE.toIdentifier(),
-                leftPos + 80, topPos + 36,
-                180, 36,
-                arrowWidth, 14,
+                leftPos + 79, topPos + 35,
+                199, 35,
+                arrowWidth, 16,
                 TEXTURE_WIDTH, TEXTURE_HEIGHT);
         }
 
+        // Energy gauge: dark "empty" bar full height, then the bright fill over the bottom `energyHeight` px.
+        graphics.blitSprite(
+            RenderPipelines.GUI_TEXTURED,
+            CHARGE.toIdentifier(),
+            12, 30,
+            0, 0,
+            leftPos + 10, topPos + 19,
+            12, 30,
+            CHARGE_EMPTY_TINT);
         int energyHeight = menu.getEnergyBarHeight();
         if (energyHeight > 0) {
-            graphics.blit(
+            graphics.blitSprite(
                 RenderPipelines.GUI_TEXTURED,
-                TEXTURE.toIdentifier(),
-                leftPos + 60, topPos + 55 + (13 - energyHeight),
-                180, 55 + (13 - energyHeight),
-                7, energyHeight,
-                TEXTURE_WIDTH, TEXTURE_HEIGHT);
+                CHARGE.toIdentifier(),
+                12, 30,
+                0, 30 - energyHeight,
+                leftPos + 10, topPos + 19 + (30 - energyHeight),
+                12, energyHeight);
         }
     }
 }

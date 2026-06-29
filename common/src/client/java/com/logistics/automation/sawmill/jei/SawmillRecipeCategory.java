@@ -29,7 +29,7 @@ public class SawmillRecipeCategory implements IRecipeCategory<SawmillRecipe> {
         LogisticsMod.modId("textures/gui/automation/sawmill.png");
 
     // Compact JEI layout: input -> arrow -> primary output, with the byproduct beside it.
-    // The filled progress arrow sprite lives at UV (183,24) in the GUI texture (see SawmillScreen).
+    // The filled progress arrow sprite lives at UV (199,35), 24x16, in the GUI texture (see SawmillScreen).
     private static final int INPUT_X = 8, INPUT_Y = 9;
     private static final int ARROW_X = 30, ARROW_Y = 10;
     private static final int OUTPUT_X = 60, OUTPUT_Y = 9;
@@ -44,7 +44,7 @@ public class SawmillRecipeCategory implements IRecipeCategory<SawmillRecipe> {
     public SawmillRecipeCategory(IGuiHelper guiHelper) {
         this.icon = guiHelper.createDrawableItemStack(
             new ItemStack(LogisticsAutomation.BLOCK.SAWMILL));
-        this.arrow = guiHelper.createDrawable(TEXTURE.toIdentifier(), 183, 24, 22, 14);
+        this.arrow = guiHelper.createDrawable(TEXTURE.toIdentifier(), 199, 35, 24, 16);
     }
 
     @Override

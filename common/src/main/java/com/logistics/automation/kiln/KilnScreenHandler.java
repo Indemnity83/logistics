@@ -187,12 +187,12 @@ public class KilnScreenHandler extends RecipeBookMenu {
     public int getProgressArrowWidth() {
         int required = getEnergyRequired();
         if (required <= 0) return 0;
-        return 25 * getEnergySpent() / required;
+        return 24 * getEnergySpent() / required;
     }
 
     public int getEnergyBarHeight() {
         int capacity = getEnergyCapacity();
         if (capacity <= 0) return 0;
-        return 13 * getEnergyStored() / capacity;
+        return 30 * getEnergyStored() / capacity;
     }
 }
