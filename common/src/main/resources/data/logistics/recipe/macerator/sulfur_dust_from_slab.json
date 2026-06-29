@@ -1,7 +1,6 @@
 {
   "type": "logistics:macerator",
   "ingredient": "minecraft:sulfur_slab",
-  "count": 2,
   "result": {
     "id": "logistics:core/sulfur_dust",
     "count": 1

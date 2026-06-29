@@ -3,7 +3,7 @@
   "ingredient": "minecraft:polished_sulfur",
   "result": {
     "id": "logistics:core/sulfur_dust",
-    "count": 1
+    "count": 2
   },
   "energyrequired": 2000
 }
