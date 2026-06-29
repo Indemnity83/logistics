@@ -15,6 +15,9 @@ public class KilnScreen extends AbstractContainerScreen<KilnScreenHandler> {
     private static final ResourceLocation TEXTURE =
         LogisticsMod.modId("textures/gui/automation/kiln.png").toIdentifier();
 
+    // Shared static energy-gauge bar sprite, drawn dark for empty + bright for fill.
+    private static final ResourceLocation CHARGE = LogisticsMod.modId("automation/charge").toIdentifier();
+
     public KilnScreen(KilnScreenHandler handler, Inventory inventory, Component title) {
         super(handler, inventory, title);
         this.imageWidth = 176;
@@ -33,13 +36,17 @@ public class KilnScreen extends AbstractContainerScreen<KilnScreenHandler> {
 
         int arrowWidth = menu.getProgressArrowWidth();
         if (arrowWidth > 0) {
-            graphics.blit(TEXTURE, leftPos + 80, topPos + 36, 180, 36, arrowWidth, 14);
+            graphics.blit(TEXTURE, leftPos + 79, topPos + 35, 199, 35, arrowWidth, 16);
         }
 
+        // Energy gauge: dark "empty" bar full height, then the bright fill over the bottom `energyHeight` px.
+        graphics.setColor(0.25f, 0.25f, 0.25f, 1.0f);
+        graphics.blitSprite(CHARGE, 12, 30, 0, 0, leftPos + 10, topPos + 19, 12, 30);
+        graphics.setColor(1.0f, 1.0f, 1.0f, 1.0f);
         int energyHeight = menu.getEnergyBarHeight();
         if (energyHeight > 0) {
-            graphics.blit(TEXTURE, leftPos + 60, topPos + 55 + (13 - energyHeight),
-                180, 55 + (13 - energyHeight), 7, energyHeight);
+            graphics.blitSprite(CHARGE, 12, 30, 0, 30 - energyHeight,
+                leftPos + 10, topPos + 19 + (30 - energyHeight), 12, energyHeight);
         }
     }
 

@@ -30,7 +30,7 @@ public class MaceratorRecipeCategory implements IRecipeCategory<MaceratorRecipeW
         LogisticsMod.modId("textures/gui/automation/macerator.png").toIdentifier();
 
     // Compact JEI layout: input -> arrow -> primary output, with the byproduct beside it.
-    // The filled progress arrow sprite lives at UV (180,23), 25x14, in the GUI texture (see MaceratorScreen).
+    // The filled progress arrow sprite lives at UV (199,35), 24x16, in the GUI texture (see MaceratorScreen).
     private static final int INPUT_X = 8, INPUT_Y = 9;
     private static final int ARROW_X = 30, ARROW_Y = 10;
     private static final int OUTPUT_X = 60, OUTPUT_Y = 9;
@@ -47,7 +47,7 @@ public class MaceratorRecipeCategory implements IRecipeCategory<MaceratorRecipeW
         this.background = guiHelper.createDrawable(TEXTURE, 48, 27, WIDTH, HEIGHT);
         this.icon = guiHelper.createDrawableItemStack(
             new ItemStack(LogisticsAutomation.BLOCK.MACERATOR));
-        this.arrow = guiHelper.createDrawable(TEXTURE, 180, 23, 25, 14);
+        this.arrow = guiHelper.createDrawable(TEXTURE, 199, 35, 24, 16);
     }
 
     @Override

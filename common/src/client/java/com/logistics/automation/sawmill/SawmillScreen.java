@@ -16,6 +16,9 @@ public class SawmillScreen extends AbstractContainerScreen<SawmillScreenHandler>
     private static final ResourceLocation TEXTURE =
         LogisticsMod.modId("textures/gui/automation/sawmill.png").toIdentifier();
 
+    // Shared static energy-gauge bar sprite, drawn dark for empty + bright for fill.
+    private static final ResourceLocation CHARGE = LogisticsMod.modId("automation/charge").toIdentifier();
+
     public SawmillScreen(SawmillScreenHandler handler, Inventory inventory, Component title) {
         super(handler, inventory, title);
     }
@@ -30,17 +33,19 @@ public class SawmillScreen extends AbstractContainerScreen<SawmillScreenHandler>
     protected void renderBg(GuiGraphics graphics, float delta, int mouseX, int mouseY) {
         graphics.blit(TEXTURE, leftPos, topPos, 0, 0, imageWidth, imageHeight);
 
-        // Progress arrow fill (sprite at UV 183,24) over the painted arrow.
         int arrowWidth = menu.getProgressArrowWidth();
         if (arrowWidth > 0) {
-            graphics.blit(TEXTURE, leftPos + 77, topPos + 24, 183, 24, arrowWidth, 14);
+            graphics.blit(TEXTURE, leftPos + 79, topPos + 35, 199, 35, arrowWidth, 16);
         }
 
-        // Energy bar fill (sprite at UV 180,42) over the painted energy indicator.
+        // Energy gauge: dark "empty" bar full height, then the bright fill over the bottom `energyHeight` px.
+        graphics.setColor(0.25f, 0.25f, 0.25f, 1.0f);
+        graphics.blitSprite(CHARGE, 12, 30, 0, 0, leftPos + 10, topPos + 19, 12, 30);
+        graphics.setColor(1.0f, 1.0f, 1.0f, 1.0f);
         int energyHeight = menu.getEnergyBarHeight();
         if (energyHeight > 0) {
-            graphics.blit(
-                TEXTURE, leftPos + 56, topPos + 42 + (13 - energyHeight), 180, 42 + (13 - energyHeight), 7, energyHeight);
+            graphics.blitSprite(CHARGE, 12, 30, 0, 30 - energyHeight,
+                leftPos + 10, topPos + 19 + (30 - energyHeight), 12, energyHeight);
         }
     }
 

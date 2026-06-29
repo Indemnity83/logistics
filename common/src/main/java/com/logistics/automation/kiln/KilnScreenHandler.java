@@ -112,12 +112,12 @@ public class KilnScreenHandler extends AbstractContainerMenu {
     public int getProgressArrowWidth() {
         int total = getProcessTotalTicks();
         if (total <= 0) return 0;
-        return 25 * getProcessProgress() / total;
+        return 24 * getProcessProgress() / total;
     }
 
     public int getEnergyBarHeight() {
         int capacity = getEnergyCapacity();
         if (capacity <= 0) return 0;
-        return 13 * getEnergyStored() / capacity;
+        return 30 * getEnergyStored() / capacity;
     }
 }

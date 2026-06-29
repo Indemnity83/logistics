@@ -44,10 +44,10 @@ public class SawmillScreenHandler extends AbstractContainerMenu {
 
         // Positions matched to textures/gui/automation/sawmill.png.
         // Input (0)
-        this.addSlot(new Slot(inventory, SawmillBlockEntity.INPUT_SLOT, 52, 22));
+        this.addSlot(new Slot(inventory, SawmillBlockEntity.INPUT_SLOT, 56, 35));
         // Primary output (1, upper right) and secondary Wood Pulp (2, lower right) — extraction only.
-        this.addSlot(new OutputSlot(inventory, SawmillBlockEntity.PRIMARY_OUTPUT_SLOT, 112, 22));
-        this.addSlot(new OutputSlot(inventory, SawmillBlockEntity.SECONDARY_OUTPUT_SLOT, 112, 48));
+        this.addSlot(new OutputSlot(inventory, SawmillBlockEntity.PRIMARY_OUTPUT_SLOT, 116, 25));
+        this.addSlot(new OutputSlot(inventory, SawmillBlockEntity.SECONDARY_OUTPUT_SLOT, 116, 51));
 
         // Player inventory (3 rows of 9)
         for (int row = 0; row < 3; row++) {
@@ -131,13 +131,13 @@ public class SawmillScreenHandler extends AbstractContainerMenu {
     public int getProgressArrowWidth() {
         int total = getProcessTotalTicks();
         if (total <= 0) return 0;
-        return 25 * getProcessProgress() / total;
+        return 24 * getProcessProgress() / total;
     }
 
     public int getEnergyBarHeight() {
         int capacity = getEnergyCapacity();
         if (capacity <= 0) return 0;
-        return 13 * getEnergyStored() / capacity;
+        return 30 * getEnergyStored() / capacity;
     }
 
     /** Output slot — players may take but not insert. */
