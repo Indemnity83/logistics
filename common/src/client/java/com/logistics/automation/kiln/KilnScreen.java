@@ -30,7 +30,7 @@ public class KilnScreen extends AbstractRecipeBookScreen<KilnScreenHandler> {
 
     @Override
     protected ScreenPosition getRecipeBookButtonPosition() {
-        return new ScreenPosition(this.leftPos + 20, this.height / 2 - 49);
+        return new ScreenPosition(this.leftPos + 30, this.height / 2 - 49);
     }
 
     @Override
@@ -48,9 +48,9 @@ public class KilnScreen extends AbstractRecipeBookScreen<KilnScreenHandler> {
             graphics.blit(
                 RenderPipelines.GUI_TEXTURED,
                 TEXTURE.toIdentifier(),
-                leftPos + 80, topPos + 36,
-                180, 36,
-                arrowWidth, 14,
+                leftPos + 79, topPos + 35,
+                199, 35,
+                arrowWidth, 16,
                 TEXTURE_WIDTH, TEXTURE_HEIGHT);
         }
 
@@ -59,9 +59,9 @@ public class KilnScreen extends AbstractRecipeBookScreen<KilnScreenHandler> {
             graphics.blit(
                 RenderPipelines.GUI_TEXTURED,
                 TEXTURE.toIdentifier(),
-                leftPos + 60, topPos + 55 + (13 - energyHeight),
-                180, 55 + (13 - energyHeight),
-                7, energyHeight,
+                leftPos + 10, topPos + 19 + (30 - energyHeight),
+                181, 19 + (30 - energyHeight),
+                12, energyHeight,
                 TEXTURE_WIDTH, TEXTURE_HEIGHT);
         }
     }

@@ -31,7 +31,7 @@ public class SawmillScreen extends AbstractRecipeBookScreen<SawmillScreenHandler
 
     @Override
     protected ScreenPosition getRecipeBookButtonPosition() {
-        return new ScreenPosition(this.leftPos + 20, this.height / 2 - 49);
+        return new ScreenPosition(this.leftPos + 30, this.height / 2 - 49);
     }
 
     @Override
@@ -44,27 +44,27 @@ public class SawmillScreen extends AbstractRecipeBookScreen<SawmillScreenHandler
                 imageWidth, imageHeight,
                 TEXTURE_WIDTH, TEXTURE_HEIGHT);
 
-        // Progress arrow fill (sprite at UV 180,36) over the painted arrow.
+        // Progress arrow fill (24x16 sprite at UV 199,35) over the painted arrow.
         int arrowWidth = menu.getProgressArrowWidth();
         if (arrowWidth > 0) {
             graphics.blit(
                     RenderPipelines.GUI_TEXTURED,
                     TEXTURE.toIdentifier(),
-                    leftPos + 77, topPos + 24,
-                    183, 24,
-                    arrowWidth, 14,
+                    leftPos + 79, topPos + 35,
+                    199, 35,
+                    arrowWidth, 16,
                     TEXTURE_WIDTH, TEXTURE_HEIGHT);
         }
 
-        // Energy bar fill (sprite at UV 180,55) over the painted energy indicator.
+        // Energy bar fill (12x30 sprite at UV 181,19) over the painted charge bar.
         int energyHeight = menu.getEnergyBarHeight();
         if (energyHeight > 0) {
             graphics.blit(
                     RenderPipelines.GUI_TEXTURED,
                     TEXTURE.toIdentifier(),
-                    leftPos + 56, topPos + 42 + (13 - energyHeight),
-                    180, 42 + (13 - energyHeight),
-                    7, energyHeight,
+                    leftPos + 10, topPos + 19 + (30 - energyHeight),
+                    181, 19 + (30 - energyHeight),
+                    12, energyHeight,
                     TEXTURE_WIDTH, TEXTURE_HEIGHT);
         }
     }
