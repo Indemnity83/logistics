@@ -1,22 +1,30 @@
 package com.logistics.automation.sawmill;
 
 import com.logistics.LogisticsAutomation;
+import net.minecraft.recipebook.ServerPlaceRecipe;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.entity.player.StackedItemContents;
 import net.minecraft.world.inventory.ContainerData;
+import net.minecraft.world.inventory.RecipeBookMenu;
+import net.minecraft.world.inventory.RecipeBookType;
 import net.minecraft.world.inventory.SimpleContainerData;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.item.crafting.SingleRecipeInput;
+
+import java.util.List;
 
 /**
  * Screen handler for the Sawmill GUI.
  * Input slot plus primary (planks/sticks) and secondary (Wood Pulp) output slots, with
  * progress + energy synced to the client.
  */
-public class SawmillScreenHandler extends AbstractContainerMenu {
+public class SawmillScreenHandler extends RecipeBookMenu {
 
     private static final int MACHINE_SLOT_COUNT = SawmillBlockEntity.TOTAL_SLOTS;
     private static final int PLAYER_INVENTORY_START = MACHINE_SLOT_COUNT;
@@ -62,6 +70,52 @@ public class SawmillScreenHandler extends AbstractContainerMenu {
         }
 
         this.addDataSlots(data);
+    }
+
+    // ==================== RecipeBookMenu ====================
+
+    @Override
+    public RecipeBookType getRecipeBookType() {
+        return RecipeBookType.FURNACE;
+    }
+
+    @Override
+    public void fillCraftSlotsStackedContents(StackedItemContents contents) {
+        ItemStack input = inventory.getItem(SawmillBlockEntity.INPUT_SLOT);
+        if (!input.isEmpty()) {
+            contents.accountSimpleStack(input);
+        }
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public PostPlaceAction handlePlacement(boolean placeAll, boolean isCreative, RecipeHolder<?> recipe, ServerLevel level, Inventory playerInventory) {
+        List<Slot> relevant = List.of(this.getSlot(SawmillBlockEntity.INPUT_SLOT));
+        return ServerPlaceRecipe.placeRecipe(
+            new ServerPlaceRecipe.CraftingMenuAccess<SawmillRecipe>() {
+                @Override
+                public void fillCraftSlotsStackedContents(StackedItemContents contents) {
+                    SawmillScreenHandler.this.fillCraftSlotsStackedContents(contents);
+                }
+
+                @Override
+                public void clearCraftingContent() {
+                    relevant.forEach(s -> s.set(ItemStack.EMPTY));
+                }
+
+                @Override
+                public boolean recipeMatches(RecipeHolder<SawmillRecipe> r) {
+                    return r.value().matches(new SingleRecipeInput(inventory.getItem(SawmillBlockEntity.INPUT_SLOT)), level);
+                }
+            },
+            1, 1,
+            relevant,
+            relevant,
+            playerInventory,
+            (RecipeHolder<SawmillRecipe>) recipe,
+            placeAll,
+            isCreative
+        );
     }
 
     @Override
