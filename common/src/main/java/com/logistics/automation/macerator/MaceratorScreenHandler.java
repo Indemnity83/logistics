@@ -50,13 +50,13 @@ public class MaceratorScreenHandler extends RecipeBookMenu {
         inventory.startOpen(playerInventory.player);
 
         // Slot positions match the Sawmill GUI. Input (0) on the left.
-        this.addSlot(new Slot(inventory, MaceratorBlockEntity.INPUT_SLOT, 52, 22));
+        this.addSlot(new Slot(inventory, MaceratorBlockEntity.INPUT_SLOT, 56, 35));
 
         // Primary output (1, upper right) — no insertion; releases banked maceration XP to the player on take
-        this.addSlot(new MachineResultSlot(inventory, MaceratorBlockEntity.OUTPUT_SLOT, 116, 22));
+        this.addSlot(new MachineResultSlot(inventory, MaceratorBlockEntity.OUTPUT_SLOT, 116, 25));
 
         // Secondary chance byproduct (2, lower right) — extraction only, no XP
-        this.addSlot(new OutputSlot(inventory, MaceratorBlockEntity.SECONDARY_OUTPUT_SLOT, 116, 48));
+        this.addSlot(new OutputSlot(inventory, MaceratorBlockEntity.SECONDARY_OUTPUT_SLOT, 116, 51));
 
         // Player inventory (3 rows of 9)
         for (int row = 0; row < 3; row++) {
@@ -191,14 +191,14 @@ public class MaceratorScreenHandler extends RecipeBookMenu {
     public int getProgressArrowWidth() {
         int required = getEnergyRequired();
         if (required <= 0) return 0;
-        return 25 * getEnergySpent() / required;
+        return 24 * getEnergySpent() / required;
     }
 
     /** Energy bar height in pixels (0–13). */
     public int getEnergyBarHeight() {
         int capacity = getEnergyCapacity();
         if (capacity <= 0) return 0;
-        return 13 * getEnergyStored() / capacity;
+        return 30 * getEnergyStored() / capacity;
     }
 
     /** Output slot — players may take but not insert. */

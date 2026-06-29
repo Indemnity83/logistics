@@ -19,6 +19,10 @@ public class SawmillScreen extends AbstractRecipeBookScreen<SawmillScreenHandler
     private static final int TEXTURE_WIDTH = 256;
     private static final int TEXTURE_HEIGHT = 256;
 
+    // Shared static energy-gauge bar (gui/sprites/automation/charge.png), drawn dark for empty + bright for fill.
+    private static final ResourceId CHARGE = LogisticsMod.modId("automation/charge");
+    private static final int CHARGE_EMPTY_TINT = 0xFF404040;
+
     public SawmillScreen(SawmillScreenHandler handler, Inventory inventory, Component title) {
         super(handler, new SawmillRecipeBookComponent(handler), inventory, title);
     }
@@ -31,7 +35,7 @@ public class SawmillScreen extends AbstractRecipeBookScreen<SawmillScreenHandler
 
     @Override
     protected ScreenPosition getRecipeBookButtonPosition() {
-        return new ScreenPosition(this.leftPos + 20, this.height / 2 - 49);
+        return new ScreenPosition(this.leftPos + 30, this.height / 2 - 49);
     }
 
     @Override
@@ -44,28 +48,36 @@ public class SawmillScreen extends AbstractRecipeBookScreen<SawmillScreenHandler
                 imageWidth, imageHeight,
                 TEXTURE_WIDTH, TEXTURE_HEIGHT);
 
-        // Progress arrow fill (sprite at UV 180,36) over the painted arrow.
+        // Progress arrow fill (24x16 sprite at UV 199,35) over the painted arrow.
         int arrowWidth = menu.getProgressArrowWidth();
         if (arrowWidth > 0) {
             graphics.blit(
                     RenderPipelines.GUI_TEXTURED,
                     TEXTURE.toIdentifier(),
-                    leftPos + 77, topPos + 24,
-                    183, 24,
-                    arrowWidth, 14,
+                    leftPos + 79, topPos + 35,
+                    199, 35,
+                    arrowWidth, 16,
                     TEXTURE_WIDTH, TEXTURE_HEIGHT);
         }
 
-        // Energy bar fill (sprite at UV 180,55) over the painted energy indicator.
+        // Energy gauge: dark "empty" bar full height, then the bright fill over the bottom `energyHeight` px.
+        graphics.blitSprite(
+                RenderPipelines.GUI_TEXTURED,
+                CHARGE.toIdentifier(),
+                12, 30,
+                0, 0,
+                leftPos + 10, topPos + 19,
+                12, 30,
+                CHARGE_EMPTY_TINT);
         int energyHeight = menu.getEnergyBarHeight();
         if (energyHeight > 0) {
-            graphics.blit(
+            graphics.blitSprite(
                     RenderPipelines.GUI_TEXTURED,
-                    TEXTURE.toIdentifier(),
-                    leftPos + 56, topPos + 42 + (13 - energyHeight),
-                    180, 42 + (13 - energyHeight),
-                    7, energyHeight,
-                    TEXTURE_WIDTH, TEXTURE_HEIGHT);
+                    CHARGE.toIdentifier(),
+                    12, 30,
+                    0, 30 - energyHeight,
+                    leftPos + 10, topPos + 19 + (30 - energyHeight),
+                    12, energyHeight);
         }
     }
 }
