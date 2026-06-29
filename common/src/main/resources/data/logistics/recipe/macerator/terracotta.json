@@ -1,0 +1,11 @@
+{
+  "type": "logistics:macerator",
+  "ingredient": {
+    "item": "minecraft:terracotta"
+  },
+  "result": {
+    "id": "minecraft:clay_ball",
+    "count": 4
+  },
+  "energyrequired": 4000
+}

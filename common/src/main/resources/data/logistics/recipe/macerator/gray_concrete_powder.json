@@ -1,0 +1,11 @@
+{
+  "type": "logistics:macerator",
+  "ingredient": {
+    "item": "minecraft:gray_concrete"
+  },
+  "result": {
+    "id": "minecraft:gray_concrete_powder",
+    "count": 1
+  },
+  "energyrequired": 4000
+}

@@ -1,0 +1,11 @@
+{
+  "type": "logistics:macerator",
+  "ingredient": {
+    "item": "minecraft:flower_pot"
+  },
+  "result": {
+    "id": "minecraft:brick",
+    "count": 1
+  },
+  "energyrequired": 3000
+}

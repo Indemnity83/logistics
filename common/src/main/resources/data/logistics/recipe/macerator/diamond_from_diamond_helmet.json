@@ -1,0 +1,11 @@
+{
+  "type": "logistics:macerator",
+  "ingredient": {
+    "item": "minecraft:diamond_helmet"
+  },
+  "result": {
+    "id": "minecraft:diamond",
+    "count": 5
+  },
+  "energyrequired": 4000
+}

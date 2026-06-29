@@ -18,7 +18,7 @@ import net.minecraft.world.item.ItemStack;
  */
 public class MaceratorScreenHandler extends AbstractContainerMenu {
 
-    private static final int MACHINE_SLOT_COUNT = 2;
+    private static final int MACHINE_SLOT_COUNT = 3;
     private static final int PLAYER_INVENTORY_START = MACHINE_SLOT_COUNT;
     private static final int PLAYER_INVENTORY_END = PLAYER_INVENTORY_START + 36; // 27 + 9 hotbar
 
@@ -41,11 +41,14 @@ public class MaceratorScreenHandler extends AbstractContainerMenu {
 
         inventory.startOpen(playerInventory.player);
 
-        // Input slot (0) — left side of GUI
-        this.addSlot(new Slot(inventory, MaceratorBlockEntity.INPUT_SLOT, 56, 35));
+        // Slot positions match the Sawmill GUI. Input (0) on the left.
+        this.addSlot(new Slot(inventory, MaceratorBlockEntity.INPUT_SLOT, 52, 22));
 
-        // Output slot (1) — no insertion; releases banked maceration XP to the player on take
-        this.addSlot(new MachineResultSlot(inventory, MaceratorBlockEntity.OUTPUT_SLOT, 116, 35));
+        // Primary output (1, upper right) — no insertion; releases banked maceration XP to the player on take
+        this.addSlot(new MachineResultSlot(inventory, MaceratorBlockEntity.OUTPUT_SLOT, 116, 22));
+
+        // Secondary chance byproduct (2, lower right) — extraction only, no XP
+        this.addSlot(new OutputSlot(inventory, MaceratorBlockEntity.SECONDARY_OUTPUT_SLOT, 116, 48));
 
         // Player inventory (3 rows of 9)
         for (int row = 0; row < 3; row++) {
@@ -144,5 +147,17 @@ public class MaceratorScreenHandler extends AbstractContainerMenu {
         int capacity = getEnergyCapacity();
         if (capacity <= 0) return 0;
         return 13 * getEnergyStored() / capacity;
+    }
+
+    /** Output slot — players may take but not insert. */
+    private static class OutputSlot extends Slot {
+        OutputSlot(Container container, int index, int x, int y) {
+            super(container, index, x, y);
+        }
+
+        @Override
+        public boolean mayPlace(ItemStack stack) {
+            return false;
+        }
     }
 }

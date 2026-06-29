@@ -18,7 +18,7 @@ import net.minecraft.world.item.ItemStack;
 
 /**
  * JEI recipe category for the Macerator.
- * Displays a single input ingredient grinding into an output item.
+ * Displays an input ingredient ground into a primary dust, plus a chance-based byproduct (ore recipes).
  */
 public class MaceratorRecipeCategory implements IRecipeCategory<MaceratorRecipeWrapper> {
 
@@ -27,16 +27,17 @@ public class MaceratorRecipeCategory implements IRecipeCategory<MaceratorRecipeW
 
     // Matches MaceratorScreen.TEXTURE
     private static final ResourceLocation TEXTURE =
-        LogisticsMod.modId("textures/gui/core/macerator.png").toIdentifier();
+        LogisticsMod.modId("textures/gui/automation/macerator.png").toIdentifier();
 
-    // GUI slot positions relative to background UV origin (48, 27).
-    //   input: (8,8), output: (68,8). Arrow source: UV (180,36) size 25x14 at offset (32,9).
-    private static final int INPUT_X = 8, INPUT_Y = 8;
-    private static final int OUTPUT_X = 68, OUTPUT_Y = 8;
-    private static final int ARROW_X = 32, ARROW_Y = 9;
+    // Compact JEI layout: input -> arrow -> primary output, with the byproduct beside it.
+    // The filled progress arrow sprite lives at UV (180,23), 25x14, in the GUI texture (see MaceratorScreen).
+    private static final int INPUT_X = 8, INPUT_Y = 9;
+    private static final int ARROW_X = 30, ARROW_Y = 10;
+    private static final int OUTPUT_X = 60, OUTPUT_Y = 9;
+    private static final int BYPRODUCT_X = 82, BYPRODUCT_Y = 9;
 
-    private static final int WIDTH = 86;
-    private static final int HEIGHT = 26;
+    private static final int WIDTH = 104;
+    private static final int HEIGHT = 28;
 
     private final IDrawable background;
     private final IDrawable icon;
@@ -46,7 +47,7 @@ public class MaceratorRecipeCategory implements IRecipeCategory<MaceratorRecipeW
         this.background = guiHelper.createDrawable(TEXTURE, 48, 27, WIDTH, HEIGHT);
         this.icon = guiHelper.createDrawableItemStack(
             new ItemStack(LogisticsAutomation.BLOCK.MACERATOR));
-        this.arrow = guiHelper.createDrawable(TEXTURE, 180, 36, 25, 14);
+        this.arrow = guiHelper.createDrawable(TEXTURE, 180, 23, 25, 14);
     }
 
     @Override
@@ -56,7 +57,7 @@ public class MaceratorRecipeCategory implements IRecipeCategory<MaceratorRecipeW
 
     @Override
     public Component getTitle() {
-        return Component.translatable("block.logistics.core.macerator");
+        return Component.translatable("block.logistics.automation.macerator");
     }
 
     @Override
@@ -90,5 +91,19 @@ public class MaceratorRecipeCategory implements IRecipeCategory<MaceratorRecipeW
             .addIngredients(recipe.ingredient());
         builder.addSlot(RecipeIngredientRole.OUTPUT, OUTPUT_X, OUTPUT_Y)
             .addItemStack(recipe.getResultItem());
+
+        recipe.byproduct().ifPresent(bp -> {
+            // chance doubles as count: floor(chance) is guaranteed, the remainder is a bonus chance.
+            int guaranteed = (int) bp.chance();
+            float bonus = bp.chance() - guaranteed;
+            var slot = builder.addSlot(RecipeIngredientRole.OUTPUT, BYPRODUCT_X, BYPRODUCT_Y)
+                .addItemStack(bp.stack(Math.max(1, guaranteed)));
+            if (bonus > 0f) {
+                float pct = bonus * 100f;
+                String pctStr = pct == Math.rint(pct) ? String.valueOf((int) pct) : String.format("%.1f", pct);
+                slot.addRichTooltipCallback((view, tooltip) ->
+                    tooltip.add(Component.translatable("jei.logistics.macerator.byproduct_chance", pctStr)));
+            }
+        });
     }
 }

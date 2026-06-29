@@ -1,0 +1,11 @@
+{
+  "type": "logistics:macerator",
+  "ingredient": {
+    "tag": "minecraft:wool"
+  },
+  "result": {
+    "id": "minecraft:string",
+    "count": 4
+  },
+  "energyrequired": 3000
+}

@@ -13,7 +13,7 @@ import net.minecraft.world.entity.player.Inventory;
 public class MaceratorScreen extends AbstractContainerScreen<MaceratorScreenHandler> {
 
     private static final ResourceLocation TEXTURE =
-        LogisticsMod.modId("textures/gui/core/macerator.png").toIdentifier();
+        LogisticsMod.modId("textures/gui/automation/macerator.png").toIdentifier();
 
     public MaceratorScreen(MaceratorScreenHandler handler, Inventory inventory, Component title) {
         super(handler, inventory, title);
@@ -33,13 +33,13 @@ public class MaceratorScreen extends AbstractContainerScreen<MaceratorScreenHand
 
         int arrowWidth = menu.getProgressArrowWidth();
         if (arrowWidth > 0) {
-            graphics.blit(TEXTURE, leftPos + 80, topPos + 36, 180, 36, arrowWidth, 14);
+            graphics.blit(TEXTURE, leftPos + 79, topPos + 23, 180, 23, arrowWidth, 14);
         }
 
         int energyHeight = menu.getEnergyBarHeight();
         if (energyHeight > 0) {
-            graphics.blit(TEXTURE, leftPos + 60, topPos + 55 + (13 - energyHeight),
-                180, 55 + (13 - energyHeight), 7, energyHeight);
+            graphics.blit(TEXTURE, leftPos + 56, topPos + 42 + (13 - energyHeight),
+                180, 42 + (13 - energyHeight), 7, energyHeight);
         }
     }
 

@@ -1,0 +1,11 @@
+{
+  "type": "logistics:macerator",
+  "ingredient": {
+    "item": "minecraft:diamond_hoe"
+  },
+  "result": {
+    "id": "minecraft:diamond",
+    "count": 2
+  },
+  "energyrequired": 4000
+}

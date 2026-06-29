@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "logistics:core/coal_dust"
+    },
+    {
+      "item": "logistics:core/sulfur_dust"
+    },
+    {
+      "item": "logistics:core/niter"
+    },
+    {
+      "item": "logistics:core/niter"
+    }
+  ],
+  "result": {
+    "id": "minecraft:gunpowder",
+    "count": 1
+  }
+}

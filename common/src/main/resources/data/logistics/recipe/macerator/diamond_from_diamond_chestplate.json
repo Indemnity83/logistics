@@ -1,0 +1,11 @@
+{
+  "type": "logistics:macerator",
+  "ingredient": {
+    "item": "minecraft:diamond_chestplate"
+  },
+  "result": {
+    "id": "minecraft:diamond",
+    "count": 8
+  },
+  "energyrequired": 4000
+}

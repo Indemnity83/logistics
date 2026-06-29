@@ -1,0 +1,15 @@
+{
+  "type": "logistics:macerator",
+  "ingredient": {
+    "item": "minecraft:red_sandstone_slab"
+  },
+  "result": {
+    "id": "minecraft:red_sand",
+    "count": 1
+  },
+  "energyrequired": 3000,
+  "byproduct": {
+    "id": "logistics:core/niter",
+    "chance": 0.2
+  }
+}

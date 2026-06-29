@@ -1,0 +1,11 @@
+{
+  "type": "logistics:macerator",
+  "ingredient": {
+    "item": "minecraft:wooden_sword"
+  },
+  "result": {
+    "id": "logistics:core/sawdust",
+    "count": 1
+  },
+  "energyrequired": 2000
+}

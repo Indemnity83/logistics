@@ -2,9 +2,11 @@ package com.logistics.automation.macerator;
 
 import com.logistics.LogisticsAutomation;
 import com.logistics.core.machine.MachineContext;
+import com.logistics.core.machine.component.ChanceOutput;
 import com.logistics.core.machine.component.ProcessIO;
 import com.logistics.core.machine.component.RecipePlan;
 import com.logistics.core.machine.component.RecipeResolver;
+import java.util.List;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.SingleRecipeInput;
@@ -31,8 +33,15 @@ public final class MaceratorRecipeResolver implements RecipeResolver {
         }
         return recipeManager
                 .getRecipeFor(LogisticsAutomation.RECIPE.MACERATOR_RECIPE_TYPE, new SingleRecipeInput(input), level)
-                .map(holder -> new RecipePlan(
-                        holder.value().energyRequired(), holder.value().getResultItem(), holder.value().experience()))
+                .map(holder -> {
+                    MaceratorRecipeWrapper recipe = holder.value();
+                    List<ChanceOutput> byproducts = recipe.byproduct()
+                            .map(b -> List.of(new ChanceOutput(b.stack(1), b.chance())))
+                            .orElse(List.of());
+                    return new RecipePlan(
+                            recipe.energyRequired(), recipe.ingredientCount(), recipe.getResultItem(),
+                            byproducts, recipe.experience());
+                })
                 .orElse(null);
     }
 }

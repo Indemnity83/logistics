@@ -22,6 +22,7 @@ public class MaceratorGameTest {
 
     private static final int INPUT_SLOT = 0;
     private static final int OUTPUT_SLOT = 1;
+    private static final int SECONDARY_OUTPUT_SLOT = 2;
 
     @GameTest(template = "fabric-gametest-api-v1:empty")
     public void testPlacementCreatesBlockEntity(GameTestHelper context) {
@@ -46,8 +47,8 @@ public class MaceratorGameTest {
         }
 
         int[] bottom = sided.getSlotsForFace(Direction.DOWN);
-        if (bottom.length != 1 || bottom[0] != OUTPUT_SLOT) {
-            context.fail("Bottom should expose the output slot");
+        if (bottom.length != 2 || bottom[0] != OUTPUT_SLOT || bottom[1] != SECONDARY_OUTPUT_SLOT) {
+            context.fail("Bottom should expose both output slots");
             return;
         }
         // Top and horizontal faces expose the input slot.
@@ -70,6 +71,10 @@ public class MaceratorGameTest {
         }
         if (!sided.canTakeItemThroughFace(OUTPUT_SLOT, ItemStack.EMPTY, Direction.DOWN)) {
             context.fail("Output should be extractable from the bottom");
+            return;
+        }
+        if (!sided.canTakeItemThroughFace(SECONDARY_OUTPUT_SLOT, ItemStack.EMPTY, Direction.DOWN)) {
+            context.fail("Byproduct slot should be extractable from the bottom");
             return;
         }
         context.succeed();

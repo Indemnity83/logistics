@@ -135,6 +135,9 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         public static Item ENDER_DUST;
         public static Item ECHO_DUST;
         public static Item PRISMARINE_DUST;
+        public static Item SULFUR_DUST;
+        public static Item QUICKSILVER;
+        public static Item NITER;
         public static Item SILICON_MIX;
         public static Item SILICON_WAFER;
         public static Item FLOUR;
@@ -227,6 +230,9 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
             ENDER_DUST = INSTANCE.registerItem("ender_dust", Item::new);
             ECHO_DUST = INSTANCE.registerItem("echo_dust", Item::new);
             PRISMARINE_DUST = INSTANCE.registerItem("prismarine_dust", Item::new);
+            SULFUR_DUST = INSTANCE.registerItem("sulfur_dust", Item::new);
+            QUICKSILVER = INSTANCE.registerItem("quicksilver", Item::new);
+            NITER = INSTANCE.registerItem("niter", Item::new);
             SILICON_MIX = INSTANCE.registerItem("silicon_mix", Item::new);
             SILICON_WAFER = INSTANCE.registerItem("silicon_wafer", Item::new);
             FLOUR = INSTANCE.registerItem("flour", Item::new);
@@ -356,7 +362,7 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
                     ITEM.GOLD_DUST, ITEM.LAPIS_DUST, ITEM.QUARTZ_DUST, ITEM.COAL_DUST,
                     ITEM.AMETHYST_DUST, ITEM.DIAMOND_DUST, ITEM.EMERALD_DUST,
                     ITEM.NETHERITE_DUST, ITEM.OBSIDIAN_DUST, ITEM.ENDER_DUST,
-                    ITEM.ECHO_DUST, ITEM.PRISMARINE_DUST,
+                    ITEM.ECHO_DUST, ITEM.PRISMARINE_DUST, ITEM.SULFUR_DUST, ITEM.QUICKSILVER, ITEM.NITER,
                     ITEM.SILICON_MIX, ITEM.SILICON_WAFER, ITEM.FLOUR, ITEM.SAWDUST,
                     ITEM.CARBON_CHIP, ITEM.REDSTONE_CHIP, ITEM.AMETHYST_CHIP, ITEM.ECHO_CHIP,
                     ITEM.WOODEN_CORE,

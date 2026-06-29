@@ -1,0 +1,11 @@
+{
+  "type": "logistics:macerator",
+  "ingredient": {
+    "item": "minecraft:light_blue_concrete"
+  },
+  "result": {
+    "id": "minecraft:light_blue_concrete_powder",
+    "count": 1
+  },
+  "energyrequired": 4000
+}

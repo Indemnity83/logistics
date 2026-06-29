@@ -1,0 +1,11 @@
+{
+  "type": "logistics:macerator",
+  "ingredient": {
+    "item": "minecraft:magma_block"
+  },
+  "result": {
+    "id": "minecraft:magma_cream",
+    "count": 4
+  },
+  "energyrequired": 4000
+}

@@ -8,5 +8,9 @@
     "count": 2
   },
   "energyrequired": 2000,
-  "experience": 0.7
+  "experience": 0.7,
+  "byproduct": {
+    "id": "logistics:core/quicksilver",
+    "chance": 0.25
+  }
 }

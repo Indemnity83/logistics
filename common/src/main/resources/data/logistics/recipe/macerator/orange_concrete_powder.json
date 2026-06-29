@@ -1,0 +1,11 @@
+{
+  "type": "logistics:macerator",
+  "ingredient": {
+    "item": "minecraft:orange_concrete"
+  },
+  "result": {
+    "id": "minecraft:orange_concrete_powder",
+    "count": 1
+  },
+  "energyrequired": 4000
+}

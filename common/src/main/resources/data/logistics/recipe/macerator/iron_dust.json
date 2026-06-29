@@ -8,5 +8,9 @@
     "count": 2
   },
   "energyrequired": 2000,
-  "experience": 0.7
+  "experience": 0.7,
+  "byproduct": {
+    "id": "logistics:core/tin_dust",
+    "chance": 0.1
+  }
 }
