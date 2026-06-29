@@ -187,11 +187,11 @@ public class MaceratorScreenHandler extends RecipeBookMenu {
         return (int) MaceratorBlockEntity.ENERGY_CAPACITY;
     }
 
-    /** Processing progress as a 0–25 pixel width for the arrow, or 0 if idle. */
+    /** Processing progress as a 0–22 pixel width for the arrow (the sprite width), or 0 if idle. */
     public int getProgressArrowWidth() {
         int required = getEnergyRequired();
         if (required <= 0) return 0;
-        return 25 * getEnergySpent() / required;
+        return 22 * getEnergySpent() / required;
     }
 
     /** Energy bar height in pixels (0–13). */

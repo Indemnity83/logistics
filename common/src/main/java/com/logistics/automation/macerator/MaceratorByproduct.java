@@ -17,6 +17,13 @@ import net.minecraft.world.item.ItemStack;
  */
 public record MaceratorByproduct(Item item, float chance) {
 
+    public MaceratorByproduct {
+        // Mirror ChanceOutput's contract: finite and non-negative (>1 is allowed — guaranteed + bonus).
+        if (!Float.isFinite(chance) || chance < 0f) {
+            throw new IllegalArgumentException("chance must be finite and non-negative, got " + chance);
+        }
+    }
+
     public static final Codec<MaceratorByproduct> CODEC = RecordCodecBuilder.create(i -> i.group(
         BuiltInRegistries.ITEM.byNameCodec().fieldOf("id").forGetter(MaceratorByproduct::item),
         Codec.FLOAT.fieldOf("chance").forGetter(MaceratorByproduct::chance)

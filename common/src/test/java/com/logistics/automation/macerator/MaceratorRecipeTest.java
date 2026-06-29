@@ -2,9 +2,11 @@ package com.logistics.automation.macerator;
 
 import com.logistics.core.lib.recipe.MachineResult;
 import com.logistics.test.MinecraftTestEnvironment;
+import io.netty.buffer.Unpooled;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.RegistryOps;
@@ -115,11 +117,12 @@ class MaceratorRecipeTest extends MinecraftTestEnvironment {
     @DisplayName("MaceratorRecipeSerializer")
     class Serializer {
 
+        private RegistryAccess registries;
         private RegistryOps<Tag> ops;
 
         @BeforeEach
         void setUp() {
-            RegistryAccess registries = RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY);
+            registries = RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY);
             ops = registries.createSerializationContext(NbtOps.INSTANCE);
         }
 
@@ -167,6 +170,31 @@ class MaceratorRecipeTest extends MinecraftTestEnvironment {
             // A recipe without a byproduct omits the field entirely.
             Tag plain = MaceratorRecipeSerializer.CODEC.codec().encodeStart(ops, rawIronRecipe()).getOrThrow();
             assertThat(((CompoundTag) plain).contains("byproduct")).isFalse();
+        }
+
+        @Test
+        @DisplayName("stream codec round-trips the byproduct (present and absent) for recipe sync")
+        void streamRoundTripPreservesByproduct() {
+            MaceratorRecipeWrapper withByproduct = new MaceratorRecipeWrapper(
+                Ingredient.of(Items.IRON_ORE),
+                MachineResult.of(Items.IRON_INGOT, 2),
+                2000,
+                0.7f,
+                Optional.of(new MaceratorByproduct(Items.GOLD_NUGGET, 0.1f))
+            );
+            MaceratorRecipeWrapper decoded = streamRoundTrip(withByproduct);
+            assertThat(decoded.byproduct()).isPresent();
+            assertThat(decoded.byproduct().get().item()).isEqualTo(Items.GOLD_NUGGET);
+            assertThat(decoded.byproduct().get().chance()).isEqualTo(0.1f);
+
+            // The optional byproduct stays absent across the sync path.
+            assertThat(streamRoundTrip(rawIronRecipe()).byproduct()).isEmpty();
+        }
+
+        private MaceratorRecipeWrapper streamRoundTrip(MaceratorRecipeWrapper recipe) {
+            RegistryFriendlyByteBuf buf = new RegistryFriendlyByteBuf(Unpooled.buffer(), registries);
+            MaceratorRecipeSerializer.STREAM_CODEC.encode(buf, recipe);
+            return MaceratorRecipeSerializer.STREAM_CODEC.decode(buf);
         }
 
         @Test
