@@ -36,7 +36,7 @@ public class SawmillBlockEntity extends MachineEntity {
     public static final int SECONDARY_OUTPUT_SLOT = 2;
     public static final int TOTAL_SLOTS = 3;
 
-    public static final long ENERGY_CAPACITY = 20_000L;
+    public static final long ENERGY_CAPACITY = 10_000L;
     static final long MAX_ENERGY_INPUT = 128L;
     static final int ENERGY_PER_TICK = 20;
 
