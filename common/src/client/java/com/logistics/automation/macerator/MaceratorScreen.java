@@ -50,7 +50,7 @@ public class MaceratorScreen extends AbstractRecipeBookScreen<MaceratorScreenHan
             graphics.blit(
                 RenderPipelines.GUI_TEXTURED,
                 TEXTURE.toIdentifier(),
-                leftPos + 79, topPos + 22,
+                leftPos + 79, topPos + 23,
                 180, 23,
                 arrowWidth, 14,
                 TEXTURE_WIDTH, TEXTURE_HEIGHT);
