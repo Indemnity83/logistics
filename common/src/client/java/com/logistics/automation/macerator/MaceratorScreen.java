@@ -14,7 +14,7 @@ import net.minecraft.world.entity.player.Inventory;
  */
 public class MaceratorScreen extends AbstractRecipeBookScreen<MaceratorScreenHandler> {
 
-    private static final ResourceId TEXTURE = LogisticsMod.modId("textures/gui/core/macerator.png");
+    private static final ResourceId TEXTURE = LogisticsMod.modId("textures/gui/automation/macerator.png");
     private static final int TEXTURE_WIDTH = 256;
     private static final int TEXTURE_HEIGHT = 256;
 
@@ -44,14 +44,14 @@ public class MaceratorScreen extends AbstractRecipeBookScreen<MaceratorScreenHan
             imageWidth, imageHeight,
             TEXTURE_WIDTH, TEXTURE_HEIGHT);
 
-        // Progress arrow fill (sprite at UV 183,24) over the painted arrow. Matches the Sawmill GUI.
+        // Progress arrow fill (25x14 sprite at UV 180,23) over the painted arrow.
         int arrowWidth = menu.getProgressArrowWidth();
         if (arrowWidth > 0) {
             graphics.blit(
                 RenderPipelines.GUI_TEXTURED,
                 TEXTURE.toIdentifier(),
-                leftPos + 77, topPos + 24,
-                183, 24,
+                leftPos + 79, topPos + 22,
+                180, 23,
                 arrowWidth, 14,
                 TEXTURE_WIDTH, TEXTURE_HEIGHT);
         }

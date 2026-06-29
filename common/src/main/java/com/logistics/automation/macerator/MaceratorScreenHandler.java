@@ -53,10 +53,10 @@ public class MaceratorScreenHandler extends RecipeBookMenu {
         this.addSlot(new Slot(inventory, MaceratorBlockEntity.INPUT_SLOT, 52, 22));
 
         // Primary output (1, upper right) — no insertion; releases banked maceration XP to the player on take
-        this.addSlot(new MachineResultSlot(inventory, MaceratorBlockEntity.OUTPUT_SLOT, 112, 22));
+        this.addSlot(new MachineResultSlot(inventory, MaceratorBlockEntity.OUTPUT_SLOT, 116, 22));
 
         // Secondary chance byproduct (2, lower right) — extraction only, no XP
-        this.addSlot(new OutputSlot(inventory, MaceratorBlockEntity.SECONDARY_OUTPUT_SLOT, 112, 48));
+        this.addSlot(new OutputSlot(inventory, MaceratorBlockEntity.SECONDARY_OUTPUT_SLOT, 116, 48));
 
         // Player inventory (3 rows of 9)
         for (int row = 0; row < 3; row++) {
@@ -187,11 +187,11 @@ public class MaceratorScreenHandler extends RecipeBookMenu {
         return (int) MaceratorBlockEntity.ENERGY_CAPACITY;
     }
 
-    /** Processing progress as a 0–22 pixel width for the arrow (the sprite width), or 0 if idle. */
+    /** Processing progress as a 0–25 pixel width for the arrow (the sprite width), or 0 if idle. */
     public int getProgressArrowWidth() {
         int required = getEnergyRequired();
         if (required <= 0) return 0;
-        return 22 * getEnergySpent() / required;
+        return 25 * getEnergySpent() / required;
     }
 
     /** Energy bar height in pixels (0–13). */
