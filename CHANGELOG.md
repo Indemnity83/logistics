@@ -15,10 +15,10 @@
 * **crafting:** craft gunpowder from coal, sulfur, and niter dust ([86a9c71](https://github.com/Indemnity83/logistics/commit/86a9c7128cbfd27a160f777ce1dcca3c177231c8))
 * **energy:** add the power junction ([#612](https://github.com/Indemnity83/logistics/issues/612)) ([e33e50a](https://github.com/Indemnity83/logistics/commit/e33e50a018a833049a4796f84ec76a5cae21ad8b))
 * **macerator:** add chance byproducts to ore processing ([#643](https://github.com/Indemnity83/logistics/issues/643)) ([86a9c71](https://github.com/Indemnity83/logistics/commit/86a9c7128cbfd27a160f777ce1dcca3c177231c8))
-* **macerator:** add recycling recipes for glass, concrete, sandstone, netherrack, clay, bricks, wool, magma, and more ([86a9c71](https://github.com/Indemnity83/logistics/commit/86a9c7128cbfd27a160f777ce1dcca3c177231c8))
+* **macerator:** add recycling recipes for common blocks ([86a9c71](https://github.com/Indemnity83/logistics/commit/86a9c7128cbfd27a160f777ce1dcca3c177231c8))
 * **macerator:** add Sulfur Dust, Quicksilver, and Niter items ([86a9c71](https://github.com/Indemnity83/logistics/commit/86a9c7128cbfd27a160f777ce1dcca3c177231c8))
 * **macerator:** macerate breeze rods into wind charges ([86a9c71](https://github.com/Indemnity83/logistics/commit/86a9c7128cbfd27a160f777ce1dcca3c177231c8))
-* **macerator:** macerate cinnabar and sulfur blocks and their slab/stairs/wall/polished forms into quicksilver and sulfur dust ([86a9c71](https://github.com/Indemnity83/logistics/commit/86a9c7128cbfd27a160f777ce1dcca3c177231c8))
+* **macerator:** macerate cinnabar and sulfur blocks into quicksilver and sulfur dust ([86a9c71](https://github.com/Indemnity83/logistics/commit/86a9c7128cbfd27a160f777ce1dcca3c177231c8))
 * **macerator:** macerate logs and planks into sawdust and recycle wooden tools ([86a9c71](https://github.com/Indemnity83/logistics/commit/86a9c7128cbfd27a160f777ce1dcca3c177231c8))
 * **macerator:** macerate sulfur spikes into sulfur dust ([86a9c71](https://github.com/Indemnity83/logistics/commit/86a9c7128cbfd27a160f777ce1dcca3c177231c8))
 * **macerator:** recycle diamond tools and armor into diamonds ([86a9c71](https://github.com/Indemnity83/logistics/commit/86a9c7128cbfd27a160f777ce1dcca3c177231c8))
@@ -57,7 +57,6 @@
 ### Removed
 
 * **core:** drop the tin gear ([1673320](https://github.com/Indemnity83/logistics/commit/1673320663b1ae7915e101d7439f77bcddca601a))
-* **macerator:** remove wood-pulp recipes ([d26ff18](https://github.com/Indemnity83/logistics/commit/d26ff182324bad9771fd854ca2ed60df7f647bcd))
 
 
 ### Fixed
