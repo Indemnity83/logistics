@@ -85,12 +85,17 @@ public class MaceratorRecipeCategory implements IRecipeCategory<MaceratorRecipeW
             .add(recipe.getResultItem());
 
         recipe.byproduct().ifPresent(bp -> {
-            float pct = bp.chance() * 100f;
-            String pctStr = pct == Math.rint(pct) ? String.valueOf((int) pct) : String.format("%.1f", pct);
-            builder.addSlot(RecipeIngredientRole.OUTPUT, BYPRODUCT_X, BYPRODUCT_Y)
-                .add(bp.stack(1))
-                .addRichTooltipCallback((view, tooltip) ->
+            // chance doubles as count: floor(chance) is guaranteed, the remainder is a bonus chance.
+            int guaranteed = (int) bp.chance();
+            float bonus = bp.chance() - guaranteed;
+            var slot = builder.addSlot(RecipeIngredientRole.OUTPUT, BYPRODUCT_X, BYPRODUCT_Y)
+                .add(bp.stack(Math.max(1, guaranteed)));
+            if (bonus > 0f) {
+                float pct = bonus * 100f;
+                String pctStr = pct == Math.rint(pct) ? String.valueOf((int) pct) : String.format("%.1f", pct);
+                slot.addRichTooltipCallback((view, tooltip) ->
                     tooltip.add(Component.translatable("jei.logistics.macerator.byproduct_chance", pctStr)));
+            }
         });
     }
 }

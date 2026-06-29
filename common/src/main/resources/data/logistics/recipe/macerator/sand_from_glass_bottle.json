@@ -1,0 +1,9 @@
+{
+  "type": "logistics:macerator",
+  "ingredient": "minecraft:glass_bottle",
+  "result": {
+    "id": "minecraft:sand",
+    "count": 1
+  },
+  "energyrequired": 4000
+}

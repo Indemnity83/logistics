@@ -1,0 +1,9 @@
+{
+  "type": "logistics:macerator",
+  "ingredient": "minecraft:white_concrete",
+  "result": {
+    "id": "minecraft:white_concrete_powder",
+    "count": 1
+  },
+  "energyrequired": 4000
+}
