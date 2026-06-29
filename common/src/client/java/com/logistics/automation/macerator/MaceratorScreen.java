@@ -18,6 +18,10 @@ public class MaceratorScreen extends AbstractRecipeBookScreen<MaceratorScreenHan
     private static final int TEXTURE_WIDTH = 256;
     private static final int TEXTURE_HEIGHT = 256;
 
+    // Shared static energy-gauge bar (gui/sprites/automation/charge.png), drawn dark for empty + bright for fill.
+    private static final ResourceId CHARGE = LogisticsMod.modId("automation/charge");
+    private static final int CHARGE_EMPTY_TINT = 0xFF404040;
+
     public MaceratorScreen(MaceratorScreenHandler handler, Inventory inventory, Component title) {
         super(handler, new MaceratorRecipeBookComponent(handler), inventory, title);
     }
@@ -56,16 +60,24 @@ public class MaceratorScreen extends AbstractRecipeBookScreen<MaceratorScreenHan
                 TEXTURE_WIDTH, TEXTURE_HEIGHT);
         }
 
-        // Energy bar fill (12x30 sprite at UV 181,19) over the painted charge bar.
+        // Energy gauge: dark "empty" bar full height, then the bright fill over the bottom `energyHeight` px.
+        graphics.blitSprite(
+            RenderPipelines.GUI_TEXTURED,
+            CHARGE.toIdentifier(),
+            12, 30,
+            0, 0,
+            leftPos + 10, topPos + 19,
+            12, 30,
+            CHARGE_EMPTY_TINT);
         int energyHeight = menu.getEnergyBarHeight();
         if (energyHeight > 0) {
-            graphics.blit(
+            graphics.blitSprite(
                 RenderPipelines.GUI_TEXTURED,
-                TEXTURE.toIdentifier(),
+                CHARGE.toIdentifier(),
+                12, 30,
+                0, 30 - energyHeight,
                 leftPos + 10, topPos + 19 + (30 - energyHeight),
-                181, 19 + (30 - energyHeight),
-                12, energyHeight,
-                TEXTURE_WIDTH, TEXTURE_HEIGHT);
+                12, energyHeight);
         }
     }
 }
