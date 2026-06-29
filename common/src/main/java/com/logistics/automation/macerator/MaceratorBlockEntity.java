@@ -28,6 +28,7 @@ public class MaceratorBlockEntity extends MachineEntity {
 
     static final int INPUT_SLOT = 0;
     static final int OUTPUT_SLOT = 1;
+    static final int SECONDARY_OUTPUT_SLOT = 2;
 
     static final long ENERGY_CAPACITY = 10_000L;
     static final long MAX_ENERGY_INPUT = 128L;
@@ -79,7 +80,7 @@ public class MaceratorBlockEntity extends MachineEntity {
                 .build();
 
         var items = machine.items("inventory")
-                .slots(SlotRole.INPUT, SlotRole.OUTPUT)
+                .slots(SlotRole.INPUT, SlotRole.OUTPUT, SlotRole.OUTPUT)
                 .bottomOutAccess()
                 .build();
 

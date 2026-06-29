@@ -1,0 +1,9 @@
+{
+  "type": "logistics:macerator",
+  "ingredient": "minecraft:sulfur_stairs",
+  "result": {
+    "id": "logistics:core/sulfur_dust",
+    "count": 2
+  },
+  "energyrequired": 2000
+}

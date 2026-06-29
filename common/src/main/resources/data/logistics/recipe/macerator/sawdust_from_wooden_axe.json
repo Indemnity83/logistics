@@ -1,0 +1,9 @@
+{
+  "type": "logistics:macerator",
+  "ingredient": "minecraft:wooden_axe",
+  "result": {
+    "id": "logistics:core/sawdust",
+    "count": 1
+  },
+  "energyrequired": 2000
+}

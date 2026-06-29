@@ -1,0 +1,9 @@
+{
+  "type": "logistics:macerator",
+  "ingredient": "minecraft:cinnabar_wall",
+  "result": {
+    "id": "logistics:core/quicksilver",
+    "count": 2
+  },
+  "energyrequired": 2000
+}

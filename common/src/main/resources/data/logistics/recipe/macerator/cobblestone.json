@@ -1,0 +1,13 @@
+{
+  "type": "logistics:macerator",
+  "ingredient": "minecraft:cobblestone",
+  "result": {
+    "id": "minecraft:gravel",
+    "count": 1
+  },
+  "energyrequired": 4000,
+  "byproduct": {
+    "id": "minecraft:sand",
+    "chance": 0.15
+  }
+}
