@@ -310,21 +310,34 @@ public abstract class AbstractEngineBlockEntity extends BaseBlockEntity implemen
         }
     }
 
-    /** Sends energy to the block this engine is facing via the loader-specific energy push service. */
+    /**
+     * Sends energy to the block this engine is facing. Extraction pipes and the Fluid Pump are
+     * {@link DirectEnergyReceiver}s kept off the loader energy grid, so they are fed directly through
+     * their own energy buffer; everything else goes through the loader-specific energy push service.
+     */
     protected void sendEnergy() {
-        EnergyPushService pushService = EnergyPushService.get();
-        if (level == null || !isRedstonePowered() || pushService == null) return;
+        if (level == null || !isRedstonePowered()) return;
 
         Direction outputDir = getOutputDirection();
         BlockPos targetPos = getBlockPos().relative(outputDir);
         long maxSend = Math.min(getOutputPower(), energyBuffer.getAmount());
         if (maxSend <= 0) return;
 
-        long sent = pushService.push(level, targetPos, outputDir.getOpposite(), energyBuffer, maxSend);
+        long sent = sendEnergyTo(targetPos, outputDir.getOpposite(), maxSend);
         if (sent > 0) {
             energyBuffer.consume(Math.min(sent, energyBuffer.getAmount()));
             setChanged();
         }
+    }
+
+    private long sendEnergyTo(BlockPos targetPos, Direction fromDirection, long maxSend) {
+        if (level.getBlockEntity(targetPos) instanceof DirectEnergyReceiver receiver
+                && receiver instanceof HasEnergyStorage hasStorage) {
+            IEnergyStorage storage = hasStorage.energyStorage(fromDirection);
+            return storage == null ? 0L : storage.insert(maxSend, false);
+        }
+        EnergyPushService pushService = EnergyPushService.get();
+        return pushService == null ? 0L : pushService.push(level, targetPos, fromDirection, energyBuffer, maxSend);
     }
 
     /** Adds energy to the buffer, capped at max capacity. */

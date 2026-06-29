@@ -12,6 +12,7 @@ import com.logistics.core.lib.block.capability.PipeConnection;
 import com.logistics.core.lib.network.ILogisticsNetwork;
 import com.logistics.core.lib.pipe.IPipeAccess;
 import com.logistics.core.lib.power.AcceptsLowTierEnergy;
+import com.logistics.core.lib.power.DirectEnergyReceiver;
 import com.logistics.pipe.ChassisPipe;
 import com.logistics.pipe.ItemPipe;
 import com.logistics.core.lib.pipe.PipeContext;
@@ -44,7 +45,7 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
 public class PipeBlockEntity extends BaseBlockEntity
-        implements PipeConnection, AcceptsLowTierEnergy, HasItemStorage, HasEnergyStorage, IPipeAccess {
+        implements PipeConnection, AcceptsLowTierEnergy, DirectEnergyReceiver, HasItemStorage, HasEnergyStorage, IPipeAccess {
     public static final int VIRTUAL_CAPACITY = 5 * 64;
     private final List<TravelingItem> travelingItems = new ArrayList<>();
     private final CompoundTag moduleState = new CompoundTag();

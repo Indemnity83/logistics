@@ -19,6 +19,7 @@ import com.logistics.core.lib.pipe.DestinationPriority;
 import com.logistics.core.lib.pipe.IModuleHost;
 import com.logistics.core.lib.pipe.PipeContext;
 import com.logistics.core.lib.power.AcceptsLowTierEnergy;
+import com.logistics.core.lib.power.DirectEnergyReceiver;
 import com.logistics.core.lib.fluids.FluidUnits;
 import com.logistics.pipe.block.FluidConnection;
 import com.logistics.pipe.block.FluidPipeBlock;
@@ -57,7 +58,7 @@ import org.jetbrains.annotations.Nullable;
  * backpressure. Gravity is intentionally ignored (predictable transport over physical accuracy).
  */
 public class FluidPipeBlockEntity extends BaseBlockEntity
-        implements HasFluidStorage, HasEnergyStorage, AcceptsLowTierEnergy, IModuleHost {
+        implements HasFluidStorage, HasEnergyStorage, AcceptsLowTierEnergy, DirectEnergyReceiver, IModuleHost {
 
     private static final long ENERGY_CAPACITY = 20;
     private static final int SYNC_STEPS = 16;

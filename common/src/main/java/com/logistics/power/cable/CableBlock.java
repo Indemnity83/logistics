@@ -3,6 +3,7 @@ package com.logistics.power.cable;
 import com.logistics.LogisticsPower;
 import com.logistics.core.lib.block.ConnectedShapeCache;
 import com.logistics.core.lib.block.capability.HasEnergyStorage;
+import com.logistics.core.lib.power.DirectEnergyReceiver;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -224,6 +225,11 @@ public class CableBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
         BlockEntity neighbor = level.getBlockEntity(neighborPos);
         if (neighbor instanceof CableBlockEntity) {
             return ConnectionType.CABLE;
+        }
+
+        // Extraction pipes / pump are engine-powered only; cables never connect to them.
+        if (neighbor instanceof DirectEnergyReceiver) {
+            return ConnectionType.NONE;
         }
 
         if (neighbor instanceof HasEnergyStorage energyBlock
