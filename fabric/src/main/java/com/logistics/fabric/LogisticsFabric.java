@@ -31,6 +31,7 @@ public final class LogisticsFabric implements ModInitializer {
         registerEnergyServices();
         FabricCapabilityRegistration.register();
         FabricChestLootModifier.register();
+        FabricMobLootModifier.register();
         FabricNetworkTickHandler.register();
         FabricCommandRegistration.register();
         FabricServerLevelEvents.register();
