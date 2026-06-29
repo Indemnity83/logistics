@@ -106,6 +106,9 @@ public abstract class AbstractBatteryBlockEntity extends BaseBlockEntity
         CompoundTag logisticsData = new CompoundTag();
         energy.writeNbt(logisticsData, "Energy");
         CompoundTag tag = new CompoundTag();
+        // block_entity_data must carry the block-entity id, or encoding the stack on save throws
+        // "Missing id for entity". TypedEntityData supplies this automatically on newer versions.
+        tag.putString("id", BlockEntityType.getKey(getType()).toString());
         tag.put("LogisticsData", logisticsData);
         builder.set(DataComponents.BLOCK_ENTITY_DATA, CustomData.of(tag));
     }
