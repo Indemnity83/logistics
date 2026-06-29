@@ -28,6 +28,7 @@ public final class LogisticsNeoForge {
         NeoForgePacketRegistration.register(modBus);
         NeoForgeCommandRegistration.register(NeoForge.EVENT_BUS);
         NeoForgeChestLootModifier.register(NeoForge.EVENT_BUS);
+        NeoForgeMobLootModifier.register(NeoForge.EVENT_BUS);
         NeoForgeNetworkTickHandler.register(NeoForge.EVENT_BUS);
         NeoForgeServerLevelEvents.register(NeoForge.EVENT_BUS);
         NeoForgePlayerJoinEvents.register(NeoForge.EVENT_BUS);
