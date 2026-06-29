@@ -502,10 +502,10 @@ public class CableGameTest {
             return;
         }
 
-        // The cable must report NO connection toward the pipe.
+        // The cable must report NO connection toward the pipe, via the cached path the game actually uses.
         CableBlock cableBlock = (CableBlock) LogisticsPower.BLOCK.COPPER_CABLE;
         CableBlock.ConnectionType connection =
-                cableBlock.getDynamicConnectionType(context.getLevel(), context.absolutePos(cablePos), Direction.EAST);
+                cableBlock.getConnectionType(context.getLevel(), context.absolutePos(cablePos), Direction.EAST);
         if (connection != CableBlock.ConnectionType.NONE) {
             context.fail("Cable should not connect to an extraction pipe, got: " + connection);
             return;
