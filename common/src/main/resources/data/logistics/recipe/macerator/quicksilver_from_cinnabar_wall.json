@@ -1,6 +1,6 @@
 {
   "type": "logistics:macerator",
-  "ingredient": "minecraft:cinnabar",
+  "ingredient": "minecraft:cinnabar_wall",
   "result": {
     "id": "logistics:core/quicksilver",
     "count": 1

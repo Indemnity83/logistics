@@ -13,6 +13,7 @@ import net.minecraft.resources.RegistryOps;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.SingleRecipeInput;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -28,6 +29,7 @@ class MaceratorRecipeTest extends MinecraftTestEnvironment {
     private static MaceratorRecipeWrapper rawIronRecipe() {
         return new MaceratorRecipeWrapper(
             Ingredient.of(Items.RAW_IRON),
+            1,
             MachineResult.of(Items.IRON_INGOT, 2),
             MaceratorRecipeWrapper.DEFAULT_ENERGY_REQUIRED,
             MaceratorRecipeWrapper.DEFAULT_EXPERIENCE,
@@ -76,6 +78,7 @@ class MaceratorRecipeTest extends MinecraftTestEnvironment {
     void energyRequired() {
         MaceratorRecipeWrapper recipe = new MaceratorRecipeWrapper(
             Ingredient.of(Items.RAW_IRON),
+            1,
             MachineResult.of(Items.IRON_INGOT, 2),
             500,
             MaceratorRecipeWrapper.DEFAULT_EXPERIENCE,
@@ -90,6 +93,7 @@ class MaceratorRecipeTest extends MinecraftTestEnvironment {
         for (int energy : new int[] {0, -1}) {
             assertThatThrownBy(() -> new MaceratorRecipeWrapper(
                     Ingredient.of(Items.RAW_IRON),
+                    1,
                     MachineResult.of(Items.IRON_INGOT, 2),
                     energy,
                     MaceratorRecipeWrapper.DEFAULT_EXPERIENCE,
@@ -103,12 +107,32 @@ class MaceratorRecipeTest extends MinecraftTestEnvironment {
     void experience() {
         MaceratorRecipeWrapper recipe = new MaceratorRecipeWrapper(
             Ingredient.of(Items.RAW_IRON),
+            1,
             MachineResult.of(Items.IRON_INGOT, 2),
             MaceratorRecipeWrapper.DEFAULT_ENERGY_REQUIRED,
             0.7f,
             Optional.empty()
         );
         assertThat(recipe.experience()).isEqualTo(0.7f);
+    }
+
+    @Test
+    @DisplayName("ingredient count: defaults to 1, and matching requires at least that many")
+    void ingredientCount() {
+        MaceratorRecipeWrapper twoSlabs = new MaceratorRecipeWrapper(
+            Ingredient.of(Items.SMOOTH_STONE_SLAB),
+            2,
+            MachineResult.of(Items.IRON_INGOT, 1),
+            MaceratorRecipeWrapper.DEFAULT_ENERGY_REQUIRED,
+            MaceratorRecipeWrapper.DEFAULT_EXPERIENCE,
+            Optional.empty()
+        );
+        assertThat(twoSlabs.ingredientCount()).isEqualTo(2);
+        assertThat(rawIronRecipe().ingredientCount()).isEqualTo(1);
+
+        // A 2-item recipe only matches when the input stack actually holds 2+.
+        assertThat(twoSlabs.matches(new SingleRecipeInput(new ItemStack(Items.SMOOTH_STONE_SLAB, 1)), null)).isFalse();
+        assertThat(twoSlabs.matches(new SingleRecipeInput(new ItemStack(Items.SMOOTH_STONE_SLAB, 2)), null)).isTrue();
     }
 
     // ==================== serializer codec round-trip ====================
@@ -131,6 +155,7 @@ class MaceratorRecipeTest extends MinecraftTestEnvironment {
         void roundTripPreservesFields() {
             MaceratorRecipeWrapper original = new MaceratorRecipeWrapper(
                 Ingredient.of(Items.IRON_ORE),
+                1,
                 MachineResult.of(Items.IRON_INGOT, 2),
                 2000,
                 0.7f,
@@ -154,6 +179,7 @@ class MaceratorRecipeTest extends MinecraftTestEnvironment {
         void roundTripPreservesByproduct() {
             MaceratorRecipeWrapper original = new MaceratorRecipeWrapper(
                 Ingredient.of(Items.IRON_ORE),
+                1,
                 MachineResult.of(Items.IRON_INGOT, 2),
                 2000,
                 0.7f,
@@ -177,6 +203,7 @@ class MaceratorRecipeTest extends MinecraftTestEnvironment {
         void streamRoundTripPreservesByproduct() {
             MaceratorRecipeWrapper withByproduct = new MaceratorRecipeWrapper(
                 Ingredient.of(Items.IRON_ORE),
+                1,
                 MachineResult.of(Items.IRON_INGOT, 2),
                 2000,
                 0.7f,
@@ -202,6 +229,7 @@ class MaceratorRecipeTest extends MinecraftTestEnvironment {
         void defaultExperienceIsOptional() {
             MaceratorRecipeWrapper original = new MaceratorRecipeWrapper(
                 Ingredient.of(Items.IRON_ORE),
+                1,
                 MachineResult.of(Items.IRON_INGOT, 1),
                 200,
                 MaceratorRecipeWrapper.DEFAULT_EXPERIENCE,

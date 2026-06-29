@@ -1,6 +1,6 @@
 {
   "type": "logistics:macerator",
-  "ingredient": "minecraft:cinnabar",
+  "ingredient": "minecraft:polished_cinnabar",
   "result": {
     "id": "logistics:core/quicksilver",
     "count": 1

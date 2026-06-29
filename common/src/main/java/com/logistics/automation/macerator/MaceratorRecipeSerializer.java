@@ -23,6 +23,7 @@ public class MaceratorRecipeSerializer {
 
     public static final MapCodec<MaceratorRecipeWrapper> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
         Ingredient.CODEC.fieldOf("ingredient").forGetter(MaceratorRecipeWrapper::ingredient),
+        Codec.intRange(1, Integer.MAX_VALUE).optionalFieldOf("count", MaceratorRecipeWrapper.DEFAULT_INGREDIENT_COUNT).forGetter(MaceratorRecipeWrapper::ingredientCount),
         MachineResult.CODEC.fieldOf("result").forGetter(MaceratorRecipeWrapper::result),
         Codec.intRange(1, Integer.MAX_VALUE).fieldOf("energyrequired").forGetter(MaceratorRecipeWrapper::energyRequired),
         Codec.FLOAT.optionalFieldOf("experience", MaceratorRecipeWrapper.DEFAULT_EXPERIENCE).forGetter(MaceratorRecipeWrapper::experience),
@@ -32,6 +33,7 @@ public class MaceratorRecipeSerializer {
     public static final StreamCodec<RegistryFriendlyByteBuf, MaceratorRecipeWrapper> STREAM_CODEC =
         StreamCodec.composite(
             Ingredient.CONTENTS_STREAM_CODEC, MaceratorRecipeWrapper::ingredient,
+            ByteBufCodecs.VAR_INT, MaceratorRecipeWrapper::ingredientCount,
             MachineResult.STREAM_CODEC, MaceratorRecipeWrapper::result,
             ByteBufCodecs.VAR_INT, MaceratorRecipeWrapper::energyRequired,
             ByteBufCodecs.FLOAT, MaceratorRecipeWrapper::experience,

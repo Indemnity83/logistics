@@ -1,8 +1,8 @@
 {
   "type": "logistics:macerator",
-  "ingredient": "minecraft:cinnabar",
+  "ingredient": "minecraft:sulfur_wall",
   "result": {
-    "id": "logistics:core/quicksilver",
+    "id": "logistics:core/sulfur_dust",
     "count": 1
   },
   "energyrequired": 2000

@@ -39,7 +39,8 @@ public final class MaceratorRecipeResolver implements RecipeResolver {
                             .map(b -> List.of(new ChanceOutput(b.stack(1), b.chance())))
                             .orElse(List.of());
                     return new RecipePlan(
-                            recipe.energyRequired(), 1, recipe.getResultItem(), byproducts, recipe.experience());
+                            recipe.energyRequired(), recipe.ingredientCount(), recipe.getResultItem(),
+                            byproducts, recipe.experience());
                 })
                 .orElse(null);
     }
