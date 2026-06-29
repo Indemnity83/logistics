@@ -1,0 +1,9 @@
+{
+  "type": "logistics:macerator",
+  "ingredient": "minecraft:bricks",
+  "result": {
+    "id": "minecraft:brick",
+    "count": 4
+  },
+  "energyrequired": 3000
+}

@@ -1,0 +1,9 @@
+{
+  "type": "logistics:macerator",
+  "ingredient": "minecraft:cinnabar",
+  "result": {
+    "id": "logistics:core/cinnabar_dust",
+    "count": 4
+  },
+  "energyrequired": 4000
+}

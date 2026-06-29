@@ -25,7 +25,8 @@ public class MaceratorRecipeSerializer {
         Ingredient.CODEC.fieldOf("ingredient").forGetter(MaceratorRecipeWrapper::ingredient),
         MachineResult.CODEC.fieldOf("result").forGetter(MaceratorRecipeWrapper::result),
         Codec.intRange(1, Integer.MAX_VALUE).fieldOf("energyrequired").forGetter(MaceratorRecipeWrapper::energyRequired),
-        Codec.FLOAT.optionalFieldOf("experience", MaceratorRecipeWrapper.DEFAULT_EXPERIENCE).forGetter(MaceratorRecipeWrapper::experience)
+        Codec.FLOAT.optionalFieldOf("experience", MaceratorRecipeWrapper.DEFAULT_EXPERIENCE).forGetter(MaceratorRecipeWrapper::experience),
+        MaceratorByproduct.CODEC.optionalFieldOf("byproduct").forGetter(MaceratorRecipeWrapper::byproduct)
     ).apply(i, MaceratorRecipeWrapper::new));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, MaceratorRecipeWrapper> STREAM_CODEC =
@@ -34,6 +35,7 @@ public class MaceratorRecipeSerializer {
             MachineResult.STREAM_CODEC, MaceratorRecipeWrapper::result,
             ByteBufCodecs.VAR_INT, MaceratorRecipeWrapper::energyRequired,
             ByteBufCodecs.FLOAT, MaceratorRecipeWrapper::experience,
+            ByteBufCodecs.optional(MaceratorByproduct.STREAM_CODEC), MaceratorRecipeWrapper::byproduct,
             MaceratorRecipeWrapper::new
         );
 

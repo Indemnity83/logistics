@@ -1,0 +1,13 @@
+{
+  "type": "logistics:macerator",
+  "ingredient": "minecraft:gravel",
+  "result": {
+    "id": "minecraft:sand",
+    "count": 1
+  },
+  "energyrequired": 4000,
+  "byproduct": {
+    "id": "minecraft:flint",
+    "chance": 0.15
+  }
+}

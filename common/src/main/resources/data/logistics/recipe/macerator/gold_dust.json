@@ -6,5 +6,9 @@
     "count": 2
   },
   "energyrequired": 2000,
-  "experience": 1.0
+  "experience": 1.0,
+  "byproduct": {
+    "id": "logistics:core/cinnabar_dust",
+    "chance": 0.1
+  }
 }

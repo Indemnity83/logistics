@@ -1,11 +1,11 @@
 {
   "type": "logistics:macerator",
-  "ingredient": "minecraft:coal",
+  "ingredient": "minecraft:netherrack",
   "result": {
-    "id": "logistics:core/coal_dust",
-    "count": 2
+    "id": "minecraft:gravel",
+    "count": 1
   },
-  "energyrequired": 2000,
+  "energyrequired": 4000,
   "byproduct": {
     "id": "logistics:core/sulfur_dust",
     "chance": 0.15

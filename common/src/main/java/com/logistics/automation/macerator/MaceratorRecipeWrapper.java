@@ -17,6 +17,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Macerator recipe, integrated into Minecraft's recipe system via {@link RecipeType} and
@@ -35,9 +36,12 @@ public class MaceratorRecipeWrapper implements Recipe<SingleRecipeInput> {
     private final MachineResult result;
     private final int energyRequired;
     private final float experience;
+    private final Optional<MaceratorByproduct> byproduct;
     @Nullable private PlacementInfo placementInfo;
 
-    public MaceratorRecipeWrapper(Ingredient ingredient, MachineResult result, int energyRequired, float experience) {
+    public MaceratorRecipeWrapper(
+            Ingredient ingredient, MachineResult result, int energyRequired, float experience,
+            Optional<MaceratorByproduct> byproduct) {
         if (energyRequired <= 0) {
             throw new IllegalArgumentException("energyRequired must be positive, got " + energyRequired);
         }
@@ -45,6 +49,7 @@ public class MaceratorRecipeWrapper implements Recipe<SingleRecipeInput> {
         this.result = result;
         this.energyRequired = energyRequired;
         this.experience = experience;
+        this.byproduct = byproduct;
     }
 
     public Ingredient ingredient() {
@@ -62,6 +67,11 @@ public class MaceratorRecipeWrapper implements Recipe<SingleRecipeInput> {
 
     public float experience() {
         return experience;
+    }
+
+    /** The chance-based byproduct, if this recipe has one (ore→dust recipes do). */
+    public Optional<MaceratorByproduct> byproduct() {
+        return byproduct;
     }
 
     /** Convenience for machine logic: does this stack satisfy the ingredient? */
