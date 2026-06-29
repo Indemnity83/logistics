@@ -4,6 +4,8 @@ import static com.logistics.core.lib.power.AbstractEngineBlockEntity.STAGE;
 
 import com.logistics.core.lib.block.MachineBlock;
 import com.logistics.core.lib.block.behavior.WrenchBehavior;
+import com.logistics.core.lib.block.capability.HasEnergyStorage;
+import com.logistics.core.lib.energy.IEnergyStorage;
 import java.util.Collections;
 import java.util.List;
 import net.minecraft.core.BlockPos;
@@ -253,6 +255,13 @@ public abstract class AbstractEngineBlock<E extends AbstractEngineBlockEntity> e
      * @return true if an energy-accepting storage exists in that direction
      */
     private static boolean hasEnergyStorage(Level world, BlockPos pos, Direction direction) {
+        // Extraction pipes / pump are off the loader grid; the presence checker can't see them. Only
+        // count the face the receiver actually accepts power on (e.g. not the pump's null DOWN intake).
+        if (world.getBlockEntity(pos.relative(direction)) instanceof DirectEnergyReceiver receiver
+                && receiver instanceof HasEnergyStorage hasStorage) {
+            IEnergyStorage storage = hasStorage.energyStorage(direction.getOpposite());
+            return storage != null && storage.canInsert();
+        }
         if (energyPresenceChecker == null) return false;
         return energyPresenceChecker.hasEnergyStorage(world, pos, direction);
     }
