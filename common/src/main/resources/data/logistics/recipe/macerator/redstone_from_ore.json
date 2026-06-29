@@ -8,7 +8,7 @@
   "energyrequired": 2000,
   "experience": 0.7,
   "byproduct": {
-    "id": "logistics:core/cinnabar_dust",
+    "id": "logistics:core/quicksilver",
     "chance": 0.25
   }
 }

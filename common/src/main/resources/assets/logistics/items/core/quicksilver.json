@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "logistics:item/core/cinnabar_dust"
+    "model": "logistics:item/core/quicksilver"
   }
 }
