@@ -2,6 +2,7 @@ package com.logistics.fabric.energy;
 
 import com.logistics.core.lib.block.capability.HasEnergyStorage;
 import com.logistics.core.lib.energy.IEnergyStorage;
+import com.logistics.core.lib.power.DirectEnergyReceiver;
 import team.reborn.energy.api.EnergyStorage;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 
@@ -31,6 +32,8 @@ public final class EnergyStorageAccess {
     public static void register() {
         EnergyStorage.SIDED.registerFallback((world, pos, state, blockEntity, direction) -> {
             if (!(blockEntity instanceof HasEnergyStorage hasStorage)) return null;
+            // Extraction pipes / pump are engine-powered only; keep their buffer off the grid.
+            if (blockEntity instanceof DirectEnergyReceiver) return null;
             IEnergyStorage storage = hasStorage.energyStorage(direction);
             if (storage == null) return null;
             // FabricEnergyStorage is already a TR EnergyStorage — hand it directly

@@ -1,9 +1,12 @@
 package com.logistics.gametest.power;
 
 import com.logistics.LogisticsAutomation;
+import com.logistics.LogisticsPipe;
 import com.logistics.LogisticsPower;
 import com.logistics.automation.macerator.MaceratorBlockEntity;
+import com.logistics.core.lib.energy.IEnergyStorage;
 import com.logistics.core.lib.power.AbstractEngineBlock;
+import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.power.cable.CableBlock;
 import com.logistics.power.cable.CableBlockEntity;
 import com.logistics.power.block.entity.CreativeSinkBlockEntity;
@@ -481,6 +484,52 @@ public class CableGameTest {
                 context.succeed();
             });
         });
+    }
+
+    /**
+     * Extraction pipes are powered only by a directly-adjacent engine: a cable must not connect to
+     * one, and the pipe's energy buffer must stay off the loader grid (so cables, batteries, and
+     * other mods cannot find it). The engine's direct path — inserting into {@code energyStorage} —
+     * must still fill the buffer.
+     */
+    @GameTest(template = "fabric-gametest-api-v1:empty")
+    public void testCableDoesNotPowerExtractionPipe(GameTestHelper context) {
+        BlockPos cablePos = new BlockPos(1, 1, 1);
+        BlockPos pipePos = new BlockPos(2, 1, 1);
+
+        context.setBlock(cablePos, LogisticsPower.BLOCK.COPPER_CABLE);
+        context.setBlock(pipePos, LogisticsPipe.BLOCK.ITEM_EXTRACTOR_PIPE);
+
+        PipeBlockEntity pipe = (PipeBlockEntity) context.getBlockEntity(pipePos);
+        if (pipe == null) {
+            context.fail("Item extractor pipe should have a block entity");
+            return;
+        }
+
+        // The cable must report NO connection toward the pipe, via the cached path the game actually uses.
+        CableBlock cableBlock = (CableBlock) LogisticsPower.BLOCK.COPPER_CABLE;
+        CableBlock.ConnectionType connection =
+                cableBlock.getConnectionType(context.getLevel(), context.absolutePos(cablePos), Direction.EAST);
+        if (connection != CableBlock.ConnectionType.NONE) {
+            context.fail("Cable should not connect to an extraction pipe, got: " + connection);
+            return;
+        }
+
+        // The pipe's energy buffer must be invisible to the loader energy grid.
+        EnergyStorage gridView = EnergyStorage.SIDED.find(context.getLevel(), context.absolutePos(pipePos), Direction.WEST);
+        if (gridView != null) {
+            context.fail("Extraction pipe must not expose energy to the grid; got a non-null storage");
+            return;
+        }
+
+        // But an engine's direct delivery (insert into energyStorage) still fills the buffer.
+        IEnergyStorage buffer = pipe.energyStorage(Direction.WEST);
+        if (buffer == null || buffer.insert(10, false) <= 0 || buffer.getAmount() <= 0) {
+            context.fail("Engine direct delivery into the pipe's energy buffer should still work");
+            return;
+        }
+
+        context.succeed();
     }
 
     private static EnergyStorage findStorage(GameTestHelper ctx, BlockPos relPos, Direction dir) {

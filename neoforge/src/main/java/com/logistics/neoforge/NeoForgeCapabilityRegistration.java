@@ -66,13 +66,11 @@ public final class NeoForgeCapabilityRegistration {
         registerEnergy(event, LogisticsPower.ENTITY.CREATIVE_SINK_BLOCK_ENTITY);
         registerEnergy(event, LogisticsPower.ENTITY.BATTERY_BLOCK_ENTITY);
         registerEnergy(event, LogisticsPower.ENTITY.CABLE_BLOCK_ENTITY);
-        registerEnergy(event, LogisticsPipe.ENTITY.PIPE_BLOCK_ENTITY);
         registerEnergy(event, LogisticsPipe.ENTITY.POWER_JUNCTION_BLOCK_ENTITY);
         registerEnergy(event, LogisticsAutomation.ENTITY.LASER_QUARRY_BLOCK_ENTITY);
         registerEnergy(event, LogisticsAutomation.ENTITY.KILN_BLOCK_ENTITY);
-        // Fluid Extractor Pipes receive engine RF; copper pipes return a null energy handler.
-        registerEnergy(event, LogisticsFluid.ENTITY.FLUID_PIPE_BLOCK_ENTITY);
-        registerEnergy(event, LogisticsFluid.ENTITY.FLUID_PUMP_BLOCK_ENTITY);
+        // Extraction pipes (item + fluid) and the Fluid Pump are DirectEnergyReceivers: kept off the
+        // energy grid so only a directly-adjacent engine can power them (engines feed them directly).
 
         registerItems(event, LogisticsAutomation.ENTITY.MACERATOR_BLOCK_ENTITY);
         registerItems(event, LogisticsPower.ENTITY.STIRLING_ENGINE_BLOCK_ENTITY);

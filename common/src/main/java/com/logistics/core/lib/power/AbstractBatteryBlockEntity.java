@@ -5,7 +5,6 @@ import com.logistics.core.lib.block.capability.HasEnergyStorage;
 import com.logistics.core.lib.energy.EnergyComponent;
 import com.logistics.core.lib.energy.EnergyPushService;
 import com.logistics.core.lib.energy.IEnergyStorage;
-import com.logistics.core.lib.pipe.IPipeAccess;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -82,7 +81,7 @@ public abstract class AbstractBatteryBlockEntity extends BaseBlockEntity
         if (pushService == null) return;
         for (Direction dir : Direction.values()) {
             BlockPos neighborPos = pos.relative(dir);
-            if (level.getBlockEntity(neighborPos) instanceof IPipeAccess) continue;
+            if (level.getBlockEntity(neighborPos) instanceof DirectEnergyReceiver) continue;
             long maxSend = Math.min(MAX_OUTPUT_PER_SIDE, energy.getAmount());
             if (maxSend <= 0) break;
             long sent = pushService.push(level, neighborPos, dir.getOpposite(), energy, maxSend);
