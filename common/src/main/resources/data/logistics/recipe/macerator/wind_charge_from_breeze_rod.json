@@ -1,0 +1,9 @@
+{
+  "type": "logistics:macerator",
+  "ingredient": "minecraft:breeze_rod",
+  "result": {
+    "id": "minecraft:wind_charge",
+    "count": 4
+  },
+  "energyrequired": 2000
+}

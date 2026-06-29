@@ -1,0 +1,13 @@
+{
+  "type": "logistics:macerator",
+  "ingredient": "minecraft:netherrack",
+  "result": {
+    "id": "minecraft:gravel",
+    "count": 1
+  },
+  "energyrequired": 4000,
+  "byproduct": {
+    "id": "logistics:core/sulfur_dust",
+    "chance": 0.15
+  }
+}

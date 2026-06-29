@@ -1,0 +1,13 @@
+{
+  "type": "logistics:macerator",
+  "ingredient": "minecraft:note_block",
+  "result": {
+    "id": "minecraft:redstone",
+    "count": 1
+  },
+  "energyrequired": 4000,
+  "byproduct": {
+    "id": "logistics:core/sawdust",
+    "chance": 4.0
+  }
+}

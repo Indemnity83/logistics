@@ -1,0 +1,13 @@
+{
+  "type": "logistics:macerator",
+  "ingredient": "minecraft:jukebox",
+  "result": {
+    "id": "minecraft:diamond",
+    "count": 1
+  },
+  "energyrequired": 4000,
+  "byproduct": {
+    "id": "logistics:core/sawdust",
+    "chance": 4.0
+  }
+}

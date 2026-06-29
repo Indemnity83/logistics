@@ -18,6 +18,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Macerator recipe, integrated into Minecraft's recipe system via {@link RecipeType} and
@@ -31,25 +32,40 @@ public class MaceratorRecipeWrapper implements Recipe<SingleRecipeInput> {
 
     public static final int DEFAULT_ENERGY_REQUIRED = 2000;
     public static final float DEFAULT_EXPERIENCE = 0.0f;
+    public static final int DEFAULT_INGREDIENT_COUNT = 1;
 
     private final Ingredient ingredient;
+    private final int ingredientCount;
     private final MachineResult result;
     private final int energyRequired;
     private final float experience;
+    private final Optional<MaceratorByproduct> byproduct;
     @Nullable private PlacementInfo placementInfo;
 
-    public MaceratorRecipeWrapper(Ingredient ingredient, MachineResult result, int energyRequired, float experience) {
+    public MaceratorRecipeWrapper(
+            Ingredient ingredient, int ingredientCount, MachineResult result, int energyRequired, float experience,
+            Optional<MaceratorByproduct> byproduct) {
         if (energyRequired <= 0) {
             throw new IllegalArgumentException("energyRequired must be positive, got " + energyRequired);
         }
+        if (ingredientCount < 1) {
+            throw new IllegalArgumentException("ingredientCount must be positive, got " + ingredientCount);
+        }
         this.ingredient = ingredient;
+        this.ingredientCount = ingredientCount;
         this.result = result;
         this.energyRequired = energyRequired;
         this.experience = experience;
+        this.byproduct = byproduct;
     }
 
     public Ingredient ingredient() {
         return ingredient;
+    }
+
+    /** How many input items one craft consumes (e.g. 2 cinnabar slabs → 1 quicksilver). */
+    public int ingredientCount() {
+        return ingredientCount;
     }
 
     public MachineResult result() {
@@ -65,6 +81,11 @@ public class MaceratorRecipeWrapper implements Recipe<SingleRecipeInput> {
         return experience;
     }
 
+    /** The chance-based byproduct, if this recipe has one (ore→dust recipes do). */
+    public Optional<MaceratorByproduct> byproduct() {
+        return byproduct;
+    }
+
     /** Convenience for machine logic: does this stack satisfy the ingredient? */
     public boolean matches(ItemStack stack) {
         return !stack.isEmpty() && ingredient.test(stack);
@@ -77,7 +98,7 @@ public class MaceratorRecipeWrapper implements Recipe<SingleRecipeInput> {
 
     @Override
     public boolean matches(@NotNull SingleRecipeInput input, @NotNull Level level) {
-        return ingredient.test(input.item());
+        return ingredient.test(input.item()) && input.item().getCount() >= ingredientCount;
     }
 
     @Override

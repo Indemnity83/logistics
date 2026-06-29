@@ -1,0 +1,9 @@
+{
+  "type": "logistics:macerator",
+  "ingredient": "minecraft:lime_concrete",
+  "result": {
+    "id": "minecraft:lime_concrete_powder",
+    "count": 1
+  },
+  "energyrequired": 4000
+}

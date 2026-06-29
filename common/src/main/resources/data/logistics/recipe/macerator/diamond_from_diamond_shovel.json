@@ -1,0 +1,9 @@
+{
+  "type": "logistics:macerator",
+  "ingredient": "minecraft:diamond_shovel",
+  "result": {
+    "id": "minecraft:diamond",
+    "count": 1
+  },
+  "energyrequired": 4000
+}

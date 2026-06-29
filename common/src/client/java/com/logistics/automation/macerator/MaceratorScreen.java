@@ -14,7 +14,7 @@ import net.minecraft.world.entity.player.Inventory;
  */
 public class MaceratorScreen extends AbstractRecipeBookScreen<MaceratorScreenHandler> {
 
-    private static final ResourceId TEXTURE = LogisticsMod.modId("textures/gui/core/macerator.png");
+    private static final ResourceId TEXTURE = LogisticsMod.modId("textures/gui/automation/macerator.png");
     private static final int TEXTURE_WIDTH = 256;
     private static final int TEXTURE_HEIGHT = 256;
 
@@ -46,28 +46,26 @@ public class MaceratorScreen extends AbstractRecipeBookScreen<MaceratorScreenHan
             imageWidth, imageHeight,
             TEXTURE_WIDTH, TEXTURE_HEIGHT);
 
-        // Progress overlay — fills left to right at (leftPos+80, topPos+36), up to 25px wide
-        // Source in texture: UV (180, 36), size 25x14
+        // Progress arrow fill (25x14 sprite at UV 180,23) over the painted arrow.
         int arrowWidth = menu.getProgressArrowWidth();
         if (arrowWidth > 0) {
             graphics.blit(
                 RenderPipelines.GUI_TEXTURED,
                 TEXTURE.toIdentifier(),
-                leftPos + 80, topPos + 36,
-                180, 36,
+                leftPos + 79, topPos + 23,
+                180, 23,
                 arrowWidth, 14,
                 TEXTURE_WIDTH, TEXTURE_HEIGHT);
         }
 
-        // Energy bar overlay — fills bottom to top at (leftPos+60, topPos+55), up to 13px tall
-        // Source in texture: UV (180, 55), size 7x13
+        // Energy bar fill (sprite at UV 180,42) over the painted energy indicator. Matches the Sawmill GUI.
         int energyHeight = menu.getEnergyBarHeight();
         if (energyHeight > 0) {
             graphics.blit(
                 RenderPipelines.GUI_TEXTURED,
                 TEXTURE.toIdentifier(),
-                leftPos + 60, topPos + 55 + (13 - energyHeight),
-                180, 55 + (13 - energyHeight),
+                leftPos + 56, topPos + 42 + (13 - energyHeight),
+                180, 42 + (13 - energyHeight),
                 7, energyHeight,
                 TEXTURE_WIDTH, TEXTURE_HEIGHT);
         }
