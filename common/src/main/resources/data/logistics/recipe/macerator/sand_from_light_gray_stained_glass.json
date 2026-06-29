@@ -1,0 +1,9 @@
+{
+  "type": "logistics:macerator",
+  "ingredient": "minecraft:light_gray_stained_glass",
+  "result": {
+    "id": "minecraft:sand",
+    "count": 1
+  },
+  "energyrequired": 4000
+}

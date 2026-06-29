@@ -1,0 +1,9 @@
+{
+  "type": "logistics:macerator",
+  "ingredient": "minecraft:diamond_boots",
+  "result": {
+    "id": "minecraft:diamond",
+    "count": 4
+  },
+  "energyrequired": 4000
+}

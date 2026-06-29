@@ -1,0 +1,9 @@
+{
+  "type": "logistics:macerator",
+  "ingredient": "minecraft:diamond_axe",
+  "result": {
+    "id": "minecraft:diamond",
+    "count": 3
+  },
+  "energyrequired": 4000
+}
