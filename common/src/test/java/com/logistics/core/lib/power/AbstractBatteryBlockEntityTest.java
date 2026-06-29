@@ -88,7 +88,10 @@ class AbstractBatteryBlockEntityTest extends MinecraftTestEnvironment {
 
         CustomData data = builder.build().get(DataComponents.BLOCK_ENTITY_DATA);
         assertNotNull(data, "battery should expose block_entity_data so a broken battery keeps its charge");
-        CompoundTag logisticsData = NbtCompat.getCompoundOrEmpty(data.copyTag(), "LogisticsData");
+        CompoundTag tag = data.copyTag();
+        // block_entity_data without an "id" fails to encode on save ("Missing id for entity").
+        assertEquals("minecraft:furnace", tag.getString("id"), "block_entity_data must carry the block-entity id");
+        CompoundTag logisticsData = NbtCompat.getCompoundOrEmpty(tag, "LogisticsData");
         assertEquals(30_000, NbtCompat.getLong(logisticsData, "Energy", 0));
     }
 }
