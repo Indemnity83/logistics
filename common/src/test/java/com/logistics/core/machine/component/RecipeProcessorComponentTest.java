@@ -333,24 +333,28 @@ class RecipeProcessorComponentTest extends MinecraftTestEnvironment {
     }
 
     @Test
-    void doesNotCarryProgressBetweenDifferentInputLayouts() {
-        FakeProcessIO io = new FakeProcessIO();
-        io.energy = 1_000;
-        io.inputCount = 4; // enough for either layout
-        // Same energy + result, different per-slot cost: must be treated as a different recipe.
-        RecipePlan layoutA = new RecipePlan(40, new int[] {1}, new ItemStack(Items.IRON_INGOT), List.of(), 0f);
-        RecipePlan layoutB = new RecipePlan(40, new int[] {2}, new ItemStack(Items.IRON_INGOT), List.of(), 0f);
+    void doesNotCarryProgressWhenASecondaryInputCostChanges() {
+        Runnable noop = () -> {};
+        ItemStoreComponent items = twoInputStore(noop);
+        EnergyStorageComponent energy = new EnergyStorageComponent("energy", 100_000, 100_000, 0, noop);
+        energy.energy(null).insert(100_000, false);
+        items.container().setItem(0, new ItemStack(Items.COPPER_INGOT, 16));
+        items.container().setItem(1, new ItemStack(Items.RAW_IRON, 16));
+
+        // Identical energy, result, and PRIMARY count; only the secondary slot's cost differs, so the
+        // two must still count as different recipes (secondary inputs affect recipe identity).
+        RecipePlan layoutA = new RecipePlan(40, new int[] {1, 1}, new ItemStack(Items.IRON_INGOT), List.of(), 0f);
+        RecipePlan layoutB = new RecipePlan(40, new int[] {1, 2}, new ItemStack(Items.IRON_INGOT), List.of(), 0f);
         RecipePlan[] active = {layoutA};
-        RecipeResolver resolver = (i, ctx) -> active[0];
-        RecipeProcessorComponent processor =
-                new RecipeProcessorComponent("processor", resolver, 10, io, (ctx, lit) -> {}, () -> {});
+        RecipeProcessorComponent processor = new RecipeProcessorComponent(
+                "processor", (io, ctx) -> active[0], 10, items, energy, (ctx, lit) -> {}, noop);
         FakeMachineContext ctx = new FakeMachineContext();
 
         processor.serverTick(ctx); // 10
         processor.serverTick(ctx); // 20 on layout A
         assertThat(processor.energySpent()).isEqualTo(20);
 
-        active[0] = layoutB; // switch to the different-cost layout
+        active[0] = layoutB; // only the secondary slot's cost changed
         processor.serverTick(ctx);
         // Progress reset to 0 then spent 10 this tick — it did NOT inherit the 20 (which would give 30).
         assertThat(processor.energySpent()).isEqualTo(10);
