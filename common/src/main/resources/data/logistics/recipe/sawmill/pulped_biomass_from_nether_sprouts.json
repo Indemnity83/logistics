@@ -1,7 +1,7 @@
 {
   "type": "logistics:sawmill",
-  "ingredient": "minecraft:potato",
-  "count": 4,
+  "ingredient": "minecraft:nether_sprouts",
+  "count": 6,
   "result": { "id": "logistics:core/pulped_biomass", "count": 1 },
   "energy": 2000
 }
