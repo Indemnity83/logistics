@@ -36,13 +36,14 @@ public final class SawmillRecipeResolver implements RecipeResolver {
                 .getRecipeFor(LogisticsAutomation.RECIPE.SAWMILL_RECIPE_TYPE, new SingleRecipeInput(input), level)
                 .map(holder -> {
                     SawmillRecipe recipe = holder.value();
-                    ChanceOutput byproduct =
-                            new ChanceOutput(recipe.byproduct().stack(1), recipe.byproduct().chance());
+                    List<ChanceOutput> byproducts = recipe.byproduct()
+                            .map(b -> List.of(new ChanceOutput(b.stack(1), b.chance())))
+                            .orElse(List.of());
                     return new RecipePlan(
                             recipe.energy(),
                             recipe.ingredientCount(),
                             recipe.getResultItem(),
-                            List.of(byproduct),
+                            byproducts,
                             0f);
                 })
                 .orElse(null);

@@ -1,0 +1,7 @@
+{
+  "type": "logistics:sawmill",
+  "ingredient": "minecraft:melon",
+  "result": { "id": "logistics:core/pulped_biomass", "count": 4 },
+  "byproduct": { "id": "minecraft:melon_seeds", "chance": 0.5 },
+  "energy": 2000
+}
