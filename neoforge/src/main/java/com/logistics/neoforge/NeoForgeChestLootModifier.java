@@ -61,7 +61,6 @@ public final class NeoForgeChestLootModifier {
                     .add(counted(LogisticsCore.ITEM.BRONZE_NUGGET, 10, 4, 12))
                     .add(counted(LogisticsCore.ITEM.BRONZE_INGOT, 4, 1, 2))
                     .add(LootItem.lootTableItem(LogisticsCore.ITEM.BRONZE_GEAR).setWeight(4))
-                    .add(counted(LogisticsCore.ITEM.STURDY_CASING, 3, 1, 2))
                     .build());
         }
         if (BuiltInLootTables.BURIED_TREASURE.equals(key)

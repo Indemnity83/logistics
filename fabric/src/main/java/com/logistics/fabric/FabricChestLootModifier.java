@@ -106,7 +106,7 @@ public final class FabricChestLootModifier {
                     .build());
             }
 
-            // Stronghold corridor - bronze materials and sturdy casing
+            // Stronghold corridor - bronze materials
             if (STRONGHOLD_CORRIDOR.equals(key)) {
                 tableBuilder.pool(LootPool.lootPool()
                     .setRolls(ConstantValue.exactly(1))
@@ -117,9 +117,6 @@ public final class FabricChestLootModifier {
                         .setWeight(4)
                         .apply(SetItemCountFunction.setCount(UniformGenerator.between(1, 2))))
                     .add(LootItem.lootTableItem(LogisticsCore.ITEM.BRONZE_GEAR).setWeight(4))
-                    .add(LootItem.lootTableItem(LogisticsCore.ITEM.STURDY_CASING)
-                        .setWeight(3)
-                        .apply(SetItemCountFunction.setCount(UniformGenerator.between(1, 2))))
                     .build());
             }
 
