@@ -1,0 +1,7 @@
+{
+  "type": "logistics:sawmill",
+  "ingredient": "minecraft:pumpkin",
+  "result": { "id": "logistics:core/pulped_biomass", "count": 4 },
+  "byproduct": { "id": "minecraft:pumpkin_seeds", "chance": 0.5 },
+  "energy": 2000
+}
