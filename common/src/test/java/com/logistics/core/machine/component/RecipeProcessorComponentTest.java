@@ -333,6 +333,30 @@ class RecipeProcessorComponentTest extends MinecraftTestEnvironment {
     }
 
     @Test
+    void doesNotCarryProgressBetweenDifferentInputLayouts() {
+        FakeProcessIO io = new FakeProcessIO();
+        io.energy = 1_000;
+        io.inputCount = 4; // enough for either layout
+        // Same energy + result, different per-slot cost: must be treated as a different recipe.
+        RecipePlan layoutA = new RecipePlan(40, new int[] {1}, new ItemStack(Items.IRON_INGOT), List.of(), 0f);
+        RecipePlan layoutB = new RecipePlan(40, new int[] {2}, new ItemStack(Items.IRON_INGOT), List.of(), 0f);
+        RecipePlan[] active = {layoutA};
+        RecipeResolver resolver = (i, ctx) -> active[0];
+        RecipeProcessorComponent processor =
+                new RecipeProcessorComponent("processor", resolver, 10, io, (ctx, lit) -> {}, () -> {});
+        FakeMachineContext ctx = new FakeMachineContext();
+
+        processor.serverTick(ctx); // 10
+        processor.serverTick(ctx); // 20 on layout A
+        assertThat(processor.energySpent()).isEqualTo(20);
+
+        active[0] = layoutB; // switch to the different-cost layout
+        processor.serverTick(ctx);
+        // Progress reset to 0 then spent 10 this tick — it did NOT inherit the 20 (which would give 30).
+        assertThat(processor.energySpent()).isEqualTo(10);
+    }
+
+    @Test
     void stallsWhenAnyInputSlotIsShort() {
         Runnable noop = () -> {};
         ItemStoreComponent items = twoInputStore(noop);

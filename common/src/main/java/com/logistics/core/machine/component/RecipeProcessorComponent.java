@@ -4,6 +4,7 @@ import com.logistics.core.lib.compat.NbtCompat;
 import com.logistics.core.machine.MachineComponent;
 import com.logistics.core.machine.MachineContext;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -151,7 +152,25 @@ public final class RecipeProcessorComponent
 
     private static boolean sameRecipe(RecipePlan a, RecipePlan b) {
         return a.energyRequired() == b.energyRequired()
-                && ItemStack.isSameItemSameComponents(a.result(), b.result());
+                && a.experience() == b.experience()
+                && Arrays.equals(a.inputCounts(), b.inputCounts())
+                && ItemStack.isSameItemSameComponents(a.result(), b.result())
+                && sameByproducts(a.byproducts(), b.byproducts());
+    }
+
+    // Compared element-wise on item + chance; ItemStack has no value equals, so List.equals is unusable.
+    private static boolean sameByproducts(List<ChanceOutput> a, List<ChanceOutput> b) {
+        if (a.size() != b.size()) {
+            return false;
+        }
+        for (int i = 0; i < a.size(); i++) {
+            ChanceOutput x = a.get(i);
+            ChanceOutput y = b.get(i);
+            if (x.chance() != y.chance() || !ItemStack.isSameItemSameComponents(x.template(), y.template())) {
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override

@@ -15,6 +15,17 @@ import net.minecraft.world.item.ItemStack;
 public record RecipePlan(
         long energyRequired, int[] inputCounts, ItemStack result, List<ChanceOutput> byproducts, float experience) {
 
+    public RecipePlan {
+        // Own the array (callers reuse buffers) and reject negative counts — a negative reaches
+        // ItemStack.shrink as a grow.
+        inputCounts = inputCounts.clone();
+        for (int count : inputCounts) {
+            if (count < 0) {
+                throw new IllegalArgumentException("input counts must be non-negative, got " + count);
+            }
+        }
+    }
+
     /** Single-input, single-output recipe with no byproducts (the macerator/kiln case). */
     public RecipePlan(long energyRequired, ItemStack result, float experience) {
         this(energyRequired, new int[] {1}, result, List.of(), experience);
