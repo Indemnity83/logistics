@@ -9,6 +9,10 @@ import com.logistics.core.lib.platform.CreativeTabRegistrar;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.core.marker.MarkerBlock;
 import com.logistics.core.marker.MarkerBlockEntity;
+import com.logistics.core.worldgen.BogPatchConfiguration;
+import com.logistics.core.worldgen.BogPatchFeature;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.CreativeModeTabs;
@@ -19,6 +23,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.DropExperienceBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.levelgen.feature.Feature;
 
 public final class LogisticsCore extends LogisticsMod implements DomainBootstrap {
     private static final LogisticsCore INSTANCE = new LogisticsCore();
@@ -51,8 +56,22 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         BLOCK.register();
         ITEM.register();
         ENTITY.register();
+        WORLDGEN.register();
         CREATIVE.register();
         ALIAS.register();
+    }
+
+    public static final class WORLDGEN {
+        public static Feature<BogPatchConfiguration> BOG_PATCH;
+
+        private WORLDGEN() {}
+
+        static void register() {
+            BOG_PATCH = Registry.register(
+                BuiltInRegistries.FEATURE,
+                LogisticsMod.modId("bog_patch").toIdentifier(),
+                new BogPatchFeature(BogPatchConfiguration.CODEC));
+        }
     }
 
     public static final class BLOCK {
