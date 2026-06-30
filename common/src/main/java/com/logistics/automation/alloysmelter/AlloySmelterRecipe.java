@@ -31,7 +31,6 @@ public class AlloySmelterRecipe implements Recipe<DualRecipeInput> {
 
     public static final int DEFAULT_ENERGY = 4000;
     public static final float DEFAULT_EXPERIENCE = 0.0f;
-    public static final int DEFAULT_INPUT_COUNT = 1;
 
     private final Ingredient inputA;
     private final int countA;
@@ -60,6 +59,21 @@ public class AlloySmelterRecipe implements Recipe<DualRecipeInput> {
         this.energy = energy;
         this.experience = experience;
         this.byproduct = byproduct;
+    }
+
+    /** Builds a recipe from the unordered {@code ingredients} pair (slot order is irrelevant to matching). */
+    static AlloySmelterRecipe fromIngredients(
+            List<CountedIngredient> ingredients, MachineResult result, int energy, float experience,
+            Optional<AlloySmelterByproduct> byproduct) {
+        CountedIngredient a = ingredients.get(0);
+        CountedIngredient b = ingredients.get(1);
+        return new AlloySmelterRecipe(
+                a.ingredient(), a.count(), b.ingredient(), b.count(), result, energy, experience, byproduct);
+    }
+
+    /** The two inputs as a counted-ingredient list, for serialization. */
+    public List<CountedIngredient> ingredientList() {
+        return List.of(new CountedIngredient(inputA, countA), new CountedIngredient(inputB, countB));
     }
 
     public Ingredient inputA() {

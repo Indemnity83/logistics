@@ -1,9 +1,9 @@
 {
   "type": "logistics:alloy_smelter",
-  "input_a": "minecraft:copper_ingot",
-  "count_a": 3,
-  "input_b": "#c:ingots/tin",
-  "count_b": 1,
+  "ingredients": [
+    { "id": "minecraft:copper_ingot", "count": 3 },
+    "#c:ingots/tin"
+  ],
   "result": { "id": "logistics:core/bronze_ingot", "count": 4 },
   "energy": 4000,
   "experience": 0.3
