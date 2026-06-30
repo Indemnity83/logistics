@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.8.1](https://github.com/Indemnity83/logistics/compare/mc26.2-v0.8.0...mc26.2-v0.8.1) (2026-06-30)
+
+
+### Removed
+
+* **core:** drop the unused sturdy casing ([#650](https://github.com/Indemnity83/logistics/issues/650)) ([8b2900b](https://github.com/Indemnity83/logistics/commit/8b2900bb2e0e8908589c1fa430e8077f7a8d7d82))
+
+
+### Fixed
+
+* **pump:** accept power from any energy source ([#651](https://github.com/Indemnity83/logistics/issues/651)) ([89966f8](https://github.com/Indemnity83/logistics/commit/89966f8658d2335c3016f9ab8d238e68f5143970))
+
 ## [0.8.0](https://github.com/Indemnity83/logistics/compare/mc26.2-v0.7.4...mc26.2-v0.8.0) (2026-06-29)
 
 
