@@ -7,3 +7,10 @@ site/
 .env
 .env.*
 !.env.example
+/run
+/build
+/.idea
+/.gradle
+/.claude
+/scripts
+/tools/__pycache__
