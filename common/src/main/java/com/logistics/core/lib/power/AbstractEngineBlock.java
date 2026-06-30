@@ -255,8 +255,8 @@ public abstract class AbstractEngineBlock<E extends AbstractEngineBlockEntity> e
      * @return true if an energy-accepting storage exists in that direction
      */
     private static boolean hasEnergyStorage(Level world, BlockPos pos, Direction direction) {
-        // Extraction pipes / pump are off the loader grid; the presence checker can't see them. Only
-        // count the face the receiver actually accepts power on (e.g. not the pump's null DOWN intake).
+        // Extraction pipes are off the loader grid; the presence checker can't see them. Only
+        // count the face the receiver actually accepts power on.
         if (world.getBlockEntity(pos.relative(direction)) instanceof DirectEnergyReceiver receiver
                 && receiver instanceof HasEnergyStorage hasStorage) {
             IEnergyStorage storage = hasStorage.energyStorage(direction.getOpposite());
