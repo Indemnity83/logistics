@@ -311,7 +311,7 @@ public abstract class AbstractEngineBlockEntity extends BaseBlockEntity implemen
     }
 
     /**
-     * Sends energy to the block this engine is facing. Extraction pipes and the Fluid Pump are
+     * Sends energy to the block this engine is facing. Extraction pipes are
      * {@link DirectEnergyReceiver}s kept off the loader energy grid, so they are fed directly through
      * their own energy buffer; everything else goes through the loader-specific energy push service.
      */
