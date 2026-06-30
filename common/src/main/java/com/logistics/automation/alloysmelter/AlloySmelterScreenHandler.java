@@ -55,7 +55,8 @@ public class AlloySmelterScreenHandler extends RecipeBookMenu {
         this.addSlot(new Slot(inventory, AlloySmelterBlockEntity.INPUT_A_SLOT, 58, 35));
         this.addSlot(new Slot(inventory, AlloySmelterBlockEntity.INPUT_B_SLOT, 76, 35));
         // Primary output (2) and secondary byproduct (3) — extraction only.
-        this.addSlot(new OutputSlot(inventory, AlloySmelterBlockEntity.PRIMARY_OUTPUT_SLOT, 132, 21));
+        // Centered in the 24x24 output frame (132,21)-(155,44): item is 16x16, so inset 4px.
+        this.addSlot(new OutputSlot(inventory, AlloySmelterBlockEntity.PRIMARY_OUTPUT_SLOT, 136, 25));
         this.addSlot(new OutputSlot(inventory, AlloySmelterBlockEntity.SECONDARY_OUTPUT_SLOT, 136, 51));
 
         // Player inventory (3 rows of 9)
