@@ -9,13 +9,31 @@ import net.minecraft.world.item.ItemStack;
  * {@link EnergyStorageComponent}; tests supply a fake to exercise the processor's tick flow.
  *
  * <p>Supports a primary result plus ordered byproducts: byproduct {@code i} targets the
- * {@code (i+1)}-th output slot.
+ * {@code (i+1)}-th output slot. Multi-input machines expose more than one input slot via the
+ * indexed overloads; single-input implementations get them for free from the defaults.
  */
 public interface ProcessIO {
 
     ItemStack input();
 
     void consumeInput(int count);
+
+    /** Number of input slots this IO exposes. */
+    default int inputSlotCount() {
+        return 1;
+    }
+
+    /** The stack in input slot {@code index}; defaults to the single input for index 0, empty otherwise. */
+    default ItemStack input(int index) {
+        return index == 0 ? input() : ItemStack.EMPTY;
+    }
+
+    /** Consumes {@code count} from input slot {@code index}; defaults to the single input for index 0. */
+    default void consumeInput(int index, int count) {
+        if (index == 0) {
+            consumeInput(count);
+        }
+    }
 
     long energyStored();
 
