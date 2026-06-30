@@ -1,6 +1,0 @@
-{
-  "type": "logistics:macerator",
-  "ingredient": "logistics:core/slag",
-  "result": { "id": "minecraft:sand", "count": 1 },
-  "energyrequired": 2000
-}
