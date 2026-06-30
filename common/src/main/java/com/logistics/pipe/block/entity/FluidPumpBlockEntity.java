@@ -7,7 +7,6 @@ import com.logistics.core.lib.fluids.FluidTankComponent;
 import com.logistics.core.lib.fluids.FluidUnits;
 import com.logistics.core.lib.fluids.IFluidStorage;
 import com.logistics.core.lib.power.AcceptsLowTierEnergy;
-import com.logistics.core.lib.power.DirectEnergyReceiver;
 import com.logistics.core.machine.MachineBuilder;
 import com.logistics.core.machine.MachineEntity;
 import com.logistics.core.machine.component.EnergyStorageComponent;
@@ -25,9 +24,10 @@ import org.jetbrains.annotations.Nullable;
  *
  * <p>Composed from machine components — an energy buffer (reports network demand), a tank, and a
  * {@link FluidPumpComponent} that owns the pumping logic. Energy and fluid are exposed on every face
- * except the bottom, which is the intake. The pump has no GUI.
+ * except the bottom, which is the intake. Like the other machines it accepts power from any source
+ * (engines, cables, batteries). The pump has no GUI.
  */
-public class FluidPumpBlockEntity extends MachineEntity implements AcceptsLowTierEnergy, DirectEnergyReceiver {
+public class FluidPumpBlockEntity extends MachineEntity implements AcceptsLowTierEnergy {
 
     public enum Phase {
         DESCENDING,
