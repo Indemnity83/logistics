@@ -87,8 +87,7 @@ public final class RecipeProcessorComponent
             energySpent = 0;
         }
 
-        boolean canRun = io.input().getCount() >= plan.inputCount()
-                && io.canAcceptOutputs(plan.result(), plan.byproducts());
+        boolean canRun = hasInputs(plan) && io.canAcceptOutputs(plan.result(), plan.byproducts());
         RecipeProcessPlan.Result result =
                 RecipeProcessPlan.advance(energySpent, plan.energyRequired(), io.energyStored(), rfPerTick, canRun);
 
@@ -103,13 +102,32 @@ public final class RecipeProcessorComponent
         onChanged.run();
 
         if (result.complete()) {
-            io.consumeInput(plan.inputCount());
+            consumeInputs(plan);
             io.produceOutputs(plan.result(), rollByproducts(plan.byproducts(), ctx.random()));
             if (plan.experience() > 0) {
                 storedExperience += plan.experience();
             }
             energySpent = 0;
             activePlan = null;
+        }
+    }
+
+    /** Whether every input slot holds at least the count the plan consumes from it. */
+    private boolean hasInputs(RecipePlan plan) {
+        int[] counts = plan.inputCounts();
+        for (int i = 0; i < counts.length; i++) {
+            if (io.input(i).getCount() < counts[i]) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /** Consumes each input slot's per-run count. */
+    private void consumeInputs(RecipePlan plan) {
+        int[] counts = plan.inputCounts();
+        for (int i = 0; i < counts.length; i++) {
+            io.consumeInput(i, counts[i]);
         }
     }
 
@@ -202,13 +220,28 @@ public final class RecipeProcessorComponent
         }
 
         @Override
+        public int inputSlotCount() {
+            return items.inputCount();
+        }
+
+        @Override
         public ItemStack input() {
             return items.input();
         }
 
         @Override
+        public ItemStack input(int index) {
+            return items.input(index);
+        }
+
+        @Override
         public void consumeInput(int count) {
             items.consumeInput(count);
+        }
+
+        @Override
+        public void consumeInput(int index, int count) {
+            items.consumeInput(index, count);
         }
 
         @Override

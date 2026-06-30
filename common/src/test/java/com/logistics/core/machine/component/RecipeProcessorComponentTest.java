@@ -291,4 +291,65 @@ class RecipeProcessorComponentTest extends MinecraftTestEnvironment {
         assertThat(processor.energySpent()).isZero();
         assertThat(io.energy).isEqualTo(1_000);
     }
+
+    /** Two-input store: slots 0,1 are inputs and 2,3 are outputs (the alloy-smelter shape). */
+    private static ItemStoreComponent twoInputStore(Runnable onChanged) {
+        return new ItemStoreComponent(
+                "items",
+                new SlotRole[] {SlotRole.INPUT, SlotRole.INPUT, SlotRole.OUTPUT, SlotRole.OUTPUT},
+                SidedLayout.bottomOut(new int[] {0, 1}, new int[] {2, 3}, stack -> true),
+                onChanged);
+    }
+
+    @Test
+    void consumesPerSlotCountsForMultipleInputs() {
+        Runnable noop = () -> {};
+        ItemStoreComponent items = twoInputStore(noop);
+        EnergyStorageComponent energy = new EnergyStorageComponent("energy", 100_000, 100_000, 0, noop);
+        energy.energy(null).insert(100_000, false);
+
+        items.container().setItem(0, new ItemStack(Items.COPPER_INGOT, 5));
+        items.container().setItem(1, new ItemStack(Items.RAW_IRON, 2));
+
+        // Consumes 3 from slot 0 and 1 from slot 1, producing the primary plus a guaranteed byproduct.
+        RecipePlan plan = new RecipePlan(
+                20,
+                new int[] {3, 1},
+                new ItemStack(Items.IRON_INGOT, 4),
+                List.of(new ChanceOutput(new ItemStack(Items.GUNPOWDER), 1.0f)),
+                0f);
+        RecipeProcessorComponent processor = new RecipeProcessorComponent(
+                "processor", (io, ctx) -> plan, 10, items, energy, (ctx, lit) -> {}, noop);
+
+        FakeMachineContext ctx = new FakeMachineContext();
+        processor.serverTick(ctx); // 10
+        processor.serverTick(ctx); // 20 -> complete
+
+        assertThat(items.container().getItem(0).getCount()).isEqualTo(2); // 5 - 3
+        assertThat(items.container().getItem(1).getCount()).isEqualTo(1); // 2 - 1
+        assertThat(items.container().getItem(2).getItem()).isEqualTo(Items.IRON_INGOT);
+        assertThat(items.container().getItem(2).getCount()).isEqualTo(4);
+        assertThat(items.container().getItem(3).getItem()).isEqualTo(Items.GUNPOWDER);
+    }
+
+    @Test
+    void stallsWhenAnyInputSlotIsShort() {
+        Runnable noop = () -> {};
+        ItemStoreComponent items = twoInputStore(noop);
+        EnergyStorageComponent energy = new EnergyStorageComponent("energy", 100_000, 100_000, 0, noop);
+        energy.energy(null).insert(100_000, false);
+
+        items.container().setItem(0, new ItemStack(Items.COPPER_INGOT, 5));
+        // slot 1 left empty -> the recipe needs one there and must not run
+
+        RecipePlan plan = new RecipePlan(
+                20, new int[] {3, 1}, new ItemStack(Items.IRON_INGOT, 4), List.of(), 0f);
+        RecipeProcessorComponent processor = new RecipeProcessorComponent(
+                "processor", (io, ctx) -> plan, 10, items, energy, (ctx, lit) -> {}, noop);
+
+        processor.serverTick(new FakeMachineContext());
+
+        assertThat(processor.energySpent()).isZero();
+        assertThat(items.container().getItem(0).getCount()).isEqualTo(5); // untouched
+    }
 }

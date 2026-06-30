@@ -23,7 +23,7 @@ public final class ItemStoreComponent implements MachineComponent, MachineCompon
     private final ItemInventoryComponent inventory;
     private final SlotRole[] roles;
     private final SidedLayout layout;
-    private final int inputSlot;
+    private final int[] inputSlots;
     private final int[] outputSlots;
 
     public ItemStoreComponent(String id, SlotRole[] roles, SidedLayout layout, Runnable onChanged) {
@@ -31,17 +31,8 @@ public final class ItemStoreComponent implements MachineComponent, MachineCompon
         this.inventory = new ItemInventoryComponent(roles.length, onChanged);
         this.roles = roles.clone();
         this.layout = layout;
-        this.inputSlot = firstSlot(roles, SlotRole.INPUT);
+        this.inputSlots = slotsWithRole(roles, SlotRole.INPUT);
         this.outputSlots = slotsWithRole(roles, SlotRole.OUTPUT);
-    }
-
-    private static int firstSlot(SlotRole[] roles, SlotRole role) {
-        for (int i = 0; i < roles.length; i++) {
-            if (roles[i] == role) {
-                return i;
-            }
-        }
-        return -1;
     }
 
     private static int[] slotsWithRole(SlotRole[] roles, SlotRole role) {
@@ -55,13 +46,31 @@ public final class ItemStoreComponent implements MachineComponent, MachineCompon
 
     // ----- processing helpers -----
 
+    /** Number of input slots (in declaration order). */
+    public int inputCount() {
+        return inputSlots.length;
+    }
+
     public ItemStack input() {
-        return inputSlot >= 0 ? inventory.getItem(inputSlot) : ItemStack.EMPTY;
+        return input(0);
+    }
+
+    /** The stack in the input slot at {@code inputIndex} (declaration order), or empty when absent. */
+    public ItemStack input(int inputIndex) {
+        if (inputIndex < 0 || inputIndex >= inputSlots.length) {
+            return ItemStack.EMPTY;
+        }
+        return inventory.getItem(inputSlots[inputIndex]);
     }
 
     public void consumeInput(int count) {
-        if (inputSlot >= 0 && count > 0) {
-            inventory.getItem(inputSlot).shrink(count);
+        consumeInput(0, count);
+    }
+
+    /** Consumes {@code count} from the input slot at {@code inputIndex} (declaration order). */
+    public void consumeInput(int inputIndex, int count) {
+        if (inputIndex >= 0 && inputIndex < inputSlots.length && count > 0) {
+            inventory.getItem(inputSlots[inputIndex]).shrink(count);
             inventory.setChanged();
         }
     }
