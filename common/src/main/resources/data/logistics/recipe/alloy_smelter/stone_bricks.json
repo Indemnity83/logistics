@@ -6,5 +6,5 @@
   ],
   "result": { "id": "minecraft:stone_bricks", "count": 2 },
   "byproduct": { "id": "logistics:core/slag", "chance": 1.0 },
-  "energy": 1000
+  "energy": 4000
 }

@@ -6,5 +6,5 @@
   ],
   "result": { "id": "minecraft:nether_bricks", "count": 2 },
   "byproduct": { "id": "logistics:core/sulfur_dust", "chance": 0.25 },
-  "energy": 1000
+  "energy": 4000
 }
