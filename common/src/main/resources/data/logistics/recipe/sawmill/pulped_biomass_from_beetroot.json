@@ -1,7 +1,8 @@
 {
   "type": "logistics:sawmill",
   "ingredient": "minecraft:beetroot",
-  "result": { "id": "logistics:core/pulped_biomass", "count": 8 },
+  "count": 8,
+  "result": { "id": "logistics:core/pulped_biomass", "count": 1 },
   "byproduct": { "id": "minecraft:beetroot_seeds", "chance": 0.5 },
   "energy": 2000
 }
