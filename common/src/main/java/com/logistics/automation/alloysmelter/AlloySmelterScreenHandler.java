@@ -1,8 +1,9 @@
 package com.logistics.automation.alloysmelter;
 
 import com.logistics.LogisticsAutomation;
+import java.util.ArrayList;
 import java.util.List;
-import net.minecraft.recipebook.ServerPlaceRecipe;
+import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
@@ -14,6 +15,7 @@ import net.minecraft.world.inventory.RecipeBookMenu;
 import net.minecraft.world.inventory.RecipeBookType;
 import net.minecraft.world.inventory.SimpleContainerData;
 import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
 
@@ -91,38 +93,105 @@ public class AlloySmelterScreenHandler extends RecipeBookMenu {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public PostPlaceAction handlePlacement(boolean placeAll, boolean isCreative, RecipeHolder<?> recipe, ServerLevel level, Inventory playerInventory) {
-        List<Slot> relevant = List.of(
-                this.getSlot(AlloySmelterBlockEntity.INPUT_A_SLOT),
-                this.getSlot(AlloySmelterBlockEntity.INPUT_B_SLOT));
-        return ServerPlaceRecipe.placeRecipe(
-            new ServerPlaceRecipe.CraftingMenuAccess<AlloySmelterRecipe>() {
-                @Override
-                public void fillCraftSlotsStackedContents(StackedItemContents contents) {
-                    AlloySmelterScreenHandler.this.fillCraftSlotsStackedContents(contents);
-                }
+    public PostPlaceAction handlePlacement(boolean placeAll, boolean isCreative, RecipeHolder<?> recipeHolder,
+            ServerLevel level, Inventory playerInventory) {
+        // Vanilla ServerPlaceRecipe is a crafting-grid model (one item per slot per craft), so it can't
+        // express the alloy smelter's per-input counts (e.g. 3 copper + 1 tin). Place each input's count
+        // explicitly instead; shift-click fills as many whole recipes as the inputs and stacks allow.
+        if (!(recipeHolder.value() instanceof AlloySmelterRecipe recipe)) {
+            return PostPlaceAction.NOTHING;
+        }
+        Slot slotA = this.getSlot(AlloySmelterBlockEntity.INPUT_A_SLOT);
+        Slot slotB = this.getSlot(AlloySmelterBlockEntity.INPUT_B_SLOT);
 
-                @Override
-                public void clearCraftingContent() {
-                    relevant.forEach(s -> s.set(ItemStack.EMPTY));
-                }
+        // Return whatever is already in the inputs to the inventory so it can be reused, then refill.
+        returnToInventory(playerInventory, slotA);
+        returnToInventory(playerInventory, slotB);
 
-                @Override
-                public boolean recipeMatches(RecipeHolder<AlloySmelterRecipe> r) {
-                    return r.value().matches(new DualRecipeInput(
-                            inventory.getItem(AlloySmelterBlockEntity.INPUT_A_SLOT),
-                            inventory.getItem(AlloySmelterBlockEntity.INPUT_B_SLOT)), level);
-                }
-            },
-            2, 1,
-            relevant,
-            relevant,
-            playerInventory,
-            (RecipeHolder<AlloySmelterRecipe>) recipe,
-            placeAll,
-            isCreative
-        );
+        // Resolve a concrete item for each ingredient (honours tags + what the player actually holds).
+        StackedItemContents available = new StackedItemContents();
+        playerInventory.fillStackedContents(available);
+        List<Holder<Item>> itemsUsed = new ArrayList<>();
+        if (!available.canCraft(recipe, 1, itemsUsed::add) || itemsUsed.size() < 2) {
+            return PostPlaceAction.PLACE_GHOST_RECIPE;
+        }
+        Holder<Item> itemA = itemsUsed.get(0);
+        Holder<Item> itemB = itemsUsed.get(1);
+
+        int multiples = placeAll
+                ? maxMultiples(playerInventory, itemA, recipe.countA(), itemB, recipe.countB())
+                : 1;
+        if (multiples < 1) {
+            return PostPlaceAction.PLACE_GHOST_RECIPE;
+        }
+
+        boolean filledA = fillSlot(playerInventory, slotA, itemA, recipe.countA() * multiples);
+        boolean filledB = fillSlot(playerInventory, slotB, itemB, recipe.countB() * multiples);
+        if (!filledA || !filledB) {
+            // Not enough materials after all — roll back so we never leave a half-filled grid.
+            returnToInventory(playerInventory, slotA);
+            returnToInventory(playerInventory, slotB);
+            return PostPlaceAction.PLACE_GHOST_RECIPE;
+        }
+        playerInventory.setChanged();
+        return PostPlaceAction.NOTHING;
+    }
+
+    private static void returnToInventory(Inventory inventory, Slot slot) {
+        ItemStack stack = slot.getItem();
+        if (!stack.isEmpty()) {
+            ItemStack copy = stack.copy();
+            inventory.placeItemBackInInventory(copy, false);
+            slot.set(copy); // leftovers (if the inventory is full) stay in the slot
+        }
+    }
+
+    /** Moves up to {@code count} of {@code item} from the inventory into {@code slot}; true iff all placed. */
+    private static boolean fillSlot(Inventory inventory, Slot slot, Holder<Item> item, int count) {
+        int remaining = count;
+        while (remaining > 0) {
+            int slotId = inventory.findSlotMatchingCraftingIngredient(item, slot.getItem());
+            if (slotId == -1) {
+                break;
+            }
+            ItemStack invStack = inventory.getItem(slotId);
+            ItemStack taken = inventory.removeItem(slotId, Math.min(remaining, invStack.getCount()));
+            if (taken.isEmpty()) {
+                break;
+            }
+            if (slot.getItem().isEmpty()) {
+                slot.set(taken);
+            } else {
+                slot.getItem().grow(taken.getCount());
+            }
+            remaining -= taken.getCount();
+        }
+        return remaining == 0;
+    }
+
+    /** Most whole recipes the inputs + per-item stack limits allow (for shift-click). */
+    private static int maxMultiples(Inventory inventory, Holder<Item> itemA, int countA, Holder<Item> itemB, int countB) {
+        int multiples = Math.min(
+                new ItemStack(itemA.value()).getMaxStackSize() / countA,
+                new ItemStack(itemB.value()).getMaxStackSize() / countB);
+        if (itemA.equals(itemB)) {
+            // Same item feeds both inputs — share the supply.
+            multiples = Math.min(multiples, countAvailable(inventory, itemA) / (countA + countB));
+        } else {
+            multiples = Math.min(multiples, countAvailable(inventory, itemA) / countA);
+            multiples = Math.min(multiples, countAvailable(inventory, itemB) / countB);
+        }
+        return Math.max(0, multiples);
+    }
+
+    private static int countAvailable(Inventory inventory, Holder<Item> item) {
+        int total = 0;
+        for (ItemStack stack : inventory.getNonEquipmentItems()) {
+            if (stack.is(item.value())) {
+                total += stack.getCount();
+            }
+        }
+        return total;
     }
 
     @Override
