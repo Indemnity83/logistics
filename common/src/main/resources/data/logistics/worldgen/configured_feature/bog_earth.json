@@ -1,7 +1,7 @@
 {
   "type": "logistics:bog_patch",
   "config": {
-    "spread_chance": 0.5,
+    "spread_chance": 0.8,
     "max_count": 20,
     "target": {
       "type": "minecraft:matching_blocks",
