@@ -1,0 +1,10 @@
+{
+  "type": "logistics:alloy_smelter",
+  "ingredients": [
+    { "id": "minecraft:cobblestone", "count": 2 },
+    "#c:sands"
+  ],
+  "result": { "id": "minecraft:stone_bricks", "count": 2 },
+  "byproduct": { "id": "logistics:core/slag", "chance": 1.0 },
+  "energy": 1000
+}
