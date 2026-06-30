@@ -2,25 +2,16 @@ package com.logistics.core.worldgen;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.util.valueproviders.IntProvider;
-import net.minecraft.util.valueproviders.IntProviders;
-import net.minecraft.world.level.levelgen.blockpredicates.BlockPredicate;
 import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
-import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProvider;
 
 /**
- * Config for {@link BogPatchFeature}. Mirrors vanilla {@code DiskConfiguration} (state_provider / target
- * / radius / half_height) — but the feature unions several overlapping lobes within {@code radius} for an
- * irregular outline instead of one clean circle.
+ * Config for {@link BogPatchFeature}: the per-neighbour {@code spread_chance} of the mud→bog flood-fill
+ * and the {@code max_count} hard cap on a single patch.
  */
-public record BogPatchConfiguration(
-        BlockStateProvider stateProvider, BlockPredicate target, IntProvider radius, int halfHeight)
-        implements FeatureConfiguration {
+public record BogPatchConfiguration(float spreadChance, int maxCount) implements FeatureConfiguration {
 
     public static final Codec<BogPatchConfiguration> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            BlockStateProvider.CODEC.fieldOf("state_provider").forGetter(BogPatchConfiguration::stateProvider),
-            BlockPredicate.CODEC.fieldOf("target").forGetter(BogPatchConfiguration::target),
-            IntProviders.codec(1, 16).fieldOf("radius").forGetter(BogPatchConfiguration::radius),
-            Codec.intRange(0, 4).fieldOf("half_height").forGetter(BogPatchConfiguration::halfHeight))
+            Codec.floatRange(0.0f, 1.0f).fieldOf("spread_chance").forGetter(BogPatchConfiguration::spreadChance),
+            Codec.intRange(1, 4096).fieldOf("max_count").forGetter(BogPatchConfiguration::maxCount))
         .apply(instance, BogPatchConfiguration::new));
 }

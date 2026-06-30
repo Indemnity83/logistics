@@ -1,19 +1,25 @@
 package com.logistics.core.worldgen;
 
+import com.logistics.LogisticsCore;
 import com.mojang.serialization.Codec;
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.HashSet;
 import java.util.Set;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.WorldGenLevel;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
 
 /**
- * Like vanilla's disk, but irregular: it unions 2–4 overlapping circular lobes (jittered centre + radius
- * within the configured radius) so the patch outline is lumpy rather than a clean circle. Each resulting
- * column has its surface dirt/grass/mud (within {@code half_height}) swapped to the configured block.
+ * Turns mud into bog earth in organic patches: seeds on the exposed surface mud at the origin, then
+ * flood-fills (6-neighbour, 3D) through adjacent mud, each step a {@code spread_chance} roll, capped at
+ * {@code max_count}. Only mud is ever replaced, so patches hug the muddy surface and never touch other
+ * terrain.
  */
 public class BogPatchFeature extends Feature<BogPatchConfiguration> {
 
@@ -23,69 +29,40 @@ public class BogPatchFeature extends Feature<BogPatchConfiguration> {
 
     @Override
     public boolean place(FeaturePlaceContext<BogPatchConfiguration> context) {
-        BogPatchConfiguration config = context.config();
-        BlockPos origin = context.origin();
         WorldGenLevel level = context.level();
         RandomSource random = context.random();
+        BogPatchConfiguration config = context.config();
 
-        int maxRadius = config.radius().sample(random);
-        if (maxRadius < 1) {
+        // The heightmap origin sits just above the surface; the mud is the block below it.
+        BlockPos origin = context.origin();
+        BlockPos seed = level.getBlockState(origin).is(Blocks.MUD) ? origin : origin.below();
+        if (!level.getBlockState(seed).is(Blocks.MUD)) {
             return false;
         }
 
-        // Build an irregular column footprint from a handful of overlapping lobes.
-        Set<Long> columns = new HashSet<>();
-        int lobes = 2 + random.nextInt(3);
-        for (int i = 0; i < lobes; i++) {
-            int offsetX = random.nextInt(maxRadius + 1) - maxRadius / 2;
-            int offsetZ = random.nextInt(maxRadius + 1) - maxRadius / 2;
-            int lobeRadius = 2 + random.nextInt(Math.max(1, maxRadius - 1));
-            int cx = origin.getX() + offsetX;
-            int cz = origin.getZ() + offsetZ;
-            for (int dx = -lobeRadius; dx <= lobeRadius; dx++) {
-                for (int dz = -lobeRadius; dz <= lobeRadius; dz++) {
-                    if (dx * dx + dz * dz <= lobeRadius * lobeRadius) {
-                        columns.add(pack(cx + dx, cz + dz));
-                    }
+        BlockState bogEarth = LogisticsCore.BLOCK.BOG_EARTH.defaultBlockState();
+        Set<Long> visited = new HashSet<>();
+        Deque<BlockPos> queue = new ArrayDeque<>();
+        queue.add(seed.immutable());
+        visited.add(seed.asLong());
+
+        int placed = 0;
+        while (!queue.isEmpty() && placed < config.maxCount()) {
+            BlockPos pos = queue.poll();
+            if (!level.getBlockState(pos).is(Blocks.MUD)) {
+                continue;
+            }
+            level.setBlock(pos, bogEarth, 2);
+            placed++;
+            for (Direction dir : Direction.values()) {
+                BlockPos next = pos.relative(dir);
+                if (visited.add(next.asLong())
+                        && level.getBlockState(next).is(Blocks.MUD)
+                        && random.nextFloat() < config.spreadChance()) {
+                    queue.add(next.immutable());
                 }
             }
         }
-
-        int top = origin.getY() + config.halfHeight();
-        int bottom = origin.getY() - config.halfHeight() - 1;
-        boolean placedAny = false;
-        BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
-        for (long column : columns) {
-            placedAny |= placeColumn(config, level, random, top, bottom, pos.set(unpackX(column), 0, unpackZ(column)));
-        }
-        return placedAny;
-    }
-
-    private boolean placeColumn(BogPatchConfiguration config, WorldGenLevel level, RandomSource random,
-            int top, int bottom, BlockPos.MutableBlockPos pos) {
-        boolean placedAny = false;
-        for (int y = top; y > bottom; y--) {
-            pos.setY(y);
-            if (config.target().test(level, pos)) {
-                BlockState state = config.stateProvider().getOptionalState(level, random, pos);
-                if (state != null) {
-                    level.setBlock(pos, state, 2);
-                    placedAny = true;
-                }
-            }
-        }
-        return placedAny;
-    }
-
-    private static long pack(int x, int z) {
-        return (((long) x) << 32) ^ (z & 0xFFFFFFFFL);
-    }
-
-    private static int unpackX(long packed) {
-        return (int) (packed >> 32);
-    }
-
-    private static int unpackZ(long packed) {
-        return (int) packed;
+        return placed > 0;
     }
 }
