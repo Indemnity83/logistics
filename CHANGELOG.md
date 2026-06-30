@@ -12,9 +12,14 @@
 
 * **core:** add opt-in sanitized crash reporting ([#633](https://github.com/Indemnity83/logistics/issues/633)) ([8f1167b](https://github.com/Indemnity83/logistics/commit/8f1167b126f9dd122b5e91ac97dd3f945169a42d))
 * **core:** drop niter from the breeze ([#644](https://github.com/Indemnity83/logistics/issues/644)) ([174b165](https://github.com/Indemnity83/logistics/commit/174b16529b787533cf8d574a5cbb3b8332e99eaa))
+* **crafting:** craft gunpowder from coal, sulfur, and niter dust ([25a2683](https://github.com/Indemnity83/logistics/commit/25a268352cf712fa834cee0339f125052bcc97ab))
 * **energy:** add the power junction ([#612](https://github.com/Indemnity83/logistics/issues/612)) ([176ebbf](https://github.com/Indemnity83/logistics/commit/176ebbfbeeb60db658fa42aab23a9bda52023e45))
 * **macerator:** add chance byproducts to ore processing ([#643](https://github.com/Indemnity83/logistics/issues/643)) ([25a2683](https://github.com/Indemnity83/logistics/commit/25a268352cf712fa834cee0339f125052bcc97ab))
+* **macerator:** add recycling recipes for common blocks ([25a2683](https://github.com/Indemnity83/logistics/commit/25a268352cf712fa834cee0339f125052bcc97ab))
 * **macerator:** add Sulfur Dust, Quicksilver, and Niter items ([25a2683](https://github.com/Indemnity83/logistics/commit/25a268352cf712fa834cee0339f125052bcc97ab))
+* **macerator:** macerate breeze rods into wind charges ([25a2683](https://github.com/Indemnity83/logistics/commit/25a268352cf712fa834cee0339f125052bcc97ab))
+* **macerator:** macerate logs and planks into sawdust and recycle wooden tools ([25a2683](https://github.com/Indemnity83/logistics/commit/25a268352cf712fa834cee0339f125052bcc97ab))
+* **macerator:** recycle diamond tools and armor into diamonds ([25a2683](https://github.com/Indemnity83/logistics/commit/25a268352cf712fa834cee0339f125052bcc97ab))
 * **sawmill:** add wood processing ([#580](https://github.com/Indemnity83/logistics/issues/580)) ([b97dd47](https://github.com/Indemnity83/logistics/commit/b97dd47be821c39cb9cbaec3a00f0359ecc97e9a))
 * **sawmill:** show recipes in JEI and details in the Jade HUD ([#613](https://github.com/Indemnity83/logistics/issues/613)) ([17c3575](https://github.com/Indemnity83/logistics/commit/17c3575384830770422a77a3d8aa4df9b82c7ad1))
 
@@ -27,6 +32,7 @@
 * **crafting:** yield one marker per craft ([#607](https://github.com/Indemnity83/logistics/issues/607)) ([71fc9b8](https://github.com/Indemnity83/logistics/commit/71fc9b8838799e2aee2df86d7e626f2a9d28a9b7))
 * **energy:** power extraction pipes only from a direct engine ([#641](https://github.com/Indemnity83/logistics/issues/641)) ([078b2e0](https://github.com/Indemnity83/logistics/commit/078b2e09d495972c8ad94c8aae2ed2f6f2be8817))
 * **fluids:** speed up fluid split allocation ([#623](https://github.com/Indemnity83/logistics/issues/623)) ([c65386d](https://github.com/Indemnity83/logistics/commit/c65386d9417fd33fa1c56cb0267c306600dd1b2d))
+* **macerator:** ore→dust recipes now drop a chance byproduct dust ([25a2683](https://github.com/Indemnity83/logistics/commit/25a268352cf712fa834cee0339f125052bcc97ab))
 * **pipes:** raise pipe blast resistance to match glass ([#618](https://github.com/Indemnity83/logistics/issues/618)) ([9938bed](https://github.com/Indemnity83/logistics/commit/9938bed9c537528671c257269561969eedbd1506))
 * **quarry:** restyle with the shared machine look ([#582](https://github.com/Indemnity83/logistics/issues/582)) ([4f81e02](https://github.com/Indemnity83/logistics/commit/4f81e02b6a442b943a15f6f0b384d64ade0e9b7b))
 * **routing:** cache next-hop routes per destination ([#632](https://github.com/Indemnity83/logistics/issues/632)) ([f5a1bea](https://github.com/Indemnity83/logistics/commit/f5a1beaa70ab6debebffb222e1ba82ac1bbcbd09))
