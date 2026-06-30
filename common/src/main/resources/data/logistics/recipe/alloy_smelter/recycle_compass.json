@@ -1,0 +1,7 @@
+{
+  "type": "logistics:alloy_smelter",
+  "ingredients": [ "minecraft:compass", "#c:sands" ],
+  "result": { "id": "minecraft:iron_ingot", "count": 4 },
+  "byproduct": { "id": "logistics:core/rich_slag", "chance": 0.2 },
+  "energy": 4000
+}
