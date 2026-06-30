@@ -2,6 +2,10 @@
   "type": "logistics:bog_patch",
   "config": {
     "spread_chance": 0.5,
-    "max_count": 24
+    "max_count": 20,
+    "target": {
+      "type": "minecraft:matching_blocks",
+      "blocks": [ "minecraft:mud", "minecraft:grass_block", "minecraft:dirt" ]
+    }
   }
 }
