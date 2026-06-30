@@ -9,6 +9,10 @@ import com.logistics.core.lib.platform.CreativeTabRegistrar;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.core.marker.MarkerBlock;
 import com.logistics.core.marker.MarkerBlockEntity;
+import com.logistics.core.worldgen.BogEarthConfiguration;
+import com.logistics.core.worldgen.BogEarthFeature;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.CreativeModeTabs;
@@ -19,6 +23,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.DropExperienceBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.levelgen.feature.Feature;
 
 public final class LogisticsCore extends LogisticsMod implements DomainBootstrap {
     private static final LogisticsCore INSTANCE = new LogisticsCore();
@@ -51,8 +56,22 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         BLOCK.register();
         ITEM.register();
         ENTITY.register();
+        WORLDGEN.register();
         CREATIVE.register();
         ALIAS.register();
+    }
+
+    public static final class WORLDGEN {
+        public static Feature<BogEarthConfiguration> BOG_EARTH_FEATURE;
+
+        private WORLDGEN() {}
+
+        static void register() {
+            BOG_EARTH_FEATURE = Registry.register(
+                BuiltInRegistries.FEATURE,
+                LogisticsMod.modId("bog_earth").toIdentifier(),
+                new BogEarthFeature(BogEarthConfiguration.CODEC));
+        }
     }
 
     public static final class BLOCK {
@@ -65,6 +84,7 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         public static Block APATITE_BLOCK;
         public static Block QUARTZ_CRYSTAL;
         public static Block MARKER;
+        public static Block BOG_EARTH;
 
         private BLOCK() {}
 
@@ -93,6 +113,10 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
 
             MARKER = INSTANCE.registerBlockWithItem("marker",
                 props -> new MarkerBlock(props.strength(0.0f).sound(SoundType.WOOD).noCollision()));
+
+            // Bog Earth — dirt-like soil that generates at swamp water edges; smelts into peat
+            BOG_EARTH = INSTANCE.registerBlockWithItem("bog_earth",
+                props -> new Block(props.strength(0.5f).sound(SoundType.MUD)));
         }
     }
 
@@ -141,6 +165,7 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         public static Item SILICON_WAFER;
         public static Item FLOUR;
         public static Item SAWDUST;
+        public static Item PEAT;
         public static Item PULPED_BIOMASS;
         public static Item SLAG;
         public static Item RICH_SLAG;
@@ -238,6 +263,7 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
             SILICON_WAFER = INSTANCE.registerItem("silicon_wafer", Item::new);
             FLOUR = INSTANCE.registerItem("flour", Item::new);
             SAWDUST = INSTANCE.registerItem("sawdust", Item::new);
+            PEAT = INSTANCE.registerItem("peat", Item::new);
             PULPED_BIOMASS = INSTANCE.registerItem("pulped_biomass", Item::new);
             SLAG = INSTANCE.registerItem("slag", Item::new);
             RICH_SLAG = INSTANCE.registerItem("rich_slag", Item::new);
@@ -314,6 +340,10 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
                 entries.insertAfter(Items.IRON_BLOCK, BLOCK.BRONZE_BLOCK);
             });
 
+            // Bog earth sits with the other soils
+            CreativeTabRegistrar.INSTANCE.modifyTab(CreativeModeTabs.NATURAL_BLOCKS, entries ->
+                entries.insertAfter(Items.MUD, BLOCK.BOG_EARTH));
+
             // Add materials to Ingredients tab — all in one callback so each insertAfter/insertBefore
             // sees the items placed by earlier calls in the same invocation
             CreativeTabRegistrar.INSTANCE.modifyTab(CreativeModeTabs.INGREDIENTS, entries -> {
@@ -366,6 +396,7 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
                     ITEM.AMETHYST_DUST, ITEM.DIAMOND_DUST, ITEM.EMERALD_DUST,
                     ITEM.NETHERITE_DUST, ITEM.OBSIDIAN_DUST, ITEM.ENDER_DUST,
                     ITEM.ECHO_DUST, ITEM.PRISMARINE_DUST, ITEM.SULFUR_DUST, ITEM.QUICKSILVER, ITEM.NITER,
+                    ITEM.SILICON_MIX, ITEM.SILICON_WAFER, ITEM.FLOUR, ITEM.SAWDUST, ITEM.PEAT,
                     ITEM.SILICON_MIX, ITEM.SILICON_WAFER, ITEM.FLOUR, ITEM.SAWDUST, ITEM.PULPED_BIOMASS,
                     ITEM.SLAG, ITEM.RICH_SLAG,
                     ITEM.CARBON_CHIP, ITEM.REDSTONE_CHIP, ITEM.AMETHYST_CHIP, ITEM.ECHO_CHIP,

@@ -1,0 +1,8 @@
+{
+  "type": "logistics:bog_earth",
+  "config": {
+    "spread_chance": 0.25,
+    "max_count": 24,
+    "plant_radius": 4
+  }
+}
