@@ -6,11 +6,15 @@
 |added     = v0.2.0
 }}
 
-The '''Sturdy Casing''' is a reinforced shell formed from [[Bronze Ingot|bronze ingots]].
+''The Sturdy Casing was removed in v0.8.1 and can no longer be obtained. This page is kept for historical reference.''
+
+The '''Sturdy Casing''' was a reinforced shell formed from [[Bronze Ingot|bronze ingots]].
 
 == Obtaining ==
 
 === Crafting ===
+
+It was crafted from a ring of 8 [[Bronze Ingot|bronze ingots]]:
 
 {{Crafting|head=1|foot=1|showname=0
 |A1=Bronze Ingot |B1=Bronze Ingot |C1=Bronze Ingot
@@ -18,12 +22,6 @@ The '''Sturdy Casing''' is a reinforced shell formed from [[Bronze Ingot|bronze 
 |A3=Bronze Ingot |B3=Bronze Ingot |C3=Bronze Ingot
 |Output=Sturdy Casing
 }}
-
-== Usage ==
-
-No current machine recipe uses the Sturdy Casing.
-
-Bronze Ingots are an alloy of copper and tin, so keep a [[Tin Ore|tin]] supply on hand.
 
 == Data values ==
 
@@ -33,7 +31,8 @@ Bronze Ingots are an alloy of copper and tin, so keep a [[Tin Ore|tin]] supply o
 
 == History ==
 
-{{History|head=1|foot=1|v0.2.0|[[File:Grid Sturdy Casing.png|32px]] Added '''Sturdy Casing''' with the bronze materials.}}
+{{History|head=1|v0.2.0|[[File:Grid Sturdy Casing.png|32px]] Added '''Sturdy Casing''' with the bronze materials.}}
+{{History|foot=1|v0.8.1|Removed '''Sturdy Casing'''.}}
 
 == See also ==
 

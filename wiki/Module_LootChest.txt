@@ -14,7 +14,6 @@ local ITEMS = {
 	['bronze-nugget'] = { name = 'Bronze Nugget', page = 'Bronze Nugget', icon = 'Grid Bronze Nugget.png' },
 	['bronze-gear']   = { name = 'Bronze Gear',   page = 'Gears',         icon = 'Grid Bronze Gear.png' },
 	['apatite']       = { name = 'Apatite',       page = 'Apatite (gem)', icon = 'Grid Apatite.png' },
-	['sturdy-casing'] = { name = 'Sturdy Casing', page = 'Sturdy Casing', icon = 'Grid Sturdy Casing.png' },
 }
 
 -- each pool: structure, container, and { slug = { weight, min, max } }
@@ -23,7 +22,7 @@ local POOLS = {
 	{ s = 'Monster Room',    c = 'Chest',             it = { ['raw-tin'] = {8,2,8}, ['tin-nugget'] = {12,5,15}, ['tin-ingot'] = {5,1,3}, ['apatite'] = {15,3,10} } },
 	{ s = 'Village',         c = "Toolsmith's chest", it = { ['tin-nugget'] = {10,5,15}, ['tin-ingot'] = {4,1,3}, ['bronze-nugget'] = {8,4,12}, ['bronze-ingot'] = {3,1,2}, ['apatite'] = {10,3,10}, ['bronze-gear'] = {3,1,1} } },
 	{ s = 'Village',         c = "Armorer's chest",   it = { ['bronze-nugget'] = {10,4,12}, ['bronze-ingot'] = {4,1,2}, ['bronze-gear'] = {4,1,1} } },
-	{ s = 'Stronghold',      c = 'Corridor chest',    it = { ['bronze-nugget'] = {10,4,12}, ['bronze-ingot'] = {4,1,2}, ['bronze-gear'] = {4,1,1}, ['sturdy-casing'] = {3,1,2} } },
+	{ s = 'Stronghold',      c = 'Corridor chest',    it = { ['bronze-nugget'] = {10,4,12}, ['bronze-ingot'] = {4,1,2}, ['bronze-gear'] = {4,1,1} } },
 	{ s = 'Buried Treasure', c = 'Chest',             it = { ['tin-nugget'] = {8,8,20}, ['tin-ingot'] = {5,2,5}, ['bronze-nugget'] = {9,6,18}, ['bronze-ingot'] = {6,1,4}, ['apatite'] = {10,6,16}, ['bronze-gear'] = {5,1,3} } },
 	{ s = 'Shipwreck',       c = 'Treasure chest',    it = { ['bronze-nugget'] = {12,6,18}, ['bronze-ingot'] = {6,1,3}, ['bronze-gear'] = {6,1,1} } },
 	{ s = 'Shipwreck',       c = 'Supply chest',      it = { ['raw-tin'] = {8,2,6}, ['tin-ingot'] = {6,1,4}, ['apatite'] = {10,3,8} } },

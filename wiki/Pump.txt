@@ -44,8 +44,6 @@ The Pump drains fluid source blocks from the world below it into an internal buf
 
 The Pump runs on [[RF Energy|RF]] and keeps its own internal buffer. Supply it with RF from your power system — an [[Engines|engine]], a [[Battery]], or [[Cables]] — to keep it draining; with no power it stops.
 
-'''Known issue:''' in the current release the Pump only accepts power from a directly-adjacent engine — [[Cables]] and a [[Battery]] do not power it yet. Place a [[Stirling Engine]] (or other engine) against the Pump until this is fixed.
-
 Place a [[Glass Tank]] or [[Copper Fluid Pipe]] against the output to carry away what it draws, and buffer the output in stacked [[Glass Tank|tanks]] so the pump keeps draining even when the network is briefly full. Use a [[Golden Fluid Pipe]] (80 mB/t) if you need to move fluid faster than one pump produces; to pull fluid out of a machine's tank instead of the world, use a [[Fluid Extractor Pipe]] instead.
 
 == Data values ==
@@ -57,7 +55,8 @@ Place a [[Glass Tank]] or [[Copper Fluid Pipe]] against the output to carry away
 == History ==
 
 {{History|head=1|v0.7.3|[[File:Grid Pump (v0.7.3).png|32px]] Added '''Pump'''.}}
-{{History|foot=1|v0.8.0|[[File:Grid Pump.png|32px]] The texture of the Pump has been changed. Recipe standardized around the [[Machine Frame]] and [[Redstone Reception Coil]].}}
+{{History|v0.8.0|[[File:Grid Pump.png|32px]] The texture of the Pump has been changed. Recipe standardized around the [[Machine Frame]] and [[Redstone Reception Coil]].}}
+{{History|foot=1|v0.8.1|Fixed a bug that prevented the Pump from receiving energy from anything except a directly-adjacent engine; it now accepts power from [[Cables]] and a [[Battery]] too.}}
 
 == See also ==
 * [[Fluid Pipes]] - Overview of the fluid system

@@ -8,7 +8,7 @@
 * [[File:Grid Redstone Chip.png|24px|link=Chips]] '''[[Chips]]''' — electronic components for modules
 * [[File:Grid Iron Dust.png|24px|link=Dusts]] '''[[Dusts]]''' — ground materials from the [[Macerator]]
 * [[File:Grid Quartz Crystal.png|24px|link=Quartz Crystal]] '''[[Quartz Crystal]]''' — the frame of every valve
-* [[File:Grid Machine Frame.png|24px|link=Machine Frame]] '''[[Machine Frame]]''', '''[[Redstone Reception Coil]]''', and '''[[Sturdy Casing]]''' — machine components
+* [[File:Grid Machine Frame.png|24px|link=Machine Frame]] '''[[Machine Frame]]''' and '''[[Redstone Reception Coil]]''' — machine components
 * [[File:Grid Rubber Chunk.png|24px|link=Rubber]] '''[[Rubber]]''' — insulates power cables
 
 == Ores & metals ==

@@ -6,8 +6,8 @@ drop chances live in the module.
 Usage:
  {{LootChestItem|tin-ingot}}
 
-Known item slugs: raw-tin, tin-ingot, tin-nugget, tin-gear, bronze-ingot, bronze-nugget,
-bronze-gear, apatite, sturdy-casing.
+Known item slugs: raw-tin, tin-ingot, tin-nugget, bronze-ingot, bronze-nugget,
+bronze-gear, apatite.
 
 Chance is the item's weight divided by its pool's total weight (each added pool rolls once).
 
