@@ -41,9 +41,9 @@ public class AlloySmelterBlockEntity extends MachineEntity {
     static final long MAX_ENERGY_INPUT = 128L;
     static final int ENERGY_PER_TICK = 20;
 
-    private static final int DATA_PROGRESS = 0;
-    private static final int DATA_TOTAL = 1;
-    private static final int DATA_ENERGY = 2;
+    static final int DATA_PROGRESS = 0;
+    static final int DATA_TOTAL = 1;
+    static final int DATA_ENERGY = 2;
     public static final int DATA_COUNT = 3;
 
     private EnergyStorageComponent energy;

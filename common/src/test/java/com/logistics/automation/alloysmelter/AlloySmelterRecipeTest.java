@@ -1,12 +1,14 @@
 package com.logistics.automation.alloysmelter;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.logistics.core.lib.recipe.MachineResult;
 import com.logistics.test.MinecraftTestEnvironment;
 import java.util.Optional;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.RegistryOps;
@@ -107,6 +109,22 @@ class AlloySmelterRecipeTest extends MinecraftTestEnvironment {
             assertThat(decoded.byproduct()).isPresent();
             assertThat(decoded.byproduct().get().item()).isEqualTo(Items.GOLD_NUGGET);
             assertThat(decoded.byproduct().get().chance()).isEqualTo(0.1f);
+        }
+
+        @Test
+        @DisplayName("rejects a non-finite or negative byproduct chance on decode")
+        void rejectsInvalidByproductChance() {
+            assertThatThrownBy(() -> AlloySmelterByproduct.CODEC.parse(ops, byproductTag(-0.1f)))
+                    .isInstanceOf(IllegalArgumentException.class);
+            assertThatThrownBy(() -> AlloySmelterByproduct.CODEC.parse(ops, byproductTag(Float.NaN)))
+                    .isInstanceOf(IllegalArgumentException.class);
+        }
+
+        private Tag byproductTag(float chance) {
+            CompoundTag tag = new CompoundTag();
+            tag.putString("id", "minecraft:gold_nugget");
+            tag.putFloat("chance", chance);
+            return tag;
         }
 
         private AlloySmelterRecipe roundTrip(AlloySmelterRecipe original) {

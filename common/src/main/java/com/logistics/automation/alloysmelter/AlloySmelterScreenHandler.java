@@ -160,11 +160,17 @@ public class AlloySmelterScreenHandler extends RecipeBookMenu {
             if (taken.isEmpty()) {
                 break;
             }
-            if (slot.getItem().isEmpty()) {
+            ItemStack current = slot.getItem();
+            if (current.isEmpty()) {
                 slot.set(taken);
+            } else if (ItemStack.isSameItemSameComponents(current, taken)) {
+                current.grow(taken.getCount());
             } else {
-                slot.getItem().grow(taken.getCount());
+                // A leftover item of a different type is occupying the slot; don't merge — put it back.
+                inventory.placeItemBackInInventory(taken, false);
+                break;
             }
+            slot.setChanged();
             remaining -= taken.getCount();
         }
         return remaining == 0;
@@ -244,15 +250,15 @@ public class AlloySmelterScreenHandler extends RecipeBookMenu {
     // ==================== Data Getters for GUI Rendering ====================
 
     public int getProcessProgress() {
-        return data.get(0);
+        return data.get(AlloySmelterBlockEntity.DATA_PROGRESS);
     }
 
     public int getProcessTotalTicks() {
-        return data.get(1);
+        return data.get(AlloySmelterBlockEntity.DATA_TOTAL);
     }
 
     public int getEnergyStored() {
-        return data.get(2);
+        return data.get(AlloySmelterBlockEntity.DATA_ENERGY);
     }
 
     public int getEnergyCapacity() {
