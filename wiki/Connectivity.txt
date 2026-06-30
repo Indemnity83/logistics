@@ -6,7 +6,7 @@ Each transport system connects automatically within its own '''family''' — to 
 
 * '''Item pipes''' connect to other item pipes ([[Transport Pipes]] and [[Logistics Pipes]]) and to inventories — chests, furnaces, hoppers, barrels, and any mod block exposing item storage.
 * '''Fluid pipes''' connect to other [[Fluid Pipes|fluid pipes]] and to tanks and fluid-handling machines.
-* '''[[Cables]]''' connect to other cables and to power blocks — [[Redstone Engine|engines]], a [[Battery]], and the machines that draw [[RF Energy|RF]].
+* '''[[Cables]]''' connect to other cables and to power blocks — [[Redstone Engine|engines]], a [[Battery]], a [[Power Junction]], and the machines that draw [[RF Energy|RF]].
 
 The three families are '''independent''': item pipes, fluid pipes, and cables each form their own network and never connect to one another, even sitting side by side. None of them connect to solid or non-handler blocks, or to air.
 

@@ -49,7 +49,7 @@ Nine tin nuggets craft back into a [[Tin Ingot|tin ingot]].
 
 == History ==
 
-{{History|head=1|foot=1|v0.2.0|Added '''Tin Nugget'''.}}
+{{History|head=1|foot=1|v0.2.0|[[File:Grid Tin Nugget.png|32px]] Added '''Tin Nugget'''.}}
 
 == See also ==
 

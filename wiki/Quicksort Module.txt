@@ -36,7 +36,7 @@ Place it in a chassis near your main storage array so items are sorted as they a
 
 == History ==
 
-{{History|head=1|foot=1|v0.2.0|Added '''Quicksort Module'''.}}
+{{History|head=1|foot=1|v0.2.0|[[File:Grid Quicksort Module.png|32px]] Added '''Quicksort Module'''.}}
 
 == See also ==
 * [[Modules]] - All available modules

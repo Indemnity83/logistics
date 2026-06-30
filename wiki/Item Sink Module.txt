@@ -42,7 +42,7 @@ Install several Item Sink Modules in one chassis to make a multi-item sorting st
 
 == History ==
 
-{{History|head=1|foot=1|v0.2.0|Added '''Item Sink Module'''.}}
+{{History|head=1|foot=1|v0.2.0|[[File:Grid Item Sink Module.png|32px]] Added '''Item Sink Module'''.}}
 
 == See also ==
 * [[Polymorphic Sink Module]] - Accepts any item type that already exists in the adjacent inventory

@@ -52,7 +52,7 @@ A single Rubber Mix smelts into two chunks, so a [[Macerator]] → [[Kiln]] line
 
 == History ==
 
-{{History|head=1|foot=1|v0.6.0|Added '''Rubber Mix''' and '''Rubber Chunk''' alongside the power cables.}}
+{{History|head=1|foot=1|v0.6.0|[[File:Grid Rubber Chunk.png|32px]] Added '''Rubber Mix''' and '''Rubber Chunk''' alongside the power cables.}}
 
 == See also ==
 

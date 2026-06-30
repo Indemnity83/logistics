@@ -39,7 +39,7 @@
 
 == History ==
 
-{{History|head=1|foot=1|v0.2.0|Added '''Iron Core'''.}}
+{{History|head=1|foot=1|v0.2.0|[[File:Grid Iron Core.png|32px]] Added '''Iron Core'''.}}
 
 == See also ==
 

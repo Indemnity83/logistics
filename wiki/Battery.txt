@@ -1,14 +1,14 @@
 {{Block
 |image            = Grid Battery.png
 |type             = Block (Power)
-|function         = Powers the logistics network
+|function         = RF storage
 |stackable        = Yes (64)
 |hardness         = 3.0
 |blastresistance  = 3.0
 |added            = v0.7.0
 }}
 
-The '''Battery''' is a power-storage block that energizes a [[Pipe Networks|logistics network]]. [[Basic Logistics Pipe|Logistics pipes]] draw [[RF Energy|RF]] from a connected Battery to route, supply, and craft items. Without a charged Battery the network stops working entirely — and items already in transit are dropped — until power is restored.
+The '''Battery''' is an RF storage block. It is charged by [[Engines|engines]] through [[Cables]] and holds that energy for later use. To power a [[Logistics Pipes|logistics network]], feed a Battery's RF into a [[Power Junction]] — pipes do not draw from a Battery directly.
 
 == Obtaining ==
 
@@ -33,12 +33,10 @@ The Battery can be broken with any tool, though a pickaxe is fastest.
 
 == Usage ==
 
-The Battery acts as the energy reservoir for the [[Pipe Networks|logistics network]] it connects to. [[Basic Logistics Pipe|Logistics pipes]] and [[Modules|modules]] draw RF from it each time they route, supply, or craft.
+The Battery buffers RF on your power grid. Engines charge it through cables, and it discharges through cables to whatever needs power — most often a machine such as a [[Kiln]], [[Macerator]], or [[Sawmill]], or a [[Power Junction]].
 
-* An unpowered network '''stops routing/supplying/crafting and drops in-transit items''' until a charged Battery is connected
-* Logistics pipes show '''green when powered''' and '''red when not''', so you can see at a glance whether the network has energy
 * Charge level is shown as a fill bar on the placed block and as a green charge bar on the item
-* If several Batteries serve one network, they are drawn in the order they were connected
+* If several Batteries serve one grid, they are drawn in the order they were connected
 
 === Power ===
 
@@ -57,12 +55,13 @@ Note that extraction pipes (the [[Item Extractor Pipe]] and [[Fluid Extractor Pi
 
 == History ==
 
-{{History|head=1|foot=1|v0.7.0|Added '''Battery'''.}}
+{{History|head=1|v0.7.0|[[File:Grid Battery.png|32px]] Added '''Battery'''.}}
+{{History|foot=1|v0.8.0|A Battery no longer powers a logistics network directly; route its RF through a [[Power Junction]] instead.}}
 
 == See also ==
 * [[RF Energy]] - How the power system works
+* [[Power Junction]] - Feeds stored RF into a logistics network
 * [[Engines]] - Generating RF
 * [[Copper Cable]], [[Gold Cable]], [[Ender Cable]] - Distributing RF
-* [[Basic Logistics Pipe]] - The network these power
 
 [[Category:Power]]

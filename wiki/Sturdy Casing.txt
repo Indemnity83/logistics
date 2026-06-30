@@ -6,7 +6,7 @@
 |added     = v0.2.0
 }}
 
-The '''Sturdy Casing''' is a crafting component used to build machines. It is a reinforced shell formed from [[Bronze Ingot|bronze ingots]], serving as the structural body that machine internals are built around — a companion to the [[Machine Core]].
+The '''Sturdy Casing''' is a reinforced shell formed from [[Bronze Ingot|bronze ingots]].
 
 == Obtaining ==
 
@@ -19,13 +19,11 @@ The '''Sturdy Casing''' is a crafting component used to build machines. It is a 
 |Output=Sturdy Casing
 }}
 
-'''Yields:''' 1× Sturdy Casing (8× [[Bronze Ingot]] arranged in a ring).
-
 == Usage ==
 
-The Sturdy Casing is a structural crafting component used in machine recipes, providing the outer shell that houses a [[Machine Core]] and other internals.
+No current machine recipe uses the Sturdy Casing.
 
-Bronze Ingots are an alloy of copper and tin, so keep a [[Tin Ore|tin]] supply on hand. Craft casings in batches alongside [[Machine Core|machine cores]] when building several machines at once.
+Bronze Ingots are an alloy of copper and tin, so keep a [[Tin Ore|tin]] supply on hand.
 
 == Data values ==
 
@@ -35,12 +33,12 @@ Bronze Ingots are an alloy of copper and tin, so keep a [[Tin Ore|tin]] supply o
 
 == History ==
 
-{{History|head=1|foot=1|v0.2.0|Added '''Sturdy Casing''' with the bronze materials.}}
+{{History|head=1|foot=1|v0.2.0|[[File:Grid Sturdy Casing.png|32px]] Added '''Sturdy Casing''' with the bronze materials.}}
 
 == See also ==
 
 * [[Bronze Ingot]] - Primary crafting material
-* [[Machine Core]] - Companion machine component
-* [[Machines]] - Machines built from these components
+* [[Machine Frame]] - Core machine component
+* [[Machines]] - RF-powered machines
 
 [[Category:Materials]]

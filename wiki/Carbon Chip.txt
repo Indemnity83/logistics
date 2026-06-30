@@ -47,7 +47,7 @@ The binder differs by version — a resin clump on Minecraft 1.21.11 and newer, 
 
 == History ==
 
-{{History|head=1|foot=1|v0.2.0|Added '''Carbon Chip'''.}}
+{{History|head=1|foot=1|v0.2.0|[[File:Grid Carbon Chip.png|32px]] Added '''Carbon Chip'''.}}
 
 == See also ==
 

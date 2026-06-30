@@ -74,14 +74,6 @@ Smelt raw tin or tin ore in a furnace, blast furnace, or a [[Kiln]] (RF-powered,
 }}
 
 {{Crafting
-|name=[[Tin Gear]]
-|B1=Tin Ingot
-|A2=Tin Ingot |B2=Copper Gear |C2=Tin Ingot
-|B3=Tin Ingot
-|Output=Tin Gear
-}}
-
-{{Crafting
 |name=[[Block of Tin]]
 |A1=Tin Ingot |B1=Tin Ingot |C1=Tin Ingot
 |A2=Tin Ingot |B2=Tin Ingot |C2=Tin Ingot
@@ -120,7 +112,7 @@ Grind tin ore in a [[Macerator]] to produce two [[Tin Dust]] per ore — an ore-
 
 == History ==
 
-{{History|head=1|foot=1|v0.2.0|Added '''Tin Ingot'''.}}
+{{History|head=1|foot=1|v0.2.0|[[File:Grid Tin Ingot.png|32px]] Added '''Tin Ingot'''.}}
 
 == Trivia ==
 
@@ -130,7 +122,6 @@ Grind tin ore in a [[Macerator]] to produce two [[Tin Dust]] per ore — an ore-
 
 * [[Tin Ore]] - Source of raw tin (incl. Deepslate Tin Ore)
 * [[Bronze Ingot]] - Tin + copper alloy
-* [[Tin Gear]] - Crafting component
 * [[Dusts]] - Tin Dust and ore doubling
 
 [[Category:Materials]]

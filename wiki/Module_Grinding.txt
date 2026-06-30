@@ -1,7 +1,9 @@
--- Module:Grinding — builds grinding recipe tables (Name / Ingredients / Grinding recipe).
+-- Module:Grinding — builds grinding-style recipe tables (Name / Ingredients / Recipe [/ Desc]).
 -- Clean-room implementation. Mirrors Module:Smelting but with a single input (no fuel); the
--- Recipe cell reuses our own {{Grid Grinding Table}} widget. head=1 opens the table + header,
--- foot=1 closes it.
+-- Recipe cell reuses our own {{Grid Grinding Table}} widget, which also renders an optional
+-- chance byproduct. The generic builder p.build is shared with [[Module:Sawmill]] (which
+-- requires this module and just passes a different column label and no experience).
+-- head=1 opens the table + header, foot=1 closes it.
 
 local p = {}
 
@@ -29,6 +31,19 @@ local function parseOutput(args)
 	return out, count
 end
 
+-- "Name,Chance" -> name, chance (also honours an explicit ByproductChance)
+local function parseByproduct(args)
+	local bp = trim(args.Byproduct) or trim(args.byproduct)
+	if not bp then return nil, nil end
+	local chance = trim(args.ByproductChance) or trim(args.byproductchance)
+	local n, c = bp:match('^(.-)%s*,%s*([%d%.]+%%?)$')
+	if n then
+		bp = n
+		chance = chance or c
+	end
+	return bp, chance
+end
+
 -- Ingredients column: explicit |ingredients=, else the input (linked if it has a wiki page).
 local function ingredientsCell(args)
 	local ing = trim(args.ingredients)
@@ -49,20 +64,29 @@ local function ingredientsCell(args)
 	return table.concat(out)
 end
 
--- Recipe column: our own grinding widget.
-local function recipeCell(frame, args, outName, outCount)
+-- Recipe column: our grinding widget (input -> output, optional byproduct + experience).
+local function recipeCell(frame, args, outName, outCount, useXp)
 	local g = { Output = outName }
 	if outCount then g.OutputCount = outCount end
 	local input = trim(args.Input) or trim(args.input)
 	if input then g.Input = input end
-	local xp = trim(args.XP) or trim(args.xp)
-	if xp then g.XP = xp end
+	local bp, bpc = parseByproduct(args)
+	if bp then
+		g.Byproduct = bp
+		if bpc then g.ByproductChance = bpc end
+	end
+	if useXp then
+		local xp = trim(args.XP) or trim(args.xp)
+		if xp then g.XP = xp end
+	end
 	local grid = frame:expandTemplate{ title = 'Grid Grinding Table', args = g }
 	grid = grid:gsub('<templatestyles.-/>', '')
 	return mw.text.trim(grid)
 end
 
-function p.grinding(frame)
+-- Generic builder shared by {{Grinding}} (Macerator) and {{Sawmill}}.
+-- opts.label = the Recipe column header; opts.xp = whether to surface the XP param.
+function p.build(frame, opts)
 	local args = frame:getParent().args
 	local outName, outCount = parseOutput(args)
 	local showName = trim(args.showname) ~= '0'
@@ -79,7 +103,7 @@ function p.grinding(frame)
 		out[#out + 1] = '\n{| class="logi-recipes"'
 		out[#out + 1] = '\n|- class="logi-recipes-head"'
 		if showName then out[#out + 1] = '\n! Name' end
-		out[#out + 1] = '\n! Ingredients\n! Grinding recipe'
+		out[#out + 1] = '\n! Ingredients\n! ' .. opts.label
 		if showDesc then out[#out + 1] = '\n! Description' end
 	end
 
@@ -88,8 +112,13 @@ function p.grinding(frame)
 		local nm = trim(args.name) or ('[[' .. outName .. ']]')
 		out[#out + 1] = '\n| class="logi-recipes-name" | ' .. nm
 	end
-	out[#out + 1] = '\n| class="logi-recipes-ingredients" | ' .. ingredientsCell(args)
-	out[#out + 1] = '\n| class="logi-recipes-recipe" |\n' .. recipeCell(frame, args, outName, outCount)
+	local ingredients = ingredientsCell(args)
+	local notes = trim(args.notes)
+	if notes then
+		ingredients = ingredients .. '<div class="logi-recipes-note">' .. notes .. '</div>'
+	end
+	out[#out + 1] = '\n| class="logi-recipes-ingredients" | ' .. ingredients
+	out[#out + 1] = '\n| class="logi-recipes-recipe" |\n' .. recipeCell(frame, args, outName, outCount, opts.xp)
 	if showDesc then
 		out[#out + 1] = '\n| class="logi-recipes-desc" | ' .. (trim(args.description) or '')
 	end
@@ -99,6 +128,10 @@ function p.grinding(frame)
 	end
 
 	return table.concat(out)
+end
+
+function p.grinding(frame)
+	return p.build(frame, { label = 'Grinding recipe', xp = true })
 end
 
 return p

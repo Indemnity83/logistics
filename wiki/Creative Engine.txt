@@ -39,7 +39,7 @@ The Creative Engine can be broken with any tool, though a pickaxe is fastest.
 
 == History ==
 
-{{History|head=1|foot=1|v0.6.0|Added '''Creative Engine'''.}}
+{{History|head=1|foot=1|v0.6.0|[[File:Grid Creative Engine.png|32px]] Added '''Creative Engine'''.}}
 
 == See also ==
 * [[RF Energy]] - How the power system works

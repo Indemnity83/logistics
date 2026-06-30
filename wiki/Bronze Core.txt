@@ -39,7 +39,7 @@
 
 == History ==
 
-{{History|head=1|foot=1|v0.2.0|Added '''Bronze Core'''.}}
+{{History|head=1|foot=1|v0.2.0|[[File:Grid Bronze Core.png|32px]] Added '''Bronze Core'''.}}
 
 == See also ==
 

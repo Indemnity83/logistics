@@ -12,7 +12,7 @@
 * [[File:Grid Bronze Gear.png|24px|link=Bronze Gear]] '''[[Bronze Gear]]''' — a mid-tier crafting component in the gear progression
 * [[File:Grid Bronze Valve.png|24px|link=Bronze Valve]] '''[[Bronze Valve]]''' — a fluid valve crafted via a Bronze [[Cores|Core]]
 * [[File:Grid Bronze Core.png|24px|link=Cores]] '''[[Bronze Core]]''' — an intermediate component for valve crafting
-* [[File:Grid Machine Core.png|24px|link=Machine Core]] '''[[Machine Core]]''' — the heart of every machine (8 bronze + blaze powder)
+* [[File:Grid Machine Frame.png|24px|link=Machine Frame]] '''[[Machine Frame]]''' — the heart of every machine, built around a [[Bronze Gear]]
 * [[File:Grid Sturdy Casing.png|24px|link=Sturdy Casing]] '''[[Sturdy Casing]]''' — a reinforced machine shell (8 bronze)
 
 {{Disambig}}
@@ -21,6 +21,6 @@
 
 * [[Apatite]], [[Tin]] — other material families
 * [[Materials]] — all crafting components
-* [[Machine Core]], [[Sturdy Casing]] — machine components made from bronze
+* [[Machine Frame]], [[Sturdy Casing]] — machine components made from bronze
 
 [[Category:Materials]]

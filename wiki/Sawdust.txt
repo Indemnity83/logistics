@@ -1,0 +1,73 @@
+{{Item
+|image     = Grid Sawdust.png
+|type      = Item (Material)
+|stackable = Yes (64)
+|added     = v0.8.0
+}}
+
+'''Sawdust''' is a wood material produced by grinding wood in a [[Macerator]] or as a byproduct of the [[Sawmill]].
+
+== Obtaining ==
+
+=== Grinding ===
+
+The [[Macerator]] grinds wood directly into Sawdust:
+
+{{Grinding|head=1 |Input=Oak Log |ingredients=Logs (any type) |Output=Sawdust,8}}
+{{Grinding |Input=Oak Planks |ingredients=Planks (any type) |Output=Sawdust,2}}
+{{Grinding |foot=1 |Input=Wooden Pickaxe |ingredients=Wooden tools (axe, hoe, pickaxe, shovel, sword) |Output=Sawdust}}
+
+=== Sawmill ===
+
+Every [[Sawmill]] recipe also drops Sawdust as a byproduct — guaranteed from logs, at a lower chance from processed items:
+
+{{Milling|head=1 |Input=Oak Log |ingredients=Logs / Bamboo blocks (any type) |Output=Oak Planks,6 |Byproduct=Sawdust |ByproductChance=100%}}
+{{Milling |Input=Oak Boat |ingredients=Boats |Output=Oak Planks,4 |Byproduct=Sawdust |ByproductChance=125%}}
+{{Milling |Input=Oak Door |ingredients=Doors |Output=Oak Planks |Byproduct=Sawdust |ByproductChance=50%}}
+{{Milling |foot=1 |Input=Oak Stairs |ingredients=Stairs / Fences / Fence gates |Output=Oak Planks |Byproduct=Sawdust |ByproductChance=25%}}
+
+== Usage ==
+
+=== Crafting ingredient ===
+
+{{Crafting|head=1
+|name=[[Wooden Core]]
+|B1=Sawdust
+|B2=Slime Ball
+|B3=Sawdust
+|Output=Wooden Core,4}}
+{{Crafting
+|name=[[Extractor Module]]
+|A1=Sawdust |B1=Redstone Chip |C1=Sawdust
+|A2=Redstone |B2=Blank Module |C2=Redstone
+|Output=Extractor Module}}
+{{Crafting
+|name=[[Extractor Module|Extractor MkII Module]]
+|A1=Sawdust |B1=Amethyst Chip |C1=Sawdust
+|A2=Redstone |B2=Blank Module |C2=Redstone
+|Output=Extractor MkII Module}}
+{{Crafting|foot=1
+|name=[[Extractor Module|Extractor MkIII Module]]
+|A1=Sawdust |B1=Echo Chip |C1=Sawdust
+|A2=Redstone |B2=Blank Module |C2=Redstone
+|Output=Extractor MkIII Module}}
+
+== Data values ==
+
+=== ID ===
+
+{{ID|head=1|foot=1|logistics:core/sawdust|item.logistics.core.sawdust}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.8.0|Renamed from '''Wood Pulp''' to '''Sawdust'''.}}
+
+== See also ==
+
+* [[Sawmill]] - Produces Sawdust
+* [[Macerator]] - Grinds wood into Sawdust
+* [[Wooden Core]] - Crafted from Sawdust
+* [[Extractor Module]] - Crafted with Sawdust
+* [[Materials]] - Material overview
+
+[[Category:Materials]]

@@ -4,6 +4,8 @@
 |type      = Block (Pipe)
 |function  = One-way fluid check valve
 |stackable = Yes (64)
+|hardness        = 0.3
+|blastresistance = 0.3
 |added     = v0.7.3
 }}
 
@@ -35,7 +37,7 @@ The Merger Fluid Pipe lets fluid leave only through a wrench-set output face, an
 
 == History ==
 
-{{History|head=1|foot=1|v0.7.3|Added '''Merger Fluid Pipe'''.}}
+{{History|head=1|foot=1|v0.7.3|[[File:Grid Merger Fluid Pipe.png|32px]] Added '''Merger Fluid Pipe'''.}}
 
 == See also ==
 

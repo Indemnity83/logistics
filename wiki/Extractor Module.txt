@@ -15,11 +15,11 @@ The '''Extractor Module''' is a [[Chassis Logistics Pipe]] module that actively 
 The three marks share a recipe, differing only by the [[Chips|chip]] — higher marks extract faster or in larger quantities:
 
 {{Crafting|head=1|showdescription=1
-|name=Extractor Module |A1=Wood Pulp |B1=Redstone Chip |C1=Wood Pulp |A2=Redstone |B2=Blank Module |C2=Redstone |Output=Extractor Module |description=MK1 — uses a [[Redstone Chip]].}}
+|name=Extractor Module |A1=Sawdust |B1=Redstone Chip |C1=Sawdust |A2=Redstone |B2=Blank Module |C2=Redstone |Output=Extractor Module |description=MK1 — uses a [[Redstone Chip]].}}
 {{Crafting
-|name=Extractor MkII Module |A1=Wood Pulp |B1=Amethyst Chip |C1=Wood Pulp |A2=Redstone |B2=Blank Module |C2=Redstone |Output=Extractor MkII Module |description=MK2 — uses an [[Amethyst Chip]].}}
+|name=Extractor MkII Module |A1=Sawdust |B1=Amethyst Chip |C1=Sawdust |A2=Redstone |B2=Blank Module |C2=Redstone |Output=Extractor MkII Module |description=MK2 — uses an [[Amethyst Chip]].}}
 {{Crafting|foot=1
-|name=Extractor MkIII Module |A1=Wood Pulp |B1=Echo Chip |C1=Wood Pulp |A2=Redstone |B2=Blank Module |C2=Redstone |Output=Extractor MkIII Module |description=MK3 — uses an [[Echo Chip]].}}
+|name=Extractor MkIII Module |A1=Sawdust |B1=Echo Chip |C1=Sawdust |A2=Redstone |B2=Blank Module |C2=Redstone |Output=Extractor MkIII Module |description=MK3 — uses an [[Echo Chip]].}}
 
 == Usage ==
 
@@ -40,7 +40,7 @@ Pair it with a [[Provider Module]] in the same chassis to both extract from and 
 
 == History ==
 
-{{History|head=1|foot=1|v0.2.0|Added '''Extractor Module'''.}}
+{{History|head=1|foot=1|v0.2.0|[[File:Grid Extractor Module.png|32px]] Added '''Extractor Module'''.}}
 
 == See also ==
 * [[Item Extractor Pipe]] - Standalone extractor (simpler, cheaper)
@@ -48,7 +48,7 @@ Pair it with a [[Provider Module]] in the same chassis to both extract from and 
 * [[Modules]] - All available modules
 * [[Chassis Logistics Pipe]] - Required container
 * [[Blank Module]] - Crafting base
-* [[Macerator|Wood Pulp]] - Crafting component
+* [[Sawdust]] - Crafting component, from the [[Sawmill]]
 * [[Redstone Chip]] - MK1 chip
 * [[Amethyst Chip]] - MK2 chip
 * [[Echo Chip]] - MK3 chip

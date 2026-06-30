@@ -11,6 +11,8 @@
 * [[File:Grid Emerald Dust.png|24px|link=Emerald Dust]] '''[[Emerald Dust]]'''
 * [[File:Grid Lapis Dust.png|24px|link=Lapis Dust]] '''[[Lapis Dust]]'''
 * [[File:Grid Coal Dust.png|24px|link=Coal Dust]] '''[[Coal Dust]]'''
+* [[File:Grid Sulfur Dust.png|24px|link=Sulfur Dust]] '''[[Sulfur Dust]]'''
+* [[File:Grid Niter.png|24px|link=Niter]] '''[[Niter]]'''
 * [[File:Grid Quartz Dust.png|24px|link=Quartz Dust]] '''[[Quartz Dust]]'''
 * [[File:Grid Apatite Dust.png|24px|link=Apatite Dust]] '''[[Apatite Dust]]'''
 * [[File:Grid Amethyst Dust.png|24px|link=Amethyst Dust]] '''[[Amethyst Dust]]'''
@@ -29,14 +31,12 @@ The main use of metal dusts is doubling ore output. Grinding one ore block produ
 
 Grinding the source ore in the [[Macerator]] grants the same experience the furnace would, so ore doubling no longer costs any experience. (Smelting the dust itself grants none.)
 
-== History ==
-
-{{History|head=1|foot=1|v0.2.0|Added the dusts.}}
-
 == See also ==
 
 * [[Macerator]] - Produces all dusts
 * [[Kiln]] - Smelts metal dusts into ingots and Quartz Dust into Quartz Crystal
+* [[Quicksilver]] - Another material the Macerator produces (liquid metal, not a dust)
+* [[Sawdust]] - Wood byproduct from the [[Sawmill]]
 * [[Cores]], [[Chips]], [[Modules]] - Components crafted from dusts
 
 [[Category:Materials]]

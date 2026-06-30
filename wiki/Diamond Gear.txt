@@ -25,17 +25,9 @@
 
 {{Crafting|head=1
 |name=[[Laser Quarry]]
-|A1=Diamond Gear |B1=Diamond Gear |C1=Diamond Gear
-|A2=Iron Ingot |B2=Machine Core |C2=Iron Ingot
-|A3=Iron Ingot |B3=Iron Ingot |C3=Iron Ingot
-|Output=Laser Quarry
-}}
-
-{{Crafting
-|name=[[Laser Quarry]]
-|A1=Iron Gear |B1=Redstone |C1=Iron Gear
-|A2=Gold Gear |B2=Iron Gear |C2=Gold Gear
-|A3=Diamond Gear |B3=Diamond Pickaxe |C3=Diamond Gear
+|B1=Diamond Pickaxe
+|A2=Gold Gear |B2=Machine Frame |C2=Gold Gear
+|A3=Diamond Gear |B3=Redstone Reception Coil |C3=Diamond Gear
 |Output=Laser Quarry
 }}
 
@@ -55,7 +47,7 @@
 
 == History ==
 
-{{History|head=1|foot=1|v0.1.0|Added '''Diamond Gear'''.}}
+{{History|head=1|foot=1|v0.1.0|[[File:Grid Diamond Gear.png|32px]] Added '''Diamond Gear'''.}}
 
 == See also ==
 

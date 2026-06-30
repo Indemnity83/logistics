@@ -27,7 +27,7 @@
 
 == History ==
 
-{{History|head=1|foot=1|v0.2.0|Added '''Blazing Valve'''.}}
+{{History|head=1|foot=1|v0.2.0|[[File:Grid Blazing Valve.png|32px]] Added '''Blazing Valve'''.}}
 
 == See also ==
 

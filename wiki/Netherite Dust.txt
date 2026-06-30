@@ -36,7 +36,7 @@
 
 == History ==
 
-{{History|head=1|v0.2.0|Added '''Netherite Dust'''.}}
+{{History|head=1|v0.2.0|[[File:Grid Netherite Dust.png|32px]] Added '''Netherite Dust'''.}}
 {{History|foot=1|v0.7.4|Now obtainable — added a grinding recipe from ancient debris and netherite scrap.}}
 
 == See also ==

@@ -1,4 +1,4 @@
-'''Engines''' are [[RF Energy|RF]] generators that power the logistics network, machines, and the [[Fluid Extractor Pipe|fluid extractor]]. The mod has three, from a trickle of power to an unlimited supply.
+'''Engines''' are [[RF Energy|RF]] generators that power machines, the logistics network (through a [[Power Junction]]), and the [[Fluid Extractor Pipe|fluid extractor]]. The mod has three, from a trickle of power to an unlimited supply.
 
 == Engines ==
 
@@ -11,7 +11,8 @@
 == See also ==
 
 * [[RF Energy]] — the power system engines feed
-* [[Battery]] — stores RF for the network
+* [[Power Junction]] — feeds engine power into the logistics network
+* [[Battery]] — stores RF
 * [[Energy]] — power overview
 
 [[Category:Energy]]

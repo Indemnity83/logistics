@@ -9,7 +9,7 @@
 |added            = v0.2.0
 }}
 
-The '''Kiln''' is an RF-powered electric furnace that '''fires''' any vanilla smelting recipe — anything you can smelt in a furnace, the Kiln makes too. It runs those recipes at the same speed as a furnace, but on [[RF Energy|RF]] instead of fuel (just 1 RF/tick, no fuel to manage), which makes it ideal for automated setups. There are no Kiln-only recipes; see an item's '''Smelting''' section for what it produces.
+The '''Kiln''' is an RF-powered electric furnace that '''fires''' any vanilla smelting recipe — anything you can smelt in a furnace, the Kiln makes too. It runs those recipes at the same speed as a furnace, but on [[RF Energy|RF]] instead of fuel (no fuel to manage), which makes it ideal for automated setups. There are no Kiln-only recipes; see an item's '''Smelting''' section for what it produces.
 
 == Obtaining ==
 
@@ -25,13 +25,11 @@ The Kiln is mined with a stone pickaxe or better; without one it drops nothing.
 === Crafting ===
 
 {{Crafting|head=1|foot=1|showname=0
-|A1=Redstone |B1=Redstone |C1=Redstone
-|A2=Iron Ingot |B2=Machine Core |C2=Iron Ingot
-|A3=Iron Ingot |B3=Iron Ingot |C3=Iron Ingot
+|B1=Redstone
+|A2=Bricks |B2=Machine Frame |C2=Bricks
+|A3=Copper Gear |B3=Redstone Reception Coil |C3=Copper Gear
 |Output=Kiln
 }}
-
-Requires a [[Machine Core]], 5× Iron Ingot, and 3× Redstone.
 
 == Usage ==
 
@@ -41,7 +39,7 @@ Input is accepted from the top and sides; output is drawn from the bottom, the s
 
 === Power ===
 
-The Kiln runs on [[RF Energy|RF]] — there is no fuel slot. It holds 10,000 RF, accepts up to 128 RF/tick, and consumes only 1 RF/tick while active, so a single [[Stirling Engine]] can power many kilns at once. Connect a power source to any side or top face.
+The Kiln runs on [[RF Energy|RF]] — there is no fuel slot. It holds 10,000 RF and accepts up to 128 RF/tick. Each smelt draws RF over the same time a vanilla furnace would take — about 4,000 RF for a standard 10-second smelt (20 RF/tick while active). Connect a [[Stirling Engine]] or any RF source to a side or top face.
 
 === Setup ===
 
@@ -68,10 +66,11 @@ The Kiln smelts continuously as long as it has power and input items.
 
 == History ==
 
-{{History|head=1|foot=1|v0.2.0|Added '''Kiln'''.}}
+{{History|head=1|v0.2.0|[[File:Grid Kiln.png|32px]] Added '''Kiln'''.}}
+{{History|foot=1|v0.8.0|Recipe standardized around the [[Machine Frame]] and [[Redstone Reception Coil]]; smelting speed and RF cost retuned; restyled to the shared machine look.}}
 
 == See also ==
-* [[Machine Core]] - Crafting component
+* [[Machine Frame]], [[Redstone Reception Coil]] - Crafting components
 * [[Macerator]] - Companion grinding machine
 * [[Stirling Engine]] - Recommended power source
 * [[RF Energy]] - Power system overview

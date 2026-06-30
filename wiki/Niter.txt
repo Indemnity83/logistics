@@ -1,0 +1,50 @@
+{{Item
+|image     = Grid Niter.png
+|type      = Item (Material)
+|stackable = Yes (64)
+|added     = v0.8.0
+}}
+
+'''Niter''' is a material recovered from sandstone in a [[Macerator]] and dropped by the Breeze. It is an ingredient for [[#Usage|crafting gunpowder]].
+
+== Obtaining ==
+
+=== Grinding ===
+
+Niter drops as a 40% byproduct when grinding sandstone or red sandstone (and their slab, stairs, and wall variants) into sand in a [[Macerator]]:
+
+{{Grinding|head=1|foot=1 |Input=Sandstone |ingredients=Sandstone (and variants) |Output=Sand,2 |Byproduct=Niter |ByproductChance=40%}}
+
+=== Mob loot ===
+
+Breezes drop 0–2 Niter upon death. The amount is increased by 1 per level of Looting, for a maximum of 0–5 with Looting III.
+
+== Usage ==
+
+=== Crafting ingredient ===
+
+Niter combines with [[Coal Dust]] and [[Sulfur Dust]] to make gunpowder:
+
+{{Crafting|head=1|foot=1|showname=0
+|A1=Coal Dust |B1=Sulfur Dust
+|A2=Niter |B2=Niter
+|Output=Gunpowder
+}}
+
+== Data values ==
+
+=== ID ===
+
+{{ID|head=1|foot=1|logistics:core/niter|item.logistics.core.niter}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.8.0|[[File:Grid Niter.png|32px]] Added '''Niter'''.}}
+
+== See also ==
+
+* [[Sulfur Dust]] - The other gunpowder dust
+* [[Macerator]] - Produces Niter
+* [[Materials]] - Material overview
+
+[[Category:Materials]]

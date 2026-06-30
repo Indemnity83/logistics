@@ -37,7 +37,7 @@
 
 == History ==
 
-{{History|head=1|foot=1|v0.2.0|Added '''Echo Dust'''.}}
+{{History|head=1|foot=1|v0.2.0|[[File:Grid Echo Dust.png|32px]] Added '''Echo Dust'''.}}
 
 == See also ==
 

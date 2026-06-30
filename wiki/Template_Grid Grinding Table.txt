@@ -3,36 +3,41 @@
 | class="logi-grid-cell" |
 {| class="logi-grind-grid"
 |-
-| class="logi-grind-xp" colspan="4" | &nbsp;
-|-
 | class="logi-grid-slot" | {{#if:{{{Input|}}}|{{Grid Cycle|{{{Input}}}}}|&nbsp;}}
 | class="logi-grid-arrow" | →
 | class="logi-grid-slot" | {{Grid|{{{Output}}}}}
-| class="logi-grid-count" | {{#if:{{{OutputCount|}}}|×{{{OutputCount}}}}}
+| class="logi-grind-count" | {{#if:{{{OutputCount|}}}|×{{{OutputCount}}}}}
 |-
-|
-|
-| class="logi-grind-xp" | {{#if:{{{XP|}}}|[[File:Grid XP Orb.png|14px|link=|alt=XP]]<span class="logi-xp-val">{{{XP}}}</span>|&nbsp;}}
+| class="logi-grind-xp" | {{#if:{{{XP|}}}|[[File:Grid XP Orb.png|14px|link=|alt=XP]]<span class="logi-xp-val">{{{XP}}}</span>}}
+| class="logi-grind-chance" | {{#if:{{{Byproduct|}}}|{{{ByproductChance|}}}}}
+| class="logi-grid-slot" | {{#if:{{{Byproduct|}}}|{{Grid|{{{Byproduct}}}}}|&nbsp;}}
 |}
 |}<templatestyles src="Grid Crafting Table/styles.css" /><templatestyles src="Grid Grinding Table/styles.css" /></includeonly><noinclude>
-Renders a grinding recipe (e.g. in the [[Macerator]]): a single input slot, an arrow, and the
-output. The slot row is vertically centered — an empty row above balances the experience row
-below. Styling reuses [[Template:Grid Crafting Table/styles.css]] for the slot, arrow, and count,
-plus [[Template:Grid Grinding Table/styles.css]] for the layout and experience.
+Renders a grinding-style recipe (the [[Macerator]] and [[Sawmill]]). The input sits top-left with
+its experience below, an arrow points right to the primary output (with its ×count on the right),
+and an optional '''chance byproduct''' hangs in a second slot beneath the output — its drop chance
+sits under the arrow, right-aligned toward the byproduct — the way the in-game machine shows a
+primary and secondary output. The secondary slot is always shown (empty when a recipe has no
+byproduct) so the machine's second output is clear. Styling reuses
+[[Template:Grid Crafting Table/styles.css]] for the panel, slots, and arrow, plus
+[[Template:Grid Grinding Table/styles.css]] for the layout, count, chance, and experience.
 
 Usage:
  {{Grid Grinding Table
- |Input=Tin Ore
- |Output=Tin Dust |OutputCount=2
+ |Input=Iron Ore |Output=Iron Dust |OutputCount=2
+ |Byproduct=Tin Dust |ByproductChance=10%
+ |XP=0.7
  }}
 
 Parameters:
- Input       — the item being ground (rendered via {{Grid}})
- Output      — the resulting item
- OutputCount — quantity produced (optional)
- XP          — experience granted (optional)
+ Input           — the item being processed (rendered via {{Grid Cycle}}; ";"-separated alternatives cycle)
+ Output          — the resulting item
+ OutputCount     — quantity produced (optional)
+ Byproduct       — a secondary chance output (optional)
+ ByproductChance — its drop chance, e.g. "10%" (optional)
+ XP              — experience granted (optional; the Sawmill grants none)
 
-Depends on [[Template:Grid]].
+Depends on [[Template:Grid]], [[Template:Grid Cycle]].
 
 [[Category:Templates]]
 </noinclude>

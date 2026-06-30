@@ -18,10 +18,6 @@ Transport pipes connect to each other and to adjacent inventories automatically.
 
 [[Marking Fluid]] color-codes [[Copper Transport Pipe|copper pipes]] so that same-color pipes connect, different colors don't, and unmarked pipes connect to anything — letting independent networks share the same space.
 
-== History ==
-
-{{History|head=1|foot=1|v0.1.0|Added the transport pipes.}}
-
 == See also ==
 
 * [[Logistics Pipes]] — network-aware item routing, requests, and crafting

@@ -4,6 +4,8 @@
 |type      = Block (Pipe)
 |function  = Funnel items to one output
 |stackable = Yes (64)
+|hardness        = 0.3
+|blastresistance = 0.3
 |added     = v0.1.0
 }}
 
@@ -37,7 +39,7 @@ Set the output face with a [[Wrench]].
 
 == History ==
 
-{{History|head=1|foot=1|v0.1.0|Added '''Item Merger Pipe'''.}}
+{{History|head=1|foot=1|v0.1.0|[[File:Grid Item Merger Pipe.png|32px]] Added '''Item Merger Pipe'''.}}
 
 == See also ==
 

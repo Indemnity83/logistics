@@ -16,17 +16,12 @@
 * [[File:Grid Blazing Core.png|24px|link=Blazing Core]] '''[[Blazing Core]]'''
 * [[File:Grid Ender Core.png|24px|link=Ender Core]] '''[[Ender Core]]'''
 
-The [[Machine Core]] is a separate component used to build machines, not valves.
-
-== History ==
-
-{{History|head=1|foot=1|v0.2.0|Added the cores.}}
-
 == See also ==
 
 * [[Valves]] — what cores are crafted into
 * [[Quartz Crystal]] — the other valve ingredient
 * [[Gears]], [[Chips]] — other crafting components
+* [[Machine Frame]] — central machine component
 * [[Macerator]], [[Kiln]] — produce and smelt the dusts
 
 [[Category:Materials]]

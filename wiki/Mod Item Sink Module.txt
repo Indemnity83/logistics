@@ -42,7 +42,7 @@ It is most useful in large modpacks for keeping a mod's resources together in de
 
 == History ==
 
-{{History|head=1|foot=1|v0.2.0|Added '''Mod Item Sink Module'''.}}
+{{History|head=1|foot=1|v0.2.0|[[File:Grid Mod Item Sink Module.png|32px]] Added '''Mod Item Sink Module'''.}}
 
 == See also ==
 * [[Item Sink Module]] - Accept a specific configured item type

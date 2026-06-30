@@ -55,7 +55,7 @@
 
 == History ==
 
-{{History|head=1|foot=1|v0.1.0|Added '''Gold Gear'''.}}
+{{History|head=1|foot=1|v0.1.0|[[File:Grid Gold Gear.png|32px]] Added '''Gold Gear'''.}}
 
 == See also ==
 

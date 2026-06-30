@@ -55,7 +55,7 @@
 
 == History ==
 
-{{History|head=1|foot=1|v0.2.0|Added '''Coal Dust'''.}}
+{{History|head=1|foot=1|v0.2.0|[[File:Grid Coal Dust.png|32px]] Added '''Coal Dust'''.}}
 
 == See also ==
 

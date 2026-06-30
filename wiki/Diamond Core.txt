@@ -39,7 +39,7 @@
 
 == History ==
 
-{{History|head=1|foot=1|v0.2.0|Added '''Diamond Core'''.}}
+{{History|head=1|foot=1|v0.2.0|[[File:Grid Diamond Core.png|32px]] Added '''Diamond Core'''.}}
 
 == See also ==
 

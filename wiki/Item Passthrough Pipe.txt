@@ -4,6 +4,8 @@
 |type      = Block (Pipe)
 |function  = Bypass inventories
 |stackable = Yes (64)
+|hardness        = 0.3
+|blastresistance = 0.3
 |added     = v0.1.0
 }}
 
@@ -35,7 +37,7 @@ The Item Passthrough Pipe connects only to other pipes, never to adjacent invent
 
 == History ==
 
-{{History|head=1|foot=1|v0.1.0|Added '''Item Passthrough Pipe'''.}}
+{{History|head=1|foot=1|v0.1.0|[[File:Grid Item Passthrough Pipe.png|32px]] Added '''Item Passthrough Pipe'''.}}
 
 == See also ==
 

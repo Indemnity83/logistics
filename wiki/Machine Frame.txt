@@ -1,0 +1,82 @@
+{{Item
+|image     = Grid Machine Frame.png
+|type      = Item (Component)
+|stackable = Yes (64)
+|added     = v0.5.0
+}}
+
+The '''Machine Frame''' is a crafting component required to build every RF-powered machine. It is built around a [[Bronze Gear]] housed in iron and glass.
+
+== Obtaining ==
+
+=== Crafting ===
+
+{{Crafting|head=1|foot=1|showname=0
+|A1=Iron Ingot |B1=Glass |C1=Iron Ingot
+|A2=Glass |B2=Bronze Gear |C2=Glass
+|A3=Iron Ingot |B3=Glass |C3=Iron Ingot
+|Output=Machine Frame
+}}
+
+== Usage ==
+
+The Machine Frame sits in the center of every machine recipe, paired with a [[Redstone Reception Coil]] and gears:
+
+{{Crafting|head=1|showdescription=1
+|name=[[Kiln]] |description=RF-powered smelting furnace
+|B1=Redstone
+|A2=Bricks |B2=Machine Frame |C2=Bricks
+|A3=Copper Gear |B3=Redstone Reception Coil |C3=Copper Gear
+|Output=Kiln}}
+{{Crafting
+|name=[[Macerator]] |description=RF-powered grinding machine
+|B1=Piston
+|A2=Flint |B2=Machine Frame |C2=Flint
+|A3=Copper Gear |B3=Redstone Reception Coil |C3=Copper Gear
+|Output=Macerator}}
+{{Crafting
+|name=[[Sawmill]] |description=RF-powered wood processor
+|B1=Iron Axe
+|A2=Oak Planks |B2=Machine Frame |C2=Oak Planks
+|A3=Copper Gear |B3=Redstone Reception Coil |C3=Copper Gear
+|Output=Sawmill}}
+{{Crafting
+|name=[[Laser Quarry]] |description=Automated mining machine
+|B1=Diamond Pickaxe
+|A2=Gold Gear |B2=Machine Frame |C2=Gold Gear
+|A3=Diamond Gear |B3=Redstone Reception Coil |C3=Diamond Gear
+|Output=Laser Quarry}}
+{{Crafting
+|name=[[Pump|Fluid Pump]] |description=Pumps fluid sources from the world
+|B1=Glass Tank
+|A2=Bucket |B2=Machine Frame |C2=Bucket
+|A3=Copper Gear |B3=Redstone Reception Coil |C3=Copper Gear
+|Output=Pump}}
+{{Crafting|foot=1
+|name=[[Power Junction]] |description=Feeds power into a logistics network
+|B1=Basic Logistics Pipe
+|A2=Redstone |B2=Machine Frame |C2=Redstone
+|A3=Copper Gear |B3=Redstone Reception Coil |C3=Copper Gear
+|Output=Power Junction}}
+
+Craft Machine Frames in batches — each machine needs one and they share the same base. The [[Bronze Gear]] is made from bronze, so you will need a source of [[Tin Ore]].
+
+== Data values ==
+
+=== ID ===
+
+{{ID|head=1|foot=1|logistics:core/machine_core|item.logistics.core.machine_core}}
+
+== History ==
+
+{{History|head=1|v0.5.0|[[File:Grid Machine Frame.png|32px]] Added as '''Machine Core'''.}}
+{{History|foot=1|v0.8.0|Renamed to '''Machine Frame'''; recipe now uses a [[Bronze Gear]] in iron and glass.}}
+
+== See also ==
+
+* [[Redstone Reception Coil]] - The other shared machine component
+* [[Bronze Gear]] - Core ingredient
+* [[Machines]] - Machines built from the frame
+* [[Materials]] - Material overview
+
+[[Category:Materials]]

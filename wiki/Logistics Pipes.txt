@@ -1,4 +1,4 @@
-'''Logistics Pipes''' are item pipes that join a logistics '''network''': instead of pushing items along at random, they advertise stock, place and fulfill requests, automate crafting, and keep inventories topped up. Every logistics pipe is built on the [[Basic Logistics Pipe]], draws [[#Power|power]] from a [[Battery]], and connects to the rest of a network through ordinary [[Transport Pipes]].
+'''Logistics Pipes''' are item pipes that join a logistics '''network''': instead of pushing items along at random, they advertise stock, place and fulfill requests, automate crafting, and keep inventories topped up. Every logistics pipe is built on the [[Basic Logistics Pipe]], draws [[#Power|power]] through a [[Power Junction]], and connects to the rest of a network through ordinary [[Transport Pipes]].
 
 == Variants ==
 
@@ -13,22 +13,18 @@
 
 == Power ==
 
-Logistics pipes are powered. Each draws [[RF Energy|RF]] from a connected [[Battery]]; while powered a pipe renders '''green''', and with no charge it renders '''red''', the network stops routing, and items in transit drop. A single charged Battery on the network keeps every logistics pipe running.
+Logistics pipes are powered. The network draws [[RF Energy|RF]] through a [[Power Junction]]; while powered a pipe renders '''green''', and with no charge it renders '''red''', the network stops routing, and items in transit drop. A single Power Junction fed by an engine or [[Battery]] keeps every logistics pipe running.
 
 == Usage ==
 
 A logistics network is formed by connecting logistics pipes (through [[Transport Pipes]]) and giving it power. [[Provider Logistics Pipe|Providers]] advertise what's available, [[Requester Logistics Pipe|requesters]] and [[Supplier Logistics Pipe|suppliers]] ask for items, and the network uses pathfinding to route each item from a provider to its destination. The modular [[Chassis Logistics Pipe]] takes its behavior from installed [[Modules]] instead.
-
-== History ==
-
-{{History|head=1|foot=1|v0.2.0|Added the logistics pipes and the chassis pipe.}}
 
 == See also ==
 
 * [[Transport Pipes]] — the basic item pipes that link a network together
 * [[Modules]] — installable behaviors for the Chassis pipe
 * [[Valves]] — crafting components for the role and chassis pipes
-* [[Battery]] — powers the network
+* [[Power Junction]] — powers the network
 
 [[Category:Pipes]]
 [[Category:Item Pipes]]

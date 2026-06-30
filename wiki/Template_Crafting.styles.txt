@@ -42,3 +42,9 @@
 	display: block;        /* each ingredient (with its trailing "+"/"or") on its own line */
 	white-space: nowrap;   /* never break an item name mid-word */
 }
+.logi-recipes-note {
+	margin-top: 3px;
+	font-size: 85%;
+	font-style: italic;
+	color: #5a5a5a;        /* a quiet per-recipe annotation, e.g. version availability */
+}

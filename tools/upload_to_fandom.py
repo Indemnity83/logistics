@@ -277,22 +277,24 @@ def parse_asset_map(map_path, icons_dir):
 
 GRID_LITERAL = re.compile(r"Grid ([^\n|}\]=]+?)\.png")
 GRID_TMPL = re.compile(r"\{\{Grid\|([^}|]+)")
-GRID_TABLE = re.compile(r"\{\{Grid Crafting Table(.*?)\}\}", re.S)
-CRAFTING_TABLE = re.compile(r"\{\{Crafting(.*?)\}\}", re.S)
-TABLE_PARAM = re.compile(r"\|\s*(?:A[123]|B[123]|C[123]|Output)\s*=\s*([^|}\n]+)")
+# recipe blocks whose slot / Input / Output / Byproduct params name items:
+RECIPE_TABLE = re.compile(
+    r"\{\{(?:Grid (?:Crafting|Grinding|Smelting) Table|Crafting|Grinding|Milling|Smelting)(.*?)\}\}", re.S)
+TABLE_PARAM = re.compile(r"\|\s*(?:A[123]|B[123]|C[123]|Output|Input|Byproduct)\s*=\s*([^|}\n]+)")
 
 
 def _icon_name(val):
-    """Slot/Output value -> icon stem, dropping the ',<count>' form used by {{Crafting}}."""
-    return re.sub(r"\s*,\s*\d+\s*$", "", val.strip())
+    """A recipe param value -> icon stem, dropping a trailing ',<count>' or ',<chance>%' suffix
+    (e.g. 'Wooden Core,4' or 'Tin Dust,10%')."""
+    return re.sub(r"\s*,\s*[\d.]+%?\s*$", "", val.strip())
 
 
 def referenced_files(wiki_dir, only=None):
     """Set of 'Grid <name>.png' filenames used across the wiki pages (or only `only` stems)."""
     needed = set()
     for fn in os.listdir(wiki_dir):
-        if not fn.endswith(".txt") or fn.startswith("Template_"):
-            continue  # templates only hold placeholder examples, not real icon references
+        if not fn.endswith(".txt") or fn.startswith("Template_") or fn.startswith("Module_"):
+            continue  # templates/modules hold placeholder examples and Lua, not real icon references
         if only is not None and fn[:-4] not in only:
             continue
         text = open(os.path.join(wiki_dir, fn), encoding="utf-8").read()
@@ -300,12 +302,12 @@ def referenced_files(wiki_dir, only=None):
             needed.add(f"Grid {name.strip()}.png")
         for name in GRID_TMPL.findall(text):
             needed.add(f"Grid {name.strip()}.png")
-        for block in GRID_TABLE.findall(text):
+        for block in RECIPE_TABLE.findall(text):
             for val in TABLE_PARAM.findall(block):
-                needed.add(f"Grid {_icon_name(val)}.png")
-        for block in CRAFTING_TABLE.findall(text):
-            for val in TABLE_PARAM.findall(block):
-                needed.add(f"Grid {_icon_name(val)}.png")
+                for part in val.split(";"):   # Input accepts ";"-separated alternatives
+                    stem = _icon_name(part)
+                    if stem:
+                        needed.add(f"Grid {stem}.png")
     return needed
 
 

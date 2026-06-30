@@ -18,10 +18,8 @@ The '''Marker''' is a placement aid used to define a custom mining area for the 
 {{Crafting|head=1|foot=1|showname=0
 |A1=Lapis Dust
 |A2=Stick
-|Output=Marker,2
+|Output=Marker,1
 }}
-
-Yields 2× Marker from one [[Lapis Dust]] stacked over a stick. Lapis Dust comes from the [[Macerator]] (grind lapis ore or a lapis block).
 
 == Usage ==
 
@@ -45,7 +43,8 @@ Markers have no collision — you can walk through them — and break instantly 
 
 == History ==
 
-{{History|head=1|foot=1|v0.1.0|Added '''Marker''' with the [[Laser Quarry]].}}
+{{History|head=1|v0.1.0|[[File:Grid Marker.png|32px]] Added '''Marker''' with the [[Laser Quarry]].}}
+{{History|foot=1|v0.8.0|Craft now yields 1 Marker (was 2).}}
 
 == See also ==
 

@@ -1,0 +1,32 @@
+<includeonly>{{#invoke:Milling|milling}}</includeonly><noinclude>
+Builds a row of a [[Sawmill]] recipe table (Name / Ingredients / Milling recipe), powered by
+[[Module:Milling]], which reuses [[Module:Grinding]]'s shared builder. Each call is one row;
+group several into one table with <code>head=1</code> on the first and <code>foot=1</code> on
+the last. A standalone single recipe sets both. The '''Milling recipe''' column reuses
+[[Template:Grid Grinding Table]] (input → output, with an optional Sawdust byproduct and chance).
+
+Usage (a 2-recipe table):
+ {{Milling
+ |head=1
+ |Input=Logs |Output=Oak Planks |OutputCount=6 |Byproduct=Sawdust |ByproductChance=100%
+ }}
+ {{Milling
+ |foot=1
+ |Input=Oak Stairs |Output=Oak Planks |Byproduct=Sawdust |ByproductChance=25%
+ }}
+
+Parameters:
+ Input           — the item being milled
+ Output          — result item; "Name,Count" is accepted (or use OutputCount)
+ Byproduct       — secondary output, usually [[Sawdust]] (optional; "Name,Chance" accepted)
+ ByproductChance — its drop chance, e.g. "100%" (optional)
+ notes           — a small per-recipe annotation under the ingredient (optional)
+ head/foot       — open / close the table
+ name            — override the Name cell (default: a link to the Output)
+ ingredients     — override the Ingredients cell (default: the input)
+ showname=0      — hide the Name column
+
+Depends on [[Module:Milling]], [[Module:Grinding]], and [[Template:Grid Grinding Table]].
+
+[[Category:Templates]]
+</noinclude>

@@ -6,15 +6,10 @@
 * [[File:Grid Stone Gear.png|24px|link=Stone Gear]] '''[[Stone Gear]]'''
 * [[File:Grid Copper Gear.png|24px|link=Copper Gear]] '''[[Copper Gear]]'''
 * [[File:Grid Iron Gear.png|24px|link=Iron Gear]] '''[[Iron Gear]]'''
-* [[File:Grid Tin Gear.png|24px|link=Tin Gear]] '''[[Tin Gear]]'''
 * [[File:Grid Bronze Gear.png|24px|link=Bronze Gear]] '''[[Bronze Gear]]'''
 * [[File:Grid Gold Gear.png|24px|link=Gold Gear]] '''[[Gold Gear]]'''
 * [[File:Grid Diamond Gear.png|24px|link=Diamond Gear]] '''[[Diamond Gear]]'''
 * [[File:Grid Netherite Gear.png|24px|link=Netherite Gear]] '''[[Netherite Gear]]'''
-
-== History ==
-
-{{History|head=1|foot=1|v0.1.0|Added the gears.}}
 
 == See also ==
 

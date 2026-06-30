@@ -3,6 +3,8 @@
 |type      = Block (Pipe)
 |function  = Route items by type
 |stackable = Yes (64)
+|hardness        = 0.3
+|blastresistance = 0.3
 |added     = v0.1.0
 }}
 
@@ -36,7 +38,7 @@ It is the core of a sorting system — combine it with the [[Item Insertion Pipe
 
 == History ==
 
-{{History|head=1|foot=1|v0.1.0|Added '''Item Filter Pipe'''.}}
+{{History|head=1|foot=1|v0.1.0|[[File:Grid Item Filter Pipe.png|32px]] Added '''Item Filter Pipe'''.}}
 
 == See also ==
 

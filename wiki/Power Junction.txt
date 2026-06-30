@@ -1,0 +1,53 @@
+{{Block
+|image           = Grid Power Junction.png
+|type            = Block (Pipe)
+|function        = Network power input
+|stackable       = Yes (64)
+|tool            = Pickaxe
+|hardness        = 3.0
+|blastresistance = 3.0
+|added           = v0.8.0
+}}
+
+The '''Power Junction''' is the single point where electrical power enters a [[Logistics Pipes|logistics network]]. [[Cables]], engines, and [[Battery|batteries]] feed RF into the junction, and the network draws what it needs out of the junction's buffer. A network with no Power Junction has no power; a [[Battery]] placed directly on the pipes does not feed them.
+
+== Obtaining ==
+
+=== Crafting ===
+
+{{Crafting|head=1|foot=1|showname=0
+|B1=Basic Logistics Pipe
+|A2=Redstone |B2=Machine Frame |C2=Redstone
+|A3=Copper Gear |B3=Redstone Reception Coil |C3=Copper Gear
+|Output=Power Junction
+}}
+
+== Usage ==
+
+Place the Power Junction so it touches both your power grid and your [[Logistics Pipes|logistics network]]. It buffers the two sides:
+
+* Holds up to '''1,000,000 RF'''.
+* Accepts up to '''128 RF/t''' from adjacent [[Cables]], [[Engines]], or a [[Battery]].
+* Lets the network pull up to '''1,000 RF/t''' back out.
+
+The front face shows a charge indicator that fills as the buffer charges. Run your power into a junction, and the junction into the network — without one, the network cannot be powered.
+
+== Data values ==
+
+=== ID ===
+
+{{ID|head=1|foot=1|logistics:pipe/power_junction|block.logistics.pipe.power_junction}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.8.0|[[File:Grid Power Junction.png|32px]] Added '''Power Junction'''.}}
+
+== See also ==
+
+* [[Battery]] - Stores RF to feed the junction
+* [[Logistics Pipes]] - The network the junction powers
+* [[Cables]] - Carry RF to the junction
+* [[Stirling Engine]] - Generates RF
+* [[RF Energy]] - Power system overview
+
+[[Category:Blocks]]

@@ -56,7 +56,7 @@ Smelt it in a furnace, blast furnace, or a [[Kiln]]:
 
 == History ==
 
-{{History|head=1|v0.2.0|Added '''Tin Dust'''.}}
+{{History|head=1|v0.2.0|[[File:Grid Tin Dust.png|32px]] Added '''Tin Dust'''.}}
 {{History|foot=1|v0.7.4|Tin and raw tin blocks can now be ground into dust; grinding tin ore now grants experience.}}
 
 == See also ==

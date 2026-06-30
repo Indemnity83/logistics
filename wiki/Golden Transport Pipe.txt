@@ -4,6 +4,8 @@
 |type      = Block (Pipe)
 |function  = Item acceleration
 |stackable = Yes (64)
+|hardness        = 0.3
+|blastresistance = 0.3
 |added     = v0.1.0
 }}
 
@@ -37,7 +39,7 @@ Chain several powered golden pipes for a cumulative boost. Unpowered, it behaves
 
 == History ==
 
-{{History|head=1|foot=1|v0.1.0|Added '''Golden Transport Pipe'''.}}
+{{History|head=1|foot=1|v0.1.0|[[File:Grid Golden Transport Pipe.png|32px]] Added '''Golden Transport Pipe'''.}}
 
 == See also ==
 

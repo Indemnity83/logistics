@@ -57,7 +57,7 @@ A block of bronze stores bronze ingots compactly. It can be unpacked back into n
 
 == History ==
 
-{{History|head=1|foot=1|v0.2.0|Added '''Block of Bronze'''.}}
+{{History|head=1|foot=1|v0.2.0|[[File:Grid Bronze Block.png|32px]] Added '''Block of Bronze'''.}}
 
 == See also ==
 

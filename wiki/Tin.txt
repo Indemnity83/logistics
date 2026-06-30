@@ -12,7 +12,6 @@
 
 == Uses ==
 
-* [[File:Grid Tin Gear.png|24px|link=Tin Gear]] '''[[Tin Gear]]''' — a crafting component in the gear progression
 * [[File:Grid Bronze Ingot.png|24px|link=Bronze Ingot]] '''[[Bronze Ingot]]''' — a tin-and-copper alloy
 
 {{Disambig}}

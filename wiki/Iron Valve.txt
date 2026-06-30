@@ -45,7 +45,7 @@
 
 == History ==
 
-{{History|head=1|foot=1|v0.2.0|Added '''Iron Valve'''.}}
+{{History|head=1|foot=1|v0.2.0|[[File:Grid Iron Valve.png|32px]] Added '''Iron Valve'''.}}
 
 == See also ==
 

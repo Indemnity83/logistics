@@ -1,4 +1,4 @@
-Welcome to the '''Logistics''' wiki! A modern Minecraft logistics and pipe mod with authentic in-pipe item motion, fluid transport, storage, and a [[Battery]]-powered network, built for '''Fabric & NeoForge'''.
+Welcome to the '''Logistics''' wiki! A modern Minecraft logistics and pipe mod with authentic in-pipe item motion, fluid transport, storage, and a powered logistics network, built for '''Fabric & NeoForge'''.
 
 ==Getting Started==
 
@@ -75,13 +75,14 @@ Modules are installed into [[Chassis Logistics Pipe|Chassis Logistics Pipes]] to
 
 ==Power==
 
-Engines generate RF energy, which cables carry to a Battery that powers the logistics network and machines.
+Engines generate RF energy, which cables carry to machines and to a [[Power Junction]] that powers the logistics network.
 
 * '''[[RF Energy]]''' - Understanding the power system
 * '''[[Redstone Engine]]''' - Basic power from redstone
 * '''[[Stirling Engine]]''' - High power from fuel
 * '''[[Creative Engine]]''' - Unlimited power for creative mode
-* '''[[Battery]]''' - Store RF and power the logistics network
+* '''[[Power Junction]]''' - Feeds power into the logistics network
+* '''[[Battery]]''' - Store RF for later use
 * '''[[Copper Cable]]''' / '''[[Gold Cable]]''' / '''[[Ender Cable]]''' - Carry RF between engines, batteries, and machines
 
 [[Energy|Browse all power →]]
@@ -110,7 +111,7 @@ Gears, valves, ores, and crafting components.
 
 '''[[Gears]] (Engines & Machines):'''
 * '''[[Wooden Gear]]''' | '''[[Stone Gear]]'''
-* '''[[Iron Gear]]''' | '''[[Copper Gear]]''' | '''[[Tin Gear]]''' | '''[[Bronze Gear]]'''
+* '''[[Iron Gear]]''' | '''[[Copper Gear]]''' | '''[[Bronze Gear]]'''
 * '''[[Gold Gear]]''' | '''[[Diamond Gear]]''' | '''[[Netherite Gear]]'''
 
 '''[[Valves]] ([[Kiln]]-Crafted):'''
@@ -148,7 +149,7 @@ Gears, valves, ores, and crafting components.
 
 ==About Logistics==
 
-'''Active Development:''' Logistics is in active development. [[Transport Pipes]], [[Logistics Pipes]], [[Fluid Pipes|fluid pipes]], tanks, pumps, and the [[Battery]]-powered network are implemented and functional.
+'''Active Development:''' Logistics is in active development. [[Transport Pipes]], [[Logistics Pipes]], [[Fluid Pipes|fluid pipes]], tanks, pumps, and the powered logistics network are implemented and functional.
 
 '''Minecraft:''' 26.1+
 '''Mod Loader:''' Fabric (Loader 0.18.6+ with Fabric API) or NeoForge

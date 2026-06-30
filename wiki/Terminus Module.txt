@@ -36,7 +36,7 @@ Place it at the physical end of a pipe run to stop items from bouncing back into
 
 == History ==
 
-{{History|head=1|foot=1|v0.2.0|Added '''Terminus Module'''.}}
+{{History|head=1|foot=1|v0.2.0|[[File:Grid Terminus Module.png|32px]] Added '''Terminus Module'''.}}
 
 == See also ==
 * [[Modules]] - All available modules

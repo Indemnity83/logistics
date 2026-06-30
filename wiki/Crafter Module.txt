@@ -40,7 +40,7 @@ Combine a Crafter Module with a [[Provider Module]] in one chassis for a station
 
 == History ==
 
-{{History|head=1|foot=1|v0.2.0|Added '''Crafter Module'''.}}
+{{History|head=1|foot=1|v0.2.0|[[File:Grid Crafter Module.png|32px]] Added '''Crafter Module'''.}}
 
 == See also ==
 * [[Crafting Logistics Pipe]] - Standalone crafting pipe (simpler setup)

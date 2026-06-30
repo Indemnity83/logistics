@@ -4,6 +4,8 @@
 |type      = Block (Pipe)
 |function  = Fill tanks before passing fluid on
 |stackable = Yes (64)
+|hardness        = 0.3
+|blastresistance = 0.3
 |added     = v0.7.3
 }}
 
@@ -35,7 +37,7 @@ The Insertion Fluid Pipe fills adjacent tanks and machines before passing fluid 
 
 == History ==
 
-{{History|head=1|foot=1|v0.7.3|Added '''Insertion Fluid Pipe'''.}}
+{{History|head=1|foot=1|v0.7.3|[[File:Grid Insertion Fluid Pipe.png|32px]] Added '''Insertion Fluid Pipe'''.}}
 
 == See also ==
 

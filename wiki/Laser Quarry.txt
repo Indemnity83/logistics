@@ -24,13 +24,11 @@ The Laser Quarry can be broken with any tool, though a pickaxe is fastest.
 === Crafting ===
 
 {{Crafting|head=1|foot=1|showname=0
-|A1=Diamond Gear |B1=Diamond Gear |C1=Diamond Gear
-|A2=Iron Ingot |B2=Machine Core |C2=Iron Ingot
-|A3=Iron Ingot |B3=Iron Ingot |C3=Iron Ingot
+|B1=Diamond Pickaxe
+|A2=Gold Gear |B2=Machine Frame |C2=Gold Gear
+|A3=Diamond Gear |B3=Redstone Reception Coil |C3=Diamond Gear
 |Output=Laser Quarry
 }}
-
-Requires a [[Machine Core]], 5× Iron Ingot, and 3× [[Diamond Gear]].
 
 == Usage ==
 
@@ -92,15 +90,16 @@ With [https://www.curseforge.com/minecraft/mc-mods/jade Jade] installed, looking
 
 == History ==
 
-{{History|head=1|v0.1.0|Added '''Laser Quarry'''.}}
-{{History|foot=1|v0.7.4|Added an optional '''Keep chunks loaded''' setting so the quarry can mine unattended.}}
+{{History|head=1|v0.1.0|[[File:Grid Laser Quarry (v0.1.0).png|32px]] Added '''Laser Quarry'''.}}
+{{History|v0.7.4|Added an optional '''Keep chunks loaded''' setting so the quarry can mine unattended.}}
+{{History|foot=1|v0.8.0|[[File:Grid Laser Quarry.png|32px]] The texture of the Laser Quarry has been changed. Recipe standardized around the [[Machine Frame]] and [[Redstone Reception Coil]].}}
 
 == See also ==
 * [[Marker]] - Define a custom mining area
 * [[Stirling Engine]] - Recommended power source
 * [[RF Energy]] - Power system
-* [[Machine Core]] - Crafting component
-* [[Diamond Gear]] - Crafting component
+* [[Machine Frame]], [[Redstone Reception Coil]] - Crafting components
+* [[Gold Gear]], [[Diamond Gear]] - Crafting components
 * [[Copper Transport Pipe]] - Collect mined items
 * [[Item Filter Pipe]] - Sort ores from waste
 * [[Item Void Pipe]] - Delete cobblestone overflow

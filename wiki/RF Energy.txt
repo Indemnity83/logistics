@@ -4,13 +4,13 @@ There are '''two separate power paths''' in the mod — they do not share a powe
 
 == Powering the logistics network ==
 
-The logistics network is powered from a stored reservoir, not directly off an engine:
+The logistics network draws power through a [[Power Junction]], not directly off an engine or battery:
 
 # An [[Engines|engine]] ([[Redstone Engine]], [[Stirling Engine]], or [[Creative Engine]]) generates RF
-# [[Copper Cable|Power cables]] carry that RF to a [[Battery]]
-# The [[Logistics Pipes]] and chassis modules draw RF from the connected Battery each time they route, supply, or craft
+# [[Copper Cable|Power cables]] carry that RF — optionally by way of a [[Battery]] — to a [[Power Junction]]
+# The Power Junction is placed against the network, and the [[Logistics Pipes]] and chassis modules draw RF from it each time they route, supply, or craft
 
-When the network runs out of power, routing, supplying, and crafting all stop, and items already in transit are '''dropped'''. Logistics pipes render '''green when powered''' and '''red when not''', so you can read network status at a glance. Power is restored as soon as a charged [[Battery]] is reconnected, so keep one charged on the network at all times.
+When the network runs out of power, routing, supplying, and crafting all stop, and items already in transit are '''dropped'''. Logistics pipes render '''green when powered''' and '''red when not''', so you can read network status at a glance. Keep the Power Junction fed and power is restored at once.
 
 == Pacing extraction ==
 
@@ -22,7 +22,7 @@ Extraction pipes do '''not''' use the Battery. Instead, each is paced by an '''a
 
 == Cables ==
 
-Cables carry RF from an engine to a [[Battery]] or machine. They connect to each other and to adjacent power blocks, and differ only in throughput — use a higher-throughput cable to feed a high-demand network:
+Cables carry RF from an engine to a [[Battery]], [[Power Junction]], or machine. They connect to each other and to adjacent power blocks, and differ only in throughput — use a higher-throughput cable to feed a high-demand network:
 
 * '''[[Copper Cable]]''' — 30 RF/t
 * '''[[Gold Cable]]''' — 60 RF/t
@@ -48,7 +48,8 @@ Every engine needs a redstone signal to run. They differ in output and fuel:
 * Not craftable
 
 == See also ==
-* [[Battery]] - Stores RF for the logistics network
+* [[Power Junction]] - Feeds power into the logistics network
+* [[Battery]] - Stores RF
 * [[Engines]] - Overview of the RF generators
 * [[Copper Cable]], [[Gold Cable]], [[Ender Cable]] - Distribute RF
 * [[Redstone Engine]], [[Stirling Engine]], [[Creative Engine]] - Generate RF

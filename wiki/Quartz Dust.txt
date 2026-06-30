@@ -52,7 +52,7 @@ Smelt it in a furnace, blast furnace, or a [[Kiln]]:
 
 == History ==
 
-{{History|head=1|foot=1|v0.2.0|Added '''Quartz Dust'''.}}
+{{History|head=1|foot=1|v0.2.0|[[File:Grid Quartz Dust.png|32px]] Added '''Quartz Dust'''.}}
 
 == See also ==
 

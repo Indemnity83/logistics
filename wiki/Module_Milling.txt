@@ -1,0 +1,14 @@
+-- Module:Milling — builds Sawmill recipe tables, reusing [[Module:Grinding]]'s shared builder.
+-- The Sawmill mills wood into planks with a Sawdust byproduct; it uses the same {{Grid Grinding
+-- Table}} widget as the Macerator, minus experience. The "Milling recipe" column header is the
+-- only visible difference. head=1 opens the table + header, foot=1 closes it.
+
+local grinding = require('Module:Grinding')
+
+local p = {}
+
+function p.milling(frame)
+	return grinding.build(frame, { label = 'Milling recipe', xp = false })
+end
+
+return p

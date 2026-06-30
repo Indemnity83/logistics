@@ -57,7 +57,7 @@ A block of tin stores tin ingots compactly. It can be unpacked back into nine in
 
 == History ==
 
-{{History|head=1|foot=1|v0.2.0|Added '''Block of Tin'''.}}
+{{History|head=1|foot=1|v0.2.0|[[File:Grid Tin Block.png|32px]] Added '''Block of Tin'''.}}
 
 == See also ==
 

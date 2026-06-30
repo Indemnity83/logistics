@@ -15,13 +15,16 @@ Usage (a 2-recipe table):
  }}
 
 Parameters:
- Input       — the item being ground
- Output      — result item; "Name,Count" is accepted (or use OutputCount)
- XP          — experience granted (optional)
- head/foot   — open / close the table
- name        — override the Name cell (default: a link to the Output)
- ingredients — override the Ingredients cell (default: the input)
- showname=0  — hide the Name column
+ Input           — the item being ground
+ Output          — result item; "Name,Count" is accepted (or use OutputCount)
+ Byproduct       — a secondary chance output (optional; "Name,Chance" accepted)
+ ByproductChance — its drop chance, e.g. "10%" (optional)
+ XP              — experience granted (optional)
+ notes           — a small per-recipe annotation under the ingredient, e.g. "Since Minecraft 26.2" (optional)
+ head/foot       — open / close the table
+ name            — override the Name cell (default: a link to the Output)
+ ingredients     — override the Ingredients cell (default: the input)
+ showname=0      — hide the Name column
 
 Depends on [[Module:Grinding]] and [[Template:Grid Grinding Table]].
 

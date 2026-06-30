@@ -49,7 +49,7 @@
 
 == History ==
 
-{{History|head=1|foot=1|v0.2.0|Added '''Diamond Dust'''.}}
+{{History|head=1|foot=1|v0.2.0|[[File:Grid Diamond Dust.png|32px]] Added '''Diamond Dust'''.}}
 
 == See also ==
 

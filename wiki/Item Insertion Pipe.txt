@@ -4,6 +4,8 @@
 |type      = Block (Pipe)
 |function  = Prefer adjacent inventories
 |stackable = Yes (64)
+|hardness        = 0.3
+|blastresistance = 0.3
 |added     = v0.1.0
 }}
 
@@ -37,7 +39,7 @@ Pair it with the [[Item Filter Pipe]] and [[Item Void Pipe]] to build sorted sto
 
 == History ==
 
-{{History|head=1|foot=1|v0.1.0|Added '''Item Insertion Pipe'''.}}
+{{History|head=1|foot=1|v0.1.0|[[File:Grid Item Insertion Pipe.png|32px]] Added '''Item Insertion Pipe'''.}}
 
 == See also ==
 

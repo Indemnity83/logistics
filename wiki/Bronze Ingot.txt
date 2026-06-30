@@ -7,7 +7,7 @@
 |added     = v0.2.0
 }}
 
-'''Bronze ingots''' are an alloy of copper and [[Tin Ingot|tin]], used as the base material for [[Machine Core|machine cores]], [[Sturdy Casing|casings]], [[Bronze Gear|gears]], and [[Valves|valves]].
+'''Bronze ingots''' are an alloy of copper and [[Tin Ingot|tin]], used as the base material for [[Bronze Gear|gears]], [[Sturdy Casing|casings]], and [[Valves|valves]].
 
 == Obtaining ==
 
@@ -60,14 +60,6 @@ Smelt [[Bronze Dust]] back into an ingot in a furnace, blast furnace, or a [[Kil
 
 {{Crafting
 |head=1
-|name=[[Machine Core]]
-|A1=Bronze Ingot |B1=Bronze Ingot |C1=Bronze Ingot
-|A2=Bronze Ingot |B2=Blaze Powder |C2=Bronze Ingot
-|A3=Bronze Ingot |B3=Bronze Ingot |C3=Bronze Ingot
-|Output=Machine Core
-}}
-
-{{Crafting
 |name=[[Sturdy Casing]]
 |A1=Bronze Ingot |B1=Bronze Ingot |C1=Bronze Ingot
 |A2=Bronze Ingot |C2=Bronze Ingot
@@ -125,17 +117,17 @@ Grind a bronze ingot in a [[Macerator]] to recover [[Bronze Dust]]:
 
 == History ==
 
-{{History|head=1|foot=1|v0.2.0|Added '''Bronze Ingot'''.}}
+{{History|head=1|foot=1|v0.2.0|[[File:Grid Bronze Ingot.png|32px]] Added '''Bronze Ingot'''.}}
 
 == Trivia ==
 
-* Bronze is humanity's first widespread alloy — mixing a little tin into copper makes a metal harder than either, which is why the mod gates its [[Machine Core|machine cores]] behind it. The three-to-one copper-to-tin recipe is roughly the ratio of real bronze.
+* Bronze is humanity's first widespread alloy — mixing a little tin into copper makes a metal harder than either, which is why the mod gates its [[Machine Frame|machine frames]] behind it. The three-to-one copper-to-tin recipe is roughly the ratio of real bronze.
 
 == See also ==
 
 * [[Bronze]] - All bronze blocks and items
 * [[Tin Ingot]], Copper Ingot - Alloy components
-* [[Machine Core]], [[Sturdy Casing]] - Machine components
+* [[Machine Frame]], [[Sturdy Casing]] - Machine components
 * [[Bronze Gear]] - Crafting component
 * [[Bronze Dust]] - Ground form
 

@@ -39,7 +39,7 @@
 
 == History ==
 
-{{History|head=1|foot=1|v0.2.0|Added '''Ender Core'''.}}
+{{History|head=1|foot=1|v0.2.0|[[File:Grid Ender Core.png|32px]] Added '''Ender Core'''.}}
 
 == See also ==
 

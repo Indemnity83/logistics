@@ -470,28 +470,36 @@ def resolve_model(item_id, assets):
     return None
 
 
-_REFPAT = (re.compile(r"Grid ([^\n|}\]=]+?)\.png"), re.compile(r"\{\{Grid\|([^}|]+)"),
-           re.compile(r"\{\{Grid Crafting Table(.*?)\}\}", re.S), re.compile(r"\|\s*(?:[ABC][123]|Output)\s*=\s*([^|}\n]+)"),
-           re.compile(r"\{\{Crafting(.*?)\}\}", re.S))
+_REFPAT = (
+    re.compile(r"Grid ([^\n|}\]=]+?)\.png"),                                   # literal File:Grid X.png
+    re.compile(r"\{\{Grid\|([^}|]+)"),                                          # {{Grid|X}}
+    # recipe blocks whose slot/Input/Output/Byproduct params name items:
+    re.compile(r"\{\{(?:Grid (?:Crafting|Grinding|Smelting) Table|Crafting|Grinding|Milling|Smelting)(.*?)\}\}", re.S),
+    re.compile(r"\|\s*(?:[ABC][123]|Output|Input|Byproduct)\s*=\s*([^|}\n]+)"),  # those params
+)
 
 
 def _icon_name(val):
-    """Drop the ',<count>' suffix {{Crafting}} allows on Output (e.g. 'Wooden Core,4')."""
-    return re.sub(r"\s*,\s*\d+\s*$", "", val.strip())
+    """An item name from a recipe param: drop a trailing ',<count>' or ',<chance>%' suffix
+    (e.g. 'Wooden Core,4' or 'Tin Dust,10%')."""
+    return re.sub(r"\s*,\s*[\d.]+%?\s*$", "", val.strip())
 
 
 def referenced_names(wiki_dir):
-    lit, tmpl, table, param, crafting = _REFPAT
+    lit, tmpl, recipe, param = _REFPAT
     names = set()
     for fn in os.listdir(wiki_dir):
-        if not fn.endswith(".txt") or fn.startswith("Template_"):
+        if not fn.endswith(".txt") or fn.startswith("Template_") or fn.startswith("Module_"):
             continue
         t = open(os.path.join(wiki_dir, fn), encoding="utf-8").read()
         names |= {n.strip() for n in lit.findall(t)} | {n.strip() for n in tmpl.findall(t)}
-        for blk in table.findall(t):
-            names |= {_icon_name(v) for v in param.findall(blk)}
-        for blk in crafting.findall(t):
-            names |= {_icon_name(v) for v in param.findall(blk)}
+        for blk in recipe.findall(t):
+            for v in param.findall(blk):
+                # Input accepts ";"-separated alternatives (e.g. "Iron Ore;Deepslate Iron Ore")
+                for part in v.split(";"):
+                    nm = _icon_name(part)
+                    if nm:
+                        names.add(nm)
     return names
 
 

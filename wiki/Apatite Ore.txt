@@ -51,7 +51,7 @@ Grind apatite ore in a [[Macerator]] for six [[Apatite Dust]] per ore — a gene
 
 == History ==
 
-{{History|head=1|v0.2.0|Added '''Apatite Ore'''.}}
+{{History|head=1|v0.2.0|[[File:Grid Apatite Ore.png|32px]] Added '''Apatite Ore'''.}}
 {{History|foot=1|v0.7.4|Grinding apatite ore now grants experience.}}
 
 == See also ==

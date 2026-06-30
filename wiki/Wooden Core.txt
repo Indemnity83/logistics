@@ -13,9 +13,9 @@
 
 {{Crafting|head=1|foot=1
 |showname=0
-|B1=Wood Pulp
+|B1=Sawdust
 |B2=Slime Ball
-|B3=Wood Pulp
+|B3=Sawdust
 |Output=Wooden Core,4
 }}
 
@@ -39,11 +39,12 @@
 
 == History ==
 
-{{History|head=1|foot=1|v0.2.0|Added '''Wooden Core'''.}}
+{{History|head=1|foot=1|v0.2.0|[[File:Grid Wooden Core.png|32px]] Added '''Wooden Core'''.}}
 
 == See also ==
 
 * [[Wooden Valve]] - What it crafts
+* [[Sawdust]] - Crafting ingredient, from the [[Sawmill]]
 * [[Cores]] - All cores
 * [[Valves]] - Built from cores
 

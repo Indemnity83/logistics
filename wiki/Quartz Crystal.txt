@@ -37,7 +37,7 @@ Quartz Crystal forms the frame of every [[Valves|valve]] — eight crystals arou
 
 == History ==
 
-{{History|head=1|foot=1|v0.2.0|Added '''Quartz Crystal'''.}}
+{{History|head=1|foot=1|v0.2.0|[[File:Grid Quartz Crystal.png|32px]] Added '''Quartz Crystal'''.}}
 
 == See also ==
 

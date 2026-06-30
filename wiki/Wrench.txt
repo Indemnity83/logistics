@@ -59,7 +59,7 @@ Install Jade alongside Logistics to read this information by simply looking at a
 
 == History ==
 
-{{History|head=1|foot=1|v0.1.0|Added '''Wrench'''.}}
+{{History|head=1|foot=1|v0.1.0|[[File:Grid Wrench.png|32px]] Added '''Wrench'''.}}
 
 == See also ==
 

@@ -3,6 +3,8 @@
 |type      = Block (Pipe)
 |function  = Modular logistics node
 |stackable = Yes (64)
+|hardness        = 0.3
+|blastresistance = 0.3
 |added     = v0.2.0
 }}
 
@@ -65,7 +67,7 @@ A chassis does nothing on its own. Install or swap [[Modules]] with a [[Wrench]]
 
 == Power ==
 
-Like every [[Logistics Pipes|logistics pipe]], the chassis draws [[RF Energy|RF]] from a connected [[Battery]] — green while powered, red when the network has no charge.
+Like every [[Logistics Pipes|logistics pipe]], the chassis draws [[RF Energy|RF]] through a [[Power Junction]] — green while powered, red when the network has no charge.
 
 == Data values ==
 
@@ -79,14 +81,14 @@ Like every [[Logistics Pipes|logistics pipe]], the chassis draws [[RF Energy|RF]
 
 == History ==
 
-{{History|head=1|foot=1|v0.2.0|Added the '''Chassis Logistics Pipe''' (MK1–MK5).}}
+{{History|head=1|foot=1|v0.2.0|[[File:Grid Chassis Logistics Pipe MK1.png|32px]] Added the '''Chassis Logistics Pipe''' (MK1–MK5).}}
 
 == See also ==
 
 * [[Modules]] - Installable behaviors for the chassis
 * [[Logistics Pipes]] - All logistics pipes
 * [[Valves]] - The crafting components for each mark
-* [[Battery]] - Powers the network
+* [[Power Junction]] - Powers the network
 
 [[Category:Pipes]]
 [[Category:Item Pipes]]

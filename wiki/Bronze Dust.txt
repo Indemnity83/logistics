@@ -77,7 +77,7 @@ Smelt it in a furnace, blast furnace, or a [[Kiln]]:
 
 == History ==
 
-{{History|head=1|v0.2.0|Added '''Bronze Dust'''.}}
+{{History|head=1|v0.2.0|[[File:Grid Bronze Dust.png|32px]] Added '''Bronze Dust'''.}}
 {{History|foot=1|v0.7.4|Blocks of bronze can now be ground into dust.}}
 
 == See also ==

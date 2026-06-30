@@ -46,7 +46,7 @@ Use it for machine input buffers (furnaces, kilns) that must never run dry, and 
 
 == History ==
 
-{{History|head=1|foot=1|v0.2.0|Added '''Active Supplier Module'''.}}
+{{History|head=1|foot=1|v0.2.0|[[File:Grid Active Supplier Module.png|32px]] Added '''Active Supplier Module'''.}}
 
 == See also ==
 * [[Passive Supplier Module]] - Skims in-transit items instead of ordering (no power)

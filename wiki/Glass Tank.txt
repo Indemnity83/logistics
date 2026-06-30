@@ -52,7 +52,7 @@ Buffer the output of a [[Pump]] or [[Fluid Extractor Pipe]] before feeding it on
 
 == History ==
 
-{{History|head=1|foot=1|v0.7.3|Added '''Glass Tank'''.}}
+{{History|head=1|foot=1|v0.7.3|[[File:Grid Glass Tank.png|32px]] Added '''Glass Tank'''.}}
 
 == See also ==
 * [[Fluid Pipes]] - Overview of the fluid system

@@ -15,10 +15,6 @@ All cables are crafted '''8 at a time''' from [[Rubber|Rubber Chunks]] wrapped a
 
 Cables connect to each other and to adjacent power blocks, forming a power network that carries RF from an [[Redstone Engine|engine]] to a [[Battery]] or machine. Each tier moves more RF per tick — '''Copper''' 30, '''Gold''' 60, '''Ender''' 120 — but the slowest cable on a run caps its throughput, so match the cable to the demand. Use Copper for short engine-to-battery hops and Ender for long runs or high-demand batteries.
 
-== History ==
-
-{{History|head=1|foot=1|v0.6.0|Added the copper, gold, and ender cables.}}
-
 == See also ==
 
 * [[RF Energy]] — how the power system works

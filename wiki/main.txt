@@ -13,8 +13,8 @@ Welcome to the '''{{SITENAME}}''' — the player-maintained guide to '''Logistic
 | style="width:50%; padding:10px; border:1px solid rgba(127,127,127,0.35);" | [[File:Grid Copper Transport Pipe.png|left|56px|link=Pipes]] '''[[Pipes]]'''<br>Move items through connected networks — from basic transport to filtered routing and a full logistics system.<br><small>[[Transport Pipes]] · [[Logistics Pipes]] · [[Pipe Networks]]</small>
 | style="width:50%; padding:10px; border:1px solid rgba(127,127,127,0.35);" | [[File:Grid Glass Tank.png|left|56px|link=Fluid Pipes]] '''[[Fluid Pipes|Fluids]]'''<br>Pump, pipe, and store liquids with a standalone fluid system separate from the item network.<br><small>[[Glass Tank]] · [[Pump]] · [[Fluid Pipes|Fluid pipes]]</small>
 |-
-| style="width:50%; padding:10px; border:1px solid rgba(127,127,127,0.35);" | [[File:Grid Stirling Engine.png|left|56px|link=Energy]] '''[[Energy|Power]]'''<br>Generate RF with engines and power the network with batteries and cables.<br><small>[[Battery]] · [[Engines]] · [[Copper Cable|Cables]]</small>
-| style="width:50%; padding:10px; border:1px solid rgba(127,127,127,0.35);" | [[File:Grid Macerator.png|left|56px|link=Machines]] '''[[Machines|Automation]]'''<br>Machines that grind, smelt, and mine for you.<br><small>[[Macerator]] · [[Kiln]] · [[Laser Quarry]]</small>
+| style="width:50%; padding:10px; border:1px solid rgba(127,127,127,0.35);" | [[File:Grid Stirling Engine.png|left|56px|link=Energy]] '''[[Energy|Power]]'''<br>Generate RF with engines and feed it into the network through a Power Junction.<br><small>[[Battery]] · [[Power Junction]] · [[Engines]] · [[Copper Cable|Cables]]</small>
+| style="width:50%; padding:10px; border:1px solid rgba(127,127,127,0.35);" | [[File:Grid Macerator.png|left|56px|link=Machines]] '''[[Machines|Automation]]'''<br>Machines that grind, smelt, cut, and mine for you.<br><small>[[Macerator]] · [[Kiln]] · [[Sawmill]] · [[Laser Quarry]]</small>
 |-
 | style="width:50%; padding:10px; border:1px solid rgba(127,127,127,0.35);" | [[File:Grid Chassis Logistics Pipe MK1.png|left|56px|link=Chassis Logistics Pipe]] '''[[Chassis Logistics Pipe|Chassis Pipes]]'''<br>Slot modules into chassis pipes to build custom logistics nodes.<br><small>[[Chassis Logistics Pipe|Chassis Pipes]] · [[Modules]]</small>
 | style="width:50%; padding:10px; border:1px solid rgba(127,127,127,0.35);" | [[File:Grid Iron Gear.png|left|56px|link=Materials]] '''[[Materials]]'''<br>Gears, valves, dusts, and the crafting components behind everything.<br><small>[[Gears]] · [[Valves]] · [[Dusts]] · [[Chips]] · [[Cores]]</small>
@@ -37,7 +37,7 @@ You can help by improving pages, adding recipes, documenting behavior, uploading
 
 '''Logistics''' is inspired by the classic pipe-and-machine style of Minecraft automation mods, rebuilt as a modern standalone mod. It adds transport pipes, fluids, tanks, power systems, machines, and tools for moving resources around a world.
 
-Currently targeting '''Minecraft 26.1''' on '''Fabric & NeoForge'''. Developed by '''Indemnity83'''.
+Supports '''Minecraft 1.21.1, 1.21.11, 26.1, and 26.2''' on '''Fabric & NeoForge'''. Developed by '''Indemnity83'''.
 
 ==Get the mod==
 

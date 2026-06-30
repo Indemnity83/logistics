@@ -36,7 +36,7 @@ Place it next to an enchanted-item storage chest to collect enchanted drops from
 
 == History ==
 
-{{History|head=1|foot=1|v0.2.0|Added '''Enchantment Sink Module'''.}}
+{{History|head=1|foot=1|v0.2.0|[[File:Grid Enchantment Sink Module.png|32px]] Added '''Enchantment Sink Module'''.}}
 
 == See also ==
 * [[Item Sink Module]] - Accept a specific configured item type

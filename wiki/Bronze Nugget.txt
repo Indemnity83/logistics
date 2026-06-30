@@ -49,7 +49,7 @@ Nine bronze nuggets craft back into a [[Bronze Ingot|bronze ingot]].
 
 == History ==
 
-{{History|head=1|foot=1|v0.2.0|Added '''Bronze Nugget'''.}}
+{{History|head=1|foot=1|v0.2.0|[[File:Grid Bronze Nugget.png|32px]] Added '''Bronze Nugget'''.}}
 
 == See also ==
 

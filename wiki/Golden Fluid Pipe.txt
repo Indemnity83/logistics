@@ -4,6 +4,8 @@
 |type      = Block (Pipe)
 |function  = Fast fluid transport
 |stackable = Yes (64)
+|hardness        = 0.3
+|blastresistance = 0.3
 |added     = v0.7.3
 }}
 
@@ -35,7 +37,7 @@ Golden fluid pipes passively carry fluid at '''80 mB/t''', eight times a copper 
 
 == History ==
 
-{{History|head=1|foot=1|v0.7.3|Added '''Golden Fluid Pipe'''.}}
+{{History|head=1|foot=1|v0.7.3|[[File:Grid Golden Fluid Pipe.png|32px]] Added '''Golden Fluid Pipe'''.}}
 
 == See also ==
 

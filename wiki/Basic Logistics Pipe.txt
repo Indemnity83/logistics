@@ -2,6 +2,8 @@
 |image     = Grid Basic Logistics Pipe.png
 |type      = Block (Pipe)
 |stackable = Yes (64)
+|hardness        = 0.3
+|blastresistance = 0.3
 |added     = v0.2.0
 }}
 
@@ -32,7 +34,7 @@ When an item arrives it checks, in order: a filter match → an explicit address
 
 == Power ==
 
-Like every [[Logistics Pipes|logistics pipe]], it draws [[RF Energy|RF]] from a connected [[Battery]] — it renders '''green''' while powered and '''red''' when the network has no charge, in which case routing stops and items in transit drop.
+Like every [[Logistics Pipes|logistics pipe]], it draws [[RF Energy|RF]] through a [[Power Junction]] — it renders '''green''' while powered and '''red''' when the network has no charge, in which case routing stops and items in transit drop.
 
 == Data values ==
 
@@ -42,13 +44,13 @@ Like every [[Logistics Pipes|logistics pipe]], it draws [[RF Energy|RF]] from a 
 
 == History ==
 
-{{History|head=1|foot=1|v0.2.0|Added '''Basic Logistics Pipe'''.}}
+{{History|head=1|foot=1|v0.2.0|[[File:Grid Basic Logistics Pipe.png|32px]] Added '''Basic Logistics Pipe'''.}}
 
 == See also ==
 
 * [[Logistics Pipes]] - All logistics pipes
 * [[Chassis Logistics Pipe]] - The modular pipe built on the same base
-* [[Battery]] - Powers the network
+* [[Power Junction]] - Powers the network
 * [[Pipe Networks]] - How the network routes items
 
 [[Category:Pipes]]

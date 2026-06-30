@@ -57,7 +57,7 @@ A block of raw tin stores raw tin compactly. It can be unpacked back into nine a
 
 == History ==
 
-{{History|head=1|foot=1|v0.2.0|Added '''Block of Raw Tin'''.}}
+{{History|head=1|foot=1|v0.2.0|[[File:Grid Raw Tin Block.png|32px]] Added '''Block of Raw Tin'''.}}
 
 == See also ==
 

@@ -20,10 +20,6 @@
 
 Valves are ingredients only. Each [[Logistics Pipes|logistics pipe]] and Chassis mark calls for a specific valve, which in turn needs the matching [[Cores|core]] and a supply of [[Quartz Crystal]]. Several valves (Wooden, Copper, Apatite, Obsidian, Ender, Blazing) are reserved for pipes planned in future updates.
 
-== History ==
-
-{{History|head=1|foot=1|v0.2.0|Added the valves.}}
-
 == See also ==
 
 * [[Cores]] — the center ingredient that defines each valve

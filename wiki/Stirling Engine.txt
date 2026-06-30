@@ -55,7 +55,7 @@ Use a [[Wrench]] to rotate the output face (cycle through directions) and to res
 
 == History ==
 
-{{History|head=1|foot=1|v0.1.0|Added '''Stirling Engine'''.}}
+{{History|head=1|foot=1|v0.1.0|[[File:Grid Stirling Engine.png|32px]] Added '''Stirling Engine'''.}}
 
 == See also ==
 * [[RF Energy]] - Understanding the power system

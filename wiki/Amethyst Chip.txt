@@ -56,7 +56,7 @@ The binder differs by version — a resin clump on Minecraft 1.21.11 and newer, 
 
 {{Crafting
 |name=[[Modules|Extractor MkII Module]]
-|A1=Wood Pulp |B1=Amethyst Chip |C1=Wood Pulp
+|A1=Sawdust |B1=Amethyst Chip |C1=Sawdust
 |A2=Redstone |B2=Blank Module |C2=Redstone
 |Output=Extractor MkII Module
 }}
@@ -76,7 +76,7 @@ The binder differs by version — a resin clump on Minecraft 1.21.11 and newer, 
 
 == History ==
 
-{{History|head=1|foot=1|v0.2.0|Added '''Amethyst Chip'''.}}
+{{History|head=1|foot=1|v0.2.0|[[File:Grid Amethyst Chip.png|32px]] Added '''Amethyst Chip'''.}}
 
 == See also ==
 

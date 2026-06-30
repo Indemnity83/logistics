@@ -33,7 +33,7 @@ Use this module when you want provider behavior combined with other module funct
 
 == History ==
 
-{{History|head=1|foot=1|v0.2.0|Added '''Provider Module'''.}}
+{{History|head=1|foot=1|v0.2.0|[[File:Grid Provider Module.png|32px]] Added '''Provider Module'''.}}
 
 == See also ==
 * [[Provider Logistics Pipe]] - Standalone version of this behavior

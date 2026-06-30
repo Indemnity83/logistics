@@ -1,0 +1,51 @@
+{{Item
+|image     = Grid Sulfur Dust.png
+|type      = Item (Dust)
+|stackable = Yes (64)
+|added     = v0.8.0
+}}
+
+'''Sulfur Dust''' is ground from sulfur in a [[Macerator]]. It is an ingredient for [[#Usage|crafting gunpowder]].
+
+== Obtaining ==
+
+=== Grinding ===
+
+The [[Macerator]] grinds sulfur and its variants into Sulfur Dust ''(Minecraft 26.2 and newer)''. Higher-volume blocks yield more dust:
+
+{{Grinding|head=1 |Input=Sulfur |Output=Sulfur Dust,4}}
+{{Grinding |Input=Polished Sulfur |Output=Sulfur Dust,4}}
+{{Grinding |Input=Sulfur Stairs |Output=Sulfur Dust,4}}
+{{Grinding |Input=Sulfur Wall |Output=Sulfur Dust,4}}
+{{Grinding |Input=Sulfur Slab |Output=Sulfur Dust,2}}
+{{Grinding |foot=1 |Input=Sulfur Spike |Output=Sulfur Dust}}
+
+== Usage ==
+
+=== Crafting ingredient ===
+
+Sulfur Dust combines with [[Coal Dust]] and [[Niter]] to make gunpowder:
+
+{{Crafting|head=1|foot=1|showname=0
+|A1=Coal Dust |B1=Sulfur Dust
+|A2=Niter |B2=Niter
+|Output=Gunpowder
+}}
+
+== Data values ==
+
+=== ID ===
+
+{{ID|head=1|foot=1|logistics:core/sulfur_dust|item.logistics.core.sulfur_dust}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.8.0|[[File:Grid Sulfur Dust.png|32px]] Added '''Sulfur Dust'''.}}
+
+== See also ==
+
+* [[Niter]] - The other gunpowder dust
+* [[Dusts]] - All dusts
+* [[Macerator]] - Produces dusts
+
+[[Category:Materials]]

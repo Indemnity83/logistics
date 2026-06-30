@@ -49,7 +49,7 @@
 
 == History ==
 
-{{History|head=1|foot=1|v0.2.0|Added '''Lapis Dust'''.}}
+{{History|head=1|foot=1|v0.2.0|[[File:Grid Lapis Dust.png|32px]] Added '''Lapis Dust'''.}}
 
 == See also ==
 

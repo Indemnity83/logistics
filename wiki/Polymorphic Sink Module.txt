@@ -36,7 +36,7 @@ Seed the adjacent inventory with one of each item type you want it to accept and
 
 == History ==
 
-{{History|head=1|foot=1|v0.2.0|Added '''Polymorphic Sink Module'''.}}
+{{History|head=1|foot=1|v0.2.0|[[File:Grid Polymorphic Sink Module.png|32px]] Added '''Polymorphic Sink Module'''.}}
 
 == See also ==
 * [[Item Sink Module]] - Accept a specifically configured item type

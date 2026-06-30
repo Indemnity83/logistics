@@ -1,0 +1,71 @@
+{{Block
+|image           = Grid Sawmill.png
+|type            = Block (Machine)
+|function        = Wood processing
+|stackable       = Yes (64)
+|tool            = Pickaxe
+|hardness        = 3.5
+|blastresistance = 3.5
+|added           = v0.8.0
+}}
+
+The '''Sawmill''' is an RF-powered machine that cuts logs and other wooden items into planks, yielding [[Sawdust]] as a byproduct.
+
+== Obtaining ==
+
+=== Breaking ===
+
+The Sawmill is mined with a stone pickaxe or better; without one it drops nothing.
+
+{{Breaking
+|tier=stone
+|name1=Sawmill |icon1=Grid Sawmill.png |hardness1=3.5
+}}
+
+=== Crafting ===
+
+{{Crafting|head=1|foot=1|showname=0
+|B1=Iron Axe
+|A2=Oak Planks |B2=Machine Frame |C2=Oak Planks
+|A3=Copper Gear |B3=Redstone Reception Coil |C3=Copper Gear
+|Output=Sawmill
+}}
+
+Shares the standard machine base — a [[Machine Frame]], a [[Redstone Reception Coil]], and two [[Copper Gear|copper gears]] — with an [[Iron Axe]] and planks on top.
+
+== Usage ==
+
+Place a log or other wooden item in the input slot; the Sawmill cuts it into planks over time and rolls its [[Sawdust]] byproduct on completion. It has a three-slot inventory — input from the top and sides, primary and byproduct outputs drawn from the bottom.
+
+=== Power ===
+
+The Sawmill runs on [[RF Energy|RF]]. It holds 10,000 RF and accepts up to 128 RF/t. Each recipe carries an RF cost (2,000–3,000 RF); connect a [[Stirling Engine]] or any RF source.
+
+=== Recipes ===
+
+Every wood type works the same way; oak is shown as an example. Logs and bamboo blocks give the most planks and always drop [[Sawdust]]; processed items give fewer planks and a smaller sawdust chance.
+
+{{Milling|head=1 |Input=Oak Log |ingredients=Logs / Bamboo blocks (any type) |Output=Oak Planks,6 |Byproduct=Sawdust |ByproductChance=100%}}
+{{Milling |Input=Oak Boat |ingredients=Boats |Output=Oak Planks,4 |Byproduct=Sawdust |ByproductChance=125%}}
+{{Milling |Input=Oak Door |ingredients=Doors |Output=Oak Planks |Byproduct=Sawdust |ByproductChance=50%}}
+{{Milling |foot=1 |Input=Oak Stairs |ingredients=Stairs / Fences / Fence gates |Output=Oak Planks |Byproduct=Sawdust |ByproductChance=25%}}
+
+== Data values ==
+
+=== ID ===
+
+{{ID|head=1|foot=1|logistics:automation/sawmill|block.logistics.automation.sawmill}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.8.0|[[File:Grid Sawmill.png|32px]] Added '''Sawmill'''.}}
+
+== See also ==
+
+* [[Sawdust]] - Byproduct of every cut
+* [[Macerator]] - Companion grinding machine
+* [[Machine Frame]] - Crafting component
+* [[Stirling Engine]] - Recommended power source
+* [[RF Energy]] - Power system overview
+
+[[Category:Machines]]

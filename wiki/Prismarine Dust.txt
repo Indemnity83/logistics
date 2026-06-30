@@ -40,7 +40,7 @@ Prismarine dust currently has no crafting or smelting use.
 
 == History ==
 
-{{History|head=1|foot=1|v0.2.0|Added '''Prismarine Dust'''.}}
+{{History|head=1|foot=1|v0.2.0|[[File:Grid Prismarine Dust.png|32px]] Added '''Prismarine Dust'''.}}
 
 == See also ==
 

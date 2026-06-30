@@ -20,7 +20,7 @@
 
 === Breaking ===
 
-Tin ore drops 2–5 '''[[Raw Tin|raw tin]]''' when mined with a stone pickaxe or better; the count is increased by Fortune. Mined with Silk Touch it drops itself instead. Deepslate tin ore behaves identically.
+Tin ore drops 1 '''[[Raw Tin|raw tin]]''' when mined with a stone pickaxe or better; the count is increased by Fortune. Mined with Silk Touch it drops itself instead. Deepslate tin ore behaves identically.
 
 {{Breaking
 |tier=stone
@@ -72,8 +72,9 @@ Grind tin ore in a [[Macerator]] for two [[Tin Dust]] per ore — an ore-doublin
 
 == History ==
 
-{{History|head=1|v0.2.0|Added '''Tin Ore''' and '''Deepslate Tin Ore'''.}}
-{{History|foot=1|v0.7.4|Grinding tin ore now grants experience.}}
+{{History|head=1|v0.2.0|[[File:Grid Tin Ore.png|32px]] Added '''Tin Ore''' and '''Deepslate Tin Ore'''.}}
+{{History|v0.7.4|Grinding tin ore now grants experience.}}
+{{History|foot=1|v0.8.0|Tin ore now drops 1 raw tin (was 2–5).}}
 
 == See also ==
 

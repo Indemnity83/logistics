@@ -43,7 +43,7 @@ Use it for backup stockpiles or low-priority storage that fills opportunisticall
 
 == History ==
 
-{{History|head=1|foot=1|v0.2.0|Added '''Passive Supplier Module'''.}}
+{{History|head=1|foot=1|v0.2.0|[[File:Grid Passive Supplier Module.png|32px]] Added '''Passive Supplier Module'''.}}
 
 == See also ==
 * [[Active Supplier Module]] - Actively orders replenishment (uses power)

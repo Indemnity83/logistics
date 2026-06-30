@@ -4,6 +4,8 @@
 |type      = Block (Pipe)
 |function  = Standard fluid transport
 |stackable = Yes (64)
+|hardness        = 0.3
+|blastresistance = 0.3
 |added     = v0.7.3
 }}
 
@@ -35,7 +37,7 @@ Copper fluid pipes passively carry fluid at '''10 mB/t''' and form most of a flu
 
 == History ==
 
-{{History|head=1|foot=1|v0.7.3|Added '''Copper Fluid Pipe'''.}}
+{{History|head=1|foot=1|v0.7.3|[[File:Grid Copper Fluid Pipe.png|32px]] Added '''Copper Fluid Pipe'''.}}
 
 == See also ==
 

@@ -79,7 +79,7 @@ Marking Fluid is a set of 16 dyed items — <code>logistics:pipe/&lt;color&gt;_m
 
 == History ==
 
-{{History|head=1|foot=1|v0.1.0|Added '''Marking Fluid''' in all 16 dye colors.}}
+{{History|head=1|foot=1|v0.1.0|[[File:Grid Blue Marking Fluid.png|32px]] Added '''Marking Fluid''' in all 16 dye colors.}}
 
 == See also ==
 * [[Copper Transport Pipe]] - Pipe type that accepts marking

@@ -23,20 +23,12 @@
 
 === Crafting ingredient ===
 
-{{Crafting|head=1
+{{Crafting|head=1|foot=1
 |name=[[Iron Gear]]
 |B1=Iron Ingot
 |A2=Iron Ingot |B2=Copper Gear |C2=Iron Ingot
 |B3=Iron Ingot
 |Output=Iron Gear
-}}
-
-{{Crafting|foot=1
-|name=[[Tin Gear]]
-|B1=Tin Ingot
-|A2=Tin Ingot |B2=Copper Gear |C2=Tin Ingot
-|B3=Tin Ingot
-|Output=Tin Gear
 }}
 
 == Data values ==
@@ -47,7 +39,7 @@
 
 == History ==
 
-{{History|head=1|foot=1|v0.1.0|Added '''Copper Gear'''.}}
+{{History|head=1|foot=1|v0.1.0|[[File:Grid Copper Gear.png|32px]] Added '''Copper Gear'''.}}
 
 == See also ==
 

@@ -1,0 +1,44 @@
+{{Item
+|image     = Grid Quicksilver.png
+|type      = Item (Material)
+|stackable = Yes (64)
+|added     = v0.8.0
+}}
+
+'''Quicksilver''' is a material extracted from cinnabar (and, occasionally, gold ore) in a [[Macerator]]. It has no use yet — recipes that consume it are coming soon.
+
+== Obtaining ==
+
+=== Grinding ===
+
+The [[Macerator]] grinds cinnabar and its variants into Quicksilver ''(Minecraft 26.2 and newer)''. Higher-volume blocks yield more:
+
+{{Grinding|head=1 |Input=Cinnabar |Output=Quicksilver,4}}
+{{Grinding |Input=Polished Cinnabar |Output=Quicksilver,4}}
+{{Grinding |Input=Cinnabar Stairs |Output=Quicksilver,4}}
+{{Grinding |Input=Cinnabar Wall |Output=Quicksilver,4}}
+{{Grinding |foot=1 |Input=Cinnabar Slab |Output=Quicksilver,2}}
+
+Quicksilver also drops as a 10% byproduct when grinding [[Gold Dust|gold ore]].
+
+== Usage ==
+
+Quicksilver currently has no crafting uses. It is reserved for an upcoming feature.
+
+== Data values ==
+
+=== ID ===
+
+{{ID|head=1|foot=1|logistics:core/quicksilver|item.logistics.core.quicksilver}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.8.0|[[File:Grid Quicksilver.png|32px]] Added '''Quicksilver'''.}}
+
+== See also ==
+
+* [[Macerator]] - Produces Quicksilver
+* [[Gold Dust]] - Shares the gold-ore grind
+* [[Materials]] - Material overview
+
+[[Category:Materials]]

@@ -4,11 +4,15 @@
 * '''[[Laser Quarry]]''' - Automatically mines the area below, requires RF power; default 16×16 or a custom area marked out with the [[Marker]] tool
 
 ==Processing==
-* '''[[Macerator]]''' - Grinds items into dust; 70+ recipes covering ores, plants, and dyes
+* '''[[Macerator]]''' - Grinds items into dust; ores (with chance byproducts), recycling, and dyes
 * '''[[Kiln]]''' - RF-powered electric furnace; smelts any vanilla smelting recipe (no fuel — uses RF), with recipe-book GUI
+* '''[[Sawmill]]''' - Cuts logs and wooden items into planks, yielding [[Sawdust]]
+
+==Power==
+* '''[[Power Junction]]''' - Feeds RF from cables or a [[Battery]] into a [[Logistics Pipes|logistics network]]
 
 ==See Also==
-* [[Machine Core]] - Required component for all machines
+* [[Machine Frame]], [[Redstone Reception Coil]] - Shared components for all machines
 * [[Energy]] - RF engines for machines
 * [[Pipes]] - Collecting machine output
 * [[Materials#Valves|Valves]] - Crafted using Quartz Crystal from the Macerator/Kiln chain

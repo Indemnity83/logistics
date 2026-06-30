@@ -57,7 +57,7 @@ A block of apatite stores apatite compactly. It can be unpacked back into nine g
 
 == History ==
 
-{{History|head=1|foot=1|v0.2.0|Added '''Block of Apatite'''.}}
+{{History|head=1|foot=1|v0.2.0|[[File:Grid Apatite Block.png|32px]] Added '''Block of Apatite'''.}}
 
 == See also ==
 

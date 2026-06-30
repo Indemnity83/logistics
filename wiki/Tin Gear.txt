@@ -5,11 +5,15 @@
 |added     = v0.1.0
 }}
 
-'''Tin Gear''' is a crafting component in the [[Gears|gear]] progression — each gear is crafted from four of its tier material around the previous gear.
+''The Tin Gear was removed in v0.8.0 and can no longer be obtained. This page is kept for historical reference.''
+
+The '''Tin Gear''' was a crafting component in the [[Gears|gear]] progression, crafted from four tin ingots around a [[Copper Gear]]. The gear chain now runs straight from the Copper Gear to the [[Iron Gear]].
 
 == Obtaining ==
 
 === Crafting ===
+
+It was crafted from four [[Tin Ingot|tin ingots]] around a [[Copper Gear]]:
 
 {{Crafting|head=1|foot=1
 |showname=0
@@ -27,7 +31,8 @@
 
 == History ==
 
-{{History|head=1|foot=1|v0.1.0|Added '''Tin Gear'''.}}
+{{History|head=1|v0.1.0|[[File:Grid Tin Gear.png|32px]] Added '''Tin Gear'''.}}
+{{History|foot=1|v0.8.0|Removed '''Tin Gear'''. The gear chain now runs from [[Copper Gear]] straight to [[Iron Gear]].}}
 
 == See also ==
 

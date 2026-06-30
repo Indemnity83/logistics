@@ -1,0 +1,48 @@
+{{Item
+|image     = Grid Redstone Reception Coil.png
+|type      = Item (Component)
+|stackable = Yes (64)
+|added     = v0.8.0
+}}
+
+The '''Redstone Reception Coil''' enables energy to be taken in and stored by [[Machines]].
+
+== Obtaining ==
+
+=== Crafting ===
+
+{{Crafting|head=1|foot=1|showname=0
+|B1=Redstone
+|B2=Gold Ingot
+|B3=Redstone
+|Output=Redstone Reception Coil
+}}
+
+== Usage ==
+
+Every machine recipe uses one Redstone Reception Coil in the bottom-centre slot, alongside a [[Machine Frame]] and a pair of gears:
+
+* [[Kiln]]
+* [[Macerator]]
+* [[Sawmill]]
+* [[Laser Quarry]]
+* [[Fluid Pump]]
+* [[Power Junction]]
+
+== Data values ==
+
+=== ID ===
+
+{{ID|head=1|foot=1|logistics:core/redstone_reception_coil|item.logistics.core.redstone_reception_coil}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.8.0|[[File:Grid Redstone Reception Coil.png|32px]] Added '''Redstone Reception Coil'''.}}
+
+== See also ==
+
+* [[Machine Frame]] - The other shared machine component
+* [[Machines]] - Machines that use the coil
+* [[Materials]] - Material overview
+
+[[Category:Materials]]

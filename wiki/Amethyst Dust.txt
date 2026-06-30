@@ -37,7 +37,7 @@
 
 == History ==
 
-{{History|head=1|foot=1|v0.2.0|Added '''Amethyst Dust'''.}}
+{{History|head=1|foot=1|v0.2.0|[[File:Grid Amethyst Dust.png|32px]] Added '''Amethyst Dust'''.}}
 
 == See also ==
 
