@@ -1,6 +1,6 @@
 {
   "type": "logistics:sawmill",
-  "ingredient": "minecraft:potato",
+  "ingredient": "minecraft:large_fern",
   "count": 4,
   "result": { "id": "logistics:core/pulped_biomass", "count": 1 },
   "energy": 2000

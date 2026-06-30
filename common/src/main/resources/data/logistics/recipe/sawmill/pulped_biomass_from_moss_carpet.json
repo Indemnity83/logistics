@@ -1,6 +1,6 @@
 {
   "type": "logistics:sawmill",
-  "ingredient": "minecraft:bamboo",
+  "ingredient": "minecraft:moss_carpet",
   "count": 8,
   "result": { "id": "logistics:core/pulped_biomass", "count": 1 },
   "energy": 2000
