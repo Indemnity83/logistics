@@ -1,0 +1,11 @@
+{
+  "type": "logistics:alloy_smelter",
+  "input_a": "minecraft:raw_gold",
+  "count_a": 1,
+  "input_b": ["minecraft:sand", "minecraft:red_sand"],
+  "count_b": 1,
+  "result": { "id": "minecraft:gold_ingot", "count": 2 },
+  "byproduct": { "id": "logistics:core/rich_slag", "chance": 0.2 },
+  "energy": 4000,
+  "experience": 0.6
+}
