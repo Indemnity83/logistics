@@ -1,0 +1,7 @@
+{
+  "type": "logistics:alloy_smelter",
+  "ingredients": [ "#c:ores/tin", "logistics:core/quicksilver" ],
+  "result": { "id": "logistics:core/tin_ingot", "count": 3 },
+  "byproduct": { "id": "minecraft:iron_ingot", "chance": 1.0 },
+  "energy": 4000
+}
