@@ -36,10 +36,11 @@ public final class FabricBiomeModifications {
             ResourceKey.create(Registries.PLACED_FEATURE, LogisticsMod.modId("apatite_ore_stone").toIdentifier())
         );
 
-        // Bog earth: generates at swamp water edges (matches the NeoForge biome modifier on #c:is_swamp)
+        // Bog earth: clay-style disks on the submerged swamp floor (matches the NeoForge biome modifier
+        // on #c:is_swamp; same step as vanilla's disk_clay/disk_grass)
         BiomeModifications.addFeature(
             BiomeSelectors.tag(TagKey.create(Registries.BIOME, ResourceId.in("c", "is_swamp").toIdentifier())),
-            GenerationStep.Decoration.VEGETAL_DECORATION,
+            GenerationStep.Decoration.UNDERGROUND_ORES,
             ResourceKey.create(Registries.PLACED_FEATURE, LogisticsMod.modId("bog_earth").toIdentifier())
         );
     }

@@ -1,8 +1,15 @@
 {
-  "type": "logistics:bog_earth",
+  "type": "minecraft:disk",
   "config": {
-    "spread_chance": 0.25,
-    "max_count": 24,
-    "plant_radius": 4
+    "half_height": 2,
+    "radius": { "type": "minecraft:uniform", "min_inclusive": 2, "max_inclusive": 4 },
+    "state_provider": {
+      "type": "minecraft:simple_state_provider",
+      "state": { "Name": "logistics:core/bog_earth" }
+    },
+    "target": {
+      "type": "minecraft:matching_blocks",
+      "blocks": [ "minecraft:dirt", "minecraft:grass_block", "minecraft:mud" ]
+    }
   }
 }
