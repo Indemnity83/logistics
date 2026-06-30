@@ -104,6 +104,8 @@ public class AlloySmelterBlockEntity extends MachineEntity {
         if (!(level instanceof ServerLevel serverLevel)) {
             return true; // permissive during load / on the client; validated again on the server tick
         }
+        // recipeMap().byType() is NeoForge-patched-only, so loader-agnostic common code scans the full
+        // recipe set and filters by type.
         for (RecipeHolder<?> holder : serverLevel.getServer().getRecipeManager().getRecipes()) {
             if (holder.value() instanceof AlloySmelterRecipe recipe && recipe.acceptsAsInput(stack)) {
                 return true;
