@@ -1,0 +1,9 @@
+{
+  "type": "logistics:alloy_smelter",
+  "ingredients": [
+    { "id": "minecraft:copper_ingot", "count": 3 },
+    "#c:ingots/tin"
+  ],
+  "result": { "id": "logistics:core/bronze_ingot", "count": 4 },
+  "energy": 4000
+}
