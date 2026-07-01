@@ -1,0 +1,12 @@
+{
+  "type": "logistics:sawmill",
+  "ingredient": {
+    "item": "minecraft:pale_moss_carpet"
+  },
+  "count": 8,
+  "result": {
+    "id": "logistics:core/pulped_biomass",
+    "count": 1
+  },
+  "energy": 2000
+}

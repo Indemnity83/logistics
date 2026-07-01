@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "logistics:core/pulped_biomass"
+    },
+    {
+      "item": "logistics:core/pulped_biomass"
+    },
+    {
+      "item": "logistics:core/slag"
+    },
+    {
+      "item": "logistics:core/slag"
+    }
+  ],
+  "result": {
+    "id": "minecraft:dirt",
+    "count": 1
+  }
+}

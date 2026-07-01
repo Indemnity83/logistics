@@ -1,0 +1,12 @@
+{
+  "type": "logistics:sawmill",
+  "ingredient": {
+    "item": "minecraft:melon_slice"
+  },
+  "count": 6,
+  "result": {
+    "id": "logistics:core/pulped_biomass",
+    "count": 1
+  },
+  "energy": 2000
+}

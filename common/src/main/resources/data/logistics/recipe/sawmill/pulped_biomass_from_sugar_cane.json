@@ -1,0 +1,16 @@
+{
+  "type": "logistics:sawmill",
+  "ingredient": {
+    "item": "minecraft:sugar_cane"
+  },
+  "count": 6,
+  "result": {
+    "id": "logistics:core/pulped_biomass",
+    "count": 1
+  },
+  "byproduct": {
+    "id": "minecraft:sugar",
+    "chance": 2.0
+  },
+  "energy": 2000
+}

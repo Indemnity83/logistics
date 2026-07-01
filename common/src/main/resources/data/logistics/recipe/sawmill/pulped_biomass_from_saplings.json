@@ -1,0 +1,16 @@
+{
+  "type": "logistics:sawmill",
+  "ingredient": {
+    "tag": "minecraft:saplings"
+  },
+  "count": 8,
+  "result": {
+    "id": "logistics:core/pulped_biomass",
+    "count": 1
+  },
+  "byproduct": {
+    "id": "logistics:core/sawdust",
+    "chance": 0.5
+  },
+  "energy": 2000
+}

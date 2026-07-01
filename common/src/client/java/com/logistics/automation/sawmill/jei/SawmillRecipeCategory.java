@@ -92,14 +92,13 @@ public class SawmillRecipeCategory implements IRecipeCategory<SawmillRecipe> {
         builder.addSlot(RecipeIngredientRole.OUTPUT, OUTPUT_X, OUTPUT_Y)
             .addItemStack(recipe.getResultItem());
 
-        ItemStack byproduct = recipe.byproduct().stack(1);
-        if (!byproduct.isEmpty()) {
-            float pct = recipe.byproduct().chance() * 100f;
+        recipe.byproduct().ifPresent(bp -> {
+            float pct = bp.chance() * 100f;
             String pctStr = pct == Math.rint(pct) ? String.valueOf((int) pct) : String.format("%.1f", pct);
             builder.addSlot(RecipeIngredientRole.OUTPUT, BYPRODUCT_X, BYPRODUCT_Y)
-                .addItemStack(byproduct)
+                .addItemStack(bp.stack(1))
                 .addRichTooltipCallback((view, tooltip) ->
                     tooltip.add(Component.translatable("jei.logistics.sawmill.byproduct_chance", pctStr)));
-        }
+        });
     }
 }
