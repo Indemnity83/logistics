@@ -3,6 +3,9 @@ package com.logistics.automation.crucible;
 import com.logistics.LogisticsMod;
 import com.logistics.core.lib.client.render.FluidBoxRenderer;
 import com.logistics.core.lib.resource.ResourceId;
+import java.util.List;
+import java.util.Optional;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.RenderPipelines;
@@ -52,22 +55,35 @@ public class MagmaCrucibleScreen extends AbstractContainerScreen<MagmaCrucibleSc
         hoverTooltip(graphics, mouseX, mouseY, TANK_LEFT, TANK_TOP, TANK_WIDTH, TANK_HEIGHT, tankTooltip());
     }
 
-    /** Shows {@code text} as a tooltip while the mouse is within the given screen-local rect. */
-    private void hoverTooltip(GuiGraphicsExtractor graphics, int mouseX, int mouseY, int x, int y, int w, int h, Component text) {
+    /** Shows {@code lines} as a tooltip while the mouse is within the given screen-local rect. */
+    private void hoverTooltip(GuiGraphicsExtractor graphics, int mouseX, int mouseY, int x, int y, int w, int h, List<Component> lines) {
         if (mouseX >= leftPos + x && mouseX < leftPos + x + w && mouseY >= topPos + y && mouseY < topPos + y + h) {
-            graphics.setTooltipForNextFrame(text, mouseX, mouseY);
+            graphics.setTooltipForNextFrame(this.font, lines, Optional.empty(), mouseX, mouseY);
         }
     }
 
-    private Component tankTooltip() {
+    /** Vanilla item-style tank tooltip: fluid name, then amount, then the mod name in blue italic. */
+    private List<Component> tankTooltip() {
         int fluidId = menu.getTankFluidId();
         int amountMb = menu.getTankAmountMb();
         if (fluidId < 0 || amountMb <= 0) {
-            return Component.translatable("tooltip.logistics.fluid.tank_empty");
+            return List.of(Component.translatable("tooltip.logistics.fluid.tank_empty"));
         }
         Fluid fluid = BuiltInRegistries.FLUID.byId(fluidId);
-        return Component.translatable(
-            "tooltip.logistics.fluid.tank_contents", fluidName(fluid), amountMb, menu.getTankCapacityMb());
+        var id = BuiltInRegistries.FLUID.getKey(fluid);
+        Component amount = Component.translatable(
+                        "tooltip.logistics.fluid.tank_amount", amountMb, menu.getTankCapacityMb())
+                .withStyle(ChatFormatting.GRAY);
+        Component mod = Component.literal(modName(id.getNamespace()))
+                .withStyle(ChatFormatting.BLUE, ChatFormatting.ITALIC);
+        return List.of(fluidName(fluid), amount, mod);
+    }
+
+    /** Best-effort friendly mod name from a namespace (first letter capitalised). */
+    private static String modName(String namespace) {
+        return namespace.isEmpty()
+                ? namespace
+                : Character.toUpperCase(namespace.charAt(0)) + namespace.substring(1);
     }
 
     /** A fluid's display name: its world block's name, or an id-derived key for block-less fluids. */

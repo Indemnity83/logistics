@@ -42,6 +42,7 @@
   "tooltip.logistics.fluid.tank_capacity": "Holds %s buckets",
   "tooltip.logistics.fluid.tank_empty": "Empty",
   "tooltip.logistics.fluid.tank_contents": "%1$s: %2$s / %3$s mB",
+  "tooltip.logistics.fluid.tank_amount": "%1$s / %2$s mB",
   "tooltip.logistics.fluid.copper_fluid_pipe": "Transfers fluid between tanks and machines",
   "tooltip.logistics.fluid.stone_fluid_pipe": "Transfers fluid slowly between tanks and machines",
   "tooltip.logistics.fluid.gold_fluid_pipe": "Transfers fluid quickly between tanks and machines",
