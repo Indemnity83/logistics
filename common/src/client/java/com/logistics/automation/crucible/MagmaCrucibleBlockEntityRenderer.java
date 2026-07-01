@@ -11,7 +11,9 @@ import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.phys.Vec3;
 
 /**
@@ -62,6 +64,12 @@ public class MagmaCrucibleBlockEntityRenderer
             return;
         }
 
+        // Light the gauge from the exposed neighbour in front of the face (packed sky<<20 | block<<4).
+        BlockPos facePos = entity.getBlockPos().relative(state.facing);
+        int sky = level.getBrightness(LightLayer.SKY, facePos);
+        int block = level.getBrightness(LightLayer.BLOCK, facePos);
+        state.faceLight = (sky << 20) | (block << 4);
+
         FluidBoxRenderer.Appearance appearance =
                 FluidBoxRenderer.resolve(tank.getFluidKey().getFluid(), level, entity.getBlockPos());
         if (appearance == null) {
@@ -81,7 +89,7 @@ public class MagmaCrucibleBlockEntityRenderer
         }
         TextureAtlasSprite sprite = state.sprite;
         int color = FluidBoxRenderer.opaque(state.tintColor);
-        int light = state.lightCoords;
+        int light = state.faceLight;
         float top = Y_BOTTOM + Math.min(1.0F, state.fillRatio) * (Y_TOP - Y_BOTTOM);
         // Rotate the north-default window onto the block's facing (matches the blockstate y-rotation).
         float angle = (state.facing.toYRot() + 180.0F) % 360.0F;
