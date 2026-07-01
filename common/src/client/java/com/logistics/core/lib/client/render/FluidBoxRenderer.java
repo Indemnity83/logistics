@@ -11,6 +11,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.Fluids;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -21,6 +22,9 @@ import org.jetbrains.annotations.Nullable;
 public final class FluidBoxRenderer {
 
     private FluidBoxRenderer() {}
+
+    /** Vanilla default (biome-less) water colour, used where no biome is available to tint against. */
+    private static final int DEFAULT_WATER_TINT = 0xFF3F76E4;
 
     /** The still sprite and ARGB tint for a fluid; {@code tint} is opaque white when untinted. */
     public record Appearance(TextureAtlasSprite sprite, int tint) {}
@@ -42,9 +46,10 @@ public final class FluidBoxRenderer {
     }
 
     /**
-     * Resolve a fluid's still sprite and a world-independent tint for GUI rendering. Uses the tint
-     * source's default {@link net.minecraft.client.color.block.BlockTintSource#color color} (biome-less),
-     * so grayscale fluids like water get their base colour while our baked fluids stay opaque white.
+     * Resolve a fluid's still sprite and a biome-less tint for GUI rendering, where no world is available
+     * to sample. Water uses the vanilla default water colour (its world-independent tint is neutral on
+     * NeoForge); other fluids fall back to their model tint (our baked fluids stay opaque white). In-world
+     * renderers should use {@link #resolve(Fluid, Level, BlockPos)} instead for a biome-accurate tint.
      */
     @Nullable
     public static Appearance resolveForGui(Fluid fluid) {
@@ -54,17 +59,15 @@ public final class FluidBoxRenderer {
         if (sprite == null) {
             return null;
         }
-        var tintSource = model.tintSource();
-        if (tintSource == null) {
-            return new Appearance(sprite, 0xFFFFFFFF);
+        // Water is biome-tinted in-world, but there's no biome here (and NeoForge's world-independent
+        // tint is neutral), so use the vanilla default water colour — reads blue on both loaders. Other
+        // fluids fall back to their model tint (our custom fluids are untinted).
+        if (fluid == Fluids.WATER || fluid == Fluids.FLOWING_WATER) {
+            return new Appearance(sprite, DEFAULT_WATER_TINT);
         }
-        // The world-independent color() is neutral for water on NeoForge, so tint against the player's
-        // surroundings (they're standing at the machine) to get the biome water colour on both loaders.
-        Minecraft mc = Minecraft.getInstance();
-        int tint = mc.level != null && mc.player != null
-                ? tintSource.colorInWorld(fluidState.createLegacyBlock(), mc.level, mc.player.blockPosition())
-                : tintSource.color(fluidState.createLegacyBlock());
-        return new Appearance(sprite, opaque(tint));
+        var tintSource = model.tintSource();
+        int tint = tintSource != null ? opaque(tintSource.color(fluidState.createLegacyBlock())) : 0xFFFFFFFF;
+        return new Appearance(sprite, tint);
     }
 
     /** Forces an ARGB colour opaque (some tint sources omit alpha). */
