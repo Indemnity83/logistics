@@ -129,6 +129,10 @@ jobs:
           # Matches the runtime SDK's release: "logistics@" + modVersion (one per loader jar).
           release: logistics@${{ steps.version.outputs.full_version }}
           set_commits: auto
+          # One Sentry project spans all four mc/* branches, so set_commits:auto's
+          # previous release can live on a sibling branch whose commit isn't in this
+          # branch's history. Degrade to default commit count instead of failing.
+          ignore_missing: true
           finalize: true
           environment: production
 
