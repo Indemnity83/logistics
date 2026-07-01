@@ -41,6 +41,24 @@ public final class FluidBoxRenderer {
         return new Appearance(sprite, tint);
     }
 
+    /**
+     * Resolve a fluid's still sprite and a world-independent tint for GUI rendering. Uses the tint
+     * source's default {@link net.minecraft.client.color.block.BlockTintSource#color color} (biome-less),
+     * so grayscale fluids like water get their base colour while our baked fluids stay opaque white.
+     */
+    @Nullable
+    public static Appearance resolveForGui(Fluid fluid) {
+        FluidState fluidState = fluid.defaultFluidState();
+        FluidModel model = Minecraft.getInstance().getModelManager().getFluidStateModelSet().get(fluidState);
+        TextureAtlasSprite sprite = model.stillMaterial().sprite();
+        if (sprite == null) {
+            return null;
+        }
+        var tintSource = model.tintSource();
+        int tint = tintSource != null ? opaque(tintSource.color(fluidState.createLegacyBlock())) : 0xFFFFFFFF;
+        return new Appearance(sprite, tint);
+    }
+
     /** Forces an ARGB colour opaque (some tint sources omit alpha). */
     public static int opaque(int color) {
         return (color & 0xFF000000) == 0 ? color | 0xFF000000 : color;
