@@ -43,5 +43,22 @@ public final class FabricBiomeModifications {
             GenerationStep.Decoration.UNDERGROUND_ORES,
             ResourceKey.create(Registries.PLACED_FEATURE, LogisticsMod.modId("bog_earth").toIdentifier())
         );
+
+        // Oil deposits (matches the NeoForge biome modifiers): oil sand in the surface sand of deserts +
+        // badlands; oil shale in underground gravel across the dry biomes. block_match keeps each vein to
+        // its host material, so the biome tags just gate where it can appear.
+        var isDesert = TagKey.create(Registries.BIOME, ResourceId.in("c", "is_desert").toIdentifier());
+        var isBadlands = TagKey.create(Registries.BIOME, ResourceId.in("c", "is_badlands").toIdentifier());
+        var isSavanna = TagKey.create(Registries.BIOME, ResourceId.in("c", "is_savanna").toIdentifier());
+        BiomeModifications.addFeature(
+            BiomeSelectors.tag(isDesert).or(BiomeSelectors.tag(isBadlands)),
+            GenerationStep.Decoration.UNDERGROUND_ORES,
+            ResourceKey.create(Registries.PLACED_FEATURE, LogisticsMod.modId("oil_sand").toIdentifier())
+        );
+        BiomeModifications.addFeature(
+            BiomeSelectors.tag(isDesert).or(BiomeSelectors.tag(isBadlands)).or(BiomeSelectors.tag(isSavanna)),
+            GenerationStep.Decoration.UNDERGROUND_ORES,
+            ResourceKey.create(Registries.PLACED_FEATURE, LogisticsMod.modId("oil_shale").toIdentifier())
+        );
     }
 }
