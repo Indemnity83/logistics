@@ -41,6 +41,26 @@ public final class LogisticsFluid extends LogisticsMod {
         return INSTANCE.domainModelResource(name);
     }
 
+    /**
+     * A custom fluid produced by the Magma Crucible, identified by name and rendered as tinted water.
+     * ARGB {@code tint} (alpha 0xFF) is applied over the vanilla water still/flow textures.
+     */
+    public record FluidDef(String name, int tint) {}
+
+    /**
+     * The custom fluids. They exist only as tank / pipe / bucket contents (no world block). Each is
+     * registered per loader under {@code logistics:<name>} (source) and {@code logistics:flowing_<name>}
+     * — Fabric extends {@code FlowingFluid} + a render handler; NeoForge uses {@code BaseFlowingFluid} +
+     * a {@code FluidType} with client extensions. Common code references them by id through
+     * {@code BuiltInRegistries.FLUID}.
+     */
+    public static final List<FluidDef> CUSTOM_FLUIDS = List.of(
+        new FluidDef("liquid_redstone", 0xFFC50000),
+        new FluidDef("liquid_ender", 0xFF167E6C),
+        new FluidDef("liquid_glowstone", 0xFFFFCC00),
+        new FluidDef("crude_oil", 0xFF1A1512),
+        new FluidDef("liquid_biomass", 0xFF8CC63F));
+
     /** Register all fluid blocks, block entities, and creative entries. Called by the pipe domain bootstrap. */
     public static void registerCommon() {
         LOGGER.info("Registering {}", INSTANCE.domain());

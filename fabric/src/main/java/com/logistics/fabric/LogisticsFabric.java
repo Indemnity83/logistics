@@ -25,6 +25,7 @@ public final class LogisticsFabric implements ModInitializer {
     @Override
     public void onInitialize() {
         LogisticsMod.LOGGER.info("Initializing {}", LogisticsMod.MOD_ID);
+        com.logistics.fabric.fluids.FabricFluids.register();
         COMMON_BOOTSTRAP.initialize();
 
         registerEnergyServices();
