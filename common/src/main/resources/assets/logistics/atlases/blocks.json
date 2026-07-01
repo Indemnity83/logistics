@@ -1,0 +1,6 @@
+{
+  "sources": [
+    { "type": "minecraft:single", "resource": "logistics:block/fluid/glowstone_still" },
+    { "type": "minecraft:single", "resource": "logistics:block/fluid/glowstone_flow" }
+  ]
+}

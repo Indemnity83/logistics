@@ -37,26 +37,27 @@ public final class LogisticsFluidClient {
         registerFluidRenderers();
     }
 
-    /** Renders each custom fluid as vanilla water (still + flow) with a flat per-fluid tint. */
+    /** Renders each custom fluid from its own still/flow sprites with a flat per-fluid tint. */
     private static void registerFluidRenderers() {
-        Material still = waterMaterial("block/water_still");
-        Material flow = waterMaterial("block/water_flow");
-        Material overlay = waterMaterial("block/water_overlay");
-
-        Map<String, Integer> tints = new HashMap<>();
+        Map<String, LogisticsFluid.FluidDef> defs = new HashMap<>();
         for (LogisticsFluid.FluidDef def : LogisticsFluid.CUSTOM_FLUIDS) {
-            tints.put(def.name(), def.tint());
+            defs.put(def.name(), def);
         }
 
         FabricFluids.sources().forEach((name, source) -> {
+            LogisticsFluid.FluidDef def = defs.get(name);
+            Material overlay = def.overlay() != null ? material(def.overlay()) : null;
             FluidModel.Unbaked model = new FluidModel.Unbaked(
-                    still, flow, overlay, BlockTintSources.constant(tints.get(name) & 0xFFFFFF));
+                    material(def.still()), material(def.flow()), overlay,
+                    BlockTintSources.constant(def.tint() & 0xFFFFFF));
             FluidRenderingRegistry.register(source, source.getFlowing(), model);
         });
     }
 
-    private static Material waterMaterial(String texture) {
-        Identifier id = ResourceId.in("minecraft", texture).toIdentifier();
+    /** Builds a sprite material from a {@code "namespace:path"} texture id. */
+    private static Material material(String texture) {
+        int colon = texture.indexOf(':');
+        Identifier id = ResourceId.in(texture.substring(0, colon), texture.substring(colon + 1)).toIdentifier();
         return new Material(id);
     }
 }

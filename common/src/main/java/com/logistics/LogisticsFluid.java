@@ -42,10 +42,19 @@ public final class LogisticsFluid extends LogisticsMod {
     }
 
     /**
-     * A custom fluid produced by the Magma Crucible, identified by name and rendered as tinted water.
-     * ARGB {@code tint} (alpha 0xFF) is applied over the vanilla water still/flow textures.
+     * A custom fluid produced by the Magma Crucible. Rendered as its {@code still}/{@code flow} sprites
+     * with a flat ARGB {@code tint} (alpha 0xFF) applied over them; {@code overlay} may be null. Most
+     * fluids reuse the vanilla water textures ({@link #water}); glowstone uses a desaturated lava base
+     * so it reads as molten.
      */
-    public record FluidDef(String name, int tint) {}
+    public record FluidDef(String name, int tint, String still, String flow, String overlay) {
+
+        /** A fluid drawn as tinted vanilla water. */
+        public static FluidDef water(String name, int tint) {
+            return new FluidDef(name, tint,
+                "minecraft:block/water_still", "minecraft:block/water_flow", "minecraft:block/water_overlay");
+        }
+    }
 
     /**
      * The custom fluids. They exist only as tank / pipe / bucket contents (no world block). Each is
@@ -55,11 +64,12 @@ public final class LogisticsFluid extends LogisticsMod {
      * {@code BuiltInRegistries.FLUID}.
      */
     public static final List<FluidDef> CUSTOM_FLUIDS = List.of(
-        new FluidDef("liquid_redstone", 0xFFE62008),
-        new FluidDef("liquid_ender", 0xFF105E51),
-        new FluidDef("liquid_glowstone", 0xFFB47140),
-        new FluidDef("crude_oil", 0xFF353535),
-        new FluidDef("liquid_biomass", 0xFF98F01C));
+        FluidDef.water("liquid_redstone", 0xFFE62008),
+        FluidDef.water("liquid_ender", 0xFF105E51),
+        new FluidDef("liquid_glowstone", 0xFFFFC24E,
+            "logistics:block/fluid/glowstone_still", "logistics:block/fluid/glowstone_flow", null),
+        FluidDef.water("crude_oil", 0xFF353535),
+        FluidDef.water("liquid_biomass", 0xFF98F01C));
 
     /** Register all fluid blocks, block entities, and creative entries. Called by the pipe domain bootstrap. */
     public static void registerCommon() {
