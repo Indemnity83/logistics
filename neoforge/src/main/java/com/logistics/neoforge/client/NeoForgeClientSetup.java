@@ -32,13 +32,20 @@ import com.logistics.power.render.CableBlockEntityRenderer;
 import com.logistics.power.render.EngineHeatTintSource;
 import com.logistics.power.screen.StirlingEngineScreen;
 import com.logistics.neoforge.client.render.NeoForgeEngineBlockEntityRenderer;
+import com.logistics.neoforge.fluids.NeoForgeFluids;
+import com.logistics.core.lib.resource.ResourceId;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import net.minecraft.client.Minecraft;
+import net.minecraft.resources.Identifier;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.client.network.event.RegisterClientPayloadHandlersEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
+import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
+import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
@@ -51,6 +58,39 @@ public final class NeoForgeClientSetup {
         modBus.addListener(NeoForgeClientSetup::registerRenderers);
         modBus.addListener(NeoForgeClientSetup::registerBlockColors);
         modBus.addListener(NeoForgeClientSetup::registerClientPayloadHandlers);
+        modBus.addListener(NeoForgeClientSetup::registerFluidExtensions);
+    }
+
+    /** Supplies each custom fluid's still/flow textures + flat tint to NeoForge's fluid renderer. */
+    private static void registerFluidExtensions(RegisterClientExtensionsEvent event) {
+        Map<String, LogisticsCore.FluidDef> defs = new HashMap<>();
+        for (LogisticsCore.FluidDef def : LogisticsCore.CUSTOM_FLUIDS) {
+            defs.put(def.name(), def);
+        }
+        NeoForgeFluids.types().forEach((name, type) -> {
+            LogisticsCore.FluidDef def = defs.get(name);
+            Identifier still = textureId(def.still());
+            Identifier flow = textureId(def.flow());
+            int tint = def.tint();
+            event.registerFluidType(new IClientFluidTypeExtensions() {
+                public Identifier getStillTexture() {
+                    return still;
+                }
+
+                public Identifier getFlowingTexture() {
+                    return flow;
+                }
+
+                public int getTintColor() {
+                    return tint;
+                }
+            }, type);
+        });
+    }
+
+    private static Identifier textureId(String texture) {
+        int colon = texture.indexOf(':');
+        return ResourceId.in(texture.substring(0, colon), texture.substring(colon + 1)).toIdentifier();
     }
 
     private static void onClientSetup(FMLClientSetupEvent event) {
