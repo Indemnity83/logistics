@@ -87,8 +87,8 @@ public final class NeoForgeCapabilityRegistration {
         // Glass tanks expose their whole vertical column as a fluid handler.
         registerFluids(event, LogisticsFluid.ENTITY.GLASS_TANK_BLOCK_ENTITY);
         registerFluids(event, LogisticsFluid.ENTITY.FLUID_PUMP_BLOCK_ENTITY);
-        // Magma Crucible exposes its output tank as a fluid handler so pipes can pull the product.
-        registerFluids(event, LogisticsAutomation.ENTITY.MAGMA_CRUCIBLE_BLOCK_ENTITY);
+        // Crucible exposes its output tank as a fluid handler so pipes can pull the product.
+        registerFluids(event, LogisticsAutomation.ENTITY.CRUCIBLE_BLOCK_ENTITY);
 
         // Filled buckets expose a one-bucket fluid handler that drains to a plain bucket (Fabric uses
         // FullItemFluidStorage). Empty-bucket -> filled is handled by vanilla BucketResourceHandler via the

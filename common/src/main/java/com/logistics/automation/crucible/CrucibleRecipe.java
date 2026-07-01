@@ -18,12 +18,12 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Magma Crucible recipe: an input item melted into a fluid, integrated into Minecraft's recipe system
+ * Crucible recipe: an input item melted into a fluid, integrated into Minecraft's recipe system
  * via {@link RecipeType} and {@link RecipeSerializer}. Vanilla's {@code RecipeManager} loads these by
- * their {@code logistics:magma_crucible} type. The output is a {@link FluidResult} deposited into the
+ * their {@code logistics:crucible} type. The output is a {@link FluidResult} deposited into the
  * machine's tank — there is no item result.
  */
-public class MagmaCrucibleRecipe implements Recipe<SingleRecipeInput> {
+public class CrucibleRecipe implements Recipe<SingleRecipeInput> {
 
     public static final int DEFAULT_INGREDIENT_COUNT = 1;
     public static final float DEFAULT_EXPERIENCE = 0.0f;
@@ -35,7 +35,7 @@ public class MagmaCrucibleRecipe implements Recipe<SingleRecipeInput> {
     private final float experience;
     @Nullable private PlacementInfo placementInfo;
 
-    public MagmaCrucibleRecipe(
+    public CrucibleRecipe(
             Ingredient ingredient, int ingredientCount, FluidResult result, int energyRequired, float experience) {
         if (energyRequired <= 0) {
             throw new IllegalArgumentException("energyRequired must be positive, got " + energyRequired);
@@ -95,13 +95,13 @@ public class MagmaCrucibleRecipe implements Recipe<SingleRecipeInput> {
     }
 
     @Override
-    public @NotNull RecipeSerializer<MagmaCrucibleRecipe> getSerializer() {
-        return MagmaCrucibleRecipeSerializer.INSTANCE;
+    public @NotNull RecipeSerializer<CrucibleRecipe> getSerializer() {
+        return CrucibleRecipeSerializer.INSTANCE;
     }
 
     @Override
-    public @NotNull RecipeType<MagmaCrucibleRecipe> getType() {
-        return LogisticsAutomation.RECIPE.MAGMA_CRUCIBLE_RECIPE_TYPE;
+    public @NotNull RecipeType<CrucibleRecipe> getType() {
+        return LogisticsAutomation.RECIPE.CRUCIBLE_RECIPE_TYPE;
     }
 
     @Override
@@ -124,15 +124,15 @@ public class MagmaCrucibleRecipe implements Recipe<SingleRecipeInput> {
 
     @Override
     public @NotNull RecipeBookCategory recipeBookCategory() {
-        return LogisticsAutomation.RECIPE.MAGMA_CRUCIBLE_CATEGORY;
+        return LogisticsAutomation.RECIPE.CRUCIBLE_CATEGORY;
     }
 
     @Override
     public @NotNull List<RecipeDisplay> display() {
-        return List.of(new MagmaCrucibleRecipeDisplay(
+        return List.of(new CrucibleRecipeDisplay(
             ingredient.display(),
             new SlotDisplay.ItemSlotDisplay(result.fluid().getBucket()),
-            new SlotDisplay.ItemSlotDisplay(LogisticsAutomation.BLOCK.MAGMA_CRUCIBLE.asItem()),
+            new SlotDisplay.ItemSlotDisplay(LogisticsAutomation.BLOCK.CRUCIBLE.asItem()),
             energyRequired,
             experience
         ));

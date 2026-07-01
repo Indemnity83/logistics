@@ -21,13 +21,13 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 
 /**
- * Magma Crucible: melts an input item into a fluid using RF energy.
+ * Crucible: melts an input item into a fluid using RF energy.
  *
  * <p>Composed from machine components — an energy buffer, a single input slot, a fluid tank, and an
  * RF-cost recipe processor whose recipes output a {@code FluidResult} into the tank. The recipe defines
  * the total energy required; the processor spends {@link #ENERGY_PER_TICK} RF/tick toward it.
  */
-public class MagmaCrucibleBlockEntity extends MachineEntity {
+public class CrucibleBlockEntity extends MachineEntity {
 
     static final int INPUT_SLOT = 0;
 
@@ -75,8 +75,8 @@ public class MagmaCrucibleBlockEntity extends MachineEntity {
         }
     };
 
-    public MagmaCrucibleBlockEntity(BlockPos pos, BlockState state) {
-        super(LogisticsAutomation.ENTITY.MAGMA_CRUCIBLE_BLOCK_ENTITY, pos, state);
+    public CrucibleBlockEntity(BlockPos pos, BlockState state) {
+        super(LogisticsAutomation.ENTITY.CRUCIBLE_BLOCK_ENTITY, pos, state);
     }
 
     @Override
@@ -96,7 +96,7 @@ public class MagmaCrucibleBlockEntity extends MachineEntity {
                 .build();
 
         processor = machine.recipeProcessor("processor")
-                .resolver(new MagmaCrucibleRecipeResolver())
+                .resolver(new CrucibleRecipeResolver())
                 .rfPerTick(ENERGY_PER_TICK)
                 .items(items)
                 .energy(energy)
@@ -112,8 +112,8 @@ public class MagmaCrucibleBlockEntity extends MachineEntity {
 
     private void setLit(MachineContext ctx, boolean lit) {
         BlockState state = ctx.blockState();
-        if (state.hasProperty(MagmaCrucibleBlock.LIT) && state.getValue(MagmaCrucibleBlock.LIT) != lit) {
-            ctx.setBlockState(state.setValue(MagmaCrucibleBlock.LIT, lit), Block.UPDATE_ALL);
+        if (state.hasProperty(CrucibleBlock.LIT) && state.getValue(CrucibleBlock.LIT) != lit) {
+            ctx.setBlockState(state.setValue(CrucibleBlock.LIT, lit), Block.UPDATE_ALL);
         }
     }
 
@@ -122,12 +122,12 @@ public class MagmaCrucibleBlockEntity extends MachineEntity {
         return new MenuProvider() {
             @Override
             public Component getDisplayName() {
-                return Component.translatable("container.logistics.magma_crucible");
+                return Component.translatable("container.logistics.crucible");
             }
 
             @Override
             public AbstractContainerMenu createMenu(int syncId, Inventory playerInventory, Player player) {
-                return new MagmaCrucibleScreenHandler(syncId, playerInventory, MagmaCrucibleBlockEntity.this, containerData);
+                return new CrucibleScreenHandler(syncId, playerInventory, CrucibleBlockEntity.this, containerData);
             }
         };
     }

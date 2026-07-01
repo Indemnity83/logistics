@@ -18,11 +18,11 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 
 /**
- * Client-side GUI screen for the Magma Crucible.
+ * Client-side GUI screen for the Crucible.
  */
-public class MagmaCrucibleScreen extends AbstractContainerScreen<MagmaCrucibleScreenHandler> {
+public class CrucibleScreen extends AbstractContainerScreen<CrucibleScreenHandler> {
 
-    private static final ResourceId TEXTURE = LogisticsMod.modId("textures/gui/automation/magma_crucible.png");
+    private static final ResourceId TEXTURE = LogisticsMod.modId("textures/gui/automation/crucible.png");
     private static final int TEXTURE_WIDTH = 256;
     private static final int TEXTURE_HEIGHT = 256;
 
@@ -39,7 +39,7 @@ public class MagmaCrucibleScreen extends AbstractContainerScreen<MagmaCrucibleSc
     // The overlay (glass/frame drawn over the fluid) sits 64px to the right of the tank in the texture.
     private static final int OVERLAY_U = TANK_LEFT + 64;
 
-    public MagmaCrucibleScreen(MagmaCrucibleScreenHandler handler, Inventory inventory, Component title) {
+    public CrucibleScreen(CrucibleScreenHandler handler, Inventory inventory, Component title) {
         super(handler, inventory, title);
     }
 

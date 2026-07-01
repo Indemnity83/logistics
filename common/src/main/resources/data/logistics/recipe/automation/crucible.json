@@ -8,5 +8,5 @@
     "G": "logistics:core/copper_gear",
     "C": "logistics:core/redstone_reception_coil"
   },
-  "result": { "id": "logistics:automation/magma_crucible", "count": 1 }
+  "result": { "id": "logistics:automation/crucible", "count": 1 }
 }

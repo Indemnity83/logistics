@@ -12,10 +12,10 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
 /**
- * Screen handler for the Magma Crucible GUI. One input slot (the output is a fluid tank, not an item
+ * Screen handler for the Crucible GUI. One input slot (the output is a fluid tank, not an item
  * slot) plus the player inventory, and progress/energy data synced for rendering.
  */
-public class MagmaCrucibleScreenHandler extends AbstractContainerMenu {
+public class CrucibleScreenHandler extends AbstractContainerMenu {
 
     private static final int MACHINE_SLOT_COUNT = 1;
     private static final int PLAYER_INVENTORY_START = MACHINE_SLOT_COUNT;
@@ -25,16 +25,16 @@ public class MagmaCrucibleScreenHandler extends AbstractContainerMenu {
     private final ContainerData data;
 
     /** Client-side constructor. */
-    public MagmaCrucibleScreenHandler(int syncId, Inventory playerInventory) {
+    public CrucibleScreenHandler(int syncId, Inventory playerInventory) {
         this(syncId, playerInventory, new SimpleContainer(MACHINE_SLOT_COUNT),
-                new SimpleContainerData(MagmaCrucibleBlockEntity.DATA_COUNT));
+                new SimpleContainerData(CrucibleBlockEntity.DATA_COUNT));
     }
 
     /** Server-side constructor. */
-    public MagmaCrucibleScreenHandler(int syncId, Inventory playerInventory, Container inventory, ContainerData data) {
-        super(LogisticsAutomation.MENU.MAGMA_CRUCIBLE, syncId);
+    public CrucibleScreenHandler(int syncId, Inventory playerInventory, Container inventory, ContainerData data) {
+        super(LogisticsAutomation.MENU.CRUCIBLE, syncId);
         checkContainerSize(inventory, MACHINE_SLOT_COUNT);
-        checkContainerDataCount(data, MagmaCrucibleBlockEntity.DATA_COUNT);
+        checkContainerDataCount(data, CrucibleBlockEntity.DATA_COUNT);
 
         this.inventory = inventory;
         this.data = data;
@@ -42,7 +42,7 @@ public class MagmaCrucibleScreenHandler extends AbstractContainerMenu {
         inventory.startOpen(playerInventory.player);
 
         // Input slot (0)
-        this.addSlot(new Slot(inventory, MagmaCrucibleBlockEntity.INPUT_SLOT, 56, 35));
+        this.addSlot(new Slot(inventory, CrucibleBlockEntity.INPUT_SLOT, 56, 35));
 
         // Player inventory (3 rows of 9)
         for (int row = 0; row < 3; row++) {
@@ -70,7 +70,7 @@ public class MagmaCrucibleScreenHandler extends AbstractContainerMenu {
 
             if (index >= PLAYER_INVENTORY_START) {
                 // Move from player inventory to the input slot
-                if (!this.moveItemStackTo(stack, MagmaCrucibleBlockEntity.INPUT_SLOT, MagmaCrucibleBlockEntity.INPUT_SLOT + 1, false)) {
+                if (!this.moveItemStackTo(stack, CrucibleBlockEntity.INPUT_SLOT, CrucibleBlockEntity.INPUT_SLOT + 1, false)) {
                     return ItemStack.EMPTY;
                 }
             } else {
@@ -104,19 +104,19 @@ public class MagmaCrucibleScreenHandler extends AbstractContainerMenu {
     // ==================== Data Getters for GUI Rendering ====================
 
     public int getEnergySpent() {
-        return data.get(MagmaCrucibleBlockEntity.DATA_PROGRESS);
+        return data.get(CrucibleBlockEntity.DATA_PROGRESS);
     }
 
     public int getEnergyRequired() {
-        return data.get(MagmaCrucibleBlockEntity.DATA_TOTAL);
+        return data.get(CrucibleBlockEntity.DATA_TOTAL);
     }
 
     public int getEnergyStored() {
-        return data.get(MagmaCrucibleBlockEntity.DATA_ENERGY);
+        return data.get(CrucibleBlockEntity.DATA_ENERGY);
     }
 
     public int getEnergyCapacity() {
-        return (int) MagmaCrucibleBlockEntity.ENERGY_CAPACITY;
+        return (int) CrucibleBlockEntity.ENERGY_CAPACITY;
     }
 
     public int getProgressArrowWidth() {
@@ -133,24 +133,24 @@ public class MagmaCrucibleScreenHandler extends AbstractContainerMenu {
 
     /** Registry id of the fluid in the tank, or {@code -1} when empty. */
     public int getTankFluidId() {
-        return data.get(MagmaCrucibleBlockEntity.DATA_FLUID_ID);
+        return data.get(CrucibleBlockEntity.DATA_FLUID_ID);
     }
 
     /** Tank fill as a 0..1 fraction of the tank's capacity. */
     public float getTankFillFraction() {
-        int amount = data.get(MagmaCrucibleBlockEntity.DATA_FLUID_AMOUNT);
-        long capacity = MagmaCrucibleBlockEntity.TANK_CAPACITY_MB;
+        int amount = data.get(CrucibleBlockEntity.DATA_FLUID_AMOUNT);
+        long capacity = CrucibleBlockEntity.TANK_CAPACITY_MB;
         if (amount <= 0 || capacity <= 0) return 0f;
         return Math.min(1f, amount / (float) capacity);
     }
 
     /** Current tank amount in mB. */
     public int getTankAmountMb() {
-        return data.get(MagmaCrucibleBlockEntity.DATA_FLUID_AMOUNT);
+        return data.get(CrucibleBlockEntity.DATA_FLUID_AMOUNT);
     }
 
     /** Tank capacity in mB. */
     public int getTankCapacityMb() {
-        return (int) MagmaCrucibleBlockEntity.TANK_CAPACITY_MB;
+        return (int) CrucibleBlockEntity.TANK_CAPACITY_MB;
     }
 }

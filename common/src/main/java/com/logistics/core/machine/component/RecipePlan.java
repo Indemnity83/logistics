@@ -51,7 +51,7 @@ public record RecipePlan(
         this(energyRequired, new int[] {inputCount}, result, byproducts, experience, null);
     }
 
-    /** Single-input, fluid-only output recipe (the magma crucible): no item result or byproducts. */
+    /** Single-input, fluid-only output recipe (the crucible): no item result or byproducts. */
     public RecipePlan(long energyRequired, int inputCount, FluidResult fluidResult, float experience) {
         this(energyRequired, new int[] {inputCount}, ItemStack.EMPTY, List.of(), experience, fluidResult);
     }

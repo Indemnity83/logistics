@@ -2,7 +2,7 @@
   "pools": [
     {
       "conditions": [{ "condition": "minecraft:survives_explosion" }],
-      "entries": [{ "name": "logistics:automation/magma_crucible", "type": "minecraft:item" }],
+      "entries": [{ "name": "logistics:automation/crucible", "type": "minecraft:item" }],
       "rolls": 1
     }
   ],

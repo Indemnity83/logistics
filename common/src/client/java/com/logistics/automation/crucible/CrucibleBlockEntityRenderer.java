@@ -23,8 +23,8 @@ import net.minecraft.world.phys.Vec3;
  * the top (pixel 4) as the tank fills. Rotated to the block facing. Being drawn on top of a solid face, it
  * shows whether or not the machine is lit, and never sees through the block.
  */
-public class MagmaCrucibleBlockEntityRenderer
-        implements BlockEntityRenderer<MagmaCrucibleBlockEntity, MagmaCrucibleRenderState> {
+public class CrucibleBlockEntityRenderer
+        implements BlockEntityRenderer<CrucibleBlockEntity, CrucibleRenderState> {
 
     // Window in the face texture: x 6..10, y 4..12 px (block-local; y measured from the block bottom).
     private static final float X0 = 6f / 16f;
@@ -35,17 +35,17 @@ public class MagmaCrucibleBlockEntityRenderer
     // solid face — visible whether lit or not, with no depth gap and no see-through above the fill line.
     private static final float Z_FACE = -0.002f;
 
-    public MagmaCrucibleBlockEntityRenderer(BlockEntityRendererProvider.Context ctx) {}
+    public CrucibleBlockEntityRenderer(BlockEntityRendererProvider.Context ctx) {}
 
     @Override
-    public MagmaCrucibleRenderState createRenderState() {
-        return new MagmaCrucibleRenderState();
+    public CrucibleRenderState createRenderState() {
+        return new CrucibleRenderState();
     }
 
     @Override
     public void extractRenderState(
-            MagmaCrucibleBlockEntity entity,
-            MagmaCrucibleRenderState state,
+            CrucibleBlockEntity entity,
+            CrucibleRenderState state,
             float tickDelta,
             Vec3 cameraPos,
             ModelFeatureRenderer.CrumblingOverlay crumblingOverlay) {
@@ -55,7 +55,7 @@ public class MagmaCrucibleBlockEntityRenderer
         long amount = tank.getAmount();
         long capacity = tank.getCapacity();
         Level level = entity.getLevel();
-        state.facing = entity.getBlockState().getValue(MagmaCrucibleBlock.FACING);
+        state.facing = entity.getBlockState().getValue(CrucibleBlock.FACING);
         state.hasFluid = amount > 0 && capacity > 0 && !tank.isEmpty() && level != null;
         state.fillRatio = state.hasFluid ? Math.min(1.0F, (float) amount / capacity) : 0.0F;
         if (!state.hasFluid) {
@@ -82,7 +82,7 @@ public class MagmaCrucibleBlockEntityRenderer
 
     @Override
     public void submit(
-            MagmaCrucibleRenderState state, PoseStack matrices, SubmitNodeCollector queue, CameraRenderState camera) {
+            CrucibleRenderState state, PoseStack matrices, SubmitNodeCollector queue, CameraRenderState camera) {
         if (!state.hasFluid || state.sprite == null || state.fillRatio <= 0.0F) {
             return;
         }

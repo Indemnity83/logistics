@@ -12,10 +12,10 @@ import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Resolves the active {@link MagmaCrucibleRecipe} for the machine's input via the vanilla
+ * Resolves the active {@link CrucibleRecipe} for the machine's input via the vanilla
  * {@code RecipeManager}, translating it into a fluid-output {@link RecipePlan}.
  */
-public final class MagmaCrucibleRecipeResolver implements RecipeResolver {
+public final class CrucibleRecipeResolver implements RecipeResolver {
 
     @Override
     @Nullable
@@ -30,9 +30,9 @@ public final class MagmaCrucibleRecipeResolver implements RecipeResolver {
             return null;
         }
         return recipeManager
-                .getRecipeFor(LogisticsAutomation.RECIPE.MAGMA_CRUCIBLE_RECIPE_TYPE, new SingleRecipeInput(input), level)
+                .getRecipeFor(LogisticsAutomation.RECIPE.CRUCIBLE_RECIPE_TYPE, new SingleRecipeInput(input), level)
                 .map(holder -> {
-                    MagmaCrucibleRecipe recipe = holder.value();
+                    CrucibleRecipe recipe = holder.value();
                     return new RecipePlan(
                             recipe.energyRequired(), recipe.ingredientCount(), recipe.result(), recipe.experience());
                 })

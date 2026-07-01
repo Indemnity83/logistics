@@ -20,14 +20,14 @@ import net.minecraft.world.level.block.state.properties.EnumProperty;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Block for the Magma Crucible: melts input items into fluids using RF energy.
+ * Block for the Crucible: melts input items into fluids using RF energy.
  */
-public class MagmaCrucibleBlock extends MachineBlock {
-    public static final MapCodec<MagmaCrucibleBlock> CODEC = simpleCodec(MagmaCrucibleBlock::new);
+public class CrucibleBlock extends MachineBlock {
+    public static final MapCodec<CrucibleBlock> CODEC = simpleCodec(CrucibleBlock::new);
     public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
     public static final BooleanProperty LIT = BlockStateProperties.LIT;
 
-    public MagmaCrucibleBlock(Properties settings) {
+    public CrucibleBlock(Properties settings) {
         super(settings);
         registerDefaultState(defaultBlockState()
             .setValue(FACING, Direction.NORTH)
@@ -54,13 +54,13 @@ public class MagmaCrucibleBlock extends MachineBlock {
     @Nullable
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-        return new MagmaCrucibleBlockEntity(pos, state);
+        return new CrucibleBlockEntity(pos, state);
     }
 
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
         return level.isClientSide() ? null
-            : createTickerHelper(type, LogisticsAutomation.ENTITY.MAGMA_CRUCIBLE_BLOCK_ENTITY, MagmaCrucibleBlockEntity::tick);
+            : createTickerHelper(type, LogisticsAutomation.ENTITY.CRUCIBLE_BLOCK_ENTITY, CrucibleBlockEntity::tick);
     }
 }
