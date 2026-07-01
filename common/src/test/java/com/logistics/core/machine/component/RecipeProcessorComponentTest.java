@@ -152,6 +152,31 @@ class RecipeProcessorComponentTest extends MinecraftTestEnvironment {
     }
 
     @Test
+    void runsFluidOnlyRecipeWithNoOutputSlot() {
+        // A crucible-style machine: input-only inventory, no output slot, empty item result.
+        Runnable noop = () -> {};
+        ItemStoreComponent items = new ItemStoreComponent(
+                "items",
+                new SlotRole[] {SlotRole.INPUT},
+                SidedLayout.furnace(new int[] {0}, new int[] {}, stack -> true),
+                noop);
+        EnergyStorageComponent energy = new EnergyStorageComponent("energy", 100_000, 100_000, 0, noop);
+        energy.energy(null).insert(100_000, false);
+        items.container().setItem(0, new ItemStack(Items.REDSTONE, 1));
+
+        RecipePlan plan = new RecipePlan(20, new int[] {1}, ItemStack.EMPTY, List.of(), 0f);
+        RecipeProcessorComponent processor = new RecipeProcessorComponent(
+                "processor", (io, ctx) -> io.input().isEmpty() ? null : plan, 10, items, energy, (ctx, lit) -> {}, noop);
+
+        FakeMachineContext ctx = new FakeMachineContext();
+        processor.serverTick(ctx); // 10
+        processor.serverTick(ctx); // 20 -> complete
+
+        // Input consumed proves the recipe ran despite having no output slot to accept an item result.
+        assertThat(items.input().isEmpty()).isTrue();
+    }
+
+    @Test
     void resetsWhenInputRemoved() {
         FakeProcessIO io = new FakeProcessIO();
         io.energy = 1_000;

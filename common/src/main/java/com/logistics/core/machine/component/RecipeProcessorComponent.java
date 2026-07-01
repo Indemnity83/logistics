@@ -307,7 +307,8 @@ public final class RecipeProcessorComponent
 
         @Override
         public boolean canAcceptOutputs(ItemStack result, List<ChanceOutput> byproducts) {
-            if (!items.canAcceptInto(0, result)) {
+            // A fluid-only machine has no item result and no output slot; skip the slot-0 check for it.
+            if (!result.isEmpty() && !items.canAcceptInto(0, result)) {
                 return false;
             }
             for (int i = 0; i < byproducts.size(); i++) {
@@ -323,7 +324,9 @@ public final class RecipeProcessorComponent
 
         @Override
         public void produceOutputs(ItemStack result, List<ItemStack> rolledByproducts) {
-            items.produceInto(0, result);
+            if (!result.isEmpty()) {
+                items.produceInto(0, result);
+            }
             for (int i = 0; i < rolledByproducts.size(); i++) {
                 items.produceInto(i + 1, rolledByproducts.get(i));
             }
