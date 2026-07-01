@@ -23,7 +23,7 @@ public class SawmillRecipeSerializer {
             .optionalFieldOf("count", SawmillRecipe.DEFAULT_INGREDIENT_COUNT)
             .forGetter(SawmillRecipe::ingredientCount),
         MachineResult.CODEC.fieldOf("result").forGetter(SawmillRecipe::result),
-        SawmillByproduct.CODEC.fieldOf("byproduct").forGetter(SawmillRecipe::byproduct),
+        SawmillByproduct.CODEC.optionalFieldOf("byproduct").forGetter(SawmillRecipe::byproduct),
         Codec.intRange(0, Integer.MAX_VALUE)
             .optionalFieldOf("energy", SawmillRecipe.DEFAULT_ENERGY)
             .forGetter(SawmillRecipe::energy)
@@ -34,7 +34,7 @@ public class SawmillRecipeSerializer {
             Ingredient.CONTENTS_STREAM_CODEC, SawmillRecipe::ingredient,
             ByteBufCodecs.VAR_INT, SawmillRecipe::ingredientCount,
             MachineResult.STREAM_CODEC, SawmillRecipe::result,
-            SawmillByproduct.STREAM_CODEC, SawmillRecipe::byproduct,
+            ByteBufCodecs.optional(SawmillByproduct.STREAM_CODEC), SawmillRecipe::byproduct,
             ByteBufCodecs.VAR_INT, SawmillRecipe::energy,
             SawmillRecipe::new
         );

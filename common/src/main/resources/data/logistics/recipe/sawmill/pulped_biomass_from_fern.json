@@ -1,0 +1,7 @@
+{
+  "type": "logistics:sawmill",
+  "ingredient": "minecraft:fern",
+  "count": 4,
+  "result": { "id": "logistics:core/pulped_biomass", "count": 1 },
+  "energy": 2000
+}
