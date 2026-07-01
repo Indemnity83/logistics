@@ -126,6 +126,7 @@ public final class MachineBuilder {
     public final class FluidBuilder {
         private final String id;
         private long capacity;
+        private boolean outputOnly;
 
         private FluidBuilder(String id) {
             this.id = id;
@@ -136,11 +137,17 @@ public final class MachineBuilder {
             return this;
         }
 
+        /** Exposes the tank to pipes as drain-only (the machine fills it internally). */
+        public FluidBuilder outputOnly() {
+            this.outputOnly = true;
+            return this;
+        }
+
         public FluidStoreComponent build() {
             if (capacity <= 0) {
                 throw new IllegalStateException("fluids(" + id + ") requires a positive capacity, got " + capacity);
             }
-            return components.add(new FluidStoreComponent(id, capacity, onChanged));
+            return components.add(new FluidStoreComponent(id, capacity, onChanged, outputOnly));
         }
     }
 

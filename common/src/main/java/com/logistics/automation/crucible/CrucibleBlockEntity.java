@@ -98,6 +98,7 @@ public class CrucibleBlockEntity extends MachineEntity {
 
         fluidStore = machine.fluids("tank")
                 .capacity(FluidUnits.mb(TANK_CAPACITY_MB))
+                .outputOnly()
                 .build();
 
         processor = machine.recipeProcessor("processor")
