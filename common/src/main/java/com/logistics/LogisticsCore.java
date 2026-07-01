@@ -135,6 +135,9 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         public static Block QUARTZ_CRYSTAL;
         public static Block MARKER;
         public static Block BOG_EARTH;
+        public static Block OIL_SAND;
+        public static Block OIL_RED_SAND;
+        public static Block OIL_SHALE;
 
         private BLOCK() {}
 
@@ -167,6 +170,14 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
             // Bog Earth — dirt-like soil that generates at swamp water edges; smelts into peat
             BOG_EARTH = INSTANCE.registerBlockWithItem("bog_earth",
                 props -> new Block(props.strength(0.5f).sound(SoundType.MUD)));
+
+            // Oil-bearing deposits — macerate into bitumen
+            OIL_SAND = INSTANCE.registerBlockWithItem("oil_sand",
+                props -> new Block(props.strength(0.5f).sound(SoundType.SAND)));
+            OIL_RED_SAND = INSTANCE.registerBlockWithItem("oil_red_sand",
+                props -> new Block(props.strength(0.5f).sound(SoundType.SAND)));
+            OIL_SHALE = INSTANCE.registerBlockWithItem("oil_shale",
+                props -> new Block(props.strength(0.6f).sound(SoundType.GRAVEL)));
         }
     }
 
@@ -391,9 +402,13 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
                 entries.insertAfter(Items.IRON_BLOCK, BLOCK.BRONZE_BLOCK);
             });
 
-            // Bog earth sits with the other soils
-            CreativeTabRegistrar.INSTANCE.modifyTab(CreativeModeTabs.NATURAL_BLOCKS, entries ->
-                entries.insertAfter(Items.MUD, BLOCK.BOG_EARTH));
+            // Bog earth and the oil deposits sit with the other natural soils and sands
+            CreativeTabRegistrar.INSTANCE.modifyTab(CreativeModeTabs.NATURAL_BLOCKS, entries -> {
+                entries.insertAfter(Items.MUD, BLOCK.BOG_EARTH);
+                entries.insertAfter(Items.SAND, BLOCK.OIL_SAND);
+                entries.insertAfter(Items.RED_SAND, BLOCK.OIL_RED_SAND);
+                entries.insertAfter(Items.GRAVEL, BLOCK.OIL_SHALE);
+            });
 
             // Add materials to Ingredients tab — all in one callback so each insertAfter/insertBefore
             // sees the items placed by earlier calls in the same invocation
