@@ -44,28 +44,26 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
 
     /**
      * A custom fluid produced by the Magma Crucible. Registered per loader under
-     * {@code logistics:core/<name>} (source) + {@code logistics:core/flowing_<name>}; rendered from its
-     * {@code still}/{@code flow} sprites with a flat ARGB {@code tint} ({@code 0xFFFFFFFF} = untinted when
-     * the color is baked into the texture). {@code overlay} may be null.
+     * {@code logistics:core/<name>} (source) + {@code logistics:core/flowing_<name>}; rendered from its own
+     * baked {@code still}/{@code flow} sprites (color + per-fluid alpha pre-applied in the texture), so the
+     * {@code tint} stays {@code 0xFFFFFFFF} (untinted). {@code overlay} may be null.
      */
     public record FluidDef(String name, int tint, String still, String flow, String overlay) {
 
-        /** A fluid drawn as tinted vanilla water. */
-        public static FluidDef water(String name, int tint) {
-            return new FluidDef(name, tint,
-                "minecraft:block/water_still", "minecraft:block/water_flow", "minecraft:block/water_overlay");
+        /** A fluid rendered from its baked textures under {@code block/core/fluid/}, untinted. */
+        public static FluidDef core(String name) {
+            String base = "logistics:block/core/fluid/" + name;
+            return new FluidDef(name, 0xFFFFFFFF, base + "_still", base + "_flow", null);
         }
     }
 
     /** The custom fluids — tank/pipe/bucket contents only (no world block). */
     public static final List<FluidDef> CUSTOM_FLUIDS = List.of(
-        FluidDef.water("liquid_redstone", 0xFFE62008),
-        FluidDef.water("liquid_ender", 0xFF105E51),
-        // color baked into the texture (lava churn mapped through the energized-glowstone palette)
-        new FluidDef("liquid_glowstone", 0xFFFFFFFF,
-            "logistics:block/fluid/glowstone_still", "logistics:block/fluid/glowstone_flow", null),
-        FluidDef.water("crude_oil", 0xFF353535),
-        FluidDef.water("liquid_biomass", 0xFF98F01C));
+        FluidDef.core("liquid_redstone"),
+        FluidDef.core("liquid_ender"),
+        FluidDef.core("liquid_glowstone"),
+        FluidDef.core("crude_oil"),
+        FluidDef.core("liquid_biomass"));
 
     @Override
     public int order() {
