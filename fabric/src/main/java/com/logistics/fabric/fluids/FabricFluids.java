@@ -1,7 +1,6 @@
 package com.logistics.fabric.fluids;
 
-import com.logistics.LogisticsFluid;
-import com.logistics.LogisticsMod;
+import com.logistics.LogisticsCore;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import net.minecraft.core.Registry;
@@ -20,13 +19,13 @@ public final class FabricFluids {
     private FabricFluids() {}
 
     public static void register() {
-        for (LogisticsFluid.FluidDef def : LogisticsFluid.CUSTOM_FLUIDS) {
+        for (LogisticsCore.FluidDef def : LogisticsCore.CUSTOM_FLUIDS) {
             String name = def.name();
             FlowingFluid[] pair = new FlowingFluid[2]; // [0] source, [1] flowing
             pair[0] = new FabricLogisticsFluid(true, () -> pair[0], () -> pair[1], () -> null);
             pair[1] = new FabricLogisticsFluid(false, () -> pair[0], () -> pair[1], () -> null);
-            Registry.register(BuiltInRegistries.FLUID, LogisticsMod.modId(name).toIdentifier(), pair[0]);
-            Registry.register(BuiltInRegistries.FLUID, LogisticsMod.modId("flowing_" + name).toIdentifier(), pair[1]);
+            Registry.register(BuiltInRegistries.FLUID, LogisticsCore.resource(name).toIdentifier(), pair[0]);
+            Registry.register(BuiltInRegistries.FLUID, LogisticsCore.resource("flowing_" + name).toIdentifier(), pair[1]);
             SOURCES.put(name, pair[0]);
         }
     }

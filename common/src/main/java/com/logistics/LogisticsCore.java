@@ -11,6 +11,7 @@ import com.logistics.core.marker.MarkerBlock;
 import com.logistics.core.marker.MarkerBlockEntity;
 import com.logistics.core.worldgen.BogPatchConfiguration;
 import com.logistics.core.worldgen.BogPatchFeature;
+import java.util.List;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
@@ -40,6 +41,31 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
     public static ResourceId model(String name) {
         return INSTANCE.domainModelResource(name);
     }
+
+    /**
+     * A custom fluid produced by the Magma Crucible. Registered per loader under
+     * {@code logistics:core/<name>} (source) + {@code logistics:core/flowing_<name>}; rendered from its
+     * {@code still}/{@code flow} sprites with a flat ARGB {@code tint} ({@code 0xFFFFFFFF} = untinted when
+     * the color is baked into the texture). {@code overlay} may be null.
+     */
+    public record FluidDef(String name, int tint, String still, String flow, String overlay) {
+
+        /** A fluid drawn as tinted vanilla water. */
+        public static FluidDef water(String name, int tint) {
+            return new FluidDef(name, tint,
+                "minecraft:block/water_still", "minecraft:block/water_flow", "minecraft:block/water_overlay");
+        }
+    }
+
+    /** The custom fluids — tank/pipe/bucket contents only (no world block). */
+    public static final List<FluidDef> CUSTOM_FLUIDS = List.of(
+        FluidDef.water("liquid_redstone", 0xFFE62008),
+        FluidDef.water("liquid_ender", 0xFF105E51),
+        // color baked into the texture (lava churn mapped through the energized-glowstone palette)
+        new FluidDef("liquid_glowstone", 0xFFFFFFFF,
+            "logistics:block/fluid/glowstone_still", "logistics:block/fluid/glowstone_flow", null),
+        FluidDef.water("crude_oil", 0xFF353535),
+        FluidDef.water("liquid_biomass", 0xFF98F01C));
 
     @Override
     public int order() {

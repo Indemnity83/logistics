@@ -41,38 +41,6 @@ public final class LogisticsFluid extends LogisticsMod {
         return INSTANCE.domainModelResource(name);
     }
 
-    /**
-     * A custom fluid produced by the Magma Crucible. Rendered as its {@code still}/{@code flow} sprites
-     * with a flat ARGB {@code tint} (alpha 0xFF) applied over them; {@code overlay} may be null. Most
-     * fluids reuse the vanilla water textures ({@link #water}); glowstone uses a desaturated lava base
-     * so it reads as molten.
-     */
-    public record FluidDef(String name, int tint, String still, String flow, String overlay) {
-
-        /** A fluid drawn as tinted vanilla water. */
-        public static FluidDef water(String name, int tint) {
-            return new FluidDef(name, tint,
-                "minecraft:block/water_still", "minecraft:block/water_flow", "minecraft:block/water_overlay");
-        }
-    }
-
-    /**
-     * The custom fluids. They exist only as tank / pipe / bucket contents (no world block). Each is
-     * registered per loader under {@code logistics:<name>} (source) and {@code logistics:flowing_<name>}
-     * — Fabric extends {@code FlowingFluid} + a render handler; NeoForge uses {@code BaseFlowingFluid} +
-     * a {@code FluidType} with client extensions. Common code references them by id through
-     * {@code BuiltInRegistries.FLUID}.
-     */
-    public static final List<FluidDef> CUSTOM_FLUIDS = List.of(
-        FluidDef.water("liquid_redstone", 0xFFE62008),
-        FluidDef.water("liquid_ender", 0xFF105E51),
-        // Color is baked into the texture (grayscale molten lava mapped through the glowstone palette),
-        // so render untinted.
-        new FluidDef("liquid_glowstone", 0xFFFFFFFF,
-            "logistics:block/fluid/glowstone_still", "logistics:block/fluid/glowstone_flow", null),
-        FluidDef.water("crude_oil", 0xFF353535),
-        FluidDef.water("liquid_biomass", 0xFF98F01C));
-
     /** Register all fluid blocks, block entities, and creative entries. Called by the pipe domain bootstrap. */
     public static void registerCommon() {
         LOGGER.info("Registering {}", INSTANCE.domain());

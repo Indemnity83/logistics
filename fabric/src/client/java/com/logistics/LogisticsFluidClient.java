@@ -39,13 +39,13 @@ public final class LogisticsFluidClient {
 
     /** Renders each custom fluid from its own still/flow sprites with a flat per-fluid tint. */
     private static void registerFluidRenderers() {
-        Map<String, LogisticsFluid.FluidDef> defs = new HashMap<>();
-        for (LogisticsFluid.FluidDef def : LogisticsFluid.CUSTOM_FLUIDS) {
+        Map<String, LogisticsCore.FluidDef> defs = new HashMap<>();
+        for (LogisticsCore.FluidDef def : LogisticsCore.CUSTOM_FLUIDS) {
             defs.put(def.name(), def);
         }
 
         FabricFluids.sources().forEach((name, source) -> {
-            LogisticsFluid.FluidDef def = defs.get(name);
+            LogisticsCore.FluidDef def = defs.get(name);
             Material overlay = def.overlay() != null ? material(def.overlay()) : null;
             FluidModel.Unbaked model = new FluidModel.Unbaked(
                     material(def.still()), material(def.flow()), overlay,
