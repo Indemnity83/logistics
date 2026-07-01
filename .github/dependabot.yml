@@ -1,5 +1,23 @@
 version: 2
 updates:
+  # --- mc/26.2 ---
+  - package-ecosystem: "gradle"
+    directory: "/"
+    target-branch: "mc/26.2"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "chore(build)"
+      prefix-development: "chore(build)"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    target-branch: "mc/26.2"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "chore(ci)"
+
   # --- mc/26.1 ---
   - package-ecosystem: "gradle"
     directory: "/"
@@ -7,8 +25,8 @@ updates:
     schedule:
       interval: "weekly"
     commit-message:
-      prefix: "chore(update)"
-      prefix-development: "chore(update)"
+      prefix: "chore(build)"
+      prefix-development: "chore(build)"
 
   - package-ecosystem: "github-actions"
     directory: "/"
@@ -16,7 +34,7 @@ updates:
     schedule:
       interval: "weekly"
     commit-message:
-      prefix: "chore(update)"
+      prefix: "chore(ci)"
 
   # --- mc/1.21.11 ---
   - package-ecosystem: "gradle"
@@ -25,8 +43,8 @@ updates:
     schedule:
       interval: "weekly"
     commit-message:
-      prefix: "chore(update)"
-      prefix-development: "chore(update)"
+      prefix: "chore(build)"
+      prefix-development: "chore(build)"
 
   - package-ecosystem: "github-actions"
     directory: "/"
@@ -34,7 +52,7 @@ updates:
     schedule:
       interval: "weekly"
     commit-message:
-      prefix: "chore(update)"
+      prefix: "chore(ci)"
 
   # --- mc/1.21.1 ---
   - package-ecosystem: "gradle"
@@ -43,8 +61,8 @@ updates:
     schedule:
       interval: "weekly"
     commit-message:
-      prefix: "chore(update)"
-      prefix-development: "chore(update)"
+      prefix: "chore(build)"
+      prefix-development: "chore(build)"
 
   - package-ecosystem: "github-actions"
     directory: "/"
@@ -52,5 +70,5 @@ updates:
     schedule:
       interval: "weekly"
     commit-message:
-      prefix: "chore(update)"
+      prefix: "chore(ci)"
       
