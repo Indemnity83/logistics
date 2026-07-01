@@ -55,11 +55,11 @@ public final class LogisticsFluid extends LogisticsMod {
      * {@code BuiltInRegistries.FLUID}.
      */
     public static final List<FluidDef> CUSTOM_FLUIDS = List.of(
-        new FluidDef("liquid_redstone", 0xFFC50000),
-        new FluidDef("liquid_ender", 0xFF167E6C),
-        new FluidDef("liquid_glowstone", 0xFFFFCC00),
-        new FluidDef("crude_oil", 0xFF1A1512),
-        new FluidDef("liquid_biomass", 0xFF8CC63F));
+        new FluidDef("liquid_redstone", 0xFFE62008),
+        new FluidDef("liquid_ender", 0xFF2CCDB1),
+        new FluidDef("liquid_glowstone", 0xFFFBDA74),
+        new FluidDef("crude_oil", 0xFF353535),
+        new FluidDef("liquid_biomass", 0xFF98F01C));
 
     /** Register all fluid blocks, block entities, and creative entries. Called by the pipe domain bootstrap. */
     public static void registerCommon() {
