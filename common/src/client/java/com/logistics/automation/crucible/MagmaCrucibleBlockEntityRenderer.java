@@ -15,9 +15,11 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
 /**
- * Renders the tank fluid through the window in the crucible's front face: the fluid's still sprite
- * (via {@link FluidBoxRenderer}, UV-mapped by block position so it tiles rather than stretches), filling
- * from the window bottom (pixel 11) up to the top (pixel 4) as the tank fills. Rotated to the block facing.
+ * Renders the tank fluid as a gauge on the crucible's front face: the fluid's still sprite (via
+ * {@link FluidBoxRenderer}, UV-mapped by block position so it tiles rather than stretches), drawn on top
+ * of the (solid) face and clipped to the window region — filling from the window bottom (pixel 11) up to
+ * the top (pixel 4) as the tank fills. Rotated to the block facing. Being drawn on top of a solid face, it
+ * shows whether or not the machine is lit, and never sees through the block.
  */
 public class MagmaCrucibleBlockEntityRenderer
         implements BlockEntityRenderer<MagmaCrucibleBlockEntity, MagmaCrucibleRenderState> {
@@ -27,9 +29,10 @@ public class MagmaCrucibleBlockEntityRenderer
     private static final float X1 = 10f / 16f;
     private static final float Y_BOTTOM = 4f / 16f;
     private static final float Y_TOP = 12f / 16f;
-    // A thin slab just inside the front face so the fluid reads as sitting behind the glass.
-    private static final float Z_FRONT = 0.02f;
-    private static final float Z_BACK = 0.10f;
+    // A thin slab just proud of the front face (north's outside is -Z), so the fluid sits on top of the
+    // solid face — visible whether lit or not, with no see-through above the fill line.
+    private static final float Z_FRONT = -0.01f;
+    private static final float Z_BACK = -0.002f;
 
     public MagmaCrucibleBlockEntityRenderer(BlockEntityRendererProvider.Context ctx) {}
 
