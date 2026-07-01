@@ -1,6 +1,7 @@
 package com.logistics.compat.jade;
 
 import com.logistics.LogisticsMod;
+import com.logistics.automation.alloysmelter.AlloySmelterBlock;
 import com.logistics.automation.kiln.KilnBlock;
 import com.logistics.automation.laserquarry.LaserQuarryBlock;
 import com.logistics.core.lib.power.AbstractEngineBlock;
@@ -36,6 +37,7 @@ public class JadeLogisticsPlugin implements IWailaPlugin {
         registration.registerBlockDataProvider(MachineServerDataProvider.INSTANCE, MaceratorBlock.class);
         registration.registerBlockDataProvider(MachineServerDataProvider.INSTANCE, KilnBlock.class);
         registration.registerBlockDataProvider(MachineServerDataProvider.INSTANCE, SawmillBlock.class);
+        registration.registerBlockDataProvider(MachineServerDataProvider.INSTANCE, AlloySmelterBlock.class);
     }
 
     @Override
@@ -47,6 +49,7 @@ public class JadeLogisticsPlugin implements IWailaPlugin {
         registration.registerBlockComponent(MachineComponentProvider.INSTANCE, MaceratorBlock.class);
         registration.registerBlockComponent(MachineComponentProvider.INSTANCE, KilnBlock.class);
         registration.registerBlockComponent(MachineComponentProvider.INSTANCE, SawmillBlock.class);
+        registration.registerBlockComponent(MachineComponentProvider.INSTANCE, AlloySmelterBlock.class);
         registration.registerBlockComponent(PipeComponentProvider.INSTANCE, PipeBlock.class);
         registration.registerBlockComponent(FluidPipeComponentProvider.INSTANCE, FluidPipeBlock.class);
     }
