@@ -85,6 +85,10 @@ public final class NeoForgeCapabilityRegistration {
         // Glass tanks expose their whole vertical column as a fluid handler.
         registerFluids(event, LogisticsFluid.ENTITY.GLASS_TANK_BLOCK_ENTITY);
         registerFluids(event, LogisticsFluid.ENTITY.FLUID_PUMP_BLOCK_ENTITY);
+
+        // TODO(magma-fluids): register a Capabilities.Fluid.ITEM handler for the filled buckets using the
+        // new NeoForge transfer API (ResourceHandler<FluidResource>) so tanks can drain them — the legacy
+        // IFluidHandlerItem no longer applies on 26.2. Fabric already exposes bucket drain via FullItemFluidStorage.
     }
 
     private static <BE extends BlockEntity & HasEnergyStorage> void registerEnergy(

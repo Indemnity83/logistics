@@ -3,8 +3,13 @@ package com.logistics.fabric.fluids;
 import com.logistics.LogisticsCore;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants;
+import net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage;
+import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
+import net.fabricmc.fabric.api.transfer.v1.fluid.base.FullItemFluidStorage;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.material.FlowingFluid;
 
 /**
@@ -32,8 +37,22 @@ public final class FabricFluids {
         }
     }
 
-    /** Registered source fluids by name (in {@link LogisticsFluid#CUSTOM_FLUIDS} order). */
+    /** Registered source fluids by name (in {@link LogisticsCore#CUSTOM_FLUIDS} order). */
     public static Map<String, FlowingFluid> sources() {
         return SOURCES;
+    }
+
+    /**
+     * Exposes each filled bucket as a full one-bucket fluid container that empties to a plain bucket, so
+     * the tank's {@code FluidContainerInteraction} (via {@code FluidStorageUtil}) can fill/drain it.
+     */
+    public static void registerBucketStorage() {
+        LogisticsCore.BUCKET.all().forEach((name, bucketItem) -> {
+            FlowingFluid fluid = SOURCES.get(name);
+            FluidStorage.ITEM.registerForItems(
+                (stack, context) -> new FullItemFluidStorage(
+                    context, Items.BUCKET, FluidVariant.of(fluid), FluidConstants.BUCKET),
+                bucketItem);
+        });
     }
 }
