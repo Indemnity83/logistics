@@ -1,10 +1,12 @@
 package com.logistics.fabric;
 
 import com.logistics.LogisticsMod;
+import com.logistics.core.lib.resource.ResourceId;
 import net.fabricmc.fabric.api.biome.v1.BiomeModifications;
 import net.fabricmc.fabric.api.biome.v1.BiomeSelectors;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.levelgen.GenerationStep;
 
 public final class FabricBiomeModifications {
@@ -32,6 +34,14 @@ public final class FabricBiomeModifications {
             BiomeSelectors.foundInOverworld(),
             GenerationStep.Decoration.UNDERGROUND_ORES,
             ResourceKey.create(Registries.PLACED_FEATURE, LogisticsMod.modId("apatite_ore_stone").toIdentifier())
+        );
+
+        // Bog earth: clay-style disks on the submerged swamp floor (matches the NeoForge biome modifier
+        // on #c:is_swamp; same step as vanilla's disk_clay/disk_grass)
+        BiomeModifications.addFeature(
+            BiomeSelectors.tag(TagKey.create(Registries.BIOME, ResourceId.in("c", "is_swamp").toIdentifier())),
+            GenerationStep.Decoration.UNDERGROUND_ORES,
+            ResourceKey.create(Registries.PLACED_FEATURE, LogisticsMod.modId("bog_earth").toIdentifier())
         );
     }
 }
