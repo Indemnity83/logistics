@@ -81,6 +81,7 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
 
         BLOCK.register();
         ITEM.register();
+        BUCKET.register();
         ENTITY.register();
         WORLDGEN.register();
         CREATIVE.register();
@@ -97,6 +98,31 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
                 BuiltInRegistries.FEATURE,
                 LogisticsMod.modId("bog_patch").toIdentifier(),
                 new BogPatchFeature(BogPatchConfiguration.CODEC));
+        }
+    }
+
+    /** A filled bucket per custom fluid ({@code logistics:core/<name>}), keyed by fluid name. */
+    public static final class BUCKET {
+        private static final java.util.Map<String, Item> BY_FLUID = new java.util.LinkedHashMap<>();
+
+        private BUCKET() {}
+
+        static void register() {
+            for (FluidDef def : CUSTOM_FLUIDS) {
+                Item bucket = INSTANCE.registerItem(def.name(),
+                    props -> new com.logistics.core.item.LogisticsBucketItem(def.name(), props.stacksTo(1)));
+                BY_FLUID.put(def.name(), bucket);
+            }
+        }
+
+        /** The filled-bucket item for a fluid name, or null. */
+        public static Item forFluid(String name) {
+            return BY_FLUID.get(name);
+        }
+
+        /** Fluid name → filled bucket item, in {@link #CUSTOM_FLUIDS} order. */
+        public static java.util.Map<String, Item> all() {
+            return BY_FLUID;
         }
     }
 
@@ -355,6 +381,7 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
             TAB.add(ITEM.WRENCH);
             TAB.add(BLOCK.QUARTZ_CRYSTAL);
             TAB.add(BLOCK.MARKER);
+            BUCKET.all().values().forEach(TAB::add);
 
             // Register the tab — populate() is lazy, so other domains can still add items after this
             CreativeTabRegistrar.INSTANCE.registerTab(TAB);

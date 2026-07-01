@@ -22,8 +22,10 @@ public final class FabricFluids {
         for (LogisticsCore.FluidDef def : LogisticsCore.CUSTOM_FLUIDS) {
             String name = def.name();
             FlowingFluid[] pair = new FlowingFluid[2]; // [0] source, [1] flowing
-            pair[0] = new FabricLogisticsFluid(true, () -> pair[0], () -> pair[1], () -> null);
-            pair[1] = new FabricLogisticsFluid(false, () -> pair[0], () -> pair[1], () -> null);
+            pair[0] = new FabricLogisticsFluid(
+                true, () -> pair[0], () -> pair[1], () -> LogisticsCore.BUCKET.forFluid(name));
+            pair[1] = new FabricLogisticsFluid(
+                false, () -> pair[0], () -> pair[1], () -> LogisticsCore.BUCKET.forFluid(name));
             Registry.register(BuiltInRegistries.FLUID, LogisticsCore.resource(name).toIdentifier(), pair[0]);
             Registry.register(BuiltInRegistries.FLUID, LogisticsCore.resource("flowing_" + name).toIdentifier(), pair[1]);
             SOURCES.put(name, pair[0]);

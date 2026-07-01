@@ -41,7 +41,8 @@ public final class NeoForgeFluids {
             for (LogisticsCore.FluidDef def : LogisticsCore.CUSTOM_FLUIDS) {
                 String name = def.name();
                 BaseFlowingFluid.Properties props = new BaseFlowingFluid.Properties(
-                        () -> TYPES.get(name), () -> SOURCES.get(name), () -> FLOWINGS.get(name));
+                        () -> TYPES.get(name), () -> SOURCES.get(name), () -> FLOWINGS.get(name))
+                        .bucket(() -> LogisticsCore.BUCKET.forFluid(name));
                 BaseFlowingFluid.Source source = new BaseFlowingFluid.Source(props);
                 BaseFlowingFluid.Flowing flowing = new BaseFlowingFluid.Flowing(props);
                 SOURCES.put(name, source);
