@@ -143,4 +143,14 @@ public class MagmaCrucibleScreenHandler extends AbstractContainerMenu {
         if (amount <= 0 || capacity <= 0) return 0f;
         return Math.min(1f, amount / (float) capacity);
     }
+
+    /** Current tank amount in mB. */
+    public int getTankAmountMb() {
+        return data.get(MagmaCrucibleBlockEntity.DATA_FLUID_AMOUNT);
+    }
+
+    /** Tank capacity in mB. */
+    public int getTankCapacityMb() {
+        return (int) MagmaCrucibleBlockEntity.TANK_CAPACITY_MB;
+    }
 }

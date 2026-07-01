@@ -10,6 +10,7 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 
@@ -29,9 +30,9 @@ public class MagmaCrucibleScreen extends AbstractContainerScreen<MagmaCrucibleSc
     // (nudged 5px down from the design origin so the title doesn't overlap the tank).
     private static final int TANK_LEFT = 116;
     private static final int TANK_TOP = 18;
-    private static final int TANK_BOTTOM = 75;
-    private static final int TANK_WIDTH = 15; // 131 - 116
-    private static final int TANK_HEIGHT = 57; // 75 - 18
+    private static final int TANK_BOTTOM = 76; // 1px taller on the bottom
+    private static final int TANK_WIDTH = 16; // 1px wider on the right
+    private static final int TANK_HEIGHT = TANK_BOTTOM - TANK_TOP; // 58
     // The overlay (glass/frame drawn over the fluid) sits 64px to the right of the tank in the texture.
     private static final int OVERLAY_U = TANK_LEFT + 64;
 
@@ -43,6 +44,39 @@ public class MagmaCrucibleScreen extends AbstractContainerScreen<MagmaCrucibleSc
     protected void init() {
         super.init();
         this.titleLabelX = (this.imageWidth - this.font.width(this.title)) / 2;
+    }
+
+    @Override
+    public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+        super.extractRenderState(graphics, mouseX, mouseY, partialTick);
+        hoverTooltip(graphics, mouseX, mouseY, TANK_LEFT, TANK_TOP, TANK_WIDTH, TANK_HEIGHT, tankTooltip());
+    }
+
+    /** Shows {@code text} as a tooltip while the mouse is within the given screen-local rect. */
+    private void hoverTooltip(GuiGraphicsExtractor graphics, int mouseX, int mouseY, int x, int y, int w, int h, Component text) {
+        if (mouseX >= leftPos + x && mouseX < leftPos + x + w && mouseY >= topPos + y && mouseY < topPos + y + h) {
+            graphics.setTooltipForNextFrame(text, mouseX, mouseY);
+        }
+    }
+
+    private Component tankTooltip() {
+        int fluidId = menu.getTankFluidId();
+        int amountMb = menu.getTankAmountMb();
+        if (fluidId < 0 || amountMb <= 0) {
+            return Component.translatable("tooltip.logistics.fluid.tank_empty");
+        }
+        Fluid fluid = BuiltInRegistries.FLUID.byId(fluidId);
+        return Component.translatable(
+            "tooltip.logistics.fluid.tank_contents", fluidName(fluid), amountMb, menu.getTankCapacityMb());
+    }
+
+    /** A fluid's display name: its world block's name, or an id-derived key for block-less fluids. */
+    private static Component fluidName(Fluid fluid) {
+        var block = fluid.defaultFluidState().createLegacyBlock().getBlock();
+        if (block != Blocks.AIR) {
+            return block.getName();
+        }
+        return Component.translatable(BuiltInRegistries.FLUID.getKey(fluid).toLanguageKey("fluid"));
     }
 
     @Override
