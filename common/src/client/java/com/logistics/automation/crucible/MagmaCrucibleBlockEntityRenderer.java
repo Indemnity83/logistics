@@ -31,10 +31,9 @@ public class MagmaCrucibleBlockEntityRenderer
     private static final float X1 = 10f / 16f;
     private static final float Y_BOTTOM = 4f / 16f;
     private static final float Y_TOP = 12f / 16f;
-    // A thin slab just proud of the front face (north's outside is -Z), so the fluid sits on top of the
-    // solid face — visible whether lit or not, with no see-through above the fill line.
-    private static final float Z_FRONT = -0.01f;
-    private static final float Z_BACK = -0.002f;
+    // A flat plane a hair proud of the front face (north's outside is -Z), so the fluid sits flush on the
+    // solid face — visible whether lit or not, with no depth gap and no see-through above the fill line.
+    private static final float Z_FACE = -0.002f;
 
     public MagmaCrucibleBlockEntityRenderer(BlockEntityRendererProvider.Context ctx) {}
 
@@ -101,8 +100,8 @@ public class MagmaCrucibleBlockEntityRenderer
         queue.submitCustomGeometry(
                 matrices,
                 RenderTypes.translucentMovingBlock(),
-                (entry, buffer) -> FluidBoxRenderer.renderBox(
-                        entry, buffer, sprite, color, light, X0, Y_BOTTOM, Z_FRONT, X1, top, Z_BACK, true, false));
+                (entry, buffer) ->
+                        FluidBoxRenderer.renderFaceQuad(entry, buffer, sprite, color, light, X0, Y_BOTTOM, X1, top, Z_FACE));
         matrices.popPose();
     }
 }

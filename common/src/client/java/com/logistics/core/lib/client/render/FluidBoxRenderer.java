@@ -92,6 +92,18 @@ public final class FluidBoxRenderer {
         quad(entry, buffer, sprite, color, light, 1, 0, 0, x1, y0, z0, x1, y0, z1, x1, y1, z1, x1, y1, z0);
     }
 
+    /**
+     * Render a single flat quad on the {@code -Z} (north) plane at depth {@code z}, spanning
+     * {@code [x0,x1] × [y0,y1]} — a fluid gauge sitting flush on a block face (front + back, so it shows
+     * from both sides), with the same position-based UV as {@link #renderBox}. Rotate the matrix to place
+     * it on another face.
+     */
+    public static void renderFaceQuad(
+            PoseStack.Pose entry, VertexConsumer buffer, TextureAtlasSprite sprite, int color, int light,
+            float x0, float y0, float x1, float y1, float z) {
+        quad(entry, buffer, sprite, color, light, 0, 0, -1, x0, y0, z, x1, y0, z, x1, y1, z, x0, y1, z);
+    }
+
     private static void quad(
             PoseStack.Pose entry, VertexConsumer buffer, TextureAtlasSprite sprite, int color, int light,
             float nx, float ny, float nz,
