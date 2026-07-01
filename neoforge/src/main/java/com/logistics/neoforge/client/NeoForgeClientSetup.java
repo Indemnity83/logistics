@@ -183,6 +183,9 @@ public final class NeoForgeClientSetup {
         event.registerBlockEntityRenderer(
                 LogisticsFluid.ENTITY.FLUID_PUMP_BLOCK_ENTITY,
                 FluidPumpBlockEntityRenderer::new);
+        event.registerBlockEntityRenderer(
+                LogisticsAutomation.ENTITY.MAGMA_CRUCIBLE_BLOCK_ENTITY,
+                com.logistics.automation.crucible.MagmaCrucibleBlockEntityRenderer::new);
     }
 
     private static void registerBlockColors(RegisterColorHandlersEvent.BlockTintSources event) {

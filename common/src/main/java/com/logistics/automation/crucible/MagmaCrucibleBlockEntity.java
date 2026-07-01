@@ -105,6 +105,11 @@ public class MagmaCrucibleBlockEntity extends MachineEntity {
                 .build();
     }
 
+    /** The output tank holder, for the block-entity renderer's face gauge. */
+    public com.logistics.core.lib.fluids.FluidTankComponent tank() {
+        return fluidStore.tank();
+    }
+
     private void setLit(MachineContext ctx, boolean lit) {
         BlockState state = ctx.blockState();
         if (state.hasProperty(MagmaCrucibleBlock.LIT) && state.getValue(MagmaCrucibleBlock.LIT) != lit) {

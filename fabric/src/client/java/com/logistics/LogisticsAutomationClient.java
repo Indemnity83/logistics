@@ -24,6 +24,9 @@ public final class LogisticsAutomationClient implements ClientDomainBootstrap {
         LOGGER.info("Registering automation (client)");
         BlockEntityRendererRegistry.register(
                 LogisticsAutomation.ENTITY.LASER_QUARRY_BLOCK_ENTITY, LaserQuarryBlockEntityRenderer::new);
+        BlockEntityRendererRegistry.register(
+                LogisticsAutomation.ENTITY.MAGMA_CRUCIBLE_BLOCK_ENTITY,
+                com.logistics.automation.crucible.MagmaCrucibleBlockEntityRenderer::new);
 
         MenuScreens.register(LogisticsAutomation.MENU.KILN, KilnScreen::new);
         MenuScreens.register(LogisticsAutomation.MENU.MACERATOR, MaceratorScreen::new);
