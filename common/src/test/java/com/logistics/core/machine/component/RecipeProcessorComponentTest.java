@@ -2,6 +2,8 @@ package com.logistics.core.machine.component;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.logistics.core.lib.fluids.FluidUnits;
+import com.logistics.core.lib.fluids.SimpleFluidKey;
 import com.logistics.core.lib.recipe.FluidResult;
 import com.logistics.core.machine.FakeMachineContext;
 import com.logistics.test.MinecraftTestEnvironment;
@@ -174,6 +176,60 @@ class RecipeProcessorComponentTest extends MinecraftTestEnvironment {
 
         // Input consumed proves the recipe ran despite having no output slot to accept an item result.
         assertThat(items.input().isEmpty()).isTrue();
+    }
+
+    @Test
+    void depositsFluidIntoTankWhenThereIsRoom() {
+        Runnable noop = () -> {};
+        ItemStoreComponent items = new ItemStoreComponent(
+                "items",
+                new SlotRole[] {SlotRole.INPUT},
+                SidedLayout.furnace(new int[] {0}, new int[] {}, stack -> true),
+                noop);
+        EnergyStorageComponent energy = new EnergyStorageComponent("energy", 100_000, 100_000, 0, noop);
+        energy.energy(null).insert(100_000, false);
+        items.container().setItem(0, new ItemStack(Items.REDSTONE, 1));
+
+        FluidStoreComponent fluids = new FluidStoreComponent("tank", FluidUnits.mb(100), noop);
+        RecipePlan plan = new RecipePlan(20, 1, new FluidResult(Fluids.WATER, 50), 0f);
+        RecipeProcessorComponent processor = new RecipeProcessorComponent(
+                "processor", (io, ctx) -> io.input().isEmpty() ? null : plan, 10, items, energy, fluids, (ctx, lit) -> {}, noop);
+
+        FakeMachineContext ctx = new FakeMachineContext();
+        processor.serverTick(ctx); // 10
+        processor.serverTick(ctx); // 20 -> complete
+
+        assertThat(items.input().isEmpty()).isTrue();
+        assertThat(FluidUnits.toMillibuckets(fluids.tank().getAmount())).isEqualTo(50);
+    }
+
+    @Test
+    void doesNotRunWhenTankCannotHoldFullFluidOutput() {
+        Runnable noop = () -> {};
+        ItemStoreComponent items = new ItemStoreComponent(
+                "items",
+                new SlotRole[] {SlotRole.INPUT},
+                SidedLayout.furnace(new int[] {0}, new int[] {}, stack -> true),
+                noop);
+        EnergyStorageComponent energy = new EnergyStorageComponent("energy", 100_000, 100_000, 0, noop);
+        energy.energy(null).insert(100_000, false);
+        items.container().setItem(0, new ItemStack(Items.REDSTONE, 1));
+
+        // Tank holds 80 of 100 mB; the recipe would add 50 mB but only 20 fits, so it must not run.
+        FluidStoreComponent fluids = new FluidStoreComponent("tank", FluidUnits.mb(100), noop);
+        fluids.tank().insert(SimpleFluidKey.of(Fluids.WATER), FluidUnits.mb(80), false);
+
+        RecipePlan plan = new RecipePlan(20, 1, new FluidResult(Fluids.WATER, 50), 0f);
+        RecipeProcessorComponent processor = new RecipeProcessorComponent(
+                "processor", (io, ctx) -> io.input().isEmpty() ? null : plan, 10, items, energy, fluids, (ctx, lit) -> {}, noop);
+
+        FakeMachineContext ctx = new FakeMachineContext();
+        for (int i = 0; i < 5; i++) {
+            processor.serverTick(ctx); // 50 RF spent >> 20 required: would complete if the tank had room
+        }
+
+        assertThat(items.input().getCount()).isEqualTo(1); // input untouched -> the recipe never ran
+        assertThat(FluidUnits.toMillibuckets(fluids.tank().getAmount())).isEqualTo(80); // tank unchanged
     }
 
     @Test
