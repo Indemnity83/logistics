@@ -3,6 +3,7 @@ package com.logistics.automation.sawmill;
 import com.logistics.LogisticsAutomation;
 import com.logistics.core.lib.recipe.MachineResult;
 import java.util.List;
+import java.util.Optional;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.PlacementInfo;
@@ -29,11 +30,11 @@ public class SawmillRecipe implements Recipe<SingleRecipeInput> {
     private final Ingredient ingredient;
     private final int ingredientCount;
     private final MachineResult result;
-    private final SawmillByproduct byproduct;
+    private final Optional<SawmillByproduct> byproduct;
     private final int energy;
     @Nullable private PlacementInfo placementInfo;
 
-    public SawmillRecipe(Ingredient ingredient, int ingredientCount, MachineResult result, SawmillByproduct byproduct, int energy) {
+    public SawmillRecipe(Ingredient ingredient, int ingredientCount, MachineResult result, Optional<SawmillByproduct> byproduct, int energy) {
         this.ingredient = ingredient;
         this.ingredientCount = ingredientCount;
         this.result = result;
@@ -54,7 +55,7 @@ public class SawmillRecipe implements Recipe<SingleRecipeInput> {
         return result;
     }
 
-    public SawmillByproduct byproduct() {
+    public Optional<SawmillByproduct> byproduct() {
         return byproduct;
     }
 

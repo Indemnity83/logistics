@@ -1,0 +1,7 @@
+{
+  "type": "logistics:sawmill",
+  "ingredient": "minecraft:dried_kelp_block",
+  "count": 6,
+  "result": { "id": "logistics:core/pulped_biomass", "count": 1 },
+  "energy": 2000
+}
