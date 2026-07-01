@@ -36,7 +36,7 @@ public class CrucibleBlockEntity extends MachineEntity {
     static final long MAX_ENERGY_INPUT = 128L;
     static final int ENERGY_PER_TICK = 40;
 
-    static final long TANK_CAPACITY_MB = 4_000L;
+    static final long TANK_CAPACITY_MB = 10_000L;
 
     static final int DATA_PROGRESS = 0;
     static final int DATA_TOTAL = 1;
