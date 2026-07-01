@@ -11,6 +11,8 @@ import com.logistics.core.marker.MarkerBlock;
 import com.logistics.core.marker.MarkerBlockEntity;
 import com.logistics.core.worldgen.BogPatchConfiguration;
 import com.logistics.core.worldgen.BogPatchFeature;
+import com.logistics.core.worldgen.OilPondConfiguration;
+import com.logistics.core.worldgen.OilPondFeature;
 import java.util.List;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -88,6 +90,7 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
 
     public static final class WORLDGEN {
         public static Feature<BogPatchConfiguration> BOG_PATCH;
+        public static Feature<OilPondConfiguration> OIL_POND;
 
         private WORLDGEN() {}
 
@@ -96,6 +99,10 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
                 BuiltInRegistries.FEATURE,
                 LogisticsMod.modId("bog_patch").toIdentifier(),
                 new BogPatchFeature(BogPatchConfiguration.CODEC));
+            OIL_POND = Registry.register(
+                BuiltInRegistries.FEATURE,
+                LogisticsMod.modId("oil_pond").toIdentifier(),
+                new OilPondFeature(OilPondConfiguration.CODEC));
         }
     }
 

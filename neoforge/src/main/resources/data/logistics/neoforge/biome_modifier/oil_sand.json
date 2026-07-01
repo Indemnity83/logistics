@@ -1,6 +1,6 @@
 {
   "type": "neoforge:add_features",
-  "biomes": ["#c:is_desert", "#c:is_badlands"],
+  "biomes": "#c:is_desert",
   "features": "logistics:oil_sand",
   "step": "underground_ores"
 }

@@ -1,11 +1,9 @@
 {
-  "type": "minecraft:ore",
+  "type": "logistics:oil_pond",
   "config": {
-    "size": 33,
-    "discard_chance_on_air_exposure": 0.0,
-    "targets": [
-      { "target": { "predicate_type": "minecraft:block_match", "block": "minecraft:sand" }, "state": { "Name": "logistics:core/oil_sand" } },
-      { "target": { "predicate_type": "minecraft:block_match", "block": "minecraft:red_sand" }, "state": { "Name": "logistics:core/oil_red_sand" } }
-    ]
+    "target": { "type": "minecraft:matching_blocks", "blocks": ["minecraft:sand", "minecraft:sandstone"] },
+    "result": { "Name": "logistics:core/oil_sand" },
+    "radius": 7,
+    "depth": 13
   }
 }
