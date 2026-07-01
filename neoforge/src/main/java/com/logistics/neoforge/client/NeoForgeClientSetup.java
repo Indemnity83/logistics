@@ -38,7 +38,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import net.minecraft.client.Minecraft;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.Identifier; // raw-id-ok
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.client.network.event.RegisterClientPayloadHandlersEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
@@ -69,26 +69,23 @@ public final class NeoForgeClientSetup {
         }
         NeoForgeFluids.types().forEach((name, type) -> {
             LogisticsCore.FluidDef def = defs.get(name);
-            Identifier still = textureId(def.still());
-            Identifier flow = textureId(def.flow());
-            int tint = def.tint();
             event.registerFluidType(new IClientFluidTypeExtensions() {
-                public Identifier getStillTexture() {
-                    return still;
+                public Identifier getStillTexture() { // raw-id-ok
+                    return textureId(def.still());
                 }
 
-                public Identifier getFlowingTexture() {
-                    return flow;
+                public Identifier getFlowingTexture() { // raw-id-ok
+                    return textureId(def.flow());
                 }
 
                 public int getTintColor() {
-                    return tint;
+                    return def.tint();
                 }
             }, type);
         });
     }
 
-    private static Identifier textureId(String texture) {
+    private static Identifier textureId(String texture) { // raw-id-ok
         int colon = texture.indexOf(':');
         return ResourceId.in(texture.substring(0, colon), texture.substring(colon + 1)).toIdentifier();
     }

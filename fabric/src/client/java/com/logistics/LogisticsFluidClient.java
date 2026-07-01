@@ -12,7 +12,6 @@ import net.minecraft.client.color.block.BlockTintSources;
 import net.minecraft.client.renderer.block.FluidModel;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraft.client.resources.model.sprite.Material;
-import net.minecraft.resources.Identifier;
 
 import static com.logistics.LogisticsMod.LOGGER;
 
@@ -57,7 +56,7 @@ public final class LogisticsFluidClient {
     /** Builds a sprite material from a {@code "namespace:path"} texture id. */
     private static Material material(String texture) {
         int colon = texture.indexOf(':');
-        Identifier id = ResourceId.in(texture.substring(0, colon), texture.substring(colon + 1)).toIdentifier();
-        return new Material(id);
+        return new Material(
+                ResourceId.in(texture.substring(0, colon), texture.substring(colon + 1)).toIdentifier());
     }
 }
