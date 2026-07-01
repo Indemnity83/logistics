@@ -130,4 +130,17 @@ public class MagmaCrucibleScreenHandler extends AbstractContainerMenu {
         if (capacity <= 0) return 0;
         return 30 * getEnergyStored() / capacity;
     }
+
+    /** Registry id of the fluid in the tank, or {@code -1} when empty. */
+    public int getTankFluidId() {
+        return data.get(MagmaCrucibleBlockEntity.DATA_FLUID_ID);
+    }
+
+    /** Tank fill as a 0..1 fraction of the tank's capacity. */
+    public float getTankFillFraction() {
+        int amount = data.get(MagmaCrucibleBlockEntity.DATA_FLUID_AMOUNT);
+        long capacity = MagmaCrucibleBlockEntity.TANK_CAPACITY_MB;
+        if (amount <= 0 || capacity <= 0) return 0f;
+        return Math.min(1f, amount / (float) capacity);
+    }
 }

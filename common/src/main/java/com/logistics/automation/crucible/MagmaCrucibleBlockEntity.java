@@ -10,6 +10,7 @@ import com.logistics.core.machine.component.FluidStoreComponent;
 import com.logistics.core.machine.component.RecipeProcessorComponent;
 import com.logistics.core.machine.component.SlotRole;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
@@ -39,7 +40,9 @@ public class MagmaCrucibleBlockEntity extends MachineEntity {
     static final int DATA_PROGRESS = 0;
     static final int DATA_TOTAL = 1;
     static final int DATA_ENERGY = 2;
-    static final int DATA_COUNT = 3;
+    static final int DATA_FLUID_ID = 3;
+    static final int DATA_FLUID_AMOUNT = 4;
+    static final int DATA_COUNT = 5;
 
     private EnergyStorageComponent energy;
     private RecipeProcessorComponent processor;
@@ -52,6 +55,11 @@ public class MagmaCrucibleBlockEntity extends MachineEntity {
                 case DATA_PROGRESS -> (int) Math.min(processor.energySpent(), Integer.MAX_VALUE);
                 case DATA_TOTAL -> (int) Math.min(processor.energyRequired(), Integer.MAX_VALUE);
                 case DATA_ENERGY -> (int) Math.min(energy.amount(), Integer.MAX_VALUE);
+                case DATA_FLUID_ID -> fluidStore.tank().isEmpty()
+                        ? -1
+                        : BuiltInRegistries.FLUID.getId(fluidStore.tank().getFluidKey().getFluid());
+                case DATA_FLUID_AMOUNT -> (int) Math.min(
+                        FluidUnits.toMillibuckets(fluidStore.tank().getAmount()), Integer.MAX_VALUE);
                 default -> 0;
             };
         }
