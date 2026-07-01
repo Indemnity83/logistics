@@ -16,6 +16,7 @@
     "logistics:automation/macerator",
     "logistics:fluid/fluid_pump",
     "logistics:automation/sawmill",
-    "logistics:automation/alloy_smelter"
+    "logistics:automation/alloy_smelter",
+    "logistics:automation/crucible"
   ]
 }
