@@ -1,0 +1,6 @@
+{
+  "type": "logistics:crucible",
+  "ingredient": "logistics:core/pulped_biomass",
+  "result": { "fluid": "logistics:core/liquid_biomass", "amount": 200 },
+  "energyrequired": 2000
+}

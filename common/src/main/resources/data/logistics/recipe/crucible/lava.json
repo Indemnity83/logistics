@@ -1,0 +1,6 @@
+{
+  "type": "logistics:crucible",
+  "ingredient": "minecraft:netherrack",
+  "result": { "fluid": "minecraft:lava", "amount": 100 },
+  "energyrequired": 8000
+}
