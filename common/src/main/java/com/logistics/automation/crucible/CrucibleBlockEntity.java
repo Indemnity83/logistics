@@ -7,6 +7,7 @@ import com.logistics.core.machine.MachineContext;
 import com.logistics.core.machine.MachineEntity;
 import com.logistics.core.machine.component.EnergyStorageComponent;
 import com.logistics.core.machine.component.FluidStoreComponent;
+import com.logistics.core.machine.component.FluidSyncComponent;
 import com.logistics.core.machine.component.RecipeProcessorComponent;
 import com.logistics.core.machine.component.SlotRole;
 import net.minecraft.core.BlockPos;
@@ -107,6 +108,10 @@ public class CrucibleBlockEntity extends MachineEntity {
                 .fluids(fluidStore)
                 .lit(this::setLit)
                 .build();
+
+        // Sync the tank to clients on change so the front-face fluid gauge stays current (the menu's
+        // ContainerData only reaches a player with the GUI open).
+        machine.add(new FluidSyncComponent(fluidStore));
     }
 
     /** The output tank holder, for the block-entity renderer's face gauge. */
