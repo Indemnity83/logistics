@@ -2,11 +2,13 @@ package com.logistics.core.machine.component;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.logistics.core.lib.recipe.FluidResult;
 import com.logistics.core.machine.FakeMachineContext;
 import com.logistics.test.MinecraftTestEnvironment;
 import java.util.List;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.material.Fluids;
 import org.junit.jupiter.api.Test;
 
 class RecipeProcessorComponentTest extends MinecraftTestEnvironment {
@@ -17,8 +19,10 @@ class RecipeProcessorComponentTest extends MinecraftTestEnvironment {
         boolean hasInput = true;
         int inputCount = 1;
         boolean outputAccepts = true;
+        boolean fluidAccepts = true;
         int inputsConsumed;
         int outputsProduced;
+        FluidResult producedFluid;
 
         @Override
         public ItemStack input() {
@@ -49,6 +53,16 @@ class RecipeProcessorComponentTest extends MinecraftTestEnvironment {
         public void produceOutputs(ItemStack result, List<ItemStack> rolledByproducts) {
             outputsProduced++;
             outputsProduced += (int) rolledByproducts.stream().filter(s -> !s.isEmpty()).count();
+        }
+
+        @Override
+        public boolean canAcceptFluid(FluidResult fluid) {
+            return fluidAccepts;
+        }
+
+        @Override
+        public void produceFluid(FluidResult fluid) {
+            producedFluid = fluid;
         }
     }
 
@@ -103,6 +117,38 @@ class RecipeProcessorComponentTest extends MinecraftTestEnvironment {
 
         assertThat(processor.energySpent()).isZero();
         assertThat(io.energy).isEqualTo(1_000);
+    }
+
+    @Test
+    void depositsFluidResultOnCompletion() {
+        FakeProcessIO io = new FakeProcessIO();
+        io.energy = 1_000;
+        FluidResult fluid = new FluidResult(Fluids.WATER, 250);
+        RecipeProcessorComponent processor = processor(io, new RecipePlan(30, 1, fluid, 0f), 10);
+        FakeMachineContext ctx = new FakeMachineContext();
+
+        processor.serverTick(ctx); // 10 spent
+        processor.serverTick(ctx); // 20 spent
+        assertThat(io.producedFluid).isNull();
+
+        processor.serverTick(ctx); // 30 spent -> complete
+        assertThat(io.producedFluid).isSameAs(fluid);
+        assertThat(io.inputsConsumed).isEqualTo(1);
+    }
+
+    @Test
+    void doesNotProcessWhenFluidOutputFull() {
+        FakeProcessIO io = new FakeProcessIO();
+        io.energy = 1_000;
+        io.fluidAccepts = false;
+        FluidResult fluid = new FluidResult(Fluids.WATER, 250);
+        RecipeProcessorComponent processor = processor(io, new RecipePlan(30, 1, fluid, 0f), 10);
+
+        processor.serverTick(new FakeMachineContext());
+
+        assertThat(processor.energySpent()).isZero();
+        assertThat(io.energy).isEqualTo(1_000);
+        assertThat(io.producedFluid).isNull();
     }
 
     @Test

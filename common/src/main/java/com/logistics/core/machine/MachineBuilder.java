@@ -215,6 +215,7 @@ public final class MachineBuilder {
         private long rfPerTick;
         private ItemStoreComponent items;
         private EnergyStorageComponent energy;
+        private FluidStoreComponent fluids;
         private LitController lit = (ctx, on) -> {};
 
         private RecipeProcessorBuilder(String id) {
@@ -241,6 +242,12 @@ public final class MachineBuilder {
             return this;
         }
 
+        /** Optional fluid output: recipes with a {@code FluidResult} deposit into this tank. */
+        public RecipeProcessorBuilder fluids(FluidStoreComponent fluids) {
+            this.fluids = fluids;
+            return this;
+        }
+
         /** Hook that toggles the machine's working/lit block state. */
         public RecipeProcessorBuilder lit(LitController lit) {
             this.lit = lit;
@@ -255,7 +262,8 @@ public final class MachineBuilder {
                 throw new IllegalStateException(
                         "recipeProcessor(" + id + ") requires a positive rfPerTick, got " + rfPerTick);
             }
-            return components.add(new RecipeProcessorComponent(id, resolver, rfPerTick, items, energy, lit, onChanged));
+            return components.add(
+                    new RecipeProcessorComponent(id, resolver, rfPerTick, items, energy, fluids, lit, onChanged));
         }
     }
 }

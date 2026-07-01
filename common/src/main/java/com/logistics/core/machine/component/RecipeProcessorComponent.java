@@ -1,6 +1,7 @@
 package com.logistics.core.machine.component;
 
 import com.logistics.core.lib.compat.NbtCompat;
+import com.logistics.core.lib.recipe.FluidResult;
 import com.logistics.core.machine.MachineComponent;
 import com.logistics.core.machine.MachineContext;
 import java.util.ArrayList;
@@ -49,12 +50,25 @@ public final class RecipeProcessorComponent
             EnergyStorageComponent energy,
             LitController lit,
             Runnable onChanged) {
+        this(id, resolver, rfPerTick, items, energy, null, lit, onChanged);
+    }
+
+    /** Constructor for a machine with a fluid output: the processor deposits into {@code fluids}. */
+    public RecipeProcessorComponent(
+            String id,
+            RecipeResolver resolver,
+            long rfPerTick,
+            ItemStoreComponent items,
+            EnergyStorageComponent energy,
+            @Nullable FluidStoreComponent fluids,
+            LitController lit,
+            Runnable onChanged) {
         this.id = id;
         this.resolver = resolver;
         this.rfPerTick = rfPerTick;
         this.lit = lit;
         this.onChanged = onChanged;
-        this.io = new ComponentProcessIO(items, energy);
+        this.io = new ComponentProcessIO(items, energy, fluids);
     }
 
     /** Constructor accepting a custom {@link ProcessIO}, primarily for tests. */
@@ -88,7 +102,10 @@ public final class RecipeProcessorComponent
             energySpent = 0;
         }
 
-        boolean canRun = hasInputs(plan) && io.canAcceptOutputs(plan.result(), plan.byproducts());
+        FluidResult fluidResult = plan.fluidResult();
+        boolean canRun = hasInputs(plan)
+                && io.canAcceptOutputs(plan.result(), plan.byproducts())
+                && (fluidResult == null || io.canAcceptFluid(fluidResult));
         RecipeProcessPlan.Result result =
                 RecipeProcessPlan.advance(energySpent, plan.energyRequired(), io.energyStored(), rfPerTick, canRun);
 
@@ -105,6 +122,9 @@ public final class RecipeProcessorComponent
         if (result.complete()) {
             consumeInputs(plan);
             io.produceOutputs(plan.result(), rollByproducts(plan.byproducts(), ctx.random()));
+            if (fluidResult != null) {
+                io.produceFluid(fluidResult);
+            }
             if (plan.experience() > 0) {
                 storedExperience += plan.experience();
             }
@@ -155,7 +175,15 @@ public final class RecipeProcessorComponent
                 && a.experience() == b.experience()
                 && Arrays.equals(a.inputCounts(), b.inputCounts())
                 && ItemStack.isSameItemSameComponents(a.result(), b.result())
-                && sameByproducts(a.byproducts(), b.byproducts());
+                && sameByproducts(a.byproducts(), b.byproducts())
+                && sameFluid(a.fluidResult(), b.fluidResult());
+    }
+
+    private static boolean sameFluid(@Nullable FluidResult a, @Nullable FluidResult b) {
+        if (a == null || b == null) {
+            return a == b;
+        }
+        return a.fluid() == b.fluid() && a.millibuckets() == b.millibuckets();
     }
 
     // Compared element-wise on item + chance; ItemStack has no value equals, so List.equals is unusable.
@@ -228,14 +256,18 @@ public final class RecipeProcessorComponent
         // activePlan is re-resolved on the next tick.
     }
 
-    /** Default {@link ProcessIO} bridging the processor to sibling item and energy components. */
+    /** Default {@link ProcessIO} bridging the processor to sibling item, energy, and fluid components. */
     private static final class ComponentProcessIO implements ProcessIO {
         private final ItemStoreComponent items;
         private final EnergyStorageComponent energy;
 
-        ComponentProcessIO(ItemStoreComponent items, EnergyStorageComponent energy) {
+        @Nullable
+        private final FluidStoreComponent fluids;
+
+        ComponentProcessIO(ItemStoreComponent items, EnergyStorageComponent energy, @Nullable FluidStoreComponent fluids) {
             this.items = items;
             this.energy = energy;
+            this.fluids = fluids;
         }
 
         @Override
@@ -294,6 +326,22 @@ public final class RecipeProcessorComponent
             items.produceInto(0, result);
             for (int i = 0; i < rolledByproducts.size(); i++) {
                 items.produceInto(i + 1, rolledByproducts.get(i));
+            }
+        }
+
+        @Override
+        public boolean canAcceptFluid(FluidResult fluid) {
+            if (fluids == null) {
+                return false;
+            }
+            long amount = fluid.nativeAmount();
+            return fluids.tank().insert(fluid.key(), amount, true) == amount;
+        }
+
+        @Override
+        public void produceFluid(FluidResult fluid) {
+            if (fluids != null) {
+                fluids.tank().insert(fluid.key(), fluid.nativeAmount(), false);
             }
         }
     }
