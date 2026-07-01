@@ -1,7 +1,7 @@
 {
   "feature": "logistics:oil_sand",
   "placement": [
-    { "type": "minecraft:rarity_filter", "chance": 6 },
+    { "type": "minecraft:rarity_filter", "chance": 3 },
     { "type": "minecraft:in_square" },
     { "type": "minecraft:heightmap", "heightmap": "OCEAN_FLOOR_WG" },
     { "type": "minecraft:biome" }
