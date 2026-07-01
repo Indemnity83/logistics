@@ -2,5 +2,5 @@
   "type": "logistics:crucible",
   "ingredient": "minecraft:glowstone_dust",
   "result": { "fluid": "logistics:core/liquid_glowstone", "amount": 250 },
-  "energyrequired": 4000
+  "energyrequired": 20000
 }

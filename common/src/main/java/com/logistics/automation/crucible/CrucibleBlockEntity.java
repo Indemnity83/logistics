@@ -31,9 +31,10 @@ public class CrucibleBlockEntity extends MachineEntity {
 
     static final int INPUT_SLOT = 0;
 
-    static final long ENERGY_CAPACITY = 10_000L;
+    // Matches Thermal Expansion's Magma Crucible: 40 RF/t base rate, 40,000 RF buffer (basePower x 1000).
+    static final long ENERGY_CAPACITY = 40_000L;
     static final long MAX_ENERGY_INPUT = 128L;
-    static final int ENERGY_PER_TICK = 20;
+    static final int ENERGY_PER_TICK = 40;
 
     static final long TANK_CAPACITY_MB = 4_000L;
 

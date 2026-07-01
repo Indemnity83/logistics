@@ -1,0 +1,6 @@
+{
+  "type": "logistics:crucible",
+  "ingredient": "minecraft:snowball",
+  "result": { "fluid": "minecraft:water", "amount": 125 },
+  "energyrequired": 200
+}

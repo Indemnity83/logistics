@@ -2,5 +2,5 @@
   "type": "logistics:crucible",
   "ingredient": "minecraft:ice",
   "result": { "fluid": "minecraft:water", "amount": 1000 },
-  "energyrequired": 2000
+  "energyrequired": 1600
 }
