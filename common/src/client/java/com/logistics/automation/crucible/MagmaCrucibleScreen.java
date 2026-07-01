@@ -71,8 +71,7 @@ public class MagmaCrucibleScreen extends AbstractContainerScreen<MagmaCrucibleSc
         }
         Fluid fluid = BuiltInRegistries.FLUID.byId(fluidId);
         var id = BuiltInRegistries.FLUID.getKey(fluid);
-        Component amount = Component.translatable(
-                        "tooltip.logistics.fluid.tank_amount", amountMb, menu.getTankCapacityMb())
+        Component amount = Component.translatable("tooltip.logistics.fluid.tank_amount", amountMb)
                 .withStyle(ChatFormatting.GRAY);
         Component mod = Component.literal(modName(id.getNamespace()))
                 .withStyle(ChatFormatting.BLUE, ChatFormatting.ITALIC);
@@ -92,7 +91,10 @@ public class MagmaCrucibleScreen extends AbstractContainerScreen<MagmaCrucibleSc
         if (block != Blocks.AIR) {
             return block.getName();
         }
-        return Component.translatable(BuiltInRegistries.FLUID.getKey(fluid).toLanguageKey("fluid"));
+        // toLanguageKey() leaves the path's '/' intact ("fluid.logistics.core/liquid_redstone"); our lang
+        // keys use dots, so build the key ourselves with '/' → '.'.
+        var id = BuiltInRegistries.FLUID.getKey(fluid);
+        return Component.translatable("fluid." + id.getNamespace() + "." + id.getPath().replace('/', '.'));
     }
 
     @Override
