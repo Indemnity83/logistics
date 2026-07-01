@@ -1,0 +1,4 @@
+{
+  "parent": "logistics:block/automation/magma_crucible",
+  "textures": { "front": "logistics:block/automation/magma_crucible_on" }
+}
