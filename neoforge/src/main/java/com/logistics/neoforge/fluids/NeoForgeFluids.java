@@ -57,4 +57,14 @@ public final class NeoForgeFluids {
     public static Map<String, FluidType> types() {
         return TYPES;
     }
+
+    /** Registered source fluids by name — for client fluid-model registration. */
+    public static Map<String, FlowingFluid> sources() {
+        return SOURCES;
+    }
+
+    /** Registered flowing fluids by name — for client fluid-model registration. */
+    public static Map<String, FlowingFluid> flowings() {
+        return FLOWINGS;
+    }
 }

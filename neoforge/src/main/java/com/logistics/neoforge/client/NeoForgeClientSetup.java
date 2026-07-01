@@ -38,10 +38,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.color.block.BlockTintSources;
+import net.minecraft.client.renderer.block.FluidModel;
+import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.resources.Identifier; // raw-id-ok
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.client.network.event.RegisterClientPayloadHandlersEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
+import net.neoforged.neoforge.client.event.RegisterFluidModelsEvent;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
@@ -59,6 +63,35 @@ public final class NeoForgeClientSetup {
         modBus.addListener(NeoForgeClientSetup::registerBlockColors);
         modBus.addListener(NeoForgeClientSetup::registerClientPayloadHandlers);
         modBus.addListener(NeoForgeClientSetup::registerFluidExtensions);
+        modBus.addListener(NeoForgeClientSetup::registerFluidModels);
+    }
+
+    /**
+     * Registers each custom fluid's model (still/flow sprites + flat tint) into the vanilla fluid model set
+     * — this is what the tank/pipe {@code FluidBoxRenderer} reads on 26.2. Mirrors Fabric's
+     * {@code FluidRenderingRegistry} call; {@link #registerFluidExtensions} only covers item-container tint.
+     */
+    private static void registerFluidModels(RegisterFluidModelsEvent event) {
+        Map<String, LogisticsCore.FluidDef> defs = new HashMap<>();
+        for (LogisticsCore.FluidDef def : LogisticsCore.CUSTOM_FLUIDS) {
+            defs.put(def.name(), def);
+        }
+        var flowings = NeoForgeFluids.flowings();
+        NeoForgeFluids.sources().forEach((name, source) -> {
+            LogisticsCore.FluidDef def = defs.get(name);
+            Material overlay = def.overlay() != null ? material(def.overlay()) : null;
+            FluidModel.Unbaked model = new FluidModel.Unbaked(
+                    material(def.still()), material(def.flow()), overlay,
+                    BlockTintSources.constant(def.tint() & 0xFFFFFF));
+            event.register(model, source, flowings.get(name));
+        });
+    }
+
+    /** Builds a sprite material from a {@code "namespace:path"} texture id. */
+    private static Material material(String texture) {
+        int colon = texture.indexOf(':');
+        return new Material(
+                ResourceId.in(texture.substring(0, colon), texture.substring(colon + 1)).toIdentifier());
     }
 
     /** Supplies each custom fluid's still/flow textures + flat tint to NeoForge's fluid renderer. */
