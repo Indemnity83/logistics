@@ -55,8 +55,16 @@ public final class FluidBoxRenderer {
             return null;
         }
         var tintSource = model.tintSource();
-        int tint = tintSource != null ? opaque(tintSource.color(fluidState.createLegacyBlock())) : 0xFFFFFFFF;
-        return new Appearance(sprite, tint);
+        if (tintSource == null) {
+            return new Appearance(sprite, 0xFFFFFFFF);
+        }
+        // The world-independent color() is neutral for water on NeoForge, so tint against the player's
+        // surroundings (they're standing at the machine) to get the biome water colour on both loaders.
+        Minecraft mc = Minecraft.getInstance();
+        int tint = mc.level != null && mc.player != null
+                ? tintSource.colorInWorld(fluidState.createLegacyBlock(), mc.level, mc.player.blockPosition())
+                : tintSource.color(fluidState.createLegacyBlock());
+        return new Appearance(sprite, opaque(tint));
     }
 
     /** Forces an ARGB colour opaque (some tint sources omit alpha). */
