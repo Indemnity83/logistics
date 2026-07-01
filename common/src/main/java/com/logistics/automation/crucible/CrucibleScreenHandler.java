@@ -103,32 +103,14 @@ public class CrucibleScreenHandler extends AbstractContainerMenu {
 
     // ==================== Data Getters for GUI Rendering ====================
 
-    public int getEnergySpent() {
-        return data.get(CrucibleBlockEntity.DATA_PROGRESS);
-    }
-
-    public int getEnergyRequired() {
-        return data.get(CrucibleBlockEntity.DATA_TOTAL);
-    }
-
-    public int getEnergyStored() {
-        return data.get(CrucibleBlockEntity.DATA_ENERGY);
-    }
-
-    public int getEnergyCapacity() {
-        return (int) CrucibleBlockEntity.ENERGY_CAPACITY;
-    }
-
+    /** Progress arrow width (0..24 px) from the synced 0..{@code DATA_SCALE} progress fraction. */
     public int getProgressArrowWidth() {
-        int required = getEnergyRequired();
-        if (required <= 0) return 0;
-        return 24 * getEnergySpent() / required;
+        return Math.min(24, 24 * data.get(CrucibleBlockEntity.DATA_PROGRESS) / CrucibleBlockEntity.DATA_SCALE);
     }
 
+    /** Energy bar height (0..30 px) from the synced 0..{@code DATA_SCALE} energy fill fraction. */
     public int getEnergyBarHeight() {
-        int capacity = getEnergyCapacity();
-        if (capacity <= 0) return 0;
-        return 30 * getEnergyStored() / capacity;
+        return Math.min(30, 30 * data.get(CrucibleBlockEntity.DATA_ENERGY) / CrucibleBlockEntity.DATA_SCALE);
     }
 
     /** Registry id of the fluid in the tank, or {@code -1} when empty. */

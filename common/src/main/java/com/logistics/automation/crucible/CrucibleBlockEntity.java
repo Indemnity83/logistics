@@ -31,19 +31,21 @@ public class CrucibleBlockEntity extends MachineEntity {
 
     static final int INPUT_SLOT = 0;
 
-    // Heavy machine: a 40,000 RF buffer spent at a 40 RF/t base rate.
     static final long ENERGY_CAPACITY = 40_000L;
     static final long MAX_ENERGY_INPUT = 128L;
     static final int ENERGY_PER_TICK = 40;
 
     static final long TANK_CAPACITY_MB = 10_000L;
 
+    // ContainerData syncs each value as a 16-bit short, so raw RF (recipes run to hundreds of thousands)
+    // would overflow. Progress and energy are synced as a 0..DATA_SCALE fraction instead.
+    static final int DATA_SCALE = 10_000;
+
     static final int DATA_PROGRESS = 0;
-    static final int DATA_TOTAL = 1;
-    static final int DATA_ENERGY = 2;
-    static final int DATA_FLUID_ID = 3;
-    static final int DATA_FLUID_AMOUNT = 4;
-    static final int DATA_COUNT = 5;
+    static final int DATA_ENERGY = 1;
+    static final int DATA_FLUID_ID = 2;
+    static final int DATA_FLUID_AMOUNT = 3;
+    static final int DATA_COUNT = 4;
 
     private EnergyStorageComponent energy;
     private RecipeProcessorComponent processor;
@@ -53,9 +55,10 @@ public class CrucibleBlockEntity extends MachineEntity {
         @Override
         public int get(int index) {
             return switch (index) {
-                case DATA_PROGRESS -> (int) Math.min(processor.energySpent(), Integer.MAX_VALUE);
-                case DATA_TOTAL -> (int) Math.min(processor.energyRequired(), Integer.MAX_VALUE);
-                case DATA_ENERGY -> (int) Math.min(energy.amount(), Integer.MAX_VALUE);
+                case DATA_PROGRESS -> Math.round(processor.progress() * DATA_SCALE);
+                case DATA_ENERGY -> ENERGY_CAPACITY <= 0
+                        ? 0
+                        : (int) (energy.amount() * DATA_SCALE / ENERGY_CAPACITY);
                 case DATA_FLUID_ID -> fluidStore.tank().isEmpty()
                         ? -1
                         : BuiltInRegistries.FLUID.getId(fluidStore.tank().getFluidKey().getFluid());
