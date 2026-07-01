@@ -1,0 +1,20 @@
+{
+  "type": "logistics:alloy_smelter",
+  "ingredients": [
+    {
+      "item": "minecraft:golden_helmet"
+    },
+    {
+      "tag": "c:sands"
+    }
+  ],
+  "result": {
+    "id": "minecraft:gold_ingot",
+    "count": 2
+  },
+  "byproduct": {
+    "id": "logistics:core/slag",
+    "chance": 0.15
+  },
+  "energy": 6000
+}

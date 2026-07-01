@@ -1,0 +1,20 @@
+{
+  "type": "logistics:alloy_smelter",
+  "ingredients": [
+    {
+      "item": "minecraft:bucket"
+    },
+    {
+      "tag": "c:sands"
+    }
+  ],
+  "result": {
+    "id": "minecraft:iron_ingot",
+    "count": 3
+  },
+  "byproduct": {
+    "id": "logistics:core/slag",
+    "chance": 0.15
+  },
+  "energy": 4000
+}

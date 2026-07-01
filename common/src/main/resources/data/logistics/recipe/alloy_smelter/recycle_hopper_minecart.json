@@ -1,0 +1,20 @@
+{
+  "type": "logistics:alloy_smelter",
+  "ingredients": [
+    {
+      "item": "minecraft:hopper_minecart"
+    },
+    {
+      "tag": "c:sands"
+    }
+  ],
+  "result": {
+    "id": "minecraft:iron_ingot",
+    "count": 8
+  },
+  "byproduct": {
+    "id": "logistics:core/slag",
+    "chance": 0.2
+  },
+  "energy": 4000
+}

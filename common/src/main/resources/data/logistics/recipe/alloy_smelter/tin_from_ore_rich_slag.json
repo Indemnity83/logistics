@@ -1,0 +1,20 @@
+{
+  "type": "logistics:alloy_smelter",
+  "ingredients": [
+    {
+      "tag": "c:ores/tin"
+    },
+    {
+      "item": "logistics:core/rich_slag"
+    }
+  ],
+  "result": {
+    "id": "logistics:core/tin_ingot",
+    "count": 3
+  },
+  "byproduct": {
+    "id": "logistics:core/slag",
+    "chance": 0.75
+  },
+  "energy": 4000
+}

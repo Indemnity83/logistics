@@ -1,0 +1,23 @@
+{
+  "type": "logistics:alloy_smelter",
+  "ingredients": [
+    {
+      "id": {
+        "item": "minecraft:netherrack"
+      },
+      "count": 2
+    },
+    {
+      "item": "minecraft:soul_sand"
+    }
+  ],
+  "result": {
+    "id": "minecraft:nether_bricks",
+    "count": 2
+  },
+  "byproduct": {
+    "id": "logistics:core/sulfur_dust",
+    "chance": 0.25
+  },
+  "energy": 4000
+}

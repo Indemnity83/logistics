@@ -1,0 +1,34 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " D ",
+    "SMS",
+    "GCG"
+  ],
+  "key": {
+    "D": {
+      "item": "logistics:core/diamond_gear"
+    },
+    "S": [
+      {
+        "item": "minecraft:sand"
+      },
+      {
+        "item": "minecraft:red_sand"
+      }
+    ],
+    "M": {
+      "item": "logistics:core/machine_core"
+    },
+    "G": {
+      "item": "logistics:core/copper_gear"
+    },
+    "C": {
+      "item": "logistics:core/redstone_reception_coil"
+    }
+  },
+  "result": {
+    "id": "logistics:automation/alloy_smelter",
+    "count": 1
+  }
+}

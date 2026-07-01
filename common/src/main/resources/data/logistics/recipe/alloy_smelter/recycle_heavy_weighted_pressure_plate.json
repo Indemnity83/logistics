@@ -1,0 +1,20 @@
+{
+  "type": "logistics:alloy_smelter",
+  "ingredients": [
+    {
+      "item": "minecraft:heavy_weighted_pressure_plate"
+    },
+    {
+      "tag": "c:sands"
+    }
+  ],
+  "result": {
+    "id": "minecraft:iron_ingot",
+    "count": 2
+  },
+  "byproduct": {
+    "id": "logistics:core/slag",
+    "chance": 0.1
+  },
+  "energy": 4000
+}

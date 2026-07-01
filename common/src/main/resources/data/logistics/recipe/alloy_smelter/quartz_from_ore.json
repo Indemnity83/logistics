@@ -1,0 +1,20 @@
+{
+  "type": "logistics:alloy_smelter",
+  "ingredients": [
+    {
+      "tag": "c:ores/quartz"
+    },
+    {
+      "tag": "c:sands"
+    }
+  ],
+  "result": {
+    "id": "minecraft:quartz",
+    "count": 4
+  },
+  "byproduct": {
+    "id": "logistics:core/rich_slag",
+    "chance": 0.5
+  },
+  "energy": 4000
+}

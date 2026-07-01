@@ -1,0 +1,20 @@
+{
+  "type": "logistics:alloy_smelter",
+  "ingredients": [
+    {
+      "tag": "c:ores/gold"
+    },
+    {
+      "tag": "c:sands"
+    }
+  ],
+  "result": {
+    "id": "minecraft:gold_ingot",
+    "count": 2
+  },
+  "byproduct": {
+    "id": "logistics:core/rich_slag",
+    "chance": 0.2
+  },
+  "energy": 4000
+}

@@ -1,0 +1,6 @@
+{
+  "parent": "logistics:block/core/machine",
+  "textures": {
+    "front": "logistics:block/automation/alloy_smelter_off"
+  }
+}

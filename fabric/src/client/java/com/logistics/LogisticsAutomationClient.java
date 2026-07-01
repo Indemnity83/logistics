@@ -1,5 +1,6 @@
 package com.logistics;
 
+import com.logistics.automation.alloysmelter.AlloySmelterScreen;
 import com.logistics.automation.kiln.KilnScreen;
 import com.logistics.automation.macerator.MaceratorScreen;
 import com.logistics.automation.sawmill.SawmillScreen;
@@ -30,6 +31,7 @@ public final class LogisticsAutomationClient implements ClientDomainBootstrap {
         MenuScreens.register(LogisticsAutomation.MENU.KILN, KilnScreen::new);
         MenuScreens.register(LogisticsAutomation.MENU.MACERATOR, MaceratorScreen::new);
         MenuScreens.register(LogisticsAutomation.MENU.SAWMILL, SawmillScreen::new);
+        MenuScreens.register(LogisticsAutomation.MENU.ALLOY_SMELTER, AlloySmelterScreen::new);
 
         ClientRenderCacheHooks.setQuarryInterpolationClearer(LaserQuarryBlockEntityRenderer::clearInterpolationCache);
         ClientRenderCacheHooks.setClearAllInterpolationCaches(LaserQuarryBlockEntityRenderer::clearAllInterpolationCaches);
