@@ -1,0 +1,7 @@
+{
+  "type": "logistics:alloy_smelter",
+  "ingredients": [ "logistics:core/bronze_dust", "#c:sands" ],
+  "result": { "id": "logistics:core/bronze_ingot", "count": 1 },
+  "byproduct": { "id": "logistics:core/slag", "chance": 0.25 },
+  "energy": 1000
+}

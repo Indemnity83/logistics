@@ -1,0 +1,7 @@
+{
+  "type": "logistics:alloy_smelter",
+  "ingredients": [ "minecraft:cauldron", "#c:sands" ],
+  "result": { "id": "minecraft:iron_ingot", "count": 7 },
+  "byproduct": { "id": "logistics:core/slag", "chance": 0.35 },
+  "energy": 4000
+}

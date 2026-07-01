@@ -1,0 +1,7 @@
+{
+  "type": "logistics:alloy_smelter",
+  "ingredients": [ "minecraft:powered_rail", "#c:sands" ],
+  "result": { "id": "minecraft:gold_nugget", "count": 6 },
+  "byproduct": { "id": "logistics:core/slag", "chance": 0.1 },
+  "energy": 4000
+}

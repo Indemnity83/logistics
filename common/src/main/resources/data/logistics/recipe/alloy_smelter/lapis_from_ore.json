@@ -1,0 +1,7 @@
+{
+  "type": "logistics:alloy_smelter",
+  "ingredients": [ "#c:ores/lapis", "#c:sands" ],
+  "result": { "id": "minecraft:lapis_lazuli", "count": 8 },
+  "byproduct": { "id": "logistics:core/rich_slag", "chance": 0.5 },
+  "energy": 4000
+}

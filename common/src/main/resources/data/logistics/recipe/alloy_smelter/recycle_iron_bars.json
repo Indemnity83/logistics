@@ -1,0 +1,7 @@
+{
+  "type": "logistics:alloy_smelter",
+  "ingredients": [ "minecraft:iron_bars", "#c:sands" ],
+  "result": { "id": "minecraft:iron_nugget", "count": 3 },
+  "byproduct": { "id": "logistics:core/slag", "chance": 0.05 },
+  "energy": 4000
+}
