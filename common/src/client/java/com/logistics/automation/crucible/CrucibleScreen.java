@@ -2,6 +2,7 @@ package com.logistics.automation.crucible;
 
 import com.logistics.LogisticsMod;
 import com.logistics.core.lib.client.render.FluidBoxRenderer;
+import com.logistics.core.lib.fluids.FluidDisplay;
 import com.logistics.core.lib.resource.ResourceId;
 import java.util.List;
 import java.util.Optional;
@@ -13,7 +14,6 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 
@@ -75,7 +75,7 @@ public class CrucibleScreen extends AbstractContainerScreen<CrucibleScreenHandle
                 .withStyle(ChatFormatting.GRAY);
         Component mod = Component.literal(modName(id.getNamespace()))
                 .withStyle(ChatFormatting.BLUE, ChatFormatting.ITALIC);
-        return List.of(fluidName(fluid), amount, mod);
+        return List.of(FluidDisplay.name(fluid), amount, mod);
     }
 
     /** Best-effort friendly mod name from a namespace (first letter capitalised). */
@@ -83,18 +83,6 @@ public class CrucibleScreen extends AbstractContainerScreen<CrucibleScreenHandle
         return namespace.isEmpty()
                 ? namespace
                 : Character.toUpperCase(namespace.charAt(0)) + namespace.substring(1);
-    }
-
-    /** A fluid's display name: its world block's name, or an id-derived key for block-less fluids. */
-    private static Component fluidName(Fluid fluid) {
-        var block = fluid.defaultFluidState().createLegacyBlock().getBlock();
-        if (block != Blocks.AIR) {
-            return block.getName();
-        }
-        // toLanguageKey() leaves the path's '/' intact ("fluid.logistics.core/liquid_redstone"); our lang
-        // keys use dots, so build the key ourselves with '/' → '.'.
-        var id = BuiltInRegistries.FLUID.getKey(fluid);
-        return Component.translatable("fluid." + id.getNamespace() + "." + id.getPath().replace('/', '.'));
     }
 
     @Override
