@@ -66,7 +66,7 @@ public final class LogisticsFluid extends LogisticsMod {
     public static final List<FluidDef> CUSTOM_FLUIDS = List.of(
         FluidDef.water("liquid_redstone", 0xFFE62008),
         FluidDef.water("liquid_ender", 0xFF105E51),
-        new FluidDef("liquid_glowstone", 0xFFFFC24E,
+        new FluidDef("liquid_glowstone", 0xFFFBDA74,
             "logistics:block/fluid/glowstone_still", "logistics:block/fluid/glowstone_flow", null),
         FluidDef.water("crude_oil", 0xFF353535),
         FluidDef.water("liquid_biomass", 0xFF98F01C));
