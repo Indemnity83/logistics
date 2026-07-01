@@ -73,6 +73,9 @@ public class CrucibleRecipeCategory implements IRecipeCategory<CrucibleRecipe> {
         builder.addDrawable(arrow, ARROW_X, ARROW_Y);
     }
 
+    // JEI's cross-platform addFluidStack is marked deprecated-for-removal, but it's the only
+    // loader-agnostic fluid API on this version (the alternative is the Fabric-only JeiFluidIngredient).
+    @SuppressWarnings("removal")
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, CrucibleRecipe recipe, IFocusGroup focuses) {
         builder.addSlot(RecipeIngredientRole.INPUT, INPUT_X, INPUT_Y)
