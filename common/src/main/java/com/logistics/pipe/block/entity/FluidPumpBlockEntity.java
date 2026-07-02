@@ -105,4 +105,9 @@ public class FluidPumpBlockEntity extends MachineEntity implements AcceptsLowTie
     public long energyAmount() {
         return energy.amount();
     }
+
+    // Test seam: override the arm speed for this pump only.
+    public void setArmSpeedOverride(float armSpeed) {
+        pump.setArmSpeedOverride(armSpeed);
+    }
 }
