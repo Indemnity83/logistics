@@ -12,6 +12,8 @@ import com.logistics.core.marker.MarkerBlockEntity;
 import com.logistics.core.worldgen.BogPatchConfiguration;
 import com.logistics.core.worldgen.BogPatchFeature;
 import com.logistics.core.worldgen.CrudeOilLakeFeature;
+import com.logistics.core.worldgen.OilDepositConfiguration;
+import com.logistics.core.worldgen.OilDepositFeature;
 import net.minecraft.world.level.levelgen.feature.LakeFeature;
 import java.util.List;
 import net.minecraft.core.Registry;
@@ -114,6 +116,7 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
     public static final class WORLDGEN {
         public static Feature<BogPatchConfiguration> BOG_PATCH;
         public static Feature<LakeFeature.Configuration> CRUDE_OIL_LAKE;
+        public static Feature<OilDepositConfiguration> OIL_DEPOSIT;
 
         private WORLDGEN() {}
 
@@ -126,6 +129,10 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
                 BuiltInRegistries.FEATURE,
                 LogisticsMod.modId("crude_oil_lake").toIdentifier(),
                 new CrudeOilLakeFeature());
+            OIL_DEPOSIT = Registry.register(
+                BuiltInRegistries.FEATURE,
+                LogisticsMod.modId("oil_deposit").toIdentifier(),
+                new OilDepositFeature(OilDepositConfiguration.CODEC));
         }
     }
 

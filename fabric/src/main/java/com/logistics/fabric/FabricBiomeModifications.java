@@ -45,14 +45,21 @@ public final class FabricBiomeModifications {
         );
 
         // Crude oil lakes (vanilla lake feature; barrier ore picked by biome): one roll across the
-        // overworld, exactly like surface lava lakes. Oil shale stays underground gravel veins.
+        // overworld, exactly like surface lava lakes. Oil deposits are big speckled oil-sand blobs in the
+        // sandy biomes (desert/beach/badlands). Oil shale stays underground gravel veins.
         var isDesert = TagKey.create(Registries.BIOME, ResourceId.in("c", "is_desert").toIdentifier());
         var isBadlands = TagKey.create(Registries.BIOME, ResourceId.in("c", "is_badlands").toIdentifier());
         var isSavanna = TagKey.create(Registries.BIOME, ResourceId.in("c", "is_savanna").toIdentifier());
+        var isSandy = TagKey.create(Registries.BIOME, ResourceId.in("c", "is_sandy").toIdentifier());
         BiomeModifications.addFeature(
             BiomeSelectors.foundInOverworld(),
             GenerationStep.Decoration.LAKES,
             ResourceKey.create(Registries.PLACED_FEATURE, LogisticsMod.modId("crude_oil_lake").toIdentifier())
+        );
+        BiomeModifications.addFeature(
+            BiomeSelectors.tag(isSandy),
+            GenerationStep.Decoration.UNDERGROUND_ORES,
+            ResourceKey.create(Registries.PLACED_FEATURE, LogisticsMod.modId("oil_deposit").toIdentifier())
         );
         BiomeModifications.addFeature(
             BiomeSelectors.tag(isDesert).or(BiomeSelectors.tag(isBadlands)).or(BiomeSelectors.tag(isSavanna)),
