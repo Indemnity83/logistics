@@ -43,8 +43,10 @@ public final class LogisticsFabric implements ModInitializer {
         FabricPacketRegistration.register();
         FabricBiomeModifications.register();
 
-        // Peat burns long enough to smelt 10 items; works in furnaces and the Stirling Engine.
+        // Oil-chain and peat fuels; work in furnaces and the Stirling Engine. (Coal is 1600 for reference.)
         FuelRegistry.INSTANCE.add(LogisticsCore.ITEM.PEAT, 2000);
+        FuelRegistry.INSTANCE.add(LogisticsCore.ITEM.BITUMEN, 3200);
+        FuelRegistry.INSTANCE.add(LogisticsCore.ITEM.TAR, 800);
 
         FabricLoader.getInstance().getModContainer(LogisticsMod.MOD_ID).ifPresent(container ->
             ResourceManagerHelper.registerBuiltinResourcePack(

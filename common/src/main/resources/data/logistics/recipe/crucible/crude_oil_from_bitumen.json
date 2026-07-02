@@ -1,0 +1,11 @@
+{
+  "type": "logistics:crucible",
+  "ingredient": {
+    "item": "logistics:core/bitumen"
+  },
+  "result": {
+    "fluid": "logistics:core/crude_oil",
+    "amount": 250
+  },
+  "energyrequired": 2000
+}

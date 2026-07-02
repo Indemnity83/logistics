@@ -1,5 +1,7 @@
 {
   "values": {
-    "logistics:core/peat": { "burn_time": 2000 }
+    "logistics:core/peat": { "burn_time": 2000 },
+    "logistics:core/bitumen": { "burn_time": 3200 },
+    "logistics:core/tar": { "burn_time": 800 }
   }
 }

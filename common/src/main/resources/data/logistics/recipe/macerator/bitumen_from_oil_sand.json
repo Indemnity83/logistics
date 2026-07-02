@@ -1,0 +1,15 @@
+{
+  "type": "logistics:macerator",
+  "ingredient": {
+    "item": "logistics:core/oil_sand"
+  },
+  "result": {
+    "id": "logistics:core/bitumen",
+    "count": 3
+  },
+  "energyrequired": 4000,
+  "byproduct": {
+    "id": "logistics:core/tar",
+    "chance": 0.5
+  }
+}

@@ -63,6 +63,7 @@ public final class NeoForgeClientSetup {
         NeoForgePacketRegistration.registerSyncRequesterInventoryHandler(NeoForgeClientSetup::handleSyncRequesterInventory);
         modBus.addListener(NeoForgeClientSetup::onClientSetup);
         modBus.addListener(NeoForgeClientSetup::registerScreens);
+        modBus.addListener(NeoForgeClientSetup::registerRenderers);
         modBus.addListener(NeoForgeClientSetup::registerItemColors);
         modBus.addListener(NeoForgeClientSetup::registerFluidExtensions);
         modBus.addListener(NeoForgeModelLoader::registerGeometryLoaders);

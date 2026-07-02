@@ -1,0 +1,5 @@
+{
+  "variants": {
+    "": { "model": "logistics:block/core/crude_oil" }
+  }
+}

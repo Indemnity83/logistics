@@ -1,0 +1,11 @@
+{
+  "type": "logistics:crucible",
+  "ingredient": {
+    "item": "logistics:core/oil_red_sand"
+  },
+  "result": {
+    "fluid": "logistics:core/crude_oil",
+    "amount": 1000
+  },
+  "energyrequired": 4000
+}

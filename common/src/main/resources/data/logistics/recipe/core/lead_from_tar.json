@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "~": {
+      "item": "minecraft:string"
+    },
+    "B": {
+      "item": "logistics:core/tar"
+    }
+  },
+  "pattern": [
+    "~~ ",
+    "~B ",
+    "  ~"
+  ],
+  "result": {
+    "count": 2,
+    "id": "minecraft:lead"
+  }
+}

@@ -14,6 +14,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FlowingFluid;
 
@@ -32,13 +33,25 @@ public final class FabricFluids {
         for (LogisticsCore.FluidDef def : LogisticsCore.CUSTOM_FLUIDS) {
             String name = def.name();
             FlowingFluid[] pair = new FlowingFluid[2]; // [0] source, [1] flowing
+            LiquidBlock[] blockHolder = new LiquidBlock[1]; // null for tank-only fluids
+            LogisticsCore.FluidDef.WorldFlow flow = def.world();
+            int slope = flow != null ? flow.slopeFindDistance() : 4;
+            int drop = flow != null ? flow.dropOff() : 1;
+            int tick = flow != null ? flow.tickDelay() : 5;
             pair[0] = new FabricLogisticsFluid(
-                true, () -> pair[0], () -> pair[1], () -> LogisticsCore.BUCKET.forFluid(name));
+                true, () -> pair[0], () -> pair[1], () -> LogisticsCore.BUCKET.forFluid(name),
+                () -> blockHolder[0], slope, drop, tick);
             pair[1] = new FabricLogisticsFluid(
-                false, () -> pair[0], () -> pair[1], () -> LogisticsCore.BUCKET.forFluid(name));
+                false, () -> pair[0], () -> pair[1], () -> LogisticsCore.BUCKET.forFluid(name),
+                () -> blockHolder[0], slope, drop, tick);
             Registry.register(BuiltInRegistries.FLUID, LogisticsCore.resource(name).toIdentifier(), pair[0]);
             Registry.register(BuiltInRegistries.FLUID, LogisticsCore.resource("flowing_" + name).toIdentifier(), pair[1]);
             SOURCES.put(name, pair[0]);
+
+            if (def.placeable()) {
+                blockHolder[0] = LogisticsCore.registerFluidBlock(name, pair[0]);
+                LogisticsCore.registerFluidBucket(name, pair[0]);
+            }
 
             // Without a name handler, Fabric's default resolves a block-less fluid to a "block.<ns>/<path>"
             // key we don't ship, so Jade's built-in fluid element (tanks, pipes) shows a raw key. Point both

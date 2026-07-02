@@ -8,6 +8,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -20,8 +21,9 @@ import net.minecraft.world.level.LightLayer;
  * of the (solid) face and clipped to the window region — filling from the window bottom (pixel 4) up to
  * the top (pixel 12) as the tank fills. Rotated to the block facing.
  *
- * <p>MC 1.21.1 uses the classic {@link BlockEntityRenderer} API (no render-state / SubmitNodeCollector):
- * the face gauge is drawn directly into a {@code translucent} buffer.
+ * <p>MC 1.21.1 uses the classic {@link BlockEntityRenderer} API (no render-state / SubmitNodeCollector).
+ * The opaque gauge is drawn into an entity cutout buffer on the block atlas — a block-entity-appropriate
+ * render type whose vertex format carries the overlay element the fluid vertices emit.
  */
 public class CrucibleBlockEntityRenderer implements BlockEntityRenderer<CrucibleBlockEntity> {
 
@@ -80,7 +82,7 @@ public class CrucibleBlockEntityRenderer implements BlockEntityRenderer<Crucible
         poseStack.translate(0.5, 0.5, 0.5);
         poseStack.mulPose(Axis.YP.rotationDegrees(-angle));
         poseStack.translate(-0.5, -0.5, -0.5);
-        VertexConsumer buffer = bufferSource.getBuffer(RenderType.translucent());
+        VertexConsumer buffer = bufferSource.getBuffer(RenderType.entityCutoutNoCull(TextureAtlas.LOCATION_BLOCKS));
         FluidBoxRenderer.renderFaceQuad(poseStack.last(), buffer, sprite, color, light, X0, Y_BOTTOM, X1, top, Z_FACE);
         poseStack.popPose();
     }
