@@ -1,15 +1,20 @@
 package com.logistics.fabric.fluids;
 
 import com.logistics.LogisticsCore;
+import com.logistics.core.lib.fluids.FluidDisplay;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
+import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariantAttributeHandler;
+import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariantAttributes;
 import net.fabricmc.fabric.api.transfer.v1.fluid.base.FullItemFluidStorage;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FlowingFluid;
 
 /**
@@ -34,7 +39,23 @@ public final class FabricFluids {
             Registry.register(BuiltInRegistries.FLUID, LogisticsCore.resource(name).toIdentifier(), pair[0]);
             Registry.register(BuiltInRegistries.FLUID, LogisticsCore.resource("flowing_" + name).toIdentifier(), pair[1]);
             SOURCES.put(name, pair[0]);
+
+            // Without a name handler, Fabric's default resolves a block-less fluid to a "block.<ns>/<path>"
+            // key we don't ship, so Jade's built-in fluid element (tanks, pipes) shows a raw key. Point both
+            // the source and flowing forms at the source's shared display name.
+            FluidVariantAttributeHandler nameHandler = nameHandler(pair[0]);
+            FluidVariantAttributes.register(pair[0], nameHandler);
+            FluidVariantAttributes.register(pair[1], nameHandler);
         }
+    }
+
+    private static FluidVariantAttributeHandler nameHandler(Fluid source) {
+        return new FluidVariantAttributeHandler() {
+            @Override
+            public Component getName(FluidVariant variant) {
+                return FluidDisplay.name(source);
+            }
+        };
     }
 
     /** Registered source fluids by name (in {@link LogisticsCore#CUSTOM_FLUIDS} order). */

@@ -72,6 +72,7 @@ public final class NeoForgeCapabilityRegistration {
         registerEnergy(event, LogisticsAutomation.ENTITY.LASER_QUARRY_BLOCK_ENTITY);
         registerEnergy(event, LogisticsAutomation.ENTITY.KILN_BLOCK_ENTITY);
         registerEnergy(event, LogisticsAutomation.ENTITY.ALLOY_SMELTER_BLOCK_ENTITY);
+        registerEnergy(event, LogisticsAutomation.ENTITY.CRUCIBLE_BLOCK_ENTITY);
         registerEnergy(event, LogisticsFluid.ENTITY.FLUID_PUMP_BLOCK_ENTITY);
         // Extraction pipes (item + fluid) are DirectEnergyReceivers: kept off the energy grid so only
         // a directly-adjacent engine can power them (engines feed them directly).
@@ -81,12 +82,16 @@ public final class NeoForgeCapabilityRegistration {
         registerItems(event, LogisticsPipe.ENTITY.PIPE_BLOCK_ENTITY);
         registerItems(event, LogisticsAutomation.ENTITY.KILN_BLOCK_ENTITY);
         registerItems(event, LogisticsAutomation.ENTITY.ALLOY_SMELTER_BLOCK_ENTITY);
+        // Crucible input inventory, so item pipes can insert the melt input.
+        registerItems(event, LogisticsAutomation.ENTITY.CRUCIBLE_BLOCK_ENTITY);
 
         // Fluid pipes expose their buffer tank as a fluid handler on every enabled side.
         registerFluids(event, LogisticsFluid.ENTITY.FLUID_PIPE_BLOCK_ENTITY);
         // Glass tanks expose their whole vertical column as a fluid handler.
         registerFluids(event, LogisticsFluid.ENTITY.GLASS_TANK_BLOCK_ENTITY);
         registerFluids(event, LogisticsFluid.ENTITY.FLUID_PUMP_BLOCK_ENTITY);
+        // Crucible exposes its output tank as a fluid handler so pipes can pull the product.
+        registerFluids(event, LogisticsAutomation.ENTITY.CRUCIBLE_BLOCK_ENTITY);
 
         // Filled buckets expose a one-bucket fluid handler that drains to a plain bucket (Fabric uses
         // FullItemFluidStorage). Empty-bucket -> filled is handled by vanilla BucketResourceHandler via the

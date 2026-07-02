@@ -1,5 +1,6 @@
 package com.logistics.core.machine.component;
 
+import com.logistics.core.lib.recipe.FluidResult;
 import java.util.List;
 import net.minecraft.world.item.ItemStack;
 
@@ -44,4 +45,15 @@ public interface ProcessIO {
 
     /** Places the primary result and the already-rolled byproduct stacks into their output slots. */
     void produceOutputs(ItemStack result, List<ItemStack> rolledByproducts);
+
+    /**
+     * Whether the machine's fluid output can fully accept {@code fluid}. Only called for recipes that
+     * declare a fluid result; machines without a tank never see one, so the default returns {@code true}.
+     */
+    default boolean canAcceptFluid(FluidResult fluid) {
+        return true;
+    }
+
+    /** Deposits {@code fluid} into the machine's tank; the default no-ops for machines without one. */
+    default void produceFluid(FluidResult fluid) {}
 }

@@ -11,6 +11,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.Fluids;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -22,23 +23,59 @@ public final class FluidBoxRenderer {
 
     private FluidBoxRenderer() {}
 
+    /** Vanilla default (biome-less) water colour, used where no biome is available to tint against. */
+    private static final int DEFAULT_WATER_TINT = 0xFF3F76E4;
+
     /** The still sprite and ARGB tint for a fluid; {@code tint} is opaque white when untinted. */
     public record Appearance(TextureAtlasSprite sprite, int tint) {}
+
+    /** A fluid's still sprite plus the model + state needed to compute its tint. */
+    private record Resolved(FluidState fluidState, FluidModel model, TextureAtlasSprite sprite) {}
+
+    /** Look up the still sprite + model for a fluid, or {@code null} if it has no still sprite. */
+    @Nullable
+    private static Resolved resolveModel(Fluid fluid) {
+        FluidState fluidState = fluid.defaultFluidState();
+        FluidModel model = Minecraft.getInstance().getModelManager().getFluidStateModelSet().get(fluidState);
+        TextureAtlasSprite sprite = model.stillMaterial().sprite();
+        return sprite == null ? null : new Resolved(fluidState, model, sprite);
+    }
 
     /** Resolve a fluid's still sprite and world tint, or {@code null} if it has no model. */
     @Nullable
     public static Appearance resolve(Fluid fluid, @Nullable Level level, BlockPos pos) {
-        FluidState fluidState = fluid.defaultFluidState();
-        FluidModel model = Minecraft.getInstance().getModelManager().getFluidStateModelSet().get(fluidState);
-        TextureAtlasSprite sprite = model.stillMaterial().sprite();
-        if (sprite == null) {
+        Resolved resolved = resolveModel(fluid);
+        if (resolved == null) {
             return null;
         }
-        var tintSource = model.tintSource();
+        var tintSource = resolved.model().tintSource();
         int tint = tintSource != null && level instanceof BlockAndTintGetter tintGetter
-                ? tintSource.colorInWorld(fluidState.createLegacyBlock(), tintGetter, pos)
+                ? tintSource.colorInWorld(resolved.fluidState().createLegacyBlock(), tintGetter, pos)
                 : 0xFFFFFFFF;
-        return new Appearance(sprite, tint);
+        return new Appearance(resolved.sprite(), tint);
+    }
+
+    /**
+     * Resolve a fluid's still sprite and a biome-less tint for GUI rendering, where no world is available
+     * to sample. Water uses the vanilla default water colour (its world-independent tint is neutral on
+     * NeoForge); other fluids fall back to their model tint (our baked fluids stay opaque white). In-world
+     * renderers should use {@link #resolve(Fluid, Level, BlockPos)} instead for a biome-accurate tint.
+     */
+    @Nullable
+    public static Appearance resolveForGui(Fluid fluid) {
+        Resolved resolved = resolveModel(fluid);
+        if (resolved == null) {
+            return null;
+        }
+        // Water is biome-tinted in-world, but there's no biome here (and NeoForge's world-independent
+        // tint is neutral), so use the vanilla default water colour — reads blue on both loaders. Other
+        // fluids fall back to their model tint (our custom fluids are untinted).
+        if (fluid == Fluids.WATER || fluid == Fluids.FLOWING_WATER) {
+            return new Appearance(resolved.sprite(), DEFAULT_WATER_TINT);
+        }
+        var tintSource = resolved.model().tintSource();
+        int tint = tintSource != null ? opaque(tintSource.color(resolved.fluidState().createLegacyBlock())) : 0xFFFFFFFF;
+        return new Appearance(resolved.sprite(), tint);
     }
 
     /** Forces an ARGB colour opaque (some tint sources omit alpha). */
@@ -72,6 +109,18 @@ public final class FluidBoxRenderer {
         quad(entry, buffer, sprite, color, light, 0, 0, 1, x1, y0, z1, x0, y0, z1, x0, y1, z1, x1, y1, z1);
         quad(entry, buffer, sprite, color, light, -1, 0, 0, x0, y0, z1, x0, y0, z0, x0, y1, z0, x0, y1, z1);
         quad(entry, buffer, sprite, color, light, 1, 0, 0, x1, y0, z0, x1, y0, z1, x1, y1, z1, x1, y1, z0);
+    }
+
+    /**
+     * Render a single flat quad on the {@code -Z} (north) plane at depth {@code z}, spanning
+     * {@code [x0,x1] × [y0,y1]} — a fluid gauge sitting flush on a block face (front + back, so it shows
+     * from both sides), with the same position-based UV as {@link #renderBox}. Rotate the matrix to place
+     * it on another face.
+     */
+    public static void renderFaceQuad(
+            PoseStack.Pose entry, VertexConsumer buffer, TextureAtlasSprite sprite, int color, int light,
+            float x0, float y0, float x1, float y1, float z) {
+        quad(entry, buffer, sprite, color, light, 0, 0, -1, x0, y0, z, x1, y0, z, x1, y1, z, x0, y1, z);
     }
 
     private static void quad(

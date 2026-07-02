@@ -126,6 +126,7 @@ public final class MachineBuilder {
     public final class FluidBuilder {
         private final String id;
         private long capacity;
+        private boolean outputOnly;
 
         private FluidBuilder(String id) {
             this.id = id;
@@ -136,11 +137,17 @@ public final class MachineBuilder {
             return this;
         }
 
+        /** Exposes the tank to pipes as drain-only (the machine fills it internally). */
+        public FluidBuilder outputOnly() {
+            this.outputOnly = true;
+            return this;
+        }
+
         public FluidStoreComponent build() {
             if (capacity <= 0) {
                 throw new IllegalStateException("fluids(" + id + ") requires a positive capacity, got " + capacity);
             }
-            return components.add(new FluidStoreComponent(id, capacity, onChanged));
+            return components.add(new FluidStoreComponent(id, capacity, onChanged, outputOnly));
         }
     }
 
@@ -215,6 +222,7 @@ public final class MachineBuilder {
         private long rfPerTick;
         private ItemStoreComponent items;
         private EnergyStorageComponent energy;
+        private FluidStoreComponent fluids;
         private LitController lit = (ctx, on) -> {};
 
         private RecipeProcessorBuilder(String id) {
@@ -241,6 +249,12 @@ public final class MachineBuilder {
             return this;
         }
 
+        /** Optional fluid output: recipes with a {@code FluidResult} deposit into this tank. */
+        public RecipeProcessorBuilder fluids(FluidStoreComponent fluids) {
+            this.fluids = fluids;
+            return this;
+        }
+
         /** Hook that toggles the machine's working/lit block state. */
         public RecipeProcessorBuilder lit(LitController lit) {
             this.lit = lit;
@@ -255,7 +269,8 @@ public final class MachineBuilder {
                 throw new IllegalStateException(
                         "recipeProcessor(" + id + ") requires a positive rfPerTick, got " + rfPerTick);
             }
-            return components.add(new RecipeProcessorComponent(id, resolver, rfPerTick, items, energy, lit, onChanged));
+            return components.add(
+                    new RecipeProcessorComponent(id, resolver, rfPerTick, items, energy, fluids, lit, onChanged));
         }
     }
 }
