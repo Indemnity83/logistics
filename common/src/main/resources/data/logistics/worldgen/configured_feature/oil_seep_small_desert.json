@@ -5,6 +5,7 @@
     "shell": { "Name": "logistics:core/oil_sand" },
     "radius": 4,
     "depth": 3,
-    "tendril_chance": 0.5
+    "tendril_chance": 0.6,
+    "perimeter_chance": 0.05
   }
 }

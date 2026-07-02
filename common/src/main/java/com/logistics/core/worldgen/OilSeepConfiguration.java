@@ -9,9 +9,11 @@ import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfigur
  * Config for {@link OilSeepFeature}: a surface crude oil pool with an oil-ore shell and radiating
  * tendrils. {@code fluid} fills the bowl (crude oil), {@code shell} lines the basin and forms the
  * tendrils (the biome's oil sand / oil red sand). {@code radius} + {@code depth} size the bowl (jittered
- * per seep); {@code tendrilChance} is the per-step continuation probability of each radiating streak.
+ * per seep). Each block on the pool's perimeter has a {@code perimeterChance} of seeding a tendril, which
+ * then spreads outward one block at a time, continuing at {@code tendrilChance} up to {@code radius} long.
  */
-public record OilSeepConfiguration(BlockState fluid, BlockState shell, int radius, int depth, float tendrilChance)
+public record OilSeepConfiguration(
+        BlockState fluid, BlockState shell, int radius, int depth, float tendrilChance, float perimeterChance)
         implements FeatureConfiguration {
 
     public static final Codec<OilSeepConfiguration> CODEC = RecordCodecBuilder.create(instance -> instance.group(
@@ -19,6 +21,7 @@ public record OilSeepConfiguration(BlockState fluid, BlockState shell, int radiu
             BlockState.CODEC.fieldOf("shell").forGetter(OilSeepConfiguration::shell),
             Codec.intRange(1, 16).fieldOf("radius").forGetter(OilSeepConfiguration::radius),
             Codec.intRange(1, 16).fieldOf("depth").forGetter(OilSeepConfiguration::depth),
-            Codec.floatRange(0.0f, 1.0f).fieldOf("tendril_chance").forGetter(OilSeepConfiguration::tendrilChance))
+            Codec.floatRange(0.0f, 1.0f).fieldOf("tendril_chance").forGetter(OilSeepConfiguration::tendrilChance),
+            Codec.floatRange(0.0f, 1.0f).fieldOf("perimeter_chance").forGetter(OilSeepConfiguration::perimeterChance))
         .apply(instance, OilSeepConfiguration::new));
 }

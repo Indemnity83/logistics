@@ -13,15 +13,17 @@ import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
 
 /**
  * A surface crude oil "seep": an organic bowl filled with crude oil, its floor and walls lined with the
- * biome's oil ore (so the pool is contained and reads as oil-soaked banks), plus a few ore tendrils that
- * random-walk outward from the rim and peter out on a per-step probability. Mirrors the shape machinery
- * of {@link OilPondFeature} (lobed edge, jittered size) but centres on a fluid pool rather than solid ore.
+ * biome's oil ore (so the pool is contained and reads as oil-soaked banks), plus ore tendrils. Each
+ * column on the pool's perimeter has a small chance to seed a tendril, which then spreads outward — the
+ * outward direction is recomputed from the pool centre every step, so tendrils always crawl away from the
+ * lake with a small wiggle, fading on a per-step probability. Mirrors {@link OilPondFeature}'s lobed edge.
  */
 public class OilSeepFeature extends Feature<OilSeepConfiguration> {
 
     private static final Direction[] WALL_DIRS = {
         Direction.DOWN, Direction.NORTH, Direction.SOUTH, Direction.EAST, Direction.WEST
     };
+    private static final int[][] CARDINALS = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
 
     public OilSeepFeature(Codec<OilSeepConfiguration> codec) {
         super(codec);
@@ -45,8 +47,9 @@ public class OilSeepFeature extends Feature<OilSeepConfiguration> {
         double amp1 = radius * 0.3;
         double amp2 = radius * 0.15;
 
-        // Fill an organic bowl (deep centre, shallow rim) with crude oil.
+        // Fill an organic bowl (deep centre, shallow rim) with crude oil, tracking the filled columns.
         Set<Long> oil = new HashSet<>();
+        Set<Long> columns = new HashSet<>();
         BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
         for (int dx = -radius; dx <= radius; dx++) {
             for (int dz = -radius; dz <= radius; dz++) {
@@ -58,10 +61,13 @@ public class OilSeepFeature extends Feature<OilSeepConfiguration> {
                 if (dist > edge) {
                     continue;
                 }
+                int x = origin.getX() + dx;
+                int z = origin.getZ() + dz;
+                columns.add(column(x, z));
                 double nd = dist / Math.max(1.0, edge);
                 int columnDepth = Math.max(1, (int) Math.round(depth * (1.0 - nd * nd)));
                 for (int dy = 0; dy < columnDepth; dy++) {
-                    pos.set(origin.getX() + dx, surfaceY - dy, origin.getZ() + dz);
+                    pos.set(x, surfaceY - dy, z);
                     level.setBlock(pos, fluid, 2);
                     oil.add(pos.asLong());
                 }
@@ -71,8 +77,7 @@ public class OilSeepFeature extends Feature<OilSeepConfiguration> {
             return false;
         }
 
-        // Line the basin: every non-top face of an oil block that isn't oil becomes shell, so the pool is
-        // contained and the walls read as oil-soaked ground.
+        // Line the basin: every non-top face of an oil block that isn't oil becomes shell.
         for (long packed : oil) {
             BlockPos oilPos = BlockPos.of(packed);
             for (Direction dir : WALL_DIRS) {
@@ -83,27 +88,55 @@ public class OilSeepFeature extends Feature<OilSeepConfiguration> {
             }
         }
 
-        // Tendrils: a few ore streaks that walk outward from the rim and fade on tendrilChance.
-        int tendrils = 2 + random.nextInt(4);
-        for (int t = 0; t < tendrils; t++) {
-            double angle = random.nextDouble() * Math.PI * 2.0;
-            double dxStep = Math.cos(angle);
-            double dzStep = Math.sin(angle);
-            for (int step = radius; step < radius + 8; step++) {
-                int x = origin.getX() + (int) Math.round(dxStep * step);
-                int z = origin.getZ() + (int) Math.round(dzStep * step);
-                int groundY = surfaceOf(level, x, z, surfaceY + 3, surfaceY - depth - 3);
-                if (groundY == Integer.MIN_VALUE) {
-                    break;
-                }
-                pos.set(x, groundY, z);
-                level.setBlock(pos, shell, 2);
-                if (random.nextFloat() >= config.tendrilChance()) {
-                    break;
+        placeTendrils(level, random, config, columns, origin, surfaceY, radius, depth, shell);
+        return true;
+    }
+
+    /** Seeds tendrils on perimeter columns and spreads each outward from the pool centre. */
+    private void placeTendrils(WorldGenLevel level, RandomSource random, OilSeepConfiguration config,
+            Set<Long> columns, BlockPos origin, int surfaceY, int radius, int depth, BlockState shell) {
+        double centerX = origin.getX() + 0.5;
+        double centerZ = origin.getZ() + 0.5;
+        int fromY = surfaceY + 3;
+        int toY = surfaceY - depth - 3;
+
+        // Perimeter = columns just outside the filled pool.
+        Set<Long> perimeter = new HashSet<>();
+        for (long packed : columns) {
+            int x = (int) (packed >> 32);
+            int z = (int) packed;
+            for (int[] d : CARDINALS) {
+                long neighbor = column(x + d[0], z + d[1]);
+                if (!columns.contains(neighbor)) {
+                    perimeter.add(neighbor);
                 }
             }
         }
-        return true;
+
+        for (long packed : perimeter) {
+            if (random.nextFloat() >= config.perimeterChance()) {
+                continue;
+            }
+            double fx = (int) (packed >> 32) + 0.5;
+            double fz = (int) packed + 0.5;
+            for (int step = 0; step <= radius; step++) {
+                int gy = surfaceOf(level, (int) Math.floor(fx), (int) Math.floor(fz), fromY, toY);
+                if (gy != Integer.MIN_VALUE) {
+                    level.setBlock(new BlockPos((int) Math.floor(fx), gy, (int) Math.floor(fz)), shell, 2);
+                }
+                if (step == radius || random.nextFloat() >= config.tendrilChance()) {
+                    break;
+                }
+                // Always step away from the pool centre, with a small wiggle for an organic curl.
+                double outward = Math.atan2(fz - centerZ, fx - centerX) + (random.nextFloat() - 0.5) * 0.9;
+                fx += Math.cos(outward);
+                fz += Math.sin(outward);
+            }
+        }
+    }
+
+    private static long column(int x, int z) {
+        return ((long) x << 32) | (z & 0xFFFFFFFFL);
     }
 
     /** Top solid ground Y in a column between {@code fromY} (down) and {@code toY}, or MIN_VALUE if none. */
