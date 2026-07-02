@@ -2,6 +2,7 @@ package com.logistics.core.worldgen;
 
 import com.logistics.LogisticsCore;
 import com.mojang.serialization.Codec;
+import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.WorldGenLevel;
@@ -34,27 +35,39 @@ public class OilSandsFeature extends Feature<OilSandsConfiguration> {
         int min = Math.min(config.minRadius(), config.maxRadius());
         int max = Math.max(config.minRadius(), config.maxRadius());
         int radius = min + (max > min ? random.nextInt(max - min + 1) : 0);
-        int radiusSq = radius * radius;
 
+        return forEachInSphere(radius, origin, pos -> replaceSolid(level, pos, bankBlock(biome, random)));
+    }
+
+    /** Sets {@code state} only if the block is solid ground — leaves air (so the blob follows the
+     * terrain) and fluids untouched. Returns whether it replaced anything. */
+    private static boolean replaceSolid(WorldGenLevel level, BlockPos pos, BlockState state) {
+        if (level.isEmptyBlock(pos) || !level.getFluidState(pos).isEmpty()) {
+            return false;
+        }
+        level.setBlock(pos, state, 2);
+        return true;
+    }
+
+    /**
+     * Applies {@code action} to every block position within {@code radius} of {@code center} (a solid
+     * sphere); returns whether the action reported a change at any of them.
+     */
+    private static boolean forEachInSphere(int radius, BlockPos center, Predicate<BlockPos> action) {
+        int radiusSq = radius * radius;
         BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
-        boolean placed = false;
+        boolean any = false;
         for (int dx = -radius; dx <= radius; dx++) {
             for (int dy = -radius; dy <= radius; dy++) {
                 for (int dz = -radius; dz <= radius; dz++) {
-                    if (dx * dx + dy * dy + dz * dz > radiusSq) {
-                        continue;
+                    if (dx * dx + dy * dy + dz * dz <= radiusSq) {
+                        pos.set(center.getX() + dx, center.getY() + dy, center.getZ() + dz);
+                        any |= action.test(pos);
                     }
-                    pos.set(origin.getX() + dx, origin.getY() + dy, origin.getZ() + dz);
-                    // Only convert solid ground; leave air (so the blob follows the terrain) and fluids.
-                    if (level.isEmptyBlock(pos) || !level.getFluidState(pos).isEmpty()) {
-                        continue;
-                    }
-                    level.setBlock(pos, bankBlock(biome, random), 2);
-                    placed = true;
                 }
             }
         }
-        return placed;
+        return any;
     }
 
     /** The speckled bank block for a biome: badlands variants use red sand, everything else plain sand. */
