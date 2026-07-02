@@ -44,21 +44,15 @@ public final class FabricBiomeModifications {
             ResourceKey.create(Registries.PLACED_FEATURE, LogisticsMod.modId("bog_earth").toIdentifier())
         );
 
-        // Crude oil seeps (matches the NeoForge biome modifiers): surface pools that pick their ore shell
-        // by biome. One roll across the overworld (like lava lakes), plus a bonus roll in arid biomes so
-        // deserts + badlands are a bit oilier. Oil shale stays underground gravel veins in the dry biomes.
+        // Crude oil lakes (vanilla lake feature; barrier ore picked by biome): one roll across the
+        // overworld, exactly like surface lava lakes. Oil shale stays underground gravel veins.
         var isDesert = TagKey.create(Registries.BIOME, ResourceId.in("c", "is_desert").toIdentifier());
         var isBadlands = TagKey.create(Registries.BIOME, ResourceId.in("c", "is_badlands").toIdentifier());
         var isSavanna = TagKey.create(Registries.BIOME, ResourceId.in("c", "is_savanna").toIdentifier());
         BiomeModifications.addFeature(
             BiomeSelectors.foundInOverworld(),
             GenerationStep.Decoration.LAKES,
-            ResourceKey.create(Registries.PLACED_FEATURE, LogisticsMod.modId("oil_seep").toIdentifier())
-        );
-        BiomeModifications.addFeature(
-            BiomeSelectors.tag(isDesert).or(BiomeSelectors.tag(isBadlands)),
-            GenerationStep.Decoration.LAKES,
-            ResourceKey.create(Registries.PLACED_FEATURE, LogisticsMod.modId("oil_seep_arid").toIdentifier())
+            ResourceKey.create(Registries.PLACED_FEATURE, LogisticsMod.modId("crude_oil_lake").toIdentifier())
         );
         BiomeModifications.addFeature(
             BiomeSelectors.tag(isDesert).or(BiomeSelectors.tag(isBadlands)).or(BiomeSelectors.tag(isSavanna)),

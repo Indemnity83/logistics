@@ -11,8 +11,8 @@ import com.logistics.core.marker.MarkerBlock;
 import com.logistics.core.marker.MarkerBlockEntity;
 import com.logistics.core.worldgen.BogPatchConfiguration;
 import com.logistics.core.worldgen.BogPatchFeature;
-import com.logistics.core.worldgen.OilSeepConfiguration;
-import com.logistics.core.worldgen.OilSeepFeature;
+import com.logistics.core.worldgen.CrudeOilLakeFeature;
+import net.minecraft.world.level.levelgen.feature.LakeFeature;
 import java.util.List;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -113,7 +113,7 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
 
     public static final class WORLDGEN {
         public static Feature<BogPatchConfiguration> BOG_PATCH;
-        public static Feature<OilSeepConfiguration> OIL_SEEP;
+        public static Feature<LakeFeature.Configuration> CRUDE_OIL_LAKE;
 
         private WORLDGEN() {}
 
@@ -122,10 +122,10 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
                 BuiltInRegistries.FEATURE,
                 LogisticsMod.modId("bog_patch").toIdentifier(),
                 new BogPatchFeature(BogPatchConfiguration.CODEC));
-            OIL_SEEP = Registry.register(
+            CRUDE_OIL_LAKE = Registry.register(
                 BuiltInRegistries.FEATURE,
-                LogisticsMod.modId("oil_seep").toIdentifier(),
-                new OilSeepFeature(OilSeepConfiguration.CODEC));
+                LogisticsMod.modId("crude_oil_lake").toIdentifier(),
+                new CrudeOilLakeFeature());
         }
     }
 
